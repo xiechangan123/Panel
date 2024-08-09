@@ -7,7 +7,7 @@ require (
 	github.com/docker/go-connections v0.5.0
 	github.com/gin-contrib/static v1.1.2
 	github.com/go-gormigrate/gormigrate/v2 v2.1.2
-	github.com/go-resty/resty/v2 v2.13.1
+	github.com/go-resty/resty/v2 v2.14.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/gookit/validate v1.5.2
 	github.com/goravel/framework v1.14.1-0.20240728082300-b71cfeb464af
@@ -20,16 +20,16 @@ require (
 	github.com/libdns/dnspod v0.0.3
 	github.com/libdns/libdns v0.2.2
 	github.com/libdns/tencentcloud v1.0.0
-	github.com/mholt/acmez/v2 v2.0.1
+	github.com/mholt/acmez/v2 v2.0.2
 	github.com/mholt/archiver/v3 v3.5.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/spf13/cast v1.6.0
+	github.com/spf13/cast v1.7.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.3
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.25.0
-	golang.org/x/net v0.27.0
+	golang.org/x/crypto v0.26.0
+	golang.org/x/net v0.28.0
 	gorm.io/gorm v1.25.11
 )
 
@@ -192,10 +192,10 @@ require (
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/mod v0.19.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/term v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/term v0.23.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
