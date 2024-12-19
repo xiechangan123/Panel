@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/TheTNB/panel/internal/biz"
 	"github.com/TheTNB/panel/internal/http/request"
@@ -21,7 +20,9 @@ type containerRepo struct {
 }
 
 func NewContainerRepo() biz.ContainerRepo {
-	return do.MustInvoke[biz.ContainerRepo](injector)
+	return &containerRepo{
+		client: getDockerClient("/var/run/docker.sock"),
+	}
 }
 
 // ListAll 列出所有容器

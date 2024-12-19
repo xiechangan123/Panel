@@ -4,27 +4,31 @@ import (
 	"errors"
 	"time"
 
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
+	"gorm.io/gorm"
 
-	"github.com/TheTNB/panel/internal/app"
 	"github.com/TheTNB/panel/internal/biz"
 	"github.com/TheTNB/panel/internal/http/request"
 )
 
-type monitorRepo struct{}
+type monitorRepo struct {
+	db      *gorm.DB
+	setting biz.SettingRepo
+}
 
-func NewMonitorRepo() biz.MonitorRepo {
-	return do.MustInvoke[biz.MonitorRepo](injector)
+func NewMonitorRepo(db *gorm.DB, setting biz.SettingRepo) biz.MonitorRepo {
+	return &monitorRepo{
+		db:      db,
+		setting: setting,
+	}
 }
 
 func (r monitorRepo) GetSetting() (*request.MonitorSetting, error) {
-	repo := NewSettingRepo()
-	monitor, err := repo.Get(biz.SettingKeyMonitor)
+	monitor, err := r.setting.Get(biz.SettingKeyMonitor)
 	if err != nil {
 		return nil, err
 	}
-	monitorDays, err := repo.Get(biz.SettingKeyMonitorDays)
+	monitorDays, err := r.setting.Get(biz.SettingKeyMonitorDays)
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +41,10 @@ func (r monitorRepo) GetSetting() (*request.MonitorSetting, error) {
 }
 
 func (r monitorRepo) UpdateSetting(setting *request.MonitorSetting) error {
-	repo := NewSettingRepo()
-	if err := repo.Set(biz.SettingKeyMonitor, cast.ToString(setting.Enabled)); err != nil {
+	if err := r.setting.Set(biz.SettingKeyMonitor, cast.ToString(setting.Enabled)); err != nil {
 		return err
 	}
-	if err := repo.Set(biz.SettingKeyMonitorDays, cast.ToString(setting.Days)); err != nil {
+	if err := r.setting.Set(biz.SettingKeyMonitorDays, cast.ToString(setting.Days)); err != nil {
 		return err
 	}
 
@@ -49,12 +52,12 @@ func (r monitorRepo) UpdateSetting(setting *request.MonitorSetting) error {
 }
 
 func (r monitorRepo) Clear() error {
-	return app.Orm.Where("1 = 1").Delete(&biz.Monitor{}).Error
+	return r.db.Where("1 = 1").Delete(&biz.Monitor{}).Error
 }
 
 func (r monitorRepo) List(start, end time.Time) ([]*biz.Monitor, error) {
 	var monitors []*biz.Monitor
-	if err := app.Orm.Where("created_at BETWEEN ? AND ?", start, end).Find(&monitors).Error; err != nil {
+	if err := r.db.Where("created_at BETWEEN ? AND ?", start, end).Find(&monitors).Error; err != nil {
 		return nil, err
 	}
 

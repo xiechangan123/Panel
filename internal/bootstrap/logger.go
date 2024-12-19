@@ -4,11 +4,13 @@ import (
 	"log/slog"
 	"path/filepath"
 
-	"github.com/TheTNB/panel/internal/app"
+	"github.com/knadh/koanf/v2"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/TheTNB/panel/internal/app"
 )
 
-func initLogger() {
+func NewLog(conf *koanf.Koanf) *slog.Logger {
 	ljLogger := &lumberjack.Logger{
 		Filename: filepath.Join(app.Root, "panel/storage/logs/app.log"),
 		MaxSize:  10,
@@ -17,12 +19,14 @@ func initLogger() {
 	}
 
 	level := slog.LevelInfo
-	if app.Conf.Bool("app.debug") {
+	if conf.Bool("app.debug") {
 		level = slog.LevelDebug
 	}
 
-	app.Logger = slog.New(slog.NewJSONHandler(ljLogger, &slog.HandlerOptions{
+	log := slog.New(slog.NewJSONHandler(ljLogger, &slog.HandlerOptions{
 		Level: level,
 	}))
-	slog.SetDefault(app.Logger)
+	slog.SetDefault(log)
+
+	return log
 }

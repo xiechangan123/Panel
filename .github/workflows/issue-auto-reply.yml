@@ -11,20 +11,6 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-24.04
     steps:
-      - name: ✏️ Feature
-        if: github.event.label.name == '✏️ Feature'
-        uses: actions-cool/issues-helper@v3
-        with:
-          actions: 'create-comment'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            Hi @${{ github.event.issue.user.login }} 👋
-            
-            我们认为您的建议非常有价值！欢迎提交 PR，请包含相应的测试用例、文档等，并确保 CI 通过，感谢和期待您的贡献！
-            We think your suggestion is very valuable! Welcome to submit a PR, please include test cases, documentation, etc., and ensure that the CI is passed, thank you and look forward to your contribution! 
-            
-            ![干](https://github.com/TheTNB/panel/assets/115467771/fb04debf-3f4c-4fac-a0b8-c3455f8e57a0)
       - name: ☢️ Bug
         if: github.event.label.name == '☢️ Bug'
         uses: actions-cool/issues-helper@v3
@@ -35,7 +21,7 @@ jobs:
           body: |
             Hi @${{ github.event.issue.user.login }} 👋
             
-            我们认为您的反馈非常有价值！欢迎提交 PR，请包含相应的测试用例、文档等，并确保 CI 通过，感谢和期待您的贡献！
-            We think your feedback is very valuable! Welcome to submit a PR, please include test cases, documentation, etc., and ensure that the CI is passed, thank you and look forward to your contribution! 
+            感谢提交 Bug，请确保您的描述清晰，日志完整，最好能提供复现步骤，以便我们更快定位问题并解决。
+            Thanks for submitting a bug, please make sure your description is clear, log is complete, and it is best to provide a reproduction step so that we can locate and solve the problem faster.
             
-            ![干](https://github.com/TheTNB/panel/assets/115467771/fb04debf-3f4c-4fac-a0b8-c3455f8e57a0)
+            ![Log](https://github.com/user-attachments/assets/0ce7a32d-cc79-4bef-91fc-5bec1d0ed376)

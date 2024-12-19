@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samber/do/v2"
+	"gorm.io/gorm"
 
 	"github.com/TheTNB/panel/internal/app"
 	"github.com/TheTNB/panel/internal/biz"
@@ -22,17 +22,20 @@ import (
 )
 
 type certRepo struct {
+	db     *gorm.DB
 	client *acme.Client
 }
 
-func NewCertRepo() biz.CertRepo {
-	return do.MustInvoke[biz.CertRepo](injector)
+func NewCertRepo(db *gorm.DB) biz.CertRepo {
+	return &certRepo{
+		db: db,
+	}
 }
 
 func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 	var certs []*biz.Cert
 	var total int64
-	err := app.Orm.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&certs).Error
+	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&certs).Error
 
 	list := make([]*types.CertList, 0)
 	for cert := range slices.Values(certs) {
@@ -64,13 +67,13 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 
 func (r *certRepo) Get(id uint) (*biz.Cert, error) {
 	cert := new(biz.Cert)
-	err := app.Orm.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("id = ?", id).First(cert).Error
+	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("id = ?", id).First(cert).Error
 	return cert, err
 }
 
 func (r *certRepo) GetByWebsite(WebsiteID uint) (*biz.Cert, error) {
 	cert := new(biz.Cert)
-	err := app.Orm.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("website_id = ?", WebsiteID).First(cert).Error
+	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("website_id = ?", WebsiteID).First(cert).Error
 	return cert, err
 }
 
@@ -89,7 +92,7 @@ func (r *certRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
 		Cert:    req.Cert,
 		Key:     req.Key,
 	}
-	if err = app.Orm.Create(cert).Error; err != nil {
+	if err = r.db.Create(cert).Error; err != nil {
 		return nil, err
 	}
 
@@ -105,7 +108,7 @@ func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 		Domains:   req.Domains,
 		AutoRenew: req.AutoRenew,
 	}
-	if err := app.Orm.Create(cert).Error; err != nil {
+	if err := r.db.Create(cert).Error; err != nil {
 		return nil, err
 	}
 	return cert, nil
@@ -117,7 +120,7 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 		req.Domains = info.DNSNames
 	}
 
-	return app.Orm.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
+	return r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
 		ID:        req.ID,
 		AccountID: req.AccountID,
 		WebsiteID: req.WebsiteID,
@@ -131,7 +134,7 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 }
 
 func (r *certRepo) Delete(id uint) error {
-	return app.Orm.Model(&biz.Cert{}).Where("id = ?", id).Delete(&biz.Cert{}).Error
+	return r.db.Model(&biz.Cert{}).Where("id = ?", id).Delete(&biz.Cert{}).Error
 }
 
 func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
@@ -169,7 +172,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
 	cert.Key = string(ssl.PrivateKey)
-	if err = app.Orm.Save(cert).Error; err != nil {
+	if err = r.db.Save(cert).Error; err != nil {
 		return nil, err
 	}
 
@@ -198,7 +201,7 @@ func (r *certRepo) ObtainManual(id uint) (*acme.Certificate, error) {
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
 	cert.Key = string(ssl.PrivateKey)
-	if err = app.Orm.Save(cert).Error; err != nil {
+	if err = r.db.Save(cert).Error; err != nil {
 		return nil, err
 	}
 
@@ -222,7 +225,7 @@ func (r *certRepo) ObtainSelfSigned(id uint) error {
 
 	cert.Cert = string(crt)
 	cert.Key = string(key)
-	if err = app.Orm.Save(cert).Error; err != nil {
+	if err = r.db.Save(cert).Error; err != nil {
 		return err
 	}
 
@@ -272,7 +275,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
 	cert.Key = string(ssl.PrivateKey)
-	if err = app.Orm.Save(cert).Error; err != nil {
+	if err = r.db.Save(cert).Error; err != nil {
 		return nil, err
 	}
 
@@ -319,8 +322,8 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 		return errors.New("this certificate has not been signed successfully and cannot be deployed")
 	}
 
-	website, err := NewWebsiteRepo().Get(WebsiteID)
-	if err != nil {
+	website := new(biz.Website)
+	if err = r.db.Where("id", WebsiteID).First(website).Error; err != nil {
 		return err
 	}
 

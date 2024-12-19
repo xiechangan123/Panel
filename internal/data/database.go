@@ -5,23 +5,30 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/samber/do/v2"
+	"gorm.io/gorm"
 
-	"github.com/TheTNB/panel/internal/app"
 	"github.com/TheTNB/panel/internal/biz"
 	"github.com/TheTNB/panel/internal/http/request"
 	"github.com/TheTNB/panel/pkg/db"
 )
 
-type databaseRepo struct{}
+type databaseRepo struct {
+	db     *gorm.DB
+	server biz.DatabaseServerRepo
+	user   biz.DatabaseUserRepo
+}
 
-func NewDatabaseRepo() biz.DatabaseRepo {
-	return do.MustInvoke[biz.DatabaseRepo](injector)
+func NewDatabaseRepo(db *gorm.DB, server biz.DatabaseServerRepo, user biz.DatabaseUserRepo) biz.DatabaseRepo {
+	return &databaseRepo{
+		db:     db,
+		server: server,
+		user:   user,
+	}
 }
 
 func (r databaseRepo) List(page, limit uint) ([]*biz.Database, int64, error) {
 	var databaseServer []*biz.DatabaseServer
-	if err := app.Orm.Model(&biz.DatabaseServer{}).Order("id desc").Find(&databaseServer).Error; err != nil {
+	if err := r.db.Model(&biz.DatabaseServer{}).Order("id desc").Find(&databaseServer).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -68,7 +75,7 @@ func (r databaseRepo) List(page, limit uint) ([]*biz.Database, int64, error) {
 }
 
 func (r databaseRepo) Create(req *request.DatabaseCreate) error {
-	server, err := NewDatabaseServerRepo().Get(req.ServerID)
+	server, err := r.server.Get(req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -81,7 +88,7 @@ func (r databaseRepo) Create(req *request.DatabaseCreate) error {
 		}
 		defer mysql.Close()
 		if req.CreateUser {
-			if err = NewDatabaseUserRepo().Create(&request.DatabaseUserCreate{
+			if err = r.user.Create(&request.DatabaseUserCreate{
 				ServerID: req.ServerID,
 				Username: req.Username,
 				Password: req.Password,
@@ -105,7 +112,7 @@ func (r databaseRepo) Create(req *request.DatabaseCreate) error {
 		}
 		defer postgres.Close()
 		if req.CreateUser {
-			if err = NewDatabaseUserRepo().Create(&request.DatabaseUserCreate{
+			if err = r.user.Create(&request.DatabaseUserCreate{
 				ServerID: req.ServerID,
 				Username: req.Username,
 				Password: req.Password,
@@ -131,7 +138,7 @@ func (r databaseRepo) Create(req *request.DatabaseCreate) error {
 }
 
 func (r databaseRepo) Delete(serverID uint, name string) error {
-	server, err := NewDatabaseServerRepo().Get(serverID)
+	server, err := r.server.Get(serverID)
 	if err != nil {
 		return err
 	}
@@ -157,7 +164,7 @@ func (r databaseRepo) Delete(serverID uint, name string) error {
 }
 
 func (r databaseRepo) Comment(req *request.DatabaseComment) error {
-	server, err := NewDatabaseServerRepo().Get(req.ServerID)
+	server, err := r.server.Get(req.ServerID)
 	if err != nil {
 		return err
 	}
