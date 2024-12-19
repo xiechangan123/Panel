@@ -10,6 +10,7 @@ import (
 	"github.com/go-rat/utils/collect"
 	"github.com/go-rat/utils/hash"
 	"github.com/go-rat/utils/str"
+	"github.com/knadh/koanf/v2"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
 	"gopkg.in/yaml.v3"
@@ -17,7 +18,6 @@ import (
 
 	"github.com/TheTNB/panel/internal/app"
 	"github.com/TheTNB/panel/internal/biz"
-	"github.com/TheTNB/panel/internal/data"
 	"github.com/TheTNB/panel/internal/http/request"
 	"github.com/TheTNB/panel/pkg/api"
 	"github.com/TheTNB/panel/pkg/cert"
@@ -33,6 +33,8 @@ import (
 type CliService struct {
 	hr                 string
 	api                *api.API
+	conf               *koanf.Koanf
+	db                 *gorm.DB
 	appRepo            biz.AppRepo
 	cacheRepo          biz.CacheRepo
 	userRepo           biz.UserRepo
@@ -43,17 +45,19 @@ type CliService struct {
 	hash               hash.Hasher
 }
 
-func NewCliService() *CliService {
+func NewCliService(conf *koanf.Koanf, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version),
-		appRepo:            data.NewAppRepo(),
-		cacheRepo:          data.NewCacheRepo(),
-		userRepo:           data.NewUserRepo(),
-		settingRepo:        data.NewSettingRepo(),
-		backupRepo:         data.NewBackupRepo(),
-		websiteRepo:        data.NewWebsiteRepo(),
-		databaseServerRepo: data.NewDatabaseServerRepo(),
+		conf:               conf,
+		db:                 db,
+		appRepo:            appRepo,
+		cacheRepo:          cache,
+		userRepo:           user,
+		settingRepo:        setting,
+		backupRepo:         backup,
+		websiteRepo:        website,
+		databaseServerRepo: databaseServer,
 		hash:               hash.NewArgon2id(),
 	}
 }
@@ -97,7 +101,7 @@ func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 	}
 	ver, url, checksum := panel.Version, download.URL, download.Checksum
 
-	return s.settingRepo.UpdatePanel(ver, url, checksum)
+	return s.backupRepo.UpdatePanel(ver, url, checksum)
 }
 
 func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {
@@ -113,12 +117,12 @@ func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Fix(ctx context.Context, cmd *cli.Command) error {
-	return s.settingRepo.FixPanel()
+	return s.backupRepo.FixPanel()
 }
 
 func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	user := new(biz.User)
-	if err := app.Orm.Where("id", 1).First(user).Error; err != nil {
+	if err := s.db.Where("id", 1).First(user).Error; err != nil {
 		return fmt.Errorf("获取管理员信息失败：%v", err)
 	}
 
@@ -133,20 +137,20 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 		user.Email = str.Random(8) + "@example.com"
 	}
 
-	if err = app.Orm.Save(user).Error; err != nil {
+	if err = s.db.Save(user).Error; err != nil {
 		return fmt.Errorf("管理员信息保存失败：%v", err)
 	}
 
 	protocol := "http"
-	if app.Conf.Bool("http.tls") {
+	if s.conf.Bool("http.tls") {
 		protocol = "https"
 	}
 
-	port := app.Conf.String("http.port")
+	port := s.conf.String("http.port")
 	if port == "" {
 		return fmt.Errorf("端口获取失败")
 	}
-	entrance := app.Conf.String("http.entrance")
+	entrance := s.conf.String("http.entrance")
 	if entrance == "" {
 		return fmt.Errorf("入口获取失败")
 	}
@@ -183,7 +187,7 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 
 func (s *CliService) UserList(ctx context.Context, cmd *cli.Command) error {
 	users := make([]biz.User, 0)
-	if err := app.Orm.Find(&users).Error; err != nil {
+	if err := s.db.Find(&users).Error; err != nil {
 		return fmt.Errorf("获取用户列表失败：%v", err)
 	}
 
@@ -205,7 +209,7 @@ func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("新用户名不能为空")
 	}
 
-	if err := app.Orm.Where("username", oldUsername).First(user).Error; err != nil {
+	if err := s.db.Where("username", oldUsername).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("用户不存在")
 		} else {
@@ -214,7 +218,7 @@ func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	user.Username = newUsername
-	if err := app.Orm.Save(user).Error; err != nil {
+	if err := s.db.Save(user).Error; err != nil {
 		return fmt.Errorf("用户名修改失败：%v", err)
 	}
 
@@ -233,7 +237,7 @@ func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("密码长度不能小于6")
 	}
 
-	if err := app.Orm.Where("username", username).First(user).Error; err != nil {
+	if err := s.db.Where("username", username).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("用户不存在")
 		} else {
@@ -246,7 +250,7 @@ func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("密码生成失败：%v", err)
 	}
 	user.Password = hashed
-	if err = app.Orm.Save(user).Error; err != nil {
+	if err = s.db.Save(user).Error; err != nil {
 		return fmt.Errorf("密码修改失败：%v", err)
 	}
 
@@ -700,7 +704,7 @@ func (s *CliService) AppWrite(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	newApp := new(biz.App)
-	if err := app.Orm.Where("slug", slug).First(newApp).Error; err != nil {
+	if err := s.db.Where("slug", slug).First(newApp).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("获取应用失败：%v", err)
 		}
@@ -708,7 +712,7 @@ func (s *CliService) AppWrite(ctx context.Context, cmd *cli.Command) error {
 	newApp.Slug = slug
 	newApp.Channel = channel
 	newApp.Version = version
-	if err := app.Orm.Save(newApp).Error; err != nil {
+	if err := s.db.Save(newApp).Error; err != nil {
 		return fmt.Errorf("应用保存失败：%v", err)
 	}
 
@@ -721,7 +725,7 @@ func (s *CliService) AppRemove(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("参数不能为空")
 	}
 
-	if err := app.Orm.Where("slug", slug).Delete(&biz.App{}).Error; err != nil {
+	if err := s.db.Where("slug", slug).Delete(&biz.App{}).Error; err != nil {
 		return fmt.Errorf("应用删除失败：%v", err)
 	}
 
@@ -743,7 +747,7 @@ func (s *CliService) SyncTime(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) ClearTask(ctx context.Context, cmd *cli.Command) error {
-	if err := app.Orm.Model(&biz.Task{}).
+	if err := s.db.Model(&biz.Task{}).
 		Where("status", biz.TaskStatusRunning).Or("status", biz.TaskStatusWaiting).
 		Update("status", biz.TaskStatusFailed).
 		Error; err != nil {
@@ -761,7 +765,7 @@ func (s *CliService) GetSetting(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	setting := new(biz.Setting)
-	if err := app.Orm.Where("key", key).First(setting).Error; err != nil {
+	if err := s.db.Where("key", key).First(setting).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("设置不存在")
 		}
@@ -781,14 +785,14 @@ func (s *CliService) WriteSetting(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	setting := new(biz.Setting)
-	if err := app.Orm.Where("key", key).First(setting).Error; err != nil {
+	if err := s.db.Where("key", key).First(setting).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("获取设置失败：%v", err)
 		}
 	}
 	setting.Key = biz.SettingKey(key)
 	setting.Value = value
-	if err := app.Orm.Save(setting).Error; err != nil {
+	if err := s.db.Save(setting).Error; err != nil {
 		return fmt.Errorf("设置保存失败：%v", err)
 	}
 
@@ -801,7 +805,7 @@ func (s *CliService) RemoveSetting(ctx context.Context, cmd *cli.Command) error 
 		return fmt.Errorf("参数不能为空")
 	}
 
-	if err := app.Orm.Where("key", key).Delete(&biz.Setting{}).Error; err != nil {
+	if err := s.db.Where("key", key).Delete(&biz.Setting{}).Error; err != nil {
 		return fmt.Errorf("设置删除失败：%v", err)
 	}
 
@@ -810,7 +814,7 @@ func (s *CliService) RemoveSetting(ctx context.Context, cmd *cli.Command) error 
 
 func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 	var check biz.User
-	if err := app.Orm.First(&check).Error; err == nil {
+	if err := s.db.First(&check).Error; err == nil {
 		return fmt.Errorf("已经初始化过了")
 	}
 
@@ -822,7 +826,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingKeyWebsitePath, Value: filepath.Join(app.Root, "wwwroot")},
 		{Key: biz.SettingKeyVersion, Value: app.Version},
 	}
-	if err := app.Orm.Create(&settings).Error; err != nil {
+	if err := s.db.Create(&settings).Error; err != nil {
 		return fmt.Errorf("初始化失败：%v", err)
 	}
 
@@ -831,8 +835,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("初始化失败：%v", err)
 	}
 
-	user := data.NewUserRepo()
-	_, err = user.Create("admin", value)
+	_, err = s.userRepo.Create("admin", value)
 	if err != nil {
 		return fmt.Errorf("初始化失败：%v", err)
 	}

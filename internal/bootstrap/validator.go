@@ -1,30 +1,24 @@
 package bootstrap
 
 import (
-	"log"
+	"github.com/gookit/validate"
+	"github.com/gookit/validate/locales/zhcn"
+	"gorm.io/gorm"
 
-	"github.com/go-playground/locales/zh_Hans_CN"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
-	"github.com/go-playground/validator/v10/translations/zh"
-
-	"github.com/TheTNB/panel/internal/app"
 	"github.com/TheTNB/panel/internal/http/rule"
 )
 
-func initValidator() {
-	translator := zh_Hans_CN.New()
-	uni := ut.New(translator, translator)
-	trans, _ := uni.GetTranslator("zh_Hans_CN")
+// NewValidator just for register global rules
+func NewValidator(db *gorm.DB) *validate.Validation {
+	zhcn.RegisterGlobal()
+	validate.Config(func(opt *validate.GlobalOption) {
+		opt.StopOnError = false
+		opt.SkipOnEmpty = true
+		opt.FieldTag = "form"
+	})
 
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := zh.RegisterDefaultTranslations(validate, trans); err != nil {
-		log.Fatalf("failed to register validator translations: %v", err)
-	}
+	// register global rules
+	rule.GlobalRules(db)
 
-	app.Translator = &trans
-	app.Validator = validate
-	if err := rule.RegisterRules(validate); err != nil {
-		log.Fatalf("failed to register validator rules: %v", err)
-	}
+	return validate.NewEmpty()
 }

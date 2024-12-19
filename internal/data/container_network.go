@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/TheTNB/panel/internal/biz"
 	"github.com/TheTNB/panel/internal/http/request"
@@ -21,7 +20,9 @@ type containerNetworkRepo struct {
 }
 
 func NewContainerNetworkRepo() biz.ContainerNetworkRepo {
-	return do.MustInvoke[biz.ContainerNetworkRepo](injector)
+	return &containerNetworkRepo{
+		client: getDockerClient("/var/run/docker.sock"),
+	}
 }
 
 // List 列出网络

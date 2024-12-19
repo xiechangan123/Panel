@@ -4,23 +4,28 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/samber/do/v2"
+	"gorm.io/gorm"
 
-	"github.com/TheTNB/panel/internal/app"
 	"github.com/TheTNB/panel/internal/biz"
 	"github.com/TheTNB/panel/internal/http/request"
 	"github.com/TheTNB/panel/pkg/db"
 )
 
-type databaseUserRepo struct{}
+type databaseUserRepo struct {
+	db     *gorm.DB
+	server biz.DatabaseServerRepo
+}
 
-func NewDatabaseUserRepo() biz.DatabaseUserRepo {
-	return do.MustInvoke[biz.DatabaseUserRepo](injector)
+func NewDatabaseUserRepo(db *gorm.DB, server biz.DatabaseServerRepo) biz.DatabaseUserRepo {
+	return &databaseUserRepo{
+		db:     db,
+		server: server,
+	}
 }
 
 func (r databaseUserRepo) Count() (int64, error) {
 	var count int64
-	if err := app.Orm.Model(&biz.DatabaseUser{}).Count(&count).Error; err != nil {
+	if err := r.db.Model(&biz.DatabaseUser{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
 
@@ -30,7 +35,7 @@ func (r databaseUserRepo) Count() (int64, error) {
 func (r databaseUserRepo) List(page, limit uint) ([]*biz.DatabaseUser, int64, error) {
 	var user []*biz.DatabaseUser
 	var total int64
-	err := app.Orm.Model(&biz.DatabaseUser{}).Preload("Server").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&user).Error
+	err := r.db.Model(&biz.DatabaseUser{}).Preload("Server").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&user).Error
 
 	for u := range slices.Values(user) {
 		r.fillUser(u)
@@ -41,7 +46,7 @@ func (r databaseUserRepo) List(page, limit uint) ([]*biz.DatabaseUser, int64, er
 
 func (r databaseUserRepo) Get(id uint) (*biz.DatabaseUser, error) {
 	user := new(biz.DatabaseUser)
-	if err := app.Orm.Preload("Server").Where("id = ?", id).First(user).Error; err != nil {
+	if err := r.db.Preload("Server").Where("id = ?", id).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -51,7 +56,7 @@ func (r databaseUserRepo) Get(id uint) (*biz.DatabaseUser, error) {
 }
 
 func (r databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
-	server, err := NewDatabaseServerRepo().Get(req.ServerID)
+	server, err := r.server.Get(req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -97,14 +102,14 @@ func (r databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
 		}
 	}
 
-	if err = app.Orm.FirstOrInit(user, user).Error; err != nil {
+	if err = r.db.FirstOrInit(user, user).Error; err != nil {
 		return err
 	}
 
 	user.Password = req.Password
 	user.Remark = req.Remark
 
-	return app.Orm.Save(user).Error
+	return r.db.Save(user).Error
 }
 
 func (r databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
@@ -113,7 +118,7 @@ func (r databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 		return err
 	}
 
-	server, err := NewDatabaseServerRepo().Get(user.ServerID)
+	server, err := r.server.Get(user.ServerID)
 	if err != nil {
 		return err
 	}
@@ -156,7 +161,7 @@ func (r databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 	user.Password = req.Password
 	user.Remark = req.Remark
 
-	return app.Orm.Save(user).Error
+	return r.db.Save(user).Error
 }
 
 func (r databaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) error {
@@ -167,7 +172,7 @@ func (r databaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) er
 
 	user.Remark = req.Remark
 
-	return app.Orm.Save(user).Error
+	return r.db.Save(user).Error
 }
 
 func (r databaseUserRepo) Delete(id uint) error {
@@ -176,7 +181,7 @@ func (r databaseUserRepo) Delete(id uint) error {
 		return err
 	}
 
-	server, err := NewDatabaseServerRepo().Get(user.ServerID)
+	server, err := r.server.Get(user.ServerID)
 	if err != nil {
 		return err
 	}
@@ -198,11 +203,11 @@ func (r databaseUserRepo) Delete(id uint) error {
 		_ = postgres.UserDrop(user.Username)
 	}
 
-	return app.Orm.Where("id = ?", id).Delete(&biz.DatabaseUser{}).Error
+	return r.db.Where("id = ?", id).Delete(&biz.DatabaseUser{}).Error
 }
 
 func (r databaseUserRepo) DeleteByNames(serverID uint, names []string) error {
-	server, err := NewDatabaseServerRepo().Get(serverID)
+	server, err := r.server.Get(serverID)
 	if err != nil {
 		return err
 	}
@@ -215,7 +220,7 @@ func (r databaseUserRepo) DeleteByNames(serverID uint, names []string) error {
 		}
 		defer mysql.Close()
 		users := make([]*biz.DatabaseUser, 0)
-		if err = app.Orm.Where("server_id = ? AND username IN ?", serverID, names).Find(&users).Error; err != nil {
+		if err = r.db.Where("server_id = ? AND username IN ?", serverID, names).Find(&users).Error; err != nil {
 			return err
 		}
 		for name := range slices.Values(names) {
@@ -239,16 +244,11 @@ func (r databaseUserRepo) DeleteByNames(serverID uint, names []string) error {
 		}
 	}
 
-	return app.Orm.Where("server_id = ? AND username IN ?", serverID, names).Delete(&biz.DatabaseUser{}).Error
-}
-
-// DeleteByServerID 删除指定服务器的所有用户，只是删除面板记录，不会实际删除
-func (r databaseUserRepo) DeleteByServerID(serverID uint) error {
-	return app.Orm.Where("server_id = ?", serverID).Delete(&biz.DatabaseUser{}).Error
+	return r.db.Where("server_id = ? AND username IN ?", serverID, names).Delete(&biz.DatabaseUser{}).Error
 }
 
 func (r databaseUserRepo) fillUser(user *biz.DatabaseUser) {
-	server, err := NewDatabaseServerRepo().Get(user.ServerID)
+	server, err := r.server.Get(user.ServerID)
 	if err == nil {
 		switch server.Type {
 		case biz.DatabaseTypeMysql:
