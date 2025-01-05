@@ -123,7 +123,7 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 		return Bz2, nil
 	case ".tar":
 		return Tar, nil
-	case ".gz", ".tar.gz", ".tgz":
+	case ".tar.gz", ".tgz":
 		return TGz, nil
 	case ".xz":
 		return Xz, nil
