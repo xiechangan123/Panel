@@ -3,6 +3,7 @@ package redis
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -38,7 +39,20 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	raw, err := shell.Execf("redis-cli info")
+	// 检查 Redis 密码
+	withPassword := ""
+	config, err := io.Read(fmt.Sprintf("%s/server/redis/redis.conf", app.Root))
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	re := regexp.MustCompile(`requirepass\s+(.+)`)
+	matches := re.FindStringSubmatch(config)
+	if len(matches) == 2 {
+		withPassword = " -a " + matches[1]
+	}
+
+	raw, err := shell.Execf("redis-cli%s info", withPassword)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "获取 Redis 负载失败")
 		return
