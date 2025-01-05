@@ -410,7 +410,7 @@ const handleRename = async () => {
     return
   }
 
-  await file.exist([source]).then(async (res) => {
+  await file.exist([target]).then(async (res) => {
     if (res.data[0]) {
       window.$dialog.warning({
         title: '警告',
@@ -425,7 +425,7 @@ const handleRename = async () => {
         }
       })
     } else {
-      await file.move([{ source, target, force: true }])
+      await file.move([{ source, target, force: false }])
       window.$message.success(
         `重命名 ${renameModel.value.source} 为 ${renameModel.value.target} 成功`
       )

@@ -123,13 +123,17 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 		return Bz2, nil
 	case ".tar":
 		return Tar, nil
-	case ".tar.gz", ".tgz":
+	case ".tgz":
 		return TGz, nil
+	case ".gz":
+		if strings.HasSuffix(path, ".tar.gz") {
+			return TGz, nil
+		}
 	case ".xz":
 		return Xz, nil
 	case ".7z":
 		return SevenZip, nil
-	default:
-		return "", errors.New("unknown format")
 	}
+
+	return "", errors.New("unknown format")
 }
