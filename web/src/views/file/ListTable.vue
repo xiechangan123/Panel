@@ -422,6 +422,7 @@ const handleRename = async () => {
           window.$message.success(
             `重命名 ${renameModel.value.source} 为 ${renameModel.value.target} 成功`
           )
+          window.$bus.emit('file:refresh')
         }
       })
     } else {
@@ -429,11 +430,11 @@ const handleRename = async () => {
       window.$message.success(
         `重命名 ${renameModel.value.source} 为 ${renameModel.value.target} 成功`
       )
+      window.$bus.emit('file:refresh')
     }
   })
 
   renameModal.value = false
-  window.$bus.emit('file:refresh')
 }
 
 const handleUnCompress = () => {
