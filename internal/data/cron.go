@@ -85,8 +85,8 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 # 耗子面板 - 日志切割脚本
 
 # 执行切割
-panel-cli cutoff website -n %s -p %s
-panel-cli cutoff clear -t website -f %s -s %d -p %s
+panel-cli cutoff website -n '%s' -p '%s'
+panel-cli cutoff clear -t website -f '%s' -s '%d' -p '%s'
 `, req.Target, req.BackupPath, req.Target, req.Save, req.BackupPath)
 	}
 	if req.Type == "shell" {
