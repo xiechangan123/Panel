@@ -674,7 +674,7 @@ func (r *backupRepo) FixPanel() error {
 	if err = io.Chmod("/usr/local/etc/panel/config.yml", 0600); err != nil {
 		return err
 	}
-	if err = io.Chmod("/etc/systemd/system/panel.service", 0700); err != nil {
+	if err = io.Chmod("/etc/systemd/system/panel.service", 0644); err != nil {
 		return err
 	}
 	if err = io.Chmod("/usr/local/sbin/panel-cli", 0700); err != nil {
@@ -815,7 +815,7 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println("|-设置关键文件权限...")
 	}
 	_ = io.Chmod("/usr/local/sbin/panel-cli", 0700)
-	_ = io.Chmod("/etc/systemd/system/panel.service", 0700)
+	_ = io.Chmod("/etc/systemd/system/panel.service", 0644)
 	_ = io.Chmod(filepath.Join(app.Root, "panel"), 0700)
 
 	if app.IsCli {
