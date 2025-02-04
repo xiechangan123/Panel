@@ -3,6 +3,7 @@ package s3fs
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -70,7 +71,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 
 	// 检查挂载目录是否存在且为空
 	if !io.Exists(req.Path) {
-		if err = io.Mkdir(req.Path, 0755); err != nil {
+		if err = os.MkdirAll(req.Path, 0755); err != nil {
 			service.Error(w, http.StatusUnprocessableEntity, "failed to create mount path: %v", err)
 			return
 		}

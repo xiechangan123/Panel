@@ -16,11 +16,6 @@ func Remove(path string) error {
 	return os.RemoveAll(path)
 }
 
-// Mkdir 创建目录
-func Mkdir(path string, permission os.FileMode) error {
-	return os.MkdirAll(path, permission)
-}
-
 // Chmod 修改文件/目录权限
 func Chmod(path string, permission os.FileMode) error {
 	_, err := shell.Execf("chmod -R '%o' '%s'", permission, path)
@@ -73,16 +68,6 @@ func Size(path string) (int64, error) {
 	})
 
 	return size, err
-}
-
-// TempDir 创建临时目录
-func TempDir(prefix string) (string, error) {
-	return os.MkdirTemp("", prefix)
-}
-
-// ReadDir 读取目录
-func ReadDir(path string) ([]os.DirEntry, error) {
-	return os.ReadDir(path)
 }
 
 // IsDir 判断是否为目录

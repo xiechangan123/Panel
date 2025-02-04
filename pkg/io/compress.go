@@ -2,6 +2,7 @@ package io
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -59,7 +60,7 @@ func UnCompress(src string, dst string) error {
 		return errors.New("src and dst must be absolute path")
 	}
 	if !Exists(dst) {
-		if err := Mkdir(dst, 0755); err != nil {
+		if err := os.MkdirAll(dst, 0755); err != nil {
 			return err
 		}
 	}

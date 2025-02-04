@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -266,7 +267,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 
 	// 初始化网站目录
-	if err = io.Mkdir(req.Path, 0755); err != nil {
+	if err = os.MkdirAll(req.Path, 0755); err != nil {
 		return nil, err
 	}
 	index, err := embed.WebsiteFS.ReadFile(filepath.Join("website", "index.html"))

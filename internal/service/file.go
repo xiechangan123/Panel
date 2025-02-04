@@ -51,7 +51,7 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		if err = io.Mkdir(req.Path, 0755); err != nil {
+		if err = stdos.MkdirAll(req.Path, 0755); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -159,7 +159,7 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !io.Exists(filepath.Dir(path)) {
-		if err = io.Mkdir(filepath.Dir(path), 0755); err != nil {
+		if err = stdos.MkdirAll(filepath.Dir(path), 0755); err != nil {
 			Error(w, http.StatusInternalServerError, "create directory error: %v", err)
 			return
 		}
@@ -420,7 +420,7 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, err := io.ReadDir(req.Path)
+	list, err := stdos.ReadDir(req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

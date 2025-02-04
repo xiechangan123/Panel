@@ -72,7 +72,7 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !io.Exists(filepath.Dir(path)) {
-		if err = io.Mkdir(filepath.Dir(path), 0755); err != nil {
+		if err = os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 			Error(w, http.StatusInternalServerError, "创建文件夹失败：%v", err)
 			return
 		}

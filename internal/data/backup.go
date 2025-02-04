@@ -42,7 +42,7 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 		return nil, err
 	}
 
-	files, err := io.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (r *backupRepo) CutoffLog(path, target string) error {
 // prefix 目标文件前缀
 // save 保存份数
 func (r *backupRepo) ClearExpired(path, prefix string, save int) error {
-	files, err := io.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func (r *backupRepo) GetPath(typ biz.BackupType) (string, error) {
 
 	backupPath = filepath.Join(backupPath, string(typ))
 	if !io.Exists(backupPath) {
-		if err = io.Mkdir(backupPath, 0644); err != nil {
+		if err = os.MkdirAll(backupPath, 0644); err != nil {
 			return "", err
 		}
 	}
@@ -338,7 +338,7 @@ func (r *backupRepo) createPanel(to string) error {
 
 	start := time.Now()
 
-	temp, err := io.TempDir("panel-backup")
+	temp, err := os.MkdirTemp("", "panel-backup")
 	if err != nil {
 		return err
 	}
@@ -533,7 +533,7 @@ func (r *backupRepo) preCheckDB(to string, size int64) error {
 
 // autoUnCompressSQL 自动处理压缩文件
 func (r *backupRepo) autoUnCompressSQL(backup string) (string, error) {
-	temp, err := io.TempDir("sql-uncompress")
+	temp, err := os.MkdirTemp("", "sql-uncompress")
 	if err != nil {
 		return "", err
 	}
@@ -543,7 +543,7 @@ func (r *backupRepo) autoUnCompressSQL(backup string) (string, error) {
 	}
 
 	backup = "" // 置空，防止干扰后续判断
-	if files, err := io.ReadDir(temp); err == nil {
+	if files, err := os.ReadDir(temp); err == nil {
 		if len(files) != 1 {
 			return "", fmt.Errorf("压缩文件中包含的文件数量不为1，实际为%d", len(files))
 		}

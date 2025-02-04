@@ -214,17 +214,11 @@ func (s *IOTestSuite) TestListCompress() {
 
 func (s *IOTestSuite) TestRemoveDeletesFileOrDirectory() {
 	path := "testdata/remove_test"
-	s.NoError(Mkdir(path, 0755))
+	s.NoError(os.MkdirAll(path, 0755))
 	s.DirExists(path)
 
 	s.NoError(Remove(path))
 	s.NoDirExists(path)
-}
-
-func (s *IOTestSuite) TestMkdirCreatesDirectory() {
-	path := "testdata/mkdir_test"
-	s.NoError(Mkdir(path, 0755))
-	s.DirExists(path)
 }
 
 func (s *IOTestSuite) TestChmodChangesPermissions() {
@@ -263,13 +257,13 @@ func (s *IOTestSuite) TestExistsReturnsFalseForNonExistingPath() {
 
 func (s *IOTestSuite) TestEmptyReturnsTrueForEmptyDirectory() {
 	path := "testdata/empty_test"
-	s.NoError(Mkdir(path, 0755))
+	s.NoError(os.MkdirAll(path, 0755))
 	s.True(Empty(path))
 }
 
 func (s *IOTestSuite) TestEmptyReturnsFalseForNonEmptyDirectory() {
 	path := "testdata/nonempty_test"
-	s.NoError(Mkdir(path, 0755))
+	s.NoError(os.MkdirAll(path, 0755))
 	s.NoError(Write(filepath.Join(path, "file.txt"), "test", 0644))
 	s.False(Empty(path))
 }
@@ -304,27 +298,9 @@ func (s *IOTestSuite) TestSizeReturnsCorrectSize() {
 	s.Equal(int64(len(data)), size)
 }
 
-func (s *IOTestSuite) TestTempDirCreatesTemporaryDirectory() {
-	dir, err := TempDir("tempdir_test")
-	s.NoError(err)
-	s.DirExists(dir)
-	s.NoError(Remove(dir))
-}
-
-func (s *IOTestSuite) TestReadDirReturnsDirectoryEntries() {
-	path := "testdata/readdir_test"
-	s.NoError(Mkdir(path, 0755))
-	s.NoError(Write(filepath.Join(path, "file1.txt"), "test", 0644))
-	s.NoError(Write(filepath.Join(path, "file2.txt"), "test", 0644))
-
-	entries, err := ReadDir(path)
-	s.NoError(err)
-	s.Len(entries, 2)
-}
-
 func (s *IOTestSuite) TestIsDirReturnsTrueForDirectory() {
 	path := "testdata/isdir_test"
-	s.NoError(Mkdir(path, 0755))
+	s.NoError(os.MkdirAll(path, 0755))
 	s.True(IsDir(path))
 }
 

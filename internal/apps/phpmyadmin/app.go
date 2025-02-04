@@ -3,6 +3,7 @@ package phpmyadmin
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -32,7 +33,7 @@ func (s *App) Route(r chi.Router) {
 }
 
 func (s *App) Info(w http.ResponseWriter, r *http.Request) {
-	files, err := io.ReadDir(fmt.Sprintf("%s/server/phpmyadmin", app.Root))
+	files, err := os.ReadDir(fmt.Sprintf("%s/server/phpmyadmin", app.Root))
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "找不到 phpMyAdmin 目录")
 		return
