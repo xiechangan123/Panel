@@ -37,7 +37,6 @@ const handleUpdate = () => {
       dashboard
         .update()
         .then(() => {
-          messageReactive?.destroy()
           window.$message.success(t('homeUpdate.alerts.success'))
           setTimeout(() => {
             setTimeout(() => {
@@ -46,7 +45,7 @@ const handleUpdate = () => {
             router.push({ name: 'dashboard-index' })
           }, 2500)
         })
-        .catch(() => {
+        .finally(() => {
           messageReactive?.destroy()
         })
     },

@@ -125,15 +125,19 @@ const onPageSizeChange = (pageSize: number) => {
   onPageChange(1)
 }
 
-const handleRestore = async () => {
+const handleRestore = () => {
   messageReactive = window.$message.loading('恢复中...', {
     duration: 0
   })
-  await backup.restore(type.value, restoreModel.value.file, restoreModel.value.target).then(() => {
-    messageReactive?.destroy()
-    window.$message.success('恢复成功')
-    onPageChange(pagination.page)
-  })
+  backup
+    .restore(type.value, restoreModel.value.file, restoreModel.value.target)
+    .then(() => {
+      window.$message.success('恢复成功')
+    })
+    .finally(() => {
+      messageReactive?.destroy()
+      onPageChange(pagination.page)
+    })
 }
 
 const handleDelete = async (file: string) => {
