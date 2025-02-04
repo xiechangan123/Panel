@@ -418,12 +418,13 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 		return err
 	}
 
+	clean := false
 	if !strings.HasSuffix(backup, ".sql") {
 		backup, err = r.autoUnCompressSQL(backup)
 		if err != nil {
 			return err
 		}
-		defer io.Remove(filepath.Dir(backup)) // 删除解压目录
+		clean = true
 	}
 
 	if _, err = shell.Execf(`mysql -u root '%s' < '%s'`, target, backup); err != nil {
@@ -431,6 +432,9 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	}
 	if err = os.Unsetenv("MYSQL_PWD"); err != nil {
 		return err
+	}
+	if clean {
+		_ = io.Remove(filepath.Dir(backup))
 	}
 
 	return nil
@@ -451,16 +455,20 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 		return fmt.Errorf("数据库不存在：%s", target)
 	}
 
+	clean := false
 	if !strings.HasSuffix(backup, ".sql") {
 		backup, err = r.autoUnCompressSQL(backup)
 		if err != nil {
 			return err
 		}
-		defer io.Remove(filepath.Dir(backup)) // 删除解压目录
+		clean = true
 	}
 
 	if _, err = shell.Execf(`su - postgres -c "psql '%s'" < '%s'`, target, backup); err != nil {
 		return err
+	}
+	if clean {
+		_ = io.Remove(filepath.Dir(backup))
 	}
 
 	return nil
