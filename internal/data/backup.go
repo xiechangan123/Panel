@@ -423,6 +423,7 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 		if err != nil {
 			return err
 		}
+		defer io.Remove(filepath.Dir(backup)) // 删除解压目录
 	}
 
 	if _, err = shell.Execf(`mysql -u root '%s' < '%s'`, target, backup); err != nil {
@@ -432,7 +433,6 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 		return err
 	}
 
-	_ = io.Remove(filepath.Dir(backup))
 	return nil
 }
 
@@ -456,13 +456,13 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 		if err != nil {
 			return err
 		}
+		defer io.Remove(filepath.Dir(backup)) // 删除解压目录
 	}
 
 	if _, err = shell.Execf(`su - postgres -c "psql '%s'" < '%s'`, target, backup); err != nil {
 		return err
 	}
 
-	_ = io.Remove(filepath.Dir(backup))
 	return nil
 }
 
@@ -525,7 +525,7 @@ func (r *backupRepo) preCheckDB(to string, size int64) error {
 
 // autoUnCompressSQL 自动处理压缩文件
 func (r *backupRepo) autoUnCompressSQL(backup string) (string, error) {
-	temp, err := io.TempDir(backup)
+	temp, err := io.TempDir("sql-uncompress")
 	if err != nil {
 		return "", err
 	}
@@ -535,7 +535,7 @@ func (r *backupRepo) autoUnCompressSQL(backup string) (string, error) {
 	}
 
 	backup = "" // 置空，防止干扰后续判断
-	if files, err := os.ReadDir(temp); err == nil {
+	if files, err := io.ReadDir(temp); err == nil {
 		if len(files) != 1 {
 			return "", fmt.Errorf("压缩文件中包含的文件数量不为1，实际为%d", len(files))
 		}
