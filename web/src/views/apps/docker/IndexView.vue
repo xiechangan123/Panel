@@ -6,14 +6,14 @@ defineOptions({
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NPopconfirm } from 'naive-ui'
 
-import { getConfig, updateConfig } from '@/api/apps/docker'
+import docker from '@/api/apps/docker'
 import systemctl from '@/api/panel/systemctl'
 
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
 
-const { data: config }: { data: any } = useRequest(getConfig, {
+const { data: config } = useRequest(docker.getConfig, {
   initialData: {
     config: ''
   }
@@ -36,7 +36,7 @@ const getIsEnabled = async () => {
 }
 
 const handleSaveConfig = async () => {
-  useRequest(() => updateConfig(config.value)).onSuccess(() => {
+  useRequest(() => docker.updateConfig(config.value)).onSuccess(() => {
     window.$message.success('保存成功')
   })
 }

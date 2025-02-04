@@ -10,7 +10,6 @@ import app from '@/api/panel/app'
 import systemctl from '@/api/panel/systemctl'
 import website from '@/api/panel/website'
 import { renderIcon } from '@/utils'
-import type { Jail } from '@/views/apps/fail2ban/types'
 
 const currentTab = ref('status')
 const status = ref(false)
@@ -66,13 +65,6 @@ const jailsColumns: any = [
   { title: '封禁时间', key: 'ban_time', minWidth: 150, ellipsis: { tooltip: true } },
   { title: '周期', key: 'find_time', minWidth: 150, ellipsis: { tooltip: true } },
   {
-    title: '日志路径',
-    key: 'log_path',
-    minWidth: 150,
-    resizable: true,
-    ellipsis: { tooltip: true }
-  },
-  {
     title: '操作',
     key: 'actions',
     width: 280,
@@ -126,8 +118,6 @@ const jailsColumns: any = [
   }
 ]
 
-const jails = ref<Jail[]>([])
-
 const banedIPColumns: any = [
   {
     title: 'IP',
@@ -173,22 +163,10 @@ const banedIPColumns: any = [
   }
 ]
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
 const websites = ref<any[]>([])
 
 const getWhiteList = async () => {
-  await fail2ban.whitelist().then((res: any) => {
-    white.value = res.data
-  })
+  white.value = await fail2ban.whitelist()
 }
 
 const handleSaveWhiteList = async () => {
@@ -207,24 +185,14 @@ const getWebsiteList = async (page: number, limit: number) => {
   addJailModel.value.website_name = websites.value[0]?.value
 }
 
-const getJails = async (page: number, limit: number) => {
-  const { data } = await fail2ban.jails(page, limit)
-  return data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getJails(page, pagination.pageSize).then((res) => {
-    jails.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => fail2ban.jails(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const getStatus = async () => {
   await systemctl.status('fail2ban').then((res: any) => {
@@ -275,19 +243,19 @@ const handleReload = async () => {
 
 const handleAddJail = async () => {
   await fail2ban.add(addJailModel.value)
+  await refresh()
   window.$message.success('添加成功')
   addJailModal.value = false
-  onPageChange(1)
 }
 
 const handleDeleteJail = async (name: string) => {
   await fail2ban.delete(name)
+  await refresh()
   window.$message.success('删除成功')
-  onPageChange(1)
 }
 
 const getJailInfo = async (name: string) => {
-  const { data } = await fail2ban.jail(name)
+  const data = await fail2ban.jail(name)
   jailCurrentlyBan.value = data.currently_ban
   jailTotalBan.value = data.total_ban
   jailBanedList.value = data.baned_list
@@ -300,10 +268,10 @@ const handleUnBan = async (name: string, ip: string) => {
 }
 
 onMounted(() => {
+  refresh()
   getStatus()
   getIsEnabled()
   getWhiteList()
-  onPageChange(1)
   app.isInstalled('nginx').then((res) => {
     if (res.data.installed) {
       getWebsiteList(1, 10000)
@@ -389,12 +357,21 @@ onMounted(() => {
             striped
             remote
             :scroll-x="1000"
-            :loading="false"
+            :loading="loading"
             :columns="jailsColumns"
-            :data="jails"
+            :data="data"
             :row-key="(row: any) => row.name"
-            @update:page="onPageChange"
-            @update:page-size="onPageSizeChange"
+            v-model:page="page"
+            v-model:pageSize="pageSize"
+            :pagination="{
+              page: page,
+              pageCount: pageCount,
+              pageSize: pageSize,
+              itemCount: total,
+              showQuickJumper: true,
+              showSizePicker: true,
+              pageSizes: [20, 50, 100, 200]
+            }"
           />
         </n-card>
       </n-tab-pane>

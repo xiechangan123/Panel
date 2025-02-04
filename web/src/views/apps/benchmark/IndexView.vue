@@ -102,11 +102,11 @@ const handleTest = async () => {
     current.value = test
     if (test != 'memory' && test != 'disk') {
       for (let j = 0; j < 2; j++) {
-        const { data } = await benchmark.test(test, j === 1)
-        cpu.value[test as keyof typeof cpu.value][j === 1 ? 'multi' : 'single'] = data
+        cpu.value[test as keyof typeof cpu.value][j === 1 ? 'multi' : 'single'] =
+          await benchmark.test(test, j === 1)
       }
     } else {
-      const { data } = await benchmark.test(test, false)
+      const data = await benchmark.test(test, false)
       if (test === 'memory') {
         memory.value = data
       } else {
