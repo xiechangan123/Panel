@@ -195,15 +195,11 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const getStatus = async () => {
-  await systemctl.status('fail2ban').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('fail2ban')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('fail2ban').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('fail2ban')
 }
 
 const handleStart = async () => {
@@ -241,17 +237,19 @@ const handleReload = async () => {
   await getStatus()
 }
 
-const handleAddJail = async () => {
-  await fail2ban.add(addJailModel.value)
-  await refresh()
-  window.$message.success('添加成功')
-  addJailModal.value = false
+const handleAddJail = () => {
+  useRequest(fail2ban.add(addJailModel.value)).onSuccess(() => {
+    refresh()
+    window.$message.success('添加成功')
+    addJailModal.value = false
+  })
 }
 
-const handleDeleteJail = async (name: string) => {
-  await fail2ban.delete(name)
-  await refresh()
-  window.$message.success('删除成功')
+const handleDeleteJail = (name: string) => {
+  useRequest(fail2ban.delete(name)).onSuccess(() => {
+    refresh()
+    window.$message.success('删除成功')
+  })
 }
 
 const getJailInfo = async (name: string) => {
@@ -261,10 +259,11 @@ const getJailInfo = async (name: string) => {
   jailBanedList.value = data.baned_list
 }
 
-const handleUnBan = async (name: string, ip: string) => {
-  await fail2ban.unban(name, ip)
-  window.$message.success('解封成功')
-  await getJailInfo(name)
+const handleUnBan = (name: string, ip: string) => {
+  useRequest(fail2ban.unban(name, ip)).onSuccess(() => {
+    window.$message.success('解封成功')
+    getJailInfo(name)
+  })
 }
 
 onMounted(() => {

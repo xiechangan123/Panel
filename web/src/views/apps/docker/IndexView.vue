@@ -24,39 +24,38 @@ const statusStr = computed(() => {
 })
 
 const getStatus = async () => {
-  await systemctl.status('docker').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('docker')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('docker').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('docker')
 }
 
 const handleSaveConfig = async () => {
-  useRequest(() => docker.updateConfig(config.value)).onSuccess(() => {
+  useRequest(docker.updateConfig(config.value)).onSuccess(() => {
     window.$message.success('保存成功')
   })
 }
 
-const handleStart = async () => {
-  await systemctl.start('docker')
-  window.$message.success('启动成功')
-  await getStatus()
+const handleStart = () => {
+  useRequest(systemctl.start('docker')).onSuccess(() => {
+    window.$message.success('启动成功')
+    getStatus()
+  })
 }
 
-const handleStop = async () => {
-  await systemctl.stop('docker')
-  window.$message.success('停止成功')
-  await getStatus()
+const handleStop = () => {
+  useRequest(systemctl.stop('docker')).onSuccess(() => {
+    window.$message.success('停止成功')
+    getStatus()
+  })
 }
 
-const handleRestart = async () => {
-  await systemctl.restart('docker')
-  window.$message.success('重启成功')
-  await getStatus()
+const handleRestart = () => {
+  useRequest(systemctl.restart('docker')).onSuccess(() => {
+    window.$message.success('重启成功')
+    getStatus()
+  })
 }
 
 const handleIsEnabled = async () => {

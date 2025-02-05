@@ -19,26 +19,21 @@ const statusStr = computed(() => {
 })
 
 const getStatus = async () => {
-  await systemctl.status('gitea').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('gitea')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('gitea').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('gitea')
 }
 
 const getConfig = async () => {
-  gitea.config().then((res: any) => {
-    config.value = res.data
-  })
+  config.value = await gitea.config()
 }
 
-const handleSaveConfig = async () => {
-  await gitea.saveConfig(config.value)
-  window.$message.success('保存成功')
+const handleSaveConfig = () => {
+  useRequest(gitea.saveConfig(config.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleStart = async () => {

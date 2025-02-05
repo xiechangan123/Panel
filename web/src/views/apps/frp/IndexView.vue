@@ -31,21 +31,13 @@ const statusStr = computed(() => {
 })
 
 const getStatus = async () => {
-  await systemctl.status('frps').then((res: any) => {
-    status.value.frps = res.data
-  })
-  await systemctl.status('frpc').then((res: any) => {
-    status.value.frpc = res.data
-  })
+  status.value.frps = await systemctl.status('frps')
+  status.value.frpc = await systemctl.status('frpc')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('frps').then((res: any) => {
-    isEnabled.value.frps = res.data
-  })
-  await systemctl.isEnabled('frpc').then((res: any) => {
-    isEnabled.value.frpc = res.data
-  })
+  isEnabled.value.frps = await systemctl.isEnabled('frps')
+  isEnabled.value.frpc = await systemctl.isEnabled('frpc')
 }
 
 const getConfig = async () => {
@@ -53,9 +45,12 @@ const getConfig = async () => {
   config.value.frpc = await frp.config('frpc')
 }
 
-const handleSaveConfig = async (service: string) => {
-  await frp.saveConfig(service, config.value[service as keyof typeof config.value])
-  window.$message.success('保存成功')
+const handleSaveConfig = (service: string) => {
+  useRequest(frp.saveConfig(service, config.value[service as keyof typeof config.value])).onSuccess(
+    () => {
+      window.$message.success('保存成功')
+    }
+  )
 }
 
 const handleStart = async (name: string) => {

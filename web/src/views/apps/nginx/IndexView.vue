@@ -47,15 +47,11 @@ const getLoad = async () => {
 }
 
 const getStatus = async () => {
-  await systemctl.status('nginx').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('nginx')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('nginx').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('nginx')
 }
 
 const getErrorLog = async () => {

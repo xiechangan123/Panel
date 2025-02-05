@@ -237,15 +237,11 @@ const onPageSizeChange = (pageSize: number) => {
 }
 
 const getStatus = async () => {
-  await systemctl.status(serviceName.value).then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status(serviceName.value)
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled(serviceName.value).then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled(serviceName.value)
 }
 
 const getConfig = async () => {

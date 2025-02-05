@@ -45,15 +45,11 @@ const getLoad = async () => {
 }
 
 const getStatus = async () => {
-  await systemctl.status('redis').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('redis')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('redis').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('redis')
 }
 
 const getConfig = async () => {

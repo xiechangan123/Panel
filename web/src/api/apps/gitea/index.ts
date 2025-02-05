@@ -1,8 +1,8 @@
-import { request } from '@/utils'
+import { http } from '@/utils'
 
 export default {
   // 获取配置
-  config: (): any => request.get('/apps/gitea/config'),
+  config: (): any => http.Get('/apps/gitea/config'),
   // 保存配置
-  saveConfig: (config: string): any => request.post('/apps/gitea/config', { config })
+  saveConfig: (config: string): any => http.Post('/apps/gitea/config', { config })
 }

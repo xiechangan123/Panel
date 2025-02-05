@@ -46,16 +46,12 @@ const getLoad = async () => {
   return data
 }
 
-const getIsEnabled = async () => {
-  await systemctl.isEnabled('postgresql').then((res: any) => {
-    isEnabled.value = res.data
-  })
+const getStatus = async () => {
+  status.value = await systemctl.status('postgresql')
 }
 
-const getStatus = async () => {
-  await systemctl.status('postgresql').then((res: any) => {
-    status.value = res.data
-  })
+const getIsEnabled = async () => {
+  isEnabled.value = await systemctl.isEnabled('postgresql')
 }
 
 const getLog = async () => {

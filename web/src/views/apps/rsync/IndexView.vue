@@ -155,15 +155,11 @@ const onPageSizeChange = (pageSize: number) => {
 }
 
 const getStatus = async () => {
-  await systemctl.status('rsyncd').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('rsyncd')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('rsyncd').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('rsyncd')
 }
 
 const getConfig = async () => {

@@ -20,15 +20,11 @@ const statusStr = computed(() => {
 })
 
 const getStatus = async () => {
-  await systemctl.status('podman').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('podman')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('podman').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('podman')
 }
 
 const getConfig = async () => {

@@ -140,15 +140,11 @@ const getExtensions = async () => {
 }
 
 const getStatus = async () => {
-  await systemctl.status(`php-fpm-${version.value}`).then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status(`php-fpm-${version.value}`)
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled(`php-fpm-${version.value}`).then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled(`php-fpm-${version.value}`)
 }
 
 const getErrorLog = async () => {

@@ -118,15 +118,11 @@ const userColumns: any = [
 const users = ref<User[]>([] as User[])
 
 const getStatus = async () => {
-  await systemctl.status('pure-ftpd').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('pure-ftpd')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('pure-ftpd').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('pure-ftpd')
 }
 
 const getPort = async () => {

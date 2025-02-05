@@ -46,16 +46,12 @@ const getLoad = async () => {
   return data
 }
 
-const getIsEnabled = async () => {
-  await systemctl.isEnabled('mysqld').then((res: any) => {
-    isEnabled.value = res.data
-  })
+const getStatus = async () => {
+  status.value = await systemctl.status('mysqld')
 }
 
-const getStatus = async () => {
-  await systemctl.status('mysqld').then((res: any) => {
-    status.value = res.data
-  })
+const getIsEnabled = async () => {
+  isEnabled.value = await systemctl.isEnabled('mysqld')
 }
 
 const getRootPassword = async () => {

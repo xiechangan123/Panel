@@ -6,7 +6,7 @@ defineOptions({
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 
-import { getConfig, getLoad, updateConfig } from '@/api/apps/memcached'
+import memcached from '@/api/apps/memcached'
 import systemctl from '@/api/panel/systemctl'
 
 const currentTab = ref('status')
@@ -36,30 +36,26 @@ const loadColumns: any = [
   }
 ]
 
-const { data: load }: { data: any } = useRequest(getLoad, {
+const { data: load } = useRequest(memcached.getLoad, {
   initialData: []
 })
 
 const getStatus = async () => {
-  await systemctl.status('memcached').then((res: any) => {
-    status.value = res.data
-  })
+  status.value = await systemctl.status('memcached')
 }
 
 const getIsEnabled = async () => {
-  await systemctl.isEnabled('memcached').then((res: any) => {
-    isEnabled.value = res.data
-  })
+  isEnabled.value = await systemctl.isEnabled('memcached')
 }
 
-const { data: config }: { data: any } = useRequest(getConfig, {
+const { data: config } = useRequest(memcached.getConfig, {
   initialData: {
     config: ''
   }
 })
 
-const handleSaveConfig = async () => {
-  useRequest(() => updateConfig(config.value)).onSuccess(() => {
+const handleSaveConfig = () => {
+  useRequest(memcached.updateConfig(config.value)).onSuccess(() => {
     window.$message.success('保存成功')
   })
 }
