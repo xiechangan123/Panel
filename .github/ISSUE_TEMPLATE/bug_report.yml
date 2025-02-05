@@ -1,7 +1,6 @@
-name: 🐛 报告问题 (Bug Report)
+name: ☢️ 报告问题 (Bug Report)
 description: 创建一个报告以帮助我们改进 (Create a report to help us improve)
-title: "🐛 [Bug] "
-labels: [ "☢️ Bug", "bug" ]
+type: ☢️ Bug
 
 body:
   - type: markdown
@@ -42,7 +41,7 @@ body:
       description: |
         请提供面板的版本号。
         Please provide the version number of the panel.
-      placeholder: "2.3.0"
+      placeholder: "2.4.0"
     validations:
       required: true
   - type: textarea
