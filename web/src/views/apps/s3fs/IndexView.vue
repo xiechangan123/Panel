@@ -7,7 +7,6 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 
 import s3fs from '@/api/apps/s3fs'
 import { renderIcon } from '@/utils'
-import type { S3fs } from '@/views/apps/s3fs/types'
 
 const addMountModal = ref(false)
 
@@ -17,16 +16,6 @@ const addMountModel = ref({
   bucket: '',
   url: '',
   path: ''
-})
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
 })
 
 const columns: any = [
@@ -75,42 +64,32 @@ const columns: any = [
   }
 ]
 
-const mounts = ref<S3fs[]>([] as S3fs[])
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => s3fs.mounts(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
-const getMounts = async (page: number, limit: number) => {
-  const { data } = await s3fs.list(page, limit)
-  return data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getMounts(page, pagination.pageSize).then((res) => {
-    mounts.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
+const handleAddMount = async () => {
+  useRequest(s3fs.add(addMountModel.value)).onSuccess(() => {
+    refresh()
+    addMountModal.value = false
+    window.$message.success('添加成功')
   })
 }
 
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const handleAddMount = async () => {
-  await s3fs.add(addMountModel.value)
-  window.$message.success('添加成功')
-  onPageChange(1)
-  addMountModal.value = false
-}
-
 const handleDeleteMount = async (id: number) => {
-  await s3fs.delete(id)
-  window.$message.success('删除成功')
-  onPageChange(1)
+  useRequest(s3fs.delete(id)).onSuccess(() => {
+    refresh()
+    window.$message.success('删除成功')
+  })
 }
 
 onMounted(() => {
-  onPageChange(1)
+  refresh()
 })
 </script>
 
@@ -127,12 +106,21 @@ onMounted(() => {
         striped
         remote
         :scroll-x="1000"
-        :loading="false"
+        :loading="loading"
         :columns="columns"
-        :data="mounts"
+        :data="data"
         :row-key="(row: any) => row.id"
-        @update:page="onPageChange"
-        @update:page-size="onPageSizeChange"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :pagination="{
+          page: page,
+          pageCount: pageCount,
+          pageSize: pageSize,
+          itemCount: total,
+          showQuickJumper: true,
+          showSizePicker: true,
+          pageSizes: [20, 50, 100, 200]
+        }"
       />
     </n-card>
   </common-page>

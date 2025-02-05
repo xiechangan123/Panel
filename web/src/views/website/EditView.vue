@@ -59,7 +59,7 @@ const installedDbAndPhp = ref({
   ]
 })
 const certs = ref<Cert[]>([] as Cert[])
-const { data: rewrites }: { data: any } = useRequest(website.rewrites, {
+const { data: rewrites } = useRequest(website.rewrites, {
   initialData: {}
 })
 const rewriteOptions = computed(() => {
@@ -90,9 +90,7 @@ const fetchPhpAndDb = async () => {
 }
 
 const fetchWebsiteSetting = async () => {
-  await website.config(Number(id)).then((res) => {
-    setting.value = res.data
-  })
+  setting.value = await website.config(Number(id))
 }
 
 const fetchCertList = async () => {
@@ -100,9 +98,9 @@ const fetchCertList = async () => {
   certs.value = data.items
 }
 
-const handleSave = async () => {
+const handleSave = () => {
   // 如果没有任何监听地址设置了https，则自动添加443
-  if (setting.value.https && !setting.value.listens.some((item) => item.https)) {
+  if (setting.value.https && !setting.value.listens.some((item: any) => item.https)) {
     setting.value.listens.push({
       address: '443',
       https: true,
@@ -111,21 +109,21 @@ const handleSave = async () => {
   }
   // 如果关闭了https，自动禁用所有https和quic
   if (!setting.value.https) {
-    setting.value.listens = setting.value.listens.filter((item) => item.address !== '443') // 443直接删掉
-    setting.value.listens.forEach((item) => {
+    setting.value.listens = setting.value.listens.filter((item: any) => item.address !== '443') // 443直接删掉
+    setting.value.listens.forEach((item: any) => {
       item.https = false
       item.quic = false
     })
   }
 
-  await website.saveConfig(Number(id), setting.value).then(() => {
+  useRequest(website.saveConfig(Number(id), setting.value)).onSuccess(() => {
     fetchWebsiteSetting()
     window.$message.success('保存成功')
   })
 }
 
-const handleReset = async () => {
-  await website.resetConfig(Number(id)).then(() => {
+const handleReset = () => {
+  useRequest(website.resetConfig(Number(id))).onSuccess(() => {
     fetchWebsiteSetting()
     window.$message.success('重置成功')
   })
@@ -139,13 +137,12 @@ const handleObtainCert = async () => {
   messageReactive = window.$message.loading('请稍后...', {
     duration: 0
   })
-  await website
-    .obtainCert(Number(id))
-    .then(() => {
+  useRequest(website.obtainCert(Number(id)))
+    .onSuccess(() => {
       fetchWebsiteSetting()
       window.$message.success('签发成功')
     })
-    .finally(() => {
+    .onComplete(() => {
       messageReactive?.destroy()
     })
 }
@@ -159,7 +156,7 @@ const handleSelectCert = (value: number) => {
 }
 
 const clearLog = async () => {
-  await website.clearLog(Number(id)).then(() => {
+  useRequest(website.clearLog(Number(id))).onSuccess(() => {
     fetchWebsiteSetting()
     window.$message.success('清空成功')
   })

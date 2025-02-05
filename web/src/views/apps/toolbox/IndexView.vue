@@ -24,35 +24,28 @@ const time = ref(DateTime.now().toMillis())
 const rootPassword = ref('')
 
 const fetchDNS = async () => {
-  await toolbox.dns().then((res: any) => {
-    dns1.value = res.data[0]
-    dns2.value = res.data[1]
-  })
+  const data = await toolbox.dns()
+  dns1.value = data[0]
+  dns2.value = data[1]
 }
 
 const fetchSwap = async () => {
-  await toolbox.swap().then((res: any) => {
-    swap.value = res.data.size
-    swapFree.value = res.data.free
-    swapUsed.value = res.data.used
-    swapTotal.value = res.data.total
-  })
+  const data = await toolbox.swap()
+  swap.value = data.size
+  swapFree.value = data.free
+  swapUsed.value = data.used
+  swapTotal.value = data.total
 }
 
 const fetchHost = async () => {
-  toolbox.hostname().then((res: any) => {
-    hostname.value = res.data
-  })
-  toolbox.hosts().then((res: any) => {
-    hosts.value = res.data
-  })
+  hostname.value = await toolbox.hostname()
+  hosts.value = await toolbox.hosts()
 }
 
 const fetchTimezone = async () => {
-  toolbox.timezone().then((res: any) => {
-    timezone.value = res.data.timezone
-    timezones.value = res.data.timezones
-  })
+  const data = toolbox.timezone()
+  timezone.value = data.timezone
+  timezones.value = data.timezones
 }
 
 const handleUpdateDNS = async () => {
@@ -182,7 +175,7 @@ onMounted(() => {
             <n-form-item label="修改时间">
               <n-date-picker v-model:value="time" type="datetime" clearable />
             </n-form-item>
-            <n-form-item label="NTP同步时间">
+            <n-form-item label="NTP 同步时间">
               <n-button type="info" @click="handleSyncTime">同步时间</n-button>
             </n-form-item>
           </n-form>

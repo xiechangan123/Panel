@@ -38,7 +38,7 @@ const getAsyncData = async () => {
   websites.value = []
   app.isInstalled('nginx').then(async (res) => {
     if (res.data.installed) {
-      const { data: websiteData } = await website.list(1, 10000)
+      const websiteData = await website.list(1, 10000)
       for (const item of websiteData.items) {
         websites.value.push({
           label: item.name,

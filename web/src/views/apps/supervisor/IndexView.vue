@@ -9,14 +9,24 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import supervisor from '@/api/apps/supervisor'
 import systemctl from '@/api/panel/systemctl'
 import { renderIcon } from '@/utils'
-import type { Process } from '@/views/apps/supervisor/types'
 
 const currentTab = ref('status')
-const serviceName = ref('supervisor')
 const status = ref(false)
 const isEnabled = ref(false)
-const config = ref('')
 const processLog = ref('')
+
+const { data: serviceName } = useRequest(supervisor.service, {
+  initialData: 'supervisor'
+}).onSuccess(() => {
+  refresh()
+  getStatus()
+  getIsEnabled()
+  config.value = supervisor.config()
+})
+
+const { data: config } = useRequest(supervisor.config, {
+  initialData: ''
+})
 
 const createProcessModal = ref(false)
 const createProcessModel = ref({
@@ -205,36 +215,14 @@ const processColumns: any = [
   }
 ]
 
-const processes = ref<Process[]>([])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
-const getProcesses = async (page: number, limit: number) => {
-  const { data } = await supervisor.processes(page, limit)
-  return data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getProcesses(page, pagination.pageSize).then((res) => {
-    processes.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => supervisor.processes(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const getStatus = async () => {
   status.value = await systemctl.status(serviceName.value)
@@ -244,84 +232,93 @@ const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled(serviceName.value)
 }
 
-const getConfig = async () => {
-  supervisor.config().then((res: any) => {
-    config.value = res.data
+const handleSaveConfig = async () => {
+  useRequest(supervisor.saveConfig(config.value)).onSuccess(() => {
+    refresh()
+    window.$message.success('保存成功')
   })
 }
 
-const handleSaveConfig = async () => {
-  await supervisor.saveConfig(config.value)
-  window.$message.success('保存成功')
-}
-
 const handleClearLog = async () => {
-  await supervisor.clearLog()
-  window.$message.success('清空成功')
-}
-
-const handleStart = async () => {
-  await systemctl.start(serviceName.value)
-  window.$message.success('启动成功')
-  await getStatus()
+  useRequest(supervisor.clearLog()).onSuccess(() => {
+    window.$message.success('清空成功')
+  })
 }
 
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
-    await systemctl.enable(serviceName.value)
-    window.$message.success('开启自启动成功')
+    useRequest(systemctl.enable(serviceName.value)).onSuccess(() => {
+      getIsEnabled()
+      window.$message.success('开启自启动成功')
+    })
   } else {
-    await systemctl.disable(serviceName.value)
-    window.$message.success('禁用自启动成功')
+    useRequest(systemctl.disable(serviceName.value)).onSuccess(() => {
+      getIsEnabled()
+      window.$message.success('禁用自启动成功')
+    })
   }
-  await getIsEnabled()
+}
+
+const handleStart = async () => {
+  useRequest(systemctl.start(serviceName.value)).onSuccess(() => {
+    getStatus()
+    window.$message.success('启动成功')
+  })
 }
 
 const handleStop = async () => {
-  await systemctl.stop(serviceName.value)
-  window.$message.success('停止成功')
-  await getStatus()
+  useRequest(systemctl.stop(serviceName.value)).onSuccess(() => {
+    getStatus()
+    window.$message.success('停止成功')
+  })
 }
 
 const handleRestart = async () => {
-  await systemctl.restart(serviceName.value)
-  window.$message.success('重启成功')
-  await getStatus()
+  useRequest(systemctl.restart(serviceName.value)).onSuccess(() => {
+    getStatus()
+    window.$message.success('重启成功')
+  })
 }
 
 const handleCreateProcess = async () => {
-  await supervisor.createProcess(createProcessModel.value)
-  window.$message.success('添加成功')
-  createProcessModal.value = false
-  onPageChange(1)
+  useRequest(supervisor.createProcess(createProcessModel.value)).onSuccess(() => {
+    refresh()
+    createProcessModal.value = false
+    window.$message.success('添加成功')
+  })
 }
 
 const handleProcessStart = async (name: string) => {
-  await supervisor.startProcess(name)
-  window.$message.success('启动成功')
+  useRequest(supervisor.startProcess(name)).onSuccess(() => {
+    refresh()
+    window.$message.success('启动成功')
+  })
 }
 
 const handleProcessStop = async (name: string) => {
-  await supervisor.stopProcess(name)
-  window.$message.success('停止成功')
+  useRequest(supervisor.stopProcess(name)).onSuccess(() => {
+    refresh()
+    window.$message.success('停止成功')
+  })
 }
 
 const handleProcessRestart = async (name: string) => {
-  await supervisor.restartProcess(name)
-  window.$message.success('重启成功')
+  useRequest(supervisor.restartProcess(name)).onSuccess(() => {
+    refresh()
+    window.$message.success('重启成功')
+  })
 }
 
 const handleProcessDelete = async (name: string) => {
-  await supervisor.deleteProcess(name)
-  window.$message.success('删除成功')
-  onPageChange(1)
+  useRequest(supervisor.deleteProcess(name)).onSuccess(() => {
+    refresh()
+    window.$message.success('删除成功')
+  })
 }
 
-const handleShowProcessLog = (row: any) => {
-  supervisor.processLog(row.name).then((res) => {
-    processLogModal.value = true
-    processLog.value = res.data
-  })
+const handleShowProcessLog = async (row: any) => {
+  processLog.value = await supervisor.processLog(row.name)
+  processLogModal.value = true
 }
 
 const handleEditProcess = async (name: string) => {
@@ -331,27 +328,18 @@ const handleEditProcess = async (name: string) => {
 
 const getProcessConfig = async (name: string) => {
   editProcessModel.value.process = name
-  await supervisor.processConfig(name).then((res: any) => {
-    editProcessModel.value.config = res.data
-  })
+  editProcessModel.value.config = await supervisor.processConfig(name)
 }
 
 const handleSaveProcessConfig = async () => {
-  await supervisor.saveProcessConfig(editProcessModel.value.process, editProcessModel.value.config)
-  window.$message.success('保存成功')
+  useRequest(
+    supervisor.saveProcessConfig(editProcessModel.value.process, editProcessModel.value.config)
+  ).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const timer: any = null
-
-onMounted(async () => {
-  await supervisor.service().then((res: any) => {
-    serviceName.value = res.data
-  })
-  await getStatus()
-  await getIsEnabled()
-  await getConfig()
-  onPageChange(1)
-})
 
 onUnmounted(() => {
   clearInterval(timer)
@@ -427,12 +415,21 @@ onUnmounted(() => {
             striped
             remote
             :scroll-x="1000"
-            :loading="false"
+            :loading="loading"
             :columns="processColumns"
-            :data="processes"
+            :data="data"
             :row-key="(row: any) => row.name"
-            @update:page="onPageChange"
-            @update:page-size="onPageSizeChange"
+            v-model:page="page"
+            v-model:pageSize="pageSize"
+            :pagination="{
+              page: page,
+              pageCount: pageCount,
+              pageSize: pageSize,
+              itemCount: total,
+              showQuickJumper: true,
+              showSizePicker: true,
+              pageSizes: [20, 50, 100, 200]
+            }"
           />
         </n-card>
       </n-tab-pane>

@@ -1,33 +1,33 @@
-import { http, request } from '@/utils'
+import { http } from '@/utils'
 
 export default {
   // 列表
-  list: (page: number, limit: number): any => request.get('/website', { params: { page, limit } }),
+  list: (page: number, limit: number): any => http.Get('/website', { params: { page, limit } }),
   // 创建
-  create: (data: any): any => request.post('/website', data),
+  create: (data: any): any => http.Post('/website', data),
   // 删除
   delete: (id: number, path: boolean, db: boolean): any =>
-    request.delete(`/website/${id}`, { data: { path, db } }),
+    http.Delete(`/website/${id}`, { data: { path, db } }),
   // 伪静态
-  rewrites: () => http.Get(`/website/rewrites`),
+  rewrites: (): any => http.Get(`/website/rewrites`),
   // 获取默认配置
-  defaultConfig: (): any => request.get('/website/defaultConfig'),
+  defaultConfig: (): any => http.Get('/website/defaultConfig'),
   // 保存默认配置
   saveDefaultConfig: (index: string, stop: string): any =>
-    request.post('/website/defaultConfig', { index, stop }),
+    http.Post('/website/defaultConfig', { index, stop }),
   // 网站配置
-  config: (id: number): any => request.get('/website/' + id),
+  config: (id: number): any => http.Get('/website/' + id),
   // 保存网站配置
-  saveConfig: (id: number, data: any): any => request.put(`/website/${id}`, data),
+  saveConfig: (id: number, data: any): any => http.Put(`/website/${id}`, data),
   // 清空日志
-  clearLog: (id: number): any => request.delete('/website/' + id + '/log'),
+  clearLog: (id: number): any => http.Delete('/website/' + id + '/log'),
   // 更新备注
   updateRemark: (id: number, remark: string): any =>
-    request.post(`/website/${id}` + '/updateRemark', { remark }),
+    http.Post(`/website/${id}` + '/updateRemark', { remark }),
   // 重置配置
-  resetConfig: (id: number): any => request.post(`/website/${id}/resetConfig`),
+  resetConfig: (id: number): any => http.Post(`/website/${id}/resetConfig`),
   // 修改状态
-  status: (id: number, status: boolean): any => request.post(`/website/${id}/status`, { status }),
+  status: (id: number, status: boolean): any => http.Post(`/website/${id}/status`, { status }),
   // 签发证书
-  obtainCert: (id: number): any => request.post(`/website/${id}/obtainCert`)
+  obtainCert: (id: number): any => http.Post(`/website/${id}/obtainCert`)
 }

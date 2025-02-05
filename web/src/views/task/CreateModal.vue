@@ -46,7 +46,7 @@ const postgreSQLInstalled = computed(() => {
 })
 
 const getWebsiteList = async (page: number, limit: number) => {
-  const { data } = await website.list(page, limit)
+  const data = await website.list(page, limit)
   for (const item of data.items) {
     websites.value.push({
       label: item.name,

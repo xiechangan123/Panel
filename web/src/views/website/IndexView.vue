@@ -21,7 +21,6 @@ import dashboard from '@/api/panel/dashboard'
 import website from '@/api/panel/website'
 import { useFileStore } from '@/store'
 import { generateRandomString, isNullOrUndef, renderIcon } from '@/utils'
-import type { Website } from './types'
 
 const fileStore = useFileStore()
 const { t } = useI18n()
@@ -180,23 +179,9 @@ const columns: any = [
   }
 ]
 
-const data = ref<Website[]>([] as Website[])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
 const createModal = ref(false)
 const editDefaultPageModal = ref(false)
 
-const buttonLoading = ref(false)
-const buttonDisabled = ref(false)
 const createModel = ref({
   name: '',
   listens: [] as Array<string>,
@@ -234,51 +219,36 @@ const installedDbAndPhp = ref({
   ]
 })
 
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => website.list(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
+
 const getPhpAndDb = async () => {
   const { data } = await dashboard.installedDbAndPhp()
   installedDbAndPhp.value = data
-}
-
-const onChecked = (rowKeys: any) => {
-  selectedRowKeys.value = rowKeys
 }
 
 // 修改运行状态
 const handleStatusChange = (row: any) => {
   if (isNullOrUndef(row.id)) return
 
-  website.status(row.id, !row.status).then(() => {
+  useRequest(website.status(row.id, !row.status)).onSuccess(() => {
     row.status = !row.status
     window.$message.success('已' + (row.status ? '启动' : '停止'))
   })
 }
 
-const getWebsiteList = async (page: number, limit: number) => {
-  const { data } = await website.list(page, limit)
-  return data
-}
-
 const getDefaultPage = async () => {
-  const { data } = await website.defaultConfig()
-  editDefaultPageModel.value = data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getWebsiteList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
+  editDefaultPageModel.value = await website.defaultConfig()
 }
 
 const handleRemark = (row: any) => {
-  website.updateRemark(row.id, row.remark).then(() => {
+  useRequest(website.updateRemark(row.id, row.remark)).onSuccess(() => {
     window.$message.success('修改成功')
   })
 }
@@ -292,26 +262,24 @@ const handleEdit = (row: any) => {
   })
 }
 
-const handleDelete = async (id: number) => {
-  await website.delete(id, deleteModel.value.path, deleteModel.value.db).then(() => {
+const handleDelete = (id: number) => {
+  useRequest(website.delete(id, deleteModel.value.path, deleteModel.value.db)).onSuccess(() => {
+    refresh()
+    deleteModel.value.path = true
     window.$message.success('删除成功')
-    onPageChange(pagination.page)
   })
-  deleteModel.value.path = true
 }
 
 const handleSaveDefaultPage = () => {
-  website
-    .saveDefaultConfig(editDefaultPageModel.value.index, editDefaultPageModel.value.stop)
-    .then(() => {
-      window.$message.success('修改成功')
-      editDefaultPageModal.value = false
-    })
+  useRequest(
+    website.saveDefaultConfig(editDefaultPageModel.value.index, editDefaultPageModel.value.stop)
+  ).onSuccess(() => {
+    editDefaultPageModal.value = false
+    window.$message.success('修改成功')
+  })
 }
 
 const handleCreate = async () => {
-  buttonLoading.value = true
-  buttonDisabled.value = true
   // 去除空的域名和端口
   createModel.value.domains = createModel.value.domains.filter((item) => item !== '')
   createModel.value.listens = createModel.value.listens.filter((item) => item !== '')
@@ -321,36 +289,24 @@ const handleCreate = async () => {
   }
   // 端口中去掉 443 端口，nginx 不允许在未配置证书下监听 443 端口
   createModel.value.listens = createModel.value.listens.filter((item) => item !== '443')
-  await website
-    .create(createModel.value)
-    .then(() => {
-      window.$message.success('创建成功')
-      getWebsiteList(pagination.page, pagination.pageSize).then((res) => {
-        data.value = res.items
-        pagination.itemCount = res.total
-        pagination.pageCount = res.total / pagination.pageSize + 1
-      })
-      createModal.value = false
-      createModel.value = {
-        name: '',
-        domains: [] as Array<string>,
-        listens: [] as Array<string>,
-        php: 0,
-        db: false,
-        db_type: '0',
-        db_name: '',
-        db_user: '',
-        db_password: '',
-        path: '',
-        remark: ''
-      }
-      buttonLoading.value = false
-      buttonDisabled.value = false
-    })
-    .catch(() => {
-      buttonLoading.value = false
-      buttonDisabled.value = false
-    })
+  useRequest(website.create(createModel.value)).onSuccess(() => {
+    refresh()
+    createModal.value = false
+    createModel.value = {
+      name: '',
+      domains: [] as Array<string>,
+      listens: [] as Array<string>,
+      php: 0,
+      db: false,
+      db_type: '0',
+      db_name: '',
+      db_user: '',
+      db_password: '',
+      path: '',
+      remark: ''
+    }
+    window.$message.success('创建成功')
+  })
 }
 
 const batchDelete = async () => {
@@ -360,13 +316,12 @@ const batchDelete = async () => {
   }
 
   for (const id of selectedRowKeys.value) {
-    await website.delete(id, true, false).then(() => {
-      const site = data.value.find((item) => item.id === id)
+    useRequest(website.delete(id, true, false)).onSuccess(() => {
+      refresh()
+      const site = data.value.find((item: any) => item.id === id)
       window.$message.success('网站 ' + site?.name + ' 删除成功')
     })
   }
-
-  onPageChange(pagination.page)
 }
 
 const formatDbValue = (value: string) => {
@@ -380,7 +335,7 @@ const formatDbValue = (value: string) => {
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
   getPhpAndDb()
   getDefaultPage()
 })
@@ -408,15 +363,23 @@ onMounted(() => {
       <n-data-table
         striped
         remote
-        :loading="false"
+        :loading="loading"
         :scroll-x="1200"
         :columns="columns"
         :data="data"
         :row-key="(row: any) => row.id"
-        :pagination="pagination"
-        @update:checked-row-keys="onChecked"
-        @update:page="onPageChange"
-        @update:page-size="onPageSizeChange"
+        v-model:checked-row-keys="selectedRowKeys"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :pagination="{
+          page: page,
+          pageCount: pageCount,
+          pageSize: pageSize,
+          itemCount: total,
+          showQuickJumper: true,
+          showSizePicker: true,
+          pageSizes: [20, 50, 100, 200]
+        }"
       />
     </n-flex>
   </common-page>
@@ -558,13 +521,7 @@ onMounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button
-      type="info"
-      block
-      :loading="buttonLoading"
-      :disabled="buttonDisabled"
-      @click="handleCreate"
-    >
+    <n-button type="info" block @click="handleCreate">
       {{ $t('websiteIndex.create.actions.submit') }}
     </n-button>
   </n-modal>
