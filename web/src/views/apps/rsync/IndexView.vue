@@ -9,7 +9,6 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import rsync from '@/api/apps/rsync'
 import systemctl from '@/api/panel/systemctl'
 import { generateRandomString, renderIcon } from '@/utils'
-import type { Module } from '@/views/apps/rsync/types'
 
 const currentTab = ref('status')
 const status = ref(false)
@@ -123,36 +122,14 @@ const processColumns: any = [
   }
 ]
 
-const modules = ref<Module[]>([])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
-const getModules = async (page: number, limit: number) => {
-  const { data } = await rsync.modules(page, limit)
-  return data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getModules(page, pagination.pageSize).then((res) => {
-    modules.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => rsync.modules(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const getStatus = async () => {
   status.value = await systemctl.status('rsyncd')
@@ -163,15 +140,14 @@ const getIsEnabled = async () => {
 }
 
 const getConfig = async () => {
-  rsync.config().then((res: any) => {
-    config.value = res.data
-  })
+  config.value = await rsync.config()
 }
 
 const handleSaveConfig = async () => {
-  await rsync.saveConfig(config.value)
-  window.$message.success('保存成功')
-  onPageChange(1)
+  useRequest(rsync.saveConfig(config.value)).onSuccess(() => {
+    refresh()
+    window.$message.success('保存成功')
+  })
 }
 
 const handleStart = async () => {
@@ -204,26 +180,28 @@ const handleRestart = async () => {
 }
 
 const handleModelAdd = async () => {
-  await rsync.addModule(addModuleModel.value)
-  await getConfig()
-  window.$message.success('添加成功')
-  addModuleModal.value = false
-  addModuleModel.value = {
-    name: '',
-    path: '/www',
-    comment: '',
-    auth_user: '',
-    secret: generateRandomString(16),
-    hosts_allow: '0.0.0.0/0'
-  }
-  onPageChange(1)
+  useRequest(rsync.addModule(addModuleModel.value)).onSuccess(() => {
+    refresh()
+    getConfig()
+    addModuleModal.value = false
+    addModuleModel.value = {
+      name: '',
+      path: '/www',
+      comment: '',
+      auth_user: '',
+      secret: generateRandomString(16),
+      hosts_allow: '0.0.0.0/0'
+    }
+    window.$message.success('添加成功')
+  })
 }
 
 const handleModelDelete = async (name: string) => {
-  await rsync.deleteModule(name)
-  await getConfig()
-  window.$message.success('删除成功')
-  onPageChange(1)
+  useRequest(rsync.deleteModule(name)).onSuccess(() => {
+    refresh()
+    getConfig()
+    window.$message.success('删除成功')
+  })
 }
 
 const handleModelEdit = async (row: any) => {
@@ -237,16 +215,19 @@ const handleModelEdit = async (row: any) => {
 }
 
 const handleSaveModuleConfig = async () => {
-  await rsync.updateModule(editModuleModel.value.name, editModuleModel.value)
-  await getConfig()
-  window.$message.success('保存成功')
-  onPageChange(1)
+  useRequest(rsync.updateModule(editModuleModel.value.name, editModuleModel.value)).onSuccess(
+    () => {
+      refresh()
+      getConfig()
+      window.$message.success('保存成功')
+    }
+  )
 }
 
 onMounted(() => {
+  refresh()
   getStatus()
   getIsEnabled()
-  onPageChange(1)
   getConfig()
 })
 </script>
@@ -316,12 +297,21 @@ onMounted(() => {
             striped
             remote
             :scroll-x="1000"
-            :loading="false"
+            :loading="loading"
             :columns="processColumns"
-            :data="modules"
+            :data="data"
             :row-key="(row: any) => row.name"
-            @update:page="onPageChange"
-            @update:page-size="onPageSizeChange"
+            v-model:page="page"
+            v-model:pageSize="pageSize"
+            :pagination="{
+              page: page,
+              pageCount: pageCount,
+              pageSize: pageSize,
+              itemCount: total,
+              showQuickJumper: true,
+              showSizePicker: true,
+              pageSizes: [20, 50, 100, 200]
+            }"
           />
         </n-card>
       </n-tab-pane>

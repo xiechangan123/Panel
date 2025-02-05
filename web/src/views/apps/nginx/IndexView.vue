@@ -42,8 +42,7 @@ const columns: any = [
 const load = ref<any[]>([])
 
 const getLoad = async () => {
-  const { data } = await nginx.load()
-  return data
+  return await nginx.load()
 }
 
 const getStatus = async () => {
@@ -55,13 +54,11 @@ const getIsEnabled = async () => {
 }
 
 const getErrorLog = async () => {
-  const { data } = await nginx.errorLog()
-  return data
+  return await nginx.errorLog()
 }
 
 const getConfig = async () => {
-  const { data } = await nginx.config()
-  return data
+  return await nginx.config()
 }
 
 const handleSaveConfig = async () => {

@@ -1,18 +1,18 @@
-import { request } from '@/utils'
+import { http } from '@/utils'
 
 export default {
   // 负载状态
-  load: (): any => request.get('/apps/postgresql/load'),
+  load: (): any => http.Get('/apps/postgresql/load'),
   // 获取配置
-  config: (): any => request.get('/apps/postgresql/config'),
+  config: (): any => http.Get('/apps/postgresql/config'),
   // 保存配置
-  saveConfig: (config: string): any => request.post('/apps/postgresql/config', { config }),
+  saveConfig: (config: string): any => http.Post('/apps/postgresql/config', { config }),
   // 获取用户配置
-  userConfig: (): any => request.get('/apps/postgresql/userConfig'),
+  userConfig: (): any => http.Get('/apps/postgresql/userConfig'),
   // 保存配置
-  saveUserConfig: (config: string): any => request.post('/apps/postgresql/userConfig', { config }),
+  saveUserConfig: (config: string): any => http.Post('/apps/postgresql/userConfig', { config }),
   // 获取日志
-  log: (): any => request.get('/apps/postgresql/log'),
+  log: (): any => http.Get('/apps/postgresql/log'),
   // 清空错误日志
-  clearLog: (): any => request.post('/apps/postgresql/clearLog')
+  clearLog: (): any => http.Post('/apps/postgresql/clearLog')
 }

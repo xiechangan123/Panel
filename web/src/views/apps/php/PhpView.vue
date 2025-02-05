@@ -130,13 +130,11 @@ const extensions = ref<any[]>([])
 const load = ref<any[]>([])
 
 const getLoad = async () => {
-  const { data } = await php.load(version.value)
-  return data
+  return await php.load(version.value)
 }
 
 const getExtensions = async () => {
-  const { data } = await php.extensions(version.value)
-  return data
+  return await php.extensions(version.value)
 }
 
 const getStatus = async () => {
@@ -148,27 +146,19 @@ const getIsEnabled = async () => {
 }
 
 const getErrorLog = async () => {
-  php.errorLog(version.value).then((res: any) => {
-    errorLog.value = res.data
-  })
+  errorLog.value = await php.errorLog(version.value)
 }
 
 const getSlowLog = async () => {
-  php.slowLog(version.value).then((res: any) => {
-    slowLog.value = res.data
-  })
+  slowLog.value = await php.slowLog(version.value)
 }
 
 const getConfig = async () => {
-  php.config(version.value).then((res: any) => {
-    config.value = res.data
-  })
+  config.value = await php.config(version.value)
 }
 
 const getFPMConfig = async () => {
-  php.fpmConfig(version.value).then((res: any) => {
-    fpmConfig.value = res.data
-  })
+  fpmConfig.value = await php.fpmConfig(version.value)
 }
 
 const handleSetCli = async () => {

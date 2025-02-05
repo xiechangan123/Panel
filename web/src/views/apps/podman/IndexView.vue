@@ -28,12 +28,8 @@ const getIsEnabled = async () => {
 }
 
 const getConfig = async () => {
-  podman.registryConfig().then((res: any) => {
-    registryConfig.value = res.data
-  })
-  podman.storageConfig().then((res: any) => {
-    storageConfig.value = res.data
-  })
+  registryConfig.value = await podman.registryConfig()
+  storageConfig.value = await podman.storageConfig()
 }
 
 const handleSaveRegistryConfig = async () => {

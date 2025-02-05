@@ -1,12 +1,12 @@
-import { request } from '@/utils'
+import { http } from '@/utils'
 
 export default {
   // 获取信息
-  info: (): any => request.get('/apps/phpmyadmin/info'),
+  info: (): any => http.Get('/apps/phpmyadmin/info'),
   // 设置端口
-  port: (port: number): any => request.post('/apps/phpmyadmin/port', { port }),
+  port: (port: number): any => http.Post('/apps/phpmyadmin/port', { port }),
   // 获取配置
-  getConfig: (): any => request.get('/apps/phpmyadmin/config'),
+  getConfig: (): any => http.Get('/apps/phpmyadmin/config'),
   // 保存配置
-  saveConfig: (config: string): any => request.post('/apps/phpmyadmin/config', { config })
+  saveConfig: (config: string): any => http.Post('/apps/phpmyadmin/config', { config })
 }

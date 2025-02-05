@@ -40,8 +40,7 @@ const loadColumns: any = [
 const load = ref<any[]>([])
 
 const getLoad = async () => {
-  const { data } = await redis.load()
-  return data
+  return await redis.load()
 }
 
 const getStatus = async () => {
@@ -53,9 +52,7 @@ const getIsEnabled = async () => {
 }
 
 const getConfig = async () => {
-  redis.config().then((res: any) => {
-    config.value = res.data
-  })
+  config.value = await redis.config()
 }
 
 const handleSaveConfig = async () => {

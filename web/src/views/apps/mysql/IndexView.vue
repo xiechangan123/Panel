@@ -42,8 +42,7 @@ const loadColumns: any = [
 const load = ref<any[]>([])
 
 const getLoad = async () => {
-  const { data } = await mysql.load()
-  return data
+  return await mysql.load()
 }
 
 const getStatus = async () => {
@@ -61,8 +60,7 @@ const getRootPassword = async () => {
 }
 
 const getSlowLog = async () => {
-  const { data } = await mysql.slowLog()
-  return data
+  return await mysql.slowLog()
 }
 
 const getConfig = async () => {

@@ -19,11 +19,10 @@ const url = computed(() => {
 const config = ref('')
 
 const getInfo = async () => {
-  phpmyadmin.info().then((res: any) => {
-    path.value = res.data.path
-    port.value = res.data.port
-    newPort.value = res.data.port
-  })
+  const data = await phpmyadmin.info()
+  path.value = data.path
+  port.value = data.port
+  newPort.value = data.port
 }
 
 const handleSave = async () => {
@@ -33,8 +32,7 @@ const handleSave = async () => {
 }
 
 const getConfig = async () => {
-  const { data } = await phpmyadmin.getConfig()
-  return data
+  return await phpmyadmin.getConfig()
 }
 
 const handleSaveConfig = async () => {

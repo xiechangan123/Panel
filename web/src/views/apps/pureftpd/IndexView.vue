@@ -8,7 +8,6 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import pureftpd from '@/api/apps/pureftpd'
 import systemctl from '@/api/panel/systemctl'
 import { generateRandomString, renderIcon } from '@/utils'
-import type { User } from '@/views/apps/pureftpd/types'
 
 const currentTab = ref('status')
 const status = ref(false)
@@ -33,16 +32,6 @@ const addUserModel = ref({
 const changePasswordModel = ref({
   username: '',
   password: generateRandomString(16)
-})
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
 })
 
 const userColumns: any = [
@@ -115,7 +104,14 @@ const userColumns: any = [
   }
 ]
 
-const users = ref<User[]>([] as User[])
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => pureftpd.list(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const getStatus = async () => {
   status.value = await systemctl.status('pure-ftpd')
@@ -126,13 +122,11 @@ const getIsEnabled = async () => {
 }
 
 const getPort = async () => {
-  await pureftpd.port().then((res: any) => {
-    port.value = res.data
-  })
+  port.value = await pureftpd.port()
 }
 
 const handleSavePort = async () => {
-  await pureftpd.setPort(port.value)
+  await pureftpd.updatePort(port.value)
   window.$message.success('保存成功')
 }
 
@@ -165,60 +159,41 @@ const handleRestart = async () => {
   await getStatus()
 }
 
-const getUsers = async (page: number, limit: number) => {
-  const { data } = await pureftpd.list(page, limit)
-  return data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getUsers(page, pagination.pageSize).then((res) => {
-    users.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
+const handleAddUser = async () => {
+  useRequest(
+    pureftpd.add(addUserModel.value.username, addUserModel.value.password, addUserModel.value.path)
+  ).onSuccess(() => {
+    refresh()
+    addUserModal.value = false
+    addUserModel.value.username = ''
+    addUserModel.value.password = generateRandomString(16)
+    addUserModel.value.path = ''
+    window.$message.success('添加成功')
   })
 }
 
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const handleAddUser = async () => {
-  await pureftpd.add(
-    addUserModel.value.username,
-    addUserModel.value.password,
-    addUserModel.value.path
-  )
-  window.$message.success('添加成功')
-  onPageChange(1)
-  addUserModal.value = false
-  addUserModel.value.username = ''
-  addUserModel.value.password = generateRandomString(16)
-  addUserModel.value.path = ''
-}
-
 const handleChangePassword = async () => {
-  await pureftpd.changePassword(
-    changePasswordModel.value.username,
-    changePasswordModel.value.password
-  )
-  window.$message.success('修改成功')
-  onPageChange(1)
-  changePasswordModal.value = false
+  useRequest(
+    pureftpd.changePassword(changePasswordModel.value.username, changePasswordModel.value.password)
+  ).onSuccess(() => {
+    refresh()
+    changePasswordModal.value = false
+    window.$message.success('修改成功')
+  })
 }
 
 const handleDeleteUser = async (username: string) => {
-  await pureftpd.delete(username)
-  window.$message.success('删除成功')
-  onPageChange(1)
+  useRequest(pureftpd.delete(username)).onSuccess(() => {
+    refresh()
+    window.$message.success('删除成功')
+  })
 }
 
 onMounted(() => {
+  refresh()
   getStatus()
   getIsEnabled()
   getPort()
-  onPageChange(1)
 })
 </script>
 
@@ -286,12 +261,21 @@ onMounted(() => {
             striped
             remote
             :scroll-x="1000"
-            :loading="false"
+            :loading="loading"
             :columns="userColumns"
-            :data="users"
+            :data="data"
             :row-key="(row: any) => row.username"
-            @update:page="onPageChange"
-            @update:page-size="onPageSizeChange"
+            v-model:page="page"
+            v-model:pageSize="pageSize"
+            :pagination="{
+              page: page,
+              pageCount: pageCount,
+              pageSize: pageSize,
+              itemCount: total,
+              showQuickJumper: true,
+              showSizePicker: true,
+              pageSizes: [20, 50, 100, 200]
+            }"
           />
         </n-card>
       </n-tab-pane>

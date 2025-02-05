@@ -42,8 +42,7 @@ const loadColumns: any = [
 const load = ref<any[]>([])
 
 const getLoad = async () => {
-  const { data } = await postgresql.load()
-  return data
+  return await postgresql.load()
 }
 
 const getStatus = async () => {
@@ -55,20 +54,15 @@ const getIsEnabled = async () => {
 }
 
 const getLog = async () => {
-  const { data } = await postgresql.log()
-  return data
+  return await postgresql.log()
 }
 
 const getConfig = async () => {
-  postgresql.config().then((res: any) => {
-    config.value = res.data
-  })
+  config.value = await postgresql.config()
 }
 
 const getUserConfig = async () => {
-  postgresql.userConfig().then((res: any) => {
-    userConfig.value = res.data
-  })
+  userConfig.value = await postgresql.userConfig()
 }
 
 const handleSaveConfig = async () => {
