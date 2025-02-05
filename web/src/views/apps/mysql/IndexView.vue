@@ -12,9 +12,19 @@ import systemctl from '@/api/panel/systemctl'
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
-const config = ref('')
-const slowLog = ref('')
-const rootPassword = ref('')
+
+const { data: rootPassword } = useRequest(mysql.rootPassword, {
+  initialData: ''
+})
+const { data: config } = useRequest(mysql.config, {
+  initialData: ''
+})
+const { data: slowLog } = useRequest(mysql.slowLog, {
+  initialData: ''
+})
+const { data: load } = useRequest(mysql.load, {
+  initialData: []
+})
 
 const statusType = computed(() => {
   return status.value ? 'success' : 'error'
@@ -39,33 +49,12 @@ const loadColumns: any = [
   }
 ]
 
-const load = ref<any[]>([])
-
-const getLoad = async () => {
-  return await mysql.load()
-}
-
 const getStatus = async () => {
   status.value = await systemctl.status('mysqld')
 }
 
 const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled('mysqld')
-}
-
-const getRootPassword = async () => {
-  await mysql.rootPassword().then((res: any) => {
-    rootPassword.value = res.data
-  })
-}
-
-const getSlowLog = async () => {
-  return await mysql.slowLog()
-}
-
-const getConfig = async () => {
-  const { data } = await mysql.config()
-  return data
 }
 
 const handleSaveConfig = async () => {
@@ -126,16 +115,6 @@ const handleSetRootPassword = async () => {
 onMounted(() => {
   getStatus()
   getIsEnabled()
-  getRootPassword()
-  getLoad().then((res) => {
-    load.value = res
-  })
-  getSlowLog().then((res) => {
-    slowLog.value = res
-  })
-  getConfig().then((res) => {
-    config.value = res
-  })
 })
 </script>
 

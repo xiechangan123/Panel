@@ -12,8 +12,16 @@ import systemctl from '@/api/panel/systemctl'
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
-const config = ref('')
-const errorLog = ref('')
+
+const { data: config } = useRequest(nginx.config, {
+  initialData: ''
+})
+const { data: errorLog } = useRequest(nginx.errorLog, {
+  initialData: ''
+})
+const { data: load } = useRequest(nginx.load, {
+  initialData: []
+})
 
 const statusType = computed(() => {
   return status.value ? 'success' : 'error'
@@ -39,26 +47,12 @@ const columns: any = [
   }
 ]
 
-const load = ref<any[]>([])
-
-const getLoad = async () => {
-  return await nginx.load()
-}
-
 const getStatus = async () => {
   status.value = await systemctl.status('nginx')
 }
 
 const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled('nginx')
-}
-
-const getErrorLog = async () => {
-  return await nginx.errorLog()
-}
-
-const getConfig = async () => {
-  return await nginx.config()
 }
 
 const handleSaveConfig = async () => {
@@ -109,15 +103,6 @@ const handleReload = async () => {
 onMounted(() => {
   getStatus()
   getIsEnabled()
-  getLoad().then((res) => {
-    load.value = res
-  })
-  getErrorLog().then((res) => {
-    errorLog.value = res
-  })
-  getConfig().then((res) => {
-    config.value = res
-  })
 })
 </script>
 

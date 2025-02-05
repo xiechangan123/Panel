@@ -12,7 +12,13 @@ import systemctl from '@/api/panel/systemctl'
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
-const config = ref('')
+
+const { data: config } = useRequest(redis.config, {
+  initialData: ''
+})
+const { data: load } = useRequest(redis.load, {
+  initialData: []
+})
 
 const statusType = computed(() => {
   return status.value ? 'success' : 'error'
@@ -37,22 +43,12 @@ const loadColumns: any = [
   }
 ]
 
-const load = ref<any[]>([])
-
-const getLoad = async () => {
-  return await redis.load()
-}
-
 const getStatus = async () => {
   status.value = await systemctl.status('redis')
 }
 
 const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled('redis')
-}
-
-const getConfig = async () => {
-  config.value = await redis.config()
 }
 
 const handleSaveConfig = async () => {
@@ -92,10 +88,6 @@ const handleRestart = async () => {
 onMounted(() => {
   getStatus()
   getIsEnabled()
-  getLoad().then((res) => {
-    load.value = res
-  })
-  getConfig()
 })
 </script>
 

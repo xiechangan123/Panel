@@ -16,7 +16,12 @@ const newPort = ref(0)
 const url = computed(() => {
   return `http://${hostname.value}:${port.value}/${path.value}`
 })
-const config = ref('')
+
+const { data: config } = useRequest(phpmyadmin.getConfig, {
+  initialData: {
+    config: ''
+  }
+})
 
 const getInfo = async () => {
   const data = await phpmyadmin.info()
@@ -31,10 +36,6 @@ const handleSave = async () => {
   await getInfo()
 }
 
-const getConfig = async () => {
-  return await phpmyadmin.getConfig()
-}
-
 const handleSaveConfig = async () => {
   await phpmyadmin.saveConfig(config.value)
   window.$message.success('保存成功')
@@ -42,9 +43,6 @@ const handleSaveConfig = async () => {
 
 onMounted(() => {
   getInfo()
-  getConfig().then((res) => {
-    config.value = res
-  })
 })
 </script>
 

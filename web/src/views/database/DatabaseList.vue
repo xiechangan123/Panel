@@ -116,14 +116,14 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleDelete = async (serverID: number, name: string) => {
-  await database.delete(serverID, name).then(() => {
-    window.$message.success('删除成功')
+  useRequest(database.delete(serverID, name)).onSuccess(() => {
     refresh()
+    window.$message.success('删除成功')
   })
 }
 
 const handleComment = (row: any) => {
-  database.comment(row.server_id, row.name, row.comment).then(() => {
+  useRequest(database.comment(row.server_id, row.name, row.comment)).onSuccess(() => {
     window.$message.success('修改成功')
   })
 }

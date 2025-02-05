@@ -12,9 +12,19 @@ import systemctl from '@/api/panel/systemctl'
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
-const config = ref('')
-const userConfig = ref('')
-const log = ref('')
+
+const { data: log } = useRequest(postgresql.log, {
+  initialData: ''
+})
+const { data: config } = useRequest(postgresql.config, {
+  initialData: ''
+})
+const { data: userConfig } = useRequest(postgresql.userConfig, {
+  initialData: ''
+})
+const { data: load } = useRequest(postgresql.load, {
+  initialData: []
+})
 
 const statusType = computed(() => {
   return status.value ? 'success' : 'error'
@@ -39,30 +49,12 @@ const loadColumns: any = [
   }
 ]
 
-const load = ref<any[]>([])
-
-const getLoad = async () => {
-  return await postgresql.load()
-}
-
 const getStatus = async () => {
   status.value = await systemctl.status('postgresql')
 }
 
 const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled('postgresql')
-}
-
-const getLog = async () => {
-  return await postgresql.log()
-}
-
-const getConfig = async () => {
-  config.value = await postgresql.config()
-}
-
-const getUserConfig = async () => {
-  userConfig.value = await postgresql.userConfig()
 }
 
 const handleSaveConfig = async () => {
@@ -118,14 +110,6 @@ const handleReload = async () => {
 onMounted(() => {
   getStatus()
   getIsEnabled()
-  getLoad().then((res) => {
-    load.value = res
-  })
-  getLog().then((res) => {
-    log.value = res
-  })
-  getConfig()
-  getUserConfig()
 })
 </script>
 

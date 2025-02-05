@@ -18,10 +18,25 @@ const { version } = toRefs(props)
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
-const config = ref('')
-const fpmConfig = ref('')
-const errorLog = ref('')
-const slowLog = ref('')
+
+const { data: config } = useRequest(php.config(version.value), {
+  initialData: ''
+})
+const { data: fpmConfig } = useRequest(php.fpmConfig(version.value), {
+  initialData: ''
+})
+const { data: errorLog } = useRequest(php.errorLog(version.value), {
+  initialData: ''
+})
+const { data: slowLog } = useRequest(php.slowLog(version.value), {
+  initialData: ''
+})
+const { data: load } = useRequest(php.load(version.value), {
+  initialData: []
+})
+const { data: extensions } = useRequest(php.extensions(version.value), {
+  initialData: []
+})
 
 const statusType = computed(() => {
   return status.value ? 'success' : 'error'
@@ -126,39 +141,12 @@ const loadColumns: any = [
   }
 ]
 
-const extensions = ref<any[]>([])
-const load = ref<any[]>([])
-
-const getLoad = async () => {
-  return await php.load(version.value)
-}
-
-const getExtensions = async () => {
-  return await php.extensions(version.value)
-}
-
 const getStatus = async () => {
   status.value = await systemctl.status(`php-fpm-${version.value}`)
 }
 
 const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled(`php-fpm-${version.value}`)
-}
-
-const getErrorLog = async () => {
-  errorLog.value = await php.errorLog(version.value)
-}
-
-const getSlowLog = async () => {
-  slowLog.value = await php.slowLog(version.value)
-}
-
-const getConfig = async () => {
-  config.value = await php.config(version.value)
-}
-
-const getFPMConfig = async () => {
-  fpmConfig.value = await php.fpmConfig(version.value)
 }
 
 const handleSetCli = async () => {
@@ -174,7 +162,6 @@ const handleSaveConfig = async () => {
 const handleSaveFPMConfig = async () => {
   await php.saveFPMConfig(version.value, fpmConfig.value)
   window.$message.success('保存成功')
-  await getFPMConfig()
 }
 
 const handleClearErrorLog = async () => {
@@ -223,13 +210,13 @@ const handleReload = async () => {
 }
 
 const handleInstallExtension = async (slug: string) => {
-  await php.installExtension(version.value, slug).then(() => {
+  useRequest(php.installExtension(version.value, slug)).onSuccess(() => {
     window.$message.success('任务已提交，请稍后查看任务进度')
   })
 }
 
 const handleUninstallExtension = async (name: string) => {
-  await php.uninstallExtension(version.value, name).then(() => {
+  useRequest(php.uninstallExtension(version.value, name)).onSuccess(() => {
     window.$message.success('任务已提交，请稍后查看任务进度')
   })
 }
@@ -237,16 +224,6 @@ const handleUninstallExtension = async (name: string) => {
 onMounted(() => {
   getStatus()
   getIsEnabled()
-  getExtensions().then((res) => {
-    extensions.value = res
-  })
-  getLoad().then((res) => {
-    load.value = res
-  })
-  getErrorLog()
-  getSlowLog()
-  getConfig()
-  getFPMConfig()
 })
 </script>
 
