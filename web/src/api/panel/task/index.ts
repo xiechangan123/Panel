@@ -1,12 +1,12 @@
-import { request } from '@/utils'
+import { http } from '@/utils'
 
 export default {
   // 获取状态
-  status: (): any => request.get('/task/status'),
+  status: (): any => http.Get('/task/status'),
   // 获取任务列表
-  list: (page: number, limit: number): any => request.get('/task', { params: { page, limit } }),
+  list: (page: number, limit: number): any => http.Get('/task', { params: { page, limit } }),
   // 获取任务
-  get: (id: number): any => request.get('/task/' + id),
+  get: (id: number): any => http.Get(`/task/${id}`),
   // 删除任务
-  delete: (id: number): any => request.delete('/task/' + id)
+  delete: (id: number): any => http.Delete(`/task/${id}`)
 }

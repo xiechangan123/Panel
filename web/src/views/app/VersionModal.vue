@@ -26,12 +26,11 @@ const options = computed(() => {
 })
 
 const handleSubmit = () => {
-  app
-    .install(info.value.slug, model.value.channel)
-    .then(() => {
+  useRequest(app.install(info.value.slug, model.value.channel))
+    .onSuccess(() => {
       window.$message.success(t('appIndex.alerts.install'))
     })
-    .finally(() => {
+    .onComplete(() => {
       doSubmit.value = false
       show.value = false
       model.value = {

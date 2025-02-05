@@ -36,15 +36,16 @@ const getAsyncData = async () => {
   algorithms.value = algorithmData
 
   websites.value = []
-  app.isInstalled('nginx').then(async (res) => {
-    if (res.data.installed) {
-      const websiteData = await website.list(1, 10000)
-      for (const item of websiteData.items) {
-        websites.value.push({
-          label: item.name,
-          value: item.id
-        })
-      }
+  useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
+    if (data.installed) {
+      useRequest(website.list(1, 10000)).onSuccess(({ data }) => {
+        for (const item of data.items) {
+          websites.value.push({
+            label: item.name,
+            value: item.id
+          })
+        }
+      })
     }
   })
 

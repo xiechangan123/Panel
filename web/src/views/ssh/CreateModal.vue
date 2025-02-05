@@ -18,11 +18,8 @@ const model = ref({
 
 const handleSubmit = async () => {
   loading.value = true
-  await ssh
-    .create(model.value)
-    .then(() => {
-      window.$message.success('创建成功')
-      window.$bus.emit('ssh:refresh')
+  useRequest(ssh.create(model.value))
+    .onSuccess(() => {
       loading.value = false
       show.value = false
       model.value = {
@@ -35,8 +32,10 @@ const handleSubmit = async () => {
         key: '',
         remark: ''
       }
+      window.$bus.emit('ssh:refresh')
+      window.$message.success('创建成功')
     })
-    .catch(() => {
+    .onComplete(() => {
       loading.value = false
     })
 }

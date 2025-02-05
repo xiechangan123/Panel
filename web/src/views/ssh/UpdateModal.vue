@@ -19,32 +19,30 @@ const model = ref({
 
 const handleSubmit = async () => {
   loading.value = true
-  await ssh
-    .update(id.value, model.value)
-    .then(() => {
-      window.$message.success('更新成功')
+  useRequest(ssh.update(id.value, model.value))
+    .onSuccess(() => {
       id.value = 0
       loading.value = false
       show.value = false
       window.$bus.emit('ssh:refresh')
+      window.$message.success('更新成功')
     })
-    .catch(() => {
+    .onComplete(() => {
       loading.value = false
     })
 }
 
-watch(show, () => {
+watch(show, async () => {
   if (id.value > 0) {
-    ssh.get(id.value).then((res) => {
-      model.value.name = res.data.name
-      model.value.host = res.data.host
-      model.value.port = res.data.port
-      model.value.auth_method = res.data.config.auth_method
-      model.value.user = res.data.config.user
-      model.value.password = res.data.config.password
-      model.value.key = res.data.config.key
-      model.value.remark = res.data.remark
-    })
+    const data = await ssh.get(id.value)
+    model.value.name = data.name
+    model.value.host = data.host
+    model.value.port = data.port
+    model.value.auth_method = data.config.auth_method
+    model.value.user = data.config.user
+    model.value.password = data.config.password
+    model.value.key = data.config.key
+    model.value.remark = data.remark
   }
 })
 </script>

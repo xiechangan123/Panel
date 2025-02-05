@@ -13,13 +13,12 @@ const fetchSetting = async () => {
   firewall.status().then((res) => {
     model.value.firewallStatus = res.data
   })
-  safe.ssh().then((res) => {
-    model.value.sshStatus = res.data.status
-    model.value.sshPort = res.data.port
-  })
-  safe.pingStatus().then((res) => {
-    model.value.pingStatus = res.data
-  })
+
+  const ssh = await safe.ssh()
+  model.value.sshStatus = ssh.status
+  model.value.sshPort = ssh.port
+
+  model.value.pingStatus = await safe.pingStatus()
 }
 
 const handleFirewallStatus = () => {
@@ -29,13 +28,13 @@ const handleFirewallStatus = () => {
 }
 
 const handleSsh = () => {
-  safe.setSsh(model.value.sshStatus, model.value.sshPort).then(() => {
+  useRequest(safe.updateSsh(model.value.sshStatus, model.value.sshPort)).onSuccess(() => {
     window.$message.success('设置成功')
   })
 }
 
 const handlePingStatus = () => {
-  safe.setPingStatus(model.value.pingStatus).then(() => {
+  useRequest(safe.updatePingStatus(model.value.pingStatus)).onSuccess(() => {
     window.$message.success('设置成功')
   })
 }

@@ -86,8 +86,8 @@ watch(createModel, (value) => {
 
 onMounted(() => {
   getPhpAndDb()
-  app.isInstalled('nginx').then((res) => {
-    if (res.data.installed) {
+  useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
+    if (data.installed) {
       getWebsiteList(1, 10000)
     }
   })

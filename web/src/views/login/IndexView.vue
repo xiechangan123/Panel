@@ -48,37 +48,33 @@ async function handleLogin() {
     window.$message.warning('获取加密公钥失败，请刷新页面重试')
     return
   }
-  try {
-    user
-      .login(
-        rsaEncrypt(username, String(unref(key))),
-        rsaEncrypt(password, String(unref(key))),
-        safe_login
-      )
-      .then(async () => {
-        loging.value = true
-        window.$notification?.success({ title: '登录成功！', duration: 2500 })
-        if (isRemember.value) {
-          setLocal('loginInfo', { username, password })
-        } else {
-          removeLocal('loginInfo')
-        }
+  useRequest(
+    user.login(
+      rsaEncrypt(username, String(unref(key))),
+      rsaEncrypt(password, String(unref(key))),
+      safe_login
+    )
+  ).onSuccess(async () => {
+    loging.value = true
+    window.$notification?.success({ title: '登录成功！', duration: 2500 })
+    if (isRemember.value) {
+      setLocal('loginInfo', { username, password })
+    } else {
+      removeLocal('loginInfo')
+    }
 
-        await addDynamicRoutes()
-        await user.info().then((data: any) => {
-          userStore.set(data)
-        })
-        if (query.redirect) {
-          const path = query.redirect as string
-          Reflect.deleteProperty(query, 'redirect')
-          await router.push({ path, query })
-        } else {
-          await router.push('/')
-        }
-      })
-  } catch (error) {
-    console.error(error)
-  }
+    await addDynamicRoutes()
+    await user.info().then((data: any) => {
+      userStore.set(data)
+    })
+    if (query.redirect) {
+      const path = query.redirect as string
+      Reflect.deleteProperty(query, 'redirect')
+      await router.push({ path, query })
+    } else {
+      await router.push('/')
+    }
+  })
   loging.value = false
 }
 

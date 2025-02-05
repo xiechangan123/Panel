@@ -3,26 +3,26 @@ import { useI18n } from 'vue-i18n'
 
 import setting from '@/api/panel/setting'
 import { useThemeStore } from '@/store'
-import type { Setting } from '@/views/setting/types'
 
 const { t } = useI18n()
 const themeStore = useThemeStore()
 
-const model = ref<Setting>({
-  name: '',
-  locale: '',
-  username: '',
-  password: '',
-  email: '',
-  port: 8888,
-  entrance: '',
-  offline_mode: false,
-  auto_update: false,
-  website_path: '',
-  backup_path: '',
-  https: false,
-  cert: '',
-  key: ''
+const { data: model } = useRequest(setting.list, {
+  initialData: {
+    name: '',
+    locale: '',
+    username: '',
+    password: '',
+    email: '',
+    port: 8888,
+    entrance: '',
+    offline_mode: false,
+    website_path: '',
+    backup_path: '',
+    https: false,
+    cert: '',
+    key: ''
+  }
 })
 
 const locales = [
@@ -30,14 +30,8 @@ const locales = [
   { label: 'English', value: 'en' }
 ]
 
-const getSetting = () => {
-  setting.list().then((res) => {
-    model.value = res.data
-  })
-}
-
 const handleSave = () => {
-  setting.update(model.value).then(() => {
+  useRequest(setting.update(model.value)).onSuccess(() => {
     window.$message.success(t('settingIndex.edit.toasts.success'))
     setTimeout(() => {
       maybeHardReload()
@@ -50,10 +44,6 @@ const maybeHardReload = () => {
     window.location.reload()
   }
 }
-
-onMounted(() => {
-  getSetting()
-})
 </script>
 
 <template>

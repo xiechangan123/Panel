@@ -189,6 +189,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   (page, pageSize) => fail2ban.jails(page, pageSize),
   {
     initialData: { total: 0, list: [] },
+    initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items
   }
@@ -271,8 +272,8 @@ onMounted(() => {
   getStatus()
   getIsEnabled()
   getWhiteList()
-  app.isInstalled('nginx').then((res) => {
-    if (res.data.installed) {
+  useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
+    if (data.installed) {
       getWebsiteList(1, 10000)
     }
   })

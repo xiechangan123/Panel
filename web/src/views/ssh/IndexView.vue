@@ -36,7 +36,7 @@ const list = ref<any[]>([])
 
 const fetchData = async () => {
   list.value = []
-  const { data } = await ssh.list(1, 10000)
+  const data = await ssh.list(1, 10000)
   if (data.items.length === 0) {
     window.$message.info('请先创建主机')
     return
@@ -105,18 +105,19 @@ const fetchData = async () => {
 }
 
 const handleDelete = async (id: number) => {
-  await ssh.delete(id)
-  list.value = list.value.filter((item: any) => item.key !== id)
-  if (current.value === id) {
-    if (list.value.length > 0) {
-      await openSession(Number(list.value[0].key))
-    } else {
-      term.value.dispose()
+  useRequest(ssh.delete(id)).onSuccess(() => {
+    list.value = list.value.filter((item: any) => item.key !== id)
+    if (current.value === id) {
+      if (list.value.length > 0) {
+        openSession(Number(list.value[0].key))
+      } else {
+        term.value.dispose()
+      }
+      if (list.value.length === 0) {
+        create.value = true
+      }
     }
-    if (list.value.length === 0) {
-      create.value = true
-    }
-  }
+  })
 }
 
 const handleChange = (key: number) => {

@@ -8,17 +8,16 @@ import VersionModal from '@/views/app/VersionModal.vue'
 import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
+import app from '@/api/panel/app'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { router } from '@/router'
 import { renderIcon } from '@/utils'
-import type { App } from '@/views/app/types'
-import app from '../../api/panel/app'
 
 const { t } = useI18n()
 
 const versionModalShow = ref(false)
 const versionModalOperation = ref('安装')
-const versionModalInfo = ref<App>({} as App)
+const versionModalInfo = ref<any>({})
 
 const columns: any = [
   {
@@ -174,35 +173,31 @@ const columns: any = [
   }
 ]
 
-const apps = ref<App[]>([] as App[])
-
-const selectedRowKeys = ref<any>([])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => app.list(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const handleShowChange = (row: any) => {
-  app.updateShow(row.slug, !row.show).then(() => {
-    window.$message.success(t('appIndex.alerts.setup'))
+  useRequest(app.updateShow(row.slug, !row.show)).onSuccess(() => {
     row.show = !row.show
+    window.$message.success(t('appIndex.alerts.setup'))
   })
 }
 
 const handleUpdate = (slug: string) => {
-  app.update(slug).then(() => {
+  useRequest(app.update(slug)).onSuccess(() => {
     window.$message.success(t('appIndex.alerts.update'))
   })
 }
 
 const handleUninstall = (slug: string) => {
-  app.uninstall(slug).then(() => {
+  useRequest(app.uninstall(slug)).onSuccess(() => {
     window.$message.success(t('appIndex.alerts.uninstall'))
   })
 }
@@ -212,37 +207,14 @@ const handleManage = (slug: string) => {
 }
 
 const handleUpdateCache = () => {
-  app.updateCache().then(() => {
+  useRequest(app.updateCache()).onSuccess(() => {
+    refresh()
     window.$message.success(t('appIndex.alerts.cache'))
-    onPageChange(1)
   })
-}
-
-const getAppList = async (page: number, limit: number) => {
-  const { data } = await app.list(page, limit)
-  return data
-}
-
-const onChecked = (rowKeys: any) => {
-  selectedRowKeys.value = rowKeys
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getAppList(page, pagination.pageSize).then((res) => {
-    apps.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
 })
 </script>
 
@@ -260,14 +232,21 @@ onMounted(() => {
         striped
         remote
         :scroll-x="1200"
-        :loading="false"
+        :loading="loading"
         :columns="columns"
-        :data="apps"
+        :data="data"
         :row-key="(row: any) => row.slug"
-        :pagination="pagination"
-        @update:checked-row-keys="onChecked"
-        @update:page="onPageChange"
-        @update:page-size="onPageSizeChange"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :pagination="{
+          page: page,
+          pageCount: pageCount,
+          pageSize: pageSize,
+          itemCount: total,
+          showQuickJumper: true,
+          showSizePicker: true,
+          pageSizes: [20, 50, 100, 200]
+        }"
       />
       <version-modal
         v-model:show="versionModalShow"

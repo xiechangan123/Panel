@@ -4,13 +4,11 @@ import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import task from '@/api/panel/task'
 import RealtimeLogModal from '@/components/common/RealtimeLogModal.vue'
 import { formatDateTime, renderIcon } from '@/utils'
-import type { Task } from '@/views/task/types'
 
 const logModal = ref(false)
 const logPath = ref('')
 
 const columns: any = [
-  { type: 'selection', fixed: 'left' },
   {
     title: '任务名',
     key: 'name',
@@ -109,52 +107,25 @@ const columns: any = [
   }
 ]
 
-const tasks = ref<Task[]>([] as Task[])
-
-const selectedRowKeys = ref<any>([])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => task.list(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const handleDelete = (id: number) => {
-  task.delete(id).then(() => {
+  useRequest(task.delete(id)).onSuccess(() => {
+    refresh()
     window.$message.success('删除成功')
-    onPageChange(pagination.page)
   })
-}
-
-const fetchTaskList = async (page: number, limit: number) => {
-  const { data } = await task.list(page, limit)
-  return data
-}
-
-const onChecked = (rowKeys: any) => {
-  selectedRowKeys.value = rowKeys
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  fetchTaskList(page, pagination.pageSize).then((res) => {
-    tasks.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
 })
 </script>
 
@@ -165,14 +136,21 @@ onMounted(() => {
       striped
       remote
       :scroll-x="1000"
-      :loading="false"
+      :loading="loading"
       :columns="columns"
-      :data="tasks"
+      :data="data"
       :row-key="(row: any) => row.id"
-      :pagination="pagination"
-      @update:checked-row-keys="onChecked"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
     />
   </n-flex>
   <realtime-log-modal v-model:show="logModal" :path="logPath" />

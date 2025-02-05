@@ -68,6 +68,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   (page, pageSize) => s3fs.mounts(page, pageSize),
   {
     initialData: { total: 0, list: [] },
+    initialPageSize: 20,
     total: (res: any) => res.total,
     data: (res: any) => res.items
   }
