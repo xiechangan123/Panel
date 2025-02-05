@@ -1,39 +1,33 @@
-import type { AxiosResponse } from 'axios'
-
 import { http, request } from '@/utils'
 
 export default {
   // 列表
-  list: (page: number, limit: number): Promise<AxiosResponse<any>> =>
-    request.get('/website', { params: { page, limit } }),
+  list: (page: number, limit: number): any => request.get('/website', { params: { page, limit } }),
   // 创建
-  create: (data: any): Promise<AxiosResponse<any>> => request.post('/website', data),
+  create: (data: any): any => request.post('/website', data),
   // 删除
-  delete: (id: number, path: boolean, db: boolean): Promise<AxiosResponse<any>> =>
+  delete: (id: number, path: boolean, db: boolean): any =>
     request.delete(`/website/${id}`, { data: { path, db } }),
   // 伪静态
   rewrites: () => http.Get(`/website/rewrites`),
   // 获取默认配置
-  defaultConfig: (): Promise<AxiosResponse<any>> => request.get('/website/defaultConfig'),
+  defaultConfig: (): any => request.get('/website/defaultConfig'),
   // 保存默认配置
-  saveDefaultConfig: (index: string, stop: string): Promise<AxiosResponse<any>> =>
+  saveDefaultConfig: (index: string, stop: string): any =>
     request.post('/website/defaultConfig', { index, stop }),
   // 网站配置
-  config: (id: number): Promise<AxiosResponse<any>> => request.get('/website/' + id),
+  config: (id: number): any => request.get('/website/' + id),
   // 保存网站配置
-  saveConfig: (id: number, data: any): Promise<AxiosResponse<any>> =>
-    request.put(`/website/${id}`, data),
+  saveConfig: (id: number, data: any): any => request.put(`/website/${id}`, data),
   // 清空日志
-  clearLog: (id: number): Promise<AxiosResponse<any>> => request.delete('/website/' + id + '/log'),
+  clearLog: (id: number): any => request.delete('/website/' + id + '/log'),
   // 更新备注
-  updateRemark: (id: number, remark: string): Promise<AxiosResponse<any>> =>
+  updateRemark: (id: number, remark: string): any =>
     request.post(`/website/${id}` + '/updateRemark', { remark }),
   // 重置配置
-  resetConfig: (id: number): Promise<AxiosResponse<any>> =>
-    request.post(`/website/${id}/resetConfig`),
+  resetConfig: (id: number): any => request.post(`/website/${id}/resetConfig`),
   // 修改状态
-  status: (id: number, status: boolean): Promise<AxiosResponse<any>> =>
-    request.post(`/website/${id}/status`, { status }),
+  status: (id: number, status: boolean): any => request.post(`/website/${id}/status`, { status }),
   // 签发证书
-  obtainCert: (id: number): Promise<AxiosResponse<any>> => request.post(`/website/${id}/obtainCert`)
+  obtainCert: (id: number): any => request.post(`/website/${id}/obtainCert`)
 }

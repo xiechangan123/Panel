@@ -49,12 +49,8 @@ const getIsEnabled = async () => {
 }
 
 const getConfig = async () => {
-  frp.config('frps').then((res: any) => {
-    config.value.frps = res.data
-  })
-  frp.config('frpc').then((res: any) => {
-    config.value.frpc = res.data
-  })
+  config.value.frps = await frp.config('frps')
+  config.value.frpc = await frp.config('frpc')
 }
 
 const handleSaveConfig = async (service: string) => {

@@ -1,12 +1,8 @@
-import type { AxiosResponse } from 'axios'
-
-import { request } from '@/utils'
+import { http } from '@/utils'
 
 export default {
   // 获取配置
-  config: (name: string): Promise<AxiosResponse<any>> =>
-    request.get('/apps/frp/config', { params: { name } }),
+  config: (name: string): any => http.Get('/apps/frp/config', { params: { name } }),
   // 保存配置
-  saveConfig: (name: string, config: string): Promise<AxiosResponse<any>> =>
-    request.post('/apps/frp/config', { name, config })
+  saveConfig: (name: string, config: string): any => http.Post('/apps/frp/config', { name, config })
 }
