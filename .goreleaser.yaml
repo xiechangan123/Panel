@@ -60,7 +60,7 @@ archives:
     builds:
       - web
       - cli
-    format: zip
+    formats: ["zip", "tar.gz", "tar.xz"]
     wrap_in_directory: false
     strip_binary_directory: true
     files:
