@@ -12,17 +12,12 @@ import { useI18n } from 'vue-i18n'
 import dashboard from '@/api/panel/dashboard'
 import { router } from '@/router'
 import { formatDateTime } from '@/utils'
-import type { Version } from '@/views/dashboard/types'
 
 const { t } = useI18n()
-const versions = ref<Version[] | null>(null)
+const { data: versions } = useRequest(dashboard.updateInfo, {
+  initialData: []
+})
 let messageReactive: MessageReactive | null = null
-
-const getVersions = () => {
-  dashboard.updateInfo().then((res: any) => {
-    versions.value = res.data
-  })
-}
 
 const handleUpdate = () => {
   window.$dialog.warning({
@@ -34,18 +29,17 @@ const handleUpdate = () => {
       messageReactive = window.$message.loading(t('homeUpdate.confirm.update.loading'), {
         duration: 0
       })
-      dashboard
-        .update()
-        .then(() => {
-          window.$message.success(t('homeUpdate.alerts.success'))
+      useRequest(dashboard.update())
+        .onSuccess(() => {
           setTimeout(() => {
             setTimeout(() => {
               window.location.reload()
             }, 400)
             router.push({ name: 'dashboard-index' })
           }, 2500)
+          window.$message.success(t('homeUpdate.alerts.success'))
         })
-        .finally(() => {
+        .onComplete(() => {
           messageReactive?.destroy()
         })
     },
@@ -54,10 +48,6 @@ const handleUpdate = () => {
     }
   })
 }
-
-onMounted(() => {
-  getVersions()
-})
 </script>
 
 <template>

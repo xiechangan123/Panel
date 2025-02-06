@@ -17,7 +17,6 @@ import { NButton } from 'naive-ui'
 import VChart from 'vue-echarts'
 
 import monitor from '@/api/panel/monitor'
-import type { MonitorData } from '@/views/monitor/types'
 
 use([
   CanvasRenderer,
@@ -29,36 +28,26 @@ use([
   DataZoomComponent
 ])
 
-const data = ref<MonitorData>({
-  times: [],
-  load: {
-    load1: [],
-    load5: [],
-    load15: []
-  },
-  cpu: {
-    percent: []
-  },
-  mem: {
-    total: '',
-    used: [],
-    available: []
-  },
-  swap: {
-    total: '',
-    used: [],
-    free: []
-  },
-  net: {
-    sent: [],
-    recv: [],
-    tx: [],
-    rx: []
-  }
-})
-
 const start = ref(Math.floor(new Date(new Date().setHours(0, 0, 0, 0)).getTime()))
 const end = ref(Math.floor(Date.now()))
+
+useRequest(monitor.setting()).onSuccess(({ data }) => {
+  monitorSwitch.value = data.enabled
+  saveDay.value = data.days
+})
+
+const { loading, data } = useWatcher(monitor.list(start.value, end.value), [start, end], {
+  initialData: {
+    times: [],
+    load: {},
+    cpu: {},
+    mem: {},
+    swap: {},
+    net: {}
+  },
+  debounce: [500],
+  immediate: true
+})
 
 const monitorSwitch = ref(false)
 const saveDay = ref(30)
@@ -412,27 +401,14 @@ const net = ref<any>({
   ]
 })
 
-const fetchData = async () => {
-  monitor.list(start.value, end.value).then((res) => {
-    data.value = res.data
-  })
-}
-
-const fetchSetting = async () => {
-  monitor.setting().then((res) => {
-    monitorSwitch.value = res.data.enabled
-    saveDay.value = res.data.days
-  })
-}
-
 const handleUpdate = async () => {
-  monitor.updateSetting(monitorSwitch.value, saveDay.value).then(() => {
+  useRequest(monitor.updateSetting(monitorSwitch.value, saveDay.value)).onSuccess(() => {
     window.$message.success('操作成功')
   })
 }
 
 const handleClear = async () => {
-  monitor.clear().then(() => {
+  useRequest(monitor.clear()).onSuccess(() => {
     window.$message.success('操作成功')
   })
 }
@@ -454,21 +430,6 @@ watch(data, () => {
   net.value.series[1].data = data.value.net.recv
   net.value.series[2].data = data.value.net.tx
   net.value.series[3].data = data.value.net.rx
-})
-
-// 监听时间选择的变化
-watch([start, end], () => {
-  // 开始时间不能大于结束时间
-  if (start.value > end.value) {
-    window.$message.error('开始时间不能大于结束时间')
-    return
-  }
-  fetchData()
-})
-
-onMounted(() => {
-  fetchSetting()
-  fetchData()
 })
 </script>
 
@@ -512,7 +473,13 @@ onMounted(() => {
         </n-flex>
       </n-form>
     </n-card>
-    <n-grid cols="1 s:1 m:1 l:2 xl:2 2xl:2" item-responsive responsive="screen" pt-20>
+    <n-grid
+      v-if="!loading"
+      cols="1 s:1 m:1 l:2 xl:2 2xl:2"
+      item-responsive
+      responsive="screen"
+      pt-20
+    >
       <n-gi m-10>
         <n-card :segmented="true" rounded-10 style="height: 40vh">
           <v-chart class="chart" :option="load" autoresize />
@@ -534,6 +501,7 @@ onMounted(() => {
         </n-card>
       </n-gi>
     </n-grid>
+    <n-skeleton v-else text :repeat="40" />
   </common-page>
 </template>
 

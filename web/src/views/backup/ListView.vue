@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import backup from '@/api/panel/backup'
 import { renderIcon } from '@/utils'
-import type { MessageReactive } from 'naive-ui'
-import { NButton, NInput, NPopconfirm } from 'naive-ui'
+import { MessageReactive, NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 
 import { formatDateTime } from '@/utils'
-import type { Backup } from './types'
 
 const type = defineModel<string>('type', { type: String, required: true })
 
@@ -94,63 +92,42 @@ const columns: any = [
   }
 ]
 
-const data = ref<Backup[]>([])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
-const getList = async (page: number, limit: number) => {
-  const { data } = await backup.list(type.value, page, limit)
-  return data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => backup.list(type.value, page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const handleRestore = () => {
   messageReactive = window.$message.loading('恢复中...', {
     duration: 0
   })
-  backup
-    .restore(type.value, restoreModel.value.file, restoreModel.value.target)
-    .then(() => {
+
+  useRequest(backup.restore(type.value, restoreModel.value.file, restoreModel.value.target))
+    .onSuccess(() => {
+      refresh()
       window.$message.success('恢复成功')
     })
-    .finally(() => {
+    .onComplete(() => {
       messageReactive?.destroy()
-      onPageChange(pagination.page)
     })
 }
 
 const handleDelete = async (file: string) => {
-  await backup.delete(type.value, file).then(() => {
+  useRequest(backup.delete(type.value, file)).onSuccess(() => {
+    refresh()
     window.$message.success('删除成功')
-    onPageChange(pagination.page)
   })
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
   window.$bus.on('backup:refresh', () => {
-    onPageChange(pagination.page)
+    refresh()
   })
 })
 
@@ -164,12 +141,21 @@ onUnmounted(() => {
     striped
     remote
     :scroll-x="1000"
-    :loading="false"
+    :loading="loading"
     :columns="columns"
     :data="data"
     :row-key="(row: any) => row.name"
-    @update:page="onPageChange"
-    @update:page-size="onPageSizeChange"
+    v-model:page="page"
+    v-model:pageSize="pageSize"
+    :pagination="{
+      page: page,
+      pageCount: pageCount,
+      pageSize: pageSize,
+      itemCount: total,
+      showQuickJumper: true,
+      showSizePicker: true,
+      pageSizes: [20, 50, 100, 200]
+    }"
   />
   <n-modal
     v-model:show="restoreModal"

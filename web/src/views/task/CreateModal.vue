@@ -22,19 +22,22 @@ const createModel = ref({
 })
 
 const websites = ref<any>([])
-const installedDbAndPhp = ref({
-  php: [
-    {
-      label: '',
-      value: ''
-    }
-  ],
-  db: [
-    {
-      label: '',
-      value: ''
-    }
-  ]
+
+const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
+  initialData: {
+    php: [
+      {
+        label: '不使用',
+        value: 0
+      }
+    ],
+    db: [
+      {
+        label: '',
+        value: ''
+      }
+    ]
+  }
 })
 
 const mySQLInstalled = computed(() => {
@@ -54,11 +57,6 @@ const getWebsiteList = async (page: number, limit: number) => {
     })
   }
   createModel.value.target = websites.value[0]?.value
-}
-
-const getPhpAndDb = async () => {
-  const { data } = await dashboard.installedDbAndPhp()
-  installedDbAndPhp.value = data
 }
 
 const handleSubmit = async () => {
@@ -85,7 +83,6 @@ watch(createModel, (value) => {
 })
 
 onMounted(() => {
-  getPhpAndDb()
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
     if (data.installed) {
       getWebsiteList(1, 10000)

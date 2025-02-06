@@ -15,10 +15,12 @@ const createModel = ref({
 })
 
 const handleCreate = () => {
-  backup.create(currentTab.value, createModel.value.target, createModel.value.path).then(() => {
+  useRequest(
+    backup.create(currentTab.value, createModel.value.target, createModel.value.path)
+  ).onSuccess(() => {
     createModal.value = false
-    window.$message.success('创建成功')
     window.$bus.emit('backup:refresh')
+    window.$message.success('创建成功')
   })
 }
 </script>

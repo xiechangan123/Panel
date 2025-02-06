@@ -1,33 +1,25 @@
-import { http, request } from '@/utils'
-
-import type { RequestConfig } from '~/types/axios'
+import { http } from '@/utils'
 
 export default {
   // 面板信息
-  panel: (): Promise<Response> => fetch('/api/dashboard/panel'),
-  // 面板菜单
-  menu: (): any => request.get('/dashboard/menu'),
+  panel: (): any => http.Get('/dashboard/panel'),
   // 首页应用
-  homeApps: (): any => request.get('/dashboard/homeApps'),
+  homeApps: (): any => http.Get('/dashboard/homeApps'),
   // 实时信息
   current: (nets: string[], disks: string[]): any =>
-    request.post('/dashboard/current', { nets, disks }, { noNeedTip: true } as RequestConfig),
+    http.Post('/dashboard/current', { nets, disks }, { meta: { noAlert: true } }),
   // 系统信息
-  systemInfo: (): any => request.get('/dashboard/systemInfo'),
+  systemInfo: (): any => http.Get('/dashboard/systemInfo'),
   // 统计信息
-  countInfo: (): any => request.get('/dashboard/countInfo'),
+  countInfo: (): any => http.Get('/dashboard/countInfo'),
   // 已安装的数据库和PHP
-  installedDbAndPhp: (): any => request.get('/dashboard/installedDbAndPhp'),
+  installedDbAndPhp: (): any => http.Get('/dashboard/installedDbAndPhp'),
   // 检查更新
-  checkUpdate: (): any => request.get('/dashboard/checkUpdate'),
+  checkUpdate: (): any => http.Get('/dashboard/checkUpdate'),
   // 更新日志
-  updateInfo: (): any => request.get('/dashboard/updateInfo'),
+  updateInfo: (): any => http.Get('/dashboard/updateInfo'),
   // 更新面板
-  update: (): any => request.post('/dashboard/update', null),
+  update: (): any => http.Post('/dashboard/update'),
   // 重启面板
-  restart: (): any => request.post('/dashboard/restart')
+  restart: (): any => http.Post('/dashboard/restart')
 }
-
-export const panel = () => http.Get('/dashboard/panel')
-export const current = (nets: string[], disks: string[]) =>
-  http.Post('/dashboard/current', { nets, disks }, { meta: { noAlert: true } })

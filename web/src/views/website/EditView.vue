@@ -11,7 +11,6 @@ import cert from '@/api/panel/cert'
 import dashboard from '@/api/panel/dashboard'
 import website from '@/api/panel/website'
 import type { Cert } from '@/views/cert/types'
-import type { WebsiteListen, WebsiteSetting } from '@/views/website/types'
 
 let messageReactive: MessageReactive | null = null
 
@@ -19,10 +18,10 @@ const current = ref('listen')
 const route = useRoute()
 const { id } = route.params
 
-const setting = ref<WebsiteSetting>({
+const setting = ref<any>({
   id: 0,
   name: '',
-  listens: [] as WebsiteListen[],
+  listens: [],
   domains: [],
   root: '',
   path: '',
@@ -44,19 +43,21 @@ const setting = ref<WebsiteSetting>({
   raw: '',
   log: ''
 })
-const installedDbAndPhp = ref({
-  php: [
-    {
-      label: '不使用',
-      value: 0
-    }
-  ],
-  db: [
-    {
-      label: '',
-      value: ''
-    }
-  ]
+const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
+  initialData: {
+    php: [
+      {
+        label: '不使用',
+        value: 0
+      }
+    ],
+    db: [
+      {
+        label: '',
+        value: ''
+      }
+    ]
+  }
 })
 const certs = ref<Cert[]>([] as Cert[])
 const { data: rewrites } = useRequest(website.rewrites, {
@@ -83,11 +84,6 @@ const certOptions = computed(() => {
   }))
 })
 const selectedCert = ref(null)
-
-const fetchPhpAndDb = async () => {
-  const { data } = await dashboard.installedDbAndPhp()
-  installedDbAndPhp.value = data
-}
 
 const fetchWebsiteSetting = async () => {
   setting.value = await website.config(Number(id))
@@ -172,7 +168,6 @@ const onCreateListen = () => {
 
 onMounted(async () => {
   await fetchWebsiteSetting()
-  await fetchPhpAndDb()
   await fetchCertList()
 })
 </script>

@@ -13,7 +13,7 @@ import { setupNaiveDiscreteApi } from './utils'
 
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 
-import { panel } from '@/api/panel/dashboard'
+import dashboard from '@/api/panel/dashboard'
 import CronNaivePlugin from '@vue-js-cron/naive-ui'
 
 async function setupApp() {
@@ -38,7 +38,7 @@ async function setupApp() {
 
 const setupPanel = async () => {
   const themeStore = useThemeStore()
-  useRequest(panel, {
+  useRequest(dashboard.panel, {
     initialData: {
       name: import.meta.env.VITE_APP_TITLE,
       locale: 'zh_CN'

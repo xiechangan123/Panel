@@ -1,14 +1,13 @@
-import { request } from '@/utils'
+import { http } from '@/utils'
 
 export default {
   // 开关
-  setting: (): any => request.get('/monitor/setting'),
+  setting: (): any => http.Get('/monitor/setting'),
   // 保存天数
   updateSetting: (enabled: boolean, days: number): any =>
-    request.post('/monitor/setting', { enabled, days }),
+    http.Post('/monitor/setting', { enabled, days }),
   // 清空监控记录
-  clear: (): any => request.post('/monitor/clear'),
+  clear: (): any => http.Post('/monitor/clear'),
   // 监控记录
-  list: (start: number, end: number): any =>
-    request.get('/monitor/list', { params: { start, end } })
+  list: (start: number, end: number): any => http.Get('/monitor/list', { params: { start, end } })
 }

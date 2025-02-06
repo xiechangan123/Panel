@@ -204,19 +204,21 @@ const editDefaultPageModel = ref({
   stop: ''
 })
 
-const installedDbAndPhp = ref({
-  php: [
-    {
-      label: '',
-      value: ''
-    }
-  ],
-  db: [
-    {
-      label: '',
-      value: ''
-    }
-  ]
+const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
+  initialData: {
+    php: [
+      {
+        label: '不使用',
+        value: 0
+      }
+    ],
+    db: [
+      {
+        label: '',
+        value: ''
+      }
+    ]
+  }
 })
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
@@ -228,11 +230,6 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     data: (res: any) => res.items
   }
 )
-
-const getPhpAndDb = async () => {
-  const { data } = await dashboard.installedDbAndPhp()
-  installedDbAndPhp.value = data
-}
 
 // 修改运行状态
 const handleStatusChange = (row: any) => {
@@ -337,7 +334,6 @@ const formatDbValue = (value: string) => {
 
 onMounted(() => {
   refresh()
-  getPhpAndDb()
   getDefaultPage()
 })
 </script>

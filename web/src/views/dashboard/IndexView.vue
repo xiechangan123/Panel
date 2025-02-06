@@ -22,7 +22,7 @@ import { useTabStore } from '@/store'
 import { formatDateTime, formatDuration, toTimestamp } from '@/utils/common'
 import { formatBytes, formatPercent } from '@/utils/file'
 import VChart from 'vue-echarts'
-import type { CountInfo, HomeApp, Realtime, SystemInfo } from './types'
+import type { Realtime } from './types'
 
 use([
   CanvasRenderer,
@@ -37,14 +37,43 @@ use([
 const { locale } = useI18n()
 const tabStore = useTabStore()
 const realtime = ref<Realtime | null>(null)
-const systemInfo = ref<SystemInfo | null>(null)
-const homeApps = ref<HomeApp[] | null>(null)
-const homeAppsLoading = ref(true)
-const countInfo = ref<CountInfo>({
-  website: 0,
-  database: 0,
-  ftp: 0,
-  cron: 0
+
+const { data: systemInfo } = useRequest(dashboard.systemInfo, {
+  initialData: {
+    procs: 0,
+    hostname: '',
+    panel_version: '',
+    commit_hash: '',
+    build_id: '',
+    build_time: '',
+    build_user: '',
+    build_host: '',
+    go_version: '',
+    kernel_arch: '',
+    kernel_version: '',
+    os_name: '',
+    boot_time: 0,
+    uptime: 0,
+    nets: [],
+    disks: []
+  }
+})
+const { data: homeApps, loading: homeAppsLoading } = useRequest(dashboard.homeApps, {
+  initialData: {
+    description: '',
+    icon: '',
+    name: '',
+    slug: '',
+    version: ''
+  }
+})
+const { data: countInfo } = useRequest(dashboard.countInfo, {
+  initialData: {
+    website: 0,
+    database: 0,
+    ftp: 0,
+    cron: 0
+  }
 })
 
 const nets = ref<Array<string>>([]) // 选择的网卡
@@ -202,9 +231,8 @@ let isFetching = false
 const fetchCurrent = async () => {
   if (isFetching) return
   isFetching = true
-  dashboard
-    .current(nets.value, disks.value)
-    .then(({ data }) => {
+  useRequest(dashboard.current(nets.value, disks.value))
+    .onSuccess(({ data }) => {
       data.percent = formatPercent(data.percent)
       data.mem.usedPercent = formatPercent(data.mem.usedPercent)
       // 计算 CPU 核心数
@@ -283,35 +311,15 @@ const fetchCurrent = async () => {
 
       realtime.value = data
     })
-    .finally(() => {
+    .onComplete(() => {
       isFetching = false
     })
-}
-
-const fetchSystemInfo = async () => {
-  dashboard.systemInfo().then((res) => {
-    systemInfo.value = res.data
-  })
-}
-
-const fetchCountInfo = async () => {
-  dashboard.countInfo().then((res) => {
-    countInfo.value = res.data
-  })
-}
-
-const fetchHomeApps = async () => {
-  homeAppsLoading.value = true
-  dashboard.homeApps().then((res) => {
-    homeApps.value = res.data
-    homeAppsLoading.value = false
-  })
 }
 
 const handleRestartPanel = () => {
   clearInterval(homeInterval)
   window.$message.loading('面板重启中...')
-  dashboard.restart().then(() => {
+  useRequest(dashboard.restart()).onSuccess(() => {
     window.$message.success('面板重启成功')
     setTimeout(() => {
       tabStore.reloadTab(tabStore.active)
@@ -320,8 +328,8 @@ const handleRestartPanel = () => {
 }
 
 const handleUpdate = () => {
-  dashboard.checkUpdate().then((res) => {
-    if (res.data.update) {
+  useRequest(dashboard.checkUpdate()).onSuccess(({ data }) => {
+    if (data.update) {
       router.push({ name: 'dashboard-update' })
     } else {
       window.$message.success('当前已是最新版本')
@@ -375,9 +383,6 @@ let homeInterval: any = null
 
 onMounted(() => {
   fetchCurrent()
-  fetchSystemInfo()
-  fetchCountInfo()
-  fetchHomeApps()
   homeInterval = setInterval(() => {
     fetchCurrent()
   }, 3000)
