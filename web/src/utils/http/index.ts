@@ -47,14 +47,18 @@ export const http = createAlova({
       const { meta } = method
       if (status !== 200) {
         const code = json?.code ?? status
-        const message = resolveResError(code, json?.message ?? statusText)
+        console.log(json)
+        const message = resolveResError(
+          code,
+          json?.message && json.message.trim() !== '' ? json.message : statusText
+        )
         const noAlert = meta?.noAlert
         if (!noAlert) {
           if (code === 422) {
             window.$message.error(message)
           } else if (code !== 401) {
             window.$dialog.error({
-              title: '接口响应异常',
+              title: '错误',
               content: message,
               maskClosable: false
             })

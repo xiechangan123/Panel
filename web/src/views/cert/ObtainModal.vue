@@ -18,24 +18,23 @@ const options = [
   { label: '自签名', value: 'self-signed' }
 ]
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   messageReactive = window.$message.loading('请稍后...', {
     duration: 0
   })
   if (model.value.type == 'auto') {
-    await cert
-      .obtainAuto(id.value)
-      .then(() => {
-        window.$message.success('签发成功')
-        show.value = false
-      })
-      .finally(() => {
-        messageReactive?.destroy()
+    useRequest(cert.obtainAuto(id.value))
+      .onSuccess(() => {
         window.$bus.emit('cert:refresh-cert')
         window.$bus.emit('cert:refresh-async')
+        show.value = false
+        window.$message.success('签发成功')
+      })
+      .onComplete(() => {
+        messageReactive?.destroy()
       })
   } else if (model.value.type == 'manual') {
-    const { data } = await cert.manualDNS(id.value)
+    const { data } = useRequest(cert.manualDNS(id.value))
     messageReactive.destroy()
     window.$message.info('请先前往域名处设置 DNS 解析，再继续签发')
     const d = window.$dialog.info({
@@ -65,31 +64,29 @@ const handleSubmit = async () => {
         messageReactive = window.$message.loading('请稍后...', {
           duration: 0
         })
-        await cert
-          .obtainManual(id.value)
-          .then(() => {
-            window.$message.success('签发成功')
-            show.value = false
-          })
-          .finally(() => {
-            d.loading = false
-            messageReactive?.destroy()
+        useRequest(cert.obtainManual(id.value))
+          .onSuccess(() => {
             window.$bus.emit('cert:refresh-cert')
             window.$bus.emit('cert:refresh-async')
+            show.value = false
+            window.$message.success('签发成功')
+          })
+          .onComplete(() => {
+            d.loading = false
+            messageReactive?.destroy()
           })
       }
     })
   } else {
-    await cert
-      .obtainSelfSigned(id.value)
-      .then(() => {
-        window.$message.success('签发成功')
-        show.value = false
-      })
-      .finally(() => {
-        messageReactive?.destroy()
+    useRequest(cert.obtainSelfSigned(id.value))
+      .onSuccess(() => {
         window.$bus.emit('cert:refresh-cert')
         window.$bus.emit('cert:refresh-async')
+        show.value = false
+        window.$message.success('签发成功')
+      })
+      .onComplete(() => {
+        messageReactive?.destroy()
       })
   }
 }

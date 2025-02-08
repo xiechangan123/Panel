@@ -2,7 +2,6 @@
 import { NButton, NDataTable, NInput, NPopconfirm, NSpace, NTag } from 'naive-ui'
 
 import cert from '@/api/panel/cert'
-import type { DNS } from '@/views/cert/types'
 
 const props = defineProps({
   dnsProviders: {
@@ -94,9 +93,10 @@ const columns: any = [
           NPopconfirm,
           {
             onPositiveClick: async () => {
-              await cert.dnsDelete(row.id)
-              window.$message.success('删除成功')
-              onPageChange(1)
+              useRequest(cert.dnsDelete(row.id)).onSuccess(() => {
+                refresh()
+                window.$message.success('删除成功')
+              })
             }
           },
           {
@@ -123,51 +123,31 @@ const columns: any = [
   }
 ]
 
-const data = ref<DNS[]>([] as DNS[])
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => cert.dns(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getDnsList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
+const handleUpdateDNS = () => {
+  useRequest(cert.dnsUpdate(updateDNS.value, updateDNSModel.value)).onSuccess(() => {
+    refresh()
+    updateDNSModal.value = false
+    updateDNSModel.value.data.ak = ''
+    updateDNSModel.value.data.sk = ''
+    updateDNSModel.value.name = ''
+    window.$message.success('更新成功')
   })
 }
 
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const getDnsList = async (page: number, limit: number) => {
-  const { data } = await cert.dns(page, limit)
-  return data
-}
-
-const handleUpdateDNS = async () => {
-  await cert.dnsUpdate(updateDNS.value, updateDNSModel.value)
-  window.$message.success('更新成功')
-  updateDNSModal.value = false
-  onPageChange(1)
-  updateDNSModel.value.data.ak = ''
-  updateDNSModel.value.data.sk = ''
-  updateDNSModel.value.name = ''
-}
-
-onMounted(async () => {
-  onPageChange(pagination.page)
+onMounted(() => {
+  refresh()
   window.$bus.on('cert:refresh-dns', () => {
-    onPageChange(pagination.page)
+    refresh()
   })
 })
 
@@ -182,13 +162,21 @@ onUnmounted(() => {
       striped
       remote
       :scroll-x="1000"
-      :loading="false"
+      :loading="loading"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      :pagination="pagination"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
     />
   </n-space>
   <n-modal

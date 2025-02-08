@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import UploadCertModal from '@/views/cert/UploadCertModal.vue'
-
 defineOptions({
   name: 'cert-index'
 })
@@ -16,6 +14,7 @@ import CreateAccountModal from '@/views/cert/CreateAccountModal.vue'
 import CreateCertModal from '@/views/cert/CreateCertModal.vue'
 import CreateDnsModal from '@/views/cert/CreateDnsModal.vue'
 import DnsView from '@/views/cert/DnsView.vue'
+import UploadCertModal from '@/views/cert/UploadCertModal.vue'
 
 const currentTab = ref('cert')
 
@@ -32,8 +31,9 @@ const dnsProviders = ref<any>([])
 const caProviders = ref<any>([])
 
 const getAsyncData = async () => {
-  const { data: algorithmData } = await cert.algorithms()
-  algorithms.value = algorithmData
+  useRequest(cert.algorithms()).onSuccess(({ data }) => {
+    algorithms.value = data
+  })
 
   websites.value = []
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
@@ -49,29 +49,32 @@ const getAsyncData = async () => {
     }
   })
 
-  const { data: dnsData } = await cert.dns(1, 10000)
   dns.value = []
-  for (const item of dnsData.items) {
-    dns.value.push({
-      label: item.name,
-      value: item.id
-    })
-  }
+  useRequest(cert.dns(1, 10000)).onSuccess(({ data }) => {
+    for (const item of data.items) {
+      dns.value.push({
+        label: item.name,
+        value: item.id
+      })
+    }
+  })
 
-  const { data: accountData } = await cert.accounts(1, 10000)
   accounts.value = []
-  for (const item of accountData.items) {
-    accounts.value.push({
-      label: item.email,
-      value: item.id
-    })
-  }
+  useRequest(cert.accounts(1, 10000)).onSuccess(({ data }) => {
+    for (const item of data.items) {
+      accounts.value.push({
+        label: item.email,
+        value: item.id
+      })
+    }
+  })
 
-  const { data: dnsProviderData } = await cert.dnsProviders()
-  dnsProviders.value = dnsProviderData
-
-  const { data: caProviderData } = await cert.caProviders()
-  caProviders.value = caProviderData
+  useRequest(cert.dnsProviders()).onSuccess(({ data }) => {
+    dnsProviders.value = data
+  })
+  useRequest(cert.caProviders()).onSuccess(({ data }) => {
+    caProviders.value = data
+  })
 }
 
 onMounted(() => {

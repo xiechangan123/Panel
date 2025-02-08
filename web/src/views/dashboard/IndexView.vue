@@ -228,7 +228,7 @@ const chartOptions = computed(() => {
 
 let isFetching = false
 
-const fetchCurrent = async () => {
+const fetchCurrent = () => {
   if (isFetching) return
   isFetching = true
   useRequest(dashboard.current(nets.value, disks.value))

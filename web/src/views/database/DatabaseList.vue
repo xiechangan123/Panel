@@ -115,7 +115,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const handleDelete = async (serverID: number, name: string) => {
+const handleDelete = (serverID: number, name: string) => {
   useRequest(database.delete(serverID, name)).onSuccess(() => {
     refresh()
     window.$message.success('删除成功')

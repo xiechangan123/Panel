@@ -22,7 +22,7 @@ watch(
   () => show.value,
   (value) => {
     if (value && id.value) {
-      database.userGet(id.value).then((data: any) => {
+      useRequest(database.userGet(id.value)).onSuccess(({ data }) => {
         updateModel.value.password = data.password
         updateModel.value.privileges = data.privileges
         updateModel.value.remark = data.remark

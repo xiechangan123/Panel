@@ -6,7 +6,6 @@ import { NButton, NDataTable, NFlex, NPopconfirm, NSpace, NSwitch, NTag } from '
 import cert from '@/api/panel/cert'
 import { formatDateTime } from '@/utils'
 import ObtainModal from '@/views/cert/ObtainModal.vue'
-import type { Cert } from '@/views/cert/types'
 
 const props = defineProps({
   algorithms: {
@@ -239,10 +238,14 @@ const columns: any = [
                   messageReactive = window.$message.loading('请稍后...', {
                     duration: 0
                   })
-                  await cert.renew(row.id)
-                  messageReactive.destroy()
-                  window.$message.success('续签成功')
-                  onPageChange(1)
+                  useRequest(cert.renew(row.id))
+                    .onSuccess(() => {
+                      refresh()
+                      window.$message.success('续签成功')
+                    })
+                    .onComplete(() => {
+                      messageReactive?.destroy()
+                    })
                 }
               },
               {
@@ -295,9 +298,10 @@ const columns: any = [
           NPopconfirm,
           {
             onPositiveClick: async () => {
-              await cert.certDelete(row.id)
-              window.$message.success('删除成功')
-              onPageChange(1)
+              useRequest(cert.certDelete(row.id)).onSuccess(() => {
+                refresh()
+                window.$message.success('删除成功')
+              })
             }
           },
           {
@@ -323,57 +327,42 @@ const columns: any = [
     }
   }
 ]
-const data = ref<Cert[]>([] as Cert[])
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => cert.certs(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getCertList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
+const handleUpdateCert = async () => {
+  useRequest(cert.certUpdate(updateCert.value, updateModel.value)).onSuccess(() => {
+    refresh()
+    updateModal.value = false
+    updateModel.value.domains = []
+    updateModel.value.type = 'P256'
+    updateModel.value.dns_id = null
+    updateModel.value.account_id = null
+    updateModel.value.website_id = null
+    updateModel.value.auto_renew = true
+    updateModel.value.cert = ''
+    updateModel.value.key = ''
+    window.$message.success('更新成功')
   })
 }
 
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const getCertList = async (page: number, limit: number) => {
-  const { data } = await cert.certs(page, limit)
-  return data
-}
-
-const handleUpdateCert = async () => {
-  await cert.certUpdate(updateCert.value, updateModel.value)
-  window.$message.success('更新成功')
-  updateModal.value = false
-  onPageChange(1)
-  updateModel.value.domains = []
-  updateModel.value.type = 'P256'
-  updateModel.value.dns_id = null
-  updateModel.value.account_id = null
-  updateModel.value.website_id = null
-  updateModel.value.auto_renew = true
-  updateModel.value.cert = ''
-  updateModel.value.key = ''
-}
-
 const handleDeployCert = async () => {
-  for (const website of deployModel.value.websites) {
-    await cert.deploy(deployModel.value.id, website)
-  }
-  window.$message.success('部署成功')
+  const promises = deployModel.value.websites.map((website: any) =>
+    useRequest(cert.deploy(deployModel.value.id, website)).onSuccess(() => {
+      window.$message.success(`部署网站 ${website.name} 成功`)
+    })
+  )
+
+  await Promise.all(promises)
+
   deployModal.value = false
   deployModel.value.id = null
   deployModel.value.websites = []
@@ -385,9 +374,9 @@ const handleShowModalClose = () => {
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
   window.$bus.on('cert:refresh-cert', () => {
-    onPageChange(pagination.page)
+    refresh()
   })
 })
 
@@ -402,13 +391,21 @@ onUnmounted(() => {
       striped
       remote
       :scroll-x="1600"
-      :loading="false"
+      :loading="loading"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      :pagination="pagination"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
     />
   </n-space>
   <n-modal

@@ -34,18 +34,19 @@ const model = ref<any>({
   auto_renew: true
 })
 
-const handleCreateCert = async () => {
-  await cert.certCreate(model.value)
-  show.value = false
-  window.$message.success('创建成功')
-  model.value.domains = []
-  model.value.dns_id = 0
-  model.value.type = 'P256'
-  model.value.account_id = null
-  model.value.website_id = null
-  model.value.auto_renew = true
-  window.$bus.emit('cert:refresh-cert')
-  window.$bus.emit('cert:refresh-async')
+const handleCreateCert = () => {
+  useRequest(cert.certCreate(model.value)).onSuccess(() => {
+    window.$bus.emit('cert:refresh-cert')
+    window.$bus.emit('cert:refresh-async')
+    show.value = false
+    model.value.domains = []
+    model.value.dns_id = 0
+    model.value.type = 'P256'
+    model.value.account_id = null
+    model.value.website_id = null
+    model.value.auto_renew = true
+    window.$message.success('创建成功')
+  })
 }
 </script>
 

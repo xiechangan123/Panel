@@ -17,7 +17,7 @@ const model = ref({
   remark: ''
 })
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   loading.value = true
   useRequest(ssh.update(id.value, model.value))
     .onSuccess(() => {

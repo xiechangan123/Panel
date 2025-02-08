@@ -104,7 +104,7 @@ const fetchData = async () => {
   await openSession(updateId.value === 0 ? Number(list.value[0].key) : updateId.value)
 }
 
-const handleDelete = async (id: number) => {
+const handleDelete = (id: number) => {
   useRequest(ssh.delete(id)).onSuccess(() => {
     list.value = list.value.filter((item: any) => item.key !== id)
     if (current.value === id) {

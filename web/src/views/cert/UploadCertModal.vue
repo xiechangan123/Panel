@@ -9,14 +9,15 @@ const model = ref<any>({
   key: ''
 })
 
-const handleSubmit = async () => {
-  await cert.certUpload(model.value)
-  show.value = false
-  window.$message.success('创建成功')
-  model.value.cert = ''
-  model.value.key = ''
-  window.$bus.emit('cert:refresh-cert')
-  window.$bus.emit('cert:refresh-async')
+const handleSubmit = () => {
+  useRequest(cert.certUpload(model.value)).onSuccess(() => {
+    window.$bus.emit('cert:refresh-cert')
+    window.$bus.emit('cert:refresh-async')
+    show.value = false
+    model.value.cert = ''
+    model.value.key = ''
+    window.$message.success('创建成功')
+  })
 }
 </script>
 

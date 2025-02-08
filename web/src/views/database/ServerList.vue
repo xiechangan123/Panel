@@ -138,10 +138,10 @@ const columns: any = [
         h(
           NPopconfirm,
           {
-            onPositiveClick: async () => {
-              await database.serverSync(row.id).then(() => {
-                window.$message.success('同步成功')
+            onPositiveClick: () => {
+              useRequest(database.serverSync(row.id)).onSuccess(() => {
                 refresh()
+                window.$message.success('同步成功')
               })
             }
           },
@@ -227,7 +227,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const handleDelete = async (id: number) => {
+const handleDelete = (id: number) => {
   useRequest(database.serverDelete(id)).onSuccess(() => {
     refresh()
     window.$message.success('删除成功')

@@ -126,15 +126,13 @@ const handlePageChange = (page: number) => {
 
 const search = async (page: number) => {
   loading.value = true
-  useRequest(file.search(path.value, keyword.value, sub.value, page, pagination.pageSize!))
-    .then(({ data }) => {
-      data.value = data.items
-      pagination.itemCount = data.total
-      pagination.pageCount = data.total / pagination.pageSize! + 1
-    })
-    .catch(() => {
-      window.$message.error('搜索失败')
-    })
+  useRequest(
+    file.search(path.value, keyword.value, sub.value, page, pagination.pageSize!)
+  ).onSuccess(({ data }) => {
+    data.value = data.items
+    pagination.itemCount = data.total
+    pagination.pageCount = data.total / pagination.pageSize! + 1
+  })
   loading.value = false
 }
 

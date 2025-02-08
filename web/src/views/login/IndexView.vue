@@ -64,7 +64,7 @@ async function handleLogin() {
     }
 
     await addDynamicRoutes()
-    await user.info().then((data: any) => {
+    useRequest(user.info()).onSuccess(({ data }) => {
       userStore.set(data)
     })
     if (query.redirect) {
@@ -84,7 +84,7 @@ watch(
     if (isLogin) {
       console.log(isLogin)
       await addDynamicRoutes()
-      await user.info().then((data: any) => {
+      useRequest(user.info()).onSuccess(({ data }) => {
         userStore.set(data)
       })
       if (query.redirect) {

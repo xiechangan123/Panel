@@ -23,69 +23,68 @@ const timezones = ref<any[]>([])
 const time = ref(DateTime.now().toMillis())
 const rootPassword = ref('')
 
-const fetchDNS = async () => {
-  const data = await toolbox.dns()
+useRequest(toolbox.dns()).onSuccess(({ data }) => {
   dns1.value = data[0]
   dns2.value = data[1]
-}
-
-const fetchSwap = async () => {
-  const data = await toolbox.swap()
+})
+useRequest(toolbox.swap()).onSuccess(({ data }) => {
   swap.value = data.size
   swapFree.value = data.free
   swapUsed.value = data.used
   swapTotal.value = data.total
-}
-
-const fetchHost = async () => {
-  hostname.value = await toolbox.hostname()
-  hosts.value = await toolbox.hosts()
-}
-
-const fetchTimezone = async () => {
-  const data = toolbox.timezone()
+})
+useRequest(toolbox.hostname()).onSuccess(({ data }) => {
+  hostname.value = data
+})
+useRequest(toolbox.hosts()).onSuccess(({ data }) => {
+  hosts.value = data
+})
+useRequest(toolbox.timezone()).onSuccess(({ data }) => {
   timezone.value = data.timezone
   timezones.value = data.timezones
+})
+
+const handleUpdateDNS = () => {
+  useRequest(toolbox.updateDns(dns1.value, dns2.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
-const handleUpdateDNS = async () => {
-  await toolbox.updateDns(dns1.value, dns2.value)
-  window.$message.success('保存成功')
-}
-
-const handleUpdateSwap = async () => {
-  await toolbox.updateSwap(swap.value)
-  window.$message.success('保存成功')
+const handleUpdateSwap = () => {
+  useRequest(toolbox.updateSwap(swap.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleUpdateHost = async () => {
-  await toolbox.updateHostname(hostname.value)
-  await toolbox.updateHosts(hosts.value)
-  window.$message.success('保存成功')
+  await Promise.all([
+    useRequest(toolbox.updateHostname(hostname.value)),
+    useRequest(toolbox.updateHosts(hosts.value))
+  ]).then(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleUpdateRootPassword = async () => {
-  await toolbox.updateRootPassword(rootPassword.value)
-  window.$message.success('保存成功')
+  useRequest(toolbox.updateRootPassword(rootPassword.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleUpdateTime = async () => {
-  await toolbox.updateTime(String(DateTime.fromMillis(time.value).toISO()))
-  await toolbox.updateTimezone(timezone.value)
-  window.$message.success('保存成功')
+  await Promise.all([
+    useRequest(toolbox.updateTime(String(DateTime.fromMillis(time.value).toISO()))),
+    useRequest(toolbox.updateTimezone(timezone.value))
+  ]).then(() => {
+    window.$message.success('保存成功')
+  })
 }
 
-const handleSyncTime = async () => {
-  await toolbox.syncTime()
-  window.$message.success('同步成功')
+const handleSyncTime = () => {
+  useRequest(toolbox.syncTime()).onSuccess(() => {
+    window.$message.success('同步成功')
+  })
 }
-
-onMounted(() => {
-  fetchDNS()
-  fetchSwap()
-  fetchHost()
-  fetchTimezone()
-})
 </script>
 
 <template>

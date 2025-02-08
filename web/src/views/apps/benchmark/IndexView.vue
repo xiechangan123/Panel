@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import benchmark from '@/api/apps/benchmark'
-import TheIcon from '@/components/custom/TheIcon.vue'
-
 defineOptions({
   name: 'apps-benchmark-index'
 })
+
+import benchmark from '@/api/apps/benchmark'
+import TheIcon from '@/components/custom/TheIcon.vue'
 
 const inTest = ref(false)
 const current = ref('CPU')

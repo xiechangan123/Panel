@@ -99,10 +99,11 @@ const columns: any = [
       return h(
         NPopconfirm,
         {
-          onPositiveClick: async () => {
-            await process.kill(row.pid)
-            await refresh()
-            window.$message.success(`进程 ${row.pid} 已终止`)
+          onPositiveClick: () => {
+            useRequest(process.kill(row.pid)).onSuccess(() => {
+              refresh()
+              window.$message.success(`进程 ${row.pid} 已终止`)
+            })
           }
         },
         {

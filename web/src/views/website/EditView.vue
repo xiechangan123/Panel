@@ -10,38 +10,38 @@ import { NButton } from 'naive-ui'
 import cert from '@/api/panel/cert'
 import dashboard from '@/api/panel/dashboard'
 import website from '@/api/panel/website'
-import type { Cert } from '@/views/cert/types'
 
 let messageReactive: MessageReactive | null = null
 
 const current = ref('listen')
 const route = useRoute()
 const { id } = route.params
-
-const setting = ref<any>({
-  id: 0,
-  name: '',
-  listens: [],
-  domains: [],
-  root: '',
-  path: '',
-  index: [],
-  php: 0,
-  open_basedir: false,
-  https: false,
-  ssl_certificate: '',
-  ssl_certificate_key: '',
-  ssl_not_before: '',
-  ssl_not_after: '',
-  ssl_dns_names: [],
-  ssl_issuer: '',
-  ssl_ocsp_server: [],
-  http_redirect: false,
-  hsts: false,
-  ocsp: false,
-  rewrite: '',
-  raw: '',
-  log: ''
+const { data: setting, send: fetchSetting } = useRequest(website.config(Number(id)), {
+  initialData: {
+    id: 0,
+    name: '',
+    listens: [],
+    domains: [],
+    root: '',
+    path: '',
+    index: [],
+    php: 0,
+    open_basedir: false,
+    https: false,
+    ssl_certificate: '',
+    ssl_certificate_key: '',
+    ssl_not_before: '',
+    ssl_not_after: '',
+    ssl_dns_names: [],
+    ssl_issuer: '',
+    ssl_ocsp_server: [],
+    http_redirect: false,
+    hsts: false,
+    ocsp: false,
+    rewrite: '',
+    raw: '',
+    log: ''
+  }
 })
 const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
   initialData: {
@@ -59,7 +59,10 @@ const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
     ]
   }
 })
-const certs = ref<Cert[]>([] as Cert[])
+const certs = ref<any>([])
+useRequest(cert.certs(1, 10000)).onSuccess(({ data }) => {
+  certs.value = data.items
+})
 const { data: rewrites } = useRequest(website.rewrites, {
   initialData: {}
 })
@@ -70,7 +73,6 @@ const rewriteOptions = computed(() => {
   }))
 })
 const rewriteValue = ref(null)
-
 const title = computed(() => {
   if (setting.value) {
     return `编辑网站 - ${setting.value.name}`
@@ -78,21 +80,12 @@ const title = computed(() => {
   return '编辑网站 - 加载中...'
 })
 const certOptions = computed(() => {
-  return certs.value.map((item) => ({
+  return certs.value.map((item: any) => ({
     label: item.domains.join(', '),
     value: item.id
   }))
 })
 const selectedCert = ref(null)
-
-const fetchWebsiteSetting = async () => {
-  setting.value = await website.config(Number(id))
-}
-
-const fetchCertList = async () => {
-  const { data } = await cert.certs(1, 10000)
-  certs.value = data.items
-}
 
 const handleSave = () => {
   // 如果没有任何监听地址设置了https，则自动添加443
@@ -113,14 +106,14 @@ const handleSave = () => {
   }
 
   useRequest(website.saveConfig(Number(id), setting.value)).onSuccess(() => {
-    fetchWebsiteSetting()
+    fetchSetting()
     window.$message.success('保存成功')
   })
 }
 
 const handleReset = () => {
   useRequest(website.resetConfig(Number(id))).onSuccess(() => {
-    fetchWebsiteSetting()
+    fetchSetting()
     window.$message.success('重置成功')
   })
 }
@@ -135,7 +128,7 @@ const handleObtainCert = async () => {
   })
   useRequest(website.obtainCert(Number(id)))
     .onSuccess(() => {
-      fetchWebsiteSetting()
+      fetchSetting()
       window.$message.success('签发成功')
     })
     .onComplete(() => {
@@ -144,7 +137,7 @@ const handleObtainCert = async () => {
 }
 
 const handleSelectCert = (value: number) => {
-  const cert = certs.value.find((item) => item.id === value)
+  const cert = certs.value.find((item: any) => item.id === value)
   if (cert) {
     setting.value.ssl_certificate = cert.cert
     setting.value.ssl_certificate_key = cert.key
@@ -153,7 +146,7 @@ const handleSelectCert = (value: number) => {
 
 const clearLog = async () => {
   useRequest(website.clearLog(Number(id))).onSuccess(() => {
-    fetchWebsiteSetting()
+    fetchSetting()
     window.$message.success('清空成功')
   })
 }
@@ -165,11 +158,6 @@ const onCreateListen = () => {
     quic: false
   }
 }
-
-onMounted(async () => {
-  await fetchWebsiteSetting()
-  await fetchCertList()
-})
 </script>
 
 <template>

@@ -25,7 +25,7 @@ watch(
   () => show.value,
   (value) => {
     if (value && id.value) {
-      database.serverGet(id.value).then((data: any) => {
+      useRequest(database.serverGet(id.value)).onSuccess(({ data }) => {
         updateModel.value.name = data.name
         updateModel.value.host = data.host
         updateModel.value.port = data.port

@@ -10,7 +10,6 @@ import {
 } from 'naive-ui'
 
 import cert from '@/api/panel/cert'
-import type { Account } from '@/views/cert/types'
 
 const props = defineProps({
   caProviders: {
@@ -104,9 +103,10 @@ const columns: any = [
           NPopconfirm,
           {
             onPositiveClick: async () => {
-              await cert.accountDelete(row.id)
-              window.$message.success('删除成功')
-              onPageChange(1)
+              useRequest(cert.accountDelete(row.id)).onSuccess(() => {
+                window.$message.success('删除成功')
+                refresh()
+              })
             }
           },
           {
@@ -132,55 +132,39 @@ const columns: any = [
     }
   }
 ]
-const data = ref<Account[]>([] as Account[])
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getAccountList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const getAccountList = async (page: number, limit: number) => {
-  const { data } = await cert.accounts(page, limit)
-  return data
-}
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => cert.accounts(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const handleUpdateAccount = async () => {
   messageReactive = window.$message.loading('正在向 CA 注册账号，请耐心等待', {
     duration: 0
   })
-  await cert.accountUpdate(updateAccount.value, updateAccountModel.value)
-  messageReactive.destroy()
-  window.$message.success('更新成功')
-  updateAccountModal.value = false
-  onPageChange(1)
-  updateAccountModel.value.email = ''
-  updateAccountModel.value.hmac_encoded = ''
-  updateAccountModel.value.kid = ''
+  useRequest(cert.accountUpdate(updateAccount.value, updateAccountModel.value))
+    .onSuccess(() => {
+      refresh()
+      updateAccountModal.value = false
+      updateAccountModel.value.email = ''
+      updateAccountModel.value.hmac_encoded = ''
+      updateAccountModel.value.kid = ''
+      window.$message.success('更新成功')
+    })
+    .onComplete(() => {
+      messageReactive?.destroy()
+    })
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
   window.$bus.on('cert:refresh-account', () => {
-    onPageChange(pagination.page)
+    refresh()
   })
 })
 
@@ -195,13 +179,21 @@ onUnmounted(() => {
       striped
       remote
       :scroll-x="1000"
-      :loading="false"
+      :loading="loading"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
-      :pagination="pagination"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
     />
   </n-space>
   <n-modal

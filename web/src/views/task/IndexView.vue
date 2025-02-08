@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { NButton } from 'naive-ui'
-
 defineOptions({
   name: 'task-index'
 })
@@ -10,6 +8,7 @@ import CreateModal from '@/views/task/CreateModal.vue'
 import CronView from '@/views/task/CronView.vue'
 import SystemView from '@/views/task/SystemView.vue'
 import TaskView from '@/views/task/TaskView.vue'
+import { NButton } from 'naive-ui'
 
 const current = ref('cron')
 

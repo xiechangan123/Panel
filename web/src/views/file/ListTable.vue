@@ -374,7 +374,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   (page, pageSize) => file.list(path.value, page, pageSize, sort.value),
   {
     initialData: { total: 0, list: [] },
-    initialPageSize: 20,
+    initialPageSize: 100,
     total: (res: any) => res.total,
     data: (res: any) => res.items
   }

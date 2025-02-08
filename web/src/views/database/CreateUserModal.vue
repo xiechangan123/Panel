@@ -32,7 +32,7 @@ watch(
   () => show.value,
   (value) => {
     if (value) {
-      database.serverList(1, 10000).then((data: any) => {
+      useRequest(database.serverList(1, 10000)).onSuccess(({ data }) => {
         for (const server of data.items) {
           servers.value.push({
             label: server.name,

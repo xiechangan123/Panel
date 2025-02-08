@@ -139,7 +139,7 @@ const batchDelete = async () => {
 
   const promises = selectedRowKeys.value.map((key: any) => {
     const rule = JSON.parse(key)
-    return useRequest(firewall.deleteForward(rule)).then(() => {
+    return useRequest(firewall.deleteForward(rule)).onSuccess(() => {
       window.$message.success(`${rule.protocol} ${rule.target_ip}:${rule.target_port} 删除成功`)
     })
   })

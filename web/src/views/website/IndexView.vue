@@ -315,7 +315,7 @@ const bulkDelete = async () => {
 
   const promises = selectedRowKeys.value.map((id: any) => {
     const site = data.value.find((item: any) => item.id === id)
-    return useRequest(website.delete(id, true, false)).then(() => {
+    return useRequest(website.delete(id, true, false)).onSuccess(() => {
       window.$message.success('网站 ' + site?.name + ' 删除成功')
     })
   })

@@ -32,23 +32,22 @@ const showEAB = computed(() => {
   return model.value.ca === 'google' || model.value.ca === 'sslcom'
 })
 
-const handleCreateAccount = async () => {
+const handleCreateAccount = () => {
   messageReactive = window.$message.loading('正在向 CA 注册账号，请耐心等待', {
     duration: 0
   })
-  cert
-    .accountCreate(model.value)
-    .then(() => {
+  useRequest(cert.accountCreate(model.value))
+    .onSuccess(() => {
+      window.$bus.emit('cert:refresh-account')
+      window.$bus.emit('cert:refresh-async')
       show.value = false
-      window.$message.success('创建成功')
       model.value.email = ''
       model.value.hmac_encoded = ''
       model.value.kid = ''
+      window.$message.success('创建成功')
     })
-    .finally(() => {
+    .onComplete(() => {
       messageReactive?.destroy()
-      window.$bus.emit('cert:refresh-account')
-      window.$bus.emit('cert:refresh-async')
     })
 }
 </script>
