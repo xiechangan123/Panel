@@ -9,17 +9,23 @@ const upload = ref<any>(null)
 
 const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequestOptions) => {
   const formData = new FormData()
+  formData.append('path', `${path.value}/${file.name}`)
   formData.append('file', file.file as File)
-  api
-    .upload(`${path.value}/${file.name}`, formData, onProgress)
-    .then(() => {
-      window.$message.success(`上传 ${file.name} 成功`)
-      window.$bus.emit('file:refresh')
+  const { uploading } = useRequest(api.upload(formData))
+    .onSuccess(() => {
       onFinish()
+      window.$bus.emit('file:refresh')
+      window.$message.success(`上传 ${file.name} 成功`)
     })
-    .catch(() => {
+    .onError(() => {
       onError()
     })
+    .onComplete(() => {
+      stopWatch()
+    })
+  const stopWatch = watch(uploading, (progress) => {
+    onProgress({ percent: Math.ceil((progress.loaded / progress.total) * 100) })
+  })
 }
 </script>
 
@@ -34,7 +40,6 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
     :segmented="false"
   >
     <n-flex vertical>
-      <n-alert type="info">若上传报网络错误，请开启面板 HTTPS 后重试</n-alert>
       <n-upload
         ref="upload"
         multiple
@@ -47,7 +52,7 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
             <the-icon :size="48" icon="bi:arrow-up-square" />
           </div>
           <NText text-18> 点击或者拖动文件到该区域来上传</NText>
-          <NP depth="3" m-10> 大文件建议使用 SFTP 上传 </NP>
+          <NP depth="3" m-10> 大文件建议使用 SFTP 等方式上传 </NP>
         </n-upload-dragger>
       </n-upload>
     </n-flex>

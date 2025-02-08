@@ -16,11 +16,14 @@ const checkbox = ref({
 })
 
 const handlePermission = async () => {
-  for (const path of selected.value) {
-    await file.permission(path, `0${mode.value}`, owner.value, group.value).then(() => {
+  const promises = selected.value.map((path) =>
+    useRequest(file.permission(path, `0${mode.value}`, owner.value, group.value)).onSuccess(() => {
       window.$message.success(`修改 ${path} 成功`)
     })
-  }
+  )
+
+  await Promise.all(promises)
+
   show.value = false
   selected.value = []
   window.$bus.emit('file:refresh')

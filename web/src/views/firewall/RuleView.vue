@@ -210,23 +210,23 @@ const handleDelete = async (row: any) => {
   })
 }
 
-const batchDelete = () => {
+const batchDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
     window.$message.info('请选择要删除的规则')
     return
   }
 
-  for (const key of selectedRowKeys.value) {
-    // 解析json
+  const promises = selectedRowKeys.value.map((key: any) => {
     const rule = JSON.parse(key)
-    useRequest(firewall.deleteRule(rule)).onSuccess(() => {
+    return useRequest(firewall.deleteRule(rule)).then(() => {
       const port =
         rule.port_start == rule.port_end ? rule.port_start : `${rule.port_start}-${rule.port_end}`
       window.$message.success(`${rule.family} 规则 ${port}/${rule.protocol} 删除成功`)
     })
-  }
+  })
 
-  refresh()
+  await Promise.all(promises)
+  await refresh()
 }
 
 const onChecked = (rowKeys: any) => {

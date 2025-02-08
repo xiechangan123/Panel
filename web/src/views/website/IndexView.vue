@@ -307,19 +307,21 @@ const handleCreate = async () => {
   })
 }
 
-const batchDelete = async () => {
+const bulkDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
     window.$message.info('请选择要删除的网站')
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    useRequest(website.delete(id, true, false)).onSuccess(() => {
-      refresh()
-      const site = data.value.find((item: any) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) => {
+    const site = data.value.find((item: any) => item.id === id)
+    return useRequest(website.delete(id, true, false)).then(() => {
       window.$message.success('网站 ' + site?.name + ' 删除成功')
     })
-  }
+  })
+
+  await Promise.all(promises)
+  await refresh()
 }
 
 const formatDbValue = (value: string) => {
@@ -346,7 +348,7 @@ onMounted(() => {
           <n-button type="primary" @click="createModal = true">
             {{ $t('websiteIndex.create.trigger') }}
           </n-button>
-          <n-popconfirm @positive-click="batchDelete">
+          <n-popconfirm @positive-click="bulkDelete">
             <template #trigger>
               <n-button type="error"> 批量删除 </n-button>
             </template>

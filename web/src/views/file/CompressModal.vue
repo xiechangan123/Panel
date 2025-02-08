@@ -24,26 +24,24 @@ const ensureExtension = (extension: string) => {
   }
 }
 
-const handleArchive = async () => {
+const handleArchive = () => {
   ensureExtension(format.value)
   loading.value = true
   const message = window.$message.loading('正在压缩中...', {
     duration: 0
   })
   const paths = selected.value.map((item) => item.replace(path.value, '').replace(/^\//, ''))
-  await api
-    .compress(path.value, paths, file.value)
-    .then(() => {
-      window.$message.success('压缩成功')
+  useRequest(api.compress(path.value, paths, file.value))
+    .onSuccess(() => {
       show.value = false
       selected.value = []
+      window.$message.success('压缩成功')
     })
-    .catch(() => {
-      window.$message.error('压缩失败')
+    .onComplete(() => {
+      message?.destroy()
+      loading.value = false
+      window.$bus.emit('file:refresh')
     })
-  message?.destroy()
-  loading.value = false
-  window.$bus.emit('file:refresh')
 }
 
 onMounted(() => {

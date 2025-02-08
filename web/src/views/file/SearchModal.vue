@@ -72,9 +72,9 @@ const columns: DataTableColumns<RowData> = [
               NPopconfirm,
               {
                 onPositiveClick: () => {
-                  file.delete(row.full).then(() => {
-                    window.$message.success('删除成功')
+                  useRequest(file.delete(row.full)).onSuccess(() => {
                     window.$bus.emit('file:refresh')
+                    window.$message.success('删除成功')
                   })
                 },
                 onNegativeClick: () => {}
@@ -126,12 +126,11 @@ const handlePageChange = (page: number) => {
 
 const search = async (page: number) => {
   loading.value = true
-  await file
-    .search(path.value, keyword.value, sub.value, page, pagination.pageSize!)
-    .then((res) => {
-      data.value = res.data.items
-      pagination.itemCount = res.data.total
-      pagination.pageCount = res.data.total / pagination.pageSize! + 1
+  useRequest(file.search(path.value, keyword.value, sub.value, page, pagination.pageSize!))
+    .then(({ data }) => {
+      data.value = data.items
+      pagination.itemCount = data.total
+      pagination.pageCount = data.total / pagination.pageSize! + 1
     })
     .catch(() => {
       window.$message.error('搜索失败')

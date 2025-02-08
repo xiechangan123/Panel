@@ -131,21 +131,21 @@ const handleDelete = (row: any) => {
   })
 }
 
-const batchDelete = () => {
+const batchDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
     window.$message.info('请选择要删除的规则')
     return
   }
 
-  for (const key of selectedRowKeys.value) {
-    // 解析json
+  const promises = selectedRowKeys.value.map((key: any) => {
     const rule = JSON.parse(key)
-    useRequest(firewall.deleteForward(rule)).onSuccess(() => {
+    return useRequest(firewall.deleteForward(rule)).then(() => {
       window.$message.success(`${rule.protocol} ${rule.target_ip}:${rule.target_port} 删除成功`)
     })
-  }
+  })
 
-  refresh()
+  await Promise.all(promises)
+  await refresh()
 }
 
 const onChecked = (rowKeys: any) => {

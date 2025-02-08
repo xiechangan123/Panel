@@ -14,9 +14,9 @@ watch(
   () => path.value,
   () => {
     content.value = ''
-    file.content(path.value).then((res) => {
-      mime.value = res.data.mime
-      content.value = res.data.content
+    useRequest(file.content(path.value)).onSuccess(({ data }) => {
+      mime.value = data.mime
+      content.value = data.content
     })
   }
 )

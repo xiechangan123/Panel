@@ -36,10 +36,10 @@ const handleCreate = () => {
   }
 
   const fullPath = path.value + '/' + createModel.value.path
-  file.create(fullPath, createModel.value.dir).then(() => {
+  useRequest(file.create(fullPath, createModel.value.dir)).onSuccess(() => {
     create.value = false
-    window.$message.success('创建成功')
     window.$bus.emit('file:refresh')
+    window.$message.success('创建成功')
   })
 }
 
@@ -49,13 +49,13 @@ const handleDownload = () => {
     return
   }
 
-  file
-    .remoteDownload(path.value + '/' + downloadModel.value.path, downloadModel.value.url)
-    .then(() => {
-      download.value = false
-      window.$message.success('下载任务创建成功')
-      window.$bus.emit('file:refresh')
-    })
+  useRequest(
+    file.remoteDownload(path.value + '/' + downloadModel.value.path, downloadModel.value.url)
+  ).onSuccess(() => {
+    download.value = false
+    window.$bus.emit('file:refresh')
+    window.$message.success('下载任务创建成功')
+  })
 }
 
 const handleCopy = () => {
@@ -92,7 +92,7 @@ const handleCancel = () => {
   marked.value = []
 }
 
-const handlePaste = async () => {
+const handlePaste = () => {
   if (!marked.value.length) {
     window.$message.error('请先标记需要复制或移动的文件/文件夹')
     return
@@ -109,9 +109,9 @@ const handlePaste = async () => {
     }
   })
   const sources = paths.map((item: any) => item.target)
-  await file.exist(sources).then(async (res) => {
-    for (let i = 0; i < res.data.length; i++) {
-      if (res.data[i]) {
+  useRequest(file.exist(sources)).onSuccess(({ data }) => {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i]) {
         flag = true
         paths[i].force = true
       }
@@ -128,16 +128,18 @@ const handlePaste = async () => {
         negativeText: '取消',
         onPositiveClick: async () => {
           if (markedType.value == 'copy') {
-            await file.copy(paths).then(() => {
+            useRequest(file.copy(paths)).onSuccess(() => {
+              marked.value = []
+              window.$bus.emit('file:refresh')
               window.$message.success('复制成功')
             })
           } else {
-            await file.move(paths).then(() => {
+            useRequest(file.move(paths)).onSuccess(() => {
+              marked.value = []
+              window.$bus.emit('file:refresh')
               window.$message.success('移动成功')
             })
           }
-          marked.value = []
-          window.$bus.emit('file:refresh')
         },
         onNegativeClick: () => {
           marked.value = []
@@ -146,16 +148,18 @@ const handlePaste = async () => {
       })
     } else {
       if (markedType.value == 'copy') {
-        await file.copy(paths).then(() => {
+        useRequest(file.copy(paths)).onSuccess(() => {
+          marked.value = []
+          window.$bus.emit('file:refresh')
           window.$message.success('复制成功')
         })
       } else {
-        await file.move(paths).then(() => {
+        useRequest(file.move(paths)).onSuccess(() => {
+          marked.value = []
+          window.$bus.emit('file:refresh')
           window.$message.success('移动成功')
         })
       }
-      marked.value = []
-      window.$bus.emit('file:refresh')
     }
   })
 }
@@ -166,14 +170,16 @@ const bulkDelete = async () => {
     return
   }
 
-  for (const path of selected.value) {
-    await file.delete(path).then(() => {
+  const promises = selected.value.map((path) =>
+    useRequest(file.delete(path)).onSuccess(() => {
       window.$message.success(`删除 ${path} 成功`)
-      window.$bus.emit('file:refresh')
     })
-  }
+  )
+
+  await Promise.all(promises)
 
   selected.value = []
+  window.$bus.emit('file:refresh')
 }
 
 // 自动填充下载文件名

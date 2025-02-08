@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { NButton, NEllipsis, NFlex, NInput, NPopconfirm, NPopselect, NTag } from 'naive-ui'
+import {
+  NButton,
+  NDataTable,
+  NEllipsis,
+  NFlex,
+  NInput,
+  NPopconfirm,
+  NPopselect,
+  NTag
+} from 'naive-ui'
 
 import type { DataTableColumns, DropdownOption } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
@@ -19,7 +28,6 @@ import EditModal from '@/views/file/EditModal.vue'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import type { Marked } from '@/views/file/types'
 
-const loading = ref(false)
 const sort = ref<string>('')
 const path = defineModel<string>('path', { type: String, required: true })
 const selected = defineModel<any[]>('selected', { type: Array, default: () => [] })
@@ -253,9 +261,9 @@ const columns: DataTableColumns<RowData> = [
               NPopconfirm,
               {
                 onPositiveClick: () => {
-                  file.delete(row.full).then(() => {
-                    window.$message.success('删除成功')
+                  useRequest(file.delete(row.full)).onComplete(() => {
                     window.$bus.emit('file:refresh')
+                    window.$message.success('删除成功')
                   })
                 },
                 onNegativeClick: () => {}
@@ -362,47 +370,17 @@ const rowProps = (row: any) => {
   }
 }
 
-const data = ref<RowData[]>([])
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => file.list(path.value, page, pageSize, sort.value),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 100,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [100, 200, 500, 1000, 1500, 2000, 5000]
-})
-
-const handlePageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  handlePageChange(1)
-}
-
-const handlePageChange = async (page: number) => {
-  loading.value = true
-  await getList(path.value, page, pagination.pageSize!).finally(() => {
-    loading.value = false
-  })
-}
-
-const handleRefresh = async () => {
-  loading.value = true
-  await getList(path.value, pagination.page, pagination.pageSize!).finally(() => {
-    loading.value = false
-  })
-}
-
-const getList = async (path: string, page: number, limit: number) => {
-  await file.list(path, page, limit, sort.value).then((res) => {
-    data.value = res.data.items
-    pagination.page = page
-    pagination.itemCount = res.data.total
-    pagination.pageCount = res.data.total / pagination.pageSize! + 1
-  })
-}
-
-const handleRename = async () => {
+const handleRename = () => {
   const source = path.value + '/' + renameModel.value.source
   const target = path.value + '/' + renameModel.value.target
   if (!checkName(renameModel.value.source) || !checkName(renameModel.value.target)) {
@@ -410,31 +388,39 @@ const handleRename = async () => {
     return
   }
 
-  await file.exist([target]).then(async (res) => {
-    if (res.data[0]) {
+  useRequest(file.exist([target])).onSuccess(({ data }) => {
+    if (data[0]) {
       window.$dialog.warning({
         title: '警告',
         content: `存在同名项，是否强制覆盖？`,
         positiveText: '覆盖',
         negativeText: '取消',
-        onPositiveClick: async () => {
-          await file.move([{ source, target, force: true }])
-          window.$message.success(
-            `重命名 ${renameModel.value.source} 为 ${renameModel.value.target} 成功`
-          )
-          window.$bus.emit('file:refresh')
+        onPositiveClick: () => {
+          useRequest(file.move([{ source, target, force: true }]))
+            .onSuccess(() => {
+              window.$bus.emit('file:refresh')
+              window.$message.success(
+                `重命名 ${renameModel.value.source} 为 ${renameModel.value.target} 成功`
+              )
+            })
+            .onComplete(() => {
+              renameModal.value = false
+            })
         }
       })
     } else {
-      await file.move([{ source, target, force: false }])
-      window.$message.success(
-        `重命名 ${renameModel.value.source} 为 ${renameModel.value.target} 成功`
-      )
-      window.$bus.emit('file:refresh')
+      useRequest(file.move([{ source, target, force: false }]))
+        .onSuccess(() => {
+          window.$bus.emit('file:refresh')
+          window.$message.success(
+            `重命名 ${renameModel.value.source} 为 ${renameModel.value.target} 成功`
+          )
+        })
+        .onComplete(() => {
+          renameModal.value = false
+        })
     }
   })
-
-  renameModal.value = false
 }
 
 const handleUnCompress = () => {
@@ -449,17 +435,14 @@ const handleUnCompress = () => {
   const message = window.$message.loading('正在解压中...', {
     duration: 0
   })
-  file
-    .unCompress(unCompressModel.value.file, unCompressModel.value.path)
-    .then(() => {
-      message?.destroy()
-      window.$message.success('解压成功')
+  useRequest(file.unCompress(unCompressModel.value.file, unCompressModel.value.path))
+    .onSuccess(() => {
       unCompressModal.value = false
       window.$bus.emit('file:refresh')
+      window.$message.success('解压成功')
     })
-    .catch(() => {
+    .onComplete(() => {
       message?.destroy()
-      window.$message.error('解压失败')
     })
 }
 
@@ -467,7 +450,7 @@ const onChecked = (rowKeys: any) => {
   selected.value = rowKeys
 }
 
-const handlePaste = async () => {
+const handlePaste = () => {
   if (!marked.value.length) {
     window.$message.error('请先标记需要复制或移动的文件/文件夹')
     return
@@ -484,9 +467,9 @@ const handlePaste = async () => {
     }
   })
   const sources = paths.map((item: any) => item.target)
-  await file.exist(sources).then(async (res) => {
-    for (let i = 0; i < res.data.length; i++) {
-      if (res.data[i]) {
+  useRequest(file.exist(sources)).onSuccess(({ data }) => {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i]) {
         flag = true
         paths[i].force = true
       }
@@ -501,13 +484,13 @@ const handlePaste = async () => {
         .join(', ')} 是否覆盖？`,
         positiveText: '覆盖',
         negativeText: '取消',
-        onPositiveClick: async () => {
+        onPositiveClick: () => {
           if (markedType.value == 'copy') {
-            await file.copy(paths).then(() => {
+            useRequest(file.copy(paths)).onSuccess(() => {
               window.$message.success('复制成功')
             })
           } else {
-            await file.move(paths).then(() => {
+            useRequest(file.move(paths)).onSuccess(() => {
               window.$message.success('移动成功')
             })
           }
@@ -521,11 +504,11 @@ const handlePaste = async () => {
       })
     } else {
       if (markedType.value == 'copy') {
-        await file.copy(paths).then(() => {
+        useRequest(file.copy(paths)).onSuccess(() => {
           window.$message.success('复制成功')
         })
       } else {
-        await file.move(paths).then(() => {
+        useRequest(file.move(paths)).onSuccess(() => {
           window.$message.success('移动成功')
         })
       }
@@ -595,9 +578,9 @@ const handleSelect = (key: string) => {
       renameModal.value = true
       break
     case 'delete':
-      file.delete(selectedRow.value.full).then(() => {
-        window.$message.success('删除成功')
+      useRequest(file.delete(selectedRow.value.full)).onSuccess(() => {
         window.$bus.emit('file:refresh')
+        window.$message.success('删除成功')
       })
       break
   }
@@ -618,15 +601,15 @@ const handleSorterChange = (sorter: {
       switch (sorter.order) {
         case 'ascend':
           sort.value = 'asc'
-          handleRefresh()
+          refresh()
           break
         case 'descend':
           sort.value = 'desc'
-          handleRefresh()
+          refresh()
           break
         default:
           sort.value = ''
-          handleRefresh()
+          refresh()
           break
       }
     }
@@ -638,12 +621,12 @@ onMounted(() => {
     path,
     () => {
       selected.value = []
-      handlePageChange(1)
+      refresh()
       window.$bus.emit('push-history', path.value)
     },
     { immediate: true }
   )
-  window.$bus.on('file:refresh', handleRefresh)
+  window.$bus.on('file:refresh', refresh)
 })
 
 onUnmounted(() => {
@@ -662,14 +645,22 @@ onUnmounted(() => {
     :data="data"
     :row-props="rowProps"
     :loading="loading"
-    :pagination="pagination"
     :row-key="(row: any) => row.full"
     :checked-row-keys="selected"
     max-height="60vh"
-    @update:page="handlePageChange"
-    @update:page-size="handlePageSizeChange"
     @update:sorter="handleSorterChange"
     @update:checked-row-keys="onChecked"
+    v-model:page="page"
+    v-model:pageSize="pageSize"
+    :pagination="{
+      page: page,
+      pageCount: pageCount,
+      pageSize: pageSize,
+      itemCount: total,
+      showQuickJumper: true,
+      showSizePicker: true,
+      pageSizes: [100, 200, 500, 1000, 1500, 2000, 5000]
+    }"
   />
   <n-dropdown
     placement="bottom-start"

@@ -18,25 +18,25 @@ const props = defineProps({
 const disabled = ref(false) // 在出现错误的情况下禁用保存
 const data = ref('')
 
-const get = async () => {
-  await file
-    .content(props.path)
-    .then((res) => {
-      data.value = decodeBase64(res.data.content)
+const get = () => {
+  useRequest(file.content(props.path))
+    .onSuccess(({ data }) => {
+      data.value = decodeBase64(data.content)
       window.$message.success('获取成功')
     })
-    .catch(() => {
+    .onError(() => {
       disabled.value = true
     })
 }
 
-const save = async () => {
+const save = () => {
   if (disabled.value) {
     window.$message.error('当前状态下不可保存')
     return
   }
-  await file.save(props.path, data.value)
-  window.$message.success('保存成功')
+  useRequest(file.save(props.path, data.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 onMounted(() => {

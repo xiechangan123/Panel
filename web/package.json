@@ -23,6 +23,7 @@
     "gen-auto-import": "tsx gen-auto-import.ts"
   },
   "dependencies": {
+    "@alova/adapter-xhr": "^2.1.1",
     "@eslint/eslintrc": "^3.2.0",
     "@fontsource-variable/jetbrains-mono": "^5.1.1",
     "@guolao/vue-monaco-editor": "^1.5.4",
