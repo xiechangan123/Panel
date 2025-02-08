@@ -187,11 +187,9 @@ const batchDelete = async () => {
   })
 
   await Promise.all(promises)
-  await refresh()
-}
 
-const onChecked = (rowKeys: any) => {
-  selectedRowKeys.value = rowKeys
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 watch(createModalShow, () => {
@@ -230,7 +228,7 @@ onMounted(() => {
       :columns="columns"
       :data="data"
       :row-key="(row: any) => JSON.stringify(row)"
-      @update:checked-row-keys="onChecked"
+      v-model:checked-row-keys="selectedRowKeys"
       v-model:page="page"
       v-model:pageSize="pageSize"
       :pagination="{

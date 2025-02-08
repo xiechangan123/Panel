@@ -321,6 +321,8 @@ const bulkDelete = async () => {
   })
 
   await Promise.all(promises)
+
+  selectedRowKeys.value = []
   await refresh()
 }
 

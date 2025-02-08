@@ -36,10 +36,6 @@ const createModal = ref(false)
 
 const selectedRowKeys = ref<any>([])
 
-const onChecked = (rowKeys: any) => {
-  selectedRowKeys.value = rowKeys
-}
-
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
@@ -202,7 +198,7 @@ onMounted(() => {
         :data="data"
         :columns="columns"
         :row-key="(row: any) => row.id"
-        @update:checked-row-keys="onChecked"
+        v-model:checked-row-keys="selectedRowKeys"
         v-model:page="page"
         v-model:pageSize="pageSize"
         :pagination="{

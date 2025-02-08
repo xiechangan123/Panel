@@ -446,10 +446,6 @@ const handleUnCompress = () => {
     })
 }
 
-const onChecked = (rowKeys: any) => {
-  selected.value = rowKeys
-}
-
 const handlePaste = () => {
   if (!marked.value.length) {
     window.$message.error('请先标记需要复制或移动的文件/文件夹')
@@ -649,7 +645,7 @@ onUnmounted(() => {
     :checked-row-keys="selected"
     max-height="60vh"
     @update:sorter="handleSorterChange"
-    @update:checked-row-keys="onChecked"
+    v-model:checked-row-keys="selectedRowKeys"
     v-model:page="page"
     v-model:pageSize="pageSize"
     :pagination="{
