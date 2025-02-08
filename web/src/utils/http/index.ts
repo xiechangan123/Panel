@@ -3,26 +3,6 @@ import type { AlovaXHRResponse } from '@alova/adapter-xhr'
 import { xhrRequestAdapter } from '@alova/adapter-xhr'
 import { createAlova, Method } from 'alova'
 import VueHook from 'alova/vue'
-import axios from 'axios'
-import { reqReject, reqResolve, resReject, resResolve } from './interceptors'
-
-export function createAxios(options = {}) {
-  const defaultOptions = {
-    adapter: 'fetch',
-    timeout: 0
-  }
-  const service = axios.create({
-    ...defaultOptions,
-    ...options
-  })
-  service.interceptors.request.use(reqResolve, reqReject)
-  service.interceptors.response.use(resResolve, resReject)
-  return service
-}
-
-export const request = createAxios({
-  baseURL: import.meta.env.VITE_BASE_API
-})
 
 export const http = createAlova({
   id: 'panel',

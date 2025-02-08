@@ -3,7 +3,6 @@ import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
 
 import container from '@/api/panel/container'
 import { formatDateTime } from '@/utils'
-import type { NetworkList } from '@/views/container/types'
 
 const createModel = ref({
   name: '',
@@ -34,9 +33,7 @@ const options = [
 ]
 
 const createModal = ref(false)
-const loading = ref(false)
 
-const data = ref<NetworkList[]>([] as NetworkList[])
 const selectedRowKeys = ref<any>([])
 
 const onChecked = (rowKeys: any) => {
@@ -147,65 +144,44 @@ const columns: any = [
   }
 ]
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => container.networkList(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getNetworkList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const getNetworkList = async (page: number, pageSize: number) => {
-  const { data } = await container.networkList(page, pageSize)
-  return data
-}
-
-const handleDelete = async (row: any) => {
-  container.networkRemove(row.id).then(() => {
+const handleDelete = (row: any) => {
+  useRequest(container.networkRemove(row.id)).onSuccess(() => {
     window.$message.success('删除成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handlePrune = () => {
-  container.networkPrune().then(() => {
+  useRequest(container.networkPrune()).onSuccess(() => {
+    refresh()
     window.$message.success('清理成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handleCreate = () => {
   loading.value = true
-  container
-    .networkCreate(createModel.value)
-    .then(() => {
+  useRequest(container.networkCreate(createModel.value))
+    .onSuccess(() => {
+      refresh()
       window.$message.success('创建成功')
-      onPageChange(pagination.page)
     })
-    .finally(() => {
+    .onComplete(() => {
       loading.value = false
       createModal.value = false
     })
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
 })
 </script>
 
@@ -221,16 +197,23 @@ onMounted(() => {
       <n-data-table
         striped
         remote
+        :loading="loading"
         :scroll-x="1000"
         :data="data"
         :columns="columns"
         :row-key="(row: any) => row.id"
-        :pagination="pagination"
-        :bordered="false"
-        :loading="false"
-        @update:page="onPageChange"
-        @update:page-size="onPageSizeChange"
         @update:checked-row-keys="onChecked"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :pagination="{
+          page: page,
+          pageCount: pageCount,
+          pageSize: pageSize,
+          itemCount: total,
+          showQuickJumper: true,
+          showSizePicker: true,
+          pageSizes: [20, 50, 100, 200]
+        }"
       />
     </n-card>
   </n-space>

@@ -82,31 +82,28 @@ const removeVolumeRow = (index: number) => {
   createModel.volumes.splice(index, 1)
 }
 
-const getNetworks = async () => {
-  const { data } = await container.networkList(1, 1000)
-  networks.value = data.items.map((item: any) => {
-    return {
-      label: item.name,
-      value: item.id
+const getNetworks = () => {
+  useRequest(container.networkList(1, 1000)).onSuccess(({ data }) => {
+    networks.value = data.items.map((item: any) => {
+      return {
+        label: item.name,
+        value: item.id
+      }
+    })
+    if (networks.value.length > 0) {
+      createModel.network = networks.value[0].value
     }
   })
-  if (networks.value.length > 0) {
-    createModel.network = networks.value[0].value
-  }
 }
 
 const handleSubmit = () => {
   doSubmit.value = true
-  container
-    .containerCreate(createModel)
-    .then(() => {
+  useRequest(container.containerCreate(createModel))
+    .onSuccess(() => {
       window.$message.success('创建成功')
       handleClose()
     })
-    .catch(() => {
-      window.$message.error('创建失败')
-    })
-    .finally(() => {
+    .onComplete(() => {
       doSubmit.value = false
     })
 }

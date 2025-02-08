@@ -4,9 +4,6 @@ import { NButton, NDataTable, NDropdown, NFlex, NInput, NSwitch, NTag } from 'na
 
 import container from '@/api/panel/container'
 import ContainerCreate from '@/views/container/ContainerCreate.vue'
-import type { ContainerList } from '@/views/container/types'
-
-const data = ref<ContainerList[]>([] as ContainerList[])
 
 const logModal = ref(false)
 const logs = ref('')
@@ -209,103 +206,86 @@ const columns: any = [
   }
 ]
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getContainerList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const getContainerList = async (page: number, pageSize: number) => {
-  const { data } = await container.containerList(page, pageSize)
-  return data
-}
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => container.containerList(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const handleShowLog = async (row: any) => {
-  container.containerLogs(row.id).then((res) => {
-    logs.value = res.data
+  useRequest(container.containerLogs(row.id)).onSuccess(({ data }) => {
+    logs.value = data
     logModal.value = true
   })
 }
 
 const handleRename = () => {
-  container.containerRename(renameModel.value.id, renameModel.value.name).then(() => {
-    window.$message.success('重命名成功')
-    renameModal.value = false
-    onPageChange(pagination.page)
-  })
+  useRequest(container.containerRename(renameModel.value.id, renameModel.value.name)).onSuccess(
+    () => {
+      refresh()
+      renameModal.value = false
+      window.$message.success('重命名成功')
+    }
+  )
 }
 
 const handleStart = (id: string) => {
-  container.containerStart(id).then(() => {
+  useRequest(container.containerStart(id)).onSuccess(() => {
+    refresh()
     window.$message.success('启动成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handleStop = (id: string) => {
-  container.containerStop(id).then(() => {
+  useRequest(container.containerStop(id)).onSuccess(() => {
+    refresh()
     window.$message.success('停止成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handleRestart = (id: string) => {
-  container.containerRestart(id).then(() => {
+  useRequest(container.containerRestart(id)).onSuccess(() => {
+    refresh()
     window.$message.success('重启成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handleForceStop = (id: string) => {
-  container.containerKill(id).then(() => {
+  useRequest(container.containerKill(id)).onSuccess(() => {
+    refresh()
     window.$message.success('强制停止成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handlePause = (id: string) => {
-  container.containerPause(id).then(() => {
+  useRequest(container.containerPause(id)).onSuccess(() => {
+    refresh()
     window.$message.success('暂停成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handleUnpause = (id: string) => {
-  container.containerUnpause(id).then(() => {
+  useRequest(container.containerUnpause(id)).onSuccess(() => {
+    refresh()
     window.$message.success('恢复成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handleDelete = (id: string) => {
-  container.containerRemove(id).then(() => {
+  useRequest(container.containerRemove(id)).onSuccess(() => {
+    refresh()
     window.$message.success('删除成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handlePrune = () => {
-  container.containerPrune().then(() => {
+  useRequest(container.containerPrune()).onSuccess(() => {
+    refresh()
     window.$message.success('清理成功')
-    onPageChange(pagination.page)
   })
 }
 
@@ -315,14 +295,17 @@ const bulkStart = async () => {
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    await container.containerStart(id).then(() => {
-      const container = data.value.find((item) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) =>
+    useRequest(container.containerStart(id)).onSuccess(() => {
+      const container = data.value.find((item: any) => item.id === id)
       window.$message.success(`${container?.name} 启动成功`)
     })
-  }
+  )
 
-  onPageChange(pagination.page)
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 const bulkStop = async () => {
@@ -331,14 +314,17 @@ const bulkStop = async () => {
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    await container.containerStop(id).then(() => {
-      const container = data.value.find((item) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) =>
+    useRequest(container.containerStop(id)).onSuccess(() => {
+      const container = data.value.find((item: any) => item.id === id)
       window.$message.success(`${container?.name} 停止成功`)
     })
-  }
+  )
 
-  onPageChange(pagination.page)
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 const bulkRestart = async () => {
@@ -347,14 +333,17 @@ const bulkRestart = async () => {
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    await container.containerRestart(id).then(() => {
-      const container = data.value.find((item) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) =>
+    useRequest(container.containerRestart(id)).onSuccess(() => {
+      const container = data.value.find((item: any) => item.id === id)
       window.$message.success(`${container?.name} 重启成功`)
     })
-  }
+  )
 
-  onPageChange(pagination.page)
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 const bulkForceStop = async () => {
@@ -363,14 +352,17 @@ const bulkForceStop = async () => {
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    await container.containerKill(id).then(() => {
-      const container = data.value.find((item) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) =>
+    useRequest(container.containerKill(id)).onSuccess(() => {
+      const container = data.value.find((item: any) => item.id === id)
       window.$message.success(`${container?.name} 强制停止成功`)
     })
-  }
+  )
 
-  onPageChange(pagination.page)
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 const bulkDelete = async () => {
@@ -379,14 +371,17 @@ const bulkDelete = async () => {
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    await container.containerRemove(id).then(() => {
-      const container = data.value.find((item) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) =>
+    useRequest(container.containerRemove(id)).onSuccess(() => {
+      const container = data.value.find((item: any) => item.id === id)
       window.$message.success(`${container?.name} 删除成功`)
     })
-  }
+  )
 
-  onPageChange(pagination.page)
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 const bulkPause = async () => {
@@ -395,14 +390,17 @@ const bulkPause = async () => {
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    await container.containerPause(id).then(() => {
-      const container = data.value.find((item) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) =>
+    useRequest(container.containerPause(id)).onSuccess(() => {
+      const container = data.value.find((item: any) => item.id === id)
       window.$message.success(`${container?.name} 暂停成功`)
     })
-  }
+  )
 
-  onPageChange(pagination.page)
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 const bulkUnpause = async () => {
@@ -411,23 +409,26 @@ const bulkUnpause = async () => {
     return
   }
 
-  for (const id of selectedRowKeys.value) {
-    await container.containerUnpause(id).then(() => {
-      const container = data.value.find((item) => item.id === id)
+  const promises = selectedRowKeys.value.map((id: any) =>
+    useRequest(container.containerUnpause(id)).onSuccess(() => {
+      const container = data.value.find((item: any) => item.id === id)
       window.$message.success(`${container?.name} 恢复成功`)
     })
-  }
+  )
 
-  onPageChange(pagination.page)
+  await Promise.all(promises)
+
+  selectedRowKeys.value = []
+  await refresh()
 }
 
 const closeContainerCreateModal = () => {
   containerCreateModal.value = false
-  onPageChange(pagination.page)
+  refresh()
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
 })
 </script>
 
@@ -452,16 +453,23 @@ onMounted(() => {
       <n-data-table
         striped
         remote
+        :loading="loading"
         :scroll-x="1000"
         :data="data"
         :columns="columns"
         :row-key="(row: any) => row.id"
-        :pagination="pagination"
-        :bordered="false"
-        :loading="false"
-        @update:page="onPageChange"
-        @update:page-size="onPageSizeChange"
         @update:checked-row-keys="onChecked"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :pagination="{
+          page: page,
+          pageCount: pageCount,
+          pageSize: pageSize,
+          itemCount: total,
+          showQuickJumper: true,
+          showSizePicker: true,
+          pageSizes: [20, 50, 100, 200]
+        }"
       />
     </n-card>
   </n-space>

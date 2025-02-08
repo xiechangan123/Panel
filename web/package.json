@@ -37,7 +37,6 @@
     "@xterm/addon-webgl": "^0.18.0",
     "@xterm/xterm": "^5.5.0",
     "alova": "^3.2.7",
-    "axios": "^1.7.9",
     "cronstrue": "^2.52.0",
     "echarts": "^5.6.0",
     "install": "^0.13.0",

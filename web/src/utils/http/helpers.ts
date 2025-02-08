@@ -1,18 +1,4 @@
 import { useUserStore } from '@/store'
-import type { ErrorResolveResponse } from '~/types/axios'
-
-/** 自定义错误 */
-export class AxiosRejectError extends Error {
-  code?: number | string
-  data?: any
-
-  constructor(rejectData: ErrorResolveResponse, options?: ErrorOptions) {
-    const { code, message, data } = rejectData
-    super(message, options)
-    this.code = code
-    this.data = data
-  }
-}
 
 export function resolveResError(code: number | string | undefined, message = ''): string {
   switch (code) {

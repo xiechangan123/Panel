@@ -3,7 +3,6 @@ import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
 
 import container from '@/api/panel/container'
 import { formatDateTime } from '@/utils'
-import type { ImageList } from '@/views/container/types'
 
 const pullModel = ref({
   name: '',
@@ -12,9 +11,6 @@ const pullModel = ref({
   password: ''
 })
 const pullModal = ref(false)
-const loading = ref(false)
-
-const data = ref<ImageList[]>([] as ImageList[])
 const selectedRowKeys = ref<any>([])
 
 const onChecked = (rowKeys: any) => {
@@ -108,65 +104,45 @@ const columns: any = [
   }
 ]
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getImageList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const getImageList = async (page: number, pageSize: number) => {
-  const { data } = await container.imageList(page, pageSize)
-  return data
-}
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => container.imageList(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const handleDelete = async (row: any) => {
-  container.imageRemove(row.id).then(() => {
+  useRequest(container.imageRemove(row.id)).onSuccess(() => {
+    refresh()
     window.$message.success('删除成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handlePrune = () => {
-  container.imagePrune().then(() => {
+  useRequest(container.imagePrune()).onSuccess(() => {
+    refresh()
     window.$message.success('清理成功')
-    onPageChange(pagination.page)
   })
 }
 
 const handlePull = () => {
   loading.value = true
-  container
-    .imagePull(pullModel.value)
-    .then(() => {
+  useRequest(container.imagePull(pullModel.value))
+    .onSuccess(() => {
+      refresh()
       window.$message.success('拉取成功')
-      onPageChange(pagination.page)
     })
-    .finally(() => {
+    .onComplete(() => {
       loading.value = false
       pullModal.value = false
     })
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
 })
 </script>
 
@@ -182,16 +158,23 @@ onMounted(() => {
       <n-data-table
         striped
         remote
+        :loading="loading"
         :scroll-x="1000"
         :data="data"
         :columns="columns"
         :row-key="(row: any) => row.id"
-        :pagination="pagination"
-        :bordered="false"
-        :loading="false"
-        @update:page="onPageChange"
-        @update:page-size="onPageSizeChange"
         @update:checked-row-keys="onChecked"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :pagination="{
+          page: page,
+          pageCount: pageCount,
+          pageSize: pageSize,
+          itemCount: total,
+          showQuickJumper: true,
+          showSizePicker: true,
+          pageSizes: [20, 50, 100, 200]
+        }"
       />
     </n-card>
   </n-space>
