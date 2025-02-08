@@ -8,12 +8,18 @@ import { NButton, NDataTable, NInput, NPopconfirm, NSwitch, NTag } from 'naive-u
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import { decodeBase64, formatDateTime, renderIcon } from '@/utils'
-import type { CronTask } from '@/views/task/types'
 import { CronNaive } from '@vue-js-cron/naive-ui'
 
 const logPath = ref('')
 const logModal = ref(false)
 const editModal = ref(false)
+
+const editTask = ref({
+  id: 0,
+  name: '',
+  time: '',
+  script: ''
+})
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -158,83 +164,55 @@ const columns: any = [
   }
 ]
 
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => cron.list(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
-const data = ref<CronTask[]>([] as CronTask[])
-
-const editTask = ref({
-  id: 0,
-  name: '',
-  time: '',
-  script: ''
-})
-
-const getTaskList = async (page: number, limit: number) => {
-  const { data } = await cron.list(page, limit)
-  return data
-}
-
-const onPageChange = (page: number) => {
-  pagination.page = page
-  getTaskList(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
-const handleStatusChange = async (row: any) => {
-  cron.status(row.id, !row.status).then(() => {
-    window.$message.success('修改成功')
+const handleStatusChange = (row: any) => {
+  useRequest(cron.status(row.id, !row.status)).onSuccess(() => {
     row.status = !row.status
+    window.$message.success('修改成功')
   })
 }
 
-const handleEdit = async (row: any) => {
-  await cron.get(row.id).then(async (res) => {
-    await file.content(res.data.shell).then((res) => {
+const handleEdit = (row: any) => {
+  useRequest(cron.get(row.id)).onSuccess(({ data }) => {
+    useRequest(file.content(data.shell)).onSuccess(({ data }) => {
       editTask.value.id = row.id
       editTask.value.name = row.name
       editTask.value.time = row.time
-      editTask.value.script = decodeBase64(res.data.content)
+      editTask.value.script = decodeBase64(data.content)
       editModal.value = true
     })
   })
 }
 
 const handleDelete = async (id: number) => {
-  await cron.delete(id).then(() => {
+  useRequest(cron.delete(id)).onSuccess(() => {
     window.$message.success('删除成功')
     window.$bus.emit('task:refresh-cron')
   })
 }
 
 const saveTaskEdit = async () => {
-  cron
-    .update(editTask.value.id, editTask.value.name, editTask.value.time, editTask.value.script)
-    .then(() => {
-      window.$message.success('修改成功')
-      window.$bus.emit('task:refresh-cron')
-    })
+  useRequest(
+    cron.update(editTask.value.id, editTask.value.name, editTask.value.time, editTask.value.script)
+  ).onSuccess(() => {
+    window.$message.success('修改成功')
+    window.$bus.emit('task:refresh-cron')
+  })
 }
 
 onMounted(() => {
-  onPageChange(pagination.page)
+  refresh()
   window.$bus.on('task:refresh-cron', () => {
-    onPageChange(pagination.page)
+    refresh()
   })
 })
 
@@ -249,14 +227,21 @@ onUnmounted(() => {
       striped
       remote
       :scroll-x="1300"
-      :data="data"
+      :loading="loading"
       :columns="columns"
+      :data="data"
       :row-key="(row: any) => row.id"
-      :pagination="pagination"
-      :bordered="false"
-      :loading="false"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
     />
   </n-card>
   <realtime-log-modal v-model:show="logModal" :path="logPath" />

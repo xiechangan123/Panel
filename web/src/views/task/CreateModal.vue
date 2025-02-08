@@ -41,11 +41,11 @@ const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
 })
 
 const mySQLInstalled = computed(() => {
-  return installedDbAndPhp.value.db.find((item) => item.value === 'mysql')
+  return installedDbAndPhp.value.db.find((item: any) => item.value === 'mysql')
 })
 
 const postgreSQLInstalled = computed(() => {
-  return installedDbAndPhp.value.db.find((item) => item.value === 'postgresql')
+  return installedDbAndPhp.value.db.find((item: any) => item.value === 'postgresql')
 })
 
 const getWebsiteList = async (page: number, limit: number) => {
@@ -61,15 +61,13 @@ const getWebsiteList = async (page: number, limit: number) => {
 
 const handleSubmit = async () => {
   loading.value = true
-  await cron
-    .create(createModel.value)
-    .then(() => {
+  useRequest(cron.create(createModel.value))
+    .onSuccess(() => {
       window.$message.success('创建成功')
       window.$bus.emit('task:refresh-cron')
-      loading.value = false
-      show.value = false
     })
-    .catch(() => {
+    .onComplete(() => {
+      show.value = false
       loading.value = false
     })
 }
