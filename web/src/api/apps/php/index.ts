@@ -30,5 +30,5 @@ export default {
     http.Post(`/apps/php${version}/extensions`, { slug }),
   // 卸载拓展
   uninstallExtension: (version: number, slug: string): any =>
-    http.Delete(`/apps/php${version}/extensions`, { data: { slug } })
+    http.Delete(`/apps/php${version}/extensions`, { slug })
 }

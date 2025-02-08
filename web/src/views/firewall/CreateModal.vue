@@ -68,8 +68,8 @@ const createModel = ref({
 })
 
 const handleCreate = async () => {
-  await firewall.createRule(createModel.value).then(() => {
-    window.$message.success('创建成功')
+  useRequest(firewall.createRule(createModel.value)).onSuccess(() => {
+    show.value = false
     createModel.value = {
       family: 'ipv4',
       protocol: 'tcp',
@@ -79,7 +79,7 @@ const handleCreate = async () => {
       strategy: 'accept',
       direction: 'in'
     }
-    show.value = false
+    window.$message.success('创建成功')
   })
 }
 </script>

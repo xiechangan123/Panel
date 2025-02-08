@@ -14,8 +14,7 @@ export default {
     })
   },
   // 删除备份
-  delete: (type: string, file: string): any =>
-    http.Delete(`/backup/${type}/delete`, { data: { file } }),
+  delete: (type: string, file: string): any => http.Delete(`/backup/${type}/delete`, { file }),
   // 恢复备份
   restore: (type: string, file: string, target: string): any =>
     http.Post(`/backup/${type}/restore`, { file, target })

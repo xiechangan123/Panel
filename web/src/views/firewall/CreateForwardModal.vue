@@ -27,17 +27,17 @@ const createModel = ref({
   target_port: 80
 })
 
-const handleCreate = async () => {
-  await firewall.createForward(createModel.value).then(() => {
+const handleCreate = () => {
+  useRequest(firewall.createForward(createModel.value)).onSuccess(() => {
+    show.value = false
+    createModel.value = {
+      protocol: 'tcp',
+      port: 8080,
+      target_ip: '127.0.0.1',
+      target_port: 80
+    }
     window.$message.success(`创建成功`)
   })
-  createModel.value = {
-    protocol: 'tcp',
-    port: 8080,
-    target_ip: '127.0.0.1',
-    target_port: 80
-  }
-  show.value = false
 }
 </script>
 

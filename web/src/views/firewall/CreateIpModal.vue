@@ -67,23 +67,16 @@ const createModel = ref({
 
 const handleCreate = async () => {
   for (const address of createModel.value.address) {
-    await firewall
-      .createIpRule({
+    useRequest(
+      firewall.createIpRule({
         ...createModel.value,
         address
       })
-      .then(() => {
-        window.$message.success(`${address} 创建成功`)
-      })
+    ).onSuccess(() => {
+      window.$message.success(`${address} 创建成功`)
+      show.value = false
+    })
   }
-  createModel.value = {
-    family: 'ipv4',
-    protocol: 'tcp',
-    address: [],
-    strategy: 'accept',
-    direction: 'in'
-  }
-  show.value = false
 }
 </script>
 

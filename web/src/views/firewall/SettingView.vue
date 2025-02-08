@@ -9,20 +9,19 @@ const model = ref({
   sshPort: 22
 })
 
-const fetchSetting = async () => {
-  firewall.status().then((res) => {
-    model.value.firewallStatus = res.data
-  })
-
-  const ssh = await safe.ssh()
-  model.value.sshStatus = ssh.status
-  model.value.sshPort = ssh.port
-
-  model.value.pingStatus = await safe.pingStatus()
-}
+useRequest(firewall.status).onSuccess(({ data }) => {
+  model.value.firewallStatus = data
+})
+useRequest(safe.ssh).onSuccess(({ data }) => {
+  model.value.sshStatus = data.status
+  model.value.sshPort = data.port
+})
+useRequest(safe.pingStatus).onSuccess(({ data }) => {
+  model.value.pingStatus = data
+})
 
 const handleFirewallStatus = () => {
-  firewall.updateStatus(model.value.firewallStatus).then(() => {
+  useRequest(firewall.updateStatus(model.value.firewallStatus)).onSuccess(() => {
     window.$message.success('设置成功')
   })
 }
@@ -38,10 +37,6 @@ const handlePingStatus = () => {
     window.$message.success('设置成功')
   })
 }
-
-onMounted(() => {
-  fetchSetting()
-})
 </script>
 
 <template>

@@ -4,7 +4,6 @@ import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
 import firewall from '@/api/panel/firewall'
 import { renderIcon } from '@/utils'
 import CreateModal from '@/views/firewall/CreateModal.vue'
-import type { FirewallRule } from '@/views/firewall/types'
 
 const createModalShow = ref(false)
 
@@ -192,37 +191,26 @@ const columns: any = [
   }
 ]
 
-const data = ref<FirewallRule[]>([] as FirewallRule[])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => firewall.rules(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const selectedRowKeys = ref<any>([])
 
 const handleDelete = async (row: any) => {
-  await firewall.deleteRule(row).then(() => {
+  useRequest(firewall.deleteRule(row)).onSuccess(() => {
+    refresh()
     window.$message.success('删除成功')
   })
-  fetchFirewallRules(pagination.page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
 }
 
-const fetchFirewallRules = async (page: number, limit: number) => {
-  const { data } = await firewall.rules(page, limit)
-  return data
-}
-
-const batchDelete = async () => {
+const batchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
     window.$message.info('请选择要删除的规则')
     return
@@ -231,44 +219,26 @@ const batchDelete = async () => {
   for (const key of selectedRowKeys.value) {
     // 解析json
     const rule = JSON.parse(key)
-    await firewall.deleteRule(rule).then(() => {
+    useRequest(firewall.deleteRule(rule)).onSuccess(() => {
       const port =
         rule.port_start == rule.port_end ? rule.port_start : `${rule.port_start}-${rule.port_end}`
       window.$message.success(`${rule.family} 规则 ${port}/${rule.protocol} 删除成功`)
     })
   }
 
-  fetchFirewallRules(pagination.page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
+  refresh()
 }
 
 const onChecked = (rowKeys: any) => {
   selectedRowKeys.value = rowKeys
 }
 
-const onPageChange = (page: number) => {
-  pagination.page = page
-  fetchFirewallRules(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
 watch(createModalShow, () => {
-  onPageChange(1)
+  refresh()
 })
 
 onMounted(() => {
-  onPageChange(1)
+  refresh()
 })
 </script>
 
@@ -295,14 +265,22 @@ onMounted(() => {
       striped
       remote
       :scroll-x="1400"
-      :loading="false"
+      :loading="loading"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => JSON.stringify(row)"
-      :pagination="pagination"
       @update:checked-row-keys="onChecked"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
     />
   </n-flex>
   <create-modal v-model:show="createModalShow" />

@@ -7,7 +7,7 @@ export default {
   create: (data: any): any => http.Post('/website', data),
   // 删除
   delete: (id: number, path: boolean, db: boolean): any =>
-    http.Delete(`/website/${id}`, { data: { path, db } }),
+    http.Delete(`/website/${id}`, { path, db }),
   // 伪静态
   rewrites: (): any => http.Get(`/website/rewrites`),
   // 获取默认配置

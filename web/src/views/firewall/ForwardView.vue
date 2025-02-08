@@ -4,7 +4,6 @@ import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
 import firewall from '@/api/panel/firewall'
 import { renderIcon } from '@/utils'
 import CreateForwardModal from '@/views/firewall/CreateForwardModal.vue'
-import type { FirewallRule } from '@/views/firewall/types'
 
 const createModalShow = ref(false)
 
@@ -113,37 +112,26 @@ const columns: any = [
   }
 ]
 
-const data = ref<FirewallRule[]>([] as FirewallRule[])
-
-const pagination = reactive({
-  page: 1,
-  pageCount: 1,
-  pageSize: 20,
-  itemCount: 0,
-  showQuickJumper: true,
-  showSizePicker: true,
-  pageSizes: [20, 50, 100, 200]
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => firewall.forwards(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 const selectedRowKeys = ref<any>([])
 
-const handleDelete = async (row: any) => {
-  await firewall.deleteForward(row).then(() => {
+const handleDelete = (row: any) => {
+  useRequest(firewall.deleteForward(row)).onSuccess(() => {
+    refresh()
     window.$message.success('删除成功')
   })
-  fetchFirewallForwards(pagination.page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
 }
 
-const fetchFirewallForwards = async (page: number, limit: number) => {
-  const { data } = await firewall.forwards(page, limit)
-  return data
-}
-
-const batchDelete = async () => {
+const batchDelete = () => {
   if (selectedRowKeys.value.length === 0) {
     window.$message.info('请选择要删除的规则')
     return
@@ -152,42 +140,24 @@ const batchDelete = async () => {
   for (const key of selectedRowKeys.value) {
     // 解析json
     const rule = JSON.parse(key)
-    await firewall.deleteForward(rule).then(() => {
+    useRequest(firewall.deleteForward(rule)).onSuccess(() => {
       window.$message.success(`${rule.protocol} ${rule.target_ip}:${rule.target_port} 删除成功`)
     })
   }
 
-  fetchFirewallForwards(pagination.page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
+  refresh()
 }
 
 const onChecked = (rowKeys: any) => {
   selectedRowKeys.value = rowKeys
 }
 
-const onPageChange = (page: number) => {
-  pagination.page = page
-  fetchFirewallForwards(page, pagination.pageSize).then((res) => {
-    data.value = res.items
-    pagination.itemCount = res.total
-    pagination.pageCount = res.total / pagination.pageSize + 1
-  })
-}
-
-const onPageSizeChange = (pageSize: number) => {
-  pagination.pageSize = pageSize
-  onPageChange(1)
-}
-
 watch(createModalShow, () => {
-  onPageChange(1)
+  refresh()
 })
 
 onMounted(() => {
-  onPageChange(1)
+  refresh()
 })
 </script>
 
@@ -214,14 +184,22 @@ onMounted(() => {
       striped
       remote
       :scroll-x="1000"
-      :loading="false"
+      :loading="loading"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => JSON.stringify(row)"
-      :pagination="pagination"
       @update:checked-row-keys="onChecked"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
     />
   </n-flex>
   <create-forward-modal v-model:show="createModalShow" />
