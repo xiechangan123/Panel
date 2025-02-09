@@ -2,11 +2,7 @@
   <footer color="#6a6a6a" f-c-c flex-col text-14>
     <p>
       © 2022 - {{ year }}
-      <a
-        hover="decoration-primary color-primary"
-        target="__blank"
-        href="https://github.com/tnb-labs/panel"
-      >
+      <a hover="decoration-primary color-primary" target="__blank" href="https://panel.haozi.net/">
         耗子面板
       </a>
       All Rights Reserved.
@@ -20,14 +16,18 @@
         Q群 12370907
       </a>
       <n-divider vertical />
-      <a hover="decoration-primary color-primary" target="_blank" href="https://bbs.haozi.net/docs">
+      <a
+        hover="decoration-primary color-primary"
+        target="_blank"
+        href="https://panel.haozi.net/docs"
+      >
         使用文档
       </a>
       <n-divider vertical />
       <a
         hover="decoration-primary color-primary"
         target="_blank"
-        href="https://bbs.haozi.net/c/technical/panel"
+        href="https://tom.moe/c/technical/panel"
       >
         交流社区
       </a>
