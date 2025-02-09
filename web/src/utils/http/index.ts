@@ -30,7 +30,7 @@ export const http = createAlova({
         console.log(json)
         const message = resolveResError(
           code,
-          json?.message && json.message.trim() !== '' ? json.message : statusText
+          (typeof json?.message === 'string' && json.message.trim()) || statusText
         )
         const noAlert = meta?.noAlert
         if (!noAlert) {

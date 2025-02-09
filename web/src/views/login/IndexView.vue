@@ -65,7 +65,7 @@ async function handleLogin() {
 
     await addDynamicRoutes()
     useRequest(user.info()).onSuccess(({ data }) => {
-      userStore.set(data)
+      userStore.set(data as any)
     })
     if (query.redirect) {
       const path = query.redirect as string
@@ -78,25 +78,21 @@ async function handleLogin() {
   loging.value = false
 }
 
-watch(
-  () => isLogin,
-  async () => {
-    if (isLogin) {
-      console.log(isLogin)
-      await addDynamicRoutes()
-      useRequest(user.info()).onSuccess(({ data }) => {
-        userStore.set(data)
-      })
-      if (query.redirect) {
-        const path = query.redirect as string
-        Reflect.deleteProperty(query, 'redirect')
-        await router.push({ path, query })
-      } else {
-        await router.push('/')
-      }
+watch(isLogin, async () => {
+  if (isLogin) {
+    await addDynamicRoutes()
+    useRequest(user.info()).onSuccess(({ data }) => {
+      userStore.set(data as any)
+    })
+    if (query.redirect) {
+      const path = query.redirect as string
+      Reflect.deleteProperty(query, 'redirect')
+      await router.push({ path, query })
+    } else {
+      await router.push('/')
     }
   }
-)
+})
 </script>
 
 <template>
