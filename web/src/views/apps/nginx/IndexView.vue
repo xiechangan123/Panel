@@ -55,14 +55,16 @@ const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled('nginx')
 }
 
-const handleSaveConfig = async () => {
-  await nginx.saveConfig(config.value)
-  window.$message.success('保存成功')
+const handleSaveConfig = () => {
+  useRequest(nginx.saveConfig(config.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
-const handleClearErrorLog = async () => {
-  await nginx.clearErrorLog()
-  window.$message.success('清空成功')
+const handleClearErrorLog = () => {
+  useRequest(nginx.clearErrorLog()).onSuccess(() => {
+    window.$message.success('清空成功')
+  })
 }
 
 const handleIsEnabled = async () => {

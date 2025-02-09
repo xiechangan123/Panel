@@ -169,9 +169,10 @@ const getWhiteList = async () => {
   white.value = await fail2ban.whitelist()
 }
 
-const handleSaveWhiteList = async () => {
-  await fail2ban.setWhitelist(white.value)
-  window.$message.success('保存成功')
+const handleSaveWhiteList = () => {
+  useRequest(fail2ban.setWhitelist(white.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const getWebsiteList = async (page: number, limit: number) => {

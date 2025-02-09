@@ -65,7 +65,7 @@ const handleUpdateHost = async () => {
   })
 }
 
-const handleUpdateRootPassword = async () => {
+const handleUpdateRootPassword = () => {
   useRequest(toolbox.updateRootPassword(rootPassword.value)).onSuccess(() => {
     window.$message.success('保存成功')
   })

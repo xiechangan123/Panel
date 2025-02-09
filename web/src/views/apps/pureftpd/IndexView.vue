@@ -127,8 +127,9 @@ const getPort = async () => {
 }
 
 const handleSavePort = async () => {
-  await pureftpd.updatePort(port.value)
-  window.$message.success('保存成功')
+  useRequest(pureftpd.updatePort(port.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleStart = async () => {

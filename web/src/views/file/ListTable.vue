@@ -483,15 +483,17 @@ const handlePaste = () => {
         onPositiveClick: () => {
           if (markedType.value == 'copy') {
             useRequest(file.copy(paths)).onSuccess(() => {
+              marked.value = []
+              window.$bus.emit('file:refresh')
               window.$message.success('复制成功')
             })
           } else {
             useRequest(file.move(paths)).onSuccess(() => {
+              marked.value = []
+              window.$bus.emit('file:refresh')
               window.$message.success('移动成功')
             })
           }
-          marked.value = []
-          window.$bus.emit('file:refresh')
         },
         onNegativeClick: () => {
           marked.value = []
@@ -501,15 +503,17 @@ const handlePaste = () => {
     } else {
       if (markedType.value == 'copy') {
         useRequest(file.copy(paths)).onSuccess(() => {
+          marked.value = []
+          window.$bus.emit('file:refresh')
           window.$message.success('复制成功')
         })
       } else {
         useRequest(file.move(paths)).onSuccess(() => {
+          marked.value = []
+          window.$bus.emit('file:refresh')
           window.$message.success('移动成功')
         })
       }
-      marked.value = []
-      window.$bus.emit('file:refresh')
     }
   })
 }

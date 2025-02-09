@@ -150,28 +150,33 @@ const getIsEnabled = async () => {
 }
 
 const handleSetCli = async () => {
-  await php.setCli(version.value)
-  window.$message.success('设置成功')
+  useRequest(php.setCli(version.value)).onSuccess(() => {
+    window.$message.success('设置成功')
+  })
 }
 
 const handleSaveConfig = async () => {
-  await php.saveConfig(version.value, config.value)
-  window.$message.success('保存成功')
+  useRequest(php.saveConfig(version.value, config.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleSaveFPMConfig = async () => {
-  await php.saveFPMConfig(version.value, fpmConfig.value)
-  window.$message.success('保存成功')
+  useRequest(php.saveFPMConfig(version.value, fpmConfig.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleClearErrorLog = async () => {
-  await php.clearErrorLog(version.value)
-  window.$message.success('清空成功')
+  useRequest(php.clearErrorLog(version.value)).onSuccess(() => {
+    window.$message.success('清空成功')
+  })
 }
 
 const handleClearSlowLog = async () => {
-  await php.clearSlowLog(version.value)
-  window.$message.success('清空成功')
+  useRequest(php.clearSlowLog(version.value)).onSuccess(() => {
+    window.$message.success('清空成功')
+  })
 }
 
 const handleIsEnabled = async () => {

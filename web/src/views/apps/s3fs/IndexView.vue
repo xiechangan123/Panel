@@ -74,7 +74,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const handleAddMount = async () => {
+const handleAddMount = () => {
   useRequest(s3fs.add(addMountModel.value)).onSuccess(() => {
     refresh()
     addMountModal.value = false
@@ -82,7 +82,7 @@ const handleAddMount = async () => {
   })
 }
 
-const handleDeleteMount = async (id: number) => {
+const handleDeleteMount = (id: number) => {
   useRequest(s3fs.delete(id)).onSuccess(() => {
     refresh()
     window.$message.success('删除成功')

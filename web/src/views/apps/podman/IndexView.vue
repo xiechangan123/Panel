@@ -32,14 +32,16 @@ const getConfig = async () => {
   storageConfig.value = await podman.storageConfig()
 }
 
-const handleSaveRegistryConfig = async () => {
-  await podman.saveRegistryConfig(registryConfig.value)
-  window.$message.success('保存成功')
+const handleSaveRegistryConfig = () => {
+  useRequest(podman.saveRegistryConfig(registryConfig.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
-const handleSaveStorageConfig = async () => {
-  await podman.saveStorageConfig(storageConfig.value)
-  window.$message.success('保存成功')
+const handleSaveStorageConfig = () => {
+  useRequest(podman.saveStorageConfig(storageConfig.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleStart = async () => {

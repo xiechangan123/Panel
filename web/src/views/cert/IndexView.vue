@@ -30,7 +30,7 @@ const accounts = ref<any>([])
 const dnsProviders = ref<any>([])
 const caProviders = ref<any>([])
 
-const getAsyncData = async () => {
+const getAsyncData = () => {
   useRequest(cert.algorithms()).onSuccess(({ data }) => {
     algorithms.value = data
   })

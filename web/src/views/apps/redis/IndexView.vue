@@ -51,9 +51,10 @@ const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled('redis')
 }
 
-const handleSaveConfig = async () => {
-  await redis.saveConfig(config.value)
-  window.$message.success('保存成功')
+const handleSaveConfig = () => {
+  useRequest(redis.saveConfig(config.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 const handleStart = async () => {

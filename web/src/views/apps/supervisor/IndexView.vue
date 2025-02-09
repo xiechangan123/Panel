@@ -233,20 +233,20 @@ const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled(serviceName.value)
 }
 
-const handleSaveConfig = async () => {
+const handleSaveConfig = () => {
   useRequest(supervisor.saveConfig(config.value)).onSuccess(() => {
     refresh()
     window.$message.success('保存成功')
   })
 }
 
-const handleClearLog = async () => {
+const handleClearLog = () => {
   useRequest(supervisor.clearLog()).onSuccess(() => {
     window.$message.success('清空成功')
   })
 }
 
-const handleIsEnabled = async () => {
+const handleIsEnabled = () => {
   if (isEnabled.value) {
     useRequest(systemctl.enable(serviceName.value)).onSuccess(() => {
       getIsEnabled()
@@ -260,28 +260,28 @@ const handleIsEnabled = async () => {
   }
 }
 
-const handleStart = async () => {
+const handleStart = () => {
   useRequest(systemctl.start(serviceName.value)).onSuccess(() => {
     getStatus()
     window.$message.success('启动成功')
   })
 }
 
-const handleStop = async () => {
+const handleStop = () => {
   useRequest(systemctl.stop(serviceName.value)).onSuccess(() => {
     getStatus()
     window.$message.success('停止成功')
   })
 }
 
-const handleRestart = async () => {
+const handleRestart = () => {
   useRequest(systemctl.restart(serviceName.value)).onSuccess(() => {
     getStatus()
     window.$message.success('重启成功')
   })
 }
 
-const handleCreateProcess = async () => {
+const handleCreateProcess = () => {
   useRequest(supervisor.createProcess(createProcessModel.value)).onSuccess(() => {
     refresh()
     createProcessModal.value = false
@@ -289,28 +289,28 @@ const handleCreateProcess = async () => {
   })
 }
 
-const handleProcessStart = async (name: string) => {
+const handleProcessStart = (name: string) => {
   useRequest(supervisor.startProcess(name)).onSuccess(() => {
     refresh()
     window.$message.success('启动成功')
   })
 }
 
-const handleProcessStop = async (name: string) => {
+const handleProcessStop = (name: string) => {
   useRequest(supervisor.stopProcess(name)).onSuccess(() => {
     refresh()
     window.$message.success('停止成功')
   })
 }
 
-const handleProcessRestart = async (name: string) => {
+const handleProcessRestart = (name: string) => {
   useRequest(supervisor.restartProcess(name)).onSuccess(() => {
     refresh()
     window.$message.success('重启成功')
   })
 }
 
-const handleProcessDelete = async (name: string) => {
+const handleProcessDelete = (name: string) => {
   useRequest(supervisor.deleteProcess(name)).onSuccess(() => {
     refresh()
     window.$message.success('删除成功')
@@ -332,7 +332,7 @@ const getProcessConfig = async (name: string) => {
   editProcessModel.value.config = await supervisor.processConfig(name)
 }
 
-const handleSaveProcessConfig = async () => {
+const handleSaveProcessConfig = () => {
   useRequest(
     supervisor.saveProcessConfig(editProcessModel.value.process, editProcessModel.value.config)
   ).onSuccess(() => {

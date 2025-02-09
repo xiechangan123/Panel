@@ -102,7 +102,7 @@ const columns: any = [
         h(
           NPopconfirm,
           {
-            onPositiveClick: async () => {
+            onPositiveClick: () => {
               useRequest(cert.accountDelete(row.id)).onSuccess(() => {
                 window.$message.success('删除成功')
                 refresh()
@@ -143,7 +143,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const handleUpdateAccount = async () => {
+const handleUpdateAccount = () => {
   messageReactive = window.$message.loading('正在向 CA 注册账号，请耐心等待', {
     duration: 0
   })

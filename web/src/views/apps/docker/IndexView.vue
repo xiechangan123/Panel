@@ -31,7 +31,7 @@ const getIsEnabled = async () => {
   isEnabled.value = await systemctl.isEnabled('docker')
 }
 
-const handleSaveConfig = async () => {
+const handleSaveConfig = () => {
   useRequest(docker.updateConfig(config.value)).onSuccess(() => {
     window.$message.success('保存成功')
   })

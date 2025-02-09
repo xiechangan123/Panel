@@ -30,15 +30,17 @@ const getInfo = async () => {
   newPort.value = data.port
 }
 
-const handleSave = async () => {
-  await phpmyadmin.port(newPort.value)
-  window.$message.success('保存成功')
-  await getInfo()
+const handleSave = () => {
+  useRequest(phpmyadmin.port(newPort.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+    getInfo()
+  })
 }
 
-const handleSaveConfig = async () => {
-  await phpmyadmin.saveConfig(config.value)
-  window.$message.success('保存成功')
+const handleSaveConfig = () => {
+  useRequest(phpmyadmin.saveConfig(config.value)).onSuccess(() => {
+    window.$message.success('保存成功')
+  })
 }
 
 onMounted(() => {
