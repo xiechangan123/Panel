@@ -646,10 +646,9 @@ onUnmounted(() => {
     :row-props="rowProps"
     :loading="loading"
     :row-key="(row: any) => row.full"
-    :checked-row-keys="selected"
     max-height="60vh"
     @update:sorter="handleSorterChange"
-    v-model:checked-row-keys="selectedRowKeys"
+    v-model:checked-row-keys="selected"
     v-model:page="page"
     v-model:pageSize="pageSize"
     :pagination="{

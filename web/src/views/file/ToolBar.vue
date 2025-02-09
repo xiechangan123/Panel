@@ -39,7 +39,7 @@ const handleCreate = () => {
   useRequest(file.create(fullPath, createModel.value.dir)).onSuccess(() => {
     create.value = false
     window.$bus.emit('file:refresh')
-    window.$message.success('创建成功')
+    window.$message.success('新建成功')
   })
 }
 
@@ -209,7 +209,7 @@ watch(
       ]"
       @update:value="showCreate"
     >
-      <n-button type="primary"> 创建 </n-button>
+      <n-button type="primary"> 新建 </n-button>
     </n-popselect>
     <n-button @click="upload = true"> 上传 </n-button>
     <n-button @click="download = true"> 远程下载 </n-button>
@@ -239,7 +239,7 @@ watch(
   <n-modal
     v-model:show="create"
     preset="card"
-    title="创建"
+    title="新建"
     style="width: 60vw"
     size="huge"
     :bordered="false"

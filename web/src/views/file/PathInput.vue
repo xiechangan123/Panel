@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { InputInst } from 'naive-ui'
-import { onUnmounted } from 'vue'
 
 import { checkPath } from '@/utils/file'
 import SearchModal from '@/views/file/SearchModal.vue'
