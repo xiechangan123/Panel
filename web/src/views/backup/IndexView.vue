@@ -34,7 +34,7 @@ const handleCreate = () => {
       </n-button>
     </template>
     <n-flex vertical>
-      <n-alert type="info">此处仅显示面板默认备份目录的文件。</n-alert>
+      <n-alert type="info">该页面预计下版本移除！</n-alert>
       <n-tabs v-model:value="currentTab" type="line" animated>
         <n-tab-pane name="website" tab="网站">
           <list-view v-model:type="currentTab" />

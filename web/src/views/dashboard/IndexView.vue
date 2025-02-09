@@ -663,8 +663,9 @@ if (import.meta.hot) {
                     cols="3 s:1 m:2 l:3"
                     item-responsive
                     responsive="screen"
+                    p-10
                   >
-                    <n-gi v-for="item in homeApps" :key="item.name" mx-10>
+                    <n-gi v-for="item in homeApps" :key="item.name">
                       <n-card
                         :segmented="true"
                         size="small"
