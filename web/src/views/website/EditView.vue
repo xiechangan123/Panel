@@ -122,7 +122,9 @@ const handleRewrite = (value: string) => {
   setting.value.rewrite = rewrites.value[value] || ''
 }
 
-const handleObtainCert = async () => {
+const isObtainCert = ref(false)
+const handleObtainCert = () => {
+  isObtainCert.value = true
   messageReactive = window.$message.loading('请稍后...', {
     duration: 0
   })
@@ -132,6 +134,7 @@ const handleObtainCert = async () => {
       window.$message.success('签发成功')
     })
     .onComplete(() => {
+      isObtainCert.value = false
       messageReactive?.destroy()
     })
 }
@@ -176,7 +179,14 @@ const onCreateListen = () => {
           </template>
           确定要重置配置吗？
         </n-popconfirm>
-        <n-button v-if="current === 'https'" class="ml-16" type="success" @click="handleObtainCert">
+        <n-button
+          v-if="current === 'https'"
+          :loading="isObtainCert"
+          :disabled="isObtainCert"
+          class="ml-16"
+          type="success"
+          @click="handleObtainCert"
+        >
           <TheIcon :size="18" icon="material-symbols:done-rounded" />
           一键签发证书
         </n-button>
