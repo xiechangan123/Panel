@@ -181,15 +181,13 @@ const batchDelete = async () => {
 
   const promises = selectedRowKeys.value.map((key: any) => {
     const rule = JSON.parse(key)
-    return useRequest(firewall.deleteIpRule(rule)).onSuccess(() => {
-      window.$message.success(`${rule.address} 删除成功`)
-    })
+    return firewall.deleteIpRule(rule)
   })
-
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('删除成功')
 }
 
 watch(createModalShow, () => {

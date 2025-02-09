@@ -170,16 +170,12 @@ const bulkDelete = async () => {
     return
   }
 
-  const promises = selected.value.map((path) =>
-    useRequest(file.delete(path)).onSuccess(() => {
-      window.$message.success(`删除 ${path} 成功`)
-    })
-  )
-
+  const promises = selected.value.map((path) => file.delete(path))
   await Promise.all(promises)
 
   selected.value = []
   window.$bus.emit('file:refresh')
+  window.$message.success('删除成功')
 }
 
 // 自动填充下载文件名

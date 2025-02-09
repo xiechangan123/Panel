@@ -373,16 +373,14 @@ const handleAutoRenewUpdate = (row: any) => {
 
 const handleDeployCert = async () => {
   const promises = deployModel.value.websites.map((website: any) =>
-    useRequest(cert.deploy(deployModel.value.id, website)).onSuccess(() => {
-      window.$message.success(`部署网站 ${website.name} 成功`)
-    })
+    cert.deploy(deployModel.value.id, website)
   )
-
   await Promise.all(promises)
 
   deployModal.value = false
   deployModel.value.id = null
   deployModel.value.websites = []
+  window.$message.success('部署成功')
 }
 
 const handleShowModalClose = () => {

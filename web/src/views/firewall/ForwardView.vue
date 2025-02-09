@@ -139,15 +139,13 @@ const batchDelete = async () => {
 
   const promises = selectedRowKeys.value.map((key: any) => {
     const rule = JSON.parse(key)
-    return useRequest(firewall.deleteForward(rule)).onSuccess(() => {
-      window.$message.success(`${rule.protocol} ${rule.target_ip}:${rule.target_port} 删除成功`)
-    })
+    return firewall.deleteForward(rule)
   })
-
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('删除成功')
 }
 
 watch(createModalShow, () => {

@@ -303,17 +303,12 @@ const bulkDelete = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) => {
-    const site = data.value.find((item: any) => item.id === id)
-    return useRequest(website.delete(id, true, false)).onSuccess(() => {
-      window.$message.success('网站 ' + site?.name + ' 删除成功')
-    })
-  })
-
+  const promises = selectedRowKeys.value.map((id: any) => website.delete(id, true, false))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('删除成功')
 }
 
 const formatDbValue = (value: string) => {

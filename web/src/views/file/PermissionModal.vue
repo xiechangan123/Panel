@@ -17,16 +17,14 @@ const checkbox = ref({
 
 const handlePermission = async () => {
   const promises = selected.value.map((path) =>
-    useRequest(file.permission(path, `0${mode.value}`, owner.value, group.value)).onSuccess(() => {
-      window.$message.success(`修改 ${path} 成功`)
-    })
+    file.permission(path, `0${mode.value}`, owner.value, group.value)
   )
-
   await Promise.all(promises)
 
   show.value = false
   selected.value = []
   window.$bus.emit('file:refresh')
+  window.$message.success('修改成功')
 }
 
 const calculateOctal = (permissions: string[]) => {

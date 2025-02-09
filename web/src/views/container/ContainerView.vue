@@ -291,17 +291,12 @@ const bulkStart = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) =>
-    useRequest(container.containerStart(id)).onSuccess(() => {
-      const container = data.value.find((item: any) => item.id === id)
-      window.$message.success(`${container?.name} 启动成功`)
-    })
-  )
-
+  const promises = selectedRowKeys.value.map((id: any) => container.containerStart(id))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('启动成功')
 }
 
 const bulkStop = async () => {
@@ -310,17 +305,12 @@ const bulkStop = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) =>
-    useRequest(container.containerStop(id)).onSuccess(() => {
-      const container = data.value.find((item: any) => item.id === id)
-      window.$message.success(`${container?.name} 停止成功`)
-    })
-  )
-
+  const promises = selectedRowKeys.value.map((id: any) => container.containerStop(id))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('停止成功')
 }
 
 const bulkRestart = async () => {
@@ -329,17 +319,12 @@ const bulkRestart = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) =>
-    useRequest(container.containerRestart(id)).onSuccess(() => {
-      const container = data.value.find((item: any) => item.id === id)
-      window.$message.success(`${container?.name} 重启成功`)
-    })
-  )
-
+  const promises = selectedRowKeys.value.map((id: any) => container.containerRestart(id))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('重启成功')
 }
 
 const bulkForceStop = async () => {
@@ -348,17 +333,12 @@ const bulkForceStop = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) =>
-    useRequest(container.containerKill(id)).onSuccess(() => {
-      const container = data.value.find((item: any) => item.id === id)
-      window.$message.success(`${container?.name} 强制停止成功`)
-    })
-  )
-
+  const promises = selectedRowKeys.value.map((id: any) => container.containerKill(id))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('强制停止成功')
 }
 
 const bulkDelete = async () => {
@@ -367,17 +347,12 @@ const bulkDelete = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) =>
-    useRequest(container.containerRemove(id)).onSuccess(() => {
-      const container = data.value.find((item: any) => item.id === id)
-      window.$message.success(`${container?.name} 删除成功`)
-    })
-  )
-
+  const promises = selectedRowKeys.value.map((id: any) => container.containerRemove(id))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('删除成功')
 }
 
 const bulkPause = async () => {
@@ -386,17 +361,12 @@ const bulkPause = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) =>
-    useRequest(container.containerPause(id)).onSuccess(() => {
-      const container = data.value.find((item: any) => item.id === id)
-      window.$message.success(`${container?.name} 暂停成功`)
-    })
-  )
-
+  const promises = selectedRowKeys.value.map((id: any) => container.containerPause(id))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('暂停成功')
 }
 
 const bulkUnpause = async () => {
@@ -405,17 +375,12 @@ const bulkUnpause = async () => {
     return
   }
 
-  const promises = selectedRowKeys.value.map((id: any) =>
-    useRequest(container.containerUnpause(id)).onSuccess(() => {
-      const container = data.value.find((item: any) => item.id === id)
-      window.$message.success(`${container?.name} 恢复成功`)
-    })
-  )
-
+  const promises = selectedRowKeys.value.map((id: any) => container.containerUnpause(id))
   await Promise.all(promises)
 
   selectedRowKeys.value = []
-  await refresh()
+  refresh()
+  window.$message.success('恢复成功')
 }
 
 const closeContainerCreateModal = () => {
