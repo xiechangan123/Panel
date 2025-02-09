@@ -13,7 +13,7 @@ const currentTab = ref('rule')
 
 <template>
   <common-page show-footer>
-    <n-tabs v-model:value="currentTab" type="line" animated size="large">
+    <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="rule" tab="端口规则">
         <rule-view />
       </n-tab-pane>

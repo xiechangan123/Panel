@@ -32,4 +32,5 @@ type WebsiteSetting struct {
 	Rewrite           string          `json:"rewrite"`
 	Raw               string          `json:"raw"`
 	Log               string          `json:"log"`
+	ErrorLog          string          `json:"error_log"`
 }

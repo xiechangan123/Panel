@@ -481,22 +481,22 @@ watch(data, () => {
       pt-20
     >
       <n-gi m-10>
-        <n-card :segmented="true" rounded-10 style="height: 40vh">
+        <n-card :bordered="false" style="height: 40vh">
           <v-chart class="chart" :option="load" autoresize />
         </n-card>
       </n-gi>
       <n-gi m-10>
-        <n-card :segmented="true" rounded-10 style="height: 40vh">
+        <n-card :bordered="false" style="height: 40vh">
           <v-chart class="chart" :option="cpu" autoresize />
         </n-card>
       </n-gi>
       <n-gi m-10>
-        <n-card :segmented="true" rounded-10 style="height: 40vh">
+        <n-card :bordered="false" style="height: 40vh">
           <v-chart class="chart" :option="mem" autoresize />
         </n-card>
       </n-gi>
       <n-gi m-10>
-        <n-card :segmented="true" rounded-10 style="height: 40vh">
+        <n-card :bordered="false" style="height: 40vh">
           <v-chart class="chart" :option="net" autoresize />
         </n-card>
       </n-gi>

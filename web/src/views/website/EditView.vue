@@ -40,7 +40,8 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     ocsp: false,
     rewrite: '',
     raw: '',
-    log: ''
+    log: '',
+    error_log: ''
   }
 })
 const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
@@ -77,7 +78,7 @@ const title = computed(() => {
   if (setting.value) {
     return `编辑网站 - ${setting.value.name}`
   }
-  return '编辑网站 - 加载中...'
+  return '编辑网站'
 })
 const certOptions = computed(() => {
   return certs.value.map((item: any) => ({
@@ -141,9 +142,11 @@ const handleObtainCert = () => {
 
 const handleSelectCert = (value: number) => {
   const cert = certs.value.find((item: any) => item.id === value)
-  if (cert) {
+  if (cert && cert.cert !== '' && cert.key !== '') {
     setting.value.ssl_certificate = cert.cert
     setting.value.ssl_certificate_key = cert.key
+  } else {
+    window.$message.error('选择的证书无效')
   }
 }
 
@@ -299,7 +302,7 @@ const onCreateListen = () => {
           </n-card>
           <n-form>
             <n-grid :cols="24" :x-gap="24">
-              <n-form-item-gi :span="12" label="总开关（只有打开了总开关，下面的设置才会生效！）">
+              <n-form-item-gi :span="12" label="总开关">
                 <n-switch v-model:value="setting.https" />
               </n-form-item-gi>
               <n-form-item-gi v-if="setting.https" :span="12" label="使用已有证书">
@@ -311,7 +314,7 @@ const onCreateListen = () => {
               </n-form-item-gi>
             </n-grid>
           </n-form>
-          <n-form inline>
+          <n-form inline v-if="setting.https">
             <n-form-item label="HSTS">
               <n-switch v-model:value="setting.hsts" />
             </n-form-item>
@@ -322,12 +325,13 @@ const onCreateListen = () => {
               <n-switch v-model:value="setting.ocsp" />
             </n-form-item>
           </n-form>
-          <n-form>
+          <n-form v-if="setting.https">
             <n-form-item label="证书">
               <n-input
                 v-model:value="setting.ssl_certificate"
                 type="textarea"
                 placeholder="输入 PEM 证书文件的内容"
+                :autosize="{ minRows: 10, maxRows: 15 }"
               />
             </n-form-item>
             <n-form-item label="私钥">
@@ -335,6 +339,7 @@ const onCreateListen = () => {
                 v-model:value="setting.ssl_certificate_key"
                 type="textarea"
                 placeholder="输入 KEY 私钥文件的内容"
+                :autosize="{ minRows: 10, maxRows: 15 }"
               />
             </n-form-item>
           </n-form>
@@ -396,6 +401,18 @@ const onCreateListen = () => {
             </n-alert>
           </n-flex>
           <realtime-log :path="setting.log" />
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="error_log" tab="错误日志">
+        <n-flex vertical>
+          <n-flex flex items-center>
+            <n-alert type="warning" w-full>
+              全部日志可通过下载文件
+              <n-tag>{{ setting.error_log }}</n-tag>
+              查看。
+            </n-alert>
+          </n-flex>
+          <realtime-log :path="setting.error_log" />
         </n-flex>
       </n-tab-pane>
     </n-tabs>

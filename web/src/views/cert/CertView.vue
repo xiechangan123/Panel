@@ -468,6 +468,7 @@ onUnmounted(() => {
             v-model:value="updateModel.cert"
             type="textarea"
             placeholder="输入 PEM 证书文件的内容"
+            :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
         <n-form-item v-if="updateModel.type == 'upload'" path="key" label="私钥">
@@ -475,6 +476,7 @@ onUnmounted(() => {
             v-model:value="updateModel.key"
             type="textarea"
             placeholder="输入 KEY 私钥文件的内容"
+            :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
       </n-form>

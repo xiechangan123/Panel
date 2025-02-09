@@ -27,7 +27,6 @@ export const http = createAlova({
       const { meta } = method
       if (status !== 200) {
         const code = json?.code ?? status
-        console.log(json)
         const message = resolveResError(
           code,
           (typeof json?.message === 'string' && json.message.trim()) || statusText

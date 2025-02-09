@@ -4,17 +4,7 @@ defineOptions({
 })
 
 import Editor from '@guolao/vue-monaco-editor'
-import {
-  NButton,
-  NCheckbox,
-  NDataTable,
-  NFlex,
-  NInput,
-  NPopconfirm,
-  NSpace,
-  NSwitch,
-  NTag
-} from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
 import dashboard from '@/api/panel/dashboard'
@@ -344,23 +334,21 @@ onMounted(() => {
 
 <template>
   <common-page show-footer>
-    <n-flex vertical size="large">
-      <n-card rounded-10>
-        <n-space>
-          <n-button type="primary" @click="createModal = true">
-            {{ $t('websiteIndex.create.trigger') }}
-          </n-button>
-          <n-popconfirm @positive-click="bulkDelete">
-            <template #trigger>
-              <n-button type="error"> 批量删除 </n-button>
-            </template>
-            这会删除网站目录但不会删除同名数据库，确定删除选中的网站吗？
-          </n-popconfirm>
-          <n-button type="warning" @click="editDefaultPageModal = true">
-            {{ $t('websiteIndex.edit.trigger') }}
-          </n-button>
-        </n-space>
-      </n-card>
+    <n-flex vertical :size="20">
+      <n-flex>
+        <n-button type="primary" @click="createModal = true">
+          {{ $t('websiteIndex.create.trigger') }}
+        </n-button>
+        <n-popconfirm @positive-click="bulkDelete">
+          <template #trigger>
+            <n-button type="error"> 批量删除 </n-button>
+          </template>
+          这会删除网站目录但不会删除同名数据库，确定删除选中的网站吗？
+        </n-popconfirm>
+        <n-button type="warning" @click="editDefaultPageModal = true">
+          {{ $t('websiteIndex.edit.trigger') }}
+        </n-button>
+      </n-flex>
       <n-data-table
         striped
         remote

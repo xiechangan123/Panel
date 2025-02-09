@@ -222,28 +222,26 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <n-card flex-1 rounded-10>
-    <n-data-table
-      striped
-      remote
-      :scroll-x="1300"
-      :loading="loading"
-      :columns="columns"
-      :data="data"
-      :row-key="(row: any) => row.id"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
-      :pagination="{
-        page: page,
-        pageCount: pageCount,
-        pageSize: pageSize,
-        itemCount: total,
-        showQuickJumper: true,
-        showSizePicker: true,
-        pageSizes: [20, 50, 100, 200]
-      }"
-    />
-  </n-card>
+  <n-data-table
+    striped
+    remote
+    :scroll-x="1300"
+    :loading="loading"
+    :columns="columns"
+    :data="data"
+    :row-key="(row: any) => row.id"
+    v-model:page="page"
+    v-model:pageSize="pageSize"
+    :pagination="{
+      page: page,
+      pageCount: pageCount,
+      pageSize: pageSize,
+      itemCount: total,
+      showQuickJumper: true,
+      showSizePicker: true,
+      pageSizes: [20, 50, 100, 200]
+    }"
+  />
   <realtime-log-modal v-model:show="logModal" :path="logPath" />
   <n-modal
     v-model:show="editModal"

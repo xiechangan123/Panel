@@ -38,6 +38,7 @@ const handleSubmit = () => {
             v-model:value="model.cert"
             type="textarea"
             placeholder="输入 PEM 证书文件的内容"
+            :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
         <n-form-item label="私钥">
@@ -45,6 +46,7 @@ const handleSubmit = () => {
             v-model:value="model.key"
             type="textarea"
             placeholder="输入 KEY 私钥文件的内容"
+            :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
       </n-form>

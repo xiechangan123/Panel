@@ -202,24 +202,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <n-flex vertical>
-    <n-card flex-1 rounded-10>
-      <n-flex items-center>
-        <n-button type="primary" @click="createModalShow = true">
-          <TheIcon :size="18" icon="material-symbols:add" />
-          创建规则
-        </n-button>
-        <n-popconfirm @positive-click="batchDelete">
-          <template #trigger>
-            <n-button type="warning">
-              <TheIcon :size="18" icon="material-symbols:delete-outline" />
-              批量删除
-            </n-button>
-          </template>
-          确定要批量删除吗？
-        </n-popconfirm>
-      </n-flex>
-    </n-card>
+  <n-flex vertical :size="20">
+    <n-flex items-center>
+      <n-button type="primary" @click="createModalShow = true">
+        <TheIcon :size="18" icon="material-symbols:add" />
+        创建规则
+      </n-button>
+      <n-popconfirm @positive-click="batchDelete">
+        <template #trigger>
+          <n-button type="warning">
+            <TheIcon :size="18" icon="material-symbols:delete-outline" />
+            批量删除
+          </n-button>
+        </template>
+        确定要批量删除吗？
+      </n-popconfirm>
+    </n-flex>
     <n-data-table
       striped
       remote

@@ -23,7 +23,7 @@ const create = ref(false)
         创建任务
       </n-button>
     </template>
-    <n-tabs v-model:value="current" type="line" animated size="large">
+    <n-tabs v-model:value="current" type="line" animated>
       <n-tab-pane name="cron" tab="计划任务">
         <cron-view />
       </n-tab-pane>

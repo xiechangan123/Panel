@@ -429,46 +429,42 @@ onMounted(() => {
 </script>
 
 <template>
-  <n-space vertical size="large">
-    <n-card rounded-10>
-      <n-space>
-        <n-button type="primary" @click="containerCreateModal = true">创建容器</n-button>
-        <n-button type="primary" @click="handlePrune" ghost>清理容器</n-button>
-        <n-button-group>
-          <n-button @click="bulkStart">启动</n-button>
-          <n-button @click="bulkStop">停止</n-button>
-          <n-button @click="bulkRestart">重启</n-button>
-          <n-button @click="bulkForceStop">强制停止</n-button>
-          <n-button @click="bulkPause">暂停</n-button>
-          <n-button @click="bulkUnpause">恢复</n-button>
-          <n-button @click="bulkDelete">删除</n-button>
-        </n-button-group>
-      </n-space>
-    </n-card>
-    <n-card rounded-10>
-      <n-data-table
-        striped
-        remote
-        :loading="loading"
-        :scroll-x="1000"
-        :data="data"
-        :columns="columns"
-        :row-key="(row: any) => row.id"
-        v-model:checked-row-keys="selectedRowKeys"
-        v-model:page="page"
-        v-model:pageSize="pageSize"
-        :pagination="{
-          page: page,
-          pageCount: pageCount,
-          pageSize: pageSize,
-          itemCount: total,
-          showQuickJumper: true,
-          showSizePicker: true,
-          pageSizes: [20, 50, 100, 200]
-        }"
-      />
-    </n-card>
-  </n-space>
+  <n-flex vertical :size="20">
+    <n-flex>
+      <n-button type="primary" @click="containerCreateModal = true">创建容器</n-button>
+      <n-button type="primary" @click="handlePrune" ghost>清理容器</n-button>
+      <n-button-group>
+        <n-button @click="bulkStart">启动</n-button>
+        <n-button @click="bulkStop">停止</n-button>
+        <n-button @click="bulkRestart">重启</n-button>
+        <n-button @click="bulkForceStop">强制停止</n-button>
+        <n-button @click="bulkPause">暂停</n-button>
+        <n-button @click="bulkUnpause">恢复</n-button>
+        <n-button @click="bulkDelete">删除</n-button>
+      </n-button-group>
+    </n-flex>
+    <n-data-table
+      striped
+      remote
+      :loading="loading"
+      :scroll-x="1000"
+      :data="data"
+      :columns="columns"
+      :row-key="(row: any) => row.id"
+      v-model:checked-row-keys="selectedRowKeys"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
+    />
+  </n-flex>
   <n-modal
     v-model:show="logModal"
     preset="card"

@@ -32,16 +32,24 @@ const handleSave = () => {
 
 <template>
   <n-space vertical>
-    <n-alert type="warning"> 错误的证书会导致面板无法访问，请谨慎操作！</n-alert>
+    <n-alert type="warning"> 错误的证书可能导致面板无法访问，请谨慎操作！</n-alert>
     <n-form>
       <n-form-item :label="$t('settingIndex.edit.fields.https.label')">
         <n-switch v-model:value="model.https" />
       </n-form-item>
       <n-form-item v-if="model.https" :label="$t('settingIndex.edit.fields.cert.label')">
-        <n-input v-model:value="model.cert" type="textarea" />
+        <n-input
+          v-model:value="model.cert"
+          type="textarea"
+          :autosize="{ minRows: 10, maxRows: 15 }"
+        />
       </n-form-item>
       <n-form-item v-if="model.https" :label="$t('settingIndex.edit.fields.key.label')">
-        <n-input v-model:value="model.key" type="textarea" />
+        <n-input
+          v-model:value="model.key"
+          type="textarea"
+          :autosize="{ minRows: 10, maxRows: 15 }"
+        />
       </n-form-item>
     </n-form>
   </n-space>

@@ -13,7 +13,7 @@ const current = ref('container')
 
 <template>
   <common-page show-footer>
-    <n-tabs v-model:value="current" type="line" animated size="large">
+    <n-tabs v-model:value="current" type="line" animated>
       <n-tab-pane name="container" tab="容器">
         <container-view />
       </n-tab-pane>

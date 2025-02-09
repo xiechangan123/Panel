@@ -186,7 +186,13 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	rewrite, _ := io.Read(filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"))
 	setting.Rewrite = rewrite
 	// 访问日志
-	setting.Log = fmt.Sprintf("%s/wwwlogs/%s.log", app.Root, website.Name)
+	if setting.Log, err = p.GetAccessLog(); err != nil {
+		setting.Log = fmt.Sprintf("%s/wwwlogs/%s.log", app.Root, website.Name)
+	}
+	// 错误日志
+	if setting.ErrorLog, err = p.GetErrorLog(); err != nil {
+		setting.ErrorLog = fmt.Sprintf("%s/wwwlogs/%s.error.log", app.Root, website.Name)
+	}
 
 	return setting, err
 }
