@@ -19,7 +19,7 @@ const route = useRoute()
 </script>
 
 <template>
-  <AppPage :show-footer="showFooter">
+  <app-page :show-footer="showFooter">
     <header v-if="showHeader" mb-15 min-h-45 flex items-center justify-between px-15>
       <slot v-if="$slots.header" name="header" />
       <template v-else>
@@ -36,5 +36,5 @@ const route = useRoute()
     <n-card flex-1>
       <slot />
     </n-card>
-  </AppPage>
+  </app-page>
 </template>

@@ -14,17 +14,17 @@ const themeStore = useThemeStore()
 
 <template>
   <div w-full flex items-center justify-between>
-    <MenuCollapse v-if="themeStore.isMobile" />
+    <menu-collapse v-if="themeStore.isMobile" />
     <section v-if="!themeStore.isMobile && themeStore.tab.visible" w-0 flex-1 pr-12>
-      <AppTab />
+      <app-tab />
     </section>
     <span v-if="!themeStore.isMobile && themeStore.tab.visible" mx-6 opacity-20>|</span>
     <div ml-auto flex flex-shrink-0 items-center px-12>
-      <ReloadPage />
-      <FullScreen />
-      <ThemeMode />
-      <ThemeSetting />
-      <UserAvatar />
+      <reload-page />
+      <full-screen />
+      <theme-mode />
+      <theme-setting />
+      <user-avatar />
     </div>
   </div>
 </template>
