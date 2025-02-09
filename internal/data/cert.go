@@ -119,6 +119,9 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 	if err == nil && req.Type == "upload" {
 		req.Domains = info.DNSNames
 	}
+	if req.Type == "upload" && req.AutoRenew {
+		return errors.New("upload certificate cannot be set to auto renew")
+	}
 
 	return r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
 		ID:        req.ID,

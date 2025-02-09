@@ -117,18 +117,9 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       if (row.account_id == 0) {
-        return h(NTag, null, { default: () => '无' })
+        return '无'
       }
-      return h(NFlex, null, {
-        default: () => [
-          h(NTag, null, {
-            default: () =>
-              row.account_id == 0
-                ? '无'
-                : accounts.value?.find((item: any) => item.value === row.account_id)?.label
-          })
-        ]
-      })
+      return accounts.value?.find((item: any) => item.value === row.account_id)?.label
     }
   },
   {
@@ -178,8 +169,8 @@ const columns: any = [
       return h(NSwitch, {
         size: 'small',
         rubberBand: false,
-        value: row.auto_renew
-        //onUpdateValue: () => handleAutoRenewUpdate(row)
+        value: row.auto_renew,
+        onUpdateValue: () => handleAutoRenewUpdate(row)
       })
     }
   },
@@ -338,7 +329,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const handleUpdateCert = async () => {
+const handleUpdateCert = () => {
   useRequest(cert.certUpdate(updateCert.value, updateModel.value)).onSuccess(() => {
     refresh()
     updateModal.value = false
@@ -352,6 +343,32 @@ const handleUpdateCert = async () => {
     updateModel.value.key = ''
     window.$message.success('更新成功')
   })
+}
+
+const handleAutoRenewUpdate = (row: any) => {
+  updateModel.value.domains = row.domains
+  updateModel.value.type = row.type
+  updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
+  updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
+  updateModel.value.website_id = row.website_id == 0 ? null : row.website_id
+  updateModel.value.auto_renew = !row.auto_renew
+  updateModel.value.cert = row.cert
+  updateModel.value.key = row.key
+  useRequest(cert.certUpdate(row.id, updateModel.value))
+    .onSuccess(() => {
+      refresh()
+      window.$message.success('更新成功')
+    })
+    .onComplete(() => {
+      updateModel.value.domains = []
+      updateModel.value.type = 'P256'
+      updateModel.value.dns_id = null
+      updateModel.value.account_id = null
+      updateModel.value.website_id = null
+      updateModel.value.auto_renew = true
+      updateModel.value.cert = ''
+      updateModel.value.key = ''
+    })
 }
 
 const handleDeployCert = async () => {
