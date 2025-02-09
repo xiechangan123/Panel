@@ -111,7 +111,7 @@ onMounted(() => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" tab="运行状态">
         <n-space vertical>
-          <n-card title="运行状态" rounded-10>
+          <n-card title="运行状态">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
                 <template #checked> 自启动开 </template>

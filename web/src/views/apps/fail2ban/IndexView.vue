@@ -306,7 +306,7 @@ onMounted(() => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" tab="运行状态">
         <n-space vertical>
-          <n-card title="运行状态" rounded-10>
+          <n-card title="运行状态">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
                 <template #checked> 自启动开 </template>
@@ -342,7 +342,7 @@ onMounted(() => {
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="IP 白名单" rounded-10>
+          <n-card title="IP 白名单">
             <n-input
               v-model:value="white"
               type="textarea"
@@ -353,7 +353,7 @@ onMounted(() => {
         </n-space>
       </n-tab-pane>
       <n-tab-pane name="jails" tab="规则管理">
-        <n-card title="规则列表" :segmented="true" rounded-10>
+        <n-card title="规则列表" :segmented="true">
           <n-data-table
             striped
             remote
@@ -450,7 +450,7 @@ onMounted(() => {
   <n-modal v-model:show="jailModal" title="查看规则">
     <n-card closable @close="() => (jailModal = false)" title="查看规则" style="width: 60vw">
       <n-space vertical>
-        <n-card title="规则信息" :segmented="true" rounded-10>
+        <n-card title="规则信息" :segmented="true">
           <n-space vertical>
             <n-space>
               <n-text>当前封禁</n-text>
@@ -462,7 +462,7 @@ onMounted(() => {
             </n-space>
           </n-space>
         </n-card>
-        <n-card title="封禁列表" :segmented="true" rounded-10>
+        <n-card title="封禁列表" :segmented="true">
           <n-data-table
             striped
             remote

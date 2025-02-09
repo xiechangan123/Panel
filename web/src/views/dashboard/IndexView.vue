@@ -404,7 +404,7 @@ if (import.meta.hot) {
   <AppPage :show-footer="true" min-w-375>
     <div flex-1>
       <n-space vertical>
-        <n-card :segmented="true" rounded-10 size="small">
+        <n-card :segmented="true" size="small">
           <n-page-header :subtitle="systemInfo?.panel_version">
             <n-grid :cols="4" pb-10>
               <n-gi>
@@ -436,7 +436,7 @@ if (import.meta.hot) {
           </n-page-header>
         </n-card>
 
-        <n-card :segmented="true" rounded-10 size="small" title="资源总览">
+        <n-card :segmented="true" size="small" title="资源总览">
           <n-flex v-if="realtime" size="large">
             <n-popover trigger="hover">
               <template #trigger>
@@ -654,7 +654,7 @@ if (import.meta.hot) {
         >
           <n-gi>
             <n-flex vertical>
-              <n-card :segmented="true" size="small" title="快捷应用" min-h-340 rounded-10>
+              <n-card :segmented="true" size="small" title="快捷应用" min-h-340>
                 <n-scrollbar max-h-270>
                   <n-grid
                     v-if="!homeAppsLoading"
@@ -669,7 +669,6 @@ if (import.meta.hot) {
                         :segmented="true"
                         size="small"
                         cursor-pointer
-                        rounded-10
                         hover:card-shadow
                         @click="handleManageApp(item.slug)"
                       >
@@ -701,7 +700,7 @@ if (import.meta.hot) {
                 </n-text>
                 <n-skeleton v-if="homeAppsLoading" text :repeat="12" />
               </n-card>
-              <n-card :segmented="true" rounded-10 size="small" title="环境信息">
+              <n-card :segmented="true" size="small" title="环境信息">
                 <n-table v-if="systemInfo" :single-line="false">
                   <tr>
                     <th>系统主机名</th>
@@ -757,7 +756,7 @@ if (import.meta.hot) {
             </n-flex>
           </n-gi>
           <n-gi>
-            <n-card :segmented="true" rounded-10 size="small" title="实时监控">
+            <n-card :segmented="true" size="small" title="实时监控">
               <n-flex vertical v-if="systemInfo">
                 <n-form
                   inline

@@ -446,7 +446,7 @@ watch(data, () => {
         确定要清空吗？
       </n-popconfirm>
     </template>
-    <n-card :segmented="true" flex items-center rounded-10>
+    <n-card :segmented="true" flex items-center>
       <n-form
         inline
         label-placement="left"

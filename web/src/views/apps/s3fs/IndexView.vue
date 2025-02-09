@@ -102,7 +102,7 @@ onMounted(() => {
         添加挂载
       </n-button>
     </template>
-    <n-card title="挂载列表" :segmented="true" rounded-10>
+    <n-card title="挂载列表" :segmented="true">
       <n-data-table
         striped
         remote

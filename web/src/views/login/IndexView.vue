@@ -97,7 +97,7 @@ watch(isLogin, async () => {
 
 <template>
   <AppPage :show-footer="true" :style="{ backgroundImage: `url(${bgImg})` }" bg-cover>
-    <div m-auto min-w-345 f-c-c rounded-10 bg-white bg-opacity-60 p-15 card-shadow dark:bg-dark>
+    <div m-auto min-w-345 f-c-c bg-white bg-opacity-60 p-15 card-shadow dark:bg-dark>
       <div w-480 flex-col px-20 py-35>
         <h5 color="#6a6a6a" f-c-c text-24 font-normal>
           <n-image :src="logo" height="50" preview-disabled mr-10 />{{ themeStore.name }}
@@ -137,7 +137,6 @@ watch(isLogin, async () => {
             type="primary"
             h-50
             w-full
-            rounded-5
             text-16
             @click="handleLogin"
           >

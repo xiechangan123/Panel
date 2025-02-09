@@ -94,7 +94,7 @@ onMounted(() => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="frps" tab="Frps">
         <n-space vertical>
-          <n-card title="运行状态" rounded-10>
+          <n-card title="运行状态">
             <template #header-extra>
               <n-switch v-model:value="isEnabled.frps" @update:value="handleIsEnabled('frps')">
                 <template #checked> 自启动开 </template>
@@ -126,7 +126,7 @@ onMounted(() => {
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="修改配置" rounded-10>
+          <n-card title="修改配置">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frps')">
                 <TheIcon :size="18" icon="material-symbols:save-outline-rounded" />
@@ -150,7 +150,7 @@ onMounted(() => {
       </n-tab-pane>
       <n-tab-pane name="frpc" tab="Frpc">
         <n-space vertical>
-          <n-card title="运行状态" rounded-10>
+          <n-card title="运行状态">
             <template #header-extra>
               <n-switch v-model:value="isEnabled.frpc" @update:value="handleIsEnabled('frpc')">
                 <template #checked> 自启动开 </template>
@@ -182,7 +182,7 @@ onMounted(() => {
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="修改配置" rounded-10>
+          <n-card title="修改配置">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frpc')">
                 <TheIcon :size="18" icon="material-symbols:save-outline-rounded" />

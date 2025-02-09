@@ -108,7 +108,7 @@ onMounted(() => {
           <n-alert type="info">
             Podman 是一个无守护进程的容器管理工具，处于停止状态为正常现象且不会影响使用！
           </n-alert>
-          <n-card title="运行状态" rounded-10>
+          <n-card title="运行状态">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
                 <template #checked> 自启动开 </template>

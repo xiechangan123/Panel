@@ -68,12 +68,12 @@ onMounted(() => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" tab="状态">
         <n-space vertical>
-          <n-card title="访问信息" rounded-10>
+          <n-card title="访问信息">
             <n-alert type="info">
               访问地址: <a :href="url" target="_blank">{{ url }}</a>
             </n-alert>
           </n-card>
-          <n-card title="修改端口" rounded-10>
+          <n-card title="修改端口">
             <n-input-number v-model:value="newPort" :min="1" :max="65535" />
             修改 phpMyAdmin 访问端口
           </n-card>

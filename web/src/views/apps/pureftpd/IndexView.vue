@@ -219,7 +219,7 @@ onMounted(() => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" tab="运行状态">
         <n-space vertical>
-          <n-card title="运行状态" rounded-10>
+          <n-card title="运行状态">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
                 <template #checked> 自启动开 </template>
@@ -251,14 +251,14 @@ onMounted(() => {
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="端口设置" rounded-10>
+          <n-card title="端口设置">
             <n-input-number v-model:value="port" :min="1" :max="65535" />
             修改 Pure-Ftpd 监听端口
           </n-card>
         </n-space>
       </n-tab-pane>
       <n-tab-pane name="users" tab="用户管理">
-        <n-card title="用户列表" :segmented="true" rounded-10>
+        <n-card title="用户列表" :segmented="true">
           <n-data-table
             striped
             remote
