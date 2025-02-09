@@ -78,12 +78,12 @@ func (r *containerVolumeRepo) Create(req *request.ContainerVolumeCreate) (string
 
 // Remove 删除存储卷
 func (r *containerVolumeRepo) Remove(id string) error {
-	_, err := shell.ExecfWithTimeout(120*time.Second, "docker volume rm -f %s", id)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker volume rm -f %s", id)
 	return err
 }
 
 // Prune 清理未使用的存储卷
 func (r *containerVolumeRepo) Prune() error {
-	_, err := shell.ExecfWithTimeout(120*time.Second, "docker volume prune -f")
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker volume prune -f")
 	return err
 }

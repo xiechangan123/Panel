@@ -51,13 +51,13 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := io.Write(fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root), req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "写入PostgreSQL配置失败")
 		return
 	}
 
-	if err := systemctl.Reload("postgresql"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "重载服务失败")
+	if err = systemctl.Reload("postgresql"); err != nil {
+		service.Error(w, http.StatusInternalServerError, "重载服务失败: %v", err)
 		return
 	}
 
@@ -84,13 +84,13 @@ func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := io.Write(fmt.Sprintf("%s/server/postgresql/data/pg_hba.conf", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/server/postgresql/data/pg_hba.conf", app.Root), req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "写入PostgreSQL配置失败")
 		return
 	}
 
-	if err := systemctl.Reload("postgresql"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "重载服务失败")
+	if err = systemctl.Reload("postgresql"); err != nil {
+		service.Error(w, http.StatusInternalServerError, "重载服务失败: %v", err)
 		return
 	}
 

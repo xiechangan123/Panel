@@ -59,7 +59,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, "重载服务失败：%v", err)
+		service.Error(w, http.StatusInternalServerError, "重载服务失败: %v", err)
 		return
 	}
 

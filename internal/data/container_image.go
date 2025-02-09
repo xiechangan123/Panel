@@ -77,12 +77,12 @@ func (r *containerImageRepo) Pull(req *request.ContainerImagePull) error {
 
 // Remove 删除镜像
 func (r *containerImageRepo) Remove(id string) error {
-	_, err := shell.ExecfWithTimeout(120*time.Second, "docker rmi %s", id)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker rmi %s", id)
 	return err
 }
 
 // Prune 清理未使用的镜像
 func (r *containerImageRepo) Prune() error {
-	_, err := shell.ExecfWithTimeout(120*time.Second, "docker image prune -f")
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker image prune -f")
 	return err
 }

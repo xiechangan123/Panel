@@ -104,12 +104,12 @@ func (r *containerNetworkRepo) Create(req *request.ContainerNetworkCreate) (stri
 
 // Remove 删除网络
 func (r *containerNetworkRepo) Remove(id string) error {
-	_, err := shell.ExecfWithTimeout(120*time.Second, "docker network rm -f %s", id)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker network rm -f %s", id)
 	return err
 }
 
 // Prune 清理未使用的网络
 func (r *containerNetworkRepo) Prune() error {
-	_, err := shell.ExecfWithTimeout(120*time.Second, "docker network prune -f")
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker network prune -f")
 	return err
 }

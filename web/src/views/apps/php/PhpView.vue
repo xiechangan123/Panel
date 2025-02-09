@@ -216,13 +216,13 @@ const handleReload = async () => {
 
 const handleInstallExtension = async (slug: string) => {
   useRequest(php.installExtension(version.value, slug)).onSuccess(() => {
-    window.$message.success('任务已提交，请稍后查看任务进度')
+    window.$message.success('任务已提交，请前往后台任务查看进度')
   })
 }
 
 const handleUninstallExtension = async (name: string) => {
   useRequest(php.uninstallExtension(version.value, name)).onSuccess(() => {
-    window.$message.success('任务已提交，请稍后查看任务进度')
+    window.$message.success('任务已提交，请前往后台任务查看进度')
   })
 }
 

@@ -401,7 +401,7 @@ if (import.meta.hot) {
 </script>
 
 <template>
-  <AppPage :show-footer="true" min-w-375>
+  <app-page :show-footer="true" min-w-375>
     <div flex-1>
       <n-space vertical>
         <n-card :segmented="true" size="small">
@@ -664,7 +664,7 @@ if (import.meta.hot) {
                     item-responsive
                     responsive="screen"
                   >
-                    <n-gi v-for="item in homeApps" :key="item.name">
+                    <n-gi v-for="item in homeApps" :key="item.name" mx-10>
                       <n-card
                         :segmented="true"
                         size="small"
@@ -672,7 +672,7 @@ if (import.meta.hot) {
                         hover:card-shadow
                         @click="handleManageApp(item.slug)"
                       >
-                        <n-space>
+                        <n-flex>
                           <n-thing>
                             <template #avatar>
                               <div class="mt-8">
@@ -690,12 +690,12 @@ if (import.meta.hot) {
                               {{ item.version }}
                             </template>
                           </n-thing>
-                        </n-space>
+                        </n-flex>
                       </n-card>
                     </n-gi>
                   </n-grid>
                 </n-scrollbar>
-                <n-text v-if="!homeAppsLoading && !homeApps">
+                <n-text v-if="!homeAppsLoading && !homeApps.length">
                   您还没有设置任何应用在此显示！
                 </n-text>
                 <n-skeleton v-if="homeAppsLoading" text :repeat="12" />
@@ -819,5 +819,5 @@ if (import.meta.hot) {
         </n-grid>
       </n-space>
     </div>
-  </AppPage>
+  </app-page>
 </template>

@@ -3,6 +3,7 @@ package systemctl
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/tnb-labs/panel/pkg/shell"
 )
@@ -38,48 +39,48 @@ func IsEnabled(name string) (bool, error) {
 
 // Start 启动服务
 func Start(name string) error {
-	_, err := shell.Execf("systemctl start %s", name)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl start %s", name)
 	return err
 }
 
 // Stop 停止服务
 func Stop(name string) error {
-	_, err := shell.Execf("systemctl stop %s", name)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl stop %s", name)
 	return err
 }
 
 // Restart 重启服务
 func Restart(name string) error {
-	_, err := shell.Execf("systemctl restart %s", name)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl restart %s", name)
 	return err
 }
 
 // Reload 重载服务
 func Reload(name string) error {
-	_, err := shell.Execf("systemctl reload %s", name)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl reload %s", name)
 	return err
 }
 
 // Enable 启用服务
 func Enable(name string) error {
-	_, err := shell.Execf("systemctl enable %s", name)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl enable %s", name)
 	return err
 }
 
 // Disable 禁用服务
 func Disable(name string) error {
-	_, err := shell.Execf("systemctl disable %s", name)
+	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl disable %s", name)
 	return err
 }
 
 // Logs 获取服务日志
 func Logs(name string) (string, error) {
-	return shell.Execf("journalctl -u %s", name)
+	return shell.ExecfWithTimeout(2*time.Minute, "journalctl -u %s", name)
 }
 
 // LogsTail 获取服务日志
 func LogsTail(name string, lines int) (string, error) {
-	return shell.Execf("journalctl -u %s --lines %d", name, lines)
+	return shell.ExecfWithTimeout(2*time.Minute, "journalctl -u %s --lines %d", name, lines)
 }
 
 // LogsClear 清空服务日志
