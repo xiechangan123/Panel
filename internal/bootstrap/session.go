@@ -12,7 +12,7 @@ func NewSession(conf *koanf.Koanf, db *gorm.DB) (*sessions.Manager, error) {
 	manager, err := sessions.NewManager(&sessions.ManagerOptions{
 		Key:                  conf.MustString("app.key"),
 		Lifetime:             120,
-		GcInterval:           30,
+		GcInterval:           5,
 		DisableDefaultDriver: true,
 	})
 	if err != nil {

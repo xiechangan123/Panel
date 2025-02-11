@@ -12,7 +12,7 @@ require (
 	github.com/go-gormigrate/gormigrate/v2 v2.1.3
 	github.com/go-rat/chix v1.1.4
 	github.com/go-rat/gormstore v1.0.6
-	github.com/go-rat/sessions v1.0.11
+	github.com/go-rat/sessions v1.0.14
 	github.com/go-rat/utils v1.0.9
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/go-sql-driver/mysql v1.8.1
@@ -42,7 +42,7 @@ require (
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250120210832-12a9c7ae0c8a
 	github.com/urfave/cli/v3 v3.0.0-beta1
 	golang.org/x/crypto v0.33.0
-	golang.org/x/net v0.34.0
+	golang.org/x/net v0.35.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.25.12
@@ -56,7 +56,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-rat/securecookie v1.0.1 // indirect
+	github.com/go-rat/securecookie v1.1.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gofiber/schema v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
