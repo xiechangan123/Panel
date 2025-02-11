@@ -104,12 +104,6 @@ const handleRestart = async () => {
   await getStatus()
 }
 
-const handleReload = async () => {
-  await systemctl.reload('mysqld')
-  window.$message.success('重载成功')
-  await getStatus()
-}
-
 const handleSetRootPassword = async () => {
   await mysql.setRootPassword(rootPassword.value)
   window.$message.success('修改成功')
@@ -183,10 +177,6 @@ onMounted(() => {
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
                   重启
-                </n-button>
-                <n-button type="primary" @click="handleReload">
-                  <TheIcon :size="20" icon="material-symbols:refresh-rounded" />
-                  重载
                 </n-button>
               </n-space>
             </n-space>
