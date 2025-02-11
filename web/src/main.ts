@@ -20,7 +20,7 @@ async function setupApp() {
   const app = createApp(App)
   app.use(VueMonacoEditorPlugin, {
     paths: {
-      vs: '/assets/vs'
+      vs: window.location.origin + '/assets/vs'
     },
     'vs/nls': {
       availableLanguages: { '*': 'zh-cn' }

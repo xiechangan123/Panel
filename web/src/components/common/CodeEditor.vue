@@ -16,12 +16,12 @@ const props = defineProps({
 })
 
 const disabled = ref(false) // 在出现错误的情况下禁用保存
-const data = ref('')
+const content = ref('')
 
 const get = () => {
   useRequest(file.content(props.path))
     .onSuccess(({ data }) => {
-      data.value = decodeBase64(data.content)
+      content.value = decodeBase64(data.content)
       window.$message.success('获取成功')
     })
     .onError(() => {
@@ -34,7 +34,7 @@ const save = () => {
     window.$message.error('当前状态下不可保存')
     return
   }
-  useRequest(file.save(props.path, data.value)).onSuccess(() => {
+  useRequest(file.save(props.path, content.value)).onSuccess(() => {
     window.$message.success('保存成功')
   })
 }
@@ -51,7 +51,7 @@ defineExpose({
 
 <template>
   <Editor
-    v-model:value="data"
+    v-model:value="content"
     :language="languageByPath(props.path)"
     theme="vs-dark"
     height="60vh"
