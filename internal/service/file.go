@@ -291,7 +291,7 @@ func (s *FileService) RemoteDownload(w http.ResponseWriter, r *http.Request) {
 	task := new(biz.Task)
 	task.Name = "下载远程文件"
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`wget -o /tmp/remote-download-%s.log -O '%s' '%s'`, timestamp, req.Path, req.URL)
+	task.Shell = fmt.Sprintf(`wget -o /tmp/remote-download-%s.log -O '%s' '%s' && chmod 0755 '%s' && chown www:www '%s'`, timestamp, req.Path, req.URL, req.Path, req.Path)
 	task.Log = fmt.Sprintf("/tmp/remote-download-%s.log", timestamp)
 
 	if err = s.taskRepo.Push(task); err != nil {
