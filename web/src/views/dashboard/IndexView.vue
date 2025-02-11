@@ -438,7 +438,7 @@ if (import.meta.hot) {
 
         <n-card :segmented="true" size="small" title="资源总览">
           <n-flex v-if="realtime" size="large">
-            <n-popover trigger="hover">
+            <n-popover placement="bottom" trigger="hover">
               <template #trigger>
                 <n-flex vertical flex items-center p-20 pl-40 pr-40>
                   <p>负载状态</p>
@@ -475,7 +475,7 @@ if (import.meta.hot) {
                 </tr>
               </n-table>
             </n-popover>
-            <n-popover trigger="hover">
+            <n-popover placement="bottom" trigger="hover">
               <template #trigger>
                 <n-flex vertical flex items-center p-20 pl-40 pr-40>
                   <p>CPU</p>
@@ -508,7 +508,7 @@ if (import.meta.hot) {
                 </tr>
               </n-table>
             </n-popover>
-            <n-popover trigger="hover">
+            <n-popover placement="bottom" trigger="hover">
               <template #trigger>
                 <n-flex vertical flex items-center p-20 pl-40 pr-40>
                   <p>内存</p>
@@ -602,7 +602,12 @@ if (import.meta.hot) {
                 </tr>
               </n-table>
             </n-popover>
-            <n-popover v-for="item in realtime.disk_usage" :key="item.path" trigger="hover">
+            <n-popover
+              v-for="item in realtime.disk_usage"
+              :key="item.path"
+              placement="bottom"
+              trigger="hover"
+            >
               <template #trigger>
                 <n-flex vertical flex items-center p-20 pl-40 pr-40>
                   <p>{{ item.path }}</p>
