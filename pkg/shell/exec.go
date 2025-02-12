@@ -37,16 +37,19 @@ func Execf(shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
 
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(shell, args...))
+	cmd := exec.Command("bash", "-c", shell)
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", fmt.Sprintf(shell, args...), strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
 	}
 
 	return strings.TrimSpace(stdout.String()), nil
@@ -57,9 +60,12 @@ func ExecfAsync(shell string, args ...any) error {
 	if !preCheckArg(args) {
 		return errors.New("command contains illegal characters")
 	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
 
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(shell, args...))
+	cmd := exec.Command("bash", "-c", shell)
 
 	err := cmd.Start()
 	if err != nil {
@@ -68,7 +74,7 @@ func ExecfAsync(shell string, args ...any) error {
 
 	go func() {
 		if err = cmd.Wait(); err != nil {
-			fmt.Println(fmt.Errorf("run %s failed, err: %s", fmt.Sprintf(shell, args...), strings.TrimSpace(err.Error())))
+			fmt.Println(fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(err.Error())))
 		}
 	}()
 
@@ -80,9 +86,12 @@ func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string,
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
 
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(shell, args...))
+	cmd := exec.Command("bash", "-c", shell)
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -90,7 +99,7 @@ func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string,
 
 	err := cmd.Start()
 	if err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", fmt.Sprintf(shell, args...), strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
 	}
 
 	done := make(chan error)
@@ -101,10 +110,10 @@ func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string,
 	select {
 	case <-time.After(timeout):
 		_ = cmd.Process.Kill()
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", fmt.Sprintf(shell, args...), "timeout")
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, "timeout")
 	case err = <-done:
 		if err != nil {
-			return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", fmt.Sprintf(shell, args...), strings.TrimSpace(stderr.String()))
+			return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
 		}
 	}
 
@@ -116,9 +125,12 @@ func ExecfWithOutput(shell string, args ...any) error {
 	if !preCheckArg(args) {
 		return errors.New("command contains illegal characters")
 	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
 
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(shell, args...))
+	cmd := exec.Command("bash", "-c", shell)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -130,9 +142,12 @@ func ExecfWithPipe(ctx context.Context, shell string, args ...any) (out io.ReadC
 	if !preCheckArg(args) {
 		return nil, errors.New("command contains illegal characters")
 	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
 
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.CommandContext(ctx, "bash", "-c", fmt.Sprintf(shell, args...))
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 
 	out, err = cmd.StdoutPipe()
 	if err != nil {
@@ -149,9 +164,12 @@ func ExecfWithDir(dir, shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
 
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.Command("bash", "-c", fmt.Sprintf(shell, args...))
+	cmd := exec.Command("bash", "-c", shell)
 	cmd.Dir = dir
 
 	var stdout, stderr bytes.Buffer
@@ -159,7 +177,7 @@ func ExecfWithDir(dir, shell string, args ...any) (string, error) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", fmt.Sprintf(shell, args...), strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
 	}
 
 	return strings.TrimSpace(stdout.String()), nil
@@ -170,9 +188,12 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
 
 	_ = os.Setenv("LC_ALL", "C")
-	cmd := exec.Command("bash", "-i", "-c", fmt.Sprintf(shell, args...))
+	cmd := exec.Command("bash", "-i", "-c", shell)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -180,15 +201,15 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 
 	f, err := pty.Start(cmd)
 	if err != nil {
-		return "", fmt.Errorf("run %s failed", fmt.Sprintf(shell, args...))
+		return "", fmt.Errorf("run %s failed", shell)
 	}
 	defer f.Close()
 
 	if _, err = io.Copy(&out, f); ptyError(err) != nil {
-		return "", fmt.Errorf("run %s failed, out: %s, err: %w", fmt.Sprintf(shell, args...), strings.TrimSpace(out.String()), err)
+		return "", fmt.Errorf("run %s failed, out: %s, err: %w", shell, strings.TrimSpace(out.String()), err)
 	}
 	if stderr.Len() > 0 {
-		return "", fmt.Errorf("run %s failed, out: %s", fmt.Sprintf(shell, args...), strings.TrimSpace(stderr.String()))
+		return "", fmt.Errorf("run %s failed, out: %s", shell, strings.TrimSpace(stderr.String()))
 	}
 
 	return strings.TrimSpace(out.String()), nil
