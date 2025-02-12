@@ -38,7 +38,7 @@ func NewHttp(conf *koanf.Koanf, r *chi.Mux) (*hlfhr.Server, error) {
 
 	if conf.Bool("http.tls") {
 		srv.TLSConfig = &tls.Config{
-			MinVersion: tls.VersionTLS13,
+			MinVersion: tls.VersionTLS12,
 		}
 	}
 
