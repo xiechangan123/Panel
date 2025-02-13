@@ -535,7 +535,7 @@ func (s *CliService) BackupWebsite(ctx context.Context, cmd *cli.Command) error 
 	fmt.Println(s.hr)
 	fmt.Printf("★ 开始备份 [%s]\n", time.Now().Format(time.DateTime))
 	fmt.Println(s.hr)
-	fmt.Println("|-备份类型：网站")
+	fmt.Println("|-备份类型：website")
 	fmt.Printf("|-备份目标：%s\n", cmd.String("name"))
 	if err := s.backupRepo.Create(biz.BackupTypeWebsite, cmd.String("name"), cmd.String("path")); err != nil {
 		return fmt.Errorf("备份失败：%v", err)
@@ -550,7 +550,7 @@ func (s *CliService) BackupDatabase(ctx context.Context, cmd *cli.Command) error
 	fmt.Println(s.hr)
 	fmt.Printf("★ 开始备份 [%s]\n", time.Now().Format(time.DateTime))
 	fmt.Println(s.hr)
-	fmt.Println("|-备份类型：数据库")
+	fmt.Println("|-备份类型：database")
 	fmt.Printf("|-数据库：%s\n", cmd.String("type"))
 	fmt.Printf("|-备份目标：%s\n", cmd.String("name"))
 	if err := s.backupRepo.Create(biz.BackupType(cmd.String("type")), cmd.String("name"), cmd.String("path")); err != nil {
@@ -566,7 +566,7 @@ func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.hr)
 	fmt.Printf("★ 开始备份 [%s]\n", time.Now().Format(time.DateTime))
 	fmt.Println(s.hr)
-	fmt.Println("|-备份类型：面板")
+	fmt.Println("|-备份类型：panel")
 	if err := s.backupRepo.Create(biz.BackupTypePanel, "", cmd.String("path")); err != nil {
 		return fmt.Errorf("备份失败：%v", err)
 	}
@@ -613,7 +613,7 @@ func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error 
 	fmt.Println(s.hr)
 	fmt.Printf("★ 开始切割日志 [%s]\n", time.Now().Format(time.DateTime))
 	fmt.Println(s.hr)
-	fmt.Println("|-切割类型：网站")
+	fmt.Println("|-切割类型：website")
 	fmt.Printf("|-切割目标：%s\n", website.Name)
 	if err = s.backupRepo.CutoffLog(path, filepath.Join(app.Root, "wwwlogs", website.Name+".log")); err != nil {
 		return err
