@@ -46,7 +46,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	re := regexp.MustCompile(`requirepass\s+(.+)`)
+	re := regexp.MustCompile(`^requirepass\s+(.+)`)
 	matches := re.FindStringSubmatch(config)
 	if len(matches) == 2 {
 		withPassword = " -a " + matches[1]
