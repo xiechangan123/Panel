@@ -9,7 +9,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: ☢️ Bug
         if: github.event.label.name == '☢️ Bug'
