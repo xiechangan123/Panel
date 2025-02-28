@@ -151,7 +151,7 @@ const openSession = async (id: number) => {
     })
     term.value.open(terminal.value!)
 
-    fitAddon.fit()
+    onResize()
     term.value.focus()
     window.addEventListener('resize', onResize, false)
     current.value = id
