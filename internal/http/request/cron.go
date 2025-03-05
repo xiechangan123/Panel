@@ -7,7 +7,7 @@ type CronCreate struct {
 	Script     string `form:"script" json:"script"`
 	BackupType string `form:"backup_type" json:"backup_type" validate:"requiredIf:Type,backup"`
 	BackupPath string `form:"backup_path" json:"backup_path"`
-	Target     string `form:"target" json:"target" validate:"required"`
+	Target     string `form:"target" json:"target" validate:"requiredIf:Type,backup,cutoff"`
 	Save       int    `form:"save" json:"save" validate:"required"`
 }
 
