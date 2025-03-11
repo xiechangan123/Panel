@@ -39,7 +39,7 @@ func (r *containerRepo) ListAll() ([]types.Container, error) {
 		for _, port := range item.Ports {
 			ports = append(ports, types.ContainerPort{
 				ContainerStart: uint(port.PrivatePort),
-				ContainerEnd:   uint(port.PublicPort),
+				ContainerEnd:   uint(port.PrivatePort),
 				HostStart:      uint(port.PublicPort),
 				HostEnd:        uint(port.PublicPort),
 				Protocol:       port.Type,
