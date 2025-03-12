@@ -833,6 +833,9 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	_, _ = shell.Execf("systemctl daemon-reload")
 	_ = io.Remove("/tmp/panel-storage.zip")
 	_ = io.Remove(filepath.Join(app.Root, "panel/config.example.yml"))
+	if sqlDB, err := r.db.DB(); err == nil {
+		_ = sqlDB.Close()
+	}
 	tools.RestartPanel()
 
 	return nil
