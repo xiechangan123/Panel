@@ -48,11 +48,6 @@ func (r *PanelTask) Run() {
 		r.log.Warn("[Panel Task] failed to vacuum database", slog.Any("err", err))
 		return
 	}
-	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
-		app.Status = app.StatusFailed
-		r.log.Warn("[Panel Task] failed to wal checkpoint database", slog.Any("err", err))
-		return
-	}
 	if err := r.db.Exec("PRAGMA synchronous=FULL;").Error; err != nil {
 		app.Status = app.StatusFailed
 		r.log.Warn("[Panel Task] failed to set database synchronous to FULL", slog.Any("err", err))
@@ -61,6 +56,11 @@ func (r *PanelTask) Run() {
 	if err := r.db.Exec("PRAGMA journal_mode=WAL;").Error; err != nil {
 		app.Status = app.StatusFailed
 		r.log.Warn("[Panel Task] failed to set database journal_mode to WAL", slog.Any("err", err))
+		return
+	}
+	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
+		app.Status = app.StatusFailed
+		r.log.Warn("[Panel Task] failed to wal checkpoint database", slog.Any("err", err))
 		return
 	}
 
