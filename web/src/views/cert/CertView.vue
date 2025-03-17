@@ -38,7 +38,8 @@ const updateModel = ref<any>({
   website_id: null,
   auto_renew: true,
   cert: '',
-  key: ''
+  key: '',
+  script: ''
 })
 const updateModal = ref(false)
 const updateCert = ref<any>()
@@ -278,6 +279,7 @@ const columns: any = [
               updateModel.value.auto_renew = row.auto_renew
               updateModel.value.cert = row.cert
               updateModel.value.key = row.key
+              updateModel.value.script = row.script
               updateModal.value = true
             }
           },
@@ -341,6 +343,7 @@ const handleUpdateCert = () => {
     updateModel.value.auto_renew = true
     updateModel.value.cert = ''
     updateModel.value.key = ''
+    updateModel.value.script = ''
     window.$message.success('更新成功')
   })
 }
@@ -354,6 +357,7 @@ const handleAutoRenewUpdate = (row: any) => {
   updateModel.value.auto_renew = !row.auto_renew
   updateModel.value.cert = row.cert
   updateModel.value.key = row.key
+  updateModel.value.script = row.script
   useRequest(cert.certUpdate(row.id, updateModel.value))
     .onSuccess(() => {
       refresh()
@@ -368,6 +372,7 @@ const handleAutoRenewUpdate = (row: any) => {
       updateModel.value.auto_renew = true
       updateModel.value.cert = ''
       updateModel.value.key = ''
+      updateModel.value.script = ''
     })
 }
 
@@ -435,7 +440,7 @@ onUnmounted(() => {
     <n-space vertical>
       <n-alert v-if="updateModel.type != 'upload'" type="info">
         可以通过选择网站 / DNS 中的任意一项来自动签发和部署证书，也可以手动输入域名并设置 DNS
-        解析来签发证书
+        解析来签发证书，还可以填写部署脚本来自动部署证书。
       </n-alert>
       <n-form :model="updateModel">
         <n-form-item v-if="updateModel.type != 'upload'" path="domains" label="域名">
@@ -492,6 +497,14 @@ onUnmounted(() => {
             type="textarea"
             placeholder="输入 KEY 私钥文件的内容"
             :autosize="{ minRows: 10, maxRows: 15 }"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateModel.type != 'upload'" path="key" label="部署脚本">
+          <n-input
+            v-model:value="updateModel.script"
+            type="textarea"
+            placeholder="脚本中的 {cert} 和 {key} 会被替换为证书和私钥内容"
+            :autosize="{ minRows: 5, maxRows: 10 }"
           />
         </n-form-item>
       </n-form>

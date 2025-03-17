@@ -19,6 +19,7 @@ type Cert struct {
 	CertURL   string    `gorm:"not null" json:"cert_url"`   // 证书 URL (续签时使用)
 	Cert      string    `gorm:"not null" json:"cert"`       // 证书内容
 	Key       string    `gorm:"not null" json:"key"`        // 私钥内容
+	Script    string    `gorm:"not null" json:"script"`     // 部署脚本
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 

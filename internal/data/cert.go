@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"slices"
 	"strings"
 	"time"
@@ -49,6 +50,7 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			AutoRenew: cert.AutoRenew,
 			Cert:      cert.Cert,
 			Key:       cert.Key,
+			Script:    cert.Script,
 			CreatedAt: cert.CreatedAt,
 			UpdatedAt: cert.UpdatedAt,
 		}
@@ -131,6 +133,7 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 		Type:      req.Type,
 		Cert:      req.Cert,
 		Key:       req.Key,
+		Script:    req.Script,
 		Domains:   req.Domains,
 		AutoRenew: req.AutoRenew,
 	}).Error
@@ -183,6 +186,10 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 		return &ssl, r.Deploy(cert.ID, cert.WebsiteID)
 	}
 
+	if err = r.runScript(cert); err != nil {
+		return nil, err
+	}
+
 	return &ssl, nil
 }
 
@@ -212,6 +219,10 @@ func (r *certRepo) ObtainManual(id uint) (*acme.Certificate, error) {
 		return &ssl, r.Deploy(cert.ID, cert.WebsiteID)
 	}
 
+	if err = r.runScript(cert); err != nil {
+		return nil, err
+	}
+
 	return &ssl, nil
 }
 
@@ -234,6 +245,10 @@ func (r *certRepo) ObtainSelfSigned(id uint) error {
 
 	if cert.Website != nil {
 		return r.Deploy(cert.ID, cert.WebsiteID)
+	}
+
+	if err = r.runScript(cert); err != nil {
+		return err
 	}
 
 	return nil
@@ -342,6 +357,35 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	}
 
 	return nil
+}
+
+func (r *certRepo) runScript(cert *biz.Cert) error {
+	if cert.Script == "" {
+		return nil
+	}
+
+	f, err := os.CreateTemp("", "cert-deploy-*.sh")
+	if err != nil {
+		return err
+	}
+
+	// 替换变量
+	cert.Script = strings.ReplaceAll(cert.Script, "{cert}", cert.Cert)
+	cert.Script = strings.ReplaceAll(cert.Script, "{key}", cert.Key)
+
+	if _, err = f.WriteString(cert.Script); err != nil {
+		return err
+	}
+	if err = f.Chmod(0755); err != nil {
+		return err
+	}
+	if err = f.Close(); err != nil {
+		return err
+	}
+	defer os.Remove(f.Name())
+
+	_, err = shell.Execf("bash " + f.Name())
+	return err
 }
 
 func (r *certRepo) getClient(cert *biz.Cert) (*acme.Client, error) {

@@ -20,6 +20,7 @@ type CertUpdate struct {
 	Domains   []string `form:"domains" json:"domains" validate:"required|isSlice"`
 	Cert      string   `form:"cert" json:"cert"`
 	Key       string   `form:"key" json:"key"`
+	Script    string   `form:"script" json:"script"`
 	AutoRenew bool     `form:"auto_renew" json:"auto_renew"`
 	AccountID uint     `form:"account_id" json:"account_id"`
 	DNSID     uint     `form:"dns_id" json:"dns_id"`

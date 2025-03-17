@@ -120,8 +120,3 @@ func GetSymlink(path string) string {
 	}
 	return linkPath
 }
-
-// TempFile 创建临时文件
-func TempFile(dir, prefix string) (*os.File, error) {
-	return os.CreateTemp(dir, prefix)
-}

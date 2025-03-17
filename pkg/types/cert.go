@@ -12,6 +12,7 @@ type CertList struct {
 	AutoRenew  bool      `json:"auto_renew"`
 	Cert       string    `json:"cert"`
 	Key        string    `json:"key"`
+	Script     string    `json:"script"`
 	NotBefore  time.Time `json:"not_before"`
 	NotAfter   time.Time `json:"not_after"`
 	Issuer     string    `json:"issuer"`

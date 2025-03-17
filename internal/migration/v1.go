@@ -69,4 +69,13 @@ func init() {
 			)
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20250318-cert-script",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.Cert{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropColumn(&biz.Cert{}, "script")
+		},
+	})
 }
