@@ -335,6 +335,9 @@ onMounted(() => {
           />
         </n-space>
       </n-tab-pane>
+      <n-tab-pane name="run-log" tab="运行日志">
+        <realtime-log service="rsyncd" />
+      </n-tab-pane>
     </n-tabs>
   </common-page>
   <n-modal

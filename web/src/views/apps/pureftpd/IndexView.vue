@@ -281,6 +281,9 @@ onMounted(() => {
           />
         </n-card>
       </n-tab-pane>
+      <n-tab-pane name="run-log" tab="运行日志">
+        <realtime-log service="pure-ftpd" />
+      </n-tab-pane>
     </n-tabs>
   </common-page>
   <n-modal v-model:show="addUserModal" title="创建用户">

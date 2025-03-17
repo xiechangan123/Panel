@@ -222,7 +222,7 @@ onMounted(() => {
           :data="load"
         />
       </n-tab-pane>
-      <n-tab-pane name="error-log" tab="错误日志">
+      <n-tab-pane name="run-log" tab="运行日志">
         <realtime-log service="mysqld" />
       </n-tab-pane>
       <n-tab-pane name="slow-log" tab="慢查询日志">

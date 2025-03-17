@@ -171,6 +171,9 @@ onMounted(() => {
           :data="load"
         />
       </n-tab-pane>
+      <n-tab-pane name="run-log" tab="运行日志">
+        <realtime-log service="memcached" />
+      </n-tab-pane>
     </n-tabs>
   </common-page>
 </template>

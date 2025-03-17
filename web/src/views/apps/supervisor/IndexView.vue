@@ -453,7 +453,10 @@ onUnmounted(() => {
           />
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="log" tab="日志">
+      <n-tab-pane name="run-log" tab="运行日志">
+        <realtime-log service="supervisor" />
+      </n-tab-pane>
+      <n-tab-pane name="log" tab="守护日志">
         <realtime-log path="/var/log/supervisor/supervisord.log" />
       </n-tab-pane>
     </n-tabs>

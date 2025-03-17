@@ -377,6 +377,9 @@ onMounted(() => {
           :data="load"
         />
       </n-tab-pane>
+      <n-tab-pane name="run-log" tab="运行日志">
+        <realtime-log :service="'php-fpm-' + version" />
+      </n-tab-pane>
       <n-tab-pane name="error-log" tab="错误日志">
         <realtime-log :path="errorLog" />
       </n-tab-pane>

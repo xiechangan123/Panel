@@ -228,7 +228,10 @@ onMounted(() => {
           :data="load"
         />
       </n-tab-pane>
-      <n-tab-pane name="log" tab="日志">
+      <n-tab-pane name="run-log" tab="运行日志">
+        <realtime-log service="postgresql" />
+      </n-tab-pane>
+      <n-tab-pane name="slow-log" tab="慢日志">
         <realtime-log :path="log" />
       </n-tab-pane>
     </n-tabs>
