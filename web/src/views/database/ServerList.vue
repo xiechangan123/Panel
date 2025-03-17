@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { renderIcon } from '@/utils'
+import copy2clipboard from '@vavt/copy2clipboard'
 import { NButton, NInput, NInputGroup, NPopconfirm, NTag } from 'naive-ui'
 
 import database from '@/api/panel/database'
@@ -69,8 +70,9 @@ const columns: any = [
               type: 'primary',
               ghost: true,
               onClick: () => {
-                navigator.clipboard.writeText(row.password)
-                window.$message.success('复制成功')
+                copy2clipboard(row.password).then(() => {
+                  window.$message.success('复制成功')
+                })
               }
             },
             { default: () => '复制' }

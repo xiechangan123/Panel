@@ -2,6 +2,7 @@
 import file from '@/api/panel/file'
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui'
 
+import copy2clipboard from '@vavt/copy2clipboard'
 import type { DataTableColumns } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 
@@ -58,8 +59,9 @@ const columns: DataTableColumns<RowData> = [
                 type: 'success',
                 tertiary: true,
                 onClick: () => {
-                  navigator.clipboard.writeText(row.full)
-                  window.$message.success('复制成功')
+                  copy2clipboard(row.full).then(() => {
+                    window.$message.success('复制成功')
+                  })
                 }
               },
               {
