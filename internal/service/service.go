@@ -11,6 +11,7 @@ var ProviderSet = wire.NewSet(
 	NewCertDNSService,
 	NewCliService,
 	NewContainerService,
+	NewContainerComposeService,
 	NewContainerImageService,
 	NewContainerNetworkService,
 	NewContainerVolumeService,

@@ -33,6 +33,7 @@ type Http struct {
 	firewall         *service.FirewallService
 	ssh              *service.SSHService
 	container        *service.ContainerService
+	containerCompose *service.ContainerComposeService
 	containerNetwork *service.ContainerNetworkService
 	containerImage   *service.ContainerImageService
 	containerVolume  *service.ContainerVolumeService
@@ -62,6 +63,7 @@ func NewHttp(
 	firewall *service.FirewallService,
 	ssh *service.SSHService,
 	container *service.ContainerService,
+	containerCompose *service.ContainerComposeService,
 	containerNetwork *service.ContainerNetworkService,
 	containerImage *service.ContainerImageService,
 	containerVolume *service.ContainerVolumeService,
@@ -90,6 +92,7 @@ func NewHttp(
 		firewall:         firewall,
 		ssh:              ssh,
 		container:        container,
+		containerCompose: containerCompose,
 		containerNetwork: containerNetwork,
 		containerImage:   containerImage,
 		containerVolume:  containerVolume,
@@ -283,6 +286,14 @@ func (route *Http) Register(r *chi.Mux) {
 				r.Post("/{id}/rename", route.container.Rename)
 				r.Get("/{id}/logs", route.container.Logs)
 				r.Post("/prune", route.container.Prune)
+			})
+			r.Route("/compose", func(r chi.Router) {
+				r.Get("/", route.containerCompose.List)
+				r.Get("/{name}", route.containerCompose.Get)
+				r.Post("/", route.containerCompose.Create)
+				r.Post("/{name}/up", route.containerCompose.Up)
+				r.Post("/{name}/down", route.containerCompose.Down)
+				r.Delete("/{name}", route.containerCompose.Remove)
 			})
 			r.Route("/network", func(r chi.Router) {
 				r.Get("/", route.containerNetwork.List)
