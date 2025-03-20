@@ -37,19 +37,27 @@ func (r *containerComposeRepo) List() ([]string, error) {
 	return names, nil
 }
 
-// Get 获取编排文件内容
-func (r *containerComposeRepo) Get(name string) (string, error) {
-	content, err := os.ReadFile(filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml"))
-	return string(content), err
+// Get 获取编排文件和环境变量内容
+func (r *containerComposeRepo) Get(name string) (string, string, error) {
+	content, _ := os.ReadFile(filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml"))
+	env, _ := os.ReadFile(filepath.Join(app.Root, "server", "compose", name, ".env"))
+	return string(content), string(env), nil // 有意忽略错误，这样可以允许新建文件
 }
 
 // Create 创建编排文件
-func (r *containerComposeRepo) Create(name, compose string) error {
+func (r *containerComposeRepo) Create(name, compose, env string) error {
 	dir := filepath.Join(app.Root, "server", "compose", name)
 	if err := os.MkdirAll(dir, 0644); err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644)
+	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
+		return err
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(env), 0644); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Up 启动编排

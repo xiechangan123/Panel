@@ -7,6 +7,7 @@ type ContainerComposeGet struct {
 type ContainerComposeCreate struct {
 	Name    string `json:"name" validate:"required"`
 	Compose string `json:"compose" validate:"required"`
+	Env     string `json:"env"`
 }
 
 type ContainerComposeUp struct {

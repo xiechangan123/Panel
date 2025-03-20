@@ -41,13 +41,16 @@ func (s *ContainerComposeService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, err := s.containerComposeRepo.Get(req.Name)
+	compose, env, err := s.containerComposeRepo.Get(req.Name)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	Success(w, content)
+	Success(w, chix.M{
+		"compose": compose,
+		"env":     env,
+	})
 }
 
 func (s *ContainerComposeService) Create(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +60,7 @@ func (s *ContainerComposeService) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = s.containerComposeRepo.Create(req.Name, req.Compose); err != nil {
+	if err = s.containerComposeRepo.Create(req.Name, req.Compose, req.Env); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
