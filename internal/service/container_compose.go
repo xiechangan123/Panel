@@ -20,13 +20,13 @@ func NewContainerComposeService(containerCompose biz.ContainerComposeRepo) *Cont
 }
 
 func (s *ContainerComposeService) List(w http.ResponseWriter, r *http.Request) {
-	files, err := s.containerComposeRepo.List()
+	composes, err := s.containerComposeRepo.List()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	paged, total := Paginate(r, files)
+	paged, total := Paginate(r, composes)
 
 	Success(w, chix.M{
 		"total": total,

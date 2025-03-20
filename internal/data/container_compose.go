@@ -1,13 +1,16 @@
 package data
 
 import (
+	"encoding/json"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/tnb-labs/panel/internal/app"
 	"github.com/tnb-labs/panel/internal/biz"
 	"github.com/tnb-labs/panel/pkg/shell"
+	"github.com/tnb-labs/panel/pkg/types"
 )
 
 type containerComposeRepo struct{}
@@ -17,24 +20,51 @@ func NewContainerComposeRepo() biz.ContainerComposeRepo {
 }
 
 // List 列出所有编排文件名
-func (r *containerComposeRepo) List() ([]string, error) {
-	dir := filepath.Join(app.Root, "server", "compose")
-	var names []string
-	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
+	raw, err := shell.Execf("docker compose ls --format json")
+	if err != nil {
+		return nil, err
+	}
+
+	var composeRaws []types.ContainerComposeRaw
+	if err = json.Unmarshal([]byte(raw), &composeRaws); err != nil {
+		return nil, err
+	}
+
+	index := make(map[string]int)
+	var composes []types.ContainerCompose
+	err = filepath.WalkDir(filepath.Join(app.Root, "server", "compose"), func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if !d.IsDir() {
 			return nil
 		}
-		names = append(names, filepath.Base(path))
+		var createdAt time.Time
+		if info, err := d.Info(); err == nil {
+			createdAt = info.ModTime()
+		}
+		composes = append(composes, types.ContainerCompose{
+			Name:      filepath.Base(path),
+			Dir:       path,
+			Status:    "unknown",
+			CreatedAt: createdAt,
+		})
+		index[filepath.Base(path)] = len(composes) - 1
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return names, nil
+	// 更新状态
+	for _, item := range composeRaws {
+		if i, ok := index[item.Name]; ok {
+			composes[i].Status = item.Status
+		}
+	}
+
+	return composes, nil
 }
 
 // Get 获取编排文件和环境变量内容
