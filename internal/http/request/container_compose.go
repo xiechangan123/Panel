@@ -10,6 +10,12 @@ type ContainerComposeCreate struct {
 	Env     string `json:"env"`
 }
 
+type ContainerComposeUpdate struct {
+	Name    string `uri:"name" validate:"required"`
+	Compose string `json:"compose" validate:"required"`
+	Env     string `json:"env"`
+}
+
 type ContainerComposeUp struct {
 	Name  string `uri:"name" validate:"required"`
 	Force bool   `json:"force"`

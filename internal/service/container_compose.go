@@ -68,6 +68,21 @@ func (s *ContainerComposeService) Create(w http.ResponseWriter, r *http.Request)
 	Success(w, nil)
 }
 
+func (s *ContainerComposeService) Update(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ContainerComposeUpdate](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.containerComposeRepo.Update(req.Name, req.Compose, req.Env); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
 func (s *ContainerComposeService) Up(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ContainerComposeUp](r)
 	if err != nil {

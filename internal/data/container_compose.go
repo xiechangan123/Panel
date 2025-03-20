@@ -60,6 +60,19 @@ func (r *containerComposeRepo) Create(name, compose, env string) error {
 	return nil
 }
 
+// Update 更新编排文件
+func (r *containerComposeRepo) Update(name, compose, env string) error {
+	dir := filepath.Join(app.Root, "server", "compose", name)
+	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
+		return err
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(env), 0644); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Up 启动编排
 func (r *containerComposeRepo) Up(name string, force bool) error {
 	file := filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml")
