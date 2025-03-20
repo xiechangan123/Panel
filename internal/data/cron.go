@@ -65,6 +65,7 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
 panel-cli backup website -n '%s' -p '%s'
 panel-cli backup clear -t website -f '%s' -s '%d' -p '%s'
+systemctl reload nginx
 `, req.Target, req.BackupPath, req.Target, req.Save, req.BackupPath)
 		}
 		if req.BackupType == "mysql" || req.BackupType == "postgres" {
