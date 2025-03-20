@@ -291,6 +291,7 @@ func (route *Http) Register(r *chi.Mux) {
 				r.Get("/", route.containerCompose.List)
 				r.Get("/{name}", route.containerCompose.Get)
 				r.Post("/", route.containerCompose.Create)
+				r.Put("/{name}", route.containerCompose.Update)
 				r.Post("/{name}/up", route.containerCompose.Up)
 				r.Post("/{name}/down", route.containerCompose.Down)
 				r.Delete("/{name}", route.containerCompose.Remove)
