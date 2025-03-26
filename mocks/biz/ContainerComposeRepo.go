@@ -20,17 +20,17 @@ func (_m *ContainerComposeRepo) EXPECT() *ContainerComposeRepo_Expecter {
 	return &ContainerComposeRepo_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: name, compose, env
-func (_m *ContainerComposeRepo) Create(name string, compose string, env string) error {
-	ret := _m.Called(name, compose, env)
+// Create provides a mock function with given fields: name, compose, envs
+func (_m *ContainerComposeRepo) Create(name string, compose string, envs []types.KV) error {
+	ret := _m.Called(name, compose, envs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string) error); ok {
-		r0 = rf(name, compose, env)
+	if rf, ok := ret.Get(0).(func(string, string, []types.KV) error); ok {
+		r0 = rf(name, compose, envs)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,14 +46,14 @@ type ContainerComposeRepo_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - name string
 //   - compose string
-//   - env string
-func (_e *ContainerComposeRepo_Expecter) Create(name interface{}, compose interface{}, env interface{}) *ContainerComposeRepo_Create_Call {
-	return &ContainerComposeRepo_Create_Call{Call: _e.mock.On("Create", name, compose, env)}
+//   - envs []types.KV
+func (_e *ContainerComposeRepo_Expecter) Create(name interface{}, compose interface{}, envs interface{}) *ContainerComposeRepo_Create_Call {
+	return &ContainerComposeRepo_Create_Call{Call: _e.mock.On("Create", name, compose, envs)}
 }
 
-func (_c *ContainerComposeRepo_Create_Call) Run(run func(name string, compose string, env string)) *ContainerComposeRepo_Create_Call {
+func (_c *ContainerComposeRepo_Create_Call) Run(run func(name string, compose string, envs []types.KV)) *ContainerComposeRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string))
+		run(args[0].(string), args[1].(string), args[2].([]types.KV))
 	})
 	return _c
 }
@@ -63,7 +63,7 @@ func (_c *ContainerComposeRepo_Create_Call) Return(_a0 error) *ContainerComposeR
 	return _c
 }
 
-func (_c *ContainerComposeRepo_Create_Call) RunAndReturn(run func(string, string, string) error) *ContainerComposeRepo_Create_Call {
+func (_c *ContainerComposeRepo_Create_Call) RunAndReturn(run func(string, string, []types.KV) error) *ContainerComposeRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -327,17 +327,17 @@ func (_c *ContainerComposeRepo_Up_Call) RunAndReturn(run func(string, bool) erro
 	return _c
 }
 
-// Update provides a mock function with given fields: name, compose, env
-func (_m *ContainerComposeRepo) Update(name string, compose string, env string) error {
-	ret := _m.Called(name, compose, env)
+// Update provides a mock function with given fields: name, compose, envs
+func (_m *ContainerComposeRepo) Update(name string, compose string, envs []types.KV) error {
+	ret := _m.Called(name, compose, envs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string) error); ok {
-		r0 = rf(name, compose, env)
+	if rf, ok := ret.Get(0).(func(string, string, []types.KV) error); ok {
+		r0 = rf(name, compose, envs)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -353,14 +353,14 @@ type ContainerComposeRepo_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - name string
 //   - compose string
-//   - env string
-func (_e *ContainerComposeRepo_Expecter) Update(name interface{}, compose interface{}, env interface{}) *ContainerComposeRepo_Update_Call {
-	return &ContainerComposeRepo_Update_Call{Call: _e.mock.On("Update", name, compose, env)}
+//   - envs []types.KV
+func (_e *ContainerComposeRepo_Expecter) Update(name interface{}, compose interface{}, envs interface{}) *ContainerComposeRepo_Update_Call {
+	return &ContainerComposeRepo_Update_Call{Call: _e.mock.On("Update", name, compose, envs)}
 }
 
-func (_c *ContainerComposeRepo_Update_Call) Run(run func(name string, compose string, env string)) *ContainerComposeRepo_Update_Call {
+func (_c *ContainerComposeRepo_Update_Call) Run(run func(name string, compose string, envs []types.KV)) *ContainerComposeRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string))
+		run(args[0].(string), args[1].(string), args[2].([]types.KV))
 	})
 	return _c
 }
@@ -370,7 +370,7 @@ func (_c *ContainerComposeRepo_Update_Call) Return(_a0 error) *ContainerComposeR
 	return _c
 }
 
-func (_c *ContainerComposeRepo_Update_Call) RunAndReturn(run func(string, string, string) error) *ContainerComposeRepo_Update_Call {
+func (_c *ContainerComposeRepo_Update_Call) RunAndReturn(run func(string, string, []types.KV) error) *ContainerComposeRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
