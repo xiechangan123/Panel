@@ -2,15 +2,24 @@
 import backup from '@/api/panel/backup'
 import { renderIcon } from '@/utils'
 import type { MessageReactive } from 'naive-ui'
-import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
 
 import app from '@/api/panel/app'
 import website from '@/api/panel/website'
 import { formatDateTime } from '@/utils'
+import UploadModal from '@/views/backup/UploadModal.vue'
 
 const type = defineModel<string>('type', { type: String, required: true })
 
 let messageReactive: MessageReactive | null = null
+
+const uploadModal = ref(false)
+
+const createModal = ref(false)
+const createModel = ref({
+  target: '',
+  path: ''
+})
 
 const restoreModal = ref(false)
 const restoreModel = ref({
@@ -107,6 +116,16 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
+const handleCreate = () => {
+  useRequest(backup.create(type.value, createModel.value.target, createModel.value.path)).onSuccess(
+    () => {
+      createModal.value = false
+      window.$bus.emit('backup:refresh')
+      window.$message.success('创建成功')
+    }
+  )
+}
+
 const handleRestore = () => {
   messageReactive = window.$message.loading('恢复中...', {
     duration: 0
@@ -140,15 +159,14 @@ onMounted(() => {
           })
         }
         if (type.value === 'website') {
+          createModel.value.target = websites.value[0]?.value
           restoreModel.value.target = websites.value[0]?.value
         }
       })
     }
   })
   refresh()
-  window.$bus.on('backup:refresh', () => {
-    refresh()
-  })
+  window.$bus.on('backup:refresh', refresh)
 })
 
 onUnmounted(() => {
@@ -157,26 +175,65 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <n-data-table
-    striped
-    remote
-    :scroll-x="1000"
-    :loading="loading"
-    :columns="columns"
-    :data="data"
-    :row-key="(row: any) => row.name"
-    v-model:page="page"
-    v-model:pageSize="pageSize"
-    :pagination="{
-      page: page,
-      pageCount: pageCount,
-      pageSize: pageSize,
-      itemCount: total,
-      showQuickJumper: true,
-      showSizePicker: true,
-      pageSizes: [20, 50, 100, 200]
-    }"
-  />
+  <n-flex vertical :size="20">
+    <n-flex>
+      <n-button type="primary" @click="createModal = true"> 创建备份 </n-button>
+      <n-button type="primary" @click="uploadModal = true" ghost> 上传备份 </n-button>
+    </n-flex>
+    <n-data-table
+      striped
+      remote
+      :scroll-x="1000"
+      :loading="loading"
+      :columns="columns"
+      :data="data"
+      :row-key="(row: any) => row.name"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
+    />
+  </n-flex>
+  <n-modal
+    v-model:show="createModal"
+    preset="card"
+    title="创建备份"
+    style="width: 60vw"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+    @close="createModal = false"
+  >
+    <n-form :model="createModel">
+      <n-form-item v-if="type == 'website'" path="name" label="网站">
+        <n-select v-model:value="createModel.target" :options="websites" placeholder="选择网站" />
+      </n-form-item>
+      <n-form-item v-if="type != 'website'" path="name" label="数据库名">
+        <n-input
+          v-model:value="createModel.target"
+          type="text"
+          @keydown.enter.prevent
+          placeholder="输入数据库名称"
+        />
+      </n-form-item>
+      <n-form-item path="path" label="保存目录">
+        <n-input
+          v-model:value="createModel.path"
+          type="text"
+          @keydown.enter.prevent
+          placeholder="留空使用默认路径"
+        />
+      </n-form-item>
+    </n-form>
+    <n-button type="info" block @click="handleCreate">提交</n-button>
+  </n-modal>
   <n-modal
     v-model:show="restoreModal"
     preset="card"
@@ -197,6 +254,7 @@ onUnmounted(() => {
     </n-form>
     <n-button type="info" block @click="handleRestore">提交</n-button>
   </n-modal>
+  <upload-modal v-model:show="uploadModal" v-model:type="type" />
 </template>
 
 <style scoped lang="scss"></style>

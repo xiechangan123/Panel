@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/go-rat/chix"
 
@@ -55,38 +56,44 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(2 << 30); err != nil {
+	binder := chix.NewBind(r)
+	defer binder.Release()
+
+	req := new(request.BackupUpload)
+	if err := binder.MultipartForm(req, 2<<30); err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if err := binder.URI(req); err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	_, handler, err := r.FormFile("file")
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "上传文件失败：%v", err)
+	// 只允许上传 .sql .zip .tar .gz .tgz .bz2 .xz .7z
+	if !slices.Contains([]string{".sql", ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".7z"}, filepath.Ext(req.File.Filename)) {
+		Error(w, http.StatusForbidden, "unsupported file type")
 		return
 	}
-	path, err := s.backupRepo.GetPath(biz.BackupType(r.FormValue("type")))
+
+	path, err := s.backupRepo.GetPath(biz.BackupType(req.Type))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-
-	if !io.Exists(filepath.Dir(path)) {
-		if err = os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-			Error(w, http.StatusInternalServerError, "创建文件夹失败：%v", err)
-			return
-		}
+	if io.Exists(filepath.Join(path, req.File.Filename)) {
+		Error(w, http.StatusForbidden, "target backup %s already exists", path)
+		return
 	}
 
-	src, _ := handler.Open()
-	out, err := os.OpenFile(filepath.Join(path, handler.Filename), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
+	src, _ := req.File.Open()
+	out, err := os.OpenFile(filepath.Join(path, req.File.Filename), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "打开文件失败：%v", err)
+		Error(w, http.StatusInternalServerError, "open file error: %v", err)
 		return
 	}
 
 	if _, err = stdio.Copy(out, src); err != nil {
-		Error(w, http.StatusInternalServerError, "写入文件失败：%v", err)
+		Error(w, http.StatusInternalServerError, "write file error: %v", err)
 		return
 	}
 

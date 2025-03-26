@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import type { UploadCustomRequestOptions } from 'naive-ui'
 
-import api from '@/api/panel/file'
+import api from '@/api/panel/backup'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const path = defineModel<string>('path', { type: String, required: true })
+const type = defineModel<string>('type', { type: String, required: true })
 const upload = ref<any>(null)
 
 const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequestOptions) => {
   const formData = new FormData()
-  formData.append('path', `${path.value}/${file.name}`)
   formData.append('file', file.file as File)
-  const { uploading } = useRequest(api.upload(formData))
+  const { uploading } = useRequest(api.upload(type.value, formData))
     .onSuccess(() => {
       onFinish()
-      window.$bus.emit('file:refresh')
+      window.$bus.emit('backup:refresh')
       window.$message.success(`上传 ${file.name} 成功`)
     })
     .onError(() => {
@@ -33,7 +32,7 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
   <n-modal
     v-model:show="show"
     preset="card"
-    title="上传"
+    title="上传备份"
     style="width: 60vw"
     size="huge"
     :bordered="false"

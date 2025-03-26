@@ -8,11 +8,7 @@ export default {
   create: (type: string, target: string, path: string): any =>
     http.Post(`/backup/${type}`, { target, path }),
   // 上传备份
-  upload: (type: string, formData: FormData): any => {
-    return http.Post(`/backup/${type}/upload`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
-  },
+  upload: (type: string, formData: FormData): any => http.Post(`/backup/${type}/upload`, formData),
   // 删除备份
   delete: (type: string, file: string): any => http.Delete(`/backup/${type}/delete`, { file }),
   // 恢复备份
