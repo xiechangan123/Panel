@@ -60,7 +60,7 @@ func (s *ContainerComposeService) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = s.containerComposeRepo.Create(req.Name, req.Compose, req.Env); err != nil {
+	if err = s.containerComposeRepo.Create(req.Name, req.Compose, req.Envs); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -75,7 +75,7 @@ func (s *ContainerComposeService) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = s.containerComposeRepo.Update(req.Name, req.Compose, req.Env); err != nil {
+	if err = s.containerComposeRepo.Update(req.Name, req.Compose, req.Envs); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

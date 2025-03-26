@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -31,11 +32,16 @@ func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
 		return nil, err
 	}
 
-	index := make(map[string]int)
 	var composes []types.ContainerCompose
-	err = filepath.WalkDir(filepath.Join(app.Root, "server", "compose"), func(path string, d fs.DirEntry, err error) error {
+	index := make(map[string]int)
+	composeDir := filepath.Join(app.Root, "server", "compose")
+	err = filepath.WalkDir(composeDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
+		}
+		// 跳过自身
+		if path == composeDir {
+			return nil
 		}
 		if !d.IsDir() {
 			return nil
@@ -75,7 +81,7 @@ func (r *containerComposeRepo) Get(name string) (string, string, error) {
 }
 
 // Create 创建编排文件
-func (r *containerComposeRepo) Create(name, compose, env string) error {
+func (r *containerComposeRepo) Create(name, compose string, envs []types.KV) error {
 	dir := filepath.Join(app.Root, "server", "compose", name)
 	if err := os.MkdirAll(dir, 0644); err != nil {
 		return err
@@ -83,7 +89,15 @@ func (r *containerComposeRepo) Create(name, compose, env string) error {
 	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(env), 0644); err != nil {
+
+	var sb strings.Builder
+	for _, kv := range envs {
+		sb.WriteString(kv.Key)
+		sb.WriteString("=")
+		sb.WriteString(kv.Value)
+		sb.WriteString("\n")
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(sb.String()), 0644); err != nil {
 		return err
 	}
 
@@ -91,12 +105,20 @@ func (r *containerComposeRepo) Create(name, compose, env string) error {
 }
 
 // Update 更新编排文件
-func (r *containerComposeRepo) Update(name, compose, env string) error {
+func (r *containerComposeRepo) Update(name, compose string, envs []types.KV) error {
 	dir := filepath.Join(app.Root, "server", "compose", name)
 	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(env), 0644); err != nil {
+
+	var sb strings.Builder
+	for _, kv := range envs {
+		sb.WriteString(kv.Key)
+		sb.WriteString("=")
+		sb.WriteString(kv.Value)
+		sb.WriteString("\n")
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(sb.String()), 0644); err != nil {
 		return err
 	}
 
