@@ -25,12 +25,6 @@ const websites = ref<any>([])
 
 const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
   initialData: {
-    php: [
-      {
-        label: '不使用',
-        value: 0
-      }
-    ],
     db: [
       {
         label: '',
@@ -47,17 +41,6 @@ const mySQLInstalled = computed(() => {
 const postgreSQLInstalled = computed(() => {
   return installedDbAndPhp.value.db.find((item: any) => item.value === 'postgresql')
 })
-
-const getWebsiteList = async (page: number, limit: number) => {
-  const data = await website.list(page, limit)
-  for (const item of data.items) {
-    websites.value.push({
-      label: item.name,
-      value: item.name
-    })
-  }
-  createModel.value.target = websites.value[0]?.value
-}
 
 const handleSubmit = async () => {
   loading.value = true
@@ -83,7 +66,15 @@ watch(createModel, (value) => {
 onMounted(() => {
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
     if (data.installed) {
-      getWebsiteList(1, 10000)
+      useRequest(website.list(1, 10000)).onSuccess(({ data }: { data: any }) => {
+        for (const item of data.items) {
+          websites.value.push({
+            label: item.name,
+            value: item.name
+          })
+        }
+        createModel.value.target = websites.value[0]?.value
+      })
     }
   })
 })
@@ -134,7 +125,7 @@ onMounted(() => {
       </div>
       <n-form-item v-if="createModel.type === 'backup'" label="备份类型">
         <n-radio-group v-model:value="createModel.backup_type">
-          <n-radio value="website">网站目录</n-radio>
+          <n-radio value="website">网站</n-radio>
           <n-radio value="mysql" :disabled="!mySQLInstalled"> MySQL 数据库</n-radio>
           <n-radio value="postgres" :disabled="!postgreSQLInstalled"> PostgreSQL 数据库 </n-radio>
         </n-radio-group>

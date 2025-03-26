@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import backup from '@/api/panel/backup'
 import { renderIcon } from '@/utils'
-import { MessageReactive, NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import type { MessageReactive } from 'naive-ui'
+import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 
+import app from '@/api/panel/app'
+import website from '@/api/panel/website'
 import { formatDateTime } from '@/utils'
 
 const type = defineModel<string>('type', { type: String, required: true })
@@ -14,6 +17,8 @@ const restoreModel = ref({
   file: '',
   target: ''
 })
+
+const websites = ref<any>([])
 
 const columns: any = [
   {
@@ -125,6 +130,21 @@ const handleDelete = async (file: string) => {
 }
 
 onMounted(() => {
+  useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
+    if (data.installed) {
+      useRequest(website.list(1, 10000)).onSuccess(({ data }: { data: any }) => {
+        for (const item of data.items) {
+          websites.value.push({
+            label: item.name,
+            value: item.name
+          })
+        }
+        if (type.value === 'website') {
+          restoreModel.value.target = websites.value[0]?.value
+        }
+      })
+    }
+  })
   refresh()
   window.$bus.on('backup:refresh', () => {
     refresh()
@@ -168,7 +188,10 @@ onUnmounted(() => {
     @close="restoreModal = false"
   >
     <n-form :model="restoreModel">
-      <n-form-item path="name" label="恢复目标">
+      <n-form-item v-if="type == 'website'" path="name" label="网站">
+        <n-select v-model:value="restoreModel.target" :options="websites" placeholder="选择网站" />
+      </n-form-item>
+      <n-form-item v-if="type != 'website'" path="name" label="数据库">
         <n-input v-model:value="restoreModel.target" type="text" @keydown.enter.prevent />
       </n-form-item>
     </n-form>
