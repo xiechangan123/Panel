@@ -152,6 +152,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 
 const handleDelete = (row: any) => {
   useRequest(container.networkRemove(row.id)).onSuccess(() => {
+    refresh()
     window.$message.success('删除成功')
   })
 }

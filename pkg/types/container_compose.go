@@ -11,7 +11,7 @@ type ContainerComposeRaw struct {
 
 type ContainerCompose struct {
 	Name      string    `json:"name"`
-	Dir       string    `json:"dir"`
+	Path      string    `json:"path"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 }

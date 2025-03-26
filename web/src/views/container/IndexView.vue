@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ComposeView from '@/views/container/ComposeView.vue'
+
 defineOptions({
   name: 'container-index'
 })
@@ -16,6 +18,9 @@ const current = ref('container')
     <n-tabs v-model:value="current" type="line" animated>
       <n-tab-pane name="container" tab="容器">
         <container-view />
+      </n-tab-pane>
+      <n-tab-pane name="compose" tab="编排">
+        <compose-view />
       </n-tab-pane>
       <n-tab-pane name="image" tab="镜像">
         <image-view />

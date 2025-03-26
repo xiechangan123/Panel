@@ -2,7 +2,6 @@ package data
 
 import (
 	"encoding/json"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,7 +21,7 @@ func NewContainerComposeRepo() biz.ContainerComposeRepo {
 
 // List 列出所有编排文件名
 func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
-	raw, err := shell.Execf("docker compose ls --format json")
+	raw, err := shell.Execf("docker compose ls -a --format json")
 	if err != nil {
 		return nil, err
 	}
@@ -32,35 +31,33 @@ func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
 		return nil, err
 	}
 
+	composeDir := filepath.Join(app.Root, "server", "compose")
+	entries, err := os.ReadDir(composeDir)
+	if err != nil {
+		return nil, err
+	}
+
 	var composes []types.ContainerCompose
 	index := make(map[string]int)
-	composeDir := filepath.Join(app.Root, "server", "compose")
-	err = filepath.WalkDir(composeDir, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
 		}
-		// 跳过自身
-		if path == composeDir {
-			return nil
-		}
-		if !d.IsDir() {
-			return nil
-		}
+
+		path := filepath.Join(composeDir, entry.Name())
 		var createdAt time.Time
-		if info, err := d.Info(); err == nil {
+		if info, err := entry.Info(); err == nil {
 			createdAt = info.ModTime()
 		}
+
 		composes = append(composes, types.ContainerCompose{
-			Name:      filepath.Base(path),
-			Dir:       path,
+			Name:      entry.Name(),
+			Path:      path,
 			Status:    "unknown",
 			CreatedAt: createdAt,
 		})
-		index[filepath.Base(path)] = len(composes) - 1
-		return nil
-	})
-	if err != nil {
-		return nil, err
+		index[entry.Name()] = len(composes) - 1
 	}
 
 	// 更新状态
@@ -74,10 +71,23 @@ func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
 }
 
 // Get 获取编排文件和环境变量内容
-func (r *containerComposeRepo) Get(name string) (string, string, error) {
+func (r *containerComposeRepo) Get(name string) (string, []types.KV, error) {
 	content, _ := os.ReadFile(filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml"))
 	env, _ := os.ReadFile(filepath.Join(app.Root, "server", "compose", name, ".env"))
-	return string(content), string(env), nil // 有意忽略错误，这样可以允许新建文件
+
+	var envs []types.KV
+	for _, line := range strings.Split(string(env), "\n") {
+		if line == "" {
+			continue
+		}
+		kv := strings.SplitN(line, "=", 2)
+		if len(kv) != 2 {
+			continue
+		}
+		envs = append(envs, types.KV{Key: kv[0], Value: kv[1]})
+	}
+
+	return string(content), envs, nil // 有意忽略错误，这样可以允许新建文件
 }
 
 // Create 创建编排文件

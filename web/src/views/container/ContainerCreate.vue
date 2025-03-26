@@ -335,11 +335,11 @@ onMounted(() => {
         <n-dynamic-input
           v-model:value="createModel.env"
           preset="pair"
-          key-placeholder="环境变量名"
-          value-placeholder="环境变量值"
+          key-placeholder="变量名"
+          value-placeholder="变量值"
         />
       </n-form-item>
-      <n-form-item path="env" label="标签">
+      <n-form-item path="labels" label="标签">
         <n-dynamic-input
           v-model:value="createModel.labels"
           preset="pair"

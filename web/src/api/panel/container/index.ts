@@ -27,6 +27,22 @@ export default {
   containerLogs: (id: string): any => http.Get(`/container/container/${id}/logs`),
   // 清理容器
   containerPrune: (): any => http.Post(`/container/container/prune`),
+  // 获取编排列表
+  composeList: (page: number, limit: number): any =>
+    http.Get('/container/compose', { params: { page, limit } }),
+  // 获取编排
+  composeGet: (name: string): any => http.Get(`/container/compose/${name}`),
+  // 创建编排
+  composeCreate: (config: any): any => http.Post('/container/compose', config),
+  // 更新编排
+  composeUpdate: (name: string, config: any): any => http.Put(`/container/compose/${name}`, config),
+  // 删除编排
+  composeRemove: (name: string): any => http.Delete(`/container/compose/${name}`),
+  // 启动编排
+  composeUp: (name: string, force: boolean): any =>
+    http.Post(`/container/compose/${name}/up`, { force }),
+  // 停止编排
+  composeDown: (name: string): any => http.Post(`/container/compose/${name}/down`),
   // 获取网络列表
   networkList: (page: number, limit: number): any =>
     http.Get(`/container/network`, { params: { page, limit } }),
