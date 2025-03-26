@@ -115,7 +115,7 @@ func (_c *ContainerComposeRepo_Down_Call) RunAndReturn(run func(string) error) *
 }
 
 // Get provides a mock function with given fields: name
-func (_m *ContainerComposeRepo) Get(name string) (string, string, error) {
+func (_m *ContainerComposeRepo) Get(name string) (string, []types.KV, error) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
@@ -123,9 +123,9 @@ func (_m *ContainerComposeRepo) Get(name string) (string, string, error) {
 	}
 
 	var r0 string
-	var r1 string
+	var r1 []types.KV
 	var r2 error
-	if rf, ok := ret.Get(0).(func(string) (string, string, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (string, []types.KV, error)); ok {
 		return rf(name)
 	}
 	if rf, ok := ret.Get(0).(func(string) string); ok {
@@ -134,10 +134,12 @@ func (_m *ContainerComposeRepo) Get(name string) (string, string, error) {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(string) string); ok {
+	if rf, ok := ret.Get(1).(func(string) []types.KV); ok {
 		r1 = rf(name)
 	} else {
-		r1 = ret.Get(1).(string)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]types.KV)
+		}
 	}
 
 	if rf, ok := ret.Get(2).(func(string) error); ok {
@@ -167,12 +169,12 @@ func (_c *ContainerComposeRepo_Get_Call) Run(run func(name string)) *ContainerCo
 	return _c
 }
 
-func (_c *ContainerComposeRepo_Get_Call) Return(_a0 string, _a1 string, _a2 error) *ContainerComposeRepo_Get_Call {
+func (_c *ContainerComposeRepo_Get_Call) Return(_a0 string, _a1 []types.KV, _a2 error) *ContainerComposeRepo_Get_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *ContainerComposeRepo_Get_Call) RunAndReturn(run func(string) (string, string, error)) *ContainerComposeRepo_Get_Call {
+func (_c *ContainerComposeRepo_Get_Call) RunAndReturn(run func(string) (string, []types.KV, error)) *ContainerComposeRepo_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
