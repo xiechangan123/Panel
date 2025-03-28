@@ -77,8 +77,8 @@ func initCli() (*app.Cli, error) {
 	fail2banApp := fail2ban.NewApp(websiteRepo)
 	frpApp := frp.NewApp()
 	giteaApp := gitea.NewApp()
-	minioApp := minio.NewApp()
 	memcachedApp := memcached.NewApp()
+	minioApp := minio.NewApp()
 	mysqlApp := mysql.NewApp(settingRepo)
 	nginxApp := nginx.NewApp()
 	php74App := php74.NewApp(taskRepo)
@@ -96,7 +96,7 @@ func initCli() (*app.Cli, error) {
 	s3fsApp := s3fs.NewApp(settingRepo)
 	supervisorApp := supervisor.NewApp()
 	toolboxApp := toolbox.NewApp()
-	loader := bootstrap.NewLoader(benchmarkApp, dockerApp, fail2banApp, frpApp, giteaApp, minioApp, memcachedApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
+	loader := bootstrap.NewLoader(benchmarkApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }

@@ -34,8 +34,8 @@ func NewLoader(
 	fail2ban *fail2ban.App,
 	frp *frp.App,
 	gitea *gitea.App,
-	minio *minio.App,
 	memcached *memcached.App,
+	minio *minio.App,
 	mysql *mysql.App,
 	nginx *nginx.App,
 	php74 *php74.App,
@@ -55,6 +55,6 @@ func NewLoader(
 	toolbox *toolbox.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(benchmark, docker, fail2ban, frp, gitea, minio, memcached, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor, toolbox)
+	loader.Add(benchmark, docker, fail2ban, frp, gitea, memcached, minio, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor, toolbox)
 	return loader
 }
