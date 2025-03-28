@@ -7,6 +7,7 @@ import (
 	"github.com/tnb-labs/panel/internal/apps/frp"
 	"github.com/tnb-labs/panel/internal/apps/gitea"
 	"github.com/tnb-labs/panel/internal/apps/memcached"
+	"github.com/tnb-labs/panel/internal/apps/minio"
 	"github.com/tnb-labs/panel/internal/apps/mysql"
 	"github.com/tnb-labs/panel/internal/apps/nginx"
 	"github.com/tnb-labs/panel/internal/apps/php74"
@@ -33,6 +34,7 @@ func NewLoader(
 	fail2ban *fail2ban.App,
 	frp *frp.App,
 	gitea *gitea.App,
+	minio *minio.App,
 	memcached *memcached.App,
 	mysql *mysql.App,
 	nginx *nginx.App,
@@ -53,6 +55,6 @@ func NewLoader(
 	toolbox *toolbox.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(benchmark, docker, fail2ban, frp, gitea, memcached, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor, toolbox)
+	loader.Add(benchmark, docker, fail2ban, frp, gitea, minio, memcached, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor, toolbox)
 	return loader
 }

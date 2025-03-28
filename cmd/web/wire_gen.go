@@ -14,6 +14,7 @@ import (
 	"github.com/tnb-labs/panel/internal/apps/frp"
 	"github.com/tnb-labs/panel/internal/apps/gitea"
 	"github.com/tnb-labs/panel/internal/apps/memcached"
+	"github.com/tnb-labs/panel/internal/apps/minio"
 	"github.com/tnb-labs/panel/internal/apps/mysql"
 	"github.com/tnb-labs/panel/internal/apps/nginx"
 	"github.com/tnb-labs/panel/internal/apps/php74"
@@ -115,6 +116,7 @@ func initWeb() (*app.Web, error) {
 	fail2banApp := fail2ban.NewApp(websiteRepo)
 	frpApp := frp.NewApp()
 	giteaApp := gitea.NewApp()
+	minioApp := minio.NewApp()
 	memcachedApp := memcached.NewApp()
 	mysqlApp := mysql.NewApp(settingRepo)
 	nginxApp := nginx.NewApp()
@@ -133,7 +135,7 @@ func initWeb() (*app.Web, error) {
 	s3fsApp := s3fs.NewApp(settingRepo)
 	supervisorApp := supervisor.NewApp()
 	toolboxApp := toolbox.NewApp()
-	loader := bootstrap.NewLoader(benchmarkApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
+	loader := bootstrap.NewLoader(benchmarkApp, dockerApp, fail2banApp, frpApp, giteaApp, minioApp, memcachedApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
 	http := route.NewHttp(userService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, loader)
 	wsService := service.NewWsService(koanf, sshRepo)
 	ws := route.NewWs(wsService)

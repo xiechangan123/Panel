@@ -9,6 +9,7 @@ import (
 	"github.com/tnb-labs/panel/internal/apps/frp"
 	"github.com/tnb-labs/panel/internal/apps/gitea"
 	"github.com/tnb-labs/panel/internal/apps/memcached"
+	"github.com/tnb-labs/panel/internal/apps/minio"
 	"github.com/tnb-labs/panel/internal/apps/mysql"
 	"github.com/tnb-labs/panel/internal/apps/nginx"
 	"github.com/tnb-labs/panel/internal/apps/php74"
@@ -34,6 +35,7 @@ var ProviderSet = wire.NewSet(
 	fail2ban.NewApp,
 	frp.NewApp,
 	gitea.NewApp,
+	minio.NewApp,
 	memcached.NewApp,
 	mysql.NewApp,
 	nginx.NewApp,
