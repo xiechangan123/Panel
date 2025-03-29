@@ -191,6 +191,55 @@ const handleCreateDNS = async () => {
             placeholder="输入 Name.com Token"
           />
         </n-form-item>
+
+        <n-form-item v-if="model.type == 'cloudns'" path="ak" label="Auth ID">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 ClouDNS Auth ID（使用Sub Auth ID请添加sub-前缀）"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'cloudns'" path="sk" label="Auth Password">
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 ClouDNS Auth Password"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'duckdns'" path="ak" label="Token">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Duck DNS Token"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'hetzner'" path="ak" label="Auth API Token">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Hetzner Auth API Token"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'linode'" path="ak" label="Token">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Linode Token"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'vercel'" path="ak" label="Token">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Vercel Token"
+          />
+        </n-form-item>
       </n-form>
       <n-button type="info" block @click="handleCreateDNS">提交</n-button>
     </n-space>

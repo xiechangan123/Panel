@@ -27,15 +27,20 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.3
 	github.com/libdns/cloudflare v0.1.3
+	github.com/libdns/cloudns v1.0.0
+	github.com/libdns/duckdns v0.2.0
 	github.com/libdns/gcore v0.0.0-20250127070537-4a9d185c9d20
 	github.com/libdns/godaddy v1.0.3
+	github.com/libdns/hetzner v0.0.1
 	github.com/libdns/huaweicloud v0.3.1
 	github.com/libdns/libdns v0.2.3
+	github.com/libdns/linode v0.4.1
 	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
 	github.com/libdns/namedotcom v0.3.3
 	github.com/libdns/namesilo v0.1.1
 	github.com/libdns/porkbun v0.2.0
 	github.com/libdns/tencentcloud v1.2.0
+	github.com/libdns/vercel v0.0.2
 	github.com/mholt/acmez/v3 v3.1.1
 	github.com/ncruces/go-sqlite3 v0.24.1
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
@@ -71,6 +76,8 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/knadh/koanf/maps v0.1.1 // indirect
+	github.com/linode/linodego v1.23.0 // indirect
+	github.com/miekg/dns v1.1.40 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
@@ -86,6 +93,7 @@ require (
 	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
+	gopkg.in/ini.v1 v1.66.6 // indirect
 )
 
 replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a

@@ -93,8 +93,27 @@ func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
 			Label: "Name.com",
 			Value: string(acme.Namecom),
 		},
+		{
+			Label: "ClouDNS",
+			Value: string(acme.ClouDNS),
+		},
+		{
+			Label: "Duck DNS",
+			Value: string(acme.DuckDNS),
+		},
+		{
+			Label: "Hetzner",
+			Value: string(acme.Hetzner),
+		},
+		{
+			Label: "Linode",
+			Value: string(acme.Linode),
+		},
+		{
+			Label: "Vercel",
+			Value: string(acme.Vercel),
+		},
 	})
-
 }
 
 func (s *CertService) Algorithms(w http.ResponseWriter, r *http.Request) {

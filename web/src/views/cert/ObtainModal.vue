@@ -56,7 +56,7 @@ const handleSubmit = () => {
                   ]),
                   h(
                     'tbody',
-                    data.map((item) =>
+                    data.map((item: any) =>
                       h('tr', [
                         h('td', item?.domain),
                         h('td', 'TXT'),
