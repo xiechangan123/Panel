@@ -53,6 +53,7 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			AutoRenew: cert.AutoRenew,
 			Cert:      cert.Cert,
 			Key:       cert.Key,
+			CertURL:   cert.CertURL,
 			Script:    cert.Script,
 			CreatedAt: cert.CreatedAt,
 			UpdatedAt: cert.UpdatedAt,
@@ -290,7 +291,11 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 
 	ssl, err := client.RenewCertificate(context.Background(), cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
-		return nil, err
+		// 续签失败，尝试重签
+		ssl, err = client.ObtainCertificate(context.Background(), cert.Domains, acme.KeyType(cert.Type))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	cert.CertURL = ssl.URL

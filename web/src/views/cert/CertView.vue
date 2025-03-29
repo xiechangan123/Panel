@@ -219,7 +219,7 @@ const columns: any = [
               }
             )
           : null,
-        row.cert != '' && row.key != '' && row.type != 'upload'
+        row.cert_url != '' && row.type != 'upload'
           ? h(
               NButton,
               {
