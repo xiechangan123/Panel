@@ -34,49 +34,64 @@ const handleSubmit = () => {
         messageReactive?.destroy()
       })
   } else if (model.value.type == 'manual') {
-    const { data } = useRequest(cert.manualDNS(id.value))
-    messageReactive.destroy()
-    window.$message.info('请先前往域名处设置 DNS 解析，再继续签发')
-    const d = window.$dialog.info({
-      style: 'width: 60vw',
-      title: '待设置DNS 记录列表',
-      content: () => {
-        return h(NTable, [
-          h('thead', [
-            h('tr', [h('th', '域名'), h('th', '类型'), h('th', '主机记录'), h('th', '记录值')])
-          ]),
-          h(
-            'tbody',
-            data.map((item: any) =>
-              h('tr', [
-                h('td', item?.domain),
-                h('td', 'TXT'),
-                h('td', item?.name),
-                h('td', item?.value)
-              ])
+    useRequest(cert.manualDNS(id.value))
+      .onSuccess(({ data }: { data: any }) => {
+        window.$message.info('请先前往域名处设置 DNS 解析，再继续签发')
+        const d = window.$dialog.info({
+          style: 'width: 60vw',
+          title: '待设置DNS 记录列表',
+          content: () => {
+            return h(
+              NTable,
+              {},
+              {
+                default: () => [
+                  h('thead', [
+                    h('tr', [
+                      h('th', '域名'),
+                      h('th', '类型'),
+                      h('th', '主机记录'),
+                      h('th', '记录值')
+                    ])
+                  ]),
+                  h(
+                    'tbody',
+                    data.map((item) =>
+                      h('tr', [
+                        h('td', item?.domain),
+                        h('td', 'TXT'),
+                        h('td', item?.name),
+                        h('td', item?.value)
+                      ])
+                    )
+                  )
+                ]
+              }
             )
-          )
-        ])
-      },
-      positiveText: '签发',
-      onPositiveClick: async () => {
-        d.loading = true
-        messageReactive = window.$message.loading('请稍后...', {
-          duration: 0
+          },
+          positiveText: '签发',
+          onPositiveClick: async () => {
+            d.loading = true
+            messageReactive = window.$message.loading('请稍后...', {
+              duration: 0
+            })
+            useRequest(cert.obtainManual(id.value))
+              .onSuccess(() => {
+                window.$bus.emit('cert:refresh-cert')
+                window.$bus.emit('cert:refresh-async')
+                show.value = false
+                window.$message.success('签发成功')
+              })
+              .onComplete(() => {
+                d.loading = false
+                messageReactive?.destroy()
+              })
+          }
         })
-        useRequest(cert.obtainManual(id.value))
-          .onSuccess(() => {
-            window.$bus.emit('cert:refresh-cert')
-            window.$bus.emit('cert:refresh-async')
-            show.value = false
-            window.$message.success('签发成功')
-          })
-          .onComplete(() => {
-            d.loading = false
-            messageReactive?.destroy()
-          })
-      }
-    })
+      })
+      .onComplete(() => {
+        messageReactive?.destroy()
+      })
   } else {
     useRequest(cert.obtainSelfSigned(id.value))
       .onSuccess(() => {

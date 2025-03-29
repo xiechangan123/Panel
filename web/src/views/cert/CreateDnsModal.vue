@@ -119,6 +119,78 @@ const handleCreateDNS = async () => {
             placeholder="输入 Cloudflare API Key"
           />
         </n-form-item>
+        <n-form-item v-if="model.type == 'godaddy'" path="ak" label="Token">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 GoDaddy Token"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'gcore'" path="ak" label="API Key">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 G-Core API Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'porkbun'" path="ak" label="API Key">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Porkbun API Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'porkbun'" path="sk" label="Secret Key">
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Porkbun Secret Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'namecheap'" path="sk" label="API Username">
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Namecheap API Username"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'namecheap'" path="ak" label="API Key">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Namecheap API Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'namesilo'" path="ak" label="API Token">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 NameSilo API Token"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'namecom'" path="sk" label="Username">
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Name.com Username"
+          />
+        </n-form-item>
+        <n-form-item v-if="model.type == 'namecom'" path="ak" label="Token">
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Name.com Token"
+          />
+        </n-form-item>
       </n-form>
       <n-button type="info" block @click="handleCreateDNS">提交</n-button>
     </n-space>

@@ -9,8 +9,14 @@ import (
 
 	"github.com/libdns/alidns"
 	"github.com/libdns/cloudflare"
+	"github.com/libdns/gcore"
+	"github.com/libdns/godaddy"
 	"github.com/libdns/huaweicloud"
 	"github.com/libdns/libdns"
+	"github.com/libdns/namecheap"
+	"github.com/libdns/namedotcom"
+	"github.com/libdns/namesilo"
+	"github.com/libdns/porkbun"
 	"github.com/libdns/tencentcloud"
 	"github.com/mholt/acmez/v3/acme"
 	"golang.org/x/net/publicsuffix"
@@ -30,11 +36,11 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 }
 `, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
 	if err := os.WriteFile(s.conf, []byte(conf), 0644); err != nil {
-		return fmt.Errorf("无法写入 Nginx 配置文件: %w", err)
+		return fmt.Errorf("failed to write nginx config %q: %w", s.conf, err)
 	}
 	if err := systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
-		return fmt.Errorf("无法重载 Nginx: %w", err)
+		return fmt.Errorf("failed to reload nginx: %w", err)
 	}
 
 	return nil
@@ -58,25 +64,26 @@ func (s dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error 
 	keyAuth := challenge.DNS01KeyAuthorization()
 	provider, err := s.getDNSProvider()
 	if err != nil {
-		return fmt.Errorf("获取 DNS 提供商失败: %w", err)
+		return fmt.Errorf("failed to get DNS provider: %w", err)
 	}
 	zone, err := publicsuffix.EffectiveTLDPlusOne(dnsName)
 	if err != nil {
-		return fmt.Errorf("获取域名 %q 的顶级域失败: %w", dnsName, err)
+		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
 
 	rec := libdns.Record{
 		Type:  "TXT",
 		Name:  libdns.RelativeName(dnsName+".", zone+"."),
 		Value: keyAuth,
+		TTL:   10 * time.Minute,
 	}
 
 	results, err := provider.SetRecords(ctx, zone+".", []libdns.Record{rec})
 	if err != nil {
-		return fmt.Errorf("域名 %q 添加临时记录 %q 失败: %w", zone, dnsName, err)
+		return fmt.Errorf("failed to set DNS record %q for %q: %w", dnsName, zone, err)
 	}
 	if len(results) != 1 {
-		return fmt.Errorf("预期添加 1 条记录，但实际添加了 %d 条记录", len(results))
+		return fmt.Errorf("expected to add 1 record, but actually added %d records", len(results))
 	}
 
 	s.records = &results
@@ -87,7 +94,7 @@ func (s dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error 
 	dnsName := challenge.DNS01TXTRecordName()
 	provider, err := s.getDNSProvider()
 	if err != nil {
-		return fmt.Errorf("获取 DNS 提供商失败: %w", err)
+		return fmt.Errorf("failed to get DNS provider: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
@@ -95,8 +102,9 @@ func (s dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error 
 
 	zone, err := publicsuffix.EffectiveTLDPlusOne(dnsName)
 	if err != nil {
-		return fmt.Errorf("获取域名 %q 的顶级域失败: %w", dnsName, err)
+		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
+
 	_, _ = provider.DeleteRecords(ctx, zone+".", *s.records)
 	return nil
 }
@@ -124,8 +132,36 @@ func (s dnsSolver) getDNSProvider() (DNSProvider, error) {
 		dns = &cloudflare.Provider{
 			APIToken: s.param.AK,
 		}
+	case Godaddy:
+		dns = &godaddy.Provider{
+			APIToken: s.param.AK,
+		}
+	case Gcore:
+		dns = &gcore.Provider{
+			APIKey: s.param.AK,
+		}
+	case Porkbun:
+		dns = &porkbun.Provider{
+			APIKey:       s.param.AK,
+			APISecretKey: s.param.SK,
+		}
+	case Namecheap:
+		dns = &namecheap.Provider{
+			APIKey: s.param.AK,
+			User:   s.param.SK,
+		}
+	case NameSilo:
+		dns = &namesilo.Provider{
+			APIToken: s.param.AK,
+		}
+	case Namecom:
+		dns = &namedotcom.Provider{
+			Token:  s.param.AK,
+			User:   s.param.SK,
+			Server: "https://api.name.com",
+		}
 	default:
-		return nil, fmt.Errorf("未知的DNS提供商 %q", s.dns)
+		return nil, fmt.Errorf("unsupported DNS provider: %s", s.dns)
 	}
 
 	return dns, nil
@@ -134,10 +170,16 @@ func (s dnsSolver) getDNSProvider() (DNSProvider, error) {
 type DnsType string
 
 const (
-	Tencent    DnsType = "tencent"
 	AliYun     DnsType = "aliyun"
+	Tencent    DnsType = "tencent"
 	Huawei     DnsType = "huawei"
 	CloudFlare DnsType = "cloudflare"
+	Godaddy    DnsType = "godaddy"
+	Gcore      DnsType = "gcore"
+	Porkbun    DnsType = "porkbun"
+	Namecheap  DnsType = "namecheap"
+	NameSilo   DnsType = "namesilo"
+	Namecom    DnsType = "namecom"
 )
 
 type DNSParam struct {
@@ -162,7 +204,7 @@ func (s manualDNSSolver) Present(ctx context.Context, challenge acme.Challenge) 
 	keyAuth := challenge.DNS01KeyAuthorization()
 	domain, err := publicsuffix.EffectiveTLDPlusOne(full)
 	if err != nil {
-		return fmt.Errorf("获取 %q 的顶级域失败: %w", full, err)
+		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", full, err)
 	}
 
 	*s.records = append(*s.records, DNSRecord{

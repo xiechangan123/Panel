@@ -46,17 +46,11 @@ const columns: any = [
         },
         {
           default: () => {
-            switch (row.type) {
-              case 'aliyun':
-                return '阿里云'
-              case 'tencent':
-                return '腾讯云'
-              case 'huawei':
-                return '华为云'
-              case 'cloudflare':
-                return 'Cloudflare'
-              default:
-                return '未知'
+            const provider = dnsProviders.value.find((provider: any) => provider.value === row.type)
+            if (provider) {
+              return provider.label
+            } else {
+              return '未知'
             }
           }
         }
@@ -206,7 +200,6 @@ onUnmounted(() => {
             :options="dnsProviders"
           />
         </n-form-item>
-
         <n-form-item v-if="updateDNSModel.type == 'aliyun'" path="ak" label="Access Key">
           <n-input
             v-model:value="updateDNSModel.data.ak"
@@ -239,7 +232,6 @@ onUnmounted(() => {
             placeholder="输入腾讯云 SecretKey"
           />
         </n-form-item>
-
         <n-form-item v-if="updateDNSModel.type == 'huawei'" path="ak" label="AccessKeyId">
           <n-input
             v-model:value="updateDNSModel.data.ak"
@@ -262,6 +254,78 @@ onUnmounted(() => {
             type="text"
             @keydown.enter.prevent
             placeholder="输入 Cloudflare API Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'godaddy'" path="ak" label="Token">
+          <n-input
+            v-model:value="updateDNSModel.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 GoDaddy Token"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'gcore'" path="ak" label="API Key">
+          <n-input
+            v-model:value="updateDNSModel.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 G-Core API Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'porkbun'" path="ak" label="API Key">
+          <n-input
+            v-model:value="updateDNSModel.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Porkbun API Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'porkbun'" path="sk" label="Secret Key">
+          <n-input
+            v-model:value="updateDNSModel.data.sk"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Porkbun Secret Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'namecheap'" path="sk" label="API Username">
+          <n-input
+            v-model:value="updateDNSModel.data.sk"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Namecheap API Username"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'namecheap'" path="ak" label="API Key">
+          <n-input
+            v-model:value="updateDNSModel.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Namecheap API Key"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'namesilo'" path="ak" label="API Token">
+          <n-input
+            v-model:value="updateDNSModel.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 NameSilo API Token"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'namecom'" path="sk" label="Username">
+          <n-input
+            v-model:value="updateDNSModel.data.sk"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Name.com Username"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'namecom'" path="ak" label="Token">
+          <n-input
+            v-model:value="updateDNSModel.data.ak"
+            type="text"
+            @keydown.enter.prevent
+            placeholder="输入 Name.com Token"
           />
         </n-form-item>
       </n-form>

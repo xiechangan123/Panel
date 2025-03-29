@@ -27,8 +27,14 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.3
 	github.com/libdns/cloudflare v0.1.3
+	github.com/libdns/gcore v0.0.0-20250127070537-4a9d185c9d20
+	github.com/libdns/godaddy v1.0.3
 	github.com/libdns/huaweicloud v0.3.1
 	github.com/libdns/libdns v0.2.3
+	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
+	github.com/libdns/namedotcom v0.3.3
+	github.com/libdns/namesilo v0.1.1
+	github.com/libdns/porkbun v0.2.0
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/mholt/acmez/v3 v3.1.1
 	github.com/ncruces/go-sqlite3 v0.24.1
@@ -51,6 +57,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/G-Core/gcore-dns-sdk-go v0.2.9 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
@@ -67,6 +74,7 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1096 // indirect
@@ -75,6 +83,7 @@ require (
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
+	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 )

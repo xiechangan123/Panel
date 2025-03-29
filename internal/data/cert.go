@@ -158,7 +158,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.DNS != nil {
-		client.UseDns(acme.DnsType(cert.DNS.Type), cert.DNS.Data)
+		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
 		if cert.Website == nil {
 			return nil, errors.New("this certificate is not associated with a website and cannot be signed. You can try to sign it manually")
@@ -273,7 +273,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.DNS != nil {
-		client.UseDns(acme.DnsType(cert.DNS.Type), cert.DNS.Data)
+		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
 		if cert.Website == nil {
 			return nil, errors.New("this certificate is not associated with a website and cannot be signed. You can try to sign it manually")
