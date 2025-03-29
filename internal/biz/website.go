@@ -10,11 +10,11 @@ import (
 
 type Website struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Name      string    `gorm:"not null;unique" json:"name"`
+	Name      string    `gorm:"not null;default:'';unique" json:"name"`
 	Status    bool      `gorm:"not null;default:true" json:"status"`
-	Path      string    `gorm:"not null" json:"path"`
-	Https     bool      `gorm:"not null" json:"https"`
-	Remark    string    `gorm:"not null" json:"remark"`
+	Path      string    `gorm:"not null;default:''" json:"path"`
+	Https     bool      `gorm:"not null;default:false" json:"https"`
+	Remark    string    `gorm:"not null;default:''" json:"remark"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 

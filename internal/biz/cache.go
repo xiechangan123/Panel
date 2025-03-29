@@ -11,7 +11,7 @@ const (
 
 type Cache struct {
 	Key       CacheKey  `gorm:"primaryKey" json:"key"`
-	Value     string    `gorm:"not null" json:"value"`
+	Value     string    `gorm:"not null;default:''" json:"value"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

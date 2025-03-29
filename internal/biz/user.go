@@ -8,9 +8,9 @@ import (
 
 type User struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
-	Username  string         `gorm:"not null;unique" json:"username"`
-	Password  string         `gorm:"not null" json:"password"`
-	Email     string         `gorm:"not null" json:"email"`
+	Username  string         `gorm:"not null;default:'';unique" json:"username"`
+	Password  string         `gorm:"not null;default:''" json:"password"`
+	Email     string         `gorm:"not null;default:''" json:"email"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`

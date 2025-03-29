@@ -19,13 +19,13 @@ const (
 
 type DatabaseUser struct {
 	ID         uint               `gorm:"primaryKey" json:"id"`
-	ServerID   uint               `gorm:"not null" json:"server_id"`
-	Username   string             `gorm:"not null" json:"username"`
-	Password   string             `gorm:"not null" json:"password"`
-	Host       string             `gorm:"not null" json:"host"`    // 仅 mysql
-	Status     DatabaseUserStatus `gorm:"-:all" json:"status"`     // 仅显示
-	Privileges []string           `gorm:"-:all" json:"privileges"` // 仅显示
-	Remark     string             `gorm:"not null" json:"remark"`
+	ServerID   uint               `gorm:"not null;default:0" json:"server_id"`
+	Username   string             `gorm:"not null;default:''" json:"username"`
+	Password   string             `gorm:"not null;default:''" json:"password"`
+	Host       string             `gorm:"not null;default:''" json:"host"` // 仅 mysql
+	Status     DatabaseUserStatus `gorm:"-:all" json:"status"`             // 仅显示
+	Privileges []string           `gorm:"-:all" json:"privileges"`         // 仅显示
+	Remark     string             `gorm:"not null;default:''" json:"remark"`
 	CreatedAt  time.Time          `json:"created_at"`
 	UpdatedAt  time.Time          `json:"updated_at"`
 

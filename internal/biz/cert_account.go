@@ -8,12 +8,12 @@ import (
 
 type CertAccount struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
-	Email       string    `gorm:"not null" json:"email"`
-	CA          string    `gorm:"not null" json:"ca"` // CA 提供商 (letsencrypt, zerossl, sslcom, google, buypass)
-	Kid         string    `gorm:"not null" json:"kid"`
-	HmacEncoded string    `gorm:"not null" json:"hmac_encoded"`
-	PrivateKey  string    `gorm:"not null" json:"private_key"`
-	KeyType     string    `gorm:"not null" json:"key_type"` // 密钥类型 (P256, P384, 2048, 3072, 4096)
+	Email       string    `gorm:"not null;default:''" json:"email"`
+	CA          string    `gorm:"not null;default:'letsencrypt'" json:"ca"` // CA 提供商 (letsencrypt, zerossl, sslcom, google, buypass)
+	Kid         string    `gorm:"not null;default:''" json:"kid"`
+	HmacEncoded string    `gorm:"not null;default:''" json:"hmac_encoded"`
+	PrivateKey  string    `gorm:"not null;default:''" json:"private_key"`
+	KeyType     string    `gorm:"not null;default:'P256'" json:"key_type"` // 密钥类型 (P256, P384, 2048, 3072, 4096)
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 

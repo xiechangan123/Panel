@@ -13,10 +13,10 @@ const (
 
 type Task struct {
 	ID        uint       `gorm:"primaryKey" json:"id"`
-	Name      string     `gorm:"not null;index" json:"name"`
+	Name      string     `gorm:"not null;default:'';index" json:"name"`
 	Status    TaskStatus `gorm:"not null;default:'waiting'" json:"status"`
-	Shell     string     `gorm:"not null" json:"-"`
-	Log       string     `gorm:"not null" json:"log"`
+	Shell     string     `gorm:"not null;default:''" json:"-"`
+	Log       string     `gorm:"not null;default:''" json:"log"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
 }

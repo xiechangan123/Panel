@@ -23,8 +23,8 @@ const (
 
 type Setting struct {
 	ID        uint       `gorm:"primaryKey" json:"id"`
-	Key       SettingKey `gorm:"not null;unique" json:"key"`
-	Value     string     `gorm:"not null" json:"value"`
+	Key       SettingKey `gorm:"not null;default:'';unique" json:"key"`
+	Value     string     `gorm:"not null;default:''" json:"value"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
 }

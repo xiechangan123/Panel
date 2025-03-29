@@ -10,16 +10,16 @@ import (
 
 type Cert struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	AccountID uint      `gorm:"not null" json:"account_id"` // 关联的 ACME 账户 ID
-	WebsiteID uint      `gorm:"not null" json:"website_id"` // 关联的网站 ID
-	DNSID     uint      `gorm:"not null" json:"dns_id"`     // 关联的 DNS ID
-	Type      string    `gorm:"not null" json:"type"`       // 证书类型 (P256, P384, 2048, 3072, 4096)
-	Domains   []string  `gorm:"not null;serializer:json" json:"domains"`
-	AutoRenew bool      `gorm:"not null" json:"auto_renew"` // 自动续签
-	CertURL   string    `gorm:"not null" json:"cert_url"`   // 证书 URL (续签时使用)
-	Cert      string    `gorm:"not null" json:"cert"`       // 证书内容
-	Key       string    `gorm:"not null" json:"key"`        // 私钥内容
-	Script    string    `gorm:"not null" json:"script"`     // 部署脚本
+	AccountID uint      `gorm:"not null;default:0" json:"account_id"` // 关联的 ACME 账户 ID
+	WebsiteID uint      `gorm:"not null;default:0" json:"website_id"` // 关联的网站 ID
+	DNSID     uint      `gorm:"not null;default:0" json:"dns_id"`     // 关联的 DNS ID
+	Type      string    `gorm:"not null;default:''" json:"type"`      // 证书类型 (P256, P384, 2048, 3072, 4096)
+	Domains   []string  `gorm:"not null;default:'[]';serializer:json" json:"domains"`
+	AutoRenew bool      `gorm:"not null;default:false" json:"auto_renew"` // 自动续签
+	CertURL   string    `gorm:"not null;default:''" json:"cert_url"`      // 证书 URL (续签时使用)
+	Cert      string    `gorm:"not null;default:''" json:"cert"`          // 证书内容
+	Key       string    `gorm:"not null;default:''" json:"key"`           // 私钥内容
+	Script    string    `gorm:"not null;default:''" json:"script"`        // 部署脚本
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
