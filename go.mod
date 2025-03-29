@@ -6,6 +6,7 @@ require (
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
+	github.com/devhaozi/westcn v0.0.0-20250329192208-199d82100bff
 	github.com/expr-lang/expr v1.17.2
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
@@ -32,7 +33,7 @@ require (
 	github.com/libdns/gcore v0.0.0-20250127070537-4a9d185c9d20
 	github.com/libdns/godaddy v1.0.3
 	github.com/libdns/hetzner v0.0.1
-	github.com/libdns/huaweicloud v0.3.1
+	github.com/libdns/huaweicloud v0.3.3
 	github.com/libdns/libdns v0.2.3
 	github.com/libdns/linode v0.4.1
 	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
@@ -70,6 +71,7 @@ require (
 	github.com/go-rat/securecookie v1.1.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gofiber/schema v1.3.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/filter v1.2.2 // indirect
 	github.com/gookit/goutil v0.6.18 // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
@@ -93,7 +95,7 @@ require (
 	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	gopkg.in/ini.v1 v1.66.6 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
 replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a

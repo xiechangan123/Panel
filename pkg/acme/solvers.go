@@ -3,6 +3,7 @@ package acme
 import (
 	"context"
 	"fmt"
+	"github.com/devhaozi/westcn"
 	"os"
 	"strings"
 	"time"
@@ -133,6 +134,11 @@ func (s dnsSolver) getDNSProvider() (DNSProvider, error) {
 			AccessKeyId:     s.param.AK,
 			SecretAccessKey: s.param.SK,
 		}
+	case Westcn:
+		dns = &westcn.Provider{
+			Username:    s.param.SK,
+			APIPassword: s.param.AK,
+		}
 	case CloudFlare:
 		dns = &cloudflare.Provider{
 			APIToken: s.param.AK,
@@ -206,6 +212,7 @@ const (
 	AliYun     DnsType = "aliyun"
 	Tencent    DnsType = "tencent"
 	Huawei     DnsType = "huawei"
+	Westcn     DnsType = "westcn"
 	CloudFlare DnsType = "cloudflare"
 	Godaddy    DnsType = "godaddy"
 	Gcore      DnsType = "gcore"

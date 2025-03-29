@@ -185,12 +185,7 @@ onUnmounted(() => {
     <n-space vertical>
       <n-form :model="updateDNSModel">
         <n-form-item path="name" label="备注名称">
-          <n-input
-            v-model:value="updateDNSModel.name"
-            type="text"
-            @keydown.enter.prevent
-            placeholder="输入备注名称"
-          />
+          <n-input v-model:value="updateDNSModel.name" type="text" placeholder="输入备注名称" />
         </n-form-item>
         <n-form-item path="type" label="DNS">
           <n-select
@@ -204,7 +199,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入阿里云 Access Key"
           />
         </n-form-item>
@@ -212,7 +206,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入阿里云 Secret Key"
           />
         </n-form-item>
@@ -220,7 +213,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入腾讯云 SecretId"
           />
         </n-form-item>
@@ -228,7 +220,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入腾讯云 SecretKey"
           />
         </n-form-item>
@@ -236,7 +227,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入华为云 AccessKeyId"
           />
         </n-form-item>
@@ -244,15 +234,27 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入华为云 SecretAccessKey"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'westcn'" path="sk" label="Username">
+          <n-input
+            v-model:value="updateDNSModel.data.sk"
+            type="text"
+            placeholder="输入西部数码 Username"
+          />
+        </n-form-item>
+        <n-form-item v-if="updateDNSModel.type == 'westcn'" path="ak" label="API Password">
+          <n-input
+            v-model:value="updateDNSModel.data.ak"
+            type="text"
+            placeholder="输入西部数码 API Password"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'cloudflare'" path="ak" label="API Key">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Cloudflare API Key"
           />
         </n-form-item>
@@ -260,7 +262,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 GoDaddy Token"
           />
         </n-form-item>
@@ -268,7 +269,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 G-Core API Key"
           />
         </n-form-item>
@@ -276,7 +276,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Porkbun API Key"
           />
         </n-form-item>
@@ -284,7 +283,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Porkbun Secret Key"
           />
         </n-form-item>
@@ -292,7 +290,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Namecheap API Username"
           />
         </n-form-item>
@@ -300,7 +297,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Namecheap API Key"
           />
         </n-form-item>
@@ -308,7 +304,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 NameSilo API Token"
           />
         </n-form-item>
@@ -316,7 +311,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Name.com Username"
           />
         </n-form-item>
@@ -324,7 +318,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Name.com Token"
           />
         </n-form-item>
@@ -332,7 +325,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 ClouDNS Auth ID（使用Sub Auth ID请添加sub-前缀）"
           />
         </n-form-item>
@@ -340,7 +332,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 ClouDNS Auth Password"
           />
         </n-form-item>
@@ -348,7 +339,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Duck DNS Token"
           />
         </n-form-item>
@@ -356,7 +346,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Hetzner Auth API Token"
           />
         </n-form-item>
@@ -364,7 +353,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Linode Token"
           />
         </n-form-item>
@@ -372,7 +360,6 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            @keydown.enter.prevent
             placeholder="输入 Vercel Token"
           />
         </n-form-item>

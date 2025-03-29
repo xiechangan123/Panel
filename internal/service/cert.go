@@ -66,6 +66,10 @@ func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
 			Value: string(acme.Huawei),
 		},
 		{
+			Label: "西部数码",
+			Value: string(acme.Westcn),
+		},
+		{
 			Label: "CloudFlare",
 			Value: string(acme.CloudFlare),
 		},
