@@ -2,6 +2,7 @@ package acme
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -17,7 +18,7 @@ func TestClientTestSuite(t *testing.T) {
 
 func (s *ClientTestSuite) TestObtainSSL() {
 	ctx := context.Background()
-	client, err := NewRegisterAccount(ctx, "ci@haozi.net", CALetsEncryptStaging, nil, KeyEC256)
+	client, err := NewRegisterAccount(ctx, "ci@haozi.net", CALetsEncryptStaging, nil, KeyEC256, slog.Default())
 	s.Nil(err)
 
 	client.UseDns(AliYun, DNSParam{
