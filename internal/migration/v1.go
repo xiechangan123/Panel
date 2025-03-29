@@ -72,7 +72,22 @@ func init() {
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20250318-cert-script",
 		Migrate: func(tx *gorm.DB) error {
-			return tx.AutoMigrate(&biz.Cert{})
+			return tx.AutoMigrate(
+				&biz.Cache{},
+				&biz.Cert{},
+				&biz.CertDNS{},
+				&biz.CertAccount{},
+				&biz.Cron{},
+				&biz.Monitor{},
+				&biz.App{},
+				&biz.Setting{},
+				&biz.Task{},
+				&biz.User{},
+				&biz.Website{},
+				&biz.SSH{},
+				&biz.DatabaseServer{},
+				&biz.DatabaseUser{},
+			)
 		},
 		Rollback: func(tx *gorm.DB) error {
 			return tx.Migrator().DropColumn(&biz.Cert{}, "script")
