@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/mholt/acmez/v3"
@@ -38,8 +39,8 @@ const (
 
 type EAB = acme.EAB
 
-func NewRegisterAccount(ctx context.Context, email, CA string, eab *EAB, keyType KeyType) (*Client, error) {
-	client, err := getClient(CA)
+func NewRegisterAccount(ctx context.Context, email, CA string, eab *EAB, keyType KeyType, log *slog.Logger) (*Client, error) {
+	client, err := getClient(CA, log)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +69,8 @@ func NewRegisterAccount(ctx context.Context, email, CA string, eab *EAB, keyType
 	return &Client{Account: account, zClient: client}, nil
 }
 
-func NewPrivateKeyAccount(email string, privateKey string, CA string, eab *EAB) (*Client, error) {
-	client, err := getClient(CA)
+func NewPrivateKeyAccount(email string, privateKey string, CA string, eab *EAB, log *slog.Logger) (*Client, error) {
+	client, err := getClient(CA, log)
 	if err != nil {
 		return nil, err
 	}
@@ -116,11 +117,12 @@ func generatePrivateKey(keyType KeyType) (crypto.Signer, error) {
 	return nil, errors.New("未知的密钥类型")
 }
 
-func getClient(CA string) (acmez.Client, error) {
+func getClient(CA string, log *slog.Logger) (acmez.Client, error) {
 	client := acmez.Client{
 		Client: &acme.Client{
 			Directory:  CA,
 			HTTPClient: http.DefaultClient,
+			Logger:     log,
 		},
 	}
 

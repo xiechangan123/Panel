@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -17,12 +18,14 @@ import (
 
 type certAccountRepo struct {
 	db   *gorm.DB
+	log  *slog.Logger
 	user biz.UserRepo
 }
 
-func NewCertAccountRepo(db *gorm.DB, user biz.UserRepo) biz.CertAccountRepo {
+func NewCertAccountRepo(db *gorm.DB, user biz.UserRepo, log *slog.Logger) biz.CertAccountRepo {
 	return &certAccountRepo{
 		db:   db,
+		log:  log,
 		user: user,
 	}
 }
@@ -78,13 +81,13 @@ func (r certAccountRepo) Create(req *request.CertAccountCreate) (*biz.CertAccoun
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType), r.log)
 	case "google":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType), r.log)
 	case "letsencrypt":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType), r.log)
 	case "buypass":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CABuypass, nil, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CABuypass, nil, acme.KeyType(account.KeyType), r.log)
 	case "zerossl":
 		eab, eabErr := r.getZeroSSLEAB(account.Email)
 		if eabErr != nil {
@@ -92,9 +95,9 @@ func (r certAccountRepo) Create(req *request.CertAccountCreate) (*biz.CertAccoun
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType), r.log)
 	case "sslcom":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType), r.log)
 	default:
 		return nil, errors.New("unsupported CA")
 	}
@@ -137,13 +140,13 @@ func (r certAccountRepo) Update(req *request.CertAccountUpdate) error {
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType), r.log)
 	case "google":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType), r.log)
 	case "letsencrypt":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType), r.log)
 	case "buypass":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CABuypass, nil, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CABuypass, nil, acme.KeyType(account.KeyType), r.log)
 	case "zerossl":
 		eab, eabErr := r.getZeroSSLEAB(account.Email)
 		if eabErr != nil {
@@ -151,9 +154,9 @@ func (r certAccountRepo) Update(req *request.CertAccountUpdate) error {
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType), r.log)
 	case "sslcom":
-		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = acme.NewRegisterAccount(context.Background(), account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType), r.log)
 	default:
 		return errors.New("unsupported CA")
 	}

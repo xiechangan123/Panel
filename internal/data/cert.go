@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"slices"
 	"strings"
@@ -24,12 +25,14 @@ import (
 
 type certRepo struct {
 	db     *gorm.DB
+	log    *slog.Logger
 	client *acme.Client
 }
 
-func NewCertRepo(db *gorm.DB) biz.CertRepo {
+func NewCertRepo(db *gorm.DB, log *slog.Logger) biz.CertRepo {
 	return &certRepo{
-		db: db,
+		db:  db,
+		log: log,
 	}
 }
 
@@ -414,5 +417,5 @@ func (r *certRepo) getClient(cert *biz.Cert) (*acme.Client, error) {
 		eab = &acme.EAB{KeyID: cert.Account.Kid, MACKey: cert.Account.HmacEncoded}
 	}
 
-	return acme.NewPrivateKeyAccount(cert.Account.Email, cert.Account.PrivateKey, ca, eab)
+	return acme.NewPrivateKeyAccount(cert.Account.Email, cert.Account.PrivateKey, ca, eab, r.log)
 }
