@@ -33,7 +33,7 @@ require (
 	github.com/libdns/gcore v0.0.0-20250127070537-4a9d185c9d20
 	github.com/libdns/godaddy v1.0.3
 	github.com/libdns/hetzner v0.0.1
-	github.com/libdns/huaweicloud v0.3.3
+	github.com/libdns/huaweicloud v0.3.4
 	github.com/libdns/libdns v0.2.3
 	github.com/libdns/linode v0.4.1
 	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
@@ -98,4 +98,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
-replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a
+replace (
+	github.com/libdns/alidns => github.com/devhaozi/alidns v0.0.0-20250329210040-6497b3450b2e
+	github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a
+)
