@@ -502,9 +502,10 @@ func (r *backupRepo) preCheckPath(to, path string) error {
 	if uint64(size) > usage.Free {
 		return errors.New("备份目录空间不足")
 	}
-	if uint64(files) > usage.InodesFree {
+	// 对于 fuse 等文件系统，可能没有 inode 的概念
+	/*if uint64(files) > usage.InodesFree {
 		return errors.New("备份目录Inode不足")
-	}
+	}*/
 
 	return nil
 }
