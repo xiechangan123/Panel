@@ -40,7 +40,7 @@ const handleCreateCert = () => {
     window.$bus.emit('cert:refresh-async')
     show.value = false
     model.value.domains = []
-    model.value.dns_id = 0
+    model.value.dns_id = null
     model.value.type = 'P256'
     model.value.account_id = null
     model.value.website_id = null
