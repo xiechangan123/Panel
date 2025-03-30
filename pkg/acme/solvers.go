@@ -3,11 +3,11 @@ package acme
 import (
 	"context"
 	"fmt"
-	"github.com/devhaozi/westcn"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/devhaozi/westcn"
 	"github.com/libdns/alidns"
 	"github.com/libdns/cloudflare"
 	"github.com/libdns/cloudns"
@@ -62,10 +62,10 @@ func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
 type dnsSolver struct {
 	dns     DnsType
 	param   DNSParam
-	records *[]libdns.Record
+	records []libdns.Record
 }
 
-func (s dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error {
+func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error {
 	dnsName := challenge.DNS01TXTRecordName()
 	keyAuth := challenge.DNS01KeyAuthorization()
 	provider, err := s.getDNSProvider()
@@ -92,11 +92,11 @@ func (s dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error 
 		return fmt.Errorf("expected to add 1 record, but actually added %d records", len(results))
 	}
 
-	s.records = &results
+	s.records = results
 	return nil
 }
 
-func (s dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error {
+func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error {
 	dnsName := challenge.DNS01TXTRecordName()
 	provider, err := s.getDNSProvider()
 	if err != nil {
@@ -111,11 +111,11 @@ func (s dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error 
 		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
 
-	_, _ = provider.DeleteRecords(ctx, zone+".", *s.records)
+	_, _ = provider.DeleteRecords(ctx, zone+".", s.records)
 	return nil
 }
 
-func (s dnsSolver) getDNSProvider() (DNSProvider, error) {
+func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 	var dns DNSProvider
 
 	switch s.dns {
@@ -241,10 +241,10 @@ type manualDNSSolver struct {
 	check       bool
 	controlChan chan struct{}
 	dataChan    chan any
-	records     *[]DNSRecord
+	records     []DNSRecord
 }
 
-func (s manualDNSSolver) Present(ctx context.Context, challenge acme.Challenge) error {
+func (s *manualDNSSolver) Present(ctx context.Context, challenge acme.Challenge) error {
 	full := challenge.DNS01TXTRecordName()
 	keyAuth := challenge.DNS01KeyAuthorization()
 	domain, err := publicsuffix.EffectiveTLDPlusOne(full)
@@ -252,18 +252,27 @@ func (s manualDNSSolver) Present(ctx context.Context, challenge acme.Challenge) 
 		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", full, err)
 	}
 
-	*s.records = append(*s.records, DNSRecord{
+	s.records = append(s.records, DNSRecord{
 		Name:   strings.TrimSuffix(full, "."+domain),
 		Domain: domain,
 		Value:  keyAuth,
 	})
-	s.dataChan <- *s.records
+	s.dataChan <- s.records
 
-	<-s.controlChan
-	return nil
+	select {
+	case <-s.controlChan:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
-func (s manualDNSSolver) CleanUp(_ context.Context, _ acme.Challenge) error {
+func (s *manualDNSSolver) CleanUp(_ context.Context, _ acme.Challenge) error {
+	defer func() {
+		_ = recover()
+	}()
+	close(s.controlChan)
+	close(s.dataChan)
 	return nil
 }
 

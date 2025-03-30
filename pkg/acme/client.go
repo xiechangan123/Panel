@@ -26,10 +26,10 @@ type Client struct {
 // UseDns 使用 DNS 接口验证
 func (c *Client) UseDns(dnsType DnsType, param DNSParam) {
 	c.zClient.ChallengeSolvers = map[string]acmez.Solver{
-		acme.ChallengeTypeDNS01: dnsSolver{
+		acme.ChallengeTypeDNS01: &dnsSolver{
 			dns:     dnsType,
 			param:   param,
-			records: &[]libdns.Record{},
+			records: []libdns.Record{},
 		},
 	}
 }
@@ -39,11 +39,11 @@ func (c *Client) UseManualDns(total int, check ...bool) {
 	c.controlChan = make(chan struct{})
 	c.dataChan = make(chan any)
 	c.zClient.ChallengeSolvers = map[string]acmez.Solver{
-		acme.ChallengeTypeDNS01: manualDNSSolver{
+		acme.ChallengeTypeDNS01: &manualDNSSolver{
 			check:       len(check) > 0 && check[0],
 			controlChan: c.controlChan,
 			dataChan:    c.dataChan,
-			records:     &[]DNSRecord{},
+			records:     []DNSRecord{},
 		},
 	}
 }
