@@ -123,7 +123,10 @@ watch(
     :segmented="false"
   >
     <n-flex vertical>
-      <n-alert type="warning"> 生成反代配置后，原有伪静态规则将被覆盖！ </n-alert>
+      <n-alert type="warning"> 生成反代配置后，原有伪静态规则将被覆盖。 </n-alert>
+      <n-alert type="info">
+        如需反代 JS/CSS 等静态资源请移除配置原文中的不记录静态日志部分。
+      </n-alert>
       <n-form inline>
         <n-form-item label="自动刷新解析">
           <n-switch v-model:value="setting.auto_resolve" />
