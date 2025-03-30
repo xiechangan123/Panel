@@ -99,6 +99,6 @@ require (
 )
 
 replace (
-	github.com/libdns/alidns => github.com/devhaozi/alidns v0.0.0-20250330070326-05637d1994b2
+	github.com/libdns/alidns => github.com/devhaozi/alidns v0.0.0-20250330073315-5c0067dc1fbb
 	github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a
 )
