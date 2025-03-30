@@ -10,6 +10,7 @@ import { NButton } from 'naive-ui'
 import cert from '@/api/panel/cert'
 import dashboard from '@/api/panel/dashboard'
 import website from '@/api/panel/website'
+import ProxyBuilderModal from '@/views/website/ProxyBuilderModal.vue'
 
 let messageReactive: MessageReactive | null = null
 
@@ -64,6 +65,7 @@ const certs = ref<any>([])
 useRequest(cert.certs(1, 10000)).onSuccess(({ data }) => {
   certs.value = data.items
 })
+const proxyBuilderModal = ref(false)
 const { data: rewrites } = useRequest(website.rewrites, {
   initialData: {}
 })
@@ -182,6 +184,15 @@ const onCreateListen = () => {
           </template>
           确定要重置配置吗？
         </n-popconfirm>
+        <n-button
+          v-if="current === 'rewrite'"
+          class="ml-16"
+          type="success"
+          @click="proxyBuilderModal = true"
+        >
+          <TheIcon :size="18" icon="material-symbols:build-outline-rounded" />
+          生成反代配置
+        </n-button>
         <n-button
           v-if="current === 'https'"
           :loading="isObtainCert"
@@ -417,4 +428,5 @@ const onCreateListen = () => {
       </n-tab-pane>
     </n-tabs>
   </common-page>
+  <ProxyBuilderModal v-model:show="proxyBuilderModal" v-model:config="setting.rewrite" />
 </template>
