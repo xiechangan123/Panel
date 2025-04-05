@@ -75,11 +75,12 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 		}
 		isUse := false
 		for port := rule.PortStart; port <= rule.PortEnd; port++ {
-			if rule.Protocol == firewall.ProtocolTCP {
+			switch rule.Protocol {
+			case firewall.ProtocolTCP:
 				isUse = os.TCPPortInUse(port)
-			} else if rule.Protocol == firewall.ProtocolUDP {
+			case firewall.ProtocolUDP:
 				isUse = os.UDPPortInUse(port)
-			} else {
+			default:
 				isUse = os.TCPPortInUse(port) || os.UDPPortInUse(port)
 			}
 			if isUse {

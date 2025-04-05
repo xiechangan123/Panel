@@ -231,7 +231,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rule := str.Cut(raw, "# "+req.Name+"-START", "# "+req.Name+"-END")
-	raw = strings.Replace(raw, "\n# "+req.Name+"-START"+rule+"# "+req.Name+"-END", "", -1)
+	raw = strings.ReplaceAll(raw, "\n# "+req.Name+"-START"+rule+"# "+req.Name+"-END", "")
 	raw = strings.TrimSpace(raw)
 	if err := io.Write("/etc/fail2ban/jail.local", raw, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "写入Fail2ban规则失败")

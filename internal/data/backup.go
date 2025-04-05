@@ -574,19 +574,10 @@ func (r *backupRepo) FixPanel() error {
 	}
 
 	// 检查关键文件是否正常
-	flag := false
-	if !io.Exists("/usr/local/etc/panel/config.yml") {
-		flag = true
-	}
-	if !io.Exists(filepath.Join(app.Root, "panel", "web")) {
-		flag = true
-	}
-	if !io.Exists(filepath.Join(app.Root, "panel", "storage", "app.db")) {
-		flag = true
-	}
-	if io.Exists("/tmp/panel-storage.zip") {
-		flag = true
-	}
+	flag := !io.Exists("/usr/local/etc/panel/config.yml") ||
+		!io.Exists(filepath.Join(app.Root, "panel", "web")) ||
+		!io.Exists(filepath.Join(app.Root, "panel", "storage", "app.db")) ||
+		io.Exists("/tmp/panel-storage.zip")
 	// 检查数据库连接
 	if err := r.db.Exec("VACUUM").Error; err != nil {
 		flag = true

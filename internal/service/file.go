@@ -426,15 +426,16 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Sort == "asc" {
-		slices.SortFunc(list, func(a, b stdos.DirEntry) int {
-			return strings.Compare(strings.ToLower(b.Name()), strings.ToLower(a.Name()))
-		})
-	} else if req.Sort == "desc" {
+	switch req.Sort {
+	case "asc":
 		slices.SortFunc(list, func(a, b stdos.DirEntry) int {
 			return strings.Compare(strings.ToLower(a.Name()), strings.ToLower(b.Name()))
 		})
-	} else {
+	case "desc":
+		slices.SortFunc(list, func(a, b stdos.DirEntry) int {
+			return strings.Compare(strings.ToLower(b.Name()), strings.ToLower(a.Name()))
+		})
+	default:
 		slices.SortFunc(list, func(a, b stdos.DirEntry) int {
 			if a.IsDir() && !b.IsDir() {
 				return -1

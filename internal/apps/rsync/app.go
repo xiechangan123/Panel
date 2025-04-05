@@ -159,7 +159,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	module := str.Cut(config, "# "+req.Name+"-START", "# "+req.Name+"-END")
-	config = strings.Replace(config, "\n# "+req.Name+"-START"+module+"# "+req.Name+"-END", "", -1)
+	config = strings.ReplaceAll(config, "\n# "+req.Name+"-START"+module+"# "+req.Name+"-END", "")
 
 	match := regexp.MustCompile(`auth users = ([^\n]+)`).FindStringSubmatch(module)
 	if len(match) == 2 {
@@ -211,7 +211,7 @@ secrets file = /etc/rsyncd.secrets
 # ` + req.Name + `-END`
 
 	module := str.Cut(config, "# "+req.Name+"-START", "# "+req.Name+"-END")
-	config = strings.Replace(config, "# "+req.Name+"-START"+module+"# "+req.Name+"-END", newConf, -1)
+	config = strings.ReplaceAll(config, "# "+req.Name+"-START"+module+"# "+req.Name+"-END", newConf)
 
 	match := regexp.MustCompile(`auth users = ([^\n]+)`).FindStringSubmatch(module)
 	if len(match) == 2 {
