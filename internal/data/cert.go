@@ -390,7 +390,9 @@ func (r *certRepo) runScript(cert *biz.Cert) error {
 	if err = f.Close(); err != nil {
 		return err
 	}
-	defer os.Remove(f.Name())
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(f.Name())
 
 	_, err = shell.Execf("bash " + f.Name())
 	return err

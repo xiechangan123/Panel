@@ -382,7 +382,9 @@ func (route *Http) Register(r *chi.Mux) {
 						http.NotFound(w, r)
 						return
 					}
-					defer indexFile.Close()
+					defer func(indexFile http.File) {
+						_ = indexFile.Close()
+					}(indexFile)
 
 					fi, err := indexFile.Stat()
 					if err != nil {
@@ -393,7 +395,9 @@ func (route *Http) Register(r *chi.Mux) {
 					http.ServeContent(w, r, "index.html", fi.ModTime(), indexFile)
 					return
 				}
-				defer f.Close()
+				defer func(f http.File) {
+					_ = f.Close()
+				}(f)
 				fileServer.ServeHTTP(w, r)
 			}
 		}

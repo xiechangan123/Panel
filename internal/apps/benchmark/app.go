@@ -610,7 +610,9 @@ func (s *App) diskTestTask() map[string]any {
 func (s *App) diskIOTest(blockSize int64, fileSize int64) map[string]any {
 	result := make(map[string]any)
 	tempFile := fmt.Sprintf("tempfile_%d", blockSize)
-	defer os.Remove(tempFile)
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(tempFile)
 
 	// 写测试
 	writeSpeed, writeIOPS := s.diskWriteTest(tempFile, blockSize, fileSize)

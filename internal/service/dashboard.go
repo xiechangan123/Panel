@@ -142,7 +142,9 @@ func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 		mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
 		if err == nil {
-			defer mysql.Close()
+			defer func(mysql *db.MySQL) {
+				_ = mysql.Close()
+			}(mysql)
 			databases, err := mysql.Databases()
 			if err == nil {
 				databaseCount += len(databases)
@@ -152,7 +154,9 @@ func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	if postgresqlInstalled {
 		postgres, err := db.NewPostgres("postgres", "", "127.0.0.1", 5432)
 		if err == nil {
-			defer postgres.Close()
+			defer func(postgres *db.Postgres) {
+				_ = postgres.Close()
+			}(postgres)
 			databases, err := postgres.Databases()
 			if err == nil {
 				databaseCount += len(databases)

@@ -252,7 +252,9 @@ func (r *backupRepo) createMySQL(to string, name string) error {
 	if err != nil {
 		return err
 	}
-	defer mysql.Close()
+	defer func(mysql *db.MySQL) {
+		_ = mysql.Close()
+	}(mysql)
 	if exist, _ := mysql.DatabaseExists(name); !exist {
 		return fmt.Errorf("数据库不存在：%s", name)
 	}
@@ -296,7 +298,9 @@ func (r *backupRepo) createPostgres(to string, name string) error {
 	if err != nil {
 		return err
 	}
-	defer postgres.Close()
+	defer func(postgres *db.Postgres) {
+		_ = postgres.Close()
+	}(postgres)
 	if exist, _ := postgres.DatabaseExist(name); !exist {
 		return fmt.Errorf("数据库不存在：%s", name)
 	}
@@ -410,7 +414,9 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	defer mysql.Close()
+	defer func(mysql *db.MySQL) {
+		_ = mysql.Close()
+	}(mysql)
 	if exist, _ := mysql.DatabaseExists(target); !exist {
 		return fmt.Errorf("数据库不存在：%s", target)
 	}
@@ -450,7 +456,9 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	defer postgres.Close()
+	defer func(postgres *db.Postgres) {
+		_ = postgres.Close()
+	}(postgres)
 	if exist, _ := postgres.DatabaseExist(target); !exist {
 		return fmt.Errorf("数据库不存在：%s", target)
 	}
