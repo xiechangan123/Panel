@@ -86,7 +86,9 @@ func (r databaseRepo) Create(req *request.DatabaseCreate) error {
 		if err != nil {
 			return err
 		}
-		defer mysql.Close()
+		defer func(mysql *db.MySQL) {
+			_ = mysql.Close()
+		}(mysql)
 		if req.CreateUser {
 			if err = r.user.Create(&request.DatabaseUserCreate{
 				ServerID: req.ServerID,
@@ -110,7 +112,9 @@ func (r databaseRepo) Create(req *request.DatabaseCreate) error {
 		if err != nil {
 			return err
 		}
-		defer postgres.Close()
+		defer func(postgres *db.Postgres) {
+			_ = postgres.Close()
+		}(postgres)
 		if req.CreateUser {
 			if err = r.user.Create(&request.DatabaseUserCreate{
 				ServerID: req.ServerID,
@@ -149,14 +153,18 @@ func (r databaseRepo) Delete(serverID uint, name string) error {
 		if err != nil {
 			return err
 		}
-		defer mysql.Close()
+		defer func(mysql *db.MySQL) {
+			_ = mysql.Close()
+		}(mysql)
 		return mysql.DatabaseDrop(name)
 	case biz.DatabaseTypePostgresql:
 		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
 		if err != nil {
 			return err
 		}
-		defer postgres.Close()
+		defer func(postgres *db.Postgres) {
+			_ = postgres.Close()
+		}(postgres)
 		return postgres.DatabaseDrop(name)
 	}
 
@@ -177,7 +185,9 @@ func (r databaseRepo) Comment(req *request.DatabaseComment) error {
 		if err != nil {
 			return err
 		}
-		defer postgres.Close()
+		defer func(postgres *db.Postgres) {
+			_ = postgres.Close()
+		}(postgres)
 		return postgres.DatabaseComment(req.Name, req.Comment)
 	}
 

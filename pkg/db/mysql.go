@@ -79,7 +79,9 @@ func (r *MySQL) DatabaseExists(name string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	for rows.Next() {
 		var database string
@@ -134,7 +136,9 @@ func (r *MySQL) UserPrivileges(user, host string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	re := regexp.MustCompile(`GRANT\s+ALL PRIVILEGES\s+ON\s+[\x60'"]?([^\s\x60'"]+)[\x60'"]?\.\*\s+TO\s+`)
 	var databases []string
@@ -167,7 +171,9 @@ func (r *MySQL) Users() ([]types.MySQLUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	var users []types.MySQLUser
 	for rows.Next() {
@@ -204,7 +210,9 @@ func (r *MySQL) Databases() ([]types.MySQLDatabase, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	var databases []types.MySQLDatabase
 	for rows.Next() {
@@ -227,7 +235,9 @@ func (r *MySQL) userGrants(user, host string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	var grants []string
 	for rows.Next() {

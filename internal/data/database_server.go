@@ -139,7 +139,9 @@ func (r databaseServerRepo) Sync(id uint) error {
 		if err != nil {
 			return err
 		}
-		defer mysql.Close()
+		defer func(mysql *db.MySQL) {
+			_ = mysql.Close()
+		}(mysql)
 		allUsers, err := mysql.Users()
 		if err != nil {
 			return err
@@ -164,7 +166,9 @@ func (r databaseServerRepo) Sync(id uint) error {
 		if err != nil {
 			return err
 		}
-		defer postgres.Close()
+		defer func(postgres *db.Postgres) {
+			_ = postgres.Close()
+		}(postgres)
 		allUsers, err := postgres.Users()
 		if err != nil {
 			return err

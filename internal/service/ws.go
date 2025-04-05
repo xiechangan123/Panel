@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/knadh/koanf/v2"
+	stdssh "golang.org/x/crypto/ssh"
 
 	"github.com/tnb-labs/panel/internal/biz"
 	"github.com/tnb-labs/panel/internal/http/request"
@@ -44,21 +45,27 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 		ErrorSystem(w)
 		return
 	}
-	defer ws.Close()
+	defer func(ws *websocket.Conn) {
+		_ = ws.Close()
+	}(ws)
 
 	client, err := ssh.NewSSHClient(info.Config)
 	if err != nil {
 		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, err.Error()))
 		return
 	}
-	defer client.Close()
+	defer func(client *stdssh.Client) {
+		_ = client.Close()
+	}(client)
 
 	turn, err := ssh.NewTurn(ws, client)
 	if err != nil {
 		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, err.Error()))
 		return
 	}
-	defer turn.Close()
+	defer func(turn *ssh.Turn) {
+		_ = turn.Close()
+	}(turn)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := sync.WaitGroup{}
@@ -83,7 +90,9 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 		ErrorSystem(w)
 		return
 	}
-	defer ws.Close()
+	defer func(ws *websocket.Conn) {
+		_ = ws.Close()
+	}(ws)
 
 	// 第一条消息是命令
 	_, cmd, err := ws.ReadMessage()
@@ -135,7 +144,7 @@ func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.
 func (s *WsService) readLoop(c *websocket.Conn) {
 	for {
 		if _, _, err := c.NextReader(); err != nil {
-			c.Close()
+			_ = c.Close()
 			break
 		}
 	}

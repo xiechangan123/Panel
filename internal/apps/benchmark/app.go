@@ -637,7 +637,9 @@ func (s *App) diskWriteTest(fileName string, blockSize int64, fileSize int64) (f
 	if err != nil {
 		return 0, 0
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 
 	start := time.Now()
 
@@ -670,7 +672,9 @@ func (s *App) diskReadTest(fileName string, blockSize int64, fileSize int64) (fl
 	if err != nil {
 		return 0, 0
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 
 	start := time.Now()
 

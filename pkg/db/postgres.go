@@ -140,7 +140,9 @@ func (r *Postgres) UserPrivileges(user string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	var databases []string
 
@@ -190,7 +192,9 @@ func (r *Postgres) Users() ([]types.PostgresUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	var users []types.PostgresUser
 	for rows.Next() {
@@ -241,7 +245,9 @@ func (r *Postgres) Databases() ([]types.PostgresDatabase, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	var databases []types.PostgresDatabase
 	for rows.Next() {

@@ -421,8 +421,8 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 	fw := firewall.NewFirewall()
 	err = fw.Port(firewall.FireInfo{
 		Type:      firewall.TypeNormal,
-		PortStart: uint(config.HTTP.Port),
-		PortEnd:   uint(config.HTTP.Port),
+		PortStart: config.HTTP.Port,
+		PortEnd:   config.HTTP.Port,
 		Direction: firewall.DirectionIn,
 		Strategy:  firewall.StrategyAccept,
 	}, firewall.OperationAdd)

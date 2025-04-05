@@ -58,7 +58,9 @@ func (t *Turn) Write(p []byte) (n int, err error) {
 	if err != nil {
 		return 0, err
 	}
-	defer writer.Close()
+	defer func(writer io.WriteCloser) {
+		_ = writer.Close()
+	}(writer)
 
 	return writer.Write(p)
 }

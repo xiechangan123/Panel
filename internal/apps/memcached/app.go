@@ -42,7 +42,9 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		service.Success(w, []types.NV{})
 		return
 	}
-	defer conn.Close()
+	defer func(conn net.Conn) {
+		_ = conn.Close()
+	}(conn)
 
 	_, err = conn.Write([]byte("stats\nquit\n"))
 	if err != nil {
