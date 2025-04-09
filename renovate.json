@@ -29,5 +29,7 @@
       "automerge": true
     }
   ],
-  "ignoreDeps": []
+  "ignoreDeps": [
+    "github.com/libdns/libdns"
+  ]
 }
