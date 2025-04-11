@@ -62,6 +62,14 @@ msgstr ""
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
+#: internal/apps/redis/app.go:86
+msgid "Commands Per Second"
+msgstr ""
+
+#: internal/apps/redis/app.go:79
+msgid "Connected Clients"
+msgstr ""
+
 #: internal/bootstrap/cli.go:17
 #: internal/bootstrap/cli.go:25
 msgid "DESCRIPTION"
@@ -139,8 +147,20 @@ msgstr ""
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
 
+#: internal/apps/redis/app.go:87
+msgid "Keyspace Hits"
+msgstr ""
+
+#: internal/apps/redis/app.go:88
+msgid "Keyspace Misses"
+msgstr ""
+
 #: internal/apps/php/app.go:377
 msgid "LDAP is a protocol for accessing directory services"
+msgstr ""
+
+#: internal/apps/redis/app.go:89
+msgid "Latest Fork Time (ms)"
 msgstr ""
 
 #: internal/apps/php/app.go:131
@@ -171,6 +191,10 @@ msgstr ""
 msgid "Memory"
 msgstr ""
 
+#: internal/apps/redis/app.go:83
+msgid "Memory Fragmentation Ratio"
+msgstr ""
+
 #: internal/apps/mysql/app.go:88
 msgid "MySQL root password is empty"
 msgstr ""
@@ -198,12 +222,24 @@ msgstr ""
 msgid "Peak Connections"
 msgstr ""
 
+#: internal/apps/redis/app.go:82
+msgid "Peak Memory Usage"
+msgstr ""
+
 #: internal/apps/php/app.go:302
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary extension installed above)"
 msgstr ""
 
+#: internal/apps/postgresql/app.go:142
+msgid "Process Count"
+msgstr ""
+
 #: internal/apps/php/app.go:128
 msgid "Process Manager"
+msgstr ""
+
+#: internal/apps/postgresql/app.go:141
+msgid "Process PID"
 msgstr ""
 
 #: internal/apps/php/app.go:387
@@ -247,7 +283,12 @@ msgid "Sort Merge Passes"
 msgstr ""
 
 #: internal/apps/php/app.go:129
+#: internal/apps/postgresql/app.go:140
 msgid "Start Time"
+msgstr ""
+
+#: internal/apps/postgresql/app.go:144
+msgid "Storage Usage"
 msgstr ""
 
 #: internal/apps/mysql/app.go:129
@@ -274,6 +315,10 @@ msgstr ""
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
+#: internal/apps/redis/app.go:77
+msgid "TCP Port"
+msgstr ""
+
 #: internal/apps/mysql/app.go:131
 msgid "Table Locks Waited"
 msgstr ""
@@ -282,8 +327,25 @@ msgstr ""
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
+#: internal/apps/redis/app.go:80
+msgid "Total Allocated Memory"
+msgstr ""
+
+#: internal/apps/redis/app.go:85
+msgid "Total Commands Processed"
+msgstr ""
+
 #: internal/apps/mysql/app.go:116
+#: internal/apps/postgresql/app.go:143
 msgid "Total Connections"
+msgstr ""
+
+#: internal/apps/redis/app.go:84
+msgid "Total Connections Received"
+msgstr ""
+
+#: internal/apps/redis/app.go:81
+msgid "Total Memory Usage"
 msgstr ""
 
 #: internal/apps/php/app.go:136
@@ -325,6 +387,10 @@ msgstr ""
 msgid "Uptime"
 msgstr ""
 
+#: internal/apps/redis/app.go:78
+msgid "Uptime in Days"
+msgstr ""
+
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
 msgstr ""
@@ -357,9 +423,39 @@ msgstr ""
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
+#: internal/apps/pureftpd/app.go:84
+msgid "directory %s does not exist"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:155
+msgid "disk space is insufficient, current free %s"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:71
+msgid "endpoint should not contain bucket"
+msgstr ""
+
 #: internal/apps/php/app.go:228
 #: internal/apps/php/app.go:259
 msgid "extension %s does not exist"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:134
+#: internal/apps/s3fs/app.go:139
+msgid "failed to add s3fs mount: %v"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:78
+msgid "failed to create mount path: %v"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:108
+msgid "failed to create passwd file: %v"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:206
+#: internal/apps/s3fs/app.go:210
+msgid "failed to delete s3fs mount: %v"
 msgstr ""
 
 #: internal/apps/memcached/app.go:37
@@ -370,6 +466,35 @@ msgstr ""
 msgid "failed to get MySQL status: %v"
 msgstr ""
 
+#: internal/apps/postgresql/app.go:120
+msgid "failed to get PostgreSQL backend pid: %v"
+msgstr ""
+
+#: internal/apps/postgresql/app.go:130
+msgid "failed to get PostgreSQL connections: %v"
+msgstr ""
+
+#: internal/apps/postgresql/app.go:135
+msgid "failed to get PostgreSQL database size: %v"
+msgstr ""
+
+#: internal/apps/postgresql/app.go:125
+msgid "failed to get PostgreSQL process: %v"
+msgstr ""
+
+#: internal/apps/postgresql/app.go:115
+msgid "failed to get PostgreSQL start time: %v"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:106
+#: internal/apps/toolbox/app.go:93
+msgid "failed to get SWAP: %v"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:207
+msgid "failed to get available timezones: %v"
+msgstr ""
+
 #: internal/apps/fail2ban/app.go:268
 msgid "failed to get banned ip list"
 msgstr ""
@@ -378,9 +503,49 @@ msgstr ""
 msgid "failed to get current banned list"
 msgstr ""
 
+#: internal/apps/toolbox/app.go:151
+msgid "failed to get disk space: %v"
+msgstr ""
+
+#: internal/apps/supervisor/app.go:218
+#: internal/apps/supervisor/app.go:241
+#: internal/apps/supervisor/app.go:358
+#: internal/apps/supervisor/app.go:368
+msgid "failed to get log path for process %s: %v"
+msgstr ""
+
 #: internal/apps/nginx/app.go:108
 #: internal/apps/nginx/app.go:98
 msgid "failed to get nginx workers: %v"
+msgstr ""
+
+#: internal/apps/pureftpd/app.go:152
+msgid "failed to get port: %v"
+msgstr ""
+
+#: internal/apps/redis/app.go:62
+msgid "failed to get redis info: %v"
+msgstr ""
+
+#: internal/apps/redis/app.go:39
+msgid "failed to get redis status: %v"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:157
+#: internal/apps/s3fs/app.go:161
+#: internal/apps/s3fs/app.go:44
+#: internal/apps/s3fs/app.go:49
+#: internal/apps/s3fs/app.go:90
+#: internal/apps/s3fs/app.go:94
+msgid "failed to get s3fs list: %v"
+msgstr ""
+
+#: internal/apps/rsync/app.go:82
+msgid "failed to get the secret key for module %s"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:196
+msgid "failed to get timezone: %v"
 msgstr ""
 
 #: internal/apps/fail2ban/app.go:263
@@ -401,8 +566,19 @@ msgstr ""
 msgid "failed to read from Memcached: %v"
 msgstr ""
 
+#: internal/apps/postgresql/app.go:65
+#: internal/apps/postgresql/app.go:98
+msgid "failed to reload PostgreSQL: %v"
+msgstr ""
+
 #: internal/apps/nginx/app.go:65
+#: internal/apps/phpmyadmin/app.go:108
+#: internal/apps/phpmyadmin/app.go:139
 msgid "failed to reload nginx: %v"
+msgstr ""
+
+#: internal/apps/supervisor/app.go:108
+msgid "failed to restart %s: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:72
@@ -411,6 +587,26 @@ msgstr ""
 
 #: internal/apps/mysql/app.go:99
 msgid "failed to set MYSQL_PWD env: %v"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:175
+msgid "failed to set SWAP permission: %v"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:292
+msgid "failed to set hostname: %v"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:315
+msgid "failed to set hosts: %v"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:332
+msgid "failed to set root password: %v"
+msgstr ""
+
+#: internal/apps/toolbox/app.go:79
+msgid "failed to update DNS: %v"
 msgstr ""
 
 #: internal/apps/memcached/app.go:56
@@ -429,6 +625,31 @@ msgstr ""
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
+#: internal/apps/rsync/app.go:117
+msgid "module %s already exists"
+msgstr ""
+
+#: internal/apps/rsync/app.go:162
+#: internal/apps/rsync/app.go:204
+msgid "module %s does not exist"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:122
+msgid "mount failed: %v"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:173
+msgid "mount not found"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:100
+msgid "mount path already exists"
+msgstr ""
+
+#: internal/apps/s3fs/app.go:83
+msgid "mount path is not empty"
+msgstr ""
+
 #: internal/apps/php/app.go:327
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
@@ -439,6 +660,15 @@ msgstr ""
 
 #: internal/apps/php/app.go:322
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
+msgstr ""
+
+#: internal/apps/phpmyadmin/app.go:43
+#: internal/apps/phpmyadmin/app.go:54
+msgid "phpMyAdmin directory not found"
+msgstr ""
+
+#: internal/apps/phpmyadmin/app.go:65
+msgid "phpMyAdmin port not found"
 msgstr ""
 
 #: internal/apps/php/app.go:427
