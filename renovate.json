@@ -31,6 +31,7 @@
   ],
   "ignoreDeps": [
     "github.com/libdns/libdns",
-    "github.com/libdns/cloudflare"
+    "github.com/libdns/cloudflare",
+    "github.com/libdns/tencentcloud"
   ]
 }

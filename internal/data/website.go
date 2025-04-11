@@ -744,14 +744,18 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 
 	newCert, err := r.cert.GetByWebsite(website.ID)
 	if err != nil {
-		newCert, err = r.cert.Create(&request.CertCreate{
-			Type:      string(acme.KeyEC256),
-			Domains:   website.Domains,
-			AutoRenew: true,
-			AccountID: account.ID,
-			WebsiteID: website.ID,
-		})
-		if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			newCert, err = r.cert.Create(&request.CertCreate{
+				Type:      string(acme.KeyEC256),
+				Domains:   website.Domains,
+				AutoRenew: true,
+				AccountID: account.ID,
+				WebsiteID: website.ID,
+			})
+			if err != nil {
+				return err
+			}
+		} else {
 			return err
 		}
 	}

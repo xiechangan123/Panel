@@ -40,7 +40,7 @@ require (
 	github.com/libdns/namedotcom v0.3.3
 	github.com/libdns/namesilo v0.1.1
 	github.com/libdns/porkbun v0.2.0
-	github.com/libdns/tencentcloud v1.2.1
+	github.com/libdns/tencentcloud v1.2.0
 	github.com/libdns/vercel v0.0.2
 	github.com/mholt/acmez/v3 v3.1.1
 	github.com/ncruces/go-sqlite3 v0.25.0
@@ -98,7 +98,4 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
-replace (
-	github.com/libdns/alidns => github.com/devhaozi/alidns v0.0.0-20250403080318-49764d98fb5f
-	github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a
-)
+replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250329064837-dd8e7d30835a
