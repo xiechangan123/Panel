@@ -28,9 +28,7 @@ func NewT(conf *koanf.Koanf) (*gotext.Locale, error) {
 	}
 
 	l := gotext.NewLocaleFSWithPath(locale, embed.LocalesFS, "locales")
-
-	l.AddDomain("web")
-	l.AddDomain("cli")
+	l.AddDomain("backend")
 
 	return l, nil
 }
