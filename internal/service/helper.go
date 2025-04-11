@@ -39,8 +39,11 @@ func Error(w http.ResponseWriter, code int, format string, args ...any) {
 	defer render.Release()
 	render.Header(chix.HeaderContentType, chix.MIMEApplicationJSONCharsetUTF8) // must before Status()
 	render.Status(code)
+	if len(args) > 0 {
+		format = fmt.Sprintf(format, args...)
+	}
 	render.JSON(&ErrorResponse{
-		Message: fmt.Sprintf(format, args...),
+		Message: format,
 	})
 }
 
