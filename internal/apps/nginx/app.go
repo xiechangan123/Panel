@@ -62,7 +62,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v"), err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}
 
@@ -95,7 +95,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	workers, err := shell.Execf("ps aux | grep nginx | grep 'worker process' | wc -l")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get nginx workers: %v"), err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get nginx workers: %v", err))
 		return
 	}
 	data = append(data, types.NV{
@@ -105,7 +105,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	out, err := shell.Execf("ps aux | grep nginx | grep 'worker process' | awk '{memsum+=$6};END {print memsum}'")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get nginx workers: %v"), err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get nginx workers: %v", err))
 		return
 	}
 	mem := tools.FormatBytes(cast.ToFloat64(out))
