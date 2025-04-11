@@ -153,7 +153,7 @@ func initWeb() (*app.Web, error) {
 	if err != nil {
 		return nil, err
 	}
-	validation := bootstrap.NewValidator(db)
+	validation := bootstrap.NewValidator(koanf, db)
 	web := app.NewWeb(koanf, mux, server, gormigrate, cron, queue, validation)
 	return web, nil
 }

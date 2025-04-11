@@ -30,7 +30,7 @@ func NewConf() (*koanf.Koanf, error) {
 func initGlobal(conf *koanf.Koanf) {
 	app.Key = conf.MustString("app.key")
 	if len(app.Key) != 32 {
-		log.Fatalf("app key must be 32 characters")
+		log.Fatalf("panel app key must be 32 characters")
 	}
 
 	app.Root = conf.MustString("app.root")

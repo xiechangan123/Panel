@@ -50,6 +50,10 @@ func initCli() (*app.Cli, error) {
 	if err != nil {
 		return nil, err
 	}
+	locale, err := bootstrap.NewT(koanf)
+	if err != nil {
+		return nil, err
+	}
 	logger := bootstrap.NewLog(koanf)
 	db, err := bootstrap.NewDB(koanf, logger)
 	if err != nil {
@@ -70,7 +74,7 @@ func initCli() (*app.Cli, error) {
 	backupRepo := data.NewBackupRepo(db, settingRepo, websiteRepo)
 	cliService := service.NewCliService(koanf, db, appRepo, cacheRepo, userRepo, settingRepo, backupRepo, websiteRepo, databaseServerRepo)
 	cli := route.NewCli(cliService)
-	command := bootstrap.NewCli(cli)
+	command := bootstrap.NewCli(locale, cli)
 	gormigrate := bootstrap.NewMigrate(db)
 	benchmarkApp := benchmark.NewApp()
 	dockerApp := docker.NewApp()

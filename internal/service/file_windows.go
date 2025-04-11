@@ -1,4 +1,4 @@
-//go:build !linux
+//go:build windows
 
 // 这个文件只是为了在 Windows 下能编译通过，实际上并没有任何卵用
 

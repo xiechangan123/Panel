@@ -1,0 +1,72 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"X-Generator: xgotext\n"
+
+#: internal/bootstrap/cli.go:18
+msgid "AUTHOR"
+msgstr ""
+
+#: internal/bootstrap/cli.go:24
+msgid "CATEGORY"
+msgstr ""
+
+#: internal/bootstrap/cli.go:19
+#: internal/bootstrap/cli.go:30
+msgid "COMMANDS"
+msgstr ""
+
+#: internal/bootstrap/cli.go:21
+msgid "COPYRIGHT"
+msgstr ""
+
+#: internal/bootstrap/cli.go:17
+#: internal/bootstrap/cli.go:25
+msgid "DESCRIPTION"
+msgstr ""
+
+#: internal/bootstrap/cli.go:34
+msgid "Forum：https://bbs.haozi.net"
+msgstr ""
+
+#: internal/bootstrap/cli.go:20
+msgid "GLOBAL OPTIONS"
+msgstr ""
+
+#: internal/bootstrap/cli.go:14
+#: internal/bootstrap/cli.go:22
+#: internal/bootstrap/cli.go:27
+msgid "NAME"
+msgstr ""
+
+#: internal/bootstrap/cli.go:26
+#: internal/bootstrap/cli.go:31
+msgid "OPTIONS"
+msgstr ""
+
+#: internal/bootstrap/cli.go:35
+msgid "QQ Group：12370907"
+msgstr ""
+
+#: internal/bootstrap/cli.go:39
+msgid "Rat Panel CLI Tool"
+msgstr ""
+
+#: internal/bootstrap/cli.go:15
+#: internal/bootstrap/cli.go:23
+#: internal/bootstrap/cli.go:28
+#: internal/bootstrap/cli.go:29
+msgid "USAGE"
+msgstr ""
+
+#: internal/bootstrap/cli.go:16
+msgid "VERSION"
+msgstr ""
+
+#: internal/bootstrap/cli.go:33
+msgid "Website：https://panel.haozi.net"
+msgstr ""
