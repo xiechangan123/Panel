@@ -1,0 +1,5 @@
+commit_message: '[skip ci] Update translations (%language%) %original_file_name%'
+pull_request_title: 'l10n: update translations'
+files:
+  - source: /pkg/embed/*.pot
+    translation: /pkg/embed/%locale_with_underscore%/%file_name%.mo
