@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -17,10 +18,14 @@ import (
 	"github.com/tnb-labs/panel/pkg/systemctl"
 )
 
-type App struct{}
+type App struct {
+	t *gotext.Locale
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -76,16 +81,16 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		req.Path = "/" + req.Path
 	}
 	if !io.Exists(req.Path) {
-		service.Error(w, http.StatusUnprocessableEntity, "目录不存在")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("directory %s does not exist", req.Path))
 		return
 	}
 
 	if err = io.Chmod(req.Path, 0755); err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "修改目录权限失败")
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 	if err = io.Chown(req.Path, "www", "www"); err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "修改目录权限失败")
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 	if _, err = shell.Execf(`yes '%s' | pure-pw useradd '%s' -u www -g www -d '%s'`, req.Password, req.Username, req.Path); err != nil {
@@ -144,7 +149,7 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
 	port, err := shell.Execf(`cat %s/server/pure-ftpd/etc/pure-ftpd.conf | grep "Bind" | awk '{print $2}' | awk -F "," '{print $2}'`, app.Root)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PureFtpd端口失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get port: %v", err))
 		return
 	}
 

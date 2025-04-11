@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -19,10 +20,14 @@ import (
 	"github.com/tnb-labs/panel/pkg/types"
 )
 
-type App struct{}
+type App struct {
+	t *gotext.Locale
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -48,13 +53,9 @@ func (s *App) GetDNS(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	match := regexp.MustCompile(`nameserver\s+(\S+)`).FindAllStringSubmatch(raw, -1)
-	if len(match) == 0 {
-		service.Error(w, http.StatusInternalServerError, "找不到 DNS 信息")
-		return
-	}
 
-	var dns []string
+	match := regexp.MustCompile(`nameserver\s+(\S+)`).FindAllStringSubmatch(raw, -1)
+	dns := make([]string, 0)
 	for _, m := range match {
 		dns = append(dns, m[1])
 	}
@@ -75,7 +76,7 @@ func (s *App) UpdateDNS(w http.ResponseWriter, r *http.Request) {
 	dns += "nameserver " + req.DNS2 + "\n"
 
 	if err := io.Write("/etc/resolv.conf", dns, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "写入 DNS 信息失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to update DNS: %v", err))
 		return
 	}
 
@@ -89,7 +90,7 @@ func (s *App) GetSWAP(w http.ResponseWriter, r *http.Request) {
 	if io.Exists(filepath.Join(app.Root, "swap")) {
 		file, err := io.FileInfo(filepath.Join(app.Root, "swap"))
 		if err != nil {
-			service.Error(w, http.StatusInternalServerError, "获取 SWAP 信息失败")
+			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get SWAP: %v", err))
 			return
 		}
 
@@ -102,7 +103,7 @@ func (s *App) GetSWAP(w http.ResponseWriter, r *http.Request) {
 
 	raw, err := shell.Execf("free | grep Swap")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取 SWAP 信息失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get SWAP: %v", err))
 		return
 	}
 
@@ -147,11 +148,11 @@ func (s *App) UpdateSWAP(w http.ResponseWriter, r *http.Request) {
 		var free string
 		free, err = shell.Execf("df -k %s | awk '{print $4}' | tail -n 1", app.Root)
 		if err != nil {
-			service.Error(w, http.StatusInternalServerError, "获取硬盘空间失败")
+			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get disk space: %v", err))
 			return
 		}
 		if cast.ToInt64(free)*1024 < req.Size*1024*1024 {
-			service.Error(w, http.StatusInternalServerError, "硬盘空间不足，当前剩余%s", tools.FormatBytes(cast.ToFloat64(free)))
+			service.Error(w, http.StatusInternalServerError, s.t.Get("disk space is insufficient, current free %s", tools.FormatBytes(cast.ToFloat64(free))))
 			return
 		}
 
@@ -171,7 +172,7 @@ func (s *App) UpdateSWAP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if err = io.Chmod(filepath.Join(app.Root, "swap"), 0600); err != nil {
-				service.Error(w, http.StatusInternalServerError, "设置 SWAP 权限失败")
+				service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set SWAP permission: %v", err))
 				return
 			}
 		}
@@ -192,19 +193,18 @@ func (s *App) UpdateSWAP(w http.ResponseWriter, r *http.Request) {
 func (s *App) GetTimezone(w http.ResponseWriter, r *http.Request) {
 	raw, err := shell.Execf("timedatectl | grep zone")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取时区信息失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get timezone: %v", err))
 		return
 	}
 
 	match := regexp.MustCompile(`zone:\s+(\S+)`).FindStringSubmatch(raw)
 	if len(match) == 0 {
-		service.Error(w, http.StatusInternalServerError, "找不到时区信息")
-		return
+		match = append(match, "")
 	}
 
 	zonesRaw, err := shell.Execf("timedatectl list-timezones")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取时区列表失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get available timezones: %v", err))
 		return
 	}
 	zones := strings.Split(zonesRaw, "\n")
@@ -289,7 +289,7 @@ func (s *App) UpdateHostname(w http.ResponseWriter, r *http.Request) {
 	if _, err = shell.Execf("hostnamectl set-hostname '%s'", req.Hostname); err != nil {
 		// 直接写 /etc/hostname
 		if err = io.Write("/etc/hostname", req.Hostname, 0644); err != nil {
-			service.Error(w, http.StatusInternalServerError, "写入主机名失败")
+			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set hostname: %v", err))
 			return
 		}
 	}
@@ -312,7 +312,7 @@ func (s *App) UpdateHosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = io.Write("/etc/hosts", req.Hosts, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "写入 hosts 信息失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set hosts: %v", err))
 		return
 	}
 
@@ -329,7 +329,7 @@ func (s *App) UpdateRootPassword(w http.ResponseWriter, r *http.Request) {
 
 	req.Password = strings.ReplaceAll(req.Password, `'`, `\'`)
 	if _, err = shell.Execf(`yes '%s' | passwd root`, req.Password); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+		service.Error(w, http.StatusInternalServerError, "%v", s.t.Get("failed to set root password: %v", err))
 		return
 	}
 

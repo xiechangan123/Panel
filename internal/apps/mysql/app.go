@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -21,11 +22,13 @@ import (
 )
 
 type App struct {
+	t           *gotext.Locale
 	settingRepo biz.SettingRepo
 }
 
-func NewApp(setting biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale, setting biz.SettingRepo) *App {
 	return &App{
+		t:           t,
 		settingRepo: setting,
 	}
 }
@@ -45,7 +48,7 @@ func (s *App) Route(r chi.Router) {
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取配置失败")
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -61,12 +64,12 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = io.Write(app.Root+"/server/mysql/conf/my.cnf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "写入配置失败：%v", err)
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	if err = systemctl.Restart("mysqld"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "重启失败：%v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v"), err)
 		return
 	}
 
@@ -77,12 +80,12 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取root密码失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
 		return
 
 	}
 	if len(rootPassword) == 0 {
-		service.Error(w, http.StatusUnprocessableEntity, "root密码为空")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("MySQL root password is empty"))
 		return
 	}
 
@@ -93,12 +96,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = os.Setenv("MYSQL_PWD", rootPassword); err != nil {
-		service.Error(w, http.StatusInternalServerError, "设置环境变量失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set MYSQL_PWD env: %v", err))
 		return
 	}
 	raw, err := shell.Execf(`mysqladmin -u root extended-status`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取负载失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get MySQL status: %v", err))
 		return
 	}
 	_ = os.Unsetenv("MYSQL_PWD")
@@ -108,24 +111,24 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		regex string
 		name  string
 	}{
-		{`Uptime\s+\|\s+(\d+)\s+\|`, "运行时间"},
-		{`Queries\s+\|\s+(\d+)\s+\|`, "总查询次数"},
-		{`Connections\s+\|\s+(\d+)\s+\|`, "总连接次数"},
-		{`Com_commit\s+\|\s+(\d+)\s+\|`, "每秒事务"},
-		{`Com_rollback\s+\|\s+(\d+)\s+\|`, "每秒回滚"},
-		{`Bytes_sent\s+\|\s+(\d+)\s+\|`, "发送"},
-		{`Bytes_received\s+\|\s+(\d+)\s+\|`, "接收"},
-		{`Threads_connected\s+\|\s+(\d+)\s+\|`, "活动连接数"},
-		{`Max_used_connections\s+\|\s+(\d+)\s+\|`, "峰值连接数"},
-		{`Key_read_requests\s+\|\s+(\d+)\s+\|`, "索引命中率"},
-		{`Innodb_buffer_pool_reads\s+\|\s+(\d+)\s+\|`, "Innodb索引命中率"},
-		{`Created_tmp_disk_tables\s+\|\s+(\d+)\s+\|`, "创建临时表到硬盘"},
-		{`Open_tables\s+\|\s+(\d+)\s+\|`, "已打开的表"},
-		{`Select_full_join\s+\|\s+(\d+)\s+\|`, "没有使用索引的量"},
-		{`Select_full_range_join\s+\|\s+(\d+)\s+\|`, "没有索引的JOIN量"},
-		{`Select_range_check\s+\|\s+(\d+)\s+\|`, "没有索引的子查询量"},
-		{`Sort_merge_passes\s+\|\s+(\d+)\s+\|`, "排序后的合并次数"},
-		{`Table_locks_waited\s+\|\s+(\d+)\s+\|`, "锁表次数"},
+		{`Uptime\s+\|\s+(\d+)\s+\|`, s.t.Get("Uptime")},
+		{`Queries\s+\|\s+(\d+)\s+\|`, s.t.Get("Total Queries")},
+		{`Connections\s+\|\s+(\d+)\s+\|`, s.t.Get("Total Connections")},
+		{`Com_commit\s+\|\s+(\d+)\s+\|`, s.t.Get("Transactions per Second")},
+		{`Com_rollback\s+\|\s+(\d+)\s+\|`, s.t.Get("Rollbacks per Second")},
+		{`Bytes_sent\s+\|\s+(\d+)\s+\|`, s.t.Get("Bytes Sent")},
+		{`Bytes_received\s+\|\s+(\d+)\s+\|`, s.t.Get("Bytes Received")},
+		{`Threads_connected\s+\|\s+(\d+)\s+\|`, s.t.Get("Active Connections")},
+		{`Max_used_connections\s+\|\s+(\d+)\s+\|`, s.t.Get("Peak Connections")},
+		{`Key_read_requests\s+\|\s+(\d+)\s+\|`, s.t.Get("Index Hit Rate")},
+		{`Innodb_buffer_pool_reads\s+\|\s+(\d+)\s+\|`, s.t.Get("Innodb Index Hit Rate")},
+		{`Created_tmp_disk_tables\s+\|\s+(\d+)\s+\|`, s.t.Get("Temporary Tables Created on Disk")},
+		{`Open_tables\s+\|\s+(\d+)\s+\|`, s.t.Get("Open Tables")},
+		{`Select_full_join\s+\|\s+(\d+)\s+\|`, s.t.Get("Full Joins without Index")},
+		{`Select_full_range_join\s+\|\s+(\d+)\s+\|`, s.t.Get("Full Range Joins without Index")},
+		{`Select_range_check\s+\|\s+(\d+)\s+\|`, s.t.Get("Subqueries without Index")},
+		{`Sort_merge_passes\s+\|\s+(\d+)\s+\|`, s.t.Get("Sort Merge Passes")},
+		{`Table_locks_waited\s+\|\s+(\d+)\s+\|`, s.t.Get("Table Locks Waited")},
 	}
 
 	for _, expression := range expressions {
@@ -133,7 +136,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		matches := re.FindStringSubmatch(raw)
 		if len(matches) > 1 {
 			d := map[string]string{"name": expression.name, "value": matches[1]}
-			if expression.name == "发送" || expression.name == "接收" {
+			if expression.name == s.t.Get("Bytes Sent") || expression.name == s.t.Get("Bytes Received") {
 				d["value"] = tools.FormatBytes(cast.ToFloat64(matches[1]))
 			}
 
@@ -182,11 +185,7 @@ func (s *App) ClearSlowLog(w http.ResponseWriter, r *http.Request) {
 func (s *App) GetRootPassword(w http.ResponseWriter, r *http.Request) {
 	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取root密码失败")
-		return
-	}
-	if len(rootPassword) == 0 {
-		service.Error(w, http.StatusUnprocessableEntity, "root密码为空")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
 		return
 	}
 
@@ -219,7 +218,7 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if err = s.settingRepo.Set(biz.SettingKeyMySQLRootPassword, req.Password); err != nil {
-		service.Error(w, http.StatusInternalServerError, "设置保存失败：%v", err)
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 

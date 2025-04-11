@@ -22,15 +22,19 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/service"
 )
 
 type App struct {
+	t *gotext.Locale
 }
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -74,7 +78,7 @@ func (s *App) Test(w http.ResponseWriter, r *http.Request) {
 		result := s.memoryTestTask()
 		service.Success(w, result)
 	default:
-		service.Error(w, http.StatusUnprocessableEntity, "未知测试类型")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown test type"))
 	}
 }
 

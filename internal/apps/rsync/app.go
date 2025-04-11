@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/chix"
 	"github.com/go-rat/utils/str"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/service"
 	"github.com/tnb-labs/panel/pkg/io"
@@ -16,10 +17,14 @@ import (
 	"github.com/tnb-labs/panel/pkg/systemctl"
 )
 
-type App struct{}
+type App struct {
+	t *gotext.Locale
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -74,7 +79,7 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 					currentModule.AuthUser = value
 					currentModule.Secret, err = shell.Execf(`grep -E '^%s:.*$' /etc/rsyncd.secrets | awk -F ':' '{print $2}'`, currentModule.AuthUser)
 					if err != nil {
-						service.Error(w, http.StatusInternalServerError, "获取模块%s的密钥失败", currentModule.AuthUser)
+						service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get the secret key for module %s", currentModule.AuthUser))
 						return
 					}
 				case "hosts allow":
@@ -109,7 +114,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if strings.Contains(config, "["+req.Name+"]") {
-		service.Error(w, http.StatusUnprocessableEntity, "模块%s已存在", req.Name)
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s already exists", req.Name))
 		return
 	}
 
@@ -154,7 +159,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !strings.Contains(config, "["+req.Name+"]") {
-		service.Error(w, http.StatusUnprocessableEntity, "模块%s不存在", req.Name)
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Name))
 		return
 	}
 
@@ -196,7 +201,7 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !strings.Contains(config, "["+req.Name+"]") {
-		service.Error(w, http.StatusUnprocessableEntity, "模块%s不存在", req.Name)
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Name))
 		return
 	}
 

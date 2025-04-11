@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -19,10 +20,14 @@ import (
 	"github.com/tnb-labs/panel/pkg/systemctl"
 )
 
-type App struct{}
+type App struct {
+	t *gotext.Locale
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -35,7 +40,7 @@ func (s *App) Route(r chi.Router) {
 func (s *App) Info(w http.ResponseWriter, r *http.Request) {
 	files, err := os.ReadDir(fmt.Sprintf("%s/server/phpmyadmin", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "找不到 phpMyAdmin 目录")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("phpMyAdmin directory not found"))
 		return
 	}
 
@@ -46,7 +51,7 @@ func (s *App) Info(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(phpmyadmin) == 0 {
-		service.Error(w, http.StatusInternalServerError, "找不到 phpMyAdmin 目录")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("phpMyAdmin directory not found"))
 		return
 	}
 
@@ -57,7 +62,7 @@ func (s *App) Info(w http.ResponseWriter, r *http.Request) {
 	}
 	match := regexp.MustCompile(`listen\s+(\d+);`).FindStringSubmatch(conf)
 	if len(match) == 0 {
-		service.Error(w, http.StatusInternalServerError, "找不到 phpMyAdmin 端口")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("phpMyAdmin port not found"))
 		return
 	}
 
@@ -81,7 +86,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 	}
 	conf = regexp.MustCompile(`listen\s+(\d+);`).ReplaceAllString(conf, "listen "+cast.ToString(req.Port)+";")
 	if err = io.Write(fmt.Sprintf("%s/server/vhost/phpmyadmin.conf", app.Root), conf, 0644); err != nil {
-		service.ErrorSystem(w)
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -100,7 +105,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, "重载OpenResty失败：%v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}
 
@@ -131,7 +136,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, "重载OpenResty失败：%v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}
 

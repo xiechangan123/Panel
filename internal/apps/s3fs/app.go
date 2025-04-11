@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -18,11 +19,13 @@ import (
 )
 
 type App struct {
+	t           *gotext.Locale
 	settingRepo biz.SettingRepo
 }
 
-func NewApp(setting biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale, setting biz.SettingRepo) *App {
 	return &App{
+		t:           t,
 		settingRepo: setting,
 	}
 }
@@ -38,12 +41,12 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 	var s3fsList []Mount
 	list, err := s.settingRepo.Get("s3fs", "[]")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to get s3fs list")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 
 	if err = json.Unmarshal([]byte(list), &s3fsList); err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to get s3fs list")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 
@@ -65,36 +68,36 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 
 	// 检查下地域节点中是否包含bucket，如果包含了，肯定是错误的
 	if strings.Contains(req.URL, req.Bucket) {
-		service.Error(w, http.StatusUnprocessableEntity, "endpoint should not contain bucket")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("endpoint should not contain bucket"))
 		return
 	}
 
 	// 检查挂载目录是否存在且为空
 	if !io.Exists(req.Path) {
 		if err = os.MkdirAll(req.Path, 0755); err != nil {
-			service.Error(w, http.StatusUnprocessableEntity, "failed to create mount path: %v", err)
+			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("failed to create mount path: %v", err))
 			return
 		}
 	}
 	if !io.Empty(req.Path) {
-		service.Error(w, http.StatusUnprocessableEntity, "mount path is not empty")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("mount path is not empty"))
 		return
 	}
 
 	var s3fsList []Mount
 	list, err := s.settingRepo.Get("s3fs", "[]")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to get s3fs list")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 	if err = json.Unmarshal([]byte(list), &s3fsList); err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to get s3fs list")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 
-	for _, s := range s3fsList {
-		if s.Path == req.Path {
-			service.Error(w, http.StatusUnprocessableEntity, "mount path already exists")
+	for _, item := range s3fsList {
+		if item.Path == req.Path {
+			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("mount path already exists"))
 			return
 		}
 	}
@@ -102,7 +105,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 	id := time.Now().UnixMicro()
 	password := req.Ak + ":" + req.Sk
 	if err = io.Write("/etc/passwd-s3fs-"+cast.ToString(id), password, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to create passwd file: %v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to create passwd file: %v", err))
 		return
 	}
 	if _, err = shell.Execf(`echo 's3fs#%s %s fuse _netdev,allow_other,nonempty,url=%s,passwd_file=/etc/passwd-s3fs-%s 0 0' >> /etc/fstab`, req.Bucket, req.Path, req.URL, cast.ToString(id)); err != nil {
@@ -111,12 +114,12 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err = shell.Execf("mount -a"); err != nil {
 		_, _ = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
-		service.Error(w, http.StatusInternalServerError, "invalid /etc/fstab: %v", err)
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	if _, err = shell.Execf(`df -h | grep '%s'`, req.Path); err != nil {
 		_, _ = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
-		service.Error(w, http.StatusInternalServerError, "mount failed: %v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("mount failed: %v", err))
 		return
 	}
 
@@ -128,12 +131,12 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 	})
 	encoded, err := json.Marshal(s3fsList)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to add s3fs mount")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to add s3fs mount: %v", err))
 		return
 	}
 
 	if err = s.settingRepo.Set("s3fs", string(encoded)); err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to add s3fs mount")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to add s3fs mount: %v", err))
 		return
 	}
 
@@ -151,11 +154,11 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 	var s3fsList []Mount
 	list, err := s.settingRepo.Get("s3fs", "[]")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to get s3fs list")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 	if err = json.Unmarshal([]byte(list), &s3fsList); err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to get s3fs list")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 
@@ -167,7 +170,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if mount.ID == 0 {
-		service.Error(w, http.StatusUnprocessableEntity, "mount not found")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("mount not found"))
 		return
 	}
 
@@ -184,7 +187,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, err = shell.Execf("mount -a"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "invalid /etc/fstab: %v", err)
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	if err = io.Remove("/etc/passwd-s3fs-" + cast.ToString(mount.ID)); err != nil {
@@ -200,11 +203,11 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	encoded, err := json.Marshal(newS3fsList)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to delete s3fs mount")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete s3fs mount: %v", err))
 		return
 	}
 	if err = s.settingRepo.Set("s3fs", string(encoded)); err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to delete s3fs mount")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete s3fs mount: %v", err))
 		return
 	}
 

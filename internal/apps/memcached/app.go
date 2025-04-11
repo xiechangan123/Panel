@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/service"
 	"github.com/tnb-labs/panel/pkg/io"
@@ -14,10 +15,14 @@ import (
 	"github.com/tnb-labs/panel/pkg/types"
 )
 
-type App struct{}
+type App struct {
+	t *gotext.Locale
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -29,7 +34,7 @@ func (s *App) Route(r chi.Router) {
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	status, err := systemctl.Status("memcached")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to get Memcached status: %v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get Memcached status: %v"), err)
 		return
 	}
 	if !status {
@@ -48,7 +53,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	_, err = conn.Write([]byte("stats\nquit\n"))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to write to Memcached: %v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to write to Memcached: %v"), err)
 		return
 	}
 
@@ -69,7 +74,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = scanner.Err(); err != nil {
-		service.Error(w, http.StatusInternalServerError, "failed to read from Memcached: %v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to read from Memcached: %v"), err)
 		return
 	}
 

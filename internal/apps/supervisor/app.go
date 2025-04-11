@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/service"
@@ -16,10 +17,11 @@ import (
 )
 
 type App struct {
+	t    *gotext.Locale
 	name string
 }
 
-func NewApp() *App {
+func NewApp(t *gotext.Locale) *App {
 	var name string
 	if os.IsRHEL() {
 		name = "supervisord"
@@ -28,6 +30,7 @@ func NewApp() *App {
 	}
 
 	return &App{
+		t:    t,
 		name: name,
 	}
 }
@@ -102,7 +105,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = systemctl.Restart(s.name); err != nil {
-		service.Error(w, http.StatusInternalServerError, "重启 %s 服务失败: %v", s.name, err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart %s: %v", s.name, err))
 		return
 	}
 
@@ -156,8 +159,8 @@ func (s *App) StartProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`supervisorctl start %s`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+	if out, err := shell.Execf(`supervisorctl start %s`, req.Process); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
 
@@ -172,8 +175,8 @@ func (s *App) StopProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`supervisorctl stop %s`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+	if out, err := shell.Execf(`supervisorctl stop %s`, req.Process); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
 
@@ -188,8 +191,8 @@ func (s *App) RestartProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`supervisorctl restart %s`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+	if out, err := shell.Execf(`supervisorctl restart %s`, req.Process); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
 
@@ -212,7 +215,7 @@ func (s *App) ProcessLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "无法从进程 %s 的配置文件中获取日志路径", req.Process)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 		return
 	}
 
@@ -235,7 +238,7 @@ func (s *App) ClearProcessLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "无法从进程 %s 的配置文件中获取日志路径", req.Process)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 		return
 	}
 
@@ -343,8 +346,8 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`supervisorctl stop '%s'`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+	if out, err := shell.Execf(`supervisorctl stop '%s'`, req.Process); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
 
@@ -352,7 +355,7 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 	if os.IsRHEL() {
 		logPath, err = shell.Execf(`cat '/etc/supervisord.d/%s.conf' | grep stdout_logfile= | awk -F "=" '{print $2}'`, req.Process)
 		if err != nil {
-			service.Error(w, http.StatusInternalServerError, "无法从进程 %s 的配置文件中获取日志路径", req.Process)
+			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 			return
 		}
 		if err = io.Remove(`/etc/supervisord.d/` + req.Process + `.conf`); err != nil {
@@ -362,7 +365,7 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 	} else {
 		logPath, err = shell.Execf(`cat '/etc/supervisor/conf.d/%s.conf' | grep stdout_logfile= | awk -F "=" '{print $2}'`, req.Process)
 		if err != nil {
-			service.Error(w, http.StatusInternalServerError, "无法从进程 %s 的配置文件中获取日志路径", req.Process)
+			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
 			return
 		}
 		if err = io.Remove(`/etc/supervisor/conf.d/` + req.Process + `.conf`); err != nil {

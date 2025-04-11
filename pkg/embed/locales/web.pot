@@ -11,6 +11,40 @@ msgstr ""
 msgid "AUTHOR"
 msgstr ""
 
+#: internal/apps/php/app.go:130
+msgid "Accepted Connections"
+msgstr ""
+
+#: internal/apps/mysql/app.go:121
+msgid "Active Connections"
+msgstr ""
+
+#: internal/apps/php/app.go:135
+msgid "Active Processes"
+msgstr ""
+
+#: internal/apps/nginx/app.go:120
+msgid "Active connections"
+msgstr ""
+
+#: internal/apps/php/app.go:127
+msgid "Application Pool"
+msgstr ""
+
+#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:139
+msgid "Bytes Received"
+msgstr ""
+
+#: internal/apps/mysql/app.go:119
+#: internal/apps/mysql/app.go:139
+msgid "Bytes Sent"
+msgstr ""
+
+#: internal/apps/php/app.go:352
+msgid "Bzip2 is a library for compressing and decompressing files"
+msgstr ""
+
 #: internal/bootstrap/cli.go:24
 msgid "CATEGORY"
 msgstr ""
@@ -24,17 +58,121 @@ msgstr ""
 msgid "COPYRIGHT"
 msgstr ""
 
+#: internal/apps/php/app.go:392
+msgid "Calendar is a library for handling dates"
+msgstr ""
+
 #: internal/bootstrap/cli.go:17
 #: internal/bootstrap/cli.go:25
 msgid "DESCRIPTION"
+msgstr ""
+
+#: internal/apps/php/app.go:382
+msgid "Enchant is a spell-checking library"
+msgstr ""
+
+#: internal/apps/php/app.go:362
+msgid "Event is a library for handling events"
+msgstr ""
+
+#: internal/apps/php/app.go:317
+msgid "Exif is a library for reading and writing image metadata"
+msgstr ""
+
+#: internal/apps/php/app.go:287
+msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
 #: internal/bootstrap/cli.go:34
 msgid "Forum：https://bbs.haozi.net"
 msgstr ""
 
+#: internal/apps/mysql/app.go:127
+msgid "Full Joins without Index"
+msgstr ""
+
+#: internal/apps/mysql/app.go:128
+msgid "Full Range Joins without Index"
+msgstr ""
+
 #: internal/bootstrap/cli.go:20
 msgid "GLOBAL OPTIONS"
+msgstr ""
+
+#: internal/apps/php/app.go:397
+msgid "GMP is a library for handling large integers"
+msgstr ""
+
+#: internal/apps/php/app.go:417
+msgid "Gettext is a library for handling multilingual support"
+msgstr ""
+
+#: internal/apps/php/app.go:342
+msgid "IMAP extension allows PHP to read, search, delete, download, and manage emails"
+msgstr ""
+
+#: internal/apps/php/app.go:134
+msgid "Idle Processes"
+msgstr ""
+
+#: internal/apps/php/app.go:297
+msgid "Igbinary is a library for serializing and deserializing data"
+msgstr ""
+
+#: internal/apps/php/app.go:312
+msgid "ImageMagick is free software for creating, editing, and composing images"
+msgstr ""
+
+#: internal/apps/mysql/app.go:123
+msgid "Index Hit Rate"
+msgstr ""
+
+#: internal/apps/mysql/app.go:124
+msgid "Innodb Index Hit Rate"
+msgstr ""
+
+#: internal/apps/php/app.go:239
+msgid "Install PHP-%d %s extension"
+msgstr ""
+
+#: internal/apps/php/app.go:412
+msgid "Intl is a library for handling internationalization and localization"
+msgstr ""
+
+#: internal/apps/php/app.go:377
+msgid "LDAP is a protocol for accessing directory services"
+msgstr ""
+
+#: internal/apps/php/app.go:131
+msgid "Listen Queue"
+msgstr ""
+
+#: internal/apps/php/app.go:133
+msgid "Listen Queue Length"
+msgstr ""
+
+#: internal/apps/php/app.go:137
+msgid "Max Active Processes"
+msgstr ""
+
+#: internal/apps/php/app.go:138
+msgid "Max Children Reached"
+msgstr ""
+
+#: internal/apps/php/app.go:132
+msgid "Max Listen Queue"
+msgstr ""
+
+#: internal/apps/php/app.go:307
+msgid "Memcached is a driver for connecting to Memcached servers"
+msgstr ""
+
+#: internal/apps/nginx/app.go:113
+msgid "Memory"
+msgstr ""
+
+#: internal/apps/mysql/app.go:88
+msgid "MySQL root password is empty"
 msgstr ""
 
 #: internal/bootstrap/cli.go:14
@@ -48,12 +186,128 @@ msgstr ""
 msgid "OPTIONS"
 msgstr ""
 
+#: internal/apps/php/app.go:292
+msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
+msgstr ""
+
+#: internal/apps/mysql/app.go:126
+msgid "Open Tables"
+msgstr ""
+
+#: internal/apps/mysql/app.go:122
+msgid "Peak Connections"
+msgstr ""
+
+#: internal/apps/php/app.go:302
+msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary extension installed above)"
+msgstr ""
+
+#: internal/apps/php/app.go:128
+msgid "Process Manager"
+msgstr ""
+
+#: internal/apps/php/app.go:387
+msgid "Pspell is a spell-checking library"
+msgstr ""
+
 #: internal/bootstrap/cli.go:35
 msgid "QQ Group：12370907"
 msgstr ""
 
 #: internal/bootstrap/cli.go:39
 msgid "Rat Panel CLI Tool"
+msgstr ""
+
+#: internal/apps/nginx/app.go:144
+msgid "Reading"
+msgstr ""
+
+#: internal/apps/php/app.go:367
+msgid "Readline is a library for processing text"
+msgstr ""
+
+#: internal/apps/mysql/app.go:118
+msgid "Rollbacks per Second"
+msgstr ""
+
+#: internal/apps/php/app.go:372
+msgid "SNMP is a protocol for network management"
+msgstr ""
+
+#: internal/apps/php/app.go:357
+msgid "SSH2 is a library for connecting to SSH servers"
+msgstr ""
+
+#: internal/apps/php/app.go:139
+msgid "Slow Requests"
+msgstr ""
+
+#: internal/apps/mysql/app.go:130
+msgid "Sort Merge Passes"
+msgstr ""
+
+#: internal/apps/php/app.go:129
+msgid "Start Time"
+msgstr ""
+
+#: internal/apps/mysql/app.go:129
+msgid "Subqueries without Index"
+msgstr ""
+
+#: internal/apps/php/app.go:477
+msgid "Swoole is a PHP extension for building high-performance asynchronous concurrent servers"
+msgstr ""
+
+#: internal/apps/php/app.go:486
+msgid "Swow is a PHP extension for building high-performance asynchronous concurrent servers"
+msgstr ""
+
+#: internal/apps/php/app.go:457
+msgid "Sysvmsg is a library for handling System V message queues"
+msgstr ""
+
+#: internal/apps/php/app.go:462
+msgid "Sysvsem is a library for handling System V semaphores"
+msgstr ""
+
+#: internal/apps/php/app.go:467
+msgid "Sysvshm is a library for handling System V shared memory"
+msgstr ""
+
+#: internal/apps/mysql/app.go:131
+msgid "Table Locks Waited"
+msgstr ""
+
+#: internal/apps/mysql/app.go:125
+msgid "Temporary Tables Created on Disk"
+msgstr ""
+
+#: internal/apps/mysql/app.go:116
+msgid "Total Connections"
+msgstr ""
+
+#: internal/apps/php/app.go:136
+msgid "Total Processes"
+msgstr ""
+
+#: internal/apps/mysql/app.go:115
+msgid "Total Queries"
+msgstr ""
+
+#: internal/apps/nginx/app.go:128
+msgid "Total connections"
+msgstr ""
+
+#: internal/apps/nginx/app.go:132
+msgid "Total handshakes"
+msgstr ""
+
+#: internal/apps/nginx/app.go:136
+msgid "Total requests"
+msgstr ""
+
+#: internal/apps/mysql/app.go:117
+msgid "Transactions per Second"
 msgstr ""
 
 #: internal/bootstrap/cli.go:15
@@ -63,10 +317,170 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
+#: internal/apps/php/app.go:270
+msgid "Uninstall PHP-%d %s extension"
+msgstr ""
+
+#: internal/apps/mysql/app.go:114
+msgid "Uptime"
+msgstr ""
+
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
 msgstr ""
 
+#: internal/apps/nginx/app.go:152
+msgid "Waiting"
+msgstr ""
+
 #: internal/bootstrap/cli.go:33
 msgid "Website：https://panel.haozi.net"
+msgstr ""
+
+#: internal/apps/nginx/app.go:102
+msgid "Workers"
+msgstr ""
+
+#: internal/apps/nginx/app.go:148
+msgid "Writing"
+msgstr ""
+
+#: internal/apps/php/app.go:402
+msgid "XLSWriter is a high-performance library for reading and writing Excel files"
+msgstr ""
+
+#: internal/apps/php/app.go:407
+msgid "XSL is a library for processing XML documents"
+msgstr ""
+
+#: internal/apps/php/app.go:347
+msgid "Zip is a library for handling ZIP files"
+msgstr ""
+
+#: internal/apps/php/app.go:228
+#: internal/apps/php/app.go:259
+msgid "extension %s does not exist"
+msgstr ""
+
+#: internal/apps/memcached/app.go:37
+msgid "failed to get Memcached status: %v"
+msgstr ""
+
+#: internal/apps/mysql/app.go:104
+msgid "failed to get MySQL status: %v"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:268
+msgid "failed to get banned ip list"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:258
+msgid "failed to get current banned list"
+msgstr ""
+
+#: internal/apps/nginx/app.go:108
+#: internal/apps/nginx/app.go:98
+msgid "failed to get nginx workers: %v"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:263
+msgid "failed to get total banned list"
+msgstr ""
+
+#: internal/apps/mysql/app.go:188
+#: internal/apps/mysql/app.go:83
+msgid "failed to load MySQL root password: %v"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:327
+#: internal/apps/fail2ban/app.go:355
+msgid "failed to parse the ignoreip of fail2ban"
+msgstr ""
+
+#: internal/apps/memcached/app.go:77
+msgid "failed to read from Memcached: %v"
+msgstr ""
+
+#: internal/apps/nginx/app.go:65
+msgid "failed to reload nginx: %v"
+msgstr ""
+
+#: internal/apps/mysql/app.go:72
+msgid "failed to restart MySQL: %v"
+msgstr ""
+
+#: internal/apps/mysql/app.go:99
+msgid "failed to set MYSQL_PWD env: %v"
+msgstr ""
+
+#: internal/apps/memcached/app.go:56
+msgid "failed to write to Memcached: %v"
+msgstr ""
+
+#: internal/apps/php/app.go:422
+msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:184
+msgid "get service port failed, please check if it is installed"
+msgstr ""
+
+#: internal/apps/php/app.go:472
+msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
+msgstr ""
+
+#: internal/apps/php/app.go:327
+msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
+msgstr ""
+
+#: internal/apps/php/app.go:337
+msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
+msgstr ""
+
+#: internal/apps/php/app.go:322
+msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
+msgstr ""
+
+#: internal/apps/php/app.go:427
+msgid "protobuf is a library for serializing and deserializing data"
+msgstr ""
+
+#: internal/apps/php/app.go:432
+msgid "rdkafka is a library for connecting to Apache Kafka"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:109
+msgid "rule already exists"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:228
+msgid "rule not found"
+msgstr ""
+
+#: internal/apps/php/app.go:332
+msgid "sqlsrv is a driver for connecting to SQL Server"
+msgstr ""
+
+#: internal/apps/fail2ban/app.go:180
+msgid "unknown service"
+msgstr ""
+
+#: internal/apps/benchmark/app.go:81
+msgid "unknown test type"
+msgstr ""
+
+#: internal/apps/php/app.go:442
+msgid "xdebug is a library for debugging and profiling PHP code"
+msgstr ""
+
+#: internal/apps/php/app.go:437
+msgid "xhprof is a library for performance profiling"
+msgstr ""
+
+#: internal/apps/php/app.go:447
+msgid "yaml is a library for handling YAML"
+msgstr ""
+
+#: internal/apps/php/app.go:452
+msgid "zstd is a library for compressing and decompressing files"
 msgstr ""

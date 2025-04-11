@@ -6,6 +6,7 @@ import (
 
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+
 	"github.com/tnb-labs/panel/pkg/embed"
 )
 

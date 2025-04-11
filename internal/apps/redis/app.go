@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/app"
 	"github.com/tnb-labs/panel/internal/service"
@@ -16,10 +17,14 @@ import (
 	"github.com/tnb-labs/panel/pkg/types"
 )
 
-type App struct{}
+type App struct {
+	t *gotext.Locale
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -31,7 +36,7 @@ func (s *App) Route(r chi.Router) {
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	status, err := systemctl.Status("redis")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取 Redis 状态失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get redis status: %v", err))
 		return
 	}
 	if !status {
@@ -54,7 +59,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	raw, err := shell.Execf("redis-cli%s info", withPassword)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取 Redis 负载失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get redis info: %v", err))
 		return
 	}
 
@@ -69,19 +74,19 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := []types.NV{
-		{Name: "TCP 端口", Value: dataRaw["tcp_port"]},
-		{Name: "已运行天数", Value: dataRaw["uptime_in_days"]},
-		{Name: "连接的客户端数", Value: dataRaw["connected_clients"]},
-		{Name: "已分配的内存总量", Value: dataRaw["used_memory_human"]},
-		{Name: "占用内存总量", Value: dataRaw["used_memory_rss_human"]},
-		{Name: "占用内存峰值", Value: dataRaw["used_memory_peak_human"]},
-		{Name: "内存碎片比率", Value: dataRaw["mem_fragmentation_ratio"]},
-		{Name: "运行以来连接过的客户端的总数", Value: dataRaw["total_connections_received"]},
-		{Name: "运行以来执行过的命令的总数", Value: dataRaw["total_commands_processed"]},
-		{Name: "每秒执行的命令数", Value: dataRaw["instantaneous_ops_per_sec"]},
-		{Name: "查找数据库键成功次数", Value: dataRaw["keyspace_hits"]},
-		{Name: "查找数据库键失败次数", Value: dataRaw["keyspace_misses"]},
-		{Name: "最近一次 fork() 操作耗费的毫秒数", Value: dataRaw["latest_fork_usec"]},
+		{Name: s.t.Get("TCP Port"), Value: dataRaw["tcp_port"]},
+		{Name: s.t.Get("Uptime in Days"), Value: dataRaw["uptime_in_days"]},
+		{Name: s.t.Get("Connected Clients"), Value: dataRaw["connected_clients"]},
+		{Name: s.t.Get("Total Allocated Memory"), Value: dataRaw["used_memory_human"]},
+		{Name: s.t.Get("Total Memory Usage"), Value: dataRaw["used_memory_rss_human"]},
+		{Name: s.t.Get("Peak Memory Usage"), Value: dataRaw["used_memory_peak_human"]},
+		{Name: s.t.Get("Memory Fragmentation Ratio"), Value: dataRaw["mem_fragmentation_ratio"]},
+		{Name: s.t.Get("Total Connections Received"), Value: dataRaw["total_connections_received"]},
+		{Name: s.t.Get("Total Commands Processed"), Value: dataRaw["total_commands_processed"]},
+		{Name: s.t.Get("Commands Per Second"), Value: dataRaw["instantaneous_ops_per_sec"]},
+		{Name: s.t.Get("Keyspace Hits"), Value: dataRaw["keyspace_hits"]},
+		{Name: s.t.Get("Keyspace Misses"), Value: dataRaw["keyspace_misses"]},
+		{Name: s.t.Get("Latest Fork Time (ms)"), Value: dataRaw["latest_fork_usec"]},
 	}
 
 	service.Success(w, data)

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/app"
 	"github.com/tnb-labs/panel/internal/service"
@@ -15,10 +16,14 @@ import (
 	"github.com/tnb-labs/panel/pkg/types"
 )
 
-type App struct{}
+type App struct {
+	t *gotext.Locale
+}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(t *gotext.Locale) *App {
+	return &App{
+		t: t,
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -36,7 +41,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	// 获取配置
 	config, err := io.Read(fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PostgreSQL配置失败")
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -52,12 +57,12 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = io.Write(fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "写入PostgreSQL配置失败")
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	if err = systemctl.Reload("postgresql"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "重载服务失败: %v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload PostgreSQL: %v", err))
 		return
 	}
 
@@ -69,7 +74,7 @@ func (s *App) GetUserConfig(w http.ResponseWriter, r *http.Request) {
 	// 获取配置
 	config, err := io.Read(fmt.Sprintf("%s/server/postgresql/data/pg_hba.conf", app.Root))
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PostgreSQL配置失败")
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -85,12 +90,12 @@ func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = io.Write(fmt.Sprintf("%s/server/postgresql/data/pg_hba.conf", app.Root), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "写入PostgreSQL配置失败")
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	if err = systemctl.Reload("postgresql"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "重载服务失败: %v", err)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload PostgreSQL: %v", err))
 		return
 	}
 
@@ -107,36 +112,36 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	start, err := shell.Execf(`echo "select pg_postmaster_start_time();" | su - postgres -c "psql" | sed -n 3p | cut -d'.' -f1`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PostgreSQL启动时间失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL start time: %v", err))
 		return
 	}
 	pid, err := shell.Execf(`echo "select pg_backend_pid();" | su - postgres -c "psql" | sed -n 3p`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PostgreSQL进程PID失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL backend pid: %v", err))
 		return
 	}
 	process, err := shell.Execf(`ps aux | grep postgres | grep -v grep | wc -l`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PostgreSQL进程数失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL process: %v", err))
 		return
 	}
 	connections, err := shell.Execf(`echo "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();" | su - postgres -c "psql" | sed -n 3p`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PostgreSQL连接数失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL connections: %v", err))
 		return
 	}
 	storage, err := shell.Execf(`echo "select pg_size_pretty(pg_database_size('postgres'));" | su - postgres -c "psql" | sed -n 3p`)
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "获取PostgreSQL空间占用失败")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL database size: %v", err))
 		return
 	}
 
 	data := []types.NV{
-		{Name: "启动时间", Value: start},
-		{Name: "进程 PID", Value: pid},
-		{Name: "进程数", Value: process},
-		{Name: "总连接数", Value: connections},
-		{Name: "空间占用", Value: storage},
+		{Name: s.t.Get("Start Time"), Value: start},
+		{Name: s.t.Get("Process PID"), Value: pid},
+		{Name: s.t.Get("Process Count"), Value: process},
+		{Name: s.t.Get("Total Connections"), Value: connections},
+		{Name: s.t.Get("Storage Usage"), Value: storage},
 	}
 
 	service.Success(w, data)

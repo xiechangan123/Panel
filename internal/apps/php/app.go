@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-resty/resty/v2"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -22,11 +23,13 @@ import (
 
 type App struct {
 	version  uint
+	t        *gotext.Locale
 	taskRepo biz.TaskRepo
 }
 
-func NewApp(task biz.TaskRepo) *App {
+func NewApp(t *gotext.Locale, task biz.TaskRepo) *App {
 	return &App{
+		t:        t,
 		taskRepo: task,
 	}
 }
@@ -120,8 +123,36 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dataKeys := []string{"应用池", "工作模式", "启动时间", "接受连接", "监听队列", "最大监听队列", "监听队列长度", "空闲进程数量", "活动进程数量", "总进程数量", "最大活跃进程数量", "达到进程上限次数", "慢请求"}
-	rawKeys := []string{"pool", "process manager", "start time", "accepted conn", "listen queue", "max listen queue", "listen queue len", "idle processes", "active processes", "total processes", "max active processes", "max children reached", "slow requests"}
+	dataKeys := []string{
+		s.t.Get("Application Pool"),
+		s.t.Get("Process Manager"),
+		s.t.Get("Start Time"),
+		s.t.Get("Accepted Connections"),
+		s.t.Get("Listen Queue"),
+		s.t.Get("Max Listen Queue"),
+		s.t.Get("Listen Queue Length"),
+		s.t.Get("Idle Processes"),
+		s.t.Get("Active Processes"),
+		s.t.Get("Total Processes"),
+		s.t.Get("Max Active Processes"),
+		s.t.Get("Max Children Reached"),
+		s.t.Get("Slow Requests"),
+	}
+	rawKeys := []string{
+		"pool",
+		"process manager",
+		"start time",
+		"accepted conn",
+		"listen queue",
+		"max listen queue",
+		"listen queue len",
+		"idle processes",
+		"active processes",
+		"total processes",
+		"max active processes",
+		"max children reached",
+		"slow requests",
+	}
 
 	loads := make([]types.NV, 0)
 	for i := range dataKeys {
@@ -194,7 +225,7 @@ func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !s.checkExtension(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, "扩展不存在")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
 		return
 	}
 
@@ -205,7 +236,7 @@ func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := new(biz.Task)
-	task.Name = fmt.Sprintf("安装PHP-%d扩展 %s", s.version, req.Slug)
+	task.Name = s.t.Get("Install PHP-%d %s extension", s.version, req.Slug)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
 	task.Log = "/tmp/" + req.Slug + ".log"
@@ -225,7 +256,7 @@ func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !s.checkExtension(req.Slug) {
-		service.Error(w, http.StatusUnprocessableEntity, "扩展不存在")
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
 		return
 	}
 
@@ -236,7 +267,7 @@ func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := new(biz.Task)
-	task.Name = fmt.Sprintf("卸载PHP-%d扩展 %s", s.version, req.Slug)
+	task.Name = s.t.Get("Uninstall PHP-%d %s extension", s.version, req.Slug)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
 	task.Log = "/tmp/" + req.Slug + ".log"
@@ -253,198 +284,197 @@ func (s *App) getExtensions() []Extension {
 		{
 			Name:        "fileinfo",
 			Slug:        "fileinfo",
-			Description: "Fileinfo 是一个用于识别文件类型的库",
+			Description: s.t.Get("Fileinfo is a library used to identify file types"),
 		},
 		{
 			Name:        "OPcache",
 			Slug:        "Zend OPcache",
-			Description: "OPcache 将 PHP 脚本预编译的字节码存储到共享内存中来提升 PHP 的性能",
+			Description: s.t.Get("OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"),
 		},
 		{
 			Name:        "igbinary",
 			Slug:        "igbinary",
-			Description: "Igbinary 是一个用于序列化和反序列化数据的库",
+			Description: s.t.Get("Igbinary is a library for serializing and deserializing data"),
 		},
 		{
 			Name:        "Redis",
 			Slug:        "redis",
-			Description: "PhpRedis 连接并操作 Redis 数据库上的数据（需先安装上面 igbinary 拓展）",
+			Description: s.t.Get("PhpRedis connects to and operates on data in Redis databases (requires the igbinary extension installed above)"),
 		},
 		{
 			Name:        "Memcached",
 			Slug:        "memcached",
-			Description: "Memcached 是一个用于连接 Memcached 服务器的驱动程序",
+			Description: s.t.Get("Memcached is a driver for connecting to Memcached servers"),
 		},
 		{
 			Name:        "ImageMagick",
 			Slug:        "imagick",
-			Description: "ImageMagick 是一个免费的创建、编辑、合成图片的软件",
+			Description: s.t.Get("ImageMagick is free software for creating, editing, and composing images"),
 		},
 		{
 			Name:        "exif",
 			Slug:        "exif",
-			Description: "exif 是一个用于读取和写入图像元数据的库",
+			Description: s.t.Get("Exif is a library for reading and writing image metadata"),
 		},
 		{
 			Name:        "pgsql",
 			Slug:        "pgsql",
-			Description: "pgsql 是一个用于连接 PostgreSQL 的驱动程序（需先安装 PostgreSQL）",
+			Description: s.t.Get("pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"),
 		},
 		{
 			Name:        "pdo_pgsql",
 			Slug:        "pdo_pgsql",
-			Description: "pdo_pgsql 是一个用于连接 PostgreSQL 的 PDO 驱动程序（需先安装 PostgreSQL）",
+			Description: s.t.Get("pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"),
 		},
 		{
 			Name:        "sqlsrv",
 			Slug:        "sqlsrv",
-			Description: "sqlsrv 是一个用于连接 SQL Server 的驱动程序",
+			Description: s.t.Get("sqlsrv is a driver for connecting to SQL Server"),
 		},
 		{
 			Name:        "pdo_sqlsrv",
 			Slug:        "pdo_sqlsrv",
-			Description: "pdo_sqlsrv 是一个用于连接 SQL Server 的 PDO 驱动程序",
+			Description: s.t.Get("pdo_sqlsrv is a PDO driver for connecting to SQL Server"),
 		},
 		{
 			Name:        "imap",
 			Slug:        "imap",
-			Description: "IMAP 扩展允许 PHP 读取、搜索、删除、下载和管理邮件",
+			Description: s.t.Get("IMAP extension allows PHP to read, search, delete, download, and manage emails"),
 		},
 		{
 			Name:        "zip",
 			Slug:        "zip",
-			Description: "Zip 是一个用于处理 ZIP 文件的库",
+			Description: s.t.Get("Zip is a library for handling ZIP files"),
 		},
 		{
 			Name:        "bz2",
 			Slug:        "bz2",
-			Description: "Bzip2 是一个用于压缩和解压缩文件的库",
+			Description: s.t.Get("Bzip2 is a library for compressing and decompressing files"),
 		},
 		{
 			Name:        "ssh2",
 			Slug:        "ssh2",
-			Description: "SSH2 是一个用于连接 SSH 服务器的库",
+			Description: s.t.Get("SSH2 is a library for connecting to SSH servers"),
 		},
 		{
 			Name:        "event",
 			Slug:        "event",
-			Description: "Event 是一个用于处理事件的库",
+			Description: s.t.Get("Event is a library for handling events"),
 		},
 		{
 			Name:        "readline",
 			Slug:        "readline",
-			Description: "Readline 是一个处理文本的库",
+			Description: s.t.Get("Readline is a library for processing text"),
 		},
 		{
 			Name:        "snmp",
 			Slug:        "snmp",
-			Description: "SNMP 是一种用于网络管理的协议",
+			Description: s.t.Get("SNMP is a protocol for network management"),
 		},
 		{
 			Name:        "ldap",
 			Slug:        "ldap",
-			Description: "LDAP 是一种用于访问目录服务的协议",
+			Description: s.t.Get("LDAP is a protocol for accessing directory services"),
 		},
 		{
 			Name:        "enchant",
 			Slug:        "enchant",
-			Description: "Enchant 是一个拼写检查库",
+			Description: s.t.Get("Enchant is a spell-checking library"),
 		},
 		{
 			Name:        "pspell",
 			Slug:        "pspell",
-			Description: "Pspell 是一个拼写检查库",
+			Description: s.t.Get("Pspell is a spell-checking library"),
 		},
 		{
 			Name:        "calendar",
 			Slug:        "calendar",
-			Description: "Calendar 是一个用于处理日期的库",
+			Description: s.t.Get("Calendar is a library for handling dates"),
 		},
 		{
 			Name:        "gmp",
 			Slug:        "gmp",
-			Description: "GMP 是一个用于处理大整数的库",
+			Description: s.t.Get("GMP is a library for handling large integers"),
 		},
 		{
 			Name:        "xlswriter",
 			Slug:        "xlswriter",
-			Description: "XLSWriter 是一个高性能读写 Excel 文件的库",
+			Description: s.t.Get("XLSWriter is a high-performance library for reading and writing Excel files"),
 		},
 		{
 			Name:        "xsl",
 			Slug:        "xsl",
-			Description: "XSL 是一个用于处理 XML 文档的库",
+			Description: s.t.Get("XSL is a library for processing XML documents"),
 		},
 		{
 			Name:        "intl",
 			Slug:        "intl",
-			Description: "Intl 是一个用于处理国际化和本地化的库",
+			Description: s.t.Get("Intl is a library for handling internationalization and localization"),
 		},
 		{
 			Name:        "gettext",
 			Slug:        "gettext",
-			Description: "Gettext 是一个用于处理多语言的库",
+			Description: s.t.Get("Gettext is a library for handling multilingual support"),
 		},
 		{
 			Name:        "grpc",
 			Slug:        "grpc",
-			Description: "gRPC 是一个高性能、开源和通用的 RPC 框架",
+			Description: s.t.Get("gRPC is a high-performance, open-source, and general-purpose RPC framework"),
 		},
 		{
 			Name:        "protobuf",
 			Slug:        "protobuf",
-			Description: "protobuf 是一个用于序列化和反序列化数据的库",
+			Description: s.t.Get("protobuf is a library for serializing and deserializing data"),
 		},
 		{
 			Name:        "rdkafka",
 			Slug:        "rdkafka",
-			Description: "rdkafka 是一个用于连接 Apache Kafka 的库",
+			Description: s.t.Get("rdkafka is a library for connecting to Apache Kafka"),
 		},
 		{
 			Name:        "xhprof",
 			Slug:        "xhprof",
-			Description: "xhprof 是一个用于性能分析的库",
+			Description: s.t.Get("xhprof is a library for performance profiling"),
 		},
 		{
 			Name:        "xdebug",
 			Slug:        "xdebug",
-			Description: "xdebug 是一个用于调试和分析 PHP 代码的库",
+			Description: s.t.Get("xdebug is a library for debugging and profiling PHP code"),
 		},
 		{
 			Name:        "yaml",
 			Slug:        "yaml",
-			Description: "yaml 是一个用于处理 YAML 的库",
+			Description: s.t.Get("yaml is a library for handling YAML"),
 		},
 		{
 			Name:        "zstd",
 			Slug:        "zstd",
-			Description: "zstd 是一个用于压缩和解压缩文件的库",
+			Description: s.t.Get("zstd is a library for compressing and decompressing files"),
 		},
-
 		{
 			Name:        "sysvmsg",
 			Slug:        "sysvmsg",
-			Description: "Sysvmsg 是一个用于处理 System V 消息队列的库",
+			Description: s.t.Get("Sysvmsg is a library for handling System V message queues"),
 		},
 		{
 			Name:        "sysvsem",
 			Slug:        "sysvsem",
-			Description: "Sysvsem 是一个用于处理 System V 信号量的库",
+			Description: s.t.Get("Sysvsem is a library for handling System V semaphores"),
 		},
 		{
 			Name:        "sysvshm",
 			Slug:        "sysvshm",
-			Description: "Sysvshm 是一个用于处理 System V 共享内存的库",
+			Description: s.t.Get("Sysvshm is a library for handling System V shared memory"),
 		},
 		{
 			Name:        "ionCube",
 			Slug:        "ionCube Loader",
-			Description: "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache 之后安装）",
+			Description: s.t.Get("ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"),
 		},
 		{
 			Name:        "Swoole",
 			Slug:        "swoole",
-			Description: "Swoole 是一个用于构建高性能的异步并发服务器的 PHP 扩展",
+			Description: s.t.Get("Swoole is a PHP extension for building high-performance asynchronous concurrent servers"),
 		},
 	}
 
@@ -453,7 +483,7 @@ func (s *App) getExtensions() []Extension {
 		extensions = append(extensions, Extension{
 			Name:        "Swow",
 			Slug:        "Swow",
-			Description: "Swow 是一个用于构建高性能的异步并发服务器的 PHP 扩展",
+			Description: s.t.Get("Swow is a PHP extension for building high-performance asynchronous concurrent servers"),
 		})
 	}
 	// PHP 8.4 移除了 pspell 和 imap 并且不再建议使用
