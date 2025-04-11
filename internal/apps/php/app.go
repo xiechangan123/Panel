@@ -258,17 +258,22 @@ func (s *App) getExtensions() []Extension {
 		{
 			Name:        "OPcache",
 			Slug:        "Zend OPcache",
-			Description: "OPcache 通过将 PHP 脚本预编译的字节码存储到共享内存中来提升 PHP 的性能，存储预编译字节码可以省去每次加载和解析 PHP 脚本的开销",
+			Description: "OPcache 将 PHP 脚本预编译的字节码存储到共享内存中来提升 PHP 的性能",
+		},
+		{
+			Name:        "igbinary",
+			Slug:        "igbinary",
+			Description: "Igbinary 是一个用于序列化和反序列化数据的库",
 		},
 		{
 			Name:        "Redis",
 			Slug:        "redis",
-			Description: "PhpRedis 是一个用 C 语言编写的 PHP 模块，用来连接并操作 Redis 数据库上的数据（需先安装 igbinary 拓展）",
+			Description: "PhpRedis 连接并操作 Redis 数据库上的数据（需先安装上面 igbinary 拓展）",
 		},
 		{
 			Name:        "Memcached",
 			Slug:        "memcached",
-			Description: "Memcached 使用 libmemcached 库连接 Memcached 服务器",
+			Description: "Memcached 是一个用于连接 Memcached 服务器的驱动程序",
 		},
 		{
 			Name:        "ImageMagick",
@@ -278,17 +283,27 @@ func (s *App) getExtensions() []Extension {
 		{
 			Name:        "exif",
 			Slug:        "exif",
-			Description: "通过 exif 扩展，您可以操作图像元数据",
+			Description: "exif 是一个用于读取和写入图像元数据的库",
 		},
 		{
 			Name:        "pgsql",
 			Slug:        "pgsql",
-			Description: "pgsql 是一个驱动程序，它启用从 PHP 到 PostgreSQL 数据库的访问（需先安装 PostgreSQL 应用）",
+			Description: "pgsql 是一个用于连接 PostgreSQL 的驱动程序（需先安装 PostgreSQL）",
 		},
 		{
 			Name:        "pdo_pgsql",
 			Slug:        "pdo_pgsql",
-			Description: "pdo_pgsql 是一个驱动程序，它实现了 PHP 数据对象（PDO）接口以启用从 PHP 到 PostgreSQL 数据库的访问（需先安装 PostgreSQL 应用）",
+			Description: "pdo_pgsql 是一个用于连接 PostgreSQL 的 PDO 驱动程序（需先安装 PostgreSQL）",
+		},
+		{
+			Name:        "sqlsrv",
+			Slug:        "sqlsrv",
+			Description: "sqlsrv 是一个用于连接 SQL Server 的驱动程序",
+		},
+		{
+			Name:        "pdo_sqlsrv",
+			Slug:        "pdo_sqlsrv",
+			Description: "pdo_sqlsrv 是一个用于连接 SQL Server 的 PDO 驱动程序",
 		},
 		{
 			Name:        "imap",
@@ -306,9 +321,19 @@ func (s *App) getExtensions() []Extension {
 			Description: "Bzip2 是一个用于压缩和解压缩文件的库",
 		},
 		{
+			Name:        "ssh2",
+			Slug:        "ssh2",
+			Description: "SSH2 是一个用于连接 SSH 服务器的库",
+		},
+		{
+			Name:        "event",
+			Slug:        "event",
+			Description: "Event 是一个用于处理事件的库",
+		},
+		{
 			Name:        "readline",
 			Slug:        "readline",
-			Description: "Readline 是一个库，它提供了一种用于处理文本的接口",
+			Description: "Readline 是一个处理文本的库",
 		},
 		{
 			Name:        "snmp",
@@ -341,19 +366,9 @@ func (s *App) getExtensions() []Extension {
 			Description: "GMP 是一个用于处理大整数的库",
 		},
 		{
-			Name:        "sysvmsg",
-			Slug:        "sysvmsg",
-			Description: "Sysvmsg 是一个用于处理 System V 消息队列的库",
-		},
-		{
-			Name:        "sysvsem",
-			Slug:        "sysvsem",
-			Description: "Sysvsem 是一个用于处理 System V 信号量的库",
-		},
-		{
-			Name:        "sysvshm",
-			Slug:        "sysvshm",
-			Description: "Sysvshm 是一个用于处理 System V 共享内存的库",
+			Name:        "xlswriter",
+			Slug:        "xlswriter",
+			Description: "XLSWriter 是一个高性能读写 Excel 文件的库",
 		},
 		{
 			Name:        "xsl",
@@ -371,25 +386,68 @@ func (s *App) getExtensions() []Extension {
 			Description: "Gettext 是一个用于处理多语言的库",
 		},
 		{
-			Name:        "igbinary",
-			Slug:        "igbinary",
-			Description: "Igbinary 是一个用于序列化和反序列化数据的库",
+			Name:        "grpc",
+			Slug:        "grpc",
+			Description: "gRPC 是一个高性能、开源和通用的 RPC 框架",
 		},
-	}
+		{
+			Name:        "protobuf",
+			Slug:        "protobuf",
+			Description: "protobuf 是一个用于序列化和反序列化数据的库",
+		},
+		{
+			Name:        "rdkafka",
+			Slug:        "rdkafka",
+			Description: "rdkafka 是一个用于连接 Apache Kafka 的库",
+		},
+		{
+			Name:        "xhprof",
+			Slug:        "xhprof",
+			Description: "xhprof 是一个用于性能分析的库",
+		},
+		{
+			Name:        "xdebug",
+			Slug:        "xdebug",
+			Description: "xdebug 是一个用于调试和分析 PHP 代码的库",
+		},
+		{
+			Name:        "yaml",
+			Slug:        "yaml",
+			Description: "yaml 是一个用于处理 YAML 的库",
+		},
+		{
+			Name:        "zstd",
+			Slug:        "zstd",
+			Description: "zstd 是一个用于压缩和解压缩文件的库",
+		},
 
-	// ionCube Swoole 不支持 PHP 8.4
-	if cast.ToUint(s.version) < 84 {
-		extensions = append(extensions, Extension{
+		{
+			Name:        "sysvmsg",
+			Slug:        "sysvmsg",
+			Description: "Sysvmsg 是一个用于处理 System V 消息队列的库",
+		},
+		{
+			Name:        "sysvsem",
+			Slug:        "sysvsem",
+			Description: "Sysvsem 是一个用于处理 System V 信号量的库",
+		},
+		{
+			Name:        "sysvshm",
+			Slug:        "sysvshm",
+			Description: "Sysvshm 是一个用于处理 System V 共享内存的库",
+		},
+		{
 			Name:        "ionCube",
 			Slug:        "ionCube Loader",
 			Description: "ionCube 是一个专业级的 PHP 加密解密工具（需在 OPcache 之后安装）",
-		})
-		extensions = append(extensions, Extension{
+		},
+		{
 			Name:        "Swoole",
 			Slug:        "swoole",
 			Description: "Swoole 是一个用于构建高性能的异步并发服务器的 PHP 扩展",
-		})
+		},
 	}
+
 	// Swow 不支持 PHP 8.0 以下版本且目前不支持 PHP 8.4
 	if cast.ToUint(s.version) >= 80 && cast.ToUint(s.version) < 84 {
 		extensions = append(extensions, Extension{
