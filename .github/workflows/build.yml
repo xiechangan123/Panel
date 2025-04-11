@@ -55,7 +55,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend
-          path: internal/embed/frontend
+          path: pkg/embed/frontend
       - name: Set build info
         run: |
           echo "VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo '0.0.0')" >> $GITHUB_ENV

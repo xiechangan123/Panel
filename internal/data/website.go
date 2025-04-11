@@ -17,11 +17,11 @@ import (
 
 	"github.com/tnb-labs/panel/internal/app"
 	"github.com/tnb-labs/panel/internal/biz"
-	"github.com/tnb-labs/panel/internal/embed"
 	"github.com/tnb-labs/panel/internal/http/request"
 	"github.com/tnb-labs/panel/pkg/acme"
 	"github.com/tnb-labs/panel/pkg/api"
 	"github.com/tnb-labs/panel/pkg/cert"
+	"github.com/tnb-labs/panel/pkg/embed"
 	"github.com/tnb-labs/panel/pkg/io"
 	"github.com/tnb-labs/panel/pkg/nginx"
 	"github.com/tnb-labs/panel/pkg/punycode"

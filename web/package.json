@@ -19,7 +19,7 @@
     "lint": "run-s gen-auto-import lint-only",
     "lint-only": "eslint . --fix",
     "format": "prettier --write src/",
-    "copy": "cpx \"dist/**/*\" \"../internal/embed/frontend\" -C",
+    "copy": "cpx \"dist/**/*\" \"../pkg/embed/frontend\" -C",
     "gen-auto-import": "tsx gen-auto-import.ts"
   },
   "dependencies": {
