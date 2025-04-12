@@ -752,7 +752,7 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 		return err
 	}
 	if slices.Contains(website.Domains, "*") {
-		return errors.New(r.t.Get("cannot one-key obtain wildcard certificate"))
+		return errors.New(r.t.Get("not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"))
 	}
 
 	account, err := r.certAccount.GetDefault(cast.ToUint(ctx.Value("user_id")))
