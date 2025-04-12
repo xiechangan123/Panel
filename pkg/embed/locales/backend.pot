@@ -7,6 +7,11 @@ msgstr ""
 "Language: \n"
 "X-Generator: xgotext\n"
 
+#: internal/data/website.go:269
+#: internal/data/website.go:635
+msgid "# 伪静态规则"
+msgstr ""
+
 #: internal/bootstrap/cli.go:18
 msgid "AUTHOR"
 msgstr ""
@@ -946,6 +951,14 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
+#: internal/data/website.go:369
+msgid "can't find %s database server, please add it first"
+msgstr ""
+
+#: internal/data/website.go:755
+msgid "cannot one-key obtain wildcard certificate"
+msgstr ""
+
 #: internal/data/database_server.go:106
 #: internal/data/database_server.go:86
 msgid "check server connection failed"
@@ -972,6 +985,14 @@ msgstr ""
 #: internal/data/backup.go:420
 #: internal/data/backup.go:462
 msgid "database does not exist: %s"
+msgstr ""
+
+#: internal/data/website.go:717
+msgid "default document comment count is incorrect, expected 1, actual %d"
+msgstr ""
+
+#: internal/data/website.go:714
+msgid "default document comment not found"
 msgstr ""
 
 #: internal/apps/pureftpd/app.go:84
@@ -1036,6 +1057,10 @@ msgstr ""
 
 #: internal/service/systemctl.go:31
 msgid "failed to get %s service running status: %v"
+msgstr ""
+
+#: internal/data/website.go:305
+msgid "failed to get 404 template file: %v"
 msgstr ""
 
 #: internal/data/cert_account.go:202
@@ -1105,6 +1130,10 @@ msgstr ""
 
 #: internal/service/dashboard.go:70
 msgid "failed to get home apps: %v"
+msgstr ""
+
+#: internal/data/website.go:293
+msgid "failed to get index template file: %v"
 msgstr ""
 
 #: internal/apps/supervisor/app.go:218
@@ -1403,6 +1432,19 @@ msgstr ""
 msgid "rule not found"
 msgstr ""
 
+#: internal/data/website.go:704
+msgid "runtime directory comment count is incorrect, expected 1, actual %d"
+msgstr ""
+
+#: internal/data/website.go:701
+msgid "runtime directory comment not found"
+msgstr ""
+
+#: internal/data/website.go:447
+#: internal/data/website.go:708
+msgid "runtime directory does not exist"
+msgstr ""
+
 #: internal/apps/php/app.go:332
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
@@ -1492,6 +1534,14 @@ msgstr ""
 #: internal/data/user.go:48
 #: internal/data/user.go:55
 msgid "username or password error"
+msgstr ""
+
+#: internal/data/website.go:552
+msgid "website %s has bound certificates, please delete the certificate first"
+msgstr ""
+
+#: internal/data/website.go:454
+msgid "website directory does not exist"
 msgstr ""
 
 #: internal/data/cert.go:172
