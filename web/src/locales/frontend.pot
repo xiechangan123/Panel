@@ -304,24 +304,24 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: src/layout/sidebar/components/SideSetting.vue:63
-#: src/layout/sidebar/components/SideSetting.vue:68
+#: src/layout/sidebar/components/SideSetting.vue:66
+#: src/layout/sidebar/components/SideSetting.vue:71
 msgid "Menu Settings"
 msgstr ""
 
-#: src/layout/sidebar/components/SideSetting.vue:80
+#: src/layout/sidebar/components/SideSetting.vue:83
 msgid "Settings are saved in the browser and will be reset after clearing the browser cache"
 msgstr ""
 
-#: src/layout/sidebar/components/SideSetting.vue:85
+#: src/layout/sidebar/components/SideSetting.vue:88
 msgid "Custom Logo"
 msgstr ""
 
-#: src/layout/sidebar/components/SideSetting.vue:88
+#: src/layout/sidebar/components/SideSetting.vue:91
 msgid "Please enter the complete URL"
 msgstr ""
 
-#: src/layout/sidebar/components/SideSetting.vue:91
+#: src/layout/sidebar/components/SideSetting.vue:94
 msgid "Hide Menu"
 msgstr ""
 
@@ -425,7 +425,6 @@ msgstr ""
 
 #: src/views/app/IndexView.vue:96
 #: src/views/dashboard/IndexView.vue:451
-#: src/views/dashboard/route.ts:32
 msgid "Update"
 msgstr ""
 
@@ -461,10 +460,6 @@ msgstr ""
 
 #: src/views/app/IndexView.vue:229
 msgid "Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!"
-msgstr ""
-
-#: src/views/app/route.ts:19
-msgid "Apps"
 msgstr ""
 
 #: src/views/app/VersionModal.vue:73
@@ -642,10 +637,6 @@ msgstr ""
 msgid "Start Benchmark"
 msgstr ""
 
-#: src/views/apps/benchmark/route.ts:17
-msgid "Rat Benchmark"
-msgstr ""
-
 #: src/views/apps/docker/IndexView.vue:25
 #: src/views/apps/fail2ban/IndexView.vue:42
 #: src/views/apps/frp/IndexView.vue:30
@@ -806,7 +797,7 @@ msgstr ""
 #: src/views/apps/toolbox/IndexView.vue:109
 #: src/views/file/EditModal.vue:31
 #: src/views/file/ListTable.vue:723
-#: src/views/setting/SettingBase.vue:99
+#: src/views/setting/SettingBase.vue:97
 #: src/views/setting/SettingHttps.vue:62
 #: src/views/website/EditView.vue:215
 msgid "Save"
@@ -980,10 +971,6 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:349
 #: src/views/apps/supervisor/IndexView.vue:471
 msgid "Runtime Logs"
-msgstr ""
-
-#: src/views/apps/docker/route.ts:17
-msgid "Docker"
 msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:53
@@ -1219,10 +1206,6 @@ msgstr ""
 msgid "Ban List"
 msgstr ""
 
-#: src/views/apps/fail2ban/route.ts:17
-msgid "Fail2ban"
-msgstr ""
-
 #: src/views/apps/frp/IndexView.vue:122
 msgid "Are you sure you want to stop Frps?"
 msgstr ""
@@ -1240,20 +1223,12 @@ msgstr ""
 msgid "Are you sure you want to stop Frpc?"
 msgstr ""
 
-#: src/views/apps/frp/route.ts:17
-msgid "Frp"
-msgstr ""
-
 #: src/views/apps/gitea/IndexView.vue:115
 msgid "Are you sure you want to stop Gitea?"
 msgstr ""
 
 #: src/views/apps/gitea/IndexView.vue:129
 msgid "This modifies the Gitea configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
-
-#: src/views/apps/gitea/route.ts:17
-msgid "Gitea"
 msgstr ""
 
 #: src/views/apps/memcached/IndexView.vue:27
@@ -1292,10 +1267,6 @@ msgstr ""
 msgid "Load Status"
 msgstr ""
 
-#: src/views/apps/memcached/route.ts:17
-msgid "Memcached"
-msgstr ""
-
 #: src/views/apps/minio/IndexView.vue:110
 msgid "Are you sure you want to stop Minio?"
 msgstr ""
@@ -1309,10 +1280,6 @@ msgstr ""
 
 #: src/views/apps/minio/IndexView.vue:124
 msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
-msgstr ""
-
-#: src/views/apps/minio/route.ts:17
-msgid "Minio"
 msgstr ""
 
 #: src/views/apps/mysql/IndexView.vue:70
@@ -1375,10 +1342,6 @@ msgstr ""
 msgid "Slow Query Log"
 msgstr ""
 
-#: src/views/apps/mysql/route.ts:17
-msgid "Percona (MySQL)"
-msgstr ""
-
 #: src/views/apps/nginx/IndexView.vue:161
 msgid "Stopping OpenResty will cause all websites to become inaccessible. Are you sure you want to stop?"
 msgstr ""
@@ -1390,10 +1353,6 @@ msgstr ""
 #: src/views/apps/nginx/IndexView.vue:214
 #: src/views/apps/php/PhpView.vue:401
 msgid "Error Logs"
-msgstr ""
-
-#: src/views/apps/nginx/route.ts:17
-msgid "OpenResty (Nginx)"
 msgstr ""
 
 #: src/views/apps/php/PhpView.vue:52
@@ -1482,10 +1441,6 @@ msgstr ""
 msgid "This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/phpmyadmin/route.ts:17
-msgid "phpMyAdmin"
-msgstr ""
-
 #: src/views/apps/podman/IndexView.vue:112
 msgid "Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!"
 msgstr ""
@@ -1510,10 +1465,6 @@ msgstr ""
 msgid "This modifies the Podman storage configuration file (/etc/containers/storage.conf)"
 msgstr ""
 
-#: src/views/apps/podman/route.ts:17
-msgid "Podman"
-msgstr ""
-
 #: src/views/apps/postgresql/IndexView.vue:171
 msgid "Stopping PostgreSQL will cause websites using PostgreSQL to become inaccessible. Are you sure you want to stop?"
 msgstr ""
@@ -1530,10 +1481,6 @@ msgstr ""
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/postgresql/route.ts:17
-msgid "PostgreSQL"
-msgstr ""
-
 #: src/views/apps/pureftpd/IndexView.vue:41
 #: src/views/apps/pureftpd/IndexView.vue:304
 #: src/views/container/ImageView.vue:198
@@ -1544,7 +1491,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:40
 #: src/views/login/IndexView.vue:115
-#: src/views/setting/SettingBase.vue:69
+#: src/views/setting/SettingBase.vue:67
 #: src/views/ssh/CreateModal.vue:83
 #: src/views/ssh/UpdateModal.vue:89
 msgid "Username"
@@ -1610,7 +1557,7 @@ msgstr ""
 #: src/views/database/UpdateUserModal.vue:49
 #: src/views/database/UserList.vue:50
 #: src/views/login/IndexView.vue:123
-#: src/views/setting/SettingBase.vue:72
+#: src/views/setting/SettingBase.vue:70
 #: src/views/ssh/CreateModal.vue:77
 #: src/views/ssh/CreateModal.vue:86
 #: src/views/ssh/UpdateModal.vue:83
@@ -1637,20 +1584,12 @@ msgstr ""
 msgid "Enter the directory authorized to the user"
 msgstr ""
 
-#: src/views/apps/pureftpd/route.ts:17
-msgid "Pure-FTPd"
-msgstr ""
-
 #: src/views/apps/redis/IndexView.vue:137
 msgid "Stopping Redis will cause websites using Redis to become inaccessible. Are you sure you want to stop?"
 msgstr ""
 
 #: src/views/apps/redis/IndexView.vue:155
 msgid "This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr ""
-
-#: src/views/apps/redis/route.ts:17
-msgid "Redis"
 msgstr ""
 
 #: src/views/apps/rsync/IndexView.vue:44
@@ -1757,10 +1696,6 @@ msgstr ""
 msgid "Module Configuration"
 msgstr ""
 
-#: src/views/apps/rsync/route.ts:17
-msgid "Rsync"
-msgstr ""
-
 #: src/views/apps/s3fs/IndexView.vue:25
 msgid "Mount Path"
 msgstr ""
@@ -1809,10 +1744,6 @@ msgstr ""
 
 #: src/views/apps/s3fs/IndexView.vue:180
 msgid "Enter mount directory (e.g., /oss)"
-msgstr ""
-
-#: src/views/apps/s3fs/route.ts:17
-msgid "S3FS"
 msgstr ""
 
 #: src/views/apps/supervisor/IndexView.vue:80
@@ -1888,10 +1819,6 @@ msgstr ""
 msgid "Process Configuration"
 msgstr ""
 
-#: src/views/apps/supervisor/route.ts:17
-msgid "Supervisor"
-msgstr ""
-
 #: src/views/apps/toolbox/IndexView.vue:87
 #: src/views/database/ServerList.vue:147
 msgid "Synchronized successfully"
@@ -1950,10 +1877,6 @@ msgstr ""
 
 #: src/views/apps/toolbox/IndexView.vue:199
 msgid "Synchronize Time"
-msgstr ""
-
-#: src/views/apps/toolbox/route.ts:17
-msgid "Toolbox"
 msgstr ""
 
 #: src/views/backup/ListView.vue:36
@@ -2031,13 +1954,8 @@ msgstr ""
 #: src/views/backup/ListView.vue:264
 #: src/views/dashboard/IndexView.vue:425
 #: src/views/database/IndexView.vue:45
-#: src/views/database/route.ts:19
 #: src/views/website/IndexView.vue:444
 msgid "Database"
-msgstr ""
-
-#: src/views/backup/route.ts:19
-msgid "Backup"
 msgstr ""
 
 #: src/views/backup/UploadModal.vue:20
@@ -2254,7 +2172,6 @@ msgstr ""
 
 #: src/views/cert/CertView.vue:497
 #: src/views/cert/CertView.vue:573
-#: src/views/cert/route.ts:19
 #: src/views/cert/UploadCertModal.vue:38
 #: src/views/setting/SettingHttps.vue:45
 #: src/views/website/EditView.vue:355
@@ -3032,10 +2949,6 @@ msgstr ""
 msgid "Option Value"
 msgstr ""
 
-#: src/views/container/route.ts:19
-msgid "Container"
-msgstr ""
-
 #: src/views/container/VolumeView.vue:47
 #: src/views/dashboard/IndexView.vue:644
 msgid "Mount Point"
@@ -3355,10 +3268,6 @@ msgstr ""
 msgid "Read/Write Latency"
 msgstr ""
 
-#: src/views/dashboard/route.ts:20
-msgid "Dashboard"
-msgstr ""
-
 #: src/views/dashboard/UpdateView.vue:24
 msgid "Update Panel"
 msgstr ""
@@ -3466,7 +3375,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:76
 #: src/views/firewall/ForwardView.vue:32
 #: src/views/firewall/RuleView.vue:49
-#: src/views/setting/SettingBase.vue:78
+#: src/views/setting/SettingBase.vue:76
 #: src/views/ssh/CreateModal.vue:68
 #: src/views/ssh/UpdateModal.vue:74
 #: src/views/website/IndexView.vue:420
@@ -3770,10 +3679,6 @@ msgstr ""
 msgid "Preview - "
 msgstr ""
 
-#: src/views/file/route.ts:19
-msgid "Files"
-msgstr ""
-
 #: src/views/file/SearchModal.vue:71
 msgid "Copy Path"
 msgstr ""
@@ -3978,17 +3883,12 @@ msgid "Port Forwarding"
 msgstr ""
 
 #: src/views/firewall/IndexView.vue:28
-#: src/views/setting/route.ts:19
 msgid "Settings"
 msgstr ""
 
 #: src/views/firewall/IpRuleView.vue:75
 #: src/views/firewall/RuleView.vue:109
 msgid "Mark"
-msgstr ""
-
-#: src/views/firewall/route.ts:19
-msgid "Firewall"
 msgstr ""
 
 #: src/views/firewall/RuleView.vue:74
@@ -4127,70 +4027,70 @@ msgstr ""
 msgid "Time Selection"
 msgstr ""
 
-#: src/views/monitor/route.ts:19
-msgid "Monitoring"
-msgstr ""
-
 #: src/views/setting/IndexView.vue:17
 msgid "Basic"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:57
+#: src/views/setting/SettingBase.vue:42
+msgid "Panel is restarting, page will refresh in 3 seconds"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:55
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:63
-#: src/views/setting/SettingBase.vue:64
+#: src/views/setting/SettingBase.vue:61
+#: src/views/setting/SettingBase.vue:62
 msgid "Panel Name"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:66
+#: src/views/setting/SettingBase.vue:64
 msgid "Language"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:70
-#: src/views/setting/SettingBase.vue:73
-#: src/views/setting/SettingBase.vue:82
+#: src/views/setting/SettingBase.vue:68
+#: src/views/setting/SettingBase.vue:71
+#: src/views/setting/SettingBase.vue:80
 msgid "admin"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:75
+#: src/views/setting/SettingBase.vue:73
 msgid "Certificate Default Email"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:76
+#: src/views/setting/SettingBase.vue:74
 msgid "admin@example.com"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:79
+#: src/views/setting/SettingBase.vue:77
 msgid "8888"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:81
+#: src/views/setting/SettingBase.vue:79
 msgid "Access Entrance"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:84
+#: src/views/setting/SettingBase.vue:82
 msgid "Offline Mode"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:87
+#: src/views/setting/SettingBase.vue:85
 msgid "Auto Update"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:90
+#: src/views/setting/SettingBase.vue:88
 msgid "Default Website Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:91
+#: src/views/setting/SettingBase.vue:89
 msgid "/www/wwwroot"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:93
+#: src/views/setting/SettingBase.vue:91
 msgid "Default Backup Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:94
+#: src/views/setting/SettingBase.vue:92
 msgid "/www/backup"
 msgstr ""
 
@@ -4231,10 +4131,6 @@ msgstr ""
 
 #: src/views/ssh/IndexView.vue:167
 msgid "Connection error. Please refresh."
-msgstr ""
-
-#: src/views/ssh/route.ts:19
-msgid "Terminal"
 msgstr ""
 
 #: src/views/ssh/UpdateModal.vue:30
@@ -4336,10 +4232,6 @@ msgstr ""
 msgid "Panel Tasks"
 msgstr ""
 
-#: src/views/task/route.ts:19
-msgid "Tasks"
-msgstr ""
-
 #: src/views/task/SystemView.vue:25
 msgid "Parent PID"
 msgstr ""
@@ -4411,7 +4303,6 @@ msgid "Edit Website - %{ name }"
 msgstr ""
 
 #: src/views/website/EditView.vue:85
-#: src/views/website/route.ts:31
 msgid "Edit Website"
 msgstr ""
 
@@ -4751,8 +4642,4 @@ msgstr ""
 
 #: src/views/website/ProxyBuilderModal.vue:197
 msgid "Replacement content"
-msgstr ""
-
-#: src/views/website/route.ts:19
-msgid "Websites"
 msgstr ""
