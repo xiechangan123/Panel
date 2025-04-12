@@ -755,6 +755,7 @@ msgstr ""
 #: src/views/apps/php/PhpView.vue:189
 #: src/views/apps/podman/IndexView.vue:70
 #: src/views/apps/postgresql/IndexView.vue:80
+#: src/views/apps/pureftpd/IndexView.vue:148
 #: src/views/apps/redis/IndexView.vue:71
 #: src/views/apps/rsync/IndexView.vue:167
 #: src/views/apps/supervisor/IndexView.vue:261
@@ -772,6 +773,7 @@ msgstr ""
 #: src/views/apps/php/PhpView.vue:192
 #: src/views/apps/podman/IndexView.vue:73
 #: src/views/apps/postgresql/IndexView.vue:83
+#: src/views/apps/pureftpd/IndexView.vue:151
 #: src/views/apps/redis/IndexView.vue:74
 #: src/views/apps/rsync/IndexView.vue:170
 #: src/views/apps/supervisor/IndexView.vue:266
@@ -856,6 +858,7 @@ msgstr ""
 #: src/views/apps/php/PhpView.vue:288
 #: src/views/apps/podman/IndexView.vue:120
 #: src/views/apps/postgresql/IndexView.vue:150
+#: src/views/apps/pureftpd/IndexView.vue:229
 #: src/views/apps/redis/IndexView.vue:116
 #: src/views/apps/rsync/IndexView.vue:268
 #: src/views/apps/supervisor/IndexView.vue:390
@@ -874,6 +877,7 @@ msgstr ""
 #: src/views/apps/php/PhpView.vue:289
 #: src/views/apps/podman/IndexView.vue:121
 #: src/views/apps/postgresql/IndexView.vue:151
+#: src/views/apps/pureftpd/IndexView.vue:230
 #: src/views/apps/redis/IndexView.vue:117
 #: src/views/apps/rsync/IndexView.vue:269
 #: src/views/apps/supervisor/IndexView.vue:391
@@ -1550,24 +1554,8 @@ msgstr ""
 msgid "Are you sure you want to delete user %{ username }?"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:148
-msgid "Auto-start enabled successfully"
-msgstr ""
-
-#: src/views/apps/pureftpd/IndexView.vue:151
-msgid "Auto-start disabled successfully"
-msgstr ""
-
 #: src/views/apps/pureftpd/IndexView.vue:220
 msgid "Add User"
-msgstr ""
-
-#: src/views/apps/pureftpd/IndexView.vue:229
-msgid "Auto-start On"
-msgstr ""
-
-#: src/views/apps/pureftpd/IndexView.vue:230
-msgid "Auto-start Off"
 msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:250
