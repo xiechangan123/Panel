@@ -1471,11 +1471,11 @@ msgid "the current version is the latest version"
 msgstr ""
 
 #: internal/data/cert.go:351
-msgid "this certificate has not been signed successfully and cannot be deployed"
+msgid "this certificate has not been issued successfully and cannot be deployed"
 msgstr ""
 
 #: internal/data/cert.go:276
-msgid "this certificate has not been signed successfully and cannot be renewed"
+msgid "this certificate has not been issued successfully and cannot be renewed"
 msgstr ""
 
 #: internal/data/cert.go:168

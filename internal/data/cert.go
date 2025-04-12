@@ -273,7 +273,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.CertURL == "" {
-		return nil, errors.New(r.t.Get("this certificate has not been signed successfully and cannot be renewed"))
+		return nil, errors.New(r.t.Get("this certificate has not been issued successfully and cannot be renewed"))
 	}
 
 	if cert.DNS != nil {
@@ -348,7 +348,7 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	}
 
 	if cert.Cert == "" || cert.Key == "" {
-		return errors.New(r.t.Get("this certificate has not been signed successfully and cannot be deployed"))
+		return errors.New(r.t.Get("this certificate has not been issued successfully and cannot be deployed"))
 	}
 
 	website := new(biz.Website)
