@@ -30,7 +30,6 @@ const columns: any = [
     title: $gettext('Running'),
     key: 'status',
     width: 150,
-    align: 'center',
     render(row: any) {
       return h(NSwitch, {
         size: 'small',
@@ -64,7 +63,6 @@ const columns: any = [
     title: 'HTTPS',
     key: 'https',
     width: 150,
-    align: 'center',
     render(row: any) {
       return h(NSwitch, {
         size: 'small',

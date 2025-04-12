@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { useGettext } from 'vue3-gettext'
+
+const { $gettext } = useGettext()
 const { isFullscreen, toggle } = useFullscreen()
 </script>
 
@@ -10,6 +13,6 @@ const { isFullscreen, toggle } = useFullscreen()
         <icon-ant-design:fullscreen-outlined v-else />
       </n-icon>
     </template>
-    全屏显示
+    {{ $gettext('Fullscreen Display') }}
   </n-tooltip>
 </template>

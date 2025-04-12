@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useThemeStore } from '@/store'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const themeStore = useThemeStore()
 </script>
 
@@ -12,6 +14,6 @@ const themeStore = useThemeStore()
         <icon-mdi:format-indent-decrease v-else />
       </n-icon>
     </template>
-    菜单缩放
+    {{ $gettext('Menu Zoom') }}
   </n-tooltip>
 </template>

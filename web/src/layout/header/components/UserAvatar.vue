@@ -3,17 +3,19 @@ import user from '@/api/panel/user'
 import { router } from '@/router'
 import { useUserStore } from '@/store'
 import { renderIcon } from '@/utils'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const userStore = useUserStore()
 
 const options = [
   {
-    label: '修改密码',
+    label: $gettext('Change Password'),
     key: 'changePassword',
     icon: renderIcon('mdi:key', { size: 14 })
   },
   {
-    label: '退出登录',
+    label: $gettext('Logout'),
     key: 'logout',
     icon: renderIcon('mdi:exit-to-app', { size: 14 })
   }
@@ -22,15 +24,15 @@ const options = [
 const handleSelect = (key: string) => {
   if (key === 'logout') {
     window.$dialog.info({
-      content: '确认退出？',
-      title: '提示',
-      positiveText: '确定',
-      negativeText: '取消',
+      content: $gettext('Confirm logout?'),
+      title: $gettext('Prompt'),
+      positiveText: $gettext('Confirm'),
+      negativeText: $gettext('Cancel'),
       onPositiveClick() {
         user.logout().then(() => {
           userStore.logout()
         })
-        window.$message.success('已退出登录!')
+        window.$message.success($gettext('Logged out successfully!'))
       }
     })
   }
@@ -43,7 +45,7 @@ const username = computed(() => {
   if (userStore.username !== '') {
     return userStore.username
   }
-  return '未知'
+  return $gettext('Unknown')
 })
 </script>
 

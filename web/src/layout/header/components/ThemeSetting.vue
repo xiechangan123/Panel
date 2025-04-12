@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useThemeStore } from '@/store'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const themeStore = useThemeStore()
 </script>
 
@@ -14,6 +16,6 @@ const themeStore = useThemeStore()
         :render-label="() => ''"
       />
     </template>
-    设置主题色
+    {{ $gettext('Set Theme Color') }}
   </n-tooltip>
 </template>

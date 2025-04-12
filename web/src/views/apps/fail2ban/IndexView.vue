@@ -53,7 +53,6 @@ const jailsColumns: any = [
     title: $gettext('Status'),
     key: 'enabled',
     minWidth: 60,
-    align: 'center',
     render(row: any) {
       return h(NSwitch, {
         size: 'small',

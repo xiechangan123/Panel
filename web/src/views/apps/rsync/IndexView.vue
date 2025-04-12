@@ -5,11 +5,13 @@ defineOptions({
 
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import rsync from '@/api/apps/rsync'
 import systemctl from '@/api/panel/systemctl'
 import { generateRandomString, renderIcon } from '@/utils'
 
+const { $gettext } = useGettext()
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
@@ -39,41 +41,41 @@ const statusType = computed(() => {
   return status.value ? 'success' : 'error'
 })
 const statusStr = computed(() => {
-  return status.value ? '正常运行中' : '已停止运行'
+  return status.value ? $gettext('Running normally') : $gettext('Stopped')
 })
 
 const processColumns: any = [
   {
-    title: '名称',
+    title: $gettext('Name'),
     key: 'name',
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '目录',
+    title: $gettext('Directory'),
     key: 'path',
     minWidth: 250,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '用户',
+    title: $gettext('User'),
     key: 'auth_user',
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '主机',
+    title: $gettext('Host'),
     key: 'hosts_allow',
     minWidth: 250,
     resizable: true,
     ellipsis: { tooltip: true }
   },
-  { title: '备注', key: 'comment', resizable: true, ellipsis: { tooltip: true } },
+  { title: $gettext('Comment'), key: 'comment', resizable: true, ellipsis: { tooltip: true } },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     align: 'center',
@@ -88,7 +90,7 @@ const processColumns: any = [
             onClick: () => handleModelEdit(row)
           },
           {
-            default: () => '配置',
+            default: () => $gettext('Configure'),
             icon: renderIcon('material-symbols:settings-outline', { size: 14 })
           }
         ),
@@ -99,7 +101,9 @@ const processColumns: any = [
           },
           {
             default: () => {
-              return '确定删除模块' + row.name + '吗？'
+              return $gettext('Are you sure you want to delete module %{ name }?', {
+                name: row.name
+              })
             },
             trigger: () => {
               return h(
@@ -110,7 +114,7 @@ const processColumns: any = [
                   style: 'margin-left: 15px'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -147,36 +151,36 @@ const getConfig = async () => {
 const handleSaveConfig = async () => {
   useRequest(rsync.saveConfig(config.value)).onSuccess(() => {
     refresh()
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleStart = async () => {
   await systemctl.start('rsyncd')
-  window.$message.success('启动成功')
+  window.$message.success($gettext('Started successfully'))
   await getStatus()
 }
 
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
     await systemctl.enable('rsyncd')
-    window.$message.success('开启自启动成功')
+    window.$message.success($gettext('Autostart enabled successfully'))
   } else {
     await systemctl.disable('rsyncd')
-    window.$message.success('禁用自启动成功')
+    window.$message.success($gettext('Autostart disabled successfully'))
   }
   await getIsEnabled()
 }
 
 const handleStop = async () => {
   await systemctl.stop('rsyncd')
-  window.$message.success('停止成功')
+  window.$message.success($gettext('Stopped successfully'))
   await getStatus()
 }
 
 const handleRestart = async () => {
   await systemctl.restart('rsyncd')
-  window.$message.success('重启成功')
+  window.$message.success($gettext('Restarted successfully'))
   await getStatus()
 }
 
@@ -193,7 +197,7 @@ const handleModelAdd = async () => {
       secret: generateRandomString(16),
       hosts_allow: '0.0.0.0/0'
     }
-    window.$message.success('添加成功')
+    window.$message.success($gettext('Added successfully'))
   })
 }
 
@@ -201,7 +205,7 @@ const handleModelDelete = async (name: string) => {
   useRequest(rsync.deleteModule(name)).onSuccess(() => {
     refresh()
     getConfig()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
@@ -220,7 +224,7 @@ const handleSaveModuleConfig = async () => {
     () => {
       refresh()
       getConfig()
-      window.$message.success('保存成功')
+      window.$message.success($gettext('Saved successfully'))
     }
   )
 }
@@ -243,7 +247,7 @@ onMounted(() => {
         @click="handleSaveConfig"
       >
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button
         v-if="currentTab == 'modules'"
@@ -252,17 +256,17 @@ onMounted(() => {
         @click="addModuleModal = true"
       >
         <TheIcon :size="18" icon="material-symbols:add" />
-        添加模块
+        {{ $gettext('Add Module') }}
       </n-button>
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="status" tab="运行状态">
+      <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-space vertical>
-          <n-card title="运行状态">
+          <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> 自启动开 </template>
-                <template #unchecked> 自启动关 </template>
+                <template #checked> {{ $gettext('Autostart On') }} </template>
+                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
@@ -272,28 +276,32 @@ onMounted(() => {
               <n-space>
                 <n-button type="success" @click="handleStart">
                   <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  启动
+                  {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop">
                   <template #trigger>
                     <n-button type="error">
                       <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      停止
+                      {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  停止 Rsync 服务后，将无法使用 Rsync 功能，确定要停止吗？
+                  {{
+                    $gettext(
+                      'After stopping the Rsync service, you will not be able to use the Rsync functionality. Are you sure you want to stop?'
+                    )
+                  }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
-                  重启
+                  {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
             </n-space>
           </n-card>
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="modules" tab="模块管理">
-        <n-card title="模块列表" :segmented="true">
+      <n-tab-pane name="modules" :tab="$gettext('Module Management')">
+        <n-card :title="$gettext('Module List')" :segmented="true">
           <n-data-table
             striped
             remote
@@ -316,10 +324,14 @@ onMounted(() => {
           />
         </n-card>
       </n-tab-pane>
-      <n-tab-pane name="config" tab="主配置">
+      <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            此处修改的是 Supervisor 主配置文件，如果您不了解各参数的含义，请不要随意修改！
+            {{
+              $gettext(
+                'This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="config"
@@ -335,7 +347,7 @@ onMounted(() => {
           />
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="run-log" tab="运行日志">
+      <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="rsyncd" />
       </n-tab-pane>
     </n-tabs>
@@ -343,7 +355,7 @@ onMounted(() => {
   <n-modal
     v-model:show="addModuleModal"
     preset="card"
-    title="添加模块"
+    :title="$gettext('Add Module')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -351,61 +363,61 @@ onMounted(() => {
     @close="addModuleModal = false"
   >
     <n-form :model="addModuleModel">
-      <n-form-item path="name" label="名称">
+      <n-form-item path="name" :label="$gettext('Name')">
         <n-input
           v-model:value="addModuleModel.name"
           type="text"
           @keydown.enter.prevent
-          placeholder="名称禁止使用中文"
+          :placeholder="$gettext('Name cannot contain Chinese characters')"
         />
       </n-form-item>
-      <n-form-item path="path" label="目录">
+      <n-form-item path="path" :label="$gettext('Directory')">
         <n-input
           v-model:value="addModuleModel.path"
           type="text"
           @keydown.enter.prevent
-          placeholder="请填写绝对路径"
+          :placeholder="$gettext('Please enter absolute path')"
         />
       </n-form-item>
-      <n-form-item path="auth_user" label="用户">
+      <n-form-item path="auth_user" :label="$gettext('User')">
         <n-input
           v-model:value="addModuleModel.auth_user"
           type="text"
           @keydown.enter.prevent
-          placeholder="填写模块的用户名"
+          :placeholder="$gettext('Enter module username')"
         />
       </n-form-item>
-      <n-form-item path="secret" label="密码">
+      <n-form-item path="secret" :label="$gettext('Password')">
         <n-input
           v-model:value="addModuleModel.secret"
           type="text"
           @keydown.enter.prevent
-          placeholder="填写模块的密码"
+          :placeholder="$gettext('Enter module password')"
         />
       </n-form-item>
-      <n-form-item path="hosts_allow" label="主机">
+      <n-form-item path="hosts_allow" :label="$gettext('Host')">
         <n-input
           v-model:value="addModuleModel.hosts_allow"
           type="text"
           @keydown.enter.prevent
-          placeholder="填写允许访问的主机，多个主机用空格分隔"
+          :placeholder="$gettext('Enter allowed hosts, separate multiple hosts with spaces')"
         />
       </n-form-item>
-      <n-form-item path="comment" label="备注">
+      <n-form-item path="comment" :label="$gettext('Comment')">
         <n-input
           v-model:value="addModuleModel.comment"
           type="text"
           @keydown.enter.prevent
-          placeholder="填写备注信息"
+          :placeholder="$gettext('Enter comments')"
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleModelAdd">提交</n-button>
+    <n-button type="info" block @click="handleModelAdd">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <n-modal
     v-model:show="editModuleModal"
     preset="card"
-    title="模块配置"
+    :title="$gettext('Module Configuration')"
     style="width: 80vw"
     size="huge"
     :bordered="false"
@@ -413,45 +425,45 @@ onMounted(() => {
     @close="handleSaveModuleConfig"
   >
     <n-form :model="editModuleModel">
-      <n-form-item path="path" label="目录">
+      <n-form-item path="path" :label="$gettext('Directory')">
         <n-input
           v-model:value="editModuleModel.path"
           type="text"
           @keydown.enter.prevent
-          placeholder="请填写绝对路径"
+          :placeholder="$gettext('Please enter absolute path')"
         />
       </n-form-item>
-      <n-form-item path="auth_user" label="用户">
+      <n-form-item path="auth_user" :label="$gettext('User')">
         <n-input
           v-model:value="editModuleModel.auth_user"
           type="text"
           @keydown.enter.prevent
-          placeholder="填写模块的用户名"
+          :placeholder="$gettext('Enter module username')"
         />
       </n-form-item>
-      <n-form-item path="secret" label="密码">
+      <n-form-item path="secret" :label="$gettext('Password')">
         <n-input
           v-model:value="editModuleModel.secret"
           type="password"
           show-password-on="click"
           @keydown.enter.prevent
-          placeholder="填写模块的密码"
+          :placeholder="$gettext('Enter module password')"
         />
       </n-form-item>
-      <n-form-item path="hosts_allow" label="主机">
+      <n-form-item path="hosts_allow" :label="$gettext('Host')">
         <n-input
           v-model:value="editModuleModel.hosts_allow"
           type="text"
           @keydown.enter.prevent
-          placeholder="填写允许访问的主机，多个主机用空格分隔"
+          :placeholder="$gettext('Enter allowed hosts, separate multiple hosts with spaces')"
         />
       </n-form-item>
-      <n-form-item path="comment" label="备注">
+      <n-form-item path="comment" :label="$gettext('Comment')">
         <n-input
           v-model:value="editModuleModel.comment"
           type="text"
           @keydown.enter.prevent
-          placeholder="填写备注信息"
+          :placeholder="$gettext('Enter comments')"
         />
       </n-form-item>
     </n-form>

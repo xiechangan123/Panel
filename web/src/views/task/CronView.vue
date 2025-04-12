@@ -58,8 +58,7 @@ const columns: any = [
   {
     title: $gettext('Enabled'),
     key: 'status',
-    width: 100,
-    align: 'center',
+    width: 120,
     resizable: true,
     render(row: any) {
       return h(NSwitch, {

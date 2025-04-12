@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useTabStore } from '@/store'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const tabStore = useTabStore()
 
 const handleReloadPage = () => {
@@ -15,6 +17,6 @@ const handleReloadPage = () => {
         <icon-mdi-refresh />
       </n-icon>
     </template>
-    刷新标签页
+    {{ $gettext('Refresh Tab') }}
   </n-tooltip>
 </template>

@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { useTabStore } from '@/store'
 import { renderIcon } from '@/utils'
+import { useGettext } from 'vue3-gettext'
+
+const { $gettext } = useGettext()
 
 interface Props {
   show?: boolean
@@ -22,43 +25,43 @@ const tabStore = useTabStore()
 
 const options = computed(() => [
   {
-    label: '关闭',
+    label: $gettext('Close'),
     key: 'close',
     disabled: tabStore.tabs.length <= 1,
     icon: renderIcon('mdi:close', { size: 14 })
   },
   {
-    label: '重载',
+    label: $gettext('Reload'),
     key: 'reload',
     disabled: props.currentPath !== tabStore.active,
     icon: renderIcon('mdi:refresh', { size: 14 })
   },
   {
-    label: '固定',
+    label: $gettext('Pin'),
     key: 'pin',
     disabled: props.keepAlive,
     icon: renderIcon('mdi:pin', { size: 14 })
   },
   {
-    label: '取消固定',
+    label: $gettext('Unpin'),
     key: 'unpin',
     disabled: !props.keepAlive,
     icon: renderIcon('mdi:pin-off', { size: 14 })
   },
   {
-    label: '关闭其他',
+    label: $gettext('Close Others'),
     key: 'close-other',
     disabled: tabStore.tabs.length <= 1,
     icon: renderIcon('mdi:arrow-expand-horizontal', { size: 14 })
   },
   {
-    label: '关闭左侧',
+    label: $gettext('Close Left'),
     key: 'close-left',
     disabled: tabStore.tabs.length <= 1 || props.currentPath === tabStore.tabs[0].path,
     icon: renderIcon('mdi:arrow-expand-left', { size: 14 })
   },
   {
-    label: '关闭右侧',
+    label: $gettext('Close Right'),
     key: 'close-right',
     disabled:
       tabStore.tabs.length <= 1 ||

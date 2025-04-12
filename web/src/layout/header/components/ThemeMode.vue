@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useThemeStore } from '@/store'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const theme = useThemeStore()
 </script>
 
@@ -12,6 +14,6 @@ const theme = useThemeStore()
         <icon-mdi-white-balance-sunny v-else />
       </n-icon>
     </template>
-    切换主题
+    {{ $gettext('Switch Theme') }}
   </n-tooltip>
 </template>

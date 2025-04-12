@@ -36,28 +36,25 @@ const columns: any = [
   {
     title: $gettext('App Name'),
     key: 'name',
-    width: 300,
-    resizable: true,
+    width: 200,
     ellipsis: { tooltip: true }
   },
   {
     title: $gettext('Description'),
     key: 'description',
     minWidth: 300,
-    resizable: true,
     ellipsis: { tooltip: true }
   },
   {
     title: $gettext('Installed Version'),
     key: 'installed_version',
-    width: 100,
+    width: 160,
     ellipsis: { tooltip: true }
   },
   {
     title: $gettext('Show in Home'),
     key: 'show',
-    width: 100,
-    align: 'center',
+    width: 140,
     render(row: any) {
       return h(NSwitch, {
         size: 'small',
