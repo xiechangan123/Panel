@@ -165,7 +165,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
 		if cert.Website == nil {
-			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be signed. You can try to sign it manually"))
+			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
 		} else {
 			for _, domain := range cert.Domains {
 				if strings.Contains(domain, "*") {
@@ -273,14 +273,14 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.CertURL == "" {
-		return nil, errors.New(r.t.Get("this certificate has not been issued successfully and cannot be renewed"))
+		return nil, errors.New(r.t.Get("this certificate has not been obtained successfully and cannot be renewed"))
 	}
 
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
 		if cert.Website == nil {
-			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be signed. You can try to sign it manually"))
+			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
 		} else {
 			for _, domain := range cert.Domains {
 				if strings.Contains(domain, "*") {
@@ -348,7 +348,7 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	}
 
 	if cert.Cert == "" || cert.Key == "" {
-		return errors.New(r.t.Get("this certificate has not been issued successfully and cannot be deployed"))
+		return errors.New(r.t.Get("this certificate has not been obtained successfully and cannot be deployed"))
 	}
 
 	website := new(biz.Website)
@@ -403,7 +403,7 @@ func (r *certRepo) runScript(cert *biz.Cert) error {
 
 func (r *certRepo) getClient(cert *biz.Cert) (*acme.Client, error) {
 	if cert.Account == nil {
-		return nil, errors.New(r.t.Get("this certificate is not associated with an ACME account and cannot be signed"))
+		return nil, errors.New(r.t.Get("this certificate is not associated with an ACME account and cannot be obtained"))
 	}
 
 	var ca string
