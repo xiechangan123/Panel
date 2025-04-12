@@ -27,6 +27,10 @@ msgstr ""
 msgid "Active connections"
 msgstr ""
 
+#: internal/service/cert.go:60
+msgid "Aliyun"
+msgstr ""
+
 #: internal/data/app.go:347
 msgid "App %s %s"
 msgstr ""
@@ -78,6 +82,14 @@ msgstr ""
 msgid "Cleanup failed: %v"
 msgstr ""
 
+#: internal/service/cert.go:104
+msgid "ClouDNS"
+msgstr ""
+
+#: internal/service/cert.go:76
+msgid "CloudFlare"
+msgstr ""
+
 #: internal/apps/redis/app.go:86
 msgid "Commands Per Second"
 msgstr ""
@@ -91,6 +103,10 @@ msgstr ""
 msgid "DESCRIPTION"
 msgstr ""
 
+#: internal/service/cli.go:103
+msgid "Download URL is empty"
+msgstr ""
+
 #: internal/data/backup.go:726
 #: internal/data/backup.go:729
 msgid "Download failed: %w"
@@ -100,8 +116,20 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
+#: internal/service/file.go:295
+msgid "Download remote file %v"
+msgstr ""
+
+#: internal/service/cert.go:108
+msgid "Duck DNS"
+msgstr ""
+
 #: internal/apps/php/app.go:382
 msgid "Enchant is a spell-checking library"
+msgstr ""
+
+#: internal/service/cli.go:164
+msgid "Entrance: %s"
 msgstr ""
 
 #: internal/apps/php/app.go:362
@@ -110,6 +138,34 @@ msgstr ""
 
 #: internal/apps/php/app.go:317
 msgid "Exif is a library for reading and writing image metadata"
+msgstr ""
+
+#: internal/service/cli.go:135
+msgid "Failed to generate password: %v"
+msgstr ""
+
+#: internal/service/cli.go:158
+msgid "Failed to get entrance"
+msgstr ""
+
+#: internal/service/cli.go:98
+msgid "Failed to get latest version: %v"
+msgstr ""
+
+#: internal/service/cli.go:154
+msgid "Failed to get port"
+msgstr ""
+
+#: internal/service/cli.go:129
+msgid "Failed to get user info: %v"
+msgstr ""
+
+#: internal/service/cli.go:194
+msgid "Failed to get user list: %v"
+msgstr ""
+
+#: internal/service/cli.go:144
+msgid "Failed to save user info: %v"
 msgstr ""
 
 #: internal/apps/php/app.go:287
@@ -140,8 +196,28 @@ msgstr ""
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
+#: internal/service/cert.go:84
+msgid "Gcore"
+msgstr ""
+
 #: internal/apps/php/app.go:417
 msgid "Gettext is a library for handling multilingual support"
+msgstr ""
+
+#: internal/service/cert.go:80
+msgid "Godaddy"
+msgstr ""
+
+#: internal/service/cert.go:112
+msgid "Hetzner"
+msgstr ""
+
+#: internal/service/cert.go:68
+msgid "Huawei Cloud"
+msgstr ""
+
+#: internal/service/cli.go:198
+msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr ""
 
 #: internal/apps/php/app.go:342
@@ -150,6 +226,14 @@ msgstr ""
 
 #: internal/apps/php/app.go:134
 msgid "Idle Processes"
+msgstr ""
+
+#: internal/service/cli.go:184
+msgid "If you cannot access, please check whether the server's security group and firewall allow port %s"
+msgstr ""
+
+#: internal/service/cli.go:185
+msgid "If you still cannot access, try running panel-cli https off to turn off panel HTTPS"
 msgstr ""
 
 #: internal/apps/php/app.go:297
@@ -201,12 +285,24 @@ msgstr ""
 msgid "Latest Fork Time (ms)"
 msgstr ""
 
+#: internal/service/cert.go:116
+msgid "Linode"
+msgstr ""
+
 #: internal/apps/php/app.go:131
 msgid "Listen Queue"
 msgstr ""
 
 #: internal/apps/php/app.go:133
 msgid "Listen Queue Length"
+msgstr ""
+
+#: internal/service/cli.go:168
+msgid "Local IPv4: %s://%s:%s%s"
+msgstr ""
+
+#: internal/service/cli.go:172
+msgid "Local IPv6: %s://[%s]:%s%s"
 msgstr ""
 
 #: internal/apps/php/app.go:137
@@ -255,8 +351,29 @@ msgstr ""
 msgid "NAME"
 msgstr ""
 
+#: internal/service/cert.go:100
+msgid "Name.com"
+msgstr ""
+
+#: internal/service/cert.go:96
+msgid "NameSilo"
+msgstr ""
+
+#: internal/service/cert.go:92
+msgid "Namecheap"
+msgstr ""
+
+#: internal/service/cli.go:212
+msgid "New username cannot be empty"
+msgstr ""
+
 #: internal/data/backup.go:616
 msgid "No backup file found, unable to automatically repair"
+msgstr ""
+
+#: internal/service/dashboard.go:200
+#: internal/service/dashboard.go:201
+msgid "Not used"
 msgstr ""
 
 #: internal/bootstrap/cli.go:26
@@ -268,8 +385,28 @@ msgstr ""
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr ""
 
+#: internal/service/cli.go:209
+msgid "Old username cannot be empty"
+msgstr ""
+
 #: internal/apps/mysql/app.go:126
 msgid "Open Tables"
+msgstr ""
+
+#: internal/service/cli.go:73
+msgid "Panel service restarted"
+msgstr ""
+
+#: internal/service/cli.go:91
+msgid "Panel service started"
+msgstr ""
+
+#: internal/service/cli.go:82
+msgid "Panel service stopped"
+msgstr ""
+
+#: internal/service/cli.go:162
+msgid "Password: %s"
 msgstr ""
 
 #: internal/apps/mysql/app.go:122
@@ -282,6 +419,18 @@ msgstr ""
 
 #: internal/apps/php/app.go:302
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary extension installed above)"
+msgstr ""
+
+#: internal/service/cli.go:183
+msgid "Please choose the appropriate address to access the panel based on your network situation"
+msgstr ""
+
+#: internal/service/cert.go:88
+msgid "Porkbun"
+msgstr ""
+
+#: internal/service/cli.go:163
+msgid "Port: %s"
 msgstr ""
 
 #: internal/apps/postgresql/app.go:142
@@ -300,8 +449,20 @@ msgstr ""
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
+#: internal/service/cli.go:176
+msgid "Public IPv4: %s://%s:%s%s"
+msgstr ""
+
+#: internal/service/cli.go:180
+msgid "Public IPv6: %s://[%s]:%s%s"
+msgstr ""
+
 #: internal/bootstrap/cli.go:35
 msgid "QQ Group：12370907"
+msgstr ""
+
+#: internal/service/dashboard.go:58
+msgid "Rat Panel"
 msgstr ""
 
 #: internal/bootstrap/cli.go:39
@@ -361,6 +522,18 @@ msgstr ""
 msgid "Swow is a PHP extension for building high-performance asynchronous concurrent servers"
 msgstr ""
 
+#: internal/service/cli.go:111
+msgid "Sync app data failed: %v"
+msgstr ""
+
+#: internal/service/cli.go:118
+msgid "Sync data successfully"
+msgstr ""
+
+#: internal/service/cli.go:114
+msgid "Sync rewrite rules failed: %v"
+msgstr ""
+
 #: internal/apps/php/app.go:457
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr ""
@@ -387,6 +560,10 @@ msgstr ""
 
 #: internal/data/backup.go:746
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run panel-cli fix to repair and try again"
+msgstr ""
+
+#: internal/service/cert.go:64
+msgid "Tencent Cloud"
 msgstr ""
 
 #: internal/data/backup.go:556
@@ -445,6 +622,10 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
+#: internal/service/app.go:173
+msgid "Unable to update app list cache in offline mode"
+msgstr ""
+
 #: internal/apps/php/app.go:270
 msgid "Uninstall PHP-%d %s extension"
 msgstr ""
@@ -473,8 +654,16 @@ msgstr ""
 msgid "Uptime in Days"
 msgstr ""
 
+#: internal/service/cli.go:161
+msgid "Username: %s"
+msgstr ""
+
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
+msgstr ""
+
+#: internal/service/cert.go:120
+msgid "Vercel"
 msgstr ""
 
 #: internal/data/backup.go:739
@@ -485,8 +674,16 @@ msgstr ""
 msgid "Waiting"
 msgstr ""
 
+#: internal/service/cli.go:186
+msgid "Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"
+msgstr ""
+
 #: internal/bootstrap/cli.go:33
 msgid "Website：https://panel.haozi.net"
+msgstr ""
+
+#: internal/service/cert.go:72
+msgid "West.cn"
 msgstr ""
 
 #: internal/apps/nginx/app.go:102
@@ -533,14 +730,48 @@ msgstr ""
 msgid "app %s requires panel version %s, current version %s"
 msgstr ""
 
+#: internal/data/setting.go:191
+#: internal/data/setting.go:248
+msgid "background task is running, modifying some settings is prohibited, please try again later"
+msgstr ""
+
+#: internal/service/dashboard.go:336
+msgid "background task is running, restart is prohibited, please try again later"
+msgstr ""
+
+#: internal/service/dashboard.go:305
+msgid "background task is running, updating is prohibited, please try again later"
+msgstr ""
+
 #: internal/data/backup.go:378
 #: internal/data/backup.go:405
 #: internal/data/backup.go:451
 msgid "backup file %s not exists"
 msgstr ""
 
+#: internal/service/file.go:277
+msgid "can't download a directory"
+msgstr ""
+
+#: internal/data/database_server.go:106
+#: internal/data/database_server.go:86
+msgid "check server connection failed"
+msgstr ""
+
 #: internal/data/backup.go:564
 msgid "could not find .sql backup file"
+msgstr ""
+
+#: internal/service/file.go:166
+msgid "create directory error: %v"
+msgstr ""
+
+#: internal/data/cron.go:96
+msgid "cron directory %s not exists"
+msgstr ""
+
+#: internal/data/cron.go:99
+msgid "cron log directory %s not exists"
 msgstr ""
 
 #: internal/data/backup.go:258
@@ -558,6 +789,10 @@ msgstr ""
 msgid "disk space is insufficient, current free %s"
 msgstr ""
 
+#: internal/data/task.go:65
+msgid "duplicate submission, please wait for the previous task to end"
+msgstr ""
+
 #: internal/apps/s3fs/app.go:71
 msgid "endpoint should not contain bucket"
 msgstr ""
@@ -570,6 +805,11 @@ msgstr ""
 #: internal/apps/s3fs/app.go:134
 #: internal/apps/s3fs/app.go:139
 msgid "failed to add s3fs mount: %v"
+msgstr ""
+
+#: internal/data/ssh.go:53
+#: internal/data/ssh.go:77
+msgid "failed to check ssh connection: %v"
 msgstr ""
 
 #: internal/data/backup.go:598
@@ -587,6 +827,30 @@ msgstr ""
 #: internal/apps/s3fs/app.go:206
 #: internal/apps/s3fs/app.go:210
 msgid "failed to delete s3fs mount: %v"
+msgstr ""
+
+#: internal/service/systemctl.go:77
+msgid "failed to disable %s service: %v"
+msgstr ""
+
+#: internal/service/systemctl.go:62
+msgid "failed to enable %s service: %v"
+msgstr ""
+
+#: internal/service/systemctl.go:47
+msgid "failed to get %s service enable status: %v"
+msgstr ""
+
+#: internal/service/systemctl.go:31
+msgid "failed to get %s service running status: %v"
+msgstr ""
+
+#: internal/data/cert_account.go:202
+msgid "failed to get Google EAB: %s"
+msgstr ""
+
+#: internal/data/cert_account.go:198
+msgid "failed to get Google EAB: %v"
 msgstr ""
 
 #: internal/apps/memcached/app.go:37
@@ -622,6 +886,14 @@ msgstr ""
 msgid "failed to get SWAP: %v"
 msgstr ""
 
+#: internal/data/cert_account.go:227
+msgid "failed to get ZeroSSL EAB"
+msgstr ""
+
+#: internal/data/cert_account.go:223
+msgid "failed to get ZeroSSL EAB: %v"
+msgstr ""
+
 #: internal/apps/toolbox/app.go:208
 msgid "failed to get available timezones: %v"
 msgstr ""
@@ -638,6 +910,10 @@ msgstr ""
 msgid "failed to get disk space: %v"
 msgstr ""
 
+#: internal/service/dashboard.go:70
+msgid "failed to get home apps: %v"
+msgstr ""
+
 #: internal/apps/supervisor/app.go:218
 #: internal/apps/supervisor/app.go:241
 #: internal/apps/supervisor/app.go:358
@@ -652,6 +928,14 @@ msgstr ""
 
 #: internal/apps/pureftpd/app.go:152
 msgid "failed to get port: %v"
+msgstr ""
+
+#: internal/data/cert_account.go:113
+msgid "failed to get private key"
+msgstr ""
+
+#: internal/data/cert_account.go:172
+msgid "failed to get private key: %v"
 msgstr ""
 
 #: internal/apps/redis/app.go:62
@@ -671,8 +955,30 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
+#: internal/service/dashboard.go:90
+msgid "failed to get system info: %v"
+msgstr ""
+
+#: internal/service/dashboard.go:317
+msgid "failed to get the latest version download link"
+msgstr ""
+
+#: internal/service/dashboard.go:235
+#: internal/service/dashboard.go:270
+#: internal/service/dashboard.go:311
+msgid "failed to get the latest version: %v"
+msgstr ""
+
 #: internal/apps/rsync/app.go:82
 msgid "failed to get the secret key for module %s"
+msgstr ""
+
+#: internal/service/dashboard.go:136
+msgid "failed to get the total number of websites: %v"
+msgstr ""
+
+#: internal/service/dashboard.go:291
+msgid "failed to get the update information: %v"
 msgstr ""
 
 #: internal/apps/toolbox/app.go:197
@@ -692,13 +998,53 @@ msgstr ""
 msgid "failed to load MySQL root password: %v"
 msgstr ""
 
+#: internal/data/cert.go:92
+msgid "failed to parse certificate: %v"
+msgstr ""
+
+#: internal/data/setting.go:196
+msgid "failed to parse certificate: %w"
+msgstr ""
+
+#: internal/data/cert.go:95
+msgid "failed to parse private key: %v"
+msgstr ""
+
+#: internal/data/setting.go:199
+msgid "failed to parse private key: %w"
+msgstr ""
+
 #: internal/apps/fail2ban/app.go:327
 #: internal/apps/fail2ban/app.go:355
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
+#: internal/service/dashboard.go:241
+#: internal/service/dashboard.go:246
+#: internal/service/dashboard.go:276
+#: internal/service/dashboard.go:281
+msgid "failed to parse version: %v"
+msgstr ""
+
+#: internal/service/ws.go:122
+msgid "failed to read command output: %v"
+msgstr ""
+
+#: internal/service/ws.go:103
+msgid "failed to read command: %v"
+msgstr ""
+
 #: internal/apps/memcached/app.go:77
 msgid "failed to read from Memcached: %v"
+msgstr ""
+
+#: internal/data/cert_account.go:108
+#: internal/data/cert_account.go:167
+msgid "failed to register account: %v"
+msgstr ""
+
+#: internal/service/systemctl.go:107
+msgid "failed to reload %s service: %v"
 msgstr ""
 
 #: internal/apps/postgresql/app.go:65
@@ -712,12 +1058,20 @@ msgstr ""
 msgid "failed to reload nginx: %v"
 msgstr ""
 
+#: internal/service/systemctl.go:92
+msgid "failed to restart %s service: %v"
+msgstr ""
+
 #: internal/apps/supervisor/app.go:108
 msgid "failed to restart %s: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:72
 msgid "failed to restart MySQL: %v"
+msgstr ""
+
+#: internal/service/ws.go:110
+msgid "failed to run command: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:99
@@ -740,6 +1094,14 @@ msgstr ""
 msgid "failed to set root password: %v"
 msgstr ""
 
+#: internal/service/systemctl.go:122
+msgid "failed to start %s service: %v"
+msgstr ""
+
+#: internal/service/systemctl.go:137
+msgid "failed to stop %s service: %v"
+msgstr ""
+
 #: internal/apps/toolbox/app.go:80
 msgid "failed to update DNS: %v"
 msgstr ""
@@ -748,12 +1110,20 @@ msgstr ""
 msgid "failed to write to Memcached: %v"
 msgstr ""
 
+#: internal/service/file.go:84
+msgid "file is too large, please download it to view"
+msgstr ""
+
 #: internal/apps/php/app.go:422
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr ""
 
 #: internal/apps/fail2ban/app.go:184
 msgid "get service port failed, please check if it is installed"
+msgstr ""
+
+#: internal/service/user.go:78
+msgid "invalid key, please refresh the page"
 msgstr ""
 
 #: internal/apps/php/app.go:472
@@ -789,6 +1159,14 @@ msgstr ""
 msgid "mount path is not empty"
 msgstr ""
 
+#: internal/data/database.go:185
+msgid "mysql not support database comment"
+msgstr ""
+
+#: internal/service/file.go:174
+msgid "open file error: %v"
+msgstr ""
+
 #: internal/apps/php/app.go:327
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
@@ -808,6 +1186,18 @@ msgstr ""
 
 #: internal/apps/phpmyadmin/app.go:65
 msgid "phpMyAdmin port not found"
+msgstr ""
+
+#: internal/service/file.go:135
+msgid "please don't do this"
+msgstr ""
+
+#: internal/data/cert.go:210
+msgid "please retry the manual obtain operation"
+msgstr ""
+
+#: internal/data/setting.go:220
+msgid "port is already in use"
 msgstr ""
 
 #: internal/apps/php/app.go:427
@@ -830,6 +1220,53 @@ msgstr ""
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
+#: internal/data/database_server.go:161
+#: internal/data/database_server.go:187
+msgid "sync from server %s"
+msgstr ""
+
+#: internal/service/backup.go:87
+msgid "target backup %s already exists"
+msgstr ""
+
+#: internal/service/file.go:80
+msgid "target is a directory"
+msgstr ""
+
+#: internal/service/file.go:160
+msgid "target path %s already exists"
+msgstr ""
+
+#: internal/service/dashboard.go:285
+msgid "the current version is the latest version"
+msgstr ""
+
+#: internal/data/cert.go:351
+msgid "this certificate has not been signed successfully and cannot be deployed"
+msgstr ""
+
+#: internal/data/cert.go:276
+msgid "this certificate has not been signed successfully and cannot be renewed"
+msgstr ""
+
+#: internal/data/cert.go:168
+#: internal/data/cert.go:283
+msgid "this certificate is not associated with a website and cannot be signed. You can try to sign it manually"
+msgstr ""
+
+#: internal/data/cert.go:406
+msgid "this certificate is not associated with an ACME account and cannot be signed"
+msgstr ""
+
+#: internal/service/dashboard.go:228
+#: internal/service/dashboard.go:263
+msgid "unable to check for updates in offline mode"
+msgstr ""
+
+#: internal/service/dashboard.go:300
+msgid "unable to update in offline mode"
+msgstr ""
+
 #: internal/data/backup.go:131
 #: internal/data/backup.go:207
 #: internal/data/backup.go:95
@@ -844,6 +1281,41 @@ msgstr ""
 msgid "unknown test type"
 msgstr ""
 
+#: internal/data/cert_account.go:104
+#: internal/data/cert_account.go:163
+msgid "unsupported CA"
+msgstr ""
+
+#: internal/service/backup.go:77
+msgid "unsupported file type"
+msgstr ""
+
+#: internal/data/cron.go:221
+msgid "unsupported system"
+msgstr ""
+
+#: internal/data/cert.go:132
+msgid "upload certificate cannot be set to auto renew"
+msgstr ""
+
+#: internal/service/file.go:156
+msgid "upload file error: %v"
+msgstr ""
+
+#: internal/data/user.go:48
+#: internal/data/user.go:55
+msgid "username or password error"
+msgstr ""
+
+#: internal/data/cert.go:172
+#: internal/data/cert.go:287
+msgid "wildcard domains cannot use HTTP verification"
+msgstr ""
+
+#: internal/service/file.go:179
+msgid "write file error: %v"
+msgstr ""
+
 #: internal/apps/php/app.go:442
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr ""
@@ -854,6 +1326,11 @@ msgstr ""
 
 #: internal/apps/php/app.go:447
 msgid "yaml is a library for handling YAML"
+msgstr ""
+
+#: internal/service/file.go:222
+#: internal/service/file.go:251
+msgid "you can't do this, it will be broken"
 msgstr ""
 
 #: internal/apps/php/app.go:452
