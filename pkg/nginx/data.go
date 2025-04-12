@@ -23,7 +23,7 @@ const DefaultConf = `server {
         access_log /dev/null;
         error_log /dev/null;
     }
-    # Deny access to sensitive directories
+    # Deny some sensitive directories
     location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
         return 404;
     }
