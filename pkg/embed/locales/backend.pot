@@ -113,7 +113,7 @@ msgid "Cleaning temporary directory failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:666
-msgid "Cleaning temporary file failed: %w"
+msgid "Cleaning temporary file failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:193
@@ -163,7 +163,7 @@ msgstr ""
 
 #: internal/data/backup.go:726
 #: internal/data/backup.go:729
-msgid "Download failed: %w"
+msgid "Download failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:732
@@ -463,15 +463,15 @@ msgid "Memory Fragmentation Ratio"
 msgstr ""
 
 #: internal/data/backup.go:648
-msgid "Move panel config failed: %w"
+msgid "Move panel config failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:643
-msgid "Move panel file failed: %w"
+msgid "Move panel file failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:653
-msgid "Move panel-cli file failed: %w"
+msgid "Move panel-cli file failed: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:88
@@ -646,7 +646,7 @@ msgid "Readline is a library for processing text"
 msgstr ""
 
 #: internal/data/backup.go:640
-msgid "Remove panel file failed: %w"
+msgid "Remove panel file failed: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:118
@@ -803,11 +803,11 @@ msgid "Uninstall app %s"
 msgstr ""
 
 #: internal/data/backup.go:631
-msgid "Unzip backup file failed: %w"
+msgid "Unzip backup file failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:663
-msgid "Unzip panel data failed: %w"
+msgid "Unzip panel data failed: %v"
 msgstr ""
 
 #: internal/data/app.go:301
@@ -848,7 +848,7 @@ msgid "Vercel"
 msgstr ""
 
 #: internal/data/backup.go:739
-msgid "Verify download file failed: %w"
+msgid "Verify download file failed: %v"
 msgstr ""
 
 #: internal/apps/nginx/app.go:152
@@ -1192,19 +1192,13 @@ msgid "failed to load MySQL root password: %v"
 msgstr ""
 
 #: internal/data/cert.go:92
+#: internal/data/setting.go:196
 msgid "failed to parse certificate: %v"
 msgstr ""
 
-#: internal/data/setting.go:196
-msgid "failed to parse certificate: %w"
-msgstr ""
-
 #: internal/data/cert.go:95
-msgid "failed to parse private key: %v"
-msgstr ""
-
 #: internal/data/setting.go:199
-msgid "failed to parse private key: %w"
+msgid "failed to parse private key: %v"
 msgstr ""
 
 #: internal/apps/fail2ban/app.go:327
@@ -1557,7 +1551,7 @@ msgstr ""
 
 #: internal/data/backup.go:754
 #: internal/data/backup.go:757
-msgid "|-Backup panel data failed: %w"
+msgid "|-Backup panel data failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:750
@@ -1589,11 +1583,11 @@ msgid "|-Backup type: website"
 msgstr ""
 
 #: internal/data/backup.go:780
-msgid "|-Clean up temporary file failed: %w"
+msgid "|-Clean up temporary file failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:742
-msgid "|-Clean up verification file failed: %w"
+msgid "|-Clean up verification file failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:601
@@ -1605,7 +1599,7 @@ msgid "|-Cleaning expired file: %s"
 msgstr ""
 
 #: internal/data/backup.go:767
-msgid "|-Cleaning old version failed: %w"
+msgid "|-Cleaning old version failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:764
@@ -1631,7 +1625,7 @@ msgid "|-Download link: %s"
 msgstr ""
 
 #: internal/data/backup.go:800
-msgid "|-Download panel service file failed: %w"
+msgid "|-Download panel service file failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:723
@@ -1656,7 +1650,7 @@ msgid "|-Move backup file..."
 msgstr ""
 
 #: internal/data/backup.go:806
-msgid "|-Move panel-cli tool failed: %w"
+msgid "|-Move panel-cli tool failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:790
@@ -1664,7 +1658,7 @@ msgid "|-Restore panel data failed, missing file"
 msgstr ""
 
 #: internal/data/backup.go:787
-msgid "|-Restore panel data failed: %w"
+msgid "|-Restore panel data failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:659
@@ -1681,7 +1675,7 @@ msgid "|-Rotation type: website"
 msgstr ""
 
 #: internal/data/backup.go:797
-msgid "|-Run post-update script failed: %w"
+msgid "|-Run post-update script failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:794
@@ -1719,7 +1713,7 @@ msgid "|-Unzip new version failed, missing file"
 msgstr ""
 
 #: internal/data/backup.go:774
-msgid "|-Unzip new version failed: %w"
+msgid "|-Unzip new version failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:771
@@ -1735,7 +1729,7 @@ msgid "|-Verify download file..."
 msgstr ""
 
 #: internal/data/backup.go:803
-msgid "|-Write new panel version failed: %w"
+msgid "|-Write new panel version failed: %v"
 msgstr ""
 
 #: internal/service/cli.go:539
