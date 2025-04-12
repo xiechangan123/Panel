@@ -76,7 +76,7 @@ const handleCreateAccount = () => {
       <n-alert type="warning">
         {{
           $gettext(
-            "Google is not accessible in mainland China, and other CAs depend on network conditions. GoogleCN or Let's Encrypt are recommended"
+            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt"
           )
         }}
       </n-alert>

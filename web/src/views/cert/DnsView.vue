@@ -332,7 +332,7 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            :placeholder="$gettext('Enter ClouDNS Auth ID (Add sub- prefix for Sub Auth ID)')"
+            :placeholder="$gettext('Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'cloudns'" path="sk" label="Auth Password">

@@ -110,14 +110,14 @@ const handleCreateDNS = async () => {
           <n-input
             v-model:value="model.data.sk"
             type="text"
-            :placeholder="$gettext('Enter Western Digital Username')"
+            :placeholder="$gettext('Enter West.cn Username')"
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'westcn'" path="ak" label="API Password">
           <n-input
             v-model:value="model.data.ak"
             type="text"
-            :placeholder="$gettext('Enter Western Digital API Password')"
+            :placeholder="$gettext('Enter West.cn API Password')"
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'cloudflare'" path="ak" label="API Key">
