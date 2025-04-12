@@ -28,7 +28,7 @@ watch(
   <n-modal
     v-model:show="show"
     preset="card"
-    :title="$gettext('Preview - %{ path }', { path })"
+    :title="$gettext('Preview - ') + path"
     style="width: 60vw"
     size="huge"
     :bordered="false"

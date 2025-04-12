@@ -19,7 +19,9 @@ import { WebglAddon } from '@xterm/addon-webgl'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { NButton, NFlex, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const terminal = ref<HTMLElement | null>(null)
 const term = ref()
 let sshWs: WebSocket | null = null
@@ -38,7 +40,7 @@ const fetchData = async () => {
   list.value = []
   const data = await ssh.list(1, 10000)
   if (data.items.length === 0) {
-    window.$message.info('请先创建主机')
+    window.$message.info($gettext('Please create a host first'))
     return
   }
   data.items.forEach((item: any) => {
@@ -66,7 +68,7 @@ const fetchData = async () => {
                 },
                 {
                   default: () => {
-                    return '编辑'
+                    return $gettext('Edit')
                   }
                 }
               ),
@@ -77,7 +79,7 @@ const fetchData = async () => {
                 },
                 {
                   default: () => {
-                    return '确定删除主机吗？'
+                    return $gettext('Are you sure you want to delete this host?')
                   },
                   trigger: () => {
                     return h(
@@ -88,7 +90,7 @@ const fetchData = async () => {
                       },
                       {
                         default: () => {
-                          return '删除'
+                          return $gettext('Delete')
                         }
                       }
                     )
@@ -157,14 +159,12 @@ const openSession = async (id: number) => {
     current.value = id
 
     ws.onclose = () => {
-      term.value.write('\r\n连接已关闭，请刷新重试。')
-      term.value.write('\r\nConnection closed. Please refresh.')
+      term.value.write('\r\n' + $gettext('Connection closed. Please refresh.'))
       window.removeEventListener('resize', onResize)
     }
 
     ws.onerror = (event) => {
-      term.value.write('\r\n连接发生错误，请刷新重试。')
-      term.value.write('\r\nConnection error. Please refresh .')
+      term.value.write('\r\n' + $gettext('Connection error. Please refresh.'))
       console.error(event)
       ws.close()
     }
@@ -228,7 +228,7 @@ onUnmounted(() => {
     <template #action>
       <n-button type="primary" @click="create = true">
         <TheIcon :size="18" icon="material-symbols:add" />
-        创建主机
+        {{ $gettext('Create Host') }}
       </n-button>
     </template>
     <n-layout has-sider sider-placement="right">

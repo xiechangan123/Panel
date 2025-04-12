@@ -31,7 +31,7 @@ const handleSave = () => {
 
 <template>
   <n-space vertical>
-    <n-alert type="warning"> 错误的证书可能导致面板无法访问，请谨慎操作！</n-alert>
+    <n-alert type="warning"> {{ $gettext('Incorrect certificates may cause the panel to be inaccessible. Please proceed with caution!') }}</n-alert>
     <n-form>
       <n-form-item :label="$gettext('Panel HTTPS')">
         <n-switch v-model:value="model.https" />

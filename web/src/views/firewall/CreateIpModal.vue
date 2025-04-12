@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import firewall from '@/api/panel/firewall'
 import { NButton } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const loading = ref(false)
 
@@ -33,26 +35,26 @@ const families = [
 
 const strategies = [
   {
-    label: '接受',
+    label: $gettext('Accept'),
     value: 'accept'
   },
   {
-    label: '丢弃',
+    label: $gettext('Drop'),
     value: 'drop'
   },
   {
-    label: '拒绝',
+    label: $gettext('Reject'),
     value: 'reject'
   }
 ]
 
 const directions = [
   {
-    label: '传入',
+    label: $gettext('Inbound'),
     value: 'in'
   },
   {
-    label: '传出',
+    label: $gettext('Outbound'),
     value: 'out'
   }
 ]
@@ -73,7 +75,7 @@ const handleCreate = async () => {
         address
       })
     ).onSuccess(() => {
-      window.$message.success(`${address} 创建成功`)
+      window.$message.success($gettext('%{ address } created successfully', { address: address }))
       show.value = false
     })
   }
@@ -84,7 +86,7 @@ const handleCreate = async () => {
   <n-modal
     v-model:show="show"
     preset="card"
-    title="创建规则"
+    :title="$gettext('Create Rule')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -92,28 +94,32 @@ const handleCreate = async () => {
     @close="show = false"
   >
     <n-form :model="createModel">
-      <n-form-item path="protocols" label="传输协议">
+      <n-form-item path="protocols" :label="$gettext('Transport Protocol')">
         <n-select v-model:value="createModel.protocol" :options="protocols" />
       </n-form-item>
-      <n-form-item path="family" label="网络协议">
+      <n-form-item path="family" :label="$gettext('Network Protocol')">
         <n-select v-model:value="createModel.family" :options="families" />
       </n-form-item>
-      <n-form-item path="address" label="IP 地址">
+      <n-form-item path="address" :label="$gettext('IP Address')">
         <n-dynamic-input
           v-model:value="createModel.address"
           show-sort-button
-          placeholder="可选输入 IP 或 IP 段：127.0.0.1 或 172.16.0.0/24（多个以英文逗号隔开）"
+          :placeholder="
+            $gettext(
+              'Optional IP or IP range: 127.0.0.1 or 172.16.0.0/24 (multiple separated by commas)'
+            )
+          "
         />
       </n-form-item>
-      <n-form-item path="strategy" label="策略">
+      <n-form-item path="strategy" :label="$gettext('Strategy')">
         <n-select v-model:value="createModel.strategy" :options="strategies" />
       </n-form-item>
-      <n-form-item path="strategy" label="方向">
+      <n-form-item path="strategy" :label="$gettext('Direction')">
         <n-select v-model:value="createModel.direction" :options="directions" />
       </n-form-item>
     </n-form>
     <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
-      提交
+      {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
 </template>

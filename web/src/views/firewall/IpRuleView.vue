@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
 import { renderIcon } from '@/utils'
 import CreateIpModal from '@/views/firewall/CreateIpModal.vue'
 
+const { $gettext } = useGettext()
 const createModalShow = ref(false)
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
-    title: '传输协议',
+    title: $gettext('Transport Protocol'),
     key: 'protocol',
     width: 150,
     resizable: true,
@@ -21,13 +23,13 @@ const columns: any = [
           if (row.protocol !== '') {
             return row.protocol
           }
-          return '无'
+          return $gettext('None')
         }
       })
     }
   },
   {
-    title: '网络协议',
+    title: $gettext('Network Protocol'),
     key: 'family',
     width: 150,
     resizable: true,
@@ -38,13 +40,13 @@ const columns: any = [
           if (row.family !== '') {
             return row.family
           }
-          return '无'
+          return $gettext('None')
         }
       })
     }
   },
   {
-    title: '策略',
+    title: $gettext('Strategy'),
     key: 'strategy',
     width: 150,
     render(row: any): any {
@@ -64,15 +66,15 @@ const columns: any = [
           default: () => {
             switch (row.strategy) {
               case 'accept':
-                return '接受'
+                return $gettext('Accept')
               case 'drop':
-                return '丢弃'
+                return $gettext('Drop')
               case 'reject':
-                return '拒绝'
+                return $gettext('Reject')
               case 'mark':
-                return '标记'
+                return $gettext('Mark')
               default:
-                return '未知'
+                return $gettext('Unknown')
             }
           }
         }
@@ -80,7 +82,7 @@ const columns: any = [
     }
   },
   {
-    title: '方向',
+    title: $gettext('Direction'),
     key: 'direction',
     width: 150,
     render(row: any): any {
@@ -93,11 +95,11 @@ const columns: any = [
           default: () => {
             switch (row.direction) {
               case 'in':
-                return '传入'
+                return $gettext('Inbound')
               case 'out':
-                return '传出'
+                return $gettext('Outbound')
               default:
-                return '未知'
+                return $gettext('Unknown')
             }
           }
         }
@@ -105,7 +107,7 @@ const columns: any = [
     }
   },
   {
-    title: '目标',
+    title: $gettext('Target'),
     key: 'address',
     minWidth: 200,
     render(row: any): any {
@@ -117,7 +119,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     align: 'center',
@@ -131,7 +133,7 @@ const columns: any = [
           },
           {
             default: () => {
-              return '确定要删除吗？'
+              return $gettext('Are you sure you want to delete?')
             },
             trigger: () => {
               return h(
@@ -142,7 +144,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -169,13 +171,13 @@ const selectedRowKeys = ref<any>([])
 const handleDelete = (row: any) => {
   useRequest(firewall.deleteIpRule(row)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
 const batchDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要删除的规则')
+    window.$message.info($gettext('Please select rules to delete'))
     return
   }
 
@@ -187,7 +189,7 @@ const batchDelete = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('删除成功')
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 watch(createModalShow, () => {
@@ -204,16 +206,16 @@ onMounted(() => {
     <n-flex items-center>
       <n-button type="primary" @click="createModalShow = true">
         <TheIcon :size="18" icon="material-symbols:add" />
-        创建规则
+        {{ $gettext('Create Rule') }}
       </n-button>
       <n-popconfirm @positive-click="batchDelete">
         <template #trigger>
           <n-button type="warning">
             <TheIcon :size="18" icon="material-symbols:delete-outline" />
-            批量删除
+            {{ $gettext('Batch Delete') }}
           </n-button>
         </template>
-        确定要批量删除吗？
+        {{ $gettext('Are you sure you want to batch delete?') }}
       </n-popconfirm>
     </n-flex>
     <n-data-table

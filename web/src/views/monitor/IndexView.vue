@@ -15,8 +15,11 @@ import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { NButton } from 'naive-ui'
 import VChart from 'vue-echarts'
+import { useGettext } from 'vue3-gettext'
 
 import monitor from '@/api/panel/monitor'
+
+const { $gettext } = useGettext()
 
 use([
   CanvasRenderer,
@@ -54,7 +57,7 @@ const saveDay = ref(30)
 
 const load = ref<any>({
   title: {
-    text: '负载',
+    text: $gettext('Load'),
     textAlign: 'left',
     textStyle: {
       fontSize: 20
@@ -65,7 +68,7 @@ const load = ref<any>({
   },
   legend: {
     align: 'left',
-    data: ['1分钟', '5分钟', '15分钟']
+    data: [$gettext('1 minute'), $gettext('5 minutes'), $gettext('15 minutes')]
   },
   xAxis: [{ type: 'category', boundaryGap: false, data: data.value.times }],
   yAxis: [
@@ -81,22 +84,22 @@ const load = ref<any>({
   },
   series: [
     {
-      name: '1分钟',
+      name: $gettext('1 minute'),
       type: 'line',
       smooth: true,
       data: data.value.load.load1,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     },
     {
-      name: '5分钟',
+      name: $gettext('5 minutes'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -109,16 +112,16 @@ const load = ref<any>({
       data: data.value.load.load5,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     },
     {
-      name: '15分钟',
+      name: $gettext('15 minutes'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -131,12 +134,12 @@ const load = ref<any>({
       data: data.value.load.load15,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     }
   ]
@@ -156,7 +159,7 @@ const cpu = ref<any>({
   xAxis: [{ type: 'category', boundaryGap: false, data: data.value.times }],
   yAxis: [
     {
-      name: '单位 %',
+      name: $gettext('Unit %'),
       min: 0,
       max: 100,
       type: 'value',
@@ -173,7 +176,7 @@ const cpu = ref<any>({
   },
   series: [
     {
-      name: '使用率',
+      name: $gettext('Usage'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -186,12 +189,12 @@ const cpu = ref<any>({
       data: data.value.cpu.percent,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     }
   ]
@@ -199,7 +202,7 @@ const cpu = ref<any>({
 
 const mem = ref<any>({
   title: {
-    text: '内存',
+    text: $gettext('Memory'),
     textAlign: 'left',
     textStyle: {
       fontSize: 20
@@ -210,12 +213,12 @@ const mem = ref<any>({
   },
   legend: {
     align: 'left',
-    data: ['内存', 'Swap']
+    data: [$gettext('Memory'), 'Swap']
   },
   xAxis: [{ type: 'category', boundaryGap: false, data: data.value.times }],
   yAxis: [
     {
-      name: '单位 MB',
+      name: $gettext('Unit MB'),
       min: 0,
       max: data.value.mem.total,
       type: 'value',
@@ -232,7 +235,7 @@ const mem = ref<any>({
   },
   series: [
     {
-      name: '内存',
+      name: $gettext('Memory'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -245,12 +248,12 @@ const mem = ref<any>({
       data: data.value.mem.used,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     },
     {
@@ -267,12 +270,12 @@ const mem = ref<any>({
       data: data.value.swap.used,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     }
   ]
@@ -280,7 +283,7 @@ const mem = ref<any>({
 
 const net = ref<any>({
   title: {
-    text: '网络',
+    text: $gettext('Network'),
     textAlign: 'left',
     textStyle: {
       fontSize: 20
@@ -291,12 +294,12 @@ const net = ref<any>({
   },
   legend: {
     align: 'left',
-    data: ['总计出', '总计入', '每秒出', '每秒入']
+    data: [$gettext('Total Out'), $gettext('Total In'), $gettext('Per Second Out'), $gettext('Per Second In')]
   },
   xAxis: [{ type: 'category', boundaryGap: false, data: data.value.times }],
   yAxis: [
     {
-      name: '单位 MB',
+      name: $gettext('Unit MB'),
       type: 'value',
       axisLabel: {
         formatter: '{value} MB'
@@ -311,7 +314,7 @@ const net = ref<any>({
   },
   series: [
     {
-      name: '总计出',
+      name: $gettext('Total Out'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -324,16 +327,16 @@ const net = ref<any>({
       data: data.value.net.sent,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     },
     {
-      name: '总计入',
+      name: $gettext('Total In'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -346,16 +349,16 @@ const net = ref<any>({
       data: data.value.net.recv,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     },
     {
-      name: '每秒出',
+      name: $gettext('Per Second Out'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -368,16 +371,16 @@ const net = ref<any>({
       data: data.value.net.tx,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     },
     {
-      name: '每秒入',
+      name: $gettext('Per Second In'),
       type: 'line',
       smooth: true,
       emphasis: {
@@ -390,12 +393,12 @@ const net = ref<any>({
       data: data.value.net.rx,
       markPoint: {
         data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
+          { type: 'max', name: $gettext('Maximum') },
+          { type: 'min', name: $gettext('Minimum') }
         ]
       },
       markLine: {
-        data: [{ type: 'average', name: '平均值' }]
+        data: [{ type: 'average', name: $gettext('Average') }]
       }
     }
   ]
@@ -403,13 +406,13 @@ const net = ref<any>({
 
 const handleUpdate = async () => {
   useRequest(monitor.updateSetting(monitorSwitch.value, saveDay.value)).onSuccess(() => {
-    window.$message.success('操作成功')
+    window.$message.success($gettext('Operation successful'))
   })
 }
 
 const handleClear = async () => {
   useRequest(monitor.clear()).onSuccess(() => {
-    window.$message.success('操作成功')
+    window.$message.success($gettext('Operation successful'))
   })
 }
 
@@ -440,10 +443,10 @@ watch(data, () => {
         <template #trigger>
           <n-button type="error">
             <TheIcon :size="18" icon="material-symbols:delete-outline" />
-            清除监控记录
+            {{ $gettext('Clear Monitoring Records') }}
           </n-button>
         </template>
-        确定要清空吗？
+        {{ $gettext('Are you sure you want to clear?') }}
       </n-popconfirm>
     </template>
     <n-card :segmented="true" flex items-center>
@@ -454,18 +457,18 @@ watch(data, () => {
         require-mark-placement="right-hanging"
       >
         <n-flex items-center>
-          <n-form-item label="开启监控">
+          <n-form-item :label="$gettext('Enable Monitoring')">
             <n-switch v-model:value="monitorSwitch" @update-value="handleUpdate" />
           </n-form-item>
-          <n-form-item label="保存天数">
+          <n-form-item :label="$gettext('Save Days')">
             <n-input-number v-model:value="saveDay">
-              <template #suffix> 天 </template>
+              <template #suffix> {{ $gettext('days') }} </template>
             </n-input-number>
           </n-form-item>
           <n-form-item>
-            <n-button type="primary" @click="handleUpdate">确定</n-button>
+            <n-button type="primary" @click="handleUpdate">{{ $gettext('Confirm') }}</n-button>
           </n-form-item>
-          <n-form-item label="时间选择">
+          <n-form-item :label="$gettext('Time Selection')">
             <n-date-picker v-model:value="start" type="datetime" />
             -
             <n-date-picker v-model:value="end" type="datetime" />
