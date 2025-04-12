@@ -77,7 +77,7 @@ func initWeb() (*app.Web, error) {
 	databaseRepo := data.NewDatabaseRepo(locale, db, databaseServerRepo, databaseUserRepo)
 	certRepo := data.NewCertRepo(locale, db, logger)
 	certAccountRepo := data.NewCertAccountRepo(locale, db, userRepo, logger)
-	websiteRepo := data.NewWebsiteRepo(db, cacheRepo, databaseRepo, databaseServerRepo, databaseUserRepo, certRepo, certAccountRepo)
+	websiteRepo := data.NewWebsiteRepo(locale, db, cacheRepo, databaseRepo, databaseServerRepo, databaseUserRepo, certRepo, certAccountRepo)
 	settingRepo := data.NewSettingRepo(locale, db, koanf, taskRepo)
 	cronRepo := data.NewCronRepo(locale, db)
 	backupRepo := data.NewBackupRepo(locale, db, settingRepo, websiteRepo)
