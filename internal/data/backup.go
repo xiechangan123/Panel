@@ -628,7 +628,7 @@ func (r *backupRepo) FixPanel() error {
 		return errors.New(r.t.Get("Cleaning temporary directory failed: %v", err))
 	}
 	if err = io.UnCompress(latest.Path, "/tmp/panel-fix"); err != nil {
-		return errors.New(r.t.Get("Unzip backup file failed: %w", err))
+		return errors.New(r.t.Get("Unzip backup file failed: %v", err))
 	}
 
 	// 移动文件到对应位置
@@ -637,20 +637,20 @@ func (r *backupRepo) FixPanel() error {
 	}
 	if io.Exists(filepath.Join("/tmp/panel-fix", "panel")) && io.IsDir(filepath.Join("/tmp/panel-fix", "panel")) {
 		if err = io.Remove(filepath.Join(app.Root, "panel")); err != nil {
-			return errors.New(r.t.Get("Remove panel file failed: %w", err))
+			return errors.New(r.t.Get("Remove panel file failed: %v", err))
 		}
 		if err = io.Mv(filepath.Join("/tmp/panel-fix", "panel"), filepath.Join(app.Root)); err != nil {
-			return errors.New(r.t.Get("Move panel file failed: %w", err))
+			return errors.New(r.t.Get("Move panel file failed: %v", err))
 		}
 	}
 	if io.Exists(filepath.Join("/tmp/panel-fix", "config.yml")) {
 		if err = io.Mv(filepath.Join("/tmp/panel-fix", "config.yml"), "/usr/local/etc/panel/config.yml"); err != nil {
-			return errors.New(r.t.Get("Move panel config failed: %w", err))
+			return errors.New(r.t.Get("Move panel config failed: %v", err))
 		}
 	}
 	if io.Exists(filepath.Join("/tmp/panel-fix", "panel-cli")) {
 		if err = io.Mv(filepath.Join("/tmp/panel-fix", "panel-cli"), "/usr/local/sbin/panel-cli"); err != nil {
-			return errors.New(r.t.Get("Move panel-cli file failed: %w", err))
+			return errors.New(r.t.Get("Move panel-cli file failed: %v", err))
 		}
 	}
 
@@ -660,10 +660,10 @@ func (r *backupRepo) FixPanel() error {
 	}
 	if io.Exists("/tmp/panel-storage.zip") {
 		if err = io.UnCompress("/tmp/panel-storage.zip", filepath.Join(app.Root, "panel")); err != nil {
-			return errors.New(r.t.Get("Unzip panel data failed: %w", err))
+			return errors.New(r.t.Get("Unzip panel data failed: %v", err))
 		}
 		if err = io.Remove("/tmp/panel-storage.zip"); err != nil {
-			return errors.New(r.t.Get("Cleaning temporary file failed: %w", err))
+			return errors.New(r.t.Get("Cleaning temporary file failed: %v", err))
 		}
 	}
 
@@ -723,10 +723,10 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Downloading..."))
 	}
 	if _, err := shell.Execf("wget -T 120 -t 3 -O /tmp/%s %s", name, url); err != nil {
-		return errors.New(r.t.Get("Download failed: %w", err))
+		return errors.New(r.t.Get("Download failed: %v", err))
 	}
 	if _, err := shell.Execf("wget -T 20 -t 3 -O /tmp/%s %s", name+".sha256", checksum); err != nil {
-		return errors.New(r.t.Get("Download failed: %w", err))
+		return errors.New(r.t.Get("Download failed: %v", err))
 	}
 	if !io.Exists(filepath.Join("/tmp", name)) || !io.Exists(filepath.Join("/tmp", name+".sha256")) {
 		return errors.New(r.t.Get("Download file check failed"))
@@ -736,10 +736,10 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Verify download file..."))
 	}
 	if check, err := shell.Execf("cd /tmp && sha256sum -c %s --ignore-missing", name+".sha256"); check != name+": OK" || err != nil {
-		return errors.New(r.t.Get("Verify download file failed: %w", err))
+		return errors.New(r.t.Get("Verify download file failed: %v", err))
 	}
 	if err := io.Remove(filepath.Join("/tmp", name+".sha256")); err != nil {
-		return errors.New(r.t.Get("|-Clean up verification file failed: %w", err))
+		return errors.New(r.t.Get("|-Clean up verification file failed: %v", err))
 	}
 
 	if io.Exists("/tmp/panel-storage.zip") {
@@ -751,10 +751,10 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	}
 	// 备份面板
 	if err := r.Create(biz.BackupTypePanel, ""); err != nil {
-		return errors.New(r.t.Get("|-Backup panel data failed: %w", err))
+		return errors.New(r.t.Get("|-Backup panel data failed: %v", err))
 	}
 	if err := io.Compress(filepath.Join(app.Root, "panel/storage"), nil, "/tmp/panel-storage.zip"); err != nil {
-		return errors.New(r.t.Get("|-Backup panel data failed: %w", err))
+		return errors.New(r.t.Get("|-Backup panel data failed: %v", err))
 	}
 	if !io.Exists("/tmp/panel-storage.zip") {
 		return errors.New(r.t.Get("|-Backup panel data failed, missing file"))
@@ -764,27 +764,27 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Cleaning old version..."))
 	}
 	if _, err := shell.Execf("rm -rf %s/panel/*", app.Root); err != nil {
-		return errors.New(r.t.Get("|-Cleaning old version failed: %w", err))
+		return errors.New(r.t.Get("|-Cleaning old version failed: %v", err))
 	}
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Unzip new version..."))
 	}
 	if err := io.UnCompress(filepath.Join("/tmp", name), filepath.Join(app.Root, "panel")); err != nil {
-		return errors.New(r.t.Get("|-Unzip new version failed: %w", err))
+		return errors.New(r.t.Get("|-Unzip new version failed: %v", err))
 	}
 	if !io.Exists(filepath.Join(app.Root, "panel", "web")) {
 		return errors.New(r.t.Get("|-Unzip new version failed, missing file"))
 	}
 	if err := io.Remove(filepath.Join("/tmp", name)); err != nil {
-		return errors.New(r.t.Get("|-Clean up temporary file failed: %w", err))
+		return errors.New(r.t.Get("|-Clean up temporary file failed: %v", err))
 	}
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Restore panel data..."))
 	}
 	if err := io.UnCompress("/tmp/panel-storage.zip", filepath.Join(app.Root, "panel", "storage")); err != nil {
-		return errors.New(r.t.Get("|-Restore panel data failed: %w", err))
+		return errors.New(r.t.Get("|-Restore panel data failed: %v", err))
 	}
 	if !io.Exists(filepath.Join(app.Root, "panel/storage/app.db")) {
 		return errors.New(r.t.Get("|-Restore panel data failed, missing file"))
@@ -794,16 +794,16 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Run post-update script..."))
 	}
 	if _, err := shell.Execf("curl -fsLm 10 https://dl.cdn.haozi.net/panel/auto_update.sh | bash"); err != nil {
-		return errors.New(r.t.Get("|-Run post-update script failed: %w", err))
+		return errors.New(r.t.Get("|-Run post-update script failed: %v", err))
 	}
 	if _, err := shell.Execf(`wget -O /etc/systemd/system/panel.service https://dl.cdn.haozi.net/panel/panel.service && sed -i "s|/www|%s|g" /etc/systemd/system/panel.service`, app.Root); err != nil {
-		return errors.New(r.t.Get("|-Download panel service file failed: %w", err))
+		return errors.New(r.t.Get("|-Download panel service file failed: %v", err))
 	}
 	if _, err := shell.Execf("panel-cli setting write version %s", version); err != nil {
-		return errors.New(r.t.Get("|-Write new panel version failed: %w", err))
+		return errors.New(r.t.Get("|-Write new panel version failed: %v", err))
 	}
 	if err := io.Mv(filepath.Join(app.Root, "panel/cli"), "/usr/local/sbin/panel-cli"); err != nil {
-		return errors.New(r.t.Get("|-Move panel-cli tool failed: %w", err))
+		return errors.New(r.t.Get("|-Move panel-cli tool failed: %v", err))
 	}
 
 	if app.IsCli {

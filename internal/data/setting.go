@@ -193,10 +193,10 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 		restartFlag = true
 	}
 	if _, err := cert.ParseCert(setting.Cert); err != nil {
-		return false, errors.New(r.t.Get("failed to parse certificate: %w", err))
+		return false, errors.New(r.t.Get("failed to parse certificate: %v", err))
 	}
 	if _, err := cert.ParseKey(setting.Key); err != nil {
-		return false, errors.New(r.t.Get("failed to parse private key: %w", err))
+		return false, errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), setting.Cert, 0644); err != nil {
 		return false, err
