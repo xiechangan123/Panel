@@ -2,6 +2,7 @@ package toolbox
 
 import (
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -88,7 +89,7 @@ func (s *App) GetSWAP(w http.ResponseWriter, r *http.Request) {
 	var total, used, free string
 	var size int64
 	if io.Exists(filepath.Join(app.Root, "swap")) {
-		file, err := io.FileInfo(filepath.Join(app.Root, "swap"))
+		file, err := os.Stat(filepath.Join(app.Root, "swap"))
 		if err != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get SWAP: %v", err))
 			return

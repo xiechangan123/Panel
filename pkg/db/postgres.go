@@ -205,11 +205,11 @@ func (r *Postgres) Users() ([]types.PostgresUser, error) {
 		}
 
 		permissions := map[string]bool{
-			"超级用户":   super,
-			"创建角色":   canCreateRole,
-			"创建数据库":  canCreateDb,
-			"可以复制":   replication,
-			"绕过行级安全": bypassRls,
+			"Super":       super,
+			"CreateRole":  canCreateRole,
+			"CreateDB":    canCreateDb,
+			"Replication": replication,
+			"BypassRLS":   bypassRls,
 		}
 		for perm, enabled := range permissions {
 			if enabled {

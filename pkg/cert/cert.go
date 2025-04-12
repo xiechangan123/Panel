@@ -54,11 +54,7 @@ func ParseKey(key string) (crypto.Signer, error) {
 		}
 	}
 
-	if parse, err := x509.ParseECPrivateKey(keyBlockDER.Bytes); err == nil {
-		return parse, nil
-	}
-
-	return nil, errors.New("解析私钥失败")
+	return x509.ParseECPrivateKey(keyBlockDER.Bytes)
 }
 
 func EncodeCert(cert x509.Certificate) ([]byte, error) {
@@ -88,7 +84,7 @@ func EncodeKey(key crypto.Signer) ([]byte, error) {
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("未知的密钥类型 %T", key)
+		return nil, fmt.Errorf("unsupported key type %T", key)
 	}
 	pemKey := pem.Block{Type: pemType + " PRIVATE KEY", Bytes: keyBytes}
 	return pem.EncodeToMemory(&pemKey), nil

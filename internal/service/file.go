@@ -68,7 +68,7 @@ func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileInfo, err := io.FileInfo(req.Path)
+	fileInfo, err := stdos.Stat(req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -82,7 +82,7 @@ func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, err := io.ReadBytes(req.Path)
+	content, err := stdos.ReadFile(req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -106,7 +106,7 @@ func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileInfo, err := io.FileInfo(req.Path)
+	fileInfo, err := stdos.Stat(req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -265,7 +265,7 @@ func (s *FileService) Download(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	info, err := io.FileInfo(req.Path)
+	info, err := stdos.Stat(req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -309,7 +309,7 @@ func (s *FileService) Info(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	info, err := io.FileInfo(req.Path)
+	info, err := stdos.Stat(req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

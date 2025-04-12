@@ -114,7 +114,7 @@ func generatePrivateKey(keyType KeyType) (crypto.Signer, error) {
 		return rsa.GenerateKey(rand.Reader, 4096)
 	}
 
-	return nil, errors.New("未知的密钥类型")
+	return nil, errors.New("unsupported key type")
 }
 
 func getClient(CA string, log *slog.Logger) (acmez.Client, error) {

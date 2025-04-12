@@ -31,3 +31,31 @@ const defaultConf = `server {
     error_log /www/wwwlogs/default.log;
 }
 `
+
+const defaultConfEn = `server {
+    listen 80;
+    server_name localhost;
+    index index.php index.html index.htm;
+    root /www/wwwroot/default;
+    # Error page configuration
+    error_page 404 /404.html;
+    include enable-php-0.conf;
+    # Do not log static files
+    location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
+        expires 30d;
+        access_log /dev/null;
+        error_log /dev/null;
+    }
+    location ~ .*\.(js|css|ttf|otf|woff|woff2|eot)$ {
+        expires 6h;
+        access_log /dev/null;
+        error_log /dev/null;
+    }
+    # Deny access to sensitive directories
+    location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
+        return 404;
+    }
+    access_log /www/wwwlogs/default.log;
+    error_log /www/wwwlogs/default.log;
+}
+`

@@ -276,14 +276,24 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	if err = os.MkdirAll(req.Path, 0755); err != nil {
 		return nil, err
 	}
-	index, err := embed.WebsiteFS.ReadFile(filepath.Join("website", "index.html"))
+	var index []byte
+	if app.Locale == "zh_CN" {
+		index, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "index_zh.html"))
+	} else {
+		index, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "index.html"))
+	}
 	if err != nil {
 		return nil, fmt.Errorf("获取index模板文件失败: %w", err)
 	}
 	if err = io.Write(filepath.Join(req.Path, "index.html"), string(index), 0644); err != nil {
 		return nil, err
 	}
-	notFound, err := embed.WebsiteFS.ReadFile(filepath.Join("website", "404.html"))
+	var notFound []byte
+	if app.Locale == "zh_CN" {
+		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh.html"))
+	} else {
+		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404.html"))
+	}
 	if err != nil {
 		return nil, fmt.Errorf("获取404模板文件失败: %w", err)
 	}
