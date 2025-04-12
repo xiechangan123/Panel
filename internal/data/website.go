@@ -266,7 +266,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/rewrite", req.Name+".conf"))
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/acme", req.Name+".conf"))
-	comments = append(comments, []string{r.t.Get("# 伪静态规则")})
+	comments = append(comments, []string{r.t.Get("# Rewrite rule")})
 	comments = append(comments, []string{"# acme http-01"})
 	if err = p.SetIncludes(includes, comments); err != nil {
 		return nil, err
@@ -632,7 +632,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 	}
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"))
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/acme", website.Name+".conf"))
-	comments = append(comments, []string{r.t.Get("# 伪静态规则")})
+	comments = append(comments, []string{r.t.Get("# Rewrite rule")})
 	comments = append(comments, []string{"# acme http-01"})
 	if err = p.SetIncludes(includes, comments); err != nil {
 		return err
