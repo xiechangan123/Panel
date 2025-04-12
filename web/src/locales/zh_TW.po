@@ -10,7 +10,309 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-04-12 18:40\n"
+"PO-Revision-Date: 2025-04-12 19:41\n"
+
+#: src/components/common/AppFooter.vue:13
+#: src/views/dashboard/IndexView.vue:439
+msgid "Rat Panel"
+msgstr "耗子面板"
+
+#: src/components/common/AppFooter.vue:15
+msgid "All Rights Reserved."
+msgstr ""
+
+#: src/components/common/AppFooter.vue:23
+msgid "QQ Group"
+msgstr ""
+
+#: src/components/common/AppFooter.vue:31
+msgid "Documentation"
+msgstr ""
+
+#: src/components/common/AppFooter.vue:39
+msgid "Community"
+msgstr ""
+
+#: src/components/common/AppFooter.vue:47
+msgid "Sponsor"
+msgstr ""
+
+#: src/components/common/CodeEditor.vue:27
+msgid "Retrieved successfully"
+msgstr ""
+
+#: src/components/common/CodeEditor.vue:36
+msgid "Cannot save in current state"
+msgstr ""
+
+#: src/components/common/CodeEditor.vue:40
+#: src/views/apps/docker/IndexView.vue:38
+#: src/views/apps/fail2ban/IndexView.vue:175
+#: src/views/apps/frp/IndexView.vue:53
+#: src/views/apps/gitea/IndexView.vue:37
+#: src/views/apps/memcached/IndexView.vue:61
+#: src/views/apps/minio/IndexView.vue:37
+#: src/views/apps/mysql/IndexView.vue:64
+#: src/views/apps/nginx/IndexView.vue:62
+#: src/views/apps/php/PhpView.vue:164
+#: src/views/apps/php/PhpView.vue:170
+#: src/views/apps/phpmyadmin/IndexView.vue:37
+#: src/views/apps/phpmyadmin/IndexView.vue:44
+#: src/views/apps/podman/IndexView.vue:39
+#: src/views/apps/podman/IndexView.vue:45
+#: src/views/apps/postgresql/IndexView.vue:64
+#: src/views/apps/postgresql/IndexView.vue:69
+#: src/views/apps/pureftpd/IndexView.vue:135
+#: src/views/apps/redis/IndexView.vue:58
+#: src/views/apps/rsync/IndexView.vue:154
+#: src/views/apps/rsync/IndexView.vue:227
+#: src/views/apps/supervisor/IndexView.vue:247
+#: src/views/apps/supervisor/IndexView.vue:347
+#: src/views/apps/toolbox/IndexView.vue:51
+#: src/views/apps/toolbox/IndexView.vue:57
+#: src/views/apps/toolbox/IndexView.vue:66
+#: src/views/apps/toolbox/IndexView.vue:72
+#: src/views/apps/toolbox/IndexView.vue:81
+#: src/views/setting/SettingBase.vue:39
+#: src/views/setting/SettingHttps.vue:27
+#: src/views/website/EditView.vue:115
+msgid "Saved successfully"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:20
+msgid "Select Directory"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:20
+msgid "Select File"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:42
+#: src/components/common/PathSelector.vue:331
+#: src/views/apps/fail2ban/IndexView.vue:47
+#: src/views/apps/rsync/IndexView.vue:49
+#: src/views/apps/rsync/IndexView.vue:366
+#: src/views/apps/supervisor/IndexView.vue:59
+#: src/views/apps/supervisor/IndexView.vue:491
+#: src/views/container/ComposeView.vue:31
+#: src/views/container/NetworkView.vue:45
+#: src/views/container/VolumeView.vue:26
+#: src/views/database/CreateServerModal.vue:55
+#: src/views/database/ServerList.vue:40
+#: src/views/database/UpdateServerModal.vue:55
+#: src/views/file/ListTable.vue:103
+#: src/views/file/SearchModal.vue:20
+#: src/views/file/ToolBar.vue:257
+#: src/views/ssh/CreateModal.vue:57
+#: src/views/ssh/UpdateModal.vue:63
+#: src/views/task/SystemView.vue:18
+msgid "Name"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:83
+msgid "Permissions"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:95
+#: src/views/file/ListTable.vue:157
+msgid "Owner / Group"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:107
+#: src/views/backup/ListView.vue:43
+#: src/views/container/ImageView.vue:53
+#: src/views/file/ListTable.vue:169
+#: src/views/file/SearchModal.vue:28
+msgid "Size"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:115
+#: src/views/file/ListTable.vue:177
+#: src/views/file/SearchModal.vue:36
+msgid "Modification Time"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:148
+#: src/views/file/ListTable.vue:456
+#: src/views/file/PathInput.vue:33
+msgid "Invalid path"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:208
+#: src/views/file/ListTable.vue:405
+#: src/views/file/ToolBar.vue:37
+#: src/views/file/ToolBar.vue:51
+msgid "Invalid name"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:216
+#: src/views/backup/ListView.vue:126
+#: src/views/cert/CreateAccountModal.vue:52
+#: src/views/cert/CreateCertModal.vue:50
+#: src/views/cert/CreateDnsModal.vue:35
+#: src/views/cert/UploadCertModal.vue:21
+#: src/views/container/ComposeView.vue:247
+#: src/views/container/ContainerCreate.vue:106
+#: src/views/container/NetworkView.vue:174
+#: src/views/container/VolumeView.vue:128
+#: src/views/database/CreateDatabaseModal.vue:28
+#: src/views/database/CreateUserModal.vue:28
+#: src/views/file/ToolBar.vue:45
+#: src/views/firewall/CreateForwardModal.vue:41
+#: src/views/firewall/CreateModal.vue:84
+#: src/views/ssh/CreateModal.vue:38
+#: src/views/task/CreateModal.vue:51
+#: src/views/website/IndexView.vue:307
+msgid "Created successfully"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:255
+#: src/views/file/ToolBar.vue:214
+msgid "File"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:256
+#: src/views/file/ToolBar.vue:215
+msgid "Folder"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:260
+#: src/components/common/PathSelector.vue:323
+#: src/views/website/IndexView.vue:524
+msgid "Create"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:269
+#: src/views/file/PathInput.vue:133
+msgid "Root Directory"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:335
+#: src/views/app/VersionModal.vue:96
+#: src/views/apps/fail2ban/IndexView.vue:470
+#: src/views/apps/pureftpd/IndexView.vue:333
+#: src/views/apps/pureftpd/IndexView.vue:355
+#: src/views/apps/rsync/IndexView.vue:415
+#: src/views/apps/s3fs/IndexView.vue:185
+#: src/views/apps/supervisor/IndexView.vue:527
+#: src/views/backup/ListView.vue:245
+#: src/views/backup/ListView.vue:269
+#: src/views/cert/AccountView.vue:269
+#: src/views/cert/CertView.vue:536
+#: src/views/cert/CertView.vue:560
+#: src/views/cert/CreateAccountModal.vue:125
+#: src/views/cert/CreateCertModal.vue:115
+#: src/views/cert/CreateDnsModal.vue:237
+#: src/views/cert/DnsView.vue:374
+#: src/views/cert/ObtainModal.vue:130
+#: src/views/cert/UploadCertModal.vue:55
+#: src/views/container/ComposeView.vue:341
+#: src/views/container/ComposeView.vue:371
+#: src/views/container/ContainerCreate.vue:370
+#: src/views/container/ContainerView.vue:482
+#: src/views/container/ImageView.vue:217
+#: src/views/container/NetworkView.vue:313
+#: src/views/container/VolumeView.vue:213
+#: src/views/database/CreateDatabaseModal.vue:131
+#: src/views/database/CreateServerModal.vue:120
+#: src/views/database/CreateUserModal.vue:118
+#: src/views/database/UpdateServerModal.vue:112
+#: src/views/database/UpdateUserModal.vue:73
+#: src/views/file/ToolBar.vue:261
+#: src/views/file/ToolBar.vue:282
+#: src/views/firewall/CreateForwardModal.vue:88
+#: src/views/firewall/CreateIpModal.vue:122
+#: src/views/firewall/CreateModal.vue:147
+#: src/views/ssh/CreateModal.vue:99
+#: src/views/ssh/UpdateModal.vue:105
+#: src/views/task/CreateModal.vue:171
+#: src/views/website/ProxyBuilderModal.vue:201
+msgid "Submit"
+msgstr ""
+
+#: src/components/common/RealtimeLog.vue:29
+msgid "Path or service cannot be empty"
+msgstr ""
+
+#: src/components/common/RealtimeLog.vue:44
+#: src/components/common/RealtimeLogModal.vue:33
+msgid "Failed to get log stream"
+msgstr ""
+
+#: src/components/common/RealtimeLogModal.vue:67
+#: src/views/apps/supervisor/IndexView.vue:103
+#: src/views/container/ContainerView.vue:103
+#: src/views/container/ContainerView.vue:443
+#: src/views/task/CronView.vue:121
+#: src/views/task/TaskView.vue:75
+msgid "Logs"
+msgstr ""
+
+#: src/layout/header/components/FullScreen.vue:16
+msgid "Fullscreen Display"
+msgstr ""
+
+#: src/layout/header/components/MenuCollapse.vue:17
+msgid "Menu Zoom"
+msgstr ""
+
+#: src/layout/header/components/ReloadPage.vue:20
+msgid "Refresh Tab"
+msgstr ""
+
+#: src/layout/header/components/ThemeMode.vue:17
+msgid "Switch Theme"
+msgstr ""
+
+#: src/layout/header/components/ThemeSetting.vue:19
+msgid "Set Theme Color"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:13
+#: src/views/apps/pureftpd/IndexView.vue:75
+#: src/views/apps/pureftpd/IndexView.vue:340
+msgid "Change Password"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:18
+msgid "Logout"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:27
+msgid "Confirm logout?"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:28
+msgid "Prompt"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:29
+#: src/views/dashboard/UpdateView.vue:26
+#: src/views/monitor/IndexView.vue:474
+msgid "Confirm"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:30
+#: src/views/dashboard/UpdateView.vue:27
+#: src/views/file/ListTable.vue:415
+#: src/views/file/ListTable.vue:510
+#: src/views/file/ToolBar.vue:139
+#: src/views/file/ToolBar.vue:226
+msgid "Cancel"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:35
+msgid "Logged out successfully!"
+msgstr ""
+
+#: src/layout/header/components/UserAvatar.vue:48
+#: src/views/cert/DnsView.vue:56
+#: src/views/firewall/IpRuleView.vue:77
+#: src/views/firewall/IpRuleView.vue:102
+#: src/views/firewall/RuleView.vue:111
+#: src/views/firewall/RuleView.vue:136
+msgid "Unknown"
+msgstr ""
 
 #: src/layout/sidebar/components/SideSetting.vue:63
 #: src/layout/sidebar/components/SideSetting.vue:68
@@ -33,6 +335,38 @@ msgstr ""
 msgid "Hide Menu"
 msgstr ""
 
+#: src/layout/tab/components/ContextMenu.vue:28
+msgid "Close"
+msgstr ""
+
+#: src/layout/tab/components/ContextMenu.vue:34
+#: src/views/apps/fail2ban/IndexView.vue:345
+#: src/views/apps/nginx/IndexView.vue:172
+#: src/views/apps/php/PhpView.vue:321
+#: src/views/apps/postgresql/IndexView.vue:182
+msgid "Reload"
+msgstr ""
+
+#: src/layout/tab/components/ContextMenu.vue:40
+msgid "Pin"
+msgstr ""
+
+#: src/layout/tab/components/ContextMenu.vue:46
+msgid "Unpin"
+msgstr ""
+
+#: src/layout/tab/components/ContextMenu.vue:52
+msgid "Close Others"
+msgstr ""
+
+#: src/layout/tab/components/ContextMenu.vue:58
+msgid "Close Left"
+msgstr ""
+
+#: src/layout/tab/components/ContextMenu.vue:64
+msgid "Close Right"
+msgstr ""
+
 #: src/router/routes/index.ts:18
 msgid "Login Page"
 msgstr ""
@@ -48,33 +382,34 @@ msgstr ""
 msgid "App Name"
 msgstr ""
 
-#: src/views/app/IndexView.vue:44
+#: src/views/app/IndexView.vue:43
 #: src/views/apps/php/PhpView.vue:59
 msgid "Description"
 msgstr ""
 
-#: src/views/app/IndexView.vue:51
+#: src/views/app/IndexView.vue:49
 msgid "Installed Version"
 msgstr ""
 
-#: src/views/app/IndexView.vue:57
+#: src/views/app/IndexView.vue:55
 msgid "Show in Home"
 msgstr ""
 
-#: src/views/app/IndexView.vue:71
-#: src/views/apps/fail2ban/IndexView.vue:70
-#: src/views/apps/fail2ban/IndexView.vue:132
+#: src/views/app/IndexView.vue:68
+#: src/views/apps/fail2ban/IndexView.vue:69
+#: src/views/apps/fail2ban/IndexView.vue:131
 #: src/views/apps/php/PhpView.vue:66
 #: src/views/apps/pureftpd/IndexView.vue:55
+#: src/views/apps/rsync/IndexView.vue:78
 #: src/views/apps/s3fs/IndexView.vue:33
 #: src/views/apps/supervisor/IndexView.vue:87
 #: src/views/backup/ListView.vue:58
 #: src/views/cert/AccountView.vue:79
-#: src/views/cert/CertView.vue:182
+#: src/views/cert/CertView.vue:181
 #: src/views/cert/DnsView.vue:64
 #: src/views/container/ComposeView.vue:74
-#: src/views/container/ContainerCreate.vue:170
-#: src/views/container/ContainerCreate.vue:247
+#: src/views/container/ContainerCreate.vue:174
+#: src/views/container/ContainerCreate.vue:255
 #: src/views/container/ContainerView.vue:87
 #: src/views/container/ImageView.vue:69
 #: src/views/container/NetworkView.vue:109
@@ -82,24 +417,24 @@ msgstr ""
 #: src/views/database/DatabaseList.vue:74
 #: src/views/database/ServerList.vue:135
 #: src/views/database/UserList.vue:152
-#: src/views/file/ListTable.vue:185
+#: src/views/file/ListTable.vue:189
 #: src/views/file/SearchModal.vue:48
 #: src/views/firewall/ForwardView.vue:80
 #: src/views/firewall/IpRuleView.vue:122
 #: src/views/firewall/RuleView.vue:159
-#: src/views/task/CronView.vue:103
+#: src/views/task/CronView.vue:102
 #: src/views/task/SystemView.vue:96
 #: src/views/task/TaskView.vue:55
-#: src/views/website/IndexView.vue:95
+#: src/views/website/IndexView.vue:93
 msgid "Actions"
 msgstr ""
 
-#: src/views/app/IndexView.vue:91
+#: src/views/app/IndexView.vue:88
 msgid "Updating app %{ app } may reset related configurations to default state, are you sure to continue?"
 msgstr ""
 
 #: src/views/app/IndexView.vue:101
-#: src/views/dashboard/IndexView.vue:448
+#: src/views/dashboard/IndexView.vue:451
 #: src/views/dashboard/route.ts:32
 msgid "Update"
 msgstr ""
@@ -120,21 +455,21 @@ msgstr ""
 msgid "Setup successfully"
 msgstr ""
 
-#: src/views/app/IndexView.vue:195
-#: src/views/app/IndexView.vue:201
-#: src/views/app/VersionModal.vue:31
+#: src/views/app/IndexView.vue:196
+#: src/views/app/IndexView.vue:204
+#: src/views/app/VersionModal.vue:32
 msgid "Task submitted, please check the progress in background tasks"
 msgstr ""
 
-#: src/views/app/IndexView.vue:212
+#: src/views/app/IndexView.vue:216
 msgid "Cache updated successfully"
 msgstr ""
 
-#: src/views/app/IndexView.vue:226
+#: src/views/app/IndexView.vue:230
 msgid "Update Cache"
 msgstr ""
 
-#: src/views/app/IndexView.vue:230
+#: src/views/app/IndexView.vue:235
 msgid "Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!"
 msgstr ""
 
@@ -142,57 +477,16 @@ msgstr ""
 msgid "Apps"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:71
+#: src/views/app/VersionModal.vue:73
 msgid "Channel"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:78
+#: src/views/app/VersionModal.vue:80
 msgid "Version"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:79
+#: src/views/app/VersionModal.vue:83
 msgid "Please select a channel"
-msgstr ""
-
-#: src/views/app/VersionModal.vue:89
-#: src/views/apps/fail2ban/IndexView.vue:451
-#: src/views/apps/pureftpd/IndexView.vue:320
-#: src/views/apps/pureftpd/IndexView.vue:340
-#: src/views/apps/s3fs/IndexView.vue:174
-#: src/views/apps/supervisor/IndexView.vue:513
-#: src/views/backup/ListView.vue:237
-#: src/views/backup/ListView.vue:257
-#: src/views/cert/AccountView.vue:258
-#: src/views/cert/CertView.vue:513
-#: src/views/cert/CertView.vue:537
-#: src/views/cert/CreateAccountModal.vue:114
-#: src/views/cert/CreateCertModal.vue:111
-#: src/views/cert/CreateDnsModal.vue:173
-#: src/views/cert/DnsView.vue:370
-#: src/views/cert/ObtainModal.vue:126
-#: src/views/cert/UploadCertModal.vue:55
-#: src/views/container/ComposeView.vue:326
-#: src/views/container/ComposeView.vue:356
-#: src/views/container/ContainerCreate.vue:355
-#: src/views/container/ContainerView.vue:478
-#: src/views/container/ImageView.vue:216
-#: src/views/container/NetworkView.vue:310
-#: src/views/container/VolumeView.vue:210
-#: src/views/database/CreateDatabaseModal.vue:127
-#: src/views/database/CreateServerModal.vue:120
-#: src/views/database/CreateUserModal.vue:115
-#: src/views/database/UpdateServerModal.vue:112
-#: src/views/database/UpdateUserModal.vue:70
-#: src/views/file/ToolBar.vue:261
-#: src/views/file/ToolBar.vue:282
-#: src/views/firewall/CreateForwardModal.vue:88
-#: src/views/firewall/CreateIpModal.vue:122
-#: src/views/firewall/CreateModal.vue:143
-#: src/views/ssh/CreateModal.vue:98
-#: src/views/ssh/UpdateModal.vue:104
-#: src/views/task/CreateModal.vue:159
-#: src/views/website/ProxyBuilderModal.vue:189
-msgid "Submit"
 msgstr ""
 
 #: src/views/apps/benchmark/IndexView.vue:12
@@ -283,8 +577,8 @@ msgid "JSON Parsing"
 msgstr ""
 
 #: src/views/apps/benchmark/IndexView.vue:265
-#: src/views/container/ContainerCreate.vue:291
-#: src/views/dashboard/IndexView.vue:530
+#: src/views/container/ContainerCreate.vue:306
+#: src/views/dashboard/IndexView.vue:533
 #: src/views/monitor/IndexView.vue:205
 #: src/views/monitor/IndexView.vue:216
 #: src/views/monitor/IndexView.vue:238
@@ -301,8 +595,9 @@ msgid "Memory Latency"
 msgstr ""
 
 #: src/views/apps/benchmark/IndexView.vue:296
-#: src/views/dashboard/IndexView.vue:795
-#: src/views/dashboard/IndexView.vue:815
+#: src/views/dashboard/IndexView.vue:141
+#: src/views/dashboard/IndexView.vue:798
+#: src/views/dashboard/IndexView.vue:818
 msgid "Disk"
 msgstr ""
 
@@ -376,8 +671,10 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:25
 #: src/views/apps/redis/IndexView.vue:29
 #: src/views/apps/supervisor/IndexView.vue:54
-#: src/views/dashboard/IndexView.vue:133
-msgid "Running normally"
+#: src/views/task/SystemView.vue:50
+#: src/views/task/TaskView.vue:33
+#: src/views/website/IndexView.vue:30
+msgid "Running"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:25
@@ -394,125 +691,100 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:35
 #: src/views/apps/pureftpd/IndexView.vue:25
 #: src/views/apps/redis/IndexView.vue:29
+#: src/views/apps/rsync/IndexView.vue:44
 #: src/views/apps/supervisor/IndexView.vue:54
 #: src/views/task/SystemView.vue:54
 msgid "Stopped"
 msgstr ""
 
-#: src/views/apps/docker/IndexView.vue:38
-#: src/views/apps/fail2ban/IndexView.vue:176
-#: src/views/apps/frp/IndexView.vue:53
-#: src/views/apps/gitea/IndexView.vue:37
-#: src/views/apps/memcached/IndexView.vue:61
-#: src/views/apps/minio/IndexView.vue:37
-#: src/views/apps/mysql/IndexView.vue:64
-#: src/views/apps/nginx/IndexView.vue:62
-#: src/views/apps/php/PhpView.vue:162
-#: src/views/apps/php/PhpView.vue:168
-#: src/views/apps/phpmyadmin/IndexView.vue:37
-#: src/views/apps/phpmyadmin/IndexView.vue:44
-#: src/views/apps/podman/IndexView.vue:39
-#: src/views/apps/podman/IndexView.vue:45
-#: src/views/apps/postgresql/IndexView.vue:64
-#: src/views/apps/postgresql/IndexView.vue:69
-#: src/views/apps/pureftpd/IndexView.vue:133
-#: src/views/apps/redis/IndexView.vue:58
-#: src/views/apps/supervisor/IndexView.vue:241
-#: src/views/apps/supervisor/IndexView.vue:341
-#: src/views/apps/toolbox/IndexView.vue:51
-#: src/views/apps/toolbox/IndexView.vue:57
-#: src/views/apps/toolbox/IndexView.vue:66
-#: src/views/apps/toolbox/IndexView.vue:72
-#: src/views/apps/toolbox/IndexView.vue:81
-#: src/views/setting/SettingBase.vue:35
-#: src/views/setting/SettingHttps.vue:27
-#: src/views/website/EditView.vue:115
-msgid "Saved successfully"
-msgstr ""
-
 #: src/views/apps/docker/IndexView.vue:44
-#: src/views/apps/fail2ban/IndexView.vue:211
+#: src/views/apps/fail2ban/IndexView.vue:210
 #: src/views/apps/frp/IndexView.vue:60
 #: src/views/apps/gitea/IndexView.vue:43
 #: src/views/apps/memcached/IndexView.vue:67
 #: src/views/apps/minio/IndexView.vue:43
 #: src/views/apps/mysql/IndexView.vue:93
 #: src/views/apps/nginx/IndexView.vue:85
-#: src/views/apps/php/PhpView.vue:197
+#: src/views/apps/php/PhpView.vue:199
 #: src/views/apps/podman/IndexView.vue:51
 #: src/views/apps/postgresql/IndexView.vue:90
-#: src/views/apps/pureftpd/IndexView.vue:139
+#: src/views/apps/pureftpd/IndexView.vue:141
 #: src/views/apps/redis/IndexView.vue:64
-#: src/views/apps/supervisor/IndexView.vue:268
-#: src/views/apps/supervisor/IndexView.vue:297
+#: src/views/apps/rsync/IndexView.vue:160
+#: src/views/apps/supervisor/IndexView.vue:274
+#: src/views/apps/supervisor/IndexView.vue:303
 msgid "Started successfully"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:51
-#: src/views/apps/fail2ban/IndexView.vue:228
+#: src/views/apps/fail2ban/IndexView.vue:227
 #: src/views/apps/frp/IndexView.vue:66
 #: src/views/apps/gitea/IndexView.vue:49
 #: src/views/apps/memcached/IndexView.vue:84
 #: src/views/apps/minio/IndexView.vue:49
 #: src/views/apps/mysql/IndexView.vue:99
 #: src/views/apps/nginx/IndexView.vue:91
-#: src/views/apps/php/PhpView.vue:203
+#: src/views/apps/php/PhpView.vue:205
 #: src/views/apps/podman/IndexView.vue:57
 #: src/views/apps/postgresql/IndexView.vue:96
-#: src/views/apps/pureftpd/IndexView.vue:156
+#: src/views/apps/pureftpd/IndexView.vue:158
 #: src/views/apps/redis/IndexView.vue:81
-#: src/views/apps/supervisor/IndexView.vue:275
-#: src/views/apps/supervisor/IndexView.vue:304
+#: src/views/apps/rsync/IndexView.vue:177
+#: src/views/apps/supervisor/IndexView.vue:281
+#: src/views/apps/supervisor/IndexView.vue:310
 msgid "Stopped successfully"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:58
-#: src/views/apps/fail2ban/IndexView.vue:234
+#: src/views/apps/fail2ban/IndexView.vue:233
 #: src/views/apps/frp/IndexView.vue:72
 #: src/views/apps/gitea/IndexView.vue:55
 #: src/views/apps/memcached/IndexView.vue:90
 #: src/views/apps/minio/IndexView.vue:55
 #: src/views/apps/mysql/IndexView.vue:105
 #: src/views/apps/nginx/IndexView.vue:97
-#: src/views/apps/php/PhpView.vue:209
+#: src/views/apps/php/PhpView.vue:211
 #: src/views/apps/podman/IndexView.vue:63
 #: src/views/apps/postgresql/IndexView.vue:102
-#: src/views/apps/pureftpd/IndexView.vue:162
+#: src/views/apps/pureftpd/IndexView.vue:164
 #: src/views/apps/redis/IndexView.vue:87
-#: src/views/apps/supervisor/IndexView.vue:282
-#: src/views/apps/supervisor/IndexView.vue:311
+#: src/views/apps/rsync/IndexView.vue:183
+#: src/views/apps/supervisor/IndexView.vue:288
+#: src/views/apps/supervisor/IndexView.vue:317
 msgid "Restarted successfully"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:66
-#: src/views/apps/fail2ban/IndexView.vue:218
+#: src/views/apps/fail2ban/IndexView.vue:217
 #: src/views/apps/frp/IndexView.vue:79
 #: src/views/apps/gitea/IndexView.vue:62
 #: src/views/apps/memcached/IndexView.vue:74
 #: src/views/apps/minio/IndexView.vue:62
 #: src/views/apps/mysql/IndexView.vue:83
 #: src/views/apps/nginx/IndexView.vue:75
-#: src/views/apps/php/PhpView.vue:187
+#: src/views/apps/php/PhpView.vue:189
 #: src/views/apps/podman/IndexView.vue:70
 #: src/views/apps/postgresql/IndexView.vue:80
 #: src/views/apps/redis/IndexView.vue:71
-#: src/views/apps/supervisor/IndexView.vue:255
+#: src/views/apps/rsync/IndexView.vue:167
+#: src/views/apps/supervisor/IndexView.vue:261
 msgid "Autostart enabled successfully"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:69
-#: src/views/apps/fail2ban/IndexView.vue:221
+#: src/views/apps/fail2ban/IndexView.vue:220
 #: src/views/apps/frp/IndexView.vue:82
 #: src/views/apps/gitea/IndexView.vue:65
 #: src/views/apps/memcached/IndexView.vue:77
 #: src/views/apps/minio/IndexView.vue:65
 #: src/views/apps/mysql/IndexView.vue:86
 #: src/views/apps/nginx/IndexView.vue:78
-#: src/views/apps/php/PhpView.vue:190
+#: src/views/apps/php/PhpView.vue:192
 #: src/views/apps/podman/IndexView.vue:73
 #: src/views/apps/postgresql/IndexView.vue:83
 #: src/views/apps/redis/IndexView.vue:74
-#: src/views/apps/supervisor/IndexView.vue:260
+#: src/views/apps/rsync/IndexView.vue:170
+#: src/views/apps/supervisor/IndexView.vue:266
 msgid "Autostart disabled successfully"
 msgstr ""
 
@@ -524,33 +796,34 @@ msgstr ""
 #: src/views/apps/minio/IndexView.vue:82
 #: src/views/apps/mysql/IndexView.vue:130
 #: src/views/apps/nginx/IndexView.vue:123
-#: src/views/apps/php/PhpView.vue:250
-#: src/views/apps/php/PhpView.vue:259
+#: src/views/apps/php/PhpView.vue:252
+#: src/views/apps/php/PhpView.vue:261
 #: src/views/apps/phpmyadmin/IndexView.vue:58
 #: src/views/apps/phpmyadmin/IndexView.vue:67
 #: src/views/apps/podman/IndexView.vue:95
 #: src/views/apps/podman/IndexView.vue:104
 #: src/views/apps/postgresql/IndexView.vue:128
 #: src/views/apps/postgresql/IndexView.vue:137
-#: src/views/apps/pureftpd/IndexView.vue:209
+#: src/views/apps/pureftpd/IndexView.vue:211
 #: src/views/apps/redis/IndexView.vue:107
-#: src/views/apps/supervisor/IndexView.vue:362
+#: src/views/apps/rsync/IndexView.vue:250
+#: src/views/apps/supervisor/IndexView.vue:368
 #: src/views/apps/toolbox/IndexView.vue:97
 #: src/views/apps/toolbox/IndexView.vue:101
 #: src/views/apps/toolbox/IndexView.vue:105
 #: src/views/apps/toolbox/IndexView.vue:109
 #: src/views/file/EditModal.vue:31
-#: src/views/file/ListTable.vue:703
-#: src/views/setting/SettingBase.vue:95
-#: src/views/setting/SettingHttps.vue:56
-#: src/views/website/EditView.vue:211
+#: src/views/file/ListTable.vue:723
+#: src/views/setting/SettingBase.vue:99
+#: src/views/setting/SettingHttps.vue:62
+#: src/views/website/EditView.vue:215
 msgid "Save"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:94
 #: src/views/apps/docker/IndexView.vue:96
-#: src/views/apps/fail2ban/IndexView.vue:309
-#: src/views/apps/fail2ban/IndexView.vue:311
+#: src/views/apps/fail2ban/IndexView.vue:308
+#: src/views/apps/fail2ban/IndexView.vue:310
 #: src/views/apps/frp/IndexView.vue:99
 #: src/views/apps/frp/IndexView.vue:155
 #: src/views/apps/gitea/IndexView.vue:91
@@ -563,24 +836,26 @@ msgstr ""
 #: src/views/apps/mysql/IndexView.vue:154
 #: src/views/apps/nginx/IndexView.vue:136
 #: src/views/apps/nginx/IndexView.vue:137
-#: src/views/apps/php/PhpView.vue:281
 #: src/views/apps/php/PhpView.vue:283
+#: src/views/apps/php/PhpView.vue:285
 #: src/views/apps/podman/IndexView.vue:108
-#: src/views/apps/podman/IndexView.vue:113
+#: src/views/apps/podman/IndexView.vue:117
 #: src/views/apps/postgresql/IndexView.vue:145
 #: src/views/apps/postgresql/IndexView.vue:147
-#: src/views/apps/pureftpd/IndexView.vue:222
 #: src/views/apps/pureftpd/IndexView.vue:224
+#: src/views/apps/pureftpd/IndexView.vue:226
 #: src/views/apps/redis/IndexView.vue:111
 #: src/views/apps/redis/IndexView.vue:113
-#: src/views/apps/supervisor/IndexView.vue:379
-#: src/views/apps/supervisor/IndexView.vue:381
+#: src/views/apps/rsync/IndexView.vue:263
+#: src/views/apps/rsync/IndexView.vue:265
+#: src/views/apps/supervisor/IndexView.vue:385
+#: src/views/apps/supervisor/IndexView.vue:387
 #: src/views/container/ContainerView.vue:80
 msgid "Running Status"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:99
-#: src/views/apps/fail2ban/IndexView.vue:314
+#: src/views/apps/fail2ban/IndexView.vue:313
 #: src/views/apps/frp/IndexView.vue:102
 #: src/views/apps/frp/IndexView.vue:158
 #: src/views/apps/gitea/IndexView.vue:95
@@ -588,16 +863,17 @@ msgstr ""
 #: src/views/apps/minio/IndexView.vue:90
 #: src/views/apps/mysql/IndexView.vue:157
 #: src/views/apps/nginx/IndexView.vue:140
-#: src/views/apps/php/PhpView.vue:286
-#: src/views/apps/podman/IndexView.vue:116
+#: src/views/apps/php/PhpView.vue:288
+#: src/views/apps/podman/IndexView.vue:120
 #: src/views/apps/postgresql/IndexView.vue:150
 #: src/views/apps/redis/IndexView.vue:116
-#: src/views/apps/supervisor/IndexView.vue:384
+#: src/views/apps/rsync/IndexView.vue:268
+#: src/views/apps/supervisor/IndexView.vue:390
 msgid "Autostart On"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:100
-#: src/views/apps/fail2ban/IndexView.vue:315
+#: src/views/apps/fail2ban/IndexView.vue:314
 #: src/views/apps/frp/IndexView.vue:103
 #: src/views/apps/frp/IndexView.vue:159
 #: src/views/apps/gitea/IndexView.vue:96
@@ -605,16 +881,17 @@ msgstr ""
 #: src/views/apps/minio/IndexView.vue:91
 #: src/views/apps/mysql/IndexView.vue:158
 #: src/views/apps/nginx/IndexView.vue:141
-#: src/views/apps/php/PhpView.vue:287
-#: src/views/apps/podman/IndexView.vue:117
+#: src/views/apps/php/PhpView.vue:289
+#: src/views/apps/podman/IndexView.vue:121
 #: src/views/apps/postgresql/IndexView.vue:151
 #: src/views/apps/redis/IndexView.vue:117
-#: src/views/apps/supervisor/IndexView.vue:385
+#: src/views/apps/rsync/IndexView.vue:269
+#: src/views/apps/supervisor/IndexView.vue:391
 msgid "Autostart Off"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:110
-#: src/views/apps/fail2ban/IndexView.vue:325
+#: src/views/apps/fail2ban/IndexView.vue:324
 #: src/views/apps/frp/IndexView.vue:113
 #: src/views/apps/frp/IndexView.vue:169
 #: src/views/apps/gitea/IndexView.vue:106
@@ -622,21 +899,22 @@ msgstr ""
 #: src/views/apps/minio/IndexView.vue:101
 #: src/views/apps/mysql/IndexView.vue:168
 #: src/views/apps/nginx/IndexView.vue:151
-#: src/views/apps/php/PhpView.vue:297
-#: src/views/apps/podman/IndexView.vue:127
+#: src/views/apps/php/PhpView.vue:299
+#: src/views/apps/podman/IndexView.vue:131
 #: src/views/apps/postgresql/IndexView.vue:161
-#: src/views/apps/pureftpd/IndexView.vue:238
+#: src/views/apps/pureftpd/IndexView.vue:240
 #: src/views/apps/redis/IndexView.vue:127
+#: src/views/apps/rsync/IndexView.vue:279
 #: src/views/apps/supervisor/IndexView.vue:131
-#: src/views/apps/supervisor/IndexView.vue:395
-#: src/views/container/ComposeView.vue:150
+#: src/views/apps/supervisor/IndexView.vue:401
+#: src/views/container/ComposeView.vue:159
 #: src/views/container/ContainerView.vue:127
-#: src/views/container/ContainerView.vue:405
+#: src/views/container/ContainerView.vue:409
 msgid "Start"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:116
-#: src/views/apps/fail2ban/IndexView.vue:331
+#: src/views/apps/fail2ban/IndexView.vue:330
 #: src/views/apps/frp/IndexView.vue:119
 #: src/views/apps/frp/IndexView.vue:175
 #: src/views/apps/gitea/IndexView.vue:112
@@ -644,16 +922,17 @@ msgstr ""
 #: src/views/apps/minio/IndexView.vue:107
 #: src/views/apps/mysql/IndexView.vue:174
 #: src/views/apps/nginx/IndexView.vue:157
-#: src/views/apps/php/PhpView.vue:303
-#: src/views/apps/podman/IndexView.vue:133
+#: src/views/apps/php/PhpView.vue:305
+#: src/views/apps/podman/IndexView.vue:137
 #: src/views/apps/postgresql/IndexView.vue:167
-#: src/views/apps/pureftpd/IndexView.vue:244
+#: src/views/apps/pureftpd/IndexView.vue:246
 #: src/views/apps/redis/IndexView.vue:133
-#: src/views/apps/supervisor/IndexView.vue:155
-#: src/views/apps/supervisor/IndexView.vue:401
-#: src/views/container/ComposeView.vue:179
+#: src/views/apps/rsync/IndexView.vue:285
+#: src/views/apps/supervisor/IndexView.vue:157
+#: src/views/apps/supervisor/IndexView.vue:407
+#: src/views/container/ComposeView.vue:190
 #: src/views/container/ContainerView.vue:132
-#: src/views/container/ContainerView.vue:406
+#: src/views/container/ContainerView.vue:410
 msgid "Stop"
 msgstr ""
 
@@ -662,29 +941,30 @@ msgid "Are you sure you want to stop Docker?"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:123
-#: src/views/apps/fail2ban/IndexView.vue:338
+#: src/views/apps/fail2ban/IndexView.vue:341
 #: src/views/apps/frp/IndexView.vue:126
 #: src/views/apps/frp/IndexView.vue:182
 #: src/views/apps/gitea/IndexView.vue:119
-#: src/views/apps/memcached/IndexView.vue:143
+#: src/views/apps/memcached/IndexView.vue:147
 #: src/views/apps/minio/IndexView.vue:114
-#: src/views/apps/mysql/IndexView.vue:181
-#: src/views/apps/nginx/IndexView.vue:164
-#: src/views/apps/php/PhpView.vue:310
-#: src/views/apps/podman/IndexView.vue:140
-#: src/views/apps/postgresql/IndexView.vue:174
-#: src/views/apps/pureftpd/IndexView.vue:251
-#: src/views/apps/redis/IndexView.vue:140
-#: src/views/apps/supervisor/IndexView.vue:182
-#: src/views/apps/supervisor/IndexView.vue:408
+#: src/views/apps/mysql/IndexView.vue:185
+#: src/views/apps/nginx/IndexView.vue:168
+#: src/views/apps/php/PhpView.vue:317
+#: src/views/apps/podman/IndexView.vue:144
+#: src/views/apps/postgresql/IndexView.vue:178
+#: src/views/apps/pureftpd/IndexView.vue:257
+#: src/views/apps/redis/IndexView.vue:144
+#: src/views/apps/rsync/IndexView.vue:296
+#: src/views/apps/supervisor/IndexView.vue:186
+#: src/views/apps/supervisor/IndexView.vue:418
 #: src/views/container/ContainerView.vue:137
-#: src/views/container/ContainerView.vue:407
-#: src/views/dashboard/IndexView.vue:444
+#: src/views/container/ContainerView.vue:411
+#: src/views/dashboard/IndexView.vue:447
 msgid "Restart"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:130
-#: src/views/website/EditView.vue:388
+#: src/views/website/EditView.vue:401
 msgid "Configuration"
 msgstr "Configuration"
 
@@ -693,40 +973,23 @@ msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:149
-#: src/views/apps/fail2ban/IndexView.vue:381
-#: src/views/apps/gitea/IndexView.vue:144
-#: src/views/apps/memcached/IndexView.vue:176
-#: src/views/apps/minio/IndexView.vue:139
-#: src/views/apps/mysql/IndexView.vue:227
-#: src/views/apps/nginx/IndexView.vue:203
-#: src/views/apps/php/PhpView.vue:382
-#: src/views/apps/podman/IndexView.vue:185
-#: src/views/apps/postgresql/IndexView.vue:233
-#: src/views/apps/redis/IndexView.vue:176
-#: src/views/apps/supervisor/IndexView.vue:458
+#: src/views/apps/fail2ban/IndexView.vue:384
+#: src/views/apps/gitea/IndexView.vue:148
+#: src/views/apps/memcached/IndexView.vue:180
+#: src/views/apps/minio/IndexView.vue:143
+#: src/views/apps/mysql/IndexView.vue:237
+#: src/views/apps/nginx/IndexView.vue:211
+#: src/views/apps/php/PhpView.vue:399
+#: src/views/apps/podman/IndexView.vue:197
+#: src/views/apps/postgresql/IndexView.vue:245
+#: src/views/apps/redis/IndexView.vue:184
+#: src/views/apps/rsync/IndexView.vue:350
+#: src/views/apps/supervisor/IndexView.vue:472
 msgid "Runtime Logs"
 msgstr ""
 
 #: src/views/apps/docker/route.ts:17
 msgid "Docker"
-msgstr ""
-
-#: src/views/apps/fail2ban/IndexView.vue:47
-#: src/views/apps/supervisor/IndexView.vue:59
-#: src/views/apps/supervisor/IndexView.vue:477
-#: src/views/container/ComposeView.vue:31
-#: src/views/container/NetworkView.vue:45
-#: src/views/container/VolumeView.vue:26
-#: src/views/database/CreateServerModal.vue:55
-#: src/views/database/ServerList.vue:40
-#: src/views/database/UpdateServerModal.vue:55
-#: src/views/file/ListTable.vue:99
-#: src/views/file/SearchModal.vue:20
-#: src/views/file/ToolBar.vue:257
-#: src/views/ssh/CreateModal.vue:57
-#: src/views/ssh/UpdateModal.vue:63
-#: src/views/task/SystemView.vue:18
-msgid "Name"
 msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:53
@@ -742,96 +1005,99 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:66
-#: src/views/apps/fail2ban/IndexView.vue:441
+#: src/views/apps/fail2ban/IndexView.vue:65
+#: src/views/apps/fail2ban/IndexView.vue:460
 msgid "Max Retries"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:67
-#: src/views/apps/fail2ban/IndexView.vue:447
+#: src/views/apps/fail2ban/IndexView.vue:66
+#: src/views/apps/fail2ban/IndexView.vue:466
 msgid "Ban Time"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:68
-#: src/views/apps/fail2ban/IndexView.vue:444
+#: src/views/apps/fail2ban/IndexView.vue:67
+#: src/views/apps/fail2ban/IndexView.vue:463
 msgid "Find Time"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:89
-#: src/views/cert/CertView.vue:265
+#: src/views/apps/fail2ban/IndexView.vue:88
+#: src/views/cert/CertView.vue:264
 msgid "View"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:100
+#: src/views/apps/fail2ban/IndexView.vue:99
 msgid "Are you sure you want to delete rule %{ name }?"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:111
-#: src/views/apps/php/PhpView.vue:117
-#: src/views/apps/pureftpd/IndexView.vue:97
-#: src/views/apps/supervisor/IndexView.vue:208
+#: src/views/apps/fail2ban/IndexView.vue:110
+#: src/views/apps/php/PhpView.vue:119
+#: src/views/apps/pureftpd/IndexView.vue:99
+#: src/views/apps/rsync/IndexView.vue:117
+#: src/views/apps/supervisor/IndexView.vue:214
 #: src/views/backup/ListView.vue:99
 #: src/views/cert/AccountView.vue:128
-#: src/views/cert/CertView.vue:316
+#: src/views/cert/CertView.vue:315
 #: src/views/cert/DnsView.vue:112
-#: src/views/container/ComposeView.vue:208
-#: src/views/container/ContainerCreate.vue:229
-#: src/views/container/ContainerCreate.vue:276
+#: src/views/container/ComposeView.vue:221
+#: src/views/container/ContainerCreate.vue:235
+#: src/views/container/ContainerCreate.vue:286
 #: src/views/container/ContainerView.vue:157
-#: src/views/container/ContainerView.vue:411
-#: src/views/container/ImageView.vue:95
-#: src/views/container/NetworkView.vue:135
-#: src/views/container/VolumeView.vue:89
+#: src/views/container/ContainerView.vue:415
+#: src/views/container/ImageView.vue:94
+#: src/views/container/NetworkView.vue:134
+#: src/views/container/VolumeView.vue:88
 #: src/views/database/DatabaseList.vue:99
 #: src/views/database/ServerList.vue:218
 #: src/views/database/UserList.vue:192
-#: src/views/file/ListTable.vue:81
-#: src/views/file/ListTable.vue:285
+#: src/views/file/ListTable.vue:85
+#: src/views/file/ListTable.vue:289
 #: src/views/file/SearchModal.vue:98
 #: src/views/file/ToolBar.vue:238
 #: src/views/firewall/ForwardView.vue:105
 #: src/views/firewall/IpRuleView.vue:147
 #: src/views/firewall/RuleView.vue:184
 #: src/views/ssh/IndexView.vue:93
-#: src/views/task/CronView.vue:157
+#: src/views/task/CronView.vue:156
 #: src/views/task/TaskView.vue:99
-#: src/views/website/IndexView.vue:169
+#: src/views/website/IndexView.vue:167
 msgid "Delete"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:146
+#: src/views/apps/fail2ban/IndexView.vue:145
 msgid "Are you sure you want to unban %{ ip }?"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:156
+#: src/views/apps/fail2ban/IndexView.vue:155
 msgid "Unban"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:240
+#: src/views/apps/fail2ban/IndexView.vue:239
 #: src/views/apps/nginx/IndexView.vue:103
-#: src/views/apps/php/PhpView.vue:215
+#: src/views/apps/php/PhpView.vue:217
 #: src/views/apps/postgresql/IndexView.vue:108
 msgid "Reloaded successfully"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:247
-#: src/views/apps/pureftpd/IndexView.vue:175
-#: src/views/apps/s3fs/IndexView.vue:83
-#: src/views/apps/supervisor/IndexView.vue:290
+#: src/views/apps/fail2ban/IndexView.vue:246
+#: src/views/apps/pureftpd/IndexView.vue:177
+#: src/views/apps/rsync/IndexView.vue:200
+#: src/views/apps/s3fs/IndexView.vue:85
+#: src/views/apps/supervisor/IndexView.vue:296
 #: src/views/database/CreateServerModal.vue:37
 msgid "Added successfully"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:255
-#: src/views/apps/pureftpd/IndexView.vue:192
-#: src/views/apps/s3fs/IndexView.vue:90
-#: src/views/apps/supervisor/IndexView.vue:318
+#: src/views/apps/fail2ban/IndexView.vue:254
+#: src/views/apps/pureftpd/IndexView.vue:194
+#: src/views/apps/rsync/IndexView.vue:208
+#: src/views/apps/s3fs/IndexView.vue:92
+#: src/views/apps/supervisor/IndexView.vue:324
 #: src/views/backup/ListView.vue:149
 #: src/views/database/DatabaseList.vue:124
 #: src/views/database/ServerList.vue:243
 #: src/views/database/UserList.vue:217
-#: src/views/file/ListTable.vue:268
-#: src/views/file/ListTable.vue:595
+#: src/views/file/ListTable.vue:272
+#: src/views/file/ListTable.vue:615
 #: src/views/file/SearchModal.vue:81
 #: src/views/file/ToolBar.vue:189
 #: src/views/firewall/ForwardView.vue:132
@@ -840,24 +1106,24 @@ msgstr ""
 #: src/views/firewall/IpRuleView.vue:192
 #: src/views/firewall/RuleView.vue:211
 #: src/views/firewall/RuleView.vue:229
-#: src/views/task/CronView.vue:200
+#: src/views/task/CronView.vue:199
 #: src/views/task/TaskView.vue:125
-#: src/views/website/IndexView.vue:270
-#: src/views/website/IndexView.vue:324
+#: src/views/website/IndexView.vue:268
+#: src/views/website/IndexView.vue:322
 msgid "Deleted successfully"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:268
+#: src/views/apps/fail2ban/IndexView.vue:267
 msgid "Unbanned successfully"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:296
+#: src/views/apps/fail2ban/IndexView.vue:295
 msgid "Save Whitelist"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:305
-#: src/views/apps/fail2ban/IndexView.vue:386
-#: src/views/apps/fail2ban/IndexView.vue:387
+#: src/views/apps/fail2ban/IndexView.vue:304
+#: src/views/apps/fail2ban/IndexView.vue:389
+#: src/views/apps/fail2ban/IndexView.vue:393
 msgid "Add Rule"
 msgstr ""
 
@@ -865,41 +1131,34 @@ msgstr ""
 msgid "Stopping Fail2ban will disable all rules. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:342
-#: src/views/apps/nginx/IndexView.vue:168
-#: src/views/apps/php/PhpView.vue:314
-#: src/views/apps/postgresql/IndexView.vue:178
-msgid "Reload"
-msgstr ""
-
-#: src/views/apps/fail2ban/IndexView.vue:347
+#: src/views/apps/fail2ban/IndexView.vue:350
 msgid "IP Whitelist"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:352
+#: src/views/apps/fail2ban/IndexView.vue:355
 msgid "IP whitelist, separated by commas"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:357
+#: src/views/apps/fail2ban/IndexView.vue:360
 msgid "Rule Management"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:358
+#: src/views/apps/fail2ban/IndexView.vue:361
 msgid "Rule List"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:390
+#: src/views/apps/fail2ban/IndexView.vue:399
 msgid "If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:393
+#: src/views/apps/fail2ban/IndexView.vue:406
 msgid "Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:397
+#: src/views/apps/fail2ban/IndexView.vue:413
 #: src/views/cert/CertView.vue:87
 #: src/views/cert/DnsView.vue:38
-#: src/views/cert/ObtainModal.vue:54
+#: src/views/cert/ObtainModal.vue:58
 #: src/views/database/CreateServerModal.vue:63
 #: src/views/database/DatabaseList.vue:12
 #: src/views/database/ServerList.vue:17
@@ -907,62 +1166,62 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:401
+#: src/views/apps/fail2ban/IndexView.vue:417
 #: src/views/backup/IndexView.vue:37
-#: src/views/backup/ListView.vue:217
-#: src/views/backup/ListView.vue:250
-#: src/views/cert/CertView.vue:464
-#: src/views/cert/CertView.vue:527
-#: src/views/cert/CreateCertModal.vue:86
-#: src/views/dashboard/IndexView.vue:418
+#: src/views/backup/ListView.vue:221
+#: src/views/backup/ListView.vue:258
+#: src/views/cert/CertView.vue:467
+#: src/views/cert/CertView.vue:550
+#: src/views/cert/CreateCertModal.vue:90
+#: src/views/dashboard/IndexView.vue:421
 #: src/views/task/CreateModal.vue:130
 msgid "Website"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:402
-#: src/views/apps/fail2ban/IndexView.vue:430
+#: src/views/apps/fail2ban/IndexView.vue:418
+#: src/views/apps/fail2ban/IndexView.vue:449
 msgid "Service"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:407
-#: src/views/apps/fail2ban/IndexView.vue:411
-#: src/views/task/CreateModal.vue:140
-#: src/views/task/CreateModal.vue:142
+#: src/views/apps/fail2ban/IndexView.vue:423
+#: src/views/apps/fail2ban/IndexView.vue:427
+#: src/views/task/CreateModal.vue:144
+#: src/views/task/CreateModal.vue:149
 msgid "Select Website"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:414
+#: src/views/apps/fail2ban/IndexView.vue:430
 msgid "Protection Mode"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:419
+#: src/views/apps/fail2ban/IndexView.vue:435
 #: src/views/apps/pureftpd/IndexView.vue:48
 msgid "Path"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:426
-#: src/views/apps/fail2ban/IndexView.vue:428
+#: src/views/apps/fail2ban/IndexView.vue:442
+#: src/views/apps/fail2ban/IndexView.vue:446
 msgid "Protection Path"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:455
-#: src/views/apps/fail2ban/IndexView.vue:456
+#: src/views/apps/fail2ban/IndexView.vue:474
+#: src/views/apps/fail2ban/IndexView.vue:478
 msgid "View Rule"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:458
+#: src/views/apps/fail2ban/IndexView.vue:482
 msgid "Rule Information"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:461
+#: src/views/apps/fail2ban/IndexView.vue:485
 msgid "Currently Banned"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:465
+#: src/views/apps/fail2ban/IndexView.vue:489
 msgid "Total Bans"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:470
+#: src/views/apps/fail2ban/IndexView.vue:494
 msgid "Ban List"
 msgstr ""
 
@@ -977,8 +1236,8 @@ msgstr ""
 #: src/views/apps/frp/IndexView.vue:131
 #: src/views/apps/frp/IndexView.vue:187
 #: src/views/apps/gitea/IndexView.vue:125
-#: src/views/apps/mysql/IndexView.vue:198
-#: src/views/apps/nginx/IndexView.vue:174
+#: src/views/apps/mysql/IndexView.vue:204
+#: src/views/apps/nginx/IndexView.vue:178
 #: src/views/apps/phpmyadmin/IndexView.vue:84
 msgid "Modify Configuration"
 msgstr ""
@@ -995,7 +1254,7 @@ msgstr ""
 msgid "Are you sure you want to stop Gitea?"
 msgstr ""
 
-#: src/views/apps/gitea/IndexView.vue:128
+#: src/views/apps/gitea/IndexView.vue:129
 msgid "This modifies the Gitea configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
@@ -1006,7 +1265,7 @@ msgstr ""
 #: src/views/apps/memcached/IndexView.vue:27
 #: src/views/apps/mysql/IndexView.vue:40
 #: src/views/apps/nginx/IndexView.vue:38
-#: src/views/apps/php/PhpView.vue:132
+#: src/views/apps/php/PhpView.vue:134
 #: src/views/apps/postgresql/IndexView.vue:40
 #: src/views/apps/redis/IndexView.vue:34
 msgid "Property"
@@ -1015,27 +1274,27 @@ msgstr ""
 #: src/views/apps/memcached/IndexView.vue:34
 #: src/views/apps/mysql/IndexView.vue:47
 #: src/views/apps/nginx/IndexView.vue:45
-#: src/views/apps/php/PhpView.vue:139
+#: src/views/apps/php/PhpView.vue:141
 #: src/views/apps/postgresql/IndexView.vue:47
 #: src/views/apps/redis/IndexView.vue:41
 msgid "Current Value"
 msgstr ""
 
-#: src/views/apps/memcached/IndexView.vue:139
+#: src/views/apps/memcached/IndexView.vue:140
 msgid "Stopping Memcached will cause websites using Memcached to become inaccessible. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/memcached/IndexView.vue:150
+#: src/views/apps/memcached/IndexView.vue:154
 msgid "Service Configuration"
 msgstr ""
 
-#: src/views/apps/memcached/IndexView.vue:166
-#: src/views/apps/mysql/IndexView.vue:217
-#: src/views/apps/nginx/IndexView.vue:193
-#: src/views/apps/php/PhpView.vue:372
-#: src/views/apps/postgresql/IndexView.vue:223
-#: src/views/apps/redis/IndexView.vue:166
-#: src/views/dashboard/IndexView.vue:459
+#: src/views/apps/memcached/IndexView.vue:170
+#: src/views/apps/mysql/IndexView.vue:227
+#: src/views/apps/nginx/IndexView.vue:201
+#: src/views/apps/php/PhpView.vue:389
+#: src/views/apps/postgresql/IndexView.vue:235
+#: src/views/apps/redis/IndexView.vue:174
+#: src/views/dashboard/IndexView.vue:462
 msgid "Load Status"
 msgstr ""
 
@@ -1048,13 +1307,13 @@ msgid "Are you sure you want to stop Minio?"
 msgstr ""
 
 #: src/views/apps/minio/IndexView.vue:120
-#: src/views/container/ComposeView.vue:316
-#: src/views/container/ComposeView.vue:346
-#: src/views/container/ContainerCreate.vue:337
+#: src/views/container/ComposeView.vue:331
+#: src/views/container/ComposeView.vue:361
+#: src/views/container/ContainerCreate.vue:352
 msgid "Environment Variables"
 msgstr ""
 
-#: src/views/apps/minio/IndexView.vue:123
+#: src/views/apps/minio/IndexView.vue:124
 msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
 msgstr ""
 
@@ -1065,60 +1324,60 @@ msgstr "Minio"
 #: src/views/apps/mysql/IndexView.vue:70
 #: src/views/apps/mysql/IndexView.vue:76
 #: src/views/apps/nginx/IndexView.vue:68
-#: src/views/apps/php/PhpView.vue:174
-#: src/views/apps/php/PhpView.vue:180
+#: src/views/apps/php/PhpView.vue:176
+#: src/views/apps/php/PhpView.vue:182
 #: src/views/apps/postgresql/IndexView.vue:74
-#: src/views/apps/supervisor/IndexView.vue:247
+#: src/views/apps/supervisor/IndexView.vue:253
 #: src/views/website/EditView.vue:160
 msgid "Cleared successfully"
 msgstr ""
 
 #: src/views/apps/mysql/IndexView.vue:111
-#: src/views/apps/pureftpd/IndexView.vue:185
+#: src/views/apps/pureftpd/IndexView.vue:187
 #: src/views/database/DatabaseList.vue:130
 #: src/views/database/ServerList.vue:249
 #: src/views/database/UpdateServerModal.vue:21
 #: src/views/database/UpdateUserModal.vue:18
 #: src/views/database/UserList.vue:223
 #: src/views/file/PermissionModal.vue:29
-#: src/views/task/CronView.vue:182
-#: src/views/task/CronView.vue:209
-#: src/views/website/IndexView.vue:253
-#: src/views/website/IndexView.vue:279
+#: src/views/task/CronView.vue:181
+#: src/views/task/CronView.vue:208
+#: src/views/website/IndexView.vue:251
+#: src/views/website/IndexView.vue:277
 msgid "Modified successfully"
 msgstr ""
 
 #: src/views/apps/mysql/IndexView.vue:139
 #: src/views/apps/nginx/IndexView.vue:132
 #: src/views/apps/postgresql/IndexView.vue:141
-#: src/views/apps/supervisor/IndexView.vue:375
+#: src/views/apps/supervisor/IndexView.vue:381
 msgid "Clear Log"
 msgstr ""
 
 #: src/views/apps/mysql/IndexView.vue:148
-#: src/views/apps/php/PhpView.vue:277
+#: src/views/apps/php/PhpView.vue:279
 msgid "Clear Slow Log"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:177
+#: src/views/apps/mysql/IndexView.vue:178
 msgid "Stopping MySQL will cause websites using MySQL to become inaccessible. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:186
-#: src/views/apps/toolbox/IndexView.vue:185
-#: src/views/apps/toolbox/IndexView.vue:187
+#: src/views/apps/mysql/IndexView.vue:190
+#: src/views/apps/toolbox/IndexView.vue:205
+#: src/views/apps/toolbox/IndexView.vue:207
 msgid "Root Password"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:193
+#: src/views/apps/mysql/IndexView.vue:198
 msgid "Save Changes"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:201
+#: src/views/apps/mysql/IndexView.vue:208
 msgid "This modifies the MySQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:230
+#: src/views/apps/mysql/IndexView.vue:240
 msgid "Slow Query Log"
 msgstr ""
 
@@ -1126,16 +1385,16 @@ msgstr ""
 msgid "Percona (MySQL)"
 msgstr ""
 
-#: src/views/apps/nginx/IndexView.vue:160
+#: src/views/apps/nginx/IndexView.vue:161
 msgid "Stopping OpenResty will cause all websites to become inaccessible. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/nginx/IndexView.vue:177
+#: src/views/apps/nginx/IndexView.vue:182
 msgid "This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/nginx/IndexView.vue:206
-#: src/views/apps/php/PhpView.vue:385
+#: src/views/apps/nginx/IndexView.vue:214
+#: src/views/apps/php/PhpView.vue:402
 msgid "Error Logs"
 msgstr ""
 
@@ -1155,56 +1414,57 @@ msgstr ""
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:156
+#: src/views/apps/php/PhpView.vue:158
 msgid "Set successfully"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:221
-#: src/views/apps/php/PhpView.vue:227
+#: src/views/apps/php/PhpView.vue:223
+#: src/views/apps/php/PhpView.vue:229
 msgid "Task submitted, please check progress in background tasks"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:241
+#: src/views/apps/php/PhpView.vue:243
 msgid "Set as CLI Default Version"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:268
+#: src/views/apps/php/PhpView.vue:270
 msgid "Clear Error Log"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:306
+#: src/views/apps/php/PhpView.vue:309
 msgid "Stopping PHP %{ version } will cause websites using PHP %{ version } to become inaccessible. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:321
+#: src/views/apps/php/PhpView.vue:328
 msgid "Extension Management"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:322
+#: src/views/apps/php/PhpView.vue:329
 msgid "Extension List"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:334
-#: src/views/apps/postgresql/IndexView.vue:185
-#: src/views/apps/redis/IndexView.vue:147
-#: src/views/apps/supervisor/IndexView.vue:439
+#: src/views/apps/php/PhpView.vue:341
+#: src/views/apps/postgresql/IndexView.vue:189
+#: src/views/apps/redis/IndexView.vue:151
+#: src/views/apps/rsync/IndexView.vue:327
+#: src/views/apps/supervisor/IndexView.vue:449
 msgid "Main Configuration"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:337
+#: src/views/apps/php/PhpView.vue:345
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:353
+#: src/views/apps/php/PhpView.vue:365
 msgid "FPM Configuration"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:356
+#: src/views/apps/php/PhpView.vue:369
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:388
-#: src/views/apps/postgresql/IndexView.vue:236
+#: src/views/apps/php/PhpView.vue:405
+#: src/views/apps/postgresql/IndexView.vue:248
 msgid "Slow Logs"
 msgstr ""
 
@@ -1224,7 +1484,7 @@ msgstr ""
 msgid "Modify phpMyAdmin access port"
 msgstr ""
 
-#: src/views/apps/phpmyadmin/IndexView.vue:87
+#: src/views/apps/phpmyadmin/IndexView.vue:88
 msgid "This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
@@ -1232,27 +1492,27 @@ msgstr ""
 msgid "phpMyAdmin"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:111
+#: src/views/apps/podman/IndexView.vue:112
 msgid "Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:136
+#: src/views/apps/podman/IndexView.vue:140
 msgid "Are you sure you want to stop Podman?"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:147
+#: src/views/apps/podman/IndexView.vue:151
 msgid "Registry Configuration"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:150
+#: src/views/apps/podman/IndexView.vue:155
 msgid "This modifies the Podman registry configuration file (/etc/containers/registries.conf)"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:166
+#: src/views/apps/podman/IndexView.vue:174
 msgid "Storage Configuration"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:169
+#: src/views/apps/podman/IndexView.vue:178
 msgid "This modifies the Podman storage configuration file (/etc/containers/storage.conf)"
 msgstr ""
 
@@ -1260,19 +1520,19 @@ msgstr ""
 msgid "Podman"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:170
+#: src/views/apps/postgresql/IndexView.vue:171
 msgid "Stopping PostgreSQL will cause websites using PostgreSQL to become inaccessible. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:188
+#: src/views/apps/postgresql/IndexView.vue:193
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:204
+#: src/views/apps/postgresql/IndexView.vue:212
 msgid "User Configuration"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:207
+#: src/views/apps/postgresql/IndexView.vue:216
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
@@ -1281,101 +1541,98 @@ msgid "PostgreSQL"
 msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:41
-#: src/views/apps/pureftpd/IndexView.vue:294
-#: src/views/container/ImageView.vue:197
-#: src/views/database/CreateDatabaseModal.vue:89
+#: src/views/apps/pureftpd/IndexView.vue:305
+#: src/views/container/ImageView.vue:198
+#: src/views/database/CreateDatabaseModal.vue:93
 #: src/views/database/CreateServerModal.vue:94
 #: src/views/database/CreateUserModal.vue:70
 #: src/views/database/ServerList.vue:47
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:40
-#: src/views/login/IndexView.vue:113
-#: src/views/setting/SettingBase.vue:65
+#: src/views/login/IndexView.vue:115
+#: src/views/setting/SettingBase.vue:69
 #: src/views/ssh/CreateModal.vue:83
 #: src/views/ssh/UpdateModal.vue:89
 msgid "Username"
-msgstr ""
-
-#: src/views/apps/pureftpd/IndexView.vue:75
-#: src/views/apps/pureftpd/IndexView.vue:327
-msgid "Change Password"
 msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:86
 msgid "Are you sure you want to delete user %{ username }?"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:146
+#: src/views/apps/pureftpd/IndexView.vue:148
 msgid "Auto-start enabled successfully"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:149
+#: src/views/apps/pureftpd/IndexView.vue:151
 msgid "Auto-start disabled successfully"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:218
+#: src/views/apps/pureftpd/IndexView.vue:220
 msgid "Add User"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:227
+#: src/views/apps/pureftpd/IndexView.vue:229
 msgid "Auto-start On"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:228
+#: src/views/apps/pureftpd/IndexView.vue:230
 msgid "Auto-start Off"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:247
+#: src/views/apps/pureftpd/IndexView.vue:250
 msgid "Stopping Pure-Ftpd will cause FTP service to be unavailable. Are you sure you want to stop it?"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:256
+#: src/views/apps/pureftpd/IndexView.vue:262
 msgid "Port Settings"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:258
+#: src/views/apps/pureftpd/IndexView.vue:264
 msgid "Modify Pure-Ftpd listening port"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:262
+#: src/views/apps/pureftpd/IndexView.vue:268
 msgid "User Management"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:263
+#: src/views/apps/pureftpd/IndexView.vue:269
 msgid "User List"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:286
+#: src/views/apps/pureftpd/IndexView.vue:292
 msgid "Run Log"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:291
-#: src/views/apps/pureftpd/IndexView.vue:292
+#: src/views/apps/pureftpd/IndexView.vue:297
+#: src/views/apps/pureftpd/IndexView.vue:301
 #: src/views/database/CreateDatabaseModal.vue:78
 #: src/views/database/CreateUserModal.vue:54
 #: src/views/database/IndexView.vue:36
 msgid "Create User"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:299
-#: src/views/container/ImageView.vue:202
-#: src/views/database/CreateDatabaseModal.vue:94
+#: src/views/apps/pureftpd/IndexView.vue:310
+#: src/views/container/ImageView.vue:203
+#: src/views/database/CreateDatabaseModal.vue:98
 #: src/views/database/CreateUserModal.vue:75
 msgid "Enter username"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:302
-#: src/views/apps/pureftpd/IndexView.vue:331
-#: src/views/container/ImageView.vue:205
-#: src/views/database/CreateDatabaseModal.vue:97
+#: src/views/apps/pureftpd/IndexView.vue:313
+#: src/views/apps/pureftpd/IndexView.vue:344
+#: src/views/apps/rsync/IndexView.vue:390
+#: src/views/apps/rsync/IndexView.vue:444
+#: src/views/container/ImageView.vue:206
+#: src/views/database/CreateDatabaseModal.vue:101
 #: src/views/database/CreateServerModal.vue:102
 #: src/views/database/CreateUserModal.vue:78
 #: src/views/database/ServerList.vue:56
 #: src/views/database/UpdateServerModal.vue:94
 #: src/views/database/UpdateUserModal.vue:49
 #: src/views/database/UserList.vue:50
-#: src/views/login/IndexView.vue:121
-#: src/views/setting/SettingBase.vue:68
+#: src/views/login/IndexView.vue:123
+#: src/views/setting/SettingBase.vue:72
 #: src/views/ssh/CreateModal.vue:77
 #: src/views/ssh/CreateModal.vue:86
 #: src/views/ssh/UpdateModal.vue:83
@@ -1383,19 +1640,22 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:308
-#: src/views/apps/pureftpd/IndexView.vue:336
+#: src/views/apps/pureftpd/IndexView.vue:320
+#: src/views/apps/pureftpd/IndexView.vue:350
 msgid "It is recommended to use the generator to generate a random password"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:311
+#: src/views/apps/pureftpd/IndexView.vue:324
+#: src/views/apps/rsync/IndexView.vue:56
+#: src/views/apps/rsync/IndexView.vue:374
+#: src/views/apps/rsync/IndexView.vue:428
 #: src/views/container/ComposeView.vue:38
-#: src/views/website/IndexView.vue:44
-#: src/views/website/IndexView.vue:504
+#: src/views/website/IndexView.vue:43
+#: src/views/website/IndexView.vue:502
 msgid "Directory"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:316
+#: src/views/apps/pureftpd/IndexView.vue:329
 msgid "Enter the directory authorized to the user"
 msgstr ""
 
@@ -1403,17 +1663,121 @@ msgstr ""
 msgid "Pure-FTPd"
 msgstr ""
 
-#: src/views/apps/redis/IndexView.vue:136
+#: src/views/apps/redis/IndexView.vue:137
 msgid "Stopping Redis will cause websites using Redis to become inaccessible. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/redis/IndexView.vue:150
+#: src/views/apps/redis/IndexView.vue:155
 msgid "This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
 #: src/views/apps/redis/route.ts:17
 msgid "Redis"
 msgstr "Redis"
+
+#: src/views/apps/rsync/IndexView.vue:44
+#: src/views/dashboard/IndexView.vue:133
+msgid "Running normally"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:63
+#: src/views/apps/rsync/IndexView.vue:382
+#: src/views/apps/rsync/IndexView.vue:436
+#: src/views/database/IndexView.vue:48
+#: src/views/task/SystemView.vue:37
+msgid "User"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:70
+#: src/views/apps/rsync/IndexView.vue:398
+#: src/views/apps/rsync/IndexView.vue:453
+#: src/views/apps/toolbox/IndexView.vue:156
+#: src/views/database/CreateDatabaseModal.vue:110
+#: src/views/database/CreateServerModal.vue:73
+#: src/views/database/ServerList.vue:87
+#: src/views/database/UpdateServerModal.vue:65
+#: src/views/database/UserList.vue:81
+#: src/views/ssh/CreateModal.vue:62
+#: src/views/ssh/UpdateModal.vue:68
+msgid "Host"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:76
+#: src/views/apps/rsync/IndexView.vue:406
+#: src/views/apps/rsync/IndexView.vue:461
+#: src/views/database/CreateServerModal.vue:111
+#: src/views/database/CreateUserModal.vue:109
+#: src/views/database/DatabaseList.vue:57
+#: src/views/database/ServerList.vue:97
+#: src/views/database/UpdateServerModal.vue:103
+#: src/views/database/UpdateUserModal.vue:64
+#: src/views/database/UserList.vue:114
+msgid "Comment"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:93
+#: src/views/apps/supervisor/IndexView.vue:116
+msgid "Configure"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:104
+msgid "Are you sure you want to delete module %{ name }?"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:259
+#: src/views/apps/rsync/IndexView.vue:358
+msgid "Add Module"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:289
+msgid "After stopping the Rsync service, you will not be able to use the Rsync functionality. Are you sure you want to stop?"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:303
+msgid "Module Management"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:304
+msgid "Module List"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:331
+msgid "This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:371
+#: src/views/apps/supervisor/IndexView.vue:496
+msgid "Name cannot contain Chinese characters"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:379
+#: src/views/apps/rsync/IndexView.vue:433
+msgid "Please enter absolute path"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:387
+#: src/views/apps/rsync/IndexView.vue:441
+msgid "Enter module username"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:395
+#: src/views/apps/rsync/IndexView.vue:450
+msgid "Enter module password"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:403
+#: src/views/apps/rsync/IndexView.vue:458
+msgid "Enter allowed hosts, separate multiple hosts with spaces"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:411
+#: src/views/apps/rsync/IndexView.vue:466
+msgid "Enter comments"
+msgstr ""
+
+#: src/views/apps/rsync/IndexView.vue:420
+msgid "Module Configuration"
+msgstr ""
 
 #: src/views/apps/rsync/route.ts:17
 msgid "Rsync"
@@ -1427,45 +1791,45 @@ msgstr ""
 msgid "Are you sure you want to delete mount %{ path }?"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:57
+#: src/views/apps/s3fs/IndexView.vue:59
 msgid "Unmount"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:104
-#: src/views/apps/s3fs/IndexView.vue:130
-#: src/views/apps/s3fs/IndexView.vue:131
+#: src/views/apps/s3fs/IndexView.vue:106
+#: src/views/apps/s3fs/IndexView.vue:132
+#: src/views/apps/s3fs/IndexView.vue:136
 msgid "Add Mount"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:107
+#: src/views/apps/s3fs/IndexView.vue:109
 msgid "Mount List"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:138
+#: src/views/apps/s3fs/IndexView.vue:145
 msgid "Enter Bucket name (COS format: xxxx-ID)"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:146
+#: src/views/apps/s3fs/IndexView.vue:153
 msgid "Enter AK key"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:154
+#: src/views/apps/s3fs/IndexView.vue:161
 msgid "Enter SK key"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:157
+#: src/views/apps/s3fs/IndexView.vue:164
 msgid "Region Endpoint"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:162
+#: src/views/apps/s3fs/IndexView.vue:170
 msgid "Enter complete URL of region endpoint (e.g., https://oss-cn-beijing.aliyuncs.com)"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:165
+#: src/views/apps/s3fs/IndexView.vue:176
 msgid "Mount Directory"
 msgstr ""
 
-#: src/views/apps/s3fs/IndexView.vue:170
+#: src/views/apps/s3fs/IndexView.vue:181
 msgid "Enter mount directory (e.g., /oss)"
 msgstr ""
 
@@ -1477,88 +1841,72 @@ msgstr ""
 msgid "Uptime"
 msgstr "運行時間"
 
-#: src/views/apps/supervisor/IndexView.vue:103
-#: src/views/container/ContainerView.vue:103
-#: src/views/container/ContainerView.vue:439
-#: src/views/task/CronView.vue:122
-#: src/views/task/TaskView.vue:75
-msgid "Logs"
-msgstr ""
-
-#: src/views/apps/supervisor/IndexView.vue:116
-msgid "Configure"
-msgstr ""
-
 #: src/views/apps/supervisor/IndexView.vue:144
 msgid "Are you sure you want to stop process %{ name }?"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:171
+#: src/views/apps/supervisor/IndexView.vue:173
 msgid "Are you sure you want to restart process %{ name }?"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:197
+#: src/views/apps/supervisor/IndexView.vue:201
 msgid "Are you sure you want to delete process %{ name }?"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:371
-#: src/views/apps/supervisor/IndexView.vue:469
+#: src/views/apps/supervisor/IndexView.vue:377
+#: src/views/apps/supervisor/IndexView.vue:483
 msgid "Add Process"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:404
+#: src/views/apps/supervisor/IndexView.vue:411
 msgid "Stopping Supervisor will cause all processes managed by Supervisor to be killed. Are you sure you want to stop?"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:415
+#: src/views/apps/supervisor/IndexView.vue:425
 msgid "Process Management"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:416
+#: src/views/apps/supervisor/IndexView.vue:426
 msgid "Process List"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:442
+#: src/views/apps/supervisor/IndexView.vue:453
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:461
+#: src/views/apps/supervisor/IndexView.vue:475
 msgid "Daemon Logs"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:482
-msgid "Name cannot contain Chinese characters"
-msgstr ""
-
-#: src/views/apps/supervisor/IndexView.vue:485
+#: src/views/apps/supervisor/IndexView.vue:499
 msgid "Start Command"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:490
+#: src/views/apps/supervisor/IndexView.vue:504
 msgid "Please enter absolute path for files in start command"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:493
+#: src/views/apps/supervisor/IndexView.vue:507
 msgid "Working Directory"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:498
+#: src/views/apps/supervisor/IndexView.vue:512
 msgid "Please enter absolute path for working directory"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:501
+#: src/views/apps/supervisor/IndexView.vue:515
 msgid "Run As User"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:506
+#: src/views/apps/supervisor/IndexView.vue:520
 msgid "Usually www is sufficient"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:509
+#: src/views/apps/supervisor/IndexView.vue:523
 msgid "Number of Processes"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:519
+#: src/views/apps/supervisor/IndexView.vue:533
 msgid "Process Configuration"
 msgstr ""
 
@@ -1573,7 +1921,7 @@ msgstr ""
 
 #: src/views/apps/toolbox/IndexView.vue:118
 #: src/views/cert/AccountView.vue:102
-#: src/views/cert/CertView.vue:290
+#: src/views/cert/CertView.vue:289
 #: src/views/cert/DnsView.vue:86
 #: src/views/database/ServerList.vue:185
 #: src/views/database/UserList.vue:170
@@ -1581,59 +1929,48 @@ msgstr ""
 msgid "Modify"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:124
+#: src/views/apps/toolbox/IndexView.vue:125
 msgid "DNS modifications will revert to default after system restart."
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:138
+#: src/views/apps/toolbox/IndexView.vue:141
 msgid "Total %{ total }, used %{ used }, free %{ free }"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:141
-#: src/views/dashboard/IndexView.vue:578
+#: src/views/apps/toolbox/IndexView.vue:149
+#: src/views/dashboard/IndexView.vue:581
 msgid "SWAP Size"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:148
-#: src/views/database/CreateDatabaseModal.vue:106
-#: src/views/database/CreateServerModal.vue:73
-#: src/views/database/ServerList.vue:87
-#: src/views/database/UpdateServerModal.vue:65
-#: src/views/database/UserList.vue:81
-#: src/views/ssh/CreateModal.vue:62
-#: src/views/ssh/UpdateModal.vue:68
-msgid "Host"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:151
+#: src/views/apps/toolbox/IndexView.vue:159
 msgid "Hostname"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:169
+#: src/views/apps/toolbox/IndexView.vue:177
 msgid "Time"
 msgstr "Time"
 
-#: src/views/apps/toolbox/IndexView.vue:171
+#: src/views/apps/toolbox/IndexView.vue:181
 msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:173
+#: src/views/apps/toolbox/IndexView.vue:187
 msgid "Select Timezone"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:174
+#: src/views/apps/toolbox/IndexView.vue:190
 msgid "Please select a timezone"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:176
+#: src/views/apps/toolbox/IndexView.vue:194
 msgid "Modify Time"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:179
+#: src/views/apps/toolbox/IndexView.vue:197
 msgid "NTP Time Synchronization"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:180
+#: src/views/apps/toolbox/IndexView.vue:199
 msgid "Synchronize Time"
 msgstr ""
 
@@ -1643,13 +1980,6 @@ msgstr ""
 
 #: src/views/backup/ListView.vue:36
 msgid "Filename"
-msgstr ""
-
-#: src/views/backup/ListView.vue:43
-#: src/views/container/ImageView.vue:53
-#: src/views/file/ListTable.vue:165
-#: src/views/file/SearchModal.vue:28
-msgid "Size"
 msgstr ""
 
 #: src/views/backup/ListView.vue:49
@@ -1666,26 +1996,6 @@ msgstr ""
 msgid "Are you sure you want to delete this backup?"
 msgstr ""
 
-#: src/views/backup/ListView.vue:126
-#: src/views/cert/CreateAccountModal.vue:49
-#: src/views/cert/CreateCertModal.vue:50
-#: src/views/cert/CreateDnsModal.vue:35
-#: src/views/cert/UploadCertModal.vue:21
-#: src/views/container/ComposeView.vue:234
-#: src/views/container/ContainerCreate.vue:106
-#: src/views/container/NetworkView.vue:175
-#: src/views/container/VolumeView.vue:129
-#: src/views/database/CreateDatabaseModal.vue:28
-#: src/views/database/CreateUserModal.vue:28
-#: src/views/file/ToolBar.vue:45
-#: src/views/firewall/CreateForwardModal.vue:41
-#: src/views/firewall/CreateModal.vue:84
-#: src/views/ssh/CreateModal.vue:38
-#: src/views/task/CreateModal.vue:51
-#: src/views/website/IndexView.vue:309
-msgid "Created successfully"
-msgstr ""
-
 #: src/views/backup/ListView.vue:132
 msgid "Restoring..."
 msgstr ""
@@ -1694,57 +2004,57 @@ msgstr ""
 msgid "Restored successfully"
 msgstr ""
 
-#: src/views/backup/ListView.vue:182
-#: src/views/backup/ListView.vue:209
+#: src/views/backup/ListView.vue:183
+#: src/views/backup/ListView.vue:213
 msgid "Create Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:183
+#: src/views/backup/ListView.vue:186
 #: src/views/backup/UploadModal.vue:39
 msgid "Upload Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:218
-#: src/views/backup/ListView.vue:251
+#: src/views/backup/ListView.vue:225
+#: src/views/backup/ListView.vue:262
 msgid "Select website"
 msgstr ""
 
-#: src/views/backup/ListView.vue:220
+#: src/views/backup/ListView.vue:228
 #: src/views/database/CreateDatabaseModal.vue:70
 #: src/views/database/DatabaseList.vue:35
-#: src/views/task/CreateModal.vue:146
-#: src/views/task/CreateModal.vue:148
-#: src/views/website/IndexView.vue:468
-#: src/views/website/IndexView.vue:473
+#: src/views/task/CreateModal.vue:154
+#: src/views/task/CreateModal.vue:156
+#: src/views/website/IndexView.vue:466
+#: src/views/website/IndexView.vue:471
 msgid "Database Name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:225
+#: src/views/backup/ListView.vue:233
 #: src/views/database/CreateDatabaseModal.vue:75
-#: src/views/database/CreateUserModal.vue:104
-#: src/views/database/UpdateUserModal.vue:59
+#: src/views/database/CreateUserModal.vue:106
+#: src/views/database/UpdateUserModal.vue:61
 msgid "Enter database name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:228
-#: src/views/task/CreateModal.vue:150
-#: src/views/task/CreateModal.vue:151
+#: src/views/backup/ListView.vue:236
+#: src/views/task/CreateModal.vue:158
+#: src/views/task/CreateModal.vue:161
 msgid "Save Directory"
 msgstr ""
 
-#: src/views/backup/ListView.vue:233
+#: src/views/backup/ListView.vue:241
 msgid "Leave empty to use default path"
 msgstr ""
 
-#: src/views/backup/ListView.vue:242
+#: src/views/backup/ListView.vue:250
 msgid "Restore Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:253
-#: src/views/dashboard/IndexView.vue:422
+#: src/views/backup/ListView.vue:265
+#: src/views/dashboard/IndexView.vue:425
 #: src/views/database/IndexView.vue:45
 #: src/views/database/route.ts:19
-#: src/views/website/IndexView.vue:447
+#: src/views/website/IndexView.vue:445
 msgid "Database"
 msgstr ""
 
@@ -1766,21 +2076,21 @@ msgid "For large files, it is recommended to use SFTP or other methods to upload
 msgstr ""
 
 #: src/views/cert/AccountView.vue:44
-#: src/views/cert/AccountView.vue:233
-#: src/views/cert/CreateAccountModal.vue:89
+#: src/views/cert/AccountView.vue:244
+#: src/views/cert/CreateAccountModal.vue:100
 msgid "Email"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:72
-#: src/views/cert/AccountView.vue:225
-#: src/views/cert/CertView.vue:456
-#: src/views/cert/CreateAccountModal.vue:81
-#: src/views/cert/CreateCertModal.vue:78
+#: src/views/cert/AccountView.vue:236
+#: src/views/cert/CertView.vue:459
+#: src/views/cert/CreateAccountModal.vue:92
+#: src/views/cert/CreateCertModal.vue:82
 msgid "Key Type"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:110
-#: src/views/cert/CertView.vue:299
+#: src/views/cert/CertView.vue:298
 #: src/views/cert/DnsView.vue:95
 msgid "Deletion successful"
 msgstr ""
@@ -1789,70 +2099,70 @@ msgstr ""
 msgid "Are you sure you want to delete the account?"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:150
-#: src/views/cert/CreateAccountModal.vue:38
+#: src/views/cert/AccountView.vue:151
+#: src/views/cert/CreateAccountModal.vue:39
 msgid "Registering account with CA, please wait patiently"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:160
-#: src/views/cert/CertView.vue:350
-#: src/views/cert/CertView.vue:367
+#: src/views/cert/AccountView.vue:163
+#: src/views/cert/CertView.vue:349
+#: src/views/cert/CertView.vue:366
 #: src/views/cert/DnsView.vue:140
-#: src/views/container/ComposeView.vue:252
+#: src/views/container/ComposeView.vue:265
 msgid "Update successful"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:205
+#: src/views/cert/AccountView.vue:208
 msgid "Modify Account"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:212
-#: src/views/cert/CreateAccountModal.vue:68
+#: src/views/cert/AccountView.vue:216
+#: src/views/cert/CreateAccountModal.vue:72
 msgid "Google and SSL.com require obtaining KID and HMAC from their official websites first"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:214
+#: src/views/cert/AccountView.vue:222
 msgid "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using GoogleCN or Let's Encrypt"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:217
-#: src/views/cert/CreateAccountModal.vue:73
+#: src/views/cert/AccountView.vue:228
+#: src/views/cert/CreateAccountModal.vue:84
 msgid "CA"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:220
-#: src/views/cert/CreateAccountModal.vue:76
+#: src/views/cert/AccountView.vue:231
+#: src/views/cert/CreateAccountModal.vue:87
 msgid "Select CA"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:228
-#: src/views/cert/CertView.vue:459
-#: src/views/cert/CreateAccountModal.vue:84
-#: src/views/cert/CreateCertModal.vue:81
+#: src/views/cert/AccountView.vue:239
+#: src/views/cert/CertView.vue:462
+#: src/views/cert/CreateAccountModal.vue:95
+#: src/views/cert/CreateCertModal.vue:85
 msgid "Select key type"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:238
-#: src/views/cert/CreateAccountModal.vue:94
+#: src/views/cert/AccountView.vue:249
+#: src/views/cert/CreateAccountModal.vue:105
 msgid "Enter email address"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:246
-#: src/views/cert/CreateAccountModal.vue:102
+#: src/views/cert/AccountView.vue:257
+#: src/views/cert/CreateAccountModal.vue:113
 msgid "Enter KID"
 msgstr ""
 
-#: src/views/cert/AccountView.vue:254
-#: src/views/cert/CreateAccountModal.vue:110
+#: src/views/cert/AccountView.vue:265
+#: src/views/cert/CreateAccountModal.vue:121
 msgid "Enter HMAC"
 msgstr ""
 
 #: src/views/cert/CertView.vue:64
-#: src/views/cert/CertView.vue:448
-#: src/views/cert/CreateCertModal.vue:70
-#: src/views/cert/ObtainModal.vue:53
-#: src/views/website/EditView.vue:228
-#: src/views/website/IndexView.vue:412
+#: src/views/cert/CertView.vue:451
+#: src/views/cert/CreateCertModal.vue:74
+#: src/views/cert/ObtainModal.vue:57
+#: src/views/website/EditView.vue:232
+#: src/views/website/IndexView.vue:410
 msgid "Domain"
 msgstr ""
 
@@ -1884,7 +2194,7 @@ msgid "Associated Account"
 msgstr ""
 
 #: src/views/cert/CertView.vue:130
-#: src/views/website/EditView.vue:297
+#: src/views/website/EditView.vue:306
 msgid "Issuer"
 msgstr ""
 
@@ -1896,39 +2206,39 @@ msgstr ""
 msgid "Auto Renew"
 msgstr ""
 
-#: src/views/cert/CertView.vue:202
-#: src/views/cert/ObtainModal.vue:74
+#: src/views/cert/CertView.vue:201
+#: src/views/cert/ObtainModal.vue:78
 msgid "Issue"
 msgstr ""
 
-#: src/views/cert/CertView.vue:221
+#: src/views/cert/CertView.vue:220
 msgid "Deploy"
 msgstr ""
 
-#: src/views/cert/CertView.vue:233
+#: src/views/cert/CertView.vue:232
 #: src/views/cert/ObtainModal.vue:24
-#: src/views/cert/ObtainModal.vue:77
+#: src/views/cert/ObtainModal.vue:81
 #: src/views/website/EditView.vue:133
 msgid "Please wait..."
 msgstr ""
 
-#: src/views/cert/CertView.vue:239
+#: src/views/cert/CertView.vue:238
 msgid "Renewal successful"
 msgstr ""
 
-#: src/views/cert/CertView.vue:247
+#: src/views/cert/CertView.vue:246
 msgid "Renew"
 msgstr ""
 
-#: src/views/cert/CertView.vue:305
+#: src/views/cert/CertView.vue:304
 msgid "Are you sure you want to delete the certificate?"
 msgstr ""
 
-#: src/views/cert/CertView.vue:391
+#: src/views/cert/CertView.vue:390
 msgid "Deployment successful"
 msgstr ""
 
-#: src/views/cert/CertView.vue:437
+#: src/views/cert/CertView.vue:436
 msgid "Modify Certificate"
 msgstr ""
 
@@ -1936,92 +2246,92 @@ msgstr ""
 msgid "You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates."
 msgstr ""
 
-#: src/views/cert/CertView.vue:467
-#: src/views/cert/CreateCertModal.vue:89
+#: src/views/cert/CertView.vue:470
+#: src/views/cert/CreateCertModal.vue:93
 msgid "Select website for certificate deployment"
 msgstr ""
 
-#: src/views/cert/CertView.vue:472
-#: src/views/cert/CreateCertModal.vue:94
+#: src/views/cert/CertView.vue:478
+#: src/views/cert/CreateCertModal.vue:98
 msgid "Account"
 msgstr ""
 
-#: src/views/cert/CertView.vue:475
-#: src/views/cert/CreateCertModal.vue:97
+#: src/views/cert/CertView.vue:482
+#: src/views/cert/CreateCertModal.vue:101
 msgid "Select account for certificate issuance"
 msgstr ""
 
-#: src/views/cert/CertView.vue:480
-#: src/views/cert/CreateCertModal.vue:102
-#: src/views/cert/CreateDnsModal.vue:55
-#: src/views/cert/DnsView.vue:193
+#: src/views/cert/CertView.vue:487
+#: src/views/cert/CreateCertModal.vue:106
+#: src/views/cert/CreateDnsModal.vue:59
+#: src/views/cert/DnsView.vue:197
 msgid "DNS"
 msgstr ""
 
-#: src/views/cert/CertView.vue:483
-#: src/views/cert/CreateCertModal.vue:105
+#: src/views/cert/CertView.vue:490
+#: src/views/cert/CreateCertModal.vue:109
 msgid "Select DNS for certificate issuance"
 msgstr ""
 
-#: src/views/cert/CertView.vue:488
-#: src/views/cert/CertView.vue:551
+#: src/views/cert/CertView.vue:498
+#: src/views/cert/CertView.vue:574
 #: src/views/cert/route.ts:19
 #: src/views/cert/UploadCertModal.vue:38
-#: src/views/setting/SettingHttps.vue:39
-#: src/views/website/EditView.vue:342
+#: src/views/setting/SettingHttps.vue:45
+#: src/views/website/EditView.vue:355
 msgid "Certificate"
 msgstr ""
 
-#: src/views/cert/CertView.vue:492
+#: src/views/cert/CertView.vue:503
 #: src/views/cert/UploadCertModal.vue:42
-#: src/views/website/EditView.vue:346
+#: src/views/website/EditView.vue:359
 msgid "Enter the content of the PEM certificate file"
 msgstr ""
 
-#: src/views/cert/CertView.vue:496
-#: src/views/cert/CertView.vue:563
+#: src/views/cert/CertView.vue:510
+#: src/views/cert/CertView.vue:586
 #: src/views/cert/UploadCertModal.vue:46
-#: src/views/setting/SettingHttps.vue:46
+#: src/views/setting/SettingHttps.vue:52
 #: src/views/ssh/CreateModal.vue:78
 #: src/views/ssh/CreateModal.vue:89
 #: src/views/ssh/UpdateModal.vue:84
 #: src/views/ssh/UpdateModal.vue:95
-#: src/views/website/EditView.vue:350
+#: src/views/website/EditView.vue:363
 msgid "Private Key"
 msgstr ""
 
-#: src/views/cert/CertView.vue:500
+#: src/views/cert/CertView.vue:515
 #: src/views/cert/UploadCertModal.vue:50
-#: src/views/website/EditView.vue:354
+#: src/views/website/EditView.vue:367
 msgid "Enter the content of the KEY private key file"
 msgstr ""
 
-#: src/views/cert/CertView.vue:504
+#: src/views/cert/CertView.vue:522
 msgid "Deployment Script"
 msgstr ""
 
-#: src/views/cert/CertView.vue:508
+#: src/views/cert/CertView.vue:528
 msgid "The {cert} and {key} in the script will be replaced with the certificate and private key content"
 msgstr ""
 
-#: src/views/cert/CertView.vue:519
+#: src/views/cert/CertView.vue:542
 msgid "Deploy Certificate"
 msgstr ""
 
-#: src/views/cert/CertView.vue:530
+#: src/views/cert/CertView.vue:553
 msgid "Select websites to deploy the certificate"
 msgstr ""
 
-#: src/views/cert/CertView.vue:543
+#: src/views/cert/CertView.vue:566
 msgid "View Certificate"
 msgstr ""
 
-#: src/views/cert/CreateAccountModal.vue:61
+#: src/views/cert/CreateAccountModal.vue:64
 #: src/views/cert/IndexView.vue:106
 msgid "Create Account"
 msgstr ""
 
-#: src/views/cert/CreateAccountModal.vue:70
+#: src/views/cert/CreateAccountModal.vue:78
 msgid "Google is not accessible in mainland China, and other CAs depend on network conditions. GoogleCN or Let's Encrypt are recommended"
 msgstr ""
 
@@ -2030,7 +2340,7 @@ msgstr ""
 msgid "Create Certificate"
 msgstr ""
 
-#: src/views/cert/CreateCertModal.vue:67
+#: src/views/cert/CreateCertModal.vue:68
 msgid "You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates"
 msgstr ""
 
@@ -2043,143 +2353,135 @@ msgstr ""
 msgid "Comment Name"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:53
+#: src/views/cert/CreateDnsModal.vue:56
 msgid "Enter comment name"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:58
-#: src/views/cert/DnsView.vue:196
+#: src/views/cert/CreateDnsModal.vue:62
+#: src/views/cert/DnsView.vue:200
 msgid "Select DNS"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:64
-#: src/views/cert/DnsView.vue:205
+#: src/views/cert/CreateDnsModal.vue:71
+#: src/views/cert/DnsView.vue:209
 msgid "Enter Aliyun Access Key"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:67
-#: src/views/cert/DnsView.vue:212
+#: src/views/cert/CreateDnsModal.vue:78
+#: src/views/cert/DnsView.vue:216
 msgid "Enter Aliyun Secret Key"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:70
-#: src/views/cert/DnsView.vue:219
+#: src/views/cert/CreateDnsModal.vue:85
+#: src/views/cert/DnsView.vue:223
 msgid "Enter Tencent Cloud SecretId"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:73
-#: src/views/cert/DnsView.vue:226
+#: src/views/cert/CreateDnsModal.vue:92
+#: src/views/cert/DnsView.vue:230
 msgid "Enter Tencent Cloud SecretKey"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:76
-#: src/views/cert/DnsView.vue:233
+#: src/views/cert/CreateDnsModal.vue:99
+#: src/views/cert/DnsView.vue:237
 msgid "Enter Huawei Cloud AccessKeyId"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:82
-#: src/views/cert/DnsView.vue:240
+#: src/views/cert/CreateDnsModal.vue:106
+#: src/views/cert/DnsView.vue:244
 msgid "Enter Huawei Cloud SecretAccessKey"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:86
+#: src/views/cert/CreateDnsModal.vue:113
 msgid "Enter Western Digital Username"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:92
+#: src/views/cert/CreateDnsModal.vue:120
 msgid "Enter Western Digital API Password"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:99
-#: src/views/cert/DnsView.vue:261
+#: src/views/cert/CreateDnsModal.vue:127
+#: src/views/cert/DnsView.vue:265
 msgid "Enter Cloudflare API Key"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:103
-#: src/views/cert/DnsView.vue:268
+#: src/views/cert/CreateDnsModal.vue:134
+#: src/views/cert/DnsView.vue:272
 msgid "Enter GoDaddy Token"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:106
-#: src/views/cert/DnsView.vue:275
+#: src/views/cert/CreateDnsModal.vue:141
+#: src/views/cert/DnsView.vue:279
 msgid "Enter G-Core API Key"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:109
-#: src/views/cert/DnsView.vue:282
+#: src/views/cert/CreateDnsModal.vue:148
+#: src/views/cert/DnsView.vue:286
 msgid "Enter Porkbun API Key"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:115
-#: src/views/cert/DnsView.vue:289
+#: src/views/cert/CreateDnsModal.vue:155
+#: src/views/cert/DnsView.vue:293
 msgid "Enter Porkbun Secret Key"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:122
-#: src/views/cert/DnsView.vue:296
+#: src/views/cert/CreateDnsModal.vue:162
+#: src/views/cert/DnsView.vue:300
 msgid "Enter Namecheap API Username"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:126
-#: src/views/cert/DnsView.vue:303
+#: src/views/cert/CreateDnsModal.vue:169
+#: src/views/cert/DnsView.vue:307
 msgid "Enter Namecheap API Key"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:132
-#: src/views/cert/DnsView.vue:310
+#: src/views/cert/CreateDnsModal.vue:176
+#: src/views/cert/DnsView.vue:314
 msgid "Enter NameSilo API Token"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:136
-#: src/views/cert/DnsView.vue:317
+#: src/views/cert/CreateDnsModal.vue:183
+#: src/views/cert/DnsView.vue:321
 msgid "Enter Name.com Username"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:139
-#: src/views/cert/DnsView.vue:324
+#: src/views/cert/CreateDnsModal.vue:190
+#: src/views/cert/DnsView.vue:328
 msgid "Enter Name.com Token"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:146
+#: src/views/cert/CreateDnsModal.vue:198
 msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:153
-#: src/views/cert/DnsView.vue:338
+#: src/views/cert/CreateDnsModal.vue:205
+#: src/views/cert/DnsView.vue:342
 msgid "Enter ClouDNS Auth Password"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:157
-#: src/views/cert/DnsView.vue:345
+#: src/views/cert/CreateDnsModal.vue:212
+#: src/views/cert/DnsView.vue:349
 msgid "Enter Duck DNS Token"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:163
-#: src/views/cert/DnsView.vue:352
+#: src/views/cert/CreateDnsModal.vue:219
+#: src/views/cert/DnsView.vue:356
 msgid "Enter Hetzner Auth API Token"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:167
-#: src/views/cert/DnsView.vue:359
+#: src/views/cert/CreateDnsModal.vue:226
+#: src/views/cert/DnsView.vue:363
 msgid "Enter Linode Token"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:170
-#: src/views/cert/DnsView.vue:366
+#: src/views/cert/CreateDnsModal.vue:233
+#: src/views/cert/DnsView.vue:370
 msgid "Enter Vercel Token"
 msgstr ""
 
 #: src/views/cert/DnsView.vue:31
 #: src/views/cert/DnsView.vue:190
 msgid "Note Name"
-msgstr ""
-
-#: src/views/cert/DnsView.vue:56
-#: src/views/firewall/IpRuleView.vue:77
-#: src/views/firewall/IpRuleView.vue:102
-#: src/views/firewall/RuleView.vue:111
-#: src/views/firewall/RuleView.vue:136
-msgid "Unknown"
 msgstr ""
 
 #: src/views/cert/DnsView.vue:101
@@ -2190,19 +2492,19 @@ msgstr ""
 msgid "Modify DNS"
 msgstr ""
 
-#: src/views/cert/DnsView.vue:191
+#: src/views/cert/DnsView.vue:194
 msgid "Enter note name"
 msgstr ""
 
-#: src/views/cert/DnsView.vue:247
+#: src/views/cert/DnsView.vue:251
 msgid "Enter West.cn Username"
 msgstr ""
 
-#: src/views/cert/DnsView.vue:254
+#: src/views/cert/DnsView.vue:258
 msgid "Enter West.cn API Password"
 msgstr ""
 
-#: src/views/cert/DnsView.vue:331
+#: src/views/cert/DnsView.vue:335
 msgid "Enter ClouDNS Auth ID (Add sub- prefix for Sub Auth ID)"
 msgstr ""
 
@@ -2236,32 +2538,32 @@ msgid "Self-signed"
 msgstr ""
 
 #: src/views/cert/ObtainModal.vue:33
-#: src/views/cert/ObtainModal.vue:85
-#: src/views/cert/ObtainModal.vue:103
+#: src/views/cert/ObtainModal.vue:89
+#: src/views/cert/ObtainModal.vue:107
 msgid "Issuance successful"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:41
+#: src/views/cert/ObtainModal.vue:42
 msgid "Please set up DNS resolution for the domain first, then continue with the issuance"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:44
+#: src/views/cert/ObtainModal.vue:48
 msgid "DNS Records to Set"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:55
+#: src/views/cert/ObtainModal.vue:59
 msgid "Host Record"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:56
+#: src/views/cert/ObtainModal.vue:60
 msgid "Record Value"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:116
+#: src/views/cert/ObtainModal.vue:120
 msgid "Issue Certificate"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:123
+#: src/views/cert/ObtainModal.vue:127
 msgid "Issuance Mode"
 msgstr ""
 
@@ -2269,17 +2571,17 @@ msgstr ""
 #: src/views/container/ImageView.vue:60
 #: src/views/container/NetworkView.vue:100
 #: src/views/container/VolumeView.vue:54
-#: src/views/task/CronView.vue:84
+#: src/views/task/CronView.vue:83
 #: src/views/task/TaskView.vue:37
 msgid "Creation Time"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:97
-#: src/views/file/ListTable.vue:64
-#: src/views/file/ListTable.vue:216
+#: src/views/file/ListTable.vue:68
+#: src/views/file/ListTable.vue:220
 #: src/views/ssh/IndexView.vue:71
-#: src/views/task/CronView.vue:135
-#: src/views/website/IndexView.vue:111
+#: src/views/task/CronView.vue:134
+#: src/views/website/IndexView.vue:109
 msgid "Edit"
 msgstr ""
 
@@ -2293,65 +2595,65 @@ msgstr ""
 msgid "Start successful"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:128
+#: src/views/container/ComposeView.vue:133
 msgid "Are you sure you want to start compose %{ name }?"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:135
+#: src/views/container/ComposeView.vue:144
 msgid "Force pull images"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:162
+#: src/views/container/ComposeView.vue:171
 #: src/views/container/ContainerView.vue:245
 #: src/views/container/ContainerView.vue:316
 msgid "Stop successful"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:168
+#: src/views/container/ComposeView.vue:177
 msgid "Are you sure you want to stop compose %{ name }?"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:191
+#: src/views/container/ComposeView.vue:202
 #: src/views/container/ContainerView.vue:280
 #: src/views/container/ContainerView.vue:358
-#: src/views/container/ImageView.vue:119
-#: src/views/container/NetworkView.vue:159
-#: src/views/container/VolumeView.vue:113
+#: src/views/container/ImageView.vue:118
+#: src/views/container/NetworkView.vue:158
+#: src/views/container/VolumeView.vue:112
 msgid "Delete successful"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:197
+#: src/views/container/ComposeView.vue:208
 msgid "Are you sure you want to delete compose %{ name }?"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:273
-#: src/views/container/ComposeView.vue:299
+#: src/views/container/ComposeView.vue:287
+#: src/views/container/ComposeView.vue:314
 msgid "Create Compose"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:306
+#: src/views/container/ComposeView.vue:321
 msgid "Compose Name"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:309
-#: src/views/container/ComposeView.vue:339
+#: src/views/container/ComposeView.vue:324
+#: src/views/container/ComposeView.vue:354
 #: src/views/container/IndexView.vue:24
 msgid "Compose"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:320
-#: src/views/container/ComposeView.vue:350
-#: src/views/container/ContainerCreate.vue:341
+#: src/views/container/ComposeView.vue:335
+#: src/views/container/ComposeView.vue:365
+#: src/views/container/ContainerCreate.vue:356
 msgid "Variable Name"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:321
-#: src/views/container/ComposeView.vue:351
-#: src/views/container/ContainerCreate.vue:342
+#: src/views/container/ComposeView.vue:336
+#: src/views/container/ComposeView.vue:366
+#: src/views/container/ContainerCreate.vue:357
 msgid "Variable Value"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:332
+#: src/views/container/ComposeView.vue:347
 msgid "Edit Compose"
 msgstr ""
 
@@ -2368,7 +2670,7 @@ msgid "Unless stopped"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:127
-#: src/views/container/ContainerView.vue:402
+#: src/views/container/ContainerView.vue:403
 msgid "Create Container"
 msgstr ""
 
@@ -2395,128 +2697,129 @@ msgstr ""
 msgid "Expose All"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:159
+#: src/views/container/ContainerCreate.vue:161
 msgid "Port Mapping"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:165
+#: src/views/container/ContainerCreate.vue:169
 msgid "Host (Start)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:166
+#: src/views/container/ContainerCreate.vue:170
 msgid "Host (End)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:167
+#: src/views/container/ContainerCreate.vue:171
 msgid "Container (Start)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:168
+#: src/views/container/ContainerCreate.vue:172
 msgid "Container (End)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:169
+#: src/views/container/ContainerCreate.vue:173
 msgid "Protocol"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:180
+#: src/views/container/ContainerCreate.vue:184
 msgid "Optional"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:233
-#: src/views/container/ContainerCreate.vue:280
+#: src/views/container/ContainerCreate.vue:241
+#: src/views/container/ContainerCreate.vue:292
 msgid "Add"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:236
-#: src/views/dashboard/IndexView.vue:794
+#: src/views/container/ContainerCreate.vue:244
+#: src/views/dashboard/IndexView.vue:141
+#: src/views/dashboard/IndexView.vue:797
 #: src/views/monitor/IndexView.vue:286
 msgid "Network"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:239
+#: src/views/container/ContainerCreate.vue:247
 msgid "Mount"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:244
+#: src/views/container/ContainerCreate.vue:252
 msgid "Host Directory"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:245
+#: src/views/container/ContainerCreate.vue:253
 msgid "Container Directory"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:246
-#: src/views/file/ListTable.vue:69
-#: src/views/file/ListTable.vue:141
-#: src/views/file/ListTable.vue:296
+#: src/views/container/ContainerCreate.vue:254
+#: src/views/file/ListTable.vue:73
+#: src/views/file/ListTable.vue:145
+#: src/views/file/ListTable.vue:300
 #: src/views/file/PermissionModal.vue:113
 #: src/views/file/ToolBar.vue:235
 msgid "Permission"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:265
+#: src/views/container/ContainerCreate.vue:273
 msgid "Read-Write"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:273
+#: src/views/container/ContainerCreate.vue:281
 msgid "Read-Only"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:283
-#: src/views/container/ContainerCreate.vue:284
+#: src/views/container/ContainerCreate.vue:295
+#: src/views/container/ContainerCreate.vue:296
 msgid "Command"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:286
-#: src/views/container/ContainerCreate.vue:287
+#: src/views/container/ContainerCreate.vue:298
+#: src/views/container/ContainerCreate.vue:301
 msgid "Entrypoint"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:301
+#: src/views/container/ContainerCreate.vue:316
 msgid "CPU Shares"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:308
+#: src/views/container/ContainerCreate.vue:323
 msgid "TTY (-t)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:313
+#: src/views/container/ContainerCreate.vue:328
 msgid "STDIN (-i)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:318
+#: src/views/container/ContainerCreate.vue:333
 msgid "Auto Remove"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:323
+#: src/views/container/ContainerCreate.vue:338
 msgid "Privileged Mode"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:328
+#: src/views/container/ContainerCreate.vue:343
 msgid "Restart Policy"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:331
-#: src/views/container/ContainerCreate.vue:334
+#: src/views/container/ContainerCreate.vue:346
+#: src/views/container/ContainerCreate.vue:349
 msgid "Select restart policy"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:345
-#: src/views/container/NetworkView.vue:292
-#: src/views/container/VolumeView.vue:192
+#: src/views/container/ContainerCreate.vue:360
+#: src/views/container/NetworkView.vue:295
+#: src/views/container/VolumeView.vue:195
 msgid "Labels"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:349
-#: src/views/container/NetworkView.vue:296
-#: src/views/container/VolumeView.vue:196
+#: src/views/container/ContainerCreate.vue:364
+#: src/views/container/NetworkView.vue:299
+#: src/views/container/VolumeView.vue:199
 msgid "Label Name"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:350
-#: src/views/container/NetworkView.vue:297
-#: src/views/container/VolumeView.vue:197
+#: src/views/container/ContainerCreate.vue:365
+#: src/views/container/NetworkView.vue:300
+#: src/views/container/VolumeView.vue:200
 msgid "Label Value"
 msgstr ""
 
@@ -2525,29 +2828,29 @@ msgid "Ports (Host->Container)"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:119
-#: src/views/container/ContainerView.vue:462
-#: src/views/file/ListTable.vue:80
-#: src/views/file/ListTable.vue:260
+#: src/views/container/ContainerView.vue:466
+#: src/views/file/ListTable.vue:84
+#: src/views/file/ListTable.vue:264
 msgid "Rename"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:142
-#: src/views/container/ContainerView.vue:408
+#: src/views/container/ContainerView.vue:412
 msgid "Force Stop"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:147
-#: src/views/container/ContainerView.vue:409
+#: src/views/container/ContainerView.vue:413
 msgid "Pause"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:152
-#: src/views/container/ContainerView.vue:410
+#: src/views/container/ContainerView.vue:414
 msgid "Resume"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:197
-#: src/views/file/ListTable.vue:348
+#: src/views/file/ListTable.vue:364
 msgid "More"
 msgstr ""
 
@@ -2576,9 +2879,9 @@ msgid "Resume successful"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:287
-#: src/views/container/ImageView.vue:126
-#: src/views/container/NetworkView.vue:166
-#: src/views/container/VolumeView.vue:120
+#: src/views/container/ImageView.vue:125
+#: src/views/container/NetworkView.vue:165
+#: src/views/container/VolumeView.vue:119
 msgid "Cleanup successful"
 msgstr ""
 
@@ -2610,16 +2913,16 @@ msgstr ""
 msgid "Please select containers to resume"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:403
+#: src/views/container/ContainerView.vue:406
 msgid "Cleanup Containers"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:469
-#: src/views/file/ListTable.vue:699
+#: src/views/container/ContainerView.vue:473
+#: src/views/file/ListTable.vue:719
 msgid "New Name"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:474
+#: src/views/container/ContainerView.vue:478
 msgid "Enter new name"
 msgstr ""
 
@@ -2627,9 +2930,9 @@ msgstr ""
 msgid "Container Count"
 msgstr ""
 
-#: src/views/container/ImageView.vue:85
-#: src/views/container/NetworkView.vue:125
-#: src/views/container/VolumeView.vue:79
+#: src/views/container/ImageView.vue:84
+#: src/views/container/NetworkView.vue:124
+#: src/views/container/VolumeView.vue:78
 #: src/views/firewall/ForwardView.vue:94
 #: src/views/firewall/IpRuleView.vue:136
 #: src/views/firewall/RuleView.vue:173
@@ -2637,12 +2940,12 @@ msgstr ""
 msgid "Are you sure you want to delete?"
 msgstr ""
 
-#: src/views/container/ImageView.vue:135
+#: src/views/container/ImageView.vue:134
 msgid "Pull successful"
 msgstr ""
 
-#: src/views/container/ImageView.vue:151
-#: src/views/container/ImageView.vue:179
+#: src/views/container/ImageView.vue:150
+#: src/views/container/ImageView.vue:180
 msgid "Pull Image"
 msgstr ""
 
@@ -2650,20 +2953,20 @@ msgstr ""
 msgid "Cleanup Images"
 msgstr ""
 
-#: src/views/container/ImageView.vue:186
+#: src/views/container/ImageView.vue:187
 msgid "Image Name"
 msgstr ""
 
-#: src/views/container/ImageView.vue:191
+#: src/views/container/ImageView.vue:192
 msgid "docker.io/php:8.3-fpm"
 msgstr ""
 
-#: src/views/container/ImageView.vue:194
+#: src/views/container/ImageView.vue:195
 msgid "Authentication"
 msgstr "Authentication"
 
-#: src/views/container/ImageView.vue:211
-#: src/views/database/CreateDatabaseModal.vue:103
+#: src/views/container/ImageView.vue:212
+#: src/views/database/CreateDatabaseModal.vue:107
 #: src/views/database/CreateUserModal.vue:84
 #: src/views/database/UpdateUserModal.vue:55
 msgid "Enter password"
@@ -2686,9 +2989,9 @@ msgid "Volumes"
 msgstr ""
 
 #: src/views/container/NetworkView.vue:52
-#: src/views/container/NetworkView.vue:229
+#: src/views/container/NetworkView.vue:232
 #: src/views/container/VolumeView.vue:33
-#: src/views/container/VolumeView.vue:183
+#: src/views/container/VolumeView.vue:186
 msgid "Driver"
 msgstr "Driver"
 
@@ -2698,68 +3001,68 @@ msgid "Scope"
 msgstr ""
 
 #: src/views/container/NetworkView.vue:66
-#: src/views/container/NetworkView.vue:241
-#: src/views/container/NetworkView.vue:268
+#: src/views/container/NetworkView.vue:244
+#: src/views/container/NetworkView.vue:271
 msgid "Subnet"
 msgstr ""
 
 #: src/views/container/NetworkView.vue:83
-#: src/views/container/NetworkView.vue:249
-#: src/views/container/NetworkView.vue:276
+#: src/views/container/NetworkView.vue:252
+#: src/views/container/NetworkView.vue:279
 msgid "Gateway"
 msgstr ""
 
 #: src/views/container/NetworkView.vue:191
-#: src/views/container/NetworkView.vue:219
+#: src/views/container/NetworkView.vue:222
 msgid "Create Network"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:192
+#: src/views/container/NetworkView.vue:194
 msgid "Cleanup Networks"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:226
+#: src/views/container/NetworkView.vue:229
 msgid "Network Name"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:246
-#: src/views/container/NetworkView.vue:262
+#: src/views/container/NetworkView.vue:249
+#: src/views/container/NetworkView.vue:265
 msgid "172.16.10.0/24"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:254
+#: src/views/container/NetworkView.vue:257
 msgid "172.16.10.254"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:257
-#: src/views/container/NetworkView.vue:284
+#: src/views/container/NetworkView.vue:260
+#: src/views/container/NetworkView.vue:287
 msgid "IP Range"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:273
+#: src/views/container/NetworkView.vue:276
 msgid "2408:400e::/48"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:281
+#: src/views/container/NetworkView.vue:284
 msgid "2408:400e::1"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:289
+#: src/views/container/NetworkView.vue:292
 msgid "2408:400e::/64"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:300
-#: src/views/container/VolumeView.vue:200
+#: src/views/container/NetworkView.vue:303
+#: src/views/container/VolumeView.vue:203
 msgid "Options"
 msgstr "Options"
 
-#: src/views/container/NetworkView.vue:304
-#: src/views/container/VolumeView.vue:204
+#: src/views/container/NetworkView.vue:307
+#: src/views/container/VolumeView.vue:207
 msgid "Option Name"
 msgstr ""
 
-#: src/views/container/NetworkView.vue:305
-#: src/views/container/VolumeView.vue:205
+#: src/views/container/NetworkView.vue:308
+#: src/views/container/VolumeView.vue:208
 msgid "Option Value"
 msgstr ""
 
@@ -2768,20 +3071,20 @@ msgid "Container"
 msgstr ""
 
 #: src/views/container/VolumeView.vue:47
-#: src/views/dashboard/IndexView.vue:641
+#: src/views/dashboard/IndexView.vue:644
 msgid "Mount Point"
 msgstr ""
 
 #: src/views/container/VolumeView.vue:145
-#: src/views/container/VolumeView.vue:173
+#: src/views/container/VolumeView.vue:176
 msgid "Create Volume"
 msgstr ""
 
-#: src/views/container/VolumeView.vue:146
+#: src/views/container/VolumeView.vue:148
 msgid "Cleanup Volumes"
 msgstr ""
 
-#: src/views/container/VolumeView.vue:180
+#: src/views/container/VolumeView.vue:183
 msgid "Volume Name"
 msgstr ""
 
@@ -2797,233 +3100,292 @@ msgstr ""
 msgid "Running smoothly"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:321
-msgid "Panel restarting..."
+#: src/views/dashboard/IndexView.vue:164
+#: src/views/dashboard/IndexView.vue:181
+msgid "Send"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:323
-msgid "Panel restarted successfully"
+#: src/views/dashboard/IndexView.vue:164
+#: src/views/dashboard/IndexView.vue:205
+msgid "Receive"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:335
-msgid "Current version is the latest"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:431
-#: src/views/task/IndexView.vue:29
-msgid "Scheduled Tasks"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:436
-msgid "Rat Panel"
-msgstr "耗子面板"
-
-#: src/views/dashboard/IndexView.vue:440
-msgid "Sponsor Support"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:446
-msgid "Are you sure you want to restart the panel?"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:454
-msgid "Resource Overview"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:471
-msgid "Last 1 minute"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:478
-msgid "Last 5 minutes"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:485
-msgid "Last 15 minutes"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:503
-#: src/views/dashboard/IndexView.vue:514
-msgid "cores"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:508
-msgid "Model"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:512
-msgid "Parameters"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:515
-msgid "cache"
-msgstr "cache"
-
-#: src/views/dashboard/IndexView.vue:521
-#: src/views/monitor/IndexView.vue:179
-msgid "Usage"
-msgstr "Usage"
-
-#: src/views/dashboard/IndexView.vue:522
-msgid "Frequency"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:542
-msgid "Active"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:548
-msgid "Inactive"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:554
-msgid "Free"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:560
-msgid "Shared"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:566
-msgid "Committed"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:572
-msgid "Commit Limit"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:584
-msgid "SWAP Used"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:590
-msgid "SWAP Available"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:596
-msgid "Physical Memory Size"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:602
-msgid "Physical Memory Used"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:608
-msgid "Physical Memory Available"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:645
-msgid "File System"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:649
-msgid "Inodes Usage"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:653
-msgid "Inodes Total"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:657
-msgid "Inodes Used"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:661
-msgid "Inodes Available"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:678
-msgid "Quick Apps"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:721
-msgid "You have not set any apps to display here!"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:725
-msgid "Environment Information"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:728
-msgid "System Hostname"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:730
-#: src/views/dashboard/IndexView.vue:738
-#: src/views/dashboard/IndexView.vue:745
-#: src/views/dashboard/IndexView.vue:751
-#: src/views/dashboard/IndexView.vue:762
-#: src/views/dashboard/IndexView.vue:774
-msgid "Loading..."
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:734
-msgid "System Version"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:743
-msgid "System Kernel Version"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:749
-msgid "System Uptime"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:755
-msgid "Panel Internal Version"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:767
-msgid "Panel Compile Information"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:784
-msgid "Real-time Monitoring"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:798
-msgid "Unit"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:806
-msgid "Network Card"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:826
-msgid "Total Sent"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:828
-msgid "Total Received"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:831
-msgid "Real-time Sent"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:835
-msgid "Real-time Received"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:839
+#: src/views/dashboard/IndexView.vue:165
+#: src/views/dashboard/IndexView.vue:181
+#: src/views/dashboard/IndexView.vue:842
 #: src/views/file/PermissionModal.vue:88
 #: src/views/file/PermissionModal.vue:97
 #: src/views/file/PermissionModal.vue:106
 msgid "Read"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:840
+#: src/views/dashboard/IndexView.vue:165
+#: src/views/dashboard/IndexView.vue:205
+#: src/views/dashboard/IndexView.vue:843
 #: src/views/file/PermissionModal.vue:89
 #: src/views/file/PermissionModal.vue:98
 #: src/views/file/PermissionModal.vue:107
 msgid "Write"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:842
-msgid "Real-time Read/Write"
+#: src/views/dashboard/IndexView.vue:173
+msgid "Unit %{unit}"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:187
+#: src/views/dashboard/IndexView.vue:211
+#: src/views/monitor/IndexView.vue:93
+#: src/views/monitor/IndexView.vue:115
+#: src/views/monitor/IndexView.vue:137
+#: src/views/monitor/IndexView.vue:192
+#: src/views/monitor/IndexView.vue:251
+#: src/views/monitor/IndexView.vue:273
+#: src/views/monitor/IndexView.vue:335
+#: src/views/monitor/IndexView.vue:357
+#: src/views/monitor/IndexView.vue:379
+#: src/views/monitor/IndexView.vue:401
+msgid "Maximum"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:188
+#: src/views/dashboard/IndexView.vue:212
+#: src/views/monitor/IndexView.vue:94
+#: src/views/monitor/IndexView.vue:116
+#: src/views/monitor/IndexView.vue:138
+#: src/views/monitor/IndexView.vue:193
+#: src/views/monitor/IndexView.vue:252
+#: src/views/monitor/IndexView.vue:274
+#: src/views/monitor/IndexView.vue:336
+#: src/views/monitor/IndexView.vue:358
+#: src/views/monitor/IndexView.vue:380
+#: src/views/monitor/IndexView.vue:402
+msgid "Minimum"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:192
+#: src/views/dashboard/IndexView.vue:216
+#: src/views/monitor/IndexView.vue:98
+#: src/views/monitor/IndexView.vue:120
+#: src/views/monitor/IndexView.vue:142
+#: src/views/monitor/IndexView.vue:197
+#: src/views/monitor/IndexView.vue:256
+#: src/views/monitor/IndexView.vue:278
+#: src/views/monitor/IndexView.vue:340
+#: src/views/monitor/IndexView.vue:362
+#: src/views/monitor/IndexView.vue:384
+#: src/views/monitor/IndexView.vue:406
+msgid "Average"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:324
+msgid "Panel restarting..."
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:326
+msgid "Panel restarted successfully"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:338
+msgid "Current version is the latest"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:434
+#: src/views/task/IndexView.vue:29
+msgid "Scheduled Tasks"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:443
+msgid "Sponsor Support"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:449
+msgid "Are you sure you want to restart the panel?"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:457
+msgid "Resource Overview"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:474
+msgid "Last 1 minute"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:481
+msgid "Last 5 minutes"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:488
+msgid "Last 15 minutes"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:506
+#: src/views/dashboard/IndexView.vue:517
+msgid "cores"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:511
+msgid "Model"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:515
+msgid "Parameters"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:518
+msgid "cache"
+msgstr "cache"
+
+#: src/views/dashboard/IndexView.vue:524
+#: src/views/monitor/IndexView.vue:179
+msgid "Usage"
+msgstr "Usage"
+
+#: src/views/dashboard/IndexView.vue:525
+msgid "Frequency"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:545
+msgid "Active"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:551
+msgid "Inactive"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:557
+msgid "Free"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:563
+msgid "Shared"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:569
+msgid "Committed"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:575
+msgid "Commit Limit"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:587
+msgid "SWAP Used"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:593
+msgid "SWAP Available"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:599
+msgid "Physical Memory Size"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:605
+msgid "Physical Memory Used"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:611
+msgid "Physical Memory Available"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:648
+msgid "File System"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:652
+msgid "Inodes Usage"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:656
+msgid "Inodes Total"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:660
+msgid "Inodes Used"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:664
+msgid "Inodes Available"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:681
+msgid "Quick Apps"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:724
+msgid "You have not set any apps to display here!"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:728
+msgid "Environment Information"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:731
+msgid "System Hostname"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:733
+#: src/views/dashboard/IndexView.vue:741
+#: src/views/dashboard/IndexView.vue:748
+#: src/views/dashboard/IndexView.vue:754
+#: src/views/dashboard/IndexView.vue:765
+#: src/views/dashboard/IndexView.vue:777
+msgid "Loading..."
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:737
+msgid "System Version"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:746
+msgid "System Kernel Version"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:752
+msgid "System Uptime"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:758
+msgid "Panel Internal Version"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:770
+msgid "Panel Compile Information"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:787
+msgid "Real-time Monitoring"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:801
+msgid "Unit"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:809
+msgid "Network Card"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:829
+msgid "Total Sent"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:831
+msgid "Total Received"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:834
+msgid "Real-time Sent"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:838
+msgid "Real-time Received"
 msgstr ""
 
 #: src/views/dashboard/IndexView.vue:845
+msgid "Real-time Read/Write"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:848
 msgid "Read/Write Latency"
 msgstr ""
 
@@ -3037,19 +3399,6 @@ msgstr ""
 
 #: src/views/dashboard/UpdateView.vue:25
 msgid "Are you sure you want to update the panel?"
-msgstr ""
-
-#: src/views/dashboard/UpdateView.vue:26
-#: src/views/monitor/IndexView.vue:469
-msgid "Confirm"
-msgstr ""
-
-#: src/views/dashboard/UpdateView.vue:27
-#: src/views/file/ListTable.vue:399
-#: src/views/file/ListTable.vue:494
-#: src/views/file/ToolBar.vue:139
-#: src/views/file/ToolBar.vue:226
-msgid "Cancel"
 msgstr ""
 
 #: src/views/dashboard/UpdateView.vue:29
@@ -3068,7 +3417,7 @@ msgstr ""
 msgid "Update Now"
 msgstr ""
 
-#: src/views/dashboard/UpdateView.vue:82
+#: src/views/dashboard/UpdateView.vue:85
 msgid "Loading update information, please wait a moment"
 msgstr ""
 
@@ -3105,25 +3454,25 @@ msgstr ""
 msgid "Select server"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:81
+#: src/views/database/CreateDatabaseModal.vue:84
 msgid "Authorized User"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:86
+#: src/views/database/CreateDatabaseModal.vue:90
 msgid "Enter authorized username (leave empty for no authorization)"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:110
+#: src/views/database/CreateDatabaseModal.vue:114
 #: src/views/database/CreateUserModal.vue:91
 msgid "Select host"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:117
+#: src/views/database/CreateDatabaseModal.vue:121
 #: src/views/database/CreateUserModal.vue:95
 msgid "Specific Host"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:123
+#: src/views/database/CreateDatabaseModal.vue:127
 #: src/views/database/CreateUserModal.vue:100
 msgid "Enter supported host address"
 msgstr ""
@@ -3151,10 +3500,10 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:76
 #: src/views/firewall/ForwardView.vue:32
 #: src/views/firewall/RuleView.vue:49
-#: src/views/setting/SettingBase.vue:74
+#: src/views/setting/SettingBase.vue:78
 #: src/views/ssh/CreateModal.vue:68
 #: src/views/ssh/UpdateModal.vue:74
-#: src/views/website/IndexView.vue:423
+#: src/views/website/IndexView.vue:421
 msgid "Port"
 msgstr ""
 
@@ -3173,16 +3522,6 @@ msgstr ""
 msgid "Enter database server password"
 msgstr ""
 
-#: src/views/database/CreateServerModal.vue:111
-#: src/views/database/CreateUserModal.vue:106
-#: src/views/database/DatabaseList.vue:57
-#: src/views/database/ServerList.vue:97
-#: src/views/database/UpdateServerModal.vue:103
-#: src/views/database/UpdateUserModal.vue:61
-#: src/views/database/UserList.vue:114
-msgid "Comment"
-msgstr ""
-
 #: src/views/database/CreateServerModal.vue:116
 #: src/views/database/UpdateServerModal.vue:108
 msgid "Enter database server comment"
@@ -3198,8 +3537,8 @@ msgstr ""
 msgid "Privileges"
 msgstr ""
 
-#: src/views/database/CreateUserModal.vue:111
-#: src/views/database/UpdateUserModal.vue:66
+#: src/views/database/CreateUserModal.vue:114
+#: src/views/database/UpdateUserModal.vue:69
 msgid "Enter database user comment"
 msgstr ""
 
@@ -3211,15 +3550,10 @@ msgstr ""
 msgid "Are you sure you want to delete this database?"
 msgstr ""
 
-#: src/views/database/IndexView.vue:48
-#: src/views/task/SystemView.vue:37
-msgid "User"
-msgstr ""
-
 #: src/views/database/ServerList.vue:76
 #: src/views/database/UserList.vue:70
-#: src/views/file/ListTable.vue:500
-#: src/views/file/ListTable.vue:520
+#: src/views/file/ListTable.vue:516
+#: src/views/file/ListTable.vue:536
 #: src/views/file/SearchModal.vue:65
 #: src/views/file/ToolBar.vue:145
 #: src/views/file/ToolBar.vue:165
@@ -3228,8 +3562,8 @@ msgstr ""
 
 #: src/views/database/ServerList.vue:80
 #: src/views/database/UserList.vue:74
-#: src/views/file/ListTable.vue:67
-#: src/views/file/ListTable.vue:294
+#: src/views/file/ListTable.vue:71
+#: src/views/file/ListTable.vue:298
 #: src/views/file/ToolBar.vue:232
 msgid "Copy"
 msgstr ""
@@ -3276,11 +3610,11 @@ msgstr ""
 msgid "Are you sure you want to delete the user?"
 msgstr ""
 
-#: src/views/error-page/NotFound.vue:10
+#: src/views/error-page/NotFound.vue:11
 msgid "Sorry, the page you visited does not exist."
 msgstr ""
 
-#: src/views/error-page/NotFound.vue:15
+#: src/views/error-page/NotFound.vue:19
 msgid "Back to Home"
 msgstr ""
 
@@ -3294,9 +3628,9 @@ msgstr ""
 
 #: src/views/file/CompressModal.vue:64
 #: src/views/file/CompressModal.vue:96
-#: src/views/file/ListTable.vue:71
-#: src/views/file/ListTable.vue:241
-#: src/views/file/ListTable.vue:297
+#: src/views/file/ListTable.vue:75
+#: src/views/file/ListTable.vue:245
+#: src/views/file/ListTable.vue:301
 #: src/views/file/ToolBar.vue:234
 msgid "Compress"
 msgstr ""
@@ -3321,144 +3655,120 @@ msgstr ""
 msgid "Refresh"
 msgstr ""
 
-#: src/views/file/ListTable.vue:64
-#: src/views/file/ListTable.vue:218
+#: src/views/file/ListTable.vue:65
+#: src/views/file/ListTable.vue:222
 msgid "Open"
 msgstr ""
 
-#: src/views/file/ListTable.vue:64
-#: src/views/file/ListTable.vue:216
+#: src/views/file/ListTable.vue:67
+#: src/views/file/ListTable.vue:220
 msgid "Preview"
 msgstr ""
 
-#: src/views/file/ListTable.vue:68
-#: src/views/file/ListTable.vue:295
+#: src/views/file/ListTable.vue:72
+#: src/views/file/ListTable.vue:299
 #: src/views/file/ToolBar.vue:233
 msgid "Move"
 msgstr ""
 
-#: src/views/file/ListTable.vue:71
-#: src/views/file/ListTable.vue:243
+#: src/views/file/ListTable.vue:75
+#: src/views/file/ListTable.vue:247
 msgid "Download"
 msgstr ""
 
-#: src/views/file/ListTable.vue:75
-#: src/views/file/ListTable.vue:298
-#: src/views/file/ListTable.vue:721
+#: src/views/file/ListTable.vue:79
+#: src/views/file/ListTable.vue:303
+#: src/views/file/ListTable.vue:741
 msgid "Uncompress"
 msgstr ""
 
-#: src/views/file/ListTable.vue:85
+#: src/views/file/ListTable.vue:89
 #: src/views/file/ToolBar.vue:229
 msgid "Paste"
 msgstr ""
 
-#: src/views/file/ListTable.vue:153
-msgid "Owner / Group"
-msgstr ""
-
-#: src/views/file/ListTable.vue:173
-#: src/views/file/SearchModal.vue:36
-msgid "Modification Time"
-msgstr ""
-
-#: src/views/file/ListTable.vue:275
+#: src/views/file/ListTable.vue:279
 #: src/views/file/SearchModal.vue:88
 msgid "Are you sure you want to delete %{ name }?"
 msgstr ""
 
-#: src/views/file/ListTable.vue:311
-#: src/views/file/ListTable.vue:322
-#: src/views/file/ListTable.vue:558
-#: src/views/file/ListTable.vue:569
+#: src/views/file/ListTable.vue:320
+#: src/views/file/ListTable.vue:335
+#: src/views/file/ListTable.vue:575
+#: src/views/file/ListTable.vue:588
 #: src/views/file/ToolBar.vue:77
 #: src/views/file/ToolBar.vue:94
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr ""
 
-#: src/views/file/ListTable.vue:389
-#: src/views/file/ToolBar.vue:37
-#: src/views/file/ToolBar.vue:51
-msgid "Invalid name"
-msgstr ""
-
-#: src/views/file/ListTable.vue:396
-#: src/views/file/ListTable.vue:483
+#: src/views/file/ListTable.vue:412
+#: src/views/file/ListTable.vue:499
 #: src/views/file/ToolBar.vue:128
 msgid "Warning"
 msgstr ""
 
-#: src/views/file/ListTable.vue:397
+#: src/views/file/ListTable.vue:413
 msgid "There are items with the same name. Do you want to overwrite?"
 msgstr ""
 
-#: src/views/file/ListTable.vue:398
-#: src/views/file/ListTable.vue:493
+#: src/views/file/ListTable.vue:414
+#: src/views/file/ListTable.vue:509
 #: src/views/file/ToolBar.vue:138
 msgid "Overwrite"
 msgstr ""
 
-#: src/views/file/ListTable.vue:405
 #: src/views/file/ListTable.vue:421
+#: src/views/file/ListTable.vue:437
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr ""
 
-#: src/views/file/ListTable.vue:440
-#: src/views/file/PathInput.vue:33
-msgid "Invalid path"
-msgstr ""
-
-#: src/views/file/ListTable.vue:443
+#: src/views/file/ListTable.vue:459
 msgid "Uncompressing..."
 msgstr ""
 
-#: src/views/file/ListTable.vue:450
+#: src/views/file/ListTable.vue:466
 msgid "Uncompressed successfully"
 msgstr ""
 
-#: src/views/file/ListTable.vue:459
+#: src/views/file/ListTable.vue:475
 #: src/views/file/ToolBar.vue:104
 msgid "Please mark the files/folders to copy or move first"
 msgstr ""
 
-#: src/views/file/ListTable.vue:484
+#: src/views/file/ListTable.vue:500
 #: src/views/file/ToolBar.vue:129
 msgid "There are items with the same name. %{ items } Do you want to overwrite?"
 msgstr ""
 
-#: src/views/file/ListTable.vue:506
-#: src/views/file/ListTable.vue:526
+#: src/views/file/ListTable.vue:522
+#: src/views/file/ListTable.vue:542
 #: src/views/file/ToolBar.vue:151
 #: src/views/file/ToolBar.vue:171
 msgid "Moved successfully"
 msgstr ""
 
-#: src/views/file/ListTable.vue:512
+#: src/views/file/ListTable.vue:528
 #: src/views/file/ToolBar.vue:157
 msgid "Canceled"
 msgstr ""
 
-#: src/views/file/ListTable.vue:691
+#: src/views/file/ListTable.vue:711
 msgid "Rename - %{ source }"
 msgstr ""
 
-#: src/views/file/ListTable.vue:709
+#: src/views/file/ListTable.vue:729
 msgid "Uncompress - %{ file }"
 msgstr ""
 
-#: src/views/file/ListTable.vue:717
+#: src/views/file/ListTable.vue:737
 msgid "Uncompress to"
 msgstr ""
 
-#: src/views/file/PathInput.vue:132
-msgid "Root Directory"
-msgstr ""
-
-#: src/views/file/PathInput.vue:152
+#: src/views/file/PathInput.vue:154
 msgid "Enter search content"
 msgstr ""
 
-#: src/views/file/PathInput.vue:154
+#: src/views/file/PathInput.vue:157
 msgid "Include subdirectories"
 msgstr ""
 
@@ -3522,14 +3832,6 @@ msgstr ""
 msgid "Please select files/folders to delete"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:214
-msgid "File"
-msgstr ""
-
-#: src/views/file/ToolBar.vue:215
-msgid "Folder"
-msgstr ""
-
 #: src/views/file/ToolBar.vue:219
 #: src/views/file/ToolBar.vue:249
 msgid "New"
@@ -3556,7 +3858,7 @@ msgstr ""
 msgid "Upload %{ fileName } successful"
 msgstr ""
 
-#: src/views/file/UploadModal.vue:51
+#: src/views/file/UploadModal.vue:53
 msgid "For large files, it is recommended to use SFTP and other methods to upload"
 msgstr ""
 
@@ -3646,19 +3948,19 @@ msgid "IP Address"
 msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:108
-#: src/views/firewall/CreateModal.vue:132
+#: src/views/firewall/CreateModal.vue:133
 msgid "Optional IP or IP range: 127.0.0.1 or 172.16.0.0/24 (multiple separated by commas)"
 msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:114
-#: src/views/firewall/CreateModal.vue:135
+#: src/views/firewall/CreateModal.vue:139
 #: src/views/firewall/IpRuleView.vue:49
 #: src/views/firewall/RuleView.vue:83
 msgid "Strategy"
 msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:117
-#: src/views/firewall/CreateModal.vue:138
+#: src/views/firewall/CreateModal.vue:142
 #: src/views/firewall/IpRuleView.vue:85
 #: src/views/firewall/RuleView.vue:119
 msgid "Direction"
@@ -3687,7 +3989,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:173
 #: src/views/firewall/IpRuleView.vue:215
 #: src/views/firewall/RuleView.vue:252
-#: src/views/website/IndexView.vue:352
+#: src/views/website/IndexView.vue:350
 msgid "Batch Delete"
 msgstr ""
 
@@ -3710,6 +4012,7 @@ msgid "Port Forwarding"
 msgstr ""
 
 #: src/views/firewall/IndexView.vue:28
+#: src/views/setting/route.ts:19
 msgid "Settings"
 msgstr ""
 
@@ -3760,23 +4063,23 @@ msgstr ""
 msgid "Please enter username and password"
 msgstr ""
 
-#: src/views/login/IndexView.vue:50
+#: src/views/login/IndexView.vue:51
 msgid "Failed to get encryption public key, please refresh the page and try again"
 msgstr ""
 
-#: src/views/login/IndexView.vue:61
+#: src/views/login/IndexView.vue:63
 msgid "Login successful!"
 msgstr ""
 
-#: src/views/login/IndexView.vue:130
+#: src/views/login/IndexView.vue:132
 msgid "Safe Login"
 msgstr ""
 
-#: src/views/login/IndexView.vue:131
+#: src/views/login/IndexView.vue:133
 msgid "Remember Me"
 msgstr ""
 
-#: src/views/login/IndexView.vue:145
+#: src/views/login/IndexView.vue:147
 msgid "Login"
 msgstr ""
 
@@ -3799,101 +4102,62 @@ msgstr ""
 msgid "15 minutes"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:93
-#: src/views/monitor/IndexView.vue:115
-#: src/views/monitor/IndexView.vue:137
-#: src/views/monitor/IndexView.vue:192
-#: src/views/monitor/IndexView.vue:251
-#: src/views/monitor/IndexView.vue:273
-#: src/views/monitor/IndexView.vue:330
-#: src/views/monitor/IndexView.vue:352
-#: src/views/monitor/IndexView.vue:374
-#: src/views/monitor/IndexView.vue:396
-msgid "Maximum"
-msgstr ""
-
-#: src/views/monitor/IndexView.vue:94
-#: src/views/monitor/IndexView.vue:116
-#: src/views/monitor/IndexView.vue:138
-#: src/views/monitor/IndexView.vue:193
-#: src/views/monitor/IndexView.vue:252
-#: src/views/monitor/IndexView.vue:274
-#: src/views/monitor/IndexView.vue:331
-#: src/views/monitor/IndexView.vue:353
-#: src/views/monitor/IndexView.vue:375
-#: src/views/monitor/IndexView.vue:397
-msgid "Minimum"
-msgstr ""
-
-#: src/views/monitor/IndexView.vue:98
-#: src/views/monitor/IndexView.vue:120
-#: src/views/monitor/IndexView.vue:142
-#: src/views/monitor/IndexView.vue:197
-#: src/views/monitor/IndexView.vue:256
-#: src/views/monitor/IndexView.vue:278
-#: src/views/monitor/IndexView.vue:335
-#: src/views/monitor/IndexView.vue:357
-#: src/views/monitor/IndexView.vue:379
-#: src/views/monitor/IndexView.vue:401
-msgid "Average"
-msgstr ""
-
 #: src/views/monitor/IndexView.vue:162
 msgid "Unit %"
 msgstr ""
 
 #: src/views/monitor/IndexView.vue:221
-#: src/views/monitor/IndexView.vue:302
+#: src/views/monitor/IndexView.vue:307
 msgid "Unit MB"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:297
-#: src/views/monitor/IndexView.vue:317
+#: src/views/monitor/IndexView.vue:298
+#: src/views/monitor/IndexView.vue:322
 msgid "Total Out"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:297
-#: src/views/monitor/IndexView.vue:339
+#: src/views/monitor/IndexView.vue:299
+#: src/views/monitor/IndexView.vue:344
 msgid "Total In"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:297
-#: src/views/monitor/IndexView.vue:361
+#: src/views/monitor/IndexView.vue:300
+#: src/views/monitor/IndexView.vue:366
 msgid "Per Second Out"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:297
-#: src/views/monitor/IndexView.vue:383
+#: src/views/monitor/IndexView.vue:301
+#: src/views/monitor/IndexView.vue:388
 msgid "Per Second In"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:409
-#: src/views/monitor/IndexView.vue:415
+#: src/views/monitor/IndexView.vue:414
+#: src/views/monitor/IndexView.vue:420
 msgid "Operation successful"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:446
+#: src/views/monitor/IndexView.vue:451
 msgid "Clear Monitoring Records"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:449
-#: src/views/website/EditView.vue:220
+#: src/views/monitor/IndexView.vue:454
+#: src/views/website/EditView.vue:224
 msgid "Are you sure you want to clear?"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:460
+#: src/views/monitor/IndexView.vue:465
 msgid "Enable Monitoring"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:463
+#: src/views/monitor/IndexView.vue:468
 msgid "Save Days"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:465
+#: src/views/monitor/IndexView.vue:470
 msgid "days"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:471
+#: src/views/monitor/IndexView.vue:476
 msgid "Time Selection"
 msgstr ""
 
@@ -3905,74 +4169,70 @@ msgstr ""
 msgid "Basic"
 msgstr "Basic"
 
-#: src/views/setting/route.ts:19
-msgid "Panel Settings"
-msgstr ""
-
-#: src/views/setting/SettingBase.vue:53
+#: src/views/setting/SettingBase.vue:57
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:59
-#: src/views/setting/SettingBase.vue:60
+#: src/views/setting/SettingBase.vue:63
+#: src/views/setting/SettingBase.vue:64
 msgid "Panel Name"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:62
+#: src/views/setting/SettingBase.vue:66
 msgid "Language"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:66
-#: src/views/setting/SettingBase.vue:69
-#: src/views/setting/SettingBase.vue:78
+#: src/views/setting/SettingBase.vue:70
+#: src/views/setting/SettingBase.vue:73
+#: src/views/setting/SettingBase.vue:82
 msgid "admin"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:71
+#: src/views/setting/SettingBase.vue:75
 msgid "Certificate Default Email"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:72
+#: src/views/setting/SettingBase.vue:76
 msgid "admin@example.com"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:75
+#: src/views/setting/SettingBase.vue:79
 msgid "8888"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:77
-msgid "Security Entrance"
+#: src/views/setting/SettingBase.vue:81
+msgid "Access Entrance"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:80
+#: src/views/setting/SettingBase.vue:84
 msgid "Offline Mode"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:83
+#: src/views/setting/SettingBase.vue:87
 msgid "Auto Update"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:86
+#: src/views/setting/SettingBase.vue:90
 msgid "Default Website Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:87
+#: src/views/setting/SettingBase.vue:91
 msgid "/www/wwwroot"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:89
+#: src/views/setting/SettingBase.vue:93
 msgid "Default Backup Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:90
+#: src/views/setting/SettingBase.vue:94
 msgid "/www/backup"
 msgstr ""
 
-#: src/views/setting/SettingHttps.vue:34
+#: src/views/setting/SettingHttps.vue:36
 msgid "Incorrect certificates may cause the panel to be inaccessible. Please proceed with caution!"
 msgstr ""
 
-#: src/views/setting/SettingHttps.vue:36
+#: src/views/setting/SettingHttps.vue:42
 msgid "Panel HTTPS"
 msgstr ""
 
@@ -4050,15 +4310,15 @@ msgstr ""
 #: src/views/task/CreateModal.vue:107
 #: src/views/task/CreateModal.vue:108
 #: src/views/task/CronView.vue:29
+#: src/views/task/CronView.vue:258
 #: src/views/task/CronView.vue:259
-#: src/views/task/CronView.vue:260
 #: src/views/task/TaskView.vue:15
 msgid "Task Name"
 msgstr ""
 
 #: src/views/task/CreateModal.vue:110
-#: src/views/task/CronView.vue:74
-#: src/views/task/CronView.vue:262
+#: src/views/task/CronView.vue:73
+#: src/views/task/CronView.vue:261
 msgid "Task Schedule"
 msgstr ""
 
@@ -4070,15 +4330,15 @@ msgstr ""
 msgid "Backup Type"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:131
+#: src/views/task/CreateModal.vue:132
 msgid "MySQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:132
+#: src/views/task/CreateModal.vue:135
 msgid "PostgreSQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:153
+#: src/views/task/CreateModal.vue:164
 msgid "Retention Count"
 msgstr ""
 
@@ -4086,15 +4346,15 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: src/views/task/CronView.vue:94
+#: src/views/task/CronView.vue:93
 msgid "Last Update Time"
 msgstr ""
 
-#: src/views/task/CronView.vue:146
+#: src/views/task/CronView.vue:145
 msgid "Are you sure you want to delete this task?"
 msgstr ""
 
-#: src/views/task/CronView.vue:251
+#: src/views/task/CronView.vue:250
 msgid "Edit Task"
 msgstr ""
 
@@ -4111,7 +4371,7 @@ msgid "Panel Tasks"
 msgstr ""
 
 #: src/views/task/route.ts:19
-msgid "Background Tasks"
+msgid "Tasks"
 msgstr ""
 
 #: src/views/task/SystemView.vue:25
@@ -4120,12 +4380,6 @@ msgstr ""
 
 #: src/views/task/SystemView.vue:31
 msgid "Threads"
-msgstr ""
-
-#: src/views/task/SystemView.vue:50
-#: src/views/task/TaskView.vue:33
-#: src/views/website/IndexView.vue:30
-msgid "Running"
 msgstr ""
 
 #: src/views/task/SystemView.vue:52
@@ -4153,15 +4407,15 @@ msgstr ""
 msgid "Start Time"
 msgstr "啟動時間"
 
-#: src/views/task/SystemView.vue:108
+#: src/views/task/SystemView.vue:109
 msgid "Process %{ pid } has been terminated"
 msgstr ""
 
-#: src/views/task/SystemView.vue:114
+#: src/views/task/SystemView.vue:116
 msgid "Are you sure you want to terminate process %{ pid }?"
 msgstr ""
 
-#: src/views/task/SystemView.vue:124
+#: src/views/task/SystemView.vue:128
 msgid "Terminate"
 msgstr ""
 
@@ -4177,12 +4431,12 @@ msgstr ""
 msgid "Completion Time"
 msgstr ""
 
-#: src/views/task/TaskView.vue:136
+#: src/views/task/TaskView.vue:137
 msgid "If logs cannot be loaded, please disable ad blockers!"
 msgstr ""
 
 #: src/views/website/EditView.vue:54
-#: src/views/website/IndexView.vue:210
+#: src/views/website/IndexView.vue:208
 msgid "Not used"
 msgstr "未使用"
 
@@ -4207,333 +4461,329 @@ msgstr ""
 msgid "The selected certificate is invalid"
 msgstr ""
 
-#: src/views/website/EditView.vue:178
+#: src/views/website/EditView.vue:179
 msgid "If you modify the original text, other modifications will not take effect after clicking save!"
 msgstr ""
 
-#: src/views/website/EditView.vue:184
+#: src/views/website/EditView.vue:188
 msgid "Reset Configuration"
 msgstr ""
 
-#: src/views/website/EditView.vue:187
+#: src/views/website/EditView.vue:191
 msgid "Are you sure you want to reset the configuration?"
 msgstr ""
 
-#: src/views/website/EditView.vue:196
-#: src/views/website/ProxyBuilderModal.vue:121
+#: src/views/website/EditView.vue:200
+#: src/views/website/ProxyBuilderModal.vue:123
 msgid "Generate Reverse Proxy Configuration"
 msgstr ""
 
-#: src/views/website/EditView.vue:207
+#: src/views/website/EditView.vue:211
 msgid "One-click Certificate Issuance"
 msgstr ""
 
-#: src/views/website/EditView.vue:217
+#: src/views/website/EditView.vue:221
 msgid "Clear Logs"
 msgstr ""
 
-#: src/views/website/EditView.vue:226
+#: src/views/website/EditView.vue:230
 msgid "Domain & Listening"
 msgstr ""
 
-#: src/views/website/EditView.vue:236
+#: src/views/website/EditView.vue:240
 msgid "Listening Address"
 msgstr ""
 
-#: src/views/website/EditView.vue:254
+#: src/views/website/EditView.vue:258
 msgid "Basic Settings"
 msgstr ""
 
-#: src/views/website/EditView.vue:256
+#: src/views/website/EditView.vue:260
 msgid "Website Directory"
 msgstr ""
 
-#: src/views/website/EditView.vue:257
+#: src/views/website/EditView.vue:263
 msgid "Enter website directory (absolute path)"
 msgstr ""
 
-#: src/views/website/EditView.vue:259
+#: src/views/website/EditView.vue:266
 msgid "Running Directory"
 msgstr ""
 
-#: src/views/website/EditView.vue:262
+#: src/views/website/EditView.vue:270
 msgid "Enter running directory (needed for Laravel etc.) (absolute path)"
 msgstr ""
 
-#: src/views/website/EditView.vue:265
+#: src/views/website/EditView.vue:274
 msgid "Default Document"
 msgstr ""
 
-#: src/views/website/EditView.vue:268
-#: src/views/website/IndexView.vue:435
+#: src/views/website/EditView.vue:277
+#: src/views/website/IndexView.vue:433
 msgid "PHP Version"
 msgstr ""
 
-#: src/views/website/EditView.vue:273
-#: src/views/website/IndexView.vue:439
+#: src/views/website/EditView.vue:282
+#: src/views/website/IndexView.vue:437
 msgid "Select PHP Version"
 msgstr ""
 
-#: src/views/website/EditView.vue:278
-msgid "Anti-XSS Attack (PHP)"
+#: src/views/website/EditView.vue:287
+msgid "Anti-cross-site Attack (PHP)"
 msgstr ""
 
-#: src/views/website/EditView.vue:287
+#: src/views/website/EditView.vue:296
 msgid "Certificate Information"
 msgstr ""
 
-#: src/views/website/EditView.vue:289
+#: src/views/website/EditView.vue:298
 msgid "Certificate Validity"
 msgstr ""
 
-#: src/views/website/EditView.vue:303
+#: src/views/website/EditView.vue:312
 msgid "Domains"
 msgstr ""
 
-#: src/views/website/EditView.vue:318
+#: src/views/website/EditView.vue:327
 msgid "Main Switch"
 msgstr ""
 
-#: src/views/website/EditView.vue:321
+#: src/views/website/EditView.vue:333
 msgid "Use Existing Certificate"
 msgstr ""
 
-#: src/views/website/EditView.vue:334
+#: src/views/website/EditView.vue:347
 msgid "HTTP Redirect"
 msgstr ""
 
-#: src/views/website/EditView.vue:337
+#: src/views/website/EditView.vue:350
 msgid "OCSP Stapling"
 msgstr ""
 
-#: src/views/website/EditView.vue:362
+#: src/views/website/EditView.vue:375
 msgid "Rewrite"
 msgstr ""
 
-#: src/views/website/EditView.vue:365
+#: src/views/website/EditView.vue:378
 msgid "Presets"
 msgstr ""
 
-#: src/views/website/EditView.vue:391
+#: src/views/website/EditView.vue:405
 msgid "If you do not understand the configuration rules, please do not modify them arbitrarily, otherwise it may cause the website to be inaccessible or panel function abnormalities! If you have already encountered a problem, try resetting the configuration!"
 msgstr ""
 
-#: src/views/website/EditView.vue:407
+#: src/views/website/EditView.vue:424
 msgid "Access Log"
 msgstr ""
 
-#: src/views/website/EditView.vue:411
-#: src/views/website/EditView.vue:423
+#: src/views/website/EditView.vue:428
+#: src/views/website/EditView.vue:440
 msgid "All logs can be viewed by downloading the file"
 msgstr ""
 
-#: src/views/website/EditView.vue:413
-#: src/views/website/EditView.vue:425
+#: src/views/website/EditView.vue:430
+#: src/views/website/EditView.vue:442
 msgid "view"
 msgstr ""
 
-#: src/views/website/EditView.vue:419
+#: src/views/website/EditView.vue:436
 msgid "Error Log"
 msgstr ""
 
 #: src/views/website/IndexView.vue:23
-#: src/views/website/IndexView.vue:398
+#: src/views/website/IndexView.vue:396
 msgid "Website Name"
 msgstr ""
 
-#: src/views/website/IndexView.vue:78
-#: src/views/website/IndexView.vue:516
-#: src/views/website/IndexView.vue:521
+#: src/views/website/IndexView.vue:76
+#: src/views/website/IndexView.vue:514
+#: src/views/website/IndexView.vue:519
 msgid "Remark"
 msgstr ""
 
-#: src/views/website/IndexView.vue:135
+#: src/views/website/IndexView.vue:133
 msgid "Are you sure you want to delete website %{ name }?"
 msgstr ""
 
-#: src/views/website/IndexView.vue:146
+#: src/views/website/IndexView.vue:144
 msgid "Delete website directory"
 msgstr ""
 
-#: src/views/website/IndexView.vue:154
+#: src/views/website/IndexView.vue:152
 msgid "Delete local database with the same name"
 msgstr ""
 
-#: src/views/website/IndexView.vue:240
+#: src/views/website/IndexView.vue:238
 msgid "Already %{ status }"
 msgstr ""
 
-#: src/views/website/IndexView.vue:241
+#: src/views/website/IndexView.vue:239
 msgid "started"
 msgstr ""
 
-#: src/views/website/IndexView.vue:241
+#: src/views/website/IndexView.vue:239
 msgid "stopped"
 msgstr ""
 
-#: src/views/website/IndexView.vue:315
+#: src/views/website/IndexView.vue:313
 msgid "Please select the websites to delete"
 msgstr ""
 
-#: src/views/website/IndexView.vue:348
-#: src/views/website/IndexView.vue:389
+#: src/views/website/IndexView.vue:346
+#: src/views/website/IndexView.vue:387
 msgid "Create Website"
 msgstr ""
 
-#: src/views/website/IndexView.vue:355
+#: src/views/website/IndexView.vue:353
 msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
 msgstr ""
 
-#: src/views/website/IndexView.vue:361
-#: src/views/website/IndexView.vue:532
+#: src/views/website/IndexView.vue:359
+#: src/views/website/IndexView.vue:530
 msgid "Modify Default Page"
 msgstr ""
 
-#: src/views/website/IndexView.vue:404
+#: src/views/website/IndexView.vue:402
 msgid "Recommended to use English for the website name, it cannot be modified after setting"
 msgstr ""
 
-#: src/views/website/IndexView.vue:451
+#: src/views/website/IndexView.vue:449
 msgid "Select Database"
 msgstr ""
 
-#: src/views/website/IndexView.vue:479
-#: src/views/website/IndexView.vue:484
+#: src/views/website/IndexView.vue:477
+#: src/views/website/IndexView.vue:482
 msgid "Database User"
 msgstr ""
 
-#: src/views/website/IndexView.vue:493
-#: src/views/website/IndexView.vue:499
+#: src/views/website/IndexView.vue:491
+#: src/views/website/IndexView.vue:497
 msgid "Database Password"
 msgstr ""
 
-#: src/views/website/IndexView.vue:510
+#: src/views/website/IndexView.vue:508
 msgid "Website root directory (if left empty, defaults to website directory/website name)"
 msgstr ""
 
-#: src/views/website/IndexView.vue:526
-msgid "Create"
-msgstr ""
-
-#: src/views/website/IndexView.vue:540
-#: src/views/website/IndexView.vue:540
+#: src/views/website/IndexView.vue:538
+#: src/views/website/IndexView.vue:538
 msgid "Default Page"
 msgstr ""
 
-#: src/views/website/IndexView.vue:554
-#: src/views/website/IndexView.vue:554
+#: src/views/website/IndexView.vue:552
+#: src/views/website/IndexView.vue:552
 msgid "Stop Page"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:23
+#: src/views/website/ProxyBuilderModal.vue:24
 msgid "Disabled buffer and enabled cache cannot be used simultaneously"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:27
+#: src/views/website/ProxyBuilderModal.vue:29
 msgid "Matching expression cannot be empty"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:31
+#: src/views/website/ProxyBuilderModal.vue:33
 msgid "Proxy address cannot be empty"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:35
+#: src/views/website/ProxyBuilderModal.vue:37
 msgid "Exact match expression must start with /"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:42
+#: src/views/website/ProxyBuilderModal.vue:44
 msgid "Prefix match expression must start with /"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:48
+#: src/views/website/ProxyBuilderModal.vue:50
 msgid "Proxy address format error"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:100
+#: src/views/website/ProxyBuilderModal.vue:102
 msgid "Configuration generated successfully"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:128
+#: src/views/website/ProxyBuilderModal.vue:132
 msgid "After generating the reverse proxy configuration, the original rewrite rules will be overwritten."
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:130
+#: src/views/website/ProxyBuilderModal.vue:139
 msgid "If you need to proxy static resources like JS/CSS, please remove the static log recording part from the original configuration."
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:133
+#: src/views/website/ProxyBuilderModal.vue:145
 msgid "Auto Refresh Resolution"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:136
+#: src/views/website/ProxyBuilderModal.vue:148
 msgid "Enable SNI"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:139
+#: src/views/website/ProxyBuilderModal.vue:151
 msgid "Enable Cache"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:142
+#: src/views/website/ProxyBuilderModal.vue:154
 msgid "Disable Buffer"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:147
+#: src/views/website/ProxyBuilderModal.vue:159
 msgid "Match Type"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:151
+#: src/views/website/ProxyBuilderModal.vue:163
 msgid "Exact Match (=)"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:152
+#: src/views/website/ProxyBuilderModal.vue:164
 msgid "Priority Prefix Match (^~)"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:153
+#: src/views/website/ProxyBuilderModal.vue:165
 msgid "Normal Prefix Match ( )"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:154
+#: src/views/website/ProxyBuilderModal.vue:166
 msgid "Case Sensitive Regex Match (~)"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:155
+#: src/views/website/ProxyBuilderModal.vue:167
 msgid "Case Insensitive Regex Match (~*)"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:159
+#: src/views/website/ProxyBuilderModal.vue:171
 msgid "Match Expression"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:162
+#: src/views/website/ProxyBuilderModal.vue:174
 msgid "Proxy Address"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:165
+#: src/views/website/ProxyBuilderModal.vue:177
 msgid "Send Domain"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:168
+#: src/views/website/ProxyBuilderModal.vue:180
 msgid "Cache Time"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:174
+#: src/views/website/ProxyBuilderModal.vue:186
 msgid "Cache time (minutes)"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:176
+#: src/views/website/ProxyBuilderModal.vue:188
 msgid "minutes"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:179
+#: src/views/website/ProxyBuilderModal.vue:191
 msgid "Content Replacement"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:184
+#: src/views/website/ProxyBuilderModal.vue:196
 msgid "Target content"
 msgstr ""
 
-#: src/views/website/ProxyBuilderModal.vue:185
+#: src/views/website/ProxyBuilderModal.vue:197
 msgid "Replacement content"
 msgstr ""
 
