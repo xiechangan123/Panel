@@ -11,6 +11,7 @@ import (
 	"github.com/go-rat/utils/hash"
 	"github.com/go-rat/utils/str"
 	"github.com/knadh/koanf/v2"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
 	"gopkg.in/yaml.v3"
@@ -32,6 +33,7 @@ import (
 
 type CliService struct {
 	hr                 string
+	t                  *gotext.Locale
 	api                *api.API
 	conf               *koanf.Koanf
 	db                 *gorm.DB
@@ -45,10 +47,11 @@ type CliService struct {
 	hash               hash.Hasher
 }
 
-func NewCliService(conf *koanf.Koanf, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo) *CliService {
+func NewCliService(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version),
+		t:                  t,
 		conf:               conf,
 		db:                 db,
 		appRepo:            appRepo,
@@ -67,7 +70,7 @@ func (s *CliService) Restart(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	fmt.Println("面板服务已重启")
+	fmt.Println(s.t.Get("Panel service restarted"))
 	return nil
 }
 
@@ -76,7 +79,7 @@ func (s *CliService) Stop(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	fmt.Println("面板服务已停止")
+	fmt.Println(s.t.Get("Panel service stopped"))
 	return nil
 }
 
@@ -85,19 +88,19 @@ func (s *CliService) Start(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	fmt.Println("面板服务已启动")
+	fmt.Println(s.t.Get("Panel service started"))
 	return nil
 }
 
 func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 	panel, err := s.api.LatestVersion()
 	if err != nil {
-		return fmt.Errorf("获取最新版本失败：%v", err)
+		return errors.New(s.t.Get("Failed to get latest version: %v", err))
 	}
 
 	download := collect.First(panel.Downloads)
 	if download == nil {
-		return fmt.Errorf("下载地址为空")
+		return errors.New(s.t.Get("Download URL is empty"))
 	}
 
 	return s.backupRepo.UpdatePanel(panel.Version, download.URL, download.Checksum)
@@ -105,13 +108,14 @@ func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 
 func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {
 	if err := s.cacheRepo.UpdateApps(); err != nil {
-		return fmt.Errorf("同步应用数据失败：%v", err)
+		return errors.New(s.t.Get("Sync app data failed: %v", err))
 	}
 	if err := s.cacheRepo.UpdateRewrites(); err != nil {
-		return fmt.Errorf("同步伪静态规则失败：%v", err)
+		return errors.New(s.t.Get("Sync rewrite rules failed: %v", err))
 	}
 
 	fmt.Println("数据同步成功")
+	fmt.Println(s.t.Get("Sync data successfully"))
 	return nil
 }
 
@@ -122,13 +126,13 @@ func (s *CliService) Fix(ctx context.Context, cmd *cli.Command) error {
 func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	user := new(biz.User)
 	if err := s.db.Where("id", 1).First(user).Error; err != nil {
-		return fmt.Errorf("获取管理员信息失败：%v", err)
+		return errors.New(s.t.Get("Failed to get user info: %v", err))
 	}
 
 	password := str.Random(16)
 	hashed, err := s.hash.Make(password)
 	if err != nil {
-		return fmt.Errorf("密码生成失败：%v", err)
+		return errors.New(s.t.Get("Failed to generate password: %v", err))
 	}
 	user.Username = str.Random(8)
 	user.Password = hashed
@@ -137,7 +141,7 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	if err = s.db.Save(user).Error; err != nil {
-		return fmt.Errorf("管理员信息保存失败：%v", err)
+		return errors.New(s.t.Get("Failed to save user info: %v", err))
 	}
 
 	protocol := "http"
@@ -147,39 +151,39 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 
 	port := s.conf.String("http.port")
 	if port == "" {
-		return fmt.Errorf("端口获取失败")
+		return errors.New(s.t.Get("Failed to get port"))
 	}
 	entrance := s.conf.String("http.entrance")
 	if entrance == "" {
-		return fmt.Errorf("入口获取失败")
+		return errors.New(s.t.Get("Failed to get entrance"))
 	}
 
-	fmt.Printf("用户名: %s\n", user.Username)
-	fmt.Printf("密码: %s\n", password)
-	fmt.Printf("端口: %s\n", port)
-	fmt.Printf("入口: %s\n", entrance)
+	fmt.Println(s.t.Get("Username: %s", user.Username))
+	fmt.Println(s.t.Get("Password: %s", password))
+	fmt.Println(s.t.Get("Port: %s", port))
+	fmt.Println(s.t.Get("Entrance: %s", entrance))
 
 	lv4, err := tools.GetLocalIPv4()
 	if err == nil {
-		fmt.Printf("本地IPv4地址: %s://%s:%s%s\n", protocol, lv4, port, entrance)
+		fmt.Println(s.t.Get("Local IPv4: %s://%s:%s%s", protocol, lv4, port, entrance))
 	}
 	lv6, err := tools.GetLocalIPv6()
 	if err == nil {
-		fmt.Printf("本地IPv6地址: %s://[%s]:%s%s\n", protocol, lv6, port, entrance)
+		fmt.Println(s.t.Get("Local IPv6: %s://[%s]:%s%s", protocol, lv6, port, entrance))
 	}
 	rv4, err := tools.GetPublicIPv4()
 	if err == nil {
-		fmt.Printf("公网IPv4地址: %s://%s:%s%s\n", protocol, rv4, port, entrance)
+		fmt.Println(s.t.Get("Public IPv4: %s://%s:%s%s", protocol, rv4, port, entrance))
 	}
 	rv6, err := tools.GetPublicIPv6()
 	if err == nil {
-		fmt.Printf("公网IPv6地址: %s://[%s]:%s%s\n", protocol, rv6, port, entrance)
+		fmt.Println(s.t.Get("Public IPv6: %s://[%s]:%s%s", protocol, rv6, port, entrance))
 	}
 
-	fmt.Println("请根据自身网络情况自行选择合适的地址访问面板")
-	fmt.Printf("如无法访问，请检查服务器运营商安全组和防火墙是否放行%s端口\n", port)
-	fmt.Println("若仍无法访问，可尝试运行 panel-cli https off 关闭面板HTTPS")
-	fmt.Println("警告：关闭面板HTTPS后，面板安全性将大大降低，请谨慎操作")
+	fmt.Println(s.t.Get("Please choose the appropriate address to access the panel based on your network situation"))
+	fmt.Println(s.t.Get("If you cannot access, please check whether the server's security group and firewall allow port %s", port))
+	fmt.Println(s.t.Get("If you still cannot access, try running panel-cli https off to turn off panel HTTPS"))
+	fmt.Println(s.t.Get("Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"))
 
 	return nil
 }
@@ -187,11 +191,11 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 func (s *CliService) UserList(ctx context.Context, cmd *cli.Command) error {
 	users := make([]biz.User, 0)
 	if err := s.db.Find(&users).Error; err != nil {
-		return fmt.Errorf("获取用户列表失败：%v", err)
+		return errors.New(s.t.Get("Failed to get user list: %v", err))
 	}
 
 	for _, user := range users {
-		fmt.Printf("ID: %d, 用户名: %s, 邮箱: %s, 创建日期: %s\n", user.ID, user.Username, user.Email, user.CreatedAt.Format(time.DateTime))
+		fmt.Println(s.t.Get("ID: %d, Username: %s, Email: %s, Created At: %s", user.ID, user.Username, user.Email, user.CreatedAt.Format(time.DateTime)))
 	}
 
 	return nil
@@ -202,10 +206,10 @@ func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 	oldUsername := cmd.Args().Get(0)
 	newUsername := cmd.Args().Get(1)
 	if oldUsername == "" {
-		return fmt.Errorf("旧用户名不能为空")
+		return errors.New(s.t.Get("Old username cannot be empty"))
 	}
 	if newUsername == "" {
-		return fmt.Errorf("新用户名不能为空")
+		return errors.New(s.t.Get("New username cannot be empty"))
 	}
 
 	if err := s.db.Where("username", oldUsername).First(user).Error; err != nil {

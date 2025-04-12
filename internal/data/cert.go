@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -24,13 +25,15 @@ import (
 )
 
 type certRepo struct {
+	t      *gotext.Locale
 	db     *gorm.DB
 	log    *slog.Logger
 	client *acme.Client
 }
 
-func NewCertRepo(db *gorm.DB, log *slog.Logger) biz.CertRepo {
+func NewCertRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.CertRepo {
 	return &certRepo{
+		t:   t,
 		db:  db,
 		log: log,
 	}
@@ -86,10 +89,10 @@ func (r *certRepo) GetByWebsite(WebsiteID uint) (*biz.Cert, error) {
 func (r *certRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
 	info, err := pkgcert.ParseCert(req.Cert)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse certificate: %v", err)
+		return nil, errors.New(r.t.Get("failed to parse certificate: %v", err))
 	}
 	if _, err = pkgcert.ParseKey(req.Key); err != nil {
-		return nil, fmt.Errorf("failed to parse private key: %v", err)
+		return nil, errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 
 	cert := &biz.Cert{
@@ -126,7 +129,7 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 		req.Domains = info.DNSNames
 	}
 	if req.Type == "upload" && req.AutoRenew {
-		return errors.New("upload certificate cannot be set to auto renew")
+		return errors.New(r.t.Get("upload certificate cannot be set to auto renew"))
 	}
 
 	return r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
@@ -162,11 +165,11 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
 		if cert.Website == nil {
-			return nil, errors.New("this certificate is not associated with a website and cannot be signed. You can try to sign it manually")
+			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be signed. You can try to sign it manually"))
 		} else {
 			for _, domain := range cert.Domains {
 				if strings.Contains(domain, "*") {
-					return nil, errors.New("wildcard domains cannot use HTTP verification")
+					return nil, errors.New(r.t.Get("wildcard domains cannot use HTTP verification"))
 				}
 			}
 			conf := fmt.Sprintf("%s/server/vhost/acme/%s.conf", app.Root, cert.Website.Name)
@@ -204,7 +207,7 @@ func (r *certRepo) ObtainManual(id uint) (*acme.Certificate, error) {
 	}
 
 	if r.client == nil {
-		return nil, errors.New("please retry the manual obtain operation")
+		return nil, errors.New(r.t.Get("please retry the manual obtain operation"))
 	}
 
 	ssl, err := r.client.ObtainCertificateManual()
@@ -270,18 +273,18 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.CertURL == "" {
-		return nil, errors.New("this certificate has not been signed successfully and cannot be renewed")
+		return nil, errors.New(r.t.Get("this certificate has not been signed successfully and cannot be renewed"))
 	}
 
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
 		if cert.Website == nil {
-			return nil, errors.New("this certificate is not associated with a website and cannot be signed. You can try to sign it manually")
+			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be signed. You can try to sign it manually"))
 		} else {
 			for _, domain := range cert.Domains {
 				if strings.Contains(domain, "*") {
-					return nil, errors.New("wildcard domains cannot use HTTP verification")
+					return nil, errors.New(r.t.Get("wildcard domains cannot use HTTP verification"))
 				}
 			}
 			conf := fmt.Sprintf("%s/server/vhost/acme/%s.conf", app.Root, cert.Website.Name)
@@ -345,7 +348,7 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	}
 
 	if cert.Cert == "" || cert.Key == "" {
-		return errors.New("this certificate has not been signed successfully and cannot be deployed")
+		return errors.New(r.t.Get("this certificate has not been signed successfully and cannot be deployed"))
 	}
 
 	website := new(biz.Website)
@@ -400,7 +403,7 @@ func (r *certRepo) runScript(cert *biz.Cert) error {
 
 func (r *certRepo) getClient(cert *biz.Cert) (*acme.Client, error) {
 	if cert.Account == nil {
-		return nil, errors.New("this certificate is not associated with an ACME account and cannot be signed")
+		return nil, errors.New(r.t.Get("this certificate is not associated with an ACME account and cannot be signed"))
 	}
 
 	var ca string

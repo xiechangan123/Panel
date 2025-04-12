@@ -1,8 +1,10 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -11,17 +13,19 @@ import (
 )
 
 type sshRepo struct {
+	t  *gotext.Locale
 	db *gorm.DB
 }
 
-func NewSSHRepo(db *gorm.DB) biz.SSHRepo {
+func NewSSHRepo(t *gotext.Locale, db *gorm.DB) biz.SSHRepo {
 	return &sshRepo{
+		t:  t,
 		db: db,
 	}
 }
 
 func (r *sshRepo) List(page, limit uint) ([]*biz.SSH, int64, error) {
-	var ssh []*biz.SSH
+	ssh := make([]*biz.SSH, 0)
 	var total int64
 	err := r.db.Model(&biz.SSH{}).Omit("Hosts").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&ssh).Error
 	return ssh, total, err
@@ -46,7 +50,7 @@ func (r *sshRepo) Create(req *request.SSHCreate) error {
 	}
 	_, err := pkgssh.NewSSHClient(conf)
 	if err != nil {
-		return fmt.Errorf("failed to check ssh connection: %v", err)
+		return errors.New(r.t.Get("failed to check ssh connection: %v", err))
 	}
 
 	ssh := &biz.SSH{
@@ -70,7 +74,7 @@ func (r *sshRepo) Update(req *request.SSHUpdate) error {
 	}
 	_, err := pkgssh.NewSSHClient(conf)
 	if err != nil {
-		return fmt.Errorf("failed to check ssh connection: %v", err)
+		return errors.New(r.t.Get("failed to check ssh connection: %v", err))
 	}
 
 	ssh := &biz.SSH{

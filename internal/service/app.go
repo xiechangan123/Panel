@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/biz"
 	"github.com/tnb-labs/panel/internal/http/request"
@@ -11,13 +12,15 @@ import (
 )
 
 type AppService struct {
+	t           *gotext.Locale
 	appRepo     biz.AppRepo
 	cacheRepo   biz.CacheRepo
 	settingRepo biz.SettingRepo
 }
 
-func NewAppService(app biz.AppRepo, cache biz.CacheRepo, setting biz.SettingRepo) *AppService {
+func NewAppService(t *gotext.Locale, app biz.AppRepo, cache biz.CacheRepo, setting biz.SettingRepo) *AppService {
 	return &AppService{
+		t:           t,
 		appRepo:     app,
 		cacheRepo:   cache,
 		settingRepo: setting,
@@ -167,7 +170,7 @@ func (s *AppService) IsInstalled(w http.ResponseWriter, r *http.Request) {
 
 func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {
 	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
-		Error(w, http.StatusForbidden, "离线模式下无法更新应用列表缓存")
+		Error(w, http.StatusForbidden, s.t.Get("Unable to update app list cache in offline mode"))
 		return
 	}
 

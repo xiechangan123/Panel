@@ -3,11 +3,11 @@ package data
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path/filepath"
 
 	"github.com/go-rat/utils/hash"
 	"github.com/knadh/koanf/v2"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
@@ -23,13 +23,15 @@ import (
 )
 
 type settingRepo struct {
+	t    *gotext.Locale
 	db   *gorm.DB
 	conf *koanf.Koanf
 	task biz.TaskRepo
 }
 
-func NewSettingRepo(db *gorm.DB, conf *koanf.Koanf, task biz.TaskRepo) biz.SettingRepo {
+func NewSettingRepo(t *gotext.Locale, db *gorm.DB, conf *koanf.Koanf, task biz.TaskRepo) biz.SettingRepo {
 	return &settingRepo{
+		t:    t,
 		db:   db,
 		conf: conf,
 		task: task,
@@ -186,15 +188,15 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	oldKey, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.key"))
 	if oldCert != setting.Cert || oldKey != setting.Key {
 		if r.task.HasRunningTask() {
-			return false, errors.New("后台任务正在运行，禁止修改部分设置，请稍后再试")
+			return false, errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
 		}
 		restartFlag = true
 	}
 	if _, err := cert.ParseCert(setting.Cert); err != nil {
-		return false, fmt.Errorf("failed to parse certificate: %w", err)
+		return false, errors.New(r.t.Get("failed to parse certificate: %w", err))
 	}
 	if _, err := cert.ParseKey(setting.Key); err != nil {
-		return false, fmt.Errorf("failed to parse private key: %w", err)
+		return false, errors.New(r.t.Get("failed to parse private key: %w", err))
 	}
 	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), setting.Cert, 0644); err != nil {
 		return false, err
@@ -215,7 +217,7 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 
 	if setting.Port != config.HTTP.Port {
 		if os.TCPPortInUse(setting.Port) {
-			return false, errors.New("端口已被占用")
+			return false, errors.New(r.t.Get("port is already in use"))
 		}
 	}
 
@@ -243,7 +245,7 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	}
 	if raw != string(encoded) {
 		if r.task.HasRunningTask() {
-			return false, errors.New("后台任务正在运行，禁止修改部分设置，请稍后再试")
+			return false, errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
 		}
 		restartFlag = true
 	}

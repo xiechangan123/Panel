@@ -12,6 +12,7 @@ import (
 	"github.com/go-rat/chix"
 	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -20,14 +21,16 @@ import (
 )
 
 type UserService struct {
+	t        *gotext.Locale
 	conf     *koanf.Koanf
 	session  *sessions.Manager
 	userRepo biz.UserRepo
 }
 
-func NewUserService(conf *koanf.Koanf, session *sessions.Manager, user biz.UserRepo) *UserService {
+func NewUserService(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, user biz.UserRepo) *UserService {
 	gob.Register(rsa.PrivateKey{}) // 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	return &UserService{
+		t:        t,
 		conf:     conf,
 		session:  session,
 		userRepo: user,
@@ -72,7 +75,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 
 	key, ok := sess.Get("key").(rsa.PrivateKey)
 	if !ok {
-		Error(w, http.StatusForbidden, "invalid key, please refresh the page")
+		Error(w, http.StatusForbidden, s.t.Get("invalid key, please refresh the page"))
 		return
 	}
 

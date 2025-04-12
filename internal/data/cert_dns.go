@@ -18,7 +18,7 @@ func NewCertDNSRepo(db *gorm.DB) biz.CertDNSRepo {
 }
 
 func (r certDNSRepo) List(page, limit uint) ([]*biz.CertDNS, int64, error) {
-	var certDNS []*biz.CertDNS
+	certDNS := make([]*biz.CertDNS, 0)
 	var total int64
 	err := r.db.Model(&biz.CertDNS{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&certDNS).Error
 	return certDNS, total, err

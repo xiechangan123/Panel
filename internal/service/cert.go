@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/biz"
 	"github.com/tnb-labs/panel/internal/http/request"
@@ -12,21 +13,19 @@ import (
 )
 
 type CertService struct {
+	t        *gotext.Locale
 	certRepo biz.CertRepo
 }
 
-func NewCertService(cert biz.CertRepo) *CertService {
+func NewCertService(t *gotext.Locale, cert biz.CertRepo) *CertService {
 	return &CertService{
+		t:        t,
 		certRepo: cert,
 	}
 }
 
 func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
 	Success(w, []types.LV{
-		{
-			Label: "GoogleCN（推荐）",
-			Value: "googlecn",
-		},
 		{
 			Label: "Let's Encrypt",
 			Value: "letsencrypt",
@@ -38,6 +37,10 @@ func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
 		{
 			Label: "SSL.com",
 			Value: "sslcom",
+		},
+		{
+			Label: "GoogleCN",
+			Value: "googlecn",
 		},
 		{
 			Label: "Google",
@@ -54,67 +57,67 @@ func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
 func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
 	Success(w, []types.LV{
 		{
-			Label: "阿里云",
+			Label: s.t.Get("Aliyun"),
 			Value: string(acme.AliYun),
 		},
 		{
-			Label: "腾讯云",
+			Label: s.t.Get("Tencent Cloud"),
 			Value: string(acme.Tencent),
 		},
 		{
-			Label: "华为云",
+			Label: s.t.Get("Huawei Cloud"),
 			Value: string(acme.Huawei),
 		},
 		{
-			Label: "西部数码",
+			Label: s.t.Get("West.cn"),
 			Value: string(acme.Westcn),
 		},
 		{
-			Label: "CloudFlare",
+			Label: s.t.Get("CloudFlare"),
 			Value: string(acme.CloudFlare),
 		},
 		{
-			Label: "Godaddy",
+			Label: s.t.Get("Godaddy"),
 			Value: string(acme.Godaddy),
 		},
 		{
-			Label: "Gcore",
+			Label: s.t.Get("Gcore"),
 			Value: string(acme.Gcore),
 		},
 		{
-			Label: "Porkbun",
+			Label: s.t.Get("Porkbun"),
 			Value: string(acme.Porkbun),
 		},
 		{
-			Label: "Namecheap",
+			Label: s.t.Get("Namecheap"),
 			Value: string(acme.Namecheap),
 		},
 		{
-			Label: "NameSilo",
+			Label: s.t.Get("NameSilo"),
 			Value: string(acme.NameSilo),
 		},
 		{
-			Label: "Name.com",
+			Label: s.t.Get("Name.com"),
 			Value: string(acme.Namecom),
 		},
 		{
-			Label: "ClouDNS",
+			Label: s.t.Get("ClouDNS"),
 			Value: string(acme.ClouDNS),
 		},
 		{
-			Label: "Duck DNS",
+			Label: s.t.Get("Duck DNS"),
 			Value: string(acme.DuckDNS),
 		},
 		{
-			Label: "Hetzner",
+			Label: s.t.Get("Hetzner"),
 			Value: string(acme.Hetzner),
 		},
 		{
-			Label: "Linode",
+			Label: s.t.Get("Linode"),
 			Value: string(acme.Linode),
 		},
 		{
-			Label: "Vercel",
+			Label: s.t.Get("Vercel"),
 			Value: string(acme.Vercel),
 		},
 	})

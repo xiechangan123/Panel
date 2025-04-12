@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -12,12 +13,14 @@ import (
 )
 
 type databaseUserRepo struct {
+	t      *gotext.Locale
 	db     *gorm.DB
 	server biz.DatabaseServerRepo
 }
 
-func NewDatabaseUserRepo(db *gorm.DB, server biz.DatabaseServerRepo) biz.DatabaseUserRepo {
+func NewDatabaseUserRepo(t *gotext.Locale, db *gorm.DB, server biz.DatabaseServerRepo) biz.DatabaseUserRepo {
 	return &databaseUserRepo{
+		t:      t,
 		db:     db,
 		server: server,
 	}
@@ -33,7 +36,7 @@ func (r databaseUserRepo) Count() (int64, error) {
 }
 
 func (r databaseUserRepo) List(page, limit uint) ([]*biz.DatabaseUser, int64, error) {
-	var user []*biz.DatabaseUser
+	user := make([]*biz.DatabaseUser, 0)
 	var total int64
 	err := r.db.Model(&biz.DatabaseUser{}).Preload("Server").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&user).Error
 

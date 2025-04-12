@@ -1,7 +1,6 @@
 package data
 
 import (
-	"errors"
 	"time"
 
 	"github.com/spf13/cast"
@@ -56,13 +55,9 @@ func (r monitorRepo) Clear() error {
 }
 
 func (r monitorRepo) List(start, end time.Time) ([]*biz.Monitor, error) {
-	var monitors []*biz.Monitor
+	monitors := make([]*biz.Monitor, 0)
 	if err := r.db.Where("created_at BETWEEN ? AND ?", start, end).Find(&monitors).Error; err != nil {
 		return nil, err
-	}
-
-	if len(monitors) == 0 {
-		return nil, errors.New("没有找到数据")
 	}
 
 	return monitors, nil

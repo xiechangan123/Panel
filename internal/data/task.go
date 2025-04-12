@@ -1,9 +1,10 @@
 package data
 
 import (
-	"fmt"
+	"errors"
 	"log/slog"
 
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -12,13 +13,15 @@ import (
 )
 
 type taskRepo struct {
+	t     *gotext.Locale
 	db    *gorm.DB
 	log   *slog.Logger
 	queue *queue.Queue
 }
 
-func NewTaskRepo(db *gorm.DB, log *slog.Logger, queue *queue.Queue) biz.TaskRepo {
+func NewTaskRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, queue *queue.Queue) biz.TaskRepo {
 	return &taskRepo{
+		t:     t,
 		db:    db,
 		log:   log,
 		queue: queue,
@@ -32,7 +35,7 @@ func (r *taskRepo) HasRunningTask() bool {
 }
 
 func (r *taskRepo) List(page, limit uint) ([]*biz.Task, int64, error) {
-	var tasks []*biz.Task
+	tasks := make([]*biz.Task, 0)
 	var total int64
 	err := r.db.Model(&biz.Task{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&tasks).Error
 	return tasks, total, err
@@ -53,12 +56,13 @@ func (r *taskRepo) UpdateStatus(id uint, status biz.TaskStatus) error {
 }
 
 func (r *taskRepo) Push(task *biz.Task) error {
+	// 防止有人喜欢酒吧点炒饭
 	var count int64
 	if err := r.db.Model(&biz.Task{}).Where("shell = ? and (status = ? or status = ?)", task.Shell, biz.TaskStatusWaiting, biz.TaskStatusRunning).Count(&count).Error; err != nil {
 		return err
 	}
 	if count > 0 {
-		return fmt.Errorf("duplicate submission, please wait for the previous task to end")
+		return errors.New(r.t.Get("duplicate submission, please wait for the previous task to end"))
 	}
 
 	if err := r.db.Create(task).Error; err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -13,13 +14,15 @@ import (
 )
 
 type databaseRepo struct {
+	t      *gotext.Locale
 	db     *gorm.DB
 	server biz.DatabaseServerRepo
 	user   biz.DatabaseUserRepo
 }
 
-func NewDatabaseRepo(db *gorm.DB, server biz.DatabaseServerRepo, user biz.DatabaseUserRepo) biz.DatabaseRepo {
+func NewDatabaseRepo(t *gotext.Locale, db *gorm.DB, server biz.DatabaseServerRepo, user biz.DatabaseUserRepo) biz.DatabaseRepo {
 	return &databaseRepo{
+		t:      t,
 		db:     db,
 		server: server,
 		user:   user,
@@ -179,7 +182,7 @@ func (r databaseRepo) Comment(req *request.DatabaseComment) error {
 
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		return errors.New("mysql not support database comment")
+		return errors.New(r.t.Get("mysql not support database comment"))
 	case biz.DatabaseTypePostgresql:
 		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
 		if err != nil {

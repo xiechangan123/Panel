@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-rat/chix"
 	"github.com/go-rat/utils/file"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/app"
@@ -29,11 +30,13 @@ import (
 )
 
 type FileService struct {
+	t        *gotext.Locale
 	taskRepo biz.TaskRepo
 }
 
-func NewFileService(task biz.TaskRepo) *FileService {
+func NewFileService(t *gotext.Locale, task biz.TaskRepo) *FileService {
 	return &FileService{
+		t:        t,
 		taskRepo: task,
 	}
 }
@@ -74,11 +77,11 @@ func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if fileInfo.IsDir() {
-		Error(w, http.StatusInternalServerError, "target is a directory")
+		Error(w, http.StatusInternalServerError, s.t.Get("target is a directory"))
 		return
 	}
 	if fileInfo.Size() > 10*1024*1024 {
-		Error(w, http.StatusInternalServerError, "file is too large, please download it")
+		Error(w, http.StatusInternalServerError, s.t.Get("file is too large, please download it to view"))
 		return
 	}
 
@@ -129,7 +132,7 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 
 	banned := []string{"/", app.Root, filepath.Join(app.Root, "server"), filepath.Join(app.Root, "panel")}
 	if slices.Contains(banned, req.Path) {
-		Error(w, http.StatusForbidden, "please don't do this")
+		Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
 		return
 	}
 
@@ -150,17 +153,17 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 	path := r.FormValue("path")
 	_, handler, err := r.FormFile("file")
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "upload file error: %v", err)
+		Error(w, http.StatusInternalServerError, s.t.Get("upload file error: %v", err))
 		return
 	}
 	if io.Exists(path) {
-		Error(w, http.StatusForbidden, "target path %s already exists", path)
+		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", path))
 		return
 	}
 
 	if !io.Exists(filepath.Dir(path)) {
 		if err = stdos.MkdirAll(filepath.Dir(path), 0755); err != nil {
-			Error(w, http.StatusInternalServerError, "create directory error: %v", err)
+			Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
 			return
 		}
 	}
@@ -168,12 +171,12 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 	src, _ := handler.Open()
 	out, err := stdos.OpenFile(path, stdos.O_CREATE|stdos.O_RDWR|stdos.O_TRUNC, 0644)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "open file error: %v", err)
+		Error(w, http.StatusInternalServerError, s.t.Get("open file error: %v", err))
 		return
 	}
 
 	if _, err = stdio.Copy(out, src); err != nil {
-		Error(w, http.StatusInternalServerError, "write file error: %v", err)
+		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
 
@@ -216,7 +219,7 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if io.IsDir(item.Source) && strings.HasPrefix(item.Target, item.Source) {
-			Error(w, http.StatusForbidden, "you can't do this, it will be broken")
+			Error(w, http.StatusForbidden, s.t.Get("you can't do this, it will be broken"))
 			return
 		}
 
@@ -245,7 +248,7 @@ func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if io.IsDir(item.Source) && strings.HasPrefix(item.Target, item.Source) {
-			Error(w, http.StatusForbidden, "you can't do this, it will be broken")
+			Error(w, http.StatusForbidden, s.t.Get("you can't do this, it will be broken"))
 			return
 		}
 
@@ -271,7 +274,7 @@ func (s *FileService) Download(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if info.IsDir() {
-		Error(w, http.StatusInternalServerError, "can't download a directory")
+		Error(w, http.StatusInternalServerError, s.t.Get("can't download a directory"))
 		return
 	}
 
@@ -289,7 +292,7 @@ func (s *FileService) RemoteDownload(w http.ResponseWriter, r *http.Request) {
 
 	timestamp := time.Now().Format("20060102150405")
 	task := new(biz.Task)
-	task.Name = "下载远程文件"
+	task.Name = s.t.Get("Download remote file %v", filepath.Base(req.Path))
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = fmt.Sprintf(`wget -o /tmp/remote-download-%s.log -O '%s' '%s' && chmod 0755 '%s' && chown www:www '%s'`, timestamp, req.Path, req.URL, req.Path, req.Path)
 	task.Log = fmt.Sprintf("/tmp/remote-download-%s.log", timestamp)

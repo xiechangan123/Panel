@@ -4,18 +4,21 @@ import (
 	"errors"
 
 	"github.com/go-rat/utils/hash"
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/biz"
 )
 
 type userRepo struct {
+	t      *gotext.Locale
 	db     *gorm.DB
 	hasher hash.Hasher
 }
 
-func NewUserRepo(db *gorm.DB) biz.UserRepo {
+func NewUserRepo(t *gotext.Locale, db *gorm.DB) biz.UserRepo {
 	return &userRepo{
+		t:      t,
 		db:     db,
 		hasher: hash.NewArgon2id(),
 	}
@@ -42,14 +45,14 @@ func (r *userRepo) CheckPassword(username, password string) (*biz.User, error) {
 	user := new(biz.User)
 	if err := r.db.Where("username = ?", username).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("用户名或密码错误")
+			return nil, errors.New(r.t.Get("username or password error"))
 		} else {
 			return nil, err
 		}
 	}
 
 	if !r.hasher.Check(password, user.Password) {
-		return nil, errors.New("用户名或密码错误")
+		return nil, errors.New(r.t.Get("username or password error"))
 	}
 
 	return user, nil

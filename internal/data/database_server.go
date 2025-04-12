@@ -1,10 +1,12 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"slices"
 
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -13,12 +15,14 @@ import (
 )
 
 type databaseServerRepo struct {
+	t   *gotext.Locale
 	db  *gorm.DB
 	log *slog.Logger
 }
 
-func NewDatabaseServerRepo(db *gorm.DB, log *slog.Logger) biz.DatabaseServerRepo {
+func NewDatabaseServerRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.DatabaseServerRepo {
 	return &databaseServerRepo{
+		t:   t,
 		db:  db,
 		log: log,
 	}
@@ -34,7 +38,7 @@ func (r databaseServerRepo) Count() (int64, error) {
 }
 
 func (r databaseServerRepo) List(page, limit uint) ([]*biz.DatabaseServer, int64, error) {
-	var databaseServer []*biz.DatabaseServer
+	databaseServer := make([]*biz.DatabaseServer, 0)
 	var total int64
 	err := r.db.Model(&biz.DatabaseServer{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&databaseServer).Error
 
@@ -79,7 +83,7 @@ func (r databaseServerRepo) Create(req *request.DatabaseServerCreate) error {
 	}
 
 	if !r.checkServer(databaseServer) {
-		return fmt.Errorf("check server connection failed")
+		return errors.New(r.t.Get("check server connection failed"))
 	}
 
 	return r.db.Create(databaseServer).Error
@@ -99,7 +103,7 @@ func (r databaseServerRepo) Update(req *request.DatabaseServerUpdate) error {
 	server.Remark = req.Remark
 
 	if !r.checkServer(server) {
-		return fmt.Errorf("check server connection failed")
+		return errors.New(r.t.Get("check server connection failed"))
 	}
 
 	return r.db.Save(server).Error
@@ -154,7 +158,7 @@ func (r databaseServerRepo) Sync(id uint) error {
 					ServerID: id,
 					Username: user.User,
 					Host:     user.Host,
-					Remark:   fmt.Sprintf("sync from server %s", server.Name),
+					Remark:   r.t.Get("sync from server %s", server.Name),
 				}
 				if err = r.db.Create(newUser).Error; err != nil {
 					r.log.Warn("sync database user failed", slog.Any("err", err))
@@ -180,7 +184,7 @@ func (r databaseServerRepo) Sync(id uint) error {
 				newUser := &biz.DatabaseUser{
 					ServerID: id,
 					Username: user.Role,
-					Remark:   fmt.Sprintf("sync from server %s", server.Name),
+					Remark:   r.t.Get("sync from server %s", server.Name),
 				}
 				r.db.Create(newUser)
 			}

@@ -208,7 +208,7 @@ func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 }
 
 func (r *websiteRepo) List(page, limit uint) ([]*biz.Website, int64, error) {
-	var websites []*biz.Website
+	websites := make([]*biz.Website, 0)
 	var total int64
 
 	if err := r.db.Model(&biz.Website{}).Count(&total).Error; err != nil {

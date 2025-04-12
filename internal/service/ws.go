@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/knadh/koanf/v2"
+	"github.com/leonelquinteros/gotext"
 	stdssh "golang.org/x/crypto/ssh"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -17,12 +18,14 @@ import (
 )
 
 type WsService struct {
+	t       *gotext.Locale
 	conf    *koanf.Koanf
 	sshRepo biz.SSHRepo
 }
 
-func NewWsService(conf *koanf.Koanf, ssh biz.SSHRepo) *WsService {
+func NewWsService(t *gotext.Locale, conf *koanf.Koanf, ssh biz.SSHRepo) *WsService {
 	return &WsService{
+		t:       t,
 		conf:    conf,
 		sshRepo: ssh,
 	}
@@ -97,14 +100,14 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	// 第一条消息是命令
 	_, cmd, err := ws.ReadMessage()
 	if err != nil {
-		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "failed to read command"))
+		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to read command: %v", err)))
 		return
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	out, err := shell.ExecfWithPipe(ctx, string(cmd))
 	if err != nil {
-		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "failed to run command"))
+		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to run command: %v", err)))
 		cancel()
 		return
 	}
@@ -116,7 +119,7 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 			_ = ws.WriteMessage(websocket.TextMessage, []byte(line))
 		}
 		if err = scanner.Err(); err != nil {
-			_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "failed to read command output"))
+			_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to read command output: %v", err)))
 		}
 	}()
 

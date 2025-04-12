@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/biz"
 	"github.com/tnb-labs/panel/internal/http/request"
@@ -15,11 +16,13 @@ import (
 )
 
 type BackupService struct {
+	t          *gotext.Locale
 	backupRepo biz.BackupRepo
 }
 
-func NewBackupService(backup biz.BackupRepo) *BackupService {
+func NewBackupService(t *gotext.Locale, backup biz.BackupRepo) *BackupService {
 	return &BackupService{
+		t:          t,
 		backupRepo: backup,
 	}
 }
@@ -71,7 +74,7 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 
 	// 只允许上传 .sql .zip .tar .gz .tgz .bz2 .xz .7z
 	if !slices.Contains([]string{".sql", ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".7z"}, filepath.Ext(req.File.Filename)) {
-		Error(w, http.StatusForbidden, "unsupported file type")
+		Error(w, http.StatusForbidden, s.t.Get("unsupported file type"))
 		return
 	}
 
@@ -81,19 +84,19 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if io.Exists(filepath.Join(path, req.File.Filename)) {
-		Error(w, http.StatusForbidden, "target backup %s already exists", path)
+		Error(w, http.StatusForbidden, s.t.Get("target backup %s already exists", path))
 		return
 	}
 
 	src, _ := req.File.Open()
 	out, err := os.OpenFile(filepath.Join(path, req.File.Filename), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, "open file error: %v", err)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	if _, err = stdio.Copy(out, src); err != nil {
-		Error(w, http.StatusInternalServerError, "write file error: %v", err)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
