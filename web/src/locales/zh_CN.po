@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-12 20:46\n"
+"PO-Revision-Date: 2025-04-12 20:50\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -2112,7 +2112,7 @@ msgstr "Google 和 SSL.com 需要先从其官网获取 KID 和 HMAC"
 #: src/views/cert/AccountView.vue:222
 #: src/views/cert/CreateAccountModal.vue:78
 msgid "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt"
-msgstr ""
+msgstr "Google 在中国大陆无法访问，其他 CA 取决于网络条件，建议使用 Let's Encrypt"
 
 #: src/views/cert/AccountView.vue:228
 #: src/views/cert/CreateAccountModal.vue:84
