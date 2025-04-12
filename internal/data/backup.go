@@ -595,7 +595,7 @@ func (r *backupRepo) FixPanel() error {
 			io.Exists(filepath.Join(app.Root, "panel", "storage", "app.db")) &&
 			io.Exists("/usr/local/etc/panel/config.yml") {
 			if err := io.Remove("/tmp/panel-storage.zip"); err != nil {
-				return errors.New(r.t.Get("failed to clean temporary files: %w", err))
+				return errors.New(r.t.Get("failed to clean temporary files: %v", err))
 			}
 			if app.IsCli {
 				fmt.Println(r.t.Get("|-Cleaned up temporary files, please run panel-cli update to update the panel"))
@@ -625,7 +625,7 @@ func (r *backupRepo) FixPanel() error {
 		fmt.Println(r.t.Get("|-Unzip backup file..."))
 	}
 	if err = io.Remove("/tmp/panel-fix"); err != nil {
-		return errors.New(r.t.Get("Cleaning temporary directory failed: %w", err))
+		return errors.New(r.t.Get("Cleaning temporary directory failed: %v", err))
 	}
 	if err = io.UnCompress(latest.Path, "/tmp/panel-fix"); err != nil {
 		return errors.New(r.t.Get("Unzip backup file failed: %w", err))
