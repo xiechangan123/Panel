@@ -109,7 +109,7 @@ msgid "Cleaning failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:628
-msgid "Cleaning temporary directory failed: %w"
+msgid "Cleaning temporary directory failed: %v"
 msgstr ""
 
 #: internal/data/backup.go:666
@@ -1006,7 +1006,7 @@ msgid "failed to check ssh connection: %v"
 msgstr ""
 
 #: internal/data/backup.go:598
-msgid "failed to clean temporary files: %w"
+msgid "failed to clean temporary files: %v"
 msgstr ""
 
 #: internal/apps/s3fs/app.go:78
