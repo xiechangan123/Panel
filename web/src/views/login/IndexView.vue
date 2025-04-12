@@ -6,7 +6,9 @@ import { addDynamicRoutes } from '@/router'
 import { useThemeStore, useUserStore } from '@/store'
 import { getLocal, removeLocal, setLocal } from '@/utils'
 import { rsaEncrypt } from '@/utils/encrypt'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const router = useRouter()
 const route = useRoute()
 const query = route.query
@@ -41,11 +43,11 @@ const logo = computed(() => themeStore.logo || logoImg)
 async function handleLogin() {
   const { username, password, safe_login } = loginInfo.value
   if (!username || !password) {
-    window.$message.warning('请输入用户名和密码')
+    window.$message.warning($gettext('Please enter username and password'))
     return
   }
   if (!key) {
-    window.$message.warning('获取加密公钥失败，请刷新页面重试')
+    window.$message.warning($gettext('Failed to get encryption public key, please refresh the page and try again'))
     return
   }
   useRequest(
@@ -56,7 +58,7 @@ async function handleLogin() {
     )
   ).onSuccess(async () => {
     loging.value = true
-    window.$notification?.success({ title: '登录成功！', duration: 2500 })
+    window.$notification?.success({ title: $gettext('Login successful!'), duration: 2500 })
     if (isRemember.value) {
       setLocal('loginInfo', { username, password })
     } else {
@@ -108,7 +110,7 @@ watch(isLogin, async () => {
             :maxlength="32"
             autofocus
             class="h-50 items-center pl-10 text-16"
-            placeholder="用户名"
+            :placeholder="$gettext('Username')"
           />
         </div>
         <div mt-30>
@@ -116,7 +118,7 @@ watch(isLogin, async () => {
             v-model:value="loginInfo.password"
             :maxlength="32"
             class="h-50 items-center pl-10 text-16"
-            placeholder="密码"
+            :placeholder="$gettext('Password')"
             type="password"
             show-password-on="click"
             @keydown.enter="handleLogin"
@@ -125,8 +127,8 @@ watch(isLogin, async () => {
 
         <div mt-20>
           <n-flex>
-            <n-checkbox v-model:checked="loginInfo.safe_login" label="安全登录" />
-            <n-checkbox v-model:checked="isRemember" label="记住我" />
+            <n-checkbox v-model:checked="loginInfo.safe_login" :label="$gettext('Safe Login')" />
+            <n-checkbox v-model:checked="isRemember" :label="$gettext('Remember Me')" />
           </n-flex>
         </div>
 
@@ -140,7 +142,7 @@ watch(isLogin, async () => {
             text-16
             @click="handleLogin"
           >
-            登录
+            {{ $gettext('Login') }}
           </n-button>
         </div>
       </div>

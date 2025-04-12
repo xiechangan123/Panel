@@ -7,13 +7,13 @@ import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import type { MessageReactive } from 'naive-ui'
 import { NButton } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
+import { useGettext } from 'vue3-gettext'
 
 import dashboard from '@/api/panel/dashboard'
 import { router } from '@/router'
 import { formatDateTime } from '@/utils'
 
-const { t } = useI18n()
+const { $gettext } = useGettext()
 const { data: versions } = useRequest(dashboard.updateInfo, {
   initialData: []
 })
@@ -21,12 +21,12 @@ let messageReactive: MessageReactive | null = null
 
 const handleUpdate = () => {
   window.$dialog.warning({
-    title: t('homeUpdate.confirm.update.title'),
-    content: t('homeUpdate.confirm.update.content'),
-    positiveText: t('homeUpdate.confirm.update.positiveText'),
-    negativeText: t('homeUpdate.confirm.update.negativeText'),
+    title: $gettext('Update Panel'),
+    content: $gettext('Are you sure you want to update the panel?'),
+    positiveText: $gettext('Confirm'),
+    negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
-      messageReactive = window.$message.loading(t('homeUpdate.confirm.update.loading'), {
+      messageReactive = window.$message.loading($gettext('Panel updating...'), {
         duration: 0
       })
       useRequest(dashboard.update())
@@ -37,14 +37,14 @@ const handleUpdate = () => {
             }, 400)
             router.push({ name: 'dashboard-index' })
           }, 2500)
-          window.$message.success(t('homeUpdate.alerts.success'))
+          window.$message.success($gettext('Panel updated successfully'))
         })
         .onComplete(() => {
           messageReactive?.destroy()
         })
     },
     onNegativeClick: () => {
-      window.$message.info(t('homeUpdate.alerts.info'))
+      window.$message.info($gettext('Update canceled'))
     }
   })
 }
@@ -56,7 +56,7 @@ const handleUpdate = () => {
       <div>
         <n-button v-if="versions" class="ml-16" type="primary" @click="handleUpdate">
           <TheIcon :size="18" icon="material-symbols:arrow-circle-up-outline-rounded" />
-          {{ $t('homeUpdate.button.update') }}
+          {{ $gettext('Update Now') }}
         </n-button>
       </div>
     </template>
@@ -79,7 +79,7 @@ const handleUpdate = () => {
       </n-timeline-item>
     </n-timeline>
     <div v-else pt-40>
-      <n-result status="418" title="Loading..." :description="$t('homeUpdate.loading')"> </n-result>
+      <n-result status="418" title="Loading..." :description="$gettext('Loading update information, please wait a moment')" />
     </div>
   </common-page>
 </template>

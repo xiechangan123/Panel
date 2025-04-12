@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import setting from '@/api/panel/setting'
-import { $gettext } from '@/utils/gettext'
+import { useGettext } from 'vue3-gettext'
+
+const { $gettext } = useGettext()
 
 const { data: model } = useRequest(setting.list, {
   initialData: {

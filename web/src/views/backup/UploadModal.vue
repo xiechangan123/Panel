@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { UploadCustomRequestOptions } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import api from '@/api/panel/backup'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const type = defineModel<string>('type', { type: String, required: true })
 const upload = ref<any>(null)
@@ -14,7 +16,9 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
     .onSuccess(() => {
       onFinish()
       window.$bus.emit('backup:refresh')
-      window.$message.success(`上传 ${file.name} 成功`)
+      window.$message.success(
+        $gettext('Upload %{ filename } successfully', { filename: file.name })
+      )
     })
     .onError(() => {
       onError()
@@ -32,7 +36,7 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
   <n-modal
     v-model:show="show"
     preset="card"
-    title="上传备份"
+    :title="$gettext('Upload Backup')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -44,8 +48,10 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
           <div style="margin-bottom: 12px">
             <the-icon :size="48" icon="bi:arrow-up-square" />
           </div>
-          <NText text-18> 点击或者拖动文件到该区域来上传</NText>
-          <NP depth="3" m-10> 大文件建议使用 SFTP 等方式上传 </NP>
+          <NText text-18>{{ $gettext('Click or drag files to this area to upload') }}</NText>
+          <NP depth="3" m-10>{{
+            $gettext('For large files, it is recommended to use SFTP or other methods to upload')
+          }}</NP>
         </n-upload-dragger>
       </n-upload>
     </n-flex>

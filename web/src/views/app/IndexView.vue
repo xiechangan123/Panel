@@ -6,17 +6,17 @@ defineOptions({
 import VersionModal from '@/views/app/VersionModal.vue'
 
 import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
+import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { router } from '@/router'
 import { renderIcon } from '@/utils'
 
-const { t } = useI18n()
+const { $gettext } = useGettext()
 
 const versionModalShow = ref(false)
-const versionModalOperation = ref('安装')
+const versionModalOperation = ref($gettext('Install'))
 const versionModalInfo = ref<any>({})
 
 const columns: any = [
@@ -34,27 +34,27 @@ const columns: any = [
     }
   },
   {
-    title: t('appIndex.columns.name'),
+    title: $gettext('App Name'),
     key: 'name',
     width: 300,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: t('appIndex.columns.description'),
+    title: $gettext('Description'),
     key: 'description',
     minWidth: 300,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: t('appIndex.columns.installedVersion'),
+    title: $gettext('Installed Version'),
     key: 'installed_version',
     width: 100,
     ellipsis: { tooltip: true }
   },
   {
-    title: t('appIndex.columns.show'),
+    title: $gettext('Show in Home'),
     key: 'show',
     width: 100,
     align: 'center',
@@ -68,7 +68,7 @@ const columns: any = [
     }
   },
   {
-    title: t('appIndex.columns.actions'),
+    title: $gettext('Actions'),
     key: 'actions',
     width: 300,
     hideInExcel: true,
@@ -88,7 +88,7 @@ const columns: any = [
                   },
                   {
                     default: () => {
-                      return t('appIndex.confirm.update', { app: row.name })
+                      return $gettext('Updating app %{ app } may reset related configurations to default state, are you sure to continue?', { app: row.name })
                     },
                     trigger: () => {
                       return h(
@@ -98,7 +98,7 @@ const columns: any = [
                           type: 'warning'
                         },
                         {
-                          default: () => t('appIndex.buttons.update'),
+                          default: () => $gettext('Update'),
                           icon: renderIcon('material-symbols:arrow-circle-up-outline-rounded', {
                             size: 14
                           })
@@ -117,7 +117,7 @@ const columns: any = [
                     onClick: () => handleManage(row.slug)
                   },
                   {
-                    default: () => t('appIndex.buttons.manage'),
+                    default: () => $gettext('Manage'),
                     icon: renderIcon('material-symbols:settings-outline', { size: 14 })
                   }
                 )
@@ -130,7 +130,7 @@ const columns: any = [
                   },
                   {
                     default: () => {
-                      return t('appIndex.confirm.uninstall', { app: row.name })
+                      return $gettext('Are you sure to uninstall app %{ app }?', { app: row.name })
                     },
                     trigger: () => {
                       return h(
@@ -140,7 +140,7 @@ const columns: any = [
                           type: 'error'
                         },
                         {
-                          default: () => t('appIndex.buttons.uninstall'),
+                          default: () => $gettext('Uninstall'),
                           icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                         }
                       )
@@ -156,12 +156,12 @@ const columns: any = [
                     type: 'info',
                     onClick: () => {
                       versionModalShow.value = true
-                      versionModalOperation.value = '安装'
+                      versionModalOperation.value = $gettext('Install')
                       versionModalInfo.value = row
                     }
                   },
                   {
-                    default: () => t('appIndex.buttons.install'),
+                    default: () => $gettext('Install'),
                     icon: renderIcon('material-symbols:download-rounded', { size: 14 })
                   }
                 )
@@ -186,19 +186,19 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 const handleShowChange = (row: any) => {
   useRequest(app.updateShow(row.slug, !row.show)).onSuccess(() => {
     row.show = !row.show
-    window.$message.success(t('appIndex.alerts.setup'))
+    window.$message.success($gettext('Setup successfully'))
   })
 }
 
 const handleUpdate = (slug: string) => {
   useRequest(app.update(slug)).onSuccess(() => {
-    window.$message.success(t('appIndex.alerts.update'))
+    window.$message.success($gettext('Task submitted, please check the progress in background tasks'))
   })
 }
 
 const handleUninstall = (slug: string) => {
   useRequest(app.uninstall(slug)).onSuccess(() => {
-    window.$message.success(t('appIndex.alerts.uninstall'))
+    window.$message.success($gettext('Task submitted, please check the progress in background tasks'))
   })
 }
 
@@ -209,7 +209,7 @@ const handleManage = (slug: string) => {
 const handleUpdateCache = () => {
   useRequest(app.updateCache()).onSuccess(() => {
     refresh()
-    window.$message.success(t('appIndex.alerts.cache'))
+    window.$message.success($gettext('Cache updated successfully'))
   })
 }
 
@@ -223,11 +223,11 @@ onMounted(() => {
     <template #action>
       <n-button type="primary" @click="handleUpdateCache">
         <TheIcon :size="18" icon="material-symbols:refresh" />
-        {{ $t('appIndex.buttons.updateCache') }}
+        {{ $gettext('Update Cache') }}
       </n-button>
     </template>
     <n-flex vertical>
-      <n-alert type="warning">{{ $t('appIndex.alerts.warning') }}</n-alert>
+      <n-alert type="warning">{{ $gettext('Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!') }}</n-alert>
       <n-data-table
         striped
         remote
@@ -248,11 +248,11 @@ onMounted(() => {
           pageSizes: [20, 50, 100, 200]
         }"
       />
-      <version-modal
-        v-model:show="versionModalShow"
-        v-model:operation="versionModalOperation"
-        v-model:info="versionModalInfo"
-      />
     </n-flex>
+    <version-modal
+      v-model:show="versionModalShow"
+      v-model:operation="versionModalOperation"
+      v-model:info="versionModalInfo"
+    />
   </common-page>
 </template>

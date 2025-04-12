@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
 import setting from '@/api/panel/setting'
 import { useThemeStore } from '@/store'
+import { useGettext } from 'vue3-gettext'
 
-const { t } = useI18n()
+const { $gettext } = useGettext()
 const themeStore = useThemeStore()
 
 const { data: model } = useRequest(setting.list, {
@@ -32,7 +31,7 @@ const locales = [
 
 const handleSave = () => {
   useRequest(setting.update(model.value)).onSuccess(() => {
-    window.$message.success(t('settingIndex.edit.toasts.success'))
+    window.$message.success($gettext('Saved successfully'))
     setTimeout(() => {
       maybeHardReload()
     }, 1000)
@@ -49,70 +48,70 @@ const maybeHardReload = () => {
 <template>
   <n-space vertical>
     <n-alert type="info">
-      {{ $t('settingIndex.info') }}
+      {{ $gettext('Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!') }}
     </n-alert>
     <n-form>
-      <n-form-item :label="$t('settingIndex.edit.fields.name.label')">
+      <n-form-item :label="$gettext('Panel Name')">
         <n-input
           v-model:value="model.name"
-          :placeholder="$t('settingIndex.edit.fields.name.placeholder')"
+          :placeholder="$gettext('Panel Name')"
         />
       </n-form-item>
-      <n-form-item v-show="false" label="$t('settingIndex.edit.fields.locale.label')">
+      <n-form-item v-show="false" :label="$gettext('Language')">
         <n-select v-model:value="model.locale" :options="locales"> </n-select>
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.username.label')">
+      <n-form-item :label="$gettext('Username')">
         <n-input
           v-model:value="model.username"
-          :placeholder="$t('settingIndex.edit.fields.username.placeholder')"
+          :placeholder="$gettext('admin')"
         />
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.password.label')">
+      <n-form-item :label="$gettext('Password')">
         <n-input
           v-model:value="model.password"
-          :placeholder="$t('settingIndex.edit.fields.password.placeholder')"
+          :placeholder="$gettext('admin')"
         />
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.email.label')">
+      <n-form-item :label="$gettext('Certificate Default Email')">
         <n-input
           v-model:value="model.email"
-          :placeholder="$t('settingIndex.edit.fields.email.placeholder')"
+          :placeholder="$gettext('admin@example.com')"
         />
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.port.label')">
+      <n-form-item :label="$gettext('Port')">
         <n-input-number
           v-model:value="model.port"
-          :placeholder="$t('settingIndex.edit.fields.port.placeholder')"
+          :placeholder="$gettext('8888')"
         />
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.entrance.label')">
+      <n-form-item :label="$gettext('Security Entrance')">
         <n-input
           v-model:value="model.entrance"
-          :placeholder="$t('settingIndex.edit.fields.entrance.placeholder')"
+          :placeholder="$gettext('admin')"
         />
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.offline.label')">
+      <n-form-item :label="$gettext('Offline Mode')">
         <n-switch v-model:value="model.offline_mode" />
       </n-form-item>
-      <n-form-item label="自动更新">
+      <n-form-item :label="$gettext('Auto Update')">
         <n-switch v-model:value="model.auto_update" />
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.path.label')">
+      <n-form-item :label="$gettext('Default Website Directory')">
         <n-input
           v-model:value="model.website_path"
-          :placeholder="$t('settingIndex.edit.fields.path.placeholder')"
+          :placeholder="$gettext('/www/wwwroot')"
         />
       </n-form-item>
-      <n-form-item :label="$t('settingIndex.edit.fields.backup.label')">
+      <n-form-item :label="$gettext('Default Backup Directory')">
         <n-input
           v-model:value="model.backup_path"
-          :placeholder="$t('settingIndex.edit.fields.backup.placeholder')"
+          :placeholder="$gettext('/www/backup')"
         />
       </n-form-item>
     </n-form>
   </n-space>
   <n-button type="primary" @click="handleSave">
-    {{ $t('settingIndex.edit.actions.submit') }}
+    {{ $gettext('Save') }}
   </n-button>
 </template>
 

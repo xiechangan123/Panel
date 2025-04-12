@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import database from '@/api/panel/database'
 import { NButton, NInput } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const createModel = ref({
   server_id: null,
@@ -15,15 +17,15 @@ const createModel = ref({
 const servers = ref<{ label: string; value: string }[]>([])
 
 const hostType = [
-  { label: '本地（localhost）', value: 'localhost' },
-  { label: '所有（%）', value: '%' },
-  { label: '指定', value: '' }
+  { label: $gettext('Local (localhost)'), value: 'localhost' },
+  { label: $gettext('All (%)'), value: '%' },
+  { label: $gettext('Specific'), value: '' }
 ]
 
 const handleCreate = () => {
   useRequest(() => database.create(createModel.value)).onSuccess(() => {
     show.value = false
-    window.$message.success('创建成功')
+    window.$message.success($gettext('Created successfully'))
     window.$bus.emit('database:refresh')
   })
 }
@@ -49,7 +51,7 @@ watch(
   <n-modal
     v-model:show="show"
     preset="card"
-    title="创建数据库"
+    :title="$gettext('Create Database')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -57,72 +59,72 @@ watch(
     @close="show = false"
   >
     <n-form :model="createModel">
-      <n-form-item path="server_id" label="服务器">
+      <n-form-item path="server_id" :label="$gettext('Server')">
         <n-select
           v-model:value="createModel.server_id"
           @keydown.enter.prevent
-          placeholder="选择服务器"
+          :placeholder="$gettext('Select server')"
           :options="servers"
         />
       </n-form-item>
-      <n-form-item path="database" label="数据库名">
+      <n-form-item path="database" :label="$gettext('Database Name')">
         <n-input
           v-model:value="createModel.name"
           type="text"
           @keydown.enter.prevent
-          placeholder="输入数据库名称"
+          :placeholder="$gettext('Enter database name')"
         />
       </n-form-item>
-      <n-form-item path="create_user" label="创建用户">
+      <n-form-item path="create_user" :label="$gettext('Create User')">
         <n-switch v-model:value="createModel.create_user" />
       </n-form-item>
-      <n-form-item v-if="!createModel.create_user" path="username" label="授权用户">
+      <n-form-item v-if="!createModel.create_user" path="username" :label="$gettext('Authorized User')">
         <n-input
           v-model:value="createModel.username"
           type="text"
           @keydown.enter.prevent
-          placeholder="输入授权用户名（留空不授权）"
+          :placeholder="$gettext('Enter authorized username (leave empty for no authorization)')"
         />
       </n-form-item>
-      <n-form-item v-if="createModel.create_user" path="username" label="用户名">
+      <n-form-item v-if="createModel.create_user" path="username" :label="$gettext('Username')">
         <n-input
           v-model:value="createModel.username"
           type="text"
           @keydown.enter.prevent
-          placeholder="输入用户名"
+          :placeholder="$gettext('Enter username')"
         />
       </n-form-item>
-      <n-form-item v-if="createModel.create_user" path="password" label="密码">
+      <n-form-item v-if="createModel.create_user" path="password" :label="$gettext('Password')">
         <n-input
           v-model:value="createModel.password"
           type="password"
           show-password-on="click"
           @keydown.enter.prevent
-          placeholder="输入密码"
+          :placeholder="$gettext('Enter password')"
         />
       </n-form-item>
-      <n-form-item v-if="createModel.create_user" path="host-select" label="主机">
+      <n-form-item v-if="createModel.create_user" path="host-select" :label="$gettext('Host')">
         <n-select
           v-model:value="createModel.host"
           @keydown.enter.prevent
-          placeholder="选择主机"
+          :placeholder="$gettext('Select host')"
           :options="hostType"
         />
       </n-form-item>
       <n-form-item
         v-if="createModel.create_user && createModel.host === ''"
         path="host"
-        label="指定主机"
+        :label="$gettext('Specific Host')"
       >
         <n-input
           v-model:value="createModel.host"
           type="text"
           @keydown.enter.prevent
-          placeholder="输入受支持的主机地址"
+          :placeholder="$gettext('Enter supported host address')"
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleCreate">提交</n-button>
+    <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
 </template>
 

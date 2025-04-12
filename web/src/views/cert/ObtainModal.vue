@@ -2,7 +2,9 @@
 import cert from '@/api/panel/cert'
 import type { MessageReactive } from 'naive-ui'
 import { NButton, NTable } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 let messageReactive: MessageReactive | null = null
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -13,13 +15,13 @@ const model = ref({
 })
 
 const options = [
-  { label: '自动', value: 'auto' },
-  { label: '手动', value: 'manual' },
-  { label: '自签名', value: 'self-signed' }
+  { label: $gettext('Automatic'), value: 'auto' },
+  { label: $gettext('Manual'), value: 'manual' },
+  { label: $gettext('Self-signed'), value: 'self-signed' }
 ]
 
 const handleSubmit = () => {
-  messageReactive = window.$message.loading('请稍后...', {
+  messageReactive = window.$message.loading($gettext('Please wait...'), {
     duration: 0
   })
   if (model.value.type == 'auto') {
@@ -28,7 +30,7 @@ const handleSubmit = () => {
         window.$bus.emit('cert:refresh-cert')
         window.$bus.emit('cert:refresh-async')
         show.value = false
-        window.$message.success('签发成功')
+        window.$message.success($gettext('Issuance successful'))
       })
       .onComplete(() => {
         messageReactive?.destroy()
@@ -36,10 +38,10 @@ const handleSubmit = () => {
   } else if (model.value.type == 'manual') {
     useRequest(cert.manualDNS(id.value))
       .onSuccess(({ data }: { data: any }) => {
-        window.$message.info('请先前往域名处设置 DNS 解析，再继续签发')
+        window.$message.info($gettext('Please set up DNS resolution for the domain first, then continue with the issuance'))
         const d = window.$dialog.info({
           style: 'width: 60vw',
-          title: '待设置DNS 记录列表',
+          title: $gettext('DNS Records to Set'),
           content: () => {
             return h(
               NTable,
@@ -48,10 +50,10 @@ const handleSubmit = () => {
                 default: () => [
                   h('thead', [
                     h('tr', [
-                      h('th', '域名'),
-                      h('th', '类型'),
-                      h('th', '主机记录'),
-                      h('th', '记录值')
+                      h('th', $gettext('Domain')),
+                      h('th', $gettext('Type')),
+                      h('th', $gettext('Host Record')),
+                      h('th', $gettext('Record Value'))
                     ])
                   ]),
                   h(
@@ -69,10 +71,10 @@ const handleSubmit = () => {
               }
             )
           },
-          positiveText: '签发',
+          positiveText: $gettext('Issue'),
           onPositiveClick: async () => {
             d.loading = true
-            messageReactive = window.$message.loading('请稍后...', {
+            messageReactive = window.$message.loading($gettext('Please wait...'), {
               duration: 0
             })
             useRequest(cert.obtainManual(id.value))
@@ -80,7 +82,7 @@ const handleSubmit = () => {
                 window.$bus.emit('cert:refresh-cert')
                 window.$bus.emit('cert:refresh-async')
                 show.value = false
-                window.$message.success('签发成功')
+                window.$message.success($gettext('Issuance successful'))
               })
               .onComplete(() => {
                 d.loading = false
@@ -98,7 +100,7 @@ const handleSubmit = () => {
         window.$bus.emit('cert:refresh-cert')
         window.$bus.emit('cert:refresh-async')
         show.value = false
-        window.$message.success('签发成功')
+        window.$message.success($gettext('Issuance successful'))
       })
       .onComplete(() => {
         messageReactive?.destroy()
@@ -111,17 +113,17 @@ const handleSubmit = () => {
   <n-modal
     v-model:show="show"
     preset="card"
-    title="签发证书"
+    :title="$gettext('Issue Certificate')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
     :segmented="false"
   >
     <n-form :model="model">
-      <n-form-item path="type" label="签发模式">
+      <n-form-item path="type" :label="$gettext('Issuance Mode')">
         <n-select v-model:value="model.type" :options="options" />
       </n-form-item>
-      <n-button type="info" block @click="handleSubmit">提交</n-button>
+      <n-button type="info" block @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
     </n-form>
   </n-modal>
 </template>

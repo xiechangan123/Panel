@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { renderIcon } from '@/utils'
 import { NButton, NInput, NPopconfirm, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
 
+const { $gettext } = useGettext()
+
 const columns: any = [
   {
-    title: '类型',
+    title: $gettext('Type'),
     key: 'type',
     width: 150,
     render(row: any) {
@@ -29,19 +32,19 @@ const columns: any = [
     }
   },
   {
-    title: '数据库名',
+    title: $gettext('Database Name'),
     key: 'name',
     minWidth: 100,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '服务器',
+    title: $gettext('Server'),
     key: 'server',
     width: 150
   },
   {
-    title: '编码',
+    title: $gettext('Encoding'),
     key: 'encoding',
     width: 150,
     render(row: any) {
@@ -51,7 +54,7 @@ const columns: any = [
     }
   },
   {
-    title: '备注',
+    title: $gettext('Comment'),
     key: 'comment',
     minWidth: 250,
     resizable: true,
@@ -68,7 +71,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     align: 'center',
@@ -82,7 +85,7 @@ const columns: any = [
           },
           {
             default: () => {
-              return '确定删除数据库吗？'
+              return $gettext('Are you sure you want to delete this database?')
             },
             trigger: () => {
               return h(
@@ -93,7 +96,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -118,13 +121,13 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 const handleDelete = (serverID: number, name: string) => {
   useRequest(database.delete(serverID, name)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
 const handleComment = (row: any) => {
   useRequest(database.comment(row.server_id, row.name, row.comment)).onSuccess(() => {
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
   })
 }
 

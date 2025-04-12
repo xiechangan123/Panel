@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import cert from '@/api/panel/cert'
 import { NButton, NSpace } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 
 const props = defineProps({
@@ -45,7 +47,7 @@ const handleCreateCert = () => {
     model.value.account_id = null
     model.value.website_id = null
     model.value.auto_renew = true
-    window.$message.success('创建成功')
+    window.$message.success($gettext('Created successfully'))
   })
 }
 </script>
@@ -54,7 +56,7 @@ const handleCreateCert = () => {
   <n-modal
     v-model:show="show"
     preset="card"
-    title="创建证书"
+    :title="$gettext('Create Certificate')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -62,11 +64,10 @@ const handleCreateCert = () => {
   >
     <n-space vertical>
       <n-alert type="info">
-        可以通过选择网站 / DNS 中的任意一项来自动签发和部署证书，也可以手动输入域名并设置 DNS
-        解析来签发证书
+        {{ $gettext('You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates') }}
       </n-alert>
       <n-form :model="model">
-        <n-form-item label="域名">
+        <n-form-item :label="$gettext('Domain')">
           <n-dynamic-input
             v-model:value="model.domains"
             placeholder="example.com"
@@ -74,40 +75,40 @@ const handleCreateCert = () => {
             show-sort-button
           />
         </n-form-item>
-        <n-form-item path="type" label="密钥类型">
+        <n-form-item path="type" :label="$gettext('Key Type')">
           <n-select
             v-model:value="model.type"
-            placeholder="选择密钥类型"
+            :placeholder="$gettext('Select key type')"
             clearable
             :options="algorithms"
           />
         </n-form-item>
-        <n-form-item path="website_id" label="网站">
+        <n-form-item path="website_id" :label="$gettext('Website')">
           <n-select
             v-model:value="model.website_id"
-            placeholder="选择用于部署证书的网站"
+            :placeholder="$gettext('Select website for certificate deployment')"
             clearable
             :options="websites"
           />
         </n-form-item>
-        <n-form-item path="account_id" label="账号">
+        <n-form-item path="account_id" :label="$gettext('Account')">
           <n-select
             v-model:value="model.account_id"
-            placeholder="选择用于签发证书的账号"
+            :placeholder="$gettext('Select account for certificate issuance')"
             clearable
             :options="accounts"
           />
         </n-form-item>
-        <n-form-item path="account_id" label="DNS">
+        <n-form-item path="account_id" :label="$gettext('DNS')">
           <n-select
             v-model:value="model.dns_id"
-            placeholder="选择用于签发证书的DNS"
+            :placeholder="$gettext('Select DNS for certificate issuance')"
             clearable
             :options="dns"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleCreateCert">提交</n-button>
+      <n-button type="info" block @click="handleCreateCert">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

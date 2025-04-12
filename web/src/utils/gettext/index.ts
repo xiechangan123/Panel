@@ -23,13 +23,7 @@ export function setupGettext(app: App) {
       zh_CN: '简体中文',
       zh_TW: '繁體中文'
     },
-    defaultLanguage: 'zh_CN',
-    globalProperties: {
-      gettext: ['$gettext', '__'], // 这样支持同时使用 $gettext, __ 两种方式
-      ngettext: ['$ngettext', '_n'],
-      pgettext: ['$pgettext', '_x'],
-      npgettext: ['$npgettext', '_nx']
-    }
+    defaultLanguage: 'zh_CN'
   })
   app.use(gettext)
 }

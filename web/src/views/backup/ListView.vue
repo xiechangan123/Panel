@@ -3,12 +3,14 @@ import backup from '@/api/panel/backup'
 import { renderIcon } from '@/utils'
 import type { MessageReactive } from 'naive-ui'
 import { NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
 import website from '@/api/panel/website'
 import { formatDateTime } from '@/utils'
 import UploadModal from '@/views/backup/UploadModal.vue'
 
+const { $gettext } = useGettext()
 const type = defineModel<string>('type', { type: String, required: true })
 
 let messageReactive: MessageReactive | null = null
@@ -31,20 +33,20 @@ const websites = ref<any>([])
 
 const columns: any = [
   {
-    title: '文件名',
+    title: $gettext('Filename'),
     key: 'name',
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '大小',
+    title: $gettext('Size'),
     key: 'size',
     width: 160,
     ellipsis: { tooltip: true }
   },
   {
-    title: '更新日期',
+    title: $gettext('Update Date'),
     key: 'time',
     width: 200,
     ellipsis: { tooltip: true },
@@ -53,7 +55,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     align: 'center',
@@ -72,7 +74,7 @@ const columns: any = [
             }
           },
           {
-            default: () => '恢复',
+            default: () => $gettext('Restore'),
             icon: renderIcon('material-symbols:settings-backup-restore-rounded', { size: 14 })
           }
         ),
@@ -83,7 +85,7 @@ const columns: any = [
           },
           {
             default: () => {
-              return '确定删除备份吗？'
+              return $gettext('Are you sure you want to delete this backup?')
             },
             trigger: () => {
               return h(
@@ -94,7 +96,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -121,20 +123,20 @@ const handleCreate = () => {
     () => {
       createModal.value = false
       window.$bus.emit('backup:refresh')
-      window.$message.success('创建成功')
+      window.$message.success($gettext('Created successfully'))
     }
   )
 }
 
 const handleRestore = () => {
-  messageReactive = window.$message.loading('恢复中...', {
+  messageReactive = window.$message.loading($gettext('Restoring...'), {
     duration: 0
   })
 
   useRequest(backup.restore(type.value, restoreModel.value.file, restoreModel.value.target))
     .onSuccess(() => {
       refresh()
-      window.$message.success('恢复成功')
+      window.$message.success($gettext('Restored successfully'))
     })
     .onComplete(() => {
       messageReactive?.destroy()
@@ -144,7 +146,7 @@ const handleRestore = () => {
 const handleDelete = async (file: string) => {
   useRequest(backup.delete(type.value, file)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
@@ -177,8 +179,8 @@ onUnmounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true"> 创建备份 </n-button>
-      <n-button type="primary" @click="uploadModal = true" ghost> 上传备份 </n-button>
+      <n-button type="primary" @click="createModal = true">{{ $gettext('Create Backup') }}</n-button>
+      <n-button type="primary" @click="uploadModal = true" ghost>{{ $gettext('Upload Backup') }}</n-button>
     </n-flex>
     <n-data-table
       striped
@@ -204,7 +206,7 @@ onUnmounted(() => {
   <n-modal
     v-model:show="createModal"
     preset="card"
-    title="创建备份"
+    :title="$gettext('Create Backup')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -212,32 +214,32 @@ onUnmounted(() => {
     @close="createModal = false"
   >
     <n-form :model="createModel">
-      <n-form-item v-if="type == 'website'" path="name" label="网站">
-        <n-select v-model:value="createModel.target" :options="websites" placeholder="选择网站" />
+      <n-form-item v-if="type == 'website'" path="name" :label="$gettext('Website')">
+        <n-select v-model:value="createModel.target" :options="websites" :placeholder="$gettext('Select website')" />
       </n-form-item>
-      <n-form-item v-if="type != 'website'" path="name" label="数据库名">
+      <n-form-item v-if="type != 'website'" path="name" :label="$gettext('Database Name')">
         <n-input
           v-model:value="createModel.target"
           type="text"
           @keydown.enter.prevent
-          placeholder="输入数据库名称"
+          :placeholder="$gettext('Enter database name')"
         />
       </n-form-item>
-      <n-form-item path="path" label="保存目录">
+      <n-form-item path="path" :label="$gettext('Save Directory')">
         <n-input
           v-model:value="createModel.path"
           type="text"
           @keydown.enter.prevent
-          placeholder="留空使用默认路径"
+          :placeholder="$gettext('Leave empty to use default path')"
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleCreate">提交</n-button>
+    <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <n-modal
     v-model:show="restoreModal"
     preset="card"
-    title="恢复备份"
+    :title="$gettext('Restore Backup')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -245,14 +247,14 @@ onUnmounted(() => {
     @close="restoreModal = false"
   >
     <n-form :model="restoreModel">
-      <n-form-item v-if="type == 'website'" path="name" label="网站">
-        <n-select v-model:value="restoreModel.target" :options="websites" placeholder="选择网站" />
+      <n-form-item v-if="type == 'website'" path="name" :label="$gettext('Website')">
+        <n-select v-model:value="restoreModel.target" :options="websites" :placeholder="$gettext('Select website')" />
       </n-form-item>
-      <n-form-item v-if="type != 'website'" path="name" label="数据库">
+      <n-form-item v-if="type != 'website'" path="name" :label="$gettext('Database')">
         <n-input v-model:value="restoreModel.target" type="text" @keydown.enter.prevent />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleRestore">提交</n-button>
+    <n-button type="info" block @click="handleRestore">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <upload-modal v-model:show="uploadModal" v-model:type="type" />
 </template>

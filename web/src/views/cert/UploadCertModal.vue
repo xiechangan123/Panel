@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import cert from '@/api/panel/cert'
 import { NButton, NSpace } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 
 const model = ref<any>({
@@ -16,7 +18,7 @@ const handleSubmit = () => {
     show.value = false
     model.value.cert = ''
     model.value.key = ''
-    window.$message.success('创建成功')
+    window.$message.success($gettext('Created successfully'))
   })
 }
 </script>
@@ -25,7 +27,7 @@ const handleSubmit = () => {
   <n-modal
     v-model:show="show"
     preset="card"
-    title="上传证书"
+    :title="$gettext('Upload Certificate')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -33,24 +35,24 @@ const handleSubmit = () => {
   >
     <n-space vertical>
       <n-form :model="model">
-        <n-form-item label="证书">
+        <n-form-item :label="$gettext('Certificate')">
           <n-input
             v-model:value="model.cert"
             type="textarea"
-            placeholder="输入 PEM 证书文件的内容"
+            :placeholder="$gettext('Enter the content of the PEM certificate file')"
             :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
-        <n-form-item label="私钥">
+        <n-form-item :label="$gettext('Private Key')">
           <n-input
             v-model:value="model.key"
             type="textarea"
-            placeholder="输入 KEY 私钥文件的内容"
+            :placeholder="$gettext('Enter the content of the KEY private key file')"
             :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleSubmit">提交</n-button>
+      <n-button type="info" block @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>
