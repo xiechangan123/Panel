@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import container from '@/api/panel/container'
+import { useGettext } from 'vue3-gettext'
+
+const { $gettext } = useGettext()
 
 const props = defineProps({
   show: {
@@ -49,10 +52,10 @@ const createModel = reactive({
 const networks = ref<any>({})
 
 const restartPolicyOptions = [
-  { label: '无', value: 'no' },
-  { label: '始终', value: 'always' },
-  { label: '失败时（默认重启 5 次）', value: 'on-failure' },
-  { label: '未手动停止则重启', value: 'unless-stopped' }
+  { label: $gettext('None'), value: 'no' },
+  { label: $gettext('Always'), value: 'always' },
+  { label: $gettext('On failure (default 5 retries)'), value: 'on-failure' },
+  { label: $gettext('Unless stopped'), value: 'unless-stopped' }
 ]
 
 const addPortRow = () => {
@@ -100,7 +103,7 @@ const handleSubmit = () => {
   doSubmit.value = true
   useRequest(container.containerCreate(createModel))
     .onSuccess(() => {
-      window.$message.success('创建成功')
+      window.$message.success($gettext('Created successfully'))
       handleClose()
     })
     .onComplete(() => {
@@ -121,7 +124,7 @@ onMounted(() => {
 
 <template>
   <n-modal
-    title="创建容器"
+    :title="$gettext('Create Container')"
     preset="card"
     style="width: 60vw"
     size="huge"
@@ -131,40 +134,40 @@ onMounted(() => {
     @close="handleClose"
   >
     <n-form :model="createModel">
-      <n-form-item path="name" label="容器名">
+      <n-form-item path="name" :label="$gettext('Container Name')">
         <n-input v-model:value="createModel.name" type="text" @keydown.enter.prevent />
       </n-form-item>
-      <n-form-item path="name" label="镜像">
+      <n-form-item path="name" :label="$gettext('Image')">
         <n-input v-model:value="createModel.image" type="text" @keydown.enter.prevent />
       </n-form-item>
-      <n-form-item path="exposedAll" label="端口">
+      <n-form-item path="exposedAll" :label="$gettext('Ports')">
         <n-radio
           :checked="!createModel.publish_all_ports"
           :value="false"
           @change="createModel.publish_all_ports = !$event.target.value"
         >
-          映射端口
+          {{ $gettext('Map Ports') }}
         </n-radio>
         <n-radio
           :checked="createModel.publish_all_ports"
           :value="true"
           @change="createModel.publish_all_ports = !!$event.target.value"
         >
-          暴露所有
+          {{ $gettext('Expose All') }}
         </n-radio>
       </n-form-item>
-      <n-form-item path="ports" label="端口映射" v-if="!createModel.publish_all_ports">
+      <n-form-item path="ports" :label="$gettext('Port Mapping')" v-if="!createModel.publish_all_ports">
         <n-space vertical>
           <n-table striped>
             <thead>
               <tr>
                 <th>IP</th>
-                <th>主机（起始）</th>
-                <th>主机（结束）</th>
-                <th>容器（起始）</th>
-                <th>容器（结束）</th>
-                <th>协议</th>
-                <th>操作</th>
+                <th>{{ $gettext('Host (Start)') }}</th>
+                <th>{{ $gettext('Host (End)') }}</th>
+                <th>{{ $gettext('Container (Start)') }}</th>
+                <th>{{ $gettext('Container (End)') }}</th>
+                <th>{{ $gettext('Protocol') }}</th>
+                <th>{{ $gettext('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -174,7 +177,7 @@ onMounted(() => {
                     v-model:value="item.host"
                     type="text"
                     @keydown.enter.prevent
-                    placeholder="可留空"
+                    :placeholder="$gettext('Optional')"
                   />
                 </td>
                 <td>
@@ -223,25 +226,25 @@ onMounted(() => {
                     UDP
                   </n-radio>
                 </td>
-                <td><n-button @click="removePortRow(index)" size="small">删除</n-button></td>
+                <td><n-button @click="removePortRow(index)" size="small">{{ $gettext('Delete') }}</n-button></td>
               </tr>
             </tbody>
           </n-table>
-          <n-button @click="addPortRow">添加</n-button>
+          <n-button @click="addPortRow">{{ $gettext('Add') }}</n-button>
         </n-space>
       </n-form-item>
-      <n-form-item path="network" label="网络">
+      <n-form-item path="network" :label="$gettext('Network')">
         <n-select v-model:value="createModel.network" :options="networks" />
       </n-form-item>
-      <n-form-item path="mount" label="挂载">
+      <n-form-item path="mount" :label="$gettext('Mount')">
         <n-space vertical>
           <n-table striped>
             <thead>
               <tr>
-                <th>主机目录</th>
-                <th>容器目录</th>
-                <th>权限</th>
-                <th>操作</th>
+                <th>{{ $gettext('Host Directory') }}</th>
+                <th>{{ $gettext('Container Directory') }}</th>
+                <th>{{ $gettext('Permission') }}</th>
+                <th>{{ $gettext('Actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -259,7 +262,7 @@ onMounted(() => {
                     name="mode"
                     @change="item.mode = $event.target.value"
                   >
-                    读写
+                    {{ $gettext('Read-Write') }}
                   </n-radio>
                   <n-radio
                     :checked="item.mode === 'ro'"
@@ -267,25 +270,25 @@ onMounted(() => {
                     name="mode"
                     @change="item.mode = $event.target.value"
                   >
-                    只读
+                    {{ $gettext('Read-Only') }}
                   </n-radio>
                 </td>
-                <td><n-button @click="removeVolumeRow(index)" size="small">删除</n-button></td>
+                <td><n-button @click="removeVolumeRow(index)" size="small">{{ $gettext('Delete') }}</n-button></td>
               </tr>
             </tbody>
           </n-table>
-          <n-button @click="addVolumeRow">添加</n-button>
+          <n-button @click="addVolumeRow">{{ $gettext('Add') }}</n-button>
         </n-space>
       </n-form-item>
-      <n-form-item path="command" label="启动命令">
-        <n-dynamic-input v-model:value="createModel.command" placeholder="命令" />
+      <n-form-item path="command" :label="$gettext('Command')">
+        <n-dynamic-input v-model:value="createModel.command" :placeholder="$gettext('Command')" />
       </n-form-item>
-      <n-form-item path="entrypoint" label="入口点">
-        <n-dynamic-input v-model:value="createModel.entrypoint" placeholder="入口点" />
+      <n-form-item path="entrypoint" :label="$gettext('Entrypoint')">
+        <n-dynamic-input v-model:value="createModel.entrypoint" :placeholder="$gettext('Entrypoint')" />
       </n-form-item>
       <n-row :gutter="[0, 24]">
         <n-col :span="8">
-          <n-form-item path="memory" label="内存">
+          <n-form-item path="memory" :label="$gettext('Memory')">
             <n-input-number v-model:value="createModel.memory" />
           </n-form-item>
         </n-col>
@@ -295,61 +298,61 @@ onMounted(() => {
           </n-form-item>
         </n-col>
         <n-col :span="8">
-          <n-form-item path="cpu_shares" label="CPU 权重">
+          <n-form-item path="cpu_shares" :label="$gettext('CPU Shares')">
             <n-input-number v-model:value="createModel.cpu_shares" />
           </n-form-item>
         </n-col>
       </n-row>
       <n-row :gutter="[0, 24]">
         <n-col :span="6">
-          <n-form-item path="tty" label="伪终端（-t）">
+          <n-form-item path="tty" :label="$gettext('TTY (-t)')">
             <n-switch v-model:value="createModel.tty" />
           </n-form-item>
         </n-col>
         <n-col :span="6">
-          <n-form-item path="open_stdin" label="标准输入（-i）">
+          <n-form-item path="open_stdin" :label="$gettext('STDIN (-i)')">
             <n-switch v-model:value="createModel.open_stdin" />
           </n-form-item>
         </n-col>
         <n-col :span="6">
-          <n-form-item path="auto_remove" label="退出后自动删除">
+          <n-form-item path="auto_remove" :label="$gettext('Auto Remove')">
             <n-switch v-model:value="createModel.auto_remove" />
           </n-form-item>
         </n-col>
         <n-col :span="6">
-          <n-form-item path="privileged" label="特权模式">
+          <n-form-item path="privileged" :label="$gettext('Privileged Mode')">
             <n-switch v-model:value="createModel.privileged" />
           </n-form-item>
         </n-col>
       </n-row>
-      <n-form-item path="restart_policy" label="重启策略">
+      <n-form-item path="restart_policy" :label="$gettext('Restart Policy')">
         <n-select
           v-model:value="createModel.restart_policy"
-          placeholder="选择重启策略"
+          :placeholder="$gettext('Select restart policy')"
           :options="restartPolicyOptions"
         >
-          {{ createModel.restart_policy || '选择重启策略' }}
+          {{ createModel.restart_policy || $gettext('Select restart policy') }}
         </n-select>
       </n-form-item>
-      <n-form-item path="env" label="环境变量">
+      <n-form-item path="env" :label="$gettext('Environment Variables')">
         <n-dynamic-input
           v-model:value="createModel.env"
           preset="pair"
-          key-placeholder="变量名"
-          value-placeholder="变量值"
+          :key-placeholder="$gettext('Variable Name')"
+          :value-placeholder="$gettext('Variable Value')"
         />
       </n-form-item>
-      <n-form-item path="labels" label="标签">
+      <n-form-item path="labels" :label="$gettext('Labels')">
         <n-dynamic-input
           v-model:value="createModel.labels"
           preset="pair"
-          key-placeholder="标签名"
-          value-placeholder="标签值"
+          :key-placeholder="$gettext('Label Name')"
+          :value-placeholder="$gettext('Label Value')"
         />
       </n-form-item>
     </n-form>
     <n-button type="info" block :loading="doSubmit" :disabled="doSubmit" @click="handleSubmit">
-      提交
+      {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
 </template>

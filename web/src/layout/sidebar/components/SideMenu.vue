@@ -3,10 +3,8 @@ import { usePermissionStore, useTabStore, useThemeStore } from '@/store'
 import { isUrl, renderIcon } from '@/utils'
 import type { MenuInst, MenuOption } from 'naive-ui'
 import type { VNodeChild } from 'vue'
-import { useI18n } from 'vue-i18n'
 import type { Meta, RouteType } from '~/types/router'
 
-const { t } = useI18n()
 const router = useRouter()
 const currentRoute = useRoute()
 const permissionStore = usePermissionStore()
@@ -40,7 +38,7 @@ type MenuItem = MenuOption & {
 
 function getMenuItem(route: RouteType, basePath = ''): MenuItem {
   let menuItem: MenuItem = {
-    label: t(route.meta?.title || route.name),
+    label: route.meta?.title ? route.meta.title : route.name,
     key: route.name,
     path: resolvePath(basePath, route.path),
     icon: getIcon(route.meta)
@@ -56,7 +54,7 @@ function getMenuItem(route: RouteType, basePath = ''): MenuItem {
     // 单个子路由处理
     const singleRoute = visibleChildren[0]
     menuItem = {
-      label: t(singleRoute.meta?.title || singleRoute.name),
+      label: singleRoute.meta?.title ? singleRoute.meta.title : singleRoute.name,
       key: singleRoute.name,
       path: resolvePath(menuItem.path, singleRoute.path),
       icon: getIcon(singleRoute.meta)

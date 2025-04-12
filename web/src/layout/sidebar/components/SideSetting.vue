@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import type { TreeSelectOption } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
+import { useGettext } from 'vue3-gettext'
 
 import TheIcon from '@/components/custom/TheIcon.vue'
 import MenuCollapse from '@/layout/header/components/MenuCollapse.vue'
 import { usePermissionStore, useThemeStore } from '@/store'
 import type { RouteType } from '~/types/router'
 
-const { t } = useI18n()
+const { $gettext } = useGettext()
 const themeStore = useThemeStore()
 const permissionStore = usePermissionStore()
 
@@ -15,7 +15,7 @@ const settingModal = ref(false)
 
 const getOption = (route: RouteType): TreeSelectOption => {
   let menuItem: TreeSelectOption = {
-    label: t(route.meta?.title || route.name),
+    label: route.meta?.title ? route.meta.title : route.name,
     key: route.name
   }
 
@@ -28,7 +28,7 @@ const getOption = (route: RouteType): TreeSelectOption => {
   if (visibleChildren.length === 1) {
     // 单个子路由处理
     const singleRoute = visibleChildren[0]
-    menuItem.label = t(singleRoute.meta?.title || singleRoute.name)
+    menuItem.label = singleRoute.meta?.title ? singleRoute.meta.title : singleRoute.name
     const visibleItems = singleRoute.children
       ? singleRoute.children.filter((item: RouteType) => item.name && !item.isHidden)
       : []
@@ -60,12 +60,12 @@ const menus = computed<TreeSelectOption[]>(() => {
           @click="settingModal = true"
         />
       </template>
-      菜单设置
+      {{ $gettext('Menu Settings') }}
     </n-tooltip>
     <n-modal
       v-model:show="settingModal"
       preset="card"
-      title="菜单设置"
+      :title="$gettext('Menu Settings')"
       style="width: 60vw"
       size="huge"
       :bordered="false"
@@ -75,11 +75,20 @@ const menus = computed<TreeSelectOption[]>(() => {
     >
       <n-form>
         <n-flex vertical>
-          <n-alert type="info"> 设置保存在浏览器，清空浏览器缓存后将会重置 </n-alert>
-          <n-form-item label="自定义 Logo">
-            <n-input v-model:value="themeStore.logo" placeholder="请输入完整 URL" />
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Settings are saved in the browser and will be reset after clearing the browser cache'
+              )
+            }}
+          </n-alert>
+          <n-form-item :label="$gettext('Custom Logo')">
+            <n-input
+              v-model:value="themeStore.logo"
+              :placeholder="$gettext('Please enter the complete URL')"
+            />
           </n-form-item>
-          <n-form-item label="隐藏菜单">
+          <n-form-item :label="$gettext('Hide Menu')">
             <n-tree-select
               cascade
               checkable

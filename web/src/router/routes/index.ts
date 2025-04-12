@@ -1,4 +1,5 @@
 import type { RouteModule, RoutesType, RouteType } from '~/types/router'
+import { $gettext } from '@/utils/gettext'
 
 export const basicRoutes: RoutesType = [
   {
@@ -14,7 +15,7 @@ export const basicRoutes: RoutesType = [
     component: () => import('@/views/login/IndexView.vue'),
     isHidden: true,
     meta: {
-      title: '登录页'
+      title: $gettext('Login Page')
     }
   }
 ]

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NDropdown, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import ContainerCreate from '@/views/container/ContainerCreate.vue'
+
+const { $gettext } = useGettext()
 
 const logModal = ref(false)
 const logs = ref('')
@@ -19,14 +22,14 @@ const selectedRowKeys = ref<any>([])
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
-    title: '容器名',
+    title: $gettext('Container Name'),
     key: 'name',
     minWidth: 150,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '状态',
+    title: $gettext('Status'),
     key: 'state',
     width: 100,
     resizable: true,
@@ -46,7 +49,7 @@ const columns: any = [
     }
   },
   {
-    title: '镜像',
+    title: $gettext('Image'),
     key: 'image',
     minWidth: 300,
     resizable: true,
@@ -57,7 +60,7 @@ const columns: any = [
     }
   },
   {
-    title: '端口（主机->容器）',
+    title: $gettext('Ports (Host->Container)'),
     key: 'ports',
     minWidth: 200,
     resizable: true,
@@ -74,14 +77,14 @@ const columns: any = [
     }
   },
   {
-    title: '运行状态',
+    title: $gettext('Running Status'),
     key: 'status',
     width: 300,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 250,
     align: 'center',
@@ -97,7 +100,7 @@ const columns: any = [
             onClick: () => handleShowLog(row)
           },
           {
-            default: () => '日志'
+            default: () => $gettext('Logs')
           }
         ),
         h(
@@ -113,7 +116,7 @@ const columns: any = [
             }
           },
           {
-            default: () => '重命名'
+            default: () => $gettext('Rename')
           }
         ),
         h(
@@ -121,37 +124,37 @@ const columns: any = [
           {
             options: [
               {
-                label: '启动',
+                label: $gettext('Start'),
                 key: 'start',
                 disabled: row.state === 'running'
               },
               {
-                label: '停止',
+                label: $gettext('Stop'),
                 key: 'stop',
                 disabled: row.state !== 'running'
               },
               {
-                label: '重启',
+                label: $gettext('Restart'),
                 key: 'restart',
                 disabled: row.state !== 'running'
               },
               {
-                label: '强制停止',
+                label: $gettext('Force Stop'),
                 key: 'forceStop',
                 disabled: row.state !== 'running'
               },
               {
-                label: '暂停',
+                label: $gettext('Pause'),
                 key: 'pause',
                 disabled: row.state !== 'running'
               },
               {
-                label: '恢复',
+                label: $gettext('Resume'),
                 key: 'unpause',
                 disabled: row.state === 'running'
               },
               {
-                label: '删除',
+                label: $gettext('Delete'),
                 key: 'delete'
               }
             ],
@@ -191,7 +194,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '更多'
+                  default: () => $gettext('More')
                 }
               )
             }
@@ -224,7 +227,7 @@ const handleRename = () => {
     () => {
       refresh()
       renameModal.value = false
-      window.$message.success('重命名成功')
+      window.$message.success($gettext('Rename successful'))
     }
   )
 }
@@ -232,62 +235,62 @@ const handleRename = () => {
 const handleStart = (id: string) => {
   useRequest(container.containerStart(id)).onSuccess(() => {
     refresh()
-    window.$message.success('启动成功')
+    window.$message.success($gettext('Start successful'))
   })
 }
 
 const handleStop = (id: string) => {
   useRequest(container.containerStop(id)).onSuccess(() => {
     refresh()
-    window.$message.success('停止成功')
+    window.$message.success($gettext('Stop successful'))
   })
 }
 
 const handleRestart = (id: string) => {
   useRequest(container.containerRestart(id)).onSuccess(() => {
     refresh()
-    window.$message.success('重启成功')
+    window.$message.success($gettext('Restart successful'))
   })
 }
 
 const handleForceStop = (id: string) => {
   useRequest(container.containerKill(id)).onSuccess(() => {
     refresh()
-    window.$message.success('强制停止成功')
+    window.$message.success($gettext('Force stop successful'))
   })
 }
 
 const handlePause = (id: string) => {
   useRequest(container.containerPause(id)).onSuccess(() => {
     refresh()
-    window.$message.success('暂停成功')
+    window.$message.success($gettext('Pause successful'))
   })
 }
 
 const handleUnpause = (id: string) => {
   useRequest(container.containerUnpause(id)).onSuccess(() => {
     refresh()
-    window.$message.success('恢复成功')
+    window.$message.success($gettext('Resume successful'))
   })
 }
 
 const handleDelete = (id: string) => {
   useRequest(container.containerRemove(id)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Delete successful'))
   })
 }
 
 const handlePrune = () => {
   useRequest(container.containerPrune()).onSuccess(() => {
     refresh()
-    window.$message.success('清理成功')
+    window.$message.success($gettext('Cleanup successful'))
   })
 }
 
 const bulkStart = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要启动的容器')
+    window.$message.info($gettext('Please select containers to start'))
     return
   }
 
@@ -296,12 +299,12 @@ const bulkStart = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('启动成功')
+  window.$message.success($gettext('Start successful'))
 }
 
 const bulkStop = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要停止的容器')
+    window.$message.info($gettext('Please select containers to stop'))
     return
   }
 
@@ -310,12 +313,12 @@ const bulkStop = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('停止成功')
+  window.$message.success($gettext('Stop successful'))
 }
 
 const bulkRestart = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要重启的容器')
+    window.$message.info($gettext('Please select containers to restart'))
     return
   }
 
@@ -324,12 +327,12 @@ const bulkRestart = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('重启成功')
+  window.$message.success($gettext('Restart successful'))
 }
 
 const bulkForceStop = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要强制停止的容器')
+    window.$message.info($gettext('Please select containers to force stop'))
     return
   }
 
@@ -338,12 +341,12 @@ const bulkForceStop = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('强制停止成功')
+  window.$message.success($gettext('Force stop successful'))
 }
 
 const bulkDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要删除的容器')
+    window.$message.info($gettext('Please select containers to delete'))
     return
   }
 
@@ -352,12 +355,12 @@ const bulkDelete = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('删除成功')
+  window.$message.success($gettext('Delete successful'))
 }
 
 const bulkPause = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要暂停的容器')
+    window.$message.info($gettext('Please select containers to pause'))
     return
   }
 
@@ -366,12 +369,12 @@ const bulkPause = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('暂停成功')
+  window.$message.success($gettext('Pause successful'))
 }
 
 const bulkUnpause = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要恢复的容器')
+    window.$message.info($gettext('Please select containers to resume'))
     return
   }
 
@@ -380,7 +383,7 @@ const bulkUnpause = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('恢复成功')
+  window.$message.success($gettext('Resume successful'))
 }
 
 const closeContainerCreateModal = () => {
@@ -396,16 +399,16 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="containerCreateModal = true">创建容器</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>清理容器</n-button>
+      <n-button type="primary" @click="containerCreateModal = true">{{ $gettext('Create Container') }}</n-button>
+      <n-button type="primary" @click="handlePrune" ghost>{{ $gettext('Cleanup Containers') }}</n-button>
       <n-button-group>
-        <n-button @click="bulkStart">启动</n-button>
-        <n-button @click="bulkStop">停止</n-button>
-        <n-button @click="bulkRestart">重启</n-button>
-        <n-button @click="bulkForceStop">强制停止</n-button>
-        <n-button @click="bulkPause">暂停</n-button>
-        <n-button @click="bulkUnpause">恢复</n-button>
-        <n-button @click="bulkDelete">删除</n-button>
+        <n-button @click="bulkStart">{{ $gettext('Start') }}</n-button>
+        <n-button @click="bulkStop">{{ $gettext('Stop') }}</n-button>
+        <n-button @click="bulkRestart">{{ $gettext('Restart') }}</n-button>
+        <n-button @click="bulkForceStop">{{ $gettext('Force Stop') }}</n-button>
+        <n-button @click="bulkPause">{{ $gettext('Pause') }}</n-button>
+        <n-button @click="bulkUnpause">{{ $gettext('Resume') }}</n-button>
+        <n-button @click="bulkDelete">{{ $gettext('Delete') }}</n-button>
       </n-button-group>
     </n-flex>
     <n-data-table
@@ -433,7 +436,7 @@ onMounted(() => {
   <n-modal
     v-model:show="logModal"
     preset="card"
-    title="日志"
+    :title="$gettext('Logs')"
     style="width: 80vw"
     size="huge"
     :bordered="false"
@@ -456,23 +459,23 @@ onMounted(() => {
   <n-modal
     v-model:show="renameModal"
     preset="card"
-    title="重命名"
+    :title="$gettext('Rename')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
     :segmented="false"
   >
     <n-form :model="renameModel">
-      <n-form-item path="name" label="新名称">
+      <n-form-item path="name" :label="$gettext('New Name')">
         <n-input
           v-model:value="renameModel.name"
           type="text"
           @keydown.enter.prevent
-          placeholder="输入新名称"
+          :placeholder="$gettext('Enter new name')"
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleRename">提交</n-button>
+    <n-button type="info" block @click="handleRename">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <ContainerCreate :show="containerCreateModal" @close="closeContainerCreateModal" />
 </template>

@@ -6,7 +6,6 @@ import 'virtual:uno.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 
-import { setupI18n } from '@/i18n/i18n'
 import { setupRouter } from '@/router'
 import { setupStore, useThemeStore } from '@/store'
 import { createGettext, setupNaiveDiscreteApi } from '@/utils'
@@ -31,7 +30,6 @@ async function setupApp() {
   await setupNaiveDiscreteApi()
   await setupPanel().then(() => {
     app.use(createGettext)
-    setupI18n(app)
   })
   await setupRouter(app)
   app.mount('#app')

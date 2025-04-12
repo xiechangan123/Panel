@@ -5,7 +5,7 @@ defineOptions({
 
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
+import { useGettext } from 'vue3-gettext'
 
 import dashboard from '@/api/panel/dashboard'
 import website from '@/api/panel/website'
@@ -13,21 +13,21 @@ import { useFileStore } from '@/store'
 import { generateRandomString, isNullOrUndef, renderIcon } from '@/utils'
 
 const fileStore = useFileStore()
-const { t } = useI18n()
+const { $gettext } = useGettext()
 const router = useRouter()
 const selectedRowKeys = ref<any>([])
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
-    title: t('websiteIndex.columns.name'),
+    title: $gettext('Website Name'),
     key: 'name',
     width: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: t('websiteIndex.columns.status'),
+    title: $gettext('Running'),
     key: 'status',
     width: 150,
     align: 'center',
@@ -41,7 +41,7 @@ const columns: any = [
     }
   },
   {
-    title: t('websiteIndex.columns.path'),
+    title: $gettext('Directory'),
     key: 'path',
     minWidth: 200,
     resizable: true,
@@ -75,7 +75,7 @@ const columns: any = [
     }
   },
   {
-    title: t('websiteIndex.columns.remark'),
+    title: $gettext('Remark'),
     key: 'remark',
     minWidth: 200,
     resizable: true,
@@ -92,7 +92,7 @@ const columns: any = [
     }
   },
   {
-    title: t('websiteIndex.columns.actions'),
+    title: $gettext('Actions'),
     key: 'actions',
     width: 220,
     align: 'center',
@@ -108,7 +108,7 @@ const columns: any = [
             onClick: () => handleEdit(row)
           },
           {
-            default: () => '修改',
+            default: () => $gettext('Edit'),
             icon: renderIcon('material-symbols:edit-outline', { size: 14 })
           }
         ),
@@ -127,14 +127,23 @@ const columns: any = [
                 },
                 {
                   default: () => [
-                    h('strong', {}, { default: () => `确定删除网站 ${row.name} 吗？` }),
+                    h(
+                      'strong',
+                      {},
+                      {
+                        default: () =>
+                          $gettext('Are you sure you want to delete website %{ name }?', {
+                            name: row.name
+                          })
+                      }
+                    ),
                     h(
                       NCheckbox,
                       {
                         checked: deleteModel.value.path,
                         onUpdateChecked: (v) => (deleteModel.value.path = v)
                       },
-                      { default: () => '删除网站目录' }
+                      { default: () => $gettext('Delete website directory') }
                     ),
                     h(
                       NCheckbox,
@@ -142,7 +151,7 @@ const columns: any = [
                         checked: deleteModel.value.db,
                         onUpdateChecked: (v) => (deleteModel.value.db = v)
                       },
-                      { default: () => '删除本地同名数据库' }
+                      { default: () => $gettext('Delete local database with the same name') }
                     )
                   ]
                 }
@@ -157,7 +166,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -198,7 +207,7 @@ const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
   initialData: {
     php: [
       {
-        label: '不使用',
+        label: $gettext('Not used'),
         value: 0
       }
     ],
@@ -227,7 +236,11 @@ const handleStatusChange = (row: any) => {
 
   useRequest(website.status(row.id, !row.status)).onSuccess(() => {
     row.status = !row.status
-    window.$message.success('已' + (row.status ? '启动' : '停止'))
+    window.$message.success(
+      $gettext('Already %{ status }', {
+        status: row.status ? $gettext('started') : $gettext('stopped')
+      })
+    )
   })
 }
 
@@ -237,7 +250,7 @@ const getDefaultPage = async () => {
 
 const handleRemark = (row: any) => {
   useRequest(website.updateRemark(row.id, row.remark)).onSuccess(() => {
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
   })
 }
 
@@ -254,7 +267,7 @@ const handleDelete = (id: number) => {
   useRequest(website.delete(id, deleteModel.value.path, deleteModel.value.db)).onSuccess(() => {
     refresh()
     deleteModel.value.path = true
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
@@ -263,7 +276,7 @@ const handleSaveDefaultPage = () => {
     website.saveDefaultConfig(editDefaultPageModel.value.index, editDefaultPageModel.value.stop)
   ).onSuccess(() => {
     editDefaultPageModal.value = false
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
   })
 }
 
@@ -293,13 +306,13 @@ const handleCreate = async () => {
       path: '',
       remark: ''
     }
-    window.$message.success('创建成功')
+    window.$message.success($gettext('Created successfully'))
   })
 }
 
 const bulkDelete = async () => {
   if (selectedRowKeys.value.length === 0) {
-    window.$message.info('请选择要删除的网站')
+    window.$message.info($gettext('Please select the websites to delete'))
     return
   }
 
@@ -308,7 +321,7 @@ const bulkDelete = async () => {
 
   selectedRowKeys.value = []
   refresh()
-  window.$message.success('删除成功')
+  window.$message.success($gettext('Deleted successfully'))
 }
 
 const formatDbValue = (value: string) => {
@@ -332,16 +345,20 @@ onMounted(() => {
     <n-flex vertical :size="20">
       <n-flex>
         <n-button type="primary" @click="createModal = true">
-          {{ $t('websiteIndex.create.trigger') }}
+          {{ $gettext('Create Website') }}
         </n-button>
         <n-popconfirm @positive-click="bulkDelete">
           <template #trigger>
-            <n-button type="error"> 批量删除 </n-button>
+            <n-button type="error"> {{ $gettext('Batch Delete') }} </n-button>
           </template>
-          这会删除网站目录但不会删除同名数据库，确定删除选中的网站吗？
+          {{
+            $gettext(
+              'This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?'
+            )
+          }}
         </n-popconfirm>
         <n-button type="warning" @click="editDefaultPageModal = true">
-          {{ $t('websiteIndex.edit.trigger') }}
+          {{ $gettext('Modify Default Page') }}
         </n-button>
       </n-flex>
       <n-data-table
@@ -369,7 +386,7 @@ onMounted(() => {
   </common-page>
   <n-modal
     v-model:show="createModal"
-    :title="$t('websiteIndex.create.title')"
+    :title="$gettext('Create Website')"
     preset="card"
     style="width: 60vw"
     size="huge"
@@ -378,17 +395,21 @@ onMounted(() => {
     @close="createModal = false"
   >
     <n-form :model="createModel">
-      <n-form-item path="name" :label="$t('websiteIndex.create.fields.name.label')">
+      <n-form-item path="name" :label="$gettext('Website Name')">
         <n-input
           v-model:value="createModel.name"
           type="text"
           @keydown.enter.prevent
-          :placeholder="$t('websiteIndex.create.fields.name.placeholder')"
+          :placeholder="
+            $gettext(
+              'Recommended to use English for the website name, it cannot be modified after setting'
+            )
+          "
         />
       </n-form-item>
       <n-row :gutter="[0, 24]">
         <n-col :span="11">
-          <n-form-item :label="$t('websiteIndex.create.fields.domains.label')">
+          <n-form-item :label="$gettext('Domain')">
             <n-dynamic-input
               v-model:value="createModel.domains"
               placeholder="example.com"
@@ -399,7 +420,7 @@ onMounted(() => {
         </n-col>
         <n-col :span="2"></n-col>
         <n-col :span="11">
-          <n-form-item :label="$t('websiteIndex.create.fields.port.label')">
+          <n-form-item :label="$gettext('Port')">
             <n-dynamic-input
               v-model:value="createModel.listens"
               placeholder="80"
@@ -411,11 +432,11 @@ onMounted(() => {
       </n-row>
       <n-row :gutter="[0, 24]">
         <n-col :span="11">
-          <n-form-item path="php" :label="$t('websiteIndex.create.fields.phpVersion.label')">
+          <n-form-item path="php" :label="$gettext('PHP Version')">
             <n-select
               v-model:value="createModel.php"
               :options="installedDbAndPhp.php"
-              :placeholder="$t('websiteIndex.create.fields.phpVersion.placeholder')"
+              :placeholder="$gettext('Select PHP Version')"
               @keydown.enter.prevent
             >
             </n-select>
@@ -423,11 +444,11 @@ onMounted(() => {
         </n-col>
         <n-col :span="2"></n-col>
         <n-col :span="11">
-          <n-form-item path="db" :label="$t('websiteIndex.create.fields.db.label')">
+          <n-form-item path="db" :label="$gettext('Database')">
             <n-select
               v-model:value="createModel.db_type"
               :options="installedDbAndPhp.db"
-              :placeholder="$t('websiteIndex.create.fields.db.placeholder')"
+              :placeholder="$gettext('Select Database')"
               @keydown.enter.prevent
               @update:value="
                 () => {
@@ -444,31 +465,23 @@ onMounted(() => {
       </n-row>
       <n-row :gutter="[0, 24]">
         <n-col :span="7">
-          <n-form-item
-            v-if="createModel.db"
-            path="db_name"
-            :label="$t('websiteIndex.create.fields.dbName.label')"
-          >
+          <n-form-item v-if="createModel.db" path="db_name" :label="$gettext('Database Name')">
             <n-input
               v-model:value="createModel.db_name"
               type="text"
               @keydown.enter.prevent
-              :placeholder="$t('websiteIndex.create.fields.dbName.placeholder')"
+              :placeholder="$gettext('Database Name')"
             />
           </n-form-item>
         </n-col>
         <n-col :span="1"></n-col>
         <n-col :span="7">
-          <n-form-item
-            v-if="createModel.db"
-            path="db_user"
-            :label="$t('websiteIndex.create.fields.dbUser.label')"
-          >
+          <n-form-item v-if="createModel.db" path="db_user" :label="$gettext('Database User')">
             <n-input
               v-model:value="createModel.db_user"
               type="text"
               @keydown.enter.prevent
-              :placeholder="$t('websiteIndex.create.fields.dbUser.placeholder')"
+              :placeholder="$gettext('Database User')"
             />
           </n-form-item>
         </n-col>
@@ -477,42 +490,46 @@ onMounted(() => {
           <n-form-item
             v-if="createModel.db"
             path="db_password"
-            :label="$t('websiteIndex.create.fields.dbPassword.label')"
+            :label="$gettext('Database Password')"
           >
             <n-input
               v-model:value="createModel.db_password"
               type="text"
               @keydown.enter.prevent
-              :placeholder="$t('websiteIndex.create.fields.dbPassword.placeholder')"
+              :placeholder="$gettext('Database Password')"
             />
           </n-form-item>
         </n-col>
       </n-row>
-      <n-form-item path="path" :label="$t('websiteIndex.create.fields.path.label')">
+      <n-form-item path="path" :label="$gettext('Directory')">
         <n-input
           v-model:value="createModel.path"
           type="text"
           @keydown.enter.prevent
-          :placeholder="$t('websiteIndex.create.fields.path.placeholder')"
+          :placeholder="
+            $gettext(
+              'Website root directory (if left empty, defaults to website directory/website name)'
+            )
+          "
         />
       </n-form-item>
-      <n-form-item path="remark" :label="$t('websiteIndex.create.fields.remark.label')">
+      <n-form-item path="remark" :label="$gettext('Remark')">
         <n-input
           v-model:value="createModel.remark"
           type="textarea"
           @keydown.enter.prevent
-          :placeholder="$t('websiteIndex.create.fields.remark.placeholder')"
+          :placeholder="$gettext('Remark')"
         />
       </n-form-item>
     </n-form>
     <n-button type="info" block @click="handleCreate">
-      {{ $t('websiteIndex.create.actions.submit') }}
+      {{ $gettext('Create') }}
     </n-button>
   </n-modal>
   <n-modal
     v-model:show="editDefaultPageModal"
     preset="card"
-    title="修改默认页"
+    :title="$gettext('Modify Default Page')"
     style="width: 80vw"
     size="huge"
     :bordered="false"
@@ -520,7 +537,7 @@ onMounted(() => {
     @close="handleSaveDefaultPage"
   >
     <n-tabs type="line" animated>
-      <n-tab-pane name="index" tab="默认页">
+      <n-tab-pane :name="$gettext('Default Page')" :tab="$gettext('Default Page')">
         <Editor
           v-model:value="editDefaultPageModel.index"
           language="html"
@@ -534,7 +551,7 @@ onMounted(() => {
           }"
         />
       </n-tab-pane>
-      <n-tab-pane name="stop" tab="停止页">
+      <n-tab-pane :name="$gettext('Stop Page')" :tab="$gettext('Stop Page')">
         <Editor
           v-model:value="editDefaultPageModel.stop"
           language="html"

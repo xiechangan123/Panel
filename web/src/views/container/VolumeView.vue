@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import { formatDateTime } from '@/utils'
+
+const { $gettext } = useGettext()
 
 const createModel = ref({
   name: '',
@@ -20,35 +23,35 @@ const selectedRowKeys = ref<any>([])
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
-    title: '名称',
+    title: $gettext('Name'),
     key: 'name',
     minWidth: 150,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '驱动',
+    title: $gettext('Driver'),
     key: 'driver',
     width: 100,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '范围',
+    title: $gettext('Scope'),
     key: 'scope',
     width: 100,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '挂载点',
+    title: $gettext('Mount Point'),
     key: 'mount_point',
     resizable: true,
     minWidth: 150,
     ellipsis: { tooltip: true }
   },
   {
-    title: '创建时间',
+    title: $gettext('Creation Time'),
     key: 'created_at',
     width: 200,
     resizable: true,
@@ -57,7 +60,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 120,
     align: 'center',
@@ -73,7 +76,7 @@ const columns: any = [
           },
           {
             default: () => {
-              return '确定删除吗？'
+              return $gettext('Are you sure you want to delete?')
             },
             trigger: () => {
               return h(
@@ -83,7 +86,7 @@ const columns: any = [
                   type: 'error'
                 },
                 {
-                  default: () => '删除'
+                  default: () => $gettext('Delete')
                 }
               )
             }
@@ -107,14 +110,14 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 const handleDelete = async (row: any) => {
   useRequest(container.volumeRemove(row.id)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Delete successful'))
   })
 }
 
 const handlePrune = () => {
   useRequest(container.volumePrune()).onSuccess(() => {
     refresh()
-    window.$message.success('清理成功')
+    window.$message.success($gettext('Cleanup successful'))
   })
 }
 
@@ -123,7 +126,7 @@ const handleCreate = () => {
   useRequest(container.volumeCreate(createModel.value))
     .onSuccess(() => {
       refresh()
-      window.$message.success('创建成功')
+      window.$message.success($gettext('Created successfully'))
     })
     .onComplete(() => {
       loading.value = false
@@ -139,8 +142,8 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">创建卷</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>清理卷</n-button>
+      <n-button type="primary" @click="createModal = true">{{ $gettext('Create Volume') }}</n-button>
+      <n-button type="primary" @click="handlePrune" ghost>{{ $gettext('Cleanup Volumes') }}</n-button>
     </n-flex>
     <n-data-table
       striped
@@ -167,17 +170,17 @@ onMounted(() => {
   <n-modal
     v-model:show="createModal"
     preset="card"
-    title="创建卷"
+    :title="$gettext('Create Volume')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
     :segmented="false"
   >
     <n-form :model="createModel">
-      <n-form-item path="name" label="卷名">
+      <n-form-item path="name" :label="$gettext('Volume Name')">
         <n-input v-model:value="createModel.name" type="text" @keydown.enter.prevent />
       </n-form-item>
-      <n-form-item path="driver" label="驱动">
+      <n-form-item path="driver" :label="$gettext('Driver')">
         <n-select
           :options="options"
           v-model:value="createModel.driver"
@@ -186,25 +189,25 @@ onMounted(() => {
         >
         </n-select>
       </n-form-item>
-      <n-form-item path="env" label="标签">
+      <n-form-item path="env" :label="$gettext('Labels')">
         <n-dynamic-input
           v-model:value="createModel.labels"
           preset="pair"
-          key-placeholder="标签名"
-          value-placeholder="标签值"
+          :key-placeholder="$gettext('Label Name')"
+          :value-placeholder="$gettext('Label Value')"
         />
       </n-form-item>
-      <n-form-item path="env" label="选项">
+      <n-form-item path="env" :label="$gettext('Options')">
         <n-dynamic-input
           v-model:value="createModel.options"
           preset="pair"
-          key-placeholder="选项名"
-          value-placeholder="选项值"
+          :key-placeholder="$gettext('Option Name')"
+          :value-placeholder="$gettext('Option Value')"
         />
       </n-form-item>
     </n-form>
     <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
-      提交
+      {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
 </template>

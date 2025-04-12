@@ -14,7 +14,7 @@ import {
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { NButton, NPopconfirm } from 'naive-ui'
-import { useI18n } from 'vue-i18n'
+import { useGettext } from 'vue3-gettext'
 
 import dashboard from '@/api/panel/dashboard'
 import { router } from '@/router'
@@ -34,7 +34,7 @@ use([
   DataZoomComponent
 ])
 
-const { locale } = useI18n()
+const { current: locale, $gettext } = useGettext()
 const tabStore = useTabStore()
 const realtime = ref<Realtime | null>(null)
 
@@ -126,13 +126,13 @@ const statusColor = (percentage: number) => {
 
 const statusText = (percentage: number) => {
   if (percentage >= 90) {
-    return '运行堵塞'
+    return $gettext('Running blocked')
   } else if (percentage >= 80) {
-    return '运行缓慢'
+    return $gettext('Running slowly')
   } else if (percentage >= 70) {
-    return '运行正常'
+    return $gettext('Running normally')
   }
-  return '运行流畅'
+  return $gettext('Running smoothly')
 }
 
 const chartOptions = computed(() => {
@@ -318,9 +318,9 @@ const fetchCurrent = () => {
 
 const handleRestartPanel = () => {
   clearInterval(homeInterval)
-  window.$message.loading('面板重启中...')
+  window.$message.loading($gettext('Panel restarting...'))
   useRequest(dashboard.restart()).onSuccess(() => {
-    window.$message.success('面板重启成功')
+    window.$message.success($gettext('Panel restarted successfully'))
     setTimeout(() => {
       tabStore.reloadTab(tabStore.active)
     }, 3000)
@@ -332,7 +332,7 @@ const handleUpdate = () => {
     if (data.update) {
       router.push({ name: 'dashboard-update' })
     } else {
-      window.$message.success('当前已是最新版本')
+      window.$message.success($gettext('Current version is the latest'))
     }
   })
 }
@@ -376,7 +376,14 @@ const clearCurrent = () => {
 }
 
 const quantifier = computed(() => {
-  return locale.value === 'en' ? '' : ' 个'
+  switch (locale) {
+    case 'zh_CN':
+      return '个'
+    case 'zh_TW':
+      return '個'
+    default:
+      return ''
+  }
 })
 
 let homeInterval: any = null
@@ -408,40 +415,48 @@ if (import.meta.hot) {
           <n-page-header :subtitle="systemInfo?.panel_version">
             <n-grid :cols="4" pb-10>
               <n-gi>
-                <n-statistic label="网站" :value="countInfo.website + quantifier" />
+                <n-statistic :label="$gettext('Website')" :value="countInfo.website + quantifier" />
               </n-gi>
               <n-gi>
-                <n-statistic label="数据库" :value="countInfo.database + quantifier" />
+                <n-statistic
+                  :label="$gettext('Database')"
+                  :value="countInfo.database + quantifier"
+                />
               </n-gi>
               <n-gi>
                 <n-statistic label="FTP" :value="countInfo.ftp + quantifier" />
               </n-gi>
               <n-gi>
-                <n-statistic label="计划任务" :value="countInfo.cron + quantifier" />
+                <n-statistic
+                  :label="$gettext('Scheduled Tasks')"
+                  :value="countInfo.cron + quantifier"
+                />
               </n-gi>
             </n-grid>
-            <template #title>耗子面板</template>
+            <template #title>{{ $gettext('Rat Panel') }}</template>
             <template #extra>
               <n-flex>
-                <n-button type="primary" @click="toSponsor"> 赞助支持 </n-button>
+                <n-button type="primary" @click="toSponsor">
+                  {{ $gettext('Sponsor Support') }}
+                </n-button>
                 <n-popconfirm @positive-click="handleRestartPanel">
                   <template #trigger>
-                    <n-button type="warning"> 重启 </n-button>
+                    <n-button type="warning"> {{ $gettext('Restart') }} </n-button>
                   </template>
-                  确定要重启面板吗？
+                  {{ $gettext('Are you sure you want to restart the panel?') }}
                 </n-popconfirm>
-                <n-button type="success" @click="handleUpdate"> 更新 </n-button>
+                <n-button type="success" @click="handleUpdate"> {{ $gettext('Update') }} </n-button>
               </n-flex>
             </template>
           </n-page-header>
         </n-card>
 
-        <n-card :segmented="true" size="small" title="资源总览">
+        <n-card :segmented="true" size="small" :title="$gettext('Resource Overview')">
           <n-flex v-if="realtime" size="large">
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
                 <n-flex vertical flex items-center p-20 pl-40 pr-40>
-                  <p>负载状态</p>
+                  <p>{{ $gettext('Load Status') }}</p>
                   <n-progress
                     type="dashboard"
                     :percentage="Math.round(formatPercent((realtime.load.load1 / cores) * 100))"
@@ -453,21 +468,21 @@ if (import.meta.hot) {
               </template>
               <n-table :single-line="false" striped>
                 <tr>
-                  <th>最近 1 分钟</th>
+                  <th>{{ $gettext('Last 1 minute') }}</th>
                   <td>
                     {{ formatPercent((realtime.load.load1 / cores) * 100) }}% /
                     {{ realtime.load.load1 }}
                   </td>
                 </tr>
                 <tr>
-                  <th>最近 5 分钟</th>
+                  <th>{{ $gettext('Last 5 minutes') }}</th>
                   <td>
                     {{ formatPercent((realtime.load.load5 / cores) * 100) }}% /
                     {{ realtime.load.load5 }}
                   </td>
                 </tr>
                 <tr>
-                  <th>最近 15 分钟</th>
+                  <th>{{ $gettext('Last 15 minutes') }}</th>
                   <td>
                     {{ formatPercent((realtime.load.load15 / cores) * 100) }}% /
                     {{ realtime.load.load15 }}
@@ -485,25 +500,26 @@ if (import.meta.hot) {
                     :color="statusColor(realtime.percent)"
                   >
                   </n-progress>
-                  <p>{{ cores }} 核心</p>
+                  <p>{{ cores }} {{ $gettext('cores') }}</p>
                 </n-flex>
               </template>
               <n-table :single-line="false" striped>
                 <tr>
-                  <th>型号</th>
+                  <th>{{ $gettext('Model') }}</th>
                   <td>{{ realtime.cpus[0].modelName }}</td>
                 </tr>
                 <tr>
-                  <th>参数</th>
+                  <th>{{ $gettext('Parameters') }}</th>
                   <td>
-                    {{ realtime.cpus.length }} CPU {{ cores }} 核心
-                    {{ formatBytes(realtime.cpus[0].cacheSize * 1024) }} 缓存
+                    {{ realtime.cpus.length }} CPU {{ cores }} {{ $gettext('cores') }}
+                    {{ formatBytes(realtime.cpus[0].cacheSize * 1024) }} {{ $gettext('cache') }}
                   </td>
                 </tr>
                 <tr v-for="item in realtime.cpus" :key="item.modelName">
                   <th>CPU-{{ item.cpu }}</th>
                   <td>
-                    使用率 {{ formatPercent(realtime.percents[item.cpu]) }}% 频率 {{ item.mhz }} MHz
+                    {{ $gettext('Usage') }} {{ formatPercent(realtime.percents[item.cpu]) }}%
+                    {{ $gettext('Frequency') }} {{ item.mhz }} MHz
                   </td>
                 </tr>
               </n-table>
@@ -511,7 +527,7 @@ if (import.meta.hot) {
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
                 <n-flex vertical flex items-center p-20 pl-40 pr-40>
-                  <p>内存</p>
+                  <p>{{ $gettext('Memory') }}</p>
                   <n-progress
                     type="dashboard"
                     :percentage="realtime.mem.usedPercent"
@@ -523,73 +539,73 @@ if (import.meta.hot) {
               </template>
               <n-table :single-line="false" striped>
                 <tr>
-                  <th>活跃</th>
+                  <th>{{ $gettext('Active') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.active) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>不活跃</th>
+                  <th>{{ $gettext('Inactive') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.inactive) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>空闲</th>
+                  <th>{{ $gettext('Free') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.free) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>共享</th>
+                  <th>{{ $gettext('Shared') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.shared) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>已提交</th>
+                  <th>{{ $gettext('Committed') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.committedas) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>提交限制</th>
+                  <th>{{ $gettext('Commit Limit') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.commitlimit) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>SWAP大小</th>
+                  <th>{{ $gettext('SWAP Size') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.swaptotal) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>SWAP已用</th>
+                  <th>{{ $gettext('SWAP Used') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.swapcached) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>SWAP可用</th>
+                  <th>{{ $gettext('SWAP Available') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.swapfree) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>物理内存大小</th>
+                  <th>{{ $gettext('Physical Memory Size') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.total) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>物理内存已用</th>
+                  <th>{{ $gettext('Physical Memory Used') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.used) }}
                   </td>
                 </tr>
                 <tr>
-                  <th>物理内存可用</th>
+                  <th>{{ $gettext('Physical Memory Available') }}</th>
                   <td>
                     {{ formatBytes(realtime.mem.available) }}
                   </td>
@@ -622,27 +638,27 @@ if (import.meta.hot) {
               </template>
               <n-table :single-line="false">
                 <tr>
-                  <th>挂载点</th>
+                  <th>{{ $gettext('Mount Point') }}</th>
                   <td>{{ item.path }}</td>
                 </tr>
                 <tr>
-                  <th>文件系统</th>
+                  <th>{{ $gettext('File System') }}</th>
                   <td>{{ item.fstype }}</td>
                 </tr>
                 <tr>
-                  <th>Inodes 使用率</th>
+                  <th>{{ $gettext('Inodes Usage') }}</th>
                   <td>{{ formatPercent(item.inodesUsedPercent) }}%</td>
                 </tr>
                 <tr>
-                  <th>Inodes 总数</th>
+                  <th>{{ $gettext('Inodes Total') }}</th>
                   <td>{{ item.inodesTotal }}</td>
                 </tr>
                 <tr>
-                  <th>Inodes 已用</th>
+                  <th>{{ $gettext('Inodes Used') }}</th>
                   <td>{{ item.inodesUsed }}</td>
                 </tr>
                 <tr>
-                  <th>Inodes 可用</th>
+                  <th>{{ $gettext('Inodes Available') }}</th>
                   <td>{{ item.inodesFree }}</td>
                 </tr>
               </n-table>
@@ -659,7 +675,7 @@ if (import.meta.hot) {
         >
           <n-gi>
             <n-flex vertical>
-              <n-card :segmented="true" size="small" title="快捷应用" min-h-340>
+              <n-card :segmented="true" size="small" :title="$gettext('Quick Apps')" min-h-340>
                 <n-scrollbar max-h-270>
                   <n-grid
                     v-if="!homeAppsLoading"
@@ -702,57 +718,60 @@ if (import.meta.hot) {
                   </n-grid>
                 </n-scrollbar>
                 <n-text v-if="!homeAppsLoading && !homeApps.length">
-                  您还没有设置任何应用在此显示！
+                  {{ $gettext('You have not set any apps to display here!') }}
                 </n-text>
                 <n-skeleton v-if="homeAppsLoading" text :repeat="12" />
               </n-card>
-              <n-card :segmented="true" size="small" title="环境信息">
+              <n-card :segmented="true" size="small" :title="$gettext('Environment Information')">
                 <n-table v-if="systemInfo" :single-line="false">
                   <tr>
-                    <th>系统主机名</th>
+                    <th>{{ $gettext('System Hostname') }}</th>
                     <td>
-                      {{ systemInfo?.hostname || '加载中...' }}
+                      {{ systemInfo?.hostname || $gettext('Loading...') }}
                     </td>
                   </tr>
                   <tr>
-                    <th>系统版本号</th>
+                    <th>{{ $gettext('System Version') }}</th>
                     <td>
-                      {{ `${systemInfo?.os_name} ${systemInfo?.kernel_arch}` || '加载中...' }}
+                      {{
+                        `${systemInfo?.os_name} ${systemInfo?.kernel_arch}` ||
+                        $gettext('Loading...')
+                      }}
                     </td>
                   </tr>
                   <tr>
-                    <th>系统内核版本</th>
+                    <th>{{ $gettext('System Kernel Version') }}</th>
                     <td>
-                      {{ systemInfo?.kernel_version || '加载中...' }}
+                      {{ systemInfo?.kernel_version || $gettext('Loading...') }}
                     </td>
                   </tr>
                   <tr>
-                    <th>系统运行时间</th>
+                    <th>{{ $gettext('System Uptime') }}</th>
                     <td>
-                      {{ formatDuration(Number(systemInfo?.uptime)) || '加载中...' }}
+                      {{ formatDuration(Number(systemInfo?.uptime)) || $gettext('Loading...') }}
                     </td>
                   </tr>
                   <tr>
-                    <th>面板内部版本</th>
+                    <th>{{ $gettext('Panel Internal Version') }}</th>
                     <td>
                       {{
                         systemInfo?.commit_hash +
                           ' ' +
                           systemInfo?.go_version +
                           ' ' +
-                          systemInfo?.build_time || '加载中...'
+                          systemInfo?.build_time || $gettext('Loading...')
                       }}
                     </td>
                   </tr>
                   <tr>
-                    <th>面板编译信息</th>
+                    <th>{{ $gettext('Panel Compile Information') }}</th>
                     <td>
                       {{
                         systemInfo?.build_id +
                           ' ' +
                           systemInfo?.build_user +
                           '/' +
-                          systemInfo?.build_host || '加载中...'
+                          systemInfo?.build_host || $gettext('Loading...')
                       }}
                     </td>
                   </tr>
@@ -762,7 +781,7 @@ if (import.meta.hot) {
             </n-flex>
           </n-gi>
           <n-gi>
-            <n-card :segmented="true" size="small" title="实时监控">
+            <n-card :segmented="true" size="small" :title="$gettext('Real-time Monitoring')">
               <n-flex vertical v-if="systemInfo">
                 <n-form
                   inline
@@ -772,11 +791,11 @@ if (import.meta.hot) {
                 >
                   <n-form-item>
                     <n-radio-group v-model:value="chartType">
-                      <n-radio-button value="net" label="网络" />
-                      <n-radio-button value="disk" label="硬盘" />
+                      <n-radio-button value="net" :label="$gettext('Network')" />
+                      <n-radio-button value="disk" :label="$gettext('Disk')" />
                     </n-radio-group>
                   </n-form-item>
-                  <n-form-item label="单位" ml-auto>
+                  <n-form-item :label="$gettext('Unit')" ml-auto>
                     <n-select
                       v-model:value="unitType"
                       :options="units"
@@ -784,7 +803,7 @@ if (import.meta.hot) {
                       w-80
                     ></n-select>
                   </n-form-item>
-                  <n-form-item v-if="chartType == 'net'" label="网卡">
+                  <n-form-item v-if="chartType == 'net'" :label="$gettext('Network Card')">
                     <n-select
                       multiple
                       v-model:value="nets"
@@ -793,7 +812,7 @@ if (import.meta.hot) {
                       w-200
                     ></n-select>
                   </n-form-item>
-                  <n-form-item v-if="chartType == 'disk'" label="硬盘">
+                  <n-form-item v-if="chartType == 'disk'" :label="$gettext('Disk')">
                     <n-select
                       multiple
                       v-model:value="disks"
@@ -804,16 +823,26 @@ if (import.meta.hot) {
                   </n-form-item>
                 </n-form>
                 <n-flex v-if="chartType == 'net'">
-                  <n-tag>总发送 {{ formatBytes(total.netBytesSent) }}</n-tag>
-                  <n-tag>总接收 {{ formatBytes(total.netBytesRecv) }}</n-tag>
-                  <n-tag>实时发送 {{ formatBytes(current.netBytesSent) }}/s</n-tag>
-                  <n-tag>实时接收 {{ formatBytes(current.netBytesRecv) }}/s</n-tag>
+                  <n-tag>{{ $gettext('Total Sent') }} {{ formatBytes(total.netBytesSent) }} </n-tag>
+                  <n-tag>
+                    {{ $gettext('Total Received') }} {{ formatBytes(total.netBytesRecv) }}
+                  </n-tag>
+                  <n-tag>
+                    {{ $gettext('Real-time Sent') }}
+                    {{ formatBytes(current.netBytesSent) }}/s
+                  </n-tag>
+                  <n-tag
+                    >{{ $gettext('Real-time Received') }} {{ formatBytes(current.netBytesRecv) }}/s
+                  </n-tag>
                 </n-flex>
                 <n-flex v-if="chartType == 'disk'">
-                  <n-tag>读取 {{ formatBytes(total.diskReadBytes) }}</n-tag>
-                  <n-tag>写入 {{ formatBytes(total.diskWriteBytes) }}</n-tag>
-                  <n-tag>实时读写 {{ formatBytes(current.diskRWBytes) }}/s</n-tag>
-                  <n-tag>读写延迟 {{ current.diskRWTime }}ms</n-tag>
+                  <n-tag>{{ $gettext('Read') }} {{ formatBytes(total.diskReadBytes) }}</n-tag>
+                  <n-tag>{{ $gettext('Write') }} {{ formatBytes(total.diskWriteBytes) }}</n-tag>
+                  <n-tag
+                    >{{ $gettext('Real-time Read/Write') }}
+                    {{ formatBytes(current.diskRWBytes) }}/s</n-tag
+                  >
+                  <n-tag>{{ $gettext('Read/Write Latency') }} {{ current.diskRWTime }}ms</n-tag>
                 </n-flex>
                 <n-card :bordered="false" h-530 pt-10>
                   <v-chart class="chart" :option="chartOptions" autoresize />

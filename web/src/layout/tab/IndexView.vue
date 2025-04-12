@@ -64,7 +64,7 @@ async function handleContextMenu(e: MouseEvent, tabItem: TabItem) {
         @click="handleTagClick(item.path)"
         @contextmenu.prevent="handleContextMenu($event, item)"
       >
-        {{ $t(item.title!) }}
+        {{ item.title! }}
       </n-tab>
     </n-tabs>
     <ContextMenu

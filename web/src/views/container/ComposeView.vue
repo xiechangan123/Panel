@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import { useFileStore } from '@/store'
 import { formatDateTime } from '@/utils'
 
+const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const router = useRouter()
 
@@ -26,14 +28,14 @@ const updateModal = ref(false)
 
 const columns: any = [
   {
-    title: '名称',
+    title: $gettext('Name'),
     key: 'name',
     minWidth: 150,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '目录',
+    title: $gettext('Directory'),
     key: 'path',
     minWidth: 150,
     resizable: true,
@@ -53,14 +55,14 @@ const columns: any = [
     }
   },
   {
-    title: '状态',
+    title: $gettext('Status'),
     key: 'status',
     width: 150,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '创建时间',
+    title: $gettext('Creation Time'),
     key: 'created_at',
     width: 200,
     resizable: true,
@@ -69,7 +71,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 280,
     align: 'center',
@@ -92,7 +94,7 @@ const columns: any = [
             }
           },
           {
-            default: () => '编辑'
+            default: () => $gettext('Edit')
           }
         ),
         h(
@@ -100,14 +102,14 @@ const columns: any = [
           {
             showIcon: false,
             onPositiveClick: () => {
-              const messageReactive = window.$message.loading('启动中...', {
+              const messageReactive = window.$message.loading($gettext('Starting...'), {
                 duration: 0
               })
               useRequest(container.composeUp(row.name, forcePush.value))
                 .onSuccess(() => {
                   refresh()
                   forcePush.value = false
-                  window.$message.success('启动成功')
+                  window.$message.success($gettext('Start successful'))
                 })
                 .onComplete(() => {
                   messageReactive?.destroy()
@@ -123,14 +125,14 @@ const columns: any = [
                 },
                 {
                   default: () => [
-                    h('strong', {}, { default: () => `确定启动编排 ${row.name} 吗？` }),
+                    h('strong', {}, { default: () => $gettext(`Are you sure you want to start compose %{ name }?`, { name: row.name }) }),
                     h(
                       NCheckbox,
                       {
                         checked: forcePush.value,
                         onUpdateChecked: (v) => (forcePush.value = v)
                       },
-                      { default: () => '强制拉取镜像' }
+                      { default: () => $gettext('Force pull images') }
                     )
                   ]
                 }
@@ -145,7 +147,7 @@ const columns: any = [
                   type: 'success'
                 },
                 {
-                  default: () => '启动'
+                  default: () => $gettext('Start')
                 }
               )
             }
@@ -157,13 +159,13 @@ const columns: any = [
             onPositiveClick: () => {
               useRequest(container.composeDown(row.name)).onSuccess(() => {
                 refresh()
-                window.$message.success('停止成功')
+                window.$message.success($gettext('Stop successful'))
               })
             }
           },
           {
             default: () => {
-              return `确定停止编排 ${row.name} 吗？`
+              return $gettext(`Are you sure you want to stop compose %{ name }?`, { name: row.name })
             },
             trigger: () => {
               return h(
@@ -174,7 +176,7 @@ const columns: any = [
                   type: 'warning'
                 },
                 {
-                  default: () => '停止'
+                  default: () => $gettext('Stop')
                 }
               )
             }
@@ -186,13 +188,13 @@ const columns: any = [
             onPositiveClick: () => {
               useRequest(container.composeRemove(row.name)).onSuccess(() => {
                 refresh()
-                window.$message.success('删除成功')
+                window.$message.success($gettext('Delete successful'))
               })
             }
           },
           {
             default: () => {
-              return `确定删除编排 ${row.name} 吗？`
+              return $gettext(`Are you sure you want to delete compose %{ name }?`, { name: row.name })
             },
             trigger: () => {
               return h(
@@ -203,7 +205,7 @@ const columns: any = [
                   type: 'error'
                 },
                 {
-                  default: () => '删除'
+                  default: () => $gettext('Delete')
                 }
               )
             }
@@ -229,7 +231,7 @@ const handleCreate = () => {
   useRequest(container.composeCreate(createModel.value))
     .onSuccess(() => {
       refresh()
-      window.$message.success('创建成功')
+      window.$message.success($gettext('Created successfully'))
     })
     .onComplete(() => {
       loading.value = false
@@ -247,7 +249,7 @@ const handleUpdate = () => {
   useRequest(container.composeUpdate(updateModel.value.name, updateModel.value))
     .onSuccess(() => {
       refresh()
-      window.$message.success('更新成功')
+      window.$message.success($gettext('Update successful'))
     })
     .onComplete(() => {
       loading.value = false
@@ -268,7 +270,7 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">创建编排</n-button>
+      <n-button type="primary" @click="createModal = true">{{ $gettext('Create Compose') }}</n-button>
     </n-flex>
     <n-data-table
       striped
@@ -294,64 +296,64 @@ onMounted(() => {
   <n-modal
     v-model:show="createModal"
     preset="card"
-    title="创建编排"
+    :title="$gettext('Create Compose')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
     :segmented="false"
   >
     <n-form :model="createModel">
-      <n-form-item path="name" label="编排名">
+      <n-form-item path="name" :label="$gettext('Compose Name')">
         <n-input v-model:value="createModel.name" type="text" />
       </n-form-item>
-      <n-form-item path="compose" label="编排">
+      <n-form-item path="compose" :label="$gettext('Compose')">
         <n-input
           v-model:value="createModel.compose"
           type="textarea"
           :autosize="{ minRows: 10, maxRows: 20 }"
         />
       </n-form-item>
-      <n-form-item path="envs" label="环境变量">
+      <n-form-item path="envs" :label="$gettext('Environment Variables')">
         <n-dynamic-input
           v-model:value="createModel.envs"
           preset="pair"
-          key-placeholder="变量名"
-          value-placeholder="变量值"
+          :key-placeholder="$gettext('Variable Name')"
+          :value-placeholder="$gettext('Variable Value')"
         />
       </n-form-item>
     </n-form>
     <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">
-      提交
+      {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
   <n-modal
     v-model:show="updateModal"
     preset="card"
-    title="编辑编排"
+    :title="$gettext('Edit Compose')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
     :segmented="false"
   >
     <n-form :model="updateModel">
-      <n-form-item path="compose" label="编排">
+      <n-form-item path="compose" :label="$gettext('Compose')">
         <n-input
           v-model:value="updateModel.compose"
           type="textarea"
           :autosize="{ minRows: 10, maxRows: 20 }"
         />
       </n-form-item>
-      <n-form-item path="envs" label="环境变量">
+      <n-form-item path="envs" :label="$gettext('Environment Variables')">
         <n-dynamic-input
           v-model:value="updateModel.envs"
           preset="pair"
-          key-placeholder="变量名"
-          value-placeholder="变量值"
+          :key-placeholder="$gettext('Variable Name')"
+          :value-placeholder="$gettext('Variable Value')"
         />
       </n-form-item>
     </n-form>
     <n-button type="info" block :loading="loading" :disabled="loading" @click="handleUpdate">
-      提交
+      {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
 </template>
