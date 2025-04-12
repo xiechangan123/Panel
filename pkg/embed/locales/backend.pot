@@ -27,6 +27,10 @@ msgstr ""
 msgid "Active connections"
 msgstr ""
 
+#: internal/data/app.go:347
+msgid "App %s %s"
+msgstr ""
+
 #: internal/apps/php/app.go:127
 msgid "Application Pool"
 msgstr ""
@@ -62,6 +66,18 @@ msgstr ""
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
+#: internal/data/backup.go:628
+msgid "Cleaning temporary directory failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:666
+msgid "Cleaning temporary file failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:193
+msgid "Cleanup failed: %v"
+msgstr ""
+
 #: internal/apps/redis/app.go:86
 msgid "Commands Per Second"
 msgstr ""
@@ -73,6 +89,15 @@ msgstr ""
 #: internal/bootstrap/cli.go:17
 #: internal/bootstrap/cli.go:25
 msgid "DESCRIPTION"
+msgstr ""
+
+#: internal/data/backup.go:726
+#: internal/data/backup.go:729
+msgid "Download failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:732
+msgid "Download file check failed"
 msgstr ""
 
 #: internal/apps/php/app.go:382
@@ -89,6 +114,10 @@ msgstr ""
 
 #: internal/apps/php/app.go:287
 msgid "Fileinfo is a library used to identify file types"
+msgstr ""
+
+#: internal/data/backup.go:588
+msgid "Files are normal and do not need to be repaired, please run panel-cli update to update the panel"
 msgstr ""
 
 #: internal/bootstrap/cli.go:34
@@ -143,6 +172,15 @@ msgstr ""
 msgid "Install PHP-%d %s extension"
 msgstr ""
 
+#: internal/data/app.go:191
+msgid "Install app %s"
+msgstr ""
+
+#: internal/data/backup.go:510
+#: internal/data/backup.go:536
+msgid "Insufficient backup directory space"
+msgstr ""
+
 #: internal/apps/php/app.go:412
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
@@ -195,6 +233,18 @@ msgstr ""
 msgid "Memory Fragmentation Ratio"
 msgstr ""
 
+#: internal/data/backup.go:648
+msgid "Move panel config failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:643
+msgid "Move panel file failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:653
+msgid "Move panel-cli file failed: %w"
+msgstr ""
+
 #: internal/apps/mysql/app.go:88
 msgid "MySQL root password is empty"
 msgstr ""
@@ -203,6 +253,10 @@ msgstr ""
 #: internal/bootstrap/cli.go:22
 #: internal/bootstrap/cli.go:27
 msgid "NAME"
+msgstr ""
+
+#: internal/data/backup.go:616
+msgid "No backup file found, unable to automatically repair"
 msgstr ""
 
 #: internal/bootstrap/cli.go:26
@@ -260,6 +314,10 @@ msgstr ""
 
 #: internal/apps/php/app.go:367
 msgid "Readline is a library for processing text"
+msgstr ""
+
+#: internal/data/backup.go:640
+msgid "Remove panel file failed: %w"
 msgstr ""
 
 #: internal/apps/mysql/app.go:118
@@ -327,6 +385,14 @@ msgstr ""
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
+#: internal/data/backup.go:746
+msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run panel-cli fix to repair and try again"
+msgstr ""
+
+#: internal/data/backup.go:556
+msgid "The number of files contained in the compressed file is not 1, actual %d"
+msgstr ""
+
 #: internal/apps/redis/app.go:80
 msgid "Total Allocated Memory"
 msgstr ""
@@ -383,6 +449,22 @@ msgstr ""
 msgid "Uninstall PHP-%d %s extension"
 msgstr ""
 
+#: internal/data/app.go:246
+msgid "Uninstall app %s"
+msgstr ""
+
+#: internal/data/backup.go:631
+msgid "Unzip backup file failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:663
+msgid "Unzip panel data failed: %w"
+msgstr ""
+
+#: internal/data/app.go:301
+msgid "Update app %s"
+msgstr ""
+
 #: internal/apps/mysql/app.go:114
 msgid "Uptime"
 msgstr ""
@@ -393,6 +475,10 @@ msgstr ""
 
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
+msgstr ""
+
+#: internal/data/backup.go:739
+msgid "Verify download file failed: %w"
 msgstr ""
 
 #: internal/apps/nginx/app.go:152
@@ -423,11 +509,52 @@ msgstr ""
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
+#: internal/data/app.go:159
+msgid "app %s already installed"
+msgstr ""
+
+#: internal/data/app.go:56
+msgid "app %s not found"
+msgstr ""
+
+#: internal/data/app.go:210
+#: internal/data/app.go:265
+msgid "app %s not installed"
+msgstr ""
+
+#: internal/data/app.go:179
+#: internal/data/app.go:289
+msgid "app %s not support current panel version"
+msgstr ""
+
+#: internal/data/app.go:170
+#: internal/data/app.go:225
+#: internal/data/app.go:280
+msgid "app %s requires panel version %s, current version %s"
+msgstr ""
+
+#: internal/data/backup.go:378
+#: internal/data/backup.go:405
+#: internal/data/backup.go:451
+msgid "backup file %s not exists"
+msgstr ""
+
+#: internal/data/backup.go:564
+msgid "could not find .sql backup file"
+msgstr ""
+
+#: internal/data/backup.go:258
+#: internal/data/backup.go:304
+#: internal/data/backup.go:420
+#: internal/data/backup.go:462
+msgid "database does not exist: %s"
+msgstr ""
+
 #: internal/apps/pureftpd/app.go:84
 msgid "directory %s does not exist"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:155
+#: internal/apps/toolbox/app.go:156
 msgid "disk space is insufficient, current free %s"
 msgstr ""
 
@@ -443,6 +570,10 @@ msgstr ""
 #: internal/apps/s3fs/app.go:134
 #: internal/apps/s3fs/app.go:139
 msgid "failed to add s3fs mount: %v"
+msgstr ""
+
+#: internal/data/backup.go:598
+msgid "failed to clean temporary files: %w"
 msgstr ""
 
 #: internal/apps/s3fs/app.go:78
@@ -486,12 +617,12 @@ msgstr ""
 msgid "failed to get PostgreSQL start time: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:106
-#: internal/apps/toolbox/app.go:93
+#: internal/apps/toolbox/app.go:107
+#: internal/apps/toolbox/app.go:94
 msgid "failed to get SWAP: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:207
+#: internal/apps/toolbox/app.go:208
 msgid "failed to get available timezones: %v"
 msgstr ""
 
@@ -503,7 +634,7 @@ msgstr ""
 msgid "failed to get current banned list"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:151
+#: internal/apps/toolbox/app.go:152
 msgid "failed to get disk space: %v"
 msgstr ""
 
@@ -544,12 +675,16 @@ msgstr ""
 msgid "failed to get the secret key for module %s"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:196
+#: internal/apps/toolbox/app.go:197
 msgid "failed to get timezone: %v"
 msgstr ""
 
 #: internal/apps/fail2ban/app.go:263
 msgid "failed to get total banned list"
+msgstr ""
+
+#: internal/data/app.go:234
+msgid "failed to get uninstall script for app %s"
 msgstr ""
 
 #: internal/apps/mysql/app.go:188
@@ -589,23 +724,23 @@ msgstr ""
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:175
+#: internal/apps/toolbox/app.go:176
 msgid "failed to set SWAP permission: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:292
+#: internal/apps/toolbox/app.go:293
 msgid "failed to set hostname: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:315
+#: internal/apps/toolbox/app.go:316
 msgid "failed to set hosts: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:332
+#: internal/apps/toolbox/app.go:333
 msgid "failed to set root password: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:79
+#: internal/apps/toolbox/app.go:80
 msgid "failed to update DNS: %v"
 msgstr ""
 
@@ -623,6 +758,10 @@ msgstr ""
 
 #: internal/apps/php/app.go:472
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
+msgstr ""
+
+#: internal/data/backup.go:139
+msgid "log file %s not exists"
 msgstr ""
 
 #: internal/apps/rsync/app.go:117
@@ -691,6 +830,12 @@ msgstr ""
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
+#: internal/data/backup.go:131
+#: internal/data/backup.go:207
+#: internal/data/backup.go:95
+msgid "unknown backup type"
+msgstr ""
+
 #: internal/apps/fail2ban/app.go:180
 msgid "unknown service"
 msgstr ""
@@ -713,4 +858,168 @@ msgstr ""
 
 #: internal/apps/php/app.go:452
 msgid "zstd is a library for compressing and decompressing files"
+msgstr ""
+
+#: internal/data/backup.go:239
+#: internal/data/backup.go:289
+#: internal/data/backup.go:329
+#: internal/data/backup.go:369
+msgid "|-Backed up to file: %s"
+msgstr ""
+
+#: internal/data/backup.go:506
+#: internal/data/backup.go:532
+msgid "|-Backup directory available Inode: %d"
+msgstr ""
+
+#: internal/data/backup.go:505
+#: internal/data/backup.go:531
+msgid "|-Backup directory available space: %s"
+msgstr ""
+
+#: internal/data/backup.go:620
+msgid "|-Backup file used: %s"
+msgstr ""
+
+#: internal/data/backup.go:760
+msgid "|-Backup panel data failed, missing file"
+msgstr ""
+
+#: internal/data/backup.go:754
+#: internal/data/backup.go:757
+msgid "|-Backup panel data failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:750
+msgid "|-Backup panel data..."
+msgstr ""
+
+#: internal/data/backup.go:238
+#: internal/data/backup.go:288
+#: internal/data/backup.go:328
+#: internal/data/backup.go:368
+msgid "|-Backup time: %s"
+msgstr ""
+
+#: internal/data/backup.go:780
+msgid "|-Clean up temporary file failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:742
+msgid "|-Clean up verification file failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:601
+msgid "|-Cleaned up temporary files, please run panel-cli update to update the panel"
+msgstr ""
+
+#: internal/data/backup.go:190
+msgid "|-Cleaning expired file: %s"
+msgstr ""
+
+#: internal/data/backup.go:767
+msgid "|-Cleaning old version failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:764
+msgid "|-Cleaning old version..."
+msgstr ""
+
+#: internal/data/backup.go:718
+msgid "|-Download link: %s"
+msgstr ""
+
+#: internal/data/backup.go:800
+msgid "|-Download panel service file failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:723
+msgid "|-Downloading..."
+msgstr ""
+
+#: internal/data/backup.go:719
+msgid "|-File name: %s"
+msgstr ""
+
+#: internal/data/backup.go:699
+msgid "|-Fix completed"
+msgstr ""
+
+#: internal/data/backup.go:636
+msgid "|-Move backup file..."
+msgstr ""
+
+#: internal/data/backup.go:806
+msgid "|-Move panel-cli tool failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:790
+msgid "|-Restore panel data failed, missing file"
+msgstr ""
+
+#: internal/data/backup.go:787
+msgid "|-Restore panel data failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:659
+#: internal/data/backup.go:784
+msgid "|-Restore panel data..."
+msgstr ""
+
+#: internal/data/backup.go:797
+msgid "|-Run post-update script failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:794
+msgid "|-Run post-update script..."
+msgstr ""
+
+#: internal/data/backup.go:679
+#: internal/data/backup.go:810
+msgid "|-Set key file permissions..."
+msgstr ""
+
+#: internal/data/backup.go:572
+msgid "|-Start fixing the panel..."
+msgstr ""
+
+#: internal/data/backup.go:504
+msgid "|-Target file count: %d"
+msgstr ""
+
+#: internal/data/backup.go:503
+#: internal/data/backup.go:530
+msgid "|-Target size: %s"
+msgstr ""
+
+#: internal/data/backup.go:717
+msgid "|-Target version: %s"
+msgstr ""
+
+#: internal/data/backup.go:625
+msgid "|-Unzip backup file..."
+msgstr ""
+
+#: internal/data/backup.go:777
+msgid "|-Unzip new version failed, missing file"
+msgstr ""
+
+#: internal/data/backup.go:774
+msgid "|-Unzip new version failed: %w"
+msgstr ""
+
+#: internal/data/backup.go:771
+msgid "|-Unzip new version..."
+msgstr ""
+
+#: internal/data/backup.go:817
+msgid "|-Update completed"
+msgstr ""
+
+#: internal/data/backup.go:736
+msgid "|-Verify download file..."
+msgstr ""
+
+#: internal/data/backup.go:803
+msgid "|-Write new panel version failed: %w"
 msgstr ""
