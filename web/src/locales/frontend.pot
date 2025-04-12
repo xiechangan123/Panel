@@ -3,7 +3,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #: src/components/common/AppFooter.vue:13
-#: src/views/dashboard/IndexView.vue:436
+#: src/views/dashboard/IndexView.vue:439
 msgid "Rat Panel"
 msgstr ""
 
@@ -320,7 +320,7 @@ msgid "Updating app %{ app } may reset related configurations to default state, 
 msgstr ""
 
 #: src/views/app/IndexView.vue:104
-#: src/views/dashboard/IndexView.vue:448
+#: src/views/dashboard/IndexView.vue:451
 #: src/views/dashboard/route.ts:32
 msgid "Update"
 msgstr ""
@@ -464,7 +464,7 @@ msgstr ""
 
 #: src/views/apps/benchmark/IndexView.vue:265
 #: src/views/container/ContainerCreate.vue:306
-#: src/views/dashboard/IndexView.vue:530
+#: src/views/dashboard/IndexView.vue:533
 #: src/views/monitor/IndexView.vue:205
 #: src/views/monitor/IndexView.vue:216
 #: src/views/monitor/IndexView.vue:238
@@ -482,8 +482,8 @@ msgstr ""
 
 #: src/views/apps/benchmark/IndexView.vue:296
 #: src/views/dashboard/IndexView.vue:141
-#: src/views/dashboard/IndexView.vue:795
-#: src/views/dashboard/IndexView.vue:815
+#: src/views/dashboard/IndexView.vue:798
+#: src/views/dashboard/IndexView.vue:818
 msgid "Disk"
 msgstr ""
 
@@ -557,8 +557,10 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:25
 #: src/views/apps/redis/IndexView.vue:29
 #: src/views/apps/supervisor/IndexView.vue:54
-#: src/views/dashboard/IndexView.vue:133
-msgid "Running normally"
+#: src/views/task/SystemView.vue:50
+#: src/views/task/TaskView.vue:33
+#: src/views/website/IndexView.vue:30
+msgid "Running"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:25
@@ -829,7 +831,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:418
 #: src/views/container/ContainerView.vue:137
 #: src/views/container/ContainerView.vue:411
-#: src/views/dashboard/IndexView.vue:444
+#: src/views/dashboard/IndexView.vue:447
 msgid "Restart"
 msgstr ""
 
@@ -1046,7 +1048,7 @@ msgstr ""
 #: src/views/cert/CertView.vue:468
 #: src/views/cert/CertView.vue:551
 #: src/views/cert/CreateCertModal.vue:90
-#: src/views/dashboard/IndexView.vue:418
+#: src/views/dashboard/IndexView.vue:421
 #: src/views/task/CreateModal.vue:130
 msgid "Website"
 msgstr ""
@@ -1167,7 +1169,7 @@ msgstr ""
 #: src/views/apps/php/PhpView.vue:389
 #: src/views/apps/postgresql/IndexView.vue:235
 #: src/views/apps/redis/IndexView.vue:174
-#: src/views/dashboard/IndexView.vue:459
+#: src/views/dashboard/IndexView.vue:462
 msgid "Load Status"
 msgstr ""
 
@@ -1714,7 +1716,7 @@ msgid "Total %{ total }, used %{ used }, free %{ free }"
 msgstr ""
 
 #: src/views/apps/toolbox/IndexView.vue:149
-#: src/views/dashboard/IndexView.vue:578
+#: src/views/dashboard/IndexView.vue:581
 msgid "SWAP Size"
 msgstr ""
 
@@ -1838,7 +1840,7 @@ msgid "Restore Backup"
 msgstr ""
 
 #: src/views/backup/ListView.vue:265
-#: src/views/dashboard/IndexView.vue:422
+#: src/views/dashboard/IndexView.vue:425
 #: src/views/database/IndexView.vue:45
 #: src/views/database/route.ts:19
 #: src/views/website/IndexView.vue:447
@@ -2527,7 +2529,7 @@ msgstr ""
 
 #: src/views/container/ContainerCreate.vue:244
 #: src/views/dashboard/IndexView.vue:141
-#: src/views/dashboard/IndexView.vue:794
+#: src/views/dashboard/IndexView.vue:797
 #: src/views/monitor/IndexView.vue:286
 msgid "Network"
 msgstr ""
@@ -2866,7 +2868,7 @@ msgid "Container"
 msgstr ""
 
 #: src/views/container/VolumeView.vue:47
-#: src/views/dashboard/IndexView.vue:641
+#: src/views/dashboard/IndexView.vue:644
 msgid "Mount Point"
 msgstr ""
 
@@ -2891,44 +2893,48 @@ msgstr ""
 msgid "Running slowly"
 msgstr ""
 
+#: src/views/dashboard/IndexView.vue:133
+msgid "Running normally"
+msgstr ""
+
 #: src/views/dashboard/IndexView.vue:135
 msgid "Running smoothly"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:162
-#: src/views/dashboard/IndexView.vue:178
+#: src/views/dashboard/IndexView.vue:164
+#: src/views/dashboard/IndexView.vue:181
 msgid "Send"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:162
-#: src/views/dashboard/IndexView.vue:202
+#: src/views/dashboard/IndexView.vue:164
+#: src/views/dashboard/IndexView.vue:205
 msgid "Receive"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:162
-#: src/views/dashboard/IndexView.vue:178
-#: src/views/dashboard/IndexView.vue:839
+#: src/views/dashboard/IndexView.vue:165
+#: src/views/dashboard/IndexView.vue:181
+#: src/views/dashboard/IndexView.vue:842
 #: src/views/file/PermissionModal.vue:88
 #: src/views/file/PermissionModal.vue:97
 #: src/views/file/PermissionModal.vue:106
 msgid "Read"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:162
-#: src/views/dashboard/IndexView.vue:202
-#: src/views/dashboard/IndexView.vue:840
+#: src/views/dashboard/IndexView.vue:165
+#: src/views/dashboard/IndexView.vue:205
+#: src/views/dashboard/IndexView.vue:843
 #: src/views/file/PermissionModal.vue:89
 #: src/views/file/PermissionModal.vue:98
 #: src/views/file/PermissionModal.vue:107
 msgid "Write"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:170
+#: src/views/dashboard/IndexView.vue:173
 msgid "Unit %{unit}"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:184
-#: src/views/dashboard/IndexView.vue:208
+#: src/views/dashboard/IndexView.vue:187
+#: src/views/dashboard/IndexView.vue:211
 #: src/views/monitor/IndexView.vue:93
 #: src/views/monitor/IndexView.vue:115
 #: src/views/monitor/IndexView.vue:137
@@ -2942,8 +2948,8 @@ msgstr ""
 msgid "Maximum"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:185
-#: src/views/dashboard/IndexView.vue:209
+#: src/views/dashboard/IndexView.vue:188
+#: src/views/dashboard/IndexView.vue:212
 #: src/views/monitor/IndexView.vue:94
 #: src/views/monitor/IndexView.vue:116
 #: src/views/monitor/IndexView.vue:138
@@ -2957,8 +2963,8 @@ msgstr ""
 msgid "Minimum"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:189
-#: src/views/dashboard/IndexView.vue:213
+#: src/views/dashboard/IndexView.vue:192
+#: src/views/dashboard/IndexView.vue:216
 #: src/views/monitor/IndexView.vue:98
 #: src/views/monitor/IndexView.vue:120
 #: src/views/monitor/IndexView.vue:142
@@ -2972,215 +2978,215 @@ msgstr ""
 msgid "Average"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:321
+#: src/views/dashboard/IndexView.vue:324
 msgid "Panel restarting..."
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:323
+#: src/views/dashboard/IndexView.vue:326
 msgid "Panel restarted successfully"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:335
+#: src/views/dashboard/IndexView.vue:338
 msgid "Current version is the latest"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:431
+#: src/views/dashboard/IndexView.vue:434
 #: src/views/task/IndexView.vue:29
 msgid "Scheduled Tasks"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:440
+#: src/views/dashboard/IndexView.vue:443
 msgid "Sponsor Support"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:446
+#: src/views/dashboard/IndexView.vue:449
 msgid "Are you sure you want to restart the panel?"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:454
+#: src/views/dashboard/IndexView.vue:457
 msgid "Resource Overview"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:471
+#: src/views/dashboard/IndexView.vue:474
 msgid "Last 1 minute"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:478
+#: src/views/dashboard/IndexView.vue:481
 msgid "Last 5 minutes"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:485
+#: src/views/dashboard/IndexView.vue:488
 msgid "Last 15 minutes"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:503
-#: src/views/dashboard/IndexView.vue:514
+#: src/views/dashboard/IndexView.vue:506
+#: src/views/dashboard/IndexView.vue:517
 msgid "cores"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:508
+#: src/views/dashboard/IndexView.vue:511
 msgid "Model"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:512
+#: src/views/dashboard/IndexView.vue:515
 msgid "Parameters"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:515
+#: src/views/dashboard/IndexView.vue:518
 msgid "cache"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:521
+#: src/views/dashboard/IndexView.vue:524
 #: src/views/monitor/IndexView.vue:179
 msgid "Usage"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:522
+#: src/views/dashboard/IndexView.vue:525
 msgid "Frequency"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:542
+#: src/views/dashboard/IndexView.vue:545
 msgid "Active"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:548
+#: src/views/dashboard/IndexView.vue:551
 msgid "Inactive"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:554
+#: src/views/dashboard/IndexView.vue:557
 msgid "Free"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:560
+#: src/views/dashboard/IndexView.vue:563
 msgid "Shared"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:566
+#: src/views/dashboard/IndexView.vue:569
 msgid "Committed"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:572
+#: src/views/dashboard/IndexView.vue:575
 msgid "Commit Limit"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:584
+#: src/views/dashboard/IndexView.vue:587
 msgid "SWAP Used"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:590
+#: src/views/dashboard/IndexView.vue:593
 msgid "SWAP Available"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:596
+#: src/views/dashboard/IndexView.vue:599
 msgid "Physical Memory Size"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:602
+#: src/views/dashboard/IndexView.vue:605
 msgid "Physical Memory Used"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:608
+#: src/views/dashboard/IndexView.vue:611
 msgid "Physical Memory Available"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:645
+#: src/views/dashboard/IndexView.vue:648
 msgid "File System"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:649
+#: src/views/dashboard/IndexView.vue:652
 msgid "Inodes Usage"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:653
+#: src/views/dashboard/IndexView.vue:656
 msgid "Inodes Total"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:657
+#: src/views/dashboard/IndexView.vue:660
 msgid "Inodes Used"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:661
+#: src/views/dashboard/IndexView.vue:664
 msgid "Inodes Available"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:678
+#: src/views/dashboard/IndexView.vue:681
 msgid "Quick Apps"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:721
+#: src/views/dashboard/IndexView.vue:724
 msgid "You have not set any apps to display here!"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:725
+#: src/views/dashboard/IndexView.vue:728
 msgid "Environment Information"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:728
+#: src/views/dashboard/IndexView.vue:731
 msgid "System Hostname"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:730
-#: src/views/dashboard/IndexView.vue:738
-#: src/views/dashboard/IndexView.vue:745
-#: src/views/dashboard/IndexView.vue:751
-#: src/views/dashboard/IndexView.vue:762
-#: src/views/dashboard/IndexView.vue:774
+#: src/views/dashboard/IndexView.vue:733
+#: src/views/dashboard/IndexView.vue:741
+#: src/views/dashboard/IndexView.vue:748
+#: src/views/dashboard/IndexView.vue:754
+#: src/views/dashboard/IndexView.vue:765
+#: src/views/dashboard/IndexView.vue:777
 msgid "Loading..."
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:734
+#: src/views/dashboard/IndexView.vue:737
 msgid "System Version"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:743
+#: src/views/dashboard/IndexView.vue:746
 msgid "System Kernel Version"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:749
+#: src/views/dashboard/IndexView.vue:752
 msgid "System Uptime"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:755
+#: src/views/dashboard/IndexView.vue:758
 msgid "Panel Internal Version"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:767
+#: src/views/dashboard/IndexView.vue:770
 msgid "Panel Compile Information"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:784
+#: src/views/dashboard/IndexView.vue:787
 msgid "Real-time Monitoring"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:798
+#: src/views/dashboard/IndexView.vue:801
 msgid "Unit"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:806
+#: src/views/dashboard/IndexView.vue:809
 msgid "Network Card"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:826
+#: src/views/dashboard/IndexView.vue:829
 msgid "Total Sent"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:828
+#: src/views/dashboard/IndexView.vue:831
 msgid "Total Received"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:831
+#: src/views/dashboard/IndexView.vue:834
 msgid "Real-time Sent"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:835
+#: src/views/dashboard/IndexView.vue:838
 msgid "Real-time Received"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:842
+#: src/views/dashboard/IndexView.vue:845
 msgid "Real-time Read/Write"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:845
+#: src/views/dashboard/IndexView.vue:848
 msgid "Read/Write Latency"
 msgstr ""
 
@@ -4203,12 +4209,6 @@ msgstr ""
 
 #: src/views/task/SystemView.vue:31
 msgid "Threads"
-msgstr ""
-
-#: src/views/task/SystemView.vue:50
-#: src/views/task/TaskView.vue:33
-#: src/views/website/IndexView.vue:30
-msgid "Running"
 msgstr ""
 
 #: src/views/task/SystemView.vue:52
