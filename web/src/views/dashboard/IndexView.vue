@@ -138,7 +138,7 @@ const statusText = (percentage: number) => {
 const chartOptions = computed(() => {
   return {
     title: {
-      text: chartType.value == 'net' ? '网络' : '硬盘',
+      text: chartType.value == 'net' ? $gettext('Network') : $gettext('Disk'),
       textAlign: 'left',
       textStyle: {
         fontSize: 20
@@ -159,7 +159,7 @@ const chartOptions = computed(() => {
     },
     legend: {
       align: 'left',
-      data: chartType.value == 'net' ? ['发送', '接收'] : ['读取', '写入']
+      data: chartType.value == 'net' ? [$gettext('Send'), $gettext('Receive')] : [$gettext('Read'), $gettext('Write')]
     },
     xAxis: {
       type: 'category',
@@ -167,7 +167,7 @@ const chartOptions = computed(() => {
       data: timeDiskData.value
     },
     yAxis: {
-      name: `单位 ${unitType.value}`,
+      name: $gettext('Unit %{unit}', { unit: unitType.value }),
       type: 'value',
       axisLabel: {
         formatter: `{value} ${unitType.value}`
@@ -175,18 +175,18 @@ const chartOptions = computed(() => {
     },
     series: [
       {
-        name: chartType.value == 'net' ? '发送' : '读取',
+        name: chartType.value == 'net' ? $gettext('Send') : $gettext('Read'),
         type: 'line',
         smooth: true,
         data: chartType.value == 'net' ? netBytesSent.value : diskReadBytes.value,
         markPoint: {
           data: [
-            { type: 'max', name: '最大值' },
-            { type: 'min', name: '最小值' }
+            { type: 'max', name: $gettext('Maximum') },
+            { type: 'min', name: $gettext('Minimum') }
           ]
         },
         markLine: {
-          data: [{ type: 'average', name: '平均值' }]
+          data: [{ type: 'average', name: $gettext('Average') }]
         },
         lineStyle: {
           color: 'rgb(247, 184, 81)'
@@ -199,18 +199,18 @@ const chartOptions = computed(() => {
         }
       },
       {
-        name: chartType.value == 'net' ? '接收' : '写入',
+        name: chartType.value == 'net' ? $gettext('Receive') : $gettext('Write'),
         type: 'line',
         smooth: true,
         data: chartType.value == 'net' ? netBytesRecv.value : diskWriteBytes.value,
         markPoint: {
           data: [
-            { type: 'max', name: '最大值' },
-            { type: 'min', name: '最小值' }
+            { type: 'max', name: $gettext('Maximum') },
+            { type: 'min', name: $gettext('Minimum') }
           ]
         },
         markLine: {
-          data: [{ type: 'average', name: '平均值' }]
+          data: [{ type: 'average', name: $gettext('Average') }]
         },
         lineStyle: {
           color: 'rgb(82, 169, 255)'

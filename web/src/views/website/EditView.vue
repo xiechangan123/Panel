@@ -284,7 +284,7 @@ const onCreateListen = () => {
             >
             </n-select>
           </n-form-item>
-          <n-form-item :label="$gettext('Anti-XSS Attack (PHP)')">
+          <n-form-item :label="$gettext('Anti-cross-site Attack (PHP)')">
             <n-switch v-model:value="setting.open_basedir" />
           </n-form-item>
         </n-form>

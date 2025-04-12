@@ -188,7 +188,7 @@ const columns: DataTableColumns<RowData> = [
   {
     title: $gettext('Actions'),
     key: 'action',
-    width: 340,
+    width: 400,
     render(row) {
       return h(
         NFlex,

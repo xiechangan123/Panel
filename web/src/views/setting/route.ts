@@ -16,7 +16,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: $gettext('Panel Settings'),
+        title: $gettext('Settings'),
         icon: 'mdi:settings-outline',
         role: ['admin'],
         requireAuth: true

@@ -16,7 +16,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: $gettext('Background Tasks'),
+        title: $gettext('Tasks'),
         icon: 'mdi:timetable',
         role: ['admin'],
         requireAuth: true
