@@ -87,7 +87,6 @@ const processColumns: any = [
     title: $gettext('Actions'),
     key: 'actions',
     width: 500,
-    align: 'center',
     hideInExcel: true,
     render(row: any) {
       return [

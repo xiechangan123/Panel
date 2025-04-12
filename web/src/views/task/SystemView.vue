@@ -96,7 +96,6 @@ const columns: any = [
     title: $gettext('Actions'),
     key: 'actions',
     width: 150,
-    align: 'center',
     hideInExcel: true,
     render(row: any) {
       return h(

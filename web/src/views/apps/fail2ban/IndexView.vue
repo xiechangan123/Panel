@@ -69,7 +69,6 @@ const jailsColumns: any = [
     title: $gettext('Actions'),
     key: 'actions',
     width: 280,
-    align: 'center',
     hideInExcel: true,
     render(row: any) {
       return [
@@ -131,7 +130,6 @@ const banedIPColumns: any = [
     title: $gettext('Actions'),
     key: 'actions',
     width: 100,
-    align: 'center',
     hideInExcel: true,
     render(row: any) {
       return [

@@ -70,105 +70,99 @@ const columns: any = [
     width: 350,
     hideInExcel: true,
     render(row: any) {
-      return h(
-        NFlex,
-        {
-          justify: 'center'
-        },
-        {
-          default: () => [
-            row.installed && row.update_exist
-              ? h(
-                  NPopconfirm,
-                  {
-                    onPositiveClick: () => handleUpdate(row.slug)
+      return h(NFlex, null, {
+        default: () => [
+          row.installed && row.update_exist
+            ? h(
+                NPopconfirm,
+                {
+                  onPositiveClick: () => handleUpdate(row.slug)
+                },
+                {
+                  default: () => {
+                    return $gettext(
+                      'Updating app %{ app } may reset related configurations to default state, are you sure to continue?',
+                      { app: row.name }
+                    )
                   },
-                  {
-                    default: () => {
-                      return $gettext(
-                        'Updating app %{ app } may reset related configurations to default state, are you sure to continue?',
-                        { app: row.name }
-                      )
-                    },
-                    trigger: () => {
-                      return h(
-                        NButton,
-                        {
-                          size: 'small',
-                          type: 'warning'
-                        },
-                        {
-                          default: () => $gettext('Update'),
-                          icon: renderIcon('material-symbols:arrow-circle-up-outline-rounded', {
-                            size: 14
-                          })
-                        }
-                      )
-                    }
+                  trigger: () => {
+                    return h(
+                      NButton,
+                      {
+                        size: 'small',
+                        type: 'warning'
+                      },
+                      {
+                        default: () => $gettext('Update'),
+                        icon: renderIcon('material-symbols:arrow-circle-up-outline-rounded', {
+                          size: 14
+                        })
+                      }
+                    )
                   }
-                )
-              : null,
-            row.installed
-              ? h(
-                  NButton,
-                  {
-                    size: 'small',
-                    type: 'success',
-                    onClick: () => handleManage(row.slug)
+                }
+              )
+            : null,
+          row.installed
+            ? h(
+                NButton,
+                {
+                  size: 'small',
+                  type: 'success',
+                  onClick: () => handleManage(row.slug)
+                },
+                {
+                  default: () => $gettext('Manage'),
+                  icon: renderIcon('material-symbols:settings-outline', { size: 14 })
+                }
+              )
+            : null,
+          row.installed
+            ? h(
+                NPopconfirm,
+                {
+                  onPositiveClick: () => handleUninstall(row.slug)
+                },
+                {
+                  default: () => {
+                    return $gettext('Are you sure to uninstall app %{ app }?', { app: row.name })
                   },
-                  {
-                    default: () => $gettext('Manage'),
-                    icon: renderIcon('material-symbols:settings-outline', { size: 14 })
+                  trigger: () => {
+                    return h(
+                      NButton,
+                      {
+                        size: 'small',
+                        type: 'error'
+                      },
+                      {
+                        default: () => $gettext('Uninstall'),
+                        icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                      }
+                    )
                   }
-                )
-              : null,
-            row.installed
-              ? h(
-                  NPopconfirm,
-                  {
-                    onPositiveClick: () => handleUninstall(row.slug)
-                  },
-                  {
-                    default: () => {
-                      return $gettext('Are you sure to uninstall app %{ app }?', { app: row.name })
-                    },
-                    trigger: () => {
-                      return h(
-                        NButton,
-                        {
-                          size: 'small',
-                          type: 'error'
-                        },
-                        {
-                          default: () => $gettext('Uninstall'),
-                          icon: renderIcon('material-symbols:delete-outline', { size: 14 })
-                        }
-                      )
-                    }
+                }
+              )
+            : null,
+          !row.installed
+            ? h(
+                NButton,
+                {
+                  size: 'small',
+                  type: 'info',
+                  onClick: () => {
+                    versionModalShow.value = true
+                    versionModalOperation.value = $gettext('Install')
+                    versionModalInfo.value = row
                   }
-                )
-              : null,
-            !row.installed
-              ? h(
-                  NButton,
-                  {
-                    size: 'small',
-                    type: 'info',
-                    onClick: () => {
-                      versionModalShow.value = true
-                      versionModalOperation.value = $gettext('Install')
-                      versionModalInfo.value = row
-                    }
-                  },
-                  {
-                    default: () => $gettext('Install'),
-                    icon: renderIcon('material-symbols:download-rounded', { size: 14 })
-                  }
-                )
-              : null
-          ]
-        }
-      )
+                },
+                {
+                  default: () => $gettext('Install'),
+                  icon: renderIcon('material-symbols:download-rounded', { size: 14 })
+                }
+              )
+            : null
+        ]
+      })
     }
   }
 ]
