@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
 
@@ -26,7 +28,7 @@ watch(
   <n-modal
     v-model:show="show"
     preset="card"
-    :title="'预览 - ' + path"
+    :title="$gettext('Preview - %{ path }', { path })"
     style="width: 60vw"
     size="huge"
     :bordered="false"

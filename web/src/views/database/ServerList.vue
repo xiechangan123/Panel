@@ -151,7 +151,9 @@ const columns: any = [
           },
           {
             default: () => {
-              return $gettext('Are you sure you want to synchronize database users (excluding password) to the panel?')
+              return $gettext(
+                'Are you sure you want to synchronize database users (excluding password) to the panel?'
+              )
             },
             trigger: () => {
               return h(
@@ -190,7 +192,11 @@ const columns: any = [
             onPositiveClick: () => {
               // 防手贱
               if (['local_mysql', 'local_postgresql'].includes(row.name)) {
-                window.$message.error($gettext('Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding application'))
+                window.$message.error(
+                  $gettext(
+                    'Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app'
+                  )
+                )
                 return
               }
               handleDelete(row.id)

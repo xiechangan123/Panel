@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import database from '@/api/panel/database'
 import { NButton, NInput } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const id = defineModel<number>('id', { type: Number, required: true })
 const updateModel = ref({
@@ -13,7 +15,7 @@ const updateModel = ref({
 const handleUpdate = () => {
   useRequest(() => database.userUpdate(id.value, updateModel.value)).onSuccess(() => {
     show.value = false
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
     window.$bus.emit('database-user:refresh')
   })
 }
@@ -36,7 +38,7 @@ watch(
   <n-modal
     v-model:show="show"
     preset="card"
-    title="修改用户"
+    :title="$gettext('Modify User')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -44,28 +46,28 @@ watch(
     @close="show = false"
   >
     <n-form :model="updateModel">
-      <n-form-item path="password" label="密码">
+      <n-form-item path="password" :label="$gettext('Password')">
         <n-input
           v-model:value="updateModel.password"
           type="password"
           show-password-on="click"
           @keydown.enter.prevent
-          placeholder="输入密码"
+          :placeholder="$gettext('Enter password')"
         />
       </n-form-item>
-      <n-form-item path="privileges" label="授权">
-        <n-dynamic-input v-model:value="updateModel.privileges" placeholder="输入数据库名" />
+      <n-form-item path="privileges" :label="$gettext('Privileges')">
+        <n-dynamic-input v-model:value="updateModel.privileges" :placeholder="$gettext('Enter database name')" />
       </n-form-item>
-      <n-form-item path="remark" label="备注">
+      <n-form-item path="remark" :label="$gettext('Comment')">
         <n-input
           v-model:value="updateModel.remark"
           type="textarea"
           @keydown.enter.prevent
-          placeholder="输入数据库用户备注"
+          :placeholder="$gettext('Enter database user comment')"
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleUpdate">提交</n-button>
+    <n-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
 </template>
 

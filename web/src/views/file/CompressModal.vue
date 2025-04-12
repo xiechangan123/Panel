@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { NButton, NInput } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import api from '@/api/panel/file'
 import { generateRandomString, getBase } from '@/utils'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
 const selected = defineModel<string[]>('selected', { type: Array, default: () => [] })
@@ -27,7 +29,7 @@ const ensureExtension = (extension: string) => {
 const handleArchive = () => {
   ensureExtension(format.value)
   loading.value = true
-  const message = window.$message.loading('正在压缩中...', {
+  const message = window.$message.loading($gettext('Compressing...'), {
     duration: 0
   })
   const paths = selected.value.map((item) => item.replace(path.value, '').replace(/^\//, ''))
@@ -35,7 +37,7 @@ const handleArchive = () => {
     .onSuccess(() => {
       show.value = false
       selected.value = []
-      window.$message.success('压缩成功')
+      window.$message.success($gettext('Compressed successfully'))
     })
     .onComplete(() => {
       message?.destroy()
@@ -59,7 +61,7 @@ onMounted(() => {
   <n-modal
     v-model:show="show"
     preset="card"
-    title="压缩"
+    :title="$gettext('Compress')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -67,13 +69,13 @@ onMounted(() => {
   >
     <n-flex vertical>
       <n-form>
-        <n-form-item label="待压缩">
+        <n-form-item :label="$gettext('Files to compress')">
           <n-dynamic-input v-model:value="selected" :min="1" />
         </n-form-item>
-        <n-form-item label="压缩为">
+        <n-form-item :label="$gettext('Compress to')">
           <n-input v-model:value="file" />
         </n-form-item>
-        <n-form-item label="格式">
+        <n-form-item :label="$gettext('Format')">
           <n-select
             v-model:value="format"
             :options="[
@@ -91,7 +93,7 @@ onMounted(() => {
         </n-form-item>
       </n-form>
       <n-button :loading="loading" :disabled="loading" type="primary" @click="handleArchive">
-        压缩
+        {{ $gettext('Compress') }}
       </n-button>
     </n-flex>
   </n-modal>

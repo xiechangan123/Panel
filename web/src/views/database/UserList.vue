@@ -2,17 +2,19 @@
 import { renderIcon } from '@/utils'
 import copy2clipboard from '@vavt/copy2clipboard'
 import { NButton, NFlex, NInput, NInputGroup, NPopconfirm, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
 import { formatDateTime } from '@/utils'
 import UpdateUserModal from '@/views/database/UpdateUserModal.vue'
 
+const { $gettext } = useGettext()
 const updateModal = ref(false)
 const updateID = ref(0)
 
 const columns: any = [
   {
-    title: '类型',
+    title: $gettext('Type'),
     key: 'type',
     width: 150,
     render(row: any) {
@@ -35,17 +37,17 @@ const columns: any = [
     }
   },
   {
-    title: '用户名',
+    title: $gettext('Username'),
     key: 'username',
     minWidth: 100,
     resizable: true,
     ellipsis: { tooltip: true },
     render(row: any) {
-      return row.username || '无'
+      return row.username || $gettext('None')
     }
   },
   {
-    title: '密码',
+    title: $gettext('Password'),
     key: 'password',
     width: 250,
     render(row: any) {
@@ -56,7 +58,7 @@ const columns: any = [
             type: 'password',
             showPasswordOn: 'click',
             readonly: true,
-            placeholder: '未保存'
+            placeholder: $gettext('Not saved')
           }),
           h(
             NButton,
@@ -65,28 +67,28 @@ const columns: any = [
               ghost: true,
               onClick: () => {
                 copy2clipboard(row.password).then(() => {
-                  window.$message.success('复制成功')
+                  window.$message.success($gettext('Copied successfully'))
                 })
               }
             },
-            { default: () => '复制' }
+            { default: () => $gettext('Copy') }
           )
         ]
       })
     }
   },
   {
-    title: '主机',
+    title: $gettext('Host'),
     key: 'host',
     width: 150,
     render(row: any) {
       return h(NTag, null, {
-        default: () => row.host || '无'
+        default: () => row.host || $gettext('None')
       })
     }
   },
   {
-    title: '服务器',
+    title: $gettext('Server'),
     key: 'server',
     width: 150,
     render(row: any) {
@@ -94,7 +96,7 @@ const columns: any = [
     }
   },
   {
-    title: '授权',
+    title: $gettext('Privileges'),
     key: 'privileges',
     width: 200,
     render(row: any) {
@@ -109,7 +111,7 @@ const columns: any = [
     }
   },
   {
-    title: '备注',
+    title: $gettext('Comment'),
     key: 'remark',
     minWidth: 250,
     resizable: true,
@@ -126,19 +128,19 @@ const columns: any = [
     }
   },
   {
-    title: '状态',
+    title: $gettext('Status'),
     key: 'status',
     width: 100,
     render(row: any) {
       return h(
         NTag,
         { type: row.status === 'valid' ? 'success' : 'error' },
-        { default: () => (row.status === 'valid' ? '有效' : '无效') }
+        { default: () => (row.status === 'valid' ? $gettext('Valid') : $gettext('Invalid')) }
       )
     }
   },
   {
-    title: '更新日期',
+    title: $gettext('Update Date'),
     key: 'updated_at',
     width: 200,
     ellipsis: { tooltip: true },
@@ -147,7 +149,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     align: 'center',
@@ -165,7 +167,7 @@ const columns: any = [
             }
           },
           {
-            default: () => '修改',
+            default: () => $gettext('Modify'),
             icon: renderIcon('material-symbols:edit-outline', { size: 14 })
           }
         ),
@@ -176,7 +178,7 @@ const columns: any = [
           },
           {
             default: () => {
-              return '确定删除用户吗？'
+              return $gettext('Are you sure you want to delete the user?')
             },
             trigger: () => {
               return h(
@@ -187,7 +189,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -212,13 +214,13 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 const handleDelete = (id: number) => {
   useRequest(database.userDelete(id)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
 const handleRemark = (row: any) => {
   useRequest(database.userRemark(row.id, row.remark)).onSuccess(() => {
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
   })
 }
 
@@ -254,7 +256,7 @@ onUnmounted(() => {
       pageSizes: [20, 50, 100, 200]
     }"
   />
-  <update-user-modal v-model:id="updateID" v-model:show="updateModal" />
+  <update-user-modal v-model:show="updateModal" v-model:id="updateID" />
 </template>
 
 <style scoped lang="scss"></style>

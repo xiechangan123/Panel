@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import copy2clipboard from '@vavt/copy2clipboard'
 import type { DataTableColumns } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
 const keyword = defineModel<string>('keyword', { type: String, required: true })
@@ -15,7 +17,7 @@ const loading = ref(false)
 
 const columns: DataTableColumns<RowData> = [
   {
-    title: '名称',
+    title: $gettext('Name'),
     key: 'full',
     minWidth: 300,
     ellipsis: {
@@ -23,7 +25,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '大小',
+    title: $gettext('Size'),
     key: 'size',
     width: 80,
     render(row: any): any {
@@ -31,7 +33,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '修改时间',
+    title: $gettext('Modification Time'),
     key: 'modify',
     width: 200,
     render(row: any): any {
@@ -43,7 +45,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'action',
     width: 200,
     render(row) {
@@ -60,13 +62,13 @@ const columns: DataTableColumns<RowData> = [
                 tertiary: true,
                 onClick: () => {
                   copy2clipboard(row.full).then(() => {
-                    window.$message.success('复制成功')
+                    window.$message.success($gettext('Copied successfully'))
                   })
                 }
               },
               {
                 default: () => {
-                  return '复制路径'
+                  return $gettext('Copy Path')
                 }
               }
             ),
@@ -76,14 +78,14 @@ const columns: DataTableColumns<RowData> = [
                 onPositiveClick: () => {
                   useRequest(file.delete(row.full)).onSuccess(() => {
                     window.$bus.emit('file:refresh')
-                    window.$message.success('删除成功')
+                    window.$message.success($gettext('Deleted successfully'))
                   })
                 },
                 onNegativeClick: () => {}
               },
               {
                 default: () => {
-                  return `确定删除 ${row.name} 吗？`
+                  return $gettext('Are you sure you want to delete %{ name }?', { name: row.name })
                 },
                 trigger: () => {
                   return h(
@@ -93,7 +95,7 @@ const columns: DataTableColumns<RowData> = [
                       type: 'error',
                       tertiary: true
                     },
-                    { default: () => '删除' }
+                    { default: () => $gettext('Delete') }
                   )
                 }
               }
@@ -149,7 +151,7 @@ watch(show, (value) => {
   <n-modal
     v-model:show="show"
     preset="card"
-    :title="keyword + ' - 搜索结果'"
+    :title="$gettext('%{ keyword } - Search Results', { keyword })"
     style="width: 60vw"
     size="huge"
     :bordered="false"

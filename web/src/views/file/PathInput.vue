@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { InputInst } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import { checkPath } from '@/utils/file'
 import SearchModal from '@/views/file/SearchModal.vue'
 
+const { $gettext } = useGettext()
 const path = defineModel<string>('path', { type: String, required: true })
 const isInput = ref(false)
 const pathInput = ref<InputInst | null>(null)
@@ -28,7 +30,7 @@ const handleInput = () => {
 const handleBlur = () => {
   input.value = input.value.replace(/(^\/)|(\/$)/g, '')
   if (!checkPath(input.value)) {
-    window.$message.error('路径不合法')
+    window.$message.error($gettext('Invalid path'))
     return
   }
 
@@ -127,7 +129,7 @@ onUnmounted(() => {
     <n-input-group flex-1>
       <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
         <n-breadcrumb separator=">">
-          <n-breadcrumb-item @click.stop="setPath(-1)"> 根目录 </n-breadcrumb-item>
+          <n-breadcrumb-item @click.stop="setPath(-1)"> {{ $gettext('Root Directory') }} </n-breadcrumb-item>
           <n-breadcrumb-item
             v-for="(item, index) in splitPath(path, '/')"
             :key="index"
@@ -147,9 +149,9 @@ onUnmounted(() => {
       />
     </n-input-group>
     <n-input-group w-400>
-      <n-input v-model:value="search.keyword" placeholder="请输入搜索内容">
+      <n-input v-model:value="search.keyword" :placeholder="$gettext('Enter search content')">
         <template #suffix>
-          <n-checkbox v-model:checked="search.sub"> 包含子目录 </n-checkbox>
+          <n-checkbox v-model:checked="search.sub"> {{ $gettext('Include subdirectories') }} </n-checkbox>
         </template>
       </n-input>
       <n-button type="primary" @click="handleSearch">

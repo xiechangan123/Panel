@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { NButton, NInput } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const selected = defineModel<string[]>('selected', { type: Array, required: true })
 const mode = ref('755')
@@ -24,7 +26,7 @@ const handlePermission = async () => {
   show.value = false
   selected.value = []
   window.$bus.emit('file:refresh')
-  window.$message.success('修改成功')
+  window.$message.success($gettext('Modified successfully'))
 }
 
 const calculateOctal = (permissions: string[]) => {
@@ -59,7 +61,9 @@ const updateCheckboxes = () => {
 }
 
 const title = computed(() => {
-  return selected.value.length > 1 ? '批量修改权限' : `修改权限 -  ${selected.value[0]}`
+  return selected.value.length > 1
+    ? $gettext('Batch modify permissions')
+    : $gettext('Modify permissions - %{ path }', { path: selected.value[0] })
 })
 
 watch(mode, updateCheckboxes, { immediate: true })
@@ -79,44 +83,44 @@ watch(mode, updateCheckboxes, { immediate: true })
       <n-form>
         <n-row :gutter="[0, 24]">
           <n-col :span="8">
-            <n-form-item label="所有者">
+            <n-form-item :label="$gettext('Owner')">
               <n-checkbox-group v-model:value="checkbox.owner" @update:value="calculateMode">
-                <n-checkbox value="read" label="读取" />
-                <n-checkbox value="write" label="写入" />
-                <n-checkbox value="execute" label="执行" />
+                <n-checkbox value="read" :label="$gettext('Read')" />
+                <n-checkbox value="write" :label="$gettext('Write')" />
+                <n-checkbox value="execute" :label="$gettext('Execute')" />
               </n-checkbox-group>
             </n-form-item>
           </n-col>
           <n-col :span="8">
-            <n-form-item label="用户组">
+            <n-form-item :label="$gettext('Group')">
               <n-checkbox-group v-model:value="checkbox.group" @update:value="calculateMode">
-                <n-checkbox value="read" label="读取" />
-                <n-checkbox value="write" label="写入" />
-                <n-checkbox value="execute" label="执行" />
+                <n-checkbox value="read" :label="$gettext('Read')" />
+                <n-checkbox value="write" :label="$gettext('Write')" />
+                <n-checkbox value="execute" :label="$gettext('Execute')" />
               </n-checkbox-group>
             </n-form-item>
           </n-col>
           <n-col :span="8">
-            <n-form-item label="其他">
+            <n-form-item :label="$gettext('Others')">
               <n-checkbox-group v-model:value="checkbox.other" @update:value="calculateMode">
-                <n-checkbox value="read" label="读取" />
-                <n-checkbox value="write" label="写入" />
-                <n-checkbox value="execute" label="执行" />
+                <n-checkbox value="read" :label="$gettext('Read')" />
+                <n-checkbox value="write" :label="$gettext('Write')" />
+                <n-checkbox value="execute" :label="$gettext('Execute')" />
               </n-checkbox-group>
             </n-form-item>
           </n-col>
         </n-row>
-        <n-form-item label="权限">
+        <n-form-item :label="$gettext('Permission')">
           <n-input v-model:value="mode" />
         </n-form-item>
-        <n-form-item label="所有者">
+        <n-form-item :label="$gettext('Owner')">
           <n-input v-model:value="owner" />
         </n-form-item>
-        <n-form-item label="用户组">
+        <n-form-item :label="$gettext('Group')">
           <n-input v-model:value="group" />
         </n-form-item>
       </n-form>
-      <n-button type="primary" @click="handlePermission"> 修改</n-button>
+      <n-button type="primary" @click="handlePermission"> {{ $gettext('Modify') }} </n-button>
     </n-flex>
   </n-modal>
 </template>
