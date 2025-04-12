@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-12 20:42\n"
+"PO-Revision-Date: 2025-04-12 20:46\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -2110,8 +2110,9 @@ msgid "Google and SSL.com require obtaining KID and HMAC from their official web
 msgstr "Google 和 SSL.com 需要先从其官网获取 KID 和 HMAC"
 
 #: src/views/cert/AccountView.vue:222
-msgid "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using GoogleCN or Let's Encrypt"
-msgstr "Google 在中国大陆无法访问，其他 CA 取决于网络条件，建议使用 GoogleCN 或 Let's Encrypt"
+#: src/views/cert/CreateAccountModal.vue:78
+msgid "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt"
+msgstr ""
 
 #: src/views/cert/AccountView.vue:228
 #: src/views/cert/CreateAccountModal.vue:84
@@ -2319,10 +2320,6 @@ msgstr "查看证书"
 msgid "Create Account"
 msgstr "创建账户"
 
-#: src/views/cert/CreateAccountModal.vue:78
-msgid "Google is not accessible in mainland China, and other CAs depend on network conditions. GoogleCN or Let's Encrypt are recommended"
-msgstr "Google 在中国大陆无法访问，其他 CA 取决于网络条件。推荐使用 GoogleCN 或 Let's Encrypt"
-
 #: src/views/cert/CreateCertModal.vue:59
 #: src/views/cert/IndexView.vue:102
 msgid "Create Certificate"
@@ -2381,11 +2378,13 @@ msgid "Enter Huawei Cloud SecretAccessKey"
 msgstr "输入华为云 SecretAccessKey"
 
 #: src/views/cert/CreateDnsModal.vue:113
-msgid "Enter Western Digital Username"
+#: src/views/cert/DnsView.vue:251
+msgid "Enter West.cn Username"
 msgstr "输入西部数码用户名"
 
 #: src/views/cert/CreateDnsModal.vue:120
-msgid "Enter Western Digital API Password"
+#: src/views/cert/DnsView.vue:258
+msgid "Enter West.cn API Password"
 msgstr "输入西部数码 API 密码"
 
 #: src/views/cert/CreateDnsModal.vue:127
@@ -2439,6 +2438,7 @@ msgid "Enter Name.com Token"
 msgstr "输入 Name.com 令牌"
 
 #: src/views/cert/CreateDnsModal.vue:198
+#: src/views/cert/DnsView.vue:335
 msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
 msgstr "输入 ClouDNS 认证 ID（使用子认证 ID 时添加 sub- 前缀）"
 
@@ -2483,18 +2483,6 @@ msgstr "修改 DNS"
 #: src/views/cert/DnsView.vue:194
 msgid "Enter note name"
 msgstr "输入备注名称"
-
-#: src/views/cert/DnsView.vue:251
-msgid "Enter West.cn Username"
-msgstr "输入西部数码用户名"
-
-#: src/views/cert/DnsView.vue:258
-msgid "Enter West.cn API Password"
-msgstr "输入西部数码 API 密码"
-
-#: src/views/cert/DnsView.vue:335
-msgid "Enter ClouDNS Auth ID (Add sub- prefix for Sub Auth ID)"
-msgstr "输入 ClouDNS 身份验证 ID（为子身份验证 ID 添加 sub- 前缀）"
 
 #: src/views/cert/IndexView.vue:98
 #: src/views/cert/UploadCertModal.vue:30
