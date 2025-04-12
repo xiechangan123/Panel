@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import process from '@/api/panel/process'
 import { formatBytes, formatDateTime, formatPercent, renderIcon } from '@/utils'
+
+const { $gettext } = useGettext()
 
 const columns: any = [
   {
@@ -12,51 +15,51 @@ const columns: any = [
     ellipsis: { tooltip: true }
   },
   {
-    title: '名称',
+    title: $gettext('Name'),
     key: 'name',
     minWidth: 250,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '父进程 ID',
+    title: $gettext('Parent PID'),
     key: 'ppid',
     width: 120,
     ellipsis: { tooltip: true }
   },
   {
-    title: '线程数',
+    title: $gettext('Threads'),
     key: 'num_threads',
     width: 100,
     ellipsis: { tooltip: true }
   },
   {
-    title: '用户',
+    title: $gettext('User'),
     key: 'username',
     minWidth: 100,
     ellipsis: { tooltip: true }
   },
   {
-    title: '状态',
+    title: $gettext('Status'),
     key: 'status',
     minWidth: 150,
     ellipsis: { tooltip: true },
     render(row: any) {
       switch (row.status) {
         case 'R':
-          return h(NTag, { type: 'success' }, { default: () => '运行' })
+          return h(NTag, { type: 'success' }, { default: () => $gettext('Running') })
         case 'S':
-          return h(NTag, { type: 'warning' }, { default: () => '睡眠' })
+          return h(NTag, { type: 'warning' }, { default: () => $gettext('Sleeping') })
         case 'T':
-          return h(NTag, { type: 'error' }, { default: () => '停止' })
+          return h(NTag, { type: 'error' }, { default: () => $gettext('Stopped') })
         case 'I':
-          return h(NTag, { type: 'primary' }, { default: () => '空闲' })
+          return h(NTag, { type: 'primary' }, { default: () => $gettext('Idle') })
         case 'Z':
-          return h(NTag, { type: 'error' }, { default: () => '僵尸' })
+          return h(NTag, { type: 'error' }, { default: () => $gettext('Zombie') })
         case 'W':
-          return h(NTag, { type: 'warning' }, { default: () => '等待' })
+          return h(NTag, { type: 'warning' }, { default: () => $gettext('Waiting') })
         case 'L':
-          return h(NTag, { type: 'info' }, { default: () => '锁定' })
+          return h(NTag, { type: 'info' }, { default: () => $gettext('Locked') })
         default:
           return h(NTag, { type: 'default' }, { default: () => row.status })
       }
@@ -72,7 +75,7 @@ const columns: any = [
     }
   },
   {
-    title: '内存',
+    title: $gettext('Memory'),
     key: 'rss',
     minWidth: 100,
     ellipsis: { tooltip: true },
@@ -81,7 +84,7 @@ const columns: any = [
     }
   },
   {
-    title: '启动时间',
+    title: $gettext('Start Time'),
     key: 'start_time',
     width: 160,
     ellipsis: { tooltip: true },
@@ -90,7 +93,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 150,
     align: 'center',
@@ -102,13 +105,13 @@ const columns: any = [
           onPositiveClick: () => {
             useRequest(process.kill(row.pid)).onSuccess(() => {
               refresh()
-              window.$message.success(`进程 ${row.pid} 已终止`)
+              window.$message.success($gettext('Process %{ pid } has been terminated', { pid: row.pid }))
             })
           }
         },
         {
           default: () => {
-            return '确定终止进程 ' + row.pid + ' ?'
+            return $gettext('Are you sure you want to terminate process %{ pid }?', { pid: row.pid })
           },
           trigger: () => {
             return h(
@@ -118,7 +121,7 @@ const columns: any = [
                 type: 'error'
               },
               {
-                default: () => '终止',
+                default: () => $gettext('Terminate'),
                 icon: renderIcon('material-symbols:stop-circle-outline-rounded', { size: 14 })
               }
             )

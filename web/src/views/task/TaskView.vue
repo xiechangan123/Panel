@@ -1,38 +1,40 @@
 <script setup lang="ts">
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import task from '@/api/panel/task'
 import RealtimeLogModal from '@/components/common/RealtimeLogModal.vue'
 import { formatDateTime, renderIcon } from '@/utils'
 
+const { $gettext } = useGettext()
 const logModal = ref(false)
 const logPath = ref('')
 
 const columns: any = [
   {
-    title: '任务名',
+    title: $gettext('Task Name'),
     key: 'name',
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '状态',
+    title: $gettext('Status'),
     key: 'status',
     width: 150,
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.status === 'finished'
-        ? '已完成'
+        ? $gettext('Completed')
         : row.status === 'waiting'
-          ? '等待中'
+          ? $gettext('Waiting')
           : row.status === 'failed'
-            ? '已失败'
-            : '运行中'
+            ? $gettext('Failed')
+            : $gettext('Running')
     }
   },
   {
-    title: '创建时间',
+    title: $gettext('Creation Time'),
     key: 'created_at',
     width: 200,
     ellipsis: { tooltip: true },
@@ -41,7 +43,7 @@ const columns: any = [
     }
   },
   {
-    title: '完成时间',
+    title: $gettext('Completion Time'),
     key: 'updated_at',
     width: 200,
     ellipsis: { tooltip: true },
@@ -50,7 +52,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     align: 'center',
@@ -70,7 +72,7 @@ const columns: any = [
                 }
               },
               {
-                default: () => '日志',
+                default: () => $gettext('Logs'),
                 icon: renderIcon('material-symbols:visibility', { size: 14 })
               }
             )
@@ -83,7 +85,7 @@ const columns: any = [
               },
               {
                 default: () => {
-                  return '确定要删除吗？'
+                  return $gettext('Are you sure you want to delete?')
                 },
                 trigger: () => {
                   return h(
@@ -94,7 +96,7 @@ const columns: any = [
                       style: 'margin-left: 15px;'
                     },
                     {
-                      default: () => '删除',
+                      default: () => $gettext('Delete'),
                       icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                     }
                   )
@@ -120,7 +122,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 const handleDelete = (id: number) => {
   useRequest(task.delete(id)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
@@ -131,7 +133,7 @@ onMounted(() => {
 
 <template>
   <n-flex vertical>
-    <n-alert type="info">若日志无法加载，请关闭广告拦截应用！</n-alert>
+    <n-alert type="info">{{ $gettext('If logs cannot be loaded, please disable ad blockers!') }}</n-alert>
     <n-data-table
       striped
       remote

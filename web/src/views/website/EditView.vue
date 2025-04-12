@@ -6,12 +6,14 @@ defineOptions({
 import Editor from '@guolao/vue-monaco-editor'
 import type { MessageReactive } from 'naive-ui'
 import { NButton } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
 import dashboard from '@/api/panel/dashboard'
 import website from '@/api/panel/website'
 import ProxyBuilderModal from '@/views/website/ProxyBuilderModal.vue'
 
+const { $gettext } = useGettext()
 let messageReactive: MessageReactive | null = null
 
 const current = ref('listen')
@@ -49,7 +51,7 @@ const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
   initialData: {
     php: [
       {
-        label: '不使用',
+        label: $gettext('Not used'),
         value: 0
       }
     ],
@@ -78,9 +80,9 @@ const rewriteOptions = computed(() => {
 const rewriteValue = ref(null)
 const title = computed(() => {
   if (setting.value) {
-    return `编辑网站 - ${setting.value.name}`
+    return $gettext('Edit Website - %{ name }', { name: setting.value.name })
   }
-  return '编辑网站'
+  return $gettext('Edit Website')
 })
 const certOptions = computed(() => {
   return certs.value.map((item: any) => ({
@@ -110,14 +112,14 @@ const handleSave = () => {
 
   useRequest(website.saveConfig(Number(id), setting.value)).onSuccess(() => {
     fetchSetting()
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleReset = () => {
   useRequest(website.resetConfig(Number(id))).onSuccess(() => {
     fetchSetting()
-    window.$message.success('重置成功')
+    window.$message.success($gettext('Reset successfully'))
   })
 }
 
@@ -128,13 +130,13 @@ const handleRewrite = (value: string) => {
 const isObtainCert = ref(false)
 const handleObtainCert = () => {
   isObtainCert.value = true
-  messageReactive = window.$message.loading('请稍后...', {
+  messageReactive = window.$message.loading($gettext('Please wait...'), {
     duration: 0
   })
   useRequest(website.obtainCert(Number(id)))
     .onSuccess(() => {
       fetchSetting()
-      window.$message.success('签发成功')
+      window.$message.success($gettext('Issued successfully'))
     })
     .onComplete(() => {
       isObtainCert.value = false
@@ -148,14 +150,14 @@ const handleSelectCert = (value: number) => {
     setting.value.ssl_certificate = cert.cert
     setting.value.ssl_certificate_key = cert.key
   } else {
-    window.$message.error('选择的证书无效')
+    window.$message.error($gettext('The selected certificate is invalid'))
   }
 }
 
 const clearLog = async () => {
   useRequest(website.clearLog(Number(id))).onSuccess(() => {
     fetchSetting()
-    window.$message.success('清空成功')
+    window.$message.success($gettext('Cleared successfully'))
   })
 }
 
@@ -173,16 +175,16 @@ const onCreateListen = () => {
     <template #action>
       <n-flex>
         <n-tag v-if="current === 'config'" type="warning">
-          如果您修改了原文，那么点击保存后，其余的修改将不会生效！
+          {{ $gettext('If you modify the original text, other modifications will not take effect after clicking save!') }}
         </n-tag>
         <n-popconfirm v-if="current === 'config'" @positive-click="handleReset">
           <template #trigger>
             <n-button type="success">
               <TheIcon :size="18" icon="material-symbols:refresh" />
-              重置配置
+              {{ $gettext('Reset Configuration') }}
             </n-button>
           </template>
-          确定要重置配置吗？
+          {{ $gettext('Are you sure you want to reset the configuration?') }}
         </n-popconfirm>
         <n-button
           v-if="current === 'rewrite'"
@@ -191,7 +193,7 @@ const onCreateListen = () => {
           @click="proxyBuilderModal = true"
         >
           <TheIcon :size="18" icon="material-symbols:build-outline-rounded" />
-          生成反代配置
+          {{ $gettext('Generate Reverse Proxy Configuration') }}
         </n-button>
         <n-button
           v-if="current === 'https'"
@@ -202,28 +204,28 @@ const onCreateListen = () => {
           @click="handleObtainCert"
         >
           <TheIcon :size="18" icon="material-symbols:done-rounded" />
-          一键签发证书
+          {{ $gettext('One-click Certificate Issuance') }}
         </n-button>
         <n-button v-if="current !== 'log'" class="ml-16" type="primary" @click="handleSave">
           <TheIcon :size="18" icon="material-symbols:save-outline" />
-          保存
+          {{ $gettext('Save') }}
         </n-button>
         <n-popconfirm v-if="current === 'log'" @positive-click="clearLog">
           <template #trigger>
             <n-button type="primary">
               <TheIcon :size="18" icon="material-symbols:delete-outline" />
-              清空日志
+              {{ $gettext('Clear Logs') }}
             </n-button>
           </template>
-          确定要清空吗？
+          {{ $gettext('Are you sure you want to clear?') }}
         </n-popconfirm>
       </n-flex>
     </template>
 
     <n-tabs v-model:value="current" type="line" animated>
-      <n-tab-pane name="listen" tab="域名监听">
+      <n-tab-pane name="listen" :tab="$gettext('Domain & Listening')">
         <n-form v-if="setting">
-          <n-form-item label="域名">
+          <n-form-item :label="$gettext('Domain')">
             <n-dynamic-input
               v-model:value="setting.domains"
               placeholder="example.com"
@@ -231,7 +233,7 @@ const onCreateListen = () => {
               show-sort-button
             />
           </n-form-item>
-          <n-form-item label="监听地址">
+          <n-form-item :label="$gettext('Listening Address')">
             <n-dynamic-input
               v-model:value="setting.listens"
               show-sort-button
@@ -249,31 +251,31 @@ const onCreateListen = () => {
         </n-form>
         <n-skeleton v-else text :repeat="10" />
       </n-tab-pane>
-      <n-tab-pane name="basic" tab="基本设置">
+      <n-tab-pane name="basic" :tab="$gettext('Basic Settings')">
         <n-form v-if="setting">
-          <n-form-item label="网站目录">
-            <n-input v-model:value="setting.path" placeholder="输入网站目录（绝对路径）" />
+          <n-form-item :label="$gettext('Website Directory')">
+            <n-input v-model:value="setting.path" :placeholder="$gettext('Enter website directory (absolute path)')" />
           </n-form-item>
-          <n-form-item label="运行目录">
+          <n-form-item :label="$gettext('Running Directory')">
             <n-input
               v-model:value="setting.root"
-              placeholder="输入运行目录（Laravel 等程序需要）（绝对路径）"
+              :placeholder="$gettext('Enter running directory (needed for Laravel etc.) (absolute path)')"
             />
           </n-form-item>
-          <n-form-item label="默认文档">
+          <n-form-item :label="$gettext('Default Document')">
             <n-dynamic-tags v-model:value="setting.index" />
           </n-form-item>
-          <n-form-item label="PHP 版本">
+          <n-form-item :label="$gettext('PHP Version')">
             <n-select
               v-model:value="setting.php"
               :default-value="0"
               :options="installedDbAndPhp.php"
-              placeholder="选择PHP版本"
+              :placeholder="$gettext('Select PHP Version')"
               @keydown.enter.prevent
             >
             </n-select>
           </n-form-item>
-          <n-form-item label="防跨站攻击（PHP）">
+          <n-form-item :label="$gettext('Anti-XSS Attack (PHP)')">
             <n-switch v-model:value="setting.open_basedir" />
           </n-form-item>
         </n-form>
@@ -282,9 +284,9 @@ const onCreateListen = () => {
       <n-tab-pane name="https" tab="HTTPS">
         <n-flex vertical v-if="setting">
           <n-card v-if="setting.https && setting.ssl_issuer != ''">
-            <n-descriptions title="证书信息" :column="2">
+            <n-descriptions :title="$gettext('Certificate Information')" :column="2">
               <n-descriptions-item>
-                <template #label>证书有效期</template>
+                <template #label>{{ $gettext('Certificate Validity') }}</template>
                 <n-flex>
                   <n-tag>{{ setting.ssl_not_before }}</n-tag>
                   -
@@ -292,13 +294,13 @@ const onCreateListen = () => {
                 </n-flex>
               </n-descriptions-item>
               <n-descriptions-item>
-                <template #label>颁发者</template>
+                <template #label>{{ $gettext('Issuer') }}</template>
                 <n-flex>
                   <n-tag>{{ setting.ssl_issuer }}</n-tag>
                 </n-flex>
               </n-descriptions-item>
               <n-descriptions-item>
-                <template #label>域名</template>
+                <template #label>{{ $gettext('Domains') }}</template>
                 <n-flex>
                   <n-tag v-for="item in setting.ssl_dns_names" :key="item">{{ item }}</n-tag>
                 </n-flex>
@@ -313,10 +315,10 @@ const onCreateListen = () => {
           </n-card>
           <n-form>
             <n-grid :cols="24" :x-gap="24">
-              <n-form-item-gi :span="12" label="总开关">
+              <n-form-item-gi :span="12" :label="$gettext('Main Switch')">
                 <n-switch v-model:value="setting.https" />
               </n-form-item-gi>
-              <n-form-item-gi v-if="setting.https" :span="12" label="使用已有证书">
+              <n-form-item-gi v-if="setting.https" :span="12" :label="$gettext('Use Existing Certificate')">
                 <n-select
                   v-model:value="selectedCert"
                   :options="certOptions"
@@ -329,27 +331,27 @@ const onCreateListen = () => {
             <n-form-item label="HSTS">
               <n-switch v-model:value="setting.hsts" />
             </n-form-item>
-            <n-form-item label="HTTP 跳转">
+            <n-form-item :label="$gettext('HTTP Redirect')">
               <n-switch v-model:value="setting.http_redirect" />
             </n-form-item>
-            <n-form-item label="OCSP 装订">
+            <n-form-item :label="$gettext('OCSP Stapling')">
               <n-switch v-model:value="setting.ocsp" />
             </n-form-item>
           </n-form>
           <n-form v-if="setting.https">
-            <n-form-item label="证书">
+            <n-form-item :label="$gettext('Certificate')">
               <n-input
                 v-model:value="setting.ssl_certificate"
                 type="textarea"
-                placeholder="输入 PEM 证书文件的内容"
+                :placeholder="$gettext('Enter the content of the PEM certificate file')"
                 :autosize="{ minRows: 10, maxRows: 15 }"
               />
             </n-form-item>
-            <n-form-item label="私钥">
+            <n-form-item :label="$gettext('Private Key')">
               <n-input
                 v-model:value="setting.ssl_certificate_key"
                 type="textarea"
-                placeholder="输入 KEY 私钥文件的内容"
+                :placeholder="$gettext('Enter the content of the KEY private key file')"
                 :autosize="{ minRows: 10, maxRows: 15 }"
               />
             </n-form-item>
@@ -357,10 +359,10 @@ const onCreateListen = () => {
         </n-flex>
         <n-skeleton v-else text :repeat="10" />
       </n-tab-pane>
-      <n-tab-pane name="rewrite" tab="伪静态">
+      <n-tab-pane name="rewrite" :tab="$gettext('Rewrite')">
         <n-flex vertical>
           <n-form label-placement="left" label-width="auto">
-            <n-form-item label="预设">
+            <n-form-item :label="$gettext('Presets')">
               <n-select
                 v-model:value="rewriteValue"
                 clearable
@@ -383,10 +385,10 @@ const onCreateListen = () => {
           />
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="config" tab="配置原文">
+      <n-tab-pane name="config" :tab="$gettext('Configuration')">
         <n-flex vertical>
           <n-alert type="warning" w-full>
-            如果您不了解配置规则，请勿随意修改，否则可能会导致网站无法访问或面板功能异常！如果已经遇到问题，可尝试重置配置！
+            {{ $gettext('If you do not understand the configuration rules, please do not modify them arbitrarily, otherwise it may cause the website to be inaccessible or panel function abnormalities! If you have already encountered a problem, try resetting the configuration!') }}
           </n-alert>
           <Editor
             v-if="setting"
@@ -402,25 +404,25 @@ const onCreateListen = () => {
           />
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="log" tab="访问日志">
+      <n-tab-pane name="log" :tab="$gettext('Access Log')">
         <n-flex vertical>
           <n-flex flex items-center>
             <n-alert type="warning" w-full>
-              全部日志可通过下载文件
+              {{ $gettext('All logs can be viewed by downloading the file') }}
               <n-tag>{{ setting.log }}</n-tag>
-              查看。
+              {{ $gettext('view') }}.
             </n-alert>
           </n-flex>
           <realtime-log :path="setting.log" />
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="error_log" tab="错误日志">
+      <n-tab-pane name="error_log" :tab="$gettext('Error Log')">
         <n-flex vertical>
           <n-flex flex items-center>
             <n-alert type="warning" w-full>
-              全部日志可通过下载文件
+              {{ $gettext('All logs can be viewed by downloading the file') }}
               <n-tag>{{ setting.error_log }}</n-tag>
-              查看。
+              {{ $gettext('view') }}.
             </n-alert>
           </n-flex>
           <realtime-log :path="setting.error_log" />

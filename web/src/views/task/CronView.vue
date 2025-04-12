@@ -4,12 +4,14 @@ import 'cronstrue/locales/zh_CN'
 
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import { decodeBase64, formatDateTime, renderIcon } from '@/utils'
 import { CronNaive } from '@vue-js-cron/naive-ui'
 
+const { $gettext } = useGettext()
 const logPath = ref('')
 const logModal = ref(false)
 const editModal = ref(false)
@@ -24,14 +26,14 @@ const editTask = ref({
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
-    title: '任务名',
+    title: $gettext('Task Name'),
     key: 'name',
     minWidth: 150,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '任务类型',
+    title: $gettext('Task Type'),
     key: 'type',
     width: 100,
     resizable: true,
@@ -44,17 +46,17 @@ const columns: any = [
         {
           default: () => {
             return row.type === 'shell'
-              ? '运行脚本'
+              ? $gettext('Run Script')
               : row.type === 'backup'
-                ? '备份数据'
-                : '切割日志'
+                ? $gettext('Backup Data')
+                : $gettext('Log Rotation')
           }
         }
       )
     }
   },
   {
-    title: '启用',
+    title: $gettext('Enabled'),
     key: 'status',
     width: 100,
     align: 'center',
@@ -69,7 +71,7 @@ const columns: any = [
     }
   },
   {
-    title: '任务周期',
+    title: $gettext('Task Schedule'),
     key: 'time',
     width: 200,
     resizable: true,
@@ -79,7 +81,7 @@ const columns: any = [
     }
   },
   {
-    title: '创建时间',
+    title: $gettext('Creation Time'),
     key: 'created_at',
     width: 200,
     resizable: true,
@@ -89,7 +91,7 @@ const columns: any = [
     }
   },
   {
-    title: '最后更新时间',
+    title: $gettext('Last Update Time'),
     key: 'updated_at',
     width: 200,
     ellipsis: { tooltip: true },
@@ -98,7 +100,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 280,
     align: 'center',
@@ -117,7 +119,7 @@ const columns: any = [
             }
           },
           {
-            default: () => '日志',
+            default: () => $gettext('Logs'),
             icon: renderIcon('majesticons:eye-line', { size: 14 })
           }
         ),
@@ -130,7 +132,7 @@ const columns: any = [
             onClick: () => handleEdit(row)
           },
           {
-            default: () => '修改',
+            default: () => $gettext('Edit'),
             icon: renderIcon('material-symbols:edit-outline', { size: 14 })
           }
         ),
@@ -141,7 +143,7 @@ const columns: any = [
           },
           {
             default: () => {
-              return '确定删除任务吗？'
+              return $gettext('Are you sure you want to delete this task?')
             },
             trigger: () => {
               return h(
@@ -152,7 +154,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -177,7 +179,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 const handleStatusChange = (row: any) => {
   useRequest(cron.status(row.id, !row.status)).onSuccess(() => {
     row.status = !row.status
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
   })
 }
 
@@ -195,7 +197,7 @@ const handleEdit = (row: any) => {
 
 const handleDelete = async (id: number) => {
   useRequest(cron.delete(id)).onSuccess(() => {
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
     window.$bus.emit('task:refresh-cron')
   })
 }
@@ -204,7 +206,7 @@ const saveTaskEdit = async () => {
   useRequest(
     cron.update(editTask.value.id, editTask.value.name, editTask.value.time, editTask.value.script)
   ).onSuccess(() => {
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
     window.$bus.emit('task:refresh-cron')
   })
 }
@@ -246,7 +248,7 @@ onUnmounted(() => {
   <n-modal
     v-model:show="editModal"
     preset="card"
-    title="编辑任务"
+    :title="$gettext('Edit Task')"
     style="width: 80vw"
     size="huge"
     :bordered="false"
@@ -254,10 +256,10 @@ onUnmounted(() => {
     @close="saveTaskEdit"
   >
     <n-form inline>
-      <n-form-item label="任务名称">
-        <n-input v-model:value="editTask.name" placeholder="任务名称" />
+      <n-form-item :label="$gettext('Task Name')">
+        <n-input v-model:value="editTask.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
-      <n-form-item label="任务周期">
+      <n-form-item :label="$gettext('Task Schedule')">
         <cron-naive v-model="editTask.time" locale="zh-cn"></cron-naive>
       </n-form-item>
     </n-form>

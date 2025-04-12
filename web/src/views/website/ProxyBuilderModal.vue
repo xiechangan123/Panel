@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { NInput } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const config = defineModel<string>('config', { type: String, required: true })
 const setting = ref({
@@ -18,32 +20,32 @@ const setting = ref({
 
 const handleSubmit = () => {
   if (setting.value.cache && setting.value.no_buffer) {
-    window.$message.error('禁用缓冲区与启用缓存不能同时使用')
+    window.$message.error($gettext('Disabled buffer and enabled cache cannot be used simultaneously'))
     return
   }
   if (setting.value.match.length === 0) {
-    window.$message.error('匹配表达式不能为空')
+    window.$message.error($gettext('Matching expression cannot be empty'))
     return
   }
   if (setting.value.proxy_pass.length === 0) {
-    window.$message.error('代理地址不能为空')
+    window.$message.error($gettext('Proxy address cannot be empty'))
     return
   }
   if (setting.value.match_type === '=' && setting.value.match[0] !== '/') {
-    window.$message.error('精确匹配的表达式必须以 / 开头')
+    window.$message.error($gettext('Exact match expression must start with /'))
     return
   }
   if (
     (setting.value.match_type === '^~' || setting.value.match_type === ' ') &&
     setting.value.match[0] !== '/'
   ) {
-    window.$message.error('前缀匹配的表达式必须以 / 开头')
+    window.$message.error($gettext('Prefix match expression must start with /'))
     return
   }
   try {
     new URL(setting.value.proxy_pass)
   } catch (error) {
-    window.$message.error('代理地址格式错误')
+    window.$message.error($gettext('Proxy address format error'))
     return
   }
 
@@ -95,7 +97,7 @@ const handleSubmit = () => {
   builder += `}\n`
   config.value = builder
   show.value = false
-  window.$message.success('配置生成成功')
+  window.$message.success($gettext('Configuration generated successfully'))
 }
 
 // 通过代理地址尝试自动获取发送域名
@@ -116,75 +118,75 @@ watch(
   <n-modal
     v-model:show="show"
     preset="card"
-    title="生成反代配置"
+    :title="$gettext('Generate Reverse Proxy Configuration')"
     style="width: 40vw"
     size="huge"
     :bordered="false"
     :segmented="false"
   >
     <n-flex vertical>
-      <n-alert type="warning"> 生成反代配置后，原有伪静态规则将被覆盖。 </n-alert>
+      <n-alert type="warning"> {{ $gettext('After generating the reverse proxy configuration, the original rewrite rules will be overwritten.') }} </n-alert>
       <n-alert type="info">
-        如需反代 JS/CSS 等静态资源请移除配置原文中的不记录静态日志部分。
+        {{ $gettext('If you need to proxy static resources like JS/CSS, please remove the static log recording part from the original configuration.') }}
       </n-alert>
       <n-form inline>
-        <n-form-item label="自动刷新解析">
+        <n-form-item :label="$gettext('Auto Refresh Resolution')">
           <n-switch v-model:value="setting.auto_resolve" />
         </n-form-item>
-        <n-form-item label="启用 SNI">
+        <n-form-item :label="$gettext('Enable SNI')">
           <n-switch v-model:value="setting.sni" />
         </n-form-item>
-        <n-form-item label="启用缓存">
+        <n-form-item :label="$gettext('Enable Cache')">
           <n-switch v-model:value="setting.cache" />
         </n-form-item>
-        <n-form-item label="禁用缓冲区">
+        <n-form-item :label="$gettext('Disable Buffer')">
           <n-switch v-model:value="setting.no_buffer" />
         </n-form-item>
       </n-form>
       <n-form>
-        <n-form-item label="匹配方式">
+        <n-form-item :label="$gettext('Match Type')">
           <n-select
             v-model:value="setting.match_type"
             :options="[
-              { label: '精确匹配 (=)', value: '=' },
-              { label: '优先前缀匹配 (^~)', value: '^~' },
-              { label: '普通前缀匹配 ( )', value: ' ' },
-              { label: '区分大小写正则匹配 (~)', value: '~' },
-              { label: '不区分大小写正则匹配 (~*)', value: '~*' }
+              { label: $gettext('Exact Match (=)'), value: '=' },
+              { label: $gettext('Priority Prefix Match (^~)'), value: '^~' },
+              { label: $gettext('Normal Prefix Match ( )'), value: ' ' },
+              { label: $gettext('Case Sensitive Regex Match (~)'), value: '~' },
+              { label: $gettext('Case Insensitive Regex Match (~*)'), value: '~*' }
             ]"
           />
         </n-form-item>
-        <n-form-item label="匹配表达式">
+        <n-form-item :label="$gettext('Match Expression')">
           <n-input v-model:value="setting.match" placeholder="/" />
         </n-form-item>
-        <n-form-item label="代理地址">
+        <n-form-item :label="$gettext('Proxy Address')">
           <n-input v-model:value="setting.proxy_pass" placeholder="http://127.0.0.1:3000" />
         </n-form-item>
-        <n-form-item label="发送域名">
+        <n-form-item :label="$gettext('Send Domain')">
           <n-input v-model:value="setting.host" placeholder="$host" />
         </n-form-item>
-        <n-form-item v-if="setting.cache" label="缓存时间">
+        <n-form-item v-if="setting.cache" :label="$gettext('Cache Time')">
           <n-input-number
             v-model:value="setting.cache_time"
             w-full
             :min="1"
             :step="1"
-            :placeholder="'缓存时间（分钟）'"
+            :placeholder="$gettext('Cache time (minutes)')"
           >
-            <template #suffix> 分钟 </template>
+            <template #suffix> {{ $gettext('minutes') }} </template>
           </n-input-number>
         </n-form-item>
-        <n-form-item label="内容替换">
+        <n-form-item :label="$gettext('Content Replacement')">
           <n-dynamic-input
             v-model:value="setting.replace"
             preset="pair"
             :max="5"
-            key-placeholder="目标内容"
-            value-placeholder="替换内容"
+            :key-placeholder="$gettext('Target content')"
+            :value-placeholder="$gettext('Replacement content')"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleSubmit"> 提交 </n-button>
+      <n-button type="info" block @click="handleSubmit"> {{ $gettext('Submit') }} </n-button>
     </n-flex>
   </n-modal>
 </template>

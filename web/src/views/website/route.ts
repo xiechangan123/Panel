@@ -1,4 +1,5 @@
 import type { RouteType } from '~/types/router'
+import { $gettext } from '@/utils/gettext'
 
 const Layout = () => import('@/layout/IndexView.vue')
 
@@ -15,7 +16,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: '网站',
+        title: $gettext('Websites'),
         icon: 'mdi:web',
         role: ['admin'],
         requireAuth: true
@@ -27,7 +28,7 @@ export default {
       component: () => import('./EditView.vue'),
       isHidden: true,
       meta: {
-        title: '编辑网站',
+        title: $gettext('Edit Website'),
         icon: 'mdi:web',
         role: ['admin'],
         requireAuth: true

@@ -68,7 +68,9 @@ msgstr ""
 #: src/views/database/ServerList.vue:135 src/views/database/UserList.vue:152
 #: src/views/file/ListTable.vue:185 src/views/file/SearchModal.vue:48
 #: src/views/firewall/ForwardView.vue:80 src/views/firewall/IpRuleView.vue:122
-#: src/views/firewall/RuleView.vue:159 src/views/website/IndexView.vue:95
+#: src/views/firewall/RuleView.vue:159 src/views/task/CronView.vue:103
+#: src/views/task/SystemView.vue:96 src/views/task/TaskView.vue:55
+#: src/views/website/IndexView.vue:95
 msgid "Actions"
 msgstr ""
 
@@ -158,14 +160,15 @@ msgstr ""
 #: src/views/file/ToolBar.vue:282 src/views/firewall/CreateForwardModal.vue:88
 #: src/views/firewall/CreateIpModal.vue:122
 #: src/views/firewall/CreateModal.vue:143 src/views/ssh/CreateModal.vue:98
-#: src/views/ssh/UpdateModal.vue:104
+#: src/views/ssh/UpdateModal.vue:104 src/views/task/CreateModal.vue:159
+#: src/views/website/ProxyBuilderModal.vue:189
 msgid "Submit"
 msgstr ""
 
 #: src/views/backup/IndexView.vue:37 src/views/backup/ListView.vue:217
 #: src/views/backup/ListView.vue:250 src/views/cert/CertView.vue:464
 #: src/views/cert/CertView.vue:527 src/views/cert/CreateCertModal.vue:86
-#: src/views/dashboard/IndexView.vue:418
+#: src/views/dashboard/IndexView.vue:418 src/views/task/CreateModal.vue:130
 msgid "Website"
 msgstr ""
 
@@ -205,6 +208,7 @@ msgstr ""
 #: src/views/file/SearchModal.vue:98 src/views/file/ToolBar.vue:238
 #: src/views/firewall/ForwardView.vue:105 src/views/firewall/IpRuleView.vue:147
 #: src/views/firewall/RuleView.vue:184 src/views/ssh/IndexView.vue:93
+#: src/views/task/CronView.vue:157 src/views/task/TaskView.vue:99
 #: src/views/website/IndexView.vue:169
 msgid "Delete"
 msgstr ""
@@ -220,7 +224,7 @@ msgstr ""
 #: src/views/database/CreateUserModal.vue:28 src/views/file/ToolBar.vue:45
 #: src/views/firewall/CreateForwardModal.vue:41
 #: src/views/firewall/CreateModal.vue:84 src/views/ssh/CreateModal.vue:38
-#: src/views/website/IndexView.vue:309
+#: src/views/task/CreateModal.vue:51 src/views/website/IndexView.vue:309
 #, fuzzy
 msgid "Created successfully"
 msgstr "Saved successfully"
@@ -241,7 +245,8 @@ msgstr "Saved successfully"
 #: src/views/firewall/ForwardView.vue:132
 #: src/views/firewall/ForwardView.vue:150 src/views/firewall/IpRuleView.vue:174
 #: src/views/firewall/IpRuleView.vue:192 src/views/firewall/RuleView.vue:211
-#: src/views/firewall/RuleView.vue:229 src/views/website/IndexView.vue:270
+#: src/views/firewall/RuleView.vue:229 src/views/task/CronView.vue:200
+#: src/views/task/TaskView.vue:125 src/views/website/IndexView.vue:270
 #: src/views/website/IndexView.vue:324
 #, fuzzy
 msgid "Deleted successfully"
@@ -261,7 +266,8 @@ msgstr ""
 
 #: src/views/backup/ListView.vue:220
 #: src/views/database/CreateDatabaseModal.vue:70
-#: src/views/database/DatabaseList.vue:35 src/views/website/IndexView.vue:468
+#: src/views/database/DatabaseList.vue:35 src/views/task/CreateModal.vue:146
+#: src/views/task/CreateModal.vue:148 src/views/website/IndexView.vue:468
 #: src/views/website/IndexView.vue:473
 msgid "Database Name"
 msgstr ""
@@ -273,7 +279,8 @@ msgstr ""
 msgid "Enter database name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:228
+#: src/views/backup/ListView.vue:228 src/views/task/CreateModal.vue:150
+#: src/views/task/CreateModal.vue:151
 msgid "Save Directory"
 msgstr ""
 
@@ -390,7 +397,7 @@ msgstr ""
 
 #: src/views/cert/CertView.vue:64 src/views/cert/CertView.vue:448
 #: src/views/cert/CreateCertModal.vue:70 src/views/cert/ObtainModal.vue:53
-#: src/views/website/IndexView.vue:412
+#: src/views/website/EditView.vue:228 src/views/website/IndexView.vue:412
 msgid "Domain"
 msgstr ""
 
@@ -422,7 +429,7 @@ msgstr ""
 msgid "Associated Account"
 msgstr ""
 
-#: src/views/cert/CertView.vue:130
+#: src/views/cert/CertView.vue:130 src/views/website/EditView.vue:297
 msgid "Issuer"
 msgstr ""
 
@@ -443,7 +450,7 @@ msgid "Deploy"
 msgstr ""
 
 #: src/views/cert/CertView.vue:233 src/views/cert/ObtainModal.vue:24
-#: src/views/cert/ObtainModal.vue:77
+#: src/views/cert/ObtainModal.vue:77 src/views/website/EditView.vue:133
 msgid "Please wait..."
 msgstr ""
 
@@ -505,11 +512,12 @@ msgstr ""
 
 #: src/views/cert/CertView.vue:488 src/views/cert/CertView.vue:551
 #: src/views/cert/route.ts:19 src/views/cert/UploadCertModal.vue:38
-#: src/views/setting/SettingHttps.vue:39
+#: src/views/setting/SettingHttps.vue:39 src/views/website/EditView.vue:342
 msgid "Certificate"
 msgstr "Certificate"
 
 #: src/views/cert/CertView.vue:492 src/views/cert/UploadCertModal.vue:42
+#: src/views/website/EditView.vue:346
 msgid "Enter the content of the PEM certificate file"
 msgstr ""
 
@@ -517,10 +525,12 @@ msgstr ""
 #: src/views/cert/UploadCertModal.vue:46 src/views/setting/SettingHttps.vue:46
 #: src/views/ssh/CreateModal.vue:78 src/views/ssh/CreateModal.vue:89
 #: src/views/ssh/UpdateModal.vue:84 src/views/ssh/UpdateModal.vue:95
+#: src/views/website/EditView.vue:350
 msgid "Private Key"
 msgstr "Private Key"
 
 #: src/views/cert/CertView.vue:500 src/views/cert/UploadCertModal.vue:50
+#: src/views/website/EditView.vue:354
 msgid "Enter the content of the KEY private key file"
 msgstr ""
 
@@ -786,6 +796,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:55 src/views/file/ListTable.vue:99
 #: src/views/file/SearchModal.vue:20 src/views/file/ToolBar.vue:257
 #: src/views/ssh/CreateModal.vue:57 src/views/ssh/UpdateModal.vue:63
+#: src/views/task/SystemView.vue:18
 msgid "Name"
 msgstr ""
 
@@ -797,19 +808,21 @@ msgstr ""
 #: src/views/container/ComposeView.vue:58
 #: src/views/container/ContainerView.vue:32
 #: src/views/database/ServerList.vue:114 src/views/database/UserList.vue:131
-#: src/views/firewall/RuleView.vue:62
+#: src/views/firewall/RuleView.vue:62 src/views/task/SystemView.vue:43
+#: src/views/task/TaskView.vue:22
 msgid "Status"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:65 src/views/container/ImageView.vue:60
 #: src/views/container/NetworkView.vue:100
-#: src/views/container/VolumeView.vue:54
+#: src/views/container/VolumeView.vue:54 src/views/task/CronView.vue:84
+#: src/views/task/TaskView.vue:37
 msgid "Creation Time"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:97 src/views/file/ListTable.vue:64
 #: src/views/file/ListTable.vue:216 src/views/ssh/IndexView.vue:71
-#: src/views/website/IndexView.vue:111
+#: src/views/task/CronView.vue:135 src/views/website/IndexView.vue:111
 msgid "Edit"
 msgstr ""
 
@@ -1023,6 +1036,7 @@ msgstr ""
 #: src/views/container/ContainerCreate.vue:291
 #: src/views/dashboard/IndexView.vue:530 src/views/monitor/IndexView.vue:205
 #: src/views/monitor/IndexView.vue:216 src/views/monitor/IndexView.vue:238
+#: src/views/task/SystemView.vue:78
 msgid "Memory"
 msgstr ""
 
@@ -1082,7 +1096,8 @@ msgid "Running Status"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:103
-#: src/views/container/ContainerView.vue:439
+#: src/views/container/ContainerView.vue:439 src/views/task/CronView.vue:122
+#: src/views/task/TaskView.vue:75
 msgid "Logs"
 msgstr ""
 
@@ -1201,6 +1216,7 @@ msgstr ""
 #: src/views/container/ImageView.vue:85 src/views/container/NetworkView.vue:125
 #: src/views/container/VolumeView.vue:79 src/views/firewall/ForwardView.vue:94
 #: src/views/firewall/IpRuleView.vue:136 src/views/firewall/RuleView.vue:173
+#: src/views/task/TaskView.vue:88
 msgid "Are you sure you want to delete?"
 msgstr ""
 
@@ -1409,7 +1425,7 @@ msgstr "Saved successfully"
 msgid "Current version is the latest"
 msgstr ""
 
-#: src/views/dashboard/IndexView.vue:431
+#: src/views/dashboard/IndexView.vue:431 src/views/task/IndexView.vue:29
 msgid "Scheduled Tasks"
 msgstr ""
 
@@ -1830,12 +1846,13 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:21
 #: src/views/database/UpdateUserModal.vue:18
 #: src/views/database/UserList.vue:223 src/views/file/PermissionModal.vue:29
+#: src/views/task/CronView.vue:182 src/views/task/CronView.vue:209
 #: src/views/website/IndexView.vue:253 src/views/website/IndexView.vue:279
 #, fuzzy
 msgid "Modified successfully"
 msgstr "Saved successfully"
 
-#: src/views/database/IndexView.vue:48
+#: src/views/database/IndexView.vue:48 src/views/task/SystemView.vue:37
 msgid "User"
 msgstr ""
 
@@ -1949,6 +1966,7 @@ msgstr ""
 
 #: src/views/file/EditModal.vue:31 src/views/file/ListTable.vue:703
 #: src/views/setting/SettingBase.vue:95 src/views/setting/SettingHttps.vue:56
+#: src/views/website/EditView.vue:211
 msgid "Save"
 msgstr "Save"
 
@@ -2455,7 +2473,7 @@ msgstr "Saved successfully"
 msgid "Clear Monitoring Records"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:449
+#: src/views/monitor/IndexView.vue:449 src/views/website/EditView.vue:220
 msgid "Are you sure you want to clear?"
 msgstr ""
 
@@ -2489,6 +2507,7 @@ msgid "Panel Settings"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:35 src/views/setting/SettingHttps.vue:27
+#: src/views/website/EditView.vue:115
 msgid "Saved successfully"
 msgstr "Saved successfully"
 
@@ -2604,12 +2623,343 @@ msgstr "Saved successfully"
 msgid "Update Host"
 msgstr ""
 
-#: src/views/website/IndexView.vue:23 src/views/website/IndexView.vue:398
-msgid "Website Name"
+#: src/views/task/CreateModal.vue:22
+msgid "# Enter your script content here"
 msgstr ""
 
+#: src/views/task/CreateModal.vue:89
+#, fuzzy
+msgid "Create Scheduled Task"
+msgstr "Certificate"
+
+#: src/views/task/CreateModal.vue:96 src/views/task/CronView.vue:36
+msgid "Task Type"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:100 src/views/task/CronView.vue:49
+msgid "Run Script"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:101 src/views/task/CronView.vue:51
+msgid "Backup Data"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:102 src/views/task/CronView.vue:52
+msgid "Log Rotation"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:107 src/views/task/CreateModal.vue:108
+#: src/views/task/CronView.vue:29 src/views/task/CronView.vue:259
+#: src/views/task/CronView.vue:260 src/views/task/TaskView.vue:15
+msgid "Task Name"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:110 src/views/task/CronView.vue:74
+#: src/views/task/CronView.vue:262
+msgid "Task Schedule"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:114
+msgid "Script Content"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:128
+msgid "Backup Type"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:131
+msgid "MySQL Database"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:132
+msgid "PostgreSQL Database"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:140 src/views/task/CreateModal.vue:142
+#, fuzzy
+msgid "Select Website"
+msgstr "Certificate"
+
+#: src/views/task/CreateModal.vue:153
+msgid "Retention Count"
+msgstr ""
+
+#: src/views/task/CronView.vue:59
+msgid "Enabled"
+msgstr ""
+
+#: src/views/task/CronView.vue:94
+msgid "Last Update Time"
+msgstr ""
+
+#: src/views/task/CronView.vue:146
+msgid "Are you sure you want to delete this task?"
+msgstr ""
+
+#: src/views/task/CronView.vue:251
+msgid "Edit Task"
+msgstr ""
+
+#: src/views/task/IndexView.vue:25
+#, fuzzy
+msgid "Create Task"
+msgstr "Certificate"
+
+#: src/views/task/IndexView.vue:32
+msgid "System Processes"
+msgstr ""
+
+#: src/views/task/IndexView.vue:35
+#, fuzzy
+msgid "Panel Tasks"
+msgstr "Panel HTTPS"
+
+#: src/views/task/route.ts:19
+msgid "Background Tasks"
+msgstr ""
+
+#: src/views/task/SystemView.vue:25
+msgid "Parent PID"
+msgstr ""
+
+#: src/views/task/SystemView.vue:31
+msgid "Threads"
+msgstr ""
+
+#: src/views/task/SystemView.vue:50 src/views/task/TaskView.vue:33
 #: src/views/website/IndexView.vue:30
 msgid "Running"
+msgstr ""
+
+#: src/views/task/SystemView.vue:52
+msgid "Sleeping"
+msgstr ""
+
+#: src/views/task/SystemView.vue:54
+msgid "Stopped"
+msgstr ""
+
+#: src/views/task/SystemView.vue:56
+msgid "Idle"
+msgstr ""
+
+#: src/views/task/SystemView.vue:58
+msgid "Zombie"
+msgstr ""
+
+#: src/views/task/SystemView.vue:60 src/views/task/TaskView.vue:30
+msgid "Waiting"
+msgstr ""
+
+#: src/views/task/SystemView.vue:62
+msgid "Locked"
+msgstr ""
+
+#: src/views/task/SystemView.vue:87
+msgid "Start Time"
+msgstr ""
+
+#: src/views/task/SystemView.vue:108
+msgid "Process %{ pid } has been terminated"
+msgstr ""
+
+#: src/views/task/SystemView.vue:114
+msgid "Are you sure you want to terminate process %{ pid }?"
+msgstr ""
+
+#: src/views/task/SystemView.vue:124
+msgid "Terminate"
+msgstr ""
+
+#: src/views/task/TaskView.vue:28
+msgid "Completed"
+msgstr ""
+
+#: src/views/task/TaskView.vue:32
+msgid "Failed"
+msgstr ""
+
+#: src/views/task/TaskView.vue:46
+msgid "Completion Time"
+msgstr ""
+
+#: src/views/task/TaskView.vue:136
+msgid "If logs cannot be loaded, please disable ad blockers!"
+msgstr ""
+
+#: src/views/website/EditView.vue:54 src/views/website/IndexView.vue:210
+msgid "Not used"
+msgstr ""
+
+#: src/views/website/EditView.vue:83
+#, fuzzy
+msgid "Edit Website - %{ name }"
+msgstr "Certificate"
+
+#: src/views/website/EditView.vue:85 src/views/website/route.ts:31
+#, fuzzy
+msgid "Edit Website"
+msgstr "Certificate"
+
+#: src/views/website/EditView.vue:122
+#, fuzzy
+msgid "Reset successfully"
+msgstr "Saved successfully"
+
+#: src/views/website/EditView.vue:139
+#, fuzzy
+msgid "Issued successfully"
+msgstr "Saved successfully"
+
+#: src/views/website/EditView.vue:153
+msgid "The selected certificate is invalid"
+msgstr ""
+
+#: src/views/website/EditView.vue:160
+#, fuzzy
+msgid "Cleared successfully"
+msgstr "Saved successfully"
+
+#: src/views/website/EditView.vue:178
+msgid ""
+"If you modify the original text, other modifications will not take effect "
+"after clicking save!"
+msgstr ""
+
+#: src/views/website/EditView.vue:184
+msgid "Reset Configuration"
+msgstr ""
+
+#: src/views/website/EditView.vue:187
+msgid "Are you sure you want to reset the configuration?"
+msgstr ""
+
+#: src/views/website/EditView.vue:196
+#: src/views/website/ProxyBuilderModal.vue:121
+msgid "Generate Reverse Proxy Configuration"
+msgstr ""
+
+#: src/views/website/EditView.vue:207
+msgid "One-click Certificate Issuance"
+msgstr ""
+
+#: src/views/website/EditView.vue:217
+msgid "Clear Logs"
+msgstr ""
+
+#: src/views/website/EditView.vue:226
+msgid "Domain & Listening"
+msgstr ""
+
+#: src/views/website/EditView.vue:236
+msgid "Listening Address"
+msgstr ""
+
+#: src/views/website/EditView.vue:254
+msgid "Basic Settings"
+msgstr ""
+
+#: src/views/website/EditView.vue:256
+msgid "Website Directory"
+msgstr ""
+
+#: src/views/website/EditView.vue:257
+msgid "Enter website directory (absolute path)"
+msgstr ""
+
+#: src/views/website/EditView.vue:259
+msgid "Running Directory"
+msgstr ""
+
+#: src/views/website/EditView.vue:262
+msgid "Enter running directory (needed for Laravel etc.) (absolute path)"
+msgstr ""
+
+#: src/views/website/EditView.vue:265
+msgid "Default Document"
+msgstr ""
+
+#: src/views/website/EditView.vue:268 src/views/website/IndexView.vue:435
+msgid "PHP Version"
+msgstr ""
+
+#: src/views/website/EditView.vue:273 src/views/website/IndexView.vue:439
+msgid "Select PHP Version"
+msgstr ""
+
+#: src/views/website/EditView.vue:278
+msgid "Anti-XSS Attack (PHP)"
+msgstr ""
+
+#: src/views/website/EditView.vue:287
+#, fuzzy
+msgid "Certificate Information"
+msgstr "Certificate"
+
+#: src/views/website/EditView.vue:289
+#, fuzzy
+msgid "Certificate Validity"
+msgstr "Certificate"
+
+#: src/views/website/EditView.vue:303
+msgid "Domains"
+msgstr ""
+
+#: src/views/website/EditView.vue:318
+msgid "Main Switch"
+msgstr ""
+
+#: src/views/website/EditView.vue:321
+#, fuzzy
+msgid "Use Existing Certificate"
+msgstr "Certificate"
+
+#: src/views/website/EditView.vue:334
+msgid "HTTP Redirect"
+msgstr ""
+
+#: src/views/website/EditView.vue:337
+msgid "OCSP Stapling"
+msgstr ""
+
+#: src/views/website/EditView.vue:362
+msgid "Rewrite"
+msgstr ""
+
+#: src/views/website/EditView.vue:365
+msgid "Presets"
+msgstr ""
+
+#: src/views/website/EditView.vue:388
+msgid "Configuration"
+msgstr ""
+
+#: src/views/website/EditView.vue:391
+msgid ""
+"If you do not understand the configuration rules, please do not modify them "
+"arbitrarily, otherwise it may cause the website to be inaccessible or panel "
+"function abnormalities! If you have already encountered a problem, try "
+"resetting the configuration!"
+msgstr ""
+
+#: src/views/website/EditView.vue:407
+msgid "Access Log"
+msgstr ""
+
+#: src/views/website/EditView.vue:411 src/views/website/EditView.vue:423
+msgid "All logs can be viewed by downloading the file"
+msgstr ""
+
+#: src/views/website/EditView.vue:413 src/views/website/EditView.vue:425
+msgid "view"
+msgstr ""
+
+#: src/views/website/EditView.vue:419
+msgid "Error Log"
+msgstr ""
+
+#: src/views/website/IndexView.vue:23 src/views/website/IndexView.vue:398
+msgid "Website Name"
 msgstr ""
 
 #: src/views/website/IndexView.vue:78 src/views/website/IndexView.vue:516
@@ -2627,10 +2977,6 @@ msgstr ""
 
 #: src/views/website/IndexView.vue:154
 msgid "Delete local database with the same name"
-msgstr ""
-
-#: src/views/website/IndexView.vue:210
-msgid "Not used"
 msgstr ""
 
 #: src/views/website/IndexView.vue:240
@@ -2670,14 +3016,6 @@ msgid ""
 "setting"
 msgstr ""
 
-#: src/views/website/IndexView.vue:435
-msgid "PHP Version"
-msgstr ""
-
-#: src/views/website/IndexView.vue:439
-msgid "Select PHP Version"
-msgstr ""
-
 #: src/views/website/IndexView.vue:451
 msgid "Select Database"
 msgstr ""
@@ -2707,3 +3045,125 @@ msgstr ""
 #: src/views/website/IndexView.vue:554
 msgid "Stop Page"
 msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:23
+msgid "Disabled buffer and enabled cache cannot be used simultaneously"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:27
+msgid "Matching expression cannot be empty"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:31
+msgid "Proxy address cannot be empty"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:35
+msgid "Exact match expression must start with /"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:42
+msgid "Prefix match expression must start with /"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:48
+msgid "Proxy address format error"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:100
+#, fuzzy
+msgid "Configuration generated successfully"
+msgstr "Saved successfully"
+
+#: src/views/website/ProxyBuilderModal.vue:128
+msgid ""
+"After generating the reverse proxy configuration, the original rewrite rules "
+"will be overwritten."
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:130
+msgid ""
+"If you need to proxy static resources like JS/CSS, please remove the static "
+"log recording part from the original configuration."
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:133
+msgid "Auto Refresh Resolution"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:136
+msgid "Enable SNI"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:139
+msgid "Enable Cache"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:142
+msgid "Disable Buffer"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:147
+msgid "Match Type"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:151
+msgid "Exact Match (=)"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:152
+msgid "Priority Prefix Match (^~)"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:153
+msgid "Normal Prefix Match ( )"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:154
+msgid "Case Sensitive Regex Match (~)"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:155
+msgid "Case Insensitive Regex Match (~*)"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:159
+msgid "Match Expression"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:162
+msgid "Proxy Address"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:165
+msgid "Send Domain"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:168
+msgid "Cache Time"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:174
+msgid "Cache time (minutes)"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:176
+msgid "minutes"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:179
+msgid "Content Replacement"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:184
+msgid "Target content"
+msgstr ""
+
+#: src/views/website/ProxyBuilderModal.vue:185
+msgid "Replacement content"
+msgstr ""
+
+#: src/views/website/route.ts:19
+#, fuzzy
+msgid "Websites"
+msgstr "Certificate"
