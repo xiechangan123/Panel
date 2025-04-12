@@ -19,6 +19,7 @@ require (
 	github.com/golang-cz/httplog v0.0.0-20241002114323-98e09d6f537a
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
+	github.com/gookit/color v1.5.4
 	github.com/gookit/validate v1.5.4
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
@@ -91,6 +92,7 @@ require (
 	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
+	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/sync v0.13.0 // indirect

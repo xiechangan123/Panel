@@ -2,10 +2,10 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/gookit/color"
 	"github.com/urfave/cli/v3"
 
 	"github.com/tnb-labs/panel/pkg/apploader"
@@ -30,7 +30,7 @@ func (r *Cli) Run() error {
 	_ = r.migrator.Migrate()
 
 	if err := r.cmd.Run(context.TODO(), os.Args); err != nil {
-		fmt.Printf("|-%v\n", err)
+		color.Errorf("|-%v\n", err)
 	}
 
 	return nil
