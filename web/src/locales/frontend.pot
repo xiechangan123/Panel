@@ -481,6 +481,7 @@ msgid "Memory Latency"
 msgstr ""
 
 #: src/views/apps/benchmark/IndexView.vue:296
+#: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:795
 #: src/views/dashboard/IndexView.vue:815
 msgid "Disk"
@@ -2525,6 +2526,7 @@ msgid "Add"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:244
+#: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:794
 #: src/views/monitor/IndexView.vue:286
 msgid "Network"
@@ -2893,6 +2895,83 @@ msgstr ""
 msgid "Running smoothly"
 msgstr ""
 
+#: src/views/dashboard/IndexView.vue:162
+#: src/views/dashboard/IndexView.vue:178
+msgid "Send"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:162
+#: src/views/dashboard/IndexView.vue:202
+msgid "Receive"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:162
+#: src/views/dashboard/IndexView.vue:178
+#: src/views/dashboard/IndexView.vue:839
+#: src/views/file/PermissionModal.vue:88
+#: src/views/file/PermissionModal.vue:97
+#: src/views/file/PermissionModal.vue:106
+msgid "Read"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:162
+#: src/views/dashboard/IndexView.vue:202
+#: src/views/dashboard/IndexView.vue:840
+#: src/views/file/PermissionModal.vue:89
+#: src/views/file/PermissionModal.vue:98
+#: src/views/file/PermissionModal.vue:107
+msgid "Write"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:170
+msgid "Unit %{unit}"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:184
+#: src/views/dashboard/IndexView.vue:208
+#: src/views/monitor/IndexView.vue:93
+#: src/views/monitor/IndexView.vue:115
+#: src/views/monitor/IndexView.vue:137
+#: src/views/monitor/IndexView.vue:192
+#: src/views/monitor/IndexView.vue:251
+#: src/views/monitor/IndexView.vue:273
+#: src/views/monitor/IndexView.vue:335
+#: src/views/monitor/IndexView.vue:357
+#: src/views/monitor/IndexView.vue:379
+#: src/views/monitor/IndexView.vue:401
+msgid "Maximum"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:185
+#: src/views/dashboard/IndexView.vue:209
+#: src/views/monitor/IndexView.vue:94
+#: src/views/monitor/IndexView.vue:116
+#: src/views/monitor/IndexView.vue:138
+#: src/views/monitor/IndexView.vue:193
+#: src/views/monitor/IndexView.vue:252
+#: src/views/monitor/IndexView.vue:274
+#: src/views/monitor/IndexView.vue:336
+#: src/views/monitor/IndexView.vue:358
+#: src/views/monitor/IndexView.vue:380
+#: src/views/monitor/IndexView.vue:402
+msgid "Minimum"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:189
+#: src/views/dashboard/IndexView.vue:213
+#: src/views/monitor/IndexView.vue:98
+#: src/views/monitor/IndexView.vue:120
+#: src/views/monitor/IndexView.vue:142
+#: src/views/monitor/IndexView.vue:197
+#: src/views/monitor/IndexView.vue:256
+#: src/views/monitor/IndexView.vue:278
+#: src/views/monitor/IndexView.vue:340
+#: src/views/monitor/IndexView.vue:362
+#: src/views/monitor/IndexView.vue:384
+#: src/views/monitor/IndexView.vue:406
+msgid "Average"
+msgstr ""
+
 #: src/views/dashboard/IndexView.vue:321
 msgid "Panel restarting..."
 msgstr ""
@@ -3095,20 +3174,6 @@ msgstr ""
 
 #: src/views/dashboard/IndexView.vue:835
 msgid "Real-time Received"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:839
-#: src/views/file/PermissionModal.vue:88
-#: src/views/file/PermissionModal.vue:97
-#: src/views/file/PermissionModal.vue:106
-msgid "Read"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:840
-#: src/views/file/PermissionModal.vue:89
-#: src/views/file/PermissionModal.vue:98
-#: src/views/file/PermissionModal.vue:107
-msgid "Write"
 msgstr ""
 
 #: src/views/dashboard/IndexView.vue:842
@@ -3770,6 +3835,7 @@ msgid "Port Forwarding"
 msgstr ""
 
 #: src/views/firewall/IndexView.vue:28
+#: src/views/setting/route.ts:19
 msgid "Settings"
 msgstr ""
 
@@ -3859,45 +3925,6 @@ msgstr ""
 msgid "15 minutes"
 msgstr ""
 
-#: src/views/monitor/IndexView.vue:93
-#: src/views/monitor/IndexView.vue:115
-#: src/views/monitor/IndexView.vue:137
-#: src/views/monitor/IndexView.vue:192
-#: src/views/monitor/IndexView.vue:251
-#: src/views/monitor/IndexView.vue:273
-#: src/views/monitor/IndexView.vue:335
-#: src/views/monitor/IndexView.vue:357
-#: src/views/monitor/IndexView.vue:379
-#: src/views/monitor/IndexView.vue:401
-msgid "Maximum"
-msgstr ""
-
-#: src/views/monitor/IndexView.vue:94
-#: src/views/monitor/IndexView.vue:116
-#: src/views/monitor/IndexView.vue:138
-#: src/views/monitor/IndexView.vue:193
-#: src/views/monitor/IndexView.vue:252
-#: src/views/monitor/IndexView.vue:274
-#: src/views/monitor/IndexView.vue:336
-#: src/views/monitor/IndexView.vue:358
-#: src/views/monitor/IndexView.vue:380
-#: src/views/monitor/IndexView.vue:402
-msgid "Minimum"
-msgstr ""
-
-#: src/views/monitor/IndexView.vue:98
-#: src/views/monitor/IndexView.vue:120
-#: src/views/monitor/IndexView.vue:142
-#: src/views/monitor/IndexView.vue:197
-#: src/views/monitor/IndexView.vue:256
-#: src/views/monitor/IndexView.vue:278
-#: src/views/monitor/IndexView.vue:340
-#: src/views/monitor/IndexView.vue:362
-#: src/views/monitor/IndexView.vue:384
-#: src/views/monitor/IndexView.vue:406
-msgid "Average"
-msgstr ""
-
 #: src/views/monitor/IndexView.vue:162
 msgid "Unit %"
 msgstr ""
@@ -3963,10 +3990,6 @@ msgstr ""
 
 #: src/views/setting/IndexView.vue:17
 msgid "Basic"
-msgstr ""
-
-#: src/views/setting/route.ts:19
-msgid "Panel Settings"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:57
@@ -4171,7 +4194,7 @@ msgid "Panel Tasks"
 msgstr ""
 
 #: src/views/task/route.ts:19
-msgid "Background Tasks"
+msgid "Tasks"
 msgstr ""
 
 #: src/views/task/SystemView.vue:25
@@ -4335,7 +4358,7 @@ msgid "Select PHP Version"
 msgstr ""
 
 #: src/views/website/EditView.vue:287
-msgid "Anti-XSS Attack (PHP)"
+msgid "Anti-cross-site Attack (PHP)"
 msgstr ""
 
 #: src/views/website/EditView.vue:296
