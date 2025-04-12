@@ -1471,20 +1471,20 @@ msgid "the current version is the latest version"
 msgstr ""
 
 #: internal/data/cert.go:351
-msgid "this certificate has not been issued successfully and cannot be deployed"
+msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr ""
 
 #: internal/data/cert.go:276
-msgid "this certificate has not been issued successfully and cannot be renewed"
+msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr ""
 
 #: internal/data/cert.go:168
 #: internal/data/cert.go:283
-msgid "this certificate is not associated with a website and cannot be signed. You can try to sign it manually"
+msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr ""
 
 #: internal/data/cert.go:406
-msgid "this certificate is not associated with an ACME account and cannot be signed"
+msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr ""
 
 #: internal/service/dashboard.go:228
