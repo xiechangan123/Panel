@@ -1405,6 +1405,8 @@ msgid "phpMyAdmin port not found"
 msgstr ""
 
 #: internal/service/file.go:135
+#: internal/service/file.go:222
+#: internal/service/file.go:251
 msgid "please don't do this"
 msgstr ""
 
@@ -1563,11 +1565,6 @@ msgstr ""
 
 #: internal/apps/php/app.go:447
 msgid "yaml is a library for handling YAML"
-msgstr ""
-
-#: internal/service/file.go:222
-#: internal/service/file.go:251
-msgid "you can't do this, it will be broken"
 msgstr ""
 
 #: internal/apps/php/app.go:452
