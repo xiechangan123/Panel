@@ -59,7 +59,7 @@ const maybeHardReload = () => {
       <n-form-item :label="$gettext('Panel Name')">
         <n-input v-model:value="model.name" :placeholder="$gettext('Panel Name')" />
       </n-form-item>
-      <n-form-item v-show="false" :label="$gettext('Language')">
+      <n-form-item :label="$gettext('Language')">
         <n-select v-model:value="model.locale" :options="locales"> </n-select>
       </n-form-item>
       <n-form-item :label="$gettext('Username')">

@@ -73,7 +73,7 @@ func initCli() (*app.Cli, error) {
 	websiteRepo := data.NewWebsiteRepo(locale, db, cacheRepo, databaseRepo, databaseServerRepo, databaseUserRepo, certRepo, certAccountRepo)
 	backupRepo := data.NewBackupRepo(locale, db, settingRepo, websiteRepo)
 	cliService := service.NewCliService(locale, koanf, db, appRepo, cacheRepo, userRepo, settingRepo, backupRepo, websiteRepo, databaseServerRepo)
-	cli := route.NewCli(cliService)
+	cli := route.NewCli(locale, cliService)
 	command := bootstrap.NewCli(locale, cli)
 	gormigrate := bootstrap.NewMigrate(db)
 	benchmarkApp := benchmark.NewApp(locale)
