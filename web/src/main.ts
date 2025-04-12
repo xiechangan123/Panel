@@ -9,7 +9,7 @@ import App from './App.vue'
 import { setupI18n } from '@/i18n/i18n'
 import { setupRouter } from '@/router'
 import { setupStore, useThemeStore } from '@/store'
-import { setupGettext, setupNaiveDiscreteApi } from '@/utils'
+import { createGettext, setupNaiveDiscreteApi } from '@/utils'
 
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 
@@ -30,7 +30,7 @@ async function setupApp() {
   await setupStore(app)
   await setupNaiveDiscreteApi()
   await setupPanel().then(() => {
-    setupGettext(app)
+    app.use(createGettext)
     setupI18n(app)
   })
   await setupRouter(app)

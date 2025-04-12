@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: src/views/setting/SettingHttps.vue:25
+msgid "Saved successfully"
+msgstr ""
+
+#: src/views/setting/SettingHttps.vue:34
+msgid "Panel HTTPS"
+msgstr ""
+
+#: src/views/setting/SettingHttps.vue:37
+msgid "Certificate"
+msgstr ""
+
+#: src/views/setting/SettingHttps.vue:44
+msgid "Private Key"
+msgstr ""
+
+#: src/views/setting/SettingHttps.vue:54
+msgid "Save"
+msgstr ""

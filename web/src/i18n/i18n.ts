@@ -1,5 +1,4 @@
 import type { App } from 'vue'
-import type { Composer } from 'vue-i18n'
 import { createI18n } from 'vue-i18n'
 
 import { useThemeStore } from '@/store'
@@ -23,8 +22,4 @@ export function setupI18n(app: App) {
     }
   })
   app.use(i18n)
-}
-
-export const trans = (key: string, attributes = {}) => {
-  return (i18n.global.t as Composer['t'])(key, attributes)
 }

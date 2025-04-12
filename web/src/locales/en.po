@@ -1,0 +1,30 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/views/setting/SettingHttps.vue:25
+msgid "Saved successfully"
+msgstr "Saved successfully"
+
+#: src/views/setting/SettingHttps.vue:34
+msgid "Panel HTTPS"
+msgstr "Panel HTTPS"
+
+#: src/views/setting/SettingHttps.vue:37
+msgid "Certificate"
+msgstr "Certificate"
+
+#: src/views/setting/SettingHttps.vue:44
+msgid "Private Key"
+msgstr "Private Key"
+
+#: src/views/setting/SettingHttps.vue:54
+msgid "Save"
+msgstr "Save"
