@@ -78,7 +78,7 @@ const maybeHardReload = () => {
       <n-form-item :label="$gettext('Port')">
         <n-input-number v-model:value="model.port" :placeholder="$gettext('8888')" />
       </n-form-item>
-      <n-form-item :label="$gettext('Security Entrance')">
+      <n-form-item :label="$gettext('Access Entrance')">
         <n-input v-model:value="model.entrance" :placeholder="$gettext('admin')" />
       </n-form-item>
       <n-form-item :label="$gettext('Offline Mode')">
