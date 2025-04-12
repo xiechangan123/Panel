@@ -1,4 +1,5 @@
 import type { RouteType } from '~/types/router'
+import { $gettext } from '@/utils/gettext'
 
 const Layout = () => import('@/layout/IndexView.vue')
 
@@ -13,7 +14,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: '耗子跑分',
+        title: $gettext('Rat Benchmark'),
         icon: 'dashicons:performance',
         role: ['admin'],
         requireAuth: true

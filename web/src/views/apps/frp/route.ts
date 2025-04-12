@@ -1,4 +1,5 @@
 import type { RouteType } from '~/types/router'
+import { $gettext } from '@/utils/gettext'
 
 const Layout = () => import('@/layout/IndexView.vue')
 
@@ -13,7 +14,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Frp',
+        title: $gettext('Frp'),
         icon: 'icon-park-outline:connection-box',
         role: ['admin'],
         requireAuth: true

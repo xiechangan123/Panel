@@ -1,3 +1,4 @@
+import { $gettext } from '@/utils/gettext'
 import type { RouteType } from '~/types/router'
 
 const Layout = () => import('@/layout/IndexView.vue')
@@ -13,7 +14,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Pure-FTPd',
+        title: $gettext('Pure-FTPd'),
         icon: 'mdi:server-network',
         role: ['admin'],
         requireAuth: true

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/apps/php'
 import systemctl from '@/api/panel/systemctl'
 import { renderIcon } from '@/utils'
 
+const { $gettext } = useGettext()
 const props = defineProps({
   version: {
     type: Number,
@@ -42,26 +44,26 @@ const statusType = computed(() => {
   return status.value ? 'success' : 'error'
 })
 const statusStr = computed(() => {
-  return status.value ? '正常运行中' : '已停止运行'
+  return status.value ? $gettext('Running normally') : $gettext('Stopped')
 })
 
 const extensionColumns: any = [
   {
-    title: '拓展名',
+    title: $gettext('Extension Name'),
     key: 'name',
     minWidth: 250,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '描述',
+    title: $gettext('Description'),
     key: 'description',
     resizable: true,
     minWidth: 250,
     ellipsis: { tooltip: true }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 240,
     align: 'center',
@@ -76,7 +78,7 @@ const extensionColumns: any = [
               },
               {
                 default: () => {
-                  return '确定安装 ' + row.name + ' 吗？'
+                  return $gettext('Are you sure you want to install %{ name }?', { name: row.name })
                 },
                 trigger: () => {
                   return h(
@@ -86,7 +88,7 @@ const extensionColumns: any = [
                       type: 'info'
                     },
                     {
-                      default: () => '安装',
+                      default: () => $gettext('Install'),
                       icon: renderIcon('material-symbols:download-rounded', { size: 14 })
                     }
                   )
@@ -102,7 +104,7 @@ const extensionColumns: any = [
               },
               {
                 default: () => {
-                  return '确定卸载 ' + row.name + ' 吗？'
+                  return $gettext('Are you sure you want to uninstall %{ name }?', { name: row.name })
                 },
                 trigger: () => {
                   return h(
@@ -112,7 +114,7 @@ const extensionColumns: any = [
                       type: 'error'
                     },
                     {
-                      default: () => '删除',
+                      default: () => $gettext('Delete'),
                       icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                     }
                   )
@@ -127,14 +129,14 @@ const extensionColumns: any = [
 
 const loadColumns: any = [
   {
-    title: '属性',
+    title: $gettext('Property'),
     key: 'name',
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '当前值',
+    title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
     ellipsis: { tooltip: true }
@@ -151,78 +153,78 @@ const getIsEnabled = async () => {
 
 const handleSetCli = async () => {
   useRequest(php.setCli(version.value)).onSuccess(() => {
-    window.$message.success('设置成功')
+    window.$message.success($gettext('Set successfully'))
   })
 }
 
 const handleSaveConfig = async () => {
   useRequest(php.saveConfig(version.value, config.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleSaveFPMConfig = async () => {
   useRequest(php.saveFPMConfig(version.value, fpmConfig.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleClearErrorLog = async () => {
   useRequest(php.clearErrorLog(version.value)).onSuccess(() => {
-    window.$message.success('清空成功')
+    window.$message.success($gettext('Cleared successfully'))
   })
 }
 
 const handleClearSlowLog = async () => {
   useRequest(php.clearSlowLog(version.value)).onSuccess(() => {
-    window.$message.success('清空成功')
+    window.$message.success($gettext('Cleared successfully'))
   })
 }
 
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
     await systemctl.enable(`php-fpm-${version.value}`)
-    window.$message.success('开启自启动成功')
+    window.$message.success($gettext('Autostart enabled successfully'))
   } else {
     await systemctl.disable(`php-fpm-${version.value}`)
-    window.$message.success('禁用自启动成功')
+    window.$message.success($gettext('Autostart disabled successfully'))
   }
   await getIsEnabled()
 }
 
 const handleStart = async () => {
   await systemctl.start(`php-fpm-${version.value}`)
-  window.$message.success('启动成功')
+  window.$message.success($gettext('Started successfully'))
   await getStatus()
 }
 
 const handleStop = async () => {
   await systemctl.stop(`php-fpm-${version.value}`)
-  window.$message.success('停止成功')
+  window.$message.success($gettext('Stopped successfully'))
   await getStatus()
 }
 
 const handleRestart = async () => {
   await systemctl.restart(`php-fpm-${version.value}`)
-  window.$message.success('重启成功')
+  window.$message.success($gettext('Restarted successfully'))
   await getStatus()
 }
 
 const handleReload = async () => {
   await systemctl.reload(`php-fpm-${version.value}`)
-  window.$message.success('重载成功')
+  window.$message.success($gettext('Reloaded successfully'))
   await getStatus()
 }
 
 const handleInstallExtension = async (slug: string) => {
   useRequest(php.installExtension(version.value, slug)).onSuccess(() => {
-    window.$message.success('任务已提交，请前往后台任务查看进度')
+    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
   })
 }
 
 const handleUninstallExtension = async (name: string) => {
   useRequest(php.uninstallExtension(version.value, name)).onSuccess(() => {
-    window.$message.success('任务已提交，请前往后台任务查看进度')
+    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
   })
 }
 
@@ -236,7 +238,7 @@ onMounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button v-if="currentTab == 'status'" class="ml-16" type="info" @click="handleSetCli">
-        设为 CLI 默认版本
+        {{ $gettext('Set as CLI Default Version') }}
       </n-button>
       <n-button
         v-if="currentTab == 'config'"
@@ -245,7 +247,7 @@ onMounted(() => {
         @click="handleSaveConfig"
       >
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button
         v-if="currentTab == 'fpm-config'"
@@ -254,7 +256,7 @@ onMounted(() => {
         @click="handleSaveFPMConfig"
       >
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button
         v-if="currentTab == 'error-log'"
@@ -263,7 +265,7 @@ onMounted(() => {
         @click="handleClearErrorLog"
       >
         <TheIcon :size="18" icon="material-symbols:delete-outline" />
-        清空错误日志
+        {{ $gettext('Clear Error Log') }}
       </n-button>
       <n-button
         v-if="currentTab == 'slow-log'"
@@ -272,17 +274,17 @@ onMounted(() => {
         @click="handleClearSlowLog"
       >
         <TheIcon :size="18" icon="material-symbols:delete-outline" />
-        清空慢日志
+        {{ $gettext('Clear Slow Log') }}
       </n-button>
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="status" tab="运行状态">
+      <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-space vertical>
-          <n-card title="运行状态">
+          <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> 自启动开 </template>
-                <template #unchecked> 自启动关 </template>
+                <template #checked> {{ $gettext('Autostart On') }} </template>
+                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
@@ -292,32 +294,32 @@ onMounted(() => {
               <n-space>
                 <n-button type="success" @click="handleStart">
                   <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  启动
+                  {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop">
                   <template #trigger>
                     <n-button type="error">
                       <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      停止
+                      {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  停止 PHP {{ version }} 会导致使用 PHP {{ version }} 的网站无法访问，确定要停止吗？
+                  {{ $gettext('Stopping PHP %{ version } will cause websites using PHP %{ version } to become inaccessible. Are you sure you want to stop?', { version: version }) }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
-                  重启
+                  {{ $gettext('Restart') }}
                 </n-button>
                 <n-button type="primary" @click="handleReload">
                   <TheIcon :size="20" icon="material-symbols:refresh-rounded" />
-                  重载
+                  {{ $gettext('Reload') }}
                 </n-button>
               </n-space>
             </n-space>
           </n-card>
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="extensions" tab="拓展管理">
-        <n-card title="拓展列表" :segmented="true">
+      <n-tab-pane name="extensions" :tab="$gettext('Extension Management')">
+        <n-card :title="$gettext('Extension List')" :segmented="true">
           <n-data-table
             striped
             remote
@@ -329,10 +331,10 @@ onMounted(() => {
           />
         </n-card>
       </n-tab-pane>
-      <n-tab-pane name="config" tab="主配置">
+      <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            此处修改的是 PHP {{ version }} 主配置文件，如果您不了解各参数的含义，请不要随意修改！
+            {{ $gettext('This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!', { version: version }) }}
           </n-alert>
           <Editor
             v-model:value="config"
@@ -348,10 +350,10 @@ onMounted(() => {
           />
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="fpm-config" tab="FPM 配置">
+      <n-tab-pane name="fpm-config" :tab="$gettext('FPM Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            此处修改的是 PHP {{ version }} FPM 配置文件，如果您不了解各参数的含义，请不要随意修改！
+            {{ $gettext('This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!', { version: version }) }}
           </n-alert>
           <Editor
             v-model:value="fpmConfig"
@@ -367,7 +369,7 @@ onMounted(() => {
           />
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="load" tab="负载状态">
+      <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table
           striped
           remote
@@ -377,13 +379,13 @@ onMounted(() => {
           :data="load"
         />
       </n-tab-pane>
-      <n-tab-pane name="run-log" tab="运行日志">
+      <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log :service="'php-fpm-' + version" />
       </n-tab-pane>
-      <n-tab-pane name="error-log" tab="错误日志">
+      <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
         <realtime-log :path="errorLog" />
       </n-tab-pane>
-      <n-tab-pane name="slow-log" tab="慢日志">
+      <n-tab-pane name="slow-log" :tab="$gettext('Slow Logs')">
         <realtime-log :path="slowLog" />
       </n-tab-pane>
     </n-tabs>

@@ -5,9 +5,11 @@ defineOptions({
 
 import benchmark from '@/api/apps/benchmark'
 import TheIcon from '@/components/custom/TheIcon.vue'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const inTest = ref(false)
-const current = ref('CPU')
+const current = ref($gettext('CPU'))
 const progress = ref(0)
 
 const tests = [
@@ -62,35 +64,35 @@ const cpuTotal = computed(() => {
 
 const memory = ref({
   score: 0,
-  bandwidth: '待跑分',
-  latency: '待跑分'
+  bandwidth: $gettext('Pending benchmark'),
+  latency: $gettext('Pending benchmark')
 })
 
 const disk = ref({
   score: 0,
   1024: {
-    read_iops: '待跑分',
-    read_speed: '待跑分',
-    write_iops: '待跑分',
-    write_speed: '待跑分'
+    read_iops: $gettext('Pending benchmark'),
+    read_speed: $gettext('Pending benchmark'),
+    write_iops: $gettext('Pending benchmark'),
+    write_speed: $gettext('Pending benchmark')
   },
   4: {
-    read_iops: '待跑分',
-    read_speed: '待跑分',
-    write_iops: '待跑分',
-    write_speed: '待跑分'
+    read_iops: $gettext('Pending benchmark'),
+    read_speed: $gettext('Pending benchmark'),
+    write_iops: $gettext('Pending benchmark'),
+    write_speed: $gettext('Pending benchmark')
   },
   512: {
-    read_iops: '待跑分',
-    read_speed: '待跑分',
-    write_iops: '待跑分',
-    write_speed: '待跑分'
+    read_iops: $gettext('Pending benchmark'),
+    read_speed: $gettext('Pending benchmark'),
+    write_iops: $gettext('Pending benchmark'),
+    write_speed: $gettext('Pending benchmark')
   },
   64: {
-    read_iops: '待跑分',
-    read_speed: '待跑分',
-    write_iops: '待跑分',
-    write_speed: '待跑分'
+    read_iops: $gettext('Pending benchmark'),
+    read_speed: $gettext('Pending benchmark'),
+    write_iops: $gettext('Pending benchmark'),
+    write_speed: $gettext('Pending benchmark')
   }
 })
 
@@ -123,10 +125,18 @@ const handleTest = async () => {
   <common-page show-footer>
     <n-flex vertical>
       <n-alert type="warning">
-        跑分结果仅供参考，受系统资源调度和缓存等因素影响可能与实际性能有所偏差！
+        {{
+          $gettext(
+            'Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!'
+          )
+        }}
       </n-alert>
-      <n-alert v-if="inTest" title="跑分中，可能需要较长时间..." type="info">
-        当前项目：{{ current }}
+      <n-alert
+        v-if="inTest"
+        :title="$gettext('Benchmarking in progress, it may take some time...')"
+        type="info"
+      >
+        {{ $gettext('Current project: %{ current }', { current: current }) }}
       </n-alert>
       <n-progress v-if="inTest" :percentage="progress" color="var(--primary-color)" processing />
     </n-flex>
@@ -138,12 +148,12 @@ const handleTest = async () => {
               <template #trigger>
                 <n-flex vertical items-center>
                   <div v-if="cpuTotal.single !== 0 && cpuTotal.multi !== 0">
-                    单核
+                    {{ $gettext('Single-core') }}
                     <n-number-animation :from="0" :to="cpuTotal.single" show-separator />
-                    / 多核
+                    / {{ $gettext('Multi-core') }}
                     <n-number-animation :from="0" :to="cpuTotal.multi" show-separator />
                   </div>
-                  <div v-else>待跑分</div>
+                  <div v-else>{{ $gettext('Pending benchmark') }}</div>
                   <n-progress
                     type="circle"
                     :percentage="100"
@@ -152,37 +162,86 @@ const handleTest = async () => {
                   >
                     <TheIcon :size="50" icon="bi:cpu" color="var(--primary-color)" />
                   </n-progress>
-                  CPU
+                  {{ $gettext('CPU') }}
                 </n-flex>
               </template>
               <n-table :single-line="false" striped>
                 <tr>
-                  <th>图像处理</th>
-                  <td>单核 {{ cpu.image.single }} / 多核 {{ cpu.image.multi }}</td>
+                  <th>{{ $gettext('Image Processing') }}</th>
+                  <td>
+                    {{
+                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
+                        single: cpu.image.single,
+                        multi: cpu.image.multi
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>机器学习</th>
-                  <td>单核 {{ cpu.machine.single }} / 多核 {{ cpu.machine.multi }}</td>
+                  <th>{{ $gettext('Machine Learning') }}</th>
+                  <td>
+                    {{
+                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
+                        single: cpu.machine.single,
+                        multi: cpu.machine.multi
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>程序编译</th>
-                  <td>单核 {{ cpu.compile.single }} / 多核 {{ cpu.compile.multi }}</td>
+                  <th>{{ $gettext('Program Compilation') }}</th>
+                  <td>
+                    {{
+                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
+                        single: cpu.compile.single,
+                        multi: cpu.compile.multi
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>AES 加密</th>
-                  <td>单核 {{ cpu.encryption.single }} / 多核 {{ cpu.encryption.multi }}</td>
+                  <th>{{ $gettext('AES Encryption') }}</th>
+                  <td>
+                    {{
+                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
+                        single: cpu.encryption.single,
+                        multi: cpu.encryption.multi
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>压缩/解压缩</th>
-                  <td>单核 {{ cpu.compression.single }} / 多核 {{ cpu.compression.multi }}</td>
+                  <th>{{ $gettext('Compression/Decompression') }}</th>
+                  <td>
+                    {{
+                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
+                        single: cpu.compression.single,
+                        multi: cpu.compression.multi
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>物理仿真</th>
-                  <td>单核 {{ cpu.physics.single }} / 多核 {{ cpu.physics.multi }}</td>
+                  <th>{{ $gettext('Physics Simulation') }}</th>
+                  <td>
+                    {{
+                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
+                        single: cpu.physics.single,
+                        multi: cpu.physics.multi
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>JSON 解析</th>
-                  <td>单核 {{ cpu.json.single }} / 多核 {{ cpu.json.multi }}</td>
+                  <th>{{ $gettext('JSON Parsing') }}</th>
+                  <td>
+                    {{
+                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
+                        single: cpu.json.single,
+                        multi: cpu.json.multi
+                      })
+                    }}
+                  </td>
                 </tr>
               </n-table>
             </n-popover>
@@ -194,7 +253,7 @@ const handleTest = async () => {
                   <div v-if="memory.score !== 0">
                     <n-number-animation :from="0" :to="memory.score" show-separator />
                   </div>
-                  <div v-else>待跑分</div>
+                  <div v-else>{{ $gettext('Pending benchmark') }}</div>
                   <n-progress
                     type="circle"
                     :percentage="100"
@@ -203,16 +262,16 @@ const handleTest = async () => {
                   >
                     <TheIcon :size="50" icon="bi:memory" color="var(--primary-color)" />
                   </n-progress>
-                  内存
+                  {{ $gettext('Memory') }}
                 </n-flex>
               </template>
               <n-table :single-line="false" striped>
                 <tr>
-                  <th>内存带宽</th>
+                  <th>{{ $gettext('Memory Bandwidth') }}</th>
                   <td>{{ memory.bandwidth }}</td>
                 </tr>
                 <tr>
-                  <th>内存延迟</th>
+                  <th>{{ $gettext('Memory Latency') }}</th>
                   <td>{{ memory.latency }}</td>
                 </tr>
               </n-table>
@@ -225,7 +284,7 @@ const handleTest = async () => {
                   <div v-if="disk.score !== 0">
                     <n-number-animation :from="0" :to="disk.score" show-separator />
                   </div>
-                  <div v-else>待跑分</div>
+                  <div v-else>{{ $gettext('Pending benchmark') }}</div>
                   <n-progress
                     type="circle"
                     :percentage="100"
@@ -234,41 +293,97 @@ const handleTest = async () => {
                   >
                     <TheIcon :size="50" icon="bi:hdd-stack" color="var(--primary-color)" />
                   </n-progress>
-                  硬盘
+                  {{ $gettext('Disk') }}
                 </n-flex>
               </template>
               <n-table :single-line="false" striped>
                 <tr>
-                  <th>4KB 读取</th>
-                  <td>速度 {{ disk['4'].read_speed }} / {{ disk['4'].read_iops }} IOPS</td>
+                  <th>{{ $gettext('4KB Read') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['4'].read_speed,
+                        iops: disk['4'].read_iops
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>4KB 写入</th>
-                  <td>速度 {{ disk['4'].write_speed }} / {{ disk['4'].write_iops }} IOPS</td>
+                  <th>{{ $gettext('4KB Write') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['4'].write_speed,
+                        iops: disk['4'].write_iops
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>64KB 读取</th>
-                  <td>速度 {{ disk['64'].read_speed }} / {{ disk['64'].read_iops }} IOPS</td>
+                  <th>{{ $gettext('64KB Read') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['64'].read_speed,
+                        iops: disk['64'].read_iops
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>64KB 写入</th>
-                  <td>速度 {{ disk['64'].write_speed }} / {{ disk['64'].write_iops }} IOPS</td>
+                  <th>{{ $gettext('64KB Write') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['64'].write_speed,
+                        iops: disk['64'].write_iops
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>512KB 读取</th>
-                  <td>速度 {{ disk['512'].read_speed }} / {{ disk['512'].read_iops }} IOPS</td>
+                  <th>{{ $gettext('512KB Read') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['512'].read_speed,
+                        iops: disk['512'].read_iops
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>512KB 写入</th>
-                  <td>速度 {{ disk['512'].write_speed }} / {{ disk['512'].write_iops }} IOPS</td>
+                  <th>{{ $gettext('512KB Write') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['512'].write_speed,
+                        iops: disk['512'].write_iops
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>1MB 读取</th>
-                  <td>速度 {{ disk['1024'].read_speed }} / {{ disk['1024'].read_iops }} IOPS</td>
+                  <th>{{ $gettext('1MB Read') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['1024'].read_speed,
+                        iops: disk['1024'].read_iops
+                      })
+                    }}
+                  </td>
                 </tr>
                 <tr>
-                  <th>1MB 写入</th>
-                  <td>速度 {{ disk['1024'].write_speed }} / {{ disk['1024'].write_iops }} IOPS</td>
+                  <th>{{ $gettext('1MB Write') }}</th>
+                  <td>
+                    {{
+                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
+                        speed: disk['1024'].write_speed,
+                        iops: disk['1024'].write_iops
+                      })
+                    }}
+                  </td>
                 </tr>
               </n-table>
             </n-popover>
@@ -284,7 +399,7 @@ const handleTest = async () => {
         mt-40
         w-200
       >
-        {{ inTest ? '跑分中...' : '开始跑分' }}
+        {{ inTest ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
       </n-button>
     </n-flex>
   </common-page>

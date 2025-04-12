@@ -5,10 +5,12 @@ defineOptions({
 
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import frp from '@/api/apps/frp'
 import systemctl from '@/api/panel/systemctl'
 
+const { $gettext } = useGettext()
 const currentTab = ref('frps')
 const status = ref({
   frpc: false,
@@ -25,8 +27,8 @@ const config = ref({
 
 const statusStr = computed(() => {
   return {
-    frpc: status.value.frpc ? '正常运行中' : '已停止运行',
-    frps: status.value.frps ? '正常运行中' : '已停止运行'
+    frpc: status.value.frpc ? $gettext('Running normally') : $gettext('Stopped'),
+    frps: status.value.frps ? $gettext('Running normally') : $gettext('Stopped')
   }
 })
 
@@ -48,36 +50,36 @@ const getConfig = async () => {
 const handleSaveConfig = (service: string) => {
   useRequest(frp.saveConfig(service, config.value[service as keyof typeof config.value])).onSuccess(
     () => {
-      window.$message.success('保存成功')
+      window.$message.success($gettext('Saved successfully'))
     }
   )
 }
 
 const handleStart = async (name: string) => {
   await systemctl.start(name)
-  window.$message.success('启动成功')
+  window.$message.success($gettext('Started successfully'))
   await getStatus()
 }
 
 const handleStop = async (name: string) => {
   await systemctl.stop(name)
-  window.$message.success('停止成功')
+  window.$message.success($gettext('Stopped successfully'))
   await getStatus()
 }
 
 const handleRestart = async (name: string) => {
   await systemctl.restart(name)
-  window.$message.success('重启成功')
+  window.$message.success($gettext('Restarted successfully'))
   await getStatus()
 }
 
 const handleIsEnabled = async (name: string) => {
   if (isEnabled.value[name as keyof typeof isEnabled.value]) {
     await systemctl.enable(name)
-    window.$message.success('开启自启动成功')
+    window.$message.success($gettext('Autostart enabled successfully'))
   } else {
     await systemctl.disable(name)
-    window.$message.success('禁用自启动成功')
+    window.$message.success($gettext('Autostart disabled successfully'))
   }
   await getIsEnabled()
 }
@@ -94,11 +96,11 @@ onMounted(() => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="frps" tab="Frps">
         <n-space vertical>
-          <n-card title="运行状态">
+          <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled.frps" @update:value="handleIsEnabled('frps')">
-                <template #checked> 自启动开 </template>
-                <template #unchecked> 自启动关 </template>
+                <template #checked> {{ $gettext('Autostart On') }} </template>
+                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
@@ -108,29 +110,29 @@ onMounted(() => {
               <n-space>
                 <n-button type="success" @click="handleStart('frps')">
                   <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  启动
+                  {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop('frps')">
                   <template #trigger>
                     <n-button type="error">
                       <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      停止
+                      {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  确定要停止 Frps 吗？
+                  {{ $gettext('Are you sure you want to stop Frps?') }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart('frps')">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
-                  重启
+                  {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="修改配置">
+          <n-card :title="$gettext('Modify Configuration')">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frps')">
                 <TheIcon :size="18" icon="material-symbols:save-outline-rounded" />
-                保存
+                {{ $gettext('Save') }}
               </n-button>
             </template>
             <Editor
@@ -150,11 +152,11 @@ onMounted(() => {
       </n-tab-pane>
       <n-tab-pane name="frpc" tab="Frpc">
         <n-space vertical>
-          <n-card title="运行状态">
+          <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled.frpc" @update:value="handleIsEnabled('frpc')">
-                <template #checked> 自启动开 </template>
-                <template #unchecked> 自启动关 </template>
+                <template #checked> {{ $gettext('Autostart On') }} </template>
+                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
@@ -164,29 +166,29 @@ onMounted(() => {
               <n-space>
                 <n-button type="success" @click="handleStart('frpc')">
                   <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  启动
+                  {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop('frpc')">
                   <template #trigger>
                     <n-button type="error">
                       <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      停止
+                      {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  确定要停止 Frpc 吗？
+                  {{ $gettext('Are you sure you want to stop Frpc?') }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart('frpc')">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
-                  重启
+                  {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="修改配置">
+          <n-card :title="$gettext('Modify Configuration')">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frpc')">
                 <TheIcon :size="18" icon="material-symbols:save-outline-rounded" />
-                保存
+                {{ $gettext('Save') }}
               </n-button>
             </template>
             <Editor

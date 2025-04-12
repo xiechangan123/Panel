@@ -6,9 +6,11 @@ defineOptions({
 import Editor from '@guolao/vue-monaco-editor'
 import { DateTime } from 'luxon'
 import { NButton } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import toolbox from '@/api/apps/toolbox'
 
+const { $gettext } = useGettext()
 const currentTab = ref('dns')
 const dns1 = ref('')
 const dns2 = ref('')
@@ -46,13 +48,13 @@ useRequest(toolbox.timezone()).onSuccess(({ data }) => {
 
 const handleUpdateDNS = () => {
   useRequest(toolbox.updateDns(dns1.value, dns2.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleUpdateSwap = () => {
   useRequest(toolbox.updateSwap(swap.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
@@ -61,13 +63,13 @@ const handleUpdateHost = async () => {
     useRequest(toolbox.updateHostname(hostname.value)),
     useRequest(toolbox.updateHosts(hosts.value))
   ]).then(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleUpdateRootPassword = () => {
   useRequest(toolbox.updateRootPassword(rootPassword.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
@@ -76,13 +78,13 @@ const handleUpdateTime = async () => {
     useRequest(toolbox.updateTime(String(DateTime.fromMillis(time.value).toISO()))),
     useRequest(toolbox.updateTimezone(timezone.value))
   ]).then(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleSyncTime = () => {
   useRequest(toolbox.syncTime()).onSuccess(() => {
-    window.$message.success('同步成功')
+    window.$message.success($gettext('Synchronized successfully'))
   })
 }
 </script>
@@ -92,19 +94,19 @@ const handleSyncTime = () => {
     <template #action>
       <n-button v-if="currentTab == 'dns'" class="ml-16" type="primary" @click="handleUpdateDNS">
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'swap'" class="ml-16" type="primary" @click="handleUpdateSwap">
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'host'" class="ml-16" type="primary" @click="handleUpdateHost">
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'time'" class="ml-16" type="primary" @click="handleUpdateTime">
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button
         v-if="currentTab == 'root-password'"
@@ -113,13 +115,13 @@ const handleSyncTime = () => {
         @click="handleUpdateRootPassword"
       >
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        修改
+        {{ $gettext('Modify') }}
       </n-button>
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="dns" tab="DNS">
         <n-flex vertical>
-          <n-alert type="warning"> DNS 修改后重启系统会还原默认。 </n-alert>
+          <n-alert type="warning"> {{ $gettext('DNS modifications will revert to default after system restart.') }} </n-alert>
           <n-form>
             <n-form-item label="DNS1">
               <n-input v-model:value="dns1" />
@@ -133,20 +135,20 @@ const handleSyncTime = () => {
       <n-tab-pane name="swap" tab="SWAP">
         <n-flex vertical>
           <n-alert type="info">
-            总共 {{ swapTotal }}，已使用 {{ swapUsed }}，剩余 {{ swapFree }}
+            {{ $gettext('Total %{ total }, used %{ used }, free %{ free }', { total: swapTotal, used: swapUsed, free: swapFree }) }}
           </n-alert>
           <n-form>
-            <n-form-item label="SWAP大小">
+            <n-form-item :label="$gettext('SWAP Size')">
               <n-input-number v-model:value="swap" />
               MB
             </n-form-item>
           </n-form>
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="host" tab="主机">
+      <n-tab-pane name="host" :tab="$gettext('Host')">
         <n-flex vertical>
           <n-form>
-            <n-form-item label="主机名">
+            <n-form-item :label="$gettext('Hostname')">
               <n-input v-model:value="hostname" />
             </n-form-item>
           </n-form>
@@ -164,25 +166,25 @@ const handleSyncTime = () => {
           />
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="time" tab="时间">
+      <n-tab-pane name="time" :tab="$gettext('Time')">
         <n-flex vertical>
-          <n-alert type="info"> 手动修改时间后，仍有可能被系统自动同步时间覆盖。 </n-alert>
+          <n-alert type="info"> {{ $gettext('After manually changing the time, it may still be overwritten by system automatic time synchronization.') }} </n-alert>
           <n-form>
-            <n-form-item label="选择时区">
-              <n-select v-model:value="timezone" placeholder="请选择时区" :options="timezones" />
+            <n-form-item :label="$gettext('Select Timezone')">
+              <n-select v-model:value="timezone" :placeholder="$gettext('Please select a timezone')" :options="timezones" />
             </n-form-item>
-            <n-form-item label="修改时间">
+            <n-form-item :label="$gettext('Modify Time')">
               <n-date-picker v-model:value="time" type="datetime" clearable />
             </n-form-item>
-            <n-form-item label="NTP 同步时间">
-              <n-button type="info" @click="handleSyncTime">同步时间</n-button>
+            <n-form-item :label="$gettext('NTP Time Synchronization')">
+              <n-button type="info" @click="handleSyncTime">{{ $gettext('Synchronize Time') }}</n-button>
             </n-form-item>
           </n-form>
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="root-password" tab="Root 密码">
+      <n-tab-pane name="root-password" :tab="$gettext('Root Password')">
         <n-form>
-          <n-form-item label="Root 密码">
+          <n-form-item :label="$gettext('Root Password')">
             <n-input v-model:value="rootPassword" type="password" show-password-on="click" />
           </n-form-item>
         </n-form>

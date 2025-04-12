@@ -5,10 +5,12 @@ defineOptions({
 
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import podman from '@/api/apps/podman'
 import systemctl from '@/api/panel/systemctl'
 
+const { $gettext } = useGettext()
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
@@ -16,7 +18,7 @@ const registryConfig = ref('')
 const storageConfig = ref('')
 
 const statusStr = computed(() => {
-  return status.value ? '正常运行中' : '已停止运行'
+  return status.value ? $gettext('Running normally') : $gettext('Stopped')
 })
 
 const getStatus = async () => {
@@ -34,41 +36,41 @@ const getConfig = async () => {
 
 const handleSaveRegistryConfig = () => {
   useRequest(podman.saveRegistryConfig(registryConfig.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleSaveStorageConfig = () => {
   useRequest(podman.saveStorageConfig(storageConfig.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleStart = async () => {
   await systemctl.start('podman')
-  window.$message.success('启动成功')
+  window.$message.success($gettext('Started successfully'))
   await getStatus()
 }
 
 const handleStop = async () => {
   await systemctl.stop('podman')
-  window.$message.success('停止成功')
+  window.$message.success($gettext('Stopped successfully'))
   await getStatus()
 }
 
 const handleRestart = async () => {
   await systemctl.restart('podman')
-  window.$message.success('重启成功')
+  window.$message.success($gettext('Restarted successfully'))
   await getStatus()
 }
 
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
     await systemctl.enable('podman')
-    window.$message.success('开启自启动成功')
+    window.$message.success($gettext('Autostart enabled successfully'))
   } else {
     await systemctl.disable('podman')
-    window.$message.success('禁用自启动成功')
+    window.$message.success($gettext('Autostart disabled successfully'))
   }
   await getIsEnabled()
 }
@@ -90,7 +92,7 @@ onMounted(() => {
         @click="handleSaveRegistryConfig"
       >
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button
         v-if="currentTab == 'storageConfig'"
@@ -99,20 +101,20 @@ onMounted(() => {
         @click="handleSaveStorageConfig"
       >
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="status" tab="运行状态">
+      <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
           <n-alert type="info">
-            Podman 是一个无守护进程的容器管理工具，处于停止状态为正常现象且不会影响使用！
+            {{ $gettext('Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!') }}
           </n-alert>
-          <n-card title="运行状态">
+          <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> 自启动开 </template>
-                <template #unchecked> 自启动关 </template>
+                <template #checked> {{ $gettext('Autostart On') }} </template>
+                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
@@ -122,30 +124,30 @@ onMounted(() => {
               <n-space>
                 <n-button type="success" @click="handleStart">
                   <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  启动
+                  {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop">
                   <template #trigger>
                     <n-button type="error">
                       <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      停止
+                      {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  确定要停止 Podman 吗？
+                  {{ $gettext('Are you sure you want to stop Podman?') }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
-                  重启
+                  {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
             </n-space>
           </n-card>
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="registryConfig" tab="注册表配置">
+      <n-tab-pane name="registryConfig" :tab="$gettext('Registry Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            此处修改的是 Podman 注册表配置文件（/etc/containers/registries.conf）
+            {{ $gettext('This modifies the Podman registry configuration file (/etc/containers/registries.conf)') }}
           </n-alert>
           <Editor
             v-model:value="registryConfig"
@@ -161,10 +163,10 @@ onMounted(() => {
           />
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="storageConfig" tab="存储配置">
+      <n-tab-pane name="storageConfig" :tab="$gettext('Storage Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            此处修改的是 Podman 存储配置文件（/etc/containers/storage.conf）
+            {{ $gettext('This modifies the Podman storage configuration file (/etc/containers/storage.conf)') }}
           </n-alert>
           <Editor
             v-model:value="storageConfig"
@@ -180,7 +182,7 @@ onMounted(() => {
           />
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="run-log" tab="运行日志">
+      <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="podman" />
       </n-tab-pane>
     </n-tabs>

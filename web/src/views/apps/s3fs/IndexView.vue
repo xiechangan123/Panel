@@ -4,10 +4,12 @@ defineOptions({
 })
 
 import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import s3fs from '@/api/apps/s3fs'
 import { renderIcon } from '@/utils'
 
+const { $gettext } = useGettext()
 const addMountModal = ref(false)
 
 const addMountModel = ref({
@@ -20,7 +22,7 @@ const addMountModel = ref({
 
 const columns: any = [
   {
-    title: '挂载路径',
+    title: $gettext('Mount Path'),
     key: 'path',
     minWidth: 250,
     resizable: true,
@@ -28,7 +30,7 @@ const columns: any = [
   },
   { title: 'Bucket', key: 'bucket', resizable: true, minWidth: 250, ellipsis: { tooltip: true } },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 240,
     align: 'center',
@@ -42,7 +44,7 @@ const columns: any = [
           },
           {
             default: () => {
-              return '确定删除挂载' + row.path + '吗？'
+              return $gettext('Are you sure you want to delete mount %{ path }?', { path: row.path })
             },
             trigger: () => {
               return h(
@@ -52,7 +54,7 @@ const columns: any = [
                   type: 'error'
                 },
                 {
-                  default: () => '卸载',
+                  default: () => $gettext('Unmount'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -78,14 +80,14 @@ const handleAddMount = () => {
   useRequest(s3fs.add(addMountModel.value)).onSuccess(() => {
     refresh()
     addMountModal.value = false
-    window.$message.success('添加成功')
+    window.$message.success($gettext('Added successfully'))
   })
 }
 
 const handleDeleteMount = (id: number) => {
   useRequest(s3fs.delete(id)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
@@ -99,10 +101,10 @@ onMounted(() => {
     <template #action>
       <n-button class="ml-16" type="primary" @click="addMountModal = true">
         <TheIcon :size="18" icon="material-symbols:add" />
-        添加挂载
+        {{ $gettext('Add Mount') }}
       </n-button>
     </template>
-    <n-card title="挂载列表" :segmented="true">
+    <n-card :title="$gettext('Mount List')" :segmented="true">
       <n-data-table
         striped
         remote
@@ -125,15 +127,15 @@ onMounted(() => {
       />
     </n-card>
   </common-page>
-  <n-modal v-model:show="addMountModal" title="添加挂载">
-    <n-card closable @close="() => (addMountModal = false)" title="添加挂载" style="width: 60vw">
+  <n-modal v-model:show="addMountModal" :title="$gettext('Add Mount')">
+    <n-card closable @close="() => (addMountModal = false)" :title="$gettext('Add Mount')" style="width: 60vw">
       <n-form :model="addMountModel">
         <n-form-item path="bucket" label="Bucket">
           <n-input
             v-model:value="addMountModel.bucket"
             type="text"
             @keydown.enter.prevent
-            placeholder="输入 Bucket 名（COS 为: xxxx-ID）"
+            :placeholder="$gettext('Enter Bucket name (COS format: xxxx-ID)')"
           />
         </n-form-item>
         <n-form-item path="ak" label="AK">
@@ -141,7 +143,7 @@ onMounted(() => {
             v-model:value="addMountModel.ak"
             type="text"
             @keydown.enter.prevent
-            placeholder="输入 AK 密钥"
+            :placeholder="$gettext('Enter AK key')"
           />
         </n-form-item>
         <n-form-item path="sk" label="SK">
@@ -149,27 +151,27 @@ onMounted(() => {
             v-model:value="addMountModel.sk"
             type="text"
             @keydown.enter.prevent
-            placeholder="输入 SK 密钥"
+            :placeholder="$gettext('Enter SK key')"
           />
         </n-form-item>
-        <n-form-item path="url" label="地域节点">
+        <n-form-item path="url" :label="$gettext('Region Endpoint')">
           <n-input
             v-model:value="addMountModel.url"
             type="text"
             @keydown.enter.prevent
-            placeholder="输入地域节点的完整 URL（https://oss-cn-beijing.aliyuncs.com）"
+            :placeholder="$gettext('Enter complete URL of region endpoint (e.g., https://oss-cn-beijing.aliyuncs.com)')"
           />
         </n-form-item>
-        <n-form-item path="path" label="挂载目录">
+        <n-form-item path="path" :label="$gettext('Mount Directory')">
           <n-input
             v-model:value="addMountModel.path"
             type="text"
             @keydown.enter.prevent
-            placeholder="输入挂载目录（/oss）"
+            :placeholder="$gettext('Enter mount directory (e.g., /oss)')"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleAddMount">提交</n-button>
+      <n-button type="info" block @click="handleAddMount">{{ $gettext('Submit') }}</n-button>
     </n-card>
   </n-modal>
 </template>

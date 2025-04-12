@@ -4,11 +4,13 @@ defineOptions({
 })
 
 import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
 import systemctl from '@/api/panel/systemctl'
 import { generateRandomString, renderIcon } from '@/utils'
 
+const { $gettext } = useGettext()
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
@@ -20,7 +22,7 @@ const statusType = computed(() => {
   return status.value ? 'success' : 'error'
 })
 const statusStr = computed(() => {
-  return status.value ? '正常运行中' : '已停止运行'
+  return status.value ? $gettext('Running normally') : $gettext('Stopped')
 })
 
 const addUserModel = ref({
@@ -36,21 +38,21 @@ const changePasswordModel = ref({
 
 const userColumns: any = [
   {
-    title: '用户名',
+    title: $gettext('Username'),
     key: 'username',
     minWidth: 250,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '路径',
+    title: $gettext('Path'),
     key: 'path',
     minWidth: 250,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 240,
     align: 'center',
@@ -70,7 +72,7 @@ const userColumns: any = [
             }
           },
           {
-            default: () => '改密',
+            default: () => $gettext('Change Password'),
             icon: renderIcon('material-symbols:key-outline', { size: 14 })
           }
         ),
@@ -81,7 +83,7 @@ const userColumns: any = [
           },
           {
             default: () => {
-              return '确定删除用户' + row.username + '吗？'
+              return $gettext('Are you sure you want to delete user %{ username }?', { username: row.username })
             },
             trigger: () => {
               return h(
@@ -92,7 +94,7 @@ const userColumns: any = [
                   style: 'margin-left: 15px'
                 },
                 {
-                  default: () => '删除',
+                  default: () => $gettext('Delete'),
                   icon: renderIcon('material-symbols:delete-outline', { size: 14 })
                 }
               )
@@ -128,36 +130,36 @@ const getPort = async () => {
 
 const handleSavePort = async () => {
   useRequest(pureftpd.updatePort(port.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleStart = async () => {
   await systemctl.start('pure-ftpd')
-  window.$message.success('启动成功')
+  window.$message.success($gettext('Started successfully'))
   await getStatus()
 }
 
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
     await systemctl.enable('pure-ftpd')
-    window.$message.success('开启自启动成功')
+    window.$message.success($gettext('Auto-start enabled successfully'))
   } else {
     await systemctl.disable('pure-ftpd')
-    window.$message.success('禁用自启动成功')
+    window.$message.success($gettext('Auto-start disabled successfully'))
   }
   await getIsEnabled()
 }
 
 const handleStop = async () => {
   await systemctl.stop('pure-ftpd')
-  window.$message.success('停止成功')
+  window.$message.success($gettext('Stopped successfully'))
   await getStatus()
 }
 
 const handleRestart = async () => {
   await systemctl.restart('pure-ftpd')
-  window.$message.success('重启成功')
+  window.$message.success($gettext('Restarted successfully'))
   await getStatus()
 }
 
@@ -170,7 +172,7 @@ const handleAddUser = async () => {
     addUserModel.value.username = ''
     addUserModel.value.password = generateRandomString(16)
     addUserModel.value.path = ''
-    window.$message.success('添加成功')
+    window.$message.success($gettext('Added successfully'))
   })
 }
 
@@ -180,14 +182,14 @@ const handleChangePassword = async () => {
   ).onSuccess(() => {
     refresh()
     changePasswordModal.value = false
-    window.$message.success('修改成功')
+    window.$message.success($gettext('Modified successfully'))
   })
 }
 
 const handleDeleteUser = async (username: string) => {
   useRequest(pureftpd.delete(username)).onSuccess(() => {
     refresh()
-    window.$message.success('删除成功')
+    window.$message.success($gettext('Deleted successfully'))
   })
 }
 
@@ -204,7 +206,7 @@ onMounted(() => {
     <template #action>
       <n-button v-if="currentTab == 'status'" class="ml-16" type="primary" @click="handleSavePort">
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button
         v-if="currentTab == 'users'"
@@ -213,17 +215,17 @@ onMounted(() => {
         @click="addUserModal = true"
       >
         <TheIcon :size="18" icon="material-symbols:add" />
-        添加用户
+        {{ $gettext('Add User') }}
       </n-button>
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="status" tab="运行状态">
+      <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-space vertical>
-          <n-card title="运行状态">
+          <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> 自启动开 </template>
-                <template #unchecked> 自启动关 </template>
+                <template #checked> {{ $gettext('Auto-start On') }} </template>
+                <template #unchecked> {{ $gettext('Auto-start Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
@@ -233,32 +235,32 @@ onMounted(() => {
               <n-space>
                 <n-button type="success" @click="handleStart">
                   <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  启动
+                  {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop">
                   <template #trigger>
                     <n-button type="error">
                       <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      停止
+                      {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  停止 Pure-Ftpd 会导致无法使用 FTP 服务，确定要停止吗？
+                  {{ $gettext('Stopping Pure-Ftpd will cause FTP service to be unavailable. Are you sure you want to stop it?') }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
-                  重启
+                  {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="端口设置">
+          <n-card :title="$gettext('Port Settings')">
             <n-input-number v-model:value="port" :min="1" :max="65535" />
-            修改 Pure-Ftpd 监听端口
+            {{ $gettext('Modify Pure-Ftpd listening port') }}
           </n-card>
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="users" tab="用户管理">
-        <n-card title="用户列表" :segmented="true">
+      <n-tab-pane name="users" :tab="$gettext('User Management')">
+        <n-card :title="$gettext('User List')" :segmented="true">
           <n-data-table
             striped
             remote
@@ -281,61 +283,61 @@ onMounted(() => {
           />
         </n-card>
       </n-tab-pane>
-      <n-tab-pane name="run-log" tab="运行日志">
+      <n-tab-pane name="run-log" :tab="$gettext('Run Log')">
         <realtime-log service="pure-ftpd" />
       </n-tab-pane>
     </n-tabs>
   </common-page>
-  <n-modal v-model:show="addUserModal" title="创建用户">
-    <n-card closable @close="() => (addUserModal = false)" title="创建用户" style="width: 60vw">
+  <n-modal v-model:show="addUserModal" :title="$gettext('Create User')">
+    <n-card closable @close="() => (addUserModal = false)" :title="$gettext('Create User')" style="width: 60vw">
       <n-form :model="addUserModel">
-        <n-form-item path="username" label="用户名">
+        <n-form-item path="username" :label="$gettext('Username')">
           <n-input
             v-model:value="addUserModel.username"
             type="text"
             @keydown.enter.prevent
-            placeholder="输入用户名"
+            :placeholder="$gettext('Enter username')"
           />
         </n-form-item>
-        <n-form-item path="password" label="密码">
+        <n-form-item path="password" :label="$gettext('Password')">
           <n-input
             v-model:value="addUserModel.password"
             type="password"
             show-password-on="click"
             @keydown.enter.prevent
-            placeholder="建议使用生成器生成随机密码"
+            :placeholder="$gettext('It is recommended to use the generator to generate a random password')"
           />
         </n-form-item>
-        <n-form-item path="path" label="目录">
+        <n-form-item path="path" :label="$gettext('Directory')">
           <n-input
             v-model:value="addUserModel.path"
             type="text"
             @keydown.enter.prevent
-            placeholder="输入授权给该用户的目录"
+            :placeholder="$gettext('Enter the directory authorized to the user')"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleAddUser">提交</n-button>
+      <n-button type="info" block @click="handleAddUser">{{ $gettext('Submit') }}</n-button>
     </n-card>
   </n-modal>
   <n-modal v-model:show="changePasswordModal">
     <n-card
       closable
       @close="() => (changePasswordModal = false)"
-      title="修改密码"
+      :title="$gettext('Change Password')"
       style="width: 60vw"
     >
       <n-form :model="changePasswordModel">
-        <n-form-item path="password" label="密码">
+        <n-form-item path="password" :label="$gettext('Password')">
           <n-input
             v-model:value="changePasswordModel.password"
             type="text"
             @keydown.enter.prevent
-            placeholder="建议使用生成器生成随机密码"
+            :placeholder="$gettext('It is recommended to use the generator to generate a random password')"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleChangePassword">提交</n-button>
+      <n-button type="info" block @click="handleChangePassword">{{ $gettext('Submit') }}</n-button>
     </n-card>
   </n-modal>
 </template>

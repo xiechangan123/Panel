@@ -1,3 +1,4 @@
+import { $gettext } from '@/utils/gettext'
 import type { RouteType } from '~/types/router'
 
 const Layout = () => import('@/layout/IndexView.vue')
@@ -13,7 +14,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Rsync',
+        title: $gettext('Rsync'),
         icon: 'file-icons:rsync',
         role: ['admin'],
         requireAuth: true

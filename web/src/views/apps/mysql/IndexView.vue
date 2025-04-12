@@ -5,10 +5,12 @@ defineOptions({
 
 import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import mysql from '@/api/apps/mysql'
 import systemctl from '@/api/panel/systemctl'
 
+const { $gettext } = useGettext()
 const currentTab = ref('status')
 const status = ref(false)
 const isEnabled = ref(false)
@@ -30,19 +32,19 @@ const statusType = computed(() => {
   return status.value ? 'success' : 'error'
 })
 const statusStr = computed(() => {
-  return status.value ? '正常运行中' : '已停止运行'
+  return status.value ? $gettext('Running normally') : $gettext('Stopped')
 })
 
 const loadColumns: any = [
   {
-    title: '属性',
+    title: $gettext('Property'),
     key: 'name',
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '当前值',
+    title: $gettext('Current Value'),
     key: 'value',
     minWidth: 200,
     ellipsis: { tooltip: true }
@@ -59,54 +61,54 @@ const getIsEnabled = async () => {
 
 const handleSaveConfig = () => {
   useRequest(mysql.saveConfig(config.value)).onSuccess(() => {
-    window.$message.success('保存成功')
+    window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleClearErrorLog = () => {
   useRequest(mysql.clearErrorLog()).onSuccess(() => {
-    window.$message.success('清空成功')
+    window.$message.success($gettext('Cleared successfully'))
   })
 }
 
 const handleClearSlowLog = () => {
   useRequest(mysql.clearSlowLog()).onSuccess(() => {
-    window.$message.success('清空成功')
+    window.$message.success($gettext('Cleared successfully'))
   })
 }
 
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
     await systemctl.enable('mysqld')
-    window.$message.success('开启自启动成功')
+    window.$message.success($gettext('Autostart enabled successfully'))
   } else {
     await systemctl.disable('mysqld')
-    window.$message.success('禁用自启动成功')
+    window.$message.success($gettext('Autostart disabled successfully'))
   }
   await getIsEnabled()
 }
 
 const handleStart = async () => {
   await systemctl.start('mysqld')
-  window.$message.success('启动成功')
+  window.$message.success($gettext('Started successfully'))
   await getStatus()
 }
 
 const handleStop = async () => {
   await systemctl.stop('mysqld')
-  window.$message.success('停止成功')
+  window.$message.success($gettext('Stopped successfully'))
   await getStatus()
 }
 
 const handleRestart = async () => {
   await systemctl.restart('mysqld')
-  window.$message.success('重启成功')
+  window.$message.success($gettext('Restarted successfully'))
   await getStatus()
 }
 
 const handleSetRootPassword = async () => {
   await mysql.setRootPassword(rootPassword.value)
-  window.$message.success('修改成功')
+  window.$message.success($gettext('Modified successfully'))
 }
 
 onMounted(() => {
@@ -125,7 +127,7 @@ onMounted(() => {
         @click="handleSaveConfig"
       >
         <TheIcon :size="18" icon="material-symbols:save-outline" />
-        保存
+        {{ $gettext('Save') }}
       </n-button>
       <n-button
         v-if="currentTab == 'error-log'"
@@ -134,7 +136,7 @@ onMounted(() => {
         @click="handleClearErrorLog"
       >
         <TheIcon :size="18" icon="material-symbols:delete-outline" />
-        清空日志
+        {{ $gettext('Clear Log') }}
       </n-button>
       <n-button
         v-if="currentTab == 'slow-log'"
@@ -143,17 +145,17 @@ onMounted(() => {
         @click="handleClearSlowLog"
       >
         <TheIcon :size="18" icon="material-symbols:delete-outline" />
-        清空慢日志
+        {{ $gettext('Clear Slow Log') }}
       </n-button>
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="status" tab="运行状态">
+      <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-space vertical>
-          <n-card title="运行状态">
+          <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> 自启动开 </template>
-                <template #unchecked> 自启动关 </template>
+                <template #checked> {{ $gettext('Autostart On') }} </template>
+                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
@@ -163,40 +165,40 @@ onMounted(() => {
               <n-space>
                 <n-button type="success" @click="handleStart">
                   <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  启动
+                  {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop">
                   <template #trigger>
                     <n-button type="error">
                       <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      停止
+                      {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  停止 MySQL 会导致使用 MySQL 的网站无法访问，确定要停止吗？
+                  {{ $gettext('Stopping MySQL will cause websites using MySQL to become inaccessible. Are you sure you want to stop?') }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
-                  重启
+                  {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
             </n-space>
           </n-card>
-          <n-card title="Root 密码">
+          <n-card :title="$gettext('Root Password')">
             <n-space vertical>
               <n-input
                 v-model:value="rootPassword"
                 type="password"
                 show-password-on="click"
               ></n-input>
-              <n-button type="primary" @click="handleSetRootPassword">保存修改</n-button>
+              <n-button type="primary" @click="handleSetRootPassword">{{ $gettext('Save Changes') }}</n-button>
             </n-space>
           </n-card>
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="config" tab="修改配置">
+      <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            此处修改的是 MySQL 主配置文件，如果您不了解各参数的含义，请不要随意修改！
+            {{ $gettext('This modifies the MySQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!') }}
           </n-alert>
           <Editor
             v-model:value="config"
@@ -212,7 +214,7 @@ onMounted(() => {
           />
         </n-space>
       </n-tab-pane>
-      <n-tab-pane name="load" tab="负载状态">
+      <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table
           striped
           remote
@@ -222,10 +224,10 @@ onMounted(() => {
           :data="load"
         />
       </n-tab-pane>
-      <n-tab-pane name="run-log" tab="运行日志">
+      <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="mysqld" />
       </n-tab-pane>
-      <n-tab-pane name="slow-log" tab="慢查询日志">
+      <n-tab-pane name="slow-log" :tab="$gettext('Slow Query Log')">
         <realtime-log :path="slowLog" />
       </n-tab-pane>
     </n-tabs>
