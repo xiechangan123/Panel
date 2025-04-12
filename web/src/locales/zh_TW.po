@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-04-12 20:42\n"
+"PO-Revision-Date: 2025-04-12 20:46\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -2110,7 +2110,8 @@ msgid "Google and SSL.com require obtaining KID and HMAC from their official web
 msgstr ""
 
 #: src/views/cert/AccountView.vue:222
-msgid "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using GoogleCN or Let's Encrypt"
+#: src/views/cert/CreateAccountModal.vue:78
+msgid "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:228
@@ -2319,10 +2320,6 @@ msgstr ""
 msgid "Create Account"
 msgstr ""
 
-#: src/views/cert/CreateAccountModal.vue:78
-msgid "Google is not accessible in mainland China, and other CAs depend on network conditions. GoogleCN or Let's Encrypt are recommended"
-msgstr ""
-
 #: src/views/cert/CreateCertModal.vue:59
 #: src/views/cert/IndexView.vue:102
 msgid "Create Certificate"
@@ -2381,11 +2378,13 @@ msgid "Enter Huawei Cloud SecretAccessKey"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:113
-msgid "Enter Western Digital Username"
+#: src/views/cert/DnsView.vue:251
+msgid "Enter West.cn Username"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:120
-msgid "Enter Western Digital API Password"
+#: src/views/cert/DnsView.vue:258
+msgid "Enter West.cn API Password"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:127
@@ -2439,6 +2438,7 @@ msgid "Enter Name.com Token"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:198
+#: src/views/cert/DnsView.vue:335
 msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
 msgstr ""
 
@@ -2482,18 +2482,6 @@ msgstr ""
 
 #: src/views/cert/DnsView.vue:194
 msgid "Enter note name"
-msgstr ""
-
-#: src/views/cert/DnsView.vue:251
-msgid "Enter West.cn Username"
-msgstr ""
-
-#: src/views/cert/DnsView.vue:258
-msgid "Enter West.cn API Password"
-msgstr ""
-
-#: src/views/cert/DnsView.vue:335
-msgid "Enter ClouDNS Auth ID (Add sub- prefix for Sub Auth ID)"
 msgstr ""
 
 #: src/views/cert/IndexView.vue:98
