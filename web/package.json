@@ -20,7 +20,9 @@
     "lint-only": "eslint . --fix",
     "format": "prettier --write src/",
     "copy": "cpx \"dist/**/*\" \"../pkg/embed/frontend\" -C",
-    "gen-auto-import": "tsx gen-auto-import.ts"
+    "gen-auto-import": "tsx gen-auto-import.ts",
+    "gettext:extract": "vue-gettext-extract",
+    "gettext:compile": "vue-gettext-compile"
   },
   "dependencies": {
     "@alova/adapter-xhr": "^2.1.1",
@@ -52,7 +54,8 @@
     "vue": "^3.5.13",
     "vue-echarts": "^7.0.3",
     "vue-i18n": "^11.0.1",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vue3-gettext": "4.0.0-alpha.8"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.290",
