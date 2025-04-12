@@ -9,7 +9,7 @@ msgstr ""
 
 #: internal/data/website.go:269
 #: internal/data/website.go:635
-msgid "# 伪静态规则"
+msgid "# Rewrite rule"
 msgstr ""
 
 #: internal/bootstrap/cli.go:18
