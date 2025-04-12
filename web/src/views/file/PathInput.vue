@@ -129,7 +129,9 @@ onUnmounted(() => {
     <n-input-group flex-1>
       <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
         <n-breadcrumb separator=">">
-          <n-breadcrumb-item @click.stop="setPath(-1)"> {{ $gettext('Root Directory') }} </n-breadcrumb-item>
+          <n-breadcrumb-item @click.stop="setPath(-1)">
+            {{ $gettext('Root Directory') }}
+          </n-breadcrumb-item>
           <n-breadcrumb-item
             v-for="(item, index) in splitPath(path, '/')"
             :key="index"
@@ -151,7 +153,9 @@ onUnmounted(() => {
     <n-input-group w-400>
       <n-input v-model:value="search.keyword" :placeholder="$gettext('Enter search content')">
         <template #suffix>
-          <n-checkbox v-model:checked="search.sub"> {{ $gettext('Include subdirectories') }} </n-checkbox>
+          <n-checkbox v-model:checked="search.sub">
+            {{ $gettext('Include subdirectories') }}
+          </n-checkbox>
         </template>
       </n-input>
       <n-button type="primary" @click="handleSearch">

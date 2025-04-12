@@ -64,7 +64,11 @@ const handleCreateCert = () => {
   >
     <n-space vertical>
       <n-alert type="info">
-        {{ $gettext('You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates') }}
+        {{
+          $gettext(
+            'You can automatically issue and deploy certificates by selecting either Website or DNS, or you can manually enter domain names and set up DNS resolution to issue certificates'
+          )
+        }}
       </n-alert>
       <n-form :model="model">
         <n-form-item :label="$gettext('Domain')">

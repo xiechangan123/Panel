@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import ws from '@/api/ws'
 import type { LogInst } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const props = defineProps({
   path: {
     type: String,
@@ -24,7 +26,7 @@ const init = async () => {
   } else if (props.service) {
     cmd = `journalctl -u '${props.service}' -f`
   } else {
-    window.$message.error('path 或 service 不能为空')
+    window.$message.error($gettext('Path or service cannot be empty'))
     return
   }
   ws.exec(cmd)
@@ -39,7 +41,7 @@ const init = async () => {
       }
     })
     .catch(() => {
-      window.$message.error('获取日志流失败')
+      window.$message.error($gettext('Failed to get log stream'))
     })
 }
 

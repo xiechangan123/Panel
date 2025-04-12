@@ -147,9 +147,12 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleUpdateAccount = () => {
-  messageReactive = window.$message.loading($gettext('Registering account with CA, please wait patiently'), {
-    duration: 0
-  })
+  messageReactive = window.$message.loading(
+    $gettext('Registering account with CA, please wait patiently'),
+    {
+      duration: 0
+    }
+  )
   useRequest(cert.accountUpdate(updateAccount.value, updateAccountModel.value))
     .onSuccess(() => {
       refresh()
@@ -209,9 +212,17 @@ onUnmounted(() => {
     :segmented="false"
   >
     <n-space vertical>
-      <n-alert type="info">{{ $gettext('Google and SSL.com require obtaining KID and HMAC from their official websites first') }}</n-alert>
+      <n-alert type="info">{{
+        $gettext(
+          'Google and SSL.com require obtaining KID and HMAC from their official websites first'
+        )
+      }}</n-alert>
       <n-alert type="warning">
-        {{ $gettext('Google is not accessible in mainland China, other CAs depend on network conditions, recommend using GoogleCN or Let\'s Encrypt') }}
+        {{
+          $gettext(
+            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using GoogleCN or Let's Encrypt"
+          )
+        }}
       </n-alert>
       <n-form :model="updateAccountModel">
         <n-form-item path="ca" :label="$gettext('CA')">

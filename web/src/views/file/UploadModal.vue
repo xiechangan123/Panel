@@ -48,7 +48,11 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
             <the-icon :size="48" icon="bi:arrow-up-square" />
           </div>
           <NText text-18> {{ $gettext('Click or drag files to this area to upload') }}</NText>
-          <NP depth="3" m-10> {{ $gettext('For large files, it is recommended to use SFTP and other methods to upload') }} </NP>
+          <NP depth="3" m-10>
+            {{
+              $gettext('For large files, it is recommended to use SFTP and other methods to upload')
+            }}
+          </NP>
         </n-upload-dragger>
       </n-upload>
     </n-flex>

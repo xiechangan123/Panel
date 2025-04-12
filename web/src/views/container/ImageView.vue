@@ -149,7 +149,9 @@ onMounted(() => {
   <n-flex vertical :size="20">
     <n-flex>
       <n-button type="primary" @click="pullModal = true">{{ $gettext('Pull Image') }}</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>{{ $gettext('Cleanup Images') }}</n-button>
+      <n-button type="primary" @click="handlePrune" ghost>{{
+        $gettext('Cleanup Images')
+      }}</n-button>
     </n-flex>
     <n-data-table
       striped

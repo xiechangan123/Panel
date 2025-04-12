@@ -7,7 +7,11 @@ const { replace } = useRouter()
 
 <template>
   <AppPage>
-    <n-result :description="$gettext('Sorry, the page you visited does not exist.')" m-auto status="404">
+    <n-result
+      :description="$gettext('Sorry, the page you visited does not exist.')"
+      m-auto
+      status="404"
+    >
       <template #icon>
         <img src="@/assets/images/404.webp" width="500" />
       </template>

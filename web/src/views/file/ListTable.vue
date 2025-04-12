@@ -61,7 +61,11 @@ const options = computed<DropdownOption[]>(() => {
   if (selectedRow.value == null) return []
   const options = [
     {
-      label: selectedRow.value.dir ? $gettext('Open') : isImage(selectedRow.value.name) ? $gettext('Preview') : $gettext('Edit'),
+      label: selectedRow.value.dir
+        ? $gettext('Open')
+        : isImage(selectedRow.value.name)
+          ? $gettext('Preview')
+          : $gettext('Edit'),
       key: selectedRow.value.dir ? 'open' : isImage(selectedRow.value.name) ? 'preview' : 'edit'
     },
     { label: $gettext('Copy'), key: 'copy' },
@@ -295,7 +299,11 @@ const columns: DataTableColumns<RowData> = [
                   { label: $gettext('Move'), value: 'move' },
                   { label: $gettext('Permission'), value: 'permission' },
                   { label: $gettext('Compress'), value: 'compress' },
-                  { label: $gettext('Uncompress'), value: 'uncompress', disabled: !isCompress(row.name) }
+                  {
+                    label: $gettext('Uncompress'),
+                    value: 'uncompress',
+                    disabled: !isCompress(row.name)
+                  }
                 ],
                 onUpdateValue: (value) => {
                   switch (value) {
@@ -308,7 +316,11 @@ const columns: DataTableColumns<RowData> = [
                           force: false
                         }
                       ]
-                      window.$message.success($gettext('Marked successfully, please navigate to the destination path to paste'))
+                      window.$message.success(
+                        $gettext(
+                          'Marked successfully, please navigate to the destination path to paste'
+                        )
+                      )
                       break
                     case 'move':
                       markedType.value = 'move'
@@ -319,7 +331,11 @@ const columns: DataTableColumns<RowData> = [
                           force: false
                         }
                       ]
-                      window.$message.success($gettext('Marked successfully, please navigate to the destination path to paste'))
+                      window.$message.success(
+                        $gettext(
+                          'Marked successfully, please navigate to the destination path to paste'
+                        )
+                      )
                       break
                     case 'permission':
                       selected.value = [row.full]
@@ -402,9 +418,9 @@ const handleRename = () => {
             .onSuccess(() => {
               window.$bus.emit('file:refresh')
               window.$message.success(
-                $gettext('Renamed %{ source } to %{ target } successfully', { 
-                  source: renameModel.value.source, 
-                  target: renameModel.value.target 
+                $gettext('Renamed %{ source } to %{ target } successfully', {
+                  source: renameModel.value.source,
+                  target: renameModel.value.target
                 })
               )
             })
@@ -418,9 +434,9 @@ const handleRename = () => {
         .onSuccess(() => {
           window.$bus.emit('file:refresh')
           window.$message.success(
-            $gettext('Renamed %{ source } to %{ target } successfully', { 
-              source: renameModel.value.source, 
-              target: renameModel.value.target 
+            $gettext('Renamed %{ source } to %{ target } successfully', {
+              source: renameModel.value.source,
+              target: renameModel.value.target
             })
           )
         })
@@ -555,7 +571,9 @@ const handleSelect = (key: string) => {
           force: false
         }
       ]
-      window.$message.success($gettext('Marked successfully, please navigate to the destination path to paste'))
+      window.$message.success(
+        $gettext('Marked successfully, please navigate to the destination path to paste')
+      )
       break
     case 'move':
       markedType.value = 'move'
@@ -566,7 +584,9 @@ const handleSelect = (key: string) => {
           force: false
         }
       ]
-      window.$message.success($gettext('Marked successfully, please navigate to the destination path to paste'))
+      window.$message.success(
+        $gettext('Marked successfully, please navigate to the destination path to paste')
+      )
       break
     case 'permission':
       selected.value = [selectedRow.value.full]

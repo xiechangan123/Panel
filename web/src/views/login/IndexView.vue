@@ -47,7 +47,9 @@ async function handleLogin() {
     return
   }
   if (!key) {
-    window.$message.warning($gettext('Failed to get encryption public key, please refresh the page and try again'))
+    window.$message.warning(
+      $gettext('Failed to get encryption public key, please refresh the page and try again')
+    )
     return
   }
   useRequest(

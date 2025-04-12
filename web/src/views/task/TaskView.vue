@@ -133,7 +133,9 @@ onMounted(() => {
 
 <template>
   <n-flex vertical>
-    <n-alert type="info">{{ $gettext('If logs cannot be loaded, please disable ad blockers!') }}</n-alert>
+    <n-alert type="info">{{
+      $gettext('If logs cannot be loaded, please disable ad blockers!')
+    }}</n-alert>
     <n-data-table
       striped
       remote

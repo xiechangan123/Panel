@@ -44,7 +44,9 @@ const columns: any = [
           },
           {
             default: () => {
-              return $gettext('Are you sure you want to delete mount %{ path }?', { path: row.path })
+              return $gettext('Are you sure you want to delete mount %{ path }?', {
+                path: row.path
+              })
             },
             trigger: () => {
               return h(
@@ -128,7 +130,12 @@ onMounted(() => {
     </n-card>
   </common-page>
   <n-modal v-model:show="addMountModal" :title="$gettext('Add Mount')">
-    <n-card closable @close="() => (addMountModal = false)" :title="$gettext('Add Mount')" style="width: 60vw">
+    <n-card
+      closable
+      @close="() => (addMountModal = false)"
+      :title="$gettext('Add Mount')"
+      style="width: 60vw"
+    >
       <n-form :model="addMountModel">
         <n-form-item path="bucket" label="Bucket">
           <n-input
@@ -159,7 +166,11 @@ onMounted(() => {
             v-model:value="addMountModel.url"
             type="text"
             @keydown.enter.prevent
-            :placeholder="$gettext('Enter complete URL of region endpoint (e.g., https://oss-cn-beijing.aliyuncs.com)')"
+            :placeholder="
+              $gettext(
+                'Enter complete URL of region endpoint (e.g., https://oss-cn-beijing.aliyuncs.com)'
+              )
+            "
           />
         </n-form-item>
         <n-form-item path="path" :label="$gettext('Mount Directory')">

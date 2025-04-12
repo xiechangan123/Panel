@@ -35,9 +35,12 @@ const showEAB = computed(() => {
 })
 
 const handleCreateAccount = () => {
-  messageReactive = window.$message.loading($gettext('Registering account with CA, please wait patiently'), {
-    duration: 0
-  })
+  messageReactive = window.$message.loading(
+    $gettext('Registering account with CA, please wait patiently'),
+    {
+      duration: 0
+    }
+  )
   useRequest(cert.accountCreate(model.value))
     .onSuccess(() => {
       window.$bus.emit('cert:refresh-account')
@@ -65,9 +68,17 @@ const handleCreateAccount = () => {
     :segmented="false"
   >
     <n-space vertical>
-      <n-alert type="info">{{ $gettext('Google and SSL.com require obtaining KID and HMAC from their official websites first') }}</n-alert>
+      <n-alert type="info">{{
+        $gettext(
+          'Google and SSL.com require obtaining KID and HMAC from their official websites first'
+        )
+      }}</n-alert>
       <n-alert type="warning">
-        {{ $gettext('Google is not accessible in mainland China, and other CAs depend on network conditions. GoogleCN or Let\'s Encrypt are recommended') }}
+        {{
+          $gettext(
+            "Google is not accessible in mainland China, and other CAs depend on network conditions. GoogleCN or Let's Encrypt are recommended"
+          )
+        }}
       </n-alert>
       <n-form :model="model">
         <n-form-item path="ca" :label="$gettext('CA')">

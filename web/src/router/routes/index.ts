@@ -1,5 +1,5 @@
-import type { RouteModule, RoutesType, RouteType } from '~/types/router'
 import { $gettext } from '@/utils/gettext'
+import type { RouteModule, RoutesType, RouteType } from '~/types/router'
 
 export const basicRoutes: RoutesType = [
   {

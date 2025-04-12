@@ -188,7 +188,11 @@ onUnmounted(() => {
     <n-space vertical>
       <n-form :model="updateDNSModel">
         <n-form-item path="name" :label="$gettext('Note Name')">
-          <n-input v-model:value="updateDNSModel.name" type="text" :placeholder="$gettext('Enter note name')" />
+          <n-input
+            v-model:value="updateDNSModel.name"
+            type="text"
+            :placeholder="$gettext('Enter note name')"
+          />
         </n-form-item>
         <n-form-item path="type" :label="$gettext('DNS')">
           <n-select

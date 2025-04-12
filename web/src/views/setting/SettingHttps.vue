@@ -31,7 +31,13 @@ const handleSave = () => {
 
 <template>
   <n-space vertical>
-    <n-alert type="warning"> {{ $gettext('Incorrect certificates may cause the panel to be inaccessible. Please proceed with caution!') }}</n-alert>
+    <n-alert type="warning">
+      {{
+        $gettext(
+          'Incorrect certificates may cause the panel to be inaccessible. Please proceed with caution!'
+        )
+      }}</n-alert
+    >
     <n-form>
       <n-form-item :label="$gettext('Panel HTTPS')">
         <n-switch v-model:value="model.https" />

@@ -78,7 +78,11 @@ watch(
       <n-form-item path="create_user" :label="$gettext('Create User')">
         <n-switch v-model:value="createModel.create_user" />
       </n-form-item>
-      <n-form-item v-if="!createModel.create_user" path="username" :label="$gettext('Authorized User')">
+      <n-form-item
+        v-if="!createModel.create_user"
+        path="username"
+        :label="$gettext('Authorized User')"
+      >
         <n-input
           v-model:value="createModel.username"
           type="text"

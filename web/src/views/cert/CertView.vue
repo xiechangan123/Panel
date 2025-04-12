@@ -442,7 +442,11 @@ onUnmounted(() => {
   >
     <n-space vertical>
       <n-alert v-if="updateModel.type != 'upload'" type="info">
-        {{ $gettext('You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates.') }}
+        {{
+          $gettext(
+            'You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates.'
+          )
+        }}
       </n-alert>
       <n-form :model="updateModel">
         <n-form-item v-if="updateModel.type != 'upload'" path="domains" :label="$gettext('Domain')">
@@ -469,7 +473,11 @@ onUnmounted(() => {
             :options="websites"
           />
         </n-form-item>
-        <n-form-item v-if="updateModel.type != 'upload'" path="account_id" :label="$gettext('Account')">
+        <n-form-item
+          v-if="updateModel.type != 'upload'"
+          path="account_id"
+          :label="$gettext('Account')"
+        >
           <n-select
             v-model:value="updateModel.account_id"
             :placeholder="$gettext('Select account for certificate issuance')"
@@ -485,7 +493,11 @@ onUnmounted(() => {
             :options="dns"
           />
         </n-form-item>
-        <n-form-item v-if="updateModel.type == 'upload'" path="cert" :label="$gettext('Certificate')">
+        <n-form-item
+          v-if="updateModel.type == 'upload'"
+          path="cert"
+          :label="$gettext('Certificate')"
+        >
           <n-input
             v-model:value="updateModel.cert"
             type="textarea"
@@ -493,7 +505,11 @@ onUnmounted(() => {
             :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
-        <n-form-item v-if="updateModel.type == 'upload'" path="key" :label="$gettext('Private Key')">
+        <n-form-item
+          v-if="updateModel.type == 'upload'"
+          path="key"
+          :label="$gettext('Private Key')"
+        >
           <n-input
             v-model:value="updateModel.key"
             type="textarea"
@@ -501,11 +517,19 @@ onUnmounted(() => {
             :autosize="{ minRows: 10, maxRows: 15 }"
           />
         </n-form-item>
-        <n-form-item v-if="updateModel.type != 'upload'" path="key" :label="$gettext('Deployment Script')">
+        <n-form-item
+          v-if="updateModel.type != 'upload'"
+          path="key"
+          :label="$gettext('Deployment Script')"
+        >
           <n-input
             v-model:value="updateModel.script"
             type="textarea"
-            :placeholder="$gettext('The {cert} and {key} in the script will be replaced with the certificate and private key content')"
+            :placeholder="
+              $gettext(
+                'The {cert} and {key} in the script will be replaced with the certificate and private key content'
+              )
+            "
             :autosize="{ minRows: 5, maxRows: 10 }"
           />
         </n-form-item>

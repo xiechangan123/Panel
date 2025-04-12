@@ -28,7 +28,9 @@ const options = computed(() => {
 const handleSubmit = () => {
   useRequest(app.install(info.value.slug, model.value.channel))
     .onSuccess(() => {
-      window.$message.success($gettext('Task submitted, please check the progress in background tasks'))
+      window.$message.success(
+        $gettext('Task submitted, please check the progress in background tasks')
+      )
     })
     .onComplete(() => {
       doSubmit.value = false
@@ -76,7 +78,12 @@ const handleClose = () => {
         />
       </n-form-item>
       <n-form-item path="channel" :label="$gettext('Version')">
-        <n-input v-model:value="model.version" :placeholder="$gettext('Please select a channel')" readonly disabled />
+        <n-input
+          v-model:value="model.version"
+          :placeholder="$gettext('Please select a channel')"
+          readonly
+          disabled
+        />
       </n-form-item>
     </n-form>
     <n-button

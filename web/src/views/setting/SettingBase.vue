@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import setting from '@/api/panel/setting'
 import { useThemeStore } from '@/store'
+import { locales as availableLocales } from '@/utils'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -24,11 +25,14 @@ const { data: model } = useRequest(setting.list, {
   }
 })
 
-const locales = [
-  { label: 'English', value: 'en' },
-  { label: '简体中文', value: 'zh_CN' },
-  { label: '繁體中文', value: 'zh_TW' }
-]
+const locales = computed(() => {
+  return Object.entries(availableLocales).map(([code, name]: [string, string]) => {
+    return {
+      label: name,
+      value: code
+    }
+  })
+})
 
 const handleSave = () => {
   useRequest(setting.update(model.value)).onSuccess(() => {

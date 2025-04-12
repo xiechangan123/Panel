@@ -136,7 +136,11 @@ onMounted(() => {
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  {{ $gettext('Stopping Memcached will cause websites using Memcached to become inaccessible. Are you sure you want to stop?') }}
+                  {{
+                    $gettext(
+                      'Stopping Memcached will cause websites using Memcached to become inaccessible. Are you sure you want to stop?'
+                    )
+                  }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />

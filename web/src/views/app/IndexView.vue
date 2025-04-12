@@ -88,7 +88,10 @@ const columns: any = [
                   },
                   {
                     default: () => {
-                      return $gettext('Updating app %{ app } may reset related configurations to default state, are you sure to continue?', { app: row.name })
+                      return $gettext(
+                        'Updating app %{ app } may reset related configurations to default state, are you sure to continue?',
+                        { app: row.name }
+                      )
                     },
                     trigger: () => {
                       return h(
@@ -192,13 +195,17 @@ const handleShowChange = (row: any) => {
 
 const handleUpdate = (slug: string) => {
   useRequest(app.update(slug)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check the progress in background tasks'))
+    window.$message.success(
+      $gettext('Task submitted, please check the progress in background tasks')
+    )
   })
 }
 
 const handleUninstall = (slug: string) => {
   useRequest(app.uninstall(slug)).onSuccess(() => {
-    window.$message.success($gettext('Task submitted, please check the progress in background tasks'))
+    window.$message.success(
+      $gettext('Task submitted, please check the progress in background tasks')
+    )
   })
 }
 
@@ -227,7 +234,11 @@ onMounted(() => {
       </n-button>
     </template>
     <n-flex vertical>
-      <n-alert type="warning">{{ $gettext('Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!') }}</n-alert>
+      <n-alert type="warning">{{
+        $gettext(
+          'Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!'
+        )
+      }}</n-alert>
       <n-data-table
         striped
         remote

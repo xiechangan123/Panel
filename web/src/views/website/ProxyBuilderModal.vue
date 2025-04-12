@@ -20,7 +20,9 @@ const setting = ref({
 
 const handleSubmit = () => {
   if (setting.value.cache && setting.value.no_buffer) {
-    window.$message.error($gettext('Disabled buffer and enabled cache cannot be used simultaneously'))
+    window.$message.error(
+      $gettext('Disabled buffer and enabled cache cannot be used simultaneously')
+    )
     return
   }
   if (setting.value.match.length === 0) {
@@ -125,9 +127,19 @@ watch(
     :segmented="false"
   >
     <n-flex vertical>
-      <n-alert type="warning"> {{ $gettext('After generating the reverse proxy configuration, the original rewrite rules will be overwritten.') }} </n-alert>
+      <n-alert type="warning">
+        {{
+          $gettext(
+            'After generating the reverse proxy configuration, the original rewrite rules will be overwritten.'
+          )
+        }}
+      </n-alert>
       <n-alert type="info">
-        {{ $gettext('If you need to proxy static resources like JS/CSS, please remove the static log recording part from the original configuration.') }}
+        {{
+          $gettext(
+            'If you need to proxy static resources like JS/CSS, please remove the static log recording part from the original configuration.'
+          )
+        }}
       </n-alert>
       <n-form inline>
         <n-form-item :label="$gettext('Auto Refresh Resolution')">

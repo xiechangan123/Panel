@@ -142,8 +142,12 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">{{ $gettext('Create Volume') }}</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>{{ $gettext('Cleanup Volumes') }}</n-button>
+      <n-button type="primary" @click="createModal = true">{{
+        $gettext('Create Volume')
+      }}</n-button>
+      <n-button type="primary" @click="handlePrune" ghost>{{
+        $gettext('Cleanup Volumes')
+      }}</n-button>
     </n-flex>
     <n-data-table
       striped

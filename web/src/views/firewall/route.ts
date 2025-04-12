@@ -1,5 +1,5 @@
-import type { RouteType } from '~/types/router'
 import { $gettext } from '@/utils/gettext'
+import type { RouteType } from '~/types/router'
 
 const Layout = () => import('@/layout/IndexView.vue')
 

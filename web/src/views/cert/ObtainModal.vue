@@ -38,7 +38,11 @@ const handleSubmit = () => {
   } else if (model.value.type == 'manual') {
     useRequest(cert.manualDNS(id.value))
       .onSuccess(({ data }: { data: any }) => {
-        window.$message.info($gettext('Please set up DNS resolution for the domain first, then continue with the issuance'))
+        window.$message.info(
+          $gettext(
+            'Please set up DNS resolution for the domain first, then continue with the issuance'
+          )
+        )
         const d = window.$dialog.info({
           style: 'width: 60vw',
           title: $gettext('DNS Records to Set'),

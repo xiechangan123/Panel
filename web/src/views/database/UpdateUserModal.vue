@@ -56,7 +56,10 @@ watch(
         />
       </n-form-item>
       <n-form-item path="privileges" :label="$gettext('Privileges')">
-        <n-dynamic-input v-model:value="updateModel.privileges" :placeholder="$gettext('Enter database name')" />
+        <n-dynamic-input
+          v-model:value="updateModel.privileges"
+          :placeholder="$gettext('Enter database name')"
+        />
       </n-form-item>
       <n-form-item path="remark" :label="$gettext('Comment')">
         <n-input

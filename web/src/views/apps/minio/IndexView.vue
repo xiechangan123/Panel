@@ -120,7 +120,11 @@ onMounted(() => {
       <n-tab-pane name="env" :tab="$gettext('Environment Variables')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!') }}
+            {{
+              $gettext(
+                'This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="env"

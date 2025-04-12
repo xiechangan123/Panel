@@ -125,7 +125,16 @@ const columns: any = [
                 },
                 {
                   default: () => [
-                    h('strong', {}, { default: () => $gettext(`Are you sure you want to start compose %{ name }?`, { name: row.name }) }),
+                    h(
+                      'strong',
+                      {},
+                      {
+                        default: () =>
+                          $gettext(`Are you sure you want to start compose %{ name }?`, {
+                            name: row.name
+                          })
+                      }
+                    ),
                     h(
                       NCheckbox,
                       {
@@ -165,7 +174,9 @@ const columns: any = [
           },
           {
             default: () => {
-              return $gettext(`Are you sure you want to stop compose %{ name }?`, { name: row.name })
+              return $gettext(`Are you sure you want to stop compose %{ name }?`, {
+                name: row.name
+              })
             },
             trigger: () => {
               return h(
@@ -194,7 +205,9 @@ const columns: any = [
           },
           {
             default: () => {
-              return $gettext(`Are you sure you want to delete compose %{ name }?`, { name: row.name })
+              return $gettext(`Are you sure you want to delete compose %{ name }?`, {
+                name: row.name
+              })
             },
             trigger: () => {
               return h(
@@ -270,7 +283,9 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">{{ $gettext('Create Compose') }}</n-button>
+      <n-button type="primary" @click="createModal = true">{{
+        $gettext('Create Compose')
+      }}</n-button>
     </n-flex>
     <n-data-table
       striped

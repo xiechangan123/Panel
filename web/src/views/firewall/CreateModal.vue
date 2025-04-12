@@ -129,7 +129,11 @@ const handleCreate = async () => {
       <n-form-item path="address" :label="$gettext('Target')">
         <n-input
           v-model:value="createModel.address"
-          :placeholder="$gettext('Optional IP or IP range: 127.0.0.1 or 172.16.0.0/24 (multiple separated by commas)')"
+          :placeholder="
+            $gettext(
+              'Optional IP or IP range: 127.0.0.1 or 172.16.0.0/24 (multiple separated by commas)'
+            )
+          "
         />
       </n-form-item>
       <n-form-item path="strategy" :label="$gettext('Strategy')">

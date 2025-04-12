@@ -174,7 +174,11 @@ onMounted(() => {
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  {{ $gettext('Stopping MySQL will cause websites using MySQL to become inaccessible. Are you sure you want to stop?') }}
+                  {{
+                    $gettext(
+                      'Stopping MySQL will cause websites using MySQL to become inaccessible. Are you sure you want to stop?'
+                    )
+                  }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
@@ -190,7 +194,9 @@ onMounted(() => {
                 type="password"
                 show-password-on="click"
               ></n-input>
-              <n-button type="primary" @click="handleSetRootPassword">{{ $gettext('Save Changes') }}</n-button>
+              <n-button type="primary" @click="handleSetRootPassword">{{
+                $gettext('Save Changes')
+              }}</n-button>
             </n-space>
           </n-card>
         </n-space>
@@ -198,7 +204,11 @@ onMounted(() => {
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the MySQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!') }}
+            {{
+              $gettext(
+                'This modifies the MySQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="config"

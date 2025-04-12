@@ -294,7 +294,12 @@ const net = ref<any>({
   },
   legend: {
     align: 'left',
-    data: [$gettext('Total Out'), $gettext('Total In'), $gettext('Per Second Out'), $gettext('Per Second In')]
+    data: [
+      $gettext('Total Out'),
+      $gettext('Total In'),
+      $gettext('Per Second Out'),
+      $gettext('Per Second In')
+    ]
   },
   xAxis: [{ type: 'category', boundaryGap: false, data: data.value.times }],
   yAxis: [

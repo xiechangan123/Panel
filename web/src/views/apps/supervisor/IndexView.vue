@@ -141,7 +141,9 @@ const processColumns: any = [
               },
               {
                 default: () => {
-                  return $gettext('Are you sure you want to stop process %{ name }?', { name: row.name })
+                  return $gettext('Are you sure you want to stop process %{ name }?', {
+                    name: row.name
+                  })
                 },
                 trigger: () => {
                   return h(
@@ -168,7 +170,9 @@ const processColumns: any = [
               },
               {
                 default: () => {
-                  return $gettext('Are you sure you want to restart process %{ name }?', { name: row.name })
+                  return $gettext('Are you sure you want to restart process %{ name }?', {
+                    name: row.name
+                  })
                 },
                 trigger: () => {
                   return h(
@@ -194,7 +198,9 @@ const processColumns: any = [
           },
           {
             default: () => {
-              return $gettext('Are you sure you want to delete process %{ name }?', { name: row.name })
+              return $gettext('Are you sure you want to delete process %{ name }?', {
+                name: row.name
+              })
             },
             trigger: () => {
               return h(
@@ -401,7 +407,11 @@ onUnmounted(() => {
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  {{ $gettext('Stopping Supervisor will cause all processes managed by Supervisor to be killed. Are you sure you want to stop?') }}
+                  {{
+                    $gettext(
+                      'Stopping Supervisor will cause all processes managed by Supervisor to be killed. Are you sure you want to stop?'
+                    )
+                  }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
@@ -439,7 +449,11 @@ onUnmounted(() => {
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!') }}
+            {{
+              $gettext(
+                'This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="config"

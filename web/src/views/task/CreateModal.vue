@@ -128,8 +128,12 @@ onMounted(() => {
       <n-form-item v-if="createModel.type === 'backup'" :label="$gettext('Backup Type')">
         <n-radio-group v-model:value="createModel.backup_type">
           <n-radio value="website">{{ $gettext('Website') }}</n-radio>
-          <n-radio value="mysql" :disabled="!mySQLInstalled"> {{ $gettext('MySQL Database') }}</n-radio>
-          <n-radio value="postgres" :disabled="!postgreSQLInstalled"> {{ $gettext('PostgreSQL Database') }} </n-radio>
+          <n-radio value="mysql" :disabled="!mySQLInstalled">
+            {{ $gettext('MySQL Database') }}</n-radio
+          >
+          <n-radio value="postgres" :disabled="!postgreSQLInstalled">
+            {{ $gettext('PostgreSQL Database') }}
+          </n-radio>
         </n-radio-group>
       </n-form-item>
       <n-form-item
@@ -139,7 +143,11 @@ onMounted(() => {
         "
         :label="$gettext('Select Website')"
       >
-        <n-select v-model:value="createModel.target" :options="websites" :placeholder="$gettext('Select Website')" />
+        <n-select
+          v-model:value="createModel.target"
+          :options="websites"
+          :placeholder="$gettext('Select Website')"
+        />
       </n-form-item>
       <n-form-item
         v-if="createModel.backup_type !== 'website' && createModel.type === 'backup'"
@@ -148,7 +156,10 @@ onMounted(() => {
         <n-input v-model:value="createModel.target" :placeholder="$gettext('Database Name')" />
       </n-form-item>
       <n-form-item v-if="createModel.type === 'backup'" :label="$gettext('Save Directory')">
-        <n-input v-model:value="createModel.backup_path" :placeholder="$gettext('Save Directory')" />
+        <n-input
+          v-model:value="createModel.backup_path"
+          :placeholder="$gettext('Save Directory')"
+        />
       </n-form-item>
       <n-form-item v-if="createModel.type !== 'shell'" :label="$gettext('Retention Count')">
         <n-input-number v-model:value="createModel.save" />
@@ -156,7 +167,9 @@ onMounted(() => {
     </n-form>
     <n-row :gutter="[0, 24]" pt-20>
       <n-col :span="24">
-        <n-button type="info" block :loading="loading" @click="handleSubmit"> {{ $gettext('Submit') }} </n-button>
+        <n-button type="info" block :loading="loading" @click="handleSubmit">
+          {{ $gettext('Submit') }}
+        </n-button>
       </n-col>
     </n-row>
   </n-modal>

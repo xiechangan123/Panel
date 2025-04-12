@@ -179,8 +179,12 @@ onUnmounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">{{ $gettext('Create Backup') }}</n-button>
-      <n-button type="primary" @click="uploadModal = true" ghost>{{ $gettext('Upload Backup') }}</n-button>
+      <n-button type="primary" @click="createModal = true">{{
+        $gettext('Create Backup')
+      }}</n-button>
+      <n-button type="primary" @click="uploadModal = true" ghost>{{
+        $gettext('Upload Backup')
+      }}</n-button>
     </n-flex>
     <n-data-table
       striped
@@ -215,7 +219,11 @@ onUnmounted(() => {
   >
     <n-form :model="createModel">
       <n-form-item v-if="type == 'website'" path="name" :label="$gettext('Website')">
-        <n-select v-model:value="createModel.target" :options="websites" :placeholder="$gettext('Select website')" />
+        <n-select
+          v-model:value="createModel.target"
+          :options="websites"
+          :placeholder="$gettext('Select website')"
+        />
       </n-form-item>
       <n-form-item v-if="type != 'website'" path="name" :label="$gettext('Database Name')">
         <n-input
@@ -248,7 +256,11 @@ onUnmounted(() => {
   >
     <n-form :model="restoreModel">
       <n-form-item v-if="type == 'website'" path="name" :label="$gettext('Website')">
-        <n-select v-model:value="restoreModel.target" :options="websites" :placeholder="$gettext('Select website')" />
+        <n-select
+          v-model:value="restoreModel.target"
+          :options="websites"
+          :placeholder="$gettext('Select website')"
+        />
       </n-form-item>
       <n-form-item v-if="type != 'website'" path="name" :label="$gettext('Database')">
         <n-input v-model:value="restoreModel.target" type="text" @keydown.enter.prevent />

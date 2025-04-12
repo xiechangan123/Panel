@@ -121,7 +121,9 @@ const handleSyncTime = () => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="dns" tab="DNS">
         <n-flex vertical>
-          <n-alert type="warning"> {{ $gettext('DNS modifications will revert to default after system restart.') }} </n-alert>
+          <n-alert type="warning">
+            {{ $gettext('DNS modifications will revert to default after system restart.') }}
+          </n-alert>
           <n-form>
             <n-form-item label="DNS1">
               <n-input v-model:value="dns1" />
@@ -135,7 +137,13 @@ const handleSyncTime = () => {
       <n-tab-pane name="swap" tab="SWAP">
         <n-flex vertical>
           <n-alert type="info">
-            {{ $gettext('Total %{ total }, used %{ used }, free %{ free }', { total: swapTotal, used: swapUsed, free: swapFree }) }}
+            {{
+              $gettext('Total %{ total }, used %{ used }, free %{ free }', {
+                total: swapTotal,
+                used: swapUsed,
+                free: swapFree
+              })
+            }}
           </n-alert>
           <n-form>
             <n-form-item :label="$gettext('SWAP Size')">
@@ -168,16 +176,28 @@ const handleSyncTime = () => {
       </n-tab-pane>
       <n-tab-pane name="time" :tab="$gettext('Time')">
         <n-flex vertical>
-          <n-alert type="info"> {{ $gettext('After manually changing the time, it may still be overwritten by system automatic time synchronization.') }} </n-alert>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'After manually changing the time, it may still be overwritten by system automatic time synchronization.'
+              )
+            }}
+          </n-alert>
           <n-form>
             <n-form-item :label="$gettext('Select Timezone')">
-              <n-select v-model:value="timezone" :placeholder="$gettext('Please select a timezone')" :options="timezones" />
+              <n-select
+                v-model:value="timezone"
+                :placeholder="$gettext('Please select a timezone')"
+                :options="timezones"
+              />
             </n-form-item>
             <n-form-item :label="$gettext('Modify Time')">
               <n-date-picker v-model:value="time" type="datetime" clearable />
             </n-form-item>
             <n-form-item :label="$gettext('NTP Time Synchronization')">
-              <n-button type="info" @click="handleSyncTime">{{ $gettext('Synchronize Time') }}</n-button>
+              <n-button type="info" @click="handleSyncTime">{{
+                $gettext('Synchronize Time')
+              }}</n-button>
             </n-form-item>
           </n-form>
         </n-flex>

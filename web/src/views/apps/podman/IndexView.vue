@@ -108,7 +108,11 @@ onMounted(() => {
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
           <n-alert type="info">
-            {{ $gettext('Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!') }}
+            {{
+              $gettext(
+                'Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!'
+              )
+            }}
           </n-alert>
           <n-card :title="$gettext('Running Status')">
             <template #header-extra>
@@ -147,7 +151,11 @@ onMounted(() => {
       <n-tab-pane name="registryConfig" :tab="$gettext('Registry Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the Podman registry configuration file (/etc/containers/registries.conf)') }}
+            {{
+              $gettext(
+                'This modifies the Podman registry configuration file (/etc/containers/registries.conf)'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="registryConfig"
@@ -166,7 +174,11 @@ onMounted(() => {
       <n-tab-pane name="storageConfig" :tab="$gettext('Storage Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the Podman storage configuration file (/etc/containers/storage.conf)') }}
+            {{
+              $gettext(
+                'This modifies the Podman storage configuration file (/etc/containers/storage.conf)'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="storageConfig"

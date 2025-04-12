@@ -105,13 +105,17 @@ const columns: any = [
           onPositiveClick: () => {
             useRequest(process.kill(row.pid)).onSuccess(() => {
               refresh()
-              window.$message.success($gettext('Process %{ pid } has been terminated', { pid: row.pid }))
+              window.$message.success(
+                $gettext('Process %{ pid } has been terminated', { pid: row.pid })
+              )
             })
           }
         },
         {
           default: () => {
-            return $gettext('Are you sure you want to terminate process %{ pid }?', { pid: row.pid })
+            return $gettext('Are you sure you want to terminate process %{ pid }?', {
+              pid: row.pid
+            })
           },
           trigger: () => {
             return h(

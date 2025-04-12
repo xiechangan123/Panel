@@ -5,7 +5,9 @@ import { checkName, checkPath, getExt, getIconByExt } from '@/utils'
 import type { DataTableColumns, InputInst } from 'naive-ui'
 import { NButton, NDataTable, NEllipsis, NFlex, NTag } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
 const props = defineProps({
@@ -15,7 +17,7 @@ const props = defineProps({
   }
 })
 
-const title = computed(() => (props.dir ? '选择目录' : '选择文件'))
+const title = computed(() => (props.dir ? $gettext('Select Directory') : $gettext('Select File')))
 const isInput = ref(false)
 const pathInput = ref<InputInst | null>(null)
 const input = ref('www')
@@ -37,7 +39,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '名称',
+    title: $gettext('Name'),
     key: 'name',
     minWidth: 180,
     defaultSortOrder: false,
@@ -78,7 +80,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '权限',
+    title: $gettext('Permissions'),
     key: 'mode',
     minWidth: 80,
     render(row: any): any {
@@ -90,7 +92,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '所有者 / 组',
+    title: $gettext('Owner / Group'),
     key: 'owner/group',
     minWidth: 120,
     render(row: any): any {
@@ -102,7 +104,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '大小',
+    title: $gettext('Size'),
     key: 'size',
     minWidth: 80,
     render(row: any): any {
@@ -110,7 +112,7 @@ const columns: DataTableColumns<RowData> = [
     }
   },
   {
-    title: '修改时间',
+    title: $gettext('Modification Time'),
     key: 'modify',
     minWidth: 200,
     render(row: any): any {
@@ -143,7 +145,7 @@ const handleInput = () => {
 const handleBlur = () => {
   input.value = input.value.replace(/(^\/)|(\/$)/g, '')
   if (!checkPath(input.value)) {
-    window.$message.error('路径不合法')
+    window.$message.error($gettext('Invalid path'))
     return
   }
 
@@ -203,7 +205,7 @@ const showCreate = (value: string) => {
 
 const handleCreate = () => {
   if (!checkName(createModel.value.path)) {
-    window.$message.error('名称不合法')
+    window.$message.error($gettext('Invalid name'))
     return
   }
 
@@ -211,7 +213,7 @@ const handleCreate = () => {
   useRequest(file.create(fullPath, createModel.value.dir)).onSuccess(() => {
     create.value = false
     refresh()
-    window.$message.success('新建成功')
+    window.$message.success($gettext('Created successfully'))
   })
 }
 
@@ -250,12 +252,12 @@ const handleClose = () => {
     <n-flex>
       <n-popselect
         :options="[
-          { label: '文件', value: 'file' },
-          { label: '文件夹', value: 'folder' }
+          { label: $gettext('File'), value: 'file' },
+          { label: $gettext('Folder'), value: 'folder' }
         ]"
         @update:value="showCreate"
       >
-        <n-button type="primary"> 新建 </n-button>
+        <n-button type="primary"> {{ $gettext('Create') }} </n-button>
       </n-popselect>
       <n-button @click="handleUp">
         <icon-bi-arrow-up />
@@ -263,7 +265,9 @@ const handleClose = () => {
       <n-input-group flex-1>
         <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
           <n-breadcrumb separator=">">
-            <n-breadcrumb-item @click.stop="setPath(-1)"> 根目录 </n-breadcrumb-item>
+            <n-breadcrumb-item @click.stop="setPath(-1)">
+              {{ $gettext('Root Directory') }}
+            </n-breadcrumb-item>
             <n-breadcrumb-item
               v-for="(item, index) in splitPath(path, '/')"
               :key="index"
@@ -316,7 +320,7 @@ const handleClose = () => {
   <n-modal
     v-model:show="create"
     preset="card"
-    title="新建"
+    :title="$gettext('Create')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -324,11 +328,11 @@ const handleClose = () => {
   >
     <n-space vertical>
       <n-form :model="createModel">
-        <n-form-item label="名称">
+        <n-form-item :label="$gettext('Name')">
           <n-input v-model:value="createModel.path" />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleCreate">提交</n-button>
+      <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

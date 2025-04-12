@@ -104,7 +104,9 @@ const extensionColumns: any = [
               },
               {
                 default: () => {
-                  return $gettext('Are you sure you want to uninstall %{ name }?', { name: row.name })
+                  return $gettext('Are you sure you want to uninstall %{ name }?', {
+                    name: row.name
+                  })
                 },
                 trigger: () => {
                   return h(
@@ -303,7 +305,12 @@ onMounted(() => {
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  {{ $gettext('Stopping PHP %{ version } will cause websites using PHP %{ version } to become inaccessible. Are you sure you want to stop?', { version: version }) }}
+                  {{
+                    $gettext(
+                      'Stopping PHP %{ version } will cause websites using PHP %{ version } to become inaccessible. Are you sure you want to stop?',
+                      { version: version }
+                    )
+                  }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
@@ -334,7 +341,12 @@ onMounted(() => {
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!', { version: version }) }}
+            {{
+              $gettext(
+                'This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+                { version: version }
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="config"
@@ -353,7 +365,12 @@ onMounted(() => {
       <n-tab-pane name="fpm-config" :tab="$gettext('FPM Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!', { version: version }) }}
+            {{
+              $gettext(
+                'This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+                { version: version }
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="fpmConfig"

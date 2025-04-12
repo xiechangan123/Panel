@@ -331,7 +331,11 @@ onMounted(() => {
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  {{ $gettext('Stopping Fail2ban will disable all rules. Are you sure you want to stop?') }}
+                  {{
+                    $gettext(
+                      'Stopping Fail2ban will disable all rules. Are you sure you want to stop?'
+                    )
+                  }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
@@ -384,13 +388,26 @@ onMounted(() => {
     </n-tabs>
   </common-page>
   <n-modal v-model:show="addJailModal" :title="$gettext('Add Rule')">
-    <n-card closable @close="() => (addJailModal = false)" :title="$gettext('Add Rule')" style="width: 60vw">
+    <n-card
+      closable
+      @close="() => (addJailModal = false)"
+      :title="$gettext('Add Rule')"
+      style="width: 60vw"
+    >
       <n-space vertical>
         <n-alert type="info">
-          {{ $gettext('If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)') }}
+          {{
+            $gettext(
+              'If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)'
+            )
+          }}
         </n-alert>
         <n-alert type="warning">
-          {{ $gettext('Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective') }}
+          {{
+            $gettext(
+              'Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective'
+            )
+          }}
         </n-alert>
 
         <n-form :model="addJailModel">
@@ -425,7 +442,10 @@ onMounted(() => {
             v-if="addJailModel.type === 'website' && addJailModel.website_mode === 'path'"
             :label="$gettext('Protection Path')"
           >
-            <n-input v-model:value="addJailModel.website_path" :placeholder="$gettext('Protection Path')" />
+            <n-input
+              v-model:value="addJailModel.website_path"
+              :placeholder="$gettext('Protection Path')"
+            />
           </n-form-item>
           <n-form-item v-if="addJailModel.type === 'service'" :label="$gettext('Service')">
             <n-select
@@ -453,7 +473,12 @@ onMounted(() => {
     </n-card>
   </n-modal>
   <n-modal v-model:show="jailModal" :title="$gettext('View Rule')">
-    <n-card closable @close="() => (jailModal = false)" :title="$gettext('View Rule')" style="width: 60vw">
+    <n-card
+      closable
+      @close="() => (jailModal = false)"
+      :title="$gettext('View Rule')"
+      style="width: 60vw"
+    >
       <n-space vertical>
         <n-card :title="$gettext('Rule Information')" :segmented="true">
           <n-space vertical>

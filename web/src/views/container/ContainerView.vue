@@ -399,8 +399,12 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="containerCreateModal = true">{{ $gettext('Create Container') }}</n-button>
-      <n-button type="primary" @click="handlePrune" ghost>{{ $gettext('Cleanup Containers') }}</n-button>
+      <n-button type="primary" @click="containerCreateModal = true">{{
+        $gettext('Create Container')
+      }}</n-button>
+      <n-button type="primary" @click="handlePrune" ghost>{{
+        $gettext('Cleanup Containers')
+      }}</n-button>
       <n-button-group>
         <n-button @click="bulkStart">{{ $gettext('Start') }}</n-button>
         <n-button @click="bulkStop">{{ $gettext('Stop') }}</n-button>

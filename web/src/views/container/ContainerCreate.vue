@@ -156,7 +156,11 @@ onMounted(() => {
           {{ $gettext('Expose All') }}
         </n-radio>
       </n-form-item>
-      <n-form-item path="ports" :label="$gettext('Port Mapping')" v-if="!createModel.publish_all_ports">
+      <n-form-item
+        path="ports"
+        :label="$gettext('Port Mapping')"
+        v-if="!createModel.publish_all_ports"
+      >
         <n-space vertical>
           <n-table striped>
             <thead>
@@ -226,7 +230,11 @@ onMounted(() => {
                     UDP
                   </n-radio>
                 </td>
-                <td><n-button @click="removePortRow(index)" size="small">{{ $gettext('Delete') }}</n-button></td>
+                <td>
+                  <n-button @click="removePortRow(index)" size="small">{{
+                    $gettext('Delete')
+                  }}</n-button>
+                </td>
               </tr>
             </tbody>
           </n-table>
@@ -273,7 +281,11 @@ onMounted(() => {
                     {{ $gettext('Read-Only') }}
                   </n-radio>
                 </td>
-                <td><n-button @click="removeVolumeRow(index)" size="small">{{ $gettext('Delete') }}</n-button></td>
+                <td>
+                  <n-button @click="removeVolumeRow(index)" size="small">{{
+                    $gettext('Delete')
+                  }}</n-button>
+                </td>
               </tr>
             </tbody>
           </n-table>
@@ -284,7 +296,10 @@ onMounted(() => {
         <n-dynamic-input v-model:value="createModel.command" :placeholder="$gettext('Command')" />
       </n-form-item>
       <n-form-item path="entrypoint" :label="$gettext('Entrypoint')">
-        <n-dynamic-input v-model:value="createModel.entrypoint" :placeholder="$gettext('Entrypoint')" />
+        <n-dynamic-input
+          v-model:value="createModel.entrypoint"
+          :placeholder="$gettext('Entrypoint')"
+        />
       </n-form-item>
       <n-row :gutter="[0, 24]">
         <n-col :span="8">

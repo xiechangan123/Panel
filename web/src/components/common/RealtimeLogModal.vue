@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import ws from '@/api/ws'
 import type { LogInst } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const props = defineProps({
   path: {
@@ -28,7 +30,7 @@ const init = async () => {
       }
     })
     .catch(() => {
-      window.$message.error('获取日志流失败')
+      window.$message.error($gettext('Failed to get log stream'))
     })
 }
 
@@ -62,7 +64,7 @@ defineExpose({
   <n-modal
     v-model:show="show"
     preset="card"
-    title="日志"
+    :title="$gettext('Logs')"
     style="width: 80vw"
     size="huge"
     :bordered="false"

@@ -84,7 +84,11 @@ onMounted(() => {
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!') }}
+            {{
+              $gettext(
+                'This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="config"

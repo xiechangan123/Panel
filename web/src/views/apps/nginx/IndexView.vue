@@ -157,7 +157,11 @@ onMounted(() => {
                     {{ $gettext('Stop') }}
                   </n-button>
                 </template>
-                {{ $gettext('Stopping OpenResty will cause all websites to become inaccessible. Are you sure you want to stop?') }}
+                {{
+                  $gettext(
+                    'Stopping OpenResty will cause all websites to become inaccessible. Are you sure you want to stop?'
+                  )
+                }}
               </n-popconfirm>
               <n-button type="warning" @click="handleRestart">
                 <TheIcon :size="18" icon="material-symbols:replay-rounded" />
@@ -174,7 +178,11 @@ onMounted(() => {
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
         <n-space vertical>
           <n-alert type="warning">
-            {{ $gettext('This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!') }}
+            {{
+              $gettext(
+                'This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+              )
+            }}
           </n-alert>
           <Editor
             v-model:value="config"

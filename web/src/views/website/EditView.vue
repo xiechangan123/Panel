@@ -175,7 +175,11 @@ const onCreateListen = () => {
     <template #action>
       <n-flex>
         <n-tag v-if="current === 'config'" type="warning">
-          {{ $gettext('If you modify the original text, other modifications will not take effect after clicking save!') }}
+          {{
+            $gettext(
+              'If you modify the original text, other modifications will not take effect after clicking save!'
+            )
+          }}
         </n-tag>
         <n-popconfirm v-if="current === 'config'" @positive-click="handleReset">
           <template #trigger>
@@ -254,12 +258,17 @@ const onCreateListen = () => {
       <n-tab-pane name="basic" :tab="$gettext('Basic Settings')">
         <n-form v-if="setting">
           <n-form-item :label="$gettext('Website Directory')">
-            <n-input v-model:value="setting.path" :placeholder="$gettext('Enter website directory (absolute path)')" />
+            <n-input
+              v-model:value="setting.path"
+              :placeholder="$gettext('Enter website directory (absolute path)')"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Running Directory')">
             <n-input
               v-model:value="setting.root"
-              :placeholder="$gettext('Enter running directory (needed for Laravel etc.) (absolute path)')"
+              :placeholder="
+                $gettext('Enter running directory (needed for Laravel etc.) (absolute path)')
+              "
             />
           </n-form-item>
           <n-form-item :label="$gettext('Default Document')">
@@ -318,7 +327,11 @@ const onCreateListen = () => {
               <n-form-item-gi :span="12" :label="$gettext('Main Switch')">
                 <n-switch v-model:value="setting.https" />
               </n-form-item-gi>
-              <n-form-item-gi v-if="setting.https" :span="12" :label="$gettext('Use Existing Certificate')">
+              <n-form-item-gi
+                v-if="setting.https"
+                :span="12"
+                :label="$gettext('Use Existing Certificate')"
+              >
                 <n-select
                   v-model:value="selectedCert"
                   :options="certOptions"
@@ -388,7 +401,11 @@ const onCreateListen = () => {
       <n-tab-pane name="config" :tab="$gettext('Configuration')">
         <n-flex vertical>
           <n-alert type="warning" w-full>
-            {{ $gettext('If you do not understand the configuration rules, please do not modify them arbitrarily, otherwise it may cause the website to be inaccessible or panel function abnormalities! If you have already encountered a problem, try resetting the configuration!') }}
+            {{
+              $gettext(
+                'If you do not understand the configuration rules, please do not modify them arbitrarily, otherwise it may cause the website to be inaccessible or panel function abnormalities! If you have already encountered a problem, try resetting the configuration!'
+              )
+            }}
           </n-alert>
           <Editor
             v-if="setting"

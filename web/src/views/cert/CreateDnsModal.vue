@@ -50,7 +50,11 @@ const handleCreateDNS = async () => {
     <n-space vertical>
       <n-form :model="model">
         <n-form-item path="name" :label="$gettext('Comment Name')">
-          <n-input v-model:value="model.name" type="text" :placeholder="$gettext('Enter comment name')" />
+          <n-input
+            v-model:value="model.name"
+            type="text"
+            :placeholder="$gettext('Enter comment name')"
+          />
         </n-form-item>
         <n-form-item path="type" :label="$gettext('DNS')">
           <n-select
@@ -61,19 +65,39 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'aliyun'" path="ak" label="Access Key">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Aliyun Access Key')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Aliyun Access Key')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'aliyun'" path="sk" label="Secret Key">
-          <n-input v-model:value="model.data.sk" type="text" :placeholder="$gettext('Enter Aliyun Secret Key')" />
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            :placeholder="$gettext('Enter Aliyun Secret Key')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'tencent'" path="ak" label="SecretId">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Tencent Cloud SecretId')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Tencent Cloud SecretId')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'tencent'" path="sk" label="SecretKey">
-          <n-input v-model:value="model.data.sk" type="text" :placeholder="$gettext('Enter Tencent Cloud SecretKey')" />
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            :placeholder="$gettext('Enter Tencent Cloud SecretKey')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'huawei'" path="ak" label="AccessKeyId">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Huawei Cloud AccessKeyId')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Huawei Cloud AccessKeyId')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'huawei'" path="sk" label="SecretAccessKey">
           <n-input
@@ -83,7 +107,11 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'westcn'" path="sk" label="Username">
-          <n-input v-model:value="model.data.sk" type="text" :placeholder="$gettext('Enter Western Digital Username')" />
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            :placeholder="$gettext('Enter Western Digital Username')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'westcn'" path="ak" label="API Password">
           <n-input
@@ -100,13 +128,25 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'godaddy'" path="ak" label="Token">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter GoDaddy Token')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter GoDaddy Token')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'gcore'" path="ak" label="API Key">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter G-Core API Key')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter G-Core API Key')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'porkbun'" path="ak" label="API Key">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Porkbun API Key')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Porkbun API Key')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'porkbun'" path="sk" label="Secret Key">
           <n-input
@@ -123,7 +163,11 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'namecheap'" path="ak" label="API Key">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Namecheap API Key')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Namecheap API Key')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'namesilo'" path="ak" label="API Token">
           <n-input
@@ -133,10 +177,18 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'namecom'" path="sk" label="Username">
-          <n-input v-model:value="model.data.sk" type="text" :placeholder="$gettext('Enter Name.com Username')" />
+          <n-input
+            v-model:value="model.data.sk"
+            type="text"
+            :placeholder="$gettext('Enter Name.com Username')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'namecom'" path="ak" label="Token">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Name.com Token')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Name.com Token')"
+          />
         </n-form-item>
 
         <n-form-item v-if="model.type == 'cloudns'" path="ak" label="Auth ID">
@@ -154,7 +206,11 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'duckdns'" path="ak" label="Token">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Duck DNS Token')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Duck DNS Token')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'hetzner'" path="ak" label="Auth API Token">
           <n-input
@@ -164,10 +220,18 @@ const handleCreateDNS = async () => {
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'linode'" path="ak" label="Token">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Linode Token')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Linode Token')"
+          />
         </n-form-item>
         <n-form-item v-if="model.type == 'vercel'" path="ak" label="Token">
-          <n-input v-model:value="model.data.ak" type="text" :placeholder="$gettext('Enter Vercel Token')" />
+          <n-input
+            v-model:value="model.data.ak"
+            type="text"
+            :placeholder="$gettext('Enter Vercel Token')"
+          />
         </n-form-item>
       </n-form>
       <n-button type="info" block @click="handleCreateDNS">{{ $gettext('Submit') }}</n-button>

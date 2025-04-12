@@ -83,7 +83,9 @@ const userColumns: any = [
           },
           {
             default: () => {
-              return $gettext('Are you sure you want to delete user %{ username }?', { username: row.username })
+              return $gettext('Are you sure you want to delete user %{ username }?', {
+                username: row.username
+              })
             },
             trigger: () => {
               return h(
@@ -244,7 +246,11 @@ onMounted(() => {
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
-                  {{ $gettext('Stopping Pure-Ftpd will cause FTP service to be unavailable. Are you sure you want to stop it?') }}
+                  {{
+                    $gettext(
+                      'Stopping Pure-Ftpd will cause FTP service to be unavailable. Are you sure you want to stop it?'
+                    )
+                  }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
                   <TheIcon :size="18" icon="material-symbols:replay-rounded" />
@@ -289,7 +295,12 @@ onMounted(() => {
     </n-tabs>
   </common-page>
   <n-modal v-model:show="addUserModal" :title="$gettext('Create User')">
-    <n-card closable @close="() => (addUserModal = false)" :title="$gettext('Create User')" style="width: 60vw">
+    <n-card
+      closable
+      @close="() => (addUserModal = false)"
+      :title="$gettext('Create User')"
+      style="width: 60vw"
+    >
       <n-form :model="addUserModel">
         <n-form-item path="username" :label="$gettext('Username')">
           <n-input
@@ -305,7 +316,9 @@ onMounted(() => {
             type="password"
             show-password-on="click"
             @keydown.enter.prevent
-            :placeholder="$gettext('It is recommended to use the generator to generate a random password')"
+            :placeholder="
+              $gettext('It is recommended to use the generator to generate a random password')
+            "
           />
         </n-form-item>
         <n-form-item path="path" :label="$gettext('Directory')">
@@ -333,7 +346,9 @@ onMounted(() => {
             v-model:value="changePasswordModel.password"
             type="text"
             @keydown.enter.prevent
-            :placeholder="$gettext('It is recommended to use the generator to generate a random password')"
+            :placeholder="
+              $gettext('It is recommended to use the generator to generate a random password')
+            "
           />
         </n-form-item>
       </n-form>

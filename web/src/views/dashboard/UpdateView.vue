@@ -79,7 +79,11 @@ const handleUpdate = () => {
       </n-timeline-item>
     </n-timeline>
     <div v-else pt-40>
-      <n-result status="418" title="Loading..." :description="$gettext('Loading update information, please wait a moment')" />
+      <n-result
+        status="418"
+        title="Loading..."
+        :description="$gettext('Loading update information, please wait a moment')"
+      />
     </div>
   </common-page>
 </template>
