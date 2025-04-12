@@ -2,4 +2,6 @@ commit_message: 'Update translations (%language%) %original_file_name%'
 pull_request_title: 'l10n: update translations'
 files:
   - source: /pkg/embed/locales/*.pot
-    translation: /pkg/embed/locales/%locale_with_underscore%/%file_name%.mo
+    translation: /pkg/embed/locales/%locale_with_underscore%/%file_name%.po
+  - source: /web/src/locales/*.pot
+    translation: /web/src/locales/%locale_with_underscore%.po

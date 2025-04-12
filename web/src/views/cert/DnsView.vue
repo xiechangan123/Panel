@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { NButton, NDataTable, NInput, NPopconfirm, NSpace, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+
+const { $gettext } = useGettext()
 
 const props = defineProps({
   dnsProviders: {
@@ -25,14 +28,14 @@ const updateDNS = ref<any>()
 
 const columns: any = [
   {
-    title: '备注名称',
+    title: $gettext('Note Name'),
     key: 'name',
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true }
   },
   {
-    title: '类型',
+    title: $gettext('Type'),
     key: 'type',
     width: 150,
     resizable: true,
@@ -50,7 +53,7 @@ const columns: any = [
             if (provider) {
               return provider.label
             } else {
-              return '未知'
+              return $gettext('Unknown')
             }
           }
         }
@@ -58,7 +61,7 @@ const columns: any = [
     }
   },
   {
-    title: '操作',
+    title: $gettext('Actions'),
     key: 'actions',
     width: 200,
     align: 'center',
@@ -80,7 +83,7 @@ const columns: any = [
             }
           },
           {
-            default: () => '修改'
+            default: () => $gettext('Modify')
           }
         ),
         h(
@@ -89,13 +92,13 @@ const columns: any = [
             onPositiveClick: async () => {
               useRequest(cert.dnsDelete(row.id)).onSuccess(() => {
                 refresh()
-                window.$message.success('删除成功')
+                window.$message.success($gettext('Deletion successful'))
               })
             }
           },
           {
             default: () => {
-              return '确定删除 DNS 吗？'
+              return $gettext('Are you sure you want to delete the DNS?')
             },
             trigger: () => {
               return h(
@@ -106,7 +109,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => '删除'
+                  default: () => $gettext('Delete')
                 }
               )
             }
@@ -134,7 +137,7 @@ const handleUpdateDNS = () => {
     updateDNSModel.value.data.ak = ''
     updateDNSModel.value.data.sk = ''
     updateDNSModel.value.name = ''
-    window.$message.success('更新成功')
+    window.$message.success($gettext('Update successful'))
   })
 }
 
@@ -176,7 +179,7 @@ onUnmounted(() => {
   <n-modal
     v-model:show="updateDNSModal"
     preset="card"
-    title="修改 DNS"
+    :title="$gettext('Modify DNS')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -184,13 +187,13 @@ onUnmounted(() => {
   >
     <n-space vertical>
       <n-form :model="updateDNSModel">
-        <n-form-item path="name" label="备注名称">
-          <n-input v-model:value="updateDNSModel.name" type="text" placeholder="输入备注名称" />
+        <n-form-item path="name" :label="$gettext('Note Name')">
+          <n-input v-model:value="updateDNSModel.name" type="text" :placeholder="$gettext('Enter note name')" />
         </n-form-item>
-        <n-form-item path="type" label="DNS">
+        <n-form-item path="type" :label="$gettext('DNS')">
           <n-select
             v-model:value="updateDNSModel.type"
-            placeholder="选择 DNS"
+            :placeholder="$gettext('Select DNS')"
             clearable
             :options="dnsProviders"
           />
@@ -199,172 +202,172 @@ onUnmounted(() => {
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入阿里云 Access Key"
+            :placeholder="$gettext('Enter Aliyun Access Key')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'aliyun'" path="sk" label="Secret Key">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入阿里云 Secret Key"
+            :placeholder="$gettext('Enter Aliyun Secret Key')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'tencent'" path="ak" label="SecretId">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入腾讯云 SecretId"
+            :placeholder="$gettext('Enter Tencent Cloud SecretId')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'tencent'" path="sk" label="SecretKey">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入腾讯云 SecretKey"
+            :placeholder="$gettext('Enter Tencent Cloud SecretKey')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'huawei'" path="ak" label="AccessKeyId">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入华为云 AccessKeyId"
+            :placeholder="$gettext('Enter Huawei Cloud AccessKeyId')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'huawei'" path="sk" label="SecretAccessKey">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入华为云 SecretAccessKey"
+            :placeholder="$gettext('Enter Huawei Cloud SecretAccessKey')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'westcn'" path="sk" label="Username">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入西部数码 Username"
+            :placeholder="$gettext('Enter West.cn Username')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'westcn'" path="ak" label="API Password">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入西部数码 API Password"
+            :placeholder="$gettext('Enter West.cn API Password')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'cloudflare'" path="ak" label="API Key">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Cloudflare API Key"
+            :placeholder="$gettext('Enter Cloudflare API Key')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'godaddy'" path="ak" label="Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 GoDaddy Token"
+            :placeholder="$gettext('Enter GoDaddy Token')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'gcore'" path="ak" label="API Key">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 G-Core API Key"
+            :placeholder="$gettext('Enter G-Core API Key')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'porkbun'" path="ak" label="API Key">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Porkbun API Key"
+            :placeholder="$gettext('Enter Porkbun API Key')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'porkbun'" path="sk" label="Secret Key">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入 Porkbun Secret Key"
+            :placeholder="$gettext('Enter Porkbun Secret Key')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'namecheap'" path="sk" label="API Username">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入 Namecheap API Username"
+            :placeholder="$gettext('Enter Namecheap API Username')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'namecheap'" path="ak" label="API Key">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Namecheap API Key"
+            :placeholder="$gettext('Enter Namecheap API Key')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'namesilo'" path="ak" label="API Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 NameSilo API Token"
+            :placeholder="$gettext('Enter NameSilo API Token')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'namecom'" path="sk" label="Username">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入 Name.com Username"
+            :placeholder="$gettext('Enter Name.com Username')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'namecom'" path="ak" label="Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Name.com Token"
+            :placeholder="$gettext('Enter Name.com Token')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'cloudns'" path="ak" label="Auth ID">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 ClouDNS Auth ID（使用Sub Auth ID请添加sub-前缀）"
+            :placeholder="$gettext('Enter ClouDNS Auth ID (Add sub- prefix for Sub Auth ID)')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'cloudns'" path="sk" label="Auth Password">
           <n-input
             v-model:value="updateDNSModel.data.sk"
             type="text"
-            placeholder="输入 ClouDNS Auth Password"
+            :placeholder="$gettext('Enter ClouDNS Auth Password')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'duckdns'" path="ak" label="Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Duck DNS Token"
+            :placeholder="$gettext('Enter Duck DNS Token')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'hetzner'" path="ak" label="Auth API Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Hetzner Auth API Token"
+            :placeholder="$gettext('Enter Hetzner Auth API Token')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'linode'" path="ak" label="Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Linode Token"
+            :placeholder="$gettext('Enter Linode Token')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'vercel'" path="ak" label="Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
             type="text"
-            placeholder="输入 Vercel Token"
+            :placeholder="$gettext('Enter Vercel Token')"
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleUpdateDNS">提交</n-button>
+      <n-button type="info" block @click="handleUpdateDNS">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
 </template>

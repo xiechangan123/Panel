@@ -1,3 +1,4 @@
+import { $gettext } from '@/utils/gettext'
 import type { RouteType } from '~/types/router'
 
 const Layout = () => import('@/layout/IndexView.vue')
@@ -15,7 +16,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: '应用中心',
+        title: $gettext('Apps'),
         icon: 'mdi:apps',
         role: ['admin'],
         requireAuth: true
