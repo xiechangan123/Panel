@@ -47,8 +47,6 @@ jobs:
       - name: Compile po files to json
         working-directory: web
         run: pnpm run gettext:compile
-      - name: Clear node_modules
-        run: rm -rf node_modules
       - uses: stefanzweifel/git-auto-commit-action@v5
         name: Commit changes
         with:
