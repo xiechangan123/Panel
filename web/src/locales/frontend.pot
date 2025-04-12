@@ -4191,7 +4191,7 @@ msgid "8888"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:81
-msgid "Security Entrance"
+msgid "Access Entrance"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:84
