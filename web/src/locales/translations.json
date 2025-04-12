@@ -1,11 +1,1 @@
-{
-  "en": {
-    "Saved successfully": "Saved successfully",
-    "Save": "Save",
-    "Certificate": "Certificate",
-    "Private Key": "Private Key",
-    "Panel HTTPS": "Panel HTTPS"
-  },
-  "zh_CN": {},
-  "zh_TW": {}
-}
+{"en":{"Saved successfully":"Saved successfully","Save":"Save","Certificate":"Certificate","Private Key":"Private Key","Panel HTTPS":"Panel HTTPS"},"zh_CN":{},"zh_TW":{}}
