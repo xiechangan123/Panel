@@ -955,10 +955,6 @@ msgstr ""
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
-#: internal/data/website.go:755
-msgid "cannot one-key obtain wildcard certificate"
-msgstr ""
-
 #: internal/data/database_server.go:106
 #: internal/data/database_server.go:86
 msgid "check server connection failed"
@@ -1377,6 +1373,10 @@ msgstr ""
 
 #: internal/data/database.go:185
 msgid "mysql not support database comment"
+msgstr ""
+
+#: internal/data/website.go:755
+msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
 #: internal/service/file.go:174
