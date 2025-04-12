@@ -219,7 +219,7 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if io.IsDir(item.Source) && strings.HasPrefix(item.Target, item.Source) {
-			Error(w, http.StatusForbidden, s.t.Get("you can't do this, it will be broken"))
+			Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
 			return
 		}
 
@@ -248,7 +248,7 @@ func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if io.IsDir(item.Source) && strings.HasPrefix(item.Target, item.Source) {
-			Error(w, http.StatusForbidden, s.t.Get("you can't do this, it will be broken"))
+			Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
 			return
 		}
 
