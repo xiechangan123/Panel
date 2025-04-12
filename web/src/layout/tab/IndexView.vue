@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { TabItem } from '@/store'
 import { useTabStore } from '@/store'
+import { translateTitle } from '@/utils'
 import ContextMenu from './components/ContextMenu.vue'
 
 const router = useRouter()
@@ -64,7 +65,7 @@ async function handleContextMenu(e: MouseEvent, tabItem: TabItem) {
         @click="handleTagClick(item.path)"
         @contextmenu.prevent="handleContextMenu($event, item)"
       >
-        {{ item.title! }}
+        {{ translateTitle(String(item.title)) }}
       </n-tab>
     </n-tabs>
     <ContextMenu

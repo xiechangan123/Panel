@@ -5,6 +5,7 @@ import { useGettext } from 'vue3-gettext'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import MenuCollapse from '@/layout/header/components/MenuCollapse.vue'
 import { usePermissionStore, useThemeStore } from '@/store'
+import { translateTitle } from '@/utils'
 import type { RouteType } from '~/types/router'
 
 const { $gettext } = useGettext()
@@ -15,7 +16,7 @@ const settingModal = ref(false)
 
 const getOption = (route: RouteType): TreeSelectOption => {
   let menuItem: TreeSelectOption = {
-    label: route.meta?.title ? route.meta.title : route.name,
+    label: route.meta?.title ? translateTitle(route.meta.title) : route.name,
     key: route.name
   }
 
@@ -28,7 +29,9 @@ const getOption = (route: RouteType): TreeSelectOption => {
   if (visibleChildren.length === 1) {
     // 单个子路由处理
     const singleRoute = visibleChildren[0]
-    menuItem.label = singleRoute.meta?.title ? singleRoute.meta.title : singleRoute.name
+    menuItem.label = singleRoute.meta?.title
+      ? translateTitle(singleRoute.meta.title)
+      : singleRoute.name
     const visibleItems = singleRoute.children
       ? singleRoute.children.filter((item: RouteType) => item.name && !item.isHidden)
       : []

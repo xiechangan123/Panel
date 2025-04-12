@@ -1,4 +1,3 @@
-import { $gettext } from '@/utils/gettext'
 import type { RouteType } from '~/types/router'
 
 const Layout = () => import('@/layout/IndexView.vue')
@@ -17,7 +16,7 @@ export default {
       path: 'dashboard',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: $gettext('Dashboard'),
+        title: 'Dashboard',
         icon: 'mdi:gauge',
         role: ['admin'],
         requireAuth: true
@@ -29,7 +28,7 @@ export default {
       component: () => import('./UpdateView.vue'),
       isHidden: true,
       meta: {
-        title: $gettext('Update'),
+        title: 'Update',
         icon: 'mdi:archive-arrow-up-outline',
         role: ['admin'],
         requireAuth: true

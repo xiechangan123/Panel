@@ -1,4 +1,3 @@
-import { $gettext } from '@/utils/gettext'
 import type { RouteType } from '~/types/router'
 
 const Layout = () => import('@/layout/IndexView.vue')
@@ -14,7 +13,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: $gettext('S3FS'),
+        title: 'S3fs',
         icon: 'logos:aws',
         role: ['admin'],
         requireAuth: true

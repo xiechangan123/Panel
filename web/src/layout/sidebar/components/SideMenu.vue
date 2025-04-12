@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { usePermissionStore, useTabStore, useThemeStore } from '@/store'
-import { isUrl, renderIcon } from '@/utils'
+import { isUrl, renderIcon, translateTitle } from '@/utils'
 import type { MenuInst, MenuOption } from 'naive-ui'
 import type { VNodeChild } from 'vue'
 import type { Meta, RouteType } from '~/types/router'
@@ -38,7 +38,7 @@ type MenuItem = MenuOption & {
 
 function getMenuItem(route: RouteType, basePath = ''): MenuItem {
   let menuItem: MenuItem = {
-    label: route.meta?.title ? route.meta.title : route.name,
+    label: route.meta?.title ? translateTitle(route.meta.title) : route.name,
     key: route.name,
     path: resolvePath(basePath, route.path),
     icon: getIcon(route.meta)
@@ -54,7 +54,7 @@ function getMenuItem(route: RouteType, basePath = ''): MenuItem {
     // 单个子路由处理
     const singleRoute = visibleChildren[0]
     menuItem = {
-      label: singleRoute.meta?.title ? singleRoute.meta.title : singleRoute.name,
+      label: singleRoute.meta?.title ? translateTitle(singleRoute.meta.title) : singleRoute.name,
       key: singleRoute.name,
       path: resolvePath(menuItem.path, singleRoute.path),
       icon: getIcon(singleRoute.meta)

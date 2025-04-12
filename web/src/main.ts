@@ -8,7 +8,7 @@ import App from './App.vue'
 
 import { setupRouter } from '@/router'
 import { setupStore, useThemeStore } from '@/store'
-import { gettext, setupNaiveDiscreteApi } from '@/utils'
+import { gettext, setCurrent, setupNaiveDiscreteApi } from '@/utils'
 
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 
@@ -37,12 +37,14 @@ async function setupApp() {
 
 const setupPanel = async () => {
   const themeStore = useThemeStore()
+  setCurrent(themeStore.locale)
   useRequest(dashboard.panel, {
     initialData: {
       name: import.meta.env.VITE_APP_TITLE,
       locale: 'zh_CN'
     }
   }).onSuccess(({ data }: { data: any }) => {
+    setCurrent(data.locale)
     themeStore.setLocale(data.locale)
     themeStore.setName(data.name)
   })

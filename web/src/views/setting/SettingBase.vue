@@ -37,16 +37,14 @@ const locales = computed(() => {
 const handleSave = () => {
   useRequest(setting.update(model.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
-    setTimeout(() => {
-      maybeHardReload()
-    }, 1000)
+    if (model.value.locale !== themeStore.locale) {
+      themeStore.setLocale(model.value.locale)
+      window.$message.info($gettext('Panel is restarting, page will refresh in 3 seconds'))
+      setTimeout(() => {
+        window.location.reload()
+      }, 3000)
+    }
   })
-}
-
-const maybeHardReload = () => {
-  if (model.value.locale !== themeStore.locale) {
-    window.location.reload()
-  }
 }
 </script>
 
