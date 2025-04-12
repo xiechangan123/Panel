@@ -32,6 +32,14 @@ msgstr ""
 msgid "Active connections"
 msgstr ""
 
+#: internal/route/cli.go:199
+msgid "Add database server"
+msgstr ""
+
+#: internal/route/cli.go:417
+msgid "Add panel application mark (use only under guidance)"
+msgstr ""
+
 #: internal/service/cert.go:60
 msgid "Aliyun"
 msgstr ""
@@ -72,10 +80,38 @@ msgstr ""
 msgid "Application Pool"
 msgstr ""
 
+#: internal/route/cli.go:398
+msgid "Application management"
+msgstr ""
+
+#: internal/route/cli.go:275
+msgid "Backup database"
+msgstr ""
+
+#: internal/route/cli.go:335
+msgid "Backup directory (default path if not filled)"
+msgstr ""
+
 #: internal/service/cli.go:544
 #: internal/service/cli.go:560
 #: internal/service/cli.go:574
 msgid "Backup failed: %v"
+msgstr ""
+
+#: internal/route/cli.go:323
+msgid "Backup file"
+msgstr ""
+
+#: internal/route/cli.go:299
+msgid "Backup panel"
+msgstr ""
+
+#: internal/route/cli.go:317
+msgid "Backup type"
+msgstr ""
+
+#: internal/route/cli.go:257
+msgid "Backup website"
 msgstr ""
 
 #: internal/apps/mysql/app.go:120
@@ -109,6 +145,18 @@ msgstr ""
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
+#: internal/route/cli.go:119
+msgid "Change panel port"
+msgstr ""
+
+#: internal/route/cli.go:75
+msgid "Change user password"
+msgstr ""
+
+#: internal/route/cli.go:70
+msgid "Change username"
+msgstr ""
+
 #: internal/service/cli.go:598
 msgid "Cleaning failed: %v"
 msgstr ""
@@ -123,6 +171,18 @@ msgstr ""
 
 #: internal/data/backup.go:193
 msgid "Cleanup failed: %v"
+msgstr ""
+
+#: internal/route/cli.go:311
+msgid "Clear backups"
+msgstr ""
+
+#: internal/route/cli.go:461
+msgid "Clear panel task queue (use only under guidance)"
+msgstr ""
+
+#: internal/route/cli.go:366
+msgid "Clear rotated logs"
 msgstr ""
 
 #: internal/service/cert.go:104
@@ -141,6 +201,10 @@ msgstr ""
 msgid "Connected Clients"
 msgstr ""
 
+#: internal/route/cli.go:128
+msgid "Create new website"
+msgstr ""
+
 #: internal/service/cli.go:632
 msgid "Currently only website log rotation is supported"
 msgstr ""
@@ -150,8 +214,20 @@ msgstr ""
 msgid "DESCRIPTION"
 msgstr ""
 
+#: internal/route/cli.go:253
+msgid "Data backup"
+msgstr ""
+
 #: internal/service/cli.go:117
 msgid "Data synchronized successfully"
+msgstr ""
+
+#: internal/route/cli.go:195
+msgid "Database management"
+msgstr ""
+
+#: internal/route/cli.go:287
+msgid "Database name"
 msgstr ""
 
 #: internal/service/cli.go:519
@@ -160,6 +236,26 @@ msgstr ""
 
 #: internal/service/cli.go:533
 msgid "Database server %s deleted successfully"
+msgstr ""
+
+#: internal/route/cli.go:281
+msgid "Database type"
+msgstr ""
+
+#: internal/route/cli.go:238
+msgid "Delete database server"
+msgstr ""
+
+#: internal/route/cli.go:174
+msgid "Delete website (including website directory, database with the same name)"
+msgstr ""
+
+#: internal/route/cli.go:91
+msgid "Disable HTTPS"
+msgstr ""
+
+#: internal/route/cli.go:112
+msgid "Disable access entrance"
 msgstr ""
 
 #: internal/service/cli.go:103
@@ -181,6 +277,14 @@ msgstr ""
 
 #: internal/service/cert.go:108
 msgid "Duck DNS"
+msgstr ""
+
+#: internal/route/cli.go:86
+msgid "Enable HTTPS"
+msgstr ""
+
+#: internal/route/cli.go:107
+msgid "Enable access entrance"
 msgstr ""
 
 #: internal/apps/php/app.go:382
@@ -295,6 +399,10 @@ msgstr ""
 msgid "Files are normal and do not need to be repaired, please run panel-cli update to update the panel"
 msgstr ""
 
+#: internal/route/cli.go:51
+msgid "Fix panel"
+msgstr ""
+
 #: internal/bootstrap/cli.go:34
 msgid "Forum：https://bbs.haozi.net"
 msgstr ""
@@ -317,6 +425,14 @@ msgstr ""
 
 #: internal/service/cert.go:84
 msgid "Gcore"
+msgstr ""
+
+#: internal/route/cli.go:96
+msgid "Generate HTTPS certificate"
+msgstr ""
+
+#: internal/route/cli.go:436
+msgid "Get panel setting (use only under guidance)"
 msgstr ""
 
 #: internal/apps/php/app.go:417
@@ -386,6 +502,10 @@ msgstr ""
 msgid "Initialization failed: %v"
 msgstr ""
 
+#: internal/route/cli.go:467
+msgid "Initialize panel (use only under guidance)"
+msgstr ""
+
 #: internal/apps/mysql/app.go:124
 msgid "Innodb Index Hit Rate"
 msgstr ""
@@ -396,6 +516,10 @@ msgstr ""
 
 #: internal/data/app.go:191
 msgid "Install app %s"
+msgstr ""
+
+#: internal/route/cli.go:402
+msgid "Install application"
 msgstr ""
 
 #: internal/data/backup.go:510
@@ -427,6 +551,18 @@ msgstr ""
 msgid "Linode"
 msgstr ""
 
+#: internal/route/cli.go:65
+msgid "List all users"
+msgstr ""
+
+#: internal/route/cli.go:139
+msgid "List of domains associated with the website"
+msgstr ""
+
+#: internal/route/cli.go:145
+msgid "List of listening addresses associated with the website"
+msgstr ""
+
 #: internal/apps/php/app.go:131
 msgid "Listen Queue"
 msgstr ""
@@ -441,6 +577,10 @@ msgstr ""
 
 #: internal/service/cli.go:171
 msgid "Local IPv6: %s://[%s]:%s%s"
+msgstr ""
+
+#: internal/route/cli.go:343
+msgid "Log rotation"
 msgstr ""
 
 #: internal/apps/php/app.go:137
@@ -518,6 +658,14 @@ msgstr ""
 msgid "Not used"
 msgstr ""
 
+#: internal/route/cli.go:329
+msgid "Number of backups to keep"
+msgstr ""
+
+#: internal/route/cli.go:384
+msgid "Number of logs to keep"
+msgstr ""
+
 #: internal/bootstrap/cli.go:26
 #: internal/bootstrap/cli.go:31
 msgid "OPTIONS"
@@ -533,6 +681,26 @@ msgstr ""
 
 #: internal/apps/mysql/app.go:126
 msgid "Open Tables"
+msgstr ""
+
+#: internal/route/cli.go:82
+msgid "Operate panel HTTPS"
+msgstr ""
+
+#: internal/route/cli.go:103
+msgid "Operate panel access entrance"
+msgstr ""
+
+#: internal/route/cli.go:61
+msgid "Operate panel users"
+msgstr ""
+
+#: internal/route/cli.go:56
+msgid "Output panel basic information and generate new password"
+msgstr ""
+
+#: internal/route/cli.go:155
+msgid "PHP version used by the website (not used if not filled)"
 msgstr ""
 
 #: internal/service/cli.go:73
@@ -568,6 +736,10 @@ msgstr ""
 
 #: internal/service/cli.go:161
 msgid "Password: %s"
+msgstr ""
+
+#: internal/route/cli.go:151
+msgid "Path where the website is hosted (default path if not filled)"
 msgstr ""
 
 #: internal/apps/mysql/app.go:122
@@ -650,12 +822,40 @@ msgstr ""
 msgid "Readline is a library for processing text"
 msgstr ""
 
+#: internal/route/cli.go:423
+msgid "Remove panel application mark (use only under guidance)"
+msgstr ""
+
 #: internal/data/backup.go:640
 msgid "Remove panel file failed: %v"
 msgstr ""
 
+#: internal/route/cli.go:448
+msgid "Remove panel setting (use only under guidance)"
+msgstr ""
+
+#: internal/route/cli.go:161
+msgid "Remove website"
+msgstr ""
+
+#: internal/route/cli.go:26
+msgid "Restart panel service"
+msgstr ""
+
 #: internal/apps/mysql/app.go:118
 msgid "Rollbacks per Second"
+msgstr ""
+
+#: internal/route/cli.go:390
+msgid "Rotation directory (default path if not filled)"
+msgstr ""
+
+#: internal/route/cli.go:378
+msgid "Rotation file"
+msgstr ""
+
+#: internal/route/cli.go:372
+msgid "Rotation type"
 msgstr ""
 
 #: internal/apps/php/app.go:372
@@ -664,6 +864,46 @@ msgstr ""
 
 #: internal/apps/php/app.go:357
 msgid "SSH2 is a library for connecting to SSH servers"
+msgstr ""
+
+#: internal/route/cli.go:269
+#: internal/route/cli.go:293
+#: internal/route/cli.go:305
+#: internal/route/cli.go:360
+msgid "Save directory (default path if not filled)"
+msgstr ""
+
+#: internal/route/cli.go:214
+msgid "Server address"
+msgstr ""
+
+#: internal/route/cli.go:209
+#: internal/route/cli.go:243
+msgid "Server name"
+msgstr ""
+
+#: internal/route/cli.go:228
+msgid "Server password"
+msgstr ""
+
+#: internal/route/cli.go:219
+msgid "Server port"
+msgstr ""
+
+#: internal/route/cli.go:232
+msgid "Server remark"
+msgstr ""
+
+#: internal/route/cli.go:204
+msgid "Server type"
+msgstr ""
+
+#: internal/route/cli.go:224
+msgid "Server username"
+msgstr ""
+
+#: internal/route/cli.go:431
+msgid "Setting management"
 msgstr ""
 
 #: internal/service/cli.go:769
@@ -683,6 +923,14 @@ msgstr ""
 msgid "Start Time"
 msgstr ""
 
+#: internal/route/cli.go:36
+msgid "Start panel service"
+msgstr ""
+
+#: internal/route/cli.go:31
+msgid "Stop panel service"
+msgstr ""
+
 #: internal/apps/postgresql/app.go:144
 msgid "Storage Usage"
 msgstr ""
@@ -697,6 +945,14 @@ msgstr ""
 
 #: internal/apps/php/app.go:486
 msgid "Swow is a PHP extension for building high-performance asynchronous concurrent servers"
+msgstr ""
+
+#: internal/route/cli.go:46
+msgid "Sync panel data"
+msgstr ""
+
+#: internal/route/cli.go:456
+msgid "Sync system time"
 msgstr ""
 
 #: internal/apps/php/app.go:457
@@ -807,6 +1063,10 @@ msgstr ""
 msgid "Uninstall app %s"
 msgstr ""
 
+#: internal/route/cli.go:407
+msgid "Uninstall application"
+msgstr ""
+
 #: internal/data/backup.go:631
 msgid "Unzip backup file failed: %v"
 msgstr ""
@@ -817,6 +1077,14 @@ msgstr ""
 
 #: internal/data/app.go:301
 msgid "Update app %s"
+msgstr ""
+
+#: internal/route/cli.go:412
+msgid "Update application"
+msgstr ""
+
+#: internal/route/cli.go:41
+msgid "Update panel"
 msgstr ""
 
 #: internal/apps/mysql/app.go:114
@@ -864,6 +1132,10 @@ msgstr ""
 msgid "Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"
 msgstr ""
 
+#: internal/route/cli.go:347
+msgid "Website"
+msgstr ""
+
 #: internal/service/cli.go:459
 msgid "Website %s created successfully"
 msgstr ""
@@ -876,6 +1148,18 @@ msgstr ""
 msgid "Website %s removed successfully"
 msgstr ""
 
+#: internal/route/cli.go:124
+msgid "Website management"
+msgstr ""
+
+#: internal/route/cli.go:133
+#: internal/route/cli.go:166
+#: internal/route/cli.go:179
+#: internal/route/cli.go:263
+#: internal/route/cli.go:353
+msgid "Website name"
+msgstr ""
+
 #: internal/bootstrap/cli.go:33
 msgid "Website：https://panel.haozi.net"
 msgstr ""
@@ -886,6 +1170,14 @@ msgstr ""
 
 #: internal/apps/nginx/app.go:102
 msgid "Workers"
+msgstr ""
+
+#: internal/route/cli.go:442
+msgid "Write panel setting (use only under guidance)"
+msgstr ""
+
+#: internal/route/cli.go:187
+msgid "Write website data (use only under guidance)"
 msgstr ""
 
 #: internal/apps/nginx/app.go:148
