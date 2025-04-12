@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -31,6 +32,7 @@ import (
 )
 
 type websiteRepo struct {
+	t              *gotext.Locale
 	db             *gorm.DB
 	cache          biz.CacheRepo
 	database       biz.DatabaseRepo
@@ -40,8 +42,9 @@ type websiteRepo struct {
 	certAccount    biz.CertAccountRepo
 }
 
-func NewWebsiteRepo(db *gorm.DB, cache biz.CacheRepo, database biz.DatabaseRepo, databaseServer biz.DatabaseServerRepo, databaseUser biz.DatabaseUserRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) biz.WebsiteRepo {
+func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, cache biz.CacheRepo, database biz.DatabaseRepo, databaseServer biz.DatabaseServerRepo, databaseUser biz.DatabaseUserRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) biz.WebsiteRepo {
 	return &websiteRepo{
+		t:              t,
 		db:             db,
 		cache:          cache,
 		database:       database,
@@ -263,7 +266,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/rewrite", req.Name+".conf"))
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/acme", req.Name+".conf"))
-	comments = append(comments, []string{"# 伪静态规则"})
+	comments = append(comments, []string{r.t.Get("# 伪静态规则")})
 	comments = append(comments, []string{"# acme http-01"})
 	if err = p.SetIncludes(includes, comments); err != nil {
 		return nil, err
@@ -287,7 +290,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		index, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "index.html"))
 	}
 	if err != nil {
-		return nil, fmt.Errorf("获取index模板文件失败: %w", err)
+		return nil, errors.New(r.t.Get("failed to get index template file: %v", err))
 	}
 	if err = io.Write(filepath.Join(req.Path, "index.html"), string(index), 0644); err != nil {
 		return nil, err
@@ -299,7 +302,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404.html"))
 	}
 	if err != nil {
-		return nil, fmt.Errorf("获取404模板文件失败: %w", err)
+		return nil, errors.New(r.t.Get("failed to get 404 template file: %v", err))
 	}
 	if err = io.Write(filepath.Join(req.Path, "404.html"), string(notFound), 0644); err != nil {
 		return nil, err
@@ -363,7 +366,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	if req.DB {
 		server, err := r.databaseServer.GetByName(name)
 		if err != nil {
-			return nil, fmt.Errorf(`create database: can't find %s database server, please add it first`, name)
+			return nil, errors.New(r.t.Get("can't find %s database server, please add it first", name))
 		}
 		if err = r.database.Create(&request.DatabaseCreate{
 			ServerID:   server.ID,
@@ -385,9 +388,6 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	website := new(biz.Website)
 	if err := r.db.Where("id", req.ID).First(website).Error; err != nil {
 		return err
-	}
-	if !website.Status {
-		return errors.New("网站已停用，请先启用")
 	}
 
 	// 解析nginx配置
@@ -444,14 +444,14 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	}
 	// 运行目录
 	if !io.Exists(req.Root) {
-		return errors.New("运行目录不存在")
+		return errors.New(r.t.Get("runtime directory does not exist"))
 	}
 	if err = p.SetRoot(req.Root); err != nil {
 		return err
 	}
 	// 运行目录
 	if !io.Exists(req.Path) {
-		return errors.New("网站目录不存在")
+		return errors.New(r.t.Get("website directory does not exist"))
 	}
 	website.Path = req.Path
 	// PHP
@@ -549,7 +549,7 @@ func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
 		return err
 	}
 	if website.Cert != nil {
-		return errors.New("网站" + website.Name + "已绑定证书，请先删除证书")
+		return errors.New(r.t.Get("website %s has bound certificates, please delete the certificate first", website.Name))
 	}
 
 	_ = io.Remove(filepath.Join(app.Root, "server/vhost", website.Name+".conf"))
@@ -632,7 +632,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 	}
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"))
 	includes = append(includes, filepath.Join(app.Root, "server/vhost/acme", website.Name+".conf"))
-	comments = append(comments, []string{"# 伪静态规则"})
+	comments = append(comments, []string{r.t.Get("# 伪静态规则")})
 	comments = append(comments, []string{"# acme http-01"})
 	if err = p.SetIncludes(includes, comments); err != nil {
 		return err
@@ -698,23 +698,23 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 
 	if status {
 		if len(rootComment) == 0 {
-			return fmt.Errorf("未找到运行目录注释")
+			return errors.New(r.t.Get("runtime directory comment not found"))
 		}
 		if len(rootComment) != 1 {
-			return fmt.Errorf("运行目录注释数量不正确，预期1个，实际%d个", len(rootComment))
+			return errors.New(r.t.Get("runtime directory comment count is incorrect, expected 1, actual %d", len(rootComment)))
 		}
 		rootComment[0] = strings.TrimPrefix(rootComment[0], "# ")
 		if !io.Exists(rootComment[0]) {
-			return fmt.Errorf("运行目录不存在")
+			return errors.New(r.t.Get("runtime directory does not exist"))
 		}
 		if err = p.SetRoot(rootComment[0]); err != nil {
 			return err
 		}
 		if len(indexComment) == 0 {
-			return fmt.Errorf("未找到默认文档注释")
+			return errors.New(r.t.Get("default document comment not found"))
 		}
 		if len(indexComment) != 1 {
-			return fmt.Errorf("默认文档注释数量不正确，预期1个，实际%d个", len(indexComment))
+			return errors.New(r.t.Get("default document comment count is incorrect, expected 1, actual %d", len(indexComment)))
 		}
 		indexComment[0] = strings.TrimPrefix(indexComment[0], "# ")
 		if err = p.SetIndex(strings.Fields(indexComment[0])); err != nil {
@@ -752,7 +752,7 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 		return err
 	}
 	if slices.Contains(website.Domains, "*") {
-		return errors.New("cannot one-key obtain wildcard certificate")
+		return errors.New(r.t.Get("cannot one-key obtain wildcard certificate"))
 	}
 
 	account, err := r.certAccount.GetDefault(cast.ToUint(ctx.Value("user_id")))
