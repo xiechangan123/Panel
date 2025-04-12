@@ -145,10 +145,10 @@ const handleStart = async () => {
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
     await systemctl.enable('pure-ftpd')
-    window.$message.success($gettext('Auto-start enabled successfully'))
+    window.$message.success($gettext('Autostart enabled successfully'))
   } else {
     await systemctl.disable('pure-ftpd')
-    window.$message.success($gettext('Auto-start disabled successfully'))
+    window.$message.success($gettext('Autostart disabled successfully'))
   }
   await getIsEnabled()
 }
@@ -226,8 +226,8 @@ onMounted(() => {
           <n-card :title="$gettext('Running Status')">
             <template #header-extra>
               <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> {{ $gettext('Auto-start On') }} </template>
-                <template #unchecked> {{ $gettext('Auto-start Off') }} </template>
+                <template #checked> {{ $gettext('Autostart On') }} </template>
+                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
               </n-switch>
             </template>
             <n-space vertical>
