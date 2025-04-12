@@ -224,7 +224,11 @@ func (r *websiteRepo) List(page, limit uint) ([]*biz.Website, int64, error) {
 
 func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	// 初始化nginx配置
-	p, err := nginx.NewParser()
+	config := nginx.DefaultConf
+	if app.Locale == "zh_CN" {
+		config = nginx.DefaultConfZh
+	}
+	p, err := nginx.NewParser(config)
 	if err != nil {
 		return nil, err
 	}
@@ -609,7 +613,11 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 	}
 
 	// 初始化nginx配置
-	p, err := nginx.NewParser()
+	config := nginx.DefaultConf
+	if app.Locale == "zh_CN" {
+		config = nginx.DefaultConfZh
+	}
+	p, err := nginx.NewParser(config)
 	if err != nil {
 		return err
 	}

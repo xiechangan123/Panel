@@ -18,7 +18,7 @@ type Parser struct {
 
 func NewParser(str ...string) (*Parser, error) {
 	if len(str) == 0 {
-		str = append(str, defaultConf)
+		str = append(str, DefaultConf)
 	}
 	p := parser.NewStringParser(str[0], parser.WithSkipIncludeParsingErr(), parser.WithSkipValidDirectivesErr())
 	c, err := p.Parse()
