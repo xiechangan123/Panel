@@ -1,5 +1,5 @@
 import type { GlobalThemeOverrides, NDateLocale, NLocale } from 'naive-ui'
-import { darkTheme, dateEnUS, dateZhCN, enUS, zhCN } from 'naive-ui'
+import { darkTheme, dateEnUS, dateJaJP, dateZhCN, dateZhTW, enUS, jaJP, zhCN, zhTW } from 'naive-ui'
 import type { BuiltInGlobalTheme } from 'naive-ui/es/themes/interface'
 
 import { defaultSettings, getNaiveThemeOverrides } from './helpers'
@@ -7,8 +7,10 @@ import { defaultSettings, getNaiveThemeOverrides } from './helpers'
 type ThemeState = Theme.Setting
 
 const locales: Record<string, { locale: NLocale; dateLocale: NDateLocale }> = {
+  en: { locale: enUS, dateLocale: dateEnUS },
   zh_CN: { locale: zhCN, dateLocale: dateZhCN },
-  en: { locale: enUS, dateLocale: dateEnUS }
+  zh_TW: { locale: zhTW, dateLocale: dateZhTW },
+  ja_JP: { locale: jaJP, dateLocale: dateJaJP }
 }
 
 export const useThemeStore = defineStore('theme', {

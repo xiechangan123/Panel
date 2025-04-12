@@ -27,8 +27,8 @@ const config = ref({
 
 const statusStr = computed(() => {
   return {
-    frpc: status.value.frpc ? $gettext('Running normally') : $gettext('Stopped'),
-    frps: status.value.frps ? $gettext('Running normally') : $gettext('Stopped')
+    frpc: status.value.frpc ? $gettext('Running') : $gettext('Stopped'),
+    frps: status.value.frps ? $gettext('Running') : $gettext('Stopped')
   }
 })
 

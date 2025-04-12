@@ -166,7 +166,7 @@ const columns: any = [
   {
     title: $gettext('Auto Renew'),
     key: 'auto_renew',
-    width: 100,
+    width: 120,
     align: 'center',
     resizable: true,
     render(row: any) {

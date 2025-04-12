@@ -17,7 +17,7 @@ const isEnabled = ref(false)
 const env = ref('')
 
 const statusStr = computed(() => {
-  return status.value ? $gettext('Running normally') : $gettext('Stopped')
+  return status.value ? $gettext('Running') : $gettext('Stopped')
 })
 
 const getStatus = async () => {

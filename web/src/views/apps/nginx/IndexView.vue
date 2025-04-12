@@ -30,7 +30,7 @@ const statusType = computed(() => {
 })
 
 const statusStr = computed(() => {
-  return status.value ? $gettext('Running normally') : $gettext('Stopped')
+  return status.value ? $gettext('Running') : $gettext('Stopped')
 })
 
 const columns: any = [

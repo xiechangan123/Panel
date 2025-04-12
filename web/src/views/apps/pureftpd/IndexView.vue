@@ -22,7 +22,7 @@ const statusType = computed(() => {
   return status.value ? 'success' : 'error'
 })
 const statusStr = computed(() => {
-  return status.value ? $gettext('Running normally') : $gettext('Stopped')
+  return status.value ? $gettext('Running') : $gettext('Stopped')
 })
 
 const addUserModel = ref({

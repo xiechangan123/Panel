@@ -18,7 +18,7 @@ const registryConfig = ref('')
 const storageConfig = ref('')
 
 const statusStr = computed(() => {
-  return status.value ? $gettext('Running normally') : $gettext('Stopped')
+  return status.value ? $gettext('Running') : $gettext('Stopped')
 })
 
 const getStatus = async () => {

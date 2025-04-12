@@ -22,7 +22,7 @@ const { data: config } = useRequest(docker.getConfig, {
 })
 
 const statusStr = computed(() => {
-  return status.value ? $gettext('Running normally') : $gettext('Stopped')
+  return status.value ? $gettext('Running') : $gettext('Stopped')
 })
 
 const getStatus = async () => {

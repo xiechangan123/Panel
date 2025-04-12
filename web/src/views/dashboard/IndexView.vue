@@ -159,7 +159,10 @@ const chartOptions = computed(() => {
     },
     legend: {
       align: 'left',
-      data: chartType.value == 'net' ? [$gettext('Send'), $gettext('Receive')] : [$gettext('Read'), $gettext('Write')]
+      data:
+        chartType.value == 'net'
+          ? [$gettext('Send'), $gettext('Receive')]
+          : [$gettext('Read'), $gettext('Write')]
     },
     xAxis: {
       type: 'category',
