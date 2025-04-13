@@ -16,7 +16,7 @@ msgstr ""
 msgid "AUTHOR"
 msgstr ""
 
-#: internal/apps/php/app.go:130
+#: internal/apps/php/app.go:131
 msgid "Accepted Connections"
 msgstr ""
 
@@ -24,7 +24,7 @@ msgstr ""
 msgid "Active Connections"
 msgstr ""
 
-#: internal/apps/php/app.go:135
+#: internal/apps/php/app.go:136
 msgid "Active Processes"
 msgstr ""
 
@@ -76,7 +76,7 @@ msgstr ""
 msgid "App update failed: %v"
 msgstr ""
 
-#: internal/apps/php/app.go:127
+#: internal/apps/php/app.go:128
 msgid "Application Pool"
 msgstr ""
 
@@ -124,7 +124,7 @@ msgstr ""
 msgid "Bytes Sent"
 msgstr ""
 
-#: internal/apps/php/app.go:352
+#: internal/apps/php/app.go:353
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr ""
 
@@ -141,7 +141,7 @@ msgstr ""
 msgid "COPYRIGHT"
 msgstr ""
 
-#: internal/apps/php/app.go:392
+#: internal/apps/php/app.go:393
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
@@ -287,7 +287,7 @@ msgstr ""
 msgid "Enable access entrance"
 msgstr ""
 
-#: internal/apps/php/app.go:382
+#: internal/apps/php/app.go:383
 msgid "Enchant is a spell-checking library"
 msgstr ""
 
@@ -304,11 +304,11 @@ msgstr ""
 msgid "Entrance: %s"
 msgstr ""
 
-#: internal/apps/php/app.go:362
+#: internal/apps/php/app.go:363
 msgid "Event is a library for handling events"
 msgstr ""
 
-#: internal/apps/php/app.go:317
+#: internal/apps/php/app.go:318
 msgid "Exif is a library for reading and writing image metadata"
 msgstr ""
 
@@ -391,7 +391,7 @@ msgstr ""
 msgid "Failed to synchronize rewrite rules: %v"
 msgstr ""
 
-#: internal/apps/php/app.go:287
+#: internal/apps/php/app.go:288
 msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "GLOBAL OPTIONS"
 msgstr ""
 
-#: internal/apps/php/app.go:397
+#: internal/apps/php/app.go:398
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
@@ -435,7 +435,7 @@ msgstr ""
 msgid "Get panel setting (use only under guidance)"
 msgstr ""
 
-#: internal/apps/php/app.go:417
+#: internal/apps/php/app.go:418
 msgid "Gettext is a library for handling multilingual support"
 msgstr ""
 
@@ -467,11 +467,11 @@ msgstr ""
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr ""
 
-#: internal/apps/php/app.go:342
+#: internal/apps/php/app.go:343
 msgid "IMAP extension allows PHP to read, search, delete, download, and manage emails"
 msgstr ""
 
-#: internal/apps/php/app.go:134
+#: internal/apps/php/app.go:135
 msgid "Idle Processes"
 msgstr ""
 
@@ -483,11 +483,11 @@ msgstr ""
 msgid "If you still cannot access, try running panel-cli https off to turn off panel HTTPS"
 msgstr ""
 
-#: internal/apps/php/app.go:297
+#: internal/apps/php/app.go:298
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/apps/php/app.go:312
+#: internal/apps/php/app.go:313
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
@@ -510,7 +510,7 @@ msgstr ""
 msgid "Innodb Index Hit Rate"
 msgstr ""
 
-#: internal/apps/php/app.go:239
+#: internal/apps/php/app.go:240
 msgid "Install PHP-%d %s extension"
 msgstr ""
 
@@ -527,7 +527,7 @@ msgstr ""
 msgid "Insufficient backup directory space"
 msgstr ""
 
-#: internal/apps/php/app.go:412
+#: internal/apps/php/app.go:413
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
 
@@ -539,7 +539,7 @@ msgstr ""
 msgid "Keyspace Misses"
 msgstr ""
 
-#: internal/apps/php/app.go:377
+#: internal/apps/php/app.go:378
 msgid "LDAP is a protocol for accessing directory services"
 msgstr ""
 
@@ -563,11 +563,11 @@ msgstr ""
 msgid "List of listening addresses associated with the website"
 msgstr ""
 
-#: internal/apps/php/app.go:131
+#: internal/apps/php/app.go:132
 msgid "Listen Queue"
 msgstr ""
 
-#: internal/apps/php/app.go:133
+#: internal/apps/php/app.go:134
 msgid "Listen Queue Length"
 msgstr ""
 
@@ -583,19 +583,19 @@ msgstr ""
 msgid "Log rotation"
 msgstr ""
 
-#: internal/apps/php/app.go:137
+#: internal/apps/php/app.go:138
 msgid "Max Active Processes"
 msgstr ""
 
-#: internal/apps/php/app.go:138
+#: internal/apps/php/app.go:139
 msgid "Max Children Reached"
 msgstr ""
 
-#: internal/apps/php/app.go:132
+#: internal/apps/php/app.go:133
 msgid "Max Listen Queue"
 msgstr ""
 
-#: internal/apps/php/app.go:307
+#: internal/apps/php/app.go:308
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr ""
 
@@ -671,7 +671,7 @@ msgstr ""
 msgid "OPTIONS"
 msgstr ""
 
-#: internal/apps/php/app.go:292
+#: internal/apps/php/app.go:293
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr ""
 
@@ -750,7 +750,7 @@ msgstr ""
 msgid "Peak Memory Usage"
 msgstr ""
 
-#: internal/apps/php/app.go:302
+#: internal/apps/php/app.go:303
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary extension installed above)"
 msgstr ""
 
@@ -782,7 +782,7 @@ msgstr ""
 msgid "Process Count"
 msgstr ""
 
-#: internal/apps/php/app.go:128
+#: internal/apps/php/app.go:129
 msgid "Process Manager"
 msgstr ""
 
@@ -790,7 +790,7 @@ msgstr ""
 msgid "Process PID"
 msgstr ""
 
-#: internal/apps/php/app.go:387
+#: internal/apps/php/app.go:388
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
@@ -818,7 +818,7 @@ msgstr ""
 msgid "Reading"
 msgstr ""
 
-#: internal/apps/php/app.go:367
+#: internal/apps/php/app.go:368
 msgid "Readline is a library for processing text"
 msgstr ""
 
@@ -858,11 +858,11 @@ msgstr ""
 msgid "Rotation type"
 msgstr ""
 
-#: internal/apps/php/app.go:372
+#: internal/apps/php/app.go:373
 msgid "SNMP is a protocol for network management"
 msgstr ""
 
-#: internal/apps/php/app.go:357
+#: internal/apps/php/app.go:358
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
 
@@ -910,7 +910,7 @@ msgstr ""
 msgid "Setting not exists"
 msgstr ""
 
-#: internal/apps/php/app.go:139
+#: internal/apps/php/app.go:140
 msgid "Slow Requests"
 msgstr ""
 
@@ -918,7 +918,7 @@ msgstr ""
 msgid "Sort Merge Passes"
 msgstr ""
 
-#: internal/apps/php/app.go:129
+#: internal/apps/php/app.go:130
 #: internal/apps/postgresql/app.go:140
 msgid "Start Time"
 msgstr ""
@@ -939,11 +939,11 @@ msgstr ""
 msgid "Subqueries without Index"
 msgstr ""
 
-#: internal/apps/php/app.go:477
+#: internal/apps/php/app.go:478
 msgid "Swoole is a PHP extension for building high-performance asynchronous concurrent servers"
 msgstr ""
 
-#: internal/apps/php/app.go:486
+#: internal/apps/php/app.go:487
 msgid "Swow is a PHP extension for building high-performance asynchronous concurrent servers"
 msgstr ""
 
@@ -955,15 +955,15 @@ msgstr ""
 msgid "Sync system time"
 msgstr ""
 
-#: internal/apps/php/app.go:457
+#: internal/apps/php/app.go:458
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr ""
 
-#: internal/apps/php/app.go:462
+#: internal/apps/php/app.go:463
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr ""
 
-#: internal/apps/php/app.go:467
+#: internal/apps/php/app.go:468
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
@@ -1020,7 +1020,7 @@ msgstr ""
 msgid "Total Memory Usage"
 msgstr ""
 
-#: internal/apps/php/app.go:136
+#: internal/apps/php/app.go:137
 msgid "Total Processes"
 msgstr ""
 
@@ -1055,7 +1055,7 @@ msgstr ""
 msgid "Unable to update app list cache in offline mode"
 msgstr ""
 
-#: internal/apps/php/app.go:270
+#: internal/apps/php/app.go:271
 msgid "Uninstall PHP-%d %s extension"
 msgstr ""
 
@@ -1184,15 +1184,15 @@ msgstr ""
 msgid "Writing"
 msgstr ""
 
-#: internal/apps/php/app.go:402
+#: internal/apps/php/app.go:403
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr ""
 
-#: internal/apps/php/app.go:407
+#: internal/apps/php/app.go:408
 msgid "XSL is a library for processing XML documents"
 msgstr ""
 
-#: internal/apps/php/app.go:347
+#: internal/apps/php/app.go:348
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
@@ -1299,8 +1299,8 @@ msgstr ""
 msgid "endpoint should not contain bucket"
 msgstr ""
 
-#: internal/apps/php/app.go:228
-#: internal/apps/php/app.go:259
+#: internal/apps/php/app.go:229
+#: internal/apps/php/app.go:260
 msgid "extension %s does not exist"
 msgstr ""
 
@@ -1618,7 +1618,7 @@ msgstr ""
 msgid "file is too large, please download it to view"
 msgstr ""
 
-#: internal/apps/php/app.go:422
+#: internal/apps/php/app.go:423
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr ""
 
@@ -1630,7 +1630,7 @@ msgstr ""
 msgid "invalid key, please refresh the page"
 msgstr ""
 
-#: internal/apps/php/app.go:472
+#: internal/apps/php/app.go:473
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
@@ -1675,15 +1675,15 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/apps/php/app.go:327
+#: internal/apps/php/app.go:328
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
-#: internal/apps/php/app.go:337
+#: internal/apps/php/app.go:338
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr ""
 
-#: internal/apps/php/app.go:322
+#: internal/apps/php/app.go:323
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
@@ -1710,11 +1710,11 @@ msgstr ""
 msgid "port is already in use"
 msgstr ""
 
-#: internal/apps/php/app.go:427
+#: internal/apps/php/app.go:428
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/apps/php/app.go:432
+#: internal/apps/php/app.go:433
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
@@ -1739,7 +1739,7 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/apps/php/app.go:332
+#: internal/apps/php/app.go:333
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
@@ -1847,19 +1847,19 @@ msgstr ""
 msgid "write file error: %v"
 msgstr ""
 
-#: internal/apps/php/app.go:442
+#: internal/apps/php/app.go:443
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr ""
 
-#: internal/apps/php/app.go:437
+#: internal/apps/php/app.go:438
 msgid "xhprof is a library for performance profiling"
 msgstr ""
 
-#: internal/apps/php/app.go:447
+#: internal/apps/php/app.go:448
 msgid "yaml is a library for handling YAML"
 msgstr ""
 
-#: internal/apps/php/app.go:452
+#: internal/apps/php/app.go:453
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 
