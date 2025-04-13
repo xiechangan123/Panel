@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import { translateTitle } from '@/locales/menu'
 import { usePermissionStore, useTabStore, useThemeStore } from '@/store'
-import { isUrl, renderIcon, translateTitle } from '@/utils'
+import { isUrl, renderIcon } from '@/utils'
+
 import type { MenuInst, MenuOption } from 'naive-ui'
 import type { VNodeChild } from 'vue'
 import type { Meta, RouteType } from '~/types/router'

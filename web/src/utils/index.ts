@@ -1,3 +1,4 @@
+export { translateTitle } from '@/locales/menu'
 export * from './auth'
 export * from './common'
 export * from './file'

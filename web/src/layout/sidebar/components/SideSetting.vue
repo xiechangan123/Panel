@@ -4,8 +4,8 @@ import { useGettext } from 'vue3-gettext'
 
 import TheIcon from '@/components/custom/TheIcon.vue'
 import MenuCollapse from '@/layout/header/components/MenuCollapse.vue'
+import { translateTitle } from '@/locales/menu'
 import { usePermissionStore, useThemeStore } from '@/store'
-import { translateTitle } from '@/utils'
 import type { RouteType } from '~/types/router'
 
 const { $gettext } = useGettext()

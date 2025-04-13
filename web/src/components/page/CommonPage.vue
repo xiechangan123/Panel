@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { translateTitle } from '@/utils'
+import { translateTitle } from '@/locales/menu'
 
 interface Props {
   showFooter?: boolean

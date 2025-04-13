@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { translateTitle } from '@/locales/menu'
 import type { TabItem } from '@/store'
 import { useTabStore } from '@/store'
-import { translateTitle } from '@/utils'
 import ContextMenu from './components/ContextMenu.vue'
 
 const router = useRouter()
