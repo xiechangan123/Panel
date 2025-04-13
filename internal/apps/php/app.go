@@ -38,6 +38,7 @@ func (s *App) Route(version uint) func(r chi.Router) {
 	return func(r chi.Router) {
 		php := new(App)
 		php.version = version
+		php.t = s.t
 		php.taskRepo = s.taskRepo
 		r.Post("/setCli", php.SetCli)
 		r.Get("/config", php.GetConfig)
