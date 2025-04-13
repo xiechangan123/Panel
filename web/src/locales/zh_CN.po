@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-04-12 22:48\n"
+"PO-Revision-Date: 2025-04-13 10:32\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
@@ -46,6 +46,7 @@ msgid "Cannot save in current state"
 msgstr "当前状态无法保存"
 
 #: src/components/common/CodeEditor.vue:40
+#: src/views/apps/codeserver/IndexView.vue:37
 #: src/views/apps/docker/IndexView.vue:38
 #: src/views/apps/fail2ban/IndexView.vue:173
 #: src/views/apps/frp/IndexView.vue:53
@@ -367,6 +368,111 @@ msgstr "关闭左侧"
 msgid "Close Right"
 msgstr "关闭右侧"
 
+#: src/locales/menu.ts:7
+msgid "Apps"
+msgstr "应用"
+
+#: src/locales/menu.ts:8
+msgid "Backup"
+msgstr "备份"
+
+#: src/locales/menu.ts:9
+#: src/views/cert/CertView.vue:497
+#: src/views/cert/CertView.vue:573
+#: src/views/cert/UploadCertModal.vue:38
+#: src/views/setting/SettingHttps.vue:45
+#: src/views/website/EditView.vue:355
+msgid "Certificate"
+msgstr "证书"
+
+#: src/locales/menu.ts:10
+msgid "Container"
+msgstr "容器"
+
+#: src/locales/menu.ts:11
+msgid "Dashboard"
+msgstr "仪表板"
+
+#: src/locales/menu.ts:12
+#: src/views/app/IndexView.vue:96
+#: src/views/dashboard/IndexView.vue:451
+msgid "Update"
+msgstr "更新"
+
+#: src/locales/menu.ts:13
+#: src/views/backup/ListView.vue:264
+#: src/views/dashboard/IndexView.vue:425
+#: src/views/database/IndexView.vue:45
+#: src/views/website/IndexView.vue:444
+msgid "Database"
+msgstr "数据库"
+
+#: src/locales/menu.ts:14
+msgid "Files"
+msgstr "文件"
+
+#: src/locales/menu.ts:15
+msgid "Firewall"
+msgstr "防火墙"
+
+#: src/locales/menu.ts:16
+msgid "Monitoring"
+msgstr "监控"
+
+#: src/locales/menu.ts:17
+#: src/views/firewall/IndexView.vue:28
+msgid "Settings"
+msgstr "设置"
+
+#: src/locales/menu.ts:18
+msgid "Terminal"
+msgstr "终端"
+
+#: src/locales/menu.ts:19
+msgid "Tasks"
+msgstr "任务"
+
+#: src/locales/menu.ts:20
+#: src/views/apps/fail2ban/IndexView.vue:415
+#: src/views/backup/IndexView.vue:37
+#: src/views/backup/ListView.vue:220
+#: src/views/backup/ListView.vue:257
+#: src/views/cert/CertView.vue:466
+#: src/views/cert/CertView.vue:549
+#: src/views/cert/CreateCertModal.vue:90
+#: src/views/dashboard/IndexView.vue:421
+#: src/views/task/CreateModal.vue:130
+msgid "Website"
+msgstr "网站"
+
+#: src/locales/menu.ts:22
+msgid "Fail2ban Manager"
+msgstr "Fail2ban 管理器"
+
+#: src/locales/menu.ts:23
+msgid "S3fs Manager"
+msgstr "S3fs 管理器"
+
+#: src/locales/menu.ts:24
+msgid "Supervisor Manager"
+msgstr "Supervisor 管理器"
+
+#: src/locales/menu.ts:25
+msgid "Rsync Manager"
+msgstr "Rsync 管理器"
+
+#: src/locales/menu.ts:26
+msgid "Frp Manager"
+msgstr "Frp 管理器"
+
+#: src/locales/menu.ts:27
+msgid "Rat Benchmark"
+msgstr "耗子跑分"
+
+#: src/locales/menu.ts:28
+msgid "System Toolbox"
+msgstr "系统工具箱"
+
 #: src/router/routes/index.ts:18
 msgid "Login Page"
 msgstr "登录页面"
@@ -432,11 +538,6 @@ msgstr "操作"
 #: src/views/app/IndexView.vue:83
 msgid "Updating app %{ app } may reset related configurations to default state, are you sure to continue?"
 msgstr "更新应用 %{ app } 可能会将相关配置重置为默认状态，您确定要继续吗？"
-
-#: src/views/app/IndexView.vue:96
-#: src/views/dashboard/IndexView.vue:451
-msgid "Update"
-msgstr "更新"
 
 #: src/views/app/IndexView.vue:115
 msgid "Manage"
@@ -647,6 +748,7 @@ msgstr "跑分中……"
 msgid "Start Benchmark"
 msgstr "开始跑分"
 
+#: src/views/apps/codeserver/IndexView.vue:20
 #: src/views/apps/docker/IndexView.vue:25
 #: src/views/apps/fail2ban/IndexView.vue:42
 #: src/views/apps/frp/IndexView.vue:30
@@ -668,6 +770,7 @@ msgstr "开始跑分"
 msgid "Running"
 msgstr "运行中"
 
+#: src/views/apps/codeserver/IndexView.vue:20
 #: src/views/apps/docker/IndexView.vue:25
 #: src/views/apps/fail2ban/IndexView.vue:42
 #: src/views/apps/frp/IndexView.vue:30
@@ -688,6 +791,7 @@ msgstr "运行中"
 msgid "Stopped"
 msgstr "已停止"
 
+#: src/views/apps/codeserver/IndexView.vue:43
 #: src/views/apps/docker/IndexView.vue:44
 #: src/views/apps/fail2ban/IndexView.vue:208
 #: src/views/apps/frp/IndexView.vue:60
@@ -707,6 +811,7 @@ msgstr "已停止"
 msgid "Started successfully"
 msgstr "启动成功"
 
+#: src/views/apps/codeserver/IndexView.vue:49
 #: src/views/apps/docker/IndexView.vue:51
 #: src/views/apps/fail2ban/IndexView.vue:225
 #: src/views/apps/frp/IndexView.vue:66
@@ -726,6 +831,7 @@ msgstr "启动成功"
 msgid "Stopped successfully"
 msgstr "停止成功"
 
+#: src/views/apps/codeserver/IndexView.vue:55
 #: src/views/apps/docker/IndexView.vue:58
 #: src/views/apps/fail2ban/IndexView.vue:231
 #: src/views/apps/frp/IndexView.vue:72
@@ -745,6 +851,7 @@ msgstr "停止成功"
 msgid "Restarted successfully"
 msgstr "重启成功"
 
+#: src/views/apps/codeserver/IndexView.vue:62
 #: src/views/apps/docker/IndexView.vue:66
 #: src/views/apps/fail2ban/IndexView.vue:215
 #: src/views/apps/frp/IndexView.vue:79
@@ -763,6 +870,7 @@ msgstr "重启成功"
 msgid "Autostart enabled successfully"
 msgstr "自启动已成功启用"
 
+#: src/views/apps/codeserver/IndexView.vue:65
 #: src/views/apps/docker/IndexView.vue:69
 #: src/views/apps/fail2ban/IndexView.vue:218
 #: src/views/apps/frp/IndexView.vue:82
@@ -781,6 +889,7 @@ msgstr "自启动已成功启用"
 msgid "Autostart disabled successfully"
 msgstr "自启动已成功禁用"
 
+#: src/views/apps/codeserver/IndexView.vue:87
 #: src/views/apps/docker/IndexView.vue:90
 #: src/views/apps/frp/IndexView.vue:135
 #: src/views/apps/frp/IndexView.vue:191
@@ -813,6 +922,8 @@ msgstr "自启动已成功禁用"
 msgid "Save"
 msgstr "保存"
 
+#: src/views/apps/codeserver/IndexView.vue:91
+#: src/views/apps/codeserver/IndexView.vue:92
 #: src/views/apps/docker/IndexView.vue:94
 #: src/views/apps/docker/IndexView.vue:96
 #: src/views/apps/fail2ban/IndexView.vue:306
@@ -847,6 +958,7 @@ msgstr "保存"
 msgid "Running Status"
 msgstr "运行状态"
 
+#: src/views/apps/codeserver/IndexView.vue:95
 #: src/views/apps/docker/IndexView.vue:99
 #: src/views/apps/fail2ban/IndexView.vue:311
 #: src/views/apps/frp/IndexView.vue:102
@@ -866,6 +978,7 @@ msgstr "运行状态"
 msgid "Autostart On"
 msgstr "自启动开启"
 
+#: src/views/apps/codeserver/IndexView.vue:96
 #: src/views/apps/docker/IndexView.vue:100
 #: src/views/apps/fail2ban/IndexView.vue:312
 #: src/views/apps/frp/IndexView.vue:103
@@ -885,6 +998,7 @@ msgstr "自启动开启"
 msgid "Autostart Off"
 msgstr "自启动关闭"
 
+#: src/views/apps/codeserver/IndexView.vue:106
 #: src/views/apps/docker/IndexView.vue:110
 #: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/apps/frp/IndexView.vue:113
@@ -908,6 +1022,7 @@ msgstr "自启动关闭"
 msgid "Start"
 msgstr "启动"
 
+#: src/views/apps/codeserver/IndexView.vue:112
 #: src/views/apps/docker/IndexView.vue:116
 #: src/views/apps/fail2ban/IndexView.vue:328
 #: src/views/apps/frp/IndexView.vue:119
@@ -931,10 +1046,11 @@ msgstr "启动"
 msgid "Stop"
 msgstr "停止"
 
-#: src/views/apps/docker/IndexView.vue:119
-msgid "Are you sure you want to stop Docker?"
-msgstr "您确定要停止 Docker 吗？"
+#: src/views/apps/codeserver/IndexView.vue:115
+msgid "Are you sure you want to stop Code Server?"
+msgstr "您确定要停止 Code Server 吗？"
 
+#: src/views/apps/codeserver/IndexView.vue:119
 #: src/views/apps/docker/IndexView.vue:123
 #: src/views/apps/fail2ban/IndexView.vue:339
 #: src/views/apps/frp/IndexView.vue:126
@@ -958,15 +1074,21 @@ msgstr "您确定要停止 Docker 吗？"
 msgid "Restart"
 msgstr "重启"
 
-#: src/views/apps/docker/IndexView.vue:130
-#: src/views/website/EditView.vue:401
-msgid "Configuration"
-msgstr "配置"
+#: src/views/apps/codeserver/IndexView.vue:125
+#: src/views/apps/frp/IndexView.vue:131
+#: src/views/apps/frp/IndexView.vue:187
+#: src/views/apps/gitea/IndexView.vue:125
+#: src/views/apps/mysql/IndexView.vue:204
+#: src/views/apps/nginx/IndexView.vue:178
+#: src/views/apps/phpmyadmin/IndexView.vue:84
+msgid "Modify Configuration"
+msgstr "修改配置"
 
-#: src/views/apps/docker/IndexView.vue:133
-msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
-msgstr "这将修改 Docker 配置文件 (/etc/docker/daemon.json)"
+#: src/views/apps/codeserver/IndexView.vue:129
+msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
+msgstr "这将修改 Code Server 配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
+#: src/views/apps/codeserver/IndexView.vue:148
 #: src/views/apps/docker/IndexView.vue:149
 #: src/views/apps/fail2ban/IndexView.vue:382
 #: src/views/apps/gitea/IndexView.vue:148
@@ -982,6 +1104,19 @@ msgstr "这将修改 Docker 配置文件 (/etc/docker/daemon.json)"
 #: src/views/apps/supervisor/IndexView.vue:471
 msgid "Runtime Logs"
 msgstr "运行日志"
+
+#: src/views/apps/docker/IndexView.vue:119
+msgid "Are you sure you want to stop Docker?"
+msgstr "您确定要停止 Docker 吗？"
+
+#: src/views/apps/docker/IndexView.vue:130
+#: src/views/website/EditView.vue:401
+msgid "Configuration"
+msgstr "配置"
+
+#: src/views/apps/docker/IndexView.vue:133
+msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
+msgstr "这将修改 Docker 配置文件 (/etc/docker/daemon.json)"
 
 #: src/views/apps/fail2ban/IndexView.vue:53
 #: src/views/apps/phpmyadmin/IndexView.vue:71
@@ -1157,18 +1292,6 @@ msgstr "受保护的端口会自动获取。如果您修改了某个规则对应
 msgid "Type"
 msgstr "类型"
 
-#: src/views/apps/fail2ban/IndexView.vue:415
-#: src/views/backup/IndexView.vue:37
-#: src/views/backup/ListView.vue:220
-#: src/views/backup/ListView.vue:257
-#: src/views/cert/CertView.vue:466
-#: src/views/cert/CertView.vue:549
-#: src/views/cert/CreateCertModal.vue:90
-#: src/views/dashboard/IndexView.vue:421
-#: src/views/task/CreateModal.vue:130
-msgid "Website"
-msgstr "网站"
-
 #: src/views/apps/fail2ban/IndexView.vue:416
 #: src/views/apps/fail2ban/IndexView.vue:447
 msgid "Service"
@@ -1219,15 +1342,6 @@ msgstr "封禁列表"
 #: src/views/apps/frp/IndexView.vue:122
 msgid "Are you sure you want to stop Frps?"
 msgstr "您确定要停止 Frps 吗？"
-
-#: src/views/apps/frp/IndexView.vue:131
-#: src/views/apps/frp/IndexView.vue:187
-#: src/views/apps/gitea/IndexView.vue:125
-#: src/views/apps/mysql/IndexView.vue:204
-#: src/views/apps/nginx/IndexView.vue:178
-#: src/views/apps/phpmyadmin/IndexView.vue:84
-msgid "Modify Configuration"
-msgstr "修改配置"
 
 #: src/views/apps/frp/IndexView.vue:178
 msgid "Are you sure you want to stop Frpc?"
@@ -1290,7 +1404,7 @@ msgstr "环境变量"
 
 #: src/views/apps/minio/IndexView.vue:124
 msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
-msgstr "这是修改 Minio 环境变量文件 /etc/default/minio。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 Minio 环境变量文件 /etc/default/minio。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/mysql/IndexView.vue:70
 #: src/views/apps/mysql/IndexView.vue:76
@@ -1358,7 +1472,7 @@ msgstr "停止 OpenResty 将导致所有网站无法访问。您确定要停止�
 
 #: src/views/apps/nginx/IndexView.vue:182
 msgid "This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 OpenResty 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 OpenResty 主配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/nginx/IndexView.vue:214
 #: src/views/apps/php/PhpView.vue:401
@@ -1481,7 +1595,7 @@ msgstr "停止 PostgreSQL 将导致使用 PostgreSQL 的网站无法访问。您
 
 #: src/views/apps/postgresql/IndexView.vue:193
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 PostgreSQL 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 PostgreSQL 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/postgresql/IndexView.vue:212
 msgid "User Configuration"
@@ -1489,7 +1603,7 @@ msgstr "用户配置"
 
 #: src/views/apps/postgresql/IndexView.vue:216
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 PostgreSQL 用户配置文件。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 PostgreSQL 用户配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/pureftpd/IndexView.vue:41
 #: src/views/apps/pureftpd/IndexView.vue:304
@@ -1791,7 +1905,7 @@ msgstr "进程列表"
 
 #: src/views/apps/supervisor/IndexView.vue:452
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
-msgstr "这会修改 Supervisor 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
+msgstr "这将修改 Supervisor 主配置文件。如果您不了解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/supervisor/IndexView.vue:474
 msgid "Daemon Logs"
@@ -1960,13 +2074,6 @@ msgstr "留空以使用默认路径"
 #: src/views/backup/ListView.vue:249
 msgid "Restore Backup"
 msgstr "恢复备份"
-
-#: src/views/backup/ListView.vue:264
-#: src/views/dashboard/IndexView.vue:425
-#: src/views/database/IndexView.vue:45
-#: src/views/website/IndexView.vue:444
-msgid "Database"
-msgstr "数据库"
 
 #: src/views/backup/UploadModal.vue:20
 msgid "Upload %{ filename } successfully"
@@ -2179,14 +2286,6 @@ msgstr "DNS"
 #: src/views/cert/CreateCertModal.vue:109
 msgid "Select DNS for certificate issuance"
 msgstr "选择用于证书颁发的 DNS"
-
-#: src/views/cert/CertView.vue:497
-#: src/views/cert/CertView.vue:573
-#: src/views/cert/UploadCertModal.vue:38
-#: src/views/setting/SettingHttps.vue:45
-#: src/views/website/EditView.vue:355
-msgid "Certificate"
-msgstr "证书"
 
 #: src/views/cert/CertView.vue:502
 #: src/views/cert/UploadCertModal.vue:42
@@ -3892,10 +3991,6 @@ msgstr "IP 规则"
 msgid "Port Forwarding"
 msgstr "端口转发"
 
-#: src/views/firewall/IndexView.vue:28
-msgid "Settings"
-msgstr "设置"
-
 #: src/views/firewall/IpRuleView.vue:75
 #: src/views/firewall/RuleView.vue:109
 msgid "Mark"
@@ -4043,7 +4138,7 @@ msgstr "基本"
 
 #: src/views/setting/SettingBase.vue:42
 msgid "Panel is restarting, page will refresh in 3 seconds"
-msgstr ""
+msgstr "面板正在重启，页面将在 3 秒后刷新"
 
 #: src/views/setting/SettingBase.vue:55
 msgid "Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!"
