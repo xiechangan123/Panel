@@ -435,11 +435,31 @@ msgid "Website"
 msgstr ""
 
 #: src/locales/menu.ts:22
-msgid "Rat Benchmark"
+msgid "Fail2ban Manager"
 msgstr ""
 
 #: src/locales/menu.ts:23
-msgid "Toolbox"
+msgid "S3fs Manager"
+msgstr ""
+
+#: src/locales/menu.ts:24
+msgid "Supervisor Manager"
+msgstr ""
+
+#: src/locales/menu.ts:25
+msgid "Rsync Manager"
+msgstr ""
+
+#: src/locales/menu.ts:26
+msgid "Frp Manager"
+msgstr ""
+
+#: src/locales/menu.ts:27
+msgid "Rat Benchmark"
+msgstr ""
+
+#: src/locales/menu.ts:28
+msgid "System Toolbox"
 msgstr ""
 
 #: src/router/routes/index.ts:18
