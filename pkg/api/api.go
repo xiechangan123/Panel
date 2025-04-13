@@ -11,8 +11,8 @@ import (
 )
 
 type API struct {
-	panelVersion, locale string
-	client               *resty.Client
+	panelVersion string
+	client       *resty.Client
 }
 
 type Response struct {
