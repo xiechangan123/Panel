@@ -18,6 +18,7 @@ export function translateTitle(key: string): string {
     Terminal: $gettext('Terminal'),
     Tasks: $gettext('Tasks'),
     Website: $gettext('Website'),
+    'Website Edit': $gettext('Website Edit'),
     // 应用标题
     'Fail2ban Manager': $gettext('Fail2ban Manager'),
     'S3fs Manager': $gettext('S3fs Manager'),

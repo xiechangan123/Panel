@@ -27,7 +27,7 @@ export default {
       component: () => import('./EditView.vue'),
       isHidden: true,
       meta: {
-        title: 'Website Status',
+        title: 'Website Edit',
         icon: 'mdi:web',
         role: ['admin'],
         requireAuth: true
