@@ -21,11 +21,11 @@ const statusStr = computed(() => {
 })
 
 const getStatus = async () => {
-  status.value = await systemctl.status('codeserver')
+  status.value = await systemctl.status('code-server')
 }
 
 const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled('codeserver')
+  isEnabled.value = await systemctl.isEnabled('code-server')
 }
 
 const getConfig = async () => {
@@ -39,29 +39,29 @@ const handleSaveConfig = () => {
 }
 
 const handleStart = async () => {
-  await systemctl.start('codeserver')
+  await systemctl.start('code-server')
   window.$message.success($gettext('Started successfully'))
   await getStatus()
 }
 
 const handleStop = async () => {
-  await systemctl.stop('codeserver')
+  await systemctl.stop('code-server')
   window.$message.success($gettext('Stopped successfully'))
   await getStatus()
 }
 
 const handleRestart = async () => {
-  await systemctl.restart('codeserver')
+  await systemctl.restart('code-server')
   window.$message.success($gettext('Restarted successfully'))
   await getStatus()
 }
 
 const handleIsEnabled = async () => {
   if (isEnabled.value) {
-    await systemctl.enable('codeserver')
+    await systemctl.enable('code-server')
     window.$message.success($gettext('Autostart enabled successfully'))
   } else {
-    await systemctl.disable('codeserver')
+    await systemctl.disable('code-server')
     window.$message.success($gettext('Autostart disabled successfully'))
   }
   await getIsEnabled()
@@ -146,7 +146,7 @@ onMounted(() => {
         </n-space>
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <realtime-log service="codeserver" />
+        <realtime-log service="code-server" />
       </n-tab-pane>
     </n-tabs>
   </common-page>
