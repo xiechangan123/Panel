@@ -435,31 +435,35 @@ msgstr ""
 msgid "Website"
 msgstr ""
 
-#: src/locales/menu.ts:22
-msgid "Fail2ban Manager"
+#: src/locales/menu.ts:21
+msgid "Website Edit"
 msgstr ""
 
 #: src/locales/menu.ts:23
-msgid "S3fs Manager"
+msgid "Fail2ban Manager"
 msgstr ""
 
 #: src/locales/menu.ts:24
-msgid "Supervisor Manager"
+msgid "S3fs Manager"
 msgstr ""
 
 #: src/locales/menu.ts:25
-msgid "Rsync Manager"
+msgid "Supervisor Manager"
 msgstr ""
 
 #: src/locales/menu.ts:26
-msgid "Frp Manager"
+msgid "Rsync Manager"
 msgstr ""
 
 #: src/locales/menu.ts:27
-msgid "Rat Benchmark"
+msgid "Frp Manager"
 msgstr ""
 
 #: src/locales/menu.ts:28
+msgid "Rat Benchmark"
+msgstr ""
+
+#: src/locales/menu.ts:29
 msgid "System Toolbox"
 msgstr ""
 
