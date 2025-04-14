@@ -2,6 +2,7 @@ package nginx
 
 import (
 	"errors"
+	"fmt"
 	"slices"
 	"strings"
 
@@ -49,7 +50,7 @@ func (p *Parser) Find(key string) ([]config.IDirective, error) {
 		key = parts[i]
 		directives := block.FindDirectives(key)
 		if len(directives) == 0 {
-			return nil, errors.New("given key not found")
+			return nil, fmt.Errorf("given key %s not found", key)
 		}
 		if len(directives) > 1 {
 			return nil, errors.New("multiple directives found")
@@ -78,7 +79,7 @@ func (p *Parser) FindOne(key string) (config.IDirective, error) {
 		return nil, err
 	}
 	if len(directives) == 0 {
-		return nil, errors.New("given key not found")
+		return nil, fmt.Errorf("given key %s not found", key)
 	}
 
 	return directives[0], nil
@@ -97,10 +98,10 @@ func (p *Parser) Clear(key string) error {
 	for i := 0; i < len(parts); i++ {
 		directives := block.FindDirectives(parts[i])
 		if len(directives) == 0 {
-			return errors.New("given key not found")
+			return fmt.Errorf("given key %s not found", parts[i])
 		}
 		if len(directives) > 1 {
-			return errors.New("multiple directives found")
+			return fmt.Errorf("multiple directives found for %s", parts[i])
 		}
 		block, ok = directives[0].GetBlock().(*config.Block)
 		if !ok {
@@ -131,10 +132,10 @@ func (p *Parser) Set(key string, directives []*config.Directive) error {
 	for i := 0; i < len(parts); i++ {
 		sub := block.FindDirectives(parts[i])
 		if len(sub) == 0 {
-			return errors.New("given key not found")
+			return fmt.Errorf("given key %s not found", parts[i])
 		}
 		if len(sub) > 1 {
-			return errors.New("multiple directives found")
+			return fmt.Errorf("multiple directives found for %s", parts[i])
 		}
 		block, ok = sub[0].GetBlock().(*config.Block)
 		if !ok {
