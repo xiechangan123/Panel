@@ -200,7 +200,7 @@ func (r *containerRepo) Rename(id string, newName string) error {
 
 // Logs 查看容器日志
 func (r *containerRepo) Logs(id string) (string, error) {
-	return shell.ExecfWithTimeout(2*time.Minute, "docker logs %s", id)
+	return shell.ExecfWithTimeout(2*time.Minute, "docker logs --tail 100 %s", id)
 }
 
 // Prune 清理未使用的容器
