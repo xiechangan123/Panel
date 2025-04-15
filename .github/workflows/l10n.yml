@@ -44,9 +44,6 @@ jobs:
       - name: Generate pot files and merge po files
         working-directory: web
         run: pnpm run gettext:extract
-      - name: Compile po files to json
-        working-directory: web
-        run: pnpm run gettext:compile
       - uses: stefanzweifel/git-auto-commit-action@v5
         name: Commit changes
         with:
