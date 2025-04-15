@@ -27,8 +27,8 @@ github.com/go-gormigrate/gormigrate/v2 v2.1.4/go.mod h1:y/6gPAH6QGAgP1UfHMiXcqGe
 github.com/go-ole/go-ole v1.2.6/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-ole/go-ole v1.3.0 h1:Dt6ye7+vXGIKZ7Xtk4s6/xVdGDQynvom7xCFEdWr6uE=
 github.com/go-ole/go-ole v1.3.0/go.mod h1:5LS6F96DhAwUc7C+1HLexzMXY1xGRSryjyPPKW6zv78=
-github.com/go-rat/chix v1.1.6 h1:od2EIx8ihNyqUev0G71j0YnVagsTQ0giFCnn9H3qEAw=
-github.com/go-rat/chix v1.1.6/go.mod h1:YQP0YT0x/U3Xx5uQe2jfyMiS/bA732Nunnii6MG0wos=
+github.com/go-rat/chix v1.2.0 h1:/pOkt2S1+VTfyS43EyZ35uVi8vssCPqQg1j/bORIk5M=
+github.com/go-rat/chix v1.2.0/go.mod h1:YQP0YT0x/U3Xx5uQe2jfyMiS/bA732Nunnii6MG0wos=
 github.com/go-rat/gormstore v1.0.6 h1:YxmaY6n3JoTk6o9RXoZ1+cQ6HQL+ayf/6d8D76ydCAc=
 github.com/go-rat/gormstore v1.0.6/go.mod h1:xG/n+Du8baWf7ptiafiHLWBZWVXrYIPC42CsoEbfr4M=
 github.com/go-rat/securecookie v1.1.0 h1:bvwE9n6X3a4eazOIevEvZghkvZ3OpY4BX1cnH/1/x0s=
