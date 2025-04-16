@@ -136,7 +136,7 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	user.Username = str.Random(8)
 	user.Password = hashed
 	if user.Email == "" {
-		user.Email = str.Random(8) + "@example.com"
+		user.Email = str.Random(8) + "@yourdomain.com"
 	}
 
 	if err = s.db.Save(user).Error; err != nil {
