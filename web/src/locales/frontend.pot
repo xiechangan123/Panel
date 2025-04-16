@@ -4158,7 +4158,7 @@ msgid "Certificate Default Email"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:74
-msgid "admin@example.com"
+msgid "admin@yourdomain.com"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:77
