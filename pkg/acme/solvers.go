@@ -41,10 +41,20 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
     return 200 %q;
 }
 `, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
-	if err := os.WriteFile(s.conf, []byte(conf), 0644); err != nil {
-		return fmt.Errorf("failed to write nginx config %q: %w", s.conf, err)
+
+	file, err := os.OpenFile(s.conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open nginx config %q: %w", s.conf, err)
 	}
-	if err := systemctl.Reload("nginx"); err != nil {
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
+
+	if _, err = file.Write([]byte(conf)); err != nil {
+		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
+	}
+
+	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
 		return fmt.Errorf("failed to reload nginx: %w", err)
 	}
@@ -54,8 +64,27 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 
 // CleanUp cleans up the HTTP server if it is the last one to finish.
 func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
-	_ = os.WriteFile(s.conf, []byte{}, 0644)
-	_ = systemctl.Reload("nginx")
+	conf, err := os.ReadFile(s.conf)
+	if err != nil {
+		return fmt.Errorf("failed to read nginx config %q: %w", s.conf, err)
+	}
+
+	target := fmt.Sprintf(`location = %s {
+    default_type text/plain;
+    return 200 %q;
+}
+`, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
+
+	newConf := strings.ReplaceAll(string(conf), target, "")
+	if err = os.WriteFile(s.conf, []byte(newConf), 0644); err != nil {
+		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
+	}
+
+	if err = systemctl.Reload("nginx"); err != nil {
+		_, err = shell.Execf("nginx -t")
+		return fmt.Errorf("failed to reload nginx: %w", err)
+	}
+
 	return nil
 }
 
