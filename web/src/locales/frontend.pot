@@ -802,6 +802,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:159
 #: src/views/apps/supervisor/IndexView.vue:273
 #: src/views/apps/supervisor/IndexView.vue:302
+#: src/views/website/IndexView.vue:237
 msgid "Started successfully"
 msgstr ""
 
@@ -822,6 +823,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:176
 #: src/views/apps/supervisor/IndexView.vue:280
 #: src/views/apps/supervisor/IndexView.vue:309
+#: src/views/website/IndexView.vue:239
 msgid "Stopped successfully"
 msgstr ""
 
@@ -4567,18 +4569,6 @@ msgstr ""
 
 #: src/views/website/IndexView.vue:151
 msgid "Delete local database with the same name"
-msgstr ""
-
-#: src/views/website/IndexView.vue:237
-msgid "Already %{ status }"
-msgstr ""
-
-#: src/views/website/IndexView.vue:238
-msgid "started"
-msgstr ""
-
-#: src/views/website/IndexView.vue:238
-msgid "stopped"
 msgstr ""
 
 #: src/views/website/IndexView.vue:312
