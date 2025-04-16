@@ -233,11 +233,11 @@ const handleStatusChange = (row: any) => {
 
   useRequest(website.status(row.id, !row.status)).onSuccess(() => {
     row.status = !row.status
-    window.$message.success(
-      $gettext('Already %{ status }', {
-        status: row.status ? $gettext('started') : $gettext('stopped')
-      })
-    )
+    if (row.status) {
+      window.$message.success($gettext('Started successfully'))
+    } else {
+      window.$message.success($gettext('Stopped successfully'))
+    }
   })
 }
 
