@@ -85,7 +85,7 @@ const handleSubmit = () => {
     builder += `    resolver 8.8.8.8 ipv6=off;\n    resolver_timeout 10s;\n`
   }
   if (setting.value.cache) {
-    builder += `    proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;\n    proxy_cache cache_one;\n    proxy_cache_key $scheme$host$uri$is_args$args;\n    proxy_cache_valid 200 304 301 302 ${setting.value.cache_time}m;\n    proxy_cache_lock on;\n    proxy_cache_lock_timeout 5s;\n    proxy_cache_lock_age 5s;\n    proxy_cache_background_update on;\n    proxy_cache_use_stale error timeout invalid_header updating http_500 http_502 http_503 http_504;\n    proxy_cache_revalidate on;\n`
+    builder += `    proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;\n    proxy_cache cache_one;\n    proxy_cache_key $scheme$host$uri$is_args$args;\n    proxy_cache_valid 200 304 301 302 ${setting.value.cache_time}m;\n    proxy_cache_lock on;\n    proxy_cache_lock_timeout 5s;\n    proxy_cache_lock_age 5s;\n    proxy_cache_background_update on;\n    proxy_cache_use_stale error timeout invalid_header updating http_500 http_502 http_503 http_504;\n    proxy_cache_revalidate on;\n    add_header X-Cache $upstream_cache_status;\n`
   }
   if (setting.value.no_buffer) {
     builder += `    proxy_buffering off;\n    proxy_request_buffering off;\n`
