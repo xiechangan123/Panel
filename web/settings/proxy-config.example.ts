@@ -3,11 +3,15 @@ const proxyConfigMappings: Record<ProxyType, ProxyConfig[]> = {
     {
       prefix: '/api/ws',
       target: 'ws://localhost:8888/api/ws',
-      secure: false
+      changeOrigin: true,
+      secure: false,
+      ws: true
     },
     {
       prefix: '/api',
-      target: 'http://localhost:8080/api'
+      target: 'http://localhost:8080/api',
+      changeOrigin: true,
+      secure: false
     }
   ],
   test: [

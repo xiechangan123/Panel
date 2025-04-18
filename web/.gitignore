@@ -29,3 +29,6 @@ coverage
 .eslintrc-auto-import.json
 types/components.d.ts
 types/auto-imports.d.ts
+
+# 编译后的翻译文件
+src/locales/translations.json
