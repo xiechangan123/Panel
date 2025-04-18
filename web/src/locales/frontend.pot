@@ -3598,16 +3598,16 @@ msgstr ""
 msgid "Back to Home"
 msgstr ""
 
-#: src/views/file/CompressModal.vue:32
+#: src/views/file/CompressModal.vue:41
 msgid "Compressing..."
 msgstr ""
 
-#: src/views/file/CompressModal.vue:40
+#: src/views/file/CompressModal.vue:49
 msgid "Compressed successfully"
 msgstr ""
 
-#: src/views/file/CompressModal.vue:64
-#: src/views/file/CompressModal.vue:96
+#: src/views/file/CompressModal.vue:73
+#: src/views/file/CompressModal.vue:105
 #: src/views/file/ListTable.vue:75
 #: src/views/file/ListTable.vue:245
 #: src/views/file/ListTable.vue:301
@@ -3615,15 +3615,15 @@ msgstr ""
 msgid "Compress"
 msgstr ""
 
-#: src/views/file/CompressModal.vue:72
+#: src/views/file/CompressModal.vue:81
 msgid "Files to compress"
 msgstr ""
 
-#: src/views/file/CompressModal.vue:75
+#: src/views/file/CompressModal.vue:84
 msgid "Compress to"
 msgstr ""
 
-#: src/views/file/CompressModal.vue:78
+#: src/views/file/CompressModal.vue:87
 msgid "Format"
 msgstr ""
 
