@@ -12,10 +12,19 @@ const selected = defineModel<string[]>('selected', { type: Array, default: () =>
 const format = ref('.zip')
 const loading = ref(false)
 
+// 生成随机文件名
 const generateName = () => {
-  return selected.value.length > 0
-    ? `${getBase(selected.value[0])}-${generateRandomString(6)}${format.value}`
-    : `${path.value}/${generateRandomString(8)}${format.value}`
+  // 如果选择多个文件，文件名为目录名 + 随机字符串，否则就直接文件名 + 随机字符串
+  // 特殊处理根目录，防止出现 //xxx 的情况
+  if (path.value == '/') {
+    return selected.value.length > 1
+      ? `/${generateRandomString(6)}${format.value}`
+      : `${selected.value[0]}-${generateRandomString(6)}${format.value}`
+  }
+  const parts = path.value.split('/')
+  return selected.value.length > 1
+    ? `${path.value}/${parts.pop()}-${generateRandomString(6)}${format.value}`
+    : `${selected.value[0]}-${generateRandomString(6)}${format.value}`
 }
 
 const file = ref(generateName())
