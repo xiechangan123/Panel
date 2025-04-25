@@ -31,12 +31,12 @@ require (
 	github.com/libdns/alidns v1.0.4
 	github.com/libdns/cloudflare v0.1.3
 	github.com/libdns/cloudns v1.0.0
-	github.com/libdns/duckdns v0.2.0
+	github.com/libdns/duckdns v0.3.0
 	github.com/libdns/gcore v0.0.0-20250127070537-4a9d185c9d20
 	github.com/libdns/godaddy v1.0.3
 	github.com/libdns/hetzner v0.0.1
 	github.com/libdns/huaweicloud v0.3.5
-	github.com/libdns/libdns v0.2.3
+	github.com/libdns/libdns v1.0.0-beta.1
 	github.com/libdns/linode v0.4.1
 	github.com/libdns/namecheap v0.0.0-20250228022813-d8b4b66c5072
 	github.com/libdns/namedotcom v0.3.3
@@ -45,7 +45,7 @@ require (
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/libdns/vercel v0.0.2
 	github.com/mholt/acmez/v3 v3.1.2
-	github.com/ncruces/go-sqlite3 v0.25.0
+	github.com/ncruces/go-sqlite3 v0.25.1
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
@@ -55,7 +55,7 @@ require (
 	github.com/spf13/cast v1.7.1
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250225174229-c03497ddaef6
-	github.com/urfave/cli/v3 v3.1.1
+	github.com/urfave/cli/v3 v3.2.0
 	golang.org/x/crypto v0.37.0
 	golang.org/x/net v0.39.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
