@@ -34,8 +34,8 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.SaveConfig)
-	r.Get("/errorLog", s.ErrorLog)
-	r.Post("/clearErrorLog", s.ClearErrorLog)
+	r.Get("/error_log", s.ErrorLog)
+	r.Post("/clear_error_log", s.ClearErrorLog)
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {

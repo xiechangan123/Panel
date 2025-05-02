@@ -19,7 +19,7 @@ export default {
   copy: (paths: any[]): any => http.Post('/file/copy', paths),
   // 远程下载
   remoteDownload: (path: string, url: string): any =>
-    http.Post('/file/remoteDownload', { path, url }),
+    http.Post('/file/remote_download', { path, url }),
   // 获取文件信息
   info: (path: string): any => http.Get('/file/info', { params: { path } }),
   // 修改文件权限
@@ -29,7 +29,7 @@ export default {
   compress: (dir: string, paths: string[], file: string): any =>
     http.Post('/file/compress', { dir, paths, file }),
   // 解压文件
-  unCompress: (file: string, path: string): any => http.Post('/file/unCompress', { file, path }),
+  unCompress: (file: string, path: string): any => http.Post('/file/un_compress', { file, path }),
   // 搜索文件
   search: (path: string, keyword: string, sub: boolean, page: number, limit: number): any =>
     http.Get('/file/search', { params: { path, keyword, sub, page, limit } }),

@@ -2,9 +2,9 @@ import { http } from '@/utils'
 
 export default {
   // CA 供应商列表
-  caProviders: (): any => http.Get('/cert/caProviders'),
+  caProviders: (): any => http.Get('/cert/ca_providers'),
   // DNS 供应商列表
-  dnsProviders: (): any => http.Get('/cert/dnsProviders'),
+  dnsProviders: (): any => http.Get('/cert/dns_providers'),
   // 证书算法列表
   algorithms: (): any => http.Get('/cert/algorithms'),
   // ACME 账号列表
@@ -41,15 +41,15 @@ export default {
   // 证书删除
   certDelete: (id: number): any => http.Delete(`/cert/cert/${id}`),
   // 证书自动签发
-  obtainAuto: (id: number): any => http.Post(`/cert/cert/${id}/obtainAuto`, { id }),
+  obtainAuto: (id: number): any => http.Post(`/cert/cert/${id}/obtain_auto`, { id }),
   // 证书手动签发
-  obtainManual: (id: number): any => http.Post(`/cert/cert/${id}/obtainManual`, { id }),
+  obtainManual: (id: number): any => http.Post(`/cert/cert/${id}/obtain_manual`, { id }),
   // 证书自签名签发
-  obtainSelfSigned: (id: number): any => http.Post(`/cert/cert/${id}/obtainSelfSigned`, { id }),
+  obtainSelfSigned: (id: number): any => http.Post(`/cert/cert/${id}/obtain_self_signed`, { id }),
   // 续签
   renew: (id: number): any => http.Post(`/cert/cert/${id}/renew`, { id }),
   // 获取 DNS 记录
-  manualDNS: (id: number): any => http.Post(`/cert/cert/${id}/manualDNS`, { id }),
+  manualDNS: (id: number): any => http.Post(`/cert/cert/${id}/manual_dns`, { id }),
   // 部署
   deploy: (id: number, website_id: number): any =>
     http.Post(`/cert/cert/${id}/deploy`, { id, website_id })

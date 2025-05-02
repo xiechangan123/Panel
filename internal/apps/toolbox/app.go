@@ -39,12 +39,12 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/timezone", s.GetTimezone)
 	r.Post("/timezone", s.UpdateTimezone)
 	r.Post("/time", s.UpdateTime)
-	r.Post("/syncTime", s.SyncTime)
+	r.Post("/sync_time", s.SyncTime)
 	r.Get("/hostname", s.GetHostname)
 	r.Post("/hostname", s.UpdateHostname)
 	r.Get("/hosts", s.GetHosts)
 	r.Post("/hosts", s.UpdateHosts)
-	r.Post("/rootPassword", s.UpdateRootPassword)
+	r.Post("/root_password", s.UpdateRootPassword)
 }
 
 // GetDNS 获取 DNS 信息

@@ -40,16 +40,16 @@ func (s *App) Route(version uint) func(r chi.Router) {
 		php.version = version
 		php.t = s.t
 		php.taskRepo = s.taskRepo
-		r.Post("/setCli", php.SetCli)
+		r.Post("/set_cli", php.SetCli)
 		r.Get("/config", php.GetConfig)
 		r.Post("/config", php.UpdateConfig)
-		r.Get("/fpmConfig", php.GetFPMConfig)
-		r.Post("/fpmConfig", php.UpdateFPMConfig)
+		r.Get("/fpm_config", php.GetFPMConfig)
+		r.Post("/fpm_config", php.UpdateFPMConfig)
 		r.Get("/load", php.Load)
-		r.Get("/errorLog", php.ErrorLog)
-		r.Get("/slowLog", php.SlowLog)
-		r.Post("/clearErrorLog", php.ClearErrorLog)
-		r.Post("/clearSlowLog", php.ClearSlowLog)
+		r.Get("/error_log", php.ErrorLog)
+		r.Get("/slow_log", php.SlowLog)
+		r.Post("/clear_error_log", php.ClearErrorLog)
+		r.Post("/clear_slow_log", php.ClearSlowLog)
 		r.Get("/extensions", php.ExtensionList)
 		r.Post("/extensions", php.InstallExtension)
 		r.Delete("/extensions", php.UninstallExtension)

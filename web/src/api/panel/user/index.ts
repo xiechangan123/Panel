@@ -13,7 +13,7 @@ export default {
   // 登出
   logout: () => http.Post('/user/logout'),
   // 是否登录
-  isLogin: () => http.Get('/user/isLogin'),
+  isLogin: () => http.Get('/user/is_login'),
   // 获取用户信息
   info: () => http.Get('/user/info')
 }

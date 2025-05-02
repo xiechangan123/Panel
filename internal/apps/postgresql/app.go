@@ -29,11 +29,11 @@ func NewApp(t *gotext.Locale) *App {
 func (s *App) Route(r chi.Router) {
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
-	r.Get("/userConfig", s.GetUserConfig)
-	r.Post("/userConfig", s.UpdateUserConfig)
+	r.Get("/user_config", s.GetUserConfig)
+	r.Post("/user_config", s.UpdateUserConfig)
 	r.Get("/load", s.Load)
 	r.Get("/log", s.Log)
-	r.Post("/clearLog", s.ClearLog)
+	r.Post("/clear_log", s.ClearLog)
 }
 
 // GetConfig 获取配置

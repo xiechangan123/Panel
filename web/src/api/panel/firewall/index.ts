@@ -14,11 +14,11 @@ export default {
   deleteRule: (rule: any): any => http.Delete('/firewall/rule', rule),
   // 获取防火墙IP规则
   ipRules: (page: number, limit: number): any =>
-    http.Get('/firewall/ipRule', { params: { page, limit } }),
+    http.Get('/firewall/ip_rule', { params: { page, limit } }),
   // 创建防火墙IP规则
-  createIpRule: (rule: any): any => http.Post('/firewall/ipRule', rule),
+  createIpRule: (rule: any): any => http.Post('/firewall/ip_rule', rule),
   // 删除防火墙IP规则
-  deleteIpRule: (rule: any): any => http.Delete('/firewall/ipRule', rule),
+  deleteIpRule: (rule: any): any => http.Delete('/firewall/ip_rule', rule),
   // 获取防火墙转发规则
   forwards: (page: number, limit: number): any =>
     http.Get('/firewall/forward', { params: { page, limit } }),

@@ -13,7 +13,7 @@ export default {
   // 解封 IP
   unban: (name: string, ip: string): any => http.Post('/apps/fail2ban/unban', { name, ip }),
   // 获取白名单
-  whitelist: (): any => http.Get('/apps/fail2ban/whiteList'),
+  whitelist: (): any => http.Get('/apps/fail2ban/white_list'),
   // 设置白名单
-  setWhitelist: (ip: string): any => http.Post('/apps/fail2ban/whiteList', { ip })
+  setWhitelist: (ip: string): any => http.Post('/apps/fail2ban/white_list', { ip })
 }

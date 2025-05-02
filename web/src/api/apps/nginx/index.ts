@@ -8,7 +8,7 @@ export default {
   // 保存配置
   saveConfig: (config: string): any => http.Post('/apps/nginx/config', { config }),
   // 获取错误日志
-  errorLog: (): any => http.Get('/apps/nginx/errorLog'),
+  errorLog: (): any => http.Get('/apps/nginx/error_log'),
   // 清空错误日志
-  clearErrorLog: (): any => http.Post('/apps/nginx/clearErrorLog')
+  clearErrorLog: (): any => http.Post('/apps/nginx/clear_error_log')
 }

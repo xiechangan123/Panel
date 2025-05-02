@@ -37,8 +37,8 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/jails", s.Delete)
 	r.Get("/jails/{name}", s.BanList)
 	r.Post("/unban", s.Unban)
-	r.Post("/whiteList", s.SetWhiteList)
-	r.Get("/whiteList", s.GetWhiteList)
+	r.Post("/white_list", s.SetWhiteList)
+	r.Get("/white_list", s.GetWhiteList)
 }
 
 // List 所有规则

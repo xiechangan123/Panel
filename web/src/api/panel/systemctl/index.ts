@@ -4,7 +4,7 @@ export default {
   // 服务状态
   status: (service: string): any => http.Get('/systemctl/status', { params: { service } }),
   // 是否启用服务
-  isEnabled: (service: string): any => http.Get('/systemctl/isEnabled', { params: { service } }),
+  isEnabled: (service: string): any => http.Get('/systemctl/is_enabled', { params: { service } }),
   // 启用服务
   enable: (service: string): any => http.Post('/systemctl/enable', { service }),
   // 禁用服务

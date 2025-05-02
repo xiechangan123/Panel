@@ -8,11 +8,11 @@ export default {
   // 保存配置
   saveConfig: (config: string): any => http.Post('/apps/postgresql/config', { config }),
   // 获取用户配置
-  userConfig: (): any => http.Get('/apps/postgresql/userConfig'),
+  userConfig: (): any => http.Get('/apps/postgresql/user_config'),
   // 保存配置
-  saveUserConfig: (config: string): any => http.Post('/apps/postgresql/userConfig', { config }),
+  saveUserConfig: (config: string): any => http.Post('/apps/postgresql/user_config', { config }),
   // 获取日志
   log: (): any => http.Get('/apps/postgresql/log'),
   // 清空错误日志
-  clearLog: (): any => http.Post('/apps/postgresql/clearLog')
+  clearLog: (): any => http.Post('/apps/postgresql/clear_log')
 }

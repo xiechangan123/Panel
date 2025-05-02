@@ -11,9 +11,9 @@ export default {
   // 更新应用
   update: (slug: string): any => http.Post('/app/update', { slug }),
   // 设置首页显示
-  updateShow: (slug: string, show: boolean): any => http.Post('/app/updateShow', { slug, show }),
+  updateShow: (slug: string, show: boolean): any => http.Post('/app/update_show', { slug, show }),
   // 应用是否已安装
-  isInstalled: (slug: string): any => http.Get('/app/isInstalled', { params: { slug } }),
+  isInstalled: (slug: string): any => http.Get('/app/is_installed', { params: { slug } }),
   // 更新缓存
-  updateCache: (): any => http.Get('/app/updateCache')
+  updateCache: (): any => http.Get('/app/update_cache')
 }

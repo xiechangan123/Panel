@@ -8,13 +8,13 @@ export default {
   // 保存配置
   saveConfig: (config: string): any => http.Post('/apps/mysql/config', { config }),
   // 清空错误日志
-  clearErrorLog: (): any => http.Post('/apps/mysql/clearErrorLog'),
+  clearErrorLog: (): any => http.Post('/apps/mysql/clear_error_log'),
   // 获取慢查询日志
-  slowLog: (): any => http.Get('/apps/mysql/slowLog'),
+  slowLog: (): any => http.Get('/apps/mysql/slow_log'),
   // 清空慢查询日志
-  clearSlowLog: (): any => http.Post('/apps/mysql/clearSlowLog'),
+  clearSlowLog: (): any => http.Post('/apps/mysql/clear_slow_log'),
   // 获取 root 密码
-  rootPassword: (): any => http.Get('/apps/mysql/rootPassword'),
+  rootPassword: (): any => http.Get('/apps/mysql/root_password'),
   // 修改 root 密码
-  setRootPassword: (password: string): any => http.Post('/apps/mysql/rootPassword', { password })
+  setRootPassword: (password: string): any => http.Post('/apps/mysql/root_password', { password })
 }

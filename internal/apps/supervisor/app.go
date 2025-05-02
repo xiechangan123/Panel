@@ -37,7 +37,7 @@ func NewApp(t *gotext.Locale) *App {
 
 func (s *App) Route(r chi.Router) {
 	r.Get("/service", s.Service)
-	r.Post("/clearLog", s.ClearLog)
+	r.Post("/clear_log", s.ClearLog)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
 	r.Get("/processes", s.Processes)
@@ -45,7 +45,7 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/processes/{process}/stop", s.StopProcess)
 	r.Post("/processes/{process}/restart", s.RestartProcess)
 	r.Get("/processes/{process}/log", s.ProcessLog)
-	r.Post("/processes/{process}/clearLog", s.ClearProcessLog)
+	r.Post("/processes/{process}/clear_log", s.ClearProcessLog)
 	r.Get("/processes/{process}", s.ProcessConfig)
 	r.Post("/processes/{process}", s.UpdateProcessConfig)
 	r.Delete("/processes/{process}", s.DeleteProcess)

@@ -16,7 +16,7 @@ export default {
   // 设置时间
   updateTime: (time: string): any => http.Post('/apps/toolbox/time', { time }),
   // 同步时间
-  syncTime: (): any => http.Post('/apps/toolbox/syncTime'),
+  syncTime: (): any => http.Post('/apps/toolbox/sync_time'),
   // 主机名
   hostname: (): any => http.Get('/apps/toolbox/hostname'),
   // Hosts
@@ -27,5 +27,5 @@ export default {
   updateHosts: (hosts: string): any => http.Post('/apps/toolbox/hosts', { hosts }),
   // 设置 Root 密码
   updateRootPassword: (password: string): any =>
-    http.Post('/apps/toolbox/rootPassword', { password })
+    http.Post('/apps/toolbox/root_password', { password })
 }

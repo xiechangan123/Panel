@@ -110,19 +110,19 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/key", route.user.GetKey)
 			r.With(middleware.Throttle(5, time.Minute)).Post("/login", route.user.Login)
 			r.Post("/logout", route.user.Logout)
-			r.Get("/isLogin", route.user.IsLogin)
+			r.Get("/is_login", route.user.IsLogin)
 			r.Get("/info", route.user.Info)
 		})
 
 		r.Route("/dashboard", func(r chi.Router) {
 			r.Get("/panel", route.dashboard.Panel)
-			r.Get("/homeApps", route.dashboard.HomeApps)
+			r.Get("/home_apps", route.dashboard.HomeApps)
 			r.Post("/current", route.dashboard.Current)
-			r.Get("/systemInfo", route.dashboard.SystemInfo)
-			r.Get("/countInfo", route.dashboard.CountInfo)
-			r.Get("/installedDbAndPhp", route.dashboard.InstalledDbAndPhp)
-			r.Get("/checkUpdate", route.dashboard.CheckUpdate)
-			r.Get("/updateInfo", route.dashboard.UpdateInfo)
+			r.Get("/system_info", route.dashboard.SystemInfo)
+			r.Get("/count_info", route.dashboard.CountInfo)
+			r.Get("/installed_db_and_php", route.dashboard.InstalledDbAndPhp)
+			r.Get("/check_update", route.dashboard.CheckUpdate)
+			r.Get("/update_info", route.dashboard.UpdateInfo)
 			r.Post("/update", route.dashboard.Update)
 			r.Post("/restart", route.dashboard.Restart)
 		})
@@ -136,18 +136,18 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/website", func(r chi.Router) {
 			r.Get("/rewrites", route.website.GetRewrites)
-			r.Get("/defaultConfig", route.website.GetDefaultConfig)
-			r.Post("/defaultConfig", route.website.UpdateDefaultConfig)
+			r.Get("/default_config", route.website.GetDefaultConfig)
+			r.Post("/default_config", route.website.UpdateDefaultConfig)
 			r.Get("/", route.website.List)
 			r.Post("/", route.website.Create)
 			r.Get("/{id}", route.website.Get)
 			r.Put("/{id}", route.website.Update)
 			r.Delete("/{id}", route.website.Delete)
 			r.Delete("/{id}/log", route.website.ClearLog)
-			r.Post("/{id}/updateRemark", route.website.UpdateRemark)
-			r.Post("/{id}/resetConfig", route.website.ResetConfig)
+			r.Post("/{id}/update_remark", route.website.UpdateRemark)
+			r.Post("/{id}/reset_config", route.website.ResetConfig)
 			r.Post("/{id}/status", route.website.UpdateStatus)
-			r.Post("/{id}/obtainCert", route.website.ObtainCert)
+			r.Post("/{id}/obtain_cert", route.website.ObtainCert)
 		})
 
 		r.Route("/database", func(r chi.Router) {
@@ -157,7 +157,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/comment", route.database.Comment)
 		})
 
-		r.Route("/databaseServer", func(r chi.Router) {
+		r.Route("/database_server", func(r chi.Router) {
 			r.Get("/", route.databaseServer.List)
 			r.Post("/", route.databaseServer.Create)
 			r.Get("/{id}", route.databaseServer.Get)
@@ -167,7 +167,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/{id}/sync", route.databaseServer.Sync)
 		})
 
-		r.Route("/databaseUser", func(r chi.Router) {
+		r.Route("/database_user", func(r chi.Router) {
 			r.Get("/", route.databaseUser.List)
 			r.Post("/", route.databaseUser.Create)
 			r.Get("/{id}", route.databaseUser.Get)
@@ -185,8 +185,8 @@ func (route *Http) Register(r *chi.Mux) {
 		})
 
 		r.Route("/cert", func(r chi.Router) {
-			r.Get("/caProviders", route.cert.CAProviders)
-			r.Get("/dnsProviders", route.cert.DNSProviders)
+			r.Get("/ca_providers", route.cert.CAProviders)
+			r.Get("/dns_providers", route.cert.DNSProviders)
 			r.Get("/algorithms", route.cert.Algorithms)
 			r.Route("/cert", func(r chi.Router) {
 				r.Get("/", route.cert.List)
@@ -195,11 +195,11 @@ func (route *Http) Register(r *chi.Mux) {
 				r.Put("/{id}", route.cert.Update)
 				r.Get("/{id}", route.cert.Get)
 				r.Delete("/{id}", route.cert.Delete)
-				r.Post("/{id}/obtainAuto", route.cert.ObtainAuto)
-				r.Post("/{id}/obtainManual", route.cert.ObtainManual)
-				r.Post("/{id}/obtainSelfSigned", route.cert.ObtainSelfSigned)
+				r.Post("/{id}/obtain_auto", route.cert.ObtainAuto)
+				r.Post("/{id}/obtain_manual", route.cert.ObtainManual)
+				r.Post("/{id}/obtain_self_signed", route.cert.ObtainSelfSigned)
 				r.Post("/{id}/renew", route.cert.Renew)
-				r.Post("/{id}/manualDNS", route.cert.ManualDNS)
+				r.Post("/{id}/manual_dns", route.cert.ManualDNS)
 				r.Post("/{id}/deploy", route.cert.Deploy)
 			})
 			r.Route("/dns", func(r chi.Router) {
@@ -223,9 +223,9 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/install", route.app.Install)
 			r.Post("/uninstall", route.app.Uninstall)
 			r.Post("/update", route.app.Update)
-			r.Post("/updateShow", route.app.UpdateShow)
-			r.Get("/isInstalled", route.app.IsInstalled)
-			r.Get("/updateCache", route.app.UpdateCache)
+			r.Post("/update_show", route.app.UpdateShow)
+			r.Get("/is_installed", route.app.IsInstalled)
+			r.Get("/update_cache", route.app.UpdateCache)
 		})
 
 		r.Route("/cron", func(r chi.Router) {
@@ -255,9 +255,9 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/rule", route.firewall.GetRules)
 			r.Post("/rule", route.firewall.CreateRule)
 			r.Delete("/rule", route.firewall.DeleteRule)
-			r.Get("/ipRule", route.firewall.GetIPRules)
-			r.Post("/ipRule", route.firewall.CreateIPRule)
-			r.Delete("/ipRule", route.firewall.DeleteIPRule)
+			r.Get("/ip_rule", route.firewall.GetIPRules)
+			r.Post("/ip_rule", route.firewall.CreateIPRule)
+			r.Delete("/ip_rule", route.firewall.DeleteIPRule)
 			r.Get("/forward", route.firewall.GetForwards)
 			r.Post("/forward", route.firewall.CreateForward)
 			r.Delete("/forward", route.firewall.DeleteForward)
@@ -326,11 +326,11 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/move", route.file.Move)
 			r.Post("/copy", route.file.Copy)
 			r.Get("/download", route.file.Download)
-			r.Post("/remoteDownload", route.file.RemoteDownload)
+			r.Post("/remote_download", route.file.RemoteDownload)
 			r.Get("/info", route.file.Info)
 			r.Post("/permission", route.file.Permission)
 			r.Post("/compress", route.file.Compress)
-			r.Post("/unCompress", route.file.UnCompress)
+			r.Post("/un_compress", route.file.UnCompress)
 			r.Get("/search", route.file.Search)
 			r.Get("/list", route.file.List)
 		})
@@ -349,7 +349,7 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/systemctl", func(r chi.Router) {
 			r.Get("/status", route.systemctl.Status)
-			r.Get("/isEnabled", route.systemctl.IsEnabled)
+			r.Get("/is_enabled", route.systemctl.IsEnabled)
 			r.Post("/enable", route.systemctl.Enable)
 			r.Post("/disable", route.systemctl.Disable)
 			r.Post("/restart", route.systemctl.Restart)

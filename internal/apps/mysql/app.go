@@ -37,11 +37,11 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
-	r.Post("/clearErrorLog", s.ClearErrorLog)
-	r.Get("/slowLog", s.SlowLog)
-	r.Post("/clearSlowLog", s.ClearSlowLog)
-	r.Get("/rootPassword", s.GetRootPassword)
-	r.Post("/rootPassword", s.SetRootPassword)
+	r.Post("/clear_error_log", s.ClearErrorLog)
+	r.Get("/slow_log", s.SlowLog)
+	r.Post("/clear_slow_log", s.ClearSlowLog)
+	r.Get("/root_password", s.GetRootPassword)
+	r.Post("/root_password", s.SetRootPassword)
 }
 
 // GetConfig 获取配置

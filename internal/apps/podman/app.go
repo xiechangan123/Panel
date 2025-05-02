@@ -17,10 +17,10 @@ func NewApp() *App {
 }
 
 func (s *App) Route(r chi.Router) {
-	r.Get("/registryConfig", s.GetRegistryConfig)
-	r.Post("/registryConfig", s.UpdateRegistryConfig)
-	r.Get("/storageConfig", s.GetStorageConfig)
-	r.Post("/storageConfig", s.UpdateStorageConfig)
+	r.Get("/registry_config", s.GetRegistryConfig)
+	r.Post("/registry_config", s.UpdateRegistryConfig)
+	r.Get("/storage_config", s.GetStorageConfig)
+	r.Post("/storage_config", s.UpdateStorageConfig)
 }
 
 func (s *App) GetRegistryConfig(w http.ResponseWriter, r *http.Request) {

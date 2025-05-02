@@ -11,10 +11,10 @@ export default {
   // 伪静态
   rewrites: (): any => http.Get(`/website/rewrites`),
   // 获取默认配置
-  defaultConfig: (): any => http.Get('/website/defaultConfig'),
+  defaultConfig: (): any => http.Get('/website/default_config'),
   // 保存默认配置
   saveDefaultConfig: (index: string, stop: string): any =>
-    http.Post('/website/defaultConfig', { index, stop }),
+    http.Post('/website/default_config', { index, stop }),
   // 网站配置
   config: (id: number): any => http.Get('/website/' + id),
   // 保存网站配置
@@ -23,11 +23,11 @@ export default {
   clearLog: (id: number): any => http.Delete('/website/' + id + '/log'),
   // 更新备注
   updateRemark: (id: number, remark: string): any =>
-    http.Post(`/website/${id}` + '/updateRemark', { remark }),
+    http.Post(`/website/${id}` + '/update_remark', { remark }),
   // 重置配置
-  resetConfig: (id: number): any => http.Post(`/website/${id}/resetConfig`),
+  resetConfig: (id: number): any => http.Post(`/website/${id}/reset_config`),
   // 修改状态
   status: (id: number, status: boolean): any => http.Post(`/website/${id}/status`, { status }),
   // 签发证书
-  obtainCert: (id: number): any => http.Post(`/website/${id}/obtainCert`)
+  obtainCert: (id: number): any => http.Post(`/website/${id}/obtain_cert`)
 }
