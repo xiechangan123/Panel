@@ -1,5 +1,9 @@
-import { Icon } from '@iconify/vue'
+import { addAPIProvider, Icon } from '@iconify/vue'
 import { NIcon } from 'naive-ui'
+
+addAPIProvider('', {
+  resources: ['https://iconify.cdn.haozi.net']
+})
 
 interface Props {
   size?: number
