@@ -825,6 +825,12 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingKeyVersion, Value: app.Version},
 		{Key: biz.SettingKeyOfflineMode, Value: "false"},
 		{Key: biz.SettingKeyAutoUpdate, Value: "true"},
+		{Key: biz.SettingKeyTwoFA, Value: "false"},
+		{Key: biz.SettingKeyTwoFAToken, Value: ""},
+		{Key: biz.SettingKeyLoginTimeout, Value: "720"},
+		{Key: biz.SettingKeyBindDomain, Value: "[]"},
+		{Key: biz.SettingKeyBindIP, Value: "[]"},
+		{Key: biz.SettingKeyBindUA, Value: "[]"},
 	}
 	if err := s.db.Create(&settings).Error; err != nil {
 		return errors.New(s.t.Get("Initialization failed: %v", err))

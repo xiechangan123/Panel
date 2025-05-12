@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"path/filepath"
 
@@ -68,6 +69,48 @@ func (r *settingRepo) GetBool(key biz.SettingKey, defaultValue ...bool) (bool, e
 	return cast.ToBool(setting.Value), nil
 }
 
+func (r *settingRepo) GetInt(key biz.SettingKey, defaultValue ...int) (int, error) {
+	setting := new(biz.Setting)
+	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, err
+		}
+	}
+
+	if setting.Value == "" && len(defaultValue) > 0 {
+		return defaultValue[0], nil
+	}
+
+	return cast.ToInt(setting.Value), nil
+}
+
+func (r *settingRepo) GetSlice(key biz.SettingKey, defaultValue ...[]string) ([]string, error) {
+	setting := new(biz.Setting)
+	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+	}
+
+	// 设置值为空时提前返回
+	slice := make([]string, 0)
+	if setting.Value == "" {
+		if len(defaultValue) > 0 {
+			return defaultValue[0], nil
+		}
+		return slice, nil
+	}
+
+	if err := json.Unmarshal([]byte(setting.Value), &slice); err != nil {
+		return nil, err
+	}
+	if len(slice) == 0 && len(defaultValue) > 0 {
+		return defaultValue[0], nil
+	}
+
+	return slice, nil
+}
+
 func (r *settingRepo) Set(key biz.SettingKey, value string) error {
 	setting := new(biz.Setting)
 	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
@@ -78,6 +121,28 @@ func (r *settingRepo) Set(key biz.SettingKey, value string) error {
 
 	setting.Key = key
 	setting.Value = value
+	return r.db.Save(setting).Error
+}
+
+func (r *settingRepo) SetSlice(key biz.SettingKey, value []string) error {
+	setting := new(biz.Setting)
+	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+	}
+
+	setting.Key = key
+	if len(value) == 0 {
+		setting.Value = "[]"
+	} else {
+		b, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+		setting.Value = string(b)
+	}
+
 	return r.db.Save(setting).Error
 }
 
@@ -103,6 +168,27 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	if err != nil {
 		return nil, err
 	}
+	twoFA, err := r.GetBool(biz.SettingKeyTwoFA)
+	if err != nil {
+		return nil, err
+	}
+	loginTimeout, err := r.GetInt(biz.SettingKeyLoginTimeout)
+	if err != nil {
+		return nil, err
+	}
+	bindDomain, err := r.GetSlice(biz.SettingKeyBindDomain)
+	if err != nil {
+		return nil, err
+	}
+	bindIP, err := r.GetSlice(biz.SettingKeyBindIP)
+	if err != nil {
+		return nil, err
+	}
+	bindUA, err := r.GetSlice(biz.SettingKeyBindUA)
+	if err != nil {
+		return nil, err
+	}
+
 	websitePath, err := r.Get(biz.SettingKeyWebsitePath)
 	if err != nil {
 		return nil, err
@@ -128,19 +214,24 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	}
 
 	return &request.PanelSetting{
-		Name:        name,
-		Locale:      r.conf.String("app.locale"),
-		Entrance:    r.conf.String("http.entrance"),
-		OfflineMode: offlineMode,
-		AutoUpdate:  autoUpdate,
-		WebsitePath: websitePath,
-		BackupPath:  backupPath,
-		Username:    user.Username,
-		Email:       user.Email,
-		Port:        uint(r.conf.Int("http.port")),
-		HTTPS:       r.conf.Bool("http.tls"),
-		Cert:        crt,
-		Key:         key,
+		Name:         name,
+		Locale:       r.conf.String("app.locale"),
+		Entrance:     r.conf.String("http.entrance"),
+		OfflineMode:  offlineMode,
+		AutoUpdate:   autoUpdate,
+		TwoFA:        twoFA,
+		LoginTimeout: loginTimeout,
+		BindDomain:   bindDomain,
+		BindIP:       bindIP,
+		BindUA:       bindUA,
+		WebsitePath:  websitePath,
+		BackupPath:   backupPath,
+		Username:     user.Username,
+		Email:        user.Email,
+		Port:         uint(r.conf.Int("http.port")),
+		HTTPS:        r.conf.Bool("http.tls"),
+		Cert:         crt,
+		Key:          key,
 	}, nil
 }
 
@@ -152,6 +243,21 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyAutoUpdate, cast.ToString(setting.AutoUpdate)); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyLoginTimeout, cast.ToString(setting.LoginTimeout)); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyTwoFA, cast.ToString(setting.TwoFA)); err != nil {
+		return false, err
+	}
+	if err := r.SetSlice(biz.SettingKeyBindDomain, setting.BindDomain); err != nil {
+		return false, err
+	}
+	if err := r.SetSlice(biz.SettingKeyBindIP, setting.BindIP); err != nil {
+		return false, err
+	}
+	if err := r.SetSlice(biz.SettingKeyBindUA, setting.BindUA); err != nil {
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyWebsitePath, setting.WebsitePath); err != nil {
