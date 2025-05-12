@@ -48,9 +48,10 @@ require (
 	github.com/ncruces/go-sqlite3 v0.25.2
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
+	github.com/pquerna/otp v1.4.1-0.20241231231527-5971b1ef1d66
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.50.0
-	github.com/sethvargo/go-limiter v1.0.0
+	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.8.0
 	github.com/stretchr/testify v1.10.0
@@ -66,6 +67,7 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/G-Core/gcore-dns-sdk-go v0.2.9 // indirect
+	github.com/boombuler/barcode v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect

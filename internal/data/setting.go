@@ -7,8 +7,11 @@ import (
 	"path/filepath"
 
 	"github.com/go-rat/utils/hash"
+	"github.com/go-rat/utils/str"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
@@ -160,6 +163,10 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	if err != nil {
 		return nil, err
 	}
+	channel, err := r.Get(biz.SettingKeyChannel)
+	if err != nil {
+		return nil, err
+	}
 	offlineMode, err := r.GetBool(biz.SettingKeyOfflineMode)
 	if err != nil {
 		return nil, err
@@ -188,12 +195,19 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	if err != nil {
 		return nil, err
 	}
-
 	websitePath, err := r.Get(biz.SettingKeyWebsitePath)
 	if err != nil {
 		return nil, err
 	}
 	backupPath, err := r.Get(biz.SettingKeyBackupPath)
+	if err != nil {
+		return nil, err
+	}
+	api, err := r.GetBool(biz.SettingKeyAPI)
+	if err != nil {
+		return nil, err
+	}
+	apiWhiteList, err := r.GetSlice(biz.SettingKeyAPIWhiteList)
 	if err != nil {
 		return nil, err
 	}
@@ -215,6 +229,7 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 
 	return &request.PanelSetting{
 		Name:         name,
+		Channel:      channel,
 		Locale:       r.conf.String("app.locale"),
 		Entrance:     r.conf.String("http.entrance"),
 		OfflineMode:  offlineMode,
@@ -229,6 +244,8 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 		Username:     user.Username,
 		Email:        user.Email,
 		Port:         uint(r.conf.Int("http.port")),
+		API:          api,
+		APIWhiteList: apiWhiteList,
 		HTTPS:        r.conf.Bool("http.tls"),
 		Cert:         crt,
 		Key:          key,
@@ -237,6 +254,9 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 
 func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.PanelSetting) (bool, error) {
 	if err := r.Set(biz.SettingKeyName, setting.Name); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyChannel, setting.Channel); err != nil {
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyOfflineMode, cast.ToString(setting.OfflineMode)); err != nil {
@@ -360,4 +380,38 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	}
 
 	return restartFlag, nil
+}
+
+// GenerateTwoFAKey 生成两步验证密钥
+func (r *settingRepo) GenerateTwoFAKey() (*otp.Key, error) {
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "RatPanel",
+		AccountName: "admin",
+		SecretSize:  32,
+		Algorithm:   otp.AlgorithmSHA256,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err = r.Set(biz.SettingKeyTwoFASecret, key.Secret()); err != nil {
+		return nil, err
+	}
+
+	return key, nil
+}
+
+// GenerateAPIKey 生成API密钥
+func (r *settingRepo) GenerateAPIKey() (string, error) {
+	key := str.Random(32)
+	hashed, err := hash.NewArgon2id().Make(key)
+	if err != nil {
+		return "", err
+	}
+
+	if err = r.Set(biz.SettingKeyAPIKey, hashed); err != nil {
+		return "", err
+	}
+
+	return key, nil
 }
