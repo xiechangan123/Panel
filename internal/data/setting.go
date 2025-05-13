@@ -179,10 +179,6 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	if err != nil {
 		return nil, err
 	}
-	loginTimeout, err := r.GetInt(biz.SettingKeyLoginTimeout)
-	if err != nil {
-		return nil, err
-	}
 	bindDomain, err := r.GetSlice(biz.SettingKeyBindDomain)
 	if err != nil {
 		return nil, err
@@ -235,7 +231,7 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 		OfflineMode:  offlineMode,
 		AutoUpdate:   autoUpdate,
 		TwoFA:        twoFA,
-		LoginTimeout: loginTimeout,
+		Lifetime:     uint(r.conf.Int("session.lifetime")),
 		BindDomain:   bindDomain,
 		BindIP:       bindIP,
 		BindUA:       bindUA,
@@ -263,9 +259,6 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyAutoUpdate, cast.ToString(setting.AutoUpdate)); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyLoginTimeout, cast.ToString(setting.LoginTimeout)); err != nil {
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyTwoFA, cast.ToString(setting.TwoFA)); err != nil {
@@ -351,6 +344,7 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	config.HTTP.Port = setting.Port
 	config.HTTP.Entrance = setting.Entrance
 	config.HTTP.TLS = setting.HTTPS
+	config.Session.Lifetime = setting.Lifetime
 
 	// 放行端口
 	fw := firewall.NewFirewall()

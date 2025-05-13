@@ -11,3 +11,5 @@ http:
   tls: true
 database:
   debug: false
+session:
+  lifetime: 120

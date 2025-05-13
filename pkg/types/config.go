@@ -5,6 +5,7 @@ type PanelConfig struct {
 	App      PanelAppConfig      `yaml:"app"`
 	HTTP     PanelHTTPConfig     `yaml:"http"`
 	Database PanelDatabaseConfig `yaml:"database"`
+	Session  PanelSessionConfig  `yaml:"session"`
 }
 
 type PanelAppConfig struct {
@@ -24,4 +25,8 @@ type PanelHTTPConfig struct {
 
 type PanelDatabaseConfig struct {
 	Debug bool `yaml:"debug"`
+}
+
+type PanelSessionConfig struct {
+	Lifetime uint `yaml:"lifetime"`
 }

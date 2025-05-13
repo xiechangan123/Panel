@@ -8,7 +8,7 @@ type PanelSetting struct {
 	OfflineMode  bool     `json:"offline_mode"`
 	AutoUpdate   bool     `json:"auto_update"`
 	TwoFA        bool     `json:"two_fa"`
-	LoginTimeout int      `json:"login_timeout" validate:"required|min:10|max:43200"` // 登录超时，单位：分
+	Lifetime     uint     `json:"lifetime" validate:"required|min:10|max:43200"` // 登录超时，单位：分
 	BindDomain   []string `json:"bind_domain"`
 	BindIP       []string `json:"bind_ip"`
 	BindUA       []string `json:"bind_ua"`

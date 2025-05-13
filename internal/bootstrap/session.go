@@ -11,7 +11,7 @@ func NewSession(conf *koanf.Koanf, db *gorm.DB) (*sessions.Manager, error) {
 	// initialize session manager
 	manager, err := sessions.NewManager(&sessions.ManagerOptions{
 		Key:                  conf.MustString("app.key"),
-		Lifetime:             120,
+		Lifetime:             conf.MustInt("session.lifetime"),
 		GcInterval:           5,
 		DisableDefaultDriver: true,
 	})
