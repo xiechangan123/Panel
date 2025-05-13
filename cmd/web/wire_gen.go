@@ -53,16 +53,16 @@ func initWeb() (*app.Web, error) {
 	if err != nil {
 		return nil, err
 	}
+	locale, err := bootstrap.NewT(koanf)
+	if err != nil {
+		return nil, err
+	}
 	logger := bootstrap.NewLog(koanf)
 	db, err := bootstrap.NewDB(koanf, logger)
 	if err != nil {
 		return nil, err
 	}
 	manager, err := bootstrap.NewSession(koanf, db)
-	if err != nil {
-		return nil, err
-	}
-	locale, err := bootstrap.NewT(koanf)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func initWeb() (*app.Web, error) {
 	http := route.NewHttp(userService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, loader)
 	wsService := service.NewWsService(locale, koanf, sshRepo)
 	ws := route.NewWs(wsService)
-	mux, err := bootstrap.NewRouter(middlewares, http, ws)
+	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/go-rat/utils/hash"
-	"github.com/go-rat/utils/str"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/pquerna/otp"
@@ -219,35 +218,11 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	if err != nil {
 		return nil, err
 	}
-	twoFA, err := r.GetBool(biz.SettingKeyTwoFA)
-	if err != nil {
-		return nil, err
-	}
-	bindDomain, err := r.GetSlice(biz.SettingKeyBindDomain)
-	if err != nil {
-		return nil, err
-	}
-	bindIP, err := r.GetSlice(biz.SettingKeyBindIP)
-	if err != nil {
-		return nil, err
-	}
-	bindUA, err := r.GetSlice(biz.SettingKeyBindUA)
-	if err != nil {
-		return nil, err
-	}
 	websitePath, err := r.Get(biz.SettingKeyWebsitePath)
 	if err != nil {
 		return nil, err
 	}
 	backupPath, err := r.Get(biz.SettingKeyBackupPath)
-	if err != nil {
-		return nil, err
-	}
-	api, err := r.GetBool(biz.SettingKeyAPI)
-	if err != nil {
-		return nil, err
-	}
-	apiWhiteList, err := r.GetSlice(biz.SettingKeyAPIWhiteList)
 	if err != nil {
 		return nil, err
 	}
@@ -268,27 +243,24 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	}
 
 	return &request.PanelSetting{
-		Name:         name,
-		Channel:      channel,
-		Locale:       r.conf.String("app.locale"),
-		Entrance:     r.conf.String("http.entrance"),
-		OfflineMode:  offlineMode,
-		AutoUpdate:   autoUpdate,
-		TwoFA:        twoFA,
-		Lifetime:     uint(r.conf.Int("session.lifetime")),
-		BindDomain:   bindDomain,
-		BindIP:       bindIP,
-		BindUA:       bindUA,
-		WebsitePath:  websitePath,
-		BackupPath:   backupPath,
-		Username:     user.Username,
-		Email:        user.Email,
-		Port:         uint(r.conf.Int("http.port")),
-		API:          api,
-		APIWhiteList: apiWhiteList,
-		HTTPS:        r.conf.Bool("http.tls"),
-		Cert:         crt,
-		Key:          key,
+		Name:        name,
+		Channel:     channel,
+		Locale:      r.conf.String("app.locale"),
+		Entrance:    r.conf.String("http.entrance"),
+		OfflineMode: offlineMode,
+		AutoUpdate:  autoUpdate,
+		Lifetime:    uint(r.conf.Int("session.lifetime")),
+		BindDomain:  r.conf.Strings("http.bind_domain"),
+		BindIP:      r.conf.Strings("http.bind_ip"),
+		BindUA:      r.conf.Strings("http.bind_ua"),
+		WebsitePath: websitePath,
+		BackupPath:  backupPath,
+		Username:    user.Username,
+		Email:       user.Email,
+		Port:        uint(r.conf.Int("http.port")),
+		HTTPS:       r.conf.Bool("http.tls"),
+		Cert:        crt,
+		Key:         key,
 	}, nil
 }
 
@@ -303,18 +275,6 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyAutoUpdate, cast.ToString(setting.AutoUpdate)); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyTwoFA, cast.ToString(setting.TwoFA)); err != nil {
-		return false, err
-	}
-	if err := r.SetSlice(biz.SettingKeyBindDomain, setting.BindDomain); err != nil {
-		return false, err
-	}
-	if err := r.SetSlice(biz.SettingKeyBindIP, setting.BindIP); err != nil {
-		return false, err
-	}
-	if err := r.SetSlice(biz.SettingKeyBindUA, setting.BindUA); err != nil {
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyWebsitePath, setting.WebsitePath); err != nil {
@@ -388,6 +348,9 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	config.HTTP.Port = setting.Port
 	config.HTTP.Entrance = setting.Entrance
 	config.HTTP.TLS = setting.HTTPS
+	config.HTTP.BindDomain = setting.BindDomain
+	config.HTTP.BindIP = setting.BindIP
+	config.HTTP.BindUA = setting.BindUA
 	config.Session.Lifetime = setting.Lifetime
 
 	// 放行端口
@@ -420,8 +383,9 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	return restartFlag, nil
 }
 
-// GenerateTwoFAKey 生成两步验证密钥
-func (r *settingRepo) GenerateTwoFAKey() (*otp.Key, error) {
+// GetTwoFA 生成两步验证密钥
+// TODO: 即将废弃
+func (r *settingRepo) GetTwoFA() (*otp.Key, error) {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "RatPanel",
 		AccountName: "admin",
@@ -430,25 +394,6 @@ func (r *settingRepo) GenerateTwoFAKey() (*otp.Key, error) {
 	})
 	if err != nil {
 		return nil, err
-	}
-
-	if err = r.Set(biz.SettingKeyTwoFASecret, key.Secret()); err != nil {
-		return nil, err
-	}
-
-	return key, nil
-}
-
-// GenerateAPIKey 生成API密钥
-func (r *settingRepo) GenerateAPIKey() (string, error) {
-	key := str.Random(32)
-	hashed, err := hash.NewArgon2id().Make(key)
-	if err != nil {
-		return "", err
-	}
-
-	if err = r.Set(biz.SettingKeyAPIKey, hashed); err != nil {
-		return "", err
 	}
 
 	return key, nil

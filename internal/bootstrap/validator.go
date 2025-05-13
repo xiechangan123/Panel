@@ -23,7 +23,6 @@ func NewValidator(conf *koanf.Koanf, db *gorm.DB) *validate.Validation {
 	validate.Config(func(opt *validate.GlobalOption) {
 		opt.StopOnError = false
 		opt.SkipOnEmpty = true
-		opt.FieldTag = "form"
 	})
 
 	// register global rules

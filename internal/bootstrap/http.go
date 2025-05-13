@@ -8,16 +8,17 @@ import (
 	"github.com/bddjr/hlfhr"
 	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/http/middleware"
 	"github.com/tnb-labs/panel/internal/route"
 )
 
-func NewRouter(middlewares *middleware.Middlewares, http *route.Http, ws *route.Ws) (*chi.Mux, error) {
+func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *route.Http, ws *route.Ws) (*chi.Mux, error) {
 	r := chi.NewRouter()
 
 	// add middleware
-	r.Use(middlewares.Globals(r)...)
+	r.Use(middlewares.Globals(t, r)...)
 	// add http route
 	http.Register(r)
 	// add ws route

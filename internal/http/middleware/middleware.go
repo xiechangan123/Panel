@@ -11,6 +11,7 @@ import (
 	"github.com/golang-cz/httplog"
 	"github.com/google/wire"
 	"github.com/knadh/koanf/v2"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/biz"
 )
@@ -34,7 +35,7 @@ func NewMiddlewares(conf *koanf.Koanf, log *slog.Logger, session *sessions.Manag
 }
 
 // Globals is a collection of global middleware that will be applied to every request.
-func (r *Middlewares) Globals(mux *chi.Mux) []func(http.Handler) http.Handler {
+func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
 		sessionmiddleware.StartSession(r.session),
 		//middleware.SupressNotFound(mux),// bug https://github.com/go-chi/chi/pull/940
@@ -46,9 +47,9 @@ func (r *Middlewares) Globals(mux *chi.Mux) []func(http.Handler) http.Handler {
 			LogRequestHeaders: []string{"User-Agent"},
 		}),
 		middleware.Recoverer,
-		Status,
-		Entrance(r.conf, r.session),
-		MustLogin(r.session),
-		MustInstall(r.app),
+		Status(t),
+		Entrance(t, r.conf, r.session),
+		MustLogin(t, r.session),
+		MustInstall(t, r.app),
 	}
 }

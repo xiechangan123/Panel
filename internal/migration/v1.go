@@ -93,4 +93,26 @@ func init() {
 			return tx.Migrator().DropColumn(&biz.Cert{}, "script")
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20250514-user-two-fa",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(
+				&biz.User{},
+			)
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropColumn(&biz.User{}, "two_fa")
+		},
+	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20250514-user-token",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(
+				&biz.UserToken{},
+			)
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.UserToken{})
+		},
+	})
 }

@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pquerna/otp"
-
 	"github.com/tnb-labs/panel/internal/http/request"
 )
 
@@ -22,15 +20,6 @@ const (
 	SettingKeyMySQLRootPassword SettingKey = "mysql_root_password"
 	SettingKeyOfflineMode       SettingKey = "offline_mode"
 	SettingKeyAutoUpdate        SettingKey = "auto_update"
-	SettingKeyTwoFA             SettingKey = "two_fa"
-	SettingKeyTwoFASecret       SettingKey = "two_fa_secret"
-	SettingKeyLoginTimeout      SettingKey = "login_timeout"
-	SettingKeyBindDomain        SettingKey = "bind_domain"
-	SettingKeyBindIP            SettingKey = "bind_ip"
-	SettingKeyBindUA            SettingKey = "bind_ua"
-	SettingKeyAPI               SettingKey = "api"
-	SettingKeyAPIKey            SettingKey = "api_key"
-	SettingKeyAPIWhiteList      SettingKey = "api_white_list"
 )
 
 type Setting struct {
@@ -51,6 +40,4 @@ type SettingRepo interface {
 	Delete(key SettingKey) error
 	GetPanelSetting(ctx context.Context) (*request.PanelSetting, error)
 	UpdatePanelSetting(ctx context.Context, setting *request.PanelSetting) (bool, error)
-	GenerateTwoFAKey() (*otp.Key, error)
-	GenerateAPIKey() (string, error)
 }

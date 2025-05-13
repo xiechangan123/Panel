@@ -1,17 +1,17 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/go-rat/chix"
+	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/biz"
 )
 
 // MustInstall 确保已安装应用
-func MustInstall(app biz.AppRepo) func(next http.Handler) http.Handler {
+func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var slugs []string
@@ -26,7 +26,7 @@ func MustInstall(app biz.AppRepo) func(next http.Handler) http.Handler {
 					defer render.Release()
 					render.Status(http.StatusForbidden)
 					render.JSON(chix.M{
-						"message": "应用不存在",
+						"message": t.Get("app not found"),
 					})
 					return
 				}
@@ -45,7 +45,7 @@ func MustInstall(app biz.AppRepo) func(next http.Handler) http.Handler {
 				defer render.Release()
 				render.Status(http.StatusForbidden)
 				render.JSON(chix.M{
-					"message": fmt.Sprintf("应用 %s 未安装", slugs),
+					"message": t.Get("app %s not installed", slugs),
 				})
 				return
 			}

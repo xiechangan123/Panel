@@ -17,10 +17,13 @@ type PanelAppConfig struct {
 }
 
 type PanelHTTPConfig struct {
-	Debug    bool   `yaml:"debug"`
-	Port     uint   `yaml:"port"`
-	Entrance string `yaml:"entrance"`
-	TLS      bool   `yaml:"tls"`
+	Debug      bool     `yaml:"debug"`
+	Port       uint     `yaml:"port"`
+	Entrance   string   `yaml:"entrance"`
+	TLS        bool     `yaml:"tls"`
+	BindDomain []string `yaml:"bind_domain"`
+	BindIP     []string `yaml:"bind_ip"`
+	BindUA     []string `yaml:"bind_ua"`
 }
 
 type PanelDatabaseConfig struct {

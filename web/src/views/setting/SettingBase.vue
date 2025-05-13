@@ -1,29 +1,10 @@
 <script setup lang="ts">
-import setting from '@/api/panel/setting'
-import { useThemeStore } from '@/store'
 import { locales as availableLocales } from '@/utils'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
-const themeStore = useThemeStore()
 
-const { data: model } = useRequest(setting.list, {
-  initialData: {
-    name: '',
-    locale: '',
-    username: '',
-    password: '',
-    email: '',
-    port: 8888,
-    entrance: '',
-    offline_mode: false,
-    website_path: '',
-    backup_path: '',
-    https: false,
-    cert: '',
-    key: ''
-  }
-})
+const model = defineModel<any>('model', { type: Object, required: true })
 
 const locales = computed(() => {
   return Object.entries(availableLocales).map(([code, name]: [string, string]) => {
@@ -34,18 +15,16 @@ const locales = computed(() => {
   })
 })
 
-const handleSave = () => {
-  useRequest(setting.update(model.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-    if (model.value.locale !== themeStore.locale) {
-      themeStore.setLocale(model.value.locale)
-      window.$message.info($gettext('Panel is restarting, page will refresh in 3 seconds'))
-      setTimeout(() => {
-        window.location.reload()
-      }, 3000)
-    }
-  })
-}
+const channels = [
+  {
+    label: $gettext('Stable'),
+    value: 'stable'
+  },
+  {
+    label: $gettext('Beta'),
+    value: 'beta'
+  }
+]
 </script>
 
 <template>
@@ -64,6 +43,9 @@ const handleSave = () => {
       <n-form-item :label="$gettext('Language')">
         <n-select v-model:value="model.locale" :options="locales"> </n-select>
       </n-form-item>
+      <n-form-item :label="$gettext('Update Channel')">
+        <n-select v-model:value="model.channel" :options="channels"> </n-select>
+      </n-form-item>
       <n-form-item :label="$gettext('Username')">
         <n-input v-model:value="model.username" :placeholder="$gettext('admin')" />
       </n-form-item>
@@ -74,16 +56,7 @@ const handleSave = () => {
         <n-input v-model:value="model.email" :placeholder="$gettext('admin@yourdomain.com')" />
       </n-form-item>
       <n-form-item :label="$gettext('Port')">
-        <n-input-number v-model:value="model.port" :placeholder="$gettext('8888')" />
-      </n-form-item>
-      <n-form-item :label="$gettext('Access Entrance')">
-        <n-input v-model:value="model.entrance" :placeholder="$gettext('admin')" />
-      </n-form-item>
-      <n-form-item :label="$gettext('Offline Mode')">
-        <n-switch v-model:value="model.offline_mode" />
-      </n-form-item>
-      <n-form-item :label="$gettext('Auto Update')">
-        <n-switch v-model:value="model.auto_update" />
+        <n-input-number v-model:value="model.port" :placeholder="$gettext('8888')" w-full />
       </n-form-item>
       <n-form-item :label="$gettext('Default Website Directory')">
         <n-input v-model:value="model.website_path" :placeholder="$gettext('/www/wwwroot')" />
@@ -93,9 +66,6 @@ const handleSave = () => {
       </n-form-item>
     </n-form>
   </n-space>
-  <n-button type="primary" @click="handleSave">
-    {{ $gettext('Save') }}
-  </n-button>
 </template>
 
 <style scoped lang="scss"></style>
