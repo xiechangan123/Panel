@@ -9,6 +9,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	otp "github.com/pquerna/otp"
+
 	request "github.com/tnb-labs/panel/internal/http/request"
 )
 
@@ -67,6 +69,118 @@ func (_c *SettingRepo_Delete_Call) Return(_a0 error) *SettingRepo_Delete_Call {
 }
 
 func (_c *SettingRepo_Delete_Call) RunAndReturn(run func(biz.SettingKey) error) *SettingRepo_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GenerateAPIKey provides a mock function with no fields
+func (_m *SettingRepo) GenerateAPIKey() (string, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateAPIKey")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (string, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SettingRepo_GenerateAPIKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GenerateAPIKey'
+type SettingRepo_GenerateAPIKey_Call struct {
+	*mock.Call
+}
+
+// GenerateAPIKey is a helper method to define mock.On call
+func (_e *SettingRepo_Expecter) GenerateAPIKey() *SettingRepo_GenerateAPIKey_Call {
+	return &SettingRepo_GenerateAPIKey_Call{Call: _e.mock.On("GenerateAPIKey")}
+}
+
+func (_c *SettingRepo_GenerateAPIKey_Call) Run(run func()) *SettingRepo_GenerateAPIKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *SettingRepo_GenerateAPIKey_Call) Return(_a0 string, _a1 error) *SettingRepo_GenerateAPIKey_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SettingRepo_GenerateAPIKey_Call) RunAndReturn(run func() (string, error)) *SettingRepo_GenerateAPIKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GenerateTwoFAKey provides a mock function with no fields
+func (_m *SettingRepo) GenerateTwoFAKey() (*otp.Key, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateTwoFAKey")
+	}
+
+	var r0 *otp.Key
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*otp.Key, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *otp.Key); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*otp.Key)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SettingRepo_GenerateTwoFAKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GenerateTwoFAKey'
+type SettingRepo_GenerateTwoFAKey_Call struct {
+	*mock.Call
+}
+
+// GenerateTwoFAKey is a helper method to define mock.On call
+func (_e *SettingRepo_Expecter) GenerateTwoFAKey() *SettingRepo_GenerateTwoFAKey_Call {
+	return &SettingRepo_GenerateTwoFAKey_Call{Call: _e.mock.On("GenerateTwoFAKey")}
+}
+
+func (_c *SettingRepo_GenerateTwoFAKey_Call) Run(run func()) *SettingRepo_GenerateTwoFAKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *SettingRepo_GenerateTwoFAKey_Call) Return(_a0 *otp.Key, _a1 error) *SettingRepo_GenerateTwoFAKey_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SettingRepo_GenerateTwoFAKey_Call) RunAndReturn(run func() (*otp.Key, error)) *SettingRepo_GenerateTwoFAKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -213,6 +327,77 @@ func (_c *SettingRepo_GetBool_Call) RunAndReturn(run func(biz.SettingKey, ...boo
 	return _c
 }
 
+// GetInt provides a mock function with given fields: key, defaultValue
+func (_m *SettingRepo) GetInt(key biz.SettingKey, defaultValue ...int) (int, error) {
+	_va := make([]interface{}, len(defaultValue))
+	for _i := range defaultValue {
+		_va[_i] = defaultValue[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, key)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetInt")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(biz.SettingKey, ...int) (int, error)); ok {
+		return rf(key, defaultValue...)
+	}
+	if rf, ok := ret.Get(0).(func(biz.SettingKey, ...int) int); ok {
+		r0 = rf(key, defaultValue...)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(biz.SettingKey, ...int) error); ok {
+		r1 = rf(key, defaultValue...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SettingRepo_GetInt_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetInt'
+type SettingRepo_GetInt_Call struct {
+	*mock.Call
+}
+
+// GetInt is a helper method to define mock.On call
+//   - key biz.SettingKey
+//   - defaultValue ...int
+func (_e *SettingRepo_Expecter) GetInt(key interface{}, defaultValue ...interface{}) *SettingRepo_GetInt_Call {
+	return &SettingRepo_GetInt_Call{Call: _e.mock.On("GetInt",
+		append([]interface{}{key}, defaultValue...)...)}
+}
+
+func (_c *SettingRepo_GetInt_Call) Run(run func(key biz.SettingKey, defaultValue ...int)) *SettingRepo_GetInt_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]int, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(int)
+			}
+		}
+		run(args[0].(biz.SettingKey), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SettingRepo_GetInt_Call) Return(_a0 int, _a1 error) *SettingRepo_GetInt_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SettingRepo_GetInt_Call) RunAndReturn(run func(biz.SettingKey, ...int) (int, error)) *SettingRepo_GetInt_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPanelSetting provides a mock function with given fields: ctx
 func (_m *SettingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSetting, error) {
 	ret := _m.Called(ctx)
@@ -271,6 +456,79 @@ func (_c *SettingRepo_GetPanelSetting_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// GetSlice provides a mock function with given fields: key, defaultValue
+func (_m *SettingRepo) GetSlice(key biz.SettingKey, defaultValue ...[]string) ([]string, error) {
+	_va := make([]interface{}, len(defaultValue))
+	for _i := range defaultValue {
+		_va[_i] = defaultValue[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, key)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSlice")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(biz.SettingKey, ...[]string) ([]string, error)); ok {
+		return rf(key, defaultValue...)
+	}
+	if rf, ok := ret.Get(0).(func(biz.SettingKey, ...[]string) []string); ok {
+		r0 = rf(key, defaultValue...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(biz.SettingKey, ...[]string) error); ok {
+		r1 = rf(key, defaultValue...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SettingRepo_GetSlice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSlice'
+type SettingRepo_GetSlice_Call struct {
+	*mock.Call
+}
+
+// GetSlice is a helper method to define mock.On call
+//   - key biz.SettingKey
+//   - defaultValue ...[]string
+func (_e *SettingRepo_Expecter) GetSlice(key interface{}, defaultValue ...interface{}) *SettingRepo_GetSlice_Call {
+	return &SettingRepo_GetSlice_Call{Call: _e.mock.On("GetSlice",
+		append([]interface{}{key}, defaultValue...)...)}
+}
+
+func (_c *SettingRepo_GetSlice_Call) Run(run func(key biz.SettingKey, defaultValue ...[]string)) *SettingRepo_GetSlice_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([][]string, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.([]string)
+			}
+		}
+		run(args[0].(biz.SettingKey), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SettingRepo_GetSlice_Call) Return(_a0 []string, _a1 error) *SettingRepo_GetSlice_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SettingRepo_GetSlice_Call) RunAndReturn(run func(biz.SettingKey, ...[]string) ([]string, error)) *SettingRepo_GetSlice_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Set provides a mock function with given fields: key, value
 func (_m *SettingRepo) Set(key biz.SettingKey, value string) error {
 	ret := _m.Called(key, value)
@@ -314,6 +572,53 @@ func (_c *SettingRepo_Set_Call) Return(_a0 error) *SettingRepo_Set_Call {
 }
 
 func (_c *SettingRepo_Set_Call) RunAndReturn(run func(biz.SettingKey, string) error) *SettingRepo_Set_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetSlice provides a mock function with given fields: key, value
+func (_m *SettingRepo) SetSlice(key biz.SettingKey, value []string) error {
+	ret := _m.Called(key, value)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetSlice")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(biz.SettingKey, []string) error); ok {
+		r0 = rf(key, value)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SettingRepo_SetSlice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetSlice'
+type SettingRepo_SetSlice_Call struct {
+	*mock.Call
+}
+
+// SetSlice is a helper method to define mock.On call
+//   - key biz.SettingKey
+//   - value []string
+func (_e *SettingRepo_Expecter) SetSlice(key interface{}, value interface{}) *SettingRepo_SetSlice_Call {
+	return &SettingRepo_SetSlice_Call{Call: _e.mock.On("SetSlice", key, value)}
+}
+
+func (_c *SettingRepo_SetSlice_Call) Run(run func(key biz.SettingKey, value []string)) *SettingRepo_SetSlice_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(biz.SettingKey), args[1].([]string))
+	})
+	return _c
+}
+
+func (_c *SettingRepo_SetSlice_Call) Return(_a0 error) *SettingRepo_SetSlice_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *SettingRepo_SetSlice_Call) RunAndReturn(run func(biz.SettingKey, []string) error) *SettingRepo_SetSlice_Call {
 	_c.Call.Return(run)
 	return _c
 }
