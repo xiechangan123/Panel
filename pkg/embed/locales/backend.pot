@@ -1220,8 +1220,8 @@ msgstr ""
 msgid "app %s requires panel version %s, current version %s"
 msgstr ""
 
-#: internal/data/setting.go:310
-#: internal/data/setting.go:368
+#: internal/data/setting.go:354
+#: internal/data/setting.go:412
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -1509,12 +1509,12 @@ msgid "failed to load MySQL root password: %v"
 msgstr ""
 
 #: internal/data/cert.go:92
-#: internal/data/setting.go:315
+#: internal/data/setting.go:359
 msgid "failed to parse certificate: %v"
 msgstr ""
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:318
+#: internal/data/setting.go:362
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -1706,7 +1706,7 @@ msgstr ""
 msgid "please retry the manual obtain operation"
 msgstr ""
 
-#: internal/data/setting.go:339
+#: internal/data/setting.go:383
 msgid "port is already in use"
 msgstr ""
 
