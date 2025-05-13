@@ -21,6 +21,7 @@ jobs:
       - name: Generate Mocks
         run: |
           ~/go/bin/mockery
+          git pull
       - uses: stefanzweifel/git-auto-commit-action@v5
         name: Commit changes
         with:
