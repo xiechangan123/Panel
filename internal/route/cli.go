@@ -75,6 +75,11 @@ func (route *Cli) Commands() []*cli.Command {
 					Usage:  route.t.Get("Change user password"),
 					Action: route.cli.UserPassword,
 				},
+				{
+					Name:   "2fa",
+					Usage:  route.t.Get("Change user 2FA"),
+					Action: route.cli.UserTwoFA,
+				},
 			},
 		},
 		{

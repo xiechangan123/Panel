@@ -1,10 +1,13 @@
 package service
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	stdos "os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-rat/utils/collect"
@@ -257,6 +260,49 @@ func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(s.t.Get("Password for user %s changed successfully", username))
+	return nil
+}
+
+func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
+	user := new(biz.User)
+	username := cmd.Args().Get(0)
+	if username == "" {
+		return errors.New(s.t.Get("Username cannot be empty"))
+	}
+
+	if err := s.db.Where("username", username).First(user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(s.t.Get("User not exists"))
+		} else {
+			return errors.New(s.t.Get("Failed to get user: %v", err))
+		}
+	}
+
+	// 已开启，关闭2FA
+	if user.TwoFA != "" {
+		user.TwoFA = ""
+		if err := s.db.Save(user).Error; err != nil {
+			return errors.New(s.t.Get("Failed to change 2FA status: %v", err))
+		}
+		fmt.Println(s.t.Get("2FA disabled for user %s", username))
+		return nil
+	}
+	// 未开启，开启2FA
+	_, url, secret, err := s.userRepo.GenerateTwoFA(user.ID)
+	if err != nil {
+		return errors.New(s.t.Get("Failed to generate 2FA: %v", err))
+	}
+	fmt.Println(s.t.Get("2FA url: %s", url))
+	reader := bufio.NewReader(stdos.Stdin)
+	fmt.Print(s.t.Get("Please enter the 2FA code: "))
+	code, err := reader.ReadString('\n')
+	if err != nil {
+		return errors.New(s.t.Get("Failed to read input: %v", err))
+	}
+	if err = s.userRepo.UpdateTwoFA(user.ID, strings.TrimSpace(code), secret); err != nil {
+		return errors.New(s.t.Get("Failed to update 2FA: %v", err))
+	}
+
 	return nil
 }
 
