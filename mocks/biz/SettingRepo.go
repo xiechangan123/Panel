@@ -9,6 +9,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	otp "github.com/pquerna/otp"
+
 	request "github.com/tnb-labs/panel/internal/http/request"
 )
 
@@ -67,6 +69,118 @@ func (_c *SettingRepo_Delete_Call) Return(_a0 error) *SettingRepo_Delete_Call {
 }
 
 func (_c *SettingRepo_Delete_Call) RunAndReturn(run func(biz.SettingKey) error) *SettingRepo_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GenerateAPIKey provides a mock function with no fields
+func (_m *SettingRepo) GenerateAPIKey() (string, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateAPIKey")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (string, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SettingRepo_GenerateAPIKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GenerateAPIKey'
+type SettingRepo_GenerateAPIKey_Call struct {
+	*mock.Call
+}
+
+// GenerateAPIKey is a helper method to define mock.On call
+func (_e *SettingRepo_Expecter) GenerateAPIKey() *SettingRepo_GenerateAPIKey_Call {
+	return &SettingRepo_GenerateAPIKey_Call{Call: _e.mock.On("GenerateAPIKey")}
+}
+
+func (_c *SettingRepo_GenerateAPIKey_Call) Run(run func()) *SettingRepo_GenerateAPIKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *SettingRepo_GenerateAPIKey_Call) Return(_a0 string, _a1 error) *SettingRepo_GenerateAPIKey_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SettingRepo_GenerateAPIKey_Call) RunAndReturn(run func() (string, error)) *SettingRepo_GenerateAPIKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GenerateTwoFAKey provides a mock function with no fields
+func (_m *SettingRepo) GenerateTwoFAKey() (*otp.Key, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateTwoFAKey")
+	}
+
+	var r0 *otp.Key
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*otp.Key, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *otp.Key); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*otp.Key)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SettingRepo_GenerateTwoFAKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GenerateTwoFAKey'
+type SettingRepo_GenerateTwoFAKey_Call struct {
+	*mock.Call
+}
+
+// GenerateTwoFAKey is a helper method to define mock.On call
+func (_e *SettingRepo_Expecter) GenerateTwoFAKey() *SettingRepo_GenerateTwoFAKey_Call {
+	return &SettingRepo_GenerateTwoFAKey_Call{Call: _e.mock.On("GenerateTwoFAKey")}
+}
+
+func (_c *SettingRepo_GenerateTwoFAKey_Call) Run(run func()) *SettingRepo_GenerateTwoFAKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *SettingRepo_GenerateTwoFAKey_Call) Return(_a0 *otp.Key, _a1 error) *SettingRepo_GenerateTwoFAKey_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SettingRepo_GenerateTwoFAKey_Call) RunAndReturn(run func() (*otp.Key, error)) *SettingRepo_GenerateTwoFAKey_Call {
 	_c.Call.Return(run)
 	return _c
 }

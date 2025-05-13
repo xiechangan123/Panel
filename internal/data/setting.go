@@ -10,8 +10,6 @@ import (
 	"github.com/go-rat/utils/hash"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
@@ -381,20 +379,4 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	}
 
 	return restartFlag, nil
-}
-
-// GetTwoFA 生成两步验证密钥
-// TODO: 即将废弃
-func (r *settingRepo) GetTwoFA() (*otp.Key, error) {
-	key, err := totp.Generate(totp.GenerateOpts{
-		Issuer:      "RatPanel",
-		AccountName: "admin",
-		SecretSize:  32,
-		Algorithm:   otp.AlgorithmSHA256,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return key, nil
 }

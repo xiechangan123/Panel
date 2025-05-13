@@ -13,6 +13,7 @@ import (
 	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -87,6 +88,13 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.TwoFA != "" {
+		if !totp.Validate(req.PassCode, user.TwoFA) {
+			Error(w, http.StatusForbidden, s.t.Get("invalid 2fa code"))
+			return
+		}
+	}
+
 	// 安全登录下，将当前客户端与会话绑定
 	// 安全登录只在未启用面板 HTTPS 时生效
 	ip, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
@@ -128,6 +136,17 @@ func (s *UserService) IsLogin(w http.ResponseWriter, r *http.Request) {
 	Success(w, sess.Has("user_id"))
 }
 
+func (s *UserService) IsTwoFA(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.UserIsTwoFA](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	twoFA, _ := s.userRepo.IsTwoFA(req.Username)
+	Success(w, twoFA)
+}
+
 func (s *UserService) Info(w http.ResponseWriter, r *http.Request) {
 	userID := cast.ToUint(r.Context().Value("user_id"))
 	if userID == 0 {
@@ -147,4 +166,54 @@ func (s *UserService) Info(w http.ResponseWriter, r *http.Request) {
 		"username": user.Username,
 		"email":    user.Email,
 	})
+}
+
+func (s *UserService) List(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.Paginate](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	users, total, err := s.userRepo.List(req.Page, req.Limit)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, chix.M{
+		"total": total,
+		"items": users,
+	})
+}
+
+func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.UserCreate](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	user, err := s.userRepo.Create(req.Username, req.Password)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, user)
+}
+
+func (s *UserService) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.UserUpdatePassword](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.userRepo.UpdatePassword(req.ID, req.Password); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
 }

@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"image"
 	"time"
 
 	"gorm.io/gorm"
@@ -18,8 +19,13 @@ type User struct {
 }
 
 type UserRepo interface {
-	Create(username, password string) (*User, error)
-	CheckPassword(username, password string) (*User, error)
+	List(page, limit uint) ([]*User, int64, error)
 	Get(id uint) (*User, error)
-	Save(user *User) error
+	Create(username, password string) (*User, error)
+	UpdatePassword(id uint, password string) error
+	Delete(id uint) error
+	CheckPassword(username, password string) (*User, error)
+	IsTwoFA(username string) (bool, error)
+	GenerateTwoFA(id uint) (image.Image, string, string, error)
+	UpdateTwoFA(id uint, code, secret string) error
 }

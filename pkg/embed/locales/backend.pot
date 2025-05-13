@@ -495,10 +495,10 @@ msgstr ""
 msgid "Index Hit Rate"
 msgstr ""
 
-#: internal/service/cli.go:831
-#: internal/service/cli.go:836
-#: internal/service/cli.go:841
+#: internal/service/cli.go:840
 #: internal/service/cli.go:845
+#: internal/service/cli.go:850
+#: internal/service/cli.go:854
 msgid "Initialization failed: %v"
 msgstr ""
 
@@ -1196,10 +1196,6 @@ msgstr ""
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:94
-msgid "api signature expired"
-msgstr ""
-
 #: internal/data/app.go:159
 msgid "app %s already installed"
 msgstr ""
@@ -1210,7 +1206,6 @@ msgstr ""
 
 #: internal/data/app.go:210
 #: internal/data/app.go:265
-#: internal/http/middleware/must_install.go:48
 msgid "app %s not installed"
 msgstr ""
 
@@ -1225,12 +1220,8 @@ msgstr ""
 msgid "app %s requires panel version %s, current version %s"
 msgstr ""
 
-#: internal/http/middleware/must_install.go:29
-msgid "app not found"
-msgstr ""
-
-#: internal/data/setting.go:314
-#: internal/data/setting.go:375
+#: internal/data/setting.go:354
+#: internal/data/setting.go:412
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -1259,10 +1250,6 @@ msgstr ""
 #: internal/data/database_server.go:106
 #: internal/data/database_server.go:86
 msgid "check server connection failed"
-msgstr ""
-
-#: internal/http/middleware/must_login.go:122
-msgid "client ip/ua changed, please login again"
 msgstr ""
 
 #: internal/data/backup.go:564
@@ -1522,12 +1509,12 @@ msgid "failed to load MySQL root password: %v"
 msgstr ""
 
 #: internal/data/cert.go:92
-#: internal/data/setting.go:319
+#: internal/data/setting.go:359
 msgid "failed to parse certificate: %v"
 msgstr ""
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:322
+#: internal/data/setting.go:362
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -1639,32 +1626,8 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:101
-msgid "invalid access entrance"
-msgstr ""
-
-#: internal/http/middleware/must_login.go:84
-msgid "invalid api signature"
-msgstr ""
-
 #: internal/service/user.go:78
 msgid "invalid key, please refresh the page"
-msgstr ""
-
-#: internal/http/middleware/entrance.go:50
-msgid "invalid request domain: %s"
-msgstr ""
-
-#: internal/http/middleware/entrance.go:63
-msgid "invalid request ip: %s"
-msgstr ""
-
-#: internal/http/middleware/entrance.go:72
-msgid "invalid request user agent: %s"
-msgstr ""
-
-#: internal/http/middleware/must_login.go:136
-msgid "invalid user id, please login again"
 msgstr ""
 
 #: internal/apps/php/app.go:473
@@ -1712,22 +1675,6 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/http/middleware/status.go:38
-msgid "panel is closed"
-msgstr ""
-
-#: internal/http/middleware/status.go:30
-msgid "panel is maintaining, please refresh later"
-msgstr ""
-
-#: internal/http/middleware/status.go:22
-msgid "panel is upgrading, please refresh later"
-msgstr ""
-
-#: internal/http/middleware/status.go:46
-msgid "panel run error, please check or contact support"
-msgstr ""
-
 #: internal/apps/php/app.go:328
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
@@ -1759,7 +1706,7 @@ msgstr ""
 msgid "please retry the manual obtain operation"
 msgstr ""
 
-#: internal/data/setting.go:343
+#: internal/data/setting.go:383
 msgid "port is already in use"
 msgstr ""
 
@@ -1790,10 +1737,6 @@ msgstr ""
 #: internal/data/website.go:447
 #: internal/data/website.go:708
 msgid "runtime directory does not exist"
-msgstr ""
-
-#: internal/http/middleware/must_login.go:107
-msgid "session expired, please login again"
 msgstr ""
 
 #: internal/apps/php/app.go:333
