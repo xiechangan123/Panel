@@ -1693,20 +1693,20 @@ msgstr ""
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/data/user_token.go:101
-msgid "invalid Authorization algorithm, must be HMAC-SHA256"
-msgstr ""
-
-#: internal/data/user_token.go:98
-msgid "invalid Authorization header: %v"
-msgstr ""
-
 #: internal/http/middleware/entrance.go:101
 msgid "invalid access entrance"
 msgstr ""
 
+#: internal/data/user_token.go:101
+msgid "invalid algorithm, must be HMAC-SHA256"
+msgstr ""
+
 #: internal/data/user_token.go:124
 msgid "invalid api signature"
+msgstr ""
+
+#: internal/data/user_token.go:98
+msgid "invalid header: %v"
 msgstr ""
 
 #: internal/service/user.go:82
