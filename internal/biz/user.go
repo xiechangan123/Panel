@@ -23,6 +23,7 @@ type UserRepo interface {
 	Get(id uint) (*User, error)
 	Create(username, password string) (*User, error)
 	UpdatePassword(id uint, password string) error
+	UpdateEmail(id uint, email string) error
 	Delete(id uint) error
 	CheckPassword(username, password string) (*User, error)
 	IsTwoFA(username string) (bool, error)

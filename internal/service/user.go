@@ -1,10 +1,13 @@
 package service
 
 import (
+	"bytes"
 	"crypto/rsa"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/gob"
 	"fmt"
+	"image/png"
 	"net"
 	"net/http"
 	"strings"
@@ -211,6 +214,77 @@ func (s *UserService) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = s.userRepo.UpdatePassword(req.ID, req.Password); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+func (s *UserService) UpdateEmail(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.UserUpdateEmail](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.userRepo.UpdateEmail(req.ID, req.Email); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+func (s *UserService) GenerateTwoFA(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.UserID](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	img, url, secret, err := s.userRepo.GenerateTwoFA(req.ID)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	if err = png.Encode(buf, img); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, chix.M{
+		"img":    base64.StdEncoding.EncodeToString(buf.Bytes()),
+		"url":    url,
+		"secret": secret,
+	})
+}
+
+func (s *UserService) UpdateTwoFA(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.UserUpdateTwoFA](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.userRepo.UpdateTwoFA(req.ID, req.Code, req.Secret); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.UserID](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.userRepo.Delete(req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

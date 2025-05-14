@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import setting from '@/api/panel/setting'
-
 defineOptions({
   name: 'setting-index'
 })
+import { NButton } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
 
+import setting from '@/api/panel/setting'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { useThemeStore } from '@/store'
 import SettingBase from '@/views/setting/SettingBase.vue'
 import SettingSafe from '@/views/setting/SettingSafe.vue'
-import { NButton } from 'naive-ui'
-import { useGettext } from 'vue3-gettext'
+import SettingUser from '@/views/setting/SettingUser.vue'
 
 const { $gettext } = useGettext()
 const themeStore = useThemeStore()
@@ -21,10 +21,6 @@ const { data: model } = useRequest(setting.list, {
     name: '',
     channel: 'stable',
     locale: 'en',
-    channel: 'stable',
-    username: '',
-    password: '',
-    email: '',
     port: 8888,
     entrance: '',
     offline_mode: false,
@@ -53,14 +49,20 @@ const handleSave = () => {
     }
   })
 }
+
+const handleCreate = () => {}
 </script>
 
 <template>
   <common-page show-footer>
     <template #action>
-      <n-button type="primary" @click="handleSave">
+      <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
         <TheIcon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
+      </n-button>
+      <n-button v-if="currentTab == 'user'" type="primary" @click="handleCreate">
+        <TheIcon :size="18" icon="material-symbols:add" />
+        {{ $gettext('Create User') }}
       </n-button>
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
@@ -69,6 +71,9 @@ const handleSave = () => {
       </n-tab-pane>
       <n-tab-pane name="safe" :tab="$gettext('Safe')">
         <setting-safe v-model:model="model" />
+      </n-tab-pane>
+      <n-tab-pane name="user" :tab="$gettext('User')">
+        <setting-user />
       </n-tab-pane>
     </n-tabs>
   </common-page>

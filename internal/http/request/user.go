@@ -1,5 +1,9 @@
 package request
 
+type UserID struct {
+	ID uint `json:"id" validate:"required|exists:users,id"`
+}
+
 type UserLogin struct {
 	Username  string `json:"username" validate:"required"`
 	Password  string `json:"password" validate:"required"`
@@ -23,15 +27,11 @@ type UserUpdatePassword struct {
 
 type UserUpdateEmail struct {
 	ID    uint   `json:"id" validate:"required|exists:users,id"`
-	TwoFA string `json:"two_fa" validate:"required"`
+	Email string `json:"email" validate:"required|email"`
 }
 
 type UserUpdateTwoFA struct {
-	ID    uint   `json:"id" validate:"required|exists:users,id"`
-	TwoFA string `json:"two_fa" validate:"required"`
-	Code  string `json:"code" validate:"required"`
-}
-
-type UserDelete struct {
-	ID uint `json:"id" validate:"required|exists:users,id"`
+	ID     uint   `uri:"id" validate:"required|exists:users,id"`
+	Secret string `json:"secret"`
+	Code   string `json:"code"`
 }

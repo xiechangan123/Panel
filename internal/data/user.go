@@ -76,6 +76,16 @@ func (r *userRepo) UpdatePassword(id uint, password string) error {
 	return r.db.Save(user).Error
 }
 
+func (r *userRepo) UpdateEmail(id uint, email string) error {
+	user, err := r.Get(id)
+	if err != nil {
+		return err
+	}
+
+	user.Email = email
+	return r.db.Save(user).Error
+}
+
 func (r *userRepo) Delete(id uint) error {
 	if id == 1 {
 		return errors.New(r.t.Get("please don't do this"))

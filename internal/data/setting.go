@@ -1,13 +1,11 @@
 package data
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"path/filepath"
 	"sync"
 
-	"github.com/go-rat/utils/hash"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
@@ -199,7 +197,7 @@ func (r *settingRepo) Delete(key biz.SettingKey) error {
 	return nil
 }
 
-func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSetting, error) {
+func (r *settingRepo) GetPanelSetting() (*request.PanelSetting, error) {
 	name, err := r.Get(biz.SettingKeyName)
 	if err != nil {
 		return nil, err
@@ -225,12 +223,6 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 		return nil, err
 	}
 
-	userID := cast.ToUint(ctx.Value("user_id"))
-	user := new(biz.User)
-	if err := r.db.Where("id = ?", userID).First(user).Error; err != nil {
-		return nil, err
-	}
-
 	crt, err := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
 	if err != nil {
 		return nil, err
@@ -253,8 +245,6 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 		BindUA:      r.conf.Strings("http.bind_ua"),
 		WebsitePath: websitePath,
 		BackupPath:  backupPath,
-		Username:    user.Username,
-		Email:       user.Email,
 		Port:        uint(r.conf.Int("http.port")),
 		HTTPS:       r.conf.Bool("http.tls"),
 		Cert:        crt,
@@ -262,43 +252,23 @@ func (r *settingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSettin
 	}, nil
 }
 
-func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.PanelSetting) (bool, error) {
-	if err := r.Set(biz.SettingKeyName, setting.Name); err != nil {
+func (r *settingRepo) UpdatePanelSetting(req *request.PanelSetting) (bool, error) {
+	if err := r.Set(biz.SettingKeyName, req.Name); err != nil {
 		return false, err
 	}
-	if err := r.Set(biz.SettingKeyChannel, setting.Channel); err != nil {
+	if err := r.Set(biz.SettingKeyChannel, req.Channel); err != nil {
 		return false, err
 	}
-	if err := r.Set(biz.SettingKeyOfflineMode, cast.ToString(setting.OfflineMode)); err != nil {
+	if err := r.Set(biz.SettingKeyOfflineMode, cast.ToString(req.OfflineMode)); err != nil {
 		return false, err
 	}
-	if err := r.Set(biz.SettingKeyAutoUpdate, cast.ToString(setting.AutoUpdate)); err != nil {
+	if err := r.Set(biz.SettingKeyAutoUpdate, cast.ToString(req.AutoUpdate)); err != nil {
 		return false, err
 	}
-	if err := r.Set(biz.SettingKeyWebsitePath, setting.WebsitePath); err != nil {
+	if err := r.Set(biz.SettingKeyWebsitePath, req.WebsitePath); err != nil {
 		return false, err
 	}
-	if err := r.Set(biz.SettingKeyBackupPath, setting.BackupPath); err != nil {
-		return false, err
-	}
-
-	// 用户
-	user := new(biz.User)
-	userID := cast.ToUint(ctx.Value("user_id"))
-	if err := r.db.Where("id = ?", userID).First(user).Error; err != nil {
-		return false, err
-	}
-
-	user.Username = setting.Username
-	user.Email = setting.Email
-	if setting.Password != "" {
-		value, err := hash.NewArgon2id().Make(setting.Password)
-		if err != nil {
-			return false, err
-		}
-		user.Password = value
-	}
-	if err := r.db.Save(user).Error; err != nil {
+	if err := r.Set(biz.SettingKeyBackupPath, req.BackupPath); err != nil {
 		return false, err
 	}
 
@@ -307,22 +277,22 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 	restartFlag := false
 	oldCert, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
 	oldKey, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.key"))
-	if oldCert != setting.Cert || oldKey != setting.Key {
+	if oldCert != req.Cert || oldKey != req.Key {
 		if r.task.HasRunningTask() {
 			return false, errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
 		}
 		restartFlag = true
 	}
-	if _, err := cert.ParseCert(setting.Cert); err != nil {
+	if _, err := cert.ParseCert(req.Cert); err != nil {
 		return false, errors.New(r.t.Get("failed to parse certificate: %v", err))
 	}
-	if _, err := cert.ParseKey(setting.Key); err != nil {
+	if _, err := cert.ParseKey(req.Key); err != nil {
 		return false, errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), setting.Cert, 0644); err != nil {
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0644); err != nil {
 		return false, err
 	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), setting.Key, 0644); err != nil {
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0644); err != nil {
 		return false, err
 	}
 
@@ -336,20 +306,20 @@ func (r *settingRepo) UpdatePanelSetting(ctx context.Context, setting *request.P
 		return false, err
 	}
 
-	if setting.Port != config.HTTP.Port {
-		if os.TCPPortInUse(setting.Port) {
+	if req.Port != config.HTTP.Port {
+		if os.TCPPortInUse(req.Port) {
 			return false, errors.New(r.t.Get("port is already in use"))
 		}
 	}
 
-	config.App.Locale = setting.Locale
-	config.HTTP.Port = setting.Port
-	config.HTTP.Entrance = setting.Entrance
-	config.HTTP.TLS = setting.HTTPS
-	config.HTTP.BindDomain = setting.BindDomain
-	config.HTTP.BindIP = setting.BindIP
-	config.HTTP.BindUA = setting.BindUA
-	config.Session.Lifetime = setting.Lifetime
+	config.App.Locale = req.Locale
+	config.HTTP.Port = req.Port
+	config.HTTP.Entrance = req.Entrance
+	config.HTTP.TLS = req.HTTPS
+	config.HTTP.BindDomain = req.BindDomain
+	config.HTTP.BindIP = req.BindIP
+	config.HTTP.BindUA = req.BindUA
+	config.Session.Lifetime = req.Lifetime
 
 	// 放行端口
 	fw := firewall.NewFirewall()

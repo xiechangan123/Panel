@@ -15,5 +15,22 @@ export default {
   // 是否登录
   isLogin: () => http.Get('/user/is_login'),
   // 获取用户信息
-  info: () => http.Get('/user/info')
+  info: () => http.Get('/user/info'),
+  // 获取用户列表
+  list: (page: number, limit: number): any => http.Get(`/users`, { params: { page, limit } }),
+  // 创建用户
+  create: (username: string, password: string, email: string): any =>
+    http.Post('/users', { username, password, email }),
+  // 删除用户
+  delete: (id: number): any => http.Delete(`/users/${id}`),
+  // 更新用户邮箱
+  updateEmail: (id: number, email: string): any => http.Post(`/users/${id}/email`, { email }),
+  // 更新用户密码
+  updatePassword: (id: number, password: string): any =>
+    http.Post(`/users/${id}/password`, { password }),
+  // 生成2FA密钥
+  generateTwoFA: (id: number): any => http.Get(`/users/${id}/2fa`),
+  // 保存2FA密钥
+  updateTwoFA: (id: number, code: string, secret: string): any =>
+    http.Post(`/users/${id}/2fa`, { code, secret })
 }

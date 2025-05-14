@@ -1,7 +1,6 @@
 package biz
 
 import (
-	"context"
 	"time"
 
 	"github.com/tnb-labs/panel/internal/http/request"
@@ -38,6 +37,6 @@ type SettingRepo interface {
 	Set(key SettingKey, value string) error
 	SetSlice(key SettingKey, value []string) error
 	Delete(key SettingKey) error
-	GetPanelSetting(ctx context.Context) (*request.PanelSetting, error)
-	UpdatePanelSetting(ctx context.Context, setting *request.PanelSetting) (bool, error)
+	GetPanelSetting() (*request.PanelSetting, error)
+	UpdatePanelSetting(req *request.PanelSetting) (bool, error)
 }

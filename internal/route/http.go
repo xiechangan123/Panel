@@ -114,6 +114,16 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/info", route.user.Info)
 		})
 
+		r.Route("/users", func(r chi.Router) {
+			r.Get("/", route.user.List)
+			r.Post("/", route.user.Create)
+			r.Post("/{id}/password", route.user.UpdatePassword)
+			r.Post("/{id}/email", route.user.UpdateEmail)
+			r.Get("/{id}/2fa", route.user.GenerateTwoFA)
+			r.Post("/{id}/2fa", route.user.UpdateTwoFA)
+			r.Delete("/{id}", route.user.Delete)
+		})
+
 		r.Route("/dashboard", func(r chi.Router) {
 			r.Get("/panel", route.dashboard.Panel)
 			r.Get("/home_apps", route.dashboard.HomeApps)

@@ -19,7 +19,7 @@ func NewSettingService(setting biz.SettingRepo) *SettingService {
 }
 
 func (s *SettingService) Get(w http.ResponseWriter, r *http.Request) {
-	setting, err := s.settingRepo.GetPanelSetting(r.Context())
+	setting, err := s.settingRepo.GetPanelSetting()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -36,7 +36,7 @@ func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	restart := false
-	if restart, err = s.settingRepo.UpdatePanelSetting(r.Context(), req); err != nil {
+	if restart, err = s.settingRepo.UpdatePanelSetting(req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

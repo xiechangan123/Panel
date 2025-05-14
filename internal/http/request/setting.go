@@ -16,9 +16,6 @@ type PanelSetting struct {
 	BindUA      []string `json:"bind_ua"`
 	WebsitePath string   `json:"website_path" validate:"required"`
 	BackupPath  string   `json:"backup_path" validate:"required"`
-	Username    string   `json:"username" validate:"required"`
-	Password    string   `json:"password" validate:"password"`
-	Email       string   `json:"email" validate:"required"`
 	Port        uint     `json:"port" validate:"required|min:1|max:65535"`
 	HTTPS       bool     `json:"https"`
 	Cert        string   `json:"cert" validate:"required"`

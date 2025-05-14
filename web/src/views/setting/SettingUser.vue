@@ -1,0 +1,181 @@
+<script setup lang="ts">
+import user from '@/api/panel/user'
+import { formatDateTime, renderIcon } from '@/utils'
+import PasswordModal from '@/views/setting/PasswordModal.vue'
+import TwoFaModal from '@/views/setting/TwoFaModal.vue'
+import { NButton, NDataTable, NInput, NPopconfirm, NSwitch } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
+
+const { $gettext } = useGettext()
+
+const currentID = ref(0)
+const passwordModal = ref(false)
+const twoFaModal = ref(false)
+
+const columns: any = [
+  {
+    title: $gettext('Username'),
+    key: 'username',
+    minWidth: 100,
+    resizable: true,
+    ellipsis: { tooltip: true }
+  },
+  {
+    title: $gettext('Email'),
+    key: 'email',
+    minWidth: 200,
+    resizable: true,
+    ellipsis: { tooltip: true },
+    render(row: any) {
+      return h(NInput, {
+        size: 'small',
+        value: row.email,
+        onBlur: () => handleEmail(row),
+        onUpdateValue(v) {
+          row.email = v
+        }
+      })
+    }
+  },
+  {
+    title: $gettext('2FA'),
+    key: 'two_fa',
+    width: 150,
+    render(row: any) {
+      return h(NSwitch, {
+        size: 'small',
+        rubberBand: false,
+        value: row.two_fa !== '',
+        onUpdateValue: (v) => {
+          console.log(v)
+          if (v) {
+            twoFaModal.value = true
+            currentID.value = row.id
+          } else {
+            useRequest(user.updateTwoFA(row.id, '', '')).onSuccess(() => {
+              window.$message.success($gettext('Disabled successfully'))
+              refresh()
+            })
+          }
+        }
+      })
+    }
+  },
+  {
+    title: $gettext('Creation Time'),
+    key: 'created_at',
+    minWidth: 200,
+    ellipsis: { tooltip: true },
+    render(row: any) {
+      return formatDateTime(row.created_at)
+    }
+  },
+  {
+    title: $gettext('Actions'),
+    key: 'actions',
+    width: 260,
+    hideInExcel: true,
+    render(row: any) {
+      return [
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'primary',
+            onClick: () => {
+              currentID.value = row.id
+              passwordModal.value = true
+            }
+          },
+          {
+            default: () => $gettext('Change Password'),
+            icon: renderIcon('material-symbols:edit-outline', { size: 14 })
+          }
+        ),
+        h(
+          NPopconfirm,
+          {
+            style: 'margin-left: 15px;',
+            onPositiveClick: () => handleDelete(row.id)
+          },
+          {
+            default: () => {
+              return $gettext('Are you sure you want to delete this user?')
+            },
+            trigger: () => {
+              return h(
+                NButton,
+                {
+                  size: 'small',
+                  type: 'error',
+                  style: 'margin-left: 15px;'
+                },
+                {
+                  default: () => $gettext('Delete'),
+                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                }
+              )
+            }
+          }
+        )
+      ]
+    }
+  }
+]
+
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => user.list(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 20,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
+
+const handleEmail = (row: any) => {
+  useRequest(user.updateEmail(row.id, row.email)).onSuccess(() => {
+    window.$message.success($gettext('Modified successfully'))
+  })
+}
+
+const handleDelete = (id: number) => {
+  useRequest(user.delete(id)).onSuccess(() => {
+    window.$message.success($gettext('Deleted successfully'))
+    refresh()
+  })
+}
+
+onMounted(() => {
+  window.$bus.on('user:refresh', refresh)
+})
+</script>
+
+<template>
+  <n-flex vertical>
+    <n-data-table
+      striped
+      remote
+      :scroll-x="1000"
+      :loading="loading"
+      :columns="columns"
+      :data="data"
+      :row-key="(row: any) => row.name"
+      v-model:page="page"
+      v-model:pageSize="pageSize"
+      :pagination="{
+        page: page,
+        pageCount: pageCount,
+        pageSize: pageSize,
+        itemCount: total,
+        showQuickJumper: true,
+        showSizePicker: true,
+        pageSizes: [20, 50, 100, 200]
+      }"
+    />
+  </n-flex>
+  <password-modal v-model:id="currentID" v-model:show="passwordModal" />
+  <two-fa-modal v-model:id="currentID" v-model:show="twoFaModal" />
+</template>
+
+<style scoped lang="scss"></style>
