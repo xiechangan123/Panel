@@ -281,24 +281,24 @@ func (_c *SettingRepo_GetInt_Call) RunAndReturn(run func(biz.SettingKey, ...int)
 	return _c
 }
 
-// GetPanelSetting provides a mock function with no fields
-func (_m *SettingRepo) GetPanelSetting() (*request.PanelSetting, error) {
+// GetPanel provides a mock function with no fields
+func (_m *SettingRepo) GetPanel() (*request.SettingPanel, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetPanelSetting")
+		panic("no return value specified for GetPanel")
 	}
 
-	var r0 *request.PanelSetting
+	var r0 *request.SettingPanel
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*request.PanelSetting, error)); ok {
+	if rf, ok := ret.Get(0).(func() (*request.SettingPanel, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() *request.PanelSetting); ok {
+	if rf, ok := ret.Get(0).(func() *request.SettingPanel); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*request.PanelSetting)
+			r0 = ret.Get(0).(*request.SettingPanel)
 		}
 	}
 
@@ -311,29 +311,29 @@ func (_m *SettingRepo) GetPanelSetting() (*request.PanelSetting, error) {
 	return r0, r1
 }
 
-// SettingRepo_GetPanelSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPanelSetting'
-type SettingRepo_GetPanelSetting_Call struct {
+// SettingRepo_GetPanel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPanel'
+type SettingRepo_GetPanel_Call struct {
 	*mock.Call
 }
 
-// GetPanelSetting is a helper method to define mock.On call
-func (_e *SettingRepo_Expecter) GetPanelSetting() *SettingRepo_GetPanelSetting_Call {
-	return &SettingRepo_GetPanelSetting_Call{Call: _e.mock.On("GetPanelSetting")}
+// GetPanel is a helper method to define mock.On call
+func (_e *SettingRepo_Expecter) GetPanel() *SettingRepo_GetPanel_Call {
+	return &SettingRepo_GetPanel_Call{Call: _e.mock.On("GetPanel")}
 }
 
-func (_c *SettingRepo_GetPanelSetting_Call) Run(run func()) *SettingRepo_GetPanelSetting_Call {
+func (_c *SettingRepo_GetPanel_Call) Run(run func()) *SettingRepo_GetPanel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *SettingRepo_GetPanelSetting_Call) Return(_a0 *request.PanelSetting, _a1 error) *SettingRepo_GetPanelSetting_Call {
+func (_c *SettingRepo_GetPanel_Call) Return(_a0 *request.SettingPanel, _a1 error) *SettingRepo_GetPanel_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *SettingRepo_GetPanelSetting_Call) RunAndReturn(run func() (*request.PanelSetting, error)) *SettingRepo_GetPanelSetting_Call {
+func (_c *SettingRepo_GetPanel_Call) RunAndReturn(run func() (*request.SettingPanel, error)) *SettingRepo_GetPanel_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -505,26 +505,72 @@ func (_c *SettingRepo_SetSlice_Call) RunAndReturn(run func(biz.SettingKey, []str
 	return _c
 }
 
-// UpdatePanelSetting provides a mock function with given fields: req
-func (_m *SettingRepo) UpdatePanelSetting(req *request.PanelSetting) (bool, error) {
+// UpdateCert provides a mock function with given fields: req
+func (_m *SettingRepo) UpdateCert(req *request.SettingCert) error {
 	ret := _m.Called(req)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdatePanelSetting")
+		panic("no return value specified for UpdateCert")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*request.SettingCert) error); ok {
+		r0 = rf(req)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SettingRepo_UpdateCert_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCert'
+type SettingRepo_UpdateCert_Call struct {
+	*mock.Call
+}
+
+// UpdateCert is a helper method to define mock.On call
+//   - req *request.SettingCert
+func (_e *SettingRepo_Expecter) UpdateCert(req interface{}) *SettingRepo_UpdateCert_Call {
+	return &SettingRepo_UpdateCert_Call{Call: _e.mock.On("UpdateCert", req)}
+}
+
+func (_c *SettingRepo_UpdateCert_Call) Run(run func(req *request.SettingCert)) *SettingRepo_UpdateCert_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*request.SettingCert))
+	})
+	return _c
+}
+
+func (_c *SettingRepo_UpdateCert_Call) Return(_a0 error) *SettingRepo_UpdateCert_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *SettingRepo_UpdateCert_Call) RunAndReturn(run func(*request.SettingCert) error) *SettingRepo_UpdateCert_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdatePanel provides a mock function with given fields: req
+func (_m *SettingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
+	ret := _m.Called(req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePanel")
 	}
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.PanelSetting) (bool, error)); ok {
+	if rf, ok := ret.Get(0).(func(*request.SettingPanel) (bool, error)); ok {
 		return rf(req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.PanelSetting) bool); ok {
+	if rf, ok := ret.Get(0).(func(*request.SettingPanel) bool); ok {
 		r0 = rf(req)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.PanelSetting) error); ok {
+	if rf, ok := ret.Get(1).(func(*request.SettingPanel) error); ok {
 		r1 = rf(req)
 	} else {
 		r1 = ret.Error(1)
@@ -533,30 +579,30 @@ func (_m *SettingRepo) UpdatePanelSetting(req *request.PanelSetting) (bool, erro
 	return r0, r1
 }
 
-// SettingRepo_UpdatePanelSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePanelSetting'
-type SettingRepo_UpdatePanelSetting_Call struct {
+// SettingRepo_UpdatePanel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePanel'
+type SettingRepo_UpdatePanel_Call struct {
 	*mock.Call
 }
 
-// UpdatePanelSetting is a helper method to define mock.On call
-//   - req *request.PanelSetting
-func (_e *SettingRepo_Expecter) UpdatePanelSetting(req interface{}) *SettingRepo_UpdatePanelSetting_Call {
-	return &SettingRepo_UpdatePanelSetting_Call{Call: _e.mock.On("UpdatePanelSetting", req)}
+// UpdatePanel is a helper method to define mock.On call
+//   - req *request.SettingPanel
+func (_e *SettingRepo_Expecter) UpdatePanel(req interface{}) *SettingRepo_UpdatePanel_Call {
+	return &SettingRepo_UpdatePanel_Call{Call: _e.mock.On("UpdatePanel", req)}
 }
 
-func (_c *SettingRepo_UpdatePanelSetting_Call) Run(run func(req *request.PanelSetting)) *SettingRepo_UpdatePanelSetting_Call {
+func (_c *SettingRepo_UpdatePanel_Call) Run(run func(req *request.SettingPanel)) *SettingRepo_UpdatePanel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.PanelSetting))
+		run(args[0].(*request.SettingPanel))
 	})
 	return _c
 }
 
-func (_c *SettingRepo_UpdatePanelSetting_Call) Return(_a0 bool, _a1 error) *SettingRepo_UpdatePanelSetting_Call {
+func (_c *SettingRepo_UpdatePanel_Call) Return(_a0 bool, _a1 error) *SettingRepo_UpdatePanel_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *SettingRepo_UpdatePanelSetting_Call) RunAndReturn(run func(*request.PanelSetting) (bool, error)) *SettingRepo_UpdatePanelSetting_Call {
+func (_c *SettingRepo_UpdatePanel_Call) RunAndReturn(run func(*request.SettingPanel) (bool, error)) *SettingRepo_UpdatePanel_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -610,6 +610,52 @@ func (_c *WebsiteRepo_Update_Call) RunAndReturn(run func(*request.WebsiteUpdate)
 	return _c
 }
 
+// UpdateCert provides a mock function with given fields: req
+func (_m *WebsiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
+	ret := _m.Called(req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateCert")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*request.WebsiteUpdateCert) error); ok {
+		r0 = rf(req)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteRepo_UpdateCert_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCert'
+type WebsiteRepo_UpdateCert_Call struct {
+	*mock.Call
+}
+
+// UpdateCert is a helper method to define mock.On call
+//   - req *request.WebsiteUpdateCert
+func (_e *WebsiteRepo_Expecter) UpdateCert(req interface{}) *WebsiteRepo_UpdateCert_Call {
+	return &WebsiteRepo_UpdateCert_Call{Call: _e.mock.On("UpdateCert", req)}
+}
+
+func (_c *WebsiteRepo_UpdateCert_Call) Run(run func(req *request.WebsiteUpdateCert)) *WebsiteRepo_UpdateCert_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*request.WebsiteUpdateCert))
+	})
+	return _c
+}
+
+func (_c *WebsiteRepo_UpdateCert_Call) Return(_a0 error) *WebsiteRepo_UpdateCert_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteRepo_UpdateCert_Call) RunAndReturn(run func(*request.WebsiteUpdateCert) error) *WebsiteRepo_UpdateCert_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateDefaultConfig provides a mock function with given fields: req
 func (_m *WebsiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) error {
 	ret := _m.Called(req)
