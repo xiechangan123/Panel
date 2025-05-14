@@ -82,9 +82,9 @@ func (_c *UserRepo_CheckPassword_Call) RunAndReturn(run func(string, string) (*b
 	return _c
 }
 
-// Create provides a mock function with given fields: username, password
-func (_m *UserRepo) Create(username string, password string) (*biz.User, error) {
-	ret := _m.Called(username, password)
+// Create provides a mock function with given fields: username, password, email
+func (_m *UserRepo) Create(username string, password string, email string) (*biz.User, error) {
+	ret := _m.Called(username, password, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -92,19 +92,19 @@ func (_m *UserRepo) Create(username string, password string) (*biz.User, error) 
 
 	var r0 *biz.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string) (*biz.User, error)); ok {
-		return rf(username, password)
+	if rf, ok := ret.Get(0).(func(string, string, string) (*biz.User, error)); ok {
+		return rf(username, password, email)
 	}
-	if rf, ok := ret.Get(0).(func(string, string) *biz.User); ok {
-		r0 = rf(username, password)
+	if rf, ok := ret.Get(0).(func(string, string, string) *biz.User); ok {
+		r0 = rf(username, password, email)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(username, password)
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(username, password, email)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -120,13 +120,14 @@ type UserRepo_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - username string
 //   - password string
-func (_e *UserRepo_Expecter) Create(username interface{}, password interface{}) *UserRepo_Create_Call {
-	return &UserRepo_Create_Call{Call: _e.mock.On("Create", username, password)}
+//   - email string
+func (_e *UserRepo_Expecter) Create(username interface{}, password interface{}, email interface{}) *UserRepo_Create_Call {
+	return &UserRepo_Create_Call{Call: _e.mock.On("Create", username, password, email)}
 }
 
-func (_c *UserRepo_Create_Call) Run(run func(username string, password string)) *UserRepo_Create_Call {
+func (_c *UserRepo_Create_Call) Run(run func(username string, password string, email string)) *UserRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string))
+		run(args[0].(string), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -136,7 +137,7 @@ func (_c *UserRepo_Create_Call) Return(_a0 *biz.User, _a1 error) *UserRepo_Creat
 	return _c
 }
 
-func (_c *UserRepo_Create_Call) RunAndReturn(run func(string, string) (*biz.User, error)) *UserRepo_Create_Call {
+func (_c *UserRepo_Create_Call) RunAndReturn(run func(string, string, string) (*biz.User, error)) *UserRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
