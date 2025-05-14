@@ -91,7 +91,7 @@ const columns: any = [
           },
           {
             default: () => $gettext('Access Tokens'),
-            icon: renderIcon('material-symbols:edit-outline', { size: 14 })
+            icon: renderIcon('material-symbols:vpn-key-outline', { size: 14 })
           }
         ),
         h(

@@ -51,23 +51,30 @@ watch(
     @close="show = false"
   >
     <n-flex vertical>
-      <n-flex :wrap="false" justify="start" align="flex-start" :size="20">
-        <n-image :src="qrCode" :alt="$gettext('QR Code')" width="200" height="200" />
-        <n-flex vertical :size="12">
-          <n-text style="max-width: 400px">
-            {{ $gettext('Scan the QR code with your 2FA app and enter the code below') }}
-          </n-text>
-          <n-text style="max-width: 400px">
-            {{
-              $gettext('If you cannot scan the QR code, please enter the URL below in your 2FA app')
-            }}
-          </n-text>
-          <n-text style="max-width: 400px; word-break: break-all">
-            <a :href="model.url" target="_blank">{{ model.url }}</a>
-          </n-text>
-        </n-flex>
-      </n-flex>
-
+      <n-grid :cols="8" item-responsive responsive="screen">
+        <n-gi span="0 l:1"></n-gi>
+        <n-gi span="8 l:3">
+          <n-image :src="qrCode" :alt="$gettext('QR Code')" />
+        </n-gi>
+        <n-gi span="8 l:3">
+          <n-flex vertical>
+            <n-text>
+              {{ $gettext('Scan the QR code with your 2FA app and enter the code below') }}
+            </n-text>
+            <n-text>
+              {{
+                $gettext(
+                  'If you cannot scan the QR code, please enter the URL below in your 2FA app'
+                )
+              }}
+            </n-text>
+            <n-text>
+              <a :href="model.url" target="_blank">{{ model.url }}</a>
+            </n-text>
+          </n-flex>
+        </n-gi>
+        <n-gi span="0 l:1"> </n-gi>>
+      </n-grid>
       <n-form>
         <n-form-item path="code" :label="$gettext('Code')">
           <n-input
