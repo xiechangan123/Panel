@@ -1267,8 +1267,8 @@ msgstr ""
 msgid "app not found"
 msgstr ""
 
-#: internal/data/setting.go:312
-#: internal/data/setting.go:373
+#: internal/data/setting.go:282
+#: internal/data/setting.go:343
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -1560,12 +1560,12 @@ msgid "failed to load MySQL root password: %v"
 msgstr ""
 
 #: internal/data/cert.go:92
-#: internal/data/setting.go:317
+#: internal/data/setting.go:287
 msgid "failed to parse certificate: %v"
 msgstr ""
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:320
+#: internal/data/setting.go:290
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -1677,9 +1677,9 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/data/user.go:149
-#: internal/data/user.go:167
-#: internal/service/user.go:93
+#: internal/data/user.go:159
+#: internal/data/user.go:177
+#: internal/service/user.go:96
 msgid "invalid 2fa code"
 msgstr ""
 
@@ -1691,7 +1691,7 @@ msgstr ""
 msgid "invalid api signature"
 msgstr ""
 
-#: internal/service/user.go:79
+#: internal/service/user.go:82
 msgid "invalid key, please refresh the page"
 msgstr ""
 
@@ -1793,7 +1793,7 @@ msgstr ""
 msgid "phpMyAdmin port not found"
 msgstr ""
 
-#: internal/data/user.go:81
+#: internal/data/user.go:91
 #: internal/service/file.go:135
 #: internal/service/file.go:222
 #: internal/service/file.go:251
@@ -1804,7 +1804,7 @@ msgstr ""
 msgid "please retry the manual obtain operation"
 msgstr ""
 
-#: internal/data/setting.go:341
+#: internal/data/setting.go:311
 msgid "port is already in use"
 msgstr ""
 
@@ -1927,9 +1927,9 @@ msgstr ""
 msgid "upload file error: %v"
 msgstr ""
 
-#: internal/data/user.go:103
+#: internal/data/user.go:106
 #: internal/data/user.go:113
-#: internal/data/user.go:96
+#: internal/data/user.go:123
 msgid "username or password error"
 msgstr ""
 
