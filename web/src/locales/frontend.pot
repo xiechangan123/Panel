@@ -218,7 +218,7 @@ msgstr ""
 #: src/views/firewall/CreateModal.vue:147
 #: src/views/setting/CreateModal.vue:64
 #: src/views/setting/PasswordModal.vue:44
-#: src/views/setting/TwoFaModal.vue:80
+#: src/views/setting/TwoFaModal.vue:87
 #: src/views/ssh/CreateModal.vue:99
 #: src/views/ssh/UpdateModal.vue:105
 #: src/views/task/CreateModal.vue:171
@@ -4347,23 +4347,23 @@ msgstr ""
 msgid "Enable 2FA"
 msgstr ""
 
-#: src/views/setting/TwoFaModal.vue:55
+#: src/views/setting/TwoFaModal.vue:57
 msgid "QR Code"
 msgstr ""
 
-#: src/views/setting/TwoFaModal.vue:58
+#: src/views/setting/TwoFaModal.vue:62
 msgid "Scan the QR code with your 2FA app and enter the code below"
 msgstr ""
 
-#: src/views/setting/TwoFaModal.vue:62
+#: src/views/setting/TwoFaModal.vue:66
 msgid "If you cannot scan the QR code, please enter the URL below in your 2FA app"
 msgstr ""
 
-#: src/views/setting/TwoFaModal.vue:72
+#: src/views/setting/TwoFaModal.vue:79
 msgid "Code"
 msgstr ""
 
-#: src/views/setting/TwoFaModal.vue:76
+#: src/views/setting/TwoFaModal.vue:83
 msgid "Enter the code"
 msgstr ""
 
