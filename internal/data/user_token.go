@@ -95,10 +95,10 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 	var id uint
 	var signature string
 	if _, err := fmt.Sscanf(req.Header.Get("Authorization"), "%s Credential=%d, Signature=%s", &algorithm, &id, &signature); err != nil {
-		return 0, errors.New(r.t.Get("invalid Authorization header: %v", err))
+		return 0, errors.New(r.t.Get("invalid header: %v", err))
 	}
 	if algorithm != "HMAC-SHA256" {
-		return 0, errors.New(r.t.Get("invalid Authorization algorithm, must be HMAC-SHA256"))
+		return 0, errors.New(r.t.Get("invalid algorithm, must be HMAC-SHA256"))
 	}
 
 	// 获取用户令牌
