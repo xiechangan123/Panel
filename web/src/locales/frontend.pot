@@ -1616,7 +1616,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:47
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:40
-#: src/views/login/IndexView.vue:115
+#: src/views/login/IndexView.vue:133
 #: src/views/setting/SettingUser.vue:17
 #: src/views/ssh/CreateModal.vue:83
 #: src/views/ssh/UpdateModal.vue:89
@@ -1683,7 +1683,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:94
 #: src/views/database/UpdateUserModal.vue:49
 #: src/views/database/UserList.vue:50
-#: src/views/login/IndexView.vue:123
+#: src/views/login/IndexView.vue:142
 #: src/views/setting/PasswordModal.vue:34
 #: src/views/ssh/CreateModal.vue:77
 #: src/views/ssh/CreateModal.vue:86
@@ -4036,27 +4036,31 @@ msgstr ""
 msgid "SSH Port"
 msgstr ""
 
-#: src/views/login/IndexView.vue:46
+#: src/views/login/IndexView.vue:49
 msgid "Please enter username and password"
 msgstr ""
 
-#: src/views/login/IndexView.vue:51
+#: src/views/login/IndexView.vue:54
 msgid "Failed to get encryption public key, please refresh the page and try again"
 msgstr ""
 
-#: src/views/login/IndexView.vue:63
+#: src/views/login/IndexView.vue:67
 msgid "Login successful!"
 msgstr ""
 
-#: src/views/login/IndexView.vue:132
+#: src/views/login/IndexView.vue:153
+msgid "2FA Code"
+msgstr ""
+
+#: src/views/login/IndexView.vue:161
 msgid "Safe Login"
 msgstr ""
 
-#: src/views/login/IndexView.vue:133
+#: src/views/login/IndexView.vue:162
 msgid "Remember Me"
 msgstr ""
 
-#: src/views/login/IndexView.vue:147
+#: src/views/login/IndexView.vue:176
 msgid "Login"
 msgstr ""
 

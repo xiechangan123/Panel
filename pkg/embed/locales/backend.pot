@@ -1234,7 +1234,7 @@ msgstr ""
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:94
+#: internal/http/middleware/must_login.go:95
 msgid "api signature expired"
 msgstr ""
 
@@ -1299,7 +1299,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:122
+#: internal/http/middleware/must_login.go:123
 msgid "client ip/ua changed, please login again"
 msgstr ""
 
@@ -1687,7 +1687,7 @@ msgstr ""
 msgid "invalid access entrance"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:84
+#: internal/http/middleware/must_login.go:85
 msgid "invalid api signature"
 msgstr ""
 
@@ -1707,7 +1707,7 @@ msgstr ""
 msgid "invalid request user agent: %s"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:136
+#: internal/http/middleware/must_login.go:137
 msgid "invalid user id, please login again"
 msgstr ""
 
@@ -1837,7 +1837,7 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:107
+#: internal/http/middleware/must_login.go:108
 msgid "session expired, please login again"
 msgstr ""
 
