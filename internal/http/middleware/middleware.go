@@ -19,18 +19,20 @@ import (
 var ProviderSet = wire.NewSet(NewMiddlewares)
 
 type Middlewares struct {
-	conf    *koanf.Koanf
-	log     *slog.Logger
-	session *sessions.Manager
-	app     biz.AppRepo
+	conf      *koanf.Koanf
+	log       *slog.Logger
+	session   *sessions.Manager
+	app       biz.AppRepo
+	userToken biz.UserTokenRepo
 }
 
-func NewMiddlewares(conf *koanf.Koanf, log *slog.Logger, session *sessions.Manager, app biz.AppRepo) *Middlewares {
+func NewMiddlewares(conf *koanf.Koanf, log *slog.Logger, session *sessions.Manager, app biz.AppRepo, userToken biz.UserTokenRepo) *Middlewares {
 	return &Middlewares{
-		conf:    conf,
-		log:     log,
-		session: session,
-		app:     app,
+		conf:      conf,
+		log:       log,
+		session:   session,
+		app:       app,
+		userToken: userToken,
 	}
 }
 
@@ -49,7 +51,7 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 		middleware.Recoverer,
 		Status(t),
 		Entrance(t, r.conf, r.session),
-		MustLogin(t, r.session),
+		MustLogin(t, r.session, r.userToken),
 		MustInstall(t, r.app),
 	}
 }

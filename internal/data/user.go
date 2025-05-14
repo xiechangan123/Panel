@@ -88,16 +88,25 @@ func (r *userRepo) UpdateEmail(id uint, email string) error {
 }
 
 func (r *userRepo) Delete(id uint) error {
-	if id == 1 {
+	var count int64
+	if err := r.db.Model(&biz.User{}).Count(&count).Error; err != nil {
+		return err
+	}
+	if count <= 1 {
 		return errors.New(r.t.Get("please don't do this"))
 	}
 
 	user := new(biz.User)
-	if err := r.db.First(user, id).Error; err != nil {
+	if err := r.db.Preload("Tokens").First(user, id).Error; err != nil {
 		return err
 	}
 
-	return r.db.Delete(user).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&user).Association("Tokens").Delete(); err != nil {
+			return err
+		}
+		return tx.Delete(&user).Error
+	})
 }
 
 func (r *userRepo) CheckPassword(username, password string) (*biz.User, error) {

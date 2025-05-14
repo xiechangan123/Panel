@@ -1,27 +1,36 @@
 package data
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"slices"
 	"time"
 
-	"github.com/go-rat/utils/hash"
 	"github.com/go-rat/utils/str"
 	"github.com/leonelquinteros/gotext"
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/biz"
 )
 
 type userTokenRepo struct {
-	t      *gotext.Locale
-	db     *gorm.DB
-	hasher hash.Hasher
+	t  *gotext.Locale
+	db *gorm.DB
 }
 
 func NewUserTokenRepo(t *gotext.Locale, db *gorm.DB) biz.UserTokenRepo {
 	return &userTokenRepo{
-		t:      t,
-		db:     db,
-		hasher: hash.NewArgon2id(),
+		t:  t,
+		db: db,
 	}
 }
 
@@ -33,23 +42,15 @@ func (r userTokenRepo) List(userID, page, limit uint) ([]*biz.UserToken, int64, 
 }
 
 func (r userTokenRepo) Create(userID uint, ips []string, expired time.Time) (*biz.UserToken, error) {
-	token := str.Random(32)
-	hashedToken, err := r.hasher.Make(token)
-	if err != nil {
-		return nil, err
-	}
-
 	userToken := &biz.UserToken{
 		UserID:    userID,
-		Token:     hashedToken,
+		Token:     str.Random(32),
 		IPs:       ips,
 		ExpiredAt: expired,
 	}
-	if err = r.db.Create(userToken).Error; err != nil {
+	if err := r.db.Create(userToken).Error; err != nil {
 		return nil, err
 	}
-
-	userToken.Token = token
 
 	return userToken, nil
 }
@@ -86,4 +87,64 @@ func (r userTokenRepo) Update(id uint, ips []string, expired time.Time) (*biz.Us
 	}
 
 	return userToken, nil
+}
+
+func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
+	// Authorization: HMAC-SHA256 Credential=<token_id>, Signature=<signature>
+	var algorithm string
+	var id uint
+	var signature string
+	if _, err := fmt.Sscanf(req.Header.Get("Authorization"), "%s Credential=%d, Signature=%s", &algorithm, &id, &signature); err != nil {
+		return 0, errors.New(r.t.Get("invalid Authorization header: %v", err))
+	}
+	if algorithm != "HMAC-SHA256" {
+		return 0, errors.New(r.t.Get("invalid Authorization algorithm, must be HMAC-SHA256"))
+	}
+
+	// 获取用户令牌
+	userToken, _ := r.Get(id) // 不应报错，防止猜测令牌ID
+
+	// 步骤一：构造规范化请求
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		return 0, err
+	}
+	req.Body = io.NopCloser(bytes.NewReader(body))
+	canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s", req.Method, req.URL.Path, req.URL.Query().Encode(), str.SHA256(string(body)))
+
+	// 步骤二：构造待签名字符串
+	timestamp := cast.ToInt64(req.Header.Get("X-Timestamp"))
+	stringToSign := fmt.Sprintf("%s\n%d\n%s", "HMAC-SHA256", cast.ToInt64(timestamp), str.SHA256(canonicalRequest))
+
+	// 步骤三：计算签名
+	validSignature := r.hmacsha256(stringToSign, userToken.Token)
+
+	// 步骤四：验证签名
+	if subtle.ConstantTimeCompare([]byte(signature), []byte(validSignature)) != 1 {
+		return 0, errors.New(r.t.Get("invalid api signature"))
+	}
+
+	// 步骤五：验证时间戳
+	if timestamp == 0 || timestamp < (time.Now().Unix()-300) {
+		return 0, errors.New(r.t.Get("api signature expired"))
+	}
+
+	// 步骤六：验证IP
+	if len(userToken.IPs) > 0 {
+		ip, _, err := net.SplitHostPort(req.RemoteAddr)
+		if err != nil {
+			ip = req.RemoteAddr
+		}
+		if !slices.Contains(userToken.IPs, ip) {
+			return 0, errors.New(r.t.Get("invalid request ip: %s", ip))
+		}
+	}
+
+	return userToken.UserID, nil
+}
+
+func (r userTokenRepo) hmacsha256(data string, secret string) string {
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write([]byte(data))
+	return hex.EncodeToString(h.Sum(nil))
 }

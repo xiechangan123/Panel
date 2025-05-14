@@ -60,7 +60,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				defer render.Release()
 				render.Status(http.StatusTeapot)
 				render.JSON(chix.M{
-					"message": t.Get("invalid request ip: %s", r.RemoteAddr),
+					"message": t.Get("invalid request ip: %s", ip),
 				})
 				return
 			}
