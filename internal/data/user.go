@@ -157,7 +157,7 @@ func (r *userRepo) UpdateTwoFA(id uint, code, secret string) error {
 
 	// 保存前先验证一次，防止错误开启
 	if secret != "" && !totp.Validate(code, secret) {
-		return errors.New(r.t.Get("invalid 2fa code"))
+		return errors.New(r.t.Get("invalid 2FA code"))
 	}
 
 	user.TwoFA = secret
@@ -175,7 +175,7 @@ func (r *userRepo) CheckTwoFA(id uint, code string) (bool, error) {
 	}
 
 	if !totp.Validate(code, user.TwoFA) {
-		return false, errors.New(r.t.Get("invalid 2fa code"))
+		return false, errors.New(r.t.Get("invalid 2FA code"))
 	}
 
 	return true, nil

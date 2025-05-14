@@ -93,7 +93,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 
 	if user.TwoFA != "" {
 		if !totp.Validate(req.PassCode, user.TwoFA) {
-			Error(w, http.StatusForbidden, s.t.Get("invalid 2fa code"))
+			Error(w, http.StatusForbidden, s.t.Get("invalid 2FA code"))
 			return
 		}
 	}

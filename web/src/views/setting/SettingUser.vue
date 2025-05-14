@@ -90,7 +90,7 @@ const columns: any = [
             }
           },
           {
-            default: () => $gettext('Access Token'),
+            default: () => $gettext('Access Tokens'),
             icon: renderIcon('material-symbols:edit-outline', { size: 14 })
           }
         ),

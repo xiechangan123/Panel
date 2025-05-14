@@ -66,7 +66,7 @@ const columns: any = [
             }
           },
           {
-            default: () => $gettext('Change'),
+            default: () => $gettext('Modify'),
             icon: renderIcon('material-symbols:edit-outline', { size: 14 })
           }
         ),
@@ -142,7 +142,7 @@ const handleCreate = () => {
                   {
                     default: () =>
                       $gettext(
-                        'Token is only displayed once, please save it before closing the dialog'
+                        'Token is only displayed once, please save it before closing the dialog.'
                       )
                   }
                 ),
@@ -201,7 +201,7 @@ watch(
   <n-modal
     v-model:show="show"
     preset="card"
-    :title="$gettext('Access Token')"
+    :title="$gettext('Access Tokens')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -272,7 +272,7 @@ watch(
   <n-modal
     v-model:show="updateModal"
     preset="card"
-    :title="$gettext('Update Access Token')"
+    :title="$gettext('Modify Access Token')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
