@@ -111,6 +111,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.With(middleware.Throttle(5, time.Minute)).Post("/login", route.user.Login)
 			r.Post("/logout", route.user.Logout)
 			r.Get("/is_login", route.user.IsLogin)
+			r.Get("/is_2fa", route.user.IsTwoFA)
 			r.Get("/info", route.user.Info)
 		})
 

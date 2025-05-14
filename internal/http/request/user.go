@@ -12,7 +12,7 @@ type UserLogin struct {
 }
 
 type UserIsTwoFA struct {
-	Username string `uri:"username" validate:"required"`
+	Username string `query:"username" validate:"required"`
 }
 
 type UserCreate struct {

@@ -4,16 +4,19 @@ export default {
   // 公钥
   key: () => http.Get('/user/key'),
   // 登录
-  login: (username: string, password: string, safe_login: boolean) =>
+  login: (username: string, password: string, pass_code: string, safe_login: boolean) =>
     http.Post('/user/login', {
       username,
       password,
+      pass_code,
       safe_login
     }),
   // 登出
   logout: () => http.Post('/user/logout'),
   // 是否登录
   isLogin: () => http.Get('/user/is_login'),
+  // 是否2FA
+  isTwoFA: (username: string) => http.Get('/user/is_2fa', { params: { username } }),
   // 获取用户信息
   info: () => http.Get('/user/info'),
   // 获取用户列表

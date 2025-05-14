@@ -19,12 +19,14 @@ interface LoginInfo {
   username: string
   password: string
   safe_login: boolean
+  pass_code: string
 }
 
 const loginInfo = ref<LoginInfo>({
   username: '',
   password: '',
-  safe_login: true
+  safe_login: true,
+  pass_code: ''
 })
 
 const localLoginInfo = getLocal('loginInfo') as LoginInfo
@@ -37,11 +39,12 @@ const userStore = useUserStore()
 const themeStore = useThemeStore()
 const loging = ref<boolean>(false)
 const isRemember = useStorage('isRemember', false)
+const showTwoFA = ref(false)
 
 const logo = computed(() => themeStore.logo || logoImg)
 
 async function handleLogin() {
-  const { username, password, safe_login } = loginInfo.value
+  const { username, password, pass_code, safe_login } = loginInfo.value
   if (!username || !password) {
     window.$message.warning($gettext('Please enter username and password'))
     return
@@ -56,6 +59,7 @@ async function handleLogin() {
     user.login(
       rsaEncrypt(username, String(unref(key))),
       rsaEncrypt(password, String(unref(key))),
+      pass_code,
       safe_login
     )
   ).onSuccess(async () => {
@@ -80,6 +84,20 @@ async function handleLogin() {
     }
   })
   loging.value = false
+}
+
+const isTwoFA = () => {
+  const { username } = loginInfo.value
+  if (!username) {
+    return
+  }
+  useRequest(user.isTwoFA(username))
+    .onSuccess(({ data }) => {
+      showTwoFA.value = Boolean(data)
+    })
+    .onError(() => {
+      showTwoFA.value = false
+    })
 }
 
 watch(isLogin, async () => {
@@ -113,6 +131,7 @@ watch(isLogin, async () => {
             autofocus
             class="h-50 items-center pl-10 text-16"
             :placeholder="$gettext('Username')"
+            :on-blur="isTwoFA"
           />
         </div>
         <div mt-30>
@@ -123,6 +142,16 @@ watch(isLogin, async () => {
             :placeholder="$gettext('Password')"
             type="password"
             show-password-on="click"
+            @keydown.enter="handleLogin"
+          />
+        </div>
+        <div v-if="showTwoFA" mt-30>
+          <n-input
+            v-model:value="loginInfo.pass_code"
+            :maxlength="6"
+            class="h-50 items-center pl-10 text-16"
+            :placeholder="$gettext('2FA Code')"
+            type="text"
             @keydown.enter="handleLogin"
           />
         </div>
