@@ -338,6 +338,7 @@ const formatDbValue = (value: string) => {
 onMounted(() => {
   refresh()
   getDefaultPage()
+  window.$bus.on('website:refresh', refresh)
 })
 </script>
 

@@ -65,6 +65,7 @@ const handleCreate = async () => {
         path: '',
         remark: ''
       }
+      window.$bus.emit('website:refresh')
     })
   }
 }
