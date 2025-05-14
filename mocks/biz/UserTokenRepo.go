@@ -3,8 +3,11 @@
 package biz
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	http "net/http"
+
 	biz "github.com/tnb-labs/panel/internal/biz"
+
+	mock "github.com/stretchr/testify/mock"
 
 	time "time"
 )
@@ -309,6 +312,62 @@ func (_c *UserTokenRepo_Update_Call) Return(_a0 *biz.UserToken, _a1 error) *User
 }
 
 func (_c *UserTokenRepo_Update_Call) RunAndReturn(run func(uint, []string, time.Time) (*biz.UserToken, error)) *UserTokenRepo_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ValidateReq provides a mock function with given fields: req
+func (_m *UserTokenRepo) ValidateReq(req *http.Request) (uint, error) {
+	ret := _m.Called(req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ValidateReq")
+	}
+
+	var r0 uint
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*http.Request) (uint, error)); ok {
+		return rf(req)
+	}
+	if rf, ok := ret.Get(0).(func(*http.Request) uint); ok {
+		r0 = rf(req)
+	} else {
+		r0 = ret.Get(0).(uint)
+	}
+
+	if rf, ok := ret.Get(1).(func(*http.Request) error); ok {
+		r1 = rf(req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserTokenRepo_ValidateReq_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ValidateReq'
+type UserTokenRepo_ValidateReq_Call struct {
+	*mock.Call
+}
+
+// ValidateReq is a helper method to define mock.On call
+//   - req *http.Request
+func (_e *UserTokenRepo_Expecter) ValidateReq(req interface{}) *UserTokenRepo_ValidateReq_Call {
+	return &UserTokenRepo_ValidateReq_Call{Call: _e.mock.On("ValidateReq", req)}
+}
+
+func (_c *UserTokenRepo_ValidateReq_Call) Run(run func(req *http.Request)) *UserTokenRepo_ValidateReq_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request))
+	})
+	return _c
+}
+
+func (_c *UserTokenRepo_ValidateReq_Call) Return(_a0 uint, _a1 error) *UserTokenRepo_ValidateReq_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserTokenRepo_ValidateReq_Call) RunAndReturn(run func(*http.Request) (uint, error)) *UserTokenRepo_ValidateReq_Call {
 	_c.Call.Return(run)
 	return _c
 }
