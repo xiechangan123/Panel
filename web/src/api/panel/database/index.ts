@@ -27,7 +27,8 @@ export default {
   serverRemark: (id: number, remark: string) =>
     http.Put(`/database_server/${id}/remark`, { remark }),
   // 获取数据库用户列表
-  userList: (page: number, limit: number) => http.Get('/database_user', { params: { page, limit } }),
+  userList: (page: number, limit: number) =>
+    http.Get('/database_user', { params: { page, limit } }),
   // 创建数据库用户
   userCreate: (data: any) => http.Post('/database_user', data),
   // 获取数据库用户

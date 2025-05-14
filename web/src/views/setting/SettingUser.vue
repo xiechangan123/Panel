@@ -2,6 +2,7 @@
 import user from '@/api/panel/user'
 import { formatDateTime, renderIcon } from '@/utils'
 import PasswordModal from '@/views/setting/PasswordModal.vue'
+import TokenModal from '@/views/setting/TokenModal.vue'
 import TwoFaModal from '@/views/setting/TwoFaModal.vue'
 import { NButton, NDataTable, NInput, NPopconfirm, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -11,6 +12,7 @@ const { $gettext } = useGettext()
 const currentID = ref(0)
 const passwordModal = ref(false)
 const twoFaModal = ref(false)
+const tokenModal = ref(false)
 
 const columns: any = [
   {
@@ -73,7 +75,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 260,
+    width: 380,
     hideInExcel: true,
     render(row: any) {
       return [
@@ -82,6 +84,22 @@ const columns: any = [
           {
             size: 'small',
             type: 'primary',
+            onClick: () => {
+              currentID.value = row.id
+              tokenModal.value = true
+            }
+          },
+          {
+            default: () => $gettext('Access Token'),
+            icon: renderIcon('material-symbols:edit-outline', { size: 14 })
+          }
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'primary',
+            style: 'margin-left: 15px;',
             onClick: () => {
               currentID.value = row.id
               passwordModal.value = true
@@ -176,6 +194,7 @@ onMounted(() => {
   </n-flex>
   <password-modal v-model:id="currentID" v-model:show="passwordModal" />
   <two-fa-modal v-model:id="currentID" v-model:show="twoFaModal" />
+  <token-modal v-model:id="currentID" v-model:show="tokenModal" />
 </template>
 
 <style scoped lang="scss"></style>

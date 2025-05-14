@@ -16,6 +16,7 @@ import (
 
 type Http struct {
 	user             *service.UserService
+	userToken        *service.UserTokenService
 	dashboard        *service.DashboardService
 	task             *service.TaskService
 	website          *service.WebsiteService
@@ -46,6 +47,7 @@ type Http struct {
 
 func NewHttp(
 	user *service.UserService,
+	userToken *service.UserTokenService,
 	dashboard *service.DashboardService,
 	task *service.TaskService,
 	website *service.WebsiteService,
@@ -75,6 +77,7 @@ func NewHttp(
 ) *Http {
 	return &Http{
 		user:             user,
+		userToken:        userToken,
 		dashboard:        dashboard,
 		task:             task,
 		website:          website,
@@ -123,6 +126,13 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/{id}/2fa", route.user.GenerateTwoFA)
 			r.Post("/{id}/2fa", route.user.UpdateTwoFA)
 			r.Delete("/{id}", route.user.Delete)
+		})
+
+		r.Route("/user_tokens", func(r chi.Router) {
+			r.Get("/", route.userToken.List)
+			r.Post("/", route.userToken.Create)
+			r.Put("/{id}", route.userToken.Update)
+			r.Delete("/{id}", route.userToken.Delete)
 		})
 
 		r.Route("/dashboard", func(r chi.Router) {

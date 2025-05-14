@@ -38,7 +38,6 @@ func (r *SSH) BeforeSave(tx *gorm.DB) error {
 	}
 
 	return nil
-
 }
 
 func (r *SSH) AfterFind(tx *gorm.DB) error {

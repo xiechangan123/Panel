@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 import setting from '@/api/panel/setting'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { useThemeStore } from '@/store'
+import CreateModal from '@/views/setting/CreateModal.vue'
 import SettingBase from '@/views/setting/SettingBase.vue'
 import SettingSafe from '@/views/setting/SettingSafe.vue'
 import SettingUser from '@/views/setting/SettingUser.vue'
@@ -15,6 +16,7 @@ import SettingUser from '@/views/setting/SettingUser.vue'
 const { $gettext } = useGettext()
 const themeStore = useThemeStore()
 const currentTab = ref('base')
+const createModal = ref(false)
 
 const { data: model } = useRequest(setting.list, {
   initialData: {
@@ -50,7 +52,9 @@ const handleSave = () => {
   })
 }
 
-const handleCreate = () => {}
+const handleCreate = () => {
+  createModal.value = true
+}
 </script>
 
 <template>
@@ -77,6 +81,7 @@ const handleCreate = () => {}
       </n-tab-pane>
     </n-tabs>
   </common-page>
+  <create-modal v-model:show="createModal" />
 </template>
 
 <style scoped lang="scss"></style>

@@ -197,7 +197,7 @@ func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.userRepo.Create(req.Username, req.Password)
+	user, err := s.userRepo.Create(req.Username, req.Password, req.Email)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

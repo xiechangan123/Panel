@@ -44,7 +44,7 @@ func (r *userRepo) Get(id uint) (*biz.User, error) {
 	return user, nil
 }
 
-func (r *userRepo) Create(username, password string) (*biz.User, error) {
+func (r *userRepo) Create(username, password, email string) (*biz.User, error) {
 	value, err := r.hasher.Make(password)
 	if err != nil {
 		return nil, err
@@ -53,6 +53,7 @@ func (r *userRepo) Create(username, password string) (*biz.User, error) {
 	user := &biz.User{
 		Username: username,
 		Password: value,
+		Email:    email,
 	}
 	if err = r.db.Create(user).Error; err != nil {
 		return nil, err

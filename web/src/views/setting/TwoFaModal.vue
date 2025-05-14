@@ -63,7 +63,7 @@ watch(
             }}
           </n-text>
           <n-text style="max-width: 400px; word-break: break-all">
-            {{ model.url }}
+            <a :href="model.url" target="_blank">{{ model.url }}</a>
           </n-text>
         </n-flex>
       </n-flex>

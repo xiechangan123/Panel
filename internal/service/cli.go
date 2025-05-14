@@ -138,9 +138,6 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	}
 	user.Username = str.Random(8)
 	user.Password = hashed
-	if user.Email == "" {
-		user.Email = str.Random(8) + "@yourdomain.com"
-	}
 
 	if err = s.db.Save(user).Error; err != nil {
 		return errors.New(s.t.Get("Failed to save user info: %v", err))
@@ -882,7 +879,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}
 
-	_, err = s.userRepo.Create("admin", value)
+	_, err = s.userRepo.Create("admin", value, str.Random(8)+"@yourdomain.com")
 	if err != nil {
 		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}

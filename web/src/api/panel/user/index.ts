@@ -35,5 +35,17 @@ export default {
   generateTwoFA: (id: number): any => http.Get(`/users/${id}/2fa`),
   // 保存2FA密钥
   updateTwoFA: (id: number, code: string, secret: string): any =>
-    http.Post(`/users/${id}/2fa`, { code, secret })
+    http.Post(`/users/${id}/2fa`, { code, secret }),
+
+  // 获取用户Token列表
+  tokenList: (user_id: number, page: number, limit: number): any =>
+    http.Get(`/user_tokens`, { params: { user_id, page, limit } }),
+  // 创建用户Token
+  tokenCreate: (user_id: number, ips: string[], expired_at: number): any =>
+    http.Post('/user_tokens', { user_id, ips, expired_at }),
+  // 删除用户Token
+  tokenDelete: (id: number): any => http.Delete(`/user_tokens/${id}`),
+  // 更新用户Token
+  tokenUpdate: (id: number, ips: string[], expired_at: number): any =>
+    http.Put(`/user_tokens/${id}`, { ips, expired_at })
 }

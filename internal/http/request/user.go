@@ -18,6 +18,7 @@ type UserIsTwoFA struct {
 type UserCreate struct {
 	Username string `json:"username" validate:"required|notExists:users,username"`
 	Password string `json:"password" validate:"required|password"`
+	Email    string `json:"email" validate:"required|email"`
 }
 
 type UserUpdatePassword struct {
