@@ -439,6 +439,53 @@ func (_c *UserRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.User, in
 	return _c
 }
 
+// UpdateEmail provides a mock function with given fields: id, email
+func (_m *UserRepo) UpdateEmail(id uint, email string) error {
+	ret := _m.Called(id, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateEmail")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
+		r0 = rf(id, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UserRepo_UpdateEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateEmail'
+type UserRepo_UpdateEmail_Call struct {
+	*mock.Call
+}
+
+// UpdateEmail is a helper method to define mock.On call
+//   - id uint
+//   - email string
+func (_e *UserRepo_Expecter) UpdateEmail(id interface{}, email interface{}) *UserRepo_UpdateEmail_Call {
+	return &UserRepo_UpdateEmail_Call{Call: _e.mock.On("UpdateEmail", id, email)}
+}
+
+func (_c *UserRepo_UpdateEmail_Call) Run(run func(id uint, email string)) *UserRepo_UpdateEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *UserRepo_UpdateEmail_Call) Return(_a0 error) *UserRepo_UpdateEmail_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UserRepo_UpdateEmail_Call) RunAndReturn(run func(uint, string) error) *UserRepo_UpdateEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdatePassword provides a mock function with given fields: id, password
 func (_m *UserRepo) UpdatePassword(id uint, password string) error {
 	ret := _m.Called(id, password)

@@ -3,11 +3,8 @@
 package biz
 
 import (
-	context "context"
-
-	biz "github.com/tnb-labs/panel/internal/biz"
-
 	mock "github.com/stretchr/testify/mock"
+	biz "github.com/tnb-labs/panel/internal/biz"
 
 	request "github.com/tnb-labs/panel/internal/http/request"
 )
@@ -284,9 +281,9 @@ func (_c *SettingRepo_GetInt_Call) RunAndReturn(run func(biz.SettingKey, ...int)
 	return _c
 }
 
-// GetPanelSetting provides a mock function with given fields: ctx
-func (_m *SettingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSetting, error) {
-	ret := _m.Called(ctx)
+// GetPanelSetting provides a mock function with no fields
+func (_m *SettingRepo) GetPanelSetting() (*request.PanelSetting, error) {
+	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPanelSetting")
@@ -294,19 +291,19 @@ func (_m *SettingRepo) GetPanelSetting(ctx context.Context) (*request.PanelSetti
 
 	var r0 *request.PanelSetting
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*request.PanelSetting, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func() (*request.PanelSetting, error)); ok {
+		return rf()
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *request.PanelSetting); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func() *request.PanelSetting); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*request.PanelSetting)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -320,14 +317,13 @@ type SettingRepo_GetPanelSetting_Call struct {
 }
 
 // GetPanelSetting is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *SettingRepo_Expecter) GetPanelSetting(ctx interface{}) *SettingRepo_GetPanelSetting_Call {
-	return &SettingRepo_GetPanelSetting_Call{Call: _e.mock.On("GetPanelSetting", ctx)}
+func (_e *SettingRepo_Expecter) GetPanelSetting() *SettingRepo_GetPanelSetting_Call {
+	return &SettingRepo_GetPanelSetting_Call{Call: _e.mock.On("GetPanelSetting")}
 }
 
-func (_c *SettingRepo_GetPanelSetting_Call) Run(run func(ctx context.Context)) *SettingRepo_GetPanelSetting_Call {
+func (_c *SettingRepo_GetPanelSetting_Call) Run(run func()) *SettingRepo_GetPanelSetting_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run()
 	})
 	return _c
 }
@@ -337,7 +333,7 @@ func (_c *SettingRepo_GetPanelSetting_Call) Return(_a0 *request.PanelSetting, _a
 	return _c
 }
 
-func (_c *SettingRepo_GetPanelSetting_Call) RunAndReturn(run func(context.Context) (*request.PanelSetting, error)) *SettingRepo_GetPanelSetting_Call {
+func (_c *SettingRepo_GetPanelSetting_Call) RunAndReturn(run func() (*request.PanelSetting, error)) *SettingRepo_GetPanelSetting_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -509,9 +505,9 @@ func (_c *SettingRepo_SetSlice_Call) RunAndReturn(run func(biz.SettingKey, []str
 	return _c
 }
 
-// UpdatePanelSetting provides a mock function with given fields: ctx, setting
-func (_m *SettingRepo) UpdatePanelSetting(ctx context.Context, setting *request.PanelSetting) (bool, error) {
-	ret := _m.Called(ctx, setting)
+// UpdatePanelSetting provides a mock function with given fields: req
+func (_m *SettingRepo) UpdatePanelSetting(req *request.PanelSetting) (bool, error) {
+	ret := _m.Called(req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdatePanelSetting")
@@ -519,17 +515,17 @@ func (_m *SettingRepo) UpdatePanelSetting(ctx context.Context, setting *request.
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.PanelSetting) (bool, error)); ok {
-		return rf(ctx, setting)
+	if rf, ok := ret.Get(0).(func(*request.PanelSetting) (bool, error)); ok {
+		return rf(req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *request.PanelSetting) bool); ok {
-		r0 = rf(ctx, setting)
+	if rf, ok := ret.Get(0).(func(*request.PanelSetting) bool); ok {
+		r0 = rf(req)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *request.PanelSetting) error); ok {
-		r1 = rf(ctx, setting)
+	if rf, ok := ret.Get(1).(func(*request.PanelSetting) error); ok {
+		r1 = rf(req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -543,15 +539,14 @@ type SettingRepo_UpdatePanelSetting_Call struct {
 }
 
 // UpdatePanelSetting is a helper method to define mock.On call
-//   - ctx context.Context
-//   - setting *request.PanelSetting
-func (_e *SettingRepo_Expecter) UpdatePanelSetting(ctx interface{}, setting interface{}) *SettingRepo_UpdatePanelSetting_Call {
-	return &SettingRepo_UpdatePanelSetting_Call{Call: _e.mock.On("UpdatePanelSetting", ctx, setting)}
+//   - req *request.PanelSetting
+func (_e *SettingRepo_Expecter) UpdatePanelSetting(req interface{}) *SettingRepo_UpdatePanelSetting_Call {
+	return &SettingRepo_UpdatePanelSetting_Call{Call: _e.mock.On("UpdatePanelSetting", req)}
 }
 
-func (_c *SettingRepo_UpdatePanelSetting_Call) Run(run func(ctx context.Context, setting *request.PanelSetting)) *SettingRepo_UpdatePanelSetting_Call {
+func (_c *SettingRepo_UpdatePanelSetting_Call) Run(run func(req *request.PanelSetting)) *SettingRepo_UpdatePanelSetting_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.PanelSetting))
+		run(args[0].(*request.PanelSetting))
 	})
 	return _c
 }
@@ -561,7 +556,7 @@ func (_c *SettingRepo_UpdatePanelSetting_Call) Return(_a0 bool, _a1 error) *Sett
 	return _c
 }
 
-func (_c *SettingRepo_UpdatePanelSetting_Call) RunAndReturn(run func(context.Context, *request.PanelSetting) (bool, error)) *SettingRepo_UpdatePanelSetting_Call {
+func (_c *SettingRepo_UpdatePanelSetting_Call) RunAndReturn(run func(*request.PanelSetting) (bool, error)) *SettingRepo_UpdatePanelSetting_Call {
 	_c.Call.Return(run)
 	return _c
 }
