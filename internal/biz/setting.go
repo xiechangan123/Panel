@@ -37,6 +37,7 @@ type SettingRepo interface {
 	Set(key SettingKey, value string) error
 	SetSlice(key SettingKey, value []string) error
 	Delete(key SettingKey) error
-	GetPanelSetting() (*request.PanelSetting, error)
-	UpdatePanelSetting(req *request.PanelSetting) (bool, error)
+	GetPanel() (*request.SettingPanel, error)
+	UpdatePanel(req *request.SettingPanel) (bool, error)
+	UpdateCert(req *request.SettingCert) error
 }

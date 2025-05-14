@@ -469,6 +469,12 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	}
 	website.Https = req.HTTPS
 	if req.HTTPS {
+		if _, err = cert.ParseCert(req.SSLCertificate); err != nil {
+			return errors.New(r.t.Get("failed to parse certificate: %v", err))
+		}
+		if _, err = cert.ParseKey(req.SSLCertificateKey); err != nil {
+			return errors.New(r.t.Get("failed to parse private key: %v", err))
+		}
 		if err = p.SetHTTPS(certPath, keyPath); err != nil {
 			return err
 		}
@@ -741,6 +747,38 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
 		return err
+	}
+
+	return nil
+}
+
+func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
+	website := new(biz.Website)
+	if err := r.db.Where("name", req.Name).First(&website).Error; err != nil {
+		return err
+	}
+
+	if _, err := cert.ParseCert(req.Cert); err != nil {
+		return errors.New(r.t.Get("failed to parse certificate: %v", err))
+	}
+	if _, err := cert.ParseKey(req.Key); err != nil {
+		return errors.New(r.t.Get("failed to parse private key: %v", err))
+	}
+
+	certPath := filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem")
+	keyPath := filepath.Join(app.Root, "server/vhost/cert", website.Name+".key")
+	if err := io.Write(certPath, req.Cert, 0644); err != nil {
+		return err
+	}
+	if err := io.Write(keyPath, req.Key, 0644); err != nil {
+		return err
+	}
+
+	if website.Https {
+		if err := systemctl.Reload("nginx"); err != nil {
+			_, err = shell.Execf("nginx -t")
+			return err
+		}
 	}
 
 	return nil

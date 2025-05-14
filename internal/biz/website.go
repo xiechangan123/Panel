@@ -35,5 +35,6 @@ type WebsiteRepo interface {
 	UpdateRemark(id uint, remark string) error
 	ResetConfig(id uint) error
 	UpdateStatus(id uint, status bool) error
+	UpdateCert(req *request.WebsiteUpdateCert) error
 	ObtainCert(ctx context.Context, id uint) error
 }

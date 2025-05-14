@@ -2,7 +2,7 @@ package request
 
 import "net/http"
 
-type PanelSetting struct {
+type SettingPanel struct {
 	Name        string   `json:"name" validate:"required"`
 	Channel     string   `json:"channel" validate:"required|in:stable,beta"`
 	Locale      string   `json:"locale" validate:"required"`
@@ -22,10 +22,15 @@ type PanelSetting struct {
 	Key         string   `json:"key" validate:"required"`
 }
 
-func (r *PanelSetting) Rules(_ *http.Request) map[string]string {
+func (r *SettingPanel) Rules(_ *http.Request) map[string]string {
 	return map[string]string{
 		"BindDomain.*": "required",
 		"BindIP.*":     "required|ip",
 		"BindUA.*":     "required",
 	}
+}
+
+type SettingCert struct {
+	Cert string `json:"cert" validate:"required"`
+	Key  string `json:"key" validate:"required"`
 }

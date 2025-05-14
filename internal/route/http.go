@@ -168,6 +168,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/{id}/update_remark", route.website.UpdateRemark)
 			r.Post("/{id}/reset_config", route.website.ResetConfig)
 			r.Post("/{id}/status", route.website.UpdateStatus)
+			r.Post("/{id}/cert", route.website.UpdateCert)
 			r.Post("/{id}/obtain_cert", route.website.ObtainCert)
 		})
 
@@ -366,6 +367,7 @@ func (route *Http) Register(r *chi.Mux) {
 		r.Route("/setting", func(r chi.Router) {
 			r.Get("/", route.setting.Get)
 			r.Post("/", route.setting.Update)
+			r.Post("/cert", route.setting.UpdateCert)
 		})
 
 		r.Route("/systemctl", func(r chi.Router) {

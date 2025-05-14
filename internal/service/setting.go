@@ -19,7 +19,7 @@ func NewSettingService(setting biz.SettingRepo) *SettingService {
 }
 
 func (s *SettingService) Get(w http.ResponseWriter, r *http.Request) {
-	setting, err := s.settingRepo.GetPanelSetting()
+	setting, err := s.settingRepo.GetPanel()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -29,14 +29,14 @@ func (s *SettingService) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.PanelSetting](r)
+	req, err := Bind[request.SettingPanel](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
 	restart := false
-	if restart, err = s.settingRepo.UpdatePanelSetting(req); err != nil {
+	if restart, err = s.settingRepo.UpdatePanel(req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -44,6 +44,24 @@ func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
 	if restart {
 		tools.RestartPanel()
 	}
+
+	Success(w, nil)
+}
+
+// UpdateCert 用于自动化工具更新证书
+func (s *SettingService) UpdateCert(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.SettingCert](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.settingRepo.UpdateCert(req); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	tools.RestartPanel()
 
 	Success(w, nil)
 }

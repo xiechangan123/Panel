@@ -197,7 +197,7 @@ func (r *settingRepo) Delete(key biz.SettingKey) error {
 	return nil
 }
 
-func (r *settingRepo) GetPanelSetting() (*request.PanelSetting, error) {
+func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	name, err := r.Get(biz.SettingKeyName)
 	if err != nil {
 		return nil, err
@@ -232,7 +232,7 @@ func (r *settingRepo) GetPanelSetting() (*request.PanelSetting, error) {
 		return nil, err
 	}
 
-	return &request.PanelSetting{
+	return &request.SettingPanel{
 		Name:        name,
 		Channel:     channel,
 		Locale:      r.conf.String("app.locale"),
@@ -252,7 +252,7 @@ func (r *settingRepo) GetPanelSetting() (*request.PanelSetting, error) {
 	}, nil
 }
 
-func (r *settingRepo) UpdatePanelSetting(req *request.PanelSetting) (bool, error) {
+func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	if err := r.Set(biz.SettingKeyName, req.Name); err != nil {
 		return false, err
 	}
@@ -349,4 +349,25 @@ func (r *settingRepo) UpdatePanelSetting(req *request.PanelSetting) (bool, error
 	}
 
 	return restartFlag, nil
+}
+
+func (r *settingRepo) UpdateCert(req *request.SettingCert) error {
+	if r.task.HasRunningTask() {
+		return errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
+	}
+	if _, err := cert.ParseCert(req.Cert); err != nil {
+		return errors.New(r.t.Get("failed to parse certificate: %v", err))
+	}
+	if _, err := cert.ParseKey(req.Key); err != nil {
+		return errors.New(r.t.Get("failed to parse private key: %v", err))
+	}
+
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0644); err != nil {
+		return err
+	}
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0644); err != nil {
+		return err
+	}
+
+	return nil
 }

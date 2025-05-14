@@ -212,6 +212,22 @@ func (s *WebsiteService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+// UpdateCert 用于自动化工具更新证书
+func (s *WebsiteService) UpdateCert(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.WebsiteUpdateCert](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.websiteRepo.UpdateCert(req); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
 func (s *WebsiteService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ID](r)
 	if err != nil {

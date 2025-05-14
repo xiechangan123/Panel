@@ -55,3 +55,9 @@ type WebsiteUpdateStatus struct {
 	ID     uint `json:"id" form:"id" validate:"required|exists:websites,id"`
 	Status bool `json:"status" form:"status"`
 }
+
+type WebsiteUpdateCert struct {
+	Name uint   `json:"name" validate:"required|exists:websites,name"`
+	Cert string `json:"cert" validate:"required"`
+	Key  string `json:"key" validate:"required"`
+}
