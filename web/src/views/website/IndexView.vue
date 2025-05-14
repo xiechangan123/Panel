@@ -11,6 +11,7 @@ import dashboard from '@/api/panel/dashboard'
 import website from '@/api/panel/website'
 import { useFileStore } from '@/store'
 import { generateRandomString, isNullOrUndef, renderIcon } from '@/utils'
+import BulkCreate from '@/views/website/BulkCreate.vue'
 
 const fileStore = useFileStore()
 const { $gettext } = useGettext()
@@ -176,6 +177,7 @@ const columns: any = [
 ]
 
 const createModal = ref(false)
+const bulkCreateModal = ref(false)
 const editDefaultPageModal = ref(false)
 
 const createModel = ref({
@@ -289,6 +291,9 @@ const handleCreate = async () => {
   createModel.value.listens = createModel.value.listens.filter((item) => item !== '443')
   useRequest(website.create(createModel.value)).onSuccess(() => {
     refresh()
+    window.$message.success(
+      $gettext('Website %{ name } created successfully', { name: createModal.value.name })
+    )
     createModal.value = false
     createModel.value = {
       name: '',
@@ -303,7 +308,6 @@ const handleCreate = async () => {
       path: '',
       remark: ''
     }
-    window.$message.success($gettext('Created successfully'))
   })
 }
 
@@ -339,10 +343,10 @@ onMounted(() => {
 
 <template>
   <common-page show-footer>
-    <n-flex vertical :size="20">
+    <template #action>
       <n-flex>
-        <n-button type="primary" @click="createModal = true">
-          {{ $gettext('Create Website') }}
+        <n-button type="warning" @click="editDefaultPageModal = true">
+          {{ $gettext('Modify Default Page') }}
         </n-button>
         <n-popconfirm @positive-click="bulkDelete">
           <template #trigger>
@@ -354,10 +358,15 @@ onMounted(() => {
             )
           }}
         </n-popconfirm>
-        <n-button type="warning" @click="editDefaultPageModal = true">
-          {{ $gettext('Modify Default Page') }}
+        <n-button type="primary" @click="bulkCreateModal = true">
+          {{ $gettext('Bulk Create Website') }}
+        </n-button>
+        <n-button type="primary" @click="createModal = true">
+          {{ $gettext('Create Website') }}
         </n-button>
       </n-flex>
+    </template>
+    <n-flex vertical :size="20">
       <n-data-table
         striped
         remote
@@ -564,4 +573,5 @@ onMounted(() => {
       </n-tab-pane>
     </n-tabs>
   </n-modal>
+  <bulk-create v-model:show="bulkCreateModal" />
 </template>
