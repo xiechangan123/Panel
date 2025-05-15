@@ -18,45 +18,45 @@ export const http = createAlova({
         if (ct && ct.includes('application/json')) {
           json = typeof response.data === 'string' ? JSON.parse(response.data) : response.data
         } else {
-          json = { code: response.status, message: response.data }
+          json = { code: response.status, msg: response.data }
         }
       } catch (error) {
-        json = { code: response.status, message: 'JSON 解析失败' }
+        json = { code: response.status, msg: 'failed to parse response' }
       }
       const { status, statusText } = response
       const { meta } = method
       if (status !== 200) {
         const code = json?.code ?? status
-        const message = resolveResError(
+        const msg = resolveResError(
           code,
-          (typeof json?.message === 'string' && json.message.trim()) || statusText
+          (typeof json?.msg === 'string' && json.msg.trim()) || statusText
         )
         const noAlert = meta?.noAlert
         if (!noAlert) {
           if (code === 422) {
-            window.$message.error(message)
+            window.$message.error(msg)
           } else if (code !== 401) {
             window.$dialog.error({
               title: '错误',
-              content: message,
+              content: msg,
               maskClosable: false
             })
           }
         }
-        throw new Error(message)
+        throw new Error(msg)
       }
       return json.data
     },
     onError: (error: any, method: Method) => {
-      const { code, message } = error
+      const { code, msg } = error
       const { meta } = method
-      const errorMessage = resolveResError(code, message)
+      const errorMsg = resolveResError(code, msg)
       const noAlert = meta?.noAlert
 
       if (!noAlert) {
         window.$dialog.error({
           title: '接口请求失败',
-          content: errorMessage,
+          content: errorMsg,
           maskClosable: false
         })
       }

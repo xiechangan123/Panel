@@ -14,13 +14,13 @@ import (
 
 // SuccessResponse 通用成功响应
 type SuccessResponse struct {
-	Message string `json:"message"`
-	Data    any    `json:"data"`
+	Msg  string `json:"msg"`
+	Data any    `json:"data"`
 }
 
 // ErrorResponse 通用错误响应
 type ErrorResponse struct {
-	Message string `json:"message"`
+	Msg string `json:"msg"`
 }
 
 // Success 响应成功
@@ -28,8 +28,8 @@ func Success(w http.ResponseWriter, data any) {
 	render := chix.NewRender(w)
 	defer render.Release()
 	render.JSON(&SuccessResponse{
-		Message: "success",
-		Data:    data,
+		Msg:  "success",
+		Data: data,
 	})
 }
 
@@ -43,7 +43,7 @@ func Error(w http.ResponseWriter, code int, format string, args ...any) {
 		format = fmt.Sprintf(format, args...)
 	}
 	render.JSON(&ErrorResponse{
-		Message: format,
+		Msg: format,
 	})
 }
 
@@ -54,7 +54,7 @@ func ErrorSystem(w http.ResponseWriter) {
 	render.Header(chix.HeaderContentType, chix.MIMEApplicationJSONCharsetUTF8) // must before Status()
 	render.Status(http.StatusInternalServerError)
 	render.JSON(&ErrorResponse{
-		Message: http.StatusText(http.StatusInternalServerError),
+		Msg: http.StatusText(http.StatusInternalServerError),
 	})
 }
 
