@@ -26,7 +26,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				defer render.Release()
 				render.Status(http.StatusInternalServerError)
 				render.JSON(chix.M{
-					"message": err.Error(),
+					"msg": err.Error(),
 				})
 				return
 			}
@@ -54,7 +54,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				defer render.Release()
 				render.Status(http.StatusTeapot)
 				render.JSON(chix.M{
-					"message": t.Get("invalid request domain: %s", r.Host),
+					"msg": t.Get("invalid request domain: %s", r.Host),
 				})
 				return
 			}
@@ -67,7 +67,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				defer render.Release()
 				render.Status(http.StatusTeapot)
 				render.JSON(chix.M{
-					"message": t.Get("invalid request ip: %s", ip),
+					"msg": t.Get("invalid request ip: %s", ip),
 				})
 				return
 			}
@@ -76,7 +76,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				defer render.Release()
 				render.Status(http.StatusTeapot)
 				render.JSON(chix.M{
-					"message": t.Get("invalid request user agent: %s", r.UserAgent()),
+					"msg": t.Get("invalid request user agent: %s", r.UserAgent()),
 				})
 				return
 			}
@@ -111,7 +111,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				defer render.Release()
 				render.Status(http.StatusTeapot)
 				render.JSON(chix.M{
-					"message": t.Get("invalid access entrance"),
+					"msg": t.Get("invalid access entrance"),
 				})
 				return
 			}

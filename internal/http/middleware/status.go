@@ -19,7 +19,7 @@ func Status(t *gotext.Locale) func(next http.Handler) http.Handler {
 				defer render.Release()
 				render.Status(http.StatusServiceUnavailable)
 				render.JSON(chix.M{
-					"message": t.Get("panel is upgrading, please refresh later"),
+					"msg": t.Get("panel is upgrading, please refresh later"),
 				})
 				return
 			case app.StatusMaintain:
@@ -27,7 +27,7 @@ func Status(t *gotext.Locale) func(next http.Handler) http.Handler {
 				defer render.Release()
 				render.Status(http.StatusServiceUnavailable)
 				render.JSON(chix.M{
-					"message": t.Get("panel is maintaining, please refresh later"),
+					"msg": t.Get("panel is maintaining, please refresh later"),
 				})
 				return
 			case app.StatusClosed:
@@ -35,7 +35,7 @@ func Status(t *gotext.Locale) func(next http.Handler) http.Handler {
 				defer render.Release()
 				render.Status(http.StatusForbidden)
 				render.JSON(chix.M{
-					"message": t.Get("panel is closed"),
+					"msg": t.Get("panel is closed"),
 				})
 				return
 			case app.StatusFailed:
@@ -43,7 +43,7 @@ func Status(t *gotext.Locale) func(next http.Handler) http.Handler {
 				defer render.Release()
 				render.Status(http.StatusInternalServerError)
 				render.JSON(chix.M{
-					"message": t.Get("panel run error, please check or contact support"),
+					"msg": t.Get("panel run error, please check or contact support"),
 				})
 				return
 			default:

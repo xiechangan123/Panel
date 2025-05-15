@@ -36,7 +36,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 				defer render.Release()
 				render.Status(http.StatusInternalServerError)
 				render.JSON(chix.M{
-					"message": err.Error(),
+					"msg": err.Error(),
 				})
 				return
 			}
@@ -55,7 +55,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 					defer render.Release()
 					render.Status(http.StatusUnauthorized)
 					render.JSON(chix.M{
-						"message": err.Error(),
+						"msg": err.Error(),
 					})
 					return
 				}
@@ -65,7 +65,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 					defer render.Release()
 					render.Status(http.StatusUnauthorized)
 					render.JSON(chix.M{
-						"message": t.Get("session expired, please login again"),
+						"msg": t.Get("session expired, please login again"),
 					})
 					return
 				}
@@ -80,7 +80,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 						defer render.Release()
 						render.Status(http.StatusUnauthorized)
 						render.JSON(chix.M{
-							"message": t.Get("client ip/ua changed, please login again"),
+							"msg": t.Get("client ip/ua changed, please login again"),
 						})
 						return
 					}
@@ -94,7 +94,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 				defer render.Release()
 				render.Status(http.StatusUnauthorized)
 				render.JSON(chix.M{
-					"message": t.Get("invalid user id, please login again"),
+					"msg": t.Get("invalid user id, please login again"),
 				})
 				return
 			}

@@ -26,7 +26,7 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 					defer render.Release()
 					render.Status(http.StatusForbidden)
 					render.JSON(chix.M{
-						"message": t.Get("app not found"),
+						"msg": t.Get("app not found"),
 					})
 					return
 				}
@@ -45,7 +45,7 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 				defer render.Release()
 				render.Status(http.StatusForbidden)
 				render.JSON(chix.M{
-					"message": t.Get("app %s not installed", slugs),
+					"msg": t.Get("app %s not installed", slugs),
 				})
 				return
 			}
