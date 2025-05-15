@@ -1526,10 +1526,6 @@ msgstr ""
 msgid "Extension Management"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:328
-msgid "Extension List"
-msgstr ""
-
 #: src/views/apps/php/PhpView.vue:340
 #: src/views/apps/postgresql/IndexView.vue:189
 #: src/views/apps/redis/IndexView.vue:151
@@ -1654,10 +1650,6 @@ msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:267
 msgid "User Management"
-msgstr ""
-
-#: src/views/apps/pureftpd/IndexView.vue:268
-msgid "User List"
 msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:291
@@ -1793,10 +1785,6 @@ msgstr ""
 msgid "Module Management"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:303
-msgid "Module List"
-msgstr ""
-
 #: src/views/apps/rsync/IndexView.vue:330
 msgid "This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
@@ -1851,10 +1839,6 @@ msgstr ""
 #: src/views/apps/s3fs/IndexView.vue:131
 #: src/views/apps/s3fs/IndexView.vue:135
 msgid "Add Mount"
-msgstr ""
-
-#: src/views/apps/s3fs/IndexView.vue:108
-msgid "Mount List"
 msgstr ""
 
 #: src/views/apps/s3fs/IndexView.vue:144
@@ -1912,10 +1896,6 @@ msgstr ""
 
 #: src/views/apps/supervisor/IndexView.vue:424
 msgid "Process Management"
-msgstr ""
-
-#: src/views/apps/supervisor/IndexView.vue:425
-msgid "Process List"
 msgstr ""
 
 #: src/views/apps/supervisor/IndexView.vue:452
