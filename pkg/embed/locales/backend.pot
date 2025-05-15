@@ -1347,7 +1347,7 @@ msgstr ""
 msgid "duplicate submission, please wait for the previous task to end"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:71
+#: internal/apps/s3fs/app.go:62
 msgid "endpoint should not contain bucket"
 msgstr ""
 
@@ -1366,11 +1366,6 @@ msgstr ""
 msgid "extension %s does not exist"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:134
-#: internal/apps/s3fs/app.go:139
-msgid "failed to add s3fs mount: %v"
-msgstr ""
-
 #: internal/data/ssh.go:53
 #: internal/data/ssh.go:77
 msgid "failed to check ssh connection: %v"
@@ -1380,17 +1375,12 @@ msgstr ""
 msgid "failed to clean temporary files: %v"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:78
+#: internal/apps/s3fs/app.go:69
 msgid "failed to create mount path: %v"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:108
+#: internal/apps/s3fs/app.go:94
 msgid "failed to create passwd file: %v"
-msgstr ""
-
-#: internal/apps/s3fs/app.go:206
-#: internal/apps/s3fs/app.go:210
-msgid "failed to delete s3fs mount: %v"
 msgstr ""
 
 #: internal/service/systemctl.go:77
@@ -1518,12 +1508,9 @@ msgstr ""
 msgid "failed to get redis status: %v"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:157
-#: internal/apps/s3fs/app.go:161
-#: internal/apps/s3fs/app.go:44
-#: internal/apps/s3fs/app.go:49
-#: internal/apps/s3fs/app.go:90
-#: internal/apps/s3fs/app.go:94
+#: internal/apps/s3fs/app.go:125
+#: internal/apps/s3fs/app.go:40
+#: internal/apps/s3fs/app.go:80
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
@@ -1754,19 +1741,19 @@ msgstr ""
 msgid "module %s does not exist"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:122
+#: internal/apps/s3fs/app.go:108
 msgid "mount failed: %v"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:173
+#: internal/apps/s3fs/app.go:137
 msgid "mount not found"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:100
+#: internal/apps/s3fs/app.go:86
 msgid "mount path already exists"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:83
+#: internal/apps/s3fs/app.go:74
 msgid "mount path is not empty"
 msgstr ""
 
