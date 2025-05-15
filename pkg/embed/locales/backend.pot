@@ -7,8 +7,8 @@ msgstr ""
 "Language: \n"
 "X-Generator: xgotext\n"
 
-#: internal/data/website.go:269
-#: internal/data/website.go:641
+#: internal/data/website.go:270
+#: internal/data/website.go:643
 msgid "# Rewrite rule"
 msgstr ""
 
@@ -1291,7 +1291,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/data/website.go:369
+#: internal/data/website.go:371
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1327,11 +1327,11 @@ msgstr ""
 msgid "database does not exist: %s"
 msgstr ""
 
-#: internal/data/website.go:723
+#: internal/data/website.go:725
 msgid "default document comment count is incorrect, expected 1, actual %d"
 msgstr ""
 
-#: internal/data/website.go:720
+#: internal/data/website.go:722
 msgid "default document comment not found"
 msgstr ""
 
@@ -1409,7 +1409,7 @@ msgstr ""
 msgid "failed to get %s service running status: %v"
 msgstr ""
 
-#: internal/data/website.go:305
+#: internal/data/website.go:306
 msgid "failed to get 404 template file: %v"
 msgstr ""
 
@@ -1482,7 +1482,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:293
+#: internal/data/website.go:294
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -1573,16 +1573,16 @@ msgstr ""
 #: internal/data/cert.go:92
 #: internal/data/setting.go:287
 #: internal/data/setting.go:359
-#: internal/data/website.go:473
-#: internal/data/website.go:762
+#: internal/data/website.go:475
+#: internal/data/website.go:764
 msgid "failed to parse certificate: %v"
 msgstr ""
 
 #: internal/data/cert.go:95
 #: internal/data/setting.go:290
 #: internal/data/setting.go:362
-#: internal/data/website.go:476
-#: internal/data/website.go:765
+#: internal/data/website.go:478
+#: internal/data/website.go:767
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -1774,7 +1774,7 @@ msgstr ""
 msgid "mysql not support database comment"
 msgstr ""
 
-#: internal/data/website.go:793
+#: internal/data/website.go:795
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
@@ -1850,16 +1850,16 @@ msgstr ""
 msgid "rule not found"
 msgstr ""
 
-#: internal/data/website.go:710
+#: internal/data/website.go:712
 msgid "runtime directory comment count is incorrect, expected 1, actual %d"
 msgstr ""
 
-#: internal/data/website.go:707
+#: internal/data/website.go:709
 msgid "runtime directory comment not found"
 msgstr ""
 
-#: internal/data/website.go:447
-#: internal/data/website.go:714
+#: internal/data/website.go:449
+#: internal/data/website.go:716
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -1959,11 +1959,11 @@ msgstr ""
 msgid "username or password error"
 msgstr ""
 
-#: internal/data/website.go:558
+#: internal/data/website.go:560
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
-#: internal/data/website.go:454
+#: internal/data/website.go:456
 msgid "website directory does not exist"
 msgstr ""
 
