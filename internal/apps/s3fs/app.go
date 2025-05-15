@@ -138,14 +138,14 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`fusermount -uzq '%s'`, mount.Path); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+	_, _ = shell.Execf(`fusermount -uz '%s'`, mount.Path)
+	_, err2 := shell.Execf(`umount -lf '%s'`, mount.Path)
+	// 卸载之后再检查下是否还有挂载
+	if _, err = shell.Execf(`df -h | grep '%s'`, mount.Path); err == nil {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("failed to unmount: %v", err2))
 		return
 	}
-	if _, err = shell.Execf(`umount -lfq '%s'`, mount.Path); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+
 	if _, err = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, mount.Bucket, mount.Path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return

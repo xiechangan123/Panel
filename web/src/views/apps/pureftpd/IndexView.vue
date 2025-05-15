@@ -265,7 +265,7 @@ onMounted(() => {
         </n-space>
       </n-tab-pane>
       <n-tab-pane name="users" :tab="$gettext('User Management')">
-        <n-card :title="$gettext('User List')" :segmented="true">
+        <n-flex vertical>
           <n-data-table
             striped
             remote
@@ -286,7 +286,7 @@ onMounted(() => {
               pageSizes: [20, 50, 100, 200]
             }"
           />
-        </n-card>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Run Log')">
         <realtime-log service="pure-ftpd" />

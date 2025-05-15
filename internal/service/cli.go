@@ -436,6 +436,81 @@ func (s *CliService) EntranceOff(ctx context.Context, cmd *cli.Command) error {
 	return s.Restart(ctx, cmd)
 }
 
+func (s *CliService) BindDomainOff(ctx context.Context, cmd *cli.Command) error {
+	config := new(types.PanelConfig)
+	raw, err := io.Read("/usr/local/etc/panel/config.yml")
+	if err != nil {
+		return err
+	}
+	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
+		return err
+	}
+
+	config.HTTP.BindDomain = nil
+
+	encoded, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Bind domain disabled"))
+	return s.Restart(ctx, cmd)
+}
+
+func (s *CliService) BindIPOff(ctx context.Context, cmd *cli.Command) error {
+	config := new(types.PanelConfig)
+	raw, err := io.Read("/usr/local/etc/panel/config.yml")
+	if err != nil {
+		return err
+	}
+	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
+		return err
+	}
+
+	config.HTTP.BindIP = nil
+
+	encoded, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Bind IP disabled"))
+	return s.Restart(ctx, cmd)
+}
+
+func (s *CliService) BindUAOff(ctx context.Context, cmd *cli.Command) error {
+	config := new(types.PanelConfig)
+	raw, err := io.Read("/usr/local/etc/panel/config.yml")
+	if err != nil {
+		return err
+	}
+	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
+		return err
+	}
+
+	config.HTTP.BindUA = nil
+
+	encoded, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Bind UA disabled"))
+	return s.Restart(ctx, cmd)
+}
+
 func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 	port := cast.ToUint(cmd.Args().First())
 	if port < 1 || port > 65535 {

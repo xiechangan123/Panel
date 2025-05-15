@@ -422,7 +422,7 @@ onUnmounted(() => {
         </n-space>
       </n-tab-pane>
       <n-tab-pane name="processes" :tab="$gettext('Process Management')">
-        <n-card :title="$gettext('Process List')" :segmented="true">
+        <n-flex vertical>
           <n-data-table
             striped
             remote
@@ -443,7 +443,7 @@ onUnmounted(() => {
               pageSizes: [20, 50, 100, 200]
             }"
           />
-        </n-card>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-space vertical>

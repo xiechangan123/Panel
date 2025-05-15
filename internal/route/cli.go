@@ -120,6 +120,39 @@ func (route *Cli) Commands() []*cli.Command {
 			},
 		},
 		{
+			Name:  "bind-domain",
+			Usage: route.t.Get("Operate panel domain binding"),
+			Commands: []*cli.Command{
+				{
+					Name:   "off",
+					Usage:  route.t.Get("Disable domain binding"),
+					Action: route.cli.BindDomainOff,
+				},
+			},
+		},
+		{
+			Name:  "bind-ip",
+			Usage: route.t.Get("Operate panel IP binding"),
+			Commands: []*cli.Command{
+				{
+					Name:   "off",
+					Usage:  route.t.Get("Disable IP binding"),
+					Action: route.cli.BindIPOff,
+				},
+			},
+		},
+		{
+			Name:  "bind-ua",
+			Usage: route.t.Get("Operate panel UA binding"),
+			Commands: []*cli.Command{
+				{
+					Name:   "off",
+					Usage:  route.t.Get("Disable UA binding"),
+					Action: route.cli.BindUAOff,
+				},
+			},
+		},
+		{
 			Name:   "port",
 			Usage:  route.t.Get("Change panel port"),
 			Action: route.cli.Port,

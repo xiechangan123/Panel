@@ -300,7 +300,7 @@ onMounted(() => {
         </n-space>
       </n-tab-pane>
       <n-tab-pane name="modules" :tab="$gettext('Module Management')">
-        <n-card :title="$gettext('Module List')" :segmented="true">
+        <n-flex vertical>
           <n-data-table
             striped
             remote
@@ -321,7 +321,7 @@ onMounted(() => {
               pageSizes: [20, 50, 100, 200]
             }"
           />
-        </n-card>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-space vertical>

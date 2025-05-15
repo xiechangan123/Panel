@@ -24,15 +24,15 @@ const columns: any = [
   {
     title: $gettext('Mount Path'),
     key: 'path',
-    minWidth: 250,
+    minWidth: 150,
     resizable: true,
     ellipsis: { tooltip: true }
   },
-  { title: 'Bucket', key: 'bucket', resizable: true, minWidth: 250, ellipsis: { tooltip: true } },
+  { title: 'Bucket', key: 'bucket', resizable: true, minWidth: 150, ellipsis: { tooltip: true } },
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 240,
+    width: 150,
     hideInExcel: true,
     render(row: any) {
       return [
@@ -105,11 +105,11 @@ onMounted(() => {
         {{ $gettext('Add Mount') }}
       </n-button>
     </template>
-    <n-card :title="$gettext('Mount List')" :segmented="true">
+    <n-flex vertical>
       <n-data-table
         striped
         remote
-        :scroll-x="1000"
+        :scroll-x="450"
         :loading="loading"
         :columns="columns"
         :data="data"
@@ -126,7 +126,7 @@ onMounted(() => {
           pageSizes: [20, 50, 100, 200]
         }"
       />
-    </n-card>
+    </n-flex>
   </common-page>
   <n-modal v-model:show="addMountModal" :title="$gettext('Add Mount')">
     <n-card

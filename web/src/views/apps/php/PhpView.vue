@@ -325,7 +325,7 @@ onMounted(() => {
         </n-space>
       </n-tab-pane>
       <n-tab-pane name="extensions" :tab="$gettext('Extension Management')">
-        <n-card :title="$gettext('Extension List')" :segmented="true">
+        <n-flex vertical>
           <n-data-table
             striped
             remote
@@ -335,7 +335,7 @@ onMounted(() => {
             :data="extensions"
             :row-key="(row: any) => row.slug"
           />
-        </n-card>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-space vertical>
