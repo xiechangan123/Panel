@@ -42,15 +42,18 @@ func (r userTokenRepo) List(userID, page, limit uint) ([]*biz.UserToken, int64, 
 }
 
 func (r userTokenRepo) Create(userID uint, ips []string, expired time.Time) (*biz.UserToken, error) {
+	token := str.Random(32)
 	userToken := &biz.UserToken{
 		UserID:    userID,
-		Token:     str.Random(32),
+		Token:     token,
 		IPs:       ips,
 		ExpiredAt: expired,
 	}
 	if err := r.db.Create(userToken).Error; err != nil {
 		return nil, err
 	}
+
+	userToken.Token = token // 返回的值是加密的，这里覆盖为原始值
 
 	return userToken, nil
 }
@@ -98,11 +101,17 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 		return 0, errors.New(r.t.Get("invalid header: %v", err))
 	}
 	if algorithm != "HMAC-SHA256" {
-		return 0, errors.New(r.t.Get("invalid algorithm, must be HMAC-SHA256"))
+		return 0, errors.New(r.t.Get("invalid signature"))
 	}
 
 	// 获取用户令牌
-	userToken, _ := r.Get(id) // 不应报错，防止猜测令牌ID
+	userToken, err := r.Get(id)
+	if err != nil {
+		return 0, errors.New(r.t.Get("invalid signature")) // 不应返回原始报错，防止猜测令牌ID
+	}
+	if userToken.ExpiredAt.Before(time.Now()) {
+		return 0, errors.New(r.t.Get("token expired"))
+	}
 
 	// 步骤一：构造规范化请求
 	body, err := io.ReadAll(req.Body)
@@ -121,12 +130,12 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 
 	// 步骤四：验证签名
 	if subtle.ConstantTimeCompare([]byte(signature), []byte(validSignature)) != 1 {
-		return 0, errors.New(r.t.Get("invalid api signature"))
+		return 0, errors.New(r.t.Get("invalid signature"))
 	}
 
 	// 步骤五：验证时间戳
 	if timestamp == 0 || timestamp < (time.Now().Unix()-300) {
-		return 0, errors.New(r.t.Get("api signature expired"))
+		return 0, errors.New(r.t.Get("signature expired"))
 	}
 
 	// 步骤六：验证IP
