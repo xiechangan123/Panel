@@ -57,7 +57,7 @@ type WebsiteUpdateStatus struct {
 }
 
 type WebsiteUpdateCert struct {
-	Name uint   `json:"name" validate:"required|exists:websites,name"`
+	Name string `json:"name" validate:"required|exists:websites,name"`
 	Cert string `json:"cert" validate:"required"`
 	Key  string `json:"key" validate:"required"`
 }

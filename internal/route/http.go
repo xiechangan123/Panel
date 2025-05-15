@@ -159,6 +159,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/rewrites", route.website.GetRewrites)
 			r.Get("/default_config", route.website.GetDefaultConfig)
 			r.Post("/default_config", route.website.UpdateDefaultConfig)
+			r.Post("/cert", route.website.UpdateCert)
 			r.Get("/", route.website.List)
 			r.Post("/", route.website.Create)
 			r.Get("/{id}", route.website.Get)
@@ -168,7 +169,6 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/{id}/update_remark", route.website.UpdateRemark)
 			r.Post("/{id}/reset_config", route.website.ResetConfig)
 			r.Post("/{id}/status", route.website.UpdateStatus)
-			r.Post("/{id}/cert", route.website.UpdateCert)
 			r.Post("/{id}/obtain_cert", route.website.ObtainCert)
 		})
 
