@@ -112,6 +112,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	setting := new(types.WebsiteSetting)
 	setting.ID = website.ID
 	setting.Name = website.Name
+	setting.Type = website.Type
 	setting.Path = website.Path
 	setting.HTTPS = website.Https
 	setting.PHP = p.GetPHP()
@@ -347,6 +348,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	// 创建面板网站
 	w := &biz.Website{
 		Name:   req.Name,
+		Type:   "php", // TODO 支持网站类型
 		Status: true,
 		Path:   req.Path,
 		Https:  false,

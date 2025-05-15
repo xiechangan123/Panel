@@ -94,24 +94,21 @@ func init() {
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
-		ID: "20250514-user-two-fa",
+		ID: "20250514-user-website",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(
 				&biz.User{},
-			)
-		},
-		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropColumn(&biz.User{}, "two_fa")
-		},
-	})
-	Migrations = append(Migrations, &gormigrate.Migration{
-		ID: "20250514-user-token",
-		Migrate: func(tx *gorm.DB) error {
-			return tx.AutoMigrate(
+				&biz.Website{},
 				&biz.UserToken{},
 			)
 		},
 		Rollback: func(tx *gorm.DB) error {
+			if err := tx.Migrator().DropColumn(&biz.User{}, "two_fa"); err != nil {
+				return err
+			}
+			if err := tx.Migrator().DropColumn(&biz.Website{}, "type"); err != nil {
+				return err
+			}
 			return tx.Migrator().DropTable(&biz.UserToken{})
 		},
 	})
