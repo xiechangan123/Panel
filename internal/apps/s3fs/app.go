@@ -1,9 +1,9 @@
 package s3fs
 
 import (
-	"encoding/json"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,21 +12,18 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
-	"github.com/tnb-labs/panel/internal/biz"
 	"github.com/tnb-labs/panel/internal/service"
 	"github.com/tnb-labs/panel/pkg/io"
 	"github.com/tnb-labs/panel/pkg/shell"
 )
 
 type App struct {
-	t           *gotext.Locale
-	settingRepo biz.SettingRepo
+	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale, setting biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale) *App {
 	return &App{
-		t:           t,
-		settingRepo: setting,
+		t: t,
 	}
 }
 
@@ -38,19 +35,13 @@ func (s *App) Route(r chi.Router) {
 
 // List 所有 S3fs 挂载
 func (s *App) List(w http.ResponseWriter, r *http.Request) {
-	var s3fsList []Mount
-	list, err := s.settingRepo.Get("s3fs", "[]")
+	list, err := s.mounts()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 
-	if err = json.Unmarshal([]byte(list), &s3fsList); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
-		return
-	}
-
-	paged, total := service.Paginate(r, s3fsList)
+	paged, total := service.Paginate(r, list)
 
 	service.Success(w, chix.M{
 		"total": total,
@@ -84,18 +75,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var s3fsList []Mount
-	list, err := s.settingRepo.Get("s3fs", "[]")
+	list, err := s.mounts()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
-	if err = json.Unmarshal([]byte(list), &s3fsList); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
-		return
-	}
 
-	for _, item := range s3fsList {
+	for _, item := range list {
 		if item.Path == req.Path {
 			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("mount path already exists"))
 			return
@@ -123,23 +109,6 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s3fsList = append(s3fsList, Mount{
-		ID:     id,
-		Path:   req.Path,
-		Bucket: req.Bucket,
-		Url:    req.URL,
-	})
-	encoded, err := json.Marshal(s3fsList)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to add s3fs mount: %v", err))
-		return
-	}
-
-	if err = s.settingRepo.Set("s3fs", string(encoded)); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to add s3fs mount: %v", err))
-		return
-	}
-
 	service.Success(w, nil)
 }
 
@@ -151,19 +120,14 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var s3fsList []Mount
-	list, err := s.settingRepo.Get("s3fs", "[]")
+	list, err := s.mounts()
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
-		return
-	}
-	if err = json.Unmarshal([]byte(list), &s3fsList); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
 	}
 
 	var mount Mount
-	for _, item := range s3fsList {
+	for _, item := range list {
 		if item.ID == req.ID {
 			mount = item
 			break
@@ -174,7 +138,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`fusermount -uz '%s'`, mount.Path); err != nil {
+	if _, err = shell.Execf(`fusermount -uzq '%s'`, mount.Path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -195,21 +159,57 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newS3fsList []Mount
-	for _, item := range s3fsList {
-		if item.ID != mount.ID {
-			newS3fsList = append(newS3fsList, item)
-		}
-	}
-	encoded, err := json.Marshal(newS3fsList)
+	service.Success(w, nil)
+}
+
+func (s *App) mounts() ([]Mount, error) {
+	re := regexp.MustCompile(`^s3fs#(.*?)\s+(.*?)\s+fuse.*?url=(.*?),passwd_file=/etc/passwd-s3fs-(.*?)\s+`)
+	fstab, err := os.ReadFile("/etc/fstab")
 	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete s3fs mount: %v", err))
-		return
+		return nil, err
 	}
-	if err = s.settingRepo.Set("s3fs", string(encoded)); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete s3fs mount: %v", err))
-		return
+	lines := strings.Split(string(fstab), "\n")
+
+	var mounts []Mount
+
+	ids, err := shell.Exec("find /etc -maxdepth 1 -name 'passwd-s3fs-*'")
+	if err != nil {
+		return nil, err
+	}
+	for _, id := range strings.Split(ids, "\n") {
+		if id == "" {
+			continue
+		}
+		id = strings.TrimPrefix(id, "/etc/passwd-s3fs-")
+		id = strings.TrimSuffix(id, "\n")
+		id = strings.TrimSpace(id)
+		if id == "" {
+			continue
+		}
+		mount := Mount{
+			ID: cast.ToInt64(id),
+		}
+		for _, line := range lines {
+			if line == "" {
+				continue
+			}
+			if strings.Contains(line, id) {
+				matches := re.FindStringSubmatch(line)
+				if len(matches) == 5 {
+					mount.Bucket = matches[1]
+					mount.Path = matches[2]
+					mount.URL = matches[3]
+					break
+				}
+			}
+		}
+
+		if mount.ID == 0 || mount.Path == "" || mount.Bucket == "" || mount.URL == "" {
+			continue
+		}
+
+		mounts = append(mounts, mount)
 	}
 
-	service.Success(w, nil)
+	return mounts, nil
 }

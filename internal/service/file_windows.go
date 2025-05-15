@@ -7,13 +7,21 @@ package service
 import (
 	"net/http"
 
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/tnb-labs/panel/internal/biz"
 )
 
-type FileService struct{}
+type FileService struct {
+	t        *gotext.Locale
+	taskRepo biz.TaskRepo
+}
 
-func NewFileService(_ biz.TaskRepo) *FileService {
-	return &FileService{}
+func NewFileService(t *gotext.Locale, task biz.TaskRepo) *FileService {
+	return &FileService{
+		t:        t,
+		taskRepo: task,
+	}
 }
 
 func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {}

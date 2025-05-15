@@ -140,7 +140,7 @@ func initWeb() (*app.Web, error) {
 	pureftpdApp := pureftpd.NewApp(locale)
 	redisApp := redis.NewApp(locale)
 	rsyncApp := rsync.NewApp(locale)
-	s3fsApp := s3fs.NewApp(locale, settingRepo)
+	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	toolboxApp := toolbox.NewApp(locale)
 	loader := bootstrap.NewLoader(benchmarkApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
