@@ -101,7 +101,7 @@ onMounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button class="ml-16" type="primary" @click="addMountModal = true">
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Add Mount') }}
       </n-button>
     </template>

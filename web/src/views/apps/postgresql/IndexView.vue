@@ -124,7 +124,7 @@ onMounted(() => {
         type="primary"
         @click="handleSaveConfig"
       >
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -133,11 +133,11 @@ onMounted(() => {
         type="primary"
         @click="handleSaveUserConfig"
       >
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'log'" class="ml-16" type="primary" @click="handleClearLog">
-        <TheIcon :size="18" icon="material-symbols:delete-outline" />
+        <the-icon :size="18" icon="material-symbols:delete-outline" />
         {{ $gettext('Clear Log') }}
       </n-button>
     </template>
@@ -157,13 +157,13 @@ onMounted(() => {
               </n-alert>
               <n-space>
                 <n-button type="success" @click="handleStart">
-                  <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
+                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
                   {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop">
                   <template #trigger>
                     <n-button type="error">
-                      <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
+                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
@@ -174,11 +174,11 @@ onMounted(() => {
                   }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart">
-                  <TheIcon :size="18" icon="material-symbols:replay-rounded" />
+                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
                   {{ $gettext('Restart') }}
                 </n-button>
                 <n-button type="primary" @click="handleReload">
-                  <TheIcon :size="20" icon="material-symbols:refresh-rounded" />
+                  <the-icon :size="20" icon="material-symbols:refresh-rounded" />
                   {{ $gettext('Reload') }}
                 </n-button>
               </n-space>

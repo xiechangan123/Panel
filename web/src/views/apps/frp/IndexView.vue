@@ -109,20 +109,20 @@ onMounted(() => {
               </n-alert>
               <n-space>
                 <n-button type="success" @click="handleStart('frps')">
-                  <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
+                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
                   {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop('frps')">
                   <template #trigger>
                     <n-button type="error">
-                      <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
+                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
                   {{ $gettext('Are you sure you want to stop Frps?') }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart('frps')">
-                  <TheIcon :size="18" icon="material-symbols:replay-rounded" />
+                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
                   {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
@@ -131,7 +131,7 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Configuration')">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frps')">
-                <TheIcon :size="18" icon="material-symbols:save-outline-rounded" />
+                <the-icon :size="18" icon="material-symbols:save-outline-rounded" />
                 {{ $gettext('Save') }}
               </n-button>
             </template>
@@ -165,20 +165,20 @@ onMounted(() => {
               </n-alert>
               <n-space>
                 <n-button type="success" @click="handleStart('frpc')">
-                  <TheIcon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
+                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
                   {{ $gettext('Start') }}
                 </n-button>
                 <n-popconfirm @positive-click="handleStop('frpc')">
                   <template #trigger>
                     <n-button type="error">
-                      <TheIcon :size="24" icon="material-symbols:stop-outline-rounded" />
+                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
                       {{ $gettext('Stop') }}
                     </n-button>
                   </template>
                   {{ $gettext('Are you sure you want to stop Frpc?') }}
                 </n-popconfirm>
                 <n-button type="warning" @click="handleRestart('frpc')">
-                  <TheIcon :size="18" icon="material-symbols:replay-rounded" />
+                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
                   {{ $gettext('Restart') }}
                 </n-button>
               </n-space>
@@ -187,7 +187,7 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Configuration')">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frpc')">
-                <TheIcon :size="18" icon="material-symbols:save-outline-rounded" />
+                <the-icon :size="18" icon="material-symbols:save-outline-rounded" />
                 {{ $gettext('Save') }}
               </n-button>
             </template>

@@ -184,7 +184,7 @@ const onCreateListen = () => {
         <n-popconfirm v-if="current === 'config'" @positive-click="handleReset">
           <template #trigger>
             <n-button type="success">
-              <TheIcon :size="18" icon="material-symbols:refresh" />
+              <the-icon :size="18" icon="material-symbols:refresh" />
               {{ $gettext('Reset Configuration') }}
             </n-button>
           </template>
@@ -196,7 +196,7 @@ const onCreateListen = () => {
           type="success"
           @click="proxyBuilderModal = true"
         >
-          <TheIcon :size="18" icon="material-symbols:build-outline-rounded" />
+          <the-icon :size="18" icon="material-symbols:build-outline-rounded" />
           {{ $gettext('Generate Reverse Proxy Configuration') }}
         </n-button>
         <n-button
@@ -207,17 +207,17 @@ const onCreateListen = () => {
           type="success"
           @click="handleObtainCert"
         >
-          <TheIcon :size="18" icon="material-symbols:done-rounded" />
+          <the-icon :size="18" icon="material-symbols:done-rounded" />
           {{ $gettext('One-click Certificate Issuance') }}
         </n-button>
         <n-button v-if="current !== 'log'" class="ml-16" type="primary" @click="handleSave">
-          <TheIcon :size="18" icon="material-symbols:save-outline" />
+          <the-icon :size="18" icon="material-symbols:save-outline" />
           {{ $gettext('Save') }}
         </n-button>
         <n-popconfirm v-if="current === 'log'" @positive-click="clearLog">
           <template #trigger>
             <n-button type="primary">
-              <TheIcon :size="18" icon="material-symbols:delete-outline" />
+              <the-icon :size="18" icon="material-symbols:delete-outline" />
               {{ $gettext('Clear Logs') }}
             </n-button>
           </template>

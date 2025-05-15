@@ -21,7 +21,7 @@ const create = ref(false)
   <common-page show-footer>
     <template #action>
       <n-button v-if="current == 'cron'" type="primary" @click="create = true">
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Create Task') }}
       </n-button>
     </template>

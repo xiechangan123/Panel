@@ -28,15 +28,15 @@ const createServerModalShow = ref(false)
         type="primary"
         @click="createDatabaseModalShow = true"
       >
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Create Database') }}
       </n-button>
       <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Create User') }}
       </n-button>
       <n-button v-if="currentTab === 'server'" type="primary" @click="createServerModalShow = true">
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Add Server') }}
       </n-button>
     </template>

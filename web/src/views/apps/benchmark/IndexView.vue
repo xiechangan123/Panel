@@ -160,7 +160,7 @@ const handleTest = async () => {
                     :stroke-width="3"
                     color="var(--primary-color)"
                   >
-                    <TheIcon :size="50" icon="bi:cpu" color="var(--primary-color)" />
+                    <the-icon :size="50" icon="bi:cpu" color="var(--primary-color)" />
                   </n-progress>
                   {{ $gettext('CPU') }}
                 </n-flex>
@@ -260,7 +260,7 @@ const handleTest = async () => {
                     :stroke-width="3"
                     color="var(--primary-color)"
                   >
-                    <TheIcon :size="50" icon="bi:memory" color="var(--primary-color)" />
+                    <the-icon :size="50" icon="bi:memory" color="var(--primary-color)" />
                   </n-progress>
                   {{ $gettext('Memory') }}
                 </n-flex>
@@ -291,7 +291,7 @@ const handleTest = async () => {
                     :stroke-width="3"
                     color="var(--primary-color)"
                   >
-                    <TheIcon :size="50" icon="bi:hdd-stack" color="var(--primary-color)" />
+                    <the-icon :size="50" icon="bi:hdd-stack" color="var(--primary-color)" />
                   </n-progress>
                   {{ $gettext('Disk') }}
                 </n-flex>

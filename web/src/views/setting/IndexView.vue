@@ -61,11 +61,11 @@ const handleCreate = () => {
   <common-page show-footer>
     <template #action>
       <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'user'" type="primary" @click="handleCreate">
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Create User') }}
       </n-button>
     </template>

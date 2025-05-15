@@ -94,19 +94,19 @@ onUnmounted(() => {
     <template #action>
       <n-flex>
         <n-button v-if="currentTab == 'cert'" type="success" @click="uploadCert = true">
-          <TheIcon :size="18" icon="material-symbols:upload" />
+          <the-icon :size="18" icon="material-symbols:upload" />
           {{ $gettext('Upload Certificate') }}
         </n-button>
         <n-button v-if="currentTab == 'cert'" type="primary" @click="createCert = true">
-          <TheIcon :size="18" icon="material-symbols:add" />
+          <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create Certificate') }}
         </n-button>
         <n-button v-if="currentTab == 'user'" type="primary" @click="createAccount = true">
-          <TheIcon :size="18" icon="material-symbols:add" />
+          <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create Account') }}
         </n-button>
         <n-button v-if="currentTab == 'dns'" type="primary" @click="createDNS = true">
-          <TheIcon :size="18" icon="material-symbols:add" />
+          <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create DNS') }}
         </n-button>
       </n-flex>

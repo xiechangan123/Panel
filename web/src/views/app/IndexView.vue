@@ -220,7 +220,7 @@ onMounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button type="primary" @click="handleUpdateCache">
-        <TheIcon :size="18" icon="material-symbols:refresh" />
+        <the-icon :size="18" icon="material-symbols:refresh" />
         {{ $gettext('Update Cache') }}
       </n-button>
     </template>

@@ -447,7 +447,7 @@ watch(data, () => {
       <n-popconfirm @positive-click="handleClear">
         <template #trigger>
           <n-button type="error">
-            <TheIcon :size="18" icon="material-symbols:delete-outline" />
+            <the-icon :size="18" icon="material-symbols:delete-outline" />
             {{ $gettext('Clear Monitoring Records') }}
           </n-button>
         </template>

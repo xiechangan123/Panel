@@ -227,7 +227,7 @@ onUnmounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button type="primary" @click="create = true">
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Create Host') }}
       </n-button>
     </template>

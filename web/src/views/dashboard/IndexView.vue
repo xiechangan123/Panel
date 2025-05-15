@@ -701,7 +701,7 @@ if (import.meta.hot) {
                           <n-thing>
                             <template #avatar>
                               <div class="mt-8">
-                                <TheIcon
+                                <the-icon
                                   :size="30"
                                   :icon="item.icon"
                                   color="var(--primary-color)"

@@ -292,7 +292,7 @@ const handleCreate = async () => {
   useRequest(website.create(createModel.value)).onSuccess(() => {
     refresh()
     window.$message.success(
-      $gettext('Website %{ name } created successfully', { name: createModal.value.name })
+      $gettext('Website %{ name } created successfully', { name: createModel.value.name })
     )
     createModal.value = false
     createModel.value = {
@@ -347,11 +347,15 @@ onMounted(() => {
     <template #action>
       <n-flex>
         <n-button type="warning" @click="editDefaultPageModal = true">
+          <the-icon :size="18" icon="material-symbols:edit-document-outline" />
           {{ $gettext('Modify Default Page') }}
         </n-button>
         <n-popconfirm @positive-click="bulkDelete">
           <template #trigger>
-            <n-button type="error"> {{ $gettext('Batch Delete') }} </n-button>
+            <n-button type="error">
+              <the-icon :size="18" icon="material-symbols:delete-outline" />
+              {{ $gettext('Batch Delete') }}
+            </n-button>
           </template>
           {{
             $gettext(
@@ -360,9 +364,11 @@ onMounted(() => {
           }}
         </n-popconfirm>
         <n-button type="primary" @click="bulkCreateModal = true">
+          <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Bulk Create Website') }}
         </n-button>
         <n-button type="primary" @click="createModal = true">
+          <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create Website') }}
         </n-button>
       </n-flex>

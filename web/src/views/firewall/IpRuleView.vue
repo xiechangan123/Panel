@@ -204,13 +204,13 @@ onMounted(() => {
   <n-flex vertical :size="20">
     <n-flex items-center>
       <n-button type="primary" @click="createModalShow = true">
-        <TheIcon :size="18" icon="material-symbols:add" />
+        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Create Rule') }}
       </n-button>
       <n-popconfirm @positive-click="batchDelete">
         <template #trigger>
           <n-button type="warning">
-            <TheIcon :size="18" icon="material-symbols:delete-outline" />
+            <the-icon :size="18" icon="material-symbols:delete-outline" />
             {{ $gettext('Batch Delete') }}
           </n-button>
         </template>

@@ -93,19 +93,19 @@ const handleSyncTime = () => {
   <common-page show-footer>
     <template #action>
       <n-button v-if="currentTab == 'dns'" class="ml-16" type="primary" @click="handleUpdateDNS">
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'swap'" class="ml-16" type="primary" @click="handleUpdateSwap">
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'host'" class="ml-16" type="primary" @click="handleUpdateHost">
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'time'" class="ml-16" type="primary" @click="handleUpdateTime">
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -114,7 +114,7 @@ const handleSyncTime = () => {
         type="primary"
         @click="handleUpdateRootPassword"
       >
-        <TheIcon :size="18" icon="material-symbols:save-outline" />
+        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Modify') }}
       </n-button>
     </template>
