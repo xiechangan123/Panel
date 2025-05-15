@@ -230,7 +230,8 @@ func (s *DashboardService) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	current := app.Version
-	latest, err := s.api.LatestVersion()
+	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
+	latest, err := s.api.LatestVersion(channel)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 		return
@@ -265,7 +266,8 @@ func (s *DashboardService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	current := app.Version
-	latest, err := s.api.LatestVersion()
+	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
+	latest, err := s.api.LatestVersion(channel)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 		return
@@ -286,7 +288,7 @@ func (s *DashboardService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	versions, err := s.api.IntermediateVersions()
+	versions, err := s.api.IntermediateVersions(channel)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the update information: %v", err))
 		return
@@ -306,7 +308,8 @@ func (s *DashboardService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	panel, err := s.api.LatestVersion()
+	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
+	panel, err := s.api.LatestVersion(channel)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
 		return

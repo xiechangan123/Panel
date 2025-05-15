@@ -111,9 +111,11 @@ func (r *PanelTask) updatePanel() {
 		return
 	}
 
+	channel, _ := r.settingRepo.Get(biz.SettingKeyChannel)
+
 	// 加 300 秒确保在缓存更新后才更新面板
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+300*time.Second, func() {
-		panel, err := r.api.LatestVersion()
+		panel, err := r.api.LatestVersion(channel)
 		if err != nil {
 			return
 		}

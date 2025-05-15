@@ -26,8 +26,8 @@ type Version struct {
 type Versions []Version
 
 // LatestVersion 返回最新版本
-func (r *API) LatestVersion() (*Version, error) {
-	resp, err := r.client.R().SetResult(&Response{}).Get("/version/latest")
+func (r *API) LatestVersion(channel string) (*Version, error) {
+	resp, err := r.client.R().SetResult(&Response{}).SetQueryParam("channel", channel).Get("/version/latest")
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +52,10 @@ func (r *API) LatestVersion() (*Version, error) {
 }
 
 // IntermediateVersions 返回当前版本之后的所有版本
-func (r *API) IntermediateVersions() (*Versions, error) {
+func (r *API) IntermediateVersions(channel string) (*Versions, error) {
 	resp, err := r.client.R().
 		SetQueryParam("start", r.panelVersion).
+		SetQueryParam("channel", channel).
 		SetResult(&Response{}).Get("/version/intermediate")
 	if err != nil {
 		return nil, err

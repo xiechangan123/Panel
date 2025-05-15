@@ -18,12 +18,12 @@ func TestAPITestSuite(t *testing.T) {
 }
 
 func (s *APITestSuite) TestGetLatestVersion() {
-	_, err := s.api.LatestVersion()
+	_, err := s.api.LatestVersion("stable")
 	s.NoError(err)
 }
 
 func (s *APITestSuite) TestGetIntermediateVersions() {
-	_, err := s.api.IntermediateVersions()
+	_, err := s.api.IntermediateVersions("stable")
 	s.NoError(err)
 }
 

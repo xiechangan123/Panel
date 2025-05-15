@@ -96,7 +96,8 @@ func (s *CliService) Start(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
-	panel, err := s.api.LatestVersion()
+	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
+	panel, err := s.api.LatestVersion(channel)
 	if err != nil {
 		return errors.New(s.t.Get("Failed to get latest version: %v", err))
 	}
