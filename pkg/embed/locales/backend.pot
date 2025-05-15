@@ -1234,10 +1234,6 @@ msgstr ""
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
-#: internal/data/user_token.go:129
-msgid "api signature expired"
-msgstr ""
-
 #: internal/data/app.go:159
 msgid "app %s already installed"
 msgstr ""
@@ -1687,19 +1683,11 @@ msgstr ""
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:101
+#: internal/http/middleware/entrance.go:114
 msgid "invalid access entrance"
 msgstr ""
 
 #: internal/data/user_token.go:101
-msgid "invalid algorithm, must be HMAC-SHA256"
-msgstr ""
-
-#: internal/data/user_token.go:124
-msgid "invalid api signature"
-msgstr ""
-
-#: internal/data/user_token.go:98
 msgid "invalid header: %v"
 msgstr ""
 
@@ -1707,17 +1695,23 @@ msgstr ""
 msgid "invalid key, please refresh the page"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:50
+#: internal/http/middleware/entrance.go:57
 msgid "invalid request domain: %s"
 msgstr ""
 
-#: internal/data/user_token.go:139
-#: internal/http/middleware/entrance.go:63
+#: internal/data/user_token.go:148
+#: internal/http/middleware/entrance.go:70
 msgid "invalid request ip: %s"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:72
+#: internal/http/middleware/entrance.go:79
 msgid "invalid request user agent: %s"
+msgstr ""
+
+#: internal/data/user_token.go:104
+#: internal/data/user_token.go:110
+#: internal/data/user_token.go:133
+msgid "invalid signature"
 msgstr ""
 
 #: internal/http/middleware/must_login.go:97
@@ -1854,6 +1848,10 @@ msgstr ""
 msgid "session expired, please login again"
 msgstr ""
 
+#: internal/data/user_token.go:138
+msgid "signature expired"
+msgstr ""
+
 #: internal/apps/php/app.go:333
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
@@ -1894,6 +1892,10 @@ msgstr ""
 
 #: internal/data/cert.go:406
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
+msgstr ""
+
+#: internal/data/user_token.go:113
+msgid "token expired"
 msgstr ""
 
 #: internal/service/dashboard.go:228
