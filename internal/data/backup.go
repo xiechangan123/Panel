@@ -144,7 +144,12 @@ func (r *backupRepo) CutoffLog(path, target string) error {
 		return err
 	}
 
-	return io.Remove(target)
+	// 原文件不能直接删除，直接删的话仍会占用空间直到重启相关的应用
+	if _, err := shell.Execf("cat /dev/null > '%s'", target); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ClearExpired 清理过期备份
