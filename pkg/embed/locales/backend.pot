@@ -1332,7 +1332,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:83
+#: internal/http/middleware/must_login.go:93
 msgid "client ip/ua changed, please login again"
 msgstr ""
 
@@ -1754,7 +1754,7 @@ msgstr ""
 msgid "invalid signature"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:97
+#: internal/http/middleware/must_login.go:107
 msgid "invalid user id, please login again"
 msgstr ""
 
@@ -1884,7 +1884,7 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:68
+#: internal/http/middleware/must_login.go:78
 msgid "session expired, please login again"
 msgstr ""
 
@@ -2003,6 +2003,10 @@ msgstr ""
 
 #: internal/service/file.go:179
 msgid "write file error: %v"
+msgstr ""
+
+#: internal/http/middleware/must_login.go:58
+msgid "ws not allowed"
 msgstr ""
 
 #: internal/apps/php/app.go:443
