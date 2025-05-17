@@ -309,8 +309,11 @@ msgid "Setting autostart..."
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:109
-#: src/components/common/ServiceStatus.vue:118
 msgid "Autostart enabled successfully"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:118
+msgid "Autostart disabled successfully"
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:134
