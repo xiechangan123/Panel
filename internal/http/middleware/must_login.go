@@ -49,6 +49,16 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 
 			userID := uint(0)
 			if r.Header.Get("Authorization") != "" {
+				// 禁止访问 ws 相关的接口
+				if strings.HasPrefix(r.URL.Path, "/api/ws") {
+					render := chix.NewRender(w)
+					defer render.Release()
+					render.Status(http.StatusForbidden)
+					render.JSON(chix.M{
+						"msg": t.Get("ws not allowed"),
+					})
+					return
+				}
 				// API 请求验证
 				if userID, err = userToken.ValidateReq(r); err != nil {
 					render := chix.NewRender(w)
