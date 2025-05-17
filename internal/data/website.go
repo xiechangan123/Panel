@@ -600,7 +600,7 @@ func (r *websiteRepo) ClearLog(id uint) error {
 		return err
 	}
 
-	_, err := shell.Execf(`echo "" > %s/wwwlogs/%s.log`, app.Root, website.Name)
+	_, err := shell.Execf(`cat /dev/null > %s/wwwlogs/%s.log`, app.Root, website.Name)
 	return err
 }
 

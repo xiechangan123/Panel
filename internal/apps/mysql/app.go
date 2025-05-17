@@ -173,7 +173,7 @@ func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
 
 // ClearSlowLog 清空慢查询日志
 func (s *App) ClearSlowLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("echo '' > %s/server/mysql/mysql-slow.log", app.Root); err != nil {
+	if _, err := shell.Execf("cat /dev/null > %s/server/mysql/mysql-slow.log", app.Root); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

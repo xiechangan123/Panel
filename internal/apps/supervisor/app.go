@@ -59,7 +59,7 @@ func (s *App) Service(w http.ResponseWriter, r *http.Request) {
 
 // ClearLog 清空日志
 func (s *App) ClearLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf(`echo "" > /var/log/supervisor/supervisord.log`); err != nil {
+	if _, err := shell.Execf(`cat /dev/null > /var/log/supervisor/supervisord.log`); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -242,7 +242,7 @@ func (s *App) ClearProcessLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`echo "" > '%s'`, logPath); err != nil {
+	if _, err = shell.Execf(`cat /dev/null > '%s'`, logPath); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

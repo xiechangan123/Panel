@@ -178,7 +178,7 @@ func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("echo '' > %s/server/php/%d/var/log/php-fpm.log", app.Root, s.version); err != nil {
+	if _, err := shell.Execf("cat /dev/null > %s/server/php/%d/var/log/php-fpm.log", app.Root, s.version); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -187,7 +187,7 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) ClearSlowLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("echo '' > %s/server/php/%d/var/log/slow.log", app.Root, s.version); err != nil {
+	if _, err := shell.Execf("cat /dev/null > %s/server/php/%d/var/log/slow.log", app.Root, s.version); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
