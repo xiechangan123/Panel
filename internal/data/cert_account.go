@@ -183,8 +183,8 @@ func (r certAccountRepo) Delete(id uint) error {
 // getGoogleEAB 获取 Google EAB
 func (r certAccountRepo) getGoogleEAB() (*acme.EAB, error) {
 	type data struct {
-		Message string `json:"message"`
-		Data    struct {
+		Msg  string `json:"msg"`
+		Data struct {
 			KeyId  string `json:"key_id"`
 			MacKey string `json:"mac_key"`
 		} `json:"data"`
@@ -198,8 +198,8 @@ func (r certAccountRepo) getGoogleEAB() (*acme.EAB, error) {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %v", err))
 	}
 	eab := resp.Result().(*data)
-	if eab.Message != "success" {
-		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %s", eab.Message))
+	if eab.Msg != "success" {
+		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %s", eab.Msg))
 	}
 
 	return &acme.EAB{KeyID: eab.Data.KeyId, MACKey: eab.Data.MacKey}, nil
