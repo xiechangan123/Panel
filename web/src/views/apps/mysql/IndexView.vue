@@ -4,16 +4,14 @@ defineOptions({
 })
 
 import Editor from '@guolao/vue-monaco-editor'
-import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
+import { NButton, NDataTable, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import mysql from '@/api/apps/mysql'
-import systemctl from '@/api/panel/systemctl'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const status = ref(false)
-const isEnabled = ref(false)
 
 const { data: rootPassword } = useRequest(mysql.rootPassword, {
   initialData: ''
@@ -26,13 +24,6 @@ const { data: slowLog } = useRequest(mysql.slowLog, {
 })
 const { data: load } = useRequest(mysql.load, {
   initialData: []
-})
-
-const statusType = computed(() => {
-  return status.value ? 'success' : 'error'
-})
-const statusStr = computed(() => {
-  return status.value ? $gettext('Running') : $gettext('Stopped')
 })
 
 const loadColumns: any = [
@@ -50,14 +41,6 @@ const loadColumns: any = [
     ellipsis: { tooltip: true }
   }
 ]
-
-const getStatus = async () => {
-  status.value = await systemctl.status('mysqld')
-}
-
-const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled('mysqld')
-}
 
 const handleSaveConfig = () => {
   useRequest(mysql.saveConfig(config.value)).onSuccess(() => {
@@ -77,44 +60,10 @@ const handleClearSlowLog = () => {
   })
 }
 
-const handleIsEnabled = async () => {
-  if (isEnabled.value) {
-    await systemctl.enable('mysqld')
-    window.$message.success($gettext('Autostart enabled successfully'))
-  } else {
-    await systemctl.disable('mysqld')
-    window.$message.success($gettext('Autostart disabled successfully'))
-  }
-  await getIsEnabled()
-}
-
-const handleStart = async () => {
-  await systemctl.start('mysqld')
-  window.$message.success($gettext('Started successfully'))
-  await getStatus()
-}
-
-const handleStop = async () => {
-  await systemctl.stop('mysqld')
-  window.$message.success($gettext('Stopped successfully'))
-  await getStatus()
-}
-
-const handleRestart = async () => {
-  await systemctl.restart('mysqld')
-  window.$message.success($gettext('Restarted successfully'))
-  await getStatus()
-}
-
 const handleSetRootPassword = async () => {
   await mysql.setRootPassword(rootPassword.value)
   window.$message.success($gettext('Modified successfully'))
 }
-
-onMounted(() => {
-  getStatus()
-  getIsEnabled()
-})
 </script>
 
 <template>
@@ -150,45 +99,10 @@ onMounted(() => {
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <n-space vertical>
-          <n-card :title="$gettext('Running Status')">
-            <template #header-extra>
-              <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> {{ $gettext('Autostart On') }} </template>
-                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
-              </n-switch>
-            </template>
-            <n-space vertical>
-              <n-alert :type="statusType">
-                {{ statusStr }}
-              </n-alert>
-              <n-space>
-                <n-button type="success" @click="handleStart">
-                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  {{ $gettext('Start') }}
-                </n-button>
-                <n-popconfirm @positive-click="handleStop">
-                  <template #trigger>
-                    <n-button type="error">
-                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      {{ $gettext('Stop') }}
-                    </n-button>
-                  </template>
-                  {{
-                    $gettext(
-                      'Stopping MySQL will cause websites using MySQL to become inaccessible. Are you sure you want to stop?'
-                    )
-                  }}
-                </n-popconfirm>
-                <n-button type="warning" @click="handleRestart">
-                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
-                  {{ $gettext('Restart') }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-card>
+        <n-flex vertical>
+          <service-status service="mysqld" />
           <n-card :title="$gettext('Root Password')">
-            <n-space vertical>
+            <n-flex vertical>
               <n-input
                 v-model:value="rootPassword"
                 type="password"
@@ -197,12 +111,12 @@ onMounted(() => {
               <n-button type="primary" @click="handleSetRootPassword">{{
                 $gettext('Save Changes')
               }}</n-button>
-            </n-space>
+            </n-flex>
           </n-card>
-        </n-space>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
-        <n-space vertical>
+        <n-flex vertical>
           <n-alert type="warning">
             {{
               $gettext(
@@ -222,7 +136,7 @@ onMounted(() => {
               formatOnPaste: true
             }"
           />
-        </n-space>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table

@@ -7,23 +7,14 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
-import systemctl from '@/api/panel/systemctl'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { generateRandomString, renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const status = ref(false)
-const isEnabled = ref(false)
 const port = ref(0)
 const addUserModal = ref(false)
 const changePasswordModal = ref(false)
-
-const statusType = computed(() => {
-  return status.value ? 'success' : 'error'
-})
-const statusStr = computed(() => {
-  return status.value ? $gettext('Running') : $gettext('Stopped')
-})
 
 const addUserModel = ref({
   username: '',
@@ -117,14 +108,6 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const getStatus = async () => {
-  status.value = await systemctl.status('pure-ftpd')
-}
-
-const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled('pure-ftpd')
-}
-
 const getPort = async () => {
   port.value = await pureftpd.port()
 }
@@ -133,35 +116,6 @@ const handleSavePort = async () => {
   useRequest(pureftpd.updatePort(port.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
-}
-
-const handleStart = async () => {
-  await systemctl.start('pure-ftpd')
-  window.$message.success($gettext('Started successfully'))
-  await getStatus()
-}
-
-const handleIsEnabled = async () => {
-  if (isEnabled.value) {
-    await systemctl.enable('pure-ftpd')
-    window.$message.success($gettext('Autostart enabled successfully'))
-  } else {
-    await systemctl.disable('pure-ftpd')
-    window.$message.success($gettext('Autostart disabled successfully'))
-  }
-  await getIsEnabled()
-}
-
-const handleStop = async () => {
-  await systemctl.stop('pure-ftpd')
-  window.$message.success($gettext('Stopped successfully'))
-  await getStatus()
-}
-
-const handleRestart = async () => {
-  await systemctl.restart('pure-ftpd')
-  window.$message.success($gettext('Restarted successfully'))
-  await getStatus()
 }
 
 const handleAddUser = async () => {
@@ -196,8 +150,6 @@ const handleDeleteUser = async (username: string) => {
 
 onMounted(() => {
   refresh()
-  getStatus()
-  getIsEnabled()
   getPort()
 })
 </script>
@@ -221,48 +173,13 @@ onMounted(() => {
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <n-space vertical>
-          <n-card :title="$gettext('Running Status')">
-            <template #header-extra>
-              <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> {{ $gettext('Autostart On') }} </template>
-                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
-              </n-switch>
-            </template>
-            <n-space vertical>
-              <n-alert :type="statusType">
-                {{ statusStr }}
-              </n-alert>
-              <n-space>
-                <n-button type="success" @click="handleStart">
-                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  {{ $gettext('Start') }}
-                </n-button>
-                <n-popconfirm @positive-click="handleStop">
-                  <template #trigger>
-                    <n-button type="error">
-                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      {{ $gettext('Stop') }}
-                    </n-button>
-                  </template>
-                  {{
-                    $gettext(
-                      'Stopping Pure-Ftpd will cause FTP service to be unavailable. Are you sure you want to stop it?'
-                    )
-                  }}
-                </n-popconfirm>
-                <n-button type="warning" @click="handleRestart">
-                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
-                  {{ $gettext('Restart') }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-card>
+        <n-flex vertical>
+          <service-status service="pure-ftpd" />
           <n-card :title="$gettext('Port Settings')">
             <n-input-number v-model:value="port" :min="1" :max="65535" />
             {{ $gettext('Modify Pure-Ftpd listening port') }}
           </n-card>
-        </n-space>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="users" :tab="$gettext('User Management')">
         <n-flex vertical>

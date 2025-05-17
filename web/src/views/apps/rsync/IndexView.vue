@@ -8,13 +8,11 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import rsync from '@/api/apps/rsync'
-import systemctl from '@/api/panel/systemctl'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { generateRandomString, renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const status = ref(false)
-const isEnabled = ref(false)
 const config = ref('')
 
 const addModuleModal = ref(false)
@@ -35,13 +33,6 @@ const editModuleModel = ref({
   auth_user: '',
   secret: '',
   hosts_allow: ''
-})
-
-const statusType = computed(() => {
-  return status.value ? 'success' : 'error'
-})
-const statusStr = computed(() => {
-  return status.value ? $gettext('Running normally') : $gettext('Stopped')
 })
 
 const processColumns: any = [
@@ -135,14 +126,6 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const getStatus = async () => {
-  status.value = await systemctl.status('rsyncd')
-}
-
-const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled('rsyncd')
-}
-
 const getConfig = async () => {
   config.value = await rsync.config()
 }
@@ -152,35 +135,6 @@ const handleSaveConfig = async () => {
     refresh()
     window.$message.success($gettext('Saved successfully'))
   })
-}
-
-const handleStart = async () => {
-  await systemctl.start('rsyncd')
-  window.$message.success($gettext('Started successfully'))
-  await getStatus()
-}
-
-const handleIsEnabled = async () => {
-  if (isEnabled.value) {
-    await systemctl.enable('rsyncd')
-    window.$message.success($gettext('Autostart enabled successfully'))
-  } else {
-    await systemctl.disable('rsyncd')
-    window.$message.success($gettext('Autostart disabled successfully'))
-  }
-  await getIsEnabled()
-}
-
-const handleStop = async () => {
-  await systemctl.stop('rsyncd')
-  window.$message.success($gettext('Stopped successfully'))
-  await getStatus()
-}
-
-const handleRestart = async () => {
-  await systemctl.restart('rsyncd')
-  window.$message.success($gettext('Restarted successfully'))
-  await getStatus()
 }
 
 const handleModelAdd = async () => {
@@ -230,8 +184,6 @@ const handleSaveModuleConfig = async () => {
 
 onMounted(() => {
   refresh()
-  getStatus()
-  getIsEnabled()
   getConfig()
 })
 </script>
@@ -260,44 +212,7 @@ onMounted(() => {
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <n-space vertical>
-          <n-card :title="$gettext('Running Status')">
-            <template #header-extra>
-              <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> {{ $gettext('Autostart On') }} </template>
-                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
-              </n-switch>
-            </template>
-            <n-space vertical>
-              <n-alert :type="statusType">
-                {{ statusStr }}
-              </n-alert>
-              <n-space>
-                <n-button type="success" @click="handleStart">
-                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  {{ $gettext('Start') }}
-                </n-button>
-                <n-popconfirm @positive-click="handleStop">
-                  <template #trigger>
-                    <n-button type="error">
-                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      {{ $gettext('Stop') }}
-                    </n-button>
-                  </template>
-                  {{
-                    $gettext(
-                      'After stopping the Rsync service, you will not be able to use the Rsync functionality. Are you sure you want to stop?'
-                    )
-                  }}
-                </n-popconfirm>
-                <n-button type="warning" @click="handleRestart">
-                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
-                  {{ $gettext('Restart') }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-card>
-        </n-space>
+        <service-status service="rsyncd" />
       </n-tab-pane>
       <n-tab-pane name="modules" :tab="$gettext('Module Management')">
         <n-flex vertical>

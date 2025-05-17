@@ -4,7 +4,7 @@ import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/apps/php'
-import systemctl from '@/api/panel/systemctl'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -18,8 +18,6 @@ const props = defineProps({
 const { version } = toRefs(props)
 
 const currentTab = ref('status')
-const status = ref(false)
-const isEnabled = ref(false)
 
 const { data: config } = useRequest(php.config(version.value), {
   initialData: ''
@@ -38,13 +36,6 @@ const { data: load } = useRequest(php.load(version.value), {
 })
 const { data: extensions } = useRequest(php.extensions(version.value), {
   initialData: []
-})
-
-const statusType = computed(() => {
-  return status.value ? 'success' : 'error'
-})
-const statusStr = computed(() => {
-  return status.value ? $gettext('Running') : $gettext('Stopped')
 })
 
 const extensionColumns: any = [
@@ -144,14 +135,6 @@ const loadColumns: any = [
   }
 ]
 
-const getStatus = async () => {
-  status.value = await systemctl.status(`php-fpm-${version.value}`)
-}
-
-const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled(`php-fpm-${version.value}`)
-}
-
 const handleSetCli = async () => {
   useRequest(php.setCli(version.value)).onSuccess(() => {
     window.$message.success($gettext('Set successfully'))
@@ -182,41 +165,6 @@ const handleClearSlowLog = async () => {
   })
 }
 
-const handleIsEnabled = async () => {
-  if (isEnabled.value) {
-    await systemctl.enable(`php-fpm-${version.value}`)
-    window.$message.success($gettext('Autostart enabled successfully'))
-  } else {
-    await systemctl.disable(`php-fpm-${version.value}`)
-    window.$message.success($gettext('Autostart disabled successfully'))
-  }
-  await getIsEnabled()
-}
-
-const handleStart = async () => {
-  await systemctl.start(`php-fpm-${version.value}`)
-  window.$message.success($gettext('Started successfully'))
-  await getStatus()
-}
-
-const handleStop = async () => {
-  await systemctl.stop(`php-fpm-${version.value}`)
-  window.$message.success($gettext('Stopped successfully'))
-  await getStatus()
-}
-
-const handleRestart = async () => {
-  await systemctl.restart(`php-fpm-${version.value}`)
-  window.$message.success($gettext('Restarted successfully'))
-  await getStatus()
-}
-
-const handleReload = async () => {
-  await systemctl.reload(`php-fpm-${version.value}`)
-  window.$message.success($gettext('Reloaded successfully'))
-  await getStatus()
-}
-
 const handleInstallExtension = async (slug: string) => {
   useRequest(php.installExtension(version.value, slug)).onSuccess(() => {
     window.$message.success($gettext('Task submitted, please check progress in background tasks'))
@@ -228,11 +176,6 @@ const handleUninstallExtension = async (name: string) => {
     window.$message.success($gettext('Task submitted, please check progress in background tasks'))
   })
 }
-
-onMounted(() => {
-  getStatus()
-  getIsEnabled()
-})
 </script>
 
 <template>
@@ -280,49 +223,7 @@ onMounted(() => {
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <n-space vertical>
-          <n-card :title="$gettext('Running Status')">
-            <template #header-extra>
-              <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> {{ $gettext('Autostart On') }} </template>
-                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
-              </n-switch>
-            </template>
-            <n-space vertical>
-              <n-alert :type="statusType">
-                {{ statusStr }}
-              </n-alert>
-              <n-space>
-                <n-button type="success" @click="handleStart">
-                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  {{ $gettext('Start') }}
-                </n-button>
-                <n-popconfirm @positive-click="handleStop">
-                  <template #trigger>
-                    <n-button type="error">
-                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      {{ $gettext('Stop') }}
-                    </n-button>
-                  </template>
-                  {{
-                    $gettext(
-                      'Stopping PHP %{ version } will cause websites using PHP %{ version } to become inaccessible. Are you sure you want to stop?',
-                      { version: version }
-                    )
-                  }}
-                </n-popconfirm>
-                <n-button type="warning" @click="handleRestart">
-                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
-                  {{ $gettext('Restart') }}
-                </n-button>
-                <n-button type="primary" @click="handleReload">
-                  <the-icon :size="20" icon="material-symbols:refresh-rounded" />
-                  {{ $gettext('Reload') }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-card>
-        </n-space>
+        <service-status :service="`php-fpm-${version}`" show-reload />
       </n-tab-pane>
       <n-tab-pane name="extensions" :tab="$gettext('Extension Management')">
         <n-flex vertical>

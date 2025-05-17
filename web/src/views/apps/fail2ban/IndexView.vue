@@ -8,14 +8,12 @@ import { useGettext } from 'vue3-gettext'
 
 import fail2ban from '@/api/apps/fail2ban'
 import app from '@/api/panel/app'
-import systemctl from '@/api/panel/systemctl'
 import website from '@/api/panel/website'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const status = ref(false)
-const isEnabled = ref(false)
 const white = ref('')
 
 const addJailModal = ref(false)
@@ -34,13 +32,6 @@ const jailModal = ref(false)
 const jailCurrentlyBan = ref(0)
 const jailTotalBan = ref(0)
 const jailBanedList = ref<any[]>([])
-
-const statusType = computed(() => {
-  return status.value ? 'success' : 'error'
-})
-const statusStr = computed(() => {
-  return status.value ? $gettext('Running') : $gettext('Stopped')
-})
 
 const jailsColumns: any = [
   {
@@ -195,49 +186,6 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const getStatus = async () => {
-  status.value = await systemctl.status('fail2ban')
-}
-
-const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled('fail2ban')
-}
-
-const handleStart = async () => {
-  await systemctl.start('fail2ban')
-  window.$message.success($gettext('Started successfully'))
-  await getStatus()
-}
-
-const handleIsEnabled = async () => {
-  if (isEnabled.value) {
-    await systemctl.enable('fail2ban')
-    window.$message.success($gettext('Autostart enabled successfully'))
-  } else {
-    await systemctl.disable('fail2ban')
-    window.$message.success($gettext('Autostart disabled successfully'))
-  }
-  await getIsEnabled()
-}
-
-const handleStop = async () => {
-  await systemctl.stop('fail2ban')
-  window.$message.success($gettext('Stopped successfully'))
-  await getStatus()
-}
-
-const handleRestart = async () => {
-  await systemctl.restart('fail2ban')
-  window.$message.success($gettext('Restarted successfully'))
-  await getStatus()
-}
-
-const handleReload = async () => {
-  await systemctl.reload('fail2ban')
-  window.$message.success($gettext('Reloaded successfully'))
-  await getStatus()
-}
-
 const handleAddJail = () => {
   useRequest(fail2ban.add(addJailModel.value)).onSuccess(() => {
     refresh()
@@ -269,8 +217,6 @@ const handleUnBan = (name: string, ip: string) => {
 
 onMounted(() => {
   refresh()
-  getStatus()
-  getIsEnabled()
   getWhiteList()
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
     if (data.installed) {
@@ -304,47 +250,8 @@ onMounted(() => {
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <n-space vertical>
-          <n-card :title="$gettext('Running Status')">
-            <template #header-extra>
-              <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> {{ $gettext('Autostart On') }} </template>
-                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
-              </n-switch>
-            </template>
-            <n-space vertical>
-              <n-alert :type="statusType">
-                {{ statusStr }}
-              </n-alert>
-              <n-space>
-                <n-button type="success" @click="handleStart">
-                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  {{ $gettext('Start') }}
-                </n-button>
-                <n-popconfirm @positive-click="handleStop">
-                  <template #trigger>
-                    <n-button type="error">
-                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      {{ $gettext('Stop') }}
-                    </n-button>
-                  </template>
-                  {{
-                    $gettext(
-                      'Stopping Fail2ban will disable all rules. Are you sure you want to stop?'
-                    )
-                  }}
-                </n-popconfirm>
-                <n-button type="warning" @click="handleRestart">
-                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
-                  {{ $gettext('Restart') }}
-                </n-button>
-                <n-button type="primary" @click="handleReload">
-                  <the-icon :size="20" icon="material-symbols:refresh-rounded" />
-                  {{ $gettext('Reload') }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-card>
+        <n-flex vertical>
+          <service-status service="fail2ban" show-reload />
           <n-card :title="$gettext('IP Whitelist')">
             <n-input
               v-model:value="white"
@@ -353,7 +260,7 @@ onMounted(() => {
               :placeholder="$gettext('IP whitelist, separated by commas')"
             />
           </n-card>
-        </n-space>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="jails" :tab="$gettext('Rule Management')">
         <n-card :title="$gettext('Rule List')" :segmented="true">

@@ -158,7 +158,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // ClearErrorLog 清空错误日志
 func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if err := systemctl.LogsClear("mysqld"); err != nil {
+	if err := systemctl.LogClear("mysqld"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

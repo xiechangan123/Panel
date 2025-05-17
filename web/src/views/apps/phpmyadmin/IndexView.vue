@@ -19,7 +19,7 @@ const url = computed(() => {
   return `http://${hostname.value}:${port.value}/${path.value}`
 })
 
-const { data: config } = useRequest(phpmyadmin.getConfig, {
+const { data: config } = useRequest(phpmyadmin.config, {
   initialData: {
     config: ''
   }
@@ -40,7 +40,7 @@ const handleSave = () => {
 }
 
 const handleSaveConfig = () => {
-  useRequest(phpmyadmin.saveConfig(config.value)).onSuccess(() => {
+  useRequest(phpmyadmin.updateConfig(config.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }

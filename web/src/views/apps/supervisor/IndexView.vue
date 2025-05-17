@@ -8,21 +8,17 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import supervisor from '@/api/apps/supervisor'
-import systemctl from '@/api/panel/systemctl'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const status = ref(false)
-const isEnabled = ref(false)
 const processLog = ref('')
 
 const { data: serviceName } = useRequest(supervisor.service, {
-  initialData: 'supervisor'
+  initialData: ''
 }).onSuccess(() => {
   refresh()
-  getStatus()
-  getIsEnabled()
   config.value = supervisor.config()
 })
 
@@ -46,13 +42,6 @@ const editProcessModel = ref({
 })
 
 const processLogModal = ref(false)
-
-const statusType = computed(() => {
-  return status.value ? 'success' : 'error'
-})
-const statusStr = computed(() => {
-  return status.value ? $gettext('Running') : $gettext('Stopped')
-})
 
 const processColumns: any = [
   {
@@ -232,14 +221,6 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   }
 )
 
-const getStatus = async () => {
-  status.value = await systemctl.status(serviceName.value)
-}
-
-const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled(serviceName.value)
-}
-
 const handleSaveConfig = () => {
   useRequest(supervisor.saveConfig(config.value)).onSuccess(() => {
     refresh()
@@ -250,41 +231,6 @@ const handleSaveConfig = () => {
 const handleClearLog = () => {
   useRequest(supervisor.clearLog()).onSuccess(() => {
     window.$message.success($gettext('Cleared successfully'))
-  })
-}
-
-const handleIsEnabled = () => {
-  if (isEnabled.value) {
-    useRequest(systemctl.enable(serviceName.value)).onSuccess(() => {
-      getIsEnabled()
-      window.$message.success($gettext('Autostart enabled successfully'))
-    })
-  } else {
-    useRequest(systemctl.disable(serviceName.value)).onSuccess(() => {
-      getIsEnabled()
-      window.$message.success($gettext('Autostart disabled successfully'))
-    })
-  }
-}
-
-const handleStart = () => {
-  useRequest(systemctl.start(serviceName.value)).onSuccess(() => {
-    getStatus()
-    window.$message.success($gettext('Started successfully'))
-  })
-}
-
-const handleStop = () => {
-  useRequest(systemctl.stop(serviceName.value)).onSuccess(() => {
-    getStatus()
-    window.$message.success($gettext('Stopped successfully'))
-  })
-}
-
-const handleRestart = () => {
-  useRequest(systemctl.restart(serviceName.value)).onSuccess(() => {
-    getStatus()
-    window.$message.success($gettext('Restarted successfully'))
   })
 }
 
@@ -382,44 +328,7 @@ onUnmounted(() => {
     </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <n-space vertical>
-          <n-card :title="$gettext('Running Status')">
-            <template #header-extra>
-              <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked>{{ $gettext('Autostart On') }}</template>
-                <template #unchecked>{{ $gettext('Autostart Off') }}</template>
-              </n-switch>
-            </template>
-            <n-space vertical>
-              <n-alert :type="statusType">
-                {{ statusStr }}
-              </n-alert>
-              <n-space>
-                <n-button type="success" @click="handleStart">
-                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  {{ $gettext('Start') }}
-                </n-button>
-                <n-popconfirm @positive-click="handleStop">
-                  <template #trigger>
-                    <n-button type="error">
-                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      {{ $gettext('Stop') }}
-                    </n-button>
-                  </template>
-                  {{
-                    $gettext(
-                      'Stopping Supervisor will cause all processes managed by Supervisor to be killed. Are you sure you want to stop?'
-                    )
-                  }}
-                </n-popconfirm>
-                <n-button type="warning" @click="handleRestart">
-                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
-                  {{ $gettext('Restart') }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-card>
-        </n-space>
+        <service-status v-if="serviceName != ''" :service="serviceName" />
       </n-tab-pane>
       <n-tab-pane name="processes" :tab="$gettext('Process Management')">
         <n-flex vertical>

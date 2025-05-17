@@ -4,35 +4,22 @@ defineOptions({
 })
 
 import Editor from '@guolao/vue-monaco-editor'
-import { NButton, NPopconfirm } from 'naive-ui'
+import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import podman from '@/api/apps/podman'
-import systemctl from '@/api/panel/systemctl'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
-const status = ref(false)
-const isEnabled = ref(false)
-const registryConfig = ref('')
-const storageConfig = ref('')
 
-const statusStr = computed(() => {
-  return status.value ? $gettext('Running') : $gettext('Stopped')
+const { data: registryConfig } = useRequest(podman.registryConfig, {
+  initialData: ''
 })
 
-const getStatus = async () => {
-  status.value = await systemctl.status('podman')
-}
-
-const getIsEnabled = async () => {
-  isEnabled.value = await systemctl.isEnabled('podman')
-}
-
-const getConfig = async () => {
-  registryConfig.value = await podman.registryConfig()
-  storageConfig.value = await podman.storageConfig()
-}
+const { data: storageConfig } = useRequest(podman.storageConfig, {
+  initialData: ''
+})
 
 const handleSaveRegistryConfig = () => {
   useRequest(podman.saveRegistryConfig(registryConfig.value)).onSuccess(() => {
@@ -45,41 +32,6 @@ const handleSaveStorageConfig = () => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
-
-const handleStart = async () => {
-  await systemctl.start('podman')
-  window.$message.success($gettext('Started successfully'))
-  await getStatus()
-}
-
-const handleStop = async () => {
-  await systemctl.stop('podman')
-  window.$message.success($gettext('Stopped successfully'))
-  await getStatus()
-}
-
-const handleRestart = async () => {
-  await systemctl.restart('podman')
-  window.$message.success($gettext('Restarted successfully'))
-  await getStatus()
-}
-
-const handleIsEnabled = async () => {
-  if (isEnabled.value) {
-    await systemctl.enable('podman')
-    window.$message.success($gettext('Autostart enabled successfully'))
-  } else {
-    await systemctl.disable('podman')
-    window.$message.success($gettext('Autostart disabled successfully'))
-  }
-  await getIsEnabled()
-}
-
-onMounted(() => {
-  getStatus()
-  getIsEnabled()
-  getConfig()
-})
 </script>
 
 <template>
@@ -114,38 +66,7 @@ onMounted(() => {
               )
             }}
           </n-alert>
-          <n-card :title="$gettext('Running Status')">
-            <template #header-extra>
-              <n-switch v-model:value="isEnabled" @update:value="handleIsEnabled">
-                <template #checked> {{ $gettext('Autostart On') }} </template>
-                <template #unchecked> {{ $gettext('Autostart Off') }} </template>
-              </n-switch>
-            </template>
-            <n-space vertical>
-              <n-alert :type="status ? 'success' : 'error'">
-                {{ statusStr }}
-              </n-alert>
-              <n-space>
-                <n-button type="success" @click="handleStart">
-                  <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
-                  {{ $gettext('Start') }}
-                </n-button>
-                <n-popconfirm @positive-click="handleStop">
-                  <template #trigger>
-                    <n-button type="error">
-                      <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
-                      {{ $gettext('Stop') }}
-                    </n-button>
-                  </template>
-                  {{ $gettext('Are you sure you want to stop Podman?') }}
-                </n-popconfirm>
-                <n-button type="warning" @click="handleRestart">
-                  <the-icon :size="18" icon="material-symbols:replay-rounded" />
-                  {{ $gettext('Restart') }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-card>
+          <service-status service="podman" />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="registryConfig" :tab="$gettext('Registry Configuration')">
