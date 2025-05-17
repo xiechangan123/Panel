@@ -36,29 +36,29 @@ msgid "Cannot save in current state"
 msgstr ""
 
 #: src/components/common/CodeEditor.vue:40
-#: src/views/apps/codeserver/IndexView.vue:37
-#: src/views/apps/docker/IndexView.vue:38
-#: src/views/apps/fail2ban/IndexView.vue:173
-#: src/views/apps/frp/IndexView.vue:53
-#: src/views/apps/gitea/IndexView.vue:37
-#: src/views/apps/memcached/IndexView.vue:61
-#: src/views/apps/minio/IndexView.vue:37
-#: src/views/apps/mysql/IndexView.vue:64
-#: src/views/apps/nginx/IndexView.vue:62
-#: src/views/apps/php/PhpView.vue:163
-#: src/views/apps/php/PhpView.vue:169
+#: src/views/apps/codeserver/IndexView.vue:24
+#: src/views/apps/docker/IndexView.vue:24
+#: src/views/apps/fail2ban/IndexView.vue:164
+#: src/views/apps/frp/IndexView.vue:28
+#: src/views/apps/gitea/IndexView.vue:22
+#: src/views/apps/memcached/IndexView.vue:44
+#: src/views/apps/minio/IndexView.vue:22
+#: src/views/apps/mysql/IndexView.vue:47
+#: src/views/apps/nginx/IndexView.vue:44
+#: src/views/apps/php/PhpView.vue:146
+#: src/views/apps/php/PhpView.vue:152
 #: src/views/apps/phpmyadmin/IndexView.vue:37
 #: src/views/apps/phpmyadmin/IndexView.vue:44
-#: src/views/apps/podman/IndexView.vue:39
-#: src/views/apps/podman/IndexView.vue:45
-#: src/views/apps/postgresql/IndexView.vue:64
-#: src/views/apps/postgresql/IndexView.vue:69
-#: src/views/apps/pureftpd/IndexView.vue:134
-#: src/views/apps/redis/IndexView.vue:58
-#: src/views/apps/rsync/IndexView.vue:153
-#: src/views/apps/rsync/IndexView.vue:226
-#: src/views/apps/supervisor/IndexView.vue:246
-#: src/views/apps/supervisor/IndexView.vue:346
+#: src/views/apps/podman/IndexView.vue:26
+#: src/views/apps/podman/IndexView.vue:32
+#: src/views/apps/postgresql/IndexView.vue:47
+#: src/views/apps/postgresql/IndexView.vue:52
+#: src/views/apps/pureftpd/IndexView.vue:117
+#: src/views/apps/redis/IndexView.vue:41
+#: src/views/apps/rsync/IndexView.vue:136
+#: src/views/apps/rsync/IndexView.vue:180
+#: src/views/apps/supervisor/IndexView.vue:227
+#: src/views/apps/supervisor/IndexView.vue:292
 #: src/views/apps/toolbox/IndexView.vue:51
 #: src/views/apps/toolbox/IndexView.vue:57
 #: src/views/apps/toolbox/IndexView.vue:66
@@ -79,11 +79,11 @@ msgstr ""
 
 #: src/components/common/PathSelector.vue:42
 #: src/components/common/PathSelector.vue:331
-#: src/views/apps/fail2ban/IndexView.vue:47
-#: src/views/apps/rsync/IndexView.vue:49
-#: src/views/apps/rsync/IndexView.vue:365
-#: src/views/apps/supervisor/IndexView.vue:59
-#: src/views/apps/supervisor/IndexView.vue:490
+#: src/views/apps/fail2ban/IndexView.vue:38
+#: src/views/apps/rsync/IndexView.vue:40
+#: src/views/apps/rsync/IndexView.vue:280
+#: src/views/apps/supervisor/IndexView.vue:48
+#: src/views/apps/supervisor/IndexView.vue:399
 #: src/views/container/ComposeView.vue:31
 #: src/views/container/NetworkView.vue:45
 #: src/views/container/VolumeView.vue:26
@@ -182,12 +182,12 @@ msgstr ""
 
 #: src/components/common/PathSelector.vue:335
 #: src/views/app/VersionModal.vue:96
-#: src/views/apps/fail2ban/IndexView.vue:468
-#: src/views/apps/pureftpd/IndexView.vue:332
-#: src/views/apps/pureftpd/IndexView.vue:354
-#: src/views/apps/rsync/IndexView.vue:414
+#: src/views/apps/fail2ban/IndexView.vue:375
+#: src/views/apps/pureftpd/IndexView.vue:249
+#: src/views/apps/pureftpd/IndexView.vue:271
+#: src/views/apps/rsync/IndexView.vue:329
 #: src/views/apps/s3fs/IndexView.vue:184
-#: src/views/apps/supervisor/IndexView.vue:526
+#: src/views/apps/supervisor/IndexView.vue:435
 #: src/views/backup/ListView.vue:244
 #: src/views/backup/ListView.vue:268
 #: src/views/cert/AccountView.vue:268
@@ -236,12 +236,142 @@ msgid "Failed to get log stream"
 msgstr ""
 
 #: src/components/common/RealtimeLogModal.vue:67
-#: src/views/apps/supervisor/IndexView.vue:102
+#: src/views/apps/supervisor/IndexView.vue:91
 #: src/views/container/ContainerView.vue:102
 #: src/views/container/ContainerView.vue:442
 #: src/views/task/CronView.vue:120
 #: src/views/task/TaskView.vue:74
 msgid "Logs"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:25
+#: src/views/dashboard/IndexView.vue:733
+#: src/views/dashboard/IndexView.vue:741
+#: src/views/dashboard/IndexView.vue:748
+#: src/views/dashboard/IndexView.vue:754
+#: src/views/dashboard/IndexView.vue:765
+#: src/views/dashboard/IndexView.vue:777
+msgid "Loading..."
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:26
+#: src/views/task/SystemView.vue:50
+#: src/views/task/TaskView.vue:33
+#: src/views/website/IndexView.vue:31
+msgid "Running"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:26
+#: src/views/task/SystemView.vue:54
+msgid "Stopped"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:42
+#: src/views/container/ComposeView.vue:104
+msgid "Starting..."
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:48
+#: src/views/apps/supervisor/IndexView.vue:248
+#: src/views/website/IndexView.vue:239
+msgid "Started successfully"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:57
+msgid "Stopping..."
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:63
+#: src/views/apps/supervisor/IndexView.vue:255
+#: src/views/website/IndexView.vue:241
+msgid "Stopped successfully"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:72
+msgid "Restarting..."
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:78
+#: src/views/apps/supervisor/IndexView.vue:262
+msgid "Restarted successfully"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:87
+msgid "Reloading..."
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:93
+msgid "Reloaded successfully"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:102
+msgid "Setting autostart..."
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:109
+#: src/components/common/ServiceStatus.vue:118
+msgid "Autostart enabled successfully"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:134
+#: src/views/apps/codeserver/IndexView.vue:43
+#: src/views/apps/docker/IndexView.vue:43
+#: src/views/apps/fail2ban/IndexView.vue:252
+#: src/views/apps/gitea/IndexView.vue:41
+#: src/views/apps/memcached/IndexView.vue:63
+#: src/views/apps/minio/IndexView.vue:36
+#: src/views/apps/mysql/IndexView.vue:101
+#: src/views/apps/nginx/IndexView.vue:78
+#: src/views/apps/php/PhpView.vue:225
+#: src/views/apps/podman/IndexView.vue:60
+#: src/views/apps/postgresql/IndexView.vue:88
+#: src/views/apps/pureftpd/IndexView.vue:175
+#: src/views/apps/redis/IndexView.vue:60
+#: src/views/apps/rsync/IndexView.vue:214
+#: src/views/apps/supervisor/IndexView.vue:330
+#: src/views/container/ContainerView.vue:80
+msgid "Running Status"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:141
+msgid "Autostart On"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:142
+msgid "Autostart Off"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:152
+#: src/views/apps/supervisor/IndexView.vue:119
+#: src/views/container/ComposeView.vue:158
+#: src/views/container/ContainerView.vue:126
+#: src/views/container/ContainerView.vue:408
+msgid "Start"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:158
+#: src/views/apps/supervisor/IndexView.vue:145
+#: src/views/container/ComposeView.vue:189
+#: src/views/container/ContainerView.vue:131
+#: src/views/container/ContainerView.vue:409
+msgid "Stop"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:161
+msgid "Are you sure you want to stop %{ service }?"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:165
+#: src/views/apps/supervisor/IndexView.vue:174
+#: src/views/container/ContainerView.vue:136
+#: src/views/container/ContainerView.vue:410
+#: src/views/dashboard/IndexView.vue:447
+msgid "Restart"
+msgstr ""
+
+#: src/components/common/ServiceStatus.vue:174
+#: src/layout/tab/components/ContextMenu.vue:34
+msgid "Reload"
 msgstr ""
 
 #: src/layout/header/components/FullScreen.vue:16
@@ -265,8 +395,8 @@ msgid "Set Theme Color"
 msgstr ""
 
 #: src/layout/header/components/UserAvatar.vue:13
-#: src/views/apps/pureftpd/IndexView.vue:74
-#: src/views/apps/pureftpd/IndexView.vue:339
+#: src/views/apps/pureftpd/IndexView.vue:65
+#: src/views/apps/pureftpd/IndexView.vue:256
 #: src/views/setting/PasswordModal.vue:26
 #: src/views/setting/SettingUser.vue:109
 msgid "Change Password"
@@ -335,14 +465,6 @@ msgstr ""
 
 #: src/layout/tab/components/ContextMenu.vue:28
 msgid "Close"
-msgstr ""
-
-#: src/layout/tab/components/ContextMenu.vue:34
-#: src/views/apps/fail2ban/IndexView.vue:343
-#: src/views/apps/nginx/IndexView.vue:172
-#: src/views/apps/php/PhpView.vue:320
-#: src/views/apps/postgresql/IndexView.vue:182
-msgid "Reload"
 msgstr ""
 
 #: src/layout/tab/components/ContextMenu.vue:40
@@ -431,7 +553,7 @@ msgid "Tasks"
 msgstr ""
 
 #: src/locales/menu.ts:20
-#: src/views/apps/fail2ban/IndexView.vue:415
+#: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/backup/IndexView.vue:37
 #: src/views/backup/ListView.vue:220
 #: src/views/backup/ListView.vue:257
@@ -482,7 +604,7 @@ msgstr ""
 #: src/views/app/IndexView.vue:19
 #: src/views/app/IndexView.vue:154
 #: src/views/app/IndexView.vue:159
-#: src/views/apps/php/PhpView.vue:90
+#: src/views/apps/php/PhpView.vue:81
 msgid "Install"
 msgstr ""
 
@@ -491,7 +613,7 @@ msgid "App Name"
 msgstr ""
 
 #: src/views/app/IndexView.vue:43
-#: src/views/apps/php/PhpView.vue:59
+#: src/views/apps/php/PhpView.vue:50
 msgid "Description"
 msgstr ""
 
@@ -504,13 +626,13 @@ msgid "Show in Home"
 msgstr ""
 
 #: src/views/app/IndexView.vue:68
-#: src/views/apps/fail2ban/IndexView.vue:69
-#: src/views/apps/fail2ban/IndexView.vue:130
-#: src/views/apps/php/PhpView.vue:66
-#: src/views/apps/pureftpd/IndexView.vue:55
-#: src/views/apps/rsync/IndexView.vue:78
+#: src/views/apps/fail2ban/IndexView.vue:60
+#: src/views/apps/fail2ban/IndexView.vue:121
+#: src/views/apps/php/PhpView.vue:57
+#: src/views/apps/pureftpd/IndexView.vue:46
+#: src/views/apps/rsync/IndexView.vue:69
 #: src/views/apps/s3fs/IndexView.vue:33
-#: src/views/apps/supervisor/IndexView.vue:87
+#: src/views/apps/supervisor/IndexView.vue:76
 #: src/views/backup/ListView.vue:58
 #: src/views/cert/AccountView.vue:79
 #: src/views/cert/CertView.vue:181
@@ -752,170 +874,27 @@ msgstr ""
 msgid "Start Benchmark"
 msgstr ""
 
-#: src/views/apps/codeserver/IndexView.vue:20
-#: src/views/apps/docker/IndexView.vue:25
-#: src/views/apps/fail2ban/IndexView.vue:42
-#: src/views/apps/frp/IndexView.vue:30
-#: src/views/apps/frp/IndexView.vue:31
-#: src/views/apps/gitea/IndexView.vue:20
-#: src/views/apps/memcached/IndexView.vue:22
-#: src/views/apps/minio/IndexView.vue:20
-#: src/views/apps/mysql/IndexView.vue:35
-#: src/views/apps/nginx/IndexView.vue:33
-#: src/views/apps/php/PhpView.vue:47
-#: src/views/apps/podman/IndexView.vue:21
-#: src/views/apps/postgresql/IndexView.vue:35
-#: src/views/apps/pureftpd/IndexView.vue:25
-#: src/views/apps/redis/IndexView.vue:29
-#: src/views/apps/supervisor/IndexView.vue:54
-#: src/views/task/SystemView.vue:50
-#: src/views/task/TaskView.vue:33
-#: src/views/website/IndexView.vue:31
-msgid "Running"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:20
-#: src/views/apps/docker/IndexView.vue:25
-#: src/views/apps/fail2ban/IndexView.vue:42
-#: src/views/apps/frp/IndexView.vue:30
-#: src/views/apps/frp/IndexView.vue:31
-#: src/views/apps/gitea/IndexView.vue:20
-#: src/views/apps/memcached/IndexView.vue:22
-#: src/views/apps/minio/IndexView.vue:20
-#: src/views/apps/mysql/IndexView.vue:35
-#: src/views/apps/nginx/IndexView.vue:33
-#: src/views/apps/php/PhpView.vue:47
-#: src/views/apps/podman/IndexView.vue:21
-#: src/views/apps/postgresql/IndexView.vue:35
-#: src/views/apps/pureftpd/IndexView.vue:25
-#: src/views/apps/redis/IndexView.vue:29
-#: src/views/apps/rsync/IndexView.vue:44
-#: src/views/apps/supervisor/IndexView.vue:54
-#: src/views/task/SystemView.vue:54
-msgid "Stopped"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:43
-#: src/views/apps/docker/IndexView.vue:44
-#: src/views/apps/fail2ban/IndexView.vue:208
-#: src/views/apps/frp/IndexView.vue:60
-#: src/views/apps/gitea/IndexView.vue:43
-#: src/views/apps/memcached/IndexView.vue:67
-#: src/views/apps/minio/IndexView.vue:43
-#: src/views/apps/mysql/IndexView.vue:93
-#: src/views/apps/nginx/IndexView.vue:85
-#: src/views/apps/php/PhpView.vue:198
-#: src/views/apps/podman/IndexView.vue:51
-#: src/views/apps/postgresql/IndexView.vue:90
-#: src/views/apps/pureftpd/IndexView.vue:140
-#: src/views/apps/redis/IndexView.vue:64
-#: src/views/apps/rsync/IndexView.vue:159
-#: src/views/apps/supervisor/IndexView.vue:273
-#: src/views/apps/supervisor/IndexView.vue:302
-#: src/views/website/IndexView.vue:239
-msgid "Started successfully"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:49
-#: src/views/apps/docker/IndexView.vue:51
-#: src/views/apps/fail2ban/IndexView.vue:225
-#: src/views/apps/frp/IndexView.vue:66
-#: src/views/apps/gitea/IndexView.vue:49
-#: src/views/apps/memcached/IndexView.vue:84
-#: src/views/apps/minio/IndexView.vue:49
-#: src/views/apps/mysql/IndexView.vue:99
-#: src/views/apps/nginx/IndexView.vue:91
-#: src/views/apps/php/PhpView.vue:204
-#: src/views/apps/podman/IndexView.vue:57
-#: src/views/apps/postgresql/IndexView.vue:96
-#: src/views/apps/pureftpd/IndexView.vue:157
-#: src/views/apps/redis/IndexView.vue:81
-#: src/views/apps/rsync/IndexView.vue:176
-#: src/views/apps/supervisor/IndexView.vue:280
-#: src/views/apps/supervisor/IndexView.vue:309
-#: src/views/website/IndexView.vue:241
-msgid "Stopped successfully"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:55
-#: src/views/apps/docker/IndexView.vue:58
-#: src/views/apps/fail2ban/IndexView.vue:231
-#: src/views/apps/frp/IndexView.vue:72
-#: src/views/apps/gitea/IndexView.vue:55
-#: src/views/apps/memcached/IndexView.vue:90
-#: src/views/apps/minio/IndexView.vue:55
-#: src/views/apps/mysql/IndexView.vue:105
-#: src/views/apps/nginx/IndexView.vue:97
-#: src/views/apps/php/PhpView.vue:210
-#: src/views/apps/podman/IndexView.vue:63
-#: src/views/apps/postgresql/IndexView.vue:102
-#: src/views/apps/pureftpd/IndexView.vue:163
-#: src/views/apps/redis/IndexView.vue:87
-#: src/views/apps/rsync/IndexView.vue:182
-#: src/views/apps/supervisor/IndexView.vue:287
-#: src/views/apps/supervisor/IndexView.vue:316
-msgid "Restarted successfully"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:62
-#: src/views/apps/docker/IndexView.vue:66
-#: src/views/apps/fail2ban/IndexView.vue:215
-#: src/views/apps/frp/IndexView.vue:79
-#: src/views/apps/gitea/IndexView.vue:62
-#: src/views/apps/memcached/IndexView.vue:74
-#: src/views/apps/minio/IndexView.vue:62
-#: src/views/apps/mysql/IndexView.vue:83
-#: src/views/apps/nginx/IndexView.vue:75
-#: src/views/apps/php/PhpView.vue:188
-#: src/views/apps/podman/IndexView.vue:70
-#: src/views/apps/postgresql/IndexView.vue:80
-#: src/views/apps/pureftpd/IndexView.vue:147
-#: src/views/apps/redis/IndexView.vue:71
-#: src/views/apps/rsync/IndexView.vue:166
-#: src/views/apps/supervisor/IndexView.vue:260
-msgid "Autostart enabled successfully"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:65
-#: src/views/apps/docker/IndexView.vue:69
-#: src/views/apps/fail2ban/IndexView.vue:218
-#: src/views/apps/frp/IndexView.vue:82
-#: src/views/apps/gitea/IndexView.vue:65
-#: src/views/apps/memcached/IndexView.vue:77
-#: src/views/apps/minio/IndexView.vue:65
-#: src/views/apps/mysql/IndexView.vue:86
-#: src/views/apps/nginx/IndexView.vue:78
-#: src/views/apps/php/PhpView.vue:191
-#: src/views/apps/podman/IndexView.vue:73
-#: src/views/apps/postgresql/IndexView.vue:83
-#: src/views/apps/pureftpd/IndexView.vue:150
-#: src/views/apps/redis/IndexView.vue:74
-#: src/views/apps/rsync/IndexView.vue:169
-#: src/views/apps/supervisor/IndexView.vue:265
-msgid "Autostart disabled successfully"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:87
-#: src/views/apps/docker/IndexView.vue:90
-#: src/views/apps/frp/IndexView.vue:135
-#: src/views/apps/frp/IndexView.vue:191
-#: src/views/apps/gitea/IndexView.vue:87
-#: src/views/apps/memcached/IndexView.vue:110
-#: src/views/apps/minio/IndexView.vue:82
-#: src/views/apps/mysql/IndexView.vue:130
-#: src/views/apps/nginx/IndexView.vue:123
-#: src/views/apps/php/PhpView.vue:251
-#: src/views/apps/php/PhpView.vue:260
+#: src/views/apps/codeserver/IndexView.vue:39
+#: src/views/apps/docker/IndexView.vue:39
+#: src/views/apps/frp/IndexView.vue:48
+#: src/views/apps/frp/IndexView.vue:73
+#: src/views/apps/gitea/IndexView.vue:37
+#: src/views/apps/memcached/IndexView.vue:59
+#: src/views/apps/minio/IndexView.vue:32
+#: src/views/apps/mysql/IndexView.vue:79
+#: src/views/apps/nginx/IndexView.vue:65
+#: src/views/apps/php/PhpView.vue:194
+#: src/views/apps/php/PhpView.vue:203
 #: src/views/apps/phpmyadmin/IndexView.vue:58
 #: src/views/apps/phpmyadmin/IndexView.vue:67
-#: src/views/apps/podman/IndexView.vue:95
-#: src/views/apps/podman/IndexView.vue:104
-#: src/views/apps/postgresql/IndexView.vue:128
-#: src/views/apps/postgresql/IndexView.vue:137
-#: src/views/apps/pureftpd/IndexView.vue:210
-#: src/views/apps/redis/IndexView.vue:107
-#: src/views/apps/rsync/IndexView.vue:249
-#: src/views/apps/supervisor/IndexView.vue:367
+#: src/views/apps/podman/IndexView.vue:47
+#: src/views/apps/podman/IndexView.vue:56
+#: src/views/apps/postgresql/IndexView.vue:71
+#: src/views/apps/postgresql/IndexView.vue:80
+#: src/views/apps/pureftpd/IndexView.vue:162
+#: src/views/apps/redis/IndexView.vue:56
+#: src/views/apps/rsync/IndexView.vue:201
+#: src/views/apps/supervisor/IndexView.vue:313
 #: src/views/apps/toolbox/IndexView.vue:97
 #: src/views/apps/toolbox/IndexView.vue:101
 #: src/views/apps/toolbox/IndexView.vue:105
@@ -927,205 +906,49 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: src/views/apps/codeserver/IndexView.vue:91
-#: src/views/apps/codeserver/IndexView.vue:92
-#: src/views/apps/docker/IndexView.vue:94
-#: src/views/apps/docker/IndexView.vue:96
-#: src/views/apps/fail2ban/IndexView.vue:306
-#: src/views/apps/fail2ban/IndexView.vue:308
-#: src/views/apps/frp/IndexView.vue:99
-#: src/views/apps/frp/IndexView.vue:155
-#: src/views/apps/gitea/IndexView.vue:91
-#: src/views/apps/gitea/IndexView.vue:92
-#: src/views/apps/memcached/IndexView.vue:114
-#: src/views/apps/memcached/IndexView.vue:116
-#: src/views/apps/minio/IndexView.vue:86
-#: src/views/apps/minio/IndexView.vue:87
-#: src/views/apps/mysql/IndexView.vue:152
-#: src/views/apps/mysql/IndexView.vue:154
-#: src/views/apps/nginx/IndexView.vue:136
-#: src/views/apps/nginx/IndexView.vue:137
-#: src/views/apps/php/PhpView.vue:282
-#: src/views/apps/php/PhpView.vue:284
-#: src/views/apps/podman/IndexView.vue:108
-#: src/views/apps/podman/IndexView.vue:117
-#: src/views/apps/postgresql/IndexView.vue:145
-#: src/views/apps/postgresql/IndexView.vue:147
-#: src/views/apps/pureftpd/IndexView.vue:223
-#: src/views/apps/pureftpd/IndexView.vue:225
-#: src/views/apps/redis/IndexView.vue:111
-#: src/views/apps/redis/IndexView.vue:113
-#: src/views/apps/rsync/IndexView.vue:262
-#: src/views/apps/rsync/IndexView.vue:264
-#: src/views/apps/supervisor/IndexView.vue:384
-#: src/views/apps/supervisor/IndexView.vue:386
-#: src/views/container/ContainerView.vue:80
-msgid "Running Status"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:95
-#: src/views/apps/docker/IndexView.vue:99
-#: src/views/apps/fail2ban/IndexView.vue:311
-#: src/views/apps/frp/IndexView.vue:102
-#: src/views/apps/frp/IndexView.vue:158
-#: src/views/apps/gitea/IndexView.vue:95
-#: src/views/apps/memcached/IndexView.vue:119
-#: src/views/apps/minio/IndexView.vue:90
-#: src/views/apps/mysql/IndexView.vue:157
-#: src/views/apps/nginx/IndexView.vue:140
-#: src/views/apps/php/PhpView.vue:287
-#: src/views/apps/podman/IndexView.vue:120
-#: src/views/apps/postgresql/IndexView.vue:150
-#: src/views/apps/pureftpd/IndexView.vue:228
-#: src/views/apps/redis/IndexView.vue:116
-#: src/views/apps/rsync/IndexView.vue:267
-#: src/views/apps/supervisor/IndexView.vue:389
-msgid "Autostart On"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:96
-#: src/views/apps/docker/IndexView.vue:100
-#: src/views/apps/fail2ban/IndexView.vue:312
-#: src/views/apps/frp/IndexView.vue:103
-#: src/views/apps/frp/IndexView.vue:159
-#: src/views/apps/gitea/IndexView.vue:96
-#: src/views/apps/memcached/IndexView.vue:120
-#: src/views/apps/minio/IndexView.vue:91
-#: src/views/apps/mysql/IndexView.vue:158
-#: src/views/apps/nginx/IndexView.vue:141
-#: src/views/apps/php/PhpView.vue:288
-#: src/views/apps/podman/IndexView.vue:121
-#: src/views/apps/postgresql/IndexView.vue:151
-#: src/views/apps/pureftpd/IndexView.vue:229
-#: src/views/apps/redis/IndexView.vue:117
-#: src/views/apps/rsync/IndexView.vue:268
-#: src/views/apps/supervisor/IndexView.vue:390
-msgid "Autostart Off"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:106
-#: src/views/apps/docker/IndexView.vue:110
-#: src/views/apps/fail2ban/IndexView.vue:322
-#: src/views/apps/frp/IndexView.vue:113
-#: src/views/apps/frp/IndexView.vue:169
-#: src/views/apps/gitea/IndexView.vue:106
-#: src/views/apps/memcached/IndexView.vue:130
-#: src/views/apps/minio/IndexView.vue:101
-#: src/views/apps/mysql/IndexView.vue:168
-#: src/views/apps/nginx/IndexView.vue:151
-#: src/views/apps/php/PhpView.vue:298
-#: src/views/apps/podman/IndexView.vue:131
-#: src/views/apps/postgresql/IndexView.vue:161
-#: src/views/apps/pureftpd/IndexView.vue:239
-#: src/views/apps/redis/IndexView.vue:127
-#: src/views/apps/rsync/IndexView.vue:278
-#: src/views/apps/supervisor/IndexView.vue:130
-#: src/views/apps/supervisor/IndexView.vue:400
-#: src/views/container/ComposeView.vue:158
-#: src/views/container/ContainerView.vue:126
-#: src/views/container/ContainerView.vue:408
-msgid "Start"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:112
-#: src/views/apps/docker/IndexView.vue:116
-#: src/views/apps/fail2ban/IndexView.vue:328
-#: src/views/apps/frp/IndexView.vue:119
-#: src/views/apps/frp/IndexView.vue:175
-#: src/views/apps/gitea/IndexView.vue:112
-#: src/views/apps/memcached/IndexView.vue:136
-#: src/views/apps/minio/IndexView.vue:107
-#: src/views/apps/mysql/IndexView.vue:174
-#: src/views/apps/nginx/IndexView.vue:157
-#: src/views/apps/php/PhpView.vue:304
-#: src/views/apps/podman/IndexView.vue:137
-#: src/views/apps/postgresql/IndexView.vue:167
-#: src/views/apps/pureftpd/IndexView.vue:245
-#: src/views/apps/redis/IndexView.vue:133
-#: src/views/apps/rsync/IndexView.vue:284
-#: src/views/apps/supervisor/IndexView.vue:156
-#: src/views/apps/supervisor/IndexView.vue:406
-#: src/views/container/ComposeView.vue:189
-#: src/views/container/ContainerView.vue:131
-#: src/views/container/ContainerView.vue:409
-msgid "Stop"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:115
-msgid "Are you sure you want to stop Code Server?"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:119
-#: src/views/apps/docker/IndexView.vue:123
-#: src/views/apps/fail2ban/IndexView.vue:339
-#: src/views/apps/frp/IndexView.vue:126
-#: src/views/apps/frp/IndexView.vue:182
-#: src/views/apps/gitea/IndexView.vue:119
-#: src/views/apps/memcached/IndexView.vue:147
-#: src/views/apps/minio/IndexView.vue:114
-#: src/views/apps/mysql/IndexView.vue:185
-#: src/views/apps/nginx/IndexView.vue:168
-#: src/views/apps/php/PhpView.vue:316
-#: src/views/apps/podman/IndexView.vue:144
-#: src/views/apps/postgresql/IndexView.vue:178
-#: src/views/apps/pureftpd/IndexView.vue:256
-#: src/views/apps/redis/IndexView.vue:144
-#: src/views/apps/rsync/IndexView.vue:295
-#: src/views/apps/supervisor/IndexView.vue:185
-#: src/views/apps/supervisor/IndexView.vue:417
-#: src/views/container/ContainerView.vue:136
-#: src/views/container/ContainerView.vue:410
-#: src/views/dashboard/IndexView.vue:447
-msgid "Restart"
-msgstr ""
-
-#: src/views/apps/codeserver/IndexView.vue:125
-#: src/views/apps/frp/IndexView.vue:131
-#: src/views/apps/frp/IndexView.vue:187
-#: src/views/apps/gitea/IndexView.vue:125
-#: src/views/apps/mysql/IndexView.vue:204
-#: src/views/apps/nginx/IndexView.vue:178
+#: src/views/apps/codeserver/IndexView.vue:46
+#: src/views/apps/frp/IndexView.vue:44
+#: src/views/apps/frp/IndexView.vue:69
+#: src/views/apps/gitea/IndexView.vue:44
+#: src/views/apps/mysql/IndexView.vue:118
+#: src/views/apps/nginx/IndexView.vue:81
 #: src/views/apps/phpmyadmin/IndexView.vue:84
 msgid "Modify Configuration"
 msgstr ""
 
-#: src/views/apps/codeserver/IndexView.vue:129
+#: src/views/apps/codeserver/IndexView.vue:50
 msgid "This modifies the Code Server configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/codeserver/IndexView.vue:148
-#: src/views/apps/docker/IndexView.vue:149
-#: src/views/apps/fail2ban/IndexView.vue:382
-#: src/views/apps/gitea/IndexView.vue:148
-#: src/views/apps/memcached/IndexView.vue:180
-#: src/views/apps/minio/IndexView.vue:143
-#: src/views/apps/mysql/IndexView.vue:237
-#: src/views/apps/nginx/IndexView.vue:211
-#: src/views/apps/php/PhpView.vue:398
-#: src/views/apps/podman/IndexView.vue:197
-#: src/views/apps/postgresql/IndexView.vue:245
-#: src/views/apps/redis/IndexView.vue:184
-#: src/views/apps/rsync/IndexView.vue:349
-#: src/views/apps/supervisor/IndexView.vue:471
+#: src/views/apps/codeserver/IndexView.vue:69
+#: src/views/apps/docker/IndexView.vue:65
+#: src/views/apps/fail2ban/IndexView.vue:289
+#: src/views/apps/gitea/IndexView.vue:67
+#: src/views/apps/memcached/IndexView.vue:92
+#: src/views/apps/minio/IndexView.vue:62
+#: src/views/apps/mysql/IndexView.vue:151
+#: src/views/apps/nginx/IndexView.vue:114
+#: src/views/apps/php/PhpView.vue:299
+#: src/views/apps/podman/IndexView.vue:118
+#: src/views/apps/postgresql/IndexView.vue:147
+#: src/views/apps/redis/IndexView.vue:96
+#: src/views/apps/rsync/IndexView.vue:264
+#: src/views/apps/supervisor/IndexView.vue:380
 msgid "Runtime Logs"
 msgstr ""
 
-#: src/views/apps/docker/IndexView.vue:119
-msgid "Are you sure you want to stop Docker?"
-msgstr ""
-
-#: src/views/apps/docker/IndexView.vue:130
+#: src/views/apps/docker/IndexView.vue:46
 #: src/views/website/EditView.vue:401
 msgid "Configuration"
 msgstr ""
 
-#: src/views/apps/docker/IndexView.vue:133
+#: src/views/apps/docker/IndexView.vue:49
 msgid "This modifies the Docker configuration file (/etc/docker/daemon.json)"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:53
+#: src/views/apps/fail2ban/IndexView.vue:44
 #: src/views/apps/phpmyadmin/IndexView.vue:71
-#: src/views/apps/supervisor/IndexView.vue:66
+#: src/views/apps/supervisor/IndexView.vue:55
 #: src/views/container/ComposeView.vue:58
 #: src/views/container/ContainerView.vue:32
 #: src/views/database/ServerList.vue:114
@@ -1136,35 +959,35 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:65
-#: src/views/apps/fail2ban/IndexView.vue:458
+#: src/views/apps/fail2ban/IndexView.vue:56
+#: src/views/apps/fail2ban/IndexView.vue:365
 msgid "Max Retries"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:66
-#: src/views/apps/fail2ban/IndexView.vue:464
+#: src/views/apps/fail2ban/IndexView.vue:57
+#: src/views/apps/fail2ban/IndexView.vue:371
 msgid "Ban Time"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:67
-#: src/views/apps/fail2ban/IndexView.vue:461
+#: src/views/apps/fail2ban/IndexView.vue:58
+#: src/views/apps/fail2ban/IndexView.vue:368
 msgid "Find Time"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:87
+#: src/views/apps/fail2ban/IndexView.vue:78
 #: src/views/cert/CertView.vue:263
 msgid "View"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:98
+#: src/views/apps/fail2ban/IndexView.vue:89
 msgid "Are you sure you want to delete rule %{ name }?"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:109
-#: src/views/apps/php/PhpView.vue:118
-#: src/views/apps/pureftpd/IndexView.vue:98
-#: src/views/apps/rsync/IndexView.vue:116
-#: src/views/apps/supervisor/IndexView.vue:213
+#: src/views/apps/fail2ban/IndexView.vue:100
+#: src/views/apps/php/PhpView.vue:109
+#: src/views/apps/pureftpd/IndexView.vue:89
+#: src/views/apps/rsync/IndexView.vue:107
+#: src/views/apps/supervisor/IndexView.vue:202
 #: src/views/backup/ListView.vue:98
 #: src/views/cert/AccountView.vue:127
 #: src/views/cert/CertView.vue:314
@@ -1196,35 +1019,28 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:143
+#: src/views/apps/fail2ban/IndexView.vue:134
 msgid "Are you sure you want to unban %{ ip }?"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:153
+#: src/views/apps/fail2ban/IndexView.vue:144
 msgid "Unban"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:237
-#: src/views/apps/nginx/IndexView.vue:103
-#: src/views/apps/php/PhpView.vue:216
-#: src/views/apps/postgresql/IndexView.vue:108
-msgid "Reloaded successfully"
-msgstr ""
-
-#: src/views/apps/fail2ban/IndexView.vue:244
-#: src/views/apps/pureftpd/IndexView.vue:176
-#: src/views/apps/rsync/IndexView.vue:199
+#: src/views/apps/fail2ban/IndexView.vue:192
+#: src/views/apps/pureftpd/IndexView.vue:130
+#: src/views/apps/rsync/IndexView.vue:153
 #: src/views/apps/s3fs/IndexView.vue:84
-#: src/views/apps/supervisor/IndexView.vue:295
+#: src/views/apps/supervisor/IndexView.vue:241
 #: src/views/database/CreateServerModal.vue:37
 msgid "Added successfully"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:252
-#: src/views/apps/pureftpd/IndexView.vue:193
-#: src/views/apps/rsync/IndexView.vue:207
+#: src/views/apps/fail2ban/IndexView.vue:200
+#: src/views/apps/pureftpd/IndexView.vue:147
+#: src/views/apps/rsync/IndexView.vue:161
 #: src/views/apps/s3fs/IndexView.vue:91
-#: src/views/apps/supervisor/IndexView.vue:323
+#: src/views/apps/supervisor/IndexView.vue:269
 #: src/views/backup/ListView.vue:148
 #: src/views/database/DatabaseList.vue:123
 #: src/views/database/ServerList.vue:242
@@ -1248,49 +1064,45 @@ msgstr ""
 msgid "Deleted successfully"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:265
+#: src/views/apps/fail2ban/IndexView.vue:213
 msgid "Unbanned successfully"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:293
+#: src/views/apps/fail2ban/IndexView.vue:239
 msgid "Save Whitelist"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:302
-#: src/views/apps/fail2ban/IndexView.vue:387
-#: src/views/apps/fail2ban/IndexView.vue:391
+#: src/views/apps/fail2ban/IndexView.vue:248
+#: src/views/apps/fail2ban/IndexView.vue:294
+#: src/views/apps/fail2ban/IndexView.vue:298
 msgid "Add Rule"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:332
-msgid "Stopping Fail2ban will disable all rules. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/fail2ban/IndexView.vue:348
+#: src/views/apps/fail2ban/IndexView.vue:255
 msgid "IP Whitelist"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:353
+#: src/views/apps/fail2ban/IndexView.vue:260
 msgid "IP whitelist, separated by commas"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:358
+#: src/views/apps/fail2ban/IndexView.vue:265
 msgid "Rule Management"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:359
+#: src/views/apps/fail2ban/IndexView.vue:266
 msgid "Rule List"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:397
+#: src/views/apps/fail2ban/IndexView.vue:304
 msgid "If an IP exceeds the maximum retries within the find time (seconds), it will be banned for the ban time (seconds)"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:404
+#: src/views/apps/fail2ban/IndexView.vue:311
 msgid "Protected ports are automatically obtained. If you modify the port corresponding to a rule, please delete and re-add the rule, otherwise protection may not be effective"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:411
+#: src/views/apps/fail2ban/IndexView.vue:318
 #: src/views/cert/CertView.vue:87
 #: src/views/cert/DnsView.vue:38
 #: src/views/cert/ObtainModal.vue:58
@@ -1301,133 +1113,113 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:416
-#: src/views/apps/fail2ban/IndexView.vue:447
+#: src/views/apps/fail2ban/IndexView.vue:323
+#: src/views/apps/fail2ban/IndexView.vue:354
 msgid "Service"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:421
-#: src/views/apps/fail2ban/IndexView.vue:425
+#: src/views/apps/fail2ban/IndexView.vue:328
+#: src/views/apps/fail2ban/IndexView.vue:332
 #: src/views/task/CreateModal.vue:144
 #: src/views/task/CreateModal.vue:149
 msgid "Select Website"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:428
+#: src/views/apps/fail2ban/IndexView.vue:335
 msgid "Protection Mode"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:433
-#: src/views/apps/pureftpd/IndexView.vue:48
+#: src/views/apps/fail2ban/IndexView.vue:340
+#: src/views/apps/pureftpd/IndexView.vue:39
 msgid "Path"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:440
-#: src/views/apps/fail2ban/IndexView.vue:444
+#: src/views/apps/fail2ban/IndexView.vue:347
+#: src/views/apps/fail2ban/IndexView.vue:351
 msgid "Protection Path"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:472
-#: src/views/apps/fail2ban/IndexView.vue:476
+#: src/views/apps/fail2ban/IndexView.vue:379
+#: src/views/apps/fail2ban/IndexView.vue:383
 msgid "View Rule"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:480
+#: src/views/apps/fail2ban/IndexView.vue:387
 msgid "Rule Information"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:483
+#: src/views/apps/fail2ban/IndexView.vue:390
 msgid "Currently Banned"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:487
+#: src/views/apps/fail2ban/IndexView.vue:394
 msgid "Total Bans"
 msgstr ""
 
-#: src/views/apps/fail2ban/IndexView.vue:492
+#: src/views/apps/fail2ban/IndexView.vue:399
 msgid "Ban List"
 msgstr ""
 
-#: src/views/apps/frp/IndexView.vue:122
-msgid "Are you sure you want to stop Frps?"
-msgstr ""
-
-#: src/views/apps/frp/IndexView.vue:178
-msgid "Are you sure you want to stop Frpc?"
-msgstr ""
-
-#: src/views/apps/gitea/IndexView.vue:115
-msgid "Are you sure you want to stop Gitea?"
-msgstr ""
-
-#: src/views/apps/gitea/IndexView.vue:129
+#: src/views/apps/gitea/IndexView.vue:48
 msgid "This modifies the Gitea configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/memcached/IndexView.vue:27
-#: src/views/apps/mysql/IndexView.vue:40
-#: src/views/apps/nginx/IndexView.vue:38
-#: src/views/apps/php/PhpView.vue:133
-#: src/views/apps/postgresql/IndexView.vue:40
-#: src/views/apps/redis/IndexView.vue:34
+#: src/views/apps/memcached/IndexView.vue:18
+#: src/views/apps/mysql/IndexView.vue:31
+#: src/views/apps/nginx/IndexView.vue:28
+#: src/views/apps/php/PhpView.vue:124
+#: src/views/apps/postgresql/IndexView.vue:31
+#: src/views/apps/redis/IndexView.vue:25
 msgid "Property"
 msgstr ""
 
-#: src/views/apps/memcached/IndexView.vue:34
-#: src/views/apps/mysql/IndexView.vue:47
-#: src/views/apps/nginx/IndexView.vue:45
-#: src/views/apps/php/PhpView.vue:140
-#: src/views/apps/postgresql/IndexView.vue:47
-#: src/views/apps/redis/IndexView.vue:41
+#: src/views/apps/memcached/IndexView.vue:25
+#: src/views/apps/mysql/IndexView.vue:38
+#: src/views/apps/nginx/IndexView.vue:35
+#: src/views/apps/php/PhpView.vue:131
+#: src/views/apps/postgresql/IndexView.vue:38
+#: src/views/apps/redis/IndexView.vue:32
 msgid "Current Value"
 msgstr ""
 
-#: src/views/apps/memcached/IndexView.vue:140
-msgid "Stopping Memcached will cause websites using Memcached to become inaccessible. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/memcached/IndexView.vue:154
+#: src/views/apps/memcached/IndexView.vue:66
 msgid "Service Configuration"
 msgstr ""
 
-#: src/views/apps/memcached/IndexView.vue:170
-#: src/views/apps/mysql/IndexView.vue:227
-#: src/views/apps/nginx/IndexView.vue:201
-#: src/views/apps/php/PhpView.vue:388
-#: src/views/apps/postgresql/IndexView.vue:235
-#: src/views/apps/redis/IndexView.vue:174
+#: src/views/apps/memcached/IndexView.vue:82
+#: src/views/apps/mysql/IndexView.vue:141
+#: src/views/apps/nginx/IndexView.vue:104
+#: src/views/apps/php/PhpView.vue:289
+#: src/views/apps/postgresql/IndexView.vue:137
+#: src/views/apps/redis/IndexView.vue:86
 #: src/views/dashboard/IndexView.vue:462
 msgid "Load Status"
 msgstr ""
 
-#: src/views/apps/minio/IndexView.vue:110
-msgid "Are you sure you want to stop Minio?"
-msgstr ""
-
-#: src/views/apps/minio/IndexView.vue:120
+#: src/views/apps/minio/IndexView.vue:39
 #: src/views/container/ComposeView.vue:330
 #: src/views/container/ComposeView.vue:360
 #: src/views/container/ContainerCreate.vue:352
 msgid "Environment Variables"
 msgstr ""
 
-#: src/views/apps/minio/IndexView.vue:124
+#: src/views/apps/minio/IndexView.vue:43
 msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:70
-#: src/views/apps/mysql/IndexView.vue:76
-#: src/views/apps/nginx/IndexView.vue:68
-#: src/views/apps/php/PhpView.vue:175
-#: src/views/apps/php/PhpView.vue:181
-#: src/views/apps/postgresql/IndexView.vue:74
-#: src/views/apps/supervisor/IndexView.vue:252
+#: src/views/apps/mysql/IndexView.vue:53
+#: src/views/apps/mysql/IndexView.vue:59
+#: src/views/apps/nginx/IndexView.vue:50
+#: src/views/apps/php/PhpView.vue:158
+#: src/views/apps/php/PhpView.vue:164
+#: src/views/apps/postgresql/IndexView.vue:57
+#: src/views/apps/supervisor/IndexView.vue:233
 #: src/views/website/EditView.vue:160
 msgid "Cleared successfully"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:111
-#: src/views/apps/pureftpd/IndexView.vue:186
+#: src/views/apps/mysql/IndexView.vue:65
+#: src/views/apps/pureftpd/IndexView.vue:140
 #: src/views/database/DatabaseList.vue:129
 #: src/views/database/ServerList.vue:248
 #: src/views/database/UpdateServerModal.vue:21
@@ -1442,112 +1234,100 @@ msgstr ""
 msgid "Modified successfully"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:139
-#: src/views/apps/nginx/IndexView.vue:132
-#: src/views/apps/postgresql/IndexView.vue:141
-#: src/views/apps/supervisor/IndexView.vue:380
+#: src/views/apps/mysql/IndexView.vue:88
+#: src/views/apps/nginx/IndexView.vue:74
+#: src/views/apps/postgresql/IndexView.vue:84
+#: src/views/apps/supervisor/IndexView.vue:326
 msgid "Clear Log"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:148
-#: src/views/apps/php/PhpView.vue:278
+#: src/views/apps/mysql/IndexView.vue:97
+#: src/views/apps/php/PhpView.vue:221
 msgid "Clear Slow Log"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:178
-msgid "Stopping MySQL will cause websites using MySQL to become inaccessible. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/mysql/IndexView.vue:190
+#: src/views/apps/mysql/IndexView.vue:104
 #: src/views/apps/toolbox/IndexView.vue:205
 #: src/views/apps/toolbox/IndexView.vue:207
 msgid "Root Password"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:198
+#: src/views/apps/mysql/IndexView.vue:112
 msgid "Save Changes"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:208
+#: src/views/apps/mysql/IndexView.vue:122
 msgid "This modifies the MySQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/mysql/IndexView.vue:240
+#: src/views/apps/mysql/IndexView.vue:154
 msgid "Slow Query Log"
 msgstr ""
 
-#: src/views/apps/nginx/IndexView.vue:161
-msgid "Stopping OpenResty will cause all websites to become inaccessible. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/nginx/IndexView.vue:182
+#: src/views/apps/nginx/IndexView.vue:85
 msgid "This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/nginx/IndexView.vue:214
-#: src/views/apps/php/PhpView.vue:401
+#: src/views/apps/nginx/IndexView.vue:117
+#: src/views/apps/php/PhpView.vue:302
 msgid "Error Logs"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:52
+#: src/views/apps/php/PhpView.vue:43
 msgid "Extension Name"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:80
+#: src/views/apps/php/PhpView.vue:71
 msgid "Are you sure you want to install %{ name }?"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:106
+#: src/views/apps/php/PhpView.vue:97
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:157
+#: src/views/apps/php/PhpView.vue:140
 msgid "Set successfully"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:222
-#: src/views/apps/php/PhpView.vue:228
+#: src/views/apps/php/PhpView.vue:170
+#: src/views/apps/php/PhpView.vue:176
 msgid "Task submitted, please check progress in background tasks"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:242
+#: src/views/apps/php/PhpView.vue:185
 msgid "Set as CLI Default Version"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:269
+#: src/views/apps/php/PhpView.vue:212
 msgid "Clear Error Log"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:308
-msgid "Stopping PHP %{ version } will cause websites using PHP %{ version } to become inaccessible. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/php/PhpView.vue:327
+#: src/views/apps/php/PhpView.vue:228
 msgid "Extension Management"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:340
-#: src/views/apps/postgresql/IndexView.vue:189
-#: src/views/apps/redis/IndexView.vue:151
-#: src/views/apps/rsync/IndexView.vue:326
-#: src/views/apps/supervisor/IndexView.vue:448
+#: src/views/apps/php/PhpView.vue:241
+#: src/views/apps/postgresql/IndexView.vue:91
+#: src/views/apps/redis/IndexView.vue:63
+#: src/views/apps/rsync/IndexView.vue:241
+#: src/views/apps/supervisor/IndexView.vue:357
 msgid "Main Configuration"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:344
+#: src/views/apps/php/PhpView.vue:245
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:364
+#: src/views/apps/php/PhpView.vue:265
 msgid "FPM Configuration"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:368
+#: src/views/apps/php/PhpView.vue:269
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/php/PhpView.vue:404
-#: src/views/apps/postgresql/IndexView.vue:248
+#: src/views/apps/php/PhpView.vue:305
+#: src/views/apps/postgresql/IndexView.vue:150
 msgid "Slow Logs"
 msgstr ""
 
@@ -1571,48 +1351,40 @@ msgstr ""
 msgid "This modifies the OpenResty configuration file for phpMyAdmin. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:112
+#: src/views/apps/podman/IndexView.vue:64
 msgid "Podman is a daemonless container management tool. Being in a stopped state is normal and does not affect usage!"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:140
-msgid "Are you sure you want to stop Podman?"
-msgstr ""
-
-#: src/views/apps/podman/IndexView.vue:151
+#: src/views/apps/podman/IndexView.vue:72
 msgid "Registry Configuration"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:155
+#: src/views/apps/podman/IndexView.vue:76
 msgid "This modifies the Podman registry configuration file (/etc/containers/registries.conf)"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:174
+#: src/views/apps/podman/IndexView.vue:95
 msgid "Storage Configuration"
 msgstr ""
 
-#: src/views/apps/podman/IndexView.vue:178
+#: src/views/apps/podman/IndexView.vue:99
 msgid "This modifies the Podman storage configuration file (/etc/containers/storage.conf)"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:171
-msgid "Stopping PostgreSQL will cause websites using PostgreSQL to become inaccessible. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/postgresql/IndexView.vue:193
+#: src/views/apps/postgresql/IndexView.vue:95
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:212
+#: src/views/apps/postgresql/IndexView.vue:114
 msgid "User Configuration"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:216
+#: src/views/apps/postgresql/IndexView.vue:118
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:41
-#: src/views/apps/pureftpd/IndexView.vue:304
+#: src/views/apps/pureftpd/IndexView.vue:32
+#: src/views/apps/pureftpd/IndexView.vue:221
 #: src/views/container/ImageView.vue:198
 #: src/views/database/CreateDatabaseModal.vue:93
 #: src/views/database/CreateServerModal.vue:94
@@ -1628,36 +1400,32 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:85
+#: src/views/apps/pureftpd/IndexView.vue:76
 msgid "Are you sure you want to delete user %{ username }?"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:219
+#: src/views/apps/pureftpd/IndexView.vue:171
 msgid "Add User"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:249
-msgid "Stopping Pure-Ftpd will cause FTP service to be unavailable. Are you sure you want to stop it?"
-msgstr ""
-
-#: src/views/apps/pureftpd/IndexView.vue:261
+#: src/views/apps/pureftpd/IndexView.vue:178
 msgid "Port Settings"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:263
+#: src/views/apps/pureftpd/IndexView.vue:180
 msgid "Modify Pure-Ftpd listening port"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:267
+#: src/views/apps/pureftpd/IndexView.vue:184
 msgid "User Management"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:291
+#: src/views/apps/pureftpd/IndexView.vue:208
 msgid "Run Log"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:296
-#: src/views/apps/pureftpd/IndexView.vue:300
+#: src/views/apps/pureftpd/IndexView.vue:213
+#: src/views/apps/pureftpd/IndexView.vue:217
 #: src/views/database/CreateDatabaseModal.vue:78
 #: src/views/database/CreateUserModal.vue:54
 #: src/views/database/IndexView.vue:36
@@ -1666,17 +1434,17 @@ msgstr ""
 msgid "Create User"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:309
+#: src/views/apps/pureftpd/IndexView.vue:226
 #: src/views/container/ImageView.vue:203
 #: src/views/database/CreateDatabaseModal.vue:98
 #: src/views/database/CreateUserModal.vue:75
 msgid "Enter username"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:312
-#: src/views/apps/pureftpd/IndexView.vue:343
-#: src/views/apps/rsync/IndexView.vue:389
-#: src/views/apps/rsync/IndexView.vue:443
+#: src/views/apps/pureftpd/IndexView.vue:229
+#: src/views/apps/pureftpd/IndexView.vue:260
+#: src/views/apps/rsync/IndexView.vue:304
+#: src/views/apps/rsync/IndexView.vue:358
 #: src/views/container/ImageView.vue:206
 #: src/views/database/CreateDatabaseModal.vue:101
 #: src/views/database/CreateServerModal.vue:102
@@ -1695,50 +1463,41 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:319
-#: src/views/apps/pureftpd/IndexView.vue:349
+#: src/views/apps/pureftpd/IndexView.vue:236
+#: src/views/apps/pureftpd/IndexView.vue:266
 msgid "It is recommended to use the generator to generate a random password"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:323
-#: src/views/apps/rsync/IndexView.vue:56
-#: src/views/apps/rsync/IndexView.vue:373
-#: src/views/apps/rsync/IndexView.vue:427
+#: src/views/apps/pureftpd/IndexView.vue:240
+#: src/views/apps/rsync/IndexView.vue:47
+#: src/views/apps/rsync/IndexView.vue:288
+#: src/views/apps/rsync/IndexView.vue:342
 #: src/views/container/ComposeView.vue:38
 #: src/views/website/IndexView.vue:44
 #: src/views/website/IndexView.vue:517
 msgid "Directory"
 msgstr ""
 
-#: src/views/apps/pureftpd/IndexView.vue:328
+#: src/views/apps/pureftpd/IndexView.vue:245
 msgid "Enter the directory authorized to the user"
 msgstr ""
 
-#: src/views/apps/redis/IndexView.vue:137
-msgid "Stopping Redis will cause websites using Redis to become inaccessible. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/redis/IndexView.vue:155
+#: src/views/apps/redis/IndexView.vue:67
 msgid "This modifies the Redis main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:44
-#: src/views/dashboard/IndexView.vue:133
-msgid "Running normally"
-msgstr ""
-
-#: src/views/apps/rsync/IndexView.vue:63
-#: src/views/apps/rsync/IndexView.vue:381
-#: src/views/apps/rsync/IndexView.vue:435
+#: src/views/apps/rsync/IndexView.vue:54
+#: src/views/apps/rsync/IndexView.vue:296
+#: src/views/apps/rsync/IndexView.vue:350
 #: src/views/database/IndexView.vue:48
 #: src/views/setting/IndexView.vue:79
 #: src/views/task/SystemView.vue:37
 msgid "User"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:70
-#: src/views/apps/rsync/IndexView.vue:397
-#: src/views/apps/rsync/IndexView.vue:452
+#: src/views/apps/rsync/IndexView.vue:61
+#: src/views/apps/rsync/IndexView.vue:312
+#: src/views/apps/rsync/IndexView.vue:367
 #: src/views/apps/toolbox/IndexView.vue:156
 #: src/views/database/CreateDatabaseModal.vue:110
 #: src/views/database/CreateServerModal.vue:73
@@ -1750,9 +1509,9 @@ msgstr ""
 msgid "Host"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:76
-#: src/views/apps/rsync/IndexView.vue:405
-#: src/views/apps/rsync/IndexView.vue:460
+#: src/views/apps/rsync/IndexView.vue:67
+#: src/views/apps/rsync/IndexView.vue:320
+#: src/views/apps/rsync/IndexView.vue:375
 #: src/views/database/CreateServerModal.vue:111
 #: src/views/database/CreateUserModal.vue:109
 #: src/views/database/DatabaseList.vue:57
@@ -1763,63 +1522,59 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:92
-#: src/views/apps/supervisor/IndexView.vue:115
+#: src/views/apps/rsync/IndexView.vue:83
+#: src/views/apps/supervisor/IndexView.vue:104
 msgid "Configure"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:103
+#: src/views/apps/rsync/IndexView.vue:94
 msgid "Are you sure you want to delete module %{ name }?"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:258
-#: src/views/apps/rsync/IndexView.vue:357
+#: src/views/apps/rsync/IndexView.vue:210
+#: src/views/apps/rsync/IndexView.vue:272
 msgid "Add Module"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:288
-msgid "After stopping the Rsync service, you will not be able to use the Rsync functionality. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/rsync/IndexView.vue:302
+#: src/views/apps/rsync/IndexView.vue:217
 msgid "Module Management"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:330
+#: src/views/apps/rsync/IndexView.vue:245
 msgid "This modifies the Rsync main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:370
-#: src/views/apps/supervisor/IndexView.vue:495
+#: src/views/apps/rsync/IndexView.vue:285
+#: src/views/apps/supervisor/IndexView.vue:404
 msgid "Name cannot contain Chinese characters"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:378
-#: src/views/apps/rsync/IndexView.vue:432
+#: src/views/apps/rsync/IndexView.vue:293
+#: src/views/apps/rsync/IndexView.vue:347
 msgid "Please enter absolute path"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:386
-#: src/views/apps/rsync/IndexView.vue:440
+#: src/views/apps/rsync/IndexView.vue:301
+#: src/views/apps/rsync/IndexView.vue:355
 msgid "Enter module username"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:394
-#: src/views/apps/rsync/IndexView.vue:449
+#: src/views/apps/rsync/IndexView.vue:309
+#: src/views/apps/rsync/IndexView.vue:364
 msgid "Enter module password"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:402
-#: src/views/apps/rsync/IndexView.vue:457
+#: src/views/apps/rsync/IndexView.vue:317
+#: src/views/apps/rsync/IndexView.vue:372
 msgid "Enter allowed hosts, separate multiple hosts with spaces"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:410
-#: src/views/apps/rsync/IndexView.vue:465
+#: src/views/apps/rsync/IndexView.vue:325
+#: src/views/apps/rsync/IndexView.vue:380
 msgid "Enter comments"
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:419
+#: src/views/apps/rsync/IndexView.vue:334
 msgid "Module Configuration"
 msgstr ""
 
@@ -1869,72 +1624,68 @@ msgstr ""
 msgid "Enter mount directory (e.g., /oss)"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:80
+#: src/views/apps/supervisor/IndexView.vue:69
 msgid "Uptime"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:143
+#: src/views/apps/supervisor/IndexView.vue:132
 msgid "Are you sure you want to stop process %{ name }?"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:172
+#: src/views/apps/supervisor/IndexView.vue:161
 msgid "Are you sure you want to restart process %{ name }?"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:200
+#: src/views/apps/supervisor/IndexView.vue:189
 msgid "Are you sure you want to delete process %{ name }?"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:376
-#: src/views/apps/supervisor/IndexView.vue:482
+#: src/views/apps/supervisor/IndexView.vue:322
+#: src/views/apps/supervisor/IndexView.vue:391
 msgid "Add Process"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:410
-msgid "Stopping Supervisor will cause all processes managed by Supervisor to be killed. Are you sure you want to stop?"
-msgstr ""
-
-#: src/views/apps/supervisor/IndexView.vue:424
+#: src/views/apps/supervisor/IndexView.vue:333
 msgid "Process Management"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:452
+#: src/views/apps/supervisor/IndexView.vue:361
 msgid "This modifies the Supervisor main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:474
+#: src/views/apps/supervisor/IndexView.vue:383
 msgid "Daemon Logs"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:498
+#: src/views/apps/supervisor/IndexView.vue:407
 msgid "Start Command"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:503
+#: src/views/apps/supervisor/IndexView.vue:412
 msgid "Please enter absolute path for files in start command"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:506
+#: src/views/apps/supervisor/IndexView.vue:415
 msgid "Working Directory"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:511
+#: src/views/apps/supervisor/IndexView.vue:420
 msgid "Please enter absolute path for working directory"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:514
+#: src/views/apps/supervisor/IndexView.vue:423
 msgid "Run As User"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:519
+#: src/views/apps/supervisor/IndexView.vue:428
 msgid "Usually www is sufficient"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:522
+#: src/views/apps/supervisor/IndexView.vue:431
 msgid "Number of Processes"
 msgstr ""
 
-#: src/views/apps/supervisor/IndexView.vue:532
+#: src/views/apps/supervisor/IndexView.vue:441
 msgid "Process Configuration"
 msgstr ""
 
@@ -2580,10 +2331,6 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:104
-msgid "Starting..."
-msgstr ""
-
 #: src/views/container/ComposeView.vue:111
 #: src/views/container/ContainerView.vue:237
 #: src/views/container/ContainerView.vue:301
@@ -3087,6 +2834,10 @@ msgstr ""
 msgid "Running slowly"
 msgstr ""
 
+#: src/views/dashboard/IndexView.vue:133
+msgid "Running normally"
+msgstr ""
+
 #: src/views/dashboard/IndexView.vue:135
 msgid "Running smoothly"
 msgstr ""
@@ -3313,15 +3064,6 @@ msgstr ""
 
 #: src/views/dashboard/IndexView.vue:731
 msgid "System Hostname"
-msgstr ""
-
-#: src/views/dashboard/IndexView.vue:733
-#: src/views/dashboard/IndexView.vue:741
-#: src/views/dashboard/IndexView.vue:748
-#: src/views/dashboard/IndexView.vue:754
-#: src/views/dashboard/IndexView.vue:765
-#: src/views/dashboard/IndexView.vue:777
-msgid "Loading..."
 msgstr ""
 
 #: src/views/dashboard/IndexView.vue:737
