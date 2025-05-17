@@ -115,7 +115,7 @@ const handleIsEnabled = async () => {
   } else {
     useRequest(systemctl.disable(props.service))
       .onSuccess(() => {
-        window.$message.success($gettext('Autostart enabled successfully'))
+        window.$message.success($gettext('Autostart disabled successfully'))
       })
       .onComplete(() => {
         messageReactive?.destroy()
