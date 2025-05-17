@@ -27,7 +27,7 @@ const model = ref<any>({
   email: '',
   kid: '',
   key_type: 'P256',
-  ca: 'googlecn'
+  ca: 'letsencrypt'
 })
 
 const showEAB = computed(() => {

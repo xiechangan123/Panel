@@ -34,7 +34,7 @@ const updateAccountModel = ref<any>({
   email: '',
   kid: '',
   key_type: 'P256',
-  ca: 'googlecn'
+  ca: 'letsencrypt'
 })
 const updateAccountModal = ref(false)
 const updateAccount = ref<any>()
