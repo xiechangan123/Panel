@@ -1344,11 +1344,11 @@ msgstr ""
 msgid "create directory error: %v"
 msgstr ""
 
-#: internal/data/cron.go:96
+#: internal/data/cron.go:95
 msgid "cron directory %s not exists"
 msgstr ""
 
-#: internal/data/cron.go:99
+#: internal/data/cron.go:98
 msgid "cron log directory %s not exists"
 msgstr ""
 
@@ -1970,7 +1970,7 @@ msgstr ""
 msgid "unsupported file type"
 msgstr ""
 
-#: internal/data/cron.go:221
+#: internal/data/cron.go:220
 msgid "unsupported system"
 msgstr ""
 
