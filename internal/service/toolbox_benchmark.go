@@ -461,12 +461,9 @@ func (s *ToolboxBenchmarkService) diskIOTest(testFile string, blockSize int64) m
 	}
 
 	// 写测试
-	writeSpeed := s.diskWriteTest(testFile, blockSize, count)
-	result["write_speed"] = fmt.Sprintf("%s", writeSpeed)
-
+	result["write_speed"] = s.diskWriteTest(testFile, blockSize, count)
 	// 读测试
-	readSpeed := s.diskReadTest(testFile, blockSize, count)
-	result["read_speed"] = fmt.Sprintf("%s", readSpeed)
+	result["read_speed"] = s.diskReadTest(testFile, blockSize, count)
 
 	return result
 }
