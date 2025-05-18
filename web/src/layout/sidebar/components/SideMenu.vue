@@ -47,7 +47,10 @@ function getMenuItem(route: RouteType, basePath = ''): MenuItem {
   }
 
   const visibleChildren = route.children
-    ? route.children.filter((item: RouteType) => item.name && !item.isHidden)
+    ? route.children.filter(
+        (item: RouteType) =>
+          item.name && !item.isHidden && !permissionStore.hiddenRoutes.includes(item.name)
+      )
     : []
 
   if (!visibleChildren.length) return menuItem

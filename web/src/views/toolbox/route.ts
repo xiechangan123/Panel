@@ -9,7 +9,7 @@ export default {
   meta: {
     title: 'Toolbox',
     icon: 'mdi:tools',
-    order: 80
+    order: 90
   },
   children: [
     {
