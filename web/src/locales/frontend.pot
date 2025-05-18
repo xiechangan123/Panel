@@ -59,12 +59,12 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:180
 #: src/views/apps/supervisor/IndexView.vue:227
 #: src/views/apps/supervisor/IndexView.vue:292
-#: src/views/apps/toolbox/IndexView.vue:51
-#: src/views/apps/toolbox/IndexView.vue:57
-#: src/views/apps/toolbox/IndexView.vue:66
-#: src/views/apps/toolbox/IndexView.vue:72
-#: src/views/apps/toolbox/IndexView.vue:81
 #: src/views/setting/IndexView.vue:44
+#: src/views/toolbox/SystemView.vue:51
+#: src/views/toolbox/SystemView.vue:57
+#: src/views/toolbox/SystemView.vue:66
+#: src/views/toolbox/SystemView.vue:72
+#: src/views/toolbox/SystemView.vue:81
 #: src/views/website/EditView.vue:115
 msgid "Saved successfully"
 msgstr ""
@@ -556,6 +556,18 @@ msgid "Tasks"
 msgstr ""
 
 #: src/locales/menu.ts:20
+msgid "Toolbox"
+msgstr ""
+
+#: src/locales/menu.ts:21
+msgid "System"
+msgstr ""
+
+#: src/locales/menu.ts:22
+msgid "Benchmark"
+msgstr ""
+
+#: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/backup/IndexView.vue:37
 #: src/views/backup/ListView.vue:220
@@ -568,36 +580,28 @@ msgstr ""
 msgid "Website"
 msgstr ""
 
-#: src/locales/menu.ts:21
+#: src/locales/menu.ts:24
 msgid "Website Edit"
 msgstr ""
 
-#: src/locales/menu.ts:23
+#: src/locales/menu.ts:26
 msgid "Fail2ban Manager"
 msgstr ""
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:27
 msgid "S3fs Manager"
 msgstr ""
 
-#: src/locales/menu.ts:25
+#: src/locales/menu.ts:28
 msgid "Supervisor Manager"
 msgstr ""
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:29
 msgid "Rsync Manager"
 msgstr ""
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:30
 msgid "Frp Manager"
-msgstr ""
-
-#: src/locales/menu.ts:28
-msgid "Rat Benchmark"
-msgstr ""
-
-#: src/locales/menu.ts:29
-msgid "System Toolbox"
 msgstr ""
 
 #: src/router/routes/index.ts:18
@@ -714,169 +718,6 @@ msgstr ""
 msgid "Please select a channel"
 msgstr ""
 
-#: src/views/apps/benchmark/IndexView.vue:12
-#: src/views/apps/benchmark/IndexView.vue:165
-msgid "CPU"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:67
-#: src/views/apps/benchmark/IndexView.vue:68
-#: src/views/apps/benchmark/IndexView.vue:74
-#: src/views/apps/benchmark/IndexView.vue:75
-#: src/views/apps/benchmark/IndexView.vue:76
-#: src/views/apps/benchmark/IndexView.vue:77
-#: src/views/apps/benchmark/IndexView.vue:80
-#: src/views/apps/benchmark/IndexView.vue:81
-#: src/views/apps/benchmark/IndexView.vue:82
-#: src/views/apps/benchmark/IndexView.vue:83
-#: src/views/apps/benchmark/IndexView.vue:86
-#: src/views/apps/benchmark/IndexView.vue:87
-#: src/views/apps/benchmark/IndexView.vue:88
-#: src/views/apps/benchmark/IndexView.vue:89
-#: src/views/apps/benchmark/IndexView.vue:92
-#: src/views/apps/benchmark/IndexView.vue:93
-#: src/views/apps/benchmark/IndexView.vue:94
-#: src/views/apps/benchmark/IndexView.vue:95
-#: src/views/apps/benchmark/IndexView.vue:156
-#: src/views/apps/benchmark/IndexView.vue:256
-#: src/views/apps/benchmark/IndexView.vue:287
-msgid "Pending benchmark"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:129
-msgid "Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:136
-msgid "Benchmarking in progress, it may take some time..."
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:139
-msgid "Current project: %{ current }"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:151
-msgid "Single-core"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:153
-msgid "Multi-core"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:170
-msgid "Image Processing"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:173
-#: src/views/apps/benchmark/IndexView.vue:184
-#: src/views/apps/benchmark/IndexView.vue:195
-#: src/views/apps/benchmark/IndexView.vue:206
-#: src/views/apps/benchmark/IndexView.vue:217
-#: src/views/apps/benchmark/IndexView.vue:228
-#: src/views/apps/benchmark/IndexView.vue:239
-msgid "Single-core %{ single } / Multi-core %{ multi }"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:181
-msgid "Machine Learning"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:192
-msgid "Program Compilation"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:203
-msgid "AES Encryption"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:214
-msgid "Compression/Decompression"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:225
-msgid "Physics Simulation"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:236
-msgid "JSON Parsing"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:265
-#: src/views/container/ContainerCreate.vue:306
-#: src/views/dashboard/IndexView.vue:533
-#: src/views/monitor/IndexView.vue:205
-#: src/views/monitor/IndexView.vue:216
-#: src/views/monitor/IndexView.vue:238
-#: src/views/task/SystemView.vue:78
-msgid "Memory"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:270
-msgid "Memory Bandwidth"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:274
-msgid "Memory Latency"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:296
-#: src/views/dashboard/IndexView.vue:141
-#: src/views/dashboard/IndexView.vue:798
-#: src/views/dashboard/IndexView.vue:818
-msgid "Disk"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:301
-msgid "4KB Read"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:304
-#: src/views/apps/benchmark/IndexView.vue:315
-#: src/views/apps/benchmark/IndexView.vue:326
-#: src/views/apps/benchmark/IndexView.vue:337
-#: src/views/apps/benchmark/IndexView.vue:348
-#: src/views/apps/benchmark/IndexView.vue:359
-#: src/views/apps/benchmark/IndexView.vue:370
-#: src/views/apps/benchmark/IndexView.vue:381
-msgid "Speed %{ speed } / %{ iops } IOPS"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:312
-msgid "4KB Write"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:323
-msgid "64KB Read"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:334
-msgid "64KB Write"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:345
-msgid "512KB Read"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:356
-msgid "512KB Write"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:367
-msgid "1MB Read"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:378
-msgid "1MB Write"
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:402
-msgid "Benchmarking..."
-msgstr ""
-
-#: src/views/apps/benchmark/IndexView.vue:402
-msgid "Start Benchmark"
-msgstr ""
-
 #: src/views/apps/codeserver/IndexView.vue:39
 #: src/views/apps/docker/IndexView.vue:39
 #: src/views/apps/frp/IndexView.vue:48
@@ -898,13 +739,13 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:56
 #: src/views/apps/rsync/IndexView.vue:201
 #: src/views/apps/supervisor/IndexView.vue:313
-#: src/views/apps/toolbox/IndexView.vue:97
-#: src/views/apps/toolbox/IndexView.vue:101
-#: src/views/apps/toolbox/IndexView.vue:105
-#: src/views/apps/toolbox/IndexView.vue:109
 #: src/views/file/EditModal.vue:31
 #: src/views/file/ListTable.vue:723
 #: src/views/setting/IndexView.vue:65
+#: src/views/toolbox/SystemView.vue:97
+#: src/views/toolbox/SystemView.vue:101
+#: src/views/toolbox/SystemView.vue:105
+#: src/views/toolbox/SystemView.vue:109
 #: src/views/website/EditView.vue:215
 msgid "Save"
 msgstr ""
@@ -1250,8 +1091,8 @@ msgid "Clear Slow Log"
 msgstr ""
 
 #: src/views/apps/mysql/IndexView.vue:104
-#: src/views/apps/toolbox/IndexView.vue:205
-#: src/views/apps/toolbox/IndexView.vue:207
+#: src/views/toolbox/SystemView.vue:205
+#: src/views/toolbox/SystemView.vue:207
 msgid "Root Password"
 msgstr ""
 
@@ -1501,7 +1342,6 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:61
 #: src/views/apps/rsync/IndexView.vue:312
 #: src/views/apps/rsync/IndexView.vue:367
-#: src/views/apps/toolbox/IndexView.vue:156
 #: src/views/database/CreateDatabaseModal.vue:110
 #: src/views/database/CreateServerModal.vue:73
 #: src/views/database/ServerList.vue:87
@@ -1509,6 +1349,7 @@ msgstr ""
 #: src/views/database/UserList.vue:81
 #: src/views/ssh/CreateModal.vue:62
 #: src/views/ssh/UpdateModal.vue:68
+#: src/views/toolbox/SystemView.vue:156
 msgid "Host"
 msgstr ""
 
@@ -1692,67 +1533,6 @@ msgstr ""
 msgid "Process Configuration"
 msgstr ""
 
-#: src/views/apps/toolbox/IndexView.vue:87
-#: src/views/database/ServerList.vue:147
-msgid "Synchronized successfully"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:118
-#: src/views/cert/AccountView.vue:101
-#: src/views/cert/CertView.vue:288
-#: src/views/cert/DnsView.vue:85
-#: src/views/database/ServerList.vue:184
-#: src/views/database/UserList.vue:169
-#: src/views/file/PermissionModal.vue:123
-#: src/views/setting/TokenModal.vue:69
-msgid "Modify"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:125
-msgid "DNS modifications will revert to default after system restart."
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:141
-msgid "Total %{ total }, used %{ used }, free %{ free }"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:149
-#: src/views/dashboard/IndexView.vue:581
-msgid "SWAP Size"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:159
-msgid "Hostname"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:177
-msgid "Time"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:181
-msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:187
-msgid "Select Timezone"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:190
-msgid "Please select a timezone"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:194
-msgid "Modify Time"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:197
-msgid "NTP Time Synchronization"
-msgstr ""
-
-#: src/views/apps/toolbox/IndexView.vue:199
-msgid "Synchronize Time"
-msgstr ""
-
 #: src/views/backup/ListView.vue:36
 msgid "Filename"
 msgstr ""
@@ -1852,6 +1632,17 @@ msgstr ""
 #: src/views/cert/CreateAccountModal.vue:92
 #: src/views/cert/CreateCertModal.vue:82
 msgid "Key Type"
+msgstr ""
+
+#: src/views/cert/AccountView.vue:101
+#: src/views/cert/CertView.vue:288
+#: src/views/cert/DnsView.vue:85
+#: src/views/database/ServerList.vue:184
+#: src/views/database/UserList.vue:169
+#: src/views/file/PermissionModal.vue:123
+#: src/views/setting/TokenModal.vue:69
+#: src/views/toolbox/SystemView.vue:118
+msgid "Modify"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:109
@@ -2521,6 +2312,16 @@ msgstr ""
 msgid "Entrypoint"
 msgstr ""
 
+#: src/views/container/ContainerCreate.vue:306
+#: src/views/dashboard/IndexView.vue:533
+#: src/views/monitor/IndexView.vue:205
+#: src/views/monitor/IndexView.vue:216
+#: src/views/monitor/IndexView.vue:238
+#: src/views/task/SystemView.vue:78
+#: src/views/toolbox/BenchmarkView.vue:265
+msgid "Memory"
+msgstr ""
+
 #: src/views/container/ContainerCreate.vue:316
 msgid "CPU Shares"
 msgstr ""
@@ -2845,6 +2646,13 @@ msgstr ""
 msgid "Running smoothly"
 msgstr ""
 
+#: src/views/dashboard/IndexView.vue:141
+#: src/views/dashboard/IndexView.vue:798
+#: src/views/dashboard/IndexView.vue:818
+#: src/views/toolbox/BenchmarkView.vue:296
+msgid "Disk"
+msgstr ""
+
 #: src/views/dashboard/IndexView.vue:164
 #: src/views/dashboard/IndexView.vue:181
 msgid "Send"
@@ -3011,6 +2819,11 @@ msgstr ""
 
 #: src/views/dashboard/IndexView.vue:575
 msgid "Commit Limit"
+msgstr ""
+
+#: src/views/dashboard/IndexView.vue:581
+#: src/views/toolbox/SystemView.vue:149
+msgid "SWAP Size"
 msgstr ""
 
 #: src/views/dashboard/IndexView.vue:587
@@ -3309,6 +3122,11 @@ msgstr ""
 #: src/views/database/ServerList.vue:121
 #: src/views/database/UserList.vue:138
 msgid "Invalid"
+msgstr ""
+
+#: src/views/database/ServerList.vue:147
+#: src/views/toolbox/SystemView.vue:87
+msgid "Synchronized successfully"
 msgstr ""
 
 #: src/views/database/ServerList.vue:153
@@ -4277,6 +4095,192 @@ msgstr ""
 
 #: src/views/task/TaskView.vue:136
 msgid "If logs cannot be loaded, please disable ad blockers!"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:12
+#: src/views/toolbox/BenchmarkView.vue:165
+msgid "CPU"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:67
+#: src/views/toolbox/BenchmarkView.vue:68
+#: src/views/toolbox/BenchmarkView.vue:74
+#: src/views/toolbox/BenchmarkView.vue:75
+#: src/views/toolbox/BenchmarkView.vue:76
+#: src/views/toolbox/BenchmarkView.vue:77
+#: src/views/toolbox/BenchmarkView.vue:80
+#: src/views/toolbox/BenchmarkView.vue:81
+#: src/views/toolbox/BenchmarkView.vue:82
+#: src/views/toolbox/BenchmarkView.vue:83
+#: src/views/toolbox/BenchmarkView.vue:86
+#: src/views/toolbox/BenchmarkView.vue:87
+#: src/views/toolbox/BenchmarkView.vue:88
+#: src/views/toolbox/BenchmarkView.vue:89
+#: src/views/toolbox/BenchmarkView.vue:92
+#: src/views/toolbox/BenchmarkView.vue:93
+#: src/views/toolbox/BenchmarkView.vue:94
+#: src/views/toolbox/BenchmarkView.vue:95
+#: src/views/toolbox/BenchmarkView.vue:156
+#: src/views/toolbox/BenchmarkView.vue:256
+#: src/views/toolbox/BenchmarkView.vue:287
+msgid "Pending benchmark"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:129
+msgid "Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:136
+msgid "Benchmarking in progress, it may take some time..."
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:139
+msgid "Current project: %{ current }"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:151
+msgid "Single-core"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:153
+msgid "Multi-core"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:170
+msgid "Image Processing"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:173
+#: src/views/toolbox/BenchmarkView.vue:184
+#: src/views/toolbox/BenchmarkView.vue:195
+#: src/views/toolbox/BenchmarkView.vue:206
+#: src/views/toolbox/BenchmarkView.vue:217
+#: src/views/toolbox/BenchmarkView.vue:228
+#: src/views/toolbox/BenchmarkView.vue:239
+msgid "Single-core %{ single } / Multi-core %{ multi }"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:181
+msgid "Machine Learning"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:192
+msgid "Program Compilation"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:203
+msgid "AES Encryption"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:214
+msgid "Compression/Decompression"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:225
+msgid "Physics Simulation"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:236
+msgid "JSON Parsing"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:270
+msgid "Memory Bandwidth"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:274
+msgid "Memory Latency"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:301
+msgid "4KB Read"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:304
+#: src/views/toolbox/BenchmarkView.vue:315
+#: src/views/toolbox/BenchmarkView.vue:326
+#: src/views/toolbox/BenchmarkView.vue:337
+#: src/views/toolbox/BenchmarkView.vue:348
+#: src/views/toolbox/BenchmarkView.vue:359
+#: src/views/toolbox/BenchmarkView.vue:370
+#: src/views/toolbox/BenchmarkView.vue:381
+msgid "Speed %{ speed } / %{ iops } IOPS"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:312
+msgid "4KB Write"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:323
+msgid "64KB Read"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:334
+msgid "64KB Write"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:345
+msgid "512KB Read"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:356
+msgid "512KB Write"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:367
+msgid "1MB Read"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:378
+msgid "1MB Write"
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:402
+msgid "Benchmarking..."
+msgstr ""
+
+#: src/views/toolbox/BenchmarkView.vue:402
+msgid "Start Benchmark"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:125
+msgid "DNS modifications will revert to default after system restart."
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:141
+msgid "Total %{ total }, used %{ used }, free %{ free }"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:159
+msgid "Hostname"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:177
+msgid "Time"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:181
+msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:187
+msgid "Select Timezone"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:190
+msgid "Please select a timezone"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:194
+msgid "Modify Time"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:197
+msgid "NTP Time Synchronization"
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:199
+msgid "Synchronize Time"
 msgstr ""
 
 #: src/views/website/BulkCreate.vue:21
