@@ -16,14 +16,15 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"os"
-	"runtime"
+	"path/filepath"
+	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/http/request"
+	"github.com/tnb-labs/panel/pkg/shell"
 )
 
 type ToolboxBenchmarkService struct {
@@ -46,25 +47,25 @@ func (s *ToolboxBenchmarkService) Test(w http.ResponseWriter, r *http.Request) {
 
 	switch req.Name {
 	case "image":
-		result := s.imageProcessing(req.Multi)
+		result := s.imageProcessing()
 		Success(w, result)
 	case "machine":
-		result := s.machineLearning(req.Multi)
+		result := s.machineLearning()
 		Success(w, result)
 	case "compile":
-		result := s.compileSimulationSingle(req.Multi)
+		result := s.compileSimulationSingle()
 		Success(w, result)
 	case "encryption":
-		result := s.encryptionTest(req.Multi)
+		result := s.encryptionTest()
 		Success(w, result)
 	case "compression":
-		result := s.compressionTest(req.Multi)
+		result := s.compressionTest()
 		Success(w, result)
 	case "physics":
-		result := s.physicsSimulation(req.Multi)
+		result := s.physicsSimulation()
 		Success(w, result)
 	case "json":
-		result := s.jsonProcessing(req.Multi)
+		result := s.jsonProcessing()
 		Success(w, result)
 	case "disk":
 		result := s.diskTestTask()
@@ -99,20 +100,16 @@ func (s *ToolboxBenchmarkService) calculateScore(duration time.Duration) int {
 
 // 图像处理
 
-func (s *ToolboxBenchmarkService) imageProcessing(multi bool) int {
-	n := 1
-	if multi {
-		n = runtime.NumCPU()
-	}
+func (s *ToolboxBenchmarkService) imageProcessing() int {
 	start := time.Now()
-	if err := s.imageProcessingTask(n); err != nil {
+	if err := s.imageProcessingTask(); err != nil {
 		return 0
 	}
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
 
-func (s *ToolboxBenchmarkService) imageProcessingTask(numThreads int) error {
+func (s *ToolboxBenchmarkService) imageProcessingTask() error {
 	img := image.NewRGBA(image.Rect(0, 0, 4000, 4000))
 	for x := 0; x < 4000; x++ {
 		for y := 0; y < 4000; y++ {
@@ -120,59 +117,41 @@ func (s *ToolboxBenchmarkService) imageProcessingTask(numThreads int) error {
 		}
 	}
 
-	var wg sync.WaitGroup
 	dx := img.Bounds().Dx()
 	dy := img.Bounds().Dy()
-	chunkSize := dy / numThreads
 
-	for i := 0; i < numThreads; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			startY := i * chunkSize
-			endY := startY + chunkSize
-			if i == numThreads-1 {
-				endY = dy
-			}
-			for x := 1; x < dx-1; x++ {
-				for y := startY + 1; y < endY-1; y++ {
-					// 卷积操作（模糊）
-					rTotal, gTotal, bTotal := 0, 0, 0
-					for k := -1; k <= 1; k++ {
-						for l := -1; l <= 1; l++ {
-							r, g, b, _ := img.At(x+k, y+l).RGBA()
-							rTotal += int(r)
-							gTotal += int(g)
-							bTotal += int(b)
-						}
-					}
-					rAvg := uint8(rTotal / 9 / 256)
-					gAvg := uint8(gTotal / 9 / 256)
-					bAvg := uint8(bTotal / 9 / 256)
-					img.Set(x, y, color.RGBA{R: rAvg, G: gAvg, B: bAvg, A: 255})
+	for x := 1; x < dx-1; x++ {
+		for y := 1; y < dy-1; y++ {
+			// 卷积操作（模糊）
+			rTotal, gTotal, bTotal := 0, 0, 0
+			for k := -1; k <= 1; k++ {
+				for l := -1; l <= 1; l++ {
+					r, g, b, _ := img.At(x+k, y+l).RGBA()
+					rTotal += int(r)
+					gTotal += int(g)
+					bTotal += int(b)
 				}
 			}
-		}(i)
+			rAvg := uint8(rTotal / 9 / 256)
+			gAvg := uint8(gTotal / 9 / 256)
+			bAvg := uint8(bTotal / 9 / 256)
+			img.Set(x, y, color.RGBA{R: rAvg, G: gAvg, B: bAvg, A: 255})
+		}
 	}
 
-	wg.Wait()
 	return nil
 }
 
 // 机器学习（矩阵乘法）
 
-func (s *ToolboxBenchmarkService) machineLearning(multi bool) int {
-	n := 1
-	if multi {
-		n = runtime.NumCPU()
-	}
+func (s *ToolboxBenchmarkService) machineLearning() int {
 	start := time.Now()
-	s.machineLearningTask(n)
+	s.machineLearningTask()
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
 
-func (s *ToolboxBenchmarkService) machineLearningTask(numThreads int) {
+func (s *ToolboxBenchmarkService) machineLearningTask() {
 	size := 900
 	a := make([][]float64, size)
 	b := make([][]float64, size)
@@ -190,64 +169,28 @@ func (s *ToolboxBenchmarkService) machineLearningTask(numThreads int) {
 		c[i] = make([]float64, size)
 	}
 
-	var wg sync.WaitGroup
-	chunkSize := size / numThreads
-
-	for k := 0; k < numThreads; k++ {
-		wg.Add(1)
-		go func(k int) {
-			defer wg.Done()
-			start := k * chunkSize
-			end := start + chunkSize
-			if k == numThreads-1 {
-				end = size
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			sum := 0.0
+			for l := 0; l < size; l++ {
+				sum += a[i][l] * b[l][j]
 			}
-			for i := start; i < end; i++ {
-				for j := 0; j < size; j++ {
-					sum := 0.0
-					for l := 0; l < size; l++ {
-						sum += a[i][l] * b[l][j]
-					}
-					c[i][j] = sum
-				}
-			}
-		}(k)
+			c[i][j] = sum
+		}
 	}
-
-	wg.Wait()
 }
 
 // 数学问题（计算斐波那契数）
 
-func (s *ToolboxBenchmarkService) compileSimulationSingle(multi bool) int {
-	n := 1
-	if multi {
-		n = runtime.NumCPU()
-	}
+func (s *ToolboxBenchmarkService) compileSimulationSingle() int {
 	start := time.Now()
 	totalCalculations := 1000
 	fibNumber := 20000
 
-	calculationsPerThread := totalCalculations / n
-	remainder := totalCalculations % n
-
-	var wg sync.WaitGroup
-
-	for i := 0; i < n; i++ {
-		tasks := calculationsPerThread
-		if i < remainder {
-			tasks++ // 处理无法均分的剩余任务
-		}
-		wg.Add(1)
-		go func(tasks int) {
-			defer wg.Done()
-			for j := 0; j < tasks; j++ {
-				s.fib(fibNumber)
-			}
-		}(tasks)
+	for j := 0; j < totalCalculations; j++ {
+		s.fib(fibNumber)
 	}
 
-	wg.Wait()
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
@@ -270,20 +213,16 @@ func (s *ToolboxBenchmarkService) fib(n int) *big.Int {
 
 // AES加密
 
-func (s *ToolboxBenchmarkService) encryptionTest(multi bool) int {
-	n := 1
-	if multi {
-		n = runtime.NumCPU()
-	}
+func (s *ToolboxBenchmarkService) encryptionTest() int {
 	start := time.Now()
-	if err := s.encryptionTestTask(n); err != nil {
+	if err := s.encryptionTestTask(); err != nil {
 		return 0
 	}
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
 
-func (s *ToolboxBenchmarkService) encryptionTestTask(numThreads int) error {
+func (s *ToolboxBenchmarkService) encryptionTestTask() error {
 	key := []byte("abcdefghijklmnopqrstuvwxyz123456")
 	dataSize := 1024 * 1024 * 512 // 512 MB
 	plaintext := []byte(strings.Repeat("A", dataSize))
@@ -296,108 +235,55 @@ func (s *ToolboxBenchmarkService) encryptionTestTask(numThreads int) error {
 		return err
 	}
 
-	chunkSize := dataSize / numThreads
-
-	var wg sync.WaitGroup
-
-	for i := 0; i < numThreads; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			start := i * chunkSize
-			end := start + chunkSize
-			if i == numThreads-1 {
-				end = dataSize
-			}
-
-			nonce := make([]byte, aesGCM.NonceSize())
-			if _, err = cryptorand.Read(nonce); err != nil {
-				return
-			}
-
-			aesGCM.Seal(nil, nonce, plaintext[start:end], nil)
-		}(i)
+	nonce := make([]byte, aesGCM.NonceSize())
+	if _, err = cryptorand.Read(nonce); err != nil {
+		return err
 	}
 
-	wg.Wait()
+	aesGCM.Seal(nil, nonce, plaintext, nil)
 	return nil
 }
 
 // 压缩/解压缩
 
-func (s *ToolboxBenchmarkService) compressionTest(multi bool) int {
-	n := 1
-	if multi {
-		n = runtime.NumCPU()
-	}
+func (s *ToolboxBenchmarkService) compressionTest() int {
 	start := time.Now()
-	s.compressionTestTask(n)
+	s.compressionTestTask()
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
 
-func (s *ToolboxBenchmarkService) compressionTestTask(numThreads int) {
+func (s *ToolboxBenchmarkService) compressionTestTask() {
 	data := []byte(strings.Repeat("耗子面板", 50000000))
-	chunkSize := len(data) / numThreads
-
-	var wg sync.WaitGroup
-
-	compressedChunks := make([]bytes.Buffer, numThreads)
 
 	// 压缩
-	for i := 0; i < numThreads; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			start := i * chunkSize
-			end := start + chunkSize
-			if i == numThreads-1 {
-				end = len(data)
-			}
-			var buf bytes.Buffer
-			w := gzip.NewWriter(&buf)
-			_, _ = w.Write(data[start:end])
-			_ = w.Close()
-			compressedChunks[i] = buf
-		}(i)
-	}
-
-	wg.Wait()
+	var buf bytes.Buffer
+	w := gzip.NewWriter(&buf)
+	_, _ = w.Write(data)
+	_ = w.Close()
 
 	// 解压缩
-	for i := 0; i < numThreads; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			r, err := gzip.NewReader(&compressedChunks[i])
-			if err != nil {
-				return
-			}
-			_, err = io.Copy(io.Discard, r)
-			if err != nil {
-				return
-			}
-			_ = r.Close()
-		}(i)
+	r, err := gzip.NewReader(&buf)
+	if err != nil {
+		return
 	}
-
-	wg.Wait()
+	_, err = io.Copy(io.Discard, r)
+	if err != nil {
+		return
+	}
+	_ = r.Close()
 }
 
 // 物理仿真（N体问题）
 
-func (s *ToolboxBenchmarkService) physicsSimulation(multi bool) int {
-	n := 1
-	if multi {
-		n = runtime.NumCPU()
-	}
+func (s *ToolboxBenchmarkService) physicsSimulation() int {
 	start := time.Now()
-	s.physicsSimulationTask(n)
+	s.physicsSimulationTask()
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
 
-func (s *ToolboxBenchmarkService) physicsSimulationTask(numThreads int) {
+func (s *ToolboxBenchmarkService) physicsSimulationTask() {
 	const (
 		numBodies = 4000
 		steps     = 30
@@ -419,134 +305,82 @@ func (s *ToolboxBenchmarkService) physicsSimulationTask(numThreads int) {
 		}
 	}
 
-	chunkSize := numBodies / numThreads
-
 	for step := 0; step < steps; step++ {
-		var wg sync.WaitGroup
-
 		// 更新速度
-		for k := 0; k < numThreads; k++ {
-			wg.Add(1)
-			go func(k int) {
-				defer wg.Done()
-				start := k * chunkSize
-				end := start + chunkSize
-				if k == numThreads-1 {
-					end = numBodies
+		for i := 0; i < numBodies; i++ {
+			bi := &bodies[i]
+			for j := 0; j < numBodies; j++ {
+				if i == j {
+					continue
 				}
-				for i := start; i < end; i++ {
-					bi := &bodies[i]
-					for j := 0; j < numBodies; j++ {
-						if i == j {
-							continue
-						}
-						bj := &bodies[j]
-						dx := bj.x - bi.x
-						dy := bj.y - bi.y
-						dz := bj.z - bi.z
-						dist := math.Sqrt(dx*dx + dy*dy + dz*dz)
-						if dist == 0 {
-							continue
-						}
-						force := 1 / (dist * dist)
-						bi.vx += force * dx / dist
-						bi.vy += force * dy / dist
-						bi.vz += force * dz / dist
-					}
+				bj := &bodies[j]
+				dx := bj.x - bi.x
+				dy := bj.y - bi.y
+				dz := bj.z - bi.z
+				dist := math.Sqrt(dx*dx + dy*dy + dz*dz)
+				if dist == 0 {
+					continue
 				}
-			}(k)
+				force := 1 / (dist * dist)
+				bi.vx += force * dx / dist
+				bi.vy += force * dy / dist
+				bi.vz += force * dz / dist
+			}
 		}
-
-		wg.Wait()
 
 		// 更新位置
-		for k := 0; k < numThreads; k++ {
-			wg.Add(1)
-			go func(k int) {
-				defer wg.Done()
-				start := k * chunkSize
-				end := start + chunkSize
-				if k == numThreads-1 {
-					end = numBodies
-				}
-				for i := start; i < end; i++ {
-					bi := &bodies[i]
-					bi.x += bi.vx
-					bi.y += bi.vy
-					bi.z += bi.vz
-				}
-			}(k)
+		for i := 0; i < numBodies; i++ {
+			bi := &bodies[i]
+			bi.x += bi.vx
+			bi.y += bi.vy
+			bi.z += bi.vz
 		}
-
-		wg.Wait()
 	}
 }
 
 // JSON解析
 
-func (s *ToolboxBenchmarkService) jsonProcessing(multi bool) int {
-	n := 1
-	if multi {
-		n = runtime.NumCPU()
-	}
+func (s *ToolboxBenchmarkService) jsonProcessing() int {
 	start := time.Now()
-	s.jsonProcessingTask(n)
+	s.jsonProcessingTask()
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
 
-func (s *ToolboxBenchmarkService) jsonProcessingTask(numThreads int) {
-	numElements := 1000000
-	elementsPerThread := numElements / numThreads
+func (s *ToolboxBenchmarkService) jsonProcessingTask() {
+	numElements := 500000
 
-	var wg sync.WaitGroup
-	for i := 0; i < numThreads; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-
-			start := i * elementsPerThread
-			end := start + elementsPerThread
-			if i == numThreads-1 {
-				end = numElements
-			}
-
-			elements := make([]map[string]any, 0, end-start)
-			for j := start; j < end; j++ {
-				elements = append(elements, map[string]any{
-					"id":    j,
-					"value": fmt.Sprintf("Value%d", j),
-				})
-			}
-			encoded, err := json.Marshal(elements)
-			if err != nil {
-				return
-			}
-
-			var parsed []map[string]any
-			err = json.Unmarshal(encoded, &parsed)
-			if err != nil {
-				return
-			}
-		}(i)
+	elements := make([]map[string]any, 0, numElements)
+	for j := 0; j < numElements; j++ {
+		elements = append(elements, map[string]any{
+			"id":    j,
+			"value": fmt.Sprintf("Value%d", j),
+		})
 	}
 
-	wg.Wait()
+	encoded, err := json.Marshal(elements)
+	if err != nil {
+		return
+	}
+
+	var parsed []map[string]any
+	err = json.Unmarshal(encoded, &parsed)
+	if err != nil {
+		return
+	}
 }
 
 // 内存性能
 
 func (s *ToolboxBenchmarkService) memoryTestTask() map[string]any {
 	results := make(map[string]any)
-	dataSize := 500 * 1024 * 1024 // 500 MB
-	data := make([]byte, dataSize)
+	data := make([]byte, 100*1024*1024) // 100 MB
 	_, _ = cryptorand.Read(data)
 
 	start := time.Now()
 	// 内存读写速度
 	results["bandwidth"] = s.memoryBandwidthTest(data)
 	// 内存访问延迟
-	data = data[:100*1024*1024] // 100 MB
 	results["latency"] = s.memoryLatencyTest(data)
 	duration := time.Since(start)
 	results["score"] = s.calculateScore(duration)
@@ -558,7 +392,6 @@ func (s *ToolboxBenchmarkService) memoryBandwidthTest(data []byte) string {
 	dataSize := len(data)
 
 	startTime := time.Now()
-
 	for i := 0; i < dataSize; i++ {
 		data[i] ^= 0xFF
 	}
@@ -592,13 +425,22 @@ func (s *ToolboxBenchmarkService) memoryLatencyTest(data []byte) string {
 
 func (s *ToolboxBenchmarkService) diskTestTask() map[string]any {
 	results := make(map[string]any)
-	blockSizes := []int64{4 * 1024, 64 * 1024, 512 * 1024, 1 * 1024 * 1024} // 4K, 64K, 512K, 1M
-	fileSize := int64(100 * 1024 * 1024)                                    // 100MB 文件
+	blockSizes := []int64{4 * 1024, 64 * 1024, 1 * 1024 * 1024} // 4K, 64K, 1M
 
+	tmpDir, err := os.MkdirTemp("", "disk_benchmark")
+	if err != nil {
+		return results
+	}
+	defer func(path string) {
+		_ = os.RemoveAll(path)
+	}(tmpDir)
+
+	testFile := filepath.Join(tmpDir, "testfile")
 	start := time.Now()
 	for _, blockSize := range blockSizes {
-		result := s.diskIOTest(blockSize, fileSize)
-		results[fmt.Sprintf("%d", blockSize/1024)] = result
+		blockSizeKB := blockSize / 1024
+		result := s.diskIOTest(testFile, blockSize)
+		results[fmt.Sprintf("%d", blockSizeKB)] = result
 	}
 	duration := time.Since(start)
 	results["score"] = s.calculateScore(duration)
@@ -606,91 +448,64 @@ func (s *ToolboxBenchmarkService) diskTestTask() map[string]any {
 	return results
 }
 
-func (s *ToolboxBenchmarkService) diskIOTest(blockSize int64, fileSize int64) map[string]any {
+func (s *ToolboxBenchmarkService) diskIOTest(testFile string, blockSize int64) map[string]any {
 	result := make(map[string]any)
-	tempFile := fmt.Sprintf("tempfile_%d", blockSize)
-	defer func(name string) {
-		_ = os.Remove(name)
-	}(tempFile)
+
+	// 确定测试参数
+	count := int64(3000)
+	if blockSize >= 64*1024 {
+		count = 2000
+	}
+	if blockSize >= 1*1024*1024 {
+		count = 500
+	}
 
 	// 写测试
-	writeSpeed, writeIOPS := s.diskWriteTest(tempFile, blockSize, fileSize)
-	// 读测试
-	readSpeed, readIOPS := s.diskReadTest(tempFile, blockSize, fileSize)
+	writeSpeed := s.diskWriteTest(testFile, blockSize, count)
+	result["write_speed"] = fmt.Sprintf("%s", writeSpeed)
 
-	result["write_speed"] = fmt.Sprintf("%.2f MB/s", writeSpeed)
-	result["write_iops"] = fmt.Sprintf("%.2f IOPS", writeIOPS)
-	result["read_speed"] = fmt.Sprintf("%.2f MB/s", readSpeed)
-	result["read_iops"] = fmt.Sprintf("%.2f IOPS", readIOPS)
+	// 读测试
+	readSpeed := s.diskReadTest(testFile, blockSize, count)
+	result["read_speed"] = fmt.Sprintf("%s", readSpeed)
 
 	return result
 }
 
-func (s *ToolboxBenchmarkService) diskWriteTest(fileName string, blockSize int64, fileSize int64) (float64, float64) {
-	totalBlocks := fileSize / blockSize
+func (s *ToolboxBenchmarkService) diskWriteTest(fileName string, blockSize int64, count int64) string {
+	var output string
+	var err error
 
-	data := make([]byte, blockSize)
-	_, _ = cryptorand.Read(data)
+	blockSizeKB := blockSize / 1024
+	output, err = shell.Execf("dd if=/dev/zero of=%s bs=%dk count=%d oflag=direct 2>&1",
+		fileName, blockSizeKB, count)
 
-	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_SYNC, 0644)
 	if err != nil {
-		return 0, 0
-	}
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
-
-	start := time.Now()
-
-	for i := int64(0); i < totalBlocks; i++ {
-		// 生成随机偏移
-		offset := rand.Int64N(fileSize - blockSize + 1)
-		_, err := file.WriteAt(data, offset)
-		if err != nil {
-			return 0, 0
-		}
+		return ""
 	}
 
-	_ = file.Sync()
-
-	duration := time.Since(start).Seconds()
-	if duration == 0 {
-		duration = 1
-	}
-	speed := float64(totalBlocks*blockSize) / duration / (1024 * 1024)
-	iops := float64(totalBlocks) / duration
-	return speed, iops
+	return s.parseCommandOutput(output)
 }
 
-func (s *ToolboxBenchmarkService) diskReadTest(fileName string, blockSize int64, fileSize int64) (float64, float64) {
-	totalBlocks := fileSize / blockSize
+func (s *ToolboxBenchmarkService) diskReadTest(fileName string, blockSize int64, count int64) string {
+	var output string
+	var err error
 
-	data := make([]byte, blockSize)
-
-	file, err := os.OpenFile(fileName, os.O_RDONLY|os.O_SYNC, 0644)
+	blockSizeKB := blockSize / 1024
+	output, err = shell.Execf("dd if=%s of=/dev/null bs=%dk count=%d iflag=direct 2>&1",
+		fileName, blockSizeKB, count)
 	if err != nil {
-		return 0, 0
-	}
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
-
-	start := time.Now()
-
-	for i := int64(0); i < totalBlocks; i++ {
-		// 生成随机偏移
-		offset := rand.Int64N(fileSize - blockSize + 1)
-		_, err := file.ReadAt(data, offset)
-		if err != nil && err != io.EOF {
-			return 0, 0
-		}
+		return ""
 	}
 
-	duration := time.Since(start).Seconds()
-	if duration == 0 {
-		duration = 1
+	return s.parseCommandOutput(output)
+}
+
+func (s *ToolboxBenchmarkService) parseCommandOutput(output string) string {
+	speed := "N/A"
+	mbRegex := regexp.MustCompile(`(\d+\.?\d*)\s*[MG]B/s`)
+	if matches := mbRegex.FindStringSubmatch(output); len(matches) > 1 {
+		speed = strings.TrimSpace(matches[0])
 	}
-	speed := float64(totalBlocks*blockSize) / duration / (1024 * 1024)
-	iops := float64(totalBlocks) / duration
-	return speed, iops
+
+	return speed
 }

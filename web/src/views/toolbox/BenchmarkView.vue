@@ -25,41 +25,17 @@ const tests = [
 ]
 
 const cpu = ref({
-  image: {
-    single: 0,
-    multi: 0
-  },
-  machine: {
-    single: 0,
-    multi: 0
-  },
-  compile: {
-    single: 0,
-    multi: 0
-  },
-  encryption: {
-    single: 0,
-    multi: 0
-  },
-  compression: {
-    single: 0,
-    multi: 0
-  },
-  physics: {
-    single: 0,
-    multi: 0
-  },
-  json: {
-    single: 0,
-    multi: 0
-  }
+  image: 0,
+  machine: 0,
+  compile: 0,
+  encryption: 0,
+  compression: 0,
+  physics: 0,
+  json: 0
 })
 
 const cpuTotal = computed(() => {
-  return {
-    single: Object.values(cpu.value).reduce((a, b) => a + b.single, 0),
-    multi: Object.values(cpu.value).reduce((a, b) => a + b.multi, 0)
-  }
+  return Object.values(cpu.value).reduce((a, b) => a + b, 0)
 })
 
 const memory = ref({
@@ -71,27 +47,15 @@ const memory = ref({
 const disk = ref({
   score: 0,
   1024: {
-    read_iops: $gettext('Pending benchmark'),
     read_speed: $gettext('Pending benchmark'),
-    write_iops: $gettext('Pending benchmark'),
     write_speed: $gettext('Pending benchmark')
   },
   4: {
-    read_iops: $gettext('Pending benchmark'),
     read_speed: $gettext('Pending benchmark'),
-    write_iops: $gettext('Pending benchmark'),
-    write_speed: $gettext('Pending benchmark')
-  },
-  512: {
-    read_iops: $gettext('Pending benchmark'),
-    read_speed: $gettext('Pending benchmark'),
-    write_iops: $gettext('Pending benchmark'),
     write_speed: $gettext('Pending benchmark')
   },
   64: {
-    read_iops: $gettext('Pending benchmark'),
     read_speed: $gettext('Pending benchmark'),
-    write_iops: $gettext('Pending benchmark'),
     write_speed: $gettext('Pending benchmark')
   }
 })
@@ -103,12 +67,9 @@ const handleTest = async () => {
     const test = tests[i]
     current.value = test
     if (test != 'memory' && test != 'disk') {
-      for (let j = 0; j < 2; j++) {
-        cpu.value[test as keyof typeof cpu.value][j === 1 ? 'multi' : 'single'] =
-          await benchmark.test(test, j === 1)
-      }
+      cpu.value[test as keyof typeof cpu.value] = await benchmark.test(test)
     } else {
-      const data = await benchmark.test(test, false)
+      const data = await benchmark.test(test)
       if (test === 'memory') {
         memory.value = data
       } else {
@@ -147,11 +108,8 @@ const handleTest = async () => {
             <n-popover trigger="hover">
               <template #trigger>
                 <n-flex vertical items-center>
-                  <div v-if="cpuTotal.single !== 0 && cpuTotal.multi !== 0">
-                    {{ $gettext('Single-core') }}
-                    <n-number-animation :from="0" :to="cpuTotal.single" show-separator />
-                    / {{ $gettext('Multi-core') }}
-                    <n-number-animation :from="0" :to="cpuTotal.multi" show-separator />
+                  <div v-if="cpuTotal !== 0">
+                    <n-number-animation :from="0" :to="cpuTotal" show-separator />
                   </div>
                   <div v-else>{{ $gettext('Pending benchmark') }}</div>
                   <n-progress
@@ -169,78 +127,43 @@ const handleTest = async () => {
                 <tr>
                   <th>{{ $gettext('Image Processing') }}</th>
                   <td>
-                    {{
-                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
-                        single: cpu.image.single,
-                        multi: cpu.image.multi
-                      })
-                    }}
+                    {{ cpu.image }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('Machine Learning') }}</th>
                   <td>
-                    {{
-                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
-                        single: cpu.machine.single,
-                        multi: cpu.machine.multi
-                      })
-                    }}
+                    {{ cpu.machine }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('Program Compilation') }}</th>
                   <td>
-                    {{
-                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
-                        single: cpu.compile.single,
-                        multi: cpu.compile.multi
-                      })
-                    }}
+                    {{ cpu.compile }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('AES Encryption') }}</th>
                   <td>
-                    {{
-                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
-                        single: cpu.encryption.single,
-                        multi: cpu.encryption.multi
-                      })
-                    }}
+                    {{ cpu.encryption }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('Compression/Decompression') }}</th>
                   <td>
-                    {{
-                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
-                        single: cpu.compression.single,
-                        multi: cpu.compression.multi
-                      })
-                    }}
+                    {{ cpu.compression }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('Physics Simulation') }}</th>
                   <td>
-                    {{
-                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
-                        single: cpu.physics.single,
-                        multi: cpu.physics.multi
-                      })
-                    }}
+                    {{ cpu.physics }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('JSON Parsing') }}</th>
                   <td>
-                    {{
-                      $gettext('Single-core %{ single } / Multi-core %{ multi }', {
-                        single: cpu.json.single,
-                        multi: cpu.json.multi
-                      })
-                    }}
+                    {{ cpu.json }}
                   </td>
                 </tr>
               </n-table>
@@ -300,89 +223,37 @@ const handleTest = async () => {
                 <tr>
                   <th>{{ $gettext('4KB Read') }}</th>
                   <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['4'].read_speed,
-                        iops: disk['4'].read_iops
-                      })
-                    }}
+                    {{ disk['4'].read_speed }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('4KB Write') }}</th>
                   <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['4'].write_speed,
-                        iops: disk['4'].write_iops
-                      })
-                    }}
+                    {{ disk['4'].write_speed }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('64KB Read') }}</th>
                   <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['64'].read_speed,
-                        iops: disk['64'].read_iops
-                      })
-                    }}
+                    {{ disk['64'].read_speed }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('64KB Write') }}</th>
                   <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['64'].write_speed,
-                        iops: disk['64'].write_iops
-                      })
-                    }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('512KB Read') }}</th>
-                  <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['512'].read_speed,
-                        iops: disk['512'].read_iops
-                      })
-                    }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('512KB Write') }}</th>
-                  <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['512'].write_speed,
-                        iops: disk['512'].write_iops
-                      })
-                    }}
+                    {{ disk['64'].write_speed }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('1MB Read') }}</th>
                   <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['1024'].read_speed,
-                        iops: disk['1024'].read_iops
-                      })
-                    }}
+                    {{ disk['1024'].read_speed }}
                   </td>
                 </tr>
                 <tr>
                   <th>{{ $gettext('1MB Write') }}</th>
                   <td>
-                    {{
-                      $gettext('Speed %{ speed } / %{ iops } IOPS', {
-                        speed: disk['1024'].write_speed,
-                        iops: disk['1024'].write_iops
-                      })
-                    }}
+                    {{ disk['1024'].write_speed }}
                   </td>
                 </tr>
               </n-table>
