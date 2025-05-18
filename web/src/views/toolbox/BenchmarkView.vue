@@ -1,9 +1,9 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-benchmark-index'
+  name: 'toolbox-benchmark'
 })
 
-import benchmark from '@/api/apps/benchmark'
+import benchmark from '@/api/panel/toolbox-benchmark'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { useGettext } from 'vue3-gettext'
 

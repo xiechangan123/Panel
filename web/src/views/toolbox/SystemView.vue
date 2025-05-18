@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'apps-toolbox-index'
+  name: 'toolbox-system'
 })
 
 import Editor from '@guolao/vue-monaco-editor'
@@ -8,7 +8,7 @@ import { DateTime } from 'luxon'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import toolbox from '@/api/apps/toolbox'
+import system from '@/api/panel/toolbox-system'
 
 const { $gettext } = useGettext()
 const currentTab = ref('dns')
@@ -25,65 +25,65 @@ const timezones = ref<any[]>([])
 const time = ref(DateTime.now().toMillis())
 const rootPassword = ref('')
 
-useRequest(toolbox.dns()).onSuccess(({ data }) => {
+useRequest(system.dns()).onSuccess(({ data }) => {
   dns1.value = data[0]
   dns2.value = data[1]
 })
-useRequest(toolbox.swap()).onSuccess(({ data }) => {
+useRequest(system.swap()).onSuccess(({ data }) => {
   swap.value = data.size
   swapFree.value = data.free
   swapUsed.value = data.used
   swapTotal.value = data.total
 })
-useRequest(toolbox.hostname()).onSuccess(({ data }) => {
+useRequest(system.hostname()).onSuccess(({ data }) => {
   hostname.value = data
 })
-useRequest(toolbox.hosts()).onSuccess(({ data }) => {
+useRequest(system.hosts()).onSuccess(({ data }) => {
   hosts.value = data
 })
-useRequest(toolbox.timezone()).onSuccess(({ data }) => {
+useRequest(system.timezone()).onSuccess(({ data }) => {
   timezone.value = data.timezone
   timezones.value = data.timezones
 })
 
 const handleUpdateDNS = () => {
-  useRequest(toolbox.updateDns(dns1.value, dns2.value)).onSuccess(() => {
+  useRequest(system.updateDns(dns1.value, dns2.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleUpdateSwap = () => {
-  useRequest(toolbox.updateSwap(swap.value)).onSuccess(() => {
+  useRequest(system.updateSwap(swap.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleUpdateHost = async () => {
   await Promise.all([
-    useRequest(toolbox.updateHostname(hostname.value)),
-    useRequest(toolbox.updateHosts(hosts.value))
+    useRequest(system.updateHostname(hostname.value)),
+    useRequest(system.updateHosts(hosts.value))
   ]).then(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleUpdateRootPassword = () => {
-  useRequest(toolbox.updateRootPassword(rootPassword.value)).onSuccess(() => {
+  useRequest(system.updateRootPassword(rootPassword.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleUpdateTime = async () => {
   await Promise.all([
-    useRequest(toolbox.updateTime(String(DateTime.fromMillis(time.value).toISO()))),
-    useRequest(toolbox.updateTimezone(timezone.value))
+    useRequest(system.updateTime(String(DateTime.fromMillis(time.value).toISO()))),
+    useRequest(system.updateTimezone(timezone.value))
   ]).then(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleSyncTime = () => {
-  useRequest(toolbox.syncTime()).onSuccess(() => {
+  useRequest(system.syncTime()).onSuccess(() => {
     window.$message.success($gettext('Synchronized successfully'))
   })
 }

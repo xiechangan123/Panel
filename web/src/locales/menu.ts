@@ -17,6 +17,9 @@ export function translateTitle(key: string): string {
     Settings: $gettext('Settings'),
     Terminal: $gettext('Terminal'),
     Tasks: $gettext('Tasks'),
+    Toolbox: $gettext('Toolbox'),
+    System: $gettext('System'),
+    Benchmark: $gettext('Benchmark'),
     Website: $gettext('Website'),
     'Website Edit': $gettext('Website Edit'),
     // 应用标题
@@ -24,9 +27,7 @@ export function translateTitle(key: string): string {
     'S3fs Manager': $gettext('S3fs Manager'),
     'Supervisor Manager': $gettext('Supervisor Manager'),
     'Rsync Manager': $gettext('Rsync Manager'),
-    'Frp Manager': $gettext('Frp Manager'),
-    'Rat Benchmark': $gettext('Rat Benchmark'),
-    'System Toolbox': $gettext('System Toolbox')
+    'Frp Manager': $gettext('Frp Manager')
   }
 
   return titles[key] || key
