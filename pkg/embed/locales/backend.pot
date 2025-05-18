@@ -1371,7 +1371,7 @@ msgstr ""
 msgid "directory %s does not exist"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:156
+#: internal/service/toolbox_system.go:139
 msgid "disk space is insufficient, current free %s"
 msgstr ""
 
@@ -1471,8 +1471,8 @@ msgstr ""
 msgid "failed to get PostgreSQL start time: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:107
-#: internal/apps/toolbox/app.go:94
+#: internal/service/toolbox_system.go:77
+#: internal/service/toolbox_system.go:90
 msgid "failed to get SWAP: %v"
 msgstr ""
 
@@ -1484,7 +1484,7 @@ msgstr ""
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:208
+#: internal/service/toolbox_system.go:191
 msgid "failed to get available timezones: %v"
 msgstr ""
 
@@ -1496,7 +1496,7 @@ msgstr ""
 msgid "failed to get current banned list"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:152
+#: internal/service/toolbox_system.go:135
 msgid "failed to get disk space: %v"
 msgstr ""
 
@@ -1572,7 +1572,7 @@ msgstr ""
 msgid "failed to get the update information: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:197
+#: internal/service/toolbox_system.go:180
 msgid "failed to get timezone: %v"
 msgstr ""
 
@@ -1669,19 +1669,19 @@ msgstr ""
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:176
+#: internal/service/toolbox_system.go:159
 msgid "failed to set SWAP permission: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:293
+#: internal/service/toolbox_system.go:276
 msgid "failed to set hostname: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:316
+#: internal/service/toolbox_system.go:299
 msgid "failed to set hosts: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:333
+#: internal/service/toolbox_system.go:316
 msgid "failed to set root password: %v"
 msgstr ""
 
@@ -1697,7 +1697,7 @@ msgstr ""
 msgid "failed to unmount: %v"
 msgstr ""
 
-#: internal/apps/toolbox/app.go:80
+#: internal/service/toolbox_system.go:63
 msgid "failed to update DNS: %v"
 msgstr ""
 
@@ -1957,7 +1957,7 @@ msgstr ""
 msgid "unknown service"
 msgstr ""
 
-#: internal/apps/benchmark/app.go:81
+#: internal/service/toolbox_benchmark.go:76
 msgid "unknown test type"
 msgstr ""
 
