@@ -1719,7 +1719,7 @@ msgstr ""
 
 #: internal/data/user.go:175
 #: internal/data/user.go:198
-#: internal/service/user.go:96
+#: internal/service/user.go:102
 msgid "invalid 2FA code"
 msgstr ""
 
@@ -1731,7 +1731,7 @@ msgstr ""
 msgid "invalid header: %v"
 msgstr ""
 
-#: internal/service/user.go:82
+#: internal/service/user.go:84
 msgid "invalid key, please refresh the page"
 msgstr ""
 
