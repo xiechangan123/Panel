@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"github.com/go-chi/chi/v5"
 	"net"
 	"net/http"
 	"slices"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/chix"
 	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"

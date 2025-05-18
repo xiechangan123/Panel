@@ -1,7 +1,6 @@
 package bootstrap
 
 import (
-	"github.com/tnb-labs/panel/internal/apps/benchmark"
 	"github.com/tnb-labs/panel/internal/apps/codeserver"
 	"github.com/tnb-labs/panel/internal/apps/docker"
 	"github.com/tnb-labs/panel/internal/apps/fail2ban"
@@ -25,12 +24,10 @@ import (
 	"github.com/tnb-labs/panel/internal/apps/rsync"
 	"github.com/tnb-labs/panel/internal/apps/s3fs"
 	"github.com/tnb-labs/panel/internal/apps/supervisor"
-	"github.com/tnb-labs/panel/internal/apps/toolbox"
 	"github.com/tnb-labs/panel/pkg/apploader"
 )
 
 func NewLoader(
-	benchmark *benchmark.App,
 	codeserver *codeserver.App,
 	docker *docker.App,
 	fail2ban *fail2ban.App,
@@ -54,9 +51,8 @@ func NewLoader(
 	rsync *rsync.App,
 	s3fs *s3fs.App,
 	supervisor *supervisor.App,
-	toolbox *toolbox.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(benchmark, codeserver, docker, fail2ban, frp, gitea, memcached, minio, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor, toolbox)
+	loader.Add(codeserver, docker, fail2ban, frp, gitea, memcached, minio, mysql, nginx, php74, php80, php81, php82, php83, php84, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor)
 	return loader
 }

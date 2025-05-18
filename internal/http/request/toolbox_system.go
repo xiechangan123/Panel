@@ -1,32 +1,32 @@
-package toolbox
+package request
 
 import "time"
 
-type DNS struct {
+type ToolboxSystemDNS struct {
 	DNS1 string `form:"dns1" json:"dns1" validate:"required"`
 	DNS2 string `form:"dns2" json:"dns2" validate:"required"`
 }
 
-type SWAP struct {
+type ToolboxSystemSWAP struct {
 	Size int64 `form:"size" json:"size" validate:"min:0"`
 }
 
-type Timezone struct {
+type ToolboxSystemTimezone struct {
 	Timezone string `form:"timezone" json:"timezone" validate:"required"`
 }
 
-type Time struct {
+type ToolboxSystemTime struct {
 	Time time.Time `form:"time" json:"time" validate:"required"`
 }
 
-type Hostname struct {
+type ToolboxSystemHostname struct {
 	Hostname string `form:"hostname" json:"hostname" validate:"required|regex:^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]$"`
 }
 
-type Hosts struct {
+type ToolboxSystemHosts struct {
 	Hosts string `form:"hosts" json:"hosts"`
 }
 
-type Password struct {
+type ToolboxSystemPassword struct {
 	Password string `form:"password" json:"password" validate:"required|password"`
 }

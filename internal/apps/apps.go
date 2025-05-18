@@ -3,7 +3,6 @@ package apps
 import (
 	"github.com/google/wire"
 
-	"github.com/tnb-labs/panel/internal/apps/benchmark"
 	"github.com/tnb-labs/panel/internal/apps/codeserver"
 	"github.com/tnb-labs/panel/internal/apps/docker"
 	"github.com/tnb-labs/panel/internal/apps/fail2ban"
@@ -27,11 +26,9 @@ import (
 	"github.com/tnb-labs/panel/internal/apps/rsync"
 	"github.com/tnb-labs/panel/internal/apps/s3fs"
 	"github.com/tnb-labs/panel/internal/apps/supervisor"
-	"github.com/tnb-labs/panel/internal/apps/toolbox"
 )
 
 var ProviderSet = wire.NewSet(
-	benchmark.NewApp,
 	codeserver.NewApp,
 	docker.NewApp,
 	fail2ban.NewApp,
@@ -55,5 +52,4 @@ var ProviderSet = wire.NewSet(
 	rsync.NewApp,
 	s3fs.NewApp,
 	supervisor.NewApp,
-	toolbox.NewApp,
 )

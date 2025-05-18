@@ -8,7 +8,6 @@ package main
 
 import (
 	"github.com/tnb-labs/panel/internal/app"
-	"github.com/tnb-labs/panel/internal/apps/benchmark"
 	"github.com/tnb-labs/panel/internal/apps/codeserver"
 	"github.com/tnb-labs/panel/internal/apps/docker"
 	"github.com/tnb-labs/panel/internal/apps/fail2ban"
@@ -32,7 +31,6 @@ import (
 	"github.com/tnb-labs/panel/internal/apps/rsync"
 	"github.com/tnb-labs/panel/internal/apps/s3fs"
 	"github.com/tnb-labs/panel/internal/apps/supervisor"
-	"github.com/tnb-labs/panel/internal/apps/toolbox"
 	"github.com/tnb-labs/panel/internal/bootstrap"
 	"github.com/tnb-labs/panel/internal/data"
 	"github.com/tnb-labs/panel/internal/route"
@@ -77,7 +75,6 @@ func initCli() (*app.Cli, error) {
 	cli := route.NewCli(locale, cliService)
 	command := bootstrap.NewCli(locale, cli)
 	gormigrate := bootstrap.NewMigrate(db)
-	benchmarkApp := benchmark.NewApp(locale)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
@@ -101,8 +98,7 @@ func initCli() (*app.Cli, error) {
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	toolboxApp := toolbox.NewApp(locale)
-	loader := bootstrap.NewLoader(benchmarkApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
+	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }

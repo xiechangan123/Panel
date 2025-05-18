@@ -8,7 +8,6 @@ package main
 
 import (
 	"github.com/tnb-labs/panel/internal/app"
-	"github.com/tnb-labs/panel/internal/apps/benchmark"
 	"github.com/tnb-labs/panel/internal/apps/codeserver"
 	"github.com/tnb-labs/panel/internal/apps/docker"
 	"github.com/tnb-labs/panel/internal/apps/fail2ban"
@@ -32,7 +31,6 @@ import (
 	"github.com/tnb-labs/panel/internal/apps/rsync"
 	"github.com/tnb-labs/panel/internal/apps/s3fs"
 	"github.com/tnb-labs/panel/internal/apps/supervisor"
-	"github.com/tnb-labs/panel/internal/apps/toolbox"
 	"github.com/tnb-labs/panel/internal/bootstrap"
 	"github.com/tnb-labs/panel/internal/data"
 	"github.com/tnb-labs/panel/internal/http/middleware"
@@ -118,7 +116,8 @@ func initWeb() (*app.Web, error) {
 	monitorService := service.NewMonitorService(settingRepo, monitorRepo)
 	settingService := service.NewSettingService(settingRepo)
 	systemctlService := service.NewSystemctlService(locale)
-	benchmarkApp := benchmark.NewApp(locale)
+	toolboxSystemService := service.NewToolboxSystemService(locale)
+	toolboxBenchmarkService := service.NewToolboxBenchmarkService(locale)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
@@ -142,9 +141,8 @@ func initWeb() (*app.Web, error) {
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	toolboxApp := toolbox.NewApp(locale)
-	loader := bootstrap.NewLoader(benchmarkApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, toolboxApp)
-	http := route.NewHttp(userService, userTokenService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, loader)
+	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
+	http := route.NewHttp(userService, userTokenService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, loader)
 	wsService := service.NewWsService(locale, koanf, sshRepo)
 	ws := route.NewWs(wsService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)

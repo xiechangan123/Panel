@@ -42,6 +42,8 @@ type Http struct {
 	monitor          *service.MonitorService
 	setting          *service.SettingService
 	systemctl        *service.SystemctlService
+	toolboxSystem    *service.ToolboxSystemService
+	toolboxBenchmark *service.ToolboxBenchmarkService
 	apps             *apploader.Loader
 }
 
@@ -73,6 +75,8 @@ func NewHttp(
 	monitor *service.MonitorService,
 	setting *service.SettingService,
 	systemctl *service.SystemctlService,
+	toolboxSystem *service.ToolboxSystemService,
+	toolboxBenchmark *service.ToolboxBenchmarkService,
 	apps *apploader.Loader,
 ) *Http {
 	return &Http{
@@ -103,6 +107,8 @@ func NewHttp(
 		monitor:          monitor,
 		setting:          setting,
 		systemctl:        systemctl,
+		toolboxSystem:    toolboxSystem,
+		toolboxBenchmark: toolboxBenchmark,
 		apps:             apps,
 	}
 }
@@ -379,6 +385,26 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/reload", route.systemctl.Reload)
 			r.Post("/start", route.systemctl.Start)
 			r.Post("/stop", route.systemctl.Stop)
+		})
+
+		r.Route("/toolbox_system", func(r chi.Router) {
+			r.Get("/dns", route.toolboxSystem.GetDNS)
+			r.Post("/dns", route.toolboxSystem.UpdateDNS)
+			r.Get("/swap", route.toolboxSystem.GetSWAP)
+			r.Post("/swap", route.toolboxSystem.UpdateSWAP)
+			r.Get("/timezone", route.toolboxSystem.GetTimezone)
+			r.Post("/timezone", route.toolboxSystem.UpdateTimezone)
+			r.Post("/time", route.toolboxSystem.UpdateTime)
+			r.Post("/sync_time", route.toolboxSystem.SyncTime)
+			r.Get("/hostname", route.toolboxSystem.GetHostname)
+			r.Post("/hostname", route.toolboxSystem.UpdateHostname)
+			r.Get("/hosts", route.toolboxSystem.GetHosts)
+			r.Post("/hosts", route.toolboxSystem.UpdateHosts)
+			r.Post("/root_password", route.toolboxSystem.UpdateRootPassword)
+		})
+
+		r.Route("/toolbox_benchmark", func(r chi.Router) {
+			r.Post("/test", route.toolboxBenchmark.Test)
 		})
 
 		r.Route("/apps", func(r chi.Router) {
