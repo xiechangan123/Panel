@@ -1957,7 +1957,7 @@ msgstr ""
 msgid "unknown service"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:76
+#: internal/service/toolbox_benchmark.go:77
 msgid "unknown test type"
 msgstr ""
 
