@@ -3,7 +3,6 @@ package data
 import (
 	"errors"
 	"image"
-	"time"
 
 	"github.com/go-rat/utils/hash"
 	"github.com/leonelquinteros/gotext"
@@ -145,7 +144,7 @@ func (r *userRepo) GenerateTwoFA(id uint) (image.Image, string, string, error) {
 		Issuer:      "RatPanel",
 		AccountName: cast.ToString(id),
 		SecretSize:  32,
-		Algorithm:   otp.AlgorithmSHA256,
+		Algorithm:   otp.AlgorithmSHA1,
 	})
 	if err != nil {
 		return nil, "", "", err
@@ -167,11 +166,7 @@ func (r *userRepo) UpdateTwoFA(id uint, code, secret string) error {
 
 	// 保存前先验证一次，防止错误开启
 	if secret != "" {
-		if valid, _ := totp.ValidateCustom(code, secret, time.Now().UTC(), totp.ValidateOpts{
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA256,
-		}); !valid {
+		if valid := totp.Validate(code, secret); !valid {
 			return errors.New(r.t.Get("invalid 2FA code"))
 		}
 	}
@@ -190,11 +185,7 @@ func (r *userRepo) CheckTwoFA(id uint, code string) (bool, error) {
 		return true, nil // 未开启2FA，无需验证
 	}
 
-	if valid, _ := totp.ValidateCustom(code, user.TwoFA, time.Now().UTC(), totp.ValidateOpts{
-		Skew:      1,
-		Digits:    otp.DigitsSix,
-		Algorithm: otp.AlgorithmSHA256,
-	}); !valid {
+	if valid := totp.Validate(code, user.TwoFA); !valid {
 		return false, errors.New(r.t.Get("invalid 2FA code"))
 	}
 

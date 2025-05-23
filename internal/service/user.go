@@ -11,13 +11,11 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/go-rat/chix"
 	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
-	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
 
@@ -94,11 +92,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.TwoFA != "" {
-		if valid, _ := totp.ValidateCustom(req.PassCode, user.TwoFA, time.Now().UTC(), totp.ValidateOpts{
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA256,
-		}); !valid {
+		if valid := totp.Validate(req.PassCode, user.TwoFA); !valid {
 			Error(w, http.StatusForbidden, s.t.Get("invalid 2FA code"))
 			return
 		}
