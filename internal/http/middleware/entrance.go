@@ -57,7 +57,9 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 			}
 
 			// 情况二：请求路径与入口路径相同或者未设置访问入口，标记通过验证并重定向到登录页面
-			if (strings.TrimSuffix(r.URL.Path, "/") == entrance || entrance == "/") && sess.Missing("verify_entrance") {
+			if (strings.TrimSuffix(r.URL.Path, "/") == entrance || entrance == "/") &&
+				sess.Missing("verify_entrance") &&
+				r.Header.Get("Authorization") == "" {
 				sess.Put("verify_entrance", true)
 				render := chix.NewRender(w, r)
 				defer render.Release()
@@ -71,14 +73,14 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				if entrance != "/" {
 					if rctx := chi.RouteContext(r.Context()); rctx != nil {
 						rctx.RoutePath = strings.TrimPrefix(rctx.RoutePath, entrance)
+						r.URL.Path = strings.TrimPrefix(r.URL.Path, entrance)
 					}
-					r.URL.Path = strings.TrimPrefix(r.URL.Path, entrance)
 				}
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			// 情况三：非调试模式且未通过验证的请求，返回错误
+			// 情况四：非调试模式且未通过验证的请求，返回错误
 			if !conf.Bool("app.debug") &&
 				sess.Missing("verify_entrance") &&
 				r.URL.Path != "/robots.txt" {
