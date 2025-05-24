@@ -1280,7 +1280,7 @@ msgstr ""
 
 #: internal/data/app.go:210
 #: internal/data/app.go:265
-#: internal/http/middleware/must_install.go:48
+#: internal/http/middleware/must_install.go:38
 msgid "app %s not installed"
 msgstr ""
 
@@ -1295,7 +1295,7 @@ msgstr ""
 msgid "app %s requires panel version %s, current version %s"
 msgstr ""
 
-#: internal/http/middleware/must_install.go:29
+#: internal/http/middleware/must_install.go:24
 msgid "app not found"
 msgstr ""
 
@@ -1332,7 +1332,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:93
+#: internal/http/middleware/must_login.go:68
 msgid "client ip/ua changed, please login again"
 msgstr ""
 
@@ -1723,7 +1723,7 @@ msgstr ""
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:114
+#: internal/http/middleware/entrance.go:87
 msgid "invalid access entrance"
 msgstr ""
 
@@ -1735,16 +1735,16 @@ msgstr ""
 msgid "invalid key, please refresh the page"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:57
+#: internal/http/middleware/entrance.go:45
 msgid "invalid request domain: %s"
 msgstr ""
 
 #: internal/data/user_token.go:148
-#: internal/http/middleware/entrance.go:70
+#: internal/http/middleware/entrance.go:53
 msgid "invalid request ip: %s"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:79
+#: internal/http/middleware/entrance.go:57
 msgid "invalid request user agent: %s"
 msgstr ""
 
@@ -1754,7 +1754,7 @@ msgstr ""
 msgid "invalid signature"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:107
+#: internal/http/middleware/must_login.go:77
 msgid "invalid user id, please login again"
 msgstr ""
 
@@ -1803,19 +1803,19 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/http/middleware/status.go:38
+#: internal/http/middleware/status.go:23
 msgid "panel is closed"
 msgstr ""
 
-#: internal/http/middleware/status.go:30
+#: internal/http/middleware/status.go:20
 msgid "panel is maintaining, please refresh later"
 msgstr ""
 
-#: internal/http/middleware/status.go:22
+#: internal/http/middleware/status.go:17
 msgid "panel is upgrading, please refresh later"
 msgstr ""
 
-#: internal/http/middleware/status.go:46
+#: internal/http/middleware/status.go:26
 msgid "panel run error, please check or contact support"
 msgstr ""
 
@@ -1884,7 +1884,7 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:78
+#: internal/http/middleware/must_login.go:58
 msgid "session expired, please login again"
 msgstr ""
 
@@ -2005,7 +2005,7 @@ msgstr ""
 msgid "write file error: %v"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:58
+#: internal/http/middleware/must_login.go:48
 msgid "ws not allowed"
 msgstr ""
 
