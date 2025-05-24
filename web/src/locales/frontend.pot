@@ -605,7 +605,8 @@ msgid "Frp Manager"
 msgstr ""
 
 #: src/router/routes/index.ts:18
-msgid "Login Page"
+#: src/views/login/IndexView.vue:176
+msgid "Login"
 msgstr ""
 
 #: src/views/app/IndexView.vue:19
@@ -3619,10 +3620,6 @@ msgstr ""
 
 #: src/views/login/IndexView.vue:162
 msgid "Remember Me"
-msgstr ""
-
-#: src/views/login/IndexView.vue:176
-msgid "Login"
 msgstr ""
 
 #: src/views/monitor/IndexView.vue:60
