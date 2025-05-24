@@ -15,7 +15,7 @@ export const basicRoutes: RoutesType = [
     component: () => import('@/views/login/IndexView.vue'),
     isHidden: true,
     meta: {
-      title: $gettext('Login Page')
+      title: $gettext('Login')
     }
   }
 ]
