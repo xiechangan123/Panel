@@ -11,8 +11,6 @@ import (
 	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
-	"github.com/spf13/cast"
-
 	"github.com/tnb-labs/panel/pkg/punycode"
 )
 
@@ -26,7 +24,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				return
 			}
 
-			entrance := conf.String("http.entrance")
+			entrance := strings.TrimSuffix(conf.String("http.entrance"), "/")
 			if !strings.HasPrefix(entrance, "/") {
 				entrance = "/" + entrance
 			}
@@ -58,8 +56,8 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				return
 			}
 
-			// 情况二：请求路径与入口路径相同，标记通过验证并重定向到登录页面
-			if strings.TrimSuffix(r.URL.Path, "/") == strings.TrimSuffix(entrance, "/") {
+			// 情况二：请求路径与入口路径相同或者未设置访问入口，标记通过验证并重定向到登录页面
+			if (strings.TrimSuffix(r.URL.Path, "/") == entrance || entrance == "/") && sess.Missing("verify_entrance") {
 				sess.Put("verify_entrance", true)
 				render := chix.NewRender(w, r)
 				defer render.Release()
@@ -82,7 +80,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 
 			// 情况三：非调试模式且未通过验证的请求，返回错误
 			if !conf.Bool("app.debug") &&
-				!cast.ToBool(sess.Get("verify_entrance", false)) &&
+				sess.Missing("verify_entrance") &&
 				r.URL.Path != "/robots.txt" {
 				Abort(w, http.StatusTeapot, t.Get("invalid access entrance"))
 				return
