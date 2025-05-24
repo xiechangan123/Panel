@@ -57,7 +57,7 @@ upx:
 
 archives:
   - id: panel
-    builds:
+    ids:
       - web
       - cli
     formats: ["zip"]

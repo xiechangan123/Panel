@@ -9,7 +9,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/go-rat/chix"
 	"github.com/go-rat/sessions"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
@@ -32,12 +31,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sess, err := session.GetSession(r)
 			if err != nil {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusInternalServerError)
-				render.JSON(chix.M{
-					"msg": err.Error(),
-				})
+				Abort(w, http.StatusInternalServerError, "%v", err)
 				return
 			}
 
@@ -51,32 +45,17 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 			if r.Header.Get("Authorization") != "" {
 				// 禁止访问 ws 相关的接口
 				if strings.HasPrefix(r.URL.Path, "/api/ws") {
-					render := chix.NewRender(w)
-					defer render.Release()
-					render.Status(http.StatusForbidden)
-					render.JSON(chix.M{
-						"msg": t.Get("ws not allowed"),
-					})
+					Abort(w, http.StatusForbidden, t.Get("ws not allowed"))
 					return
 				}
 				// API 请求验证
 				if userID, err = userToken.ValidateReq(r); err != nil {
-					render := chix.NewRender(w)
-					defer render.Release()
-					render.Status(http.StatusUnauthorized)
-					render.JSON(chix.M{
-						"msg": err.Error(),
-					})
+					Abort(w, http.StatusUnauthorized, "%v", err)
 					return
 				}
 			} else {
 				if sess.Missing("user_id") {
-					render := chix.NewRender(w)
-					defer render.Release()
-					render.Status(http.StatusUnauthorized)
-					render.JSON(chix.M{
-						"msg": t.Get("session expired, please login again"),
-					})
+					Abort(w, http.StatusUnauthorized, t.Get("session expired, please login again"))
 					return
 				}
 
@@ -86,12 +65,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 					ip, _, _ := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
 					clientHash := fmt.Sprintf("%x", sha256.Sum256([]byte(ip)))
 					if safeClientHash != clientHash || safeClientHash == "" {
-						render := chix.NewRender(w)
-						defer render.Release()
-						render.Status(http.StatusUnauthorized)
-						render.JSON(chix.M{
-							"msg": t.Get("client ip/ua changed, please login again"),
-						})
+						Abort(w, http.StatusUnauthorized, t.Get("client ip/ua changed, please login again"))
 						return
 					}
 				}
@@ -100,12 +74,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 			}
 
 			if userID == 0 {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusUnauthorized)
-				render.JSON(chix.M{
-					"msg": t.Get("invalid user id, please login again"),
-				})
+				Abort(w, http.StatusUnauthorized, "%v", t.Get("invalid user id, please login again"))
 				return
 			}
 

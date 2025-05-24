@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-rat/chix"
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -22,12 +21,7 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 			} else if strings.HasPrefix(r.URL.Path, "/api/apps/") {
 				pathArr := strings.Split(r.URL.Path, "/")
 				if len(pathArr) < 4 {
-					render := chix.NewRender(w)
-					defer render.Release()
-					render.Status(http.StatusForbidden)
-					render.JSON(chix.M{
-						"msg": t.Get("app not found"),
-					})
+					Abort(w, http.StatusForbidden, t.Get("app not found"))
 					return
 				}
 				slugs = append(slugs, pathArr[3])
@@ -41,12 +35,7 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 				}
 			}
 			if !flag && len(slugs) > 0 {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusForbidden)
-				render.JSON(chix.M{
-					"msg": t.Get("app %s not installed", slugs),
-				})
+				Abort(w, http.StatusForbidden, t.Get("app %s not installed", slugs))
 				return
 			}
 

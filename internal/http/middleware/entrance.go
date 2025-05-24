@@ -22,19 +22,11 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sess, err := session.GetSession(r)
 			if err != nil {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusInternalServerError)
-				render.JSON(chix.M{
-					"msg": err.Error(),
-				})
+				Abort(w, http.StatusInternalServerError, "%v", err)
 				return
 			}
 
-			entrance := strings.TrimSuffix(conf.String("http.entrance"), "/")
-			if entrance == "" {
-				entrance = "/"
-			}
+			entrance := conf.String("http.entrance")
 			if !strings.HasPrefix(entrance, "/") {
 				entrance = "/" + entrance
 			}
@@ -50,12 +42,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				}
 			}
 			if len(conf.Strings("http.bind_domain")) > 0 && !slices.Contains(conf.Strings("http.bind_domain"), host) {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusTeapot)
-				render.JSON(chix.M{
-					"msg": t.Get("invalid request domain: %s", r.Host),
-				})
+				Abort(w, http.StatusTeapot, t.Get("invalid request domain: %s", r.Host))
 				return
 			}
 			ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -63,26 +50,16 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				ip = r.RemoteAddr
 			}
 			if len(conf.Strings("http.bind_ip")) > 0 && !slices.Contains(conf.Strings("http.bind_ip"), ip) {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusTeapot)
-				render.JSON(chix.M{
-					"msg": t.Get("invalid request ip: %s", ip),
-				})
+				Abort(w, http.StatusTeapot, t.Get("invalid request ip: %s", ip))
 				return
 			}
 			if len(conf.Strings("http.bind_ua")) > 0 && !slices.Contains(conf.Strings("http.bind_ua"), r.UserAgent()) {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusTeapot)
-				render.JSON(chix.M{
-					"msg": t.Get("invalid request user agent: %s", r.UserAgent()),
-				})
+				Abort(w, http.StatusTeapot, t.Get("invalid request user agent: %s", r.UserAgent()))
 				return
 			}
 
 			// 情况二：请求路径与入口路径相同，标记通过验证并重定向到登录页面
-			if strings.TrimSuffix(r.URL.Path, "/") == entrance {
+			if strings.TrimSuffix(r.URL.Path, "/") == strings.TrimSuffix(entrance, "/") {
 				sess.Put("verify_entrance", true)
 				render := chix.NewRender(w, r)
 				defer render.Release()
@@ -107,12 +84,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 			if !conf.Bool("app.debug") &&
 				!cast.ToBool(sess.Get("verify_entrance", false)) &&
 				r.URL.Path != "/robots.txt" {
-				render := chix.NewRender(w)
-				defer render.Release()
-				render.Status(http.StatusTeapot)
-				render.JSON(chix.M{
-					"msg": t.Get("invalid access entrance"),
-				})
+				Abort(w, http.StatusTeapot, t.Get("invalid access entrance"))
 				return
 			}
 
