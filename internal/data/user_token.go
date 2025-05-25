@@ -11,7 +11,7 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"slices"
+	"strings"
 	"time"
 
 	"github.com/go-rat/utils/str"
@@ -144,7 +144,26 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 		if err != nil {
 			ip = req.RemoteAddr
 		}
-		if !slices.Contains(userToken.IPs, ip) {
+		allowed := false
+		requestIP := net.ParseIP(ip)
+		if requestIP != nil {
+			for _, allowedIP := range userToken.IPs {
+				if strings.Contains(allowedIP, "/") {
+					// CIDR
+					if _, ipNet, err := net.ParseCIDR(allowedIP); err == nil && ipNet.Contains(requestIP) {
+						allowed = true
+						break
+					}
+				} else {
+					// IP
+					if allowedIP == ip {
+						allowed = true
+						break
+					}
+				}
+			}
+		}
+		if !allowed {
 			return 0, errors.New(r.t.Get("invalid request ip: %s", ip))
 		}
 	}

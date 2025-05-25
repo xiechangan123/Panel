@@ -47,9 +47,30 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 			if err != nil {
 				ip = r.RemoteAddr
 			}
-			if len(conf.Strings("http.bind_ip")) > 0 && !slices.Contains(conf.Strings("http.bind_ip"), ip) {
-				Abort(w, http.StatusTeapot, t.Get("invalid request ip: %s", ip))
-				return
+			if len(conf.Strings("http.bind_ip")) > 0 {
+				allowed := false
+				requestIP := net.ParseIP(ip)
+				if requestIP != nil {
+					for _, allowedIP := range conf.Strings("http.bind_ip") {
+						if strings.Contains(allowedIP, "/") {
+							// CIDR
+							if _, ipNet, err := net.ParseCIDR(allowedIP); err == nil && ipNet.Contains(requestIP) {
+								allowed = true
+								break
+							}
+						} else {
+							// IP
+							if allowedIP == ip {
+								allowed = true
+								break
+							}
+						}
+					}
+				}
+				if !allowed {
+					Abort(w, http.StatusTeapot, t.Get("invalid request ip: %s", ip))
+					return
+				}
 			}
 			if len(conf.Strings("http.bind_ua")) > 0 && !slices.Contains(conf.Strings("http.bind_ua"), r.UserAgent()) {
 				Abort(w, http.StatusTeapot, t.Get("invalid request user agent: %s", r.UserAgent()))
