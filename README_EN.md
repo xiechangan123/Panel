@@ -40,25 +40,25 @@ Website: [panel.haozi.net](https://panel.haozi.net) | QQ group: [12370907](https
 
 ## Partners
 
-If the Rat Panel is helpful to you, welcome to sponsor us, also thanks to the following supporters/sponsors:
+If the Rat Panel is helpful to you, welcome to [sponsor us](https://github.com/tnb-labs/panel/issues/90), also thanks to the following supporters/sponsors:
 
-![Alipay](https://github.com/user-attachments/assets/d000b147-6da1-467a-9d80-9a3e8078602a) ![WeChat](https://github.com/user-attachments/assets/a53ff212-7076-487e-88bd-c93f6e98df1d)
-
-<a href="https://www.weixiaoduo.com/">
-  <img height="80" src=".github/assets/wxd.png" alt="微晓朵">
-</a>
-<a href="https://www.dkdun.cn/aff/MQZZNVHQ">
-  <img height="80" src=".github/assets/dk.png" alt="林枫云">
-</a>
-<a href="https://waf.pro/">
-  <img height="80" src=".github/assets/wafpro.png" alt="WAFPRO">
-</a>
-<a href="https://scdn.ddunyun.com/">
-  <img height="80" src=".github/assets/ddunyun.png" alt="盾云SCDN">
-</a>
-<a href="https://1ms.run/">
-  <img height="80" src=".github/assets/1ms.svg" alt="毫秒镜像">
-</a>
+<p align="center">
+  <a href="https://www.weixiaoduo.com/">
+    <img height="60" src=".github/assets/wxd.png" alt="微晓朵">
+  </a>
+  <a href="https://www.dkdun.cn/aff/MQZZNVHQ">
+    <img height="60" src=".github/assets/dk.png" alt="林枫云">
+  </a>
+  <a href="https://waf.pro/">
+    <img height="60" src=".github/assets/wafpro.png" alt="WAFPRO">
+  </a>
+  <a href="https://scdn.ddunyun.com/">
+    <img height="60" src=".github/assets/ddunyun.png" alt="盾云SCDN">
+  </a>
+  <a href="https://1ms.run/">
+    <img height="60" src=".github/assets/1ms.svg" alt="毫秒镜像">
+  </a>
+</p>
 
 <p align="center">
   <a target="_blank" href="https://afdian.com/a/tnblabs">
