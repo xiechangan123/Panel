@@ -32,7 +32,7 @@ Website: [panel.haozi.net](https://panel.haozi.net) | QQ group: [12370907](https
 
 ## Quick Install
 
-Supported clean mainstream systems under `amd64` | `arm64` architecture, please refer to the [installation documentation](https://ratpanel.github.io/quickstart/install.html) for specific supported systems.
+Supported clean mainstream systems under `amd64` | `arm64` architecture, please refer to the [installation documentation](https://ratpanel.github.io/quickstart/install) for specific supported systems.
 
 ```shell
 curl -fsLm 10 -o install.sh https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
