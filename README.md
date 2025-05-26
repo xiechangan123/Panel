@@ -30,10 +30,6 @@
 7. **全面开源:** 少有的全开源面板，您可以在遵守开源协议的前提下对面板自由修改、二次开发
 8. **永久免费:** 承诺面板本体未来不会引入任何收费/授权功能，永久免费使用
 
-## UI 截图
-
-![UI 截图](.github/assets/ui.png)
-
 ## 快速安装
 
 支持 `amd64` | `arm64` 架构下的干净的主流系统，具体支持的系统请参考[安装文档](https://ratpanel.github.io/quickstart/install.html)。
@@ -41,6 +37,10 @@
 ```shell
 curl -fsLm 10 -o install.sh https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
 ```
+
+## UI 截图
+
+![UI 截图](.github/assets/ui.png)
 
 ## 合作伙伴
 
