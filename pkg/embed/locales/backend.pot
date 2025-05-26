@@ -1723,7 +1723,7 @@ msgstr ""
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:87
+#: internal/http/middleware/entrance.go:108
 msgid "invalid access entrance"
 msgstr ""
 
@@ -1739,12 +1739,12 @@ msgstr ""
 msgid "invalid request domain: %s"
 msgstr ""
 
-#: internal/data/user_token.go:148
-#: internal/http/middleware/entrance.go:51
+#: internal/data/user_token.go:167
+#: internal/http/middleware/entrance.go:71
 msgid "invalid request ip: %s"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:55
+#: internal/http/middleware/entrance.go:76
 msgid "invalid request user agent: %s"
 msgstr ""
 
