@@ -50,20 +50,14 @@ If the Rat Panel is helpful to you, welcome to sponsor us, also thanks to the fo
 <a href="https://www.dkdun.cn/aff/MQZZNVHQ">
   <img height="80" src=".github/assets/dk.png" alt="林枫云">
 </a>
-<a href="https://su.sctes.com/register?code=8st689ujpmm2p">
-  <img height="80" src=".github/assets/sctes.png" alt="无畏云加速">
-</a>
-<a href="https://su.sctes.com/register?code=8st689ujpmm2p">
+<a href="https://waf.pro/">
   <img height="80" src=".github/assets/wafpro.png" alt="WAFPRO">
 </a>
 <a href="https://scdn.ddunyun.com/">
   <img height="80" src=".github/assets/ddunyun.png" alt="盾云SCDN">
 </a>
-<a href="https://hongtoutong.com">
-  <img height="80" src=".github/assets/htt.png" alt="红透通">
-</a>
-<a href="https://1ms.run">
-  <img height="80" src=".github/assets/1ms.svg" alt="毫秒镜像提供经过审核的 Docker 镜像加速服务">
+<a href="https://1ms.run/">
+  <img height="80" src=".github/assets/1ms.svg" alt="毫秒镜像">
 </a>
 
 <p align="center">

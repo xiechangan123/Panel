@@ -26,9 +26,9 @@
 3. **追随时代:** 整体设计走在时代前沿，对新系统兼容性好，在同类产品中处于领先地位
 4. **高效运维:** 功能完善，自定义能力强，既可快速部署小型网站，也可基于定制化需求部署复杂应用
 5. **离线运行:** 支持离线模式，甚至可以在部署完成后停止面板进程，不会对已有服务造成任何影响
-6. **安全稳定:** 面板采用业界多种技术保障本体安全性，已在我们的多个生存环境中长期稳定运行
+6. **安全稳定:** 面板采用业界多种技术保障本体安全性，已在我们的多个生产环境中长期稳定运行
 7. **全面开源:** 少有的全开源面板，您可以在遵守开源协议的前提下对面板自由修改、二次开发
-8. **全面开源:** 承诺面板本体未来不会引入任何收费/授权功能，永久免费使用
+8. **永久免费:** 承诺面板本体未来不会引入任何收费/授权功能，永久免费使用
 
 ## UI 截图
 
@@ -50,20 +50,14 @@
 <a href="https://www.dkdun.cn/aff/MQZZNVHQ">
   <img height="80" src=".github/assets/dk.png" alt="林枫云">
 </a>
-<a href="https://su.sctes.com/register?code=8st689ujpmm2p">
-  <img height="80" src=".github/assets/sctes.png" alt="无畏云加速">
-</a>
-<a href="https://su.sctes.com/register?code=8st689ujpmm2p">
+<a href="https://waf.pro/">
   <img height="80" src=".github/assets/wafpro.png" alt="WAFPRO">
 </a>
 <a href="https://scdn.ddunyun.com/">
   <img height="80" src=".github/assets/ddunyun.png" alt="盾云SCDN">
 </a>
-<a href="https://hongtoutong.com">
-  <img height="80" src=".github/assets/htt.png" alt="红透通">
-</a>
-<a href="https://1ms.run">
-  <img height="80" src=".github/assets/1ms.svg" alt="毫秒镜像提供经过审核的 Docker 镜像加速服务">
+<a href="https://1ms.run/">
+  <img height="80" src=".github/assets/1ms.svg" alt="毫秒镜像">
 </a>
 
 <p align="center">
