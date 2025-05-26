@@ -23,7 +23,7 @@ const model = defineModel<any>('model', { type: Object, required: true })
         </n-input-number>
       </n-form-item>
       <n-form-item :label="$gettext('Access Entrance')">
-        <n-input v-model:value="model.entrance" :placeholder="$gettext('admin')" />
+        <n-input v-model:value="model.entrance" :placeholder="$gettext('/admin')" />
       </n-form-item>
       <n-form-item :label="$gettext('Bind Domain')">
         <n-dynamic-input
