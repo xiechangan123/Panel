@@ -28,7 +28,7 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:124
 msgid "Active Connections"
 msgstr ""
 
@@ -134,13 +134,13 @@ msgstr ""
 msgid "Bind domain disabled"
 msgstr ""
 
-#: internal/apps/mysql/app.go:120
-#: internal/apps/mysql/app.go:139
+#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:142
 msgid "Bytes Received"
 msgstr ""
 
-#: internal/apps/mysql/app.go:119
-#: internal/apps/mysql/app.go:139
+#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:142
 msgid "Bytes Sent"
 msgstr ""
 
@@ -460,11 +460,11 @@ msgstr ""
 msgid "Forum：https://bbs.haozi.net"
 msgstr ""
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:130
 msgid "Full Joins without Index"
 msgstr ""
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:131
 msgid "Full Range Joins without Index"
 msgstr ""
 
@@ -544,7 +544,7 @@ msgstr ""
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
-#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:126
 msgid "Index Hit Rate"
 msgstr ""
 
@@ -559,7 +559,7 @@ msgstr ""
 msgid "Initialize panel (use only under guidance)"
 msgstr ""
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:127
 msgid "Innodb Index Hit Rate"
 msgstr ""
 
@@ -732,7 +732,7 @@ msgstr ""
 msgid "Old username cannot be empty"
 msgstr ""
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:129
 msgid "Open Tables"
 msgstr ""
 
@@ -807,7 +807,7 @@ msgstr ""
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr ""
 
-#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:125
 msgid "Peak Connections"
 msgstr ""
 
@@ -911,7 +911,7 @@ msgstr ""
 msgid "Restart panel service"
 msgstr ""
 
-#: internal/apps/mysql/app.go:118
+#: internal/apps/mysql/app.go:121
 msgid "Rollbacks per Second"
 msgstr ""
 
@@ -983,7 +983,7 @@ msgstr ""
 msgid "Slow Requests"
 msgstr ""
 
-#: internal/apps/mysql/app.go:130
+#: internal/apps/mysql/app.go:133
 msgid "Sort Merge Passes"
 msgstr ""
 
@@ -1004,7 +1004,7 @@ msgstr ""
 msgid "Storage Usage"
 msgstr ""
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:132
 msgid "Subqueries without Index"
 msgstr ""
 
@@ -1040,7 +1040,7 @@ msgstr ""
 msgid "TCP Port"
 msgstr ""
 
-#: internal/apps/mysql/app.go:131
+#: internal/apps/mysql/app.go:134
 msgid "Table Locks Waited"
 msgstr ""
 
@@ -1048,7 +1048,7 @@ msgstr ""
 msgid "Tasks cleared successfully"
 msgstr ""
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:128
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
@@ -1076,7 +1076,7 @@ msgstr ""
 msgid "Total Commands Processed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:116
+#: internal/apps/mysql/app.go:119
 #: internal/apps/postgresql/app.go:143
 msgid "Total Connections"
 msgstr ""
@@ -1093,7 +1093,7 @@ msgstr ""
 msgid "Total Processes"
 msgstr ""
 
-#: internal/apps/mysql/app.go:115
+#: internal/apps/mysql/app.go:118
 msgid "Total Queries"
 msgstr ""
 
@@ -1109,7 +1109,7 @@ msgstr ""
 msgid "Total requests"
 msgstr ""
 
-#: internal/apps/mysql/app.go:117
+#: internal/apps/mysql/app.go:120
 msgid "Transactions per Second"
 msgstr ""
 
@@ -1156,7 +1156,7 @@ msgstr ""
 msgid "Update panel"
 msgstr ""
 
-#: internal/apps/mysql/app.go:114
+#: internal/apps/mysql/app.go:117
 msgid "Uptime"
 msgstr ""
 
@@ -1584,7 +1584,7 @@ msgstr ""
 msgid "failed to get uninstall script for app %s"
 msgstr ""
 
-#: internal/apps/mysql/app.go:188
+#: internal/apps/mysql/app.go:191
 #: internal/apps/mysql/app.go:83
 msgid "failed to load MySQL root password: %v"
 msgstr ""
@@ -1695,6 +1695,10 @@ msgstr ""
 
 #: internal/apps/s3fs/app.go:145
 msgid "failed to unmount: %v"
+msgstr ""
+
+#: internal/apps/mysql/app.go:108
+msgid "failed to unset MYSQL_PWD env: %v"
 msgstr ""
 
 #: internal/service/toolbox_system.go:63
