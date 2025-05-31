@@ -32,7 +32,7 @@ jobs:
       - name: Generate pot files
         run: |
           ~/go/bin/xgotext -default backend -pkg-tree ./cmd/web -out ./pkg/embed/locales
-          pnpm run gettext:extract
+          cd web && pnpm run gettext:extract
       - uses: stefanzweifel/git-auto-commit-action@v5
         name: Commit changes
         with:
