@@ -3075,7 +3075,7 @@ msgstr ""
 
 #: src/views/database/CreateUserModal.vue:65
 #: src/views/database/UpdateUserModal.vue:51
-msgid "If the privilege databases does not exist, it will be created automatically. "
+msgid "If the privilege databases does not exist, it will be created automatically."
 msgstr ""
 
 #: src/views/database/CreateUserModal.vue:94
