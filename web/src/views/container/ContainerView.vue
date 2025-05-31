@@ -69,8 +69,12 @@ const columns: any = [
         default: () =>
           row.ports.map((port: any) =>
             h(NTag, null, {
-              default: () =>
-                `${port.host ? port.host + ':' : ''}${port.container_start}->${port.host_start}/${port.protocol}`
+              default: () => {
+                if (port.container_start == port.container_end) {
+                  return `${port.host ? port.host + ':' : ''}${port.host_start}->${port.container_start}/${port.protocol}`
+                }
+                return `${port.host ? port.host + ':' : ''}${port.host_start}-${port.host_end}->${port.container_start}-${port.container_end}/${port.protocol}`
+              }
             })
           )
       })
