@@ -34,7 +34,8 @@ watch(
   () => show.value,
   (value) => {
     if (value) {
-      useRequest(database.serverList(1, 10000)).onSuccess(({ data }) => {
+      useRequest(database.serverList(1, 10000)).onSuccess(({ data }: { data: any }) => {
+        servers.value = []
         for (const server of data.items) {
           servers.value.push({
             label: server.name,
