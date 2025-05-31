@@ -141,7 +141,7 @@ msgstr ""
 #: src/views/cert/CreateCertModal.vue:50
 #: src/views/cert/CreateDnsModal.vue:35
 #: src/views/cert/UploadCertModal.vue:21
-#: src/views/container/ComposeView.vue:246
+#: src/views/container/ComposeView.vue:254
 #: src/views/container/ContainerCreate.vue:106
 #: src/views/container/NetworkView.vue:174
 #: src/views/container/VolumeView.vue:128
@@ -199,8 +199,8 @@ msgstr ""
 #: src/views/cert/DnsView.vue:373
 #: src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
-#: src/views/container/ComposeView.vue:340
-#: src/views/container/ComposeView.vue:370
+#: src/views/container/ComposeView.vue:348
+#: src/views/container/ComposeView.vue:378
 #: src/views/container/ContainerCreate.vue:370
 #: src/views/container/ContainerView.vue:485
 #: src/views/container/ImageView.vue:217
@@ -278,6 +278,7 @@ msgid "Started successfully"
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:57
+#: src/views/container/ComposeView.vue:168
 msgid "Stopping..."
 msgstr ""
 
@@ -354,7 +355,7 @@ msgstr ""
 
 #: src/components/common/ServiceStatus.vue:158
 #: src/views/apps/supervisor/IndexView.vue:145
-#: src/views/container/ComposeView.vue:189
+#: src/views/container/ComposeView.vue:197
 #: src/views/container/ContainerView.vue:135
 #: src/views/container/ContainerView.vue:413
 msgid "Stop"
@@ -837,7 +838,7 @@ msgstr ""
 #: src/views/cert/AccountView.vue:127
 #: src/views/cert/CertView.vue:314
 #: src/views/cert/DnsView.vue:111
-#: src/views/container/ComposeView.vue:220
+#: src/views/container/ComposeView.vue:228
 #: src/views/container/ContainerCreate.vue:235
 #: src/views/container/ContainerCreate.vue:286
 #: src/views/container/ContainerView.vue:160
@@ -1042,8 +1043,8 @@ msgid "Load Status"
 msgstr ""
 
 #: src/views/apps/minio/IndexView.vue:39
-#: src/views/container/ComposeView.vue:330
-#: src/views/container/ComposeView.vue:360
+#: src/views/container/ComposeView.vue:338
+#: src/views/container/ComposeView.vue:368
 #: src/views/container/ContainerCreate.vue:352
 msgid "Environment Variables"
 msgstr ""
@@ -1665,7 +1666,7 @@ msgstr ""
 #: src/views/cert/CertView.vue:348
 #: src/views/cert/CertView.vue:365
 #: src/views/cert/DnsView.vue:139
-#: src/views/container/ComposeView.vue:264
+#: src/views/container/ComposeView.vue:272
 msgid "Update successful"
 msgstr ""
 
@@ -2140,17 +2141,17 @@ msgstr ""
 msgid "Force pull images"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:170
+#: src/views/container/ComposeView.vue:175
 #: src/views/container/ContainerView.vue:248
 #: src/views/container/ContainerView.vue:319
 msgid "Stop successful"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:176
+#: src/views/container/ComposeView.vue:184
 msgid "Are you sure you want to stop compose %{ name }?"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:201
+#: src/views/container/ComposeView.vue:209
 #: src/views/container/ContainerView.vue:283
 #: src/views/container/ContainerView.vue:361
 #: src/views/container/ImageView.vue:118
@@ -2159,38 +2160,38 @@ msgstr ""
 msgid "Delete successful"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:207
+#: src/views/container/ComposeView.vue:215
 msgid "Are you sure you want to delete compose %{ name }?"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:286
-#: src/views/container/ComposeView.vue:313
+#: src/views/container/ComposeView.vue:294
+#: src/views/container/ComposeView.vue:321
 msgid "Create Compose"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:320
+#: src/views/container/ComposeView.vue:328
 msgid "Compose Name"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:323
-#: src/views/container/ComposeView.vue:353
+#: src/views/container/ComposeView.vue:331
+#: src/views/container/ComposeView.vue:361
 #: src/views/container/IndexView.vue:24
 msgid "Compose"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:334
-#: src/views/container/ComposeView.vue:364
+#: src/views/container/ComposeView.vue:342
+#: src/views/container/ComposeView.vue:372
 #: src/views/container/ContainerCreate.vue:356
 msgid "Variable Name"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:335
-#: src/views/container/ComposeView.vue:365
+#: src/views/container/ComposeView.vue:343
+#: src/views/container/ComposeView.vue:373
 #: src/views/container/ContainerCreate.vue:357
 msgid "Variable Value"
 msgstr ""
 
-#: src/views/container/ComposeView.vue:346
+#: src/views/container/ComposeView.vue:354
 msgid "Edit Compose"
 msgstr ""
 
