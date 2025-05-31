@@ -13,7 +13,7 @@ msgstr ""
 "X-Crowdin-File-ID: 922\n"
 "Project-Id-Version: ratpanel\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2025-05-26 15:10\n"
+"PO-Revision-Date: 2025-05-31 11:39\n"
 
 #: internal/data/website.go:270
 #: internal/data/website.go:643
@@ -36,7 +36,7 @@ msgstr "作者"
 msgid "Accepted Connections"
 msgstr "已接受连接"
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:124
 msgid "Active Connections"
 msgstr "活动连接"
 
@@ -64,7 +64,7 @@ msgstr "阿里云"
 msgid "Already initialized"
 msgstr "已经初始化过了"
 
-#: internal/data/app.go:347
+#: internal/data/app.go:350
 msgid "App %s %s"
 msgstr "应用 %s %s"
 
@@ -142,13 +142,13 @@ msgstr "绑定 UA 已禁用"
 msgid "Bind domain disabled"
 msgstr "绑定域名已禁用"
 
-#: internal/apps/mysql/app.go:120
-#: internal/apps/mysql/app.go:139
+#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:142
 msgid "Bytes Received"
 msgstr "已接收字节"
 
-#: internal/apps/mysql/app.go:119
-#: internal/apps/mysql/app.go:139
+#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:142
 msgid "Bytes Sent"
 msgstr "已发送字节"
 
@@ -468,11 +468,11 @@ msgstr "修复面板"
 msgid "Forum：https://bbs.haozi.net"
 msgstr "论坛：https://bbs.haozi.net"
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:130
 msgid "Full Joins without Index"
 msgstr "没有使用索引的 Join"
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:131
 msgid "Full Range Joins without Index"
 msgstr "没有使用索引的范围 Join"
 
@@ -552,7 +552,7 @@ msgstr "Igbinary 是一个用于序列化和反序列化数据的库"
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr "ImageMagick 是一个创建、编辑、合成图片的免费软件"
 
-#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:126
 msgid "Index Hit Rate"
 msgstr "索引命中率"
 
@@ -567,7 +567,7 @@ msgstr "初始化失败：%v"
 msgid "Initialize panel (use only under guidance)"
 msgstr "初始化面板（仅在指导下使用）"
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:127
 msgid "Innodb Index Hit Rate"
 msgstr "Innodb 索引命中率"
 
@@ -575,7 +575,7 @@ msgstr "Innodb 索引命中率"
 msgid "Install PHP-%d %s extension"
 msgstr "安装 PHP-%d %s 扩展"
 
-#: internal/data/app.go:191
+#: internal/data/app.go:194
 msgid "Install app %s"
 msgstr "安装应用 %s"
 
@@ -740,7 +740,7 @@ msgstr "OPcache 将 PHP 脚本预编译的字节码存储到共享内存中来�
 msgid "Old username cannot be empty"
 msgstr "旧用户名不能为空"
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:129
 msgid "Open Tables"
 msgstr "已打开的表"
 
@@ -815,7 +815,7 @@ msgstr "密码：%s"
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr "网站托管的路径（不填则使用默认路径）"
 
-#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:125
 msgid "Peak Connections"
 msgstr "峰值连接数"
 
@@ -919,7 +919,7 @@ msgstr "移除网站"
 msgid "Restart panel service"
 msgstr "重启面板服务"
 
-#: internal/apps/mysql/app.go:118
+#: internal/apps/mysql/app.go:121
 msgid "Rollbacks per Second"
 msgstr "每秒回滚"
 
@@ -991,7 +991,7 @@ msgstr "设置不存在"
 msgid "Slow Requests"
 msgstr "慢请求"
 
-#: internal/apps/mysql/app.go:130
+#: internal/apps/mysql/app.go:133
 msgid "Sort Merge Passes"
 msgstr "排序后的合并次数"
 
@@ -1012,7 +1012,7 @@ msgstr "停止面板服务"
 msgid "Storage Usage"
 msgstr "存储使用"
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:132
 msgid "Subqueries without Index"
 msgstr "没有索引的子查询"
 
@@ -1048,7 +1048,7 @@ msgstr "Sysvshm 是一个处理 V 共享内存的库"
 msgid "TCP Port"
 msgstr "TCP 端口"
 
-#: internal/apps/mysql/app.go:131
+#: internal/apps/mysql/app.go:134
 msgid "Table Locks Waited"
 msgstr "锁表次数"
 
@@ -1056,7 +1056,7 @@ msgstr "锁表次数"
 msgid "Tasks cleared successfully"
 msgstr "任务已成功清除"
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:128
 msgid "Temporary Tables Created on Disk"
 msgstr "创建临时表到磁盘"
 
@@ -1084,7 +1084,7 @@ msgstr "已分配内存总量"
 msgid "Total Commands Processed"
 msgstr "执行的命令总数"
 
-#: internal/apps/mysql/app.go:116
+#: internal/apps/mysql/app.go:119
 #: internal/apps/postgresql/app.go:143
 msgid "Total Connections"
 msgstr "总连接数"
@@ -1101,7 +1101,7 @@ msgstr "内存使用总数"
 msgid "Total Processes"
 msgstr "总进程数"
 
-#: internal/apps/mysql/app.go:115
+#: internal/apps/mysql/app.go:118
 msgid "Total Queries"
 msgstr "查询总数"
 
@@ -1117,7 +1117,7 @@ msgstr "总握手数"
 msgid "Total requests"
 msgstr "总请求数"
 
-#: internal/apps/mysql/app.go:117
+#: internal/apps/mysql/app.go:120
 msgid "Transactions per Second"
 msgstr "每秒事务"
 
@@ -1136,7 +1136,7 @@ msgstr "无法在离线模式下更新应用列表缓存"
 msgid "Uninstall PHP-%d %s extension"
 msgstr "卸载 PHP-%d %s 扩展"
 
-#: internal/data/app.go:246
+#: internal/data/app.go:249
 msgid "Uninstall app %s"
 msgstr "卸载应用 %s"
 
@@ -1152,7 +1152,7 @@ msgstr "解压备份文件失败：%v"
 msgid "Unzip panel data failed: %v"
 msgstr "解压面板数据失败：%v"
 
-#: internal/data/app.go:301
+#: internal/data/app.go:304
 msgid "Update app %s"
 msgstr "更新应用 %s"
 
@@ -1164,7 +1164,7 @@ msgstr "更新应用"
 msgid "Update panel"
 msgstr "更新面板"
 
-#: internal/apps/mysql/app.go:114
+#: internal/apps/mysql/app.go:117
 msgid "Uptime"
 msgstr "运行时间"
 
@@ -1278,28 +1278,28 @@ msgstr "XSL 是用于处理 XML 文档的库"
 msgid "Zip is a library for handling ZIP files"
 msgstr "Zip 是一个用于处理 ZIP 文件的库"
 
-#: internal/data/app.go:159
+#: internal/data/app.go:162
 msgid "app %s already installed"
 msgstr "应用 %s 已安装"
 
-#: internal/data/app.go:56
+#: internal/data/app.go:59
 msgid "app %s not found"
 msgstr "找不到应用 %s"
 
-#: internal/data/app.go:210
-#: internal/data/app.go:265
+#: internal/data/app.go:213
+#: internal/data/app.go:268
 #: internal/http/middleware/must_install.go:38
 msgid "app %s not installed"
 msgstr "应用 %s 未安装"
 
-#: internal/data/app.go:179
-#: internal/data/app.go:289
+#: internal/data/app.go:182
+#: internal/data/app.go:292
 msgid "app %s not support current panel version"
 msgstr "应用 %s 不支持当前面板版本"
 
-#: internal/data/app.go:170
-#: internal/data/app.go:225
-#: internal/data/app.go:280
+#: internal/data/app.go:173
+#: internal/data/app.go:228
+#: internal/data/app.go:283
 msgid "app %s requires panel version %s, current version %s"
 msgstr "应用 %s 需要面板版本 %s，当前版本 %s"
 
@@ -1588,11 +1588,11 @@ msgstr "获取时区失败： %v"
 msgid "failed to get total banned list"
 msgstr "获取全部被禁止的列表失败"
 
-#: internal/data/app.go:234
+#: internal/data/app.go:237
 msgid "failed to get uninstall script for app %s"
 msgstr "获取应用 %s 的卸载脚本失败"
 
-#: internal/apps/mysql/app.go:188
+#: internal/apps/mysql/app.go:191
 #: internal/apps/mysql/app.go:83
 msgid "failed to load MySQL root password: %v"
 msgstr "加载 MySQL root 密码失败： %v"
@@ -1675,7 +1675,7 @@ msgstr "运行命令失败： %v"
 
 #: internal/apps/mysql/app.go:99
 msgid "failed to set MYSQL_PWD env: %v"
-msgstr "设置 MYSQL_PWD 环境变量失败： %v"
+msgstr "设置 MYSQL_PWD 环境变量失败：%v"
 
 #: internal/service/toolbox_system.go:159
 msgid "failed to set SWAP permission: %v"
@@ -1704,6 +1704,10 @@ msgstr "停止 %s 服务失败： %v"
 #: internal/apps/s3fs/app.go:145
 msgid "failed to unmount: %v"
 msgstr "卸载失败： %v"
+
+#: internal/apps/mysql/app.go:108
+msgid "failed to unset MYSQL_PWD env: %v"
+msgstr "取消设置 MYSQL_PWD 环境变量失败：%v"
 
 #: internal/service/toolbox_system.go:63
 msgid "failed to update DNS: %v"
