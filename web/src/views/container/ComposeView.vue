@@ -57,7 +57,7 @@ const columns: any = [
   {
     title: $gettext('Status'),
     key: 'status',
-    width: 300,
+    width: 250,
     resizable: true,
     ellipsis: { tooltip: true }
   },
