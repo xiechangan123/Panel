@@ -19,9 +19,11 @@ func NewContainerComposeRepo() biz.ContainerComposeRepo {
 	return &containerComposeRepo{}
 }
 
-// List 列出所有编排文件名
+// List 列出所有编排
 func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
+	_ = os.Setenv("PODMAN_COMPOSE_WARNING_LOGS", "false") // 禁用 Podman Compose 的警告日志
 	raw, err := shell.Execf("docker compose ls -a --format json")
+	_ = os.Unsetenv("PODMAN_COMPOSE_WARNING_LOGS")
 	if err != nil {
 		return nil, err
 	}
@@ -142,14 +144,18 @@ func (r *containerComposeRepo) Up(name string, force bool) error {
 	if force {
 		cmd += " --pull always" // 强制拉取镜像
 	}
+	_ = os.Setenv("PODMAN_COMPOSE_WARNING_LOGS", "false") // 禁用 Podman Compose 的警告日志
 	_, err := shell.Execf(cmd, file)
+	_ = os.Unsetenv("PODMAN_COMPOSE_WARNING_LOGS")
 	return err
 }
 
 // Down 停止编排
 func (r *containerComposeRepo) Down(name string) error {
 	file := filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml")
+	_ = os.Setenv("PODMAN_COMPOSE_WARNING_LOGS", "false") // 禁用 Podman Compose 的警告日志
 	_, err := shell.Execf("docker compose -f %s down", file)
+	_ = os.Unsetenv("PODMAN_COMPOSE_WARNING_LOGS")
 	return err
 }
 

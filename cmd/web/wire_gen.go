@@ -67,7 +67,7 @@ func initWeb() (*app.Web, error) {
 	cacheRepo := data.NewCacheRepo(db)
 	queue := bootstrap.NewQueue()
 	taskRepo := data.NewTaskRepo(locale, db, logger, queue)
-	appRepo := data.NewAppRepo(locale, db, cacheRepo, taskRepo)
+	appRepo := data.NewAppRepo(locale, koanf, db, cacheRepo, taskRepo)
 	userTokenRepo := data.NewUserTokenRepo(locale, db)
 	middlewares := middleware.NewMiddlewares(koanf, logger, manager, appRepo, userTokenRepo)
 	userRepo := data.NewUserRepo(locale, db)

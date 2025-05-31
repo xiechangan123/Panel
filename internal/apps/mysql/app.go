@@ -104,7 +104,10 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get MySQL status: %v", err))
 		return
 	}
-	_ = os.Unsetenv("MYSQL_PWD")
+	if err = os.Unsetenv("MYSQL_PWD"); err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to unset MYSQL_PWD env: %v", err))
+		return
+	}
 
 	var load []map[string]string
 	expressions := []struct {

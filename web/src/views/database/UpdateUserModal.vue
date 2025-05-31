@@ -48,7 +48,7 @@ watch(
     <n-flex vertical>
       <n-alert type="info">
         {{
-          $gettext('If the privilege databases does not exist, it will be created automatically. ')
+          $gettext('If the privilege databases does not exist, it will be created automatically.')
         }}
       </n-alert>
       <n-form :model="updateModel">
