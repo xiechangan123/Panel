@@ -107,7 +107,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleDelete = async (row: any) => {
-  useRequest(container.volumeRemove(row.id)).onSuccess(() => {
+  useRequest(container.volumeRemove(row.name)).onSuccess(() => {
     refresh()
     window.$message.success($gettext('Delete successful'))
   })
@@ -155,7 +155,7 @@ onMounted(() => {
       :scroll-x="1000"
       :data="data"
       :columns="columns"
-      :row-key="(row: any) => row.id"
+      :row-key="(row: any) => row.name"
       v-model:checked-row-keys="selectedRowKeys"
       v-model:page="page"
       v-model:pageSize="pageSize"

@@ -293,7 +293,7 @@ onMounted(() => {
       :scroll-x="1000"
       :data="data"
       :columns="columns"
-      :row-key="(row: any) => row.id"
+      :row-key="(row: any) => row.name"
       v-model:page="page"
       v-model:pageSize="pageSize"
       :pagination="{
