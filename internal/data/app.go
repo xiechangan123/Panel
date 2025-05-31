@@ -9,6 +9,7 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/go-rat/utils/collect"
 	"github.com/hashicorp/go-version"
+	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -21,14 +22,16 @@ import (
 
 type appRepo struct {
 	t     *gotext.Locale
+	conf  *koanf.Koanf
 	db    *gorm.DB
 	cache biz.CacheRepo
 	task  biz.TaskRepo
 }
 
-func NewAppRepo(t *gotext.Locale, db *gorm.DB, cache biz.CacheRepo, task biz.TaskRepo) biz.AppRepo {
+func NewAppRepo(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB, cache biz.CacheRepo, task biz.TaskRepo) biz.AppRepo {
 	return &appRepo{
 		t:     t,
+		conf:  conf,
 		db:    db,
 		cache: cache,
 		task:  task,
@@ -166,7 +169,7 @@ func (r *appRepo) Install(channel, slug string) error {
 			continue
 		}
 		if ch.Slug == channel {
-			if vs.GreaterThan(panel) {
+			if vs.GreaterThan(panel) && !r.conf.Bool("app.debug") {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
 			shellUrl = ch.Install
@@ -221,7 +224,7 @@ func (r *appRepo) UnInstall(slug string) error {
 			continue
 		}
 		if ch.Slug == installed.Channel {
-			if vs.GreaterThan(panel) {
+			if vs.GreaterThan(panel) && !r.conf.Bool("app.debug") {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
 			shellUrl = ch.Uninstall
@@ -276,7 +279,7 @@ func (r *appRepo) Update(slug string) error {
 			continue
 		}
 		if ch.Slug == installed.Channel {
-			if vs.GreaterThan(panel) {
+			if vs.GreaterThan(panel) && !r.conf.Bool("app.debug") {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
 			shellUrl = ch.Update
