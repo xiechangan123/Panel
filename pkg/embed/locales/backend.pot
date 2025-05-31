@@ -56,7 +56,7 @@ msgstr ""
 msgid "Already initialized"
 msgstr ""
 
-#: internal/data/app.go:347
+#: internal/data/app.go:350
 msgid "App %s %s"
 msgstr ""
 
@@ -567,7 +567,7 @@ msgstr ""
 msgid "Install PHP-%d %s extension"
 msgstr ""
 
-#: internal/data/app.go:191
+#: internal/data/app.go:194
 msgid "Install app %s"
 msgstr ""
 
@@ -1128,7 +1128,7 @@ msgstr ""
 msgid "Uninstall PHP-%d %s extension"
 msgstr ""
 
-#: internal/data/app.go:246
+#: internal/data/app.go:249
 msgid "Uninstall app %s"
 msgstr ""
 
@@ -1144,7 +1144,7 @@ msgstr ""
 msgid "Unzip panel data failed: %v"
 msgstr ""
 
-#: internal/data/app.go:301
+#: internal/data/app.go:304
 msgid "Update app %s"
 msgstr ""
 
@@ -1270,28 +1270,28 @@ msgstr ""
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
-#: internal/data/app.go:159
+#: internal/data/app.go:162
 msgid "app %s already installed"
 msgstr ""
 
-#: internal/data/app.go:56
+#: internal/data/app.go:59
 msgid "app %s not found"
 msgstr ""
 
-#: internal/data/app.go:210
-#: internal/data/app.go:265
+#: internal/data/app.go:213
+#: internal/data/app.go:268
 #: internal/http/middleware/must_install.go:38
 msgid "app %s not installed"
 msgstr ""
 
-#: internal/data/app.go:179
-#: internal/data/app.go:289
+#: internal/data/app.go:182
+#: internal/data/app.go:292
 msgid "app %s not support current panel version"
 msgstr ""
 
-#: internal/data/app.go:170
-#: internal/data/app.go:225
-#: internal/data/app.go:280
+#: internal/data/app.go:173
+#: internal/data/app.go:228
+#: internal/data/app.go:283
 msgid "app %s requires panel version %s, current version %s"
 msgstr ""
 
@@ -1580,7 +1580,7 @@ msgstr ""
 msgid "failed to get total banned list"
 msgstr ""
 
-#: internal/data/app.go:234
+#: internal/data/app.go:237
 msgid "failed to get uninstall script for app %s"
 msgstr ""
 
