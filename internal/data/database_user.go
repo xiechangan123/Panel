@@ -78,6 +78,9 @@ func (r databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
 			return err
 		}
 		for name := range slices.Values(req.Privileges) {
+			if err = mysql.DatabaseCreate(name); err != nil {
+				return err
+			}
 			if err = mysql.PrivilegesGrant(req.Username, name, req.Host); err != nil {
 				return err
 			}
@@ -99,6 +102,9 @@ func (r databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
 			return err
 		}
 		for name := range slices.Values(req.Privileges) {
+			if err = postgres.DatabaseCreate(name); err != nil {
+				return err
+			}
 			if err = postgres.PrivilegesGrant(req.Username, name); err != nil {
 				return err
 			}
@@ -145,6 +151,9 @@ func (r databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 			}
 		}
 		for name := range slices.Values(req.Privileges) {
+			if err = mysql.DatabaseCreate(name); err != nil {
+				return err
+			}
 			if err = mysql.PrivilegesGrant(user.Username, name, user.Host); err != nil {
 				return err
 			}
@@ -163,6 +172,9 @@ func (r databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 			}
 		}
 		for name := range slices.Values(req.Privileges) {
+			if err = postgres.DatabaseCreate(name); err != nil {
+				return err
+			}
 			if err = postgres.PrivilegesGrant(user.Username, name); err != nil {
 				return err
 			}

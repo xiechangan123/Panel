@@ -71,7 +71,15 @@ func (r *Postgres) Prepare(query string) (*sql.Stmt, error) {
 }
 
 func (r *Postgres) DatabaseCreate(name string) error {
-	_, err := r.Exec(fmt.Sprintf("CREATE DATABASE %s", name))
+	// postgres 不支持 CREATE DATABASE IF NOT EXISTS，但是为了保持与 MySQL 一致，先检查数据库是否存在
+	exist, err := r.DatabaseExist(name)
+	if err != nil {
+		return err
+	}
+	if exist {
+		return nil
+	}
+	_, err = r.Exec(fmt.Sprintf("CREATE DATABASE %s", name))
 	return err
 }
 

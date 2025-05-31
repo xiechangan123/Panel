@@ -24,7 +24,7 @@ watch(
   () => show.value,
   (value) => {
     if (value && id.value) {
-      useRequest(database.userGet(id.value)).onSuccess(({ data }) => {
+      useRequest(database.userGet(id.value)).onSuccess(({ data }: { data: any }) => {
         updateModel.value.password = data.password
         updateModel.value.privileges = data.privileges
         updateModel.value.remark = data.remark
@@ -45,32 +45,39 @@ watch(
     :segmented="false"
     @close="show = false"
   >
-    <n-form :model="updateModel">
-      <n-form-item path="password" :label="$gettext('Password')">
-        <n-input
-          v-model:value="updateModel.password"
-          type="password"
-          show-password-on="click"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter password')"
-        />
-      </n-form-item>
-      <n-form-item path="privileges" :label="$gettext('Privileges')">
-        <n-dynamic-input
-          v-model:value="updateModel.privileges"
-          :placeholder="$gettext('Enter database name')"
-        />
-      </n-form-item>
-      <n-form-item path="remark" :label="$gettext('Comment')">
-        <n-input
-          v-model:value="updateModel.remark"
-          type="textarea"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter database user comment')"
-        />
-      </n-form-item>
-    </n-form>
-    <n-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+    <n-flex vertical>
+      <n-alert type="info">
+        {{
+          $gettext('If the privilege databases does not exist, it will be created automatically. ')
+        }}
+      </n-alert>
+      <n-form :model="updateModel">
+        <n-form-item path="password" :label="$gettext('Password')">
+          <n-input
+            v-model:value="updateModel.password"
+            type="password"
+            show-password-on="click"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter password')"
+          />
+        </n-form-item>
+        <n-form-item path="privileges" :label="$gettext('Privileges')">
+          <n-dynamic-input
+            v-model:value="updateModel.privileges"
+            :placeholder="$gettext('Enter database name')"
+          />
+        </n-form-item>
+        <n-form-item path="remark" :label="$gettext('Comment')">
+          <n-input
+            v-model:value="updateModel.remark"
+            type="textarea"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter database user comment')"
+          />
+        </n-form-item>
+      </n-form>
+      <n-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+    </n-flex>
   </n-modal>
 </template>
 

@@ -59,64 +59,71 @@ watch(
     :segmented="false"
     @close="show = false"
   >
-    <n-form :model="createModel">
-      <n-form-item path="server_id" :label="$gettext('Server')">
-        <n-select
-          v-model:value="createModel.server_id"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Select server')"
-          :options="servers"
-        />
-      </n-form-item>
-      <n-form-item path="username" :label="$gettext('Username')">
-        <n-input
-          v-model:value="createModel.username"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter username')"
-        />
-      </n-form-item>
-      <n-form-item path="password" :label="$gettext('Password')">
-        <n-input
-          v-model:value="createModel.password"
-          type="password"
-          show-password-on="click"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter password')"
-        />
-      </n-form-item>
-      <n-form-item path="host-select" :label="$gettext('Host (MySQL only)')">
-        <n-select
-          v-model:value="createModel.host"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Select host')"
-          :options="hostType"
-        />
-      </n-form-item>
-      <n-form-item v-if="createModel.host === ''" path="host" :label="$gettext('Specific Host')">
-        <n-input
-          v-model:value="createModel.host"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter supported host address')"
-        />
-      </n-form-item>
-      <n-form-item path="privileges" :label="$gettext('Privileges')">
-        <n-dynamic-input
-          v-model:value="createModel.privileges"
-          :placeholder="$gettext('Enter database name')"
-        />
-      </n-form-item>
-      <n-form-item path="remark" :label="$gettext('Comment')">
-        <n-input
-          v-model:value="createModel.remark"
-          type="textarea"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter database user comment')"
-        />
-      </n-form-item>
-    </n-form>
-    <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-flex vertical>
+      <n-alert type="info">
+        {{
+          $gettext('If the privilege databases does not exist, it will be created automatically. ')
+        }}
+      </n-alert>
+      <n-form :model="createModel">
+        <n-form-item path="server_id" :label="$gettext('Server')">
+          <n-select
+            v-model:value="createModel.server_id"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Select server')"
+            :options="servers"
+          />
+        </n-form-item>
+        <n-form-item path="username" :label="$gettext('Username')">
+          <n-input
+            v-model:value="createModel.username"
+            type="text"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter username')"
+          />
+        </n-form-item>
+        <n-form-item path="password" :label="$gettext('Password')">
+          <n-input
+            v-model:value="createModel.password"
+            type="password"
+            show-password-on="click"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter password')"
+          />
+        </n-form-item>
+        <n-form-item path="host-select" :label="$gettext('Host (MySQL only)')">
+          <n-select
+            v-model:value="createModel.host"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Select host')"
+            :options="hostType"
+          />
+        </n-form-item>
+        <n-form-item v-if="createModel.host === ''" path="host" :label="$gettext('Specific Host')">
+          <n-input
+            v-model:value="createModel.host"
+            type="text"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter supported host address')"
+          />
+        </n-form-item>
+        <n-form-item path="privileges" :label="$gettext('Privileges')">
+          <n-dynamic-input
+            v-model:value="createModel.privileges"
+            :placeholder="$gettext('Enter database name')"
+          />
+        </n-form-item>
+        <n-form-item path="remark" :label="$gettext('Comment')">
+          <n-input
+            v-model:value="createModel.remark"
+            type="textarea"
+            @keydown.enter.prevent
+            :placeholder="$gettext('Enter database user comment')"
+          />
+        </n-form-item>
+      </n-form>
+      <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    </n-flex>
   </n-modal>
 </template>
 
