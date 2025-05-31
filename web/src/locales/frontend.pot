@@ -206,9 +206,9 @@ msgstr ""
 #: src/views/container/ImageView.vue:217
 #: src/views/container/NetworkView.vue:313
 #: src/views/container/VolumeView.vue:213
-#: src/views/database/CreateDatabaseModal.vue:131
+#: src/views/database/CreateDatabaseModal.vue:132
 #: src/views/database/CreateServerModal.vue:120
-#: src/views/database/CreateUserModal.vue:118
+#: src/views/database/CreateUserModal.vue:119
 #: src/views/database/UpdateServerModal.vue:112
 #: src/views/database/UpdateUserModal.vue:73
 #: src/views/file/ToolBar.vue:261
@@ -1231,9 +1231,9 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:32
 #: src/views/apps/pureftpd/IndexView.vue:221
 #: src/views/container/ImageView.vue:198
-#: src/views/database/CreateDatabaseModal.vue:93
+#: src/views/database/CreateDatabaseModal.vue:94
 #: src/views/database/CreateServerModal.vue:94
-#: src/views/database/CreateUserModal.vue:70
+#: src/views/database/CreateUserModal.vue:71
 #: src/views/database/ServerList.vue:47
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:40
@@ -1271,8 +1271,8 @@ msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:213
 #: src/views/apps/pureftpd/IndexView.vue:217
-#: src/views/database/CreateDatabaseModal.vue:78
-#: src/views/database/CreateUserModal.vue:54
+#: src/views/database/CreateDatabaseModal.vue:79
+#: src/views/database/CreateUserModal.vue:55
 #: src/views/database/IndexView.vue:36
 #: src/views/setting/CreateModal.vue:32
 #: src/views/setting/IndexView.vue:69
@@ -1281,8 +1281,8 @@ msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:226
 #: src/views/container/ImageView.vue:203
-#: src/views/database/CreateDatabaseModal.vue:98
-#: src/views/database/CreateUserModal.vue:75
+#: src/views/database/CreateDatabaseModal.vue:99
+#: src/views/database/CreateUserModal.vue:76
 msgid "Enter username"
 msgstr ""
 
@@ -1291,9 +1291,9 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:304
 #: src/views/apps/rsync/IndexView.vue:358
 #: src/views/container/ImageView.vue:206
-#: src/views/database/CreateDatabaseModal.vue:101
+#: src/views/database/CreateDatabaseModal.vue:102
 #: src/views/database/CreateServerModal.vue:102
-#: src/views/database/CreateUserModal.vue:78
+#: src/views/database/CreateUserModal.vue:79
 #: src/views/database/ServerList.vue:56
 #: src/views/database/UpdateServerModal.vue:94
 #: src/views/database/UpdateUserModal.vue:49
@@ -1343,7 +1343,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:61
 #: src/views/apps/rsync/IndexView.vue:312
 #: src/views/apps/rsync/IndexView.vue:367
-#: src/views/database/CreateDatabaseModal.vue:110
+#: src/views/database/CreateDatabaseModal.vue:111
 #: src/views/database/CreateServerModal.vue:73
 #: src/views/database/ServerList.vue:87
 #: src/views/database/UpdateServerModal.vue:65
@@ -1358,7 +1358,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:320
 #: src/views/apps/rsync/IndexView.vue:375
 #: src/views/database/CreateServerModal.vue:111
-#: src/views/database/CreateUserModal.vue:109
+#: src/views/database/CreateUserModal.vue:110
 #: src/views/database/DatabaseList.vue:57
 #: src/views/database/ServerList.vue:97
 #: src/views/database/UpdateServerModal.vue:103
@@ -1576,7 +1576,7 @@ msgid "Select website"
 msgstr ""
 
 #: src/views/backup/ListView.vue:227
-#: src/views/database/CreateDatabaseModal.vue:70
+#: src/views/database/CreateDatabaseModal.vue:71
 #: src/views/database/DatabaseList.vue:35
 #: src/views/task/CreateModal.vue:154
 #: src/views/task/CreateModal.vue:156
@@ -1586,8 +1586,8 @@ msgid "Database Name"
 msgstr ""
 
 #: src/views/backup/ListView.vue:232
-#: src/views/database/CreateDatabaseModal.vue:75
-#: src/views/database/CreateUserModal.vue:106
+#: src/views/database/CreateDatabaseModal.vue:76
+#: src/views/database/CreateUserModal.vue:107
 #: src/views/database/UpdateUserModal.vue:61
 msgid "Enter database name"
 msgstr ""
@@ -2513,8 +2513,8 @@ msgid "Authentication"
 msgstr ""
 
 #: src/views/container/ImageView.vue:212
-#: src/views/database/CreateDatabaseModal.vue:107
-#: src/views/database/CreateUserModal.vue:84
+#: src/views/database/CreateDatabaseModal.vue:108
+#: src/views/database/CreateUserModal.vue:85
 #: src/views/database/UpdateUserModal.vue:55
 msgid "Enter password"
 msgstr ""
@@ -2982,44 +2982,44 @@ msgstr ""
 msgid "Specific"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:54
+#: src/views/database/CreateDatabaseModal.vue:55
 #: src/views/database/IndexView.vue:32
 msgid "Create Database"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:62
-#: src/views/database/CreateUserModal.vue:62
+#: src/views/database/CreateDatabaseModal.vue:63
+#: src/views/database/CreateUserModal.vue:63
 #: src/views/database/DatabaseList.vue:42
 #: src/views/database/IndexView.vue:51
 #: src/views/database/UserList.vue:91
 msgid "Server"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:66
-#: src/views/database/CreateUserModal.vue:66
+#: src/views/database/CreateDatabaseModal.vue:67
+#: src/views/database/CreateUserModal.vue:67
 msgid "Select server"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:84
+#: src/views/database/CreateDatabaseModal.vue:85
 msgid "Authorized User"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:90
+#: src/views/database/CreateDatabaseModal.vue:91
 msgid "Enter authorized username (leave empty for no authorization)"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:114
-#: src/views/database/CreateUserModal.vue:91
+#: src/views/database/CreateDatabaseModal.vue:115
+#: src/views/database/CreateUserModal.vue:92
 msgid "Select host"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:121
-#: src/views/database/CreateUserModal.vue:95
+#: src/views/database/CreateDatabaseModal.vue:122
+#: src/views/database/CreateUserModal.vue:96
 msgid "Specific Host"
 msgstr ""
 
-#: src/views/database/CreateDatabaseModal.vue:127
-#: src/views/database/CreateUserModal.vue:100
+#: src/views/database/CreateDatabaseModal.vue:128
+#: src/views/database/CreateUserModal.vue:101
 msgid "Enter supported host address"
 msgstr ""
 
@@ -3073,17 +3073,17 @@ msgstr ""
 msgid "Enter database server comment"
 msgstr ""
 
-#: src/views/database/CreateUserModal.vue:87
+#: src/views/database/CreateUserModal.vue:88
 msgid "Host (MySQL only)"
 msgstr ""
 
-#: src/views/database/CreateUserModal.vue:103
+#: src/views/database/CreateUserModal.vue:104
 #: src/views/database/UpdateUserModal.vue:58
 #: src/views/database/UserList.vue:99
 msgid "Privileges"
 msgstr ""
 
-#: src/views/database/CreateUserModal.vue:114
+#: src/views/database/CreateUserModal.vue:115
 #: src/views/database/UpdateUserModal.vue:69
 msgid "Enter database user comment"
 msgstr ""
