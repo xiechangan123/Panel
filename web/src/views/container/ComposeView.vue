@@ -57,7 +57,7 @@ const columns: any = [
   {
     title: $gettext('Status'),
     key: 'status',
-    width: 150,
+    width: 300,
     resizable: true,
     ellipsis: { tooltip: true }
   },
@@ -165,10 +165,18 @@ const columns: any = [
           NPopconfirm,
           {
             onPositiveClick: () => {
-              useRequest(container.composeDown(row.name)).onSuccess(() => {
-                refresh()
-                window.$message.success($gettext('Stop successful'))
+              const messageReactive = window.$message.loading($gettext('Stopping...'), {
+                duration: 0
               })
+              useRequest(container.composeDown(row.name))
+                .onSuccess(() => {
+                  refresh()
+                  forcePush.value = false
+                  window.$message.success($gettext('Stop successful'))
+                })
+                .onComplete(() => {
+                  messageReactive?.destroy()
+                })
             }
           },
           {
@@ -290,7 +298,7 @@ onMounted(() => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1000"
+      :scroll-x="1100"
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.name"

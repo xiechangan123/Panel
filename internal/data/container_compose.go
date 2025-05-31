@@ -161,6 +161,9 @@ func (r *containerComposeRepo) Down(name string) error {
 
 // Remove 删除编排
 func (r *containerComposeRepo) Remove(name string) error {
+	if err := r.Down(name); err != nil {
+		return err
+	}
 	dir := filepath.Join(app.Root, "server", "compose", name)
 	return os.RemoveAll(dir)
 }
