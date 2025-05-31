@@ -202,7 +202,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:340
 #: src/views/container/ComposeView.vue:370
 #: src/views/container/ContainerCreate.vue:370
-#: src/views/container/ContainerView.vue:481
+#: src/views/container/ContainerView.vue:485
 #: src/views/container/ImageView.vue:217
 #: src/views/container/NetworkView.vue:313
 #: src/views/container/VolumeView.vue:213
@@ -237,8 +237,8 @@ msgstr ""
 
 #: src/components/common/RealtimeLogModal.vue:67
 #: src/views/apps/supervisor/IndexView.vue:91
-#: src/views/container/ContainerView.vue:102
-#: src/views/container/ContainerView.vue:442
+#: src/views/container/ContainerView.vue:106
+#: src/views/container/ContainerView.vue:446
 #: src/views/task/CronView.vue:120
 #: src/views/task/TaskView.vue:74
 msgid "Logs"
@@ -332,7 +332,7 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:60
 #: src/views/apps/rsync/IndexView.vue:214
 #: src/views/apps/supervisor/IndexView.vue:330
-#: src/views/container/ContainerView.vue:80
+#: src/views/container/ContainerView.vue:84
 msgid "Running Status"
 msgstr ""
 
@@ -347,16 +347,16 @@ msgstr ""
 #: src/components/common/ServiceStatus.vue:152
 #: src/views/apps/supervisor/IndexView.vue:119
 #: src/views/container/ComposeView.vue:158
-#: src/views/container/ContainerView.vue:126
-#: src/views/container/ContainerView.vue:408
+#: src/views/container/ContainerView.vue:130
+#: src/views/container/ContainerView.vue:412
 msgid "Start"
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:158
 #: src/views/apps/supervisor/IndexView.vue:145
 #: src/views/container/ComposeView.vue:189
-#: src/views/container/ContainerView.vue:131
-#: src/views/container/ContainerView.vue:409
+#: src/views/container/ContainerView.vue:135
+#: src/views/container/ContainerView.vue:413
 msgid "Stop"
 msgstr ""
 
@@ -366,8 +366,8 @@ msgstr ""
 
 #: src/components/common/ServiceStatus.vue:165
 #: src/views/apps/supervisor/IndexView.vue:174
-#: src/views/container/ContainerView.vue:136
-#: src/views/container/ContainerView.vue:410
+#: src/views/container/ContainerView.vue:140
+#: src/views/container/ContainerView.vue:414
 #: src/views/dashboard/IndexView.vue:447
 msgid "Restart"
 msgstr ""
@@ -648,7 +648,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:74
 #: src/views/container/ContainerCreate.vue:174
 #: src/views/container/ContainerCreate.vue:255
-#: src/views/container/ContainerView.vue:87
+#: src/views/container/ContainerView.vue:91
 #: src/views/container/ImageView.vue:69
 #: src/views/container/NetworkView.vue:109
 #: src/views/container/VolumeView.vue:63
@@ -840,8 +840,8 @@ msgstr ""
 #: src/views/container/ComposeView.vue:220
 #: src/views/container/ContainerCreate.vue:235
 #: src/views/container/ContainerCreate.vue:286
-#: src/views/container/ContainerView.vue:156
-#: src/views/container/ContainerView.vue:414
+#: src/views/container/ContainerView.vue:160
+#: src/views/container/ContainerView.vue:418
 #: src/views/container/ImageView.vue:94
 #: src/views/container/NetworkView.vue:134
 #: src/views/container/VolumeView.vue:88
@@ -2127,8 +2127,8 @@ msgid "Edit"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:111
-#: src/views/container/ContainerView.vue:237
-#: src/views/container/ContainerView.vue:301
+#: src/views/container/ContainerView.vue:241
+#: src/views/container/ContainerView.vue:305
 msgid "Start successful"
 msgstr ""
 
@@ -2141,8 +2141,8 @@ msgid "Force pull images"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:170
-#: src/views/container/ContainerView.vue:244
-#: src/views/container/ContainerView.vue:315
+#: src/views/container/ContainerView.vue:248
+#: src/views/container/ContainerView.vue:319
 msgid "Stop successful"
 msgstr ""
 
@@ -2151,8 +2151,8 @@ msgid "Are you sure you want to stop compose %{ name }?"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:201
-#: src/views/container/ContainerView.vue:279
-#: src/views/container/ContainerView.vue:357
+#: src/views/container/ContainerView.vue:283
+#: src/views/container/ContainerView.vue:361
 #: src/views/container/ImageView.vue:118
 #: src/views/container/NetworkView.vue:158
 #: src/views/container/VolumeView.vue:112
@@ -2207,7 +2207,7 @@ msgid "Unless stopped"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:127
-#: src/views/container/ContainerView.vue:402
+#: src/views/container/ContainerView.vue:406
 msgid "Create Container"
 msgstr ""
 
@@ -2374,102 +2374,102 @@ msgstr ""
 msgid "Ports (Host->Container)"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:118
-#: src/views/container/ContainerView.vue:465
+#: src/views/container/ContainerView.vue:122
+#: src/views/container/ContainerView.vue:469
 #: src/views/file/ListTable.vue:84
 #: src/views/file/ListTable.vue:264
 msgid "Rename"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:141
-#: src/views/container/ContainerView.vue:411
+#: src/views/container/ContainerView.vue:145
+#: src/views/container/ContainerView.vue:415
 msgid "Force Stop"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:146
-#: src/views/container/ContainerView.vue:412
+#: src/views/container/ContainerView.vue:150
+#: src/views/container/ContainerView.vue:416
 msgid "Pause"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:151
-#: src/views/container/ContainerView.vue:413
+#: src/views/container/ContainerView.vue:155
+#: src/views/container/ContainerView.vue:417
 msgid "Resume"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:196
+#: src/views/container/ContainerView.vue:200
 #: src/views/file/ListTable.vue:364
 msgid "More"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:229
+#: src/views/container/ContainerView.vue:233
 msgid "Rename successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:251
-#: src/views/container/ContainerView.vue:329
+#: src/views/container/ContainerView.vue:255
+#: src/views/container/ContainerView.vue:333
 msgid "Restart successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:258
-#: src/views/container/ContainerView.vue:343
+#: src/views/container/ContainerView.vue:262
+#: src/views/container/ContainerView.vue:347
 msgid "Force stop successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:265
-#: src/views/container/ContainerView.vue:371
+#: src/views/container/ContainerView.vue:269
+#: src/views/container/ContainerView.vue:375
 msgid "Pause successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:272
-#: src/views/container/ContainerView.vue:385
+#: src/views/container/ContainerView.vue:276
+#: src/views/container/ContainerView.vue:389
 msgid "Resume successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:286
+#: src/views/container/ContainerView.vue:290
 #: src/views/container/ImageView.vue:125
 #: src/views/container/NetworkView.vue:165
 #: src/views/container/VolumeView.vue:119
 msgid "Cleanup successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:292
+#: src/views/container/ContainerView.vue:296
 msgid "Please select containers to start"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:306
+#: src/views/container/ContainerView.vue:310
 msgid "Please select containers to stop"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:320
+#: src/views/container/ContainerView.vue:324
 msgid "Please select containers to restart"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:334
+#: src/views/container/ContainerView.vue:338
 msgid "Please select containers to force stop"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:348
+#: src/views/container/ContainerView.vue:352
 msgid "Please select containers to delete"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:362
+#: src/views/container/ContainerView.vue:366
 msgid "Please select containers to pause"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:376
+#: src/views/container/ContainerView.vue:380
 msgid "Please select containers to resume"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:405
+#: src/views/container/ContainerView.vue:409
 msgid "Cleanup Containers"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:472
+#: src/views/container/ContainerView.vue:476
 #: src/views/file/ListTable.vue:719
 msgid "New Name"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:477
+#: src/views/container/ContainerView.vue:481
 msgid "Enter new name"
 msgstr ""
 
