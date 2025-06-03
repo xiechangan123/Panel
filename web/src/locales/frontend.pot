@@ -181,7 +181,7 @@ msgid "Root Directory"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:335
-#: src/views/app/VersionModal.vue:96
+#: src/views/app/VersionModal.vue:97
 #: src/views/apps/fail2ban/IndexView.vue:375
 #: src/views/apps/pureftpd/IndexView.vue:249
 #: src/views/apps/pureftpd/IndexView.vue:271
@@ -201,7 +201,7 @@ msgstr ""
 #: src/views/cert/UploadCertModal.vue:55
 #: src/views/container/ComposeView.vue:348
 #: src/views/container/ComposeView.vue:378
-#: src/views/container/ContainerCreate.vue:370
+#: src/views/container/ContainerCreate.vue:371
 #: src/views/container/ContainerView.vue:485
 #: src/views/container/ImageView.vue:217
 #: src/views/container/NetworkView.vue:313
@@ -501,7 +501,7 @@ msgstr ""
 
 #: src/locales/menu.ts:9
 #: src/views/cert/CertView.vue:497
-#: src/views/cert/CertView.vue:573
+#: src/views/cert/CertView.vue:574
 #: src/views/cert/UploadCertModal.vue:38
 #: src/views/setting/SettingSafe.vue:54
 #: src/views/website/EditView.vue:355
@@ -647,8 +647,8 @@ msgstr ""
 #: src/views/cert/CertView.vue:181
 #: src/views/cert/DnsView.vue:64
 #: src/views/container/ComposeView.vue:74
-#: src/views/container/ContainerCreate.vue:174
-#: src/views/container/ContainerCreate.vue:255
+#: src/views/container/ContainerCreate.vue:175
+#: src/views/container/ContainerCreate.vue:256
 #: src/views/container/ContainerView.vue:91
 #: src/views/container/ImageView.vue:69
 #: src/views/container/NetworkView.vue:109
@@ -708,15 +708,15 @@ msgstr ""
 msgid "Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:73
+#: src/views/app/VersionModal.vue:74
 msgid "Channel"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:80
+#: src/views/app/VersionModal.vue:81
 msgid "Version"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:83
+#: src/views/app/VersionModal.vue:84
 msgid "Please select a channel"
 msgstr ""
 
@@ -839,8 +839,8 @@ msgstr ""
 #: src/views/cert/CertView.vue:314
 #: src/views/cert/DnsView.vue:111
 #: src/views/container/ComposeView.vue:228
-#: src/views/container/ContainerCreate.vue:235
-#: src/views/container/ContainerCreate.vue:286
+#: src/views/container/ContainerCreate.vue:236
+#: src/views/container/ContainerCreate.vue:287
 #: src/views/container/ContainerView.vue:160
 #: src/views/container/ContainerView.vue:418
 #: src/views/container/ImageView.vue:94
@@ -1045,7 +1045,7 @@ msgstr ""
 #: src/views/apps/minio/IndexView.vue:39
 #: src/views/container/ComposeView.vue:338
 #: src/views/container/ComposeView.vue:368
-#: src/views/container/ContainerCreate.vue:352
+#: src/views/container/ContainerCreate.vue:353
 msgid "Environment Variables"
 msgstr ""
 
@@ -1842,7 +1842,7 @@ msgid "Enter the content of the PEM certificate file"
 msgstr ""
 
 #: src/views/cert/CertView.vue:509
-#: src/views/cert/CertView.vue:585
+#: src/views/cert/CertView.vue:586
 #: src/views/cert/UploadCertModal.vue:46
 #: src/views/setting/SettingSafe.vue:61
 #: src/views/ssh/CreateModal.vue:78
@@ -2181,13 +2181,13 @@ msgstr ""
 
 #: src/views/container/ComposeView.vue:342
 #: src/views/container/ComposeView.vue:372
-#: src/views/container/ContainerCreate.vue:356
+#: src/views/container/ContainerCreate.vue:357
 msgid "Variable Name"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:343
 #: src/views/container/ComposeView.vue:373
-#: src/views/container/ContainerCreate.vue:357
+#: src/views/container/ContainerCreate.vue:358
 msgid "Variable Value"
 msgstr ""
 
@@ -2212,82 +2212,82 @@ msgstr ""
 msgid "Create Container"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:137
+#: src/views/container/ContainerCreate.vue:138
 #: src/views/container/ContainerView.vue:25
 msgid "Container Name"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:140
+#: src/views/container/ContainerCreate.vue:141
 #: src/views/container/ContainerView.vue:52
 #: src/views/container/ImageView.vue:36
 msgid "Image"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:143
+#: src/views/container/ContainerCreate.vue:144
 msgid "Ports"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:149
+#: src/views/container/ContainerCreate.vue:150
 msgid "Map Ports"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:156
+#: src/views/container/ContainerCreate.vue:157
 msgid "Expose All"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:161
+#: src/views/container/ContainerCreate.vue:162
 msgid "Port Mapping"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:169
+#: src/views/container/ContainerCreate.vue:170
 msgid "Host (Start)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:170
+#: src/views/container/ContainerCreate.vue:171
 msgid "Host (End)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:171
+#: src/views/container/ContainerCreate.vue:172
 msgid "Container (Start)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:172
+#: src/views/container/ContainerCreate.vue:173
 msgid "Container (End)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:173
+#: src/views/container/ContainerCreate.vue:174
 msgid "Protocol"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:184
+#: src/views/container/ContainerCreate.vue:185
 msgid "Optional"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:241
-#: src/views/container/ContainerCreate.vue:292
+#: src/views/container/ContainerCreate.vue:242
+#: src/views/container/ContainerCreate.vue:293
 msgid "Add"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:244
+#: src/views/container/ContainerCreate.vue:245
 #: src/views/dashboard/IndexView.vue:141
 #: src/views/dashboard/IndexView.vue:797
 #: src/views/monitor/IndexView.vue:286
 msgid "Network"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:247
+#: src/views/container/ContainerCreate.vue:248
 msgid "Mount"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:252
+#: src/views/container/ContainerCreate.vue:253
 msgid "Host Directory"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:253
+#: src/views/container/ContainerCreate.vue:254
 msgid "Container Directory"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:254
+#: src/views/container/ContainerCreate.vue:255
 #: src/views/file/ListTable.vue:73
 #: src/views/file/ListTable.vue:145
 #: src/views/file/ListTable.vue:300
@@ -2296,25 +2296,25 @@ msgstr ""
 msgid "Permission"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:273
+#: src/views/container/ContainerCreate.vue:274
 msgid "Read-Write"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:281
+#: src/views/container/ContainerCreate.vue:282
 msgid "Read-Only"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:295
 #: src/views/container/ContainerCreate.vue:296
+#: src/views/container/ContainerCreate.vue:297
 msgid "Command"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:298
-#: src/views/container/ContainerCreate.vue:301
+#: src/views/container/ContainerCreate.vue:299
+#: src/views/container/ContainerCreate.vue:302
 msgid "Entrypoint"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:306
+#: src/views/container/ContainerCreate.vue:307
 #: src/views/dashboard/IndexView.vue:533
 #: src/views/monitor/IndexView.vue:205
 #: src/views/monitor/IndexView.vue:216
@@ -2324,48 +2324,48 @@ msgstr ""
 msgid "Memory"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:316
+#: src/views/container/ContainerCreate.vue:317
 msgid "CPU Shares"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:323
+#: src/views/container/ContainerCreate.vue:324
 msgid "TTY (-t)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:328
+#: src/views/container/ContainerCreate.vue:329
 msgid "STDIN (-i)"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:333
+#: src/views/container/ContainerCreate.vue:334
 msgid "Auto Remove"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:338
+#: src/views/container/ContainerCreate.vue:339
 msgid "Privileged Mode"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:343
+#: src/views/container/ContainerCreate.vue:344
 msgid "Restart Policy"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:346
-#: src/views/container/ContainerCreate.vue:349
+#: src/views/container/ContainerCreate.vue:347
+#: src/views/container/ContainerCreate.vue:350
 msgid "Select restart policy"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:360
+#: src/views/container/ContainerCreate.vue:361
 #: src/views/container/NetworkView.vue:295
 #: src/views/container/VolumeView.vue:195
 msgid "Labels"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:364
+#: src/views/container/ContainerCreate.vue:365
 #: src/views/container/NetworkView.vue:299
 #: src/views/container/VolumeView.vue:199
 msgid "Label Name"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:365
+#: src/views/container/ContainerCreate.vue:366
 #: src/views/container/NetworkView.vue:300
 #: src/views/container/VolumeView.vue:200
 msgid "Label Value"
