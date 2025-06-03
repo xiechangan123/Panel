@@ -132,6 +132,7 @@ onMounted(() => {
     :bordered="false"
     :segmented="false"
     @close="handleClose"
+    @mask-click="handleClose"
   >
     <n-form :model="createModel">
       <n-form-item path="name" :label="$gettext('Container Name')">

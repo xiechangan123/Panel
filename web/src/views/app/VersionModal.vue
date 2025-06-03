@@ -68,6 +68,7 @@ const handleClose = () => {
     :bordered="false"
     :segmented="false"
     @close="handleClose"
+    @mask-click="handleClose"
   >
     <n-form :model="model">
       <n-form-item path="channel" :label="$gettext('Channel')">

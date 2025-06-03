@@ -568,6 +568,7 @@ onUnmounted(() => {
     :bordered="false"
     :segmented="false"
     @close="handleShowModalClose"
+    @mask-click="handleShowModalClose"
   >
     <n-tabs type="line" animated>
       <n-tab-pane name="cert" :tab="$gettext('Certificate')">
