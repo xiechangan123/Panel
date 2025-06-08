@@ -149,7 +149,6 @@ msgstr ""
 #: src/views/database/CreateUserModal.vue:28
 #: src/views/file/ToolBar.vue:45
 #: src/views/firewall/CreateForwardModal.vue:41
-#: src/views/firewall/CreateModal.vue:84
 #: src/views/setting/CreateModal.vue:19
 #: src/views/setting/TokenModal.vue:127
 #: src/views/ssh/CreateModal.vue:38
@@ -214,8 +213,8 @@ msgstr ""
 #: src/views/file/ToolBar.vue:261
 #: src/views/file/ToolBar.vue:282
 #: src/views/firewall/CreateForwardModal.vue:88
-#: src/views/firewall/CreateIpModal.vue:122
-#: src/views/firewall/CreateModal.vue:147
+#: src/views/firewall/CreateIpModal.vue:118
+#: src/views/firewall/CreateModal.vue:142
 #: src/views/setting/CreateModal.vue:64
 #: src/views/setting/PasswordModal.vue:44
 #: src/views/setting/TwoFaModal.vue:87
@@ -3423,7 +3422,7 @@ msgstr ""
 
 #: src/views/firewall/CreateForwardModal.vue:58
 #: src/views/firewall/CreateIpModal.vue:97
-#: src/views/firewall/CreateModal.vue:101
+#: src/views/firewall/CreateModal.vue:99
 #: src/views/firewall/ForwardView.vue:15
 #: src/views/firewall/IpRuleView.vue:15
 #: src/views/firewall/RuleView.vue:15
@@ -3480,18 +3479,19 @@ msgid "Outbound"
 msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:78
+#: src/views/firewall/CreateModal.vue:80
 msgid "%{ address } created successfully"
 msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:89
-#: src/views/firewall/CreateModal.vue:93
+#: src/views/firewall/CreateModal.vue:91
 #: src/views/firewall/IpRuleView.vue:208
 #: src/views/firewall/RuleView.vue:245
 msgid "Create Rule"
 msgstr ""
 
 #: src/views/firewall/CreateIpModal.vue:100
-#: src/views/firewall/CreateModal.vue:104
+#: src/views/firewall/CreateModal.vue:102
 #: src/views/firewall/IpRuleView.vue:32
 #: src/views/firewall/RuleView.vue:32
 msgid "Network Protocol"
@@ -3501,34 +3501,34 @@ msgstr ""
 msgid "IP Address"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:108
-#: src/views/firewall/CreateModal.vue:133
-msgid "Optional IP or IP range: 127.0.0.1 or 172.16.0.0/24 (multiple separated by commas)"
+#: src/views/firewall/CreateIpModal.vue:107
+#: src/views/firewall/CreateModal.vue:131
+msgid "Optional IP or IP range: 172.16.0.1 or 172.16.0.0/16"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:114
-#: src/views/firewall/CreateModal.vue:139
+#: src/views/firewall/CreateIpModal.vue:110
+#: src/views/firewall/CreateModal.vue:134
 #: src/views/firewall/IpRuleView.vue:49
 #: src/views/firewall/RuleView.vue:83
 msgid "Strategy"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:117
-#: src/views/firewall/CreateModal.vue:142
+#: src/views/firewall/CreateIpModal.vue:113
+#: src/views/firewall/CreateModal.vue:137
 #: src/views/firewall/IpRuleView.vue:85
 #: src/views/firewall/RuleView.vue:119
 msgid "Direction"
 msgstr ""
 
-#: src/views/firewall/CreateModal.vue:109
+#: src/views/firewall/CreateModal.vue:107
 msgid "Start Port"
 msgstr ""
 
-#: src/views/firewall/CreateModal.vue:119
+#: src/views/firewall/CreateModal.vue:117
 msgid "End Port"
 msgstr ""
 
-#: src/views/firewall/CreateModal.vue:129
+#: src/views/firewall/CreateModal.vue:127
 #: src/views/firewall/IpRuleView.vue:110
 #: src/views/firewall/RuleView.vue:144
 msgid "Target"
