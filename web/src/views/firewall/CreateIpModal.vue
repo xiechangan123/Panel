@@ -104,7 +104,7 @@ const handleCreate = async () => {
         <n-dynamic-input
           v-model:value="createModel.address"
           show-sort-button
-          :placeholder="$gettext('Optional IP or IP range: 172.16.0.1 or 172.16.0.0/16')"
+          :placeholder="$gettext('IP or IP range: 172.16.0.1 or 172.16.0.0/16')"
         />
       </n-form-item>
       <n-form-item path="strategy" :label="$gettext('Strategy')">
