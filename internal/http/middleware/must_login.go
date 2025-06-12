@@ -65,6 +65,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 					ip, _, _ := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
 					clientHash := fmt.Sprintf("%x", sha256.Sum256([]byte(ip)))
 					if safeClientHash != clientHash || safeClientHash == "" {
+						sess.Forget("user_id") // 清除 user_id，否则会来回跳转
 						Abort(w, http.StatusUnauthorized, t.Get("client ip/ua changed, please login again"))
 						return
 					}
