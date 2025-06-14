@@ -207,6 +207,11 @@ func (r *Firewall) Port(rule FireInfo, operation Operation) error {
 }
 
 func (r *Firewall) RichRules(rule FireInfo, operation Operation) error {
+	// 出站规则下，必须指定具体的地址，否则会添加成入站规则
+	if rule.Direction == "out" && rule.Address == "" {
+		return fmt.Errorf("outbound rules must specify an address")
+	}
+
 	protocols := strings.Split(string(rule.Protocol), "/")
 	for protocol := range slices.Values(protocols) {
 		var ruleBuilder strings.Builder
