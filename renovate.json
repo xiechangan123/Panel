@@ -34,6 +34,7 @@
     "github.com/libdns/cloudflare",
     "github.com/libdns/tencentcloud",
     "github.com/libdns/duckdns",
-    "github.com/libdns/gcore"
+    "github.com/libdns/gcore",
+    "github.com/libdns/cloudns"
   ]
 }
