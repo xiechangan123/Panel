@@ -15,7 +15,7 @@ require (
 	github.com/go-rat/sessions v1.1.0
 	github.com/go-rat/utils v1.1.5
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/go-sql-driver/mysql v1.9.2
+	github.com/go-sql-driver/mysql v1.9.3
 	github.com/golang-cz/httplog v0.0.2
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/wire v0.6.0
@@ -25,7 +25,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/knadh/koanf/parsers/yaml v1.0.0
 	github.com/knadh/koanf/providers/file v1.2.0
-	github.com/knadh/koanf/v2 v2.2.0
+	github.com/knadh/koanf/v2 v2.2.1
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.10.9
 	github.com/libdns/alidns v1.0.4
@@ -45,20 +45,20 @@ require (
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/libdns/vercel v0.0.2
 	github.com/mholt/acmez/v3 v3.1.2
-	github.com/ncruces/go-sqlite3 v0.26.0
+	github.com/ncruces/go-sqlite3 v0.26.1
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pquerna/otp v1.5.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/samber/lo v1.50.0
+	github.com/samber/lo v1.51.0
 	github.com/sethvargo/go-limiter v1.0.1-0.20250412144437-fa26982c7e1a
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.9.2
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250429180229-7e931b1d4276
-	github.com/urfave/cli/v3 v3.3.3
-	golang.org/x/crypto v0.38.0
-	golang.org/x/net v0.40.0
+	github.com/urfave/cli/v3 v3.3.8
+	golang.org/x/crypto v0.39.0
+	golang.org/x/net v0.41.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.30.0
@@ -100,9 +100,9 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/sync v0.14.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 

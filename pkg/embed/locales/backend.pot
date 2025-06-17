@@ -1332,7 +1332,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:68
+#: internal/http/middleware/must_login.go:69
 msgid "client ip/ua changed, please login again"
 msgstr ""
 
@@ -1727,7 +1727,7 @@ msgstr ""
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:108
+#: internal/http/middleware/entrance.go:107
 msgid "invalid access entrance"
 msgstr ""
 
@@ -1758,7 +1758,7 @@ msgstr ""
 msgid "invalid signature"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:77
+#: internal/http/middleware/must_login.go:78
 msgid "invalid user id, please login again"
 msgstr ""
 

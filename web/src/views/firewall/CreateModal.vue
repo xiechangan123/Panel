@@ -64,25 +64,23 @@ const createModel = ref({
   protocol: 'tcp',
   port_start: 80,
   port_end: 80,
-  address: '',
+  address: [],
   strategy: 'accept',
   direction: 'in'
 })
 
 const handleCreate = async () => {
-  useRequest(firewall.createRule(createModel.value)).onSuccess(() => {
-    show.value = false
-    createModel.value = {
-      family: 'ipv4',
-      protocol: 'tcp',
-      port_start: 80,
-      port_end: 80,
-      address: '',
-      strategy: 'accept',
-      direction: 'in'
-    }
-    window.$message.success($gettext('Created successfully'))
-  })
+  for (const address of createModel.value.address) {
+    useRequest(
+      firewall.createRule({
+        ...createModel.value,
+        address
+      })
+    ).onSuccess(() => {
+      window.$message.success($gettext('%{ address } created successfully', { address: address }))
+      show.value = false
+    })
+  }
 }
 </script>
 
@@ -127,13 +125,10 @@ const handleCreate = async () => {
         </n-col>
       </n-row>
       <n-form-item path="address" :label="$gettext('Target')">
-        <n-input
+        <n-dynamic-input
           v-model:value="createModel.address"
-          :placeholder="
-            $gettext(
-              'Optional IP or IP range: 127.0.0.1 or 172.16.0.0/24 (multiple separated by commas)'
-            )
-          "
+          show-sort-button
+          :placeholder="$gettext('IP or IP range: 172.16.0.1 or 172.16.0.0/16')"
         />
       </n-form-item>
       <n-form-item path="strategy" :label="$gettext('Strategy')">
