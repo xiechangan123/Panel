@@ -326,7 +326,7 @@ func (r *certRepo) ManualDNS(id uint) ([]acme.DNSRecord, error) {
 		return nil, err
 	}
 
-	client.UseManualDns(len(cert.Domains))
+	client.UseManualDns()
 	records, err := client.GetDNSRecords(context.Background(), cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
 		return nil, err

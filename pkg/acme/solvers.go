@@ -267,9 +267,10 @@ type DNSProvider interface {
 }
 
 type manualDNSSolver struct {
-	check       bool
+	check       bool // 是否检查 DNS 解析，目前没写
 	controlChan chan struct{}
-	dataChan    chan any
+	dnsChan     chan any
+	certChan    chan any
 	records     []DNSRecord
 }
 
@@ -286,7 +287,7 @@ func (s *manualDNSSolver) Present(ctx context.Context, challenge acme.Challenge)
 		Domain: domain,
 		Value:  keyAuth,
 	})
-	s.dataChan <- s.records
+	s.dnsChan <- s.records
 
 	select {
 	case <-s.controlChan:
@@ -301,7 +302,8 @@ func (s *manualDNSSolver) CleanUp(_ context.Context, _ acme.Challenge) error {
 		_ = recover()
 	}()
 	close(s.controlChan)
-	close(s.dataChan)
+	close(s.dnsChan)
+	close(s.certChan)
 	return nil
 }
 

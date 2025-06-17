@@ -35,14 +35,16 @@ func (c *Client) UseDns(dnsType DnsType, param DNSParam) {
 }
 
 // UseManualDns 使用手动 DNS 验证
-func (c *Client) UseManualDns(total int, check ...bool) {
+func (c *Client) UseManualDns(check ...bool) {
 	c.controlChan = make(chan struct{})
-	c.dataChan = make(chan any)
+	c.dnsChan = make(chan any)
+	c.certChan = make(chan any)
 	c.zClient.ChallengeSolvers = map[string]acmez.Solver{
 		acme.ChallengeTypeDNS01: &manualDNSSolver{
 			check:       len(check) > 0 && check[0],
 			controlChan: c.controlChan,
-			dataChan:    c.dataChan,
+			dnsChan:     c.dnsChan,
+			certChan:    c.certChan,
 			records:     []DNSRecord{},
 		},
 	}
@@ -84,13 +86,13 @@ func (c *Client) ObtainCertificateManual() (Certificate, error) {
 	// 发送信号，开始验证
 	c.controlChan <- struct{}{}
 	// 等待验证完成
-	data := <-c.dataChan
+	certs := <-c.certChan
 
-	if err, ok := data.(error); ok {
+	if err, ok := certs.(error); ok {
 		return Certificate{}, err
 	}
 
-	return data.(Certificate), nil
+	return certs.(Certificate), nil
 }
 
 // RenewCertificate 续签 SSL 证书
@@ -107,22 +109,22 @@ func (c *Client) RenewCertificate(ctx context.Context, certUrl string, domains [
 func (c *Client) GetDNSRecords(ctx context.Context, domains []string, keyType KeyType) ([]DNSRecord, error) {
 	go func(ctx context.Context, domains []string, keyType KeyType) {
 		certs, err := c.ObtainCertificate(ctx, domains, keyType)
-		// 将证书和错误信息发送到 dataChan
+		// 将证书和错误信息发送到 certChan
 		if err != nil {
-			c.dataChan <- err
+			c.certChan <- err
 			return
 		}
-		c.dataChan <- certs
+		c.certChan <- certs
 	}(ctx, domains, keyType)
 
-	// 这里要少一次循环，因为需要卡住最后一次的 dataChan，等待手动 DNS 验证完成
+	// 这里要少一次循环，因为需要卡住最后一次的 dnsChan，等待手动 DNS 验证完成
 	for i := 1; i < len(domains); i++ {
-		<-c.dataChan
+		<-c.dnsChan
 		c.controlChan <- struct{}{}
 	}
 
 	// 因为上面少了一次循环，所以这里接收到的即为完整的 DNS 记录切片
-	data := <-c.dataChan
+	data := <-c.dnsChan
 	if err, ok := data.(error); ok {
 		return nil, err
 	}
