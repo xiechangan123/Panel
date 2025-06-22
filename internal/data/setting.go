@@ -9,7 +9,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/app"

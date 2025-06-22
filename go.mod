@@ -57,10 +57,10 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
 	github.com/urfave/cli/v3 v3.3.8
+	go.yaml.in/yaml/v3 v3.0.3
 	golang.org/x/crypto v0.39.0
 	golang.org/x/net v0.41.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
-	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.30.0
 )
 
@@ -104,6 +104,7 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 replace github.com/mholt/acmez/v3 => github.com/tnb-labs/acmez/v3 v3.0.0-20250416074048-0e9f6b5f8ec5

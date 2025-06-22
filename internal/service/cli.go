@@ -17,7 +17,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 	"gorm.io/gorm"
 
 	"github.com/tnb-labs/panel/internal/app"
