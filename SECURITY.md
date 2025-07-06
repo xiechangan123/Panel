@@ -9,7 +9,7 @@
 
 提前感谢您的支持与帮助！
 
-致某些安全初学者：通过面板 `session` / `access_token` 执行的任何操作（包括且不限于：获取 root 权限、读取/写入系统敏感文件、执行任意 shell 命令等）均不被认为是安全问题，请不要刷此类报告浪费彼此的时间，这类低水平的报告对你的简历也没有任何帮助。
+致某些安全初学者：通过已登录面板的 `session` / `access_token` 执行的任何操作（包括且不限于：获取 root 权限、读取/写入系统敏感文件、执行任意 shell 命令等）均不被认为是安全问题，请不要刷此类报告浪费彼此的时间。
 
 ## Security Policy
 
@@ -22,4 +22,4 @@ If you find any security issues while using the panel, please do not submit an I
 
 Thank you in advance for your support and help!
 
-To some security beginners: Any operation performed through the panel `session` / `access_token` (including but not limited to: obtaining root permissions, reading/writing sensitive system files, executing arbitrary shell commands, etc.) is not considered a security issue. Please do not waste each other's time by submitting such reports. Such low-level reports are of no help to your resume.
+To some security beginners: Any operation performed through the logged panel `session` / `access_token` (including but not limited to: obtaining root permissions, reading/writing sensitive system files, executing arbitrary shell commands, etc.) is not considered a security issue. Please do not waste each other's time by submitting such reports.
