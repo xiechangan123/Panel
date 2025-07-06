@@ -1280,7 +1280,7 @@ msgstr ""
 
 #: internal/data/app.go:213
 #: internal/data/app.go:268
-#: internal/http/middleware/must_install.go:38
+#: internal/http/middleware/must_install.go:41
 msgid "app %s not installed"
 msgstr ""
 
@@ -1295,7 +1295,7 @@ msgstr ""
 msgid "app %s requires panel version %s, current version %s"
 msgstr ""
 
-#: internal/http/middleware/must_install.go:24
+#: internal/http/middleware/must_install.go:27
 msgid "app not found"
 msgstr ""
 
@@ -1332,7 +1332,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:69
+#: internal/http/middleware/must_login.go:72
 msgid "client ip/ua changed, please login again"
 msgstr ""
 
@@ -1727,7 +1727,7 @@ msgstr ""
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:107
+#: internal/http/middleware/entrance.go:109
 msgid "invalid access entrance"
 msgstr ""
 
@@ -1739,16 +1739,16 @@ msgstr ""
 msgid "invalid key, please refresh the page"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:43
+#: internal/http/middleware/entrance.go:45
 msgid "invalid request domain: %s"
 msgstr ""
 
 #: internal/data/user_token.go:167
-#: internal/http/middleware/entrance.go:71
+#: internal/http/middleware/entrance.go:73
 msgid "invalid request ip: %s"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:76
+#: internal/http/middleware/entrance.go:78
 msgid "invalid request user agent: %s"
 msgstr ""
 
@@ -1758,7 +1758,7 @@ msgstr ""
 msgid "invalid signature"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:78
+#: internal/http/middleware/must_login.go:81
 msgid "invalid user id, please login again"
 msgstr ""
 
@@ -1888,7 +1888,7 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:58
+#: internal/http/middleware/must_login.go:61
 msgid "session expired, please login again"
 msgstr ""
 
@@ -2009,7 +2009,7 @@ msgstr ""
 msgid "write file error: %v"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:48
+#: internal/http/middleware/must_login.go:51
 msgid "ws not allowed"
 msgstr ""
 
