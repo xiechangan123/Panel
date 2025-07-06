@@ -29,6 +29,8 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				entrance = "/" + entrance
 			}
 
+			routePath := chi.RouteContext(r.Context()).RoutePath
+
 			// 情况一：设置了绑定域名、IP、UA，且请求不符合要求，返回错误
 			host, _, err := net.SplitHostPort(r.Host)
 			if err != nil {
@@ -78,7 +80,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 			}
 
 			// 情况二：请求路径与入口路径相同或者未设置访问入口，标记通过验证并重定向到登录页面
-			if (strings.TrimSuffix(r.URL.Path, "/") == entrance || entrance == "/") &&
+			if (strings.TrimSuffix(routePath, "/") == entrance || entrance == "/") &&
 				r.Header.Get("Authorization") == "" {
 				sess.Put("verify_entrance", true)
 				render := chix.NewRender(w, r)
@@ -88,12 +90,12 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 			}
 
 			// 情况三：通过APIKey+入口路径访问，重写请求路径并跳过验证
-			if strings.HasPrefix(r.URL.Path, entrance) && r.Header.Get("Authorization") != "" {
+			if strings.HasPrefix(routePath, entrance) && r.Header.Get("Authorization") != "" {
 				// 只在设置了入口路径的情况下，才进行重写
 				if entrance != "/" {
 					if rctx := chi.RouteContext(r.Context()); rctx != nil {
-						rctx.RoutePath = strings.TrimPrefix(rctx.RoutePath, entrance)
-						r.URL.Path = strings.TrimPrefix(r.URL.Path, entrance)
+						rctx.RoutePath = strings.TrimPrefix(routePath, entrance)
+						r.URL.Path = strings.TrimPrefix(routePath, entrance)
 					}
 				}
 				next.ServeHTTP(w, r)
@@ -103,7 +105,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 			// 情况四：非调试模式且未通过验证的请求，返回错误
 			if !conf.Bool("app.debug") &&
 				sess.Missing("verify_entrance") &&
-				r.URL.Path != "/robots.txt" {
+				routePath != "/robots.txt" {
 				Abort(w, http.StatusTeapot, t.Get("invalid access entrance"))
 				return
 			}

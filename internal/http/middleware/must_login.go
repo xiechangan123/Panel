@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-rat/sessions"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
@@ -35,8 +36,10 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 				return
 			}
 
+			routePath := chi.RouteContext(r.Context()).RoutePath
+
 			// 对白名单和非 API 请求放行
-			if slices.Contains(whiteList, r.URL.Path) || !strings.HasPrefix(r.URL.Path, "/api") {
+			if slices.Contains(whiteList, routePath) || !strings.HasPrefix(routePath, "/api") {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -44,7 +47,7 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 			userID := uint(0)
 			if r.Header.Get("Authorization") != "" {
 				// 禁止访问 ws 相关的接口
-				if strings.HasPrefix(r.URL.Path, "/api/ws") {
+				if strings.HasPrefix(routePath, "/api/ws") {
 					Abort(w, http.StatusForbidden, t.Get("ws not allowed"))
 					return
 				}

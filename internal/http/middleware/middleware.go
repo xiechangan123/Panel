@@ -39,16 +39,16 @@ func NewMiddlewares(conf *koanf.Koanf, log *slog.Logger, session *sessions.Manag
 // Globals is a collection of global middleware that will be applied to every request.
 func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handler) http.Handler {
 	return []func(http.Handler) http.Handler{
-		sessionmiddleware.StartSession(r.session),
+		middleware.Recoverer,
 		//middleware.SupressNotFound(mux),// bug https://github.com/go-chi/chi/pull/940
 		middleware.CleanPath,
 		middleware.StripSlashes,
-		middleware.Compress(5),
 		httplog.RequestLogger(r.log, &httplog.Options{
 			Level:             slog.LevelInfo,
 			LogRequestHeaders: []string{"User-Agent"},
 		}),
-		middleware.Recoverer,
+		middleware.Compress(5),
+		sessionmiddleware.StartSession(r.session),
 		Status(t),
 		Entrance(t, r.conf, r.session),
 		MustLogin(t, r.session, r.userToken),
