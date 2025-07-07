@@ -401,7 +401,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:65
 #: src/views/apps/pureftpd/IndexView.vue:256
 #: src/views/setting/PasswordModal.vue:26
-#: src/views/setting/SettingUser.vue:109
+#: src/views/setting/SettingUser.vue:119
 msgid "Change Password"
 msgstr ""
 
@@ -660,7 +660,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:80
 #: src/views/firewall/IpRuleView.vue:122
 #: src/views/firewall/RuleView.vue:159
-#: src/views/setting/SettingUser.vue:76
+#: src/views/setting/SettingUser.vue:86
 #: src/views/setting/TokenModal.vue:52
 #: src/views/task/CronView.vue:102
 #: src/views/task/SystemView.vue:96
@@ -855,7 +855,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:104
 #: src/views/firewall/IpRuleView.vue:146
 #: src/views/firewall/RuleView.vue:183
-#: src/views/setting/SettingUser.vue:132
+#: src/views/setting/SettingUser.vue:142
 #: src/views/setting/TokenModal.vue:92
 #: src/views/ssh/IndexView.vue:93
 #: src/views/task/CronView.vue:155
@@ -900,7 +900,7 @@ msgstr ""
 #: src/views/firewall/IpRuleView.vue:191
 #: src/views/firewall/RuleView.vue:210
 #: src/views/firewall/RuleView.vue:228
-#: src/views/setting/SettingUser.vue:162
+#: src/views/setting/SettingUser.vue:178
 #: src/views/setting/TokenModal.vue:116
 #: src/views/task/CronView.vue:198
 #: src/views/task/TaskView.vue:124
@@ -1071,7 +1071,8 @@ msgstr ""
 #: src/views/database/UpdateUserModal.vue:18
 #: src/views/database/UserList.vue:222
 #: src/views/file/PermissionModal.vue:29
-#: src/views/setting/SettingUser.vue:156
+#: src/views/setting/SettingUser.vue:166
+#: src/views/setting/SettingUser.vue:172
 #: src/views/task/CronView.vue:180
 #: src/views/task/CronView.vue:207
 #: src/views/website/IndexView.vue:284
@@ -1623,7 +1624,7 @@ msgstr ""
 #: src/views/cert/AccountView.vue:243
 #: src/views/cert/CreateAccountModal.vue:100
 #: src/views/setting/CreateModal.vue:56
-#: src/views/setting/SettingUser.vue:26
+#: src/views/setting/SettingUser.vue:36
 msgid "Email"
 msgstr ""
 
@@ -2110,7 +2111,7 @@ msgstr ""
 #: src/views/container/ImageView.vue:60
 #: src/views/container/NetworkView.vue:100
 #: src/views/container/VolumeView.vue:54
-#: src/views/setting/SettingUser.vue:67
+#: src/views/setting/SettingUser.vue:77
 #: src/views/setting/TokenModal.vue:34
 #: src/views/task/CronView.vue:83
 #: src/views/task/TaskView.vue:37
@@ -3828,20 +3829,20 @@ msgstr ""
 msgid "Panel HTTPS"
 msgstr ""
 
-#: src/views/setting/SettingUser.vue:43
+#: src/views/setting/SettingUser.vue:53
 msgid "2FA"
 msgstr ""
 
-#: src/views/setting/SettingUser.vue:58
+#: src/views/setting/SettingUser.vue:68
 msgid "Disabled successfully"
 msgstr ""
 
-#: src/views/setting/SettingUser.vue:93
+#: src/views/setting/SettingUser.vue:103
 #: src/views/setting/TokenModal.vue:204
 msgid "Access Tokens"
 msgstr ""
 
-#: src/views/setting/SettingUser.vue:121
+#: src/views/setting/SettingUser.vue:131
 msgid "Are you sure you want to delete this user?"
 msgstr ""
 

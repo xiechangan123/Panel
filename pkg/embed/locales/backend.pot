@@ -1721,8 +1721,8 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/data/user.go:170
-#: internal/data/user.go:189
+#: internal/data/user.go:180
+#: internal/data/user.go:199
 #: internal/service/user.go:96
 msgid "invalid 2FA code"
 msgstr ""
@@ -1844,7 +1844,7 @@ msgstr ""
 msgid "phpMyAdmin port not found"
 msgstr ""
 
-#: internal/data/user.go:96
+#: internal/data/user.go:106
 #: internal/service/file.go:135
 #: internal/service/file.go:222
 #: internal/service/file.go:251
@@ -1986,9 +1986,9 @@ msgstr ""
 msgid "upload file error: %v"
 msgstr ""
 
-#: internal/data/user.go:116
-#: internal/data/user.go:123
+#: internal/data/user.go:126
 #: internal/data/user.go:133
+#: internal/data/user.go:143
 msgid "username or password error"
 msgstr ""
 
