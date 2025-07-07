@@ -582,6 +582,53 @@ func (_c *UserRepo_UpdateTwoFA_Call) RunAndReturn(run func(uint, string, string)
 	return _c
 }
 
+// UpdateUsername provides a mock function with given fields: id, username
+func (_m *UserRepo) UpdateUsername(id uint, username string) error {
+	ret := _m.Called(id, username)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUsername")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
+		r0 = rf(id, username)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UserRepo_UpdateUsername_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUsername'
+type UserRepo_UpdateUsername_Call struct {
+	*mock.Call
+}
+
+// UpdateUsername is a helper method to define mock.On call
+//   - id uint
+//   - username string
+func (_e *UserRepo_Expecter) UpdateUsername(id interface{}, username interface{}) *UserRepo_UpdateUsername_Call {
+	return &UserRepo_UpdateUsername_Call{Call: _e.mock.On("UpdateUsername", id, username)}
+}
+
+func (_c *UserRepo_UpdateUsername_Call) Run(run func(id uint, username string)) *UserRepo_UpdateUsername_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *UserRepo_UpdateUsername_Call) Return(_a0 error) *UserRepo_UpdateUsername_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UserRepo_UpdateUsername_Call) RunAndReturn(run func(uint, string) error) *UserRepo_UpdateUsername_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewUserRepo creates a new instance of UserRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewUserRepo(t interface {
