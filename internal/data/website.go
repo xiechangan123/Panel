@@ -223,6 +223,15 @@ func (r *websiteRepo) List(page, limit uint) ([]*biz.Website, int64, error) {
 		return nil, 0, err
 	}
 
+	// 取证书剩余有效时间
+	for _, website := range websites {
+		crt, _ := io.Read(filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem"))
+		if decode, err := cert.ParseCert(crt); err == nil {
+			hours := decode.NotAfter.Sub(time.Now()).Hours()
+			website.CertExpire = fmt.Sprintf("%.2f", hours/24)
+		}
+	}
+
 	return websites, total, nil
 }
 

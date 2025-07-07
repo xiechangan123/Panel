@@ -74,6 +74,38 @@ const columns: any = [
     }
   },
   {
+    title: $gettext('Certificate expiration'),
+    key: 'cert_expire',
+    width: 200,
+    render(row: any) {
+      return h(
+        NTag,
+        {
+          type: row.cert_expire == 0 ? 'default' : row.cert_expire > 0 ? 'success' : 'error',
+          class: 'cursor-pointer hover:opacity-60',
+          onClick: () => handleEdit(row)
+        },
+        {
+          default: () => {
+            if (row.cert_expire == 0) {
+              return $gettext('Not configured')
+            }
+            if (row.cert_expire < 0) {
+              return $gettext('Expired %{ days } days ago', {
+                days: Math.abs(row.cert_expire)
+              })
+            }
+            if (row.cert_expire > 0) {
+              return $gettext('Expires in %{ days } days', {
+                days: row.cert_expire
+              })
+            }
+          }
+        }
+      )
+    }
+  },
+  {
     title: $gettext('Remark'),
     key: 'remark',
     minWidth: 200,
@@ -378,7 +410,7 @@ onMounted(() => {
         striped
         remote
         :loading="loading"
-        :scroll-x="1200"
+        :scroll-x="1400"
         :columns="columns"
         :data="data"
         :row-key="(row: any) => row.id"

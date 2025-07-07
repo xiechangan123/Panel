@@ -19,6 +19,8 @@ type Website struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
+	CertExpire string `gorm:"-:all" json:"cert_expire"` // 仅显示
+
 	Cert *Cert `gorm:"foreignKey:WebsiteID" json:"cert"`
 }
 
