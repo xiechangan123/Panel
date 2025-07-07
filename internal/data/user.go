@@ -62,6 +62,16 @@ func (r *userRepo) Create(username, password, email string) (*biz.User, error) {
 	return user, nil
 }
 
+func (r *userRepo) UpdateUsername(id uint, username string) error {
+	user, err := r.Get(id)
+	if err != nil {
+		return err
+	}
+
+	user.Username = username
+	return r.db.Save(user).Error
+}
+
 func (r *userRepo) UpdatePassword(id uint, password string) error {
 	value, err := r.hasher.Make(password)
 	if err != nil {

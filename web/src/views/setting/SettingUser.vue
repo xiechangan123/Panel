@@ -20,7 +20,17 @@ const columns: any = [
     key: 'username',
     minWidth: 100,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
+    render(row: any) {
+      return h(NInput, {
+        size: 'small',
+        value: row.username,
+        onBlur: () => handleUsername(row),
+        onUpdateValue(v) {
+          row.username = v
+        }
+      })
+    }
   },
   {
     title: $gettext('Email'),
@@ -150,6 +160,12 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     data: (res: any) => res.items
   }
 )
+
+const handleUsername = (row: any) => {
+  useRequest(user.updateUsername(row.id, row.username)).onSuccess(() => {
+    window.$message.success($gettext('Modified successfully'))
+  })
+}
 
 const handleEmail = (row: any) => {
   useRequest(user.updateEmail(row.id, row.email)).onSuccess(() => {

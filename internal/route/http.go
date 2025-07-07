@@ -127,6 +127,7 @@ func (route *Http) Register(r *chi.Mux) {
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/", route.user.List)
 			r.Post("/", route.user.Create)
+			r.Post("/{id}/username", route.user.UpdateUsername)
 			r.Post("/{id}/password", route.user.UpdatePassword)
 			r.Post("/{id}/email", route.user.UpdateEmail)
 			r.Get("/{id}/2fa", route.user.GenerateTwoFA)

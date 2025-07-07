@@ -26,6 +26,9 @@ export default {
     http.Post('/users', { username, password, email }),
   // 删除用户
   delete: (id: number): any => http.Delete(`/users/${id}`),
+  // 更新用户用户名
+  updateUsername: (id: number, username: string): any =>
+    http.Post(`/users/${id}/username`, { username }),
   // 更新用户邮箱
   updateEmail: (id: number, email: string): any => http.Post(`/users/${id}/email`, { email }),
   // 更新用户密码

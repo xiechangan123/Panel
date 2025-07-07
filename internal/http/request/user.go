@@ -21,6 +21,11 @@ type UserCreate struct {
 	Email    string `json:"email" validate:"required|email"`
 }
 
+type UserUpdateUsername struct {
+	ID       uint   `json:"id" validate:"required|exists:users,id"`
+	Username string `json:"username" validate:"required|notExists:users,username"`
+}
+
 type UserUpdatePassword struct {
 	ID       uint   `json:"id" validate:"required|exists:users,id"`
 	Password string `json:"password" validate:"required|password"`

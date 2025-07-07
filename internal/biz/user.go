@@ -24,6 +24,7 @@ type UserRepo interface {
 	List(page, limit uint) ([]*User, int64, error)
 	Get(id uint) (*User, error)
 	Create(username, password, email string) (*User, error)
+	UpdateUsername(id uint, username string) error
 	UpdatePassword(id uint, password string) error
 	UpdateEmail(id uint, email string) error
 	Delete(id uint) error
