@@ -41,7 +41,6 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 	return []func(http.Handler) http.Handler{
 		middleware.Recoverer,
 		//middleware.SupressNotFound(mux),// bug https://github.com/go-chi/chi/pull/940
-		middleware.StripSlashes,
 		httplog.RequestLogger(r.log, &httplog.Options{
 			Level:             slog.LevelInfo,
 			LogRequestHeaders: []string{"User-Agent"},

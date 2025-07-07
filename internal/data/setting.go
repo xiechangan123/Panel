@@ -19,6 +19,7 @@ import (
 	"github.com/tnb-labs/panel/pkg/firewall"
 	"github.com/tnb-labs/panel/pkg/io"
 	"github.com/tnb-labs/panel/pkg/os"
+	"github.com/tnb-labs/panel/pkg/systemctl"
 	"github.com/tnb-labs/panel/pkg/types"
 )
 
@@ -310,6 +311,20 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 		if os.TCPPortInUse(req.Port) {
 			return false, errors.New(r.t.Get("port is already in use"))
 		}
+		// 放行端口
+		if ok, _ := systemctl.IsEnabled("firewalld"); ok {
+			fw := firewall.NewFirewall()
+			err = fw.Port(firewall.FireInfo{
+				Type:      firewall.TypeNormal,
+				PortStart: config.HTTP.Port,
+				PortEnd:   config.HTTP.Port,
+				Direction: firewall.DirectionIn,
+				Strategy:  firewall.StrategyAccept,
+			}, firewall.OperationAdd)
+			if err != nil {
+				return false, err
+			}
+		}
 	}
 
 	config.App.Locale = req.Locale
@@ -320,19 +335,6 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	config.HTTP.BindIP = req.BindIP
 	config.HTTP.BindUA = req.BindUA
 	config.Session.Lifetime = req.Lifetime
-
-	// 放行端口
-	fw := firewall.NewFirewall()
-	err = fw.Port(firewall.FireInfo{
-		Type:      firewall.TypeNormal,
-		PortStart: config.HTTP.Port,
-		PortEnd:   config.HTTP.Port,
-		Direction: firewall.DirectionIn,
-		Strategy:  firewall.StrategyAccept,
-	}, firewall.OperationAdd)
-	if err != nil {
-		return false, err
-	}
 
 	encoded, err := yaml.Marshal(config)
 	if err != nil {

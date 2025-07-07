@@ -77,14 +77,17 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				return
 			}
 
-			// 情况二：请求路径与入口路径相同或者未设置访问入口，标记通过验证并重定向到登录页面
+			// 情况二：请求路径与入口路径相同或未设置访问入口，标记通过验证并重定向
 			if (strings.TrimSuffix(r.URL.Path, "/") == entrance || entrance == "/") &&
 				r.Header.Get("Authorization") == "" {
 				sess.Put("verify_entrance", true)
-				render := chix.NewRender(w, r)
-				defer render.Release()
-				render.Redirect("/login")
-				return
+				// 设置入口的情况下进行重定向
+				if entrance != "/" {
+					render := chix.NewRender(w, r)
+					defer render.Release()
+					render.Redirect("/login")
+					return
+				}
 			}
 
 			// 情况三：通过APIKey+入口路径访问，重写请求路径并跳过验证

@@ -22,4 +22,4 @@ If you find any security issues while using the panel, please do not submit an I
 
 Thank you in advance for your support and help!
 
-To some security beginners: Any operation performed through the logged panel's `session` / `access_token` (including but not limited to: obtaining root permissions, reading/writing sensitive system files, executing arbitrary shell commands, etc.) is not considered a security issue. Please do not waste each other's time by submitting such reports.
+To some security beginners: Any operation performed through an already logged-in panel's `session` / `access_token` (including but not limited to: obtaining root permissions, reading/writing sensitive system files, executing arbitrary shell commands, etc.) is not considered a security issue. Please do not waste each other's time by submitting such reports.
