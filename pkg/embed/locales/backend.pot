@@ -1299,9 +1299,9 @@ msgstr ""
 msgid "app not found"
 msgstr ""
 
-#: internal/data/setting.go:282
-#: internal/data/setting.go:343
-#: internal/data/setting.go:356
+#: internal/data/setting.go:283
+#: internal/data/setting.go:345
+#: internal/data/setting.go:358
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -1590,16 +1590,16 @@ msgid "failed to load MySQL root password: %v"
 msgstr ""
 
 #: internal/data/cert.go:92
-#: internal/data/setting.go:287
-#: internal/data/setting.go:359
+#: internal/data/setting.go:288
+#: internal/data/setting.go:361
 #: internal/data/website.go:475
 #: internal/data/website.go:764
 msgid "failed to parse certificate: %v"
 msgstr ""
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:290
-#: internal/data/setting.go:362
+#: internal/data/setting.go:291
+#: internal/data/setting.go:364
 #: internal/data/website.go:478
 #: internal/data/website.go:767
 msgid "failed to parse private key: %v"
@@ -1727,7 +1727,7 @@ msgstr ""
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:107
+#: internal/http/middleware/entrance.go:110
 msgid "invalid access entrance"
 msgstr ""
 
@@ -1855,7 +1855,7 @@ msgstr ""
 msgid "please retry the manual obtain operation"
 msgstr ""
 
-#: internal/data/setting.go:311
+#: internal/data/setting.go:312
 msgid "port is already in use"
 msgstr ""
 
