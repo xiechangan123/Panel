@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/tnb-labs/panel/internal/biz"
@@ -14,15 +13,13 @@ import (
 func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			routePath := chi.RouteContext(r.Context()).RoutePath
-
 			var slugs []string
-			if strings.HasPrefix(routePath, "/api/website") {
+			if strings.HasPrefix(r.URL.Path, "/api/website") {
 				slugs = append(slugs, "nginx")
-			} else if strings.HasPrefix(routePath, "/api/container") {
+			} else if strings.HasPrefix(r.URL.Path, "/api/container") {
 				slugs = append(slugs, "podman", "docker")
-			} else if strings.HasPrefix(routePath, "/api/apps/") {
-				pathArr := strings.Split(routePath, "/")
+			} else if strings.HasPrefix(r.URL.Path, "/api/apps/") {
+				pathArr := strings.Split(r.URL.Path, "/")
 				if len(pathArr) < 4 {
 					Abort(w, http.StatusForbidden, t.Get("app not found"))
 					return
