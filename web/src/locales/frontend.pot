@@ -213,7 +213,7 @@ msgstr ""
 #: src/views/file/ToolBar.vue:261
 #: src/views/file/ToolBar.vue:282
 #: src/views/firewall/CreateForwardModal.vue:88
-#: src/views/firewall/CreateIpModal.vue:118
+#: src/views/firewall/CreateIpModal.vue:121
 #: src/views/firewall/CreateModal.vue:142
 #: src/views/setting/CreateModal.vue:64
 #: src/views/setting/PasswordModal.vue:44
@@ -3422,7 +3422,7 @@ msgid "Create Forwarding"
 msgstr ""
 
 #: src/views/firewall/CreateForwardModal.vue:58
-#: src/views/firewall/CreateIpModal.vue:97
+#: src/views/firewall/CreateIpModal.vue:100
 #: src/views/firewall/CreateModal.vue:99
 #: src/views/firewall/ForwardView.vue:15
 #: src/views/firewall/IpRuleView.vue:15
@@ -3479,42 +3479,42 @@ msgstr ""
 msgid "Outbound"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:78
+#: src/views/firewall/CreateIpModal.vue:81
 #: src/views/firewall/CreateModal.vue:80
 msgid "%{ address } created successfully"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:89
+#: src/views/firewall/CreateIpModal.vue:92
 #: src/views/firewall/CreateModal.vue:91
 #: src/views/firewall/IpRuleView.vue:208
 #: src/views/firewall/RuleView.vue:245
 msgid "Create Rule"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:100
+#: src/views/firewall/CreateIpModal.vue:103
 #: src/views/firewall/CreateModal.vue:102
 #: src/views/firewall/IpRuleView.vue:32
 #: src/views/firewall/RuleView.vue:32
 msgid "Network Protocol"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:103
+#: src/views/firewall/CreateIpModal.vue:106
 msgid "IP Address"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:107
+#: src/views/firewall/CreateIpModal.vue:110
 #: src/views/firewall/CreateModal.vue:131
 msgid "IP or IP range: 172.16.0.1 or 172.16.0.0/16"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:110
+#: src/views/firewall/CreateIpModal.vue:113
 #: src/views/firewall/CreateModal.vue:134
 #: src/views/firewall/IpRuleView.vue:49
 #: src/views/firewall/RuleView.vue:83
 msgid "Strategy"
 msgstr ""
 
-#: src/views/firewall/CreateIpModal.vue:113
+#: src/views/firewall/CreateIpModal.vue:116
 #: src/views/firewall/CreateModal.vue:137
 #: src/views/firewall/IpRuleView.vue:85
 #: src/views/firewall/RuleView.vue:119
