@@ -62,12 +62,15 @@ const directions = [
 const createModel = ref({
   family: 'ipv4',
   protocol: 'tcp',
-  address: [],
+  address: [] as string[],
   strategy: 'accept',
   direction: 'in'
 })
 
 const handleCreate = async () => {
+  if (!createModel.value.address.length) {
+    createModel.value.address.push('')
+  }
   for (const address of createModel.value.address) {
     useRequest(
       firewall.createIpRule({
