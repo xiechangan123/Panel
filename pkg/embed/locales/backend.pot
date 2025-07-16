@@ -1520,7 +1520,7 @@ msgstr ""
 msgid "failed to get nginx workers: %v"
 msgstr ""
 
-#: internal/apps/pureftpd/app.go:152
+#: internal/apps/pureftpd/app.go:144
 msgid "failed to get port: %v"
 msgstr ""
 
