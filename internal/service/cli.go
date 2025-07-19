@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand/v2"
 	stdos "os"
 	"path/filepath"
 	"strings"
@@ -976,6 +977,24 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 
 	config.App.Key = str.Random(32)
 	config.HTTP.Entrance = "/" + str.Random(6)
+
+	// 随机默认端口
+checkPort:
+	port := uint(rand.IntN(50000) + 10000) // 10000-60000
+	if os.TCPPortInUse(port) {
+		goto checkPort
+	}
+	config.HTTP.Port = port
+
+	// 放行端口
+	fw := firewall.NewFirewall()
+	_ = fw.Port(firewall.FireInfo{
+		Type:      firewall.TypeNormal,
+		PortStart: config.HTTP.Port,
+		PortEnd:   config.HTTP.Port,
+		Direction: firewall.DirectionIn,
+		Strategy:  firewall.StrategyAccept,
+	}, firewall.OperationAdd)
 
 	encoded, err := yaml.Marshal(config)
 	if err != nil {
