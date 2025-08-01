@@ -5,7 +5,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/go-rat/utils/env"
+	"github.com/libtnb/utils/env"
 )
 
 type VersionDownload struct {

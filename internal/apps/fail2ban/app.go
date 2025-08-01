@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-rat/chix"
-	"github.com/go-rat/utils/str"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
+	"github.com/libtnb/utils/str"
 	"github.com/spf13/cast"
 
 	"github.com/tnborg/panel/internal/app"

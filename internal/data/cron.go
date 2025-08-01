@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-rat/utils/str"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/utils/str"
 	"gorm.io/gorm"
 
 	"github.com/tnborg/panel/internal/app"

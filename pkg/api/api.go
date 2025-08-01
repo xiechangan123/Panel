@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-rat/utils/copier"
 	"github.com/go-resty/resty/v2"
+	"github.com/libtnb/utils/copier"
 	"github.com/shirou/gopsutil/host"
 )
 

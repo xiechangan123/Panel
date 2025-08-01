@@ -9,8 +9,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/go-rat/sessions"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/sessions"
 	"github.com/spf13/cast"
 
 	"github.com/tnborg/panel/internal/biz"

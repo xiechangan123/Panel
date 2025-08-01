@@ -4,8 +4,8 @@ import (
 	"errors"
 	"image"
 
-	"github.com/go-rat/utils/hash"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/utils/hash"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"

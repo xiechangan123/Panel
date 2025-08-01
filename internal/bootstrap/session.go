@@ -1,9 +1,9 @@
 package bootstrap
 
 import (
-	"github.com/go-rat/gormstore"
-	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"
+	"github.com/libtnb/gormstore"
+	"github.com/libtnb/sessions"
 	"gorm.io/gorm"
 )
 

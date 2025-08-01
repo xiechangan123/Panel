@@ -7,8 +7,8 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/go-rat/utils/collect"
 	"github.com/hashicorp/go-version"
+	"github.com/libtnb/utils/collect"
 	"gorm.io/gorm"
 
 	"github.com/tnborg/panel/internal/app"

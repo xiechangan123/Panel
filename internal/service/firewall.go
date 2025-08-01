@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/go-rat/chix"
+	"github.com/libtnb/chix"
 
 	"github.com/tnborg/panel/internal/http/request"
 	"github.com/tnborg/panel/pkg/firewall"

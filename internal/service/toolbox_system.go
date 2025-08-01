@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-rat/chix"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
 
 	"github.com/tnborg/panel/internal/app"

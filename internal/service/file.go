@@ -15,9 +15,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-rat/chix"
-	"github.com/go-rat/utils/file"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
+	"github.com/libtnb/utils/file"
 	"github.com/spf13/cast"
 
 	"github.com/tnborg/panel/internal/app"

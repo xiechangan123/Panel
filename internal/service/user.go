@@ -12,10 +12,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-rat/chix"
-	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
+	"github.com/libtnb/sessions"
 	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
 

@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/go-rat/chix"
 	"github.com/gookit/validate"
+	"github.com/libtnb/chix"
 
 	"github.com/tnborg/panel/internal/http/request"
 )

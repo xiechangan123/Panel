@@ -6,12 +6,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-rat/sessions"
-	sessionmiddleware "github.com/go-rat/sessions/middleware"
 	"github.com/golang-cz/httplog"
 	"github.com/google/wire"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/sessions"
+	sessionmiddleware "github.com/libtnb/sessions/middleware"
 
 	"github.com/tnborg/panel/internal/biz"
 )

@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-rat/chix"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
 
 	"github.com/tnborg/panel/internal/service"

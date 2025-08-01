@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/go-rat/chix"
+	"github.com/libtnb/chix"
 
 	"github.com/tnborg/panel/internal/app"
 	"github.com/tnborg/panel/internal/biz"

@@ -10,10 +10,6 @@ require (
 	github.com/expr-lang/expr v1.17.5
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
-	github.com/go-rat/chix v1.2.0
-	github.com/go-rat/gormstore v1.0.6
-	github.com/go-rat/sessions v1.1.0
-	github.com/go-rat/utils v1.1.5
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/golang-cz/httplog v0.0.2
@@ -44,6 +40,10 @@ require (
 	github.com/libdns/porkbun v0.2.0
 	github.com/libdns/tencentcloud v1.2.0
 	github.com/libdns/vercel v0.0.2
+	github.com/libtnb/chix v1.3.0
+	github.com/libtnb/gormstore v1.1.0
+	github.com/libtnb/sessions v1.2.0
+	github.com/libtnb/utils v1.2.0
 	github.com/mholt/acmez/v3 v3.1.2
 	github.com/ncruces/go-sqlite3 v0.27.1
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
@@ -70,11 +70,10 @@ require (
 	github.com/boombuler/barcode v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/go-rat/securecookie v1.1.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
-	github.com/gofiber/schema v1.3.0 // indirect
+	github.com/gofiber/schema v1.6.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/filter v1.2.2 // indirect
 	github.com/gookit/goutil v0.6.18 // indirect
@@ -83,6 +82,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
+	github.com/libtnb/securecookie v1.2.0 // indirect
 	github.com/linode/linodego v1.23.0 // indirect
 	github.com/miekg/dns v1.1.40 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
@@ -99,7 +99,7 @@ require (
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
+	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect

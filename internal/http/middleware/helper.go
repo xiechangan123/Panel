@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-rat/chix"
+	"github.com/libtnb/chix"
 )
 
 func Abort(w http.ResponseWriter, code int, format string, args ...any) {

@@ -7,10 +7,10 @@ import (
 	"slices"
 
 	"github.com/expr-lang/expr"
-	"github.com/go-rat/utils/collect"
 	"github.com/hashicorp/go-version"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/utils/collect"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 

@@ -7,11 +7,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-rat/chix"
-	"github.com/go-rat/utils/collect"
 	"github.com/hashicorp/go-version"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
+	"github.com/libtnb/utils/collect"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/host"
 	"github.com/spf13/cast"

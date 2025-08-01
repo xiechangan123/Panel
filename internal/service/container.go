@@ -3,7 +3,7 @@ package service
 import (
 	"net/http"
 
-	"github.com/go-rat/chix"
+	"github.com/libtnb/chix"
 
 	"github.com/tnborg/panel/internal/biz"
 	"github.com/tnborg/panel/internal/http/request"

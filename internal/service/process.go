@@ -5,7 +5,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/go-rat/chix"
+	"github.com/libtnb/chix"
 	"github.com/shirou/gopsutil/process"
 
 	"github.com/tnborg/panel/internal/http/request"

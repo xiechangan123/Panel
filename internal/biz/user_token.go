@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-rat/utils/crypt"
+	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
 	"github.com/tnborg/panel/internal/app"

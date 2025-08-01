@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-rat/chix"
-	"github.com/go-rat/sessions"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
+	"github.com/libtnb/sessions"
 	"github.com/tnborg/panel/pkg/punycode"
 )
 
