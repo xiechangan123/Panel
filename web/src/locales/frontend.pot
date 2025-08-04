@@ -194,8 +194,8 @@ msgstr ""
 #: src/views/cert/CertView.vue:559
 #: src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115
-#: src/views/cert/CreateDnsModal.vue:237
-#: src/views/cert/DnsView.vue:373
+#: src/views/cert/CreateDnsModal.vue:208
+#: src/views/cert/DnsView.vue:345
 #: src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
 #: src/views/container/ComposeView.vue:348
@@ -1993,42 +1993,22 @@ msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:183
 #: src/views/cert/DnsView.vue:320
-msgid "Enter Name.com Username"
+msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:190
 #: src/views/cert/DnsView.vue:327
-msgid "Enter Name.com Token"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:198
-#: src/views/cert/DnsView.vue:334
-msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:205
-#: src/views/cert/DnsView.vue:341
 msgid "Enter ClouDNS Auth Password"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:212
-#: src/views/cert/DnsView.vue:348
+#: src/views/cert/CreateDnsModal.vue:197
+#: src/views/cert/DnsView.vue:334
 msgid "Enter Duck DNS Token"
 msgstr ""
 
-#: src/views/cert/CreateDnsModal.vue:219
-#: src/views/cert/DnsView.vue:355
+#: src/views/cert/CreateDnsModal.vue:204
+#: src/views/cert/DnsView.vue:341
 msgid "Enter Hetzner Auth API Token"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:226
-#: src/views/cert/DnsView.vue:362
-msgid "Enter Linode Token"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:233
-#: src/views/cert/DnsView.vue:369
-msgid "Enter Vercel Token"
 msgstr ""
 
 #: src/views/cert/DnsView.vue:31

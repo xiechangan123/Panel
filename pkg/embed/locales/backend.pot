@@ -209,7 +209,7 @@ msgstr ""
 msgid "Clear rotated logs"
 msgstr ""
 
-#: internal/service/cert.go:104
+#: internal/service/cert.go:100
 msgid "ClouDNS"
 msgstr ""
 
@@ -311,7 +311,7 @@ msgstr ""
 msgid "Download remote file %v"
 msgstr ""
 
-#: internal/service/cert.go:108
+#: internal/service/cert.go:104
 msgid "Duck DNS"
 msgstr ""
 
@@ -508,7 +508,7 @@ msgstr ""
 msgid "HTTPS enabled"
 msgstr ""
 
-#: internal/service/cert.go:112
+#: internal/service/cert.go:108
 msgid "Hetzner"
 msgstr ""
 
@@ -600,10 +600,6 @@ msgstr ""
 msgid "Latest Fork Time (ms)"
 msgstr ""
 
-#: internal/service/cert.go:116
-msgid "Linode"
-msgstr ""
-
 #: internal/route/cli.go:65
 msgid "List all users"
 msgstr ""
@@ -680,10 +676,6 @@ msgstr ""
 #: internal/bootstrap/cli.go:22
 #: internal/bootstrap/cli.go:27
 msgid "NAME"
-msgstr ""
-
-#: internal/service/cert.go:100
-msgid "Name.com"
 msgstr ""
 
 #: internal/service/cert.go:96
@@ -1188,10 +1180,6 @@ msgstr ""
 
 #: internal/bootstrap/cli.go:16
 msgid "VERSION"
-msgstr ""
-
-#: internal/service/cert.go:120
-msgid "Vercel"
 msgstr ""
 
 #: internal/data/backup.go:744
