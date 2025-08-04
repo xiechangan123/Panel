@@ -35,7 +35,7 @@
 支持 `amd64` | `arm64` 架构下的干净的主流系统，具体支持的系统请参考[安装文档](https://ratpanel.github.io/zh_CN/quickstart/install)。
 
 ```shell
-curl -fsLm 10 -o install.sh https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
+curl -sSLOm 10 https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
 ```
 
 ## UI 截图
