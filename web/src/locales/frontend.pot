@@ -194,8 +194,8 @@ msgstr ""
 #: src/views/cert/CertView.vue:559
 #: src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115
-#: src/views/cert/CreateDnsModal.vue:208
-#: src/views/cert/DnsView.vue:345
+#: src/views/cert/CreateDnsModal.vue:187
+#: src/views/cert/DnsView.vue:324
 #: src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
 #: src/views/container/ComposeView.vue:348
@@ -1978,36 +1978,21 @@ msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:162
 #: src/views/cert/DnsView.vue:299
-msgid "Enter Namecheap API Username"
+msgid "Enter NameSilo API Token"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:169
 #: src/views/cert/DnsView.vue:306
-msgid "Enter Namecheap API Key"
+msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:176
 #: src/views/cert/DnsView.vue:313
-msgid "Enter NameSilo API Token"
+msgid "Enter ClouDNS Auth Password"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:183
 #: src/views/cert/DnsView.vue:320
-msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:190
-#: src/views/cert/DnsView.vue:327
-msgid "Enter ClouDNS Auth Password"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:197
-#: src/views/cert/DnsView.vue:334
-msgid "Enter Duck DNS Token"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:204
-#: src/views/cert/DnsView.vue:341
 msgid "Enter Hetzner Auth API Token"
 msgstr ""
 
