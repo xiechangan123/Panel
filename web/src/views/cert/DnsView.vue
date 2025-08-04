@@ -313,20 +313,6 @@ onUnmounted(() => {
             :placeholder="$gettext('Enter NameSilo API Token')"
           />
         </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'namecom'" path="sk" label="Username">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter Name.com Username')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'namecom'" path="ak" label="Token">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Name.com Token')"
-          />
-        </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'cloudns'" path="ak" label="Auth ID">
           <n-input
             v-model:value="updateDNSModel.data.ak"
@@ -353,20 +339,6 @@ onUnmounted(() => {
             v-model:value="updateDNSModel.data.ak"
             type="text"
             :placeholder="$gettext('Enter Hetzner Auth API Token')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'linode'" path="ak" label="Token">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Linode Token')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'vercel'" path="ak" label="Token">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Vercel Token')"
           />
         </n-form-item>
       </n-form>

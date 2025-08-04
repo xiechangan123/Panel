@@ -213,20 +213,14 @@ github.com/libdns/libdns v0.1.0/go.mod h1:yQCXzk1lEZmmCPa857bnk4TsOiqYasqpyOEeSO
 github.com/libdns/libdns v0.2.0/go.mod h1:yQCXzk1lEZmmCPa857bnk4TsOiqYasqpyOEeSObbb40=
 github.com/libdns/libdns v0.2.3 h1:ba30K4ObwMGB/QTmqUxf3H4/GmUrCAIkMWejeGl12v8=
 github.com/libdns/libdns v0.2.3/go.mod h1:4Bj9+5CQiNMVGf87wjX4CY3HQJypUHRuLvlsfsZqLWQ=
-github.com/libdns/linode v0.4.1 h1:Fr22y3aWBzaj3AlFbCQ743eC+5Hss+sJ+OEjtlK61AA=
-github.com/libdns/linode v0.4.1/go.mod h1:BqAJnQxzpnQgy4GDVYf3hQvhLGDc3n8BRwMZ0/9m2y0=
 github.com/libdns/namecheap v0.0.0-20250523201144-144eb6168d52 h1:kV0L03h9sbiZInF9L+V3Cb5SDD9jnA0mitzKkCg6TDk=
 github.com/libdns/namecheap v0.0.0-20250523201144-144eb6168d52/go.mod h1:jo2LWZSD/g/scevxNSp2kWtdMIXfsgWxrtSc3Z0Yy/I=
-github.com/libdns/namedotcom v0.3.3 h1:R10C7+IqQGVeC4opHHMiFNBxdNBg1bi65ZwqLESl+jE=
-github.com/libdns/namedotcom v0.3.3/go.mod h1:GbYzsAF2yRUpI0WgIK5fs5UX+kDVUPaYCFLpTnKQm0s=
 github.com/libdns/namesilo v0.1.2 h1:ySW4QiWx2vMWw1xBD7kTnTWVY/CLIaCgko6ZbmOufbk=
 github.com/libdns/namesilo v0.1.2/go.mod h1:Mk+6XAOCWYaHF3V/oMVP6g96qpoQtj2PzrSz2NpKq4Q=
 github.com/libdns/porkbun v0.2.0 h1:oa2F0doE93RiJkauVVbM+P2AZ7jovDSiH6u3aaQezvQ=
 github.com/libdns/porkbun v0.2.0/go.mod h1:mwrhwXpsSA2Xw23t9+qmgFnz+erkn25Sxuh7IBA+x2I=
 github.com/libdns/tencentcloud v1.2.0 h1:SBbZ9gUZ+ba/p2d8NpiOcj+WZTdYqB5Fz7zypdbK3YU=
 github.com/libdns/tencentcloud v1.2.0/go.mod h1:o0+WCxQ7LGLtyjnjYU4HbGW9uVjN44SdUDhxdUYLGPw=
-github.com/libdns/vercel v0.0.2 h1:slfQWxgUdYFgKfPbK1vLE7k1CZSspHFlwC+nEWlm79w=
-github.com/libdns/vercel v0.0.2/go.mod h1:z2NBq/OQ8G0JPglZmit0YnqHm/k+eOz8s4XyLvYxhQo=
 github.com/libtnb/acmez/v3 v3.0.0-20250707093727-dc5aedd96413 h1:q6Qttk+i7r8JWw1kvt0gBkCa+9mEUZ3KV25rBs2Kiik=
 github.com/libtnb/acmez/v3 v3.0.0-20250707093727-dc5aedd96413/go.mod h1:L1wOU06KKvq7tswuMDwKdcHeKpFFgkppZy/y0DFxagQ=
 github.com/libtnb/chix v1.3.0 h1:/U+CyuxI41ooeB6M/762PHOjQlfHRg6BQjHKLZarlrM=
@@ -239,8 +233,6 @@ github.com/libtnb/sessions v1.2.0 h1:g/RMcfGTC5P2BQE1IqrgppPEQ++x/QjOuiwbN9Frke8
 github.com/libtnb/sessions v1.2.0/go.mod h1:45Bn9d6PseDINLIM1QaJrlCMbzSZ0NWpDbWkdrKJKw0=
 github.com/libtnb/utils v1.2.0 h1:6bTZrWn2OkNrODpCY4dhuHwbhsVRV7HICIgmZ31we98=
 github.com/libtnb/utils v1.2.0/go.mod h1:9gSEuhkADlvYbM3qJRQUAMC5ypMrhrYpX9YMuYJ6ws8=
-github.com/linode/linodego v1.23.0 h1:s0ReCZtuN9Z1IoUN9w1RLeYO1dMZUGPwOQ/IBFsBHtU=
-github.com/linode/linodego v1.23.0/go.mod h1:0U7wj/UQOqBNbKv1FYTXiBUXueR8DY4HvIotwE0ENgg=
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
@@ -276,8 +268,6 @@ github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FI
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
-github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
-github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/sftp v1.10.1/go.mod h1:lYOWFsE0bwd1+KfKJaKeuokY15vzFx25BLbzYYoAxZI=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
@@ -543,8 +533,6 @@ gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 h1:YR8cESwS4TdDjEe65xsg0ogR
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
 gopkg.in/ini.v1 v1.51.0/go.mod h1:pNLf8WUiyNEtQjuu5G5vTm06TEv9tsIgeAvK8hOrP4k=
-gopkg.in/ini.v1 v1.67.0 h1:Dgnx+6+nfE+IfzjUEISNeydPJh9AXNNsWbGP9KzCsOA=
-gopkg.in/ini.v1 v1.67.0/go.mod h1:pNLf8WUiyNEtQjuu5G5vTm06TEv9tsIgeAvK8hOrP4k=
 gopkg.in/natefinch/lumberjack.v2 v2.2.1 h1:bBRl1b0OH9s/DuPhuXpNl+VtCaJXFZ5/uEFST95x9zc=
 gopkg.in/natefinch/lumberjack.v2 v2.2.1/go.mod h1:YD8tP3GAjkrDg1eZH7EGmyESg/lsYskCTPBJVb9jqSc=
 gopkg.in/resty.v1 v1.12.0/go.mod h1:mDo4pnntr5jdWRML875a/NmxYqAlA73dVijT2AXvQQo=

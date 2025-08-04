@@ -33,13 +33,10 @@ require (
 	github.com/libdns/hetzner v0.0.1
 	github.com/libdns/huaweicloud v0.3.5
 	github.com/libdns/libdns v0.2.3
-	github.com/libdns/linode v0.4.1
 	github.com/libdns/namecheap v0.0.0-20250523201144-144eb6168d52
-	github.com/libdns/namedotcom v0.3.3
 	github.com/libdns/namesilo v0.1.2
 	github.com/libdns/porkbun v0.2.0
 	github.com/libdns/tencentcloud v1.2.0
-	github.com/libdns/vercel v0.0.2
 	github.com/libtnb/chix v1.3.0
 	github.com/libtnb/gormstore v1.1.0
 	github.com/libtnb/sessions v1.2.0
@@ -83,12 +80,10 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/libtnb/securecookie v1.2.0 // indirect
-	github.com/linode/linodego v1.23.0 // indirect
 	github.com/miekg/dns v1.1.40 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1096 // indirect
@@ -103,7 +98,6 @@ require (
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
-	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

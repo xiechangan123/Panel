@@ -17,13 +17,10 @@ import (
 	"github.com/libdns/hetzner"
 	"github.com/libdns/huaweicloud"
 	"github.com/libdns/libdns"
-	"github.com/libdns/linode"
 	"github.com/libdns/namecheap"
-	"github.com/libdns/namedotcom"
 	"github.com/libdns/namesilo"
 	"github.com/libdns/porkbun"
 	"github.com/libdns/tencentcloud"
-	"github.com/libdns/vercel"
 	"github.com/mholt/acmez/v3/acme"
 	"golang.org/x/net/publicsuffix"
 
@@ -194,12 +191,6 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 		dns = &namesilo.Provider{
 			APIToken: s.param.AK,
 		}
-	case Namecom:
-		dns = &namedotcom.Provider{
-			Token:  s.param.AK,
-			User:   s.param.SK,
-			Server: "https://api.name.com",
-		}
 	case ClouDNS:
 		if strings.HasPrefix(s.param.AK, "sub-") {
 			dns = &cloudns.Provider{
@@ -218,14 +209,6 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 		}
 	case Hetzner:
 		dns = &hetzner.Provider{
-			AuthAPIToken: s.param.AK,
-		}
-	case Linode:
-		dns = &linode.Provider{
-			APIToken: s.param.AK,
-		}
-	case Vercel:
-		dns = &vercel.Provider{
 			AuthAPIToken: s.param.AK,
 		}
 	default:
@@ -248,12 +231,9 @@ const (
 	Porkbun    DnsType = "porkbun"
 	Namecheap  DnsType = "namecheap"
 	NameSilo   DnsType = "namesilo"
-	Namecom    DnsType = "namecom"
 	ClouDNS    DnsType = "cloudns"
 	DuckDNS    DnsType = "duckdns"
 	Hetzner    DnsType = "hetzner"
-	Linode     DnsType = "linode"
-	Vercel     DnsType = "vercel"
 )
 
 type DNSParam struct {
