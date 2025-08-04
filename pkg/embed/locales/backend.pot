@@ -209,7 +209,7 @@ msgstr ""
 msgid "Clear rotated logs"
 msgstr ""
 
-#: internal/service/cert.go:100
+#: internal/service/cert.go:96
 msgid "ClouDNS"
 msgstr ""
 
@@ -309,10 +309,6 @@ msgstr ""
 
 #: internal/service/file.go:295
 msgid "Download remote file %v"
-msgstr ""
-
-#: internal/service/cert.go:104
-msgid "Duck DNS"
 msgstr ""
 
 #: internal/route/cli.go:91
@@ -508,7 +504,7 @@ msgstr ""
 msgid "HTTPS enabled"
 msgstr ""
 
-#: internal/service/cert.go:108
+#: internal/service/cert.go:100
 msgid "Hetzner"
 msgstr ""
 
@@ -678,12 +674,8 @@ msgstr ""
 msgid "NAME"
 msgstr ""
 
-#: internal/service/cert.go:96
-msgid "NameSilo"
-msgstr ""
-
 #: internal/service/cert.go:92
-msgid "Namecheap"
+msgid "NameSilo"
 msgstr ""
 
 #: internal/service/cli.go:214
