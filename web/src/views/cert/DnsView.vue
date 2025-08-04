@@ -264,13 +264,6 @@ onUnmounted(() => {
             :placeholder="$gettext('Enter Cloudflare API Key')"
           />
         </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'godaddy'" path="ak" label="Token">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter GoDaddy Token')"
-          />
-        </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'gcore'" path="ak" label="API Key">
           <n-input
             v-model:value="updateDNSModel.data.ak"

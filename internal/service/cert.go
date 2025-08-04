@@ -77,10 +77,6 @@ func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
 			Value: string(acme.CloudFlare),
 		},
 		{
-			Label: s.t.Get("Godaddy"),
-			Value: string(acme.Godaddy),
-		},
-		{
 			Label: s.t.Get("Gcore"),
 			Value: string(acme.Gcore),
 		},

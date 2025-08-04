@@ -11,7 +11,6 @@ import (
 	"github.com/libdns/cloudflare"
 	"github.com/libdns/cloudns"
 	"github.com/libdns/gcore"
-	"github.com/libdns/godaddy"
 	"github.com/libdns/hetzner"
 	"github.com/libdns/huaweicloud"
 	"github.com/libdns/libdns"
@@ -166,10 +165,6 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 		dns = &cloudflare.Provider{
 			APIToken: s.param.AK,
 		}
-	case Godaddy:
-		dns = &godaddy.Provider{
-			APIToken: s.param.AK,
-		}
 	case Gcore:
 		dns = &gcore.Provider{
 			APIKey: s.param.AK,
@@ -214,7 +209,6 @@ const (
 	Huawei     DnsType = "huawei"
 	Westcn     DnsType = "westcn"
 	CloudFlare DnsType = "cloudflare"
-	Godaddy    DnsType = "godaddy"
 	Gcore      DnsType = "gcore"
 	Porkbun    DnsType = "porkbun"
 	NameSilo   DnsType = "namesilo"

@@ -127,13 +127,6 @@ const handleCreateDNS = async () => {
             :placeholder="$gettext('Enter Cloudflare API Key')"
           />
         </n-form-item>
-        <n-form-item v-if="model.type == 'godaddy'" path="ak" label="Token">
-          <n-input
-            v-model:value="model.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter GoDaddy Token')"
-          />
-        </n-form-item>
         <n-form-item v-if="model.type == 'gcore'" path="ak" label="API Key">
           <n-input
             v-model:value="model.data.ak"
