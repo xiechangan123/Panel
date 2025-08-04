@@ -292,20 +292,6 @@ onUnmounted(() => {
             :placeholder="$gettext('Enter Porkbun Secret Key')"
           />
         </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'namecheap'" path="sk" label="API Username">
-          <n-input
-            v-model:value="updateDNSModel.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter Namecheap API Username')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'namecheap'" path="ak" label="API Key">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Namecheap API Key')"
-          />
-        </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'namesilo'" path="ak" label="API Token">
           <n-input
             v-model:value="updateDNSModel.data.ak"
@@ -325,13 +311,6 @@ onUnmounted(() => {
             v-model:value="updateDNSModel.data.sk"
             type="text"
             :placeholder="$gettext('Enter ClouDNS Auth Password')"
-          />
-        </n-form-item>
-        <n-form-item v-if="updateDNSModel.type == 'duckdns'" path="ak" label="Token">
-          <n-input
-            v-model:value="updateDNSModel.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Duck DNS Token')"
           />
         </n-form-item>
         <n-form-item v-if="updateDNSModel.type == 'hetzner'" path="ak" label="Auth API Token">

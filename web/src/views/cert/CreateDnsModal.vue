@@ -155,20 +155,6 @@ const handleCreateDNS = async () => {
             :placeholder="$gettext('Enter Porkbun Secret Key')"
           />
         </n-form-item>
-        <n-form-item v-if="model.type == 'namecheap'" path="sk" label="API Username">
-          <n-input
-            v-model:value="model.data.sk"
-            type="text"
-            :placeholder="$gettext('Enter Namecheap API Username')"
-          />
-        </n-form-item>
-        <n-form-item v-if="model.type == 'namecheap'" path="ak" label="API Key">
-          <n-input
-            v-model:value="model.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Namecheap API Key')"
-          />
-        </n-form-item>
         <n-form-item v-if="model.type == 'namesilo'" path="ak" label="API Token">
           <n-input
             v-model:value="model.data.ak"
@@ -188,13 +174,6 @@ const handleCreateDNS = async () => {
             v-model:value="model.data.sk"
             type="text"
             :placeholder="$gettext('Enter ClouDNS Auth Password')"
-          />
-        </n-form-item>
-        <n-form-item v-if="model.type == 'duckdns'" path="ak" label="Token">
-          <n-input
-            v-model:value="model.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Duck DNS Token')"
           />
         </n-form-item>
         <n-form-item v-if="model.type == 'hetzner'" path="ak" label="Auth API Token">

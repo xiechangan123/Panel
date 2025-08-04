@@ -89,20 +89,12 @@ func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
 			Value: string(acme.Porkbun),
 		},
 		{
-			Label: s.t.Get("Namecheap"),
-			Value: string(acme.Namecheap),
-		},
-		{
 			Label: s.t.Get("NameSilo"),
 			Value: string(acme.NameSilo),
 		},
 		{
 			Label: s.t.Get("ClouDNS"),
 			Value: string(acme.ClouDNS),
-		},
-		{
-			Label: s.t.Get("Duck DNS"),
-			Value: string(acme.DuckDNS),
 		},
 		{
 			Label: s.t.Get("Hetzner"),

@@ -6,7 +6,6 @@ require (
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
-	github.com/devhaozi/westcn v0.0.0-20250407083704-b49375823872
 	github.com/expr-lang/expr v1.17.5
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-gormigrate/gormigrate/v2 v2.1.4
@@ -24,19 +23,18 @@ require (
 	github.com/knadh/koanf/v2 v2.2.2
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.10.9
-	github.com/libdns/alidns v1.0.4
-	github.com/libdns/cloudflare v0.1.3
-	github.com/libdns/cloudns v1.0.0
-	github.com/libdns/duckdns v0.2.0
-	github.com/libdns/gcore v0.0.0-20250127070537-4a9d185c9d20
-	github.com/libdns/godaddy v1.0.3
-	github.com/libdns/hetzner v0.0.1
-	github.com/libdns/huaweicloud v0.3.5
-	github.com/libdns/libdns v0.2.3
-	github.com/libdns/namecheap v0.0.0-20250523201144-144eb6168d52
-	github.com/libdns/namesilo v0.1.2
-	github.com/libdns/porkbun v0.2.0
-	github.com/libdns/tencentcloud v1.2.0
+	github.com/libdns/alidns v1.0.5-libdns.v1.beta1
+	github.com/libdns/cloudflare v0.2.2-0.20250708034226-c574dccb31a6
+	github.com/libdns/cloudns v1.1.0
+	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
+	github.com/libdns/godaddy v1.1.0
+	github.com/libdns/hetzner v1.0.0
+	github.com/libdns/huaweicloud v1.0.0
+	github.com/libdns/libdns v1.1.0
+	github.com/libdns/namesilo v1.0.0
+	github.com/libdns/porkbun v1.1.0
+	github.com/libdns/tencentcloud v1.4.2
+	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/chix v1.3.0
 	github.com/libtnb/gormstore v1.1.0
 	github.com/libtnb/sessions v1.2.0
@@ -63,35 +61,32 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/G-Core/gcore-dns-sdk-go v0.2.9 // indirect
-	github.com/boombuler/barcode v1.0.2 // indirect
+	github.com/G-Core/gcore-dns-sdk-go v0.3.2 // indirect
+	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gofiber/schema v1.6.0 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/filter v1.2.2 // indirect
-	github.com/gookit/goutil v0.6.18 // indirect
+	github.com/gookit/goutil v0.7.0 // indirect
 	github.com/imega/luaformatter v0.0.0-20211025140405-86b0a68d6bef // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/libtnb/securecookie v1.2.0 // indirect
-	github.com/miekg/dns v1.1.40 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1096 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
-	github.com/timtadh/data-structures v0.5.3 // indirect
-	github.com/timtadh/lexmachine v0.2.2 // indirect
-	github.com/tklauser/go-sysconf v0.3.14 // indirect
-	github.com/tklauser/numcpus v0.9.0 // indirect
+	github.com/timtadh/data-structures v0.6.2 // indirect
+	github.com/timtadh/lexmachine v0.2.3 // indirect
+	github.com/tklauser/go-sysconf v0.3.15 // indirect
+	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect

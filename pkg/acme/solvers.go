@@ -7,20 +7,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devhaozi/westcn"
 	"github.com/libdns/alidns"
 	"github.com/libdns/cloudflare"
 	"github.com/libdns/cloudns"
-	"github.com/libdns/duckdns"
 	"github.com/libdns/gcore"
 	"github.com/libdns/godaddy"
 	"github.com/libdns/hetzner"
 	"github.com/libdns/huaweicloud"
 	"github.com/libdns/libdns"
-	"github.com/libdns/namecheap"
 	"github.com/libdns/namesilo"
 	"github.com/libdns/porkbun"
 	"github.com/libdns/tencentcloud"
+	"github.com/libdns/westcn"
 	"github.com/mholt/acmez/v3/acme"
 	"golang.org/x/net/publicsuffix"
 
@@ -103,11 +101,10 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
 
-	rec := libdns.Record{
-		Type:  "TXT",
-		Name:  libdns.RelativeName(dnsName+".", zone+"."),
-		Value: keyAuth,
-		TTL:   10 * time.Minute,
+	rec := libdns.TXT{
+		Name: libdns.RelativeName(dnsName+".", zone+"."),
+		Text: keyAuth,
+		TTL:  10 * time.Minute,
 	}
 
 	results, err := provider.SetRecords(ctx, zone+".", []libdns.Record{rec})
@@ -182,11 +179,6 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 			APIKey:       s.param.AK,
 			APISecretKey: s.param.SK,
 		}
-	case Namecheap:
-		dns = &namecheap.Provider{
-			APIKey: s.param.AK,
-			User:   s.param.SK,
-		}
 	case NameSilo:
 		dns = &namesilo.Provider{
 			APIToken: s.param.AK,
@@ -202,10 +194,6 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 				AuthId:       s.param.AK,
 				AuthPassword: s.param.SK,
 			}
-		}
-	case DuckDNS:
-		dns = &duckdns.Provider{
-			APIToken: s.param.AK,
 		}
 	case Hetzner:
 		dns = &hetzner.Provider{
@@ -229,10 +217,8 @@ const (
 	Godaddy    DnsType = "godaddy"
 	Gcore      DnsType = "gcore"
 	Porkbun    DnsType = "porkbun"
-	Namecheap  DnsType = "namecheap"
 	NameSilo   DnsType = "namesilo"
 	ClouDNS    DnsType = "cloudns"
-	DuckDNS    DnsType = "duckdns"
 	Hetzner    DnsType = "hetzner"
 )
 
