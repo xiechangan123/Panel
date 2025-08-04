@@ -194,8 +194,8 @@ msgstr ""
 #: src/views/cert/CertView.vue:559
 #: src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115
-#: src/views/cert/CreateDnsModal.vue:187
-#: src/views/cert/DnsView.vue:324
+#: src/views/cert/CreateDnsModal.vue:180
+#: src/views/cert/DnsView.vue:317
 #: src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
 #: src/views/container/ComposeView.vue:348
@@ -1958,41 +1958,36 @@ msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:134
 #: src/views/cert/DnsView.vue:271
-msgid "Enter GoDaddy Token"
+msgid "Enter G-Core API Key"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:141
 #: src/views/cert/DnsView.vue:278
-msgid "Enter G-Core API Key"
+msgid "Enter Porkbun API Key"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:148
 #: src/views/cert/DnsView.vue:285
-msgid "Enter Porkbun API Key"
+msgid "Enter Porkbun Secret Key"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:155
 #: src/views/cert/DnsView.vue:292
-msgid "Enter Porkbun Secret Key"
+msgid "Enter NameSilo API Token"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:162
 #: src/views/cert/DnsView.vue:299
-msgid "Enter NameSilo API Token"
+msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:169
 #: src/views/cert/DnsView.vue:306
-msgid "Enter ClouDNS Auth ID (use Sub Auth ID by adding sub-prefix)"
+msgid "Enter ClouDNS Auth Password"
 msgstr ""
 
 #: src/views/cert/CreateDnsModal.vue:176
 #: src/views/cert/DnsView.vue:313
-msgid "Enter ClouDNS Auth Password"
-msgstr ""
-
-#: src/views/cert/CreateDnsModal.vue:183
-#: src/views/cert/DnsView.vue:320
 msgid "Enter Hetzner Auth API Token"
 msgstr ""
 

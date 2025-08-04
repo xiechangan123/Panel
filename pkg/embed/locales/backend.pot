@@ -209,7 +209,7 @@ msgstr ""
 msgid "Clear rotated logs"
 msgstr ""
 
-#: internal/service/cert.go:96
+#: internal/service/cert.go:92
 msgid "ClouDNS"
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
-#: internal/service/cert.go:84
+#: internal/service/cert.go:80
 msgid "Gcore"
 msgstr ""
 
@@ -488,10 +488,6 @@ msgstr ""
 msgid "Gettext is a library for handling multilingual support"
 msgstr ""
 
-#: internal/service/cert.go:80
-msgid "Godaddy"
-msgstr ""
-
 #: internal/service/cli.go:386
 msgid "HTTPS certificate generated"
 msgstr ""
@@ -504,7 +500,7 @@ msgstr ""
 msgid "HTTPS enabled"
 msgstr ""
 
-#: internal/service/cert.go:100
+#: internal/service/cert.go:96
 msgid "Hetzner"
 msgstr ""
 
@@ -674,7 +670,7 @@ msgstr ""
 msgid "NAME"
 msgstr ""
 
-#: internal/service/cert.go:92
+#: internal/service/cert.go:88
 msgid "NameSilo"
 msgstr ""
 
@@ -811,7 +807,7 @@ msgstr ""
 msgid "Please enter the 2FA code: "
 msgstr ""
 
-#: internal/service/cert.go:88
+#: internal/service/cert.go:84
 msgid "Porkbun"
 msgstr ""
 
