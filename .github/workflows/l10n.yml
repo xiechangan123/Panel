@@ -5,6 +5,8 @@ on:
       - main
 jobs:
   l10n:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
