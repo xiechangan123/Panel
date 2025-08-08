@@ -30,10 +30,28 @@ export function toTimestamp(time: any) {
 /** 生成随机字符串 */
 export function generateRandomString(length: number) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const charactersLength = characters.length
   let result = ''
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length)
-    result += characters[randomIndex]
+  if (!window.crypto || !window.crypto.getRandomValues) {
+    // fallback to insecure Math.random if crypto is not available
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charactersLength)
+      result += characters[randomIndex]
+    }
+    return result
+  }
+  // Use Uint8Array for random bytes
+  while (result.length < length) {
+    const randomBytes = new Uint8Array(length - result.length)
+    window.crypto.getRandomValues(randomBytes)
+    for (let i = 0; i < randomBytes.length && result.length < length; i++) {
+      // Only use values that map evenly to the character set to avoid bias
+      const maxValue = Math.floor(256 / charactersLength) * charactersLength
+      if (randomBytes[i] < maxValue) {
+        const randomIndex = randomBytes[i] % charactersLength
+        result += characters[randomIndex]
+      }
+    }
   }
   return result
 }
