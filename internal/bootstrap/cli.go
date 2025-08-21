@@ -30,8 +30,8 @@ func NewCli(t *gotext.Locale, cmd *route.Cli) *cli.Command {
 	cli.SubcommandHelpTemplate = strings.ReplaceAll(cli.SubcommandHelpTemplate, "COMMANDS", t.Get("COMMANDS"))
 	cli.SubcommandHelpTemplate = strings.ReplaceAll(cli.SubcommandHelpTemplate, "OPTIONS", t.Get("OPTIONS"))
 
-	cli.RootCommandHelpTemplate += "\n" + t.Get("Website：https://panel.haozi.net")
-	cli.RootCommandHelpTemplate += "\n" + t.Get("Forum：https://bbs.haozi.net")
+	cli.RootCommandHelpTemplate += "\n" + t.Get("Website：https://acepanel.net")
+	cli.RootCommandHelpTemplate += "\n" + t.Get("Forum：https://tom.moe")
 	cli.RootCommandHelpTemplate += "\n" + t.Get("QQ Group：12370907") + "\n"
 
 	return &cli.Command{

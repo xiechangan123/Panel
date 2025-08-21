@@ -9,7 +9,7 @@ const year = new Date().getFullYear()
   <footer color="#6a6a6a" f-c-c flex-col text-14>
     <p>
       © 2022 - {{ year }}
-      <a hover="decoration-primary color-primary" target="__blank" href="https://panel.haozi.net/">
+      <a hover="decoration-primary color-primary" target="__blank" href="https://acepanel.net/">
         {{ $gettext('AcePanel') }}
       </a>
       {{ $gettext('All Rights Reserved.') }}
@@ -26,7 +26,7 @@ const year = new Date().getFullYear()
       <a
         hover="decoration-primary color-primary"
         target="_blank"
-        href="https://panel.haozi.net/docs"
+        href="https://acepanel.net/docs"
       >
         {{ $gettext('Documentation') }}
       </a>
@@ -42,7 +42,7 @@ const year = new Date().getFullYear()
       <a
         hover="decoration-primary color-primary"
         target="_blank"
-        href="https://afdian.com/a/tnblabs"
+        href="https://afdian.com/a/treenewbee"
       >
         {{ $gettext('Sponsor') }}
       </a>

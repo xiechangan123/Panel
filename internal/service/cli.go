@@ -938,7 +938,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	settings := []biz.Setting{
-		{Key: biz.SettingKeyName, Value: "耗子面板"},
+		{Key: biz.SettingKeyName, Value: "AcePanel"},
 		{Key: biz.SettingKeyChannel, Value: "stable"},
 		{Key: biz.SettingKeyVersion, Value: app.Version},
 		{Key: biz.SettingKeyMonitor, Value: "true"},

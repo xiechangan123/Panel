@@ -11,7 +11,7 @@
 [![Test](https://github.com/tnborg/panel/actions/workflows/test.yml/badge.svg)](https://github.com/tnborg/panel/actions)
 [![Report Card](https://goreportcard.com/badge/github.com/tnborg/panel)](https://goreportcard.com/report/github.com/tnborg/panel)
 [![Stars](https://img.shields.io/github/stars/tnborg/panel?style=flat)](https://github.com/tnborg/panel)
-[![License](https://img.shields.io/github/license/tnborg/panel)](https://www.gnu.org/licenses/agpl-3.0.html)
+[![License](https://img.shields.io/github/license/tnborg/panel)](https://opensource.org/license/bsd-3-clause)
 
 </div>
 
@@ -65,7 +65,7 @@ If the AcePanel is helpful to you, welcome to [sponsor us](https://github.com/tn
 </p>
 
 <p align="center">
-  <a target="_blank" href="https://afdian.com/a/tnblabs">
+  <a target="_blank" href="https://afdian.com/a/treenewbee">
     <img alt="sponsors" src="https://github.com/tnborg/sponsor/blob/main/sponsors.svg?raw=true"/>
   </a>
 </p>

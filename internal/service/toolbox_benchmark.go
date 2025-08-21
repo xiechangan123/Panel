@@ -254,7 +254,7 @@ func (s *ToolboxBenchmarkService) compressionTest() int {
 }
 
 func (s *ToolboxBenchmarkService) compressionTestTask() {
-	data := []byte(strings.Repeat("耗子面板", 50000000))
+	data := []byte(strings.Repeat("AcePanel", 50000000))
 
 	// 压缩
 	var buf bytes.Buffer
