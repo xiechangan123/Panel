@@ -17,7 +17,7 @@
 
 A new generation of all-in-one server operation and maintenance management panel. Simple and lightweight, efficient operation and maintenance.
 
-Website: [panel.haozi.net](https://panel.haozi.net) | QQ group: [12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | WeChat group: [Copy this link](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
+Website: [acepanel.net](https://acepanel.net) | QQ group: [12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | WeChat group: [Copy this link](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
 
 ## Advantages
 
