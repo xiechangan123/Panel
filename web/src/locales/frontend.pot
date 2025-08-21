@@ -4,7 +4,7 @@ msgstr ""
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/dashboard/IndexView.vue:439
-msgid "Rat Panel"
+msgid "AcePanel"
 msgstr ""
 
 #: src/components/common/AppFooter.vue:15

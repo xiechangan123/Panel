@@ -28,6 +28,14 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
+#: internal/service/dashboard.go:58
+msgid "AcePanel"
+msgstr ""
+
+#: internal/bootstrap/cli.go:39
+msgid "AcePanel CLI Tool"
+msgstr ""
+
 #: internal/apps/mysql/app.go:124
 msgid "Active Connections"
 msgstr ""
@@ -453,7 +461,7 @@ msgid "Fix panel"
 msgstr ""
 
 #: internal/bootstrap/cli.go:34
-msgid "Forum：https://bbs.haozi.net"
+msgid "Forum：https://tom.moe"
 msgstr ""
 
 #: internal/apps/mysql/app.go:130
@@ -855,14 +863,6 @@ msgstr ""
 msgid "QQ Group：12370907"
 msgstr ""
 
-#: internal/service/dashboard.go:58
-msgid "Rat Panel"
-msgstr ""
-
-#: internal/bootstrap/cli.go:39
-msgid "Rat Panel CLI Tool"
-msgstr ""
-
 #: internal/apps/nginx/app.go:144
 msgid "Reading"
 msgstr ""
@@ -1211,7 +1211,7 @@ msgid "Website name"
 msgstr ""
 
 #: internal/bootstrap/cli.go:33
-msgid "Website：https://panel.haozi.net"
+msgid "Website：https://acepanel.net"
 msgstr ""
 
 #: internal/service/cert.go:72
