@@ -55,7 +55,7 @@ func NewDashboardService(t *gotext.Locale, conf *koanf.Koanf, task biz.TaskRepo,
 func (s *DashboardService) Panel(w http.ResponseWriter, r *http.Request) {
 	name, _ := s.settingRepo.Get(biz.SettingKeyName)
 	if name == "" {
-		name = s.t.Get("Rat Panel")
+		name = s.t.Get("AcePanel")
 	}
 
 	Success(w, chix.M{

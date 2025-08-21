@@ -4,8 +4,8 @@
 
 预了解更多请移步 [耗子面板](https://github.com/tnborg/panel)。
 
-# Rat Panel
+# AcePanel
 
-This is the frontend part of Rat Panel, developed using Vue3 + Vite + UnoCSS + Naive UI.
+This is the frontend part of AcePanel, developed using Vue3 + Vite + UnoCSS + Naive UI.
 
-For more information, please visit [Rat Panel](https://github.com/tnborg/panel).
+For more information, please visit [AcePanel](https://github.com/tnborg/panel).

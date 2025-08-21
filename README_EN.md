@@ -2,7 +2,7 @@
 [<a href="README.md">简体中文</a>] | [English]
 </p>
 
-<h1 align="center" style="font-size: 40px">Rat Panel</h1>
+<h1 align="center" style="font-size: 40px">AcePanel</h1>
 
 <div align="center">
 
@@ -44,7 +44,7 @@ curl -sSLOm 10 https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
 
 ## Partners
 
-If the Rat Panel is helpful to you, welcome to [sponsor us](https://github.com/tnborg/panel/issues/90), also thanks to the following supporters/sponsors:
+If the AcePanel is helpful to you, welcome to [sponsor us](https://github.com/tnborg/panel/issues/90), also thanks to the following supporters/sponsors:
 
 <p align="center">
   <a href="https://www.weixiaoduo.com/">

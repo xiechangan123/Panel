@@ -151,7 +151,7 @@ func (r *userRepo) IsTwoFA(username string) (bool, error) {
 
 func (r *userRepo) GenerateTwoFA(id uint) (image.Image, string, string, error) {
 	key, err := totp.Generate(totp.GenerateOpts{
-		Issuer:      "RatPanel",
+		Issuer:      "AcePanel",
 		AccountName: cast.ToString(id),
 		SecretSize:  32,
 		Algorithm:   otp.AlgorithmSHA1,

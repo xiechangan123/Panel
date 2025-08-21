@@ -25,7 +25,7 @@ func (suite *RSATestSuite) TestRSA() {
 	suite.NotEmpty(PrivateKeyToString(privateKey))
 	suite.NotEmpty(PublicKeyToString(&privateKey.PublicKey))
 
-	message := []byte("Rat Panel")
+	message := []byte("AcePanel")
 
 	// 加密数据
 	ciphertext, err := EncryptData(&privateKey.PublicKey, message)

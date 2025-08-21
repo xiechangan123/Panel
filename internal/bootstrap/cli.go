@@ -36,7 +36,7 @@ func NewCli(t *gotext.Locale, cmd *route.Cli) *cli.Command {
 
 	return &cli.Command{
 		Name:     "panel-cli",
-		Usage:    t.Get("Rat Panel CLI Tool"),
+		Usage:    t.Get("AcePanel CLI Tool"),
 		Version:  app.Version,
 		Commands: cmd.Commands(),
 	}

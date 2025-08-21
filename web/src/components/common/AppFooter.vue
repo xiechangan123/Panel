@@ -10,7 +10,7 @@ const year = new Date().getFullYear()
     <p>
       © 2022 - {{ year }}
       <a hover="decoration-primary color-primary" target="__blank" href="https://panel.haozi.net/">
-        {{ $gettext('Rat Panel') }}
+        {{ $gettext('AcePanel') }}
       </a>
       {{ $gettext('All Rights Reserved.') }}
     </p>

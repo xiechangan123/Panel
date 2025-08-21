@@ -110,7 +110,7 @@ func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
 
 	rootTemplate := x509.Certificate{
 		SerialNumber:          big.NewInt(1),
-		Subject:               pkix.Name{CommonName: "Rat Panel Root CA"},
+		Subject:               pkix.Name{CommonName: "AcePanel Root CA"},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(20, 0, 0),
 		BasicConstraintsValid: true,
@@ -135,7 +135,7 @@ func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
 
 	interTemplate := x509.Certificate{
 		SerialNumber:          big.NewInt(2),
-		Subject:               pkix.Name{CommonName: "Rat Panel CA"},
+		Subject:               pkix.Name{CommonName: "AcePanel CA"},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(10, 0, 0),
 		BasicConstraintsValid: true,
@@ -161,7 +161,7 @@ func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
 
 	clientTemplate := x509.Certificate{
 		SerialNumber: big.NewInt(3),
-		Subject:      pkix.Name{CommonName: "Rat Panel"},
+		Subject:      pkix.Name{CommonName: "AcePanel"},
 		NotBefore:    time.Now(),
 		NotAfter:     time.Now().AddDate(10, 0, 0),
 		KeyUsage:     x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
