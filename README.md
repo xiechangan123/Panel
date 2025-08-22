@@ -2,7 +2,7 @@
 [简体中文] | [<a href="README_EN.md">English</a>]
 </p>
 
-<h1 align="center" style="font-size: 40px">耗子面板</h1>
+<h1 align="center" style="font-size: 40px">AcePanel（原耗子面板）</h1>
 
 <div align="center">
 
@@ -15,11 +15,11 @@
 
 </div>
 
-**耗子面板将于近期改名为 AcePanel，特此通知！**
+**耗子面板正在逐步改名为 AcePanel，特此通知！**
 
 新一代全能服务器运维管理面板。简单轻量，高效运维。
 
-官网：[panel.haozi.net](https://panel.haozi.net) | QQ群：[12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | 微信群：[复制此链接](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
+官网：[acepanel.net](https://acepanel.net) | QQ群：[12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | 微信群：[复制此链接](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
 
 ## 优势
 
@@ -46,7 +46,7 @@ curl -sSLOm 10 https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
 
 ## 合作伙伴
 
-如果耗子面板对您有帮助，欢迎[赞助我们](https://github.com/tnborg/panel/issues/90)，同时感谢以下支持者/赞助商的支持：
+如果 AcePanel 对您有帮助，欢迎[赞助我们](https://github.com/tnborg/panel/issues/90)，同时感谢以下支持者/赞助商的支持：
 
 <p align="center">
   <a href="https://www.weixiaoduo.com/">
