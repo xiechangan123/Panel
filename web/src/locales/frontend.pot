@@ -560,16 +560,6 @@ msgid "Toolbox"
 msgstr ""
 
 #: src/locales/menu.ts:21
-#: src/views/toolbox/IndexView.vue:18
-msgid "System"
-msgstr ""
-
-#: src/locales/menu.ts:22
-#: src/views/toolbox/IndexView.vue:19
-msgid "Benchmark"
-msgstr ""
-
-#: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:322
 #: src/views/backup/IndexView.vue:37
 #: src/views/backup/ListView.vue:235
@@ -582,27 +572,27 @@ msgstr ""
 msgid "Website"
 msgstr ""
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:22
 msgid "Website Edit"
 msgstr ""
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:24
 msgid "Fail2ban Manager"
 msgstr ""
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:25
 msgid "S3fs Manager"
 msgstr ""
 
-#: src/locales/menu.ts:28
+#: src/locales/menu.ts:26
 msgid "Supervisor Manager"
 msgstr ""
 
-#: src/locales/menu.ts:29
+#: src/locales/menu.ts:27
 msgid "Rsync Manager"
 msgstr ""
 
-#: src/locales/menu.ts:30
+#: src/locales/menu.ts:28
 msgid "Frp Manager"
 msgstr ""
 
@@ -4160,6 +4150,14 @@ msgstr ""
 
 #: src/views/toolbox/BenchmarkView.vue:272
 msgid "Start Benchmark"
+msgstr ""
+
+#: src/views/toolbox/IndexView.vue:18
+msgid "System"
+msgstr ""
+
+#: src/views/toolbox/IndexView.vue:19
+msgid "Benchmark"
 msgstr ""
 
 #: src/views/toolbox/SystemView.vue:96
