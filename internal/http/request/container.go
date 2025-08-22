@@ -8,11 +8,11 @@ type ContainerID struct {
 
 type ContainerRename struct {
 	ID   string `form:"id" json:"id" validate:"required"`
-	Name string `form:"name" json:"name" validate:"required"`
+	Name string `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 }
 
 type ContainerCreate struct {
-	Name            string                           `form:"name" json:"name" validate:"required"`
+	Name            string                           `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 	Image           string                           `form:"image" json:"image" validate:"required"`
 	Ports           []types.ContainerPort            `form:"ports" json:"ports"`
 	Network         string                           `form:"network" json:"network"`

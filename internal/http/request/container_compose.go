@@ -3,7 +3,7 @@ package request
 import "github.com/tnborg/panel/pkg/types"
 
 type ContainerComposeGet struct {
-	Name string `uri:"name" validate:"required"`
+	Name string `uri:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 }
 
 type ContainerComposeCreate struct {
@@ -19,14 +19,14 @@ type ContainerComposeUpdate struct {
 }
 
 type ContainerComposeUp struct {
-	Name  string `uri:"name" validate:"required"`
+	Name  string `uri:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 	Force bool   `json:"force"`
 }
 
 type ContainerComposeDown struct {
-	Name string `uri:"name" validate:"required"`
+	Name string `uri:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 }
 
 type ContainerComposeRemove struct {
-	Name string `uri:"name" validate:"required"`
+	Name string `uri:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 }

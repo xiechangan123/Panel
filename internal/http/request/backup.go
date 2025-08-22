@@ -8,7 +8,7 @@ type BackupList struct {
 
 type BackupCreate struct {
 	Type   string `uri:"type" form:"type" validate:"required|in:website,mysql,postgres,redis,panel"`
-	Target string `json:"target" form:"target" validate:"required"`
+	Target string `json:"target" form:"target" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 	Path   string `json:"path" form:"path"`
 }
 
@@ -25,5 +25,5 @@ type BackupFile struct {
 type BackupRestore struct {
 	Type   string `uri:"type" form:"type" validate:"required|in:website,mysql,postgres,redis,panel"`
 	File   string `json:"file" form:"file" validate:"required"`
-	Target string `json:"target" form:"target" validate:"required"`
+	Target string `json:"target" form:"target" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 }

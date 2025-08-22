@@ -8,7 +8,7 @@ type WebsiteDefaultConfig struct {
 }
 
 type WebsiteCreate struct {
-	Name       string   `form:"name" json:"name" validate:"required|notExists:websites,name"`
+	Name       string   `form:"name" json:"name" validate:"required|notExists:websites,name|regex:^[a-zA-Z0-9_-]+$"`
 	Listens    []string `form:"listens" json:"listens" validate:"required|isSlice"`
 	Domains    []string `form:"domains" json:"domains" validate:"required|isSlice"`
 	Path       string   `form:"path" json:"path"`
@@ -57,7 +57,7 @@ type WebsiteUpdateStatus struct {
 }
 
 type WebsiteUpdateCert struct {
-	Name string `json:"name" validate:"required|exists:websites,name"`
+	Name string `json:"name" validate:"required|exists:websites,name|regex:^[a-zA-Z0-9_-]+$"`
 	Cert string `json:"cert" validate:"required"`
 	Key  string `json:"key" validate:"required"`
 }
