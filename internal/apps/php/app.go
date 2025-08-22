@@ -230,10 +230,10 @@ func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := fmt.Sprintf(`curl -sSLOm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'install' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), s.version, req.Slug)
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'install' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), s.version, req.Slug)
 	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
 	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLOm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/official.sh' | bash -s -- 'install' '%d' '%s' >> '/tmp/%s.log' 2>&1`, s.version, req.Slug, req.Slug)
+		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/official.sh' | bash -s -- 'install' '%d' '%s' >> '/tmp/%s.log' 2>&1`, s.version, req.Slug, req.Slug)
 	}
 
 	task := new(biz.Task)
@@ -261,10 +261,10 @@ func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := fmt.Sprintf(`curl -sSLOm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'uninstall' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), s.version, req.Slug)
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'uninstall' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), s.version, req.Slug)
 	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
 	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLOm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/official.sh' | bash -s -- 'uninstall' '%d' '%s' >> '/tmp/%s.log' 2>&1`, s.version, req.Slug, req.Slug)
+		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/official.sh' | bash -s -- 'uninstall' '%d' '%s' >> '/tmp/%s.log' 2>&1`, s.version, req.Slug, req.Slug)
 	}
 
 	task := new(biz.Task)

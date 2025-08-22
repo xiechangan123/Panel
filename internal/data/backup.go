@@ -798,7 +798,7 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Run post-update script..."))
 	}
-	if _, err := shell.Execf("curl -sSLOm 10 https://dl.cdn.haozi.net/panel/auto_update.sh | bash"); err != nil {
+	if _, err := shell.Execf("curl -sSLm 10 https://dl.cdn.haozi.net/panel/auto_update.sh | bash"); err != nil {
 		return errors.New(r.t.Get("|-Run post-update script failed: %v", err))
 	}
 	if _, err := shell.Execf(`wget -O /etc/systemd/system/panel.service https://dl.cdn.haozi.net/panel/panel.service && sed -i "s|/www|%s|g" /etc/systemd/system/panel.service`, app.Root); err != nil {
