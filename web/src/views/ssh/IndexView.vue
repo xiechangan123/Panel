@@ -5,7 +5,6 @@ defineOptions({
 
 import ssh from '@/api/panel/ssh'
 import ws from '@/api/ws'
-import TheIcon from '@/components/custom/TheIcon.vue'
 import CreateModal from '@/views/ssh/CreateModal.vue'
 import UpdateModal from '@/views/ssh/UpdateModal.vue'
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
@@ -243,7 +242,6 @@ onUnmounted(() => {
       >
         <div class="text-center">
           <n-button type="primary" @click="create = true">
-            <the-icon :size="18" icon="material-symbols:add" />
             {{ $gettext('Create Host') }}
           </n-button>
         </div>

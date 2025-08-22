@@ -3,7 +3,6 @@ defineOptions({
   name: 'task-index'
 })
 
-import TheIcon from '@/components/custom/TheIcon.vue'
 import CreateModal from '@/views/task/CreateModal.vue'
 import CronView from '@/views/task/CronView.vue'
 import SystemView from '@/views/task/SystemView.vue'
@@ -29,7 +28,6 @@ const create = ref(false)
     <n-flex vertical>
       <n-flex>
         <n-button v-if="current == 'cron'" type="primary" @click="create = true">
-          <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create Task') }}
         </n-button>
       </n-flex>

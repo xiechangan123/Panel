@@ -6,7 +6,6 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import setting from '@/api/panel/setting'
-import TheIcon from '@/components/custom/TheIcon.vue'
 import { useThemeStore } from '@/store'
 import CreateModal from '@/views/setting/CreateModal.vue'
 import SettingBase from '@/views/setting/SettingBase.vue'
@@ -69,7 +68,6 @@ const handleCreate = () => {
     <n-flex vertical>
       <n-flex>
         <n-button v-if="currentTab == 'user'" type="primary" @click="handleCreate">
-          <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create User') }}
         </n-button>
       </n-flex>
@@ -78,7 +76,6 @@ const handleCreate = () => {
       <setting-user v-if="currentTab === 'user'" />
       <n-flex>
         <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
-          <the-icon :size="18" icon="material-symbols:save-outline" />
           {{ $gettext('Save') }}
         </n-button>
       </n-flex>

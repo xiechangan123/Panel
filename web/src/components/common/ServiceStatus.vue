@@ -148,20 +148,17 @@ onMounted(() => {
       </n-alert>
       <n-flex>
         <n-button type="success" v-model:disabled="fetchingStatus" @click="handleStart">
-          <the-icon :size="24" icon="material-symbols:play-arrow-outline-rounded" />
           {{ $gettext('Start') }}
         </n-button>
         <n-popconfirm @positive-click="handleStop">
           <template #trigger>
             <n-button type="error" v-model:disabled="fetchingStatus">
-              <the-icon :size="24" icon="material-symbols:stop-outline-rounded" />
               {{ $gettext('Stop') }}
             </n-button>
           </template>
           {{ $gettext('Are you sure you want to stop %{ service }?', { service: props.service }) }}
         </n-popconfirm>
         <n-button type="warning" v-model:disabled="fetchingStatus" @click="handleRestart">
-          <the-icon :size="18" icon="material-symbols:replay-rounded" />
           {{ $gettext('Restart') }}
         </n-button>
         <n-button
@@ -170,7 +167,6 @@ onMounted(() => {
           v-model:disabled="fetchingStatus"
           @click="handleReload"
         >
-          <the-icon :size="20" icon="material-symbols:refresh-rounded" />
           {{ $gettext('Reload') }}
         </n-button>
       </n-flex>

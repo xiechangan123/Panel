@@ -54,7 +54,6 @@ onMounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button v-if="currentTab == 'status'" class="ml-16" type="primary" @click="handleSave">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -63,7 +62,6 @@ onMounted(() => {
         type="primary"
         @click="handleSaveConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
     </template>

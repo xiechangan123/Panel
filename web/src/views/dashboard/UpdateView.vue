@@ -55,7 +55,6 @@ const handleUpdate = () => {
     <template #action>
       <div>
         <n-button v-if="versions" class="ml-16" type="primary" @click="handleUpdate">
-          <the-icon :size="18" icon="material-symbols:arrow-circle-up-outline-rounded" />
           {{ $gettext('Update Now') }}
         </n-button>
       </div>

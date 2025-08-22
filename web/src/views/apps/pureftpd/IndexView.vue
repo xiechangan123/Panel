@@ -8,7 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import pureftpd from '@/api/apps/pureftpd'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
-import { generateRandomString, renderIcon } from '@/utils'
+import { generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -62,8 +62,7 @@ const userColumns: any = [
             }
           },
           {
-            default: () => $gettext('Change Password'),
-            icon: renderIcon('material-symbols:key-outline', { size: 14 })
+            default: () => $gettext('Change Password')
           }
         ),
         h(
@@ -86,8 +85,7 @@ const userColumns: any = [
                   style: 'margin-left: 15px'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }
@@ -158,7 +156,6 @@ onMounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button v-if="currentTab == 'status'" class="ml-16" type="primary" @click="handleSavePort">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -167,7 +164,6 @@ onMounted(() => {
         type="primary"
         @click="addUserModal = true"
       >
-        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Add User') }}
       </n-button>
     </template>

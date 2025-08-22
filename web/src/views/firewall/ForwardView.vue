@@ -3,7 +3,6 @@ import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
-import { renderIcon } from '@/utils'
 import CreateForwardModal from '@/views/firewall/CreateForwardModal.vue'
 
 const { $gettext } = useGettext()
@@ -101,8 +100,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }
@@ -162,13 +160,11 @@ onMounted(() => {
   <n-flex vertical :size="20">
     <n-flex items-center>
       <n-button type="primary" @click="createModalShow = true">
-        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Create Forwarding') }}
       </n-button>
       <n-popconfirm @positive-click="batchDelete">
         <template #trigger>
           <n-button type="warning">
-            <the-icon :size="18" icon="material-symbols:delete-outline" />
             {{ $gettext('Batch Delete') }}
           </n-button>
         </template>

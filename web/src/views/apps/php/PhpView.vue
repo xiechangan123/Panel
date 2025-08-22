@@ -5,7 +5,6 @@ import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/apps/php'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
-import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const props = defineProps({
@@ -78,8 +77,7 @@ const extensionColumns: any = [
                       type: 'info'
                     },
                     {
-                      default: () => $gettext('Install'),
-                      icon: renderIcon('material-symbols:download-rounded', { size: 14 })
+                      default: () => $gettext('Install')
                     }
                   )
                 }
@@ -106,8 +104,7 @@ const extensionColumns: any = [
                       type: 'error'
                     },
                     {
-                      default: () => $gettext('Delete'),
-                      icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                      default: () => $gettext('Delete')
                     }
                   )
                 }
@@ -190,7 +187,6 @@ const handleUninstallExtension = async (name: string) => {
         type="primary"
         @click="handleSaveConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -199,7 +195,6 @@ const handleUninstallExtension = async (name: string) => {
         type="primary"
         @click="handleSaveFPMConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -208,7 +203,6 @@ const handleUninstallExtension = async (name: string) => {
         type="primary"
         @click="handleClearErrorLog"
       >
-        <the-icon :size="18" icon="material-symbols:delete-outline" />
         {{ $gettext('Clear Error Log') }}
       </n-button>
       <n-button
@@ -217,7 +211,6 @@ const handleUninstallExtension = async (name: string) => {
         type="primary"
         @click="handleClearSlowLog"
       >
-        <the-icon :size="18" icon="material-symbols:delete-outline" />
         {{ $gettext('Clear Slow Log') }}
       </n-button>
     </template>

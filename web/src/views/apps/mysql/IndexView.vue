@@ -75,7 +75,6 @@ const handleSetRootPassword = async () => {
         type="primary"
         @click="handleSaveConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -84,7 +83,6 @@ const handleSetRootPassword = async () => {
         type="primary"
         @click="handleClearErrorLog"
       >
-        <the-icon :size="18" icon="material-symbols:delete-outline" />
         {{ $gettext('Clear Log') }}
       </n-button>
       <n-button
@@ -93,7 +91,6 @@ const handleSetRootPassword = async () => {
         type="primary"
         @click="handleClearSlowLog"
       >
-        <the-icon :size="18" icon="material-symbols:delete-outline" />
         {{ $gettext('Clear Slow Log') }}
       </n-button>
     </template>

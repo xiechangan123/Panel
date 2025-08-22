@@ -8,7 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
-import { decodeBase64, formatDateTime, renderIcon } from '@/utils'
+import { decodeBase64, formatDateTime } from '@/utils'
 import { CronNaive } from '@vue-js-cron/naive-ui'
 
 const { $gettext } = useGettext()
@@ -117,8 +117,7 @@ const columns: any = [
             }
           },
           {
-            default: () => $gettext('Logs'),
-            icon: renderIcon('majesticons:eye-line', { size: 14 })
+            default: () => $gettext('Logs')
           }
         ),
         h(
@@ -130,8 +129,7 @@ const columns: any = [
             onClick: () => handleEdit(row)
           },
           {
-            default: () => $gettext('Edit'),
-            icon: renderIcon('material-symbols:edit-outline', { size: 14 })
+            default: () => $gettext('Edit')
           }
         ),
         h(
@@ -152,8 +150,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }

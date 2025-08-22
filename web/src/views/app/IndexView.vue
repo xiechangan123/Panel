@@ -11,7 +11,6 @@ import { useGettext } from 'vue3-gettext'
 import app from '@/api/panel/app'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { router } from '@/router'
-import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 
@@ -93,10 +92,7 @@ const columns: any = [
                         type: 'warning'
                       },
                       {
-                        default: () => $gettext('Update'),
-                        icon: renderIcon('material-symbols:arrow-circle-up-outline-rounded', {
-                          size: 14
-                        })
+                        default: () => $gettext('Update')
                       }
                     )
                   }
@@ -112,8 +108,7 @@ const columns: any = [
                   onClick: () => handleManage(row.slug)
                 },
                 {
-                  default: () => $gettext('Manage'),
-                  icon: renderIcon('material-symbols:settings-outline', { size: 14 })
+                  default: () => $gettext('Manage')
                 }
               )
             : null,
@@ -135,8 +130,7 @@ const columns: any = [
                         type: 'error'
                       },
                       {
-                        default: () => $gettext('Uninstall'),
-                        icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                        default: () => $gettext('Uninstall')
                       }
                     )
                   }
@@ -156,8 +150,7 @@ const columns: any = [
                   }
                 },
                 {
-                  default: () => $gettext('Install'),
-                  icon: renderIcon('material-symbols:download-rounded', { size: 14 })
+                  default: () => $gettext('Install')
                 }
               )
             : null
@@ -220,7 +213,6 @@ onMounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button type="primary" @click="handleUpdateCache">
-        <the-icon :size="18" icon="material-symbols:refresh" />
         {{ $gettext('Update Cache') }}
       </n-button>
     </template>

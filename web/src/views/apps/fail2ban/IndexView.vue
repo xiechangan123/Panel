@@ -10,7 +10,6 @@ import fail2ban from '@/api/apps/fail2ban'
 import app from '@/api/panel/app'
 import website from '@/api/panel/website'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
-import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -75,8 +74,7 @@ const jailsColumns: any = [
             }
           },
           {
-            default: () => $gettext('View'),
-            icon: renderIcon('material-symbols:visibility', { size: 14 })
+            default: () => $gettext('View')
           }
         ),
         h(
@@ -97,8 +95,7 @@ const jailsColumns: any = [
                   style: 'margin-left: 15px'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }
@@ -141,8 +138,7 @@ const banedIPColumns: any = [
                   type: 'error'
                 },
                 {
-                  default: () => $gettext('Unban'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Unban')
                 }
               )
             }
@@ -235,7 +231,6 @@ onMounted(() => {
         type="primary"
         @click="handleSaveWhiteList"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save Whitelist') }}
       </n-button>
       <n-button
@@ -244,7 +239,6 @@ onMounted(() => {
         type="primary"
         @click="addJailModal = true"
       >
-        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Add Rule') }}
       </n-button>
     </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import user from '@/api/panel/user'
-import { formatDateTime, renderIcon } from '@/utils'
+import { formatDateTime } from '@/utils'
 import PasswordModal from '@/views/setting/PasswordModal.vue'
 import TokenModal from '@/views/setting/TokenModal.vue'
 import TwoFaModal from '@/views/setting/TwoFaModal.vue'
@@ -100,8 +100,7 @@ const columns: any = [
             }
           },
           {
-            default: () => $gettext('Access Tokens'),
-            icon: renderIcon('material-symbols:vpn-key-outline', { size: 14 })
+            default: () => $gettext('Access Tokens')
           }
         ),
         h(
@@ -116,8 +115,7 @@ const columns: any = [
             }
           },
           {
-            default: () => $gettext('Change Password'),
-            icon: renderIcon('material-symbols:edit-outline', { size: 14 })
+            default: () => $gettext('Change Password')
           }
         ),
         h(
@@ -139,8 +137,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }

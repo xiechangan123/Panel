@@ -9,7 +9,7 @@ import { useGettext } from 'vue3-gettext'
 
 import rsync from '@/api/apps/rsync'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
-import { generateRandomString, renderIcon } from '@/utils'
+import { generateRandomString } from '@/utils'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -80,8 +80,7 @@ const processColumns: any = [
             onClick: () => handleModelEdit(row)
           },
           {
-            default: () => $gettext('Configure'),
-            icon: renderIcon('material-symbols:settings-outline', { size: 14 })
+            default: () => $gettext('Configure')
           }
         ),
         h(
@@ -104,8 +103,7 @@ const processColumns: any = [
                   style: 'margin-left: 15px'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }
@@ -197,7 +195,6 @@ onMounted(() => {
         type="primary"
         @click="handleSaveConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -206,7 +203,6 @@ onMounted(() => {
         type="primary"
         @click="addModuleModal = true"
       >
-        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Add Module') }}
       </n-button>
     </template>

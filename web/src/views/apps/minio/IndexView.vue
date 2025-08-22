@@ -28,7 +28,6 @@ const handleSaveEnv = () => {
   <common-page show-footer>
     <template #action>
       <n-button v-if="currentTab == 'env'" class="ml-16" type="primary" @click="handleSaveEnv">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
     </template>

@@ -33,7 +33,6 @@ const handleSaveConfig = () => {
         type="primary"
         @click="handleSaveConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
     </template>

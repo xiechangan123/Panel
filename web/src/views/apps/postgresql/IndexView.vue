@@ -67,7 +67,6 @@ const handleClearLog = async () => {
         type="primary"
         @click="handleSaveConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -76,11 +75,9 @@ const handleClearLog = async () => {
         type="primary"
         @click="handleSaveUserConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button v-if="currentTab == 'log'" class="ml-16" type="primary" @click="handleClearLog">
-        <the-icon :size="18" icon="material-symbols:delete-outline" />
         {{ $gettext('Clear Log') }}
       </n-button>
     </template>

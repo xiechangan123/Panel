@@ -3,7 +3,7 @@ import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import process from '@/api/panel/process'
-import { formatBytes, formatDateTime, formatPercent, renderIcon } from '@/utils'
+import { formatBytes, formatDateTime, formatPercent } from '@/utils'
 
 const { $gettext } = useGettext()
 
@@ -124,8 +124,7 @@ const columns: any = [
                 type: 'error'
               },
               {
-                default: () => $gettext('Terminate'),
-                icon: renderIcon('material-symbols:stop-circle-outline-rounded', { size: 14 })
+                default: () => $gettext('Terminate')
               }
             )
           }

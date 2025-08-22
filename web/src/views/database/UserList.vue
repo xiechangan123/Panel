@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { renderIcon } from '@/utils'
 import copy2clipboard from '@vavt/copy2clipboard'
 import { NButton, NFlex, NInput, NInputGroup, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -166,8 +165,7 @@ const columns: any = [
             }
           },
           {
-            default: () => $gettext('Modify'),
-            icon: renderIcon('material-symbols:edit-outline', { size: 14 })
+            default: () => $gettext('Modify')
           }
         ),
         h(
@@ -188,8 +186,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import user from '@/api/panel/user'
-import { formatDateTime, renderIcon } from '@/utils'
+import { formatDateTime } from '@/utils'
 import copy2clipboard from '@vavt/copy2clipboard'
 import { NAlert, NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -66,8 +66,7 @@ const columns: any = [
             }
           },
           {
-            default: () => $gettext('Modify'),
-            icon: renderIcon('material-symbols:edit-outline', { size: 14 })
+            default: () => $gettext('Modify')
           }
         ),
         h(
@@ -89,8 +88,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }

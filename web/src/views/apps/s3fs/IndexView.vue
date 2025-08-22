@@ -7,7 +7,6 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import s3fs from '@/api/apps/s3fs'
-import { renderIcon } from '@/utils'
 
 const { $gettext } = useGettext()
 const addMountModal = ref(false)
@@ -55,8 +54,7 @@ const columns: any = [
                   type: 'error'
                 },
                 {
-                  default: () => $gettext('Unmount'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Unmount')
                 }
               )
             }
@@ -101,7 +99,6 @@ onMounted(() => {
   <common-page show-footer>
     <template #action>
       <n-button class="ml-16" type="primary" @click="addMountModal = true">
-        <the-icon :size="18" icon="material-symbols:add" />
         {{ $gettext('Add Mount') }}
       </n-button>
     </template>

@@ -4,7 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import task from '@/api/panel/task'
 import RealtimeLogModal from '@/components/common/RealtimeLogModal.vue'
-import { formatDateTime, renderIcon } from '@/utils'
+import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
 const logModal = ref(false)
@@ -71,8 +71,7 @@ const columns: any = [
                 }
               },
               {
-                default: () => $gettext('Logs'),
-                icon: renderIcon('material-symbols:visibility', { size: 14 })
+                default: () => $gettext('Logs')
               }
             )
           : null,
@@ -95,8 +94,7 @@ const columns: any = [
                       style: 'margin-left: 15px;'
                     },
                     {
-                      default: () => $gettext('Delete'),
-                      icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                      default: () => $gettext('Delete')
                     }
                   )
                 }

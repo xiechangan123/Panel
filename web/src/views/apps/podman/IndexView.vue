@@ -43,7 +43,6 @@ const handleSaveStorageConfig = () => {
         type="primary"
         @click="handleSaveRegistryConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
       <n-button
@@ -52,7 +51,6 @@ const handleSaveStorageConfig = () => {
         type="primary"
         @click="handleSaveStorageConfig"
       >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
         {{ $gettext('Save') }}
       </n-button>
     </template>

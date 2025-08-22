@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { renderIcon } from '@/utils'
 import { NButton, NInput, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -95,8 +94,7 @@ const columns: any = [
                   style: 'margin-left: 15px;'
                 },
                 {
-                  default: () => $gettext('Delete'),
-                  icon: renderIcon('material-symbols:delete-outline', { size: 14 })
+                  default: () => $gettext('Delete')
                 }
               )
             }

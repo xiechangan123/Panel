@@ -44,7 +44,6 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Configuration')">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frps')">
-                <the-icon :size="18" icon="material-symbols:save-outline-rounded" />
                 {{ $gettext('Save') }}
               </n-button>
             </template>
@@ -69,7 +68,6 @@ onMounted(() => {
           <n-card :title="$gettext('Modify Configuration')">
             <template #header-extra>
               <n-button type="primary" @click="handleSaveConfig('frpc')">
-                <the-icon :size="18" icon="material-symbols:save-outline-rounded" />
                 {{ $gettext('Save') }}
               </n-button>
             </template>
