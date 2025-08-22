@@ -73,3 +73,10 @@ func (r *taskRepo) Push(task *biz.Task) error {
 		task.ID,
 	})
 }
+
+func (r *taskRepo) ClearZombieTasks() error {
+	if err := r.db.Model(&biz.Task{}).Where("status = ? or status = ?", biz.TaskStatusRunning, biz.TaskStatusWaiting).Update("status", biz.TaskStatusFailed).Error; err != nil {
+		return err
+	}
+	return nil
+}
