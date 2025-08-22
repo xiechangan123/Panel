@@ -20,6 +20,51 @@ func (_m *TaskRepo) EXPECT() *TaskRepo_Expecter {
 	return &TaskRepo_Expecter{mock: &_m.Mock}
 }
 
+// ClearZombieTasks provides a mock function with no fields
+func (_m *TaskRepo) ClearZombieTasks() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearZombieTasks")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// TaskRepo_ClearZombieTasks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearZombieTasks'
+type TaskRepo_ClearZombieTasks_Call struct {
+	*mock.Call
+}
+
+// ClearZombieTasks is a helper method to define mock.On call
+func (_e *TaskRepo_Expecter) ClearZombieTasks() *TaskRepo_ClearZombieTasks_Call {
+	return &TaskRepo_ClearZombieTasks_Call{Call: _e.mock.On("ClearZombieTasks")}
+}
+
+func (_c *TaskRepo_ClearZombieTasks_Call) Run(run func()) *TaskRepo_ClearZombieTasks_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *TaskRepo_ClearZombieTasks_Call) Return(_a0 error) *TaskRepo_ClearZombieTasks_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *TaskRepo_ClearZombieTasks_Call) RunAndReturn(run func() error) *TaskRepo_ClearZombieTasks_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function with given fields: id
 func (_m *TaskRepo) Delete(id uint) error {
 	ret := _m.Called(id)
