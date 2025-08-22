@@ -1,8 +1,11 @@
 name: L10n
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+concurrency:
+  group: l10n
+  cancel-in-progress: true
 permissions:
   contents: write
   pull-requests: write
