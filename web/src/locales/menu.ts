@@ -18,8 +18,6 @@ export function translateTitle(key: string): string {
     Terminal: $gettext('Terminal'),
     Tasks: $gettext('Tasks'),
     Toolbox: $gettext('Toolbox'),
-    System: $gettext('System'),
-    Benchmark: $gettext('Benchmark'),
     Website: $gettext('Website'),
     'Website Edit': $gettext('Website Edit'),
     // 应用标题
