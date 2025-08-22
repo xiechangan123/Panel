@@ -5,7 +5,6 @@ defineOptions({
 
 import Editor from '@guolao/vue-monaco-editor'
 import { DateTime } from 'luxon'
-import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import system from '@/api/panel/toolbox-system'
@@ -90,76 +89,57 @@ const handleSyncTime = () => {
 </script>
 
 <template>
-  <common-page show-footer>
-    <template #action>
-      <n-button v-if="currentTab == 'dns'" class="ml-16" type="primary" @click="handleUpdateDNS">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button v-if="currentTab == 'swap'" class="ml-16" type="primary" @click="handleUpdateSwap">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button v-if="currentTab == 'host'" class="ml-16" type="primary" @click="handleUpdateHost">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button v-if="currentTab == 'time'" class="ml-16" type="primary" @click="handleUpdateTime">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'root-password'"
-        class="ml-16"
-        type="primary"
-        @click="handleUpdateRootPassword"
-      >
-        <the-icon :size="18" icon="material-symbols:save-outline" />
-        {{ $gettext('Modify') }}
-      </n-button>
-    </template>
-    <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="dns" tab="DNS">
-        <n-flex vertical>
-          <n-alert type="warning">
-            {{ $gettext('DNS modifications will revert to default after system restart.') }}
-          </n-alert>
-          <n-form>
-            <n-form-item label="DNS1">
-              <n-input v-model:value="dns1" />
-            </n-form-item>
-            <n-form-item label="DNS2">
-              <n-input v-model:value="dns2" />
-            </n-form-item>
-          </n-form>
+  <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+    <n-tab-pane name="dns" tab="DNS">
+      <n-flex vertical>
+        <n-alert type="warning">
+          {{ $gettext('DNS modifications will revert to default after system restart.') }}
+        </n-alert>
+        <n-form>
+          <n-form-item label="DNS1">
+            <n-input v-model:value="dns1" />
+          </n-form-item>
+          <n-form-item label="DNS2">
+            <n-input v-model:value="dns2" />
+          </n-form-item>
+        </n-form>
+        <n-flex>
+          <n-button type="primary" @click="handleUpdateDNS">
+            {{ $gettext('Save') }}
+          </n-button>
         </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="swap" tab="SWAP">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{
-              $gettext('Total %{ total }, used %{ used }, free %{ free }', {
-                total: swapTotal,
-                used: swapUsed,
-                free: swapFree
-              })
-            }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('SWAP Size')">
-              <n-input-number v-model:value="swap" />
-              MB
-            </n-form-item>
-          </n-form>
+      </n-flex>
+    </n-tab-pane>
+    <n-tab-pane name="swap" tab="SWAP">
+      <n-flex vertical>
+        <n-alert type="info">
+          {{
+            $gettext('Total %{ total }, used %{ used }, free %{ free }', {
+              total: swapTotal,
+              used: swapUsed,
+              free: swapFree
+            })
+          }}
+        </n-alert>
+        <n-form>
+          <n-form-item :label="$gettext('SWAP Size')">
+            <n-input-number v-model:value="swap" />
+            MB
+          </n-form-item>
+        </n-form>
+        <n-flex>
+          <n-button type="primary" @click="handleUpdateSwap">
+            {{ $gettext('Save') }}
+          </n-button>
         </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="host" :tab="$gettext('Host')">
-        <n-flex vertical>
-          <n-form>
-            <n-form-item :label="$gettext('Hostname')">
-              <n-input v-model:value="hostname" />
-            </n-form-item>
-          </n-form>
+      </n-flex>
+    </n-tab-pane>
+    <n-tab-pane name="host" :tab="$gettext('Host')">
+      <n-form>
+        <n-form-item :label="$gettext('Hostname')">
+          <n-input v-model:value="hostname" />
+        </n-form-item>
+        <n-form-item :label="$gettext('Hosts')">
           <Editor
             v-model:value="hosts"
             language="ini"
@@ -172,43 +152,52 @@ const handleSyncTime = () => {
               formatOnPaste: true
             }"
           />
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="time" :tab="$gettext('Time')">
-        <n-flex vertical>
-          <n-alert type="info">
-            {{
-              $gettext(
-                'After manually changing the time, it may still be overwritten by system automatic time synchronization.'
-              )
-            }}
-          </n-alert>
-          <n-form>
-            <n-form-item :label="$gettext('Select Timezone')">
-              <n-select
-                v-model:value="timezone"
-                :placeholder="$gettext('Please select a timezone')"
-                :options="timezones"
-              />
-            </n-form-item>
-            <n-form-item :label="$gettext('Modify Time')">
-              <n-date-picker v-model:value="time" type="datetime" clearable />
-            </n-form-item>
-            <n-form-item :label="$gettext('NTP Time Synchronization')">
-              <n-button type="info" @click="handleSyncTime">{{
-                $gettext('Synchronize Time')
-              }}</n-button>
-            </n-form-item>
-          </n-form>
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="root-password" :tab="$gettext('Root Password')">
+        </n-form-item>
+      </n-form>
+      <n-button type="primary" @click="handleUpdateHost">
+        {{ $gettext('Save') }}
+      </n-button>
+    </n-tab-pane>
+    <n-tab-pane name="time" :tab="$gettext('Time')">
+      <n-flex vertical>
+        <n-alert type="info">
+          {{
+            $gettext(
+              'After manually changing the time, it may still be overwritten by system automatic time synchronization.'
+            )
+          }}
+        </n-alert>
         <n-form>
-          <n-form-item :label="$gettext('Root Password')">
-            <n-input v-model:value="rootPassword" type="password" show-password-on="click" />
+          <n-form-item :label="$gettext('Select Timezone')">
+            <n-select
+              v-model:value="timezone"
+              :placeholder="$gettext('Please select a timezone')"
+              :options="timezones"
+            />
+          </n-form-item>
+          <n-form-item :label="$gettext('Modify Time')">
+            <n-date-picker v-model:value="time" type="datetime" clearable />
           </n-form-item>
         </n-form>
-      </n-tab-pane>
-    </n-tabs>
-  </common-page>
+        <n-flex>
+          <n-button type="primary" @click="handleUpdateTime">
+            {{ $gettext('Save') }}
+          </n-button>
+          <n-button type="info" @click="handleSyncTime">
+            {{ $gettext('Synchronize Time') }}
+          </n-button>
+        </n-flex>
+      </n-flex>
+    </n-tab-pane>
+    <n-tab-pane name="root-password" :tab="$gettext('Root Password')">
+      <n-form>
+        <n-form-item :label="$gettext('Root Password')">
+          <n-input v-model:value="rootPassword" type="password" show-password-on="click" />
+        </n-form-item>
+      </n-form>
+      <n-button type="primary" @click="handleUpdateRootPassword">
+        {{ $gettext('Save') }}
+      </n-button>
+    </n-tab-pane>
+  </n-tabs>
 </template>

@@ -90,8 +90,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <common-page show-footer>
-    <template #action>
+  <common-page show-header show-footer>
+    <template #tabbar>
+      <n-tabs v-model:value="currentTab" animated>
+        <n-tab name="cert" :tab="$gettext('Certificate List')" />
+        <n-tab name="account" :tab="$gettext('Account List')" />
+        <n-tab name="dns" :tab="$gettext('DNS List')" />
+      </n-tabs>
+    </template>
+    <n-flex vertical>
       <n-flex>
         <n-button v-if="currentTab == 'cert'" type="success" @click="uploadCert = true">
           <the-icon :size="18" icon="material-symbols:upload" />
@@ -101,7 +108,7 @@ onUnmounted(() => {
           <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create Certificate') }}
         </n-button>
-        <n-button v-if="currentTab == 'user'" type="primary" @click="createAccount = true">
+        <n-button v-if="currentTab == 'account'" type="primary" @click="createAccount = true">
           <the-icon :size="18" icon="material-symbols:add" />
           {{ $gettext('Create Account') }}
         </n-button>
@@ -110,18 +117,20 @@ onUnmounted(() => {
           {{ $gettext('Create DNS') }}
         </n-button>
       </n-flex>
-    </template>
-    <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="cert" :tab="$gettext('Certificate List')">
-        <cert-view :accounts="accounts" :algorithms="algorithms" :websites="websites" :dns="dns" />
-      </n-tab-pane>
-      <n-tab-pane name="user" :tab="$gettext('Account List')">
-        <account-view :ca-providers="caProviders" :algorithms="algorithms" />
-      </n-tab-pane>
-      <n-tab-pane name="dns" :tab="$gettext('DNS List')">
-        <dns-view :dns-providers="dnsProviders" />
-      </n-tab-pane>
-    </n-tabs>
+      <cert-view
+        v-if="currentTab == 'cert'"
+        :accounts="accounts"
+        :algorithms="algorithms"
+        :websites="websites"
+        :dns="dns"
+      />
+      <account-view
+        v-if="currentTab == 'account'"
+        :ca-providers="caProviders"
+        :algorithms="algorithms"
+      />
+      <dns-view v-if="currentTab == 'dns'" :dns-providers="dnsProviders" />
+    </n-flex>
   </common-page>
   <upload-cert-modal v-model:show="uploadCert" />
   <create-cert-modal

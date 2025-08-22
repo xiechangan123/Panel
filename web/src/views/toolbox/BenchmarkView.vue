@@ -83,195 +83,193 @@ const handleTest = async () => {
 </script>
 
 <template>
-  <common-page show-footer>
-    <n-flex vertical>
-      <n-alert type="warning">
-        {{
-          $gettext(
-            'Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!'
-          )
-        }}
-      </n-alert>
-      <n-alert
-        v-if="inTest"
-        :title="$gettext('Benchmarking in progress, it may take some time...')"
-        type="info"
-      >
-        {{ $gettext('Current project: %{ current }', { current: current }) }}
-      </n-alert>
-      <n-progress v-if="inTest" :percentage="progress" color="var(--primary-color)" processing />
-    </n-flex>
-    <n-flex vertical items-center pt-40>
-      <div w-800>
-        <n-grid :cols="3">
-          <n-gi>
-            <n-popover trigger="hover">
-              <template #trigger>
-                <n-flex vertical items-center>
-                  <div v-if="cpuTotal !== 0">
-                    <n-number-animation :from="0" :to="cpuTotal" show-separator />
-                  </div>
-                  <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                  <n-progress
-                    type="circle"
-                    :percentage="100"
-                    :stroke-width="3"
-                    color="var(--primary-color)"
-                  >
-                    <the-icon :size="50" icon="bi:cpu" color="var(--primary-color)" />
-                  </n-progress>
-                  {{ $gettext('CPU') }}
-                </n-flex>
-              </template>
-              <n-table :single-line="false" striped>
-                <tr>
-                  <th>{{ $gettext('Image Processing') }}</th>
-                  <td>
-                    {{ cpu.image }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Machine Learning') }}</th>
-                  <td>
-                    {{ cpu.machine }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Program Compilation') }}</th>
-                  <td>
-                    {{ cpu.compile }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('AES Encryption') }}</th>
-                  <td>
-                    {{ cpu.encryption }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Compression/Decompression') }}</th>
-                  <td>
-                    {{ cpu.compression }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Physics Simulation') }}</th>
-                  <td>
-                    {{ cpu.physics }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('JSON Parsing') }}</th>
-                  <td>
-                    {{ cpu.json }}
-                  </td>
-                </tr>
-              </n-table>
-            </n-popover>
-          </n-gi>
-          <n-gi>
-            <n-popover trigger="hover">
-              <template #trigger>
-                <n-flex vertical items-center>
-                  <div v-if="memory.score !== 0">
-                    <n-number-animation :from="0" :to="memory.score" show-separator />
-                  </div>
-                  <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                  <n-progress
-                    type="circle"
-                    :percentage="100"
-                    :stroke-width="3"
-                    color="var(--primary-color)"
-                  >
-                    <the-icon :size="50" icon="bi:memory" color="var(--primary-color)" />
-                  </n-progress>
-                  {{ $gettext('Memory') }}
-                </n-flex>
-              </template>
-              <n-table :single-line="false" striped>
-                <tr>
-                  <th>{{ $gettext('Memory Bandwidth') }}</th>
-                  <td>{{ memory.bandwidth }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Memory Latency') }}</th>
-                  <td>{{ memory.latency }}</td>
-                </tr>
-              </n-table>
-            </n-popover>
-          </n-gi>
-          <n-gi>
-            <n-popover trigger="hover">
-              <template #trigger>
-                <n-flex vertical items-center>
-                  <div v-if="disk.score !== 0">
-                    <n-number-animation :from="0" :to="disk.score" show-separator />
-                  </div>
-                  <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                  <n-progress
-                    type="circle"
-                    :percentage="100"
-                    :stroke-width="3"
-                    color="var(--primary-color)"
-                  >
-                    <the-icon :size="50" icon="bi:hdd-stack" color="var(--primary-color)" />
-                  </n-progress>
-                  {{ $gettext('Disk') }}
-                </n-flex>
-              </template>
-              <n-table :single-line="false" striped>
-                <tr>
-                  <th>{{ $gettext('4KB Read') }}</th>
-                  <td>
-                    {{ disk['4'].read_speed }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('4KB Write') }}</th>
-                  <td>
-                    {{ disk['4'].write_speed }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('64KB Read') }}</th>
-                  <td>
-                    {{ disk['64'].read_speed }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('64KB Write') }}</th>
-                  <td>
-                    {{ disk['64'].write_speed }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('1MB Read') }}</th>
-                  <td>
-                    {{ disk['1024'].read_speed }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('1MB Write') }}</th>
-                  <td>
-                    {{ disk['1024'].write_speed }}
-                  </td>
-                </tr>
-              </n-table>
-            </n-popover>
-          </n-gi>
-        </n-grid>
-      </div>
-      <n-button
-        type="primary"
-        size="large"
-        :disabled="inTest"
-        :loading="inTest"
-        @click="handleTest"
-        mt-40
-        w-200
-      >
-        {{ inTest ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
-      </n-button>
-    </n-flex>
-  </common-page>
+  <n-flex vertical>
+    <n-alert type="warning">
+      {{
+        $gettext(
+          'Benchmark results are for reference only and may differ from actual performance due to system resource scheduling, caching, and other factors!'
+        )
+      }}
+    </n-alert>
+    <n-alert
+      v-if="inTest"
+      :title="$gettext('Benchmarking in progress, it may take some time...')"
+      type="info"
+    >
+      {{ $gettext('Current project: %{ current }', { current: current }) }}
+    </n-alert>
+    <n-progress v-if="inTest" :percentage="progress" color="var(--primary-color)" processing />
+  </n-flex>
+  <n-flex vertical items-center pt-40>
+    <div w-800>
+      <n-grid :cols="3">
+        <n-gi>
+          <n-popover trigger="hover">
+            <template #trigger>
+              <n-flex vertical items-center>
+                <div v-if="cpuTotal !== 0">
+                  <n-number-animation :from="0" :to="cpuTotal" show-separator />
+                </div>
+                <div v-else>{{ $gettext('Pending benchmark') }}</div>
+                <n-progress
+                  type="circle"
+                  :percentage="100"
+                  :stroke-width="3"
+                  color="var(--primary-color)"
+                >
+                  <the-icon :size="50" icon="bi:cpu" color="var(--primary-color)" />
+                </n-progress>
+                {{ $gettext('CPU') }}
+              </n-flex>
+            </template>
+            <n-table :single-line="false" striped>
+              <tr>
+                <th>{{ $gettext('Image Processing') }}</th>
+                <td>
+                  {{ cpu.image }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('Machine Learning') }}</th>
+                <td>
+                  {{ cpu.machine }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('Program Compilation') }}</th>
+                <td>
+                  {{ cpu.compile }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('AES Encryption') }}</th>
+                <td>
+                  {{ cpu.encryption }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('Compression/Decompression') }}</th>
+                <td>
+                  {{ cpu.compression }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('Physics Simulation') }}</th>
+                <td>
+                  {{ cpu.physics }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('JSON Parsing') }}</th>
+                <td>
+                  {{ cpu.json }}
+                </td>
+              </tr>
+            </n-table>
+          </n-popover>
+        </n-gi>
+        <n-gi>
+          <n-popover trigger="hover">
+            <template #trigger>
+              <n-flex vertical items-center>
+                <div v-if="memory.score !== 0">
+                  <n-number-animation :from="0" :to="memory.score" show-separator />
+                </div>
+                <div v-else>{{ $gettext('Pending benchmark') }}</div>
+                <n-progress
+                  type="circle"
+                  :percentage="100"
+                  :stroke-width="3"
+                  color="var(--primary-color)"
+                >
+                  <the-icon :size="50" icon="bi:memory" color="var(--primary-color)" />
+                </n-progress>
+                {{ $gettext('Memory') }}
+              </n-flex>
+            </template>
+            <n-table :single-line="false" striped>
+              <tr>
+                <th>{{ $gettext('Memory Bandwidth') }}</th>
+                <td>{{ memory.bandwidth }}</td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('Memory Latency') }}</th>
+                <td>{{ memory.latency }}</td>
+              </tr>
+            </n-table>
+          </n-popover>
+        </n-gi>
+        <n-gi>
+          <n-popover trigger="hover">
+            <template #trigger>
+              <n-flex vertical items-center>
+                <div v-if="disk.score !== 0">
+                  <n-number-animation :from="0" :to="disk.score" show-separator />
+                </div>
+                <div v-else>{{ $gettext('Pending benchmark') }}</div>
+                <n-progress
+                  type="circle"
+                  :percentage="100"
+                  :stroke-width="3"
+                  color="var(--primary-color)"
+                >
+                  <the-icon :size="50" icon="bi:hdd-stack" color="var(--primary-color)" />
+                </n-progress>
+                {{ $gettext('Disk') }}
+              </n-flex>
+            </template>
+            <n-table :single-line="false" striped>
+              <tr>
+                <th>{{ $gettext('4KB Read') }}</th>
+                <td>
+                  {{ disk['4'].read_speed }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('4KB Write') }}</th>
+                <td>
+                  {{ disk['4'].write_speed }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('64KB Read') }}</th>
+                <td>
+                  {{ disk['64'].read_speed }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('64KB Write') }}</th>
+                <td>
+                  {{ disk['64'].write_speed }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('1MB Read') }}</th>
+                <td>
+                  {{ disk['1024'].read_speed }}
+                </td>
+              </tr>
+              <tr>
+                <th>{{ $gettext('1MB Write') }}</th>
+                <td>
+                  {{ disk['1024'].write_speed }}
+                </td>
+              </tr>
+            </n-table>
+          </n-popover>
+        </n-gi>
+      </n-grid>
+    </div>
+    <n-button
+      type="primary"
+      size="large"
+      :disabled="inTest"
+      :loading="inTest"
+      @click="handleTest"
+      mt-40
+      w-200
+    >
+      {{ inTest ? $gettext('Benchmarking...') : $gettext('Start Benchmark') }}
+    </n-button>
+  </n-flex>
 </template>

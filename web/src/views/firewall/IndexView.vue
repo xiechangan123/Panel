@@ -14,21 +14,19 @@ const currentTab = ref('rule')
 </script>
 
 <template>
-  <common-page show-footer>
-    <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="rule" :tab="$gettext('Port Rules')">
-        <rule-view />
-      </n-tab-pane>
-      <n-tab-pane name="ip-rule" :tab="$gettext('IP Rules')">
-        <ip-rule-view />
-      </n-tab-pane>
-      <n-tab-pane name="forward" :tab="$gettext('Port Forwarding')">
-        <forward-view />
-      </n-tab-pane>
-      <n-tab-pane name="setting" :tab="$gettext('Settings')">
-        <setting-view />
-      </n-tab-pane>
-    </n-tabs>
+  <common-page show-header show-footer>
+    <template #tabbar>
+      <n-tabs v-model:value="currentTab" animated>
+        <n-tab name="rule" :tab="$gettext('Port Rules')" />
+        <n-tab name="ip-rule" :tab="$gettext('IP Rules')" />
+        <n-tab name="forward" :tab="$gettext('Port Forwarding')" />
+        <n-tab name="setting" :tab="$gettext('Settings')" />
+      </n-tabs>
+    </template>
+    <rule-view v-if="currentTab === 'rule'" />
+    <ip-rule-view v-if="currentTab === 'ip-rule'" />
+    <forward-view v-if="currentTab === 'forward'" />
+    <setting-view v-if="currentTab === 'setting'" />
   </common-page>
 </template>
 

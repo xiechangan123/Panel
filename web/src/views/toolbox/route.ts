@@ -7,27 +7,16 @@ export default {
   path: '/toolbox',
   component: Layout,
   meta: {
-    title: 'Toolbox',
-    icon: 'mdi:tools',
     order: 90
   },
   children: [
     {
-      name: 'toolbox-system',
-      path: 'system',
-      component: () => import('./SystemView.vue'),
+      name: 'toolbox-index',
+      path: '',
+      component: () => import('./IndexView.vue'),
       meta: {
-        title: 'System',
-        role: ['admin'],
-        requireAuth: true
-      }
-    },
-    {
-      name: 'toolbox-benchmark',
-      path: 'benchmark',
-      component: () => import('./BenchmarkView.vue'),
-      meta: {
-        title: 'Benchmark',
+        title: 'Toolbox',
+        icon: 'mdi:tools',
         role: ['admin'],
         requireAuth: true
       }

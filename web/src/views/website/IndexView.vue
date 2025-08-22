@@ -376,8 +376,16 @@ onMounted(() => {
 
 <template>
   <common-page show-footer>
-    <template #action>
+    <n-flex vertical>
       <n-flex>
+        <n-button type="primary" @click="createModal = true">
+          <the-icon :size="18" icon="material-symbols:add" />
+          {{ $gettext('Create Website') }}
+        </n-button>
+        <n-button type="primary" @click="bulkCreateModal = true">
+          <the-icon :size="18" icon="material-symbols:add" />
+          {{ $gettext('Bulk Create Website') }}
+        </n-button>
         <n-button type="warning" @click="editDefaultPageModal = true">
           <the-icon :size="18" icon="material-symbols:edit-document-outline" />
           {{ $gettext('Modify Default Page') }}
@@ -395,17 +403,7 @@ onMounted(() => {
             )
           }}
         </n-popconfirm>
-        <n-button type="primary" @click="bulkCreateModal = true">
-          <the-icon :size="18" icon="material-symbols:add" />
-          {{ $gettext('Bulk Create Website') }}
-        </n-button>
-        <n-button type="primary" @click="createModal = true">
-          <the-icon :size="18" icon="material-symbols:add" />
-          {{ $gettext('Create Website') }}
-        </n-button>
       </n-flex>
-    </template>
-    <n-flex vertical :size="20">
       <n-data-table
         striped
         remote

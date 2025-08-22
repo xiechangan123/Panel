@@ -3,11 +3,16 @@ import logoImg from '@/assets/images/logo.png'
 import { useThemeStore } from '@/store'
 
 const themeStore = useThemeStore()
+const router = useRouter()
 const logo = computed(() => themeStore.logo || logoImg)
+
+const toDashboard = () => {
+  router.push({ name: 'dashboard' })
+}
 </script>
 
 <template>
-  <router-link class="h-60 f-c-c" to="/">
+  <div class="h-60 f-c-c cursor-pointer" @click="toDashboard">
     <n-image :src="logo" height="32" preview-disabled />
     <h2
       v-show="!themeStore.sider.collapsed"
@@ -15,5 +20,5 @@ const logo = computed(() => themeStore.logo || logoImg)
     >
       {{ themeStore.name }}
     </h2>
-  </router-link>
+  </div>
 </template>

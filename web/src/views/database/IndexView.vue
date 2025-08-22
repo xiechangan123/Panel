@@ -21,37 +21,40 @@ const createServerModalShow = ref(false)
 </script>
 
 <template>
-  <common-page show-footer>
-    <template #action>
-      <n-button
-        v-if="currentTab === 'database'"
-        type="primary"
-        @click="createDatabaseModalShow = true"
-      >
-        <the-icon :size="18" icon="material-symbols:add" />
-        {{ $gettext('Create Database') }}
-      </n-button>
-      <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
-        <the-icon :size="18" icon="material-symbols:add" />
-        {{ $gettext('Create User') }}
-      </n-button>
-      <n-button v-if="currentTab === 'server'" type="primary" @click="createServerModalShow = true">
-        <the-icon :size="18" icon="material-symbols:add" />
-        {{ $gettext('Add Server') }}
-      </n-button>
+  <common-page show-header show-footer>
+    <template #tabbar>
+      <n-tabs v-model:value="currentTab" animated>
+        <n-tab name="database" :tab="$gettext('Database')" />
+        <n-tab name="user" :tab="$gettext('User')" />
+        <n-tab name="server" :tab="$gettext('Server')" />
+      </n-tabs>
     </template>
     <n-flex vertical>
-      <n-tabs v-model:value="currentTab" type="line" animated>
-        <n-tab-pane name="database" :tab="$gettext('Database')">
-          <database-list />
-        </n-tab-pane>
-        <n-tab-pane name="user" :tab="$gettext('User')">
-          <user-list />
-        </n-tab-pane>
-        <n-tab-pane name="server" :tab="$gettext('Server')">
-          <server-list />
-        </n-tab-pane>
-      </n-tabs>
+      <n-flex>
+        <n-button
+          v-if="currentTab === 'database'"
+          type="primary"
+          @click="createDatabaseModalShow = true"
+        >
+          <the-icon :size="18" icon="material-symbols:add" />
+          {{ $gettext('Create Database') }}
+        </n-button>
+        <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
+          <the-icon :size="18" icon="material-symbols:add" />
+          {{ $gettext('Create User') }}
+        </n-button>
+        <n-button
+          v-if="currentTab === 'server'"
+          type="primary"
+          @click="createServerModalShow = true"
+        >
+          <the-icon :size="18" icon="material-symbols:add" />
+          {{ $gettext('Add Server') }}
+        </n-button>
+      </n-flex>
+      <database-list v-if="currentTab === 'database'" />
+      <user-list v-if="currentTab === 'user'" />
+      <server-list v-if="currentTab === 'server'" />
     </n-flex>
   </common-page>
   <create-database-modal v-model:show="createDatabaseModalShow" />

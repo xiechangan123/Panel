@@ -16,23 +16,20 @@ const current = ref('container')
 </script>
 
 <template>
-  <common-page show-footer>
-    <n-tabs v-model:value="current" type="line" animated>
-      <n-tab-pane name="container" :tab="$gettext('Containers')">
-        <container-view />
-      </n-tab-pane>
-      <n-tab-pane name="compose" :tab="$gettext('Compose')">
-        <compose-view />
-      </n-tab-pane>
-      <n-tab-pane name="image" :tab="$gettext('Images')">
-        <image-view />
-      </n-tab-pane>
-      <n-tab-pane name="network" :tab="$gettext('Networks')">
-        <network-view />
-      </n-tab-pane>
-      <n-tab-pane name="volume" :tab="$gettext('Volumes')">
-        <volume-view />
-      </n-tab-pane>
-    </n-tabs>
+  <common-page show-header show-footer>
+    <template #tabbar>
+      <n-tabs v-model:value="current" animated>
+        <n-tab name="container" :tab="$gettext('Containers')" />
+        <n-tab name="compose" :tab="$gettext('Compose')" />
+        <n-tab name="image" :tab="$gettext('Images')" />
+        <n-tab name="network" :tab="$gettext('Networks')" />
+        <n-tab name="volume" :tab="$gettext('Volumes')" />
+      </n-tabs>
+    </template>
+    <container-view v-if="current === 'container'" />
+    <compose-view v-else-if="current === 'compose'" />
+    <image-view v-else-if="current === 'image'" />
+    <network-view v-else-if="current === 'network'" />
+    <volume-view v-else-if="current === 'volume'" />
   </common-page>
 </template>

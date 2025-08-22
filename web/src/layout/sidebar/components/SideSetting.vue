@@ -65,44 +65,44 @@ const menus = computed<TreeSelectOption[]>(() => {
       </template>
       {{ $gettext('Menu Settings') }}
     </n-tooltip>
-    <n-modal
-      v-model:show="settingModal"
-      preset="card"
-      :title="$gettext('Menu Settings')"
-      style="width: 60vw"
-      size="huge"
-      :bordered="false"
-      :segmented="false"
-      @close="settingModal = false"
-      @mask-click="settingModal = false"
-    >
-      <n-form>
-        <n-flex vertical>
-          <n-alert type="info">
-            {{
-              $gettext(
-                'Settings are saved in the browser and will be reset after clearing the browser cache'
-              )
-            }}
-          </n-alert>
-          <n-form-item :label="$gettext('Custom Logo')">
-            <n-input
-              v-model:value="themeStore.logo"
-              :placeholder="$gettext('Please enter the complete URL')"
-            />
-          </n-form-item>
-          <n-form-item :label="$gettext('Hide Menu')">
-            <n-tree-select
-              cascade
-              checkable
-              clearable
-              multiple
-              :options="menus"
-              v-model:value="permissionStore.hiddenRoutes"
-            ></n-tree-select>
-          </n-form-item>
-        </n-flex>
-      </n-form>
-    </n-modal>
   </div>
+  <n-modal
+    v-model:show="settingModal"
+    preset="card"
+    :title="$gettext('Menu Settings')"
+    style="width: 60vw"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+    @close="settingModal = false"
+    @mask-click="settingModal = false"
+  >
+    <n-form>
+      <n-flex vertical>
+        <n-alert type="info">
+          {{
+            $gettext(
+              'Settings are saved in the browser and will be reset after clearing the browser cache'
+            )
+          }}
+        </n-alert>
+        <n-form-item :label="$gettext('Custom Logo')">
+          <n-input
+            v-model:value="themeStore.logo"
+            :placeholder="$gettext('Please enter the complete URL')"
+          />
+        </n-form-item>
+        <n-form-item :label="$gettext('Hide Menu')">
+          <n-tree-select
+            cascade
+            checkable
+            clearable
+            multiple
+            :options="menus"
+            v-model:value="permissionStore.hiddenRoutes"
+          />
+        </n-form-item>
+      </n-flex>
+    </n-form>
+  </n-modal>
 </template>

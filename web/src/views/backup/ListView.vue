@@ -149,6 +149,21 @@ const handleDelete = async (file: string) => {
   })
 }
 
+watch(
+  type,
+  (newType) => {
+    if (newType === 'website') {
+      createModel.value.target = websites.value[0]?.value || ''
+      restoreModel.value.target = websites.value[0]?.value || ''
+    } else {
+      createModel.value.target = ''
+      restoreModel.value.target = ''
+    }
+    refresh()
+  },
+  { immediate: true }
+)
+
 onMounted(() => {
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
     if (data.installed) {

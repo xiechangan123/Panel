@@ -58,28 +58,31 @@ const handleCreate = () => {
 </script>
 
 <template>
-  <common-page show-footer>
-    <template #action>
-      <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
-        <the-icon :size="18" icon="material-symbols:save-outline" />
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button v-if="currentTab == 'user'" type="primary" @click="handleCreate">
-        <the-icon :size="18" icon="material-symbols:add" />
-        {{ $gettext('Create User') }}
-      </n-button>
+  <common-page show-header show-footer>
+    <template #tabbar>
+      <n-tabs v-model:value="currentTab" animated>
+        <n-tab name="base" :tab="$gettext('Basic')" />
+        <n-tab name="safe" :tab="$gettext('Safe')" />
+        <n-tab name="user" :tab="$gettext('User')" />
+      </n-tabs>
     </template>
-    <n-tabs v-model:value="currentTab" type="line" animated>
-      <n-tab-pane name="base" :tab="$gettext('Basic')">
-        <setting-base v-model:model="model" />
-      </n-tab-pane>
-      <n-tab-pane name="safe" :tab="$gettext('Safe')">
-        <setting-safe v-model:model="model" />
-      </n-tab-pane>
-      <n-tab-pane name="user" :tab="$gettext('User')">
-        <setting-user />
-      </n-tab-pane>
-    </n-tabs>
+    <n-flex vertical>
+      <n-flex>
+        <n-button v-if="currentTab == 'user'" type="primary" @click="handleCreate">
+          <the-icon :size="18" icon="material-symbols:add" />
+          {{ $gettext('Create User') }}
+        </n-button>
+      </n-flex>
+      <setting-base v-if="currentTab === 'base'" v-model:model="model" />
+      <setting-safe v-if="currentTab === 'safe'" v-model:model="model" />
+      <setting-user v-if="currentTab === 'user'" />
+      <n-flex>
+        <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
+          <the-icon :size="18" icon="material-symbols:save-outline" />
+          {{ $gettext('Save') }}
+        </n-button>
+      </n-flex>
+    </n-flex>
   </common-page>
   <create-modal v-model:show="createModal" />
 </template>

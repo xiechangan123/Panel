@@ -442,45 +442,44 @@ watch(data, () => {
 </script>
 
 <template>
-  <common-page show-footer>
-    <template #action>
-      <n-popconfirm @positive-click="handleClear">
-        <template #trigger>
-          <n-button type="error">
-            <the-icon :size="18" icon="material-symbols:delete-outline" />
-            {{ $gettext('Clear Monitoring Records') }}
-          </n-button>
-        </template>
-        {{ $gettext('Are you sure you want to clear?') }}
-      </n-popconfirm>
-    </template>
-    <n-card :segmented="true" flex items-center>
-      <n-form
-        inline
-        label-placement="left"
-        label-width="auto"
-        require-mark-placement="right-hanging"
-      >
-        <n-flex items-center>
-          <n-form-item :label="$gettext('Enable Monitoring')">
+  <common-page show-header show-footer>
+    <template #tabbar>
+      <div class="flex items-center justify-between gap-8 py-4">
+        <div class="flex items-center gap-6">
+          <div class="flex items-center gap-10">
+            {{ $gettext('Enable Monitoring') }}
             <n-switch v-model:value="monitorSwitch" @update-value="handleUpdate" />
-          </n-form-item>
-          <n-form-item :label="$gettext('Save Days')">
+          </div>
+          <div class="flex items-center gap-10 pl-20">
+            {{ $gettext('Save Days') }}
             <n-input-number v-model:value="saveDay">
               <template #suffix> {{ $gettext('days') }} </template>
             </n-input-number>
-          </n-form-item>
-          <n-form-item>
+          </div>
+          <div>
             <n-button type="primary" @click="handleUpdate">{{ $gettext('Confirm') }}</n-button>
-          </n-form-item>
-          <n-form-item :label="$gettext('Time Selection')">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-10">
+          <span>{{ $gettext('Time Selection') }}</span>
+          <div class="flex items-center gap-2">
             <n-date-picker v-model:value="start" type="datetime" />
-            -
+            <span class="mx-1">-</span>
             <n-date-picker v-model:value="end" type="datetime" />
-          </n-form-item>
-        </n-flex>
-      </n-form>
-    </n-card>
+          </div>
+          <n-popconfirm @positive-click="handleClear">
+            <template #trigger>
+              <n-button type="error">
+                <the-icon :size="16" icon="material-symbols:delete-outline" />
+                {{ $gettext('Clear Monitoring Records') }}
+              </n-button>
+            </template>
+            {{ $gettext('Are you sure you want to clear?') }}
+          </n-popconfirm>
+        </div>
+      </div>
+    </template>
     <n-grid
       v-if="!loading"
       cols="1 s:1 m:1 l:2 xl:2 2xl:2"

@@ -225,12 +225,6 @@ onUnmounted(() => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button type="primary" @click="create = true">
-        <the-icon :size="18" icon="material-symbols:add" />
-        {{ $gettext('Create Host') }}
-      </n-button>
-    </template>
     <n-layout has-sider sider-placement="right">
       <n-layout content-style="overflow: visible" bg-hex-111>
         <div ref="terminal" @wheel="onTermWheel" h-75vh></div>
@@ -245,7 +239,14 @@ onUnmounted(() => {
         @expand="collapsed = false"
         @after-enter="onResize"
         @after-leave="onResize"
+        pl-10
       >
+        <div class="text-center">
+          <n-button type="primary" @click="create = true">
+            <the-icon :size="18" icon="material-symbols:add" />
+            {{ $gettext('Create Host') }}
+          </n-button>
+        </div>
         <n-menu
           v-model:value="current"
           :collapsed="collapsed"

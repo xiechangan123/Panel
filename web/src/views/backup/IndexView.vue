@@ -31,19 +31,14 @@ const postgreSQLInstalled = computed(() => {
 </script>
 
 <template>
-  <common-page show-footer>
-    <n-flex vertical>
-      <n-tabs v-model:value="currentTab" type="line" animated>
-        <n-tab-pane name="website" :tab="$gettext('Website')">
-          <list-view v-model:type="currentTab" />
-        </n-tab-pane>
-        <n-tab-pane v-if="mySQLInstalled" name="mysql" tab="MySQL">
-          <list-view v-model:type="currentTab" />
-        </n-tab-pane>
-        <n-tab-pane v-if="postgreSQLInstalled" name="postgres" tab="PostgreSQL">
-          <list-view v-model:type="currentTab" />
-        </n-tab-pane>
+  <common-page show-header show-footer>
+    <template #tabbar>
+      <n-tabs v-model:value="currentTab" animated>
+        <n-tab name="website" :tab="$gettext('Website')" />
+        <n-tab v-if="mySQLInstalled" name="mysql" tab="MySQL" />
+        <n-tab v-if="postgreSQLInstalled" name="postgres" tab="PostgreSQL" />
       </n-tabs>
-    </n-flex>
+    </template>
+    <list-view v-model:type="currentTab" />
   </common-page>
 </template>
