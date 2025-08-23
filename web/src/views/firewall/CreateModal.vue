@@ -64,12 +64,15 @@ const createModel = ref({
   protocol: 'tcp',
   port_start: 80,
   port_end: 80,
-  address: [],
+  address: [] as string[],
   strategy: 'accept',
   direction: 'in'
 })
 
 const handleCreate = async () => {
+  if (!createModel.value.address.length) {
+    createModel.value.address.push('')
+  }
   for (const address of createModel.value.address) {
     useRequest(
       firewall.createRule({
