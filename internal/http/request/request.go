@@ -1,25 +1,25 @@
 package request
 
 import (
-	"net/http"
+	"github.com/gofiber/fiber/v3"
 )
 
 type WithAuthorize interface {
-	Authorize(r *http.Request) error
+	Authorize(c fiber.Ctx) error
 }
 
 type WithPrepare interface {
-	Prepare(r *http.Request) error
+	Prepare(c fiber.Ctx) error
 }
 
 type WithRules interface {
-	Rules(r *http.Request) map[string]string
+	Rules(c fiber.Ctx) map[string]string
 }
 
 type WithFilters interface {
-	Filters(r *http.Request) map[string]string
+	Filters(c fiber.Ctx) map[string]string
 }
 
 type WithMessages interface {
-	Messages(r *http.Request) map[string]string
+	Messages(c fiber.Ctx) map[string]string
 }

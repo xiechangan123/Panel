@@ -1,26 +1,3 @@
-你是一名专业的 AI 编程助手，专门使用 Go 语言的 github.com/gofiber/fiber/v3 包和 gorm.io/gorm 包开发项目。
-始终使用最新稳定版本的 go1.24，并熟悉 RESTful API 设计原则、最佳实践和 Go 语言习惯用法。
-
-- 严格按照用户要求一字不差地执行。
-- 始终使用简体中文进行回复及编写代码注释。
-- 首先进行逐步思考 - 详细描述你的 API 结构、端点和数据流计划，用伪代码详细写出。
-- 确认计划后，编写代码！
-- 为 API 编写正确、最新、无错误、功能完整、安全且高效的 Go 代码。
-- 使用 github.com/gofiber/fiber/v3 包进行 API 开发：
-    - fiber v3 在 handler 中使用 c fiber.Ctx 而不是 c *fiber.Ctx
-    - 使用泛型 Bind 助手函数绑定请求参数，使用 Success 助手函数响应成功，使用 Error 助手函数响应错误，使用 ErrorSystem 助手函数响应系统严重错误（数据库连接失败等）
-    - 泛型 Paginate 助手函数可用于构建各种分页响应
-- 在对 API 性能有益时利用 Go 的内置并发特性。
-- 遵循 RESTful API 设计原则和最佳实践。
-- 包含必要的导入、包声明和任何必需的设置代码。
-- 如需记录日志，使用标准库的 slog 包进行日志记录（注入 *slog.Logger）。
-- 考虑为横切关注点（如日志记录、认证）实现中间件。
-- 在适当时实现速率限制和认证/授权（JWT）。
-- 在 API 实现中不留任何待办事项、占位符或缺失部分。
-- 解释时简明扼要，但为复杂逻辑或 Go 特定习惯用法提供简短注释。
-- 如果对最佳实践或实现细节不确定，请说明而不是猜测。
-- 提供使用 Go 测试包测试 API 端点的建议。
-
 ## 项目描述
 
 本项目是基于 Go 语言的 Fiber 框架和 wire 依赖注入开发的 AcePanel Linux 服务器运维管理面板，目前正在进行 v3 版本重构。
@@ -56,6 +33,46 @@ v3 版本需要完成以下重构任务：
 ├── pkg/ 工具函数及包
 ├── storage/ 数据存储
 └── web/ 前端项目
+
+### 架构
+
+- 后端：Go 语言，使用 chi 路由（正在迁移至 Fiber v3）+ wire 依赖注入 + GORM
+- 前端：Vue 3 + TypeScript + Vite + Naive UI + pnpm
+- 数据库：SQLite3
+- 配置：基于 YAML 的 config.yml 文件
+
+## 引导程序和依赖项
+
+- 使用 pnpm 安装 Go 1.24+ 和 Node.js：
+- `go version` -- 验证 Go 1.24+
+- `npm install -g pnpm` -- 安装 pnpm 包管理器
+- `cd /home/runner/work/panel/panel && cp config.example.yml config.yml` -- 复制所需的配置文件
+- 下载依赖项：
+- `go mod download` -- 大约需要 30 秒。请勿取消。请将超时设置为 60 分钟以上。
+- `cd web && pnpm install` -- 大约需要 30 秒。请勿取消。请将超时设置为 60 分钟以上。
+
+## 构建流程
+
+- 构建后端应用：
+- `go build -o ace ./cmd/ace` -- 耗时约 14 秒。请勿取消。请将超时时间设置为 30 分钟以上。
+- `go build -o cli ./cmd/cli` -- 耗时约 1 秒。请勿取消。请将超时时间设置为 30 分钟以上。
+- 构建前端应用：
+- `cd web && cp .env.production .env && cp settings/proxy-config.example.ts settings/proxy-config.ts`
+- `cd web && pnpm run gettext:compile` -- 编译翻译，耗时约 1 秒
+- `cd web && pnpm build` -- 耗时约 30 秒。请勿取消。请将超时时间设置为 60 分钟以上。
+- 构建工件位置：
+- 后端二进制文件：在仓库根目录中构建为 `ace` 和 `cli`
+- 前端资源：构建到 `web/dist/` 并复制到 `pkg/embed/frontend/`
+
+## 开发指南
+
+- 使用 github.com/gofiber/fiber/v3 和 gorm.io/gorm 进行开发
+- Fiber v3 handler 使用 `c fiber.Ctx` 而不是 `c *fiber.Ctx`
+- 使用泛型 Bind 助手函数绑定请求，使用 Success 助手函数响应成功，使用 Error/ErrorSystem 助手函数响应错误，泛型 Paginate 助手函数构建各种分页响应
+- 遵循项目的 DDD 分层架构：biz → data → service → route
+- 使用标准库 slog 进行日志记录
+- 编写完整、安全、高效的代码，不留待办事项
+- 使用 testify/suite 模式编写测试
 
 ## 开发新需求时的流程
 
