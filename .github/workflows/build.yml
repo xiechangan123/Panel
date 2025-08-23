@@ -83,16 +83,16 @@ jobs:
           LDFLAGS="${LDFLAGS} -X 'github.com/tnborg/panel/internal/app.BuildID=${BUILD_ID}'"
           LDFLAGS="${LDFLAGS} -X 'github.com/tnborg/panel/internal/app.BuildUser=${BUILD_USER}'"
           LDFLAGS="${LDFLAGS} -X 'github.com/tnborg/panel/internal/app.BuildHost=${BUILD_HOST}'"
-          go build -ldflags "${LDFLAGS}" -o web-${{ matrix.goarch }} ./cmd/web
+          go build -ldflags "${LDFLAGS}" -o ace-${{ matrix.goarch }} ./cmd/ace
           go build -ldflags "${LDFLAGS}" -o cli-${{ matrix.goarch }} ./cmd/cli
       - name: Compress ${{ matrix.goarch }}
         run: |
-          upx --best --lzma web-${{ matrix.goarch }}
+          upx --best --lzma ace-${{ matrix.goarch }}
           upx --best --lzma cli-${{ matrix.goarch }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-${{ matrix.goarch }}
           path: |
-            web-${{ matrix.goarch }}
+            ace-${{ matrix.goarch }}
             cli-${{ matrix.goarch }}

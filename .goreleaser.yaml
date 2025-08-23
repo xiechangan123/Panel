@@ -2,9 +2,9 @@ version: 2
 project_name: panel
 
 builds:
-  - id: web
-    main: ./cmd/web
-    binary: web
+  - id: ace
+    main: ./cmd/ace
+    binary: ace
     env:
       - CGO_ENABLED=0
     goos:
@@ -45,7 +45,7 @@ upx:
   - enabled: true
     # Filter by build ID.
     ids:
-      - web
+      - ace
       - cli
     # Compress argument.
     # Valid options are from '1' (faster) to '9' (better), and 'best'.
@@ -58,7 +58,7 @@ upx:
 archives:
   - id: panel
     ids:
-      - web
+      - ace
       - cli
     formats: ["zip"]
     wrap_in_directory: false
