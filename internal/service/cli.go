@@ -542,16 +542,18 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	// 放行端口
-	fw := firewall.NewFirewall()
-	err = fw.Port(firewall.FireInfo{
-		Type:      firewall.TypeNormal,
-		PortStart: config.HTTP.Port,
-		PortEnd:   config.HTTP.Port,
-		Direction: firewall.DirectionIn,
-		Strategy:  firewall.StrategyAccept,
-	}, firewall.OperationAdd)
-	if err != nil {
-		return err
+	if ok, _ := systemctl.IsEnabled("firewalld"); ok {
+		fw := firewall.NewFirewall()
+		err = fw.Port(firewall.FireInfo{
+			Type:      firewall.TypeNormal,
+			PortStart: port,
+			PortEnd:   port,
+			Direction: firewall.DirectionIn,
+			Strategy:  firewall.StrategyAccept,
+		}, firewall.OperationAdd)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
@@ -990,8 +992,8 @@ checkPort:
 	fw := firewall.NewFirewall()
 	_ = fw.Port(firewall.FireInfo{
 		Type:      firewall.TypeNormal,
-		PortStart: config.HTTP.Port,
-		PortEnd:   config.HTTP.Port,
+		PortStart: port,
+		PortEnd:   port,
 		Direction: firewall.DirectionIn,
 		Strategy:  firewall.StrategyAccept,
 	}, firewall.OperationAdd)

@@ -316,8 +316,8 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 			fw := firewall.NewFirewall()
 			err = fw.Port(firewall.FireInfo{
 				Type:      firewall.TypeNormal,
-				PortStart: config.HTTP.Port,
-				PortEnd:   config.HTTP.Port,
+				PortStart: req.Port,
+				PortEnd:   req.Port,
 				Direction: firewall.DirectionIn,
 				Strategy:  firewall.StrategyAccept,
 			}, firewall.OperationAdd)
