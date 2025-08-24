@@ -160,6 +160,6 @@ func initWeb() (*app.Web, error) {
 		return nil, err
 	}
 	validation := bootstrap.NewValidator(koanf, db)
-	web := app.NewAce(koanf, mux, server, gormigrate, cron, queue, validation)
+	web := app.NewWeb(koanf, mux, server, gormigrate, cron, queue, validation)
 	return web, nil
 }

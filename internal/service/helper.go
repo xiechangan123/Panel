@@ -6,7 +6,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gofiber/fiber/v3"
 	"github.com/gookit/validate"
 	"github.com/libtnb/chix"
 
@@ -25,43 +24,58 @@ type ErrorResponse struct {
 }
 
 // Success 响应成功
-func Success(c fiber.Ctx, data any) error {
-	return c.JSON(&SuccessResponse{
+func Success(w http.ResponseWriter, data any) {
+	render := chix.NewRender(w)
+	defer render.Release()
+	render.JSON(&SuccessResponse{
 		Msg:  "success",
 		Data: data,
 	})
 }
 
 // Error 响应错误
-func Error(c fiber.Ctx, code int, format string, args ...any) error {
-	return c.Status(code).JSON(&ErrorResponse{
-		Msg: fmt.Sprintf(format, args...),
+func Error(w http.ResponseWriter, code int, format string, args ...any) {
+	render := chix.NewRender(w)
+	defer render.Release()
+	render.Header(chix.HeaderContentType, chix.MIMEApplicationJSONCharsetUTF8) // must before Status()
+	render.Status(code)
+	if len(args) > 0 {
+		format = fmt.Sprintf(format, args...)
+	}
+	render.JSON(&ErrorResponse{
+		Msg: format,
 	})
 }
 
 // ErrorSystem 响应系统错误
-func ErrorSystem(c fiber.Ctx) error {
-	return c.Status(http.StatusInternalServerError).JSON(&ErrorResponse{
+func ErrorSystem(w http.ResponseWriter) {
+	render := chix.NewRender(w)
+	defer render.Release()
+	render.Header(chix.HeaderContentType, chix.MIMEApplicationJSONCharsetUTF8) // must before Status()
+	render.Status(http.StatusInternalServerError)
+	render.JSON(&ErrorResponse{
 		Msg: http.StatusText(http.StatusInternalServerError),
 	})
 }
 
 // Bind 验证并绑定请求参数
-func Bind[T any](c fiber.Ctx) (*T, error) {
+func Bind[T any](r *http.Request) (*T, error) {
 	req := new(T)
 
 	// 绑定参数
-	if slices.Contains([]string{"POST", "PUT", "PATCH", "DELETE"}, strings.ToUpper(c.Method())) {
-		if c.Request().Header.ContentLength() > 0 {
-			if err := c.Bind().Body(req); err != nil {
+	binder := chix.NewBind(r)
+	defer binder.Release()
+	if slices.Contains([]string{"POST", "PUT", "PATCH", "DELETE"}, strings.ToUpper(r.Method)) {
+		if r.ContentLength > 0 {
+			if err := binder.Body(req); err != nil {
 				return nil, err
 			}
 		}
 	}
-	if err := c.Bind().Query(req); err != nil {
+	if err := binder.Query(req); err != nil {
 		return nil, err
 	}
-	if err := c.Bind().URI(req); err != nil {
+	if err := binder.URI(req); err != nil {
 		return nil, err
 	}
 
@@ -73,29 +87,29 @@ func Bind[T any](c fiber.Ctx) (*T, error) {
 	v := df.Create()
 
 	if reqWithPrepare, ok := any(req).(request.WithPrepare); ok {
-		if err = reqWithPrepare.Prepare(c); err != nil {
+		if err = reqWithPrepare.Prepare(r); err != nil {
 			return nil, err
 		}
 	}
 	if reqWithAuthorize, ok := any(req).(request.WithAuthorize); ok {
-		if err = reqWithAuthorize.Authorize(c); err != nil {
+		if err = reqWithAuthorize.Authorize(r); err != nil {
 			return nil, err
 		}
 	}
 	if reqWithRules, ok := any(req).(request.WithRules); ok {
-		if rules := reqWithRules.Rules(c); rules != nil {
+		if rules := reqWithRules.Rules(r); rules != nil {
 			for key, value := range rules {
 				v.StringRule(key, value)
 			}
 		}
 	}
 	if reqWithFilters, ok := any(req).(request.WithFilters); ok {
-		if filters := reqWithFilters.Filters(c); filters != nil {
+		if filters := reqWithFilters.Filters(r); filters != nil {
 			v.FilterRules(filters)
 		}
 	}
 	if reqWithMessages, ok := any(req).(request.WithMessages); ok {
-		if messages := reqWithMessages.Messages(c); messages != nil {
+		if messages := reqWithMessages.Messages(r); messages != nil {
 			v.AddMessages(messages)
 		}
 	}
@@ -109,8 +123,8 @@ func Bind[T any](c fiber.Ctx) (*T, error) {
 }
 
 // Paginate 取分页条目
-func Paginate[T any](c fiber.Ctx, items []T) (pagedItems []T, total uint) {
-	req, err := Bind[request.Paginate](c)
+func Paginate[T any](r *http.Request, items []T) (pagedItems []T, total uint) {
+	req, err := Bind[request.Paginate](r)
 	if err != nil {
 		req = &request.Paginate{
 			Page:  1,
