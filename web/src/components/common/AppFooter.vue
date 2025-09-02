@@ -42,7 +42,7 @@ const year = new Date().getFullYear()
       <a
         hover="decoration-primary color-primary"
         target="_blank"
-        href="https://afdian.com/a/treenewbee"
+        href="https://afdian.com/a/tnborg"
       >
         {{ $gettext('Sponsor') }}
       </a>

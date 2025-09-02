@@ -341,7 +341,7 @@ const handleUpdate = () => {
 }
 
 const toSponsor = () => {
-  window.open('https://afdian.com/a/treenewbee')
+  window.open('https://afdian.com/a/tnborg')
 }
 
 const handleManageApp = (slug: string) => {
