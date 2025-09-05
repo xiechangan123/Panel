@@ -2,7 +2,15 @@
 [<a href="README.md">简体中文</a>] | [English]
 </p>
 
-<h1 align="center" style="font-size: 40px">AcePanel</h1>
+<p align="center"><a href="https://acepanel.net"><img src=".github/assets/logo-full.png" alt="AcePanel" width="300" /></a></p>
+
+<p align="center">New generation of all-in-one server operation and maintenance management panel<br>Simple and lightweight, efficient operation and maintenance</p>
+
+<div align="center">
+
+Website: [acepanel.net](https://acepanel.net) | QQ group: [12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | WeChat group: [Copy this link](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
+
+</div>
 
 <div align="center">
 
@@ -14,10 +22,6 @@
 [![License](https://img.shields.io/github/license/tnborg/panel)](https://opensource.org/license/bsd-3-clause)
 
 </div>
-
-A new generation of all-in-one server operation and maintenance management panel. Simple and lightweight, efficient operation and maintenance.
-
-Website: [acepanel.net](https://acepanel.net) | QQ group: [12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | WeChat group: [Copy this link](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
 
 ## Advantages
 

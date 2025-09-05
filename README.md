@@ -2,7 +2,15 @@
 [简体中文] | [<a href="README_EN.md">English</a>]
 </p>
 
-<h1 align="center" style="font-size: 40px">AcePanel（原耗子面板）</h1>
+<p align="center"><a href="https://acepanel.net"><img src=".github/assets/logo-full.png" alt="AcePanel" width="300" /></a></p>
+
+<p align="center">新一代全能服务器运维管理面板<br>简单轻量，高效运维</p>
+
+<div align="center">
+
+官网：[acepanel.net](https://acepanel.net) | QQ群：[12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | 微信群：[复制此链接](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
+
+</div>
 
 <div align="center">
 
@@ -14,12 +22,6 @@
 [![License](https://img.shields.io/github/license/tnborg/panel)](https://opensource.org/license/bsd-3-clause)
 
 </div>
-
-**耗子面板正在逐步改名为 AcePanel，特此通知！**
-
-新一代全能服务器运维管理面板。简单轻量，高效运维。
-
-官网：[acepanel.net](https://acepanel.net) | QQ群：[12370907](https://jq.qq.com/?_wv=1027&k=I1oJKSTH) | 微信群：[复制此链接](https://work.weixin.qq.com/gm/d8ebf618553398d454e3378695c858b6)
 
 ## 优势
 
