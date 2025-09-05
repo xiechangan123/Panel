@@ -36,7 +36,7 @@ Website: [acepanel.net](https://acepanel.net) | QQ group: [12370907](https://jq.
 
 ## Quick Install
 
-Supported clean mainstream systems under `amd64` | `arm64` architecture, please refer to the [installation documentation](https://acepanel.github.io/quickstart/install) for specific supported systems.
+Supported clean mainstream systems under `amd64` | `arm64` architecture, please refer to the [installation documentation](https://acepanel.github.io/en/quickstart/install) for specific supported systems.
 
 ```shell
 curl -sSLOm 10 https://dl.cdn.haozi.net/panel/install.sh && bash install.sh

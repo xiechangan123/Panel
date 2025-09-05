@@ -36,7 +36,7 @@
 
 ## 快速安装
 
-支持 `amd64` | `arm64` 架构下的干净的主流系统，具体支持的系统请参考[安装文档](https://acepanel.github.io/zh_CN/quickstart/install)。
+支持 `amd64` | `arm64` 架构下的干净的主流系统，具体支持的系统请参考[安装文档](https://acepanel.github.io/quickstart/install)。
 
 ```shell
 curl -sSLOm 10 https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
