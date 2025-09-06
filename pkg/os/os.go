@@ -47,10 +47,11 @@ func IsRHEL() bool {
 	if osRelease == nil {
 		return false
 	}
+	// alinux Alibaba Cloud Linux
 	// hce Huawei Cloud EulerOS
 	// openEuler openEuler
 	id, idLike := osRelease["ID"], osRelease["ID_LIKE"]
-	return id == "tencentos" || id == "opencloudos" || id == "hce" || id == "openEuler" || id == "rhel" || strings.Contains(idLike, "rhel")
+	return id == "rhel" || id == "almalinux" || id == "rocky" || id == "alinux" || id == "tencentos" || id == "opencloudos" || strings.Contains(idLike, "rhel")
 }
 
 // IsUbuntu 判断是否是 Ubuntu 系统
