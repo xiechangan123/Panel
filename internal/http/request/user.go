@@ -5,8 +5,8 @@ type UserID struct {
 }
 
 type UserLogin struct {
-	Username  string `json:"username" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
-	Password  string `json:"password" validate:"required"`
+	Username  string `json:"username" validate:"required"` // encrypted with RSA-OAEP
+	Password  string `json:"password" validate:"required"` // encrypted with RSA-OAEP
 	SafeLogin bool   `json:"safe_login"`
 	PassCode  string `json:"pass_code"`
 }
