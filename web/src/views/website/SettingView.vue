@@ -38,46 +38,67 @@ onMounted(() => {
 <template>
   <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="default-page" :tab="$gettext('Default Page')">
-      <Editor
-        v-model:value="defaultPageModel.index"
-        language="html"
-        theme="vs-dark"
-        height="60vh"
-        mt-8
-        :options="{
-          automaticLayout: true,
-          formatOnType: true,
-          formatOnPaste: true
-        }"
-      />
+      <n-flex vertical>
+        <Editor
+          v-model:value="defaultPageModel.index"
+          language="html"
+          theme="vs-dark"
+          height="60vh"
+          mt-8
+          :options="{
+            automaticLayout: true,
+            formatOnType: true,
+            formatOnPaste: true
+          }"
+        />
+        <n-flex>
+          <n-button type="primary">
+            {{ $gettext('Save Changes') }}
+          </n-button>
+        </n-flex>
+      </n-flex>
     </n-tab-pane>
     <n-tab-pane name="404-page" :tab="$gettext('404 Page')">
-      <Editor
-        v-model:value="defaultPageModel.not_found"
-        language="html"
-        theme="vs-dark"
-        height="60vh"
-        mt-8
-        :options="{
-          automaticLayout: true,
-          formatOnType: true,
-          formatOnPaste: true
-        }"
-      />
+      <n-flex>
+        <Editor
+          v-model:value="defaultPageModel.not_found"
+          language="html"
+          theme="vs-dark"
+          height="60vh"
+          mt-8
+          :options="{
+            automaticLayout: true,
+            formatOnType: true,
+            formatOnPaste: true
+          }"
+        />
+        <n-flex>
+          <n-button type="primary">
+            {{ $gettext('Save Changes') }}
+          </n-button>
+        </n-flex>
+      </n-flex>
     </n-tab-pane>
     <n-tab-pane name="stop-page" :tab="$gettext('Stop Page')">
-      <Editor
-        v-model:value="defaultPageModel.stop"
-        language="html"
-        theme="vs-dark"
-        height="60vh"
-        mt-8
-        :options="{
-          automaticLayout: true,
-          formatOnType: true,
-          formatOnPaste: true
-        }"
-      />
+      <n-flex>
+        <Editor
+          v-model:value="defaultPageModel.stop"
+          language="html"
+          theme="vs-dark"
+          height="60vh"
+          mt-8
+          :options="{
+            automaticLayout: true,
+            formatOnType: true,
+            formatOnPaste: true
+          }"
+        />
+        <n-flex>
+          <n-button type="primary">
+            {{ $gettext('Save Changes') }}
+          </n-button>
+        </n-flex>
+      </n-flex>
     </n-tab-pane>
     <n-tab-pane name="default-site" :tab="$gettext('Default Site')">
       <n-alert type="info">待开发</n-alert>

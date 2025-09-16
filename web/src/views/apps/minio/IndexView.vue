@@ -26,17 +26,12 @@ const handleSaveEnv = () => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button v-if="currentTab == 'env'" class="ml-16" type="primary" @click="handleSaveEnv">
-        {{ $gettext('Save') }}
-      </n-button>
-    </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status service="minio" />
       </n-tab-pane>
       <n-tab-pane name="env" :tab="$gettext('Environment Variables')">
-        <n-space vertical>
+        <n-flex vertical>
           <n-alert type="warning">
             {{
               $gettext(
@@ -56,7 +51,12 @@ const handleSaveEnv = () => {
               formatOnPaste: true
             }"
           />
-        </n-space>
+          <n-flex>
+            <n-button type="primary" @click="handleSaveEnv">
+              {{ $gettext('Save') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="minio" />

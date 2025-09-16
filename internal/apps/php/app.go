@@ -46,9 +46,9 @@ func (s *App) Route(version uint) func(r chi.Router) {
 		r.Get("/fpm_config", php.GetFPMConfig)
 		r.Post("/fpm_config", php.UpdateFPMConfig)
 		r.Get("/load", php.Load)
-		r.Get("/error_log", php.ErrorLog)
+		r.Get("/log", php.Log)
 		r.Get("/slow_log", php.SlowLog)
-		r.Post("/clear_error_log", php.ClearErrorLog)
+		r.Post("/clear_log", php.ClearLog)
 		r.Post("/clear_slow_log", php.ClearSlowLog)
 		r.Get("/extensions", php.ExtensionList)
 		r.Post("/extensions", php.InstallExtension)
@@ -169,7 +169,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, loads)
 }
 
-func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
+func (s *App) Log(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, fmt.Sprintf("%s/server/php/%d/var/log/php-fpm.log", app.Root, s.version))
 }
 
@@ -177,7 +177,7 @@ func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, fmt.Sprintf("%s/server/php/%d/var/log/slow.log", app.Root, s.version))
 }
 
-func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
+func (s *App) ClearLog(w http.ResponseWriter, r *http.Request) {
 	if _, err := shell.Execf("cat /dev/null > %s/server/php/%d/var/log/php-fpm.log", app.Root, s.version); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return

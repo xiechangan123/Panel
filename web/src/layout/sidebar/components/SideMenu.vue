@@ -3,11 +3,12 @@ import { translateTitle } from '@/locales/menu'
 import { usePermissionStore, useTabStore, useThemeStore } from '@/store'
 import { isUrl, renderIcon } from '@/utils'
 
-import type { MenuInst, MenuOption } from 'naive-ui'
+import { MenuInst, MenuOption, useThemeVars } from 'naive-ui'
 import type { VNodeChild } from 'vue'
 import { RouterLink } from 'vue-router'
 import type { Meta, RouteType } from '~/types/router'
 
+const themeVars = useThemeVars()
 const router = useRouter()
 const currentRoute = useRoute()
 const permissionStore = usePermissionStore()
@@ -142,8 +143,8 @@ function handleMenuSelect(key: string, item: MenuOption) {
   .n-menu-item-content--child-active,
   .n-menu-item-content--selected {
     .n-menu-item-content__icon {
-      border-color: var(--primary-color);
-      background-color: var(--primary-color);
+      border-color: v-bind('themeVars.primaryColor');
+      background-color: v-bind('themeVars.primaryColor');
 
       i {
         color: #fff;

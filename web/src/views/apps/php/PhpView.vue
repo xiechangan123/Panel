@@ -24,7 +24,7 @@ const { data: config } = useRequest(php.config(version.value), {
 const { data: fpmConfig } = useRequest(php.fpmConfig(version.value), {
   initialData: ''
 })
-const { data: errorLog } = useRequest(php.errorLog(version.value), {
+const { data: log } = useRequest(php.log(version.value), {
   initialData: ''
 })
 const { data: slowLog } = useRequest(php.slowLog(version.value), {
@@ -150,8 +150,8 @@ const handleSaveFPMConfig = async () => {
   })
 }
 
-const handleClearErrorLog = async () => {
-  useRequest(php.clearErrorLog(version.value)).onSuccess(() => {
+const handleClearLog = async () => {
+  useRequest(php.clearLog(version.value)).onSuccess(() => {
     window.$message.success($gettext('Cleared successfully'))
   })
 }
@@ -177,46 +177,14 @@ const handleUninstallExtension = async (name: string) => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button v-if="currentTab == 'status'" class="ml-16" type="info" @click="handleSetCli">
-        {{ $gettext('Set as CLI Default Version') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'config'"
-        class="ml-16"
-        type="primary"
-        @click="handleSaveConfig"
-      >
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'fpm-config'"
-        class="ml-16"
-        type="primary"
-        @click="handleSaveFPMConfig"
-      >
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'error-log'"
-        class="ml-16"
-        type="primary"
-        @click="handleClearErrorLog"
-      >
-        {{ $gettext('Clear Error Log') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'slow-log'"
-        class="ml-16"
-        type="primary"
-        @click="handleClearSlowLog"
-      >
-        {{ $gettext('Clear Slow Log') }}
-      </n-button>
-    </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <service-status :service="`php-fpm-${version}`" show-reload />
+        <n-flex vertical>
+          <service-status :service="`php-fpm-${version}`" show-reload />
+          <n-button type="info" @click="handleSetCli">
+            {{ $gettext('Set as CLI Default Version') }}
+          </n-button>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="extensions" :tab="$gettext('Extension Management')">
         <n-flex vertical>
@@ -232,7 +200,7 @@ const handleUninstallExtension = async (name: string) => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
-        <n-space vertical>
+        <n-flex vertical>
           <n-alert type="warning">
             {{
               $gettext(
@@ -253,10 +221,15 @@ const handleUninstallExtension = async (name: string) => {
               formatOnPaste: true
             }"
           />
-        </n-space>
+          <n-flex>
+            <n-button type="primary" @click="handleSaveConfig">
+              {{ $gettext('Save') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="fpm-config" :tab="$gettext('FPM Configuration')">
-        <n-space vertical>
+        <n-flex vertical>
           <n-alert type="warning">
             {{
               $gettext(
@@ -277,7 +250,12 @@ const handleUninstallExtension = async (name: string) => {
               formatOnPaste: true
             }"
           />
-        </n-space>
+          <n-flex>
+            <n-button type="primary" @click="handleSaveFPMConfig">
+              {{ $gettext('Save') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table
@@ -292,11 +270,25 @@ const handleUninstallExtension = async (name: string) => {
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log :service="'php-fpm-' + version" />
       </n-tab-pane>
-      <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
-        <realtime-log :path="errorLog" />
+      <n-tab-pane name="log" :tab="$gettext('Error Logs')">
+        <n-flex vertical>
+          <n-flex>
+            <n-button type="primary" @click="handleClearLog">
+              {{ $gettext('Clear Log') }}
+            </n-button>
+          </n-flex>
+          <realtime-log :path="log" />
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Logs')">
-        <realtime-log :path="slowLog" />
+        <n-flex vertical>
+          <n-flex>
+            <n-button type="primary" @click="handleClearSlowLog">
+              {{ $gettext('Clear Slow Log') }}
+            </n-button>
+          </n-flex>
+          <realtime-log :path="slowLog" />
+        </n-flex>
       </n-tab-pane>
     </n-tabs>
   </common-page>

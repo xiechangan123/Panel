@@ -15,10 +15,10 @@ export default {
     http.Post(`/apps/php${version}/fpm_config`, { config }),
   // 负载状态
   load: (version: number): any => http.Get(`/apps/php${version}/load`),
-  // 获取错误日志
-  errorLog: (version: number): any => http.Get(`/apps/php${version}/error_log`),
-  // 清空错误日志
-  clearErrorLog: (version: number): any => http.Post(`/apps/php${version}/clear_error_log`),
+  // 获取日志
+  log: (version: number): any => http.Get(`/apps/php${version}/log`),
+  // 清空日志
+  clearLog: (version: number): any => http.Post(`/apps/php${version}/clear_log`),
   // 获取慢日志
   slowLog: (version: number): any => http.Get(`/apps/php${version}/slow_log`),
   // 清空慢日志

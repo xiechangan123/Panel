@@ -257,7 +257,7 @@ watch(
           <n-date-picker
             v-model:value="createModel.expired_at"
             type="datetime"
-            placeholder="$gettext('Please select the expiration time')"
+            :placeholder="$gettext('Please select the expiration time')"
             w-full
           />
         </n-form-item>
@@ -290,7 +290,7 @@ watch(
           <n-date-picker
             v-model:value="updateModel.expired_at"
             type="datetime"
-            placeholder="$gettext('Please select the expiration time')"
+            :placeholder="$gettext('Please select the expiration time')"
             w-full
           />
         </n-form-item>

@@ -52,13 +52,6 @@ const handleUpdate = () => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <div>
-        <n-button v-if="versions" class="ml-16" type="primary" @click="handleUpdate">
-          {{ $gettext('Update Now') }}
-        </n-button>
-      </div>
-    </template>
     <n-timeline v-if="versions" pt-10>
       <n-timeline-item
         v-for="(item, index) in versions"
@@ -76,6 +69,9 @@ const handleUpdate = () => {
           noImgZoomIn
         />
       </n-timeline-item>
+      <n-button class="ml-16" type="primary" @click="handleUpdate">
+        {{ $gettext('Update Now') }}
+      </n-button>
     </n-timeline>
     <div v-else pt-40>
       <n-result

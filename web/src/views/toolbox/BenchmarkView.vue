@@ -98,7 +98,7 @@ const handleTest = async () => {
     >
       {{ $gettext('Current project: %{ current }', { current: current }) }}
     </n-alert>
-    <n-progress v-if="inTest" :percentage="progress" color="var(--primary-color)" processing />
+    <n-progress v-if="inTest" :percentage="progress" processing />
   </n-flex>
   <n-flex vertical items-center pt-40>
     <div w-800>
@@ -111,13 +111,8 @@ const handleTest = async () => {
                   <n-number-animation :from="0" :to="cpuTotal" show-separator />
                 </div>
                 <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                <n-progress
-                  type="circle"
-                  :percentage="100"
-                  :stroke-width="3"
-                  color="var(--primary-color)"
-                >
-                  <the-icon :size="50" icon="bi:cpu" color="var(--primary-color)" />
+                <n-progress type="circle" :percentage="100" :stroke-width="3">
+                  <the-icon :size="50" icon="bi:cpu" />
                 </n-progress>
                 {{ $gettext('CPU') }}
               </n-flex>
@@ -176,13 +171,8 @@ const handleTest = async () => {
                   <n-number-animation :from="0" :to="memory.score" show-separator />
                 </div>
                 <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                <n-progress
-                  type="circle"
-                  :percentage="100"
-                  :stroke-width="3"
-                  color="var(--primary-color)"
-                >
-                  <the-icon :size="50" icon="bi:memory" color="var(--primary-color)" />
+                <n-progress type="circle" :percentage="100" :stroke-width="3">
+                  <the-icon :size="50" icon="bi:memory" />
                 </n-progress>
                 {{ $gettext('Memory') }}
               </n-flex>
@@ -207,13 +197,8 @@ const handleTest = async () => {
                   <n-number-animation :from="0" :to="disk.score" show-separator />
                 </div>
                 <div v-else>{{ $gettext('Pending benchmark') }}</div>
-                <n-progress
-                  type="circle"
-                  :percentage="100"
-                  :stroke-width="3"
-                  color="var(--primary-color)"
-                >
-                  <the-icon :size="50" icon="bi:hdd-stack" color="var(--primary-color)" />
+                <n-progress type="circle" :percentage="100" :stroke-width="3">
+                  <the-icon :size="50" icon="bi:hdd-stack" />
                 </n-progress>
                 {{ $gettext('Disk') }}
               </n-flex>

@@ -172,55 +172,6 @@ const onCreateListen = () => {
 
 <template>
   <common-page show-footer :title="title">
-    <template #action>
-      <n-flex>
-        <n-tag v-if="current === 'config'" type="warning">
-          {{
-            $gettext(
-              'If you modify the original text, other modifications will not take effect after clicking save!'
-            )
-          }}
-        </n-tag>
-        <n-popconfirm v-if="current === 'config'" @positive-click="handleReset">
-          <template #trigger>
-            <n-button type="success">
-              {{ $gettext('Reset Configuration') }}
-            </n-button>
-          </template>
-          {{ $gettext('Are you sure you want to reset the configuration?') }}
-        </n-popconfirm>
-        <n-button
-          v-if="current === 'rewrite'"
-          class="ml-16"
-          type="success"
-          @click="proxyBuilderModal = true"
-        >
-          {{ $gettext('Generate Reverse Proxy Configuration') }}
-        </n-button>
-        <n-button
-          v-if="current === 'https'"
-          :loading="isObtainCert"
-          :disabled="isObtainCert"
-          class="ml-16"
-          type="success"
-          @click="handleObtainCert"
-        >
-          {{ $gettext('One-click Certificate Issuance') }}
-        </n-button>
-        <n-button v-if="current !== 'log'" class="ml-16" type="primary" @click="handleSave">
-          {{ $gettext('Save') }}
-        </n-button>
-        <n-popconfirm v-if="current === 'log'" @positive-click="clearLog">
-          <template #trigger>
-            <n-button type="primary">
-              {{ $gettext('Clear Logs') }}
-            </n-button>
-          </template>
-          {{ $gettext('Are you sure you want to clear?') }}
-        </n-popconfirm>
-      </n-flex>
-    </template>
-
     <n-tabs v-model:value="current" type="line" animated>
       <n-tab-pane name="listen" :tab="$gettext('Domain & Listening')">
         <n-form v-if="setting">
@@ -287,6 +238,15 @@ const onCreateListen = () => {
       </n-tab-pane>
       <n-tab-pane name="https" tab="HTTPS">
         <n-flex vertical v-if="setting">
+          <n-button
+            :loading="isObtainCert"
+            :disabled="isObtainCert"
+            class="ml-16"
+            type="success"
+            @click="handleObtainCert"
+          >
+            {{ $gettext('One-click Certificate Issuance') }}
+          </n-button>
           <n-card v-if="setting.https && setting.ssl_issuer != ''">
             <n-descriptions :title="$gettext('Certificate Information')" :column="2">
               <n-descriptions-item>
@@ -369,6 +329,9 @@ const onCreateListen = () => {
       </n-tab-pane>
       <n-tab-pane name="rewrite" :tab="$gettext('Rewrite')">
         <n-flex vertical>
+          <n-button type="success" @click="proxyBuilderModal = true">
+            {{ $gettext('Generate Reverse Proxy Configuration') }}
+          </n-button>
           <n-form label-placement="left" label-width="auto">
             <n-form-item :label="$gettext('Presets')">
               <n-select
@@ -395,6 +358,13 @@ const onCreateListen = () => {
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Configuration')">
         <n-flex vertical>
+          <n-alert type="info" w-full>
+            {{
+              $gettext(
+                'If you modify the original text, other modifications will not take effect after clicking save!'
+              )
+            }}
+          </n-alert>
           <n-alert type="warning" w-full>
             {{
               $gettext(
@@ -402,6 +372,14 @@ const onCreateListen = () => {
               )
             }}
           </n-alert>
+          <n-popconfirm @positive-click="handleReset">
+            <template #trigger>
+              <n-button type="success">
+                {{ $gettext('Reset Configuration') }}
+              </n-button>
+            </template>
+            {{ $gettext('Are you sure you want to reset the configuration?') }}
+          </n-popconfirm>
           <Editor
             v-if="setting"
             v-model:value="setting.raw"
@@ -424,6 +402,14 @@ const onCreateListen = () => {
               <n-tag>{{ setting.log }}</n-tag>
               {{ $gettext('view') }}.
             </n-alert>
+            <n-popconfirm @positive-click="clearLog">
+              <template #trigger>
+                <n-button type="primary">
+                  {{ $gettext('Clear Logs') }}
+                </n-button>
+              </template>
+              {{ $gettext('Are you sure you want to clear?') }}
+            </n-popconfirm>
           </n-flex>
           <realtime-log :path="setting.log" />
         </n-flex>
@@ -441,6 +427,9 @@ const onCreateListen = () => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
+    <n-button v-if="current !== 'log'" type="primary" @click="handleSave">
+      {{ $gettext('Save') }}
+    </n-button>
   </common-page>
   <ProxyBuilderModal v-model:show="proxyBuilderModal" v-model:config="setting.rewrite" />
 </template>

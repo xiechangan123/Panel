@@ -37,7 +37,7 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
-	r.Post("/clear_error_log", s.ClearErrorLog)
+	r.Post("/clear_log", s.ClearLog)
 	r.Get("/slow_log", s.SlowLog)
 	r.Post("/clear_slow_log", s.ClearSlowLog)
 	r.Get("/root_password", s.GetRootPassword)
@@ -159,8 +159,8 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, load)
 }
 
-// ClearErrorLog 清空错误日志
-func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
+// ClearLog 清空日志
+func (s *App) ClearLog(w http.ResponseWriter, r *http.Request) {
 	if err := systemctl.LogClear("mysqld"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return

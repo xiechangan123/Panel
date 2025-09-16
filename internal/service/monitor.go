@@ -68,6 +68,10 @@ func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	if len(monitors) == 0 {
+		Success(w, types.MonitorData{})
+		return
+	}
 
 	var list types.MonitorData
 	var bytesSent uint64

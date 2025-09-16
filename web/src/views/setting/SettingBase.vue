@@ -28,7 +28,7 @@ const channels = [
 </script>
 
 <template>
-  <n-space vertical>
+  <n-flex vertical>
     <n-alert type="info">
       {{
         $gettext(
@@ -56,7 +56,7 @@ const channels = [
         <n-input v-model:value="model.backup_path" :placeholder="$gettext('/www/backup')" />
       </n-form-item>
     </n-form>
-  </n-space>
+  </n-flex>
 </template>
 
 <style scoped lang="scss"></style>

@@ -9,6 +9,10 @@ type AppSlug struct {
 	Slug string `json:"slug" form:"slug" validate:"required"`
 }
 
+type AppSlugs struct {
+	Slugs string `json:"slugs" form:"slugs" validate:"required"`
+}
+
 type AppUpdateShow struct {
 	Slug string `json:"slug" form:"slug" validate:"required|exists:apps,slug"`
 	Show bool   `json:"show" form:"show"`

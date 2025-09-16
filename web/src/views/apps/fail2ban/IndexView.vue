@@ -215,7 +215,7 @@ onMounted(() => {
   refresh()
   getWhiteList()
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
-    if (data.installed) {
+    if (data) {
       getWebsiteList(1, 10000)
     }
   })
@@ -224,24 +224,6 @@ onMounted(() => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button
-        v-if="currentTab == 'status'"
-        class="ml-16"
-        type="primary"
-        @click="handleSaveWhiteList"
-      >
-        {{ $gettext('Save Whitelist') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'jails'"
-        class="ml-16"
-        type="primary"
-        @click="addJailModal = true"
-      >
-        {{ $gettext('Add Rule') }}
-      </n-button>
-    </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -254,31 +236,48 @@ onMounted(() => {
               :placeholder="$gettext('IP whitelist, separated by commas')"
             />
           </n-card>
+          <n-flex>
+            <n-button type="primary" @click="handleSaveWhiteList">
+              {{ $gettext('Save Whitelist') }}
+            </n-button>
+          </n-flex>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="jails" :tab="$gettext('Rule Management')">
-        <n-card :title="$gettext('Rule List')" :segmented="true">
-          <n-data-table
-            striped
-            remote
-            :scroll-x="1000"
-            :loading="loading"
-            :columns="jailsColumns"
-            :data="data"
-            :row-key="(row: any) => row.name"
-            v-model:page="page"
-            v-model:pageSize="pageSize"
-            :pagination="{
-              page: page,
-              pageCount: pageCount,
-              pageSize: pageSize,
-              itemCount: total,
-              showQuickJumper: true,
-              showSizePicker: true,
-              pageSizes: [20, 50, 100, 200]
-            }"
-          />
-        </n-card>
+        <n-flex>
+          <n-card :title="$gettext('Rule List')" :segmented="true">
+            <n-data-table
+              striped
+              remote
+              :scroll-x="1000"
+              :loading="loading"
+              :columns="jailsColumns"
+              :data="data"
+              :row-key="(row: any) => row.name"
+              v-model:page="page"
+              v-model:pageSize="pageSize"
+              :pagination="{
+                page: page,
+                pageCount: pageCount,
+                pageSize: pageSize,
+                itemCount: total,
+                showQuickJumper: true,
+                showSizePicker: true,
+                pageSizes: [20, 50, 100, 200]
+              }"
+            />
+          </n-card>
+          <n-flex>
+            <n-button
+              v-if="currentTab == 'jails'"
+              class="ml-16"
+              type="primary"
+              @click="addJailModal = true"
+            >
+              {{ $gettext('Add Rule') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="fail2ban" />

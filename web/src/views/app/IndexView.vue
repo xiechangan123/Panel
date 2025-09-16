@@ -27,8 +27,7 @@ const columns: any = [
     render(row: any) {
       return h(TheIcon, {
         icon: row.icon,
-        size: 26,
-        color: `var(--primary-color)`
+        size: 26
       })
     }
   },
@@ -211,12 +210,12 @@ onMounted(() => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button type="primary" @click="handleUpdateCache">
-        {{ $gettext('Update Cache') }}
-      </n-button>
-    </template>
     <n-flex vertical>
+      <n-flex>
+        <n-button type="primary" @click="handleUpdateCache">
+          {{ $gettext('Update Cache') }}
+        </n-button>
+      </n-flex>
       <n-alert type="warning">{{
         $gettext(
           'Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!'

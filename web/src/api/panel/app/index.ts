@@ -13,7 +13,7 @@ export default {
   // 设置首页显示
   updateShow: (slug: string, show: boolean): any => http.Post('/app/update_show', { slug, show }),
   // 应用是否已安装
-  isInstalled: (slug: string): any => http.Get('/app/is_installed', { params: { slug } }),
+  isInstalled: (slugs: string): any => http.Get('/app/is_installed', { params: { slugs } }),
   // 更新缓存
   updateCache: (): any => http.Get('/app/update_cache')
 }

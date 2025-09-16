@@ -2,8 +2,10 @@
 import { translateTitle } from '@/locales/menu'
 import type { TabItem } from '@/store'
 import { useTabStore } from '@/store'
+import { useThemeVars } from 'naive-ui'
 import ContextMenu from './components/ContextMenu.vue'
 
+const themeVars = useThemeVars()
 const router = useRouter()
 const tabStore = useTabStore()
 
@@ -88,13 +90,12 @@ async function handleContextMenu(e: MouseEvent, tabItem: TabItem) {
     margin-right: 4px;
 
     &:hover {
-      border: 1px solid var(--primary-color) !important;
+      border: 1px solid v-bind('themeVars.primaryColor') !important;
     }
   }
 
   .n-tabs-tab--active {
-    border: 1px solid var(--primary-color) !important;
-    background-color: var(--selected-bg) !important;
+    border: 1px solid v-bind('themeVars.primaryColor') !important;
   }
 
   .n-tabs-pad,

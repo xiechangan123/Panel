@@ -295,33 +295,17 @@ onUnmounted(() => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button
-        v-if="currentTab == 'config'"
-        class="ml-16"
-        type="primary"
-        @click="handleSaveConfig"
-      >
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'processes'"
-        class="ml-16"
-        type="primary"
-        @click="createProcessModal = true"
-      >
-        {{ $gettext('Add Process') }}
-      </n-button>
-      <n-button v-if="currentTab == 'log'" class="ml-16" type="primary" @click="handleClearLog">
-        {{ $gettext('Clear Log') }}
-      </n-button>
-    </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <service-status v-if="serviceName != ''" :service="serviceName" />
       </n-tab-pane>
       <n-tab-pane name="processes" :tab="$gettext('Process Management')">
         <n-flex vertical>
+          <n-flex>
+            <n-button type="primary" @click="createProcessModal = true">
+              {{ $gettext('Add Process') }}
+            </n-button>
+          </n-flex>
           <n-data-table
             striped
             remote
@@ -345,7 +329,7 @@ onUnmounted(() => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
-        <n-space vertical>
+        <n-flex vertical>
           <n-alert type="warning">
             {{
               $gettext(
@@ -365,13 +349,25 @@ onUnmounted(() => {
               formatOnPaste: true
             }"
           />
-        </n-space>
+          <n-flex>
+            <n-button type="primary" @click="handleSaveConfig">
+              {{ $gettext('Save') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="supervisor" />
       </n-tab-pane>
       <n-tab-pane name="log" :tab="$gettext('Daemon Logs')">
-        <realtime-log path="/var/log/supervisor/supervisord.log" />
+        <n-flex vertical>
+          <n-flex>
+            <n-button type="primary" @click="handleClearLog">
+              {{ $gettext('Clear Log') }}
+            </n-button>
+          </n-flex>
+          <realtime-log path="/var/log/supervisor/supervisord.log" />
+        </n-flex>
       </n-tab-pane>
     </n-tabs>
   </common-page>

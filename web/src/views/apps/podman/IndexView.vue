@@ -36,24 +36,6 @@ const handleSaveStorageConfig = () => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button
-        v-if="currentTab == 'registryConfig'"
-        class="ml-16"
-        type="primary"
-        @click="handleSaveRegistryConfig"
-      >
-        {{ $gettext('Save') }}
-      </n-button>
-      <n-button
-        v-if="currentTab == 'storageConfig'"
-        class="ml-16"
-        type="primary"
-        @click="handleSaveStorageConfig"
-      >
-        {{ $gettext('Save') }}
-      </n-button>
-    </template>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
@@ -68,7 +50,7 @@ const handleSaveStorageConfig = () => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="registryConfig" :tab="$gettext('Registry Configuration')">
-        <n-space vertical>
+        <n-flex vertical>
           <n-alert type="warning">
             {{
               $gettext(
@@ -88,10 +70,15 @@ const handleSaveStorageConfig = () => {
               formatOnPaste: true
             }"
           />
-        </n-space>
+          <n-flex>
+            <n-button type="primary" @click="handleSaveRegistryConfig">
+              {{ $gettext('Save') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="storageConfig" :tab="$gettext('Storage Configuration')">
-        <n-space vertical>
+        <n-flex vertical>
           <n-alert type="warning">
             {{
               $gettext(
@@ -111,7 +98,12 @@ const handleSaveStorageConfig = () => {
               formatOnPaste: true
             }"
           />
-        </n-space>
+          <n-flex>
+            <n-button type="primary" @click="handleSaveStorageConfig">
+              {{ $gettext('Save') }}
+            </n-button>
+          </n-flex>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log service="podman" />

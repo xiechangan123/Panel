@@ -2,6 +2,7 @@ package service
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
@@ -144,28 +145,27 @@ func (s *AppService) UpdateShow(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppService) IsInstalled(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.AppSlug](r)
+	req, err := Bind[request.AppSlugs](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	app, err := s.appRepo.Get(req.Slug)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+	flag := false
+	slugs := strings.Split(req.Slugs, ",")
+	for _, item := range slugs {
+		installed, err := s.appRepo.IsInstalled(item)
+		if err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		if installed {
+			flag = true
+			break
+		}
 	}
 
-	installed, err := s.appRepo.IsInstalled(req.Slug)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, chix.M{
-		"name":      app.Name,
-		"installed": installed,
-	})
+	Success(w, flag)
 }
 
 func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {

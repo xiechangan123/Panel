@@ -7,8 +7,8 @@ export default {
   config: (): any => http.Get('/apps/mysql/config'),
   // 保存配置
   saveConfig: (config: string): any => http.Post('/apps/mysql/config', { config }),
-  // 清空错误日志
-  clearErrorLog: (): any => http.Post('/apps/mysql/clear_error_log'),
+  // 清空日志
+  clearLog: (): any => http.Post('/apps/mysql/clear_log'),
   // 获取慢查询日志
   slowLog: (): any => http.Get('/apps/mysql/slow_log'),
   // 清空慢查询日志

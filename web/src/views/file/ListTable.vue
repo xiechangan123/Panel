@@ -127,7 +127,7 @@ const columns: DataTableColumns<RowData> = [
           }
         },
         () => [
-          h(TheIcon, { icon, size: 24, color: `var(--primary-color)` }),
+          h(TheIcon, { icon, size: 24 }),
           h(NEllipsis, null, {
             default: () => {
               if (row.symlink) {

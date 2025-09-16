@@ -39,7 +39,7 @@ const getAsyncData = () => {
 
   websites.value = []
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
-    if (data.installed) {
+    if (data) {
       useRequest(website.list(1, 10000)).onSuccess(({ data }) => {
         for (const item of data.items) {
           websites.value.push({

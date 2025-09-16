@@ -6,7 +6,6 @@ import ThemeMode from './components/ThemeMode.vue'
 import UserAvatar from './components/UserAvatar.vue'
 
 import MenuCollapse from '@/layout/header/components/MenuCollapse.vue'
-import ThemeSetting from '@/layout/header/components/ThemeSetting.vue'
 import { useThemeStore } from '@/store'
 
 const themeStore = useThemeStore()
@@ -23,7 +22,6 @@ const themeStore = useThemeStore()
       <reload-page />
       <full-screen />
       <theme-mode />
-      <theme-setting />
       <user-avatar />
     </div>
   </div>

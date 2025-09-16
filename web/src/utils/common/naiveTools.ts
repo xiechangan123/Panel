@@ -5,8 +5,7 @@ import * as NaiveUI from 'naive-ui'
 export async function setupNaiveDiscreteApi() {
   const themeStore = useThemeStore()
   const configProviderProps = computed(() => ({
-    theme: themeStore.naiveTheme,
-    themeOverrides: themeStore.naiveThemeOverrides
+    theme: themeStore.naiveTheme
   }))
   const { message, dialog, notification, loadingBar } = NaiveUI.createDiscreteApi(
     ['message', 'dialog', 'notification', 'loadingBar'],

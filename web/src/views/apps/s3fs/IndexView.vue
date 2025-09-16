@@ -97,12 +97,12 @@ onMounted(() => {
 
 <template>
   <common-page show-footer>
-    <template #action>
-      <n-button class="ml-16" type="primary" @click="addMountModal = true">
-        {{ $gettext('Add Mount') }}
-      </n-button>
-    </template>
     <n-flex vertical>
+      <n-flex>
+        <n-button type="primary" @click="addMountModal = true">
+          {{ $gettext('Add Mount') }}
+        </n-button>
+      </n-flex>
       <n-data-table
         striped
         remote

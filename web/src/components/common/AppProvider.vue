@@ -1,25 +1,7 @@
 <script lang="ts" setup>
 import { useThemeStore } from '@/store'
-import { kebabCase } from 'lodash-es'
-import type { GlobalThemeOverrides } from 'naive-ui'
-
-type ThemeVars = Exclude<GlobalThemeOverrides['common'], undefined>
-type ThemeVarsKeys = keyof ThemeVars
 
 const themeStore = useThemeStore()
-
-watch(
-  () => themeStore.naiveThemeOverrides.common,
-  (common) => {
-    for (const key in common) {
-      useCssVar(`--${kebabCase(key)}`, document.documentElement).value =
-        common[key as ThemeVarsKeys] || ''
-      if (key === 'primaryColor')
-        window.localStorage.setItem('__THEME_COLOR__', common[key as ThemeVarsKeys] || '')
-    }
-  },
-  { immediate: true }
-)
 
 watch(
   () => themeStore.darkMode,
@@ -48,7 +30,6 @@ onBeforeUnmount(() => {
 <template>
   <n-config-provider
     :theme="themeStore.naiveTheme"
-    :theme-overrides="themeStore.naiveThemeOverrides"
     :locale="themeStore.naiveLocale"
     :date-locale="themeStore.naiveDateLocale"
     wh-full

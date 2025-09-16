@@ -13,7 +13,7 @@ import {
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { NButton, NPopconfirm } from 'naive-ui'
+import { NButton, NPopconfirm, useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import dashboard from '@/api/panel/dashboard'
@@ -35,6 +35,7 @@ use([
 ])
 
 const { current: locale, $gettext } = useGettext()
+const themeVars = useThemeVars()
 const tabStore = useTabStore()
 const realtime = ref<Realtime | null>(null)
 
@@ -115,13 +116,13 @@ const current = reactive({
 
 const statusColor = (percentage: number) => {
   if (percentage >= 90) {
-    return 'var(--error-color)'
+    return themeVars.value.errorColor
   } else if (percentage >= 80) {
-    return 'var(--warning-color)'
+    return themeVars.value.warningColor
   } else if (percentage >= 70) {
-    return 'var(--info-color)'
+    return themeVars.value.infoColor
   }
-  return 'var(--success-color)'
+  return themeVars.value.successColor
 }
 
 const statusText = (percentage: number) => {
@@ -448,7 +449,7 @@ if (import.meta.hot) {
                   </template>
                   {{ $gettext('Are you sure you want to restart the panel?') }}
                 </n-popconfirm>
-                <n-button type="success" @click="handleUpdate"> {{ $gettext('Update') }} </n-button>
+                <n-button type="info" @click="handleUpdate"> {{ $gettext('Update') }} </n-button>
               </n-flex>
             </template>
           </n-page-header>
@@ -701,11 +702,7 @@ if (import.meta.hot) {
                           <n-thing>
                             <template #avatar>
                               <div class="mt-8">
-                                <the-icon
-                                  :size="30"
-                                  :icon="item.icon"
-                                  color="var(--primary-color)"
-                                />
+                                <the-icon :size="30" :icon="item.icon" />
                               </div>
                             </template>
                             <template #header>
