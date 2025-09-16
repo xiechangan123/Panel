@@ -55,8 +55,7 @@ func initWeb() (*app.Web, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger := bootstrap.NewLog(koanf)
-	db, err := bootstrap.NewDB(koanf, logger)
+	db, err := bootstrap.NewDB(koanf)
 	if err != nil {
 		return nil, err
 	}
@@ -65,11 +64,12 @@ func initWeb() (*app.Web, error) {
 		return nil, err
 	}
 	cacheRepo := data.NewCacheRepo(db)
+	logger := bootstrap.NewLog(koanf)
 	queue := bootstrap.NewQueue()
 	taskRepo := data.NewTaskRepo(locale, db, logger, queue)
 	appRepo := data.NewAppRepo(locale, koanf, db, cacheRepo, taskRepo)
 	userTokenRepo := data.NewUserTokenRepo(locale, db)
-	middlewares := middleware.NewMiddlewares(koanf, logger, manager, appRepo, userTokenRepo)
+	middlewares := middleware.NewMiddlewares(koanf, manager, appRepo, userTokenRepo)
 	userRepo := data.NewUserRepo(locale, db)
 	userService := service.NewUserService(locale, koanf, manager, userRepo)
 	userTokenService := service.NewUserTokenService(locale, userTokenRepo)

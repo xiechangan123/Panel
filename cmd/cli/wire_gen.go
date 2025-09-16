@@ -53,12 +53,12 @@ func initCli() (*app.Cli, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger := bootstrap.NewLog(koanf)
-	db, err := bootstrap.NewDB(koanf, logger)
+	db, err := bootstrap.NewDB(koanf)
 	if err != nil {
 		return nil, err
 	}
 	cacheRepo := data.NewCacheRepo(db)
+	logger := bootstrap.NewLog(koanf)
 	queue := bootstrap.NewQueue()
 	taskRepo := data.NewTaskRepo(locale, db, logger, queue)
 	appRepo := data.NewAppRepo(locale, koanf, db, cacheRepo, taskRepo)

@@ -9,16 +9,29 @@ import (
 	_ "github.com/ncruces/go-sqlite3/embed"
 	"github.com/ncruces/go-sqlite3/gormlite"
 	sloggorm "github.com/orandin/slog-gorm"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"gorm.io/gorm"
 
 	"github.com/tnborg/panel/internal/app"
 	"github.com/tnborg/panel/internal/migration"
 )
 
-func NewDB(conf *koanf.Koanf, log *slog.Logger) (*gorm.DB, error) {
-	// You can use any other database, like MySQL or PostgreSQL.
+func NewDB(conf *koanf.Koanf) (*gorm.DB, error) {
+	ljLogger := &lumberjack.Logger{
+		Filename: filepath.Join(app.Root, "panel/storage/logs/db.log"),
+		MaxSize:  10,
+		MaxAge:   30,
+		Compress: true,
+	}
+
+	handler := slog.New(slog.NewJSONHandler(ljLogger, nil)).Handler()
+	options := []sloggorm.Option{sloggorm.WithHandler(handler)}
+	if conf.Bool("database.debug") {
+		options = append(options, sloggorm.WithTraceAll())
+	}
+
 	return gorm.Open(gormlite.Open("file:"+filepath.Join(app.Root, "panel/storage/app.db?_txlock=immediate")), &gorm.Config{
-		Logger:                                   sloggorm.New(sloggorm.WithHandler(log.Handler())),
+		Logger:                                   sloggorm.New(options...),
 		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})

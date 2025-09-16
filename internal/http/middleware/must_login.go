@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/sessions"
@@ -72,6 +73,20 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 				}
 
 				userID = cast.ToUint(sess.Get("user_id"))
+				refreshAt := cast.ToInt64(sess.Get("refresh_at")) // 上次刷新的时间戳
+				// 距离上次刷新时间超过 10 分钟刷新 Cookie 有效期
+				if time.Now().Unix()-refreshAt > 600 {
+					sess.Put("refresh_at", time.Now().Unix())
+					// 重新设置 Cookie
+					http.SetCookie(w, &http.Cookie{
+						Name:     sess.GetName(),
+						Value:    sess.GetID(),
+						Expires:  time.Now().Add(time.Duration(session.Lifetime) * time.Minute),
+						Path:     "/",
+						HttpOnly: true,
+						SameSite: http.SameSiteLaxMode,
+					})
+				}
 			}
 
 			if userID == 0 {

@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
@@ -98,6 +99,12 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// 重新生成会话 ID
+	if err = sess.Regenerate(true); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
 	// 安全登录下，将当前客户端与会话绑定
 	// 安全登录只在未启用面板 HTTPS 时生效
 	ip, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
@@ -114,6 +121,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sess.Put("user_id", user.ID)
+	sess.Put("refresh_at", time.Now().Unix())
 	sess.Forget("key")
 	Success(w, nil)
 }
@@ -128,6 +136,12 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 	sess.Forget("key")
 	sess.Forget("safe_login")
 	sess.Forget("safe_client")
+
+	// 重新生成会话 ID
+	if err = sess.Regenerate(true); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 
 	Success(w, nil)
 }

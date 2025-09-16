@@ -10,10 +10,6 @@ import (
 func NewSession(conf *koanf.Koanf, db *gorm.DB) (*sessions.Manager, error) {
 	// initialize session manager
 	lifetime := conf.Int("session.lifetime")
-	// TODO: will remove this fallback in v3
-	if lifetime == 0 {
-		lifetime = 120
-	}
 	manager, err := sessions.NewManager(&sessions.ManagerOptions{
 		Key:                  conf.MustString("app.key"),
 		Lifetime:             lifetime,

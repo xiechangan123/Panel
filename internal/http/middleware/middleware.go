@@ -3,6 +3,7 @@ package middleware
 import (
 	"log/slog"
 	"net/http"
+	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -12,6 +13,8 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/sessions"
 	sessionmiddleware "github.com/libtnb/sessions/middleware"
+	"github.com/tnborg/panel/internal/app"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/tnborg/panel/internal/biz"
 )
@@ -22,16 +25,23 @@ type Middlewares struct {
 	conf      *koanf.Koanf
 	log       *slog.Logger
 	session   *sessions.Manager
-	app       biz.AppRepo
+	appRepo   biz.AppRepo
 	userToken biz.UserTokenRepo
 }
 
-func NewMiddlewares(conf *koanf.Koanf, log *slog.Logger, session *sessions.Manager, app biz.AppRepo, userToken biz.UserTokenRepo) *Middlewares {
+func NewMiddlewares(conf *koanf.Koanf, session *sessions.Manager, appRepo biz.AppRepo, userToken biz.UserTokenRepo) *Middlewares {
+	ljLogger := &lumberjack.Logger{
+		Filename: filepath.Join(app.Root, "panel/storage/logs/http.log"),
+		MaxSize:  10,
+		MaxAge:   30,
+		Compress: true,
+	}
+
 	return &Middlewares{
 		conf:      conf,
-		log:       log,
+		log:       slog.New(slog.NewJSONHandler(ljLogger, &slog.HandlerOptions{Level: slog.LevelInfo})),
 		session:   session,
-		app:       app,
+		appRepo:   appRepo,
 		userToken: userToken,
 	}
 }
@@ -50,6 +60,6 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 		Status(t),
 		Entrance(t, r.conf, r.session),
 		MustLogin(t, r.session, r.userToken),
-		MustInstall(t, r.app),
+		MustInstall(t, r.appRepo),
 	}
 }

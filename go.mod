@@ -35,8 +35,8 @@ require (
 	github.com/libdns/tencentcloud v1.4.2
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/chix v1.3.0
-	github.com/libtnb/gormstore v1.1.0
-	github.com/libtnb/sessions v1.2.0
+	github.com/libtnb/gormstore v1.1.1
+	github.com/libtnb/sessions v1.2.1
 	github.com/libtnb/utils v1.2.0
 	github.com/mholt/acmez/v3 v3.1.3
 	github.com/ncruces/go-sqlite3 v0.29.0
