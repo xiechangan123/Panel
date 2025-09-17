@@ -18,7 +18,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/file"
-	"github.com/spf13/cast"
 
 	"github.com/tnborg/panel/internal/app"
 	"github.com/tnborg/panel/internal/biz"
