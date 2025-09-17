@@ -1,6 +1,6 @@
 module github.com/tnborg/panel
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.39.0
@@ -110,7 +110,7 @@ require (
 	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
+	golang.org/x/exp v0.0.0-20250911091902-df9299821621 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
@@ -118,6 +118,6 @@ require (
 )
 
 replace (
-	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20250917192218-e5bb3e04fadd
+	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20250917195625-c4ce771540f8
 	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20250707093727-dc5aedd96413
 )
