@@ -34,6 +34,12 @@ export default {
   search: (path: string, keyword: string, sub: boolean, page: number, limit: number): any =>
     http.Get('/file/search', { params: { path, keyword, sub, page, limit } }),
   // 获取文件列表
-  list: (path: string, page: number, limit: number, sort: string): any =>
-    http.Get('/file/list', { params: { path, page, limit, sort } })
+  list: (
+    path: string,
+    keyword: string,
+    sub: boolean,
+    sort: string,
+    page: number,
+    limit: number
+  ): any => http.Get('/file/list', { params: { path, keyword, sub, sort, page, limit } })
 }

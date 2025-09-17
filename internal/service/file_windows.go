@@ -53,6 +53,4 @@ func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {}
 
 func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {}
 
-func (s *FileService) Search(w http.ResponseWriter, r *http.Request) {}
-
 func (s *FileService) List(w http.ResponseWriter, r *http.Request) {}

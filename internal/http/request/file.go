@@ -7,8 +7,15 @@ import (
 )
 
 type FileList struct {
-	Path string `json:"path" form:"path" validate:"required|isUnixPath"`
-	Sort string `json:"sort" form:"sort"`
+	Path    string `json:"path" form:"path" validate:"required|isUnixPath"`
+	Sort    string `json:"sort" form:"sort"`
+	Keyword string `form:"keyword" json:"keyword"`
+	Sub     bool   `form:"sub" json:"sub"`
+}
+
+func (r *FileList) Prepare(req *http.Request) error {
+	r.Sub = cast.ToBool(req.FormValue("sub"))
+	return nil
 }
 
 type FilePath struct {
@@ -52,15 +59,4 @@ type FileCompress struct {
 type FileUnCompress struct {
 	File string `form:"file" json:"file" validate:"required|isUnixPath"`
 	Path string `form:"path" json:"path" validate:"required|isUnixPath"`
-}
-
-type FileSearch struct {
-	Path    string `form:"path" json:"path" validate:"required|isUnixPath"`
-	Keyword string `form:"keyword" json:"keyword" validate:"required"`
-	Sub     bool   `form:"sub" json:"sub"`
-}
-
-func (r *FileSearch) Prepare(req *http.Request) error {
-	r.Sub = cast.ToBool(req.FormValue("sub"))
-	return nil
 }

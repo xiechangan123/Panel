@@ -24,7 +24,11 @@ const permission = ref(false)
 <template>
   <common-page show-footer>
     <n-flex vertical :size="20">
-      <path-input v-model:path="fileStore.path" />
+      <path-input
+        v-model:path="fileStore.path"
+        v-model:keyword="fileStore.keyword"
+        v-model:sub="fileStore.sub"
+      />
       <tool-bar
         v-model:path="fileStore.path"
         v-model:selected="selected"
@@ -35,6 +39,8 @@ const permission = ref(false)
       />
       <list-table
         v-model:path="fileStore.path"
+        v-model:keyword="fileStore.keyword"
+        v-model:sub="fileStore.sub"
         v-model:selected="selected"
         v-model:marked="marked"
         v-model:markedType="markedType"

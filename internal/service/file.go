@@ -395,27 +395,6 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-func (s *FileService) Search(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.FileSearch](r)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	results, err := io.SearchX(req.Path, req.Keyword, req.Sub)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	paged, total := Paginate(r, s.formatInfo(results))
-
-	Success(w, chix.M{
-		"total": total,
-		"items": paged,
-	})
-}
-
 func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.FileList](r)
 	if err != nil {
@@ -423,10 +402,19 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, err := stdos.ReadDir(req.Path)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+	var list []stdos.DirEntry
+	if req.Keyword != "" {
+		list, err = io.SearchX(req.Path, req.Keyword, req.Sub)
+		if err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+	} else {
+		list, err = stdos.ReadDir(req.Path)
+		if err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
 	}
 
 	switch req.Sort {
@@ -464,7 +452,10 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 	for item := range slices.Values(entries) {
 		info, err := item.Info()
 		if err != nil {
-			continue
+			continue // 直接跳过，不返回错误，不然很烦人的
+		}
+		if de, ok := item.(*io.SearchEntry); ok {
+			base = filepath.Dir(de.Path())
 		}
 
 		stat := info.Sys().(*syscall.Stat_t)

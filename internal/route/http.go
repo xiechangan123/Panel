@@ -360,7 +360,6 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/permission", route.file.Permission)
 			r.Post("/compress", route.file.Compress)
 			r.Post("/un_compress", route.file.UnCompress)
-			r.Get("/search", route.file.Search)
 			r.Get("/list", route.file.List)
 		})
 
