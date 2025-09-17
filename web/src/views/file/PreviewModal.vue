@@ -16,7 +16,7 @@ watch(
   () => path.value,
   () => {
     content.value = ''
-    useRequest(file.content(path.value)).onSuccess(({ data }) => {
+    useRequest(file.content(encodeURIComponent(path.value))).onSuccess(({ data }) => {
       mime.value = data.mime
       content.value = data.content
     })

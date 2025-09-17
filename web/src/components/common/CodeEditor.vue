@@ -21,7 +21,7 @@ const disabled = ref(false) // 在出现错误的情况下禁用保存
 const content = ref('')
 
 const get = () => {
-  useRequest(file.content(props.path))
+  useRequest(file.content(encodeURIComponent(props.path)))
     .onSuccess(({ data }) => {
       content.value = decodeBase64(data.content)
       window.$message.success($gettext('Retrieved successfully'))

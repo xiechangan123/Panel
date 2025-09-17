@@ -180,7 +180,7 @@ const handleStatusChange = (row: any) => {
 
 const handleEdit = (row: any) => {
   useRequest(cron.get(row.id)).onSuccess(({ data }) => {
-    useRequest(file.content(data.shell)).onSuccess(({ data }) => {
+    useRequest(file.content(encodeURIComponent(data.shell))).onSuccess(({ data }) => {
       editTask.value.id = row.id
       editTask.value.name = row.name
       editTask.value.time = row.time

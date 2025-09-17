@@ -391,7 +391,8 @@ const rowProps = (row: any) => {
 }
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => file.list(path.value, keyword.value, sub.value, sort.value, page, pageSize),
+  (page, pageSize) =>
+    file.list(encodeURIComponent(path.value), keyword.value, sub.value, sort.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 100,

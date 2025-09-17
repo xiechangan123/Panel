@@ -49,7 +49,7 @@ func SearchX(path, keyword string, sub bool) ([]os.DirEntry, error) {
 		if line == "" || line == path {
 			continue
 		}
-		entry, err := newDirEntryFromPath(line)
+		entry, err := newSearchEntryFromPath(line)
 		if err != nil {
 			continue // 直接跳过，不返回错误，不然很烦人的
 		}
@@ -65,9 +65,9 @@ type SearchEntry struct {
 	info os.FileInfo
 }
 
-// newDirEntryFromPath 根据文件路径创建 SearchEntry
-func newDirEntryFromPath(path string) (*SearchEntry, error) {
-	info, err := os.Stat(path)
+// newSearchEntryFromPath 根据文件路径创建 SearchEntry
+func newSearchEntryFromPath(path string) (*SearchEntry, error) {
+	info, err := os.Lstat(path) // 不跟随符号链接
 	if err != nil {
 		return nil, err
 	}
