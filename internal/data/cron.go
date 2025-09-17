@@ -91,13 +91,7 @@ panel-cli cutoff clear -t website -f '%s' -s '%d' -p '%s'
 
 	shellDir := fmt.Sprintf("%s/server/cron/", app.Root)
 	shellLogDir := fmt.Sprintf("%s/server/cron/logs/", app.Root)
-	if !io.Exists(shellDir) {
-		return errors.New(r.t.Get("cron directory %s not exists", shellDir))
-	}
-	if !io.Exists(shellLogDir) {
-		return errors.New(r.t.Get("cron log directory %s not exists", shellLogDir))
-	}
-	shellFile := strconv.Itoa(int(time.Now().Unix())) + str.Random(16)
+	shellFile := str.Random(16)
 	if err := io.Write(filepath.Join(shellDir, shellFile+".sh"), script, 0700); err != nil {
 		return errors.New(err.Error())
 	}
