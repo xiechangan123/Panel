@@ -3,6 +3,10 @@ module github.com/tnborg/panel
 go 1.24.0
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.39.0
+	github.com/aws/aws-sdk-go-v2/config v1.31.8
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.12
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.1
 	github.com/bddjr/hlfhr v1.3.8
 	github.com/beevik/ntp v1.4.3
 	github.com/creack/pty v1.1.24
@@ -18,6 +22,7 @@ require (
 	github.com/gookit/validate v1.5.6
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
+	github.com/jlaffaye/ftp v0.2.0
 	github.com/knadh/koanf/parsers/yaml v1.1.0
 	github.com/knadh/koanf/providers/file v1.2.0
 	github.com/knadh/koanf/v2 v2.3.0
@@ -42,6 +47,7 @@ require (
 	github.com/ncruces/go-sqlite3 v0.29.0
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/orandin/slog-gorm v1.4.0
+	github.com/pkg/sftp v1.13.9
 	github.com/pquerna/otp v1.5.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.51.0
@@ -49,6 +55,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.10.0
 	github.com/stretchr/testify v1.11.1
+	github.com/studio-b12/gowebdav v0.11.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20250620092546-c3e307e36701
 	github.com/urfave/cli/v3 v3.4.1
 	go.yaml.in/yaml/v3 v3.0.4
@@ -61,6 +68,20 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/G-Core/gcore-dns-sdk-go v0.3.3 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.1 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.8.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.29.3 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.34.4 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.38.4 // indirect
+	github.com/aws/smithy-go v1.23.0 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
@@ -75,6 +96,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/libtnb/securecookie v1.2.0 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -95,4 +117,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20250707093727-dc5aedd96413
+replace (
+	github.com/jlaffaye/ftp => github.com/devhaozi/ftp v0.0.0-20250917192218-e5bb3e04fadd
+	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20250707093727-dc5aedd96413
+)
