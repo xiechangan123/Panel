@@ -64,8 +64,8 @@ func (s *SFTP) connect() (*sftp.Client, func(), error) {
 
 		if _, statErr := os.Stat(s.config.PrivateKey); statErr == nil {
 			// 私钥文件路径
-			keyBytes, err := os.ReadFile(s.config.PrivateKey)
-			if err != nil {
+			keyBytes, err2 := os.ReadFile(s.config.PrivateKey)
+			if err2 != nil {
 				return nil, nil, fmt.Errorf("failed to read private key file: %w", err)
 			}
 			signer, err = ssh.ParsePrivateKey(keyBytes)

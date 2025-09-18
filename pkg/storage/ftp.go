@@ -51,7 +51,7 @@ func (f *FTP) connect() (*ftp.ServerConn, error) {
 
 	err = conn.Login(f.config.Username, f.config.Password)
 	if err != nil {
-		conn.Quit()
+		_ = conn.Quit()
 		return nil, err
 	}
 
@@ -64,7 +64,9 @@ func (f *FTP) ensureBasePath() error {
 	if err != nil {
 		return err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	// 递归创建路径
 	parts := strings.Split(f.config.BasePath, "/")
@@ -105,7 +107,9 @@ func (f *FTP) MakeDirectory(directory string) error {
 	if err != nil {
 		return err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(directory)
 
@@ -137,7 +141,9 @@ func (f *FTP) DeleteDirectory(directory string) error {
 	if err != nil {
 		return err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(directory)
 	return conn.RemoveDir(remotePath)
@@ -159,7 +165,9 @@ func (f *FTP) Delete(files ...string) error {
 	if err != nil {
 		return err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	for _, file := range files {
 		remotePath := f.getRemotePath(file)
@@ -176,7 +184,9 @@ func (f *FTP) Exists(file string) bool {
 	if err != nil {
 		return false
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(file)
 	_, err = conn.FileSize(remotePath)
@@ -189,7 +199,9 @@ func (f *FTP) Files(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(path)
 	entries, err := conn.List(remotePath)
@@ -213,14 +225,18 @@ func (f *FTP) Get(file string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(file)
 	resp, err := conn.Retr(remotePath)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Close()
+	defer func(resp *ftp.Response) {
+		_ = resp.Close()
+	}(resp)
 
 	return io.ReadAll(resp)
 }
@@ -231,7 +247,9 @@ func (f *FTP) LastModified(file string) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(file)
 	entries, err := conn.List(filepath.Dir(remotePath))
@@ -270,7 +288,9 @@ func (f *FTP) Move(oldFile, newFile string) error {
 	if err != nil {
 		return err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	oldPath := f.getRemotePath(oldFile)
 	newPath := f.getRemotePath(newFile)
@@ -315,7 +335,9 @@ func (f *FTP) Put(file, content string) error {
 	if err != nil {
 		return err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(file)
 
@@ -334,7 +356,9 @@ func (f *FTP) Size(file string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer conn.Quit()
+	defer func(conn *ftp.ServerConn) {
+		_ = conn.Quit()
+	}(conn)
 
 	remotePath := f.getRemotePath(file)
 	return conn.FileSize(remotePath)

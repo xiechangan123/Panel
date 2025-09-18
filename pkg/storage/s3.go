@@ -58,38 +58,31 @@ func NewS3(cfg S3Config) (Storage, error) {
 	var awsCfg aws.Config
 	var err error
 
-	if cfg.Endpoint != "" {
-		// 自定义端点（如 MinIO）
-		awsCfg, err = config.LoadDefaultConfig(context.TODO(),
-			config.WithRegion(cfg.Region),
-			config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
-				cfg.AccessKeyID, cfg.SecretAccessKey, "")),
-			config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
-				func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-					return aws.Endpoint{
-						URL:           cfg.Endpoint,
-						SigningRegion: cfg.Region,
-					}, nil
-				})),
-		)
-	} else {
-		// 标准 AWS S3
-		awsCfg, err = config.LoadDefaultConfig(context.TODO(),
-			config.WithRegion(cfg.Region),
-			config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
-				cfg.AccessKeyID, cfg.SecretAccessKey, "")),
-		)
-	}
+	awsCfg, err = config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(cfg.Region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
+			cfg.AccessKeyID, cfg.SecretAccessKey, "")),
+	)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
 
-	// 根据地址模式配置客户端
 	usePathStyle := cfg.AddressingStyle == S3AddressingStylePath || cfg.ForcePathStyle
-	client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
-		o.UsePathStyle = usePathStyle
-	})
+
+	var client *s3.Client
+	if cfg.Endpoint != "" {
+		// 自定义端点
+		client = s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+			o.UsePathStyle = usePathStyle
+			o.BaseEndpoint = aws.String(cfg.Endpoint)
+		})
+	} else {
+		// 标准 AWS S3
+		client = s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+			o.UsePathStyle = usePathStyle
+		})
+	}
 
 	s := &S3{
 		client: client,
@@ -280,7 +273,7 @@ func (s *S3) Get(file string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer output.Body.Close()
+	defer func(body io.ReadCloser) { _ = body.Close() }(output.Body)
 
 	return io.ReadAll(output.Body)
 }
