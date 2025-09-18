@@ -21,7 +21,7 @@ jobs:
         run: sudo apt-get install -y curl jq
       # https://github.com/golang/go/issues/75031
       - name: Set toolchain version
-        run: go env -w GOTOOLCHAIN=go1.25.0+auto
+        run: go env -w GOTOOLCHAIN=go1.25.1+auto
       - name: Set up environment
         run: |
           cp config.example.yml config.yml
