@@ -8,7 +8,7 @@ type WebsiteDefaultConfig struct {
 }
 
 type WebsiteCreate struct {
-	Name       string   `form:"name" json:"name" validate:"required|notExists:websites,name|regex:^[a-zA-Z0-9_-]+$"`
+	Name       string   `form:"name" json:"name" validate:"required|notExists:websites,name|not_in:phpmyadmin,default|regex:^[a-zA-Z0-9_-]+$"`
 	Listens    []string `form:"listens" json:"listens" validate:"required|isSlice"`
 	Domains    []string `form:"domains" json:"domains" validate:"required|isSlice"`
 	Path       string   `form:"path" json:"path"`

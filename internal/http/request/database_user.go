@@ -2,7 +2,7 @@ package request
 
 type DatabaseUserCreate struct {
 	ServerID   uint     `form:"server_id" json:"server_id" validate:"required|exists:database_servers,id"`
-	Username   string   `form:"username" json:"username" validate:"required"`
+	Username   string   `form:"username" json:"username" validate:"required|not_in:root,admin|regex:^[a-zA-Z0-9_-]+$"`
 	Password   string   `form:"password" json:"password" validate:"required"`
 	Host       string   `form:"host" json:"host"`
 	Privileges []string `form:"privileges" json:"privileges"`
