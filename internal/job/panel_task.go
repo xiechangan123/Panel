@@ -11,9 +11,9 @@ import (
 	"github.com/libtnb/utils/collect"
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/biz"
-	"github.com/tnborg/panel/pkg/api"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/api"
 )
 
 // PanelTask 面板每日任务

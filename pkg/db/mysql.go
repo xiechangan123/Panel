@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/tnborg/panel/pkg/types"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type MySQL struct {

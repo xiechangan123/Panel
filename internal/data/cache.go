@@ -7,10 +7,10 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/biz"
-	"github.com/tnborg/panel/pkg/api"
-	"github.com/tnborg/panel/pkg/apploader"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/api"
+	"github.com/acepanel/panel/pkg/apploader"
 )
 
 type cacheRepo struct {

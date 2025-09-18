@@ -14,7 +14,7 @@ import (
 	"github.com/libtnb/sessions"
 	"github.com/spf13/cast"
 
-	"github.com/tnborg/panel/internal/biz"
+	"github.com/acepanel/panel/internal/biz"
 )
 
 // MustLogin 确保已登录

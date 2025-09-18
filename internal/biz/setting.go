@@ -3,7 +3,7 @@ package biz
 import (
 	"time"
 
-	"github.com/tnborg/panel/internal/http/request"
+	"github.com/acepanel/panel/internal/http/request"
 )
 
 type SettingKey string

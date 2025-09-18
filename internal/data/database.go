@@ -8,9 +8,9 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/biz"
-	"github.com/tnborg/panel/internal/http/request"
-	"github.com/tnborg/panel/pkg/db"
+	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/db"
 )
 
 type databaseRepo struct {

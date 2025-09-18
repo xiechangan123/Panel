@@ -5,7 +5,7 @@ package biz
 import (
 	image "image"
 
-	biz "github.com/tnborg/panel/internal/biz"
+	biz "github.com/acepanel/panel/internal/biz"
 
 	mock "github.com/stretchr/testify/mock"
 )

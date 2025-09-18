@@ -6,10 +6,10 @@ import (
 
 	"github.com/libtnb/chix"
 
-	"github.com/tnborg/panel/internal/http/request"
-	"github.com/tnborg/panel/pkg/firewall"
-	"github.com/tnborg/panel/pkg/os"
-	"github.com/tnborg/panel/pkg/systemctl"
+	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/firewall"
+	"github.com/acepanel/panel/pkg/os"
+	"github.com/acepanel/panel/pkg/systemctl"
 )
 
 type FirewallService struct {

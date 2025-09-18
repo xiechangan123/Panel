@@ -20,9 +20,9 @@ import (
 	"github.com/pquerna/otp/totp"
 	"github.com/spf13/cast"
 
-	"github.com/tnborg/panel/internal/biz"
-	"github.com/tnborg/panel/internal/http/request"
-	"github.com/tnborg/panel/pkg/rsacrypto"
+	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/rsacrypto"
 )
 
 type UserService struct {

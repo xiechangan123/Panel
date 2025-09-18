@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/tnborg/panel/internal/biz"
-	"github.com/tnborg/panel/pkg/shell"
+	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/shell"
 )
 
 // ProcessTask 处理面板任务

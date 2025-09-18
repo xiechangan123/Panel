@@ -1,6 +1,6 @@
 package biz
 
-import "github.com/tnborg/panel/pkg/types"
+import "github.com/acepanel/panel/pkg/types"
 
 type BackupType string
 

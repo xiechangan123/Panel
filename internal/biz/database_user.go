@@ -6,8 +6,8 @@ import (
 	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/http/request"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/http/request"
 )
 
 type DatabaseUserStatus string

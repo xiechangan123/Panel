@@ -6,9 +6,9 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/biz"
-	pkgcert "github.com/tnborg/panel/pkg/cert"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/biz"
+	pkgcert "github.com/acepanel/panel/pkg/cert"
 )
 
 // CertRenew 证书续签

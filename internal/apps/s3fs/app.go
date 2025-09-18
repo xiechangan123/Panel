@@ -12,9 +12,9 @@ import (
 	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
 
-	"github.com/tnborg/panel/internal/service"
-	"github.com/tnborg/panel/pkg/io"
-	"github.com/tnborg/panel/pkg/shell"
+	"github.com/acepanel/panel/internal/service"
+	"github.com/acepanel/panel/pkg/io"
+	"github.com/acepanel/panel/pkg/shell"
 )
 
 type App struct {

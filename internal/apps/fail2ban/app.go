@@ -12,11 +12,11 @@ import (
 	"github.com/libtnb/utils/str"
 	"github.com/spf13/cast"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/biz"
-	"github.com/tnborg/panel/internal/service"
-	"github.com/tnborg/panel/pkg/io"
-	"github.com/tnborg/panel/pkg/shell"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/internal/service"
+	"github.com/acepanel/panel/pkg/io"
+	"github.com/acepanel/panel/pkg/shell"
 )
 
 type App struct {

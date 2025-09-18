@@ -5,12 +5,12 @@ package main
 import (
 	"github.com/google/wire"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/apps"
-	"github.com/tnborg/panel/internal/bootstrap"
-	"github.com/tnborg/panel/internal/data"
-	"github.com/tnborg/panel/internal/route"
-	"github.com/tnborg/panel/internal/service"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/apps"
+	"github.com/acepanel/panel/internal/bootstrap"
+	"github.com/acepanel/panel/internal/data"
+	"github.com/acepanel/panel/internal/route"
+	"github.com/acepanel/panel/internal/service"
 )
 
 // initCli init command line.

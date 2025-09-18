@@ -11,10 +11,10 @@ import (
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/str"
 
-	"github.com/tnborg/panel/internal/service"
-	"github.com/tnborg/panel/pkg/io"
-	"github.com/tnborg/panel/pkg/shell"
-	"github.com/tnborg/panel/pkg/systemctl"
+	"github.com/acepanel/panel/internal/service"
+	"github.com/acepanel/panel/pkg/io"
+	"github.com/acepanel/panel/pkg/shell"
+	"github.com/acepanel/panel/pkg/systemctl"
 )
 
 type App struct {

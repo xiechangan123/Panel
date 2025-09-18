@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/acepanel/panel/internal/app"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/golang-cz/httplog"
@@ -13,10 +14,9 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/sessions"
 	sessionmiddleware "github.com/libtnb/sessions/middleware"
-	"github.com/tnborg/panel/internal/app"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/tnborg/panel/internal/biz"
+	"github.com/acepanel/panel/internal/biz"
 )
 
 var ProviderSet = wire.NewSet(NewMiddlewares)

@@ -6,9 +6,9 @@ import (
 	"github.com/libtnb/utils/crypt"
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/http/request"
-	"github.com/tnborg/panel/pkg/ssh"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/ssh"
 )
 
 type SSH struct {

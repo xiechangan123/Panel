@@ -6,12 +6,12 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/acepanel/panel/pkg/punycode"
 	"github.com/go-chi/chi/v5"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/sessions"
-	"github.com/tnborg/panel/pkg/punycode"
 )
 
 // Entrance 确保通过正确的入口访问

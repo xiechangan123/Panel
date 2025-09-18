@@ -3,8 +3,8 @@ package db
 import (
 	"fmt"
 
-	"github.com/tnborg/panel/pkg/shell"
-	"github.com/tnborg/panel/pkg/systemctl"
+	"github.com/acepanel/panel/pkg/shell"
+	"github.com/acepanel/panel/pkg/systemctl"
 )
 
 // MySQLResetRootPassword 重置 MySQL root密码

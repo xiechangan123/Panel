@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tnborg/panel/pkg/shell"
+	"github.com/acepanel/panel/pkg/shell"
 )
 
 type FormatArchive string

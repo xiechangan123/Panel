@@ -10,10 +10,10 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/biz"
-	"github.com/tnborg/panel/internal/http/request"
-	"github.com/tnborg/panel/pkg/acme"
-	"github.com/tnborg/panel/pkg/cert"
+	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/acme"
+	"github.com/acepanel/panel/pkg/cert"
 )
 
 type certAccountRepo struct {

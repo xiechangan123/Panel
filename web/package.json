@@ -4,11 +4,11 @@
   "author": {
     "name": "AcePanel",
     "email": "admin@haozi.net",
-    "url": "https://github.com/tnborg/panel"
+    "url": "https://github.com/acepanel/panel"
   },
   "license": "BSD-3-Clause",
   "repository": {
-    "url": "https://github.com/tnborg/panel"
+    "url": "https://github.com/acepanel/panel"
   },
   "scripts": {
     "dev": "vite",

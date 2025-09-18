@@ -6,8 +6,8 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/route"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/route"
 )
 
 func NewCli(t *gotext.Locale, cmd *route.Cli) *cli.Command {

@@ -7,7 +7,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/biz"
+	"github.com/acepanel/panel/internal/biz"
 )
 
 var ProviderSet = wire.NewSet(NewJobs)

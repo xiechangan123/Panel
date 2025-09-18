@@ -1,4 +1,4 @@
-module github.com/tnborg/panel
+module github.com/acepanel/panel
 
 go 1.25
 

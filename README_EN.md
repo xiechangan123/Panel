@@ -14,12 +14,12 @@ Website: [acepanel.net](https://acepanel.net) | QQ group: [12370907](https://jq.
 
 <div align="center">
 
-[![Go](https://img.shields.io/github/go-mod/go-version/tnborg/panel)](https://go.dev/)
-[![Release](https://img.shields.io/github/release/tnborg/panel.svg)](https://github.com/tnborg/panel/releases)
-[![Test](https://github.com/tnborg/panel/actions/workflows/test.yml/badge.svg)](https://github.com/tnborg/panel/actions)
-[![Report Card](https://goreportcard.com/badge/github.com/tnborg/panel)](https://goreportcard.com/report/github.com/tnborg/panel)
-[![Stars](https://img.shields.io/github/stars/tnborg/panel?style=flat)](https://github.com/tnborg/panel)
-[![License](https://img.shields.io/github/license/tnborg/panel)](https://opensource.org/license/bsd-3-clause)
+[![Go](https://img.shields.io/github/go-mod/go-version/acepanel/panel)](https://go.dev/)
+[![Release](https://img.shields.io/github/release/acepanel/panel.svg)](https://github.com/acepanel/panel/releases)
+[![Test](https://github.com/acepanel/panel/actions/workflows/test.yml/badge.svg)](https://github.com/acepanel/panel/actions)
+[![Report Card](https://goreportcard.com/badge/github.com/acepanel/panel)](https://goreportcard.com/report/github.com/acepanel/panel)
+[![Stars](https://img.shields.io/github/stars/acepanel/panel?style=flat)](https://github.com/acepanel/panel)
+[![License](https://img.shields.io/github/license/acepanel/panel)](https://opensource.org/license/bsd-3-clause)
 
 </div>
 
@@ -48,7 +48,7 @@ curl -sSLOm 10 https://dl.cdn.haozi.net/panel/install.sh && bash install.sh
 
 ## Partners
 
-If the AcePanel is helpful to you, welcome to [sponsor us](https://github.com/tnborg/panel/issues/90), also thanks to the following supporters/sponsors:
+If the AcePanel is helpful to you, welcome to [sponsor us](https://github.com/acepanel/panel/issues/90), also thanks to the following supporters/sponsors:
 
 <p align="center">
   <a href="https://www.weixiaoduo.com/">
@@ -76,10 +76,10 @@ If the AcePanel is helpful to you, welcome to [sponsor us](https://github.com/tn
 
 ## Star History
 
-<a href="https://star-history.com/#tnborg/panel&Date">
+<a href="https://star-history.com/#acepanel/panel&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=tnborg/panel&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=tnborg/panel&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=tnborg/panel&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=acepanel/panel&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=acepanel/panel&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=acepanel/panel&type=Date" />
  </picture>
 </a>

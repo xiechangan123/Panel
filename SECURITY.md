@@ -9,7 +9,7 @@
 
 If you find any security issues while using the panel, please do not submit an Issue. You can contact us directly through the following methods:
 
-- (Recommend) [GitHub Security Advisories](https://github.com/tnborg/panel/security/advisories/new)
+- (Recommend) [GitHub Security Advisories](https://github.com/acepanel/panel/security/advisories/new)
 - Email: [admin@haozi.net](mailto:admin@haozi.net)
 - Telegram: @devhaozi
 
@@ -21,7 +21,7 @@ To some security beginners: Any operation performed through an already logged-in
 
 如果您在面板中发现任何安全问题，请勿提交 Issue，可通过以下方式直接联系我们：
 
-- （推荐）[GitHub 安全公告](https://github.com/tnborg/panel/security/advisories/new)
+- （推荐）[GitHub 安全公告](https://github.com/acepanel/panel/security/advisories/new)
 - 邮箱：[admin@haozi.net](mailto:admin@haozi.net)
 - QQ：826896000
 

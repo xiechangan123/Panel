@@ -6,10 +6,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/service"
-	"github.com/tnborg/panel/pkg/io"
-	"github.com/tnborg/panel/pkg/systemctl"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/service"
+	"github.com/acepanel/panel/pkg/io"
+	"github.com/acepanel/panel/pkg/systemctl"
 )
 
 type App struct{}

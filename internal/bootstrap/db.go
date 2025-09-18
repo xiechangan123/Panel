@@ -12,8 +12,8 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gorm.io/gorm"
 
-	"github.com/tnborg/panel/internal/app"
-	"github.com/tnborg/panel/internal/migration"
+	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/migration"
 )
 
 func NewDB(conf *koanf.Koanf) (*gorm.DB, error) {
