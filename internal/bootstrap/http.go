@@ -27,10 +27,10 @@ func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *rout
 	return r, nil
 }
 
-func NewHttp(conf *koanf.Koanf, r *chi.Mux) (*hlfhr.Server, error) {
+func NewHttp(conf *koanf.Koanf, mux *chi.Mux) (*hlfhr.Server, error) {
 	srv := hlfhr.New(&http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.MustInt("http.port")),
-		Handler:        http.AllowQuerySemicolons(r),
+		Handler:        mux,
 		MaxHeaderBytes: 2048 << 20,
 	})
 	srv.HttpOnHttpsPortErrorHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

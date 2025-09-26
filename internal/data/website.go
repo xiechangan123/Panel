@@ -527,8 +527,9 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	}
 	userIni := filepath.Join(req.Root, ".user.ini")
 	if req.OpenBasedir {
-		if !io.Exists(userIni) {
-			if err = io.Write(userIni, fmt.Sprintf("open_basedir=%s:/tmp/", req.Path), 0644); err != nil {
+		if !io.Exists(userIni) || req.Root != website.Path {
+			// 之前没有开启，或者修改了运行目录，重新写入
+			if err = io.Write(userIni, fmt.Sprintf("open_basedir=%s:%s:/tmp/", req.Root, req.Path), 0644); err != nil {
 				return err
 			}
 		}
