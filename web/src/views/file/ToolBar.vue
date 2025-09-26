@@ -127,7 +127,7 @@ const handlePaste = () => {
       window.$dialog.warning({
         title: $gettext('Warning'),
         content: $gettext(
-          'There are items with the same name. %{ items } Do you want to overwrite?',
+          'There are items with the same name %{ items } Do you want to overwrite?',
           {
             items: `${paths
               .filter((item) => item.force)
