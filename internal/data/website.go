@@ -238,9 +238,6 @@ func (r *websiteRepo) List(page, limit uint) ([]*biz.Website, int64, error) {
 func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	// 初始化nginx配置
 	config := nginx.DefaultConf
-	if app.Locale == "zh_CN" {
-		config = nginx.DefaultConfZh
-	}
 	p, err := nginx.NewParser(config)
 	if err != nil {
 		return nil, err
@@ -294,9 +291,12 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 	var index []byte
-	if app.Locale == "zh_CN" {
-		index, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "index_zh.html"))
-	} else {
+	switch app.Locale {
+	case "zh_CN":
+		index, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "index_zh_CN.html"))
+	case "zh_TW":
+		index, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "index_zh_TW.html"))
+	default:
 		index, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "index.html"))
 	}
 	if err != nil {
@@ -306,9 +306,12 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 	var notFound []byte
-	if app.Locale == "zh_CN" {
-		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh.html"))
-	} else {
+	switch app.Locale {
+	case "zh_CN":
+		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh_CN.html"))
+	case "zh_TW":
+		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh_TW.html"))
+	default:
 		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404.html"))
 	}
 	if err != nil {
@@ -632,9 +635,6 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 
 	// 初始化nginx配置
 	config := nginx.DefaultConf
-	if app.Locale == "zh_CN" {
-		config = nginx.DefaultConfZh
-	}
 	p, err := nginx.NewParser(config)
 	if err != nil {
 		return err

@@ -7,12 +7,12 @@ var order = []string{"listen", "server_name", "index", "root",
 const DefaultConf = `server {
     listen 80;
     server_name localhost;
-    index index.php index.html index.htm;
+    index index.php index.html;
     root /www/wwwroot/default;
-    # Error page configuration
+    # Error page
     error_page 404 /404.html;
     include enable-php-0.conf;
-    # Do not log static files
+    # Browser cache
     location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
         expires 30d;
         access_log /dev/null;
@@ -23,35 +23,7 @@ const DefaultConf = `server {
         access_log /dev/null;
         error_log /dev/null;
     }
-    # Deny some sensitive directories
-    location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
-        return 404;
-    }
-    access_log /www/wwwlogs/default.log;
-    error_log /www/wwwlogs/default.log;
-}
-`
-
-const DefaultConfZh = `server {
-    listen 80;
-    server_name localhost;
-    index index.php index.html index.htm;
-    root /www/wwwroot/default;
-    # 错误页配置
-    error_page 404 /404.html;
-    include enable-php-0.conf;
-    # 不记录静态文件日志
-    location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
-        expires 30d;
-        access_log /dev/null;
-        error_log /dev/null;
-    }
-    location ~ .*\.(js|css|ttf|otf|woff|woff2|eot)$ {
-        expires 6h;
-        access_log /dev/null;
-        error_log /dev/null;
-    }
-    # 禁止部分敏感目录
+    # Deny sensitive files
     location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
         return 404;
     }
