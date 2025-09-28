@@ -45,11 +45,11 @@ func (s *NginxTestSuite) TestIndex() {
 	s.NoError(err)
 	index, err := parser.GetIndex()
 	s.NoError(err)
-	s.Equal([]string{"index.php", "index.html", "index.htm"}, index)
-	s.NoError(parser.SetIndex([]string{"index.html", "index.htm"}))
+	s.Equal([]string{"index.php", "index.html"}, index)
+	s.NoError(parser.SetIndex([]string{"index.html", "index.php"}))
 	index, err = parser.GetIndex()
 	s.NoError(err)
-	s.Equal([]string{"index.html", "index.htm"}, index)
+	s.Equal([]string{"index.html", "index.php"}, index)
 }
 
 func (s *NginxTestSuite) TestIndexWithComment() {
@@ -57,12 +57,12 @@ func (s *NginxTestSuite) TestIndexWithComment() {
 	s.NoError(err)
 	index, comment, err := parser.GetIndexWithComment()
 	s.NoError(err)
-	s.Equal([]string{"index.php", "index.html", "index.htm"}, index)
+	s.Equal([]string{"index.php", "index.html"}, index)
 	s.Equal([]string(nil), comment)
-	s.NoError(parser.SetIndexWithComment([]string{"index.html", "index.htm"}, []string{"# 测试"}))
+	s.NoError(parser.SetIndexWithComment([]string{"index.html", "index.php"}, []string{"# 测试"}))
 	index, comment, err = parser.GetIndexWithComment()
 	s.NoError(err)
-	s.Equal([]string{"index.html", "index.htm"}, index)
+	s.Equal([]string{"index.html", "index.php"}, index)
 	s.Equal([]string{"# 测试"}, comment)
 }
 
