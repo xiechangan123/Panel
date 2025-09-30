@@ -266,8 +266,7 @@ onUnmounted(() => {
       mt-8
       :options="{
         automaticLayout: true,
-        formatOnType: true,
-        formatOnPaste: true
+        smoothScrolling: true
       }"
     />
   </n-modal>

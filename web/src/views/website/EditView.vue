@@ -350,8 +350,7 @@ const onCreateListen = () => {
             height="60vh"
             :options="{
               automaticLayout: true,
-              formatOnType: true,
-              formatOnPaste: true
+              smoothScrolling: true
             }"
           />
         </n-flex>
@@ -388,8 +387,7 @@ const onCreateListen = () => {
             height="60vh"
             :options="{
               automaticLayout: true,
-              formatOnType: true,
-              formatOnPaste: true
+              smoothScrolling: true
             }"
           />
         </n-flex>

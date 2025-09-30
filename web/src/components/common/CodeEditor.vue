@@ -59,8 +59,7 @@ defineExpose({
     height="60vh"
     :options="{
       automaticLayout: true,
-      formatOnType: true,
-      formatOnPaste: true,
+      smoothScrolling: true,
       wordWrap: 'on'
     }"
   />

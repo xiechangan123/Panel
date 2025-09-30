@@ -126,7 +126,8 @@ const columns: DataTableColumns<RowData> = [
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => file.list(path.value, page, pageSize, sort.value),
+  (page, pageSize) =>
+    file.list(encodeURIComponent(path.value), '', false, sort.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 100,
