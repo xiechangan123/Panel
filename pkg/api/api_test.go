@@ -13,7 +13,7 @@ type APITestSuite struct {
 
 func TestAPITestSuite(t *testing.T) {
 	suite.Run(t, &APITestSuite{
-		api: NewAPI("2.3.0", "en"),
+		api: NewAPI("3.0.0", "en"),
 	})
 }
 
@@ -27,6 +27,11 @@ func (s *APITestSuite) TestGetIntermediateVersions() {
 	s.NoError(err)
 }
 
+func (s *APITestSuite) TestGetCategories() {
+	_, err := s.api.Categories()
+	s.NoError(err)
+}
+
 func (s *APITestSuite) TestGetApps() {
 	_, err := s.api.Apps()
 	s.NoError(err)
@@ -34,6 +39,16 @@ func (s *APITestSuite) TestGetApps() {
 
 func (s *APITestSuite) TestGetAppBySlug() {
 	_, err := s.api.AppBySlug("nginx")
+	s.NoError(err)
+}
+
+func (s *APITestSuite) TestGetTemplates() {
+	_, err := s.api.Templates()
+	s.NoError(err)
+}
+
+func (s *APITestSuite) TestGetTemplateBySlug() {
+	_, err := s.api.TemplateBySlug("nginx")
 	s.NoError(err)
 }
 
