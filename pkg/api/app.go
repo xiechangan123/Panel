@@ -13,18 +13,16 @@ type App struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Categories  []string  `json:"categories"`
-	Depends     string    `json:"depends"`
+	Depends     string    `json:"depends"` // 依赖表达式
 	Channels    []struct {
-		Slug      string `json:"slug"`
-		Name      string `json:"name"`
-		Panel     string `json:"panel"`
-		Install   string `json:"install"`
-		Uninstall string `json:"uninstall"`
-		Update    string `json:"update"`
-		Subs      []struct {
-			Log     string `json:"log"`
-			Version string `json:"version"`
-		} `json:"subs"`
+		Slug      string `json:"slug"`      // 渠道代号
+		Name      string `json:"name"`      // 渠道名称
+		Panel     string `json:"panel"`     // 最低支持面板版本
+		Install   string `json:"install"`   // 安装脚本
+		Uninstall string `json:"uninstall"` // 卸载脚本
+		Update    string `json:"update"`    // 更新脚本
+		Version   string `json:"version"`   // 版本号
+		Log       string `json:"log"`       // 更新日志
 	} `json:"channels"`
 	Order int `json:"order"`
 }

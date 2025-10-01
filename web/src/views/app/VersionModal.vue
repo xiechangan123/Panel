@@ -45,7 +45,7 @@ const handleSubmit = () => {
 const handleChannelUpdate = (value: string) => {
   const channel = info.value.channels.find((channel) => channel.slug === value)
   if (channel) {
-    model.value.version = channel.subs[0].version
+    model.value.version = channel.version
   }
 }
 

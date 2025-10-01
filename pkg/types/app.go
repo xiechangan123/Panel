@@ -14,16 +14,11 @@ type AppCenter struct {
 	Description string `json:"description"`
 	Slug        string `json:"slug"`
 	Channels    []struct {
-		Slug      string `json:"slug"`
-		Name      string `json:"name"`
-		Panel     string `json:"panel"`
-		Install   string `json:"-"`
-		Uninstall string `json:"-"`
-		Update    string `json:"-"`
-		Subs      []struct {
-			Log     string `json:"log"`
-			Version string `json:"version"`
-		} `json:"subs"`
+		Slug    string `json:"slug"`
+		Name    string `json:"name"`
+		Panel   string `json:"panel"`
+		Version string `json:"version"`
+		Log     string `json:"log"`
 	} `json:"channels"`
 	Installed        bool   `json:"installed"`
 	InstalledChannel string `json:"installed_channel"`

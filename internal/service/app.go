@@ -51,29 +51,36 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 			updateExist = s.appRepo.UpdateExist(item.Slug)
 			show = installedAppMap[item.Slug].Show
 		}
-		apps = append(apps, types.AppCenter{
-			Icon:        item.Icon,
-			Name:        item.Name,
-			Description: item.Description,
-			Slug:        item.Slug,
-			Channels: []struct {
-				Slug      string `json:"slug"`
-				Name      string `json:"name"`
-				Panel     string `json:"panel"`
-				Install   string `json:"-"`
-				Uninstall string `json:"-"`
-				Update    string `json:"-"`
-				Subs      []struct {
-					Log     string `json:"log"`
-					Version string `json:"version"`
-				} `json:"subs"`
-			}(item.Channels),
+
+		app := types.AppCenter{
+			Icon:             item.Icon,
+			Name:             item.Name,
+			Description:      item.Description,
+			Slug:             item.Slug,
 			Installed:        installed,
 			InstalledChannel: installedChannel,
 			InstalledVersion: installedVersion,
 			UpdateExist:      updateExist,
 			Show:             show,
-		})
+		}
+
+		for _, c := range item.Channels {
+			app.Channels = append(app.Channels, struct {
+				Slug    string `json:"slug"`
+				Name    string `json:"name"`
+				Panel   string `json:"panel"`
+				Version string `json:"version"`
+				Log     string `json:"log"`
+			}{
+				Slug:    c.Slug,
+				Name:    c.Name,
+				Panel:   c.Panel,
+				Version: c.Version,
+				Log:     c.Log,
+			})
+		}
+
+		apps = append(apps, app)
 	}
 
 	paged, total := Paginate(r, apps)

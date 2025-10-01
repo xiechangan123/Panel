@@ -14,10 +14,6 @@ export interface Channel {
   slug: string
   name: string
   panel: string
-  subs: Sub[]
-}
-
-export interface Sub {
-  log: string
   version: string
+  log: string
 }

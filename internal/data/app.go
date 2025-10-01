@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/collect"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
@@ -71,8 +70,7 @@ func (r *appRepo) UpdateExist(slug string) bool {
 
 	for channel := range slices.Values(item.Channels) {
 		if channel.Slug == installed.Channel {
-			current := collect.First(channel.Subs)
-			if current != nil && current.Version != installed.Version {
+			if channel.Version != installed.Version {
 				return true
 			}
 		}
@@ -174,7 +172,7 @@ func (r *appRepo) Install(channel, slug string) error {
 			}
 			shellUrl = ch.Install
 			shellChannel = ch.Slug
-			shellVersion = collect.First(ch.Subs).Version
+			shellVersion = ch.Version
 			break
 		}
 	}
@@ -284,7 +282,7 @@ func (r *appRepo) Update(slug string) error {
 			}
 			shellUrl = ch.Update
 			shellChannel = ch.Slug
-			shellVersion = collect.First(ch.Subs).Version
+			shellVersion = ch.Version
 			break
 		}
 	}
