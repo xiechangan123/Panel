@@ -161,7 +161,7 @@ func (r databaseServerRepo) Sync(id uint) error {
 					Remark:   r.t.Get("sync from server %s", server.Name),
 				}
 				if err = r.db.Create(newUser).Error; err != nil {
-					r.log.Warn("sync database user failed", slog.Any("err", err))
+					r.log.Warn("[DatabaseServer] sync database user failed", slog.Any("err", err))
 				}
 			}
 		}

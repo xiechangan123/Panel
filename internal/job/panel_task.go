@@ -45,29 +45,29 @@ func (r *PanelTask) Run() {
 	// 优化数据库
 	if err := r.db.Exec("VACUUM").Error; err != nil {
 		app.Status = app.StatusFailed
-		r.log.Warn("[Panel Task] failed to vacuum database", slog.Any("err", err))
+		r.log.Warn("[PanelTask] failed to vacuum database", slog.Any("err", err))
 		return
 	}
 	if err := r.db.Exec("PRAGMA journal_mode=WAL;").Error; err != nil {
 		app.Status = app.StatusFailed
-		r.log.Warn("[Panel Task] failed to set database journal_mode to WAL", slog.Any("err", err))
+		r.log.Warn("[PanelTask] failed to set database journal_mode to WAL", slog.Any("err", err))
 		return
 	}
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
 		app.Status = app.StatusFailed
-		r.log.Warn("[Panel Task] failed to wal checkpoint database", slog.Any("err", err))
+		r.log.Warn("[PanelTask] failed to wal checkpoint database", slog.Any("err", err))
 		return
 	}
 
 	// 备份面板
 	if err := r.backupRepo.Create(biz.BackupTypePanel, ""); err != nil {
-		r.log.Warn("备份面板失败", slog.Any("err", err))
+		r.log.Warn("[PanelTask] failed to backup panel", slog.Any("err", err))
 	}
 
 	// 清理备份
 	if path, err := r.backupRepo.GetPath("panel"); err == nil {
 		if err = r.backupRepo.ClearExpired(path, "panel_", 10); err != nil {
-			r.log.Warn("[Panel Task] failed to clear backup", slog.Any("err", err))
+			r.log.Warn("[PanelTask] failed to clear backup", slog.Any("err", err))
 		}
 	}
 
@@ -91,7 +91,7 @@ func (r *PanelTask) Run() {
 func (r *PanelTask) updateApps() {
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
 		if err := r.cacheRepo.UpdateApps(); err != nil {
-			r.log.Warn("[Panel Task] failed to update apps cache", slog.Any("err", err))
+			r.log.Warn("[PanelTask] failed to update apps cache", slog.Any("err", err))
 		}
 	})
 }
@@ -100,7 +100,7 @@ func (r *PanelTask) updateApps() {
 func (r *PanelTask) updateRewrites() {
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
 		if err := r.cacheRepo.UpdateRewrites(); err != nil {
-			r.log.Warn("[Panel Task] failed to update rewrites cache", slog.Any("err", err))
+			r.log.Warn("[PanelTask] failed to update rewrites cache", slog.Any("err", err))
 		}
 	})
 }
@@ -132,7 +132,7 @@ func (r *PanelTask) updatePanel() {
 		}
 		if download := collect.First(panel.Downloads); download != nil {
 			if err = r.backupRepo.UpdatePanel(panel.Version, download.URL, download.Checksum); err != nil {
-				r.log.Warn("[Panel Task] failed to update panel", slog.Any("err", err))
+				r.log.Warn("[PanelTask] failed to update panel", slog.Any("err", err))
 				_ = r.backupRepo.FixPanel()
 			}
 		}

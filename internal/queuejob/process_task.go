@@ -51,6 +51,6 @@ func (r *ProcessTask) Handle(args ...any) error {
 }
 
 func (r *ProcessTask) ErrHandle(err error) {
-	r.log.Warn("background task failed", slog.Any("task_id", r.taskID), slog.Any("err", err))
+	r.log.Warn("[ProcessTask] background task failed", slog.Any("task_id", r.taskID), slog.Any("err", err))
 	_ = r.taskRepo.UpdateStatus(r.taskID, biz.TaskStatusFailed)
 }

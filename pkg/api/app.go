@@ -64,3 +64,18 @@ func (r *API) AppBySlug(slug string) (*App, error) {
 
 	return app, nil
 }
+
+// AppCallback 应用下载回调
+func (r *API) AppCallback(slug string) error {
+	resp, err := r.client.R().
+		SetResult(&Response{}).
+		Post(fmt.Sprintf("/apps/%s/callback", slug))
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccess() {
+		return fmt.Errorf("failed to callback app: %s", resp.String())
+	}
+
+	return nil
+}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/expr-lang/expr"
@@ -23,17 +24,21 @@ type appRepo struct {
 	t     *gotext.Locale
 	conf  *koanf.Koanf
 	db    *gorm.DB
+	log   *slog.Logger
 	cache biz.CacheRepo
 	task  biz.TaskRepo
+	api   *api.API
 }
 
-func NewAppRepo(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB, cache biz.CacheRepo, task biz.TaskRepo) biz.AppRepo {
+func NewAppRepo(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB, log *slog.Logger, cache biz.CacheRepo, task biz.TaskRepo) biz.AppRepo {
 	return &appRepo{
 		t:     t,
 		conf:  conf,
 		db:    db,
+		log:   log,
 		cache: cache,
 		task:  task,
+		api:   api.NewAPI(app.Version, app.Locale),
 	}
 }
 
@@ -182,6 +187,11 @@ func (r *appRepo) Install(channel, slug string) error {
 
 	if err = r.preCheck(item); err != nil {
 		return err
+	}
+
+	// 下载回调
+	if err = r.api.AppCallback(slug); err != nil {
+		r.log.Warn("[App] download callback failed", slog.String("app", slug), slog.Any("error", err))
 	}
 
 	if app.IsCli {

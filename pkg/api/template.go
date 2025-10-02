@@ -60,3 +60,16 @@ func (r *API) TemplateBySlug(slug string) (*Template, error) {
 
 	return template, nil
 }
+
+// TemplateCallback 模版下载回调
+func (r *API) TemplateCallback(slug string) error {
+	resp, err := r.client.R().SetResult(&Response{}).Post(fmt.Sprintf("/templates/%s/callback", slug))
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccess() {
+		return fmt.Errorf("failed to callback template: %s", resp.String())
+	}
+
+	return nil
+}
