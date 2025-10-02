@@ -42,6 +42,11 @@ func (s *APITestSuite) TestGetAppBySlug() {
 	s.NoError(err)
 }
 
+func (s *APITestSuite) TestAppCallback() {
+	err := s.api.AppCallback("nginx")
+	s.NoError(err)
+}
+
 func (s *APITestSuite) TestGetTemplates() {
 	_, err := s.api.Templates()
 	s.NoError(err)
@@ -49,6 +54,11 @@ func (s *APITestSuite) TestGetTemplates() {
 
 func (s *APITestSuite) TestGetTemplateBySlug() {
 	_, err := s.api.TemplateBySlug("nginx")
+	s.NoError(err)
+}
+
+func (s *APITestSuite) TestTemplateCallback() {
+	err := s.api.TemplateCallback("nginx")
 	s.NoError(err)
 }
 

@@ -57,11 +57,11 @@ func initCli() (*app.Cli, error) {
 	if err != nil {
 		return nil, err
 	}
-	cacheRepo := data.NewCacheRepo(db)
 	logger := bootstrap.NewLog(koanf)
+	cacheRepo := data.NewCacheRepo(db)
 	queue := bootstrap.NewQueue()
 	taskRepo := data.NewTaskRepo(locale, db, logger, queue)
-	appRepo := data.NewAppRepo(locale, koanf, db, cacheRepo, taskRepo)
+	appRepo := data.NewAppRepo(locale, koanf, db, logger, cacheRepo, taskRepo)
 	userRepo := data.NewUserRepo(locale, db)
 	settingRepo := data.NewSettingRepo(locale, db, koanf, taskRepo)
 	databaseServerRepo := data.NewDatabaseServerRepo(locale, db, logger)
