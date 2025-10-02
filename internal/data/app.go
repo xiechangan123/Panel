@@ -304,6 +304,11 @@ func (r *appRepo) Update(slug string) error {
 		return err
 	}
 
+	// 下载回调
+	if err = r.api.AppCallback(slug); err != nil {
+		r.log.Warn("[App] download callback failed", slog.String("app", slug), slog.Any("error", err))
+	}
+
 	if app.IsCli {
 		return shell.ExecfWithOutput(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion)
 	}
