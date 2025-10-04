@@ -11,6 +11,8 @@ _cgo_gotypes.go
 _cgo_export.*
 
 # 编译文件
+ace
+cli
 *.com
 *.class
 *.dll
