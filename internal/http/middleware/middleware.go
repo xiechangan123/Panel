@@ -52,6 +52,7 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 		middleware.Recoverer,
 		//middleware.SupressNotFound(mux),// bug https://github.com/go-chi/chi/pull/940
 		httplog.RequestLogger(r.log, &httplog.Options{
+			Level:             slog.LevelInfo,
 			LogRequestHeaders: []string{"User-Agent"},
 			Skip: func(req *http.Request, respStatus int) bool {
 				return respStatus == 404 || respStatus == 405
