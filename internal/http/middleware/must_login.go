@@ -77,7 +77,7 @@ func MustLogin(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, u
 					safeClientHash := cast.ToString(sess.Get("safe_client"))
 					if safeClientHash != clientHash || safeClientHash == "" {
 						sess.Forget("user_id") // 清除 user_id，否则会来回跳转
-						Abort(w, http.StatusUnauthorized, t.Get("client ip/ua changed, please login again"))
+						Abort(w, http.StatusUnauthorized, t.Get("client ip changed, please login again"))
 						return
 					}
 				}

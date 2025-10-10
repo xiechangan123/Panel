@@ -41,6 +41,9 @@ const { data: model } = useRequest(setting.list, {
 })
 
 const handleSave = () => {
+  if (model.value.entrance.trim() === '') {
+    model.value.entrance = '/'
+  }
   useRequest(setting.update(model.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
     if (model.value.locale !== themeStore.locale) {
