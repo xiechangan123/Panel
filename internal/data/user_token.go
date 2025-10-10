@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
 	"github.com/spf13/cast"
@@ -23,14 +24,16 @@ import (
 )
 
 type userTokenRepo struct {
-	t  *gotext.Locale
-	db *gorm.DB
+	t    *gotext.Locale
+	conf *koanf.Koanf
+	db   *gorm.DB
 }
 
-func NewUserTokenRepo(t *gotext.Locale, db *gorm.DB) biz.UserTokenRepo {
+func NewUserTokenRepo(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB) biz.UserTokenRepo {
 	return &userTokenRepo{
-		t:  t,
-		db: db,
+		t:    t,
+		conf: conf,
+		db:   db,
 	}
 }
 
@@ -140,10 +143,16 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 
 	// 步骤六：验证IP
 	if len(userToken.IPs) > 0 {
-		ip, _, err := net.SplitHostPort(req.RemoteAddr)
+		ip := req.RemoteAddr
+		ipHeader := r.conf.String("http.ip_header")
+		if ipHeader != "" && req.Header.Get(ipHeader) != "" {
+			ip = strings.Split(req.Header.Get(ipHeader), ",")[0]
+		}
+		ip, _, err = net.SplitHostPort(strings.TrimSpace(ip))
 		if err != nil {
 			ip = req.RemoteAddr
 		}
+
 		allowed := false
 		requestIP := net.ParseIP(ip)
 		if requestIP != nil {

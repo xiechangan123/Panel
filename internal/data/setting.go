@@ -241,6 +241,7 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		OfflineMode: offlineMode,
 		AutoUpdate:  autoUpdate,
 		Lifetime:    uint(r.conf.Int("session.lifetime")),
+		IPHeader:    r.conf.String("http.ip_header"),
 		BindDomain:  r.conf.Strings("http.bind_domain"),
 		BindIP:      r.conf.Strings("http.bind_ip"),
 		BindUA:      r.conf.Strings("http.bind_ua"),
@@ -331,6 +332,7 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	config.HTTP.Port = req.Port
 	config.HTTP.Entrance = req.Entrance
 	config.HTTP.TLS = req.HTTPS
+	config.HTTP.IPHeader = req.IPHeader
 	config.HTTP.BindDomain = req.BindDomain
 	config.HTTP.BindIP = req.BindIP
 	config.HTTP.BindUA = req.BindUA

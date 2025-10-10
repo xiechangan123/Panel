@@ -107,11 +107,16 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 
 	// 安全登录下，将当前客户端与会话绑定
 	// 安全登录只在未启用面板 HTTPS 时生效
-	ip, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
+	ip := r.RemoteAddr
+	ipHeader := s.conf.String("http.ip_header")
+	if ipHeader != "" && r.Header.Get(ipHeader) != "" {
+		ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
 	}
+	ip, _, err = net.SplitHostPort(strings.TrimSpace(ip))
+	if err != nil {
+		ip = r.RemoteAddr
+	}
+
 	if req.SafeLogin && !s.conf.Bool("http.tls") {
 		sess.Put("safe_login", true)
 		sess.Put("safe_client", fmt.Sprintf("%x", sha256.Sum256([]byte(ip))))

@@ -9,6 +9,10 @@ http:
   port: 8888
   entrance: /
   tls: true
+  ip_header: ''
+  bind_domain: []
+  bind_ip: []
+  bind_ua: []
 database:
   debug: false
 session:

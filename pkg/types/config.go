@@ -21,6 +21,7 @@ type PanelHTTPConfig struct {
 	Port       uint     `yaml:"port"`
 	Entrance   string   `yaml:"entrance"`
 	TLS        bool     `yaml:"tls"`
+	IPHeader   string   `yaml:"ip_header"`
 	BindDomain []string `yaml:"bind_domain"`
 	BindIP     []string `yaml:"bind_ip"`
 	BindUA     []string `yaml:"bind_ua"`

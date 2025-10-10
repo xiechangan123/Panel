@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/sessions"
 	"github.com/spf13/cast"
@@ -18,7 +19,7 @@ import (
 )
 
 // MustLogin 确保已登录
-func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTokenRepo) func(next http.Handler) http.Handler {
+func MustLogin(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, userToken biz.UserTokenRepo) func(next http.Handler) http.Handler {
 	// 白名单
 	whiteList := []string{
 		"/api/user/key",
@@ -62,9 +63,18 @@ func MustLogin(t *gotext.Locale, session *sessions.Manager, userToken biz.UserTo
 
 				safeLogin := cast.ToBool(sess.Get("safe_login"))
 				if safeLogin {
-					safeClientHash := cast.ToString(sess.Get("safe_client"))
-					ip, _, _ := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
+					// 取请求 IP
+					ip := r.RemoteAddr
+					ipHeader := conf.String("http.ip_header")
+					if ipHeader != "" && r.Header.Get(ipHeader) != "" {
+						ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
+					}
+					ip, _, err = net.SplitHostPort(strings.TrimSpace(ip))
+					if err != nil {
+						ip = r.RemoteAddr
+					}
 					clientHash := fmt.Sprintf("%x", sha256.Sum256([]byte(ip)))
+					safeClientHash := cast.ToString(sess.Get("safe_client"))
 					if safeClientHash != clientHash || safeClientHash == "" {
 						sess.Forget("user_id") // 清除 user_id，否则会来回跳转
 						Abort(w, http.StatusUnauthorized, t.Get("client ip/ua changed, please login again"))

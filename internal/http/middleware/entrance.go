@@ -43,10 +43,18 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				Abort(w, http.StatusTeapot, t.Get("invalid request domain: %s", r.Host))
 				return
 			}
-			ip, _, err := net.SplitHostPort(r.RemoteAddr)
+
+			// 取请求 IP
+			ip := r.RemoteAddr
+			ipHeader := conf.String("http.ip_header")
+			if ipHeader != "" && r.Header.Get(ipHeader) != "" {
+				ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
+			}
+			ip, _, err = net.SplitHostPort(strings.TrimSpace(ip))
 			if err != nil {
 				ip = r.RemoteAddr
 			}
+
 			if len(conf.Strings("http.bind_ip")) > 0 {
 				allowed := false
 				requestIP := net.ParseIP(ip)

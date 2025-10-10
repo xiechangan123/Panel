@@ -25,6 +25,12 @@ const model = defineModel<any>('model', { type: Object, required: true })
       <n-form-item :label="$gettext('Access Entrance')">
         <n-input v-model:value="model.entrance" :placeholder="$gettext('/admin')" />
       </n-form-item>
+      <n-form-item :label="$gettext('Request IP Header')">
+        <n-input
+          v-model:value="model.ip_header"
+          :placeholder="$gettext('Customize the IP used by panel (useful when using CDN)')"
+        />
+      </n-form-item>
       <n-form-item :label="$gettext('Bind Domain')">
         <n-dynamic-input
           v-model:value="model.bind_domain"

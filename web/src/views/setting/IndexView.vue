@@ -2,6 +2,7 @@
 defineOptions({
   name: 'setting-index'
 })
+
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -27,6 +28,7 @@ const { data: model } = useRequest(setting.list, {
     offline_mode: false,
     two_fa: false,
     lifetime: 0,
+    ip_header: '',
     bind_domain: [],
     bind_ip: [],
     bind_ua: [],

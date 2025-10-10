@@ -10,7 +10,7 @@ import (
 )
 
 // Throttle 限流器
-func Throttle(tokens uint64, interval time.Duration) func(next http.Handler) http.Handler {
+func Throttle(ipHeader string, tokens uint64, interval time.Duration) func(next http.Handler) http.Handler {
 	store, err := memorystore.New(&memorystore.Config{
 		Tokens:   tokens,
 		Interval: interval,
@@ -19,7 +19,7 @@ func Throttle(tokens uint64, interval time.Duration) func(next http.Handler) htt
 		log.Fatalf("failed to create throttle memorystore: %v", err)
 	}
 
-	limiter, err := httplimit.NewMiddleware(store, httplimit.IPKeyFunc())
+	limiter, err := httplimit.NewMiddleware(store, httplimit.IPKeyFunc(ipHeader))
 	if err != nil {
 		log.Fatalf("failed to initialize throttle middleware: %v", err)
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/acepanel/panel/internal/app"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/golang-cz/httplog"
+	"github.com/go-chi/httplog/v3"
 	"github.com/google/wire"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
@@ -52,14 +52,22 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 		middleware.Recoverer,
 		//middleware.SupressNotFound(mux),// bug https://github.com/go-chi/chi/pull/940
 		httplog.RequestLogger(r.log, &httplog.Options{
-			Level:             slog.LevelInfo,
 			LogRequestHeaders: []string{"User-Agent"},
+			Skip: func(req *http.Request, respStatus int) bool {
+				return respStatus == 404 || respStatus == 405
+			},
+			LogRequestBody: func(req *http.Request) bool {
+				return req.Header.Get("X-Debug-Request") == "1"
+			},
+			LogResponseBody: func(req *http.Request) bool {
+				return req.Header.Get("X-Debug-Response") == "1"
+			},
 		}),
 		middleware.Compress(5),
 		sessionmiddleware.StartSession(r.session),
 		Status(t),
 		Entrance(t, r.conf, r.session),
-		MustLogin(t, r.session, r.userToken),
+		MustLogin(t, r.conf, r.session, r.userToken),
 		MustInstall(t, r.appRepo),
 	}
 }
