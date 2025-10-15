@@ -82,8 +82,8 @@ jobs:
           LDFLAGS="${LDFLAGS} -X 'github.com/acepanel/panel/internal/app.BuildID=${BUILD_ID}'"
           LDFLAGS="${LDFLAGS} -X 'github.com/acepanel/panel/internal/app.BuildUser=${BUILD_USER}'"
           LDFLAGS="${LDFLAGS} -X 'github.com/acepanel/panel/internal/app.BuildHost=${BUILD_HOST}'"
-          go build -ldflags "${LDFLAGS}" -o ace-${{ matrix.goarch }} ./cmd/ace
-          go build -ldflags "${LDFLAGS}" -o cli-${{ matrix.goarch }} ./cmd/cli
+          go build -trimpath -buildvcs=false -ldflags "${LDFLAGS}" -o ace-${{ matrix.goarch }} ./cmd/ace
+          go build -trimpath -buildvcs=false -ldflags "${LDFLAGS}" -o cli-${{ matrix.goarch }} ./cmd/cli
       - name: Compress ${{ matrix.goarch }}
         run: |
           upx --best --lzma ace-${{ matrix.goarch }}
