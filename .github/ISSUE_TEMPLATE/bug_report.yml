@@ -1,6 +1,6 @@
 name: ☢️ 报告问题 (Bug Report)
 description: 创建一个报告以帮助我们改进 (Create a report to help us improve)
-type: ☢️ Bug
+type: Bug
 
 body:
   - type: markdown
