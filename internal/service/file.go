@@ -246,7 +246,7 @@ func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		if io.IsDir(item.Source) && strings.HasPrefix(item.Target, item.Source) {
+		if io.IsDir(item.Source) && strings.HasPrefix(item.Target, item.Source+"/") {
 			Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
 			return
 		}
