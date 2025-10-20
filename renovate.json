@@ -29,7 +29,5 @@
       "automerge": true
     }
   ],
-  "ignoreDeps": [
-    "monaco-editor"
-  ]
+  "ignoreDeps": []
 }
