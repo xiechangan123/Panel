@@ -33,9 +33,7 @@ func NewHttp(conf *koanf.Koanf, mux *chi.Mux) (*hlfhr.Server, error) {
 		Handler:        mux,
 		MaxHeaderBytes: 2048 << 20,
 	})
-	srv.HttpOnHttpsPortErrorHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hlfhr.RedirectToHttps(w, r, http.StatusTemporaryRedirect)
-	})
+	srv.Listen80RedirectTo443 = true
 
 	if conf.Bool("http.tls") {
 		srv.TLSConfig = &tls.Config{
