@@ -169,13 +169,6 @@ const handleCreateDNS = async () => {
             :placeholder="$gettext('Enter ClouDNS Auth Password')"
           />
         </n-form-item>
-        <n-form-item v-if="model.type == 'hetzner'" path="ak" label="Auth API Token">
-          <n-input
-            v-model:value="model.data.ak"
-            type="text"
-            :placeholder="$gettext('Enter Hetzner Auth API Token')"
-          />
-        </n-form-item>
       </n-form>
       <n-button type="info" block @click="handleCreateDNS">{{ $gettext('Submit') }}</n-button>
     </n-space>

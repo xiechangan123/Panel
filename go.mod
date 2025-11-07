@@ -32,7 +32,6 @@ require (
 	github.com/libdns/cloudflare v0.2.2
 	github.com/libdns/cloudns v1.1.0
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
-	github.com/libdns/hetzner v1.0.0
 	github.com/libdns/huaweicloud v1.0.0
 	github.com/libdns/libdns v1.1.1
 	github.com/libdns/namesilo v1.0.0

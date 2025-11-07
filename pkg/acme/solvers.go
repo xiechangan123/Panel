@@ -11,7 +11,6 @@ import (
 	"github.com/libdns/cloudflare"
 	"github.com/libdns/cloudns"
 	"github.com/libdns/gcore"
-	"github.com/libdns/hetzner"
 	"github.com/libdns/huaweicloud"
 	"github.com/libdns/libdns"
 	"github.com/libdns/namesilo"
@@ -190,10 +189,6 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 				AuthPassword: s.param.SK,
 			}
 		}
-	case Hetzner:
-		dns = &hetzner.Provider{
-			AuthAPIToken: s.param.AK,
-		}
 	default:
 		return nil, fmt.Errorf("unsupported DNS provider: %s", s.dns)
 	}
@@ -213,7 +208,6 @@ const (
 	Porkbun    DnsType = "porkbun"
 	NameSilo   DnsType = "namesilo"
 	ClouDNS    DnsType = "cloudns"
-	Hetzner    DnsType = "hetzner"
 )
 
 type DNSParam struct {

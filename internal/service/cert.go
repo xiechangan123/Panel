@@ -92,10 +92,6 @@ func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
 			Label: s.t.Get("ClouDNS"),
 			Value: string(acme.ClouDNS),
 		},
-		{
-			Label: s.t.Get("Hetzner"),
-			Value: string(acme.Hetzner),
-		},
 	})
 }
 
