@@ -43,6 +43,7 @@ require (
 	github.com/libtnb/sessions v1.2.1
 	github.com/libtnb/utils v1.2.1
 	github.com/mholt/acmez/v3 v3.1.4
+	github.com/moby/moby/api v1.52.0
 	github.com/moby/moby/client v0.1.0
 	github.com/ncruces/go-sqlite3 v0.30.1
 	github.com/ncruces/go-sqlite3/gormlite v0.30.1
@@ -110,7 +111,6 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
-	github.com/moby/moby/api v1.52.0 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect

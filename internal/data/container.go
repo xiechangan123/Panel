@@ -3,15 +3,18 @@ package data
 import (
 	"context"
 	"fmt"
+	"io"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/client"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
-	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/types"
 )
 
@@ -89,125 +92,242 @@ func (r *containerRepo) ListByName(names string) ([]types.Container, error) {
 
 // Create 创建容器
 func (r *containerRepo) Create(req *request.ContainerCreate) (string, error) {
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("docker run -d --name %s", req.Name))
-	if req.PublishAllPorts {
-		sb.WriteString(" -P")
-	} else {
-		for _, port := range req.Ports {
-			sb.WriteString(" -p ")
-			if port.Host.IsValid() {
-				sb.WriteString(fmt.Sprintf("%s:", port.Host.String()))
-			}
-			if port.HostStart == port.HostEnd || port.ContainerStart == port.ContainerEnd {
-				sb.WriteString(fmt.Sprintf("%d:%d/%s", port.HostStart, port.ContainerStart, port.Protocol))
-			} else {
-				sb.WriteString(fmt.Sprintf("%d-%d:%d-%d/%s", port.HostStart, port.HostEnd, port.ContainerStart, port.ContainerEnd, port.Protocol))
-			}
-		}
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return "", err
 	}
-	if req.Network != "" {
-		sb.WriteString(fmt.Sprintf(" --network %s", req.Network))
-	}
-	for _, volume := range req.Volumes {
-		sb.WriteString(fmt.Sprintf(" -v %s:%s:%s", volume.Host, volume.Container, volume.Mode))
-	}
-	for _, label := range req.Labels {
-		sb.WriteString(fmt.Sprintf(" --label %s=%s", label.Key, label.Value))
-	}
-	for _, env := range req.Env {
-		sb.WriteString(fmt.Sprintf(" -e %s=%s", env.Key, env.Value))
-	}
-	if len(req.Entrypoint) > 0 {
-		sb.WriteString(fmt.Sprintf(" --entrypoint '%s'", strings.Join(req.Entrypoint, " ")))
-	}
-	if len(req.Command) > 0 {
-		sb.WriteString(fmt.Sprintf(" '%s'", strings.Join(req.Command, " ")))
-	}
-	if req.RestartPolicy != "" {
-		sb.WriteString(fmt.Sprintf(" --restart %s", req.RestartPolicy))
-	}
-	if req.AutoRemove {
-		sb.WriteString(" --rm")
-	}
-	if req.Privileged {
-		sb.WriteString(" --privileged")
-	}
-	if req.OpenStdin {
-		sb.WriteString(" -i")
-	}
-	if req.Tty {
-		sb.WriteString(" -t")
-	}
-	if req.CPUShares > 0 {
-		sb.WriteString(fmt.Sprintf(" --cpu-shares %d", req.CPUShares))
-	}
-	if req.CPUs > 0 {
-		sb.WriteString(fmt.Sprintf(" --cpus %d", req.CPUs))
-	}
-	if req.Memory > 0 {
-		sb.WriteString(fmt.Sprintf(" --memory %d", req.Memory))
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	ctx := context.Background()
+
+	// 构建容器配置
+	config := &container.Config{
+		Image:        req.Image,
+		Tty:          req.Tty,
+		OpenStdin:    req.OpenStdin,
+		AttachStdin:  req.OpenStdin,
+		AttachStdout: true,
+		AttachStderr: true,
+		Env:          types.KVToSlice(req.Env),
+		Labels:       types.KVToMap(req.Labels),
+		Entrypoint:   req.Entrypoint,
+		Cmd:          req.Command,
 	}
 
-	sb.WriteString(" %s bash")
-	return shell.ExecfWithTTY(sb.String(), req.Image)
+	// 构建主机配置
+	hostConfig := &container.HostConfig{
+		AutoRemove:      req.AutoRemove,
+		Privileged:      req.Privileged,
+		PublishAllPorts: req.PublishAllPorts,
+	}
+
+	// 构建网络配置
+	networkConfig := &network.NetworkingConfig{}
+	if req.Network != "" {
+		switch req.Network {
+		case "host", "none", "bridge":
+			hostConfig.NetworkMode = container.NetworkMode(req.Network)
+		}
+		networkConfig.EndpointsConfig = map[string]*network.EndpointSettings{req.Network: {}}
+	}
+
+	// 设置端口映射
+	if !req.PublishAllPorts && len(req.Ports) > 0 {
+		portMap := make(network.PortMap)
+		for _, port := range req.Ports {
+			if port.ContainerStart-port.ContainerEnd != port.HostStart-port.HostEnd {
+				return "", fmt.Errorf("容器端口和主机端口数量不匹配（容器: %d 主机: %d）", port.ContainerStart-port.ContainerEnd, port.HostStart-port.HostEnd)
+			}
+			if port.ContainerStart > port.ContainerEnd || port.HostStart > port.HostEnd || port.ContainerStart < 1 || port.HostStart < 1 {
+				return "", fmt.Errorf("端口范围不正确")
+			}
+
+			count := uint(0)
+			for i := port.HostStart; i <= port.HostEnd; i++ {
+				bindItem := network.PortBinding{HostIP: port.Host, HostPort: strconv.Itoa(int(i))}
+				portMap[network.MustParsePort(fmt.Sprintf("%d/%s", port.ContainerStart+count, port.Protocol))] = []network.PortBinding{bindItem}
+				count++
+			}
+		}
+
+		exposed := make(network.PortSet)
+		for port := range portMap {
+			exposed[port] = struct{}{}
+		}
+
+		config.ExposedPorts = exposed
+		hostConfig.PortBindings = portMap
+	}
+	// 设置卷挂载
+	volumes := make(map[string]struct{})
+	for _, v := range req.Volumes {
+		volumes[v.Container] = struct{}{}
+		hostConfig.Binds = append(hostConfig.Binds, fmt.Sprintf("%s:%s:%s", v.Host, v.Container, v.Mode))
+	}
+	config.Volumes = volumes
+	// 设置重启策略
+	hostConfig.RestartPolicy = container.RestartPolicy{Name: container.RestartPolicyMode(req.RestartPolicy)}
+	if req.RestartPolicy == "on-failure" {
+		hostConfig.RestartPolicy.MaximumRetryCount = 5
+	}
+	// 设置资源限制
+	hostConfig.CPUShares = req.CPUShares
+	hostConfig.NanoCPUs = req.CPUs * 1e9
+	hostConfig.Memory = req.Memory * 1024 * 1024
+	hostConfig.MemorySwap = 0
+
+	// 创建容器
+	resp, err := apiClient.ContainerCreate(ctx, client.ContainerCreateOptions{
+		Name:             req.Name,
+		Config:           config,
+		HostConfig:       hostConfig,
+		NetworkingConfig: networkConfig,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	// 启动容器
+	_, _ = apiClient.ContainerStart(ctx, resp.ID, client.ContainerStartOptions{})
+	return resp.ID, nil
 }
 
 // Remove 移除容器
 func (r *containerRepo) Remove(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker rm -f %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerRemove(context.Background(), id, client.ContainerRemoveOptions{
+		Force: true,
+	})
 	return err
 }
 
 // Start 启动容器
 func (r *containerRepo) Start(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker start %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerStart(context.Background(), id, client.ContainerStartOptions{})
 	return err
 }
 
 // Stop 停止容器
 func (r *containerRepo) Stop(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker stop %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerStop(context.Background(), id, client.ContainerStopOptions{})
 	return err
 }
 
 // Restart 重启容器
 func (r *containerRepo) Restart(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker restart %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerRestart(context.Background(), id, client.ContainerRestartOptions{})
 	return err
 }
 
 // Pause 暂停容器
 func (r *containerRepo) Pause(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker pause %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerPause(context.Background(), id, client.ContainerPauseOptions{})
 	return err
 }
 
 // Unpause 恢复容器
 func (r *containerRepo) Unpause(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker unpause %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerUnpause(context.Background(), id, client.ContainerUnpauseOptions{})
 	return err
 }
 
 // Kill 杀死容器
 func (r *containerRepo) Kill(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker kill %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerKill(context.Background(), id, client.ContainerKillOptions{
+		Signal: "KILL",
+	})
 	return err
 }
 
 // Rename 重命名容器
 func (r *containerRepo) Rename(id string, newName string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker rename %s %s", id, newName)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerRename(context.Background(), id, client.ContainerRenameOptions{
+		NewName: newName,
+	})
 	return err
 }
 
 // Logs 查看容器日志
 func (r *containerRepo) Logs(id string) (string, error) {
-	return shell.ExecfWithTimeout(2*time.Minute, "docker logs --tail 100 %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return "", err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	reader, err := apiClient.ContainerLogs(context.Background(), id, client.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Tail:       "100",
+	})
+	if err != nil {
+		return "", err
+	}
+	defer func(reader io.ReadCloser) { _ = reader.Close() }(reader)
+
+	logs, err := io.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+
+	return string(logs), nil
 }
 
 // Prune 清理未使用的容器
 func (r *containerRepo) Prune() error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker container prune -f")
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.ContainerPrune(context.Background(), client.ContainerPruneOptions{})
 	return err
 }

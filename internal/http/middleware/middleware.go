@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/acepanel/panel/internal/app"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v3"
@@ -16,6 +15,7 @@ import (
 	sessionmiddleware "github.com/libtnb/sessions/middleware"
 	"gopkg.in/natefinch/lumberjack.v2"
 
+	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 )
 

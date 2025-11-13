@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"fmt"
 	"slices"
 	"strings"
 	"time"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
-	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/tools"
 	"github.com/acepanel/panel/pkg/types"
 )
@@ -60,32 +58,47 @@ func (r *containerVolumeRepo) List() ([]types.ContainerVolume, error) {
 
 // Create 创建存储卷
 func (r *containerVolumeRepo) Create(req *request.ContainerVolumeCreate) (string, error) {
-	var sb strings.Builder
-	sb.WriteString("docker volume create")
-	sb.WriteString(fmt.Sprintf(" %s", req.Name))
-
-	if req.Driver != "" {
-		sb.WriteString(fmt.Sprintf(" --driver %s", req.Driver))
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return "", err
 	}
-	for _, label := range req.Labels {
-		sb.WriteString(fmt.Sprintf(" --label %s=%s", label.Key, label.Value))
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	resp, err := apiClient.VolumeCreate(context.Background(), client.VolumeCreateOptions{
+		Name:       req.Name,
+		Driver:     req.Driver,
+		DriverOpts: types.KVToMap(req.Options),
+		Labels:     types.KVToMap(req.Labels),
+	})
+	if err != nil {
+		return "", err
 	}
 
-	for _, option := range req.Options {
-		sb.WriteString(fmt.Sprintf(" --opt %s=%s", option.Key, option.Value))
-	}
-
-	return shell.Exec(sb.String())
+	return resp.Volume.Name, nil
 }
 
 // Remove 删除存储卷
 func (r *containerVolumeRepo) Remove(id string) error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker volume rm -f %s", id)
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.VolumeRemove(context.Background(), id, client.VolumeRemoveOptions{
+		Force: true,
+	})
 	return err
 }
 
 // Prune 清理未使用的存储卷
 func (r *containerVolumeRepo) Prune() error {
-	_, err := shell.ExecfWithTimeout(2*time.Minute, "docker volume prune -f")
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	_, err = apiClient.VolumePrune(context.Background(), client.VolumePruneOptions{})
 	return err
 }
