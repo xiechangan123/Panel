@@ -84,7 +84,7 @@ func (r *containerImageRepo) Pull(req *request.ContainerImagePull) error {
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	defer func(out client.ImagePullResponse) { _ = out.Close() }(out)
 
 	return out.Wait(context.Background())
 }
