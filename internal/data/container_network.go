@@ -1,40 +1,41 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"strings"
 	"time"
 
-	"github.com/go-resty/resty/v2"
+	"github.com/moby/moby/client"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/types"
-	"github.com/acepanel/panel/pkg/types/docker/network"
 )
 
-type containerNetworkRepo struct {
-	client *resty.Client
-}
+type containerNetworkRepo struct{}
 
 func NewContainerNetworkRepo() biz.ContainerNetworkRepo {
-	return &containerNetworkRepo{
-		client: getDockerClient("/var/run/docker.sock"),
-	}
+	return &containerNetworkRepo{}
 }
 
 // List 列出网络
 func (r *containerNetworkRepo) List() ([]types.ContainerNetwork, error) {
-	var resp []network.Network
-	_, err := r.client.R().SetResult(&resp).Get("/networks")
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return nil, err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	resp, err := apiClient.NetworkList(context.Background(), client.NetworkListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
 	var networks []types.ContainerNetwork
-	for _, item := range resp {
+	for _, item := range resp.Items {
 		ipamConfigs := make([]types.ContainerNetworkIPAMConfig, 0)
 		for _, ipam := range item.IPAM.Config {
 			ipamConfigs = append(ipamConfigs, types.ContainerNetworkIPAMConfig{

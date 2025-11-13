@@ -1,6 +1,9 @@
 package types
 
-import "time"
+import (
+	"net/netip"
+	"time"
+)
 
 type ContainerNetwork struct {
 	ID         string               `json:"id"`
@@ -26,8 +29,8 @@ type ContainerNetworkIPAM struct {
 
 // ContainerNetworkIPAMConfig represents IPAM configurations
 type ContainerNetworkIPAMConfig struct {
-	Subnet     string            `json:"subnet"`
-	IPRange    string            `json:"ip_range"`
-	Gateway    string            `json:"gateway"`
-	AuxAddress map[string]string `json:"aux_address"`
+	Subnet     netip.Prefix          `json:"subnet"`
+	IPRange    netip.Prefix          `json:"ip_range"`
+	Gateway    netip.Addr            `json:"gateway"`
+	AuxAddress map[string]netip.Addr `json:"aux_address"`
 }

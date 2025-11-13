@@ -1,47 +1,49 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"strings"
 	"time"
 
-	"github.com/go-resty/resty/v2"
+	"github.com/moby/moby/client"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/tools"
 	"github.com/acepanel/panel/pkg/types"
-	"github.com/acepanel/panel/pkg/types/docker/volume"
 )
 
-type containerVolumeRepo struct {
-	client *resty.Client
-}
+type containerVolumeRepo struct{}
 
 func NewContainerVolumeRepo() biz.ContainerVolumeRepo {
-	return &containerVolumeRepo{
-		client: getDockerClient("/var/run/docker.sock"),
-	}
+	return &containerVolumeRepo{}
 }
 
 // List 列出存储卷
 func (r *containerVolumeRepo) List() ([]types.ContainerVolume, error) {
-	var resp volume.ListResponse
-	_, err := r.client.R().SetResult(&resp).Get("/volumes")
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return nil, err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	resp, err := apiClient.VolumeList(context.Background(), client.VolumeListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
 	var volumes []types.ContainerVolume
-	for _, item := range resp.Volumes {
+	for _, item := range resp.Items {
+		createdAt, _ := time.Parse(time.RFC3339Nano, item.CreatedAt)
 		volumes = append(volumes, types.ContainerVolume{
 			Name:       item.Name,
 			Driver:     item.Driver,
 			Scope:      item.Scope,
 			MountPoint: item.Mountpoint,
-			CreatedAt:  item.CreatedAt,
+			CreatedAt:  createdAt,
 			Labels:     types.MapToKV(item.Labels),
 			Options:    types.MapToKV(item.Options),
 			RefCount:   item.UsageData.RefCount,

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"net/netip"
 	"time"
 )
 
@@ -18,12 +19,12 @@ type Container struct {
 }
 
 type ContainerPort struct {
-	ContainerStart uint   `form:"container_start" json:"container_start"`
-	ContainerEnd   uint   `form:"container_end" json:"container_end"`
-	Host           string `form:"host" json:"host"`
-	HostStart      uint   `form:"host_start" json:"host_start"`
-	HostEnd        uint   `form:"host_end" json:"host_end"`
-	Protocol       string `form:"protocol" json:"protocol"`
+	ContainerStart uint       `form:"container_start" json:"container_start"`
+	ContainerEnd   uint       `form:"container_end" json:"container_end"`
+	Host           netip.Addr `form:"host" json:"host"`
+	HostStart      uint       `form:"host_start" json:"host_start"`
+	HostEnd        uint       `form:"host_end" json:"host_end"`
+	Protocol       string     `form:"protocol" json:"protocol"`
 }
 
 type ContainerContainerVolume struct {

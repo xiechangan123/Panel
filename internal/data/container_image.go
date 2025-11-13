@@ -1,41 +1,44 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"strings"
 	"time"
 
-	"github.com/go-resty/resty/v2"
+	"github.com/moby/moby/client"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/tools"
 	"github.com/acepanel/panel/pkg/types"
-	"github.com/acepanel/panel/pkg/types/docker/image"
 )
 
-type containerImageRepo struct {
-	client *resty.Client
-}
+type containerImageRepo struct{}
 
 func NewContainerImageRepo() biz.ContainerImageRepo {
-	return &containerImageRepo{
-		client: getDockerClient("/var/run/docker.sock"),
-	}
+	return &containerImageRepo{}
 }
 
 // List 列出镜像
 func (r *containerImageRepo) List() ([]types.ContainerImage, error) {
-	var resp []image.Image
-	_, err := r.client.R().SetResult(&resp).SetQueryParam("all", "true").Get("/images/json")
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return nil, err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	resp, err := apiClient.ImageList(context.Background(), client.ImageListOptions{
+		All: true,
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	var images []types.ContainerImage
-	for _, item := range resp {
+	for _, item := range resp.Items {
 		images = append(images, types.ContainerImage{
 			ID:          item.ID,
 			Containers:  item.Containers,

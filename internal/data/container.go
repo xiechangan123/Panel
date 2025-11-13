@@ -1,40 +1,43 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"strings"
 	"time"
 
-	"github.com/go-resty/resty/v2"
+	"github.com/moby/moby/client"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/types"
-	"github.com/acepanel/panel/pkg/types/docker/container"
 )
 
-type containerRepo struct {
-	client *resty.Client
-}
+type containerRepo struct{}
 
 func NewContainerRepo() biz.ContainerRepo {
-	return &containerRepo{
-		client: getDockerClient("/var/run/docker.sock"),
-	}
+	return &containerRepo{}
 }
 
 // ListAll 列出所有容器
 func (r *containerRepo) ListAll() ([]types.Container, error) {
-	var resp []container.Container
-	_, err := r.client.R().SetResult(&resp).SetQueryParam("all", "true").Get("/containers/json")
+	apiClient, err := getDockerClient("/var/run/docker.sock")
+	if err != nil {
+		return nil, err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	resp, err := apiClient.ContainerList(context.Background(), client.ContainerListOptions{
+		All: true,
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	var containers []types.Container
-	for _, item := range resp {
+	for _, item := range resp.Items {
 		ports := make([]types.ContainerPort, 0)
 		for _, port := range item.Ports {
 			ports = append(ports, types.ContainerPort{
@@ -56,7 +59,7 @@ func (r *containerRepo) ListAll() ([]types.Container, error) {
 			ImageID:   item.ImageID,
 			Command:   item.Command,
 			CreatedAt: time.Unix(item.Created, 0),
-			State:     item.State,
+			State:     string(item.State),
 			Status:    item.Status,
 			Ports:     ports,
 			Labels:    types.MapToKV(item.Labels),
@@ -93,8 +96,8 @@ func (r *containerRepo) Create(req *request.ContainerCreate) (string, error) {
 	} else {
 		for _, port := range req.Ports {
 			sb.WriteString(" -p ")
-			if port.Host != "" {
-				sb.WriteString(fmt.Sprintf("%s:", port.Host))
+			if port.Host.IsValid() {
+				sb.WriteString(fmt.Sprintf("%s:", port.Host.String()))
 			}
 			if port.HostStart == port.HostEnd || port.ContainerStart == port.ContainerEnd {
 				sb.WriteString(fmt.Sprintf("%d:%d/%s", port.HostStart, port.ContainerStart, port.Protocol))
