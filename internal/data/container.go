@@ -100,6 +100,18 @@ func (r *containerRepo) Create(req *request.ContainerCreate) (string, error) {
 
 	ctx := context.Background()
 
+	// 拉取镜像
+	out, err := apiClient.ImagePull(ctx, req.Name, client.ImagePullOptions{})
+	if err != nil {
+		return "", err
+	}
+	defer func(out client.ImagePullResponse) { _ = out.Close() }(out)
+
+	// TODO 实现流式显示拉取进度
+	if err = out.Wait(ctx); err != nil {
+		return "", err
+	}
+
 	// 构建容器配置
 	config := &container.Config{
 		Image:        req.Image,
