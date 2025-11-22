@@ -5,7 +5,6 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"sync"
 
 	"github.com/coder/websocket"
 	"github.com/knadh/koanf/v2"
@@ -48,7 +47,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("[Websocket] upgrade session ws error", slog.Any("error", err))
+		s.log.Warn("[Websocket] upgrade session ws error", slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -68,27 +67,19 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
 		return
 	}
-	defer func(turn *ssh.Turn) { _ = turn.Close() }(turn)
-
-	wg := sync.WaitGroup{}
-	wg.Add(2)
 
 	go func() {
-		defer wg.Done()
+		defer turn.Close() // Handle 退出后关闭 SSH 连接，以结束 Wait 阶段
 		_ = turn.Handle(ctx)
 	}()
-	go func() {
-		defer wg.Done()
-		_ = turn.Wait()
-	}()
 
-	wg.Wait()
+	turn.Wait()
 }
 
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("[Websocket] upgrade exec ws error", slog.Any("error", err))
+		s.log.Warn("[Websocket] upgrade exec ws error", slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)

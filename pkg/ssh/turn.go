@@ -3,7 +3,6 @@ package ssh
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 
@@ -61,19 +60,19 @@ func (t *Turn) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func (t *Turn) Close() error {
-	if t.session != nil {
-		_ = t.session.Close()
-	}
-	return t.ws.CloseNow()
+func (t *Turn) Close() {
+	_ = t.stdin.Close()
+	_ = t.session.Signal(ssh.SIGTERM)
+	_ = t.session.Close()
 }
 
 func (t *Turn) Handle(ctx context.Context) error {
 	var resize MessageResize
+
 	for {
 		select {
 		case <-ctx.Done():
-			return errors.New("ssh context done exit")
+			return ctx.Err()
 		default:
 			_, data, err := t.ws.Read(ctx)
 			if err != nil {
@@ -98,6 +97,6 @@ func (t *Turn) Handle(ctx context.Context) error {
 	}
 }
 
-func (t *Turn) Wait() error {
-	return t.session.Wait()
+func (t *Turn) Wait() {
+	_ = t.session.Wait()
 }

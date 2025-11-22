@@ -40,7 +40,7 @@ require (
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/chix v1.3.2
 	github.com/libtnb/gormstore v1.1.1
-	github.com/libtnb/sessions v1.2.2-0.20251122173530-a4002b1c459d
+	github.com/libtnb/sessions v1.2.2
 	github.com/libtnb/utils v1.2.1
 	github.com/mholt/acmez/v3 v3.1.4
 	github.com/moby/moby/api v1.52.0
