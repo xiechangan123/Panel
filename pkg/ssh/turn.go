@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -18,12 +18,13 @@ type MessageResize struct {
 }
 
 type Turn struct {
+	ctx     context.Context
 	stdin   io.WriteCloser
 	session *ssh.Session
 	ws      *websocket.Conn
 }
 
-func NewTurn(ws *websocket.Conn, client *ssh.Client) (*Turn, error) {
+func NewTurn(ctx context.Context, ws *websocket.Conn, client *ssh.Client) (*Turn, error) {
 	sess, err := client.NewSession()
 	if err != nil {
 		return nil, err
@@ -34,7 +35,7 @@ func NewTurn(ws *websocket.Conn, client *ssh.Client) (*Turn, error) {
 		return nil, err
 	}
 
-	turn := &Turn{stdin: stdin, session: sess, ws: ws}
+	turn := &Turn{ctx: ctx, stdin: stdin, session: sess, ws: ws}
 	sess.Stdout = turn
 	sess.Stderr = turn
 
@@ -54,33 +55,27 @@ func NewTurn(ws *websocket.Conn, client *ssh.Client) (*Turn, error) {
 }
 
 func (t *Turn) Write(p []byte) (n int, err error) {
-	writer, err := t.ws.NextWriter(websocket.TextMessage)
-	if err != nil {
+	if err = t.ws.Write(t.ctx, websocket.MessageText, p); err != nil {
 		return 0, err
 	}
-	defer func(writer io.WriteCloser) {
-		_ = writer.Close()
-	}(writer)
-
-	return writer.Write(p)
+	return len(p), nil
 }
 
 func (t *Turn) Close() error {
 	if t.session != nil {
 		_ = t.session.Close()
 	}
-
-	return t.ws.Close()
+	return t.ws.CloseNow()
 }
 
-func (t *Turn) Handle(context context.Context) error {
+func (t *Turn) Handle(ctx context.Context) error {
 	var resize MessageResize
 	for {
 		select {
-		case <-context.Done():
+		case <-ctx.Done():
 			return errors.New("ssh context done exit")
 		default:
-			_, data, err := t.ws.ReadMessage()
+			_, data, err := t.ws.Read(ctx)
 			if err != nil {
 				// 通常是客户端关闭连接
 				return fmt.Errorf("reading ws message err: %v", err)

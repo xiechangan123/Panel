@@ -9,6 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.92.0
 	github.com/bddjr/hlfhr v1.4.0
 	github.com/beevik/ntp v1.5.0
+	github.com/coder/websocket v1.8.12
 	github.com/creack/pty v1.1.24
 	github.com/expr-lang/expr v1.17.6
 	github.com/go-chi/chi/v5 v5.2.3
@@ -20,7 +21,6 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
 	github.com/gookit/validate v1.5.6
-	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-version v1.7.0
 	github.com/jlaffaye/ftp v0.2.0
 	github.com/knadh/koanf/parsers/yaml v1.1.0
@@ -40,7 +40,7 @@ require (
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/chix v1.3.2
 	github.com/libtnb/gormstore v1.1.1
-	github.com/libtnb/sessions v1.2.1
+	github.com/libtnb/sessions v1.2.2-0.20251122173530-a4002b1c459d
 	github.com/libtnb/utils v1.2.1
 	github.com/mholt/acmez/v3 v3.1.4
 	github.com/moby/moby/api v1.52.0

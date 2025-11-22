@@ -76,6 +76,8 @@ github.com/boombuler/barcode v1.1.0 h1:ChaYjBR63fr4LFyGn8E8nt7dBSt3MiU3zMOZqFvVk
 github.com/boombuler/barcode v1.1.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
+github.com/coder/websocket v1.8.12 h1:5bUXkEPPIbewrnkU8LTCLVaxi4N4J8ahufH2vlo4NAo=
+github.com/coder/websocket v1.8.12/go.mod h1:LNVeNrXQZfe5qhS9ALED3uA+l5pPqvwXg3CKoDBB2gs=
 github.com/containerd/errdefs v1.0.0 h1:tg5yIfIlQIrxYtu9ajqY42W3lpS19XqdxRQeEwYG8PI=
 github.com/containerd/errdefs v1.0.0/go.mod h1:+YBYIdtsnF4Iw6nWZhJcqGSg/dwvV7tyJ/kCkyJ2k+M=
 github.com/containerd/errdefs/pkg v0.3.0 h1:9IKJ06FvyNlexW690DXuQNx2KA2cUJXx151Xdx3ZPPE=
@@ -183,8 +185,6 @@ github.com/gookit/validate v1.5.6 h1:D6vbSZzreuKYpeeXm5FDDEJy3K5E4lcWsQE4saSMZbU
 github.com/gookit/validate v1.5.6/go.mod h1:WYEHndRNepIIkM+6CtgEX9MQ9ToIQRhXxmz5oLHF/fc=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
-github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
-github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/grpc-ecosystem/go-grpc-middleware v1.0.0/go.mod h1:FiyG127CGDf3tlThmgyCl78X/SZQqEOJBCDaAfeWzPs=
 github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0/go.mod h1:8NvIoxWQoOIhqOTXgfV/d3M/q6VIi02HzZEHgUlZvzk=
 github.com/grpc-ecosystem/grpc-gateway v1.9.0/go.mod h1:vNeuVxBJEsws4ogUvrchl83t/GYV9WGTSLVdBhOQFDY=
@@ -280,8 +280,8 @@ github.com/libtnb/gormstore v1.1.1 h1:FG/3P4PuWM6/vB4weVJ31meiSaoeXns1NQlP66quKe
 github.com/libtnb/gormstore v1.1.1/go.mod h1:8A5QzeZxi1MpSmjUVsHTDAL6KnU84feIXMutFLPawwA=
 github.com/libtnb/securecookie v1.2.0 h1:2uc0PBDm0foeSTrcZ9QTX1IEjf6kFEwfgEYSIXQSKrA=
 github.com/libtnb/securecookie v1.2.0/go.mod h1:ja+wNGnQzYqcqXQnJWu6icsaWi5JEBwNEMJ2ReTVDxA=
-github.com/libtnb/sessions v1.2.1 h1:O9gkEIeZuqyaxopXrUJcGxlNxmNfRBI8BOK43yLJXDI=
-github.com/libtnb/sessions v1.2.1/go.mod h1:45Bn9d6PseDINLIM1QaJrlCMbzSZ0NWpDbWkdrKJKw0=
+github.com/libtnb/sessions v1.2.2-0.20251122173530-a4002b1c459d h1:PIS6RcMg03UlAkLuif8go4G5fv1x6xFZBK7koBwNd4c=
+github.com/libtnb/sessions v1.2.2-0.20251122173530-a4002b1c459d/go.mod h1:qw+FWtBtrPDYCf6MfX0Lk5EhTArpvT72z5Ei4RUMTRg=
 github.com/libtnb/utils v1.2.1 h1:LJmReRREnpqfHyy9PZtNgBh3ZaIGct81b8ZaAsolMkM=
 github.com/libtnb/utils v1.2.1/go.mod h1:o6LEDeC42PXI21uLWdWJWTVYvR9BtAZfzzTGJVQoQiU=
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=

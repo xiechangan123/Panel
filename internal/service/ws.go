@@ -3,10 +3,11 @@ package service
 import (
 	"bufio"
 	"context"
+	"log/slog"
 	"net/http"
 	"sync"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	stdssh "golang.org/x/crypto/ssh"
@@ -20,13 +21,15 @@ import (
 type WsService struct {
 	t       *gotext.Locale
 	conf    *koanf.Koanf
+	log     *slog.Logger
 	sshRepo biz.SSHRepo
 }
 
-func NewWsService(t *gotext.Locale, conf *koanf.Koanf, ssh biz.SSHRepo) *WsService {
+func NewWsService(t *gotext.Locale, conf *koanf.Koanf, log *slog.Logger, ssh biz.SSHRepo) *WsService {
 	return &WsService{
 		t:       t,
 		conf:    conf,
+		log:     log,
 		sshRepo: ssh,
 	}
 }
@@ -45,32 +48,28 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		ErrorSystem(w)
+		s.log.Warn("[Websocket] upgrade session ws error", slog.Any("error", err))
 		return
 	}
-	defer func(ws *websocket.Conn) {
-		_ = ws.Close()
-	}(ws)
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
 	client, err := ssh.NewSSHClient(info.Config)
 	if err != nil {
-		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, err.Error()))
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
 		return
 	}
-	defer func(client *stdssh.Client) {
-		_ = client.Close()
-	}(client)
-
-	turn, err := ssh.NewTurn(ws, client)
-	if err != nil {
-		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, err.Error()))
-		return
-	}
-	defer func(turn *ssh.Turn) {
-		_ = turn.Close()
-	}(turn)
+	defer func(client *stdssh.Client) { _ = client.Close() }(client)
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	turn, err := ssh.NewTurn(ctx, ws, client)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+	defer func(turn *ssh.Turn) { _ = turn.Close() }(turn)
+
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
@@ -84,31 +83,29 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	wg.Wait()
-	cancel()
 }
 
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		ErrorSystem(w)
+		s.log.Warn("[Websocket] upgrade exec ws error", slog.Any("error", err))
 		return
 	}
-	defer func(ws *websocket.Conn) {
-		_ = ws.Close()
-	}(ws)
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
 	// 第一条消息是命令
-	_, cmd, err := ws.ReadMessage()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	_, cmd, err := ws.Read(ctx)
 	if err != nil {
-		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to read command: %v", err)))
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read command: %v", err))
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
 	out, err := shell.ExecfWithPipe(ctx, string(cmd))
 	if err != nil {
-		_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to run command: %v", err)))
-		cancel()
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to run command: %v", err))
 		return
 	}
 
@@ -116,38 +113,34 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 		scanner := bufio.NewScanner(out)
 		for scanner.Scan() {
 			line := scanner.Text()
-			_ = ws.WriteMessage(websocket.TextMessage, []byte(line))
+			_ = ws.Write(ctx, websocket.MessageText, []byte(line))
 		}
 		if err = scanner.Err(); err != nil {
-			_ = ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, s.t.Get("failed to read command output: %v", err)))
+			_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read command output: %v", err))
 		}
 	}()
 
-	s.readLoop(ws)
-	cancel()
+	s.readLoop(ctx, ws)
 }
 
 func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
-	upGrader := websocket.Upgrader{
-		ReadBufferSize:  4096,
-		WriteBufferSize: 4096,
+	opts := &websocket.AcceptOptions{
+		CompressionMode: websocket.CompressionContextTakeover,
 	}
 
 	// debug 模式下不校验 origin，方便 vite 代理调试
 	if s.conf.Bool("app.debug") {
-		upGrader.CheckOrigin = func(r *http.Request) bool {
-			return true
-		}
+		opts.InsecureSkipVerify = true
 	}
 
-	return upGrader.Upgrade(w, r, nil)
+	return websocket.Accept(w, r, opts)
 }
 
 // readLoop 阻塞直到客户端关闭连接
-func (s *WsService) readLoop(c *websocket.Conn) {
+func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
 	for {
-		if _, _, err := c.NextReader(); err != nil {
-			_ = c.Close()
+		if _, _, err := c.Read(ctx); err != nil {
+			_ = c.CloseNow()
 			break
 		}
 	}

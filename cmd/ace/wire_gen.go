@@ -143,7 +143,7 @@ func initWeb() (*app.Web, error) {
 	supervisorApp := supervisor.NewApp(locale)
 	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
 	http := route.NewHttp(koanf, userService, userTokenService, dashboardService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, loader)
-	wsService := service.NewWsService(locale, koanf, sshRepo)
+	wsService := service.NewWsService(locale, koanf, logger, sshRepo)
 	ws := route.NewWs(wsService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
 	if err != nil {
