@@ -97,10 +97,10 @@ const handleSyncTime = () => {
         </n-alert>
         <n-form>
           <n-form-item label="DNS1">
-            <n-input v-model:value="dns1" />
+            <n-input v-model:value="dns1" :placeholder="$gettext('Enter primary DNS server')" />
           </n-form-item>
           <n-form-item label="DNS2">
-            <n-input v-model:value="dns2" />
+            <n-input v-model:value="dns2" :placeholder="$gettext('Enter secondary DNS server')" />
           </n-form-item>
         </n-form>
         <n-flex>
@@ -136,8 +136,11 @@ const handleSyncTime = () => {
     </n-tab-pane>
     <n-tab-pane name="host" :tab="$gettext('Host')">
       <n-form>
-        <n-form-item :label="$gettext('Hostname')">
-          <n-input v-model:value="hostname" />
+        <n-form-item :label="$gettext('System Hostname')">
+          <n-input
+            v-model:value="hostname"
+            :placeholder="$gettext('Enter hostname, e.g. myserver')"
+          />
         </n-form-item>
         <n-form-item :label="$gettext('Hosts')">
           <Editor
