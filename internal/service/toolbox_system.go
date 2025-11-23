@@ -258,7 +258,10 @@ func (s *ToolboxSystemService) SyncTime(w http.ResponseWriter, r *http.Request) 
 
 // GetHostname 获取主机名
 func (s *ToolboxSystemService) GetHostname(w http.ResponseWriter, r *http.Request) {
-	hostname, _ := io.Read("/etc/hostname")
+	hostname, err := shell.Execf("hostnamectl hostname")
+	if err != nil {
+		hostname, _ = io.Read("/etc/hostname")
+	}
 	Success(w, strings.TrimSpace(hostname))
 }
 
@@ -270,7 +273,7 @@ func (s *ToolboxSystemService) UpdateHostname(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if _, err = shell.Execf("hostnamectl set-hostname '%s'", req.Hostname); err != nil {
+	if _, err = shell.Execf("hostnamectl hostname '%s'", req.Hostname); err != nil {
 		// 直接写 /etc/hostname
 		if err = io.Write("/etc/hostname", req.Hostname, 0644); err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("failed to set hostname: %v", err))
