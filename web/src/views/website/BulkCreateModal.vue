@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import website from '@/api/panel/website'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-const { $gettext } = useGettext()
+import website from '@/api/panel/website'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
+const type = defineModel<string>('type', { type: String, required: true })
+
+const { $gettext } = useGettext()
 
 const bulkCreate = ref('')
 

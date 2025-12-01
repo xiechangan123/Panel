@@ -295,9 +295,26 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 
+	// 创建配置文件目录
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "vhost"), 0644); err != nil {
+		return nil, err
+	}
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "global"), 0644); err != nil {
+		return nil, err
+	}
+	// 创建日志目录
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "log"), 0644); err != nil {
+		return nil, err
+	}
+
 	// 反向代理支持
 	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
-		if err = proxyVhost.SetProxies([]webservertypes.Proxy{req.Proxy}); err != nil {
+		if err = proxyVhost.SetProxies([]webservertypes.Proxy{
+			{
+				Location: "^~ /",
+				Pass:     req.Proxy,
+			},
+		}); err != nil {
 			return nil, err
 		}
 	}

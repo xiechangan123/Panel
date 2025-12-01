@@ -112,7 +112,7 @@ func (s *WebsiteService) Create(w http.ResponseWriter, r *http.Request) {
 
 	if len(req.Path) == 0 {
 		req.Path, _ = s.settingRepo.Get(biz.SettingKeyWebsitePath)
-		req.Path = filepath.Join(req.Path, req.Name)
+		req.Path = filepath.Join(req.Path, req.Name, "public")
 	}
 
 	if _, err = s.websiteRepo.Create(req); err != nil {

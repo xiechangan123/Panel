@@ -254,7 +254,7 @@ func (v *baseVhost) Save() error {
 }
 
 func (v *baseVhost) Reload() error {
-	parts := strings.Fields("systemctl reload openresty")
+	parts := strings.Fields("systemctl reload nginx")
 	if err := exec.Command(parts[0], parts[1:]...).Run(); err != nil {
 		if testErr := exec.Command("nginx", "-t").Run(); testErr != nil {
 			return fmt.Errorf("nginx config test failed: %w", testErr)

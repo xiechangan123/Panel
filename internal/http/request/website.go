@@ -2,7 +2,6 @@ package request
 
 import (
 	"github.com/acepanel/panel/pkg/types"
-	webservertypes "github.com/acepanel/panel/pkg/webserver/types"
 )
 
 type WebsiteDefaultConfig struct {
@@ -28,8 +27,8 @@ type WebsiteCreate struct {
 	DBPassword string   `form:"db_password" json:"db_password" validate:"requiredIf:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
 
-	PHP   uint                 `form:"php" json:"php" validate:"requiredIf:Type,php"`       // 仅 PHP 网站需要
-	Proxy webservertypes.Proxy `form:"proxy" json:"proxy" validate:"requiredIf:Type,proxy"` // 仅反向代理网站需要
+	PHP   uint   `form:"php" json:"php" validate:"requiredIf:Type,php"`       // 仅 PHP 网站需要
+	Proxy string `form:"proxy" json:"proxy" validate:"requiredIf:Type,proxy"` // 仅反向代理网站需要
 }
 
 type WebsiteDelete struct {
