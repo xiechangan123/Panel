@@ -186,17 +186,7 @@ func (s *VhostTestSuite) TestPHP() {
 	s.Equal(uint(0), s.vhost.PHP())
 
 	s.NoError(s.vhost.SetPHP(84))
-
-	// Nginx 的 PHP 实现使用 include 文件
-	includes := s.vhost.Includes()
-	found := false
-	for _, inc := range includes {
-		if strings.Contains(inc.Path, "enable-php-84.conf") {
-			found = true
-			break
-		}
-	}
-	s.True(found, "PHP include file should exist")
+	s.Equal(uint(84), s.vhost.PHP())
 
 	s.NoError(s.vhost.SetPHP(0))
 }

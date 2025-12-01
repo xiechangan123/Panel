@@ -637,26 +637,33 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 // ========== PHPVhost ==========
 
 func (v *PHPVhost) PHP() uint {
-	directives, err := v.parser.Find("server.include")
+	phpConf := filepath.Join(v.configDir, "vhost", "010-php.conf")
+	content, err := os.ReadFile(phpConf)
 	if err != nil {
 		return 0
 	}
 
 	var result uint
-	for _, dir := range directives {
-		if slices.ContainsFunc(v.parser.parameters2Slices(dir.GetParameters()), func(s string) bool {
-			return strings.HasPrefix(s, "enable-php-") && strings.HasSuffix(s, ".conf")
-		}) {
-			_, _ = fmt.Sscanf(dir.GetParameters()[0].GetValue(), "enable-php-%d.conf", &result)
-		}
+	_, err = fmt.Sscanf(strings.TrimSpace(string(content)), "include enable-php-%d.conf;", &result)
+	if err != nil {
+		return 0
 	}
 
 	return result
 }
 
 func (v *PHPVhost) SetPHP(version uint) error {
-	// TODO 需要重写逻辑
-	return fmt.Errorf("not implemented")
+	if version == 0 {
+		return os.Remove(filepath.Join(v.configDir, "vhost", "010-php.conf"))
+	}
+
+	phpConf := filepath.Join(v.configDir, "vhost", "010-php.conf")
+	content := fmt.Sprintf("include enable-php-%d.conf;\n", version)
+	if err := os.WriteFile(phpConf, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to write php config: %w", err)
+	}
+
+	return nil
 }
 
 // ========== ProxyVhost ==========
