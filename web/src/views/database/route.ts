@@ -16,7 +16,7 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Database',
-        icon: 'mdi:database',
+        icon: 'mdi:database-outline',
         role: ['admin'],
         requireAuth: true
       }
