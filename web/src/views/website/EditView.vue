@@ -9,7 +9,7 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
-import dashboard from '@/api/panel/dashboard'
+import dashboard from '@/api/panel/home'
 import website from '@/api/panel/website'
 import ProxyBuilderModal from '@/views/website/ProxyBuilderModal.vue'
 

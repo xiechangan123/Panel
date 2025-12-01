@@ -6,13 +6,13 @@ const themeStore = useThemeStore()
 const router = useRouter()
 const logo = computed(() => themeStore.logo || logoImg)
 
-const toDashboard = () => {
-  router.push({ name: 'dashboard' })
+const toHome = () => {
+  router.push({ name: 'home' })
 }
 </script>
 
 <template>
-  <div class="h-60 f-c-c cursor-pointer" @click="toDashboard">
+  <div class="h-60 f-c-c cursor-pointer" @click="toHome">
     <n-image :src="logo" height="32" preview-disabled />
     <h2
       v-show="!themeStore.sider.collapsed"

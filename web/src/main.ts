@@ -12,7 +12,7 @@ import { gettext, setCurrent, setupNaiveDiscreteApi } from '@/utils'
 
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 
-import dashboard from '@/api/panel/dashboard'
+import dashboard from '@/api/panel/home'
 import CronNaivePlugin from '@vue-js-cron/naive-ui'
 
 async function setupApp() {

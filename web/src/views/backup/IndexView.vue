@@ -3,14 +3,14 @@ defineOptions({
   name: 'backup-index'
 })
 
-import dashboard from '@/api/panel/dashboard'
+import home from '@/api/panel/home'
 import ListView from '@/views/backup/ListView.vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const currentTab = ref('website')
 
-const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
+const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
   initialData: {
     db: [
       {

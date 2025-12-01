@@ -3,27 +3,26 @@ import type { RouteType } from '~/types/router'
 const Layout = () => import('@/layout/IndexView.vue')
 
 export default {
-  name: 'dashboard',
+  name: 'home',
   path: '/',
   component: Layout,
-  redirect: '/dashboard',
   meta: {
     order: 0
   },
   children: [
     {
-      name: 'dashboard-index',
-      path: 'dashboard',
+      name: 'home-index',
+      path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Dashboard',
-        icon: 'mdi:gauge',
+        title: 'Home',
+        icon: 'mdi:house-outline',
         role: ['admin'],
         requireAuth: true
       }
     },
     {
-      name: 'dashboard-update',
+      name: 'home-update',
       path: 'update',
       component: () => import('./UpdateView.vue'),
       isHidden: true,

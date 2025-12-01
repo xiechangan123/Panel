@@ -27,7 +27,7 @@ func MustLogin(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, u
 		"/api/user/logout",
 		"/api/user/is_login",
 		"/api/user/is_2fa",
-		"/api/dashboard/panel",
+		"/api/home/panel",
 	}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

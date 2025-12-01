@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineOptions({
-  name: 'dashboard-index'
+  name: 'home-index'
 })
 
 import { LineChart } from 'echarts/charts'
@@ -16,7 +16,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { NButton, NPopconfirm, useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import dashboard from '@/api/panel/dashboard'
+import home from '@/api/panel/home'
 import { router } from '@/router'
 import { useTabStore } from '@/store'
 import { formatDateTime, formatDuration, toTimestamp } from '@/utils/common'
@@ -39,7 +39,7 @@ const themeVars = useThemeVars()
 const tabStore = useTabStore()
 const realtime = ref<Realtime | null>(null)
 
-const { data: systemInfo } = useRequest(dashboard.systemInfo, {
+const { data: systemInfo } = useRequest(home.systemInfo, {
   initialData: {
     procs: 0,
     hostname: '',
@@ -59,7 +59,7 @@ const { data: systemInfo } = useRequest(dashboard.systemInfo, {
     disks: []
   }
 })
-const { data: homeApps, loading: homeAppsLoading } = useRequest(dashboard.homeApps, {
+const { data: apps, loading: appLoading } = useRequest(home.apps, {
   initialData: {
     description: '',
     icon: '',
@@ -68,7 +68,7 @@ const { data: homeApps, loading: homeAppsLoading } = useRequest(dashboard.homeAp
     version: ''
   }
 })
-const { data: countInfo } = useRequest(dashboard.countInfo, {
+const { data: countInfo } = useRequest(home.countInfo, {
   initialData: {
     website: 0,
     database: 0,
@@ -235,7 +235,7 @@ let isFetching = false
 const fetchCurrent = () => {
   if (isFetching) return
   isFetching = true
-  useRequest(dashboard.current(nets.value, disks.value))
+  useRequest(home.current(nets.value, disks.value))
     .onSuccess(({ data }) => {
       data.percent = formatPercent(data.percent)
       data.mem.usedPercent = formatPercent(data.mem.usedPercent)
@@ -323,7 +323,7 @@ const fetchCurrent = () => {
 const handleRestartPanel = () => {
   clearInterval(homeInterval)
   window.$message.loading($gettext('Panel restarting...'))
-  useRequest(dashboard.restart()).onSuccess(() => {
+  useRequest(home.restart()).onSuccess(() => {
     window.$message.success($gettext('Panel restarted successfully'))
     setTimeout(() => {
       tabStore.reloadTab(tabStore.active)
@@ -332,9 +332,9 @@ const handleRestartPanel = () => {
 }
 
 const handleUpdate = () => {
-  useRequest(dashboard.checkUpdate()).onSuccess(({ data }) => {
+  useRequest(home.checkUpdate()).onSuccess(({ data }) => {
     if (data.update) {
-      router.push({ name: 'dashboard-update' })
+      router.push({ name: 'home-update' })
     } else {
       window.$message.success($gettext('Current version is the latest'))
     }
@@ -682,7 +682,7 @@ if (import.meta.hot) {
               <n-card :segmented="true" size="small" :title="$gettext('Quick Apps')" min-h-340>
                 <n-scrollbar max-h-270>
                   <n-grid
-                    v-if="!homeAppsLoading"
+                    v-if="!appLoading"
                     x-gap="12"
                     y-gap="12"
                     cols="3 s:1 m:2 l:3"
@@ -690,7 +690,7 @@ if (import.meta.hot) {
                     responsive="screen"
                     p-10
                   >
-                    <n-gi v-for="item in homeApps" :key="item.name">
+                    <n-gi v-for="item in apps" :key="item.name">
                       <n-card
                         :segmented="true"
                         size="small"
@@ -717,10 +717,10 @@ if (import.meta.hot) {
                     </n-gi>
                   </n-grid>
                 </n-scrollbar>
-                <n-text v-if="!homeAppsLoading && !homeApps.length">
+                <n-text v-if="!appLoading && !apps.length">
                   {{ $gettext('You have not set any apps to display here!') }}
                 </n-text>
-                <n-skeleton v-if="homeAppsLoading" text :repeat="12" />
+                <n-skeleton v-if="appLoading" text :repeat="12" />
               </n-card>
               <n-card :segmented="true" size="small" :title="$gettext('Environment Information')">
                 <n-table v-if="systemInfo" :single-line="false">

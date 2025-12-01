@@ -26,7 +26,7 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
-type DashboardService struct {
+type HomeService struct {
 	t           *gotext.Locale
 	api         *api.API
 	conf        *koanf.Koanf
@@ -38,8 +38,8 @@ type DashboardService struct {
 	backupRepo  biz.BackupRepo
 }
 
-func NewDashboardService(t *gotext.Locale, conf *koanf.Koanf, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *DashboardService {
-	return &DashboardService{
+func NewHomeService(t *gotext.Locale, conf *koanf.Koanf, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
+	return &HomeService{
 		t:           t,
 		api:         api.NewAPI(app.Version, app.Locale),
 		conf:        conf,
@@ -52,7 +52,7 @@ func NewDashboardService(t *gotext.Locale, conf *koanf.Koanf, task biz.TaskRepo,
 	}
 }
 
-func (s *DashboardService) Panel(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) Panel(w http.ResponseWriter, r *http.Request) {
 	name, _ := s.settingRepo.Get(biz.SettingKeyName)
 	if name == "" {
 		name = s.t.Get("AcePanel")
@@ -64,7 +64,7 @@ func (s *DashboardService) Panel(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *DashboardService) HomeApps(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) Apps(w http.ResponseWriter, r *http.Request) {
 	apps, err := s.appRepo.GetHomeShow()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get home apps: %v", err))
@@ -74,8 +74,8 @@ func (s *DashboardService) HomeApps(w http.ResponseWriter, r *http.Request) {
 	Success(w, apps)
 }
 
-func (s *DashboardService) Current(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.DashboardCurrent](r)
+func (s *HomeService) Current(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.HomeCurrent](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -84,7 +84,7 @@ func (s *DashboardService) Current(w http.ResponseWriter, r *http.Request) {
 	Success(w, tools.CurrentInfo(req.Nets, req.Disks))
 }
 
-func (s *DashboardService) SystemInfo(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 	hostInfo, err := host.Info()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get system info: %v", err))
@@ -130,7 +130,7 @@ func (s *DashboardService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	websiteCount, err := s.websiteRepo.Count()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the total number of websites: %v", err))
@@ -190,7 +190,7 @@ func (s *DashboardService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *DashboardService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Request) {
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "mysql")
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
 	php, _ := s.appRepo.GetInstalledAll("slug like ?", "php%")
@@ -223,7 +223,7 @@ func (s *DashboardService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Requ
 	})
 }
 
-func (s *DashboardService) CheckUpdate(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
 		Error(w, http.StatusForbidden, s.t.Get("unable to check for updates in offline mode"))
 		return
@@ -259,7 +259,7 @@ func (s *DashboardService) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *DashboardService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
 		Error(w, http.StatusForbidden, s.t.Get("unable to check for updates in offline mode"))
 		return
@@ -297,7 +297,7 @@ func (s *DashboardService) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	Success(w, versions)
 }
 
-func (s *DashboardService) Update(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) Update(w http.ResponseWriter, r *http.Request) {
 	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
 		Error(w, http.StatusForbidden, s.t.Get("unable to update in offline mode"))
 		return
@@ -334,7 +334,7 @@ func (s *DashboardService) Update(w http.ResponseWriter, r *http.Request) {
 	tools.RestartPanel()
 }
 
-func (s *DashboardService) Restart(w http.ResponseWriter, r *http.Request) {
+func (s *HomeService) Restart(w http.ResponseWriter, r *http.Request) {
 	if s.taskRepo.HasRunningTask() {
 		Error(w, http.StatusInternalServerError, s.t.Get("background task is running, restart is prohibited, please try again later"))
 		return

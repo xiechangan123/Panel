@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'dashboard-update'
+  name: 'home-update'
 })
 
 import { MdPreview } from 'md-editor-v3'
@@ -9,12 +9,12 @@ import type { MessageReactive } from 'naive-ui'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import dashboard from '@/api/panel/dashboard'
+import home from '@/api/panel/home'
 import { router } from '@/router'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
-const { data: versions } = useRequest(dashboard.updateInfo, {
+const { data: versions } = useRequest(home.updateInfo, {
   initialData: []
 })
 let messageReactive: MessageReactive | null = null
@@ -29,13 +29,13 @@ const handleUpdate = () => {
       messageReactive = window.$message.loading($gettext('Panel updating...'), {
         duration: 0
       })
-      useRequest(dashboard.update())
+      useRequest(home.update())
         .onSuccess(() => {
           setTimeout(() => {
             setTimeout(() => {
               window.location.reload()
             }, 400)
-            router.push({ name: 'dashboard-index' })
+            router.push({ name: 'home-index' })
           }, 2500)
           window.$message.success($gettext('Panel updated successfully'))
         })

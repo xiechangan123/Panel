@@ -5,7 +5,6 @@ defineOptions({
 
 import CreateModal from '@/views/task/CreateModal.vue'
 import CronView from '@/views/task/CronView.vue'
-import SystemView from '@/views/task/SystemView.vue'
 import TaskView from '@/views/task/TaskView.vue'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -21,7 +20,6 @@ const create = ref(false)
     <template #tabbar>
       <n-tabs v-model:value="current" animated>
         <n-tab name="cron" :tab="$gettext('Scheduled Tasks')" />
-        <n-tab name="system" :tab="$gettext('System Processes')" />
         <n-tab name="task" :tab="$gettext('Panel Tasks')" />
       </n-tabs>
     </template>
@@ -32,7 +30,6 @@ const create = ref(false)
         </n-button>
       </n-flex>
       <cron-view v-if="current === 'cron'" />
-      <system-view v-if="current === 'system'" />
       <task-view v-if="current === 'task'" />
     </n-flex>
   </common-page>

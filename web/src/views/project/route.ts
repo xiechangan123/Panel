@@ -15,8 +15,8 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Projects',
-        icon: 'mdi:folder-multiple',
+        title: 'Project',
+        icon: 'mdi:folder-multiple-outline',
         role: ['admin'],
         requireAuth: true
       }
