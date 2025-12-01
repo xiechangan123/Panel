@@ -6,47 +6,6 @@ import (
 	"strings"
 )
 
-func (p *Parser) GetListen() ([][]string, error) {
-	directives, err := p.Find("server.listen")
-	if err != nil {
-		return nil, err
-	}
-
-	var result [][]string
-	for _, dir := range directives {
-		result = append(result, p.parameters2Slices(dir.GetParameters()))
-	}
-
-	return result, nil
-}
-
-func (p *Parser) GetServerName() ([]string, error) {
-	directive, err := p.FindOne("server.server_name")
-	if err != nil {
-		return nil, err
-	}
-
-	return p.parameters2Slices(directive.GetParameters()), nil
-}
-
-func (p *Parser) GetIndex() ([]string, error) {
-	directive, err := p.FindOne("server.index")
-	if err != nil {
-		return nil, err
-	}
-
-	return p.parameters2Slices(directive.GetParameters()), nil
-}
-
-func (p *Parser) GetIndexWithComment() ([]string, []string, error) {
-	directive, err := p.FindOne("server.index")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return p.parameters2Slices(directive.GetParameters()), directive.GetComment(), nil
-}
-
 func (p *Parser) GetRoot() (string, error) {
 	directive, err := p.FindOne("server.root")
 	if err != nil {
@@ -86,36 +45,6 @@ func (p *Parser) GetIncludes() (includes []string, comments [][]string, err erro
 	}
 
 	return includes, comments, nil
-}
-
-func (p *Parser) GetPHP() int {
-	directives, err := p.Find("server.include")
-	if err != nil {
-		return 0
-	}
-
-	var result int
-	for _, dir := range directives {
-		if slices.ContainsFunc(p.parameters2Slices(dir.GetParameters()), func(s string) bool {
-			return strings.HasPrefix(s, "enable-php-") && strings.HasSuffix(s, ".conf")
-		}) {
-			_, _ = fmt.Sscanf(dir.GetParameters()[0].GetValue(), "enable-php-%d.conf", &result)
-		}
-	}
-
-	return result
-}
-
-func (p *Parser) GetHTTPS() bool {
-	directive, err := p.FindOne("server.ssl_certificate")
-	if err != nil {
-		return false
-	}
-	if len(p.parameters2Slices(directive.GetParameters())) == 0 {
-		return false
-	}
-
-	return true
 }
 
 func (p *Parser) GetHTTPSProtocols() []string {

@@ -570,7 +570,7 @@ func (s *CliService) WebsiteCreate(ctx context.Context, cmd *cli.Command) error 
 		Domains: cmd.StringSlice("domains"),
 		Listens: cmd.StringSlice("listens"),
 		Path:    cmd.String("path"),
-		PHP:     int(cmd.Int("php")),
+		PHP:     cmd.Uint("php"),
 		DB:      false,
 	}
 

@@ -8,6 +8,8 @@ import { useFileStore } from '@/store'
 import { generateRandomString, isNullOrUndef } from '@/utils'
 import BulkCreate from '@/views/website/BulkCreate.vue'
 
+const type = defineModel<string>('type', { type: String, required: true }) // 网站类型
+
 const fileStore = useFileStore()
 const { $gettext } = useGettext()
 const router = useRouter()
@@ -240,7 +242,7 @@ const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
 })
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => website.list(page, pageSize),
+  (page, pageSize) => website.list(type.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,

@@ -83,14 +83,15 @@ func (s *WebsiteService) UpdateCert(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+// List 网站列表
 func (s *WebsiteService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+	req, err := Bind[request.WebsiteList](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	websites, total, err := s.websiteRepo.List(req.Page, req.Limit)
+	websites, total, err := s.websiteRepo.List(req.Type, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

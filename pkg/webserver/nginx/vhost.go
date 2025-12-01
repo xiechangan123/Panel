@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
@@ -123,39 +124,17 @@ func (v *baseVhost) SetEnable(enable bool, _ ...string) error {
 }
 
 func (v *baseVhost) Listen() []types.Listen {
-	listens, err := v.parser.GetListen()
+	directives, err := v.parser.Find("server.listen")
 	if err != nil {
 		return nil
 	}
 
 	var result []types.Listen
-	for _, l := range listens {
-		if len(l) == 0 {
-			continue
-		}
-
-		listen := types.Listen{
-			Address: l[0],
-			Options: make(map[string]string),
-		}
-
-		// 解析 Nginx 特有的选项
+	for _, dir := range directives {
+		l := v.parser.parameters2Slices(dir.GetParameters())
+		listen := types.Listen{Address: l[0]}
 		for i := 1; i < len(l); i++ {
-			switch l[i] {
-			case "ssl":
-				listen.Protocol = "https"
-			case "http2":
-				listen.Protocol = "http2"
-			case "http3", "quic":
-				listen.Protocol = "http3"
-			default:
-				listen.Options[l[i]] = "true"
-			}
-		}
-
-		// 如果没有指定协议，默认为 http
-		if listen.Protocol == "" {
-			listen.Protocol = "http"
+			listen.Args = append(listen.Args, l[i])
 		}
 
 		result = append(result, listen)
@@ -169,26 +148,7 @@ func (v *baseVhost) SetListen(listens []types.Listen) error {
 	var nginxListens [][]string
 	for _, l := range listens {
 		listen := []string{l.Address}
-
-		// 添加协议标识
-		switch l.Protocol {
-		case "https":
-			listen = append(listen, "ssl")
-		case "http2":
-			listen = append(listen, "http2")
-		case "http3":
-			listen = append(listen, "http3")
-		}
-
-		// 添加其他选项
-		for k, v := range l.Options {
-			if v == "true" {
-				listen = append(listen, k)
-			} else {
-				listen = append(listen, fmt.Sprintf("%s=%s", k, v))
-			}
-		}
-
+		listen = append(listen, l.Args...)
 		nginxListens = append(nginxListens, listen)
 	}
 
@@ -196,11 +156,12 @@ func (v *baseVhost) SetListen(listens []types.Listen) error {
 }
 
 func (v *baseVhost) ServerName() []string {
-	names, err := v.parser.GetServerName()
+	directive, err := v.parser.FindOne("server.server_name")
 	if err != nil {
 		return nil
 	}
-	return names
+
+	return v.parser.parameters2Slices(directive.GetParameters())
 }
 
 func (v *baseVhost) SetServerName(serverName []string) error {
@@ -208,11 +169,12 @@ func (v *baseVhost) SetServerName(serverName []string) error {
 }
 
 func (v *baseVhost) Index() []string {
-	index, err := v.parser.GetIndex()
+	directive, err := v.parser.FindOne("server.index")
 	if err != nil {
 		return nil
 	}
-	return index
+
+	return v.parser.parameters2Slices(directive.GetParameters())
 }
 
 func (v *baseVhost) SetIndex(index []string) error {
@@ -294,6 +256,9 @@ func (v *baseVhost) Save() error {
 func (v *baseVhost) Reload() error {
 	parts := strings.Fields("systemctl reload openresty")
 	if err := exec.Command(parts[0], parts[1:]...).Run(); err != nil {
+		if testErr := exec.Command("nginx", "-t").Run(); testErr != nil {
+			return fmt.Errorf("nginx config test failed: %w", testErr)
+		}
 		return fmt.Errorf("failed to reload nginx config: %w", err)
 	}
 
@@ -317,7 +282,15 @@ func (v *baseVhost) Reset() error {
 }
 
 func (v *baseVhost) HTTPS() bool {
-	return v.parser.GetHTTPS()
+	directive, err := v.parser.FindOne("server.ssl_certificate")
+	if err != nil {
+		return false
+	}
+	if len(v.parser.parameters2Slices(directive.GetParameters())) == 0 {
+		return false
+	}
+
+	return true
 }
 
 func (v *baseVhost) SSLConfig() *types.SSLConfig {
@@ -479,11 +452,25 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 
 // ========== PHPVhost ==========
 
-func (v *PHPVhost) PHP() int {
-	return v.parser.GetPHP()
+func (v *PHPVhost) PHP() uint {
+	directives, err := v.parser.Find("server.include")
+	if err != nil {
+		return 0
+	}
+
+	var result uint
+	for _, dir := range directives {
+		if slices.ContainsFunc(v.parser.parameters2Slices(dir.GetParameters()), func(s string) bool {
+			return strings.HasPrefix(s, "enable-php-") && strings.HasSuffix(s, ".conf")
+		}) {
+			_, _ = fmt.Sscanf(dir.GetParameters()[0].GetValue(), "enable-php-%d.conf", &result)
+		}
+	}
+
+	return result
 }
 
-func (v *PHPVhost) SetPHP(version int) error {
+func (v *PHPVhost) SetPHP(version uint) error {
 	// 先移除所有 PHP 相关的 include
 	includes := v.Includes()
 	var newIncludes []types.IncludeFile

@@ -92,15 +92,15 @@ type PHPVhost interface {
 type ProxyVhost interface {
 	Vhost
 	VhostRedirect
-	VhostProxyConfig
+	VhostProxy
 }
 
 // VhostPHP PHP 相关接口
 type VhostPHP interface {
 	// PHP 取 PHP 版本，如: 84, 81, 80, 0 表示未启用 PHP
-	PHP() int
+	PHP() uint
 	// SetPHP 设置 PHP 版本
-	SetPHP(version int) error
+	SetPHP(version uint) error
 }
 
 // VhostRedirect 重定向相关接口
@@ -111,8 +111,8 @@ type VhostRedirect interface {
 	SetRedirects(redirects []Redirect) error
 }
 
-// VhostProxyConfig 反向代理相关接口
-type VhostProxyConfig interface {
+// VhostProxy 反向代理相关接口
+type VhostProxy interface {
 	// Proxies 取所有反向代理配置
 	Proxies() []Proxy
 	// SetProxies 设置反向代理配置
@@ -130,9 +130,8 @@ type VhostProxyConfig interface {
 
 // Listen 监听配置
 type Listen struct {
-	Address  string            // 监听地址，如: "80", "0.0.0.0:80", "[::]:443"
-	Protocol string            // 协议类型，如: "http", "https", "http2", "http3"
-	Options  map[string]string // 服务器特定选项，如: map["default_server"] = "true"
+	Address string   // 监听地址，如: "80", "0.0.0.0:80", "[::]:443"
+	Args    []string // 其他参数，如: ["default_server", "ssl", "quic"]
 }
 
 // SSLConfig SSL/TLS 配置

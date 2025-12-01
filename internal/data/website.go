@@ -29,6 +29,8 @@ import (
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/systemctl"
 	"github.com/acepanel/panel/pkg/types"
+	"github.com/acepanel/panel/pkg/webserver"
+	webservertypes "github.com/acepanel/panel/pkg/webserver/types"
 )
 
 type websiteRepo struct {
@@ -40,9 +42,10 @@ type websiteRepo struct {
 	databaseUser   biz.DatabaseUserRepo
 	cert           biz.CertRepo
 	certAccount    biz.CertAccountRepo
+	setting        biz.SettingRepo
 }
 
-func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, cache biz.CacheRepo, database biz.DatabaseRepo, databaseServer biz.DatabaseServerRepo, databaseUser biz.DatabaseUserRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) biz.WebsiteRepo {
+func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, cache biz.CacheRepo, database biz.DatabaseRepo, databaseServer biz.DatabaseServerRepo, databaseUser biz.DatabaseUserRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, setting biz.SettingRepo) biz.WebsiteRepo {
 	return &websiteRepo{
 		t:              t,
 		db:             db,
@@ -52,6 +55,7 @@ func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, cache biz.CacheRepo, database
 		databaseUser:   databaseUser,
 		cert:           cert,
 		certAccount:    certAccount,
+		setting:        setting,
 	}
 }
 
@@ -211,7 +215,7 @@ func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 
 }
 
-func (r *websiteRepo) List(page, limit uint) ([]*biz.Website, int64, error) {
+func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64, error) {
 	websites := make([]*biz.Website, 0)
 	var total int64
 
@@ -219,16 +223,23 @@ func (r *websiteRepo) List(page, limit uint) ([]*biz.Website, int64, error) {
 		return nil, 0, err
 	}
 
-	if err := r.db.Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&websites).Error; err != nil {
+	query := r.db
+	if typ != "all" {
+		query = query.Where("type = ?", typ)
+	}
+	if err := query.Order("id DESC").Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&websites).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// 取证书剩余有效时间
+	// 取证书剩余有效时间和PHP版本
 	for _, website := range websites {
 		crt, _ := io.Read(filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem"))
 		if decode, err := cert.ParseCert(crt); err == nil {
 			hours := time.Until(decode.NotAfter).Hours()
 			website.CertExpire = fmt.Sprintf("%.2f", hours/24)
+		}
+		if website.Type == "php" {
+			website.PHP = r.getPHPVersion(website.Name)
 		}
 	}
 
@@ -236,18 +247,32 @@ func (r *websiteRepo) List(page, limit uint) ([]*biz.Website, int64, error) {
 }
 
 func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
-	// 初始化nginx配置
-	config := nginx.DefaultConf
-	p, err := nginx.NewParser(config)
+	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
 	if err != nil {
 		return nil, err
 	}
-	// 监听地址
-	var listens [][]string
-	for _, listen := range req.Listens {
-		listens = append(listens, []string{listen})
+
+	var vhost webservertypes.Vhost
+	switch req.Type {
+	case "proxy":
+		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", req.Name, "config"))
+	case "php":
+		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", req.Name, "config"))
+	case "static":
+		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", req.Name, "config"))
+	default:
+		return nil, errors.New(r.t.Get("unsupported website type: %s", req.Type))
 	}
-	if err = p.SetListen(listens); err != nil {
+	if err != nil {
+		return nil, err
+	}
+
+	// 监听地址
+	var listens []webservertypes.Listen
+	for _, listen := range req.Listens {
+		listens = append(listens, webservertypes.Listen{Address: listen})
+	}
+	if err = vhost.SetListen(listens); err != nil {
 		return nil, err
 	}
 	// 域名
@@ -255,35 +280,33 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = p.SetServerName(domains); err != nil {
+	if err = vhost.SetServerName(domains); err != nil {
 		return nil, err
 	}
 	// 运行目录
-	if err = p.SetRoot(req.Path); err != nil {
-		return nil, err
-	}
-	// PHP
-	if err = p.SetPHP(req.PHP); err != nil {
-		return nil, err
-	}
-	// 伪静态和acme
-	includes, comments, err := p.GetIncludes()
-	if err != nil {
-		return nil, err
-	}
-	includes = append(includes, filepath.Join(app.Root, "server/vhost/rewrite", req.Name+".conf"))
-	includes = append(includes, filepath.Join(app.Root, "server/vhost/acme", req.Name+".conf"))
-	comments = append(comments, []string{r.t.Get("# Rewrite rule")})
-	comments = append(comments, []string{"# acme http-01"})
-	if err = p.SetIncludes(includes, comments); err != nil {
+	if err = vhost.SetRoot(req.Path); err != nil {
 		return nil, err
 	}
 	// 日志
-	if err = p.SetAccessLog(filepath.Join(app.Root, "wwwlogs", req.Name+".log")); err != nil {
+	if err = vhost.SetAccessLog(filepath.Join(app.Root, "sites", req.Name, "log", "access.log")); err != nil {
 		return nil, err
 	}
-	if err = p.SetErrorLog(filepath.Join(app.Root, "wwwlogs", req.Name+".error.log")); err != nil {
+	if err = vhost.SetErrorLog(filepath.Join(app.Root, "sites", req.Name, "log", "error.log")); err != nil {
 		return nil, err
+	}
+
+	// 反向代理支持
+	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
+		if err = proxyVhost.SetProxies([]webservertypes.Proxy{req.Proxy}); err != nil {
+			return nil, err
+		}
+	}
+
+	// PHP 支持
+	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok {
+		if err = phpVhost.SetPHP(req.PHP); err != nil {
+			return nil, err
+		}
 	}
 
 	// 初始化网站目录
@@ -321,20 +344,20 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 
-	// 写nginx配置
-	if err = io.Write(filepath.Join(app.Root, "server/vhost", req.Name+".conf"), p.Dump(), 0644); err != nil {
+	// 写配置
+	if err = vhost.Save(); err != nil {
 		return nil, err
 	}
 	if err = io.Write(filepath.Join(app.Root, "server/vhost/rewrite", req.Name+".conf"), "", 0644); err != nil {
 		return nil, err
 	}
-	if err = io.Write(filepath.Join(app.Root, "server/vhost/acme", req.Name+".conf"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "vhost", "001-acme.conf"), "", 0644); err != nil {
 		return nil, err
 	}
-	if err = io.Write(filepath.Join(app.Root, "server/vhost/cert", req.Name+".pem"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "fullchain.pem"), "", 0644); err != nil {
 		return nil, err
 	}
-	if err = io.Write(filepath.Join(app.Root, "server/vhost/cert", req.Name+".key"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "privatekey.key"), "", 0644); err != nil {
 		return nil, err
 	}
 
@@ -347,7 +370,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 
 	// PHP 网站默认开启防跨站
-	if req.PHP > 0 {
+	if req.Type == "php" {
 		userIni := filepath.Join(req.Path, ".user.ini")
 		if !io.Exists(userIni) {
 			if err = io.Write(userIni, fmt.Sprintf("open_basedir=%s:/tmp/", req.Path), 0644); err != nil {
@@ -360,7 +383,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	// 创建面板网站
 	w := &biz.Website{
 		Name:   req.Name,
-		Type:   "php", // TODO 支持网站类型
+		Type:   req.Type,
 		Status: true,
 		Path:   req.Path,
 		Https:  false,
@@ -370,8 +393,8 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
+	// 重载 Web 服务器
+	if err = vhost.Reload(); err != nil {
 		return nil, err
 	}
 
@@ -838,4 +861,12 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 	}
 
 	return r.cert.Deploy(newCert.ID, website.ID)
+}
+
+func (r *websiteRepo) getPHPVersion(name string) uint {
+	vhost, err := webserver.NewPHPVhost(webserver.TypeNginx, filepath.Join(app.Root, "sites", name, "config"))
+	if err != nil {
+		return 0
+	}
+	return vhost.PHP()
 }

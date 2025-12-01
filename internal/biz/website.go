@@ -20,6 +20,7 @@ type Website struct {
 	UpdatedAt time.Time `json:"updated_at"`
 
 	CertExpire string `gorm:"-:all" json:"cert_expire"` // 仅显示
+	PHP        uint   `gorm:"-:all" json:"php"`         // 仅显示
 
 	Cert *Cert `gorm:"foreignKey:WebsiteID" json:"cert"`
 }
@@ -30,7 +31,7 @@ type WebsiteRepo interface {
 	Count() (int64, error)
 	Get(id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
-	List(page, limit uint) ([]*Website, int64, error)
+	List(typ string, page, limit uint) ([]*Website, int64, error)
 	Create(req *request.WebsiteCreate) (*Website, error)
 	Update(req *request.WebsiteUpdate) error
 	Delete(req *request.WebsiteDelete) error

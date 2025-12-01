@@ -3,7 +3,7 @@ defineOptions({
   name: 'website-index'
 })
 
-import PhpView from '@/views/website/PhpView.vue'
+import ListView from '@/views/website/ListView.vue'
 import SettingView from '@/views/website/SettingView.vue'
 
 const currentTab = ref('proxy')
@@ -19,7 +19,7 @@ const currentTab = ref('proxy')
         <n-tab name="setting" :tab="$gettext('Settings')" />
       </n-tabs>
     </template>
-    <php-view v-if="currentTab === 'php'" />
+    <list-view v-if="currentTab != 'setting'" v-model:type="currentTab" />
     <setting-view v-if="currentTab === 'setting'" />
   </common-page>
 </template>

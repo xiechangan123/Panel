@@ -216,7 +216,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 		location = "/"
 	}
 
-	sb.WriteString(fmt.Sprintf("# Reverse proxy: %s -> %s\n", location, proxy.Pass))
 	sb.WriteString(fmt.Sprintf("location %s {\n", location))
 
 	// resolver 配置（如果启用自动刷新）

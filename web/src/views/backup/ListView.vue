@@ -164,7 +164,7 @@ watch(
 onMounted(() => {
   useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
     if (data) {
-      useRequest(website.list(1, 10000)).onSuccess(({ data }: { data: any }) => {
+      useRequest(website.list('all', 1, 10000)).onSuccess(({ data }: { data: any }) => {
         for (const item of data.items) {
           websites.value.push({
             label: item.name,

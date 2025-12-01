@@ -131,8 +131,8 @@ func (s *VhostTestSuite) TestIndexEmpty() {
 
 func (s *VhostTestSuite) TestListen() {
 	listens := []types.Listen{
-		{Address: "*:80", Protocol: "http"},
-		{Address: "*:443", Protocol: "https"},
+		{Address: "*:80"},
+		{Address: "*:443"},
 	}
 	err := s.vhost.SetListen(listens)
 	s.NoError(err)
@@ -345,7 +345,7 @@ func (s *VhostTestSuite) TestExportWithSSL() {
 
 func (s *VhostTestSuite) TestListenProtocolDetection() {
 	listens := []types.Listen{
-		{Address: "*:443", Protocol: "https"},
+		{Address: "*:443"},
 	}
 	s.NoError(s.vhost.SetListen(listens))
 
@@ -357,7 +357,7 @@ func (s *VhostTestSuite) TestListenProtocolDetection() {
 
 	got := s.vhost.Listen()
 	s.Len(got, 1)
-	s.Equal("https", got[0].Protocol)
+	s.Equal("*:443", got[0].Address)
 }
 
 func (s *VhostTestSuite) TestDirectoryBlock() {

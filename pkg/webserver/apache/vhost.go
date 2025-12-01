@@ -137,18 +137,7 @@ func (v *baseVhost) Listen() []types.Listen {
 	// Apache 的监听配置通常在 VirtualHost 的参数中
 	// 例如: <VirtualHost *:80> 或 <VirtualHost 192.168.1.1:443>
 	for _, arg := range v.vhost.Args {
-		listen := types.Listen{
-			Address: arg,
-			Options: make(map[string]string),
-		}
-
-		// 检查是否是 HTTPS
-		if strings.Contains(arg, ":443") || v.HTTPS() {
-			listen.Protocol = "https"
-		} else {
-			listen.Protocol = "http"
-		}
-
+		listen := types.Listen{Address: arg}
 		result = append(result, listen)
 	}
 
@@ -583,7 +572,7 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 
 // ========== PHPVhost ==========
 
-func (v *PHPVhost) PHP() int {
+func (v *PHPVhost) PHP() uint {
 	// Apache 通常通过 FilesMatch 块配置 PHP
 	// 或者通过 SetHandler 指令
 	handler := v.vhost.GetDirectiveValue("SetHandler")
@@ -606,7 +595,7 @@ func (v *PHPVhost) PHP() int {
 				if len(parts) >= 2 {
 					major, _ := strconv.Atoi(parts[0])
 					minor, _ := strconv.Atoi(parts[1])
-					return major*10 + minor
+					return uint(major*10 + minor)
 				}
 			}
 		}
@@ -630,7 +619,7 @@ func (v *PHPVhost) PHP() int {
 	return 0
 }
 
-func (v *PHPVhost) SetPHP(version int) error {
+func (v *PHPVhost) SetPHP(version uint) error {
 	// 移除现有的 PHP 配置
 	v.vhost.RemoveDirective("SetHandler")
 

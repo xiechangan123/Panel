@@ -15,56 +15,6 @@ func TestNginxTestSuite(t *testing.T) {
 	suite.Run(t, &NginxTestSuite{})
 }
 
-func (s *NginxTestSuite) TestListen() {
-	parser, err := NewParser()
-	s.NoError(err)
-	listen, err := parser.GetListen()
-	s.NoError(err)
-	s.Equal([][]string{{"80"}}, listen)
-	s.NoError(parser.SetListen([][]string{{"80"}, {"443"}}))
-	listen, err = parser.GetListen()
-	s.NoError(err)
-	s.Equal([][]string{{"80"}, {"443"}}, listen)
-}
-
-func (s *NginxTestSuite) TestServerName() {
-	parser, err := NewParser()
-	s.NoError(err)
-	serverName, err := parser.GetServerName()
-	s.NoError(err)
-	s.Equal([]string{"localhost"}, serverName)
-	s.NoError(parser.SetServerName([]string{"example.com"}))
-	serverName, err = parser.GetServerName()
-	s.NoError(err)
-	s.Equal([]string{"example.com"}, serverName)
-}
-
-func (s *NginxTestSuite) TestIndex() {
-	parser, err := NewParser()
-	s.NoError(err)
-	index, err := parser.GetIndex()
-	s.NoError(err)
-	s.Equal([]string{"index.php", "index.html"}, index)
-	s.NoError(parser.SetIndex([]string{"index.html", "index.php"}))
-	index, err = parser.GetIndex()
-	s.NoError(err)
-	s.Equal([]string{"index.html", "index.php"}, index)
-}
-
-func (s *NginxTestSuite) TestIndexWithComment() {
-	parser, err := NewParser()
-	s.NoError(err)
-	index, comment, err := parser.GetIndexWithComment()
-	s.NoError(err)
-	s.Equal([]string{"index.php", "index.html"}, index)
-	s.Equal([]string(nil), comment)
-	s.NoError(parser.SetIndexWithComment([]string{"index.html", "index.php"}, []string{"# 测试"}))
-	index, comment, err = parser.GetIndexWithComment()
-	s.NoError(err)
-	s.Equal([]string{"index.html", "index.php"}, index)
-	s.Equal([]string{"# 测试"}, comment)
-}
-
 func (s *NginxTestSuite) TestRoot() {
 	parser, err := NewParser()
 	s.NoError(err)
@@ -110,31 +60,10 @@ func (s *NginxTestSuite) TestIncludes() {
 	s.Equal([][]string{{"# 伪静态规则测试"}}, comments)
 }
 
-func (s *NginxTestSuite) TestPHP() {
-	parser, err := NewParser()
-	s.NoError(err)
-	s.Equal(0, parser.GetPHP())
-	s.NoError(parser.SetPHP(80))
-	s.Equal(80, parser.GetPHP())
-	s.NoError(parser.SetPHP(0))
-	s.Equal(0, parser.GetPHP())
-}
-
 func (s *NginxTestSuite) TestHTTP() {
 	parser, err := NewParser()
 	s.NoError(err)
 	expect, err := os.ReadFile("testdata/http.conf")
-	s.NoError(err)
-	s.Equal(string(expect), parser.Dump())
-}
-
-func (s *NginxTestSuite) TestHTTPS() {
-	parser, err := NewParser()
-	s.NoError(err)
-	s.False(parser.GetHTTPS())
-	s.NoError(parser.SetHTTPSCert("/www/server/vhost/cert/default.pem", "/www/server/vhost/cert/default.key"))
-	s.True(parser.GetHTTPS())
-	expect, err := os.ReadFile("testdata/https.conf")
 	s.NoError(err)
 	s.Equal(string(expect), parser.Dump())
 }

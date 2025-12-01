@@ -19,6 +19,7 @@ const (
 	SettingKeyMySQLRootPassword SettingKey = "mysql_root_password"
 	SettingKeyOfflineMode       SettingKey = "offline_mode"
 	SettingKeyAutoUpdate        SettingKey = "auto_update"
+	SettingKeyWebServer         SettingKey = "web_server"
 )
 
 type Setting struct {

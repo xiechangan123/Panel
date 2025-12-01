@@ -1,24 +1,35 @@
 package request
 
-import "github.com/acepanel/panel/pkg/types"
+import (
+	"github.com/acepanel/panel/pkg/types"
+	webservertypes "github.com/acepanel/panel/pkg/webserver/types"
+)
 
 type WebsiteDefaultConfig struct {
 	Index string `json:"index" form:"index" validate:"required"`
 	Stop  string `json:"stop" form:"stop" validate:"required"`
 }
 
+type WebsiteList struct {
+	Type string `json:"type" form:"type" validate:"required|in:all,proxy,static,php"`
+	Paginate
+}
+
 type WebsiteCreate struct {
+	Type       string   `json:"type" form:"type" validate:"required|in:proxy,static,php"`
 	Name       string   `form:"name" json:"name" validate:"required|notExists:websites,name|not_in:phpmyadmin,default|regex:^[a-zA-Z0-9_-]+$"`
 	Listens    []string `form:"listens" json:"listens" validate:"required|isSlice"`
 	Domains    []string `form:"domains" json:"domains" validate:"required|isSlice"`
 	Path       string   `form:"path" json:"path"`
-	PHP        int      `form:"php" json:"php"`
 	DB         bool     `form:"db" json:"db"`
 	DBType     string   `form:"db_type" json:"db_type" validate:"requiredIf:DB,true"`
 	DBName     string   `form:"db_name" json:"db_name" validate:"requiredIf:DB,true"`
 	DBUser     string   `form:"db_user" json:"db_user" validate:"requiredIf:DB,true"`
 	DBPassword string   `form:"db_password" json:"db_password" validate:"requiredIf:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
+
+	PHP   uint                 `form:"php" json:"php" validate:"requiredIf:Type,php"`       // 仅 PHP 网站需要
+	Proxy webservertypes.Proxy `form:"proxy" json:"proxy" validate:"requiredIf:Type,proxy"` // 仅反向代理网站需要
 }
 
 type WebsiteDelete struct {
