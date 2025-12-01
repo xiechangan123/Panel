@@ -2,7 +2,7 @@
 import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import dashboard from '@/api/panel/home'
+import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import { useFileStore } from '@/store'
 import { generateRandomString, isNullOrUndef } from '@/utils'
@@ -222,7 +222,7 @@ const deleteModel = ref({
   db: false
 })
 
-const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
+const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
   initialData: {
     php: [
       {

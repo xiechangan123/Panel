@@ -9,7 +9,7 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
-import dashboard from '@/api/panel/home'
+import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import ProxyBuilderModal from '@/views/website/ProxyBuilderModal.vue'
 
@@ -47,7 +47,7 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     error_log: ''
   }
 })
-const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
+const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
   initialData: {
     php: [
       {

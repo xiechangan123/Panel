@@ -14,7 +14,7 @@ const currentTab = ref('proxy')
     <template #tabbar>
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="proxy" :tab="$gettext('Reverse Proxy')" />
-        <n-tab name="php" :tab="$gettext('Classic PHP')" />
+        <n-tab name="php" :tab="$gettext('PHP')" />
         <n-tab name="static" :tab="$gettext('Pure Static')" />
         <n-tab name="setting" :tab="$gettext('Settings')" />
       </n-tabs>

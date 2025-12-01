@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import app from '@/api/panel/app'
 import cron from '@/api/panel/cron'
-import dashboard from '@/api/panel/home'
+import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import Editor from '@guolao/vue-monaco-editor'
 import { CronNaive } from '@vue-js-cron/naive-ui'
@@ -25,7 +25,7 @@ const createModel = ref({
 
 const websites = ref<any>([])
 
-const { data: installedDbAndPhp } = useRequest(dashboard.installedDbAndPhp, {
+const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
   initialData: {
     db: [
       {
