@@ -1,24 +1,9 @@
 package types
 
-// VhostType 虚拟主机类型
-type VhostType string
-
-const (
-	VhostTypeStatic VhostType = "static"
-	VhostTypePHP    VhostType = "php"
-	VhostTypeProxy  VhostType = "proxy"
-)
-
-// Vhost 虚拟主机完整接口
+// Vhost 虚拟主机通用接口
 type Vhost interface {
-	VhostCore
-	VhostSSL
-	VhostPHP
-	VhostAdvanced
-}
+	// ========== 核心方法 ==========
 
-// VhostCore 核心接口
-type VhostCore interface {
 	// Enable 取启用状态
 	Enable() bool
 	// SetEnable 设置启用状态及停止页路径
@@ -65,10 +50,9 @@ type VhostCore interface {
 	Reload() error
 	// Reset 重置配置为默认值
 	Reset() error
-}
 
-// VhostSSL SSL/TLS 相关接口
-type VhostSSL interface {
+	// ========== SSL/TLS 方法 ==========
+
 	// HTTPS 取 HTTPS 启用状态
 	HTTPS() bool
 	// SSLConfig 取 SSL 配置
@@ -77,6 +61,38 @@ type VhostSSL interface {
 	SetSSLConfig(cfg *SSLConfig) error
 	// ClearHTTPS 清除 HTTPS 配置
 	ClearHTTPS() error
+
+	// ========== 高级功能方法 ==========
+
+	// RateLimit 取限流限速配置
+	RateLimit() *RateLimit
+	// SetRateLimit 设置限流限速配置
+	SetRateLimit(limit *RateLimit) error
+
+	// BasicAuth 取基本认证配置
+	BasicAuth() map[string]string
+	// SetBasicAuth 设置基本认证
+	SetBasicAuth(auth map[string]string) error
+}
+
+// StaticVhost 纯静态虚拟主机接口
+type StaticVhost interface {
+	Vhost
+	VhostRedirect
+}
+
+// PHPVhost PHP 虚拟主机接口
+type PHPVhost interface {
+	Vhost
+	VhostPHP
+	VhostRedirect
+}
+
+// ProxyVhost 反向代理虚拟主机接口
+type ProxyVhost interface {
+	Vhost
+	VhostRedirect
+	VhostProxyConfig
 }
 
 // VhostPHP PHP 相关接口
@@ -87,17 +103,29 @@ type VhostPHP interface {
 	SetPHP(version int) error
 }
 
-// VhostAdvanced 高级功能接口
-type VhostAdvanced interface {
-	// RateLimit 取限流限速配置
-	RateLimit() *RateLimit
-	// SetRateLimit 设置限流限速配置
-	SetRateLimit(limit *RateLimit) error
+// VhostRedirect 重定向相关接口
+type VhostRedirect interface {
+	// Redirects 取所有重定向配置
+	Redirects() []Redirect
+	// SetRedirects 设置重定向
+	SetRedirects(redirects []Redirect) error
+}
 
-	// BasicAuth 取基本认证配置
-	BasicAuth() map[string]string
-	// SetBasicAuth 设置基本认证
-	SetBasicAuth(auth map[string]string) error
+// VhostProxyConfig 反向代理相关接口
+type VhostProxyConfig interface {
+	// Proxies 取所有反向代理配置
+	Proxies() []Proxy
+	// SetProxies 设置反向代理配置
+	SetProxies(proxies []Proxy) error
+	// ClearProxies 清除所有反向代理配置
+	ClearProxies() error
+
+	// Upstreams 取上游服务器配置
+	Upstreams() map[string]Upstream
+	// SetUpstreams 设置上游服务器配置
+	SetUpstreams(upstreams map[string]Upstream) error
+	// ClearUpstreams 清除所有上游服务器配置
+	ClearUpstreams() error
 }
 
 // Listen 监听配置

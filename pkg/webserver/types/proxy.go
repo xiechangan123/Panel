@@ -4,6 +4,7 @@ import "time"
 
 // Proxy 反向代理配置
 type Proxy struct {
+	Location        string            // 匹配路径，如: "/", "/api", "~ ^/api/v[0-9]+/"
 	AutoRefresh     bool              // 是否自动刷新解析
 	Pass            string            // 代理地址，如: "http://example.com", "http://backend"
 	Host            string            // 代理 Host，如: "example.com"
@@ -17,7 +18,6 @@ type Proxy struct {
 
 // Upstream 上游服务器配置
 type Upstream struct {
-	Name      string            // 上游名称，如: "backend"
 	Servers   map[string]string // 上游服务器及权重，如: map["server1"] = "weight=5"
 	Algo      string            // 负载均衡算法，如: "least_conn", "ip_hash"
 	Keepalive int               // 保持连接数，如: 32

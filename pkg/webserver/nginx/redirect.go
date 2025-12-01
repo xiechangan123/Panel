@@ -1,0 +1,211 @@
+package nginx
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+
+	"github.com/acepanel/panel/pkg/webserver/types"
+)
+
+// redirectFilePattern 匹配重定向配置文件名 (100-199)
+var redirectFilePattern = regexp.MustCompile(`^(\d{3})-redirect\.conf$`)
+
+// parseRedirectFiles 从 vhost 目录解析所有重定向配置
+func parseRedirectFiles(vhostDir string) ([]types.Redirect, error) {
+	entries, err := os.ReadDir(vhostDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var redirects []types.Redirect
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		matches := redirectFilePattern.FindStringSubmatch(entry.Name())
+		if matches == nil {
+			continue
+		}
+
+		num, _ := strconv.Atoi(matches[1])
+		if num < RedirectStartNum || num > RedirectEndNum {
+			continue
+		}
+
+		filePath := filepath.Join(vhostDir, entry.Name())
+		redirect, err := parseRedirectFile(filePath)
+		if err != nil {
+			continue // 跳过解析失败的文件
+		}
+		if redirect != nil {
+			redirects = append(redirects, *redirect)
+		}
+	}
+
+	return redirects, nil
+}
+
+// parseRedirectFile 解析单个重定向配置文件
+func parseRedirectFile(filePath string) (*types.Redirect, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	contentStr := string(content)
+
+	// 解析 URL 重定向: location = /old { return 308 /new; }
+	urlPattern := regexp.MustCompile(`location\s*=\s*(\S+)\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
+	if matches := urlPattern.FindStringSubmatch(contentStr); matches != nil {
+		statusCode, _ := strconv.Atoi(matches[2])
+		return &types.Redirect{
+			Type:       types.RedirectTypeURL,
+			From:       matches[1],
+			To:         strings.TrimSpace(matches[3]),
+			KeepURI:    strings.Contains(matches[3], "$request_uri"),
+			StatusCode: statusCode,
+		}, nil
+	}
+
+	// 解析 Host 重定向: if ($host = "old.example.com") { return 308 https://new.example.com$request_uri; }
+	hostPattern := regexp.MustCompile(`if\s*\(\s*\$host\s*=\s*"?([^")\s]+)"?\s*\)\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
+	if matches := hostPattern.FindStringSubmatch(contentStr); matches != nil {
+		statusCode, _ := strconv.Atoi(matches[2])
+		return &types.Redirect{
+			Type:       types.RedirectTypeHost,
+			From:       matches[1],
+			To:         strings.TrimSpace(matches[3]),
+			KeepURI:    strings.Contains(matches[3], "$request_uri"),
+			StatusCode: statusCode,
+		}, nil
+	}
+
+	// 解析 404 重定向: error_page 404 = @redirect_404; location @redirect_404 { return 308 /custom; }
+	errorPattern := regexp.MustCompile(`error_page\s+404\s*=\s*@redirect_404;[^@]*location\s+@redirect_404\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
+	if matches := errorPattern.FindStringSubmatch(contentStr); matches != nil {
+		statusCode, _ := strconv.Atoi(matches[1])
+		return &types.Redirect{
+			Type:       types.RedirectType404,
+			From:       "",
+			To:         strings.TrimSpace(matches[2]),
+			KeepURI:    strings.Contains(matches[2], "$request_uri"),
+			StatusCode: statusCode,
+		}, nil
+	}
+
+	return nil, nil
+}
+
+// writeRedirectFiles 将重定向配置写入文件
+func writeRedirectFiles(vhostDir string, redirects []types.Redirect) error {
+	// 删除现有的重定向配置文件 (100-199)
+	if err := clearRedirectFiles(vhostDir); err != nil {
+		return err
+	}
+
+	// 写入新的配置文件
+	for i, redirect := range redirects {
+		num := RedirectStartNum + i
+		if num > RedirectEndNum {
+			return fmt.Errorf("redirect rules exceed limit (%d)", RedirectEndNum-RedirectStartNum+1)
+		}
+
+		fileName := fmt.Sprintf("%03d-redirect.conf", num)
+		filePath := filepath.Join(vhostDir, fileName)
+
+		content := generateRedirectConfig(redirect)
+		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+			return fmt.Errorf("failed to write redirect config: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// clearRedirectFiles 清除所有重定向配置文件
+func clearRedirectFiles(vhostDir string) error {
+	entries, err := os.ReadDir(vhostDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		matches := redirectFilePattern.FindStringSubmatch(entry.Name())
+		if matches == nil {
+			continue
+		}
+
+		num, _ := strconv.Atoi(matches[1])
+		if num >= RedirectStartNum && num <= RedirectEndNum {
+			filePath := filepath.Join(vhostDir, entry.Name())
+			if err = os.Remove(filePath); err != nil && !os.IsNotExist(err) {
+				return fmt.Errorf("failed to delete redirect config: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// generateRedirectConfig 生成重定向配置内容
+func generateRedirectConfig(redirect types.Redirect) string {
+	statusCode := redirect.StatusCode
+	if statusCode == 0 {
+		statusCode = 308 // 默认使用 308 永久重定向
+	}
+
+	var sb strings.Builder
+
+	switch redirect.Type {
+	case types.RedirectTypeURL:
+		// URL 重定向
+		sb.WriteString(fmt.Sprintf("# URL redirect: %s -> %s\n", redirect.From, redirect.To))
+		sb.WriteString(fmt.Sprintf("location = %s {\n", redirect.From))
+		if redirect.KeepURI {
+			sb.WriteString(fmt.Sprintf("    return %d %s$request_uri;\n", statusCode, redirect.To))
+		} else {
+			sb.WriteString(fmt.Sprintf("    return %d %s;\n", statusCode, redirect.To))
+		}
+		sb.WriteString("}\n")
+
+	case types.RedirectTypeHost:
+		// Host 重定向
+		sb.WriteString(fmt.Sprintf("# Host redirect: %s -> %s\n", redirect.From, redirect.To))
+		sb.WriteString(fmt.Sprintf("if ($host = \"%s\") {\n", redirect.From))
+		if redirect.KeepURI {
+			sb.WriteString(fmt.Sprintf("    return %d %s$request_uri;\n", statusCode, redirect.To))
+		} else {
+			sb.WriteString(fmt.Sprintf("    return %d %s;\n", statusCode, redirect.To))
+		}
+		sb.WriteString("}\n")
+
+	case types.RedirectType404:
+		// 404 重定向
+		sb.WriteString(fmt.Sprintf("# 404 redirect -> %s\n", redirect.To))
+		sb.WriteString("error_page 404 = @redirect_404;\n")
+		sb.WriteString("location @redirect_404 {\n")
+		if redirect.KeepURI {
+			sb.WriteString(fmt.Sprintf("    return %d %s$request_uri;\n", statusCode, redirect.To))
+		} else {
+			sb.WriteString(fmt.Sprintf("    return %d %s;\n", statusCode, redirect.To))
+		}
+		sb.WriteString("}\n")
+	}
+
+	return sb.String()
+}

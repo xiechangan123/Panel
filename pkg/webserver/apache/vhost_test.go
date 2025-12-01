@@ -13,7 +13,7 @@ import (
 
 type VhostTestSuite struct {
 	suite.Suite
-	vhost     *Vhost
+	vhost     *PHPVhost
 	configDir string
 }
 
@@ -27,11 +27,11 @@ func (s *VhostTestSuite) SetupTest() {
 	s.Require().NoError(err)
 	s.configDir = configDir
 
-	// 创建 server.d 目录
-	err = os.MkdirAll(filepath.Join(configDir, "server.d"), 0755)
+	// 创建 vhost 目录
+	err = os.MkdirAll(filepath.Join(configDir, "vhost"), 0755)
 	s.Require().NoError(err)
 
-	vhost, err := NewVhost(configDir)
+	vhost, err := NewPHPVhost(configDir)
 	s.Require().NoError(err)
 	s.Require().NotNil(vhost)
 	s.vhost = vhost
@@ -45,13 +45,13 @@ func (s *VhostTestSuite) TearDownTest() {
 }
 
 func (s *VhostTestSuite) TestNewVhost() {
-	s.Equal(s.configDir, s.vhost.configDir)
-	s.NotNil(s.vhost.config)
-	s.NotNil(s.vhost.vhost)
+	s.Equal(s.configDir, s.vhost.baseVhost.configDir)
+	s.NotNil(s.vhost.baseVhost.config)
+	s.NotNil(s.vhost.baseVhost.vhost)
 }
 
 func (s *VhostTestSuite) TestEnable() {
-	// 默认应该是启用状态（没有 00-disable.conf）
+	// 默认应该是启用状态（没有 000-disable.conf）
 	s.True(s.vhost.Enable())
 
 	// 禁用网站
@@ -60,7 +60,7 @@ func (s *VhostTestSuite) TestEnable() {
 	s.False(s.vhost.Enable())
 
 	// 验证禁用文件存在
-	disableFile := filepath.Join(s.configDir, "server.d", DisableConfName)
+	disableFile := filepath.Join(s.configDir, "vhost", DisableConfName)
 	_, err = os.Stat(disableFile)
 	s.NoError(err)
 
@@ -80,7 +80,7 @@ func (s *VhostTestSuite) TestDisableConfigContent() {
 	s.NoError(err)
 
 	// 读取禁用配置内容
-	disableFile := filepath.Join(s.configDir, "server.d", DisableConfName)
+	disableFile := filepath.Join(s.configDir, "vhost", DisableConfName)
 	content, err := os.ReadFile(disableFile)
 	s.NoError(err)
 
@@ -381,7 +381,280 @@ func (s *VhostTestSuite) TestPHPFilesMatchBlock() {
 }
 
 func (s *VhostTestSuite) TestDefaultVhostConfIncludesServerD() {
-	// 验证默认配置包含 server.d 的 include
-	s.Contains(DefaultVhostConf, "server.d")
+	// 验证默认配置包含 vhost 的 include
+	s.Contains(DefaultVhostConf, "vhost")
 	s.Contains(DefaultVhostConf, "IncludeOptional")
+}
+
+func (s *VhostTestSuite) TestRedirects() {
+	// 初始应该没有重定向
+	s.Empty(s.vhost.Redirects())
+
+	// 设置重定向
+	redirects := []types.Redirect{
+		{
+			Type:       types.RedirectTypeURL,
+			From:       "/old",
+			To:         "/new",
+			StatusCode: 301,
+		},
+		{
+			Type:       types.RedirectTypeHost,
+			From:       "old.example.com",
+			To:         "https://new.example.com",
+			KeepURI:    true,
+			StatusCode: 308,
+		},
+	}
+	s.NoError(s.vhost.SetRedirects(redirects))
+
+	// 验证重定向文件已创建
+	vhostDir := filepath.Join(s.configDir, "vhost")
+	entries, err := os.ReadDir(vhostDir)
+	s.NoError(err)
+
+	redirectCount := 0
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "1") && strings.HasSuffix(entry.Name(), "-redirect.conf") {
+			redirectCount++
+		}
+	}
+	s.Equal(2, redirectCount)
+
+	// 验证可以读取回来
+	got := s.vhost.Redirects()
+	s.Len(got, 2)
+}
+
+func (s *VhostTestSuite) TestRedirectURL() {
+	redirects := []types.Redirect{
+		{
+			Type:       types.RedirectTypeURL,
+			From:       "/old-page",
+			To:         "/new-page",
+			StatusCode: 301,
+		},
+	}
+	s.NoError(s.vhost.SetRedirects(redirects))
+
+	// 读取配置文件内容
+	vhostDir := filepath.Join(s.configDir, "vhost")
+	content, err := os.ReadFile(filepath.Join(vhostDir, "100-redirect.conf"))
+	s.NoError(err)
+
+	s.Contains(string(content), "Redirect 301")
+	s.Contains(string(content), "/old-page")
+	s.Contains(string(content), "/new-page")
+}
+
+func (s *VhostTestSuite) TestRedirectHost() {
+	redirects := []types.Redirect{
+		{
+			Type:       types.RedirectTypeHost,
+			From:       "old.example.com",
+			To:         "https://new.example.com",
+			KeepURI:    true,
+			StatusCode: 308,
+		},
+	}
+	s.NoError(s.vhost.SetRedirects(redirects))
+
+	// 读取配置文件内容
+	vhostDir := filepath.Join(s.configDir, "vhost")
+	content, err := os.ReadFile(filepath.Join(vhostDir, "100-redirect.conf"))
+	s.NoError(err)
+
+	s.Contains(string(content), "RewriteEngine")
+	s.Contains(string(content), "RewriteCond")
+	s.Contains(string(content), "old.example.com")
+	s.Contains(string(content), "R=308")
+}
+
+func (s *VhostTestSuite) TestRedirect404() {
+	redirects := []types.Redirect{
+		{
+			Type: types.RedirectType404,
+			To:   "/custom-404.html",
+		},
+	}
+	s.NoError(s.vhost.SetRedirects(redirects))
+
+	// 读取配置文件内容
+	vhostDir := filepath.Join(s.configDir, "vhost")
+	content, err := os.ReadFile(filepath.Join(vhostDir, "100-redirect.conf"))
+	s.NoError(err)
+
+	s.Contains(string(content), "ErrorDocument 404")
+	s.Contains(string(content), "/custom-404.html")
+}
+
+// ProxyVhost 测试套件
+type ProxyVhostTestSuite struct {
+	suite.Suite
+	vhost     *ProxyVhost
+	configDir string
+}
+
+func TestProxyVhostTestSuite(t *testing.T) {
+	suite.Run(t, &ProxyVhostTestSuite{})
+}
+
+func (s *ProxyVhostTestSuite) SetupTest() {
+	configDir, err := os.MkdirTemp("", "apache-proxy-test-*")
+	s.Require().NoError(err)
+	s.configDir = configDir
+
+	// 创建 vhost 和 global 目录
+	s.NoError(os.MkdirAll(filepath.Join(configDir, "vhost"), 0755))
+	s.NoError(os.MkdirAll(filepath.Join(configDir, "global"), 0755))
+
+	vhost, err := NewProxyVhost(configDir)
+	s.Require().NoError(err)
+	s.vhost = vhost
+}
+
+func (s *ProxyVhostTestSuite) TearDownTest() {
+	if s.configDir != "" {
+		s.NoError(os.RemoveAll(s.configDir))
+	}
+}
+
+func (s *ProxyVhostTestSuite) TestProxies() {
+	// 初始应该没有代理配置
+	s.Empty(s.vhost.Proxies())
+
+	// 设置代理配置
+	proxies := []types.Proxy{
+		{
+			Location: "/",
+			Pass:     "http://backend:8080/",
+			Host:     "example.com",
+		},
+		{
+			Location:  "/api",
+			Pass:      "http://api-backend:8080/",
+			Buffering: true,
+		},
+	}
+	s.NoError(s.vhost.SetProxies(proxies))
+
+	// 验证代理文件已创建
+	vhostDir := filepath.Join(s.configDir, "vhost")
+	entries, err := os.ReadDir(vhostDir)
+	s.NoError(err)
+
+	proxyCount := 0
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "2") && strings.HasSuffix(entry.Name(), "-proxy.conf") {
+			proxyCount++
+		}
+	}
+	s.Equal(2, proxyCount)
+
+	// 验证可以读取回来
+	got := s.vhost.Proxies()
+	s.Len(got, 2)
+}
+
+func (s *ProxyVhostTestSuite) TestProxyConfig() {
+	proxies := []types.Proxy{
+		{
+			Location:  "/",
+			Pass:      "http://backend:8080/",
+			Host:      "example.com",
+			Buffering: true,
+		},
+	}
+	s.NoError(s.vhost.SetProxies(proxies))
+
+	// 读取配置文件内容
+	vhostDir := filepath.Join(s.configDir, "vhost")
+	content, err := os.ReadFile(filepath.Join(vhostDir, "200-proxy.conf"))
+	s.NoError(err)
+
+	s.Contains(string(content), "ProxyPass /")
+	s.Contains(string(content), "ProxyPassReverse")
+	s.Contains(string(content), "http://backend:8080/")
+	s.Contains(string(content), "RequestHeader set Host")
+	s.Contains(string(content), "example.com")
+}
+
+func (s *ProxyVhostTestSuite) TestClearProxies() {
+	proxies := []types.Proxy{
+		{Location: "/", Pass: "http://backend/"},
+	}
+	s.NoError(s.vhost.SetProxies(proxies))
+	s.Len(s.vhost.Proxies(), 1)
+
+	s.NoError(s.vhost.ClearProxies())
+	s.Empty(s.vhost.Proxies())
+}
+
+func (s *ProxyVhostTestSuite) TestUpstreams() {
+	// 初始应该没有上游服务器配置
+	s.Empty(s.vhost.Upstreams())
+
+	// 设置上游服务器（Apache 使用 balancer）
+	upstreams := map[string]types.Upstream{
+		"backend": {
+			Servers: map[string]string{
+				"http://127.0.0.1:8080": "loadfactor=5",
+				"http://127.0.0.1:8081": "loadfactor=3",
+			},
+			Algo:      "least_conn",
+			Keepalive: 32,
+		},
+	}
+	s.NoError(s.vhost.SetUpstreams(upstreams))
+
+	// 验证 balancer 文件已创建
+	globalDir := filepath.Join(s.configDir, "global")
+	entries, err := os.ReadDir(globalDir)
+	s.NoError(err)
+	s.NotEmpty(entries)
+
+	// 验证可以读取回来
+	got := s.vhost.Upstreams()
+	s.Len(got, 1)
+	s.Contains(got, "backend")
+}
+
+func (s *ProxyVhostTestSuite) TestBalancerConfig() {
+	upstreams := map[string]types.Upstream{
+		"mybackend": {
+			Servers: map[string]string{
+				"http://127.0.0.1:8080": "loadfactor=5",
+			},
+			Algo:      "least_conn",
+			Keepalive: 16,
+		},
+	}
+	s.NoError(s.vhost.SetUpstreams(upstreams))
+
+	// 读取配置文件内容
+	globalDir := filepath.Join(s.configDir, "global")
+	entries, err := os.ReadDir(globalDir)
+	s.NoError(err)
+	s.Require().NotEmpty(entries)
+
+	content, err := os.ReadFile(filepath.Join(globalDir, entries[0].Name()))
+	s.NoError(err)
+
+	s.Contains(string(content), "balancer://mybackend")
+	s.Contains(string(content), "BalancerMember")
+	s.Contains(string(content), "http://127.0.0.1:8080")
+	s.Contains(string(content), "lbmethod=bybusyness") // least_conn 映射为 bybusyness
+}
+
+func (s *ProxyVhostTestSuite) TestClearUpstreams() {
+	upstreams := map[string]types.Upstream{
+		"backend": {
+			Servers: map[string]string{"http://127.0.0.1:8080": ""},
+		},
+	}
+	s.NoError(s.vhost.SetUpstreams(upstreams))
+	s.Len(s.vhost.Upstreams(), 1)
+
+	s.NoError(s.vhost.ClearUpstreams())
+	s.Empty(s.vhost.Upstreams())
 }

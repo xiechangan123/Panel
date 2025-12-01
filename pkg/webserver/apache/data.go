@@ -1,13 +1,21 @@
 package apache
 
 // DisableConfName 禁用配置文件名
-const DisableConfName = "00-disable.conf"
+const DisableConfName = "000-disable.conf"
 
 // DisableConfContent 禁用配置内容
 const DisableConfContent = `# 网站已停止
 RewriteEngine on
 RewriteRule ^.*$ - [R=503,L]
 `
+
+// 配置文件序号范围
+const (
+	RedirectStartNum = 100 // 重定向配置起始序号 (100-199)
+	RedirectEndNum   = 199
+	ProxyStartNum    = 200 // 代理配置起始序号 (200-299)
+	ProxyEndNum      = 299
+)
 
 // DefaultVhostConf 默认配置模板
 const DefaultVhostConf = `<VirtualHost *:80>
@@ -19,7 +27,7 @@ const DefaultVhostConf = `<VirtualHost *:80>
     CustomLog /opt/ace/sites/default/log/access.log combined
 
     # custom configs
-    IncludeOptional /opt/ace/sites/default/config/server.d/*.conf
+    IncludeOptional /opt/ace/sites/default/config/vhost/*.conf
 
     <Directory /opt/ace/sites/default/public>
         Options -Indexes +FollowSymLinks

@@ -214,10 +214,6 @@ func (p *Parser) parameters2Slices(parameters []config.Parameter) []string {
 
 // Save 保存配置到文件
 func (p *Parser) Save() error {
-	if p.cfgPath == "" {
-		return fmt.Errorf("config file path is empty, cannot save")
-	}
-
 	content := p.Dump()
 	if err := os.WriteFile(p.cfgPath, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)

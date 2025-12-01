@@ -1,7 +1,7 @@
 package nginx
 
 // DisableConfName 禁用配置文件名
-const DisableConfName = "00-disable.conf"
+const DisableConfName = "000-disable.conf"
 
 // DisableConfContent 禁用配置内容
 const DisableConfContent = `# 网站已停止
@@ -10,7 +10,16 @@ location / {
 }
 `
 
-const DefaultConf = `include /opt/ace/sites/default/config/http.d/*.conf;
+// 配置文件序号范围
+const (
+	RedirectStartNum = 100 // 重定向配置起始序号 (100-199)
+	RedirectEndNum   = 199
+	ProxyStartNum    = 200 // 代理配置起始序号 (200-299)
+	ProxyEndNum      = 299
+	UpstreamStartNum = 100 // 上游服务器配置起始序号
+)
+
+const DefaultConf = `include /opt/ace/sites/default/config/global/*.conf;
 server {
     listen 80;
     server_name localhost;
@@ -19,7 +28,7 @@ server {
     # error page
     error_page 404 /404.html;
     # custom configs
-    include /opt/ace/sites/default/config/server.d/*.conf;
+    include /opt/ace/sites/default/config/vhost/*.conf;
     # browser cache
     location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
         expires 30d;

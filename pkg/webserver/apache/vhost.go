@@ -11,17 +11,35 @@ import (
 	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
-// Vhost Apache 虚拟主机实现
-type Vhost struct {
+// StaticVhost 纯静态虚拟主机
+type StaticVhost struct {
+	*baseVhost
+}
+
+// PHPVhost PHP 虚拟主机
+type PHPVhost struct {
+	*baseVhost
+}
+
+// ProxyVhost 反向代理虚拟主机
+type ProxyVhost struct {
+	*baseVhost
+}
+
+// baseVhost Apache 虚拟主机基础实现
+type baseVhost struct {
 	config    *Config
 	vhost     *VirtualHost
 	configDir string // 配置目录
 }
 
-// NewVhost 创建 Apache 虚拟主机实例
-// configDir: 配置目录路径
-func NewVhost(configDir string) (*Vhost, error) {
-	v := &Vhost{
+// newBaseVhost 创建基础虚拟主机实例
+func newBaseVhost(configDir string) (*baseVhost, error) {
+	if configDir == "" {
+		return nil, fmt.Errorf("config directory is required")
+	}
+
+	v := &baseVhost{
 		configDir: configDir,
 	}
 
@@ -29,14 +47,12 @@ func NewVhost(configDir string) (*Vhost, error) {
 	var config *Config
 	var err error
 
-	if v.configDir != "" {
-		// 从配置目录加载主配置文件
-		configFile := filepath.Join(v.configDir, "apache.conf")
-		if _, statErr := os.Stat(configFile); statErr == nil {
-			config, err = ParseFile(configFile)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse apache config: %w", err)
-			}
+	// 从配置目录加载主配置文件
+	configFile := filepath.Join(v.configDir, "apache.conf")
+	if _, statErr := os.Stat(configFile); statErr == nil {
+		config, err = ParseFile(configFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse apache config: %w", err)
 		}
 	}
 
@@ -61,17 +77,42 @@ func NewVhost(configDir string) (*Vhost, error) {
 	return v, nil
 }
 
-// ========== VhostCore 接口实现 ==========
+// NewStaticVhost 创建纯静态虚拟主机实例
+func NewStaticVhost(configDir string) (*StaticVhost, error) {
+	base, err := newBaseVhost(configDir)
+	if err != nil {
+		return nil, err
+	}
+	return &StaticVhost{baseVhost: base}, nil
+}
 
-func (v *Vhost) Enable() bool {
+// NewPHPVhost 创建 PHP 虚拟主机实例
+func NewPHPVhost(configDir string) (*PHPVhost, error) {
+	base, err := newBaseVhost(configDir)
+	if err != nil {
+		return nil, err
+	}
+	return &PHPVhost{baseVhost: base}, nil
+}
+
+// NewProxyVhost 创建反向代理虚拟主机实例
+func NewProxyVhost(configDir string) (*ProxyVhost, error) {
+	base, err := newBaseVhost(configDir)
+	if err != nil {
+		return nil, err
+	}
+	return &ProxyVhost{baseVhost: base}, nil
+}
+
+func (v *baseVhost) Enable() bool {
 	// 检查禁用配置文件是否存在
-	disableFile := filepath.Join(v.configDir, "server.d", DisableConfName)
+	disableFile := filepath.Join(v.configDir, "vhost", DisableConfName)
 	_, err := os.Stat(disableFile)
 	return os.IsNotExist(err)
 }
 
-func (v *Vhost) SetEnable(enable bool, _ ...string) error {
-	serverDir := filepath.Join(v.configDir, "server.d")
+func (v *baseVhost) SetEnable(enable bool, _ ...string) error {
+	serverDir := filepath.Join(v.configDir, "vhost")
 	disableFile := filepath.Join(serverDir, DisableConfName)
 
 	if enable {
@@ -83,20 +124,14 @@ func (v *Vhost) SetEnable(enable bool, _ ...string) error {
 	}
 
 	// 禁用：创建禁用配置文件
-	// 确保目录存在
-	if err := os.MkdirAll(serverDir, 0755); err != nil {
-		return fmt.Errorf("failed to create config directory: %w", err)
-	}
-
-	// 写入禁用配置
 	if err := os.WriteFile(disableFile, []byte(DisableConfContent), 0644); err != nil {
-		return fmt.Errorf("写入禁用配置失败: %w", err)
+		return fmt.Errorf("failed to write disable config: %w", err)
 	}
 
 	return nil
 }
 
-func (v *Vhost) Listen() []types.Listen {
+func (v *baseVhost) Listen() []types.Listen {
 	var result []types.Listen
 
 	// Apache 的监听配置通常在 VirtualHost 的参数中
@@ -120,7 +155,7 @@ func (v *Vhost) Listen() []types.Listen {
 	return result
 }
 
-func (v *Vhost) SetListen(listens []types.Listen) error {
+func (v *baseVhost) SetListen(listens []types.Listen) error {
 	var args []string
 	for _, l := range listens {
 		args = append(args, l.Address)
@@ -129,7 +164,7 @@ func (v *Vhost) SetListen(listens []types.Listen) error {
 	return nil
 }
 
-func (v *Vhost) ServerName() []string {
+func (v *baseVhost) ServerName() []string {
 	var names []string
 
 	// 获取 ServerName
@@ -147,7 +182,7 @@ func (v *Vhost) ServerName() []string {
 	return names
 }
 
-func (v *Vhost) SetServerName(serverName []string) error {
+func (v *baseVhost) SetServerName(serverName []string) error {
 	if len(serverName) == 0 {
 		return nil
 	}
@@ -166,7 +201,7 @@ func (v *Vhost) SetServerName(serverName []string) error {
 	return nil
 }
 
-func (v *Vhost) Index() []string {
+func (v *baseVhost) Index() []string {
 	values := v.vhost.GetDirectiveValues("DirectoryIndex")
 	if values != nil {
 		return values
@@ -174,7 +209,7 @@ func (v *Vhost) Index() []string {
 	return nil
 }
 
-func (v *Vhost) SetIndex(index []string) error {
+func (v *baseVhost) SetIndex(index []string) error {
 	if len(index) == 0 {
 		v.vhost.RemoveDirective("DirectoryIndex")
 		return nil
@@ -183,11 +218,11 @@ func (v *Vhost) SetIndex(index []string) error {
 	return nil
 }
 
-func (v *Vhost) Root() string {
+func (v *baseVhost) Root() string {
 	return v.vhost.GetDirectiveValue("DocumentRoot")
 }
 
-func (v *Vhost) SetRoot(root string) error {
+func (v *baseVhost) SetRoot(root string) error {
 	v.vhost.SetDirective("DocumentRoot", root)
 
 	// 同时更新 Directory 块
@@ -210,7 +245,7 @@ func (v *Vhost) SetRoot(root string) error {
 	return nil
 }
 
-func (v *Vhost) Includes() []types.IncludeFile {
+func (v *baseVhost) Includes() []types.IncludeFile {
 	var result []types.IncludeFile
 
 	// 获取所有 Include 和 IncludeOptional 指令
@@ -232,7 +267,7 @@ func (v *Vhost) Includes() []types.IncludeFile {
 	return result
 }
 
-func (v *Vhost) SetIncludes(includes []types.IncludeFile) error {
+func (v *baseVhost) SetIncludes(includes []types.IncludeFile) error {
 	// 删除现有的 Include 指令
 	v.vhost.RemoveDirectives("Include")
 	v.vhost.RemoveDirectives("IncludeOptional")
@@ -245,76 +280,48 @@ func (v *Vhost) SetIncludes(includes []types.IncludeFile) error {
 	return nil
 }
 
-func (v *Vhost) AccessLog() string {
+func (v *baseVhost) AccessLog() string {
 	return v.vhost.GetDirectiveValue("CustomLog")
 }
 
-func (v *Vhost) SetAccessLog(accessLog string) error {
+func (v *baseVhost) SetAccessLog(accessLog string) error {
 	v.vhost.SetDirective("CustomLog", accessLog, "combined")
 	return nil
 }
 
-func (v *Vhost) ErrorLog() string {
+func (v *baseVhost) ErrorLog() string {
 	return v.vhost.GetDirectiveValue("ErrorLog")
 }
 
-func (v *Vhost) SetErrorLog(errorLog string) error {
+func (v *baseVhost) SetErrorLog(errorLog string) error {
 	v.vhost.SetDirective("ErrorLog", errorLog)
 	return nil
 }
 
-func (v *Vhost) Save() error {
-	if v.configDir == "" {
-		return fmt.Errorf("配置目录为空，无法保存")
-	}
-
+func (v *baseVhost) Save() error {
 	configFile := filepath.Join(v.configDir, "apache.conf")
 	content := v.config.Export()
 	if err := os.WriteFile(configFile, []byte(content), 0644); err != nil {
-		return fmt.Errorf("保存配置文件失败: %w", err)
+		return fmt.Errorf("failed to save config file: %w", err)
 	}
 
 	return nil
 }
 
-func (v *Vhost) Reload() error {
-	// 重载 Apache 配置
-	cmds := []string{
-		"/opt/ace/apps/apache/bin/apachectl graceful",
-		"/usr/sbin/apachectl graceful",
-		"apachectl graceful",
-		"systemctl reload apache2",
-		"systemctl reload httpd",
+func (v *baseVhost) Reload() error {
+	parts := strings.Fields("systemctl reload httpd")
+	if err := exec.Command(parts[0], parts[1:]...).Run(); err != nil {
+		return fmt.Errorf("failed to reload apache config: %w", err)
 	}
 
-	var lastErr error
-	for _, cmd := range cmds {
-		parts := strings.Fields(cmd)
-		if len(parts) < 1 {
-			continue
-		}
-
-		// 检查命令是否存在
-		if _, err := os.Stat(parts[0]); err == nil || parts[0] == "systemctl" {
-			err := exec.Command(parts[0], parts[1:]...).Run()
-			if err == nil {
-				return nil
-			}
-			lastErr = err
-		}
-	}
-
-	if lastErr != nil {
-		return fmt.Errorf("重载 Apache 配置失败: %w", lastErr)
-	}
-	return fmt.Errorf("未找到 apachectl 或 apache2 命令")
+	return nil
 }
 
-func (v *Vhost) Reset() error {
+func (v *baseVhost) Reset() error {
 	// 重置配置为默认值
 	config, err := ParseString(DefaultVhostConf)
 	if err != nil {
-		return fmt.Errorf("重置配置失败: %w", err)
+		return fmt.Errorf("failed to reset config: %w", err)
 	}
 
 	v.config = config
@@ -325,15 +332,13 @@ func (v *Vhost) Reset() error {
 	return nil
 }
 
-// ========== VhostSSL 接口实现 ==========
-
-func (v *Vhost) HTTPS() bool {
+func (v *baseVhost) HTTPS() bool {
 	// 检查是否有 SSL 相关配置
 	return v.vhost.HasDirective("SSLEngine") &&
 		strings.EqualFold(v.vhost.GetDirectiveValue("SSLEngine"), "on")
 }
 
-func (v *Vhost) SSLConfig() *types.SSLConfig {
+func (v *baseVhost) SSLConfig() *types.SSLConfig {
 	if !v.HTTPS() {
 		return nil
 	}
@@ -376,9 +381,9 @@ func (v *Vhost) SSLConfig() *types.SSLConfig {
 	return config
 }
 
-func (v *Vhost) SetSSLConfig(cfg *types.SSLConfig) error {
+func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	if cfg == nil {
-		return fmt.Errorf("SSL 配置不能为空")
+		return fmt.Errorf("SSL config cannot be nil")
 	}
 
 	// 启用 SSL
@@ -449,7 +454,7 @@ func (v *Vhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	return nil
 }
 
-func (v *Vhost) ClearHTTPS() error {
+func (v *baseVhost) ClearHTTPS() error {
 	// 移除 SSL 相关指令
 	v.vhost.RemoveDirective("SSLEngine")
 	v.vhost.RemoveDirective("SSLCertificateFile")
@@ -491,9 +496,94 @@ func (v *Vhost) ClearHTTPS() error {
 	return nil
 }
 
-// ========== VhostPHP 接口实现 ==========
+func (v *baseVhost) RateLimit() *types.RateLimit {
+	// Apache 使用 mod_ratelimit
+	rate := v.vhost.GetDirectiveValue("SetOutputFilter")
+	if rate != "RATE_LIMIT" {
+		return nil
+	}
 
-func (v *Vhost) PHP() int {
+	rateLimit := &types.RateLimit{
+		Options: make(map[string]string),
+	}
+
+	// 获取速率限制值
+	rateValue := v.vhost.GetDirectiveValue("SetEnv")
+	if rateValue != "" {
+		rateLimit.Rate = rateValue
+	}
+
+	return rateLimit
+}
+
+func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
+	if limit == nil {
+		// 清除限速配置
+		v.vhost.RemoveDirective("SetOutputFilter")
+		v.vhost.RemoveDirectives("SetEnv")
+		return nil
+	}
+
+	// 设置 mod_ratelimit
+	v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
+	if limit.Rate != "" {
+		v.vhost.SetDirective("SetEnv", "rate-limit", limit.Rate)
+	}
+
+	return nil
+}
+
+func (v *baseVhost) BasicAuth() map[string]string {
+	authType := v.vhost.GetDirectiveValue("AuthType")
+	if authType == "" || !strings.EqualFold(authType, "Basic") {
+		return nil
+	}
+
+	return map[string]string{
+		"realm":     v.vhost.GetDirectiveValue("AuthName"),
+		"user_file": v.vhost.GetDirectiveValue("AuthUserFile"),
+	}
+}
+
+func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
+	if auth == nil || len(auth) == 0 {
+		// 清除基本认证配置
+		v.vhost.RemoveDirective("AuthType")
+		v.vhost.RemoveDirective("AuthName")
+		v.vhost.RemoveDirective("AuthUserFile")
+		v.vhost.RemoveDirective("Require")
+		return nil
+	}
+
+	realm := auth["realm"]
+	userFile := auth["user_file"]
+
+	if realm == "" {
+		realm = "Restricted"
+	}
+
+	v.vhost.SetDirective("AuthType", "Basic")
+	v.vhost.SetDirective("AuthName", fmt.Sprintf(`"%s"`, realm))
+	v.vhost.SetDirective("AuthUserFile", userFile)
+	v.vhost.SetDirective("Require", "valid-user")
+
+	return nil
+}
+
+func (v *baseVhost) Redirects() []types.Redirect {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	redirects, _ := parseRedirectFiles(vhostDir)
+	return redirects
+}
+
+func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	return writeRedirectFiles(vhostDir, redirects)
+}
+
+// ========== PHPVhost ==========
+
+func (v *PHPVhost) PHP() int {
 	// Apache 通常通过 FilesMatch 块配置 PHP
 	// 或者通过 SetHandler 指令
 	handler := v.vhost.GetDirectiveValue("SetHandler")
@@ -540,7 +630,7 @@ func (v *Vhost) PHP() int {
 	return 0
 }
 
-func (v *Vhost) SetPHP(version int) error {
+func (v *PHPVhost) SetPHP(version int) error {
 	// 移除现有的 PHP 配置
 	v.vhost.RemoveDirective("SetHandler")
 
@@ -577,78 +667,36 @@ func (v *Vhost) SetPHP(version int) error {
 	return nil
 }
 
-// ========== VhostAdvanced 接口实现 ==========
+// ========== ProxyVhost ==========
 
-func (v *Vhost) RateLimit() *types.RateLimit {
-	// Apache 使用 mod_ratelimit
-	rate := v.vhost.GetDirectiveValue("SetOutputFilter")
-	if rate != "RATE_LIMIT" {
-		return nil
-	}
-
-	rateLimit := &types.RateLimit{
-		Options: make(map[string]string),
-	}
-
-	// 获取速率限制值
-	rateValue := v.vhost.GetDirectiveValue("SetEnv")
-	if rateValue != "" {
-		rateLimit.Rate = rateValue
-	}
-
-	return rateLimit
+func (v *ProxyVhost) Proxies() []types.Proxy {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	proxies, _ := parseProxyFiles(vhostDir)
+	return proxies
 }
 
-func (v *Vhost) SetRateLimit(limit *types.RateLimit) error {
-	if limit == nil {
-		// 清除限速配置
-		v.vhost.RemoveDirective("SetOutputFilter")
-		v.vhost.RemoveDirectives("SetEnv")
-		return nil
-	}
-
-	// 设置 mod_ratelimit
-	v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
-	if limit.Rate != "" {
-		v.vhost.SetDirective("SetEnv", "rate-limit", limit.Rate)
-	}
-
-	return nil
+func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	return writeProxyFiles(vhostDir, proxies)
 }
 
-func (v *Vhost) BasicAuth() map[string]string {
-	authType := v.vhost.GetDirectiveValue("AuthType")
-	if authType == "" || !strings.EqualFold(authType, "Basic") {
-		return nil
-	}
-
-	return map[string]string{
-		"realm":     v.vhost.GetDirectiveValue("AuthName"),
-		"user_file": v.vhost.GetDirectiveValue("AuthUserFile"),
-	}
+func (v *ProxyVhost) ClearProxies() error {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	return clearProxyFiles(vhostDir)
 }
 
-func (v *Vhost) SetBasicAuth(auth map[string]string) error {
-	if auth == nil || len(auth) == 0 {
-		// 清除基本认证配置
-		v.vhost.RemoveDirective("AuthType")
-		v.vhost.RemoveDirective("AuthName")
-		v.vhost.RemoveDirective("AuthUserFile")
-		v.vhost.RemoveDirective("Require")
-		return nil
-	}
+func (v *ProxyVhost) Upstreams() map[string]types.Upstream {
+	globalDir := filepath.Join(v.configDir, "global")
+	upstreams, _ := parseBalancerFiles(globalDir)
+	return upstreams
+}
 
-	realm := auth["realm"]
-	userFile := auth["user_file"]
+func (v *ProxyVhost) SetUpstreams(upstreams map[string]types.Upstream) error {
+	globalDir := filepath.Join(v.configDir, "global")
+	return writeBalancerFiles(globalDir, upstreams)
+}
 
-	if realm == "" {
-		realm = "Restricted"
-	}
-
-	v.vhost.SetDirective("AuthType", "Basic")
-	v.vhost.SetDirective("AuthName", fmt.Sprintf(`"%s"`, realm))
-	v.vhost.SetDirective("AuthUserFile", userFile)
-	v.vhost.SetDirective("Require", "valid-user")
-
-	return nil
+func (v *ProxyVhost) ClearUpstreams() error {
+	globalDir := filepath.Join(v.configDir, "global")
+	return clearBalancerFiles(globalDir)
 }

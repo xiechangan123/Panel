@@ -96,7 +96,7 @@ func (s *NginxTestSuite) TestIncludes() {
 	s.NoError(err)
 	includes, comments, err := parser.GetIncludes()
 	s.NoError(err)
-	s.Equal([]string{"/opt/ace/sites/default/config/server.d/*.conf"}, includes)
+	s.Equal([]string{"/opt/ace/sites/default/config/vhost/*.conf"}, includes)
 	s.Equal([][]string{{"# custom configs"}}, comments)
 	s.NoError(parser.SetIncludes([]string{"/www/server/vhost/rewrite/default.conf"}, nil))
 	includes, comments, err = parser.GetIncludes()

@@ -10,16 +10,34 @@ import (
 	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
-// Vhost Nginx 虚拟主机实现
-type Vhost struct {
+// StaticVhost 纯静态虚拟主机
+type StaticVhost struct {
+	*baseVhost
+}
+
+// PHPVhost PHP 虚拟主机
+type PHPVhost struct {
+	*baseVhost
+}
+
+// ProxyVhost 反向代理虚拟主机
+type ProxyVhost struct {
+	*baseVhost
+}
+
+// baseVhost Nginx 虚拟主机基础实现
+type baseVhost struct {
 	parser    *Parser
 	configDir string // 配置目录
 }
 
-// NewVhost 创建 Nginx 虚拟主机实例
-// configDir: 配置目录路径
-func NewVhost(configDir string) (*Vhost, error) {
-	v := &Vhost{
+// newBaseVhost 创建基础虚拟主机实例
+func newBaseVhost(configDir string) (*baseVhost, error) {
+	if configDir == "" {
+		return nil, fmt.Errorf("config directory is required")
+	}
+
+	v := &baseVhost{
 		configDir: configDir,
 	}
 
@@ -27,14 +45,12 @@ func NewVhost(configDir string) (*Vhost, error) {
 	var parser *Parser
 	var err error
 
-	if v.configDir != "" {
-		// 从配置目录加载主配置文件
-		configFile := filepath.Join(v.configDir, "nginx.conf")
-		if _, statErr := os.Stat(configFile); statErr == nil {
-			parser, err = NewParserFromFile(configFile)
-			if err != nil {
-				return nil, fmt.Errorf("failed to load nginx config: %w", err)
-			}
+	// 从配置目录加载主配置文件
+	configFile := filepath.Join(v.configDir, "nginx.conf")
+	if _, statErr := os.Stat(configFile); statErr == nil {
+		parser, err = NewParserFromFile(configFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load nginx config: %w", err)
 		}
 	}
 
@@ -45,27 +61,49 @@ func NewVhost(configDir string) (*Vhost, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to load default config: %w", err)
 		}
-		// 如果有 configDir，设置配置文件路径
-		if v.configDir != "" {
-			parser.SetConfigPath(filepath.Join(v.configDir, "nginx.conf"))
-		}
+		parser.SetConfigPath(filepath.Join(v.configDir, "nginx.conf"))
 	}
 
 	v.parser = parser
 	return v, nil
 }
 
-// ========== VhostCore 接口实现 ==========
+// NewStaticVhost 创建纯静态虚拟主机实例
+func NewStaticVhost(configDir string) (*StaticVhost, error) {
+	base, err := newBaseVhost(configDir)
+	if err != nil {
+		return nil, err
+	}
+	return &StaticVhost{baseVhost: base}, nil
+}
 
-func (v *Vhost) Enable() bool {
+// NewPHPVhost 创建 PHP 虚拟主机实例
+func NewPHPVhost(configDir string) (*PHPVhost, error) {
+	base, err := newBaseVhost(configDir)
+	if err != nil {
+		return nil, err
+	}
+	return &PHPVhost{baseVhost: base}, nil
+}
+
+// NewProxyVhost 创建反向代理虚拟主机实例
+func NewProxyVhost(configDir string) (*ProxyVhost, error) {
+	base, err := newBaseVhost(configDir)
+	if err != nil {
+		return nil, err
+	}
+	return &ProxyVhost{baseVhost: base}, nil
+}
+
+func (v *baseVhost) Enable() bool {
 	// 检查禁用配置文件是否存在
-	disableFile := filepath.Join(v.configDir, "server.d", DisableConfName)
+	disableFile := filepath.Join(v.configDir, "vhost", DisableConfName)
 	_, err := os.Stat(disableFile)
 	return os.IsNotExist(err)
 }
 
-func (v *Vhost) SetEnable(enable bool, _ ...string) error {
-	serverDir := filepath.Join(v.configDir, "server.d")
+func (v *baseVhost) SetEnable(enable bool, _ ...string) error {
+	serverDir := filepath.Join(v.configDir, "vhost")
 	disableFile := filepath.Join(serverDir, DisableConfName)
 
 	if enable {
@@ -77,12 +115,6 @@ func (v *Vhost) SetEnable(enable bool, _ ...string) error {
 	}
 
 	// 禁用：创建禁用配置文件
-	// 确保目录存在
-	if err := os.MkdirAll(serverDir, 0755); err != nil {
-		return fmt.Errorf("failed to create config directory: %w", err)
-	}
-
-	// 写入禁用配置
 	if err := os.WriteFile(disableFile, []byte(DisableConfContent), 0644); err != nil {
 		return fmt.Errorf("failed to write disable config: %w", err)
 	}
@@ -90,7 +122,7 @@ func (v *Vhost) SetEnable(enable bool, _ ...string) error {
 	return nil
 }
 
-func (v *Vhost) Listen() []types.Listen {
+func (v *baseVhost) Listen() []types.Listen {
 	listens, err := v.parser.GetListen()
 	if err != nil {
 		return nil
@@ -132,7 +164,7 @@ func (v *Vhost) Listen() []types.Listen {
 	return result
 }
 
-func (v *Vhost) SetListen(listens []types.Listen) error {
+func (v *baseVhost) SetListen(listens []types.Listen) error {
 	// 将通用 Listen 转换为 Nginx 格式
 	var nginxListens [][]string
 	for _, l := range listens {
@@ -163,7 +195,7 @@ func (v *Vhost) SetListen(listens []types.Listen) error {
 	return v.parser.SetListen(nginxListens)
 }
 
-func (v *Vhost) ServerName() []string {
+func (v *baseVhost) ServerName() []string {
 	names, err := v.parser.GetServerName()
 	if err != nil {
 		return nil
@@ -171,11 +203,11 @@ func (v *Vhost) ServerName() []string {
 	return names
 }
 
-func (v *Vhost) SetServerName(serverName []string) error {
+func (v *baseVhost) SetServerName(serverName []string) error {
 	return v.parser.SetServerName(serverName)
 }
 
-func (v *Vhost) Index() []string {
+func (v *baseVhost) Index() []string {
 	index, err := v.parser.GetIndex()
 	if err != nil {
 		return nil
@@ -183,11 +215,11 @@ func (v *Vhost) Index() []string {
 	return index
 }
 
-func (v *Vhost) SetIndex(index []string) error {
+func (v *baseVhost) SetIndex(index []string) error {
 	return v.parser.SetIndex(index)
 }
 
-func (v *Vhost) Root() string {
+func (v *baseVhost) Root() string {
 	root, err := v.parser.GetRoot()
 	if err != nil {
 		return ""
@@ -195,11 +227,11 @@ func (v *Vhost) Root() string {
 	return root
 }
 
-func (v *Vhost) SetRoot(root string) error {
+func (v *baseVhost) SetRoot(root string) error {
 	return v.parser.SetRoot(root)
 }
 
-func (v *Vhost) Includes() []types.IncludeFile {
+func (v *baseVhost) Includes() []types.IncludeFile {
 	includes, comments, err := v.parser.GetIncludes()
 	if err != nil {
 		return nil
@@ -219,7 +251,7 @@ func (v *Vhost) Includes() []types.IncludeFile {
 	return result
 }
 
-func (v *Vhost) SetIncludes(includes []types.IncludeFile) error {
+func (v *baseVhost) SetIncludes(includes []types.IncludeFile) error {
 	var paths []string
 	var comments [][]string
 
@@ -231,7 +263,7 @@ func (v *Vhost) SetIncludes(includes []types.IncludeFile) error {
 	return v.parser.SetIncludes(paths, comments)
 }
 
-func (v *Vhost) AccessLog() string {
+func (v *baseVhost) AccessLog() string {
 	log, err := v.parser.GetAccessLog()
 	if err != nil {
 		return ""
@@ -239,11 +271,11 @@ func (v *Vhost) AccessLog() string {
 	return log
 }
 
-func (v *Vhost) SetAccessLog(accessLog string) error {
+func (v *baseVhost) SetAccessLog(accessLog string) error {
 	return v.parser.SetAccessLog(accessLog)
 }
 
-func (v *Vhost) ErrorLog() string {
+func (v *baseVhost) ErrorLog() string {
 	log, err := v.parser.GetErrorLog()
 	if err != nil {
 		return ""
@@ -251,48 +283,24 @@ func (v *Vhost) ErrorLog() string {
 	return log
 }
 
-func (v *Vhost) SetErrorLog(errorLog string) error {
+func (v *baseVhost) SetErrorLog(errorLog string) error {
 	return v.parser.SetErrorLog(errorLog)
 }
 
-func (v *Vhost) Save() error {
+func (v *baseVhost) Save() error {
 	return v.parser.Save()
 }
 
-func (v *Vhost) Reload() error {
-	// 重载 Nginx 配置
-	// 优先使用 openresty，如果不存在则使用 nginx
-	cmds := []string{
-		"/opt/ace/apps/openresty/bin/openresty -s reload",
-		"/usr/sbin/nginx -s reload",
-		"nginx -s reload",
+func (v *baseVhost) Reload() error {
+	parts := strings.Fields("systemctl reload openresty")
+	if err := exec.Command(parts[0], parts[1:]...).Run(); err != nil {
+		return fmt.Errorf("failed to reload nginx config: %w", err)
 	}
 
-	var lastErr error
-	for _, cmd := range cmds {
-		parts := strings.Fields(cmd)
-		if len(parts) < 2 {
-			continue
-		}
-
-		// 检查命令是否存在
-		if _, err := os.Stat(parts[0]); err == nil {
-			// 执行重载命令
-			err := exec.Command(parts[0], parts[1:]...).Run()
-			if err == nil {
-				return nil
-			}
-			lastErr = err
-		}
-	}
-
-	if lastErr != nil {
-		return fmt.Errorf("failed to reload nginx config: %w", lastErr)
-	}
-	return fmt.Errorf("nginx or openresty command not found")
+	return nil
 }
 
-func (v *Vhost) Reset() error {
+func (v *baseVhost) Reset() error {
 	// 重置配置为默认值
 	parser, err := NewParser("")
 	if err != nil {
@@ -308,13 +316,11 @@ func (v *Vhost) Reset() error {
 	return nil
 }
 
-// ========== VhostSSL 接口实现 ==========
-
-func (v *Vhost) HTTPS() bool {
+func (v *baseVhost) HTTPS() bool {
 	return v.parser.GetHTTPS()
 }
 
-func (v *Vhost) SSLConfig() *types.SSLConfig {
+func (v *baseVhost) SSLConfig() *types.SSLConfig {
 	if !v.HTTPS() {
 		return nil
 	}
@@ -329,7 +335,7 @@ func (v *Vhost) SSLConfig() *types.SSLConfig {
 	}
 }
 
-func (v *Vhost) SetSSLConfig(cfg *types.SSLConfig) error {
+func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	if cfg == nil {
 		return fmt.Errorf("SSL config cannot be nil")
 	}
@@ -378,41 +384,11 @@ func (v *Vhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	return nil
 }
 
-func (v *Vhost) ClearHTTPS() error {
+func (v *baseVhost) ClearHTTPS() error {
 	return v.parser.ClearHTTPS()
 }
 
-// ========== VhostPHP 接口实现 ==========
-
-func (v *Vhost) PHP() int {
-	return v.parser.GetPHP()
-}
-
-func (v *Vhost) SetPHP(version int) error {
-	// 先移除所有 PHP 相关的 include
-	includes := v.Includes()
-	var newIncludes []types.IncludeFile
-	for _, inc := range includes {
-		// 过滤掉 enable-php-*.conf
-		if !strings.HasPrefix(inc.Path, "enable-php-") || !strings.HasSuffix(inc.Path, ".conf") {
-			newIncludes = append(newIncludes, inc)
-		}
-	}
-
-	// 如果版本不为 0，添加新的 PHP include
-	if version > 0 {
-		newIncludes = append(newIncludes, types.IncludeFile{
-			Path:    fmt.Sprintf("enable-php-%d.conf", version),
-			Comment: []string{fmt.Sprintf("# Enable PHP %d.%d", version/10, version%10)},
-		})
-	}
-
-	return v.SetIncludes(newIncludes)
-}
-
-// ========== VhostAdvanced 接口实现 ==========
-
-func (v *Vhost) RateLimit() *types.RateLimit {
+func (v *baseVhost) RateLimit() *types.RateLimit {
 	rate := v.parser.GetLimitRate()
 	limitConn := v.parser.GetLimitConn()
 
@@ -437,7 +413,7 @@ func (v *Vhost) RateLimit() *types.RateLimit {
 	return rateLimit
 }
 
-func (v *Vhost) SetRateLimit(limit *types.RateLimit) error {
+func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
 	if limit == nil {
 		// 清除限流配置
 		if err := v.parser.SetLimitRate(""); err != nil {
@@ -460,7 +436,7 @@ func (v *Vhost) SetRateLimit(limit *types.RateLimit) error {
 	return v.parser.SetLimitConn(limitConns)
 }
 
-func (v *Vhost) BasicAuth() map[string]string {
+func (v *baseVhost) BasicAuth() map[string]string {
 	realm, userFile := v.parser.GetBasicAuth()
 	if realm == "" || userFile == "" {
 		return nil
@@ -474,7 +450,7 @@ func (v *Vhost) BasicAuth() map[string]string {
 	}
 }
 
-func (v *Vhost) SetBasicAuth(auth map[string]string) error {
+func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
 	if auth == nil || len(auth) == 0 {
 		// 清除基本认证配置
 		return v.parser.SetBasicAuth("", "")
@@ -488,4 +464,77 @@ func (v *Vhost) SetBasicAuth(auth map[string]string) error {
 	}
 
 	return v.parser.SetBasicAuth(realm, userFile)
+}
+
+func (v *baseVhost) Redirects() []types.Redirect {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	redirects, _ := parseRedirectFiles(vhostDir)
+	return redirects
+}
+
+func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	return writeRedirectFiles(vhostDir, redirects)
+}
+
+// ========== PHPVhost ==========
+
+func (v *PHPVhost) PHP() int {
+	return v.parser.GetPHP()
+}
+
+func (v *PHPVhost) SetPHP(version int) error {
+	// 先移除所有 PHP 相关的 include
+	includes := v.Includes()
+	var newIncludes []types.IncludeFile
+	for _, inc := range includes {
+		// 过滤掉 enable-php-*.conf
+		if !strings.HasPrefix(inc.Path, "enable-php-") || !strings.HasSuffix(inc.Path, ".conf") {
+			newIncludes = append(newIncludes, inc)
+		}
+	}
+
+	// 如果版本不为 0，添加新的 PHP include
+	if version > 0 {
+		newIncludes = append(newIncludes, types.IncludeFile{
+			Path:    fmt.Sprintf("enable-php-%d.conf", version),
+			Comment: []string{fmt.Sprintf("# Enable PHP %d.%d", version/10, version%10)},
+		})
+	}
+
+	return v.SetIncludes(newIncludes)
+}
+
+// ========== ProxyVhost ==========
+
+func (v *ProxyVhost) Proxies() []types.Proxy {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	proxies, _ := parseProxyFiles(vhostDir)
+	return proxies
+}
+
+func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	return writeProxyFiles(vhostDir, proxies)
+}
+
+func (v *ProxyVhost) ClearProxies() error {
+	vhostDir := filepath.Join(v.configDir, "vhost")
+	return clearProxyFiles(vhostDir)
+}
+
+func (v *ProxyVhost) Upstreams() map[string]types.Upstream {
+	globalDir := filepath.Join(v.configDir, "global")
+	upstreams, _ := parseUpstreamFiles(globalDir)
+	return upstreams
+}
+
+func (v *ProxyVhost) SetUpstreams(upstreams map[string]types.Upstream) error {
+	globalDir := filepath.Join(v.configDir, "global")
+	return writeUpstreamFiles(globalDir, upstreams)
+}
+
+func (v *ProxyVhost) ClearUpstreams() error {
+	globalDir := filepath.Join(v.configDir, "global")
+	return clearUpstreamFiles(globalDir)
 }
