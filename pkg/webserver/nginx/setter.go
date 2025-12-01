@@ -493,9 +493,7 @@ func (p *Parser) SetErrorLog(errorLog string) error {
 
 // SetReturn 设置 return 指令（用于禁用网站）
 func (p *Parser) SetReturn(code, url string) error {
-	if err := p.Clear("server.return"); err != nil {
-		// 忽略不存在的错误
-	}
+	_ = p.Clear("server.return") // 忽略不存在的错误
 
 	directives := []*config.Directive{
 		{
@@ -534,9 +532,7 @@ func (p *Parser) SetReturn(code, url string) error {
 
 // SetLimitRate 设置限速配置
 func (p *Parser) SetLimitRate(limitRate string) error {
-	if err := p.Clear("server.limit_rate"); err != nil {
-		// 忽略不存在的错误
-	}
+	_ = p.Clear("server.limit_rate") // 忽略不存在的错误
 
 	if limitRate == "" {
 		return nil // 清除限速配置

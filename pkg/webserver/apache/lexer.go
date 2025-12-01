@@ -82,14 +82,6 @@ func (l *Lexer) readChar() {
 	}
 }
 
-// peekChar 预览下一个字符而不移动位置
-func (l *Lexer) peekChar() rune {
-	if l.pos+1 >= len(l.buf) {
-		return 0
-	}
-	return l.buf[l.pos+1]
-}
-
 // skipWhitespace 跳过空白字符
 func (l *Lexer) skipWhitespace() {
 	for l.current == ' ' || l.current == '\t' || l.current == '\r' {

@@ -451,7 +451,7 @@ func (v *baseVhost) BasicAuth() map[string]string {
 }
 
 func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
-	if auth == nil || len(auth) == 0 {
+	if len(auth) == 0 {
 		// 清除基本认证配置
 		return v.parser.SetBasicAuth("", "")
 	}

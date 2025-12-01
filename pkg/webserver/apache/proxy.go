@@ -78,9 +78,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 
 	// 解析 ProxyPreserveHost
-	if regexp.MustCompile(`ProxyPreserveHost\s+On`).MatchString(contentStr) {
-		// Host 由客户端提供
-	}
+	_ = regexp.MustCompile(`ProxyPreserveHost\s+On`).MatchString(contentStr)
 
 	// 解析 RequestHeader set Host
 	hostPattern := regexp.MustCompile(`RequestHeader\s+set\s+Host\s+"([^"]+)"`)

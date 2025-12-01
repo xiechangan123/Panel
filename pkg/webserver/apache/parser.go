@@ -404,17 +404,16 @@ func (p *Parser) parseBlockDirective(token Token) (*Block, error) {
 			break
 		}
 
-		if nextToken.Type == NEWLINE {
+		switch nextToken.Type {
+		case NEWLINE:
 			continue
-		}
-
-		if nextToken.Type == DIRECTIVE {
+		case DIRECTIVE:
 			directive, err := p.parseDirective(nextToken)
 			if err != nil {
 				return nil, err
 			}
 			block.Directives = append(block.Directives, directive)
-		} else if nextToken.Type == COMMENT {
+		case COMMENT:
 			// 处理块内注释
 			comment := &Comment{
 				Text:   nextToken.Value,
@@ -422,6 +421,8 @@ func (p *Parser) parseBlockDirective(token Token) (*Block, error) {
 				Column: nextToken.Column,
 			}
 			block.Comments = append(block.Comments, comment)
+		default:
+			continue
 		}
 	}
 
