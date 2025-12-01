@@ -405,9 +405,9 @@ func (_c *WebsiteRepo_GetRewrites_Call) RunAndReturn(run func() (map[string]stri
 	return _c
 }
 
-// List provides a mock function with given fields: page, limit
-func (_m *WebsiteRepo) List(page uint, limit uint) ([]*biz.Website, int64, error) {
-	ret := _m.Called(page, limit)
+// List provides a mock function with given fields: typ, page, limit
+func (_m *WebsiteRepo) List(typ string, page uint, limit uint) ([]*biz.Website, int64, error) {
+	ret := _m.Called(typ, page, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -416,25 +416,25 @@ func (_m *WebsiteRepo) List(page uint, limit uint) ([]*biz.Website, int64, error
 	var r0 []*biz.Website
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(uint, uint) ([]*biz.Website, int64, error)); ok {
-		return rf(page, limit)
+	if rf, ok := ret.Get(0).(func(string, uint, uint) ([]*biz.Website, int64, error)); ok {
+		return rf(typ, page, limit)
 	}
-	if rf, ok := ret.Get(0).(func(uint, uint) []*biz.Website); ok {
-		r0 = rf(page, limit)
+	if rf, ok := ret.Get(0).(func(string, uint, uint) []*biz.Website); ok {
+		r0 = rf(typ, page, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*biz.Website)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint, uint) int64); ok {
-		r1 = rf(page, limit)
+	if rf, ok := ret.Get(1).(func(string, uint, uint) int64); ok {
+		r1 = rf(typ, page, limit)
 	} else {
 		r1 = ret.Get(1).(int64)
 	}
 
-	if rf, ok := ret.Get(2).(func(uint, uint) error); ok {
-		r2 = rf(page, limit)
+	if rf, ok := ret.Get(2).(func(string, uint, uint) error); ok {
+		r2 = rf(typ, page, limit)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -448,15 +448,16 @@ type WebsiteRepo_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
+//   - typ string
 //   - page uint
 //   - limit uint
-func (_e *WebsiteRepo_Expecter) List(page interface{}, limit interface{}) *WebsiteRepo_List_Call {
-	return &WebsiteRepo_List_Call{Call: _e.mock.On("List", page, limit)}
+func (_e *WebsiteRepo_Expecter) List(typ interface{}, page interface{}, limit interface{}) *WebsiteRepo_List_Call {
+	return &WebsiteRepo_List_Call{Call: _e.mock.On("List", typ, page, limit)}
 }
 
-func (_c *WebsiteRepo_List_Call) Run(run func(page uint, limit uint)) *WebsiteRepo_List_Call {
+func (_c *WebsiteRepo_List_Call) Run(run func(typ string, page uint, limit uint)) *WebsiteRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(uint))
+		run(args[0].(string), args[1].(uint), args[2].(uint))
 	})
 	return _c
 }
@@ -466,7 +467,7 @@ func (_c *WebsiteRepo_List_Call) Return(_a0 []*biz.Website, _a1 int64, _a2 error
 	return _c
 }
 
-func (_c *WebsiteRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.Website, int64, error)) *WebsiteRepo_List_Call {
+func (_c *WebsiteRepo_List_Call) RunAndReturn(run func(string, uint, uint) ([]*biz.Website, int64, error)) *WebsiteRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
