@@ -121,8 +121,8 @@ func (s *VhostTestSuite) TestIndexEmpty() {
 
 func (s *VhostTestSuite) TestListen() {
 	listens := []types.Listen{
-		{Address: "80", Protocol: "http"},
-		{Address: "443", Protocol: "https"},
+		{Address: "80"},
+		{Address: "443", Args: []string{"ssl"}},
 	}
 	s.NoError(s.vhost.SetListen(listens))
 
@@ -132,17 +132,17 @@ func (s *VhostTestSuite) TestListen() {
 
 func (s *VhostTestSuite) TestListenWithHTTP3() {
 	listens := []types.Listen{
-		{Address: "443", Protocol: "http3"},
+		{Address: "443", Args: []string{"quic"}},
 	}
 	s.NoError(s.vhost.SetListen(listens))
 
 	got := s.vhost.Listen()
 	s.Len(got, 1)
-	s.Equal("http3", got[0].Protocol)
+	s.Equal("http3", got[0].Args[0])
 }
 
-func (s *VhostTestSuite) TestHTTPS() {
-	s.False(s.vhost.HTTPS())
+func (s *VhostTestSuite) TestSSL() {
+	s.False(s.vhost.SSL())
 	s.Nil(s.vhost.SSLConfig())
 }
 
@@ -156,7 +156,7 @@ func (s *VhostTestSuite) TestSetSSLConfig() {
 	}
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
 
-	s.True(s.vhost.HTTPS())
+	s.True(s.vhost.SSL())
 
 	got := s.vhost.SSLConfig()
 	s.NotNil(got)
@@ -169,17 +169,17 @@ func (s *VhostTestSuite) TestSetSSLConfigNil() {
 	s.Error(err)
 }
 
-func (s *VhostTestSuite) TestClearHTTPS() {
+func (s *VhostTestSuite) TestClearSSL() {
 	sslConfig := &types.SSLConfig{
 		Cert: "/etc/ssl/cert.pem",
 		Key:  "/etc/ssl/key.pem",
 		HSTS: true,
 	}
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
-	s.True(s.vhost.HTTPS())
+	s.True(s.vhost.SSL())
 
-	s.NoError(s.vhost.ClearHTTPS())
-	s.False(s.vhost.HTTPS())
+	s.NoError(s.vhost.ClearSSL())
+	s.False(s.vhost.SSL())
 }
 
 func (s *VhostTestSuite) TestPHP() {
@@ -248,7 +248,7 @@ func (s *VhostTestSuite) TestRateLimit() {
 
 	limit := &types.RateLimit{
 		Rate: "512k",
-		Options: map[string]string{
+		Zone: map[string]string{
 			"perip": "10",
 		},
 	}

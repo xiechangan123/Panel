@@ -196,6 +196,21 @@ func (p *Parser) Dump() string {
 	return dumper.DumpConfig(p.cfg, dumper.IndentedStyle)
 }
 
+// Save 保存配置到文件
+func (p *Parser) Save() error {
+	content := p.Dump()
+	if err := os.WriteFile(p.cfgPath, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to save config file: %w", err)
+	}
+
+	return nil
+}
+
+// SetConfigPath 设置配置文件路径
+func (p *Parser) SetConfigPath(path string) {
+	p.cfgPath = path
+}
+
 func (p *Parser) slices2Parameters(slices []string) []config.Parameter {
 	var parameters []config.Parameter
 	for _, slice := range slices {
@@ -210,19 +225,4 @@ func (p *Parser) parameters2Slices(parameters []config.Parameter) []string {
 		s = append(s, parameter.Value)
 	}
 	return s
-}
-
-// Save 保存配置到文件
-func (p *Parser) Save() error {
-	content := p.Dump()
-	if err := os.WriteFile(p.cfgPath, []byte(content), 0644); err != nil {
-		return fmt.Errorf("failed to save config file: %w", err)
-	}
-
-	return nil
-}
-
-// SetConfigPath 设置配置文件路径
-func (p *Parser) SetConfigPath(path string) {
-	p.cfgPath = path
 }

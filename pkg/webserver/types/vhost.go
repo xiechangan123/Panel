@@ -46,21 +46,19 @@ type Vhost interface {
 
 	// Save 保存配置到文件
 	Save() error
-	// Reload 重载配置（重启或重载服务器）
-	Reload() error
 	// Reset 重置配置为默认值
 	Reset() error
 
 	// ========== SSL/TLS 方法 ==========
 
-	// HTTPS 取 HTTPS 启用状态
-	HTTPS() bool
+	// SSL 取 SSL 启用状态
+	SSL() bool
 	// SSLConfig 取 SSL 配置
 	SSLConfig() *SSLConfig
 	// SetSSLConfig 设置 SSL 配置（自动启用 HTTPS）
 	SetSSLConfig(cfg *SSLConfig) error
-	// ClearHTTPS 清除 HTTPS 配置
-	ClearHTTPS() error
+	// ClearSSL 清除 SSL 配置
+	ClearSSL() error
 
 	// ========== 高级功能方法 ==========
 
@@ -68,11 +66,15 @@ type Vhost interface {
 	RateLimit() *RateLimit
 	// SetRateLimit 设置限流限速配置
 	SetRateLimit(limit *RateLimit) error
+	// ClearRateLimit 清除限流限速配置
+	ClearRateLimit() error
 
 	// BasicAuth 取基本认证配置
 	BasicAuth() map[string]string
 	// SetBasicAuth 设置基本认证
 	SetBasicAuth(auth map[string]string) error
+	// ClearBasicAuth 清除基本认证
+	ClearBasicAuth() error
 }
 
 // StaticVhost 纯静态虚拟主机接口
@@ -151,9 +153,8 @@ type SSLConfig struct {
 // RateLimit 限流限速配置
 type RateLimit struct {
 	Rate       string            // 速率限制，如: "512k", "10r/s"
-	Burst      int               // 突发限制
 	Concurrent int               // 并发连接数限制
-	Options    map[string]string // 服务器特定选项
+	Zone       map[string]string // 条件配置，如: map["perip"] = "10"
 }
 
 // IncludeFile 包含文件配置

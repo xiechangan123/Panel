@@ -8,16 +8,24 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
+type WebsiteType string
+
+const (
+	WebsiteTypeProxy  WebsiteType = "proxy"
+	WebsiteTypePHP    WebsiteType = "php"
+	WebsiteTypeStatic WebsiteType = "static"
+)
+
 type Website struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Name      string    `gorm:"not null;default:'';unique" json:"name"`
-	Type      string    `gorm:"not null;default:'static'" json:"type"`
-	Status    bool      `gorm:"not null;default:true" json:"status"`
-	Path      string    `gorm:"not null;default:''" json:"path"`
-	Https     bool      `gorm:"not null;default:false" json:"https"`
-	Remark    string    `gorm:"not null;default:''" json:"remark"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint        `gorm:"primaryKey" json:"id"`
+	Name      string      `gorm:"not null;default:'';unique" json:"name"`
+	Type      WebsiteType `gorm:"not null;default:'static'" json:"type"`
+	Status    bool        `gorm:"not null;default:true" json:"status"`
+	Path      string      `gorm:"not null;default:''" json:"path"`
+	SSL       bool        `gorm:"not null;default:false" json:"ssl"`
+	Remark    string      `gorm:"not null;default:''" json:"remark"`
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
 
 	CertExpire string `gorm:"-:all" json:"cert_expire"` // 仅显示
 	PHP        uint   `gorm:"-:all" json:"php"`         // 仅显示

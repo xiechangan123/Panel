@@ -3,7 +3,6 @@ package apache
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -297,15 +296,6 @@ func (v *baseVhost) Save() error {
 	return nil
 }
 
-func (v *baseVhost) Reload() error {
-	parts := strings.Fields("systemctl reload httpd")
-	if err := exec.Command(parts[0], parts[1:]...).Run(); err != nil {
-		return fmt.Errorf("failed to reload apache config: %w", err)
-	}
-
-	return nil
-}
-
 func (v *baseVhost) Reset() error {
 	// 重置配置为默认值
 	config, err := ParseString(DefaultVhostConf)
@@ -321,14 +311,14 @@ func (v *baseVhost) Reset() error {
 	return nil
 }
 
-func (v *baseVhost) HTTPS() bool {
+func (v *baseVhost) SSL() bool {
 	// 检查是否有 SSL 相关配置
 	return v.vhost.HasDirective("SSLEngine") &&
 		strings.EqualFold(v.vhost.GetDirectiveValue("SSLEngine"), "on")
 }
 
 func (v *baseVhost) SSLConfig() *types.SSLConfig {
-	if !v.HTTPS() {
+	if !v.SSL() {
 		return nil
 	}
 
@@ -443,7 +433,7 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	return nil
 }
 
-func (v *baseVhost) ClearHTTPS() error {
+func (v *baseVhost) ClearSSL() error {
 	// 移除 SSL 相关指令
 	v.vhost.RemoveDirective("SSLEngine")
 	v.vhost.RemoveDirective("SSLCertificateFile")
@@ -493,7 +483,7 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 	}
 
 	rateLimit := &types.RateLimit{
-		Options: make(map[string]string),
+		Zone: make(map[string]string),
 	}
 
 	// 获取速率限制值
@@ -506,19 +496,18 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 }
 
 func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
-	if limit == nil {
-		// 清除限速配置
-		v.vhost.RemoveDirective("SetOutputFilter")
-		v.vhost.RemoveDirectives("SetEnv")
-		return nil
-	}
-
 	// 设置 mod_ratelimit
 	v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
 	if limit.Rate != "" {
 		v.vhost.SetDirective("SetEnv", "rate-limit", limit.Rate)
 	}
 
+	return nil
+}
+
+func (v *baseVhost) ClearRateLimit() error {
+	v.vhost.RemoveDirective("SetOutputFilter")
+	v.vhost.RemoveDirectives("SetEnv")
 	return nil
 }
 
@@ -535,15 +524,6 @@ func (v *baseVhost) BasicAuth() map[string]string {
 }
 
 func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
-	if len(auth) == 0 {
-		// 清除基本认证配置
-		v.vhost.RemoveDirective("AuthType")
-		v.vhost.RemoveDirective("AuthName")
-		v.vhost.RemoveDirective("AuthUserFile")
-		v.vhost.RemoveDirective("Require")
-		return nil
-	}
-
 	realm := auth["realm"]
 	userFile := auth["user_file"]
 
@@ -556,6 +536,14 @@ func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
 	v.vhost.SetDirective("AuthUserFile", userFile)
 	v.vhost.SetDirective("Require", "valid-user")
 
+	return nil
+}
+
+func (v *baseVhost) ClearBasicAuth() error {
+	v.vhost.RemoveDirective("AuthType")
+	v.vhost.RemoveDirective("AuthName")
+	v.vhost.RemoveDirective("AuthUserFile")
+	v.vhost.RemoveDirective("Require")
 	return nil
 }
 

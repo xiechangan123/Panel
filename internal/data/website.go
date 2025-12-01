@@ -86,7 +86,7 @@ func (r *websiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) err
 		return err
 	}
 
-	return systemctl.Reload("nginx")
+	return r.reloadWebServer()
 }
 
 func (r *websiteRepo) Count() (int64, error) {
@@ -103,12 +103,24 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	if err := r.db.Where("id", id).First(website).Error; err != nil {
 		return nil, err
 	}
-	// 解析nginx配置
-	config, err := io.Read(filepath.Join(app.Root, "server/vhost", website.Name+".conf"))
+
+	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
 	if err != nil {
 		return nil, err
 	}
-	p, err := nginx.NewParser(config)
+
+	// 解析配置
+	var vhost webservertypes.Vhost
+	switch website.Type {
+	case biz.WebsiteTypeProxy:
+		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypePHP:
+		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypeStatic:
+		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	default:
+		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -116,72 +128,43 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	setting := new(types.WebsiteSetting)
 	setting.ID = website.ID
 	setting.Name = website.Name
-	setting.Type = website.Type
+	setting.Type = string(website.Type)
 	setting.Path = website.Path
-	setting.HTTPS = website.Https
-	setting.PHP = p.GetPHP()
-	setting.Raw = config
+	setting.SSL = website.SSL
 	// 监听地址
-	listens, err := p.GetListen()
-	if err != nil {
-		return nil, err
-	}
-	setting.Listens = lo.Map(
-		lo.UniqBy(listens, func(listen []string) string {
-			if len(listen) == 0 {
-				return ""
-			}
-			return listen[0]
-		}),
-		func(listen []string, _ int) types.WebsiteListen {
-			addr := listen[0]
-			grouped := lo.GroupBy(listens, func(listen []string) string {
-				if len(listen) == 0 {
-					return ""
-				}
-				return listen[0]
-			})[addr]
-			return types.WebsiteListen{
-				Address: addr,
-				HTTPS:   lo.SomeBy(grouped, func(listen []string) bool { return lo.Contains(listen, "ssl") }),
-				QUIC:    lo.SomeBy(grouped, func(listen []string) bool { return lo.Contains(listen, "quic") }),
-			}
-		},
-	)
+	setting.Listens = vhost.Listen()
 	// 域名
-	domains, err := p.GetServerName()
-	if err != nil {
-		return nil, err
-	}
+	domains := vhost.ServerName()
 	domains, err = punycode.DecodeDomains(domains)
 	if err != nil {
 		return nil, err
 	}
 	setting.Domains = domains
 	// 运行目录
-	root, _ := p.GetRoot()
-	setting.Root = root
+	setting.Root = vhost.Root()
 	// 默认文档
-	index, _ := p.GetIndex()
-	setting.Index = index
+	setting.Index = vhost.Index()
 	// 防跨站
-	if io.Exists(filepath.Join(setting.Root, ".user.ini")) {
+	if website.Type == biz.WebsiteTypePHP && io.Exists(filepath.Join(setting.Root, ".user.ini")) {
 		userIni, _ := io.Read(filepath.Join(setting.Root, ".user.ini"))
 		if strings.Contains(userIni, "open_basedir") {
 			setting.OpenBasedir = true
 		}
 	}
-	// HTTPS
-	if setting.HTTPS {
-		setting.HTTPRedirect = p.GetHTTPSRedirect()
-		setting.HSTS = p.GetHSTS()
-		setting.OCSP = p.GetOCSP()
+	// SSL
+	if setting.SSL {
+		sslConfig := vhost.SSLConfig()
+		setting.HTTPRedirect = sslConfig.HTTPRedirect
+		setting.HSTS = sslConfig.HSTS
+		setting.OCSP = sslConfig.OCSP
+		setting.SSLProtocols = sslConfig.Protocols
+		setting.SSLCiphers = sslConfig.Ciphers
 	}
 	// 证书
-	crt, _ := io.Read(filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem"))
-	setting.SSLCertificate = crt
-	key, _ := io.Read(filepath.Join(app.Root, "server/vhost/cert", website.Name+".key"))
-	setting.SSLCertificateKey = key
+	crt, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
+	setting.SSLCert = crt
+	key, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key"))
+	setting.SSLKey = key
 	// 解析证书信息
 	if decode, err := cert.ParseCert(crt); err == nil {
 		setting.SSLNotBefore = decode.NotBefore.Format(time.DateTime)
@@ -190,16 +173,27 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.SSLOCSPServer = decode.OCSPServer
 		setting.SSLDNSNames = decode.DNSNames
 	}
-	// 伪静态
-	rewrite, _ := io.Read(filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"))
-	setting.Rewrite = rewrite
 	// 访问日志
-	if setting.Log, err = p.GetAccessLog(); err != nil {
-		setting.Log = fmt.Sprintf("%s/wwwlogs/%s.log", app.Root, website.Name)
+	if setting.AccessLog = vhost.AccessLog(); setting.AccessLog == "" {
+		setting.AccessLog = fmt.Sprintf("%s/sites/%s/log/access.log", app.Root, website.Name)
 	}
 	// 错误日志
-	if setting.ErrorLog, err = p.GetErrorLog(); err != nil {
-		setting.ErrorLog = fmt.Sprintf("%s/wwwlogs/%s.error.log", app.Root, website.Name)
+	if setting.ErrorLog = vhost.ErrorLog(); setting.ErrorLog == "" {
+		setting.ErrorLog = fmt.Sprintf("%s/sites/%s/log/error.log", app.Root, website.Name)
+	}
+
+	// PHP 网站特有
+	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok {
+		setting.PHP = phpVhost.PHP()
+		// 伪静态
+		rewrite, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "vhost", "010-rewrite.conf"))
+		setting.Rewrite = rewrite
+	}
+
+	// 反向代理网站特有
+	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
+		setting.Upstreams = proxyVhost.Upstreams()
+		setting.Proxies = proxyVhost.Proxies()
 	}
 
 	return setting, err
@@ -212,7 +206,6 @@ func (r *websiteRepo) GetByName(name string) (*types.WebsiteSetting, error) {
 	}
 
 	return r.Get(website.ID)
-
 }
 
 func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64, error) {
@@ -233,12 +226,12 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 
 	// 取证书剩余有效时间和PHP版本
 	for _, website := range websites {
-		crt, _ := io.Read(filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem"))
+		crt, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
 		if decode, err := cert.ParseCert(crt); err == nil {
 			hours := time.Until(decode.NotAfter).Hours()
 			website.CertExpire = fmt.Sprintf("%.2f", hours/24)
 		}
-		if website.Type == "php" {
+		if website.Type == biz.WebsiteTypePHP {
 			website.PHP = r.getPHPVersion(website.Name)
 		}
 	}
@@ -324,6 +317,9 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		if err = phpVhost.SetPHP(req.PHP); err != nil {
 			return nil, err
 		}
+		if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "vhost", "010-rewrite.conf"), "", 0644); err != nil {
+			return nil, err
+		}
 	}
 
 	// 初始化网站目录
@@ -365,9 +361,6 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	if err = vhost.Save(); err != nil {
 		return nil, err
 	}
-	if err = io.Write(filepath.Join(app.Root, "server/vhost/rewrite", req.Name+".conf"), "", 0644); err != nil {
-		return nil, err
-	}
 	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "vhost", "001-acme.conf"), "", 0644); err != nil {
 		return nil, err
 	}
@@ -400,10 +393,10 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	// 创建面板网站
 	w := &biz.Website{
 		Name:   req.Name,
-		Type:   req.Type,
+		Type:   biz.WebsiteType(req.Type),
 		Status: true,
 		Path:   req.Path,
-		Https:  false,
+		SSL:    false,
 		Remark: req.Remark,
 	}
 	if err = r.db.Create(w).Error; err != nil {
@@ -411,7 +404,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 
 	// 重载 Web 服务器
-	if err = vhost.Reload(); err != nil {
+	if err = r.reloadWebServer(); err != nil {
 		return nil, err
 	}
 
@@ -444,44 +437,29 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 		return err
 	}
 
-	// 解析nginx配置
-	config, err := io.Read(filepath.Join(app.Root, "server/vhost", website.Name+".conf"))
+	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
 	if err != nil {
 		return err
-	}
-	// 如果修改了原文，直接写入返回
-	if strings.TrimSpace(config) != strings.TrimSpace(req.Raw) {
-		if err = io.Write(filepath.Join(app.Root, "server/vhost", website.Name+".conf"), req.Raw, 0644); err != nil {
-			return err
-		}
-		if err = systemctl.Reload("nginx"); err != nil {
-			_, err = shell.Execf("nginx -t")
-			return err
-		}
-		return nil
 	}
 
-	// 初始化nginx配置
-	p, err := nginx.NewParser(config)
+	// 解析配置
+	var vhost webservertypes.Vhost
+	switch website.Type {
+	case biz.WebsiteTypeProxy:
+		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypePHP:
+		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypeStatic:
+		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	default:
+		return errors.New(r.t.Get("unsupported website type: %s", website.Type))
+	}
 	if err != nil {
 		return err
 	}
+
 	// 监听地址
-	var listens [][]string
-	quic := false
-	for _, listen := range req.Listens {
-		if !listen.HTTPS && !listen.QUIC {
-			listens = append(listens, []string{listen.Address})
-		}
-		if listen.HTTPS {
-			listens = append(listens, []string{listen.Address, "ssl"})
-		}
-		if listen.QUIC {
-			quic = true
-			listens = append(listens, []string{listen.Address, "quic"})
-		}
-	}
-	if err = p.SetListen(listens); err != nil {
+	if err = vhost.SetListen(req.Listens); err != nil {
 		return err
 	}
 	// 域名
@@ -489,18 +467,18 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	if err != nil {
 		return err
 	}
-	if err = p.SetServerName(domains); err != nil {
+	if err = vhost.SetServerName(domains); err != nil {
 		return err
 	}
 	// 首页文件
-	if err = p.SetIndex(req.Index); err != nil {
+	if err = vhost.SetIndex(req.Index); err != nil {
 		return err
 	}
 	// 运行目录
 	if !io.Exists(req.Root) {
 		return errors.New(r.t.Get("runtime directory does not exist"))
 	}
-	if err = p.SetRoot(req.Root); err != nil {
+	if err = vhost.SetRoot(req.Root); err != nil {
 		return err
 	}
 	// 运行目录
@@ -508,100 +486,98 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 		return errors.New(r.t.Get("website directory does not exist"))
 	}
 	website.Path = req.Path
-	// PHP
-	if err = p.SetPHP(req.PHP); err != nil {
+	// SSL
+	certPath := filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem")
+	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key")
+	if err = io.Write(certPath, req.SSLCert, 0644); err != nil {
 		return err
 	}
-	// HTTPS
-	certPath := filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem")
-	keyPath := filepath.Join(app.Root, "server/vhost/cert", website.Name+".key")
-	if err = io.Write(certPath, req.SSLCertificate, 0644); err != nil {
+	if err = io.Write(keyPath, req.SSLKey, 0644); err != nil {
 		return err
 	}
-	if err = io.Write(keyPath, req.SSLCertificateKey, 0644); err != nil {
-		return err
-	}
-	website.Https = req.HTTPS
-	if req.HTTPS {
-		if _, err = cert.ParseCert(req.SSLCertificate); err != nil {
+	website.SSL = req.SSL
+	if req.SSL {
+		if _, err = cert.ParseCert(req.SSLCert); err != nil {
 			return errors.New(r.t.Get("failed to parse certificate: %v", err))
 		}
-		if _, err = cert.ParseKey(req.SSLCertificateKey); err != nil {
+		if _, err = cert.ParseKey(req.SSLKey); err != nil {
 			return errors.New(r.t.Get("failed to parse private key: %v", err))
 		}
-		if err = p.SetHTTPS(certPath, keyPath); err != nil {
-			return err
-		}
-		if err = p.SetHTTPRedirect(req.HTTPRedirect); err != nil {
-			return err
-		}
-		if err = p.SetHSTS(req.HSTS); err != nil {
-			return err
-		}
-		if err = p.SetOCSP(req.OCSP); err != nil {
-			return err
-		}
-	} else {
-		if err = p.ClearSetHTTPS(); err != nil {
-			return err
-		}
-		if err = p.SetHTTPRedirect(false); err != nil {
-			return err
-		}
-		if err = p.SetHSTS(false); err != nil {
-			return err
-		}
-		if err = p.SetOCSP(false); err != nil {
-			return err
-		}
-	}
-	if quic {
-		if err = p.SetAltSvc(`'h3=":$server_port"; ma=2592000'`); err != nil {
-			return err
-		}
-	} else {
-		if err = p.SetAltSvc(``); err != nil {
-			return err
-		}
-	}
-	// 防跨站
-	if !strings.HasSuffix(req.Root, "/") {
-		req.Root += "/"
-	}
-	userIni := filepath.Join(req.Root, ".user.ini")
-	if req.OpenBasedir {
-		if !io.Exists(userIni) || req.Root != website.Path {
-			// 之前没有开启，或者修改了运行目录，重新写入
-			if err = io.Write(userIni, fmt.Sprintf("open_basedir=%s:%s:/tmp/", req.Root, req.Path), 0644); err != nil {
-				return err
+		quic := false
+		for _, listen := range req.Listens {
+			if slices.Contains(listen.Args, "quic") {
+				quic = true
+				break
 			}
 		}
-		_, _ = shell.Execf(`chattr +i '%s'`, userIni)
+		if err = vhost.SetSSLConfig(&webservertypes.SSLConfig{
+			Cert:         certPath,
+			Key:          keyPath,
+			Protocols:    lo.If(len(req.SSLProtocols) > 0, req.SSLProtocols).Else([]string{"TLSv1.2", "TLSv1.3"}),
+			Ciphers:      lo.If(req.SSLCiphers != "", req.SSLCiphers).Else("HIGH:!aNULL:!MD5"),
+			HSTS:         req.HSTS,
+			OCSP:         req.OCSP,
+			HTTPRedirect: req.HTTPRedirect,
+			AltSvc:       lo.If(quic, `'h3=":$server_port"; ma=2592000'`).Else(``),
+		}); err != nil {
+			return err
+		}
 	} else {
-		if io.Exists(userIni) {
-			if err = io.Remove(userIni); err != nil {
-				return err
+		if err = vhost.ClearSSL(); err != nil {
+			return err
+		}
+	}
+
+	// PHP
+	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok {
+		if err = phpVhost.SetPHP(req.PHP); err != nil {
+			return err
+		}
+		// 伪静态
+		if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "vhost", "010-rewrite.conf"), req.Rewrite, 0644); err != nil {
+			return err
+		}
+		// 防跨站
+		if !strings.HasSuffix(req.Root, "/") {
+			req.Root += "/"
+		}
+		userIni := filepath.Join(req.Root, ".user.ini")
+		if req.OpenBasedir {
+			if !io.Exists(userIni) || req.Root != website.Path {
+				// 之前没有开启，或者修改了运行目录，重新写入
+				if err = io.Write(userIni, fmt.Sprintf("open_basedir=%s:%s:/tmp/", req.Root, req.Path), 0644); err != nil {
+					return err
+				}
+			}
+			_, _ = shell.Execf(`chattr +i '%s'`, userIni)
+		} else {
+			if io.Exists(userIni) {
+				if err = io.Remove(userIni); err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	if err = io.Write(filepath.Join(app.Root, "server/vhost", website.Name+".conf"), p.Dump(), 0644); err != nil {
-		return err
-	}
-	if err = io.Write(filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"), req.Rewrite, 0644); err != nil {
-		return err
+	// 反向代理
+	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
+		if err = proxyVhost.SetUpstreams(req.Upstreams); err != nil {
+			return err
+		}
+		if err = proxyVhost.SetProxies(req.Proxies); err != nil {
+			return err
+		}
 	}
 
+	// 保存配置
+	if err = vhost.Save(); err != nil {
+		return err
+	}
 	if err = r.db.Save(website).Error; err != nil {
 		return err
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		return err
-	}
-
-	return nil
+	return r.reloadWebServer()
 }
 
 func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
@@ -613,13 +589,7 @@ func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
 		return errors.New(r.t.Get("website %s has bound certificates, please delete the certificate first", website.Name))
 	}
 
-	_ = io.Remove(filepath.Join(app.Root, "server/vhost", website.Name+".conf"))
-	_ = io.Remove(filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"))
-	_ = io.Remove(filepath.Join(app.Root, "server/vhost/acme", website.Name+".conf"))
-	_ = io.Remove(filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem"))
-	_ = io.Remove(filepath.Join(app.Root, "server/vhost/cert", website.Name+".key"))
-	_ = io.Remove(filepath.Join(app.Root, "wwwlogs", website.Name+".log"))
-	_ = io.Remove(filepath.Join(app.Root, "wwwlogs", website.Name+".error.log"))
+	_ = io.Remove(filepath.Join(app.Root, "sites", website.Name))
 
 	if req.Path {
 		_ = io.Remove(website.Path)
@@ -639,12 +609,7 @@ func (r *websiteRepo) Delete(req *request.WebsiteDelete) error {
 		return err
 	}
 
-	if err := systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		return err
-	}
-
-	return nil
+	return r.reloadWebServer()
 }
 
 func (r *websiteRepo) ClearLog(id uint) error {
@@ -673,58 +638,75 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 
-	// 初始化nginx配置
-	config := nginx.DefaultConf
-	p, err := nginx.NewParser(config)
+	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
 	if err != nil {
+		return err
+	}
+
+	// 清空配置
+	_, err = shell.Execf(`rm -rf '%s'`, fmt.Sprintf("%s/sites/%s/config/*", app.Root, website.Name))
+	if err != nil {
+		return err
+	}
+
+	// 初始化配置
+	var vhost webservertypes.Vhost
+	switch website.Type {
+	case biz.WebsiteTypeProxy:
+		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypePHP:
+		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypeStatic:
+		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	default:
+		return errors.New(r.t.Get("unsupported website type: %s", website.Type))
+	}
+	if err != nil {
+		return err
+	}
+
+	// 重置配置
+	if err = vhost.Reset(); err != nil {
 		return err
 	}
 	// 运行目录
-	if err = p.SetRoot(website.Path); err != nil {
-		return err
-	}
-	// 伪静态
-	includes, comments, err := p.GetIncludes()
-	if err != nil {
-		return err
-	}
-	includes = append(includes, filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"))
-	includes = append(includes, filepath.Join(app.Root, "server/vhost/acme", website.Name+".conf"))
-	comments = append(comments, []string{r.t.Get("# Rewrite rule")})
-	comments = append(comments, []string{"# acme http-01"})
-	if err = p.SetIncludes(includes, comments); err != nil {
+	if err = vhost.SetRoot(website.Path); err != nil {
 		return err
 	}
 	// 日志
-	if err = p.SetAccessLog(filepath.Join(app.Root, "wwwlogs", website.Name+".log")); err != nil {
+	if err = vhost.SetAccessLog(filepath.Join(app.Root, "sites", website.Name, "log", "access.log")); err != nil {
 		return err
 	}
-	if err = p.SetErrorLog(filepath.Join(app.Root, "wwwlogs", website.Name+".error.log")); err != nil {
+	if err = vhost.SetErrorLog(filepath.Join(app.Root, "sites", website.Name, "log", "error.log")); err != nil {
 		return err
 	}
-
-	if err = io.Write(filepath.Join(app.Root, "server/vhost", website.Name+".conf"), p.Dump(), 0644); err != nil {
-		return nil
-	}
-	if err = io.Write(filepath.Join(app.Root, "server/vhost/rewrite", website.Name+".conf"), "", 0644); err != nil {
-		return nil
-	}
-	if err = io.Write(filepath.Join(app.Root, "server/vhost/acme", website.Name+".conf"), "", 0644); err != nil {
+	// 保存配置
+	if err = vhost.Save(); err != nil {
 		return err
+	}
+	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "vhost", "001-acme.conf"), "", 0644); err != nil {
+		return err
+	}
+	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"), "", 0644); err != nil {
+		return err
+	}
+	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key"), "", 0644); err != nil {
+		return err
+	}
+	// PHP 网站默认伪静态
+	if website.Type == biz.WebsiteTypePHP {
+		if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "vhost", "010-rewrite.conf"), "", 0644); err != nil {
+			return err
+		}
 	}
 
 	website.Status = true
-	website.Https = false
+	website.SSL = false
 	if err = r.db.Save(website).Error; err != nil {
 		return err
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		return err
-	}
-
-	return nil
+	return r.reloadWebServer()
 }
 
 func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
@@ -796,12 +778,7 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 		return err
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		return err
-	}
-
-	return nil
+	return r.reloadWebServer()
 }
 
 func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
@@ -817,8 +794,8 @@ func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 		return errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 
-	certPath := filepath.Join(app.Root, "server/vhost/cert", website.Name+".pem")
-	keyPath := filepath.Join(app.Root, "server/vhost/cert", website.Name+".key")
+	certPath := filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem")
+	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key")
 	if err := io.Write(certPath, req.Cert, 0644); err != nil {
 		return err
 	}
@@ -826,11 +803,8 @@ func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 		return err
 	}
 
-	if website.Https {
-		if err := systemctl.Reload("nginx"); err != nil {
-			_, err = shell.Execf("nginx -t")
-			return err
-		}
+	if website.SSL {
+		return r.reloadWebServer()
 	}
 
 	return nil
@@ -886,4 +860,24 @@ func (r *websiteRepo) getPHPVersion(name string) uint {
 		return 0
 	}
 	return vhost.PHP()
+}
+
+func (r *websiteRepo) reloadWebServer() error {
+	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
+	if err != nil {
+		return err
+	}
+	switch webServer {
+	case "nginx":
+		if err = systemctl.Reload("nginx"); err != nil {
+			_, err = shell.Execf("nginx -t")
+			return err
+		}
+	case "apache":
+		if err = systemctl.Reload("httpd"); err != nil {
+			_, err = shell.Execf("apachectl configtest")
+			return err
+		}
+	}
+	return nil
 }

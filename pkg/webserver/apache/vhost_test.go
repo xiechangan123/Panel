@@ -143,8 +143,8 @@ func (s *VhostTestSuite) TestListen() {
 	s.Equal("*:443", got[1].Address)
 }
 
-func (s *VhostTestSuite) TestHTTPS() {
-	s.False(s.vhost.HTTPS())
+func (s *VhostTestSuite) TestSSL() {
+	s.False(s.vhost.SSL())
 	s.Nil(s.vhost.SSLConfig())
 }
 
@@ -159,7 +159,7 @@ func (s *VhostTestSuite) TestSetSSLConfig() {
 	err := s.vhost.SetSSLConfig(sslConfig)
 	s.NoError(err)
 
-	s.True(s.vhost.HTTPS())
+	s.True(s.vhost.SSL())
 
 	got := s.vhost.SSLConfig()
 	s.NotNil(got)
@@ -174,18 +174,18 @@ func (s *VhostTestSuite) TestSetSSLConfigNil() {
 	s.Error(err)
 }
 
-func (s *VhostTestSuite) TestClearHTTPS() {
+func (s *VhostTestSuite) TestClearSSL() {
 	sslConfig := &types.SSLConfig{
 		Cert: "/etc/ssl/cert.pem",
 		Key:  "/etc/ssl/key.pem",
 		HSTS: true,
 	}
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
-	s.True(s.vhost.HTTPS())
+	s.True(s.vhost.SSL())
 
-	err := s.vhost.ClearHTTPS()
+	err := s.vhost.ClearSSL()
 	s.NoError(err)
-	s.False(s.vhost.HTTPS())
+	s.False(s.vhost.SSL())
 }
 
 func (s *VhostTestSuite) TestClearHTTPSPreservesOtherHeaders() {
@@ -201,7 +201,7 @@ func (s *VhostTestSuite) TestClearHTTPSPreservesOtherHeaders() {
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
 
 	// 清除 HTTPS
-	err := s.vhost.ClearHTTPS()
+	err := s.vhost.ClearSSL()
 	s.NoError(err)
 
 	// 检查自定义 Header 是否保留

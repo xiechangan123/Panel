@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/acepanel/panel/pkg/types"
+	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
 type WebsiteDefaultConfig struct {
@@ -38,22 +38,31 @@ type WebsiteDelete struct {
 }
 
 type WebsiteUpdate struct {
-	ID                uint                  `form:"id" json:"id" validate:"required|exists:websites,id"`
-	Listens           []types.WebsiteListen `form:"listens" json:"listens" validate:"required|isSlice"`
-	Domains           []string              `form:"domains" json:"domains" validate:"required|isSlice"`
-	HTTPS             bool                  `form:"https" json:"https"`
-	OCSP              bool                  `form:"ocsp" json:"ocsp"`
-	HSTS              bool                  `form:"hsts" json:"hsts"`
-	HTTPRedirect      bool                  `form:"http_redirect" json:"http_redirect"`
-	OpenBasedir       bool                  `form:"open_basedir" json:"open_basedir"`
-	Index             []string              `form:"index" json:"index" validate:"required|isSlice"`
-	Path              string                `form:"path" json:"path" validate:"required"` // 网站目录
-	Root              string                `form:"root" json:"root" validate:"required"` // 运行目录
-	Raw               string                `form:"raw" json:"raw"`
-	Rewrite           string                `form:"rewrite" json:"rewrite"`
-	PHP               int                   `form:"php" json:"php"`
-	SSLCertificate    string                `form:"ssl_certificate" json:"ssl_certificate" validate:"requiredIf:HTTPS,true"`
-	SSLCertificateKey string                `form:"ssl_certificate_key" json:"ssl_certificate_key" validate:"requiredIf:HTTPS,true"`
+	ID      uint           `form:"id" json:"id" validate:"required|exists:websites,id"`
+	Listens []types.Listen `form:"listens" json:"listens" validate:"required|isSlice"`
+	Domains []string       `form:"domains" json:"domains" validate:"required|isSlice"`
+	Path    string         `form:"path" json:"path" validate:"required"` // 网站目录
+	Root    string         `form:"root" json:"root" validate:"required"` // 运行目录
+	Index   []string       `form:"index" json:"index" validate:"required|isSlice"`
+
+	// SSL 相关
+	SSL          bool     `form:"ssl" json:"ssl"`
+	SSLCert      string   `json:"ssl_cert"`
+	SSLKey       string   `json:"ssl_key"`
+	HSTS         bool     `form:"hsts" json:"hsts"`
+	OCSP         bool     `form:"ocsp" json:"ocsp"`
+	HTTPRedirect bool     `form:"http_redirect" json:"http_redirect"`
+	SSLProtocols []string `json:"ssl_protocols"`
+	SSLCiphers   string   `json:"ssl_ciphers"`
+
+	// PHP 相关
+	PHP         uint   `form:"php" json:"php"`
+	Rewrite     string `form:"rewrite" json:"rewrite"`
+	OpenBasedir bool   `form:"open_basedir" json:"open_basedir"`
+
+	// 反向代理
+	Upstreams map[string]types.Upstream `json:"upstreams"`
+	Proxies   []types.Proxy             `json:"proxies"`
 }
 
 type WebsiteUpdateRemark struct {
