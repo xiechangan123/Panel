@@ -89,7 +89,7 @@ msgstr "Select File"
 #: src/views/database/UpdateServerModal.vue:55 src/views/file/ListTable.vue:105
 #: src/views/file/ToolBar.vue:257 src/views/ssh/CreateModal.vue:57
 #: src/views/ssh/UpdateModal.vue:63 src/views/task/SystemView.vue:18
-#: src/views/toolbox/ProcessView.vue:18
+#: src/views/toolbox/ProcessView.vue:18 src/views/website/CreateModal.vue:106
 msgid "Name"
 msgstr "Name"
 
@@ -146,8 +146,9 @@ msgstr "Folder"
 
 #: src/components/common/PathSelector.vue:261
 #: src/components/common/PathSelector.vue:324
-#: src/views/setting/TokenModal.vue:266 src/views/website/BulkCreate.vue:127
-#: src/views/website/PhpView.vue:534
+#: src/views/setting/TokenModal.vue:266
+#: src/views/website/BulkCreateModal.vue:129
+#: src/views/website/CreateModal.vue:240
 msgid "Create"
 msgstr "Create"
 
@@ -215,7 +216,7 @@ msgstr "Loading..."
 
 #: src/components/common/ServiceStatus.vue:26 src/views/task/SystemView.vue:50
 #: src/views/task/TaskView.vue:33 src/views/toolbox/ProcessView.vue:50
-#: src/views/website/PhpView.vue:26
+#: src/views/website/ListView.vue:28
 msgid "Running"
 msgstr "Running"
 
@@ -231,7 +232,7 @@ msgstr "Starting..."
 
 #: src/components/common/ServiceStatus.vue:48
 #: src/views/apps/supervisor/IndexView.vue:241
-#: src/views/website/PhpView.vue:259
+#: src/views/website/ListView.vue:228
 msgid "Started successfully"
 msgstr "Started successfully"
 
@@ -242,7 +243,7 @@ msgstr "Stopping..."
 
 #: src/components/common/ServiceStatus.vue:63
 #: src/views/apps/supervisor/IndexView.vue:248
-#: src/views/website/PhpView.vue:261
+#: src/views/website/ListView.vue:230
 msgid "Stopped successfully"
 msgstr "Stopped successfully"
 
@@ -459,7 +460,7 @@ msgstr "Container"
 
 #: src/locales/menu.ts:11 src/views/backup/ListView.vue:276
 #: src/views/database/IndexView.vue:27 src/views/home/IndexView.vue:426
-#: src/views/website/PhpView.vue:455
+#: src/views/website/CreateModal.vue:153
 msgid "Database"
 msgstr "Database"
 
@@ -606,7 +607,7 @@ msgstr "Show in Home"
 #: src/views/setting/SettingUser.vue:86 src/views/setting/TokenModal.vue:52
 #: src/views/task/CronView.vue:102 src/views/task/SystemView.vue:96
 #: src/views/task/TaskView.vue:55 src/views/toolbox/ProcessView.vue:96
-#: src/views/website/PhpView.vue:121
+#: src/views/website/ListView.vue:123
 msgid "Actions"
 msgstr "Actions"
 
@@ -772,7 +773,7 @@ msgstr "Are you sure you want to delete rule %{ name }?"
 #: src/views/firewall/IpRuleView.vue:145 src/views/firewall/RuleView.vue:182
 #: src/views/setting/SettingUser.vue:140 src/views/setting/TokenModal.vue:91
 #: src/views/ssh/IndexView.vue:92 src/views/task/CronView.vue:153
-#: src/views/task/TaskView.vue:97 src/views/website/PhpView.vue:193
+#: src/views/task/TaskView.vue:97 src/views/website/ListView.vue:195
 msgid "Delete"
 msgstr "Delete"
 
@@ -804,8 +805,8 @@ msgstr "Added successfully"
 #: src/views/firewall/IpRuleView.vue:189 src/views/firewall/RuleView.vue:208
 #: src/views/firewall/RuleView.vue:226 src/views/setting/SettingUser.vue:175
 #: src/views/setting/TokenModal.vue:114 src/views/task/CronView.vue:195
-#: src/views/task/TaskView.vue:122 src/views/website/PhpView.vue:285
-#: src/views/website/PhpView.vue:332
+#: src/views/task/TaskView.vue:122 src/views/website/ListView.vue:254
+#: src/views/website/ListView.vue:269
 msgid "Deleted successfully"
 msgstr "Deleted successfully"
 
@@ -982,7 +983,7 @@ msgstr "Cleared successfully"
 #: src/views/database/UserList.vue:219 src/views/file/PermissionModal.vue:29
 #: src/views/setting/SettingUser.vue:163 src/views/setting/SettingUser.vue:169
 #: src/views/task/CronView.vue:177 src/views/task/CronView.vue:204
-#: src/views/website/PhpView.vue:268 src/views/website/SettingView.vue:29
+#: src/views/website/ListView.vue:237 src/views/website/SettingView.vue:29
 msgid "Modified successfully"
 msgstr "Modified successfully"
 
@@ -1247,8 +1248,8 @@ msgstr "It is recommended to use the generator to generate a random password"
 #: src/views/apps/pureftpd/IndexView.vue:233
 #: src/views/apps/rsync/IndexView.vue:47 src/views/apps/rsync/IndexView.vue:275
 #: src/views/apps/rsync/IndexView.vue:329
-#: src/views/container/ComposeView.vue:38 src/views/website/PhpView.vue:39
-#: src/views/website/PhpView.vue:512
+#: src/views/container/ComposeView.vue:38 src/views/website/CreateModal.vue:210
+#: src/views/website/ListView.vue:41
 msgid "Directory"
 msgstr "Directory"
 
@@ -1511,8 +1512,8 @@ msgstr "Select website"
 #: src/views/backup/ListView.vue:239
 #: src/views/database/CreateDatabaseModal.vue:71
 #: src/views/database/DatabaseList.vue:34 src/views/task/CreateModal.vue:153
-#: src/views/task/CreateModal.vue:155 src/views/website/PhpView.vue:476
-#: src/views/website/PhpView.vue:481
+#: src/views/task/CreateModal.vue:155 src/views/website/CreateModal.vue:174
+#: src/views/website/CreateModal.vue:179
 msgid "Database Name"
 msgstr "Database Name"
 
@@ -1636,7 +1637,7 @@ msgstr "Enter HMAC"
 
 #: src/views/cert/CertView.vue:64 src/views/cert/CertView.vue:450
 #: src/views/cert/CreateCertModal.vue:74 src/views/cert/ObtainModal.vue:57
-#: src/views/website/EditView.vue:178 src/views/website/PhpView.vue:420
+#: src/views/website/CreateModal.vue:118 src/views/website/EditView.vue:178
 msgid "Domain"
 msgstr "Domain"
 
@@ -1952,7 +1953,7 @@ msgstr "Creation Time"
 
 #: src/views/container/ComposeView.vue:96 src/views/file/ListTable.vue:70
 #: src/views/file/ListTable.vue:222 src/views/ssh/IndexView.vue:70
-#: src/views/task/CronView.vue:132 src/views/website/PhpView.vue:136
+#: src/views/task/CronView.vue:132 src/views/website/ListView.vue:138
 msgid "Edit"
 msgstr "Edit"
 
@@ -2520,7 +2521,7 @@ msgstr "Enter database server host"
 #: src/views/database/UpdateServerModal.vue:76
 #: src/views/firewall/ForwardView.vue:31 src/views/firewall/RuleView.vue:48
 #: src/views/setting/SettingBase.vue:49 src/views/ssh/CreateModal.vue:68
-#: src/views/ssh/UpdateModal.vue:74 src/views/website/PhpView.vue:431
+#: src/views/ssh/UpdateModal.vue:74 src/views/website/CreateModal.vue:129
 msgid "Port"
 msgstr "Port"
 
@@ -2981,7 +2982,7 @@ msgid "Please select rules to delete"
 msgstr "Please select rules to delete"
 
 #: src/views/firewall/ForwardView.vue:168 src/views/firewall/IpRuleView.vue:210
-#: src/views/firewall/RuleView.vue:247 src/views/website/PhpView.vue:363
+#: src/views/firewall/RuleView.vue:247 src/views/website/ListView.vue:290
 msgid "Batch Delete"
 msgstr "Batch Delete"
 
@@ -3002,7 +3003,7 @@ msgstr "IP Rules"
 msgid "Port Forwarding"
 msgstr "Port Forwarding"
 
-#: src/views/firewall/IndexView.vue:23 src/views/website/IndexView.vue:19
+#: src/views/firewall/IndexView.vue:23 src/views/website/IndexView.vue:24
 msgid "Settings"
 msgstr "Settings"
 
@@ -3433,7 +3434,7 @@ msgstr "Are you sure you want to clear?"
 msgid "General"
 msgstr ""
 
-#: src/views/project/IndexView.vue:14
+#: src/views/project/IndexView.vue:14 src/views/website/IndexView.vue:22
 msgid "PHP"
 msgstr ""
 
@@ -4054,19 +4055,20 @@ msgstr "Modify Time"
 msgid "Synchronize Time"
 msgstr "Synchronize Time"
 
-#: src/views/website/BulkCreate.vue:21
+#: src/views/website/BulkCreateModal.vue:23
 msgid "The format is incorrect, please check"
 msgstr "The format is incorrect, please check"
 
-#: src/views/website/BulkCreate.vue:59 src/views/website/PhpView.vue:302
+#: src/views/website/BulkCreateModal.vue:61
+#: src/views/website/CreateModal.vue:62
 msgid "Website %{ name } created successfully"
 msgstr "Website %{ name } created successfully"
 
-#: src/views/website/BulkCreate.vue:77 src/views/website/PhpView.vue:358
+#: src/views/website/BulkCreateModal.vue:79 src/views/website/ListView.vue:285
 msgid "Bulk Create Website"
 msgstr "Bulk Create Website"
 
-#: src/views/website/BulkCreate.vue:88
+#: src/views/website/BulkCreateModal.vue:90
 msgid ""
 "Please enter the website name, domain, port, path, and remark in the text "
 "area below, one per line."
@@ -4074,11 +4076,11 @@ msgstr ""
 "Please enter the website name, domain, port, path, and remark in the text "
 "area below, one per line."
 
-#: src/views/website/BulkCreate.vue:96
+#: src/views/website/BulkCreateModal.vue:98
 msgid "name|domain|port|path|remark"
 msgstr "name|domain|port|path|remark"
 
-#: src/views/website/BulkCreate.vue:101
+#: src/views/website/BulkCreateModal.vue:103
 msgid ""
 "Name: The name of the website, which will be displayed in the website list, "
 "must be unique."
@@ -4086,7 +4088,7 @@ msgstr ""
 "Name: The name of the website, which will be displayed in the website list, "
 "must be unique."
 
-#: src/views/website/BulkCreate.vue:108
+#: src/views/website/BulkCreateModal.vue:110
 msgid ""
 "Domain: The domain name of the website, multiple domains can be separated by "
 "commas."
@@ -4094,7 +4096,7 @@ msgstr ""
 "Domain: The domain name of the website, multiple domains can be separated by "
 "commas."
 
-#: src/views/website/BulkCreate.vue:115
+#: src/views/website/BulkCreateModal.vue:117
 msgid ""
 "Port: The port number of the website, multiple ports can be separated by "
 "commas."
@@ -4102,17 +4104,72 @@ msgstr ""
 "Port: The port number of the website, multiple ports can be separated by "
 "commas."
 
-#: src/views/website/BulkCreate.vue:121
+#: src/views/website/BulkCreateModal.vue:123
 msgid "Path: The path of the website, can be empty to use the default path."
 msgstr "Path: The path of the website, can be empty to use the default path."
 
-#: src/views/website/BulkCreate.vue:124
+#: src/views/website/BulkCreateModal.vue:126
 msgid "Remark: The remark of the website, can be empty."
 msgstr "Remark: The remark of the website, can be empty."
 
-#: src/views/website/EditView.vue:54 src/views/website/PhpView.vue:229
+#: src/views/website/CreateModal.vue:35 src/views/website/EditView.vue:54
 msgid "Not used"
 msgstr "Not used"
+
+#: src/views/website/CreateModal.vue:97 src/views/website/ListView.vue:282
+msgid "Create Website"
+msgstr "Create Website"
+
+#: src/views/website/CreateModal.vue:112
+#, fuzzy
+msgid ""
+"Must use English for the website name, it cannot be modified after setting"
+msgstr ""
+"Recommended to use English for the website name, it cannot be modified after "
+"setting"
+
+#: src/views/website/CreateModal.vue:141 src/views/website/EditView.vue:223
+msgid "PHP Version"
+msgstr "PHP Version"
+
+#: src/views/website/CreateModal.vue:145 src/views/website/EditView.vue:228
+msgid "Select PHP Version"
+msgstr "Select PHP Version"
+
+#: src/views/website/CreateModal.vue:157
+msgid "Select Database"
+msgstr "Select Database"
+
+#: src/views/website/CreateModal.vue:185 src/views/website/CreateModal.vue:190
+msgid "Database User"
+msgstr "Database User"
+
+#: src/views/website/CreateModal.vue:199 src/views/website/CreateModal.vue:205
+msgid "Database Password"
+msgstr "Database Password"
+
+#: src/views/website/CreateModal.vue:216
+#, fuzzy
+msgid ""
+"Website root directory (if left empty, defaults to website directory/website "
+"name/public)"
+msgstr ""
+"Website root directory (if left empty, defaults to website directory/website "
+"name)"
+
+#: src/views/website/CreateModal.vue:222
+#, fuzzy
+msgid "Proxy Target"
+msgstr "Target"
+
+#: src/views/website/CreateModal.vue:227
+msgid "Proxy target address (e.g., http://127.0.0.1:3000)"
+msgstr ""
+
+#: src/views/website/CreateModal.vue:230 src/views/website/CreateModal.vue:235
+#: src/views/website/ListView.vue:106
+msgid "Remark"
+msgstr "Remark"
 
 #: src/views/website/EditView.vue:83
 msgid "Edit Website - %{ name }"
@@ -4165,14 +4222,6 @@ msgstr "Enter running directory (needed for Laravel etc.) (absolute path)"
 #: src/views/website/EditView.vue:220
 msgid "Default Document"
 msgstr "Default Document"
-
-#: src/views/website/EditView.vue:223 src/views/website/PhpView.vue:443
-msgid "PHP Version"
-msgstr "PHP Version"
-
-#: src/views/website/EditView.vue:228 src/views/website/PhpView.vue:447
-msgid "Select PHP Version"
-msgstr "Select PHP Version"
 
 #: src/views/website/EditView.vue:233
 msgid "Anti-cross-site Attack (PHP)"
@@ -4271,99 +4320,58 @@ msgstr "Clear Logs"
 msgid "Error Log"
 msgstr "Error Log"
 
-#: src/views/website/IndexView.vue:16
+#: src/views/website/IndexView.vue:21
 msgid "Reverse Proxy"
 msgstr ""
 
-#: src/views/website/IndexView.vue:17
-msgid "Classic PHP"
-msgstr ""
-
-#: src/views/website/IndexView.vue:18
+#: src/views/website/IndexView.vue:23
 #, fuzzy
 msgid "Pure Static"
 msgstr "Automatic"
 
-#: src/views/website/PhpView.vue:19 src/views/website/PhpView.vue:406
+#: src/views/website/ListView.vue:21
 msgid "Website Name"
 msgstr "Website Name"
 
-#: src/views/website/PhpView.vue:72
+#: src/views/website/ListView.vue:74
 msgid "Certificate expiration"
 msgstr "Certificate expiration"
 
-#: src/views/website/PhpView.vue:86
+#: src/views/website/ListView.vue:88
 msgid "Not configured"
 msgstr "Not configured"
 
-#: src/views/website/PhpView.vue:89
+#: src/views/website/ListView.vue:91
 msgid "Expired %{ days } days ago"
 msgstr "Expired %{ days } days ago"
 
-#: src/views/website/PhpView.vue:94
+#: src/views/website/ListView.vue:96
 msgid "Expires in %{ days } days"
 msgstr "Expires in %{ days } days"
 
-#: src/views/website/PhpView.vue:104 src/views/website/PhpView.vue:524
-#: src/views/website/PhpView.vue:529
-msgid "Remark"
-msgstr "Remark"
-
-#: src/views/website/PhpView.vue:159
+#: src/views/website/ListView.vue:161
 msgid "Are you sure you want to delete website %{ name }?"
 msgstr "Are you sure you want to delete website %{ name }?"
 
-#: src/views/website/PhpView.vue:170
+#: src/views/website/ListView.vue:172
 msgid "Delete website directory"
 msgstr "Delete website directory"
 
-#: src/views/website/PhpView.vue:178
+#: src/views/website/ListView.vue:180
 msgid "Delete local database with the same name"
 msgstr "Delete local database with the same name"
 
-#: src/views/website/PhpView.vue:323
+#: src/views/website/ListView.vue:260
 msgid "Please select the websites to delete"
 msgstr "Please select the websites to delete"
 
-#: src/views/website/PhpView.vue:355 src/views/website/PhpView.vue:397
-msgid "Create Website"
-msgstr "Create Website"
-
-#: src/views/website/PhpView.vue:367
+#: src/views/website/ListView.vue:294
 msgid ""
 "This will delete the website directory but not the database with the same "
 "name. Are you sure you want to delete the selected websites?"
 msgstr ""
 "This will delete the website directory but not the database with the same "
 "name. Are you sure you want to delete the selected websites?"
-
-#: src/views/website/PhpView.vue:412
-msgid ""
-"Recommended to use English for the website name, it cannot be modified after "
-"setting"
-msgstr ""
-"Recommended to use English for the website name, it cannot be modified after "
-"setting"
-
-#: src/views/website/PhpView.vue:459
-msgid "Select Database"
-msgstr "Select Database"
-
-#: src/views/website/PhpView.vue:487 src/views/website/PhpView.vue:492
-msgid "Database User"
-msgstr "Database User"
-
-#: src/views/website/PhpView.vue:501 src/views/website/PhpView.vue:507
-msgid "Database Password"
-msgstr "Database Password"
-
-#: src/views/website/PhpView.vue:518
-msgid ""
-"Website root directory (if left empty, defaults to website directory/website "
-"name)"
-msgstr ""
-"Website root directory (if left empty, defaults to website directory/website "
-"name)"
 
 #: src/views/website/ProxyBuilderModal.vue:24
 msgid "Disabled buffer and enabled cache cannot be used simultaneously"
