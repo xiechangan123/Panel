@@ -11,7 +11,7 @@ import (
 type Website struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	Name      string    `gorm:"not null;default:'';unique" json:"name"`
-	Type      string    `gorm:"not null;default:'php'" json:"type"`
+	Type      string    `gorm:"not null;default:'static'" json:"type"`
 	Status    bool      `gorm:"not null;default:true" json:"status"`
 	Path      string    `gorm:"not null;default:''" json:"path"`
 	Https     bool      `gorm:"not null;default:false" json:"https"`

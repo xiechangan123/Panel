@@ -13,7 +13,7 @@ import (
 )
 
 func NewConf() (*koanf.Koanf, error) {
-	config := "/usr/local/etc/panel/config.yml"
+	config := "/opt/ace/panel/config.yml"
 	if !io.Exists(config) {
 		config = "config.yml"
 	}
@@ -33,7 +33,7 @@ func initGlobal(conf *koanf.Koanf) {
 		log.Fatalf("panel app key must be 32 characters")
 	}
 
-	app.Root = conf.MustString("app.root")
+	app.Root = "/opt/ace"
 	app.Locale = conf.MustString("app.locale")
 
 	// 初始化时区
