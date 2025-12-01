@@ -55,18 +55,16 @@ func (s *VhostTestSuite) TestEnable() {
 	s.True(s.vhost.Enable())
 
 	// 禁用网站
-	err := s.vhost.SetEnable(false)
-	s.NoError(err)
+	s.NoError(s.vhost.SetEnable(false))
 	s.False(s.vhost.Enable())
 
 	// 验证禁用文件存在
 	disableFile := filepath.Join(s.configDir, "vhost", DisableConfName)
-	_, err = os.Stat(disableFile)
+	_, err := os.Stat(disableFile)
 	s.NoError(err)
 
 	// 重新启用
-	err = s.vhost.SetEnable(true)
-	s.NoError(err)
+	s.NoError(s.vhost.SetEnable(true))
 	s.True(s.vhost.Enable())
 
 	// 验证禁用文件已删除
@@ -76,8 +74,7 @@ func (s *VhostTestSuite) TestEnable() {
 
 func (s *VhostTestSuite) TestDisableConfigContent() {
 	// 禁用网站
-	err := s.vhost.SetEnable(false)
-	s.NoError(err)
+	s.NoError(s.vhost.SetEnable(false))
 
 	// 读取禁用配置内容
 	disableFile := filepath.Join(s.configDir, "vhost", DisableConfName)
@@ -91,8 +88,7 @@ func (s *VhostTestSuite) TestDisableConfigContent() {
 
 func (s *VhostTestSuite) TestServerName() {
 	names := []string{"example.com", "www.example.com", "api.example.com"}
-	err := s.vhost.SetServerName(names)
-	s.NoError(err)
+	s.NoError(s.vhost.SetServerName(names))
 
 	got := s.vhost.ServerName()
 	s.Len(got, 3)
@@ -102,21 +98,18 @@ func (s *VhostTestSuite) TestServerName() {
 }
 
 func (s *VhostTestSuite) TestServerNameEmpty() {
-	err := s.vhost.SetServerName([]string{})
-	s.NoError(err)
+	s.NoError(s.vhost.SetServerName([]string{}))
 }
 
 func (s *VhostTestSuite) TestRoot() {
 	root := "/var/www/html"
-	err := s.vhost.SetRoot(root)
-	s.NoError(err)
+	s.NoError(s.vhost.SetRoot(root))
 	s.Equal(root, s.vhost.Root())
 }
 
 func (s *VhostTestSuite) TestIndex() {
 	index := []string{"index.html", "index.php", "default.html"}
-	err := s.vhost.SetIndex(index)
-	s.NoError(err)
+	s.NoError(s.vhost.SetIndex(index))
 
 	got := s.vhost.Index()
 	s.Len(got, 3)
@@ -124,8 +117,7 @@ func (s *VhostTestSuite) TestIndex() {
 }
 
 func (s *VhostTestSuite) TestIndexEmpty() {
-	err := s.vhost.SetIndex([]string{})
-	s.NoError(err)
+	s.NoError(s.vhost.SetIndex([]string{}))
 	s.Nil(s.vhost.Index())
 }
 
@@ -134,8 +126,7 @@ func (s *VhostTestSuite) TestListen() {
 		{Address: "*:80"},
 		{Address: "*:443"},
 	}
-	err := s.vhost.SetListen(listens)
-	s.NoError(err)
+	s.NoError(s.vhost.SetListen(listens))
 
 	got := s.vhost.Listen()
 	s.Len(got, 2)
@@ -156,8 +147,7 @@ func (s *VhostTestSuite) TestSetSSLConfig() {
 		HSTS:      true,
 		OCSP:      true,
 	}
-	err := s.vhost.SetSSLConfig(sslConfig)
-	s.NoError(err)
+	s.NoError(s.vhost.SetSSLConfig(sslConfig))
 
 	s.True(s.vhost.SSL())
 
@@ -170,8 +160,7 @@ func (s *VhostTestSuite) TestSetSSLConfig() {
 }
 
 func (s *VhostTestSuite) TestSetSSLConfigNil() {
-	err := s.vhost.SetSSLConfig(nil)
-	s.Error(err)
+	s.Error(s.vhost.SetSSLConfig(nil))
 }
 
 func (s *VhostTestSuite) TestClearSSL() {
@@ -183,8 +172,7 @@ func (s *VhostTestSuite) TestClearSSL() {
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
 	s.True(s.vhost.SSL())
 
-	err := s.vhost.ClearSSL()
-	s.NoError(err)
+	s.NoError(s.vhost.ClearSSL())
 	s.False(s.vhost.SSL())
 }
 
@@ -201,8 +189,7 @@ func (s *VhostTestSuite) TestClearHTTPSPreservesOtherHeaders() {
 	s.NoError(s.vhost.SetSSLConfig(sslConfig))
 
 	// 清除 HTTPS
-	err := s.vhost.ClearSSL()
-	s.NoError(err)
+	s.NoError(s.vhost.ClearSSL())
 
 	// 检查自定义 Header 是否保留
 	headers := s.vhost.vhost.GetDirectives("Header")
@@ -218,28 +205,24 @@ func (s *VhostTestSuite) TestClearHTTPSPreservesOtherHeaders() {
 }
 
 func (s *VhostTestSuite) TestPHP() {
-	s.Equal(0, s.vhost.PHP())
+	s.Equal(uint(0), s.vhost.PHP())
 
-	err := s.vhost.SetPHP(84)
-	s.NoError(err)
-	s.NotEqual(0, s.vhost.PHP())
+	s.NoError(s.vhost.SetPHP(84))
+	s.NotEqual(uint(0), s.vhost.PHP())
 
-	err = s.vhost.SetPHP(0)
-	s.NoError(err)
-	s.Equal(0, s.vhost.PHP())
+	s.NoError(s.vhost.SetPHP(0))
+	s.Equal(uint(0), s.vhost.PHP())
 }
 
 func (s *VhostTestSuite) TestAccessLog() {
 	accessLog := "/var/log/apache/access.log"
-	err := s.vhost.SetAccessLog(accessLog)
-	s.NoError(err)
+	s.NoError(s.vhost.SetAccessLog(accessLog))
 	s.Equal(accessLog, s.vhost.AccessLog())
 }
 
 func (s *VhostTestSuite) TestErrorLog() {
 	errorLog := "/var/log/apache/error.log"
-	err := s.vhost.SetErrorLog(errorLog)
-	s.NoError(err)
+	s.NoError(s.vhost.SetErrorLog(errorLog))
 	s.Equal(errorLog, s.vhost.ErrorLog())
 }
 
@@ -248,8 +231,7 @@ func (s *VhostTestSuite) TestIncludes() {
 		{Path: "/etc/apache/conf.d/ssl.conf"},
 		{Path: "/etc/apache/conf.d/php.conf"},
 	}
-	err := s.vhost.SetIncludes(includes)
-	s.NoError(err)
+	s.NoError(s.vhost.SetIncludes(includes))
 
 	got := s.vhost.Includes()
 	s.Len(got, 2)
@@ -264,15 +246,13 @@ func (s *VhostTestSuite) TestBasicAuth() {
 		"realm":     "Test Realm",
 		"user_file": "/etc/htpasswd",
 	}
-	err := s.vhost.SetBasicAuth(auth)
-	s.NoError(err)
+	s.NoError(s.vhost.SetBasicAuth(auth))
 
 	got := s.vhost.BasicAuth()
 	s.NotNil(got)
 	s.Equal(auth["user_file"], got["user_file"])
 
-	err = s.vhost.ClearBasicAuth()
-	s.NoError(err)
+	s.NoError(s.vhost.ClearBasicAuth())
 	s.Nil(s.vhost.BasicAuth())
 }
 
@@ -282,14 +262,12 @@ func (s *VhostTestSuite) TestRateLimit() {
 	limit := &types.RateLimit{
 		Rate: "512",
 	}
-	err := s.vhost.SetRateLimit(limit)
-	s.NoError(err)
+	s.NoError(s.vhost.SetRateLimit(limit))
 
 	got := s.vhost.RateLimit()
 	s.NotNil(got)
 
-	err = s.vhost.ClearRateLimit()
-	s.NoError(err)
+	s.NoError(s.vhost.ClearRateLimit())
 	s.Nil(s.vhost.RateLimit())
 }
 
@@ -297,8 +275,7 @@ func (s *VhostTestSuite) TestReset() {
 	s.NoError(s.vhost.SetServerName([]string{"modified.com"}))
 	s.NoError(s.vhost.SetRoot("/modified/path"))
 
-	err := s.vhost.Reset()
-	s.NoError(err)
+	s.NoError(s.vhost.Reset())
 
 	names := s.vhost.ServerName()
 	s.NotContains(names, "modified.com")
@@ -306,9 +283,7 @@ func (s *VhostTestSuite) TestReset() {
 
 func (s *VhostTestSuite) TestSave() {
 	s.NoError(s.vhost.SetServerName([]string{"save-test.com"}))
-
-	err := s.vhost.Save()
-	s.NoError(err)
+	s.NoError(s.vhost.Save())
 
 	// 验证配置文件已保存
 	configFile := filepath.Join(s.configDir, "apache.conf")
@@ -362,8 +337,7 @@ func (s *VhostTestSuite) TestListenProtocolDetection() {
 
 func (s *VhostTestSuite) TestDirectoryBlock() {
 	root := "/var/www/test-dir"
-	err := s.vhost.SetRoot(root)
-	s.NoError(err)
+	s.NoError(s.vhost.SetRoot(root))
 
 	content := s.vhost.config.Export()
 	s.Contains(content, "<Directory "+root+">")
@@ -371,8 +345,7 @@ func (s *VhostTestSuite) TestDirectoryBlock() {
 }
 
 func (s *VhostTestSuite) TestPHPFilesMatchBlock() {
-	err := s.vhost.SetPHP(84)
-	s.NoError(err)
+	s.NoError(s.vhost.SetPHP(84))
 
 	content := s.vhost.config.Export()
 	s.Contains(content, "<FilesMatch")

@@ -165,8 +165,7 @@ func (s *VhostTestSuite) TestSetSSLConfig() {
 }
 
 func (s *VhostTestSuite) TestSetSSLConfigNil() {
-	err := s.vhost.SetSSLConfig(nil)
-	s.Error(err)
+	s.Error(s.vhost.SetSSLConfig(nil))
 }
 
 func (s *VhostTestSuite) TestClearSSL() {
@@ -189,6 +188,7 @@ func (s *VhostTestSuite) TestPHP() {
 	s.Equal(uint(84), s.vhost.PHP())
 
 	s.NoError(s.vhost.SetPHP(0))
+	s.Equal(uint(0), s.vhost.PHP())
 }
 
 func (s *VhostTestSuite) TestAccessLog() {
@@ -253,13 +253,10 @@ func (s *VhostTestSuite) TestRateLimit() {
 }
 
 func (s *VhostTestSuite) TestReset() {
-	err := s.vhost.SetServerName([]string{"modified.com"})
-	s.NoError(err)
-	err = s.vhost.SetRoot("/modified/path")
-	s.NoError(err)
+	s.NoError(s.vhost.SetServerName([]string{"modified.com"}))
+	s.NoError(s.vhost.SetRoot("/modified/path"))
 
-	err = s.vhost.Reset()
-	s.NoError(err)
+	s.NoError(s.vhost.Reset())
 
 	names := s.vhost.ServerName()
 	s.NotContains(names, "modified.com")
@@ -271,7 +268,6 @@ func (s *VhostTestSuite) TestSave() {
 	s.vhost.parser.SetConfigPath(configFile)
 
 	s.NoError(s.vhost.SetServerName([]string{"save-test.com"}))
-
 	s.NoError(s.vhost.Save())
 
 	// 验证配置文件已保存
@@ -281,10 +277,8 @@ func (s *VhostTestSuite) TestSave() {
 }
 
 func (s *VhostTestSuite) TestDump() {
-	err := s.vhost.SetServerName([]string{"dump-test.com"})
-	s.NoError(err)
-	err = s.vhost.SetRoot("/var/www/dump-test")
-	s.NoError(err)
+	s.NoError(s.vhost.SetServerName([]string{"dump-test.com"}))
+	s.NoError(s.vhost.SetRoot("/var/www/dump-test"))
 
 	content := s.vhost.parser.Dump()
 	s.NotEmpty(content)
