@@ -500,8 +500,7 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 			rate = directive.GetParameters()[0].GetValue()
 		}
 	}
-	directives, err := v.parser.Find("server.limit_conn")
-
+	directives, _ := v.parser.Find("server.limit_conn")
 	var limitConn [][]string
 	for _, dir := range directives {
 		limitConn = append(limitConn, v.parser.parameters2Slices(dir.GetParameters()))

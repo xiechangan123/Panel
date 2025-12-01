@@ -138,7 +138,7 @@ func (s *VhostTestSuite) TestListenWithHTTP3() {
 
 	got := s.vhost.Listen()
 	s.Len(got, 1)
-	s.Equal("http3", got[0].Args[0])
+	s.Equal("quic", got[0].Args[0])
 }
 
 func (s *VhostTestSuite) TestSSL() {
@@ -183,7 +183,7 @@ func (s *VhostTestSuite) TestClearSSL() {
 }
 
 func (s *VhostTestSuite) TestPHP() {
-	s.Equal(0, s.vhost.PHP())
+	s.Equal(uint(0), s.vhost.PHP())
 
 	s.NoError(s.vhost.SetPHP(84))
 
@@ -239,7 +239,7 @@ func (s *VhostTestSuite) TestBasicAuth() {
 	s.NotNil(got)
 	s.Equal(auth["user_file"], got["user_file"])
 
-	s.NoError(s.vhost.SetBasicAuth(nil))
+	s.NoError(s.vhost.ClearBasicAuth())
 	s.Nil(s.vhost.BasicAuth())
 }
 
@@ -258,7 +258,7 @@ func (s *VhostTestSuite) TestRateLimit() {
 	s.NotNil(got)
 	s.Equal("512k", got.Rate)
 
-	s.NoError(s.vhost.SetRateLimit(nil))
+	s.NoError(s.vhost.ClearRateLimit())
 	s.Nil(s.vhost.RateLimit())
 }
 

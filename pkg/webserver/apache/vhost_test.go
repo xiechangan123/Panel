@@ -271,7 +271,7 @@ func (s *VhostTestSuite) TestBasicAuth() {
 	s.NotNil(got)
 	s.Equal(auth["user_file"], got["user_file"])
 
-	err = s.vhost.SetBasicAuth(nil)
+	err = s.vhost.ClearBasicAuth()
 	s.NoError(err)
 	s.Nil(s.vhost.BasicAuth())
 }
@@ -288,7 +288,7 @@ func (s *VhostTestSuite) TestRateLimit() {
 	got := s.vhost.RateLimit()
 	s.NotNil(got)
 
-	err = s.vhost.SetRateLimit(nil)
+	err = s.vhost.ClearRateLimit()
 	s.NoError(err)
 	s.Nil(s.vhost.RateLimit())
 }
