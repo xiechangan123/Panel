@@ -7,7 +7,7 @@ export default {
   path: '/monitor',
   component: Layout,
   meta: {
-    order: 20
+    order: 30
   },
   children: [
     {

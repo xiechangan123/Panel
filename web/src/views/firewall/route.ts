@@ -7,7 +7,7 @@ export default {
   path: '/firewall',
   component: Layout,
   meta: {
-    order: 30
+    order: 40
   },
   children: [
     {

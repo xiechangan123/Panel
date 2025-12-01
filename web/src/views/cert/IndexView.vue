@@ -93,9 +93,9 @@ onUnmounted(() => {
   <common-page show-header show-footer>
     <template #tabbar>
       <n-tabs v-model:value="currentTab" animated>
-        <n-tab name="cert" :tab="$gettext('Certificate List')" />
-        <n-tab name="account" :tab="$gettext('Account List')" />
-        <n-tab name="dns" :tab="$gettext('DNS List')" />
+        <n-tab name="cert" :tab="$gettext('Certificate')" />
+        <n-tab name="account" :tab="$gettext('Account')" />
+        <n-tab name="dns" :tab="$gettext('DNS')" />
       </n-tabs>
     </template>
     <n-flex vertical>
