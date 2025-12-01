@@ -1,0 +1,654 @@
+package apache
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+
+	"github.com/acepanel/panel/pkg/webserver/types"
+)
+
+// Vhost Apache 虚拟主机实现
+type Vhost struct {
+	config    *Config
+	vhost     *VirtualHost
+	configDir string // 配置目录
+}
+
+// NewVhost 创建 Apache 虚拟主机实例
+// configDir: 配置目录路径
+func NewVhost(configDir string) (*Vhost, error) {
+	v := &Vhost{
+		configDir: configDir,
+	}
+
+	// 加载配置
+	var config *Config
+	var err error
+
+	if v.configDir != "" {
+		// 从配置目录加载主配置文件
+		configFile := filepath.Join(v.configDir, "apache.conf")
+		if _, statErr := os.Stat(configFile); statErr == nil {
+			config, err = ParseFile(configFile)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse apache config: %w", err)
+			}
+		}
+	}
+
+	// 如果没有配置文件，使用默认配置
+	if config == nil {
+		config, err = ParseString(DefaultVhostConf)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse default config: %w", err)
+		}
+	}
+
+	v.config = config
+
+	// 获取第一个虚拟主机
+	if len(config.VirtualHosts) > 0 {
+		v.vhost = config.VirtualHosts[0]
+	} else {
+		// 创建默认虚拟主机
+		v.vhost = config.AddVirtualHost("*:80")
+	}
+
+	return v, nil
+}
+
+// ========== VhostCore 接口实现 ==========
+
+func (v *Vhost) Enable() bool {
+	// 检查禁用配置文件是否存在
+	disableFile := filepath.Join(v.configDir, "server.d", DisableConfName)
+	_, err := os.Stat(disableFile)
+	return os.IsNotExist(err)
+}
+
+func (v *Vhost) SetEnable(enable bool, _ ...string) error {
+	serverDir := filepath.Join(v.configDir, "server.d")
+	disableFile := filepath.Join(serverDir, DisableConfName)
+
+	if enable {
+		// 启用：删除禁用配置文件
+		if err := os.Remove(disableFile); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("failed to remove disable config: %w", err)
+		}
+		return nil
+	}
+
+	// 禁用：创建禁用配置文件
+	// 确保目录存在
+	if err := os.MkdirAll(serverDir, 0755); err != nil {
+		return fmt.Errorf("failed to create config directory: %w", err)
+	}
+
+	// 写入禁用配置
+	if err := os.WriteFile(disableFile, []byte(DisableConfContent), 0644); err != nil {
+		return fmt.Errorf("写入禁用配置失败: %w", err)
+	}
+
+	return nil
+}
+
+func (v *Vhost) Listen() []types.Listen {
+	var result []types.Listen
+
+	// Apache 的监听配置通常在 VirtualHost 的参数中
+	// 例如: <VirtualHost *:80> 或 <VirtualHost 192.168.1.1:443>
+	for _, arg := range v.vhost.Args {
+		listen := types.Listen{
+			Address: arg,
+			Options: make(map[string]string),
+		}
+
+		// 检查是否是 HTTPS
+		if strings.Contains(arg, ":443") || v.HTTPS() {
+			listen.Protocol = "https"
+		} else {
+			listen.Protocol = "http"
+		}
+
+		result = append(result, listen)
+	}
+
+	return result
+}
+
+func (v *Vhost) SetListen(listens []types.Listen) error {
+	var args []string
+	for _, l := range listens {
+		args = append(args, l.Address)
+	}
+	v.vhost.Args = args
+	return nil
+}
+
+func (v *Vhost) ServerName() []string {
+	var names []string
+
+	// 获取 ServerName
+	serverName := v.vhost.GetDirectiveValue("ServerName")
+	if serverName != "" {
+		names = append(names, serverName)
+	}
+
+	// 获取 ServerAlias（可能有多个值）
+	aliases := v.vhost.GetDirectives("ServerAlias")
+	for _, alias := range aliases {
+		names = append(names, alias.Args...)
+	}
+
+	return names
+}
+
+func (v *Vhost) SetServerName(serverName []string) error {
+	if len(serverName) == 0 {
+		return nil
+	}
+
+	// 设置主域名
+	v.vhost.SetDirective("ServerName", serverName[0])
+
+	// 删除现有的 ServerAlias
+	v.vhost.RemoveDirectives("ServerAlias")
+
+	// 设置别名
+	if len(serverName) > 1 {
+		v.vhost.AddDirective("ServerAlias", serverName[1:]...)
+	}
+
+	return nil
+}
+
+func (v *Vhost) Index() []string {
+	values := v.vhost.GetDirectiveValues("DirectoryIndex")
+	if values != nil {
+		return values
+	}
+	return nil
+}
+
+func (v *Vhost) SetIndex(index []string) error {
+	if len(index) == 0 {
+		v.vhost.RemoveDirective("DirectoryIndex")
+		return nil
+	}
+	v.vhost.SetDirective("DirectoryIndex", index...)
+	return nil
+}
+
+func (v *Vhost) Root() string {
+	return v.vhost.GetDirectiveValue("DocumentRoot")
+}
+
+func (v *Vhost) SetRoot(root string) error {
+	v.vhost.SetDirective("DocumentRoot", root)
+
+	// 同时更新 Directory 块
+	dirBlock := v.vhost.GetBlock("Directory")
+	if dirBlock != nil {
+		// 更新现有的 Directory 块路径
+		dirBlock.Args = []string{root}
+	} else {
+		// 添加新的 Directory 块
+		block := v.vhost.AddBlock("Directory", root)
+		if block.Block != nil {
+			block.Block.Directives = append(block.Block.Directives,
+				&Directive{Name: "Options", Args: []string{"-Indexes", "+FollowSymLinks"}},
+				&Directive{Name: "AllowOverride", Args: []string{"All"}},
+				&Directive{Name: "Require", Args: []string{"all", "granted"}},
+			)
+		}
+	}
+
+	return nil
+}
+
+func (v *Vhost) Includes() []types.IncludeFile {
+	var result []types.IncludeFile
+
+	// 获取所有 Include 和 IncludeOptional 指令
+	for _, dir := range v.vhost.GetDirectives("Include") {
+		if len(dir.Args) > 0 {
+			result = append(result, types.IncludeFile{
+				Path: dir.Args[0],
+			})
+		}
+	}
+	for _, dir := range v.vhost.GetDirectives("IncludeOptional") {
+		if len(dir.Args) > 0 {
+			result = append(result, types.IncludeFile{
+				Path: dir.Args[0],
+			})
+		}
+	}
+
+	return result
+}
+
+func (v *Vhost) SetIncludes(includes []types.IncludeFile) error {
+	// 删除现有的 Include 指令
+	v.vhost.RemoveDirectives("Include")
+	v.vhost.RemoveDirectives("IncludeOptional")
+
+	// 添加新的 Include 指令
+	for _, inc := range includes {
+		v.vhost.AddDirective("Include", inc.Path)
+	}
+
+	return nil
+}
+
+func (v *Vhost) AccessLog() string {
+	return v.vhost.GetDirectiveValue("CustomLog")
+}
+
+func (v *Vhost) SetAccessLog(accessLog string) error {
+	v.vhost.SetDirective("CustomLog", accessLog, "combined")
+	return nil
+}
+
+func (v *Vhost) ErrorLog() string {
+	return v.vhost.GetDirectiveValue("ErrorLog")
+}
+
+func (v *Vhost) SetErrorLog(errorLog string) error {
+	v.vhost.SetDirective("ErrorLog", errorLog)
+	return nil
+}
+
+func (v *Vhost) Save() error {
+	if v.configDir == "" {
+		return fmt.Errorf("配置目录为空，无法保存")
+	}
+
+	configFile := filepath.Join(v.configDir, "apache.conf")
+	content := v.config.Export()
+	if err := os.WriteFile(configFile, []byte(content), 0644); err != nil {
+		return fmt.Errorf("保存配置文件失败: %w", err)
+	}
+
+	return nil
+}
+
+func (v *Vhost) Reload() error {
+	// 重载 Apache 配置
+	cmds := []string{
+		"/opt/ace/apps/apache/bin/apachectl graceful",
+		"/usr/sbin/apachectl graceful",
+		"apachectl graceful",
+		"systemctl reload apache2",
+		"systemctl reload httpd",
+	}
+
+	var lastErr error
+	for _, cmd := range cmds {
+		parts := strings.Fields(cmd)
+		if len(parts) < 1 {
+			continue
+		}
+
+		// 检查命令是否存在
+		if _, err := os.Stat(parts[0]); err == nil || parts[0] == "systemctl" {
+			err := exec.Command(parts[0], parts[1:]...).Run()
+			if err == nil {
+				return nil
+			}
+			lastErr = err
+		}
+	}
+
+	if lastErr != nil {
+		return fmt.Errorf("重载 Apache 配置失败: %w", lastErr)
+	}
+	return fmt.Errorf("未找到 apachectl 或 apache2 命令")
+}
+
+func (v *Vhost) Reset() error {
+	// 重置配置为默认值
+	config, err := ParseString(DefaultVhostConf)
+	if err != nil {
+		return fmt.Errorf("重置配置失败: %w", err)
+	}
+
+	v.config = config
+	if len(config.VirtualHosts) > 0 {
+		v.vhost = config.VirtualHosts[0]
+	}
+
+	return nil
+}
+
+// ========== VhostSSL 接口实现 ==========
+
+func (v *Vhost) HTTPS() bool {
+	// 检查是否有 SSL 相关配置
+	return v.vhost.HasDirective("SSLEngine") &&
+		strings.EqualFold(v.vhost.GetDirectiveValue("SSLEngine"), "on")
+}
+
+func (v *Vhost) SSLConfig() *types.SSLConfig {
+	if !v.HTTPS() {
+		return nil
+	}
+
+	config := &types.SSLConfig{
+		Cert: v.vhost.GetDirectiveValue("SSLCertificateFile"),
+		Key:  v.vhost.GetDirectiveValue("SSLCertificateKeyFile"),
+	}
+
+	// 获取协议
+	protocols := v.vhost.GetDirectiveValues("SSLProtocol")
+	if protocols != nil {
+		config.Protocols = protocols
+	}
+
+	// 获取加密套件
+	config.Ciphers = v.vhost.GetDirectiveValue("SSLCipherSuite")
+
+	// 检查 HSTS
+	headers := v.vhost.GetDirectives("Header")
+	for _, h := range headers {
+		if len(h.Args) >= 3 && strings.Contains(strings.Join(h.Args, " "), "Strict-Transport-Security") {
+			config.HSTS = true
+			break
+		}
+	}
+
+	// 检查 OCSP
+	config.OCSP = strings.EqualFold(v.vhost.GetDirectiveValue("SSLUseStapling"), "on")
+
+	// 检查 HTTP 重定向（通常在 HTTP 虚拟主机中配置）
+	redirects := v.vhost.GetDirectives("RewriteRule")
+	for _, r := range redirects {
+		if len(r.Args) >= 2 && strings.Contains(strings.Join(r.Args, " "), "https://") {
+			config.HTTPRedirect = true
+			break
+		}
+	}
+
+	return config
+}
+
+func (v *Vhost) SetSSLConfig(cfg *types.SSLConfig) error {
+	if cfg == nil {
+		return fmt.Errorf("SSL 配置不能为空")
+	}
+
+	// 启用 SSL
+	v.vhost.SetDirective("SSLEngine", "on")
+
+	// 设置证书
+	if cfg.Cert != "" {
+		v.vhost.SetDirective("SSLCertificateFile", cfg.Cert)
+	}
+	if cfg.Key != "" {
+		v.vhost.SetDirective("SSLCertificateKeyFile", cfg.Key)
+	}
+
+	// 设置协议
+	if len(cfg.Protocols) > 0 {
+		v.vhost.SetDirective("SSLProtocol", cfg.Protocols...)
+	} else {
+		v.vhost.SetDirective("SSLProtocol", "all", "-SSLv2", "-SSLv3", "-TLSv1", "-TLSv1.1")
+	}
+
+	// 设置加密套件
+	if cfg.Ciphers != "" {
+		v.vhost.SetDirective("SSLCipherSuite", cfg.Ciphers)
+	} else {
+		v.vhost.SetDirective("SSLCipherSuite", "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384")
+	}
+
+	// 设置 HSTS
+	if cfg.HSTS {
+		// 只移除现有的 HSTS Header，保留其他 Header
+		newDirectives := make([]*Directive, 0, len(v.vhost.Directives))
+		for _, dir := range v.vhost.Directives {
+			if strings.EqualFold(dir.Name, "Header") {
+				if len(dir.Args) >= 3 && strings.Contains(strings.Join(dir.Args, " "), "Strict-Transport-Security") {
+					continue
+				}
+			}
+			newDirectives = append(newDirectives, dir)
+		}
+		v.vhost.Directives = newDirectives
+		v.vhost.AddDirective("Header", "always", "set", "Strict-Transport-Security", `"max-age=31536000"`)
+	}
+
+	// 设置 OCSP
+	if cfg.OCSP {
+		v.vhost.SetDirective("SSLUseStapling", "on")
+	}
+
+	// 设置 HTTP 重定向（需要 mod_rewrite）
+	if cfg.HTTPRedirect {
+		v.vhost.SetDirective("RewriteEngine", "on")
+		v.vhost.AddDirective("RewriteCond", "%{HTTPS}", "off")
+		v.vhost.AddDirective("RewriteRule", "^(.*)$", "https://%{HTTP_HOST}%{REQUEST_URI}", "[R=301,L]")
+	}
+
+	// 更新监听端口为 443
+	hasSSLPort := false
+	for _, arg := range v.vhost.Args {
+		if strings.Contains(arg, ":443") {
+			hasSSLPort = true
+			break
+		}
+	}
+	if !hasSSLPort {
+		v.vhost.Args = append(v.vhost.Args, "*:443")
+	}
+
+	return nil
+}
+
+func (v *Vhost) ClearHTTPS() error {
+	// 移除 SSL 相关指令
+	v.vhost.RemoveDirective("SSLEngine")
+	v.vhost.RemoveDirective("SSLCertificateFile")
+	v.vhost.RemoveDirective("SSLCertificateKeyFile")
+	v.vhost.RemoveDirective("SSLProtocol")
+	v.vhost.RemoveDirective("SSLCipherSuite")
+	v.vhost.RemoveDirective("SSLUseStapling")
+
+	// 只移除 HSTS 相关的 Header 指令
+	newDirectives := make([]*Directive, 0, len(v.vhost.Directives))
+	for _, dir := range v.vhost.Directives {
+		if strings.EqualFold(dir.Name, "Header") {
+			// 检查是否是 HSTS Header
+			if len(dir.Args) >= 3 && strings.Contains(strings.Join(dir.Args, " "), "Strict-Transport-Security") {
+				continue // 跳过 HSTS Header
+			}
+		}
+		newDirectives = append(newDirectives, dir)
+	}
+	v.vhost.Directives = newDirectives
+
+	// 移除重定向规则
+	v.vhost.RemoveDirective("RewriteEngine")
+	v.vhost.RemoveDirectives("RewriteCond")
+	v.vhost.RemoveDirectives("RewriteRule")
+
+	// 更新监听端口，移除 443
+	var newArgs []string
+	for _, arg := range v.vhost.Args {
+		if !strings.Contains(arg, ":443") {
+			newArgs = append(newArgs, arg)
+		}
+	}
+	if len(newArgs) == 0 {
+		newArgs = []string{"*:80"}
+	}
+	v.vhost.Args = newArgs
+
+	return nil
+}
+
+// ========== VhostPHP 接口实现 ==========
+
+func (v *Vhost) PHP() int {
+	// Apache 通常通过 FilesMatch 块配置 PHP
+	// 或者通过 SetHandler 指令
+	handler := v.vhost.GetDirectiveValue("SetHandler")
+	if handler != "" && strings.Contains(handler, "php") {
+		// 尝试从 handler 中提取版本号
+		// 例如: proxy:unix:/run/php/php8.4-fpm.sock|fcgi://localhost
+		if idx := strings.Index(handler, "php"); idx != -1 {
+			versionStr := ""
+			for i := idx + 3; i < len(handler); i++ {
+				c := handler[i]
+				if (c >= '0' && c <= '9') || c == '.' {
+					versionStr += string(c)
+				} else {
+					break
+				}
+			}
+			if versionStr != "" {
+				// 转换版本号，如 "8.4" -> 84
+				parts := strings.Split(versionStr, ".")
+				if len(parts) >= 2 {
+					major, _ := strconv.Atoi(parts[0])
+					minor, _ := strconv.Atoi(parts[1])
+					return major*10 + minor
+				}
+			}
+		}
+		// 如果有 PHP 处理器但无法确定版本，返回默认值
+		return 1
+	}
+
+	// 检查 FilesMatch 块中的 PHP 配置
+	for _, dir := range v.vhost.Directives {
+		if dir.Block != nil && strings.EqualFold(dir.Block.Type, "FilesMatch") {
+			for _, d := range dir.Block.Directives {
+				if strings.EqualFold(d.Name, "SetHandler") && len(d.Args) > 0 {
+					if strings.Contains(d.Args[0], "php") {
+						return 1 // 有 PHP，但版本未知
+					}
+				}
+			}
+		}
+	}
+
+	return 0
+}
+
+func (v *Vhost) SetPHP(version int) error {
+	// 移除现有的 PHP 配置
+	v.vhost.RemoveDirective("SetHandler")
+
+	// 移除 FilesMatch 块中的 PHP 配置
+	for i := len(v.vhost.Directives) - 1; i >= 0; i-- {
+		dir := v.vhost.Directives[i]
+		if dir.Block != nil && strings.EqualFold(dir.Block.Type, "FilesMatch") {
+			if len(dir.Block.Args) > 0 && strings.Contains(dir.Block.Args[0], "php") {
+				v.vhost.Directives = append(v.vhost.Directives[:i], v.vhost.Directives[i+1:]...)
+			}
+		}
+	}
+
+	if version == 0 {
+		return nil // 禁用 PHP
+	}
+
+	// 添加 PHP-FPM 配置
+	major := version / 10
+	minor := version % 10
+	socketPath := fmt.Sprintf("/run/php/php%d.%d-fpm.sock", major, minor)
+
+	// 添加 FilesMatch 块
+	block := v.vhost.AddBlock("FilesMatch", `\.php$`)
+	if block.Block != nil {
+		block.Block.Directives = append(block.Block.Directives,
+			&Directive{
+				Name: "SetHandler",
+				Args: []string{fmt.Sprintf("proxy:unix:%s|fcgi://localhost", socketPath)},
+			},
+		)
+	}
+
+	return nil
+}
+
+// ========== VhostAdvanced 接口实现 ==========
+
+func (v *Vhost) RateLimit() *types.RateLimit {
+	// Apache 使用 mod_ratelimit
+	rate := v.vhost.GetDirectiveValue("SetOutputFilter")
+	if rate != "RATE_LIMIT" {
+		return nil
+	}
+
+	rateLimit := &types.RateLimit{
+		Options: make(map[string]string),
+	}
+
+	// 获取速率限制值
+	rateValue := v.vhost.GetDirectiveValue("SetEnv")
+	if rateValue != "" {
+		rateLimit.Rate = rateValue
+	}
+
+	return rateLimit
+}
+
+func (v *Vhost) SetRateLimit(limit *types.RateLimit) error {
+	if limit == nil {
+		// 清除限速配置
+		v.vhost.RemoveDirective("SetOutputFilter")
+		v.vhost.RemoveDirectives("SetEnv")
+		return nil
+	}
+
+	// 设置 mod_ratelimit
+	v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
+	if limit.Rate != "" {
+		v.vhost.SetDirective("SetEnv", "rate-limit", limit.Rate)
+	}
+
+	return nil
+}
+
+func (v *Vhost) BasicAuth() map[string]string {
+	authType := v.vhost.GetDirectiveValue("AuthType")
+	if authType == "" || !strings.EqualFold(authType, "Basic") {
+		return nil
+	}
+
+	return map[string]string{
+		"realm":     v.vhost.GetDirectiveValue("AuthName"),
+		"user_file": v.vhost.GetDirectiveValue("AuthUserFile"),
+	}
+}
+
+func (v *Vhost) SetBasicAuth(auth map[string]string) error {
+	if auth == nil || len(auth) == 0 {
+		// 清除基本认证配置
+		v.vhost.RemoveDirective("AuthType")
+		v.vhost.RemoveDirective("AuthName")
+		v.vhost.RemoveDirective("AuthUserFile")
+		v.vhost.RemoveDirective("Require")
+		return nil
+	}
+
+	realm := auth["realm"]
+	userFile := auth["user_file"]
+
+	if realm == "" {
+		realm = "Restricted"
+	}
+
+	v.vhost.SetDirective("AuthType", "Basic")
+	v.vhost.SetDirective("AuthName", fmt.Sprintf(`"%s"`, realm))
+	v.vhost.SetDirective("AuthUserFile", userFile)
+	v.vhost.SetDirective("Require", "valid-user")
+
+	return nil
+}

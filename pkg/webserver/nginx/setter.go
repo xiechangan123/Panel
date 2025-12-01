@@ -155,7 +155,7 @@ func (p *Parser) SetPHP(php int) error {
 	return p.Set("server", directives)
 }
 
-func (p *Parser) ClearSetHTTPS() error {
+func (p *Parser) ClearHTTPS() error {
 	if err := p.Clear("server.ssl_certificate"); err != nil {
 		return err
 	}
@@ -184,8 +184,8 @@ func (p *Parser) ClearSetHTTPS() error {
 	return nil
 }
 
-func (p *Parser) SetHTTPS(cert, key string) error {
-	if err := p.ClearSetHTTPS(); err != nil {
+func (p *Parser) SetHTTPSCert(cert, key string) error {
+	if err := p.ClearHTTPS(); err != nil {
 		return err
 	}
 
@@ -315,7 +315,7 @@ func (p *Parser) SetHSTS(hsts bool) error {
 	return p.Set("server", directives)
 }
 
-func (p *Parser) SetHTTPRedirect(httpRedirect bool) error {
+func (p *Parser) SetHTTPSRedirect(httpRedirect bool) error {
 	// if 重定向
 	ifs, err := p.Find("server.if")
 	if err != nil {
@@ -487,6 +487,115 @@ func (p *Parser) SetErrorLog(errorLog string) error {
 		{
 			Name:       "error_log",
 			Parameters: []config.Parameter{{Value: errorLog}},
+		},
+	})
+}
+
+// SetReturn 设置 return 指令（用于禁用网站）
+func (p *Parser) SetReturn(code, url string) error {
+	if err := p.Clear("server.return"); err != nil {
+		// 忽略不存在的错误
+	}
+
+	directives := []*config.Directive{
+		{
+			Name:       "return",
+			Parameters: []config.Parameter{{Value: code}, {Value: url}},
+		},
+	}
+
+	// 在 server 块的最开始插入 return 指令
+	// 获取 server 块
+	serverDirs := p.cfg.Block.FindDirectives("server")
+	if len(serverDirs) == 0 {
+		return fmt.Errorf("server block not found")
+	}
+
+	serverBlock, ok := serverDirs[0].GetBlock().(*config.Block)
+	if !ok {
+		return fmt.Errorf("server block is not *config.Block")
+	}
+
+	// 设置父节点
+	for _, d := range directives {
+		d.SetParent(serverDirs[0])
+	}
+
+	// 在开头插入
+	newDirectives := make([]config.IDirective, 0, len(directives)+len(serverBlock.Directives))
+	for _, d := range directives {
+		newDirectives = append(newDirectives, d)
+	}
+	newDirectives = append(newDirectives, serverBlock.Directives...)
+	serverBlock.Directives = newDirectives
+
+	return nil
+}
+
+// SetLimitRate 设置限速配置
+func (p *Parser) SetLimitRate(limitRate string) error {
+	if err := p.Clear("server.limit_rate"); err != nil {
+		// 忽略不存在的错误
+	}
+
+	if limitRate == "" {
+		return nil // 清除限速配置
+	}
+
+	return p.Set("server", []*config.Directive{
+		{
+			Name:       "limit_rate",
+			Parameters: []config.Parameter{{Value: limitRate}},
+		},
+	})
+}
+
+// SetLimitConn 设置并发连接数限制
+func (p *Parser) SetLimitConn(limitConn [][]string) error {
+	if err := p.Clear("server.limit_conn"); err != nil {
+		// 忽略不存在的错误
+	}
+
+	if len(limitConn) == 0 {
+		return nil // 清除限流配置
+	}
+
+	var directives []*config.Directive
+	for _, limit := range limitConn {
+		if len(limit) >= 2 {
+			directives = append(directives, &config.Directive{
+				Name:       "limit_conn",
+				Parameters: p.slices2Parameters(limit),
+			})
+		}
+	}
+
+	return p.Set("server", directives)
+}
+
+// SetBasicAuth 设置基本认证
+func (p *Parser) SetBasicAuth(realm, userFile string) error {
+	// 清除现有配置
+	if err := p.Clear("server.auth_basic"); err != nil {
+		// 忽略不存在的错误
+	}
+	if err := p.Clear("server.auth_basic_user_file"); err != nil {
+		// 忽略不存在的错误
+	}
+
+	// 如果 realm 为空，表示禁用基本认证
+	if realm == "" || userFile == "" {
+		return nil
+	}
+
+	return p.Set("server", []*config.Directive{
+		{
+			Name:       "auth_basic",
+			Parameters: []config.Parameter{{Value: realm}},
+		},
+		{
+			Name:       "auth_basic_user_file",
+			Parameters: []config.Parameter{{Value: userFile}},
 		},
 	})
 }

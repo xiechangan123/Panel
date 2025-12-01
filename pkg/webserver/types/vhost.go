@@ -1,0 +1,136 @@
+package types
+
+// VhostType 虚拟主机类型
+type VhostType string
+
+const (
+	VhostTypeStatic VhostType = "static"
+	VhostTypePHP    VhostType = "php"
+	VhostTypeProxy  VhostType = "proxy"
+)
+
+// Vhost 虚拟主机完整接口
+type Vhost interface {
+	VhostCore
+	VhostSSL
+	VhostPHP
+	VhostAdvanced
+}
+
+// VhostCore 核心接口
+type VhostCore interface {
+	// Enable 取启用状态
+	Enable() bool
+	// SetEnable 设置启用状态及停止页路径
+	SetEnable(enable bool, stopPage ...string) error
+
+	// Listen 取监听配置
+	Listen() []Listen
+	// SetListen 设置监听配置
+	SetListen(listen []Listen) error
+
+	// ServerName 取服务器名称，如: ["example.com", "www.example.com"]
+	ServerName() []string
+	// SetServerName 设置服务器名称
+	SetServerName(serverName []string) error
+
+	// Index 取默认首页，如: ["index.php", "index.html"]
+	Index() []string
+	// SetIndex 设置默认首页
+	SetIndex(index []string) error
+
+	// Root 取网站根目录，如: "/opt/ace/sites/example/public"
+	Root() string
+	// SetRoot 设置网站根目录
+	SetRoot(root string) error
+
+	// Includes 取包含的文件配置
+	Includes() []IncludeFile
+	// SetIncludes 设置包含的文件配置
+	SetIncludes(includes []IncludeFile) error
+
+	// AccessLog 取访问日志路径，如: "/opt/ace/sites/example/log/access.log"
+	AccessLog() string
+	// SetAccessLog 设置访问日志路径
+	SetAccessLog(accessLog string) error
+
+	// ErrorLog 取错误日志路径，如: "/opt/ace/sites/example/log/error.log"
+	ErrorLog() string
+	// SetErrorLog 设置错误日志路径
+	SetErrorLog(errorLog string) error
+
+	// Save 保存配置到文件
+	Save() error
+	// Reload 重载配置（重启或重载服务器）
+	Reload() error
+	// Reset 重置配置为默认值
+	Reset() error
+}
+
+// VhostSSL SSL/TLS 相关接口
+type VhostSSL interface {
+	// HTTPS 取 HTTPS 启用状态
+	HTTPS() bool
+	// SSLConfig 取 SSL 配置
+	SSLConfig() *SSLConfig
+	// SetSSLConfig 设置 SSL 配置（自动启用 HTTPS）
+	SetSSLConfig(cfg *SSLConfig) error
+	// ClearHTTPS 清除 HTTPS 配置
+	ClearHTTPS() error
+}
+
+// VhostPHP PHP 相关接口
+type VhostPHP interface {
+	// PHP 取 PHP 版本，如: 84, 81, 80, 0 表示未启用 PHP
+	PHP() int
+	// SetPHP 设置 PHP 版本
+	SetPHP(version int) error
+}
+
+// VhostAdvanced 高级功能接口
+type VhostAdvanced interface {
+	// RateLimit 取限流限速配置
+	RateLimit() *RateLimit
+	// SetRateLimit 设置限流限速配置
+	SetRateLimit(limit *RateLimit) error
+
+	// BasicAuth 取基本认证配置
+	BasicAuth() map[string]string
+	// SetBasicAuth 设置基本认证
+	SetBasicAuth(auth map[string]string) error
+}
+
+// Listen 监听配置
+type Listen struct {
+	Address  string            // 监听地址，如: "80", "0.0.0.0:80", "[::]:443"
+	Protocol string            // 协议类型，如: "http", "https", "http2", "http3"
+	Options  map[string]string // 服务器特定选项，如: map["default_server"] = "true"
+}
+
+// SSLConfig SSL/TLS 配置
+type SSLConfig struct {
+	Cert      string   // 证书路径
+	Key       string   // 私钥路径
+	Protocols []string // 支持的协议，如: ["TLSv1.2", "TLSv1.3"]
+	Ciphers   string   // 加密套件
+
+	// 高级选项
+	HSTS         bool   // HTTP 严格传输安全
+	OCSP         bool   // OCSP Stapling
+	HTTPRedirect bool   // HTTP 强制跳转 HTTPS
+	AltSvc       string // Alt-Svc 配置，如: 'h3=":443"; ma=86400'
+}
+
+// RateLimit 限流限速配置
+type RateLimit struct {
+	Rate       string            // 速率限制，如: "512k", "10r/s"
+	Burst      int               // 突发限制
+	Concurrent int               // 并发连接数限制
+	Options    map[string]string // 服务器特定选项
+}
+
+// IncludeFile 包含文件配置
+type IncludeFile struct {
+	Path    string   // 文件路径
+	Comment []string // 注释说明
+}
