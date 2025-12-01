@@ -548,9 +548,7 @@ func (p *Parser) SetLimitRate(limitRate string) error {
 
 // SetLimitConn 设置并发连接数限制
 func (p *Parser) SetLimitConn(limitConn [][]string) error {
-	if err := p.Clear("server.limit_conn"); err != nil {
-		// 忽略不存在的错误
-	}
+	_ = p.Clear("server.limit_conn") // 忽略不存在的错误
 
 	if len(limitConn) == 0 {
 		return nil // 清除限流配置
@@ -572,12 +570,8 @@ func (p *Parser) SetLimitConn(limitConn [][]string) error {
 // SetBasicAuth 设置基本认证
 func (p *Parser) SetBasicAuth(realm, userFile string) error {
 	// 清除现有配置
-	if err := p.Clear("server.auth_basic"); err != nil {
-		// 忽略不存在的错误
-	}
-	if err := p.Clear("server.auth_basic_user_file"); err != nil {
-		// 忽略不存在的错误
-	}
+	_ = p.Clear("server.auth_basic")           // 忽略不存在的错误
+	_ = p.Clear("server.auth_basic_user_file") // 忽略不存在的错误
 
 	// 如果 realm 为空，表示禁用基本认证
 	if realm == "" || userFile == "" {

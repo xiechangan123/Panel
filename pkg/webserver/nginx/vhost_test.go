@@ -45,8 +45,8 @@ func (s *VhostTestSuite) TearDownTest() {
 }
 
 func (s *VhostTestSuite) TestNewVhost() {
-	s.Equal(s.configDir, s.vhost.baseVhost.configDir)
-	s.NotNil(s.vhost.baseVhost.parser)
+	s.Equal(s.configDir, s.vhost.configDir)
+	s.NotNil(s.vhost.parser)
 }
 
 func (s *VhostTestSuite) TestEnable() {
