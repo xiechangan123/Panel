@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/tufanbarisyildirim/gonginx/config"
@@ -198,6 +199,7 @@ func (p *Parser) Dump() string {
 
 // Save 保存配置到文件
 func (p *Parser) Save() error {
+	p.sortDirectives(p.cfg.Directives, order)
 	content := p.Dump()
 	if err := os.WriteFile(p.cfgPath, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)
@@ -209,6 +211,21 @@ func (p *Parser) Save() error {
 // SetConfigPath 设置配置文件路径
 func (p *Parser) SetConfigPath(path string) {
 	p.cfgPath = path
+}
+
+func (p *Parser) sortDirectives(directives []config.IDirective, orderIndex map[string]int) {
+	slices.SortFunc(directives, func(a config.IDirective, b config.IDirective) int {
+		if orderIndex[a.GetName()] != orderIndex[b.GetName()] {
+			return orderIndex[a.GetName()] - orderIndex[b.GetName()]
+		}
+		return slices.Compare(p.parameters2Slices(a.GetParameters()), p.parameters2Slices(b.GetParameters()))
+	})
+
+	for _, directive := range directives {
+		if block, ok := directive.GetBlock().(*config.Block); ok {
+			p.sortDirectives(block.Directives, orderIndex)
+		}
+	}
 }
 
 func (p *Parser) slices2Parameters(slices []string) []config.Parameter {

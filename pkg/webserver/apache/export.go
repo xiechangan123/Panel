@@ -2,6 +2,7 @@ package apache
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -32,7 +33,7 @@ func DefaultExportOptions() *ExportOptions {
 	return &ExportOptions{
 		IndentStyle:        "spaces",
 		IndentSize:         4,
-		SortDirectives:     false,
+		SortDirectives:     true,
 		IncludeComments:    true,
 		PreserveEmptyLines: true,
 		FormatStyle:        "standard",
@@ -79,8 +80,10 @@ func (c *Config) ExportWithOptions(options *ExportOptions) string {
 		})
 	}
 
-	// 如果不需要保持原始顺序，按行号排序
-	if !options.SortDirectives {
+	// 排序：如果需要语义排序则按 order 排序，否则按行号排序
+	if options.SortDirectives {
+		sortDirectivesSlice(items, order)
+	} else {
 		sort.Slice(items, func(i, j int) bool {
 			return items[i].line < items[j].line
 		})
@@ -186,8 +189,10 @@ func (v *VirtualHost) ExportWithOptions(options *ExportOptions, indent int) stri
 		})
 	}
 
-	// 排序
-	if !options.SortDirectives {
+	// 排序：如果需要语义排序则按 order 排序，否则按行号排序
+	if options.SortDirectives {
+		sortDirectivesSlice(items, order)
+	} else {
 		sort.Slice(items, func(i, j int) bool {
 			return items[i].line < items[j].line
 		})
@@ -268,8 +273,10 @@ func (b *Block) ExportWithOptions(options *ExportOptions, indent int) string {
 		}
 	}
 
-	// 按行号排序
+	// 排序：如果需要语义排序则按 order 排序，否则按行号排序
 	if options.SortDirectives {
+		sortDirectivesSlice(allItems, order)
+	} else {
 		sort.Slice(allItems, func(i, j int) bool {
 			return allItems[i].line < allItems[j].line
 		})
@@ -344,4 +351,68 @@ func shouldAddEmptyLine(current, next exportItem, options *ExportOptions) bool {
 	}
 
 	return false
+}
+
+// sortDirectivesSlice 对指令切片进行语义排序
+func sortDirectivesSlice(items []exportItem, orderIndex map[string]int) {
+	slices.SortFunc(items, func(a, b exportItem) int {
+		// 跳过注释，注释保持原有位置
+		if a.typ == "comment" || b.typ == "comment" {
+			return a.line - b.line
+		}
+
+		var aName, bName string
+		switch a.typ {
+		case "directive":
+			if dir, ok := a.item.(*Directive); ok {
+				aName = dir.Name
+			}
+		case "virtualhost":
+			if vhost, ok := a.item.(*VirtualHost); ok {
+				aName = vhost.Name
+			}
+		}
+
+		switch b.typ {
+		case "directive":
+			if dir, ok := b.item.(*Directive); ok {
+				bName = dir.Name
+			}
+		case "virtualhost":
+			if vhost, ok := b.item.(*VirtualHost); ok {
+				bName = vhost.Name
+			}
+		}
+
+		// 按照 order 优先级排序
+		if orderIndex[aName] != orderIndex[bName] {
+			return orderIndex[aName] - orderIndex[bName]
+		}
+
+		// 优先级相同时，按照参数排序
+		var aArgs, bArgs []string
+		switch a.typ {
+		case "directive":
+			if dir, ok := a.item.(*Directive); ok {
+				aArgs = dir.Args
+			}
+		case "virtualhost":
+			if vhost, ok := a.item.(*VirtualHost); ok {
+				aArgs = vhost.Args
+			}
+		}
+
+		switch b.typ {
+		case "directive":
+			if dir, ok := b.item.(*Directive); ok {
+				bArgs = dir.Args
+			}
+		case "virtualhost":
+			if vhost, ok := b.item.(*VirtualHost); ok {
+				bArgs = vhost.Args
+			}
+		}
+
+		return slices.Compare(aArgs, bArgs)
+	})
 }
