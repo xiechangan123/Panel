@@ -236,6 +236,18 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 
+	// 创建配置文件目录
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "site"), 0644); err != nil {
+		return nil, err
+	}
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "shared"), 0644); err != nil {
+		return nil, err
+	}
+	// 创建日志目录
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "log"), 0644); err != nil {
+		return nil, err
+	}
+
 	// 监听地址
 	var listens []webservertypes.Listen
 	for _, listen := range req.Listens {
@@ -263,19 +275,6 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	if err = vhost.SetErrorLog(filepath.Join(app.Root, "sites", req.Name, "log", "error.log")); err != nil {
 		return nil, err
 	}
-
-	// 创建配置文件目录
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "site"), 0644); err != nil {
-		return nil, err
-	}
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "shared"), 0644); err != nil {
-		return nil, err
-	}
-	// 创建日志目录
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "log"), 0644); err != nil {
-		return nil, err
-	}
-
 	// 404 页面
 	// TODO 需要兼容 Apache
 	if err = vhost.SetConfig("010-error-404.conf", "site", `error_page 404 /404.html;`); err != nil {

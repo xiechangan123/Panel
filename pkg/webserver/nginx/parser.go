@@ -200,7 +200,7 @@ func (p *Parser) Dump() string {
 // Save 保存配置到文件
 func (p *Parser) Save() error {
 	p.sortDirectives(p.cfg.Directives, order)
-	content := p.Dump()
+	content := p.Dump() + "\n"
 	if err := os.WriteFile(p.cfgPath, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)
 	}
@@ -215,6 +215,18 @@ func (p *Parser) SetConfigPath(path string) {
 
 func (p *Parser) sortDirectives(directives []config.IDirective, orderIndex map[string]int) {
 	slices.SortFunc(directives, func(a config.IDirective, b config.IDirective) int {
+		// 块指令（如 server、location）应该排在普通指令（如 include）后面
+		aIsBlock := a.GetBlock() != nil && len(a.GetBlock().GetDirectives()) > 0
+		bIsBlock := b.GetBlock() != nil && len(b.GetBlock().GetDirectives()) > 0
+
+		if aIsBlock != bIsBlock {
+			if aIsBlock {
+				return 1 // a 是块指令，排在后面
+			}
+			return -1 // b 是块指令，排在前面
+		}
+
+		// 同类指令，按 order 排序
 		if orderIndex[a.GetName()] != orderIndex[b.GetName()] {
 			return orderIndex[a.GetName()] - orderIndex[b.GetName()]
 		}
