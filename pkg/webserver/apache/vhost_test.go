@@ -27,7 +27,7 @@ func (s *VhostTestSuite) SetupTest() {
 	s.Require().NoError(err)
 	s.configDir = configDir
 
-	// 创建 vhost 目录
+	// 创建 site 目录
 	err = os.MkdirAll(filepath.Join(configDir, "site"), 0755)
 	s.Require().NoError(err)
 

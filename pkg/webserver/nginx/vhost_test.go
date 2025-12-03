@@ -451,7 +451,7 @@ func (s *ProxyVhostTestSuite) SetupTest() {
 	s.Require().NoError(err)
 	s.configDir = configDir
 
-	// 创建 vhost 和 global 目录
+	// 创建 site 和 shared 目录
 	s.NoError(os.MkdirAll(filepath.Join(configDir, "site"), 0755))
 	s.NoError(os.MkdirAll(filepath.Join(configDir, "shared"), 0755))
 
