@@ -19,7 +19,7 @@ const (
 	UpstreamStartNum = 100 // 上游服务器配置起始序号
 )
 
-const DefaultConf = `include /opt/ace/sites/default/config/global/*.conf;
+const DefaultConf = `include /opt/ace/sites/default/config/shared/*.conf;
 server {
     listen 80;
     server_name localhost;
@@ -28,7 +28,7 @@ server {
     # error page
     error_page 404 /404.html;
     # custom configs
-    include /opt/ace/sites/default/config/vhost/*.conf;
+    include /opt/ace/sites/default/config/site/*.conf;
     # browser cache
     location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
         expires 30d;

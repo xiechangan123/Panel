@@ -27,7 +27,7 @@ const DefaultVhostConf = `<VirtualHost *:80>
     CustomLog /opt/ace/sites/default/log/access.log combined
 
     # custom configs
-    IncludeOptional /opt/ace/sites/default/config/vhost/*.conf
+    IncludeOptional /opt/ace/sites/default/config/site/*.conf
 
     <Directory /opt/ace/sites/default/public>
         Options -Indexes +FollowSymLinks

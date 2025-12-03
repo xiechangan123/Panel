@@ -28,7 +28,7 @@ func (s *VhostTestSuite) SetupTest() {
 	s.configDir = configDir
 
 	// 创建 vhost 目录
-	err = os.MkdirAll(filepath.Join(configDir, "vhost"), 0755)
+	err = os.MkdirAll(filepath.Join(configDir, "site"), 0755)
 	s.Require().NoError(err)
 
 	vhost, err := NewPHPVhost(configDir)
@@ -59,7 +59,7 @@ func (s *VhostTestSuite) TestEnable() {
 	s.False(s.vhost.Enable())
 
 	// 验证禁用文件存在
-	disableFile := filepath.Join(s.configDir, "vhost", DisableConfName)
+	disableFile := filepath.Join(s.configDir, "site", DisableConfName)
 	_, err := os.Stat(disableFile)
 	s.NoError(err)
 
@@ -77,7 +77,7 @@ func (s *VhostTestSuite) TestDisableConfigContent() {
 	s.NoError(s.vhost.SetEnable(false))
 
 	// 读取禁用配置内容
-	disableFile := filepath.Join(s.configDir, "vhost", DisableConfName)
+	disableFile := filepath.Join(s.configDir, "site", DisableConfName)
 	content, err := os.ReadFile(disableFile)
 	s.NoError(err)
 
@@ -354,8 +354,8 @@ func (s *VhostTestSuite) TestPHPFilesMatchBlock() {
 }
 
 func (s *VhostTestSuite) TestDefaultVhostConfIncludesServerD() {
-	// 验证默认配置包含 vhost 的 include
-	s.Contains(DefaultVhostConf, "vhost")
+	// 验证默认配置包含 site 的 include
+	s.Contains(DefaultVhostConf, "site")
 	s.Contains(DefaultVhostConf, "IncludeOptional")
 }
 
@@ -382,8 +382,8 @@ func (s *VhostTestSuite) TestRedirects() {
 	s.NoError(s.vhost.SetRedirects(redirects))
 
 	// 验证重定向文件已创建
-	vhostDir := filepath.Join(s.configDir, "vhost")
-	entries, err := os.ReadDir(vhostDir)
+	siteDir := filepath.Join(s.configDir, "site")
+	entries, err := os.ReadDir(siteDir)
 	s.NoError(err)
 
 	redirectCount := 0
@@ -411,8 +411,8 @@ func (s *VhostTestSuite) TestRedirectURL() {
 	s.NoError(s.vhost.SetRedirects(redirects))
 
 	// 读取配置文件内容
-	vhostDir := filepath.Join(s.configDir, "vhost")
-	content, err := os.ReadFile(filepath.Join(vhostDir, "100-redirect.conf"))
+	siteDir := filepath.Join(s.configDir, "site")
+	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
 	s.NoError(err)
 
 	s.Contains(string(content), "Redirect 301")
@@ -433,8 +433,8 @@ func (s *VhostTestSuite) TestRedirectHost() {
 	s.NoError(s.vhost.SetRedirects(redirects))
 
 	// 读取配置文件内容
-	vhostDir := filepath.Join(s.configDir, "vhost")
-	content, err := os.ReadFile(filepath.Join(vhostDir, "100-redirect.conf"))
+	siteDir := filepath.Join(s.configDir, "site")
+	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
 	s.NoError(err)
 
 	s.Contains(string(content), "RewriteEngine")
@@ -453,8 +453,8 @@ func (s *VhostTestSuite) TestRedirect404() {
 	s.NoError(s.vhost.SetRedirects(redirects))
 
 	// 读取配置文件内容
-	vhostDir := filepath.Join(s.configDir, "vhost")
-	content, err := os.ReadFile(filepath.Join(vhostDir, "100-redirect.conf"))
+	siteDir := filepath.Join(s.configDir, "site")
+	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
 	s.NoError(err)
 
 	s.Contains(string(content), "ErrorDocument 404")
@@ -478,7 +478,7 @@ func (s *ProxyVhostTestSuite) SetupTest() {
 	s.configDir = configDir
 
 	// 创建 vhost 和 global 目录
-	s.NoError(os.MkdirAll(filepath.Join(configDir, "vhost"), 0755))
+	s.NoError(os.MkdirAll(filepath.Join(configDir, "site"), 0755))
 	s.NoError(os.MkdirAll(filepath.Join(configDir, "global"), 0755))
 
 	vhost, err := NewProxyVhost(configDir)
@@ -512,8 +512,8 @@ func (s *ProxyVhostTestSuite) TestProxies() {
 	s.NoError(s.vhost.SetProxies(proxies))
 
 	// 验证代理文件已创建
-	vhostDir := filepath.Join(s.configDir, "vhost")
-	entries, err := os.ReadDir(vhostDir)
+	siteDir := filepath.Join(s.configDir, "site")
+	entries, err := os.ReadDir(siteDir)
 	s.NoError(err)
 
 	proxyCount := 0
@@ -541,8 +541,8 @@ func (s *ProxyVhostTestSuite) TestProxyConfig() {
 	s.NoError(s.vhost.SetProxies(proxies))
 
 	// 读取配置文件内容
-	vhostDir := filepath.Join(s.configDir, "vhost")
-	content, err := os.ReadFile(filepath.Join(vhostDir, "200-proxy.conf"))
+	siteDir := filepath.Join(s.configDir, "site")
+	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
 	s.NoError(err)
 
 	s.Contains(string(content), "ProxyPass /")
@@ -581,8 +581,8 @@ func (s *ProxyVhostTestSuite) TestUpstreams() {
 	s.NoError(s.vhost.SetUpstreams(upstreams))
 
 	// 验证 balancer 文件已创建
-	globalDir := filepath.Join(s.configDir, "global")
-	entries, err := os.ReadDir(globalDir)
+	sharedDir := filepath.Join(s.configDir, "shared")
+	entries, err := os.ReadDir(sharedDir)
 	s.NoError(err)
 	s.NotEmpty(entries)
 
@@ -605,12 +605,12 @@ func (s *ProxyVhostTestSuite) TestBalancerConfig() {
 	s.NoError(s.vhost.SetUpstreams(upstreams))
 
 	// 读取配置文件内容
-	globalDir := filepath.Join(s.configDir, "global")
-	entries, err := os.ReadDir(globalDir)
+	sharedDir := filepath.Join(s.configDir, "shared")
+	entries, err := os.ReadDir(sharedDir)
 	s.NoError(err)
 	s.Require().NotEmpty(entries)
 
-	content, err := os.ReadFile(filepath.Join(globalDir, entries[0].Name()))
+	content, err := os.ReadFile(filepath.Join(sharedDir, entries[0].Name()))
 	s.NoError(err)
 
 	s.Contains(string(content), "balancer://mybackend")

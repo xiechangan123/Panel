@@ -14,9 +14,9 @@ import (
 // redirectFilePattern 匹配重定向配置文件名 (100-199)
 var redirectFilePattern = regexp.MustCompile(`^(\d{3})-redirect\.conf$`)
 
-// parseRedirectFiles 从 vhost 目录解析所有重定向配置
-func parseRedirectFiles(vhostDir string) ([]types.Redirect, error) {
-	entries, err := os.ReadDir(vhostDir)
+// parseRedirectFiles 从 site 目录解析所有重定向配置
+func parseRedirectFiles(siteDir string) ([]types.Redirect, error) {
+	entries, err := os.ReadDir(siteDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -40,7 +40,7 @@ func parseRedirectFiles(vhostDir string) ([]types.Redirect, error) {
 			continue
 		}
 
-		filePath := filepath.Join(vhostDir, entry.Name())
+		filePath := filepath.Join(siteDir, entry.Name())
 		redirect, err := parseRedirectFile(filePath)
 		if err != nil {
 			continue // 跳过解析失败的文件
@@ -105,9 +105,9 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 }
 
 // writeRedirectFiles 将重定向配置写入文件
-func writeRedirectFiles(vhostDir string, redirects []types.Redirect) error {
+func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
 	// 删除现有的重定向配置文件 (100-199)
-	if err := clearRedirectFiles(vhostDir); err != nil {
+	if err := clearRedirectFiles(siteDir); err != nil {
 		return err
 	}
 
@@ -119,7 +119,7 @@ func writeRedirectFiles(vhostDir string, redirects []types.Redirect) error {
 		}
 
 		fileName := fmt.Sprintf("%03d-redirect.conf", num)
-		filePath := filepath.Join(vhostDir, fileName)
+		filePath := filepath.Join(siteDir, fileName)
 
 		content := generateRedirectConfig(redirect)
 		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
@@ -131,8 +131,8 @@ func writeRedirectFiles(vhostDir string, redirects []types.Redirect) error {
 }
 
 // clearRedirectFiles 清除所有重定向配置文件
-func clearRedirectFiles(vhostDir string) error {
-	entries, err := os.ReadDir(vhostDir)
+func clearRedirectFiles(siteDir string) error {
+	entries, err := os.ReadDir(siteDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -152,7 +152,7 @@ func clearRedirectFiles(vhostDir string) error {
 
 		num, _ := strconv.Atoi(matches[1])
 		if num >= RedirectStartNum && num <= RedirectEndNum {
-			filePath := filepath.Join(vhostDir, entry.Name())
+			filePath := filepath.Join(siteDir, entry.Name())
 			if err = os.Remove(filePath); err != nil && !os.IsNotExist(err) {
 				return fmt.Errorf("failed to delete redirect config: %w", err)
 			}

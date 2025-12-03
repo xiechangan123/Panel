@@ -18,9 +18,9 @@ var proxyFilePattern = regexp.MustCompile(`^(\d{3})-proxy\.conf$`)
 // balancerFilePattern 匹配负载均衡配置文件名
 var balancerFilePattern = regexp.MustCompile(`^(\d{3})-balancer-(.+)\.conf$`)
 
-// parseProxyFiles 从 vhost 目录解析所有代理配置
-func parseProxyFiles(vhostDir string) ([]types.Proxy, error) {
-	entries, err := os.ReadDir(vhostDir)
+// parseProxyFiles 从 site 目录解析所有代理配置
+func parseProxyFiles(siteDir string) ([]types.Proxy, error) {
+	entries, err := os.ReadDir(siteDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -44,7 +44,7 @@ func parseProxyFiles(vhostDir string) ([]types.Proxy, error) {
 			continue
 		}
 
-		filePath := filepath.Join(vhostDir, entry.Name())
+		filePath := filepath.Join(siteDir, entry.Name())
 		proxy, err := parseProxyFile(filePath)
 		if err != nil {
 			continue // 跳过解析失败的文件
@@ -123,9 +123,9 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 }
 
 // writeProxyFiles 将代理配置写入文件
-func writeProxyFiles(vhostDir string, proxies []types.Proxy) error {
+func writeProxyFiles(siteDir string, proxies []types.Proxy) error {
 	// 删除现有的代理配置文件 (200-299)
-	if err := clearProxyFiles(vhostDir); err != nil {
+	if err := clearProxyFiles(siteDir); err != nil {
 		return err
 	}
 
@@ -137,7 +137,7 @@ func writeProxyFiles(vhostDir string, proxies []types.Proxy) error {
 		}
 
 		fileName := fmt.Sprintf("%03d-proxy.conf", num)
-		filePath := filepath.Join(vhostDir, fileName)
+		filePath := filepath.Join(siteDir, fileName)
 
 		content := generateProxyConfig(proxy)
 		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
@@ -149,8 +149,8 @@ func writeProxyFiles(vhostDir string, proxies []types.Proxy) error {
 }
 
 // clearProxyFiles 清除所有代理配置文件
-func clearProxyFiles(vhostDir string) error {
-	entries, err := os.ReadDir(vhostDir)
+func clearProxyFiles(siteDir string) error {
+	entries, err := os.ReadDir(siteDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -170,7 +170,7 @@ func clearProxyFiles(vhostDir string) error {
 
 		num, _ := strconv.Atoi(matches[1])
 		if num >= ProxyStartNum && num <= ProxyEndNum {
-			filePath := filepath.Join(vhostDir, entry.Name())
+			filePath := filepath.Join(siteDir, entry.Name())
 			if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
 				return fmt.Errorf("failed to delete proxy config: %w", err)
 			}
@@ -251,9 +251,9 @@ func generateProxyConfig(proxy types.Proxy) string {
 	return sb.String()
 }
 
-// parseBalancerFiles 从 global 目录解析所有负载均衡配置（Apache 的 upstream 等价物）
-func parseBalancerFiles(globalDir string) (map[string]types.Upstream, error) {
-	entries, err := os.ReadDir(globalDir)
+// parseBalancerFiles 从 shared 目录解析所有负载均衡配置（Apache 的 upstream 等价物）
+func parseBalancerFiles(sharedDir string) (map[string]types.Upstream, error) {
+	entries, err := os.ReadDir(sharedDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -273,7 +273,7 @@ func parseBalancerFiles(globalDir string) (map[string]types.Upstream, error) {
 		}
 
 		name := matches[2]
-		filePath := filepath.Join(globalDir, entry.Name())
+		filePath := filepath.Join(sharedDir, entry.Name())
 		upstream, err := parseBalancerFile(filePath)
 		if err != nil {
 			continue // 跳过解析失败的文件
@@ -342,9 +342,9 @@ func parseBalancerFile(filePath string) (*types.Upstream, error) {
 }
 
 // writeBalancerFiles 将负载均衡配置写入文件
-func writeBalancerFiles(globalDir string, upstreams map[string]types.Upstream) error {
+func writeBalancerFiles(sharedDir string, upstreams map[string]types.Upstream) error {
 	// 删除现有的负载均衡配置文件
-	if err := clearBalancerFiles(globalDir); err != nil {
+	if err := clearBalancerFiles(sharedDir); err != nil {
 		return err
 	}
 
@@ -352,7 +352,7 @@ func writeBalancerFiles(globalDir string, upstreams map[string]types.Upstream) e
 	num := 100
 	for name, upstream := range upstreams {
 		fileName := fmt.Sprintf("%03d-balancer-%s.conf", num, name)
-		filePath := filepath.Join(globalDir, fileName)
+		filePath := filepath.Join(sharedDir, fileName)
 
 		content := generateBalancerConfig(name, upstream)
 		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
@@ -365,8 +365,8 @@ func writeBalancerFiles(globalDir string, upstreams map[string]types.Upstream) e
 }
 
 // clearBalancerFiles 清除所有负载均衡配置文件
-func clearBalancerFiles(globalDir string) error {
-	entries, err := os.ReadDir(globalDir)
+func clearBalancerFiles(sharedDir string) error {
+	entries, err := os.ReadDir(sharedDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -380,7 +380,7 @@ func clearBalancerFiles(globalDir string) error {
 		}
 
 		if balancerFilePattern.MatchString(entry.Name()) {
-			filePath := filepath.Join(globalDir, entry.Name())
+			filePath := filepath.Join(sharedDir, entry.Name())
 			if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
 				return fmt.Errorf("failed to delete balancer config: %w", err)
 			}

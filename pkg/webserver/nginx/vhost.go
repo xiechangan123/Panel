@@ -98,13 +98,13 @@ func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 
 func (v *baseVhost) Enable() bool {
 	// 检查禁用配置文件是否存在
-	disableFile := filepath.Join(v.configDir, "vhost", DisableConfName)
+	disableFile := filepath.Join(v.configDir, "site", DisableConfName)
 	_, err := os.Stat(disableFile)
 	return os.IsNotExist(err)
 }
 
 func (v *baseVhost) SetEnable(enable bool, _ ...string) error {
-	serverDir := filepath.Join(v.configDir, "vhost")
+	serverDir := filepath.Join(v.configDir, "site")
 	disableFile := filepath.Join(serverDir, DisableConfName)
 
 	if enable {
@@ -624,20 +624,20 @@ func (v *baseVhost) ClearBasicAuth() error {
 }
 
 func (v *baseVhost) Redirects() []types.Redirect {
-	vhostDir := filepath.Join(v.configDir, "vhost")
-	redirects, _ := parseRedirectFiles(vhostDir)
+	siteDir := filepath.Join(v.configDir, "site")
+	redirects, _ := parseRedirectFiles(siteDir)
 	return redirects
 }
 
 func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
-	vhostDir := filepath.Join(v.configDir, "vhost")
-	return writeRedirectFiles(vhostDir, redirects)
+	siteDir := filepath.Join(v.configDir, "site")
+	return writeRedirectFiles(siteDir, redirects)
 }
 
 // ========== PHPVhost ==========
 
 func (v *PHPVhost) PHP() uint {
-	phpConf := filepath.Join(v.configDir, "vhost", "010-php.conf")
+	phpConf := filepath.Join(v.configDir, "site", "010-php.conf")
 	content, err := os.ReadFile(phpConf)
 	if err != nil {
 		return 0
@@ -654,10 +654,10 @@ func (v *PHPVhost) PHP() uint {
 
 func (v *PHPVhost) SetPHP(version uint) error {
 	if version == 0 {
-		return os.Remove(filepath.Join(v.configDir, "vhost", "010-php.conf"))
+		return os.Remove(filepath.Join(v.configDir, "site", "010-php.conf"))
 	}
 
-	phpConf := filepath.Join(v.configDir, "vhost", "010-php.conf")
+	phpConf := filepath.Join(v.configDir, "site", "010-php.conf")
 	content := fmt.Sprintf("include enable-php-%d.conf;\n", version)
 	if err := os.WriteFile(phpConf, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to write php config: %w", err)
@@ -669,35 +669,35 @@ func (v *PHPVhost) SetPHP(version uint) error {
 // ========== ProxyVhost ==========
 
 func (v *ProxyVhost) Proxies() []types.Proxy {
-	vhostDir := filepath.Join(v.configDir, "vhost")
-	proxies, _ := parseProxyFiles(vhostDir)
+	siteDir := filepath.Join(v.configDir, "site")
+	proxies, _ := parseProxyFiles(siteDir)
 	return proxies
 }
 
 func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
-	vhostDir := filepath.Join(v.configDir, "vhost")
-	return writeProxyFiles(vhostDir, proxies)
+	siteDir := filepath.Join(v.configDir, "site")
+	return writeProxyFiles(siteDir, proxies)
 }
 
 func (v *ProxyVhost) ClearProxies() error {
-	vhostDir := filepath.Join(v.configDir, "vhost")
-	return clearProxyFiles(vhostDir)
+	siteDir := filepath.Join(v.configDir, "site")
+	return clearProxyFiles(siteDir)
 }
 
 func (v *ProxyVhost) Upstreams() map[string]types.Upstream {
-	globalDir := filepath.Join(v.configDir, "global")
-	upstreams, _ := parseUpstreamFiles(globalDir)
+	sharedDir := filepath.Join(v.configDir, "shared")
+	upstreams, _ := parseUpstreamFiles(sharedDir)
 	return upstreams
 }
 
 func (v *ProxyVhost) SetUpstreams(upstreams map[string]types.Upstream) error {
-	globalDir := filepath.Join(v.configDir, "global")
-	return writeUpstreamFiles(globalDir, upstreams)
+	sharedDir := filepath.Join(v.configDir, "shared")
+	return writeUpstreamFiles(sharedDir, upstreams)
 }
 
 func (v *ProxyVhost) ClearUpstreams() error {
-	globalDir := filepath.Join(v.configDir, "global")
-	return clearUpstreamFiles(globalDir)
+	sharedDir := filepath.Join(v.configDir, "shared")
+	return clearUpstreamFiles(sharedDir)
 }
 
 func (v *baseVhost) setHSTS(hsts bool) error {

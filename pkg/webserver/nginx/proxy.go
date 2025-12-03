@@ -15,9 +15,9 @@ import (
 // proxyFilePattern 匹配代理配置文件名 (200-299)
 var proxyFilePattern = regexp.MustCompile(`^(\d{3})-proxy\.conf$`)
 
-// parseProxyFiles 从 vhost 目录解析所有代理配置
-func parseProxyFiles(vhostDir string) ([]types.Proxy, error) {
-	entries, err := os.ReadDir(vhostDir)
+// parseProxyFiles 从 site 目录解析所有代理配置
+func parseProxyFiles(siteDir string) ([]types.Proxy, error) {
+	entries, err := os.ReadDir(siteDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -41,7 +41,7 @@ func parseProxyFiles(vhostDir string) ([]types.Proxy, error) {
 			continue
 		}
 
-		filePath := filepath.Join(vhostDir, entry.Name())
+		filePath := filepath.Join(siteDir, entry.Name())
 		proxy, err := parseProxyFile(filePath)
 		if err != nil {
 			continue // 跳过解析失败的文件
@@ -150,9 +150,9 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 }
 
 // writeProxyFiles 将代理配置写入文件
-func writeProxyFiles(vhostDir string, proxies []types.Proxy) error {
+func writeProxyFiles(siteDir string, proxies []types.Proxy) error {
 	// 删除现有的代理配置文件 (200-299)
-	if err := clearProxyFiles(vhostDir); err != nil {
+	if err := clearProxyFiles(siteDir); err != nil {
 		return err
 	}
 
@@ -164,7 +164,7 @@ func writeProxyFiles(vhostDir string, proxies []types.Proxy) error {
 		}
 
 		fileName := fmt.Sprintf("%03d-proxy.conf", num)
-		filePath := filepath.Join(vhostDir, fileName)
+		filePath := filepath.Join(siteDir, fileName)
 
 		content := generateProxyConfig(proxy)
 		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
@@ -176,8 +176,8 @@ func writeProxyFiles(vhostDir string, proxies []types.Proxy) error {
 }
 
 // clearProxyFiles 清除所有代理配置文件
-func clearProxyFiles(vhostDir string) error {
-	entries, err := os.ReadDir(vhostDir)
+func clearProxyFiles(siteDir string) error {
+	entries, err := os.ReadDir(siteDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -197,7 +197,7 @@ func clearProxyFiles(vhostDir string) error {
 
 		num, _ := strconv.Atoi(matches[1])
 		if num >= ProxyStartNum && num <= ProxyEndNum {
-			filePath := filepath.Join(vhostDir, entry.Name())
+			filePath := filepath.Join(siteDir, entry.Name())
 			if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
 				return fmt.Errorf("failed to delete proxy config: %w", err)
 			}

@@ -14,9 +14,9 @@ import (
 // upstreamFilePattern 匹配 upstream 配置文件名 (100-XXX-name.conf)
 var upstreamFilePattern = regexp.MustCompile(`^(\d{3})-(.+)\.conf$`)
 
-// parseUpstreamFiles 从 global 目录解析所有 upstream 配置
-func parseUpstreamFiles(globalDir string) (map[string]types.Upstream, error) {
-	entries, err := os.ReadDir(globalDir)
+// parseUpstreamFiles 从 shared 目录解析所有 upstream 配置
+func parseUpstreamFiles(sharedDir string) (map[string]types.Upstream, error) {
+	entries, err := os.ReadDir(sharedDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -41,7 +41,7 @@ func parseUpstreamFiles(globalDir string) (map[string]types.Upstream, error) {
 		}
 
 		name := matches[2]
-		filePath := filepath.Join(globalDir, entry.Name())
+		filePath := filepath.Join(sharedDir, entry.Name())
 		upstream, err := parseUpstreamFile(filePath, name)
 		if err != nil {
 			continue // 跳过解析失败的文件
@@ -116,9 +116,9 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 }
 
 // writeUpstreamFiles 将 upstream 配置写入文件
-func writeUpstreamFiles(globalDir string, upstreams map[string]types.Upstream) error {
+func writeUpstreamFiles(sharedDir string, upstreams map[string]types.Upstream) error {
 	// 删除现有的 upstream 配置文件
-	if err := clearUpstreamFiles(globalDir); err != nil {
+	if err := clearUpstreamFiles(sharedDir); err != nil {
 		return err
 	}
 
@@ -126,7 +126,7 @@ func writeUpstreamFiles(globalDir string, upstreams map[string]types.Upstream) e
 	num := UpstreamStartNum
 	for name, upstream := range upstreams {
 		fileName := fmt.Sprintf("%03d-%s.conf", num, name)
-		filePath := filepath.Join(globalDir, fileName)
+		filePath := filepath.Join(sharedDir, fileName)
 
 		content := generateUpstreamConfig(name, upstream)
 		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
@@ -139,8 +139,8 @@ func writeUpstreamFiles(globalDir string, upstreams map[string]types.Upstream) e
 }
 
 // clearUpstreamFiles 清除所有 upstream 配置文件
-func clearUpstreamFiles(globalDir string) error {
-	entries, err := os.ReadDir(globalDir)
+func clearUpstreamFiles(sharedDir string) error {
+	entries, err := os.ReadDir(sharedDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -160,7 +160,7 @@ func clearUpstreamFiles(globalDir string) error {
 
 		num, _ := strconv.Atoi(matches[1])
 		if num >= UpstreamStartNum {
-			filePath := filepath.Join(globalDir, entry.Name())
+			filePath := filepath.Join(sharedDir, entry.Name())
 			if err = os.Remove(filePath); err != nil && !os.IsNotExist(err) {
 				return fmt.Errorf("failed to delete upstream config: %w", err)
 			}
