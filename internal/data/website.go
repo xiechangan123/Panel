@@ -24,7 +24,6 @@ import (
 	"github.com/acepanel/panel/pkg/cert"
 	"github.com/acepanel/panel/pkg/embed"
 	"github.com/acepanel/panel/pkg/io"
-	"github.com/acepanel/panel/pkg/nginx"
 	"github.com/acepanel/panel/pkg/punycode"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/systemctl"
@@ -104,23 +103,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		return nil, err
 	}
 
-	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
-	if err != nil {
-		return nil, err
-	}
-
-	// 解析配置
-	var vhost webservertypes.Vhost
-	switch website.Type {
-	case biz.WebsiteTypeProxy:
-		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypePHP:
-		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypeStatic:
-		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	default:
-		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
-	}
+	vhost, err := r.getVhost(website)
 	if err != nil {
 		return nil, err
 	}
@@ -240,22 +223,16 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 }
 
 func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
-	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
-	if err != nil {
-		return nil, err
+	w := &biz.Website{
+		Name:   req.Name,
+		Type:   biz.WebsiteType(req.Type),
+		Status: true,
+		Path:   req.Path,
+		SSL:    false,
+		Remark: req.Remark,
 	}
 
-	var vhost webservertypes.Vhost
-	switch req.Type {
-	case "proxy":
-		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", req.Name, "config"))
-	case "php":
-		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", req.Name, "config"))
-	case "static":
-		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", req.Name, "config"))
-	default:
-		return nil, errors.New(r.t.Get("unsupported website type: %s", req.Type))
-	}
+	vhost, err := r.getVhost(w)
 	if err != nil {
 		return nil, err
 	}
@@ -391,14 +368,6 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 
 	// 创建面板网站
-	w := &biz.Website{
-		Name:   req.Name,
-		Type:   biz.WebsiteType(req.Type),
-		Status: true,
-		Path:   req.Path,
-		SSL:    false,
-		Remark: req.Remark,
-	}
 	if err = r.db.Create(w).Error; err != nil {
 		return nil, err
 	}
@@ -437,23 +406,7 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 		return err
 	}
 
-	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
-	if err != nil {
-		return err
-	}
-
-	// 解析配置
-	var vhost webservertypes.Vhost
-	switch website.Type {
-	case biz.WebsiteTypeProxy:
-		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypePHP:
-		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypeStatic:
-		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	default:
-		return errors.New(r.t.Get("unsupported website type: %s", website.Type))
-	}
+	vhost, err := r.getVhost(website)
 	if err != nil {
 		return err
 	}
@@ -638,33 +591,16 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 
-	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
-	if err != nil {
-		return err
-	}
-
 	// 清空配置
-	_, err = shell.Execf(`rm -rf '%s'`, fmt.Sprintf("%s/sites/%s/config/*", app.Root, website.Name))
+	_, err := shell.Execf(`rm -rf '%s'`, fmt.Sprintf("%s/sites/%s/config/*", app.Root, website.Name))
 	if err != nil {
 		return err
 	}
-
 	// 初始化配置
-	var vhost webservertypes.Vhost
-	switch website.Type {
-	case biz.WebsiteTypeProxy:
-		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypePHP:
-		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypeStatic:
-		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	default:
-		return errors.New(r.t.Get("unsupported website type: %s", website.Type))
-	}
+	vhost, err := r.getVhost(website)
 	if err != nil {
 		return err
 	}
-
 	// 重置配置
 	if err = vhost.Reset(); err != nil {
 		return err
@@ -715,61 +651,14 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 		return err
 	}
 
-	// 解析nginx配置
-	config, err := io.Read(filepath.Join(app.Root, "server/vhost", website.Name+".conf"))
+	vhost, err := r.getVhost(website)
 	if err != nil {
 		return err
 	}
-	p, err := nginx.NewParser(config)
-	if err != nil {
+	if err = vhost.SetEnable(status); err != nil {
 		return err
 	}
-
-	// 取运行目录和默认文档
-	root, rootComment, err := p.GetRootWithComment()
-	if err != nil {
-		return err
-	}
-	index, indexComment, err := p.GetIndexWithComment()
-	if err != nil {
-		return err
-	}
-	indexStr := strings.Join(index, " ")
-
-	if status {
-		if len(rootComment) == 0 {
-			return errors.New(r.t.Get("runtime directory comment not found"))
-		}
-		if len(rootComment) != 1 {
-			return errors.New(r.t.Get("runtime directory comment count is incorrect, expected 1, actual %d", len(rootComment)))
-		}
-		rootComment[0] = strings.TrimPrefix(rootComment[0], "# ")
-		if !io.Exists(rootComment[0]) {
-			return errors.New(r.t.Get("runtime directory does not exist"))
-		}
-		if err = p.SetRoot(rootComment[0]); err != nil {
-			return err
-		}
-		if len(indexComment) == 0 {
-			return errors.New(r.t.Get("default document comment not found"))
-		}
-		if len(indexComment) != 1 {
-			return errors.New(r.t.Get("default document comment count is incorrect, expected 1, actual %d", len(indexComment)))
-		}
-		indexComment[0] = strings.TrimPrefix(indexComment[0], "# ")
-		if err = p.SetIndex(strings.Fields(indexComment[0])); err != nil {
-			return err
-		}
-	} else {
-		if err = p.SetRootWithComment(filepath.Join(app.Root, "server/nginx/html"), []string{"# " + root}); err != nil {
-			return err
-		}
-		if err = p.SetIndexWithComment([]string{"stop.html"}, []string{"# " + indexStr}); err != nil {
-			return err
-		}
-	}
-
-	if err = io.Write(filepath.Join(app.Root, "server/vhost", website.Name+".conf"), p.Dump(), 0644); err != nil {
+	if err = vhost.Save(); err != nil {
 		return err
 	}
 
@@ -852,6 +741,30 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 	}
 
 	return r.cert.Deploy(newCert.ID, website.ID)
+}
+
+func (r *websiteRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
+	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
+	if err != nil {
+		return nil, err
+	}
+
+	var vhost webservertypes.Vhost
+	switch website.Type {
+	case biz.WebsiteTypeProxy:
+		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypePHP:
+		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	case biz.WebsiteTypeStatic:
+		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
+	default:
+		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return vhost, nil
 }
 
 func (r *websiteRepo) getPHPVersion(name string) uint {
