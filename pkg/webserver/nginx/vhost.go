@@ -108,26 +108,29 @@ func (v *baseVhost) Enable() bool {
 	return directive.GetParameters()[0].GetValue() != DisablePagePath
 }
 
-func (v *baseVhost) SetEnable(enable bool, siteConfig ...string) error {
-	name := ""
+func (v *baseVhost) SetEnable(enable bool) error {
 	path := DisablePagePath
 
 	if enable {
-		if len(siteConfig) != 2 {
-			return fmt.Errorf("site config is required to enable the vhost")
+		// 尝试获取保存的根目录
+		if root, err := os.ReadFile(filepath.Join(v.configDir, "root.saved")); err != nil {
+			path = filepath.Join(SitesPath, filepath.Dir(v.configDir), "public") // 默认根目录
+		} else {
+			path = strings.TrimSpace(string(root))
 		}
-		name = siteConfig[0]
-		path = siteConfig[1]
+	} else {
+		// 禁用时，保存当前根目录
+		currentRoot := v.Root()
+		if currentRoot != "" && currentRoot != DisablePagePath {
+			if err := os.WriteFile(filepath.Join(v.configDir, "root.saved"), []byte(currentRoot), 0644); err != nil {
+				return fmt.Errorf("failed to save current root: %w", err)
+			}
+		}
 	}
 
 	// 设置根目录
 	_ = v.parser.Clear("server.root")
-	if err := v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "root",
-			Parameters: v.parser.slices2Parameters([]string{path}),
-		},
-	}); err != nil {
+	if err := v.SetRoot(path); err != nil {
 		return err
 	}
 
@@ -137,7 +140,7 @@ func (v *baseVhost) SetEnable(enable bool, siteConfig ...string) error {
 		return v.parser.Set("server", []*config.Directive{
 			{
 				Name:       "include",
-				Parameters: v.parser.slices2Parameters([]string{fmt.Sprintf("%s/%s/config/site/*.conf", SitesPath, name)}),
+				Parameters: v.parser.slices2Parameters([]string{fmt.Sprintf("%s/site/*.conf", v.configDir)}),
 			},
 		})
 	}

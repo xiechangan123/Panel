@@ -108,40 +108,35 @@ func (v *baseVhost) Enable() bool {
 	return root != DisablePagePath
 }
 
-func (v *baseVhost) SetEnable(enable bool, siteConfig ...string) error {
-	name := ""
+func (v *baseVhost) SetEnable(enable bool) error {
 	path := DisablePagePath
 
 	if enable {
-		if len(siteConfig) != 2 {
-			return fmt.Errorf("site config is required to enable the vhost")
+		// 尝试获取保存的根目录
+		if root, err := os.ReadFile(filepath.Join(v.configDir, "root.saved")); err != nil {
+			path = filepath.Join(SitesPath, filepath.Dir(v.configDir), "public") // 默认根目录
+		} else {
+			path = strings.TrimSpace(string(root))
 		}
-		name = siteConfig[0]
-		path = siteConfig[1]
+	} else {
+		// 禁用时，保存当前根目录
+		currentRoot := v.Root()
+		if currentRoot != "" && currentRoot != DisablePagePath {
+			if err := os.WriteFile(filepath.Join(v.configDir, "root.saved"), []byte(currentRoot), 0644); err != nil {
+				return fmt.Errorf("failed to save current root: %w", err)
+			}
+		}
 	}
 
 	// 设置根目录
-	v.vhost.SetDirective("DocumentRoot", path)
-
-	// 更新 Directory 块
-	dirBlock := v.vhost.GetBlock("Directory")
-	if dirBlock != nil {
-		dirBlock.Args = []string{path}
-	} else {
-		block := v.vhost.AddBlock("Directory", path)
-		if block.Block != nil {
-			block.Block.Directives = append(block.Block.Directives,
-				&Directive{Name: "Options", Args: []string{"-Indexes", "+FollowSymLinks"}},
-				&Directive{Name: "AllowOverride", Args: []string{"All"}},
-				&Directive{Name: "Require", Args: []string{"all", "granted"}},
-			)
-		}
+	if err := v.SetRoot(path); err != nil {
+		return err
 	}
 
 	// 设置 Include 配置
 	v.vhost.RemoveDirectives("IncludeOptional")
 	if enable {
-		v.vhost.AddDirective("IncludeOptional", fmt.Sprintf("%s/%s/config/site/*.conf", SitesPath, name))
+		v.vhost.AddDirective("IncludeOptional", fmt.Sprintf("%s/site/*.conf", v.configDir))
 	}
 
 	return nil

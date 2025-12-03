@@ -58,7 +58,7 @@ func (s *VhostTestSuite) TestEnable() {
 	s.False(s.vhost.Enable())
 
 	// 重新启用
-	s.NoError(s.vhost.SetEnable(true, "testsite", "/var/www/test"))
+	s.NoError(s.vhost.SetEnable(true))
 	s.True(s.vhost.Enable())
 }
 

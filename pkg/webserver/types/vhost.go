@@ -6,8 +6,8 @@ type Vhost interface {
 
 	// Enable 取启用状态
 	Enable() bool
-	// SetEnable 设置启用状态及网站名称和根目录
-	SetEnable(enable bool, siteConfig ...string) error
+	// SetEnable 设置启用状态
+	SetEnable(enable bool) error
 
 	// Listen 取监听配置
 	Listen() []Listen
