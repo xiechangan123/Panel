@@ -1,13 +1,10 @@
 package apache
 
-// DisableConfName 禁用配置文件名
-const DisableConfName = "000-disable.conf"
+// DisablePagePath 禁用页面路径
+const DisablePagePath = "/opt/ace/server/apache/stop"
 
-// DisableConfContent 禁用配置内容
-const DisableConfContent = `# 网站已停止
-RewriteEngine on
-RewriteRule ^.*$ - [R=503,L]
-`
+// SitesPath 网站目录
+const SitesPath = "/opt/ace/sites"
 
 // 配置文件序号范围
 const (

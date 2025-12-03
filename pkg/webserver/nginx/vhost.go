@@ -75,6 +75,7 @@ func NewStaticVhost(configDir string) (*StaticVhost, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &StaticVhost{baseVhost: base}, nil
 }
 
@@ -84,6 +85,7 @@ func NewPHPVhost(configDir string) (*PHPVhost, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &PHPVhost{baseVhost: base}, nil
 }
 
@@ -93,31 +95,51 @@ func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &ProxyVhost{baseVhost: base}, nil
 }
 
 func (v *baseVhost) Enable() bool {
-	// 检查禁用配置文件是否存在
-	disableFile := filepath.Join(v.configDir, "site", DisableConfName)
-	_, err := os.Stat(disableFile)
-	return os.IsNotExist(err)
-}
-
-func (v *baseVhost) SetEnable(enable bool, _ ...string) error {
-	serverDir := filepath.Join(v.configDir, "site")
-	disableFile := filepath.Join(serverDir, DisableConfName)
-
-	if enable {
-		// 启用：删除禁用配置文件
-		if err := os.Remove(disableFile); err != nil && !os.IsNotExist(err) {
-			return fmt.Errorf("failed to remove disable config: %w", err)
-		}
-		return nil
+	directive, err := v.parser.FindOne("server.root")
+	if err != nil {
+		return false
 	}
 
-	// 禁用：创建禁用配置文件
-	if err := os.WriteFile(disableFile, []byte(DisableConfContent), 0644); err != nil {
-		return fmt.Errorf("failed to write disable config: %w", err)
+	return directive.GetParameters()[0].GetValue() != DisablePagePath
+}
+
+func (v *baseVhost) SetEnable(enable bool, siteConfig ...string) error {
+	name := ""
+	path := DisablePagePath
+
+	if enable {
+		if len(siteConfig) != 2 {
+			return fmt.Errorf("site config is required to enable the vhost")
+		}
+		name = siteConfig[0]
+		path = siteConfig[1]
+	}
+
+	// 设置根目录
+	_ = v.parser.Clear("server.root")
+	if err := v.parser.Set("server", []*config.Directive{
+		{
+			Name:       "root",
+			Parameters: v.parser.slices2Parameters([]string{path}),
+		},
+	}); err != nil {
+		return err
+	}
+
+	// 设置导入配置
+	_ = v.parser.Clear("server.include")
+	if enable {
+		return v.parser.Set("server", []*config.Directive{
+			{
+				Name:       "include",
+				Parameters: v.parser.slices2Parameters([]string{fmt.Sprintf("%s/%s/config/site/*.conf", SitesPath, name)}),
+			},
+		})
 	}
 
 	return nil

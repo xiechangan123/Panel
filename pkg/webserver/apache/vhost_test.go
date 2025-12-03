@@ -51,39 +51,16 @@ func (s *VhostTestSuite) TestNewVhost() {
 }
 
 func (s *VhostTestSuite) TestEnable() {
-	// 默认应该是启用状态（没有 000-disable.conf）
+	// 默认应该是启用状态
 	s.True(s.vhost.Enable())
 
 	// 禁用网站
 	s.NoError(s.vhost.SetEnable(false))
 	s.False(s.vhost.Enable())
 
-	// 验证禁用文件存在
-	disableFile := filepath.Join(s.configDir, "site", DisableConfName)
-	_, err := os.Stat(disableFile)
-	s.NoError(err)
-
 	// 重新启用
-	s.NoError(s.vhost.SetEnable(true))
+	s.NoError(s.vhost.SetEnable(true, "testsite", "/var/www/test"))
 	s.True(s.vhost.Enable())
-
-	// 验证禁用文件已删除
-	_, err = os.Stat(disableFile)
-	s.True(os.IsNotExist(err))
-}
-
-func (s *VhostTestSuite) TestDisableConfigContent() {
-	// 禁用网站
-	s.NoError(s.vhost.SetEnable(false))
-
-	// 读取禁用配置内容
-	disableFile := filepath.Join(s.configDir, "site", DisableConfName)
-	content, err := os.ReadFile(disableFile)
-	s.NoError(err)
-
-	// 验证内容包含 503 返回
-	s.Contains(string(content), "503")
-	s.Contains(string(content), "RewriteRule")
 }
 
 func (s *VhostTestSuite) TestServerName() {

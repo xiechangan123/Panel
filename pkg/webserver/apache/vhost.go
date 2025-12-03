@@ -104,27 +104,44 @@ func NewProxyVhost(configDir string) (*ProxyVhost, error) {
 }
 
 func (v *baseVhost) Enable() bool {
-	// 检查禁用配置文件是否存在
-	disableFile := filepath.Join(v.configDir, "site", DisableConfName)
-	_, err := os.Stat(disableFile)
-	return os.IsNotExist(err)
+	root := v.vhost.GetDirectiveValue("DocumentRoot")
+	return root != DisablePagePath
 }
 
-func (v *baseVhost) SetEnable(enable bool, _ ...string) error {
-	serverDir := filepath.Join(v.configDir, "site")
-	disableFile := filepath.Join(serverDir, DisableConfName)
+func (v *baseVhost) SetEnable(enable bool, siteConfig ...string) error {
+	name := ""
+	path := DisablePagePath
 
 	if enable {
-		// 启用：删除禁用配置文件
-		if err := os.Remove(disableFile); err != nil && !os.IsNotExist(err) {
-			return fmt.Errorf("failed to remove disable config: %w", err)
+		if len(siteConfig) != 2 {
+			return fmt.Errorf("site config is required to enable the vhost")
 		}
-		return nil
+		name = siteConfig[0]
+		path = siteConfig[1]
 	}
 
-	// 禁用：创建禁用配置文件
-	if err := os.WriteFile(disableFile, []byte(DisableConfContent), 0644); err != nil {
-		return fmt.Errorf("failed to write disable config: %w", err)
+	// 设置根目录
+	v.vhost.SetDirective("DocumentRoot", path)
+
+	// 更新 Directory 块
+	dirBlock := v.vhost.GetBlock("Directory")
+	if dirBlock != nil {
+		dirBlock.Args = []string{path}
+	} else {
+		block := v.vhost.AddBlock("Directory", path)
+		if block.Block != nil {
+			block.Block.Directives = append(block.Block.Directives,
+				&Directive{Name: "Options", Args: []string{"-Indexes", "+FollowSymLinks"}},
+				&Directive{Name: "AllowOverride", Args: []string{"All"}},
+				&Directive{Name: "Require", Args: []string{"all", "granted"}},
+			)
+		}
+	}
+
+	// 设置 Include 配置
+	v.vhost.RemoveDirectives("IncludeOptional")
+	if enable {
+		v.vhost.AddDirective("IncludeOptional", fmt.Sprintf("%s/%s/config/site/*.conf", SitesPath, name))
 	}
 
 	return nil
