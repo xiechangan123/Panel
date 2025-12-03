@@ -19,12 +19,10 @@ const DefaultConf = `include /opt/ace/sites/default/config/shared/*.conf;
 server {
     listen 80;
     server_name localhost;
-    index index.php index.html;
     root /opt/ace/sites/default/public;
+    index index.php index.html;
     # error page
     error_page 404 /404.html;
-    # custom configs
-    include /opt/ace/sites/default/config/site/*.conf;
     # browser cache
     location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
         expires 30d;
@@ -40,6 +38,8 @@ server {
     location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
         return 404;
     }
+    # custom configs
+    include /opt/ace/sites/default/config/site/*.conf;
     access_log /opt/ace/sites/default/log/access.log;
     error_log /opt/ace/sites/default/log/error.log;
 }
