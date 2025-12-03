@@ -284,49 +284,45 @@ func (v *baseVhost) SetIncludes(includes []types.IncludeFile) error {
 }
 
 func (v *baseVhost) AccessLog() string {
-	directive, err := v.parser.FindOne("server.access_log")
-	if err != nil {
-		return ""
-	}
-	if len(v.parser.parameters2Slices(directive.GetParameters())) == 0 {
+	content := v.Config("020-access-log.conf", "site")
+	if content == "" {
 		return ""
 	}
 
-	return directive.GetParameters()[0].GetValue()
+	var result string
+	_, err := fmt.Sscanf(content, "access_log %s", &result)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSuffix(result, ";")
 }
 
 func (v *baseVhost) SetAccessLog(accessLog string) error {
-	_ = v.parser.Clear("server.access_log")
-
-	return v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "access_log",
-			Parameters: []config.Parameter{{Value: accessLog}},
-		},
-	})
+	if accessLog == "" {
+		return v.RemoveConfig("020-access-log.conf", "site")
+	}
+	return v.SetConfig("020-access-log.conf", "site", fmt.Sprintf("access_log %s;\n", accessLog))
 }
 
 func (v *baseVhost) ErrorLog() string {
-	directive, err := v.parser.FindOne("server.error_log")
+	content := v.Config("020-error-log.conf", "site")
+	if content == "" {
+		return ""
+	}
+
+	var result string
+	_, err := fmt.Sscanf(content, "error_log %s", &result)
 	if err != nil {
 		return ""
 	}
-	if len(v.parser.parameters2Slices(directive.GetParameters())) == 0 {
-		return ""
-	}
-
-	return directive.GetParameters()[0].GetValue()
+	return strings.TrimSuffix(result, ";")
 }
 
 func (v *baseVhost) SetErrorLog(errorLog string) error {
-	_ = v.parser.Clear("server.error_log")
-
-	return v.parser.Set("server", []*config.Directive{
-		{
-			Name:       "error_log",
-			Parameters: []config.Parameter{{Value: errorLog}},
-		},
-	})
+	if errorLog == "" {
+		return v.RemoveConfig("020-error-log.conf", "site")
+	}
+	return v.SetConfig("020-error-log.conf", "site", fmt.Sprintf("error_log %s;\n", errorLog))
 }
 
 func (v *baseVhost) Save() error {
@@ -346,6 +342,31 @@ func (v *baseVhost) Reset() error {
 	}
 
 	v.parser = parser
+	return nil
+}
+
+func (v *baseVhost) Config(name string, typ string) string {
+	conf := filepath.Join(v.configDir, typ, name)
+	content, err := os.ReadFile(conf)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(content))
+}
+
+func (v *baseVhost) SetConfig(name string, typ string, content string) error {
+	conf := filepath.Join(v.configDir, typ, name)
+	if err := os.WriteFile(conf, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to write config file: %w", err)
+	}
+	return nil
+}
+
+func (v *baseVhost) RemoveConfig(name string, typ string) error {
+	conf := filepath.Join(v.configDir, typ, name)
+	if err := os.Remove(conf); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to remove config file: %w", err)
+	}
 	return nil
 }
 
@@ -662,33 +683,24 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 // ========== PHPVhost ==========
 
 func (v *PHPVhost) PHP() uint {
-	phpConf := filepath.Join(v.configDir, "site", "010-php.conf")
-	content, err := os.ReadFile(phpConf)
-	if err != nil {
+	content := v.Config("010-php.conf", "site")
+	if content == "" {
 		return 0
 	}
 
 	var result uint
-	_, err = fmt.Sscanf(strings.TrimSpace(string(content)), "include enable-php-%d.conf;", &result)
+	_, err := fmt.Sscanf(content, "include enable-php-%d.conf;", &result)
 	if err != nil {
 		return 0
 	}
-
 	return result
 }
 
 func (v *PHPVhost) SetPHP(version uint) error {
 	if version == 0 {
-		return os.Remove(filepath.Join(v.configDir, "site", "010-php.conf"))
+		return v.RemoveConfig("010-php.conf", "site")
 	}
-
-	phpConf := filepath.Join(v.configDir, "site", "010-php.conf")
-	content := fmt.Sprintf("include enable-php-%d.conf;\n", version)
-	if err := os.WriteFile(phpConf, []byte(content), 0644); err != nil {
-		return fmt.Errorf("failed to write php config: %w", err)
-	}
-
-	return nil
+	return v.SetConfig("010-php.conf", "site", fmt.Sprintf("include enable-php-%d.conf;\n", version))
 }
 
 // ========== ProxyVhost ==========

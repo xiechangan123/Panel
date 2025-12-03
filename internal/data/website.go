@@ -169,8 +169,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok {
 		setting.PHP = phpVhost.PHP()
 		// 伪静态
-		rewrite, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "site", "010-rewrite.conf"))
-		setting.Rewrite = rewrite
+		setting.Rewrite = phpVhost.Config("010-rewrite.conf", "site")
 	}
 
 	// 反向代理网站特有
@@ -277,6 +276,12 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 
+	// 404 页面
+	// TODO 需要兼容 Apache
+	if err = vhost.SetConfig("010-error-404.conf", "site", `error_page 404 /404.html;`); err != nil {
+		return nil, err
+	}
+
 	// 反向代理支持
 	if proxyVhost, ok := vhost.(webservertypes.ProxyVhost); ok {
 		if err = proxyVhost.SetProxies([]webservertypes.Proxy{
@@ -294,7 +299,26 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		if err = phpVhost.SetPHP(req.PHP); err != nil {
 			return nil, err
 		}
-		if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "site", "010-rewrite.conf"), "", 0644); err != nil {
+		if err = phpVhost.SetConfig("010-rewrite.conf", "site", ""); err != nil {
+			return nil, err
+		}
+		// TODO 需要兼容 Apache
+		if err = phpVhost.SetConfig("010-cache.conf", "site", `# browser cache
+location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
+    expires 30d;
+    access_log /dev/null;
+    error_log /dev/null;
+}
+location ~ .*\.(js|css|ttf|otf|woff|woff2|eot)$ {
+    expires 6h;
+    access_log /dev/null;
+    error_log /dev/null;
+}
+# deny sensitive files
+location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
+    return 404;
+}
+`); err != nil {
 			return nil, err
 		}
 	}
@@ -335,12 +359,13 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 
 	// 写配置
+	if err = vhost.SetConfig("001-acme.conf", "site", ""); err != nil {
+		return nil, err
+	}
 	if err = vhost.Save(); err != nil {
 		return nil, err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "site", "001-acme.conf"), "", 0644); err != nil {
-		return nil, err
-	}
+
 	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "fullchain.pem"), "", 0644); err != nil {
 		return nil, err
 	}
@@ -487,7 +512,7 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 			return err
 		}
 		// 伪静态
-		if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "site", "010-rewrite.conf"), req.Rewrite, 0644); err != nil {
+		if err = phpVhost.SetConfig("010-rewrite.conf", "site", req.Rewrite); err != nil {
 			return err
 		}
 		// 防跨站
@@ -617,10 +642,10 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 	// 保存配置
-	if err = vhost.Save(); err != nil {
+	if err = vhost.SetConfig("001-acme.conf", "site", ""); err != nil {
 		return err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "site", "001-acme.conf"), "", 0644); err != nil {
+	if err = vhost.Save(); err != nil {
 		return err
 	}
 	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"), "", 0644); err != nil {

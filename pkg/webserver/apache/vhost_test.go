@@ -324,10 +324,11 @@ func (s *VhostTestSuite) TestDirectoryBlock() {
 func (s *VhostTestSuite) TestPHPFilesMatchBlock() {
 	s.NoError(s.vhost.SetPHP(84))
 
-	content := s.vhost.config.Export()
+	// PHP 配置现在在独立文件中
+	content := s.vhost.Config("010-php.conf", "site")
 	s.Contains(content, "<FilesMatch")
 	s.Contains(content, "SetHandler")
-	s.True(strings.Contains(content, "php8.4") || strings.Contains(content, "fcgi"))
+	s.Contains(content, "php-cgi-84.sock")
 }
 
 func (s *VhostTestSuite) TestDefaultVhostConfIncludesServerD() {

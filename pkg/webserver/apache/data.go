@@ -19,13 +19,8 @@ const DefaultVhostConf = `<VirtualHost *:80>
     ServerName localhost
     DocumentRoot /opt/ace/sites/default/public
     DirectoryIndex index.php index.html
-
-    ErrorLog /opt/ace/sites/default/log/error.log
-    CustomLog /opt/ace/sites/default/log/access.log combined
-
     # custom configs
     IncludeOptional /opt/ace/sites/default/config/site/*.conf
-
     <Directory /opt/ace/sites/default/public>
         Options -Indexes +FollowSymLinks
         AllowOverride All

@@ -75,6 +75,16 @@ type Vhost interface {
 	SetBasicAuth(auth map[string]string) error
 	// ClearBasicAuth 清除基本认证
 	ClearBasicAuth() error
+
+	// Config 取指定名称的配置内容
+	// type 可选值: "site", "shared"
+	Config(name string, typ string) string
+	// SetConfig 设置指定名称的配置内容
+	// type 可选值: "site", "shared"
+	SetConfig(name string, typ string, content string) error
+	// RemoveConfig 清除指定名称的配置内容
+	// type 可选值: "site", "shared"
+	RemoveConfig(name string, typ string) error
 }
 
 // StaticVhost 纯静态虚拟主机接口

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
@@ -281,21 +280,45 @@ func (v *baseVhost) SetIncludes(includes []types.IncludeFile) error {
 }
 
 func (v *baseVhost) AccessLog() string {
-	return v.vhost.GetDirectiveValue("CustomLog")
+	content := v.Config("020-access-log.conf", "site")
+	if content == "" {
+		return ""
+	}
+
+	var result string
+	_, err := fmt.Sscanf(content, "CustomLog %s combined", &result)
+	if err != nil {
+		return ""
+	}
+	return result
 }
 
 func (v *baseVhost) SetAccessLog(accessLog string) error {
-	v.vhost.SetDirective("CustomLog", accessLog, "combined")
-	return nil
+	if accessLog == "" {
+		return v.RemoveConfig("020-access-log.conf", "site")
+	}
+	return v.SetConfig("020-access-log.conf", "site", fmt.Sprintf("CustomLog %s combined\n", accessLog))
 }
 
 func (v *baseVhost) ErrorLog() string {
-	return v.vhost.GetDirectiveValue("ErrorLog")
+	content := v.Config("020-error-log.conf", "site")
+	if content == "" {
+		return ""
+	}
+
+	var result string
+	_, err := fmt.Sscanf(content, "ErrorLog %s", &result)
+	if err != nil {
+		return ""
+	}
+	return result
 }
 
 func (v *baseVhost) SetErrorLog(errorLog string) error {
-	v.vhost.SetDirective("ErrorLog", errorLog)
-	return nil
+	if errorLog == "" {
+		return v.RemoveConfig("020-error-log.conf", "site")
+	}
+	return v.SetConfig("020-error-log.conf", "site", fmt.Sprintf("ErrorLog %s\n", errorLog))
 }
 
 func (v *baseVhost) Save() error {
@@ -320,6 +343,31 @@ func (v *baseVhost) Reset() error {
 		v.vhost = config.VirtualHosts[0]
 	}
 
+	return nil
+}
+
+func (v *baseVhost) Config(name string, typ string) string {
+	conf := filepath.Join(v.configDir, typ, name)
+	content, err := os.ReadFile(conf)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(content))
+}
+
+func (v *baseVhost) SetConfig(name string, typ string, content string) error {
+	conf := filepath.Join(v.configDir, typ, name)
+	if err := os.WriteFile(conf, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to write config file: %w", err)
+	}
+	return nil
+}
+
+func (v *baseVhost) RemoveConfig(name string, typ string) error {
+	conf := filepath.Join(v.configDir, typ, name)
+	if err := os.Remove(conf); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to remove config file: %w", err)
+	}
 	return nil
 }
 
@@ -573,87 +621,39 @@ func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
 // ========== PHPVhost ==========
 
 func (v *PHPVhost) PHP() uint {
-	// Apache 通常通过 FilesMatch 块配置 PHP
-	// 或者通过 SetHandler 指令
-	handler := v.vhost.GetDirectiveValue("SetHandler")
-	if handler != "" && strings.Contains(handler, "php") {
-		// 尝试从 handler 中提取版本号
-		// 例如: proxy:unix:/run/php/php8.4-fpm.sock|fcgi://localhost
-		if idx := strings.Index(handler, "php"); idx != -1 {
-			versionStr := ""
-			for i := idx + 3; i < len(handler); i++ {
-				c := handler[i]
-				if (c >= '0' && c <= '9') || c == '.' {
-					versionStr += string(c)
-				} else {
-					break
-				}
-			}
-			if versionStr != "" {
-				// 转换版本号，如 "8.4" -> 84
-				parts := strings.Split(versionStr, ".")
-				if len(parts) >= 2 {
-					major, _ := strconv.Atoi(parts[0])
-					minor, _ := strconv.Atoi(parts[1])
-					return uint(major*10 + minor)
-				}
-			}
-		}
-		// 如果有 PHP 处理器但无法确定版本，返回默认值
-		return 1
+	content := v.Config("010-php.conf", "site")
+	if content == "" {
+		return 0
 	}
 
-	// 检查 FilesMatch 块中的 PHP 配置
-	for _, dir := range v.vhost.Directives {
-		if dir.Block != nil && strings.EqualFold(dir.Block.Type, "FilesMatch") {
-			for _, d := range dir.Block.Directives {
-				if strings.EqualFold(d.Name, "SetHandler") && len(d.Args) > 0 {
-					if strings.Contains(d.Args[0], "php") {
-						return 1 // 有 PHP，但版本未知
-					}
-				}
-			}
-		}
+	// 从配置内容中提取版本号
+	// 格式: proxy:unix:/tmp/php-cgi-84.sock|fcgi://localhost
+	idx := strings.Index(content, "php-cgi-")
+	if idx == -1 {
+		return 0
 	}
 
-	return 0
+	var result uint
+	_, err := fmt.Sscanf(content[idx:], "php-cgi-%d.sock", &result)
+	if err != nil {
+		return 0
+	}
+	return result
 }
 
 func (v *PHPVhost) SetPHP(version uint) error {
-	// 移除现有的 PHP 配置
-	v.vhost.RemoveDirective("SetHandler")
-
-	// 移除 FilesMatch 块中的 PHP 配置
-	for i := len(v.vhost.Directives) - 1; i >= 0; i-- {
-		dir := v.vhost.Directives[i]
-		if dir.Block != nil && strings.EqualFold(dir.Block.Type, "FilesMatch") {
-			if len(dir.Block.Args) > 0 && strings.Contains(dir.Block.Args[0], "php") {
-				v.vhost.Directives = append(v.vhost.Directives[:i], v.vhost.Directives[i+1:]...)
-			}
-		}
-	}
-
 	if version == 0 {
-		return nil // 禁用 PHP
+		return v.RemoveConfig("010-php.conf", "site")
 	}
 
-	// 添加 PHP-FPM 配置
-	major := version / 10
-	minor := version % 10
-	socketPath := fmt.Sprintf("/run/php/php%d.%d-fpm.sock", major, minor)
+	// 生成 PHP-FPM 配置
+	// sock 路径格式: unix:/tmp/php-cgi-84.sock
+	content := fmt.Sprintf(`<FilesMatch \.php$>
+    SetHandler "proxy:unix:/tmp/php-cgi-%d.sock|fcgi://localhost"
+</FilesMatch>
+`, version)
 
-	// 添加 FilesMatch 块
-	block := v.vhost.AddBlock("FilesMatch", `\.php$`)
-	if block.Block != nil {
-		block.Block.Directives = append(block.Block.Directives,
-			&Directive{
-				Name: "SetHandler",
-				Args: []string{fmt.Sprintf("proxy:unix:%s|fcgi://localhost", socketPath)},
-			},
-		)
-	}
-
-	return nil
+	return v.SetConfig("010-php.conf", "site", content)
 }
 
 // ========== ProxyVhost ==========
