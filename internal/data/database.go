@@ -58,6 +58,10 @@ func (r *databaseRepo) List(page, limit uint) ([]*biz.Database, int64, error) {
 		operator.Close()
 	}
 
+	if len(database) < int((page-1)*limit) {
+		return []*biz.Database{}, int64(len(database)), nil
+	}
+
 	return database[(page-1)*limit:], int64(len(database)), nil
 }
 
@@ -71,6 +75,7 @@ func (r *databaseRepo) Create(req *request.DatabaseCreate) error {
 	if err != nil {
 		return err
 	}
+	defer operator.Close()
 
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
@@ -129,6 +134,7 @@ func (r *databaseRepo) Delete(serverID uint, name string) error {
 	if err != nil {
 		return err
 	}
+	defer operator.Close()
 
 	return operator.DatabaseDrop(name)
 }
@@ -143,6 +149,7 @@ func (r *databaseRepo) Comment(req *request.DatabaseComment) error {
 	if err != nil {
 		return err
 	}
+	defer operator.Close()
 
 	switch server.Type {
 	case biz.DatabaseTypeMysql:

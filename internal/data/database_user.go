@@ -71,7 +71,7 @@ func (r *databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
 	defer operator.Close()
 
 	// 创建用户
-	if err = operator.UserCreate(req.Username, req.Password); err != nil {
+	if err = operator.UserCreate(req.Username, req.Password, req.Host); err != nil {
 		return err
 	}
 
@@ -80,7 +80,7 @@ func (r *databaseUserRepo) Create(req *request.DatabaseUserCreate) error {
 		if err = operator.DatabaseCreate(name); err != nil {
 			return err
 		}
-		if err = operator.PrivilegesGrant(req.Username, name); err != nil {
+		if err = operator.PrivilegesGrant(req.Username, name, req.Host); err != nil {
 			return err
 		}
 	}
@@ -119,7 +119,7 @@ func (r *databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 
 	// 更新密码
 	if req.Password != "" {
-		if err = operator.UserPassword(user.Username, req.Password); err != nil {
+		if err = operator.UserPassword(user.Username, req.Password, user.Host); err != nil {
 			return err
 		}
 		user.Password = req.Password
@@ -130,7 +130,7 @@ func (r *databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 		if err = operator.DatabaseCreate(name); err != nil {
 			return err
 		}
-		if err = operator.PrivilegesGrant(user.Username, name); err != nil {
+		if err = operator.PrivilegesGrant(user.Username, name, user.Host); err != nil {
 			return err
 		}
 	}
@@ -168,7 +168,7 @@ func (r *databaseUserRepo) Delete(id uint) error {
 	}
 	defer operator.Close()
 
-	_ = operator.UserDrop(user.Username)
+	_ = operator.UserDrop(user.Username, user.Host)
 
 	return r.db.Where("id = ?", id).Delete(&biz.DatabaseUser{}).Error
 }
