@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	_ "github.com/lib/pq"
-
-	"github.com/acepanel/panel/pkg/systemctl"
 )
 
 type Postgres struct {
@@ -124,7 +122,7 @@ func (r *Postgres) UserDrop(user string, host ...string) error {
 		return err
 	}
 
-	return systemctl.Reload("postgresql")
+	return nil
 }
 
 func (r *Postgres) UserPassword(user, password string, host ...string) error {

@@ -236,6 +236,8 @@ func (r *databaseUserRepo) fillUser(user *biz.DatabaseUser) {
 					user.Status = biz.DatabaseUserStatusInvalid
 				}
 			}
+		} else {
+			user.Status = biz.DatabaseUserStatusInvalid
 		}
 	}
 	// 初始化，防止 nil
