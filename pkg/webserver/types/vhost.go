@@ -142,33 +142,33 @@ type VhostProxy interface {
 
 // Listen 监听配置
 type Listen struct {
-	Address string   // 监听地址，如: "80", "0.0.0.0:80", "[::]:443"
-	Args    []string // 其他参数，如: ["default_server", "ssl", "quic"]
+	Address string   `form:"address" json:"address"` // 监听地址，如: "80", "0.0.0.0:80", "[::]:443"
+	Args    []string `form:"args" json:"args"`       // 其他参数，如: ["default_server", "ssl", "quic"]
 }
 
 // SSLConfig SSL/TLS 配置
 type SSLConfig struct {
-	Cert      string   // 证书路径
-	Key       string   // 私钥路径
-	Protocols []string // 支持的协议，如: ["TLSv1.2", "TLSv1.3"]
-	Ciphers   string   // 加密套件
+	Cert      string   `json:"cert"`      // 证书路径
+	Key       string   `json:"key"`       // 私钥路径
+	Protocols []string `json:"protocols"` // 支持的协议，如: ["TLSv1.2", "TLSv1.3"]
+	Ciphers   string   `json:"ciphers"`   // 加密套件
 
 	// 高级选项
-	HSTS         bool   // HTTP 严格传输安全
-	OCSP         bool   // OCSP Stapling
-	HTTPRedirect bool   // HTTP 强制跳转 HTTPS
-	AltSvc       string // Alt-Svc 配置，如: 'h3=":443"; ma=86400'
+	HSTS         bool   `json:"hsts"`          // HTTP 严格传输安全
+	OCSP         bool   `json:"ocsp"`          // OCSP Stapling
+	HTTPRedirect bool   `json:"http_redirect"` // HTTP 强制跳转 HTTPS
+	AltSvc       string `json:"alt_svc"`       // Alt-Svc 配置，如: 'h3=":443"; ma=86400'
 }
 
 // RateLimit 限流限速配置
 type RateLimit struct {
-	Rate       string            // 速率限制，如: "512k", "10r/s"
-	Concurrent int               // 并发连接数限制
-	Zone       map[string]string // 条件配置，如: map["perip"] = "10"
+	Rate       string            `json:"rate"`       // 速率限制，如: "512k", "10r/s"
+	Concurrent int               `json:"concurrent"` // 并发连接数限制
+	Zone       map[string]string `json:"zone"`       // 条件配置，如: map["perip"] = "10"
 }
 
 // IncludeFile 包含文件配置
 type IncludeFile struct {
-	Path    string   // 文件路径
-	Comment []string // 注释说明
+	Path    string   `json:"path"`    // 文件路径
+	Comment []string `json:"comment"` // 注释说明
 }

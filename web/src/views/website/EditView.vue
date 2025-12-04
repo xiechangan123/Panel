@@ -11,7 +11,6 @@ import { useGettext } from 'vue3-gettext'
 import cert from '@/api/panel/cert'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
-import ProxyBuilderModal from '@/views/website/ProxyBuilderModal.vue'
 
 const { $gettext } = useGettext()
 let messageReactive: MessageReactive | null = null
@@ -23,28 +22,32 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
   initialData: {
     id: 0,
     name: '',
+    type: 'proxy',
     listens: [],
     domains: [],
-    root: '',
     path: '',
+    root: '',
     index: [],
-    php: 0,
-    open_basedir: false,
-    https: false,
-    ssl_certificate: '',
-    ssl_certificate_key: '',
+    ssl: false,
+    ssl_cert: '',
+    ssl_key: '',
+    hsts: false,
+    ocsp: false,
+    http_redirect: false,
+    ssl_protocols: [],
+    ssl_ciphers: '',
     ssl_not_before: '',
     ssl_not_after: '',
     ssl_dns_names: [],
     ssl_issuer: '',
     ssl_ocsp_server: [],
-    http_redirect: false,
-    hsts: false,
-    ocsp: false,
+    access_log: '',
+    error_log: '',
+    php: 0,
     rewrite: '',
-    raw: '',
-    log: '',
-    error_log: ''
+    open_basedir: false,
+    upstreams: {},
+    proxies: []
   }
 })
 const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
@@ -67,7 +70,6 @@ const certs = ref<any>([])
 useRequest(cert.certs(1, 10000)).onSuccess(({ data }) => {
   certs.value = data.items
 })
-const proxyBuilderModal = ref(false)
 const { data: rewrites } = useRequest(website.rewrites, {
   initialData: {}
 })
@@ -97,16 +99,14 @@ const handleSave = () => {
   if (setting.value.https && !setting.value.listens.some((item: any) => item.https)) {
     setting.value.listens.push({
       address: '443',
-      https: true,
-      quic: true
+      args: ['ssl', 'quic']
     })
   }
   // 如果关闭了https，自动禁用所有https和quic
   if (!setting.value.https) {
     setting.value.listens = setting.value.listens.filter((item: any) => item.address !== '443') // 443直接删掉
     setting.value.listens.forEach((item: any) => {
-      item.https = false
-      item.quic = false
+      item.args = []
     })
   }
 
@@ -164,9 +164,21 @@ const clearLog = async () => {
 const onCreateListen = () => {
   return {
     address: '',
-    https: false,
-    quic: false
+    args: []
   }
+}
+
+const toggleArg = (args: string[], arg: string, checked: boolean) => {
+  const index = args.indexOf(arg)
+  if (checked && index === -1) {
+    args.push(arg)
+  } else if (!checked && index !== -1) {
+    args.splice(index, 1)
+  }
+}
+
+const hasArg = (args: string[], arg: string) => {
+  return args.includes(arg)
 }
 </script>
 
@@ -192,8 +204,22 @@ const onCreateListen = () => {
               <template #default="{ value }">
                 <div w-full flex items-center>
                   <n-input v-model:value="value.address" clearable />
-                  <n-checkbox v-model:checked="value.https" ml-20 mr-20 w-120> HTTPS </n-checkbox>
-                  <n-checkbox v-model:checked="value.quic" w-200> QUIC(HTTP3) </n-checkbox>
+                  <n-checkbox
+                    :checked="hasArg(value.args, 'ssl')"
+                    @update:checked="(checked) => toggleArg(value.args, 'ssl', checked)"
+                    ml-20
+                    mr-20
+                    w-120
+                  >
+                    HTTPS
+                  </n-checkbox>
+                  <n-checkbox
+                    :checked="hasArg(value.args, 'quic')"
+                    @update:checked="(checked) => toggleArg(value.args, 'quic', checked)"
+                    w-200
+                  >
+                    QUIC(HTTP3)
+                  </n-checkbox>
                 </div>
               </template>
             </n-dynamic-input>
@@ -220,7 +246,7 @@ const onCreateListen = () => {
           <n-form-item :label="$gettext('Default Document')">
             <n-dynamic-tags v-model:value="setting.index" />
           </n-form-item>
-          <n-form-item :label="$gettext('PHP Version')">
+          <n-form-item v-if="setting.type == 'php'" :label="$gettext('PHP Version')">
             <n-select
               v-model:value="setting.php"
               :default-value="0"
@@ -230,7 +256,7 @@ const onCreateListen = () => {
             >
             </n-select>
           </n-form-item>
-          <n-form-item :label="$gettext('Anti-cross-site Attack (PHP)')">
+          <n-form-item v-if="setting.type == 'php'" :label="$gettext('Anti-cross-site Attack')">
             <n-switch v-model:value="setting.open_basedir" />
           </n-form-item>
         </n-form>
@@ -238,16 +264,7 @@ const onCreateListen = () => {
       </n-tab-pane>
       <n-tab-pane name="https" tab="HTTPS">
         <n-flex vertical v-if="setting">
-          <n-button
-            :loading="isObtainCert"
-            :disabled="isObtainCert"
-            class="ml-16"
-            type="success"
-            @click="handleObtainCert"
-          >
-            {{ $gettext('One-click Certificate Issuance') }}
-          </n-button>
-          <n-card v-if="setting.https && setting.ssl_issuer != ''">
+          <n-card v-if="setting.ssl && setting.ssl_issuer != ''">
             <n-descriptions :title="$gettext('Certificate Information')" :column="2">
               <n-descriptions-item>
                 <template #label>{{ $gettext('Certificate Validity') }}</template>
@@ -280,10 +297,10 @@ const onCreateListen = () => {
           <n-form>
             <n-grid :cols="24" :x-gap="24">
               <n-form-item-gi :span="12" :label="$gettext('Main Switch')">
-                <n-switch v-model:value="setting.https" />
+                <n-switch v-model:value="setting.ssl" />
               </n-form-item-gi>
               <n-form-item-gi
-                v-if="setting.https"
+                v-if="setting.ssl"
                 :span="12"
                 :label="$gettext('Use Existing Certificate')"
               >
@@ -295,7 +312,7 @@ const onCreateListen = () => {
               </n-form-item-gi>
             </n-grid>
           </n-form>
-          <n-form inline v-if="setting.https">
+          <n-form inline v-if="setting.ssl">
             <n-form-item label="HSTS">
               <n-switch v-model:value="setting.hsts" />
             </n-form-item>
@@ -306,10 +323,10 @@ const onCreateListen = () => {
               <n-switch v-model:value="setting.ocsp" />
             </n-form-item>
           </n-form>
-          <n-form v-if="setting.https">
+          <n-form v-if="setting.ssl">
             <n-form-item :label="$gettext('Certificate')">
               <n-input
-                v-model:value="setting.ssl_certificate"
+                v-model:value="setting.ssl_cert"
                 type="textarea"
                 :placeholder="$gettext('Enter the content of the PEM certificate file')"
                 :autosize="{ minRows: 10, maxRows: 15 }"
@@ -317,7 +334,7 @@ const onCreateListen = () => {
             </n-form-item>
             <n-form-item :label="$gettext('Private Key')">
               <n-input
-                v-model:value="setting.ssl_certificate_key"
+                v-model:value="setting.ssl_key"
                 type="textarea"
                 :placeholder="$gettext('Enter the content of the KEY private key file')"
                 :autosize="{ minRows: 10, maxRows: 15 }"
@@ -327,11 +344,8 @@ const onCreateListen = () => {
         </n-flex>
         <n-skeleton v-else text :repeat="10" />
       </n-tab-pane>
-      <n-tab-pane name="rewrite" :tab="$gettext('Rewrite')">
+      <n-tab-pane v-if="setting.type == 'php'" name="rewrite" :tab="$gettext('Rewrite')">
         <n-flex vertical>
-          <n-button type="success" @click="proxyBuilderModal = true">
-            {{ $gettext('Generate Reverse Proxy Configuration') }}
-          </n-button>
           <n-form label-placement="left" label-width="auto">
             <n-form-item :label="$gettext('Presets')">
               <n-select
@@ -371,25 +385,6 @@ const onCreateListen = () => {
               )
             }}
           </n-alert>
-          <n-popconfirm @positive-click="handleReset">
-            <template #trigger>
-              <n-button type="success">
-                {{ $gettext('Reset Configuration') }}
-              </n-button>
-            </template>
-            {{ $gettext('Are you sure you want to reset the configuration?') }}
-          </n-popconfirm>
-          <Editor
-            v-if="setting"
-            v-model:value="setting.raw"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="log" :tab="$gettext('Access Log')">
@@ -397,7 +392,7 @@ const onCreateListen = () => {
           <n-flex flex items-center>
             <n-alert type="warning" w-full>
               {{ $gettext('All logs can be viewed by downloading the file') }}
-              <n-tag>{{ setting.log }}</n-tag>
+              <n-tag>{{ setting.access_log }}</n-tag>
               {{ $gettext('view') }}.
             </n-alert>
             <n-popconfirm @positive-click="clearLog">
@@ -409,7 +404,7 @@ const onCreateListen = () => {
               {{ $gettext('Are you sure you want to clear?') }}
             </n-popconfirm>
           </n-flex>
-          <realtime-log :path="setting.log" />
+          <realtime-log :path="setting.access_log" />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="error_log" :tab="$gettext('Error Log')">
@@ -428,6 +423,23 @@ const onCreateListen = () => {
     <n-button v-if="current !== 'log'" type="primary" @click="handleSave">
       {{ $gettext('Save') }}
     </n-button>
+    <n-button
+      v-if="current === 'https' && setting && setting.domains.length > 0"
+      :loading="isObtainCert"
+      :disabled="isObtainCert"
+      class="ml-16"
+      type="info"
+      @click="handleObtainCert"
+    >
+      {{ $gettext('One-click Certificate Issuance') }}
+    </n-button>
+    <n-popconfirm v-if="current === 'config'" @positive-click="handleReset">
+      <template #trigger>
+        <n-button type="warning" ml-16>
+          {{ $gettext('Reset Configuration') }}
+        </n-button>
+      </template>
+      {{ $gettext('Are you sure you want to reset the configuration?') }}
+    </n-popconfirm>
   </common-page>
-  <ProxyBuilderModal v-model:show="proxyBuilderModal" v-model:config="setting.rewrite" />
 </template>
