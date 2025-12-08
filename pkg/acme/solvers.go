@@ -142,8 +142,10 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 	switch s.dns {
 	case AliYun:
 		dns = &alidns.Provider{
-			AccKeyID:     s.param.AK,
-			AccKeySecret: s.param.SK,
+			CredentialInfo: alidns.CredentialInfo{
+				AccessKeyID:     s.param.AK,
+				AccessKeySecret: s.param.SK,
+			},
 		}
 	case Tencent:
 		dns = &tencentcloud.Provider{
