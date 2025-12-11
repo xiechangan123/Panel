@@ -36,6 +36,8 @@
 
 ## 快速安装
 
+> 广告：阿里云 ESA 国内版免费套餐现已开放，提供无限量 CDN 加速服务，[点击链接直达免费领取](https://tianchi.aliyun.com/specials/promotion/freetier/esa?taskCode=25254&recordId=9a6f7ca08fecef8590f9b547268b6528)
+
 支持 `amd64` | `arm64` 架构下的干净的主流系统，具体支持的系统请参考[安装文档](https://acepanel.github.io/quickstart/install)。
 
 ```shell
