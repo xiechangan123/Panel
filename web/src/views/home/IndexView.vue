@@ -470,29 +470,31 @@ if (import.meta.hot) {
                   <p>{{ statusText((realtime.load.load1 / cores) * 100) }}</p>
                 </n-flex>
               </template>
-              <n-table :single-line="false" striped>
-                <tr>
-                  <th>{{ $gettext('Last 1 minute') }}</th>
-                  <td>
-                    {{ formatPercent((realtime.load.load1 / cores) * 100) }}% /
-                    {{ realtime.load.load1 }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Last 5 minutes') }}</th>
-                  <td>
-                    {{ formatPercent((realtime.load.load5 / cores) * 100) }}% /
-                    {{ realtime.load.load5 }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Last 15 minutes') }}</th>
-                  <td>
-                    {{ formatPercent((realtime.load.load15 / cores) * 100) }}% /
-                    {{ realtime.load.load15 }}
-                  </td>
-                </tr>
-              </n-table>
+              <n-scrollbar max-h-340>
+                <n-table :single-line="false" striped>
+                  <tr>
+                    <th>{{ $gettext('Last 1 minute') }}</th>
+                    <td>
+                      {{ formatPercent((realtime.load.load1 / cores) * 100) }}% /
+                      {{ realtime.load.load1 }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Last 5 minutes') }}</th>
+                    <td>
+                      {{ formatPercent((realtime.load.load5 / cores) * 100) }}% /
+                      {{ realtime.load.load5 }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Last 15 minutes') }}</th>
+                    <td>
+                      {{ formatPercent((realtime.load.load15 / cores) * 100) }}% /
+                      {{ realtime.load.load15 }}
+                    </td>
+                  </tr>
+                </n-table>
+              </n-scrollbar>
             </n-popover>
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
@@ -507,26 +509,28 @@ if (import.meta.hot) {
                   <p>{{ cores }} {{ $gettext('cores') }}</p>
                 </n-flex>
               </template>
-              <n-table :single-line="false" striped>
-                <tr>
-                  <th>{{ $gettext('Model') }}</th>
-                  <td>{{ realtime.cpus[0].modelName }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Parameters') }}</th>
-                  <td>
-                    {{ realtime.cpus.length }} CPU {{ cores }} {{ $gettext('cores') }}
-                    {{ formatBytes(realtime.cpus[0].cacheSize * 1024) }} {{ $gettext('cache') }}
-                  </td>
-                </tr>
-                <tr v-for="item in realtime.cpus" :key="item.modelName">
-                  <th>CPU-{{ item.cpu }}</th>
-                  <td>
-                    {{ $gettext('Usage') }} {{ formatPercent(realtime.percents[item.cpu]) }}%
-                    {{ $gettext('Frequency') }} {{ item.mhz }} MHz
-                  </td>
-                </tr>
-              </n-table>
+              <n-scrollbar max-h-340>
+                <n-table :single-line="false" striped>
+                  <tr>
+                    <th>{{ $gettext('Model') }}</th>
+                    <td>{{ realtime.cpus[0].modelName }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Parameters') }}</th>
+                    <td>
+                      {{ realtime.cpus.length }} CPU {{ cores }} {{ $gettext('cores') }}
+                      {{ formatBytes(realtime.cpus[0].cacheSize * 1024) }} {{ $gettext('cache') }}
+                    </td>
+                  </tr>
+                  <tr v-for="item in realtime.cpus" :key="item.modelName">
+                    <th>CPU-{{ item.cpu }}</th>
+                    <td>
+                      {{ $gettext('Usage') }} {{ formatPercent(realtime.percents[item.cpu]) }}%
+                      {{ $gettext('Frequency') }} {{ item.mhz }} MHz
+                    </td>
+                  </tr>
+                </n-table>
+              </n-scrollbar>
             </n-popover>
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
@@ -541,86 +545,89 @@ if (import.meta.hot) {
                   <p>{{ formatBytes(realtime.mem.total) }}</p>
                 </n-flex>
               </template>
-              <n-table :single-line="false" striped>
-                <tr>
-                  <th>{{ $gettext('Active') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.active) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Inactive') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.inactive) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Free') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.free) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Shared') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.shared) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Committed') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.committedas) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Commit Limit') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.commitlimit) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('SWAP Size') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.swaptotal) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('SWAP Used') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.swapcached) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('SWAP Available') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.swapfree) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Physical Memory Size') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.total) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Physical Memory Used') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.used) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Physical Memory Available') }}</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.available) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th>buffers/cached</th>
-                  <td>
-                    {{ formatBytes(realtime.mem.buffers) }} / {{ formatBytes(realtime.mem.cached) }}
-                  </td>
-                </tr>
-              </n-table>
+              <n-scrollbar max-h-340>
+                <n-table :single-line="false" striped>
+                  <tr>
+                    <th>{{ $gettext('Active') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.active) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Inactive') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.inactive) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Free') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.free) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Shared') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.shared) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Committed') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.committedas) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Commit Limit') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.commitlimit) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('SWAP Size') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.swaptotal) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('SWAP Used') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.swapcached) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('SWAP Available') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.swapfree) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Physical Memory Size') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.total) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Physical Memory Used') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.used) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Physical Memory Available') }}</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.available) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>buffers/cached</th>
+                    <td>
+                      {{ formatBytes(realtime.mem.buffers) }} /
+                      {{ formatBytes(realtime.mem.cached) }}
+                    </td>
+                  </tr>
+                </n-table>
+              </n-scrollbar>
             </n-popover>
             <n-popover
               v-for="item in realtime.disk_usage"
@@ -640,32 +647,34 @@ if (import.meta.hot) {
                   <p>{{ formatBytes(item.used) }} / {{ formatBytes(item.total) }}</p>
                 </n-flex>
               </template>
-              <n-table :single-line="false">
-                <tr>
-                  <th>{{ $gettext('Mount Point') }}</th>
-                  <td>{{ item.path }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('File System') }}</th>
-                  <td>{{ item.fstype }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Inodes Usage') }}</th>
-                  <td>{{ formatPercent(item.inodesUsedPercent) }}%</td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Inodes Total') }}</th>
-                  <td>{{ item.inodesTotal }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Inodes Used') }}</th>
-                  <td>{{ item.inodesUsed }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $gettext('Inodes Available') }}</th>
-                  <td>{{ item.inodesFree }}</td>
-                </tr>
-              </n-table>
+              <n-scrollbar max-h-340>
+                <n-table :single-line="false">
+                  <tr>
+                    <th>{{ $gettext('Mount Point') }}</th>
+                    <td>{{ item.path }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('File System') }}</th>
+                    <td>{{ item.fstype }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Inodes Usage') }}</th>
+                    <td>{{ formatPercent(item.inodesUsedPercent) }}%</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Inodes Total') }}</th>
+                    <td>{{ item.inodesTotal }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Inodes Used') }}</th>
+                    <td>{{ item.inodesUsed }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $gettext('Inodes Available') }}</th>
+                    <td>{{ item.inodesFree }}</td>
+                  </tr>
+                </n-table>
+              </n-scrollbar>
             </n-popover>
           </n-flex>
           <n-skeleton v-else text :repeat="10" />
