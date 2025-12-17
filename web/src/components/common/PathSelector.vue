@@ -45,9 +45,9 @@ const columns: DataTableColumns<RowData> = [
     defaultSortOrder: false,
     sorter: 'default',
     render(row) {
-      let icon = 'bi:file-earmark'
+      let icon = 'mdi:file-outline'
       if (row.dir) {
-        icon = 'bi:folder'
+        icon = 'mdi:folder-outline'
       } else {
         icon = getIconByExt(getExt(row.name))
       }
@@ -261,7 +261,7 @@ const handleClose = () => {
         <n-button type="primary"> {{ $gettext('Create') }} </n-button>
       </n-popselect>
       <n-button @click="handleUp">
-        <icon-bi-arrow-up />
+        <i-mdi-arrow-up :size="16" />
       </n-button>
       <n-input-group flex-1>
         <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
@@ -288,7 +288,7 @@ const handleClose = () => {
         />
       </n-input-group>
       <n-button @click="refresh">
-        <icon-bi-arrow-clockwise />
+        <i-mdi-refresh :size="16" />
       </n-button>
     </n-flex>
     <n-data-table

@@ -43,19 +43,24 @@ export default [
     eslintrc: {
       enabled: true
     },
+    parser: 'acorn',
     vueTemplate: true,
+    addons: {
+      vueDirectives: true
+    },
     viteOptimizeDeps: true
-  }),
-  Icons({
-    compiler: 'vue3',
-    scale: 1,
-    defaultClass: 'inline-block'
   }),
   Components({
     resolvers: [
       NaiveUiResolver(),
-      IconsResolver({ customCollections: ['custom'], prefix: 'icon' })
+      IconsResolver()
     ],
     dts: 'types/components.d.ts'
-  })
+  }),
+  Icons({
+    compiler: 'vue3',
+    scale: 1,
+    defaultClass: 'inline-block',
+    autoInstall: true
+  }),
 ]

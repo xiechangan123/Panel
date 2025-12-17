@@ -110,16 +110,16 @@ onUnmounted(() => {
 <template>
   <n-flex>
     <n-button @click="handleBack">
-      <icon-bi-arrow-left />
+      <i-mdi-arrow-left :size="16" />
     </n-button>
     <n-button @click="handleForward">
-      <icon-bi-arrow-right />
+      <i-mdi-arrow-right :size="16" />
     </n-button>
     <n-button @click="handleUp">
-      <icon-bi-arrow-up />
+      <i-mdi-arrow-up :size="16" />
     </n-button>
     <n-button @click="handleRefresh">
-      <icon-bi-arrow-clockwise />
+      <i-mdi-refresh :size="16" />
     </n-button>
     <n-input-group flex-1>
       <n-tag size="large" v-if="!isInput" flex-1 @click="handleInput">
@@ -154,7 +154,7 @@ onUnmounted(() => {
         </template>
       </n-input>
       <n-button type="primary" @click="handleSearch">
-        <icon-bi-search />
+        <i-mdi-search :size="16" />
       </n-button>
     </n-input-group>
   </n-flex>

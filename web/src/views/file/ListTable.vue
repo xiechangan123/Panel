@@ -108,9 +108,9 @@ const columns: DataTableColumns<RowData> = [
     defaultSortOrder: false,
     sorter: 'default',
     render(row) {
-      let icon = 'bi:file-earmark'
+      let icon = 'mdi:file-outline'
       if (row.dir) {
-        icon = 'bi:folder'
+        icon = 'mdi:folder-outline'
       } else {
         icon = getIconByExt(getExt(row.name))
       }

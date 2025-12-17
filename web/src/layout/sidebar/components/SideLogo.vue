@@ -12,11 +12,11 @@ const toHome = () => {
 </script>
 
 <template>
-  <div class="h-60 f-c-c cursor-pointer" @click="toHome">
-    <n-image :src="logo" height="32" preview-disabled />
+  <div class="f-c-c h-60 cursor-pointer" @click="toHome">
+    <n-image :src="logo" preview-disabled class="h-36" />
     <h2
       v-show="!themeStore.sider.collapsed"
-      class="ml-10 max-w-140 flex-shrink-0 text-18 font-bold"
+      class="text-18 font-bold ml-10 flex-shrink-0 max-w-140"
     >
       {{ themeStore.name }}
     </h2>

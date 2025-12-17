@@ -10,8 +10,8 @@ const theme = useThemeStore()
   <n-tooltip trigger="hover">
     <template #trigger>
       <n-icon mr-20 cursor-pointer size="20" @click="theme.toggleDarkMode">
-        <icon-mdi-moon-waning-crescent v-if="theme.darkMode" />
-        <icon-mdi-white-balance-sunny v-else />
+        <i-mdi-weather-sunny v-if="theme.darkMode" />
+        <i-mdi-weather-night v-else />
       </n-icon>
     </template>
     {{ $gettext('Switch Theme') }}

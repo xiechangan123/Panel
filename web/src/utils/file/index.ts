@@ -15,22 +15,29 @@ const getBase = (filename: string) => {
 }
 
 const getIconByExt = (ext: string) => {
-  switch (ext) {
+  switch (ext.toLowerCase()) {
     case 'png':
     case 'jpg':
     case 'jpeg':
     case 'gif':
-      return 'bi:file-earmark-image'
+    case 'webp':
+    case 'svg':
+      return 'mdi-file-image-outline'
+
     case 'mp4':
     case 'avi':
     case 'mkv':
     case 'rmvb':
-      return 'bi:file-earmark-play'
+    case 'mov':
+      return 'mdi-file-video-outline'
+
     case 'mp3':
     case 'flac':
     case 'wav':
     case 'ape':
-      return 'bi:file-earmark-music'
+    case 'ogg':
+      return 'mdi-file-music-outline'
+
     case 'zip':
     case 'bz2':
     case 'tar':
@@ -38,17 +45,20 @@ const getIconByExt = (ext: string) => {
     case 'tgz':
     case 'xz':
     case '7z':
-      return 'bi:file-earmark-zip'
+    case 'rar':
+      return 'mdi-archive-outline'
+
     case 'doc':
     case 'docx':
     case 'xls':
     case 'xlsx':
-      return 'bi:file-earmark-word'
     case 'ppt':
     case 'pptx':
-      return 'bi:file-earmark-ppt'
+      return 'mdi-file-document-outline'
+
     case 'pdf':
-      return 'bi:file-earmark-pdf'
+      return 'mdi-file-pdf-box'
+
     case 'txt':
     case 'md':
     case 'log':
@@ -56,7 +66,8 @@ const getIconByExt = (ext: string) => {
     case 'ini':
     case 'yaml':
     case 'yml':
-      return 'bi:file-earmark-text'
+      return 'mdi-file-document-outline'
+
     case 'html':
     case 'htm':
     case 'xml':
@@ -73,11 +84,13 @@ const getIconByExt = (ext: string) => {
     case 'go':
     case 'rb':
     case 'sh':
-      return 'bi:file-earmark-code'
+      return 'mdi-file-code-outline'
+
     case '':
-      return 'bi:file-earmark-binary'
+      return 'mdi-file-outline'
+
     default:
-      return 'bi:file-earmark'
+      return 'mdi-file-outline'
   }
 }
 

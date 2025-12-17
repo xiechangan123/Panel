@@ -14,7 +14,7 @@ const handleReloadPage = () => {
   <n-tooltip trigger="hover">
     <template #trigger>
       <n-icon mr-20 cursor-pointer size="20" @click="handleReloadPage">
-        <icon-mdi-refresh />
+        <i-mdi-refresh />
       </n-icon>
     </template>
     {{ $gettext('Refresh Tab') }}

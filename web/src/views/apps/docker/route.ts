@@ -14,7 +14,7 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Docker',
-        icon: 'logos:docker-icon',
+        icon: 'simple-icons:docker',
         role: ['admin'],
         requireAuth: true
       }

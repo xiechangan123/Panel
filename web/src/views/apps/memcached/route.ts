@@ -14,7 +14,7 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Memcached',
-        icon: 'logos:memcached',
+        icon: 'mdi:memory',
         role: ['admin'],
         requireAuth: true
       }

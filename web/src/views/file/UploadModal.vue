@@ -45,7 +45,7 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
       <n-upload ref="upload" multiple directory-dnd :custom-request="uploadRequest">
         <n-upload-dragger>
           <div style="margin-bottom: 12px">
-            <the-icon :size="48" icon="bi:arrow-up-square" />
+            <the-icon :size="60" icon="mdi:arrow-up-bold-box-outline" />
           </div>
           <NText text-18> {{ $gettext('Click or drag files to this area to upload') }}</NText>
           <NP depth="3" m-10>

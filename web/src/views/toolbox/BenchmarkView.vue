@@ -112,7 +112,7 @@ const handleTest = async () => {
                 </div>
                 <div v-else>{{ $gettext('Pending benchmark') }}</div>
                 <n-progress type="circle" :percentage="100" :stroke-width="3">
-                  <the-icon :size="50" icon="bi:cpu" />
+                  <the-icon :size="50" icon="mdi:cpu-64-bit" />
                 </n-progress>
                 {{ $gettext('CPU') }}
               </n-flex>
@@ -172,7 +172,7 @@ const handleTest = async () => {
                 </div>
                 <div v-else>{{ $gettext('Pending benchmark') }}</div>
                 <n-progress type="circle" :percentage="100" :stroke-width="3">
-                  <the-icon :size="50" icon="bi:memory" />
+                  <the-icon :size="50" icon="mdi:memory" />
                 </n-progress>
                 {{ $gettext('Memory') }}
               </n-flex>
@@ -198,7 +198,7 @@ const handleTest = async () => {
                 </div>
                 <div v-else>{{ $gettext('Pending benchmark') }}</div>
                 <n-progress type="circle" :percentage="100" :stroke-width="3">
-                  <the-icon :size="50" icon="bi:hdd-stack" />
+                  <the-icon :size="50" icon="mdi:harddisk" />
                 </n-progress>
                 {{ $gettext('Disk') }}
               </n-flex>

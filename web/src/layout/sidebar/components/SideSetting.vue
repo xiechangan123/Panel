@@ -52,14 +52,14 @@ const menus = computed<TreeSelectOption[]>(() => {
 </script>
 
 <template>
-  <div h-40 flex justify-between px-20>
+  <div px-20 flex h-40 justify-between>
     <menu-collapse />
     <n-tooltip trigger="hover">
       <template #trigger>
         <the-icon
           v-show="!themeStore.sider.collapsed"
           :size="22"
-          icon="material-symbols:settings"
+          icon="mdi:settings-outline"
           @click="settingModal = true"
         />
       </template>

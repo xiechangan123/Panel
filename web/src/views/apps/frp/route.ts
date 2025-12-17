@@ -14,7 +14,7 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Frp Manager',
-        icon: 'icon-park-outline:connection-box',
+        icon: 'mdi:swap-horizontal',
         role: ['admin'],
         requireAuth: true
       }

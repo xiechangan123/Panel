@@ -1,9 +1,11 @@
-import { addAPIProvider, Icon } from '@iconify/vue'
+import { icons as mdi } from '@iconify-json/mdi'
+import { icons as simpleIcons } from '@iconify-json/simple-icons'
+import { addCollection, Icon } from '@iconify/vue'
+
 import { NIcon } from 'naive-ui'
 
-addAPIProvider('', {
-  resources: ['https://iconify.cdn.haozi.net']
-})
+addCollection(mdi)
+addCollection(simpleIcons)
 
 interface Props {
   size?: number

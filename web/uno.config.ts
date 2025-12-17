@@ -1,5 +1,5 @@
 import type { UserConfig } from 'unocss'
-import { defineConfig, presetAttributify, presetWind3 } from 'unocss'
+import { defineConfig, presetAttributify, presetWind4 } from 'unocss'
 
 const config: UserConfig = {
   content: {
@@ -7,7 +7,7 @@ const config: UserConfig = {
       exclude: ['node_modules', '.git', '.github', '.vscode', 'build', 'dist', 'public', 'types']
     }
   },
-  presets: [presetWind3({ dark: 'class' }), presetAttributify()],
+  presets: [presetWind4({ dark: 'class' }), presetAttributify()],
   shortcuts: [
     ['wh-full', 'w-full h-full'],
     ['f-c-c', 'flex justify-center items-center'],

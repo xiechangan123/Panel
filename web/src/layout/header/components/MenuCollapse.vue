@@ -10,8 +10,8 @@ const themeStore = useThemeStore()
   <n-tooltip trigger="hover">
     <template #trigger>
       <n-icon cursor-pointer size="22" @click="themeStore.toggleCollapsed()">
-        <icon-mdi:format-indent-increase v-if="themeStore.sider.collapsed" />
-        <icon-mdi:format-indent-decrease v-else />
+        <i-mdi-format-indent-increase v-if="themeStore.sider.collapsed" />
+        <i-mdi-format-indent-decrease v-else />
       </n-icon>
     </template>
     {{ $gettext('Menu Zoom') }}
