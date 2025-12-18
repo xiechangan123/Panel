@@ -37,7 +37,7 @@ if (localLoginInfo) {
 
 const userStore = useUserStore()
 const themeStore = useThemeStore()
-const loging = ref<boolean>(false)
+const logining = ref<boolean>(false)
 const isRemember = useStorage('isRemember', false)
 const showTwoFA = ref(false)
 
@@ -63,7 +63,7 @@ async function handleLogin() {
       safe_login
     )
   ).onSuccess(async () => {
-    loging.value = true
+    logining.value = true
     window.$notification?.success({ title: $gettext('Login successful!'), duration: 2500 })
     if (isRemember.value) {
       setLocal('loginInfo', { username, password })
@@ -83,7 +83,7 @@ async function handleLogin() {
       await router.push('/')
     }
   })
-  loging.value = false
+  logining.value = false
 }
 
 const isTwoFA = () => {
@@ -119,17 +119,17 @@ watch(isLogin, async () => {
 
 <template>
   <AppPage :show-footer="true" :style="{ backgroundImage: `url(${bgImg})` }" bg-cover>
-    <div m-auto min-w-345 f-c-c bg-white bg-opacity-60 p-15 card-shadow dark:bg-dark>
-      <div w-480 flex-col px-20 py-35>
-        <h5 color="#6a6a6a" f-c-c text-24 font-normal>
-          <n-image :src="logo" height="50" preview-disabled mr-10 />{{ themeStore.name }}
+    <div m-auto p-15 bg-white bg-opacity-60 f-c-c min-w-345 card-shadow dark:bg-dark>
+      <div px-20 py-35 flex-col w-480>
+        <h5 color="#6a6a6a" text-24 font-normal f-c-c>
+          <n-image :src="logo" preview-disabled mr-10 h-48 />{{ themeStore.name }}
         </h5>
         <div mt-30>
           <n-input
             v-model:value="loginInfo.username"
             :maxlength="32"
             autofocus
-            class="h-50 items-center pl-10 text-16"
+            class="text-16 pl-10 h-50 items-center"
             :placeholder="$gettext('Username')"
             :on-blur="isTwoFA"
           />
@@ -138,7 +138,7 @@ watch(isLogin, async () => {
           <n-input
             v-model:value="loginInfo.password"
             :maxlength="32"
-            class="h-50 items-center pl-10 text-16"
+            class="text-16 pl-10 h-50 items-center"
             :placeholder="$gettext('Password')"
             type="password"
             show-password-on="click"
@@ -149,7 +149,7 @@ watch(isLogin, async () => {
           <n-input
             v-model:value="loginInfo.pass_code"
             :maxlength="6"
-            class="h-50 items-center pl-10 text-16"
+            class="text-16 pl-10 h-50 items-center"
             :placeholder="$gettext('2FA Code')"
             type="text"
             @keydown.enter="handleLogin"
@@ -165,12 +165,12 @@ watch(isLogin, async () => {
 
         <div mt-20>
           <n-button
-            :loading="isLoading || loging"
-            :disabled="isLoading || loging"
+            :loading="isLoading || logining"
+            :disabled="isLoading || logining"
             type="primary"
+            text-16
             h-50
             w-full
-            text-16
             @click="handleLogin"
           >
             {{ $gettext('Login') }}
