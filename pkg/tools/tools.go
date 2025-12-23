@@ -3,6 +3,7 @@ package tools
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	stdnet "net"
@@ -94,6 +95,7 @@ func IsChina() bool {
 	client.SetDisableWarn(true)
 	client.SetTimeout(3 * time.Second)
 	client.SetRetryCount(3)
+	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 	resp, err := client.R().Get("https://www.qualcomm.cn/cdn-cgi/trace")
 	if err != nil || !resp.IsSuccess() {
@@ -114,6 +116,7 @@ func GetPublicIPv4() (string, error) {
 	client.SetDisableWarn(true)
 	client.SetTimeout(3 * time.Second)
 	client.SetRetryCount(3)
+	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	client.SetTransport(&http.Transport{
 		DialContext: func(ctx context.Context, network string, addr string) (stdnet.Conn, error) {
 			return (&stdnet.Dialer{}).DialContext(ctx, "tcp4", addr)
@@ -135,6 +138,7 @@ func GetPublicIPv6() (string, error) {
 	client.SetDisableWarn(true)
 	client.SetTimeout(3 * time.Second)
 	client.SetRetryCount(3)
+	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	client.SetTransport(&http.Transport{
 		DialContext: func(ctx context.Context, network string, addr string) (stdnet.Conn, error) {
 			return (&stdnet.Dialer{}).DialContext(ctx, "tcp6", addr)
