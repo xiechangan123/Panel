@@ -3,6 +3,7 @@ module github.com/acepanel/panel
 go 1.25
 
 require (
+	github.com/andybalholm/brotli v1.2.0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.6
@@ -23,6 +24,7 @@ require (
 	github.com/gookit/validate v1.5.6
 	github.com/hashicorp/go-version v1.8.0
 	github.com/jlaffaye/ftp v0.2.0
+	github.com/klauspost/compress v1.18.2
 	github.com/knadh/koanf/parsers/yaml v1.1.0
 	github.com/knadh/koanf/providers/file v1.2.1
 	github.com/knadh/koanf/v2 v2.3.0
