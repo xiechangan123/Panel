@@ -3,14 +3,13 @@ defineOptions({
   name: 'app-index'
 })
 
-import VersionModal from '@/views/app/VersionModal.vue'
-
 import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
-import TheIcon from '@/components/custom/TheIcon.vue'
 import { router } from '@/router'
+import { renderLocalIcon } from '@/utils'
+import VersionModal from '@/views/app/VersionModal.vue'
 
 const { $gettext } = useGettext()
 
@@ -25,10 +24,7 @@ const columns: any = [
     width: 80,
     align: 'center',
     render(row: any) {
-      return h(TheIcon, {
-        icon: row.icon,
-        size: 26
-      })
+      return renderLocalIcon('app', row.slug, { size: 26 })()
     }
   },
   {

@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Minio',
-        icon: 'simple-icons:minio',
         role: ['admin'],
         requireAuth: true
       }

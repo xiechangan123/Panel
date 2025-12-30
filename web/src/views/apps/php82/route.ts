@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'PHP 8.2',
-        icon: 'simple-icons:php',
         role: ['admin'],
         requireAuth: true
       }

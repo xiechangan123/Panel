@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Supervisor Manager',
-        icon: 'mdi:monitor-dashboard',
         role: ['admin'],
         requireAuth: true
       }

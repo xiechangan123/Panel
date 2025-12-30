@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'phpMyAdmin',
-        icon: 'simple-icons:phpmyadmin',
         role: ['admin'],
         requireAuth: true
       }

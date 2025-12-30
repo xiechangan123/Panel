@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Code Server',
-        icon: 'simple-icons:coder',
         role: ['admin'],
         requireAuth: true
       }

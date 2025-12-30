@@ -13,8 +13,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'OpenResty (Nginx)',
-        icon: 'simple-icons:nginx',
+        title: 'Nginx',
         role: ['admin'],
         requireAuth: true
       }

@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Redis',
-        icon: 'simple-icons:redis',
         role: ['admin'],
         requireAuth: true
       }

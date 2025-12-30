@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Fail2ban Manager',
-        icon: 'mdi:wall-fire',
         role: ['admin'],
         requireAuth: true
       }

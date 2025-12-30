@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Pure-FTPd',
-        icon: 'mdi:server-network',
         role: ['admin'],
         requireAuth: true
       }

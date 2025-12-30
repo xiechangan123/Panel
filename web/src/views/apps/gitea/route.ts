@@ -14,7 +14,6 @@ export default {
       component: () => import('./IndexView.vue'),
       meta: {
         title: 'Gitea',
-        icon: 'simple-icons:gitea',
         role: ['admin'],
         requireAuth: true
       }
