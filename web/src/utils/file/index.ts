@@ -160,6 +160,9 @@ const languageByPath = (path: string) => {
       return 'html'
     case 'ini':
     case 'conf':
+      if (path.toLowerCase().includes('nginx')) {
+        return 'nginx'
+      }
       return 'ini'
     case 'java':
       return 'java'
