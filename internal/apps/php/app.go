@@ -57,7 +57,7 @@ func (s *App) Route(version uint) func(r chi.Router) {
 }
 
 func (s *App) SetCli(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("ln -sf %s/server/php/%d/bin/php /usr/bin/php", app.Root, s.version); err != nil {
+	if _, err := shell.Execf("ln -sf %s/server/php/%d/bin/php /usr/local/bin/php", app.Root, s.version); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
