@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import cronstrue from 'cronstrue'
-import 'cronstrue/locales/zh_CN'
-
 import { NButton, NDataTable, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import { decodeBase64, formatDateTime } from '@/utils'
-import { CronNaive } from '@vue-js-cron/naive-ui'
 
 const { $gettext } = useGettext()
 const logPath = ref('')
@@ -75,7 +71,7 @@ const columns: any = [
     resizable: true,
     ellipsis: { tooltip: true },
     render(row: any) {
-      return cronstrue.toString(row.time, { locale: 'zh_CN' })
+      return row.time
     }
   },
   {
@@ -254,7 +250,7 @@ onUnmounted(() => {
         <n-input v-model:value="editTask.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Task Schedule')">
-        <cron-naive v-model="editTask.time" locale="zh-cn"></cron-naive>
+        <!--        <cron-naive v-model="editTask.time" locale="zh-cn"></cron-naive>-->
       </n-form-item>
     </n-form>
     <common-editor v-model:value="editTask.script" height="60vh" />

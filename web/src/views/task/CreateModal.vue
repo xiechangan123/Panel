@@ -3,7 +3,6 @@ import app from '@/api/panel/app'
 import cron from '@/api/panel/cron'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
-import { CronNaive } from '@vue-js-cron/naive-ui'
 import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -107,7 +106,7 @@ onMounted(() => {
         <n-input v-model:value="createModel.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Task Schedule')">
-        <cron-naive v-model="createModel.time" locale="zh-cn"></cron-naive>
+        <!--        <cron-naive v-model="createModel.time" locale="zh-cn"></cron-naive>-->
       </n-form-item>
       <div v-if="createModel.type === 'shell'">
         <n-text>{{ $gettext('Script Content') }}</n-text>

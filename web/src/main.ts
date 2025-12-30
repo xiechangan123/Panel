@@ -1,6 +1,5 @@
 import '@/styles/index.scss'
 import '@/styles/reset.css'
-import '@vue-js-cron/naive-ui/dist/naive-ui.css'
 import 'virtual:uno.css'
 
 import { createApp } from 'vue'
@@ -11,11 +10,9 @@ import { setupStore, useThemeStore } from '@/store'
 import { gettext, setCurrent, setupNaiveDiscreteApi } from '@/utils'
 
 import home from '@/api/panel/home'
-import CronNaivePlugin from '@vue-js-cron/naive-ui'
 
 async function setupApp() {
   const app = createApp(App)
-  app.use(CronNaivePlugin)
   await setupStore(app)
   await setupNaiveDiscreteApi()
 
