@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -209,17 +208,7 @@ const handleUninstallExtension = async (name: string) => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="config"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="config" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveConfig">
               {{ $gettext('Save') }}
@@ -237,17 +226,7 @@ const handleUninstallExtension = async (name: string) => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="fpmConfig"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="fpmConfig" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveFPMConfig">
               {{ $gettext('Save') }}

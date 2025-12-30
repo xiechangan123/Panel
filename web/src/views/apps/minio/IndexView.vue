@@ -3,7 +3,6 @@ defineOptions({
   name: 'apps-minio-index'
 })
 
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -39,17 +38,7 @@ const handleSaveEnv = () => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="env"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="env" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveEnv">
               {{ $gettext('Save') }}

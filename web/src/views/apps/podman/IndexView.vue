@@ -3,7 +3,6 @@ defineOptions({
   name: 'apps-podman-index'
 })
 
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -58,17 +57,7 @@ const handleSaveStorageConfig = () => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="registryConfig"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="registryConfig" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveRegistryConfig">
               {{ $gettext('Save') }}
@@ -85,17 +74,7 @@ const handleSaveStorageConfig = () => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="storageConfig"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="storageConfig" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveStorageConfig">
               {{ $gettext('Save') }}

@@ -3,7 +3,6 @@ defineOptions({
   name: 'toolbox-system'
 })
 
-import Editor from '@guolao/vue-monaco-editor'
 import { DateTime } from 'luxon'
 import { useGettext } from 'vue3-gettext'
 
@@ -143,17 +142,7 @@ const handleSyncTime = () => {
           />
         </n-form-item>
         <n-form-item :label="$gettext('Hosts')">
-          <Editor
-            v-model:value="hosts"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="hosts" height="60vh" />
         </n-form-item>
       </n-form>
       <n-button type="primary" @click="handleUpdateHost">

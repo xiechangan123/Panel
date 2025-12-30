@@ -3,7 +3,6 @@ defineOptions({
   name: 'apps-postgresql-index'
 })
 
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -73,17 +72,7 @@ const handleClearLog = async () => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="config"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="config" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveConfig">
               {{ $gettext('Save') }}
@@ -100,17 +89,7 @@ const handleClearLog = async () => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="userConfig"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="userConfig" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveUserConfig">
               {{ $gettext('Save') }}

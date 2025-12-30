@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NDropdown, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -449,18 +448,7 @@ onMounted(() => {
     :bordered="false"
     :segmented="false"
   >
-    <Editor
-      v-model:value="logs"
-      language="ini"
-      theme="vs-dark"
-      height="60vh"
-      mt-8
-      :options="{
-        automaticLayout: true,
-        smoothScrolling: true,
-        readOnly: true
-      }"
-    />
+    <common-editor v-model:value="logs" height="60vh" read-only />
   </n-modal>
   <n-modal
     v-model:show="renameModal"

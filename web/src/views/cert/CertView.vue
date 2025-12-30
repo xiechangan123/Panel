@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Editor from '@guolao/vue-monaco-editor'
 import type { MessageReactive } from 'naive-ui'
 import { NButton, NDataTable, NFlex, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -572,28 +571,10 @@ onUnmounted(() => {
   >
     <n-tabs type="line" animated>
       <n-tab-pane name="cert" :tab="$gettext('Certificate')">
-        <Editor
-          v-model:value="showModel.cert"
-          theme="vs-dark"
-          height="60vh"
-          mt-8
-          :options="{
-            readOnly: true,
-            automaticLayout: true
-          }"
-        />
+        <common-editor v-model:value="showModel.cert" height="60vh" read-only />
       </n-tab-pane>
       <n-tab-pane name="key" :tab="$gettext('Private Key')">
-        <Editor
-          v-model:value="showModel.key"
-          theme="vs-dark"
-          height="60vh"
-          mt-8
-          :options="{
-            readOnly: true,
-            automaticLayout: true
-          }"
-        />
+        <common-editor v-model:value="showModel.key" height="60vh" read-only />
       </n-tab-pane>
     </n-tabs>
   </n-modal>

@@ -3,7 +3,6 @@ defineOptions({
   name: 'apps-memcached-index'
 })
 
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -54,17 +53,7 @@ const handleSaveConfig = () => {
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Service Configuration')">
         <n-flex vertical>
-          <Editor
-            v-model:value="config"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="config" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveConfig">
               {{ $gettext('Save') }}

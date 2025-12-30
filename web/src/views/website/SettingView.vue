@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import website from '@/api/panel/website'
-import Editor from '@guolao/vue-monaco-editor'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -39,17 +38,7 @@ onMounted(() => {
   <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="default-page" :tab="$gettext('Default Page')">
       <n-flex vertical>
-        <Editor
-          v-model:value="defaultPageModel.index"
-          language="html"
-          theme="vs-dark"
-          height="60vh"
-          mt-8
-          :options="{
-            automaticLayout: true,
-            smoothScrolling: true
-          }"
-        />
+        <common-editor v-model:value="defaultPageModel.index" height="60vh" />
         <n-flex>
           <n-button type="primary">
             {{ $gettext('Save Changes') }}
@@ -59,17 +48,7 @@ onMounted(() => {
     </n-tab-pane>
     <n-tab-pane name="404-page" :tab="$gettext('404 Page')">
       <n-flex>
-        <Editor
-          v-model:value="defaultPageModel.not_found"
-          language="html"
-          theme="vs-dark"
-          height="60vh"
-          mt-8
-          :options="{
-            automaticLayout: true,
-            smoothScrolling: true
-          }"
-        />
+        <common-editor v-model:value="defaultPageModel.not_found" height="60vh" />
         <n-flex>
           <n-button type="primary">
             {{ $gettext('Save Changes') }}
@@ -79,17 +58,7 @@ onMounted(() => {
     </n-tab-pane>
     <n-tab-pane name="stop-page" :tab="$gettext('Stop Page')">
       <n-flex>
-        <Editor
-          v-model:value="defaultPageModel.stop"
-          language="html"
-          theme="vs-dark"
-          height="60vh"
-          mt-8
-          :options="{
-            automaticLayout: true,
-            smoothScrolling: true
-          }"
-        />
+        <common-editor v-model:value="defaultPageModel.stop" height="60vh" />
         <n-flex>
           <n-button type="primary">
             {{ $gettext('Save Changes') }}

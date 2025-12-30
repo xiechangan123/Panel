@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FileEditor from '@/components/common/FileEditor.vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -31,7 +32,7 @@ const handleSave = () => {
         <n-button type="primary" @click="handleSave"> {{ $gettext('Save') }} </n-button>
       </n-flex>
     </template>
-    <code-editor ref="editor" :path="file" :read-only="false" />
+    <file-editor ref="editor" :path="file" :read-only="false" />
   </n-modal>
 </template>
 

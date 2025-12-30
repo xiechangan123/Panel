@@ -2,7 +2,6 @@
 import cronstrue from 'cronstrue'
 import 'cronstrue/locales/zh_CN'
 
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NInput, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -258,16 +257,6 @@ onUnmounted(() => {
         <cron-naive v-model="editTask.time" locale="zh-cn"></cron-naive>
       </n-form-item>
     </n-form>
-    <Editor
-      v-model:value="editTask.script"
-      language="shell"
-      theme="vs-dark"
-      height="60vh"
-      mt-8
-      :options="{
-        automaticLayout: true,
-        smoothScrolling: true
-      }"
-    />
+    <common-editor v-model:value="editTask.script" height="60vh" />
   </n-modal>
 </template>

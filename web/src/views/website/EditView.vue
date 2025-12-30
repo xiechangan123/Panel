@@ -3,7 +3,6 @@ defineOptions({
   name: 'website-edit'
 })
 
-import Editor from '@guolao/vue-monaco-editor'
 import type { MessageReactive } from 'naive-ui'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -356,17 +355,7 @@ const hasArg = (args: string[], arg: string) => {
               />
             </n-form-item>
           </n-form>
-          <Editor
-            v-if="setting"
-            v-model:value="setting.rewrite"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-if="setting" v-model:content="setting.rewrite" height="60vh" />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Configuration')">

@@ -3,7 +3,6 @@ import app from '@/api/panel/app'
 import cron from '@/api/panel/cron'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
-import Editor from '@guolao/vue-monaco-editor'
 import { CronNaive } from '@vue-js-cron/naive-ui'
 import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -112,17 +111,7 @@ onMounted(() => {
       </n-form-item>
       <div v-if="createModel.type === 'shell'">
         <n-text>{{ $gettext('Script Content') }}</n-text>
-        <Editor
-          v-model:value="createModel.script"
-          language="shell"
-          theme="vs-dark"
-          height="40vh"
-          mt-8
-          :options="{
-            automaticLayout: true,
-            smoothScrolling: true
-          }"
-        />
+        <common-editor v-model:value="createModel.script" lang="sh" height="40vh" />
       </div>
       <n-form-item v-if="createModel.type === 'backup'" :label="$gettext('Backup Type')">
         <n-radio-group v-model:value="createModel.backup_type">

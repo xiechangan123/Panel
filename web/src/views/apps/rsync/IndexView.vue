@@ -3,7 +3,6 @@ defineOptions({
   name: 'apps-rsync-index'
 })
 
-import Editor from '@guolao/vue-monaco-editor'
 import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -230,17 +229,7 @@ onMounted(() => {
               )
             }}
           </n-alert>
-          <Editor
-            v-model:value="config"
-            language="ini"
-            theme="vs-dark"
-            height="60vh"
-            mt-8
-            :options="{
-              automaticLayout: true,
-              smoothScrolling: true
-            }"
-          />
+          <common-editor v-model:value="config" height="60vh" />
           <n-flex>
             <n-button type="primary" @click="handleSaveConfig">
               {{ $gettext('Save') }}
