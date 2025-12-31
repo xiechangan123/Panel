@@ -31,7 +31,7 @@ const columns: any = [
   {
     title: $gettext('Task Type'),
     key: 'type',
-    width: 100,
+    width: 200,
     resizable: true,
     render(row: any) {
       return h(
@@ -68,7 +68,7 @@ const columns: any = [
   {
     title: $gettext('Task Schedule'),
     key: 'time',
-    width: 200,
+    width: 300,
     resizable: true,
     ellipsis: { tooltip: true },
     render(row: any) {
