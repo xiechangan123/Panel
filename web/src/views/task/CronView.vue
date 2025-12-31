@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
+import CronPreview from '@/components/common/CronPreview.vue'
 import { decodeBase64, formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
@@ -71,7 +72,7 @@ const columns: any = [
     resizable: true,
     ellipsis: { tooltip: true },
     render(row: any) {
-      return row.time
+      return h(CronPreview, { cron: row.time })
     }
   },
   {
@@ -196,6 +197,7 @@ const saveTaskEdit = async () => {
   useRequest(
     cron.update(editTask.value.id, editTask.value.name, editTask.value.time, editTask.value.script)
   ).onSuccess(() => {
+    editModal.value = false
     window.$message.success($gettext('Modified successfully'))
     window.$bus.emit('task:refresh-cron')
   })
@@ -239,20 +241,22 @@ onUnmounted(() => {
     v-model:show="editModal"
     preset="card"
     :title="$gettext('Edit Task')"
-    style="width: 80vw"
+    style="width: 60vw"
     size="huge"
     :bordered="false"
     :segmented="false"
-    @close="saveTaskEdit"
   >
-    <n-form inline>
+    <n-form>
       <n-form-item :label="$gettext('Task Name')">
         <n-input v-model:value="editTask.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Task Schedule')">
-        <!--        <cron-naive v-model="editTask.time" locale="zh-cn"></cron-naive>-->
+        <cron-selector v-model:value="editTask.time"></cron-selector>
       </n-form-item>
     </n-form>
-    <common-editor v-model:value="editTask.script" height="60vh" />
+    <common-editor v-model:value="editTask.script" lang="sh" height="40vh" />
+    <n-button type="info" @click="saveTaskEdit" mt-10 block>
+      {{ $gettext('Save') }}
+    </n-button>
   </n-modal>
 </template>

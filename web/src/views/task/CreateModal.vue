@@ -3,6 +3,7 @@ import app from '@/api/panel/app'
 import cron from '@/api/panel/cron'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
+import CronSelector from '@/components/common/CronSelector.vue'
 import { NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -106,7 +107,7 @@ onMounted(() => {
         <n-input v-model:value="createModel.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Task Schedule')">
-        <!--        <cron-naive v-model="createModel.time" locale="zh-cn"></cron-naive>-->
+        <cron-selector v-model:value="createModel.time" />
       </n-form-item>
       <div v-if="createModel.type === 'shell'">
         <n-text>{{ $gettext('Script Content') }}</n-text>
@@ -152,13 +153,9 @@ onMounted(() => {
         <n-input-number v-model:value="createModel.save" />
       </n-form-item>
     </n-form>
-    <n-row :gutter="[0, 24]" pt-20>
-      <n-col :span="24">
-        <n-button type="info" block :loading="loading" @click="handleSubmit">
-          {{ $gettext('Submit') }}
-        </n-button>
-      </n-col>
-    </n-row>
+    <n-button type="info" :loading="loading" @click="handleSubmit" mt-10 block>
+      {{ $gettext('Submit') }}
+    </n-button>
   </n-modal>
 </template>
 
