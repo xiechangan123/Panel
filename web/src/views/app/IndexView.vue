@@ -11,7 +11,7 @@ import AllView from '@/views/app/AllView.vue'
 
 const { $gettext } = useGettext()
 
-const currentTab = ref('environment')
+const currentTab = ref('all')
 
 const handleUpdateCache = () => {
   useRequest(app.updateCache()).onSuccess(() => {
@@ -25,8 +25,8 @@ const handleUpdateCache = () => {
     <template #tabbar>
       <div class="flex items-center justify-between">
         <n-tabs v-model:value="currentTab" animated class="flex-1">
-          <n-tab name="environment" :tab="$gettext('Environment')" />
           <n-tab name="all" :tab="$gettext('All')" />
+          <n-tab name="environment" :tab="$gettext('Environment')" />
           <n-tab name="compose" :tab="$gettext('Compose Templates')" />
         </n-tabs>
         <n-button v-if="currentTab != 'installed'" type="primary" @click="handleUpdateCache">

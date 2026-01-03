@@ -34,6 +34,9 @@ builds:
     goarch:
       - amd64
       - arm64
+    flags:
+      - -trimpath
+      - -buildvcs=false
     ldflags:
       - -s -w --extldflags "-static"
       - -X 'github.com/acepanel/panel/internal/app.Version={{ .Version }}'

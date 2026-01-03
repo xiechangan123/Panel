@@ -52,13 +52,13 @@ func NewMiddlewares(conf *koanf.Koanf, session *sessions.Manager, appRepo biz.Ap
 
 // Globals is a collection of global middleware that will be applied to every request.
 func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handler) http.Handler {
-	compressor := middleware.NewCompressor(5)
+	compressor := middleware.NewCompressor(6)
 	compressor.SetEncoder("gzip", func(w io.Writer, level int) io.Writer {
 		writer, _ := gzip.NewWriterLevel(w, level)
 		return writer
 	})
 	compressor.SetEncoder("br", func(w io.Writer, level int) io.Writer {
-		return brotli.NewWriterV2(w, 6)
+		return brotli.NewWriterV2(w, level)
 	})
 	compressor.SetEncoder("zstd", func(w io.Writer, level int) io.Writer {
 		writer, _ := zstd.NewWriter(w, zstd.WithEncoderLevel(zstd.SpeedBetterCompression))
