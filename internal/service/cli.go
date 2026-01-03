@@ -160,28 +160,28 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 
 	fmt.Println(s.t.Get("Username: %s", user.Username))
 	fmt.Println(s.t.Get("Password: %s", password))
-	fmt.Println(s.t.Get("Port: %s", port))
+	fmt.Println(s.t.Get("Port: %d", port))
 	fmt.Println(s.t.Get("Entrance: %s", entrance))
 
 	lv4, err := tools.GetLocalIPv4()
 	if err == nil {
-		fmt.Println(s.t.Get("Local IPv4: %s://%s:%s%s", protocol, lv4, port, entrance))
+		fmt.Println(s.t.Get("Local IPv4: %s://%s:%d%s", protocol, lv4, port, entrance))
 	}
 	lv6, err := tools.GetLocalIPv6()
 	if err == nil {
-		fmt.Println(s.t.Get("Local IPv6: %s://[%s]:%s%s", protocol, lv6, port, entrance))
+		fmt.Println(s.t.Get("Local IPv6: %s://[%s]:%d%s", protocol, lv6, port, entrance))
 	}
 	rv4, err := tools.GetPublicIPv4()
 	if err == nil {
-		fmt.Println(s.t.Get("Public IPv4: %s://%s:%s%s", protocol, rv4, port, entrance))
+		fmt.Println(s.t.Get("Public IPv4: %s://%s:%d%s", protocol, rv4, port, entrance))
 	}
 	rv6, err := tools.GetPublicIPv6()
 	if err == nil {
-		fmt.Println(s.t.Get("Public IPv6: %s://[%s]:%s%s", protocol, rv6, port, entrance))
+		fmt.Println(s.t.Get("Public IPv6: %s://[%s]:%d%s", protocol, rv6, port, entrance))
 	}
 
 	fmt.Println(s.t.Get("Please choose the appropriate address to access the panel based on your network situation"))
-	fmt.Println(s.t.Get("If you cannot access, please check whether the server's security group and firewall allow port %s", port))
+	fmt.Println(s.t.Get("If you cannot access, please check whether the server's security group and firewall allow port %d", port))
 	fmt.Println(s.t.Get("If you still cannot access, try running panel-cli https off to turn off panel HTTPS"))
 	fmt.Println(s.t.Get("Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"))
 
