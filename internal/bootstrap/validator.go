@@ -5,21 +5,23 @@ import (
 	"github.com/gookit/validate/locales/ruru"
 	"github.com/gookit/validate/locales/zhcn"
 	"github.com/gookit/validate/locales/zhtw"
-	"github.com/knadh/koanf/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/http/rule"
+	"github.com/acepanel/panel/pkg/config"
 )
 
 // NewValidator just for register global rules
-func NewValidator(conf *koanf.Koanf, db *gorm.DB) *validate.Validation {
-	if conf.String("app.locale") == "zh_CN" {
+func NewValidator(conf *config.Config, db *gorm.DB) *validate.Validation {
+	switch conf.App.Locale {
+	case "zh_CN":
 		zhcn.RegisterGlobal()
-	} else if conf.String("app.locale") == "zh_TW" {
+	case "zh_TW":
 		zhtw.RegisterGlobal()
-	} else if conf.String("app.locale") == "ru_RU" {
+	case "ru_RU":
 		ruru.RegisterGlobal()
 	}
+
 	validate.Config(func(opt *validate.GlobalOption) {
 		opt.StopOnError = false
 		opt.SkipOnEmpty = true

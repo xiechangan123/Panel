@@ -43,42 +43,42 @@ import (
 
 // initWeb init application.
 func initWeb() (*app.Web, error) {
-	koanf, err := bootstrap.NewConf()
+	config, err := bootstrap.NewConf()
 	if err != nil {
 		return nil, err
 	}
-	locale, err := bootstrap.NewT(koanf)
+	locale, err := bootstrap.NewT(config)
 	if err != nil {
 		return nil, err
 	}
-	db, err := bootstrap.NewDB(koanf)
+	db, err := bootstrap.NewDB(config)
 	if err != nil {
 		return nil, err
 	}
-	manager, err := bootstrap.NewSession(koanf, db)
+	manager, err := bootstrap.NewSession(config, db)
 	if err != nil {
 		return nil, err
 	}
-	logger := bootstrap.NewLog(koanf)
+	logger := bootstrap.NewLog(config)
 	cacheRepo := data.NewCacheRepo(db)
 	queue := bootstrap.NewQueue()
 	taskRepo := data.NewTaskRepo(locale, db, logger, queue)
-	appRepo := data.NewAppRepo(locale, koanf, db, logger, cacheRepo, taskRepo)
-	userTokenRepo := data.NewUserTokenRepo(locale, koanf, db)
-	middlewares := middleware.NewMiddlewares(koanf, manager, appRepo, userTokenRepo)
+	appRepo := data.NewAppRepo(locale, config, db, logger, cacheRepo, taskRepo)
+	userTokenRepo := data.NewUserTokenRepo(locale, config, db)
+	middlewares := middleware.NewMiddlewares(config, manager, appRepo, userTokenRepo)
 	userRepo := data.NewUserRepo(locale, db)
-	userService := service.NewUserService(locale, koanf, manager, userRepo)
+	userService := service.NewUserService(locale, config, manager, userRepo)
 	userTokenService := service.NewUserTokenService(locale, userTokenRepo)
 	databaseServerRepo := data.NewDatabaseServerRepo(locale, db, logger)
 	databaseUserRepo := data.NewDatabaseUserRepo(locale, db, databaseServerRepo)
 	databaseRepo := data.NewDatabaseRepo(locale, db, databaseServerRepo, databaseUserRepo)
 	certRepo := data.NewCertRepo(locale, db, logger)
 	certAccountRepo := data.NewCertAccountRepo(locale, db, userRepo, logger)
-	settingRepo := data.NewSettingRepo(locale, db, koanf, taskRepo)
+	settingRepo := data.NewSettingRepo(locale, db, config, taskRepo)
 	websiteRepo := data.NewWebsiteRepo(locale, db, cacheRepo, databaseRepo, databaseServerRepo, databaseUserRepo, certRepo, certAccountRepo, settingRepo)
 	cronRepo := data.NewCronRepo(locale, db)
 	backupRepo := data.NewBackupRepo(locale, db, settingRepo, websiteRepo)
-	homeService := service.NewHomeService(locale, koanf, taskRepo, websiteRepo, appRepo, settingRepo, cronRepo, backupRepo)
+	homeService := service.NewHomeService(locale, config, taskRepo, websiteRepo, appRepo, settingRepo, cronRepo, backupRepo)
 	taskService := service.NewTaskService(taskRepo)
 	websiteService := service.NewWebsiteService(websiteRepo, settingRepo)
 	databaseService := service.NewDatabaseService(databaseRepo)
@@ -134,24 +134,24 @@ func initWeb() (*app.Web, error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
-	http := route.NewHttp(koanf, userService, userTokenService, homeService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, loader)
-	wsService := service.NewWsService(locale, koanf, logger, sshRepo)
+	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, loader)
+	wsService := service.NewWsService(locale, config, logger, sshRepo)
 	ws := route.NewWs(wsService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
 	if err != nil {
 		return nil, err
 	}
-	server, err := bootstrap.NewHttp(koanf, mux)
+	server, err := bootstrap.NewHttp(config, mux)
 	if err != nil {
 		return nil, err
 	}
 	gormigrate := bootstrap.NewMigrate(db)
 	jobs := job.NewJobs(db, logger, settingRepo, certRepo, backupRepo, cacheRepo, taskRepo)
-	cron, err := bootstrap.NewCron(koanf, logger, jobs)
+	cron, err := bootstrap.NewCron(config, logger, jobs)
 	if err != nil {
 		return nil, err
 	}
-	validation := bootstrap.NewValidator(koanf, db)
-	web := app.NewWeb(koanf, mux, server, gormigrate, cron, queue, validation)
+	validation := bootstrap.NewValidator(config, db)
+	web := app.NewWeb(config, mux, server, gormigrate, cron, queue, validation)
 	return web, nil
 }

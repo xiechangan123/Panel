@@ -41,25 +41,25 @@ import (
 
 // initCli init command line.
 func initCli() (*app.Cli, error) {
-	koanf, err := bootstrap.NewConf()
+	config, err := bootstrap.NewConf()
 	if err != nil {
 		return nil, err
 	}
-	locale, err := bootstrap.NewT(koanf)
+	locale, err := bootstrap.NewT(config)
 	if err != nil {
 		return nil, err
 	}
-	db, err := bootstrap.NewDB(koanf)
+	db, err := bootstrap.NewDB(config)
 	if err != nil {
 		return nil, err
 	}
-	logger := bootstrap.NewLog(koanf)
+	logger := bootstrap.NewLog(config)
 	cacheRepo := data.NewCacheRepo(db)
 	queue := bootstrap.NewQueue()
 	taskRepo := data.NewTaskRepo(locale, db, logger, queue)
-	appRepo := data.NewAppRepo(locale, koanf, db, logger, cacheRepo, taskRepo)
+	appRepo := data.NewAppRepo(locale, config, db, logger, cacheRepo, taskRepo)
 	userRepo := data.NewUserRepo(locale, db)
-	settingRepo := data.NewSettingRepo(locale, db, koanf, taskRepo)
+	settingRepo := data.NewSettingRepo(locale, db, config, taskRepo)
 	databaseServerRepo := data.NewDatabaseServerRepo(locale, db, logger)
 	databaseUserRepo := data.NewDatabaseUserRepo(locale, db, databaseServerRepo)
 	databaseRepo := data.NewDatabaseRepo(locale, db, databaseServerRepo, databaseUserRepo)
@@ -67,7 +67,7 @@ func initCli() (*app.Cli, error) {
 	certAccountRepo := data.NewCertAccountRepo(locale, db, userRepo, logger)
 	websiteRepo := data.NewWebsiteRepo(locale, db, cacheRepo, databaseRepo, databaseServerRepo, databaseUserRepo, certRepo, certAccountRepo, settingRepo)
 	backupRepo := data.NewBackupRepo(locale, db, settingRepo, websiteRepo)
-	cliService := service.NewCliService(locale, koanf, db, appRepo, cacheRepo, userRepo, settingRepo, backupRepo, websiteRepo, databaseServerRepo)
+	cliService := service.NewCliService(locale, config, db, appRepo, cacheRepo, userRepo, settingRepo, backupRepo, websiteRepo, databaseServerRepo)
 	cli := route.NewCli(locale, cliService)
 	command := bootstrap.NewCli(locale, cli)
 	gormigrate := bootstrap.NewMigrate(db)

@@ -7,8 +7,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/acepanel/panel/pkg/webserver/types"
 	"github.com/tufanbarisyildirim/gonginx/config"
+
+	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
 // StaticVhost 纯静态虚拟主机

@@ -4,22 +4,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/knadh/koanf/parsers/yaml"
-	"github.com/knadh/koanf/providers/file"
-	"github.com/knadh/koanf/v2"
-
 	"github.com/acepanel/panel/internal/app"
-	"github.com/acepanel/panel/pkg/io"
+	"github.com/acepanel/panel/pkg/config"
 )
 
-func NewConf() (*koanf.Koanf, error) {
-	config := "/opt/ace/panel/config.yml"
-	if !io.Exists(config) {
-		config = "config.yml"
-	}
-
-	conf := koanf.New(".")
-	if err := conf.Load(file.Provider(config), yaml.Parser()); err != nil {
+func NewConf() (*config.Config, error) {
+	conf, err := config.Load()
+	if err != nil {
 		return nil, err
 	}
 
@@ -27,17 +18,17 @@ func NewConf() (*koanf.Koanf, error) {
 	return conf, nil
 }
 
-func initGlobal(conf *koanf.Koanf) {
-	app.Key = conf.MustString("app.key")
+func initGlobal(conf *config.Config) {
+	app.Key = conf.App.Key
 	if len(app.Key) != 32 {
 		log.Fatalf("panel app key must be 32 characters")
 	}
 
 	app.Root = "/opt/ace"
-	app.Locale = conf.MustString("app.locale")
+	app.Locale = conf.App.Locale
 
 	// 初始化时区
-	loc, err := time.LoadLocation(conf.MustString("app.timezone"))
+	loc, err := time.LoadLocation(conf.App.Timezone)
 	if err != nil {
 		log.Fatalf("failed to load timezone: %v", err)
 	}

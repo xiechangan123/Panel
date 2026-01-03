@@ -11,14 +11,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/collect"
 	"github.com/libtnb/utils/hash"
 	"github.com/libtnb/utils/str"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
-	"go.yaml.in/yaml/v3"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/app"
@@ -26,20 +24,20 @@ import (
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/api"
 	"github.com/acepanel/panel/pkg/cert"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/ntp"
 	"github.com/acepanel/panel/pkg/os"
 	"github.com/acepanel/panel/pkg/systemctl"
 	"github.com/acepanel/panel/pkg/tools"
-	"github.com/acepanel/panel/pkg/types"
 )
 
 type CliService struct {
 	hr                 string
 	t                  *gotext.Locale
 	api                *api.API
-	conf               *koanf.Koanf
+	conf               *config.Config
 	db                 *gorm.DB
 	appRepo            biz.AppRepo
 	cacheRepo          biz.CacheRepo
@@ -51,7 +49,7 @@ type CliService struct {
 	hash               hash.Hasher
 }
 
-func NewCliService(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo) *CliService {
+func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version, app.Locale),
@@ -147,15 +145,15 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	protocol := "http"
-	if s.conf.Bool("http.tls") {
+	if s.conf.HTTP.TLS {
 		protocol = "https"
 	}
 
-	port := s.conf.String("http.port")
-	if port == "" {
+	port := s.conf.HTTP.Port
+	if port == 0 {
 		return errors.New(s.t.Get("Failed to get port"))
 	}
-	entrance := s.conf.String("http.entrance")
+	entrance := s.conf.HTTP.Entrance
 	if entrance == "" {
 		return errors.New(s.t.Get("Failed to get entrance"))
 	}
@@ -307,23 +305,14 @@ func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) HTTPSOn(ctx context.Context, cmd *cli.Command) error {
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
-	if err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
-
-	config.HTTP.TLS = true
-
-	encoded, err := yaml.Marshal(config)
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	conf.HTTP.TLS = true
+
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
@@ -332,23 +321,14 @@ func (s *CliService) HTTPSOn(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) HTTPSOff(ctx context.Context, cmd *cli.Command) error {
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
-	if err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
-
-	config.HTTP.TLS = false
-
-	encoded, err := yaml.Marshal(config)
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	conf.HTTP.TLS = false
+
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
@@ -388,49 +368,31 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 }
 
 func (s *CliService) EntranceOn(ctx context.Context, cmd *cli.Command) error {
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
-	if err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
-
-	config.HTTP.Entrance = "/" + str.Random(6)
-
-	encoded, err := yaml.Marshal(config)
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	conf.HTTP.Entrance = "/" + str.Random(6)
+
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
 	fmt.Println(s.t.Get("Entrance enabled"))
-	fmt.Println(s.t.Get("Entrance: %s", config.HTTP.Entrance))
+	fmt.Println(s.t.Get("Entrance: %s", conf.HTTP.Entrance))
 	return s.Restart(ctx, cmd)
 }
 
 func (s *CliService) EntranceOff(ctx context.Context, cmd *cli.Command) error {
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
-	if err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
-
-	config.HTTP.Entrance = "/"
-
-	encoded, err := yaml.Marshal(config)
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	conf.HTTP.Entrance = "/"
+
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
@@ -439,23 +401,14 @@ func (s *CliService) EntranceOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) BindDomainOff(ctx context.Context, cmd *cli.Command) error {
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
-	if err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
-
-	config.HTTP.BindDomain = nil
-
-	encoded, err := yaml.Marshal(config)
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	conf.HTTP.BindDomain = nil
+
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
@@ -464,23 +417,14 @@ func (s *CliService) BindDomainOff(ctx context.Context, cmd *cli.Command) error 
 }
 
 func (s *CliService) BindIPOff(ctx context.Context, cmd *cli.Command) error {
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
-	if err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
-
-	config.HTTP.BindIP = nil
-
-	encoded, err := yaml.Marshal(config)
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	conf.HTTP.BindIP = nil
+
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
@@ -489,23 +433,14 @@ func (s *CliService) BindIPOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) BindUAOff(ctx context.Context, cmd *cli.Command) error {
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
-	if err != nil {
-		return err
-	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
-
-	config.HTTP.BindUA = nil
-
-	encoded, err := yaml.Marshal(config)
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	conf.HTTP.BindUA = nil
+
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
@@ -519,27 +454,18 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Port range error"))
 	}
 
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
 
-	if port != config.HTTP.Port {
+	if port != conf.HTTP.Port {
 		if os.TCPPortInUse(port) {
 			return errors.New(s.t.Get("Port already in use"))
 		}
 	}
 
-	config.HTTP.Port = port
-
-	encoded, err := yaml.Marshal(config)
-	if err != nil {
-		return err
-	}
+	conf.HTTP.Port = port
 
 	// 放行端口
 	if ok, _ := systemctl.IsEnabled("firewalld"); ok {
@@ -556,7 +482,7 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 		}
 	}
 
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 
@@ -968,17 +894,13 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}
 
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return err
-	}
 
-	config.App.Key = str.Random(32)
-	config.HTTP.Entrance = "/" + str.Random(6)
+	conf.App.Key = str.Random(32)
+	conf.HTTP.Entrance = "/" + str.Random(6)
 
 	// 随机默认端口
 checkPort:
@@ -986,7 +908,7 @@ checkPort:
 	if os.TCPPortInUse(port) {
 		goto checkPort
 	}
-	config.HTTP.Port = port
+	conf.HTTP.Port = port
 
 	// 放行端口
 	fw := firewall.NewFirewall()
@@ -998,11 +920,7 @@ checkPort:
 		Strategy:  firewall.StrategyAccept,
 	}, firewall.OperationAdd)
 
-	encoded, err := yaml.Marshal(config)
-	if err != nil {
-		return err
-	}
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0700); err != nil {
+	if err = config.Save(conf); err != nil {
 		return err
 	}
 

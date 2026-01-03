@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-version"
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/collect"
@@ -20,6 +19,7 @@ import (
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/api"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/db"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/tools"
@@ -29,7 +29,7 @@ import (
 type HomeService struct {
 	t           *gotext.Locale
 	api         *api.API
-	conf        *koanf.Koanf
+	conf        *config.Config
 	taskRepo    biz.TaskRepo
 	websiteRepo biz.WebsiteRepo
 	appRepo     biz.AppRepo
@@ -38,7 +38,7 @@ type HomeService struct {
 	backupRepo  biz.BackupRepo
 }
 
-func NewHomeService(t *gotext.Locale, conf *koanf.Koanf, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
+func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
 	return &HomeService{
 		t:           t,
 		api:         api.NewAPI(app.Version, app.Locale),
@@ -60,7 +60,7 @@ func (s *HomeService) Panel(w http.ResponseWriter, r *http.Request) {
 
 	Success(w, chix.M{
 		"name":   name,
-		"locale": s.conf.String("app.locale"),
+		"locale": s.conf.App.Locale,
 	})
 }
 

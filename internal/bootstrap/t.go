@@ -1,15 +1,14 @@
 package bootstrap
 
 import (
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/embed"
 )
 
-func NewT(conf *koanf.Koanf) (*gotext.Locale, error) {
-	locale := conf.String("app.locale")
-	l := gotext.NewLocaleFSWithPath(locale, embed.LocalesFS, "locales")
+func NewT(conf *config.Config) (*gotext.Locale, error) {
+	l := gotext.NewLocaleFSWithPath(conf.App.Locale, embed.LocalesFS, "locales")
 	l.AddDomain("backend")
 
 	return l, nil

@@ -6,32 +6,30 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
-	"go.yaml.in/yaml/v3"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/cert"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/os"
 	"github.com/acepanel/panel/pkg/systemctl"
-	"github.com/acepanel/panel/pkg/types"
 )
 
 type settingRepo struct {
 	t     *gotext.Locale
 	cache sync.Map
 	db    *gorm.DB
-	conf  *koanf.Koanf
+	conf  *config.Config
 	task  biz.TaskRepo
 }
 
-func NewSettingRepo(t *gotext.Locale, db *gorm.DB, conf *koanf.Koanf, task biz.TaskRepo) biz.SettingRepo {
+func NewSettingRepo(t *gotext.Locale, db *gorm.DB, conf *config.Config, task biz.TaskRepo) biz.SettingRepo {
 	return &settingRepo{
 		t:    t,
 		db:   db,
@@ -236,19 +234,19 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	return &request.SettingPanel{
 		Name:        name,
 		Channel:     channel,
-		Locale:      r.conf.String("app.locale"),
-		Entrance:    r.conf.String("http.entrance"),
+		Locale:      r.conf.App.Locale,
+		Entrance:    r.conf.HTTP.Entrance,
 		OfflineMode: offlineMode,
 		AutoUpdate:  autoUpdate,
-		Lifetime:    uint(r.conf.Int("session.lifetime")),
-		IPHeader:    r.conf.String("http.ip_header"),
-		BindDomain:  r.conf.Strings("http.bind_domain"),
-		BindIP:      r.conf.Strings("http.bind_ip"),
-		BindUA:      r.conf.Strings("http.bind_ua"),
+		Lifetime:    r.conf.Session.Lifetime,
+		IPHeader:    r.conf.HTTP.IPHeader,
+		BindDomain:  r.conf.HTTP.BindDomain,
+		BindIP:      r.conf.HTTP.BindIP,
+		BindUA:      r.conf.HTTP.BindUA,
 		WebsitePath: websitePath,
 		BackupPath:  backupPath,
-		Port:        uint(r.conf.Int("http.port")),
-		HTTPS:       r.conf.Bool("http.tls"),
+		Port:        r.conf.HTTP.Port,
+		HTTPS:       r.conf.HTTP.TLS,
 		Cert:        crt,
 		Key:         key,
 	}, nil
@@ -299,16 +297,12 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	}
 
 	// 面板主配置
-	config := new(types.PanelConfig)
-	raw, err := io.Read("/usr/local/etc/panel/config.yml")
+	conf, err := config.Load()
 	if err != nil {
 		return false, err
 	}
-	if err = yaml.Unmarshal([]byte(raw), config); err != nil {
-		return false, err
-	}
 
-	if req.Port != config.HTTP.Port {
+	if req.Port != conf.HTTP.Port {
 		if os.TCPPortInUse(req.Port) {
 			return false, errors.New(r.t.Get("port is already in use"))
 		}
@@ -328,27 +322,24 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 		}
 	}
 
-	config.App.Locale = req.Locale
-	config.HTTP.Port = req.Port
-	config.HTTP.Entrance = req.Entrance
-	config.HTTP.TLS = req.HTTPS
-	config.HTTP.IPHeader = req.IPHeader
-	config.HTTP.BindDomain = req.BindDomain
-	config.HTTP.BindIP = req.BindIP
-	config.HTTP.BindUA = req.BindUA
-	config.Session.Lifetime = req.Lifetime
+	conf.App.Locale = req.Locale
+	conf.HTTP.Port = req.Port
+	conf.HTTP.Entrance = req.Entrance
+	conf.HTTP.TLS = req.HTTPS
+	conf.HTTP.IPHeader = req.IPHeader
+	conf.HTTP.BindDomain = req.BindDomain
+	conf.HTTP.BindIP = req.BindIP
+	conf.HTTP.BindUA = req.BindUA
+	conf.Session.Lifetime = req.Lifetime
 
-	encoded, err := yaml.Marshal(config)
-	if err != nil {
-		return false, err
-	}
-	if raw != string(encoded) {
+	// 检查配置是否有变更
+	if same, _ := config.Check(conf); !same {
 		if r.task.HasRunningTask() {
 			return false, errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
 		}
 		restartFlag = true
 	}
-	if err = io.Write("/usr/local/etc/panel/config.yml", string(encoded), 0644); err != nil {
+	if err = config.Save(conf); err != nil {
 		return false, err
 	}
 

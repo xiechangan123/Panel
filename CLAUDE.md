@@ -192,7 +192,6 @@ pnpm build
 - 路由：`github.com/go-chi/chi/v5`
 - ORM：`gorm.io/gorm`
 - 依赖注入：`github.com/google/wire`
-- 配置管理：`github.com/knadh/koanf/v2`
 - 验证：`github.com/gookit/validate`
 
 ### 助手函数（service 层）

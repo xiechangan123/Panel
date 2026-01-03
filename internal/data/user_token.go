@@ -14,22 +14,22 @@ import (
 	"strings"
 	"time"
 
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/config"
 )
 
 type userTokenRepo struct {
 	t    *gotext.Locale
-	conf *koanf.Koanf
+	conf *config.Config
 	db   *gorm.DB
 }
 
-func NewUserTokenRepo(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB) biz.UserTokenRepo {
+func NewUserTokenRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB) biz.UserTokenRepo {
 	return &userTokenRepo{
 		t:    t,
 		conf: conf,
@@ -144,7 +144,7 @@ func (r userTokenRepo) ValidateReq(req *http.Request) (uint, error) {
 	// 步骤六：验证IP
 	if len(userToken.IPs) > 0 {
 		ip := req.RemoteAddr
-		ipHeader := r.conf.String("http.ip_header")
+		ipHeader := r.conf.HTTP.IPHeader
 		if ipHeader != "" && req.Header.Get(ipHeader) != "" {
 			ip = strings.Split(req.Header.Get(ipHeader), ",")[0]
 		}

@@ -7,16 +7,16 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/sessions"
 
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/punycode"
 )
 
 // Entrance 确保通过正确的入口访问
-func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) func(next http.Handler) http.Handler {
+func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sess, err := session.GetSession(r)
@@ -25,7 +25,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				return
 			}
 
-			entrance := strings.TrimSuffix(conf.String("http.entrance"), "/")
+			entrance := strings.TrimSuffix(conf.HTTP.Entrance, "/")
 			if !strings.HasPrefix(entrance, "/") {
 				entrance = "/" + entrance
 			}
@@ -40,14 +40,14 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 					host = decoded
 				}
 			}
-			if len(conf.Strings("http.bind_domain")) > 0 && !slices.Contains(conf.Strings("http.bind_domain"), host) {
+			if len(conf.HTTP.BindDomain) > 0 && !slices.Contains(conf.HTTP.BindDomain, host) {
 				Abort(w, http.StatusTeapot, t.Get("invalid request domain: %s", r.Host))
 				return
 			}
 
 			// 取请求 IP
 			ip := r.RemoteAddr
-			ipHeader := conf.String("http.ip_header")
+			ipHeader := conf.HTTP.IPHeader
 			if ipHeader != "" && r.Header.Get(ipHeader) != "" {
 				ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
 			}
@@ -56,11 +56,11 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 				ip = r.RemoteAddr
 			}
 
-			if len(conf.Strings("http.bind_ip")) > 0 {
+			if len(conf.HTTP.BindIP) > 0 {
 				allowed := false
 				requestIP := net.ParseIP(ip)
 				if requestIP != nil {
-					for _, allowedIP := range conf.Strings("http.bind_ip") {
+					for _, allowedIP := range conf.HTTP.BindIP {
 						if strings.Contains(allowedIP, "/") {
 							// CIDR
 							if _, ipNet, err := net.ParseCIDR(allowedIP); err == nil && ipNet.Contains(requestIP) {
@@ -81,7 +81,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 					return
 				}
 			}
-			if len(conf.Strings("http.bind_ua")) > 0 && !slices.Contains(conf.Strings("http.bind_ua"), r.UserAgent()) {
+			if len(conf.HTTP.BindUA) > 0 && !slices.Contains(conf.HTTP.BindUA, r.UserAgent()) {
 				Abort(w, http.StatusTeapot, t.Get("invalid request user agent: %s", r.UserAgent()))
 				return
 			}
@@ -113,7 +113,7 @@ func Entrance(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager) fu
 			}
 
 			// 情况四：非调试模式且未通过验证的请求，返回错误
-			if !conf.Bool("app.debug") &&
+			if !conf.App.Debug &&
 				sess.Missing("verify_entrance") &&
 				r.URL.Path != "/robots.txt" {
 				Abort(w, http.StatusTeapot, t.Get("invalid access entrance"))

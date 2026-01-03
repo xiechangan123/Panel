@@ -7,11 +7,11 @@ import (
 
 	"github.com/bddjr/hlfhr"
 	"github.com/go-chi/chi/v5"
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/internal/http/middleware"
 	"github.com/acepanel/panel/internal/route"
+	"github.com/acepanel/panel/pkg/config"
 )
 
 func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *route.Http, ws *route.Ws) (*chi.Mux, error) {
@@ -27,15 +27,15 @@ func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *rout
 	return r, nil
 }
 
-func NewHttp(conf *koanf.Koanf, mux *chi.Mux) (*hlfhr.Server, error) {
+func NewHttp(conf *config.Config, mux *chi.Mux) (*hlfhr.Server, error) {
 	srv := hlfhr.New(&http.Server{
-		Addr:           fmt.Sprintf(":%d", conf.MustInt("http.port")),
+		Addr:           fmt.Sprintf(":%d", conf.HTTP.Port),
 		Handler:        mux,
 		MaxHeaderBytes: 2048 << 20,
 	})
 	srv.Listen80RedirectTo443 = true
 
-	if conf.Bool("http.tls") {
+	if conf.HTTP.TLS {
 		srv.TLSConfig = &tls.Config{
 			MinVersion: tls.VersionTLS12,
 		}

@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/sessions"
@@ -22,17 +21,18 @@ import (
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/rsacrypto"
 )
 
 type UserService struct {
 	t        *gotext.Locale
-	conf     *koanf.Koanf
+	conf     *config.Config
 	session  *sessions.Manager
 	userRepo biz.UserRepo
 }
 
-func NewUserService(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, user biz.UserRepo) *UserService {
+func NewUserService(t *gotext.Locale, conf *config.Config, session *sessions.Manager, user biz.UserRepo) *UserService {
 	gob.Register(rsa.PrivateKey{}) // 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	return &UserService{
 		t:        t,
@@ -108,7 +108,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	// 安全登录下，将当前客户端与会话绑定
 	// 安全登录只在未启用面板 HTTPS 时生效
 	ip := r.RemoteAddr
-	ipHeader := s.conf.String("http.ip_header")
+	ipHeader := s.conf.HTTP.IPHeader
 	if ipHeader != "" && r.Header.Get(ipHeader) != "" {
 		ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
 	}
@@ -117,7 +117,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		ip = r.RemoteAddr
 	}
 
-	if req.SafeLogin && !s.conf.Bool("http.tls") {
+	if req.SafeLogin && !s.conf.HTTP.TLS {
 		sess.Put("safe_login", true)
 		sess.Put("safe_client", fmt.Sprintf("%x", sha256.Sum256([]byte(ip))))
 	} else {

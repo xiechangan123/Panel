@@ -6,43 +6,43 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/DeRuina/timberjack"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v3"
 	"github.com/google/wire"
 	"github.com/klauspost/compress/gzip"
 	"github.com/klauspost/compress/zstd"
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/sessions"
 	sessionmiddleware "github.com/libtnb/sessions/middleware"
-	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/config"
 )
 
 var ProviderSet = wire.NewSet(NewMiddlewares)
 
 type Middlewares struct {
-	conf      *koanf.Koanf
+	conf      *config.Config
 	log       *slog.Logger
 	session   *sessions.Manager
 	appRepo   biz.AppRepo
 	userToken biz.UserTokenRepo
 }
 
-func NewMiddlewares(conf *koanf.Koanf, session *sessions.Manager, appRepo biz.AppRepo, userToken biz.UserTokenRepo) *Middlewares {
-	ljLogger := &lumberjack.Logger{
-		Filename: filepath.Join(app.Root, "panel/storage/logs/http.log"),
-		MaxSize:  10,
-		MaxAge:   30,
-		Compress: true,
+func NewMiddlewares(conf *config.Config, session *sessions.Manager, appRepo biz.AppRepo, userToken biz.UserTokenRepo) *Middlewares {
+	tjLogger := &timberjack.Logger{
+		Filename:    filepath.Join(app.Root, "panel/storage/logs/http.log"),
+		MaxSize:     10,
+		MaxAge:      30,
+		Compression: "zstd",
 	}
 
 	return &Middlewares{
 		conf:      conf,
-		log:       slog.New(slog.NewJSONHandler(ljLogger, &slog.HandlerOptions{Level: slog.LevelInfo})),
+		log:       slog.New(slog.NewJSONHandler(tjLogger, &slog.HandlerOptions{Level: slog.LevelInfo})),
 		session:   session,
 		appRepo:   appRepo,
 		userToken: userToken,

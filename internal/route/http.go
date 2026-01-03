@@ -7,16 +7,16 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/knadh/koanf/v2"
 
 	"github.com/acepanel/panel/internal/http/middleware"
 	"github.com/acepanel/panel/internal/service"
 	"github.com/acepanel/panel/pkg/apploader"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/embed"
 )
 
 type Http struct {
-	conf             *koanf.Koanf
+	conf             *config.Config
 	user             *service.UserService
 	userToken        *service.UserTokenService
 	home             *service.HomeService
@@ -50,7 +50,7 @@ type Http struct {
 }
 
 func NewHttp(
-	conf *koanf.Koanf,
+	conf *config.Config,
 	user *service.UserService,
 	userToken *service.UserTokenService,
 	home *service.HomeService,
@@ -121,7 +121,7 @@ func (route *Http) Register(r *chi.Mux) {
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/user", func(r chi.Router) {
 			r.Get("/key", route.user.GetKey)
-			r.With(middleware.Throttle(route.conf.String("http.ip_header"), 5, time.Minute)).Post("/login", route.user.Login)
+			r.With(middleware.Throttle(route.conf.HTTP.IPHeader, 5, time.Minute)).Post("/login", route.user.Login)
 			r.Post("/logout", route.user.Logout)
 			r.Get("/is_login", route.user.IsLogin)
 			r.Get("/is_2fa", route.user.IsTwoFA)

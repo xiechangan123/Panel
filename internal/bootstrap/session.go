@@ -1,18 +1,18 @@
 package bootstrap
 
 import (
-	"github.com/knadh/koanf/v2"
 	"github.com/libtnb/gormstore"
 	"github.com/libtnb/sessions"
 	"gorm.io/gorm"
+
+	"github.com/acepanel/panel/pkg/config"
 )
 
-func NewSession(conf *koanf.Koanf, db *gorm.DB) (*sessions.Manager, error) {
+func NewSession(conf *config.Config, db *gorm.DB) (*sessions.Manager, error) {
 	// initialize session manager
-	lifetime := conf.Int("session.lifetime")
 	manager, err := sessions.NewManager(&sessions.ManagerOptions{
-		Key:                  conf.MustString("app.key"),
-		Lifetime:             lifetime,
+		Key:                  conf.App.Key,
+		Lifetime:             int(conf.Session.Lifetime),
 		GcInterval:           5,
 		DisableDefaultDriver: true,
 	})

@@ -7,24 +7,24 @@ import (
 	"net/http"
 
 	"github.com/coder/websocket"
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	stdssh "golang.org/x/crypto/ssh"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/ssh"
 )
 
 type WsService struct {
 	t       *gotext.Locale
-	conf    *koanf.Koanf
+	conf    *config.Config
 	log     *slog.Logger
 	sshRepo biz.SSHRepo
 }
 
-func NewWsService(t *gotext.Locale, conf *koanf.Koanf, log *slog.Logger, ssh biz.SSHRepo) *WsService {
+func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo) *WsService {
 	return &WsService{
 		t:       t,
 		conf:    conf,
@@ -120,7 +120,7 @@ func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.
 	}
 
 	// debug 模式下不校验 origin，方便 vite 代理调试
-	if s.conf.Bool("app.debug") {
+	if s.conf.App.Debug {
 		opts.InsecureSkipVerify = true
 	}
 

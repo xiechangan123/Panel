@@ -10,16 +10,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/sessions"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/config"
 )
 
 // MustLogin 确保已登录
-func MustLogin(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, userToken biz.UserTokenRepo) func(next http.Handler) http.Handler {
+func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager, userToken biz.UserTokenRepo) func(next http.Handler) http.Handler {
 	// 白名单
 	whiteList := []string{
 		"/api/user/key",
@@ -65,7 +65,7 @@ func MustLogin(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, u
 				if safeLogin {
 					// 取请求 IP
 					ip := r.RemoteAddr
-					ipHeader := conf.String("http.ip_header")
+					ipHeader := conf.HTTP.IPHeader
 					if ipHeader != "" && r.Header.Get(ipHeader) != "" {
 						ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
 					}
@@ -94,7 +94,7 @@ func MustLogin(t *gotext.Locale, conf *koanf.Koanf, session *sessions.Manager, u
 						Expires:  time.Now().Add(time.Duration(session.Lifetime) * time.Minute),
 						Path:     "/",
 						HttpOnly: true,
-						Secure:   conf.Bool("http.tls"),
+						Secure:   conf.HTTP.TLS,
 						SameSite: http.SameSiteLaxMode,
 					})
 				}

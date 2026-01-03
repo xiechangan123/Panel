@@ -11,14 +11,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/gookit/validate"
-	"github.com/knadh/koanf/v2"
 	"github.com/robfig/cron/v3"
 
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/queue"
 )
 
 type Web struct {
-	conf     *koanf.Koanf
+	conf     *config.Config
 	router   *chi.Mux
 	server   *hlfhr.Server
 	migrator *gormigrate.Gormigrate
@@ -26,7 +26,7 @@ type Web struct {
 	queue    *queue.Queue
 }
 
-func NewWeb(conf *koanf.Koanf, router *chi.Mux, server *hlfhr.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Web {
+func NewWeb(conf *config.Config, router *chi.Mux, server *hlfhr.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Web {
 	return &Web{
 		conf:     conf,
 		router:   router,
@@ -52,15 +52,15 @@ func (r *Web) Run() error {
 	r.queue.Run(context.TODO())
 
 	// run http server
-	if r.conf.Bool("http.tls") {
+	if r.conf.HTTP.TLS {
 		cert := filepath.Join(Root, "panel/storage/cert.pem")
 		key := filepath.Join(Root, "panel/storage/cert.key")
-		fmt.Println("[HTTP] listening and serving on port", r.conf.MustInt("http.port"), "with tls")
+		fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port, "with tls")
 		if err := r.server.ListenAndServeTLS(cert, key); !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}
 	} else {
-		fmt.Println("[HTTP] listening and serving on port", r.conf.MustInt("http.port"))
+		fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port)
 		if err := r.server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}

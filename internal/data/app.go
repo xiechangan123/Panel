@@ -9,7 +9,6 @@ import (
 
 	"github.com/expr-lang/expr"
 	"github.com/hashicorp/go-version"
-	"github.com/knadh/koanf/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -17,12 +16,13 @@ import (
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/api"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/shell"
 )
 
 type appRepo struct {
 	t     *gotext.Locale
-	conf  *koanf.Koanf
+	conf  *config.Config
 	db    *gorm.DB
 	log   *slog.Logger
 	cache biz.CacheRepo
@@ -30,7 +30,7 @@ type appRepo struct {
 	api   *api.API
 }
 
-func NewAppRepo(t *gotext.Locale, conf *koanf.Koanf, db *gorm.DB, log *slog.Logger, cache biz.CacheRepo, task biz.TaskRepo) biz.AppRepo {
+func NewAppRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, log *slog.Logger, cache biz.CacheRepo, task biz.TaskRepo) biz.AppRepo {
 	return &appRepo{
 		t:     t,
 		conf:  conf,
@@ -172,7 +172,7 @@ func (r *appRepo) Install(channel, slug string) error {
 			continue
 		}
 		if ch.Slug == channel {
-			if vs.GreaterThan(panel) && !r.conf.Bool("app.debug") {
+			if vs.GreaterThan(panel) && !r.conf.App.Debug {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
 			shellUrl = ch.Install
@@ -232,7 +232,7 @@ func (r *appRepo) UnInstall(slug string) error {
 			continue
 		}
 		if ch.Slug == installed.Channel {
-			if vs.GreaterThan(panel) && !r.conf.Bool("app.debug") {
+			if vs.GreaterThan(panel) && !r.conf.App.Debug {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
 			shellUrl = ch.Uninstall
@@ -287,7 +287,7 @@ func (r *appRepo) Update(slug string) error {
 			continue
 		}
 		if ch.Slug == installed.Channel {
-			if vs.GreaterThan(panel) && !r.conf.Bool("app.debug") {
+			if vs.GreaterThan(panel) && !r.conf.App.Debug {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
 			shellUrl = ch.Update
