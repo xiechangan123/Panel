@@ -23,10 +23,6 @@ func (r *Loader) Add(app ...types.App) {
 }
 
 func (r *Loader) Register(mux chi.Router) {
-	/*for slug, item := range r.Apps {
-		mux.Route("/"+slug, item.Route)
-	}*/
-
 	apps.Range(func(key, value any) bool {
 		app := value.(types.App)
 		mux.Route("/"+key.(string), app.Route)

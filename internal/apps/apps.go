@@ -12,12 +12,8 @@ import (
 	"github.com/acepanel/panel/internal/apps/minio"
 	"github.com/acepanel/panel/internal/apps/mysql"
 	"github.com/acepanel/panel/internal/apps/nginx"
-	"github.com/acepanel/panel/internal/apps/php74"
-	"github.com/acepanel/panel/internal/apps/php80"
-	"github.com/acepanel/panel/internal/apps/php81"
-	"github.com/acepanel/panel/internal/apps/php82"
-	"github.com/acepanel/panel/internal/apps/php83"
-	"github.com/acepanel/panel/internal/apps/php84"
+	"github.com/acepanel/panel/internal/apps/openresty"
+	"github.com/acepanel/panel/internal/apps/percona"
 	"github.com/acepanel/panel/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/internal/apps/podman"
 	"github.com/acepanel/panel/internal/apps/postgresql"
@@ -38,12 +34,8 @@ var ProviderSet = wire.NewSet(
 	minio.NewApp,
 	mysql.NewApp,
 	nginx.NewApp,
-	php74.NewApp,
-	php80.NewApp,
-	php81.NewApp,
-	php82.NewApp,
-	php83.NewApp,
-	php84.NewApp,
+	openresty.NewApp,
+	percona.NewApp,
 	phpmyadmin.NewApp,
 	podman.NewApp,
 	postgresql.NewApp,

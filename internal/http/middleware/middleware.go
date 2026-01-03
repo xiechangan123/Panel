@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/andybalholm/brotli"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v3"
@@ -56,9 +55,6 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 	compressor.SetEncoder("gzip", func(w io.Writer, level int) io.Writer {
 		writer, _ := gzip.NewWriterLevel(w, level)
 		return writer
-	})
-	compressor.SetEncoder("br", func(w io.Writer, level int) io.Writer {
-		return brotli.NewWriterV2(w, level)
 	})
 	compressor.SetEncoder("zstd", func(w io.Writer, level int) io.Writer {
 		writer, _ := zstd.NewWriter(w, zstd.WithEncoderLevel(zstd.SpeedBetterCompression))

@@ -17,12 +17,8 @@ import (
 	"github.com/acepanel/panel/internal/apps/minio"
 	"github.com/acepanel/panel/internal/apps/mysql"
 	"github.com/acepanel/panel/internal/apps/nginx"
-	"github.com/acepanel/panel/internal/apps/php74"
-	"github.com/acepanel/panel/internal/apps/php80"
-	"github.com/acepanel/panel/internal/apps/php81"
-	"github.com/acepanel/panel/internal/apps/php82"
-	"github.com/acepanel/panel/internal/apps/php83"
-	"github.com/acepanel/panel/internal/apps/php84"
+	"github.com/acepanel/panel/internal/apps/openresty"
+	"github.com/acepanel/panel/internal/apps/percona"
 	"github.com/acepanel/panel/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/internal/apps/podman"
 	"github.com/acepanel/panel/internal/apps/postgresql"
@@ -84,12 +80,8 @@ func initCli() (*app.Cli, error) {
 	minioApp := minio.NewApp()
 	mysqlApp := mysql.NewApp(locale, settingRepo)
 	nginxApp := nginx.NewApp(locale)
-	php74App := php74.NewApp(locale, taskRepo)
-	php80App := php80.NewApp(locale, taskRepo)
-	php81App := php81.NewApp(locale, taskRepo)
-	php82App := php82.NewApp(locale, taskRepo)
-	php83App := php83.NewApp(locale, taskRepo)
-	php84App := php84.NewApp(locale, taskRepo)
+	openrestyApp := openresty.NewApp(locale)
+	perconaApp := percona.NewApp(locale, settingRepo)
 	phpmyadminApp := phpmyadmin.NewApp(locale)
 	podmanApp := podman.NewApp()
 	postgresqlApp := postgresql.NewApp(locale)
@@ -98,7 +90,7 @@ func initCli() (*app.Cli, error) {
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, php74App, php80App, php81App, php82App, php83App, php84App, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
+	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }
