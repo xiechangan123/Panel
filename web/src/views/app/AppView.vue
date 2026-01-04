@@ -118,6 +118,12 @@ const columns: any = [
                 },
                 {
                   default: () => {
+                    // Web 服务器卸载时的提示信息
+                    if (row.categories.includes('webserver')) {
+                      return $gettext(
+                        'Reinstalling/Switching to a different web server will reset the configuration of all websites, are you sure to continue?'
+                      )
+                    }
                     return $gettext('Are you sure to uninstall app %{ app }?', { app: row.name })
                   },
                   trigger: () => {
