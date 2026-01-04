@@ -7,11 +7,13 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
-import AllView from '@/views/app/AllView.vue'
+import AppView from '@/views/app/AppView.vue'
+import EnvironmentView from '@/views/app/EnvironmentView.vue'
+import TemplateView from '@/views/app/TemplateView.vue'
 
 const { $gettext } = useGettext()
 
-const currentTab = ref('all')
+const currentTab = ref('app')
 
 const handleUpdateCache = () => {
   useRequest(app.updateCache()).onSuccess(() => {
@@ -25,15 +27,17 @@ const handleUpdateCache = () => {
     <template #tabbar>
       <div class="flex items-center justify-between">
         <n-tabs v-model:value="currentTab" animated class="flex-1">
-          <n-tab name="all" :tab="$gettext('All')" />
-          <n-tab name="environment" :tab="$gettext('Environment')" />
-          <n-tab name="compose" :tab="$gettext('Compose Templates')" />
+          <n-tab name="app" :tab="$gettext('Native App')" />
+          <n-tab name="environment" :tab="$gettext('Operating Environment')" />
+          <n-tab name="template" :tab="$gettext('Container Template')" />
         </n-tabs>
         <n-button v-if="currentTab != 'installed'" type="primary" @click="handleUpdateCache">
           {{ $gettext('Update Cache') }}
         </n-button>
       </div>
     </template>
-    <all-view v-if="currentTab === 'all'" />
+    <app-view v-if="currentTab === 'app'" />
+    <environment-view v-if="currentTab === 'environment'" />
+    <template-view v-if="currentTab === 'template'" />
   </common-page>
 </template>
