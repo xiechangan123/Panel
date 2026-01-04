@@ -183,6 +183,51 @@ func (_c *CacheRepo_UpdateApps_Call) RunAndReturn(run func() error) *CacheRepo_U
 	return _c
 }
 
+// UpdateCategories provides a mock function with no fields
+func (_m *CacheRepo) UpdateCategories() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateCategories")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CacheRepo_UpdateCategories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCategories'
+type CacheRepo_UpdateCategories_Call struct {
+	*mock.Call
+}
+
+// UpdateCategories is a helper method to define mock.On call
+func (_e *CacheRepo_Expecter) UpdateCategories() *CacheRepo_UpdateCategories_Call {
+	return &CacheRepo_UpdateCategories_Call{Call: _e.mock.On("UpdateCategories")}
+}
+
+func (_c *CacheRepo_UpdateCategories_Call) Run(run func()) *CacheRepo_UpdateCategories_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CacheRepo_UpdateCategories_Call) Return(_a0 error) *CacheRepo_UpdateCategories_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CacheRepo_UpdateCategories_Call) RunAndReturn(run func() error) *CacheRepo_UpdateCategories_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateRewrites provides a mock function with no fields
 func (_m *CacheRepo) UpdateRewrites() error {
 	ret := _m.Called()
