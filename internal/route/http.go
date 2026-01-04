@@ -252,6 +252,7 @@ func (route *Http) Register(r *chi.Mux) {
 		})
 
 		r.Route("/app", func(r chi.Router) {
+			r.Get("/categories", route.app.Categories)
 			r.Get("/list", route.app.List)
 			r.Post("/install", route.app.Install)
 			r.Post("/uninstall", route.app.Uninstall)

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/acepanel/panel/pkg/api"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type App struct {
@@ -18,6 +19,7 @@ type App struct {
 }
 
 type AppRepo interface {
+	Categories() []types.LV
 	All() api.Apps
 	Get(slug string) (*api.App, error)
 	UpdateExist(slug string) bool

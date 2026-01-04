@@ -3,7 +3,7 @@ defineOptions({
   name: 'app-index'
 })
 
-import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
@@ -16,6 +16,9 @@ const { $gettext } = useGettext()
 const versionModalShow = ref(false)
 const versionModalOperation = ref($gettext('Install'))
 const versionModalInfo = ref<any>({})
+
+// 当前选中的分类
+const selectedCategory = ref<string>('')
 
 const columns: any = [
   {
@@ -155,15 +158,26 @@ const columns: any = [
   }
 ]
 
+const { data: categories } = useRequest(app.categories, {
+  initialData: []
+})
+
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => app.list(page, pageSize),
+  (page, pageSize) => app.list(page, pageSize, selectedCategory.value || undefined),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
     total: (res: any) => res.total,
-    data: (res: any) => res.items
+    data: (res: any) => res.items,
+    watchingStates: [selectedCategory]
   }
 )
+
+// 处理分类切换
+const handleCategoryChange = (category: string) => {
+  selectedCategory.value = category
+  page.value = 1
+}
 
 const handleShowChange = (row: any) => {
   useRequest(app.updateShow(row.slug, !row.show)).onSuccess(() => {
@@ -199,11 +213,26 @@ onMounted(() => {
 
 <template>
   <n-flex vertical>
-    <n-alert type="warning">{{
-      $gettext(
-        'Before updating apps, it is strongly recommended to backup/snapshot first, so you can roll back immediately if there are any issues!'
-      )
-    }}</n-alert>
+    <n-flex>
+      <n-tag
+        :type="selectedCategory === '' ? 'primary' : 'default'"
+        :bordered="selectedCategory !== ''"
+        style="cursor: pointer"
+        @click="handleCategoryChange('')"
+      >
+        {{ $gettext('All') }}
+      </n-tag>
+      <n-tag
+        v-for="cat in categories"
+        :key="cat.value"
+        :type="selectedCategory === cat.value ? 'primary' : 'default'"
+        :bordered="selectedCategory !== cat.value"
+        style="cursor: pointer"
+        @click="handleCategoryChange(cat.value)"
+      >
+        {{ cat.label }}
+      </n-tag>
+    </n-flex>
     <n-data-table
       striped
       remote

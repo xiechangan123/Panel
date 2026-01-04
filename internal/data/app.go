@@ -18,6 +18,7 @@ import (
 	"github.com/acepanel/panel/pkg/api"
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/shell"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type appRepo struct {
@@ -40,6 +41,32 @@ func NewAppRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, log *slog.Lo
 		task:  task,
 		api:   api.NewAPI(app.Version, app.Locale),
 	}
+}
+
+func (r *appRepo) Categories() []types.LV {
+	cached, err := r.cache.Get(biz.CacheKeyCategories)
+	if err != nil {
+		return nil
+	}
+
+	var categories api.Categories
+	if err = json.Unmarshal([]byte(cached), &categories); err != nil {
+		return nil
+	}
+
+	slices.SortFunc(categories, func(a, b *api.Category) int {
+		return a.Order - b.Order
+	})
+
+	result := make([]types.LV, 0)
+	for item := range slices.Values(categories) {
+		result = append(result, types.LV{
+			Label: item.Name,
+			Value: item.Slug,
+		})
+	}
+
+	return result
 }
 
 func (r *appRepo) All() api.Apps {

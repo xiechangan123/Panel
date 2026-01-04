@@ -9,10 +9,11 @@ type App interface {
 
 // AppCenter 应用中心结构
 type AppCenter struct {
-	Icon        string `json:"icon"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Slug        string `json:"slug"`
+	Icon        string   `json:"icon"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Categories  []string `json:"categories"`
+	Slug        string   `json:"slug"`
 	Channels    []struct {
 		Slug    string `json:"slug"`
 		Name    string `json:"name"`

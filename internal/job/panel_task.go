@@ -73,6 +73,7 @@ func (r *PanelTask) Run() {
 
 	// 非离线模式下任务
 	if offline, err := r.settingRepo.GetBool(biz.SettingKeyOfflineMode); err == nil && !offline {
+		r.updateCategories()
 		r.updateApps()
 		r.updateRewrites()
 		if autoUpdate, err := r.settingRepo.GetBool(biz.SettingKeyAutoUpdate); err == nil && autoUpdate {
@@ -85,6 +86,15 @@ func (r *PanelTask) Run() {
 	debug.FreeOSMemory()
 
 	app.Status = app.StatusNormal
+}
+
+// 更新分类缓存
+func (r *PanelTask) updateCategories() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
+		if err := r.cacheRepo.UpdateCategories(); err != nil {
+			r.log.Warn("[PanelTask] failed to update categories cache", slog.Any("err", err))
+		}
+	})
 }
 
 // 更新商店缓存

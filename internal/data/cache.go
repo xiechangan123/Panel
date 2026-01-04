@@ -50,6 +50,20 @@ func (r *cacheRepo) Set(key biz.CacheKey, value string) error {
 	return r.db.Save(cache).Error
 }
 
+func (r *cacheRepo) UpdateCategories() error {
+	categories, err := r.api.Categories()
+	if err != nil {
+		return err
+	}
+
+	encoded, err := json.Marshal(categories)
+	if err != nil {
+		return err
+	}
+
+	return r.Set(biz.CacheKeyCategories, string(encoded))
+}
+
 func (r *cacheRepo) UpdateApps() error {
 	remote, err := r.api.Apps()
 	if err != nil {

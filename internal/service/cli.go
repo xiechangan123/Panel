@@ -110,6 +110,9 @@ func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {
+	if err := s.cacheRepo.UpdateCategories(); err != nil {
+		return errors.New(s.t.Get("Failed to synchronize categories data: %v", err))
+	}
 	if err := s.cacheRepo.UpdateApps(); err != nil {
 		return errors.New(s.t.Get("Failed to synchronize app data: %v", err))
 	}
