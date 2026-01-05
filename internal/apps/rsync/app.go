@@ -133,7 +133,7 @@ secrets file = /etc/rsyncd.secrets
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.WriteAppend("/etc/rsyncd.secrets", fmt.Sprintf(`%s:%s\n`, req.AuthUser, req.Secret), 0600); err != nil {
+	if err = io.WriteAppend("/etc/rsyncd.secrets", fmt.Sprintf("%s:%s\n", req.AuthUser, req.Secret), 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -231,7 +231,7 @@ secrets file = /etc/rsyncd.secrets
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.WriteAppend("/etc/rsyncd.secrets", fmt.Sprintf(`%s:%s\n`, req.AuthUser, req.Secret), 0600); err != nil {
+	if err = io.WriteAppend("/etc/rsyncd.secrets", fmt.Sprintf("%s:%s\n", req.AuthUser, req.Secret), 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
