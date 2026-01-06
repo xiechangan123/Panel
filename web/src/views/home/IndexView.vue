@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import TheIconLocal from '@/components/custom/TheIconLocal.vue'
+
 defineOptions({
   name: 'home-index'
 })
@@ -459,7 +461,7 @@ if (import.meta.hot) {
           <n-flex v-if="realtime" size="large">
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
-                <n-flex vertical flex items-center p-20 pl-40 pr-40>
+                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
                   <p>{{ $gettext('Load Status') }}</p>
                   <n-progress
                     type="dashboard"
@@ -498,7 +500,7 @@ if (import.meta.hot) {
             </n-popover>
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
-                <n-flex vertical flex items-center p-20 pl-40 pr-40>
+                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
                   <p>CPU</p>
                   <n-progress
                     type="dashboard"
@@ -534,7 +536,7 @@ if (import.meta.hot) {
             </n-popover>
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
-                <n-flex vertical flex items-center p-20 pl-40 pr-40>
+                <n-flex vertical p-20 pl-40 pr-40 flex items-center>
                   <p>{{ $gettext('Memory') }}</p>
                   <n-progress
                     type="dashboard"
@@ -694,7 +696,7 @@ if (import.meta.hot) {
                     v-if="!appLoading"
                     x-gap="12"
                     y-gap="12"
-                    cols="3 s:1 m:2 l:3"
+                    cols="4 s:1 m:2 l:3 xl:4 2xl:4"
                     item-responsive
                     responsive="screen"
                     p-10
@@ -711,7 +713,7 @@ if (import.meta.hot) {
                           <n-thing>
                             <template #avatar>
                               <div class="mt-8">
-                                <the-icon :size="30" :icon="item.icon" />
+                                <the-icon-local type="app" :size="30" :icon="item.slug" />
                               </div>
                             </template>
                             <template #header>

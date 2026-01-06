@@ -102,7 +102,7 @@ const columns: any = [
                 NButton,
                 {
                   size: 'small',
-                  type: 'success',
+                  type: 'info',
                   onClick: () => handleManage(row.slug)
                 },
                 {
@@ -146,7 +146,7 @@ const columns: any = [
                 NButton,
                 {
                   size: 'small',
-                  type: 'info',
+                  type: 'success',
                   onClick: () => {
                     versionModalShow.value = true
                     versionModalOperation.value = $gettext('Install')

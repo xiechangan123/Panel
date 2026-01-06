@@ -86,7 +86,7 @@ const columns: any = [
                 NButton,
                 {
                   size: 'small',
-                  type: 'success'
+                  type: 'info'
                   //onClick: () => handleManage(row.slug)
                 },
                 {
@@ -138,7 +138,7 @@ const columns: any = [
                       NButton,
                       {
                         size: 'small',
-                        type: 'primary'
+                        type: 'success'
                       },
                       {
                         default: () => $gettext('Install')
