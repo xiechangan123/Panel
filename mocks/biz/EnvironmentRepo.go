@@ -178,6 +178,53 @@ func (_c *EnvironmentRepo_Install_Call) RunAndReturn(run func(string, string) er
 	return _c
 }
 
+// InstalledVersion provides a mock function with given fields: typ, slug
+func (_m *EnvironmentRepo) InstalledVersion(typ string, slug string) string {
+	ret := _m.Called(typ, slug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InstalledVersion")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(typ, slug)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// EnvironmentRepo_InstalledVersion_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InstalledVersion'
+type EnvironmentRepo_InstalledVersion_Call struct {
+	*mock.Call
+}
+
+// InstalledVersion is a helper method to define mock.On call
+//   - typ string
+//   - slug string
+func (_e *EnvironmentRepo_Expecter) InstalledVersion(typ interface{}, slug interface{}) *EnvironmentRepo_InstalledVersion_Call {
+	return &EnvironmentRepo_InstalledVersion_Call{Call: _e.mock.On("InstalledVersion", typ, slug)}
+}
+
+func (_c *EnvironmentRepo_InstalledVersion_Call) Run(run func(typ string, slug string)) *EnvironmentRepo_InstalledVersion_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *EnvironmentRepo_InstalledVersion_Call) Return(_a0 string) *EnvironmentRepo_InstalledVersion_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *EnvironmentRepo_InstalledVersion_Call) RunAndReturn(run func(string, string) string) *EnvironmentRepo_InstalledVersion_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // IsInstalled provides a mock function with given fields: typ, slug
 func (_m *EnvironmentRepo) IsInstalled(typ string, slug string) bool {
 	ret := _m.Called(typ, slug)
