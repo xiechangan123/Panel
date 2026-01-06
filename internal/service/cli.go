@@ -903,6 +903,8 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	conf.App.Key = str.Random(32)
+	conf.App.APIEndpoint = "api.acepanel.net"
+	conf.App.DownloadEndpoint = "dl.acepanel.net"
 	conf.HTTP.Entrance = "/" + str.Random(6)
 
 	// 随机默认端口

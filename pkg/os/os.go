@@ -13,9 +13,7 @@ func readOSRelease() map[string]string {
 	if err != nil {
 		return nil
 	}
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
+	defer func(file *os.File) { _ = file.Close() }(file)
 
 	osRelease := make(map[string]string)
 	scanner := bufio.NewScanner(file)
@@ -70,9 +68,7 @@ func TCPPortInUse(port uint) bool {
 	if err != nil {
 		return true
 	}
-	defer func(conn net.Listener) {
-		_ = conn.Close()
-	}(conn)
+	defer func(conn net.Listener) { _ = conn.Close() }(conn)
 	return false
 }
 
@@ -82,8 +78,6 @@ func UDPPortInUse(port uint) bool {
 	if err != nil {
 		return true
 	}
-	defer func(conn net.PacketConn) {
-		_ = conn.Close()
-	}(conn)
+	defer func(conn net.PacketConn) { _ = conn.Close() }(conn)
 	return false
 }

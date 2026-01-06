@@ -203,9 +203,7 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("run %s failed", shell)
 	}
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
+	defer func(f *os.File) { _ = f.Close() }(f)
 
 	if _, err = io.Copy(&out, f); ptyError(err) != nil {
 		return "", fmt.Errorf("run %s failed, out: %s, err: %w", shell, strings.TrimSpace(out.String()), err)

@@ -5,9 +5,10 @@ import "time"
 type CacheKey string
 
 const (
-	CacheKeyCategories CacheKey = "categories"
-	CacheKeyApps       CacheKey = "apps"
-	CacheKeyRewrites   CacheKey = "rewrites"
+	CacheKeyCategories  CacheKey = "categories"
+	CacheKeyApps        CacheKey = "apps"
+	CacheKeyEnvironment CacheKey = "environment"
+	CacheKeyRewrites    CacheKey = "rewrites"
 )
 
 type Cache struct {
@@ -22,5 +23,6 @@ type CacheRepo interface {
 	Set(key CacheKey, value string) error
 	UpdateCategories() error
 	UpdateApps() error
+	UpdateEnvironments() error
 	UpdateRewrites() error
 }

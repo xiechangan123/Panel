@@ -30,6 +30,8 @@ type Http struct {
 	certDNS          *service.CertDNSService
 	certAccount      *service.CertAccountService
 	app              *service.AppService
+	environment      *service.EnvironmentService
+	environmentPHP   *service.EnvironmentPHPService
 	cron             *service.CronService
 	process          *service.ProcessService
 	safe             *service.SafeService
@@ -64,6 +66,8 @@ func NewHttp(
 	certDNS *service.CertDNSService,
 	certAccount *service.CertAccountService,
 	app *service.AppService,
+	environment *service.EnvironmentService,
+	environmentPHP *service.EnvironmentPHPService,
 	cron *service.CronService,
 	process *service.ProcessService,
 	safe *service.SafeService,
@@ -97,6 +101,8 @@ func NewHttp(
 		certDNS:          certDNS,
 		certAccount:      certAccount,
 		app:              app,
+		environment:      environment,
+		environmentPHP:   environmentPHP,
 		cron:             cron,
 		process:          process,
 		safe:             safe,
@@ -260,6 +266,30 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/update_show", route.app.UpdateShow)
 			r.Get("/is_installed", route.app.IsInstalled)
 			r.Get("/update_cache", route.app.UpdateCache)
+		})
+
+		r.Route("/environment", func(r chi.Router) {
+			r.Get("/types", route.environment.Types)
+			r.Get("/list", route.environment.List)
+			r.Post("/install", route.environment.Install)
+			r.Get("/uninstall", route.environment.Uninstall)
+			r.Put("/update", route.environment.Update)
+			r.Get("/is_installed", route.environment.IsInstalled)
+			r.Route("/php", func(r chi.Router) {
+				r.Post("/{version}/set_cli", route.environmentPHP.SetCli)
+				r.Get("/{version}/config", route.environmentPHP.GetConfig)
+				r.Post("/{version}/config", route.environmentPHP.UpdateConfig)
+				r.Get("/{version}/fpm_config", route.environmentPHP.GetFPMConfig)
+				r.Post("/{version}/fpm_config", route.environmentPHP.UpdateFPMConfig)
+				r.Get("/{version}/load", route.environmentPHP.Load)
+				r.Get("/{version}/log", route.environmentPHP.Log)
+				r.Get("/{version}/slow_log", route.environmentPHP.SlowLog)
+				r.Post("/{version}/clear_log", route.environmentPHP.ClearLog)
+				r.Post("/{version}/clear_slow_log", route.environmentPHP.ClearSlowLog)
+				r.Get("/{version}/modules", route.environmentPHP.ModuleList)
+				r.Post("/{version}/modules", route.environmentPHP.InstallModule)
+				r.Delete("/{version}/modules", route.environmentPHP.UninstallModule)
+			})
 		})
 
 		r.Route("/cron", func(r chi.Router) {

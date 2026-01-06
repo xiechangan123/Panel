@@ -35,9 +35,7 @@ func Write(path string, data string, permission os.FileMode) error {
 	if err != nil {
 		return err
 	}
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
+	defer func(file *os.File) { _ = file.Close() }(file)
 
 	_, err = file.WriteString(data)
 	if err != nil {
@@ -73,9 +71,7 @@ func WriteAppend(path string, data string, permission os.FileMode) error {
 	if err != nil {
 		return err
 	}
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
+	defer func(file *os.File) { _ = file.Close() }(file)
 
 	_, err = file.WriteString(data)
 	if err != nil {

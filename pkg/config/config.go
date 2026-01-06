@@ -19,11 +19,13 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Debug    bool   `yaml:"debug"`
-	Key      string `yaml:"key"`
-	Locale   string `yaml:"locale"`
-	Timezone string `yaml:"timezone"`
-	Root     string `yaml:"root"`
+	Debug            bool   `yaml:"debug"`
+	Key              string `yaml:"key"`
+	Locale           string `yaml:"locale"`
+	Timezone         string `yaml:"timezone"`
+	Root             string `yaml:"root"`
+	APIEndpoint      string `yaml:"api_endpoint"`
+	DownloadEndpoint string `yaml:"download_endpoint"`
 }
 
 type HTTPConfig struct {

@@ -29,7 +29,6 @@ export function renderIcon(icon: string, props: Props = { size: 12 }) {
 }
 
 export function renderLocalIcon(type: string, icon: string, props: Props = { size: 12 }) {
-  console.log('type, icon', type, icon)
   const svgContent = getLocalIconSvg(type, icon)
   return () => h(NIcon, { ...props, innerHTML: svgContent })
 }

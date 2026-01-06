@@ -155,7 +155,6 @@ func (r *appRepo) GetHomeShow() ([]map[string]string, error) {
 			"name":        loaded.Name,
 			"description": loaded.Description,
 			"slug":        loaded.Slug,
-			"icon":        loaded.Icon,
 			"version":     item.Version,
 		})
 	}

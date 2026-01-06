@@ -59,7 +59,6 @@ const columns: any = [
         rubberBand: false,
         value: row.two_fa !== '',
         onUpdateValue: (v) => {
-          console.log(v)
           if (v) {
             twoFaModal.value = true
             currentID.value = row.id

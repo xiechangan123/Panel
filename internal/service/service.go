@@ -19,6 +19,8 @@ var ProviderSet = wire.NewSet(
 	NewDatabaseService,
 	NewDatabaseServerService,
 	NewDatabaseUserService,
+	NewEnvironmentService,
+	NewEnvironmentPHPService,
 	NewFileService,
 	NewFirewallService,
 	NewHomeService,

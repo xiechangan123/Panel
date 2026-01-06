@@ -49,7 +49,7 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 		installedAppMap[p.Slug] = p
 	}
 
-	var apps []types.AppCenter
+	var apps []types.AppDetail
 	for _, item := range all {
 		installed, installedChannel, installedVersion, updateExist, show := false, "", "", false, false
 		if _, ok := installedAppMap[item.Slug]; ok {
@@ -63,8 +63,7 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		app := types.AppCenter{
-			Icon:             item.Icon,
+		app := types.AppDetail{
 			Name:             item.Name,
 			Description:      item.Description,
 			Categories:       item.Categories,
@@ -198,6 +197,10 @@ func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := s.cacheRepo.UpdateApps(); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err := s.cacheRepo.UpdateEnvironments(); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

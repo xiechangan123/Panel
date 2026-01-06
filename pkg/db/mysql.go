@@ -77,9 +77,7 @@ func (r *MySQL) DatabaseExists(name string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer func(rows *sql.Rows) {
-		_ = rows.Close()
-	}(rows)
+	defer func(rows *sql.Rows) { _ = rows.Close() }(rows)
 
 	for rows.Next() {
 		var database string
@@ -223,9 +221,7 @@ func (r *MySQL) Databases() ([]Database, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func(rows *sql.Rows) {
-		_ = rows.Close()
-	}(rows)
+	defer func(rows *sql.Rows) { _ = rows.Close() }(rows)
 
 	var databases []Database
 	for rows.Next() {
@@ -248,9 +244,7 @@ func (r *MySQL) userGrants(user, host string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func(rows *sql.Rows) {
-		_ = rows.Close()
-	}(rows)
+	defer func(rows *sql.Rows) { _ = rows.Close() }(rows)
 
 	var grants []string
 	for rows.Next() {

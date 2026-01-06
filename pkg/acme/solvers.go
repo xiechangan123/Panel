@@ -39,9 +39,7 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 	if err != nil {
 		return fmt.Errorf("failed to open nginx config %q: %w", s.conf, err)
 	}
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
+	defer func(file *os.File) { _ = file.Close() }(file)
 
 	if _, err = file.Write([]byte(conf)); err != nil {
 		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
@@ -254,9 +252,7 @@ func (s *manualDNSSolver) Present(ctx context.Context, challenge acme.Challenge)
 }
 
 func (s *manualDNSSolver) CleanUp(_ context.Context, _ acme.Challenge) error {
-	defer func() {
-		_ = recover()
-	}()
+	defer func() { _ = recover() }()
 	close(s.controlChan)
 	close(s.dnsChan)
 	close(s.certChan)

@@ -159,9 +159,7 @@ func GetLocalIPv4() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer func(conn stdnet.Conn) {
-		_ = conn.Close()
-	}(conn)
+	defer func(conn stdnet.Conn) { _ = conn.Close() }(conn)
 
 	local := conn.LocalAddr().(*stdnet.UDPAddr)
 	return local.IP.String(), nil
@@ -173,9 +171,7 @@ func GetLocalIPv6() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer func(conn stdnet.Conn) {
-		_ = conn.Close()
-	}(conn)
+	defer func(conn stdnet.Conn) { _ = conn.Close() }(conn)
 
 	local := conn.LocalAddr().(*stdnet.UDPAddr)
 	return local.IP.String(), nil

@@ -7,9 +7,8 @@ type App interface {
 	Route(r chi.Router)
 }
 
-// AppCenter 应用中心结构
-type AppCenter struct {
-	Icon        string   `json:"icon"`
+// AppDetail 应用详情
+type AppDetail struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Categories  []string `json:"categories"`

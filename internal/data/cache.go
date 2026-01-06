@@ -83,6 +83,20 @@ func (r *cacheRepo) UpdateApps() error {
 	return r.Set(biz.CacheKeyApps, string(encoded))
 }
 
+func (r *cacheRepo) UpdateEnvironments() error {
+	environments, err := r.api.Environments()
+	if err != nil {
+		return err
+	}
+
+	encoded, err := json.Marshal(environments)
+	if err != nil {
+		return err
+	}
+
+	return r.Set(biz.CacheKeyEnvironment, string(encoded))
+}
+
 func (r *cacheRepo) UpdateRewrites() error {
 	rewrites, err := r.api.RewritesByType("nginx")
 	if err != nil {
