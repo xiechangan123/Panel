@@ -51,7 +51,7 @@ func (r *environmentRepo) All(typ ...string) api.Environments {
 	}
 
 	// 过滤
-	slices.DeleteFunc(environments, func(env *api.Environment) bool {
+	environments = slices.DeleteFunc(environments, func(env *api.Environment) bool {
 		return len(typ) > 0 && typ[0] != "" && env.Type != typ[0]
 	})
 
