@@ -38,12 +38,14 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		environments = append(environments, types.EnvironmentDetail{
-			Type:        item.Type,
-			Name:        item.Name,
-			Description: item.Description,
-			Slug:        item.Slug,
-			Installed:   s.environmentRepo.IsInstalled(item.Type, item.Slug),
-			HasUpdate:   s.environmentRepo.HasUpdate(item.Type, item.Slug),
+			Type:             item.Type,
+			Name:             item.Name,
+			Description:      item.Description,
+			Slug:             item.Slug,
+			Version:          item.Version,
+			InstalledVersion: s.environmentRepo.InstalledVersion(item.Type, item.Slug),
+			Installed:        s.environmentRepo.IsInstalled(item.Type, item.Slug),
+			HasUpdate:        s.environmentRepo.HasUpdate(item.Type, item.Slug),
 		})
 	}
 

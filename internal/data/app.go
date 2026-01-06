@@ -201,7 +201,7 @@ func (r *appRepo) Install(channel, slug string) error {
 			if vs.GreaterThan(panel) && !r.conf.App.Debug {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
-			shellUrl = ch.Install
+			shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Install)
 			shellChannel = ch.Slug
 			shellVersion = ch.Version
 			break
@@ -261,7 +261,7 @@ func (r *appRepo) UnInstall(slug string) error {
 			if vs.GreaterThan(panel) && !r.conf.App.Debug {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
-			shellUrl = ch.Uninstall
+			shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Uninstall)
 			shellChannel = ch.Slug
 			shellVersion = installed.Version
 			break
@@ -316,7 +316,7 @@ func (r *appRepo) Update(slug string) error {
 			if vs.GreaterThan(panel) && !r.conf.App.Debug {
 				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
 			}
-			shellUrl = ch.Update
+			shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Update)
 			shellChannel = ch.Slug
 			shellVersion = ch.Version
 			break

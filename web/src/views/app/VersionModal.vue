@@ -13,7 +13,8 @@ const doSubmit = ref(false)
 
 const model = ref({
   channel: null,
-  version: ''
+  version: '',
+  log: ''
 })
 
 const options = computed(() => {
@@ -37,7 +38,8 @@ const handleSubmit = () => {
       show.value = false
       model.value = {
         channel: null,
-        version: ''
+        version: '',
+        log: ''
       }
     })
 }
@@ -46,6 +48,7 @@ const handleChannelUpdate = (value: string) => {
   const channel = info.value.channels.find((channel) => channel.slug === value)
   if (channel) {
     model.value.version = channel.version
+    model.value.log = channel.log
   }
 }
 
@@ -53,7 +56,8 @@ const handleClose = () => {
   show.value = false
   model.value = {
     channel: null,
-    version: ''
+    version: '',
+    log: ''
   }
 }
 </script>
@@ -86,6 +90,15 @@ const handleClose = () => {
           disabled
         />
       </n-form-item>
+      <n-form-item v-if="model.log" path="log" :label="$gettext('Release Log')">
+        <n-card embedded :bordered="false" content-style="padding: 12px;">
+          <n-scrollbar style="max-height: 200px">
+            <pre style="margin: 0; white-space: pre-wrap; word-break: break-word">{{
+              model.log
+            }}</pre>
+          </n-scrollbar>
+        </n-card>
+      </n-form-item>
     </n-form>
     <n-button
       type="info"
@@ -94,7 +107,7 @@ const handleClose = () => {
       :disabled="model.channel == null || doSubmit"
       @click="handleSubmit"
     >
-      {{ $gettext('Submit') }}
+      {{ operation }}
     </n-button>
   </n-modal>
 </template>

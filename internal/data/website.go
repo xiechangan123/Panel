@@ -768,7 +768,7 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 }
 
 func (r *websiteRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
-	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
 	if err != nil {
 		return nil, err
 	}
@@ -800,7 +800,7 @@ func (r *websiteRepo) getPHPVersion(name string) uint {
 }
 
 func (r *websiteRepo) reloadWebServer() error {
-	webServer, err := r.setting.Get(biz.SettingKeyWebServer)
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver, "unknown")
 	if err != nil {
 		return err
 	}
@@ -816,5 +816,5 @@ func (r *websiteRepo) reloadWebServer() error {
 			return err
 		}
 	}
-	return nil
+	return errors.New(r.t.Get("unsupported web server: %s", webServer))
 }

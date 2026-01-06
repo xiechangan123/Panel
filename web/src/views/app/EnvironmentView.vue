@@ -6,10 +6,8 @@ import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 
-// 当前选中的类型（默认为全部）
 const selectedType = ref<string>('')
 
-// 环境类型列表
 const { data: types } = useRequest(environment.types, {
   initialData: []
 })
@@ -37,6 +35,12 @@ const columns: any = [
     ellipsis: { tooltip: true }
   },
   {
+    title: $gettext('Latest Version'),
+    key: 'version',
+    width: 160,
+    ellipsis: { tooltip: true }
+  },
+  {
     title: $gettext('Installed Version'),
     key: 'installed_version',
     width: 160,
@@ -45,7 +49,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 350,
+    width: 240,
     hideInExcel: true,
     render(row: any) {
       return h(NFlex, null, {
