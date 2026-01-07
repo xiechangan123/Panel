@@ -158,7 +158,7 @@ func (v *baseVhost) Listen() []types.Listen {
 	var result []types.Listen
 	for _, dir := range directives {
 		l := v.parser.parameters2Slices(dir.GetParameters())
-		listen := types.Listen{Address: l[0]}
+		listen := types.Listen{Address: l[0], Args: []string{}}
 		for i := 1; i < len(l); i++ {
 			listen.Args = append(listen.Args, l[i])
 		}

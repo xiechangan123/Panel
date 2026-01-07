@@ -3,17 +3,19 @@ import type { RouteType } from '~/types/router'
 const Layout = () => import('@/layout/IndexView.vue')
 
 export default {
-  name: 'php74',
-  path: '/apps/php74',
-  component: Layout,
+  name: 'environment',
+  path: '/environment',
   isHidden: true,
+  component: Layout,
   children: [
     {
-      name: 'apps-php74-index',
-      path: '',
-      component: () => import('./IndexView.vue'),
+      name: 'environment-php',
+      path: 'php/:slug',
+      isHidden: true,
+      component: () => import('./PHPView.vue'),
       meta: {
-        title: 'PHP 7.4',
+        title: 'PHP',
+        icon: 'mdi:language-php',
         role: ['admin'],
         requireAuth: true
       }

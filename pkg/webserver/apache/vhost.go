@@ -147,7 +147,7 @@ func (v *baseVhost) Listen() []types.Listen {
 	// Apache 的监听配置通常在 VirtualHost 的参数中
 	// 例如: <VirtualHost *:80> 或 <VirtualHost 192.168.1.1:443>
 	for _, arg := range v.vhost.Args {
-		listen := types.Listen{Address: arg}
+		listen := types.Listen{Address: arg, Args: []string{}}
 		result = append(result, listen)
 	}
 

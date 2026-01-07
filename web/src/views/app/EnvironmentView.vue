@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import environment from '@/api/panel/environment'
+import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
 import { NButton, NDataTable, NFlex, NPopconfirm, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -86,8 +87,8 @@ const columns: any = [
                 NButton,
                 {
                   size: 'small',
-                  type: 'info'
-                  //onClick: () => handleManage(row.slug)
+                  type: 'info',
+                  onClick: () => handleManage(row.type, row.slug)
                 },
                 {
                   default: () => $gettext('Manage')
@@ -193,6 +194,10 @@ const handleUninstall = (type: string, slug: string) => {
       $gettext('Task submitted, please check the progress in background tasks')
     )
   })
+}
+
+const handleManage = (type: string, slug: string) => {
+  router.push({ name: 'environment-' + type, params: { slug } })
 }
 
 onMounted(() => {

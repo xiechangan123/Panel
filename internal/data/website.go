@@ -491,7 +491,7 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 			Cert:         certPath,
 			Key:          keyPath,
 			Protocols:    lo.If(len(req.SSLProtocols) > 0, req.SSLProtocols).Else([]string{"TLSv1.2", "TLSv1.3"}),
-			Ciphers:      lo.If(req.SSLCiphers != "", req.SSLCiphers).Else("HIGH:!aNULL:!MD5"),
+			Ciphers:      lo.If(req.SSLCiphers != "", req.SSLCiphers).Else("ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305"),
 			HSTS:         req.HSTS,
 			OCSP:         req.OCSP,
 			HTTPRedirect: req.HTTPRedirect,

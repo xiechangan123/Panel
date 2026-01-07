@@ -121,7 +121,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	if rm := resolverPattern.FindStringSubmatch(blockContent); rm != nil {
 		parts := strings.Fields(rm[1])
 		proxy.Resolver = parts
-		proxy.AutoRefresh = true // 有 resolver 通常意味着需要自动刷新
 	}
 
 	// 解析 resolver_timeout
@@ -218,18 +217,15 @@ func generateProxyConfig(proxy types.Proxy) string {
 
 	sb.WriteString(fmt.Sprintf("location %s {\n", location))
 
-	// resolver 配置（如果启用自动刷新）
-	if proxy.AutoRefresh && len(proxy.Resolver) > 0 {
+	// resolver 配置
+	if len(proxy.Resolver) > 0 {
 		sb.WriteString(fmt.Sprintf("    resolver %s;\n", strings.Join(proxy.Resolver, " ")))
 		if proxy.ResolverTimeout > 0 {
 			sb.WriteString(fmt.Sprintf("    resolver_timeout %ds;\n", int(proxy.ResolverTimeout.Seconds())))
 		}
-		// 使用变量实现动态解析
-		sb.WriteString(fmt.Sprintf("    set $backend \"%s\";\n", proxy.Pass))
-		sb.WriteString("    proxy_pass $backend;\n")
-	} else {
-		sb.WriteString(fmt.Sprintf("    proxy_pass %s;\n", proxy.Pass))
 	}
+
+	sb.WriteString(fmt.Sprintf("    proxy_pass %s;\n", proxy.Pass))
 
 	// Host 头
 	if proxy.Host != "" {

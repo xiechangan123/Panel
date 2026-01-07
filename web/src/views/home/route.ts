@@ -24,8 +24,8 @@ export default {
     {
       name: 'home-update',
       path: 'update',
-      component: () => import('./UpdateView.vue'),
       isHidden: true,
+      component: () => import('./UpdateView.vue'),
       meta: {
         title: 'Update',
         icon: 'mdi:archive-arrow-up-outline',

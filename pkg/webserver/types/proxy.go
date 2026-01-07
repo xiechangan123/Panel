@@ -5,7 +5,6 @@ import "time"
 // Proxy 反向代理配置
 type Proxy struct {
 	Location        string            `form:"location" json:"location" validate:"required"` // 匹配路径，如: "/", "/api", "~ ^/api/v[0-9]+/"
-	AutoRefresh     bool              `form:"auto_refresh" json:"auto_refresh"`             // 是否自动刷新解析
 	Pass            string            `form:"pass" json:"pass" validate:"required"`         // 代理地址，如: "http://example.com", "http://backend"
 	Host            string            `form:"host" json:"host"`                             // 代理 Host，如: "example.com"
 	SNI             string            `form:"sni" json:"sni"`                               // 代理 SNI，如: "example.com"
@@ -18,7 +17,7 @@ type Proxy struct {
 
 // Upstream 上游服务器配置
 type Upstream struct {
-	Servers   map[string]string `form:"servers" json:"servers" validate:"required"` // 上游服务器及权重，如: map["server1"] = "weight=5"
+	Servers   map[string]string `form:"servers" json:"servers" validate:"required"` // 上游服务器及配置，如: map["server1"] = "weight=5 resolve"
 	Algo      string            `form:"algo" json:"algo"`                           // 负载均衡算法，如: "least_conn", "ip_hash"
 	Keepalive int               `form:"keepalive" json:"keepalive"`                 // 保持连接数，如: 32
 }

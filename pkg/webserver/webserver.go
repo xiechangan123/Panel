@@ -8,7 +8,6 @@ import (
 	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
-// NewStaticVhost 创建纯静态虚拟主机实例
 func NewStaticVhost(serverType Type, configDir string) (types.StaticVhost, error) {
 	switch serverType {
 	case TypeNginx:
@@ -20,7 +19,6 @@ func NewStaticVhost(serverType Type, configDir string) (types.StaticVhost, error
 	}
 }
 
-// NewPHPVhost 创建 PHP 虚拟主机实例
 func NewPHPVhost(serverType Type, configDir string) (types.PHPVhost, error) {
 	switch serverType {
 	case TypeNginx:
@@ -32,7 +30,6 @@ func NewPHPVhost(serverType Type, configDir string) (types.PHPVhost, error) {
 	}
 }
 
-// NewProxyVhost 创建反向代理虚拟主机实例
 func NewProxyVhost(serverType Type, configDir string) (types.ProxyVhost, error) {
 	switch serverType {
 	case TypeNginx:

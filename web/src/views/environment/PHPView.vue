@@ -1,44 +1,39 @@
 <script setup lang="ts">
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import php from '@/api/apps/php'
-import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import php from '@/api/panel/environment/php'
+
+const route = useRoute()
+const slug = Number(route.params.slug)
 
 const { $gettext } = useGettext()
-const props = defineProps({
-  version: {
-    type: Number,
-    required: true
-  }
-})
-
-const { version } = toRefs(props)
 
 const currentTab = ref('status')
 
-const { data: config } = useRequest(php.config(version.value), {
+const { data: config } = useRequest(php.config(slug), {
   initialData: ''
 })
-const { data: fpmConfig } = useRequest(php.fpmConfig(version.value), {
+const { data: fpmConfig } = useRequest(php.fpmConfig(slug), {
   initialData: ''
 })
-const { data: log } = useRequest(php.log(version.value), {
+const { data: log } = useRequest(php.log(slug), {
   initialData: ''
 })
-const { data: slowLog } = useRequest(php.slowLog(version.value), {
+const { data: slowLog } = useRequest(php.slowLog(slug), {
   initialData: ''
 })
-const { data: load } = useRequest(php.load(version.value), {
+const { data: load } = useRequest(php.load(slug), {
   initialData: []
 })
-const { data: extensions } = useRequest(php.extensions(version.value), {
+const { data: modules } = useRequest(php.modules(slug), {
   initialData: []
 })
 
-const extensionColumns: any = [
+const moduleColumns: any = [
   {
-    title: $gettext('Extension Name'),
+    title: $gettext('Module Name'),
     key: 'name',
     minWidth: 250,
     resizable: true,
@@ -62,7 +57,7 @@ const extensionColumns: any = [
           ? h(
               NPopconfirm,
               {
-                onPositiveClick: () => handleInstallExtension(row.slug)
+                onPositiveClick: () => handleInstallModule(row.slug)
               },
               {
                 default: () => {
@@ -87,7 +82,7 @@ const extensionColumns: any = [
           ? h(
               NPopconfirm,
               {
-                onPositiveClick: () => handleUninstallExtension(row.slug)
+                onPositiveClick: () => handleUninstallModule(row.slug)
               },
               {
                 default: () => {
@@ -132,43 +127,43 @@ const loadColumns: any = [
 ]
 
 const handleSetCli = async () => {
-  useRequest(php.setCli(version.value)).onSuccess(() => {
+  useRequest(php.setCli(slug)).onSuccess(() => {
     window.$message.success($gettext('Set successfully'))
   })
 }
 
 const handleSaveConfig = async () => {
-  useRequest(php.saveConfig(version.value, config.value)).onSuccess(() => {
+  useRequest(php.saveConfig(slug, config.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleSaveFPMConfig = async () => {
-  useRequest(php.saveFPMConfig(version.value, fpmConfig.value)).onSuccess(() => {
+  useRequest(php.saveFPMConfig(slug, fpmConfig.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
   })
 }
 
 const handleClearLog = async () => {
-  useRequest(php.clearLog(version.value)).onSuccess(() => {
+  useRequest(php.clearLog(slug)).onSuccess(() => {
     window.$message.success($gettext('Cleared successfully'))
   })
 }
 
 const handleClearSlowLog = async () => {
-  useRequest(php.clearSlowLog(version.value)).onSuccess(() => {
+  useRequest(php.clearSlowLog(slug)).onSuccess(() => {
     window.$message.success($gettext('Cleared successfully'))
   })
 }
 
-const handleInstallExtension = async (slug: string) => {
-  useRequest(php.installExtension(version.value, slug)).onSuccess(() => {
+const handleInstallModule = async (module: string) => {
+  useRequest(php.installModule(slug, module)).onSuccess(() => {
     window.$message.success($gettext('Task submitted, please check progress in background tasks'))
   })
 }
 
-const handleUninstallExtension = async (name: string) => {
-  useRequest(php.uninstallExtension(version.value, name)).onSuccess(() => {
+const handleUninstallModule = async (module: string) => {
+  useRequest(php.uninstallModule(slug, module)).onSuccess(() => {
     window.$message.success($gettext('Task submitted, please check progress in background tasks'))
   })
 }
@@ -179,21 +174,22 @@ const handleUninstallExtension = async (name: string) => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
-          <service-status :service="`php-fpm-${version}`" show-reload />
+          <n-card> PHP {{ slug }} </n-card>
+          <service-status :service="`php-fpm-${slug}`" show-reload />
           <n-button type="info" @click="handleSetCli">
             {{ $gettext('Set as CLI Default Version') }}
           </n-button>
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="extensions" :tab="$gettext('Extension Management')">
+      <n-tab-pane name="modules" :tab="$gettext('Module Management')">
         <n-flex vertical>
           <n-data-table
             striped
             remote
             :scroll-x="1000"
             :loading="false"
-            :columns="extensionColumns"
-            :data="extensions"
+            :columns="moduleColumns"
+            :data="modules"
             :row-key="(row: any) => row.slug"
           />
         </n-flex>
@@ -204,7 +200,7 @@ const handleUninstallExtension = async (name: string) => {
             {{
               $gettext(
                 'This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { version: version }
+                { version: slug }
               )
             }}
           </n-alert>
@@ -222,7 +218,7 @@ const handleUninstallExtension = async (name: string) => {
             {{
               $gettext(
                 'This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
-                { version: version }
+                { version: slug }
               )
             }}
           </n-alert>
@@ -245,7 +241,7 @@ const handleUninstallExtension = async (name: string) => {
         />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <realtime-log :service="'php-fpm-' + version" />
+        <realtime-log :service="'php-fpm-' + slug" />
       </n-tab-pane>
       <n-tab-pane name="log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
@@ -270,3 +266,5 @@ const handleUninstallExtension = async (name: string) => {
     </n-tabs>
   </common-page>
 </template>
+
+<style scoped lang="scss"></style>
