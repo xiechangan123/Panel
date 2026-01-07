@@ -29,14 +29,16 @@ type AppConfig struct {
 }
 
 type HTTPConfig struct {
-	Debug      bool     `yaml:"debug"`
-	Port       uint     `yaml:"port"`
-	Entrance   string   `yaml:"entrance"`
-	TLS        bool     `yaml:"tls"`
-	IPHeader   string   `yaml:"ip_header"`
-	BindDomain []string `yaml:"bind_domain"`
-	BindIP     []string `yaml:"bind_ip"`
-	BindUA     []string `yaml:"bind_ua"`
+	Debug         bool     `yaml:"debug"`
+	Port          uint     `yaml:"port"`
+	Entrance      string   `yaml:"entrance"`
+	EntranceError string   `yaml:"entrance_error"`
+	TLS           bool     `yaml:"tls"`
+	LoginCaptcha  bool     `yaml:"login_captcha"`
+	IPHeader      string   `yaml:"ip_header"`
+	BindDomain    []string `yaml:"bind_domain"`
+	BindIP        []string `yaml:"bind_ip"`
+	BindUA        []string `yaml:"bind_ua"`
 }
 
 type DatabaseConfig struct {

@@ -815,6 +815,9 @@ func (r *websiteRepo) reloadWebServer() error {
 			_, err = shell.Execf("apachectl configtest")
 			return err
 		}
+	default:
+		return errors.New(r.t.Get("unsupported web server: %s", webServer))
 	}
-	return errors.New(r.t.Get("unsupported web server: %s", webServer))
+
+	return nil
 }

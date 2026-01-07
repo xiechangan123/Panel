@@ -20,6 +20,8 @@ const (
 	SettingKeyOfflineMode       SettingKey = "offline_mode"
 	SettingKeyAutoUpdate        SettingKey = "auto_update"
 	SettingKeyWebserver         SettingKey = "webserver"
+	SettingHiddenMenu           SettingKey = "hidden_menu"
+	SettingKeyCustomLogo        SettingKey = "custom_logo"
 )
 
 type Setting struct {
