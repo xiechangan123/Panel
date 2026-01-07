@@ -6,6 +6,7 @@ import (
 	"github.com/acepanel/panel/internal/apps/fail2ban"
 	"github.com/acepanel/panel/internal/apps/frp"
 	"github.com/acepanel/panel/internal/apps/gitea"
+	"github.com/acepanel/panel/internal/apps/mariadb"
 	"github.com/acepanel/panel/internal/apps/memcached"
 	"github.com/acepanel/panel/internal/apps/minio"
 	"github.com/acepanel/panel/internal/apps/mysql"
@@ -29,6 +30,7 @@ func NewLoader(
 	fail2ban *fail2ban.App,
 	frp *frp.App,
 	gitea *gitea.App,
+	mariadb *mariadb.App,
 	memcached *memcached.App,
 	minio *minio.App,
 	mysql *mysql.App,
@@ -45,6 +47,6 @@ func NewLoader(
 	supervisor *supervisor.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(codeserver, docker, fail2ban, frp, gitea, memcached, minio, mysql, nginx, openresty, percona, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor)
+	loader.Add(codeserver, docker, fail2ban, frp, gitea, mariadb, memcached, minio, mysql, nginx, openresty, percona, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor)
 	return loader
 }

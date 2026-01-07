@@ -13,6 +13,7 @@ import (
 	"github.com/acepanel/panel/internal/apps/fail2ban"
 	"github.com/acepanel/panel/internal/apps/frp"
 	"github.com/acepanel/panel/internal/apps/gitea"
+	"github.com/acepanel/panel/internal/apps/mariadb"
 	"github.com/acepanel/panel/internal/apps/memcached"
 	"github.com/acepanel/panel/internal/apps/minio"
 	"github.com/acepanel/panel/internal/apps/mysql"
@@ -76,6 +77,7 @@ func initCli() (*app.Cli, error) {
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
 	frpApp := frp.NewApp()
 	giteaApp := gitea.NewApp()
+	mariadbApp := mariadb.NewApp(locale, settingRepo)
 	memcachedApp := memcached.NewApp(locale)
 	minioApp := minio.NewApp()
 	mysqlApp := mysql.NewApp(locale, settingRepo)
@@ -90,7 +92,7 @@ func initCli() (*app.Cli, error) {
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
+	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }

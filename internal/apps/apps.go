@@ -8,6 +8,7 @@ import (
 	"github.com/acepanel/panel/internal/apps/fail2ban"
 	"github.com/acepanel/panel/internal/apps/frp"
 	"github.com/acepanel/panel/internal/apps/gitea"
+	"github.com/acepanel/panel/internal/apps/mariadb"
 	"github.com/acepanel/panel/internal/apps/memcached"
 	"github.com/acepanel/panel/internal/apps/minio"
 	"github.com/acepanel/panel/internal/apps/mysql"
@@ -30,6 +31,7 @@ var ProviderSet = wire.NewSet(
 	fail2ban.NewApp,
 	frp.NewApp,
 	gitea.NewApp,
+	mariadb.NewApp,
 	memcached.NewApp,
 	minio.NewApp,
 	mysql.NewApp,

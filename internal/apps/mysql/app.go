@@ -156,6 +156,41 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	bufferPoolReadRequests := cast.ToFloat64(load[12]["value"])
 	load[10]["value"] = fmt.Sprintf("%.2f%%", bufferPoolReadRequests/(bufferPoolReads+bufferPoolReadRequests)*100)
 
+	// 查询缓存命中率
+	// MySQL 8.0+ 删除了查询缓存功能
+	qcacheHitsRe := regexp.MustCompile(`Qcache_hits\s+\|\s+(\d+)\s+\|`)
+	qcacheHitsMatches := qcacheHitsRe.FindStringSubmatch(raw)
+	qcacheInsertsRe := regexp.MustCompile(`Qcache_inserts\s+\|\s+(\d+)\s+\|`)
+	qcacheInsertsMatches := qcacheInsertsRe.FindStringSubmatch(raw)
+	qcacheNotCachedRe := regexp.MustCompile(`Qcache_not_cached\s+\|\s+(\d+)\s+\|`)
+	qcacheNotCachedMatches := qcacheNotCachedRe.FindStringSubmatch(raw)
+	if len(qcacheHitsMatches) > 1 && len(qcacheInsertsMatches) > 1 && len(qcacheNotCachedMatches) > 1 {
+		qcacheHits := cast.ToFloat64(qcacheHitsMatches[1])
+		qcacheInserts := cast.ToFloat64(qcacheInsertsMatches[1])
+		qcacheNotCached := cast.ToFloat64(qcacheNotCachedMatches[1])
+		var qcacheHitRate float64
+		denominator := qcacheHits + qcacheInserts + qcacheNotCached
+		if denominator > 0 {
+			qcacheHitRate = qcacheHits / denominator * 100
+		}
+		load = append(load, map[string]string{
+			"name":  s.t.Get("Query Cache Hits"),
+			"value": qcacheHitsMatches[1],
+		})
+		load = append(load, map[string]string{
+			"name":  s.t.Get("Query Cache Inserts"),
+			"value": qcacheInsertsMatches[1],
+		})
+		load = append(load, map[string]string{
+			"name":  s.t.Get("Query Cache Not Cached"),
+			"value": qcacheNotCachedMatches[1],
+		})
+		load = append(load, map[string]string{
+			"name":  s.t.Get("Query Cache Hit Rate"),
+			"value": fmt.Sprintf("%.2f%%", qcacheHitRate),
+		})
+	}
+
 	service.Success(w, load)
 }
 
