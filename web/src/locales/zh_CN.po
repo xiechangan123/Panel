@@ -3975,7 +3975,7 @@ msgid "Authentication Method"
 msgstr "认证方式"
 
 #: src/views/ssh/CreateModal.vue:94 src/views/ssh/UpdateModal.vue:100
-msgid "Key Passphrase"
+msgid "Passphrase"
 msgstr ""
 
 #: src/views/ssh/CreateModal.vue:99 src/views/ssh/UpdateModal.vue:105
@@ -4897,7 +4897,7 @@ msgid "SSH Key Login"
 msgstr "安全登录"
 
 #: src/views/toolbox/SshView.vue:260
-msgid "Allow public key authentication for SSH login"
+msgid "Allow key authentication for SSH login"
 msgstr ""
 
 #: src/views/toolbox/SshView.vue:277

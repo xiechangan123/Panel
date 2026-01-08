@@ -4259,7 +4259,7 @@ msgstr ""
 
 #: src/views/ssh/CreateModal.vue:94
 #: src/views/ssh/UpdateModal.vue:100
-msgid "Key Passphrase"
+msgid "Passphrase"
 msgstr ""
 
 #: src/views/ssh/CreateModal.vue:99
@@ -5114,7 +5114,7 @@ msgid "SSH Key Login"
 msgstr ""
 
 #: src/views/toolbox/SshView.vue:260
-msgid "Allow public key authentication for SSH login"
+msgid "Allow key authentication for SSH login"
 msgstr ""
 
 #: src/views/toolbox/SshView.vue:277
