@@ -2,6 +2,7 @@ package acme
 
 import (
 	"context"
+	"crypto/x509"
 	"sort"
 
 	"github.com/libdns/libdns"
@@ -92,8 +93,8 @@ func (c *Client) ObtainCertificate(ctx context.Context, sans []string, keyType K
 	return Certificate{PrivateKey: pemPrivateKey, Certificate: crt}, nil
 }
 
-// ObtainShortCertificate 签发短期 SSL 证书
-func (c *Client) ObtainShortCertificate(ctx context.Context, sans []string, keyType KeyType) (Certificate, error) {
+// ObtainIPCertificate 签发 IP SSL 证书
+func (c *Client) ObtainIPCertificate(ctx context.Context, sans []string, keyType KeyType) (Certificate, error) {
 	certPrivateKey, err := generatePrivateKey(keyType)
 	if err != nil {
 		return Certificate{}, err
@@ -172,6 +173,11 @@ func (c *Client) GetDNSRecords(ctx context.Context, domains []string, keyType Ke
 	}
 
 	return data.([]DNSRecord), nil
+}
+
+// GetRenewalInfo 获取续签建议
+func (c *Client) GetRenewalInfo(ctx context.Context, cert x509.Certificate) (acme.RenewalInfo, error) {
+	return c.zClient.GetRenewalInfo(ctx, &cert)
 }
 
 func (c *Client) selectPreferredChain(certChains []acme.Certificate) acme.Certificate {

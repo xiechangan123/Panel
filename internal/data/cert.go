@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	mholtacme "github.com/mholt/acmez/v3/acme"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/app"
@@ -183,6 +184,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 		return nil, err
 	}
 
+	cert.RenewalInfo = *ssl.RenewalInfo
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
 	cert.Key = string(ssl.PrivateKey)
@@ -216,6 +218,7 @@ func (r *certRepo) ObtainManual(id uint) (*acme.Certificate, error) {
 		return nil, err
 	}
 
+	cert.RenewalInfo = *ssl.RenewalInfo
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
 	cert.Key = string(ssl.PrivateKey)
@@ -241,7 +244,7 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, 
 	}
 	client.UsePanel(ips, filepath.Join(app.Root, "server/nginx/conf/acme.conf"))
 
-	ssl, err := client.ObtainShortCertificate(context.Background(), ips, acme.KeyEC256)
+	ssl, err := client.ObtainIPCertificate(context.Background(), ips, acme.KeyEC256)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -317,6 +320,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 		}
 	}
 
+	cert.RenewalInfo = *ssl.RenewalInfo
 	cert.CertURL = ssl.URL
 	cert.Cert = string(ssl.ChainPEM)
 	cert.Key = string(ssl.PrivateKey)
@@ -329,6 +333,34 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	}
 
 	return &ssl, nil
+}
+
+func (r *certRepo) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
+	cert, err := r.Get(id)
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+	client, err := r.getClient(cert)
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	crt, err := pkgcert.ParseCert(cert.Cert)
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	renewInfo, err := client.GetRenewalInfo(context.Background(), crt)
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	cert.RenewalInfo = renewInfo
+	if err = r.db.Save(cert).Error; err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	return renewInfo, nil
 }
 
 func (r *certRepo) ManualDNS(id uint) ([]acme.DNSRecord, error) {
@@ -409,9 +441,7 @@ func (r *certRepo) runScript(cert *biz.Cert) error {
 	if err = f.Close(); err != nil {
 		return err
 	}
-	defer func(name string) {
-		_ = os.Remove(name)
-	}(f.Name())
+	defer func(name string) { _ = os.Remove(name) }(f.Name())
 
 	_, err = shell.Execf("bash " + f.Name())
 	return err

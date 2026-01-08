@@ -49,23 +49,26 @@ func (r *CertRenew) Run() {
 	}
 
 	for _, cert := range certs {
+		// 跳过上传类型或未开启自动续签的证书
 		if cert.Type == "upload" || !cert.AutoRenew {
 			continue
 		}
 
-		decode, err := pkgcert.ParseCert(cert.Cert)
-		if err != nil {
-			continue
+		// 刷新续签信息
+		if cert.RenewalInfo.NeedsRefresh() {
+			renewInfo, err := r.certRepo.RefreshRenewalInfo(cert.ID)
+			if err != nil {
+				r.log.Warn("[CertRenew] failed to refresh renewal info", slog.Any("err", err))
+				continue
+			}
+			cert.RenewalInfo = renewInfo
 		}
 
-		// 结束时间大于 7 天的证书不续签
-		if time.Until(decode.NotAfter) > 24*7*time.Hour {
-			continue
-		}
-
-		_, err = r.certRepo.Renew(cert.ID)
-		if err != nil {
-			r.log.Warn("[CertRenew] failed to renew cert", slog.Any("err", err))
+		// 到达建议时间，续签证书
+		if time.Now().After(cert.RenewalInfo.SelectedTime) {
+			if _, err := r.certRepo.Renew(cert.ID); err != nil {
+				r.log.Warn("[CertRenew] failed to renew cert", slog.Any("err", err))
+			}
 		}
 	}
 
