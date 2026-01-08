@@ -33,14 +33,14 @@ const keyLoading = ref(false)
 
 // Root 登录选项
 const rootLoginOptions = [
-  { label: $gettext('Allow password and key login (yes)'), value: 'yes' },
-  { label: $gettext('Disable any login (no)'), value: 'no' },
+  { label: $gettext('Allow SSH login'), value: 'yes' },
+  { label: $gettext('Disable SSH login'), value: 'no' },
   {
-    label: $gettext('Only allow key login (prohibit-password)'),
+    label: $gettext('Only allow key login'),
     value: 'prohibit-password'
   },
   {
-    label: $gettext('Only allow key login with forced commands (forced-commands-only)'),
+    label: $gettext('Only allow key login with predefined commands'),
     value: 'forced-commands-only'
   }
 ]
