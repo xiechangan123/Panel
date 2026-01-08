@@ -533,6 +533,74 @@ func (_c *CertRepo_ObtainManual_Call) RunAndReturn(run func(uint) (*acme.Certifi
 	return _c
 }
 
+// ObtainPanel provides a mock function with given fields: account, ips
+func (_m *CertRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, []byte, error) {
+	ret := _m.Called(account, ips)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtainPanel")
+	}
+
+	var r0 []byte
+	var r1 []byte
+	var r2 error
+	if rf, ok := ret.Get(0).(func(*biz.CertAccount, []string) ([]byte, []byte, error)); ok {
+		return rf(account, ips)
+	}
+	if rf, ok := ret.Get(0).(func(*biz.CertAccount, []string) []byte); ok {
+		r0 = rf(account, ips)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*biz.CertAccount, []string) []byte); ok {
+		r1 = rf(account, ips)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]byte)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(*biz.CertAccount, []string) error); ok {
+		r2 = rf(account, ips)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// CertRepo_ObtainPanel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ObtainPanel'
+type CertRepo_ObtainPanel_Call struct {
+	*mock.Call
+}
+
+// ObtainPanel is a helper method to define mock.On call
+//   - account *biz.CertAccount
+//   - ips []string
+func (_e *CertRepo_Expecter) ObtainPanel(account interface{}, ips interface{}) *CertRepo_ObtainPanel_Call {
+	return &CertRepo_ObtainPanel_Call{Call: _e.mock.On("ObtainPanel", account, ips)}
+}
+
+func (_c *CertRepo_ObtainPanel_Call) Run(run func(account *biz.CertAccount, ips []string)) *CertRepo_ObtainPanel_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.CertAccount), args[1].([]string))
+	})
+	return _c
+}
+
+func (_c *CertRepo_ObtainPanel_Call) Return(_a0 []byte, _a1 []byte, _a2 error) *CertRepo_ObtainPanel_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *CertRepo_ObtainPanel_Call) RunAndReturn(run func(*biz.CertAccount, []string) ([]byte, []byte, error)) *CertRepo_ObtainPanel_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ObtainSelfSigned provides a mock function with given fields: id
 func (_m *CertRepo) ObtainSelfSigned(id uint) error {
 	ret := _m.Called(id)
