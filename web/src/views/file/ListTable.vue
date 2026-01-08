@@ -7,6 +7,7 @@ import {
   NInput,
   NPopconfirm,
   NPopselect,
+  NSpin,
   NTag
 } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -47,6 +48,10 @@ const showDropdown = ref(false)
 const selectedRow = ref<any>()
 const dropdownX = ref(0)
 const dropdownY = ref(0)
+
+// 目录大小计算状态
+const sizeLoading = ref<Map<string, boolean>>(new Map())
+const sizeCache = ref<Map<string, string>>(new Map())
 
 const renameModal = ref(false)
 const renameModel = ref({
@@ -170,9 +175,42 @@ const columns: DataTableColumns<RowData> = [
   {
     title: $gettext('Size'),
     key: 'size',
-    minWidth: 80,
+    minWidth: 100,
     render(row: any): any {
-      return h(NTag, { type: 'info', size: 'small', bordered: false }, { default: () => row.size })
+      // 文件
+      if (!row.dir) {
+        return h(
+          NTag,
+          { type: 'info', size: 'small', bordered: false },
+          { default: () => row.size }
+        )
+      }
+      // 目录
+      const cachedSize = sizeCache.value.get(row.full)
+      if (cachedSize) {
+        return h(
+          NTag,
+          { type: 'info', size: 'small', bordered: false },
+          { default: () => cachedSize }
+        )
+      }
+      const isLoading = sizeLoading.value.get(row.full)
+      if (isLoading) {
+        return h(NSpin, { size: 16, style: { paddingTop: '4px' } })
+      }
+      return h(
+        'a',
+        {
+          href: 'javascript:void(0)',
+          style: { color: '#18a058', cursor: 'pointer', fontSize: '12px' },
+          onClick: (e: MouseEvent) => {
+            e.preventDefault()
+            e.stopPropagation()
+            calculateDirSize(row.full)
+          }
+        },
+        $gettext('Calculate')
+      )
     }
   },
   {
@@ -400,6 +438,18 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     data: (res: any) => res.items
   }
 )
+
+// 计算目录大小
+const calculateDirSize = (dirPath: string) => {
+  sizeLoading.value.set(dirPath, true)
+  useRequest(file.size(dirPath))
+    .onSuccess(({ data }) => {
+      sizeCache.value.set(dirPath, data)
+    })
+    .onComplete(() => {
+      sizeLoading.value.set(dirPath, false)
+    })
+}
 
 const handleRename = () => {
   const source = path.value + '/' + renameModel.value.source
@@ -665,6 +715,8 @@ onMounted(() => {
       selected.value = []
       keyword.value = ''
       sub.value = false
+      sizeCache.value.clear()
+      sizeLoading.value.clear()
       nextTick(() => {
         refresh()
       })
