@@ -49,6 +49,7 @@ type Http struct {
 	toolboxSystem    *service.ToolboxSystemService
 	toolboxBenchmark *service.ToolboxBenchmarkService
 	toolboxSSH       *service.ToolboxSSHService
+	toolboxDisk      *service.ToolboxDiskService
 	webhook          *service.WebHookService
 	apps             *apploader.Loader
 }
@@ -87,6 +88,7 @@ func NewHttp(
 	toolboxSystem *service.ToolboxSystemService,
 	toolboxBenchmark *service.ToolboxBenchmarkService,
 	toolboxSSH *service.ToolboxSSHService,
+	toolboxDisk *service.ToolboxDiskService,
 	webhook *service.WebHookService,
 	apps *apploader.Loader,
 ) *Http {
@@ -124,6 +126,7 @@ func NewHttp(
 		toolboxSystem:    toolboxSystem,
 		toolboxBenchmark: toolboxBenchmark,
 		toolboxSSH:       toolboxSSH,
+		toolboxDisk:      toolboxDisk,
 		webhook:          webhook,
 		apps:             apps,
 	}
@@ -461,6 +464,25 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/root_password", route.toolboxSSH.UpdateRootPassword)
 			r.Get("/root_key", route.toolboxSSH.GetRootKey)
 			r.Post("/root_key", route.toolboxSSH.GenerateRootKey)
+		})
+
+		r.Route("/toolbox_disk", func(r chi.Router) {
+			r.Get("/list", route.toolboxDisk.List)
+			r.Post("/partitions", route.toolboxDisk.GetPartitions)
+			r.Post("/mount", route.toolboxDisk.Mount)
+			r.Post("/umount", route.toolboxDisk.Umount)
+			r.Post("/format", route.toolboxDisk.Format)
+			r.Post("/init", route.toolboxDisk.Init)
+			r.Get("/fstab", route.toolboxDisk.GetFstab)
+			r.Delete("/fstab", route.toolboxDisk.DeleteFstab)
+			r.Get("/lvm", route.toolboxDisk.GetLVMInfo)
+			r.Post("/lvm/pv", route.toolboxDisk.CreatePV)
+			r.Delete("/lvm/pv", route.toolboxDisk.RemovePV)
+			r.Post("/lvm/vg", route.toolboxDisk.CreateVG)
+			r.Delete("/lvm/vg", route.toolboxDisk.RemoveVG)
+			r.Post("/lvm/lv", route.toolboxDisk.CreateLV)
+			r.Delete("/lvm/lv", route.toolboxDisk.RemoveLV)
+			r.Post("/lvm/lv/extend", route.toolboxDisk.ExtendLV)
 		})
 
 		r.Route("/webhook", func(r chi.Router) {
