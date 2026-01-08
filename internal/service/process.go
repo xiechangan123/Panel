@@ -194,7 +194,9 @@ func (s *ProcessService) processProcessFull(proc *process.Process) types.Process
 	data.OpenFiles, _ = proc.OpenFiles()
 	data.Envs, _ = proc.Environ()
 	data.OpenFiles = slices.Compact(data.OpenFiles)
-	data.Envs = slices.Compact(data.Envs)
+	data.Envs = slices.DeleteFunc(data.Envs, func(s string) bool {
+		return strings.TrimSpace(s) == ""
+	})
 
 	// 获取可执行文件路径和工作目录
 	data.Exe, _ = proc.Exe()
