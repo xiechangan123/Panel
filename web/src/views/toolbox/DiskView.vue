@@ -681,7 +681,7 @@ const handleDeleteFstab = (mountPoint: string) => {
         <n-card v-for="diskItem in diskList" :key="diskItem.name">
           <template #header>
             <n-flex align="center" :size="12">
-              <span style="font-weight: 600">{{ $gettext('Disk Name') }}: {{ diskItem.name }}</span>
+              <span style="font-weight: 600">{{ $gettext('Disk Name: ') }}{{ diskItem.name }}</span>
               <n-tag v-if="diskItem.isSystemDisk" type="error" size="small">
                 {{ $gettext('System Disk') }}
               </n-tag>
@@ -689,9 +689,9 @@ const handleDeleteFstab = (mountPoint: string) => {
           </template>
           <template #header-extra>
             <n-flex align="center" :size="16">
-              <span>{{ $gettext('Size') }}: {{ formatBytes(diskItem.size) }}</span>
-              <span>{{ $gettext('Partitions') }}: {{ diskItem.partitions.length }}</span>
-              <span>{{ $gettext('Disk Type') }}:</span>
+              <span>{{ $gettext('Size: ') }}{{ formatBytes(diskItem.size) }}</span>
+              <span>{{ $gettext('Partitions: ') }}{{ diskItem.partitions.length }}</span>
+              <span>{{ $gettext('Disk Type: ') }}</span>
               <n-tag size="small">{{ getDiskTypeLabel(diskItem.model) }}</n-tag>
             </n-flex>
           </template>
