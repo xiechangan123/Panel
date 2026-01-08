@@ -214,9 +214,9 @@ msgstr "當前狀態無法保存"
 #: src/views/apps/supervisor/IndexView.vue:219
 #: src/views/apps/supervisor/IndexView.vue:284
 #: src/views/environment/PHPView.vue:137 src/views/environment/PHPView.vue:143
-#: src/views/setting/IndexView.vue:50 src/views/toolbox/SystemView.vue:48
-#: src/views/toolbox/SystemView.vue:54 src/views/toolbox/SystemView.vue:63
-#: src/views/toolbox/SystemView.vue:72 src/views/website/EditView.vue:114
+#: src/views/setting/IndexView.vue:53 src/views/toolbox/SystemView.vue:51
+#: src/views/toolbox/SystemView.vue:57 src/views/toolbox/SystemView.vue:66
+#: src/views/toolbox/SystemView.vue:75 src/views/website/EditView.vue:114
 msgid "Saved successfully"
 msgstr "儲存成功"
 
@@ -239,7 +239,7 @@ msgstr "選擇文件"
 #: src/views/container/NetworkView.vue:45 src/views/container/VolumeView.vue:26
 #: src/views/database/CreateServerModal.vue:55
 #: src/views/database/ServerList.vue:39
-#: src/views/database/UpdateServerModal.vue:55 src/views/file/ListTable.vue:105
+#: src/views/database/UpdateServerModal.vue:55 src/views/file/ListTable.vue:110
 #: src/views/file/ToolBar.vue:257 src/views/ssh/CreateModal.vue:59
 #: src/views/ssh/UpdateModal.vue:65 src/views/toolbox/ProcessView.vue:107
 #: src/views/toolbox/ProcessView.vue:386 src/views/toolbox/WebHookView.vue:32
@@ -252,26 +252,26 @@ msgstr "名稱"
 msgid "Permissions"
 msgstr "權限"
 
-#: src/components/common/PathSelector.vue:95 src/views/file/ListTable.vue:159
+#: src/components/common/PathSelector.vue:95 src/views/file/ListTable.vue:164
 msgid "Owner / Group"
 msgstr "所有者 / 群組"
 
 #: src/components/common/PathSelector.vue:107 src/views/backup/ListView.vue:42
-#: src/views/container/ImageView.vue:53 src/views/file/ListTable.vue:171
+#: src/views/container/ImageView.vue:53 src/views/file/ListTable.vue:176
 #: src/views/toolbox/DiskView.vue:275
 msgid "Size"
 msgstr "大小"
 
-#: src/components/common/PathSelector.vue:115 src/views/file/ListTable.vue:179
+#: src/components/common/PathSelector.vue:115 src/views/file/ListTable.vue:217
 msgid "Modification Time"
 msgstr "修改時間"
 
-#: src/components/common/PathSelector.vue:149 src/views/file/ListTable.vue:459
+#: src/components/common/PathSelector.vue:149 src/views/file/ListTable.vue:509
 #: src/views/file/PathInput.vue:28
 msgid "Invalid path"
 msgstr "無效路徑"
 
-#: src/components/common/PathSelector.vue:209 src/views/file/ListTable.vue:408
+#: src/components/common/PathSelector.vue:209 src/views/file/ListTable.vue:458
 #: src/views/file/ToolBar.vue:37 src/views/file/ToolBar.vue:51
 msgid "Invalid name"
 msgstr "無效的名稱"
@@ -544,7 +544,7 @@ msgid "Confirm"
 msgstr "確認"
 
 #: src/layout/header/components/UserAvatar.vue:30
-#: src/views/file/ListTable.vue:418 src/views/file/ListTable.vue:513
+#: src/views/file/ListTable.vue:468 src/views/file/ListTable.vue:563
 #: src/views/file/ToolBar.vue:139 src/views/file/ToolBar.vue:226
 #: src/views/home/UpdateView.vue:27 src/views/toolbox/DiskView.vue:406
 #: src/views/toolbox/DiskView.vue:431 src/views/toolbox/DiskView.vue:454
@@ -566,29 +566,6 @@ msgstr "成功登出！"
 #: src/views/toolbox/DiskView.vue:172
 msgid "Unknown"
 msgstr "未知"
-
-#: src/layout/sidebar/components/SideSetting.vue:66
-#: src/layout/sidebar/components/SideSetting.vue:71
-msgid "Menu Settings"
-msgstr "選單設定"
-
-#: src/layout/sidebar/components/SideSetting.vue:83
-msgid ""
-"Settings are saved in the browser and will be reset after clearing the "
-"browser cache"
-msgstr "設置保存在瀏覽器中，清除瀏覽器緩存後將重置"
-
-#: src/layout/sidebar/components/SideSetting.vue:88
-msgid "Custom Logo"
-msgstr "自定義 Logo"
-
-#: src/layout/sidebar/components/SideSetting.vue:91
-msgid "Please enter the complete URL"
-msgstr "請輸入完整的 URL"
-
-#: src/layout/sidebar/components/SideSetting.vue:94
-msgid "Hide Menu"
-msgstr "隱藏菜單"
 
 #: src/layout/tab/components/ContextMenu.vue:28
 msgid "Close"
@@ -754,7 +731,7 @@ msgstr "在主頁顯示"
 #: src/views/container/ImageView.vue:69 src/views/container/NetworkView.vue:109
 #: src/views/container/VolumeView.vue:63 src/views/database/DatabaseList.vue:73
 #: src/views/database/ServerList.vue:134 src/views/database/UserList.vue:151
-#: src/views/environment/PHPView.vue:50 src/views/file/ListTable.vue:191
+#: src/views/environment/PHPView.vue:50 src/views/file/ListTable.vue:229
 #: src/views/firewall/ForwardView.vue:79 src/views/firewall/IpRuleView.vue:121
 #: src/views/firewall/RuleView.vue:158 src/views/setting/SettingUser.vue:85
 #: src/views/setting/TokenModal.vue:52 src/views/task/CronView.vue:98
@@ -893,11 +870,11 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:63 src/views/apps/rsync/IndexView.vue:235
 #: src/views/apps/supervisor/IndexView.vue:342
 #: src/views/environment/PHPView.vue:210 src/views/environment/PHPView.vue:228
-#: src/views/file/EditModal.vue:32 src/views/file/ListTable.vue:746
-#: src/views/setting/IndexView.vue:97 src/views/task/CronView.vue:259
-#: src/views/toolbox/SshView.vue:239 src/views/toolbox/SystemView.vue:100
-#: src/views/toolbox/SystemView.vue:124 src/views/toolbox/SystemView.vue:142
-#: src/views/toolbox/SystemView.vue:168 src/views/toolbox/WebHookView.vue:389
+#: src/views/file/EditModal.vue:32 src/views/file/ListTable.vue:798
+#: src/views/setting/IndexView.vue:104 src/views/task/CronView.vue:259
+#: src/views/toolbox/SshView.vue:239 src/views/toolbox/SystemView.vue:110
+#: src/views/toolbox/SystemView.vue:134 src/views/toolbox/SystemView.vue:152
+#: src/views/toolbox/SystemView.vue:178 src/views/toolbox/WebHookView.vue:389
 #: src/views/website/EditView.vue:413
 msgid "Save"
 msgstr "儲存"
@@ -975,8 +952,8 @@ msgstr "您確定要刪除規則 %{ name } 嗎？"
 #: src/views/container/ImageView.vue:94 src/views/container/NetworkView.vue:134
 #: src/views/container/VolumeView.vue:88 src/views/database/DatabaseList.vue:97
 #: src/views/database/ServerList.vue:214 src/views/database/UserList.vue:189
-#: src/views/environment/PHPView.vue:101 src/views/file/ListTable.vue:87
-#: src/views/file/ListTable.vue:291 src/views/file/ToolBar.vue:238
+#: src/views/environment/PHPView.vue:101 src/views/file/ListTable.vue:92
+#: src/views/file/ListTable.vue:329 src/views/file/ToolBar.vue:238
 #: src/views/firewall/ForwardView.vue:103 src/views/firewall/IpRuleView.vue:145
 #: src/views/firewall/RuleView.vue:182 src/views/setting/SettingUser.vue:139
 #: src/views/setting/TokenModal.vue:91 src/views/ssh/IndexView.vue:92
@@ -1007,7 +984,7 @@ msgstr "添加成功"
 #: src/views/apps/supervisor/IndexView.vue:261
 #: src/views/backup/ListView.vue:145 src/views/database/DatabaseList.vue:121
 #: src/views/database/ServerList.vue:238 src/views/database/UserList.vue:213
-#: src/views/file/ListTable.vue:274 src/views/file/ListTable.vue:618
+#: src/views/file/ListTable.vue:312 src/views/file/ListTable.vue:668
 #: src/views/file/ToolBar.vue:189 src/views/firewall/ForwardView.vue:129
 #: src/views/firewall/ForwardView.vue:147 src/views/firewall/IpRuleView.vue:171
 #: src/views/firewall/IpRuleView.vue:189 src/views/firewall/RuleView.vue:208
@@ -1127,7 +1104,7 @@ msgstr ""
 #: src/views/apps/frp/IndexView.vue:95 src/views/apps/frp/IndexView.vue:96
 #: src/views/apps/rsync/IndexView.vue:53 src/views/apps/rsync/IndexView.vue:272
 #: src/views/apps/rsync/IndexView.vue:326 src/views/database/IndexView.vue:28
-#: src/views/setting/IndexView.vue:83 src/views/toolbox/ProcessView.vue:129
+#: src/views/setting/IndexView.vue:90 src/views/toolbox/ProcessView.vue:129
 #: src/views/toolbox/ProcessView.vue:389 src/views/toolbox/WebHookView.vue:334
 #: src/views/toolbox/WebHookView.vue:369
 msgid "User"
@@ -1422,7 +1399,7 @@ msgstr "運行日誌"
 #: src/views/database/CreateDatabaseModal.vue:79
 #: src/views/database/CreateUserModal.vue:55
 #: src/views/database/IndexView.vue:42 src/views/setting/CreateModal.vue:32
-#: src/views/setting/IndexView.vue:89
+#: src/views/setting/IndexView.vue:96
 msgid "Create User"
 msgstr "建立使用者"
 
@@ -1481,7 +1458,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:86
 #: src/views/database/UpdateServerModal.vue:65
 #: src/views/database/UserList.vue:80 src/views/ssh/CreateModal.vue:64
-#: src/views/ssh/UpdateModal.vue:70 src/views/toolbox/SystemView.vue:129
+#: src/views/ssh/UpdateModal.vue:70 src/views/toolbox/SystemView.vue:139
 msgid "Host"
 msgstr "主機"
 
@@ -2140,8 +2117,8 @@ msgstr "簽發模式"
 msgid "Creation Time"
 msgstr "創建時間"
 
-#: src/views/container/ComposeView.vue:96 src/views/file/ListTable.vue:70
-#: src/views/file/ListTable.vue:222 src/views/ssh/IndexView.vue:70
+#: src/views/container/ComposeView.vue:96 src/views/file/ListTable.vue:75
+#: src/views/file/ListTable.vue:260 src/views/ssh/IndexView.vue:70
 #: src/views/task/CronView.vue:128 src/views/toolbox/WebHookView.vue:157
 #: src/views/website/ListView.vue:138
 msgid "Edit"
@@ -2305,8 +2282,8 @@ msgstr "主機目錄"
 msgid "Container Directory"
 msgstr "容器目錄"
 
-#: src/views/container/ContainerCreate.vue:255 src/views/file/ListTable.vue:75
-#: src/views/file/ListTable.vue:147 src/views/file/ListTable.vue:302
+#: src/views/container/ContainerCreate.vue:255 src/views/file/ListTable.vue:80
+#: src/views/file/ListTable.vue:152 src/views/file/ListTable.vue:340
 #: src/views/file/PermissionModal.vue:113 src/views/file/ToolBar.vue:235
 msgid "Permission"
 msgstr "權限"
@@ -2388,8 +2365,8 @@ msgid "Ports (Host->Container)"
 msgstr "端口（主機->容器）"
 
 #: src/views/container/ContainerView.vue:121
-#: src/views/container/ContainerView.vue:456 src/views/file/ListTable.vue:86
-#: src/views/file/ListTable.vue:266
+#: src/views/container/ContainerView.vue:456 src/views/file/ListTable.vue:91
+#: src/views/file/ListTable.vue:304
 msgid "Rename"
 msgstr "重新命名"
 
@@ -2408,7 +2385,7 @@ msgstr "暫停"
 msgid "Resume"
 msgstr "恢復"
 
-#: src/views/container/ContainerView.vue:199 src/views/file/ListTable.vue:366
+#: src/views/container/ContainerView.vue:199 src/views/file/ListTable.vue:404
 msgid "More"
 msgstr "更多"
 
@@ -2475,7 +2452,7 @@ msgstr "請選擇要恢復的容器"
 msgid "Cleanup Containers"
 msgstr "清理容器"
 
-#: src/views/container/ContainerView.vue:463 src/views/file/ListTable.vue:742
+#: src/views/container/ContainerView.vue:463 src/views/file/ListTable.vue:794
 msgid "New Name"
 msgstr "新名稱"
 
@@ -2712,7 +2689,7 @@ msgstr "輸入數據庫伺服器主機"
 #: src/views/database/CreateServerModal.vue:84
 #: src/views/database/UpdateServerModal.vue:76
 #: src/views/firewall/ForwardView.vue:31 src/views/firewall/RuleView.vue:48
-#: src/views/setting/SettingBase.vue:42 src/views/ssh/CreateModal.vue:70
+#: src/views/setting/SettingBase.vue:85 src/views/ssh/CreateModal.vue:70
 #: src/views/ssh/UpdateModal.vue:76 src/views/website/CreateModal.vue:129
 msgid "Port"
 msgstr "端口"
@@ -2766,14 +2743,14 @@ msgid "Are you sure you want to delete this database?"
 msgstr "您確定要刪除這個數據庫嗎？"
 
 #: src/views/database/ServerList.vue:75 src/views/database/UserList.vue:69
-#: src/views/file/ListTable.vue:519 src/views/file/ListTable.vue:539
+#: src/views/file/ListTable.vue:569 src/views/file/ListTable.vue:589
 #: src/views/file/ToolBar.vue:145 src/views/file/ToolBar.vue:165
 #: src/views/setting/TokenModal.vue:163
 msgid "Copied successfully"
 msgstr "複製成功"
 
 #: src/views/database/ServerList.vue:79 src/views/database/UserList.vue:73
-#: src/views/file/ListTable.vue:73 src/views/file/ListTable.vue:300
+#: src/views/file/ListTable.vue:78 src/views/file/ListTable.vue:338
 #: src/views/file/ToolBar.vue:232
 msgid "Copy"
 msgstr "複製"
@@ -2786,7 +2763,7 @@ msgstr "有效"
 msgid "Invalid"
 msgstr "無效"
 
-#: src/views/database/ServerList.vue:146 src/views/toolbox/SystemView.vue:78
+#: src/views/database/ServerList.vue:146 src/views/toolbox/SystemView.vue:81
 msgid "Synchronized successfully"
 msgstr "同步成功"
 
@@ -2887,8 +2864,8 @@ msgid "Compressed successfully"
 msgstr "壓縮成功"
 
 #: src/views/file/CompressModal.vue:73 src/views/file/CompressModal.vue:105
-#: src/views/file/ListTable.vue:77 src/views/file/ListTable.vue:247
-#: src/views/file/ListTable.vue:303 src/views/file/ToolBar.vue:234
+#: src/views/file/ListTable.vue:82 src/views/file/ListTable.vue:285
+#: src/views/file/ListTable.vue:341 src/views/file/ToolBar.vue:234
 msgid "Compress"
 msgstr "壓縮"
 
@@ -2912,103 +2889,99 @@ msgstr "編輯 - %{ file }"
 msgid "Refresh"
 msgstr "重新整理"
 
-#: src/views/file/ListTable.vue:67 src/views/file/ListTable.vue:224
+#: src/views/file/ListTable.vue:72 src/views/file/ListTable.vue:262
 msgid "Open"
 msgstr "開啟"
 
-#: src/views/file/ListTable.vue:69 src/views/file/ListTable.vue:222
+#: src/views/file/ListTable.vue:74 src/views/file/ListTable.vue:260
 msgid "Preview"
 msgstr "預覽"
 
-#: src/views/file/ListTable.vue:74 src/views/file/ListTable.vue:301
+#: src/views/file/ListTable.vue:79 src/views/file/ListTable.vue:339
 #: src/views/file/ToolBar.vue:233
 msgid "Move"
 msgstr "移動"
 
-#: src/views/file/ListTable.vue:77 src/views/file/ListTable.vue:249
+#: src/views/file/ListTable.vue:82 src/views/file/ListTable.vue:287
 #: src/views/toolbox/SshView.vue:301
 msgid "Download"
 msgstr "下載"
 
-#: src/views/file/ListTable.vue:81 src/views/file/ListTable.vue:305
-#: src/views/file/ListTable.vue:764
+#: src/views/file/ListTable.vue:86 src/views/file/ListTable.vue:343
+#: src/views/file/ListTable.vue:816
 msgid "Uncompress"
 msgstr "解壓縮"
 
-#: src/views/file/ListTable.vue:91 src/views/file/ToolBar.vue:229
+#: src/views/file/ListTable.vue:96 src/views/file/ToolBar.vue:229
 msgid "Paste"
 msgstr "貼上"
 
-#: src/views/file/ListTable.vue:209
+#: src/views/file/ListTable.vue:212
 msgid "Calculate"
 msgstr "計算"
 
-#: src/views/file/ListTable.vue:281
+#: src/views/file/ListTable.vue:319
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "您確定要刪除 %{ name } 嗎？"
 
-#: src/views/file/ListTable.vue:322 src/views/file/ListTable.vue:337
-#: src/views/file/ListTable.vue:578 src/views/file/ListTable.vue:591
+#: src/views/file/ListTable.vue:360 src/views/file/ListTable.vue:375
+#: src/views/file/ListTable.vue:628 src/views/file/ListTable.vue:641
 #: src/views/file/ToolBar.vue:77 src/views/file/ToolBar.vue:94
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr "標記成功，請導航到目標路徑進行粘貼"
 
-#: src/views/file/ListTable.vue:447
-msgid "Failed to calculate size"
-msgstr "計算大小失敗"
-
-#: src/views/file/ListTable.vue:415 src/views/file/ListTable.vue:502
+#: src/views/file/ListTable.vue:465 src/views/file/ListTable.vue:552
 #: src/views/file/ToolBar.vue:128
 msgid "Warning"
 msgstr "警告"
 
-#: src/views/file/ListTable.vue:416
+#: src/views/file/ListTable.vue:466
 msgid "There are items with the same name. Do you want to overwrite?"
 msgstr "存在同名項目。您要覆蓋嗎？"
 
-#: src/views/file/ListTable.vue:417 src/views/file/ListTable.vue:512
+#: src/views/file/ListTable.vue:467 src/views/file/ListTable.vue:562
 #: src/views/file/ToolBar.vue:138
 msgid "Overwrite"
 msgstr "覆蓋"
 
-#: src/views/file/ListTable.vue:424 src/views/file/ListTable.vue:440
+#: src/views/file/ListTable.vue:474 src/views/file/ListTable.vue:490
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr "成功將 %{ source } 重命名為 %{ target }"
 
-#: src/views/file/ListTable.vue:462
+#: src/views/file/ListTable.vue:512
 msgid "Uncompressing..."
 msgstr "解壓中……"
 
-#: src/views/file/ListTable.vue:469
+#: src/views/file/ListTable.vue:519
 msgid "Uncompressed successfully"
 msgstr "解壓成功"
 
-#: src/views/file/ListTable.vue:478 src/views/file/ToolBar.vue:104
+#: src/views/file/ListTable.vue:528 src/views/file/ToolBar.vue:104
 msgid "Please mark the files/folders to copy or move first"
 msgstr "請先標記要複製或移動的文件/文件夾"
 
-#: src/views/file/ListTable.vue:503 src/views/file/ToolBar.vue:129
+#: src/views/file/ListTable.vue:553 src/views/file/ToolBar.vue:129
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr ""
 
-#: src/views/file/ListTable.vue:525 src/views/file/ListTable.vue:545
+#: src/views/file/ListTable.vue:575 src/views/file/ListTable.vue:595
 #: src/views/file/ToolBar.vue:151 src/views/file/ToolBar.vue:171
 msgid "Moved successfully"
 msgstr "移動成功"
 
-#: src/views/file/ListTable.vue:531 src/views/file/ToolBar.vue:157
+#: src/views/file/ListTable.vue:581 src/views/file/ToolBar.vue:157
 msgid "Canceled"
 msgstr "已取消"
 
-#: src/views/file/ListTable.vue:734
+#: src/views/file/ListTable.vue:786
 msgid "Rename - %{ source }"
 msgstr "重命名 - %{ source }"
 
-#: src/views/file/ListTable.vue:752
+#: src/views/file/ListTable.vue:804
 msgid "Uncompress - %{ file }"
 msgstr "解壓 - %{ file }"
 
-#: src/views/file/ListTable.vue:760
+#: src/views/file/ListTable.vue:812
 msgid "Uncompress to"
 msgstr "解壓到"
 
@@ -3423,7 +3396,7 @@ msgstr "已提交"
 msgid "Commit Limit"
 msgstr "提交限制"
 
-#: src/views/home/IndexView.vue:589 src/views/toolbox/SystemView.vue:117
+#: src/views/home/IndexView.vue:589 src/views/toolbox/SystemView.vue:127
 msgid "SWAP Size"
 msgstr "SWAP 大小"
 
@@ -3479,7 +3452,7 @@ msgstr "您尚未設置任何要在此處顯示的應用！"
 msgid "Environment Information"
 msgstr "環境資訊"
 
-#: src/views/home/IndexView.vue:739 src/views/toolbox/SystemView.vue:131
+#: src/views/home/IndexView.vue:739 src/views/toolbox/SystemView.vue:141
 msgid "System Hostname"
 msgstr "系統主機名"
 
@@ -3692,15 +3665,15 @@ msgstr "輸入用戶密碼"
 msgid "Enter user email"
 msgstr "輸入用戶郵箱"
 
-#: src/views/setting/IndexView.vue:59
+#: src/views/setting/IndexView.vue:66
 msgid "Panel is restarting, page will refresh in 5 seconds"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:81
+#: src/views/setting/IndexView.vue:88
 msgid "Basic"
 msgstr "基本"
 
-#: src/views/setting/IndexView.vue:82
+#: src/views/setting/IndexView.vue:89
 msgid "Safe"
 msgstr "安全"
 
@@ -3709,45 +3682,57 @@ msgstr "安全"
 msgid "Updated successfully"
 msgstr "更新成功"
 
-#: src/views/setting/SettingBase.vue:20
+#: src/views/setting/SettingBase.vue:26
 msgid "Stable"
 msgstr "穩定版"
 
-#: src/views/setting/SettingBase.vue:24
+#: src/views/setting/SettingBase.vue:30
 msgid "Beta"
 msgstr "測試版"
 
-#: src/views/setting/SettingBase.vue:33 src/views/setting/SettingBase.vue:34
+#: src/views/setting/SettingBase.vue:76 src/views/setting/SettingBase.vue:77
 msgid "Panel Name"
 msgstr "面板名稱"
 
-#: src/views/setting/SettingBase.vue:36
+#: src/views/setting/SettingBase.vue:79
 msgid "Language"
 msgstr "語言"
 
-#: src/views/setting/SettingBase.vue:39
+#: src/views/setting/SettingBase.vue:82
 msgid "Update Channel"
 msgstr "更新渠道"
 
-#: src/views/setting/SettingBase.vue:43
+#: src/views/setting/SettingBase.vue:86
 msgid "8888"
 msgstr "8888"
 
-#: src/views/setting/SettingBase.vue:45
+#: src/views/setting/SettingBase.vue:88
 msgid "Default Website Directory"
 msgstr "預設網站目錄"
 
-#: src/views/setting/SettingBase.vue:46
+#: src/views/setting/SettingBase.vue:89
 msgid "/opt/ace/sites"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:48
+#: src/views/setting/SettingBase.vue:91
 msgid "Default Backup Directory"
 msgstr "預設備份目錄"
 
-#: src/views/setting/SettingBase.vue:49
+#: src/views/setting/SettingBase.vue:92
 msgid "/opt/ace/backup"
 msgstr ""
+
+#: src/views/setting/SettingBase.vue:94
+msgid "Custom Logo"
+msgstr "自定義 Logo"
+
+#: src/views/setting/SettingBase.vue:97
+msgid "Please enter the complete URL"
+msgstr "請輸入完整的 URL"
+
+#: src/views/setting/SettingBase.vue:100
+msgid "Hide Menu"
+msgstr "隱藏菜單"
 
 #: src/views/setting/SettingSafe.vue:34
 msgid "Disabled"
@@ -4860,57 +4845,57 @@ msgstr ""
 msgid "Download Private Key"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:88
-msgid "DNS modifications will revert to default after system restart."
-msgstr "DNS 修改將在系統重新啟動後恢復為預設設置。"
-
-#: src/views/toolbox/SystemView.vue:93
+#: src/views/toolbox/SystemView.vue:92
 msgid "Current DNS manager: %{ manager }"
 msgstr "目前 DNS 管理方式：%{ manager }"
 
-#: src/views/toolbox/SystemView.vue:92
+#: src/views/toolbox/SystemView.vue:98
+msgid "DNS modifications will revert to default after system restart."
+msgstr "DNS 修改將在系統重新啟動後恢復為預設設置。"
+
+#: src/views/toolbox/SystemView.vue:102
 msgid "Enter primary DNS server"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:95
+#: src/views/toolbox/SystemView.vue:105
 msgid "Enter secondary DNS server"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:109
+#: src/views/toolbox/SystemView.vue:119
 msgid "Total %{ total }, used %{ used }, free %{ free }"
 msgstr "總計 %{ total }，已使用 %{ used }，可用 %{ free }"
 
-#: src/views/toolbox/SystemView.vue:134
+#: src/views/toolbox/SystemView.vue:144
 msgid "Enter hostname, e.g. myserver"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:137
+#: src/views/toolbox/SystemView.vue:147
 msgid "Hosts"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:145
+#: src/views/toolbox/SystemView.vue:155
 msgid "Time"
 msgstr "時間"
 
-#: src/views/toolbox/SystemView.vue:149
+#: src/views/toolbox/SystemView.vue:159
 msgid ""
 "After manually changing the time, it may still be overwritten by system "
 "automatic time synchronization."
 msgstr "手動更改時間後，系統自動時間同步可能仍會覆蓋設置。"
 
-#: src/views/toolbox/SystemView.vue:155
+#: src/views/toolbox/SystemView.vue:165
 msgid "Select Timezone"
 msgstr "選擇時區"
 
-#: src/views/toolbox/SystemView.vue:158
+#: src/views/toolbox/SystemView.vue:168
 msgid "Please select a timezone"
 msgstr "請選擇時區"
 
-#: src/views/toolbox/SystemView.vue:162
+#: src/views/toolbox/SystemView.vue:172
 msgid "Modify Time"
 msgstr "修改時間"
 
-#: src/views/toolbox/SystemView.vue:171
+#: src/views/toolbox/SystemView.vue:181
 msgid "Synchronize Time"
 msgstr "同步時間"
 
@@ -5417,3 +5402,14 @@ msgstr ""
 #: src/views/website/SettingView.vue:91
 msgid "Enter the default cipher suite, leave blank to reset to default"
 msgstr ""
+
+#~ msgid "Menu Settings"
+#~ msgstr "選單設定"
+
+#~ msgid ""
+#~ "Settings are saved in the browser and will be reset after clearing the "
+#~ "browser cache"
+#~ msgstr "設置保存在瀏覽器中，清除瀏覽器緩存後將重置"
+
+#~ msgid "Failed to calculate size"
+#~ msgstr "計算大小失敗"

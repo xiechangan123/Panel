@@ -210,10 +210,10 @@ msgstr ""
 #: src/views/environment/PHPView.vue:137
 #: src/views/environment/PHPView.vue:143
 #: src/views/setting/IndexView.vue:53
-#: src/views/toolbox/SystemView.vue:48
-#: src/views/toolbox/SystemView.vue:54
-#: src/views/toolbox/SystemView.vue:63
-#: src/views/toolbox/SystemView.vue:72
+#: src/views/toolbox/SystemView.vue:51
+#: src/views/toolbox/SystemView.vue:57
+#: src/views/toolbox/SystemView.vue:66
+#: src/views/toolbox/SystemView.vue:75
 #: src/views/website/EditView.vue:114
 msgid "Saved successfully"
 msgstr ""
@@ -271,7 +271,7 @@ msgid "Size"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:115
-#: src/views/file/ListTable.vue:214
+#: src/views/file/ListTable.vue:217
 msgid "Modification Time"
 msgstr ""
 
@@ -822,7 +822,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:134
 #: src/views/database/UserList.vue:151
 #: src/views/environment/PHPView.vue:50
-#: src/views/file/ListTable.vue:226
+#: src/views/file/ListTable.vue:229
 #: src/views/firewall/ForwardView.vue:79
 #: src/views/firewall/IpRuleView.vue:121
 #: src/views/firewall/RuleView.vue:158
@@ -974,14 +974,14 @@ msgstr ""
 #: src/views/environment/PHPView.vue:210
 #: src/views/environment/PHPView.vue:228
 #: src/views/file/EditModal.vue:32
-#: src/views/file/ListTable.vue:799
+#: src/views/file/ListTable.vue:798
 #: src/views/setting/IndexView.vue:104
 #: src/views/task/CronView.vue:259
 #: src/views/toolbox/SshView.vue:239
-#: src/views/toolbox/SystemView.vue:100
-#: src/views/toolbox/SystemView.vue:124
-#: src/views/toolbox/SystemView.vue:142
-#: src/views/toolbox/SystemView.vue:168
+#: src/views/toolbox/SystemView.vue:110
+#: src/views/toolbox/SystemView.vue:134
+#: src/views/toolbox/SystemView.vue:152
+#: src/views/toolbox/SystemView.vue:178
 #: src/views/toolbox/WebHookView.vue:389
 #: src/views/website/EditView.vue:413
 msgid "Save"
@@ -1075,7 +1075,7 @@ msgstr ""
 #: src/views/database/UserList.vue:189
 #: src/views/environment/PHPView.vue:101
 #: src/views/file/ListTable.vue:92
-#: src/views/file/ListTable.vue:326
+#: src/views/file/ListTable.vue:329
 #: src/views/file/ToolBar.vue:238
 #: src/views/firewall/ForwardView.vue:103
 #: src/views/firewall/IpRuleView.vue:145
@@ -1116,7 +1116,7 @@ msgstr ""
 #: src/views/database/DatabaseList.vue:121
 #: src/views/database/ServerList.vue:238
 #: src/views/database/UserList.vue:213
-#: src/views/file/ListTable.vue:309
+#: src/views/file/ListTable.vue:312
 #: src/views/file/ListTable.vue:668
 #: src/views/file/ToolBar.vue:189
 #: src/views/firewall/ForwardView.vue:129
@@ -1597,7 +1597,7 @@ msgstr ""
 #: src/views/database/UserList.vue:80
 #: src/views/ssh/CreateModal.vue:64
 #: src/views/ssh/UpdateModal.vue:70
-#: src/views/toolbox/SystemView.vue:129
+#: src/views/toolbox/SystemView.vue:139
 msgid "Host"
 msgstr ""
 
@@ -2316,7 +2316,7 @@ msgstr ""
 
 #: src/views/container/ComposeView.vue:96
 #: src/views/file/ListTable.vue:75
-#: src/views/file/ListTable.vue:257
+#: src/views/file/ListTable.vue:260
 #: src/views/ssh/IndexView.vue:70
 #: src/views/task/CronView.vue:128
 #: src/views/toolbox/WebHookView.vue:157
@@ -2488,7 +2488,7 @@ msgstr ""
 #: src/views/container/ContainerCreate.vue:255
 #: src/views/file/ListTable.vue:80
 #: src/views/file/ListTable.vue:152
-#: src/views/file/ListTable.vue:337
+#: src/views/file/ListTable.vue:340
 #: src/views/file/PermissionModal.vue:113
 #: src/views/file/ToolBar.vue:235
 msgid "Permission"
@@ -2576,7 +2576,7 @@ msgstr ""
 #: src/views/container/ContainerView.vue:121
 #: src/views/container/ContainerView.vue:456
 #: src/views/file/ListTable.vue:91
-#: src/views/file/ListTable.vue:301
+#: src/views/file/ListTable.vue:304
 msgid "Rename"
 msgstr ""
 
@@ -2596,7 +2596,7 @@ msgid "Resume"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:199
-#: src/views/file/ListTable.vue:401
+#: src/views/file/ListTable.vue:404
 msgid "More"
 msgstr ""
 
@@ -2664,7 +2664,7 @@ msgid "Cleanup Containers"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:463
-#: src/views/file/ListTable.vue:795
+#: src/views/file/ListTable.vue:794
 msgid "New Name"
 msgstr ""
 
@@ -2980,7 +2980,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:79
 #: src/views/database/UserList.vue:73
 #: src/views/file/ListTable.vue:78
-#: src/views/file/ListTable.vue:335
+#: src/views/file/ListTable.vue:338
 #: src/views/file/ToolBar.vue:232
 msgid "Copy"
 msgstr ""
@@ -2996,7 +2996,7 @@ msgid "Invalid"
 msgstr ""
 
 #: src/views/database/ServerList.vue:146
-#: src/views/toolbox/SystemView.vue:78
+#: src/views/toolbox/SystemView.vue:81
 msgid "Synchronized successfully"
 msgstr ""
 
@@ -3088,8 +3088,8 @@ msgstr ""
 #: src/views/file/CompressModal.vue:73
 #: src/views/file/CompressModal.vue:105
 #: src/views/file/ListTable.vue:82
-#: src/views/file/ListTable.vue:282
-#: src/views/file/ListTable.vue:338
+#: src/views/file/ListTable.vue:285
+#: src/views/file/ListTable.vue:341
 #: src/views/file/ToolBar.vue:234
 msgid "Compress"
 msgstr ""
@@ -3116,30 +3116,30 @@ msgid "Refresh"
 msgstr ""
 
 #: src/views/file/ListTable.vue:72
-#: src/views/file/ListTable.vue:259
+#: src/views/file/ListTable.vue:262
 msgid "Open"
 msgstr ""
 
 #: src/views/file/ListTable.vue:74
-#: src/views/file/ListTable.vue:257
+#: src/views/file/ListTable.vue:260
 msgid "Preview"
 msgstr ""
 
 #: src/views/file/ListTable.vue:79
-#: src/views/file/ListTable.vue:336
+#: src/views/file/ListTable.vue:339
 #: src/views/file/ToolBar.vue:233
 msgid "Move"
 msgstr ""
 
 #: src/views/file/ListTable.vue:82
-#: src/views/file/ListTable.vue:284
+#: src/views/file/ListTable.vue:287
 #: src/views/toolbox/SshView.vue:301
 msgid "Download"
 msgstr ""
 
 #: src/views/file/ListTable.vue:86
-#: src/views/file/ListTable.vue:340
-#: src/views/file/ListTable.vue:817
+#: src/views/file/ListTable.vue:343
+#: src/views/file/ListTable.vue:816
 msgid "Uncompress"
 msgstr ""
 
@@ -3148,25 +3148,21 @@ msgstr ""
 msgid "Paste"
 msgstr ""
 
-#: src/views/file/ListTable.vue:209
+#: src/views/file/ListTable.vue:212
 msgid "Calculate"
 msgstr ""
 
-#: src/views/file/ListTable.vue:316
+#: src/views/file/ListTable.vue:319
 msgid "Are you sure you want to delete %{ name }?"
 msgstr ""
 
-#: src/views/file/ListTable.vue:357
-#: src/views/file/ListTable.vue:372
+#: src/views/file/ListTable.vue:360
+#: src/views/file/ListTable.vue:375
 #: src/views/file/ListTable.vue:628
 #: src/views/file/ListTable.vue:641
 #: src/views/file/ToolBar.vue:77
 #: src/views/file/ToolBar.vue:94
 msgid "Marked successfully, please navigate to the destination path to paste"
-msgstr ""
-
-#: src/views/file/ListTable.vue:447
-msgid "Failed to calculate size"
 msgstr ""
 
 #: src/views/file/ListTable.vue:465
@@ -3220,15 +3216,15 @@ msgstr ""
 msgid "Canceled"
 msgstr ""
 
-#: src/views/file/ListTable.vue:787
+#: src/views/file/ListTable.vue:786
 msgid "Rename - %{ source }"
 msgstr ""
 
-#: src/views/file/ListTable.vue:805
+#: src/views/file/ListTable.vue:804
 msgid "Uncompress - %{ file }"
 msgstr ""
 
-#: src/views/file/ListTable.vue:813
+#: src/views/file/ListTable.vue:812
 msgid "Uncompress to"
 msgstr ""
 
@@ -3700,7 +3696,7 @@ msgid "Commit Limit"
 msgstr ""
 
 #: src/views/home/IndexView.vue:589
-#: src/views/toolbox/SystemView.vue:117
+#: src/views/toolbox/SystemView.vue:127
 msgid "SWAP Size"
 msgstr ""
 
@@ -3757,7 +3753,7 @@ msgid "Environment Information"
 msgstr ""
 
 #: src/views/home/IndexView.vue:739
-#: src/views/toolbox/SystemView.vue:131
+#: src/views/toolbox/SystemView.vue:141
 msgid "System Hostname"
 msgstr ""
 
@@ -5158,55 +5154,55 @@ msgstr ""
 msgid "Download Private Key"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:88
-msgid "DNS modifications will revert to default after system restart."
-msgstr ""
-
-#: src/views/toolbox/SystemView.vue:93
+#: src/views/toolbox/SystemView.vue:92
 msgid "Current DNS manager: %{ manager }"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:92
+#: src/views/toolbox/SystemView.vue:98
+msgid "DNS modifications will revert to default after system restart."
+msgstr ""
+
+#: src/views/toolbox/SystemView.vue:102
 msgid "Enter primary DNS server"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:95
+#: src/views/toolbox/SystemView.vue:105
 msgid "Enter secondary DNS server"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:109
+#: src/views/toolbox/SystemView.vue:119
 msgid "Total %{ total }, used %{ used }, free %{ free }"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:134
+#: src/views/toolbox/SystemView.vue:144
 msgid "Enter hostname, e.g. myserver"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:137
+#: src/views/toolbox/SystemView.vue:147
 msgid "Hosts"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:145
+#: src/views/toolbox/SystemView.vue:155
 msgid "Time"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:149
+#: src/views/toolbox/SystemView.vue:159
 msgid "After manually changing the time, it may still be overwritten by system automatic time synchronization."
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:155
+#: src/views/toolbox/SystemView.vue:165
 msgid "Select Timezone"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:158
+#: src/views/toolbox/SystemView.vue:168
 msgid "Please select a timezone"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:162
+#: src/views/toolbox/SystemView.vue:172
 msgid "Modify Time"
 msgstr ""
 
-#: src/views/toolbox/SystemView.vue:171
+#: src/views/toolbox/SystemView.vue:181
 msgid "Synchronize Time"
 msgstr ""
 
