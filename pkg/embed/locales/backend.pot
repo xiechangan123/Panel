@@ -1446,7 +1446,7 @@ msgstr ""
 msgid "failed to clean temporary files: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:253
+#: internal/service/toolbox_ssh.go:211
 msgid "failed to create .ssh directory: %v"
 msgstr ""
 
@@ -1503,7 +1503,7 @@ msgstr ""
 msgid "failed to format partition: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:263
+#: internal/service/toolbox_ssh.go:221
 msgid "failed to generate SSH key: %v"
 msgstr ""
 
@@ -1741,11 +1741,11 @@ msgstr ""
 msgid "failed to read fstab: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:284
+#: internal/service/toolbox_ssh.go:242
 msgid "failed to read generated key: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:33
+#: internal/service/toolbox_ssh.go:41
 msgid "failed to read sshd_config: %v"
 msgstr ""
 
@@ -1803,14 +1803,6 @@ msgstr ""
 msgid "failed to restart MySQL: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:116
-#: internal/service/toolbox_ssh.go:138
-#: internal/service/toolbox_ssh.go:164
-#: internal/service/toolbox_ssh.go:190
-#: internal/service/toolbox_ssh.go:211
-msgid "failed to restart SSH service: %v"
-msgstr ""
-
 #: internal/service/ws.go:99
 msgid "failed to run command: %v"
 msgstr ""
@@ -1835,16 +1827,8 @@ msgstr ""
 msgid "failed to start %s service: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:90
-msgid "failed to start SSH service: %v"
-msgstr ""
-
 #: internal/service/systemctl.go:137
 msgid "failed to stop %s service: %v"
-msgstr ""
-
-#: internal/service/toolbox_ssh.go:103
-msgid "failed to stop SSH service: %v"
 msgstr ""
 
 #: internal/service/toolbox_disk.go:167
@@ -1863,27 +1847,27 @@ msgstr ""
 msgid "failed to update DNS: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:132
+#: internal/service/toolbox_ssh.go:91
 msgid "failed to update SSH port: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:301
+#: internal/service/toolbox_ssh.go:259
 msgid "failed to update authorized_keys: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:159
+#: internal/service/toolbox_ssh.go:117
 msgid "failed to update password authentication: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:185
+#: internal/service/toolbox_ssh.go:143
 msgid "failed to update pubkey authentication: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:206
+#: internal/service/toolbox_ssh.go:164
 msgid "failed to update root login setting: %v"
 msgstr ""
 
-#: internal/service/toolbox_ssh.go:228
+#: internal/service/toolbox_ssh.go:186
 msgid "failed to update root password: %v"
 msgstr ""
 

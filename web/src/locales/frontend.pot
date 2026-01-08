@@ -528,7 +528,6 @@ msgstr ""
 #: src/views/container/ContainerView.vue:139
 #: src/views/container/ContainerView.vue:413
 #: src/views/home/IndexView.vue:450
-#: src/views/toolbox/SshView.vue:234
 msgid "Restart"
 msgstr ""
 
@@ -999,7 +998,7 @@ msgstr ""
 #: src/views/file/ListTable.vue:746
 #: src/views/setting/IndexView.vue:97
 #: src/views/task/CronView.vue:259
-#: src/views/toolbox/SshView.vue:274
+#: src/views/toolbox/SshView.vue:239
 #: src/views/toolbox/SystemView.vue:100
 #: src/views/toolbox/SystemView.vue:124
 #: src/views/toolbox/SystemView.vue:142
@@ -1351,7 +1350,7 @@ msgstr ""
 #: src/views/apps/mariadb/IndexView.vue:74
 #: src/views/apps/mysql/IndexView.vue:74
 #: src/views/apps/percona/IndexView.vue:74
-#: src/views/toolbox/SshView.vue:298
+#: src/views/toolbox/SshView.vue:263
 msgid "Root Password"
 msgstr ""
 
@@ -3155,7 +3154,7 @@ msgstr ""
 
 #: src/views/file/ListTable.vue:77
 #: src/views/file/ListTable.vue:249
-#: src/views/toolbox/SshView.vue:336
+#: src/views/toolbox/SshView.vue:301
 msgid "Download"
 msgstr ""
 
@@ -3532,7 +3531,7 @@ msgid "Allow Ping"
 msgstr ""
 
 #: src/views/firewall/SettingView.vue:55
-#: src/views/toolbox/SshView.vue:266
+#: src/views/toolbox/SshView.vue:231
 msgid "SSH Port"
 msgstr ""
 
@@ -5035,144 +5034,128 @@ msgstr ""
 msgid "No network connections"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:35
-msgid "Allow password and key login"
-msgstr ""
-
 #: src/views/toolbox/SshView.vue:36
-msgid "Disable root login"
+msgid "Allow SSH login"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:38
-msgid "Only allow key login (recommended)"
+#: src/views/toolbox/SshView.vue:37
+msgid "Disable SSH login"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:42
-msgid "Only allow key login with forced commands"
+#: src/views/toolbox/SshView.vue:39
+msgid "Only allow key login"
+msgstr ""
+
+#: src/views/toolbox/SshView.vue:43
+msgid "Only allow key login with predefined commands"
 msgstr ""
 
 #: src/views/toolbox/SshView.vue:72
-msgid "SSH service stopped"
-msgstr ""
-
-#: src/views/toolbox/SshView.vue:75
-msgid "SSH service started"
-msgstr ""
-
-#: src/views/toolbox/SshView.vue:88
-msgid "SSH service restarted"
-msgstr ""
-
-#: src/views/toolbox/SshView.vue:99
 msgid "SSH port updated"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:117
+#: src/views/toolbox/SshView.vue:90
 msgid "Password authentication updated"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:129
+#: src/views/toolbox/SshView.vue:102
 msgid "Key authentication updated"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:141
+#: src/views/toolbox/SshView.vue:114
 msgid "Root login setting updated"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:150
+#: src/views/toolbox/SshView.vue:123
 msgid "Please enter a password"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:157
+#: src/views/toolbox/SshView.vue:130
 msgid "Root password updated"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:177
-#: src/views/toolbox/SshView.vue:191
+#: src/views/toolbox/SshView.vue:150
+#: src/views/toolbox/SshView.vue:164
 msgid "SSH key generated"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:200
+#: src/views/toolbox/SshView.vue:173
 msgid "No SSH key found"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:228
-msgid "SSH Service"
+#: src/views/toolbox/SshView.vue:202
+msgid "SSH Settings"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:231
-msgid "SSH Service Status"
-msgstr ""
-
-#: src/views/toolbox/SshView.vue:240
+#: src/views/toolbox/SshView.vue:207
 msgid "SSH Password Login"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:247
+#: src/views/toolbox/SshView.vue:214
 msgid "Allow password authentication for SSH login"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:252
+#: src/views/toolbox/SshView.vue:219
 msgid "SSH Key Login"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:260
+#: src/views/toolbox/SshView.vue:226
 msgid "Allow key authentication for SSH login"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:277
+#: src/views/toolbox/SshView.vue:242
 msgid "Current SSH port, default is 22"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:283
+#: src/views/toolbox/SshView.vue:248
 msgid "Root Settings"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:287
+#: src/views/toolbox/SshView.vue:252
 msgid "Root Password Login Setting"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:304
+#: src/views/toolbox/SshView.vue:269
 msgid "Enter new password"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:317
+#: src/views/toolbox/SshView.vue:282
 msgid "Reset"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:322
+#: src/views/toolbox/SshView.vue:287
 msgid "It is recommended to use a complex password. Save after modification. Refresh will clear the password field."
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:331
+#: src/views/toolbox/SshView.vue:296
 msgid "Root Key"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:333
+#: src/views/toolbox/SshView.vue:298
 msgid "View Key"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:341
+#: src/views/toolbox/SshView.vue:306
 msgid "Recommended to use key login with password disabled for higher security"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:354
+#: src/views/toolbox/SshView.vue:319
 msgid "Root Private Key"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:361
+#: src/views/toolbox/SshView.vue:326
 msgid "This is the private key of the root user. Keep it safe and use it to login to this server."
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:371
+#: src/views/toolbox/SshView.vue:336
 msgid "No private key generated"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:375
+#: src/views/toolbox/SshView.vue:340
 msgid "Regenerate"
 msgstr ""
 
-#: src/views/toolbox/SshView.vue:378
+#: src/views/toolbox/SshView.vue:343
 msgid "Download Private Key"
 msgstr ""
 
