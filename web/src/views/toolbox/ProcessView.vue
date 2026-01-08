@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DataTableSortState, DropdownOption } from 'naive-ui'
-import { NButton, NDataTable, NTag } from 'naive-ui'
+import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import process, { type ProcessListParams } from '@/api/panel/process'
@@ -8,9 +8,14 @@ import { formatBytes, formatDateTime, formatPercent } from '@/utils'
 
 const { $gettext } = useGettext()
 
-// 排序和筛选状态
-const sortKey = ref<string>('')
-const sortOrder = ref<string>('asc')
+// 排序状态
+const sortState = ref<DataTableSortState | null>(null)
+const sortKeyMapOrder = computed(() => {
+  if (!sortState.value || !sortState.value.order) return {}
+  return { [sortState.value.columnKey]: sortState.value.order }
+})
+
+// 筛选状态
 const statusFilter = ref<string>('')
 const keyword = ref<string>('')
 
@@ -90,51 +95,46 @@ const renderStatus = (status: string) => {
   }
 }
 
-const columns: any = [
+const columns = computed<any[]>(() => [
   {
     title: 'PID',
     key: 'pid',
-    width: 100,
-    sortOrder: false,
-    sorter: true,
-    ellipsis: { tooltip: true }
+    width: 160,
+    sortOrder: sortKeyMapOrder.value.pid || false,
+    sorter: true
   },
   {
     title: $gettext('Name'),
     key: 'name',
-    minWidth: 200,
     resizable: true,
-    sortOrder: false,
+    sortOrder: sortKeyMapOrder.value.name || false,
     sorter: true,
     ellipsis: { tooltip: true }
   },
   {
     title: $gettext('Parent PID'),
     key: 'ppid',
-    width: 100,
-    sortOrder: false,
-    sorter: true,
-    ellipsis: { tooltip: true }
+    width: 160,
+    sortOrder: sortKeyMapOrder.value.ppid || false,
+    sorter: true
   },
   {
     title: $gettext('Threads'),
     key: 'num_threads',
-    width: 80,
-    sortOrder: false,
-    sorter: true,
-    ellipsis: { tooltip: true }
+    width: 100,
+    sortOrder: sortKeyMapOrder.value.num_threads || false,
+    sorter: true
   },
   {
     title: $gettext('User'),
     key: 'username',
-    minWidth: 100,
+    width: 100,
     ellipsis: { tooltip: true }
   },
   {
     title: $gettext('Status'),
     key: 'status',
-    minWidth: 100,
-    ellipsis: { tooltip: true },
+    width: 100,
     render(row: any) {
       return renderStatus(row.status)
     }
@@ -142,10 +142,9 @@ const columns: any = [
   {
     title: 'CPU',
     key: 'cpu',
-    width: 80,
-    sortOrder: false,
+    width: 100,
+    sortOrder: sortKeyMapOrder.value.cpu || false,
     sorter: true,
-    ellipsis: { tooltip: true },
     render(row: any): string {
       return formatPercent(row.cpu) + '%'
     }
@@ -153,10 +152,9 @@ const columns: any = [
   {
     title: $gettext('Memory'),
     key: 'rss',
-    width: 100,
-    sortOrder: false,
+    width: 140,
+    sortOrder: sortKeyMapOrder.value.rss || false,
     sorter: true,
-    ellipsis: { tooltip: true },
     render(row: any): string {
       return formatBytes(row.rss)
     }
@@ -164,17 +162,13 @@ const columns: any = [
   {
     title: $gettext('Start Time'),
     key: 'start_time',
-    width: 160,
-    sortOrder: false,
-    sorter: true,
-    ellipsis: { tooltip: true },
-    render(row: any): string {
-      return formatDateTime(row.start_time)
-    }
+    width: 240,
+    sortOrder: sortKeyMapOrder.value.start_time || false,
+    sorter: true
   }
-]
+])
 
-// 行属性 - 支持右键菜单
+// 行属性 - 右键菜单
 const rowProps = (row: any) => {
   return {
     onContextmenu: (e: MouseEvent) => {
@@ -273,29 +267,28 @@ const handleShowDetail = (pid: number) => {
 
 // 处理排序变化
 const handleSorterChange = (sorter: DataTableSortState | DataTableSortState[] | null) => {
-  if (sorter && !Array.isArray(sorter)) {
-    sortKey.value = sorter.columnKey as string
-    sortOrder.value = sorter.order === 'descend' ? 'desc' : 'asc'
+  if (Array.isArray(sorter)) {
+    sortState.value = sorter[0] || null
   } else {
-    sortKey.value = ''
-    sortOrder.value = 'asc'
+    sortState.value = sorter
   }
-  refresh()
-}
-
-// 处理状态筛选变化
-const handleStatusChange = () => {
-  page.value = 1
 }
 
 // 分页获取进程列表
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
   (page, pageSize) => {
+    const sort = sortState.value?.columnKey as string | undefined
+    // descend(箭头向下) -> desc(大到小), ascend(箭头向上) -> asc(小到大)
+    const order = sortState.value?.order
+      ? sortState.value.order === 'descend'
+        ? 'desc'
+        : 'asc'
+      : undefined
     const params: ProcessListParams = {
       page,
       limit: pageSize,
-      sort: sortKey.value || undefined,
-      order: sortOrder.value || undefined,
+      sort,
+      order,
       status: statusFilter.value || undefined,
       keyword: keyword.value || undefined
     }
@@ -306,7 +299,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     initialPageSize: 50,
     total: (res: any) => res.total,
     data: (res: any) => res.items,
-    watchingStates: [sortKey, sortOrder, statusFilter, keyword]
+    watchingStates: [sortState, statusFilter, keyword]
   }
 )
 </script>
@@ -329,7 +322,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
         v-model:value="statusFilter"
         :options="statusOptions"
         style="width: 150px"
-        @update:value="handleStatusChange"
+        @update:value="page = 1"
       />
       <n-button @click="refresh" type="primary" ghost>{{ $gettext('Refresh') }}</n-button>
     </n-flex>
@@ -339,7 +332,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
       striped
       remote
       virtual-scroll
-      :scroll-x="1300"
+      :scroll-x="1400"
       :loading="loading"
       :columns="columns"
       :data="data"
@@ -439,42 +432,56 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
             </n-ellipsis>
           </n-descriptions-item>
         </n-descriptions>
-
-        <!-- 环境变量 -->
         <n-collapse v-if="processDetail" style="margin-top: 16px">
-          <n-collapse-item :title="$gettext('Environment Variables')" name="env">
+          <n-collapse-item
+            v-if="processDetail.envs?.length"
+            :title="$gettext('Environment Variables')"
+            name="env"
+          >
             <n-scrollbar style="max-height: 200px">
-              <n-code
-                :code="processDetail.envs?.join('\n') || $gettext('No environment variables')"
-                language="text"
+              <n-log
+                :log="
+                  processDetail.envs?.length
+                    ? processDetail.envs.join('\n')
+                    : $gettext('No environment variables')
+                "
                 word-wrap
               />
             </n-scrollbar>
           </n-collapse-item>
-          <n-collapse-item :title="$gettext('Open Files')" name="files">
+          <n-collapse-item
+            v-if="processDetail.open_files?.length"
+            :title="$gettext('Open Files')"
+            name="files"
+          >
             <n-scrollbar style="max-height: 200px">
-              <n-code
-                :code="
-                  processDetail.open_files?.map((f: any) => f.path).join('\n') ||
-                  $gettext('No open files')
+              <n-log
+                :log="
+                  processDetail.open_files?.length
+                    ? processDetail.open_files.map((f: any) => f.path).join('\n')
+                    : $gettext('No open files')
                 "
-                language="text"
                 word-wrap
               />
             </n-scrollbar>
           </n-collapse-item>
-          <n-collapse-item :title="$gettext('Network Connections')" name="connections">
+          <n-collapse-item
+            v-if="processDetail.connections?.length"
+            :title="$gettext('Network Connections')"
+            name="connections"
+          >
             <n-scrollbar style="max-height: 200px">
-              <n-code
-                :code="
-                  processDetail.connections
-                    ?.map(
-                      (c: any) =>
-                        `${c.laddr?.ip || ''}:${c.laddr?.port || ''} -> ${c.raddr?.ip || ''}:${c.raddr?.port || ''} (${c.status})`
-                    )
-                    .join('\n') || $gettext('No network connections')
+              <n-log
+                :log="
+                  processDetail.connections?.length
+                    ? processDetail.connections
+                        .map(
+                          (c: any) =>
+                            `${c.localaddr?.ip || '*'}:${c.localaddr?.port || '*'} -> ${c.remoteaddr?.ip || '*'}:${c.remoteaddr?.port || '*'} (${c.status || 'UNKNOWN'})`
+                        )
+                        .join('\n')
+                    : $gettext('No network connections')
                 "
-                language="text"
                 word-wrap
               />
             </n-scrollbar>

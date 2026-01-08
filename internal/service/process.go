@@ -38,7 +38,7 @@ func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
 		req.Limit = 20
 	}
 	if req.Order == "" {
-		req.Order = "asc"
+		req.Order = "desc"
 	}
 
 	processes, err := process.Processes()
@@ -71,9 +71,7 @@ func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 排序
-	if req.Sort != "" {
-		s.sortProcesses(data, req.Sort, req.Order)
-	}
+	s.sortProcesses(data, req.Sort, req.Order)
 
 	paged, total := Paginate(r, data)
 
