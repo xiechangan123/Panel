@@ -27,5 +27,6 @@ var ProviderSet = wire.NewSet(
 	NewTaskRepo,
 	NewUserRepo,
 	NewUserTokenRepo,
+	NewWebHookRepo,
 	NewWebsiteRepo,
 )

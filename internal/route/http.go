@@ -48,6 +48,7 @@ type Http struct {
 	systemctl        *service.SystemctlService
 	toolboxSystem    *service.ToolboxSystemService
 	toolboxBenchmark *service.ToolboxBenchmarkService
+	webhook          *service.WebHookService
 	apps             *apploader.Loader
 }
 
@@ -84,6 +85,7 @@ func NewHttp(
 	systemctl *service.SystemctlService,
 	toolboxSystem *service.ToolboxSystemService,
 	toolboxBenchmark *service.ToolboxBenchmarkService,
+	webhook *service.WebHookService,
 	apps *apploader.Loader,
 ) *Http {
 	return &Http{
@@ -119,6 +121,7 @@ func NewHttp(
 		systemctl:        systemctl,
 		toolboxSystem:    toolboxSystem,
 		toolboxBenchmark: toolboxBenchmark,
+		webhook:          webhook,
 		apps:             apps,
 	}
 }
@@ -442,10 +445,22 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/test", route.toolboxBenchmark.Test)
 		})
 
+		r.Route("/webhook", func(r chi.Router) {
+			r.Get("/", route.webhook.List)
+			r.Post("/", route.webhook.Create)
+			r.Put("/{id}", route.webhook.Update)
+			r.Get("/{id}", route.webhook.Get)
+			r.Delete("/{id}", route.webhook.Delete)
+		})
+
 		r.Route("/apps", func(r chi.Router) {
 			route.apps.Register(r)
 		})
 	})
+
+	// WebHook 调用接口
+	r.Get("/webhook/{key}", route.webhook.Call)
+	r.Post("/webhook/{key}", route.webhook.Call)
 
 	r.NotFound(func(writer http.ResponseWriter, request *http.Request) {
 		// /api 开头的返回 404

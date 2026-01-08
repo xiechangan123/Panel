@@ -112,7 +112,13 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 				return
 			}
 
-			// 情况四：非调试模式且未通过验证的请求，返回错误
+			// 情况四：Webhook 访问，跳过验证
+			if strings.HasPrefix(r.URL.Path, "/webhook/") {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			// 情况五：非调试模式且未通过验证的请求，返回错误
 			if !conf.App.Debug &&
 				sess.Missing("verify_entrance") &&
 				r.URL.Path != "/robots.txt" {
