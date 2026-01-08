@@ -19,6 +19,8 @@ type SettingPanel struct {
 	BackupPath  string   `json:"backup_path" validate:"required"`
 	Port        uint     `json:"port" validate:"required|min:1|max:65535"`
 	HTTPS       bool     `json:"https"`
+	ACME        bool     `json:"acme"`
+	PublicIP    []string `json:"public_ip"`
 	Cert        string   `json:"cert" validate:"required"`
 	Key         string   `json:"key" validate:"required"`
 }

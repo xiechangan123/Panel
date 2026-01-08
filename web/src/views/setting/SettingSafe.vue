@@ -1,9 +1,40 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 
 const model = defineModel<any>('model', { type: Object, required: true })
+
+// HTTPS 模式：off / acme / custom
+const httpsMode = computed({
+  get: () => {
+    if (!model.value.https) return 'off'
+    return model.value.acme ? 'acme' : 'custom'
+  },
+  set: (value: string) => {
+    switch (value) {
+      case 'off':
+        model.value.https = false
+        model.value.acme = false
+        break
+      case 'acme':
+        model.value.https = true
+        model.value.acme = true
+        break
+      case 'custom':
+        model.value.https = true
+        model.value.acme = false
+        break
+    }
+  }
+})
+
+const httpsModeOptions = computed(() => [
+  { label: $gettext('Disabled'), value: 'off' },
+  { label: $gettext('ACME (Auto)'), value: 'acme' },
+  { label: $gettext('Custom Certificate'), value: 'custom' }
+])
 </script>
 
 <template>
@@ -182,39 +213,46 @@ const model = defineModel<any>('model', { type: Object, required: true })
             </template>
             {{
               $gettext(
-                'Enable HTTPS for the panel to ensure secure communication. You need to provide a valid SSL certificate and private key'
+                'Enable HTTPS for the panel. ACME will automatically obtain and renew certificates (requires panel accessible via public IP). Custom allows you to provide your own certificate'
               )
             }}
           </n-tooltip>
         </template>
-        <n-switch v-model:value="model.https" />
+        <n-radio-group v-model:value="httpsMode">
+          <n-radio-button
+            v-for="option in httpsModeOptions"
+            :key="option.value"
+            :value="option.value"
+            :label="option.label"
+          />
+        </n-radio-group>
       </n-form-item>
-      <n-form-item>
+      <n-form-item v-if="httpsMode === 'acme'" :label="$gettext('Panel Public IP')">
         <template #label>
           <n-tooltip>
             <template #trigger>
               <div class="flex items-center">
-                {{ $gettext('ACME') }}
+                {{ $gettext('Panel Public IP') }}
                 <the-icon :size="16" icon="mdi:help-circle-outline" class="ml-1" />
               </div>
             </template>
             {{
               $gettext(
-                'Use ACME protocol to automatically obtain and renew SSL certificates for the panel. Make sure your panel is accessible via the ip you provide'
+                'Panel public IP is used to issue HTTPS certificates using ACME. Ensure that the entered IP address is accessible from the public network.'
               )
             }}
           </n-tooltip>
         </template>
-        <n-switch v-model:value="model.acme" />
+        <n-dynamic-input v-model:value="model.public_ip" placeholder="127.0.0.1" show-sort-button />
       </n-form-item>
-      <n-form-item v-if="model.https && !model.acme" :label="$gettext('Certificate')">
+      <n-form-item v-if="httpsMode === 'custom'" :label="$gettext('Certificate')">
         <n-input
           v-model:value="model.cert"
           type="textarea"
           :autosize="{ minRows: 10, maxRows: 15 }"
         />
       </n-form-item>
-      <n-form-item v-if="model.https && !model.acme" :label="$gettext('Private Key')">
+      <n-form-item v-if="httpsMode === 'custom'" :label="$gettext('Private Key')">
         <n-input
           v-model:value="model.key"
           type="textarea"

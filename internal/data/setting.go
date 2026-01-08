@@ -221,6 +221,14 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	if err != nil {
 		return nil, err
 	}
+	ip, err := r.Get(biz.SettingKeyPublicIPs)
+	if err != nil {
+		return nil, err
+	}
+	publicIP := make([]string, 0)
+	if err = json.Unmarshal([]byte(ip), &publicIP); err != nil {
+		return nil, err
+	}
 
 	crt, err := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
 	if err != nil {
@@ -247,6 +255,8 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		BackupPath:  backupPath,
 		Port:        r.conf.HTTP.Port,
 		HTTPS:       r.conf.HTTP.TLS,
+		ACME:        r.conf.HTTP.ACME,
+		PublicIP:    publicIP,
 		Cert:        crt,
 		Key:         key,
 	}, nil
@@ -269,6 +279,13 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyBackupPath, req.BackupPath); err != nil {
+		return false, err
+	}
+	publicIPBytes, err := json.Marshal(req.PublicIP)
+	if err != nil {
+		return false, err
+	}
+	if err = r.Set(biz.SettingKeyPublicIPs, string(publicIPBytes)); err != nil {
 		return false, err
 	}
 
@@ -326,6 +343,7 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	conf.HTTP.Port = req.Port
 	conf.HTTP.Entrance = req.Entrance
 	conf.HTTP.TLS = req.HTTPS
+	conf.HTTP.ACME = req.ACME
 	conf.HTTP.IPHeader = req.IPHeader
 	conf.HTTP.BindDomain = req.BindDomain
 	conf.HTTP.BindIP = req.BindIP

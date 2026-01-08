@@ -114,7 +114,7 @@ func initWeb() (*app.Web, error) {
 	fileService := service.NewFileService(locale, taskRepo)
 	monitorRepo := data.NewMonitorRepo(db, settingRepo)
 	monitorService := service.NewMonitorService(settingRepo, monitorRepo)
-	settingService := service.NewSettingService(settingRepo)
+	settingService := service.NewSettingService(locale, db, settingRepo, certRepo, certAccountRepo)
 	systemctlService := service.NewSystemctlService(locale)
 	toolboxSystemService := service.NewToolboxSystemService(locale)
 	toolboxBenchmarkService := service.NewToolboxBenchmarkService(locale)

@@ -1,13 +1,14 @@
 package job
 
 import (
+	"encoding/json"
 	"log/slog"
 	"path/filepath"
 	"time"
 
+	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/config"
-	"github.com/acepanel/panel/pkg/io"
-	"github.com/acepanel/panel/pkg/systemctl"
+	"github.com/acepanel/panel/pkg/tools"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/app"
@@ -80,9 +81,14 @@ func (r *CertRenew) Run() {
 			return
 		}
 
-		ip, err := r.settingRepo.Get(biz.SettingKeyIP)
-		if err != nil || ip == "" {
+		ip, err := r.settingRepo.Get(biz.SettingKeyPublicIPs)
+		if err != nil {
 			r.log.Warn("[CertRenew] failed to get panel IP", slog.Any("err", err))
+			return
+		}
+		var ips []string
+		if err = json.Unmarshal([]byte(ip), &ips); err != nil || len(ips) == 0 {
+			r.log.Warn("[CertRenew] panel public IPs not set", slog.Any("err", err))
 			return
 		}
 
@@ -96,23 +102,22 @@ func (r *CertRenew) Run() {
 			r.log.Warn("[CertRenew] failed to get panel ACME account", slog.Any("err", err))
 			return
 		}
-		crt, key, err := r.certRepo.ObtainPanel(account, []string{ip})
+		crt, key, err := r.certRepo.ObtainPanel(account, ips)
 		if err != nil {
 			r.log.Warn("[CertRenew] failed to obtain ACME cert", slog.Any("err", err))
 			return
 		}
 
-		if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), string(crt), 0644); err != nil {
-			r.log.Warn("[CertRenew] failed to write panel cert", slog.Any("err", err))
-			return
-		}
-		if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), string(key), 0644); err != nil {
-			r.log.Warn("[CertRenew] failed to write panel cert key", slog.Any("err", err))
+		if err = r.settingRepo.UpdateCert(&request.SettingCert{
+			Cert: string(crt),
+			Key:  string(key),
+		}); err != nil {
+			r.log.Warn("[CertRenew] failed to update panel cert", slog.Any("err", err))
 			return
 		}
 
 		r.log.Info("[CertRenew] panel cert renewed successfully")
-		_ = systemctl.Restart("panel")
+		tools.RestartPanel()
 	}
 
 }

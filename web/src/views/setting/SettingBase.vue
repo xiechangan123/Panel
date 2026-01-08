@@ -29,13 +29,6 @@ const channels = [
 
 <template>
   <n-flex vertical>
-    <n-alert type="info">
-      {{
-        $gettext(
-          'Modifying panel port/entrance requires corresponding changes in the browser address bar to access the panel!'
-        )
-      }}
-    </n-alert>
     <n-form>
       <n-form-item :label="$gettext('Panel Name')">
         <n-input v-model:value="model.name" :placeholder="$gettext('Panel Name')" />

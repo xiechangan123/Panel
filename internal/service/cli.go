@@ -3,6 +3,7 @@ package service
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -361,9 +362,13 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 	}
 
 	if s.conf.HTTP.ACME {
-		ip, err := s.settingRepo.Get(biz.SettingKeyIP)
-		if err != nil || ip == "" {
-			return errors.New(s.t.Get("Please set the panel IP in settings first for ACME certificate generation: %v", err))
+		ip, err := s.settingRepo.Get(biz.SettingKeyPublicIPs)
+		if err != nil {
+			return err
+		}
+		var ips []string
+		if err = json.Unmarshal([]byte(ip), &ips); err != nil || len(ips) == 0 {
+			return errors.New(s.t.Get("Please set the panel IP in settings first for ACME certificate generation"))
 		}
 
 		var user biz.User
@@ -374,10 +379,11 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		if err != nil {
 			return errors.New(s.t.Get("Failed to get ACME account: %v", err))
 		}
-		crt, key, err = s.certRepo.ObtainPanel(account, []string{ip})
+		crt, key, err = s.certRepo.ObtainPanel(account, ips)
 		if err != nil {
 			return errors.New(s.t.Get("Failed to obtain ACME certificate: %v", err))
 		}
+		fmt.Println(s.t.Get("Successfully obtained ACME certificate"))
 	}
 
 	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), string(crt), 0644); err != nil {
@@ -889,21 +895,25 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Already initialized"))
 	}
 
-	ip := ""
+	ips := make([]string, 0)
 	acme := false
 	rv6, err := tools.GetPublicIPv6()
 	if err == nil {
-		ip = rv6
+		ips = append(ips, rv6)
 		acme = true
 	}
 	rv4, err := tools.GetPublicIPv4()
 	if err == nil {
-		ip = rv4
+		ips = append(ips, rv4)
 		acme = true
+	}
+	ip, err := json.Marshal(ips)
+	if err != nil {
+		ip = []byte("[]")
 	}
 
 	settings := []biz.Setting{
-		{Key: biz.SettingKeyIP, Value: ip},
+		{Key: biz.SettingKeyPublicIPs, Value: string(ip)},
 		{Key: biz.SettingKeyName, Value: "AcePanel"},
 		{Key: biz.SettingKeyChannel, Value: "stable"},
 		{Key: biz.SettingKeyVersion, Value: app.Version},
