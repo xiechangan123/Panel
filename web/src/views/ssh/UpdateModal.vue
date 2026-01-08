@@ -97,7 +97,7 @@ watch(show, async () => {
       <n-form-item v-if="model.auth_method == 'publickey'" :label="$gettext('Private Key')">
         <n-input v-model:value="model.key" type="textarea" :rows="5" />
       </n-form-item>
-      <n-form-item v-if="model.auth_method == 'publickey'" :label="$gettext('Key Passphrase')">
+      <n-form-item v-if="model.auth_method == 'publickey'" :label="$gettext('Passphrase')">
         <n-input
           v-model:value="model.passphrase"
           type="password"

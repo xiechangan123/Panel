@@ -262,7 +262,7 @@ onMounted(() => {
               />
             </n-flex>
             <n-text depth="3">{{
-              $gettext('Allow public key authentication for SSH login')
+              $gettext('Allow key authentication for SSH login')
             }}</n-text>
           </n-flex>
 
