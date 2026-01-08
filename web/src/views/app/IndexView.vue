@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useTabStore } from '@/store'
+
 defineOptions({
   name: 'app-index'
 })
@@ -12,12 +14,14 @@ import EnvironmentView from '@/views/app/EnvironmentView.vue'
 import TemplateView from '@/views/app/TemplateView.vue'
 
 const { $gettext } = useGettext()
+const tabStore = useTabStore()
 
 const currentTab = ref('app')
 
 const handleUpdateCache = () => {
   useRequest(app.updateCache()).onSuccess(() => {
     window.$message.success($gettext('Cache updated successfully'))
+    tabStore.reloadTab(tabStore.active)
   })
 }
 </script>

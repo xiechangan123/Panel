@@ -374,7 +374,7 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		if err != nil {
 			return errors.New(s.t.Get("Failed to get ACME account: %v", err))
 		}
-		crt, key, err = s.certRepo.ObtainPanel(account, names)
+		crt, key, err = s.certRepo.ObtainPanel(account, []string{ip})
 		if err != nil {
 			return errors.New(s.t.Get("Failed to obtain ACME certificate: %v", err))
 		}
