@@ -3,7 +3,6 @@ package frp
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 
 	"github.com/go-chi/chi/v5"
 
@@ -11,15 +10,6 @@ import (
 	"github.com/acepanel/panel/internal/service"
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/systemctl"
-)
-
-// 预编译正则表达式
-var (
-	userCaptureRegex  = regexp.MustCompile(`(?m)^User=(.*)$`)
-	groupCaptureRegex = regexp.MustCompile(`(?m)^Group=(.*)$`)
-	userRegex         = regexp.MustCompile(`(?m)^User=.*$`)
-	groupRegex        = regexp.MustCompile(`(?m)^Group=.*$`)
-	serviceRegex      = regexp.MustCompile(`(?m)^\[Service\]$`)
 )
 
 type App struct{}
@@ -71,13 +61,6 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// UserInfo 运行用户信息
-type UserInfo struct {
-	User  string `json:"user"`
-	Group string `json:"group"`
-}
-
-// GetUser 获取服务的运行用户
 func (s *App) GetUser(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[Name](r)
 	if err != nil {
@@ -108,7 +91,6 @@ func (s *App) GetUser(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, userInfo)
 }
 
-// UpdateUser 更新服务的运行用户
 func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[UpdateUser](r)
 	if err != nil {
@@ -149,13 +131,10 @@ func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重载 systemd 配置
 	if err = systemctl.DaemonReload(); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-
-	// 重启服务以应用更改
 	if err = systemctl.Restart(req.Name); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
