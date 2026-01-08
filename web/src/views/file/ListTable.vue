@@ -8,7 +8,8 @@ import {
   NPopconfirm,
   NPopselect,
   NSpin,
-  NTag
+  NTag,
+  useThemeVars
 } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -31,6 +32,7 @@ import PreviewModal from '@/views/file/PreviewModal.vue'
 import type { Marked } from '@/views/file/types'
 
 const { $gettext } = useGettext()
+const themeVars = useThemeVars()
 const sort = ref<string>('')
 const path = defineModel<string>('path', { type: String, required: true }) // 当前路径
 const keyword = defineModel<string>('keyword', { type: String, default: '' }) // 搜索关键词
@@ -199,10 +201,9 @@ const columns: DataTableColumns<RowData> = [
         return h(NSpin, { size: 16, style: { paddingTop: '4px' } })
       }
       return h(
-        'a',
+        'span',
         {
-          href: 'javascript:void(0)',
-          style: { color: '#18a058', cursor: 'pointer', fontSize: '12px' },
+          style: { cursor: 'pointer', fontSize: '14px', color: themeVars.value.primaryColor },
           onClick: (e: MouseEvent) => {
             e.preventDefault()
             e.stopPropagation()
