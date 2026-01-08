@@ -4,6 +4,7 @@ defineOptions({
 })
 
 import toolboxSSH from '@/api/panel/toolbox-ssh'
+import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { generateRandomString } from '@/utils'
 import { useGettext } from 'vue3-gettext'
@@ -11,13 +12,13 @@ import { useGettext } from 'vue3-gettext'
 const { $gettext } = useGettext()
 
 // SSH 基础设置
-const sshStatus = ref(false)
+const service = ref('')
 const sshPort = ref(22)
 const passwordAuth = ref(false)
 const pubkeyAuth = ref(true)
 
 // Root 设置
-const rootLogin = ref('without-password')
+const rootLogin = ref('yes')
 const rootPassword = ref('')
 const rootKey = ref('')
 
@@ -33,7 +34,7 @@ const keyLoading = ref(false)
 // Root 登录选项
 const rootLoginOptions = [
   { label: 'yes - ' + $gettext('Allow password and key login'), value: 'yes' },
-  { label: 'no - ' + $gettext('Disable root login'), value: 'no' },
+  { label: 'no - ' + $gettext('Disable login'), value: 'no' },
   {
     label: 'prohibit-password - ' + $gettext('Only allow key login (recommended)'),
     value: 'prohibit-password'
@@ -49,7 +50,7 @@ const loadData = async () => {
   loading.value = true
   try {
     const info = await toolboxSSH.info()
-    sshStatus.value = info.status
+    service.value = info.service
     sshPort.value = info.port
     passwordAuth.value = info.password_auth
     pubkeyAuth.value = info.pubkey_auth
@@ -58,34 +59,6 @@ const loadData = async () => {
     // 加载 root 私钥
     const key = await toolboxSSH.rootKey()
     rootKey.value = key || ''
-  } finally {
-    loading.value = false
-  }
-}
-
-// 切换 SSH 服务状态
-const handleToggleSSH = async () => {
-  loading.value = true
-  try {
-    if (sshStatus.value) {
-      await toolboxSSH.stop()
-      window.$message.success($gettext('SSH service stopped'))
-    } else {
-      await toolboxSSH.start()
-      window.$message.success($gettext('SSH service started'))
-    }
-    sshStatus.value = !sshStatus.value
-  } finally {
-    loading.value = false
-  }
-}
-
-// 重启 SSH 服务
-const handleRestartSSH = async () => {
-  loading.value = true
-  try {
-    await toolboxSSH.restart()
-    window.$message.success($gettext('SSH service restarted'))
   } finally {
     loading.value = false
   }
@@ -224,16 +197,10 @@ onMounted(() => {
 <template>
   <n-spin :show="loading">
     <n-flex vertical :size="24">
+      <service-status v-if="service != ''" :service="service" />
       <!-- SSH 服务 -->
-      <n-card :title="$gettext('SSH Service')">
+      <n-card :title="$gettext('SSH Settings')">
         <n-flex vertical :size="16">
-          <n-flex align="center" :size="12">
-            <n-text strong>{{ $gettext('SSH Service Status') }}</n-text>
-            <n-switch :value="sshStatus" :loading="loading" @update:value="handleToggleSSH" />
-            <n-button :loading="loading" @click="handleRestartSSH">
-              {{ $gettext('Restart') }}
-            </n-button>
-          </n-flex>
           <!-- SSH 密码登录 -->
           <n-flex vertical :size="4">
             <n-flex align="center" :size="12">
@@ -256,9 +223,7 @@ onMounted(() => {
                 @update:value="handleTogglePubkeyAuth"
               />
             </n-flex>
-            <n-text depth="3">{{
-              $gettext('Allow key authentication for SSH login')
-            }}</n-text>
+            <n-text depth="3">{{ $gettext('Allow key authentication for SSH login') }}</n-text>
           </n-flex>
           <!-- SSH 端口 -->
           <n-flex vertical :size="4">

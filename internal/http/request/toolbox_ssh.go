@@ -17,7 +17,7 @@ type ToolboxSSHPubKeyAuth struct {
 
 // ToolboxSSHRootLogin Root 登录设置
 type ToolboxSSHRootLogin struct {
-	Mode string `form:"mode" json:"mode" validate:"required|in:yes,no,without-password,prohibit-password"`
+	Mode string `form:"mode" json:"mode" validate:"required|in:yes,no,prohibit-password,forced-commands-only"`
 }
 
 // ToolboxSSHRootPassword Root 密码设置

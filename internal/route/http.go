@@ -454,9 +454,6 @@ func (route *Http) Register(r *chi.Mux) {
 
 		r.Route("/toolbox_ssh", func(r chi.Router) {
 			r.Get("/info", route.toolboxSSH.GetInfo)
-			r.Post("/start", route.toolboxSSH.Start)
-			r.Post("/stop", route.toolboxSSH.Stop)
-			r.Post("/restart", route.toolboxSSH.Restart)
 			r.Post("/port", route.toolboxSSH.UpdatePort)
 			r.Post("/password_auth", route.toolboxSSH.UpdatePasswordAuth)
 			r.Post("/pubkey_auth", route.toolboxSSH.UpdatePubKeyAuth)

@@ -38,7 +38,7 @@ const columns: any = [
   {
     title: 'Key',
     key: 'key',
-    minWidth: 200,
+    width: 300,
     resizable: true,
     ellipsis: { tooltip: true },
     render(row: any) {
@@ -298,7 +298,7 @@ onMounted(() => {
     <n-data-table
       striped
       remote
-      :scroll-x="1400"
+      :scroll-x="1500"
       :loading="loading"
       :columns="columns"
       :data="data"

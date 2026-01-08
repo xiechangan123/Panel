@@ -3,12 +3,6 @@ import { http } from '@/utils'
 export default {
   // 获取 SSH 信息
   info: (): any => http.Get('/toolbox_ssh/info'),
-  // 启动 SSH 服务
-  start: (): any => http.Post('/toolbox_ssh/start'),
-  // 停止 SSH 服务
-  stop: (): any => http.Post('/toolbox_ssh/stop'),
-  // 重启 SSH 服务
-  restart: (): any => http.Post('/toolbox_ssh/restart'),
   // 设置 SSH 端口
   updatePort: (port: number): any => http.Post('/toolbox_ssh/port', { port }),
   // 设置密码认证

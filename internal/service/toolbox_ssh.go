@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/acepanel/panel/pkg/os"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
@@ -16,12 +17,19 @@ import (
 )
 
 type ToolboxSSHService struct {
-	t *gotext.Locale
+	t       *gotext.Locale
+	service string
 }
 
 func NewToolboxSSHService(t *gotext.Locale) *ToolboxSSHService {
+	// 沟槽的大便和乌班图喜欢搞特殊
+	service := "sshd"
+	if os.IsDebian() || os.IsUbuntu() {
+		service = "ssh"
+	}
 	return &ToolboxSSHService{
-		t: t,
+		t:       t,
+		service: service,
 	}
 }
 
@@ -32,16 +40,6 @@ func (s *ToolboxSSHService) GetInfo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to read sshd_config: %v", err))
 		return
-	}
-
-	// 获取 SSH 服务状态
-	status, err := systemctl.Status("sshd")
-	if err != nil {
-		// 尝试 ssh 服务名
-		status, err = systemctl.Status("ssh")
-		if err != nil {
-			status = false
-		}
 	}
 
 	// 解析端口
@@ -73,51 +71,12 @@ func (s *ToolboxSSHService) GetInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, chix.M{
-		"status":        status,
+		"service":       s.service,
 		"port":          port,
 		"password_auth": passwordAuth,
 		"pubkey_auth":   pubKeyAuth,
 		"root_login":    rootLogin,
 	})
-}
-
-// Start 启动 SSH 服务
-func (s *ToolboxSSHService) Start(w http.ResponseWriter, r *http.Request) {
-	err := systemctl.Start("sshd")
-	if err != nil {
-		err = systemctl.Start("ssh")
-		if err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("failed to start SSH service: %v", err))
-			return
-		}
-	}
-	Success(w, nil)
-}
-
-// Stop 停止 SSH 服务
-func (s *ToolboxSSHService) Stop(w http.ResponseWriter, r *http.Request) {
-	err := systemctl.Stop("sshd")
-	if err != nil {
-		err = systemctl.Stop("ssh")
-		if err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("failed to stop SSH service: %v", err))
-			return
-		}
-	}
-	Success(w, nil)
-}
-
-// Restart 重启 SSH 服务
-func (s *ToolboxSSHService) Restart(w http.ResponseWriter, r *http.Request) {
-	err := systemctl.Restart("sshd")
-	if err != nil {
-		err = systemctl.Restart("ssh")
-		if err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("failed to restart SSH service: %v", err))
-			return
-		}
-	}
-	Success(w, nil)
 }
 
 // UpdatePort 修改 SSH 端口
@@ -133,9 +92,8 @@ func (s *ToolboxSSHService) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重启 SSH 服务
-	if err = s.restartSSH(); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to restart SSH service: %v", err))
+	if err = systemctl.Restart(s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -160,8 +118,8 @@ func (s *ToolboxSSHService) UpdatePasswordAuth(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if err = s.restartSSH(); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to restart SSH service: %v", err))
+	if err = systemctl.Restart(s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -186,8 +144,8 @@ func (s *ToolboxSSHService) UpdatePubKeyAuth(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err = s.restartSSH(); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to restart SSH service: %v", err))
+	if err = systemctl.Restart(s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -207,8 +165,8 @@ func (s *ToolboxSSHService) UpdateRootLogin(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if err = s.restartSSH(); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to restart SSH service: %v", err))
+	if err = systemctl.Restart(s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -303,7 +261,7 @@ func (s *ToolboxSSHService) GenerateRootKey(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	_ = s.restartSSH()
+	_ = systemctl.Restart(s.service)
 
 	Success(w, privateKey)
 }
@@ -327,13 +285,4 @@ func (s *ToolboxSSHService) updateSSHConfig(key, value string) error {
 	}
 
 	return io.Write("/etc/ssh/sshd_config", sshdConfig, 0600)
-}
-
-// restartSSH 重启 SSH 服务
-func (s *ToolboxSSHService) restartSSH() error {
-	err := systemctl.Restart("sshd")
-	if err != nil {
-		err = systemctl.Restart("ssh")
-	}
-	return err
 }
