@@ -21,8 +21,8 @@ type ProcessSignal struct {
 type ProcessList struct {
 	Page    uint   `json:"page" form:"page" query:"page"`
 	Limit   uint   `json:"limit" form:"limit" query:"limit"`
-	Sort    string `json:"sort" form:"sort" query:"sort"`       // pid, name, cpu, rss, start_time
-	Order   string `json:"order" form:"order" query:"order"`    // asc, desc
-	Status  string `json:"status" form:"status" query:"status"` // R, S, T, I, Z, W, L
+	Sort    string `json:"sort" form:"sort" query:"sort" validate:"in:pid,name,cpu,rss,start_time,ppid,num_threads"`
+	Order   string `json:"order" form:"order" query:"order" validate:"in:asc,desc"`
+	Status  string `json:"status" form:"status" query:"status" validate:"in:R,S,T,I,Z,W,L"`
 	Keyword string `json:"keyword" form:"keyword" query:"keyword"`
 }

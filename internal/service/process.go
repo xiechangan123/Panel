@@ -75,52 +75,11 @@ func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {
 		s.sortProcesses(data, req.Sort, req.Order)
 	}
 
-	// 分页 - 使用 int64 避免溢出
-	total := uint(len(data))
-	start := uint64(req.Page-1) * uint64(req.Limit)
-	end := uint64(req.Page) * uint64(req.Limit)
-
-	if start > uint64(total) {
-		data = []types.ProcessData{}
-	} else {
-		if end > uint64(total) {
-			end = uint64(total)
-		}
-		data = data[start:end]
-	}
+	paged, total := Paginate(r, data)
 
 	Success(w, chix.M{
 		"total": total,
-		"items": data,
-	})
-}
-
-// sortProcesses 对进程列表进行排序
-func (s *ProcessService) sortProcesses(data []types.ProcessData, sortBy, order string) {
-	sort.Slice(data, func(i, j int) bool {
-		var less bool
-		switch sortBy {
-		case "pid":
-			less = data[i].PID < data[j].PID
-		case "name":
-			less = strings.ToLower(data[i].Name) < strings.ToLower(data[j].Name)
-		case "cpu":
-			less = data[i].CPU < data[j].CPU
-		case "rss":
-			less = data[i].RSS < data[j].RSS
-		case "start_time":
-			less = data[i].StartTime < data[j].StartTime
-		case "ppid":
-			less = data[i].PPID < data[j].PPID
-		case "num_threads":
-			less = data[i].NumThreads < data[j].NumThreads
-		default:
-			less = data[i].PID < data[j].PID
-		}
-		if order == "desc" {
-			return !less
-		}
-		return less
+		"items": paged,
 	})
 }
 
@@ -186,7 +145,7 @@ func (s *ProcessService) Detail(w http.ResponseWriter, r *http.Request) {
 	Success(w, data)
 }
 
-// processProcessBasic 处理进程基本数据（用于列表，减少数据获取）
+// processProcessBasic 处理进程基本数据（用于列表）
 func (s *ProcessService) processProcessBasic(proc *process.Process) types.ProcessData {
 	data := types.ProcessData{
 		PID: proc.Pid,
@@ -211,6 +170,12 @@ func (s *ProcessService) processProcessBasic(proc *process.Process) types.Proces
 	data.CPU, _ = proc.CPUPercent()
 	if mem, err := proc.MemoryInfo(); err == nil {
 		data.RSS = mem.RSS
+		data.Data = mem.Data
+		data.VMS = mem.VMS
+		data.HWM = mem.HWM
+		data.Stack = mem.Stack
+		data.Locked = mem.Locked
+		data.Swap = mem.Swap
 	}
 
 	return data
@@ -219,17 +184,6 @@ func (s *ProcessService) processProcessBasic(proc *process.Process) types.Proces
 // processProcessFull 处理进程完整数据（用于详情）
 func (s *ProcessService) processProcessFull(proc *process.Process) types.ProcessData {
 	data := s.processProcessBasic(proc)
-
-	// 获取更多内存信息
-	if mem, err := proc.MemoryInfo(); err == nil {
-		data.RSS = mem.RSS
-		data.Data = mem.Data
-		data.VMS = mem.VMS
-		data.HWM = mem.HWM
-		data.Stack = mem.Stack
-		data.Locked = mem.Locked
-		data.Swap = mem.Swap
-	}
 
 	if ioStat, err := proc.IOCounters(); err == nil {
 		data.DiskWrite = ioStat.WriteBytes
@@ -249,4 +203,33 @@ func (s *ProcessService) processProcessFull(proc *process.Process) types.Process
 	data.Cwd, _ = proc.Cwd()
 
 	return data
+}
+
+// sortProcesses 对进程列表进行排序
+func (s *ProcessService) sortProcesses(data []types.ProcessData, sortBy, order string) {
+	sort.Slice(data, func(i, j int) bool {
+		var less bool
+		switch sortBy {
+		case "pid":
+			less = data[i].PID < data[j].PID
+		case "name":
+			less = strings.ToLower(data[i].Name) < strings.ToLower(data[j].Name)
+		case "cpu":
+			less = data[i].CPU < data[j].CPU
+		case "rss":
+			less = data[i].RSS < data[j].RSS
+		case "start_time":
+			less = data[i].StartTime < data[j].StartTime
+		case "ppid":
+			less = data[i].PPID < data[j].PPID
+		case "num_threads":
+			less = data[i].NumThreads < data[j].NumThreads
+		default:
+			less = data[i].PID < data[j].PID
+		}
+		if order == "desc" {
+			return !less
+		}
+		return less
+	})
 }

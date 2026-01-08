@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NTag } from 'naive-ui'
 import type { DataTableSortState, DropdownOption } from 'naive-ui'
+import { NButton, NDataTable, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import process, { type ProcessListParams } from '@/api/panel/process'
@@ -31,8 +31,8 @@ const SIGNALS = {
   SIGINT: 2, // 中断 (Ctrl+C)
   SIGKILL: 9, // 强制终止
   SIGTERM: 15, // 终止
-  SIGSTOP: 19, // 暂停
   SIGCONT: 18, // 继续
+  SIGSTOP: 19, // 暂停
   SIGUSR1: 10, // 用户自定义信号1
   SIGUSR2: 12 // 用户自定义信号2
 }
@@ -171,25 +171,6 @@ const columns: any = [
     render(row: any): string {
       return formatDateTime(row.start_time)
     }
-  },
-  {
-    title: $gettext('Actions'),
-    key: 'actions',
-    width: 100,
-    hideInExcel: true,
-    render(row: any) {
-      return h(
-        NButton,
-        {
-          size: 'small',
-          type: 'error',
-          onClick: () => handleKill(row.pid)
-        },
-        {
-          default: () => $gettext('Kill')
-        }
-      )
-    }
   }
 ]
 
@@ -277,22 +258,6 @@ const handleSignal = (pid: number, signal: number, signalName: string) => {
   })
 }
 
-// 强制终止进程
-const handleKill = (pid: number) => {
-  window.$dialog.warning({
-    title: $gettext('Confirm'),
-    content: $gettext('Are you sure you want to kill process %{ pid }?', { pid: pid.toString() }),
-    positiveText: $gettext('Confirm'),
-    negativeText: $gettext('Cancel'),
-    onPositiveClick: () => {
-      useRequest(process.kill(pid)).onSuccess(() => {
-        refresh()
-        window.$message.success($gettext('Process %{ pid } has been killed', { pid: pid.toString() }))
-      })
-    }
-  })
-}
-
 // 显示进程详情
 const handleShowDetail = (pid: number) => {
   detailLoading.value = true
@@ -318,21 +283,9 @@ const handleSorterChange = (sorter: DataTableSortState | DataTableSortState[] | 
   refresh()
 }
 
-// 搜索防抖
-const debouncedSearch = useDebounceFn(() => {
-  page.value = 1
-  refresh()
-}, 300)
-
-// 处理搜索输入
-const handleSearch = () => {
-  debouncedSearch()
-}
-
 // 处理状态筛选变化
 const handleStatusChange = () => {
   page.value = 1
-  refresh()
 }
 
 // 分页获取进程列表
@@ -367,11 +320,9 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
         :placeholder="$gettext('Search by PID or name')"
         clearable
         style="width: 250px"
-        @input="handleSearch"
-        @clear="handleSearch"
       >
         <template #prefix>
-          <n-icon :component="() => h('span', { class: 'i-mdi-magnify' })" />
+          <the-icon :size="16" icon="mdi:magnify" />
         </template>
       </n-input>
       <n-select
@@ -382,11 +333,6 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
       />
       <n-button @click="refresh" type="primary" ghost>{{ $gettext('Refresh') }}</n-button>
     </n-flex>
-
-    <!-- 提示信息 -->
-    <n-alert type="info" :show-icon="false">
-      {{ $gettext('Right-click on a process row to send signals (like Windows Task Manager)') }}
-    </n-alert>
 
     <!-- 进程列表 -->
     <n-data-table
@@ -538,4 +484,3 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
     </n-modal>
   </n-flex>
 </template>
-

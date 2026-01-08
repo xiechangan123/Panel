@@ -201,7 +201,7 @@ const hasArg = (args: string[], arg: string) => {
               :on-create="onCreateListen"
             >
               <template #default="{ value }">
-                <div    flex w-full items-center >
+                <div flex w-full items-center>
                   <n-input v-model:value="value.address" clearable />
                   <n-checkbox
                     :checked="hasArg(value.args, 'ssl')"
