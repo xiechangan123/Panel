@@ -15,6 +15,7 @@ const model = ref({
   user: 'root',
   password: '',
   key: '',
+  passphrase: '',
   remark: ''
 })
 
@@ -32,6 +33,7 @@ const handleSubmit = () => {
         user: 'root',
         password: '',
         key: '',
+        passphrase: '',
         remark: ''
       }
       window.$bus.emit('ssh:refresh')
@@ -80,14 +82,22 @@ const handleSubmit = () => {
         >
         </n-select>
       </n-form-item>
-      <n-form-item v-if="model.auth_method == 'password'" :label="$gettext('Username')">
+      <n-form-item :label="$gettext('Username')">
         <n-input v-model:value="model.user" placeholder="root" />
       </n-form-item>
       <n-form-item v-if="model.auth_method == 'password'" :label="$gettext('Password')">
         <n-input v-model:value="model.password" type="password" show-password-on="click" />
       </n-form-item>
       <n-form-item v-if="model.auth_method == 'publickey'" :label="$gettext('Private Key')">
-        <n-input v-model:value="model.key" type="textarea" />
+        <n-input v-model:value="model.key" type="textarea" :rows="5" />
+      </n-form-item>
+      <n-form-item v-if="model.auth_method == 'publickey'" :label="$gettext('Key Passphrase')">
+        <n-input
+          v-model:value="model.passphrase"
+          type="password"
+          show-password-on="click"
+          :placeholder="$gettext('Leave empty if key has no passphrase')"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('Remarks')">
         <n-input v-model:value="model.remark" type="textarea" />

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/leonelquinteros/gotext"
+	cryptossh "golang.org/x/crypto/ssh"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/biz"
@@ -47,11 +48,13 @@ func (r *sshRepo) Create(req *request.SSHCreate) error {
 		User:       req.User,
 		Password:   req.Password,
 		Key:        req.Key,
+		Passphrase: req.Passphrase,
 	}
-	_, err := pkgssh.NewSSHClient(conf)
+	client, err := pkgssh.NewSSHClient(conf)
 	if err != nil {
 		return errors.New(r.t.Get("failed to check ssh connection: %v", err))
 	}
+	defer func(client *cryptossh.Client) { _ = client.Close() }(client)
 
 	ssh := &biz.SSH{
 		Name:   req.Name,
@@ -71,11 +74,13 @@ func (r *sshRepo) Update(req *request.SSHUpdate) error {
 		User:       req.User,
 		Password:   req.Password,
 		Key:        req.Key,
+		Passphrase: req.Passphrase,
 	}
-	_, err := pkgssh.NewSSHClient(conf)
+	client, err := pkgssh.NewSSHClient(conf)
 	if err != nil {
 		return errors.New(r.t.Get("failed to check ssh connection: %v", err))
 	}
+	defer func(client *cryptossh.Client) { _ = client.Close() }(client)
 
 	ssh := &biz.SSH{
 		ID:     req.ID,

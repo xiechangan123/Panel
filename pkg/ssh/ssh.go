@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"errors"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -19,26 +20,28 @@ type ClientConfig struct {
 	User       string        `json:"user"`
 	Password   string        `json:"password"`
 	Key        string        `json:"key"`
+	Passphrase string        `json:"passphrase"`
 	Timeout    time.Duration `json:"timeout"`
 }
 
-func ClientConfigPassword(host, user, Password string) *ClientConfig {
+func ClientConfigPassword(host, user, password string) *ClientConfig {
 	return &ClientConfig{
 		Timeout:    10 * time.Second,
 		AuthMethod: PASSWORD,
 		Host:       host,
 		User:       user,
-		Password:   Password,
+		Password:   password,
 	}
 }
 
-func ClientConfigPublicKey(host, user, key string) *ClientConfig {
+func ClientConfigPublicKey(host, user, key, passphrase string) *ClientConfig {
 	return &ClientConfig{
 		Timeout:    10 * time.Second,
 		AuthMethod: PUBLICKEY,
 		Host:       host,
 		User:       user,
 		Key:        key,
+		Passphrase: passphrase,
 	}
 }
 
@@ -57,7 +60,7 @@ func NewSSHClient(conf ClientConfig) (*ssh.Client, error) {
 	case PASSWORD:
 		config.Auth = []ssh.AuthMethod{ssh.Password(conf.Password)}
 	case PUBLICKEY:
-		signer, err := parseKey(conf.Key)
+		signer, err := parseKey(conf.Key, conf.Passphrase)
 		if err != nil {
 			return nil, err
 		}
@@ -71,6 +74,23 @@ func NewSSHClient(conf ClientConfig) (*ssh.Client, error) {
 	return c, nil
 }
 
-func parseKey(key string) (ssh.Signer, error) {
-	return ssh.ParsePrivateKey([]byte(key))
+// parseKey 解析私钥
+func parseKey(key, passphrase string) (ssh.Signer, error) {
+	keyBytes := []byte(key)
+
+	if passphrase != "" {
+		return ssh.ParsePrivateKeyWithPassphrase(keyBytes, []byte(passphrase))
+	}
+
+	signer, err := ssh.ParsePrivateKey(keyBytes)
+	if err != nil {
+		// 密钥被加密
+		var passphraseMissingError *ssh.PassphraseMissingError
+		if errors.As(err, &passphraseMissingError) {
+			return nil, passphraseMissingError
+		}
+		return nil, err
+	}
+
+	return signer, nil
 }
