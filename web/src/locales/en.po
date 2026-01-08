@@ -261,7 +261,7 @@ msgstr "Owner / Group"
 
 #: src/components/common/PathSelector.vue:107 src/views/backup/ListView.vue:42
 #: src/views/container/ImageView.vue:53 src/views/file/ListTable.vue:171
-#: src/views/toolbox/DiskView.vue:275 src/views/toolbox/DiskView.vue:692
+#: src/views/toolbox/DiskView.vue:275
 msgid "Size"
 msgstr "Size"
 
@@ -4466,7 +4466,7 @@ msgstr "User Management"
 
 #: src/views/toolbox/DiskView.vue:684
 #, fuzzy
-msgid "Disk Name"
+msgid "Disk Name: "
 msgstr "Task Name"
 
 #: src/views/toolbox/DiskView.vue:686
@@ -4474,14 +4474,19 @@ msgstr "Task Name"
 msgid "System Disk"
 msgstr "System"
 
+#: src/views/toolbox/DiskView.vue:692
+#, fuzzy
+msgid "Size: "
+msgstr "Size"
+
 #: src/views/toolbox/DiskView.vue:693
 #, fuzzy
-msgid "Partitions"
+msgid "Partitions: "
 msgstr "Permissions"
 
 #: src/views/toolbox/DiskView.vue:694
 #, fuzzy
-msgid "Disk Type"
+msgid "Disk Type: "
 msgstr "Task Type"
 
 #: src/views/toolbox/DiskView.vue:714

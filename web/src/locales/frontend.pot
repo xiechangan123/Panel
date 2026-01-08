@@ -267,7 +267,6 @@ msgstr ""
 #: src/views/container/ImageView.vue:53
 #: src/views/file/ListTable.vue:171
 #: src/views/toolbox/DiskView.vue:275
-#: src/views/toolbox/DiskView.vue:692
 msgid "Size"
 msgstr ""
 
@@ -4665,19 +4664,23 @@ msgid "Disk Management"
 msgstr ""
 
 #: src/views/toolbox/DiskView.vue:684
-msgid "Disk Name"
+msgid "Disk Name: "
 msgstr ""
 
 #: src/views/toolbox/DiskView.vue:686
 msgid "System Disk"
 msgstr ""
 
+#: src/views/toolbox/DiskView.vue:692
+msgid "Size: "
+msgstr ""
+
 #: src/views/toolbox/DiskView.vue:693
-msgid "Partitions"
+msgid "Partitions: "
 msgstr ""
 
 #: src/views/toolbox/DiskView.vue:694
-msgid "Disk Type"
+msgid "Disk Type: "
 msgstr ""
 
 #: src/views/toolbox/DiskView.vue:714
