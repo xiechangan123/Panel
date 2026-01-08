@@ -9,6 +9,7 @@ import (
 type SettingKey string
 
 const (
+	SettingKeyIP                SettingKey = "ip"
 	SettingKeyName              SettingKey = "name"
 	SettingKeyVersion           SettingKey = "version"
 	SettingKeyChannel           SettingKey = "channel"

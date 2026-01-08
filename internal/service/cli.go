@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acepanel/panel/pkg/cert"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/collect"
 	"github.com/libtnb/utils/hash"
@@ -23,7 +24,6 @@ import (
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/api"
-	"github.com/acepanel/panel/pkg/cert"
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/io"
@@ -46,10 +46,12 @@ type CliService struct {
 	backupRepo         biz.BackupRepo
 	websiteRepo        biz.WebsiteRepo
 	databaseServerRepo biz.DatabaseServerRepo
+	certRepo           biz.CertRepo
+	certAccountRepo    biz.CertAccountRepo
 	hash               hash.Hasher
 }
 
-func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo) *CliService {
+func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo biz.AppRepo, cache biz.CacheRepo, user biz.UserRepo, setting biz.SettingRepo, backup biz.BackupRepo, website biz.WebsiteRepo, databaseServer biz.DatabaseServerRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version, app.Locale),
@@ -63,6 +65,8 @@ func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo b
 		backupRepo:         backup,
 		websiteRepo:        website,
 		databaseServerRepo: databaseServer,
+		certRepo:           cert,
+		certAccountRepo:    certAccount,
 		hash:               hash.NewArgon2id(),
 	}
 }
@@ -218,9 +222,8 @@ func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 	if err := s.db.Where("username", oldUsername).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New(s.t.Get("User not exists"))
-		} else {
-			return errors.New(s.t.Get("Failed to get user: %v", err))
 		}
+		return errors.New(s.t.Get("Failed to get user: %v", err))
 	}
 
 	user.Username = newUsername
@@ -246,9 +249,8 @@ func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 	if err := s.db.Where("username", username).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New(s.t.Get("User not exists"))
-		} else {
-			return errors.New(s.t.Get("Failed to get user: %v", err))
 		}
+		return errors.New(s.t.Get("Failed to get user: %v", err))
 	}
 
 	hashed, err := s.hash.Make(password)
@@ -274,9 +276,8 @@ func (s *CliService) UserTwoFA(ctx context.Context, cmd *cli.Command) error {
 	if err := s.db.Where("username", username).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New(s.t.Get("User not exists"))
-		} else {
-			return errors.New(s.t.Get("Failed to get user: %v", err))
 		}
+		return errors.New(s.t.Get("Failed to get user: %v", err))
 	}
 
 	// 已开启，关闭2FA
@@ -357,6 +358,26 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 	crt, key, err := cert.GenerateSelfSigned(names)
 	if err != nil {
 		return err
+	}
+
+	if s.conf.HTTP.ACME {
+		ip, err := s.settingRepo.Get(biz.SettingKeyIP)
+		if err != nil || ip == "" {
+			return errors.New(s.t.Get("Please set the panel IP in settings first for ACME certificate generation: %v", err))
+		}
+
+		var user biz.User
+		if err := s.db.First(&user).Error; err != nil {
+			return errors.New(s.t.Get("Failed to get a panel user: %v", err))
+		}
+		account, err := s.certAccountRepo.GetDefault(user.ID)
+		if err != nil {
+			return errors.New(s.t.Get("Failed to get ACME account: %v", err))
+		}
+		crt, key, err = s.certRepo.ObtainPanel(account, names)
+		if err != nil {
+			return errors.New(s.t.Get("Failed to obtain ACME certificate: %v", err))
+		}
 	}
 
 	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), string(crt), 0644); err != nil {
@@ -558,7 +579,7 @@ func (s *CliService) DatabaseAddServer(ctx context.Context, cmd *cli.Command) er
 		Type:     cmd.String("type"),
 		Name:     cmd.String("name"),
 		Host:     cmd.String("host"),
-		Port:     uint(cmd.Uint("port")),
+		Port:     cmd.Uint("port"),
 		Username: cmd.String("username"),
 		Password: cmd.String("password"),
 		Remark:   cmd.String("remark"),
@@ -646,7 +667,7 @@ func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("|-Cleaning type: %s", cmd.String("type")))
 	fmt.Println(s.t.Get("|-Cleaning target: %s", cmd.String("file")))
 	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Int("save")))
-	if err = s.backupRepo.ClearExpired(path, cmd.String("file"), int(cmd.Int("save"))); err != nil {
+	if err = s.backupRepo.ClearExpired(path, cmd.String("file"), cmd.Int("save")); err != nil {
 		return errors.New(s.t.Get("Cleaning failed: %v", err))
 	}
 	fmt.Println(s.hr)
@@ -694,7 +715,7 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("|-Cleaning type: %s", cmd.String("type")))
 	fmt.Println(s.t.Get("|-Cleaning target: %s", cmd.String("file")))
 	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Int("save")))
-	if err := s.backupRepo.ClearExpired(path, cmd.String("file"), int(cmd.Int("save"))); err != nil {
+	if err := s.backupRepo.ClearExpired(path, cmd.String("file"), cmd.Int("save")); err != nil {
 		return err
 	}
 	fmt.Println(s.hr)
@@ -868,19 +889,33 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Already initialized"))
 	}
 
+	ip := ""
+	acme := false
+	rv6, err := tools.GetPublicIPv6()
+	if err == nil {
+		ip = rv6
+		acme = true
+	}
+	rv4, err := tools.GetPublicIPv4()
+	if err == nil {
+		ip = rv4
+		acme = true
+	}
+
 	settings := []biz.Setting{
+		{Key: biz.SettingKeyIP, Value: ip},
 		{Key: biz.SettingKeyName, Value: "AcePanel"},
 		{Key: biz.SettingKeyChannel, Value: "stable"},
 		{Key: biz.SettingKeyVersion, Value: app.Version},
 		{Key: biz.SettingKeyMonitor, Value: "true"},
 		{Key: biz.SettingKeyMonitorDays, Value: "30"},
 		{Key: biz.SettingKeyBackupPath, Value: filepath.Join(app.Root, "backup")},
-		{Key: biz.SettingKeyWebsitePath, Value: filepath.Join(app.Root, "wwwroot")},
+		{Key: biz.SettingKeyWebsitePath, Value: filepath.Join(app.Root, "sites")},
 		{Key: biz.SettingKeyOfflineMode, Value: "false"},
 		{Key: biz.SettingKeyAutoUpdate, Value: "true"},
 		{Key: biz.SettingHiddenMenu, Value: "[]"},
 	}
-	if err := s.db.Create(&settings).Error; err != nil {
+	if err = s.db.Create(&settings).Error; err != nil {
 		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}
 
@@ -894,10 +929,6 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}
 
-	if err = s.HTTPSGenerate(ctx, cmd); err != nil {
-		return errors.New(s.t.Get("Initialization failed: %v", err))
-	}
-
 	conf, err := config.Load()
 	if err != nil {
 		return err
@@ -907,6 +938,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 	conf.App.APIEndpoint = "api.acepanel.net"
 	conf.App.DownloadEndpoint = "dl.acepanel.net"
 	conf.HTTP.Entrance = "/" + str.Random(6)
+	conf.HTTP.ACME = acme
 
 	// 随机默认端口
 checkPort:
@@ -928,6 +960,12 @@ checkPort:
 
 	if err = config.Save(conf); err != nil {
 		return err
+	}
+
+	s.conf = conf // 更新配置，否则后续签发证书不会使用ACME
+
+	if err = s.HTTPSGenerate(ctx, cmd); err != nil {
+		return errors.New(s.t.Get("Initialization failed: %v", err))
 	}
 
 	return nil

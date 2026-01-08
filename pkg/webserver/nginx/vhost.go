@@ -496,8 +496,6 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	}
 
 	// 设置 OCSP
-	_ = v.parser.Clear("server.ssl_stapling")
-	_ = v.parser.Clear("server.ssl_stapling_verify")
 	if cfg.OCSP {
 		if err = v.parser.Set("server", []*config.Directive{
 			{
@@ -535,6 +533,11 @@ func (v *baseVhost) ClearSSL() error {
 	_ = v.parser.Clear("server.ssl_ciphers")
 	_ = v.parser.Clear("server.ssl_prefer_server_ciphers")
 	_ = v.parser.Clear("server.ssl_early_data")
+	_ = v.parser.Clear("server.ssl_stapling")
+	_ = v.parser.Clear("server.ssl_stapling_verify")
+	_ = v.setHSTS(false)
+	_ = v.setHTTPSRedirect(false)
+	_ = v.setAltSvc("")
 
 	return nil
 }

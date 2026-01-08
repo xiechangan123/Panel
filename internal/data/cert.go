@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -231,6 +232,21 @@ func (r *certRepo) ObtainManual(id uint) (*acme.Certificate, error) {
 	}
 
 	return &ssl, nil
+}
+
+func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, []byte, error) {
+	client, err := acme.NewPrivateKeyAccount(account.Email, account.PrivateKey, acme.CALetsEncrypt, nil, r.log)
+	if err != nil {
+		return nil, nil, err
+	}
+	client.UsePanel(ips, filepath.Join(app.Root, "server/nginx/conf/acme.conf"))
+
+	ssl, err := client.ObtainCertificate(context.Background(), ips, acme.KeyEC256)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ssl.ChainPEM, ssl.PrivateKey, nil
 }
 
 func (r *certRepo) ObtainSelfSigned(id uint) error {

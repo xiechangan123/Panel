@@ -38,6 +38,7 @@ type CertRepo interface {
 	Delete(id uint) error
 	ObtainAuto(id uint) (*acme.Certificate, error)
 	ObtainManual(id uint) (*acme.Certificate, error)
+	ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error)
 	ObtainSelfSigned(id uint) error
 	Renew(id uint) (*acme.Certificate, error)
 	ManualDNS(id uint) ([]acme.DNSRecord, error)

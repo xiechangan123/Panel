@@ -3,6 +3,7 @@ package job
 import (
 	"log/slog"
 
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/google/wire"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
@@ -13,24 +14,28 @@ import (
 var ProviderSet = wire.NewSet(NewJobs)
 
 type Jobs struct {
-	db      *gorm.DB
-	log     *slog.Logger
-	setting biz.SettingRepo
-	cert    biz.CertRepo
-	backup  biz.BackupRepo
-	cache   biz.CacheRepo
-	task    biz.TaskRepo
+	conf        *config.Config
+	db          *gorm.DB
+	log         *slog.Logger
+	setting     biz.SettingRepo
+	cert        biz.CertRepo
+	certAccount biz.CertAccountRepo
+	backup      biz.BackupRepo
+	cache       biz.CacheRepo
+	task        biz.TaskRepo
 }
 
-func NewJobs(db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, cert biz.CertRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo) *Jobs {
+func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo) *Jobs {
 	return &Jobs{
-		db:      db,
-		log:     log,
-		setting: setting,
-		cert:    cert,
-		backup:  backup,
-		cache:   cache,
-		task:    task,
+		conf:        conf,
+		db:          db,
+		log:         log,
+		setting:     setting,
+		cert:        cert,
+		certAccount: certAccount,
+		backup:      backup,
+		cache:       cache,
+		task:        task,
 	}
 }
 
@@ -38,10 +43,9 @@ func (r *Jobs) Register(c *cron.Cron) error {
 	if _, err := c.AddJob("* * * * *", NewMonitoring(r.db, r.log, r.setting)); err != nil {
 		return err
 	}
-	if _, err := c.AddJob("0 4 * * *", NewCertRenew(r.db, r.log, r.cert)); err != nil {
+	if _, err := c.AddJob("0 4 * * *", NewCertRenew(r.conf, r.db, r.log, r.setting, r.cert, r.certAccount)); err != nil {
 		return err
 	}
-
 	if _, err := c.AddJob("0 2 * * *", NewPanelTask(r.db, r.log, r.backup, r.cache, r.task, r.setting)); err != nil {
 		return err
 	}

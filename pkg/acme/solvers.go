@@ -2,7 +2,9 @@ package acme
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -20,9 +22,105 @@ import (
 	"github.com/mholt/acmez/v3/acme"
 	"golang.org/x/net/publicsuffix"
 
+	pkgos "github.com/acepanel/panel/pkg/os"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/systemctl"
 )
+
+type panelSolver struct {
+	ip     []string
+	conf   string
+	server *http.Server
+}
+
+func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error {
+	// 如果 80 端口没有被占用，则直接起一个内置的 HTTP 服务器验证
+	if !pkgos.TCPPortInUse(80) {
+		return s.presentPanel(challenge)
+	}
+
+	conf := fmt.Sprintf(`server {
+    listen 80;
+    server_name %s;
+    location = %s {
+        default_type text/plain;
+        return 200 %q;
+    }
+}
+`, s.ip, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
+
+	f, err := os.OpenFile(s.conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open nginx config %q: %w", s.conf, err)
+	}
+	defer func(f *os.File) { _ = f.Close() }(f)
+
+	if _, err = f.Write([]byte(conf)); err != nil {
+		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
+	}
+
+	if err = systemctl.Reload("nginx"); err != nil {
+		_, err = shell.Execf("nginx -t")
+		return fmt.Errorf("failed to reload nginx: %w", err)
+	}
+
+	return nil
+}
+
+func (s *panelSolver) presentPanel(challenge acme.Challenge) error {
+	mux := http.NewServeMux()
+	mux.HandleFunc(challenge.HTTP01ResourcePath(), func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write([]byte(challenge.KeyAuthorization))
+	})
+
+	s.server = &http.Server{
+		Addr:    ":80",
+		Handler: mux,
+	}
+
+	errChan := make(chan error, 1)
+	go func() {
+		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errChan <- err
+		}
+		close(errChan)
+	}()
+
+	// 等待一小段时间确保服务器启动成功
+	select {
+	case err := <-errChan:
+		return fmt.Errorf("failed to start HTTP server: %w", err)
+	case <-time.After(100 * time.Millisecond):
+		return nil
+	}
+}
+
+// CleanUp cleans up the HTTP server if it is the last one to finish.
+func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
+	// 如果启动了内置 HTTP 服务器，则关闭它
+	if s.server != nil {
+		shutdownCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		if err := s.server.Shutdown(shutdownCtx); err != nil {
+			return fmt.Errorf("failed to shutdown HTTP server: %w", err)
+		}
+		s.server = nil
+		return nil
+	}
+
+	// 否则清理 nginx 配置
+	if err := os.WriteFile(s.conf, []byte(""), 0644); err != nil {
+		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
+	}
+
+	if err := systemctl.Reload("nginx"); err != nil {
+		_, err = shell.Execf("nginx -t")
+		return fmt.Errorf("failed to reload nginx: %w", err)
+	}
+
+	return nil
+}
 
 type httpSolver struct {
 	conf string

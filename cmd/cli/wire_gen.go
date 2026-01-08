@@ -68,7 +68,7 @@ func initCli() (*app.Cli, error) {
 	certAccountRepo := data.NewCertAccountRepo(locale, db, userRepo, logger)
 	websiteRepo := data.NewWebsiteRepo(locale, db, cacheRepo, databaseRepo, databaseServerRepo, databaseUserRepo, certRepo, certAccountRepo, settingRepo)
 	backupRepo := data.NewBackupRepo(locale, db, settingRepo, websiteRepo)
-	cliService := service.NewCliService(locale, config, db, appRepo, cacheRepo, userRepo, settingRepo, backupRepo, websiteRepo, databaseServerRepo)
+	cliService := service.NewCliService(locale, config, db, appRepo, cacheRepo, userRepo, settingRepo, backupRepo, websiteRepo, databaseServerRepo, certRepo, certAccountRepo)
 	cli := route.NewCli(locale, cliService)
 	command := bootstrap.NewCli(locale, cli)
 	gormigrate := bootstrap.NewMigrate(db)

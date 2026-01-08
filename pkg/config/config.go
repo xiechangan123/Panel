@@ -34,6 +34,7 @@ type HTTPConfig struct {
 	Entrance      string   `yaml:"entrance"`
 	EntranceError string   `yaml:"entrance_error"`
 	TLS           bool     `yaml:"tls"`
+	ACME          bool     `yaml:"acme"`
 	LoginCaptcha  bool     `yaml:"login_captcha"`
 	IPHeader      string   `yaml:"ip_header"`
 	BindDomain    []string `yaml:"bind_domain"`

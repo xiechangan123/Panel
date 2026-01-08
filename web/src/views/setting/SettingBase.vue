@@ -50,10 +50,10 @@ const channels = [
         <n-input-number v-model:value="model.port" :placeholder="$gettext('8888')" w-full />
       </n-form-item>
       <n-form-item :label="$gettext('Default Website Directory')">
-        <n-input v-model:value="model.website_path" :placeholder="$gettext('/www/wwwroot')" />
+        <n-input v-model:value="model.website_path" :placeholder="$gettext('/opt/ace/sites')" />
       </n-form-item>
       <n-form-item :label="$gettext('Default Backup Directory')">
-        <n-input v-model:value="model.backup_path" :placeholder="$gettext('/www/backup')" />
+        <n-input v-model:value="model.backup_path" :placeholder="$gettext('/opt/ace/backup')" />
       </n-form-item>
     </n-form>
   </n-flex>

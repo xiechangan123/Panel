@@ -11,7 +11,7 @@ export default {
     {
       name: 'apps-openresty-index',
       path: '',
-      component: () => import('../nginx/IndexView.vue'),
+      component: () => import('./IndexView.vue'),
       meta: {
         title: 'OpenResty',
         role: ['admin'],
