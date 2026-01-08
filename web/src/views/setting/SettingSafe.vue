@@ -189,14 +189,32 @@ const model = defineModel<any>('model', { type: Object, required: true })
         </template>
         <n-switch v-model:value="model.https" />
       </n-form-item>
-      <n-form-item v-if="model.https" :label="$gettext('Certificate')">
+      <n-form-item>
+        <template #label>
+          <n-tooltip>
+            <template #trigger>
+              <div class="flex items-center">
+                {{ $gettext('ACME') }}
+                <the-icon :size="16" icon="mdi:help-circle-outline" class="ml-1" />
+              </div>
+            </template>
+            {{
+              $gettext(
+                'Use ACME protocol to automatically obtain and renew SSL certificates for the panel. Make sure your panel is accessible via the ip you provide'
+              )
+            }}
+          </n-tooltip>
+        </template>
+        <n-switch v-model:value="model.acme" />
+      </n-form-item>
+      <n-form-item v-if="model.https && !model.acme" :label="$gettext('Certificate')">
         <n-input
           v-model:value="model.cert"
           type="textarea"
           :autosize="{ minRows: 10, maxRows: 15 }"
         />
       </n-form-item>
-      <n-form-item v-if="model.https" :label="$gettext('Private Key')">
+      <n-form-item v-if="model.https && !model.acme" :label="$gettext('Private Key')">
         <n-input
           v-model:value="model.key"
           type="textarea"

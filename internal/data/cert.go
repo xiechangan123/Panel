@@ -241,7 +241,7 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, 
 	}
 	client.UsePanel(ips, filepath.Join(app.Root, "server/nginx/conf/acme.conf"))
 
-	ssl, err := client.ObtainCertificate(context.Background(), ips, acme.KeyEC256)
+	ssl, err := client.ObtainShortCertificate(context.Background(), ips, acme.KeyEC256)
 	if err != nil {
 		return nil, nil, err
 	}

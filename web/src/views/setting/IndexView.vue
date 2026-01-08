@@ -35,6 +35,7 @@ const { data: model } = useRequest(setting.list, {
     website_path: '',
     backup_path: '',
     https: false,
+    acme: false,
     cert: '',
     key: ''
   }

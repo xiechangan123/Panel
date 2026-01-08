@@ -29,12 +29,14 @@ export function createAppInstallGuard(router: Router) {
 
     // 网站
     if (to.path.startsWith('/website')) {
-      await useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
-        if (!data) {
-          showErrorMessage(`Web 服务器未安装`)
-          return router.push({ name: 'app-index' })
+      await useRequest(app.isInstalled('nginx,openresty,apache,openlitespeed,caddy')).onSuccess(
+        ({ data }) => {
+          if (!data) {
+            showErrorMessage(`Web 服务器未安装`)
+            return router.push({ name: 'app-index' })
+          }
         }
-      })
+      )
     }
 
     // 容器

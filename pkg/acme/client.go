@@ -73,7 +73,7 @@ func (c *Client) UsePanel(ip []string, conf string) {
 }
 
 // ObtainCertificate 签发 SSL 证书
-func (c *Client) ObtainCertificate(ctx context.Context, domains []string, keyType KeyType) (Certificate, error) {
+func (c *Client) ObtainCertificate(ctx context.Context, sans []string, keyType KeyType) (Certificate, error) {
 	certPrivateKey, err := generatePrivateKey(keyType)
 	if err != nil {
 		return Certificate{}, err
@@ -83,7 +83,38 @@ func (c *Client) ObtainCertificate(ctx context.Context, domains []string, keyTyp
 		return Certificate{}, err
 	}
 
-	certs, err := c.zClient.ObtainCertificateForSANs(ctx, c.Account, certPrivateKey, domains)
+	certs, err := c.zClient.ObtainCertificateForSANs(ctx, c.Account, certPrivateKey, sans)
+	if err != nil {
+		return Certificate{}, err
+	}
+
+	crt := c.selectPreferredChain(certs)
+	return Certificate{PrivateKey: pemPrivateKey, Certificate: crt}, nil
+}
+
+// ObtainShortCertificate 签发短期 SSL 证书
+func (c *Client) ObtainShortCertificate(ctx context.Context, sans []string, keyType KeyType) (Certificate, error) {
+	certPrivateKey, err := generatePrivateKey(keyType)
+	if err != nil {
+		return Certificate{}, err
+	}
+	pemPrivateKey, err := cert.EncodeKey(certPrivateKey)
+	if err != nil {
+		return Certificate{}, err
+	}
+
+	csr, err := acmez.NewCSR(certPrivateKey, sans)
+	if err != nil {
+		return Certificate{}, err
+	}
+
+	params, err := acmez.OrderParametersFromCSR(c.Account, csr)
+	if err != nil {
+		return Certificate{}, err
+	}
+	params.Profile = "shortlived"
+
+	certs, err := c.zClient.ObtainCertificate(ctx, params)
 	if err != nil {
 		return Certificate{}, err
 	}

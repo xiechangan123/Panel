@@ -15,7 +15,7 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var slugs []string
 			if strings.HasPrefix(r.URL.Path, "/api/website") {
-				slugs = append(slugs, "nginx")
+				slugs = append(slugs, "nginx", "openresty", "apache", "openlitespeed", "caddy")
 			} else if strings.HasPrefix(r.URL.Path, "/api/container") {
 				slugs = append(slugs, "podman", "docker")
 			} else if strings.HasPrefix(r.URL.Path, "/api/apps/") {
