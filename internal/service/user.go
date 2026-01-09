@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dchest/captcha"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/sessions"
@@ -24,6 +25,9 @@ import (
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/rsacrypto"
 )
+
+// 登录失败次数阈值，超过此次数需要验证码
+const loginFailThreshold = 3
 
 type UserService struct {
 	t        *gotext.Locale
@@ -65,6 +69,37 @@ func (s *UserService) GetKey(w http.ResponseWriter, r *http.Request) {
 	Success(w, pk)
 }
 
+// GetCaptcha 获取登录验证码
+func (s *UserService) GetCaptcha(w http.ResponseWriter, r *http.Request) {
+	sess, err := s.session.GetSession(r)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	failCount := cast.ToInt(sess.Get("login_fail_count"))
+	if !s.conf.HTTP.LoginCaptcha || failCount < loginFailThreshold {
+		Success(w, chix.M{
+			"required": false,
+		})
+		return
+	}
+
+	captchaID := captcha.NewLen(4)
+	sess.Put("captcha_id", captchaID)
+
+	var buf bytes.Buffer
+	if err := captcha.WriteImage(&buf, captchaID, 150, 50); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, chix.M{
+		"required": true,
+		"image":    base64.StdEncoding.EncodeToString(buf.Bytes()),
+	})
+}
+
 func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	sess, err := s.session.GetSession(r)
 	if err != nil {
@@ -78,6 +113,16 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	failCount := cast.ToInt(sess.Get("login_fail_count"))
+	if s.conf.HTTP.LoginCaptcha && failCount >= loginFailThreshold {
+		captchaID, ok := sess.Get("captcha_id").(string)
+		if !ok || captchaID == "" || !captcha.VerifyString(captchaID, req.CaptchaCode) {
+			Error(w, http.StatusForbidden, s.t.Get("invalid captcha code"))
+			return
+		}
+		sess.Forget("captcha_id")
+	}
+
 	key, ok := sess.Get("key").(rsa.PrivateKey)
 	if !ok {
 		Error(w, http.StatusForbidden, s.t.Get("invalid key, please refresh the page"))
@@ -88,6 +133,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	decryptedPassword, _ := rsacrypto.DecryptData(&key, req.Password)
 	user, err := s.userRepo.CheckPassword(string(decryptedUsername), string(decryptedPassword))
 	if err != nil {
+		sess.Put("login_fail_count", failCount+1)
 		Error(w, http.StatusForbidden, "%v", err)
 		return
 	}
@@ -128,6 +174,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	sess.Put("user_id", user.ID)
 	sess.Put("refresh_at", time.Now().Unix())
 	sess.Forget("key")
+	sess.Forget("login_fail_count")
 	Success(w, nil)
 }
 

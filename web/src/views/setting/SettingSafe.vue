@@ -29,12 +29,6 @@ const httpsMode = computed({
     }
   }
 })
-
-const httpsModeOptions = computed(() => [
-  { label: $gettext('Disabled'), value: 'off' },
-  { label: $gettext('ACME (Auto)'), value: 'acme' },
-  { label: $gettext('Custom Certificate'), value: 'custom' }
-])
 </script>
 
 <template>
@@ -85,6 +79,50 @@ const httpsModeOptions = computed(() => [
           </n-tooltip>
         </template>
         <n-input v-model:value="model.entrance" />
+      </n-form-item>
+      <n-form-item>
+        <template #label>
+          <n-tooltip>
+            <template #trigger>
+              <div class="flex items-center">
+                {{ $gettext('Entrance Error Page') }}
+                <the-icon :size="16" icon="mdi:help-circle-outline" class="ml-1" />
+              </div>
+            </template>
+            {{
+              $gettext(
+                'Set the error page to display when accessing with wrong entrance. 418 shows teapot page, Nginx 404 shows nginx style 404 page, Close Connection will close the connection immediately'
+              )
+            }}
+          </n-tooltip>
+        </template>
+        <n-select
+          v-model:value="model.entrance_error"
+          :options="[
+            { label: $gettext(`418 I'm a teapot`), value: '418' },
+            { label: $gettext('Nginx 404'), value: 'nginx' },
+            { label: $gettext('Close Connection'), value: 'close' }
+          ]"
+          :placeholder="$gettext(`418 I'm a teapot`)"
+        />
+      </n-form-item>
+      <n-form-item>
+        <template #label>
+          <n-tooltip>
+            <template #trigger>
+              <div class="flex items-center">
+                {{ $gettext('Login Captcha') }}
+                <the-icon :size="16" icon="mdi:help-circle-outline" class="ml-1" />
+              </div>
+            </template>
+            {{
+              $gettext(
+                'When enabled, a captcha will be required after 3 failed login attempts to prevent brute force attacks'
+              )
+            }}
+          </n-tooltip>
+        </template>
+        <n-switch v-model:value="model.login_captcha" />
       </n-form-item>
       <n-form-item>
         <template #label>
@@ -220,7 +258,11 @@ const httpsModeOptions = computed(() => [
         </template>
         <n-radio-group v-model:value="httpsMode">
           <n-radio-button
-            v-for="option in httpsModeOptions"
+            v-for="option in [
+              { label: $gettext('Disabled'), value: 'off' },
+              { label: $gettext('ACME (Auto)'), value: 'acme' },
+              { label: $gettext('Custom Certificate'), value: 'custom' }
+            ]"
             :key="option.value"
             :value="option.value"
             :label="option.label"

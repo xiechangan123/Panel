@@ -12,6 +12,7 @@ import (
 	"github.com/libtnb/sessions"
 
 	"github.com/acepanel/panel/pkg/config"
+	"github.com/acepanel/panel/pkg/embed"
 	"github.com/acepanel/panel/pkg/punycode"
 )
 
@@ -41,7 +42,7 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 				}
 			}
 			if len(conf.HTTP.BindDomain) > 0 && !slices.Contains(conf.HTTP.BindDomain, host) {
-				Abort(w, http.StatusTeapot, t.Get("invalid request domain: %s", r.Host))
+				abortEntrance(w, r, conf, conf.App.Locale)
 				return
 			}
 
@@ -77,12 +78,12 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 					}
 				}
 				if !allowed {
-					Abort(w, http.StatusTeapot, t.Get("invalid request ip: %s", ip))
+					abortEntrance(w, r, conf, conf.App.Locale)
 					return
 				}
 			}
 			if len(conf.HTTP.BindUA) > 0 && !slices.Contains(conf.HTTP.BindUA, r.UserAgent()) {
-				Abort(w, http.StatusTeapot, t.Get("invalid request user agent: %s", r.UserAgent()))
+				abortEntrance(w, r, conf, conf.App.Locale)
 				return
 			}
 
@@ -122,11 +123,51 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 			if !conf.App.Debug &&
 				sess.Missing("verify_entrance") &&
 				r.URL.Path != "/robots.txt" {
-				Abort(w, http.StatusTeapot, t.Get("invalid access entrance"))
+				abortEntrance(w, r, conf, conf.App.Locale)
 				return
 			}
 
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, locale string) {
+	errorType := conf.HTTP.EntranceError
+
+	switch errorType {
+	case "close":
+		hj, ok := w.(http.Hijacker)
+		if ok {
+			conn, _, err := hj.Hijack()
+			if err == nil {
+				_ = conn.Close()
+				return
+			}
+		}
+		// 如果无法 hijack，则返回空响应
+		w.WriteHeader(http.StatusTeapot)
+		return
+	case "nginx":
+		content, err := embed.ErrorFS.ReadFile("error/nginx_404.html")
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Server", "nginx")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write(content)
+		return
+	default:
+		fileName := "error/418.html"
+		if locale == "zh_CN" {
+			fileName = "error/418_zh_CN.html"
+		}
+		content, _ := embed.ErrorFS.ReadFile(fileName)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusTeapot)
+		_, _ = w.Write(content)
+		return
 	}
 }
