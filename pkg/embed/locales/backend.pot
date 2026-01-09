@@ -23,7 +23,7 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/service/home.go:59
+#: internal/service/home.go:60
 msgid "AcePanel"
 msgstr ""
 
@@ -702,7 +702,7 @@ msgstr ""
 msgid "Not supported"
 msgstr ""
 
-#: internal/service/home.go:200
+#: internal/service/home.go:230
 msgid "Not used"
 msgstr ""
 
@@ -1334,17 +1334,17 @@ msgstr ""
 msgid "app not found"
 msgstr ""
 
-#: internal/data/setting.go:311
-#: internal/data/setting.go:368
-#: internal/data/setting.go:381
+#: internal/data/setting.go:313
+#: internal/data/setting.go:372
+#: internal/data/setting.go:385
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:336
+#: internal/service/home.go:366
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:302
+#: internal/service/home.go:332
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
@@ -1379,7 +1379,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:80
+#: internal/http/middleware/must_login.go:81
 msgid "client ip changed, please login again"
 msgstr ""
 
@@ -1588,7 +1588,7 @@ msgstr ""
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/service/home.go:75
+#: internal/service/home.go:76
 msgid "failed to get home apps: %v"
 msgstr ""
 
@@ -1642,17 +1642,17 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
-#: internal/service/home.go:95
+#: internal/service/home.go:96
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:315
+#: internal/service/home.go:345
 msgid "failed to get the latest version download link"
 msgstr ""
 
-#: internal/service/home.go:231
-#: internal/service/home.go:267
-#: internal/service/home.go:309
+#: internal/service/home.go:261
+#: internal/service/home.go:297
+#: internal/service/home.go:339
 msgid "failed to get the latest version: %v"
 msgstr ""
 
@@ -1660,11 +1660,11 @@ msgstr ""
 msgid "failed to get the secret key for module %s"
 msgstr ""
 
-#: internal/service/home.go:141
+#: internal/service/home.go:171
 msgid "failed to get the total number of websites: %v"
 msgstr ""
 
-#: internal/service/home.go:288
+#: internal/service/home.go:318
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -1690,8 +1690,8 @@ msgid "failed to mount partition: %v"
 msgstr ""
 
 #: internal/data/cert.go:95
-#: internal/data/setting.go:316
-#: internal/data/setting.go:384
+#: internal/data/setting.go:318
+#: internal/data/setting.go:388
 #: internal/data/website.go:507
 #: internal/data/website.go:755
 msgid "failed to parse certificate: %v"
@@ -1702,8 +1702,8 @@ msgid "failed to parse disk list: %v"
 msgstr ""
 
 #: internal/data/cert.go:98
-#: internal/data/setting.go:319
-#: internal/data/setting.go:387
+#: internal/data/setting.go:321
+#: internal/data/setting.go:391
 #: internal/data/website.go:510
 #: internal/data/website.go:758
 msgid "failed to parse private key: %v"
@@ -1714,10 +1714,10 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
-#: internal/service/home.go:237
-#: internal/service/home.go:242
-#: internal/service/home.go:273
-#: internal/service/home.go:278
+#: internal/service/home.go:267
+#: internal/service/home.go:272
+#: internal/service/home.go:303
+#: internal/service/home.go:308
 msgid "failed to parse version: %v"
 msgstr ""
 
@@ -1898,19 +1898,19 @@ msgstr ""
 
 #: internal/data/user.go:180
 #: internal/data/user.go:199
-#: internal/service/user.go:97
+#: internal/service/user.go:143
 msgid "invalid 2FA code"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:125
-msgid "invalid access entrance"
+#: internal/service/user.go:120
+msgid "invalid captcha code"
 msgstr ""
 
 #: internal/data/user_token.go:104
 msgid "invalid header: %v"
 msgstr ""
 
-#: internal/service/user.go:83
+#: internal/service/user.go:128
 msgid "invalid key, please refresh the page"
 msgstr ""
 
@@ -1918,17 +1918,8 @@ msgstr ""
 msgid "invalid logical volume size"
 msgstr ""
 
-#: internal/http/middleware/entrance.go:44
-msgid "invalid request domain: %s"
-msgstr ""
-
 #: internal/data/user_token.go:176
-#: internal/http/middleware/entrance.go:80
 msgid "invalid request ip: %s"
-msgstr ""
-
-#: internal/http/middleware/entrance.go:85
-msgid "invalid request user agent: %s"
 msgstr ""
 
 #: internal/data/user_token.go:107
@@ -1941,7 +1932,7 @@ msgstr ""
 msgid "invalid size"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:104
+#: internal/http/middleware/must_login.go:105
 msgid "invalid user id, please login again"
 msgstr ""
 
@@ -2052,7 +2043,7 @@ msgstr ""
 msgid "please set public ips first"
 msgstr ""
 
-#: internal/data/setting.go:336
+#: internal/data/setting.go:338
 msgid "port is already in use"
 msgstr ""
 
@@ -2076,7 +2067,7 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:60
+#: internal/http/middleware/must_login.go:61
 msgid "session expired, please login again"
 msgstr ""
 
@@ -2105,7 +2096,7 @@ msgstr ""
 msgid "target path %s already exists"
 msgstr ""
 
-#: internal/service/home.go:282
+#: internal/service/home.go:312
 msgid "the current version is the latest version"
 msgstr ""
 
@@ -2130,12 +2121,12 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/service/home.go:223
-#: internal/service/home.go:259
+#: internal/service/home.go:253
+#: internal/service/home.go:289
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:297
+#: internal/service/home.go:327
 msgid "unable to update in offline mode"
 msgstr ""
 
@@ -2222,7 +2213,7 @@ msgstr ""
 msgid "write file error: %v"
 msgstr ""
 
-#: internal/http/middleware/must_login.go:50
+#: internal/http/middleware/must_login.go:51
 msgid "ws not allowed"
 msgstr ""
 

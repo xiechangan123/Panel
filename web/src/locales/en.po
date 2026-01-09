@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/components/common/AppFooter.vue:13 src/views/home/IndexView.vue:442
+#: src/components/common/AppFooter.vue:13 src/views/home/IndexView.vue:466
 msgid "AcePanel"
 msgstr "AcePanel"
 
@@ -219,7 +219,7 @@ msgstr "Cannot save in current state"
 #: src/views/apps/supervisor/IndexView.vue:219
 #: src/views/apps/supervisor/IndexView.vue:284
 #: src/views/environment/PHPView.vue:137 src/views/environment/PHPView.vue:143
-#: src/views/setting/IndexView.vue:53 src/views/toolbox/SystemView.vue:51
+#: src/views/setting/IndexView.vue:55 src/views/toolbox/SystemView.vue:51
 #: src/views/toolbox/SystemView.vue:57 src/views/toolbox/SystemView.vue:66
 #: src/views/toolbox/SystemView.vue:75 src/views/website/EditView.vue:115
 msgid "Saved successfully"
@@ -369,10 +369,10 @@ msgstr "Failed to get log stream"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/components/common/ServiceStatus.vue:25 src/views/home/IndexView.vue:741
-#: src/views/home/IndexView.vue:749 src/views/home/IndexView.vue:756
-#: src/views/home/IndexView.vue:762 src/views/home/IndexView.vue:773
-#: src/views/home/IndexView.vue:785
+#: src/components/common/ServiceStatus.vue:25 src/views/home/IndexView.vue:765
+#: src/views/home/IndexView.vue:773 src/views/home/IndexView.vue:780
+#: src/views/home/IndexView.vue:786 src/views/home/IndexView.vue:797
+#: src/views/home/IndexView.vue:809
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -490,7 +490,7 @@ msgstr "Are you sure you want to stop %{ service }?"
 #: src/components/common/ServiceStatus.vue:162
 #: src/views/apps/supervisor/IndexView.vue:168
 #: src/views/container/ContainerView.vue:139
-#: src/views/container/ContainerView.vue:413 src/views/home/IndexView.vue:450
+#: src/views/container/ContainerView.vue:413 src/views/home/IndexView.vue:474
 msgid "Restart"
 msgstr "Restart"
 
@@ -607,7 +607,7 @@ msgstr "Backup"
 
 #: src/locales/menu.ts:9 src/views/cert/CertView.vue:486
 #: src/views/cert/CertView.vue:563 src/views/cert/IndexView.vue:96
-#: src/views/cert/UploadCertModal.vue:38 src/views/setting/SettingSafe.vue:248
+#: src/views/cert/UploadCertModal.vue:38 src/views/setting/SettingSafe.vue:290
 #: src/views/website/EditView.vue:846
 msgid "Certificate"
 msgstr "Certificate"
@@ -617,7 +617,7 @@ msgid "Container"
 msgstr "Container"
 
 #: src/locales/menu.ts:11 src/views/backup/ListView.vue:276
-#: src/views/database/IndexView.vue:27 src/views/home/IndexView.vue:428
+#: src/views/database/IndexView.vue:27 src/views/home/IndexView.vue:452
 #: src/views/website/CreateModal.vue:153
 msgid "Database"
 msgstr "Database"
@@ -662,7 +662,7 @@ msgid "Toolbox"
 msgstr "Toolbox"
 
 #: src/locales/menu.ts:21 src/views/app/AppView.vue:93
-#: src/views/app/EnvironmentView.vue:78 src/views/home/IndexView.vue:454
+#: src/views/app/EnvironmentView.vue:78 src/views/home/IndexView.vue:478
 #: src/views/setting/TokenModal.vue:299
 msgid "Update"
 msgstr "Update"
@@ -671,7 +671,7 @@ msgstr "Update"
 #: src/views/backup/IndexView.vue:37 src/views/backup/ListView.vue:232
 #: src/views/backup/ListView.vue:269 src/views/cert/CertView.vue:455
 #: src/views/cert/CertView.vue:538 src/views/cert/CreateCertModal.vue:90
-#: src/views/home/IndexView.vue:424 src/views/task/CreateModal.vue:118
+#: src/views/home/IndexView.vue:448 src/views/task/CreateModal.vue:118
 msgid "Website"
 msgstr "Website"
 
@@ -699,7 +699,7 @@ msgstr "Rsync Manager"
 msgid "Frp Manager"
 msgstr "Frp Manager"
 
-#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:176
+#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:232
 msgid "Login"
 msgstr "Login"
 
@@ -893,7 +893,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:342
 #: src/views/environment/PHPView.vue:210 src/views/environment/PHPView.vue:228
 #: src/views/file/EditModal.vue:32 src/views/file/ListTable.vue:833
-#: src/views/setting/IndexView.vue:104 src/views/task/CronView.vue:259
+#: src/views/setting/IndexView.vue:106 src/views/task/CronView.vue:259
 #: src/views/toolbox/SshView.vue:239 src/views/toolbox/SystemView.vue:110
 #: src/views/toolbox/SystemView.vue:134 src/views/toolbox/SystemView.vue:152
 #: src/views/toolbox/SystemView.vue:178 src/views/toolbox/WebHookView.vue:389
@@ -1128,7 +1128,7 @@ msgstr "Run As User"
 #: src/views/apps/frp/IndexView.vue:95 src/views/apps/frp/IndexView.vue:96
 #: src/views/apps/rsync/IndexView.vue:53 src/views/apps/rsync/IndexView.vue:272
 #: src/views/apps/rsync/IndexView.vue:326 src/views/database/IndexView.vue:28
-#: src/views/setting/IndexView.vue:90 src/views/toolbox/ProcessView.vue:129
+#: src/views/setting/IndexView.vue:92 src/views/toolbox/ProcessView.vue:129
 #: src/views/toolbox/ProcessView.vue:389 src/views/toolbox/WebHookView.vue:334
 #: src/views/toolbox/WebHookView.vue:369
 msgid "User"
@@ -1228,7 +1228,7 @@ msgstr ""
 #: src/views/apps/percona/IndexView.vue:101
 #: src/views/apps/postgresql/IndexView.vue:100
 #: src/views/apps/redis/IndexView.vue:68 src/views/environment/PHPView.vue:233
-#: src/views/home/IndexView.vue:465
+#: src/views/home/IndexView.vue:489
 msgid "Load Status"
 msgstr "Load Status"
 
@@ -1405,7 +1405,7 @@ msgstr "Slow Logs"
 #: src/views/database/CreateUserModal.vue:77
 #: src/views/database/ServerList.vue:46
 #: src/views/database/UpdateServerModal.vue:86
-#: src/views/database/UserList.vue:39 src/views/login/IndexView.vue:133
+#: src/views/database/UserList.vue:39 src/views/login/IndexView.vue:169
 #: src/views/setting/CreateModal.vue:40 src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:85 src/views/ssh/UpdateModal.vue:91
 msgid "Username"
@@ -1440,7 +1440,7 @@ msgstr "Run Log"
 #: src/views/database/CreateDatabaseModal.vue:79
 #: src/views/database/CreateUserModal.vue:55
 #: src/views/database/IndexView.vue:42 src/views/setting/CreateModal.vue:32
-#: src/views/setting/IndexView.vue:96
+#: src/views/setting/IndexView.vue:98
 msgid "Create User"
 msgstr "Create User"
 
@@ -1461,7 +1461,7 @@ msgstr "Enter username"
 #: src/views/database/ServerList.vue:55
 #: src/views/database/UpdateServerModal.vue:94
 #: src/views/database/UpdateUserModal.vue:55 src/views/database/UserList.vue:49
-#: src/views/login/IndexView.vue:142 src/views/setting/CreateModal.vue:47
+#: src/views/login/IndexView.vue:178 src/views/setting/CreateModal.vue:47
 #: src/views/setting/PasswordModal.vue:34 src/views/ssh/CreateModal.vue:79
 #: src/views/ssh/CreateModal.vue:88 src/views/ssh/UpdateModal.vue:85
 #: src/views/ssh/UpdateModal.vue:94
@@ -1977,7 +1977,7 @@ msgid "Enter the content of the PEM certificate file"
 msgstr "Enter the content of the PEM certificate file"
 
 #: src/views/cert/CertView.vue:498 src/views/cert/CertView.vue:566
-#: src/views/cert/UploadCertModal.vue:46 src/views/setting/SettingSafe.vue:255
+#: src/views/cert/UploadCertModal.vue:46 src/views/setting/SettingSafe.vue:297
 #: src/views/ssh/CreateModal.vue:80 src/views/ssh/CreateModal.vue:91
 #: src/views/ssh/UpdateModal.vue:86 src/views/ssh/UpdateModal.vue:97
 #: src/views/website/EditView.vue:854
@@ -2327,8 +2327,8 @@ msgstr "Optional"
 msgid "Add"
 msgstr "Add"
 
-#: src/views/container/ContainerCreate.vue:245 src/views/home/IndexView.vue:144
-#: src/views/home/IndexView.vue:805 src/views/monitor/IndexView.vue:286
+#: src/views/container/ContainerCreate.vue:245 src/views/home/IndexView.vue:146
+#: src/views/home/IndexView.vue:829 src/views/monitor/IndexView.vue:286
 msgid "Network"
 msgstr "Network"
 
@@ -2369,7 +2369,7 @@ msgstr "Command"
 msgid "Entrypoint"
 msgstr "Entrypoint"
 
-#: src/views/container/ContainerCreate.vue:307 src/views/home/IndexView.vue:540
+#: src/views/container/ContainerCreate.vue:307 src/views/home/IndexView.vue:564
 #: src/views/monitor/IndexView.vue:205 src/views/monitor/IndexView.vue:216
 #: src/views/monitor/IndexView.vue:238 src/views/toolbox/BenchmarkView.vue:177
 #: src/views/toolbox/ProcessView.vue:153
@@ -2657,7 +2657,7 @@ msgstr "Option Name"
 msgid "Option Value"
 msgstr "Option Value"
 
-#: src/views/container/VolumeView.vue:47 src/views/home/IndexView.vue:655
+#: src/views/container/VolumeView.vue:47 src/views/home/IndexView.vue:679
 #: src/views/toolbox/DiskView.vue:324 src/views/toolbox/DiskView.vue:827
 msgid "Mount Point"
 msgstr "Mount Point"
@@ -3089,14 +3089,14 @@ msgid "Owner"
 msgstr "Owner"
 
 #: src/views/file/PermissionModal.vue:88 src/views/file/PermissionModal.vue:97
-#: src/views/file/PermissionModal.vue:106 src/views/home/IndexView.vue:168
-#: src/views/home/IndexView.vue:184 src/views/home/IndexView.vue:850
+#: src/views/file/PermissionModal.vue:106 src/views/home/IndexView.vue:170
+#: src/views/home/IndexView.vue:186 src/views/home/IndexView.vue:874
 msgid "Read"
 msgstr "Read"
 
 #: src/views/file/PermissionModal.vue:89 src/views/file/PermissionModal.vue:98
-#: src/views/file/PermissionModal.vue:107 src/views/home/IndexView.vue:168
-#: src/views/home/IndexView.vue:208 src/views/home/IndexView.vue:851
+#: src/views/file/PermissionModal.vue:107 src/views/home/IndexView.vue:170
+#: src/views/home/IndexView.vue:210 src/views/home/IndexView.vue:875
 msgid "Write"
 msgstr "Write"
 
@@ -3330,41 +3330,41 @@ msgstr "Allow Ping"
 msgid "SSH Port"
 msgstr "SSH Port"
 
-#: src/views/home/IndexView.vue:132
+#: src/views/home/IndexView.vue:134
 msgid "Running blocked"
 msgstr "Running blocked"
 
-#: src/views/home/IndexView.vue:134
+#: src/views/home/IndexView.vue:136
 msgid "Running slowly"
 msgstr "Running slowly"
 
-#: src/views/home/IndexView.vue:136
+#: src/views/home/IndexView.vue:138
 msgid "Running normally"
 msgstr "Running normally"
 
-#: src/views/home/IndexView.vue:138
+#: src/views/home/IndexView.vue:140
 msgid "Running smoothly"
 msgstr "Running smoothly"
 
-#: src/views/home/IndexView.vue:144 src/views/home/IndexView.vue:806
-#: src/views/home/IndexView.vue:826 src/views/toolbox/BenchmarkView.vue:203
+#: src/views/home/IndexView.vue:146 src/views/home/IndexView.vue:830
+#: src/views/home/IndexView.vue:850 src/views/toolbox/BenchmarkView.vue:203
 #: src/views/toolbox/DiskView.vue:803 src/views/toolbox/IndexView.vue:25
 msgid "Disk"
 msgstr "Disk"
 
-#: src/views/home/IndexView.vue:167 src/views/home/IndexView.vue:184
+#: src/views/home/IndexView.vue:169 src/views/home/IndexView.vue:186
 msgid "Send"
 msgstr "Send"
 
-#: src/views/home/IndexView.vue:167 src/views/home/IndexView.vue:208
+#: src/views/home/IndexView.vue:169 src/views/home/IndexView.vue:210
 msgid "Receive"
 msgstr "Receive"
 
-#: src/views/home/IndexView.vue:176
+#: src/views/home/IndexView.vue:178
 msgid "Unit %{unit}"
 msgstr "Unit %{unit}"
 
-#: src/views/home/IndexView.vue:190 src/views/home/IndexView.vue:214
+#: src/views/home/IndexView.vue:192 src/views/home/IndexView.vue:216
 #: src/views/monitor/IndexView.vue:93 src/views/monitor/IndexView.vue:115
 #: src/views/monitor/IndexView.vue:137 src/views/monitor/IndexView.vue:192
 #: src/views/monitor/IndexView.vue:251 src/views/monitor/IndexView.vue:273
@@ -3373,7 +3373,7 @@ msgstr "Unit %{unit}"
 msgid "Maximum"
 msgstr "Maximum"
 
-#: src/views/home/IndexView.vue:191 src/views/home/IndexView.vue:215
+#: src/views/home/IndexView.vue:193 src/views/home/IndexView.vue:217
 #: src/views/monitor/IndexView.vue:94 src/views/monitor/IndexView.vue:116
 #: src/views/monitor/IndexView.vue:138 src/views/monitor/IndexView.vue:193
 #: src/views/monitor/IndexView.vue:252 src/views/monitor/IndexView.vue:274
@@ -3382,7 +3382,7 @@ msgstr "Maximum"
 msgid "Minimum"
 msgstr "Minimum"
 
-#: src/views/home/IndexView.vue:195 src/views/home/IndexView.vue:219
+#: src/views/home/IndexView.vue:197 src/views/home/IndexView.vue:221
 #: src/views/monitor/IndexView.vue:98 src/views/monitor/IndexView.vue:120
 #: src/views/monitor/IndexView.vue:142 src/views/monitor/IndexView.vue:197
 #: src/views/monitor/IndexView.vue:256 src/views/monitor/IndexView.vue:278
@@ -3391,208 +3391,222 @@ msgstr "Minimum"
 msgid "Average"
 msgstr "Average"
 
-#: src/views/home/IndexView.vue:327
+#: src/views/home/IndexView.vue:329
 msgid "Panel restarting..."
 msgstr "Panel restarting..."
 
-#: src/views/home/IndexView.vue:329
+#: src/views/home/IndexView.vue:331
 msgid "Panel restarted successfully"
 msgstr "Panel restarted successfully"
 
-#: src/views/home/IndexView.vue:341
+#: src/views/home/IndexView.vue:343
 msgid "Current version is the latest"
 msgstr "Current version is the latest"
 
-#: src/views/home/IndexView.vue:437 src/views/task/IndexView.vue:22
+#: src/views/home/IndexView.vue:425
+msgid ""
+"Your operating system %{ os_name } has reached its end-of-life. Please "
+"consider upgrading to a supported version to ensure optimal performance and "
+"security."
+msgstr ""
+
+#: src/views/home/IndexView.vue:436
+msgid ""
+"Your operating system %{ os_name } is not officially supported. Some "
+"features may not work as expected. Please consider using a supported "
+"operating system for the best experience."
+msgstr ""
+
+#: src/views/home/IndexView.vue:461 src/views/task/IndexView.vue:22
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
-#: src/views/home/IndexView.vue:446
+#: src/views/home/IndexView.vue:470
 msgid "Sponsor Support"
 msgstr "Sponsor Support"
 
-#: src/views/home/IndexView.vue:452
+#: src/views/home/IndexView.vue:476
 msgid "Are you sure you want to restart the panel?"
 msgstr "Are you sure you want to restart the panel?"
 
-#: src/views/home/IndexView.vue:460
+#: src/views/home/IndexView.vue:484
 msgid "Resource Overview"
 msgstr "Resource Overview"
 
-#: src/views/home/IndexView.vue:478
+#: src/views/home/IndexView.vue:502
 msgid "Last 1 minute"
 msgstr "Last 1 minute"
 
-#: src/views/home/IndexView.vue:485
+#: src/views/home/IndexView.vue:509
 msgid "Last 5 minutes"
 msgstr "Last 5 minutes"
 
-#: src/views/home/IndexView.vue:492
+#: src/views/home/IndexView.vue:516
 msgid "Last 15 minutes"
 msgstr "Last 15 minutes"
 
-#: src/views/home/IndexView.vue:511 src/views/home/IndexView.vue:523
+#: src/views/home/IndexView.vue:535 src/views/home/IndexView.vue:547
 msgid "cores"
 msgstr "cores"
 
-#: src/views/home/IndexView.vue:517
+#: src/views/home/IndexView.vue:541
 msgid "Model"
 msgstr "Model"
 
-#: src/views/home/IndexView.vue:521
+#: src/views/home/IndexView.vue:545
 msgid "Parameters"
 msgstr "Parameters"
 
-#: src/views/home/IndexView.vue:524
+#: src/views/home/IndexView.vue:548
 msgid "cache"
 msgstr "cache"
 
-#: src/views/home/IndexView.vue:530 src/views/monitor/IndexView.vue:179
+#: src/views/home/IndexView.vue:554 src/views/monitor/IndexView.vue:179
 #: src/views/toolbox/DiskView.vue:301
 msgid "Usage"
 msgstr "Usage"
 
-#: src/views/home/IndexView.vue:531
+#: src/views/home/IndexView.vue:555
 msgid "Frequency"
 msgstr "Frequency"
 
-#: src/views/home/IndexView.vue:553
+#: src/views/home/IndexView.vue:577
 msgid "Active"
 msgstr "Active"
 
-#: src/views/home/IndexView.vue:559
+#: src/views/home/IndexView.vue:583
 msgid "Inactive"
 msgstr "Inactive"
 
-#: src/views/home/IndexView.vue:565 src/views/toolbox/DiskView.vue:254
+#: src/views/home/IndexView.vue:589 src/views/toolbox/DiskView.vue:254
 msgid "Free"
 msgstr "Free"
 
-#: src/views/home/IndexView.vue:571
+#: src/views/home/IndexView.vue:595
 msgid "Shared"
 msgstr "Shared"
 
-#: src/views/home/IndexView.vue:577
+#: src/views/home/IndexView.vue:601
 msgid "Committed"
 msgstr "Committed"
 
-#: src/views/home/IndexView.vue:583
+#: src/views/home/IndexView.vue:607
 msgid "Commit Limit"
 msgstr "Commit Limit"
 
-#: src/views/home/IndexView.vue:589 src/views/toolbox/SystemView.vue:127
+#: src/views/home/IndexView.vue:613 src/views/toolbox/SystemView.vue:127
 msgid "SWAP Size"
 msgstr "SWAP Size"
 
-#: src/views/home/IndexView.vue:595
+#: src/views/home/IndexView.vue:619
 msgid "SWAP Used"
 msgstr "SWAP Used"
 
-#: src/views/home/IndexView.vue:601
+#: src/views/home/IndexView.vue:625
 msgid "SWAP Available"
 msgstr "SWAP Available"
 
-#: src/views/home/IndexView.vue:607
+#: src/views/home/IndexView.vue:631
 msgid "Physical Memory Size"
 msgstr "Physical Memory Size"
 
-#: src/views/home/IndexView.vue:613
+#: src/views/home/IndexView.vue:637
 msgid "Physical Memory Used"
 msgstr "Physical Memory Used"
 
-#: src/views/home/IndexView.vue:619
+#: src/views/home/IndexView.vue:643
 msgid "Physical Memory Available"
 msgstr "Physical Memory Available"
 
-#: src/views/home/IndexView.vue:659
+#: src/views/home/IndexView.vue:683
 msgid "File System"
 msgstr "File System"
 
-#: src/views/home/IndexView.vue:663
+#: src/views/home/IndexView.vue:687
 msgid "Inodes Usage"
 msgstr "Inodes Usage"
 
-#: src/views/home/IndexView.vue:667
+#: src/views/home/IndexView.vue:691
 msgid "Inodes Total"
 msgstr "Inodes Total"
 
-#: src/views/home/IndexView.vue:671
+#: src/views/home/IndexView.vue:695
 msgid "Inodes Used"
 msgstr "Inodes Used"
 
-#: src/views/home/IndexView.vue:675
+#: src/views/home/IndexView.vue:699
 msgid "Inodes Available"
 msgstr "Inodes Available"
 
-#: src/views/home/IndexView.vue:693
+#: src/views/home/IndexView.vue:717
 msgid "Quick Apps"
 msgstr "Quick Apps"
 
-#: src/views/home/IndexView.vue:732
+#: src/views/home/IndexView.vue:756
 msgid "You have not set any apps to display here!"
 msgstr "You have not set any apps to display here!"
 
-#: src/views/home/IndexView.vue:736
+#: src/views/home/IndexView.vue:760
 msgid "Environment Information"
 msgstr "Environment Information"
 
-#: src/views/home/IndexView.vue:739 src/views/toolbox/SystemView.vue:141
+#: src/views/home/IndexView.vue:763 src/views/toolbox/SystemView.vue:141
 msgid "System Hostname"
 msgstr "System Hostname"
 
-#: src/views/home/IndexView.vue:745
+#: src/views/home/IndexView.vue:769
 msgid "System Version"
 msgstr "System Version"
 
-#: src/views/home/IndexView.vue:754
+#: src/views/home/IndexView.vue:778
 msgid "System Kernel Version"
 msgstr "System Kernel Version"
 
-#: src/views/home/IndexView.vue:760
+#: src/views/home/IndexView.vue:784
 msgid "System Uptime"
 msgstr "System Uptime"
 
-#: src/views/home/IndexView.vue:766
+#: src/views/home/IndexView.vue:790
 msgid "Panel Internal Version"
 msgstr "Panel Internal Version"
 
-#: src/views/home/IndexView.vue:778
+#: src/views/home/IndexView.vue:802
 msgid "Panel Compile Information"
 msgstr "Panel Compile Information"
 
-#: src/views/home/IndexView.vue:795
+#: src/views/home/IndexView.vue:819
 msgid "Real-time Monitoring"
 msgstr "Real-time Monitoring"
 
-#: src/views/home/IndexView.vue:809
+#: src/views/home/IndexView.vue:833
 msgid "Unit"
 msgstr "Unit"
 
-#: src/views/home/IndexView.vue:817
+#: src/views/home/IndexView.vue:841
 msgid "Network Card"
 msgstr "Network Card"
 
-#: src/views/home/IndexView.vue:837
+#: src/views/home/IndexView.vue:861
 msgid "Total Sent"
 msgstr "Total Sent"
 
-#: src/views/home/IndexView.vue:839
+#: src/views/home/IndexView.vue:863
 msgid "Total Received"
 msgstr "Total Received"
 
-#: src/views/home/IndexView.vue:842
+#: src/views/home/IndexView.vue:866
 msgid "Real-time Sent"
 msgstr "Real-time Sent"
 
-#: src/views/home/IndexView.vue:846
+#: src/views/home/IndexView.vue:870
 msgid "Real-time Received"
 msgstr "Real-time Received"
 
-#: src/views/home/IndexView.vue:853
+#: src/views/home/IndexView.vue:877
 msgid "Real-time Read/Write"
 msgstr "Real-time Read/Write"
 
-#: src/views/home/IndexView.vue:856
+#: src/views/home/IndexView.vue:880
 msgid "Read/Write Latency"
 msgstr "Read/Write Latency"
 
@@ -3624,29 +3638,34 @@ msgstr "Update Now"
 msgid "Loading update information, please wait a moment"
 msgstr "Loading update information, please wait a moment"
 
-#: src/views/login/IndexView.vue:49
+#: src/views/login/IndexView.vue:74
 msgid "Please enter username and password"
 msgstr "Please enter username and password"
 
-#: src/views/login/IndexView.vue:54
+#: src/views/login/IndexView.vue:79
+#, fuzzy
+msgid "Please enter captcha code"
+msgstr "Please enter username and password"
+
+#: src/views/login/IndexView.vue:84
 msgid ""
 "Failed to get encryption public key, please refresh the page and try again"
 msgstr ""
 "Failed to get encryption public key, please refresh the page and try again"
 
-#: src/views/login/IndexView.vue:67
+#: src/views/login/IndexView.vue:99
 msgid "Login successful!"
 msgstr "Login successful!"
 
-#: src/views/login/IndexView.vue:153
+#: src/views/login/IndexView.vue:189
 msgid "2FA Code"
 msgstr "2FA Code"
 
-#: src/views/login/IndexView.vue:161
-msgid "Safe Login"
-msgstr "Safe Login"
+#: src/views/login/IndexView.vue:201
+msgid "Captcha Code"
+msgstr ""
 
-#: src/views/login/IndexView.vue:162
+#: src/views/login/IndexView.vue:218
 msgid "Remember Me"
 msgstr "Remember Me"
 
@@ -3750,16 +3769,16 @@ msgstr "Enter user password"
 msgid "Enter user email"
 msgstr "Enter user email"
 
-#: src/views/setting/IndexView.vue:66
+#: src/views/setting/IndexView.vue:68
 #, fuzzy
 msgid "Panel is restarting, page will refresh in 5 seconds"
 msgstr "Panel is restarting, page will refresh in 3 seconds"
 
-#: src/views/setting/IndexView.vue:88
+#: src/views/setting/IndexView.vue:90
 msgid "Basic"
 msgstr "Basic"
 
-#: src/views/setting/IndexView.vue:89
+#: src/views/setting/IndexView.vue:91
 msgid "Safe"
 msgstr "Safe"
 
@@ -3821,130 +3840,164 @@ msgstr "Please enter the complete URL"
 msgid "Hide Menu"
 msgstr "Hide Menu"
 
-#: src/views/setting/SettingSafe.vue:34
-#, fuzzy
-msgid "Disabled"
-msgstr "Enabled"
-
-#: src/views/setting/SettingSafe.vue:35
-msgid "ACME (Auto)"
-msgstr ""
-
-#: src/views/setting/SettingSafe.vue:36
-#, fuzzy
-msgid "Custom Certificate"
-msgstr "Create Certificate"
-
-#: src/views/setting/SettingSafe.vue:48
+#: src/views/setting/SettingSafe.vue:42
 msgid "Login Timeout"
 msgstr "Login Timeout"
 
-#: src/views/setting/SettingSafe.vue:53
+#: src/views/setting/SettingSafe.vue:47
 msgid ""
 "Set the maximum lifetime (in minutes) of the login state, after which you "
 "need to log in again"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:61
+#: src/views/setting/SettingSafe.vue:55
 msgid "120"
 msgstr "120"
 
-#: src/views/setting/SettingSafe.vue:67
+#: src/views/setting/SettingSafe.vue:61
 #: src/views/website/ProxyBuilderModal.vue:188
 msgid "minutes"
 msgstr "minutes"
 
-#: src/views/setting/SettingSafe.vue:76
+#: src/views/setting/SettingSafe.vue:70
 msgid "Access Entrance"
 msgstr "Access Entrance"
 
-#: src/views/setting/SettingSafe.vue:81
+#: src/views/setting/SettingSafe.vue:75
 msgid ""
 "Set the access entrance of the panel (e.g. /mypanel) to prevent some "
 "malicious access. Leave blank to disable (not recommended)"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:94
+#: src/views/setting/SettingSafe.vue:88
+msgid "Entrance Error Page"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:93
+msgid ""
+"Set the error page to display when accessing with wrong entrance. 418 shows "
+"teapot page, Nginx 404 shows nginx style 404 page, Close Connection will "
+"close the connection immediately"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:102 src/views/setting/SettingSafe.vue:106
+msgid "418 I'm a teapot"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:103
+msgid "Nginx 404"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:104
+#, fuzzy
+msgid "Close Connection"
+msgstr "Network Protocol"
+
+#: src/views/setting/SettingSafe.vue:114
+msgid "Login Captcha"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:119
+msgid ""
+"When enabled, a captcha will be required after 3 failed login attempts to "
+"prevent brute force attacks"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:132
 msgid "Request IP Header"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:99
+#: src/views/setting/SettingSafe.vue:137
 msgid ""
 "Set the header that carries the real IP of the client, useful when using CDN "
 "or reverse proxy. Leave blank to use the client IP directly"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:105
+#: src/views/setting/SettingSafe.vue:143
 msgid "X-Real-IP"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:112
+#: src/views/setting/SettingSafe.vue:150
 msgid "Bind Domain"
 msgstr "Bind Domain"
 
-#: src/views/setting/SettingSafe.vue:117
+#: src/views/setting/SettingSafe.vue:155
 msgid ""
 "Restrict panel access to the specified domain names. Leave blank to allow "
 "access from any domain"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:134
+#: src/views/setting/SettingSafe.vue:172
 msgid "Bind IP"
 msgstr "Bind IP"
 
-#: src/views/setting/SettingSafe.vue:139
+#: src/views/setting/SettingSafe.vue:177
 msgid ""
 "Restrict panel access to the specified IP addresses. Leave blank to allow "
 "access from any IP"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:152
+#: src/views/setting/SettingSafe.vue:190
 msgid "Bind UA"
 msgstr "Bind UA"
 
-#: src/views/setting/SettingSafe.vue:157
+#: src/views/setting/SettingSafe.vue:195
 msgid ""
 "Restrict panel access to the specified User-Agent strings. Leave blank to "
 "allow access from any User-Agent"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:174
+#: src/views/setting/SettingSafe.vue:212
 msgid "Offline Mode"
 msgstr "Offline Mode"
 
-#: src/views/setting/SettingSafe.vue:179
+#: src/views/setting/SettingSafe.vue:217
 msgid ""
 "When enabled, the panel will not attempt to connect to external services for "
 "updates or other features. This may limit some functionalities"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:192
+#: src/views/setting/SettingSafe.vue:230
 msgid "Auto Update"
 msgstr "Auto Update"
 
-#: src/views/setting/SettingSafe.vue:197
+#: src/views/setting/SettingSafe.vue:235
 msgid ""
 "When enabled, the panel will automatically check for and install updates "
 "when they are available. It is recommended to keep this enabled to ensure "
 "you have the latest features and security patches"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:210
+#: src/views/setting/SettingSafe.vue:248
 msgid "Panel HTTPS"
 msgstr "Panel HTTPS"
 
-#: src/views/setting/SettingSafe.vue:215
+#: src/views/setting/SettingSafe.vue:253
 msgid ""
 "Enable HTTPS for the panel. ACME will automatically obtain and renew "
 "certificates (requires panel accessible via public IP). Custom allows you to "
 "provide your own certificate"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:230 src/views/setting/SettingSafe.vue:235
+#: src/views/setting/SettingSafe.vue:262
+#, fuzzy
+msgid "Disabled"
+msgstr "Enabled"
+
+#: src/views/setting/SettingSafe.vue:263
+msgid "ACME (Auto)"
+msgstr ""
+
+#: src/views/setting/SettingSafe.vue:264
+#, fuzzy
+msgid "Custom Certificate"
+msgstr "Create Certificate"
+
+#: src/views/setting/SettingSafe.vue:272 src/views/setting/SettingSafe.vue:277
 msgid "Panel Public IP"
 msgstr ""
 
-#: src/views/setting/SettingSafe.vue:240
+#: src/views/setting/SettingSafe.vue:282
 msgid ""
 "Panel public IP is used to issue HTTPS certificates using ACME. Ensure that "
 "the entered IP address is accessible from the public network."
@@ -5794,6 +5847,9 @@ msgstr ""
 #: src/views/website/SettingView.vue:110
 msgid "Enter the default cipher suite, leave blank to reset to default"
 msgstr ""
+
+#~ msgid "Safe Login"
+#~ msgstr "Safe Login"
 
 #~ msgid ""
 #~ "If you modify the original text, other modifications will not take effect "
