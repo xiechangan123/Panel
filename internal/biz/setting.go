@@ -9,20 +9,22 @@ import (
 type SettingKey string
 
 const (
-	SettingKeyName              SettingKey = "name"
-	SettingKeyVersion           SettingKey = "version"
-	SettingKeyChannel           SettingKey = "channel"
-	SettingKeyMonitor           SettingKey = "monitor"
-	SettingKeyMonitorDays       SettingKey = "monitor_days"
-	SettingKeyBackupPath        SettingKey = "backup_path"
-	SettingKeyWebsitePath       SettingKey = "website_path"
-	SettingKeyMySQLRootPassword SettingKey = "mysql_root_password"
-	SettingKeyOfflineMode       SettingKey = "offline_mode"
-	SettingKeyAutoUpdate        SettingKey = "auto_update"
-	SettingKeyWebserver         SettingKey = "webserver"
-	SettingKeyPublicIPs         SettingKey = "public_ips"
-	SettingHiddenMenu           SettingKey = "hidden_menu"
-	SettingKeyCustomLogo        SettingKey = "custom_logo"
+	SettingKeyName                SettingKey = "name"
+	SettingKeyVersion             SettingKey = "version"
+	SettingKeyChannel             SettingKey = "channel"
+	SettingKeyMonitor             SettingKey = "monitor"
+	SettingKeyMonitorDays         SettingKey = "monitor_days"
+	SettingKeyBackupPath          SettingKey = "backup_path"
+	SettingKeyWebsitePath         SettingKey = "website_path"
+	SettingKeyWebsiteTLSVersions  SettingKey = "website_tls_versions"
+	SettingKeyWebsiteCipherSuites SettingKey = "website_tls_cipher_suites"
+	SettingKeyMySQLRootPassword   SettingKey = "mysql_root_password"
+	SettingKeyOfflineMode         SettingKey = "offline_mode"
+	SettingKeyAutoUpdate          SettingKey = "auto_update"
+	SettingKeyWebserver           SettingKey = "webserver"
+	SettingKeyPublicIPs           SettingKey = "public_ips"
+	SettingHiddenMenu             SettingKey = "hidden_menu"
+	SettingKeyCustomLogo          SettingKey = "custom_logo"
 )
 
 type Setting struct {

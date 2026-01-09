@@ -84,6 +84,17 @@ func (r *websiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) err
 	if err := io.Write(filepath.Join(app.Root, "server/nginx/html/stop.html"), req.Stop, 0644); err != nil {
 		return err
 	}
+	if req.NotFound != "" {
+		if err := io.Write(filepath.Join(app.Root, "server/nginx/html/404.html"), req.NotFound, 0644); err != nil {
+			return err
+		}
+	}
+	if err := r.setting.SetSlice(biz.SettingKeyWebsiteTLSVersions, req.TLSVersions); err != nil {
+		return err
+	}
+	if err := r.setting.Set(biz.SettingKeyWebsiteCipherSuites, req.CipherSuites); err != nil {
+		return err
+	}
 
 	return r.reloadWebServer()
 }
@@ -342,17 +353,22 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 		return nil, err
 	}
 	var notFound []byte
-	switch app.Locale {
-	case "zh_CN":
-		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh_CN.html"))
-	case "zh_TW":
-		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh_TW.html"))
-	default:
-		notFound, err = embed.WebsiteFS.ReadFile(filepath.Join("website", "404.html"))
+
+	// 如果存在自定义 404 页面，则使用自定义的
+	// TODO 需要兼容 Apache
+	if io.Exists(filepath.Join(app.Root, "server/nginx/html/404.html")) {
+		notFound, _ = os.ReadFile(filepath.Join(app.Root, "server/nginx/html/404.html"))
+	} else {
+		switch app.Locale {
+		case "zh_CN":
+			notFound, _ = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh_CN.html"))
+		case "zh_TW":
+			notFound, _ = embed.WebsiteFS.ReadFile(filepath.Join("website", "404_zh_TW.html"))
+		default:
+			notFound, _ = embed.WebsiteFS.ReadFile(filepath.Join("website", "404.html"))
+		}
 	}
-	if err != nil {
-		return nil, errors.New(r.t.Get("failed to get 404 template file: %v", err))
-	}
+
 	if err = io.Write(filepath.Join(req.Path, "404.html"), string(notFound), 0644); err != nil {
 		return nil, err
 	}
@@ -487,11 +503,13 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 				break
 			}
 		}
+		defaultTLSVersions, _ := r.setting.GetSlice(biz.SettingKeyWebsiteTLSVersions)
+		defaultCipherSuites, _ := r.setting.Get(biz.SettingKeyWebsiteCipherSuites)
 		if err = vhost.SetSSLConfig(&webservertypes.SSLConfig{
 			Cert:         certPath,
 			Key:          keyPath,
-			Protocols:    lo.If(len(req.SSLProtocols) > 0, req.SSLProtocols).Else([]string{"TLSv1.2", "TLSv1.3"}),
-			Ciphers:      lo.If(req.SSLCiphers != "", req.SSLCiphers).Else("ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305"),
+			Protocols:    lo.If(len(req.SSLProtocols) > 0, req.SSLProtocols).Else(defaultTLSVersions),
+			Ciphers:      lo.If(req.SSLCiphers != "", req.SSLCiphers).Else(defaultCipherSuites),
 			HSTS:         req.HSTS,
 			OCSP:         req.OCSP,
 			HTTPRedirect: req.HTTPRedirect,

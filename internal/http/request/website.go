@@ -5,8 +5,11 @@ import (
 )
 
 type WebsiteDefaultConfig struct {
-	Index string `json:"index" form:"index" validate:"required"`
-	Stop  string `json:"stop" form:"stop" validate:"required"`
+	Index        string   `json:"index" form:"index" validate:"required"`
+	Stop         string   `json:"stop" form:"stop" validate:"required"`
+	NotFound     string   `json:"not_found" form:"not_found"`
+	TLSVersions  []string `json:"tls_versions" form:"tls_versions" validate:"required|isSlice"`
+	CipherSuites string   `json:"cipher_suites" form:"cipher_suites" validate:"required"`
 }
 
 type WebsiteList struct {

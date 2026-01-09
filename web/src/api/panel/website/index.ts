@@ -14,8 +14,7 @@ export default {
   // 获取默认配置
   defaultConfig: (): any => http.Get('/website/default_config'),
   // 保存默认配置
-  saveDefaultConfig: (index: string, stop: string): any =>
-    http.Post('/website/default_config', { index, stop }),
+  saveDefaultConfig: (data: any): any => http.Post('/website/default_config', data),
   // 网站配置
   config: (id: number): any => http.Get('/website/' + id),
   // 保存网站配置

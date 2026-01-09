@@ -323,6 +323,26 @@ const hasArg = (args: string[], arg: string) => {
             </n-form-item>
           </n-form>
           <n-form v-if="setting.ssl">
+            <n-form-item :label="$gettext('TLS Version')">
+              <n-select
+                v-model:value="setting.ssl_protocols"
+                :options="[
+                  { label: 'TLS 1.0', value: 'TLSv1.0' },
+                  { label: 'TLS 1.1', value: 'TLSv1.1' },
+                  { label: 'TLS 1.2', value: 'TLSv1.2' },
+                  { label: 'TLS 1.3', value: 'TLSv1.3' }
+                ]"
+                multiple
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Cipher Suites')">
+              <n-input
+                type="textarea"
+                v-model:value="setting.ssl_ciphers"
+                :placeholder="$gettext('Enter the cipher suite, leave blank to reset to default')"
+                rows="4"
+              />
+            </n-form-item>
             <n-form-item :label="$gettext('Certificate')">
               <n-input
                 v-model:value="setting.ssl_cert"
@@ -355,25 +375,7 @@ const hasArg = (args: string[], arg: string) => {
               />
             </n-form-item>
           </n-form>
-          <common-editor v-if="setting" v-model:content="setting.rewrite" height="60vh" />
-        </n-flex>
-      </n-tab-pane>
-      <n-tab-pane name="config" :tab="$gettext('Configuration')">
-        <n-flex vertical>
-          <n-alert type="info" w-full>
-            {{
-              $gettext(
-                'If you modify the original text, other modifications will not take effect after clicking save!'
-              )
-            }}
-          </n-alert>
-          <n-alert type="warning" w-full>
-            {{
-              $gettext(
-                'If you do not understand the configuration rules, please do not modify them arbitrarily, otherwise it may cause the website to be inaccessible or panel function abnormalities! If you have already encountered a problem, try resetting the configuration!'
-              )
-            }}
-          </n-alert>
+          <common-editor v-if="setting" v-model:value="setting.rewrite" height="60vh" />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="log" :tab="$gettext('Access Log')">

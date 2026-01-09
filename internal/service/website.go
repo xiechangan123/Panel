@@ -35,20 +35,18 @@ func (s *WebsiteService) GetRewrites(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *WebsiteService) GetDefaultConfig(w http.ResponseWriter, r *http.Request) {
-	index, err := io.Read(filepath.Join(app.Root, "server/nginx/html/index.html"))
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	stop, err := io.Read(filepath.Join(app.Root, "server/nginx/html/stop.html"))
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	index, _ := io.Read(filepath.Join(app.Root, "server/nginx/html/index.html"))
+	stop, _ := io.Read(filepath.Join(app.Root, "server/nginx/html/stop.html"))
+	notFound, _ := io.Read(filepath.Join(app.Root, "server/nginx/html/404.html"))
+	tlsVersions, _ := s.settingRepo.GetSlice(biz.SettingKeyWebsiteTLSVersions)
+	cipherSuites, _ := s.settingRepo.Get(biz.SettingKeyWebsiteCipherSuites)
 
 	Success(w, chix.M{
-		"index": index,
-		"stop":  stop,
+		"index":         index,
+		"stop":          stop,
+		"not_found":     notFound,
+		"tls_versions":  tlsVersions,
+		"cipher_suites": cipherSuites,
 	})
 }
 
