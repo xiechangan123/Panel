@@ -178,6 +178,54 @@ func (_c *EnvironmentRepo_Install_Call) RunAndReturn(run func(string, string) er
 	return _c
 }
 
+// InstalledSlugs provides a mock function with given fields: typ
+func (_m *EnvironmentRepo) InstalledSlugs(typ string) []string {
+	ret := _m.Called(typ)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InstalledSlugs")
+	}
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func(string) []string); ok {
+		r0 = rf(typ)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	return r0
+}
+
+// EnvironmentRepo_InstalledSlugs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InstalledSlugs'
+type EnvironmentRepo_InstalledSlugs_Call struct {
+	*mock.Call
+}
+
+// InstalledSlugs is a helper method to define mock.On call
+//   - typ string
+func (_e *EnvironmentRepo_Expecter) InstalledSlugs(typ interface{}) *EnvironmentRepo_InstalledSlugs_Call {
+	return &EnvironmentRepo_InstalledSlugs_Call{Call: _e.mock.On("InstalledSlugs", typ)}
+}
+
+func (_c *EnvironmentRepo_InstalledSlugs_Call) Run(run func(typ string)) *EnvironmentRepo_InstalledSlugs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *EnvironmentRepo_InstalledSlugs_Call) Return(_a0 []string) *EnvironmentRepo_InstalledSlugs_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *EnvironmentRepo_InstalledSlugs_Call) RunAndReturn(run func(string) []string) *EnvironmentRepo_InstalledSlugs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // InstalledVersion provides a mock function with given fields: typ, slug
 func (_m *EnvironmentRepo) InstalledVersion(typ string, slug string) string {
 	ret := _m.Called(typ, slug)

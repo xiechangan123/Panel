@@ -469,14 +469,10 @@ func (_c *AppRepo_Installed_Call) RunAndReturn(run func() ([]*biz.App, error)) *
 }
 
 // IsInstalled provides a mock function with given fields: query, cond
-func (_m *AppRepo) IsInstalled(query string, cond ...string) (bool, error) {
-	_va := make([]interface{}, len(cond))
-	for _i := range cond {
-		_va[_i] = cond[_i]
-	}
+func (_m *AppRepo) IsInstalled(query string, cond ...interface{}) (bool, error) {
 	var _ca []interface{}
 	_ca = append(_ca, query)
-	_ca = append(_ca, _va...)
+	_ca = append(_ca, cond...)
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
@@ -485,16 +481,16 @@ func (_m *AppRepo) IsInstalled(query string, cond ...string) (bool, error) {
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, ...string) (bool, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, ...interface{}) (bool, error)); ok {
 		return rf(query, cond...)
 	}
-	if rf, ok := ret.Get(0).(func(string, ...string) bool); ok {
+	if rf, ok := ret.Get(0).(func(string, ...interface{}) bool); ok {
 		r0 = rf(query, cond...)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, ...string) error); ok {
+	if rf, ok := ret.Get(1).(func(string, ...interface{}) error); ok {
 		r1 = rf(query, cond...)
 	} else {
 		r1 = ret.Error(1)
@@ -510,18 +506,18 @@ type AppRepo_IsInstalled_Call struct {
 
 // IsInstalled is a helper method to define mock.On call
 //   - query string
-//   - cond ...string
+//   - cond ...interface{}
 func (_e *AppRepo_Expecter) IsInstalled(query interface{}, cond ...interface{}) *AppRepo_IsInstalled_Call {
 	return &AppRepo_IsInstalled_Call{Call: _e.mock.On("IsInstalled",
 		append([]interface{}{query}, cond...)...)}
 }
 
-func (_c *AppRepo_IsInstalled_Call) Run(run func(query string, cond ...string)) *AppRepo_IsInstalled_Call {
+func (_c *AppRepo_IsInstalled_Call) Run(run func(query string, cond ...interface{})) *AppRepo_IsInstalled_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]string, len(args)-1)
+		variadicArgs := make([]interface{}, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(string)
+				variadicArgs[i] = a.(interface{})
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -534,7 +530,7 @@ func (_c *AppRepo_IsInstalled_Call) Return(_a0 bool, _a1 error) *AppRepo_IsInsta
 	return _c
 }
 
-func (_c *AppRepo_IsInstalled_Call) RunAndReturn(run func(string, ...string) (bool, error)) *AppRepo_IsInstalled_Call {
+func (_c *AppRepo_IsInstalled_Call) RunAndReturn(run func(string, ...interface{}) (bool, error)) *AppRepo_IsInstalled_Call {
 	_c.Call.Return(run)
 	return _c
 }
