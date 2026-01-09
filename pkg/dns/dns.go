@@ -217,7 +217,7 @@ func setDNSWithNetplan(dns1, dns2 string) error {
 		return setDNSWithResolvConf(dns1, dns2)
 	}
 	// 写入配置文件
-	if err = io.Write(configPath, newContent, 0600); err != nil {
+	if err = io.Write(configPath, newContent, 0644); err != nil {
 		return fmt.Errorf("failed to write netplan config: %w", err)
 	}
 	// 应用 netplan 配置
