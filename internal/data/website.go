@@ -694,6 +694,29 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		}
 	}
 
+	// 设置目录权限
+	if err = io.Chown(website.Path, "root", "root"); err != nil {
+		return err
+	}
+	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name), 0755); err != nil {
+		return err
+	}
+	if err = io.Chmod(website.Path, 0755); err != nil {
+		return err
+	}
+	if err = io.Chown(website.Path, "www", "www"); err != nil {
+		return err
+	}
+	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name, "log"), 0644); err != nil {
+		return err
+	}
+	if err = io.Chown(filepath.Join(app.Root, "sites", website.Name, "log"), "www", "www"); err != nil {
+		return err
+	}
+	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name, "config"), 0600); err != nil {
+		return err
+	}
+
 	website.Status = true
 	website.SSL = false
 	if err = r.db.Save(website).Error; err != nil {
