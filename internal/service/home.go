@@ -197,7 +197,6 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 
 	var phpData []types.LVInt
 	var dbData []types.LV
-	phpData = append(phpData, types.LVInt{Value: 0, Label: s.t.Get("Not used")})
 	dbData = append(dbData, types.LV{Value: "0", Label: s.t.Get("Not used")})
 	for _, slug := range s.environmentRepo.InstalledSlugs("php") {
 		ver := s.environmentRepo.InstalledVersion("php", slug)

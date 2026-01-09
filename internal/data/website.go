@@ -391,7 +391,7 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 	// 设置目录权限
 	// sites/site_name 0755 root
 	// sites/site_name/config 0600 root
-	// sites/site_name/log 644 www
+	// sites/site_name/log 644 root
 	// sites/site_name/public 0755 www
 	if err = io.Chmod(filepath.Join(app.Root, "sites", req.Name), 0755); err != nil {
 		return nil, err
@@ -403,9 +403,6 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 		return nil, err
 	}
 	if err = io.Chmod(filepath.Join(app.Root, "sites", req.Name, "log"), 0644); err != nil {
-		return nil, err
-	}
-	if err = io.Chown(filepath.Join(app.Root, "sites", req.Name, "log"), "www", "www"); err != nil {
 		return nil, err
 	}
 	if err = io.Chmod(filepath.Join(app.Root, "sites", req.Name, "config"), 0600); err != nil {
@@ -708,9 +705,6 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name, "log"), 0644); err != nil {
-		return err
-	}
-	if err = io.Chown(filepath.Join(app.Root, "sites", website.Name, "log"), "www", "www"); err != nil {
 		return err
 	}
 	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name, "config"), 0600); err != nil {
