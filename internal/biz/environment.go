@@ -9,6 +9,7 @@ type EnvironmentRepo interface {
 	Types() []types.LV
 	All(typ ...string) api.Environments
 	IsInstalled(typ, slug string) bool
+	InstalledSlugs(typ string) []string
 	InstalledVersion(typ, slug string) string
 	HasUpdate(typ, slug string) bool
 	Install(typ, slug string) error

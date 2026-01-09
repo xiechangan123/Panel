@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -27,28 +26,30 @@ import (
 )
 
 type HomeService struct {
-	t           *gotext.Locale
-	api         *api.API
-	conf        *config.Config
-	taskRepo    biz.TaskRepo
-	websiteRepo biz.WebsiteRepo
-	appRepo     biz.AppRepo
-	settingRepo biz.SettingRepo
-	cronRepo    biz.CronRepo
-	backupRepo  biz.BackupRepo
+	t               *gotext.Locale
+	api             *api.API
+	conf            *config.Config
+	taskRepo        biz.TaskRepo
+	websiteRepo     biz.WebsiteRepo
+	appRepo         biz.AppRepo
+	environmentRepo biz.EnvironmentRepo
+	settingRepo     biz.SettingRepo
+	cronRepo        biz.CronRepo
+	backupRepo      biz.BackupRepo
 }
 
-func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
+func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
 	return &HomeService{
-		t:           t,
-		api:         api.NewAPI(app.Version, app.Locale),
-		conf:        conf,
-		taskRepo:    task,
-		websiteRepo: website,
-		appRepo:     appRepo,
-		settingRepo: setting,
-		cronRepo:    cron,
-		backupRepo:  backupRepo,
+		t:               t,
+		api:             api.NewAPI(app.Version, app.Locale),
+		conf:            conf,
+		taskRepo:        task,
+		websiteRepo:     website,
+		appRepo:         appRepo,
+		environmentRepo: environment,
+		settingRepo:     setting,
+		cronRepo:        cron,
+		backupRepo:      backupRepo,
 	}
 }
 
@@ -190,24 +191,17 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *HomeService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Request) {
-	mysqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "mysql")
+func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Request) {
+	mysqlInstalled, _ := s.appRepo.IsInstalled("slug IN ?", []string{"mysql", "mariadb", "percona"})
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
-	php, _ := s.appRepo.GetInstalledAll("slug like ?", "php%")
 
 	var phpData []types.LVInt
 	var dbData []types.LV
 	phpData = append(phpData, types.LVInt{Value: 0, Label: s.t.Get("Not used")})
 	dbData = append(dbData, types.LV{Value: "0", Label: s.t.Get("Not used")})
-	for _, p := range php {
-		// 过滤 phpmyadmin
-		match := regexp.MustCompile(`php(\d+)`).FindStringSubmatch(p.Slug)
-		if len(match) == 0 {
-			continue
-		}
-
-		item, _ := s.appRepo.Get(p.Slug)
-		phpData = append(phpData, types.LVInt{Value: cast.ToInt(strings.ReplaceAll(p.Slug, "php", "")), Label: item.Name})
+	for _, slug := range s.environmentRepo.InstalledSlugs("php") {
+		ver := s.environmentRepo.InstalledVersion("php", slug)
+		phpData = append(phpData, types.LVInt{Value: cast.ToInt(slug), Label: fmt.Sprintf("PHP %s", ver)})
 	}
 
 	if mysqlInstalled {
@@ -217,9 +211,11 @@ func (s *HomeService) InstalledDbAndPhp(w http.ResponseWriter, r *http.Request) 
 		dbData = append(dbData, types.LV{Value: "postgresql", Label: "PostgreSQL"})
 	}
 
+	webserver, _ := s.settingRepo.Get(biz.SettingKeyWebserver)
 	Success(w, chix.M{
-		"php": phpData,
-		"db":  dbData,
+		"webserver": webserver,
+		"php":       phpData,
+		"db":        dbData,
 	})
 }
 

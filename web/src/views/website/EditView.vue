@@ -49,7 +49,7 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     proxies: []
   }
 })
-const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
+const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
     php: [
       {
@@ -249,7 +249,7 @@ const hasArg = (args: string[], arg: string) => {
             <n-select
               v-model:value="setting.php"
               :default-value="0"
-              :options="installedDbAndPhp.php"
+              :options="installedEnvironment.php"
               :placeholder="$gettext('Select PHP Version')"
               @keydown.enter.prevent
             >

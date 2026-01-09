@@ -167,7 +167,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/current", route.home.Current)
 			r.Get("/system_info", route.home.SystemInfo)
 			r.Get("/count_info", route.home.CountInfo)
-			r.Get("/installed_db_and_php", route.home.InstalledDbAndPhp)
+			r.Get("/installed_environment", route.home.InstalledEnvironment)
 			r.Get("/check_update", route.home.CheckUpdate)
 			r.Get("/update_info", route.home.UpdateInfo)
 			r.Post("/update", route.home.Update)

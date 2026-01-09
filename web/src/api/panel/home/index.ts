@@ -12,8 +12,8 @@ export default {
   systemInfo: (): any => http.Get('/home/system_info'),
   // 统计信息
   countInfo: (): any => http.Get('/home/count_info'),
-  // 已安装的数据库和PHP
-  installedDbAndPhp: (): any => http.Get('/home/installed_db_and_php'),
+  // 已安装的环境
+  installedEnvironment: (): any => http.Get('/home/installed_environment'),
   // 检查更新
   checkUpdate: (): any => http.Get('/home/check_update'),
   // 更新日志

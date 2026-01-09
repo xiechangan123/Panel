@@ -27,7 +27,7 @@ type AppRepo interface {
 	GetInstalled(slug string) (*App, error)
 	GetInstalledAll(query string, cond ...string) ([]*App, error)
 	GetHomeShow() ([]map[string]string, error)
-	IsInstalled(query string, cond ...string) (bool, error)
+	IsInstalled(query string, cond ...any) (bool, error)
 	Install(channel, slug string) error
 	UnInstall(slug string) error
 	Update(slug string) error

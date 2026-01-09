@@ -132,6 +132,11 @@ func (v *baseVhost) SetEnable(enable bool) error {
 		return err
 	}
 
+	// 清理保存的根目录文件
+	if enable {
+		_ = os.RemoveAll(filepath.Join(v.configDir, "root.saved"))
+	}
+
 	// 设置 Include 配置
 	v.vhost.RemoveDirectives("IncludeOptional")
 	if enable {

@@ -82,6 +82,20 @@ func (r *environmentRepo) IsInstalled(typ, slug string) bool {
 	return err == nil
 }
 
+func (r *environmentRepo) InstalledSlugs(typ string) []string {
+	var slugs []string
+	all := r.All()
+	for _, env := range all {
+		if env.Type != typ {
+			continue
+		}
+		if r.IsInstalled(typ, env.Slug) {
+			slugs = append(slugs, env.Slug)
+		}
+	}
+	return slugs
+}
+
 func (r *environmentRepo) InstalledVersion(typ, slug string) string {
 	if !r.IsInstalled(typ, slug) {
 		return ""

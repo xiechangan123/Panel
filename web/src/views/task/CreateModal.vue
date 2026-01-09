@@ -24,7 +24,7 @@ const createModel = ref({
 
 const websites = ref<any>([])
 
-const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
+const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
     db: [
       {
@@ -36,11 +36,11 @@ const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
 })
 
 const mySQLInstalled = computed(() => {
-  return installedDbAndPhp.value.db.find((item: any) => item.value === 'mysql')
+  return installedEnvironment.value.db.find((item: any) => item.value === 'mysql')
 })
 
 const postgreSQLInstalled = computed(() => {
-  return installedDbAndPhp.value.db.find((item: any) => item.value === 'postgresql')
+  return installedEnvironment.value.db.find((item: any) => item.value === 'postgresql')
 })
 
 const handleSubmit = async () => {

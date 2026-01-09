@@ -28,7 +28,7 @@ const createModel = ref({
   proxy: ''
 })
 
-const { data: installedDbAndPhp } = useRequest(home.installedDbAndPhp, {
+const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
     php: [
       {
@@ -141,7 +141,7 @@ const formatDbValue = (value: string) => {
           <n-form-item path="php" :label="$gettext('PHP Version')">
             <n-select
               v-model:value="createModel.php"
-              :options="installedDbAndPhp.php"
+              :options="installedEnvironment.php"
               :placeholder="$gettext('Select PHP Version')"
               @keydown.enter.prevent
             >
@@ -153,7 +153,7 @@ const formatDbValue = (value: string) => {
           <n-form-item path="db" :label="$gettext('Database')">
             <n-select
               v-model:value="createModel.db_type"
-              :options="installedDbAndPhp.db"
+              :options="installedEnvironment.db"
               :placeholder="$gettext('Select Database')"
               @keydown.enter.prevent
               @update:value="

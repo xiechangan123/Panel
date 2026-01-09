@@ -162,14 +162,14 @@ func (r *appRepo) GetHomeShow() ([]map[string]string, error) {
 	return filtered, nil
 }
 
-func (r *appRepo) IsInstalled(query string, cond ...string) (bool, error) {
+func (r *appRepo) IsInstalled(query string, cond ...any) (bool, error) {
 	var count int64
 	if len(cond) == 0 {
 		if err := r.db.Model(&biz.App{}).Where("slug = ?", query).Count(&count).Error; err != nil {
 			return false, err
 		}
 	} else {
-		if err := r.db.Model(&biz.App{}).Where(query, cond).Count(&count).Error; err != nil {
+		if err := r.db.Model(&biz.App{}).Where(query, cond...).Count(&count).Error; err != nil {
 			return false, err
 		}
 	}
