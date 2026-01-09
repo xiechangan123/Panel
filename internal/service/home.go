@@ -20,6 +20,7 @@ import (
 	"github.com/acepanel/panel/pkg/api"
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/db"
+	"github.com/acepanel/panel/pkg/os"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/tools"
 	"github.com/acepanel/panel/pkg/types"
@@ -115,6 +116,33 @@ func (s *HomeService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// 系统是否支持
+	osSupported := true
+	if os.IsRHEL() {
+		minVer := version.Must(version.NewVersion("9.0"))
+		currentVerStr := strings.Split(hostInfo.PlatformVersion, " ")[0]
+		currentVer, err := version.NewVersion(currentVerStr)
+		if err != nil || currentVer.LessThan(minVer) {
+			osSupported = false
+		}
+	}
+	if os.IsDebian() {
+		minVer := version.Must(version.NewVersion("12.0"))
+		currentVerStr := strings.Split(hostInfo.PlatformVersion, " ")[0]
+		currentVer, err := version.NewVersion(currentVerStr)
+		if err != nil || currentVer.LessThan(minVer) {
+			osSupported = false
+		}
+	}
+	if os.IsUbuntu() {
+		minVer := version.Must(version.NewVersion("22.04"))
+		currentVerStr := strings.Split(hostInfo.PlatformVersion, " ")[0]
+		currentVer, err := version.NewVersion(currentVerStr)
+		if err != nil || currentVer.LessThan(minVer) {
+			osSupported = false
+		}
+	}
+
 	Success(w, chix.M{
 		"procs":          hostInfo.Procs,
 		"hostname":       hostInfo.Hostname,
@@ -128,6 +156,8 @@ func (s *HomeService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 		"kernel_arch":    hostInfo.KernelArch,
 		"kernel_version": hostInfo.KernelVersion,
 		"os_name":        hostInfo.Platform + " " + hostInfo.PlatformVersion,
+		"os_supported":   osSupported,
+		"os_eol":         os.IsEOL(),
 		"boot_time":      hostInfo.BootTime,
 		"uptime":         hostInfo.Uptime,
 		"nets":           nets,

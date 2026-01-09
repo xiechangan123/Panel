@@ -54,7 +54,9 @@ const { data: systemInfo } = useRequest(home.systemInfo, {
     go_version: '',
     kernel_arch: '',
     kernel_version: '',
+    os_eol: false,
     os_name: '',
+    os_supported: true,
     boot_time: 0,
     uptime: 0,
     nets: [],
@@ -417,6 +419,28 @@ if (import.meta.hot) {
   <app-page :show-footer="true" min-w-375>
     <div flex-1>
       <n-space vertical>
+        <!-- 系统是否 EOL -->
+        <n-alert type="info" v-if="systemInfo.os_eol">
+          {{
+            $gettext(
+              'Your operating system %{ os_name } has reached its end-of-life. Please consider upgrading to a supported version to ensure optimal performance and security.',
+              {
+                os_name: systemInfo?.os_name
+              }
+            )
+          }}
+        </n-alert>
+        <!-- 系统是否不受支持 -->
+        <n-alert type="warning" v-if="!systemInfo.os_supported">
+          {{
+            $gettext(
+              'Your operating system %{ os_name } is not officially supported. Some features may not work as expected. Please consider using a supported operating system for the best experience.',
+              {
+                os_name: systemInfo?.os_name
+              }
+            )
+          }}
+        </n-alert>
         <n-card :segmented="true" size="small">
           <n-page-header :subtitle="systemInfo?.panel_version">
             <n-grid :cols="4" pb-10>
