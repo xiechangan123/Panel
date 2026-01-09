@@ -3,12 +3,12 @@ package job
 import (
 	"log/slog"
 
-	"github.com/acepanel/panel/pkg/config"
 	"github.com/google/wire"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/config"
 )
 
 var ProviderSet = wire.NewSet(NewJobs)

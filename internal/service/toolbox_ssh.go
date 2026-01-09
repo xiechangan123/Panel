@@ -5,13 +5,13 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/acepanel/panel/pkg/os"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/io"
+	"github.com/acepanel/panel/pkg/os"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/systemctl"
 )

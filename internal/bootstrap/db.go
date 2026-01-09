@@ -30,7 +30,7 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 		options = append(options, sloggorm.WithTraceAll())
 	}
 
-	return gorm.Open(gormlite.Open("file:"+filepath.Join(app.Root, "panel/storage/app.db?_txlock=immediate")), &gorm.Config{
+	return gorm.Open(gormlite.Open("file:"+filepath.Join(app.Root, "panel/storage/panel.db?_txlock=immediate")), &gorm.Config{
 		Logger:                                   sloggorm.New(options...),
 		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,

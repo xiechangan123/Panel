@@ -15,6 +15,7 @@ import (
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/types"
@@ -22,13 +23,15 @@ import (
 
 type EnvironmentPHPService struct {
 	t               *gotext.Locale
+	conf            *config.Config
 	environmentRepo biz.EnvironmentRepo
 	taskRepo        biz.TaskRepo
 }
 
-func NewEnvironmentPHPService(t *gotext.Locale, environmentRepo biz.EnvironmentRepo, taskRepo biz.TaskRepo) *EnvironmentPHPService {
+func NewEnvironmentPHPService(t *gotext.Locale, conf *config.Config, environmentRepo biz.EnvironmentRepo, taskRepo biz.TaskRepo) *EnvironmentPHPService {
 	return &EnvironmentPHPService{
 		t:               t,
+		conf:            conf,
 		environmentRepo: environmentRepo,
 		taskRepo:        taskRepo,
 	}
@@ -310,10 +313,10 @@ func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'install' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), req.Version, req.Slug)
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/%s.sh' | bash -s -- 'install' '%d' >> '/tmp/%s.log' 2>&1`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version, req.Slug)
 	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
 	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/official.sh' | bash -s -- 'install' '%d' '%s' >> '/tmp/%s.log' 2>&1`, req.Version, req.Slug, req.Slug)
+		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/official.sh' | bash -s -- 'install' '%d' '%s' >> '/tmp/%s.log' 2>&1`, s.conf.App.DownloadEndpoint, req.Version, req.Slug, req.Slug)
 	}
 
 	task := new(biz.Task)
@@ -345,10 +348,10 @@ func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/%s.sh' | bash -s -- 'uninstall' '%d' >> '/tmp/%s.log' 2>&1`, url.PathEscape(req.Slug), req.Version, req.Slug)
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/%s.sh' | bash -s -- 'uninstall' '%d' >> '/tmp/%s.log' 2>&1`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version, req.Slug)
 	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
 	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://dl.cdn.haozi.net/panel/php_exts/official.sh' | bash -s -- 'uninstall' '%d' '%s' >> '/tmp/%s.log' 2>&1`, req.Version, req.Slug, req.Slug)
+		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/official.sh' | bash -s -- 'uninstall' '%d' '%s' >> '/tmp/%s.log' 2>&1`, s.conf.App.DownloadEndpoint, req.Version, req.Slug, req.Slug)
 	}
 
 	task := new(biz.Task)

@@ -134,7 +134,7 @@ port = ` + ports + `
 maxretry = ` + jailMaxRetry + `
 findtime = ` + jailFindTime + `
 bantime = ` + jailBanTime + `
-logpath = ` + app.Root + `/wwwlogs/` + website.Name + `.log
+logpath = ` + app.Root + `/sites/` + website.Name + `/log/access.log
 # ` + jailWebsiteName + `-` + jailWebsiteMode + `-END
 `
 		raw += rule

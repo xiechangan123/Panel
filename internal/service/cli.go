@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/acepanel/panel/pkg/cert"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/collect"
 	"github.com/libtnb/utils/hash"
@@ -25,6 +24,7 @@ import (
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/api"
+	"github.com/acepanel/panel/pkg/cert"
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/io"
@@ -687,7 +687,7 @@ func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error 
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(app.Root, "wwwlogs")
+	path := filepath.Join(app.Root, "sites", website.Name, "log")
 	if cmd.String("path") != "" {
 		path = cmd.String("path")
 	}
@@ -697,7 +697,7 @@ func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error 
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("|-Rotation type: website"))
 	fmt.Println(s.t.Get("|-Rotation target: %s", website.Name))
-	if err = s.backupRepo.CutoffLog(path, filepath.Join(app.Root, "wwwlogs", website.Name+".log")); err != nil {
+	if err = s.backupRepo.CutoffLog(path, filepath.Join(app.Root, "sites", website.Name, "log", "access.log")); err != nil {
 		return err
 	}
 	fmt.Println(s.hr)
@@ -710,9 +710,9 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 	if cmd.String("type") != "website" {
 		return errors.New(s.t.Get("Currently only website log rotation is supported"))
 	}
-	path := filepath.Join(app.Root, "wwwlogs")
-	if cmd.String("path") != "" {
-		path = cmd.String("path")
+	path := cmd.String("path")
+	if cmd.String("path") == "" {
+		return errors.New(s.t.Get("Please specify the log rotation path"))
 	}
 
 	fmt.Println(s.hr)

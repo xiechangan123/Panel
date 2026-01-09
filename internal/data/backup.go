@@ -15,6 +15,7 @@ import (
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/db"
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/shell"
@@ -24,14 +25,16 @@ import (
 
 type backupRepo struct {
 	t       *gotext.Locale
+	conf    *config.Config
 	db      *gorm.DB
 	setting biz.SettingRepo
 	website biz.WebsiteRepo
 }
 
-func NewBackupRepo(t *gotext.Locale, db *gorm.DB, setting biz.SettingRepo, website biz.WebsiteRepo) biz.BackupRepo {
+func NewBackupRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, setting biz.SettingRepo, website biz.WebsiteRepo) biz.BackupRepo {
 	return &backupRepo{
 		t:       t,
+		conf:    conf,
 		db:      db,
 		setting: setting,
 		website: website,
@@ -350,10 +353,7 @@ func (r *backupRepo) createPanel(to string) error {
 	if err = io.Cp(filepath.Join(app.Root, "panel"), temp); err != nil {
 		return err
 	}
-	if err = io.Cp("/usr/local/sbin/panel-cli", temp); err != nil {
-		return err
-	}
-	if err = io.Cp("/usr/local/etc/panel/config.yml", temp); err != nil {
+	if err = io.Cp("/usr/local/sbin/acepanel", temp); err != nil {
 		return err
 	}
 
@@ -570,9 +570,9 @@ func (r *backupRepo) FixPanel() error {
 	}
 
 	// 检查关键文件是否正常
-	flag := !io.Exists("/usr/local/etc/panel/config.yml") ||
-		!io.Exists(filepath.Join(app.Root, "panel", "web")) ||
-		!io.Exists(filepath.Join(app.Root, "panel", "storage", "app.db")) ||
+	flag := !io.Exists(filepath.Join(app.Root, "panel", "ace")) ||
+		!io.Exists(filepath.Join(app.Root, "panel", "storage", "config.yml")) ||
+		!io.Exists(filepath.Join(app.Root, "panel", "storage", "panel.db")) ||
 		io.Exists("/tmp/panel-storage.zip")
 	// 检查数据库连接
 	if err := r.db.Exec("VACUUM").Error; err != nil {
@@ -582,20 +582,20 @@ func (r *backupRepo) FixPanel() error {
 		flag = true
 	}
 	if !flag {
-		return errors.New(r.t.Get("Files are normal and do not need to be repaired, please run panel-cli update to update the panel"))
+		return errors.New(r.t.Get("Files are normal and do not need to be repaired, please run acepanel update to update the panel"))
 	}
 
 	// 再次确认是否需要修复
 	if io.Exists("/tmp/panel-storage.zip") {
 		// 文件齐全情况下只移除临时文件
-		if io.Exists(filepath.Join(app.Root, "panel", "web")) &&
-			io.Exists(filepath.Join(app.Root, "panel", "storage", "app.db")) &&
-			io.Exists("/usr/local/etc/panel/config.yml") {
+		if io.Exists(filepath.Join(app.Root, "panel", "ace")) &&
+			io.Exists(filepath.Join(app.Root, "panel", "storage", "config.yml")) &&
+			io.Exists(filepath.Join(app.Root, "panel", "storage", "panel.db")) {
 			if err := io.Remove("/tmp/panel-storage.zip"); err != nil {
 				return errors.New(r.t.Get("failed to clean temporary files: %v", err))
 			}
 			if app.IsCli {
-				fmt.Println(r.t.Get("|-Cleaned up temporary files, please run panel-cli update to update the panel"))
+				fmt.Println(r.t.Get("|-Cleaned up temporary files, please run acepanel update to update the panel"))
 			}
 			return nil
 		}
@@ -640,14 +640,9 @@ func (r *backupRepo) FixPanel() error {
 			return errors.New(r.t.Get("Move panel file failed: %v", err))
 		}
 	}
-	if io.Exists(filepath.Join("/tmp/panel-fix", "config.yml")) {
-		if err = io.Mv(filepath.Join("/tmp/panel-fix", "config.yml"), "/usr/local/etc/panel/config.yml"); err != nil {
-			return errors.New(r.t.Get("Move panel config failed: %v", err))
-		}
-	}
-	if io.Exists(filepath.Join("/tmp/panel-fix", "panel-cli")) {
-		if err = io.Mv(filepath.Join("/tmp/panel-fix", "panel-cli"), "/usr/local/sbin/panel-cli"); err != nil {
-			return errors.New(r.t.Get("Move panel-cli file failed: %v", err))
+	if io.Exists(filepath.Join("/tmp/panel-fix", "acepanel")) {
+		if err = io.Mv(filepath.Join("/tmp/panel-fix", "acepanel"), "/usr/local/sbin/acepanel"); err != nil {
+			return errors.New(r.t.Get("Move acepanel file failed: %v", err))
 		}
 	}
 
@@ -666,7 +661,7 @@ func (r *backupRepo) FixPanel() error {
 
 	// 下载服务文件
 	if !io.Exists("/etc/systemd/system/panel.service") {
-		if _, err = shell.Execf(`wget -O /etc/systemd/system/panel.service https://dl.cdn.haozi.net/panel/panel.service && sed -i "s|/www|%s|g" /etc/systemd/system/panel.service`, app.Root); err != nil {
+		if _, err = shell.Execf(`wget -O /etc/systemd/system/panel.service https://%s/panel.service && sed -i "s|/opt/ace|%s|g" /etc/systemd/system/panel.service`, r.conf.App.DownloadEndpoint, app.Root); err != nil {
 			return err
 		}
 	}
@@ -675,13 +670,16 @@ func (r *backupRepo) FixPanel() error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Set key file permissions..."))
 	}
-	if err = io.Chmod("/usr/local/etc/panel/config.yml", 0600); err != nil {
+	if err = io.Chmod(filepath.Join(app.Root, "panel", "storage", "config.yml"), 0600); err != nil {
+		return err
+	}
+	if err = io.Chmod(filepath.Join(app.Root, "panel", "storage", "panel.db"), 0600); err != nil {
 		return err
 	}
 	if err = io.Chmod("/etc/systemd/system/panel.service", 0644); err != nil {
 		return err
 	}
-	if err = io.Chmod("/usr/local/sbin/panel-cli", 0700); err != nil {
+	if err = io.Chmod("/usr/local/sbin/acepanel", 0700); err != nil {
 		return err
 	}
 	if err = io.Chmod(filepath.Join(app.Root, "panel"), 0700); err != nil {
@@ -740,7 +738,7 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	}
 
 	if io.Exists("/tmp/panel-storage.zip") {
-		return errors.New(r.t.Get("Temporary file detected in /tmp, this may be caused by the last update failure, please run panel-cli fix to repair and try again"))
+		return errors.New(r.t.Get("Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"))
 	}
 
 	if app.IsCli {
@@ -770,7 +768,7 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	if err := io.UnCompress(filepath.Join("/tmp", name), filepath.Join(app.Root, "panel")); err != nil {
 		return errors.New(r.t.Get("|-Unzip new version failed: %v", err))
 	}
-	if !io.Exists(filepath.Join(app.Root, "panel", "web")) {
+	if !io.Exists(filepath.Join(app.Root, "panel", "ace")) {
 		return errors.New(r.t.Get("|-Unzip new version failed, missing file"))
 	}
 	if err := io.Remove(filepath.Join("/tmp", name)); err != nil {
@@ -783,30 +781,33 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	if err := io.UnCompress("/tmp/panel-storage.zip", filepath.Join(app.Root, "panel", "storage")); err != nil {
 		return errors.New(r.t.Get("|-Restore panel data failed: %v", err))
 	}
-	if !io.Exists(filepath.Join(app.Root, "panel/storage/app.db")) {
+	if !io.Exists(filepath.Join(app.Root, "panel/storage/panel.db")) {
 		return errors.New(r.t.Get("|-Restore panel data failed, missing file"))
 	}
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Run post-update script..."))
 	}
-	if _, err := shell.Execf("curl -sSLm 10 https://dl.cdn.haozi.net/panel/auto_update.sh | bash"); err != nil {
+	if _, err := shell.Execf("curl -sSLm 10 https://%s/auto_update.sh | bash", r.conf.App.DownloadEndpoint); err != nil {
 		return errors.New(r.t.Get("|-Run post-update script failed: %v", err))
 	}
-	if _, err := shell.Execf(`wget -O /etc/systemd/system/panel.service https://dl.cdn.haozi.net/panel/panel.service && sed -i "s|/www|%s|g" /etc/systemd/system/panel.service`, app.Root); err != nil {
+	if _, err := shell.Execf(
+		`wget -O /etc/systemd/system/panel.service https://%s/panel.service && sed -i "s|/www|%s|g" /etc/systemd/system/panel.service`,
+		r.conf.App.DownloadEndpoint, app.Root,
+	); err != nil {
 		return errors.New(r.t.Get("|-Download panel service file failed: %v", err))
 	}
-	if _, err := shell.Execf("panel-cli setting write version %s", version); err != nil {
+	if _, err := shell.Execf("acepanel setting write version %s", version); err != nil {
 		return errors.New(r.t.Get("|-Write new panel version failed: %v", err))
 	}
-	if err := io.Mv(filepath.Join(app.Root, "panel/cli"), "/usr/local/sbin/panel-cli"); err != nil {
-		return errors.New(r.t.Get("|-Move panel-cli tool failed: %v", err))
+	if err := io.Mv(filepath.Join(app.Root, "panel/cli"), "/usr/local/sbin/acepanel"); err != nil {
+		return errors.New(r.t.Get("|-Move acepanel tool failed: %v", err))
 	}
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Set key file permissions..."))
 	}
-	_ = io.Chmod("/usr/local/sbin/panel-cli", 0700)
+	_ = io.Chmod("/usr/local/sbin/acepanel", 0700)
 	_ = io.Chmod("/etc/systemd/system/panel.service", 0644)
 	_ = io.Chmod(filepath.Join(app.Root, "panel"), 0700)
 
