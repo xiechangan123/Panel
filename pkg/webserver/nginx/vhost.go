@@ -31,6 +31,7 @@ type ProxyVhost struct {
 type baseVhost struct {
 	parser    *Parser
 	configDir string // 配置目录
+	siteName  string // 网站名
 }
 
 // newBaseVhost 创建基础虚拟主机实例
@@ -41,6 +42,7 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 
 	v := &baseVhost{
 		configDir: configDir,
+		siteName:  filepath.Base(filepath.Dir(configDir)),
 	}
 
 	// 加载配置
@@ -58,8 +60,7 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 
 	// 如果没有配置文件，使用默认配置
 	if parser == nil {
-		// 使用空字符串创建默认配置，而不尝试读取文件
-		parser, err = NewParser("")
+		parser, err = NewParser(v.siteName)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load default config: %w", err)
 		}
@@ -123,7 +124,7 @@ func (v *baseVhost) SetEnable(enable bool) error {
 		// 禁用时，保存当前根目录
 		currentRoot := v.Root()
 		if currentRoot != "" && currentRoot != DisablePagePath {
-			if err := os.WriteFile(filepath.Join(v.configDir, "root.saved"), []byte(currentRoot), 0644); err != nil {
+			if err := os.WriteFile(filepath.Join(v.configDir, "root.saved"), []byte(currentRoot), 0600); err != nil {
 				return fmt.Errorf("failed to save current root: %w", err)
 			}
 		}
@@ -160,15 +161,38 @@ func (v *baseVhost) Listen() []types.Listen {
 		return nil
 	}
 
-	var result []types.Listen
+	// 使用 map 合并相同地址的 listen 指令
+	// nginx 中 ssl 和 quic 需要分开写
+	listenMap := make(map[string]types.Listen)
+	var order []string // 保持顺序
+
 	for _, dir := range directives {
 		l := v.parser.parameters2Slices(dir.GetParameters())
-		listen := types.Listen{Address: l[0], Args: []string{}}
-		for i := 1; i < len(l); i++ {
-			listen.Args = append(listen.Args, l[i])
+		if len(l) == 0 {
+			continue
 		}
+		address := l[0]
 
-		result = append(result, listen)
+		if existing, ok := listenMap[address]; ok {
+			// 合并 args
+			for i := 1; i < len(l); i++ {
+				if !slices.Contains(existing.Args, l[i]) {
+					existing.Args = append(existing.Args, l[i])
+				}
+			}
+		} else {
+			listen := types.Listen{Address: address, Args: []string{}}
+			for i := 1; i < len(l); i++ {
+				listen.Args = append(listen.Args, l[i])
+			}
+			listenMap[address] = listen
+			order = append(order, address)
+		}
+	}
+
+	var result []types.Listen
+	for _, addr := range order {
+		result = append(result, listenMap[addr])
 	}
 
 	return result
@@ -177,12 +201,39 @@ func (v *baseVhost) Listen() []types.Listen {
 func (v *baseVhost) SetListen(listens []types.Listen) error {
 	var directives []*config.Directive
 	for _, l := range listens {
-		listen := []string{l.Address}
-		listen = append(listen, l.Args...)
-		directives = append(directives, &config.Directive{
-			Name:       "listen",
-			Parameters: v.parser.slices2Parameters(listen),
-		})
+		hasSSL := slices.Contains(l.Args, "ssl")
+		hasQUIC := slices.Contains(l.Args, "quic")
+
+		// nginx 中 ssl 和 quic 不能在同一个 listen 指令中
+		// 需要分成两行：listen 443 ssl; 和 listen 443 quic;
+		if hasSSL && hasQUIC {
+			// 生成 ssl 行（包含除 quic 外的所有参数）
+			sslArgs := []string{l.Address}
+			for _, arg := range l.Args {
+				if arg != "quic" {
+					sslArgs = append(sslArgs, arg)
+				}
+			}
+			directives = append(directives, &config.Directive{
+				Name:       "listen",
+				Parameters: v.parser.slices2Parameters(sslArgs),
+			})
+
+			// 生成 quic 行
+			quicArgs := []string{l.Address, "quic"}
+			directives = append(directives, &config.Directive{
+				Name:       "listen",
+				Parameters: v.parser.slices2Parameters(quicArgs),
+			})
+		} else {
+			// 普通情况，直接生成一行
+			listen := []string{l.Address}
+			listen = append(listen, l.Args...)
+			directives = append(directives, &config.Directive{
+				Name:       "listen",
+				Parameters: v.parser.slices2Parameters(listen),
+			})
+		}
 	}
 
 	_ = v.parser.Clear("server.listen")
@@ -337,7 +388,7 @@ func (v *baseVhost) Save() error {
 
 func (v *baseVhost) Reset() error {
 	// 重置配置为默认值
-	parser, err := NewParser("")
+	parser, err := NewParser(v.siteName)
 	if err != nil {
 		return fmt.Errorf("failed to reset config: %w", err)
 	}
@@ -362,7 +413,7 @@ func (v *baseVhost) Config(name string, typ string) string {
 
 func (v *baseVhost) SetConfig(name string, typ string, content string) error {
 	conf := filepath.Join(v.configDir, typ, name)
-	if err := os.WriteFile(conf, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(conf, []byte(content), 0600); err != nil {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
 	return nil

@@ -135,7 +135,7 @@ func writeRedirectFiles(siteDir string, redirects []types.Redirect) error {
 		filePath := filepath.Join(siteDir, fileName)
 
 		content := generateRedirectConfig(redirect)
-		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
 			return fmt.Errorf("failed to write redirect config: %w", err)
 		}
 	}

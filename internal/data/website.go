@@ -248,14 +248,14 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 
 	// 创建配置文件目录
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "site"), 0644); err != nil {
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "site"), 0600); err != nil {
 		return nil, err
 	}
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "shared"), 0644); err != nil {
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "shared"), 0600); err != nil {
 		return nil, err
 	}
 	// 创建日志目录
-	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "log"), 0644); err != nil {
+	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "log"), 0755); err != nil {
 		return nil, err
 	}
 
@@ -381,18 +381,34 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 		return nil, err
 	}
 
-	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "fullchain.pem"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "fullchain.pem"), "", 0600); err != nil {
 		return nil, err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "private.key"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "private.key"), "", 0600); err != nil {
 		return nil, err
 	}
 
 	// 设置目录权限
+	// sites/site_name 0755 root
+	// sites/site_name/config 0600 root
+	// sites/site_name/log 644 www
+	// sites/site_name/public 0755 www
+	if err = io.Chmod(filepath.Join(app.Root, "sites", req.Name), 0755); err != nil {
+		return nil, err
+	}
 	if err = io.Chmod(req.Path, 0755); err != nil {
 		return nil, err
 	}
 	if err = io.Chown(req.Path, "www", "www"); err != nil {
+		return nil, err
+	}
+	if err = io.Chmod(filepath.Join(app.Root, "sites", req.Name, "log"), 0644); err != nil {
+		return nil, err
+	}
+	if err = io.Chown(filepath.Join(app.Root, "sites", req.Name, "log"), "www", "www"); err != nil {
+		return nil, err
+	}
+	if err = io.Chmod(filepath.Join(app.Root, "sites", req.Name, "config"), 0600); err != nil {
 		return nil, err
 	}
 
@@ -482,10 +498,10 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	// SSL
 	certPath := filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem")
 	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "private.key")
-	if err = io.Write(certPath, req.SSLCert, 0644); err != nil {
+	if err = io.Write(certPath, req.SSLCert, 0600); err != nil {
 		return err
 	}
-	if err = io.Write(keyPath, req.SSLKey, 0644); err != nil {
+	if err = io.Write(keyPath, req.SSLKey, 0600); err != nil {
 		return err
 	}
 	website.SSL = req.SSL
@@ -665,15 +681,15 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 	if err = vhost.Save(); err != nil {
 		return err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"), "", 0600); err != nil {
 		return err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "private.key"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "private.key"), "", 0600); err != nil {
 		return err
 	}
 	// PHP 网站默认伪静态
 	if website.Type == biz.WebsiteTypePHP {
-		if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "site", "010-rewrite.conf"), "", 0644); err != nil {
+		if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "site", "010-rewrite.conf"), "", 0600); err != nil {
 			return err
 		}
 	}
@@ -727,10 +743,10 @@ func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 
 	certPath := filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem")
 	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "private.key")
-	if err := io.Write(certPath, req.Cert, 0644); err != nil {
+	if err := io.Write(certPath, req.Cert, 0600); err != nil {
 		return err
 	}
-	if err := io.Write(keyPath, req.Key, 0644); err != nil {
+	if err := io.Write(keyPath, req.Key, 0600); err != nil {
 		return err
 	}
 
@@ -759,11 +775,11 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			newCert, err = r.cert.Create(&request.CertCreate{
-				Type:      string(acme.KeyEC256),
-				Domains:   website.Domains,
-				AutoRenew: true,
-				AccountID: account.ID,
-				WebsiteID: website.ID,
+				Type:        string(acme.KeyEC256),
+				Domains:     website.Domains,
+				AutoRenewal: true,
+				AccountID:   account.ID,
+				WebsiteID:   website.ID,
 			})
 			if err != nil {
 				return err

@@ -95,15 +95,15 @@ const certOptions = computed(() => {
 const selectedCert = ref(null)
 
 const handleSave = () => {
-  // 如果没有任何监听地址设置了https，则自动添加443
-  if (setting.value.https && !setting.value.listens.some((item: any) => item.https)) {
+  // 如果开启了ssl但没有任何监听地址设置了ssl，则自动添加443
+  if (setting.value.ssl && !setting.value.listens.some((item: any) => item.args?.includes('ssl'))) {
     setting.value.listens.push({
       address: '443',
       args: ['ssl', 'quic']
     })
   }
-  // 如果关闭了https，自动禁用所有https和quic
-  if (!setting.value.https) {
+  // 如果关闭了ssl，自动禁用所有ssl和quic
+  if (!setting.value.ssl) {
     setting.value.listens = setting.value.listens.filter((item: any) => item.address !== '443') // 443直接删掉
     setting.value.listens.forEach((item: any) => {
       item.args = []
@@ -304,19 +304,11 @@ const removeProxy = (index: number) => {
 // 处理 Proxy Pass 变化，自动更新 Host
 const handleProxyPassChange = (proxy: any, value: string) => {
   proxy.pass = value
-  // 如果 host 是 $host 或为空，则自动提取
-  if (!proxy.host || proxy.host === '$host') {
-    const extracted = extractHostFromUrl(value)
-    // 只有当提取到的不是 IP 地址时才设置
-    if (
-      extracted &&
-      !/^\d+\.\d+\.\d+\.\d+(:\d+)?$/.test(extracted) &&
-      !/^localhost(:\d+)?$/i.test(extracted)
-    ) {
-      proxy.host = extracted
-    } else {
-      proxy.host = '$host'
-    }
+  const extracted = extractHostFromUrl(value)
+  if (extracted !== '') {
+    proxy.host = extracted
+  } else {
+    proxy.host = '$host'
   }
 }
 

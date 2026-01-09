@@ -55,7 +55,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/nginx/conf/nginx.conf", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/server/nginx/conf/nginx.conf", app.Root), req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

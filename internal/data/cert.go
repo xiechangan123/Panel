@@ -49,19 +49,20 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 	list := make([]*types.CertList, 0)
 	for cert := range slices.Values(certs) {
 		item := &types.CertList{
-			ID:        cert.ID,
-			AccountID: cert.AccountID,
-			WebsiteID: cert.WebsiteID,
-			DNSID:     cert.DNSID,
-			Type:      cert.Type,
-			Domains:   cert.Domains,
-			AutoRenew: cert.AutoRenew,
-			Cert:      cert.Cert,
-			Key:       cert.Key,
-			CertURL:   cert.CertURL,
-			Script:    cert.Script,
-			CreatedAt: cert.CreatedAt,
-			UpdatedAt: cert.UpdatedAt,
+			ID:          cert.ID,
+			AccountID:   cert.AccountID,
+			WebsiteID:   cert.WebsiteID,
+			DNSID:       cert.DNSID,
+			Type:        cert.Type,
+			Domains:     cert.Domains,
+			AutoRenewal: cert.AutoRenewal,
+			NextRenewal: cert.RenewalInfo.SelectedTime,
+			Cert:        cert.Cert,
+			Key:         cert.Key,
+			CertURL:     cert.CertURL,
+			Script:      cert.Script,
+			CreatedAt:   cert.CreatedAt,
+			UpdatedAt:   cert.UpdatedAt,
 		}
 		if decode, err := pkgcert.ParseCert(cert.Cert); err == nil {
 			item.NotBefore = decode.NotBefore
@@ -112,12 +113,12 @@ func (r *certRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
 
 func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 	cert := &biz.Cert{
-		AccountID: req.AccountID,
-		WebsiteID: req.WebsiteID,
-		DNSID:     req.DNSID,
-		Type:      req.Type,
-		Domains:   req.Domains,
-		AutoRenew: req.AutoRenew,
+		AccountID:   req.AccountID,
+		WebsiteID:   req.WebsiteID,
+		DNSID:       req.DNSID,
+		Type:        req.Type,
+		Domains:     req.Domains,
+		AutoRenewal: req.AutoRenewal,
 	}
 	if err := r.db.Create(cert).Error; err != nil {
 		return nil, err
@@ -130,21 +131,21 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 	if err == nil && req.Type == "upload" {
 		req.Domains = info.DNSNames
 	}
-	if req.Type == "upload" && req.AutoRenew {
-		return errors.New(r.t.Get("upload certificate cannot be set to auto renew"))
+	if req.Type == "upload" && req.AutoRenewal {
+		return errors.New(r.t.Get("upload certificate cannot be set to auto renewal"))
 	}
 
 	return r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
-		ID:        req.ID,
-		AccountID: req.AccountID,
-		WebsiteID: req.WebsiteID,
-		DNSID:     req.DNSID,
-		Type:      req.Type,
-		Cert:      req.Cert,
-		Key:       req.Key,
-		Script:    req.Script,
-		Domains:   req.Domains,
-		AutoRenew: req.AutoRenew,
+		ID:          req.ID,
+		AccountID:   req.AccountID,
+		WebsiteID:   req.WebsiteID,
+		DNSID:       req.DNSID,
+		Type:        req.Type,
+		Cert:        req.Cert,
+		Key:         req.Key,
+		Script:      req.Script,
+		Domains:     req.Domains,
+		AutoRenewal: req.AutoRenewal,
 	}).Error
 }
 
@@ -403,10 +404,10 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	if err = r.db.Where("id", WebsiteID).First(website).Error; err != nil {
 		return err
 	}
-	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/fullchain.pem", app.Root, website.Name), cert.Cert, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/fullchain.pem", app.Root, website.Name), cert.Cert, 0600); err != nil {
 		return err
 	}
-	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/private.key", app.Root, website.Name), cert.Key, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/private.key", app.Root, website.Name), cert.Key, 0600); err != nil {
 		return err
 	}
 	if err = systemctl.Reload("nginx"); err != nil {

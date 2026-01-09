@@ -38,7 +38,7 @@ const updateModel = ref<any>({
   dns_id: null,
   account_id: null,
   website_id: null,
-  auto_renew: true,
+  auto_renewal: true,
   cert: '',
   key: '',
   script: ''
@@ -115,7 +115,7 @@ const columns: any = [
   {
     title: $gettext('Associated Account'),
     key: 'account_id',
-    minWidth: 200,
+    minWidth: 240,
     resizable: true,
     ellipsis: { tooltip: true },
     render(row: any) {
@@ -128,7 +128,7 @@ const columns: any = [
   {
     title: $gettext('Issuer'),
     key: 'issuer',
-    width: 150,
+    width: 120,
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.issuer == '' ? $gettext('None') : row.issuer
@@ -144,35 +144,25 @@ const columns: any = [
     }
   },
   {
-    title: 'OCSP',
-    key: 'ocsp_server',
+    title: $gettext('Next Renewal Time'),
+    key: 'next_renewal',
     minWidth: 200,
     resizable: true,
     render(row: any) {
-      if (row.ocsp_server == null || row.ocsp_server.length == 0) {
-        return h(NTag, null, { default: () => $gettext('None') })
-      }
-      return h(NFlex, null, {
-        default: () =>
-          row.ocsp_server.map((server: any) =>
-            h(NTag, null, {
-              default: () => server
-            })
-          )
-      })
+      return row.next_renewal == 0 ? $gettext('None') : formatDateTime(row.next_renewal)
     }
   },
   {
-    title: $gettext('Auto Renew'),
-    key: 'auto_renew',
+    title: $gettext('Auto Renewal'),
+    key: 'auto_renewal',
     width: 140,
     resizable: true,
     render(row: any) {
       return h(NSwitch, {
         size: 'small',
         rubberBand: false,
-        value: row.auto_renew,
-        onUpdateValue: () => handleAutoRenewUpdate(row)
+        value: row.auto_renewal,
+        onUpdateValue: () => handleAutoRenewalUpdate(row)
       })
     }
   },
@@ -241,7 +231,7 @@ const columns: any = [
                 }
               },
               {
-                default: () => $gettext('Renew')
+                default: () => $gettext('Renewal')
               }
             )
           : null,
@@ -276,7 +266,7 @@ const columns: any = [
               updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
               updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
               updateModel.value.website_id = row.website_id == 0 ? null : row.website_id
-              updateModel.value.auto_renew = row.auto_renew
+              updateModel.value.auto_renewal = row.auto_renewal
               updateModel.value.cert = row.cert
               updateModel.value.key = row.key
               updateModel.value.script = row.script
@@ -340,7 +330,7 @@ const handleUpdateCert = () => {
     updateModel.value.dns_id = null
     updateModel.value.account_id = null
     updateModel.value.website_id = null
-    updateModel.value.auto_renew = true
+    updateModel.value.auto_renewal = true
     updateModel.value.cert = ''
     updateModel.value.key = ''
     updateModel.value.script = ''
@@ -348,13 +338,13 @@ const handleUpdateCert = () => {
   })
 }
 
-const handleAutoRenewUpdate = (row: any) => {
+const handleAutoRenewalUpdate = (row: any) => {
   updateModel.value.domains = row.domains
   updateModel.value.type = row.type
   updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
   updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
   updateModel.value.website_id = row.website_id == 0 ? null : row.website_id
-  updateModel.value.auto_renew = !row.auto_renew
+  updateModel.value.auto_renewal = !row.auto_renewal
   updateModel.value.cert = row.cert
   updateModel.value.key = row.key
   updateModel.value.script = row.script
@@ -369,7 +359,7 @@ const handleAutoRenewUpdate = (row: any) => {
       updateModel.value.dns_id = null
       updateModel.value.account_id = null
       updateModel.value.website_id = null
-      updateModel.value.auto_renew = true
+      updateModel.value.auto_renewal = true
       updateModel.value.cert = ''
       updateModel.value.key = ''
       updateModel.value.script = ''

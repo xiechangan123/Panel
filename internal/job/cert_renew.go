@@ -50,7 +50,7 @@ func (r *CertRenew) Run() {
 
 	for _, cert := range certs {
 		// 跳过上传类型或未开启自动续签的证书
-		if cert.Type == "upload" || !cert.AutoRenew {
+		if cert.Type == "upload" || !cert.AutoRenewal {
 			continue
 		}
 

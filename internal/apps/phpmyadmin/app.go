@@ -85,7 +85,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	conf = regexp.MustCompile(`listen\s+(\d+);`).ReplaceAllString(conf, "listen "+cast.ToString(req.Port)+";")
-	if err = io.Write(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root), conf, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root), conf, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -129,7 +129,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root), req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -318,10 +318,10 @@ func (r *settingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 	if _, err := cert.ParseKey(req.Key); err != nil {
 		return false, errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0644); err != nil {
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0600); err != nil {
 		return false, err
 	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0644); err != nil {
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0600); err != nil {
 		return false, err
 	}
 
@@ -387,10 +387,10 @@ func (r *settingRepo) UpdateCert(req *request.SettingCert) error {
 		return errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0644); err != nil {
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0600); err != nil {
 		return err
 	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0644); err != nil {
+	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0600); err != nil {
 		return err
 	}
 

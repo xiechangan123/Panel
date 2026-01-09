@@ -115,7 +115,7 @@ func (s *panelSolver) writeNginxConfig() error {
 	}
 	conf.WriteString("}\n")
 
-	if err := os.WriteFile(s.conf, []byte(conf.String()), 0644); err != nil {
+	if err := os.WriteFile(s.conf, []byte(conf.String()), 0600); err != nil {
 		return fmt.Errorf("failed to write nginx config %q: %w", s.conf, err)
 	}
 
@@ -149,7 +149,7 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 	}
 
 	// 清理 nginx 配置
-	if err := os.WriteFile(s.conf, []byte(""), 0644); err != nil {
+	if err := os.WriteFile(s.conf, []byte(""), 0600); err != nil {
 		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
 	}
 
@@ -172,7 +172,7 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 }
 `, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
 
-	file, err := os.OpenFile(s.conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(s.conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return fmt.Errorf("failed to open nginx config %q: %w", s.conf, err)
 	}
@@ -204,7 +204,7 @@ func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
 `, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
 
 	newConf := strings.ReplaceAll(string(conf), target, "")
-	if err = os.WriteFile(s.conf, []byte(newConf), 0644); err != nil {
+	if err = os.WriteFile(s.conf, []byte(newConf), 0600); err != nil {
 		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
 	}
 

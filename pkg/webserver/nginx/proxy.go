@@ -167,7 +167,7 @@ func writeProxyFiles(siteDir string, proxies []types.Proxy) error {
 		filePath := filepath.Join(siteDir, fileName)
 
 		content := generateProxyConfig(proxy)
-		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
 			return fmt.Errorf("failed to write proxy config: %w", err)
 		}
 	}

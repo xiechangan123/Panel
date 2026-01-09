@@ -17,7 +17,7 @@ type Cert struct {
 	DNSID       uint                  `gorm:"not null;default:0" json:"dns_id"`     // 关联的 DNS ID
 	Type        string                `gorm:"not null;default:''" json:"type"`      // 证书类型 (P256, P384, 2048, 3072, 4096)
 	Domains     []string              `gorm:"not null;default:'[]';serializer:json" json:"domains"`
-	AutoRenew   bool                  `gorm:"not null;default:false" json:"auto_renew"`                  // 自动续签
+	AutoRenewal bool                  `gorm:"not null;default:false" json:"auto_renewal"`                // 自动续签
 	RenewalInfo mholtacme.RenewalInfo `gorm:"not null;default:'{}';serializer:json" json:"renewal_info"` // 续签信息
 	CertURL     string                `gorm:"not null;default:''" json:"cert_url"`                       // 证书 URL (续签时使用)
 	Cert        string                `gorm:"not null;default:''" json:"cert"`                           // 证书内容

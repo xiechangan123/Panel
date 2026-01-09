@@ -33,7 +33,7 @@ const model = ref<any>({
   type: 'P256',
   account_id: null,
   website_id: null,
-  auto_renew: true
+  auto_renewal: true
 })
 
 const handleCreateCert = () => {
@@ -46,7 +46,7 @@ const handleCreateCert = () => {
     model.value.type = 'P256'
     model.value.account_id = null
     model.value.website_id = null
-    model.value.auto_renew = true
+    model.value.auto_renewal = true
     window.$message.success($gettext('Created successfully'))
   })
 }

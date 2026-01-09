@@ -18,17 +18,9 @@ type Parser struct {
 	cfgPath string // 配置文件路径
 }
 
-func NewParser(website ...string) (*Parser, error) {
-	str := DefaultConf
-	cfgPath := ""
-	if len(website) != 0 && website[0] != "" {
-		cfgPath = fmt.Sprintf("/opt/ace/sites/%s/config/nginx.conf", website[0])
-		if cfg, err := os.ReadFile(cfgPath); err == nil {
-			str = string(cfg)
-		} else {
-			return nil, err
-		}
-	}
+// NewParser 使用网站名创建解析器，将默认配置中的 default 替换为实际网站名
+func NewParser(siteName string) (*Parser, error) {
+	str := strings.ReplaceAll(DefaultConf, "/opt/ace/sites/default", fmt.Sprintf("/opt/ace/sites/%s", siteName))
 
 	p := parser.NewStringParser(str, parser.WithSkipIncludeParsingErr(), parser.WithSkipValidDirectivesErr())
 	cfg, err := p.Parse()
@@ -36,7 +28,7 @@ func NewParser(website ...string) (*Parser, error) {
 		return nil, err
 	}
 
-	return &Parser{cfg: cfg, cfgPath: cfgPath}, nil
+	return &Parser{cfg: cfg, cfgPath: ""}, nil
 }
 
 // NewParserFromFile 从指定文件路径创建解析器
@@ -201,7 +193,7 @@ func (p *Parser) Dump() string {
 func (p *Parser) Save() error {
 	p.sortDirectives(p.cfg.Directives, order)
 	content := p.Dump() + "\n"
-	if err := os.WriteFile(p.cfgPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(p.cfgPath, []byte(content), 0600); err != nil {
 		return fmt.Errorf("failed to save config file: %w", err)
 	}
 
@@ -214,7 +206,7 @@ func (p *Parser) SetConfigPath(path string) {
 }
 
 func (p *Parser) sortDirectives(directives []config.IDirective, orderIndex map[string]int) {
-	slices.SortFunc(directives, func(a config.IDirective, b config.IDirective) int {
+	slices.SortStableFunc(directives, func(a config.IDirective, b config.IDirective) int {
 		// 块指令（如 server、location）应该排在普通指令（如 include）后面
 		aIsBlock := a.GetBlock() != nil && len(a.GetBlock().GetDirectives()) > 0
 		bIsBlock := b.GetBlock() != nil && len(b.GetBlock().GetDirectives()) > 0
@@ -226,11 +218,8 @@ func (p *Parser) sortDirectives(directives []config.IDirective, orderIndex map[s
 			return -1 // b 是块指令，排在前面
 		}
 
-		// 同类指令，按 order 排序
-		if orderIndex[a.GetName()] != orderIndex[b.GetName()] {
-			return orderIndex[a.GetName()] - orderIndex[b.GetName()]
-		}
-		return slices.Compare(p.parameters2Slices(a.GetParameters()), p.parameters2Slices(b.GetParameters()))
+		// 同类指令，按 order 排序；相同名称的指令保持原有顺序
+		return orderIndex[a.GetName()] - orderIndex[b.GetName()]
 	})
 
 	for _, directive := range directives {

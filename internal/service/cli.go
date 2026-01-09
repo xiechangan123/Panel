@@ -392,10 +392,10 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		fmt.Println(s.t.Get("Successfully obtained ACME certificate"))
 	}
 
-	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), string(crt), 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), string(crt), 0600); err != nil {
 		return err
 	}
-	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), string(key), 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), string(key), 0600); err != nil {
 		return err
 	}
 
