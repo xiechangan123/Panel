@@ -163,7 +163,7 @@ func (v *baseVhost) Listen() []types.Listen {
 
 	// 使用 map 合并相同地址的 listen 指令
 	// nginx 中 ssl 和 quic 需要分开写
-	listenMap := make(map[string]types.Listen)
+	listenMap := make(map[string]*types.Listen)
 	var order []string // 保持顺序
 
 	for _, dir := range directives {
@@ -181,7 +181,7 @@ func (v *baseVhost) Listen() []types.Listen {
 				}
 			}
 		} else {
-			listen := types.Listen{Address: address, Args: []string{}}
+			listen := &types.Listen{Address: address, Args: []string{}}
 			for i := 1; i < len(l); i++ {
 				listen.Args = append(listen.Args, l[i])
 			}
@@ -192,7 +192,7 @@ func (v *baseVhost) Listen() []types.Listen {
 
 	var result []types.Listen
 	for _, addr := range order {
-		result = append(result, listenMap[addr])
+		result = append(result, *listenMap[addr])
 	}
 
 	return result
