@@ -138,7 +138,7 @@ func ExecfWithOutput(shell string, args ...any) error {
 }
 
 // ExecfWithPipe 执行 shell 命令并返回管道
-func ExecfWithPipe(ctx context.Context, shell string, args ...any) (out io.ReadCloser, err error) {
+func ExecfWithPipe(ctx context.Context, shell string, args ...any) (io.ReadCloser, error) {
 	if !preCheckArg(args) {
 		return nil, errors.New("command contains illegal characters")
 	}
@@ -149,14 +149,17 @@ func ExecfWithPipe(ctx context.Context, shell string, args ...any) (out io.ReadC
 	_ = os.Setenv("LC_ALL", "C")
 	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 
-	out, err = cmd.StdoutPipe()
+	out, err := cmd.StdoutPipe()
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	cmd.Stderr = cmd.Stdout
 	err = cmd.Start()
-	return
+
+	go func() { _ = cmd.Wait() }()
+
+	return out, err
 }
 
 // ExecfWithDir 在指定目录下执行 shell 命令
