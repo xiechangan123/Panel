@@ -336,21 +336,17 @@ const columns: DataTableColumns<RowData> = [
               NPopconfirm,
               {
                 onPositiveClick: () => {
-                  useRequest(file.delete(row.full)).onComplete(() => {
-                    window.$bus.emit('file:refresh')
-                    window.$message.success($gettext('Deleted successfully'))
+                  confirmImmutableOperation(row, 'delete', () => {
+                    useRequest(file.delete(row.full)).onComplete(() => {
+                      window.$bus.emit('file:refresh')
+                      window.$message.success($gettext('Deleted successfully'))
+                    })
                   })
                 },
                 onNegativeClick: () => {}
               },
               {
                 default: () => {
-                  if (row.immutable) {
-                    return $gettext(
-                      'The file %{ name } has immutable attribute. The system will temporarily remove the immutable attribute and delete the file. Do you want to continue?',
-                      { name: row.name }
-                    )
-                  }
                   return $gettext('Are you sure you want to delete %{ name }?', { name: row.name })
                 },
                 trigger: () => {
