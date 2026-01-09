@@ -240,7 +240,7 @@ const handleSignal = (pid: number, signal: number, signalName: string) => {
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
       useRequest(process.signal(pid, signal)).onSuccess(() => {
-        refresh()
+        reload()
         window.$message.success(
           $gettext('Signal %{ signal } has been sent to process %{ pid }', {
             signal: signalName,
@@ -275,7 +275,7 @@ const handleSorterChange = (sorter: DataTableSortState | DataTableSortState[] | 
 }
 
 // 分页获取进程列表
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, pageCount, reload } = usePagination(
   (page, pageSize) => {
     const sort = sortState.value?.columnKey as string | undefined
     // descend(箭头向下) -> desc(大到小), ascend(箭头向上) -> asc(小到大)
@@ -324,7 +324,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
         style="width: 150px"
         @update:value="page = 1"
       />
-      <n-button @click="refresh" type="primary" ghost>{{ $gettext('Refresh') }}</n-button>
+      <n-button @click="reload" type="primary" ghost>{{ $gettext('Refresh') }}</n-button>
     </n-flex>
 
     <!-- 进程列表 -->
