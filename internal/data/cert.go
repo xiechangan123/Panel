@@ -174,7 +174,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 					return nil, errors.New(r.t.Get("wildcard domains cannot use HTTP verification"))
 				}
 			}
-			conf := fmt.Sprintf("%s/server/vhost/acme/%s.conf", app.Root, cert.Website.Name)
+			conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
 			client.UseHTTP(conf)
 		}
 	}
@@ -306,7 +306,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 					return nil, errors.New(r.t.Get("wildcard domains cannot use HTTP verification"))
 				}
 			}
-			conf := fmt.Sprintf("%s/server/vhost/acme/%s.conf", app.Root, cert.Website.Name)
+			conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
 			client.UseHTTP(conf)
 		}
 	}
@@ -403,11 +403,10 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	if err = r.db.Where("id", WebsiteID).First(website).Error; err != nil {
 		return err
 	}
-
-	if err = io.Write(fmt.Sprintf("%s/server/vhost/cert/%s.pem", app.Root, website.Name), cert.Cert, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/fullchain.pem", app.Root, website.Name), cert.Cert, 0644); err != nil {
 		return err
 	}
-	if err = io.Write(fmt.Sprintf("%s/server/vhost/cert/%s.key", app.Root, website.Name), cert.Key, 0644); err != nil {
+	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/private.key", app.Root, website.Name), cert.Key, 0644); err != nil {
 		return err
 	}
 	if err = systemctl.Reload("nginx"); err != nil {

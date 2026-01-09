@@ -157,7 +157,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	// 证书
 	crt, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
 	setting.SSLCert = crt
-	key, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key"))
+	key, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "private.key"))
 	setting.SSLKey = key
 	// 解析证书信息
 	if decode, err := cert.ParseCert(crt); err == nil {
@@ -384,7 +384,7 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "fullchain.pem"), "", 0644); err != nil {
 		return nil, err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "privatekey.key"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", req.Name, "config", "private.key"), "", 0644); err != nil {
 		return nil, err
 	}
 
@@ -481,7 +481,7 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) error {
 	website.Path = req.Path
 	// SSL
 	certPath := filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem")
-	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key")
+	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "private.key")
 	if err = io.Write(certPath, req.SSLCert, 0644); err != nil {
 		return err
 	}
@@ -668,7 +668,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"), "", 0644); err != nil {
 		return err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key"), "", 0644); err != nil {
+	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "private.key"), "", 0644); err != nil {
 		return err
 	}
 	// PHP 网站默认伪静态
@@ -726,7 +726,7 @@ func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 	}
 
 	certPath := filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem")
-	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "privatekey.key")
+	keyPath := filepath.Join(app.Root, "sites", website.Name, "config", "private.key")
 	if err := io.Write(certPath, req.Cert, 0644); err != nil {
 		return err
 	}
