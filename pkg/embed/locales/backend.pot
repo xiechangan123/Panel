@@ -23,7 +23,7 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/service/home.go:58
+#: internal/service/home.go:59
 msgid "AcePanel"
 msgstr ""
 
@@ -310,7 +310,7 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:295
+#: internal/service/file.go:296
 msgid "Download remote file %v"
 msgstr ""
 
@@ -555,10 +555,10 @@ msgstr ""
 msgid "Index Hit Rate"
 msgstr ""
 
-#: internal/service/cli.go:929
-#: internal/service/cli.go:934
-#: internal/service/cli.go:939
-#: internal/service/cli.go:978
+#: internal/service/cli.go:931
+#: internal/service/cli.go:936
+#: internal/service/cli.go:941
+#: internal/service/cli.go:980
 msgid "Initialization failed: %v"
 msgstr ""
 
@@ -582,7 +582,7 @@ msgstr ""
 msgid "Install application"
 msgstr ""
 
-#: internal/data/environment.go:155
+#: internal/data/environment.go:169
 msgid "Install environment %s"
 msgstr ""
 
@@ -1167,7 +1167,7 @@ msgstr ""
 msgid "Uninstall application"
 msgstr ""
 
-#: internal/data/environment.go:157
+#: internal/data/environment.go:171
 msgid "Uninstall environment %s"
 msgstr ""
 
@@ -1187,7 +1187,7 @@ msgstr ""
 msgid "Update application"
 msgstr ""
 
-#: internal/data/environment.go:159
+#: internal/data/environment.go:173
 msgid "Update environment %s"
 msgstr ""
 
@@ -1340,11 +1340,11 @@ msgstr ""
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:339
+#: internal/service/home.go:335
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:307
+#: internal/service/home.go:303
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
@@ -1358,11 +1358,11 @@ msgstr ""
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/file.go:277
+#: internal/service/file.go:278
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/data/website.go:409
+#: internal/data/website.go:425
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1387,7 +1387,7 @@ msgstr ""
 msgid "could not find .sql backup file"
 msgstr ""
 
-#: internal/service/file.go:166
+#: internal/service/file.go:167
 msgid "create directory error: %v"
 msgstr ""
 
@@ -1418,12 +1418,12 @@ msgstr ""
 msgid "endpoint should not contain bucket"
 msgstr ""
 
-#: internal/data/environment.go:121
+#: internal/data/environment.go:135
 msgid "environment %s-%s already installed"
 msgstr ""
 
-#: internal/data/environment.go:128
-#: internal/data/environment.go:135
+#: internal/data/environment.go:142
+#: internal/data/environment.go:149
 msgid "environment %s-%s not installed"
 msgstr ""
 
@@ -1515,10 +1515,6 @@ msgstr ""
 msgid "failed to get %s service running status: %v"
 msgstr ""
 
-#: internal/data/website.go:354
-msgid "failed to get 404 template file: %v"
-msgstr ""
-
 #: internal/data/cert_account.go:202
 msgid "failed to get Google EAB: %s"
 msgstr ""
@@ -1592,11 +1588,11 @@ msgstr ""
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/service/home.go:74
+#: internal/service/home.go:75
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:339
+#: internal/data/website.go:350
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -1646,17 +1642,17 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
-#: internal/service/home.go:94
+#: internal/service/home.go:95
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:320
+#: internal/service/home.go:316
 msgid "failed to get the latest version download link"
 msgstr ""
 
-#: internal/service/home.go:236
-#: internal/service/home.go:272
-#: internal/service/home.go:314
+#: internal/service/home.go:232
+#: internal/service/home.go:268
+#: internal/service/home.go:310
 msgid "failed to get the latest version: %v"
 msgstr ""
 
@@ -1664,11 +1660,11 @@ msgstr ""
 msgid "failed to get the secret key for module %s"
 msgstr ""
 
-#: internal/service/home.go:140
+#: internal/service/home.go:141
 msgid "failed to get the total number of websites: %v"
 msgstr ""
 
-#: internal/service/home.go:293
+#: internal/service/home.go:289
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -1696,8 +1692,8 @@ msgstr ""
 #: internal/data/cert.go:94
 #: internal/data/setting.go:316
 #: internal/data/setting.go:384
-#: internal/data/website.go:478
-#: internal/data/website.go:704
+#: internal/data/website.go:494
+#: internal/data/website.go:722
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -1708,8 +1704,8 @@ msgstr ""
 #: internal/data/cert.go:97
 #: internal/data/setting.go:319
 #: internal/data/setting.go:387
-#: internal/data/website.go:481
-#: internal/data/website.go:707
+#: internal/data/website.go:497
+#: internal/data/website.go:725
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -1718,10 +1714,10 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
-#: internal/service/home.go:242
-#: internal/service/home.go:247
-#: internal/service/home.go:278
-#: internal/service/home.go:283
+#: internal/service/home.go:238
+#: internal/service/home.go:243
+#: internal/service/home.go:274
+#: internal/service/home.go:279
 msgid "failed to parse version: %v"
 msgstr ""
 
@@ -1888,7 +1884,7 @@ msgstr ""
 msgid "failed to write webhook script: %v"
 msgstr ""
 
-#: internal/service/file.go:84
+#: internal/service/file.go:85
 msgid "file is too large, please download it to view"
 msgstr ""
 
@@ -1992,11 +1988,11 @@ msgstr ""
 msgid "mysql not support database comment"
 msgstr ""
 
-#: internal/data/website.go:732
+#: internal/data/website.go:750
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
-#: internal/service/file.go:174
+#: internal/service/file.go:175
 msgid "open file error: %v"
 msgstr ""
 
@@ -2042,9 +2038,9 @@ msgid "phpMyAdmin port not found"
 msgstr ""
 
 #: internal/data/user.go:106
-#: internal/service/file.go:135
-#: internal/service/file.go:222
-#: internal/service/file.go:251
+#: internal/service/file.go:136
+#: internal/service/file.go:223
+#: internal/service/file.go:252
 msgid "please don't do this"
 msgstr ""
 
@@ -2076,7 +2072,7 @@ msgstr ""
 msgid "rule not found"
 msgstr ""
 
-#: internal/data/website.go:456
+#: internal/data/website.go:472
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -2101,15 +2097,15 @@ msgstr ""
 msgid "target backup %s already exists"
 msgstr ""
 
-#: internal/service/file.go:80
+#: internal/service/file.go:81
 msgid "target is a directory"
 msgstr ""
 
-#: internal/service/file.go:160
+#: internal/service/file.go:161
 msgid "target path %s already exists"
 msgstr ""
 
-#: internal/service/home.go:287
+#: internal/service/home.go:283
 msgid "the current version is the latest version"
 msgstr ""
 
@@ -2134,12 +2130,12 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/service/home.go:228
-#: internal/service/home.go:264
+#: internal/service/home.go:224
+#: internal/service/home.go:260
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:302
+#: internal/service/home.go:298
 msgid "unable to update in offline mode"
 msgstr ""
 
@@ -2175,11 +2171,11 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:819
+#: internal/data/website.go:837
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:785
+#: internal/data/website.go:803
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -2187,7 +2183,7 @@ msgstr ""
 msgid "upload certificate cannot be set to auto renew"
 msgstr ""
 
-#: internal/service/file.go:156
+#: internal/service/file.go:157
 msgid "upload file error: %v"
 msgstr ""
 
@@ -2209,11 +2205,11 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:566
+#: internal/data/website.go:584
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
-#: internal/data/website.go:463
+#: internal/data/website.go:479
 msgid "website directory does not exist"
 msgstr ""
 
@@ -2222,7 +2218,7 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/service/file.go:179
+#: internal/service/file.go:180
 msgid "write file error: %v"
 msgstr ""
 
