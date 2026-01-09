@@ -46,7 +46,7 @@ func (r *Jobs) Register(c *cron.Cron) error {
 	if _, err := c.AddJob("0 4 * * *", NewCertRenew(r.conf, r.db, r.log, r.setting, r.cert, r.certAccount)); err != nil {
 		return err
 	}
-	if _, err := c.AddJob("0 2 * * *", NewPanelTask(r.db, r.log, r.backup, r.cache, r.task, r.setting)); err != nil {
+	if _, err := c.AddJob("0 2 * * *", NewPanelTask(r.conf, r.db, r.log, r.backup, r.cache, r.task, r.setting)); err != nil {
 		return err
 	}
 

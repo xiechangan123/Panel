@@ -111,7 +111,10 @@ func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Download URL is empty"))
 	}
 
-	return s.backupRepo.UpdatePanel(panel.Version, download.URL, download.Checksum)
+	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
+	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
+
+	return s.backupRepo.UpdatePanel(panel.Version, url, checksum)
 }
 
 func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {

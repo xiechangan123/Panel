@@ -316,10 +316,12 @@ func (s *HomeService) Update(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version download link"))
 		return
 	}
-	ver, url, checksum := panel.Version, download.URL, download.Checksum
+
+	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
+	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
 
 	app.Status = app.StatusUpgrade
-	if err = s.backupRepo.UpdatePanel(ver, url, checksum); err != nil {
+	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum); err != nil {
 		app.Status = app.StatusFailed
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
