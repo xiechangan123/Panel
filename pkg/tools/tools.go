@@ -85,7 +85,7 @@ func CurrentInfo(nets, disks []string) types.CurrentInfo {
 
 // RestartPanel 重启面板
 func RestartPanel() {
-	_ = shell.ExecfAsync("sleep 1 && systemctl restart panel")
+	_ = shell.ExecfAsync("sleep 1 && systemctl restart acepanel")
 }
 
 // IsChina 是否中国大陆

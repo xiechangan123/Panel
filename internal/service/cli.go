@@ -73,7 +73,7 @@ func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo b
 }
 
 func (s *CliService) Restart(ctx context.Context, cmd *cli.Command) error {
-	if err := systemctl.Restart("panel"); err != nil {
+	if err := systemctl.Restart("acepanel"); err != nil {
 		return err
 	}
 
@@ -82,7 +82,7 @@ func (s *CliService) Restart(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Stop(ctx context.Context, cmd *cli.Command) error {
-	if err := systemctl.Stop("panel"); err != nil {
+	if err := systemctl.Stop("acepanel"); err != nil {
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (s *CliService) Stop(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Start(ctx context.Context, cmd *cli.Command) error {
-	if err := systemctl.Start("panel"); err != nil {
+	if err := systemctl.Start("acepanel"); err != nil {
 		return err
 	}
 
