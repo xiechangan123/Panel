@@ -66,6 +66,24 @@ const unCompressModel = ref({
   file: ''
 })
 
+// 检查是否有 immutable 属性，如果有则弹出确认对话框
+const confirmImmutableOperation = (row: any, operation: string, callback: () => void) => {
+  if (row.immutable) {
+    window.$dialog.warning({
+      title: $gettext('Warning'),
+      content: $gettext(
+        '%{ name } has immutable attribute. The panel will temporarily remove the immutable attribute, perform the operation, and then restore the immutable attribute. Do you want to continue?',
+        { name: row.name }
+      ),
+      positiveText: $gettext('Continue'),
+      negativeText: $gettext('Cancel'),
+      onPositiveClick: callback
+    })
+  } else {
+    callback()
+  }
+}
+
 const options = computed<DropdownOption[]>(() => {
   if (selectedRow.value == null) return []
   const options = [
@@ -145,7 +163,15 @@ const columns: DataTableColumns<RowData> = [
                 return row.name
               }
             }
-          })
+          }),
+          // 如果文件有 immutable 属性，显示锁定图标
+          row.immutable
+            ? h(TheIcon, {
+                icon: 'mdi:lock',
+                size: 16,
+                style: { color: '#f0a020', marginLeft: '4px' }
+              })
+            : null
         ]
       )
     }
@@ -297,9 +323,11 @@ const columns: DataTableColumns<RowData> = [
                 size: 'small',
                 tertiary: true,
                 onClick: () => {
-                  renameModel.value.source = getFilename(row.name)
-                  renameModel.value.target = getFilename(row.name)
-                  renameModal.value = true
+                  confirmImmutableOperation(row, 'rename', () => {
+                    renameModel.value.source = getFilename(row.name)
+                    renameModel.value.target = getFilename(row.name)
+                    renameModal.value = true
+                  })
                 }
               },
               { default: () => $gettext('Rename') }
@@ -317,6 +345,12 @@ const columns: DataTableColumns<RowData> = [
               },
               {
                 default: () => {
+                  if (row.immutable) {
+                    return $gettext(
+                      'The file %{ name } has immutable attribute. The system will temporarily remove the immutable attribute and delete the file. Do you want to continue?',
+                      { name: row.name }
+                    )
+                  }
                   return $gettext('Are you sure you want to delete %{ name }?', { name: row.name })
                 },
                 trigger: () => {
@@ -659,14 +693,18 @@ const handleSelect = (key: string) => {
       unCompressModal.value = true
       break
     case 'rename':
-      renameModel.value.source = getFilename(selectedRow.value.name)
-      renameModel.value.target = getFilename(selectedRow.value.name)
-      renameModal.value = true
+      confirmImmutableOperation(selectedRow.value, 'rename', () => {
+        renameModel.value.source = getFilename(selectedRow.value.name)
+        renameModel.value.target = getFilename(selectedRow.value.name)
+        renameModal.value = true
+      })
       break
     case 'delete':
-      useRequest(file.delete(selectedRow.value.full)).onSuccess(() => {
-        window.$bus.emit('file:refresh')
-        window.$message.success($gettext('Deleted successfully'))
+      confirmImmutableOperation(selectedRow.value, 'delete', () => {
+        useRequest(file.delete(selectedRow.value.full)).onSuccess(() => {
+          window.$bus.emit('file:refresh')
+          window.$message.success($gettext('Deleted successfully'))
+        })
       })
       break
   }
