@@ -546,8 +546,9 @@ func (s *ProxyVhostTestSuite) TestUpstreams() {
 	s.Empty(s.vhost.Upstreams())
 
 	// 设置上游服务器（Apache 使用 balancer）
-	upstreams := map[string]types.Upstream{
-		"backend": {
+	upstreams := []types.Upstream{
+		{
+			Name: "backend",
 			Servers: map[string]string{
 				"http://127.0.0.1:8080": "loadfactor=5",
 				"http://127.0.0.1:8081": "loadfactor=3",
@@ -567,12 +568,13 @@ func (s *ProxyVhostTestSuite) TestUpstreams() {
 	// 验证可以读取回来
 	got := s.vhost.Upstreams()
 	s.Len(got, 1)
-	s.Contains(got, "backend")
+	s.Equal("backend", got[0].Name)
 }
 
 func (s *ProxyVhostTestSuite) TestBalancerConfig() {
-	upstreams := map[string]types.Upstream{
-		"mybackend": {
+	upstreams := []types.Upstream{
+		{
+			Name: "mybackend",
 			Servers: map[string]string{
 				"http://127.0.0.1:8080": "loadfactor=5",
 			},
@@ -598,8 +600,9 @@ func (s *ProxyVhostTestSuite) TestBalancerConfig() {
 }
 
 func (s *ProxyVhostTestSuite) TestClearUpstreams() {
-	upstreams := map[string]types.Upstream{
-		"backend": {
+	upstreams := []types.Upstream{
+		{
+			Name:    "backend",
 			Servers: map[string]string{"http://127.0.0.1:8080": ""},
 		},
 	}

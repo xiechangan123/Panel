@@ -521,8 +521,9 @@ func (s *ProxyVhostTestSuite) TestUpstreams() {
 	s.Empty(s.vhost.Upstreams())
 
 	// 设置上游服务器
-	upstreams := map[string]types.Upstream{
-		"backend": {
+	upstreams := []types.Upstream{
+		{
+			Name: "backend",
 			Servers: map[string]string{
 				"127.0.0.1:8080": "weight=5",
 				"127.0.0.1:8081": "weight=3",
@@ -542,14 +543,15 @@ func (s *ProxyVhostTestSuite) TestUpstreams() {
 	// 验证可以读取回来
 	got := s.vhost.Upstreams()
 	s.Len(got, 1)
-	s.Contains(got, "backend")
-	s.Equal("least_conn", got["backend"].Algo)
-	s.Equal(32, got["backend"].Keepalive)
+	s.Equal("backend", got[0].Name)
+	s.Equal("least_conn", got[0].Algo)
+	s.Equal(32, got[0].Keepalive)
 }
 
 func (s *ProxyVhostTestSuite) TestUpstreamConfig() {
-	upstreams := map[string]types.Upstream{
-		"mybackend": {
+	upstreams := []types.Upstream{
+		{
+			Name: "mybackend",
 			Servers: map[string]string{
 				"127.0.0.1:8080": "weight=5",
 			},
@@ -576,8 +578,9 @@ func (s *ProxyVhostTestSuite) TestUpstreamConfig() {
 }
 
 func (s *ProxyVhostTestSuite) TestClearUpstreams() {
-	upstreams := map[string]types.Upstream{
-		"backend": {
+	upstreams := []types.Upstream{
+		{
+			Name:    "backend",
 			Servers: map[string]string{"127.0.0.1:8080": ""},
 		},
 	}
@@ -590,8 +593,9 @@ func (s *ProxyVhostTestSuite) TestClearUpstreams() {
 
 func (s *ProxyVhostTestSuite) TestProxyWithUpstream() {
 	// 先创建 upstream
-	upstreams := map[string]types.Upstream{
-		"api-servers": {
+	upstreams := []types.Upstream{
+		{
+			Name: "api-servers",
 			Servers: map[string]string{
 				"127.0.0.1:3000": "",
 				"127.0.0.1:3001": "",

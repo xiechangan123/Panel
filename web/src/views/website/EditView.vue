@@ -942,3 +942,10 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
     </n-popconfirm>
   </common-page>
 </template>
+
+<style scoped>
+/* 拖拽时的占位卡片 */
+:deep(.ghost-card) {
+  opacity: 0.5;
+}
+</style>
