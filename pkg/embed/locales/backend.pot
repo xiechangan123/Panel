@@ -7,11 +7,11 @@ msgstr ""
 "Language: \n"
 "X-Generator: xgotext\n"
 
-#: internal/service/cli.go:290
+#: internal/service/cli.go:296
 msgid "2FA disabled for user %s"
 msgstr ""
 
-#: internal/service/cli.go:298
+#: internal/service/cli.go:304
 msgid "2FA url: %s"
 msgstr ""
 
@@ -55,7 +55,7 @@ msgstr ""
 msgid "Aliyun"
 msgstr ""
 
-#: internal/service/cli.go:895
+#: internal/service/cli.go:901
 msgid "Already initialized"
 msgstr ""
 
@@ -63,27 +63,27 @@ msgstr ""
 msgid "App %s %s"
 msgstr ""
 
-#: internal/service/cli.go:744
+#: internal/service/cli.go:750
 msgid "App %s installed successfully"
 msgstr ""
 
-#: internal/service/cli.go:758
+#: internal/service/cli.go:764
 msgid "App %s uninstalled successfully"
 msgstr ""
 
-#: internal/service/cli.go:772
+#: internal/service/cli.go:778
 msgid "App %s updated successfully"
 msgstr ""
 
-#: internal/service/cli.go:741
+#: internal/service/cli.go:747
 msgid "App install failed: %v"
 msgstr ""
 
-#: internal/service/cli.go:755
+#: internal/service/cli.go:761
 msgid "App uninstall failed: %v"
 msgstr ""
 
-#: internal/service/cli.go:769
+#: internal/service/cli.go:775
 msgid "App update failed: %v"
 msgstr ""
 
@@ -103,9 +103,9 @@ msgstr ""
 msgid "Backup directory (default path if not filled)"
 msgstr ""
 
-#: internal/service/cli.go:623
-#: internal/service/cli.go:639
-#: internal/service/cli.go:653
+#: internal/service/cli.go:629
+#: internal/service/cli.go:645
+#: internal/service/cli.go:659
 msgid "Backup failed: %v"
 msgstr ""
 
@@ -125,15 +125,15 @@ msgstr ""
 msgid "Backup website"
 msgstr ""
 
-#: internal/service/cli.go:461
+#: internal/service/cli.go:467
 msgid "Bind IP disabled"
 msgstr ""
 
-#: internal/service/cli.go:477
+#: internal/service/cli.go:483
 msgid "Bind UA disabled"
 msgstr ""
 
-#: internal/service/cli.go:445
+#: internal/service/cli.go:451
 msgid "Bind domain disabled"
 msgstr ""
 
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Change username"
 msgstr ""
 
-#: internal/service/cli.go:677
+#: internal/service/cli.go:683
 msgid "Cleaning failed: %v"
 msgstr ""
 
@@ -232,7 +232,7 @@ msgstr ""
 msgid "Create new website"
 msgstr ""
 
-#: internal/service/cli.go:711
+#: internal/service/cli.go:717
 msgid "Currently only website log rotation is supported"
 msgstr ""
 
@@ -245,7 +245,7 @@ msgstr ""
 msgid "Data backup"
 msgstr ""
 
-#: internal/service/cli.go:128
+#: internal/service/cli.go:134
 msgid "Data synchronized successfully"
 msgstr ""
 
@@ -257,11 +257,11 @@ msgstr ""
 msgid "Database name"
 msgstr ""
 
-#: internal/service/cli.go:598
+#: internal/service/cli.go:604
 msgid "Database server %s added successfully"
 msgstr ""
 
-#: internal/service/cli.go:612
+#: internal/service/cli.go:618
 msgid "Database server %s deleted successfully"
 msgstr ""
 
@@ -326,16 +326,16 @@ msgstr ""
 msgid "Enchant is a spell-checking library"
 msgstr ""
 
-#: internal/service/cli.go:429
+#: internal/service/cli.go:435
 msgid "Entrance disabled"
 msgstr ""
 
-#: internal/service/cli.go:412
+#: internal/service/cli.go:418
 msgid "Entrance enabled"
 msgstr ""
 
-#: internal/service/cli.go:172
-#: internal/service/cli.go:413
+#: internal/service/cli.go:178
+#: internal/service/cli.go:419
 msgid "Entrance: %s"
 msgstr ""
 
@@ -347,52 +347,52 @@ msgstr ""
 msgid "Exif is a library for reading and writing image metadata"
 msgstr ""
 
-#: internal/service/cli.go:288
+#: internal/service/cli.go:294
 msgid "Failed to change 2FA status: %v"
 msgstr ""
 
-#: internal/service/cli.go:263
+#: internal/service/cli.go:269
 msgid "Failed to change password: %v"
 msgstr ""
 
-#: internal/service/cli.go:232
+#: internal/service/cli.go:238
 msgid "Failed to change username: %v"
 msgstr ""
 
-#: internal/service/cli.go:832
+#: internal/service/cli.go:838
 msgid "Failed to clear tasks: %v"
 msgstr ""
 
-#: internal/service/cli.go:807
+#: internal/service/cli.go:813
 msgid "Failed to delete app: %v"
 msgstr ""
 
-#: internal/service/cli.go:886
+#: internal/service/cli.go:892
 msgid "Failed to delete setting: %v"
 msgstr ""
 
-#: internal/service/cli.go:296
+#: internal/service/cli.go:302
 msgid "Failed to generate 2FA: %v"
 msgstr ""
 
-#: internal/service/cli.go:146
-#: internal/service/cli.go:259
+#: internal/service/cli.go:152
+#: internal/service/cli.go:265
 msgid "Failed to generate password: %v"
 msgstr ""
 
-#: internal/service/cli.go:380
+#: internal/service/cli.go:386
 msgid "Failed to get ACME account: %v"
 msgstr ""
 
-#: internal/service/cli.go:376
+#: internal/service/cli.go:382
 msgid "Failed to get a panel user: %v"
 msgstr ""
 
-#: internal/service/cli.go:787
+#: internal/service/cli.go:793
 msgid "Failed to get app: %v"
 msgstr ""
 
-#: internal/service/cli.go:166
+#: internal/service/cli.go:172
 msgid "Failed to get entrance"
 msgstr ""
 
@@ -400,62 +400,63 @@ msgstr ""
 msgid "Failed to get latest version: %v"
 msgstr ""
 
-#: internal/service/cli.go:162
+#: internal/service/cli.go:168
 msgid "Failed to get port"
 msgstr ""
 
-#: internal/service/cli.go:850
-#: internal/service/cli.go:867
+#: internal/service/cli.go:856
+#: internal/service/cli.go:873
 msgid "Failed to get setting: %v"
 msgstr ""
 
-#: internal/service/cli.go:140
+#: internal/service/cli.go:146
 msgid "Failed to get user info: %v"
 msgstr ""
 
-#: internal/service/cli.go:202
+#: internal/service/cli.go:208
 msgid "Failed to get user list: %v"
 msgstr ""
 
-#: internal/service/cli.go:227
-#: internal/service/cli.go:254
-#: internal/service/cli.go:281
+#: internal/service/cli.go:233
+#: internal/service/cli.go:260
+#: internal/service/cli.go:287
 msgid "Failed to get user: %v"
 msgstr ""
 
-#: internal/service/cli.go:384
+#: internal/service/cli.go:390
 msgid "Failed to obtain ACME certificate: %v"
 msgstr ""
 
-#: internal/service/cli.go:303
+#: internal/service/cli.go:309
 msgid "Failed to read input: %v"
 msgstr ""
 
-#: internal/service/cli.go:794
+#: internal/service/cli.go:800
 msgid "Failed to save app: %v"
 msgstr ""
 
-#: internal/service/cli.go:873
+#: internal/service/cli.go:879
 msgid "Failed to save setting: %v"
 msgstr ""
 
-#: internal/service/cli.go:152
+#: internal/service/cli.go:158
 msgid "Failed to save user info: %v"
 msgstr ""
 
-#: internal/service/cli.go:122
+#: internal/service/cli.go:125
+#: internal/service/cli.go:128
 msgid "Failed to synchronize app data: %v"
 msgstr ""
 
-#: internal/service/cli.go:119
+#: internal/service/cli.go:122
 msgid "Failed to synchronize categories data: %v"
 msgstr ""
 
-#: internal/service/cli.go:125
+#: internal/service/cli.go:131
 msgid "Failed to synchronize rewrite rules: %v"
 msgstr ""
 
-#: internal/service/cli.go:306
+#: internal/service/cli.go:312
 msgid "Failed to update 2FA: %v"
 msgstr ""
 
@@ -507,15 +508,15 @@ msgstr ""
 msgid "Gettext is a library for handling multilingual support"
 msgstr ""
 
-#: internal/service/cli.go:396
+#: internal/service/cli.go:402
 msgid "HTTPS certificate generated"
 msgstr ""
 
-#: internal/service/cli.go:340
+#: internal/service/cli.go:346
 msgid "HTTPS disabled"
 msgstr ""
 
-#: internal/service/cli.go:324
+#: internal/service/cli.go:330
 msgid "HTTPS enabled"
 msgstr ""
 
@@ -523,7 +524,7 @@ msgstr ""
 msgid "Huawei Cloud"
 msgstr ""
 
-#: internal/service/cli.go:206
+#: internal/service/cli.go:212
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr ""
 
@@ -535,11 +536,11 @@ msgstr ""
 msgid "Idle Processes"
 msgstr ""
 
-#: internal/service/cli.go:192
+#: internal/service/cli.go:198
 msgid "If you cannot access, please check whether the server's security group and firewall allow port %d"
 msgstr ""
 
-#: internal/service/cli.go:193
+#: internal/service/cli.go:199
 msgid "If you still cannot access, try running panel-cli https off to turn off panel HTTPS"
 msgstr ""
 
@@ -555,10 +556,10 @@ msgstr ""
 msgid "Index Hit Rate"
 msgstr ""
 
-#: internal/service/cli.go:931
-#: internal/service/cli.go:936
-#: internal/service/cli.go:941
-#: internal/service/cli.go:980
+#: internal/service/cli.go:937
+#: internal/service/cli.go:942
+#: internal/service/cli.go:947
+#: internal/service/cli.go:986
 msgid "Initialization failed: %v"
 msgstr ""
 
@@ -631,11 +632,11 @@ msgstr ""
 msgid "Listen Queue Length"
 msgstr ""
 
-#: internal/service/cli.go:176
+#: internal/service/cli.go:182
 msgid "Local IPv4: %s://%s:%d%s"
 msgstr ""
 
-#: internal/service/cli.go:180
+#: internal/service/cli.go:186
 msgid "Local IPv6: %s://[%s]:%d%s"
 msgstr ""
 
@@ -689,7 +690,7 @@ msgstr ""
 msgid "NameSilo"
 msgstr ""
 
-#: internal/service/cli.go:220
+#: internal/service/cli.go:226
 msgid "New username cannot be empty"
 msgstr ""
 
@@ -697,12 +698,11 @@ msgstr ""
 msgid "No backup file found, unable to automatically repair"
 msgstr ""
 
-#: internal/service/cli.go:579
+#: internal/service/cli.go:585
 msgid "Not supported"
 msgstr ""
 
 #: internal/service/home.go:200
-#: internal/service/home.go:201
 msgid "Not used"
 msgstr ""
 
@@ -723,7 +723,7 @@ msgstr ""
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr ""
 
-#: internal/service/cli.go:217
+#: internal/service/cli.go:223
 msgid "Old username cannot be empty"
 msgstr ""
 
@@ -791,26 +791,26 @@ msgstr ""
 msgid "Panel service stopped"
 msgstr ""
 
-#: internal/service/cli.go:737
-#: internal/service/cli.go:751
-#: internal/service/cli.go:765
-#: internal/service/cli.go:781
-#: internal/service/cli.go:803
-#: internal/service/cli.go:842
-#: internal/service/cli.go:861
-#: internal/service/cli.go:882
+#: internal/service/cli.go:743
+#: internal/service/cli.go:757
+#: internal/service/cli.go:771
+#: internal/service/cli.go:787
+#: internal/service/cli.go:809
+#: internal/service/cli.go:848
+#: internal/service/cli.go:867
+#: internal/service/cli.go:888
 msgid "Parameters cannot be empty"
 msgstr ""
 
-#: internal/service/cli.go:266
+#: internal/service/cli.go:272
 msgid "Password for user %s changed successfully"
 msgstr ""
 
-#: internal/service/cli.go:247
+#: internal/service/cli.go:253
 msgid "Password length cannot be less than 6"
 msgstr ""
 
-#: internal/service/cli.go:170
+#: internal/service/cli.go:176
 msgid "Password: %s"
 msgstr ""
 
@@ -830,19 +830,19 @@ msgstr ""
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr ""
 
-#: internal/service/cli.go:191
+#: internal/service/cli.go:197
 msgid "Please choose the appropriate address to access the panel based on your network situation"
 msgstr ""
 
-#: internal/service/cli.go:300
+#: internal/service/cli.go:306
 msgid "Please enter the 2FA code: "
 msgstr ""
 
-#: internal/service/cli.go:371
+#: internal/service/cli.go:377
 msgid "Please set the panel IP in settings first for ACME certificate generation"
 msgstr ""
 
-#: internal/service/cli.go:715
+#: internal/service/cli.go:721
 msgid "Please specify the log rotation path"
 msgstr ""
 
@@ -850,19 +850,19 @@ msgstr ""
 msgid "Porkbun"
 msgstr ""
 
-#: internal/service/cli.go:494
+#: internal/service/cli.go:500
 msgid "Port already in use"
 msgstr ""
 
-#: internal/service/cli.go:519
+#: internal/service/cli.go:525
 msgid "Port changed to %d"
 msgstr ""
 
-#: internal/service/cli.go:484
+#: internal/service/cli.go:490
 msgid "Port range error"
 msgstr ""
 
-#: internal/service/cli.go:171
+#: internal/service/cli.go:177
 msgid "Port: %d"
 msgstr ""
 
@@ -882,11 +882,11 @@ msgstr ""
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
-#: internal/service/cli.go:184
+#: internal/service/cli.go:190
 msgid "Public IPv4: %s://%s:%d%s"
 msgstr ""
 
-#: internal/service/cli.go:188
+#: internal/service/cli.go:194
 msgid "Public IPv6: %s://[%s]:%d%s"
 msgstr ""
 
@@ -1002,7 +1002,7 @@ msgstr ""
 msgid "Setting management"
 msgstr ""
 
-#: internal/service/cli.go:848
+#: internal/service/cli.go:854
 msgid "Setting not exists"
 msgstr ""
 
@@ -1035,7 +1035,7 @@ msgstr ""
 msgid "Subqueries without Index"
 msgstr ""
 
-#: internal/service/cli.go:386
+#: internal/service/cli.go:392
 msgid "Successfully obtained ACME certificate"
 msgstr ""
 
@@ -1075,7 +1075,7 @@ msgstr ""
 msgid "Table Locks Waited"
 msgstr ""
 
-#: internal/service/cli.go:835
+#: internal/service/cli.go:841
 msgid "Tasks cleared successfully"
 msgstr ""
 
@@ -1095,7 +1095,7 @@ msgstr ""
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr ""
 
-#: internal/service/cli.go:823
+#: internal/service/cli.go:829
 msgid "Time synchronized successfully"
 msgstr ""
 
@@ -1203,25 +1203,25 @@ msgstr ""
 msgid "Uptime in Days"
 msgstr ""
 
-#: internal/service/cli.go:225
-#: internal/service/cli.go:252
-#: internal/service/cli.go:279
+#: internal/service/cli.go:231
+#: internal/service/cli.go:258
+#: internal/service/cli.go:285
 msgid "User not exists"
 msgstr ""
 
-#: internal/service/cli.go:235
+#: internal/service/cli.go:241
 msgid "Username %s changed to %s successfully"
 msgstr ""
 
-#: internal/service/cli.go:244
+#: internal/service/cli.go:250
 msgid "Username and password cannot be empty"
 msgstr ""
 
-#: internal/service/cli.go:274
+#: internal/service/cli.go:280
 msgid "Username cannot be empty"
 msgstr ""
 
-#: internal/service/cli.go:169
+#: internal/service/cli.go:175
 msgid "Username: %s"
 msgstr ""
 
@@ -1237,7 +1237,7 @@ msgstr ""
 msgid "Waiting"
 msgstr ""
 
-#: internal/service/cli.go:194
+#: internal/service/cli.go:200
 msgid "Warning: After turning off panel HTTPS, the security of the panel will be greatly reduced, please operate with caution"
 msgstr ""
 
@@ -1245,15 +1245,15 @@ msgstr ""
 msgid "Website"
 msgstr ""
 
-#: internal/service/cli.go:538
+#: internal/service/cli.go:544
 msgid "Website %s created successfully"
 msgstr ""
 
-#: internal/service/cli.go:574
+#: internal/service/cli.go:580
 msgid "Website %s deleted successfully"
 msgstr ""
 
-#: internal/service/cli.go:555
+#: internal/service/cli.go:561
 msgid "Website %s removed successfully"
 msgstr ""
 
@@ -1340,11 +1340,11 @@ msgstr ""
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:335
+#: internal/service/home.go:336
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:303
+#: internal/service/home.go:302
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
@@ -1362,7 +1362,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/data/website.go:425
+#: internal/data/website.go:438
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1646,13 +1646,13 @@ msgstr ""
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:316
+#: internal/service/home.go:315
 msgid "failed to get the latest version download link"
 msgstr ""
 
-#: internal/service/home.go:232
-#: internal/service/home.go:268
-#: internal/service/home.go:310
+#: internal/service/home.go:231
+#: internal/service/home.go:267
+#: internal/service/home.go:309
 msgid "failed to get the latest version: %v"
 msgstr ""
 
@@ -1664,7 +1664,7 @@ msgstr ""
 msgid "failed to get the total number of websites: %v"
 msgstr ""
 
-#: internal/service/home.go:289
+#: internal/service/home.go:288
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -1689,11 +1689,11 @@ msgstr ""
 msgid "failed to mount partition: %v"
 msgstr ""
 
-#: internal/data/cert.go:94
+#: internal/data/cert.go:95
 #: internal/data/setting.go:316
 #: internal/data/setting.go:384
-#: internal/data/website.go:494
-#: internal/data/website.go:722
+#: internal/data/website.go:507
+#: internal/data/website.go:755
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -1701,11 +1701,11 @@ msgstr ""
 msgid "failed to parse disk list: %v"
 msgstr ""
 
-#: internal/data/cert.go:97
+#: internal/data/cert.go:98
 #: internal/data/setting.go:319
 #: internal/data/setting.go:387
-#: internal/data/website.go:497
-#: internal/data/website.go:725
+#: internal/data/website.go:510
+#: internal/data/website.go:758
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -1714,10 +1714,10 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
-#: internal/service/home.go:238
-#: internal/service/home.go:243
-#: internal/service/home.go:274
-#: internal/service/home.go:279
+#: internal/service/home.go:237
+#: internal/service/home.go:242
+#: internal/service/home.go:273
+#: internal/service/home.go:278
 msgid "failed to parse version: %v"
 msgstr ""
 
@@ -1988,7 +1988,7 @@ msgstr ""
 msgid "mysql not support database comment"
 msgstr ""
 
-#: internal/data/website.go:750
+#: internal/data/website.go:783
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
@@ -2044,7 +2044,7 @@ msgstr ""
 msgid "please don't do this"
 msgstr ""
 
-#: internal/data/cert.go:213
+#: internal/data/cert.go:214
 msgid "please retry the manual obtain operation"
 msgstr ""
 
@@ -2072,7 +2072,7 @@ msgstr ""
 msgid "rule not found"
 msgstr ""
 
-#: internal/data/website.go:472
+#: internal/data/website.go:485
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -2105,20 +2105,20 @@ msgstr ""
 msgid "target path %s already exists"
 msgstr ""
 
-#: internal/service/home.go:283
+#: internal/service/home.go:282
 msgid "the current version is the latest version"
 msgstr ""
 
-#: internal/data/cert.go:399
+#: internal/data/cert.go:400
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr ""
 
-#: internal/data/cert.go:295
+#: internal/data/cert.go:296
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr ""
 
-#: internal/data/cert.go:170
-#: internal/data/cert.go:302
+#: internal/data/cert.go:171
+#: internal/data/cert.go:303
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr ""
 
@@ -2130,12 +2130,12 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/service/home.go:224
-#: internal/service/home.go:260
+#: internal/service/home.go:223
+#: internal/service/home.go:259
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:298
+#: internal/service/home.go:297
 msgid "unable to update in offline mode"
 msgstr ""
 
@@ -2171,16 +2171,16 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:837
+#: internal/data/website.go:870
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:803
+#: internal/data/website.go:836
 msgid "unsupported website type: %s"
 msgstr ""
 
-#: internal/data/cert.go:134
-msgid "upload certificate cannot be set to auto renew"
+#: internal/data/cert.go:135
+msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
 #: internal/service/file.go:157
@@ -2205,16 +2205,16 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:584
+#: internal/data/website.go:597
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
-#: internal/data/website.go:479
+#: internal/data/website.go:492
 msgid "website directory does not exist"
 msgstr ""
 
-#: internal/data/cert.go:174
-#: internal/data/cert.go:306
+#: internal/data/cert.go:175
+#: internal/data/cert.go:307
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
@@ -2280,8 +2280,8 @@ msgstr ""
 msgid "|-Backup panel data..."
 msgstr ""
 
-#: internal/service/cli.go:621
-#: internal/service/cli.go:637
+#: internal/service/cli.go:627
+#: internal/service/cli.go:643
 msgid "|-Backup target: %s"
 msgstr ""
 
@@ -2292,15 +2292,15 @@ msgstr ""
 msgid "|-Backup time: %s"
 msgstr ""
 
-#: internal/service/cli.go:635
+#: internal/service/cli.go:641
 msgid "|-Backup type: database"
 msgstr ""
 
-#: internal/service/cli.go:651
+#: internal/service/cli.go:657
 msgid "|-Backup type: panel"
 msgstr ""
 
-#: internal/service/cli.go:620
+#: internal/service/cli.go:626
 msgid "|-Backup type: website"
 msgstr ""
 
@@ -2328,17 +2328,17 @@ msgstr ""
 msgid "|-Cleaning old version..."
 msgstr ""
 
-#: internal/service/cli.go:674
-#: internal/service/cli.go:722
+#: internal/service/cli.go:680
+#: internal/service/cli.go:728
 msgid "|-Cleaning target: %s"
 msgstr ""
 
-#: internal/service/cli.go:673
-#: internal/service/cli.go:721
+#: internal/service/cli.go:679
+#: internal/service/cli.go:727
 msgid "|-Cleaning type: %s"
 msgstr ""
 
-#: internal/service/cli.go:636
+#: internal/service/cli.go:642
 msgid "|-Database: %s"
 msgstr ""
 
@@ -2362,8 +2362,8 @@ msgstr ""
 msgid "|-Fix completed"
 msgstr ""
 
-#: internal/service/cli.go:675
-#: internal/service/cli.go:723
+#: internal/service/cli.go:681
+#: internal/service/cli.go:729
 msgid "|-Keep count: %d"
 msgstr ""
 
@@ -2388,11 +2388,11 @@ msgstr ""
 msgid "|-Restore panel data..."
 msgstr ""
 
-#: internal/service/cli.go:699
+#: internal/service/cli.go:705
 msgid "|-Rotation target: %s"
 msgstr ""
 
-#: internal/service/cli.go:698
+#: internal/service/cli.go:704
 msgid "|-Rotation type: website"
 msgstr ""
 
@@ -2454,35 +2454,35 @@ msgstr ""
 msgid "|-Write new panel version failed: %v"
 msgstr ""
 
-#: internal/service/cli.go:618
-#: internal/service/cli.go:633
-#: internal/service/cli.go:649
+#: internal/service/cli.go:624
+#: internal/service/cli.go:639
+#: internal/service/cli.go:655
 msgid "★ Start backup [%s]"
 msgstr ""
 
-#: internal/service/cli.go:671
+#: internal/service/cli.go:677
 msgid "★ Start cleaning [%s]"
 msgstr ""
 
-#: internal/service/cli.go:719
+#: internal/service/cli.go:725
 msgid "★ Start cleaning rotated logs [%s]"
 msgstr ""
 
-#: internal/service/cli.go:696
+#: internal/service/cli.go:702
 msgid "★ Start log rotation [%s]"
 msgstr ""
 
-#: internal/service/cli.go:626
-#: internal/service/cli.go:642
-#: internal/service/cli.go:656
+#: internal/service/cli.go:632
+#: internal/service/cli.go:648
+#: internal/service/cli.go:662
 msgid "☆ Backup successful [%s]"
 msgstr ""
 
-#: internal/service/cli.go:680
-#: internal/service/cli.go:728
+#: internal/service/cli.go:686
+#: internal/service/cli.go:734
 msgid "☆ Cleaning successful [%s]"
 msgstr ""
 
-#: internal/service/cli.go:704
+#: internal/service/cli.go:710
 msgid "☆ Rotation successful [%s]"
 msgstr ""

@@ -146,12 +146,12 @@ msgid "Month %{month}"
 msgstr ""
 
 #: src/components/common/CronSelector.vue:170
-#: src/views/website/EditView.vue:345
+#: src/views/website/EditView.vue:337
 msgid "Minutes"
 msgstr ""
 
 #: src/components/common/CronSelector.vue:181
-#: src/views/website/EditView.vue:346
+#: src/views/website/EditView.vue:338
 msgid "Hours"
 msgstr ""
 
@@ -346,8 +346,8 @@ msgstr ""
 #: src/views/backup/ListView.vue:256
 #: src/views/backup/ListView.vue:280
 #: src/views/cert/AccountView.vue:268
-#: src/views/cert/CertView.vue:534
-#: src/views/cert/CertView.vue:558
+#: src/views/cert/CertView.vue:524
+#: src/views/cert/CertView.vue:548
 #: src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115
 #: src/views/cert/CreateDnsModal.vue:173
@@ -668,12 +668,12 @@ msgid "Backup"
 msgstr ""
 
 #: src/locales/menu.ts:9
-#: src/views/cert/CertView.vue:496
-#: src/views/cert/CertView.vue:573
+#: src/views/cert/CertView.vue:486
+#: src/views/cert/CertView.vue:563
 #: src/views/cert/IndexView.vue:96
 #: src/views/cert/UploadCertModal.vue:38
 #: src/views/setting/SettingSafe.vue:248
-#: src/views/website/EditView.vue:854
+#: src/views/website/EditView.vue:846
 msgid "Certificate"
 msgstr ""
 
@@ -738,8 +738,8 @@ msgstr ""
 #: src/views/backup/IndexView.vue:37
 #: src/views/backup/ListView.vue:232
 #: src/views/backup/ListView.vue:269
-#: src/views/cert/CertView.vue:465
-#: src/views/cert/CertView.vue:548
+#: src/views/cert/CertView.vue:455
+#: src/views/cert/CertView.vue:538
 #: src/views/cert/CreateCertModal.vue:90
 #: src/views/home/IndexView.vue:424
 #: src/views/task/CreateModal.vue:118
@@ -812,7 +812,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:74
 #: src/views/backup/ListView.vue:57
 #: src/views/cert/AccountView.vue:79
-#: src/views/cert/CertView.vue:180
+#: src/views/cert/CertView.vue:170
 #: src/views/cert/DnsView.vue:64
 #: src/views/container/ComposeView.vue:74
 #: src/views/container/ContainerCreate.vue:175
@@ -986,7 +986,7 @@ msgstr ""
 #: src/views/toolbox/SystemView.vue:152
 #: src/views/toolbox/SystemView.vue:178
 #: src/views/toolbox/WebHookView.vue:389
-#: src/views/website/EditView.vue:923
+#: src/views/website/EditView.vue:915
 msgid "Save"
 msgstr ""
 
@@ -1048,7 +1048,7 @@ msgid "Find Time"
 msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:77
-#: src/views/cert/CertView.vue:262
+#: src/views/cert/CertView.vue:252
 msgid "View"
 msgstr ""
 
@@ -1062,7 +1062,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:195
 #: src/views/backup/ListView.vue:96
 #: src/views/cert/AccountView.vue:127
-#: src/views/cert/CertView.vue:313
+#: src/views/cert/CertView.vue:303
 #: src/views/cert/DnsView.vue:111
 #: src/views/container/ComposeView.vue:228
 #: src/views/container/ContainerCreate.vue:236
@@ -1883,14 +1883,14 @@ msgstr ""
 
 #: src/views/cert/AccountView.vue:72
 #: src/views/cert/AccountView.vue:235
-#: src/views/cert/CertView.vue:457
+#: src/views/cert/CertView.vue:447
 #: src/views/cert/CreateAccountModal.vue:92
 #: src/views/cert/CreateCertModal.vue:82
 msgid "Key Type"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:101
-#: src/views/cert/CertView.vue:287
+#: src/views/cert/CertView.vue:277
 #: src/views/cert/DnsView.vue:85
 #: src/views/database/ServerList.vue:182
 #: src/views/database/UserList.vue:168
@@ -1900,7 +1900,7 @@ msgid "Modify"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:109
-#: src/views/cert/CertView.vue:296
+#: src/views/cert/CertView.vue:286
 #: src/views/cert/DnsView.vue:94
 msgid "Deletion successful"
 msgstr ""
@@ -1915,8 +1915,8 @@ msgid "Registering account with CA, please wait patiently"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:162
-#: src/views/cert/CertView.vue:347
-#: src/views/cert/CertView.vue:364
+#: src/views/cert/CertView.vue:337
+#: src/views/cert/CertView.vue:354
 #: src/views/cert/DnsView.vue:139
 #: src/views/container/ComposeView.vue:272
 msgid "Update successful"
@@ -1947,7 +1947,7 @@ msgid "Select CA"
 msgstr ""
 
 #: src/views/cert/AccountView.vue:238
-#: src/views/cert/CertView.vue:460
+#: src/views/cert/CertView.vue:450
 #: src/views/cert/CreateAccountModal.vue:95
 #: src/views/cert/CreateCertModal.vue:85
 msgid "Select key type"
@@ -1969,18 +1969,18 @@ msgid "Enter HMAC"
 msgstr ""
 
 #: src/views/cert/CertView.vue:63
-#: src/views/cert/CertView.vue:449
+#: src/views/cert/CertView.vue:439
 #: src/views/cert/CreateCertModal.vue:74
 #: src/views/cert/ObtainModal.vue:57
 #: src/views/website/CreateModal.vue:118
-#: src/views/website/EditView.vue:393
+#: src/views/website/EditView.vue:385
 msgid "Domain"
 msgstr ""
 
 #: src/views/cert/CertView.vue:69
 #: src/views/cert/CertView.vue:123
 #: src/views/cert/CertView.vue:134
-#: src/views/cert/CertView.vue:153
+#: src/views/cert/CertView.vue:152
 #: src/views/container/ContainerCreate.vue:55
 #: src/views/database/ServerList.vue:51
 #: src/views/database/ServerList.vue:66
@@ -2005,7 +2005,7 @@ msgid "Associated Account"
 msgstr ""
 
 #: src/views/cert/CertView.vue:129
-#: src/views/website/EditView.vue:785
+#: src/views/website/EditView.vue:777
 msgid "Issuer"
 msgstr ""
 
@@ -2016,67 +2016,71 @@ msgstr ""
 msgid "Expiration Time"
 msgstr ""
 
-#: src/views/cert/CertView.vue:166
-msgid "Auto Renew"
+#: src/views/cert/CertView.vue:147
+msgid "Next Renewal Time"
 msgstr ""
 
-#: src/views/cert/CertView.vue:199
+#: src/views/cert/CertView.vue:156
+msgid "Auto Renewal"
+msgstr ""
+
+#: src/views/cert/CertView.vue:189
 #: src/views/cert/ObtainModal.vue:78
 msgid "Issue"
 msgstr ""
 
-#: src/views/cert/CertView.vue:218
+#: src/views/cert/CertView.vue:208
 msgid "Deploy"
 msgstr ""
 
-#: src/views/cert/CertView.vue:230
+#: src/views/cert/CertView.vue:220
 #: src/views/cert/ObtainModal.vue:24
 #: src/views/cert/ObtainModal.vue:81
 #: src/views/website/EditView.vue:133
 msgid "Please wait..."
 msgstr ""
 
-#: src/views/cert/CertView.vue:236
+#: src/views/cert/CertView.vue:226
 msgid "Renewal successful"
 msgstr ""
 
-#: src/views/cert/CertView.vue:244
-msgid "Renew"
+#: src/views/cert/CertView.vue:234
+msgid "Renewal"
 msgstr ""
 
-#: src/views/cert/CertView.vue:302
+#: src/views/cert/CertView.vue:292
 msgid "Are you sure you want to delete the certificate?"
 msgstr ""
 
-#: src/views/cert/CertView.vue:388
+#: src/views/cert/CertView.vue:378
 msgid "Deployment successful"
 msgstr ""
 
-#: src/views/cert/CertView.vue:434
+#: src/views/cert/CertView.vue:424
 msgid "Modify Certificate"
 msgstr ""
 
-#: src/views/cert/CertView.vue:443
+#: src/views/cert/CertView.vue:433
 msgid "You can automatically issue and deploy certificates by selecting any website/DNS, or manually enter domain names and set DNS resolution to issue certificates, or fill in deployment scripts to automatically deploy certificates."
 msgstr ""
 
-#: src/views/cert/CertView.vue:468
+#: src/views/cert/CertView.vue:458
 #: src/views/cert/CreateCertModal.vue:93
 msgid "Select website for certificate deployment"
 msgstr ""
 
-#: src/views/cert/CertView.vue:476
+#: src/views/cert/CertView.vue:466
 #: src/views/cert/CreateCertModal.vue:98
 #: src/views/cert/IndexView.vue:97
 msgid "Account"
 msgstr ""
 
-#: src/views/cert/CertView.vue:480
+#: src/views/cert/CertView.vue:470
 #: src/views/cert/CreateCertModal.vue:101
 msgid "Select account for certificate issuance"
 msgstr ""
 
-#: src/views/cert/CertView.vue:485
+#: src/views/cert/CertView.vue:475
 #: src/views/cert/CreateCertModal.vue:106
 #: src/views/cert/CreateDnsModal.vue:59
 #: src/views/cert/DnsView.vue:196
@@ -2084,52 +2088,52 @@ msgstr ""
 msgid "DNS"
 msgstr ""
 
-#: src/views/cert/CertView.vue:488
+#: src/views/cert/CertView.vue:478
 #: src/views/cert/CreateCertModal.vue:109
 msgid "Select DNS for certificate issuance"
 msgstr ""
 
-#: src/views/cert/CertView.vue:501
+#: src/views/cert/CertView.vue:491
 #: src/views/cert/UploadCertModal.vue:42
-#: src/views/website/EditView.vue:858
+#: src/views/website/EditView.vue:850
 msgid "Enter the content of the PEM certificate file"
 msgstr ""
 
-#: src/views/cert/CertView.vue:508
-#: src/views/cert/CertView.vue:576
+#: src/views/cert/CertView.vue:498
+#: src/views/cert/CertView.vue:566
 #: src/views/cert/UploadCertModal.vue:46
 #: src/views/setting/SettingSafe.vue:255
 #: src/views/ssh/CreateModal.vue:80
 #: src/views/ssh/CreateModal.vue:91
 #: src/views/ssh/UpdateModal.vue:86
 #: src/views/ssh/UpdateModal.vue:97
-#: src/views/website/EditView.vue:862
+#: src/views/website/EditView.vue:854
 msgid "Private Key"
 msgstr ""
 
-#: src/views/cert/CertView.vue:513
+#: src/views/cert/CertView.vue:503
 #: src/views/cert/UploadCertModal.vue:50
-#: src/views/website/EditView.vue:866
+#: src/views/website/EditView.vue:858
 msgid "Enter the content of the KEY private key file"
 msgstr ""
 
-#: src/views/cert/CertView.vue:520
+#: src/views/cert/CertView.vue:510
 msgid "Deployment Script"
 msgstr ""
 
-#: src/views/cert/CertView.vue:526
+#: src/views/cert/CertView.vue:516
 msgid "The {cert} and {key} in the script will be replaced with the certificate and private key content"
 msgstr ""
 
-#: src/views/cert/CertView.vue:540
+#: src/views/cert/CertView.vue:530
 msgid "Deploy Certificate"
 msgstr ""
 
-#: src/views/cert/CertView.vue:551
+#: src/views/cert/CertView.vue:541
 msgid "Select websites to deploy the certificate"
 msgstr ""
 
-#: src/views/cert/CertView.vue:564
+#: src/views/cert/CertView.vue:554
 msgid "View Certificate"
 msgstr ""
 
@@ -2893,7 +2897,7 @@ msgstr ""
 
 #: src/views/database/CreateServerModal.vue:47
 #: src/views/database/IndexView.vue:49
-#: src/views/website/EditView.vue:586
+#: src/views/website/EditView.vue:578
 msgid "Add Server"
 msgstr ""
 
@@ -3467,7 +3471,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:168
 #: src/views/firewall/IpRuleView.vue:210
 #: src/views/firewall/RuleView.vue:247
-#: src/views/website/ListView.vue:290
+#: src/views/website/ListView.vue:294
 msgid "Batch Delete"
 msgstr ""
 
@@ -3951,7 +3955,7 @@ msgid "Clear Monitoring Records"
 msgstr ""
 
 #: src/views/monitor/IndexView.vue:477
-#: src/views/website/EditView.vue:903
+#: src/views/website/EditView.vue:895
 msgid "Are you sure you want to clear?"
 msgstr ""
 
@@ -4778,8 +4782,8 @@ msgstr ""
 #: src/views/toolbox/DiskView.vue:874
 #: src/views/toolbox/DiskView.vue:912
 #: src/views/toolbox/DiskView.vue:957
-#: src/views/website/EditView.vue:582
-#: src/views/website/EditView.vue:740
+#: src/views/website/EditView.vue:574
+#: src/views/website/EditView.vue:732
 msgid "Remove"
 msgstr ""
 
@@ -5303,7 +5307,7 @@ msgid "Website %{ name } created successfully"
 msgstr ""
 
 #: src/views/website/BulkCreateModal.vue:79
-#: src/views/website/ListView.vue:285
+#: src/views/website/ListView.vue:289
 msgid "Bulk Create Website"
 msgstr ""
 
@@ -5341,7 +5345,7 @@ msgid "Not used"
 msgstr ""
 
 #: src/views/website/CreateModal.vue:97
-#: src/views/website/ListView.vue:282
+#: src/views/website/ListView.vue:286
 msgid "Create Website"
 msgstr ""
 
@@ -5350,12 +5354,12 @@ msgid "Must use English for the website name, it cannot be modified after settin
 msgstr ""
 
 #: src/views/website/CreateModal.vue:141
-#: src/views/website/EditView.vue:452
+#: src/views/website/EditView.vue:444
 msgid "PHP Version"
 msgstr ""
 
 #: src/views/website/CreateModal.vue:145
-#: src/views/website/EditView.vue:457
+#: src/views/website/EditView.vue:449
 msgid "Select PHP Version"
 msgstr ""
 
@@ -5433,264 +5437,264 @@ msgstr ""
 msgid "Case-insensitive Regex (~*)"
 msgstr ""
 
-#: src/views/website/EditView.vue:344
+#: src/views/website/EditView.vue:336
 msgid "Seconds"
 msgstr ""
 
-#: src/views/website/EditView.vue:391
+#: src/views/website/EditView.vue:383
 msgid "Domain & Listening"
 msgstr ""
 
-#: src/views/website/EditView.vue:401
+#: src/views/website/EditView.vue:393
 msgid "Listening Address"
 msgstr ""
 
-#: src/views/website/EditView.vue:433
+#: src/views/website/EditView.vue:425
 msgid "Basic Settings"
 msgstr ""
 
-#: src/views/website/EditView.vue:435
+#: src/views/website/EditView.vue:427
 msgid "Website Directory"
 msgstr ""
 
-#: src/views/website/EditView.vue:438
+#: src/views/website/EditView.vue:430
 msgid "Enter website directory (absolute path)"
 msgstr ""
 
-#: src/views/website/EditView.vue:441
+#: src/views/website/EditView.vue:433
 msgid "Running Directory"
 msgstr ""
 
-#: src/views/website/EditView.vue:445
+#: src/views/website/EditView.vue:437
 msgid "Enter running directory (needed for Laravel etc.) (absolute path)"
 msgstr ""
 
-#: src/views/website/EditView.vue:449
+#: src/views/website/EditView.vue:441
 msgid "Default Document"
 msgstr ""
 
-#: src/views/website/EditView.vue:462
+#: src/views/website/EditView.vue:454
 msgid "Anti-cross-site Attack"
 msgstr ""
 
-#: src/views/website/EditView.vue:468
+#: src/views/website/EditView.vue:460
 msgid "Upstreams"
 msgstr ""
 
-#: src/views/website/EditView.vue:486
+#: src/views/website/EditView.vue:478
 msgid "Upstream"
 msgstr ""
 
-#: src/views/website/EditView.vue:489
+#: src/views/website/EditView.vue:481
 msgid "Upstream name"
 msgstr ""
 
-#: src/views/website/EditView.vue:497
+#: src/views/website/EditView.vue:489
 msgid "Load Balancing Algorithm"
 msgstr ""
 
-#: src/views/website/EditView.vue:501
+#: src/views/website/EditView.vue:493
 msgid "Round Robin (default)"
 msgstr ""
 
-#: src/views/website/EditView.vue:509
+#: src/views/website/EditView.vue:501
 msgid "Keepalive Connections"
 msgstr ""
 
-#: src/views/website/EditView.vue:517
-#: src/views/website/EditView.vue:675
+#: src/views/website/EditView.vue:509
+#: src/views/website/EditView.vue:667
 msgid "DNS Resolver"
 msgstr ""
 
-#: src/views/website/EditView.vue:520
-#: src/views/website/EditView.vue:678
+#: src/views/website/EditView.vue:512
+#: src/views/website/EditView.vue:670
 msgid "e.g., 8.8.8.8"
 msgstr ""
 
-#: src/views/website/EditView.vue:526
-#: src/views/website/EditView.vue:684
+#: src/views/website/EditView.vue:518
+#: src/views/website/EditView.vue:676
 msgid "Resolver Timeout"
 msgstr ""
 
-#: src/views/website/EditView.vue:547
+#: src/views/website/EditView.vue:539
 msgid "Backend Servers"
 msgstr ""
 
-#: src/views/website/EditView.vue:557
+#: src/views/website/EditView.vue:549
 msgid "Server address, e.g., 127.0.0.1:8080"
 msgstr ""
 
-#: src/views/website/EditView.vue:571
+#: src/views/website/EditView.vue:563
 msgid "Options, e.g., weight=5 backup"
 msgstr ""
 
-#: src/views/website/EditView.vue:597
+#: src/views/website/EditView.vue:589
 msgid "No upstreams configured"
 msgstr ""
 
-#: src/views/website/EditView.vue:602
+#: src/views/website/EditView.vue:594
 msgid "Add Upstream"
 msgstr ""
 
-#: src/views/website/EditView.vue:606
+#: src/views/website/EditView.vue:598
 msgid "Proxies"
 msgstr ""
 
-#: src/views/website/EditView.vue:624
+#: src/views/website/EditView.vue:616
 msgid "Rule"
 msgstr ""
 
-#: src/views/website/EditView.vue:632
+#: src/views/website/EditView.vue:624
 #: src/views/website/ProxyBuilderModal.vue:159
 msgid "Match Type"
 msgstr ""
 
-#: src/views/website/EditView.vue:639
+#: src/views/website/EditView.vue:631
 #: src/views/website/ProxyBuilderModal.vue:171
 msgid "Match Expression"
 msgstr ""
 
-#: src/views/website/EditView.vue:642
+#: src/views/website/EditView.vue:634
 msgid "e.g., /, /api, ^/api/v[0-9]+/"
 msgstr ""
 
-#: src/views/website/EditView.vue:646
+#: src/views/website/EditView.vue:638
 msgid "Proxy Pass"
 msgstr ""
 
-#: src/views/website/EditView.vue:650
+#: src/views/website/EditView.vue:642
 msgid "Backend address, e.g., http://127.0.0.1:8080 or http://upstream_name"
 msgstr ""
 
-#: src/views/website/EditView.vue:657
+#: src/views/website/EditView.vue:649
 msgid "Proxy Host"
 msgstr ""
 
-#: src/views/website/EditView.vue:660
+#: src/views/website/EditView.vue:652
 msgid "Default: $host, or extracted from Proxy Pass"
 msgstr ""
 
-#: src/views/website/EditView.vue:663
+#: src/views/website/EditView.vue:655
 msgid "Proxy SNI"
 msgstr ""
 
-#: src/views/website/EditView.vue:666
+#: src/views/website/EditView.vue:658
 msgid "Optional, for HTTPS backends"
 msgstr ""
 
-#: src/views/website/EditView.vue:669
+#: src/views/website/EditView.vue:661
 #: src/views/website/ProxyBuilderModal.vue:151
 msgid "Enable Cache"
 msgstr ""
 
-#: src/views/website/EditView.vue:672
+#: src/views/website/EditView.vue:664
 msgid "Enable Buffering"
 msgstr ""
 
-#: src/views/website/EditView.vue:703
+#: src/views/website/EditView.vue:695
 msgid "Response Content Replacement"
 msgstr ""
 
-#: src/views/website/EditView.vue:713
+#: src/views/website/EditView.vue:705
 msgid "Original content"
 msgstr ""
 
-#: src/views/website/EditView.vue:729
+#: src/views/website/EditView.vue:721
 #: src/views/website/ProxyBuilderModal.vue:197
 msgid "Replacement content"
 msgstr ""
 
-#: src/views/website/EditView.vue:753
+#: src/views/website/EditView.vue:745
 msgid "Add Replacement Rule"
 msgstr ""
 
-#: src/views/website/EditView.vue:763
+#: src/views/website/EditView.vue:755
 msgid "No proxy rules configured"
 msgstr ""
 
-#: src/views/website/EditView.vue:768
+#: src/views/website/EditView.vue:760
 msgid "Add Proxy Rule"
 msgstr ""
 
-#: src/views/website/EditView.vue:775
+#: src/views/website/EditView.vue:767
 msgid "Certificate Information"
 msgstr ""
 
-#: src/views/website/EditView.vue:777
+#: src/views/website/EditView.vue:769
 msgid "Certificate Validity"
 msgstr ""
 
-#: src/views/website/EditView.vue:791
+#: src/views/website/EditView.vue:783
 msgid "Domains"
 msgstr ""
 
-#: src/views/website/EditView.vue:806
+#: src/views/website/EditView.vue:798
 msgid "Main Switch"
 msgstr ""
 
-#: src/views/website/EditView.vue:812
+#: src/views/website/EditView.vue:804
 msgid "Use Existing Certificate"
 msgstr ""
 
-#: src/views/website/EditView.vue:826
+#: src/views/website/EditView.vue:818
 msgid "HTTP Redirect"
 msgstr ""
 
-#: src/views/website/EditView.vue:829
+#: src/views/website/EditView.vue:821
 msgid "OCSP Stapling"
 msgstr ""
 
-#: src/views/website/EditView.vue:834
+#: src/views/website/EditView.vue:826
 msgid "TLS Version"
 msgstr ""
 
-#: src/views/website/EditView.vue:846
+#: src/views/website/EditView.vue:838
 msgid "Cipher Suites"
 msgstr ""
 
-#: src/views/website/EditView.vue:850
+#: src/views/website/EditView.vue:842
 msgid "Enter the cipher suite, leave blank to reset to default"
 msgstr ""
 
-#: src/views/website/EditView.vue:874
+#: src/views/website/EditView.vue:866
 msgid "Rewrite"
 msgstr ""
 
-#: src/views/website/EditView.vue:877
+#: src/views/website/EditView.vue:869
 msgid "Presets"
 msgstr ""
 
-#: src/views/website/EditView.vue:889
+#: src/views/website/EditView.vue:881
 msgid "Access Log"
 msgstr ""
 
-#: src/views/website/EditView.vue:893
-#: src/views/website/EditView.vue:913
+#: src/views/website/EditView.vue:885
+#: src/views/website/EditView.vue:905
 msgid "All logs can be viewed by downloading the file"
 msgstr ""
 
-#: src/views/website/EditView.vue:895
-#: src/views/website/EditView.vue:915
+#: src/views/website/EditView.vue:887
+#: src/views/website/EditView.vue:907
 msgid "view"
 msgstr ""
 
-#: src/views/website/EditView.vue:900
+#: src/views/website/EditView.vue:892
 msgid "Clear Logs"
 msgstr ""
 
-#: src/views/website/EditView.vue:909
+#: src/views/website/EditView.vue:901
 msgid "Error Log"
 msgstr ""
 
-#: src/views/website/EditView.vue:933
+#: src/views/website/EditView.vue:925
 msgid "One-click Certificate Issuance"
 msgstr ""
 
-#: src/views/website/EditView.vue:938
+#: src/views/website/EditView.vue:930
 msgid "Reset Configuration"
 msgstr ""
 
-#: src/views/website/EditView.vue:941
+#: src/views/website/EditView.vue:933
 msgid "Are you sure you want to reset the configuration?"
 msgstr ""
 
@@ -5738,7 +5742,7 @@ msgstr ""
 msgid "Please select the websites to delete"
 msgstr ""
 
-#: src/views/website/ListView.vue:294
+#: src/views/website/ListView.vue:298
 msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
 msgstr ""
 
