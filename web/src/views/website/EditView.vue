@@ -6,6 +6,7 @@ defineOptions({
 import type { MessageReactive } from 'naive-ui'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
+import draggable from 'vuedraggable'
 
 import cert from '@/api/panel/cert'
 import home from '@/api/panel/home'
@@ -179,6 +180,218 @@ const toggleArg = (args: string[], arg: string, checked: boolean) => {
 const hasArg = (args: string[], arg: string) => {
   return args.includes(arg)
 }
+
+// ========== Upstreams 相关 ==========
+const upstreamAlgoOptions = [
+  { label: $gettext('Round Robin (default)'), value: '' },
+  { label: 'least_conn', value: 'least_conn' },
+  { label: 'ip_hash', value: 'ip_hash' },
+  { label: 'hash', value: 'hash' },
+  { label: 'random', value: 'random' }
+]
+
+// 添加新的上游
+const addUpstream = () => {
+  const name = `backend_${Date.now()}`
+  if (!setting.value.upstreams) {
+    setting.value.upstreams = {}
+  }
+  setting.value.upstreams[name] = {
+    servers: {},
+    algo: '',
+    keepalive: 32
+  }
+}
+
+// 删除上游
+const removeUpstream = (name: string) => {
+  if (setting.value.upstreams) {
+    delete setting.value.upstreams[name]
+  }
+}
+
+// 重命名上游
+const renameUpstream = (oldName: string, newName: string) => {
+  if (!setting.value.upstreams || oldName === newName) return
+  if (setting.value.upstreams[newName]) {
+    window.$message.error($gettext('Upstream name already exists'))
+    return
+  }
+  const upstream = setting.value.upstreams[oldName]
+  delete setting.value.upstreams[oldName]
+  setting.value.upstreams[newName] = upstream
+}
+
+// 为上游添加服务器
+const addServerToUpstream = (upstreamName: string) => {
+  if (!setting.value.upstreams[upstreamName].servers) {
+    setting.value.upstreams[upstreamName].servers = {}
+  }
+  setting.value.upstreams[upstreamName].servers[
+    `127.0.0.1:${8080 + Object.keys(setting.value.upstreams[upstreamName].servers).length}`
+  ] = ''
+}
+
+// ========== Proxies 相关 ==========
+// Location 匹配类型选项
+const locationMatchTypes = [
+  { label: $gettext('Exact Match (=)'), value: '=' },
+  { label: $gettext('Priority Prefix Match (^~)'), value: '^~' },
+  { label: $gettext('Prefix Match'), value: '' },
+  { label: $gettext('Case-sensitive Regex (~)'), value: '~' },
+  { label: $gettext('Case-insensitive Regex (~*)'), value: '~*' }
+]
+
+// 解析 location 字符串，返回匹配类型和表达式
+const parseLocation = (location: string): { type: string; expression: string } => {
+  if (!location) return { type: '', expression: '/' }
+
+  // 精确匹配 =
+  if (location.startsWith('= ')) {
+    return { type: '=', expression: location.slice(2) }
+  }
+  // 优先前缀匹配 ^~
+  if (location.startsWith('^~ ')) {
+    return { type: '^~', expression: location.slice(3) }
+  }
+  // 不区分大小写正则 ~*
+  if (location.startsWith('~* ')) {
+    return { type: '~*', expression: location.slice(3) }
+  }
+  // 区分大小写正则 ~
+  if (location.startsWith('~ ')) {
+    return { type: '~', expression: location.slice(2) }
+  }
+  // 普通前缀匹配
+  return { type: '', expression: location }
+}
+
+// 组合 location 字符串
+const buildLocation = (type: string, expression: string): string => {
+  if (!expression) expression = '/'
+  if (type === '') return expression
+  return `${type} ${expression}`
+}
+
+// 从 URL 提取主机名
+const extractHostFromUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url)
+    return urlObj.host
+  } catch {
+    // 如果不是有效的 URL，尝试简单提取
+    const match = url.match(/^https?:\/\/([^/]+)/)
+    return match ? match[1] : ''
+  }
+}
+
+// 添加新的代理
+const addProxy = () => {
+  if (!setting.value.proxies) {
+    setting.value.proxies = []
+  }
+  setting.value.proxies.push({
+    location: '/',
+    pass: 'http://127.0.0.1:8080',
+    host: '$host',
+    sni: '',
+    cache: false,
+    buffering: true,
+    resolver: [],
+    resolver_timeout: 5 * 1000000000, // 5秒，以纳秒为单位
+    replaces: {}
+  })
+}
+
+// 删除代理
+const removeProxy = (index: number) => {
+  if (setting.value.proxies) {
+    setting.value.proxies.splice(index, 1)
+  }
+}
+
+// 处理 Proxy Pass 变化，自动更新 Host
+const handleProxyPassChange = (proxy: any, value: string) => {
+  proxy.pass = value
+  // 如果 host 是 $host 或为空，则自动提取
+  if (!proxy.host || proxy.host === '$host') {
+    const extracted = extractHostFromUrl(value)
+    // 只有当提取到的不是 IP 地址时才设置
+    if (
+      extracted &&
+      !/^\d+\.\d+\.\d+\.\d+(:\d+)?$/.test(extracted) &&
+      !/^localhost(:\d+)?$/i.test(extracted)
+    ) {
+      proxy.host = extracted
+    } else {
+      proxy.host = '$host'
+    }
+  }
+}
+
+// 更新 Location 匹配类型
+const updateLocationType = (proxy: any, type: string) => {
+  const parsed = parseLocation(proxy.location)
+  proxy.location = buildLocation(type, parsed.expression)
+}
+
+// 更新 Location 表达式
+const updateLocationExpression = (proxy: any, expression: string) => {
+  const parsed = parseLocation(proxy.location)
+  proxy.location = buildLocation(parsed.type, expression)
+}
+
+// ========== 时间单位相关 ==========
+// Go time.Duration 在 JSON 中以纳秒表示
+const NANOSECOND = 1
+const SECOND = 1000000000 * NANOSECOND
+const MINUTE = 60 * SECOND
+const HOUR = 60 * MINUTE
+
+// 时间单位选项
+const timeUnitOptions = [
+  { label: $gettext('Seconds'), value: 's' },
+  { label: $gettext('Minutes'), value: 'm' },
+  { label: $gettext('Hours'), value: 'h' }
+]
+
+// 从纳秒解析为 {value, unit} 格式
+const parseDuration = (ns: number): { value: number; unit: string } => {
+  if (!ns || ns <= 0) return { value: 5, unit: 's' }
+
+  if (ns >= HOUR && ns % HOUR === 0) {
+    return { value: ns / HOUR, unit: 'h' }
+  }
+  if (ns >= MINUTE && ns % MINUTE === 0) {
+    return { value: ns / MINUTE, unit: 'm' }
+  }
+  return { value: Math.floor(ns / SECOND), unit: 's' }
+}
+
+// 将 {value, unit} 转换为纳秒
+const buildDuration = (value: number, unit: string): number => {
+  if (!value || value <= 0) value = 5
+  switch (unit) {
+    case 'h':
+      return value * HOUR
+    case 'm':
+      return value * MINUTE
+    default:
+      return value * SECOND
+  }
+}
+
+// 更新超时时间值
+const updateTimeoutValue = (proxy: any, value: number) => {
+  const parsed = parseDuration(proxy.resolver_timeout)
+  proxy.resolver_timeout = buildDuration(value, parsed.unit)
+}
+
+// 更新超时时间单位
+const updateTimeoutUnit = (proxy: any, unit: string) => {
+  const parsed = parseDuration(proxy.resolver_timeout)
+  proxy.resolver_timeout = buildDuration(parsed.value, unit)
+}
 </script>
 
 <template>
@@ -260,6 +473,266 @@ const hasArg = (args: string[], arg: string) => {
           </n-form-item>
         </n-form>
         <n-skeleton v-else text :repeat="10" />
+      </n-tab-pane>
+      <n-tab-pane v-if="setting.type === 'proxy'" name="upstreams" :tab="$gettext('Upstreams')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'Upstreams define backend server groups for load balancing. You can reference an upstream in proxy settings using "http://upstream_name".'
+              )
+            }}
+          </n-alert>
+          <!-- 上游卡片列表 -->
+          <n-card
+            v-for="(upstream, name) in setting.upstreams"
+            :key="name"
+            :title="String(name)"
+            closable
+            @close="removeUpstream(String(name))"
+          >
+            <template #header>
+              <n-input
+                :value="String(name)"
+                :placeholder="$gettext('Upstream name')"
+                style="width: 300px"
+                @blur="
+                  (e: FocusEvent) =>
+                    renameUpstream(String(name), (e.target as HTMLInputElement).value)
+                "
+              />
+            </template>
+            <n-form label-placement="left" label-width="auto">
+              <n-form-item :label="$gettext('Load Balancing Algorithm')">
+                <n-select
+                  v-model:value="upstream.algo"
+                  :options="upstreamAlgoOptions"
+                  style="width: 200px"
+                />
+              </n-form-item>
+              <n-form-item :label="$gettext('Keepalive Connections')">
+                <n-input-number v-model:value="upstream.keepalive" :min="0" :max="1000" />
+              </n-form-item>
+              <n-form-item :label="$gettext('Backend Servers')">
+                <n-flex vertical :size="8" style="width: 100%">
+                  <n-flex
+                    v-for="(options, address) in upstream.servers"
+                    :key="String(address)"
+                    :size="8"
+                    align="center"
+                  >
+                    <n-input
+                      :value="String(address)"
+                      :placeholder="$gettext('Server address, e.g., 127.0.0.1:8080')"
+                      style="width: 250px"
+                      @blur="
+                        (e: FocusEvent) => {
+                          const newAddr = (e.target as HTMLInputElement).value
+                          const oldAddr = String(address)
+                          if (newAddr && newAddr !== oldAddr) {
+                            upstream.servers[newAddr] = upstream.servers[oldAddr]
+                            delete upstream.servers[oldAddr]
+                          }
+                        }
+                      "
+                    />
+                    <n-input
+                      :value="String(options)"
+                      :placeholder="$gettext('Options, e.g., weight=5 backup')"
+                      style="width: 300px"
+                      @update:value="(v: string) => (upstream.servers[String(address)] = v)"
+                    />
+                    <n-button
+                      type="error"
+                      secondary
+                      size="small"
+                      @click="delete upstream.servers[String(address)]"
+                    >
+                      {{ $gettext('Remove') }}
+                    </n-button>
+                  </n-flex>
+                  <n-button dashed @click="addServerToUpstream(String(name))">
+                    {{ $gettext('Add Server') }}
+                  </n-button>
+                </n-flex>
+              </n-form-item>
+            </n-form>
+          </n-card>
+          <!-- 空状态 -->
+          <n-empty v-if="!setting.upstreams || Object.keys(setting.upstreams).length === 0">
+            {{ $gettext('No upstreams configured') }}
+          </n-empty>
+          <!-- 添加按钮 -->
+          <n-button type="primary" dashed @click="addUpstream" mb-20>
+            {{ $gettext('Add Upstream') }}
+          </n-button>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane v-if="setting.type === 'proxy'" name="proxies" :tab="$gettext('Proxies')">
+        <n-flex vertical>
+          <!-- 代理卡片列表 -->
+          <draggable
+            v-model="setting.proxies"
+            item-key="location"
+            handle=".drag-handle"
+            :animation="200"
+            ghost-class="ghost-card"
+          >
+            <template #item="{ element: proxy, index }">
+              <n-card closable @close="removeProxy(index)" style="margin-bottom: 16px">
+                <template #header>
+                  <n-flex align="center" :size="8">
+                    <!-- 拖拽手柄 -->
+                    <div class="drag-handle" cursor-grab>
+                      <the-icon icon="mdi:drag" :size="20" />
+                    </div>
+                    <span>{{ $gettext('Rule') }} #{{ index + 1 }}</span>
+                    <n-tag size="small">{{ proxy.location }}</n-tag>
+                    <the-icon icon="mdi:arrow-right-bold" :size="20" />
+                    <n-tag size="small" type="success">{{ proxy.pass }}</n-tag>
+                  </n-flex>
+                </template>
+                <n-form label-placement="left" label-width="140px">
+                  <n-grid :cols="24" :x-gap="16">
+                    <n-form-item-gi :span="12" :label="$gettext('Match Type')">
+                      <n-select
+                        :value="parseLocation(proxy.location).type"
+                        :options="locationMatchTypes"
+                        @update:value="(v: string) => updateLocationType(proxy, v)"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Match Expression')">
+                      <n-input
+                        :value="parseLocation(proxy.location).expression"
+                        :placeholder="$gettext('e.g., /, /api, ^/api/v[0-9]+/')"
+                        @update:value="(v: string) => updateLocationExpression(proxy, v)"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Proxy Pass')">
+                      <n-input
+                        :value="proxy.pass"
+                        :placeholder="
+                          $gettext(
+                            'Backend address, e.g., http://127.0.0.1:8080 or http://upstream_name'
+                          )
+                        "
+                        @update:value="(v: string) => handleProxyPassChange(proxy, v)"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Proxy Host')">
+                      <n-input
+                        v-model:value="proxy.host"
+                        :placeholder="$gettext('Default: $host, or extracted from Proxy Pass')"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Proxy SNI')">
+                      <n-input
+                        v-model:value="proxy.sni"
+                        :placeholder="$gettext('Optional, for HTTPS backends')"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="6" :label="$gettext('Enable Cache')">
+                      <n-switch v-model:value="proxy.cache" />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="6" :label="$gettext('Enable Buffering')">
+                      <n-switch v-model:value="proxy.buffering" />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('DNS Resolver')">
+                      <n-dynamic-tags
+                        v-model:value="proxy.resolver"
+                        :placeholder="$gettext('e.g., 8.8.8.8')"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi
+                      v-if="proxy.resolver.length"
+                      :span="12"
+                      :label="$gettext('Resolver Timeout')"
+                    >
+                      <n-input-group>
+                        <n-input-number
+                          :value="parseDuration(proxy.resolver_timeout).value"
+                          :min="1"
+                          :max="3600"
+                          style="flex: 1"
+                          @update:value="(v: number | null) => updateTimeoutValue(proxy, v ?? 5)"
+                        />
+                        <n-select
+                          :value="parseDuration(proxy.resolver_timeout).unit"
+                          :options="timeUnitOptions"
+                          style="width: 100px"
+                          @update:value="(v: string) => updateTimeoutUnit(proxy, v)"
+                        />
+                      </n-input-group>
+                    </n-form-item-gi>
+                  </n-grid>
+                  <n-divider>{{ $gettext('Response Content Replacement') }}</n-divider>
+                  <n-flex vertical :size="8">
+                    <n-flex
+                      v-for="(toValue, fromValue) in proxy.replaces"
+                      :key="String(fromValue)"
+                      :size="8"
+                      align="center"
+                    >
+                      <n-input
+                        :value="String(fromValue)"
+                        :placeholder="$gettext('Original content')"
+                        style="flex: 1"
+                        @blur="
+                          (e: FocusEvent) => {
+                            const newFrom = (e.target as HTMLInputElement).value
+                            const oldFrom = String(fromValue)
+                            if (newFrom && newFrom !== oldFrom) {
+                              proxy.replaces[newFrom] = proxy.replaces[oldFrom]
+                              delete proxy.replaces[oldFrom]
+                            }
+                          }
+                        "
+                      />
+                      <span style="flex-shrink: 0">=></span>
+                      <n-input
+                        :value="String(toValue)"
+                        :placeholder="$gettext('Replacement content')"
+                        style="flex: 1"
+                        @update:value="(v: string) => (proxy.replaces[String(fromValue)] = v)"
+                      />
+                      <n-button
+                        type="error"
+                        secondary
+                        size="small"
+                        style="flex-shrink: 0"
+                        @click="delete proxy.replaces[String(fromValue)]"
+                      >
+                        {{ $gettext('Remove') }}
+                      </n-button>
+                    </n-flex>
+                    <n-button
+                      dashed
+                      size="small"
+                      @click="
+                        () => {
+                          if (!proxy.replaces) proxy.replaces = {}
+                          proxy.replaces[`/old_${Object.keys(proxy.replaces).length}`] = '/new'
+                        }
+                      "
+                    >
+                      {{ $gettext('Add Replacement Rule') }}
+                    </n-button>
+                  </n-flex>
+                </n-form>
+              </n-card>
+            </template>
+          </draggable>
+
+          <!-- 空状态 -->
+          <n-empty v-if="!setting.proxies || setting.proxies.length === 0">
+            {{ $gettext('No proxy rules configured') }}
+          </n-empty>
+
+          <!-- 添加按钮 -->
+          <n-button type="primary" dashed @click="addProxy" mb-20>
+            {{ $gettext('Add Proxy Rule') }}
+          </n-button>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="https" tab="HTTPS">
         <n-flex vertical v-if="setting">

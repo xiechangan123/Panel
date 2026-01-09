@@ -285,7 +285,7 @@ onMounted(() => {
             <n-text depth="3">
               {{
                 $gettext(
-                  'It is recommended to use a complex password. Save after modification. Refresh will clear the password field.'
+                  'It is recommended to use a complex password. Refresh will clear the password field.'
                 )
               }}
             </n-text>

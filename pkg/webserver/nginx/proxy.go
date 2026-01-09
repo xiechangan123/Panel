@@ -76,6 +76,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 
 	proxy := &types.Proxy{
 		Location: strings.TrimSpace(matches[1]),
+		Resolver: []string{},
 		Replaces: make(map[string]string),
 	}
 
@@ -240,8 +241,10 @@ func generateProxyConfig(proxy types.Proxy) string {
 	sb.WriteString("    proxy_set_header X-Forwarded-Proto $scheme;\n")
 
 	// SNI 配置
-	if proxy.SNI != "" {
+	if strings.HasPrefix(proxy.Pass, "https") {
 		sb.WriteString("    proxy_ssl_server_name on;\n")
+	}
+	if proxy.SNI != "" {
 		sb.WriteString(fmt.Sprintf("    proxy_ssl_name %s;\n", proxy.SNI))
 	}
 
