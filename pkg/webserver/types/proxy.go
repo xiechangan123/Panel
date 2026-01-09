@@ -17,6 +17,7 @@ type Proxy struct {
 
 // Upstream 上游服务器配置
 type Upstream struct {
+	Name            string            `form:"name" json:"name" validate:"required"`       // 上游名称，如: "backend"
 	Servers         map[string]string `form:"servers" json:"servers" validate:"required"` // 上游服务器及配置，如: map["server1"] = "weight=5 resolve"
 	Algo            string            `form:"algo" json:"algo"`                           // 负载均衡算法，如: "least_conn", "ip_hash"
 	Keepalive       int               `form:"keepalive" json:"keepalive"`                 // 保持连接数，如: 32

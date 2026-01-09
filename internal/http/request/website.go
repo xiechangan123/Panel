@@ -64,8 +64,8 @@ type WebsiteUpdate struct {
 	OpenBasedir bool   `form:"open_basedir" json:"open_basedir"`
 
 	// 反向代理
-	Upstreams map[string]types.Upstream `json:"upstreams"`
-	Proxies   []types.Proxy             `json:"proxies"`
+	Upstreams []types.Upstream `json:"upstreams"`
+	Proxies   []types.Proxy    `json:"proxies"`
 }
 
 type WebsiteUpdateRemark struct {

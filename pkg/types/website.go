@@ -44,6 +44,6 @@ type WebsiteSetting struct {
 	OpenBasedir bool   `json:"open_basedir"`
 
 	// 反向代理
-	Upstreams map[string]types.Upstream `json:"upstreams"`
-	Proxies   []types.Proxy             `json:"proxies"`
+	Upstreams []types.Upstream `json:"upstreams"`
+	Proxies   []types.Proxy    `json:"proxies"`
 }

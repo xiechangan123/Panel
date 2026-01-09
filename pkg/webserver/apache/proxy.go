@@ -252,7 +252,7 @@ func generateProxyConfig(proxy types.Proxy) string {
 }
 
 // parseBalancerFiles 从 shared 目录解析所有负载均衡配置（Apache 的 upstream 等价物）
-func parseBalancerFiles(sharedDir string) (map[string]types.Upstream, error) {
+func parseBalancerFiles(sharedDir string) ([]types.Upstream, error) {
 	entries, err := os.ReadDir(sharedDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -261,7 +261,7 @@ func parseBalancerFiles(sharedDir string) (map[string]types.Upstream, error) {
 		return nil, err
 	}
 
-	upstreams := make(map[string]types.Upstream)
+	var upstreams []types.Upstream
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -272,14 +272,13 @@ func parseBalancerFiles(sharedDir string) (map[string]types.Upstream, error) {
 			continue
 		}
 
-		name := matches[2]
 		filePath := filepath.Join(sharedDir, entry.Name())
-		upstream, err := parseBalancerFile(filePath)
+		upstream, err := parseBalancerFile(filePath, matches[2])
 		if err != nil {
 			continue // 跳过解析失败的文件
 		}
 		if upstream != nil {
-			upstreams[name] = *upstream
+			upstreams = append(upstreams, *upstream)
 		}
 	}
 
@@ -287,7 +286,7 @@ func parseBalancerFiles(sharedDir string) (map[string]types.Upstream, error) {
 }
 
 // parseBalancerFile 解析单个负载均衡配置文件
-func parseBalancerFile(filePath string) (*types.Upstream, error) {
+func parseBalancerFile(filePath string, name string) (*types.Upstream, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -295,6 +294,7 @@ func parseBalancerFile(filePath string) (*types.Upstream, error) {
 
 	contentStr := string(content)
 	upstream := &types.Upstream{
+		Name:    name,
 		Servers: make(map[string]string),
 	}
 
@@ -342,23 +342,22 @@ func parseBalancerFile(filePath string) (*types.Upstream, error) {
 }
 
 // writeBalancerFiles 将负载均衡配置写入文件
-func writeBalancerFiles(sharedDir string, upstreams map[string]types.Upstream) error {
+func writeBalancerFiles(sharedDir string, upstreams []types.Upstream) error {
 	// 删除现有的负载均衡配置文件
 	if err := clearBalancerFiles(sharedDir); err != nil {
 		return err
 	}
 
-	// 写入新的配置文件
-	num := 100
-	for name, upstream := range upstreams {
-		fileName := fmt.Sprintf("%03d-balancer-%s.conf", num, name)
+	// 写入新的配置文件，保持顺序
+	for i, upstream := range upstreams {
+		num := 100 + i
+		fileName := fmt.Sprintf("%03d-balancer-%s.conf", num, upstream.Name)
 		filePath := filepath.Join(sharedDir, fileName)
 
-		content := generateBalancerConfig(name, upstream)
+		content := generateBalancerConfig(upstream)
 		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
 			return fmt.Errorf("failed to write balancer config: %w", err)
 		}
-		num++
 	}
 
 	return nil
@@ -391,12 +390,12 @@ func clearBalancerFiles(sharedDir string) error {
 }
 
 // generateBalancerConfig 生成负载均衡配置内容
-func generateBalancerConfig(name string, upstream types.Upstream) string {
+func generateBalancerConfig(upstream types.Upstream) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("# Load balancer: %s\n", name))
+	sb.WriteString(fmt.Sprintf("# Load balancer: %s\n", upstream.Name))
 	sb.WriteString("<IfModule mod_proxy_balancer.c>\n")
-	sb.WriteString(fmt.Sprintf("    <Proxy balancer://%s>\n", name))
+	sb.WriteString(fmt.Sprintf("    <Proxy balancer://%s>\n", upstream.Name))
 
 	// 服务器列表
 	for addr, options := range upstream.Servers {

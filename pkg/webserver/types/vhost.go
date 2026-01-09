@@ -133,9 +133,9 @@ type VhostProxy interface {
 	ClearProxies() error
 
 	// Upstreams 取上游服务器配置
-	Upstreams() map[string]Upstream
+	Upstreams() []Upstream
 	// SetUpstreams 设置上游服务器配置
-	SetUpstreams(upstreams map[string]Upstream) error
+	SetUpstreams(upstreams []Upstream) error
 	// ClearUpstreams 清除所有上游服务器配置
 	ClearUpstreams() error
 }

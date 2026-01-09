@@ -679,13 +679,13 @@ func (v *ProxyVhost) ClearProxies() error {
 	return clearProxyFiles(siteDir)
 }
 
-func (v *ProxyVhost) Upstreams() map[string]types.Upstream {
+func (v *ProxyVhost) Upstreams() []types.Upstream {
 	sharedDir := filepath.Join(v.configDir, "shared")
 	upstreams, _ := parseBalancerFiles(sharedDir)
 	return upstreams
 }
 
-func (v *ProxyVhost) SetUpstreams(upstreams map[string]types.Upstream) error {
+func (v *ProxyVhost) SetUpstreams(upstreams []types.Upstream) error {
 	sharedDir := filepath.Join(v.configDir, "shared")
 	return writeBalancerFiles(sharedDir, upstreams)
 }

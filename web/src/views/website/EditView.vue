@@ -46,7 +46,7 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
     php: 0,
     rewrite: '',
     open_basedir: false,
-    upstreams: {},
+    upstreams: [],
     proxies: []
   }
 })
@@ -182,54 +182,48 @@ const hasArg = (args: string[], arg: string) => {
 }
 
 // ========== Upstreams 相关 ==========
-const upstreamAlgoOptions = [
-  { label: $gettext('Round Robin (default)'), value: '' },
-  { label: 'least_conn', value: 'least_conn' },
-  { label: 'ip_hash', value: 'ip_hash' },
-  { label: 'hash', value: 'hash' },
-  { label: 'random', value: 'random' }
-]
-
 // 添加新的上游
 const addUpstream = () => {
-  const name = `backend_${Date.now()}`
+  const name = `${setting.value.name.replace(/-/g, '_')}_upstream_${(setting.value.upstreams?.length || 0) + 1}`
   if (!setting.value.upstreams) {
-    setting.value.upstreams = {}
+    setting.value.upstreams = []
   }
-  setting.value.upstreams[name] = {
+  setting.value.upstreams.push({
+    name,
     servers: {},
     algo: '',
-    keepalive: 32
-  }
+    keepalive: 32,
+    resolver: [],
+    resolver_timeout: 5 * 1000000000 // 5秒，以纳秒为单位
+  })
 }
 
 // 删除上游
-const removeUpstream = (name: string) => {
+const removeUpstream = (index: number) => {
   if (setting.value.upstreams) {
-    delete setting.value.upstreams[name]
+    setting.value.upstreams.splice(index, 1)
   }
-}
-
-// 重命名上游
-const renameUpstream = (oldName: string, newName: string) => {
-  if (!setting.value.upstreams || oldName === newName) return
-  if (setting.value.upstreams[newName]) {
-    window.$message.error($gettext('Upstream name already exists'))
-    return
-  }
-  const upstream = setting.value.upstreams[oldName]
-  delete setting.value.upstreams[oldName]
-  setting.value.upstreams[newName] = upstream
 }
 
 // 为上游添加服务器
-const addServerToUpstream = (upstreamName: string) => {
-  if (!setting.value.upstreams[upstreamName].servers) {
-    setting.value.upstreams[upstreamName].servers = {}
+const addServerToUpstream = (index: number) => {
+  const upstream = setting.value.upstreams[index]
+  if (!upstream.servers) {
+    upstream.servers = {}
   }
-  setting.value.upstreams[upstreamName].servers[
-    `127.0.0.1:${8080 + Object.keys(setting.value.upstreams[upstreamName].servers).length}`
-  ] = ''
+  upstream.servers[`127.0.0.1:${8080 + Object.keys(upstream.servers).length}`] = ''
+}
+
+// 更新上游超时时间值
+const updateUpstreamTimeoutValue = (upstream: any, value: number) => {
+  const parsed = parseDuration(upstream.resolver_timeout)
+  upstream.resolver_timeout = buildDuration(value, parsed.unit)
+}
+
+// 更新上游超时时间单位
+const updateUpstreamTimeoutUnit = (upstream: any, unit: string) => {
+  const parsed = parseDuration(upstream.resolver_timeout)
+  upstream.resolver_timeout = buildDuration(parsed.value, unit)
 }
 
 // ========== Proxies 相关 ==========
@@ -245,7 +239,6 @@ const locationMatchTypes = [
 // 解析 location 字符串，返回匹配类型和表达式
 const parseLocation = (location: string): { type: string; expression: string } => {
   if (!location) return { type: '', expression: '/' }
-
   // 精确匹配 =
   if (location.startsWith('= ')) {
     return { type: '=', expression: location.slice(2) }
@@ -277,11 +270,9 @@ const buildLocation = (type: string, expression: string): string => {
 const extractHostFromUrl = (url: string): string => {
   try {
     const urlObj = new URL(url)
-    return urlObj.host
+    return urlObj.hostname
   } catch {
-    // 如果不是有效的 URL，尝试简单提取
-    const match = url.match(/^https?:\/\/([^/]+)/)
-    return match ? match[1] : ''
+    return ''
   }
 }
 
@@ -476,92 +467,136 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
       </n-tab-pane>
       <n-tab-pane v-if="setting.type === 'proxy'" name="upstreams" :tab="$gettext('Upstreams')">
         <n-flex vertical>
-          <n-alert type="info">
-            {{
-              $gettext(
-                'Upstreams define backend server groups for load balancing. You can reference an upstream in proxy settings using "http://upstream_name".'
-              )
-            }}
-          </n-alert>
           <!-- 上游卡片列表 -->
-          <n-card
-            v-for="(upstream, name) in setting.upstreams"
-            :key="name"
-            :title="String(name)"
-            closable
-            @close="removeUpstream(String(name))"
+          <draggable
+            v-model="setting.upstreams"
+            item-key="name"
+            handle=".drag-handle"
+            :animation="200"
+            ghost-class="ghost-card"
           >
-            <template #header>
-              <n-input
-                :value="String(name)"
-                :placeholder="$gettext('Upstream name')"
-                style="width: 300px"
-                @blur="
-                  (e: FocusEvent) =>
-                    renameUpstream(String(name), (e.target as HTMLInputElement).value)
-                "
-              />
-            </template>
-            <n-form label-placement="left" label-width="auto">
-              <n-form-item :label="$gettext('Load Balancing Algorithm')">
-                <n-select
-                  v-model:value="upstream.algo"
-                  :options="upstreamAlgoOptions"
-                  style="width: 200px"
-                />
-              </n-form-item>
-              <n-form-item :label="$gettext('Keepalive Connections')">
-                <n-input-number v-model:value="upstream.keepalive" :min="0" :max="1000" />
-              </n-form-item>
-              <n-form-item :label="$gettext('Backend Servers')">
-                <n-flex vertical :size="8" style="width: 100%">
-                  <n-flex
-                    v-for="(options, address) in upstream.servers"
-                    :key="String(address)"
-                    :size="8"
-                    align="center"
-                  >
+            <template #item="{ element: upstream, index }">
+              <n-card closable @close="removeUpstream(index)" style="margin-bottom: 16px">
+                <template #header>
+                  <n-flex align="center" :size="8">
+                    <!-- 拖拽手柄 -->
+                    <div class="drag-handle" cursor-grab>
+                      <the-icon icon="mdi:drag" :size="20" />
+                    </div>
+                    <span>{{ $gettext('Upstream') }}</span>
                     <n-input
-                      :value="String(address)"
-                      :placeholder="$gettext('Server address, e.g., 127.0.0.1:8080')"
-                      style="width: 250px"
-                      @blur="
-                        (e: FocusEvent) => {
-                          const newAddr = (e.target as HTMLInputElement).value
-                          const oldAddr = String(address)
-                          if (newAddr && newAddr !== oldAddr) {
-                            upstream.servers[newAddr] = upstream.servers[oldAddr]
-                            delete upstream.servers[oldAddr]
-                          }
-                        }
-                      "
-                    />
-                    <n-input
-                      :value="String(options)"
-                      :placeholder="$gettext('Options, e.g., weight=5 backup')"
-                      style="width: 300px"
-                      @update:value="(v: string) => (upstream.servers[String(address)] = v)"
-                    />
-                    <n-button
-                      type="error"
-                      secondary
+                      v-model:value="upstream.name"
+                      :placeholder="$gettext('Upstream name')"
                       size="small"
-                      @click="delete upstream.servers[String(address)]"
-                    >
-                      {{ $gettext('Remove') }}
-                    </n-button>
+                      style="width: 200px"
+                    />
                   </n-flex>
-                  <n-button dashed @click="addServerToUpstream(String(name))">
-                    {{ $gettext('Add Server') }}
-                  </n-button>
-                </n-flex>
-              </n-form-item>
-            </n-form>
-          </n-card>
+                </template>
+                <n-form label-placement="left" label-width="140px">
+                  <n-grid :cols="24" :x-gap="16">
+                    <n-form-item-gi :span="12" :label="$gettext('Load Balancing Algorithm')">
+                      <n-select
+                        v-model:value="upstream.algo"
+                        :options="[
+                          { label: $gettext('Round Robin (default)'), value: '' },
+                          { label: 'least_conn', value: 'least_conn' },
+                          { label: 'ip_hash', value: 'ip_hash' },
+                          { label: 'hash', value: 'hash' },
+                          { label: 'random', value: 'random' }
+                        ]"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('Keepalive Connections')">
+                      <n-input-number
+                        v-model:value="upstream.keepalive"
+                        :min="0"
+                        :max="1000"
+                        style="width: 100%"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi :span="12" :label="$gettext('DNS Resolver')">
+                      <n-dynamic-tags
+                        v-model:value="upstream.resolver"
+                        :placeholder="$gettext('e.g., 8.8.8.8')"
+                      />
+                    </n-form-item-gi>
+                    <n-form-item-gi
+                      v-if="upstream.resolver?.length"
+                      :span="12"
+                      :label="$gettext('Resolver Timeout')"
+                    >
+                      <n-input-group>
+                        <n-input-number
+                          :value="parseDuration(upstream.resolver_timeout).value"
+                          :min="1"
+                          :max="3600"
+                          style="flex: 1"
+                          @update:value="
+                            (v: number | null) => updateUpstreamTimeoutValue(upstream, v ?? 5)
+                          "
+                        />
+                        <n-select
+                          :value="parseDuration(upstream.resolver_timeout).unit"
+                          :options="timeUnitOptions"
+                          style="width: 100px"
+                          @update:value="(v: string) => updateUpstreamTimeoutUnit(upstream, v)"
+                        />
+                      </n-input-group>
+                    </n-form-item-gi>
+                  </n-grid>
+                  <n-form-item :label="$gettext('Backend Servers')">
+                    <n-flex vertical :size="8" style="width: 100%">
+                      <n-flex
+                        v-for="(options, address) in upstream.servers"
+                        :key="String(address)"
+                        :size="8"
+                        align="center"
+                      >
+                        <n-input
+                          :default-value="String(address)"
+                          :placeholder="$gettext('Server address, e.g., 127.0.0.1:8080')"
+                          style="flex: 1"
+                          @change="
+                            (newAddr: string) => {
+                              const oldAddr = String(address)
+                              if (newAddr && newAddr !== oldAddr) {
+                                upstream.servers[newAddr] = upstream.servers[oldAddr]
+                                delete upstream.servers[oldAddr]
+                              }
+                            }
+                          "
+                        />
+                        <n-input
+                          :value="String(options)"
+                          :placeholder="$gettext('Options, e.g., weight=5 backup')"
+                          style="flex: 1"
+                          @update:value="(v: string) => (upstream.servers[String(address)] = v)"
+                        />
+                        <n-button
+                          type="error"
+                          secondary
+                          size="small"
+                          style="flex-shrink: 0"
+                          @click="delete upstream.servers[String(address)]"
+                        >
+                          {{ $gettext('Remove') }}
+                        </n-button>
+                      </n-flex>
+                      <n-button dashed size="small" @click="addServerToUpstream(index)">
+                        {{ $gettext('Add Server') }}
+                      </n-button>
+                    </n-flex>
+                  </n-form-item>
+                </n-form>
+              </n-card>
+            </template>
+          </draggable>
+
           <!-- 空状态 -->
-          <n-empty v-if="!setting.upstreams || Object.keys(setting.upstreams).length === 0">
+          <n-empty v-if="!setting.upstreams || setting.upstreams.length === 0">
             {{ $gettext('No upstreams configured') }}
           </n-empty>
+
           <!-- 添加按钮 -->
           <n-button type="primary" dashed @click="addUpstream" mb-20>
             {{ $gettext('Add Upstream') }}

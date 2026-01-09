@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
 )
@@ -15,7 +16,7 @@ import (
 var upstreamFilePattern = regexp.MustCompile(`^(\d{3})-(.+)\.conf$`)
 
 // parseUpstreamFiles 从 shared 目录解析所有 upstream 配置
-func parseUpstreamFiles(sharedDir string) (map[string]types.Upstream, error) {
+func parseUpstreamFiles(sharedDir string) ([]types.Upstream, error) {
 	entries, err := os.ReadDir(sharedDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -24,7 +25,7 @@ func parseUpstreamFiles(sharedDir string) (map[string]types.Upstream, error) {
 		return nil, err
 	}
 
-	upstreams := make(map[string]types.Upstream)
+	var upstreams []types.Upstream
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -40,14 +41,13 @@ func parseUpstreamFiles(sharedDir string) (map[string]types.Upstream, error) {
 			continue
 		}
 
-		name := matches[2]
 		filePath := filepath.Join(sharedDir, entry.Name())
-		upstream, err := parseUpstreamFile(filePath, name)
+		upstream, err := parseUpstreamFile(filePath, matches[2])
 		if err != nil {
 			continue // 跳过解析失败的文件
 		}
 		if upstream != nil {
-			upstreams[name] = *upstream
+			upstreams = append(upstreams, *upstream)
 		}
 	}
 
@@ -82,7 +82,9 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 
 	blockContent := matches[2]
 	upstream := &types.Upstream{
-		Servers: make(map[string]string),
+		Name:     name,
+		Servers:  make(map[string]string),
+		Resolver: []string{},
 	}
 
 	// 解析负载均衡算法
@@ -95,7 +97,8 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 	}
 
 	// 解析 server 指令
-	serverPattern := regexp.MustCompile(`server\s+(\S+)(?:\s+([^;]+))?;`)
+	// 匹配: server 127.0.0.1:8080; 或 server 127.0.0.1:8080 weight=5;
+	serverPattern := regexp.MustCompile(`server\s+([^\s;]+)(?:\s+([^;]+))?;`)
 	serverMatches := serverPattern.FindAllStringSubmatch(blockContent, -1)
 	for _, sm := range serverMatches {
 		addr := sm[1]
@@ -112,27 +115,48 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 		upstream.Keepalive, _ = strconv.Atoi(km[1])
 	}
 
+	// 解析 resolver
+	resolverPattern := regexp.MustCompile(`resolver\s+([^;]+);`)
+	if rm := resolverPattern.FindStringSubmatch(blockContent); rm != nil {
+		parts := strings.Fields(rm[1])
+		upstream.Resolver = parts
+	}
+
+	// 解析 resolver_timeout
+	resolverTimeoutPattern := regexp.MustCompile(`resolver_timeout\s+(\d+)([smh]?);`)
+	if rtm := resolverTimeoutPattern.FindStringSubmatch(blockContent); rtm != nil {
+		value, _ := strconv.Atoi(rtm[1])
+		unit := rtm[2]
+		switch unit {
+		case "m":
+			upstream.ResolverTimeout = time.Duration(value) * time.Minute
+		case "h":
+			upstream.ResolverTimeout = time.Duration(value) * time.Hour
+		default:
+			upstream.ResolverTimeout = time.Duration(value) * time.Second
+		}
+	}
+
 	return upstream, nil
 }
 
 // writeUpstreamFiles 将 upstream 配置写入文件
-func writeUpstreamFiles(sharedDir string, upstreams map[string]types.Upstream) error {
+func writeUpstreamFiles(sharedDir string, upstreams []types.Upstream) error {
 	// 删除现有的 upstream 配置文件
 	if err := clearUpstreamFiles(sharedDir); err != nil {
 		return err
 	}
 
-	// 写入新的配置文件
-	num := UpstreamStartNum
-	for name, upstream := range upstreams {
-		fileName := fmt.Sprintf("%03d-%s.conf", num, name)
+	// 写入新的配置文件，保持顺序
+	for i, upstream := range upstreams {
+		num := UpstreamStartNum + i
+		fileName := fmt.Sprintf("%03d-%s.conf", num, upstream.Name)
 		filePath := filepath.Join(sharedDir, fileName)
 
-		content := generateUpstreamConfig(name, upstream)
+		content := generateUpstreamConfig(upstream)
 		if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
 			return fmt.Errorf("failed to write upstream config: %w", err)
 		}
-		num++
 	}
 
 	return nil
@@ -171,15 +195,23 @@ func clearUpstreamFiles(sharedDir string) error {
 }
 
 // generateUpstreamConfig 生成 upstream 配置内容
-func generateUpstreamConfig(name string, upstream types.Upstream) string {
+func generateUpstreamConfig(upstream types.Upstream) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("# Upstream: %s\n", name))
-	sb.WriteString(fmt.Sprintf("upstream %s {\n", name))
+	sb.WriteString(fmt.Sprintf("# Upstream: %s\n", upstream.Name))
+	sb.WriteString(fmt.Sprintf("upstream %s {\n", upstream.Name))
 
 	// 负载均衡算法
 	if upstream.Algo != "" {
 		sb.WriteString(fmt.Sprintf("    %s;\n", upstream.Algo))
+	}
+
+	// resolver 配置
+	if len(upstream.Resolver) > 0 {
+		sb.WriteString(fmt.Sprintf("    resolver %s;\n", strings.Join(upstream.Resolver, " ")))
+		if upstream.ResolverTimeout > 0 {
+			sb.WriteString(fmt.Sprintf("    resolver_timeout %ds;\n", int(upstream.ResolverTimeout.Seconds())))
+		}
 	}
 
 	// 服务器列表
