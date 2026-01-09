@@ -269,6 +269,10 @@ const bulkDelete = async () => {
   window.$message.success($gettext('Deleted successfully'))
 }
 
+watch(type, () => {
+  refresh()
+})
+
 onMounted(() => {
   refresh()
   window.$bus.on('website:refresh', refresh)
