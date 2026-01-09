@@ -3,15 +3,21 @@ app:
   key: a-long-string-with-32-characters
   locale: zh_CN
   timezone: Asia/Shanghai
+  root: /opt/ace
+  api_endpoint: api.acepanel.net
+  download_endpoint: dl.acepanel.net
 http:
   debug: false
   port: 8888
   entrance: /
+  entrance_error: ""
   tls: true
-  ip_header: ''
-  bind_domain: []
-  bind_ip: []
-  bind_ua: []
+  acme: true
+  login_captcha: true
+  ip_header: ""
+  bind_domain: [ ]
+  bind_ip: [ ]
+  bind_ua: [ ]
 database:
   debug: false
 session:
