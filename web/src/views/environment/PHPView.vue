@@ -176,9 +176,11 @@ const handleUninstallModule = async (module: string) => {
         <n-flex vertical>
           <n-card> PHP {{ slug }} </n-card>
           <service-status :service="`php-fpm-${slug}`" show-reload />
-          <n-button type="info" @click="handleSetCli">
-            {{ $gettext('Set as CLI Default Version') }}
-          </n-button>
+          <n-flex>
+            <n-button type="info" @click="handleSetCli">
+              {{ $gettext('Set as CLI Default Version') }}
+            </n-button>
+          </n-flex>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="modules" :tab="$gettext('Module Management')">

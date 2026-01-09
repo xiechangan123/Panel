@@ -3,6 +3,7 @@ defineOptions({
   name: 'apps-percona-index'
 })
 
+import copy2clipboard from '@vavt/copy2clipboard'
 import { NButton, NDataTable, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -63,6 +64,12 @@ const handleSetRootPassword = async () => {
   await percona.setRootPassword(rootPassword.value)
   window.$message.success($gettext('Modified successfully'))
 }
+
+const handleCopyRootPassword = () => {
+  copy2clipboard(rootPassword.value).then(() => {
+    window.$message.success($gettext('Copied successfully'))
+  })
+}
 </script>
 
 <template>
@@ -72,8 +79,13 @@ const handleSetRootPassword = async () => {
         <n-flex vertical>
           <service-status service="mysqld" />
           <n-card :title="$gettext('Root Password')">
-            <n-flex vertical>
-              <n-input v-model:value="rootPassword" type="password" show-password-on="click" />
+            <n-flex>
+              <n-input-group>
+                <n-input v-model:value="rootPassword" type="password" show-password-on="click" />
+                <n-button type="primary" ghost @click="handleCopyRootPassword">
+                  {{ $gettext('Copy') }}
+                </n-button>
+              </n-input-group>
               <n-button type="primary" @click="handleSetRootPassword">
                 {{ $gettext('Save Changes') }}
               </n-button>

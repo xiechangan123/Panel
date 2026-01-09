@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import webhook from '@/api/panel/webhook'
 import { formatDateTime } from '@/utils'
+import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
 
@@ -213,7 +214,7 @@ const handleStatusChange = (row: any) => {
 
 const handleCopyUrl = (row: any) => {
   const url = `${window.location.origin}/webhook/${row.key}`
-  navigator.clipboard.writeText(url).then(() => {
+  copy2clipboard(url).then(() => {
     window.$message.success($gettext('URL copied to clipboard'))
   })
 }
