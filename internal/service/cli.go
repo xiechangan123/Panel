@@ -362,10 +362,8 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		names = append(names, rv6)
 	}
 
-	crt, key, err := cert.GenerateSelfSigned(names)
-	if err != nil {
-		return err
-	}
+	var crt, key []byte
+	var err error
 
 	if s.conf.HTTP.ACME {
 		ip, err := s.settingRepo.Get(biz.SettingKeyPublicIPs)
@@ -378,7 +376,7 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		}
 
 		var user biz.User
-		if err := s.db.First(&user).Error; err != nil {
+		if err = s.db.First(&user).Error; err != nil {
 			return errors.New(s.t.Get("Failed to get a panel user: %v", err))
 		}
 		account, err := s.certAccountRepo.GetDefault(user.ID)
@@ -386,10 +384,18 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 			return errors.New(s.t.Get("Failed to get ACME account: %v", err))
 		}
 		crt, key, err = s.certRepo.ObtainPanel(account, ips)
-		if err != nil {
-			return errors.New(s.t.Get("Failed to obtain ACME certificate: %v", err))
+		if err == nil {
+			fmt.Println(s.t.Get("Successfully obtained SSL certificate via ACME"))
+		} else {
+			fmt.Println(s.t.Get("Failed to obtain ACME certificate, using self-signed certificate"))
 		}
-		fmt.Println(s.t.Get("Successfully obtained ACME certificate"))
+	}
+
+	if crt == nil || key == nil {
+		crt, key, err = cert.GenerateSelfSigned(names)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err = io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), string(crt), 0600); err != nil {

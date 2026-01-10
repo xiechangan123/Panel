@@ -238,14 +238,8 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		return nil, err
 	}
 
-	crt, err := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
-	if err != nil {
-		return nil, err
-	}
-	key, err := io.Read(filepath.Join(app.Root, "panel/storage/cert.key"))
-	if err != nil {
-		return nil, err
-	}
+	crt, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
+	key, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.key"))
 
 	return &request.SettingPanel{
 		Name:          name,
