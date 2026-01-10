@@ -57,13 +57,15 @@ const columns: any = [
     key: 'comment',
     minWidth: 250,
     resizable: true,
-    ellipsis: { tooltip: true },
     render(row: any) {
       return h(NInput, {
         size: 'small',
+        class: 'w-full',
         value: row.comment,
         // MySQL 不支持数据库备注
         disabled: row.type === 'mysql',
+        placeholder:
+          row.type === 'mysql' ? $gettext('MySQL does not support database comments') : undefined,
         onBlur: () => handleComment(row),
         onUpdateValue(v) {
           row.comment = v

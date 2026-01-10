@@ -97,10 +97,10 @@ const columns: any = [
     key: 'remark',
     minWidth: 250,
     resizable: true,
-    ellipsis: { tooltip: true },
     render(row: any) {
       return h(NInput, {
         size: 'small',
+        class: 'w-full',
         value: row.remark,
         onBlur: () => handleRemark(row),
         onUpdateValue(v) {
