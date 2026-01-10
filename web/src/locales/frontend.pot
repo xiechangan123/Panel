@@ -138,6 +138,7 @@ msgid "Yearly"
 msgstr ""
 
 #: src/components/common/CronSelector.vue:44
+#: src/views/project/CreateModal.vue:15
 msgid "Custom"
 msgstr ""
 
@@ -212,6 +213,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:284
 #: src/views/environment/PHPView.vue:137
 #: src/views/environment/PHPView.vue:143
+#: src/views/project/EditModal.vue:157
 #: src/views/setting/IndexView.vue:55
 #: src/views/toolbox/SystemView.vue:51
 #: src/views/toolbox/SystemView.vue:57
@@ -221,16 +223,16 @@ msgstr ""
 msgid "Saved successfully"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:20
+#: src/components/common/PathSelector.vue:27
 msgid "Select Directory"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:20
+#: src/components/common/PathSelector.vue:27
 msgid "Select File"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:42
-#: src/components/common/PathSelector.vue:332
+#: src/components/common/PathSelector.vue:49
+#: src/components/common/PathSelector.vue:388
 #: src/views/app/EnvironmentView.vue:27
 #: src/views/apps/fail2ban/IndexView.vue:37
 #: src/views/apps/nginx/NginxIndex.vue:147
@@ -249,6 +251,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:55
 #: src/views/file/ListTable.vue:130
 #: src/views/file/ToolBar.vue:257
+#: src/views/project/ListView.vue:31
 #: src/views/ssh/CreateModal.vue:59
 #: src/views/ssh/UpdateModal.vue:65
 #: src/views/toolbox/ProcessView.vue:107
@@ -256,20 +259,20 @@ msgstr ""
 #: src/views/toolbox/WebHookView.vue:33
 #: src/views/toolbox/WebHookView.vue:332
 #: src/views/toolbox/WebHookView.vue:367
-#: src/views/website/CreateModal.vue:106
+#: src/views/website/CreateModal.vue:123
 msgid "Name"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:83
+#: src/components/common/PathSelector.vue:88
 msgid "Permissions"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:95
+#: src/components/common/PathSelector.vue:100
 #: src/views/file/ListTable.vue:192
 msgid "Owner / Group"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:107
+#: src/components/common/PathSelector.vue:112
 #: src/views/backup/ListView.vue:42
 #: src/views/container/ImageView.vue:53
 #: src/views/file/ListTable.vue:204
@@ -277,25 +280,30 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:115
+#: src/components/common/PathSelector.vue:147
+#: src/views/file/ListTable.vue:239
+msgid "Calculate"
+msgstr ""
+
+#: src/components/common/PathSelector.vue:152
 #: src/views/file/ListTable.vue:244
 msgid "Modification Time"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:149
+#: src/components/common/PathSelector.vue:186
 #: src/views/file/ListTable.vue:540
 #: src/views/file/PathInput.vue:28
 msgid "Invalid path"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:209
+#: src/components/common/PathSelector.vue:246
 #: src/views/file/ListTable.vue:489
 #: src/views/file/ToolBar.vue:37
 #: src/views/file/ToolBar.vue:51
 msgid "Invalid name"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:217
+#: src/components/common/PathSelector.vue:254
 #: src/views/backup/ListView.vue:122
 #: src/views/cert/CreateAccountModal.vue:52
 #: src/views/cert/CreateCertModal.vue:50
@@ -317,31 +325,32 @@ msgstr ""
 msgid "Created successfully"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:256
+#: src/components/common/PathSelector.vue:312
 #: src/views/file/ToolBar.vue:214
 msgid "File"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:257
+#: src/components/common/PathSelector.vue:313
 #: src/views/file/ToolBar.vue:215
 msgid "Folder"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:261
-#: src/components/common/PathSelector.vue:324
+#: src/components/common/PathSelector.vue:317
+#: src/components/common/PathSelector.vue:380
+#: src/views/project/CreateModal.vue:215
 #: src/views/setting/TokenModal.vue:266
 #: src/views/toolbox/WebHookView.vue:352
 #: src/views/website/BulkCreateModal.vue:129
-#: src/views/website/CreateModal.vue:240
+#: src/views/website/CreateModal.vue:264
 msgid "Create"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:270
+#: src/components/common/PathSelector.vue:326
 #: src/views/file/PathInput.vue:128
 msgid "Root Directory"
 msgstr ""
 
-#: src/components/common/PathSelector.vue:336
+#: src/components/common/PathSelector.vue:392
 #: src/views/apps/fail2ban/IndexView.vue:368
 #: src/views/apps/nginx/NginxIndex.vue:636
 #: src/views/apps/nginx/NginxIndex.vue:755
@@ -400,6 +409,8 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:89
 #: src/views/container/ContainerView.vue:105
 #: src/views/container/ContainerView.vue:445
+#: src/views/project/ListView.vue:95
+#: src/views/project/ListView.vue:238
 #: src/views/task/CronView.vue:116
 #: src/views/task/TaskView.vue:74
 msgid "Logs"
@@ -416,6 +427,7 @@ msgid "Loading..."
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:26
+#: src/views/project/ListView.vue:60
 #: src/views/task/TaskView.vue:33
 #: src/views/toolbox/ProcessView.vue:48
 #: src/views/toolbox/ProcessView.vue:80
@@ -424,6 +436,7 @@ msgid "Running"
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:26
+#: src/views/project/ListView.vue:60
 #: src/views/toolbox/ProcessView.vue:50
 #: src/views/toolbox/ProcessView.vue:84
 msgid "Stopped"
@@ -436,6 +449,7 @@ msgstr ""
 
 #: src/components/common/ServiceStatus.vue:48
 #: src/views/apps/supervisor/IndexView.vue:240
+#: src/views/project/ListView.vue:152
 #: src/views/website/ListView.vue:228
 msgid "Started successfully"
 msgstr ""
@@ -447,6 +461,7 @@ msgstr ""
 
 #: src/components/common/ServiceStatus.vue:63
 #: src/views/apps/supervisor/IndexView.vue:247
+#: src/views/project/ListView.vue:147
 #: src/views/website/ListView.vue:230
 msgid "Stopped successfully"
 msgstr ""
@@ -513,6 +528,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:158
 #: src/views/container/ContainerView.vue:129
 #: src/views/container/ContainerView.vue:411
+#: src/views/project/ListView.vue:85
 msgid "Start"
 msgstr ""
 
@@ -521,6 +537,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:197
 #: src/views/container/ContainerView.vue:134
 #: src/views/container/ContainerView.vue:412
+#: src/views/project/ListView.vue:85
 msgid "Stop"
 msgstr ""
 
@@ -617,6 +634,7 @@ msgstr ""
 #: src/views/file/ToolBar.vue:139
 #: src/views/file/ToolBar.vue:226
 #: src/views/home/UpdateView.vue:27
+#: src/views/project/EditModal.vue:572
 #: src/views/toolbox/DiskView.vue:406
 #: src/views/toolbox/DiskView.vue:431
 #: src/views/toolbox/DiskView.vue:454
@@ -697,7 +715,7 @@ msgstr ""
 #: src/views/backup/ListView.vue:276
 #: src/views/database/IndexView.vue:27
 #: src/views/home/IndexView.vue:451
-#: src/views/website/CreateModal.vue:153
+#: src/views/website/CreateModal.vue:170
 msgid "Database"
 msgstr ""
 
@@ -802,6 +820,8 @@ msgstr ""
 #: src/views/app/AppView.vue:40
 #: src/views/app/EnvironmentView.vue:33
 #: src/views/environment/PHPView.vue:43
+#: src/views/project/EditModal.vue:188
+#: src/views/project/ListView.vue:38
 msgid "Description"
 msgstr ""
 
@@ -844,6 +864,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:79
 #: src/views/firewall/IpRuleView.vue:121
 #: src/views/firewall/RuleView.vue:158
+#: src/views/project/ListView.vue:72
 #: src/views/setting/SettingUser.vue:85
 #: src/views/setting/TokenModal.vue:52
 #: src/views/task/CronView.vue:98
@@ -893,6 +914,7 @@ msgstr ""
 #: src/views/app/AppView.vue:229
 #: src/views/app/EnvironmentView.vue:217
 #: src/views/firewall/RuleView.vue:150
+#: src/views/project/IndexView.vue:21
 msgid "All"
 msgstr ""
 
@@ -987,6 +1009,7 @@ msgstr ""
 #: src/views/environment/PHPView.vue:230
 #: src/views/file/EditModal.vue:32
 #: src/views/file/ListTable.vue:833
+#: src/views/project/EditModal.vue:575
 #: src/views/setting/IndexView.vue:106
 #: src/views/task/CronView.vue:259
 #: src/views/toolbox/SshView.vue:239
@@ -1032,6 +1055,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:113
 #: src/views/database/UserList.vue:130
 #: src/views/firewall/RuleView.vue:61
+#: src/views/project/ListView.vue:53
 #: src/views/task/TaskView.vue:22
 #: src/views/toolbox/ProcessView.vue:135
 #: src/views/toolbox/ProcessView.vue:392
@@ -1091,6 +1115,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:103
 #: src/views/firewall/IpRuleView.vue:145
 #: src/views/firewall/RuleView.vue:182
+#: src/views/project/ListView.vue:124
 #: src/views/setting/SettingUser.vue:139
 #: src/views/setting/TokenModal.vue:91
 #: src/views/ssh/IndexView.vue:92
@@ -1138,6 +1163,8 @@ msgstr ""
 #: src/views/firewall/IpRuleView.vue:189
 #: src/views/firewall/RuleView.vue:208
 #: src/views/firewall/RuleView.vue:226
+#: src/views/project/ListView.vue:170
+#: src/views/project/ListView.vue:185
 #: src/views/setting/SettingUser.vue:174
 #: src/views/setting/TokenModal.vue:114
 #: src/views/task/CronView.vue:191
@@ -1194,6 +1221,7 @@ msgstr ""
 #: src/views/database/DatabaseList.vue:11
 #: src/views/database/ServerList.vue:16
 #: src/views/database/UserList.vue:16
+#: src/views/project/ListView.vue:45
 msgid "Type"
 msgstr ""
 
@@ -1246,6 +1274,8 @@ msgstr ""
 
 #: src/views/apps/frp/IndexView.vue:60
 #: src/views/apps/frp/IndexView.vue:88
+#: src/views/project/CreateModal.vue:186
+#: src/views/project/EditModal.vue:232
 msgid "Run User"
 msgstr ""
 
@@ -1314,6 +1344,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:338
 #: src/views/container/ComposeView.vue:368
 #: src/views/container/ContainerCreate.vue:353
+#: src/views/project/EditModal.vue:373
 #: src/views/toolbox/ProcessView.vue:438
 msgid "Environment Variables"
 msgstr ""
@@ -1436,6 +1467,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:96
 #: src/views/file/ListTable.vue:95
 #: src/views/file/ListTable.vue:287
+#: src/views/project/ListView.vue:105
 #: src/views/ssh/IndexView.vue:70
 #: src/views/task/CronView.vue:128
 #: src/views/toolbox/WebHookView.vue:158
@@ -1798,7 +1830,8 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:264
 #: src/views/apps/rsync/IndexView.vue:318
 #: src/views/container/ComposeView.vue:38
-#: src/views/website/CreateModal.vue:210
+#: src/views/project/ListView.vue:65
+#: src/views/website/CreateModal.vue:227
 #: src/views/website/ListView.vue:41
 msgid "Directory"
 msgstr ""
@@ -1977,6 +2010,8 @@ msgid "Daemon Logs"
 msgstr ""
 
 #: src/views/apps/supervisor/IndexView.vue:381
+#: src/views/project/CreateModal.vue:204
+#: src/views/project/EditModal.vue:250
 msgid "Start Command"
 msgstr ""
 
@@ -1985,6 +2020,7 @@ msgid "Please enter absolute path for files in start command"
 msgstr ""
 
 #: src/views/apps/supervisor/IndexView.vue:389
+#: src/views/project/EditModal.vue:214
 #: src/views/toolbox/ProcessView.vue:424
 msgid "Working Directory"
 msgstr ""
@@ -2056,8 +2092,8 @@ msgstr ""
 #: src/views/database/DatabaseList.vue:34
 #: src/views/task/CreateModal.vue:142
 #: src/views/task/CreateModal.vue:144
-#: src/views/website/CreateModal.vue:174
-#: src/views/website/CreateModal.vue:179
+#: src/views/website/CreateModal.vue:191
+#: src/views/website/CreateModal.vue:196
 msgid "Database Name"
 msgstr ""
 
@@ -2194,7 +2230,7 @@ msgstr ""
 #: src/views/cert/CertView.vue:439
 #: src/views/cert/CreateCertModal.vue:74
 #: src/views/cert/ObtainModal.vue:57
-#: src/views/website/CreateModal.vue:118
+#: src/views/website/CreateModal.vue:135
 #: src/views/website/EditView.vue:385
 msgid "Domain"
 msgstr ""
@@ -2752,6 +2788,7 @@ msgid "Privileged Mode"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:344
+#: src/views/project/EditModal.vue:291
 msgid "Restart Policy"
 msgstr ""
 
@@ -3102,10 +3139,10 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:76
 #: src/views/firewall/ForwardView.vue:31
 #: src/views/firewall/RuleView.vue:48
-#: src/views/setting/SettingBase.vue:85
+#: src/views/setting/SettingBase.vue:110
 #: src/views/ssh/CreateModal.vue:70
 #: src/views/ssh/UpdateModal.vue:76
-#: src/views/website/CreateModal.vue:129
+#: src/views/website/CreateModal.vue:146
 msgid "Port"
 msgstr ""
 
@@ -3337,10 +3374,6 @@ msgstr ""
 #: src/views/file/ListTable.vue:116
 #: src/views/file/ToolBar.vue:229
 msgid "Paste"
-msgstr ""
-
-#: src/views/file/ListTable.vue:239
-msgid "Calculate"
 msgstr ""
 
 #: src/views/file/ListTable.vue:391
@@ -3636,6 +3669,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:168
 #: src/views/firewall/IpRuleView.vue:210
 #: src/views/firewall/RuleView.vue:247
+#: src/views/project/ListView.vue:207
 #: src/views/website/ListView.vue:294
 msgid "Batch Delete"
 msgstr ""
@@ -4139,25 +4173,371 @@ msgstr ""
 msgid "Are you sure you want to clear?"
 msgstr ""
 
-#: src/views/project/IndexView.vue:13
+#: src/views/project/CreateModal.vue:95
+msgid "Project created successfully"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:116
+msgid "Create General Project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:117
+msgid "Create PHP Project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:119
+#: src/views/project/ListView.vue:202
+msgid "Create Project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:135
+#: src/views/project/EditModal.vue:179
+msgid "Project Name"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:140
+#: src/views/project/EditModal.vue:184
+msgid "Project name, used as service identifier"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:144
+#: src/views/project/EditModal.vue:198
+msgid "Project Directory"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:150
+#: src/views/project/EditModal.vue:204
+msgid "Project root directory"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:164
+#: src/views/website/CreateModal.vue:158
+#: src/views/website/EditView.vue:444
+msgid "PHP Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:168
+#: src/views/website/CreateModal.vue:162
+#: src/views/website/EditView.vue:449
+msgid "Select PHP Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:174
+msgid "Framework"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:178
+msgid "Select Framework"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:194
+#: src/views/project/EditModal.vue:240
+msgid "Select User"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:199
+msgid "Select www user if no special requirements"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:209
+#: src/views/project/EditModal.vue:255
+msgid "e.g., php artisan serve, node app.js"
+msgstr ""
+
+#: src/views/project/EditModal.vue:52
+msgid "No restart"
+msgstr ""
+
+#: src/views/project/EditModal.vue:53
+msgid "Always restart"
+msgstr ""
+
+#: src/views/project/EditModal.vue:54
+msgid "Restart on failure"
+msgstr ""
+
+#: src/views/project/EditModal.vue:55
+msgid "Restart on abnormal"
+msgstr ""
+
+#: src/views/project/EditModal.vue:56
+msgid "Restart on abort"
+msgstr ""
+
+#: src/views/project/EditModal.vue:57
+msgid "Restart on success"
+msgstr ""
+
+#: src/views/project/EditModal.vue:66
+msgid "File (append)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:67
+msgid "File (truncate)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:72
+#: src/views/setting/SettingSafe.vue:262
+msgid "Disabled"
+msgstr ""
+
+#: src/views/project/EditModal.vue:166
+msgid "Edit Project - %{ name }"
+msgstr ""
+
+#: src/views/project/EditModal.vue:177
+#: src/views/website/EditView.vue:425
+msgid "Basic Settings"
+msgstr ""
+
+#: src/views/project/EditModal.vue:194
+msgid "Project description"
+msgstr ""
+
+#: src/views/project/EditModal.vue:221
+msgid "Working directory (optional, defaults to project directory)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:248
+msgid "Runtime Settings"
+msgstr ""
+
+#: src/views/project/EditModal.vue:258
+msgid "Pre-start Command"
+msgstr ""
+
+#: src/views/project/EditModal.vue:263
+msgid "Command to run before starting (optional)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:266
+msgid "Post-start Command"
+msgstr ""
+
+#: src/views/project/EditModal.vue:271
+msgid "Command to run after starting (optional)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:274
+msgid "Stop Command"
+msgstr ""
+
+#: src/views/project/EditModal.vue:279
+msgid "Custom stop command (optional)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:282
+msgid "Reload Command"
+msgstr ""
+
+#: src/views/project/EditModal.vue:287
+msgid "Custom reload command (optional)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:295
+msgid "Restart Strategy"
+msgstr ""
+
+#: src/views/project/EditModal.vue:304
+msgid "Restart Interval"
+msgstr ""
+
+#: src/views/project/EditModal.vue:309
+msgid "e.g., 5s, 1min"
+msgstr ""
+
+#: src/views/project/EditModal.vue:316
+msgid "Max Restarts"
+msgstr ""
+
+#: src/views/project/EditModal.vue:326
+msgid "Start Timeout (s)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:336
+msgid "Stop Timeout (s)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:347
+msgid "Other"
+msgstr ""
+
+#: src/views/project/EditModal.vue:351
+msgid "Standard Output"
+msgstr ""
+
+#: src/views/project/EditModal.vue:362
+msgid "Standard Error"
+msgstr ""
+
+#: src/views/project/EditModal.vue:383
+msgid "Variable name"
+msgstr ""
+
+#: src/views/project/EditModal.vue:389
+msgid "Variable value"
+msgstr ""
+
+#: src/views/project/EditModal.vue:400
+msgid "Dependencies"
+msgstr ""
+
+#: src/views/project/EditModal.vue:404
+msgid "Configure service dependencies to control startup order. Common services: network.target, mysql.service, redis.service"
+msgstr ""
+
+#: src/views/project/EditModal.vue:410
+msgid "Requires"
+msgstr ""
+
+#: src/views/project/EditModal.vue:415
+msgid "Strong dependencies, service will fail if these are not available"
+msgstr ""
+
+#: src/views/project/EditModal.vue:421
+msgid "Wants"
+msgstr ""
+
+#: src/views/project/EditModal.vue:425
+msgid "Weak dependencies, service will still start if these fail"
+msgstr ""
+
+#: src/views/project/EditModal.vue:430
+msgid "After"
+msgstr ""
+
+#: src/views/project/EditModal.vue:434
+msgid "Start this service after the specified services"
+msgstr ""
+
+#: src/views/project/EditModal.vue:439
+msgid "Before"
+msgstr ""
+
+#: src/views/project/EditModal.vue:443
+msgid "Start this service before the specified services"
+msgstr ""
+
+#: src/views/project/EditModal.vue:451
+msgid "Resource Limits"
+msgstr ""
+
+#: src/views/project/EditModal.vue:455
+msgid "Set resource limits to prevent the service from consuming too many system resources"
+msgstr ""
+
+#: src/views/project/EditModal.vue:463
+msgid "Memory Limit (MB)"
+msgstr ""
+
+#: src/views/project/EditModal.vue:469
+msgid "0 means no limit"
+msgstr ""
+
+#: src/views/project/EditModal.vue:473
+msgid "Set to 0 to disable memory limit"
+msgstr ""
+
+#: src/views/project/EditModal.vue:479
+msgid "CPU Quota"
+msgstr ""
+
+#: src/views/project/EditModal.vue:484
+msgid "e.g., 50% or 200%"
+msgstr ""
+
+#: src/views/project/EditModal.vue:488
+msgid "100% = 1 CPU core, 200% = 2 cores"
+msgstr ""
+
+#: src/views/project/EditModal.vue:498
+msgid "Security Settings"
+msgstr ""
+
+#: src/views/project/EditModal.vue:502
+msgid "Security settings can enhance service isolation but may affect functionality. Please test thoroughly before enabling."
+msgstr ""
+
+#: src/views/project/EditModal.vue:508
+msgid "Privilege Control"
+msgstr ""
+
+#: src/views/project/EditModal.vue:512
+msgid "No New Privileges"
+msgstr ""
+
+#: src/views/project/EditModal.vue:517
+msgid "Protect /tmp"
+msgstr ""
+
+#: src/views/project/EditModal.vue:522
+msgid "Protect /home"
+msgstr ""
+
+#: src/views/project/EditModal.vue:528
+msgid "Protect System"
+msgstr ""
+
+#: src/views/project/EditModal.vue:537
+msgid "true: /usr, /boot read-only; full: + /etc read-only; strict: entire filesystem read-only"
+msgstr ""
+
+#: src/views/project/EditModal.vue:545
+msgid "Path Access Control"
+msgstr ""
+
+#: src/views/project/EditModal.vue:547
+msgid "Read-Write Paths"
+msgstr ""
+
+#: src/views/project/EditModal.vue:551
+msgid "Paths that the service can read and write to"
+msgstr ""
+
+#: src/views/project/EditModal.vue:556
+msgid "Read-Only Paths"
+msgstr ""
+
+#: src/views/project/EditModal.vue:560
+msgid "Paths that the service can only read from"
+msgstr ""
+
+#: src/views/project/IndexView.vue:22
+#: src/views/project/ListView.vue:20
 msgid "General"
 msgstr ""
 
-#: src/views/project/IndexView.vue:14
+#: src/views/project/IndexView.vue:23
 #: src/views/website/IndexView.vue:22
 msgid "PHP"
 msgstr ""
 
-#: src/views/project/IndexView.vue:15
+#: src/views/project/IndexView.vue:24
 msgid "Java"
 msgstr ""
 
-#: src/views/project/IndexView.vue:16
+#: src/views/project/IndexView.vue:25
+msgid "Go"
+msgstr ""
+
+#: src/views/project/IndexView.vue:26
 msgid "Python"
 msgstr ""
 
-#: src/views/project/IndexView.vue:17
+#: src/views/project/IndexView.vue:27
 msgid "Node.js"
+msgstr ""
+
+#: src/views/project/ListView.vue:115
+msgid "Are you sure you want to delete project %{ name }?"
+msgstr ""
+
+#: src/views/project/ListView.vue:176
+msgid "Please select the projects to delete"
+msgstr ""
+
+#: src/views/project/ListView.vue:210
+msgid "Are you sure you want to delete the selected projects?"
 msgstr ""
 
 #: src/views/setting/CreateModal.vue:44
@@ -4192,56 +4572,56 @@ msgstr ""
 msgid "Updated successfully"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:26
+#: src/views/setting/SettingBase.vue:51
 msgid "Stable"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:30
+#: src/views/setting/SettingBase.vue:55
 msgid "Beta"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:76
-#: src/views/setting/SettingBase.vue:77
+#: src/views/setting/SettingBase.vue:101
+#: src/views/setting/SettingBase.vue:102
 msgid "Panel Name"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:79
+#: src/views/setting/SettingBase.vue:104
 msgid "Language"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:82
+#: src/views/setting/SettingBase.vue:107
 msgid "Update Channel"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:86
+#: src/views/setting/SettingBase.vue:111
 msgid "8888"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:88
+#: src/views/setting/SettingBase.vue:113
 msgid "Default Website Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:89
+#: src/views/setting/SettingBase.vue:115
 msgid "/opt/ace/sites"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:91
+#: src/views/setting/SettingBase.vue:123
 msgid "Default Backup Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:92
+#: src/views/setting/SettingBase.vue:125
 msgid "/opt/ace/backup"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:94
+#: src/views/setting/SettingBase.vue:133
 msgid "Custom Logo"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:97
+#: src/views/setting/SettingBase.vue:136
 msgid "Please enter the complete URL"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:100
+#: src/views/setting/SettingBase.vue:139
 msgid "Hide Menu"
 msgstr ""
 
@@ -4356,10 +4736,6 @@ msgstr ""
 
 #: src/views/setting/SettingSafe.vue:253
 msgid "Enable HTTPS for the panel. ACME will automatically obtain and renew certificates (requires panel accessible via public IP). Custom allows you to provide your own certificate"
-msgstr ""
-
-#: src/views/setting/SettingSafe.vue:262
-msgid "Disabled"
 msgstr ""
 
 #: src/views/setting/SettingSafe.vue:263
@@ -5502,7 +5878,7 @@ msgid "The format is incorrect, please check"
 msgstr ""
 
 #: src/views/website/BulkCreateModal.vue:61
-#: src/views/website/CreateModal.vue:62
+#: src/views/website/CreateModal.vue:66
 msgid "Website %{ name } created successfully"
 msgstr ""
 
@@ -5539,58 +5915,48 @@ msgstr ""
 msgid "Remark: The remark of the website, can be empty."
 msgstr ""
 
-#: src/views/website/CreateModal.vue:35
+#: src/views/website/CreateModal.vue:39
 #: src/views/website/EditView.vue:57
 msgid "Not used"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:97
+#: src/views/website/CreateModal.vue:114
 #: src/views/website/ListView.vue:286
 msgid "Create Website"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:112
+#: src/views/website/CreateModal.vue:129
 msgid "Must use English for the website name, it cannot be modified after setting"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:141
-#: src/views/website/EditView.vue:444
-msgid "PHP Version"
-msgstr ""
-
-#: src/views/website/CreateModal.vue:145
-#: src/views/website/EditView.vue:449
-msgid "Select PHP Version"
-msgstr ""
-
-#: src/views/website/CreateModal.vue:157
+#: src/views/website/CreateModal.vue:174
 msgid "Select Database"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:185
-#: src/views/website/CreateModal.vue:190
+#: src/views/website/CreateModal.vue:202
+#: src/views/website/CreateModal.vue:207
 msgid "Database User"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:199
-#: src/views/website/CreateModal.vue:205
+#: src/views/website/CreateModal.vue:216
+#: src/views/website/CreateModal.vue:222
 msgid "Database Password"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:216
+#: src/views/website/CreateModal.vue:234
 msgid "Website root directory (if left empty, defaults to website directory/website name/public)"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:222
+#: src/views/website/CreateModal.vue:246
 msgid "Proxy Target"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:227
+#: src/views/website/CreateModal.vue:251
 msgid "Proxy target address (e.g., http://127.0.0.1:3000)"
 msgstr ""
 
-#: src/views/website/CreateModal.vue:230
-#: src/views/website/CreateModal.vue:235
+#: src/views/website/CreateModal.vue:254
+#: src/views/website/CreateModal.vue:259
 #: src/views/website/ListView.vue:106
 msgid "Remark"
 msgstr ""
@@ -5641,10 +6007,6 @@ msgstr ""
 
 #: src/views/website/EditView.vue:393
 msgid "Listening Address"
-msgstr ""
-
-#: src/views/website/EditView.vue:425
-msgid "Basic Settings"
 msgstr ""
 
 #: src/views/website/EditView.vue:427
