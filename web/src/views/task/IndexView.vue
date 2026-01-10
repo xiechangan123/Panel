@@ -10,7 +10,8 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
-const current = ref('cron')
+const route = useRoute()
+const current = ref(route.query.tab === 'task' ? 'task' : 'cron')
 
 const create = ref(false)
 </script>

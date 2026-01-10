@@ -35,7 +35,7 @@ func NewCli(t *gotext.Locale, cmd *route.Cli) *cli.Command {
 	cli.RootCommandHelpTemplate += "\n" + t.Get("QQ Group：12370907") + "\n"
 
 	return &cli.Command{
-		Name:     "panel-cli",
+		Name:     "acepanel",
 		Usage:    t.Get("AcePanel CLI Tool"),
 		Version:  app.Version,
 		Commands: cmd.Commands(),

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import ReloadPage from '@/layout/header/components/ReloadPage.vue'
+import TaskStatus from '@/layout/header/components/TaskStatus.vue'
 import AppTab from '@/layout/tab/IndexView.vue'
 import FullScreen from './components/FullScreen.vue'
 import ThemeMode from './components/ThemeMode.vue'
@@ -12,13 +13,14 @@ const themeStore = useThemeStore()
 </script>
 
 <template>
-  <div     flex w-full items-center justify-between >
+  <div flex w-full items-center justify-between>
     <menu-collapse v-if="themeStore.isMobile" />
-    <section v-if="!themeStore.isMobile && themeStore.tab.visible"    pr-12 flex-1 w-0 >
+    <section v-if="!themeStore.isMobile && themeStore.tab.visible" pr-12 flex-1 w-0>
       <app-tab />
     </section>
     <span v-if="!themeStore.isMobile && themeStore.tab.visible" mx-6 opacity-20>|</span>
-    <div      ml-auto px-12 flex flex-shrink-0 items-center >
+    <div ml-auto px-12 flex flex-shrink-0 items-center>
+      <task-status />
       <reload-page />
       <full-screen />
       <theme-mode />

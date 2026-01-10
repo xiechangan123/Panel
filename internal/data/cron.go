@@ -62,16 +62,16 @@ func (r *cronRepo) Create(req *request.CronCreate) error {
 			script = fmt.Sprintf(`#!/bin/bash
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
-panel-cli backup website -n '%s' -p '%s'
-panel-cli backup clear -t website -f '%s' -s '%d' -p '%s'
+acepanel backup website -n '%s' -p '%s'
+acepanel backup clear -t website -f '%s' -s '%d' -p '%s'
 `, req.Target, req.BackupPath, req.Target, req.Save, req.BackupPath)
 		}
 		if req.BackupType == "mysql" || req.BackupType == "postgres" {
 			script = fmt.Sprintf(`#!/bin/bash
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
-panel-cli backup database -t '%s' -n '%s' -p '%s'
-panel-cli backup clear -t '%s' -f '%s' -s '%d' -p '%s'
+acepanel backup database -t '%s' -n '%s' -p '%s'
+acepanel backup clear -t '%s' -f '%s' -s '%d' -p '%s'
 `, req.BackupType, req.Target, req.BackupPath, req.BackupType, req.Target, req.Save, req.BackupPath)
 		}
 	}
@@ -79,8 +79,8 @@ panel-cli backup clear -t '%s' -f '%s' -s '%d' -p '%s'
 		script = fmt.Sprintf(`#!/bin/bash
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
-panel-cli cutoff website -n '%s' -p '%s'
-panel-cli cutoff clear -t website -f '%s' -s '%d' -p '%s'
+acepanel cutoff website -n '%s' -p '%s'
+acepanel cutoff clear -t website -f '%s' -s '%d' -p '%s'
 `, req.Target, req.BackupPath, req.Target, req.Save, req.BackupPath)
 	}
 	if req.Type == "shell" {
