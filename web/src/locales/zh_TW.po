@@ -517,11 +517,11 @@ msgstr "菜單縮放"
 msgid "Refresh Tab"
 msgstr "刷新標籤頁"
 
-#: src/layout/header/components/TaskStatus.vue:35
+#: src/layout/header/components/TaskStatus.vue:23
 msgid "Tasks Running"
 msgstr ""
 
-#: src/layout/header/components/TaskStatus.vue:35
+#: src/layout/header/components/TaskStatus.vue:23
 #: src/views/task/IndexView.vue:24
 msgid "Panel Tasks"
 msgstr "面板任務"

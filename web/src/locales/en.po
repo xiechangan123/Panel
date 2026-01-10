@@ -520,12 +520,12 @@ msgstr "Menu Zoom"
 msgid "Refresh Tab"
 msgstr "Refresh Tab"
 
-#: src/layout/header/components/TaskStatus.vue:35
+#: src/layout/header/components/TaskStatus.vue:23
 #, fuzzy
 msgid "Tasks Running"
 msgstr "Running"
 
-#: src/layout/header/components/TaskStatus.vue:35
+#: src/layout/header/components/TaskStatus.vue:23
 #: src/views/task/IndexView.vue:24
 msgid "Panel Tasks"
 msgstr "Panel Tasks"
