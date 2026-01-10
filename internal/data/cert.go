@@ -259,7 +259,7 @@ func (r *certRepo) ObtainSelfSigned(id uint) error {
 		return err
 	}
 
-	crt, key, err := pkgcert.GenerateSelfSigned(cert.Domains)
+	crt, key, err := pkgcert.GenerateSelfSignedRSA(cert.Domains)
 	if err != nil {
 		return err
 	}

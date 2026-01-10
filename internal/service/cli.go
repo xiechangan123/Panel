@@ -392,7 +392,7 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 	}
 
 	if crt == nil || key == nil {
-		crt, key, err = cert.GenerateSelfSigned(names)
+		crt, key, err = cert.GenerateSelfSignedRSA(names)
 		if err != nil {
 			return err
 		}

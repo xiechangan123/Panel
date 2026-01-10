@@ -20,3 +20,10 @@ func (s *CertTestSuite) TestGenerateSelfSigned() {
 	s.NotNil(pem)
 	s.NotNil(key)
 }
+
+func (s *CertTestSuite) TestGenerateSelfSignedRSA() {
+	pem, key, err := GenerateSelfSignedRSA([]string{"haozi.dev"})
+	s.Nil(err)
+	s.NotNil(pem)
+	s.NotNil(key)
+}
