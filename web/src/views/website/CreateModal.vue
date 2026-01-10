@@ -24,7 +24,7 @@ const createModel = ref({
   db_password: '',
   remark: '',
 
-  php: 0,
+  php: null,
   proxy: ''
 })
 
@@ -74,7 +74,7 @@ const handleCreate = async () => {
       db_password: '',
       path: '',
       remark: '',
-      php: 0,
+      php: null,
       proxy: ''
     }
   })
