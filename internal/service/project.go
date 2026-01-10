@@ -7,6 +7,7 @@ import (
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type ProjectService struct {
@@ -26,7 +27,8 @@ func (s *ProjectService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	projects, total, err := s.projectRepo.List(req.Page, req.Limit)
+	typ := types.ProjectType(r.URL.Query().Get("type"))
+	projects, total, err := s.projectRepo.List(typ, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

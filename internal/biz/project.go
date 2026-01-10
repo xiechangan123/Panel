@@ -17,7 +17,7 @@ type Project struct {
 }
 
 type ProjectRepo interface {
-	List(page, limit uint) ([]*types.ProjectDetail, int64, error)
+	List(typ types.ProjectType, page, limit uint) ([]*types.ProjectDetail, int64, error)
 	Get(id uint) (*types.ProjectDetail, error)
 	Create(req *request.ProjectCreate) (*types.ProjectDetail, error)
 	Update(req *request.ProjectUpdate) error

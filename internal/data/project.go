@@ -21,27 +21,30 @@ import (
 )
 
 type projectRepo struct {
-	systemdDir string
-	t          *gotext.Locale
-	db         *gorm.DB
+	t  *gotext.Locale
+	db *gorm.DB
 }
 
 func NewProjectRepo(t *gotext.Locale, db *gorm.DB) biz.ProjectRepo {
 	return &projectRepo{
-		systemdDir: "/etc/systemd/system",
-		t:          t,
-		db:         db,
+		t:  t,
+		db: db,
 	}
 }
 
-func (r *projectRepo) List(page, limit uint) ([]*types.ProjectDetail, int64, error) {
+func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*types.ProjectDetail, int64, error) {
 	var projects []*biz.Project
 	var total int64
 
-	if err := r.db.Model(&biz.Project{}).Count(&total).Error; err != nil {
+	query := r.db.Model(&biz.Project{})
+	if typ != "" {
+		query = query.Where("type = ?", typ)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	if err := r.db.Offset(int((page - 1) * limit)).Limit(int(limit)).Order("id desc").Find(&projects).Error; err != nil {
+	if err := query.Offset(int((page - 1) * limit)).Limit(int(limit)).Order("id desc").Find(&projects).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -148,7 +151,7 @@ func (r *projectRepo) Delete(id uint) error {
 
 // unitFilePath 返回 systemd unit 文件路径
 func (r *projectRepo) unitFilePath(name string) string {
-	return filepath.Join(r.systemdDir, fmt.Sprintf("acepanel-project-%s.service", name))
+	return filepath.Join("/etc/systemd/system", fmt.Sprintf("%s.service", name))
 }
 
 // parseProjectDetail 从数据库记录和 systemd unit 文件解析项目详情
