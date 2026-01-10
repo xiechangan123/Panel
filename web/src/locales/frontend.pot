@@ -146,13 +146,13 @@ msgid "Month %{month}"
 msgstr ""
 
 #: src/components/common/CronSelector.vue:170
-#: src/views/apps/nginx/NginxIndex.vue:744
+#: src/views/apps/nginx/NginxIndex.vue:745
 #: src/views/website/EditView.vue:337
 msgid "Minutes"
 msgstr ""
 
 #: src/components/common/CronSelector.vue:181
-#: src/views/apps/nginx/NginxIndex.vue:745
+#: src/views/apps/nginx/NginxIndex.vue:746
 #: src/views/website/EditView.vue:338
 msgid "Hours"
 msgstr ""
@@ -235,8 +235,8 @@ msgstr ""
 #: src/views/apps/fail2ban/IndexView.vue:37
 #: src/views/apps/nginx/NginxIndex.vue:147
 #: src/views/apps/nginx/NginxIndex.vue:232
-#: src/views/apps/nginx/NginxIndex.vue:571
-#: src/views/apps/nginx/NginxIndex.vue:649
+#: src/views/apps/nginx/NginxIndex.vue:572
+#: src/views/apps/nginx/NginxIndex.vue:650
 #: src/views/apps/rsync/IndexView.vue:39
 #: src/views/apps/rsync/IndexView.vue:256
 #: src/views/apps/supervisor/IndexView.vue:46
@@ -343,8 +343,8 @@ msgstr ""
 
 #: src/components/common/PathSelector.vue:336
 #: src/views/apps/fail2ban/IndexView.vue:368
-#: src/views/apps/nginx/NginxIndex.vue:635
-#: src/views/apps/nginx/NginxIndex.vue:754
+#: src/views/apps/nginx/NginxIndex.vue:636
+#: src/views/apps/nginx/NginxIndex.vue:755
 #: src/views/apps/pureftpd/IndexView.vue:242
 #: src/views/apps/pureftpd/IndexView.vue:264
 #: src/views/apps/rsync/IndexView.vue:305
@@ -783,7 +783,7 @@ msgid "Frp Manager"
 msgstr ""
 
 #: src/router/routes/index.ts:18
-#: src/views/login/IndexView.vue:232
+#: src/views/login/IndexView.vue:229
 msgid "Login"
 msgstr ""
 
@@ -820,7 +820,7 @@ msgstr ""
 #: src/views/apps/fail2ban/IndexView.vue:118
 #: src/views/apps/nginx/NginxIndex.vue:184
 #: src/views/apps/nginx/NginxIndex.vue:260
-#: src/views/apps/nginx/NginxIndex.vue:695
+#: src/views/apps/nginx/NginxIndex.vue:696
 #: src/views/apps/pureftpd/IndexView.vue:46
 #: src/views/apps/rsync/IndexView.vue:68
 #: src/views/apps/s3fs/IndexView.vue:32
@@ -972,7 +972,7 @@ msgstr ""
 #: src/views/apps/memcached/IndexView.vue:59
 #: src/views/apps/minio/IndexView.vue:44
 #: src/views/apps/mysql/MysqlIndex.vue:111
-#: src/views/apps/nginx/NginxIndex.vue:491
+#: src/views/apps/nginx/NginxIndex.vue:492
 #: src/views/apps/phpmyadmin/IndexView.vue:66
 #: src/views/apps/phpmyadmin/IndexView.vue:85
 #: src/views/apps/podman/IndexView.vue:63
@@ -1006,7 +1006,7 @@ msgstr ""
 #: src/views/apps/memcached/IndexView.vue:74
 #: src/views/apps/minio/IndexView.vue:49
 #: src/views/apps/mysql/MysqlIndex.vue:126
-#: src/views/apps/nginx/NginxIndex.vue:544
+#: src/views/apps/nginx/NginxIndex.vue:545
 #: src/views/apps/podman/IndexView.vue:85
 #: src/views/apps/postgresql/IndexView.vue:110
 #: src/views/apps/redis/IndexView.vue:78
@@ -1065,7 +1065,7 @@ msgstr ""
 #: src/views/apps/fail2ban/IndexView.vue:98
 #: src/views/apps/nginx/NginxIndex.vue:218
 #: src/views/apps/nginx/NginxIndex.vue:294
-#: src/views/apps/nginx/NginxIndex.vue:708
+#: src/views/apps/nginx/NginxIndex.vue:709
 #: src/views/apps/pureftpd/IndexView.vue:88
 #: src/views/apps/rsync/IndexView.vue:105
 #: src/views/apps/supervisor/IndexView.vue:195
@@ -1302,7 +1302,7 @@ msgstr ""
 
 #: src/views/apps/memcached/IndexView.vue:64
 #: src/views/apps/mysql/MysqlIndex.vue:116
-#: src/views/apps/nginx/NginxIndex.vue:534
+#: src/views/apps/nginx/NginxIndex.vue:535
 #: src/views/apps/postgresql/IndexView.vue:100
 #: src/views/apps/redis/IndexView.vue:68
 #: src/views/environment/PHPView.vue:235
@@ -1390,7 +1390,7 @@ msgid "This modifies the %{ name } main configuration file. If you do not unders
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:128
-#: src/views/apps/nginx/NginxIndex.vue:551
+#: src/views/apps/nginx/NginxIndex.vue:552
 #: src/views/apps/postgresql/IndexView.vue:114
 #: src/views/apps/supervisor/IndexView.vue:354
 #: src/views/environment/PHPView.vue:252
@@ -1416,7 +1416,7 @@ msgid "Protocol"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:169
-#: src/views/apps/nginx/NginxIndex.vue:587
+#: src/views/apps/nginx/NginxIndex.vue:588
 #: src/views/website/EditView.vue:638
 msgid "Proxy Pass"
 msgstr ""
@@ -1458,7 +1458,7 @@ msgid "Round Robin"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:249
-#: src/views/apps/nginx/NginxIndex.vue:671
+#: src/views/apps/nginx/NginxIndex.vue:672
 msgid "Servers"
 msgstr ""
 
@@ -1491,14 +1491,14 @@ msgid "Please add at least one server"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:483
-msgid "This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
+msgid "This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:496
+#: src/views/apps/nginx/NginxIndex.vue:497
 msgid "Stream"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:498
+#: src/views/apps/nginx/NginxIndex.vue:499
 #: src/views/database/CreateDatabaseModal.vue:63
 #: src/views/database/CreateUserModal.vue:69
 #: src/views/database/DatabaseList.vue:41
@@ -1507,138 +1507,138 @@ msgstr ""
 msgid "Server"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:502
+#: src/views/apps/nginx/NginxIndex.vue:503
 #: src/views/database/CreateServerModal.vue:47
 #: src/views/database/IndexView.vue:49
 #: src/views/website/EditView.vue:578
 msgid "Add Server"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:515
+#: src/views/apps/nginx/NginxIndex.vue:516
 #: src/views/website/EditView.vue:478
 msgid "Upstream"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:519
+#: src/views/apps/nginx/NginxIndex.vue:520
 #: src/views/website/EditView.vue:594
 msgid "Add Upstream"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:547
+#: src/views/apps/nginx/NginxIndex.vue:548
 #: src/views/environment/PHPView.vue:248
 msgid "Error Logs"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:576
-#: src/views/apps/nginx/NginxIndex.vue:654
+#: src/views/apps/nginx/NginxIndex.vue:577
+#: src/views/apps/nginx/NginxIndex.vue:655
 msgid "Only letters, numbers, underscores and hyphens"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:579
+#: src/views/apps/nginx/NginxIndex.vue:580
 msgid "Listen Address"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:584
+#: src/views/apps/nginx/NginxIndex.vue:585
 msgid "e.g. 12345 or 0.0.0.0:12345"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:592
+#: src/views/apps/nginx/NginxIndex.vue:593
 msgid "e.g. 127.0.0.1:3306 or upstream_name"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:595
+#: src/views/apps/nginx/NginxIndex.vue:596
 msgid "UDP Protocol"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:598
+#: src/views/apps/nginx/NginxIndex.vue:599
 msgid "Proxy Protocol"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:601
+#: src/views/apps/nginx/NginxIndex.vue:602
 msgid "Proxy Timeout (seconds)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:604
+#: src/views/apps/nginx/NginxIndex.vue:605
 msgid "Connect Timeout (seconds)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:607
+#: src/views/apps/nginx/NginxIndex.vue:608
 msgid "Enable SSL"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:613
+#: src/views/apps/nginx/NginxIndex.vue:614
 msgid "SSL Certificate Path"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:619
+#: src/views/apps/nginx/NginxIndex.vue:620
 msgid "e.g. /path/to/cert.pem"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:625
+#: src/views/apps/nginx/NginxIndex.vue:626
 msgid "SSL Private Key Path"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:631
+#: src/views/apps/nginx/NginxIndex.vue:632
 msgid "e.g. /path/to/key.pem"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:657
+#: src/views/apps/nginx/NginxIndex.vue:658
 #: src/views/website/EditView.vue:489
 msgid "Load Balancing Algorithm"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:661
+#: src/views/apps/nginx/NginxIndex.vue:662
 msgid "Round Robin (Default)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:678
+#: src/views/apps/nginx/NginxIndex.vue:679
 msgid "Server address, e.g. 127.0.0.1:3306"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:684
+#: src/views/apps/nginx/NginxIndex.vue:685
 msgid "Options (optional), e.g. weight=5 backup"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:687
+#: src/views/apps/nginx/NginxIndex.vue:688
 #: src/views/container/ContainerCreate.vue:242
 #: src/views/container/ContainerCreate.vue:293
 msgid "Add"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:693
+#: src/views/apps/nginx/NginxIndex.vue:694
 msgid "Address"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:694
+#: src/views/apps/nginx/NginxIndex.vue:695
 #: src/views/container/NetworkView.vue:303
 #: src/views/container/VolumeView.vue:203
 #: src/views/toolbox/DiskView.vue:829
 msgid "Options"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:714
+#: src/views/apps/nginx/NginxIndex.vue:715
 msgid "No servers added yet"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:721
+#: src/views/apps/nginx/NginxIndex.vue:722
 #: src/views/website/EditView.vue:509
 #: src/views/website/EditView.vue:667
 msgid "DNS Resolver"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:724
+#: src/views/apps/nginx/NginxIndex.vue:725
 #: src/views/website/EditView.vue:512
 #: src/views/website/EditView.vue:670
 msgid "e.g., 8.8.8.8"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:730
+#: src/views/apps/nginx/NginxIndex.vue:731
 #: src/views/website/EditView.vue:518
 #: src/views/website/EditView.vue:676
 msgid "Resolver Timeout"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:743
+#: src/views/apps/nginx/NginxIndex.vue:744
 #: src/views/website/EditView.vue:336
 msgid "Seconds"
 msgstr ""
@@ -1717,7 +1717,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:46
 #: src/views/database/UpdateServerModal.vue:86
 #: src/views/database/UserList.vue:39
-#: src/views/login/IndexView.vue:169
+#: src/views/login/IndexView.vue:166
 #: src/views/setting/CreateModal.vue:40
 #: src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:85
@@ -1778,7 +1778,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:94
 #: src/views/database/UpdateUserModal.vue:55
 #: src/views/database/UserList.vue:49
-#: src/views/login/IndexView.vue:178
+#: src/views/login/IndexView.vue:175
 #: src/views/setting/CreateModal.vue:47
 #: src/views/setting/PasswordModal.vue:34
 #: src/views/ssh/CreateModal.vue:79
@@ -4026,31 +4026,35 @@ msgstr ""
 msgid "Loading update information, please wait a moment"
 msgstr ""
 
-#: src/views/login/IndexView.vue:74
+#: src/views/login/IndexView.vue:67
 msgid "Please enter username and password"
 msgstr ""
 
-#: src/views/login/IndexView.vue:79
+#: src/views/login/IndexView.vue:72
 msgid "Please enter captcha code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:84
+#: src/views/login/IndexView.vue:77
 msgid "Failed to get encryption public key, please refresh the page and try again"
 msgstr ""
 
-#: src/views/login/IndexView.vue:99
+#: src/views/login/IndexView.vue:92
 msgid "Login successful!"
 msgstr ""
 
-#: src/views/login/IndexView.vue:189
+#: src/views/login/IndexView.vue:186
 msgid "2FA Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:201
+#: src/views/login/IndexView.vue:198
 msgid "Captcha Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:218
+#: src/views/login/IndexView.vue:214
+msgid "Safe Login"
+msgstr ""
+
+#: src/views/login/IndexView.vue:215
 msgid "Remember Me"
 msgstr ""
 

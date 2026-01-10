@@ -2,9 +2,9 @@ import { http } from '@/utils'
 
 export default {
   // 公钥
-  key: () => http.Get('/user/key'),
+  key: (): any => http.Get('/user/key'),
   // 获取验证码
-  captcha: () => http.Get('/user/captcha'),
+  captcha: (): any => http.Get('/user/captcha'),
   // 登录
   login: (
     username: string,
@@ -12,7 +12,7 @@ export default {
     pass_code: string,
     safe_login: boolean,
     captcha_code: string
-  ) =>
+  ): any =>
     http.Post('/user/login', {
       username,
       password,
@@ -21,13 +21,13 @@ export default {
       captcha_code
     }),
   // 登出
-  logout: () => http.Post('/user/logout'),
+  logout: (): any => http.Post('/user/logout'),
   // 是否登录
-  isLogin: () => http.Get('/user/is_login'),
+  isLogin: (): any => http.Get('/user/is_login'),
   // 是否2FA
-  isTwoFA: (username: string) => http.Get('/user/is_2fa', { params: { username } }),
+  isTwoFA: (username: string): any => http.Get('/user/is_2fa', { params: { username } }),
   // 获取用户信息
-  info: () => http.Get('/user/info'),
+  info: (): any => http.Get('/user/info'),
   // 获取用户列表
   list: (page: number, limit: number): any => http.Get(`/users`, { params: { page, limit } }),
   // 创建用户

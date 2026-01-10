@@ -42,8 +42,6 @@ const themeStore = useThemeStore()
 const logining = ref<boolean>(false)
 const isRemember = useStorage('isRemember', false)
 const showTwoFA = ref(false)
-
-// 验证码相关
 const captchaRequired = ref(false)
 const captchaImage = ref('')
 
@@ -53,8 +51,8 @@ const logo = computed(() => themeStore.logo || logoImg)
 const refreshCaptcha = () => {
   useRequest(user.captcha())
     .onSuccess(({ data }) => {
-      captchaRequired.value = Boolean(data.required)
-      captchaImage.value = data.image || ''
+      captchaRequired.value = data.required
+      captchaImage.value = 'data:image/png;base64,' + data.image || ''
       loginInfo.value.captcha_code = ''
     })
     .onError(() => {
@@ -62,11 +60,6 @@ const refreshCaptcha = () => {
       captchaImage.value = ''
     })
 }
-
-// 初始加载验证码
-onMounted(() => {
-  refreshCaptcha()
-})
 
 async function handleLogin() {
   const { username, password, pass_code, safe_login, captcha_code } = loginInfo.value
@@ -151,6 +144,10 @@ watch(isLogin, async () => {
     }
   }
 })
+
+onMounted(() => {
+  refreshCaptcha()
+})
 </script>
 
 <template>
@@ -203,7 +200,7 @@ watch(isLogin, async () => {
               @keydown.enter="handleLogin"
             />
             <n-image
-              :src="'data:image/png;base64,' + captchaImage"
+              :src="captchaImage"
               preview-disabled
               class="h-50 cursor-pointer"
               style="border-radius: 4px"
