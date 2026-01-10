@@ -21,6 +21,62 @@ func (_m *ContainerImageRepo) EXPECT() *ContainerImageRepo_Expecter {
 	return &ContainerImageRepo_Expecter{mock: &_m.Mock}
 }
 
+// Exist provides a mock function with given fields: name
+func (_m *ContainerImageRepo) Exist(name string) (bool, error) {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Exist")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (bool, error)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(name)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ContainerImageRepo_Exist_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Exist'
+type ContainerImageRepo_Exist_Call struct {
+	*mock.Call
+}
+
+// Exist is a helper method to define mock.On call
+//   - name string
+func (_e *ContainerImageRepo_Expecter) Exist(name interface{}) *ContainerImageRepo_Exist_Call {
+	return &ContainerImageRepo_Exist_Call{Call: _e.mock.On("Exist", name)}
+}
+
+func (_c *ContainerImageRepo_Exist_Call) Run(run func(name string)) *ContainerImageRepo_Exist_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *ContainerImageRepo_Exist_Call) Return(_a0 bool, _a1 error) *ContainerImageRepo_Exist_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ContainerImageRepo_Exist_Call) RunAndReturn(run func(string) (bool, error)) *ContainerImageRepo_Exist_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // List provides a mock function with no fields
 func (_m *ContainerImageRepo) List() ([]types.ContainerImage, error) {
 	ret := _m.Called()
