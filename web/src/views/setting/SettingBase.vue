@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { TreeSelectOption } from 'naive-ui'
 
+import PathSelector from '@/components/common/PathSelector.vue'
 import { translateTitle } from '@/locales/menu'
 import { usePermissionStore } from '@/store'
 import { locales as availableLocales } from '@/utils'
@@ -11,6 +12,30 @@ const { $gettext } = useGettext()
 const permissionStore = usePermissionStore()
 
 const model = defineModel<any>('model', { type: Object, required: true })
+
+// 目录选择器
+const showPathSelector = ref(false)
+const pathSelectorPath = ref('/opt/ace')
+const pathSelectorTarget = ref<'website' | 'backup'>('website')
+
+const handleSelectPath = (target: 'website' | 'backup') => {
+  pathSelectorTarget.value = target
+  pathSelectorPath.value =
+    target === 'website'
+      ? model.value.website_path || '/opt/ace/sites'
+      : model.value.backup_path || '/opt/ace/backup'
+  showPathSelector.value = true
+}
+
+watch(showPathSelector, (val) => {
+  if (!val && pathSelectorPath.value) {
+    if (pathSelectorTarget.value === 'website') {
+      model.value.website_path = pathSelectorPath.value
+    } else {
+      model.value.backup_path = pathSelectorPath.value
+    }
+  }
+})
 
 const locales = computed(() => {
   return Object.entries(availableLocales).map(([code, name]: [string, string]) => {
@@ -86,10 +111,24 @@ const menus = computed<TreeSelectOption[]>(() => {
         <n-input-number v-model:value="model.port" :placeholder="$gettext('8888')" w-full />
       </n-form-item>
       <n-form-item :label="$gettext('Default Website Directory')">
-        <n-input v-model:value="model.website_path" :placeholder="$gettext('/opt/ace/sites')" />
+        <n-input-group>
+          <n-input v-model:value="model.website_path" :placeholder="$gettext('/opt/ace/sites')" />
+          <n-button @click="handleSelectPath('website')">
+            <template #icon>
+              <i-mdi-folder-open />
+            </template>
+          </n-button>
+        </n-input-group>
       </n-form-item>
       <n-form-item :label="$gettext('Default Backup Directory')">
-        <n-input v-model:value="model.backup_path" :placeholder="$gettext('/opt/ace/backup')" />
+        <n-input-group>
+          <n-input v-model:value="model.backup_path" :placeholder="$gettext('/opt/ace/backup')" />
+          <n-button @click="handleSelectPath('backup')">
+            <template #icon>
+              <i-mdi-folder-open />
+            </template>
+          </n-button>
+        </n-input-group>
       </n-form-item>
       <n-form-item :label="$gettext('Custom Logo')">
         <n-input
@@ -109,6 +148,9 @@ const menus = computed<TreeSelectOption[]>(() => {
       </n-form-item>
     </n-form>
   </n-flex>
+
+  <!-- 目录选择器 -->
+  <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="true" />
 </template>
 
 <style scoped lang="scss"></style>

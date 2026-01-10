@@ -37,7 +37,7 @@ func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*types.Pr
 	var total int64
 
 	query := r.db.Model(&biz.Project{})
-	if typ != "" {
+	if typ != "" && typ != "all" {
 		query = query.Where("type = ?", typ)
 	}
 

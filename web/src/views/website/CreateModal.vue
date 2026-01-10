@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
+import PathSelector from '@/components/common/PathSelector.vue'
 import { generateRandomString } from '@/utils'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -27,6 +28,9 @@ const createModel = ref({
   php: null,
   proxy: ''
 })
+
+const showPathSelector = ref(false)
+const pathSelectorPath = ref('/opt/ace')
 
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
@@ -89,6 +93,19 @@ const formatDbValue = (value: string) => {
 
   return value
 }
+
+// 处理目录选择
+const handleSelectPath = () => {
+  pathSelectorPath.value = createModel.value.path || '/opt/ace'
+  showPathSelector.value = true
+}
+
+// 目录选择完成
+watch(showPathSelector, (val) => {
+  if (!val && pathSelectorPath.value && pathSelectorPath.value !== '/opt/ace') {
+    createModel.value.path = pathSelectorPath.value
+  }
+})
 </script>
 
 <template>
@@ -208,16 +225,23 @@ const formatDbValue = (value: string) => {
         </n-col>
       </n-row>
       <n-form-item v-if="type != 'proxy'" path="path" :label="$gettext('Directory')">
-        <n-input
-          v-model:value="createModel.path"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="
-            $gettext(
-              'Website root directory (if left empty, defaults to website directory/website name/public)'
-            )
-          "
-        />
+        <n-input-group>
+          <n-input
+            v-model:value="createModel.path"
+            type="text"
+            @keydown.enter.prevent
+            :placeholder="
+              $gettext(
+                'Website root directory (if left empty, defaults to website directory/website name/public)'
+              )
+            "
+          />
+          <n-button @click="handleSelectPath">
+            <template #icon>
+              <i-mdi-folder-open />
+            </template>
+          </n-button>
+        </n-input-group>
       </n-form-item>
       <n-form-item v-if="type == 'proxy'" path="path" :label="$gettext('Proxy Target')">
         <n-input
@@ -240,6 +264,9 @@ const formatDbValue = (value: string) => {
       {{ $gettext('Create') }}
     </n-button>
   </n-modal>
+
+  <!-- 目录选择器 -->
+  <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="true" />
 </template>
 
 <style scoped lang="scss"></style>

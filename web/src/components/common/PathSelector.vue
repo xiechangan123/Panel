@@ -3,11 +3,12 @@ import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { checkName, checkPath, getExt, getIconByExt } from '@/utils'
 import type { DataTableColumns, InputInst } from 'naive-ui'
-import { NButton, NDataTable, NEllipsis, NFlex, NTag } from 'naive-ui'
+import { NButton, NDataTable, NEllipsis, NFlex, NSpin, NTag, useThemeVars } from 'naive-ui'
 import type { RowData } from 'naive-ui/es/data-table/src/interface'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
+const themeVars = useThemeVars()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
 const props = defineProps({
@@ -17,12 +18,18 @@ const props = defineProps({
   }
 })
 
+const currentPath = ref('/')
+
+// 目录大小计算状态
+const sizeLoading = ref<Map<string, boolean>>(new Map())
+const sizeCache = ref<Map<string, string>>(new Map())
+
 const title = computed(() => (props.dir ? $gettext('Select Directory') : $gettext('Select File')))
 const isInput = ref(false)
 const pathInput = ref<InputInst | null>(null)
 const input = ref('www')
 const sort = ref<string>('')
-const selected = defineModel<any[]>('selected', { type: Array, default: () => [] })
+const selected = ref<any[]>([])
 const create = ref(false)
 const createModel = ref({
   dir: false,
@@ -58,9 +65,7 @@ const columns: DataTableColumns<RowData> = [
           class: 'cursor-pointer hover:opacity-60',
           onClick: () => {
             if (row.dir) {
-              path.value = row.full
-            } else {
-              selected.value = [row.full]
+              currentPath.value = row.full
             }
           }
         },
@@ -106,9 +111,41 @@ const columns: DataTableColumns<RowData> = [
   {
     title: $gettext('Size'),
     key: 'size',
-    minWidth: 80,
+    minWidth: 100,
     render(row: any): any {
-      return h(NTag, { type: 'info', size: 'small', bordered: false }, { default: () => row.size })
+      // 文件
+      if (!row.dir) {
+        return h(
+          NTag,
+          { type: 'info', size: 'small', bordered: false },
+          { default: () => row.size }
+        )
+      }
+      // 目录
+      const cachedSize = sizeCache.value.get(row.full)
+      if (cachedSize) {
+        return h(
+          NTag,
+          { type: 'info', size: 'small', bordered: false },
+          { default: () => cachedSize }
+        )
+      }
+      const isLoading = sizeLoading.value.get(row.full)
+      if (isLoading) {
+        return h(NSpin, { size: 16, style: { paddingTop: '4px' } })
+      }
+      return h(
+        'span',
+        {
+          style: { cursor: 'pointer', fontSize: '14px', color: themeVars.value.primaryColor },
+          onClick: (e: MouseEvent) => {
+            e.preventDefault()
+            e.stopPropagation()
+            calculateDirSize(row.full)
+          }
+        },
+        $gettext('Calculate')
+      )
     }
   },
   {
@@ -125,9 +162,9 @@ const columns: DataTableColumns<RowData> = [
   }
 ]
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, pageCount, reload } = usePagination(
   (page, pageSize) =>
-    file.list(encodeURIComponent(path.value), '', false, sort.value, page, pageSize),
+    file.list(encodeURIComponent(currentPath.value), '', false, sort.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 100,
@@ -151,11 +188,11 @@ const handleBlur = () => {
   }
 
   isInput.value = false
-  path.value = '/' + input.value
+  currentPath.value = '/' + input.value
 }
 
 const handleUp = () => {
-  const count = splitPath(path.value, '/').length
+  const count = splitPath(currentPath.value, '/').length
   setPath(count - 2)
 }
 
@@ -167,10 +204,10 @@ const splitPath = (str: string, delimiter: string) => {
 }
 
 const setPath = (index: number) => {
-  const newPath = splitPath(path.value, '/')
+  const newPath = splitPath(currentPath.value, '/')
     .slice(0, index + 1)
     .join('/')
-  path.value = '/' + newPath
+  currentPath.value = '/' + newPath
   input.value = newPath
 }
 
@@ -183,15 +220,15 @@ const handleSorterChange = (sorter: {
       switch (sorter.order) {
         case 'ascend':
           sort.value = 'asc'
-          refresh()
+          reload()
           break
         case 'descend':
           sort.value = 'desc'
-          refresh()
+          reload()
           break
         default:
           sort.value = ''
-          refresh()
+          reload()
           break
       }
     }
@@ -210,32 +247,51 @@ const handleCreate = () => {
     return
   }
 
-  const fullPath = path.value + '/' + createModel.value.path
+  const fullPath = currentPath.value + '/' + createModel.value.path
   useRequest(file.create(fullPath, createModel.value.dir)).onSuccess(() => {
     create.value = false
-    refresh()
+    reload()
     window.$message.success($gettext('Created successfully'))
   })
 }
 
-const closeWatch = watch(
-  path,
-  (value) => {
-    input.value = value.slice(1)
-    selected.value = []
-    refresh()
-  },
-  { immediate: true }
-)
+// 计算目录大小
+const calculateDirSize = (dirPath: string) => {
+  sizeLoading.value.set(dirPath, true)
+  useRequest(file.size(dirPath))
+    .onSuccess(({ data }) => {
+      sizeCache.value.set(dirPath, data)
+    })
+    .onComplete(() => {
+      sizeLoading.value.set(dirPath, false)
+    })
+}
 
-const handleClose = () => {
-  closeWatch()
-  if (selected.value.length) {
+// 打开选择器时，用外部path初始化内部currentPath
+watch(show, (val) => {
+  if (val) {
+    currentPath.value = path.value || '/'
+  }
+})
+
+// 监听内部路径变化，刷新列表
+watch(currentPath, (value) => {
+  if (!value) return
+  input.value = value.slice(1)
+  selected.value = []
+  sizeCache.value.clear()
+  sizeLoading.value.clear()
+  reload()
+})
+
+// 选择后更新外部path并关闭
+watch(selected, (val) => {
+  if (val.length > 0) {
     path.value = selected.value[0]
     selected.value = []
+    show.value = false
   }
-  show.value = false
-}
+})
 </script>
 
 <template>
@@ -247,8 +303,8 @@ const handleClose = () => {
     size="huge"
     :bordered="false"
     :segmented="false"
-    @close="handleClose"
-    @mask-click="handleClose"
+    @close="show = false"
+    @mask-click="show = false"
   >
     <n-flex>
       <n-popselect
@@ -270,7 +326,7 @@ const handleClose = () => {
               {{ $gettext('Root Directory') }}
             </n-breadcrumb-item>
             <n-breadcrumb-item
-              v-for="(item, index) in splitPath(path, '/')"
+              v-for="(item, index) in splitPath(currentPath, '/')"
               :key="index"
               @click.stop="setPath(index)"
             >
@@ -287,7 +343,7 @@ const handleClose = () => {
           @blur="handleBlur"
         />
       </n-input-group>
-      <n-button @click="refresh">
+      <n-button @click="reload">
         <i-mdi-refresh :size="16" />
       </n-button>
     </n-flex>
