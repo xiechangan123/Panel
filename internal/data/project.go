@@ -331,7 +331,7 @@ func (r *projectRepo) parsePercent(value string) (float64, error) {
 func (r *projectRepo) generateUnitFile(id uint, req *request.ProjectCreate) error {
 	options := []*unit.UnitOption{
 		// [Unit] section
-		unit.NewUnitOption("Unit", "Description", fmt.Sprintf("AcePanel Project: %s", req.Name)),
+		unit.NewUnitOption("Unit", "Description", req.Description),
 		unit.NewUnitOption("Unit", "After", "network.target"),
 
 		// [Service] section

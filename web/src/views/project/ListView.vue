@@ -7,9 +7,10 @@ import systemctl from '@/api/panel/systemctl'
 
 const type = defineModel<string>('type', { type: String, required: true })
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true })
+const editModal = defineModel<boolean>('editModal', { type: Boolean, required: true })
+const editId = defineModel<number>('editId', { type: Number, required: true })
 
 const { $gettext } = useGettext()
-const router = useRouter()
 const selectedRowKeys = ref<any>([])
 
 const typeMap: Record<string, string> = {
@@ -134,10 +135,8 @@ const handleToggleStatus = (row: any) => {
 }
 
 const handleEdit = (row: any) => {
-  router.push({
-    name: 'project-edit',
-    params: { id: row.id }
-  })
+  editId.value = row.id
+  editModal.value = true
 }
 
 const handleDelete = (id: number) => {

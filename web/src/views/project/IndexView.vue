@@ -4,11 +4,14 @@ defineOptions({
 })
 
 import CreateModal from '@/views/project/CreateModal.vue'
+import EditModal from '@/views/project/EditModal.vue'
 import ListView from '@/views/project/ListView.vue'
 
 const currentTab = ref('all')
 
 const createModal = ref(false)
+const editModal = ref(false)
+const editId = ref(0)
 </script>
 
 <template>
@@ -24,7 +27,8 @@ const createModal = ref(false)
         <n-tab name="nodejs" :tab="$gettext('Node.js')" />
       </n-tabs>
     </template>
-    <list-view v-model:type="currentTab" v-model:createModal="createModal" />
+    <list-view v-model:type="currentTab" v-model:createModal="createModal" v-model:editModal="editModal" v-model:editId="editId" />
     <create-modal v-model:show="createModal" v-model:type="currentTab" />
+    <edit-modal v-model:show="editModal" v-model:editId="editId" />
   </common-page>
 </template>
