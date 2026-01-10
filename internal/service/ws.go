@@ -3,16 +3,21 @@ package service
 import (
 	"bufio"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
+	"github.com/moby/moby/api/types/registry"
+	"github.com/moby/moby/client"
 	stdssh "golang.org/x/crypto/ssh"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/config"
+	"github.com/acepanel/panel/pkg/docker"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/ssh"
 )
@@ -114,6 +119,42 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	s.readLoop(ctx, ws)
 }
 
+// ContainerTerminal 容器终端 WebSocket 处理
+func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ContainerID](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("[Websocket] upgrade container terminal ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// 默认使用 bash 作为 shell，如果不存在则回退到 sh
+	turn, err := docker.NewTurn(ctx, ws, req.ID, []string{"/bin/bash"})
+	if err != nil {
+		turn, err = docker.NewTurn(ctx, ws, req.ID, []string{"/bin/sh"})
+		if err != nil {
+			_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to start container terminal: %v", err))
+			return
+		}
+	}
+
+	go func() {
+		defer turn.Close()
+		_ = turn.Handle(ctx)
+	}()
+
+	turn.Wait()
+}
+
 func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 	opts := &websocket.AcceptOptions{
 		CompressionMode: websocket.CompressionContextTakeover,
@@ -135,4 +176,96 @@ func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
 			break
 		}
 	}
+}
+
+// ContainerImagePull 镜像拉取 WebSocket 处理
+func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("[Websocket] upgrade image pull ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	_, message, err := ws.Read(ctx)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
+		return
+	}
+	var req request.ContainerImagePull
+	if err = json.Unmarshal(message, &req); err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
+		return
+	}
+
+	// 创建 Docker 客户端
+	apiClient, err := client.New(client.WithHost("unix:///var/run/docker.sock"))
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to create docker client: %v", err))
+		return
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	// 构建拉取选项
+	options := client.ImagePullOptions{}
+	if req.Auth {
+		authConfig := registry.AuthConfig{
+			Username: req.Username,
+			Password: req.Password,
+		}
+		encodedJSON, err := json.Marshal(authConfig)
+		if err != nil {
+			_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to encode auth: %v", err))
+			return
+		}
+		options.RegistryAuth = base64.URLEncoding.EncodeToString(encodedJSON)
+	}
+
+	// 拉取镜像
+	resp, err := apiClient.ImagePull(ctx, req.Name, options)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to pull image: %v", err))
+		return
+	}
+
+	// 迭代进度
+	for msg, err := range resp.JSONMessages(ctx) {
+		if err != nil {
+			s.log.Warn("[Websocket] image pull error", slog.Any("err", err))
+			errorMsg, _ := json.Marshal(map[string]any{
+				"status": "error",
+				"error":  err.Error(),
+			})
+			_ = ws.Write(ctx, websocket.MessageText, errorMsg)
+			return
+		}
+
+		// 如果有错误，发送错误消息
+		if msg.Error != nil {
+			errorMsg, _ := json.Marshal(map[string]any{
+				"status": "error",
+				"error":  msg.Error.Message,
+			})
+			_ = ws.Write(ctx, websocket.MessageText, errorMsg)
+			return
+		}
+
+		// 转发进度信息
+		progressMsg, _ := json.Marshal(msg)
+		if err = ws.Write(ctx, websocket.MessageText, progressMsg); err != nil {
+			s.log.Warn("[Websocket] write image pull progress error", slog.Any("err", err))
+			return
+		}
+	}
+
+	// 拉取完成
+	completeMsg, _ := json.Marshal(map[string]any{
+		"status":   "complete",
+		"complete": true,
+	})
+	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
+	_ = ws.Close(websocket.StatusNormalClosure, "")
 }

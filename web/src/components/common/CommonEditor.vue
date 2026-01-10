@@ -2,6 +2,7 @@
 import { useThemeStore } from '@/store'
 import { getMonaco } from '@/utils/monaco'
 import type * as Monaco from 'monaco-editor'
+import { useThemeVars } from 'naive-ui'
 
 const value = defineModel<string>('value', { type: String, required: true })
 const props = defineProps({
@@ -27,6 +28,7 @@ const monacoRef = shallowRef<typeof Monaco>()
 const loading = ref(true)
 
 const themeStore = useThemeStore()
+const themeVars = useThemeVars()
 
 async function initEditor() {
   if (!containerRef.value) return
@@ -37,7 +39,7 @@ async function initEditor() {
   editorRef.value = monaco.editor.create(containerRef.value, {
     value: value.value,
     language: props.lang,
-    theme: 'vs-dark',
+    theme: 'vs' + (themeStore.darkMode ? '-dark' : ''),
     readOnly: props.readOnly,
     automaticLayout: true,
     smoothScrolling: true,
@@ -92,7 +94,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="common-editor" :style="{ height: props.height }">
+  <div class="common-editor" :style="{ height: props.height, borderColor: themeVars.borderColor }">
     <div v-if="loading" class="editor-loading">
       <n-spin size="medium" />
     </div>
@@ -104,6 +106,9 @@ onBeforeUnmount(() => {
 .common-editor {
   position: relative;
   width: 100%;
+  border: 1px solid;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .editor-loading {
