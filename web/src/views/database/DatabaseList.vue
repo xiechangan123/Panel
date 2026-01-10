@@ -62,6 +62,8 @@ const columns: any = [
       return h(NInput, {
         size: 'small',
         value: row.comment,
+        // MySQL 不支持数据库备注
+        disabled: row.type === 'mysql',
         onBlur: () => handleComment(row),
         onUpdateValue(v) {
           row.comment = v

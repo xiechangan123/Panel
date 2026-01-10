@@ -63,20 +63,14 @@ func (s *ToolboxSystemService) UpdateDNS(w http.ResponseWriter, r *http.Request)
 
 // GetSWAP 获取 SWAP 信息
 func (s *ToolboxSystemService) GetSWAP(w http.ResponseWriter, r *http.Request) {
-	var total, used, free string
-	var size int64
+	// total, used, free 系统给出的值，size 面板 swap 文件大小
+	total, used, free := "0.00 B", "0.00 B", "0.00 B"
+	size := int64(0)
 	if io.Exists(filepath.Join(app.Root, "swap")) {
 		file, err := os.Stat(filepath.Join(app.Root, "swap"))
-		if err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("failed to get SWAP: %v", err))
-			return
+		if err == nil {
+			size = file.Size() / 1024 / 1024
 		}
-
-		size = file.Size() / 1024 / 1024
-		total = tools.FormatBytes(float64(file.Size()))
-	} else {
-		size = 0
-		total = "0.00 B"
 	}
 
 	raw, err := shell.Execf("free | grep Swap")
@@ -87,6 +81,7 @@ func (s *ToolboxSystemService) GetSWAP(w http.ResponseWriter, r *http.Request) {
 
 	match := regexp.MustCompile(`Swap:\s+(\d+)\s+(\d+)\s+(\d+)`).FindStringSubmatch(raw)
 	if len(match) >= 4 {
+		total = tools.FormatBytes(cast.ToFloat64(match[1]) * 1024)
 		used = tools.FormatBytes(cast.ToFloat64(match[2]) * 1024)
 		free = tools.FormatBytes(cast.ToFloat64(match[3]) * 1024)
 	}

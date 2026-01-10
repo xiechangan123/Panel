@@ -116,7 +116,7 @@ const handleSyncTime = () => {
       <n-flex vertical>
         <n-alert type="info">
           {{
-            $gettext('Total %{ total }, used %{ used }, free %{ free }', {
+            $gettext('System total %{ total }, used %{ used }, free %{ free }', {
               total: swapTotal,
               used: swapUsed,
               free: swapFree
@@ -124,7 +124,7 @@ const handleSyncTime = () => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item :label="$gettext('SWAP Size')">
+          <n-form-item :label="$gettext('Panel SWAP Size')">
             <n-input-number v-model:value="swap" />
             MB
           </n-form-item>
