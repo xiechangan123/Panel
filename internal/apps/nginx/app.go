@@ -36,6 +36,15 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.SaveConfig)
 	r.Get("/error_log", s.ErrorLog)
 	r.Post("/clear_error_log", s.ClearErrorLog)
+
+	r.Get("/stream/servers", s.ListStreamServers)
+	r.Post("/stream/servers", s.CreateStreamServer)
+	r.Put("/stream/servers/{name}", s.UpdateStreamServer)
+	r.Delete("/stream/servers/{name}", s.DeleteStreamServer)
+	r.Get("/stream/upstreams", s.ListStreamUpstreams)
+	r.Post("/stream/upstreams", s.CreateStreamUpstream)
+	r.Put("/stream/upstreams/{name}", s.UpdateStreamUpstream)
+	r.Delete("/stream/upstreams/{name}", s.DeleteStreamUpstream)
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
