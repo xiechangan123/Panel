@@ -27,7 +27,12 @@ const editId = ref(0)
         <n-tab name="nodejs" :tab="$gettext('Node.js')" />
       </n-tabs>
     </template>
-    <list-view v-model:type="currentTab" v-model:createModal="createModal" v-model:editModal="editModal" v-model:editId="editId" />
+    <list-view
+      v-model:type="currentTab"
+      v-model:createModal="createModal"
+      v-model:editModal="editModal"
+      v-model:editId="editId"
+    />
     <create-modal v-model:show="createModal" v-model:type="currentTab" />
     <edit-modal v-model:show="editModal" v-model:editId="editId" />
   </common-page>

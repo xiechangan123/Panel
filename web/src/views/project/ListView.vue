@@ -4,11 +4,14 @@ import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
+import RealtimeLog from '@/components/common/RealtimeLog.vue'
 
 const type = defineModel<string>('type', { type: String, required: true })
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true })
 const editModal = defineModel<boolean>('editModal', { type: Boolean, required: true })
 const editId = defineModel<number>('editId', { type: Number, required: true })
+const logModal = ref(false)
+const logService = ref('')
 
 const { $gettext } = useGettext()
 const selectedRowKeys = ref<any>([])
@@ -25,9 +28,16 @@ const typeMap: Record<string, string> = {
 const columns: any = [
   { type: 'selection', fixed: 'left' },
   {
-    title: $gettext('Project Name'),
+    title: $gettext('Name'),
     key: 'name',
-    width: 200,
+    width: 160,
+    resizable: true,
+    ellipsis: { tooltip: true }
+  },
+  {
+    title: $gettext('Description'),
+    key: 'description',
+    width: 300,
     resizable: true,
     ellipsis: { tooltip: true }
   },
@@ -61,7 +71,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 280,
+    width: 300,
     hideInExcel: true,
     render(row: any) {
       return [
@@ -73,6 +83,16 @@ const columns: any = [
             onClick: () => handleToggleStatus(row)
           },
           { default: () => (row.status === 'running' ? $gettext('Stop') : $gettext('Start')) }
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'info',
+            style: 'margin-left: 10px;',
+            onClick: () => handleShowLog(row)
+          },
+          { default: () => $gettext('Logs') }
         ),
         h(
           NButton,
@@ -134,6 +154,11 @@ const handleToggleStatus = (row: any) => {
   }
 }
 
+const handleShowLog = (row: any) => {
+  logService.value = row.name
+  logModal.value = true
+}
+
 const handleEdit = (row: any) => {
   editId.value = row.id
   editModal.value = true
@@ -189,7 +214,7 @@ watch(type, () => {
       striped
       remote
       :loading="loading"
-      :scroll-x="900"
+      :scroll-x="1200"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
@@ -207,4 +232,17 @@ watch(type, () => {
       }"
     />
   </n-flex>
+  <n-modal
+    v-model:show="logModal"
+    preset="card"
+    :title="$gettext('Logs')"
+    style="width: 60vw"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+    @close="logModal = false"
+    @mask-click="logModal = false"
+  >
+    <realtime-log :service="logService" />
+  </n-modal>
 </template>
