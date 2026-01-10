@@ -5,23 +5,11 @@ import { useGettext } from 'vue3-gettext'
 const { $gettext } = useGettext()
 const router = useRouter()
 
-const { data, send } = useRequest(() => task.status(), { initialData: { task: false } })
+const { data } = useRequest(() => task.status(), { initialData: { task: false } })
 
 const goToTask = () => {
   router.push({ path: '/task', query: { tab: 'task' } })
 }
-
-let timer: ReturnType<typeof setInterval> | null = null
-
-onMounted(() => {
-  timer = setInterval(send, 5000)
-})
-
-onUnmounted(() => {
-  if (timer) {
-    clearInterval(timer)
-  }
-})
 </script>
 
 <template>
