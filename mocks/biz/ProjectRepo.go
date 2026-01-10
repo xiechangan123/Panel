@@ -183,9 +183,9 @@ func (_c *ProjectRepo_Get_Call) RunAndReturn(run func(uint) (*types.ProjectDetai
 	return _c
 }
 
-// List provides a mock function with given fields: page, limit
-func (_m *ProjectRepo) List(page uint, limit uint) ([]*types.ProjectDetail, int64, error) {
-	ret := _m.Called(page, limit)
+// List provides a mock function with given fields: typ, page, limit
+func (_m *ProjectRepo) List(typ types.ProjectType, page uint, limit uint) ([]*types.ProjectDetail, int64, error) {
+	ret := _m.Called(typ, page, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -194,25 +194,25 @@ func (_m *ProjectRepo) List(page uint, limit uint) ([]*types.ProjectDetail, int6
 	var r0 []*types.ProjectDetail
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(uint, uint) ([]*types.ProjectDetail, int64, error)); ok {
-		return rf(page, limit)
+	if rf, ok := ret.Get(0).(func(types.ProjectType, uint, uint) ([]*types.ProjectDetail, int64, error)); ok {
+		return rf(typ, page, limit)
 	}
-	if rf, ok := ret.Get(0).(func(uint, uint) []*types.ProjectDetail); ok {
-		r0 = rf(page, limit)
+	if rf, ok := ret.Get(0).(func(types.ProjectType, uint, uint) []*types.ProjectDetail); ok {
+		r0 = rf(typ, page, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*types.ProjectDetail)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint, uint) int64); ok {
-		r1 = rf(page, limit)
+	if rf, ok := ret.Get(1).(func(types.ProjectType, uint, uint) int64); ok {
+		r1 = rf(typ, page, limit)
 	} else {
 		r1 = ret.Get(1).(int64)
 	}
 
-	if rf, ok := ret.Get(2).(func(uint, uint) error); ok {
-		r2 = rf(page, limit)
+	if rf, ok := ret.Get(2).(func(types.ProjectType, uint, uint) error); ok {
+		r2 = rf(typ, page, limit)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -226,15 +226,16 @@ type ProjectRepo_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
+//   - typ types.ProjectType
 //   - page uint
 //   - limit uint
-func (_e *ProjectRepo_Expecter) List(page interface{}, limit interface{}) *ProjectRepo_List_Call {
-	return &ProjectRepo_List_Call{Call: _e.mock.On("List", page, limit)}
+func (_e *ProjectRepo_Expecter) List(typ interface{}, page interface{}, limit interface{}) *ProjectRepo_List_Call {
+	return &ProjectRepo_List_Call{Call: _e.mock.On("List", typ, page, limit)}
 }
 
-func (_c *ProjectRepo_List_Call) Run(run func(page uint, limit uint)) *ProjectRepo_List_Call {
+func (_c *ProjectRepo_List_Call) Run(run func(typ types.ProjectType, page uint, limit uint)) *ProjectRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(uint))
+		run(args[0].(types.ProjectType), args[1].(uint), args[2].(uint))
 	})
 	return _c
 }
@@ -244,7 +245,7 @@ func (_c *ProjectRepo_List_Call) Return(_a0 []*types.ProjectDetail, _a1 int64, _
 	return _c
 }
 
-func (_c *ProjectRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*types.ProjectDetail, int64, error)) *ProjectRepo_List_Call {
+func (_c *ProjectRepo_List_Call) RunAndReturn(run func(types.ProjectType, uint, uint) ([]*types.ProjectDetail, int64, error)) *ProjectRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
