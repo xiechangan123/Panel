@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import TheIconLocal from '@/components/custom/TheIconLocal.vue'
-
 defineOptions({
   name: 'home-index'
 })
@@ -19,6 +17,7 @@ import { NButton, NPopconfirm, useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
+import TheIconLocal from '@/components/custom/TheIconLocal.vue'
 import { router } from '@/router'
 import { useTabStore } from '@/store'
 import { formatDateTime, formatDuration, toTimestamp } from '@/utils/common'

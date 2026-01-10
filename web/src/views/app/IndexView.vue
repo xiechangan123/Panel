@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { useTabStore } from '@/store'
-
 defineOptions({
   name: 'app-index'
 })
@@ -9,6 +7,7 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
+import { useTabStore } from '@/store'
 import AppView from '@/views/app/AppView.vue'
 import EnvironmentView from '@/views/app/EnvironmentView.vue'
 import TemplateView from '@/views/app/TemplateView.vue'

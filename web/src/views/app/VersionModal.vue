@@ -27,6 +27,7 @@ const options = computed(() => {
 })
 
 const handleSubmit = () => {
+  doSubmit.value = true
   useRequest(app.install(info.value.slug, model.value.channel))
     .onSuccess(() => {
       window.$message.success(

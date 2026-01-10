@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import ComposeView from '@/views/container/ComposeView.vue'
-import { useGettext } from 'vue3-gettext'
-
 defineOptions({
   name: 'container-index'
 })
 
+import { useGettext } from 'vue3-gettext'
+
+import ComposeView from '@/views/container/ComposeView.vue'
 import ContainerView from '@/views/container/ContainerView.vue'
 import ImageView from '@/views/container/ImageView.vue'
 import NetworkView from '@/views/container/NetworkView.vue'
