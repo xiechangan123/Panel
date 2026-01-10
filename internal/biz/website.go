@@ -19,7 +19,7 @@ const (
 type Website struct {
 	ID        uint        `gorm:"primaryKey" json:"id"`
 	Name      string      `gorm:"not null;default:'';unique" json:"name"`
-	Type      WebsiteType `gorm:"not null;default:'static'" json:"type"`
+	Type      WebsiteType `gorm:"not null;index;default:'static'" json:"type"`
 	Status    bool        `gorm:"not null;default:true" json:"status"`
 	Path      string      `gorm:"not null;default:''" json:"path"`
 	SSL       bool        `gorm:"not null;default:false" json:"ssl"`

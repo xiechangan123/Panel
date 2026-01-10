@@ -22,6 +22,7 @@ type Http struct {
 	home             *service.HomeService
 	task             *service.TaskService
 	website          *service.WebsiteService
+	project          *service.ProjectService
 	database         *service.DatabaseService
 	databaseServer   *service.DatabaseServerService
 	databaseUser     *service.DatabaseUserService
@@ -61,6 +62,7 @@ func NewHttp(
 	home *service.HomeService,
 	task *service.TaskService,
 	website *service.WebsiteService,
+	project *service.ProjectService,
 	database *service.DatabaseService,
 	databaseServer *service.DatabaseServerService,
 	databaseUser *service.DatabaseUserService,
@@ -99,6 +101,7 @@ func NewHttp(
 		home:             home,
 		task:             task,
 		website:          website,
+		project:          project,
 		database:         database,
 		databaseServer:   databaseServer,
 		databaseUser:     databaseUser,
@@ -197,6 +200,14 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/{id}/reset_config", route.website.ResetConfig)
 			r.Post("/{id}/status", route.website.UpdateStatus)
 			r.Post("/{id}/obtain_cert", route.website.ObtainCert)
+		})
+
+		r.Route("/project", func(r chi.Router) {
+			r.Get("/", route.project.List)
+			r.Post("/", route.project.Create)
+			r.Get("/{id}", route.project.Get)
+			r.Put("/{id}", route.project.Update)
+			r.Delete("/{id}", route.project.Delete)
 		})
 
 		r.Route("/database", func(r chi.Router) {

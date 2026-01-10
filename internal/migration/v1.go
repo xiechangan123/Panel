@@ -50,4 +50,13 @@ func init() {
 			)
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260110-add-project",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.Project{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.Project{})
+		},
+	})
 }
