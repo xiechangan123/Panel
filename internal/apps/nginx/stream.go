@@ -593,6 +593,9 @@ func parseNginxDuration(value string) time.Duration {
 	if len(value) == 0 {
 		return 0
 	}
+	if len(value) == 1 {
+		value += "s" // 单个字符，默认为秒
+	}
 
 	unit := value[len(value)-1]
 	numStr := value[:len(value)-1]

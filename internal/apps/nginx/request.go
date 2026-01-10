@@ -7,16 +7,16 @@ type UpdateConfig struct {
 }
 
 type StreamServer struct {
-	Name                string        `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"` // 配置名称，用于文件命名
-	Listen              string        `form:"listen" json:"listen" validate:"required"`                    // 监听地址，如: "12345", "0.0.0.0:12345", "[::]:12345"
-	UDP                 bool          `form:"udp" json:"udp"`                                              // 是否 UDP 协议
-	ProxyPass           string        `form:"proxy_pass" json:"proxy_pass" validate:"required"`            // 代理地址，如: "127.0.0.1:3306", "upstream_name"
-	ProxyProtocol       bool          `form:"proxy_protocol" json:"proxy_protocol"`                        // 是否启用 PROXY 协议
-	ProxyTimeout        time.Duration `form:"proxy_timeout" json:"proxy_timeout"`                          // 代理超时时间
-	ProxyConnectTimeout time.Duration `form:"proxy_connect_timeout" json:"proxy_connect_timeout"`          // 代理连接超时时间
-	SSL                 bool          `form:"ssl" json:"ssl"`                                              // 是否启用 SSL
-	SSLCertificate      string        `form:"ssl_certificate" json:"ssl_certificate"`                      // SSL 证书路径
-	SSLCertificateKey   string        `form:"ssl_certificate_key" json:"ssl_certificate_key"`              // SSL 私钥路径
+	Name                string        `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`                   // 配置名称，用于文件命名
+	Listen              string        `form:"listen" json:"listen" validate:"required"`                                      // 监听地址，如: "12345", "0.0.0.0:12345", "[::]:12345"
+	UDP                 bool          `form:"udp" json:"udp"`                                                                // 是否 UDP 协议
+	ProxyPass           string        `form:"proxy_pass" json:"proxy_pass" validate:"required"`                              // 代理地址，如: "127.0.0.1:3306", "upstream_name"
+	ProxyProtocol       bool          `form:"proxy_protocol" json:"proxy_protocol"`                                          // 是否启用 PROXY 协议
+	ProxyTimeout        time.Duration `form:"proxy_timeout" json:"proxy_timeout"`                                            // 代理超时时间
+	ProxyConnectTimeout time.Duration `form:"proxy_connect_timeout" json:"proxy_connect_timeout"`                            // 代理连接超时时间
+	SSL                 bool          `form:"ssl" json:"ssl"`                                                                // 是否启用 SSL
+	SSLCertificate      string        `form:"ssl_certificate" json:"ssl_certificate" validate:"requiredIf:SSL,true"`         // SSL 证书路径
+	SSLCertificateKey   string        `form:"ssl_certificate_key" json:"ssl_certificate_key" validate:"requiredIf:SSL,true"` // SSL 私钥路径
 }
 
 type StreamUpstream struct {

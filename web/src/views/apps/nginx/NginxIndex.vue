@@ -481,7 +481,8 @@ const handleDeleteStreamUpstream = (name: string) => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This modifies the OpenResty main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!'
+                'This modifies the %{name} main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!',
+                { name: service === 'nginx' ? 'Nginx' : 'OpenResty' }
               )
             }}
           </n-alert>
