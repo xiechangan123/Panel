@@ -117,11 +117,13 @@ function handleExpandedKeysUpdate(keys: string[]) {
 }
 
 // 选择节点（打开文件）
-async function handleSelect(keys: string[], option: TreeOption[]) {
+function handleSelect(keys: string[], option: (TreeOption | null)[]) {
   if (keys.length === 0) return
   selectedKeys.value = keys
 
   const node = option[0]
+  if (!node) return
+
   const isDir = (node as any)?.isDir
 
   // 搜索模式下点击文件夹，跳转到该目录
@@ -784,7 +786,7 @@ defineExpose({
           @update:selected-keys="handleSelect"
           selectable
           expand-on-click
-          virtual-scroll
+          virtual-scrollå
           class="file-tree-content"
           style="height: 100%"
         />

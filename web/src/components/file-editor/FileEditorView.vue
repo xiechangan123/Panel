@@ -64,7 +64,7 @@ watch(rootPath, (newPath) => {
 
 // 键盘快捷键
 function handleKeydown(e: KeyboardEvent) {
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+  const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent)
   const modKey = isMac ? e.metaKey : e.ctrlKey
 
   // Ctrl/Cmd+S 保存

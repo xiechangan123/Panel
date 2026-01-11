@@ -40,10 +40,10 @@ const encodings = ['utf-8', 'gbk', 'gb2312', 'iso-8859-1', 'utf-16', 'utf-16le',
 
 // 缩进选项
 const indentOptions = computed(() => [
-  { label: `${$gettext('Spaces')}: 2`, value: { tabSize: 2, insertSpaces: true } },
-  { label: `${$gettext('Spaces')}: 4`, value: { tabSize: 4, insertSpaces: true } },
-  { label: `${$gettext('Tabs')}: 2`, value: { tabSize: 2, insertSpaces: false } },
-  { label: `${$gettext('Tabs')}: 4`, value: { tabSize: 4, insertSpaces: false } }
+  { label: `${$gettext('Spaces')}: 2`, value: '2-spaces' },
+  { label: `${$gettext('Spaces')}: 4`, value: '4-spaces' },
+  { label: `${$gettext('Tabs')}: 2`, value: '2-tabs' },
+  { label: `${$gettext('Tabs')}: 4`, value: '4-tabs' }
 ])
 
 // 当前缩进显示
@@ -74,8 +74,12 @@ function handleLanguageChange(value: string) {
 }
 
 // 更新缩进
-function handleIndentChange(value: { tabSize: number; insertSpaces: boolean }) {
-  editorStore.updateSettings(value)
+function handleIndentChange(value: string) {
+  const [size, type] = value.split('-')
+  editorStore.updateSettings({
+    tabSize: parseInt(size),
+    insertSpaces: type === 'spaces'
+  })
 }
 </script>
 

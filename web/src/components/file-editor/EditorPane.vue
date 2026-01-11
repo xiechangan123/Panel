@@ -51,7 +51,7 @@ async function initEditor() {
     // Display settings
     lineNumbers: settings.lineNumbers,
     renderWhitespace: settings.renderWhitespace,
-    'bracketPairColorization.enabled': settings.bracketPairColorization,
+    bracketPairColorization: { enabled: settings.bracketPairColorization },
     guides: {
       indentation: settings.guides,
       bracketPairs: settings.guides
@@ -308,7 +308,7 @@ watch(
       // Display settings
       lineNumbers: settings.lineNumbers,
       renderWhitespace: settings.renderWhitespace,
-      'bracketPairColorization.enabled': settings.bracketPairColorization,
+      bracketPairColorization: { enabled: settings.bracketPairColorization },
       guides: {
         indentation: settings.guides,
         bracketPairs: settings.guides

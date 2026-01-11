@@ -142,9 +142,10 @@ function handleSettings() {
 }
 
 // 字体大小调整
-function handleFontSizeChange(delta: number) {
-  const newSize = Math.max(10, Math.min(24, editorStore.settings.fontSize + delta))
-  editorStore.updateSettings({ fontSize: newSize })
+function handleFontSizeChange(value: number | null) {
+  if (value !== null) {
+    editorStore.updateSettings({ fontSize: value })
+  }
 }
 
 // 切换小地图
@@ -244,21 +245,16 @@ defineExpose({
       <n-divider vertical />
 
       <!-- 视图操作 -->
-      <n-button-group size="small">
-        <n-button @click="handleFontSizeChange(-1)" :title="$gettext('Decrease Font Size')">
-          <template #icon>
-            <i-mdi-format-font-size-decrease />
-          </template>
-        </n-button>
-        <n-button class="font-size-display">
-          {{ editorStore.settings.fontSize }}
-        </n-button>
-        <n-button @click="handleFontSizeChange(1)" :title="$gettext('Increase Font Size')">
-          <template #icon>
-            <i-mdi-format-font-size-increase />
-          </template>
-        </n-button>
-      </n-button-group>
+      <n-input-number
+        :value="editorStore.settings.fontSize"
+        @update:value="handleFontSizeChange"
+        size="small"
+        button-placement="both"
+        :min="10"
+        :max="24"
+        :show-button="true"
+        class="w-80"
+      />
 
       <n-button
         size="small"
@@ -304,11 +300,5 @@ defineExpose({
 
 .spacer {
   flex: 1;
-}
-
-.font-size-display {
-  min-width: 40px;
-  cursor: default;
-  pointer-events: none;
 }
 </style>
