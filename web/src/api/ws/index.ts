@@ -13,6 +13,17 @@ export default {
       ws.onerror = (e) => reject(e)
     })
   },
+  // PTY 命令执行
+  pty: (command: string): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/pty`)
+      ws.onopen = () => {
+        ws.send(command)
+        resolve(ws)
+      }
+      ws.onerror = (e) => reject(e)
+    })
+  },
   // 连接SSH
   ssh: (id: number): Promise<WebSocket> => {
     return new Promise((resolve, reject) => {

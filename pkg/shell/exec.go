@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"slices"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/creack/pty"
@@ -208,7 +207,7 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 	}
 	defer func(f *os.File) { _ = f.Close() }(f)
 
-	if _, err = io.Copy(&out, f); ptyError(err) != nil {
+	if _, err = io.Copy(&out, f); IsPTYError(err) != nil {
 		return "", fmt.Errorf("run %s failed, out: %s, err: %w", shell, strings.TrimSpace(out.String()), err)
 	}
 	if stderr.Len() > 0 {
@@ -227,16 +226,4 @@ func preCheckArg(args []any) bool {
 	}
 
 	return true
-}
-
-// Linux kernel return EIO when attempting to read from a master pseudo
-// terminal which no longer has an open slave. So ignore error here.
-// See https://github.com/creack/pty/issues/21
-func ptyError(err error) error {
-	var pathErr *os.PathError
-	if !errors.As(err, &pathErr) || !errors.Is(pathErr.Err, syscall.EIO) {
-		return err
-	}
-
-	return nil
 }

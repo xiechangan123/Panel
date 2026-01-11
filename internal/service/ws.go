@@ -38,49 +38,6 @@ func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh b
 	}
 }
 
-func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	info, err := s.sshRepo.Get(req.ID)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	ws, err := s.upgrade(w, r)
-	if err != nil {
-		s.log.Warn("[Websocket] upgrade session ws error", slog.Any("err", err))
-		return
-	}
-	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
-
-	client, err := ssh.NewSSHClient(info.Config)
-	if err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
-		return
-	}
-	defer func(client *stdssh.Client) { _ = client.Close() }(client)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	turn, err := ssh.NewTurn(ctx, ws, client)
-	if err != nil {
-		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
-		return
-	}
-
-	go func() {
-		defer turn.Close() // Handle 退出后关闭 SSH 连接，以结束 Wait 阶段
-		_ = turn.Handle(ctx)
-	}()
-
-	turn.Wait()
-}
-
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
@@ -90,7 +47,7 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
 	// 第一条消息是命令
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	_, cmd, err := ws.Read(ctx)
@@ -119,7 +76,91 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	s.readLoop(ctx, ws)
 }
 
-// ContainerTerminal 容器终端 WebSocket 处理
+// PTY 通用 PTY 命令执行
+// 前端发送第一条消息为要执行的命令，后端通过 PTY 执行并实时返回输出
+func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("[Websocket] upgrade pty ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	// 要执行的命令
+	_, message, err := ws.Read(ctx)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read command: %v", err))
+		return
+	}
+	command := string(message)
+	if command == "" {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("command is empty"))
+		return
+	}
+
+	// PTY 执行命令
+	turn, err := shell.NewPTYTurn(ctx, ws, command)
+	if err != nil {
+		_ = ws.Write(ctx, websocket.MessageBinary, []byte("\r\n"+s.t.Get("Failed to start command: %v", err)+"\r\n"))
+		_ = ws.Close(websocket.StatusNormalClosure, "")
+		return
+	}
+
+	go func() {
+		defer turn.Close()
+		_ = turn.Handle(ctx)
+	}()
+
+	turn.Wait()
+}
+
+func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ID](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	info, err := s.sshRepo.Get(req.ID)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("[Websocket] upgrade session ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	sshClient, err := ssh.NewSSHClient(info.Config)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+	defer func(sshClient *stdssh.Client) { _ = sshClient.Close() }(sshClient)
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	turn, err := ssh.NewTurn(ctx, ws, sshClient)
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+
+	go func() {
+		defer turn.Close() // Handle 退出后关闭 SSH 连接，以结束 Wait 阶段
+		_ = turn.Handle(ctx)
+	}()
+
+	turn.Wait()
+}
+
+// ContainerTerminal 容器终端
 func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ContainerID](r)
 	if err != nil {
@@ -134,7 +175,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	// 默认使用 bash 作为 shell，如果不存在则回退到 sh
@@ -155,30 +196,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 	turn.Wait()
 }
 
-func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
-	opts := &websocket.AcceptOptions{
-		CompressionMode: websocket.CompressionContextTakeover,
-	}
-
-	// debug 模式下不校验 origin，方便 vite 代理调试
-	if s.conf.App.Debug {
-		opts.InsecureSkipVerify = true
-	}
-
-	return websocket.Accept(w, r, opts)
-}
-
-// readLoop 阻塞直到客户端关闭连接
-func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
-	for {
-		if _, _, err := c.Read(ctx); err != nil {
-			_ = c.CloseNow()
-			break
-		}
-	}
-}
-
-// ContainerImagePull 镜像拉取 WebSocket 处理
+// ContainerImagePull 镜像拉取
 func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
@@ -187,7 +205,7 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
 	_, message, err := ws.Read(ctx)
@@ -268,4 +286,27 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	})
 	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
 	_ = ws.Close(websocket.StatusNormalClosure, "")
+}
+
+func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+	opts := &websocket.AcceptOptions{
+		CompressionMode: websocket.CompressionContextTakeover,
+	}
+
+	// debug 模式下不校验 origin，方便 vite 代理调试
+	if s.conf.App.Debug {
+		opts.InsecureSkipVerify = true
+	}
+
+	return websocket.Accept(w, r, opts)
+}
+
+// readLoop 阻塞直到客户端关闭连接
+func (s *WsService) readLoop(ctx context.Context, c *websocket.Conn) {
+	for {
+		if _, _, err := c.Read(ctx); err != nil {
+			_ = c.CloseNow()
+			break
+		}
+	}
 }

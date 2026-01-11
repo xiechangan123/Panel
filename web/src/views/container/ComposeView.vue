@@ -3,6 +3,7 @@ import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopconfirm, NTag } from
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
+import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useFileStore } from '@/store'
 import { formatDateTime } from '@/utils'
 
@@ -27,6 +28,28 @@ const updateModel = ref({
   envs: []
 })
 const updateModal = ref(false)
+
+// Compose 启动状态
+const upModal = ref(false)
+const upComposeName = ref('')
+const upCommand = ref('')
+
+// 处理 Compose 启动
+const handleComposeUp = (row: any, force: boolean) => {
+  upComposeName.value = row.name
+  let cmd = `docker compose -f ${row.path}/docker-compose.yml up -d`
+  if (force) {
+    cmd += ' --pull always'
+  }
+  upCommand.value = cmd
+  upModal.value = true
+}
+
+// Compose 启动完成
+const handleUpComplete = () => {
+  refresh()
+  forcePull.value = false
+}
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -104,18 +127,7 @@ const columns: any = [
           {
             showIcon: false,
             onPositiveClick: () => {
-              const messageReactive = window.$message.loading($gettext('Starting...'), {
-                duration: 0
-              })
-              useRequest(container.composeUp(row.name, forcePull.value))
-                .onSuccess(() => {
-                  refresh()
-                  forcePull.value = false
-                  window.$message.success($gettext('Start successful'))
-                })
-                .onComplete(() => {
-                  messageReactive?.destroy()
-                })
+              handleComposeUp(row, forcePull.value)
             }
           },
           {
@@ -391,4 +403,10 @@ onMounted(() => {
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
+  <pty-terminal-modal
+    v-model:show="upModal"
+    :title="$gettext('Starting Compose') + ' - ' + upComposeName"
+    :command="upCommand"
+    @complete="handleUpComplete"
+  />
 </template>
