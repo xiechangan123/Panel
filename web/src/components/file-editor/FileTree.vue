@@ -773,6 +773,7 @@ defineExpose({
       <!-- 普通模式：显示文件树 -->
       <n-spin v-else :show="loading" class="tree-spin">
         <n-tree
+          v-if="treeData.length > 0"
           block-line
           :data="treeData"
           :expanded-keys="expandedKeys"
@@ -788,6 +789,7 @@ defineExpose({
           class="file-tree-content"
           style="height: 100%"
         />
+        <n-empty v-else-if="!loading" :description="$gettext('No data')" class="tree-empty" />
       </n-spin>
     </div>
 
@@ -892,5 +894,13 @@ defineExpose({
 
 .search-empty {
   padding: 40px 20px;
+}
+
+.tree-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>

@@ -52,6 +52,7 @@ const permissionFileInfoList = defineModel<FileInfo[]>('permissionFileInfoList',
 })
 
 const editorModal = ref(false)
+const editorMinimized = ref(false)
 const previewModal = ref(false)
 const currentFile = ref('')
 const propertyModal = ref(false)
@@ -276,6 +277,7 @@ const openFile = (row: any) => {
   } else {
     currentFile.value = row.full
     editorModal.value = true
+    editorMinimized.value = false
   }
 }
 
@@ -1418,7 +1420,7 @@ onUnmounted(() => {
   />
 
   <!-- 编辑弹窗 -->
-  <edit-modal v-model:show="editorModal" v-model:file="currentFile" />
+  <edit-modal v-model:show="editorModal" v-model:minimized="editorMinimized" v-model:file="currentFile" />
   <!-- 预览弹窗 -->
   <preview-modal v-model:show="previewModal" v-model:path="currentFile" />
   <!-- 解压弹窗 -->

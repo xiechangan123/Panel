@@ -334,4 +334,14 @@ defineExpose({
   overflow: hidden;
   min-width: 0; /* 允许在 flex 布局中收缩 */
 }
+
+.settings-form {
+  :deep(.n-input-number) {
+    width: 180px;
+  }
+
+  :deep(.n-select) {
+    width: 180px;
+  }
+}
 </style>
