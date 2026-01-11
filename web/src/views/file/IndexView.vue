@@ -5,17 +5,19 @@ defineOptions({
 
 import { useFileStore } from '@/store'
 import CompressModal from '@/views/file/CompressModal.vue'
-import ListTable from '@/views/file/ListTable.vue'
+import ListView from '@/views/file/ListView.vue'
 import PathInput from '@/views/file/PathInput.vue'
 import PermissionModal from '@/views/file/PermissionModal.vue'
 import ToolBar from '@/views/file/ToolBar.vue'
-import type { Marked } from '@/views/file/types'
+import type { FileInfo, Marked } from '@/views/file/types'
 
 const fileStore = useFileStore()
 
 const selected = ref<string[]>([])
 const marked = ref<Marked[]>([])
 const markedType = ref<string>('copy')
+// 权限编辑时的文件信息列表
+const permissionFileInfoList = ref<FileInfo[]>([])
 
 const compress = ref(false)
 const permission = ref(false)
@@ -37,7 +39,7 @@ const permission = ref(false)
         v-model:compress="compress"
         v-model:permission="permission"
       />
-      <list-table
+      <list-view
         v-model:path="fileStore.path"
         v-model:keyword="fileStore.keyword"
         v-model:sub="fileStore.sub"
@@ -46,13 +48,18 @@ const permission = ref(false)
         v-model:markedType="markedType"
         v-model:compress="compress"
         v-model:permission="permission"
+        v-model:permission-file-info-list="permissionFileInfoList"
       />
       <compress-modal
         v-model:show="compress"
         v-model:path="fileStore.path"
         v-model:selected="selected"
       />
-      <permission-modal v-model:show="permission" v-model:selected="selected" />
+      <permission-modal
+        v-model:show="permission"
+        v-model:selected="selected"
+        v-model:file-info-list="permissionFileInfoList"
+      />
     </n-flex>
   </common-page>
 </template>

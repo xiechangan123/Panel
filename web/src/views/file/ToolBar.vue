@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
+import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import { useFileStore } from '@/store'
 import { checkName, lastDirectory } from '@/utils/file'
 import UploadModal from '@/views/file/UploadModal.vue'
 import type { Marked } from '@/views/file/types'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
+const fileStore = useFileStore()
 
 const path = defineModel<string>('path', { type: String, required: true })
 const selected = defineModel<string[]>('selected', { type: Array, default: () => [] })
@@ -13,6 +16,9 @@ const marked = defineModel<Marked[]>('marked', { type: Array, default: () => [] 
 const markedType = defineModel<string>('markedType', { type: String, required: true })
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
+
+// 终端弹窗
+const terminalModal = ref(false)
 
 const upload = ref(false)
 const create = ref(false)
@@ -200,6 +206,37 @@ watch(
     }
   }
 )
+
+// 打开终端
+const openTerminal = () => {
+  terminalModal.value = true
+}
+
+// 切换视图类型
+const toggleViewType = () => {
+  fileStore.toggleViewType()
+}
+
+// 排序选项
+const sortOptions = computed(() => [
+  { label: $gettext('Name'), value: 'name' },
+  { label: $gettext('Size'), value: 'size' },
+  { label: $gettext('Modification Time'), value: 'modify' }
+])
+
+// 当前排序显示文本
+const currentSortLabel = computed(() => {
+  if (!fileStore.sortKey) return $gettext('Sort')
+  const option = sortOptions.value.find((o) => o.value === fileStore.sortKey)
+  const label = option?.label || fileStore.sortKey
+  const arrow = fileStore.sortOrder === 'asc' ? '↑' : '↓'
+  return `${label} ${arrow}`
+})
+
+// 处理排序选择
+const handleSortSelect = (key: string) => {
+  fileStore.setSort(key)
+}
 </script>
 
 <template>
@@ -215,6 +252,28 @@ watch(
     </n-popselect>
     <n-button @click="upload = true">{{ $gettext('Upload') }}</n-button>
     <n-button @click="download = true">{{ $gettext('Remote Download') }}</n-button>
+    <n-button @click="openTerminal">{{ $gettext('Terminal') }}</n-button>
+    <n-popselect :options="sortOptions" :value="fileStore.sortKey" @update:value="handleSortSelect">
+      <n-button>
+        <template #icon>
+          <i-mdi-sort :size="16" />
+        </template>
+        {{ currentSortLabel }}
+      </n-button>
+    </n-popselect>
+    <n-tooltip>
+      <template #trigger>
+        <n-button @click="toggleViewType">
+          <i-mdi-view-list v-if="fileStore.viewType === 'list'" :size="16" />
+          <i-mdi-view-grid v-else :size="16" />
+        </n-button>
+      </template>
+      {{
+        fileStore.viewType === 'list'
+          ? $gettext('Switch to grid view')
+          : $gettext('Switch to list view')
+      }}
+    </n-tooltip>
     <div ml-auto>
       <n-flex>
         <n-button v-if="marked.length" secondary type="error" @click="handleCancel">
@@ -280,6 +339,12 @@ watch(
     </n-space>
   </n-modal>
   <upload-modal v-model:show="upload" v-model:path="path" />
+  <!-- 终端弹窗 -->
+  <pty-terminal-modal
+    v-model:show="terminalModal"
+    :title="$gettext('Terminal - %{ path }', { path })"
+    :command="`cd '${path}' && exec bash`"
+  />
 </template>
 
 <style scoped lang="scss"></style>

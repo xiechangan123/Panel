@@ -3,10 +3,13 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
+import type { FileInfo } from '@/views/file/types'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const selected = defineModel<string[]>('selected', { type: Array, required: true })
+// 文件信息列表，用于获取当前所有者和组
+const fileInfoList = defineModel<FileInfo[]>('fileInfoList', { type: Array, default: () => [] })
 const mode = ref('755')
 const owner = ref('www')
 const group = ref('www')
@@ -17,6 +20,28 @@ const checkbox = ref({
   other: ['read', 'execute']
 })
 
+// 规范化 mode 字符串，确保为3位数字
+const normalizeMode = (modeStr: string): string => {
+  // 去掉前导0，但保留至少一位数字
+  const trimmed = modeStr.replace(/^0+(?=\d)/, '')
+  // 确保 mode 至少有3位，不足则左补0
+  return trimmed.padStart(3, '0') || '755'
+}
+
+// 当打开弹窗时，从文件信息中获取当前权限/所有者/组
+watch(
+  () => show.value,
+  (newVal) => {
+    if (newVal && fileInfoList.value.length > 0) {
+      const firstFile = fileInfoList.value[0]
+      mode.value = normalizeMode(firstFile.mode)
+      owner.value = firstFile.owner || 'www'
+      group.value = firstFile.group || 'www'
+      updateCheckboxes()
+    }
+  }
+)
+
 const handlePermission = async () => {
   const promises = selected.value.map((path) =>
     file.permission(path, `0${mode.value}`, owner.value, group.value)
@@ -25,6 +50,7 @@ const handlePermission = async () => {
 
   show.value = false
   selected.value = []
+  fileInfoList.value = []
   window.$bus.emit('file:refresh')
   window.$message.success($gettext('Modified successfully'))
 }
@@ -46,7 +72,9 @@ const calculateMode = () => {
 }
 
 const updateCheckboxes = () => {
-  const permissions = mode.value.split('').map(Number)
+  const paddedMode = normalizeMode(mode.value)
+  const permissions = paddedMode.split('').map(Number)
+
   checkbox.value.owner = permissions[0] & 4 ? ['read'] : []
   if (permissions[0] & 2) checkbox.value.owner.push('write')
   if (permissions[0] & 1) checkbox.value.owner.push('execute')
@@ -61,6 +89,9 @@ const updateCheckboxes = () => {
 }
 
 const title = computed(() => {
+  if (selected.value.length === 0) {
+    return $gettext('Modify permissions')
+  }
   return selected.value.length > 1
     ? $gettext('Batch modify permissions')
     : $gettext('Modify permissions - %{ path }', { path: selected.value[0] })
