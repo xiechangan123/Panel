@@ -906,8 +906,24 @@ const goToParentDir = () => {
   path.value = parentPath
 }
 
+// 键盘快捷键暂停状态
+const keyboardPaused = ref(false)
+
+const pauseKeyboard = () => {
+  keyboardPaused.value = true
+}
+
+const resumeKeyboard = () => {
+  keyboardPaused.value = false
+}
+
 // 键盘快捷键处理
 const handleKeyDown = (event: KeyboardEvent) => {
+  // 如果键盘监听被暂停（如编辑器打开时），不处理快捷键
+  if (keyboardPaused.value) {
+    return
+  }
+
   // 如果焦点在输入框中，不处理快捷键
   const target = event.target as HTMLElement
   if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
@@ -1116,6 +1132,8 @@ onMounted(() => {
 
   window.$bus.on('file:search', handleFileSearch)
   window.$bus.on('file:refresh', refresh)
+  window.$bus.on('file:keyboard-pause', pauseKeyboard)
+  window.$bus.on('file:keyboard-resume', resumeKeyboard)
 
   // 添加全局鼠标事件监听
   document.addEventListener('mousemove', onSelectionMove)
@@ -1135,6 +1153,8 @@ onUnmounted(() => {
   // 移除事件监听
   window.$bus.off('file:search', handleFileSearch)
   window.$bus.off('file:refresh', refresh)
+  window.$bus.off('file:keyboard-pause', pauseKeyboard)
+  window.$bus.off('file:keyboard-resume', resumeKeyboard)
   document.removeEventListener('mousemove', onSelectionMove)
   document.removeEventListener('mouseup', onSelectionEnd)
   document.removeEventListener('keydown', handleKeyDown)

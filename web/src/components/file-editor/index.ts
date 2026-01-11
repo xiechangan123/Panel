@@ -1,0 +1,5 @@
+export { default as FileEditorView } from './FileEditorView.vue'
+export { default as FileTree } from './FileTree.vue'
+export { default as EditorPane } from './EditorPane.vue'
+export { default as EditorToolbar } from './EditorToolbar.vue'
+export { default as EditorStatusBar } from './EditorStatusBar.vue'
