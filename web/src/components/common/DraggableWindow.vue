@@ -222,12 +222,18 @@ watch(show, (newShow) => {
 })
 
 // 监听窗口大小变化
+function handleWindowResize() {
+  if (isMaximized.value) {
+    size.value = { width: window.innerWidth, height: window.innerHeight }
+  }
+}
+
 onMounted(() => {
-  window.addEventListener('resize', () => {
-    if (isMaximized.value) {
-      size.value = { width: window.innerWidth, height: window.innerHeight }
-    }
-  })
+  window.addEventListener('resize', handleWindowResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleWindowResize)
 })
 </script>
 
@@ -363,7 +369,7 @@ onMounted(() => {
   gap: 4px;
 }
 
-.draggable-window .control-btn {
+.control-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -394,7 +400,7 @@ onMounted(() => {
 }
 
 // 调整大小的手柄
-.draggable-window .resize-handle {
+.resize-handle {
   position: absolute;
 
   &.n,

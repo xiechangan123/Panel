@@ -103,5 +103,3 @@ watch(minimized, (isMinimized) => {
     <FileEditorView ref="editorRef" :initial-path="initialPath" />
   </DraggableWindow>
 </template>
-
-<style scoped lang="scss"></style>

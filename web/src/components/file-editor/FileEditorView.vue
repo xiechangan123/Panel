@@ -111,8 +111,8 @@ defineExpose({
     />
 
     <!-- 主体区域 -->
-    <div class="editor-main">
-      <n-layout has-sider class="editor-layout">
+    <div class="flex-1 overflow-hidden">
+      <n-layout has-sider class="h-full">
         <!-- 左侧文件树 -->
         <n-layout-sider
           bordered
@@ -128,8 +128,8 @@ defineExpose({
         </n-layout-sider>
 
         <!-- 右侧编辑器区域（包含编辑器和状态栏） -->
-        <n-layout class="editor-content">
-          <div class="editor-wrapper">
+        <n-layout class="h-full overflow-hidden">
+          <div class="flex flex-col h-full min-w-0 overflow-hidden">
             <EditorPane ref="editorPaneRef" :read-only="readOnly" />
             <EditorStatusBar />
           </div>
@@ -305,34 +305,12 @@ defineExpose({
   background: var(--n-card-color);
 }
 
-.editor-main {
-  flex: 1;
-  overflow: hidden;
-}
-
-.editor-layout {
-  height: 100%;
-}
-
 .file-tree-sider {
   height: 100%;
 
   :deep(.n-layout-sider-scroll-container) {
     height: 100%;
   }
-}
-
-.editor-content {
-  height: 100%;
-  overflow: hidden;
-}
-
-.editor-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  min-width: 0; /* 允许在 flex 布局中收缩 */
 }
 
 .settings-form {

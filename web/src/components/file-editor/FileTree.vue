@@ -105,8 +105,7 @@ async function initTree() {
 async function handleLoad(node: TreeOption): Promise<void> {
   if (node.isLeaf) return
   try {
-    const children = await loadDirectory(node.key as string)
-    node.children = children
+    node.children = await loadDirectory(node.key as string)
   } catch {
     node.children = []
   }
@@ -715,7 +714,7 @@ defineExpose({
         size="small"
         :placeholder="$gettext('Search')"
         clearable
-        class="search-input"
+        class="flex-1 min-w-0"
       >
         <template #prefix>
           <i-mdi-magnify />
@@ -767,7 +766,7 @@ defineExpose({
         <n-empty
           v-else-if="!searchLoading"
           :description="$gettext('No results found')"
-          class="search-empty"
+          class="px-5 py-10"
         />
       </n-spin>
       <!-- 普通模式：显示文件树 -->
@@ -789,7 +788,11 @@ defineExpose({
           class="file-tree-content"
           style="height: 100%"
         />
-        <n-empty v-else-if="!loading" :description="$gettext('No data')" class="tree-empty" />
+        <n-empty
+          v-else-if="!loading"
+          :description="$gettext('No data')"
+          class="flex flex-col h-full items-center justify-center"
+        />
       </n-spin>
     </div>
 
@@ -822,11 +825,6 @@ defineExpose({
   padding: 8px;
   border-bottom: 1px solid v-bind('themeVars.borderColor');
   flex-shrink: 0;
-}
-
-.search-input {
-  flex: 1;
-  min-width: 0;
 }
 
 .current-path {
@@ -890,17 +888,5 @@ defineExpose({
 .file-tree-content {
   height: 100%;
   overflow: auto;
-}
-
-.search-empty {
-  padding: 40px 20px;
-}
-
-.tree-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
 }
 </style>
