@@ -254,7 +254,14 @@ defineExpose({
         :max="24"
         :show-button="true"
         class="w-80"
-      />
+      >
+        <template #minus-icon>
+          <i-mdi-format-font-size-decrease />
+        </template>
+        <template #add-icon>
+          <i-mdi-format-font-size-increase />
+        </template>
+      </n-input-number>
 
       <n-button
         size="small"
