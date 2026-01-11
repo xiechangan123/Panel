@@ -157,6 +157,13 @@ function handleToggleWordWrap() {
   const current = editorStore.settings.wordWrap
   editorStore.updateSettings({ wordWrap: current === 'on' ? 'off' : 'on' })
 }
+
+// 暴露方法供外部调用
+defineExpose({
+  save: handleSave,
+  saveAll: handleSaveAll,
+  refresh: handleRefresh
+})
 </script>
 
 <template>

@@ -24,6 +24,7 @@ const rootPath = ref(props.initialPath || editorStore.rootPath || '/')
 // 编辑器面板引用
 const editorPaneRef = ref<InstanceType<typeof EditorPane>>()
 const fileTreeRef = ref<InstanceType<typeof FileTree>>()
+const toolbarRef = ref<InstanceType<typeof EditorToolbar>>()
 
 // 设置弹窗
 const showSettings = ref(false)
@@ -63,16 +64,23 @@ watch(rootPath, (newPath) => {
 
 // 键盘快捷键
 function handleKeydown(e: KeyboardEvent) {
-  // Ctrl+S 保存
-  if (e.ctrlKey && e.key === 's' && !e.shiftKey) {
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+  const modKey = isMac ? e.metaKey : e.ctrlKey
+
+  // Ctrl/Cmd+S 保存
+  if (modKey && e.key === 's' && !e.shiftKey) {
     e.preventDefault()
-    // 触发保存
-    const toolbar = document.querySelector('.editor-toolbar button') as HTMLButtonElement
-    toolbar?.click()
+    toolbarRef.value?.save()
   }
-  // Ctrl+Shift+S 全部保存
-  if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+  // Ctrl/Cmd+Shift+S 全部保存
+  if (modKey && e.shiftKey && e.key.toLowerCase() === 's') {
     e.preventDefault()
+    toolbarRef.value?.saveAll()
+  }
+  // F5 或 Ctrl/Cmd+R 刷新当前文件
+  if (e.key === 'F5' || (modKey && e.key === 'r')) {
+    e.preventDefault()
+    toolbarRef.value?.refresh()
   }
 }
 
@@ -95,6 +103,7 @@ defineExpose({
   <div class="file-editor-view">
     <!-- 顶部工具栏 -->
     <EditorToolbar
+      ref="toolbarRef"
       @search="handleSearch"
       @replace="handleReplace"
       @goto="handleGoto"
@@ -315,13 +324,14 @@ defineExpose({
 
 .editor-content {
   height: 100%;
-  overflow: visible; /* 允许 Monaco tooltip 溢出 */
+  overflow: hidden;
 }
 
 .editor-wrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: visible; /* 允许 Monaco tooltip 溢出 */
+  overflow: hidden;
+  min-width: 0; /* 允许在 flex 布局中收缩 */
 }
 </style>

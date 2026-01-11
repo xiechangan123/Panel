@@ -83,7 +83,6 @@ function handleIndentChange(value: { tabSize: number; insertSpaces: boolean }) {
   <div class="editor-status-bar" v-if="editorStore.activeTab">
     <!-- 文件路径 -->
     <div class="status-item path">
-      {{ $gettext('Path') }}:
       <n-ellipsis style="max-width: 400px">
         {{ editorStore.activeTab.path }}
       </n-ellipsis>

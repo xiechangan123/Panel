@@ -24,7 +24,6 @@ const tabsContainerRef = ref<HTMLDivElement>()
 // 标签页滚轮横向滚动
 function handleTabsWheel(e: WheelEvent) {
   if (tabsContainerRef.value) {
-    e.preventDefault()
     tabsContainerRef.value.scrollLeft += e.deltaY
   }
 }
@@ -155,11 +154,18 @@ function handleDragOver(e: DragEvent, index: number) {
   if (e.dataTransfer) {
     e.dataTransfer.dropEffect = 'move'
   }
-  dragOverIndex.value = index
+  // 只在值变化时更新，避免高频触发导致闪烁
+  if (dragOverIndex.value !== index) {
+    dragOverIndex.value = index
+  }
 }
 
-function handleDragLeave() {
-  dragOverIndex.value = null
+function handleDragLeave(e: DragEvent) {
+  // 检查是否离开了整个 tabs 容器，而不是在标签页之间移动
+  const relatedTarget = e.relatedTarget as HTMLElement | null
+  if (!relatedTarget || !tabsContainerRef.value?.contains(relatedTarget)) {
+    dragOverIndex.value = null
+  }
 }
 
 function handleDrop(e: DragEvent, toIndex: number) {
@@ -172,6 +178,28 @@ function handleDrop(e: DragEvent, toIndex: number) {
 }
 
 function handleDragEnd() {
+  dragIndex.value = null
+  dragOverIndex.value = null
+}
+
+// 尾部放置区域的拖拽处理
+function handleDragOverEnd(e: DragEvent) {
+  e.preventDefault()
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = 'move'
+  }
+  const endIndex = editorStore.tabs.length
+  if (dragOverIndex.value !== endIndex) {
+    dragOverIndex.value = endIndex
+  }
+}
+
+function handleDropEnd(e: DragEvent) {
+  e.preventDefault()
+  if (dragIndex.value !== null && dragIndex.value !== editorStore.tabs.length - 1) {
+    // 移动到最后
+    editorStore.reorderTabs(dragIndex.value, editorStore.tabs.length - 1)
+  }
   dragIndex.value = null
   dragOverIndex.value = null
 }
@@ -318,7 +346,7 @@ defineExpose({
   <div class="editor-pane">
     <!-- 标签页栏 -->
     <div class="tabs-bar" v-if="editorStore.tabs.length > 0">
-      <div ref="tabsContainerRef" class="tabs-container" @wheel="handleTabsWheel">
+      <div ref="tabsContainerRef" class="tabs-container" @wheel.prevent="handleTabsWheel">
         <div
           v-for="(tab, index) in editorStore.tabs"
           :key="tab.path"
@@ -333,7 +361,7 @@ defineExpose({
           @contextmenu="handleContextMenu($event, tab.path)"
           @dragstart="handleDragStart($event, index)"
           @dragover="handleDragOver($event, index)"
-          @dragleave="handleDragLeave"
+          @dragleave="handleDragLeave($event)"
           @drop="handleDrop($event, index)"
           @dragend="handleDragEnd"
         >
@@ -352,6 +380,15 @@ defineExpose({
             </template>
           </n-button>
         </div>
+        <!-- 尾部放置区域，用于拖拽到最后 -->
+        <div
+          v-if="dragIndex !== null"
+          class="tab-drop-end"
+          :class="{ 'drag-over': dragOverIndex === editorStore.tabs.length }"
+          @dragover="handleDragOverEnd($event)"
+          @dragleave="handleDragLeave($event)"
+          @drop="handleDropEnd($event)"
+        />
       </div>
     </div>
 
@@ -361,11 +398,7 @@ defineExpose({
         <i-mdi-file-document-outline class="empty-icon" />
         <p>{{ $gettext('Select a file to edit') }}</p>
       </div>
-      <div
-        v-show="editorStore.tabs.length > 0"
-        ref="containerRef"
-        class="monaco-container"
-      />
+      <div v-show="editorStore.tabs.length > 0" ref="containerRef" class="monaco-container" />
       <div v-if="editorStore.activeTab?.loading" class="loading-overlay">
         <n-spin size="medium" />
       </div>
@@ -391,12 +424,14 @@ defineExpose({
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  min-width: 0; /* 允许在 flex 布局中收缩 */
 }
 
 .tabs-bar {
   flex-shrink: 0;
   border-bottom: 1px solid v-bind('themeVars.borderColor');
   background: v-bind('themeVars.cardColor');
+  overflow: hidden;
 }
 
 .tabs-container {
@@ -418,7 +453,9 @@ defineExpose({
   cursor: pointer;
   border-right: 1px solid v-bind('themeVars.borderColor');
   white-space: nowrap;
-  transition: background-color 0.2s, opacity 0.2s;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
   position: relative;
   user-select: none;
 
@@ -444,6 +481,15 @@ defineExpose({
   &.dragging {
     opacity: 0.5;
   }
+
+  &.drag-over {
+    border-left: 2px solid v-bind('themeVars.primaryColor');
+  }
+}
+
+.tab-drop-end {
+  width: 20px;
+  flex-shrink: 0;
 
   &.drag-over {
     border-left: 2px solid v-bind('themeVars.primaryColor');
