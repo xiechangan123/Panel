@@ -64,22 +64,9 @@ func (t *Turn) Write(p []byte) (n int, err error) {
 func (t *Turn) Close() {
 	_ = t.stdin.Close()
 	_ = t.session.Signal(ssh.SIGTERM)
-
-	// 等待最多 10 秒
-	done := make(chan struct{})
-	go func() {
-		_ = t.session.Wait()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-		// 会话已退出
-	case <-time.After(10 * time.Second):
-		// 超时，KILL
-		_ = t.session.Signal(ssh.SIGKILL)
-	}
-
+	// 等待 10 秒
+	time.Sleep(10 * time.Second)
+	_ = t.session.Signal(ssh.SIGKILL)
 	_ = t.session.Close()
 }
 
