@@ -69,6 +69,16 @@ const createModel = ref({
   direction: 'in'
 })
 
+// 当起始端口改变时，同步更新结束端口（如果结束端口小于起始端口）
+watch(
+  () => createModel.value.port_start,
+  (newStart) => {
+    if (createModel.value.port_end < newStart) {
+      createModel.value.port_end = newStart
+    }
+  }
+)
+
 const handleCreate = async () => {
   if (!createModel.value.address.length) {
     createModel.value.address.push('')
@@ -120,7 +130,7 @@ const handleCreate = async () => {
           <n-form-item path="port_end" :label="$gettext('End Port')">
             <n-input-number
               v-model:value="createModel.port_end"
-              :min="1"
+              :min="createModel.port_start"
               :max="65535"
               placeholder="80"
             />
