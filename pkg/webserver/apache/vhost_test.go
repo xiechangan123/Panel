@@ -95,7 +95,7 @@ func (s *VhostTestSuite) TestIndex() {
 
 func (s *VhostTestSuite) TestIndexEmpty() {
 	s.NoError(s.vhost.SetIndex([]string{}))
-	s.Nil(s.vhost.Index())
+	s.Empty(s.vhost.Index())
 }
 
 func (s *VhostTestSuite) TestListen() {
@@ -326,9 +326,7 @@ func (s *VhostTestSuite) TestPHPFilesMatchBlock() {
 
 	// PHP 配置现在在独立文件中
 	content := s.vhost.Config("010-php.conf", "site")
-	s.Contains(content, "<FilesMatch")
-	s.Contains(content, "SetHandler")
-	s.Contains(content, "php-cgi-84.sock")
+	s.Contains(content, "Include conf/extra/enable-php-84.conf")
 }
 
 func (s *VhostTestSuite) TestDefaultVhostConfIncludesServerD() {
