@@ -673,6 +673,52 @@ func (_c *AppRepo_UpdateExist_Call) RunAndReturn(run func(string) bool) *AppRepo
 	return _c
 }
 
+// UpdateOrder provides a mock function with given fields: slugs
+func (_m *AppRepo) UpdateOrder(slugs []string) error {
+	ret := _m.Called(slugs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateOrder")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(slugs)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// AppRepo_UpdateOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateOrder'
+type AppRepo_UpdateOrder_Call struct {
+	*mock.Call
+}
+
+// UpdateOrder is a helper method to define mock.On call
+//   - slugs []string
+func (_e *AppRepo_Expecter) UpdateOrder(slugs interface{}) *AppRepo_UpdateOrder_Call {
+	return &AppRepo_UpdateOrder_Call{Call: _e.mock.On("UpdateOrder", slugs)}
+}
+
+func (_c *AppRepo_UpdateOrder_Call) Run(run func(slugs []string)) *AppRepo_UpdateOrder_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]string))
+	})
+	return _c
+}
+
+func (_c *AppRepo_UpdateOrder_Call) Return(_a0 error) *AppRepo_UpdateOrder_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *AppRepo_UpdateOrder_Call) RunAndReturn(run func([]string) error) *AppRepo_UpdateOrder_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateShow provides a mock function with given fields: slug, show
 func (_m *AppRepo) UpdateShow(slug string, show bool) error {
 	ret := _m.Called(slug, show)
