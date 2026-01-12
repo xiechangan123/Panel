@@ -70,10 +70,88 @@ const inlineRenameItem = ref<any>(null)
 const inlineRenameName = ref('')
 const inlineRenameInputRef = ref<HTMLInputElement | null>(null)
 
+// 内联新建状态
+const inlineCreateActive = ref(false)
+const inlineCreateIsDir = ref(false)
+const inlineCreateName = ref('')
+const inlineCreateInputRef = ref<HTMLInputElement | null>(null)
+
 // 设置内联重命名输入框 ref 的函数
 const setInlineRenameRef = (el: any) => {
   if (el) {
     inlineRenameInputRef.value = el
+  }
+}
+
+// 设置内联新建输入框 ref 的函数
+const setInlineCreateRef = (el: any) => {
+  if (el) {
+    inlineCreateInputRef.value = el
+  }
+}
+
+// 启动内联新建
+const startInlineCreate = (isDir: boolean) => {
+  // 取消正在进行的重命名
+  cancelInlineRename()
+
+  inlineCreateActive.value = true
+  inlineCreateIsDir.value = isDir
+  inlineCreateName.value = ''
+
+  // 等待 DOM 更新后聚焦输入框
+  nextTick(() => {
+    if (inlineCreateInputRef.value) {
+      inlineCreateInputRef.value.focus()
+    }
+  })
+}
+
+// 取消内联新建
+const cancelInlineCreate = () => {
+  inlineCreateActive.value = false
+  inlineCreateIsDir.value = false
+  inlineCreateName.value = ''
+}
+
+// 提交内联新建
+const submitInlineCreate = () => {
+  if (!inlineCreateActive.value) return
+
+  const name = inlineCreateName.value.trim()
+
+  // 如果名称为空，直接取消
+  if (!name) {
+    cancelInlineCreate()
+    return
+  }
+
+  // 验证名称
+  if (!checkName(name)) {
+    window.$message.error($gettext('Invalid name'))
+    return
+  }
+
+  const fullPath = path.value + '/' + name
+
+  useRequest(file.create(fullPath, inlineCreateIsDir.value))
+    .onSuccess(() => {
+      window.$bus.emit('file:refresh')
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      cancelInlineCreate()
+    })
+}
+
+// 处理内联新建键盘事件
+const handleInlineCreateKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    submitInlineCreate()
+  } else if (event.key === 'Escape') {
+    event.preventDefault()
+    cancelInlineCreate()
   }
 }
 
@@ -1136,6 +1214,7 @@ onMounted(() => {
   window.$bus.on('file:refresh', refresh)
   window.$bus.on('file:keyboard-pause', pauseKeyboard)
   window.$bus.on('file:keyboard-resume', resumeKeyboard)
+  window.$bus.on('file:inline-create', startInlineCreate)
 
   // 添加全局鼠标事件监听
   document.addEventListener('mousemove', onSelectionMove)
@@ -1157,6 +1236,7 @@ onUnmounted(() => {
   window.$bus.off('file:refresh', refresh)
   window.$bus.off('file:keyboard-pause', pauseKeyboard)
   window.$bus.off('file:keyboard-resume', resumeKeyboard)
+  window.$bus.off('file:inline-create', startInlineCreate)
   document.removeEventListener('mousemove', onSelectionMove)
   document.removeEventListener('mouseup', onSelectionEnd)
   document.removeEventListener('keydown', handleKeyDown)
@@ -1204,6 +1284,53 @@ onUnmounted(() => {
             <the-icon :icon="getSortIcon('modify')" :size="16" class="align-middle opacity-50" />
           </div>
           <div class="list-col col-actions">{{ $gettext('Actions') }}</div>
+        </div>
+
+        <!-- 内联新建项 -->
+        <div v-if="inlineCreateActive" class="file-item inline-create-item">
+          <!-- 图标视图 -->
+          <template v-if="fileStore.viewType === 'grid'">
+            <div class="icon-wrapper">
+              <the-icon
+                :icon="inlineCreateIsDir ? 'mdi:folder' : 'mdi:file-document-outline'"
+                :size="48"
+                :color="inlineCreateIsDir ? themeVars.warningColor : themeVars.textColor3"
+              />
+            </div>
+            <input
+              :ref="setInlineCreateRef"
+              v-model="inlineCreateName"
+              class="inline-rename-input"
+              :placeholder="inlineCreateIsDir ? $gettext('Folder name') : $gettext('File name')"
+              @blur="submitInlineCreate"
+              @keydown="handleInlineCreateKeydown"
+              @click.stop
+            />
+          </template>
+          <!-- 列表视图 -->
+          <template v-else>
+            <div class="list-col col-name">
+              <the-icon
+                :icon="inlineCreateIsDir ? 'mdi:folder' : 'mdi:file-document-outline'"
+                :size="20"
+                :color="inlineCreateIsDir ? themeVars.warningColor : themeVars.textColor3"
+              />
+              <input
+                :ref="setInlineCreateRef"
+                v-model="inlineCreateName"
+                class="inline-rename-input list-mode"
+                :placeholder="inlineCreateIsDir ? $gettext('Folder name') : $gettext('File name')"
+                @blur="submitInlineCreate"
+                @keydown="handleInlineCreateKeydown"
+                @click.stop
+              />
+            </div>
+            <div class="list-col col-size">-</div>
+            <div class="list-col col-mode">-</div>
+            <div class="list-col col-owner">-</div>
+            <div class="list-col col-modify">-</div>
+            <div class="list-col col-actions">-</div>
+          </template>
         </div>
 
         <!-- 文件/文件夹列表 -->

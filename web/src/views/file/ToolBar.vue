@@ -21,11 +21,6 @@ const permission = defineModel<boolean>('permission', { type: Boolean, required:
 const terminalModal = ref(false)
 
 const upload = ref(false)
-const create = ref(false)
-const createModel = ref({
-  dir: false,
-  path: ''
-})
 const download = ref(false)
 const downloadModel = ref({
   path: '',
@@ -33,23 +28,8 @@ const downloadModel = ref({
 })
 
 const showCreate = (value: string) => {
-  createModel.value.dir = value !== 'file'
-  createModel.value.path = ''
-  create.value = true
-}
-
-const handleCreate = () => {
-  if (!checkName(createModel.value.path)) {
-    window.$message.error($gettext('Invalid name'))
-    return
-  }
-
-  const fullPath = path.value + '/' + createModel.value.path
-  useRequest(file.create(fullPath, createModel.value.dir)).onSuccess(() => {
-    create.value = false
-    window.$bus.emit('file:refresh')
-    window.$message.success($gettext('Created successfully'))
-  })
+  // 触发内联新建事件
+  window.$bus.emit('file:inline-create', value !== 'file')
 }
 
 const handleDownload = () => {
@@ -299,24 +279,6 @@ const handleSortSelect = (key: string) => {
       </n-flex>
     </div>
   </n-flex>
-  <n-modal
-    v-model:show="create"
-    preset="card"
-    :title="$gettext('New')"
-    style="width: 60vw"
-    size="huge"
-    :bordered="false"
-    :segmented="false"
-  >
-    <n-space vertical>
-      <n-form :model="createModel">
-        <n-form-item :label="$gettext('Name')">
-          <n-input v-model:value="createModel.path" />
-        </n-form-item>
-      </n-form>
-      <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
-    </n-space>
-  </n-modal>
   <n-modal
     v-model:show="download"
     preset="card"
