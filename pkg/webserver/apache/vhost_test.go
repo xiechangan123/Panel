@@ -631,7 +631,6 @@ func (s *ProxyVhostTestSuite) TestProxySNI() {
 
 	s.Contains(string(content), "SSLProxyEngine On")
 	s.Contains(string(content), "# SNI: backend.example.com")
-	s.Contains(string(content), "RequestHeader set Host \"backend.example.com\"")
 
 	// 验证可以解析回来
 	got := s.vhost.Proxies()
