@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/apps/apache"
 	"github.com/acepanel/panel/internal/apps/codeserver"
 	"github.com/acepanel/panel/internal/apps/docker"
 	"github.com/acepanel/panel/internal/apps/fail2ban"
@@ -72,6 +73,7 @@ func initCli() (*app.Cli, error) {
 	cli := route.NewCli(locale, cliService)
 	command := bootstrap.NewCli(locale, cli)
 	gormigrate := bootstrap.NewMigrate(db)
+	apacheApp := apache.NewApp(locale)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
@@ -92,7 +94,7 @@ func initCli() (*app.Cli, error) {
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
+	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }

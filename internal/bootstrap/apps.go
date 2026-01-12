@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"github.com/acepanel/panel/internal/apps/apache"
 	"github.com/acepanel/panel/internal/apps/codeserver"
 	"github.com/acepanel/panel/internal/apps/docker"
 	"github.com/acepanel/panel/internal/apps/fail2ban"
@@ -25,6 +26,7 @@ import (
 )
 
 func NewLoader(
+	apache *apache.App,
 	codeserver *codeserver.App,
 	docker *docker.App,
 	fail2ban *fail2ban.App,
@@ -47,6 +49,6 @@ func NewLoader(
 	supervisor *supervisor.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(codeserver, docker, fail2ban, frp, gitea, mariadb, memcached, minio, mysql, nginx, openresty, percona, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor)
+	loader.Add(apache, codeserver, docker, fail2ban, frp, gitea, mariadb, memcached, minio, mysql, nginx, openresty, percona, phpmyadmin, podman, postgresql, pureftpd, redis, rsync, s3fs, supervisor)
 	return loader
 }

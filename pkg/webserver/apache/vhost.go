@@ -165,7 +165,12 @@ func (v *baseVhost) Listen() []types.Listen {
 func (v *baseVhost) SetListen(listens []types.Listen) error {
 	var args []string
 	for _, l := range listens {
-		args = append(args, l.Address)
+		addr := l.Address
+		// 如果只是端口号，添加 *: 前缀
+		if !strings.Contains(addr, ":") {
+			addr = "*:" + addr
+		}
+		args = append(args, addr)
 	}
 	v.vhost.Args = args
 	return nil

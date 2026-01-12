@@ -3,6 +3,7 @@ package apps
 import (
 	"github.com/google/wire"
 
+	"github.com/acepanel/panel/internal/apps/apache"
 	"github.com/acepanel/panel/internal/apps/codeserver"
 	"github.com/acepanel/panel/internal/apps/docker"
 	"github.com/acepanel/panel/internal/apps/fail2ban"
@@ -26,6 +27,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
+	apache.NewApp,
 	codeserver.NewApp,
 	docker.NewApp,
 	fail2ban.NewApp,

@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/acepanel/panel/internal/app"
+	"github.com/acepanel/panel/internal/apps/apache"
 	"github.com/acepanel/panel/internal/apps/codeserver"
 	"github.com/acepanel/panel/internal/apps/docker"
 	"github.com/acepanel/panel/internal/apps/fail2ban"
@@ -127,6 +128,7 @@ func initWeb() (*app.Web, error) {
 	toolboxLogService := service.NewToolboxLogService(locale, db, containerImageRepo, settingRepo)
 	webHookRepo := data.NewWebHookRepo(locale, db, logger)
 	webHookService := service.NewWebHookService(webHookRepo)
+	apacheApp := apache.NewApp(locale)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
@@ -147,7 +149,7 @@ func initWeb() (*app.Web, error) {
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	loader := bootstrap.NewLoader(codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
+	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
 	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseUserService, backupService, certService, certDNSService, certAccountService, appService, environmentService, environmentPHPService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, webHookService, loader)
 	wsService := service.NewWsService(locale, config, logger, sshRepo)
 	ws := route.NewWs(wsService)
