@@ -281,15 +281,32 @@ function formatMemory(value: number | string): string {
 }
 
 // 基础图表配置
-function createBaseOption(valueFormatter?: any) {
+function createBaseOption(valueFormatter?: any, timeRangeMs?: number) {
+  // 根据时间范围决定刻度间隔：大于1天用4小时，否则用2小时
+  const oneDayMs = 24 * 60 * 60 * 1000
+  const hourInterval = timeRangeMs && timeRangeMs > oneDayMs ? 4 : 2
+
   const xAxisConfig = {
     type: 'category' as const,
     boundaryGap: false,
     data: [] as string[],
     axisLabel: {
+      interval: (index: number, value: string) => {
+        // 根据时间范围动态调整刻度间隔
+        const timePart = value.split(' ')[1] || ''
+        const hour = parseInt(timePart.split(':')[0] || '0', 10)
+        const minute = parseInt(timePart.split(':')[1] || '0', 10)
+        return minute === 0 && hour % hourInterval === 0
+      },
       formatter: (value: string) => {
-        // 只显示时间部分
-        return value.split(' ')[1] || value
+        // 显示日期和时间两行：MM-DD\nHH:mm
+        const parts = value.split(' ')
+        const datePart = parts[0] || ''
+        const timePart = parts[1] || value
+        // 从 YYYY-MM-DD 提取 MM-DD
+        const dateMatch = datePart.match(/\d{2}-\d{2}$/)
+        const shortDate = dateMatch ? dateMatch[0] : datePart
+        return `${shortDate}\n${timePart}`
       }
     }
   }
@@ -307,7 +324,7 @@ function createBaseOption(valueFormatter?: any) {
       left: 60,
       right: 20,
       top: 50,
-      bottom: 60
+      bottom: 80
     },
     xAxis: xAxisConfig,
     yAxis: [
@@ -328,7 +345,8 @@ function createBaseOption(valueFormatter?: any) {
 
 // 负载图表配置
 const loadOption = computed<EChartsOption>(() => {
-  const base = createBaseOption()
+  const timeRange = loadTime.value.end - loadTime.value.start
+  const base = createBaseOption(undefined, timeRange)
   return {
     ...base,
     xAxis: { ...base.xAxis, data: loadData.value?.times || [] },
@@ -366,7 +384,8 @@ const loadOption = computed<EChartsOption>(() => {
 
 // CPU图表配置
 const cpuOption = computed<EChartsOption>(() => {
-  const base = createBaseOption((value: any) => `${value}%`)
+  const timeRange = cpuTime.value.end - cpuTime.value.start
+  const base = createBaseOption((value: any) => `${value}%`, timeRange)
   return {
     ...base,
     xAxis: { ...base.xAxis, data: cpuData.value?.times || [] },
@@ -406,7 +425,8 @@ const cpuOption = computed<EChartsOption>(() => {
 
 // 内存图表配置
 const memOption = computed<EChartsOption>(() => {
-  const base = createBaseOption(formatMemory)
+  const timeRange = memTime.value.end - memTime.value.start
+  const base = createBaseOption(formatMemory, timeRange)
   const total = parseFloat(memData.value?.mem?.total || '0')
   return {
     ...base,
@@ -457,7 +477,8 @@ const memOption = computed<EChartsOption>(() => {
 
 // 网络图表配置
 const netOption = computed<EChartsOption>(() => {
-  const base = createBaseOption(formatSpeed)
+  const timeRange = netTime.value.end - netTime.value.start
+  const base = createBaseOption(formatSpeed, timeRange)
 
   // 根据选中的网卡筛选数据
   const devices =
@@ -499,7 +520,8 @@ const netOption = computed<EChartsOption>(() => {
 
 // 磁盘IO图表配置
 const diskIOOption = computed<EChartsOption>(() => {
-  const base = createBaseOption(formatSpeed)
+  const timeRange = diskIOTime.value.end - diskIOTime.value.start
+  const base = createBaseOption(formatSpeed, timeRange)
 
   // 根据选中的磁盘筛选数据
   const disks =
