@@ -66,7 +66,7 @@ func CurrentInfo(nets, disks []string) types.CurrentInfo {
 	}
 	// 网络
 	if len(nets) == 0 {
-		netInfo, _ := net.IOCounters(false)
+		netInfo, _ := net.IOCounters(true)
 		res.Net = netInfo
 	} else {
 		var netStats []net.IOCountersStat

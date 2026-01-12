@@ -69,22 +69,46 @@ func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(monitors) == 0 {
-		Success(w, types.MonitorData{})
+		Success(w, types.MonitorDetail{})
 		return
 	}
 
-	var list types.MonitorData
-	var bytesSent uint64
-	var bytesRecv uint64
-	var bytesSent2 uint64
-	var bytesRecv2 uint64
+	var list types.MonitorDetail
+
+	// 用于存储每个网卡的累计流量
+	netDeviceData := make(map[string]*types.Network)
+	netDevicePrev := make(map[string]struct {
+		sent uint64
+		recv uint64
+	})
+
+	// 用于存储每个磁盘的IO数据
+	diskIOData := make(map[string]*types.DiskIO)
+	diskIOPrev := make(map[string]struct {
+		read  uint64
+		write uint64
+	})
+
+	// 初始化第一条数据的网卡和磁盘数据
 	for _, net := range monitors[0].Info.Net {
 		if net.Name == "lo" {
 			continue
 		}
-		bytesSent += net.BytesSent
-		bytesRecv += net.BytesRecv
+		netDevicePrev[net.Name] = struct {
+			sent uint64
+			recv uint64
+		}{sent: net.BytesSent, recv: net.BytesRecv}
+		netDeviceData[net.Name] = &types.Network{Name: net.Name}
 	}
+
+	for _, disk := range monitors[0].Info.DiskIO {
+		diskIOPrev[disk.Name] = struct {
+			read  uint64
+			write uint64
+		}{read: disk.ReadBytes, write: disk.WriteBytes}
+		diskIOData[disk.Name] = &types.DiskIO{Name: disk.Name}
+	}
+
 	for i, monitor := range monitors {
 		// 跳过第一条数据，因为第一条数据的流量为 0
 		if i == 0 {
@@ -93,13 +117,55 @@ func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
 			list.SWAP.Total = fmt.Sprintf("%.2f", float64(monitor.Info.Swap.Total)/1024/1024)
 			continue
 		}
+
+		// 处理网络数据
 		for _, net := range monitor.Info.Net {
 			if net.Name == "lo" {
 				continue
 			}
-			bytesSent2 += net.BytesSent
-			bytesRecv2 += net.BytesRecv
+
+			// 按网卡分组
+			if _, ok := netDeviceData[net.Name]; !ok {
+				netDeviceData[net.Name] = &types.Network{Name: net.Name}
+				netDevicePrev[net.Name] = struct {
+					sent uint64
+					recv uint64
+				}{sent: 0, recv: 0}
+			}
+			prev := netDevicePrev[net.Name]
+			device := netDeviceData[net.Name]
+			device.Sent = append(device.Sent, fmt.Sprintf("%.2f", float64(net.BytesSent)/1024/1024))
+			device.Recv = append(device.Recv, fmt.Sprintf("%.2f", float64(net.BytesRecv)/1024/1024))
+			device.Tx = append(device.Tx, fmt.Sprintf("%.2f", float64(net.BytesSent-prev.sent)/60/1024/1024))
+			device.Rx = append(device.Rx, fmt.Sprintf("%.2f", float64(net.BytesRecv-prev.recv)/60/1024/1024))
+			netDevicePrev[net.Name] = struct {
+				sent uint64
+				recv uint64
+			}{sent: net.BytesSent, recv: net.BytesRecv}
 		}
+
+		// 处理磁盘IO数据
+		for _, disk := range monitor.Info.DiskIO {
+			if _, ok := diskIOData[disk.Name]; !ok {
+				diskIOData[disk.Name] = &types.DiskIO{Name: disk.Name}
+				diskIOPrev[disk.Name] = struct {
+					read  uint64
+					write uint64
+				}{read: 0, write: 0}
+			}
+			prev := diskIOPrev[disk.Name]
+			diskData := diskIOData[disk.Name]
+			diskData.ReadBytes = append(diskData.ReadBytes, fmt.Sprintf("%.2f", float64(disk.ReadBytes)/1024/1024))
+			diskData.WriteBytes = append(diskData.WriteBytes, fmt.Sprintf("%.2f", float64(disk.WriteBytes)/1024/1024))
+			// 监控频率为 1 分钟，所以这里除以 60 即可得到每秒的速度 (KB/s)
+			diskData.ReadSpeed = append(diskData.ReadSpeed, fmt.Sprintf("%.2f", float64(disk.ReadBytes-prev.read)/60/1024))
+			diskData.WriteSpeed = append(diskData.WriteSpeed, fmt.Sprintf("%.2f", float64(disk.WriteBytes-prev.write)/60/1024))
+			diskIOPrev[disk.Name] = struct {
+				read  uint64
+				write uint64
+			}{read: disk.ReadBytes, write: disk.WriteBytes}
+		}
+
 		list.Times = append(list.Times, monitor.CreatedAt.Format(time.DateTime))
 		list.Load.Load1 = append(list.Load.Load1, monitor.Info.Load.Load1)
 		list.Load.Load5 = append(list.Load.Load5, monitor.Info.Load.Load5)
@@ -109,17 +175,14 @@ func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
 		list.Mem.Used = append(list.Mem.Used, fmt.Sprintf("%.2f", float64(monitor.Info.Mem.Used)/1024/1024))
 		list.SWAP.Used = append(list.SWAP.Used, fmt.Sprintf("%.2f", float64(monitor.Info.Swap.Used)/1024/1024))
 		list.SWAP.Free = append(list.SWAP.Free, fmt.Sprintf("%.2f", float64(monitor.Info.Swap.Free)/1024/1024))
-		list.Net.Sent = append(list.Net.Sent, fmt.Sprintf("%.2f", float64(bytesSent2/1024/1024)))
-		list.Net.Recv = append(list.Net.Recv, fmt.Sprintf("%.2f", float64(bytesRecv2/1024/1024)))
+	}
 
-		// 监控频率为 1 分钟，所以这里除以 60 即可得到每秒的流量
-		list.Net.Tx = append(list.Net.Tx, fmt.Sprintf("%.2f", float64(bytesSent2-bytesSent)/60/1024/1024))
-		list.Net.Rx = append(list.Net.Rx, fmt.Sprintf("%.2f", float64(bytesRecv2-bytesRecv)/60/1024/1024))
-
-		bytesSent = bytesSent2
-		bytesRecv = bytesRecv2
-		bytesSent2 = 0
-		bytesRecv2 = 0
+	// 将 map 转换为 slice
+	for _, device := range netDeviceData {
+		list.Net = append(list.Net, *device)
+	}
+	for _, disk := range diskIOData {
+		list.DiskIO = append(list.DiskIO, *disk)
 	}
 
 	Success(w, list)
