@@ -28,7 +28,7 @@ func parseProxyFiles(siteDir string) ([]types.Proxy, error) {
 		return nil, err
 	}
 
-	var proxies []types.Proxy
+	proxies := make([]types.Proxy, 0)
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -66,6 +66,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 
 	contentStr := string(content)
 	proxy := &types.Proxy{
+		Resolver: []string{},
 		Replaces: make(map[string]string),
 	}
 
@@ -188,6 +189,18 @@ func generateProxyConfig(proxy types.Proxy) string {
 	if location == "" {
 		location = "/"
 	}
+	// 将 Nginx 风格的 location 转换为 Apache 格式
+	// ^~ / -> /
+	// ~ ^/api -> /api (正则匹配需要使用 ProxyPassMatch)
+	location = strings.TrimPrefix(location, "^~ ")
+	location = strings.TrimPrefix(location, "~ ")
+	location = strings.TrimPrefix(location, "= ")
+	// 如果 location 以 ^ 开头（正则），去掉它
+	location = strings.TrimPrefix(location, "^")
+	// 确保 location 以 / 开头
+	if !strings.HasPrefix(location, "/") {
+		location = "/" + location
+	}
 
 	sb.WriteString(fmt.Sprintf("# Reverse proxy: %s -> %s\n", location, proxy.Pass))
 
@@ -261,7 +274,7 @@ func parseBalancerFiles(sharedDir string) ([]types.Upstream, error) {
 		return nil, err
 	}
 
-	var upstreams []types.Upstream
+	upstreams := make([]types.Upstream, 0)
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -294,8 +307,9 @@ func parseBalancerFile(filePath string, name string) (*types.Upstream, error) {
 
 	contentStr := string(content)
 	upstream := &types.Upstream{
-		Name:    name,
-		Servers: make(map[string]string),
+		Name:     name,
+		Servers:  make(map[string]string),
+		Resolver: []string{},
 	}
 
 	// 解析 <Proxy balancer://name> 块

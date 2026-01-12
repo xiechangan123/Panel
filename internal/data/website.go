@@ -81,21 +81,35 @@ func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 }
 
 func (r *websiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) error {
-	if err := io.Write(filepath.Join(app.Root, "server/nginx/html/index.html"), req.Index, 0644); err != nil {
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	if err != nil {
 		return err
 	}
-	if err := io.Write(filepath.Join(app.Root, "server/nginx/html/stop.html"), req.Stop, 0644); err != nil {
+	var htmlPath string
+	switch webServer {
+	case "nginx":
+		htmlPath = filepath.Join(app.Root, "server/nginx/html")
+	case "apache":
+		htmlPath = filepath.Join(app.Root, "server/apache/htdocs")
+	default:
+		htmlPath = filepath.Join(app.Root, "server/nginx/html")
+	}
+
+	if err = io.Write(filepath.Join(htmlPath, "index.html"), req.Index, 0644); err != nil {
+		return err
+	}
+	if err = io.Write(filepath.Join(htmlPath, "stop.html"), req.Stop, 0644); err != nil {
 		return err
 	}
 	if req.NotFound != "" {
-		if err := io.Write(filepath.Join(app.Root, "server/nginx/html/404.html"), req.NotFound, 0644); err != nil {
+		if err = io.Write(filepath.Join(htmlPath, "404.html"), req.NotFound, 0644); err != nil {
 			return err
 		}
 	}
-	if err := r.setting.SetSlice(biz.SettingKeyWebsiteTLSVersions, req.TLSVersions); err != nil {
+	if err = r.setting.SetSlice(biz.SettingKeyWebsiteTLSVersions, req.TLSVersions); err != nil {
 		return err
 	}
-	if err := r.setting.Set(biz.SettingKeyWebsiteCipherSuites, req.CipherSuites); err != nil {
+	if err = r.setting.Set(biz.SettingKeyWebsiteCipherSuites, req.CipherSuites); err != nil {
 		return err
 	}
 
@@ -245,6 +259,11 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		Remark: req.Remark,
 	}
 
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return nil, err
+	}
+
 	vhost, err := r.getVhost(w)
 	if err != nil {
 		return nil, err
@@ -290,8 +309,14 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		return nil, err
 	}
 	// 404 页面
-	// TODO 需要兼容 Apache
-	if err = vhost.SetConfig("010-error-404.conf", "site", `error_page 404 /404.html;`); err != nil {
+	var errorPageConfig string
+	switch webServer {
+	case "nginx":
+		errorPageConfig = `error_page 404 /404.html;`
+	case "apache":
+		errorPageConfig = `ErrorDocument 404 /404.html`
+	}
+	if err = vhost.SetConfig("010-error-404.conf", "site", errorPageConfig); err != nil {
 		return nil, err
 	}
 
@@ -315,8 +340,10 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		if err = phpVhost.SetConfig("010-rewrite.conf", "site", ""); err != nil {
 			return nil, err
 		}
-		// TODO 需要兼容 Apache
-		if err = phpVhost.SetConfig("010-cache.conf", "site", `# browser cache
+		var cacheConfig string
+		switch webServer {
+		case "nginx":
+			cacheConfig = `# browser cache
 location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
     expires 30d;
     access_log /dev/null;
@@ -331,7 +358,38 @@ location ~ .*\.(js|css|ttf|otf|woff|woff2|eot)$ {
 location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
     return 404;
 }
-`); err != nil {
+`
+		case "apache":
+			cacheConfig = `# browser cache
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/bmp "access plus 30 days"
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/gif "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 30 days"
+    ExpiresByType image/x-icon "access plus 30 days"
+    ExpiresByType image/tiff "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType image/avif "access plus 30 days"
+    ExpiresByType image/heif "access plus 30 days"
+    ExpiresByType image/heic "access plus 30 days"
+    ExpiresByType image/jxl "access plus 30 days"
+    ExpiresByType text/css "access plus 6 hours"
+    ExpiresByType application/javascript "access plus 6 hours"
+    ExpiresByType font/ttf "access plus 6 hours"
+    ExpiresByType font/otf "access plus 6 hours"
+    ExpiresByType font/woff "access plus 6 hours"
+    ExpiresByType font/woff2 "access plus 6 hours"
+    ExpiresByType application/vnd.ms-fontobject "access plus 6 hours"
+</IfModule>
+# deny sensitive files
+<FilesMatch "^(\.user\.ini|\.htaccess|\.git|\.svn|\.env)">
+    Require all denied
+</FilesMatch>
+`
+		}
+		if err = phpVhost.SetConfig("010-cache.conf", "site", cacheConfig); err != nil {
 			return nil, err
 		}
 	}
@@ -358,9 +416,15 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 	var notFound []byte
 
 	// 如果存在自定义 404 页面，则使用自定义的
-	// TODO 需要兼容 Apache
-	if io.Exists(filepath.Join(app.Root, "server/nginx/html/404.html")) {
-		notFound, _ = os.ReadFile(filepath.Join(app.Root, "server/nginx/html/404.html"))
+	var custom404Path string
+	switch webServer {
+	case "nginx":
+		custom404Path = filepath.Join(app.Root, "server/nginx/html/404.html")
+	case "apache":
+		custom404Path = filepath.Join(app.Root, "server/apache/htdocs/404.html")
+	}
+	if io.Exists(custom404Path) {
+		notFound, _ = os.ReadFile(custom404Path)
 	} else {
 		switch app.Locale {
 		case "zh_CN":

@@ -205,11 +205,11 @@ func (p *Parser) parseVirtualHost(token Token) (*VirtualHost, error) {
 				return nil, err
 			}
 
-			// 检查是否是Include类指令
+			// 检查是否是 Include 类指令
 			if p.options.ProcessIncludes && (strings.EqualFold(directive.Name, "Include") || strings.EqualFold(directive.Name, "IncludeOptional")) {
 				includeConfig, err := p.processInclude(directive)
 				if err != nil {
-					// 对于IncludeOptional，如果文件不存在则忽略错误
+					// 对于 IncludeOptional，如果文件不存在则忽略错误
 					if strings.EqualFold(directive.Name, "IncludeOptional") && os.IsNotExist(err) {
 						continue
 					}
@@ -228,6 +228,21 @@ func (p *Parser) parseVirtualHost(token Token) (*VirtualHost, error) {
 			} else {
 				vhost.Directives = append(vhost.Directives, directive)
 			}
+		} else if nextToken.Type == BLOCKDIRECTIVE {
+			// 处理虚拟主机内的块指令（如 Directory, Location 等）
+			block, err := p.parseBlockDirective(nextToken)
+			if err != nil {
+				return nil, err
+			}
+			// 将块指令作为带 Block 的 Directive 添加到虚拟主机
+			directive := &Directive{
+				Name:   block.Type,
+				Args:   block.Args,
+				Line:   block.Line,
+				Column: block.Column,
+				Block:  block,
+			}
+			vhost.Directives = append(vhost.Directives, directive)
 		} else if nextToken.Type == COMMENT {
 			// 收集虚拟主机内的注释
 			comment := &Comment{

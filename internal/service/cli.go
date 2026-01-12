@@ -140,7 +140,6 @@ func (s *CliService) Fix(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
-	// TODO 未来加权限设置之后这里需要优化
 	user := new(biz.User)
 	if err := s.db.First(user).Error; err != nil {
 		return errors.New(s.t.Get("Failed to get user info: %v", err))

@@ -107,7 +107,6 @@ func (r *containerRepo) Create(req *request.ContainerCreate) (string, error) {
 	}
 	defer func(out client.ImagePullResponse) { _ = out.Close() }(out)
 
-	// TODO 实现流式显示拉取进度
 	if err = out.Wait(ctx); err != nil {
 		return "", err
 	}

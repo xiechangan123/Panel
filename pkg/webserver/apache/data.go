@@ -165,8 +165,8 @@ var order = map[string]int{
 	"Proxy":          1311,
 	"ProxyMatch":     1312,
 
-	"Include":         1400,
-	"IncludeOptional": 1401,
+	"Include":         1290,
+	"IncludeOptional": 1291,
 
 	"ErrorLog":    1500,
 	"CustomLog":   1501,
