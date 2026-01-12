@@ -12,6 +12,11 @@ const { $gettext } = useGettext()
 
 const currentTab = ref('status')
 
+// phpinfo 相关状态
+const showPHPInfoModal = ref(false)
+const phpinfoContent = ref('')
+const phpinfoLoading = ref(false)
+
 const { data: config } = useRequest(php.config(slug), {
   initialData: ''
 })
@@ -132,6 +137,18 @@ const handleSetCli = async () => {
   })
 }
 
+const handlePHPInfo = async () => {
+  phpinfoLoading.value = true
+  showPHPInfoModal.value = true
+  useRequest(php.phpinfo(slug))
+    .onSuccess((res) => {
+      phpinfoContent.value = res.data
+    })
+    .onComplete(() => {
+      phpinfoLoading.value = false
+    })
+}
+
 const handleSaveConfig = async () => {
   useRequest(php.saveConfig(slug, config.value)).onSuccess(() => {
     window.$message.success($gettext('Saved successfully'))
@@ -179,6 +196,9 @@ const handleUninstallModule = async (module: string) => {
           <n-flex>
             <n-button type="info" @click="handleSetCli">
               {{ $gettext('Set as CLI Default Version') }}
+            </n-button>
+            <n-button type="primary" @click="handlePHPInfo">
+              {{ $gettext('View PHPInfo') }}
             </n-button>
           </n-flex>
         </n-flex>
@@ -266,7 +286,30 @@ const handleUninstallModule = async (module: string) => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
+
+    <!-- PHPInfo 弹窗 -->
+    <n-modal
+      v-model:show="showPHPInfoModal"
+      preset="card"
+      :title="$gettext('PHPInfo') + ' - PHP ' + slug"
+      style="width: 90%; max-width: 1200px"
+      :mask-closable="true"
+    >
+      <n-spin :show="phpinfoLoading">
+        <n-scrollbar style="max-height: 70vh">
+          <div class="phpinfo-content" v-html="phpinfoContent"></div>
+        </n-scrollbar>
+      </n-spin>
+    </n-modal>
   </common-page>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.phpinfo-content {
+  :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+}
+</style>
