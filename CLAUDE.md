@@ -8,8 +8,6 @@ AcePanel 是基于 Go 语言开发的新一代 Linux 服务器运维管理面板
 - 后端：Go 1.25 + go-chi 路由 + GORM + Wire 依赖注入
 - 前端：Vue 3 + Vite + Naive UI + pnpm
 
-**重要提示：** 项目目前正在进行 v3 版本重构，主要包括重构网站/备份/计划任务模块等。
-
 ## 语言和编码规范
 
 **所有代码注释、文档和回复必须使用简体中文。**
@@ -238,7 +236,7 @@ go generate ./...
 - 使用 Vue 3 Composition API
 - UI 框架：Naive UI
 - 状态管理：Pinia
-- HTTP 请求：Alova
+- HTTP 请求：Alova.js，使用 useRequest 等助手函数进行数据获取，无需处理 onError 错误。
 - 图标：@iconify/vue
 - 终端：xterm.js
 - 遵循项目已有的组件结构和编码风格
