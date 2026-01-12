@@ -1,7 +1,9 @@
 package data
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -15,9 +17,10 @@ import (
 
 type safeRepo struct {
 	ssh string
+	log *slog.Logger
 }
 
-func NewSafeRepo() biz.SafeRepo {
+func NewSafeRepo(log *slog.Logger) biz.SafeRepo {
 	var ssh string
 	if os.IsRHEL() {
 		ssh = "sshd"
@@ -26,6 +29,7 @@ func NewSafeRepo() biz.SafeRepo {
 	}
 	return &safeRepo{
 		ssh: ssh,
+		log: log,
 	}
 }
 
@@ -43,7 +47,7 @@ func (r *safeRepo) GetSSH() (uint, bool, error) {
 	return cast.ToUint(out), running, nil
 }
 
-func (r *safeRepo) UpdateSSH(port uint, status bool) error {
+func (r *safeRepo) UpdateSSH(ctx context.Context, port uint, status bool) error {
 	oldPort, err := shell.Execf("cat /etc/ssh/sshd_config | grep 'Port ' | awk '{print $2}'")
 	if err != nil {
 		return err
@@ -53,10 +57,19 @@ func (r *safeRepo) UpdateSSH(port uint, status bool) error {
 	_, _ = shell.Execf("sed -i 's/Port %s/Port %d/g' /etc/ssh/sshd_config", oldPort, port)
 
 	if !status {
-		return systemctl.Stop(r.ssh)
+		if err = systemctl.Stop(r.ssh); err != nil {
+			return err
+		}
+	} else {
+		if err = systemctl.Restart(r.ssh); err != nil {
+			return err
+		}
 	}
 
-	return systemctl.Restart(r.ssh)
+	// 记录日志
+	r.log.Info("ssh settings updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("port", uint64(port)), slog.Bool("status", status))
+
+	return nil
 }
 
 func (r *safeRepo) GetPingStatus() (bool, error) {
@@ -72,7 +85,7 @@ func (r *safeRepo) GetPingStatus() (bool, error) {
 	return false, nil
 }
 
-func (r *safeRepo) UpdatePingStatus(status bool) error {
+func (r *safeRepo) UpdatePingStatus(ctx context.Context, status bool) error {
 	fw, err := firewall.NewFirewall().Status()
 	if err != nil {
 		return err
@@ -94,6 +107,9 @@ func (r *safeRepo) UpdatePingStatus(status bool) error {
 	if err != nil {
 		return err
 	}
+
+	// 记录日志
+	r.log.Info("ping status updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Bool("status", status))
 
 	return nil
 }

@@ -89,7 +89,7 @@ func (r *certRepo) GetByWebsite(WebsiteID uint) (*biz.Cert, error) {
 	return cert, err
 }
 
-func (r *certRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
+func (r *certRepo) Upload(ctx context.Context, req *request.CertUpload) (*biz.Cert, error) {
 	info, err := pkgcert.ParseCert(req.Cert)
 	if err != nil {
 		return nil, errors.New(r.t.Get("failed to parse certificate: %v", err))
@@ -108,10 +108,13 @@ func (r *certRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
 		return nil, err
 	}
 
+	// 记录日志
+	r.log.Info("cert uploaded", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)))
+
 	return cert, nil
 }
 
-func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
+func (r *certRepo) Create(ctx context.Context, req *request.CertCreate) (*biz.Cert, error) {
 	cert := &biz.Cert{
 		AccountID:   req.AccountID,
 		WebsiteID:   req.WebsiteID,
@@ -123,10 +126,14 @@ func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 	if err := r.db.Create(cert).Error; err != nil {
 		return nil, err
 	}
+
+	// 记录日志
+	r.log.Info("cert created", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.String("cert_type", req.Type))
+
 	return cert, nil
 }
 
-func (r *certRepo) Update(req *request.CertUpdate) error {
+func (r *certRepo) Update(ctx context.Context, req *request.CertUpdate) error {
 	info, err := pkgcert.ParseCert(req.Cert)
 	if err == nil && req.Type == "upload" {
 		req.Domains = info.DNSNames
@@ -135,7 +142,7 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 		return errors.New(r.t.Get("upload certificate cannot be set to auto renewal"))
 	}
 
-	return r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
+	if err = r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
 		ID:          req.ID,
 		AccountID:   req.AccountID,
 		WebsiteID:   req.WebsiteID,
@@ -146,11 +153,25 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 		Script:      req.Script,
 		Domains:     req.Domains,
 		AutoRenewal: req.AutoRenewal,
-	}).Error
+	}).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("cert updated", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)))
+
+	return nil
 }
 
-func (r *certRepo) Delete(id uint) error {
-	return r.db.Model(&biz.Cert{}).Where("id = ?", id).Delete(&biz.Cert{}).Error
+func (r *certRepo) Delete(ctx context.Context, id uint) error {
+	if err := r.db.Model(&biz.Cert{}).Where("id = ?", id).Delete(&biz.Cert{}).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("cert deleted", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)))
+
+	return nil
 }
 
 func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {

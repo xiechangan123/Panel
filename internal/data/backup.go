@@ -1,8 +1,10 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -27,15 +29,17 @@ type backupRepo struct {
 	t       *gotext.Locale
 	conf    *config.Config
 	db      *gorm.DB
+	log     *slog.Logger
 	setting biz.SettingRepo
 	website biz.WebsiteRepo
 }
 
-func NewBackupRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, setting biz.SettingRepo, website biz.WebsiteRepo) biz.BackupRepo {
+func NewBackupRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, website biz.WebsiteRepo) biz.BackupRepo {
 	return &backupRepo{
 		t:       t,
 		conf:    conf,
 		db:      db,
+		log:     log,
 		setting: setting,
 		website: website,
 	}
@@ -74,7 +78,7 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 // typ 备份类型
 // target 目标名称
 // path 可选备份保存路径
-func (r *backupRepo) Create(typ biz.BackupType, target string, path ...string) error {
+func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, path ...string) error {
 	defPath, err := r.GetPath(typ)
 	if err != nil {
 		return err
@@ -83,37 +87,53 @@ func (r *backupRepo) Create(typ biz.BackupType, target string, path ...string) e
 		defPath = path[0]
 	}
 
+	var createErr error
 	switch typ {
 	case biz.BackupTypeWebsite:
-		return r.createWebsite(defPath, target)
+		createErr = r.createWebsite(defPath, target)
 	case biz.BackupTypeMySQL:
-		return r.createMySQL(defPath, target)
+		createErr = r.createMySQL(defPath, target)
 	case biz.BackupTypePostgres:
-		return r.createPostgres(defPath, target)
+		createErr = r.createPostgres(defPath, target)
 	case biz.BackupTypePanel:
-		return r.createPanel(defPath)
-
+		createErr = r.createPanel(defPath)
+	default:
+		return errors.New(r.t.Get("unknown backup type"))
 	}
 
-	return errors.New(r.t.Get("unknown backup type"))
+	if createErr != nil {
+		return createErr
+	}
+
+	// 记录日志
+	r.log.Info("backup created", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("target", target))
+
+	return nil
 }
 
 // Delete 删除备份
-func (r *backupRepo) Delete(typ biz.BackupType, name string) error {
+func (r *backupRepo) Delete(ctx context.Context, typ biz.BackupType, name string) error {
 	path, err := r.GetPath(typ)
 	if err != nil {
 		return err
 	}
 
 	file := filepath.Join(path, name)
-	return io.Remove(file)
+	if err = io.Remove(file); err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("backup deleted", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("name", name))
+
+	return nil
 }
 
 // Restore 恢复备份
 // typ 备份类型
 // backup 备份压缩包，可以是绝对路径或者相对路径
 // target 目标名称
-func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
+func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, target string) error {
 	if !io.Exists(backup) {
 		path, err := r.GetPath(typ)
 		if err != nil {
@@ -122,16 +142,26 @@ func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 		backup = filepath.Join(path, backup)
 	}
 
+	var restoreErr error
 	switch typ {
 	case biz.BackupTypeWebsite:
-		return r.restoreWebsite(backup, target)
+		restoreErr = r.restoreWebsite(backup, target)
 	case biz.BackupTypeMySQL:
-		return r.restoreMySQL(backup, target)
+		restoreErr = r.restoreMySQL(backup, target)
 	case biz.BackupTypePostgres:
-		return r.restorePostgres(backup, target)
+		restoreErr = r.restorePostgres(backup, target)
+	default:
+		return errors.New(r.t.Get("unknown backup type"))
 	}
 
-	return errors.New(r.t.Get("unknown backup type"))
+	if restoreErr != nil {
+		return restoreErr
+	}
+
+	// 记录日志
+	r.log.Info("backup restored", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("target", target))
+
+	return nil
 }
 
 // CutoffLog 切割日志
@@ -745,7 +775,7 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Backup panel data..."))
 	}
 	// 备份面板
-	if err := r.Create(biz.BackupTypePanel, ""); err != nil {
+	if err := r.Create(context.Background(), biz.BackupTypePanel, ""); err != nil {
 		return errors.New(r.t.Get("|-Backup panel data failed: %v", err))
 	}
 	if err := io.Compress(filepath.Join(app.Root, "panel/storage"), nil, "/tmp/panel-storage.zip"); err != nil {

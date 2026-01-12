@@ -1,8 +1,10 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -19,14 +21,16 @@ import (
 )
 
 type webhookRepo struct {
-	t  *gotext.Locale
-	db *gorm.DB
+	t   *gotext.Locale
+	db  *gorm.DB
+	log *slog.Logger
 }
 
-func NewWebHookRepo(t *gotext.Locale, db *gorm.DB) biz.WebHookRepo {
+func NewWebHookRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.WebHookRepo {
 	return &webhookRepo{
-		t:  t,
-		db: db,
+		t:   t,
+		db:  db,
+		log: log,
 	}
 }
 
@@ -53,7 +57,7 @@ func (r *webhookRepo) GetByKey(key string) (*biz.WebHook, error) {
 	return webhook, nil
 }
 
-func (r *webhookRepo) Create(req *request.WebHookCreate) (*biz.WebHook, error) {
+func (r *webhookRepo) Create(ctx context.Context, req *request.WebHookCreate) (*biz.WebHook, error) {
 	if err := os.MkdirAll(r.webhookDir(), 0755); err != nil {
 		return nil, errors.New(r.t.Get("failed to create webhook directory: %v", err))
 	}
@@ -78,10 +82,13 @@ func (r *webhookRepo) Create(req *request.WebHookCreate) (*biz.WebHook, error) {
 		return nil, err
 	}
 
+	// 记录日志
+	r.log.Info("webhook created", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name))
+
 	return webhook, nil
 }
 
-func (r *webhookRepo) Update(req *request.WebHookUpdate) error {
+func (r *webhookRepo) Update(ctx context.Context, req *request.WebHookUpdate) error {
 	webhook, err := r.Get(req.ID)
 	if err != nil {
 		return err
@@ -92,16 +99,23 @@ func (r *webhookRepo) Update(req *request.WebHookUpdate) error {
 		return errors.New(r.t.Get("failed to write webhook script: %v", err))
 	}
 
-	return r.db.Model(&biz.WebHook{}).Where("id = ?", req.ID).Updates(map[string]any{
+	if err = r.db.Model(&biz.WebHook{}).Where("id = ?", req.ID).Updates(map[string]any{
 		"name":   req.Name,
 		"script": req.Script,
 		"raw":    req.Raw,
 		"user":   req.User,
 		"status": req.Status,
-	}).Error
+	}).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("webhook updated", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+
+	return nil
 }
 
-func (r *webhookRepo) Delete(id uint) error {
+func (r *webhookRepo) Delete(ctx context.Context, id uint) error {
 	webhook, err := r.Get(id)
 	if err != nil {
 		return err
@@ -110,7 +124,14 @@ func (r *webhookRepo) Delete(id uint) error {
 	scriptFile := r.scriptPath(webhook.Key)
 	_ = os.Remove(scriptFile)
 
-	return r.db.Delete(&biz.WebHook{}, id).Error
+	if err = r.db.Delete(&biz.WebHook{}, id).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("webhook deleted", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
+
+	return nil
 }
 
 func (r *webhookRepo) Call(key string) (string, error) {

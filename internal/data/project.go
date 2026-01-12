@@ -1,9 +1,11 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -21,14 +23,16 @@ import (
 )
 
 type projectRepo struct {
-	t  *gotext.Locale
-	db *gorm.DB
+	t   *gotext.Locale
+	db  *gorm.DB
+	log *slog.Logger
 }
 
-func NewProjectRepo(t *gotext.Locale, db *gorm.DB) biz.ProjectRepo {
+func NewProjectRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.ProjectRepo {
 	return &projectRepo{
-		t:  t,
-		db: db,
+		t:   t,
+		db:  db,
+		log: log,
 	}
 }
 
@@ -73,7 +77,7 @@ func (r *projectRepo) Get(id uint) (*types.ProjectDetail, error) {
 	return r.parseProjectDetail(project)
 }
 
-func (r *projectRepo) Create(req *request.ProjectCreate) (*types.ProjectDetail, error) {
+func (r *projectRepo) Create(ctx context.Context, req *request.ProjectCreate) (*types.ProjectDetail, error) {
 	// 检查项目名是否已存在
 	var count int64
 	if err := r.db.Model(&biz.Project{}).Where("name = ?", req.Name).Count(&count).Error; err != nil {
@@ -106,10 +110,13 @@ func (r *projectRepo) Create(req *request.ProjectCreate) (*types.ProjectDetail, 
 		return nil, err
 	}
 
+	// 记录日志
+	r.log.Info("project created", slog.String("type", biz.OperationTypeProject), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.String("project_type", string(req.Type)))
+
 	return r.parseProjectDetail(project)
 }
 
-func (r *projectRepo) Update(req *request.ProjectUpdate) error {
+func (r *projectRepo) Update(ctx context.Context, req *request.ProjectUpdate) error {
 	project := new(biz.Project)
 	if err := r.db.First(project, req.ID).Error; err != nil {
 		return err
@@ -130,11 +137,14 @@ func (r *projectRepo) Update(req *request.ProjectUpdate) error {
 		return err
 	}
 
+	// 记录日志
+	r.log.Info("project updated", slog.String("type", biz.OperationTypeProject), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", project.Name))
+
 	// 更新 systemd unit 文件
 	return r.updateUnitFile(project.Name, req)
 }
 
-func (r *projectRepo) Delete(id uint) error {
+func (r *projectRepo) Delete(ctx context.Context, id uint) error {
 	project := new(biz.Project)
 	if err := r.db.First(project, id).Error; err != nil {
 		return err
@@ -146,7 +156,14 @@ func (r *projectRepo) Delete(id uint) error {
 		return fmt.Errorf("%s: %w", r.t.Get("failed to delete systemd config"), err)
 	}
 
-	return r.db.Delete(project).Error
+	if err := r.db.Delete(project).Error; err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("project deleted", slog.String("type", biz.OperationTypeProject), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", project.Name))
+
+	return nil
 }
 
 // unitFilePath 返回 systemd unit 文件路径

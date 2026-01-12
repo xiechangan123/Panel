@@ -1,8 +1,10 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/leonelquinteros/gotext"
@@ -16,14 +18,16 @@ import (
 type databaseRepo struct {
 	t      *gotext.Locale
 	db     *gorm.DB
+	log    *slog.Logger
 	server biz.DatabaseServerRepo
 	user   biz.DatabaseUserRepo
 }
 
-func NewDatabaseRepo(t *gotext.Locale, db *gorm.DB, server biz.DatabaseServerRepo, user biz.DatabaseUserRepo) biz.DatabaseRepo {
+func NewDatabaseRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, server biz.DatabaseServerRepo, user biz.DatabaseUserRepo) biz.DatabaseRepo {
 	return &databaseRepo{
 		t:      t,
 		db:     db,
+		log:    log,
 		server: server,
 		user:   user,
 	}
@@ -65,7 +69,7 @@ func (r *databaseRepo) List(page, limit uint) ([]*biz.Database, int64, error) {
 	return database[(page-1)*limit:], int64(len(database)), nil
 }
 
-func (r *databaseRepo) Create(req *request.DatabaseCreate) error {
+func (r *databaseRepo) Create(ctx context.Context, req *request.DatabaseCreate) error {
 	server, err := r.server.Get(req.ServerID)
 	if err != nil {
 		return err
@@ -80,7 +84,7 @@ func (r *databaseRepo) Create(req *request.DatabaseCreate) error {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
 		if req.CreateUser {
-			if err = r.user.Create(&request.DatabaseUserCreate{
+			if err = r.user.Create(ctx, &request.DatabaseUserCreate{
 				ServerID: req.ServerID,
 				Username: req.Username,
 				Password: req.Password,
@@ -99,7 +103,7 @@ func (r *databaseRepo) Create(req *request.DatabaseCreate) error {
 		}
 	case biz.DatabaseTypePostgresql:
 		if req.CreateUser {
-			if err = r.user.Create(&request.DatabaseUserCreate{
+			if err = r.user.Create(ctx, &request.DatabaseUserCreate{
 				ServerID: req.ServerID,
 				Username: req.Username,
 				Password: req.Password,
@@ -121,10 +125,13 @@ func (r *databaseRepo) Create(req *request.DatabaseCreate) error {
 		}
 	}
 
+	// 记录日志
+	r.log.Info("database created", slog.String("type", biz.OperationTypeDatabase), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
+
 	return nil
 }
 
-func (r *databaseRepo) Delete(serverID uint, name string) error {
+func (r *databaseRepo) Delete(ctx context.Context, serverID uint, name string) error {
 	server, err := r.server.Get(serverID)
 	if err != nil {
 		return err
@@ -136,7 +143,14 @@ func (r *databaseRepo) Delete(serverID uint, name string) error {
 	}
 	defer operator.Close()
 
-	return operator.DatabaseDrop(name)
+	if err = operator.DatabaseDrop(name); err != nil {
+		return err
+	}
+
+	// 记录日志
+	r.log.Info("database deleted", slog.String("type", biz.OperationTypeDatabase), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", name), slog.Uint64("server_id", uint64(serverID)))
+
+	return nil
 }
 
 func (r *databaseRepo) Comment(req *request.DatabaseComment) error {
