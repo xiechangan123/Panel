@@ -52,6 +52,7 @@ const { data: setting, send: fetchSetting } = useRequest(website.config(Number(i
 })
 const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   initialData: {
+    webserver: 'nginx',
     php: [
       {
         label: $gettext('Not used'),
@@ -66,6 +67,9 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     ]
   }
 })
+
+// 是否为 Nginx
+const isNginx = computed(() => installedEnvironment.value.webserver === 'nginx')
 const certs = ref<any>([])
 useRequest(cert.certs(1, 10000)).onSuccess(({ data }) => {
   certs.value = data.items
@@ -97,9 +101,13 @@ const selectedCert = ref(null)
 const handleSave = () => {
   // 如果开启了ssl但没有任何监听地址设置了ssl，则自动添加443
   if (setting.value.ssl && !setting.value.listens.some((item: any) => item.args?.includes('ssl'))) {
+    const args = ['ssl']
+    if (isNginx.value) {
+      args.push('quic')
+    }
     setting.value.listens.push({
       address: '443',
-      args: ['ssl', 'quic']
+      args
     })
   }
   // 如果关闭了ssl，自动禁用所有ssl和quic
@@ -409,6 +417,7 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
                     HTTPS
                   </n-checkbox>
                   <n-checkbox
+                    v-if="isNginx"
                     :checked="hasArg(value.args, 'quic')"
                     @update:checked="(checked) => toggleArg(value.args, 'quic', checked)"
                     w-200
@@ -506,14 +515,14 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
                         style="width: 100%"
                       />
                     </n-form-item-gi>
-                    <n-form-item-gi :span="12" :label="$gettext('DNS Resolver')">
+                    <n-form-item-gi v-if="isNginx" :span="12" :label="$gettext('DNS Resolver')">
                       <n-dynamic-tags
                         v-model:value="upstream.resolver"
                         :placeholder="$gettext('e.g., 8.8.8.8')"
                       />
                     </n-form-item-gi>
                     <n-form-item-gi
-                      v-if="upstream.resolver?.length"
+                      v-if="isNginx && upstream.resolver?.length"
                       :span="12"
                       :label="$gettext('Resolver Timeout')"
                     >
@@ -621,14 +630,14 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
                 </template>
                 <n-form label-placement="left" label-width="140px">
                   <n-grid :cols="24" :x-gap="16">
-                    <n-form-item-gi :span="12" :label="$gettext('Match Type')">
+                    <n-form-item-gi v-if="isNginx" :span="12" :label="$gettext('Match Type')">
                       <n-select
                         :value="parseLocation(proxy.location).type"
                         :options="locationMatchTypes"
                         @update:value="(v: string) => updateLocationType(proxy, v)"
                       />
                     </n-form-item-gi>
-                    <n-form-item-gi :span="12" :label="$gettext('Match Expression')">
+                    <n-form-item-gi :span="isNginx ? 12 : 24" :label="$gettext('Match Expression')">
                       <n-input
                         :value="parseLocation(proxy.location).expression"
                         :placeholder="$gettext('e.g., /, /api, ^/api/v[0-9]+/')"
@@ -664,14 +673,14 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
                     <n-form-item-gi :span="6" :label="$gettext('Enable Buffering')">
                       <n-switch v-model:value="proxy.buffering" />
                     </n-form-item-gi>
-                    <n-form-item-gi :span="12" :label="$gettext('DNS Resolver')">
+                    <n-form-item-gi v-if="isNginx" :span="12" :label="$gettext('DNS Resolver')">
                       <n-dynamic-tags
                         v-model:value="proxy.resolver"
                         :placeholder="$gettext('e.g., 8.8.8.8')"
                       />
                     </n-form-item-gi>
                     <n-form-item-gi
-                      v-if="proxy.resolver.length"
+                      v-if="isNginx && proxy.resolver.length"
                       :span="12"
                       :label="$gettext('Resolver Timeout')"
                     >

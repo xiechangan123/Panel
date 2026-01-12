@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
 )
@@ -104,13 +103,6 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	// 解析 CacheEnable
 	if regexp.MustCompile(`CacheEnable`).MatchString(contentStr) {
 		proxy.Cache = true
-	}
-
-	// 解析 ProxyTimeout (resolver timeout)
-	timeoutPattern := regexp.MustCompile(`ProxyTimeout\s+(\d+)`)
-	if tm := timeoutPattern.FindStringSubmatch(contentStr); tm != nil {
-		timeout, _ := strconv.Atoi(tm[1])
-		proxy.ResolverTimeout = time.Duration(timeout) * time.Second
 	}
 
 	// 解析 Substitute (响应内容替换)
@@ -234,11 +226,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 	// Buffering 配置
 	if proxy.Buffering {
 		sb.WriteString("    ProxyIOBufferSize 65536\n")
-	}
-
-	// Timeout 配置
-	if proxy.ResolverTimeout > 0 {
-		sb.WriteString(fmt.Sprintf("    ProxyTimeout %d\n", int(proxy.ResolverTimeout.Seconds())))
 	}
 
 	// Cache 配置
