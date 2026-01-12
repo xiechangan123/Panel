@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/internal/biz"
+
 	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/acepanel/panel/pkg/types"
@@ -70,14 +73,14 @@ func (_c *BackupRepo_ClearExpired_Call) RunAndReturn(run func(string, string, in
 	return _c
 }
 
-// Create provides a mock function with given fields: typ, target, path
-func (_m *BackupRepo) Create(typ biz.BackupType, target string, path ...string) error {
+// Create provides a mock function with given fields: ctx, typ, target, path
+func (_m *BackupRepo) Create(ctx context.Context, typ biz.BackupType, target string, path ...string) error {
 	_va := make([]interface{}, len(path))
 	for _i := range path {
 		_va[_i] = path[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, typ, target)
+	_ca = append(_ca, ctx, typ, target)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -86,8 +89,8 @@ func (_m *BackupRepo) Create(typ biz.BackupType, target string, path ...string) 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(biz.BackupType, string, ...string) error); ok {
-		r0 = rf(typ, target, path...)
+	if rf, ok := ret.Get(0).(func(context.Context, biz.BackupType, string, ...string) error); ok {
+		r0 = rf(ctx, typ, target, path...)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -101,23 +104,24 @@ type BackupRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - typ biz.BackupType
 //   - target string
 //   - path ...string
-func (_e *BackupRepo_Expecter) Create(typ interface{}, target interface{}, path ...interface{}) *BackupRepo_Create_Call {
+func (_e *BackupRepo_Expecter) Create(ctx interface{}, typ interface{}, target interface{}, path ...interface{}) *BackupRepo_Create_Call {
 	return &BackupRepo_Create_Call{Call: _e.mock.On("Create",
-		append([]interface{}{typ, target}, path...)...)}
+		append([]interface{}{ctx, typ, target}, path...)...)}
 }
 
-func (_c *BackupRepo_Create_Call) Run(run func(typ biz.BackupType, target string, path ...string)) *BackupRepo_Create_Call {
+func (_c *BackupRepo_Create_Call) Run(run func(ctx context.Context, typ biz.BackupType, target string, path ...string)) *BackupRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]string, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]string, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(string)
 			}
 		}
-		run(args[0].(biz.BackupType), args[1].(string), variadicArgs...)
+		run(args[0].(context.Context), args[1].(biz.BackupType), args[2].(string), variadicArgs...)
 	})
 	return _c
 }
@@ -127,7 +131,7 @@ func (_c *BackupRepo_Create_Call) Return(_a0 error) *BackupRepo_Create_Call {
 	return _c
 }
 
-func (_c *BackupRepo_Create_Call) RunAndReturn(run func(biz.BackupType, string, ...string) error) *BackupRepo_Create_Call {
+func (_c *BackupRepo_Create_Call) RunAndReturn(run func(context.Context, biz.BackupType, string, ...string) error) *BackupRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -179,17 +183,17 @@ func (_c *BackupRepo_CutoffLog_Call) RunAndReturn(run func(string, string) error
 	return _c
 }
 
-// Delete provides a mock function with given fields: typ, name
-func (_m *BackupRepo) Delete(typ biz.BackupType, name string) error {
-	ret := _m.Called(typ, name)
+// Delete provides a mock function with given fields: ctx, typ, name
+func (_m *BackupRepo) Delete(ctx context.Context, typ biz.BackupType, name string) error {
+	ret := _m.Called(ctx, typ, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(biz.BackupType, string) error); ok {
-		r0 = rf(typ, name)
+	if rf, ok := ret.Get(0).(func(context.Context, biz.BackupType, string) error); ok {
+		r0 = rf(ctx, typ, name)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -203,15 +207,16 @@ type BackupRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - typ biz.BackupType
 //   - name string
-func (_e *BackupRepo_Expecter) Delete(typ interface{}, name interface{}) *BackupRepo_Delete_Call {
-	return &BackupRepo_Delete_Call{Call: _e.mock.On("Delete", typ, name)}
+func (_e *BackupRepo_Expecter) Delete(ctx interface{}, typ interface{}, name interface{}) *BackupRepo_Delete_Call {
+	return &BackupRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, typ, name)}
 }
 
-func (_c *BackupRepo_Delete_Call) Run(run func(typ biz.BackupType, name string)) *BackupRepo_Delete_Call {
+func (_c *BackupRepo_Delete_Call) Run(run func(ctx context.Context, typ biz.BackupType, name string)) *BackupRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(biz.BackupType), args[1].(string))
+		run(args[0].(context.Context), args[1].(biz.BackupType), args[2].(string))
 	})
 	return _c
 }
@@ -221,7 +226,7 @@ func (_c *BackupRepo_Delete_Call) Return(_a0 error) *BackupRepo_Delete_Call {
 	return _c
 }
 
-func (_c *BackupRepo_Delete_Call) RunAndReturn(run func(biz.BackupType, string) error) *BackupRepo_Delete_Call {
+func (_c *BackupRepo_Delete_Call) RunAndReturn(run func(context.Context, biz.BackupType, string) error) *BackupRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -385,17 +390,17 @@ func (_c *BackupRepo_List_Call) RunAndReturn(run func(biz.BackupType) ([]*types.
 	return _c
 }
 
-// Restore provides a mock function with given fields: typ, backup, target
-func (_m *BackupRepo) Restore(typ biz.BackupType, backup string, target string) error {
-	ret := _m.Called(typ, backup, target)
+// Restore provides a mock function with given fields: ctx, typ, backup, target
+func (_m *BackupRepo) Restore(ctx context.Context, typ biz.BackupType, backup string, target string) error {
+	ret := _m.Called(ctx, typ, backup, target)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Restore")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(biz.BackupType, string, string) error); ok {
-		r0 = rf(typ, backup, target)
+	if rf, ok := ret.Get(0).(func(context.Context, biz.BackupType, string, string) error); ok {
+		r0 = rf(ctx, typ, backup, target)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -409,16 +414,17 @@ type BackupRepo_Restore_Call struct {
 }
 
 // Restore is a helper method to define mock.On call
+//   - ctx context.Context
 //   - typ biz.BackupType
 //   - backup string
 //   - target string
-func (_e *BackupRepo_Expecter) Restore(typ interface{}, backup interface{}, target interface{}) *BackupRepo_Restore_Call {
-	return &BackupRepo_Restore_Call{Call: _e.mock.On("Restore", typ, backup, target)}
+func (_e *BackupRepo_Expecter) Restore(ctx interface{}, typ interface{}, backup interface{}, target interface{}) *BackupRepo_Restore_Call {
+	return &BackupRepo_Restore_Call{Call: _e.mock.On("Restore", ctx, typ, backup, target)}
 }
 
-func (_c *BackupRepo_Restore_Call) Run(run func(typ biz.BackupType, backup string, target string)) *BackupRepo_Restore_Call {
+func (_c *BackupRepo_Restore_Call) Run(run func(ctx context.Context, typ biz.BackupType, backup string, target string)) *BackupRepo_Restore_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(biz.BackupType), args[1].(string), args[2].(string))
+		run(args[0].(context.Context), args[1].(biz.BackupType), args[2].(string), args[3].(string))
 	})
 	return _c
 }
@@ -428,7 +434,7 @@ func (_c *BackupRepo_Restore_Call) Return(_a0 error) *BackupRepo_Restore_Call {
 	return _c
 }
 
-func (_c *BackupRepo_Restore_Call) RunAndReturn(run func(biz.BackupType, string, string) error) *BackupRepo_Restore_Call {
+func (_c *BackupRepo_Restore_Call) RunAndReturn(run func(context.Context, biz.BackupType, string, string) error) *BackupRepo_Restore_Call {
 	_c.Call.Return(run)
 	return _c
 }

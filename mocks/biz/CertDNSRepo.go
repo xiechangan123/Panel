@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/internal/biz"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/internal/http/request"
@@ -22,9 +25,9 @@ func (_m *CertDNSRepo) EXPECT() *CertDNSRepo_Expecter {
 	return &CertDNSRepo_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: req
-func (_m *CertDNSRepo) Create(req *request.CertDNSCreate) (*biz.CertDNS, error) {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: ctx, req
+func (_m *CertDNSRepo) Create(ctx context.Context, req *request.CertDNSCreate) (*biz.CertDNS, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -32,19 +35,19 @@ func (_m *CertDNSRepo) Create(req *request.CertDNSCreate) (*biz.CertDNS, error) 
 
 	var r0 *biz.CertDNS
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.CertDNSCreate) (*biz.CertDNS, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertDNSCreate) (*biz.CertDNS, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.CertDNSCreate) *biz.CertDNS); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertDNSCreate) *biz.CertDNS); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.CertDNS)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.CertDNSCreate) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.CertDNSCreate) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -58,14 +61,15 @@ type CertDNSRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.CertDNSCreate
-func (_e *CertDNSRepo_Expecter) Create(req interface{}) *CertDNSRepo_Create_Call {
-	return &CertDNSRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *CertDNSRepo_Expecter) Create(ctx interface{}, req interface{}) *CertDNSRepo_Create_Call {
+	return &CertDNSRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
 }
 
-func (_c *CertDNSRepo_Create_Call) Run(run func(req *request.CertDNSCreate)) *CertDNSRepo_Create_Call {
+func (_c *CertDNSRepo_Create_Call) Run(run func(ctx context.Context, req *request.CertDNSCreate)) *CertDNSRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.CertDNSCreate))
+		run(args[0].(context.Context), args[1].(*request.CertDNSCreate))
 	})
 	return _c
 }
@@ -75,22 +79,22 @@ func (_c *CertDNSRepo_Create_Call) Return(_a0 *biz.CertDNS, _a1 error) *CertDNSR
 	return _c
 }
 
-func (_c *CertDNSRepo_Create_Call) RunAndReturn(run func(*request.CertDNSCreate) (*biz.CertDNS, error)) *CertDNSRepo_Create_Call {
+func (_c *CertDNSRepo_Create_Call) RunAndReturn(run func(context.Context, *request.CertDNSCreate) (*biz.CertDNS, error)) *CertDNSRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *CertDNSRepo) Delete(id uint) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *CertDNSRepo) Delete(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -104,14 +108,15 @@ type CertDNSRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *CertDNSRepo_Expecter) Delete(id interface{}) *CertDNSRepo_Delete_Call {
-	return &CertDNSRepo_Delete_Call{Call: _e.mock.On("Delete", id)}
+func (_e *CertDNSRepo_Expecter) Delete(ctx interface{}, id interface{}) *CertDNSRepo_Delete_Call {
+	return &CertDNSRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *CertDNSRepo_Delete_Call) Run(run func(id uint)) *CertDNSRepo_Delete_Call {
+func (_c *CertDNSRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *CertDNSRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -121,7 +126,7 @@ func (_c *CertDNSRepo_Delete_Call) Return(_a0 error) *CertDNSRepo_Delete_Call {
 	return _c
 }
 
-func (_c *CertDNSRepo_Delete_Call) RunAndReturn(run func(uint) error) *CertDNSRepo_Delete_Call {
+func (_c *CertDNSRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *CertDNSRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -250,17 +255,17 @@ func (_c *CertDNSRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.CertD
 	return _c
 }
 
-// Update provides a mock function with given fields: req
-func (_m *CertDNSRepo) Update(req *request.CertDNSUpdate) error {
-	ret := _m.Called(req)
+// Update provides a mock function with given fields: ctx, req
+func (_m *CertDNSRepo) Update(ctx context.Context, req *request.CertDNSUpdate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.CertDNSUpdate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertDNSUpdate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -274,14 +279,15 @@ type CertDNSRepo_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.CertDNSUpdate
-func (_e *CertDNSRepo_Expecter) Update(req interface{}) *CertDNSRepo_Update_Call {
-	return &CertDNSRepo_Update_Call{Call: _e.mock.On("Update", req)}
+func (_e *CertDNSRepo_Expecter) Update(ctx interface{}, req interface{}) *CertDNSRepo_Update_Call {
+	return &CertDNSRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
 }
 
-func (_c *CertDNSRepo_Update_Call) Run(run func(req *request.CertDNSUpdate)) *CertDNSRepo_Update_Call {
+func (_c *CertDNSRepo_Update_Call) Run(run func(ctx context.Context, req *request.CertDNSUpdate)) *CertDNSRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.CertDNSUpdate))
+		run(args[0].(context.Context), args[1].(*request.CertDNSUpdate))
 	})
 	return _c
 }
@@ -291,7 +297,7 @@ func (_c *CertDNSRepo_Update_Call) Return(_a0 error) *CertDNSRepo_Update_Call {
 	return _c
 }
 
-func (_c *CertDNSRepo_Update_Call) RunAndReturn(run func(*request.CertDNSUpdate) error) *CertDNSRepo_Update_Call {
+func (_c *CertDNSRepo_Update_Call) RunAndReturn(run func(context.Context, *request.CertDNSUpdate) error) *CertDNSRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/internal/biz"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/internal/http/request"
@@ -551,9 +554,9 @@ func (_c *SettingRepo_UpdateCert_Call) RunAndReturn(run func(*request.SettingCer
 	return _c
 }
 
-// UpdatePanel provides a mock function with given fields: req
-func (_m *SettingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
-	ret := _m.Called(req)
+// UpdatePanel provides a mock function with given fields: ctx, req
+func (_m *SettingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdatePanel")
@@ -561,17 +564,17 @@ func (_m *SettingRepo) UpdatePanel(req *request.SettingPanel) (bool, error) {
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.SettingPanel) (bool, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.SettingPanel) (bool, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.SettingPanel) bool); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.SettingPanel) bool); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.SettingPanel) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.SettingPanel) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -585,14 +588,15 @@ type SettingRepo_UpdatePanel_Call struct {
 }
 
 // UpdatePanel is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.SettingPanel
-func (_e *SettingRepo_Expecter) UpdatePanel(req interface{}) *SettingRepo_UpdatePanel_Call {
-	return &SettingRepo_UpdatePanel_Call{Call: _e.mock.On("UpdatePanel", req)}
+func (_e *SettingRepo_Expecter) UpdatePanel(ctx interface{}, req interface{}) *SettingRepo_UpdatePanel_Call {
+	return &SettingRepo_UpdatePanel_Call{Call: _e.mock.On("UpdatePanel", ctx, req)}
 }
 
-func (_c *SettingRepo_UpdatePanel_Call) Run(run func(req *request.SettingPanel)) *SettingRepo_UpdatePanel_Call {
+func (_c *SettingRepo_UpdatePanel_Call) Run(run func(ctx context.Context, req *request.SettingPanel)) *SettingRepo_UpdatePanel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.SettingPanel))
+		run(args[0].(context.Context), args[1].(*request.SettingPanel))
 	})
 	return _c
 }
@@ -602,7 +606,7 @@ func (_c *SettingRepo_UpdatePanel_Call) Return(_a0 bool, _a1 error) *SettingRepo
 	return _c
 }
 
-func (_c *SettingRepo_UpdatePanel_Call) RunAndReturn(run func(*request.SettingPanel) (bool, error)) *SettingRepo_UpdatePanel_Call {
+func (_c *SettingRepo_UpdatePanel_Call) RunAndReturn(run func(context.Context, *request.SettingPanel) (bool, error)) *SettingRepo_UpdatePanel_Call {
 	_c.Call.Return(run)
 	return _c
 }

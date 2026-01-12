@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/internal/biz"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/internal/http/request"
@@ -77,17 +80,17 @@ func (_c *CronRepo_Count_Call) RunAndReturn(run func() (int64, error)) *CronRepo
 	return _c
 }
 
-// Create provides a mock function with given fields: req
-func (_m *CronRepo) Create(req *request.CronCreate) error {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: ctx, req
+func (_m *CronRepo) Create(ctx context.Context, req *request.CronCreate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.CronCreate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CronCreate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -101,14 +104,15 @@ type CronRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.CronCreate
-func (_e *CronRepo_Expecter) Create(req interface{}) *CronRepo_Create_Call {
-	return &CronRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *CronRepo_Expecter) Create(ctx interface{}, req interface{}) *CronRepo_Create_Call {
+	return &CronRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
 }
 
-func (_c *CronRepo_Create_Call) Run(run func(req *request.CronCreate)) *CronRepo_Create_Call {
+func (_c *CronRepo_Create_Call) Run(run func(ctx context.Context, req *request.CronCreate)) *CronRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.CronCreate))
+		run(args[0].(context.Context), args[1].(*request.CronCreate))
 	})
 	return _c
 }
@@ -118,22 +122,22 @@ func (_c *CronRepo_Create_Call) Return(_a0 error) *CronRepo_Create_Call {
 	return _c
 }
 
-func (_c *CronRepo_Create_Call) RunAndReturn(run func(*request.CronCreate) error) *CronRepo_Create_Call {
+func (_c *CronRepo_Create_Call) RunAndReturn(run func(context.Context, *request.CronCreate) error) *CronRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *CronRepo) Delete(id uint) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *CronRepo) Delete(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -147,14 +151,15 @@ type CronRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *CronRepo_Expecter) Delete(id interface{}) *CronRepo_Delete_Call {
-	return &CronRepo_Delete_Call{Call: _e.mock.On("Delete", id)}
+func (_e *CronRepo_Expecter) Delete(ctx interface{}, id interface{}) *CronRepo_Delete_Call {
+	return &CronRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *CronRepo_Delete_Call) Run(run func(id uint)) *CronRepo_Delete_Call {
+func (_c *CronRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *CronRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -164,7 +169,7 @@ func (_c *CronRepo_Delete_Call) Return(_a0 error) *CronRepo_Delete_Call {
 	return _c
 }
 
-func (_c *CronRepo_Delete_Call) RunAndReturn(run func(uint) error) *CronRepo_Delete_Call {
+func (_c *CronRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *CronRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -340,17 +345,17 @@ func (_c *CronRepo_Status_Call) RunAndReturn(run func(uint, bool) error) *CronRe
 	return _c
 }
 
-// Update provides a mock function with given fields: req
-func (_m *CronRepo) Update(req *request.CronUpdate) error {
-	ret := _m.Called(req)
+// Update provides a mock function with given fields: ctx, req
+func (_m *CronRepo) Update(ctx context.Context, req *request.CronUpdate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.CronUpdate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CronUpdate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -364,14 +369,15 @@ type CronRepo_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.CronUpdate
-func (_e *CronRepo_Expecter) Update(req interface{}) *CronRepo_Update_Call {
-	return &CronRepo_Update_Call{Call: _e.mock.On("Update", req)}
+func (_e *CronRepo_Expecter) Update(ctx interface{}, req interface{}) *CronRepo_Update_Call {
+	return &CronRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
 }
 
-func (_c *CronRepo_Update_Call) Run(run func(req *request.CronUpdate)) *CronRepo_Update_Call {
+func (_c *CronRepo_Update_Call) Run(run func(ctx context.Context, req *request.CronUpdate)) *CronRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.CronUpdate))
+		run(args[0].(context.Context), args[1].(*request.CronUpdate))
 	})
 	return _c
 }
@@ -381,7 +387,7 @@ func (_c *CronRepo_Update_Call) Return(_a0 error) *CronRepo_Update_Call {
 	return _c
 }
 
-func (_c *CronRepo_Update_Call) RunAndReturn(run func(*request.CronUpdate) error) *CronRepo_Update_Call {
+func (_c *CronRepo_Update_Call) RunAndReturn(run func(context.Context, *request.CronUpdate) error) *CronRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

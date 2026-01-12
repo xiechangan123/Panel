@@ -3,9 +3,11 @@
 package biz
 
 import (
-	image "image"
+	context "context"
 
 	biz "github.com/acepanel/panel/internal/biz"
+
+	image "image"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -82,9 +84,9 @@ func (_c *UserRepo_CheckPassword_Call) RunAndReturn(run func(string, string) (*b
 	return _c
 }
 
-// Create provides a mock function with given fields: username, password, email
-func (_m *UserRepo) Create(username string, password string, email string) (*biz.User, error) {
-	ret := _m.Called(username, password, email)
+// Create provides a mock function with given fields: ctx, username, password, email
+func (_m *UserRepo) Create(ctx context.Context, username string, password string, email string) (*biz.User, error) {
+	ret := _m.Called(ctx, username, password, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -92,19 +94,19 @@ func (_m *UserRepo) Create(username string, password string, email string) (*biz
 
 	var r0 *biz.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, string) (*biz.User, error)); ok {
-		return rf(username, password, email)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (*biz.User, error)); ok {
+		return rf(ctx, username, password, email)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string) *biz.User); ok {
-		r0 = rf(username, password, email)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *biz.User); ok {
+		r0 = rf(ctx, username, password, email)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(username, password, email)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
+		r1 = rf(ctx, username, password, email)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -118,16 +120,17 @@ type UserRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - username string
 //   - password string
 //   - email string
-func (_e *UserRepo_Expecter) Create(username interface{}, password interface{}, email interface{}) *UserRepo_Create_Call {
-	return &UserRepo_Create_Call{Call: _e.mock.On("Create", username, password, email)}
+func (_e *UserRepo_Expecter) Create(ctx interface{}, username interface{}, password interface{}, email interface{}) *UserRepo_Create_Call {
+	return &UserRepo_Create_Call{Call: _e.mock.On("Create", ctx, username, password, email)}
 }
 
-func (_c *UserRepo_Create_Call) Run(run func(username string, password string, email string)) *UserRepo_Create_Call {
+func (_c *UserRepo_Create_Call) Run(run func(ctx context.Context, username string, password string, email string)) *UserRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
 	})
 	return _c
 }
@@ -137,22 +140,22 @@ func (_c *UserRepo_Create_Call) Return(_a0 *biz.User, _a1 error) *UserRepo_Creat
 	return _c
 }
 
-func (_c *UserRepo_Create_Call) RunAndReturn(run func(string, string, string) (*biz.User, error)) *UserRepo_Create_Call {
+func (_c *UserRepo_Create_Call) RunAndReturn(run func(context.Context, string, string, string) (*biz.User, error)) *UserRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *UserRepo) Delete(id uint) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *UserRepo) Delete(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -166,14 +169,15 @@ type UserRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *UserRepo_Expecter) Delete(id interface{}) *UserRepo_Delete_Call {
-	return &UserRepo_Delete_Call{Call: _e.mock.On("Delete", id)}
+func (_e *UserRepo_Expecter) Delete(ctx interface{}, id interface{}) *UserRepo_Delete_Call {
+	return &UserRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *UserRepo_Delete_Call) Run(run func(id uint)) *UserRepo_Delete_Call {
+func (_c *UserRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *UserRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -183,7 +187,7 @@ func (_c *UserRepo_Delete_Call) Return(_a0 error) *UserRepo_Delete_Call {
 	return _c
 }
 
-func (_c *UserRepo_Delete_Call) RunAndReturn(run func(uint) error) *UserRepo_Delete_Call {
+func (_c *UserRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *UserRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -440,17 +444,17 @@ func (_c *UserRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.User, in
 	return _c
 }
 
-// UpdateEmail provides a mock function with given fields: id, email
-func (_m *UserRepo) UpdateEmail(id uint, email string) error {
-	ret := _m.Called(id, email)
+// UpdateEmail provides a mock function with given fields: ctx, id, email
+func (_m *UserRepo) UpdateEmail(ctx context.Context, id uint, email string) error {
+	ret := _m.Called(ctx, id, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateEmail")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
-		r0 = rf(id, email)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string) error); ok {
+		r0 = rf(ctx, id, email)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -464,15 +468,16 @@ type UserRepo_UpdateEmail_Call struct {
 }
 
 // UpdateEmail is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
 //   - email string
-func (_e *UserRepo_Expecter) UpdateEmail(id interface{}, email interface{}) *UserRepo_UpdateEmail_Call {
-	return &UserRepo_UpdateEmail_Call{Call: _e.mock.On("UpdateEmail", id, email)}
+func (_e *UserRepo_Expecter) UpdateEmail(ctx interface{}, id interface{}, email interface{}) *UserRepo_UpdateEmail_Call {
+	return &UserRepo_UpdateEmail_Call{Call: _e.mock.On("UpdateEmail", ctx, id, email)}
 }
 
-func (_c *UserRepo_UpdateEmail_Call) Run(run func(id uint, email string)) *UserRepo_UpdateEmail_Call {
+func (_c *UserRepo_UpdateEmail_Call) Run(run func(ctx context.Context, id uint, email string)) *UserRepo_UpdateEmail_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(string))
+		run(args[0].(context.Context), args[1].(uint), args[2].(string))
 	})
 	return _c
 }
@@ -482,22 +487,22 @@ func (_c *UserRepo_UpdateEmail_Call) Return(_a0 error) *UserRepo_UpdateEmail_Cal
 	return _c
 }
 
-func (_c *UserRepo_UpdateEmail_Call) RunAndReturn(run func(uint, string) error) *UserRepo_UpdateEmail_Call {
+func (_c *UserRepo_UpdateEmail_Call) RunAndReturn(run func(context.Context, uint, string) error) *UserRepo_UpdateEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpdatePassword provides a mock function with given fields: id, password
-func (_m *UserRepo) UpdatePassword(id uint, password string) error {
-	ret := _m.Called(id, password)
+// UpdatePassword provides a mock function with given fields: ctx, id, password
+func (_m *UserRepo) UpdatePassword(ctx context.Context, id uint, password string) error {
+	ret := _m.Called(ctx, id, password)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdatePassword")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
-		r0 = rf(id, password)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string) error); ok {
+		r0 = rf(ctx, id, password)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -511,15 +516,16 @@ type UserRepo_UpdatePassword_Call struct {
 }
 
 // UpdatePassword is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
 //   - password string
-func (_e *UserRepo_Expecter) UpdatePassword(id interface{}, password interface{}) *UserRepo_UpdatePassword_Call {
-	return &UserRepo_UpdatePassword_Call{Call: _e.mock.On("UpdatePassword", id, password)}
+func (_e *UserRepo_Expecter) UpdatePassword(ctx interface{}, id interface{}, password interface{}) *UserRepo_UpdatePassword_Call {
+	return &UserRepo_UpdatePassword_Call{Call: _e.mock.On("UpdatePassword", ctx, id, password)}
 }
 
-func (_c *UserRepo_UpdatePassword_Call) Run(run func(id uint, password string)) *UserRepo_UpdatePassword_Call {
+func (_c *UserRepo_UpdatePassword_Call) Run(run func(ctx context.Context, id uint, password string)) *UserRepo_UpdatePassword_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(string))
+		run(args[0].(context.Context), args[1].(uint), args[2].(string))
 	})
 	return _c
 }
@@ -529,7 +535,7 @@ func (_c *UserRepo_UpdatePassword_Call) Return(_a0 error) *UserRepo_UpdatePasswo
 	return _c
 }
 
-func (_c *UserRepo_UpdatePassword_Call) RunAndReturn(run func(uint, string) error) *UserRepo_UpdatePassword_Call {
+func (_c *UserRepo_UpdatePassword_Call) RunAndReturn(run func(context.Context, uint, string) error) *UserRepo_UpdatePassword_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -582,17 +588,17 @@ func (_c *UserRepo_UpdateTwoFA_Call) RunAndReturn(run func(uint, string, string)
 	return _c
 }
 
-// UpdateUsername provides a mock function with given fields: id, username
-func (_m *UserRepo) UpdateUsername(id uint, username string) error {
-	ret := _m.Called(id, username)
+// UpdateUsername provides a mock function with given fields: ctx, id, username
+func (_m *UserRepo) UpdateUsername(ctx context.Context, id uint, username string) error {
+	ret := _m.Called(ctx, id, username)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateUsername")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
-		r0 = rf(id, username)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string) error); ok {
+		r0 = rf(ctx, id, username)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -606,15 +612,16 @@ type UserRepo_UpdateUsername_Call struct {
 }
 
 // UpdateUsername is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
 //   - username string
-func (_e *UserRepo_Expecter) UpdateUsername(id interface{}, username interface{}) *UserRepo_UpdateUsername_Call {
-	return &UserRepo_UpdateUsername_Call{Call: _e.mock.On("UpdateUsername", id, username)}
+func (_e *UserRepo_Expecter) UpdateUsername(ctx interface{}, id interface{}, username interface{}) *UserRepo_UpdateUsername_Call {
+	return &UserRepo_UpdateUsername_Call{Call: _e.mock.On("UpdateUsername", ctx, id, username)}
 }
 
-func (_c *UserRepo_UpdateUsername_Call) Run(run func(id uint, username string)) *UserRepo_UpdateUsername_Call {
+func (_c *UserRepo_UpdateUsername_Call) Run(run func(ctx context.Context, id uint, username string)) *UserRepo_UpdateUsername_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(string))
+		run(args[0].(context.Context), args[1].(uint), args[2].(string))
 	})
 	return _c
 }
@@ -624,7 +631,7 @@ func (_c *UserRepo_UpdateUsername_Call) Return(_a0 error) *UserRepo_UpdateUserna
 	return _c
 }
 
-func (_c *UserRepo_UpdateUsername_Call) RunAndReturn(run func(uint, string) error) *UserRepo_UpdateUsername_Call {
+func (_c *UserRepo_UpdateUsername_Call) RunAndReturn(run func(context.Context, uint, string) error) *UserRepo_UpdateUsername_Call {
 	_c.Call.Return(run)
 	return _c
 }

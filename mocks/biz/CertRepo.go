@@ -6,6 +6,8 @@ import (
 	biz "github.com/acepanel/panel/internal/biz"
 	acme "github.com/acepanel/panel/pkg/acme"
 
+	context "context"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/internal/http/request"
@@ -28,9 +30,9 @@ func (_m *CertRepo) EXPECT() *CertRepo_Expecter {
 	return &CertRepo_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: req
-func (_m *CertRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: ctx, req
+func (_m *CertRepo) Create(ctx context.Context, req *request.CertCreate) (*biz.Cert, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -38,19 +40,19 @@ func (_m *CertRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 
 	var r0 *biz.Cert
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.CertCreate) (*biz.Cert, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertCreate) (*biz.Cert, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.CertCreate) *biz.Cert); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertCreate) *biz.Cert); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.Cert)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.CertCreate) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.CertCreate) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -64,14 +66,15 @@ type CertRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.CertCreate
-func (_e *CertRepo_Expecter) Create(req interface{}) *CertRepo_Create_Call {
-	return &CertRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *CertRepo_Expecter) Create(ctx interface{}, req interface{}) *CertRepo_Create_Call {
+	return &CertRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
 }
 
-func (_c *CertRepo_Create_Call) Run(run func(req *request.CertCreate)) *CertRepo_Create_Call {
+func (_c *CertRepo_Create_Call) Run(run func(ctx context.Context, req *request.CertCreate)) *CertRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.CertCreate))
+		run(args[0].(context.Context), args[1].(*request.CertCreate))
 	})
 	return _c
 }
@@ -81,22 +84,22 @@ func (_c *CertRepo_Create_Call) Return(_a0 *biz.Cert, _a1 error) *CertRepo_Creat
 	return _c
 }
 
-func (_c *CertRepo_Create_Call) RunAndReturn(run func(*request.CertCreate) (*biz.Cert, error)) *CertRepo_Create_Call {
+func (_c *CertRepo_Create_Call) RunAndReturn(run func(context.Context, *request.CertCreate) (*biz.Cert, error)) *CertRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *CertRepo) Delete(id uint) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *CertRepo) Delete(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -110,14 +113,15 @@ type CertRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *CertRepo_Expecter) Delete(id interface{}) *CertRepo_Delete_Call {
-	return &CertRepo_Delete_Call{Call: _e.mock.On("Delete", id)}
+func (_e *CertRepo_Expecter) Delete(ctx interface{}, id interface{}) *CertRepo_Delete_Call {
+	return &CertRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *CertRepo_Delete_Call) Run(run func(id uint)) *CertRepo_Delete_Call {
+func (_c *CertRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *CertRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -127,7 +131,7 @@ func (_c *CertRepo_Delete_Call) Return(_a0 error) *CertRepo_Delete_Call {
 	return _c
 }
 
-func (_c *CertRepo_Delete_Call) RunAndReturn(run func(uint) error) *CertRepo_Delete_Call {
+func (_c *CertRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *CertRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -763,17 +767,17 @@ func (_c *CertRepo_Renew_Call) RunAndReturn(run func(uint) (*acme.Certificate, e
 	return _c
 }
 
-// Update provides a mock function with given fields: req
-func (_m *CertRepo) Update(req *request.CertUpdate) error {
-	ret := _m.Called(req)
+// Update provides a mock function with given fields: ctx, req
+func (_m *CertRepo) Update(ctx context.Context, req *request.CertUpdate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.CertUpdate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertUpdate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -787,14 +791,15 @@ type CertRepo_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.CertUpdate
-func (_e *CertRepo_Expecter) Update(req interface{}) *CertRepo_Update_Call {
-	return &CertRepo_Update_Call{Call: _e.mock.On("Update", req)}
+func (_e *CertRepo_Expecter) Update(ctx interface{}, req interface{}) *CertRepo_Update_Call {
+	return &CertRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
 }
 
-func (_c *CertRepo_Update_Call) Run(run func(req *request.CertUpdate)) *CertRepo_Update_Call {
+func (_c *CertRepo_Update_Call) Run(run func(ctx context.Context, req *request.CertUpdate)) *CertRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.CertUpdate))
+		run(args[0].(context.Context), args[1].(*request.CertUpdate))
 	})
 	return _c
 }
@@ -804,14 +809,14 @@ func (_c *CertRepo_Update_Call) Return(_a0 error) *CertRepo_Update_Call {
 	return _c
 }
 
-func (_c *CertRepo_Update_Call) RunAndReturn(run func(*request.CertUpdate) error) *CertRepo_Update_Call {
+func (_c *CertRepo_Update_Call) RunAndReturn(run func(context.Context, *request.CertUpdate) error) *CertRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Upload provides a mock function with given fields: req
-func (_m *CertRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
-	ret := _m.Called(req)
+// Upload provides a mock function with given fields: ctx, req
+func (_m *CertRepo) Upload(ctx context.Context, req *request.CertUpload) (*biz.Cert, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Upload")
@@ -819,19 +824,19 @@ func (_m *CertRepo) Upload(req *request.CertUpload) (*biz.Cert, error) {
 
 	var r0 *biz.Cert
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.CertUpload) (*biz.Cert, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertUpload) (*biz.Cert, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.CertUpload) *biz.Cert); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.CertUpload) *biz.Cert); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.Cert)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.CertUpload) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.CertUpload) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -845,14 +850,15 @@ type CertRepo_Upload_Call struct {
 }
 
 // Upload is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.CertUpload
-func (_e *CertRepo_Expecter) Upload(req interface{}) *CertRepo_Upload_Call {
-	return &CertRepo_Upload_Call{Call: _e.mock.On("Upload", req)}
+func (_e *CertRepo_Expecter) Upload(ctx interface{}, req interface{}) *CertRepo_Upload_Call {
+	return &CertRepo_Upload_Call{Call: _e.mock.On("Upload", ctx, req)}
 }
 
-func (_c *CertRepo_Upload_Call) Run(run func(req *request.CertUpload)) *CertRepo_Upload_Call {
+func (_c *CertRepo_Upload_Call) Run(run func(ctx context.Context, req *request.CertUpload)) *CertRepo_Upload_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.CertUpload))
+		run(args[0].(context.Context), args[1].(*request.CertUpload))
 	})
 	return _c
 }
@@ -862,7 +868,7 @@ func (_c *CertRepo_Upload_Call) Return(_a0 *biz.Cert, _a1 error) *CertRepo_Uploa
 	return _c
 }
 
-func (_c *CertRepo_Upload_Call) RunAndReturn(run func(*request.CertUpload) (*biz.Cert, error)) *CertRepo_Upload_Call {
+func (_c *CertRepo_Upload_Call) RunAndReturn(run func(context.Context, *request.CertUpload) (*biz.Cert, error)) *CertRepo_Upload_Call {
 	_c.Call.Return(run)
 	return _c
 }

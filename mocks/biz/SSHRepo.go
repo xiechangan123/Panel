@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/internal/biz"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/internal/http/request"
@@ -22,17 +25,17 @@ func (_m *SSHRepo) EXPECT() *SSHRepo_Expecter {
 	return &SSHRepo_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: req
-func (_m *SSHRepo) Create(req *request.SSHCreate) error {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: ctx, req
+func (_m *SSHRepo) Create(ctx context.Context, req *request.SSHCreate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.SSHCreate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.SSHCreate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,14 +49,15 @@ type SSHRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.SSHCreate
-func (_e *SSHRepo_Expecter) Create(req interface{}) *SSHRepo_Create_Call {
-	return &SSHRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *SSHRepo_Expecter) Create(ctx interface{}, req interface{}) *SSHRepo_Create_Call {
+	return &SSHRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
 }
 
-func (_c *SSHRepo_Create_Call) Run(run func(req *request.SSHCreate)) *SSHRepo_Create_Call {
+func (_c *SSHRepo_Create_Call) Run(run func(ctx context.Context, req *request.SSHCreate)) *SSHRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.SSHCreate))
+		run(args[0].(context.Context), args[1].(*request.SSHCreate))
 	})
 	return _c
 }
@@ -63,22 +67,22 @@ func (_c *SSHRepo_Create_Call) Return(_a0 error) *SSHRepo_Create_Call {
 	return _c
 }
 
-func (_c *SSHRepo_Create_Call) RunAndReturn(run func(*request.SSHCreate) error) *SSHRepo_Create_Call {
+func (_c *SSHRepo_Create_Call) RunAndReturn(run func(context.Context, *request.SSHCreate) error) *SSHRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *SSHRepo) Delete(id uint) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *SSHRepo) Delete(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -92,14 +96,15 @@ type SSHRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *SSHRepo_Expecter) Delete(id interface{}) *SSHRepo_Delete_Call {
-	return &SSHRepo_Delete_Call{Call: _e.mock.On("Delete", id)}
+func (_e *SSHRepo_Expecter) Delete(ctx interface{}, id interface{}) *SSHRepo_Delete_Call {
+	return &SSHRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *SSHRepo_Delete_Call) Run(run func(id uint)) *SSHRepo_Delete_Call {
+func (_c *SSHRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *SSHRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -109,7 +114,7 @@ func (_c *SSHRepo_Delete_Call) Return(_a0 error) *SSHRepo_Delete_Call {
 	return _c
 }
 
-func (_c *SSHRepo_Delete_Call) RunAndReturn(run func(uint) error) *SSHRepo_Delete_Call {
+func (_c *SSHRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *SSHRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -238,17 +243,17 @@ func (_c *SSHRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.SSH, int6
 	return _c
 }
 
-// Update provides a mock function with given fields: req
-func (_m *SSHRepo) Update(req *request.SSHUpdate) error {
-	ret := _m.Called(req)
+// Update provides a mock function with given fields: ctx, req
+func (_m *SSHRepo) Update(ctx context.Context, req *request.SSHUpdate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.SSHUpdate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.SSHUpdate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -262,14 +267,15 @@ type SSHRepo_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.SSHUpdate
-func (_e *SSHRepo_Expecter) Update(req interface{}) *SSHRepo_Update_Call {
-	return &SSHRepo_Update_Call{Call: _e.mock.On("Update", req)}
+func (_e *SSHRepo_Expecter) Update(ctx interface{}, req interface{}) *SSHRepo_Update_Call {
+	return &SSHRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
 }
 
-func (_c *SSHRepo_Update_Call) Run(run func(req *request.SSHUpdate)) *SSHRepo_Update_Call {
+func (_c *SSHRepo_Update_Call) Run(run func(ctx context.Context, req *request.SSHUpdate)) *SSHRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.SSHUpdate))
+		run(args[0].(context.Context), args[1].(*request.SSHUpdate))
 	})
 	return _c
 }
@@ -279,7 +285,7 @@ func (_c *SSHRepo_Update_Call) Return(_a0 error) *SSHRepo_Update_Call {
 	return _c
 }
 
-func (_c *SSHRepo_Update_Call) RunAndReturn(run func(*request.SSHUpdate) error) *SSHRepo_Update_Call {
+func (_c *SSHRepo_Update_Call) RunAndReturn(run func(context.Context, *request.SSHUpdate) error) *SSHRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

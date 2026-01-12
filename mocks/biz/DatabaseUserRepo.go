@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/internal/biz"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/internal/http/request"
@@ -77,17 +80,17 @@ func (_c *DatabaseUserRepo_Count_Call) RunAndReturn(run func() (int64, error)) *
 	return _c
 }
 
-// Create provides a mock function with given fields: req
-func (_m *DatabaseUserRepo) Create(req *request.DatabaseUserCreate) error {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: ctx, req
+func (_m *DatabaseUserRepo) Create(ctx context.Context, req *request.DatabaseUserCreate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseUserCreate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseUserCreate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -101,14 +104,15 @@ type DatabaseUserRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseUserCreate
-func (_e *DatabaseUserRepo_Expecter) Create(req interface{}) *DatabaseUserRepo_Create_Call {
-	return &DatabaseUserRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *DatabaseUserRepo_Expecter) Create(ctx interface{}, req interface{}) *DatabaseUserRepo_Create_Call {
+	return &DatabaseUserRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
 }
 
-func (_c *DatabaseUserRepo_Create_Call) Run(run func(req *request.DatabaseUserCreate)) *DatabaseUserRepo_Create_Call {
+func (_c *DatabaseUserRepo_Create_Call) Run(run func(ctx context.Context, req *request.DatabaseUserCreate)) *DatabaseUserRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseUserCreate))
+		run(args[0].(context.Context), args[1].(*request.DatabaseUserCreate))
 	})
 	return _c
 }
@@ -118,22 +122,22 @@ func (_c *DatabaseUserRepo_Create_Call) Return(_a0 error) *DatabaseUserRepo_Crea
 	return _c
 }
 
-func (_c *DatabaseUserRepo_Create_Call) RunAndReturn(run func(*request.DatabaseUserCreate) error) *DatabaseUserRepo_Create_Call {
+func (_c *DatabaseUserRepo_Create_Call) RunAndReturn(run func(context.Context, *request.DatabaseUserCreate) error) *DatabaseUserRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *DatabaseUserRepo) Delete(id uint) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *DatabaseUserRepo) Delete(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -147,14 +151,15 @@ type DatabaseUserRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *DatabaseUserRepo_Expecter) Delete(id interface{}) *DatabaseUserRepo_Delete_Call {
-	return &DatabaseUserRepo_Delete_Call{Call: _e.mock.On("Delete", id)}
+func (_e *DatabaseUserRepo_Expecter) Delete(ctx interface{}, id interface{}) *DatabaseUserRepo_Delete_Call {
+	return &DatabaseUserRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *DatabaseUserRepo_Delete_Call) Run(run func(id uint)) *DatabaseUserRepo_Delete_Call {
+func (_c *DatabaseUserRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *DatabaseUserRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -164,7 +169,7 @@ func (_c *DatabaseUserRepo_Delete_Call) Return(_a0 error) *DatabaseUserRepo_Dele
 	return _c
 }
 
-func (_c *DatabaseUserRepo_Delete_Call) RunAndReturn(run func(uint) error) *DatabaseUserRepo_Delete_Call {
+func (_c *DatabaseUserRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *DatabaseUserRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }

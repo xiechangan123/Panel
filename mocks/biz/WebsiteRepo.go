@@ -128,9 +128,9 @@ func (_c *WebsiteRepo_Count_Call) RunAndReturn(run func() (int64, error)) *Websi
 	return _c
 }
 
-// Create provides a mock function with given fields: req
-func (_m *WebsiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: ctx, req
+func (_m *WebsiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -138,19 +138,19 @@ func (_m *WebsiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) 
 
 	var r0 *biz.Website
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.WebsiteCreate) (*biz.Website, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteCreate) (*biz.Website, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.WebsiteCreate) *biz.Website); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteCreate) *biz.Website); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.Website)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.WebsiteCreate) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.WebsiteCreate) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -164,14 +164,15 @@ type WebsiteRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.WebsiteCreate
-func (_e *WebsiteRepo_Expecter) Create(req interface{}) *WebsiteRepo_Create_Call {
-	return &WebsiteRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *WebsiteRepo_Expecter) Create(ctx interface{}, req interface{}) *WebsiteRepo_Create_Call {
+	return &WebsiteRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
 }
 
-func (_c *WebsiteRepo_Create_Call) Run(run func(req *request.WebsiteCreate)) *WebsiteRepo_Create_Call {
+func (_c *WebsiteRepo_Create_Call) Run(run func(ctx context.Context, req *request.WebsiteCreate)) *WebsiteRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.WebsiteCreate))
+		run(args[0].(context.Context), args[1].(*request.WebsiteCreate))
 	})
 	return _c
 }
@@ -181,22 +182,22 @@ func (_c *WebsiteRepo_Create_Call) Return(_a0 *biz.Website, _a1 error) *WebsiteR
 	return _c
 }
 
-func (_c *WebsiteRepo_Create_Call) RunAndReturn(run func(*request.WebsiteCreate) (*biz.Website, error)) *WebsiteRepo_Create_Call {
+func (_c *WebsiteRepo_Create_Call) RunAndReturn(run func(context.Context, *request.WebsiteCreate) (*biz.Website, error)) *WebsiteRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: req
-func (_m *WebsiteRepo) Delete(req *request.WebsiteDelete) error {
-	ret := _m.Called(req)
+// Delete provides a mock function with given fields: ctx, req
+func (_m *WebsiteRepo) Delete(ctx context.Context, req *request.WebsiteDelete) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.WebsiteDelete) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteDelete) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -210,14 +211,15 @@ type WebsiteRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.WebsiteDelete
-func (_e *WebsiteRepo_Expecter) Delete(req interface{}) *WebsiteRepo_Delete_Call {
-	return &WebsiteRepo_Delete_Call{Call: _e.mock.On("Delete", req)}
+func (_e *WebsiteRepo_Expecter) Delete(ctx interface{}, req interface{}) *WebsiteRepo_Delete_Call {
+	return &WebsiteRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, req)}
 }
 
-func (_c *WebsiteRepo_Delete_Call) Run(run func(req *request.WebsiteDelete)) *WebsiteRepo_Delete_Call {
+func (_c *WebsiteRepo_Delete_Call) Run(run func(ctx context.Context, req *request.WebsiteDelete)) *WebsiteRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.WebsiteDelete))
+		run(args[0].(context.Context), args[1].(*request.WebsiteDelete))
 	})
 	return _c
 }
@@ -227,7 +229,7 @@ func (_c *WebsiteRepo_Delete_Call) Return(_a0 error) *WebsiteRepo_Delete_Call {
 	return _c
 }
 
-func (_c *WebsiteRepo_Delete_Call) RunAndReturn(run func(*request.WebsiteDelete) error) *WebsiteRepo_Delete_Call {
+func (_c *WebsiteRepo_Delete_Call) RunAndReturn(run func(context.Context, *request.WebsiteDelete) error) *WebsiteRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -565,17 +567,17 @@ func (_c *WebsiteRepo_ResetConfig_Call) RunAndReturn(run func(uint) error) *Webs
 	return _c
 }
 
-// Update provides a mock function with given fields: req
-func (_m *WebsiteRepo) Update(req *request.WebsiteUpdate) error {
-	ret := _m.Called(req)
+// Update provides a mock function with given fields: ctx, req
+func (_m *WebsiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.WebsiteUpdate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteUpdate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -589,14 +591,15 @@ type WebsiteRepo_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.WebsiteUpdate
-func (_e *WebsiteRepo_Expecter) Update(req interface{}) *WebsiteRepo_Update_Call {
-	return &WebsiteRepo_Update_Call{Call: _e.mock.On("Update", req)}
+func (_e *WebsiteRepo_Expecter) Update(ctx interface{}, req interface{}) *WebsiteRepo_Update_Call {
+	return &WebsiteRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
 }
 
-func (_c *WebsiteRepo_Update_Call) Run(run func(req *request.WebsiteUpdate)) *WebsiteRepo_Update_Call {
+func (_c *WebsiteRepo_Update_Call) Run(run func(ctx context.Context, req *request.WebsiteUpdate)) *WebsiteRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.WebsiteUpdate))
+		run(args[0].(context.Context), args[1].(*request.WebsiteUpdate))
 	})
 	return _c
 }
@@ -606,7 +609,7 @@ func (_c *WebsiteRepo_Update_Call) Return(_a0 error) *WebsiteRepo_Update_Call {
 	return _c
 }
 
-func (_c *WebsiteRepo_Update_Call) RunAndReturn(run func(*request.WebsiteUpdate) error) *WebsiteRepo_Update_Call {
+func (_c *WebsiteRepo_Update_Call) RunAndReturn(run func(context.Context, *request.WebsiteUpdate) error) *WebsiteRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
