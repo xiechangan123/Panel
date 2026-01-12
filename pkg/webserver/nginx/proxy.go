@@ -212,9 +212,6 @@ func generateProxyConfig(proxy types.Proxy) string {
 	var sb strings.Builder
 
 	location := proxy.Location
-	if location == "" {
-		location = "/"
-	}
 
 	sb.WriteString(fmt.Sprintf("location %s {\n", location))
 

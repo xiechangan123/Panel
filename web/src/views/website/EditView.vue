@@ -498,13 +498,21 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
                     <n-form-item-gi :span="12" :label="$gettext('Load Balancing Algorithm')">
                       <n-select
                         v-model:value="upstream.algo"
-                        :options="[
-                          { label: $gettext('Round Robin (default)'), value: '' },
-                          { label: 'least_conn', value: 'least_conn' },
-                          { label: 'ip_hash', value: 'ip_hash' },
-                          { label: 'hash', value: 'hash' },
-                          { label: 'random', value: 'random' }
-                        ]"
+                        :options="
+                          isNginx
+                            ? [
+                                { label: $gettext('Round Robin (default)'), value: '' },
+                                { label: 'least_conn', value: 'least_conn' },
+                                { label: 'ip_hash', value: 'ip_hash' },
+                                { label: 'hash', value: 'hash' },
+                                { label: 'random', value: 'random' }
+                              ]
+                            : [
+                                { label: $gettext('Round Robin (default)'), value: '' },
+                                { label: $gettext('Least Busy'), value: 'bybusyness' },
+                                { label: $gettext('By Traffic'), value: 'bytraffic' }
+                              ]
+                        "
                       />
                     </n-form-item-gi>
                     <n-form-item-gi :span="12" :label="$gettext('Keepalive Connections')">

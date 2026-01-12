@@ -177,7 +177,7 @@ func (v *baseVhost) SetListen(listens []types.Listen) error {
 }
 
 func (v *baseVhost) ServerName() []string {
-	var names []string
+	names := make([]string, 0)
 
 	// 获取 ServerName
 	serverName := v.vhost.GetDirectiveValue("ServerName")
@@ -218,7 +218,7 @@ func (v *baseVhost) Index() []string {
 	if values != nil {
 		return values
 	}
-	return nil
+	return []string{}
 }
 
 func (v *baseVhost) SetIndex(index []string) error {

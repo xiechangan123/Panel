@@ -52,23 +52,27 @@ func (c *Client) UseManualDns(check ...bool) {
 }
 
 // UseHTTP 使用 HTTP 验证
-// conf nginx 配置文件路径
-func (c *Client) UseHTTP(conf string) {
+// conf 配置文件路径
+// webServer web 服务器类型 ("nginx" 或 "apache")
+func (c *Client) UseHTTP(conf string, webServer string) {
 	c.zClient.ChallengeSolvers = map[string]acmez.Solver{
 		acme.ChallengeTypeHTTP01: httpSolver{
-			conf: conf,
+			conf:      conf,
+			webServer: webServer,
 		},
 	}
 }
 
 // UsePanel 使用面板 HTTP 验证
 // ip 外网访问 IP 地址
-// conf nginx 配置文件路径
-func (c *Client) UsePanel(ip []string, conf string) {
+// conf 配置文件路径
+// webServer web 服务器类型 ("nginx" 或 "apache")
+func (c *Client) UsePanel(ip []string, conf string, webServer string) {
 	c.zClient.ChallengeSolvers = map[string]acmez.Solver{
 		acme.ChallengeTypeHTTP01: &panelSolver{
-			ip:   ip,
-			conf: conf,
+			ip:        ip,
+			conf:      conf,
+			webServer: webServer,
 		},
 	}
 }

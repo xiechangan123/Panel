@@ -553,7 +553,7 @@ func (s *ProxyVhostTestSuite) TestUpstreams() {
 				"http://127.0.0.1:8080": "loadfactor=5",
 				"http://127.0.0.1:8081": "loadfactor=3",
 			},
-			Algo:      "least_conn",
+			Algo:      "bybusyness",
 			Keepalive: 32,
 		},
 	}
@@ -578,7 +578,7 @@ func (s *ProxyVhostTestSuite) TestBalancerConfig() {
 			Servers: map[string]string{
 				"http://127.0.0.1:8080": "loadfactor=5",
 			},
-			Algo:      "least_conn",
+			Algo:      "bybusyness",
 			Keepalive: 16,
 		},
 	}
@@ -596,7 +596,7 @@ func (s *ProxyVhostTestSuite) TestBalancerConfig() {
 	s.Contains(string(content), "balancer://mybackend")
 	s.Contains(string(content), "BalancerMember")
 	s.Contains(string(content), "http://127.0.0.1:8080")
-	s.Contains(string(content), "lbmethod=bybusyness") // least_conn 映射为 bybusyness
+	s.Contains(string(content), "lbmethod=bybusyness")
 }
 
 func (s *ProxyVhostTestSuite) TestClearUpstreams() {
@@ -611,4 +611,114 @@ func (s *ProxyVhostTestSuite) TestClearUpstreams() {
 
 	s.NoError(s.vhost.ClearUpstreams())
 	s.Empty(s.vhost.Upstreams())
+}
+
+func (s *ProxyVhostTestSuite) TestProxySNI() {
+	// 测试 SNI 配置的写入和解析
+	proxies := []types.Proxy{
+		{
+			Location: "/",
+			Pass:     "https://backend:443/",
+			SNI:      "backend.example.com",
+		},
+	}
+	s.NoError(s.vhost.SetProxies(proxies))
+
+	// 读取配置文件内容，验证 SNI 已写入
+	siteDir := filepath.Join(s.configDir, "site")
+	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
+	s.NoError(err)
+
+	s.Contains(string(content), "SSLProxyEngine On")
+	s.Contains(string(content), "# SNI: backend.example.com")
+	s.Contains(string(content), "RequestHeader set Host \"backend.example.com\"")
+
+	// 验证可以解析回来
+	got := s.vhost.Proxies()
+	s.Require().Len(got, 1)
+	s.Equal("backend.example.com", got[0].SNI)
+}
+
+func (s *ProxyVhostTestSuite) TestProxySubstitute() {
+	// 测试内容替换的写入和解析
+	proxies := []types.Proxy{
+		{
+			Location: "/",
+			Pass:     "http://backend:8080/",
+			Replaces: map[string]string{
+				"http://old.example.com": "https://new.example.com",
+				"foo":                    "bar",
+			},
+		},
+	}
+	s.NoError(s.vhost.SetProxies(proxies))
+
+	// 读取配置文件内容，验证 Substitute 已写入
+	siteDir := filepath.Join(s.configDir, "site")
+	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
+	s.NoError(err)
+
+	s.Contains(string(content), "mod_substitute")
+	s.Contains(string(content), "Substitute")
+
+	// 验证可以解析回来
+	got := s.vhost.Proxies()
+	s.Require().Len(got, 1)
+	s.Require().NotNil(got[0].Replaces)
+	s.Equal("https://new.example.com", got[0].Replaces["http://old.example.com"])
+	s.Equal("bar", got[0].Replaces["foo"])
+}
+
+func (s *ProxyVhostTestSuite) TestProxySubstituteWithSlash() {
+	// 测试包含 / 的内容替换
+	proxies := []types.Proxy{
+		{
+			Location: "/",
+			Pass:     "http://backend:8080/",
+			Replaces: map[string]string{
+				"http://old.example.com/path/to/resource": "https://new.example.com/new/path",
+			},
+		},
+	}
+	s.NoError(s.vhost.SetProxies(proxies))
+
+	// 读取配置文件内容
+	siteDir := filepath.Join(s.configDir, "site")
+	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
+	s.NoError(err)
+
+	// 验证使用 | 作为分隔符
+	s.Contains(string(content), "Substitute \"s|http://old.example.com/path/to/resource|https://new.example.com/new/path|n\"")
+
+	// 验证可以解析回来
+	got := s.vhost.Proxies()
+	s.Require().Len(got, 1)
+	s.Require().NotNil(got[0].Replaces)
+	s.Equal("https://new.example.com/new/path", got[0].Replaces["http://old.example.com/path/to/resource"])
+}
+
+func (s *ProxyVhostTestSuite) TestUpstreamMultipleServers() {
+	// 测试多个 BalancerMember 的解析
+	upstreams := []types.Upstream{
+		{
+			Name: "test_upstream",
+			Servers: map[string]string{
+				"127.0.0.1:8080": "",
+				"127.0.0.1:8081": "",
+				"127.0.0.1:8082": "loadfactor=5",
+			},
+			Keepalive: 32,
+		},
+	}
+	s.NoError(s.vhost.SetUpstreams(upstreams))
+
+	// 验证可以解析回来
+	got := s.vhost.Upstreams()
+	s.Require().Len(got, 1)
+	s.Equal("test_upstream", got[0].Name)
+	s.Len(got[0].Servers, 3)
+	s.Contains(got[0].Servers, "127.0.0.1:8080")
+	s.Contains(got[0].Servers, "127.0.0.1:8081")
+	s.Contains(got[0].Servers, "127.0.0.1:8082")
+	s.Equal("loadfactor=5", got[0].Servers["127.0.0.1:8082"])
 }

@@ -65,7 +65,7 @@ func initCli() (*app.Cli, error) {
 	databaseServerRepo := data.NewDatabaseServerRepo(locale, db, logger)
 	databaseUserRepo := data.NewDatabaseUserRepo(locale, db, logger, databaseServerRepo)
 	databaseRepo := data.NewDatabaseRepo(locale, db, logger, databaseServerRepo, databaseUserRepo)
-	certRepo := data.NewCertRepo(locale, db, logger)
+	certRepo := data.NewCertRepo(locale, db, logger, settingRepo)
 	certAccountRepo := data.NewCertAccountRepo(locale, db, userRepo, logger)
 	websiteRepo := data.NewWebsiteRepo(locale, db, logger, cacheRepo, databaseRepo, databaseServerRepo, databaseUserRepo, certRepo, certAccountRepo, settingRepo)
 	backupRepo := data.NewBackupRepo(locale, config, db, logger, settingRepo, websiteRepo)

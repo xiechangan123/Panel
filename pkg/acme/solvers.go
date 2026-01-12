@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -31,9 +32,10 @@ import (
 var panelSolverGlobal sync.Mutex
 
 type panelSolver struct {
-	ip     []string
-	conf   string
-	server *http.Server
+	ip        []string
+	conf      string
+	webServer string // "nginx" or "apache"
+	server    *http.Server
 	// tokens 存储所有待验证的 challenge，key 为路径，value 为 token
 	tokens map[string]string
 	// presentCount Present 调用计数
@@ -70,8 +72,11 @@ func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error
 		return s.startServer()
 	}
 
-	// 否则使用 nginx 配置
+	// 否则使用 web 服务器配置
 	s.useBuiltin = false
+	if s.webServer == "apache" {
+		return s.writeApacheConfig()
+	}
 	return s.writeNginxConfig()
 }
 
@@ -127,6 +132,48 @@ func (s *panelSolver) writeNginxConfig() error {
 	return nil
 }
 
+func (s *panelSolver) writeApacheConfig() error {
+	// Apache 使用 Alias 指向一个临时目录，将 token 写入文件
+	tokenDir := "/tmp/acme-challenge"
+	if err := os.MkdirAll(tokenDir, 0755); err != nil {
+		return fmt.Errorf("failed to create token directory: %w", err)
+	}
+
+	// 写入 token 文件
+	for path, token := range s.tokens {
+		// path 格式为 /.well-known/acme-challenge/xxx
+		tokenFile := filepath.Join(tokenDir, filepath.Base(path))
+		if err := os.WriteFile(tokenFile, []byte(token), 0644); err != nil {
+			return fmt.Errorf("failed to write token file: %w", err)
+		}
+	}
+
+	var conf strings.Builder
+	conf.WriteString(fmt.Sprintf("<VirtualHost *:80>\n    ServerName %s\n", s.ip[0]))
+	if len(s.ip) > 1 {
+		for _, ip := range s.ip[1:] {
+			conf.WriteString(fmt.Sprintf("    ServerAlias %s\n", ip))
+		}
+	}
+	conf.WriteString(fmt.Sprintf("    Alias /.well-known/acme-challenge %s\n", tokenDir))
+	conf.WriteString(fmt.Sprintf("    <Directory %s>\n", tokenDir))
+	conf.WriteString("        Require all granted\n")
+	conf.WriteString("        ForceType text/plain\n")
+	conf.WriteString("    </Directory>\n")
+	conf.WriteString("</VirtualHost>\n")
+
+	if err := os.WriteFile(s.conf, []byte(conf.String()), 0600); err != nil {
+		return fmt.Errorf("failed to write apache config %q: %w", s.conf, err)
+	}
+
+	if err := systemctl.Reload("apache"); err != nil {
+		_, err = shell.Execf("apachectl -t")
+		return fmt.Errorf("failed to reload apache: %w", err)
+	}
+
+	return nil
+}
+
 // CleanUp cleans up the HTTP server on last call.
 func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 	s.cleanupCount++
@@ -148,9 +195,19 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 		return nil
 	}
 
-	// 清理 nginx 配置
+	// 清理配置文件
 	if err := os.WriteFile(s.conf, []byte(""), 0600); err != nil {
-		return fmt.Errorf("failed to write to nginx config %q: %w", s.conf, err)
+		return fmt.Errorf("failed to write to config %q: %w", s.conf, err)
+	}
+
+	// 清理 Apache token 目录
+	if s.webServer == "apache" {
+		_ = os.RemoveAll("/tmp/acme-challenge")
+		if err := systemctl.Reload("apache"); err != nil {
+			_, _ = shell.Execf("apachectl -t")
+			return fmt.Errorf("failed to reload apache: %w", err)
+		}
+		return nil
 	}
 
 	if err := systemctl.Reload("nginx"); err != nil {
@@ -162,15 +219,26 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 }
 
 type httpSolver struct {
-	conf string
+	conf      string
+	webServer string // "nginx" or "apache"
 }
 
 func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
+	path := challenge.HTTP01ResourcePath()
+	token := challenge.KeyAuthorization
+
+	if s.webServer == "apache" {
+		return s.presentApache(path, token)
+	}
+	return s.presentNginx(path, token)
+}
+
+func (s httpSolver) presentNginx(path, token string) error {
 	conf := fmt.Sprintf(`location = %s {
     default_type text/plain;
     return 200 %q;
 }
-`, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
+`, path, token)
 
 	file, err := os.OpenFile(s.conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
@@ -190,8 +258,57 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 	return nil
 }
 
+func (s httpSolver) presentApache(path, token string) error {
+	// 创建 token 目录
+	tokenDir := filepath.Dir(s.conf) + "/acme-challenge"
+	if err := os.MkdirAll(tokenDir, 0755); err != nil {
+		return fmt.Errorf("failed to create token directory: %w", err)
+	}
+
+	// 写入 token 文件
+	tokenFile := filepath.Join(tokenDir, filepath.Base(path))
+	if err := os.WriteFile(tokenFile, []byte(token), 0644); err != nil {
+		return fmt.Errorf("failed to write token file: %w", err)
+	}
+
+	// 写入 Apache 配置
+	conf := fmt.Sprintf(`Alias /.well-known/acme-challenge %s
+<Directory %s>
+    Require all granted
+    ForceType text/plain
+</Directory>
+`, tokenDir, tokenDir)
+
+	file, err := os.OpenFile(s.conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		return fmt.Errorf("failed to open apache config %q: %w", s.conf, err)
+	}
+	defer func(file *os.File) { _ = file.Close() }(file)
+
+	if _, err = file.Write([]byte(conf)); err != nil {
+		return fmt.Errorf("failed to write to apache config %q: %w", s.conf, err)
+	}
+
+	if err = systemctl.Reload("apache"); err != nil {
+		_, err = shell.Execf("apachectl -t")
+		return fmt.Errorf("failed to reload apache: %w", err)
+	}
+
+	return nil
+}
+
 // CleanUp cleans up the HTTP server if it is the last one to finish.
 func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
+	path := challenge.HTTP01ResourcePath()
+	token := challenge.KeyAuthorization
+
+	if s.webServer == "apache" {
+		return s.cleanUpApache(path, token)
+	}
+	return s.cleanUpNginx(path, token)
+}
+
+func (s httpSolver) cleanUpNginx(path, token string) error {
 	conf, err := os.ReadFile(s.conf)
 	if err != nil {
 		return fmt.Errorf("failed to read nginx config %q: %w", s.conf, err)
@@ -201,7 +318,7 @@ func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
     default_type text/plain;
     return 200 %q;
 }
-`, challenge.HTTP01ResourcePath(), challenge.KeyAuthorization)
+`, path, token)
 
 	newConf := strings.ReplaceAll(string(conf), target, "")
 	if err = os.WriteFile(s.conf, []byte(newConf), 0600); err != nil {
@@ -211,6 +328,39 @@ func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
 	if err = systemctl.Reload("nginx"); err != nil {
 		_, err = shell.Execf("nginx -t")
 		return fmt.Errorf("failed to reload nginx: %w", err)
+	}
+
+	return nil
+}
+
+func (s httpSolver) cleanUpApache(path, token string) error {
+	tokenDir := filepath.Dir(s.conf) + "/acme-challenge"
+
+	// 删除 token 文件
+	tokenFile := filepath.Join(tokenDir, filepath.Base(path))
+	_ = os.Remove(tokenFile)
+
+	// 清理配置文件
+	conf, err := os.ReadFile(s.conf)
+	if err != nil {
+		return fmt.Errorf("failed to read apache config %q: %w", s.conf, err)
+	}
+
+	target := fmt.Sprintf(`Alias /.well-known/acme-challenge %s
+<Directory %s>
+    Require all granted
+    ForceType text/plain
+</Directory>
+`, tokenDir, tokenDir)
+
+	newConf := strings.ReplaceAll(string(conf), target, "")
+	if err = os.WriteFile(s.conf, []byte(newConf), 0600); err != nil {
+		return fmt.Errorf("failed to write to apache config %q: %w", s.conf, err)
+	}
+
+	if err = systemctl.Reload("apache"); err != nil {
+		_, err = shell.Execf("apachectl -t")
+		return fmt.Errorf("failed to reload apache: %w", err)
 	}
 
 	return nil

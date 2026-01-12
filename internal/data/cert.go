@@ -27,17 +27,19 @@ import (
 )
 
 type certRepo struct {
-	t      *gotext.Locale
-	db     *gorm.DB
-	log    *slog.Logger
-	client *acme.Client
+	t           *gotext.Locale
+	db          *gorm.DB
+	log         *slog.Logger
+	settingRepo biz.SettingRepo
+	client      *acme.Client
 }
 
-func NewCertRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.CertRepo {
+func NewCertRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, settingRepo biz.SettingRepo) biz.CertRepo {
 	return &certRepo{
-		t:   t,
-		db:  db,
-		log: log,
+		t:           t,
+		db:          db,
+		log:         log,
+		settingRepo: settingRepo,
 	}
 }
 
@@ -185,6 +187,8 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 		return nil, err
 	}
 
+	webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
+
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
@@ -197,7 +201,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 				}
 			}
 			conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
-			client.UseHTTP(conf)
+			client.UseHTTP(conf, webServer)
 		}
 	}
 
@@ -264,7 +268,13 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, 
 	if err != nil {
 		return nil, nil, err
 	}
-	client.UsePanel(ips, filepath.Join(app.Root, "server/nginx/conf/acme.conf"))
+
+	webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
+	confPath := filepath.Join(app.Root, "server/nginx/conf/acme.conf")
+	if webServer == "apache" {
+		confPath = filepath.Join(app.Root, "server/apache/conf/extra/acme.conf")
+	}
+	client.UsePanel(ips, confPath, webServer)
 
 	ssl, err := client.ObtainIPCertificate(context.Background(), ips, acme.KeyEC256)
 	if err != nil {
@@ -317,6 +327,8 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 		return nil, errors.New(r.t.Get("this certificate has not been obtained successfully and cannot be renewed"))
 	}
 
+	webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
+
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data)
 	} else {
@@ -329,7 +341,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 				}
 			}
 			conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
-			client.UseHTTP(conf)
+			client.UseHTTP(conf, webServer)
 		}
 	}
 
@@ -431,9 +443,18 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/private.key", app.Root, website.Name), cert.Key, 0600); err != nil {
 		return err
 	}
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		return err
+
+	webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
+	if webServer == "apache" {
+		if err = systemctl.Reload("apache"); err != nil {
+			_, err = shell.Execf("apachectl -t")
+			return err
+		}
+	} else {
+		if err = systemctl.Reload("nginx"); err != nil {
+			_, err = shell.Execf("nginx -t")
+			return err
+		}
 	}
 
 	return nil
