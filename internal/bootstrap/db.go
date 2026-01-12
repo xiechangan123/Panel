@@ -21,7 +21,10 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 		Filename:    filepath.Join(app.Root, "panel/storage/logs/db.log"),
 		MaxSize:     10,
 		MaxAge:      30,
-		Compression: "zstd",
+		LocalTime:   true,
+		RotateAt:    []string{"00:00"},
+		FileMode:    0o600,
+		Compression: "none",
 	}
 
 	handler := slog.New(slog.NewJSONHandler(tjLogger, nil)).Handler()

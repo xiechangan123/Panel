@@ -37,7 +37,10 @@ func NewMiddlewares(conf *config.Config, session *sessions.Manager, appRepo biz.
 		Filename:    filepath.Join(app.Root, "panel/storage/logs/http.log"),
 		MaxSize:     10,
 		MaxAge:      30,
-		Compression: "zstd",
+		LocalTime:   true,
+		RotateAt:    []string{"00:00"},
+		FileMode:    0o600,
+		Compression: "none",
 	}
 
 	return &Middlewares{

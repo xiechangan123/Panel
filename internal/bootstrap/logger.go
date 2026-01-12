@@ -15,7 +15,10 @@ func NewLog(conf *config.Config) *slog.Logger {
 		Filename:    filepath.Join(app.Root, "panel/storage/logs/app.log"),
 		MaxSize:     10,
 		MaxAge:      30,
-		Compression: "zstd",
+		LocalTime:   true,
+		RotateAt:    []string{"00:00"},
+		FileMode:    0o600,
+		Compression: "none",
 	}
 
 	level := slog.LevelInfo
