@@ -17,17 +17,16 @@ const activeTab = ref('operation')
 
 <template>
   <common-page show-header show-footer>
-    <n-tabs v-model:value="activeTab" type="line" animated>
-      <n-tab-pane name="operation" :tab="$gettext('Operation Log')">
-        <OperationLog />
-      </n-tab-pane>
-      <n-tab-pane name="database" :tab="$gettext('Database Log')">
-        <DatabaseLog />
-      </n-tab-pane>
-      <n-tab-pane name="http" :tab="$gettext('HTTP Log')">
-        <HttpLog />
-      </n-tab-pane>
-    </n-tabs>
+    <template #tabbar>
+      <n-tabs v-model:value="activeTab" animated>
+        <n-tab name="operation" :tab="$gettext('Operation Log')" />
+        <n-tab name="database" :tab="$gettext('Database Log')" />
+        <n-tab name="http" :tab="$gettext('HTTP Log')" />
+      </n-tabs>
+    </template>
+    <operation-log v-if="activeTab === 'operation'" />
+    <database-log v-if="activeTab === 'database'" />
+    <http-log v-if="activeTab === 'http'" />
   </common-page>
 </template>
 
