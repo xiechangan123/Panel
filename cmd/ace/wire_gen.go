@@ -128,7 +128,7 @@ func initWeb() (*app.Web, error) {
 	toolboxLogService := service.NewToolboxLogService(locale, db, containerImageRepo, settingRepo)
 	webHookRepo := data.NewWebHookRepo(locale, db, logger)
 	webHookService := service.NewWebHookService(webHookRepo)
-	templateRepo := data.NewTemplateRepo()
+	templateRepo := data.NewTemplateRepo(locale, cacheRepo)
 	templateService := service.NewTemplateService(locale, templateRepo, settingRepo)
 	apacheApp := apache.NewApp(locale)
 	codeserverApp := codeserver.NewApp()

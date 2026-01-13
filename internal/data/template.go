@@ -1,6 +1,7 @@
 package data
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,43 +13,50 @@ import (
 	"github.com/acepanel/panel/pkg/api"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/types"
+	"github.com/leonelquinteros/gotext"
 )
 
 type templateRepo struct {
+	t        *gotext.Locale
+	cache    biz.CacheRepo
 	api      *api.API
 	firewall *firewall.Firewall
 }
 
-func NewTemplateRepo() biz.TemplateRepo {
+func NewTemplateRepo(t *gotext.Locale, cache biz.CacheRepo) biz.TemplateRepo {
 	return &templateRepo{
+		t:        t,
+		cache:    cache,
 		api:      api.NewAPI(app.Version, app.Locale),
 		firewall: firewall.NewFirewall(),
 	}
 }
 
 // List 获取所有模版
-func (r *templateRepo) List() (api.Templates, error) {
-	templates, err := r.api.Templates()
+func (r *templateRepo) List() api.Templates {
+	cached, err := r.cache.Get(biz.CacheKeyTemplates)
 	if err != nil {
-		return nil, err
+		return nil
 	}
-	return *templates, nil
+	templates := make(api.Templates, 0)
+	if err = json.Unmarshal([]byte(cached), &templates); err != nil {
+		return nil
+	}
+
+	return templates
 }
 
 // Get 获取模版详情
 func (r *templateRepo) Get(slug string) (*api.Template, error) {
-	templates, err := r.api.Templates()
-	if err != nil {
-		return nil, err
-	}
+	templates := r.List()
 
-	for _, t := range *templates {
+	for _, t := range templates {
 		if t.Slug == slug {
 			return t, nil
 		}
 	}
 
-	return nil, fmt.Errorf("template %s not found", slug)
+	return nil, fmt.Errorf(r.t.Get("template %s not found", slug))
 }
 
 // Callback 模版下载回调

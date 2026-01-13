@@ -6,7 +6,7 @@ import (
 )
 
 type TemplateRepo interface {
-	List() (api.Templates, error)
+	List() api.Templates
 	Get(slug string) (*api.Template, error)
 	Callback(slug string) error
 	CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) error

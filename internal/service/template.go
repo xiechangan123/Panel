@@ -30,13 +30,7 @@ func (s *TemplateService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templates, err := s.templateRepo.List()
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, templates)
+	Success(w, s.templateRepo.List())
 }
 
 // Get 获取模版详情
@@ -44,11 +38,6 @@ func (s *TemplateService) Get(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.TemplateSlug](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
-		Error(w, http.StatusForbidden, s.t.Get("Unable to get template in offline mode"))
 		return
 	}
 
@@ -66,11 +55,6 @@ func (s *TemplateService) Create(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.TemplateCreate](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
-		Error(w, http.StatusForbidden, s.t.Get("Unable to create compose from template in offline mode"))
 		return
 	}
 

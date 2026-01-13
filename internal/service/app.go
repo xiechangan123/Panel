@@ -219,6 +219,10 @@ func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	if err := s.cacheRepo.UpdateTemplates(); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 
 	Success(w, nil)
 }

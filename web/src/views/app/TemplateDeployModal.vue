@@ -61,34 +61,35 @@ const handleSubmit = async () => {
 
   doSubmit.value = true
 
-  try {
-    // 构建环境变量数组
-    const envs = Object.entries(deployModel.envs).map(([key, value]) => ({
-      key,
-      value: String(value)
-    }))
+  // 构建环境变量数组
+  const envs = Object.entries(deployModel.envs).map(([key, value]) => ({
+    key,
+    value: String(value)
+  }))
 
-    // 创建 compose
-    await templateApi.create({
+  // 创建 compose
+  useRequest(
+    templateApi.create({
       slug: props.template.slug,
       name: deployModel.name,
       envs,
       auto_firewall: deployModel.autoFirewall
     })
-
-    window.$message.success($gettext('Created successfully'))
-
-    if (deployModel.autoStart) {
-      // 自动启动
-      upCommand.value = `docker compose -f /opt/ace/server/compose/${deployModel.name}/docker-compose.yml up -d`
-      upModal.value = true
-    } else {
-      show.value = false
-      emit('success')
-    }
-  } finally {
-    doSubmit.value = false
-  }
+  )
+    .onSuccess(() => {
+      window.$message.success($gettext('Created successfully'))
+      if (deployModel.autoStart) {
+        // 自动启动
+        upCommand.value = `docker compose -f /opt/ace/server/compose/${deployModel.name}/docker-compose.yml up -d`
+        upModal.value = true
+      } else {
+        show.value = false
+        emit('success')
+      }
+    })
+    .onComplete(() => {
+      doSubmit.value = false
+    })
 }
 
 // 启动完成
@@ -180,6 +181,7 @@ watch(
             v-for="env in template.environments"
             :key="env.name"
             :label="env.description"
+            :required="env.default == ''"
           >
             <!-- Select 类型 -->
             <n-select

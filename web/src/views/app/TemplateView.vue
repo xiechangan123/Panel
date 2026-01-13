@@ -2,6 +2,7 @@
 import { NButton, NCard, NEllipsis, NFlex, NGrid, NGridItem, NSpin, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import app from '@/api/panel/app'
 import template from '@/api/panel/template'
 import TemplateDeployModal from './TemplateDeployModal.vue'
 import type { Template } from './types'
@@ -17,12 +18,8 @@ const { loading, data, refresh } = usePagination(template.list, {
 })
 
 // 获取所有分类
-const categories = computed(() => {
-  const cats = new Set<string>()
-  data.value?.forEach((t: Template) => {
-    t.categories?.forEach((c) => cats.add(c))
-  })
-  return Array.from(cats)
+const { data: categories } = useRequest(app.categories, {
+  initialData: []
 })
 
 // 过滤后的模版列表
@@ -32,6 +29,11 @@ const filteredTemplates = computed(() => {
   }
   return (data.value || []).filter((t: Template) => t.categories?.includes(selectedCategory.value))
 })
+
+const getCategoryLabel = (catValue: string) => {
+  const cat = categories.value.find((c: any) => c.value === catValue)
+  return cat ? cat.label : catValue
+}
 
 const handleCategoryChange = (category: string) => {
   selectedCategory.value = category
@@ -60,13 +62,13 @@ onMounted(() => {
       </n-tag>
       <n-tag
         v-for="cat in categories"
-        :key="cat"
-        :type="selectedCategory === cat ? 'primary' : 'default'"
-        :bordered="selectedCategory !== cat"
+        :key="cat.value"
+        :type="selectedCategory === cat.value ? 'primary' : 'default'"
+        :bordered="selectedCategory !== cat.value"
         style="cursor: pointer"
-        @click="handleCategoryChange(cat)"
+        @click="handleCategoryChange(cat.value)"
       >
-        {{ cat }}
+        {{ cat.label }}
       </n-tag>
     </n-flex>
 
@@ -84,7 +86,7 @@ onMounted(() => {
               </n-ellipsis>
               <n-flex :size="4" style="margin-top: auto">
                 <n-tag v-for="cat in tpl.categories" :key="cat" size="small">
-                  {{ cat }}
+                  {{ getCategoryLabel(cat) }}
                 </n-tag>
               </n-flex>
             </n-flex>
