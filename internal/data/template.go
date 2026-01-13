@@ -2,7 +2,7 @@ package data
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -56,7 +56,7 @@ func (r *templateRepo) Get(slug string) (*api.Template, error) {
 		}
 	}
 
-	return nil, fmt.Errorf(r.t.Get("template %s not found", slug))
+	return nil, errors.New(r.t.Get("template %s not found", slug))
 }
 
 // Callback 模版下载回调
