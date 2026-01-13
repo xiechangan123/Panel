@@ -322,7 +322,7 @@ msgstr "Invalid name"
 
 #: src/components/common/PathSelector.vue:254
 #: src/components/file-editor/FileTree.vue:284
-#: src/views/app/TemplateDeployModal.vue:79 src/views/backup/ListView.vue:122
+#: src/views/app/TemplateDeployModal.vue:80 src/views/backup/ListView.vue:122
 #: src/views/cert/CreateAccountModal.vue:52
 #: src/views/cert/CreateCertModal.vue:50 src/views/cert/CreateDnsModal.vue:35
 #: src/views/cert/UploadCertModal.vue:21
@@ -449,7 +449,7 @@ msgstr ""
 #: src/components/file-editor/EditorToolbar.vue:101
 #: src/components/file-editor/FileTree.vue:603
 #: src/layout/header/components/UserAvatar.vue:30
-#: src/views/app/TemplateDeployModal.vue:227
+#: src/views/app/TemplateDeployModal.vue:229
 #: src/views/container/ContainerCreate.vue:536
 #: src/views/container/ImagePullModal.vue:184
 #: src/views/container/ImagePullModal.vue:198
@@ -909,7 +909,7 @@ msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:211
 #: src/views/app/AppView.vue:229 src/views/app/EnvironmentView.vue:217
-#: src/views/app/TemplateView.vue:59 src/views/firewall/RuleView.vue:150
+#: src/views/app/TemplateView.vue:61 src/views/firewall/RuleView.vue:150
 #: src/views/project/IndexView.vue:21
 msgid "All"
 msgstr "All"
@@ -1457,47 +1457,47 @@ msgstr "Update Cache"
 msgid "Please enter compose name"
 msgstr "Please enter absolute path"
 
-#: src/views/app/TemplateDeployModal.vue:128
+#: src/views/app/TemplateDeployModal.vue:129
 #, fuzzy
 msgid "Deploy Template"
 msgstr "Compose Name"
 
-#: src/views/app/TemplateDeployModal.vue:139
+#: src/views/app/TemplateDeployModal.vue:140
 #: src/views/container/ContainerCreate.vue:191
 #: src/views/project/EditModal.vue:177 src/views/website/EditView.vue:462
 msgid "Basic Settings"
 msgstr "Basic Settings"
 
-#: src/views/app/TemplateDeployModal.vue:141
+#: src/views/app/TemplateDeployModal.vue:142
 #: src/views/container/ComposeView.vue:361
 msgid "Compose Name"
 msgstr "Compose Name"
 
-#: src/views/app/TemplateDeployModal.vue:146
+#: src/views/app/TemplateDeployModal.vue:147
 #, fuzzy
 msgid "Enter compose name"
 msgstr "Enter comment name"
 
-#: src/views/app/TemplateDeployModal.vue:150
+#: src/views/app/TemplateDeployModal.vue:151
 #, fuzzy
 msgid "Deploy Options"
 msgstr "Options"
 
-#: src/views/app/TemplateDeployModal.vue:154
+#: src/views/app/TemplateDeployModal.vue:155
 #, fuzzy
 msgid "Auto Start"
 msgstr "Autostart On"
 
-#: src/views/app/TemplateDeployModal.vue:159
+#: src/views/app/TemplateDeployModal.vue:160
 #, fuzzy
 msgid "Auto Firewall"
 msgstr "Firewall"
 
-#: src/views/app/TemplateDeployModal.vue:163
+#: src/views/app/TemplateDeployModal.vue:164
 msgid "Automatically allow ports defined in compose"
 msgstr ""
 
-#: src/views/app/TemplateDeployModal.vue:176
+#: src/views/app/TemplateDeployModal.vue:177
 #: src/views/apps/minio/IndexView.vue:32
 #: src/views/container/ComposeView.vue:367
 #: src/views/container/ComposeView.vue:393
@@ -1506,22 +1506,22 @@ msgstr ""
 msgid "Environment Variables"
 msgstr "Environment Variables"
 
-#: src/views/app/TemplateDeployModal.vue:189
+#: src/views/app/TemplateDeployModal.vue:191
 #, fuzzy
 msgid "Select value"
 msgstr "Select File"
 
-#: src/views/app/TemplateDeployModal.vue:219
+#: src/views/app/TemplateDeployModal.vue:221
 #, fuzzy
 msgid "Compose Preview"
 msgstr "Compose Name"
 
-#: src/views/app/TemplateDeployModal.vue:230 src/views/app/TemplateView.vue:94
+#: src/views/app/TemplateDeployModal.vue:232 src/views/app/TemplateView.vue:96
 #: src/views/cert/CertView.vue:208
 msgid "Deploy"
 msgstr "Deploy"
 
-#: src/views/app/TemplateDeployModal.vue:238
+#: src/views/app/TemplateDeployModal.vue:240
 #: src/views/container/ComposeView.vue:408
 #, fuzzy
 msgid "Starting Compose"
