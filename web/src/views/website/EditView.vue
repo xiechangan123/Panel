@@ -903,16 +903,8 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
               <n-tag>{{ setting.access_log }}</n-tag>
               {{ $gettext('view') }}.
             </n-alert>
-            <n-popconfirm @positive-click="clearLog">
-              <template #trigger>
-                <n-button type="primary">
-                  {{ $gettext('Clear Logs') }}
-                </n-button>
-              </template>
-              {{ $gettext('Are you sure you want to clear?') }}
-            </n-popconfirm>
           </n-flex>
-          <realtime-log :path="setting.access_log" language="accesslog" />
+          <realtime-log :path="setting.access_log" language="accesslog" pb-20 />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="error_log" :tab="$gettext('Error Log')">
@@ -928,9 +920,21 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
         </n-flex>
       </n-tab-pane>
     </n-tabs>
-    <n-button v-if="current !== 'log'" type="primary" @click="handleSave">
+    <n-button
+      v-if="current !== 'log' && current !== 'error_log'"
+      type="primary"
+      @click="handleSave"
+    >
       {{ $gettext('Save') }}
     </n-button>
+    <n-popconfirm v-if="current == 'log'" @positive-click="clearLog">
+      <template #trigger>
+        <n-button type="primary">
+          {{ $gettext('Clear Logs') }}
+        </n-button>
+      </template>
+      {{ $gettext('Are you sure you want to clear?') }}
+    </n-popconfirm>
     <n-button
       v-if="current === 'https' && setting && setting.domains.length > 0"
       :loading="isObtainCert"
