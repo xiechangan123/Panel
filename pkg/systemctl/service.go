@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/shirou/gopsutil/v4/process"
+	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/pkg/shell"
 )
@@ -37,9 +38,7 @@ func GetServiceInfo(name string) (*ServiceInfo, error) {
 		case "ActiveState":
 			info.Status = value
 		case "MainPID":
-			if pid, err := strconv.Atoi(value); err == nil {
-				info.PID = pid
-			}
+			info.PID = cast.ToInt(value)
 		case "ExecMainStartTimestamp":
 			// 格式: Mon 2024-01-01 12:00:00 UTC
 			if value != "" && value != "n/a" {
@@ -48,7 +47,6 @@ func GetServiceInfo(name string) (*ServiceInfo, error) {
 		}
 	}
 
-	// 如果有 PID，使用 gopsutil 获取进程信息
 	if info.PID > 0 {
 		if proc, err := process.NewProcess(int32(info.PID)); err == nil {
 			// 获取内存信息
@@ -63,41 +61,6 @@ func GetServiceInfo(name string) (*ServiceInfo, error) {
 	}
 
 	return info, nil
-}
-
-// calcUptime 计算运行时间
-func calcUptime(startTime string) string {
-	// 解析时间格式: Mon 2024-01-01 12:00:00 UTC
-	// 或者: Mon 2024-01-01 12:00:00 CST
-	layouts := []string{
-		"Mon 2006-01-02 15:04:05 MST",
-		"Mon 2006-01-02 15:04:05 -0700",
-	}
-
-	var t time.Time
-	var err error
-	for _, layout := range layouts {
-		t, err = time.Parse(layout, startTime)
-		if err == nil {
-			break
-		}
-	}
-	if err != nil {
-		return ""
-	}
-
-	duration := time.Since(t)
-	days := int(duration.Hours() / 24)
-	hours := int(duration.Hours()) % 24
-	minutes := int(duration.Minutes()) % 60
-
-	if days > 0 {
-		return strconv.Itoa(days) + "d " + strconv.Itoa(hours) + "h " + strconv.Itoa(minutes) + "m"
-	}
-	if hours > 0 {
-		return strconv.Itoa(hours) + "h " + strconv.Itoa(minutes) + "m"
-	}
-	return strconv.Itoa(minutes) + "m"
 }
 
 // Status 获取服务状态
@@ -183,4 +146,39 @@ func LogClear(name string) error {
 func DaemonReload() error {
 	_, err := shell.ExecfWithTimeout(2*time.Minute, "systemctl daemon-reload")
 	return err
+}
+
+// calcUptime 计算运行时间
+func calcUptime(startTime string) string {
+	// 解析时间格式: Mon 2024-01-01 12:00:00 UTC
+	// 或者: Mon 2024-01-01 12:00:00 CST
+	layouts := []string{
+		"Mon 2006-01-02 15:04:05 MST",
+		"Mon 2006-01-02 15:04:05 -0700",
+	}
+
+	var t time.Time
+	var err error
+	for _, layout := range layouts {
+		t, err = time.Parse(layout, startTime)
+		if err == nil {
+			break
+		}
+	}
+	if err != nil {
+		return ""
+	}
+
+	duration := time.Since(t)
+	days := int(duration.Hours() / 24)
+	hours := int(duration.Hours()) % 24
+	minutes := int(duration.Minutes()) % 60
+
+	if days > 0 {
+		return strconv.Itoa(days) + "d " + strconv.Itoa(hours) + "h " + strconv.Itoa(minutes) + "m"
+	}
+	if hours > 0 {
+		return strconv.Itoa(hours) + "h " + strconv.Itoa(minutes) + "m"
+	}
+	return strconv.Itoa(minutes) + "m"
 }
