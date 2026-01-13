@@ -1670,10 +1670,6 @@ onUnmounted(() => {
       &.cut {
         opacity: 0.5;
       }
-
-      &:last-child {
-        border-bottom: none;
-      }
     }
   }
 }
