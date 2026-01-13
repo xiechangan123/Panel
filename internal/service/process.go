@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/libtnb/chix"
-	"github.com/shirou/gopsutil/process"
+	"github.com/shirou/gopsutil/v4/process"
 
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/types"
@@ -159,7 +159,9 @@ func (s *ProcessService) processProcessBasic(proc *process.Process) types.Proces
 		data.Username = username
 	}
 	data.PPID, _ = proc.Ppid()
-	data.Status, _ = proc.Status()
+	if status, err := proc.Status(); err == nil && len(status) > 0 {
+		data.Status = status[0]
+	}
 	data.Background, _ = proc.Background()
 	if ct, err := proc.CreateTime(); err == nil {
 		data.StartTime = time.Unix(ct/1000, 0).Format(time.DateTime)
@@ -188,7 +190,6 @@ func (s *ProcessService) processProcessFull(proc *process.Process) types.Process
 		data.DiskRead = ioStat.ReadBytes
 	}
 
-	data.Nets, _ = proc.NetIOCounters(false)
 	data.Connections, _ = proc.Connections()
 	data.CmdLine, _ = proc.Cmdline()
 	data.OpenFiles, _ = proc.OpenFiles()

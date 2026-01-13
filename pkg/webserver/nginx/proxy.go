@@ -229,7 +229,7 @@ func generateProxyConfig(proxy types.Proxy) string {
 	if proxy.Host != "" {
 		sb.WriteString(fmt.Sprintf("    proxy_set_header Host \"%s\";\n", proxy.Host))
 	} else {
-		sb.WriteString("    proxy_set_header Host $host;\n")
+		sb.WriteString("    proxy_set_header Host $proxy_host;\n")
 	}
 
 	// 标准代理头

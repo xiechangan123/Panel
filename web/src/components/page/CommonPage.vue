@@ -16,7 +16,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <app-page :show-footer="showFooter">
-    <div class="flex flex-col flex-1 gap-10 min-h-0">
+    <div class="flex flex-col flex-1 gap-10" :class="{ 'min-h-0': flex }">
       <header v-if="showHeader">
         <slot v-if="$slots.header" name="header" />
         <n-card v-else size="small">
@@ -24,7 +24,7 @@ withDefaults(defineProps<Props>(), {
         </n-card>
       </header>
       <n-card
-        class="flex-1 min-h-0 overflow-auto"
+        :class="flex ? 'flex-1 min-h-0' : 'flex-1'"
         :content-class="flex ? 'flex flex-col min-h-0 h-full' : undefined"
       >
         <slot />

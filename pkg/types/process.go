@@ -1,8 +1,8 @@
 package types
 
 import (
-	"github.com/shirou/gopsutil/net"
-	"github.com/shirou/gopsutil/process"
+	"github.com/shirou/gopsutil/v4/net"
+	"github.com/shirou/gopsutil/v4/process"
 )
 
 type ProcessData struct {
@@ -35,5 +35,4 @@ type ProcessData struct {
 
 	OpenFiles   []process.OpenFilesStat `json:"open_files"`
 	Connections []net.ConnectionStat    `json:"connections"`
-	Nets        []net.IOCountersStat    `json:"nets"`
 }

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/v4/disk"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/app"

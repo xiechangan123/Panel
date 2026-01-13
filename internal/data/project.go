@@ -19,6 +19,7 @@ import (
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/systemctl"
 	"github.com/acepanel/panel/pkg/types"
 )
 
@@ -204,6 +205,15 @@ func (r *projectRepo) parseProjectDetail(project *biz.Project) (*types.ProjectDe
 		case "Service":
 			r.parseServiceSection(detail, opt)
 		}
+	}
+
+	// 获取运行状态
+	if info, err := systemctl.GetServiceInfo(project.Name); err == nil {
+		detail.Status = info.Status
+		detail.PID = info.PID
+		detail.Memory = info.Memory
+		detail.CPU = info.CPU
+		detail.Uptime = info.Uptime
 	}
 
 	return detail, nil

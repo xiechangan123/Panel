@@ -76,19 +76,21 @@ const dropdownOptions = computed<DropdownOption[]>(() => {
 // 渲染状态标签
 const renderStatus = (status: string) => {
   switch (status) {
-    case 'R':
+    case 'running':
       return h(NTag, { type: 'success' }, { default: () => $gettext('Running') })
-    case 'S':
+    case 'blocked':
+      return h(NTag, { type: 'error' }, { default: () => $gettext('Blocked') })
+    case 'sleep':
       return h(NTag, { type: 'warning' }, { default: () => $gettext('Sleeping') })
-    case 'T':
+    case 'stop':
       return h(NTag, { type: 'error' }, { default: () => $gettext('Stopped') })
-    case 'I':
+    case 'idle':
       return h(NTag, { type: 'primary' }, { default: () => $gettext('Idle') })
-    case 'Z':
+    case 'zombie':
       return h(NTag, { type: 'error' }, { default: () => $gettext('Zombie') })
-    case 'W':
+    case 'wait':
       return h(NTag, { type: 'warning' }, { default: () => $gettext('Waiting') })
-    case 'L':
+    case 'lock':
       return h(NTag, { type: 'info' }, { default: () => $gettext('Locked') })
     default:
       return h(NTag, { type: 'default' }, { default: () => status })

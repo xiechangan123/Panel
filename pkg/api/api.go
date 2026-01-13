@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/libtnb/utils/copier"
-	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/v4/host"
 )
 
 type API struct {

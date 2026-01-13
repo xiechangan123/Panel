@@ -17,3 +17,23 @@ export interface Channel {
   version: string
   log: string
 }
+
+export interface TemplateEnvironment {
+  name: string
+  type: 'text' | 'password' | 'number' | 'port' | 'select'
+  options?: Record<string, string>
+  default: string
+}
+
+export interface Template {
+  created_at: string
+  updated_at: string
+  slug: string
+  icon: string
+  name: string
+  description: string
+  categories: string[]
+  version: string
+  compose: string
+  environments: TemplateEnvironment[]
+}

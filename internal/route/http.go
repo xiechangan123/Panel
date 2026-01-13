@@ -54,6 +54,7 @@ type Http struct {
 	toolboxDisk      *service.ToolboxDiskService
 	toolboxLog       *service.ToolboxLogService
 	webhook          *service.WebHookService
+	template         *service.TemplateService
 	apps             *apploader.Loader
 }
 
@@ -96,6 +97,7 @@ func NewHttp(
 	toolboxDisk *service.ToolboxDiskService,
 	toolboxLog *service.ToolboxLogService,
 	webhook *service.WebHookService,
+	template *service.TemplateService,
 	apps *apploader.Loader,
 ) *Http {
 	return &Http{
@@ -137,6 +139,7 @@ func NewHttp(
 		toolboxDisk:      toolboxDisk,
 		toolboxLog:       toolboxLog,
 		webhook:          webhook,
+		template:         template,
 		apps:             apps,
 	}
 }
@@ -521,6 +524,13 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Put("/{id}", route.webhook.Update)
 			r.Get("/{id}", route.webhook.Get)
 			r.Delete("/{id}", route.webhook.Delete)
+		})
+
+		r.Route("/template", func(r chi.Router) {
+			r.Get("/", route.template.List)
+			r.Get("/{slug}", route.template.Get)
+			r.Post("/", route.template.Create)
+			r.Post("/{slug}/callback", route.template.Callback)
 		})
 
 		r.Route("/apps", func(r chi.Router) {

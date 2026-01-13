@@ -10,8 +10,8 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/collect"
-	"github.com/shirou/gopsutil/disk"
-	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/v4/disk"
+	"github.com/shirou/gopsutil/v4/host"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/internal/app"

@@ -666,7 +666,7 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
                     <n-form-item-gi :span="12" :label="$gettext('Proxy Host')">
                       <n-input
                         v-model:value="proxy.host"
-                        :placeholder="$gettext('Default: $host, or extracted from Proxy Pass')"
+                        :placeholder="$gettext('Default: $proxy_host, or extracted from Proxy Pass')"
                       />
                     </n-form-item-gi>
                     <n-form-item-gi :span="12" :label="$gettext('Proxy SNI')">

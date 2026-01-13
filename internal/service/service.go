@@ -33,6 +33,7 @@ var ProviderSet = wire.NewSet(
 	NewSSHService,
 	NewSystemctlService,
 	NewTaskService,
+	NewTemplateService,
 	NewUserService,
 	NewUserTokenService,
 	NewWebHookService,
