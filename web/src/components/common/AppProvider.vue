@@ -1,5 +1,12 @@
 <script lang="ts" setup>
+import systemdlog from '@/utils/hljs/systemdlog'
+import hljs from 'highlight.js/lib/core'
+import log from 'highlight.js/lib/languages/accesslog'
+
 import { useThemeStore } from '@/store'
+
+hljs.registerLanguage('accesslog', log)
+hljs.registerLanguage('systemdlog', systemdlog)
 
 const themeStore = useThemeStore()
 
@@ -29,6 +36,7 @@ onBeforeUnmount(() => {
 
 <template>
   <n-config-provider
+    :hljs="hljs"
     :theme="themeStore.naiveTheme"
     :locale="themeStore.naiveLocale"
     :date-locale="themeStore.naiveDateLocale"

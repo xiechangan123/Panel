@@ -9,6 +9,11 @@ const props = defineProps({
   path: {
     type: String,
     required: true
+  },
+  language: {
+    type: String,
+    required: false,
+    default: 'systemdlog'
   }
 })
 
@@ -72,7 +77,7 @@ defineExpose({
     @close="handleClose"
     @mask-click="handleClose"
   >
-    <n-log ref="logRef" :log="log" trim :rows="40" />
+    <n-log ref="logRef" :log="log" trim :rows="40" :language="props.language" />
   </n-modal>
 </template>
 

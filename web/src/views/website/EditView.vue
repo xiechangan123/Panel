@@ -912,7 +912,7 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
               {{ $gettext('Are you sure you want to clear?') }}
             </n-popconfirm>
           </n-flex>
-          <realtime-log :path="setting.access_log" />
+          <realtime-log :path="setting.access_log" language="accesslog" />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="error_log" :tab="$gettext('Error Log')">
@@ -924,7 +924,7 @@ const updateTimeoutUnit = (proxy: any, unit: string) => {
               {{ $gettext('view') }}.
             </n-alert>
           </n-flex>
-          <realtime-log :path="setting.error_log" />
+          <realtime-log :path="setting.error_log" language="accesslog" />
         </n-flex>
       </n-tab-pane>
     </n-tabs>
