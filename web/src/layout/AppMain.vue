@@ -9,7 +9,7 @@ const keepAliveNames = computed(() => {
 </script>
 
 <template>
-  <div class="wh-full">
+  <div class="flex flex-col wh-full">
     <router-view v-slot="{ Component, route }">
       <keep-alive :include="keepAliveNames">
         <component :is="Component" v-if="!tabStore.reloading" :key="route.path" />

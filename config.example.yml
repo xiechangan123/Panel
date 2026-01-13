@@ -10,7 +10,7 @@ http:
   debug: false
   port: 8888
   entrance: /
-  entrance_error: ""
+  entrance_error: "418"
   tls: true
   acme: true
   login_captcha: true

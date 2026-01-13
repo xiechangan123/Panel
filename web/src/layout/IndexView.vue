@@ -48,7 +48,7 @@ const themeStore = useThemeStore()
       >
         <app-header />
       </header>
-      <section bg="#f5f6fb" flex-1 overflow-hidden dark:bg-hex-101014>
+      <section bg="#f5f6fb" flex flex-col flex-1 overflow-hidden dark:bg-hex-101014>
         <app-main />
       </section>
     </article>
