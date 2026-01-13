@@ -25,7 +25,7 @@ const permission = ref(false)
 
 <template>
   <common-page show-footer>
-    <n-flex vertical :size="20">
+    <n-flex vertical :size="20" class="h-full">
       <path-input
         v-model:path="fileStore.path"
         v-model:keyword="fileStore.keyword"

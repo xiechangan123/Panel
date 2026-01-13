@@ -1244,8 +1244,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4" :style="themeStyles">
-    <n-spin :show="loading">
+  <div class="flex flex-col flex-1 gap-4 min-h-0" :style="themeStyles">
+    <n-spin :show="loading" class="flex flex-col flex-1 min-h-0">
       <div
         ref="gridContainerRef"
         class="file-container"
@@ -1582,7 +1582,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .file-container {
   position: relative;
-  height: 60vh;
+  flex: 1;
   overflow: auto;
   background: var(--card-color);
   border-radius: 3px;
@@ -1596,6 +1596,7 @@ onUnmounted(() => {
     align-content: start;
     gap: 16px;
     padding: 16px;
+    border: none;
 
     .file-item {
       display: flex;
@@ -1779,5 +1780,12 @@ onUnmounted(() => {
   .list-mode & {
     flex: 1;
   }
+}
+
+// n-spin 内部容器填满
+:deep(.n-spin-content) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>

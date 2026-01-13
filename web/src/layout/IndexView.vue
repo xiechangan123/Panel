@@ -35,7 +35,7 @@ const themeStore = useThemeStore()
       </n-scrollbar>
     </n-drawer>
 
-    <article flex-col flex-1 overflow-hidden>
+    <article flex flex-col flex-1 overflow-hidden>
       <header
         :style="`height: ${themeStore.header.height}px`"
         dark="bg-dark border-0"
