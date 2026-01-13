@@ -16,10 +16,11 @@ type Template struct {
 	Version      string    `json:"version"`
 	Compose      string    `json:"compose"`
 	Environments []struct {
-		Name    string            `json:"name"`              // 变量名
-		Type    string            `json:"type"`              // 变量类型， text, password, number, port, select
-		Options map[string]string `json:"options,omitempty"` // 下拉框选项，key -> value
-		Default string            `json:"default"`           // 默认值
+		Name        string            `json:"name"`              // 变量名
+		Description string            `json:"description"`       // 变量描述
+		Type        string            `json:"type"`              // 变量类型， text, password, number, port, select
+		Options     map[string]string `json:"options,omitempty"` // 下拉框选项，key -> value
+		Default     string            `json:"default"`           // 默认值
 	} `json:"environments"`
 }
 

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -36,7 +37,18 @@ func (r *templateRepo) List() (api.Templates, error) {
 
 // Get 获取模版详情
 func (r *templateRepo) Get(slug string) (*api.Template, error) {
-	return r.api.TemplateBySlug(slug)
+	templates, err := r.api.Templates()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, t := range *templates {
+		if t.Slug == slug {
+			return t, nil
+		}
+	}
+
+	return nil, fmt.Errorf("template %s not found", slug)
 }
 
 // Callback 模版下载回调

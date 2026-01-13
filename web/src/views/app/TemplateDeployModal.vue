@@ -28,7 +28,7 @@ const deployModel = reactive({
   name: '',
   autoStart: true,
   autoFirewall: false,
-  envs: {} as Record<string, string>
+  envs: {} as Record<string, any>
 })
 
 // 初始化环境变量默认值
@@ -39,19 +39,6 @@ const initEnvDefaults = () => {
     envs[env.name] = env.default || ''
   })
   deployModel.envs = envs
-}
-
-// 根据类型渲染环境变量输入组件
-const getEnvInputType = (env: TemplateEnvironment) => {
-  switch (env.type) {
-    case 'password':
-      return 'password'
-    case 'number':
-    case 'port':
-      return 'number'
-    default:
-      return 'text'
-  }
 }
 
 // 获取 select 选项
@@ -189,7 +176,11 @@ watch(
         :tab="$gettext('Environment Variables')"
       >
         <n-form :model="deployModel" label-placement="left" label-width="160">
-          <n-form-item v-for="env in template.environments" :key="env.name" :label="env.name">
+          <n-form-item
+            v-for="env in template.environments"
+            :key="env.name"
+            :label="env.description"
+          >
             <!-- Select 类型 -->
             <n-select
               v-if="env.type === 'select'"
@@ -218,7 +209,6 @@ watch(
             <n-input
               v-else
               v-model:value="deployModel.envs[env.name]"
-              :type="getEnvInputType(env)"
               :placeholder="env.default || ''"
             />
           </n-form-item>
