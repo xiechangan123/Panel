@@ -318,6 +318,51 @@ func (_c *CacheRepo_UpdateRewrites_Call) RunAndReturn(run func() error) *CacheRe
 	return _c
 }
 
+// UpdateTemplates provides a mock function with no fields
+func (_m *CacheRepo) UpdateTemplates() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateTemplates")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CacheRepo_UpdateTemplates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTemplates'
+type CacheRepo_UpdateTemplates_Call struct {
+	*mock.Call
+}
+
+// UpdateTemplates is a helper method to define mock.On call
+func (_e *CacheRepo_Expecter) UpdateTemplates() *CacheRepo_UpdateTemplates_Call {
+	return &CacheRepo_UpdateTemplates_Call{Call: _e.mock.On("UpdateTemplates")}
+}
+
+func (_c *CacheRepo_UpdateTemplates_Call) Run(run func()) *CacheRepo_UpdateTemplates_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CacheRepo_UpdateTemplates_Call) Return(_a0 error) *CacheRepo_UpdateTemplates_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CacheRepo_UpdateTemplates_Call) RunAndReturn(run func() error) *CacheRepo_UpdateTemplates_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewCacheRepo creates a new instance of CacheRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewCacheRepo(t interface {

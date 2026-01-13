@@ -177,7 +177,7 @@ func (_c *TemplateRepo_Get_Call) RunAndReturn(run func(string) (*api.Template, e
 }
 
 // List provides a mock function with no fields
-func (_m *TemplateRepo) List() (api.Templates, error) {
+func (_m *TemplateRepo) List() api.Templates {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
@@ -185,10 +185,6 @@ func (_m *TemplateRepo) List() (api.Templates, error) {
 	}
 
 	var r0 api.Templates
-	var r1 error
-	if rf, ok := ret.Get(0).(func() (api.Templates, error)); ok {
-		return rf()
-	}
 	if rf, ok := ret.Get(0).(func() api.Templates); ok {
 		r0 = rf()
 	} else {
@@ -197,13 +193,7 @@ func (_m *TemplateRepo) List() (api.Templates, error) {
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // TemplateRepo_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
@@ -223,12 +213,12 @@ func (_c *TemplateRepo_List_Call) Run(run func()) *TemplateRepo_List_Call {
 	return _c
 }
 
-func (_c *TemplateRepo_List_Call) Return(_a0 api.Templates, _a1 error) *TemplateRepo_List_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *TemplateRepo_List_Call) Return(_a0 api.Templates) *TemplateRepo_List_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *TemplateRepo_List_Call) RunAndReturn(run func() (api.Templates, error)) *TemplateRepo_List_Call {
+func (_c *TemplateRepo_List_Call) RunAndReturn(run func() api.Templates) *TemplateRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
