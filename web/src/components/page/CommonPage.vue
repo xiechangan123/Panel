@@ -3,12 +3,14 @@ interface Props {
   showFooter?: boolean
   showHeader?: boolean
   title?: string
+  flex?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
   showFooter: false,
   showHeader: false,
-  title: undefined
+  title: undefined,
+  flex: false
 })
 </script>
 
@@ -21,7 +23,10 @@ withDefaults(defineProps<Props>(), {
           <slot name="tabbar" />
         </n-card>
       </header>
-      <n-card class="flex-1 min-h-0 overflow-auto">
+      <n-card
+        class="flex-1 min-h-0 overflow-auto"
+        :content-class="flex ? 'flex flex-col min-h-0 h-full' : undefined"
+      >
         <slot />
       </n-card>
     </div>
