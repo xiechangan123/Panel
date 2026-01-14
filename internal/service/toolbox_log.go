@@ -52,7 +52,7 @@ func (s *ToolboxLogService) Scan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var items []LogItem
+	items := make([]LogItem, 0)
 
 	switch req.Type {
 	case "panel":
@@ -112,7 +112,7 @@ func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 
 // scanPanelLogs 扫描面板日志
 func (s *ToolboxLogService) scanPanelLogs() []LogItem {
-	var items []LogItem
+	items := make([]LogItem, 0)
 	logPath := filepath.Join(app.Root, "panel/storage/logs")
 
 	if !io.Exists(logPath) {
@@ -144,7 +144,7 @@ func (s *ToolboxLogService) scanPanelLogs() []LogItem {
 
 // scanWebsiteLogs 扫描网站日志
 func (s *ToolboxLogService) scanWebsiteLogs() []LogItem {
-	var items []LogItem
+	items := make([]LogItem, 0)
 	sitesPath := filepath.Join(app.Root, "sites")
 
 	if !io.Exists(sitesPath) {
@@ -189,7 +189,7 @@ func (s *ToolboxLogService) scanWebsiteLogs() []LogItem {
 
 // scanMySQLLogs 扫描 MySQL 日志
 func (s *ToolboxLogService) scanMySQLLogs() []LogItem {
-	var items []LogItem
+	items := make([]LogItem, 0)
 	mysqlPath := filepath.Join(app.Root, "server/mysql")
 
 	if !io.Exists(mysqlPath) {
@@ -237,7 +237,7 @@ func (s *ToolboxLogService) scanMySQLLogs() []LogItem {
 
 // scanDockerLogs 扫描 Docker/Podman 相关内容
 func (s *ToolboxLogService) scanDockerLogs() []LogItem {
-	var items []LogItem
+	items := make([]LogItem, 0)
 
 	// 未使用的容器镜像 (Docker)
 	images, err := s.containerImageRepo.List()
@@ -335,7 +335,7 @@ func (s *ToolboxLogService) scanContainerLogDir(logPath string) (int64, int) {
 
 // scanSystemLogs 扫描系统日志
 func (s *ToolboxLogService) scanSystemLogs() []LogItem {
-	var items []LogItem
+	items := make([]LogItem, 0)
 
 	logFiles := []string{
 		"/var/log/syslog",
