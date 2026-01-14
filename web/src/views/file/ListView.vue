@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   NButton,
+  NCheckbox,
   NEllipsis,
   NFlex,
   NPopconfirm,
@@ -251,6 +252,35 @@ const confirmImmutableOperation = (row: any, callback: () => void) => {
 
 // 判断是否多选
 const isMultiSelect = computed(() => selected.value.length > 1)
+
+// 全选状态
+const isAllSelected = computed(() => {
+  return data.value.length > 0 && selected.value.length === data.value.length
+})
+
+// 部分选中状态（用于全选复选框的 indeterminate 状态）
+const isIndeterminate = computed(() => {
+  return selected.value.length > 0 && selected.value.length < data.value.length
+})
+
+// 切换全选
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    selected.value = []
+  } else {
+    selected.value = data.value.map((item: any) => item.full)
+  }
+}
+
+// 切换单个项目的选中状态（用于复选框点击）
+const toggleCheckbox = (item: any) => {
+  const index = selected.value.indexOf(item.full)
+  if (index > -1) {
+    selected.value.splice(index, 1)
+  } else {
+    selected.value.push(item.full)
+  }
+}
 
 const options = computed<DropdownOption[]>(() => {
   // 多选情况下显示简化菜单
@@ -1260,6 +1290,14 @@ onUnmounted(() => {
 
         <!-- 列表视图表头 -->
         <div v-if="fileStore.viewType === 'list'" class="list-header">
+          <div class="list-col col-checkbox">
+            <n-checkbox
+              :checked="isAllSelected"
+              :indeterminate="isIndeterminate"
+              @update:checked="toggleSelectAll"
+              @click.stop
+            />
+          </div>
           <div
             class="list-col col-name hover:text-primary cursor-pointer select-none"
             @click="handleSort('name')"
@@ -1309,6 +1347,9 @@ onUnmounted(() => {
           </template>
           <!-- 列表视图 -->
           <template v-else>
+            <div class="list-col col-checkbox">
+              <n-checkbox disabled />
+            </div>
             <div class="list-col col-name">
               <the-icon
                 :icon="inlineCreateIsDir ? 'mdi:folder' : 'mdi:file-document-outline'"
@@ -1359,10 +1400,7 @@ onUnmounted(() => {
               @keydown="handleInlineRenameKeydown"
               @click.stop
             />
-            <span
-              v-else
-              class="text-center max-w-full"
-            >
+            <span v-else class="text-center max-w-full">
               <n-ellipsis
                 :line-clamp="2"
                 class="text-12 leading-normal break-all"
@@ -1375,6 +1413,13 @@ onUnmounted(() => {
 
           <!-- 列表视图 -->
           <template v-else>
+            <div class="list-col col-checkbox">
+              <n-checkbox
+                :checked="isSelected(item)"
+                @update:checked="toggleCheckbox(item)"
+                @click.stop
+              />
+            </div>
             <div class="list-col col-name">
               <the-icon :icon="getFileIcon(item)" :size="20" :color="getIconColor(item)" />
               <!-- 内联重命名输入框 -->
@@ -1387,11 +1432,7 @@ onUnmounted(() => {
                 @keydown="handleInlineRenameKeydown"
                 @click.stop
               />
-              <n-ellipsis
-                v-else
-                class="flex-1 overflow-hidden"
-                :tooltip="{ width: 300 }"
-              >
+              <n-ellipsis v-else class="flex-1 overflow-hidden" :tooltip="{ width: 300 }">
                 {{ item.symlink ? item.name + ' -> ' + item.link : item.name }}
               </n-ellipsis>
               <the-icon
@@ -1547,7 +1588,11 @@ onUnmounted(() => {
   />
 
   <!-- 编辑弹窗 -->
-  <edit-modal v-model:show="editorModal" v-model:minimized="editorMinimized" v-model:file="currentFile" />
+  <edit-modal
+    v-model:show="editorModal"
+    v-model:minimized="editorMinimized"
+    v-model:file="currentFile"
+  />
   <!-- 预览弹窗 -->
   <preview-modal v-model:show="previewModal" v-model:path="currentFile" />
   <!-- 解压弹窗 -->
@@ -1637,7 +1682,7 @@ onUnmounted(() => {
     .list-header {
       display: flex;
       align-items: center;
-      padding: 8px 16px;
+      padding: 8px 16px 8px 8px;
       background: var(--card-color);
       border-bottom: 1px solid var(--border-color);
       font-weight: 500;
@@ -1650,7 +1695,7 @@ onUnmounted(() => {
     .file-item {
       display: flex;
       align-items: center;
-      padding: 6px 16px;
+      padding: 6px 16px 6px 8px;
       border-bottom: 1px solid var(--border-color);
       cursor: pointer;
       transition: all 0.1s ease;
@@ -1679,6 +1724,12 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  &.col-checkbox {
+    width: 24px;
+    flex-shrink: 0;
+    justify-content: center;
+  }
 
   &.col-name {
     flex: 1;
