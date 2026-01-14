@@ -60,3 +60,19 @@ type FileUnCompress struct {
 	File string `form:"file" json:"file" validate:"required|isUnixPath"`
 	Path string `form:"path" json:"path" validate:"required|isUnixPath"`
 }
+
+// ChunkUploadStart 分块上传开始请求
+type ChunkUploadStart struct {
+	Path       string `json:"path" validate:"required|isUnixPath"`   // 目标目录
+	FileName   string `json:"file_name" validate:"required"`         // 文件名
+	FileHash   string `json:"file_hash" validate:"required|len:64"`  // 文件SHA256
+	ChunkCount int    `json:"chunk_count" validate:"required|min:1"` // 分块总数
+}
+
+// ChunkUploadFinish 分块上传完成请求
+type ChunkUploadFinish struct {
+	Path       string `json:"path" validate:"required|isUnixPath"`   // 目标目录
+	FileName   string `json:"file_name" validate:"required"`         // 文件名
+	FileHash   string `json:"file_hash" validate:"required|len:64"`  // 文件SHA256
+	ChunkCount int    `json:"chunk_count" validate:"required|min:1"` // 分块总数
+}

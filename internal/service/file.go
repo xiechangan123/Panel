@@ -3,7 +3,9 @@
 package service
 
 import (
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	stdio "io"
 	"net/http"
@@ -553,6 +555,179 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// ChunkUploadStart 开始分块上传
+func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ChunkUploadStart](r)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	targetPath := filepath.Join(req.Path, req.FileName)
+	if io.Exists(targetPath) {
+		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
+		return
+	}
+
+	// 确保目标目录存在
+	if !io.Exists(req.Path) {
+		if err = stdos.MkdirAll(req.Path, 0755); err != nil {
+			Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
+			return
+		}
+	}
+
+	// 扫描目录中已存在的分块文件
+	prefix := s.getChunkTempFilePrefix(req.FileName, req.FileHash)
+	entries, err := stdos.ReadDir(req.Path)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("read directory error: %v", err))
+		return
+	}
+
+	uploadedChunks := make([]int, 0)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if strings.HasPrefix(name, prefix) {
+			// 提取分块索引
+			indexStr := strings.TrimPrefix(name, prefix)
+			if index, err := strconv.Atoi(indexStr); err == nil && index >= 0 && index < req.ChunkCount {
+				uploadedChunks = append(uploadedChunks, index)
+			}
+		}
+	}
+
+	Success(w, chix.M{
+		"uploaded_chunks": uploadedChunks,
+	})
+}
+
+// ChunkUploadChunk 上传单个分块
+func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseMultipartForm(100 << 20); err != nil { // 100MB
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	path := r.FormValue("path")
+	fileName := r.FormValue("file_name")
+	fileHash := r.FormValue("file_hash")
+	chunkIndex, _ := strconv.Atoi(r.FormValue("chunk_index"))
+	chunkHash := r.FormValue("chunk_hash")
+
+	if path == "" || fileName == "" || fileHash == "" {
+		Error(w, http.StatusBadRequest, s.t.Get("path, file_name and file_hash are required"))
+		return
+	}
+
+	// 获取上传的文件
+	_, handler, err := r.FormFile("file")
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("get upload file error: %v", err))
+		return
+	}
+
+	src, err := handler.Open()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("open upload file error: %v", err))
+		return
+	}
+	defer src.Close()
+
+	// 读取分块内容
+	chunkData, err := stdio.ReadAll(src)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("read chunk data error: %v", err))
+		return
+	}
+
+	// 校验分块 hash
+	if chunkHash != "" {
+		hash := sha256.Sum256(chunkData)
+		actualHash := hex.EncodeToString(hash[:])
+		if actualHash != chunkHash {
+			Error(w, http.StatusBadRequest, s.t.Get("chunk hash mismatch"))
+			return
+		}
+	}
+
+	// 保存分块到目标目录
+	// 格式: .{filename}.{hash前16位}.chunk.{index}
+	prefix := s.getChunkTempFilePrefix(fileName, fileHash)
+	chunkPath := filepath.Join(path, fmt.Sprintf("%s%d", prefix, chunkIndex))
+	if err = stdos.WriteFile(chunkPath, chunkData, 0644); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
+		return
+	}
+
+	Success(w, chix.M{
+		"chunk_index": chunkIndex,
+	})
+}
+
+// ChunkUploadFinish 完成分块上传
+func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ChunkUploadFinish](r)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	targetPath := filepath.Join(req.Path, req.FileName)
+
+	// 检查目标文件是否已存在
+	if io.Exists(targetPath) {
+		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
+		return
+	}
+
+	// 创建目标文件
+	outFile, err := stdos.OpenFile(targetPath, stdos.O_CREATE|stdos.O_WRONLY|stdos.O_TRUNC, 0644)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("create target file error: %v", err))
+		return
+	}
+	defer outFile.Close()
+
+	// 按顺序合并分块
+	prefix := s.getChunkTempFilePrefix(req.FileName, req.FileHash)
+	var chunkPaths []string
+	for i := 0; i < req.ChunkCount; i++ {
+		chunkPath := filepath.Join(req.Path, fmt.Sprintf("%s%d", prefix, i))
+		chunkPaths = append(chunkPaths, chunkPath)
+
+		chunkData, err := stdos.ReadFile(chunkPath)
+		if err != nil {
+			// 删除已创建的目标文件
+			_ = outFile.Close()
+			_ = stdos.Remove(targetPath)
+			Error(w, http.StatusInternalServerError, s.t.Get("read chunk %d error: %v", i, err))
+			return
+		}
+		if _, err = outFile.Write(chunkData); err != nil {
+			_ = outFile.Close()
+			_ = stdos.Remove(targetPath)
+			Error(w, http.StatusInternalServerError, s.t.Get("write chunk %d error: %v", i, err))
+			return
+		}
+	}
+
+	// 设置权限
+	s.setPermission(targetPath, 0755, "www", "www")
+
+	// 清理临时分块文件
+	for _, chunkPath := range chunkPaths {
+		_ = stdos.Remove(chunkPath)
+	}
+
+	Success(w, chix.M{
+		"path": targetPath,
+	})
+}
+
 // formatDir 格式化目录信息
 func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 	var paths []any
@@ -606,4 +781,14 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 func (s *FileService) setPermission(path string, mode stdos.FileMode, owner, group string) {
 	_ = io.Chmod(path, mode)
 	_ = io.Chown(path, owner, group)
+}
+
+// getChunkTempFilePrefix 获取分块临时文件前缀
+// 格式: .{filename}.{hash前16位}.chunk.
+func (s *FileService) getChunkTempFilePrefix(fileName, fileHash string) string {
+	hashPrefix := fileHash
+	if len(hashPrefix) > 16 {
+		hashPrefix = hashPrefix[:16]
+	}
+	return fmt.Sprintf(".%s.%s.chunk.", fileName, hashPrefix)
 }

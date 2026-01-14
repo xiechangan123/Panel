@@ -432,6 +432,10 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/compress", route.file.Compress)
 			r.Post("/un_compress", route.file.UnCompress)
 			r.Get("/list", route.file.List)
+			// 分块上传
+			r.Post("/chunk/start", route.file.ChunkUploadStart)
+			r.Post("/chunk/upload", route.file.ChunkUploadChunk)
+			r.Post("/chunk/finish", route.file.ChunkUploadFinish)
 		})
 
 		r.Route("/log", func(r chi.Router) {
