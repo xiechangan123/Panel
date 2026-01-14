@@ -4,7 +4,6 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -92,110 +91,63 @@ func EncodeKey(key crypto.Signer) ([]byte, error) {
 
 // GenerateSelfSigned 生成自签名证书
 func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
-	// 生成根密钥对
-	rootPrivateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	// 1) 生成 Ed25519 密钥对
+	pub, priv, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var ips []net.IP
-	ip := false
-	for _, item := range names {
-		ipItem := net.ParseIP(item)
-		if ipItem != nil {
-			ip = true
-			ips = append(ips, ipItem)
+	// 2) 解析 SAN
+	var dnsNames []string
+	var ipAddrs []net.IP
+	for _, n := range names {
+		if ip := net.ParseIP(n); ip != nil {
+			ipAddrs = append(ipAddrs, ip)
+		} else if n != "" {
+			dnsNames = append(dnsNames, n)
 		}
 	}
-
-	rootTemplate := x509.Certificate{
-		SerialNumber:          big.NewInt(1),
-		Subject:               pkix.Name{CommonName: "AcePanel Root CA"},
-		NotBefore:             time.Now(),
-		NotAfter:              time.Now().AddDate(20, 0, 0),
-		BasicConstraintsValid: true,
-		IsCA:                  true,
-		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageDigitalSignature,
+	if len(dnsNames) == 0 && len(ipAddrs) == 0 {
+		return nil, nil, fmt.Errorf("names is empty: SAN must not be empty")
 	}
 
-	rootCertBytes, err := x509.CreateCertificate(rand.Reader, &rootTemplate, &rootTemplate, &rootPrivateKey.PublicKey, rootPrivateKey)
-	if err != nil {
-		return nil, nil, err
-	}
-	rootCertBlock := &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: rootCertBytes,
-	}
-
-	// 生成中间证书密钥对
-	interPrivateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	// 3) 随机 128 位序列号
+	serialLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	serial, err := rand.Int(rand.Reader, serialLimit)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	interTemplate := x509.Certificate{
-		SerialNumber:          big.NewInt(2),
-		Subject:               pkix.Name{CommonName: "AcePanel CA"},
-		NotBefore:             time.Now(),
-		NotAfter:              time.Now().AddDate(10, 0, 0),
-		BasicConstraintsValid: true,
-		IsCA:                  true,
-		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
-	}
+	now := time.Now().Add(-5 * time.Minute) // 避免时钟偏差导致 not yet valid
 
-	interCertBytes, err := x509.CreateCertificate(rand.Reader, &interTemplate, &rootTemplate, &interPrivateKey.PublicKey, rootPrivateKey)
-	if err != nil {
-		return nil, nil, err
-	}
-	interCertBlock := &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: interCertBytes,
-	}
-
-	// 生成客户端证书密钥对
-	clientPrivateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	clientTemplate := x509.Certificate{
-		SerialNumber: big.NewInt(3),
+	// 4) 组装证书模板
+	tmpl := x509.Certificate{
+		SerialNumber: serial,
 		Subject:      pkix.Name{CommonName: "AcePanel"},
-		NotBefore:    time.Now(),
-		NotAfter:     time.Now().AddDate(10, 0, 0),
-		KeyUsage:     x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
-		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
-	}
-	if ip {
-		clientTemplate.IPAddresses = ips
-	} else {
-		clientTemplate.DNSNames = names
+		NotBefore:    now,
+		NotAfter:     now.AddDate(1, 0, 0), // 1 年
+
+		DNSNames:    dnsNames,
+		IPAddresses: ipAddrs,
+
+		KeyUsage:              x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		BasicConstraintsValid: true,
 	}
 
-	clientCertBytes, err := x509.CreateCertificate(rand.Reader, &clientTemplate, &interTemplate, &clientPrivateKey.PublicKey, interPrivateKey)
+	der, err := x509.CreateCertificate(rand.Reader, &tmpl, &tmpl, pub, priv)
 	if err != nil {
 		return nil, nil, err
 	}
-	clientCertBlock := &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: clientCertBytes,
-	}
 
-	// 拼接证书链
-	cert = append(cert, pem.EncodeToMemory(clientCertBlock)...)
-	cert = append(cert, pem.EncodeToMemory(interCertBlock)...)
-	cert = append(cert, pem.EncodeToMemory(rootCertBlock)...)
+	// 5) 输出 PEM 证书
+	cert = pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der})
 
-	// 编码私钥
-	privateKeyBytes, err := x509.MarshalECPrivateKey(clientPrivateKey)
+	keyBytes, err := x509.MarshalPKCS8PrivateKey(priv)
 	if err != nil {
 		return nil, nil, err
 	}
-	key = pem.EncodeToMemory(&pem.Block{
-		Type:  "EC PRIVATE KEY",
-		Bytes: privateKeyBytes,
-	})
+	key = pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: keyBytes})
 
 	return cert, key, nil
 }
