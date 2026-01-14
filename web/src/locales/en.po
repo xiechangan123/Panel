@@ -275,8 +275,8 @@ msgstr "Select File"
 #: src/views/container/NetworkView.vue:45 src/views/container/VolumeView.vue:26
 #: src/views/database/CreateServerModal.vue:55
 #: src/views/database/ServerList.vue:39
-#: src/views/database/UpdateServerModal.vue:55 src/views/file/ListView.vue:1267
-#: src/views/file/PropertyModal.vue:27 src/views/file/ToolBar.vue:202
+#: src/views/database/UpdateServerModal.vue:55 src/views/file/ListView.vue:1305
+#: src/views/file/PropertyModal.vue:27 src/views/file/ToolBar.vue:201
 #: src/views/project/ListView.vue:34 src/views/ssh/CreateModal.vue:59
 #: src/views/ssh/UpdateModal.vue:65 src/views/toolbox/LogView.vue:206
 #: src/views/toolbox/ProcessView.vue:109 src/views/toolbox/ProcessView.vue:388
@@ -290,33 +290,33 @@ msgstr "Name"
 msgid "Permissions"
 msgstr "Permissions"
 
-#: src/components/common/PathSelector.vue:100 src/views/file/ListView.vue:1278
+#: src/components/common/PathSelector.vue:100 src/views/file/ListView.vue:1316
 msgid "Owner / Group"
 msgstr "Owner / Group"
 
 #: src/components/common/PathSelector.vue:112 src/views/backup/ListView.vue:42
-#: src/views/container/ImageView.vue:74 src/views/file/ListView.vue:1274
-#: src/views/file/PropertyModal.vue:39 src/views/file/ToolBar.vue:203
+#: src/views/container/ImageView.vue:74 src/views/file/ListView.vue:1312
+#: src/views/file/PropertyModal.vue:39 src/views/file/ToolBar.vue:202
 #: src/views/toolbox/DiskView.vue:275 src/views/toolbox/LogView.vue:207
 msgid "Size"
 msgstr "Size"
 
-#: src/components/common/PathSelector.vue:147 src/views/file/ListView.vue:1414
+#: src/components/common/PathSelector.vue:147 src/views/file/ListView.vue:1455
 msgid "Calculate"
 msgstr "Calculate"
 
-#: src/components/common/PathSelector.vue:152 src/views/file/ListView.vue:1283
-#: src/views/file/PropertyModal.vue:51 src/views/file/ToolBar.vue:204
+#: src/components/common/PathSelector.vue:152 src/views/file/ListView.vue:1321
+#: src/views/file/PropertyModal.vue:51 src/views/file/ToolBar.vue:203
 msgid "Modification Time"
 msgstr "Modification Time"
 
-#: src/components/common/PathSelector.vue:186 src/views/file/ListView.vue:1138
+#: src/components/common/PathSelector.vue:186 src/views/file/ListView.vue:1168
 #: src/views/file/PathInput.vue:30
 msgid "Invalid path"
 msgstr "Invalid path"
 
-#: src/components/common/PathSelector.vue:246 src/views/file/ListView.vue:131
-#: src/views/file/ListView.vue:653 src/views/file/ToolBar.vue:37
+#: src/components/common/PathSelector.vue:246 src/views/file/ListView.vue:132
+#: src/views/file/ListView.vue:683 src/views/file/ToolBar.vue:36
 msgid "Invalid name"
 msgstr "Invalid name"
 
@@ -331,7 +331,7 @@ msgstr "Invalid name"
 #: src/views/container/NetworkView.vue:183
 #: src/views/container/VolumeView.vue:137
 #: src/views/database/CreateDatabaseModal.vue:28
-#: src/views/database/CreateUserModal.vue:28 src/views/file/ListView.vue:140
+#: src/views/database/CreateUserModal.vue:28 src/views/file/ListView.vue:141
 #: src/views/firewall/CreateForwardModal.vue:41
 #: src/views/setting/CreateModal.vue:19 src/views/setting/TokenModal.vue:125
 #: src/views/ssh/CreateModal.vue:40 src/views/task/CreateModal.vue:50
@@ -340,11 +340,11 @@ msgid "Created successfully"
 msgstr "Created successfully"
 
 #: src/components/common/PathSelector.vue:312
-#: src/views/file/PropertyModal.vue:34 src/views/file/ToolBar.vue:226
+#: src/views/file/PropertyModal.vue:34 src/views/file/ToolBar.vue:225
 msgid "File"
 msgstr "File"
 
-#: src/components/common/PathSelector.vue:313 src/views/file/ToolBar.vue:227
+#: src/components/common/PathSelector.vue:313 src/views/file/ToolBar.vue:226
 msgid "Folder"
 msgstr "Folder"
 
@@ -386,7 +386,7 @@ msgstr "Root Directory"
 #: src/views/database/CreateServerModal.vue:120
 #: src/views/database/CreateUserModal.vue:125
 #: src/views/database/UpdateServerModal.vue:112
-#: src/views/database/UpdateUserModal.vue:79 src/views/file/ToolBar.vue:300
+#: src/views/database/UpdateUserModal.vue:79 src/views/file/ToolBar.vue:299
 #: src/views/firewall/CreateForwardModal.vue:88
 #: src/views/firewall/CreateIpModal.vue:121
 #: src/views/firewall/CreateModal.vue:155 src/views/setting/CreateModal.vue:64
@@ -454,9 +454,10 @@ msgstr ""
 #: src/views/container/ImagePullModal.vue:184
 #: src/views/container/ImagePullModal.vue:198
 #: src/views/container/ImageView.vue:351 src/views/container/ImageView.vue:366
-#: src/views/file/ListView.vue:244 src/views/file/ListView.vue:666
-#: src/views/file/ListView.vue:790 src/views/file/ToolBar.vue:125
-#: src/views/file/ToolBar.vue:260 src/views/home/UpdateView.vue:27
+#: src/views/file/ListView.vue:245 src/views/file/ListView.vue:696
+#: src/views/file/ListView.vue:820 src/views/file/ToolBar.vue:124
+#: src/views/file/ToolBar.vue:259 src/views/file/UploadModal.vue:335
+#: src/views/file/UploadModal.vue:444 src/views/home/UpdateView.vue:27
 #: src/views/project/EditModal.vue:572 src/views/toolbox/DiskView.vue:406
 #: src/views/toolbox/DiskView.vue:431 src/views/toolbox/DiskView.vue:454
 #: src/views/toolbox/DiskView.vue:480 src/views/toolbox/DiskView.vue:505
@@ -469,8 +470,8 @@ msgstr "Cancel"
 
 #: src/components/common/PtyTerminalModal.vue:252 src/locales/menu.ts:19
 #: src/views/container/ContainerView.vue:124
-#: src/views/container/ContainerView.vue:637 src/views/file/ListView.vue:308
-#: src/views/file/ListView.vue:907 src/views/file/ToolBar.vue:235
+#: src/views/container/ContainerView.vue:637 src/views/file/ListView.vue:338
+#: src/views/file/ListView.vue:937 src/views/file/ToolBar.vue:234
 msgid "Terminal"
 msgstr "Terminal"
 
@@ -1014,22 +1015,22 @@ msgstr "Failed to calculate size"
 msgid "Failed to create"
 msgstr "Files to compress"
 
-#: src/components/file-editor/FileTree.vue:378 src/views/file/ListView.vue:1304
-#: src/views/file/ListView.vue:1322
+#: src/components/file-editor/FileTree.vue:378 src/views/file/ListView.vue:1342
+#: src/views/file/ListView.vue:1363
 #, fuzzy
 msgid "Folder name"
 msgstr "Filename"
 
-#: src/components/file-editor/FileTree.vue:378 src/views/file/ListView.vue:1304
-#: src/views/file/ListView.vue:1322
+#: src/components/file-editor/FileTree.vue:378 src/views/file/ListView.vue:1342
+#: src/views/file/ListView.vue:1363
 #, fuzzy
 msgid "File name"
 msgstr "Filename"
 
 #: src/components/file-editor/FileTree.vue:477
 #: src/views/container/ContainerView.vue:153
-#: src/views/container/ContainerView.vue:616 src/views/file/ListView.vue:306
-#: src/views/file/ListView.vue:1477
+#: src/views/container/ContainerView.vue:616 src/views/file/ListView.vue:336
+#: src/views/file/ListView.vue:1518
 msgid "Rename"
 msgstr "Rename"
 
@@ -1054,9 +1055,9 @@ msgstr "Rename"
 #: src/views/container/VolumeView.vue:88 src/views/container/VolumeView.vue:162
 #: src/views/database/DatabaseList.vue:101
 #: src/views/database/ServerList.vue:214 src/views/database/UserList.vue:189
-#: src/views/environment/PHPView.vue:106 src/views/file/ListView.vue:263
-#: src/views/file/ListView.vue:313 src/views/file/ListView.vue:1482
-#: src/views/file/ToolBar.vue:273 src/views/firewall/ForwardView.vue:103
+#: src/views/environment/PHPView.vue:106 src/views/file/ListView.vue:293
+#: src/views/file/ListView.vue:343 src/views/file/ListView.vue:1523
+#: src/views/file/ToolBar.vue:272 src/views/firewall/ForwardView.vue:103
 #: src/views/firewall/IpRuleView.vue:145 src/views/firewall/RuleView.vue:182
 #: src/views/project/ListView.vue:140 src/views/project/ListView.vue:218
 #: src/views/setting/SettingUser.vue:139 src/views/setting/TokenModal.vue:91
@@ -1066,8 +1067,8 @@ msgstr "Rename"
 msgid "Delete"
 msgstr "Delete"
 
-#: src/components/file-editor/FileTree.vue:481 src/views/file/ListView.vue:297
-#: src/views/file/ListView.vue:1472 src/views/monitor/IndexView.vue:498
+#: src/components/file-editor/FileTree.vue:481 src/views/file/ListView.vue:327
+#: src/views/file/ListView.vue:1513 src/views/monitor/IndexView.vue:498
 #: src/views/toolbox/SshView.vue:301
 msgid "Download"
 msgstr "Download"
@@ -1084,7 +1085,7 @@ msgstr "Files to compress"
 
 #: src/components/file-editor/FileTree.vue:601
 #: src/views/apps/nginx/NginxIndex.vue:207
-#: src/views/apps/nginx/NginxIndex.vue:283 src/views/file/ListView.vue:1485
+#: src/views/apps/nginx/NginxIndex.vue:283 src/views/file/ListView.vue:1526
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "Are you sure you want to delete %{ name }?"
 
@@ -1100,8 +1101,8 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/container/VolumeView.vue:129
 #: src/views/database/DatabaseList.vue:125
 #: src/views/database/ServerList.vue:238 src/views/database/UserList.vue:213
-#: src/views/file/ListView.vue:721 src/views/file/ListView.vue:741
-#: src/views/file/ToolBar.vue:170 src/views/firewall/ForwardView.vue:129
+#: src/views/file/ListView.vue:751 src/views/file/ListView.vue:771
+#: src/views/file/ToolBar.vue:169 src/views/firewall/ForwardView.vue:129
 #: src/views/firewall/ForwardView.vue:147 src/views/firewall/IpRuleView.vue:171
 #: src/views/firewall/IpRuleView.vue:189 src/views/firewall/RuleView.vue:208
 #: src/views/firewall/RuleView.vue:226 src/views/project/ListView.vue:186
@@ -1131,7 +1132,7 @@ msgstr "Files"
 msgid "New Folder"
 msgstr "Folder"
 
-#: src/components/file-editor/FileTree.vue:707 src/views/file/ToolBar.vue:231
+#: src/components/file-editor/FileTree.vue:707 src/views/file/ToolBar.vue:230
 msgid "New"
 msgstr "New"
 
@@ -1361,7 +1362,7 @@ msgstr "Show in Home"
 #: src/views/container/ImageView.vue:90 src/views/container/NetworkView.vue:109
 #: src/views/container/VolumeView.vue:63 src/views/database/DatabaseList.vue:77
 #: src/views/database/ServerList.vue:134 src/views/database/UserList.vue:151
-#: src/views/environment/PHPView.vue:55 src/views/file/ListView.vue:1286
+#: src/views/environment/PHPView.vue:55 src/views/file/ListView.vue:1324
 #: src/views/firewall/ForwardView.vue:79 src/views/firewall/IpRuleView.vue:121
 #: src/views/firewall/RuleView.vue:158 src/views/project/ListView.vue:88
 #: src/views/setting/SettingUser.vue:85 src/views/setting/TokenModal.vue:52
@@ -1864,9 +1865,9 @@ msgid "Modified successfully"
 msgstr "Modified successfully"
 
 #: src/views/apps/mysql/MysqlIndex.vue:72 src/views/database/ServerList.vue:75
-#: src/views/database/UserList.vue:69 src/views/file/ListView.vue:796
-#: src/views/file/ListView.vue:816 src/views/file/ToolBar.vue:131
-#: src/views/file/ToolBar.vue:151 src/views/setting/TokenModal.vue:163
+#: src/views/database/UserList.vue:69 src/views/file/ListView.vue:826
+#: src/views/file/ListView.vue:846 src/views/file/ToolBar.vue:130
+#: src/views/file/ToolBar.vue:150 src/views/setting/TokenModal.vue:163
 msgid "Copied successfully"
 msgstr "Copied successfully"
 
@@ -1875,9 +1876,9 @@ msgid "Root Password"
 msgstr "Root Password"
 
 #: src/views/apps/mysql/MysqlIndex.vue:88 src/views/database/ServerList.vue:79
-#: src/views/database/UserList.vue:73 src/views/file/ListView.vue:259
-#: src/views/file/ListView.vue:293 src/views/file/ListView.vue:892
-#: src/views/file/ToolBar.vue:266
+#: src/views/database/UserList.vue:73 src/views/file/ListView.vue:289
+#: src/views/file/ListView.vue:323 src/views/file/ListView.vue:922
+#: src/views/file/ToolBar.vue:265
 msgid "Copy"
 msgstr "Copy"
 
@@ -1919,13 +1920,13 @@ msgstr "Protocol"
 msgid "Proxy Pass"
 msgstr "Proxy Address"
 
-#: src/views/apps/nginx/NginxIndex.vue:180 src/views/file/ListView.vue:735
+#: src/views/apps/nginx/NginxIndex.vue:180 src/views/file/ListView.vue:765
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:81
 msgid "Yes"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:180 src/views/file/ListView.vue:736
+#: src/views/apps/nginx/NginxIndex.vue:180 src/views/file/ListView.vue:766
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:81
 #, fuzzy
@@ -1934,8 +1935,8 @@ msgstr "None"
 
 #: src/views/apps/nginx/NginxIndex.vue:197
 #: src/views/apps/nginx/NginxIndex.vue:273
-#: src/views/container/ComposeView.vue:122 src/views/file/ListView.vue:284
-#: src/views/file/ListView.vue:1462 src/views/project/ListView.vue:121
+#: src/views/container/ComposeView.vue:122 src/views/file/ListView.vue:314
+#: src/views/file/ListView.vue:1503 src/views/project/ListView.vue:121
 #: src/views/ssh/IndexView.vue:69 src/views/task/CronView.vue:128
 #: src/views/toolbox/WebHookView.vue:158 src/views/website/ListView.vue:138
 msgid "Edit"
@@ -2584,7 +2585,7 @@ msgstr "Restore Backup"
 msgid "Upload %{ filename } successfully"
 msgstr "Upload %{ filename } successfully"
 
-#: src/views/backup/UploadModal.vue:51 src/views/file/UploadModal.vue:50
+#: src/views/backup/UploadModal.vue:51 src/views/file/UploadModal.vue:490
 msgid "Click or drag files to this area to upload"
 msgstr "Click or drag files to this area to upload"
 
@@ -2684,8 +2685,8 @@ msgstr "Enter HMAC"
 msgid "Domain"
 msgstr "Domain"
 
-#: src/views/cert/CertView.vue:108 src/views/file/ToolBar.vue:233
-#: src/views/file/UploadModal.vue:38 src/views/monitor/IndexView.vue:492
+#: src/views/cert/CertView.vue:108 src/views/file/ToolBar.vue:232
+#: src/views/file/UploadModal.vue:459 src/views/monitor/IndexView.vue:492
 msgid "Upload"
 msgstr "Upload"
 
@@ -3361,7 +3362,7 @@ msgstr "Pause"
 msgid "Resume"
 msgstr "Resume"
 
-#: src/views/container/ContainerView.vue:231 src/views/file/ListView.vue:1493
+#: src/views/container/ContainerView.vue:231 src/views/file/ListView.vue:1534
 msgid "More"
 msgstr "More"
 
@@ -3867,9 +3868,9 @@ msgid "Compressed successfully"
 msgstr "Compressed successfully"
 
 #: src/views/file/CompressModal.vue:73 src/views/file/CompressModal.vue:105
-#: src/views/file/ListView.vue:261 src/views/file/ListView.vue:297
-#: src/views/file/ListView.vue:895 src/views/file/ListView.vue:1456
-#: src/views/file/ToolBar.vue:268
+#: src/views/file/ListView.vue:291 src/views/file/ListView.vue:327
+#: src/views/file/ListView.vue:925 src/views/file/ListView.vue:1497
+#: src/views/file/ToolBar.vue:267
 msgid "Compress"
 msgstr "Compress"
 
@@ -3890,149 +3891,150 @@ msgstr "Format"
 msgid "File Editor"
 msgstr "Website Edit"
 
-#: src/views/file/ListView.vue:238 src/views/file/ListView.vue:663
-#: src/views/file/ListView.vue:731 src/views/file/ListView.vue:779
-#: src/views/file/ToolBar.vue:114
+#: src/views/file/ListView.vue:239 src/views/file/ListView.vue:693
+#: src/views/file/ListView.vue:761 src/views/file/ListView.vue:809
+#: src/views/file/ToolBar.vue:113
 msgid "Warning"
 msgstr "Warning"
 
-#: src/views/file/ListView.vue:239
+#: src/views/file/ListView.vue:240
 msgid ""
 "%{ name } has immutable attribute. The panel will temporarily remove the "
 "immutable attribute, perform the operation, and then restore the immutable "
 "attribute. Do you want to continue?"
 msgstr ""
 
-#: src/views/file/ListView.vue:243
+#: src/views/file/ListView.vue:244 src/views/file/UploadModal.vue:334
+#: src/views/file/UploadModal.vue:443
 #, fuzzy
 msgid "Continue"
 msgstr "Container"
 
-#: src/views/file/ListView.vue:260 src/views/file/ListView.vue:294
-#: src/views/file/ListView.vue:893 src/views/file/ToolBar.vue:267
+#: src/views/file/ListView.vue:290 src/views/file/ListView.vue:324
+#: src/views/file/ListView.vue:923 src/views/file/ToolBar.vue:266
 msgid "Move"
 msgstr "Move"
 
-#: src/views/file/ListView.vue:262 src/views/file/ListView.vue:295
-#: src/views/file/ListView.vue:894 src/views/file/ListView.vue:1277
+#: src/views/file/ListView.vue:292 src/views/file/ListView.vue:325
+#: src/views/file/ListView.vue:924 src/views/file/ListView.vue:1315
 #: src/views/file/PermissionModal.vue:144 src/views/file/PropertyModal.vue:42
-#: src/views/file/ToolBar.vue:269
+#: src/views/file/ToolBar.vue:268
 msgid "Permission"
 msgstr "Permission"
 
-#: src/views/file/ListView.vue:267 src/views/file/ListView.vue:317
-#: src/views/file/ToolBar.vue:263
+#: src/views/file/ListView.vue:297 src/views/file/ListView.vue:347
+#: src/views/file/ToolBar.vue:262
 msgid "Paste"
 msgstr "Paste"
 
-#: src/views/file/ListView.vue:279 src/views/file/ListView.vue:1443
+#: src/views/file/ListView.vue:309 src/views/file/ListView.vue:1484
 msgid "Open"
 msgstr "Open"
 
-#: src/views/file/ListView.vue:281 src/views/file/ListView.vue:1462
+#: src/views/file/ListView.vue:311 src/views/file/ListView.vue:1503
 msgid "Preview"
 msgstr "Preview"
 
-#: src/views/file/ListView.vue:283 src/views/file/ListView.vue:301
-#: src/views/file/ListView.vue:900 src/views/file/ListView.vue:1569
+#: src/views/file/ListView.vue:313 src/views/file/ListView.vue:331
+#: src/views/file/ListView.vue:930 src/views/file/ListView.vue:1614
 msgid "Uncompress"
 msgstr "Uncompress"
 
-#: src/views/file/ListView.vue:312 src/views/file/ListView.vue:910
+#: src/views/file/ListView.vue:342 src/views/file/ListView.vue:940
 #: src/views/file/PropertyModal.vue:11
 #, fuzzy
 msgid "Properties"
 msgstr "Property"
 
-#: src/views/file/ListView.vue:574 src/views/file/ToolBar.vue:63
-#: src/views/file/ToolBar.vue:80
+#: src/views/file/ListView.vue:604 src/views/file/ToolBar.vue:62
+#: src/views/file/ToolBar.vue:79
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr "Marked successfully, please navigate to the destination path to paste"
 
-#: src/views/file/ListView.vue:664
+#: src/views/file/ListView.vue:694
 msgid "There are items with the same name. Do you want to overwrite?"
 msgstr "There are items with the same name. Do you want to overwrite?"
 
-#: src/views/file/ListView.vue:665 src/views/file/ListView.vue:789
-#: src/views/file/ToolBar.vue:124
+#: src/views/file/ListView.vue:695 src/views/file/ListView.vue:819
+#: src/views/file/ToolBar.vue:123
 msgid "Overwrite"
 msgstr "Overwrite"
 
-#: src/views/file/ListView.vue:672 src/views/file/ListView.vue:691
+#: src/views/file/ListView.vue:702 src/views/file/ListView.vue:721
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr "Renamed %{ source } to %{ target } successfully"
 
-#: src/views/file/ListView.vue:727
+#: src/views/file/ListView.vue:757
 msgid "Some files are immutable and cannot be deleted"
 msgstr ""
 
-#: src/views/file/ListView.vue:732
+#: src/views/file/ListView.vue:762
 #, fuzzy
 msgid "Are you sure you want to delete %{count} items?"
 msgstr "Are you sure you want to delete the account?"
 
-#: src/views/file/ListView.vue:751
+#: src/views/file/ListView.vue:781
 msgid "Path copied to clipboard"
 msgstr ""
 
-#: src/views/file/ListView.vue:758 src/views/file/ToolBar.vue:90
+#: src/views/file/ListView.vue:788 src/views/file/ToolBar.vue:89
 msgid "Please mark the files/folders to copy or move first"
 msgstr "Please mark the files/folders to copy or move first"
 
-#: src/views/file/ListView.vue:780 src/views/file/ToolBar.vue:115
+#: src/views/file/ListView.vue:810 src/views/file/ToolBar.vue:114
 #, fuzzy
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr ""
 "There are items with the same name. %{ items } Do you want to overwrite?"
 
-#: src/views/file/ListView.vue:802 src/views/file/ListView.vue:822
-#: src/views/file/ToolBar.vue:137 src/views/file/ToolBar.vue:157
+#: src/views/file/ListView.vue:832 src/views/file/ListView.vue:852
+#: src/views/file/ToolBar.vue:136 src/views/file/ToolBar.vue:156
 msgid "Moved successfully"
 msgstr "Moved successfully"
 
-#: src/views/file/ListView.vue:808 src/views/file/ToolBar.vue:143
+#: src/views/file/ListView.vue:838 src/views/file/ToolBar.vue:142
 msgid "Canceled"
 msgstr "Canceled"
 
-#: src/views/file/ListView.vue:903
+#: src/views/file/ListView.vue:933
 msgid "Copy Path"
 msgstr "Copy Path"
 
-#: src/views/file/ListView.vue:1141
+#: src/views/file/ListView.vue:1171
 msgid "Uncompressing..."
 msgstr "Uncompressing..."
 
-#: src/views/file/ListView.vue:1148
+#: src/views/file/ListView.vue:1178
 msgid "Uncompressed successfully"
 msgstr "Uncompressed successfully"
 
-#: src/views/file/ListView.vue:1504
+#: src/views/file/ListView.vue:1545
 #, fuzzy
 msgid "No files"
 msgstr "Files"
 
-#: src/views/file/ListView.vue:1514
+#: src/views/file/ListView.vue:1555
 msgid "%{count} item(s) selected"
 msgstr ""
 
-#: src/views/file/ListView.vue:1517
+#: src/views/file/ListView.vue:1558
 #, fuzzy
 msgid "Clear"
 msgstr "Clear Log"
 
-#: src/views/file/ListView.vue:1522
+#: src/views/file/ListView.vue:1563
 msgid "%{count} item(s)"
 msgstr ""
 
-#: src/views/file/ListView.vue:1557
+#: src/views/file/ListView.vue:1602
 msgid "Uncompress - %{ file }"
 msgstr "Uncompress - %{ file }"
 
-#: src/views/file/ListView.vue:1565
+#: src/views/file/ListView.vue:1610
 msgid "Uncompress to"
 msgstr "Uncompress to"
 
-#: src/views/file/ListView.vue:1577 src/views/file/ToolBar.vue:307
+#: src/views/file/ListView.vue:1622 src/views/file/ToolBar.vue:305
 #, fuzzy
 msgid "Terminal - %{ path }"
 msgstr "Modify permissions - %{ path }"
@@ -4125,51 +4127,67 @@ msgstr ""
 msgid "Immutable"
 msgstr "Stable"
 
-#: src/views/file/ToolBar.vue:46
+#: src/views/file/ToolBar.vue:45
 msgid "Download task created successfully"
 msgstr "Download task created successfully"
 
-#: src/views/file/ToolBar.vue:52
+#: src/views/file/ToolBar.vue:51
 msgid "Please select files/folders to copy"
 msgstr "Please select files/folders to copy"
 
-#: src/views/file/ToolBar.vue:69
+#: src/views/file/ToolBar.vue:68
 msgid "Please select files/folders to move"
 msgstr "Please select files/folders to move"
 
-#: src/views/file/ToolBar.vue:209
+#: src/views/file/ToolBar.vue:208
 msgid "Sort"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:234 src/views/file/ToolBar.vue:285
+#: src/views/file/ToolBar.vue:233 src/views/file/ToolBar.vue:284
 msgid "Remote Download"
 msgstr "Remote Download"
 
-#: src/views/file/ToolBar.vue:253
+#: src/views/file/ToolBar.vue:252
 msgid "Switch to grid view"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:254
+#: src/views/file/ToolBar.vue:253
 msgid "Switch to list view"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:276
+#: src/views/file/ToolBar.vue:275
 msgid "Are you sure you want to delete in bulk?"
 msgstr "Are you sure you want to delete in bulk?"
 
-#: src/views/file/ToolBar.vue:293
+#: src/views/file/ToolBar.vue:292
 msgid "Download URL"
 msgstr "Download URL"
 
-#: src/views/file/ToolBar.vue:296
+#: src/views/file/ToolBar.vue:295
 msgid "Save as"
 msgstr "Save as"
 
-#: src/views/file/UploadModal.vue:20
+#: src/views/file/UploadModal.vue:301 src/views/file/UploadModal.vue:403
 msgid "Upload %{ fileName } successful"
 msgstr "Upload %{ fileName } successful"
 
-#: src/views/file/UploadModal.vue:53
+#: src/views/file/UploadModal.vue:329 src/views/file/UploadModal.vue:438
+#, fuzzy
+msgid "Confirm Upload"
+msgstr "Confirm logout?"
+
+#: src/views/file/UploadModal.vue:330 src/views/file/UploadModal.vue:439
+msgid ""
+"You are about to upload %{count} files. This may take a while. Do you want "
+"to continue?"
+msgstr ""
+
+#: src/views/file/UploadModal.vue:475
+#, fuzzy
+msgid "Preparing..."
+msgstr "Restarting..."
+
+#: src/views/file/UploadModal.vue:493
 msgid ""
 "For large files, it is recommended to use SFTP and other methods to upload"
 msgstr ""
