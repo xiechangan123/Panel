@@ -22,39 +22,6 @@ go build -o ace ./cmd/ace
 go build -o cli ./cmd/cli
 ```
 
-构建时注入版本信息：
-```bash
-VERSION="1.0.0"
-BUILD_TIME="$(date -u '+%F %T UTC')"
-COMMIT_HASH="$(git rev-parse --short HEAD)"
-GO_VERSION="$(go version | cut -d' ' -f3)"
-
-LDFLAGS="-s -w --extldflags '-static'"
-LDFLAGS="${LDFLAGS} -X 'github.com/acepanel/panel/internal/app.Version=${VERSION}'"
-LDFLAGS="${LDFLAGS} -X 'github.com/acepanel/panel/internal/app.BuildTime=${BUILD_TIME}'"
-LDFLAGS="${LDFLAGS} -X 'github.com/acepanel/panel/internal/app.CommitHash=${COMMIT_HASH}'"
-LDFLAGS="${LDFLAGS} -X 'github.com/acepanel/panel/internal/app.GoVersion=${GO_VERSION}'"
-
-go build -trimpath -buildvcs=false -ldflags "${LDFLAGS}" -o ace ./cmd/ace
-```
-
-### 运行测试
-
-运行所有测试：
-```bash
-go test -v ./...
-```
-
-运行测试并生成覆盖率报告：
-```bash
-go test -v -coverprofile="coverage.out" ./...
-```
-
-运行单个测试：
-```bash
-go test -v -run TestFunctionName ./path/to/package
-```
-
 ### 前端开发
 
 进入前端目录：
@@ -70,16 +37,6 @@ pnpm install
 开发模式（带热重载）：
 ```bash
 pnpm dev
-```
-
-类型检查：
-```bash
-pnpm type-check
-```
-
-代码检查：
-```bash
-pnpm lint
 ```
 
 构建生产版本：
@@ -204,10 +161,7 @@ pnpm build
 
 ### 安全性
 
-- 实现认证/授权（JWT）
-- 防止 SQL 注入（使用 GORM 参数化查询）
-- 防止 XSS 和 CSRF 攻击
-- 实现速率限制（`github.com/sethvargo/go-limiter`）
+- 不需要实现命令注入过滤，文件名过滤等，因为这是服务器面板，所有登录的用户都被视为管理员
 
 ## 代码风格
 
