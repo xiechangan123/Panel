@@ -52,7 +52,7 @@ func (s *ToolboxLogService) Scan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items := make([]LogItem, 0)
+	var items []LogItem
 
 	switch req.Type {
 	case "panel":
