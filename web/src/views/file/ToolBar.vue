@@ -3,7 +3,6 @@ import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useFileStore } from '@/store'
 import { checkName, lastDirectory } from '@/utils/file'
-import UploadModal from '@/views/file/UploadModal.vue'
 import type { Marked } from '@/views/file/types'
 import { useGettext } from 'vue3-gettext'
 
@@ -16,11 +15,11 @@ const marked = defineModel<Marked[]>('marked', { type: Array, default: () => [] 
 const markedType = defineModel<string>('markedType', { type: String, required: true })
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
+const upload = defineModel<boolean>('upload', { type: Boolean, required: true })
 
 // 终端弹窗
 const terminalModal = ref(false)
 
-const upload = ref(false)
 const download = ref(false)
 const downloadModel = ref({
   path: '',
@@ -300,7 +299,6 @@ const handleSortSelect = (key: string) => {
       <n-button type="info" block @click="handleDownload">{{ $gettext('Submit') }}</n-button>
     </n-space>
   </n-modal>
-  <upload-modal v-model:show="upload" v-model:path="path" />
   <!-- 终端弹窗 -->
   <pty-terminal-modal
     v-model:show="terminalModal"
