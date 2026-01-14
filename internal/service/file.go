@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	stdio "io"
+	"mime/multipart"
 	"net/http"
 	stdos "os"
 	"path/filepath"
@@ -635,7 +636,7 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, s.t.Get("open upload file error: %v", err))
 		return
 	}
-	defer src.Close()
+	defer func(src multipart.File) { _ = src.Close() }(src)
 
 	// 读取分块内容
 	chunkData, err := stdio.ReadAll(src)
@@ -690,7 +691,7 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 		Error(w, http.StatusInternalServerError, s.t.Get("create target file error: %v", err))
 		return
 	}
-	defer outFile.Close()
+	defer func(outFile *stdos.File) { _ = outFile.Close() }(outFile)
 
 	// 按顺序合并分块
 	prefix := s.getChunkTempFilePrefix(req.FileName, req.FileHash)
