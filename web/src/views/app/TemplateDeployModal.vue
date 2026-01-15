@@ -2,6 +2,7 @@
 import templateApi from '@/api/panel/template'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useGettext } from 'vue3-gettext'
+import type { FormInst, FormRules, FormItemRule } from 'naive-ui'
 
 import type { Template, TemplateEnvironment } from './types'
 
@@ -19,6 +20,7 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 
 const doSubmit = ref(false)
 const currentTab = ref('basic')
+const formRef = ref<FormInst | null>(null)
 
 // 启动终端
 const upModal = ref(false)
@@ -50,12 +52,43 @@ const getSelectOptions = (env: TemplateEnvironment) => {
   }))
 }
 
+// 动态生成表单校验规则
+const formRules = computed<FormRules>(() => {
+  const rules: FormRules = {}
+  props.template?.environments?.forEach((env) => {
+    if (env.type === 'url') {
+      rules[`envs.${env.name}`] = {
+        trigger: ['input', 'blur'],
+        validator(_rule: FormItemRule, value: string) {
+          if (!value && env.default) return true
+          if (!value) return new Error($gettext('Please enter URL'))
+          try {
+            new URL(value)
+            return true
+          } catch {
+            return new Error($gettext('Please enter a valid URL'))
+          }
+        }
+      }
+    }
+  })
+  return rules
+})
+
 // 提交部署
 const handleSubmit = async () => {
   if (!props.template) return
 
   if (!deployModel.name.trim()) {
     window.$message.warning($gettext('Please enter compose name'))
+    return
+  }
+
+  // 表单校验
+  try {
+    await formRef.value?.validate()
+  } catch {
+    currentTab.value = 'environment'
     return
   }
 
@@ -176,10 +209,11 @@ watch(
         name="environment"
         :tab="$gettext('Environment Variables')"
       >
-        <n-form :model="deployModel" label-placement="left" label-width="160">
+        <n-form ref="formRef" :model="deployModel" :rules="formRules" label-placement="left" label-width="160">
           <n-form-item
             v-for="env in template.environments"
             :key="env.name"
+            :path="`envs.${env.name}`"
             :label="env.description"
             :required="env.default == ''"
           >
@@ -205,6 +239,12 @@ watch(
               v-model:value="deployModel.envs[env.name]"
               type="password"
               show-password-on="click"
+              :placeholder="env.default || ''"
+            />
+            <!-- URL 类型 -->
+            <n-input
+              v-else-if="env.type === 'url'"
+              v-model:value="deployModel.envs[env.name]"
               :placeholder="env.default || ''"
             />
             <!-- Text 类型 (默认) -->

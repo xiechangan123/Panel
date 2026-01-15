@@ -21,7 +21,7 @@ export interface Channel {
 export interface TemplateEnvironment {
   name: string
   description: string
-  type: 'text' | 'password' | 'number' | 'port' | 'select'
+  type: 'text' | 'url' | 'password' | 'number' | 'port' | 'select'
   options?: Record<string, string>
   default: string
 }
