@@ -70,21 +70,31 @@ func (_c *TemplateRepo_Callback_Call) RunAndReturn(run func(string) error) *Temp
 }
 
 // CreateCompose provides a mock function with given fields: name, compose, envs, autoFirewall
-func (_m *TemplateRepo) CreateCompose(name string, compose string, envs []types.KV, autoFirewall bool) error {
+func (_m *TemplateRepo) CreateCompose(name string, compose string, envs []types.KV, autoFirewall bool) (string, error) {
 	ret := _m.Called(name, compose, envs, autoFirewall)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateCompose")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, []types.KV, bool) error); ok {
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, []types.KV, bool) (string, error)); ok {
+		return rf(name, compose, envs, autoFirewall)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []types.KV, bool) string); ok {
 		r0 = rf(name, compose, envs, autoFirewall)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string, string, []types.KV, bool) error); ok {
+		r1 = rf(name, compose, envs, autoFirewall)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // TemplateRepo_CreateCompose_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateCompose'
@@ -108,12 +118,12 @@ func (_c *TemplateRepo_CreateCompose_Call) Run(run func(name string, compose str
 	return _c
 }
 
-func (_c *TemplateRepo_CreateCompose_Call) Return(_a0 error) *TemplateRepo_CreateCompose_Call {
-	_c.Call.Return(_a0)
+func (_c *TemplateRepo_CreateCompose_Call) Return(_a0 string, _a1 error) *TemplateRepo_CreateCompose_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TemplateRepo_CreateCompose_Call) RunAndReturn(run func(string, string, []types.KV, bool) error) *TemplateRepo_CreateCompose_Call {
+func (_c *TemplateRepo_CreateCompose_Call) RunAndReturn(run func(string, string, []types.KV, bool) (string, error)) *TemplateRepo_CreateCompose_Call {
 	_c.Call.Return(run)
 	return _c
 }
