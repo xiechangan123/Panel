@@ -15,8 +15,14 @@ const proxyLoading = ref(false)
 const proxyOptions = [
   { label: $gettext('Official (proxy.golang.org)'), value: 'https://proxy.golang.org,direct' },
   { label: $gettext('China - Qiniu (goproxy.cn)'), value: 'https://goproxy.cn,direct' },
-  { label: $gettext('China - Alibaba (mirrors.aliyun.com)'), value: 'https://mirrors.aliyun.com/goproxy/,direct' },
-  { label: $gettext('China - Tencent (mirrors.cloud.tencent.com)'), value: 'https://mirrors.cloud.tencent.com/go/,direct' }
+  {
+    label: $gettext('China - Alibaba (mirrors.aliyun.com)'),
+    value: 'https://mirrors.aliyun.com/goproxy/,direct'
+  },
+  {
+    label: $gettext('China - Tencent (mirrors.tencent.com)'),
+    value: 'https://mirrors.tencent.com/go/,direct'
+  }
 ]
 
 // 获取当前代理设置
@@ -52,9 +58,7 @@ const handleSaveProxy = async () => {
   <common-page show-footer>
     <n-flex vertical>
       <n-card>
-        <template #header>
-          Go {{ slug }}
-        </template>
+        <template #header> Go {{ slug }} </template>
         <template #header-extra>
           <n-button type="info" @click="handleSetCli">
             {{ $gettext('Set as CLI Default Version') }}
@@ -66,7 +70,11 @@ const handleSaveProxy = async () => {
         <n-spin :show="proxyLoading">
           <n-flex vertical>
             <n-alert type="info" :show-icon="false">
-              {{ $gettext('GOPROXY is used to configure the Go module proxy. Using a domestic mirror can speed up dependency downloads.') }}
+              {{
+                $gettext(
+                  'GOPROXY is used to configure the Go module proxy. Using a domestic mirror can speed up dependency downloads.'
+                )
+              }}
             </n-alert>
             <n-form-item :label="$gettext('Proxy Address')">
               <n-select

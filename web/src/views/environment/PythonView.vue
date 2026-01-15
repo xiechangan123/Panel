@@ -14,11 +14,22 @@ const mirrorLoading = ref(false)
 // 预设的镜像选项
 const mirrorOptions = [
   { label: $gettext('Official (pypi.org)'), value: 'https://pypi.org/simple' },
-  { label: $gettext('China - Tsinghua (tuna.tsinghua.edu.cn)'), value: 'https://pypi.tuna.tsinghua.edu.cn/simple' },
-  { label: $gettext('China - Alibaba (mirrors.aliyun.com)'), value: 'https://mirrors.aliyun.com/pypi/simple/' },
-  { label: $gettext('China - Tencent (mirrors.cloud.tencent.com)'), value: 'https://mirrors.cloud.tencent.com/pypi/simple/' },
-  { label: $gettext('China - Douban (pypi.douban.com)'), value: 'https://pypi.douban.com/simple/' },
-  { label: $gettext('China - USTC (pypi.mirrors.ustc.edu.cn)'), value: 'https://pypi.mirrors.ustc.edu.cn/simple/' }
+  {
+    label: $gettext('China - Alibaba (mirrors.aliyun.com)'),
+    value: 'https://mirrors.aliyun.com/pypi/simple/'
+  },
+  {
+    label: $gettext('China - Tencent (mirrors.tencent.com)'),
+    value: 'https://mirrors.tencent.com/pypi/simple/'
+  },
+  {
+    label: $gettext('China - Tsinghua (tuna.tsinghua.edu.cn)'),
+    value: 'https://pypi.tuna.tsinghua.edu.cn/simple'
+  },
+  {
+    label: $gettext('China - USTC (pypi.mirrors.ustc.edu.cn)'),
+    value: 'https://pypi.mirrors.ustc.edu.cn/simple/'
+  }
 ]
 
 // 获取当前镜像设置
@@ -54,9 +65,7 @@ const handleSaveMirror = async () => {
   <common-page show-footer>
     <n-flex vertical>
       <n-card>
-        <template #header>
-          Python {{ slug }}
-        </template>
+        <template #header> Python {{ slug }} </template>
         <template #header-extra>
           <n-button type="info" @click="handleSetCli">
             {{ $gettext('Set as CLI Default Version') }}
@@ -68,7 +77,11 @@ const handleSaveMirror = async () => {
         <n-spin :show="mirrorLoading">
           <n-flex vertical>
             <n-alert type="info" :show-icon="false">
-              {{ $gettext('pip mirror is used to configure the Python package source. Using a domestic mirror can speed up package downloads.') }}
+              {{
+                $gettext(
+                  'pip mirror is used to configure the Python package source. Using a domestic mirror can speed up package downloads.'
+                )
+              }}
             </n-alert>
             <n-form-item :label="$gettext('Mirror Address')">
               <n-select
