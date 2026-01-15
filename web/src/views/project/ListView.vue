@@ -59,8 +59,8 @@ const columns: any = [
     render(row: any) {
       return h(
         NTag,
-        { type: row.status === 'running' ? 'success' : 'default' },
-        { default: () => (row.status === 'running' ? $gettext('Running') : $gettext('Stopped')) }
+        { type: row.status === 'active' ? 'success' : 'default' },
+        { default: () => (row.status === 'active' ? $gettext('Running') : $gettext('Stopped')) }
       )
     }
   },
@@ -95,10 +95,10 @@ const columns: any = [
           NButton,
           {
             size: 'small',
-            type: row.status === 'running' ? 'warning' : 'success',
+            type: row.status === 'active' ? 'warning' : 'success',
             onClick: () => handleToggleStatus(row)
           },
-          { default: () => (row.status === 'running' ? $gettext('Stop') : $gettext('Start')) }
+          { default: () => (row.status === 'active' ? $gettext('Stop') : $gettext('Start')) }
         ),
         h(
           NButton,
@@ -157,14 +157,14 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleToggleStatus = (row: any) => {
-  if (row.status === 'running') {
+  if (row.status === 'active') {
     useRequest(systemctl.stop(row.name)).onSuccess(() => {
-      row.status = 'stopped'
+      row.status = 'inactive'
       window.$message.success($gettext('Stopped successfully'))
     })
   } else {
     useRequest(systemctl.start(row.name)).onSuccess(() => {
-      row.status = 'running'
+      row.status = 'active'
       window.$message.success($gettext('Started successfully'))
     })
   }
