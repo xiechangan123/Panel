@@ -1084,7 +1084,7 @@ func (r *websiteRepo) reloadWebServer() error {
 			return err
 		}
 	case "apache":
-		if err = systemctl.Reload("httpd"); err != nil {
+		if err = systemctl.Reload("apache"); err != nil {
 			_, err = shell.Execf("apachectl configtest")
 			return err
 		}
