@@ -143,7 +143,10 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:756
 #: src/views/monitor/IndexView.vue:812
 #: src/views/monitor/IndexView.vue:879
-#: src/views/project/CreateModal.vue:15
+#: src/views/project/CreateModal.vue:21
+#: src/views/project/CreateModal.vue:32
+#: src/views/project/CreateModal.vue:45
+#: src/views/project/CreateModal.vue:57
 msgid "Custom"
 msgstr ""
 
@@ -238,8 +241,11 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:177
 #: src/views/apps/supervisor/IndexView.vue:219
 #: src/views/apps/supervisor/IndexView.vue:284
+#: src/views/environment/GoView.vue:52
+#: src/views/environment/NodejsView.vue:55
 #: src/views/environment/PHPView.vue:154
 #: src/views/environment/PHPView.vue:160
+#: src/views/environment/PythonView.vue:59
 #: src/views/project/EditModal.vue:157
 #: src/views/setting/IndexView.vue:56
 #: src/views/toolbox/SystemView.vue:62
@@ -377,7 +383,7 @@ msgstr ""
 #: src/components/common/PathSelector.vue:317
 #: src/components/common/PathSelector.vue:380
 #: src/views/container/ContainerCreate.vue:539
-#: src/views/project/CreateModal.vue:219
+#: src/views/project/CreateModal.vue:518
 #: src/views/setting/TokenModal.vue:266
 #: src/views/toolbox/WebHookView.vue:352
 #: src/views/website/BulkCreateModal.vue:129
@@ -823,8 +829,11 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:63
 #: src/views/apps/rsync/IndexView.vue:235
 #: src/views/apps/supervisor/IndexView.vue:342
-#: src/views/environment/PHPView.vue:232
-#: src/views/environment/PHPView.vue:250
+#: src/views/environment/GoView.vue:90
+#: src/views/environment/NodejsView.vue:93
+#: src/views/environment/PHPView.vue:238
+#: src/views/environment/PHPView.vue:256
+#: src/views/environment/PythonView.vue:97
 #: src/views/project/EditModal.vue:575
 #: src/views/setting/IndexView.vue:107
 #: src/views/task/CronView.vue:259
@@ -1715,7 +1724,7 @@ msgstr ""
 #: src/views/apps/nginx/NginxIndex.vue:535
 #: src/views/apps/postgresql/IndexView.vue:100
 #: src/views/apps/redis/IndexView.vue:68
-#: src/views/environment/PHPView.vue:255
+#: src/views/environment/PHPView.vue:261
 #: src/views/home/IndexView.vue:490
 msgid "Load Status"
 msgstr ""
@@ -1734,13 +1743,13 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:78
 #: src/views/apps/rsync/IndexView.vue:240
 #: src/views/apps/supervisor/IndexView.vue:347
-#: src/views/environment/PHPView.vue:265
+#: src/views/environment/PHPView.vue:271
 msgid "Runtime Logs"
 msgstr ""
 
 #: src/views/apps/apache/IndexView.vue:90
 #: src/views/apps/nginx/NginxIndex.vue:548
-#: src/views/environment/PHPView.vue:268
+#: src/views/environment/PHPView.vue:274
 msgid "Error Logs"
 msgstr ""
 
@@ -1749,7 +1758,7 @@ msgstr ""
 #: src/views/apps/nginx/NginxIndex.vue:552
 #: src/views/apps/postgresql/IndexView.vue:114
 #: src/views/apps/supervisor/IndexView.vue:354
-#: src/views/environment/PHPView.vue:272
+#: src/views/environment/PHPView.vue:278
 msgid "Clear Log"
 msgstr ""
 
@@ -1924,7 +1933,7 @@ msgstr ""
 
 #: src/views/apps/frp/IndexView.vue:60
 #: src/views/apps/frp/IndexView.vue:88
-#: src/views/project/CreateModal.vue:190
+#: src/views/project/CreateModal.vue:489
 #: src/views/project/EditModal.vue:232
 msgid "Run User"
 msgstr ""
@@ -2029,7 +2038,7 @@ msgid "Slow Query Log"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:134
-#: src/views/environment/PHPView.vue:282
+#: src/views/environment/PHPView.vue:288
 msgid "Clear Slow Log"
 msgstr ""
 
@@ -2304,7 +2313,7 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:51
 #: src/views/apps/rsync/IndexView.vue:223
 #: src/views/apps/supervisor/IndexView.vue:330
-#: src/views/environment/PHPView.vue:219
+#: src/views/environment/PHPView.vue:225
 msgid "Main Configuration"
 msgstr ""
 
@@ -2321,7 +2330,7 @@ msgid "This modifies the PostgreSQL user configuration file. If you do not under
 msgstr ""
 
 #: src/views/apps/postgresql/IndexView.vue:120
-#: src/views/environment/PHPView.vue:278
+#: src/views/environment/PHPView.vue:284
 msgid "Slow Logs"
 msgstr ""
 
@@ -2467,7 +2476,7 @@ msgid "Are you sure you want to delete module %{ name }?"
 msgstr ""
 
 #: src/views/apps/rsync/IndexView.vue:194
-#: src/views/environment/PHPView.vue:206
+#: src/views/environment/PHPView.vue:212
 msgid "Module Management"
 msgstr ""
 
@@ -2596,7 +2605,7 @@ msgid "Daemon Logs"
 msgstr ""
 
 #: src/views/apps/supervisor/IndexView.vue:381
-#: src/views/project/CreateModal.vue:208
+#: src/views/project/CreateModal.vue:507
 #: src/views/project/EditModal.vue:250
 msgid "Start Command"
 msgstr ""
@@ -3917,6 +3926,89 @@ msgstr ""
 msgid "Are you sure you want to delete the user?"
 msgstr ""
 
+#: src/views/environment/GoView.vue:16
+msgid "Official (proxy.golang.org)"
+msgstr ""
+
+#: src/views/environment/GoView.vue:17
+msgid "China - Qiniu (goproxy.cn)"
+msgstr ""
+
+#: src/views/environment/GoView.vue:19
+#: src/views/environment/PythonView.vue:18
+msgid "China - Alibaba (mirrors.aliyun.com)"
+msgstr ""
+
+#: src/views/environment/GoView.vue:23
+#: src/views/environment/NodejsView.vue:22
+#: src/views/environment/PythonView.vue:22
+msgid "China - Tencent (mirrors.tencent.com)"
+msgstr ""
+
+#: src/views/environment/GoView.vue:46
+#: src/views/environment/JavaView.vue:13
+#: src/views/environment/NodejsView.vue:49
+#: src/views/environment/PHPView.vue:136
+#: src/views/environment/PythonView.vue:53
+msgid "Set successfully"
+msgstr ""
+
+#: src/views/environment/GoView.vue:64
+#: src/views/environment/JavaView.vue:27
+#: src/views/environment/NodejsView.vue:67
+#: src/views/environment/PHPView.vue:201
+#: src/views/environment/PythonView.vue:71
+msgid "Set as CLI Default Version"
+msgstr ""
+
+#: src/views/environment/GoView.vue:69
+msgid "Proxy Settings"
+msgstr ""
+
+#: src/views/environment/GoView.vue:74
+msgid "GOPROXY is used to configure the Go module proxy. Using a domestic mirror can speed up dependency downloads."
+msgstr ""
+
+#: src/views/environment/GoView.vue:79
+msgid "Proxy Address"
+msgstr ""
+
+#: src/views/environment/GoView.vue:85
+msgid "Select or enter proxy address"
+msgstr ""
+
+#: src/views/environment/JavaView.vue:31
+msgid "Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK)."
+msgstr ""
+
+#: src/views/environment/NodejsView.vue:16
+msgid "Official (registry.npmjs.org)"
+msgstr ""
+
+#: src/views/environment/NodejsView.vue:18
+msgid "China - npmmirror (npmmirror.com)"
+msgstr ""
+
+#: src/views/environment/NodejsView.vue:26
+msgid "China - Huawei (repo.huaweicloud.com)"
+msgstr ""
+
+#: src/views/environment/NodejsView.vue:72
+msgid "Registry Settings"
+msgstr ""
+
+#: src/views/environment/NodejsView.vue:77
+msgid "npm registry is used to configure the npm package source. Using a domestic mirror can speed up package downloads."
+msgstr ""
+
+#: src/views/environment/NodejsView.vue:82
+msgid "Registry Address"
+msgstr ""
+
+#: src/views/environment/NodejsView.vue:88
+msgid "Select or enter registry address"
+msgstr ""
+
 #: src/views/environment/PHPView.vue:41
 msgid "Module Name"
 msgstr ""
@@ -3929,37 +4021,57 @@ msgstr ""
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:136
-msgid "Set successfully"
-msgstr ""
-
 #: src/views/environment/PHPView.vue:178
 #: src/views/environment/PHPView.vue:184
 msgid "Task submitted, please check progress in background tasks"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:198
-msgid "Set as CLI Default Version"
-msgstr ""
-
-#: src/views/environment/PHPView.vue:201
+#: src/views/environment/PHPView.vue:204
 msgid "View PHPInfo"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:223
+#: src/views/environment/PHPView.vue:229
 msgid "This modifies the PHP %{ version } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:237
+#: src/views/environment/PHPView.vue:243
 msgid "FPM Configuration"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:241
+#: src/views/environment/PHPView.vue:247
 msgid "This modifies the PHP %{ version } FPM configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:294
+#: src/views/environment/PHPView.vue:300
 msgid "PHPInfo"
+msgstr ""
+
+#: src/views/environment/PythonView.vue:16
+msgid "Official (pypi.org)"
+msgstr ""
+
+#: src/views/environment/PythonView.vue:26
+msgid "China - Tsinghua (tuna.tsinghua.edu.cn)"
+msgstr ""
+
+#: src/views/environment/PythonView.vue:30
+msgid "China - USTC (pypi.mirrors.ustc.edu.cn)"
+msgstr ""
+
+#: src/views/environment/PythonView.vue:76
+msgid "Mirror Settings"
+msgstr ""
+
+#: src/views/environment/PythonView.vue:81
+msgid "pip mirror is used to configure the Python package source. Using a domestic mirror can speed up package downloads."
+msgstr ""
+
+#: src/views/environment/PythonView.vue:86
+msgid "Mirror Address"
+msgstr ""
+
+#: src/views/environment/PythonView.vue:92
+msgid "Select or enter mirror address"
 msgstr ""
 
 #: src/views/error-page/NotFound.vue:11
@@ -4988,72 +5100,146 @@ msgstr ""
 msgid "Disk I/O"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:95
+#: src/views/project/CreateModal.vue:15
+msgid "Source Code"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:16
+msgid "Binary"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:254
 msgid "Project created successfully"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:116
+#: src/views/project/CreateModal.vue:292
 msgid "Create General Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:117
+#: src/views/project/CreateModal.vue:293
+msgid "Create Go Project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:294
+msgid "Create Java Project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:295
+msgid "Create Node.js Project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:296
 msgid "Create PHP Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:119
+#: src/views/project/CreateModal.vue:297
+msgid "Create Python Project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:299
 #: src/views/project/ListView.vue:213
 msgid "Create Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:135
+#: src/views/project/CreateModal.vue:315
 #: src/views/project/EditModal.vue:179
 msgid "Project Name"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:140
+#: src/views/project/CreateModal.vue:320
 #: src/views/project/EditModal.vue:184
 msgid "Project name, used as service identifier"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:144
+#: src/views/project/CreateModal.vue:324
 #: src/views/project/EditModal.vue:198
 msgid "Project Directory"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:151
+#: src/views/project/CreateModal.vue:331
 msgid "Project root directory (if left empty, defaults to project directory/project name)"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:168
+#: src/views/project/CreateModal.vue:346
+msgid "Run Mode"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:361
+msgid "Go Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:365
+msgid "Select Go Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:371
+msgid "Entry File"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:376
+msgid "e.g., main.go, cmd/server/main.go"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:389
+msgid "Java Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:393
+msgid "Select Java Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:399
+#: src/views/project/CreateModal.vue:425
+#: src/views/project/CreateModal.vue:451
+#: src/views/project/CreateModal.vue:477
+msgid "Framework"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:403
+#: src/views/project/CreateModal.vue:429
+#: src/views/project/CreateModal.vue:455
+#: src/views/project/CreateModal.vue:481
+msgid "Select Framework"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:415
+msgid "Node.js Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:419
+msgid "Select Node.js Version"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:441
 #: src/views/website/CreateModal.vue:158
 #: src/views/website/EditView.vue:481
 msgid "PHP Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:172
+#: src/views/project/CreateModal.vue:445
 #: src/views/website/CreateModal.vue:162
 #: src/views/website/EditView.vue:486
 msgid "Select PHP Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:178
-msgid "Framework"
+#: src/views/project/CreateModal.vue:467
+msgid "Python Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:182
-msgid "Select Framework"
+#: src/views/project/CreateModal.vue:471
+msgid "Select Python Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:198
+#: src/views/project/CreateModal.vue:497
 #: src/views/project/EditModal.vue:240
 msgid "Select User"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:203
+#: src/views/project/CreateModal.vue:502
 msgid "Select www user if no special requirements"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:213
+#: src/views/project/CreateModal.vue:512
 #: src/views/project/EditModal.vue:255
 msgid "e.g., php artisan serve, node app.js"
 msgstr ""
@@ -5309,8 +5495,7 @@ msgid "General"
 msgstr ""
 
 #: src/views/project/IndexView.vue:23
-#: src/views/website/IndexView.vue:22
-msgid "PHP"
+msgid "Go"
 msgstr ""
 
 #: src/views/project/IndexView.vue:24
@@ -5318,15 +5503,16 @@ msgid "Java"
 msgstr ""
 
 #: src/views/project/IndexView.vue:25
-msgid "Go"
+msgid "Node.js"
 msgstr ""
 
 #: src/views/project/IndexView.vue:26
-msgid "Python"
+#: src/views/website/IndexView.vue:22
+msgid "PHP"
 msgstr ""
 
 #: src/views/project/IndexView.vue:27
-msgid "Node.js"
+msgid "Python"
 msgstr ""
 
 #: src/views/project/ListView.vue:131
