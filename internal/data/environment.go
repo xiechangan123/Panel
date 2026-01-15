@@ -36,7 +36,11 @@ func NewEnvironmentRepo(t *gotext.Locale, conf *config.Config, cache biz.CacheRe
 
 func (r *environmentRepo) Types() []types.LV {
 	return []types.LV{
+		{Label: "Go", Value: "go"},
+		{Label: "Java", Value: "java"},
+		{Label: "Node.js", Value: "nodejs"},
 		{Label: "PHP", Value: "php"},
+		{Label: "Python", Value: "python"},
 	}
 }
 
@@ -72,8 +76,16 @@ func (r *environmentRepo) IsInstalled(typ, slug string) bool {
 	path := filepath.Join(app.Root, "server", typ, slug)
 	var binFile string
 	switch typ {
+	case "go":
+		binFile = filepath.Join(path, "bin", "go")
+	case "java":
+		binFile = filepath.Join(path, "bin", "java")
+	case "nodejs":
+		binFile = filepath.Join(path, "bin", "node")
 	case "php":
 		binFile = filepath.Join(path, "bin", "php")
+	case "python":
+		binFile = filepath.Join(path, "bin", "python3")
 	default:
 		return false
 	}
@@ -102,17 +114,33 @@ func (r *environmentRepo) InstalledVersion(typ, slug string) string {
 	}
 
 	var basePath = filepath.Join(app.Root, "server", typ, slug)
+	var version string
+	var err error
 
 	switch typ {
+	case "go":
+		// go version go1.21.0 linux/amd64 -> 1.21.0
+		version, err = shell.Exec(filepath.Join(basePath, "bin", "go") + " version | awk '{print $3}' | sed 's/go//'")
+	case "java":
+		// openjdk version "17.0.8" 2023-07-18 LTS -> 17.0.8
+		version, err = shell.Exec(filepath.Join(basePath, "bin", "java") + " -version 2>&1 | head -n 1 | awk -F'\"' '{print $2}'")
+	case "nodejs":
+		// v20.10.0 -> 20.10.0
+		version, err = shell.Exec(filepath.Join(basePath, "bin", "node") + " -v | sed 's/v//'")
 	case "php":
-		version, err := shell.Exec(filepath.Join(basePath, "bin", "php") + " -v | head -n 1 | awk '{print $2}'")
-		if err != nil {
-			return ""
-		}
-		return version
+		// PHP 8.3.0 (cli) -> 8.3.0
+		version, err = shell.Exec(filepath.Join(basePath, "bin", "php") + " -v | head -n 1 | awk '{print $2}'")
+	case "python":
+		// Python 3.11.5 -> 3.11.5
+		version, err = shell.Exec(filepath.Join(basePath, "bin", "python3") + " --version | awk '{print $2}'")
 	default:
 		return ""
 	}
+
+	if err != nil {
+		return ""
+	}
+	return version
 }
 
 func (r *environmentRepo) HasUpdate(typ, slug string) bool {

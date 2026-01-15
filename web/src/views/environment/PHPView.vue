@@ -191,16 +191,22 @@ const handleUninstallModule = async (module: string) => {
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
-          <n-card> PHP {{ slug }} </n-card>
+          <n-card>
+            <template #header>
+              PHP {{ slug }}
+            </template>
+            <template #header-extra>
+              <n-flex>
+                <n-button type="info" @click="handleSetCli">
+                  {{ $gettext('Set as CLI Default Version') }}
+                </n-button>
+                <n-button type="primary" @click="handlePHPInfo">
+                  {{ $gettext('View PHPInfo') }}
+                </n-button>
+              </n-flex>
+            </template>
+          </n-card>
           <service-status :service="`php-fpm-${slug}`" show-reload />
-          <n-flex>
-            <n-button type="info" @click="handleSetCli">
-              {{ $gettext('Set as CLI Default Version') }}
-            </n-button>
-            <n-button type="primary" @click="handlePHPInfo">
-              {{ $gettext('View PHPInfo') }}
-            </n-button>
-          </n-flex>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="modules" :tab="$gettext('Module Management')">

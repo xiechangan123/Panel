@@ -8,7 +8,6 @@ type Environment struct {
 	Name        string `json:"name"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
-	Order       int    `json:"order"`
 }
 
 type Environments []*Environment
