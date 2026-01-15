@@ -20,11 +20,11 @@ const editId = ref(0)
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="all" :tab="$gettext('All')" />
         <n-tab name="general" :tab="$gettext('General')" />
-        <n-tab name="php" :tab="$gettext('PHP')" />
-        <n-tab name="java" :tab="$gettext('Java')" />
         <n-tab name="go" :tab="$gettext('Go')" />
-        <n-tab name="python" :tab="$gettext('Python')" />
+        <n-tab name="java" :tab="$gettext('Java')" />
         <n-tab name="nodejs" :tab="$gettext('Node.js')" />
+        <n-tab name="php" :tab="$gettext('PHP')" />
+        <n-tab name="python" :tab="$gettext('Python')" />
       </n-tabs>
     </template>
     <list-view

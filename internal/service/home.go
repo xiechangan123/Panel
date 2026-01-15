@@ -225,14 +225,44 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug IN ?", []string{"mysql", "mariadb", "percona"})
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
 
+	// Go 版本
+	var goData []types.LV
+	for _, slug := range s.environmentRepo.InstalledSlugs("go") {
+		ver := s.environmentRepo.InstalledVersion("go", slug)
+		goData = append(goData, types.LV{Value: slug, Label: fmt.Sprintf("Go %s", ver)})
+	}
+
+	// Java 版本
+	var javaData []types.LV
+	for _, slug := range s.environmentRepo.InstalledSlugs("java") {
+		ver := s.environmentRepo.InstalledVersion("java", slug)
+		javaData = append(javaData, types.LV{Value: slug, Label: fmt.Sprintf("Java %s", ver)})
+	}
+
+	// Node.js 版本
+	var nodejsData []types.LV
+	for _, slug := range s.environmentRepo.InstalledSlugs("nodejs") {
+		ver := s.environmentRepo.InstalledVersion("nodejs", slug)
+		nodejsData = append(nodejsData, types.LV{Value: slug, Label: fmt.Sprintf("Node.js %s", ver)})
+	}
+
+	// PHP 版本
 	var phpData []types.LVInt
-	var dbData []types.LV
-	dbData = append(dbData, types.LV{Value: "0", Label: s.t.Get("Not used")})
 	for _, slug := range s.environmentRepo.InstalledSlugs("php") {
 		ver := s.environmentRepo.InstalledVersion("php", slug)
 		phpData = append(phpData, types.LVInt{Value: cast.ToInt(slug), Label: fmt.Sprintf("PHP %s", ver)})
 	}
 
+	// Python 版本
+	var pythonData []types.LV
+	for _, slug := range s.environmentRepo.InstalledSlugs("python") {
+		ver := s.environmentRepo.InstalledVersion("python", slug)
+		pythonData = append(pythonData, types.LV{Value: slug, Label: fmt.Sprintf("Python %s", ver)})
+	}
+
+	// 数据库
+	var dbData []types.LV
+	dbData = append(dbData, types.LV{Value: "0", Label: s.t.Get("Not used")})
 	if mysqlInstalled {
 		dbData = append(dbData, types.LV{Value: "mysql", Label: "MySQL"})
 	}
@@ -243,7 +273,11 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 	webserver, _ := s.settingRepo.Get(biz.SettingKeyWebserver)
 	Success(w, chix.M{
 		"webserver": webserver,
+		"go":        goData,
+		"java":      javaData,
+		"nodejs":    nodejsData,
 		"php":       phpData,
+		"python":    pythonData,
 		"db":        dbData,
 	})
 }

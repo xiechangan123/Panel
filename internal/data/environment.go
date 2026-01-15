@@ -122,8 +122,8 @@ func (r *environmentRepo) InstalledVersion(typ, slug string) string {
 		// go version go1.21.0 linux/amd64 -> 1.21.0
 		version, err = shell.Exec(filepath.Join(basePath, "bin", "go") + " version | awk '{print $3}' | sed 's/go//'")
 	case "java":
-		// openjdk version "17.0.8" 2023-07-18 LTS -> 17.0.8
-		version, err = shell.Exec(filepath.Join(basePath, "bin", "java") + " -version 2>&1 | head -n 1 | awk -F'\"' '{print $2}'")
+		// OpenJDK Runtime Environment Corretto-21.0.9.11.1 (build 21.0.9+11-LTS) -> 21.0.9.11.1
+		version, err = shell.Exec(filepath.Join(basePath, "bin", "java") + ` -version 2>&1 | sed -n 's/.*Corretto-\([0-9.]*\).*/\1/p' | head -n 1`)
 	case "nodejs":
 		// v20.10.0 -> 20.10.0
 		version, err = shell.Exec(filepath.Join(basePath, "bin", "node") + " -v | sed 's/v//'")
