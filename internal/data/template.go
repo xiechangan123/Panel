@@ -65,13 +65,13 @@ func (r *templateRepo) Callback(slug string) error {
 }
 
 // CreateCompose 创建编排
-func (r *templateRepo) CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) error {
-	dir := filepath.Join(app.Root, "server", "compose", name)
+func (r *templateRepo) CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) (string, error) {
+	dir := filepath.Join(app.Root, "compose", name)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+		return "", err
 	}
 	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
-		return err
+		return "", err
 	}
 
 	var sb strings.Builder
@@ -82,7 +82,7 @@ func (r *templateRepo) CreateCompose(name, compose string, envs []types.KV, auto
 		sb.WriteString("\n")
 	}
 	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(sb.String()), 0644); err != nil {
-		return err
+		return "", err
 	}
 
 	// 自动放行端口
@@ -100,7 +100,7 @@ func (r *templateRepo) CreateCompose(name, compose string, envs []types.KV, auto
 		}
 	}
 
-	return nil
+	return dir, nil
 }
 
 type composePort struct {

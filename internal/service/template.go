@@ -66,7 +66,8 @@ func (s *TemplateService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 创建编排
-	if err = s.templateRepo.CreateCompose(req.Name, template.Compose, req.Envs, req.AutoFirewall); err != nil {
+	dir, err := s.templateRepo.CreateCompose(req.Name, template.Compose, req.Envs, req.AutoFirewall)
+	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -74,7 +75,7 @@ func (s *TemplateService) Create(w http.ResponseWriter, r *http.Request) {
 	// 回调
 	_ = s.templateRepo.Callback(req.Slug)
 
-	Success(w, nil)
+	Success(w, dir)
 }
 
 // Callback 模版下载回调

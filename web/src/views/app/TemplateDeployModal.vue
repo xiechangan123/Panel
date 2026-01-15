@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import templateApi from '@/api/panel/template'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import type { FormInst, FormItemRule, FormRules } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
-import type { FormInst, FormRules, FormItemRule } from 'naive-ui'
 
 import type { Template, TemplateEnvironment } from './types'
 
@@ -109,11 +109,11 @@ const handleSubmit = async () => {
       auto_firewall: deployModel.autoFirewall
     })
   )
-    .onSuccess(() => {
+    .onSuccess(({ data }) => {
       window.$message.success($gettext('Created successfully'))
       if (deployModel.autoStart) {
         // 自动启动
-        upCommand.value = `docker compose -f /opt/ace/server/compose/${deployModel.name}/docker-compose.yml up -d`
+        upCommand.value = `docker compose -f ${data}/docker-compose.yml up -d`
         upModal.value = true
       } else {
         show.value = false
@@ -209,7 +209,13 @@ watch(
         name="environment"
         :tab="$gettext('Environment Variables')"
       >
-        <n-form ref="formRef" :model="deployModel" :rules="formRules" label-placement="left" label-width="160">
+        <n-form
+          ref="formRef"
+          :model="deployModel"
+          :rules="formRules"
+          label-placement="left"
+          label-width="160"
+        >
           <n-form-item
             v-for="env in template.environments"
             :key="env.name"

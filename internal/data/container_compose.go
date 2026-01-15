@@ -33,7 +33,7 @@ func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
 		return nil, err
 	}
 
-	composeDir := filepath.Join(app.Root, "server", "compose")
+	composeDir := filepath.Join(app.Root, "compose")
 	entries, err := os.ReadDir(composeDir)
 	if err != nil {
 		return nil, err
@@ -74,8 +74,8 @@ func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
 
 // Get 获取编排文件和环境变量内容
 func (r *containerComposeRepo) Get(name string) (string, []types.KV, error) {
-	content, _ := os.ReadFile(filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml"))
-	env, _ := os.ReadFile(filepath.Join(app.Root, "server", "compose", name, ".env"))
+	content, _ := os.ReadFile(filepath.Join(app.Root, "compose", name, "docker-compose.yml"))
+	env, _ := os.ReadFile(filepath.Join(app.Root, "compose", name, ".env"))
 
 	var envs []types.KV
 	for _, line := range strings.Split(string(env), "\n") {
@@ -94,7 +94,7 @@ func (r *containerComposeRepo) Get(name string) (string, []types.KV, error) {
 
 // Create 创建编排文件
 func (r *containerComposeRepo) Create(name, compose string, envs []types.KV) error {
-	dir := filepath.Join(app.Root, "server", "compose", name)
+	dir := filepath.Join(app.Root, "compose", name)
 	if err := os.MkdirAll(dir, 0644); err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (r *containerComposeRepo) Create(name, compose string, envs []types.KV) err
 
 // Update 更新编排文件
 func (r *containerComposeRepo) Update(name, compose string, envs []types.KV) error {
-	dir := filepath.Join(app.Root, "server", "compose", name)
+	dir := filepath.Join(app.Root, "compose", name)
 	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func (r *containerComposeRepo) Update(name, compose string, envs []types.KV) err
 
 // Up 启动编排
 func (r *containerComposeRepo) Up(name string, force bool) error {
-	file := filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml")
+	file := filepath.Join(app.Root, "compose", name, "docker-compose.yml")
 	cmd := "docker compose -f %s up -d"
 	if force {
 		cmd += " --pull always" // 强制拉取镜像
@@ -152,7 +152,7 @@ func (r *containerComposeRepo) Up(name string, force bool) error {
 
 // Down 停止编排
 func (r *containerComposeRepo) Down(name string) error {
-	file := filepath.Join(app.Root, "server", "compose", name, "docker-compose.yml")
+	file := filepath.Join(app.Root, "compose", name, "docker-compose.yml")
 	_ = os.Setenv("PODMAN_COMPOSE_WARNING_LOGS", "false") // 禁用 Podman Compose 的警告日志
 	_, err := shell.Execf("docker compose -f %s down", file)
 	_ = os.Unsetenv("PODMAN_COMPOSE_WARNING_LOGS")
@@ -164,6 +164,6 @@ func (r *containerComposeRepo) Remove(name string) error {
 	if err := r.Down(name); err != nil {
 		return err
 	}
-	dir := filepath.Join(app.Root, "server", "compose", name)
+	dir := filepath.Join(app.Root, "compose", name)
 	return os.RemoveAll(dir)
 }
