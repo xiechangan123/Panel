@@ -48,30 +48,33 @@ interface VirtualMemoryStat {
   laundry: number
   buffers: number
   cached: number
-  writeback: number
+  writeBack: number
   dirty: number
-  writebacktmp: number
+  writeBackTmp: number
   shared: number
   slab: number
   sreclaimable: number
   sunreclaim: number
-  pagetables: number
-  swapcached: number
-  commitlimit: number
-  committedas: number
-  hightotal: number
-  highfree: number
-  lowtotal: number
-  lowfree: number
-  swaptotal: number
-  swapfree: number
+  pageTables: number
+  swapCached: number
+  commitLimit: number
+  committedAS: number
+  highTotal: number
+  highFree: number
+  lowTotal: number
+  lowFree: number
+  swapTotal: number
+  swapFree: number
   mapped: number
-  vmalloctotal: number
-  vmallocused: number
-  vmallocchunk: number
-  hugepagestotal: number
-  hugepagesfree: number
-  hugepagesize: number
+  vmallocTotal: number
+  vmallocUsed: number
+  vmallocChunk: number
+  hugePagesTotal: number
+  hugePagesFree: number
+  hugePagesRsvd: number
+  hugePagesSurp: number
+  hugePageSize: number
+  anonHugePages: number
 }
 
 interface SwapMemoryStat {

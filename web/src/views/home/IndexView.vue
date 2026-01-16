@@ -601,31 +601,31 @@ if (import.meta.hot) {
                   <tr>
                     <th>{{ $gettext('Committed') }}</th>
                     <td>
-                      {{ formatBytes(realtime.mem.committedas) }}
+                      {{ formatBytes(realtime.mem.committedAS) }}
                     </td>
                   </tr>
                   <tr>
                     <th>{{ $gettext('Commit Limit') }}</th>
                     <td>
-                      {{ formatBytes(realtime.mem.commitlimit) }}
+                      {{ formatBytes(realtime.mem.commitLimit) }}
                     </td>
                   </tr>
                   <tr>
                     <th>{{ $gettext('SWAP Size') }}</th>
                     <td>
-                      {{ formatBytes(realtime.mem.swaptotal) }}
+                      {{ formatBytes(realtime.mem.swapTotal) }}
                     </td>
                   </tr>
                   <tr>
                     <th>{{ $gettext('SWAP Used') }}</th>
                     <td>
-                      {{ formatBytes(realtime.mem.swapcached) }}
+                      {{ formatBytes(realtime.mem.swapCached) }}
                     </td>
                   </tr>
                   <tr>
                     <th>{{ $gettext('SWAP Available') }}</th>
                     <td>
-                      {{ formatBytes(realtime.mem.swapfree) }}
+                      {{ formatBytes(realtime.mem.swapFree) }}
                     </td>
                   </tr>
                   <tr>
