@@ -3,6 +3,7 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import project from '@/api/panel/project'
+import website from '@/api/panel/website'
 import PathSelector from '@/components/common/PathSelector.vue'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -71,6 +72,13 @@ const createModel = ref({
   working_dir: '',
   exec_start: '',
   user: 'www'
+})
+
+// 反向代理相关
+const proxyOptions = ref({
+  enabled: false,
+  domains: [] as string[],
+  port: null as number | null
 })
 
 // Go 特有字段
@@ -153,7 +161,8 @@ const generateCommand = () => {
         createModel.value.exec_start = `${goBin} run ${goOptions.value.entryFile}`
       } else {
         // 二进制模式
-        const rootDir = createModel.value.root_dir || `/opt/ace/projects/${createModel.value.name || 'project'}`
+        const rootDir =
+          createModel.value.root_dir || `/opt/ace/projects/${createModel.value.name || 'project'}`
         createModel.value.exec_start = `${rootDir}/main`
       }
       break
@@ -195,7 +204,13 @@ const generateCommand = () => {
 
 // 监听 Go 选项变化
 watch(
-  () => [goOptions.value.mode, goOptions.value.version, goOptions.value.entryFile, createModel.value.root_dir, createModel.value.name],
+  () => [
+    goOptions.value.mode,
+    goOptions.value.version,
+    goOptions.value.entryFile,
+    createModel.value.root_dir,
+    createModel.value.name
+  ],
   () => {
     if (type.value === 'go') generateCommand()
   }
@@ -249,8 +264,46 @@ watch(showPathSelector, (val) => {
 const handleCreate = async () => {
   createModel.value.type = type.value == 'all' ? 'general' : type.value
 
+  // 如果启用了反向代理，先创建网站
+  if (proxyOptions.value.enabled) {
+    // 验证域名和端口
+    const domains = proxyOptions.value.domains.filter((d) => d.trim() !== '')
+    if (domains.length === 0) {
+      window.$message.warning($gettext('Please enter at least one domain'))
+      return
+    }
+    if (!proxyOptions.value.port) {
+      window.$message.warning($gettext('Please enter the project port'))
+      return
+    }
+
+    // 先创建反向代理网站
+    const websiteData = {
+      type: 'proxy',
+      name: createModel.value.name,
+      domains: domains,
+      listens: ['80'],
+      proxy: `http://127.0.0.1:${proxyOptions.value.port}`,
+      remark: $gettext('Auto-created for project: %{ name }', { name: createModel.value.name })
+    }
+
+    try {
+      await new Promise<void>((resolve, reject) => {
+        useRequest(website.create(websiteData))
+          .onSuccess(() => resolve())
+          .onError((err) => reject(err))
+      })
+    } catch {
+      // 网站创建失败，不继续创建项目
+      return
+    }
+  }
+
   useRequest(project.create(createModel.value)).onSuccess(() => {
     window.$bus.emit('project:refresh')
+    if (proxyOptions.value.enabled) {
+      window.$bus.emit('website:refresh')
+    }
     window.$message.success($gettext('Project created successfully'))
     show.value = false
     // 重置表单
@@ -261,6 +314,11 @@ const handleCreate = async () => {
       working_dir: '',
       exec_start: '',
       user: 'www'
+    }
+    proxyOptions.value = {
+      enabled: false,
+      domains: [],
+      port: null
     }
     goOptions.value = {
       mode: 'source',
@@ -379,7 +437,6 @@ const modalTitle = computed(() => {
             </n-col>
           </n-row>
         </template>
-
       </template>
 
       <!-- Java 类型特有字段 -->
@@ -503,7 +560,6 @@ const modalTitle = computed(() => {
           </span>
         </template>
       </n-form-item>
-
       <n-form-item path="exec_start" :label="$gettext('Start Command')" required>
         <n-input
           v-model:value="createModel.exec_start"
@@ -512,9 +568,43 @@ const modalTitle = computed(() => {
           :placeholder="$gettext('e.g., php artisan serve, node app.js')"
         />
       </n-form-item>
+      <n-form-item :label="$gettext('Reverse Proxy')">
+        <n-switch v-model:value="proxyOptions.enabled" />
+        <template #feedback>
+          <span class="text-gray-400">
+            {{ $gettext('Automatically create a reverse proxy website for this project') }}
+          </span>
+        </template>
+      </n-form-item>
+
+      <template v-if="proxyOptions.enabled">
+        <n-row :gutter="[24, 0]">
+          <n-col :span="16">
+            <n-form-item :label="$gettext('Domain')">
+              <n-dynamic-input
+                v-model:value="proxyOptions.domains"
+                placeholder="example.com"
+                :min="1"
+                show-sort-button
+              />
+            </n-form-item>
+          </n-col>
+          <n-col :span="8">
+            <n-form-item :label="$gettext('Project Port')">
+              <n-input-number
+                v-model:value="proxyOptions.port"
+                :min="1"
+                :max="65535"
+                style="width: 100%"
+                :placeholder="$gettext('e.g., 3000')"
+              />
+            </n-form-item>
+          </n-col>
+        </n-row>
+      </template>
     </n-form>
 
-    <n-button type="info" block @click="handleCreate">
+    <n-button type="info" block class="mt-24" @click="handleCreate">
       {{ $gettext('Create') }}
     </n-button>
   </n-modal>
