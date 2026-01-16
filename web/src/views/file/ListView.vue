@@ -282,7 +282,25 @@ const toggleCheckbox = (item: any) => {
   }
 }
 
+// 空白区域右键菜单是否激活
+const isEmptyContextMenu = ref(false)
+
 const options = computed<DropdownOption[]>(() => {
+  // 空白区域右键菜单
+  if (isEmptyContextMenu.value) {
+    const options: DropdownOption[] = [
+      { label: $gettext('New File'), key: 'new-file' },
+      { label: $gettext('New Folder'), key: 'new-folder' }
+    ]
+    if (marked.value.length) {
+      options.unshift({
+        label: $gettext('Paste'),
+        key: 'paste'
+      })
+    }
+    return options
+  }
+
   // 多选情况下显示简化菜单
   if (isMultiSelect.value) {
     const options: DropdownOption[] = [
@@ -485,8 +503,32 @@ const handleContextMenu = (item: any, event: MouseEvent) => {
   }
 
   nextTick().then(() => {
+    isEmptyContextMenu.value = false
     showDropdown.value = true
     selectedRow.value = item
+    dropdownX.value = event.clientX
+    dropdownY.value = event.clientY
+  })
+}
+
+// 处理空白区域右键菜单
+const handleEmptyContextMenu = (event: MouseEvent) => {
+  // 如果点击的是文件项，不处理
+  const target = event.target as HTMLElement
+  if (target.closest('.file-item')) return
+  // 列表视图表头不触发
+  if (target.closest('.list-header')) return
+
+  event.preventDefault()
+  showDropdown.value = false
+
+  // 清除选中
+  selected.value = []
+
+  nextTick().then(() => {
+    isEmptyContextMenu.value = true
+    showDropdown.value = true
+    selectedRow.value = null
     dropdownX.value = event.clientX
     dropdownY.value = event.clientY
   })
@@ -857,6 +899,23 @@ const handlePaste = () => {
 }
 
 const handleSelect = (key: string) => {
+  // 空白区域菜单选项
+  if (isEmptyContextMenu.value) {
+    switch (key) {
+      case 'paste':
+        handlePaste()
+        break
+      case 'new-file':
+        startInlineCreate(false)
+        break
+      case 'new-folder':
+        startInlineCreate(true)
+        break
+    }
+    onCloseDropdown()
+    return
+  }
+
   const items = isMultiSelect.value ? getSelectedItems() : [selectedRow.value]
 
   switch (key) {
@@ -1284,6 +1343,7 @@ onUnmounted(() => {
           'list-mode': fileStore.viewType === 'list'
         }"
         @mousedown="onSelectionStart"
+        @contextmenu="handleEmptyContextMenu"
       >
         <!-- 框选框 -->
         <div v-if="selectionBox" class="selection-box" :style="selectionBoxStyle" />
