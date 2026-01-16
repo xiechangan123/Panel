@@ -391,7 +391,6 @@ func (route *Cli) Commands() []*cli.Command {
 							Usage:    route.t.Get("Website name"),
 							Required: true,
 						},
-
 						&cli.StringFlag{
 							Name:    "path",
 							Aliases: []string{"p"},
@@ -411,9 +410,9 @@ func (route *Cli) Commands() []*cli.Command {
 							Required: true,
 						},
 						&cli.StringFlag{
-							Name:     "file",
-							Aliases:  []string{"f"},
-							Usage:    route.t.Get("Rotation file"),
+							Name:     "name",
+							Aliases:  []string{"n"},
+							Usage:    route.t.Get("Website name"),
 							Required: true,
 						},
 						&cli.IntFlag{

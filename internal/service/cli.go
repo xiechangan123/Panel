@@ -714,6 +714,9 @@ func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error 
 	if err = s.backupRepo.CutoffLog(path, filepath.Join(app.Root, "sites", website.Name, "log", "access.log")); err != nil {
 		return err
 	}
+	if err = s.backupRepo.CutoffLog(path, filepath.Join(app.Root, "sites", website.Name, "log", "error.log")); err != nil {
+		return err
+	}
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("☆ Rotation successful [%s]", time.Now().Format(time.DateTime)))
 	fmt.Println(s.hr)
@@ -724,18 +727,27 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 	if cmd.String("type") != "website" {
 		return errors.New(s.t.Get("Currently only website log rotation is supported"))
 	}
-	path := cmd.String("path")
-	if cmd.String("path") == "" {
-		return errors.New(s.t.Get("Please specify the log rotation path"))
+
+	website, err := s.websiteRepo.GetByName(cmd.String("name"))
+	if err != nil {
+		return err
+	}
+
+	path := filepath.Join(app.Root, "sites", website.Name, "log")
+	if cmd.String("path") != "" {
+		path = cmd.String("path")
 	}
 
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("★ Start cleaning rotated logs [%s]", time.Now().Format(time.DateTime)))
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("|-Cleaning type: %s", cmd.String("type")))
-	fmt.Println(s.t.Get("|-Cleaning target: %s", cmd.String("file")))
+	fmt.Println(s.t.Get("|-Cleaning target: %s", website.Name))
 	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Int("save")))
-	if err := s.backupRepo.ClearExpired(path, cmd.String("file"), cmd.Int("save")); err != nil {
+	if err = s.backupRepo.ClearExpired(path, "access.log", cmd.Int("save")); err != nil {
+		return err
+	}
+	if err = s.backupRepo.ClearExpired(path, "error.log", cmd.Int("save")); err != nil {
 		return err
 	}
 	fmt.Println(s.hr)

@@ -84,7 +84,7 @@ acepanel backup clear -t '%s' -f '%s' -s '%d' -p '%s'
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
 acepanel cutoff website -n '%s' -p '%s'
-acepanel cutoff clear -t website -f '%s' -s '%d' -p '%s'
+acepanel cutoff clear -t website -n '%s' -s '%d' -p '%s'
 `, req.Target, req.BackupPath, req.Target, req.Save, req.BackupPath)
 	}
 	if req.Type == "shell" {
