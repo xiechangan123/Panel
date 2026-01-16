@@ -1220,10 +1220,6 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
-#: internal/service/template.go:29
-msgid "Unable to get template list in offline mode"
-msgstr ""
-
 #: internal/service/app.go:206
 msgid "Unable to update app list cache in offline mode"
 msgstr ""
@@ -1467,6 +1463,10 @@ msgstr ""
 
 #: internal/service/ws.go:100
 msgid "command is empty"
+msgstr ""
+
+#: internal/data/template.go:73
+msgid "compose %s already exists"
 msgstr ""
 
 #: internal/data/backup.go:591
