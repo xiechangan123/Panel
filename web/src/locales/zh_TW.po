@@ -149,9 +149,9 @@ msgstr ""
 #: src/components/common/CronSelector.vue:44
 #: src/views/monitor/IndexView.vue:650 src/views/monitor/IndexView.vue:704
 #: src/views/monitor/IndexView.vue:756 src/views/monitor/IndexView.vue:812
-#: src/views/monitor/IndexView.vue:879 src/views/project/CreateModal.vue:21
-#: src/views/project/CreateModal.vue:32 src/views/project/CreateModal.vue:45
-#: src/views/project/CreateModal.vue:57
+#: src/views/monitor/IndexView.vue:879 src/views/project/CreateModal.vue:22
+#: src/views/project/CreateModal.vue:33 src/views/project/CreateModal.vue:46
+#: src/views/project/CreateModal.vue:58
 msgid "Custom"
 msgstr ""
 
@@ -352,7 +352,7 @@ msgstr "文件夾"
 #: src/components/common/PathSelector.vue:380
 #: src/views/app/TemplateDeployModal.vue:629
 #: src/views/container/ContainerCreate.vue:539
-#: src/views/project/CreateModal.vue:518 src/views/setting/TokenModal.vue:266
+#: src/views/project/CreateModal.vue:608 src/views/setting/TokenModal.vue:266
 #: src/views/toolbox/WebHookView.vue:352
 #: src/views/website/BulkCreateModal.vue:129
 #: src/views/website/CreateModal.vue:264
@@ -2066,7 +2066,7 @@ msgid "Ban List"
 msgstr "封禁列表"
 
 #: src/views/apps/frp/IndexView.vue:60 src/views/apps/frp/IndexView.vue:88
-#: src/views/project/CreateModal.vue:489 src/views/project/EditModal.vue:232
+#: src/views/project/CreateModal.vue:546 src/views/project/EditModal.vue:232
 msgid "Run User"
 msgstr ""
 
@@ -2693,7 +2693,7 @@ msgid "Daemon Logs"
 msgstr "守護進程日誌"
 
 #: src/views/apps/supervisor/IndexView.vue:381
-#: src/views/project/CreateModal.vue:507 src/views/project/EditModal.vue:250
+#: src/views/project/CreateModal.vue:563 src/views/project/EditModal.vue:250
 msgid "Start Command"
 msgstr "啟動命令"
 
@@ -2878,7 +2878,8 @@ msgstr "輸入 HMAC"
 
 #: src/views/cert/CertView.vue:63 src/views/cert/CertView.vue:439
 #: src/views/cert/CreateCertModal.vue:74 src/views/cert/ObtainModal.vue:57
-#: src/views/website/CreateModal.vue:135 src/views/website/EditView.vue:421
+#: src/views/project/CreateModal.vue:583 src/views/website/CreateModal.vue:135
+#: src/views/website/EditView.vue:421
 msgid "Domain"
 msgstr "域名"
 
@@ -5059,138 +5060,170 @@ msgstr ""
 msgid "Disk I/O"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:15
+#: src/views/project/CreateModal.vue:16
 msgid "Source Code"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:16
+#: src/views/project/CreateModal.vue:17
 msgid "Binary"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:254
+#: src/views/project/CreateModal.vue:272
+#, fuzzy
+msgid "Please enter at least one domain"
+msgstr "請輸入完整的 URL"
+
+#: src/views/project/CreateModal.vue:276
+#, fuzzy
+msgid "Please enter the project port"
+msgstr "請輸入完整的 URL"
+
+#: src/views/project/CreateModal.vue:287
+#, fuzzy
+msgid "Auto-created for project: %{ name }"
+msgstr "當前項目：%{ current }"
+
+#: src/views/project/CreateModal.vue:307
 msgid "Project created successfully"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:292
+#: src/views/project/CreateModal.vue:350
 msgid "Create General Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:293
+#: src/views/project/CreateModal.vue:351
 msgid "Create Go Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:294
+#: src/views/project/CreateModal.vue:352
 msgid "Create Java Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:295
+#: src/views/project/CreateModal.vue:353
 msgid "Create Node.js Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:296
+#: src/views/project/CreateModal.vue:354
 msgid "Create PHP Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:297
+#: src/views/project/CreateModal.vue:355
 msgid "Create Python Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:299 src/views/project/ListView.vue:253
+#: src/views/project/CreateModal.vue:357 src/views/project/ListView.vue:253
 msgid "Create Project"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:315 src/views/project/EditModal.vue:179
+#: src/views/project/CreateModal.vue:373 src/views/project/EditModal.vue:179
 msgid "Project Name"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:320 src/views/project/EditModal.vue:184
+#: src/views/project/CreateModal.vue:378 src/views/project/EditModal.vue:184
 msgid "Project name, used as service identifier"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:324 src/views/project/EditModal.vue:198
+#: src/views/project/CreateModal.vue:382 src/views/project/EditModal.vue:198
 msgid "Project Directory"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:331
+#: src/views/project/CreateModal.vue:389
 msgid ""
 "Project root directory (if left empty, defaults to project directory/project "
 "name)"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:346
+#: src/views/project/CreateModal.vue:404
 msgid "Run Mode"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:361
+#: src/views/project/CreateModal.vue:419
 msgid "Go Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:365
+#: src/views/project/CreateModal.vue:423
 msgid "Select Go Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:371
+#: src/views/project/CreateModal.vue:429
 msgid "Entry File"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:376
+#: src/views/project/CreateModal.vue:434
 msgid "e.g., main.go, cmd/server/main.go"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:389
+#: src/views/project/CreateModal.vue:446
 msgid "Java Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:393
+#: src/views/project/CreateModal.vue:450
 msgid "Select Java Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:399 src/views/project/CreateModal.vue:425
-#: src/views/project/CreateModal.vue:451 src/views/project/CreateModal.vue:477
+#: src/views/project/CreateModal.vue:456 src/views/project/CreateModal.vue:482
+#: src/views/project/CreateModal.vue:508 src/views/project/CreateModal.vue:534
 msgid "Framework"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:403 src/views/project/CreateModal.vue:429
-#: src/views/project/CreateModal.vue:455 src/views/project/CreateModal.vue:481
+#: src/views/project/CreateModal.vue:460 src/views/project/CreateModal.vue:486
+#: src/views/project/CreateModal.vue:512 src/views/project/CreateModal.vue:538
 msgid "Select Framework"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:415
+#: src/views/project/CreateModal.vue:472
 msgid "Node.js Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:419
+#: src/views/project/CreateModal.vue:476
 msgid "Select Node.js Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:441 src/views/website/CreateModal.vue:158
+#: src/views/project/CreateModal.vue:498 src/views/website/CreateModal.vue:158
 #: src/views/website/EditView.vue:481
 msgid "PHP Version"
 msgstr "PHP 版本"
 
-#: src/views/project/CreateModal.vue:445 src/views/website/CreateModal.vue:162
+#: src/views/project/CreateModal.vue:502 src/views/website/CreateModal.vue:162
 #: src/views/website/EditView.vue:486
 msgid "Select PHP Version"
 msgstr "選擇 PHP 版本"
 
-#: src/views/project/CreateModal.vue:467
+#: src/views/project/CreateModal.vue:524
 msgid "Python Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:471
+#: src/views/project/CreateModal.vue:528
 msgid "Select Python Version"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:497 src/views/project/EditModal.vue:240
+#: src/views/project/CreateModal.vue:554 src/views/project/EditModal.vue:240
 msgid "Select User"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:502
+#: src/views/project/CreateModal.vue:559
 msgid "Select www user if no special requirements"
 msgstr ""
 
-#: src/views/project/CreateModal.vue:512 src/views/project/EditModal.vue:255
+#: src/views/project/CreateModal.vue:568 src/views/project/EditModal.vue:255
 msgid "e.g., php artisan serve, node app.js"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:571 src/views/website/IndexView.vue:21
+msgid "Reverse Proxy"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:575
+msgid "Automatically create a reverse proxy website for this project"
+msgstr ""
+
+#: src/views/project/CreateModal.vue:593
+#, fuzzy
+msgid "Project Port"
+msgstr "目標端口"
+
+#: src/views/project/CreateModal.vue:599
+msgid "e.g., 3000"
 msgstr ""
 
 #: src/views/project/EditModal.vue:52
@@ -7327,10 +7360,6 @@ msgstr "重置配置"
 #: src/views/website/EditView.vue:1042
 msgid "Are you sure you want to reset the configuration?"
 msgstr "您確定要重置配置嗎？"
-
-#: src/views/website/IndexView.vue:21
-msgid "Reverse Proxy"
-msgstr ""
 
 #: src/views/website/IndexView.vue:23
 msgid "Pure Static"
