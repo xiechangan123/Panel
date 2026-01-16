@@ -1,7 +1,7 @@
 package nginx
 
-// DisablePagePath 禁用页面路径
-const DisablePagePath = "/opt/ace/server/nginx/stop"
+// DisablePage 禁用页面路径
+const DisablePage = "/opt/ace/server/nginx/html/stop.html"
 
 // SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"

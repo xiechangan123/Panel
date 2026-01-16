@@ -1,7 +1,7 @@
 package apache
 
-// DisablePagePath 禁用页面路径
-const DisablePagePath = "/opt/ace/server/apache/stop"
+// DisablePage 禁用页面路径
+const DisablePage = "/opt/ace/server/apache/htdocs/stop.html"
 
 // SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"
