@@ -27,6 +27,20 @@ type Template struct {
 
 type Templates []*Template
 
+// FilterByCategory 按分类过滤模版
+func (t Templates) FilterByCategory(category string) Templates {
+	filtered := make(Templates, 0)
+	for _, tpl := range t {
+		for _, cat := range tpl.Categories {
+			if cat == category {
+				filtered = append(filtered, tpl)
+				break
+			}
+		}
+	}
+	return filtered
+}
+
 // Templates 返回所有模版
 func (r *API) Templates() (*Templates, error) {
 	resp, err := r.client.R().SetResult(&Response{}).Get("/templates")

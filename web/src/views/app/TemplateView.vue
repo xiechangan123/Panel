@@ -25,7 +25,7 @@ const deployModalShow = ref(false)
 const selectedTemplate = ref<Template | null>(null)
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => template.list(page, pageSize),
+  (page, pageSize) => template.list(page, pageSize, selectedCategory.value || undefined),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 12,
@@ -39,14 +39,6 @@ const { data: categories } = useRequest(app.categories, {
   initialData: []
 })
 
-// 过滤后的模版列表
-const filteredTemplates = computed(() => {
-  if (!selectedCategory.value) {
-    return data.value || []
-  }
-  return (data.value || []).filter((t: Template) => t.categories?.includes(selectedCategory.value))
-})
-
 const getCategoryLabel = (catValue: string) => {
   const cat = categories.value.find((c: any) => c.value === catValue)
   return cat ? cat.label : catValue
@@ -54,6 +46,8 @@ const getCategoryLabel = (catValue: string) => {
 
 const handleCategoryChange = (category: string) => {
   selectedCategory.value = category
+  page.value = 1
+  refresh()
 }
 
 const handleDeploy = (tpl: Template) => {
@@ -91,7 +85,7 @@ onMounted(() => {
 
     <n-spin :show="loading">
       <n-grid :x-gap="16" :y-gap="16" cols="1 s:2 m:3 l:4" responsive="screen">
-        <n-grid-item v-for="tpl in filteredTemplates" :key="tpl.slug">
+        <n-grid-item v-for="tpl in data" :key="tpl.slug">
           <n-card hoverable style="height: 100%">
             <n-flex vertical :size="12">
               <n-flex justify="space-between" align="center">
@@ -138,7 +132,7 @@ onMounted(() => {
         </n-grid-item>
       </n-grid>
 
-      <n-empty v-if="!loading && filteredTemplates.length === 0" />
+      <n-empty v-if="!loading && data.length === 0" />
     </n-spin>
 
     <n-flex justify="end" v-if="total > 12">

@@ -262,7 +262,7 @@ const handlePrev = () => {
 }
 
 const resetForm = () => {
-  deployModel.name = ''
+  deployModel.name = props.template?.slug || ''
   deployModel.autoStart = true
   deployModel.autoFirewall = false
   deployModel.envs = {}

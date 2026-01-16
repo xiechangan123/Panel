@@ -60,7 +60,20 @@ const columns: any = [
       return h(
         NTag,
         { type: row.status === 'active' ? 'success' : 'default' },
-        { default: () => (row.status === 'active' ? $gettext('Running') : $gettext('Stopped')) }
+        {
+          default: () => {
+            switch (row.status) {
+              case 'active':
+                return $gettext('Running')
+              case 'inactive':
+                return $gettext('Stopped')
+              case 'failed':
+                return $gettext('Failed')
+              default:
+                return $gettext('Inactive')
+            }
+          }
+        }
       )
     }
   },

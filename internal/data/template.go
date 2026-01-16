@@ -67,6 +67,12 @@ func (r *templateRepo) Callback(slug string) error {
 // CreateCompose 创建编排
 func (r *templateRepo) CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) (string, error) {
 	dir := filepath.Join(app.Root, "compose", name)
+
+	// 检查编排是否已存在
+	if _, err := os.Stat(dir); err == nil {
+		return "", errors.New(r.t.Get("compose %s already exists", name))
+	}
+
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
 	}
