@@ -9,6 +9,7 @@ export default {
   create: (data: {
     slug: string
     name: string
+    compose: string
     envs: { key: string; value: string }[]
     auto_firewall: boolean
   }): any => http.Post('/template', data),

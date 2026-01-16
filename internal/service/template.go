@@ -65,8 +65,14 @@ func (s *TemplateService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 使用用户自定义的 compose 内容，如果没有则使用模版默认内容
+	compose := req.Compose
+	if compose == "" {
+		compose = template.Compose
+	}
+
 	// 创建编排
-	dir, err := s.templateRepo.CreateCompose(req.Name, template.Compose, req.Envs, req.AutoFirewall)
+	dir, err := s.templateRepo.CreateCompose(req.Name, compose, req.Envs, req.AutoFirewall)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

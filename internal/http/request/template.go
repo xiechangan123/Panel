@@ -9,6 +9,7 @@ type TemplateSlug struct {
 type TemplateCreate struct {
 	Slug         string     `json:"slug" validate:"required"`
 	Name         string     `json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
+	Compose      string     `json:"compose"`
 	Envs         []types.KV `json:"envs"`
 	AutoFirewall bool       `json:"auto_firewall"`
 }

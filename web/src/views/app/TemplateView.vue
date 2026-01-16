@@ -114,7 +114,7 @@ onMounted(() => {
                   size="small"
                 >
                   <template #icon>
-                    <icon-mdi-open-in-new />
+                    <i-mdi-open-in-new />
                   </template>
                 </n-button>
               </n-flex>
