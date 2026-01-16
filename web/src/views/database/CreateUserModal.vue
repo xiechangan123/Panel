@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import database from '@/api/panel/database'
+import { generateRandomString } from '@/utils'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -93,13 +94,18 @@ watch(
           />
         </n-form-item>
         <n-form-item path="password" :label="$gettext('Password')">
-          <n-input
-            v-model:value="createModel.password"
-            type="password"
-            show-password-on="click"
-            @keydown.enter.prevent
-            :placeholder="$gettext('Enter password')"
-          />
+          <n-input-group>
+            <n-input
+              v-model:value="createModel.password"
+              type="password"
+              show-password-on="click"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Enter password')"
+            />
+            <n-button @click="createModel.password = generateRandomString(16)">
+              {{ $gettext('Generate') }}
+            </n-button>
+          </n-input-group>
         </n-form-item>
         <n-form-item path="host-select" :label="$gettext('Host (MySQL only)')">
           <n-select
