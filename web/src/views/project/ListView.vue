@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NButton, NDataTable, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import project from '@/api/panel/project'
@@ -75,6 +75,19 @@ const columns: any = [
           }
         }
       )
+    }
+  },
+  {
+    title: $gettext('Autostart'),
+    key: 'enabled',
+    width: 100,
+    render(row: any) {
+      return h(NSwitch, {
+        size: 'small',
+        rubberBand: false,
+        value: row.enabled,
+        onUpdateValue: (value: boolean) => handleToggleAutostart(row, value)
+      })
     }
   },
   {
@@ -183,6 +196,20 @@ const handleToggleStatus = (row: any) => {
   }
 }
 
+const handleToggleAutostart = (row: any, enabled: boolean) => {
+  if (enabled) {
+    useRequest(systemctl.enable(row.name)).onSuccess(() => {
+      row.enabled = true
+      window.$message.success($gettext('Autostart enabled'))
+    })
+  } else {
+    useRequest(systemctl.disable(row.name)).onSuccess(() => {
+      row.enabled = false
+      window.$message.success($gettext('Autostart disabled'))
+    })
+  }
+}
+
 const handleShowLog = (row: any) => {
   logService.value = row.name
   logModal.value = true
@@ -238,7 +265,7 @@ watch(type, () => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1200"
+      :scroll-x="1300"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"
