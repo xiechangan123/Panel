@@ -2,7 +2,7 @@ import { http } from '@/utils'
 
 export default {
   // 获取模版列表
-  list: (): any => http.Get('/template'),
+  list: (page: number, pageSize: number): any => http.Get(`/template?page=${page}&limit=${pageSize}`),
   // 获取模版详情
   get: (slug: string): any => http.Get(`/template/${slug}`),
   // 使用模版创建编排

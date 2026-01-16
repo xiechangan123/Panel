@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/chix"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
@@ -25,12 +26,11 @@ func NewTemplateService(t *gotext.Locale, template biz.TemplateRepo, setting biz
 
 // List 获取所有模版
 func (s *TemplateService) List(w http.ResponseWriter, r *http.Request) {
-	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
-		Error(w, http.StatusForbidden, s.t.Get("Unable to get template list in offline mode"))
-		return
-	}
-
-	Success(w, s.templateRepo.List())
+	paged, total := Paginate(r, s.templateRepo.List())
+	Success(w, chix.M{
+		"total": total,
+		"items": paged,
+	})
 }
 
 // Get 获取模版详情

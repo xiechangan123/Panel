@@ -1,5 +1,16 @@
 <script setup lang="ts">
-import { NButton, NCard, NEllipsis, NFlex, NGrid, NGridItem, NSpin, NTag } from 'naive-ui'
+import {
+  NAvatar,
+  NButton,
+  NCard,
+  NEllipsis,
+  NFlex,
+  NGrid,
+  NGridItem,
+  NPagination,
+  NSpin,
+  NTag
+} from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
@@ -13,9 +24,15 @@ const selectedCategory = ref<string>('')
 const deployModalShow = ref(false)
 const selectedTemplate = ref<Template | null>(null)
 
-const { loading, data, refresh } = usePagination(template.list, {
-  initialData: []
-})
+const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+  (page, pageSize) => template.list(page, pageSize),
+  {
+    initialData: { total: 0, list: [] },
+    initialPageSize: 12,
+    total: (res: any) => res.total,
+    data: (res: any) => res.items
+  }
+)
 
 // 获取所有分类
 const { data: categories } = useRequest(app.categories, {
@@ -78,8 +95,28 @@ onMounted(() => {
           <n-card hoverable style="height: 100%">
             <n-flex vertical :size="12">
               <n-flex justify="space-between" align="center">
-                <span>{{ tpl.name }}</span>
-                <n-tag size="small" type="info">{{ tpl.version }}</n-tag>
+                <n-flex align="center" :size="8">
+                  <n-avatar
+                    v-if="tpl.icon"
+                    :src="tpl.icon"
+                    :size="24"
+                    style="background: transparent"
+                  />
+                  <span>{{ tpl.name }}</span>
+                </n-flex>
+                <n-button
+                  v-if="tpl.website"
+                  text
+                  tag="a"
+                  :href="tpl.website"
+                  target="_blank"
+                  type="primary"
+                  size="small"
+                >
+                  <template #icon>
+                    <icon-mdi-open-in-new />
+                  </template>
+                </n-button>
               </n-flex>
               <n-ellipsis :line-clamp="2" :tooltip="{ width: 300 }">
                 {{ tpl.description }}
@@ -103,6 +140,18 @@ onMounted(() => {
 
       <n-empty v-if="!loading && filteredTemplates.length === 0" />
     </n-spin>
+
+    <n-flex justify="end" v-if="total > 12">
+      <n-pagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        :item-count="total"
+        show-quick-jumper
+        show-size-picker
+        :page-sizes="[12, 24, 48, 96]"
+      />
+    </n-flex>
   </n-flex>
 
   <template-deploy-modal

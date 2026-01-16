@@ -33,6 +33,7 @@ export interface Template {
   icon: string
   name: string
   description: string
+  website: string
   categories: string[]
   version: string
   compose: string
