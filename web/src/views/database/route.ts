@@ -7,7 +7,7 @@ export default {
   path: '/database',
   component: Layout,
   meta: {
-    order: 4
+    order: 5
   },
   children: [
     {
