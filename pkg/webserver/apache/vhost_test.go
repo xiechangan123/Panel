@@ -325,7 +325,7 @@ func (s *VhostTestSuite) TestPHPFilesMatchBlock() {
 	s.NoError(s.vhost.SetPHP(84))
 
 	content := s.vhost.Config("010-php.conf", "site")
-	s.Contains(content, "proxy:unix:/run/php-cgi-84.sock|fcgi://localhost/")
+	s.Contains(content, "proxy:unix:/tmp/php-cgi-84.sock|fcgi://localhost/")
 }
 
 func (s *VhostTestSuite) TestDefaultVhostConfIncludesServerD() {
