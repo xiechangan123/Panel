@@ -315,8 +315,8 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/types", route.environment.Types)
 			r.Get("/list", route.environment.List)
 			r.Post("/install", route.environment.Install)
-			r.Get("/uninstall", route.environment.Uninstall)
-			r.Put("/update", route.environment.Update)
+			r.Post("/uninstall", route.environment.Uninstall)
+			r.Post("/update", route.environment.Update)
 			r.Get("/is_installed", route.environment.IsInstalled)
 			r.Route("/go", func(r chi.Router) {
 				r.Post("/{slug}/set_cli", route.environmentGo.SetCli)
