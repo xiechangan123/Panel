@@ -285,7 +285,7 @@ func (r *backupRepo) createMySQL(to string, name string) error {
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
+	mysql, err := db.NewMySQL("root", rootPassword, "/run/mysql.sock", "unix")
 	if err != nil {
 		return err
 	}
@@ -440,7 +440,7 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
+	mysql, err := db.NewMySQL("root", rootPassword, "/run/mysql.sock", "unix")
 	if err != nil {
 		return err
 	}

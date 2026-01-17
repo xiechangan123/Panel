@@ -178,7 +178,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	var databaseCount int
 	if mysqlInstalled {
 		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-		mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
+		mysql, err := db.NewMySQL("root", rootPassword, "/run/mysql.sock", "unix")
 		if err == nil {
 			defer mysql.Close()
 			databases, err := mysql.Databases()

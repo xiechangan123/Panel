@@ -262,8 +262,8 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) getSock() string {
-	if io.Exists("/tmp/mysql.sock") {
-		return "/tmp/mysql.sock"
+	if io.Exists("/run/mysql.sock") {
+		return "/run/mysql.sock"
 	}
 	if io.Exists(app.Root + "/server/mysql/config/my.cnf") {
 		config, _ := io.Read(app.Root + "/server/mysql/config/my.cnf")
@@ -282,5 +282,5 @@ func (s *App) getSock() string {
 		}
 	}
 
-	return "/tmp/mysql.sock"
+	return "/run/mysql.sock"
 }
