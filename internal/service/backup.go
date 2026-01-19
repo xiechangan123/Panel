@@ -53,7 +53,7 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Create(r.Context(), biz.BackupType(req.Type), req.Target, req.Path); err != nil {
+	if err = s.backupRepo.Create(r.Context(), biz.BackupType(req.Type), req.Target, req.AccountID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -81,11 +81,7 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path, err := s.backupRepo.GetPath(biz.BackupType(req.Type))
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
+	path := s.backupRepo.GetDefaultPath(biz.BackupType(req.Type))
 	if io.Exists(filepath.Join(path, req.File.Filename)) {
 		Error(w, http.StatusForbidden, s.t.Get("target backup %s already exists", path))
 		return
@@ -108,13 +104,13 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *BackupService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.BackupFile](r)
+	req, err := Bind[request.ID](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	if err = s.backupRepo.Delete(r.Context(), biz.BackupType(req.Type), req.File); err != nil {
+	if err = s.backupRepo.Delete(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -129,7 +125,7 @@ func (s *BackupService) Restore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Restore(r.Context(), biz.BackupType(req.Type), req.File, req.Target); err != nil {
+	if err = s.backupRepo.Restore(r.Context(), req.ID.ID, req.Target); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

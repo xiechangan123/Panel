@@ -14,7 +14,7 @@ const (
 	BackupAccountTypeLocal  BackupAccountType = "local"
 	BackupAccountTypeS3     BackupAccountType = "s3"
 	BackupAccountTypeSFTP   BackupAccountType = "sftp"
-	BackupAccountTypeWebDAV BackupAccountType = "webdav"
+	BackupAccountTypeWebDav BackupAccountType = "webdav"
 )
 
 type BackupAccount struct {

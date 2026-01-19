@@ -32,12 +32,14 @@ type Backup struct {
 
 type BackupRepo interface {
 	List(page, limit uint, typ BackupType) ([]*Backup, int64, error)
-	Create(ctx context.Context, typ BackupType, target string, path ...string) error
-	Delete(ctx context.Context, typ BackupType, name string) error
-	Restore(ctx context.Context, typ BackupType, backup, target string) error
+	Create(ctx context.Context, typ BackupType, target string, account uint) error
+	CreatePanel() error
+	Delete(ctx context.Context, id uint) error
+	Restore(ctx context.Context, id uint, target string) error
 	ClearExpired(path, prefix string, save int) error
+	ClearAccountExpired(account uint, typ BackupType, prefix string, save int) error
 	CutoffLog(path, target string) error
-	GetPath(typ BackupType) (string, error)
+	GetDefaultPath(typ BackupType) string
 	FixPanel() error
 	UpdatePanel(version, url, checksum string) error
 }

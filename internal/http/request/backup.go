@@ -8,9 +8,9 @@ type BackupList struct {
 }
 
 type BackupCreate struct {
-	Type   string `uri:"type" form:"type" validate:"required|in:website,mysql,postgres,redis,panel"`
-	Target string `json:"target" form:"target" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
-	Path   string `json:"path" form:"path"`
+	Type      string `uri:"type" form:"type" validate:"required|in:website,mysql,postgres,redis,panel"`
+	Target    string `json:"target" form:"target" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
+	AccountID uint   `form:"account_id" json:"account_id" validate:"required|exists:backup_accounts,id"`
 }
 
 type BackupUpload struct {
@@ -24,7 +24,6 @@ type BackupFile struct {
 }
 
 type BackupRestore struct {
-	Type   string `uri:"type" form:"type" validate:"required|in:website,mysql,postgres,redis,panel"`
-	File   string `json:"file" form:"file" validate:"required"`
+	ID
 	Target string `json:"target" form:"target" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 }

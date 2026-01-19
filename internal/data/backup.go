@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acepanel/panel/pkg/storage"
 	"github.com/leonelquinteros/gotext"
-	"github.com/shirou/gopsutil/v4/disk"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/app"
@@ -55,32 +55,34 @@ func (r *backupRepo) List(page, limit uint, typ biz.BackupType) ([]*biz.Backup, 
 // Create 创建备份
 // typ 备份类型
 // target 目标名称
-// path 可选备份保存路径
-func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, path ...string) error {
-	defPath, err := r.GetPath(typ)
+// account 备份账号ID
+func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, account uint) error {
+	backupAccount := new(biz.BackupAccount)
+	if err := r.db.First(backupAccount, account).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(r.t.Get("backup account not found"))
+		}
+		return err
+	}
+
+	client, err := r.getStorage(*backupAccount)
 	if err != nil {
 		return err
 	}
-	if len(path) > 0 && path[0] != "" {
-		defPath = path[0]
-	}
 
-	var createErr error
 	switch typ {
 	case biz.BackupTypeWebsite:
-		createErr = r.createWebsite(defPath, target)
+		err = r.createWebsite(client, target)
 	case biz.BackupTypeMySQL:
-		createErr = r.createMySQL(defPath, target)
+		err = r.createMySQL(client, target)
 	case biz.BackupTypePostgres:
-		createErr = r.createPostgres(defPath, target)
-	case biz.BackupTypePanel:
-		createErr = r.createPanel(defPath)
+		err = r.createPostgres(client, target)
 	default:
 		return errors.New(r.t.Get("unknown backup type"))
 	}
 
-	if createErr != nil {
-		return createErr
+	if err != nil {
+		return err
 	}
 
 	// 记录日志
@@ -89,20 +91,67 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 	return nil
 }
 
+// CreatePanel 创建面板备份
+// 面板备份始终保存在本地
+func (r *backupRepo) CreatePanel() error {
+	start := time.Now()
+
+	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), "panel", fmt.Sprintf("panel_%s.zip", time.Now().Format("20060102150405")))
+
+	temp, err := os.MkdirTemp("", "acepanel-backup-*")
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(temp)
+
+	if err = io.Cp(filepath.Join(app.Root, "panel"), temp); err != nil {
+		return err
+	}
+	if err = io.Cp("/usr/local/sbin/acepanel", temp); err != nil {
+		return err
+	}
+
+	_ = io.Chmod(temp, 0600)
+	if err = io.Compress(temp, nil, backup); err != nil {
+		return err
+	}
+	if err = io.Chmod(backup, 0600); err != nil {
+		return err
+	}
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Backup time: %s", time.Since(start).String()))
+		fmt.Println(r.t.Get("|-Backed up to file: %s", filepath.Base(backup)))
+	}
+
+	return nil
+}
+
 // Delete 删除备份
-func (r *backupRepo) Delete(ctx context.Context, typ biz.BackupType, name string) error {
-	path, err := r.GetPath(typ)
+func (r *backupRepo) Delete(ctx context.Context, id uint) error {
+	backup := new(biz.Backup)
+	if err := r.db.Preload("Account").First(backup, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(r.t.Get("backup record not found"))
+		}
+		return err
+	}
+
+	client, err := r.getStorage(*backup.Account)
 	if err != nil {
 		return err
 	}
 
-	file := filepath.Join(path, name)
-	if err = io.Remove(file); err != nil {
+	path := filepath.Join(backup.Account.Info.Path, string(backup.Type), backup.Name)
+	if !client.Exists(path) {
+		return errors.New(r.t.Get("backup file %s not exists", path))
+	}
+	if err = client.Delete(path); err != nil {
 		return err
 	}
 
 	// 记录日志
-	r.log.Info("backup deleted", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("name", name))
+	r.log.Info("backup deleted", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(backup.Type)), slog.String("name", backup.Name))
 
 	return nil
 }
@@ -111,35 +160,51 @@ func (r *backupRepo) Delete(ctx context.Context, typ biz.BackupType, name string
 // typ 备份类型
 // backup 备份压缩包，可以是绝对路径或者相对路径
 // target 目标名称
-func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, target string) error {
-	if !io.Exists(backup) {
-		path, err := r.GetPath(typ)
-		if err != nil {
-			return err
+func (r *backupRepo) Restore(ctx context.Context, id uint, target string) error {
+	backup := new(biz.Backup)
+	if err := r.db.Preload("Account").First(backup, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(r.t.Get("backup record not found"))
 		}
-		backup = filepath.Join(path, backup)
+		return err
 	}
 
-	var restoreErr error
-	switch typ {
+	if backup.Account.Type != biz.BackupAccountTypeLocal {
+		return errors.New(r.t.Get("only local backup can be restored"))
+	}
+	if !io.Exists(filepath.Join(backup.Account.Info.Path, backup.Name)) {
+		return errors.New(r.t.Get("backup file %s not exists", backup))
+	}
+
+	var err error
+	switch backup.Type {
 	case biz.BackupTypeWebsite:
-		restoreErr = r.restoreWebsite(backup, target)
+		err = r.restoreWebsite(filepath.Join(backup.Account.Info.Path, backup.Name), target)
 	case biz.BackupTypeMySQL:
-		restoreErr = r.restoreMySQL(backup, target)
+		err = r.restoreMySQL(filepath.Join(backup.Account.Info.Path, backup.Name), target)
 	case biz.BackupTypePostgres:
-		restoreErr = r.restorePostgres(backup, target)
+		err = r.restorePostgres(filepath.Join(backup.Account.Info.Path, backup.Name), target)
 	default:
 		return errors.New(r.t.Get("unknown backup type"))
 	}
 
-	if restoreErr != nil {
-		return restoreErr
+	if err != nil {
+		return err
 	}
 
 	// 记录日志
-	r.log.Info("backup restored", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("target", target))
+	r.log.Info("backup restored", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(backup.Type)), slog.String("target", target))
 
 	return nil
+}
+
+// GetDefaultPath 获取默认备份路径
+func (r *backupRepo) GetDefaultPath(typ biz.BackupType) string {
+	backupPath, err := r.setting.Get(biz.SettingKeyBackupPath)
+	if err != nil {
+		return filepath.Join(app.Root, "backup", string(typ))
+	}
+	return filepath.Join(backupPath, string(typ))
 }
 
 // CutoffLog 切割日志
@@ -213,52 +278,150 @@ func (r *backupRepo) ClearExpired(path, prefix string, save int) error {
 	return nil
 }
 
-// GetPath 获取备份路径
-func (r *backupRepo) GetPath(typ biz.BackupType) (string, error) {
-	backupPath, err := r.setting.Get(biz.SettingKeyBackupPath)
-	if err != nil {
-		return "", err
-	}
-	if !slices.Contains([]biz.BackupType{biz.BackupTypePath, biz.BackupTypeWebsite, biz.BackupTypeMySQL, biz.BackupTypePostgres, biz.BackupTypeRedis, biz.BackupTypePanel}, typ) {
-		return "", errors.New(r.t.Get("unknown backup type"))
+// ClearAccountExpired 清理备份账号过期备份
+func (r *backupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefix string, save int) error {
+	backupAccount := new(biz.BackupAccount)
+	if err := r.db.First(backupAccount, account).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(r.t.Get("backup account not found"))
+		}
+		return err
 	}
 
-	backupPath = filepath.Join(backupPath, string(typ))
-	if !io.Exists(backupPath) {
-		if err = os.MkdirAll(backupPath, 0644); err != nil {
-			return "", err
+	client, err := r.getStorage(*backupAccount)
+	if err != nil {
+		return err
+	}
+
+	files, err := client.List(string(typ))
+	if err != nil {
+		return err
+	}
+
+	type fileInfo struct {
+		name    string
+		modTime time.Time
+	}
+	var filtered []fileInfo
+	for _, file := range files {
+		if strings.HasPrefix(file, prefix) && strings.HasSuffix(file, ".zip") {
+			lastModified, modErr := client.LastModified(filepath.Join(string(typ), file))
+			if modErr != nil {
+				continue
+			}
+			filtered = append(filtered, fileInfo{name: file, modTime: lastModified})
 		}
 	}
 
-	return backupPath, nil
+	// 排序所有备份文件，从新到旧
+	slices.SortFunc(filtered, func(a, b fileInfo) int {
+		if a.modTime.After(b.modTime) {
+			return -1
+		}
+		if a.modTime.Before(b.modTime) {
+			return 1
+		}
+		return 0
+	})
+	if len(filtered) <= save {
+		return nil
+	}
+
+	// 切片保留 save 份，删除剩余
+	toDelete := filtered[save:]
+	for _, file := range toDelete {
+		filePath := filepath.Join(string(typ), file.name)
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Cleaning expired file: %s", filePath))
+		}
+		if err = client.Delete(filePath); err != nil {
+			return errors.New(r.t.Get("Cleanup failed: %v", err))
+		}
+	}
+
+	return nil
+}
+
+// getStorage 获取存储器
+func (r *backupRepo) getStorage(account biz.BackupAccount) (storage.Storage, error) {
+	switch account.Type {
+	case biz.BackupAccountTypeLocal:
+		return storage.NewLocal(account.Info.Path)
+	case biz.BackupAccountTypeS3:
+		return storage.NewS3(storage.S3Config{
+			Region:          account.Info.Region,
+			Bucket:          account.Info.Bucket,
+			AccessKeyID:     account.Info.AccessKey,
+			SecretAccessKey: account.Info.SecretKey,
+			Endpoint:        account.Info.Endpoint,
+			BasePath:        account.Info.Path,
+			AddressingStyle: storage.S3AddressingStyle(account.Info.Style),
+		})
+	case biz.BackupAccountTypeSFTP:
+		return storage.NewSFTP(storage.SFTPConfig{
+			Host:       account.Info.Host,
+			Port:       account.Info.Port,
+			Username:   account.Info.Username,
+			Password:   account.Info.Password,
+			PrivateKey: account.Info.PrivateKey,
+			BasePath:   account.Info.Path,
+		})
+	case biz.BackupAccountTypeWebDav:
+		return storage.NewWebDav(storage.WebDavConfig{
+			URL:      account.Info.URL,
+			Username: account.Info.Username,
+			Password: account.Info.Password,
+			BasePath: account.Info.Path,
+		})
+	default:
+		return nil, errors.New(r.t.Get("unknown storage type"))
+	}
 }
 
 // createWebsite 创建网站备份
-func (r *backupRepo) createWebsite(to string, name string) error {
+func (r *backupRepo) createWebsite(storage storage.Storage, name string) error {
+	start := time.Now()
+
 	website, err := r.website.GetByName(name)
 	if err != nil {
 		return err
 	}
 
-	if err = r.preCheckPath(to, website.Path); err != nil {
+	// 创建用于压缩的临时目录
+	tmpDir, err := os.MkdirTemp("", "acepanel-backup-*")
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+
+	// 压缩网站
+	backup := fmt.Sprintf("%s_%s.zip", website.Name, time.Now().Format("20060102150405"))
+	if err = io.Compress(website.Path, nil, filepath.Join(tmpDir, backup)); err != nil {
 		return err
 	}
 
-	start := time.Now()
-	backup := filepath.Join(to, fmt.Sprintf("%s_%s.zip", website.Name, time.Now().Format("20060102150405")))
-	if err = io.Compress(website.Path, nil, backup); err != nil {
+	// 上传备份文件到存储器
+	file, err := os.Open(filepath.Join(tmpDir, backup))
+	if err != nil {
+		return err
+	}
+	defer func(file *os.File) { _ = file.Close() }(file)
+
+	if err = storage.Put(filepath.Join("website", backup), file); err != nil {
 		return err
 	}
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Backup time: %s", time.Since(start).String()))
-		fmt.Println(r.t.Get("|-Backed up to file: %s", filepath.Base(backup)))
+		fmt.Println(r.t.Get("|-Backed up to file: %s", backup))
 	}
 	return nil
 }
 
 // createMySQL 创建 MySQL 备份
-func (r *backupRepo) createMySQL(to string, name string) error {
+func (r *backupRepo) createMySQL(storage storage.Storage, name string) error {
+	start := time.Now()
+
 	rootPassword, err := r.setting.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
 		return err
@@ -271,30 +434,35 @@ func (r *backupRepo) createMySQL(to string, name string) error {
 	if exist, _ := mysql.DatabaseExists(name); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", name))
 	}
-	size, err := mysql.DatabaseSize(name)
+
+	// 创建用于压缩的临时目录
+	tmpDir, err := os.MkdirTemp("", "acepanel-backup-*")
 	if err != nil {
 		return err
 	}
-	if err = r.preCheckDB(to, size); err != nil {
+	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+
+	// 导出数据库
+	_ = os.Setenv("MYSQL_PWD", rootPassword)
+	backup := fmt.Sprintf("%s_%s.sql", name, time.Now().Format("20060102150405"))
+	if _, err = shell.Execf(`mysqldump -u root '%s' > '%s'`, name, filepath.Join(tmpDir, backup)); err != nil {
+		return err
+	}
+	_ = os.Unsetenv("MYSQL_PWD")
+
+	// 压缩备份文件
+	if err = io.Compress(tmpDir, []string{backup}, filepath.Join(tmpDir, backup+".zip")); err != nil {
 		return err
 	}
 
-	if err = os.Setenv("MYSQL_PWD", rootPassword); err != nil {
+	// 上传备份文件到存储器
+	file, err := os.Open(filepath.Join(tmpDir, backup))
+	if err != nil {
 		return err
 	}
-	start := time.Now()
-	backup := filepath.Join(to, fmt.Sprintf("%s_%s.sql", name, time.Now().Format("20060102150405")))
-	if _, err = shell.Execf(`mysqldump -u root '%s' > '%s'`, name, backup); err != nil {
-		return err
-	}
-	if err = os.Unsetenv("MYSQL_PWD"); err != nil {
-		return err
-	}
+	defer func(file *os.File) { _ = file.Close() }(file)
 
-	if err = io.Compress(filepath.Dir(backup), []string{filepath.Base(backup)}, backup+".zip"); err != nil {
-		return err
-	}
-	if err = io.Remove(backup); err != nil {
+	if err = storage.Put(filepath.Join("mysql", backup), file); err != nil {
 		return err
 	}
 
@@ -306,7 +474,9 @@ func (r *backupRepo) createMySQL(to string, name string) error {
 }
 
 // createPostgres 创建 PostgreSQL 备份
-func (r *backupRepo) createPostgres(to string, name string) error {
+func (r *backupRepo) createPostgres(storage storage.Storage, name string) error {
+	start := time.Now()
+
 	postgres, err := db.NewPostgres("postgres", "", "127.0.0.1", 5432)
 	if err != nil {
 		return err
@@ -315,24 +485,33 @@ func (r *backupRepo) createPostgres(to string, name string) error {
 	if exist, _ := postgres.DatabaseExists(name); !exist {
 		return errors.New(r.t.Get("database does not exist: %s", name))
 	}
-	size, err := postgres.DatabaseSize(name)
+
+	// 创建用于压缩的临时目录
+	tmpDir, err := os.MkdirTemp("", "acepanel-backup-*")
 	if err != nil {
 		return err
 	}
-	if err = r.preCheckDB(to, size); err != nil {
+	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+
+	// 导出数据库
+	backup := fmt.Sprintf("%s_%s.sql", name, time.Now().Format("20060102150405"))
+	if _, err = shell.Execf(`su - postgres -c "pg_dump '%s'" > '%s'`, name, filepath.Join(tmpDir, backup)); err != nil {
 		return err
 	}
 
-	start := time.Now()
-	backup := filepath.Join(to, fmt.Sprintf("%s_%s.sql", name, time.Now().Format("20060102150405")))
-	if _, err = shell.Execf(`su - postgres -c "pg_dump '%s'" > '%s'`, name, backup); err != nil {
+	// 压缩备份文件
+	if err = io.Compress(tmpDir, []string{backup}, filepath.Join(tmpDir, backup+".zip")); err != nil {
 		return err
 	}
 
-	if err = io.Compress(filepath.Dir(backup), []string{filepath.Base(backup)}, backup+".zip"); err != nil {
+	// 上传备份文件到存储器
+	file, err := os.Open(filepath.Join(tmpDir, backup))
+	if err != nil {
 		return err
 	}
-	if err = io.Remove(backup); err != nil {
+	defer func(file *os.File) { _ = file.Close() }(file)
+
+	if err = storage.Put(filepath.Join("postgres", backup), file); err != nil {
 		return err
 	}
 
@@ -343,50 +522,8 @@ func (r *backupRepo) createPostgres(to string, name string) error {
 	return nil
 }
 
-// createPanel 创建面板备份
-func (r *backupRepo) createPanel(to string) error {
-	backup := filepath.Join(to, fmt.Sprintf("panel_%s.zip", time.Now().Format("20060102150405")))
-
-	if err := r.preCheckPath(to, filepath.Join(app.Root, "panel")); err != nil {
-		return err
-	}
-
-	start := time.Now()
-
-	temp, err := os.MkdirTemp("", "panel-backup")
-	if err != nil {
-		return err
-	}
-
-	if err = io.Cp(filepath.Join(app.Root, "panel"), temp); err != nil {
-		return err
-	}
-	if err = io.Cp("/usr/local/sbin/acepanel", temp); err != nil {
-		return err
-	}
-
-	_ = io.Chmod(temp, 0600)
-	if err = io.Compress(temp, nil, backup); err != nil {
-		return err
-	}
-	if err = io.Chmod(backup, 0600); err != nil {
-		return err
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Backup time: %s", time.Since(start).String()))
-		fmt.Println(r.t.Get("|-Backed up to file: %s", filepath.Base(backup)))
-	}
-
-	return io.Remove(temp)
-}
-
 // restoreWebsite 恢复网站备份
 func (r *backupRepo) restoreWebsite(backup, target string) error {
-	if !io.Exists(backup) {
-		return errors.New(r.t.Get("backup file %s not exists", backup))
-	}
-
 	website, err := r.website.GetByName(target)
 	if err != nil {
 		return err
@@ -410,10 +547,6 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 
 // restoreMySQL 恢复 MySQL 备份
 func (r *backupRepo) restoreMySQL(backup, target string) error {
-	if !io.Exists(backup) {
-		return errors.New(r.t.Get("backup file %s not exists", backup))
-	}
-
 	rootPassword, err := r.setting.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
 		return err
@@ -454,10 +587,6 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 
 // restorePostgres 恢复 PostgreSQL 备份
 func (r *backupRepo) restorePostgres(backup, target string) error {
-	if !io.Exists(backup) {
-		return errors.New(r.t.Get("backup file %s not exists", backup))
-	}
-
 	postgres, err := db.NewPostgres("postgres", "", "127.0.0.1", 5432)
 	if err != nil {
 		return err
@@ -486,67 +615,9 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	return nil
 }
 
-// preCheckPath 预检空间和 inode 是否足够
-// to 备份保存目录
-// path 待备份目录
-func (r *backupRepo) preCheckPath(to, path string) error {
-	size, err := io.SizeX(path)
-	if err != nil {
-		return err
-	}
-	files, err := io.CountX(path)
-	if err != nil {
-		return err
-	}
-
-	usage, err := disk.Usage(to)
-	if err != nil {
-		return err
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Target size: %s", tools.FormatBytes(float64(size))))
-		fmt.Println(r.t.Get("|-Target file count: %d", files))
-		fmt.Println(r.t.Get("|-Backup directory available space: %s", tools.FormatBytes(float64(usage.Free))))
-		fmt.Println(r.t.Get("|-Backup directory available Inode: %d", usage.InodesFree))
-	}
-
-	if uint64(size) > usage.Free {
-		return errors.New(r.t.Get("Insufficient backup directory space"))
-	}
-	// 对于 fuse 等文件系统，可能没有 inode 的概念
-	/*if uint64(files) > usage.InodesFree {
-		return errors.New(r.t.Get("Insufficient backup directory inode"))
-	}*/
-
-	return nil
-}
-
-// preCheckDB 预检空间和 inode 是否足够
-// to 备份保存目录
-// size 数据库大小
-func (r *backupRepo) preCheckDB(to string, size int64) error {
-	usage, err := disk.Usage(to)
-	if err != nil {
-		return err
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Target size: %s", tools.FormatBytes(float64(size))))
-		fmt.Println(r.t.Get("|-Backup directory available space: %s", tools.FormatBytes(float64(usage.Free))))
-		fmt.Println(r.t.Get("|-Backup directory available Inode: %d", usage.InodesFree))
-	}
-
-	if uint64(size) > usage.Free {
-		return errors.New(r.t.Get("Insufficient backup directory space"))
-	}
-
-	return nil
-}
-
 // autoUnCompressSQL 自动处理压缩文件
 func (r *backupRepo) autoUnCompressSQL(backup string) (string, error) {
-	temp, err := os.MkdirTemp("", "sql-uncompress")
+	temp, err := os.MkdirTemp("", "acepanel-sql-*")
 	if err != nil {
 		return "", err
 	}
@@ -610,11 +681,7 @@ func (r *backupRepo) FixPanel() error {
 	}
 
 	// 从备份目录中找最新的备份文件
-	backupPath, err := r.GetPath(biz.BackupTypePanel)
-	if err != nil {
-		return err
-	}
-	files, err := os.ReadDir(backupPath)
+	files, err := os.ReadDir(r.GetDefaultPath(biz.BackupTypePanel))
 	if err != nil {
 		return err
 	}
@@ -633,7 +700,7 @@ func (r *backupRepo) FixPanel() error {
 		return errors.New(r.t.Get("No backup file found, unable to automatically repair"))
 	}
 	latest := list[0]
-	latestPath := filepath.Join(backupPath, latest.Name())
+	latestPath := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), latest.Name())
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Backup file used: %s", latest.Name()))
 	}
@@ -766,7 +833,7 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Backup panel data..."))
 	}
 	// 备份面板
-	if err := r.Create(context.Background(), biz.BackupTypePanel, ""); err != nil {
+	if err := r.CreatePanel(); err != nil {
 		return errors.New(r.t.Get("|-Backup panel data failed: %v", err))
 	}
 	if err := io.Compress(filepath.Join(app.Root, "panel/storage"), nil, "/tmp/panel-storage.zip"); err != nil {

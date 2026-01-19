@@ -1,7 +1,6 @@
 package job
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
@@ -65,15 +64,13 @@ func (r *PanelTask) Run() {
 	}
 
 	// 备份面板
-	if err := r.backupRepo.Create(context.Background(), biz.BackupTypePanel, ""); err != nil {
+	if err := r.backupRepo.CreatePanel(); err != nil {
 		r.log.Warn("failed to backup panel", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 清理备份
-	if path, err := r.backupRepo.GetPath("panel"); err == nil {
-		if err = r.backupRepo.ClearExpired(path, "panel_", 10); err != nil {
-			r.log.Warn("failed to clear backup", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		}
+	if err := r.backupRepo.ClearExpired(r.backupRepo.GetDefaultPath(biz.BackupTypePanel), "panel_", 10); err != nil {
+		r.log.Warn("failed to clear backup", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 非离线模式下任务
