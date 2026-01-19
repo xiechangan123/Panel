@@ -11,9 +11,10 @@ import (
 type BackupAccountType string
 
 const (
-	BackupTypeS3     BackupAccountType = "s3"
-	BackupTypeSFTP   BackupAccountType = "sftp"
-	BackupTypeWebDAV BackupAccountType = "webdav"
+	BackupAccountTypeLocal  BackupAccountType = "local"
+	BackupAccountTypeS3     BackupAccountType = "s3"
+	BackupAccountTypeSFTP   BackupAccountType = "sftp"
+	BackupAccountTypeWebDAV BackupAccountType = "webdav"
 )
 
 type BackupAccount struct {
@@ -23,6 +24,8 @@ type BackupAccount struct {
 	Info      types.BackupAccountInfo `gorm:"not null;default:'{}';serializer:json" json:"info"`
 	CreatedAt time.Time               `json:"created_at"`
 	UpdatedAt time.Time               `json:"updated_at"`
+
+	Backups []*Backup `gorm:"foreignKey:AccountID" json:"-"`
 }
 
 type BackupAccountRepo interface {

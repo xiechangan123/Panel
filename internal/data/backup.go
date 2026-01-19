@@ -22,7 +22,6 @@ import (
 	"github.com/acepanel/panel/pkg/io"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/tools"
-	"github.com/acepanel/panel/pkg/types"
 )
 
 type backupRepo struct {
@@ -46,32 +45,11 @@ func NewBackupRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, log *slog
 }
 
 // List 备份列表
-func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
-	path, err := r.GetPath(typ)
-	if err != nil {
-		return nil, err
-	}
-
-	files, err := os.ReadDir(path)
-	if err != nil {
-		return nil, err
-	}
-
-	list := make([]*types.BackupFile, 0)
-	for _, file := range files {
-		info, err := file.Info()
-		if err != nil {
-			continue
-		}
-		list = append(list, &types.BackupFile{
-			Name: file.Name(),
-			Path: filepath.Join(path, file.Name()),
-			Size: tools.FormatBytes(float64(info.Size())),
-			Time: info.ModTime(),
-		})
-	}
-
-	return list, nil
+func (r *backupRepo) List(page, limit uint, typ biz.BackupType) ([]*biz.Backup, int64, error) {
+	backups := make([]*biz.Backup, 0)
+	var total int64
+	err := r.db.Model(&biz.Backup{}).Where("type = ?", typ).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Preload("Account").Find(&backups).Error
+	return backups, total, err
 }
 
 // Create 创建备份
@@ -632,19 +610,32 @@ func (r *backupRepo) FixPanel() error {
 	}
 
 	// 从备份目录中找最新的备份文件
-	list, err := r.List(biz.BackupTypePanel)
+	backupPath, err := r.GetPath(biz.BackupTypePanel)
 	if err != nil {
 		return err
 	}
-	slices.SortFunc(list, func(a *types.BackupFile, b *types.BackupFile) int {
-		return int(b.Time.Unix() - a.Time.Unix())
+	files, err := os.ReadDir(backupPath)
+	if err != nil {
+		return err
+	}
+	var list []os.FileInfo
+	for _, file := range files {
+		info, infoErr := file.Info()
+		if infoErr != nil {
+			continue
+		}
+		list = append(list, info)
+	}
+	slices.SortFunc(list, func(a os.FileInfo, b os.FileInfo) int {
+		return int(b.ModTime().Unix() - a.ModTime().Unix())
 	})
 	if len(list) == 0 {
 		return errors.New(r.t.Get("No backup file found, unable to automatically repair"))
 	}
 	latest := list[0]
+	latestPath := filepath.Join(backupPath, latest.Name())
 	if app.IsCli {
-		fmt.Println(r.t.Get("|-Backup file used: %s", latest.Name))
+		fmt.Println(r.t.Get("|-Backup file used: %s", latest.Name()))
 	}
 
 	// 解压备份文件
@@ -654,7 +645,7 @@ func (r *backupRepo) FixPanel() error {
 	if err = io.Remove("/tmp/panel-fix"); err != nil {
 		return errors.New(r.t.Get("Cleaning temporary directory failed: %v", err))
 	}
-	if err = io.UnCompress(latest.Path, "/tmp/panel-fix"); err != nil {
+	if err = io.UnCompress(latestPath, "/tmp/panel-fix"); err != nil {
 		return errors.New(r.t.Get("Unzip backup file failed: %v", err))
 	}
 

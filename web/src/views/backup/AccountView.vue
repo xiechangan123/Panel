@@ -11,6 +11,7 @@ const editModal = ref(false)
 const editId = ref(0)
 
 const typeOptions = [
+  { label: $gettext('Local'), value: 'local' },
   { label: 'S3', value: 's3' },
   { label: 'SFTP', value: 'sftp' },
   { label: 'WebDAV', value: 'webdav' }
@@ -22,7 +23,7 @@ const styleOptions = [
 ]
 
 const defaultModel = {
-  type: 's3',
+  type: 'local',
   name: '',
   info: {
     access_key: '',
@@ -56,6 +57,7 @@ const columns: any = [
     width: 120,
     render(row: any) {
       const typeMap: Record<string, string> = {
+        local: $gettext('Local'),
         s3: 'S3',
         sftp: 'SFTP',
         webdav: 'WebDAV'
@@ -216,6 +218,16 @@ onMounted(() => {
         <n-select v-model:value="createModel.type" :options="typeOptions" />
       </n-form-item>
 
+      <!-- Local Fields -->
+      <template v-if="createModel.type === 'local'">
+        <n-form-item :label="$gettext('Save Directory')" required>
+          <n-input
+            v-model:value="createModel.info.path"
+            :placeholder="$gettext('Enter save directory path')"
+          />
+        </n-form-item>
+      </template>
+
       <!-- S3 Fields -->
       <template v-if="createModel.type === 's3'">
         <n-form-item :label="$gettext('Access Key')" required>
@@ -353,6 +365,16 @@ onMounted(() => {
       <n-form-item :label="$gettext('Type')" required>
         <n-select v-model:value="editModel.type" :options="typeOptions" />
       </n-form-item>
+
+      <!-- Local Fields -->
+      <template v-if="editModel.type === 'local'">
+        <n-form-item :label="$gettext('Save Directory')" required>
+          <n-input
+            v-model:value="editModel.info.path"
+            :placeholder="$gettext('Enter save directory path')"
+          />
+        </n-form-item>
+      </template>
 
       <!-- S3 Fields -->
       <template v-if="editModel.type === 's3'">
