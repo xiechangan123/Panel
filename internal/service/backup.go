@@ -34,12 +34,15 @@ func (s *BackupService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, _ := s.backupRepo.List(biz.BackupType(req.Type))
-	paged, total := Paginate(r, list)
+	list, total, err := s.backupRepo.List(req.Page, req.Limit, biz.BackupType(req.Type))
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
 
 	Success(w, chix.M{
 		"total": total,
-		"items": paged,
+		"items": list,
 	})
 }
 

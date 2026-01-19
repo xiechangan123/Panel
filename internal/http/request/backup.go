@@ -4,6 +4,7 @@ import "mime/multipart"
 
 type BackupList struct {
 	Type string `uri:"type" form:"type" validate:"required|in:path,website,mysql,postgres,redis,panel"`
+	Paginate
 }
 
 type BackupCreate struct {
