@@ -12,7 +12,7 @@ type CertDNS struct {
 	ID        uint          `gorm:"primaryKey" json:"id"`
 	Name      string        `gorm:"not null;default:''" json:"name"`       // 备注名称
 	Type      acme.DnsType  `gorm:"not null;default:'aliyun'" json:"type"` // DNS 提供商
-	Data      acme.DNSParam `gorm:"not null;serializer:json" json:"dns_param"`
+	Data      acme.DNSParam `gorm:"not null;default:'{}';serializer:json" json:"dns_param"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
 

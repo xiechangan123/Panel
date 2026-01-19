@@ -27,6 +27,7 @@ type Http struct {
 	databaseServer    *service.DatabaseServerService
 	databaseUser      *service.DatabaseUserService
 	backup            *service.BackupService
+	backupAccount     *service.BackupAccountService
 	cert              *service.CertService
 	certDNS           *service.CertDNSService
 	certAccount       *service.CertAccountService
@@ -74,6 +75,7 @@ func NewHttp(
 	databaseServer *service.DatabaseServerService,
 	databaseUser *service.DatabaseUserService,
 	backup *service.BackupService,
+	backupAccount *service.BackupAccountService,
 	cert *service.CertService,
 	certDNS *service.CertDNSService,
 	certAccount *service.CertAccountService,
@@ -120,6 +122,7 @@ func NewHttp(
 		databaseServer:    databaseServer,
 		databaseUser:      databaseUser,
 		backup:            backup,
+		backupAccount:     backupAccount,
 		cert:              cert,
 		certDNS:           certDNS,
 		certAccount:       certAccount,
@@ -263,6 +266,14 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/{type}/upload", route.backup.Upload)
 			r.Delete("/{type}/delete", route.backup.Delete)
 			r.Post("/{type}/restore", route.backup.Restore)
+		})
+
+		r.Route("/backup_account", func(r chi.Router) {
+			r.Get("/", route.backupAccount.List)
+			r.Post("/", route.backupAccount.Create)
+			r.Put("/{id}", route.backupAccount.Update)
+			r.Get("/{id}", route.backupAccount.Get)
+			r.Delete("/{id}", route.backupAccount.Delete)
 		})
 
 		r.Route("/cert", func(r chi.Router) {

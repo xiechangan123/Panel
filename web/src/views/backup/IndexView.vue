@@ -5,6 +5,7 @@ defineOptions({
 
 import home from '@/api/panel/home'
 import ListView from '@/views/backup/ListView.vue'
+import AccountView from '@/views/backup/AccountView.vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -37,8 +38,10 @@ const postgreSQLInstalled = computed(() => {
         <n-tab name="website" :tab="$gettext('Website')" />
         <n-tab v-if="mySQLInstalled" name="mysql" tab="MySQL" />
         <n-tab v-if="postgreSQLInstalled" name="postgres" tab="PostgreSQL" />
+        <n-tab name="account" :tab="$gettext('Account')" />
       </n-tabs>
     </template>
-    <list-view v-model:type="currentTab" />
+    <list-view v-if="currentTab !== 'account'" v-model:type="currentTab" />
+    <account-view v-else />
   </common-page>
 </template>
