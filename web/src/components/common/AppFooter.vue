@@ -6,7 +6,7 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer color="#6a6a6a"    text-14 f-c-c flex-col >
+  <footer text-14 f-c-c flex-col>
     <p>
       © 2022 - {{ year }}
       <a hover="decoration-primary color-primary" target="__blank" href="https://acepanel.net/">
@@ -23,11 +23,7 @@ const year = new Date().getFullYear()
         {{ $gettext('QQ Group') }} 12370907
       </a>
       <n-divider vertical />
-      <a
-        hover="decoration-primary color-primary"
-        target="_blank"
-        href="https://acepanel.net/docs"
-      >
+      <a hover="decoration-primary color-primary" target="_blank" href="https://acepanel.net/docs">
         {{ $gettext('Documentation') }}
       </a>
       <n-divider vertical />

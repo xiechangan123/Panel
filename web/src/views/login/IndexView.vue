@@ -154,7 +154,7 @@ onMounted(() => {
   <AppPage :show-footer="true" :style="{ backgroundImage: `url(${bgImg})` }" bg-cover>
     <div m-auto p-15 bg-white bg-opacity-60 f-c-c min-w-345 card-shadow dark:bg-dark>
       <div px-20 py-35 flex-col w-480>
-        <h5 color="#6a6a6a" text-24 font-normal f-c-c>
+        <h5 text-24 font-normal f-c-c>
           <n-image :src="logo" preview-disabled mr-10 h-48 />{{ themeStore.name }}
         </h5>
         <div mt-30>
