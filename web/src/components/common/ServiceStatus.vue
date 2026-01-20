@@ -134,7 +134,7 @@ onMounted(() => {
   <n-card :title="$gettext('Running Status')">
     <template #header-extra>
       <n-switch
-        v-model:disabled="fetchingIsEnabled"
+        :disabled="fetchingIsEnabled"
         v-model:value="isEnabled"
         @update:value="handleIsEnabled"
       >
@@ -147,24 +147,24 @@ onMounted(() => {
         {{ statusStr }}
       </n-alert>
       <n-flex>
-        <n-button type="success" v-model:disabled="fetchingStatus" @click="handleStart">
+        <n-button type="success" :disabled="fetchingStatus || status" @click="handleStart">
           {{ $gettext('Start') }}
         </n-button>
         <n-popconfirm @positive-click="handleStop">
           <template #trigger>
-            <n-button type="error" v-model:disabled="fetchingStatus">
+            <n-button type="error" :disabled="fetchingStatus || !status">
               {{ $gettext('Stop') }}
             </n-button>
           </template>
           {{ $gettext('Are you sure you want to stop %{ service }?', { service: props.service }) }}
         </n-popconfirm>
-        <n-button type="warning" v-model:disabled="fetchingStatus" @click="handleRestart">
+        <n-button type="warning" :disabled="fetchingStatus || !status" @click="handleRestart">
           {{ $gettext('Restart') }}
         </n-button>
         <n-button
           v-if="showReload"
           type="primary"
-          v-model:disabled="fetchingStatus"
+          :disabled="fetchingStatus || !status"
           @click="handleReload"
         >
           {{ $gettext('Reload') }}

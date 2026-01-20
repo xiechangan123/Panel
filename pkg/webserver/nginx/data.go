@@ -21,7 +21,7 @@ server {
     listen 80;
     server_name localhost;
     root /opt/ace/sites/default/public;
-    index index.php index.html;
+    index index.html;
     # custom configs
     include /opt/ace/sites/default/config/site/*.conf;
 }

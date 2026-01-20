@@ -342,6 +342,9 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		if err = phpVhost.SetPHP(req.PHP); err != nil {
 			return nil, err
 		}
+		if err = phpVhost.SetIndex([]string{"index.php", "index.html"}); err != nil {
+			return nil, err
+		}
 		if err = phpVhost.SetConfig("010-rewrite.conf", "site", ""); err != nil {
 			return nil, err
 		}

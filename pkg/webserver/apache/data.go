@@ -20,7 +20,7 @@ IncludeOptional /opt/ace/sites/default/config/shared/*.conf
 <VirtualHost *:80>
     ServerName localhost
     DocumentRoot /opt/ace/sites/default/public
-    DirectoryIndex index.php index.html
+    DirectoryIndex index.html
     # custom configs
     IncludeOptional /opt/ace/sites/default/config/site/*.conf
     <Directory /opt/ace/sites/default/public>
