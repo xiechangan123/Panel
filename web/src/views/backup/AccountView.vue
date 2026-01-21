@@ -21,6 +21,11 @@ const styleOptions = [
   { label: 'Path', value: 'path' }
 ]
 
+const sftpAuthOptions = [
+  { label: $gettext('Password'), value: 'password' },
+  { label: $gettext('Private Key'), value: 'private_key' }
+]
+
 const defaultModel = {
   type: 's3',
   name: '',
@@ -33,8 +38,10 @@ const defaultModel = {
     bucket: '',
     host: '',
     port: 22,
-    user: '',
+    username: '',
     password: '',
+    private_key: '',
+    auth_type: 'password',
     path: ''
   }
 }
@@ -275,16 +282,35 @@ onMounted(() => {
         </n-form-item>
         <n-form-item :label="$gettext('Username')" required>
           <n-input
-            v-model:value="createModel.info.user"
+            v-model:value="createModel.info.username"
             :placeholder="$gettext('Enter username')"
           />
         </n-form-item>
-        <n-form-item :label="$gettext('Password')" required>
+        <n-form-item :label="$gettext('Auth Type')" required>
+          <n-select v-model:value="createModel.info.auth_type" :options="sftpAuthOptions" />
+        </n-form-item>
+        <n-form-item
+          v-if="createModel.info.auth_type === 'password'"
+          :label="$gettext('Password')"
+          required
+        >
           <n-input
             v-model:value="createModel.info.password"
             type="password"
             show-password-on="click"
             :placeholder="$gettext('Enter password')"
+          />
+        </n-form-item>
+        <n-form-item
+          v-if="createModel.info.auth_type === 'private_key'"
+          :label="$gettext('Private Key')"
+          required
+        >
+          <n-input
+            v-model:value="createModel.info.private_key"
+            type="textarea"
+            :rows="5"
+            :placeholder="$gettext('Enter private key')"
           />
         </n-form-item>
         <n-form-item :label="$gettext('Path')" required>
@@ -305,7 +331,7 @@ onMounted(() => {
         </n-form-item>
         <n-form-item :label="$gettext('Username')" required>
           <n-input
-            v-model:value="createModel.info.user"
+            v-model:value="createModel.info.username"
             :placeholder="$gettext('Enter username')"
           />
         </n-form-item>
@@ -406,14 +432,36 @@ onMounted(() => {
           />
         </n-form-item>
         <n-form-item :label="$gettext('Username')" required>
-          <n-input v-model:value="editModel.info.user" :placeholder="$gettext('Enter username')" />
+          <n-input
+            v-model:value="editModel.info.username"
+            :placeholder="$gettext('Enter username')"
+          />
         </n-form-item>
-        <n-form-item :label="$gettext('Password')" required>
+        <n-form-item :label="$gettext('Auth Type')" required>
+          <n-select v-model:value="editModel.info.auth_type" :options="sftpAuthOptions" />
+        </n-form-item>
+        <n-form-item
+          v-if="editModel.info.auth_type === 'password'"
+          :label="$gettext('Password')"
+          required
+        >
           <n-input
             v-model:value="editModel.info.password"
             type="password"
             show-password-on="click"
             :placeholder="$gettext('Enter password')"
+          />
+        </n-form-item>
+        <n-form-item
+          v-if="editModel.info.auth_type === 'private_key'"
+          :label="$gettext('Private Key')"
+          required
+        >
+          <n-input
+            v-model:value="editModel.info.private_key"
+            type="textarea"
+            :rows="5"
+            :placeholder="$gettext('Enter private key')"
           />
         </n-form-item>
         <n-form-item :label="$gettext('Path')" required>
@@ -433,7 +481,10 @@ onMounted(() => {
           />
         </n-form-item>
         <n-form-item :label="$gettext('Username')" required>
-          <n-input v-model:value="editModel.info.user" :placeholder="$gettext('Enter username')" />
+          <n-input
+            v-model:value="editModel.info.username"
+            :placeholder="$gettext('Enter username')"
+          />
         </n-form-item>
         <n-form-item :label="$gettext('Password')" required>
           <n-input

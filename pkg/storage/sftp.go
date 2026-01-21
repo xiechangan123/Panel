@@ -32,7 +32,7 @@ func NewSFTP(config SFTPConfig) (Storage, error) {
 	if config.Timeout == 0 {
 		config.Timeout = 30 * time.Second
 	}
-	config.BasePath = strings.Trim(config.BasePath, "/")
+	config.BasePath = strings.TrimSuffix(config.BasePath, "/")
 
 	if config.Username == "" || (config.Password == "" && config.PrivateKey == "") {
 		return nil, fmt.Errorf("username and either password or private key must be provided")
@@ -138,6 +138,11 @@ func (s *SFTP) List(path string) ([]string, error) {
 		return nil, err
 	}
 	defer cleanup()
+
+	// 确保基础路径存在
+	if s.config.BasePath != "" {
+		_ = client.MkdirAll(s.config.BasePath)
+	}
 
 	remotePath := s.getRemotePath(path)
 	entries, err := client.ReadDir(remotePath)

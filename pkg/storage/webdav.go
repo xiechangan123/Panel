@@ -27,7 +27,7 @@ func NewWebDav(config WebDavConfig) (Storage, error) {
 	if config.Timeout == 0 {
 		config.Timeout = 30 * time.Second
 	}
-	config.BasePath = strings.Trim(config.BasePath, "/")
+	config.BasePath = strings.TrimSuffix(config.BasePath, "/")
 
 	client := gowebdav.NewClient(config.URL, config.Username, config.Password)
 	client.SetTimeout(config.Timeout)
