@@ -23,8 +23,8 @@ type BackupRepo interface {
 	CreatePanel() error
 	Delete(ctx context.Context, typ BackupType, name string) error
 	Restore(ctx context.Context, typ BackupType, backup, target string) error
-	ClearExpired(path, prefix string, save int) error
-	ClearAccountExpired(account uint, typ BackupType, prefix string, save int) error
+	ClearExpired(path, prefix string, save uint) error
+	ClearAccountExpired(account uint, typ BackupType, prefix string, save uint) error
 	CutoffLog(path, target string) error
 	GetDefaultPath(typ BackupType) string
 	FixPanel() error

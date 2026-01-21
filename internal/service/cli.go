@@ -658,15 +658,15 @@ func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("|-Cleaning type: %s", cmd.String("type")))
 	fmt.Println(s.t.Get("|-Cleaning target: %s", cmd.String("file")))
-	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Int("save")))
+	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Uint("save")))
 
 	if cmd.Uint("account") != 0 {
-		if err := s.backupRepo.ClearAccountExpired(cmd.Uint("account"), biz.BackupType(cmd.String("type")), cmd.String("file"), cmd.Int("save")); err != nil {
+		if err := s.backupRepo.ClearAccountExpired(cmd.Uint("account"), biz.BackupType(cmd.String("type")), cmd.String("file"), cmd.Uint("save")); err != nil {
 			return errors.New(s.t.Get("Cleaning failed: %v", err))
 		}
 	} else {
 		path := s.backupRepo.GetDefaultPath(biz.BackupType(cmd.String("type")))
-		if err := s.backupRepo.ClearExpired(path, cmd.String("file"), cmd.Int("save")); err != nil {
+		if err := s.backupRepo.ClearExpired(path, cmd.String("file"), cmd.Uint("save")); err != nil {
 			return errors.New(s.t.Get("Cleaning failed: %v", err))
 		}
 	}
@@ -724,11 +724,11 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("|-Cleaning type: %s", cmd.String("type")))
 	fmt.Println(s.t.Get("|-Cleaning target: %s", website.Name))
-	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Int("save")))
-	if err = s.backupRepo.ClearExpired(path, "access.log", cmd.Int("save")); err != nil {
+	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Uint("save")))
+	if err = s.backupRepo.ClearExpired(path, "access.log", cmd.Uint("save")); err != nil {
 		return err
 	}
-	if err = s.backupRepo.ClearExpired(path, "error.log", cmd.Int("save")); err != nil {
+	if err = s.backupRepo.ClearExpired(path, "error.log", cmd.Uint("save")); err != nil {
 		return err
 	}
 	fmt.Println(s.hr)

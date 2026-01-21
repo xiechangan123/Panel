@@ -188,7 +188,7 @@ func (route *Cli) Commands() []*cli.Command {
 							Name:  "path",
 							Usage: route.t.Get("Path where the website is hosted (default path if not filled)"),
 						},
-						&cli.IntFlag{
+						&cli.UintFlag{
 							Name:  "php",
 							Usage: route.t.Get("PHP version used by the website (not used if not filled)"),
 						},
@@ -301,7 +301,7 @@ func (route *Cli) Commands() []*cli.Command {
 							Usage:    route.t.Get("Website name"),
 							Required: true,
 						},
-						&cli.StringFlag{
+						&cli.UintFlag{
 							Name:    "account",
 							Aliases: []string{"a"},
 							Usage:   route.t.Get("Account ID (default account if not filled)"),
@@ -325,7 +325,7 @@ func (route *Cli) Commands() []*cli.Command {
 							Usage:    route.t.Get("Database name"),
 							Required: true,
 						},
-						&cli.StringFlag{
+						&cli.UintFlag{
 							Name:    "account",
 							Aliases: []string{"a"},
 							Usage:   route.t.Get("Account ID (default account if not filled)"),
@@ -355,13 +355,13 @@ func (route *Cli) Commands() []*cli.Command {
 							Usage:    route.t.Get("Backup file"),
 							Required: true,
 						},
-						&cli.IntFlag{
+						&cli.UintFlag{
 							Name:     "save",
 							Aliases:  []string{"s"},
 							Usage:    route.t.Get("Number of backups to keep"),
 							Required: true,
 						},
-						&cli.StringFlag{
+						&cli.UintFlag{
 							Name:    "account",
 							Aliases: []string{"a"},
 							Usage:   route.t.Get("Account ID (default account if not filled)"),
@@ -409,7 +409,7 @@ func (route *Cli) Commands() []*cli.Command {
 							Usage:    route.t.Get("Website name"),
 							Required: true,
 						},
-						&cli.IntFlag{
+						&cli.UintFlag{
 							Name:     "save",
 							Aliases:  []string{"s"},
 							Usage:    route.t.Get("Number of logs to keep"),

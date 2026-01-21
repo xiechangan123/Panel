@@ -81,7 +81,7 @@ func (l *Local) Put(file string, content io.Reader) error {
 	}
 
 	// 预检查空间
-	if err := l.preCheckPath(fullPath); err != nil {
+	if err := l.preCheckPath(filepath.Dir(fullPath)); err != nil {
 		return fmt.Errorf("pre check path failed: %w", err)
 	}
 

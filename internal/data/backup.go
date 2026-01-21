@@ -88,9 +88,10 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		}
 	} else {
 		backupAccount = &biz.BackupAccount{
+			Name: r.t.Get("Local Storage"),
 			Type: biz.BackupAccountTypeLocal,
 			Info: types.BackupAccountInfo{
-				Path: r.GetDefaultPath(typ),
+				Path: filepath.Dir(r.GetDefaultPath(typ)), // 需要取根目录
 			},
 		}
 	}
@@ -100,10 +101,11 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		return err
 	}
 
-	name := fmt.Sprintf("%s_%s", target, time.Now().Format("20060102150405"))
+	start := time.Now()
+	name := fmt.Sprintf("%s_%s", target, start.Format("20060102150405"))
 	if app.IsCli {
 		fmt.Println(r.hr)
-		fmt.Println(r.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime)))
+		fmt.Println(r.t.Get("★ Start backup [%s]", start.Format(time.DateTime)))
 		fmt.Println(r.hr)
 		fmt.Println(r.t.Get("|-Backup type: %s", string(typ)))
 		fmt.Println(r.t.Get("|-Backup account: %s", backupAccount.Name))
@@ -122,6 +124,7 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 	}
 
 	if app.IsCli {
+		fmt.Println(r.t.Get("|-Backup time: %s", time.Since(start).String()))
 		fmt.Println(r.hr)
 	}
 	if err != nil {
@@ -142,7 +145,7 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 			slog.String("target", target),
 		)
 		if app.IsCli {
-			fmt.Println(r.t.Get("☆ Backup completed [%s]\n", time.Now().Format(time.DateTime)))
+			fmt.Println(r.t.Get("☆ Backup completed [%s]", time.Now().Format(time.DateTime)))
 		}
 	}
 
@@ -160,7 +163,7 @@ func (r *backupRepo) CreatePanel() error {
 
 	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), "panel", fmt.Sprintf("panel_%s.zip", time.Now().Format("20060102150405")))
 
-	temp, err := os.MkdirTemp("", "acepanel-backup-*")
+	temp, err := os.MkdirTemp("", "ace-backup-*")
 	if err != nil {
 		return err
 	}
@@ -183,7 +186,7 @@ func (r *backupRepo) CreatePanel() error {
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Backup time: %s", time.Since(start).String()))
-		fmt.Println(r.t.Get("|-Backed up to file: %s", filepath.Base(backup)))
+		fmt.Println(r.t.Get("|-Backup file: %s", filepath.Base(backup)))
 	}
 
 	return nil
@@ -277,7 +280,7 @@ func (r *backupRepo) CutoffLog(path, target string) error {
 // path 备份目录绝对路径
 // prefix 目标文件前缀
 // save 保存份数
-func (r *backupRepo) ClearExpired(path, prefix string, save int) error {
+func (r *backupRepo) ClearExpired(path, prefix string, save uint) error {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return err
@@ -304,7 +307,7 @@ func (r *backupRepo) ClearExpired(path, prefix string, save int) error {
 		}
 		return 0
 	})
-	if len(filtered) <= save {
+	if uint(len(filtered)) <= save {
 		return nil
 	}
 
@@ -324,7 +327,7 @@ func (r *backupRepo) ClearExpired(path, prefix string, save int) error {
 }
 
 // ClearAccountExpired 清理备份账号过期备份
-func (r *backupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefix string, save int) error {
+func (r *backupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefix string, save uint) error {
 	backupAccount := new(biz.BackupAccount)
 	if err := r.db.First(backupAccount, account).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -368,7 +371,7 @@ func (r *backupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefi
 		}
 		return 0
 	})
-	if len(filtered) <= save {
+	if uint(len(filtered)) <= save {
 		return nil
 	}
 
@@ -431,7 +434,7 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "acepanel-backup-*")
+	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
 	if err != nil {
 		return err
 	}
@@ -439,7 +442,6 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
-		fmt.Println(r.t.Get("|-Exporting website..."))
 	}
 
 	// 压缩网站
@@ -454,10 +456,6 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 		return err
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Moving backup..."))
-	}
 
 	if err = storage.Put(filepath.Join("website", name), file); err != nil {
 		return err
@@ -486,7 +484,7 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "acepanel-backup-*")
+	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
 	if err != nil {
 		return err
 	}
@@ -494,7 +492,6 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
-		fmt.Println(r.t.Get("|-Exporting database..."))
 	}
 
 	// 导出数据库
@@ -517,10 +514,6 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 		return err
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Moving backup..."))
-	}
 
 	if err = storage.Put(filepath.Join("mysql", name), file); err != nil {
 		return err
@@ -545,7 +538,7 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "acepanel-backup-*")
+	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
 	if err != nil {
 		return err
 	}
@@ -553,7 +546,6 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
-		fmt.Println(r.t.Get("|-Exporting database..."))
 	}
 
 	// 导出数据库
@@ -574,10 +566,6 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 		return err
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Moving backup..."))
-	}
 
 	if err = storage.Put(filepath.Join("postgres", name), file); err != nil {
 		return err
