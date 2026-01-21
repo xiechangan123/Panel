@@ -26,7 +26,7 @@ func (_m *BackupRepo) EXPECT() *BackupRepo_Expecter {
 }
 
 // ClearAccountExpired provides a mock function with given fields: account, typ, prefix, save
-func (_m *BackupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefix string, save int) error {
+func (_m *BackupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefix string, save uint) error {
 	ret := _m.Called(account, typ, prefix, save)
 
 	if len(ret) == 0 {
@@ -34,7 +34,7 @@ func (_m *BackupRepo) ClearAccountExpired(account uint, typ biz.BackupType, pref
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, biz.BackupType, string, int) error); ok {
+	if rf, ok := ret.Get(0).(func(uint, biz.BackupType, string, uint) error); ok {
 		r0 = rf(account, typ, prefix, save)
 	} else {
 		r0 = ret.Error(0)
@@ -52,14 +52,14 @@ type BackupRepo_ClearAccountExpired_Call struct {
 //   - account uint
 //   - typ biz.BackupType
 //   - prefix string
-//   - save int
+//   - save uint
 func (_e *BackupRepo_Expecter) ClearAccountExpired(account interface{}, typ interface{}, prefix interface{}, save interface{}) *BackupRepo_ClearAccountExpired_Call {
 	return &BackupRepo_ClearAccountExpired_Call{Call: _e.mock.On("ClearAccountExpired", account, typ, prefix, save)}
 }
 
-func (_c *BackupRepo_ClearAccountExpired_Call) Run(run func(account uint, typ biz.BackupType, prefix string, save int)) *BackupRepo_ClearAccountExpired_Call {
+func (_c *BackupRepo_ClearAccountExpired_Call) Run(run func(account uint, typ biz.BackupType, prefix string, save uint)) *BackupRepo_ClearAccountExpired_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(biz.BackupType), args[2].(string), args[3].(int))
+		run(args[0].(uint), args[1].(biz.BackupType), args[2].(string), args[3].(uint))
 	})
 	return _c
 }
@@ -69,13 +69,13 @@ func (_c *BackupRepo_ClearAccountExpired_Call) Return(_a0 error) *BackupRepo_Cle
 	return _c
 }
 
-func (_c *BackupRepo_ClearAccountExpired_Call) RunAndReturn(run func(uint, biz.BackupType, string, int) error) *BackupRepo_ClearAccountExpired_Call {
+func (_c *BackupRepo_ClearAccountExpired_Call) RunAndReturn(run func(uint, biz.BackupType, string, uint) error) *BackupRepo_ClearAccountExpired_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ClearExpired provides a mock function with given fields: path, prefix, save
-func (_m *BackupRepo) ClearExpired(path string, prefix string, save int) error {
+func (_m *BackupRepo) ClearExpired(path string, prefix string, save uint) error {
 	ret := _m.Called(path, prefix, save)
 
 	if len(ret) == 0 {
@@ -83,7 +83,7 @@ func (_m *BackupRepo) ClearExpired(path string, prefix string, save int) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, int) error); ok {
+	if rf, ok := ret.Get(0).(func(string, string, uint) error); ok {
 		r0 = rf(path, prefix, save)
 	} else {
 		r0 = ret.Error(0)
@@ -100,14 +100,14 @@ type BackupRepo_ClearExpired_Call struct {
 // ClearExpired is a helper method to define mock.On call
 //   - path string
 //   - prefix string
-//   - save int
+//   - save uint
 func (_e *BackupRepo_Expecter) ClearExpired(path interface{}, prefix interface{}, save interface{}) *BackupRepo_ClearExpired_Call {
 	return &BackupRepo_ClearExpired_Call{Call: _e.mock.On("ClearExpired", path, prefix, save)}
 }
 
-func (_c *BackupRepo_ClearExpired_Call) Run(run func(path string, prefix string, save int)) *BackupRepo_ClearExpired_Call {
+func (_c *BackupRepo_ClearExpired_Call) Run(run func(path string, prefix string, save uint)) *BackupRepo_ClearExpired_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(int))
+		run(args[0].(string), args[1].(string), args[2].(uint))
 	})
 	return _c
 }
@@ -117,7 +117,7 @@ func (_c *BackupRepo_ClearExpired_Call) Return(_a0 error) *BackupRepo_ClearExpir
 	return _c
 }
 
-func (_c *BackupRepo_ClearExpired_Call) RunAndReturn(run func(string, string, int) error) *BackupRepo_ClearExpired_Call {
+func (_c *BackupRepo_ClearExpired_Call) RunAndReturn(run func(string, string, uint) error) *BackupRepo_ClearExpired_Call {
 	_c.Call.Return(run)
 	return _c
 }
