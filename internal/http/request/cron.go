@@ -6,9 +6,9 @@ type CronCreate struct {
 	Time          string `form:"time" json:"time" validate:"required|cron"`
 	Script        string `form:"script" json:"script"`
 	BackupType    string `form:"backup_type" json:"backup_type" validate:"requiredIf:Type,backup"`
-	BackupAccount uint   `form:"backup_account" json:"backup_account"`
+	BackupStorage uint   `form:"backup_storage" json:"backup_storage"`
 	Target        string `form:"target" json:"target" validate:"requiredIf:Type,backup,cutoff"`
-	Save          int    `form:"save" json:"save" validate:"required"`
+	Keep          uint   `form:"keep" json:"keep" validate:"required"`
 }
 
 type CronUpdate struct {

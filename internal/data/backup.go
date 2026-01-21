@@ -75,28 +75,28 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 // Create 创建备份
 // typ 备份类型
 // target 目标名称
-// account 备份账号ID
-func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, account uint) error {
-	// 取备份账号，0 为本地备份
-	backupAccount := new(biz.BackupAccount)
-	if account != 0 {
-		if err := r.db.First(backupAccount, account).Error; err != nil {
+// storage 备份存储ID
+func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, storage uint) error {
+	// 取备份存储，0 为本地备份
+	backupStorage := new(biz.BackupStorage)
+	if storage != 0 {
+		if err := r.db.First(backupStorage, storage).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New(r.t.Get("backup account not found"))
+				return errors.New(r.t.Get("backup storage not found"))
 			}
 			return err
 		}
 	} else {
-		backupAccount = &biz.BackupAccount{
+		backupStorage = &biz.BackupStorage{
 			Name: r.t.Get("Local Storage"),
-			Type: biz.BackupAccountTypeLocal,
-			Info: types.BackupAccountInfo{
+			Type: biz.BackupStorageTypeLocal,
+			Info: types.BackupStorageInfo{
 				Path: filepath.Dir(r.GetDefaultPath(typ)), // 需要取根目录
 			},
 		}
 	}
 
-	client, err := r.getStorage(*backupAccount)
+	client, err := r.getStorage(*backupStorage)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		fmt.Println(r.t.Get("★ Start backup [%s]", start.Format(time.DateTime)))
 		fmt.Println(r.hr)
 		fmt.Println(r.t.Get("|-Backup type: %s", string(typ)))
-		fmt.Println(r.t.Get("|-Backup account: %s", backupAccount.Name))
+		fmt.Println(r.t.Get("|-Backup storage: %s", backupStorage.Name))
 		fmt.Println(r.t.Get("|-Backup target: %s", target))
 	}
 
@@ -326,17 +326,17 @@ func (r *backupRepo) ClearExpired(path, prefix string, save uint) error {
 	return nil
 }
 
-// ClearAccountExpired 清理备份账号过期备份
-func (r *backupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefix string, save uint) error {
-	backupAccount := new(biz.BackupAccount)
-	if err := r.db.First(backupAccount, account).Error; err != nil {
+// ClearStorageExpired 清理备份账号过期备份
+func (r *backupRepo) ClearStorageExpired(storage uint, typ biz.BackupType, prefix string, save uint) error {
+	backupStorage := new(biz.BackupStorage)
+	if err := r.db.First(backupStorage, storage).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(r.t.Get("backup account not found"))
+			return errors.New(r.t.Get("backup storage not found"))
 		}
 		return err
 	}
 
-	client, err := r.getStorage(*backupAccount)
+	client, err := r.getStorage(*backupStorage)
 	if err != nil {
 		return err
 	}
@@ -391,35 +391,35 @@ func (r *backupRepo) ClearAccountExpired(account uint, typ biz.BackupType, prefi
 }
 
 // getStorage 获取存储器
-func (r *backupRepo) getStorage(account biz.BackupAccount) (storage.Storage, error) {
-	switch account.Type {
-	case biz.BackupAccountTypeLocal:
-		return storage.NewLocal(account.Info.Path)
-	case biz.BackupAccountTypeS3:
+func (r *backupRepo) getStorage(backupStorage biz.BackupStorage) (storage.Storage, error) {
+	switch backupStorage.Type {
+	case biz.BackupStorageTypeLocal:
+		return storage.NewLocal(backupStorage.Info.Path)
+	case biz.BackupStorageTypeS3:
 		return storage.NewS3(storage.S3Config{
-			Region:          account.Info.Region,
-			Bucket:          account.Info.Bucket,
-			AccessKeyID:     account.Info.AccessKey,
-			SecretAccessKey: account.Info.SecretKey,
-			Endpoint:        account.Info.Endpoint,
-			BasePath:        account.Info.Path,
-			AddressingStyle: storage.S3AddressingStyle(account.Info.Style),
+			Region:          backupStorage.Info.Region,
+			Bucket:          backupStorage.Info.Bucket,
+			AccessKeyID:     backupStorage.Info.AccessKey,
+			SecretAccessKey: backupStorage.Info.SecretKey,
+			Endpoint:        backupStorage.Info.Endpoint,
+			BasePath:        backupStorage.Info.Path,
+			AddressingStyle: storage.S3AddressingStyle(backupStorage.Info.Style),
 		})
-	case biz.BackupAccountTypeSFTP:
+	case biz.BackupStorageTypeSFTP:
 		return storage.NewSFTP(storage.SFTPConfig{
-			Host:       account.Info.Host,
-			Port:       account.Info.Port,
-			Username:   account.Info.Username,
-			Password:   account.Info.Password,
-			PrivateKey: account.Info.PrivateKey,
-			BasePath:   account.Info.Path,
+			Host:       backupStorage.Info.Host,
+			Port:       backupStorage.Info.Port,
+			Username:   backupStorage.Info.Username,
+			Password:   backupStorage.Info.Password,
+			PrivateKey: backupStorage.Info.PrivateKey,
+			BasePath:   backupStorage.Info.Path,
 		})
-	case biz.BackupAccountTypeWebDav:
+	case biz.BackupStorageTypeWebDAV:
 		return storage.NewWebDav(storage.WebDavConfig{
-			URL:      account.Info.URL,
-			Username: account.Info.Username,
-			Password: account.Info.Password,
-			BasePath: account.Info.Path,
+			URL:      backupStorage.Info.URL,
+			Username: backupStorage.Info.Username,
+			Password: backupStorage.Info.Password,
+			BasePath: backupStorage.Info.Path,
 		})
 	default:
 		return nil, errors.New(r.t.Get("unknown storage type"))

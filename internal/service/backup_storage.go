@@ -13,19 +13,19 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
-type BackupAccountService struct {
+type BackupStorageService struct {
 	t                 *gotext.Locale
 	backupAccountRepo biz.BackupAccountRepo
 }
 
-func NewBackupAccountService(t *gotext.Locale, backupAccount biz.BackupAccountRepo) *BackupAccountService {
-	return &BackupAccountService{
+func NewBackupStorageService(t *gotext.Locale, backupAccount biz.BackupAccountRepo) *BackupStorageService {
+	return &BackupStorageService{
 		t:                 t,
 		backupAccountRepo: backupAccount,
 	}
 }
 
-func (s *BackupAccountService) List(w http.ResponseWriter, r *http.Request) {
+func (s *BackupStorageService) List(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.Paginate](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
@@ -44,8 +44,8 @@ func (s *BackupAccountService) List(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *BackupAccountService) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.BackupAccountCreate](r)
+func (s *BackupStorageService) Create(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.BackupStorageCreate](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -65,8 +65,8 @@ func (s *BackupAccountService) Create(w http.ResponseWriter, r *http.Request) {
 	Success(w, account)
 }
 
-func (s *BackupAccountService) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.BackupAccountUpdate](r)
+func (s *BackupStorageService) Update(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.BackupStorageUpdate](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
@@ -85,7 +85,7 @@ func (s *BackupAccountService) Update(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-func (s *BackupAccountService) Get(w http.ResponseWriter, r *http.Request) {
+func (s *BackupStorageService) Get(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ID](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
@@ -101,7 +101,7 @@ func (s *BackupAccountService) Get(w http.ResponseWriter, r *http.Request) {
 	Success(w, account)
 }
 
-func (s *BackupAccountService) Delete(w http.ResponseWriter, r *http.Request) {
+func (s *BackupStorageService) Delete(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ID](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
@@ -116,13 +116,13 @@ func (s *BackupAccountService) Delete(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-// validateStorage 验证存储账号配置是否正确
-func (s *BackupAccountService) validateStorage(accountType string, info types.BackupAccountInfo) error {
+// validateStorage 验证存储配置是否正确
+func (s *BackupStorageService) validateStorage(accountType string, info types.BackupStorageInfo) error {
 	var err error
 	var client storage.Storage
 
-	switch biz.BackupAccountType(accountType) {
-	case biz.BackupAccountTypeS3:
+	switch biz.BackupStorageType(accountType) {
+	case biz.BackupStorageTypeS3:
 		client, err = storage.NewS3(storage.S3Config{
 			Region:          info.Region,
 			Bucket:          info.Bucket,
@@ -135,7 +135,7 @@ func (s *BackupAccountService) validateStorage(accountType string, info types.Ba
 		if err != nil {
 			return errors.New(s.t.Get("s3 configuration error: %v", err))
 		}
-	case biz.BackupAccountTypeSFTP:
+	case biz.BackupStorageTypeSFTP:
 		client, err = storage.NewSFTP(storage.SFTPConfig{
 			Host:       info.Host,
 			Port:       info.Port,
@@ -147,7 +147,7 @@ func (s *BackupAccountService) validateStorage(accountType string, info types.Ba
 		if err != nil {
 			return errors.New(s.t.Get("sftp configuration error: %v", err))
 		}
-	case biz.BackupAccountTypeWebDav:
+	case biz.BackupStorageTypeWebDAV:
 		client, err = storage.NewWebDav(storage.WebDavConfig{
 			URL:      info.URL,
 			Username: info.Username,

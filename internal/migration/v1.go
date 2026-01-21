@@ -62,14 +62,10 @@ func init() {
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260120-add-backup",
 		Migrate: func(tx *gorm.DB) error {
-			return tx.AutoMigrate(
-				&biz.BackupAccount{},
-			)
+			return tx.AutoMigrate(&biz.BackupStorage{})
 		},
 		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(
-				&biz.BackupAccount{},
-			)
+			return tx.Migrator().DropTable(&biz.BackupStorage{})
 		},
 	})
 }

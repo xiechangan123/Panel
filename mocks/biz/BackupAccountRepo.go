@@ -26,27 +26,27 @@ func (_m *BackupAccountRepo) EXPECT() *BackupAccountRepo_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, req
-func (_m *BackupAccountRepo) Create(ctx context.Context, req *request.BackupAccountCreate) (*biz.BackupAccount, error) {
+func (_m *BackupAccountRepo) Create(ctx context.Context, req *request.BackupStorageCreate) (*biz.BackupStorage, error) {
 	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *biz.BackupAccount
+	var r0 *biz.BackupStorage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.BackupAccountCreate) (*biz.BackupAccount, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *request.BackupStorageCreate) (*biz.BackupStorage, error)); ok {
 		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *request.BackupAccountCreate) *biz.BackupAccount); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *request.BackupStorageCreate) *biz.BackupStorage); ok {
 		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*biz.BackupAccount)
+			r0 = ret.Get(0).(*biz.BackupStorage)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *request.BackupAccountCreate) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *request.BackupStorageCreate) error); ok {
 		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
@@ -62,24 +62,24 @@ type BackupAccountRepo_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - req *request.BackupAccountCreate
+//   - req *request.BackupStorageCreate
 func (_e *BackupAccountRepo_Expecter) Create(ctx interface{}, req interface{}) *BackupAccountRepo_Create_Call {
 	return &BackupAccountRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
 }
 
-func (_c *BackupAccountRepo_Create_Call) Run(run func(ctx context.Context, req *request.BackupAccountCreate)) *BackupAccountRepo_Create_Call {
+func (_c *BackupAccountRepo_Create_Call) Run(run func(ctx context.Context, req *request.BackupStorageCreate)) *BackupAccountRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.BackupAccountCreate))
+		run(args[0].(context.Context), args[1].(*request.BackupStorageCreate))
 	})
 	return _c
 }
 
-func (_c *BackupAccountRepo_Create_Call) Return(_a0 *biz.BackupAccount, _a1 error) *BackupAccountRepo_Create_Call {
+func (_c *BackupAccountRepo_Create_Call) Return(_a0 *biz.BackupStorage, _a1 error) *BackupAccountRepo_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *BackupAccountRepo_Create_Call) RunAndReturn(run func(context.Context, *request.BackupAccountCreate) (*biz.BackupAccount, error)) *BackupAccountRepo_Create_Call {
+func (_c *BackupAccountRepo_Create_Call) RunAndReturn(run func(context.Context, *request.BackupStorageCreate) (*biz.BackupStorage, error)) *BackupAccountRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -132,23 +132,23 @@ func (_c *BackupAccountRepo_Delete_Call) RunAndReturn(run func(context.Context, 
 }
 
 // Get provides a mock function with given fields: id
-func (_m *BackupAccountRepo) Get(id uint) (*biz.BackupAccount, error) {
+func (_m *BackupAccountRepo) Get(id uint) (*biz.BackupStorage, error) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *biz.BackupAccount
+	var r0 *biz.BackupStorage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) (*biz.BackupAccount, error)); ok {
+	if rf, ok := ret.Get(0).(func(uint) (*biz.BackupStorage, error)); ok {
 		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(uint) *biz.BackupAccount); ok {
+	if rf, ok := ret.Get(0).(func(uint) *biz.BackupStorage); ok {
 		r0 = rf(id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*biz.BackupAccount)
+			r0 = ret.Get(0).(*biz.BackupStorage)
 		}
 	}
 
@@ -179,35 +179,35 @@ func (_c *BackupAccountRepo_Get_Call) Run(run func(id uint)) *BackupAccountRepo_
 	return _c
 }
 
-func (_c *BackupAccountRepo_Get_Call) Return(_a0 *biz.BackupAccount, _a1 error) *BackupAccountRepo_Get_Call {
+func (_c *BackupAccountRepo_Get_Call) Return(_a0 *biz.BackupStorage, _a1 error) *BackupAccountRepo_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *BackupAccountRepo_Get_Call) RunAndReturn(run func(uint) (*biz.BackupAccount, error)) *BackupAccountRepo_Get_Call {
+func (_c *BackupAccountRepo_Get_Call) RunAndReturn(run func(uint) (*biz.BackupStorage, error)) *BackupAccountRepo_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function with given fields: page, limit
-func (_m *BackupAccountRepo) List(page uint, limit uint) ([]*biz.BackupAccount, int64, error) {
+func (_m *BackupAccountRepo) List(page uint, limit uint) ([]*biz.BackupStorage, int64, error) {
 	ret := _m.Called(page, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 []*biz.BackupAccount
+	var r0 []*biz.BackupStorage
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(uint, uint) ([]*biz.BackupAccount, int64, error)); ok {
+	if rf, ok := ret.Get(0).(func(uint, uint) ([]*biz.BackupStorage, int64, error)); ok {
 		return rf(page, limit)
 	}
-	if rf, ok := ret.Get(0).(func(uint, uint) []*biz.BackupAccount); ok {
+	if rf, ok := ret.Get(0).(func(uint, uint) []*biz.BackupStorage); ok {
 		r0 = rf(page, limit)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*biz.BackupAccount)
+			r0 = ret.Get(0).([]*biz.BackupStorage)
 		}
 	}
 
@@ -245,18 +245,18 @@ func (_c *BackupAccountRepo_List_Call) Run(run func(page uint, limit uint)) *Bac
 	return _c
 }
 
-func (_c *BackupAccountRepo_List_Call) Return(_a0 []*biz.BackupAccount, _a1 int64, _a2 error) *BackupAccountRepo_List_Call {
+func (_c *BackupAccountRepo_List_Call) Return(_a0 []*biz.BackupStorage, _a1 int64, _a2 error) *BackupAccountRepo_List_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *BackupAccountRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.BackupAccount, int64, error)) *BackupAccountRepo_List_Call {
+func (_c *BackupAccountRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.BackupStorage, int64, error)) *BackupAccountRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function with given fields: ctx, req
-func (_m *BackupAccountRepo) Update(ctx context.Context, req *request.BackupAccountUpdate) error {
+func (_m *BackupAccountRepo) Update(ctx context.Context, req *request.BackupStorageUpdate) error {
 	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
@@ -264,7 +264,7 @@ func (_m *BackupAccountRepo) Update(ctx context.Context, req *request.BackupAcco
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.BackupAccountUpdate) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *request.BackupStorageUpdate) error); ok {
 		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
@@ -280,14 +280,14 @@ type BackupAccountRepo_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - req *request.BackupAccountUpdate
+//   - req *request.BackupStorageUpdate
 func (_e *BackupAccountRepo_Expecter) Update(ctx interface{}, req interface{}) *BackupAccountRepo_Update_Call {
 	return &BackupAccountRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
 }
 
-func (_c *BackupAccountRepo_Update_Call) Run(run func(ctx context.Context, req *request.BackupAccountUpdate)) *BackupAccountRepo_Update_Call {
+func (_c *BackupAccountRepo_Update_Call) Run(run func(ctx context.Context, req *request.BackupStorageUpdate)) *BackupAccountRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.BackupAccountUpdate))
+		run(args[0].(context.Context), args[1].(*request.BackupStorageUpdate))
 	})
 	return _c
 }
@@ -297,7 +297,7 @@ func (_c *BackupAccountRepo_Update_Call) Return(_a0 error) *BackupAccountRepo_Up
 	return _c
 }
 
-func (_c *BackupAccountRepo_Update_Call) RunAndReturn(run func(context.Context, *request.BackupAccountUpdate) error) *BackupAccountRepo_Update_Call {
+func (_c *BackupAccountRepo_Update_Call) RunAndReturn(run func(context.Context, *request.BackupStorageUpdate) error) *BackupAccountRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

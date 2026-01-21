@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import backup from '@/api/panel/backup'
-import backupAccount from '@/api/panel/backupAccount'
+import storage from '@/api/panel/backup-storage'
 import type { MessageReactive } from 'naive-ui'
 import { NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -20,10 +20,10 @@ const uploadModal = ref(false)
 const createModal = ref(false)
 const createModel = ref({
   target: '',
-  account_id: 0
+  storage: 0
 })
 
-const accounts = ref<any[]>([])
+const storages = ref<any[]>([])
 
 const restoreModal = ref(false)
 const restoreModel = ref({
@@ -118,13 +118,13 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleCreate = () => {
-  useRequest(backup.create(type.value, createModel.value.target, createModel.value.account_id)).onSuccess(
-    () => {
-      createModal.value = false
-      window.$bus.emit('backup:refresh')
-      window.$message.success($gettext('Created successfully'))
-    }
-  )
+  useRequest(
+    backup.create(type.value, createModel.value.target, createModel.value.storage)
+  ).onSuccess(() => {
+    createModal.value = false
+    window.$bus.emit('backup:refresh')
+    window.$message.success($gettext('Created successfully'))
+  })
 }
 
 const handleRestore = () => {
@@ -181,14 +181,14 @@ onMounted(() => {
       })
     }
   })
-  useRequest(backupAccount.list(1, 10000)).onSuccess(({ data }: { data: any }) => {
+  useRequest(storage.list(1, 10000)).onSuccess(({ data }: { data: any }) => {
     for (const item of data.items) {
-      accounts.value.push({
+      storages.value.push({
         label: item.name,
         value: item.id
       })
     }
-    createModel.value.account_id = accounts.value[0]?.value || 0
+    createModel.value.storage = storages.value[0]?.value || 0
   })
   refresh()
   window.$bus.on('backup:refresh', refresh)
@@ -202,7 +202,11 @@ onUnmounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-alert type="info">
-      {{ $gettext('Only local backups are displayed here. Remote backups are stored in the corresponding backup account.') }}
+      {{
+        $gettext(
+          'Only local backups are displayed here. Remote backups are stored in the corresponding backup storage.'
+        )
+      }}
     </n-alert>
     <n-flex>
       <n-button type="primary" @click="createModal = true">{{
@@ -259,11 +263,11 @@ onUnmounted(() => {
           :placeholder="$gettext('Enter database name')"
         />
       </n-form-item>
-      <n-form-item path="account_id" :label="$gettext('Backup Account')">
+      <n-form-item path="storage" :label="$gettext('Backup Storage')">
         <n-select
-          v-model:value="createModel.account_id"
-          :options="accounts"
-          :placeholder="$gettext('Select backup account')"
+          v-model:value="createModel.storage"
+          :options="storages"
+          :placeholder="$gettext('Select backup storage')"
         />
       </n-form-item>
     </n-form>

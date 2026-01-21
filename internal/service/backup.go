@@ -55,7 +55,7 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Create(r.Context(), biz.BackupType(req.Type), req.Target, req.AccountID); err != nil {
+	if err = s.backupRepo.Create(r.Context(), biz.BackupType(req.Type), req.Target, req.Storage); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

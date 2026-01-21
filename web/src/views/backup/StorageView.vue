@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import backupAccount from '@/api/panel/backupAccount'
+import storage from '@/api/panel/backup-storage'
 import { formatDateTime } from '@/utils'
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
@@ -106,7 +106,7 @@ const columns: any = [
             onPositiveClick: () => handleDelete(row.id)
           },
           {
-            default: () => $gettext('Are you sure you want to delete this account?'),
+            default: () => $gettext('Are you sure you want to delete this storage?'),
             trigger: () =>
               h(
                 NButton,
@@ -128,7 +128,7 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => backupAccount.list(page, pageSize),
+  (page, pageSize) => storage.list(page, pageSize),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,
@@ -138,7 +138,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleCreate = () => {
-  useRequest(backupAccount.create(createModel.value)).onSuccess(() => {
+  useRequest(storage.create(createModel.value)).onSuccess(() => {
     createModal.value = false
     createModel.value = { ...defaultModel, info: { ...defaultModel.info } }
     refresh()
@@ -157,7 +157,7 @@ const handleEdit = (row: any) => {
 }
 
 const handleUpdate = () => {
-  useRequest(backupAccount.update(editId.value, editModel.value)).onSuccess(() => {
+  useRequest(storage.update(editId.value, editModel.value)).onSuccess(() => {
     editModal.value = false
     refresh()
     window.$message.success($gettext('Updated successfully'))
@@ -165,7 +165,7 @@ const handleUpdate = () => {
 }
 
 const handleDelete = (id: number) => {
-  useRequest(backupAccount.delete(id)).onSuccess(() => {
+  useRequest(storage.delete(id)).onSuccess(() => {
     refresh()
     window.$message.success($gettext('Deleted successfully'))
   })
@@ -179,7 +179,7 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">{{ $gettext('Add Account') }}</n-button>
+      <n-button type="primary" @click="createModal = true">{{ $gettext('Add Storage') }}</n-button>
     </n-flex>
     <n-data-table
       striped
@@ -207,7 +207,7 @@ onMounted(() => {
   <n-modal
     v-model:show="createModal"
     preset="card"
-    :title="$gettext('Add Account')"
+    :title="$gettext('Add Storage')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -216,7 +216,7 @@ onMounted(() => {
   >
     <n-form :model="createModel">
       <n-form-item :label="$gettext('Name')" required>
-        <n-input v-model:value="createModel.name" :placeholder="$gettext('Enter account name')" />
+        <n-input v-model:value="createModel.name" :placeholder="$gettext('Enter storage name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Type')" required>
         <n-select v-model:value="createModel.type" :options="typeOptions" />
@@ -358,7 +358,7 @@ onMounted(() => {
   <n-modal
     v-model:show="editModal"
     preset="card"
-    :title="$gettext('Edit Account')"
+    :title="$gettext('Edit Storage')"
     style="width: 60vw"
     size="huge"
     :bordered="false"
@@ -367,7 +367,7 @@ onMounted(() => {
   >
     <n-form :model="editModel">
       <n-form-item :label="$gettext('Name')" required>
-        <n-input v-model:value="editModel.name" :placeholder="$gettext('Enter account name')" />
+        <n-input v-model:value="editModel.name" :placeholder="$gettext('Enter storage name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Type')" required>
         <n-select v-model:value="editModel.type" :options="typeOptions" />

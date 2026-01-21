@@ -2,7 +2,7 @@ package types
 
 import "time"
 
-type BackupAccountInfo struct {
+type BackupStorageInfo struct {
 	// S3
 	AccessKey string `json:"access_key"` // 访问密钥
 	SecretKey string `json:"secret_key"` // 私钥
