@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import backupAccount from '@/api/panel/backupAccount'
+import { formatDateTime } from '@/utils'
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
-import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
 
@@ -11,7 +11,6 @@ const editModal = ref(false)
 const editId = ref(0)
 
 const typeOptions = [
-  { label: $gettext('Local'), value: 'local' },
   { label: 'S3', value: 's3' },
   { label: 'SFTP', value: 'sftp' },
   { label: 'WebDAV', value: 'webdav' }
@@ -23,7 +22,7 @@ const styleOptions = [
 ]
 
 const defaultModel = {
-  type: 'local',
+  type: 's3',
   name: '',
   info: {
     access_key: '',
@@ -79,6 +78,7 @@ const columns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
+      const isLocal = row.type === 'local'
       return [
         h(
           NButton,
@@ -86,6 +86,7 @@ const columns: any = [
             size: 'small',
             type: 'primary',
             secondary: true,
+            disabled: isLocal,
             onClick: () => handleEdit(row)
           },
           {
@@ -105,6 +106,7 @@ const columns: any = [
                 {
                   size: 'small',
                   type: 'error',
+                  disabled: isLocal,
                   style: 'margin-left: 15px;'
                 },
                 {
@@ -170,9 +172,7 @@ onMounted(() => {
 <template>
   <n-flex vertical :size="20">
     <n-flex>
-      <n-button type="primary" @click="createModal = true">{{
-        $gettext('Add Account')
-      }}</n-button>
+      <n-button type="primary" @click="createModal = true">{{ $gettext('Add Account') }}</n-button>
     </n-flex>
     <n-data-table
       striped
@@ -209,24 +209,11 @@ onMounted(() => {
   >
     <n-form :model="createModel">
       <n-form-item :label="$gettext('Name')" required>
-        <n-input
-          v-model:value="createModel.name"
-          :placeholder="$gettext('Enter account name')"
-        />
+        <n-input v-model:value="createModel.name" :placeholder="$gettext('Enter account name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Type')" required>
         <n-select v-model:value="createModel.type" :options="typeOptions" />
       </n-form-item>
-
-      <!-- Local Fields -->
-      <template v-if="createModel.type === 'local'">
-        <n-form-item :label="$gettext('Save Directory')" required>
-          <n-input
-            v-model:value="createModel.info.path"
-            :placeholder="$gettext('Enter save directory path')"
-          />
-        </n-form-item>
-      </template>
 
       <!-- S3 Fields -->
       <template v-if="createModel.type === 's3'">
@@ -276,10 +263,7 @@ onMounted(() => {
       <!-- SFTP Fields -->
       <template v-if="createModel.type === 'sftp'">
         <n-form-item :label="$gettext('Host')" required>
-          <n-input
-            v-model:value="createModel.info.host"
-            :placeholder="$gettext('Enter host')"
-          />
+          <n-input v-model:value="createModel.info.host" :placeholder="$gettext('Enter host')" />
         </n-form-item>
         <n-form-item :label="$gettext('Port')" required>
           <n-input-number
@@ -357,24 +341,11 @@ onMounted(() => {
   >
     <n-form :model="editModel">
       <n-form-item :label="$gettext('Name')" required>
-        <n-input
-          v-model:value="editModel.name"
-          :placeholder="$gettext('Enter account name')"
-        />
+        <n-input v-model:value="editModel.name" :placeholder="$gettext('Enter account name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Type')" required>
         <n-select v-model:value="editModel.type" :options="typeOptions" />
       </n-form-item>
-
-      <!-- Local Fields -->
-      <template v-if="editModel.type === 'local'">
-        <n-form-item :label="$gettext('Save Directory')" required>
-          <n-input
-            v-model:value="editModel.info.path"
-            :placeholder="$gettext('Enter save directory path')"
-          />
-        </n-form-item>
-      </template>
 
       <!-- S3 Fields -->
       <template v-if="editModel.type === 's3'">
@@ -424,10 +395,7 @@ onMounted(() => {
       <!-- SFTP Fields -->
       <template v-if="editModel.type === 'sftp'">
         <n-form-item :label="$gettext('Host')" required>
-          <n-input
-            v-model:value="editModel.info.host"
-            :placeholder="$gettext('Enter host')"
-          />
+          <n-input v-model:value="editModel.info.host" :placeholder="$gettext('Enter host')" />
         </n-form-item>
         <n-form-item :label="$gettext('Port')" required>
           <n-input-number
@@ -438,10 +406,7 @@ onMounted(() => {
           />
         </n-form-item>
         <n-form-item :label="$gettext('Username')" required>
-          <n-input
-            v-model:value="editModel.info.user"
-            :placeholder="$gettext('Enter username')"
-          />
+          <n-input v-model:value="editModel.info.user" :placeholder="$gettext('Enter username')" />
         </n-form-item>
         <n-form-item :label="$gettext('Password')" required>
           <n-input
@@ -468,10 +433,7 @@ onMounted(() => {
           />
         </n-form-item>
         <n-form-item :label="$gettext('Username')" required>
-          <n-input
-            v-model:value="editModel.info.user"
-            :placeholder="$gettext('Enter username')"
-          />
+          <n-input v-model:value="editModel.info.user" :placeholder="$gettext('Enter username')" />
         </n-form-item>
         <n-form-item :label="$gettext('Password')" required>
           <n-input

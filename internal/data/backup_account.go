@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/acepanel/panel/pkg/types"
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
@@ -12,24 +13,49 @@ import (
 )
 
 type backupAccountRepo struct {
-	t   *gotext.Locale
-	db  *gorm.DB
-	log *slog.Logger
+	t       *gotext.Locale
+	db      *gorm.DB
+	log     *slog.Logger
+	setting biz.SettingRepo
 }
 
-func NewBackupAccountRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.BackupAccountRepo {
+func NewBackupAccountRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo) biz.BackupAccountRepo {
 	return &backupAccountRepo{
-		t:   t,
-		db:  db,
-		log: log,
+		t:       t,
+		db:      db,
+		log:     log,
+		setting: setting,
 	}
 }
 
 func (r backupAccountRepo) List(page, limit uint) ([]*biz.BackupAccount, int64, error) {
-	accounts := make([]*biz.BackupAccount, 0)
+	// 本地存储
+	path, err := r.setting.Get(biz.SettingKeyBackupPath)
+	if err != nil {
+		return nil, 0, err
+	}
+	localStorage := &biz.BackupAccount{
+		ID:   0,
+		Type: biz.BackupAccountTypeLocal,
+		Name: r.t.Get("Local Storage"),
+		Info: types.BackupAccountInfo{
+			Path: path,
+		},
+	}
+
+	var dbAccounts []*biz.BackupAccount
 	var total int64
-	err := r.db.Model(&biz.BackupAccount{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&accounts).Error
-	return accounts, total, err
+	if err = r.db.Model(&biz.BackupAccount{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&dbAccounts).Error; err != nil {
+		return nil, 0, err
+	}
+
+	accounts := make([]*biz.BackupAccount, 0, len(dbAccounts)+1)
+	if page == 1 {
+		accounts = append(accounts, localStorage)
+	}
+	accounts = append(accounts, dbAccounts...)
+
+	return accounts, total + 1, nil
 }
 
 func (r backupAccountRepo) Get(id uint) (*biz.BackupAccount, error) {

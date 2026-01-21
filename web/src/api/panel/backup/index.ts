@@ -5,8 +5,8 @@ export default {
   list: (type: string, page: number, limit: number): any =>
     http.Get(`/backup/${type}`, { params: { page, limit } }),
   // 创建备份
-  create: (type: string, target: string, path: string): any =>
-    http.Post(`/backup/${type}`, { target, path }),
+  create: (type: string, target: string, account_id: number): any =>
+    http.Post(`/backup/${type}`, { target, account_id }),
   // 上传备份
   upload: (type: string, formData: FormData): any => http.Post(`/backup/${type}/upload`, formData),
   // 删除备份
