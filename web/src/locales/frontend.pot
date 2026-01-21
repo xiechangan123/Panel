@@ -278,9 +278,9 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:256
 #: src/views/apps/supervisor/IndexView.vue:46
 #: src/views/apps/supervisor/IndexView.vue:373
-#: src/views/backup/AccountView.vue:54
-#: src/views/backup/AccountView.vue:218
-#: src/views/backup/AccountView.vue:369
+#: src/views/backup/StorageView.vue:54
+#: src/views/backup/StorageView.vue:218
+#: src/views/backup/StorageView.vue:369
 #: src/views/container/ComposeView.vue:57
 #: src/views/container/NetworkView.vue:45
 #: src/views/container/VolumeView.vue:26
@@ -352,8 +352,8 @@ msgstr ""
 #: src/components/common/PathSelector.vue:254
 #: src/components/file-editor/FileTree.vue:284
 #: src/views/app/TemplateDeployModal.vue:214
-#: src/views/backup/AccountView.vue:145
-#: src/views/backup/ListView.vue:125
+#: src/views/backup/ListView.vue:126
+#: src/views/backup/StorageView.vue:145
 #: src/views/cert/CreateAccountModal.vue:52
 #: src/views/cert/CreateCertModal.vue:50
 #: src/views/cert/CreateDnsModal.vue:35
@@ -411,10 +411,10 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:305
 #: src/views/apps/s3fs/IndexView.vue:181
 #: src/views/apps/supervisor/IndexView.vue:409
-#: src/views/backup/AccountView.vue:354
-#: src/views/backup/AccountView.vue:505
-#: src/views/backup/ListView.vue:270
-#: src/views/backup/ListView.vue:294
+#: src/views/backup/ListView.vue:274
+#: src/views/backup/ListView.vue:298
+#: src/views/backup/StorageView.vue:354
+#: src/views/backup/StorageView.vue:505
 #: src/views/cert/AccountView.vue:268
 #: src/views/cert/CertView.vue:524
 #: src/views/cert/CertView.vue:548
@@ -444,7 +444,7 @@ msgstr ""
 #: src/views/setting/TwoFaModal.vue:87
 #: src/views/ssh/CreateModal.vue:109
 #: src/views/ssh/UpdateModal.vue:115
-#: src/views/task/CreateModal.vue:193
+#: src/views/task/CreateModal.vue:195
 msgid "Submit"
 msgstr ""
 
@@ -1144,8 +1144,8 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:88
 #: src/views/apps/rsync/IndexView.vue:105
 #: src/views/apps/supervisor/IndexView.vue:195
-#: src/views/backup/AccountView.vue:120
 #: src/views/backup/ListView.vue:99
+#: src/views/backup/StorageView.vue:120
 #: src/views/cert/AccountView.vue:127
 #: src/views/cert/CertView.vue:303
 #: src/views/cert/DnsView.vue:111
@@ -1214,8 +1214,8 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:158
 #: src/views/apps/s3fs/IndexView.vue:89
 #: src/views/apps/supervisor/IndexView.vue:261
-#: src/views/backup/AccountView.vue:170
 #: src/views/backup/ListView.vue:148
+#: src/views/backup/StorageView.vue:170
 #: src/views/container/ImageView.vue:156
 #: src/views/container/NetworkView.vue:175
 #: src/views/container/VolumeView.vue:129
@@ -1377,7 +1377,7 @@ msgid "Container"
 msgstr ""
 
 #: src/locales/menu.ts:11
-#: src/views/backup/ListView.vue:290
+#: src/views/backup/ListView.vue:294
 #: src/views/database/IndexView.vue:27
 #: src/views/home/IndexView.vue:453
 #: src/views/website/CreateModal.vue:170
@@ -1428,13 +1428,13 @@ msgstr ""
 #: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:315
 #: src/views/backup/IndexView.vue:38
-#: src/views/backup/ListView.vue:247
-#: src/views/backup/ListView.vue:283
+#: src/views/backup/ListView.vue:251
+#: src/views/backup/ListView.vue:287
 #: src/views/cert/CertView.vue:455
 #: src/views/cert/CertView.vue:538
 #: src/views/cert/CreateCertModal.vue:90
 #: src/views/home/IndexView.vue:449
-#: src/views/task/CreateModal.vue:153
+#: src/views/task/CreateModal.vue:155
 msgid "Website"
 msgstr ""
 
@@ -1507,8 +1507,8 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:68
 #: src/views/apps/s3fs/IndexView.vue:32
 #: src/views/apps/supervisor/IndexView.vue:74
-#: src/views/backup/AccountView.vue:83
 #: src/views/backup/ListView.vue:60
+#: src/views/backup/StorageView.vue:83
 #: src/views/cert/AccountView.vue:79
 #: src/views/cert/CertView.vue:170
 #: src/views/cert/DnsView.vue:64
@@ -2211,9 +2211,9 @@ msgid "Protected ports are automatically obtained. If you modify the port corres
 msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:311
-#: src/views/backup/AccountView.vue:61
-#: src/views/backup/AccountView.vue:221
-#: src/views/backup/AccountView.vue:372
+#: src/views/backup/StorageView.vue:61
+#: src/views/backup/StorageView.vue:221
+#: src/views/backup/StorageView.vue:372
 #: src/views/cert/CertView.vue:86
 #: src/views/cert/DnsView.vue:38
 #: src/views/cert/ObtainModal.vue:58
@@ -2234,8 +2234,8 @@ msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:321
 #: src/views/apps/fail2ban/IndexView.vue:325
-#: src/views/task/CreateModal.vue:167
-#: src/views/task/CreateModal.vue:172
+#: src/views/task/CreateModal.vue:169
+#: src/views/task/CreateModal.vue:174
 msgid "Select Website"
 msgstr ""
 
@@ -2245,12 +2245,12 @@ msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:333
 #: src/views/apps/pureftpd/IndexView.vue:39
-#: src/views/backup/AccountView.vue:262
-#: src/views/backup/AccountView.vue:316
-#: src/views/backup/AccountView.vue:346
-#: src/views/backup/AccountView.vue:413
-#: src/views/backup/AccountView.vue:467
-#: src/views/backup/AccountView.vue:497
+#: src/views/backup/StorageView.vue:262
+#: src/views/backup/StorageView.vue:316
+#: src/views/backup/StorageView.vue:346
+#: src/views/backup/StorageView.vue:413
+#: src/views/backup/StorageView.vue:467
+#: src/views/backup/StorageView.vue:497
 #: src/views/log/HttpLog.vue:64
 msgid "Path"
 msgstr ""
@@ -2408,7 +2408,7 @@ msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:197
 #: src/views/apps/nginx/NginxIndex.vue:273
-#: src/views/backup/AccountView.vue:100
+#: src/views/backup/StorageView.vue:100
 #: src/views/container/ComposeView.vue:122
 #: src/views/file/ListView.vue:332
 #: src/views/file/ListView.vue:1563
@@ -2666,10 +2666,10 @@ msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:32
 #: src/views/apps/pureftpd/IndexView.vue:214
-#: src/views/backup/AccountView.vue:283
-#: src/views/backup/AccountView.vue:332
-#: src/views/backup/AccountView.vue:434
-#: src/views/backup/AccountView.vue:483
+#: src/views/backup/StorageView.vue:283
+#: src/views/backup/StorageView.vue:332
+#: src/views/backup/StorageView.vue:434
+#: src/views/backup/StorageView.vue:483
 #: src/views/container/ImageView.vue:386
 #: src/views/database/CreateDatabaseModal.vue:105
 #: src/views/database/CreateServerModal.vue:94
@@ -2720,10 +2720,10 @@ msgid "Create User"
 msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:219
-#: src/views/backup/AccountView.vue:286
-#: src/views/backup/AccountView.vue:335
-#: src/views/backup/AccountView.vue:437
-#: src/views/backup/AccountView.vue:486
+#: src/views/backup/StorageView.vue:286
+#: src/views/backup/StorageView.vue:335
+#: src/views/backup/StorageView.vue:437
+#: src/views/backup/StorageView.vue:486
 #: src/views/container/ImageView.vue:391
 #: src/views/database/CreateDatabaseModal.vue:110
 #: src/views/database/CreateUserModal.vue:93
@@ -2734,11 +2734,11 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:253
 #: src/views/apps/rsync/IndexView.vue:280
 #: src/views/apps/rsync/IndexView.vue:334
-#: src/views/backup/AccountView.vue:25
-#: src/views/backup/AccountView.vue:294
-#: src/views/backup/AccountView.vue:338
-#: src/views/backup/AccountView.vue:445
-#: src/views/backup/AccountView.vue:489
+#: src/views/backup/StorageView.vue:25
+#: src/views/backup/StorageView.vue:294
+#: src/views/backup/StorageView.vue:338
+#: src/views/backup/StorageView.vue:445
+#: src/views/backup/StorageView.vue:489
 #: src/views/container/ImageView.vue:394
 #: src/views/database/CreateDatabaseModal.vue:113
 #: src/views/database/CreateServerModal.vue:102
@@ -2785,10 +2785,10 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:60
 #: src/views/apps/rsync/IndexView.vue:288
 #: src/views/apps/rsync/IndexView.vue:343
-#: src/views/backup/AccountView.vue:272
-#: src/views/backup/AccountView.vue:326
-#: src/views/backup/AccountView.vue:423
-#: src/views/backup/AccountView.vue:477
+#: src/views/backup/StorageView.vue:272
+#: src/views/backup/StorageView.vue:326
+#: src/views/backup/StorageView.vue:423
+#: src/views/backup/StorageView.vue:477
 #: src/views/database/CreateDatabaseModal.vue:127
 #: src/views/database/CreateServerModal.vue:73
 #: src/views/database/ServerList.vue:115
@@ -2988,176 +2988,8 @@ msgstr ""
 msgid "Process Configuration"
 msgstr ""
 
-#: src/views/backup/AccountView.vue:26
-#: src/views/backup/AccountView.vue:306
-#: src/views/backup/AccountView.vue:457
-#: src/views/cert/CertView.vue:498
-#: src/views/cert/CertView.vue:566
-#: src/views/cert/UploadCertModal.vue:46
-#: src/views/setting/SettingSafe.vue:297
-#: src/views/ssh/CreateModal.vue:80
-#: src/views/ssh/CreateModal.vue:91
-#: src/views/ssh/UpdateModal.vue:86
-#: src/views/ssh/UpdateModal.vue:97
-#: src/views/website/EditView.vue:901
-msgid "Private Key"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:66
-msgid "Local"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:75
-msgid "Created At"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:109
-msgid "Are you sure you want to delete this account?"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:163
-#: src/views/setting/PasswordModal.vue:16
-#: src/views/setting/TokenModal.vue:181
-#: src/views/setting/TwoFaModal.vue:24
-#: src/views/ssh/UpdateModal.vue:31
-msgid "Updated successfully"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:182
-#: src/views/backup/AccountView.vue:210
-msgid "Add Account"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:219
-#: src/views/backup/AccountView.vue:370
-msgid "Enter account name"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:227
-#: src/views/backup/AccountView.vue:378
-msgid "Access Key"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:230
-#: src/views/backup/AccountView.vue:381
-msgid "Enter access key"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:233
-#: src/views/backup/AccountView.vue:384
-msgid "Secret Key"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:238
-#: src/views/backup/AccountView.vue:389
-msgid "Enter secret key"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:241
-#: src/views/backup/AccountView.vue:392
-msgid "Style"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:244
-#: src/views/backup/AccountView.vue:395
-msgid "Region"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:247
-#: src/views/backup/AccountView.vue:398
-msgid "Enter region (e.g., us-east-1)"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:250
-#: src/views/backup/AccountView.vue:401
-msgid "Endpoint"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:253
-#: src/views/backup/AccountView.vue:404
-msgid "Enter endpoint URL"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:256
-#: src/views/backup/AccountView.vue:407
-msgid "Bucket"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:259
-#: src/views/backup/AccountView.vue:410
-msgid "Enter bucket name"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:265
-#: src/views/backup/AccountView.vue:349
-#: src/views/backup/AccountView.vue:416
-#: src/views/backup/AccountView.vue:500
-msgid "Enter path (optional)"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:273
-#: src/views/backup/AccountView.vue:424
-msgid "Enter host"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:275
-#: src/views/backup/AccountView.vue:426
-#: src/views/database/CreateServerModal.vue:84
-#: src/views/database/UpdateServerModal.vue:76
-#: src/views/firewall/ForwardView.vue:31
-#: src/views/firewall/RuleView.vue:48
-#: src/views/setting/SettingBase.vue:123
-#: src/views/ssh/CreateModal.vue:70
-#: src/views/ssh/UpdateModal.vue:76
-#: src/views/website/CreateModal.vue:146
-msgid "Port"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:280
-#: src/views/backup/AccountView.vue:431
-msgid "Enter port"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:289
-#: src/views/backup/AccountView.vue:440
-msgid "Auth Type"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:301
-#: src/views/backup/AccountView.vue:343
-#: src/views/backup/AccountView.vue:452
-#: src/views/backup/AccountView.vue:494
-#: src/views/container/ImageView.vue:400
-#: src/views/database/CreateDatabaseModal.vue:120
-#: src/views/database/CreateUserModal.vue:103
-#: src/views/database/UpdateUserModal.vue:61
-msgid "Enter password"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:313
-#: src/views/backup/AccountView.vue:464
-msgid "Enter private key"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:319
-#: src/views/backup/AccountView.vue:470
-msgid "Enter remote path"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:329
-#: src/views/backup/AccountView.vue:480
-msgid "Enter WebDAV URL"
-msgstr ""
-
-#: src/views/backup/AccountView.vue:361
-msgid "Edit Account"
-msgstr ""
-
 #: src/views/backup/IndexView.vue:41
-#: src/views/cert/CertView.vue:466
-#: src/views/cert/CreateCertModal.vue:98
-#: src/views/cert/IndexView.vue:97
-msgid "Account"
+msgid "Storage"
 msgstr ""
 
 #: src/views/backup/ListView.vue:38
@@ -3182,54 +3014,219 @@ msgstr ""
 msgid "Restored successfully"
 msgstr ""
 
-#: src/views/backup/ListView.vue:205
-msgid "Only local backups are displayed here. Remote backups are stored in the corresponding backup account."
+#: src/views/backup/ListView.vue:206
+msgid "Only local backups are displayed here. Remote backups are stored in the corresponding backup storage."
 msgstr ""
 
-#: src/views/backup/ListView.vue:209
-#: src/views/backup/ListView.vue:239
+#: src/views/backup/ListView.vue:213
+#: src/views/backup/ListView.vue:243
 msgid "Create Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:212
+#: src/views/backup/ListView.vue:216
 #: src/views/backup/UploadModal.vue:39
 msgid "Upload Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:251
-#: src/views/backup/ListView.vue:287
+#: src/views/backup/ListView.vue:255
+#: src/views/backup/ListView.vue:291
 msgid "Select website"
 msgstr ""
 
-#: src/views/backup/ListView.vue:254
+#: src/views/backup/ListView.vue:258
 #: src/views/database/CreateDatabaseModal.vue:82
 #: src/views/database/DatabaseList.vue:34
-#: src/views/task/CreateModal.vue:177
 #: src/views/task/CreateModal.vue:179
+#: src/views/task/CreateModal.vue:181
 #: src/views/website/CreateModal.vue:191
 #: src/views/website/CreateModal.vue:196
 msgid "Database Name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:259
+#: src/views/backup/ListView.vue:263
 #: src/views/database/CreateDatabaseModal.vue:87
 #: src/views/database/CreateUserModal.vue:129
 #: src/views/database/UpdateUserModal.vue:67
 msgid "Enter database name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:262
-#: src/views/task/CreateModal.vue:181
-msgid "Backup Account"
-msgstr ""
-
 #: src/views/backup/ListView.vue:266
-#: src/views/task/CreateModal.vue:185
-msgid "Select backup account"
+#: src/views/task/CreateModal.vue:183
+msgid "Backup Storage"
 msgstr ""
 
-#: src/views/backup/ListView.vue:275
+#: src/views/backup/ListView.vue:270
+#: src/views/task/CreateModal.vue:187
+msgid "Select backup storage"
+msgstr ""
+
+#: src/views/backup/ListView.vue:279
 msgid "Restore Backup"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:26
+#: src/views/backup/StorageView.vue:306
+#: src/views/backup/StorageView.vue:457
+#: src/views/cert/CertView.vue:498
+#: src/views/cert/CertView.vue:566
+#: src/views/cert/UploadCertModal.vue:46
+#: src/views/setting/SettingSafe.vue:297
+#: src/views/ssh/CreateModal.vue:80
+#: src/views/ssh/CreateModal.vue:91
+#: src/views/ssh/UpdateModal.vue:86
+#: src/views/ssh/UpdateModal.vue:97
+#: src/views/website/EditView.vue:901
+msgid "Private Key"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:66
+msgid "Local"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:75
+msgid "Created At"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:109
+msgid "Are you sure you want to delete this storage?"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:163
+#: src/views/setting/PasswordModal.vue:16
+#: src/views/setting/TokenModal.vue:181
+#: src/views/setting/TwoFaModal.vue:24
+#: src/views/ssh/UpdateModal.vue:31
+msgid "Updated successfully"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:182
+#: src/views/backup/StorageView.vue:210
+msgid "Add Storage"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:219
+#: src/views/backup/StorageView.vue:370
+msgid "Enter storage name"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:227
+#: src/views/backup/StorageView.vue:378
+msgid "Access Key"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:230
+#: src/views/backup/StorageView.vue:381
+msgid "Enter access key"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:233
+#: src/views/backup/StorageView.vue:384
+msgid "Secret Key"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:238
+#: src/views/backup/StorageView.vue:389
+msgid "Enter secret key"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:241
+#: src/views/backup/StorageView.vue:392
+msgid "Style"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:244
+#: src/views/backup/StorageView.vue:395
+msgid "Region"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:247
+#: src/views/backup/StorageView.vue:398
+msgid "Enter region (e.g., us-east-1)"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:250
+#: src/views/backup/StorageView.vue:401
+msgid "Endpoint"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:253
+#: src/views/backup/StorageView.vue:404
+msgid "Enter endpoint URL"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:256
+#: src/views/backup/StorageView.vue:407
+msgid "Bucket"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:259
+#: src/views/backup/StorageView.vue:410
+msgid "Enter bucket name"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:265
+#: src/views/backup/StorageView.vue:349
+#: src/views/backup/StorageView.vue:416
+#: src/views/backup/StorageView.vue:500
+msgid "Enter path (optional)"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:273
+#: src/views/backup/StorageView.vue:424
+msgid "Enter host"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:275
+#: src/views/backup/StorageView.vue:426
+#: src/views/database/CreateServerModal.vue:84
+#: src/views/database/UpdateServerModal.vue:76
+#: src/views/firewall/ForwardView.vue:31
+#: src/views/firewall/RuleView.vue:48
+#: src/views/setting/SettingBase.vue:123
+#: src/views/ssh/CreateModal.vue:70
+#: src/views/ssh/UpdateModal.vue:76
+#: src/views/website/CreateModal.vue:146
+msgid "Port"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:280
+#: src/views/backup/StorageView.vue:431
+msgid "Enter port"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:289
+#: src/views/backup/StorageView.vue:440
+msgid "Auth Type"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:301
+#: src/views/backup/StorageView.vue:343
+#: src/views/backup/StorageView.vue:452
+#: src/views/backup/StorageView.vue:494
+#: src/views/container/ImageView.vue:400
+#: src/views/database/CreateDatabaseModal.vue:120
+#: src/views/database/CreateUserModal.vue:103
+#: src/views/database/UpdateUserModal.vue:61
+msgid "Enter password"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:313
+#: src/views/backup/StorageView.vue:464
+msgid "Enter private key"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:319
+#: src/views/backup/StorageView.vue:470
+msgid "Enter remote path"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:329
+#: src/views/backup/StorageView.vue:480
+msgid "Enter WebDAV URL"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:361
+msgid "Edit Storage"
 msgstr ""
 
 #: src/views/backup/UploadModal.vue:20
@@ -3412,6 +3409,12 @@ msgstr ""
 #: src/views/cert/CertView.vue:458
 #: src/views/cert/CreateCertModal.vue:93
 msgid "Select website for certificate deployment"
+msgstr ""
+
+#: src/views/cert/CertView.vue:466
+#: src/views/cert/CreateCertModal.vue:98
+#: src/views/cert/IndexView.vue:97
+msgid "Account"
 msgstr ""
 
 #: src/views/cert/CertView.vue:470
@@ -6404,34 +6407,34 @@ msgstr ""
 msgid "Backup PostgreSQL"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:82
-#: src/views/task/CreateModal.vue:82
-#: src/views/task/CreateModal.vue:136
+#: src/views/task/CreateModal.vue:83
+#: src/views/task/CreateModal.vue:84
+#: src/views/task/CreateModal.vue:138
 #: src/views/task/CronView.vue:48
 msgid "Log Rotation"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:123
+#: src/views/task/CreateModal.vue:125
 msgid "Create Scheduled Task"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:130
+#: src/views/task/CreateModal.vue:132
 #: src/views/task/CronView.vue:32
 msgid "Task Type"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:134
+#: src/views/task/CreateModal.vue:136
 #: src/views/task/CronView.vue:45
 msgid "Run Script"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:135
+#: src/views/task/CreateModal.vue:137
 #: src/views/task/CronView.vue:47
 msgid "Backup Data"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:141
-#: src/views/task/CreateModal.vue:142
+#: src/views/task/CreateModal.vue:143
+#: src/views/task/CreateModal.vue:144
 #: src/views/task/CronView.vue:25
 #: src/views/task/CronView.vue:250
 #: src/views/task/CronView.vue:251
@@ -6439,29 +6442,29 @@ msgstr ""
 msgid "Task Name"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:144
+#: src/views/task/CreateModal.vue:146
 #: src/views/task/CronView.vue:69
 #: src/views/task/CronView.vue:253
 msgid "Task Schedule"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:148
+#: src/views/task/CreateModal.vue:150
 msgid "Script Content"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:151
+#: src/views/task/CreateModal.vue:153
 msgid "Backup Type"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:155
+#: src/views/task/CreateModal.vue:157
 msgid "MySQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:158
+#: src/views/task/CreateModal.vue:160
 msgid "PostgreSQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:188
+#: src/views/task/CreateModal.vue:190
 msgid "Retention Count"
 msgstr ""
 

@@ -27,12 +27,6 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/route/cli.go:307
-#: internal/route/cli.go:331
-#: internal/route/cli.go:367
-msgid "Account ID (default account if not filled)"
-msgstr ""
-
 #: internal/service/home.go:60
 msgid "AcePanel"
 msgstr ""
@@ -677,7 +671,7 @@ msgid "Local IPv6: %s://[%s]:%d%s"
 msgstr ""
 
 #: internal/data/backup.go:91
-#: internal/data/backup_account.go:62
+#: internal/data/backup_storage.go:62
 msgid "Local Storage"
 msgstr ""
 
@@ -1079,6 +1073,12 @@ msgstr ""
 msgid "Stop panel service"
 msgstr ""
 
+#: internal/route/cli.go:307
+#: internal/route/cli.go:331
+#: internal/route/cli.go:367
+msgid "Storage ID (local storage if not filled)"
+msgstr ""
+
 #: internal/apps/postgresql/app.go:144
 msgid "Storage Usage"
 msgstr ""
@@ -1414,13 +1414,13 @@ msgstr ""
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
-#: internal/data/backup.go:334
-#: internal/data/backup.go:85
-msgid "backup account not found"
-msgstr ""
-
 #: internal/data/backup.go:219
 msgid "backup file not exists"
+msgstr ""
+
+#: internal/data/backup.go:334
+#: internal/data/backup.go:85
+msgid "backup storage not found"
 msgstr ""
 
 #: internal/service/toolbox_disk.go:466
@@ -2285,7 +2285,7 @@ msgstr ""
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/service/backup_account.go:136
+#: internal/service/backup_storage.go:136
 msgid "s3 configuration error: %v"
 msgstr ""
 
@@ -2297,7 +2297,7 @@ msgstr ""
 msgid "session expired, please login again"
 msgstr ""
 
-#: internal/service/backup_account.go:148
+#: internal/service/backup_storage.go:148
 msgid "sftp configuration error: %v"
 msgstr ""
 
@@ -2309,7 +2309,7 @@ msgstr ""
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
-#: internal/service/backup_account.go:165
+#: internal/service/backup_storage.go:165
 msgid "storage connection error: %v"
 msgstr ""
 
@@ -2452,7 +2452,7 @@ msgstr ""
 msgid "username or password error"
 msgstr ""
 
-#: internal/service/backup_account.go:158
+#: internal/service/backup_storage.go:158
 msgid "webdav configuration error: %v"
 msgstr ""
 
@@ -2513,10 +2513,6 @@ msgstr ""
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 
-#: internal/data/backup.go:111
-msgid "|-Backup account: %s"
-msgstr ""
-
 #: internal/data/backup.go:761
 msgid "|-Backup file used: %s"
 msgstr ""
@@ -2539,6 +2535,10 @@ msgstr ""
 
 #: internal/data/backup.go:889
 msgid "|-Backup panel data..."
+msgstr ""
+
+#: internal/data/backup.go:111
+msgid "|-Backup storage: %s"
 msgstr ""
 
 #: internal/data/backup.go:112
