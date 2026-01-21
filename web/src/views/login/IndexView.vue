@@ -152,83 +152,75 @@ onMounted(() => {
 
 <template>
   <AppPage :show-footer="true" :style="{ backgroundImage: `url(${bgImg})` }" bg-cover>
-    <div m-auto p-15 bg-white bg-opacity-60 f-c-c min-w-345 card-shadow dark:bg-dark>
-      <div px-20 py-35 flex-col w-480>
-        <h5 text-24 font-normal f-c-c>
-          <n-image :src="logo" preview-disabled mr-10 h-48 />{{ themeStore.name }}
-        </h5>
-        <div mt-30>
+    <div m-auto flex flex-col items-center>
+      <!-- Logo -->
+      <n-image :src="logo" preview-disabled mb-22 h-80 w-80 object-contain />
+
+      <!-- 登录卡片 -->
+      <div px-28 py-32 rounded-lg bg-white min-w-380 card-shadow class="dark:bg-dark">
+        <h2 text-32 font-600 mb-28 text-center>{{ themeStore.name }}</h2>
+
+        <n-input
+          v-model:value="loginInfo.username"
+          :maxlength="32"
+          :placeholder="$gettext('Username')"
+          autofocus
+          class="text-15 h-48 items-center"
+          :on-blur="isTwoFA"
+        />
+
+        <n-input
+          v-model:value="loginInfo.password"
+          :maxlength="32"
+          :placeholder="$gettext('Password')"
+          class="text-15 mt-20 h-48 items-center"
+          type="password"
+          show-password-on="click"
+          @keydown.enter="handleLogin"
+        />
+
+        <n-input
+          v-if="showTwoFA"
+          v-model:value="loginInfo.pass_code"
+          :maxlength="6"
+          :placeholder="$gettext('2FA Code')"
+          class="text-15 mt-20 h-48 items-center"
+          type="text"
+          @keydown.enter="handleLogin"
+        />
+
+        <n-flex v-if="captchaRequired" align="center" class="mt-20">
           <n-input
-            v-model:value="loginInfo.username"
-            :maxlength="32"
-            autofocus
-            class="text-16 pl-10 h-50 items-center"
-            :placeholder="$gettext('Username')"
-            :on-blur="isTwoFA"
-          />
-        </div>
-        <div mt-30>
-          <n-input
-            v-model:value="loginInfo.password"
-            :maxlength="32"
-            class="text-16 pl-10 h-50 items-center"
-            :placeholder="$gettext('Password')"
-            type="password"
-            show-password-on="click"
-            @keydown.enter="handleLogin"
-          />
-        </div>
-        <div v-if="showTwoFA" mt-30>
-          <n-input
-            v-model:value="loginInfo.pass_code"
-            :maxlength="6"
-            class="text-16 pl-10 h-50 items-center"
-            :placeholder="$gettext('2FA Code')"
+            v-model:value="loginInfo.captcha_code"
+            :maxlength="4"
+            :placeholder="$gettext('Captcha Code')"
+            class="text-15 h-48 items-center"
+            style="flex: 1"
             type="text"
             @keydown.enter="handleLogin"
           />
-        </div>
-        <div v-if="captchaRequired" mt-30>
-          <n-flex align="center">
-            <n-input
-              v-model:value="loginInfo.captcha_code"
-              :maxlength="4"
-              class="text-16 pl-10 h-50 items-center"
-              style="flex: 1"
-              :placeholder="$gettext('Captcha Code')"
-              type="text"
-              @keydown.enter="handleLogin"
-            />
-            <n-image
-              :src="captchaImage"
-              preview-disabled
-              class="h-50 cursor-pointer"
-              style="border-radius: 4px"
-              @click="refreshCaptcha"
-            />
-          </n-flex>
-        </div>
+          <n-image
+            :src="captchaImage"
+            preview-disabled
+            class="rounded h-48 cursor-pointer"
+            @click="refreshCaptcha"
+          />
+        </n-flex>
 
-        <div mt-20>
-          <n-flex>
-            <n-checkbox v-model:checked="loginInfo.safe_login" :label="$gettext('Safe Login')" />
-            <n-checkbox v-model:checked="isRemember" :label="$gettext('Remember Me')" />
-          </n-flex>
-        </div>
+        <n-flex class="mt-20">
+          <n-checkbox v-model:checked="loginInfo.safe_login" :label="$gettext('Safe Login')" />
+          <n-checkbox v-model:checked="isRemember" :label="$gettext('Remember Me')" />
+        </n-flex>
 
-        <div mt-20>
-          <n-button
-            :loading="isLoading || logining"
-            :disabled="isLoading || logining"
-            type="primary"
-            text-16
-            h-50
-            w-full
-            @click="handleLogin"
-          >
-            {{ $gettext('Login') }}
-          </n-button>
-        </div>
+        <n-button
+          :loading="isLoading || logining"
+          :disabled="isLoading || logining"
+          class="text-16 mt-24 h-48 w-full"
+          type="primary"
+          @click="handleLogin"
+        >
+          {{ $gettext('Login') }}
+        </n-button>
       </div>
     </div>
   </AppPage>
