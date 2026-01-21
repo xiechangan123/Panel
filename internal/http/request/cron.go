@@ -1,14 +1,14 @@
 package request
 
 type CronCreate struct {
-	Name       string `form:"name" json:"name" validate:"required|notExists:crons,name"`
-	Type       string `form:"type" json:"type" validate:"required"`
-	Time       string `form:"time" json:"time" validate:"required|cron"`
-	Script     string `form:"script" json:"script"`
-	BackupType string `form:"backup_type" json:"backup_type" validate:"requiredIf:Type,backup"`
-	BackupPath string `form:"backup_path" json:"backup_path"`
-	Target     string `form:"target" json:"target" validate:"requiredIf:Type,backup,cutoff"`
-	Save       int    `form:"save" json:"save" validate:"required"`
+	Name          string `form:"name" json:"name" validate:"required|notExists:crons,name"`
+	Type          string `form:"type" json:"type" validate:"required"`
+	Time          string `form:"time" json:"time" validate:"required|cron"`
+	Script        string `form:"script" json:"script"`
+	BackupType    string `form:"backup_type" json:"backup_type" validate:"requiredIf:Type,backup"`
+	BackupAccount uint   `form:"backup_account" json:"backup_account"`
+	Target        string `form:"target" json:"target" validate:"requiredIf:Type,backup,cutoff"`
+	Save          int    `form:"save" json:"save" validate:"required"`
 }
 
 type CronUpdate struct {

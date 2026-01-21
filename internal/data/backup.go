@@ -77,12 +77,22 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 // target 目标名称
 // account 备份账号ID
 func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, account uint) error {
+	// 取备份账号，0 为本地备份
 	backupAccount := new(biz.BackupAccount)
-	if err := r.db.First(backupAccount, account).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(r.t.Get("backup account not found"))
+	if account != 0 {
+		if err := r.db.First(backupAccount, account).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errors.New(r.t.Get("backup account not found"))
+			}
+			return err
 		}
-		return err
+	} else {
+		backupAccount = &biz.BackupAccount{
+			Type: biz.BackupAccountTypeLocal,
+			Info: types.BackupAccountInfo{
+				Path: r.GetDefaultPath(typ),
+			},
+		}
 	}
 
 	client, err := r.getStorage(*backupAccount)

@@ -652,7 +652,6 @@ func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
-	path := s.backupRepo.GetDefaultPath(biz.BackupType(cmd.String("type")))
 
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("★ Start cleaning [%s]", time.Now().Format(time.DateTime)))
@@ -661,11 +660,12 @@ func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("|-Cleaning target: %s", cmd.String("file")))
 	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Int("save")))
 
-	if cmd.String("account") != "" {
+	if cmd.Uint("account") != 0 {
 		if err := s.backupRepo.ClearAccountExpired(cmd.Uint("account"), biz.BackupType(cmd.String("type")), cmd.String("file"), cmd.Int("save")); err != nil {
 			return errors.New(s.t.Get("Cleaning failed: %v", err))
 		}
 	} else {
+		path := s.backupRepo.GetDefaultPath(biz.BackupType(cmd.String("type")))
 		if err := s.backupRepo.ClearExpired(path, cmd.String("file"), cmd.Int("save")); err != nil {
 			return errors.New(s.t.Get("Cleaning failed: %v", err))
 		}

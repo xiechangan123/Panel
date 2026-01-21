@@ -66,26 +66,26 @@ func (r *cronRepo) Create(ctx context.Context, req *request.CronCreate) error {
 			script = fmt.Sprintf(`#!/bin/bash
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
-acepanel backup website -n '%s' -p '%s'
-acepanel backup clear -t website -f '%s' -s '%d' -p '%s'
-`, req.Target, req.BackupPath, req.Target, req.Save, req.BackupPath)
+acepanel backup website -n '%s' -a '%d'
+acepanel backup clear -t website -f '%s' -s '%d' -a '%d'
+`, req.Target, req.BackupAccount, req.Target, req.Save, req.BackupAccount)
 		}
 		if req.BackupType == "mysql" || req.BackupType == "postgres" {
 			script = fmt.Sprintf(`#!/bin/bash
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
-acepanel backup database -t '%s' -n '%s' -p '%s'
-acepanel backup clear -t '%s' -f '%s' -s '%d' -p '%s'
-`, req.BackupType, req.Target, req.BackupPath, req.BackupType, req.Target, req.Save, req.BackupPath)
+acepanel backup database -t '%s' -n '%s' -a '%d'
+acepanel backup clear -t '%s' -f '%s' -s '%d' -a '%d'
+`, req.BackupType, req.Target, req.BackupAccount, req.BackupType, req.Target, req.Save, req.BackupAccount)
 		}
 	}
 	if req.Type == "cutoff" {
 		script = fmt.Sprintf(`#!/bin/bash
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 
-acepanel cutoff website -n '%s' -p '%s'
-acepanel cutoff clear -t website -n '%s' -s '%d' -p '%s'
-`, req.Target, req.BackupPath, req.Target, req.Save, req.BackupPath)
+acepanel cutoff website -n '%s'
+acepanel cutoff clear -t website -n '%s' -s '%d'
+`, req.Target, req.Target, req.Save)
 	}
 	if req.Type == "shell" {
 		script = req.Script
