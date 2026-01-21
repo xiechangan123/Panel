@@ -25,6 +25,54 @@ func (_m *BackupRepo) EXPECT() *BackupRepo_Expecter {
 	return &BackupRepo_Expecter{mock: &_m.Mock}
 }
 
+// ClearExpired provides a mock function with given fields: path, prefix, save
+func (_m *BackupRepo) ClearExpired(path string, prefix string, save uint) error {
+	ret := _m.Called(path, prefix, save)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearExpired")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string, uint) error); ok {
+		r0 = rf(path, prefix, save)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// BackupRepo_ClearExpired_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearExpired'
+type BackupRepo_ClearExpired_Call struct {
+	*mock.Call
+}
+
+// ClearExpired is a helper method to define mock.On call
+//   - path string
+//   - prefix string
+//   - save uint
+func (_e *BackupRepo_Expecter) ClearExpired(path interface{}, prefix interface{}, save interface{}) *BackupRepo_ClearExpired_Call {
+	return &BackupRepo_ClearExpired_Call{Call: _e.mock.On("ClearExpired", path, prefix, save)}
+}
+
+func (_c *BackupRepo_ClearExpired_Call) Run(run func(path string, prefix string, save uint)) *BackupRepo_ClearExpired_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(uint))
+	})
+	return _c
+}
+
+func (_c *BackupRepo_ClearExpired_Call) Return(_a0 error) *BackupRepo_ClearExpired_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *BackupRepo_ClearExpired_Call) RunAndReturn(run func(string, string, uint) error) *BackupRepo_ClearExpired_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ClearStorageExpired provides a mock function with given fields: account, typ, prefix, save
 func (_m *BackupRepo) ClearStorageExpired(account uint, typ biz.BackupType, prefix string, save uint) error {
 	ret := _m.Called(account, typ, prefix, save)
@@ -70,54 +118,6 @@ func (_c *BackupRepo_ClearStorageExpired_Call) Return(_a0 error) *BackupRepo_Cle
 }
 
 func (_c *BackupRepo_ClearStorageExpired_Call) RunAndReturn(run func(uint, biz.BackupType, string, uint) error) *BackupRepo_ClearStorageExpired_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ClearExpired provides a mock function with given fields: path, prefix, save
-func (_m *BackupRepo) ClearExpired(path string, prefix string, save uint) error {
-	ret := _m.Called(path, prefix, save)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ClearExpired")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, uint) error); ok {
-		r0 = rf(path, prefix, save)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// BackupRepo_ClearExpired_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearExpired'
-type BackupRepo_ClearExpired_Call struct {
-	*mock.Call
-}
-
-// ClearExpired is a helper method to define mock.On call
-//   - path string
-//   - prefix string
-//   - save uint
-func (_e *BackupRepo_Expecter) ClearExpired(path interface{}, prefix interface{}, save interface{}) *BackupRepo_ClearExpired_Call {
-	return &BackupRepo_ClearExpired_Call{Call: _e.mock.On("ClearExpired", path, prefix, save)}
-}
-
-func (_c *BackupRepo_ClearExpired_Call) Run(run func(path string, prefix string, save uint)) *BackupRepo_ClearExpired_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(uint))
-	})
-	return _c
-}
-
-func (_c *BackupRepo_ClearExpired_Call) Return(_a0 error) *BackupRepo_ClearExpired_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *BackupRepo_ClearExpired_Call) RunAndReturn(run func(string, string, uint) error) *BackupRepo_ClearExpired_Call {
 	_c.Call.Return(run)
 	return _c
 }
