@@ -8,12 +8,13 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/api"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/types"
-	"github.com/leonelquinteros/gotext"
 )
 
 type templateRepo struct {

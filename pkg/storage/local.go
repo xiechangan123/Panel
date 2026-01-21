@@ -9,8 +9,9 @@ import (
 	"strings"
 	"time"
 
-	pkgio "github.com/acepanel/panel/pkg/io"
 	"github.com/shirou/gopsutil/v4/disk"
+
+	pkgio "github.com/acepanel/panel/pkg/io"
 )
 
 type Local struct {

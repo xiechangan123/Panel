@@ -4,12 +4,12 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/acepanel/panel/pkg/types"
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type backupAccountRepo struct {
@@ -30,22 +30,14 @@ func NewBackupAccountRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, setti
 
 func (r backupAccountRepo) List(page, limit uint) ([]*biz.BackupAccount, int64, error) {
 	// 本地存储
-	path, err := r.setting.Get(biz.SettingKeyBackupPath)
+	localStorage, err := r.Get(0)
 	if err != nil {
 		return nil, 0, err
-	}
-	localStorage := &biz.BackupAccount{
-		ID:   0,
-		Type: biz.BackupAccountTypeLocal,
-		Name: r.t.Get("Local Storage"),
-		Info: types.BackupAccountInfo{
-			Path: path,
-		},
 	}
 
 	var dbAccounts []*biz.BackupAccount
 	var total int64
-	if err = r.db.Model(&biz.BackupAccount{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&dbAccounts).Error; err != nil {
+	if err = r.db.Model(&biz.BackupAccount{}).Order("id asc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&dbAccounts).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -59,6 +51,21 @@ func (r backupAccountRepo) List(page, limit uint) ([]*biz.BackupAccount, int64, 
 }
 
 func (r backupAccountRepo) Get(id uint) (*biz.BackupAccount, error) {
+	if id == 0 {
+		path, err := r.setting.Get(biz.SettingKeyBackupPath)
+		if err != nil {
+			return nil, err
+		}
+		return &biz.BackupAccount{
+			ID:   0,
+			Type: biz.BackupAccountTypeLocal,
+			Name: r.t.Get("Local Storage"),
+			Info: types.BackupAccountInfo{
+				Path: path,
+			},
+		}, nil
+	}
+
 	account := new(biz.BackupAccount)
 	err := r.db.Model(&biz.BackupAccount{}).Where("id = ?", id).First(account).Error
 	return account, err

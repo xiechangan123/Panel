@@ -8,7 +8,6 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/acepanel/panel/pkg/config"
 	"github.com/hashicorp/go-version"
 	"github.com/libtnb/utils/collect"
 	"gorm.io/gorm"
@@ -16,6 +15,7 @@ import (
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/api"
+	"github.com/acepanel/panel/pkg/config"
 )
 
 // PanelTask 面板每日任务
