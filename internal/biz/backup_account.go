@@ -24,8 +24,6 @@ type BackupAccount struct {
 	Info      types.BackupAccountInfo `gorm:"not null;default:'{}';serializer:json" json:"info"`
 	CreatedAt time.Time               `json:"created_at"`
 	UpdatedAt time.Time               `json:"updated_at"`
-
-	Backups []*Backup `gorm:"foreignKey:AccountID" json:"-"`
 }
 
 type BackupAccountRepo interface {

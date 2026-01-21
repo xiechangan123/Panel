@@ -63,13 +63,11 @@ func init() {
 		ID: "20260120-add-backup",
 		Migrate: func(tx *gorm.DB) error {
 			return tx.AutoMigrate(
-				&biz.Backup{},
 				&biz.BackupAccount{},
 			)
 		},
 		Rollback: func(tx *gorm.DB) error {
 			return tx.Migrator().DropTable(
-				&biz.Backup{},
 				&biz.BackupAccount{},
 			)
 		},

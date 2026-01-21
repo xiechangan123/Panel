@@ -34,15 +34,17 @@ func (s *BackupService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, total, err := s.backupRepo.List(req.Page, req.Limit, biz.BackupType(req.Type))
+	list, err := s.backupRepo.List(biz.BackupType(req.Type))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
+	paged, total := Paginate(r, list)
+
 	Success(w, chix.M{
 		"total": total,
-		"items": list,
+		"items": paged,
 	})
 }
 
@@ -104,13 +106,13 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *BackupService) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
+	req, err := Bind[request.BackupFile](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	if err = s.backupRepo.Delete(r.Context(), req.ID); err != nil {
+	if err = s.backupRepo.Delete(r.Context(), biz.BackupType(req.Type), req.File); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -125,7 +127,7 @@ func (s *BackupService) Restore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Restore(r.Context(), req.ID.ID, req.Target); err != nil {
+	if err = s.backupRepo.Restore(r.Context(), biz.BackupType(req.Type), req.File, req.Target); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

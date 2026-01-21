@@ -628,33 +628,12 @@ func (s *CliService) DatabaseDeleteServer(ctx context.Context, cmd *cli.Command)
 }
 
 func (s *CliService) BackupWebsite(ctx context.Context, cmd *cli.Command) error {
-	fmt.Println(s.hr)
-	fmt.Println(s.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime)))
-	fmt.Println(s.hr)
-	fmt.Println(s.t.Get("|-Backup type: website"))
-	fmt.Println(s.t.Get("|-Backup target: %s", cmd.String("name")))
-	if err := s.backupRepo.Create(ctx, biz.BackupTypeWebsite, cmd.String("name"), cmd.Uint("account")); err != nil {
-		return errors.New(s.t.Get("Backup failed: %v", err))
-	}
-	fmt.Println(s.hr)
-	fmt.Println(s.t.Get("☆ Backup successful [%s]", time.Now().Format(time.DateTime)))
-	fmt.Println(s.hr)
+	_ = s.backupRepo.Create(ctx, biz.BackupTypeWebsite, cmd.String("name"), cmd.Uint("account"))
 	return nil
 }
 
 func (s *CliService) BackupDatabase(ctx context.Context, cmd *cli.Command) error {
-	fmt.Println(s.hr)
-	fmt.Println(s.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime)))
-	fmt.Println(s.hr)
-	fmt.Println(s.t.Get("|-Backup type: database"))
-	fmt.Println(s.t.Get("|-Database: %s", cmd.String("type")))
-	fmt.Println(s.t.Get("|-Backup target: %s", cmd.String("name")))
-	if err := s.backupRepo.Create(ctx, biz.BackupType(cmd.String("type")), cmd.String("name"), cmd.Uint("account")); err != nil {
-		return errors.New(s.t.Get("Backup failed: %v", err))
-	}
-	fmt.Println(s.hr)
-	fmt.Println(s.t.Get("☆ Backup successful [%s]", time.Now().Format(time.DateTime)))
-	fmt.Println(s.hr)
+	_ = s.backupRepo.Create(ctx, biz.BackupType(cmd.String("type")), cmd.String("name"), cmd.Uint("account"))
 	return nil
 }
 

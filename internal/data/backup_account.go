@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
@@ -75,15 +74,6 @@ func (r backupAccountRepo) Update(ctx context.Context, req *request.BackupAccoun
 }
 
 func (r backupAccountRepo) Delete(ctx context.Context, id uint) error {
-	// 检查是否有备份关联
-	var count int64
-	if err := r.db.Model(&biz.Backup{}).Where("account_id = ?", id).Count(&count).Error; err != nil {
-		return err
-	}
-	if count > 0 {
-		return errors.New(r.t.Get("Cannot delete backup account with existing backups"))
-	}
-
 	if err := r.db.Model(&biz.BackupAccount{}).Where("id = ?", id).Delete(&biz.BackupAccount{}).Error; err != nil {
 		return err
 	}
