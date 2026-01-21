@@ -541,24 +541,25 @@ func (v *baseVhost) RateLimit() *types.RateLimit {
 		return nil
 	}
 
-	rateLimit := &types.RateLimit{
-		Zone: make(map[string]string),
-	}
+	rateLimit := &types.RateLimit{}
 
-	// 获取速率限制值
-	rateValue := v.vhost.GetDirectiveValue("SetEnv")
-	if rateValue != "" {
-		rateLimit.Rate = rateValue
+	// 获取速率限制值 (SetEnv rate-limit 512)
+	args := v.vhost.GetDirectiveValues("SetEnv")
+	if len(args) >= 2 && args[0] == "rate-limit" {
+		_, _ = fmt.Sscanf(args[1], "%d", &rateLimit.Rate)
 	}
 
 	return rateLimit
 }
 
 func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
-	// 设置 mod_ratelimit
-	v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
-	if limit.Rate != "" {
-		v.vhost.SetDirective("SetEnv", "rate-limit", limit.Rate)
+	// Apache mod_ratelimit 只支持流量限制，不支持并发连接限制
+	if limit.Rate > 0 {
+		v.vhost.SetDirective("SetOutputFilter", "RATE_LIMIT")
+		v.vhost.SetDirective("SetEnv", "rate-limit", fmt.Sprintf("%d", limit.Rate))
+	} else {
+		v.vhost.RemoveDirective("SetOutputFilter")
+		v.vhost.RemoveDirectives("SetEnv")
 	}
 
 	return nil
@@ -603,6 +604,58 @@ func (v *baseVhost) ClearBasicAuth() error {
 	v.vhost.RemoveDirective("AuthName")
 	v.vhost.RemoveDirective("AuthUserFile")
 	v.vhost.RemoveDirective("Require")
+	return nil
+}
+
+func (v *baseVhost) RealIP() *types.RealIP {
+	// Apache 使用 mod_remoteip
+	// RemoteIPHeader X-Forwarded-For
+	// RemoteIPTrustedProxy 127.0.0.1
+	header := v.vhost.GetDirectiveValue("RemoteIPHeader")
+	if header == "" {
+		return nil
+	}
+
+	var from []string
+	for _, dir := range v.vhost.GetDirectives("RemoteIPTrustedProxy") {
+		if len(dir.Args) > 0 {
+			from = append(from, dir.Args[0])
+		}
+	}
+
+	return &types.RealIP{
+		From:   from,
+		Header: header,
+	}
+}
+
+func (v *baseVhost) SetRealIP(realIP *types.RealIP) error {
+	// 清除现有配置
+	v.vhost.RemoveDirective("RemoteIPHeader")
+	v.vhost.RemoveDirectives("RemoteIPTrustedProxy")
+
+	if realIP == nil || (len(realIP.From) == 0 && realIP.Header == "") {
+		return nil
+	}
+
+	// 设置 RemoteIPHeader
+	if realIP.Header != "" {
+		v.vhost.SetDirective("RemoteIPHeader", realIP.Header)
+	}
+
+	// 设置 RemoteIPTrustedProxy
+	for _, ip := range realIP.From {
+		if ip != "" {
+			v.vhost.AddDirective("RemoteIPTrustedProxy", ip)
+		}
+	}
+
+	return nil
+}
+
+func (v *baseVhost) ClearRealIP() error {
+	v.vhost.RemoveDirective("RemoteIPHeader")
+	v.vhost.RemoveDirectives("RemoteIPTrustedProxy")
 	return nil
 }
 
