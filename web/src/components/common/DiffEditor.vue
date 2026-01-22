@@ -122,9 +122,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   const model = editorRef.value?.getModel()
+  editorRef.value?.dispose()
   model?.original?.dispose()
   model?.modified?.dispose()
-  editorRef.value?.dispose()
 })
 </script>
 
