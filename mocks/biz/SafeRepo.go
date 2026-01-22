@@ -76,68 +76,6 @@ func (_c *SafeRepo_GetPingStatus_Call) RunAndReturn(run func() (bool, error)) *S
 	return _c
 }
 
-// GetSSH provides a mock function with no fields
-func (_m *SafeRepo) GetSSH() (uint, bool, error) {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSSH")
-	}
-
-	var r0 uint
-	var r1 bool
-	var r2 error
-	if rf, ok := ret.Get(0).(func() (uint, bool, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() uint); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(uint)
-	}
-
-	if rf, ok := ret.Get(1).(func() bool); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Get(1).(bool)
-	}
-
-	if rf, ok := ret.Get(2).(func() error); ok {
-		r2 = rf()
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// SafeRepo_GetSSH_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSSH'
-type SafeRepo_GetSSH_Call struct {
-	*mock.Call
-}
-
-// GetSSH is a helper method to define mock.On call
-func (_e *SafeRepo_Expecter) GetSSH() *SafeRepo_GetSSH_Call {
-	return &SafeRepo_GetSSH_Call{Call: _e.mock.On("GetSSH")}
-}
-
-func (_c *SafeRepo_GetSSH_Call) Run(run func()) *SafeRepo_GetSSH_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *SafeRepo_GetSSH_Call) Return(_a0 uint, _a1 bool, _a2 error) *SafeRepo_GetSSH_Call {
-	_c.Call.Return(_a0, _a1, _a2)
-	return _c
-}
-
-func (_c *SafeRepo_GetSSH_Call) RunAndReturn(run func() (uint, bool, error)) *SafeRepo_GetSSH_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // UpdatePingStatus provides a mock function with given fields: ctx, status
 func (_m *SafeRepo) UpdatePingStatus(ctx context.Context, status bool) error {
 	ret := _m.Called(ctx, status)
@@ -181,54 +119,6 @@ func (_c *SafeRepo_UpdatePingStatus_Call) Return(_a0 error) *SafeRepo_UpdatePing
 }
 
 func (_c *SafeRepo_UpdatePingStatus_Call) RunAndReturn(run func(context.Context, bool) error) *SafeRepo_UpdatePingStatus_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateSSH provides a mock function with given fields: ctx, port, status
-func (_m *SafeRepo) UpdateSSH(ctx context.Context, port uint, status bool) error {
-	ret := _m.Called(ctx, port, status)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateSSH")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint, bool) error); ok {
-		r0 = rf(ctx, port, status)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// SafeRepo_UpdateSSH_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSSH'
-type SafeRepo_UpdateSSH_Call struct {
-	*mock.Call
-}
-
-// UpdateSSH is a helper method to define mock.On call
-//   - ctx context.Context
-//   - port uint
-//   - status bool
-func (_e *SafeRepo_Expecter) UpdateSSH(ctx interface{}, port interface{}, status interface{}) *SafeRepo_UpdateSSH_Call {
-	return &SafeRepo_UpdateSSH_Call{Call: _e.mock.On("UpdateSSH", ctx, port, status)}
-}
-
-func (_c *SafeRepo_UpdateSSH_Call) Run(run func(ctx context.Context, port uint, status bool)) *SafeRepo_UpdateSSH_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uint), args[2].(bool))
-	})
-	return _c
-}
-
-func (_c *SafeRepo_UpdateSSH_Call) Return(_a0 error) *SafeRepo_UpdateSSH_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *SafeRepo_UpdateSSH_Call) RunAndReturn(run func(context.Context, uint, bool) error) *SafeRepo_UpdateSSH_Call {
 	_c.Call.Return(run)
 	return _c
 }
