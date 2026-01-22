@@ -129,7 +129,7 @@ func (r *environmentRepo) InstalledVersion(typ, slug string) string {
 		version, err = shell.Exec(filepath.Join(basePath, "bin", "node") + " -v | sed 's/v//'")
 	case "php":
 		// PHP 8.3.0 (cli) -> 8.3.0
-		version, err = shell.Exec(filepath.Join(basePath, "bin", "php") + " -v | head -n 1 | awk '{print $2}'")
+		version, err = shell.Exec(filepath.Join(basePath, "bin", "php") + " -d error_reporting=0 -r 'echo PHP_VERSION;'")
 	case "python":
 		// Python 3.11.5 -> 3.11.5
 		version, err = shell.Exec(filepath.Join(basePath, "bin", "python3") + " --version | awk '{print $2}'")
