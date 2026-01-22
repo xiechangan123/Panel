@@ -1195,7 +1195,12 @@ const removeCustomConfig = (index: number) => {
                   />
                 </n-form-item>
                 <n-form-item :label="$gettext('IP Header')">
-                  <n-select v-model:value="setting.real_ip.header" :options="realIPHeaderOptions" />
+                  <n-select
+                    v-model:value="setting.real_ip.header"
+                    :options="realIPHeaderOptions"
+                    filterable
+                    tag
+                  />
                 </n-form-item>
                 <n-form-item :label="$gettext('Recursive')">
                   <n-switch v-model:value="setting.real_ip.recursive" />
