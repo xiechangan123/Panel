@@ -1431,7 +1431,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/data/website.go:529
+#: internal/data/website.go:528
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1714,7 +1714,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:432
+#: internal/data/website.go:431
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -1822,8 +1822,8 @@ msgstr ""
 #: internal/data/cert.go:97
 #: internal/data/setting.go:324
 #: internal/data/setting.go:397
-#: internal/data/website.go:598
-#: internal/data/website.go:903
+#: internal/data/website.go:597
+#: internal/data/website.go:902
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -1834,8 +1834,8 @@ msgstr ""
 #: internal/data/cert.go:100
 #: internal/data/setting.go:327
 #: internal/data/setting.go:400
-#: internal/data/website.go:601
-#: internal/data/website.go:906
+#: internal/data/website.go:600
+#: internal/data/website.go:905
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -2127,7 +2127,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1051
+#: internal/data/website.go:1050
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -2173,7 +2173,7 @@ msgstr ""
 msgid "name is required"
 msgstr ""
 
-#: internal/data/website.go:931
+#: internal/data/website.go:930
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
@@ -2281,7 +2281,7 @@ msgstr ""
 msgid "rule not found"
 msgstr ""
 
-#: internal/data/website.go:576
+#: internal/data/website.go:575
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -2430,11 +2430,11 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1153
+#: internal/data/website.go:1152
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:1119
+#: internal/data/website.go:1118
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -2468,11 +2468,11 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:742
+#: internal/data/website.go:741
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
-#: internal/data/website.go:583
+#: internal/data/website.go:582
 msgid "website directory does not exist"
 msgstr ""
 

@@ -288,7 +288,7 @@ msgstr "Select File"
 #: src/views/toolbox/ProcessView.vue:109 src/views/toolbox/ProcessView.vue:388
 #: src/views/toolbox/WebHookView.vue:33 src/views/toolbox/WebHookView.vue:332
 #: src/views/toolbox/WebHookView.vue:367 src/views/website/CreateModal.vue:123
-#: src/views/website/EditView.vue:1297
+#: src/views/website/EditView.vue:1302
 msgid "Name"
 msgstr "Name"
 
@@ -775,7 +775,7 @@ msgstr ""
 #: src/views/toolbox/SshView.vue:239 src/views/toolbox/SystemView.vue:152
 #: src/views/toolbox/SystemView.vue:176 src/views/toolbox/SystemView.vue:194
 #: src/views/toolbox/SystemView.vue:232 src/views/toolbox/SystemView.vue:304
-#: src/views/toolbox/WebHookView.vue:390 src/views/website/EditView.vue:1362
+#: src/views/toolbox/WebHookView.vue:390 src/views/website/EditView.vue:1367
 msgid "Save"
 msgstr "Save"
 
@@ -2598,7 +2598,7 @@ msgstr "Slow Logs"
 #: src/views/database/UserList.vue:39 src/views/login/IndexView.vue:166
 #: src/views/setting/CreateModal.vue:40 src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:85 src/views/ssh/UpdateModal.vue:91
-#: src/views/website/EditView.vue:1223
+#: src/views/website/EditView.vue:1228
 msgid "Username"
 msgstr "Username"
 
@@ -2619,7 +2619,7 @@ msgid "User Management"
 msgstr "User Management"
 
 #: src/views/apps/pureftpd/IndexView.vue:176
-#: src/views/website/EditView.vue:1259
+#: src/views/website/EditView.vue:1264
 msgid "Add User"
 msgstr "Add User"
 
@@ -2661,7 +2661,7 @@ msgstr "Enter username"
 #: src/views/login/IndexView.vue:175 src/views/setting/CreateModal.vue:47
 #: src/views/setting/PasswordModal.vue:34 src/views/ssh/CreateModal.vue:79
 #: src/views/ssh/CreateModal.vue:88 src/views/ssh/UpdateModal.vue:85
-#: src/views/ssh/UpdateModal.vue:94 src/views/website/EditView.vue:1244
+#: src/views/ssh/UpdateModal.vue:94 src/views/website/EditView.vue:1249
 msgid "Password"
 msgstr "Password"
 
@@ -4031,7 +4031,7 @@ msgid "Driver"
 msgstr "Driver"
 
 #: src/views/container/NetworkView.vue:59 src/views/container/VolumeView.vue:40
-#: src/views/website/EditView.vue:1305
+#: src/views/website/EditView.vue:1310
 msgid "Scope"
 msgstr "Scope"
 
@@ -5426,7 +5426,7 @@ msgstr "days"
 msgid "Clear Monitoring Records"
 msgstr "Clear Monitoring Records"
 
-#: src/views/monitor/IndexView.vue:611 src/views/website/EditView.vue:1370
+#: src/views/monitor/IndexView.vue:611 src/views/website/EditView.vue:1375
 msgid "Are you sure you want to clear?"
 msgstr "Are you sure you want to clear?"
 
@@ -6883,7 +6883,7 @@ msgstr "Service"
 #: src/views/toolbox/DiskView.vue:844 src/views/toolbox/DiskView.vue:874
 #: src/views/toolbox/DiskView.vue:912 src/views/toolbox/DiskView.vue:957
 #: src/views/website/EditView.vue:725 src/views/website/EditView.vue:885
-#: src/views/website/EditView.vue:1255
+#: src/views/website/EditView.vue:1260
 #, fuzzy
 msgid "Remove"
 msgstr "Auto Remove"
@@ -8109,90 +8109,90 @@ msgstr ""
 msgid "IP Header"
 msgstr ""
 
-#: src/views/website/EditView.vue:1200
+#: src/views/website/EditView.vue:1205
 msgid "Recursive"
 msgstr ""
 
-#: src/views/website/EditView.vue:1203
+#: src/views/website/EditView.vue:1208
 msgid "Recursively search for real IP in X-Forwarded-For header"
 msgstr ""
 
-#: src/views/website/EditView.vue:1211
+#: src/views/website/EditView.vue:1216
 #, fuzzy
 msgid "Basic Authentication"
 msgstr "Authentication"
 
-#: src/views/website/EditView.vue:1213
+#: src/views/website/EditView.vue:1218
 msgid "User Credentials"
 msgstr ""
 
-#: src/views/website/EditView.vue:1231
+#: src/views/website/EditView.vue:1236
 msgid "Username already exists"
 msgstr ""
 
-#: src/views/website/EditView.vue:1266
+#: src/views/website/EditView.vue:1271
 msgid ""
 "Visitors will need to enter a username and password to access this website."
 msgstr ""
 
-#: src/views/website/EditView.vue:1274
+#: src/views/website/EditView.vue:1279
 #, fuzzy
 msgid "Custom Configs"
 msgstr "Custom Logo"
 
-#: src/views/website/EditView.vue:1292
+#: src/views/website/EditView.vue:1297
 #, fuzzy
 msgid "Config"
 msgstr "Configure"
 
-#: src/views/website/EditView.vue:1301
+#: src/views/website/EditView.vue:1306
 msgid "Config name (letters, numbers, underscore, hyphen)"
 msgstr ""
 
-#: src/views/website/EditView.vue:1309
+#: src/views/website/EditView.vue:1314
 #, fuzzy
 msgid "Content"
 msgstr "Script Content"
 
-#: src/views/website/EditView.vue:1323
+#: src/views/website/EditView.vue:1328
 #, fuzzy
 msgid "No custom configs"
 msgstr "Not configured"
 
-#: src/views/website/EditView.vue:1328
+#: src/views/website/EditView.vue:1333
 #, fuzzy
 msgid "Add Custom Config"
 msgstr "Custom Logo"
 
-#: src/views/website/EditView.vue:1332
+#: src/views/website/EditView.vue:1337
 msgid "Access Log"
 msgstr "Access Log"
 
-#: src/views/website/EditView.vue:1336 src/views/website/EditView.vue:1348
+#: src/views/website/EditView.vue:1341 src/views/website/EditView.vue:1353
 msgid "All logs can be viewed by downloading the file"
 msgstr "All logs can be viewed by downloading the file"
 
-#: src/views/website/EditView.vue:1338 src/views/website/EditView.vue:1350
+#: src/views/website/EditView.vue:1343 src/views/website/EditView.vue:1355
 msgid "view"
 msgstr "view"
 
-#: src/views/website/EditView.vue:1344
+#: src/views/website/EditView.vue:1349
 msgid "Error Log"
 msgstr "Error Log"
 
-#: src/views/website/EditView.vue:1367
+#: src/views/website/EditView.vue:1372
 msgid "Clear Logs"
 msgstr "Clear Logs"
 
-#: src/views/website/EditView.vue:1380
+#: src/views/website/EditView.vue:1385
 msgid "One-click Certificate Issuance"
 msgstr "One-click Certificate Issuance"
 
-#: src/views/website/EditView.vue:1385
+#: src/views/website/EditView.vue:1390
 msgid "Reset Configuration"
 msgstr "Reset Configuration"
 
-#: src/views/website/EditView.vue:1388
+#: src/views/website/EditView.vue:1393
 msgid "Are you sure you want to reset the configuration?"
 msgstr "Are you sure you want to reset the configuration?"
 

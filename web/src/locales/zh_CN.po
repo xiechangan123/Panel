@@ -283,7 +283,7 @@ msgstr "选择文件"
 #: src/views/toolbox/ProcessView.vue:109 src/views/toolbox/ProcessView.vue:388
 #: src/views/toolbox/WebHookView.vue:33 src/views/toolbox/WebHookView.vue:332
 #: src/views/toolbox/WebHookView.vue:367 src/views/website/CreateModal.vue:123
-#: src/views/website/EditView.vue:1297
+#: src/views/website/EditView.vue:1302
 msgid "Name"
 msgstr "名称"
 
@@ -756,7 +756,7 @@ msgstr "保存（Ctrl+S）"
 #: src/views/toolbox/SshView.vue:239 src/views/toolbox/SystemView.vue:152
 #: src/views/toolbox/SystemView.vue:176 src/views/toolbox/SystemView.vue:194
 #: src/views/toolbox/SystemView.vue:232 src/views/toolbox/SystemView.vue:304
-#: src/views/toolbox/WebHookView.vue:390 src/views/website/EditView.vue:1362
+#: src/views/toolbox/WebHookView.vue:390 src/views/website/EditView.vue:1367
 msgid "Save"
 msgstr "保存"
 
@@ -2467,7 +2467,7 @@ msgstr "慢日志"
 #: src/views/database/UserList.vue:39 src/views/login/IndexView.vue:166
 #: src/views/setting/CreateModal.vue:40 src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:85 src/views/ssh/UpdateModal.vue:91
-#: src/views/website/EditView.vue:1223
+#: src/views/website/EditView.vue:1228
 msgid "Username"
 msgstr "用户名"
 
@@ -2488,7 +2488,7 @@ msgid "User Management"
 msgstr "用户管理"
 
 #: src/views/apps/pureftpd/IndexView.vue:176
-#: src/views/website/EditView.vue:1259
+#: src/views/website/EditView.vue:1264
 msgid "Add User"
 msgstr "添加用户"
 
@@ -2530,7 +2530,7 @@ msgstr "输入用户名"
 #: src/views/login/IndexView.vue:175 src/views/setting/CreateModal.vue:47
 #: src/views/setting/PasswordModal.vue:34 src/views/ssh/CreateModal.vue:79
 #: src/views/ssh/CreateModal.vue:88 src/views/ssh/UpdateModal.vue:85
-#: src/views/ssh/UpdateModal.vue:94 src/views/website/EditView.vue:1244
+#: src/views/ssh/UpdateModal.vue:94 src/views/website/EditView.vue:1249
 msgid "Password"
 msgstr "密码"
 
@@ -3827,7 +3827,7 @@ msgid "Driver"
 msgstr "驱动"
 
 #: src/views/container/NetworkView.vue:59 src/views/container/VolumeView.vue:40
-#: src/views/website/EditView.vue:1305
+#: src/views/website/EditView.vue:1310
 msgid "Scope"
 msgstr "范围"
 
@@ -5188,7 +5188,7 @@ msgstr "天"
 msgid "Clear Monitoring Records"
 msgstr "清除监控记录"
 
-#: src/views/monitor/IndexView.vue:611 src/views/website/EditView.vue:1370
+#: src/views/monitor/IndexView.vue:611 src/views/website/EditView.vue:1375
 msgid "Are you sure you want to clear?"
 msgstr "确定要清除吗？"
 
@@ -6538,7 +6538,7 @@ msgstr "设备"
 #: src/views/toolbox/DiskView.vue:844 src/views/toolbox/DiskView.vue:874
 #: src/views/toolbox/DiskView.vue:912 src/views/toolbox/DiskView.vue:957
 #: src/views/website/EditView.vue:725 src/views/website/EditView.vue:885
-#: src/views/website/EditView.vue:1255
+#: src/views/website/EditView.vue:1260
 msgid "Remove"
 msgstr "移除"
 
@@ -7652,85 +7652,85 @@ msgstr "例如 12345 或 0.0.0.0:12345"
 msgid "IP Header"
 msgstr "请求 IP 头"
 
-#: src/views/website/EditView.vue:1200
+#: src/views/website/EditView.vue:1205
 msgid "Recursive"
 msgstr ""
 
-#: src/views/website/EditView.vue:1203
+#: src/views/website/EditView.vue:1208
 msgid "Recursively search for real IP in X-Forwarded-For header"
 msgstr ""
 
-#: src/views/website/EditView.vue:1211
+#: src/views/website/EditView.vue:1216
 #, fuzzy
 msgid "Basic Authentication"
 msgstr "身份验证"
 
-#: src/views/website/EditView.vue:1213
+#: src/views/website/EditView.vue:1218
 msgid "User Credentials"
 msgstr ""
 
-#: src/views/website/EditView.vue:1231
+#: src/views/website/EditView.vue:1236
 msgid "Username already exists"
 msgstr ""
 
-#: src/views/website/EditView.vue:1266
+#: src/views/website/EditView.vue:1271
 msgid ""
 "Visitors will need to enter a username and password to access this website."
 msgstr ""
 
-#: src/views/website/EditView.vue:1274
+#: src/views/website/EditView.vue:1279
 msgid "Custom Configs"
 msgstr "自定义配置"
 
-#: src/views/website/EditView.vue:1292
+#: src/views/website/EditView.vue:1297
 msgid "Config"
 msgstr "配置"
 
-#: src/views/website/EditView.vue:1301
+#: src/views/website/EditView.vue:1306
 msgid "Config name (letters, numbers, underscore, hyphen)"
 msgstr "配置名（字母、数字、下划线、破折号）"
 
-#: src/views/website/EditView.vue:1309
+#: src/views/website/EditView.vue:1314
 msgid "Content"
 msgstr "内容"
 
-#: src/views/website/EditView.vue:1323
+#: src/views/website/EditView.vue:1328
 msgid "No custom configs"
 msgstr "没有自定义配置"
 
-#: src/views/website/EditView.vue:1328
+#: src/views/website/EditView.vue:1333
 msgid "Add Custom Config"
 msgstr "添加自定义配置"
 
-#: src/views/website/EditView.vue:1332
+#: src/views/website/EditView.vue:1337
 msgid "Access Log"
 msgstr "访问日志"
 
-#: src/views/website/EditView.vue:1336 src/views/website/EditView.vue:1348
+#: src/views/website/EditView.vue:1341 src/views/website/EditView.vue:1353
 msgid "All logs can be viewed by downloading the file"
 msgstr "所有日志可通过下载文件查看"
 
-#: src/views/website/EditView.vue:1338 src/views/website/EditView.vue:1350
+#: src/views/website/EditView.vue:1343 src/views/website/EditView.vue:1355
 msgid "view"
 msgstr "查看"
 
-#: src/views/website/EditView.vue:1344
+#: src/views/website/EditView.vue:1349
 msgid "Error Log"
 msgstr "错误日志"
 
-#: src/views/website/EditView.vue:1367
+#: src/views/website/EditView.vue:1372
 msgid "Clear Logs"
 msgstr "清除日志"
 
-#: src/views/website/EditView.vue:1380
+#: src/views/website/EditView.vue:1385
 msgid "One-click Certificate Issuance"
 msgstr "一键签发证书"
 
-#: src/views/website/EditView.vue:1385
+#: src/views/website/EditView.vue:1390
 msgid "Reset Configuration"
 msgstr "重置配置"
 
-#: src/views/website/EditView.vue:1388
+#: src/views/website/EditView.vue:1393
 msgid "Are you sure you want to reset the configuration?"
 msgstr "您确定要重置配置吗？"
 
