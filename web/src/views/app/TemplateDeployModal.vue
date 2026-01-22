@@ -403,7 +403,7 @@ const composeOptions = computed(() => {
               :key="env.name"
               :path="`envs.${env.name}`"
               :label="env.description"
-              :required="env.default == ''"
+              :required="env.default == null || env.default === ''"
             >
               <!-- Select 类型 -->
               <n-select
@@ -419,7 +419,7 @@ const composeOptions = computed(() => {
                 :min="env.type === 'port' ? 1 : undefined"
                 :max="env.type === 'port' ? 65535 : undefined"
                 style="width: 100%"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
               <!-- Password 类型 -->
               <n-input
@@ -427,19 +427,19 @@ const composeOptions = computed(() => {
                 v-model:value="deployModel.envs[env.name]"
                 type="password"
                 show-password-on="click"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
               <!-- URL 类型 -->
               <n-input
                 v-else-if="env.type === 'url'"
                 v-model:value="deployModel.envs[env.name]"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
               <!-- Text 类型 (默认) -->
               <n-input
                 v-else
                 v-model:value="deployModel.envs[env.name]"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
             </n-form-item>
           </template>
@@ -485,7 +485,7 @@ const composeOptions = computed(() => {
               :key="env.name"
               :path="`envs.${env.name}`"
               :label="env.description"
-              :required="env.default == ''"
+              :required="env.default == null || env.default === ''"
             >
               <!-- Select 类型 -->
               <n-select
@@ -501,7 +501,7 @@ const composeOptions = computed(() => {
                 :min="env.type === 'port' ? 1 : undefined"
                 :max="env.type === 'port' ? 65535 : undefined"
                 style="width: 100%"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
               <!-- Password 类型 -->
               <n-input
@@ -509,19 +509,19 @@ const composeOptions = computed(() => {
                 v-model:value="deployModel.envs[env.name]"
                 type="password"
                 show-password-on="click"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
               <!-- URL 类型 -->
               <n-input
                 v-else-if="env.type === 'url'"
                 v-model:value="deployModel.envs[env.name]"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
               <!-- Text 类型 (默认) -->
               <n-input
                 v-else
                 v-model:value="deployModel.envs[env.name]"
-                :placeholder="String(env.default)"
+                :placeholder="env.default != null ? env.default : ''"
               />
             </n-form-item>
           </template>

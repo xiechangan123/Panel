@@ -1018,7 +1018,7 @@ const removeCustomConfig = (index: number) => {
       </n-tab-pane>
       <n-tab-pane v-if="setting.type == 'php'" name="rewrite" :tab="$gettext('Rewrite')">
         <n-flex vertical>
-          <n-form label-placement="left" label-width="auto">
+          <n-form v-if="isNginx" label-placement="left" label-width="auto">
             <n-form-item :label="$gettext('Presets')">
               <n-select
                 v-model:value="rewriteValue"

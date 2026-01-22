@@ -21,7 +21,7 @@ type Template struct {
 		Description string            `json:"description"`       // 变量描述
 		Type        string            `json:"type"`              // 变量类型， text, password, number, port, select
 		Options     map[string]string `json:"options,omitempty"` // 下拉框选项，key -> value
-		Default     any               `json:"default"`           // 默认值，string or number
+		Default     any               `json:"default,omitempty"` // 默认值，string or number
 	} `json:"environments"`
 }
 
