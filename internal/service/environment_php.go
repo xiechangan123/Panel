@@ -587,8 +587,8 @@ func (s *EnvironmentPHPService) getModules(version uint) []types.EnvironmentPHPM
 		},
 	}
 
-	// Swow 不支持 PHP 8.0 以下版本且目前不支持 PHP 8.4
-	if version >= 80 && version < 84 {
+	// Swow 不支持 PHP 8.0 以下版本
+	if version >= 80 {
 		modules = append(modules, types.EnvironmentPHPModule{
 			Name:        "Swow",
 			Slug:        "Swow",
