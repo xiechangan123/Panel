@@ -128,7 +128,8 @@ const columns: any = [
                 NButton,
                 {
                   size: 'small',
-                  type: 'error'
+                  type: 'error',
+                  disabled: row.name === 'acepanel-network' // 不允许删除 acepanel-network
                 },
                 {
                   default: () => $gettext('Delete')
