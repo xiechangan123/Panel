@@ -382,8 +382,6 @@ func (route *Http) Register(r *chi.Mux) {
 		})
 
 		r.Route("/safe", func(r chi.Router) {
-			r.Get("/ssh", route.safe.GetSSH)
-			r.Post("/ssh", route.safe.UpdateSSH)
 			r.Get("/ping", route.safe.GetPingStatus)
 			r.Post("/ping", route.safe.UpdatePingStatus)
 		})
