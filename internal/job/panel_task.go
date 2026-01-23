@@ -77,7 +77,6 @@ func (r *PanelTask) Run() {
 	if offline, err := r.settingRepo.GetBool(biz.SettingKeyOfflineMode); err == nil && !offline {
 		r.updateCategories()
 		r.updateApps()
-		r.updateRewrites()
 		if autoUpdate, err := r.settingRepo.GetBool(biz.SettingKeyAutoUpdate); err == nil && autoUpdate {
 			r.updatePanel()
 		}
@@ -104,15 +103,6 @@ func (r *PanelTask) updateApps() {
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
 		if err := r.cacheRepo.UpdateApps(); err != nil {
 			r.log.Warn("failed to update apps cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		}
-	})
-}
-
-// 更新伪静态缓存
-func (r *PanelTask) updateRewrites() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
-		if err := r.cacheRepo.UpdateRewrites(); err != nil {
-			r.log.Warn("failed to update rewrites cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 	})
 }

@@ -9,7 +9,6 @@ const (
 	CacheKeyApps        CacheKey = "apps"
 	CacheKeyEnvironment CacheKey = "environment"
 	CacheKeyTemplates   CacheKey = "templates"
-	CacheKeyRewrites    CacheKey = "rewrites"
 )
 
 type Cache struct {
@@ -26,5 +25,4 @@ type CacheRepo interface {
 	UpdateApps() error
 	UpdateEnvironments() error
 	UpdateTemplates() error
-	UpdateRewrites() error
 }

@@ -110,17 +110,3 @@ func (r *cacheRepo) UpdateTemplates() error {
 
 	return r.Set(biz.CacheKeyTemplates, string(encoded))
 }
-
-func (r *cacheRepo) UpdateRewrites() error {
-	rewrites, err := r.api.RewritesByType("nginx")
-	if err != nil {
-		return err
-	}
-
-	encoded, err := json.Marshal(rewrites)
-	if err != nil {
-		return err
-	}
-
-	return r.Set(biz.CacheKeyRewrites, string(encoded))
-}

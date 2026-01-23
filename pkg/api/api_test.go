@@ -61,8 +61,3 @@ func (s *APITestSuite) TestTemplateCallback() {
 	err := s.api.TemplateCallback("nginx")
 	s.NoError(err)
 }
-
-func (s *APITestSuite) TestGetRewritesByType() {
-	_, err := s.api.RewritesByType("nginx")
-	s.NoError(err)
-}

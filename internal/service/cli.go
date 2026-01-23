@@ -130,9 +130,6 @@ func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {
 	if err := s.cacheRepo.UpdateTemplates(); err != nil {
 		return errors.New(s.t.Get("Failed to synchronize app data: %v", err))
 	}
-	if err := s.cacheRepo.UpdateRewrites(); err != nil {
-		return errors.New(s.t.Get("Failed to synchronize rewrite rules: %v", err))
-	}
 
 	fmt.Println(s.t.Get("Data synchronized successfully"))
 	return nil
