@@ -212,7 +212,7 @@ msgstr "Confirm"
 
 #: src/components/common/DeleteConfirm.vue:54
 #: src/components/common/PtyTerminalModal.vue:200
-#: src/components/file-editor/EditorPane.vue:125
+#: src/components/file-editor/EditorPane.vue:126
 #: src/components/file-editor/EditorToolbar.vue:101
 #: src/components/file-editor/FileTree.vue:603
 #: src/layout/header/components/UserAvatar.vue:30
@@ -251,8 +251,8 @@ msgid "Maximize"
 msgstr "Maximum"
 
 #: src/components/common/DraggableWindow.vue:271
-#: src/components/file-editor/EditorPane.vue:124
-#: src/components/file-editor/EditorPane.vue:210
+#: src/components/file-editor/EditorPane.vue:125
+#: src/components/file-editor/EditorPane.vue:211
 #: src/layout/tab/components/ContextMenu.vue:28
 msgid "Close"
 msgstr "Close"
@@ -643,68 +643,63 @@ msgstr "Restart"
 msgid "Reload"
 msgstr "Reload"
 
-#: src/components/file-editor/EditorPane.vue:122
+#: src/components/file-editor/EditorPane.vue:123
 #: src/components/file-editor/EditorToolbar.vue:98
 #, fuzzy
 msgid "Unsaved Changes"
 msgstr "Save Changes"
 
-#: src/components/file-editor/EditorPane.vue:123
+#: src/components/file-editor/EditorPane.vue:124
 #, fuzzy
 msgid "This file has unsaved changes. Are you sure you want to close it?"
 msgstr "Are you sure you want to clear?"
 
-#: src/components/file-editor/EditorPane.vue:214
+#: src/components/file-editor/EditorPane.vue:215
 #: src/layout/tab/components/ContextMenu.vue:52
 msgid "Close Others"
 msgstr "Close Others"
 
-#: src/components/file-editor/EditorPane.vue:218
+#: src/components/file-editor/EditorPane.vue:219
 #, fuzzy
 msgid "Close All"
 msgstr "Expose All"
 
-#: src/components/file-editor/EditorPane.vue:222
+#: src/components/file-editor/EditorPane.vue:223
 #, fuzzy
 msgid "Close Saved"
 msgstr "Close Left"
 
-#: src/components/file-editor/EditorPane.vue:399
+#: src/components/file-editor/EditorPane.vue:427
 #, fuzzy
 msgid "Select a file to edit"
 msgstr "Select File"
 
-#: src/components/file-editor/EditorStatusBar.vue:43
-#: src/components/file-editor/EditorStatusBar.vue:44
-#: src/components/file-editor/EditorStatusBar.vue:52
+#: src/components/file-editor/EditorStatusBar.vue:40
+#: src/components/file-editor/EditorStatusBar.vue:41
+#: src/components/file-editor/EditorStatusBar.vue:49
 msgid "Spaces"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:45
-#: src/components/file-editor/EditorStatusBar.vue:46
-#: src/components/file-editor/EditorStatusBar.vue:52
+#: src/components/file-editor/EditorStatusBar.vue:42
+#: src/components/file-editor/EditorStatusBar.vue:43
+#: src/components/file-editor/EditorStatusBar.vue:49
 msgid "Tabs"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:113
+#: src/components/file-editor/EditorStatusBar.vue:103
 msgid "Ln"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:113
+#: src/components/file-editor/EditorStatusBar.vue:103
 msgid "Col"
 msgstr ""
 
-#: src/components/file-editor/EditorStatusBar.vue:132
-#: src/views/database/DatabaseList.vue:47
-msgid "Encoding"
-msgstr "Encoding"
-
-#: src/components/file-editor/EditorStatusBar.vue:144
+#: src/components/file-editor/EditorStatusBar.vue:122
 #: src/views/setting/SettingBase.vue:117
 msgid "Language"
 msgstr "Language"
 
-#: src/components/file-editor/EditorStatusBar.vue:149
+#: src/components/file-editor/EditorStatusBar.vue:127
 #, fuzzy
 msgid "No file open"
 msgstr "Files"
@@ -1390,7 +1385,7 @@ msgstr "Show in Home"
 #: src/views/firewall/RuleView.vue:158 src/views/project/ListView.vue:115
 #: src/views/setting/SettingUser.vue:85 src/views/setting/TokenModal.vue:52
 #: src/views/task/CronView.vue:98 src/views/task/TaskView.vue:55
-#: src/views/toolbox/DiskView.vue:340 src/views/toolbox/DiskView.vue:831
+#: src/views/toolbox/DiskView.vue:340 src/views/toolbox/DiskView.vue:826
 #: src/views/toolbox/WebHookView.vue:131 src/views/website/ListView.vue:124
 msgid "Actions"
 msgstr "Actions"
@@ -2469,7 +2464,7 @@ msgstr "IP Address"
 
 #: src/views/apps/nginx/NginxIndex.vue:695
 #: src/views/container/NetworkView.vue:321
-#: src/views/container/VolumeView.vue:220 src/views/toolbox/DiskView.vue:829
+#: src/views/container/VolumeView.vue:220 src/views/toolbox/DiskView.vue:824
 msgid "Options"
 msgstr "Options"
 
@@ -2777,7 +2772,7 @@ msgstr "Enter comments"
 msgid "Module Configuration"
 msgstr "Module Configuration"
 
-#: src/views/apps/s3fs/IndexView.vue:24 src/views/toolbox/DiskView.vue:734
+#: src/views/apps/s3fs/IndexView.vue:24 src/views/toolbox/DiskView.vue:729
 msgid "Mount Path"
 msgstr "Mount Path"
 
@@ -4114,7 +4109,7 @@ msgid "Option Value"
 msgstr "Option Value"
 
 #: src/views/container/VolumeView.vue:47 src/views/home/IndexView.vue:680
-#: src/views/toolbox/DiskView.vue:324 src/views/toolbox/DiskView.vue:827
+#: src/views/toolbox/DiskView.vue:324 src/views/toolbox/DiskView.vue:822
 msgid "Mount Point"
 msgstr "Mount Point"
 
@@ -4243,6 +4238,10 @@ msgstr "Privileges"
 #: src/views/database/UpdateUserModal.vue:75
 msgid "Enter database user comment"
 msgstr "Enter database user comment"
+
+#: src/views/database/DatabaseList.vue:47
+msgid "Encoding"
+msgstr "Encoding"
 
 #: src/views/database/DatabaseList.vue:69
 msgid "MySQL does not support database comments"
@@ -4999,7 +4998,7 @@ msgstr "Running smoothly"
 
 #: src/views/home/IndexView.vue:147 src/views/home/IndexView.vue:835
 #: src/views/home/IndexView.vue:855 src/views/toolbox/BenchmarkView.vue:203
-#: src/views/toolbox/DiskView.vue:803 src/views/toolbox/IndexView.vue:26
+#: src/views/toolbox/DiskView.vue:798 src/views/toolbox/IndexView.vue:26
 msgid "Disk"
 msgstr "Disk"
 
@@ -6578,7 +6577,7 @@ msgstr "SWAP Available"
 msgid "Not Mounted"
 msgstr "Not used"
 
-#: src/views/toolbox/DiskView.vue:332 src/views/toolbox/DiskView.vue:828
+#: src/views/toolbox/DiskView.vue:332 src/views/toolbox/DiskView.vue:823
 #, fuzzy
 msgid "Filesystem"
 msgstr "File System"
@@ -6775,230 +6774,230 @@ msgstr "Permissions"
 msgid "Disk Type: "
 msgstr "Task Type"
 
-#: src/views/toolbox/DiskView.vue:714
-msgid "Note: This is the system disk and cannot be operated on."
+#: src/views/toolbox/DiskView.vue:709
+msgid "This is the system disk and cannot be operated on."
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:719
+#: src/views/toolbox/DiskView.vue:714
 msgid "No disks found"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:722
+#: src/views/toolbox/DiskView.vue:717
 #, fuzzy
 msgid "Mount Partition"
 msgstr "Mount Path"
 
-#: src/views/toolbox/DiskView.vue:725 src/views/toolbox/DiskView.vue:770
+#: src/views/toolbox/DiskView.vue:720 src/views/toolbox/DiskView.vue:765
 #, fuzzy
 msgid "Partition"
 msgstr "Description"
 
-#: src/views/toolbox/DiskView.vue:729 src/views/toolbox/DiskView.vue:774
+#: src/views/toolbox/DiskView.vue:724 src/views/toolbox/DiskView.vue:769
 #, fuzzy
 msgid "Select partition"
 msgstr "Select PHP Version"
 
-#: src/views/toolbox/DiskView.vue:737
+#: src/views/toolbox/DiskView.vue:732
 msgid "e.g., /mnt/data"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:741
+#: src/views/toolbox/DiskView.vue:736
 #, fuzzy
 msgid "Mount Options"
 msgstr "Options"
 
-#: src/views/toolbox/DiskView.vue:744
+#: src/views/toolbox/DiskView.vue:739
 msgid "e.g., defaults,noatime"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:748
+#: src/views/toolbox/DiskView.vue:743
 msgid "Auto-mount on boot"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:752
+#: src/views/toolbox/DiskView.vue:747
 msgid "Mount"
 msgstr "Mount"
 
-#: src/views/toolbox/DiskView.vue:758
+#: src/views/toolbox/DiskView.vue:753
 msgid ""
 "When enabled, the partition UUID will be written to /etc/fstab for automatic "
 "mounting on system boot."
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:765
+#: src/views/toolbox/DiskView.vue:760
 msgid "Format Partition"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:767
+#: src/views/toolbox/DiskView.vue:762
 msgid "Warning: Formatting will erase all data!"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:779 src/views/toolbox/DiskView.vue:812
+#: src/views/toolbox/DiskView.vue:774 src/views/toolbox/DiskView.vue:807
 #, fuzzy
 msgid "Filesystem Type"
 msgstr "File System"
 
-#: src/views/toolbox/DiskView.vue:788
+#: src/views/toolbox/DiskView.vue:783
 #, fuzzy
 msgctxt "disk action"
 msgid "Format"
 msgstr "Format"
 
-#: src/views/toolbox/DiskView.vue:794
+#: src/views/toolbox/DiskView.vue:789
 msgid "Initialize Disk"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:797
+#: src/views/toolbox/DiskView.vue:792
 msgid ""
 "Warning: This will delete all partitions and create a single partition. All "
 "data will be lost!"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:807
+#: src/views/toolbox/DiskView.vue:802
 #, fuzzy
 msgid "Select disk"
 msgstr "Select File"
 
-#: src/views/toolbox/DiskView.vue:816
+#: src/views/toolbox/DiskView.vue:811
 msgid "Initialize"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:821
+#: src/views/toolbox/DiskView.vue:816
 #, fuzzy
 msgid "Auto-mount Configuration (fstab)"
 msgstr "Module Configuration"
 
-#: src/views/toolbox/DiskView.vue:826 src/views/toolbox/DiskView.vue:884
+#: src/views/toolbox/DiskView.vue:821 src/views/toolbox/DiskView.vue:879
 #, fuzzy
 msgid "Device"
 msgstr "Service"
 
-#: src/views/toolbox/DiskView.vue:844 src/views/toolbox/DiskView.vue:874
-#: src/views/toolbox/DiskView.vue:912 src/views/toolbox/DiskView.vue:957
+#: src/views/toolbox/DiskView.vue:839 src/views/toolbox/DiskView.vue:869
+#: src/views/toolbox/DiskView.vue:907 src/views/toolbox/DiskView.vue:952
 #: src/views/website/EditView.vue:725 src/views/website/EditView.vue:885
 #: src/views/website/EditView.vue:1260
 #, fuzzy
 msgid "Remove"
 msgstr "Auto Remove"
 
-#: src/views/toolbox/DiskView.vue:854
+#: src/views/toolbox/DiskView.vue:849
 msgid "No fstab entries"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:861
+#: src/views/toolbox/DiskView.vue:856
 #, fuzzy
 msgid "LVM Management"
 msgstr "Module Management"
 
-#: src/views/toolbox/DiskView.vue:863 src/views/toolbox/DiskView.vue:929
+#: src/views/toolbox/DiskView.vue:858 src/views/toolbox/DiskView.vue:924
 #, fuzzy
 msgid "Physical Volumes"
 msgstr "Physical Memory Size"
 
-#: src/views/toolbox/DiskView.vue:880
+#: src/views/toolbox/DiskView.vue:875
 msgid "No physical volumes"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:888
+#: src/views/toolbox/DiskView.vue:883
 #, fuzzy
 msgid "Select device"
 msgstr "Select server"
 
-#: src/views/toolbox/DiskView.vue:894
+#: src/views/toolbox/DiskView.vue:889
 #, fuzzy
 msgid "Create PV"
 msgstr "Create"
 
-#: src/views/toolbox/DiskView.vue:900
+#: src/views/toolbox/DiskView.vue:895
 #, fuzzy
 msgid "Volume Groups"
 msgstr "Volumes"
 
-#: src/views/toolbox/DiskView.vue:918
+#: src/views/toolbox/DiskView.vue:913
 msgid "No volume groups"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:922
+#: src/views/toolbox/DiskView.vue:917
 #, fuzzy
 msgid "VG Name"
 msgstr "Name"
 
-#: src/views/toolbox/DiskView.vue:925
+#: src/views/toolbox/DiskView.vue:920
 #, fuzzy
 msgid "Enter VG name"
 msgstr "Enter new name"
 
-#: src/views/toolbox/DiskView.vue:933
+#: src/views/toolbox/DiskView.vue:928
 #, fuzzy
 msgid "Select PVs"
 msgstr "Select host"
 
-#: src/views/toolbox/DiskView.vue:940
+#: src/views/toolbox/DiskView.vue:935
 #, fuzzy
 msgid "Create VG"
 msgstr "Create"
 
-#: src/views/toolbox/DiskView.vue:946
+#: src/views/toolbox/DiskView.vue:941
 #, fuzzy
 msgid "Logical Volumes"
 msgstr "Volumes"
 
-#: src/views/toolbox/DiskView.vue:963
+#: src/views/toolbox/DiskView.vue:958
 msgid "No logical volumes"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:967
+#: src/views/toolbox/DiskView.vue:962
 #, fuzzy
 msgid "LV Name"
 msgstr "Name"
 
-#: src/views/toolbox/DiskView.vue:970
+#: src/views/toolbox/DiskView.vue:965
 #, fuzzy
 msgid "Enter LV name"
 msgstr "Enter new name"
 
-#: src/views/toolbox/DiskView.vue:974
+#: src/views/toolbox/DiskView.vue:969
 #, fuzzy
 msgid "Volume Group"
 msgstr "Volumes"
 
-#: src/views/toolbox/DiskView.vue:978
+#: src/views/toolbox/DiskView.vue:973
 #, fuzzy
 msgid "Select VG"
 msgstr "Select CA"
 
-#: src/views/toolbox/DiskView.vue:983
+#: src/views/toolbox/DiskView.vue:978
 #, fuzzy
 msgid "Size (GB)"
 msgstr "Size"
 
-#: src/views/toolbox/DiskView.vue:987
+#: src/views/toolbox/DiskView.vue:982
 #, fuzzy
 msgid "Create LV"
 msgstr "Create"
 
-#: src/views/toolbox/DiskView.vue:993
+#: src/views/toolbox/DiskView.vue:988
 msgid "Extend Logical Volume"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:995
+#: src/views/toolbox/DiskView.vue:990
 msgid "Logical Volume"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:999
+#: src/views/toolbox/DiskView.vue:994
 #, fuzzy
 msgid "Select LV"
 msgstr "Select CA"
 
-#: src/views/toolbox/DiskView.vue:1004
+#: src/views/toolbox/DiskView.vue:999
 msgid "Extend Size (GB)"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:1007
+#: src/views/toolbox/DiskView.vue:1002
 msgid "Auto Resize Filesystem"
 msgstr ""
 
-#: src/views/toolbox/DiskView.vue:1011
+#: src/views/toolbox/DiskView.vue:1006
 msgid "Extend LV"
 msgstr ""
 
