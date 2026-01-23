@@ -164,7 +164,7 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 func (r *backupRepo) CreatePanel() error {
 	start := time.Now()
 
-	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), "panel", fmt.Sprintf("panel_%s.zip", time.Now().Format("20060102150405")))
+	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), fmt.Sprintf("panel_%s.zip", time.Now().Format("20060102150405")))
 
 	temp, err := os.MkdirTemp("", "ace-backup-*")
 	if err != nil {
