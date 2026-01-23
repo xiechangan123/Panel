@@ -31,7 +31,7 @@ func NewHttp(conf *config.Config, mux *chi.Mux) (*hlfhr.Server, error) {
 	srv := hlfhr.New(&http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.HTTP.Port),
 		Handler:        mux,
-		MaxHeaderBytes: 2048 << 20,
+		MaxHeaderBytes: 4 << 20,
 	})
 	srv.Listen80RedirectTo443 = true
 
