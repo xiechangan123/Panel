@@ -5891,10 +5891,11 @@ msgid "Panel HTTPS"
 msgstr "面板 HTTPS"
 
 #: src/views/setting/SettingSafe.vue:253
+#, fuzzy
 msgid ""
-"Enable HTTPS for the panel. ACME will automatically obtain and renew "
-"certificates (requires panel accessible via public IP). Custom allows you to "
-"provide your own certificate"
+"Enable HTTPS for the panel. ACME will automatically obtain and renew the "
+"certificate daily (requires panel accessible via public IP). Custom allows "
+"you to provide your own certificate"
 msgstr ""
 "为面板启用 HTTPS。ACME 将自动获取并更新证书（需支持通过公网 IP 访问面板）。自"
 "定义允许您提供自己的证书"
