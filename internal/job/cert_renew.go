@@ -67,7 +67,7 @@ func (r *CertRenew) Run() {
 		// 到达建议时间，续签证书
 		if time.Now().After(cert.RenewalInfo.SelectedTime) {
 			if _, err := r.certRepo.Renew(cert.ID); err != nil {
-				r.log.Warn("failed to renew cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				r.log.Warn("failed to renew certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func (r *CertRenew) Run() {
 	if r.conf.HTTP.ACME {
 		decode, err := pkgcert.ParseCert(filepath.Join(app.Root, "panel/storage/cert.pem"))
 		if err != nil {
-			r.log.Warn("failed to parse panel cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn("failed to parse panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 		// 结束时间大于 2 天不续签
@@ -107,7 +107,7 @@ func (r *CertRenew) Run() {
 		}
 		crt, key, err := r.certRepo.ObtainPanel(account, ips)
 		if err != nil {
-			r.log.Warn("failed to obtain ACME cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn("failed to obtain panel certificate via ACME", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 
@@ -115,11 +115,11 @@ func (r *CertRenew) Run() {
 			Cert: string(crt),
 			Key:  string(key),
 		}); err != nil {
-			r.log.Warn("failed to update panel cert", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.log.Warn("failed to update panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return
 		}
 
-		r.log.Info("panel cert renewed successfully", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
+		r.log.Info("panel certificate renewed successfully", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
 		tools.RestartPanel()
 	}
 

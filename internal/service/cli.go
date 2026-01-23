@@ -384,14 +384,14 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		}
 		crt, key, err = s.certRepo.ObtainPanel(account, ips)
 		if err == nil {
-			fmt.Println(s.t.Get("Successfully obtained SSL certificate via ACME"))
+			fmt.Println(s.t.Get("Successfully obtained panel certificate via ACME"))
 		} else {
-			fmt.Println(s.t.Get("Failed to obtain ACME certificate, using self-signed certificate"))
+			fmt.Println(s.t.Get("Failed to obtain panel certificate via ACME, using self-signed certificate"))
 		}
 	}
 
 	if crt == nil || key == nil {
-		crt, key, err = cert.GenerateSelfSignedRSA(names)
+		crt, key, err = cert.GenerateSelfSigned(names)
 		if err != nil {
 			return err
 		}

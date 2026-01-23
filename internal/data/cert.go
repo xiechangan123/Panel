@@ -205,7 +205,9 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 		}
 	}
 
-	ssl, err := client.ObtainCertificate(context.Background(), cert.Domains, acme.KeyType(cert.Type))
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	ssl, err := client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +278,9 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, 
 	}
 	client.UsePanel(ips, confPath, webServer)
 
-	ssl, err := client.ObtainIPCertificate(context.Background(), ips, acme.KeyEC256)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	ssl, err := client.ObtainIPCertificate(ctx, ips, acme.KeyEC256)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -290,7 +294,7 @@ func (r *certRepo) ObtainSelfSigned(id uint) error {
 		return err
 	}
 
-	crt, key, err := pkgcert.GenerateSelfSignedRSA(cert.Domains)
+	crt, key, err := pkgcert.GenerateSelfSigned(cert.Domains)
 	if err != nil {
 		return err
 	}
@@ -345,10 +349,12 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 		}
 	}
 
-	ssl, err := client.RenewCertificate(context.Background(), cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	ssl, err := client.RenewCertificate(ctx, cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
 		// 续签失败，尝试重签
-		ssl, err = client.ObtainCertificate(context.Background(), cert.Domains, acme.KeyType(cert.Type))
+		ssl, err = client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
 		if err != nil {
 			return nil, err
 		}
@@ -384,7 +390,9 @@ func (r *certRepo) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
 		return mholtacme.RenewalInfo{}, err
 	}
 
-	renewInfo, err := client.GetRenewalInfo(context.Background(), crt)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	renewInfo, err := client.GetRenewalInfo(ctx, crt)
 	if err != nil {
 		return mholtacme.RenewalInfo{}, err
 	}
@@ -409,7 +417,9 @@ func (r *certRepo) ManualDNS(id uint) ([]acme.DNSRecord, error) {
 	}
 
 	client.UseManualDns()
-	records, err := client.GetDNSRecords(context.Background(), cert.Domains, acme.KeyType(cert.Type))
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	records, err := client.GetDNSRecords(ctx, cert.Domains, acme.KeyType(cert.Type))
 	if err != nil {
 		return nil, err
 	}
