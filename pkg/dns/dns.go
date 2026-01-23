@@ -52,7 +52,24 @@ func DetectManager() Manager {
 // GetDNS 获取当前 DNS 配置
 func GetDNS() ([]string, Manager, error) {
 	manager := DetectManager()
-	dns, err := getDNSFromResolvConf()
+
+	var dns []string
+	var err error
+
+	switch manager {
+	case ManagerNetworkManager:
+		dns, err = getDNSFromNetworkManager()
+	case ManagerNetplan:
+		dns, err = getDNSFromNetplan()
+	default:
+		dns, err = getDNSFromResolvConf()
+	}
+
+	// 如果从配置源读取失败或为空，回退到 resolv.conf
+	if err != nil || len(dns) == 0 {
+		dns, err = getDNSFromResolvConf()
+	}
+
 	return dns, manager, err
 }
 
@@ -107,6 +124,92 @@ func getDNSFromResolvConf() ([]string, error) {
 	dns := make([]string, 0)
 	for _, m := range match {
 		dns = append(dns, m[1])
+	}
+
+	return dns, nil
+}
+
+// getDNSFromNetworkManager 从 NetworkManager 获取 DNS
+func getDNSFromNetworkManager() ([]string, error) {
+	// 获取默认路由的网络接口
+	iface := detectActiveInterface()
+	if iface == "" {
+		return nil, fmt.Errorf("no active network interface found")
+	}
+
+	output, err := shell.Execf("nmcli -t -f IP4.DNS device show %s", iface)
+	if err != nil {
+		return nil, err
+	}
+
+	var dns []string
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		// 格式: IP4.DNS[1]:8.8.8.8
+		if strings.HasPrefix(line, "IP4.DNS") {
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 {
+				dnsAddr := strings.TrimSpace(parts[1])
+				if dnsAddr != "" {
+					dns = append(dns, dnsAddr)
+				}
+			}
+		}
+	}
+
+	return dns, nil
+}
+
+// getDNSFromNetplan 从 netplan 配置文件获取 DNS
+func getDNSFromNetplan() ([]string, error) {
+	configPath, err := findNetplanConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := io.Read(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var config netplanConfig
+	if err = yaml.Unmarshal([]byte(content), &config); err != nil {
+		return nil, err
+	}
+
+	// 从所有接口收集 DNS
+	var dns []string
+	seen := make(map[string]bool)
+
+	collectDNS := func(iface *netplanInterface) {
+		if iface != nil && iface.Nameservers != nil {
+			for _, addr := range iface.Nameservers.Addresses {
+				if !seen[addr] {
+					seen[addr] = true
+					dns = append(dns, addr)
+				}
+			}
+		}
+	}
+
+	for _, iface := range config.Network.Ethernets {
+		collectDNS(iface)
+	}
+	for _, iface := range config.Network.Wifis {
+		collectDNS(iface)
+	}
+	for _, iface := range config.Network.Bonds {
+		collectDNS(iface)
+	}
+	for _, iface := range config.Network.Bridges {
+		collectDNS(iface)
+	}
+	for _, iface := range config.Network.Vlans {
+		collectDNS(iface)
 	}
 
 	return dns, nil
