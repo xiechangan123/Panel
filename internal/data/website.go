@@ -744,10 +744,13 @@ func (r *websiteRepo) Delete(ctx context.Context, req *request.WebsiteDelete) er
 		return errors.New(r.t.Get("website %s has bound certificates, please delete the certificate first", website.Name))
 	}
 
-	_ = io.Remove(filepath.Join(app.Root, "sites", website.Name))
-
 	if req.Path {
-		_ = io.Remove(website.Path)
+		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name))
+	} else {
+		// 仅删除配置和日志
+		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name, "config"))
+		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name, "log"))
+		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name, "htpasswd"))
 	}
 	if req.DB {
 		if mysql, err := r.databaseServer.GetByName("local_mysql"); err == nil {
