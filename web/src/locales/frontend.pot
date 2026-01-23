@@ -1403,6 +1403,7 @@ msgid "Monitoring"
 msgstr ""
 
 #: src/locales/menu.ts:17
+#: src/views/home/IndexView.vue:458
 msgid "Project"
 msgstr ""
 
