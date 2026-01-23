@@ -52,7 +52,7 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 	path := r.GetDefaultPath(typ)
 	files, err := os.ReadDir(path)
 	if err != nil {
-		return nil, err
+		return make([]*types.BackupFile, 0), nil
 	}
 
 	list := make([]*types.BackupFile, 0)
