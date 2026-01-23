@@ -27,7 +27,7 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/service/home.go:60
+#: internal/service/home.go:61
 msgid "AcePanel"
 msgstr ""
 
@@ -740,7 +740,7 @@ msgstr ""
 msgid "Not supported"
 msgstr ""
 
-#: internal/service/home.go:265
+#: internal/service/home.go:260
 msgid "Not used"
 msgstr ""
 
@@ -1402,11 +1402,11 @@ msgstr ""
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:400
+#: internal/service/home.go:395
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:366
+#: internal/service/home.go:361
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
@@ -1427,7 +1427,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/data/website.go:531
+#: internal/data/website.go:530
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1580,7 +1580,7 @@ msgstr ""
 msgid "failed to delete stream upstream config: %v"
 msgstr ""
 
-#: internal/data/project.go:157
+#: internal/data/project.go:165
 msgid "failed to delete systemd config"
 msgstr ""
 
@@ -1609,7 +1609,7 @@ msgstr ""
 msgid "failed to generate SSH key: %v"
 msgstr ""
 
-#: internal/data/project.go:105
+#: internal/data/project.go:113
 msgid "failed to generate systemd config"
 msgstr ""
 
@@ -1706,11 +1706,11 @@ msgstr ""
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/service/home.go:76
+#: internal/service/home.go:77
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:434
+#: internal/data/website.go:433
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -1760,17 +1760,17 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
-#: internal/service/home.go:96
+#: internal/service/home.go:97
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:379
+#: internal/service/home.go:374
 msgid "failed to get the latest version download link"
 msgstr ""
 
-#: internal/service/home.go:295
-#: internal/service/home.go:331
-#: internal/service/home.go:373
+#: internal/service/home.go:290
+#: internal/service/home.go:326
+#: internal/service/home.go:368
 msgid "failed to get the latest version: %v"
 msgstr ""
 
@@ -1778,11 +1778,7 @@ msgstr ""
 msgid "failed to get the secret key for module %s"
 msgstr ""
 
-#: internal/service/home.go:171
-msgid "failed to get the total number of websites: %v"
-msgstr ""
-
-#: internal/service/home.go:352
+#: internal/service/home.go:347
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -1818,8 +1814,8 @@ msgstr ""
 #: internal/data/cert.go:97
 #: internal/data/setting.go:324
 #: internal/data/setting.go:397
-#: internal/data/website.go:600
-#: internal/data/website.go:908
+#: internal/data/website.go:599
+#: internal/data/website.go:907
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -1830,12 +1826,12 @@ msgstr ""
 #: internal/data/cert.go:100
 #: internal/data/setting.go:327
 #: internal/data/setting.go:400
-#: internal/data/website.go:603
-#: internal/data/website.go:911
+#: internal/data/website.go:602
+#: internal/data/website.go:910
 msgid "failed to parse private key: %v"
 msgstr ""
 
-#: internal/data/project.go:197
+#: internal/data/project.go:205
 msgid "failed to parse systemd config"
 msgstr ""
 
@@ -1844,10 +1840,10 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
+#: internal/service/home.go:296
 #: internal/service/home.go:301
-#: internal/service/home.go:306
+#: internal/service/home.go:332
 #: internal/service/home.go:337
-#: internal/service/home.go:342
 msgid "failed to parse version: %v"
 msgstr ""
 
@@ -1930,7 +1926,7 @@ msgstr ""
 msgid "failed to remove volume group: %v"
 msgstr ""
 
-#: internal/data/project.go:131
+#: internal/data/project.go:139
 msgid "failed to rename systemd config"
 msgstr ""
 
@@ -2123,7 +2119,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1056
+#: internal/data/website.go:1055
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -2169,7 +2165,7 @@ msgstr ""
 msgid "name is required"
 msgstr ""
 
-#: internal/data/website.go:936
+#: internal/data/website.go:935
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
@@ -2245,7 +2241,7 @@ msgstr ""
 msgid "port is already in use"
 msgstr ""
 
-#: internal/data/project.go:88
+#: internal/data/project.go:96
 msgid "project name already exists"
 msgstr ""
 
@@ -2277,7 +2273,7 @@ msgstr ""
 msgid "rule not found"
 msgstr ""
 
-#: internal/data/website.go:578
+#: internal/data/website.go:577
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -2352,7 +2348,7 @@ msgstr ""
 msgid "template %s not found"
 msgstr ""
 
-#: internal/service/home.go:346
+#: internal/service/home.go:341
 msgid "the current version is the latest version"
 msgstr ""
 
@@ -2377,12 +2373,12 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/service/home.go:287
-#: internal/service/home.go:323
+#: internal/service/home.go:282
+#: internal/service/home.go:318
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:361
+#: internal/service/home.go:356
 msgid "unable to update in offline mode"
 msgstr ""
 
@@ -2426,11 +2422,11 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1158
+#: internal/data/website.go:1157
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:1124
+#: internal/data/website.go:1123
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -2464,11 +2460,11 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:744
+#: internal/data/website.go:743
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
-#: internal/data/website.go:585
+#: internal/data/website.go:584
 msgid "website directory does not exist"
 msgstr ""
 

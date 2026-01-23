@@ -1283,7 +1283,7 @@ msgstr ""
 msgid "Monitoring"
 msgstr "Monitoring"
 
-#: src/locales/menu.ts:17
+#: src/locales/menu.ts:17 src/views/home/IndexView.vue:458
 #, fuzzy
 msgid "Project"
 msgstr "Reject"
