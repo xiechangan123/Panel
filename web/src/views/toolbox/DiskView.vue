@@ -705,13 +705,8 @@ const handleDeleteFstab = (mountPoint: string) => {
             :row-key="(row: PartitionData) => row.name"
           />
 
-          <n-alert
-            v-if="diskItem.isSystemDisk"
-            type="warning"
-            :show-icon="false"
-            style="margin-top: 12px"
-          >
-            {{ $gettext('Note: This is the system disk and cannot be operated on.') }}
+          <n-alert v-if="diskItem.isSystemDisk" type="warning" mt-12>
+            {{ $gettext('This is the system disk and cannot be operated on.') }}
           </n-alert>
         </n-card>
 
@@ -753,7 +748,7 @@ const handleDeleteFstab = (mountPoint: string) => {
               </n-form-item>
             </n-flex>
           </n-form>
-          <n-alert v-if="mountWriteFstab" type="info" style="margin-top: 12px">
+          <n-alert v-if="mountWriteFstab" type="info" mt-12>
             {{
               $gettext(
                 'When enabled, the partition UUID will be written to /etc/fstab for automatic mounting on system boot.'
