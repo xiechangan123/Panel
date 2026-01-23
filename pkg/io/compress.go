@@ -29,6 +29,10 @@ func Compress(dir string, src []string, dst string) error {
 		src = append(src, ".")
 	}
 
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+		return err
+	}
+
 	format, err := formatArchiveByPath(dst)
 	if err != nil {
 		return err
@@ -59,10 +63,8 @@ func UnCompress(src string, dst string) error {
 	if !filepath.IsAbs(src) || !filepath.IsAbs(dst) {
 		return errors.New("src and dst must be absolute path")
 	}
-	if !Exists(dst) {
-		if err := os.MkdirAll(dst, 0755); err != nil {
-			return err
-		}
+	if err := os.MkdirAll(dst, 0755); err != nil {
+		return err
 	}
 
 	format, err := formatArchiveByPath(src)
