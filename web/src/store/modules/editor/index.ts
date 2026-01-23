@@ -9,7 +9,6 @@ export interface EditorTab {
   language: string // 语言类型
   modified: boolean // 是否已修改
   loading: boolean // 是否正在加载
-  encoding: string // 文件编码
   lineEnding: 'LF' | 'CRLF' // 行分隔符
   cursorLine: number // 光标行
   cursorColumn: number // 光标列
@@ -48,7 +47,18 @@ const defaultSettings: EditorSettings = {
   insertSpaces: true,
   wordWrap: 'on',
   fontSize: 14,
-  minimap: true
+  minimap: true,
+  lineNumbers: 'on',
+  renderWhitespace: 'selection',
+  cursorBlinking: 'blink',
+  cursorStyle: 'line',
+  smoothScrolling: true,
+  mouseWheelZoom: true,
+  bracketPairColorization: true,
+  guides: true,
+  folding: true,
+  formatOnPaste: false,
+  formatOnType: false
 }
 
 export const useEditorStore = defineStore('editor', {
@@ -85,7 +95,7 @@ export const useEditorStore = defineStore('editor', {
 
   actions: {
     // 打开文件（添加标签页）
-    openFile(path: string, content: string = '', encoding: string = 'utf-8') {
+    openFile(path: string, content: string = '') {
       const existingTab = this.tabs.find((tab) => tab.path === path)
       if (existingTab) {
         // 文件已打开，切换到该标签页
@@ -105,7 +115,6 @@ export const useEditorStore = defineStore('editor', {
         language: languageByPath(path),
         modified: false,
         loading: false,
-        encoding,
         lineEnding,
         cursorLine: 1,
         cursorColumn: 1
@@ -169,7 +178,10 @@ export const useEditorStore = defineStore('editor', {
       const tab = this.tabs.find((t) => t.path === path)
       if (tab) {
         tab.content = content
-        tab.modified = content !== tab.originalContent
+        // 将内容规范化为 LF 后比较，避免行分隔符差异影响修改状态判断
+        const normalizedContent = content.replace(/\r\n/g, '\n')
+        const normalizedOriginal = tab.originalContent.replace(/\r\n/g, '\n')
+        tab.modified = normalizedContent !== normalizedOriginal
       }
     },
 
@@ -196,21 +208,6 @@ export const useEditorStore = defineStore('editor', {
       const tab = this.tabs.find((t) => t.path === path)
       if (tab && tab.lineEnding !== lineEnding) {
         tab.lineEnding = lineEnding
-        // 转换内容中的行分隔符
-        if (lineEnding === 'CRLF') {
-          tab.content = tab.content.replace(/(?<!\r)\n/g, '\r\n')
-        } else {
-          tab.content = tab.content.replace(/\r\n/g, '\n')
-        }
-        tab.modified = tab.content !== tab.originalContent
-      }
-    },
-
-    // 更新编码
-    updateEncoding(path: string, encoding: string) {
-      const tab = this.tabs.find((t) => t.path === path)
-      if (tab) {
-        tab.encoding = encoding
       }
     },
 

@@ -28,6 +28,11 @@ function handleTabsWheel(e: WheelEvent) {
   }
 }
 
+// 获取编辑器主题（nginx 特殊处理）
+function getEditorTheme(language: string) {
+  return (language === 'nginx' ? 'nginx-theme' : 'vs') + (themeStore.darkMode ? '-dark' : '')
+}
+
 // 初始化编辑器
 async function initEditor() {
   if (!containerRef.value) return
@@ -105,11 +110,7 @@ function updateEditorContent() {
   if (model) {
     const language = languageByPath(tab.path)
     monacoRef.value.editor.setModelLanguage(model, language)
-
-    // 更新主题（nginx 特殊处理）
-    const theme =
-      (language === 'nginx' ? 'nginx-theme' : 'vs') + (themeStore.darkMode ? '-dark' : '')
-    monacoRef.value.editor.setTheme(theme)
+    monacoRef.value.editor.setTheme(getEditorTheme(language))
   }
 }
 
@@ -269,6 +270,35 @@ watch(
   }
 )
 
+// 监听语言变化（用户手动切换语言时更新 Monaco 高亮）
+watch(
+  () => editorStore.activeTab?.language,
+  (newLanguage) => {
+    if (!editorRef.value || !monacoRef.value || !newLanguage) return
+    const model = editorRef.value.getModel()
+    if (model) {
+      monacoRef.value.editor.setModelLanguage(model, newLanguage)
+      monacoRef.value.editor.setTheme(getEditorTheme(newLanguage))
+    }
+  }
+)
+
+// 监听行分隔符变化（用户手动切换行分隔符时更新 Monaco）
+watch(
+  () => editorStore.activeTab?.lineEnding,
+  (newLineEnding) => {
+    if (!editorRef.value || !monacoRef.value || !newLineEnding) return
+    const model = editorRef.value.getModel()
+    if (model) {
+      const eol =
+        newLineEnding === 'CRLF'
+          ? monacoRef.value.editor.EndOfLineSequence.CRLF
+          : monacoRef.value.editor.EndOfLineSequence.LF
+      model.setEOL(eol)
+    }
+  }
+)
+
 // 监听当前标签页内容变化（外部更新）
 watch(
   () => editorStore.activeTab?.content,
@@ -287,9 +317,7 @@ watch(
   () => {
     if (!monacoRef.value || !editorStore.activeTab) return
     const language = languageByPath(editorStore.activeTab.path)
-    const theme =
-      (language === 'nginx' ? 'nginx-theme' : 'vs') + (themeStore.darkMode ? '-dark' : '')
-    monacoRef.value.editor.setTheme(theme)
+    monacoRef.value.editor.setTheme(getEditorTheme(language))
   }
 )
 
