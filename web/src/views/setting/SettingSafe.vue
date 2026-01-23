@@ -251,7 +251,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Enable HTTPS for the panel. ACME will automatically obtain and renew certificates (requires panel accessible via public IP). Custom allows you to provide your own certificate'
+                'Enable HTTPS for the panel. ACME will automatically obtain and renew the certificate daily (requires panel accessible via public IP). Custom allows you to provide your own certificate'
               )
             }}
           </n-tooltip>
