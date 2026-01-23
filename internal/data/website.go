@@ -67,7 +67,7 @@ func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 		return make(map[string]string), err
 	}
 
-	entries, err := embed.RewritesFS.ReadDir(webServer)
+	entries, err := embed.RewritesFS.ReadDir(filepath.Join("rewrites", webServer))
 	if err != nil {
 		return make(map[string]string), err
 	}
@@ -77,7 +77,7 @@ func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 		if entry.IsDir() {
 			continue
 		}
-		if content, err := embed.RewritesFS.ReadFile(filepath.Join(webServer, entry.Name())); err == nil {
+		if content, err := embed.RewritesFS.ReadFile(filepath.Join("rewrites", webServer, entry.Name())); err == nil {
 			rw[strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))] = string(content)
 		}
 	}
