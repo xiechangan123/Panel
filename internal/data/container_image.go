@@ -132,6 +132,8 @@ func (r *containerImageRepo) Prune() error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ImagePrune(context.Background(), client.ImagePruneOptions{})
+	_, err = apiClient.ImagePrune(context.Background(), client.ImagePruneOptions{
+		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
+	})
 	return err
 }

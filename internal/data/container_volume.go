@@ -99,6 +99,8 @@ func (r *containerVolumeRepo) Prune() error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.VolumePrune(context.Background(), client.VolumePruneOptions{})
+	_, err = apiClient.VolumePrune(context.Background(), client.VolumePruneOptions{
+		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
+	})
 	return err
 }

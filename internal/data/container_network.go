@@ -161,6 +161,8 @@ func (r *containerNetworkRepo) Prune() error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.NetworkPrune(context.Background(), client.NetworkPruneOptions{})
+	_, err = apiClient.NetworkPrune(context.Background(), client.NetworkPruneOptions{
+		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
+	})
 	return err
 }

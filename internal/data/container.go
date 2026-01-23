@@ -339,6 +339,8 @@ func (r *containerRepo) Prune() error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerPrune(context.Background(), client.ContainerPruneOptions{})
+	_, err = apiClient.ContainerPrune(context.Background(), client.ContainerPruneOptions{
+		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
+	})
 	return err
 }
