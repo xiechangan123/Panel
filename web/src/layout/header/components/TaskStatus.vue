@@ -5,7 +5,7 @@ import { useGettext } from 'vue3-gettext'
 const { $gettext } = useGettext()
 const router = useRouter()
 
-const { data } = useRequest(() => task.status(), { initialData: { task: false } })
+const { data } = useAutoRequest(() => task.status(), { initialData: { task: false } })
 
 const goToTask = () => {
   router.push({ path: '/task', query: { tab: 'task' } })
