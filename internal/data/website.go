@@ -126,7 +126,6 @@ func (r *websiteRepo) Count() (int64, error) {
 	if err := r.db.Model(&biz.Website{}).Count(&count).Error; err != nil {
 		return 0, err
 	}
-
 	return count, nil
 }
 

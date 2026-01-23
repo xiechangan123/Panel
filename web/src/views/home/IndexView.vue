@@ -77,7 +77,7 @@ const { data: countInfo } = useRequest(home.countInfo, {
   initialData: {
     website: 0,
     database: 0,
-    ftp: 0,
+    project: 0,
     cron: 0
   }
 })
@@ -455,7 +455,7 @@ if (import.meta.hot) {
                 />
               </n-gi>
               <n-gi>
-                <n-statistic label="FTP" :value="countInfo.ftp + quantifier" />
+                <n-statistic :label="$gettext('Project')" :value="countInfo.project + quantifier" />
               </n-gi>
               <n-gi>
                 <n-statistic

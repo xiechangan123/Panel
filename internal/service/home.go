@@ -21,7 +21,6 @@ import (
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/db"
 	"github.com/acepanel/panel/pkg/os"
-	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/tools"
 	"github.com/acepanel/panel/pkg/types"
 )
@@ -32,6 +31,7 @@ type HomeService struct {
 	conf            *config.Config
 	taskRepo        biz.TaskRepo
 	websiteRepo     biz.WebsiteRepo
+	projectRepo     biz.ProjectRepo
 	appRepo         biz.AppRepo
 	environmentRepo biz.EnvironmentRepo
 	settingRepo     biz.SettingRepo
@@ -39,13 +39,14 @@ type HomeService struct {
 	backupRepo      biz.BackupRepo
 }
 
-func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
+func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, project biz.ProjectRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
 	return &HomeService{
 		t:               t,
 		api:             api.NewAPI(app.Version, app.Locale),
 		conf:            conf,
 		taskRepo:        task,
 		websiteRepo:     website,
+		projectRepo:     project,
 		appRepo:         appRepo,
 		environmentRepo: environment,
 		settingRepo:     setting,
@@ -168,11 +169,10 @@ func (s *HomeService) SystemInfo(w http.ResponseWriter, r *http.Request) {
 func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	websiteCount, err := s.websiteRepo.Count()
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the total number of websites: %v", err))
-		return
+		websiteCount = -1
 	}
 
-	mysqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "mysql")
+	mysqlInstalled, _ := s.appRepo.IsInstalled("slug IN ?", []string{"mysql", "mariadb", "percona"})
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
 
 	var databaseCount int
@@ -198,14 +198,9 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var ftpCount int
-	ftpInstalled, _ := s.appRepo.IsInstalled("slug = ?", "pureftpd")
-	if ftpInstalled {
-		listRaw, err := shell.Execf("pure-pw list")
-		if len(listRaw) != 0 && err == nil {
-			listArr := strings.Split(listRaw, "\n")
-			ftpCount = len(listArr)
-		}
+	projectCount, err := s.projectRepo.Count()
+	if err != nil {
+		projectCount = -1
 	}
 
 	cronCount, err := s.cronRepo.Count()
@@ -216,7 +211,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	Success(w, chix.M{
 		"website":  websiteCount,
 		"database": databaseCount,
-		"ftp":      ftpCount,
+		"project":  projectCount,
 		"cron":     cronCount,
 	})
 }

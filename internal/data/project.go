@@ -37,6 +37,14 @@ func NewProjectRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.Project
 	}
 }
 
+func (r *projectRepo) Count() (int64, error) {
+	var count int64
+	if err := r.db.Model(&biz.Project{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*types.ProjectDetail, int64, error) {
 	var projects []*biz.Project
 	var total int64
