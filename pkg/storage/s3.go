@@ -23,8 +23,8 @@ const (
 type S3Config struct {
 	Region          string            // AWS 区域
 	Bucket          string            // S3 存储桶名称
-	AccessKeyID     string            // 访问密钥 ID
-	SecretAccessKey string            // 访问密钥
+	AccessKey       string            // 访问密钥 ID
+	SecretKey       string            // 访问密钥
 	Endpoint        string            // 自定义端点
 	Scheme          string            // 协议 http 或 https
 	BasePath        string            // 基础路径前缀
@@ -47,11 +47,9 @@ func NewS3(cfg S3Config) (Storage, error) {
 
 	cfg.BasePath = strings.Trim(cfg.BasePath, "/")
 
-	client := simples3.New(cfg.Region, cfg.AccessKeyID, cfg.SecretAccessKey)
+	client := simples3.New(cfg.Region, cfg.AccessKey, cfg.SecretKey)
 
 	// bucket 用于 API 调用
-	// Virtual Hosted Style 时 bucket 已在 endpoint 中，API 调用时传空
-	// Path Style 时 bucket 需要作为路径的一部分
 	bucket := cfg.Bucket
 
 	if cfg.Endpoint != "" {
@@ -59,6 +57,7 @@ func NewS3(cfg S3Config) (Storage, error) {
 		if cfg.AddressingStyle == S3AddressingStyleVirtualHosted {
 			// Virtual Hosted Style: https://{bucket}.{endpoint}/{key}
 			client.SetEndpoint(fmt.Sprintf("%s://%s.%s", cfg.Scheme, cfg.Bucket, cfg.Endpoint))
+			client.SetVirtualHostedStyle()
 			bucket = ""
 		} else {
 			// Path Style: https://{endpoint}/{bucket}/{key}
@@ -69,6 +68,7 @@ func NewS3(cfg S3Config) (Storage, error) {
 		if cfg.AddressingStyle == S3AddressingStyleVirtualHosted {
 			// Virtual Hosted Style: https://{bucket}.s3.{region}.amazonaws.com/{key}
 			client.SetEndpoint(fmt.Sprintf("https://%s.s3.%s.amazonaws.com", cfg.Bucket, cfg.Region))
+			client.SetVirtualHostedStyle()
 			bucket = ""
 		}
 	}

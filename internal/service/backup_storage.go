@@ -126,8 +126,8 @@ func (s *BackupStorageService) validateStorage(accountType string, info types.Ba
 		client, err = storage.NewS3(storage.S3Config{
 			Region:          info.Region,
 			Bucket:          info.Bucket,
-			AccessKeyID:     info.AccessKey,
-			SecretAccessKey: info.SecretKey,
+			AccessKey:       info.AccessKey,
+			SecretKey:       info.SecretKey,
 			Endpoint:        info.Endpoint,
 			Scheme:          info.Scheme,
 			BasePath:        info.Path,
