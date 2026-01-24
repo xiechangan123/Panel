@@ -400,7 +400,6 @@ func (r *backupRepo) getStorage(backupStorage biz.BackupStorage) (storage.Storag
 		return storage.NewLocal(backupStorage.Info.Path)
 	case biz.BackupStorageTypeS3:
 		return storage.NewS3(storage.S3Config{
-			Region:          backupStorage.Info.Region,
 			Bucket:          backupStorage.Info.Bucket,
 			AccessKeyID:     backupStorage.Info.AccessKey,
 			SecretAccessKey: backupStorage.Info.SecretKey,
