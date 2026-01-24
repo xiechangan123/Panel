@@ -88,7 +88,7 @@ func initCli() (*app.Cli, error) {
 	perconaApp := percona.NewApp(locale, settingRepo)
 	phpmyadminApp := phpmyadmin.NewApp(locale)
 	podmanApp := podman.NewApp()
-	postgresqlApp := postgresql.NewApp(locale)
+	postgresqlApp := postgresql.NewApp(locale, settingRepo)
 	pureftpdApp := pureftpd.NewApp(locale)
 	redisApp := redis.NewApp(locale)
 	rsyncApp := rsync.NewApp(locale)

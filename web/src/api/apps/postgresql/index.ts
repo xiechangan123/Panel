@@ -14,5 +14,10 @@ export default {
   // 获取日志
   log: (): any => http.Get('/apps/postgresql/log'),
   // 清空错误日志
-  clearLog: (): any => http.Post('/apps/postgresql/clear_log')
+  clearLog: (): any => http.Post('/apps/postgresql/clear_log'),
+  // 获取 postgres 密码
+  postgresPassword: (): any => http.Get('/apps/postgresql/postgres_password'),
+  // 设置 postgres 密码
+  setPostgresPassword: (password: string): any =>
+    http.Post('/apps/postgresql/postgres_password', { password })
 }
