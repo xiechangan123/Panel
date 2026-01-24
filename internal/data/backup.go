@@ -405,6 +405,7 @@ func (r *backupRepo) getStorage(backupStorage biz.BackupStorage) (storage.Storag
 			AccessKeyID:     backupStorage.Info.AccessKey,
 			SecretAccessKey: backupStorage.Info.SecretKey,
 			Endpoint:        backupStorage.Info.Endpoint,
+			Scheme:          backupStorage.Info.Scheme,
 			BasePath:        backupStorage.Info.Path,
 			AddressingStyle: storage.S3AddressingStyle(backupStorage.Info.Style),
 		})

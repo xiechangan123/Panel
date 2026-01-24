@@ -9,6 +9,7 @@ type BackupStorageInfo struct {
 	Style     string `json:"style"`      // virtual-hosted, path
 	Region    string `json:"region"`     // 地区
 	Endpoint  string `json:"endpoint"`   // 端点
+	Scheme    string `json:"scheme"`     // http, https
 	Bucket    string `json:"bucket"`     // 存储桶
 
 	// SFTP / WebDAV

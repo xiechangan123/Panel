@@ -21,6 +21,11 @@ const styleOptions = [
   { label: 'Path', value: 'path' }
 ]
 
+const schemeOptions = [
+  { label: 'HTTPS', value: 'https' },
+  { label: 'HTTP', value: 'http' }
+]
+
 const sftpAuthOptions = [
   { label: $gettext('Password'), value: 'password' },
   { label: $gettext('Private Key'), value: 'private_key' }
@@ -35,6 +40,7 @@ const defaultModel = {
     style: 'virtual_hosted',
     region: '',
     endpoint: '',
+    scheme: 'https',
     bucket: '',
     host: '',
     port: 22,
@@ -252,6 +258,9 @@ onMounted(() => {
             v-model:value="createModel.info.endpoint"
             :placeholder="$gettext('Enter endpoint URL')"
           />
+        </n-form-item>
+        <n-form-item :label="$gettext('Scheme')">
+          <n-select v-model:value="createModel.info.scheme" :options="schemeOptions" />
         </n-form-item>
         <n-form-item :label="$gettext('Bucket')" required>
           <n-input

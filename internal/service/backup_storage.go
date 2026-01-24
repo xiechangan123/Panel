@@ -129,6 +129,7 @@ func (s *BackupStorageService) validateStorage(accountType string, info types.Ba
 			AccessKeyID:     info.AccessKey,
 			SecretAccessKey: info.SecretKey,
 			Endpoint:        info.Endpoint,
+			Scheme:          info.Scheme,
 			BasePath:        info.Path,
 			AddressingStyle: storage.S3AddressingStyle(info.Style),
 		})
