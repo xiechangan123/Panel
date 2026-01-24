@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DropdownOption, SelectOption } from 'naive-ui'
 import {
   NButton,
   NCheckbox,
@@ -11,8 +12,6 @@ import {
   useThemeVars
 } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
-
-import type { DropdownOption, SelectOption } from 'naive-ui'
 
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
@@ -1002,6 +1001,11 @@ const getMoreOptions = (item: any): SelectOption[] => {
 }
 
 // 处理更多操作选择
+// 下载文件
+const handleDownload = (item: any) => {
+  window.open('/api/file/download?path=' + encodeURIComponent(item.full))
+}
+
 const handleMoreSelect = (key: string, item: any) => {
   switch (key) {
     case 'copy':
@@ -1071,8 +1075,7 @@ const navigateToIndex = (index: number, addToSelection = false) => {
 // 返回上级目录
 const goToParentDir = () => {
   if (path.value === '/') return
-  const parentPath = path.value.substring(0, path.value.lastIndexOf('/')) || '/'
-  path.value = parentPath
+  path.value = path.value.substring(0, path.value.lastIndexOf('/')) || '/'
 }
 
 // 键盘快捷键暂停状态
@@ -1562,14 +1565,7 @@ onUnmounted(() => {
                   <n-button size="tiny" type="primary" tertiary @click.stop="openFile(item)">
                     {{ isImage(item.name) ? $gettext('Preview') : $gettext('Edit') }}
                   </n-button>
-                  <n-button
-                    size="tiny"
-                    type="info"
-                    tertiary
-                    @click.stop="
-                      window.open('/api/file/download?path=' + encodeURIComponent(item.full))
-                    "
-                  >
+                  <n-button size="tiny" type="info" tertiary @click.stop="handleDownload(item)">
                     {{ $gettext('Download') }}
                   </n-button>
                 </template>

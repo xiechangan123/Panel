@@ -1233,7 +1233,6 @@ const removeCustomConfig = (index: number) => {
                           if (newUsername && newUsername !== oldUsername) {
                             // 检查新用户名是否已存在
                             if (setting.basic_auth[newUsername] !== undefined) {
-                              window.$message.error($gettext('Username already exists'))
                               return
                             }
                             setting.basic_auth[newUsername] = setting.basic_auth[oldUsername]
