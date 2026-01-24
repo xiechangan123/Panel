@@ -13,7 +13,7 @@ export default {
       path: '',
       component: () => import('./IndexView.vue'),
       meta: {
-        title: 'Minio',
+        title: 'MinIO',
         role: ['admin'],
         requireAuth: true
       }

@@ -34,7 +34,7 @@ const handleSaveEnv = () => {
           <n-alert type="warning">
             {{
               $gettext(
-                'This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!'
+                'This is modifying the MinIO environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!'
               )
             }}
           </n-alert>
