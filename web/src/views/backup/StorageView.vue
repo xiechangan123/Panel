@@ -38,7 +38,7 @@ const defaultModel = {
     access_key: '',
     secret_key: '',
     style: 'virtual-hosted',
-    region: '',
+    region: 'us-east-1',
     endpoint: '',
     scheme: 'https',
     bucket: '',
