@@ -829,16 +829,16 @@ msgstr ""
 #: src/views/apps/gitea/IndexView.vue:44
 #: src/views/apps/memcached/IndexView.vue:59
 #: src/views/apps/minio/IndexView.vue:44
-#: src/views/apps/mysql/MysqlIndex.vue:99
-#: src/views/apps/mysql/MysqlIndex.vue:118
+#: src/views/apps/mysql/MysqlIndex.vue:100
+#: src/views/apps/mysql/MysqlIndex.vue:120
 #: src/views/apps/nginx/NginxIndex.vue:492
 #: src/views/apps/phpmyadmin/IndexView.vue:66
 #: src/views/apps/phpmyadmin/IndexView.vue:85
 #: src/views/apps/podman/IndexView.vue:63
 #: src/views/apps/podman/IndexView.vue:80
-#: src/views/apps/postgresql/IndexView.vue:102
-#: src/views/apps/postgresql/IndexView.vue:120
-#: src/views/apps/postgresql/IndexView.vue:137
+#: src/views/apps/postgresql/IndexView.vue:103
+#: src/views/apps/postgresql/IndexView.vue:122
+#: src/views/apps/postgresql/IndexView.vue:139
 #: src/views/apps/pureftpd/IndexView.vue:165
 #: src/views/apps/redis/IndexView.vue:63
 #: src/views/apps/rsync/IndexView.vue:235
@@ -1850,7 +1850,7 @@ msgstr ""
 #: src/views/apps/frp/IndexView.vue:75
 #: src/views/apps/frp/IndexView.vue:103
 #: src/views/apps/gitea/IndexView.vue:32
-#: src/views/apps/mysql/MysqlIndex.vue:105
+#: src/views/apps/mysql/MysqlIndex.vue:107
 #: src/views/apps/nginx/NginxIndex.vue:479
 #: src/views/apps/phpmyadmin/IndexView.vue:73
 msgid "Modify Configuration"
@@ -1863,9 +1863,9 @@ msgstr ""
 
 #: src/views/apps/apache/IndexView.vue:77
 #: src/views/apps/memcached/IndexView.vue:64
-#: src/views/apps/mysql/MysqlIndex.vue:123
+#: src/views/apps/mysql/MysqlIndex.vue:125
 #: src/views/apps/nginx/NginxIndex.vue:535
-#: src/views/apps/postgresql/IndexView.vue:142
+#: src/views/apps/postgresql/IndexView.vue:144
 #: src/views/apps/redis/IndexView.vue:68
 #: src/views/environment/PHPView.vue:261
 #: src/views/home/IndexView.vue:490
@@ -1879,10 +1879,10 @@ msgstr ""
 #: src/views/apps/gitea/IndexView.vue:49
 #: src/views/apps/memcached/IndexView.vue:74
 #: src/views/apps/minio/IndexView.vue:49
-#: src/views/apps/mysql/MysqlIndex.vue:133
+#: src/views/apps/mysql/MysqlIndex.vue:135
 #: src/views/apps/nginx/NginxIndex.vue:545
 #: src/views/apps/podman/IndexView.vue:85
-#: src/views/apps/postgresql/IndexView.vue:152
+#: src/views/apps/postgresql/IndexView.vue:154
 #: src/views/apps/redis/IndexView.vue:78
 #: src/views/apps/rsync/IndexView.vue:240
 #: src/views/apps/supervisor/IndexView.vue:347
@@ -1897,9 +1897,9 @@ msgid "Error Logs"
 msgstr ""
 
 #: src/views/apps/apache/IndexView.vue:94
-#: src/views/apps/mysql/MysqlIndex.vue:135
+#: src/views/apps/mysql/MysqlIndex.vue:137
 #: src/views/apps/nginx/NginxIndex.vue:552
-#: src/views/apps/postgresql/IndexView.vue:156
+#: src/views/apps/postgresql/IndexView.vue:158
 #: src/views/apps/supervisor/IndexView.vue:354
 #: src/views/environment/PHPView.vue:278
 msgid "Clear Log"
@@ -2363,12 +2363,12 @@ msgstr ""
 msgid "Root Password"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlIndex.vue:86
+#: src/views/apps/mysql/MysqlIndex.vue:87
 msgid "The \"root\" user password is used to manage the database system. Keep it safe!"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlIndex.vue:95
-#: src/views/apps/postgresql/IndexView.vue:98
+#: src/views/apps/mysql/MysqlIndex.vue:96
+#: src/views/apps/postgresql/IndexView.vue:99
 #: src/views/database/ServerList.vue:108
 #: src/views/database/UserList.vue:74
 #: src/views/file/ListView.vue:307
@@ -2378,15 +2378,15 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlIndex.vue:109
+#: src/views/apps/mysql/MysqlIndex.vue:111
 msgid "This modifies the %{ name } main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlIndex.vue:139
+#: src/views/apps/mysql/MysqlIndex.vue:141
 msgid "Slow Query Log"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlIndex.vue:141
+#: src/views/apps/mysql/MysqlIndex.vue:143
 #: src/views/environment/PHPView.vue:288
 msgid "Clear Slow Log"
 msgstr ""
@@ -2642,11 +2642,11 @@ msgstr ""
 msgid "Super Password"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:85
+#: src/views/apps/postgresql/IndexView.vue:86
 msgid "The \"postgres\" superuser password is used to manage the database system. Keep it safe!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:108
+#: src/views/apps/postgresql/IndexView.vue:110
 #: src/views/apps/redis/IndexView.vue:51
 #: src/views/apps/rsync/IndexView.vue:223
 #: src/views/apps/supervisor/IndexView.vue:330
@@ -2654,19 +2654,19 @@ msgstr ""
 msgid "Main Configuration"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:112
+#: src/views/apps/postgresql/IndexView.vue:114
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:125
+#: src/views/apps/postgresql/IndexView.vue:127
 msgid "User Configuration"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:129
+#: src/views/apps/postgresql/IndexView.vue:131
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:162
+#: src/views/apps/postgresql/IndexView.vue:164
 #: src/views/environment/PHPView.vue:284
 msgid "Slow Logs"
 msgstr ""

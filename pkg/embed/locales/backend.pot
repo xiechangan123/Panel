@@ -35,7 +35,7 @@ msgstr ""
 msgid "AcePanel CLI Tool"
 msgstr ""
 
-#: internal/apps/mysql/app.go:119
+#: internal/apps/mysql/app.go:121
 msgid "Active Connections"
 msgstr ""
 
@@ -139,13 +139,13 @@ msgstr ""
 msgid "Busy Workers"
 msgstr ""
 
-#: internal/apps/mysql/app.go:118
-#: internal/apps/mysql/app.go:137
+#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:139
 msgid "Bytes Received"
 msgstr ""
 
-#: internal/apps/mysql/app.go:117
-#: internal/apps/mysql/app.go:137
+#: internal/apps/mysql/app.go:119
+#: internal/apps/mysql/app.go:139
 msgid "Bytes Sent"
 msgstr ""
 
@@ -489,11 +489,11 @@ msgstr ""
 msgid "Forum：https://tom.moe"
 msgstr ""
 
-#: internal/apps/mysql/app.go:125
+#: internal/apps/mysql/app.go:127
 msgid "Full Joins without Index"
 msgstr ""
 
-#: internal/apps/mysql/app.go:126
+#: internal/apps/mysql/app.go:128
 msgid "Full Range Joins without Index"
 msgstr ""
 
@@ -575,7 +575,7 @@ msgstr ""
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:123
 msgid "Index Hit Rate"
 msgstr ""
 
@@ -590,7 +590,7 @@ msgstr ""
 msgid "Initialize panel (use only under guidance)"
 msgstr ""
 
-#: internal/apps/mysql/app.go:122
+#: internal/apps/mysql/app.go:124
 msgid "Innodb Index Hit Rate"
 msgstr ""
 
@@ -761,7 +761,7 @@ msgstr ""
 msgid "Old username cannot be empty"
 msgstr ""
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:126
 msgid "Open Tables"
 msgstr ""
 
@@ -853,7 +853,7 @@ msgstr ""
 msgid "Path where the website is hosted (default path if not filled)"
 msgstr ""
 
-#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:122
 msgid "Peak Connections"
 msgstr ""
 
@@ -901,7 +901,7 @@ msgstr ""
 msgid "Port: %d"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:165
+#: internal/apps/postgresql/app.go:167
 msgid "Process Count"
 msgstr ""
 
@@ -909,7 +909,7 @@ msgstr ""
 msgid "Process Manager"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:164
+#: internal/apps/postgresql/app.go:166
 msgid "Process PID"
 msgstr ""
 
@@ -935,19 +935,19 @@ msgstr ""
 msgid "QQ Group：12370907"
 msgstr ""
 
-#: internal/apps/mysql/app.go:184
+#: internal/apps/mysql/app.go:186
 msgid "Query Cache Hit Rate"
 msgstr ""
 
-#: internal/apps/mysql/app.go:172
+#: internal/apps/mysql/app.go:174
 msgid "Query Cache Hits"
 msgstr ""
 
-#: internal/apps/mysql/app.go:176
+#: internal/apps/mysql/app.go:178
 msgid "Query Cache Inserts"
 msgstr ""
 
-#: internal/apps/mysql/app.go:180
+#: internal/apps/mysql/app.go:182
 msgid "Query Cache Not Cached"
 msgstr ""
 
@@ -983,7 +983,7 @@ msgstr ""
 msgid "Restart panel service"
 msgstr ""
 
-#: internal/apps/mysql/app.go:116
+#: internal/apps/mysql/app.go:118
 msgid "Rollbacks per Second"
 msgstr ""
 
@@ -1048,11 +1048,11 @@ msgstr ""
 msgid "Slow Requests"
 msgstr ""
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:130
 msgid "Sort Merge Passes"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:163
+#: internal/apps/postgresql/app.go:165
 #: internal/service/environment_php.go:180
 msgid "Start Time"
 msgstr ""
@@ -1071,11 +1071,11 @@ msgstr ""
 msgid "Storage ID (local storage if not filled)"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:167
+#: internal/apps/postgresql/app.go:169
 msgid "Storage Usage"
 msgstr ""
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:129
 msgid "Subqueries without Index"
 msgstr ""
 
@@ -1115,7 +1115,7 @@ msgstr ""
 msgid "TCP Port"
 msgstr ""
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:131
 msgid "Table Locks Waited"
 msgstr ""
 
@@ -1123,7 +1123,7 @@ msgstr ""
 msgid "Tasks cleared successfully"
 msgstr ""
 
-#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:125
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
@@ -1155,8 +1155,8 @@ msgstr ""
 msgid "Total Commands Processed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:114
-#: internal/apps/postgresql/app.go:166
+#: internal/apps/mysql/app.go:116
+#: internal/apps/postgresql/app.go:168
 msgid "Total Connections"
 msgstr ""
 
@@ -1172,7 +1172,7 @@ msgstr ""
 msgid "Total Processes"
 msgstr ""
 
-#: internal/apps/mysql/app.go:113
+#: internal/apps/mysql/app.go:115
 msgid "Total Queries"
 msgstr ""
 
@@ -1192,7 +1192,7 @@ msgstr ""
 msgid "Total requests"
 msgstr ""
 
-#: internal/apps/mysql/app.go:115
+#: internal/apps/mysql/app.go:117
 msgid "Transactions per Second"
 msgstr ""
 
@@ -1251,7 +1251,7 @@ msgstr ""
 msgid "Update panel"
 msgstr ""
 
-#: internal/apps/mysql/app.go:112
+#: internal/apps/mysql/app.go:114
 msgid "Uptime"
 msgstr ""
 
@@ -1629,7 +1629,7 @@ msgstr ""
 msgid "failed to get Memcached status: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:99
+#: internal/apps/mysql/app.go:101
 msgid "failed to get MySQL status: %v"
 msgstr ""
 
@@ -1637,23 +1637,23 @@ msgstr ""
 msgid "failed to get NTP configuration: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:138
+#: internal/apps/postgresql/app.go:140
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:148
+#: internal/apps/postgresql/app.go:150
 msgid "failed to get PostgreSQL connections: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:153
+#: internal/apps/postgresql/app.go:155
 msgid "failed to get PostgreSQL database size: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:143
+#: internal/apps/postgresql/app.go:145
 msgid "failed to get PostgreSQL process: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:133
+#: internal/apps/postgresql/app.go:135
 msgid "failed to get PostgreSQL start time: %v"
 msgstr ""
 
@@ -1734,7 +1734,7 @@ msgstr ""
 msgid "failed to get port: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:192
+#: internal/apps/postgresql/app.go:194
 msgid "failed to get postgres password: %v"
 msgstr ""
 
@@ -1802,12 +1802,12 @@ msgstr ""
 msgid "failed to list stream upstreams: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:221
-#: internal/apps/mysql/app.go:89
+#: internal/apps/mysql/app.go:223
+#: internal/apps/mysql/app.go:91
 msgid "failed to load MySQL root password: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:122
+#: internal/apps/postgresql/app.go:124
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr ""
 
@@ -1893,8 +1893,8 @@ msgstr ""
 msgid "failed to reload %s service: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:105
-#: internal/apps/postgresql/app.go:72
+#: internal/apps/postgresql/app.go:107
+#: internal/apps/postgresql/app.go:74
 msgid "failed to reload PostgreSQL: %v"
 msgstr ""
 
@@ -1948,7 +1948,7 @@ msgstr ""
 msgid "failed to restart %s: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:72
+#: internal/apps/mysql/app.go:74
 msgid "failed to restart MySQL: %v"
 msgstr ""
 
@@ -1956,7 +1956,7 @@ msgstr ""
 msgid "failed to run command: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:94
+#: internal/apps/mysql/app.go:96
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr ""
 
@@ -1964,7 +1964,7 @@ msgstr ""
 msgid "failed to set NTP servers: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:127
+#: internal/apps/postgresql/app.go:129
 msgid "failed to set PGPASSWORD env: %v"
 msgstr ""
 
@@ -1980,9 +1980,9 @@ msgstr ""
 msgid "failed to set hosts: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:212
-#: internal/apps/postgresql/app.go:218
-#: internal/apps/postgresql/app.go:224
+#: internal/apps/postgresql/app.go:214
+#: internal/apps/postgresql/app.go:220
+#: internal/apps/postgresql/app.go:226
 msgid "failed to set postgres password: %v"
 msgstr ""
 
@@ -2006,11 +2006,11 @@ msgstr ""
 msgid "failed to unmount: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:103
+#: internal/apps/mysql/app.go:105
 msgid "failed to unset MYSQL_PWD env: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:158
+#: internal/apps/postgresql/app.go:160
 msgid "failed to unset PGPASSWORD env: %v"
 msgstr ""
 
@@ -2343,8 +2343,8 @@ msgstr ""
 msgid "stream upstream not found: %s"
 msgstr ""
 
-#: internal/data/database_server.go:160
-#: internal/data/database_server.go:179
+#: internal/data/database_server.go:164
+#: internal/data/database_server.go:183
 msgid "sync from server %s"
 msgstr ""
 
