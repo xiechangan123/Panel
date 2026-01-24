@@ -31,16 +31,20 @@ func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
 			Value: "letsencrypt",
 		},
 		{
+			Label: "GoogleCN",
+			Value: "googlecn",
+		},
+		{
+			Label: "LiteSSL",
+			Value: "litessl",
+		},
+		{
 			Label: "ZeroSSL",
 			Value: "zerossl",
 		},
 		{
 			Label: "SSL.com",
 			Value: "sslcom",
-		},
-		{
-			Label: "GoogleCN",
-			Value: "googlecn",
 		},
 		{
 			Label: "Google",

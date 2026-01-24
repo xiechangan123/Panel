@@ -31,7 +31,7 @@ const model = ref<any>({
 })
 
 const showEAB = computed(() => {
-  return model.value.ca === 'google' || model.value.ca === 'sslcom'
+  return model.value.ca === 'google' || model.value.ca === 'litessl' || model.value.ca === 'sslcom'
 })
 
 const handleCreateAccount = () => {
