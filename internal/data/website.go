@@ -64,12 +64,12 @@ func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, cache biz.C
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
 	if err != nil {
-		return make(map[string]string), err
+		return make(map[string]string), nil
 	}
 
 	entries, err := embed.RewritesFS.ReadDir(filepath.Join("rewrites", webServer))
 	if err != nil {
-		return make(map[string]string), err
+		return make(map[string]string), nil
 	}
 
 	rw := make(map[string]string)
