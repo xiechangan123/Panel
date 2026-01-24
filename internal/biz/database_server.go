@@ -68,6 +68,7 @@ type DatabaseServerRepo interface {
 	Create(req *request.DatabaseServerCreate) error
 	Update(req *request.DatabaseServerUpdate) error
 	UpdateRemark(req *request.DatabaseServerUpdateRemark) error
+	UpdatePassword(name string, password string) error
 	Delete(id uint) error
 	ClearUsers(id uint) error
 	Sync(id uint) error

@@ -20,14 +20,16 @@ import (
 )
 
 type App struct {
-	t           *gotext.Locale
-	settingRepo biz.SettingRepo
+	t                  *gotext.Locale
+	settingRepo        biz.SettingRepo
+	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, setting biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale, setting biz.SettingRepo, databaseServer biz.DatabaseServerRepo) *App {
 	return &App{
-		t:           t,
-		settingRepo: setting,
+		t:                  t,
+		settingRepo:        setting,
+		databaseServerRepo: databaseServer,
 	}
 }
 
@@ -224,6 +226,8 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 		return
 	}
+
+	_ = s.databaseServerRepo.UpdatePassword("local_postgresql", req.Password)
 
 	service.Success(w, nil)
 }

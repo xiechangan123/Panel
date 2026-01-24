@@ -113,6 +113,10 @@ func (r *databaseServerRepo) UpdateRemark(req *request.DatabaseServerUpdateRemar
 	return r.db.Model(&biz.DatabaseServer{}).Where("id = ?", req.ID).Update("remark", req.Remark).Error
 }
 
+func (r *databaseServerRepo) UpdatePassword(name string, password string) error {
+	return r.db.Model(&biz.DatabaseServer{}).Where("name = ?", name).Update("password", password).Error
+}
+
 func (r *databaseServerRepo) Delete(id uint) error {
 	if err := r.ClearUsers(id); err != nil {
 		return err
