@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/acepanel/panel/pkg/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
@@ -18,7 +19,6 @@ import (
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/systemctl"
 	"github.com/acepanel/panel/pkg/tools"
-	"github.com/acepanel/panel/pkg/types"
 )
 
 type App struct {
@@ -78,20 +78,15 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // Load 获取负载
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
-		return
-
-	}
-	if len(rootPassword) == 0 {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("MySQL root password is empty"))
-		return
-	}
-
 	status, _ := systemctl.Status("mysqld")
 	if !status {
 		service.Success(w, []types.NV{})
+		return
+	}
+
+	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to load MySQL root password: %v", err))
 		return
 	}
 
@@ -253,6 +248,7 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
 	if err = s.settingRepo.Set(biz.SettingKeyMySQLRootPassword, req.Password); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return

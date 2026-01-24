@@ -188,7 +188,8 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if postgresqlInstalled {
-		postgres, err := db.NewPostgres("postgres", "", "127.0.0.1", 5432)
+		postgresPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
+		postgres, err := db.NewPostgres("postgres", postgresPassword, "127.0.0.1", 5432)
 		if err == nil {
 			defer postgres.Close()
 			databases, err := postgres.Databases()
