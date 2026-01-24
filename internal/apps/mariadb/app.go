@@ -12,9 +12,9 @@ type App struct {
 	mysql *mysql.App
 }
 
-func NewApp(t *gotext.Locale, setting biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale, setting biz.SettingRepo, databaseServer biz.DatabaseServerRepo) *App {
 	return &App{
-		mysql: mysql.NewApp(t, setting),
+		mysql: mysql.NewApp(t, setting, databaseServer),
 	}
 }
 
