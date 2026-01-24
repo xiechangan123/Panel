@@ -299,8 +299,8 @@ msgstr ""
 #: src/views/apps/phpmyadmin/IndexView.vue:43
 #: src/views/apps/podman/IndexView.vue:25
 #: src/views/apps/podman/IndexView.vue:31
-#: src/views/apps/postgresql/IndexView.vue:46
-#: src/views/apps/postgresql/IndexView.vue:51
+#: src/views/apps/postgresql/IndexView.vue:50
+#: src/views/apps/postgresql/IndexView.vue:55
 #: src/views/apps/pureftpd/IndexView.vue:115
 #: src/views/apps/redis/IndexView.vue:40
 #: src/views/apps/rsync/IndexView.vue:133
@@ -667,7 +667,7 @@ msgstr ""
 #: src/views/apps/mysql/MysqlIndex.vue:80
 #: src/views/apps/nginx/NginxIndex.vue:476
 #: src/views/apps/podman/IndexView.vue:39
-#: src/views/apps/postgresql/IndexView.vue:63
+#: src/views/apps/postgresql/IndexView.vue:79
 #: src/views/apps/pureftpd/IndexView.vue:158
 #: src/views/apps/redis/IndexView.vue:48
 #: src/views/apps/rsync/IndexView.vue:191
@@ -835,8 +835,8 @@ msgstr ""
 #: src/views/apps/phpmyadmin/IndexView.vue:85
 #: src/views/apps/podman/IndexView.vue:63
 #: src/views/apps/podman/IndexView.vue:80
-#: src/views/apps/postgresql/IndexView.vue:78
-#: src/views/apps/postgresql/IndexView.vue:95
+#: src/views/apps/postgresql/IndexView.vue:113
+#: src/views/apps/postgresql/IndexView.vue:130
 #: src/views/apps/pureftpd/IndexView.vue:165
 #: src/views/apps/redis/IndexView.vue:63
 #: src/views/apps/rsync/IndexView.vue:235
@@ -1815,7 +1815,7 @@ msgstr ""
 #: src/views/apps/memcached/IndexView.vue:17
 #: src/views/apps/mysql/MysqlIndex.vue:32
 #: src/views/apps/nginx/NginxIndex.vue:130
-#: src/views/apps/postgresql/IndexView.vue:30
+#: src/views/apps/postgresql/IndexView.vue:34
 #: src/views/apps/redis/IndexView.vue:24
 #: src/views/environment/PHPView.vue:120
 msgid "Property"
@@ -1825,7 +1825,7 @@ msgstr ""
 #: src/views/apps/memcached/IndexView.vue:24
 #: src/views/apps/mysql/MysqlIndex.vue:39
 #: src/views/apps/nginx/NginxIndex.vue:137
-#: src/views/apps/postgresql/IndexView.vue:37
+#: src/views/apps/postgresql/IndexView.vue:41
 #: src/views/apps/redis/IndexView.vue:31
 #: src/views/environment/PHPView.vue:127
 msgid "Current Value"
@@ -1835,7 +1835,7 @@ msgstr ""
 #: src/views/apps/mysql/MysqlIndex.vue:54
 #: src/views/apps/mysql/MysqlIndex.vue:60
 #: src/views/apps/nginx/NginxIndex.vue:329
-#: src/views/apps/postgresql/IndexView.vue:56
+#: src/views/apps/postgresql/IndexView.vue:60
 #: src/views/apps/supervisor/IndexView.vue:225
 #: src/views/environment/PHPView.vue:166
 #: src/views/environment/PHPView.vue:172
@@ -1863,7 +1863,7 @@ msgstr ""
 #: src/views/apps/memcached/IndexView.vue:64
 #: src/views/apps/mysql/MysqlIndex.vue:116
 #: src/views/apps/nginx/NginxIndex.vue:535
-#: src/views/apps/postgresql/IndexView.vue:100
+#: src/views/apps/postgresql/IndexView.vue:135
 #: src/views/apps/redis/IndexView.vue:68
 #: src/views/environment/PHPView.vue:261
 #: src/views/home/IndexView.vue:490
@@ -1880,7 +1880,7 @@ msgstr ""
 #: src/views/apps/mysql/MysqlIndex.vue:126
 #: src/views/apps/nginx/NginxIndex.vue:545
 #: src/views/apps/podman/IndexView.vue:85
-#: src/views/apps/postgresql/IndexView.vue:110
+#: src/views/apps/postgresql/IndexView.vue:145
 #: src/views/apps/redis/IndexView.vue:78
 #: src/views/apps/rsync/IndexView.vue:240
 #: src/views/apps/supervisor/IndexView.vue:347
@@ -1897,7 +1897,7 @@ msgstr ""
 #: src/views/apps/apache/IndexView.vue:94
 #: src/views/apps/mysql/MysqlIndex.vue:128
 #: src/views/apps/nginx/NginxIndex.vue:552
-#: src/views/apps/postgresql/IndexView.vue:114
+#: src/views/apps/postgresql/IndexView.vue:149
 #: src/views/apps/supervisor/IndexView.vue:354
 #: src/views/environment/PHPView.vue:278
 msgid "Clear Log"
@@ -2325,6 +2325,7 @@ msgid "This is modifying the Minio environment variable file /etc/default/minio.
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:66
+#: src/views/apps/postgresql/IndexView.vue:65
 #: src/views/apps/pureftpd/IndexView.vue:138
 #: src/views/database/DatabaseList.vue:132
 #: src/views/database/ServerList.vue:285
@@ -2344,6 +2345,7 @@ msgid "Modified successfully"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:72
+#: src/views/apps/postgresql/IndexView.vue:71
 #: src/views/database/ServerList.vue:104
 #: src/views/database/UserList.vue:70
 #: src/views/file/ListView.vue:868
@@ -2360,6 +2362,7 @@ msgid "Root Password"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:88
+#: src/views/apps/postgresql/IndexView.vue:91
 #: src/views/database/ServerList.vue:108
 #: src/views/database/UserList.vue:74
 #: src/views/file/ListView.vue:307
@@ -2370,6 +2373,7 @@ msgid "Copy"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:92
+#: src/views/apps/postgresql/IndexView.vue:95
 #: src/views/website/SettingView.vue:48
 #: src/views/website/SettingView.vue:58
 #: src/views/website/SettingView.vue:68
@@ -2637,7 +2641,11 @@ msgstr ""
 msgid "This modifies the Podman storage configuration file (/etc/containers/storage.conf)"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:66
+#: src/views/apps/postgresql/IndexView.vue:82
+msgid "Postgres Password"
+msgstr ""
+
+#: src/views/apps/postgresql/IndexView.vue:101
 #: src/views/apps/redis/IndexView.vue:51
 #: src/views/apps/rsync/IndexView.vue:223
 #: src/views/apps/supervisor/IndexView.vue:330
@@ -2645,19 +2653,19 @@ msgstr ""
 msgid "Main Configuration"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:70
+#: src/views/apps/postgresql/IndexView.vue:105
 msgid "This modifies the PostgreSQL main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:83
+#: src/views/apps/postgresql/IndexView.vue:118
 msgid "User Configuration"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:87
+#: src/views/apps/postgresql/IndexView.vue:122
 msgid "This modifies the PostgreSQL user configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:120
+#: src/views/apps/postgresql/IndexView.vue:155
 #: src/views/environment/PHPView.vue:284
 msgid "Slow Logs"
 msgstr ""
