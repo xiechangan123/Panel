@@ -489,6 +489,53 @@ func (_c *DatabaseServerRepo_Update_Call) RunAndReturn(run func(*request.Databas
 	return _c
 }
 
+// UpdatePassword provides a mock function with given fields: name, password
+func (_m *DatabaseServerRepo) UpdatePassword(name string, password string) error {
+	ret := _m.Called(name, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePassword")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(name, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DatabaseServerRepo_UpdatePassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePassword'
+type DatabaseServerRepo_UpdatePassword_Call struct {
+	*mock.Call
+}
+
+// UpdatePassword is a helper method to define mock.On call
+//   - name string
+//   - password string
+func (_e *DatabaseServerRepo_Expecter) UpdatePassword(name interface{}, password interface{}) *DatabaseServerRepo_UpdatePassword_Call {
+	return &DatabaseServerRepo_UpdatePassword_Call{Call: _e.mock.On("UpdatePassword", name, password)}
+}
+
+func (_c *DatabaseServerRepo_UpdatePassword_Call) Run(run func(name string, password string)) *DatabaseServerRepo_UpdatePassword_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *DatabaseServerRepo_UpdatePassword_Call) Return(_a0 error) *DatabaseServerRepo_UpdatePassword_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *DatabaseServerRepo_UpdatePassword_Call) RunAndReturn(run func(string, string) error) *DatabaseServerRepo_UpdatePassword_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateRemark provides a mock function with given fields: req
 func (_m *DatabaseServerRepo) UpdateRemark(req *request.DatabaseServerUpdateRemark) error {
 	ret := _m.Called(req)
