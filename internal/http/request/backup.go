@@ -9,7 +9,7 @@ type BackupList struct {
 type BackupCreate struct {
 	Type    string `uri:"type" form:"type" validate:"required|in:website,mysql,postgres,redis,panel"`
 	Target  string `json:"target" form:"target" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
-	Storage uint   `form:"storage" json:"storage" validate:"required|exists:backup_storages,id"`
+	Storage uint   `form:"storage" json:"storage"`
 }
 
 type BackupUpload struct {
