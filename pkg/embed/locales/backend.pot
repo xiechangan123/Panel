@@ -55,7 +55,7 @@ msgstr ""
 msgid "Add panel application mark (use only under guidance)"
 msgstr ""
 
-#: internal/service/cert.go:60
+#: internal/service/cert.go:64
 msgid "Aliyun"
 msgstr ""
 
@@ -220,11 +220,11 @@ msgstr ""
 msgid "Clear rotated logs"
 msgstr ""
 
-#: internal/service/cert.go:92
+#: internal/service/cert.go:96
 msgid "ClouDNS"
 msgstr ""
 
-#: internal/service/cert.go:76
+#: internal/service/cert.go:80
 msgid "CloudFlare"
 msgstr ""
 
@@ -505,7 +505,7 @@ msgstr ""
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
-#: internal/service/cert.go:80
+#: internal/service/cert.go:84
 msgid "Gcore"
 msgstr ""
 
@@ -539,7 +539,7 @@ msgstr ""
 msgid "HTTPS enabled"
 msgstr ""
 
-#: internal/service/cert.go:68
+#: internal/service/cert.go:72
 msgid "Huawei Cloud"
 msgstr ""
 
@@ -714,7 +714,7 @@ msgstr ""
 msgid "NAME"
 msgstr ""
 
-#: internal/service/cert.go:88
+#: internal/service/cert.go:92
 msgid "NameSilo"
 msgstr ""
 
@@ -881,7 +881,7 @@ msgstr ""
 msgid "Podman container logs: %d files"
 msgstr ""
 
-#: internal/service/cert.go:84
+#: internal/service/cert.go:88
 msgid "Porkbun"
 msgstr ""
 
@@ -1131,7 +1131,7 @@ msgstr ""
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr ""
 
-#: internal/service/cert.go:64
+#: internal/service/cert.go:68
 msgid "Tencent Cloud"
 msgstr ""
 
@@ -1330,7 +1330,7 @@ msgstr ""
 msgid "Website：https://acepanel.net"
 msgstr ""
 
-#: internal/service/cert.go:72
+#: internal/service/cert.go:76
 msgid "West.cn"
 msgstr ""
 
@@ -1617,11 +1617,11 @@ msgstr ""
 msgid "failed to get %s service running status: %v"
 msgstr ""
 
-#: internal/data/cert_account.go:219
+#: internal/data/cert_account.go:223
 msgid "failed to get Google EAB: %s"
 msgstr ""
 
-#: internal/data/cert_account.go:215
+#: internal/data/cert_account.go:219
 msgid "failed to get Google EAB: %v"
 msgstr ""
 
@@ -1661,11 +1661,11 @@ msgstr ""
 msgid "failed to get SWAP: %v"
 msgstr ""
 
-#: internal/data/cert_account.go:244
+#: internal/data/cert_account.go:248
 msgid "failed to get ZeroSSL EAB"
 msgstr ""
 
-#: internal/data/cert_account.go:240
+#: internal/data/cert_account.go:244
 msgid "failed to get ZeroSSL EAB: %v"
 msgstr ""
 
@@ -1738,11 +1738,11 @@ msgstr ""
 msgid "failed to get postgres password: %v"
 msgstr ""
 
-#: internal/data/cert_account.go:113
+#: internal/data/cert_account.go:115
 msgid "failed to get private key"
 msgstr ""
 
-#: internal/data/cert_account.go:175
+#: internal/data/cert_account.go:179
 msgid "failed to get private key: %v"
 msgstr ""
 
@@ -1884,8 +1884,8 @@ msgstr ""
 msgid "failed to read sshd_config: %v"
 msgstr ""
 
-#: internal/data/cert_account.go:108
-#: internal/data/cert_account.go:170
+#: internal/data/cert_account.go:110
+#: internal/data/cert_account.go:174
 msgid "failed to register account: %v"
 msgstr ""
 
@@ -2422,8 +2422,8 @@ msgstr ""
 msgid "unknown test type"
 msgstr ""
 
-#: internal/data/cert_account.go:104
-#: internal/data/cert_account.go:166
+#: internal/data/cert_account.go:106
+#: internal/data/cert_account.go:170
 msgid "unsupported CA"
 msgstr ""
 
