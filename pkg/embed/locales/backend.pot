@@ -1956,10 +1956,6 @@ msgstr ""
 msgid "failed to run command: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:224
-msgid "failed to save postgres password: %v"
-msgstr ""
-
 #: internal/apps/mysql/app.go:94
 msgid "failed to set MYSQL_PWD env: %v"
 msgstr ""
@@ -1986,6 +1982,7 @@ msgstr ""
 
 #: internal/apps/postgresql/app.go:212
 #: internal/apps/postgresql/app.go:218
+#: internal/apps/postgresql/app.go:224
 msgid "failed to set postgres password: %v"
 msgstr ""
 
