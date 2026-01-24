@@ -79,7 +79,14 @@ const handleCopyPostgresPassword = () => {
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
         <n-flex vertical>
           <service-status service="postgresql" show-reload />
-          <n-card :title="$gettext('Postgres Password')">
+          <n-card :title="$gettext('Super Password')">
+            <n-alert type="info" mb-4>
+              {{
+                $gettext(
+                  'The "postgres" superuser password is used to manage the database system. Keep it safe!'
+                )
+              }}
+            </n-alert>
             <n-flex>
               <n-input-group>
                 <n-input
@@ -92,7 +99,7 @@ const handleCopyPostgresPassword = () => {
                 </n-button>
               </n-input-group>
               <n-button type="primary" @click="handleSetPostgresPassword">
-                {{ $gettext('Save Changes') }}
+                {{ $gettext('Save') }}
               </n-button>
             </n-flex>
           </n-card>
