@@ -407,6 +407,9 @@ onMounted(() => {
             :placeholder="$gettext('Enter endpoint URL')"
           />
         </n-form-item>
+        <n-form-item :label="$gettext('Scheme')">
+          <n-select v-model:value="editModel.info.scheme" :options="schemeOptions" />
+        </n-form-item>
         <n-form-item :label="$gettext('Bucket')" required>
           <n-input
             v-model:value="editModel.info.bucket"
