@@ -2223,8 +2223,9 @@ msgid "Service Configuration"
 msgstr "Service Configuration"
 
 #: src/views/apps/minio/IndexView.vue:36
+#, fuzzy
 msgid ""
-"This is modifying the Minio environment variable file /etc/default/minio. If "
+"This is modifying the MinIO environment variable file /etc/default/minio. If "
 "you do not understand the meaning of each parameter, please do not modify it "
 "arbitrarily!"
 msgstr ""

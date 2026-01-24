@@ -2323,7 +2323,7 @@ msgid "Service Configuration"
 msgstr ""
 
 #: src/views/apps/minio/IndexView.vue:36
-msgid "This is modifying the Minio environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
+msgid "This is modifying the MinIO environment variable file /etc/default/minio. If you do not understand the meaning of each parameter, please do not modify it arbitrarily!"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlIndex.vue:66
