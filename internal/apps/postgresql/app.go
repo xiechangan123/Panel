@@ -221,7 +221,7 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = s.settingRepo.Set(biz.SettingKeyPostgresPassword, req.Password); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to save postgres password: %v", err))
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 		return
 	}
 
