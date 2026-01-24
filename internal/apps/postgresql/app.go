@@ -205,7 +205,7 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
-	postgres, err := db.NewPostgres("root", oldPassword, "127.0.0.1", 5432)
+	postgres, err := db.NewPostgres("postgres", oldPassword, "127.0.0.1", 5432)
 	if err != nil {
 		// 直接修改密码
 		if _, err = shell.Execf(`su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, req.Password); err != nil {
