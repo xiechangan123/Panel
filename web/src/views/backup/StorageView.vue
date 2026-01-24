@@ -37,7 +37,8 @@ const defaultModel = {
   info: {
     access_key: '',
     secret_key: '',
-    style: 'virtual_hosted',
+    style: 'virtual-hosted',
+    region: '',
     endpoint: '',
     scheme: 'https',
     bucket: '',
@@ -245,6 +246,12 @@ onMounted(() => {
         </n-form-item>
         <n-form-item :label="$gettext('Style')">
           <n-select v-model:value="createModel.info.style" :options="styleOptions" />
+        </n-form-item>
+        <n-form-item :label="$gettext('Region')">
+          <n-input
+            v-model:value="createModel.info.region"
+            :placeholder="$gettext('Enter region (e.g., us-east-1)')"
+          />
         </n-form-item>
         <n-form-item :label="$gettext('Endpoint')" required>
           <n-input

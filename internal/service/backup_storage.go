@@ -124,6 +124,7 @@ func (s *BackupStorageService) validateStorage(accountType string, info types.Ba
 	switch biz.BackupStorageType(accountType) {
 	case biz.BackupStorageTypeS3:
 		client, err = storage.NewS3(storage.S3Config{
+			Region:          info.Region,
 			Bucket:          info.Bucket,
 			AccessKeyID:     info.AccessKey,
 			SecretAccessKey: info.SecretKey,
