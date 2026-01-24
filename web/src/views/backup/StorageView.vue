@@ -17,7 +17,7 @@ const typeOptions = [
 ]
 
 const styleOptions = [
-  { label: 'Virtual Hosted', value: 'virtual_hosted' },
+  { label: 'Virtual Hosted', value: 'virtual-hosted' },
   { label: 'Path', value: 'path' }
 ]
 
