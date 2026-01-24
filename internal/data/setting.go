@@ -6,7 +6,6 @@ import (
 	"errors"
 	"log/slog"
 	"path/filepath"
-	"sync"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
@@ -24,12 +23,11 @@ import (
 )
 
 type settingRepo struct {
-	t     *gotext.Locale
-	cache sync.Map
-	db    *gorm.DB
-	log   *slog.Logger
-	conf  *config.Config
-	task  biz.TaskRepo
+	t    *gotext.Locale
+	db   *gorm.DB
+	log  *slog.Logger
+	conf *config.Config
+	task biz.TaskRepo
 }
 
 func NewSettingRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, conf *config.Config, task biz.TaskRepo) biz.SettingRepo {
@@ -43,13 +41,6 @@ func NewSettingRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, conf *confi
 }
 
 func (r *settingRepo) Get(key biz.SettingKey, defaultValue ...string) (string, error) {
-	if cache, ok := r.cache.Load(key); ok {
-		if v, ok := cache.(string); ok {
-			return v, nil
-		}
-		r.cache.Delete(key)
-	}
-
 	setting := new(biz.Setting)
 	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -65,13 +56,6 @@ func (r *settingRepo) Get(key biz.SettingKey, defaultValue ...string) (string, e
 }
 
 func (r *settingRepo) GetBool(key biz.SettingKey, defaultValue ...bool) (bool, error) {
-	if cache, ok := r.cache.Load(key); ok {
-		if v, ok := cache.(bool); ok {
-			return v, nil
-		}
-		r.cache.Delete(key)
-	}
-
 	setting := new(biz.Setting)
 	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -87,13 +71,6 @@ func (r *settingRepo) GetBool(key biz.SettingKey, defaultValue ...bool) (bool, e
 }
 
 func (r *settingRepo) GetInt(key biz.SettingKey, defaultValue ...int) (int, error) {
-	if cache, ok := r.cache.Load(key); ok {
-		if v, ok := cache.(int); ok {
-			return v, nil
-		}
-		r.cache.Delete(key)
-	}
-
 	setting := new(biz.Setting)
 	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -109,13 +86,6 @@ func (r *settingRepo) GetInt(key biz.SettingKey, defaultValue ...int) (int, erro
 }
 
 func (r *settingRepo) GetSlice(key biz.SettingKey, defaultValue ...[]string) ([]string, error) {
-	if cache, ok := r.cache.Load(key); ok {
-		if v, ok := cache.([]string); ok {
-			return v, nil
-		}
-		r.cache.Delete(key)
-	}
-
 	setting := new(biz.Setting)
 	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -156,8 +126,6 @@ func (r *settingRepo) Set(key biz.SettingKey, value string) error {
 		return err
 	}
 
-	r.cache.Store(key, value)
-
 	return nil
 }
 
@@ -184,8 +152,6 @@ func (r *settingRepo) SetSlice(key biz.SettingKey, value []string) error {
 		return err
 	}
 
-	r.cache.Store(key, value)
-
 	return nil
 }
 
@@ -194,8 +160,6 @@ func (r *settingRepo) Delete(key biz.SettingKey) error {
 	if err := r.db.Where("key = ?", key).Delete(setting).Error; err != nil {
 		return err
 	}
-
-	r.cache.Delete(key)
 
 	return nil
 }
