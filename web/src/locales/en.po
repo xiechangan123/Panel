@@ -196,7 +196,7 @@ msgstr "Enter user password"
 #: src/components/common/PtyTerminalModal.vue:195
 #: src/components/common/PtyTerminalModal.vue:199
 #: src/layout/header/components/UserAvatar.vue:29
-#: src/views/app/TemplateDeployModal.vue:319 src/views/home/UpdateView.vue:26
+#: src/views/app/TemplateDeployModal.vue:341 src/views/home/UpdateView.vue:26
 #: src/views/monitor/IndexView.vue:600 src/views/toolbox/DiskView.vue:403
 #: src/views/toolbox/DiskView.vue:405 src/views/toolbox/DiskView.vue:428
 #: src/views/toolbox/DiskView.vue:430 src/views/toolbox/DiskView.vue:500
@@ -216,7 +216,7 @@ msgstr "Confirm"
 #: src/components/file-editor/EditorToolbar.vue:101
 #: src/components/file-editor/FileTree.vue:603
 #: src/layout/header/components/UserAvatar.vue:30
-#: src/views/app/TemplateDeployModal.vue:614
+#: src/views/app/TemplateDeployModal.vue:636
 #: src/views/container/ContainerCreate.vue:536
 #: src/views/container/ImagePullModal.vue:184
 #: src/views/container/ImagePullModal.vue:198
@@ -371,7 +371,7 @@ msgstr "Invalid name"
 
 #: src/components/common/PathSelector.vue:254
 #: src/components/file-editor/FileTree.vue:284
-#: src/views/app/TemplateDeployModal.vue:214 src/views/backup/ListView.vue:126
+#: src/views/app/TemplateDeployModal.vue:236 src/views/backup/ListView.vue:126
 #: src/views/backup/StorageView.vue:151
 #: src/views/cert/CreateAccountModal.vue:52
 #: src/views/cert/CreateCertModal.vue:50 src/views/cert/CreateDnsModal.vue:35
@@ -400,7 +400,7 @@ msgstr "Folder"
 
 #: src/components/common/PathSelector.vue:317
 #: src/components/common/PathSelector.vue:380
-#: src/views/app/TemplateDeployModal.vue:629
+#: src/views/app/TemplateDeployModal.vue:651
 #: src/views/container/ContainerCreate.vue:539
 #: src/views/project/CreateModal.vue:608 src/views/setting/TokenModal.vue:266
 #: src/views/toolbox/WebHookView.vue:352
@@ -1301,7 +1301,7 @@ msgstr "Toolbox"
 
 #: src/locales/menu.ts:22 src/views/app/AppView.vue:93
 #: src/views/app/EnvironmentView.vue:78
-#: src/views/app/TemplateDeployModal.vue:629 src/views/home/IndexView.vue:479
+#: src/views/app/TemplateDeployModal.vue:651 src/views/home/IndexView.vue:479
 #: src/views/setting/TokenModal.vue:299
 msgid "Update"
 msgstr "Update"
@@ -1473,108 +1473,112 @@ msgstr "Container Name"
 msgid "Update Cache"
 msgstr "Update Cache"
 
-#: src/views/app/TemplateDeployModal.vue:81
+#: src/views/app/TemplateDeployModal.vue:83
 #, fuzzy
 msgid "Please enter URL"
 msgstr "Please enter absolute path"
 
-#: src/views/app/TemplateDeployModal.vue:86
+#: src/views/app/TemplateDeployModal.vue:88
 #, fuzzy
 msgid "Please enter a valid URL"
 msgstr "Please enter absolute path"
 
-#: src/views/app/TemplateDeployModal.vue:161
+#: src/views/app/TemplateDeployModal.vue:99
+msgid "This field is required"
+msgstr ""
+
+#: src/views/app/TemplateDeployModal.vue:183
 #, fuzzy
 msgid "Please enter compose name"
 msgstr "Please enter absolute path"
 
-#: src/views/app/TemplateDeployModal.vue:176
+#: src/views/app/TemplateDeployModal.vue:198
 #, fuzzy
 msgid "Please select a compose"
 msgstr "Please select a timezone"
 
-#: src/views/app/TemplateDeployModal.vue:235 src/views/cert/AccountView.vue:162
+#: src/views/app/TemplateDeployModal.vue:257 src/views/cert/AccountView.vue:162
 #: src/views/cert/CertView.vue:337 src/views/cert/CertView.vue:354
 #: src/views/cert/DnsView.vue:139 src/views/container/ComposeView.vue:287
 msgid "Update successful"
 msgstr "Update successful"
 
-#: src/views/app/TemplateDeployModal.vue:305
+#: src/views/app/TemplateDeployModal.vue:327
 #, fuzzy
 msgid "Deploy Template"
 msgstr "Compose Name"
 
-#: src/views/app/TemplateDeployModal.vue:316
-#: src/views/app/TemplateDeployModal.vue:573
+#: src/views/app/TemplateDeployModal.vue:338
+#: src/views/app/TemplateDeployModal.vue:595
 #, fuzzy
 msgid "Deploy Mode"
 msgstr "Deploy"
 
-#: src/views/app/TemplateDeployModal.vue:317
+#: src/views/app/TemplateDeployModal.vue:339
 msgid "Configuration"
 msgstr "Configuration"
 
-#: src/views/app/TemplateDeployModal.vue:318
+#: src/views/app/TemplateDeployModal.vue:340
 #, fuzzy
 msgid "Preview & Edit"
 msgstr "Preview - "
 
-#: src/views/app/TemplateDeployModal.vue:332
+#: src/views/app/TemplateDeployModal.vue:354
 #, fuzzy
 msgid "Create New Compose"
 msgstr "Create Compose"
 
-#: src/views/app/TemplateDeployModal.vue:334
+#: src/views/app/TemplateDeployModal.vue:356
 msgid "Create a new compose from this template"
 msgstr ""
 
-#: src/views/app/TemplateDeployModal.vue:349
+#: src/views/app/TemplateDeployModal.vue:371
 #, fuzzy
 msgid "Update Existing Compose"
 msgstr "Create Compose"
 
-#: src/views/app/TemplateDeployModal.vue:352
+#: src/views/app/TemplateDeployModal.vue:374
 msgid "Update an existing compose with this template"
 msgstr ""
 
-#: src/views/app/TemplateDeployModal.vue:370
-#: src/views/app/TemplateDeployModal.vue:578
+#: src/views/app/TemplateDeployModal.vue:392
+#: src/views/app/TemplateDeployModal.vue:600
 #: src/views/container/ComposeView.vue:361
 msgid "Compose Name"
 msgstr "Compose Name"
 
-#: src/views/app/TemplateDeployModal.vue:375
+#: src/views/app/TemplateDeployModal.vue:397
 #, fuzzy
 msgid "Enter compose name"
 msgstr "Enter comment name"
 
-#: src/views/app/TemplateDeployModal.vue:379
-#: src/views/app/TemplateDeployModal.vue:469
+#: src/views/app/TemplateDeployModal.vue:401
+#: src/views/app/TemplateDeployModal.vue:491
 #, fuzzy
 msgid "Deploy Options"
 msgstr "Options"
 
-#: src/views/app/TemplateDeployModal.vue:383
-#: src/views/app/TemplateDeployModal.vue:473
-#: src/views/app/TemplateDeployModal.vue:581
+#: src/views/app/TemplateDeployModal.vue:405
+#: src/views/app/TemplateDeployModal.vue:495
+#: src/views/app/TemplateDeployModal.vue:603
 #, fuzzy
 msgid "Auto Start"
 msgstr "Autostart On"
 
-#: src/views/app/TemplateDeployModal.vue:388
-#: src/views/app/TemplateDeployModal.vue:586
+#: src/views/app/TemplateDeployModal.vue:410
+#: src/views/app/TemplateDeployModal.vue:608
 #, fuzzy
 msgid "Auto Firewall"
 msgstr "Firewall"
 
-#: src/views/app/TemplateDeployModal.vue:391
+#: src/views/app/TemplateDeployModal.vue:413
 msgid "Automatically allow ports defined in compose"
 msgstr ""
 
-#: src/views/app/TemplateDeployModal.vue:399
-#: src/views/app/TemplateDeployModal.vue:481
-#: src/views/app/TemplateDeployModal.vue:559
-#: src/views/app/TemplateDeployModal.vue:591
+#: src/views/app/TemplateDeployModal.vue:421
+#: src/views/app/TemplateDeployModal.vue:503
+#: src/views/app/TemplateDeployModal.vue:581
+#: src/views/app/TemplateDeployModal.vue:613
 #: src/views/apps/minio/IndexView.vue:32
 #: src/views/container/ComposeView.vue:367
 #: src/views/container/ComposeView.vue:393
@@ -1583,65 +1587,65 @@ msgstr ""
 msgid "Environment Variables"
 msgstr "Environment Variables"
 
-#: src/views/app/TemplateDeployModal.vue:413
-#: src/views/app/TemplateDeployModal.vue:495
+#: src/views/app/TemplateDeployModal.vue:435
+#: src/views/app/TemplateDeployModal.vue:517
 #, fuzzy
 msgid "Select value"
 msgstr "Select File"
 
-#: src/views/app/TemplateDeployModal.vue:458
+#: src/views/app/TemplateDeployModal.vue:480
 #, fuzzy
 msgid "Select Compose"
 msgstr "Select host"
 
-#: src/views/app/TemplateDeployModal.vue:463
+#: src/views/app/TemplateDeployModal.vue:485
 #, fuzzy
 msgid "Select a compose to update"
 msgstr "Select File"
 
-#: src/views/app/TemplateDeployModal.vue:535
+#: src/views/app/TemplateDeployModal.vue:557
 #, fuzzy
 msgid "Compose File"
 msgstr "Compose Name"
 
-#: src/views/app/TemplateDeployModal.vue:544
+#: src/views/app/TemplateDeployModal.vue:566
 msgid ""
 "Left side shows the original compose, right side shows the new compose. You "
 "can edit the right side."
 msgstr ""
 
-#: src/views/app/TemplateDeployModal.vue:563
+#: src/views/app/TemplateDeployModal.vue:585
 #: src/views/container/ComposeView.vue:371
 #: src/views/container/ComposeView.vue:397
 msgid "Variable Name"
 msgstr "Variable Name"
 
-#: src/views/app/TemplateDeployModal.vue:564
+#: src/views/app/TemplateDeployModal.vue:586
 #: src/views/container/ComposeView.vue:372
 #: src/views/container/ComposeView.vue:398
 msgid "Variable Value"
 msgstr "Variable Value"
 
-#: src/views/app/TemplateDeployModal.vue:575
+#: src/views/app/TemplateDeployModal.vue:597
 #, fuzzy
 msgid "Create New"
 msgstr "Create Network"
 
-#: src/views/app/TemplateDeployModal.vue:575
+#: src/views/app/TemplateDeployModal.vue:597
 #, fuzzy
 msgid "Update Existing"
 msgstr "Update Host"
 
-#: src/views/app/TemplateDeployModal.vue:583
-#: src/views/app/TemplateDeployModal.vue:588
+#: src/views/app/TemplateDeployModal.vue:605
+#: src/views/app/TemplateDeployModal.vue:610
 #: src/views/apps/nginx/NginxIndex.vue:180 src/views/file/ListView.vue:806
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:81
 msgid "Yes"
 msgstr ""
 
-#: src/views/app/TemplateDeployModal.vue:583
-#: src/views/app/TemplateDeployModal.vue:588
+#: src/views/app/TemplateDeployModal.vue:605
+#: src/views/app/TemplateDeployModal.vue:610
 #: src/views/apps/nginx/NginxIndex.vue:180 src/views/file/ListView.vue:807
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:81
@@ -1649,27 +1653,27 @@ msgstr ""
 msgid "No"
 msgstr "None"
 
-#: src/views/app/TemplateDeployModal.vue:592
+#: src/views/app/TemplateDeployModal.vue:614
 #, fuzzy
 msgid "variables"
 msgstr "SWAP Available"
 
-#: src/views/app/TemplateDeployModal.vue:599
+#: src/views/app/TemplateDeployModal.vue:621
 #, fuzzy
 msgid "Compose Content"
 msgstr "Compose Name"
 
-#: src/views/app/TemplateDeployModal.vue:608
+#: src/views/app/TemplateDeployModal.vue:630
 #, fuzzy
 msgid "Previous"
 msgstr "Preview"
 
-#: src/views/app/TemplateDeployModal.vue:617
-#: src/views/app/TemplateDeployModal.vue:620
+#: src/views/app/TemplateDeployModal.vue:639
+#: src/views/app/TemplateDeployModal.vue:642
 msgid "Next"
 msgstr ""
 
-#: src/views/app/TemplateDeployModal.vue:639
+#: src/views/app/TemplateDeployModal.vue:661
 #: src/views/container/ComposeView.vue:408
 #, fuzzy
 msgid "Starting Compose"
@@ -3190,9 +3194,10 @@ msgid "Modify Account"
 msgstr "Modify Account"
 
 #: src/views/cert/AccountView.vue:215 src/views/cert/CreateAccountModal.vue:72
+#, fuzzy
 msgid ""
-"Google and SSL.com require obtaining KID and HMAC from their official "
-"websites first"
+"LiteSSL, Google and SSL.com require obtaining EAB (KID and HMAC) from their "
+"official websites first"
 msgstr ""
 "Google and SSL.com require obtaining KID and HMAC from their official "
 "websites first"
