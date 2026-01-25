@@ -3039,9 +3039,10 @@ msgid ""
 msgstr "Google 和 SSL.com 需要先從其官網獲取 KID 和 HMAC"
 
 #: src/views/cert/AccountView.vue:221 src/views/cert/CreateAccountModal.vue:78
+#, fuzzy
 msgid ""
 "Google is not accessible in mainland China, other CAs depend on network "
-"conditions, recommend using Let's Encrypt"
+"conditions, recommend using Let's Encrypt or LiteSSL"
 msgstr ""
 "Google 在中國大陸無法訪問，其他 CA 取決於網絡條件，建議使用 Let's Encrypt"
 

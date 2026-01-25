@@ -3203,9 +3203,10 @@ msgstr ""
 "websites first"
 
 #: src/views/cert/AccountView.vue:221 src/views/cert/CreateAccountModal.vue:78
+#, fuzzy
 msgid ""
 "Google is not accessible in mainland China, other CAs depend on network "
-"conditions, recommend using Let's Encrypt"
+"conditions, recommend using Let's Encrypt or LiteSSL"
 msgstr ""
 "Google is not accessible in mainland China, other CAs depend on network "
 "conditions, recommend using Let's Encrypt"
