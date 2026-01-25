@@ -57,6 +57,9 @@ If the AcePanel is helpful to you, welcome to [sponsor us](https://github.com/ac
   <a href="https://www.dkdun.cn/aff/MQZZNVHQ">
     <img height="60" src=".github/assets/dk.png" alt="林枫云">
   </a>
+  <a href="https://cloud.panguidc.com/aff/DMRRFVJX">
+    <img height="60" src=".github/assets/pangu.png" alt="盘古云">
+  </a>
   <a href="https://waf.pro/">
     <img height="60" src=".github/assets/wafpro.png" alt="WAFPRO">
   </a>
