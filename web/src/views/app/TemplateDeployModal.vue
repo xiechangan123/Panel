@@ -115,7 +115,15 @@ const loadComposeDetailAndFillEnvs = (name: string) => {
     const oldEnvs = data.envs || []
     oldEnvs.forEach((env: { key: string; value: string }) => {
       if (env.key in deployModel.envs) {
-        deployModel.envs[env.key] = env.value
+        // 根据模板中定义的类型进行转换
+        const envDef = props.template?.environments?.find((e) => e.name === env.key)
+        if (envDef && (envDef.type === 'number' || envDef.type === 'port')) {
+          // 数字类型需要转换为 number
+          const numValue = Number(env.value)
+          deployModel.envs[env.key] = isNaN(numValue) ? null : numValue
+        } else {
+          deployModel.envs[env.key] = env.value
+        }
       }
     })
   })
