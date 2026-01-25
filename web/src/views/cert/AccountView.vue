@@ -219,7 +219,7 @@ onUnmounted(() => {
       <n-alert type="warning">
         {{
           $gettext(
-            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt"
+            "Google is not accessible in mainland China, other CAs depend on network conditions, recommend using Let's Encrypt or LiteSSL"
           )
         }}
       </n-alert>
