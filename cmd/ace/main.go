@@ -12,14 +12,14 @@ func main() {
 	}
 
 	debug.SetGCPercent(10)
-	debug.SetMemoryLimit(128 << 20)
+	debug.SetMemoryLimit(256 << 20)
 
-	web, err := initWeb()
+	ace, err := initAce()
 	if err != nil {
 		panic(err)
 	}
 
-	if err = web.Run(); err != nil {
+	if err = ace.Run(); err != nil {
 		panic(err)
 	}
 }

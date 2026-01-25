@@ -43,8 +43,8 @@ import (
 
 // Injectors from wire.go:
 
-// initWeb init application.
-func initWeb() (*app.Web, error) {
+// initAce init application.
+func initAce() (*app.Ace, error) {
 	config, err := bootstrap.NewConf()
 	if err != nil {
 		return nil, err
@@ -176,6 +176,6 @@ func initWeb() (*app.Web, error) {
 		return nil, err
 	}
 	validation := bootstrap.NewValidator(config, db)
-	web := app.NewWeb(config, mux, server, gormigrate, cron, queue, validation)
-	return web, nil
+	ace := app.NewAce(config, mux, server, gormigrate, cron, queue, validation)
+	return ace, nil
 }

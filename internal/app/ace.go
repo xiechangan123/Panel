@@ -17,7 +17,7 @@ import (
 	"github.com/acepanel/panel/pkg/queue"
 )
 
-type Web struct {
+type Ace struct {
 	conf     *config.Config
 	router   *chi.Mux
 	server   *hlfhr.Server
@@ -26,8 +26,8 @@ type Web struct {
 	queue    *queue.Queue
 }
 
-func NewWeb(conf *config.Config, router *chi.Mux, server *hlfhr.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Web {
-	return &Web{
+func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
+	return &Ace{
 		conf:     conf,
 		router:   router,
 		server:   server,
@@ -37,7 +37,7 @@ func NewWeb(conf *config.Config, router *chi.Mux, server *hlfhr.Server, migrator
 	}
 }
 
-func (r *Web) Run() error {
+func (r *Ace) Run() error {
 	// migrate database
 	if err := r.migrator.Migrate(); err != nil {
 		return err

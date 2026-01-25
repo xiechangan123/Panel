@@ -15,7 +15,7 @@ import (
 	"github.com/acepanel/panel/internal/service"
 )
 
-// initWeb init application.
-func initWeb() (*app.Web, error) {
-	panic(wire.Build(bootstrap.ProviderSet, middleware.ProviderSet, route.ProviderSet, service.ProviderSet, data.ProviderSet, apps.ProviderSet, job.ProviderSet, app.NewWeb))
+// initAce init application.
+func initAce() (*app.Ace, error) {
+	panic(wire.Build(bootstrap.ProviderSet, middleware.ProviderSet, route.ProviderSet, service.ProviderSet, data.ProviderSet, apps.ProviderSet, job.ProviderSet, app.NewAce))
 }
