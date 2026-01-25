@@ -70,7 +70,7 @@ const handleCreateAccount = () => {
     <n-space vertical>
       <n-alert type="info">{{
         $gettext(
-          'Google and SSL.com require obtaining KID and HMAC from their official websites first'
+          'LiteSSL, Google and SSL.com require obtaining EAB (KID and HMAC) from their official websites first'
         )
       }}</n-alert>
       <n-alert type="warning">
