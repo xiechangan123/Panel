@@ -474,7 +474,7 @@ const handleDeleteStreamUpstream = (name: string) => {
   <common-page show-footer>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <service-status :service="service" show-reload />
+        <service-status service="nginx" show-reload />
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Modify Configuration')">
         <n-flex vertical>
@@ -543,7 +543,7 @@ const handleDeleteStreamUpstream = (name: string) => {
         />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <realtime-log :service="service" />
+        <realtime-log service="nginx" />
       </n-tab-pane>
       <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
