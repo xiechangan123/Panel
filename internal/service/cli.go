@@ -9,6 +9,7 @@ import (
 	"math/rand/v2"
 	stdos "os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -349,16 +350,24 @@ func (s *CliService) HTTPSOff(ctx context.Context, cmd *cli.Command) error {
 func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error {
 	var names []string
 	if lv4, err := tools.GetLocalIPv4(); err == nil {
-		names = append(names, lv4)
+		if !slices.Contains(names, lv4) {
+			names = append(names, lv4)
+		}
 	}
 	if lv6, err := tools.GetLocalIPv6(); err == nil {
-		names = append(names, lv6)
+		if !slices.Contains(names, lv6) {
+			names = append(names, lv6)
+		}
 	}
 	if rv4, err := tools.GetPublicIPv4(); err == nil {
-		names = append(names, rv4)
+		if !slices.Contains(names, rv4) {
+			names = append(names, rv4)
+		}
 	}
 	if rv6, err := tools.GetPublicIPv6(); err == nil {
-		names = append(names, rv6)
+		if !slices.Contains(names, rv6) {
+			names = append(names, rv6)
+		}
 	}
 
 	var crt, key []byte
