@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -91,10 +92,10 @@ func EncodeKey(key crypto.Signer) ([]byte, error) {
 
 // GenerateSelfSigned 生成自签名证书
 func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
-	// 1) 生成 Ed25519 密钥对
-	pub, priv, err := ed25519.GenerateKey(rand.Reader)
+	// 1) 生成 ECDSA P-256 密钥对
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("generate ecdsa key: %w", err)
 	}
 
 	// 2) 解析 SAN
@@ -130,12 +131,12 @@ func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
 		DNSNames:    dnsNames,
 		IPAddresses: ipAddrs,
 
-		KeyUsage:              x509.KeyUsageDigitalSignature,
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
 
-	der, err := x509.CreateCertificate(rand.Reader, &tmpl, &tmpl, pub, priv)
+	der, err := x509.CreateCertificate(rand.Reader, &tmpl, &tmpl, &priv.PublicKey, priv)
 	if err != nil {
 		return nil, nil, err
 	}
