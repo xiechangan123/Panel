@@ -42,6 +42,9 @@
 bash <(curl -sSLm 10 https://dl.acepanel.net/helper.sh)
 ```
 
+> [!NOTE]
+> 耗子面板 2.x -> AcePanel 3.0 迁移工具将在近期发布，敬请期待！
+
 ## UI 截图
 
 ![UI 截图](.github/assets/ui.png)
