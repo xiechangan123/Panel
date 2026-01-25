@@ -22,43 +22,48 @@ func NewCli(t *gotext.Locale, cli *service.CliService) *Cli {
 func (route *Cli) Commands() []*cli.Command {
 	return []*cli.Command{
 		{
+			Name:   "status",
+			Usage:  route.t.Get("Get AcePanel service status"),
+			Action: route.cli.Status,
+		},
+		{
 			Name:   "restart",
-			Usage:  route.t.Get("Restart panel service"),
+			Usage:  route.t.Get("Restart AcePanel service"),
 			Action: route.cli.Restart,
 		},
 		{
 			Name:   "stop",
-			Usage:  route.t.Get("Stop panel service"),
+			Usage:  route.t.Get("Stop AcePanel service"),
 			Action: route.cli.Stop,
 		},
 		{
 			Name:   "start",
-			Usage:  route.t.Get("Start panel service"),
+			Usage:  route.t.Get("Start AcePanel service"),
 			Action: route.cli.Start,
 		},
 		{
 			Name:   "update",
-			Usage:  route.t.Get("Update panel"),
+			Usage:  route.t.Get("Update AcePanel to the latest version"),
 			Action: route.cli.Update,
 		},
 		{
 			Name:   "sync",
-			Usage:  route.t.Get("Sync panel data"),
+			Usage:  route.t.Get("Sync AcePanel cached data with cloud"),
 			Action: route.cli.Sync,
 		},
 		{
 			Name:   "fix",
-			Usage:  route.t.Get("Fix panel"),
+			Usage:  route.t.Get("Fix AcePanel upgrade issues"),
 			Action: route.cli.Fix,
 		},
 		{
 			Name:   "info",
-			Usage:  route.t.Get("Output panel basic information and generate new password"),
+			Usage:  route.t.Get("Output AcePanel basic information and generate new password"),
 			Action: route.cli.Info,
 		},
 		{
 			Name:  "user",
-			Usage: route.t.Get("Operate panel users"),
+			Usage: route.t.Get("Operate AcePanel users"),
 			Commands: []*cli.Command{
 				{
 					Name:   "list",
@@ -67,24 +72,24 @@ func (route *Cli) Commands() []*cli.Command {
 				},
 				{
 					Name:   "username",
-					Usage:  route.t.Get("Change username"),
+					Usage:  route.t.Get("Change a user's username"),
 					Action: route.cli.UserName,
 				},
 				{
 					Name:   "password",
-					Usage:  route.t.Get("Change user password"),
+					Usage:  route.t.Get("Change a user's password"),
 					Action: route.cli.UserPassword,
 				},
 				{
 					Name:   "2fa",
-					Usage:  route.t.Get("Change user 2FA"),
+					Usage:  route.t.Get("Toggle two-factor authentication for a user"),
 					Action: route.cli.UserTwoFA,
 				},
 			},
 		},
 		{
 			Name:  "https",
-			Usage: route.t.Get("Operate panel HTTPS"),
+			Usage: route.t.Get("Operate AcePanel HTTPS"),
 			Commands: []*cli.Command{
 				{
 					Name:   "on",
@@ -98,14 +103,14 @@ func (route *Cli) Commands() []*cli.Command {
 				},
 				{
 					Name:   "generate",
-					Usage:  route.t.Get("Generate HTTPS certificate"),
+					Usage:  route.t.Get("Obtain a free certificate or generate a self-signed certificate"),
 					Action: route.cli.HTTPSGenerate,
 				},
 			},
 		},
 		{
 			Name:  "entrance",
-			Usage: route.t.Get("Operate panel access entrance"),
+			Usage: route.t.Get("Operate AcePanel access entrance"),
 			Commands: []*cli.Command{
 				{
 					Name:   "on",
@@ -121,7 +126,7 @@ func (route *Cli) Commands() []*cli.Command {
 		},
 		{
 			Name:  "bind-domain",
-			Usage: route.t.Get("Operate panel domain binding"),
+			Usage: route.t.Get("Operate AcePanel domain binding"),
 			Commands: []*cli.Command{
 				{
 					Name:   "off",
@@ -132,7 +137,7 @@ func (route *Cli) Commands() []*cli.Command {
 		},
 		{
 			Name:  "bind-ip",
-			Usage: route.t.Get("Operate panel IP binding"),
+			Usage: route.t.Get("Operate AcePanel IP binding"),
 			Commands: []*cli.Command{
 				{
 					Name:   "off",
@@ -143,7 +148,7 @@ func (route *Cli) Commands() []*cli.Command {
 		},
 		{
 			Name:  "bind-ua",
-			Usage: route.t.Get("Operate panel UA binding"),
+			Usage: route.t.Get("Operate AcePanel UA binding"),
 			Commands: []*cli.Command{
 				{
 					Name:   "off",
@@ -154,7 +159,7 @@ func (route *Cli) Commands() []*cli.Command {
 		},
 		{
 			Name:   "port",
-			Usage:  route.t.Get("Change panel port"),
+			Usage:  route.t.Get("Change the AcePanel listening port"),
 			Action: route.cli.Port,
 		},
 		{
@@ -484,18 +489,18 @@ func (route *Cli) Commands() []*cli.Command {
 		},
 		{
 			Name:   "sync-time",
-			Usage:  route.t.Get("Sync system time"),
+			Usage:  route.t.Get("Sync server time with NTP"),
 			Action: route.cli.SyncTime,
 		},
 		{
 			Name:   "clear-task",
-			Usage:  route.t.Get("Clear panel task queue (use only under guidance)"),
+			Usage:  route.t.Get("Clear all tasks in the task queue if they are stuck (use only under guidance)"),
 			Hidden: true,
 			Action: route.cli.ClearTask,
 		},
 		{
 			Name:   "init",
-			Usage:  route.t.Get("Initialize panel (use only under guidance)"),
+			Usage:  route.t.Get("Initialize AcePanel (use only under guidance)"),
 			Hidden: true,
 			Action: route.cli.Init,
 		},

@@ -73,12 +73,30 @@ func NewCliService(t *gotext.Locale, conf *config.Config, db *gorm.DB, appRepo b
 	}
 }
 
+func (s *CliService) Status(ctx context.Context, cmd *cli.Command) error {
+	status, err := systemctl.Status("acepanel")
+	if err != nil {
+		return err
+	}
+
+	statusStr := s.t.Get("unknown")
+	switch status {
+	case true:
+		statusStr = s.t.Get("running")
+	case false:
+		statusStr = s.t.Get("stopped")
+	}
+
+	fmt.Println(s.t.Get("AcePanel service status: %s", statusStr))
+
+	return nil
+}
+
 func (s *CliService) Restart(ctx context.Context, cmd *cli.Command) error {
 	if err := systemctl.Restart("acepanel"); err != nil {
 		return err
 	}
-
-	fmt.Println(s.t.Get("Panel service restarted"))
+	fmt.Println(s.t.Get("AcePanel service restarted"))
 	return nil
 }
 
@@ -86,8 +104,7 @@ func (s *CliService) Stop(ctx context.Context, cmd *cli.Command) error {
 	if err := systemctl.Stop("acepanel"); err != nil {
 		return err
 	}
-
-	fmt.Println(s.t.Get("Panel service stopped"))
+	fmt.Println(s.t.Get("AcePanel service stopped"))
 	return nil
 }
 
@@ -95,8 +112,7 @@ func (s *CliService) Start(ctx context.Context, cmd *cli.Command) error {
 	if err := systemctl.Start("acepanel"); err != nil {
 		return err
 	}
-
-	fmt.Println(s.t.Get("Panel service started"))
+	fmt.Println(s.t.Get("AcePanel service started"))
 	return nil
 }
 
