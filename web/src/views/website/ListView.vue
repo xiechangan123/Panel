@@ -60,13 +60,13 @@ const columns: any = [
   },
   {
     title: 'HTTPS',
-    key: 'https',
+    key: 'ssl',
     width: 150,
     render(row: any) {
       return h(NSwitch, {
         size: 'small',
         rubberBand: false,
-        value: row.https,
+        value: row.ssl,
         onClick: () => handleEdit(row)
       })
     }
