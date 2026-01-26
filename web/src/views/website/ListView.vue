@@ -28,16 +28,15 @@ const columns: any = [
     ellipsis: { tooltip: true },
     render(row: any) {
       const elements = [h('span', {}, row.name)]
-      // 如果有域名，添加飞机图标和弹层
       if (row.domains && row.domains.length > 0) {
         elements.push(
           h(
             NPopover,
-            { trigger: 'click', placement: 'right' },
+            { trigger: 'hover', placement: 'right' },
             {
               trigger: () =>
-                h('span', { class: 'cursor-pointer hover:opacity-60 ml-1 inline-flex' }, [
-                  h(TheIcon, { icon: 'mdi:send', size: 16 })
+                h('span', { class: 'cursor-pointer hover:opacity-60 inline-flex' }, [
+                  h(TheIcon, { icon: 'mdi:link-variant', size: 16 })
                 ]),
               default: () =>
                 h(
