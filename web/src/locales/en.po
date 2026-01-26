@@ -526,7 +526,7 @@ msgstr "Loading..."
 
 #: src/components/common/ServiceStatus.vue:26 src/views/project/ListView.vue:68
 #: src/views/task/TaskView.vue:33 src/views/toolbox/ProcessView.vue:48
-#: src/views/toolbox/ProcessView.vue:80 src/views/website/ListView.vue:91
+#: src/views/toolbox/ProcessView.vue:80 src/views/website/ListView.vue:90
 msgid "Running"
 msgstr "Running"
 
@@ -541,7 +541,7 @@ msgstr "Starting..."
 
 #: src/components/common/ServiceStatus.vue:48
 #: src/views/apps/supervisor/IndexView.vue:240
-#: src/views/project/ListView.vue:228 src/views/website/ListView.vue:291
+#: src/views/project/ListView.vue:228 src/views/website/ListView.vue:290
 msgid "Started successfully"
 msgstr "Started successfully"
 
@@ -552,7 +552,7 @@ msgstr "Stopping..."
 
 #: src/components/common/ServiceStatus.vue:63
 #: src/views/apps/supervisor/IndexView.vue:247
-#: src/views/project/ListView.vue:223 src/views/website/ListView.vue:293
+#: src/views/project/ListView.vue:223 src/views/website/ListView.vue:292
 msgid "Stopped successfully"
 msgstr "Stopped successfully"
 
@@ -1087,7 +1087,7 @@ msgstr "Rename"
 #: src/views/setting/SettingUser.vue:139 src/views/setting/TokenModal.vue:91
 #: src/views/ssh/IndexView.vue:123 src/views/task/CronView.vue:166
 #: src/views/task/TaskView.vue:97 src/views/toolbox/WebHookView.vue:179
-#: src/views/website/ListView.vue:258 src/views/website/ListView.vue:352
+#: src/views/website/ListView.vue:257 src/views/website/ListView.vue:351
 msgid "Delete"
 msgstr "Delete"
 
@@ -1134,7 +1134,7 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/project/ListView.vue:284 src/views/setting/SettingUser.vue:174
 #: src/views/setting/TokenModal.vue:114 src/views/task/CronView.vue:216
 #: src/views/task/TaskView.vue:122 src/views/toolbox/WebHookView.vue:236
-#: src/views/website/ListView.vue:317 src/views/website/ListView.vue:327
+#: src/views/website/ListView.vue:316 src/views/website/ListView.vue:326
 msgid "Deleted successfully"
 msgstr "Deleted successfully"
 
@@ -1387,7 +1387,7 @@ msgstr "Show in Home"
 #: src/views/setting/SettingUser.vue:85 src/views/setting/TokenModal.vue:52
 #: src/views/task/CronView.vue:102 src/views/task/TaskView.vue:55
 #: src/views/toolbox/DiskView.vue:340 src/views/toolbox/DiskView.vue:826
-#: src/views/toolbox/WebHookView.vue:131 src/views/website/ListView.vue:186
+#: src/views/toolbox/WebHookView.vue:131 src/views/website/ListView.vue:185
 msgid "Actions"
 msgstr "Actions"
 
@@ -2247,7 +2247,7 @@ msgstr ""
 #: src/views/setting/SettingUser.vue:162 src/views/setting/SettingUser.vue:168
 #: src/views/task/CronView.vue:190 src/views/task/CronView.vue:226
 #: src/views/toolbox/WebHookView.vue:211 src/views/toolbox/WebHookView.vue:282
-#: src/views/website/ListView.vue:300 src/views/website/SettingView.vue:36
+#: src/views/website/ListView.vue:299 src/views/website/SettingView.vue:36
 msgid "Modified successfully"
 msgstr "Modified successfully"
 
@@ -2315,7 +2315,7 @@ msgstr "Proxy Address"
 #: src/views/container/ComposeView.vue:122 src/views/file/ListView.vue:332
 #: src/views/file/ListView.vue:1567 src/views/project/ListView.vue:179
 #: src/views/ssh/IndexView.vue:105 src/views/task/CronView.vue:145
-#: src/views/toolbox/WebHookView.vue:158 src/views/website/ListView.vue:201
+#: src/views/toolbox/WebHookView.vue:158 src/views/website/ListView.vue:200
 msgid "Edit"
 msgstr "Edit"
 
@@ -2694,7 +2694,7 @@ msgstr "It is recommended to use the generator to generate a random password"
 #: src/views/apps/rsync/IndexView.vue:318
 #: src/views/container/ComposeView.vue:64 src/views/file/PropertyModal.vue:34
 #: src/views/project/ListView.vue:95 src/views/website/CreateModal.vue:227
-#: src/views/website/ListView.vue:104
+#: src/views/website/ListView.vue:103
 msgid "Directory"
 msgstr "Directory"
 
@@ -7635,7 +7635,7 @@ msgstr "The format is incorrect, please check"
 msgid "Website %{ name } created successfully"
 msgstr "Website %{ name } created successfully"
 
-#: src/views/website/BulkCreateModal.vue:79 src/views/website/ListView.vue:347
+#: src/views/website/BulkCreateModal.vue:79 src/views/website/ListView.vue:346
 msgid "Bulk Create Website"
 msgstr "Bulk Create Website"
 
@@ -7687,7 +7687,7 @@ msgstr "Remark: The remark of the website, can be empty."
 msgid "Not used"
 msgstr "Not used"
 
-#: src/views/website/CreateModal.vue:114 src/views/website/ListView.vue:344
+#: src/views/website/CreateModal.vue:114 src/views/website/ListView.vue:343
 msgid "Create Website"
 msgstr "Create Website"
 
@@ -7730,7 +7730,7 @@ msgid "Proxy target address (e.g., http://127.0.0.1:3000)"
 msgstr ""
 
 #: src/views/website/CreateModal.vue:254 src/views/website/CreateModal.vue:259
-#: src/views/website/ListView.vue:169
+#: src/views/website/ListView.vue:168
 msgid "Remark"
 msgstr "Remark"
 
@@ -8265,39 +8265,39 @@ msgstr "Automatic"
 msgid "Website Name"
 msgstr "Website Name"
 
-#: src/views/website/ListView.vue:71
+#: src/views/website/ListView.vue:70
 msgid "Copied"
 msgstr ""
 
-#: src/views/website/ListView.vue:137
+#: src/views/website/ListView.vue:136
 msgid "Certificate expiration"
 msgstr "Certificate expiration"
 
-#: src/views/website/ListView.vue:151
+#: src/views/website/ListView.vue:150
 msgid "Not configured"
 msgstr "Not configured"
 
-#: src/views/website/ListView.vue:154
+#: src/views/website/ListView.vue:153
 msgid "Expired %{ days } days ago"
 msgstr "Expired %{ days } days ago"
 
-#: src/views/website/ListView.vue:159
+#: src/views/website/ListView.vue:158
 msgid "Expires in %{ days } days"
 msgstr "Expires in %{ days } days"
 
-#: src/views/website/ListView.vue:224
+#: src/views/website/ListView.vue:223
 msgid "Are you sure you want to delete website %{ name }?"
 msgstr "Are you sure you want to delete website %{ name }?"
 
-#: src/views/website/ListView.vue:235
+#: src/views/website/ListView.vue:234
 msgid "Delete website directory"
 msgstr "Delete website directory"
 
-#: src/views/website/ListView.vue:243
+#: src/views/website/ListView.vue:242
 msgid "Delete local database with the same name"
 msgstr "Delete local database with the same name"
 
-#: src/views/website/ListView.vue:356
+#: src/views/website/ListView.vue:355
 msgid ""
 "This will delete the website directory but not the database with the same "
 "name. Are you sure you want to delete the selected websites?"

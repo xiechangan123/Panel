@@ -516,7 +516,7 @@ msgstr "載入中……"
 
 #: src/components/common/ServiceStatus.vue:26 src/views/project/ListView.vue:68
 #: src/views/task/TaskView.vue:33 src/views/toolbox/ProcessView.vue:48
-#: src/views/toolbox/ProcessView.vue:80 src/views/website/ListView.vue:91
+#: src/views/toolbox/ProcessView.vue:80 src/views/website/ListView.vue:90
 msgid "Running"
 msgstr "運行中"
 
@@ -531,7 +531,7 @@ msgstr "正在啟動……"
 
 #: src/components/common/ServiceStatus.vue:48
 #: src/views/apps/supervisor/IndexView.vue:240
-#: src/views/project/ListView.vue:228 src/views/website/ListView.vue:291
+#: src/views/project/ListView.vue:228 src/views/website/ListView.vue:290
 msgid "Started successfully"
 msgstr "啟動成功"
 
@@ -542,7 +542,7 @@ msgstr "停止中..."
 
 #: src/components/common/ServiceStatus.vue:63
 #: src/views/apps/supervisor/IndexView.vue:247
-#: src/views/project/ListView.vue:223 src/views/website/ListView.vue:293
+#: src/views/project/ListView.vue:223 src/views/website/ListView.vue:292
 msgid "Stopped successfully"
 msgstr "停止成功"
 
@@ -1053,7 +1053,7 @@ msgstr "重新命名"
 #: src/views/setting/SettingUser.vue:139 src/views/setting/TokenModal.vue:91
 #: src/views/ssh/IndexView.vue:123 src/views/task/CronView.vue:166
 #: src/views/task/TaskView.vue:97 src/views/toolbox/WebHookView.vue:179
-#: src/views/website/ListView.vue:258 src/views/website/ListView.vue:352
+#: src/views/website/ListView.vue:257 src/views/website/ListView.vue:351
 msgid "Delete"
 msgstr "刪除"
 
@@ -1098,7 +1098,7 @@ msgstr "您確定要刪除 %{ name } 嗎？"
 #: src/views/project/ListView.vue:284 src/views/setting/SettingUser.vue:174
 #: src/views/setting/TokenModal.vue:114 src/views/task/CronView.vue:216
 #: src/views/task/TaskView.vue:122 src/views/toolbox/WebHookView.vue:236
-#: src/views/website/ListView.vue:317 src/views/website/ListView.vue:327
+#: src/views/website/ListView.vue:316 src/views/website/ListView.vue:326
 msgid "Deleted successfully"
 msgstr "刪除成功"
 
@@ -1343,7 +1343,7 @@ msgstr "在主頁顯示"
 #: src/views/setting/SettingUser.vue:85 src/views/setting/TokenModal.vue:52
 #: src/views/task/CronView.vue:102 src/views/task/TaskView.vue:55
 #: src/views/toolbox/DiskView.vue:340 src/views/toolbox/DiskView.vue:826
-#: src/views/toolbox/WebHookView.vue:131 src/views/website/ListView.vue:186
+#: src/views/toolbox/WebHookView.vue:131 src/views/website/ListView.vue:185
 msgid "Actions"
 msgstr "操作"
 
@@ -2141,7 +2141,7 @@ msgstr ""
 #: src/views/setting/SettingUser.vue:162 src/views/setting/SettingUser.vue:168
 #: src/views/task/CronView.vue:190 src/views/task/CronView.vue:226
 #: src/views/toolbox/WebHookView.vue:211 src/views/toolbox/WebHookView.vue:282
-#: src/views/website/ListView.vue:300 src/views/website/SettingView.vue:36
+#: src/views/website/ListView.vue:299 src/views/website/SettingView.vue:36
 msgid "Modified successfully"
 msgstr "修改成功"
 
@@ -2206,7 +2206,7 @@ msgstr "代理目標"
 #: src/views/container/ComposeView.vue:122 src/views/file/ListView.vue:332
 #: src/views/file/ListView.vue:1567 src/views/project/ListView.vue:179
 #: src/views/ssh/IndexView.vue:105 src/views/task/CronView.vue:145
-#: src/views/toolbox/WebHookView.vue:158 src/views/website/ListView.vue:201
+#: src/views/toolbox/WebHookView.vue:158 src/views/website/ListView.vue:200
 msgid "Edit"
 msgstr "編輯"
 
@@ -2561,7 +2561,7 @@ msgstr "建議使用生成器生成隨機密碼"
 #: src/views/apps/rsync/IndexView.vue:318
 #: src/views/container/ComposeView.vue:64 src/views/file/PropertyModal.vue:34
 #: src/views/project/ListView.vue:95 src/views/website/CreateModal.vue:227
-#: src/views/website/ListView.vue:104
+#: src/views/website/ListView.vue:103
 msgid "Directory"
 msgstr "目錄"
 
@@ -7205,7 +7205,7 @@ msgstr "格式不正確，請檢查"
 msgid "Website %{ name } created successfully"
 msgstr "網站 %{ name } 創建成功"
 
-#: src/views/website/BulkCreateModal.vue:79 src/views/website/ListView.vue:347
+#: src/views/website/BulkCreateModal.vue:79 src/views/website/ListView.vue:346
 msgid "Bulk Create Website"
 msgstr "批量創建網站"
 
@@ -7249,7 +7249,7 @@ msgstr "備註：網站的備註，可以為空。"
 msgid "Not used"
 msgstr "未使用"
 
-#: src/views/website/CreateModal.vue:114 src/views/website/ListView.vue:344
+#: src/views/website/CreateModal.vue:114 src/views/website/ListView.vue:343
 msgid "Create Website"
 msgstr "創建網站"
 
@@ -7285,7 +7285,7 @@ msgid "Proxy target address (e.g., http://127.0.0.1:3000)"
 msgstr "代理目標地址（如：http://127.0.0.1:3000）"
 
 #: src/views/website/CreateModal.vue:254 src/views/website/CreateModal.vue:259
-#: src/views/website/ListView.vue:169
+#: src/views/website/ListView.vue:168
 msgid "Remark"
 msgstr "備註"
 
@@ -7780,39 +7780,39 @@ msgstr "純靜態"
 msgid "Website Name"
 msgstr "網站名稱"
 
-#: src/views/website/ListView.vue:71
+#: src/views/website/ListView.vue:70
 msgid "Copied"
 msgstr ""
 
-#: src/views/website/ListView.vue:137
+#: src/views/website/ListView.vue:136
 msgid "Certificate expiration"
 msgstr "證書有效期限"
 
-#: src/views/website/ListView.vue:151
+#: src/views/website/ListView.vue:150
 msgid "Not configured"
 msgstr "未設定"
 
-#: src/views/website/ListView.vue:154
+#: src/views/website/ListView.vue:153
 msgid "Expired %{ days } days ago"
 msgstr "%{ days } 天前過期"
 
-#: src/views/website/ListView.vue:159
+#: src/views/website/ListView.vue:158
 msgid "Expires in %{ days } days"
 msgstr "%{ days } 天後過期"
 
-#: src/views/website/ListView.vue:224
+#: src/views/website/ListView.vue:223
 msgid "Are you sure you want to delete website %{ name }?"
 msgstr "您確定要刪除網站 %{ name } 嗎？"
 
-#: src/views/website/ListView.vue:235
+#: src/views/website/ListView.vue:234
 msgid "Delete website directory"
 msgstr "刪除網站目錄"
 
-#: src/views/website/ListView.vue:243
+#: src/views/website/ListView.vue:242
 msgid "Delete local database with the same name"
 msgstr "刪除同名的本地數據庫"
 
-#: src/views/website/ListView.vue:356
+#: src/views/website/ListView.vue:355
 msgid ""
 "This will delete the website directory but not the database with the same "
 "name. Are you sure you want to delete the selected websites?"
