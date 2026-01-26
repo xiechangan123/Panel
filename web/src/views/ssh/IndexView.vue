@@ -213,8 +213,7 @@ const initTerminal = async (tabId: string) => {
 
   try {
     // 根据ID选择连接方式
-    const socket =
-      tab.hostId === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(tab.hostId)
+    const socket = tab.hostId === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(tab.hostId)
     tab.ws = socket
     tab.ws.binaryType = 'arraybuffer'
 
@@ -458,7 +457,7 @@ onUnmounted(() => {
 <template>
   <common-page show-footer>
     <n-layout has-sider sider-placement="right">
-      <n-layout content-style="overflow: visible" bg-hex-111>
+      <n-layout content-style="overflow: visible">
         <div
           ref="terminalContainer"
           class="terminal-container"
@@ -493,7 +492,7 @@ onUnmounted(() => {
                 <template #trigger>
                   <n-button quaternary size="small" @click="showSettings = !showSettings">
                     <template #icon>
-                      <icon-mdi-cog />
+                      <i-mdi-cog />
                     </template>
                   </n-button>
                 </template>
@@ -503,8 +502,8 @@ onUnmounted(() => {
                 <template #trigger>
                   <n-button quaternary size="small" @click="toggleFullscreen">
                     <template #icon>
-                      <icon-mdi-fullscreen v-if="!isFullscreen" />
-                      <icon-mdi-fullscreen-exit v-else />
+                      <i-mdi-fullscreen v-if="!isFullscreen" />
+                      <i-mdi-fullscreen-exit v-else />
                     </template>
                   </n-button>
                 </template>
@@ -577,7 +576,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   height: 75vh;
-  background: #111;
 
   &.fullscreen {
     height: 100vh;
@@ -588,8 +586,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #1a1a1a;
-  border-bottom: 1px solid #333;
   padding-right: 8px;
 }
 
@@ -597,35 +593,18 @@ onUnmounted(() => {
   flex: 1;
   overflow: hidden;
 
-  :deep(.n-tabs) {
-    .n-tabs-nav {
-      background: transparent;
-    }
-
-    .n-tabs-tab {
-      background: #222;
-      border-color: #333;
-      color: #aaa;
-
-      &.n-tabs-tab--active {
-        background: #111;
-        color: #fff;
-      }
-    }
+  :deep(.n-tabs .n-tab-pane) {
+    padding: 0;
   }
 }
 
 .toolbar-actions {
   display: flex;
   gap: 4px;
-  color: #aaa;
 }
 
 .settings-panel {
-  background: #1a1a1a;
   padding: 12px 16px;
-  border-bottom: 1px solid #333;
-  color: #aaa;
 }
 
 .terminals-content {
@@ -650,33 +629,5 @@ onUnmounted(() => {
 :deep(.xterm) {
   padding: 8px !important;
   height: 100%;
-}
-
-:deep(.xterm .xterm-viewport::-webkit-scrollbar) {
-  border-radius: 0.4rem;
-  height: 6px;
-  width: 8px;
-}
-
-:deep(.xterm .xterm-viewport::-webkit-scrollbar-thumb) {
-  background-color: #666;
-  border-radius: 0.4rem;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: all 1s;
-}
-
-:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-thumb) {
-  background-color: #aaa;
-}
-
-:deep(.xterm .xterm-viewport::-webkit-scrollbar-track) {
-  background-color: #111;
-  border-radius: 0.4rem;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  transition: all 1s;
-}
-
-:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-track) {
-  background-color: #444;
 }
 </style>
