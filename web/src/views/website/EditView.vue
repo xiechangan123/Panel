@@ -879,7 +879,7 @@ const removeCustomConfig = (index: number) => {
                           }
                         "
                       />
-                      <span flex-shrink-0>:</span>
+                      <span flex-shrink-0>=</span>
                       <n-input
                         :value="String(headerValue)"
                         :placeholder="$gettext('Value or variable like $host, $remote_addr')"
