@@ -22,6 +22,11 @@ type MessageResize struct {
 	Rows    uint `json:"rows"`
 }
 
+// MessagePing ping 消息
+type MessagePing struct {
+	Ping bool `json:"ping"`
+}
+
 // Turn PTY 终端
 type Turn struct {
 	ctx  context.Context
@@ -78,6 +83,7 @@ func (t *Turn) Close() {
 // Handle 从 WebSocket 读取输入写入 PTY
 func (t *Turn) Handle(ctx context.Context) error {
 	var resize MessageResize
+	var ping MessagePing
 
 	go func() { _ = t.Pipe(ctx) }()
 
@@ -90,6 +96,12 @@ func (t *Turn) Handle(ctx context.Context) error {
 			if err != nil {
 				// 通常是客户端关闭连接
 				return fmt.Errorf("failed to read ws message: %w", err)
+			}
+
+			// 判断是否是 ping 消息
+			if err = json.Unmarshal(data, &ping); err == nil && ping.Ping {
+				_ = t.ws.Write(ctx, websocket.MessageText, []byte(`{"pong":true}`))
+				continue
 			}
 
 			// 判断是否是 resize 消息

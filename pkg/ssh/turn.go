@@ -17,6 +17,10 @@ type MessageResize struct {
 	Rows    int  `json:"rows"`
 }
 
+type MessagePing struct {
+	Ping bool `json:"ping"`
+}
+
 type Turn struct {
 	ctx     context.Context
 	stdin   io.WriteCloser
@@ -72,6 +76,7 @@ func (t *Turn) Close() {
 
 func (t *Turn) Handle(ctx context.Context) error {
 	var resize MessageResize
+	var ping MessagePing
 
 	for {
 		select {
@@ -82,6 +87,12 @@ func (t *Turn) Handle(ctx context.Context) error {
 			if err != nil {
 				// 通常是客户端关闭连接
 				return fmt.Errorf("reading ws message err: %v", err)
+			}
+
+			// 判断是否是 ping 消息
+			if err = json.Unmarshal(data, &ping); err == nil && ping.Ping {
+				_ = t.ws.Write(ctx, websocket.MessageText, []byte(`{"pong":true}`))
+				continue
 			}
 
 			// 判断是否是 resize 消息

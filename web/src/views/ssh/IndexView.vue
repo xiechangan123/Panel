@@ -34,6 +34,9 @@ interface TerminalTab {
   ws: WebSocket | null
   element: HTMLElement | null
   connected: boolean
+  latency: number
+  pingTimer: ReturnType<typeof setInterval> | null
+  lastPingTime: number
 }
 
 // 状态
@@ -159,7 +162,10 @@ const addTab = async (hostId: number) => {
     webglAddon: null,
     ws: null,
     element: null,
-    connected: false
+    connected: false,
+    latency: 0,
+    pingTimer: null,
+    lastPingTime: 0
   }
   tabs.value.push(tab)
   activeTabId.value = tabId
@@ -253,6 +259,18 @@ const initTerminal = async (tabId: string) => {
 
     tab.ws.onmessage = (ev) => {
       const data: ArrayBuffer | string = ev.data
+      // 检查是否是 pong 响应
+      if (typeof data === 'string') {
+        try {
+          const json = JSON.parse(data)
+          if (json.pong) {
+            handlePong(tab)
+            return
+          }
+        } catch {
+          // 不是 JSON，正常处理
+        }
+      }
       tab.terminal?.write(typeof data === 'string' ? data : new Uint8Array(data))
     }
 
@@ -288,6 +306,9 @@ const initTerminal = async (tabId: string) => {
     tab.terminal.focus()
     tab.connected = true
 
+    // 启动延迟检测
+    startPingTimer(tab)
+
     tab.ws.onclose = () => {
       tab.connected = false
       tab.terminal?.write('\r\n' + $gettext('Connection closed. Please refresh.'))
@@ -308,6 +329,10 @@ const initTerminal = async (tabId: string) => {
 // 销毁标签
 const disposeTab = (tab: TerminalTab) => {
   try {
+    if (tab.pingTimer) {
+      clearInterval(tab.pingTimer)
+      tab.pingTimer = null
+    }
     tab.ws?.close()
     tab.terminal?.dispose()
     tab.fitAddon = null
@@ -402,6 +427,43 @@ const applyFontSettings = () => {
   })
 }
 
+// 启动延迟检测定时器
+const startPingTimer = (tab: TerminalTab) => {
+  // 立即执行一次
+  sendPing(tab)
+  // 每3秒检测一次
+  tab.pingTimer = setInterval(() => {
+    sendPing(tab)
+  }, 3000)
+}
+
+// 发送 ping
+const sendPing = (tab: TerminalTab) => {
+  if (tab.ws?.readyState === WebSocket.OPEN) {
+    tab.lastPingTime = performance.now()
+    tab.ws.send(JSON.stringify({ ping: true }))
+  }
+}
+
+// 处理 pong 响应
+const handlePong = (tab: TerminalTab) => {
+  if (tab.lastPingTime > 0) {
+    tab.latency = Math.round(performance.now() - tab.lastPingTime)
+    tab.lastPingTime = 0
+  }
+}
+
+// 渲染标签标题
+const renderTabLabel = (tab: TerminalTab) => {
+  const latencyColor = tab.connected ? '#18a058' : '#d03050'
+  const icon = tab.connected ? '✓' : '✗'
+  return h('span', { class: 'tab-label' }, [
+    h('span', { style: { color: latencyColor, marginRight: '4px' } }, `${tab.latency} ms`),
+    h('span', { style: { color: latencyColor, marginRight: '4px' } }, icon),
+    tab.name
+  ])
+}
+
 // 全屏切换
 const toggleFullscreen = async () => {
   const container = terminalContainer.value
@@ -479,7 +541,7 @@ onUnmounted(() => {
                   v-for="tab in tabs"
                   :key="tab.id"
                   :name="tab.id"
-                  :tab="tab.name"
+                  :tab="renderTabLabel(tab)"
                   display-directive="show:lazy"
                 >
                 </n-tab-pane>
