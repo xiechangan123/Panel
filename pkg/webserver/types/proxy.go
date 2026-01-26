@@ -12,6 +12,7 @@ type Proxy struct {
 	Buffering       bool              `form:"buffering" json:"buffering"`                   // 是否启用缓冲
 	Resolver        []string          `form:"resolver" json:"resolver"`                     // 自定义 DNS 解析器配置，如: ["8.8.8.8", "ipv6=off"]
 	ResolverTimeout time.Duration     `form:"resolver_timeout" json:"resolver_timeout"`     // DNS 解析超时时间，如: 5 * time.Second
+	Headers         map[string]string `form:"headers" json:"headers"`                       // 自定义请求头，如: map["X-Custom-Header"] = "value"
 	Replaces        map[string]string `form:"replaces" json:"replaces"`                     // 响应内容替换，如: map["/old"] = "/new"
 }
 

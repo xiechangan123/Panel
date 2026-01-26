@@ -77,6 +77,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	proxy := &types.Proxy{
 		Location: strings.TrimSpace(matches[1]),
 		Resolver: []string{},
+		Headers:  make(map[string]string),
 		Replaces: make(map[string]string),
 	}
 
@@ -144,6 +145,23 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	subFilterMatches := subFilterPattern.FindAllStringSubmatch(blockContent, -1)
 	for _, sfm := range subFilterMatches {
 		proxy.Replaces[sfm[1]] = sfm[2]
+	}
+
+	// 解析自定义请求头
+	standardHeaders := map[string]bool{
+		"Host": true, "X-Real-IP": true, "X-Forwarded-For": true,
+		"X-Forwarded-Proto": true, "Upgrade": true, "Connection": true,
+		"Early-Data": true, "Accept-Encoding": true,
+	}
+	headerPattern := regexp.MustCompile(`proxy_set_header\s+(\S+)\s+"?([^";]+)"?;`)
+	headerMatches := headerPattern.FindAllStringSubmatch(blockContent, -1)
+	for _, hm := range headerMatches {
+		headerName := strings.TrimSpace(hm[1])
+		headerValue := strings.TrimSpace(hm[2])
+		// 排除标准头
+		if !standardHeaders[headerName] {
+			proxy.Headers[headerName] = headerValue
+		}
 	}
 
 	return proxy, nil
@@ -267,6 +285,18 @@ func generateProxyConfig(proxy types.Proxy) string {
 		sb.WriteString("    proxy_cache proxy_cache;\n")
 		sb.WriteString("    proxy_cache_valid 200 302 10m;\n")
 		sb.WriteString("    proxy_cache_valid 404 1m;\n")
+	}
+
+	// 自定义请求头
+	if len(proxy.Headers) > 0 {
+		for name, value := range proxy.Headers {
+			// 变量值不加引号
+			if strings.HasPrefix(value, "$") {
+				sb.WriteString(fmt.Sprintf("    proxy_set_header %s %s;\n", name, value))
+			} else {
+				sb.WriteString(fmt.Sprintf("    proxy_set_header %s \"%s\";\n", name, value))
+			}
+		}
 	}
 
 	// 响应内容替换

@@ -303,6 +303,7 @@ const addProxy = () => {
     buffering: true,
     resolver: [],
     resolver_timeout: 5 * 1000000000, // 5秒，以纳秒为单位
+    headers: {},
     replaces: {}
   })
 }
@@ -845,6 +846,59 @@ const removeCustomConfig = (index: number) => {
                       </n-input-group>
                     </n-form-item-gi>
                   </n-grid>
+                  <n-divider>{{ $gettext('Custom Request Headers') }}</n-divider>
+                  <n-flex vertical :size="8">
+                    <n-flex
+                      v-for="(headerValue, headerName) in proxy.headers"
+                      :key="String(headerName)"
+                      :size="8"
+                      align="center"
+                    >
+                      <n-input
+                        :value="String(headerName)"
+                        :placeholder="$gettext('Header name')"
+                        flex-1
+                        @blur="
+                          (e: FocusEvent) => {
+                            const newName = (e.target as HTMLInputElement).value
+                            const oldName = String(headerName)
+                            if (newName && newName !== oldName) {
+                              proxy.headers[newName] = proxy.headers[oldName]
+                              delete proxy.headers[oldName]
+                            }
+                          }
+                        "
+                      />
+                      <span flex-shrink-0>:</span>
+                      <n-input
+                        :value="String(headerValue)"
+                        :placeholder="$gettext('Value or variable like $host, $remote_addr')"
+                        flex-1
+                        @update:value="(v: string) => (proxy.headers[String(headerName)] = v)"
+                      />
+                      <n-button
+                        type="error"
+                        secondary
+                        size="small"
+                        flex-shrink-0
+                        @click="delete proxy.headers[String(headerName)]"
+                      >
+                        {{ $gettext('Remove') }}
+                      </n-button>
+                    </n-flex>
+                    <n-button
+                      dashed
+                      size="small"
+                      @click="
+                        () => {
+                          if (!proxy.headers) proxy.headers = {}
+                          proxy.headers[`X-Custom-${Object.keys(proxy.headers).length}`] = ''
+                        }
+                      "
+                    >
+                      {{ $gettext('Add Request Header') }}
+                    </n-button>
+                  </n-flex>
                   <n-divider>{{ $gettext('Response Content Replacement') }}</n-divider>
                   <n-flex vertical :size="8">
                     <n-flex

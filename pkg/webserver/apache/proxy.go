@@ -66,6 +66,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	contentStr := string(content)
 	proxy := &types.Proxy{
 		Resolver: []string{},
+		Headers:  make(map[string]string),
 		Replaces: make(map[string]string),
 	}
 
@@ -112,6 +113,17 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	subMatchesPipe := subPatternPipe.FindAllStringSubmatch(contentStr, -1)
 	for _, sm := range subMatchesPipe {
 		proxy.Replaces[sm[1]] = sm[2]
+	}
+
+	// 解析自定义请求头 (排除 Host)
+	headerPattern := regexp.MustCompile(`RequestHeader\s+set\s+(\S+)\s+"([^"]+)"`)
+	headerMatches := headerPattern.FindAllStringSubmatch(contentStr, -1)
+	for _, hm := range headerMatches {
+		headerName := hm[1]
+		headerValue := hm[2]
+		if headerName != "Host" {
+			proxy.Headers[headerName] = headerValue
+		}
 	}
 
 	return proxy, nil
@@ -238,6 +250,15 @@ func generateProxyConfig(proxy types.Proxy) string {
 		sb.WriteString("    <IfModule mod_cache.c>\n")
 		sb.WriteString(fmt.Sprintf("        CacheEnable disk %s\n", location))
 		sb.WriteString("        CacheDefaultExpire 600\n")
+		sb.WriteString("    </IfModule>\n")
+	}
+
+	// 自定义请求头
+	if len(proxy.Headers) > 0 {
+		sb.WriteString("    <IfModule mod_headers.c>\n")
+		for name, value := range proxy.Headers {
+			sb.WriteString(fmt.Sprintf("        RequestHeader set %s \"%s\"\n", name, value))
+		}
 		sb.WriteString("    </IfModule>\n")
 	}
 
