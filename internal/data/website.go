@@ -263,6 +263,12 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 		if website.Type == biz.WebsiteTypePHP {
 			website.PHP = r.getPHPVersion(website.Name)
 		}
+		// 获取域名
+		if vhost, err := r.getVhost(website); err == nil {
+			if domains, err := punycode.DecodeDomains(vhost.ServerName()); err == nil {
+				website.Domains = domains
+			}
+		}
 	}
 
 	return websites, total, nil

@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import { NButton, NCheckbox, NDataTable, NFlex, NInput, NSwitch, NTag } from 'naive-ui'
+import { NButton, NCheckbox, NDataTable, NFlex, NInput, NPopover, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
 import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
+import TheIcon from '@/components/custom/TheIcon.vue'
 import { useFileStore } from '@/store'
 import { isNullOrUndef } from '@/utils'
+import copy2clipboard from '@vavt/copy2clipboard'
 
 const type = defineModel<string>('type', { type: String, required: true }) // 网站类型
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true }) // 创建网站
@@ -23,7 +25,67 @@ const columns: any = [
     key: 'name',
     width: 200,
     resizable: true,
-    ellipsis: { tooltip: true }
+    ellipsis: { tooltip: true },
+    render(row: any) {
+      const elements = [h('span', {}, row.name)]
+      // 如果有域名，添加飞机图标和弹层
+      if (row.domains && row.domains.length > 0) {
+        elements.push(
+          h(
+            NPopover,
+            { trigger: 'click', placement: 'right' },
+            {
+              trigger: () =>
+                h('span', { class: 'cursor-pointer hover:opacity-60 ml-1 inline-flex' }, [
+                  h(TheIcon, { icon: 'mdi:send', size: 16 })
+                ]),
+              default: () =>
+                h(
+                  NFlex,
+                  { vertical: true, size: 'small' },
+                  {
+                    default: () =>
+                      row.domains.map((domain: string) => {
+                        const protocol = row.ssl ? 'https' : 'http'
+                        const url = `${protocol}://${domain}`
+                        return h(
+                          NFlex,
+                          { align: 'center', size: 'small' },
+                          {
+                            default: () => [
+                              h(
+                                'a',
+                                {
+                                  href: url,
+                                  target: '_blank',
+                                  class: 'hover:underline'
+                                },
+                                url
+                              ),
+                              h(
+                                'span',
+                                {
+                                  class: 'cursor-pointer hover:opacity-60 ml-1 inline-flex',
+                                  onClick: () => {
+                                    copy2clipboard(url).then(() => {
+                                      window.$message.success($gettext('Copied'))
+                                    })
+                                  }
+                                },
+                                [h(TheIcon, { icon: 'mdi:content-copy', size: 14 })]
+                              )
+                            ]
+                          }
+                        )
+                      })
+                  }
+                )
+            }
+          )
+        )
+      }
+      return h(NFlex, { align: 'center', wrap: false }, { default: () => elements })
+    }
   },
   {
     title: $gettext('Running'),

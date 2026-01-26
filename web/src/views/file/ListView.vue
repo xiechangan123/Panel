@@ -30,6 +30,7 @@ import EditModal from '@/views/file/EditModal.vue'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import PropertyModal from '@/views/file/PropertyModal.vue'
 import type { FileInfo, Marked } from '@/views/file/types'
+import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
@@ -818,7 +819,7 @@ const deleteFiles = (items: any[]) => {
 
 // 复制路径到剪贴板
 const copyPath = (item: any) => {
-  navigator.clipboard.writeText(item.full).then(() => {
+  copy2clipboard(item.full).then(() => {
     window.$message.success($gettext('Path copied to clipboard'))
   })
 }
