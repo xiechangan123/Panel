@@ -160,8 +160,8 @@ const handleObtainCert = () => {
 const handleSelectCert = (value: number) => {
   const cert = certs.value.find((item: any) => item.id === value)
   if (cert && cert.cert !== '' && cert.key !== '') {
-    setting.value.ssl_certificate = cert.cert
-    setting.value.ssl_certificate_key = cert.key
+    setting.value.ssl_cert = cert.cert
+    setting.value.ssl_key = cert.key
   } else {
     window.$message.error($gettext('The selected certificate is invalid'))
   }
