@@ -24,7 +24,7 @@ msgstr "QQ Group"
 #: src/components/common/AppFooter.vue:27 src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:315 src/views/backup/IndexView.vue:38
 #: src/views/backup/ListView.vue:251 src/views/backup/ListView.vue:287
-#: src/views/cert/CertView.vue:455 src/views/cert/CertView.vue:538
+#: src/views/cert/CertView.vue:455 src/views/cert/CertView.vue:541
 #: src/views/cert/CreateCertModal.vue:90 src/views/home/IndexView.vue:449
 #: src/views/task/CreateModal.vue:155
 msgid "Website"
@@ -429,7 +429,7 @@ msgstr "Root Directory"
 #: src/views/backup/ListView.vue:274 src/views/backup/ListView.vue:298
 #: src/views/backup/StorageView.vue:363 src/views/backup/StorageView.vue:511
 #: src/views/cert/AccountView.vue:268 src/views/cert/CertView.vue:524
-#: src/views/cert/CertView.vue:548 src/views/cert/CreateAccountModal.vue:125
+#: src/views/cert/CertView.vue:551 src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115 src/views/cert/CreateDnsModal.vue:173
 #: src/views/cert/DnsView.vue:310 src/views/cert/ObtainModal.vue:130
 #: src/views/cert/UploadCertModal.vue:55
@@ -1255,7 +1255,7 @@ msgid "Backup"
 msgstr "Backup"
 
 #: src/locales/menu.ts:9 src/views/cert/CertView.vue:486
-#: src/views/cert/CertView.vue:563 src/views/cert/IndexView.vue:96
+#: src/views/cert/CertView.vue:566 src/views/cert/IndexView.vue:96
 #: src/views/cert/UploadCertModal.vue:38 src/views/setting/SettingSafe.vue:290
 #: src/views/website/EditView.vue:1063
 msgid "Certificate"
@@ -2990,7 +2990,7 @@ msgstr "Restore Backup"
 
 #: src/views/backup/StorageView.vue:31 src/views/backup/StorageView.vue:315
 #: src/views/backup/StorageView.vue:463 src/views/cert/CertView.vue:498
-#: src/views/cert/CertView.vue:566 src/views/cert/UploadCertModal.vue:46
+#: src/views/cert/CertView.vue:569 src/views/cert/UploadCertModal.vue:46
 #: src/views/setting/SettingSafe.vue:297 src/views/ssh/CreateModal.vue:80
 #: src/views/ssh/CreateModal.vue:91 src/views/ssh/UpdateModal.vue:86
 #: src/views/ssh/UpdateModal.vue:97 src/views/website/EditView.vue:1071
@@ -3362,11 +3362,15 @@ msgstr ""
 msgid "Deploy Certificate"
 msgstr "Deploy Certificate"
 
-#: src/views/cert/CertView.vue:541
+#: src/views/cert/CertView.vue:538
+msgid "If website not enabled HTTPS, please enable it after deployment."
+msgstr ""
+
+#: src/views/cert/CertView.vue:544
 msgid "Select websites to deploy the certificate"
 msgstr "Select websites to deploy the certificate"
 
-#: src/views/cert/CertView.vue:554
+#: src/views/cert/CertView.vue:557
 msgid "View Certificate"
 msgstr "View Certificate"
 
