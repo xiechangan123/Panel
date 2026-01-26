@@ -438,11 +438,15 @@ const getRedirectTypeLabel = (type: string) => {
 const defaultAccessLog = computed(() => `/opt/ace/sites/${setting.value.name}/log/access.log`)
 const defaultErrorLog = computed(() => `/opt/ace/sites/${setting.value.name}/log/error.log`)
 
-// 重置日志路径为默认值
-const resetLogPaths = () => {
-  setting.value.access_log = defaultAccessLog.value
-  setting.value.error_log = defaultErrorLog.value
-}
+// 日志路径选项
+const accessLogOptions = computed(() => [
+  { label: $gettext('Disabled'), value: 'off' },
+  { label: $gettext('Default Path'), value: defaultAccessLog.value }
+])
+const errorLogOptions = computed(() => [
+  { label: $gettext('Disabled'), value: 'off' },
+  { label: $gettext('Default Path'), value: defaultErrorLog.value }
+])
 
 // 限流限速是否启用
 const rateLimitEnabled = computed({
@@ -1191,15 +1195,22 @@ const removeCustomConfig = (index: number) => {
           <n-card :title="$gettext('Log Settings')" mb-16>
             <n-form label-placement="left" label-width="140px">
               <n-form-item :label="$gettext('Access Log')">
-                <n-input v-model:value="setting.access_log" :placeholder="defaultAccessLog" />
+                <n-select
+                  v-model:value="setting.access_log"
+                  :options="accessLogOptions"
+                  :placeholder="defaultAccessLog"
+                  filterable
+                  tag
+                />
               </n-form-item>
               <n-form-item :label="$gettext('Error Log')">
-                <n-input v-model:value="setting.error_log" :placeholder="defaultErrorLog" />
-              </n-form-item>
-              <n-form-item>
-                <n-button secondary size="small" @click="resetLogPaths">
-                  {{ $gettext('Reset to Default') }}
-                </n-button>
+                <n-select
+                  v-model:value="setting.error_log"
+                  :options="errorLogOptions"
+                  :placeholder="defaultErrorLog"
+                  filterable
+                  tag
+                />
               </n-form-item>
             </n-form>
           </n-card>
@@ -1414,7 +1425,11 @@ const removeCustomConfig = (index: number) => {
           </n-button>
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="log" :tab="$gettext('Access Log')">
+      <n-tab-pane
+        v-if="setting.access_log && setting.access_log !== 'off'"
+        name="log"
+        :tab="$gettext('Access Log')"
+      >
         <n-flex vertical>
           <n-flex flex items-center>
             <n-alert type="warning" w-full>
@@ -1426,7 +1441,11 @@ const removeCustomConfig = (index: number) => {
           <realtime-log :path="setting.access_log" language="accesslog" pb-20 />
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="error_log" :tab="$gettext('Error Log')">
+      <n-tab-pane
+        v-if="setting.error_log && setting.error_log !== 'off'"
+        name="error_log"
+        :tab="$gettext('Error Log')"
+      >
         <n-flex vertical>
           <n-flex flex items-center>
             <n-alert type="warning" w-full>
