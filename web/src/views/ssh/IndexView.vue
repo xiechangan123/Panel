@@ -20,21 +20,40 @@ import { NButton, NFlex, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
-const terminal = ref<HTMLElement | null>(null)
-const term = ref<Terminal | null>(null)
-let sshWs: WebSocket | null = null
-let fitAddon: FitAddon | null = null
-let webglAddon: WebglAddon | null = null
 
 const LOCAL_SERVER_ID = -1
 
-const current = ref(0)
+// 标签页接口
+interface TerminalTab {
+  id: string
+  hostId: number
+  name: string
+  terminal: Terminal | null
+  fitAddon: FitAddon | null
+  webglAddon: WebglAddon | null
+  ws: WebSocket | null
+  element: HTMLElement | null
+  connected: boolean
+}
+
+// 状态
+const terminalContainer = ref<HTMLElement | null>(null)
 const collapsed = ref(true)
 const create = ref(false)
 const update = ref(false)
 const updateId = ref(0)
+const isFullscreen = ref(false)
+const showSettings = ref(false)
 
-const list = ref<any[]>([])
+// 字体设置
+const fontSize = ref(14)
+
+// 主机列表
+const hostList = ref<any[]>([])
+
+// 标签页
+const tabs = ref<TerminalTab[]>([])
+const activeTabId = ref<string>('')
 
 // 本机选项
 const localServerOption = {
@@ -42,11 +61,22 @@ const localServerOption = {
   key: LOCAL_SERVER_ID
 }
 
+// 生成唯一ID
+const generateTabId = () => `tab-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+
+// 获取主机名称
+const getHostName = (hostId: number) => {
+  if (hostId === LOCAL_SERVER_ID) return $gettext('Local')
+  const host = hostList.value.find((h) => h.key === hostId)
+  return host?.label || `Host ${hostId}`
+}
+
+// 获取主机列表
 const fetchData = async () => {
-  list.value = [localServerOption]
+  hostList.value = [localServerOption]
   const data = await ssh.list(1, 10000)
   data.items.forEach((item: any) => {
-    list.value.push({
+    hostList.value.push({
       label: item.name === '' ? item.host : item.name,
       key: item.id,
       extra: () => {
@@ -69,34 +99,27 @@ const fetchData = async () => {
                   }
                 },
                 {
-                  default: () => {
-                    return $gettext('Edit')
-                  }
+                  default: () => $gettext('Edit')
                 }
               ),
               h(
                 NPopconfirm,
                 {
-                  onPositiveClick: () => handleDelete(item.id)
+                  onPositiveClick: () => handleDeleteHost(item.id)
                 },
                 {
-                  default: () => {
-                    return $gettext('Are you sure you want to delete this host?')
-                  },
-                  trigger: () => {
-                    return h(
+                  default: () => $gettext('Are you sure you want to delete this host?'),
+                  trigger: () =>
+                    h(
                       NButton,
                       {
                         size: 'small',
                         type: 'error'
                       },
                       {
-                        default: () => {
-                          return $gettext('Delete')
-                        }
+                        default: () => $gettext('Delete')
                       }
                     )
-                  }
                 }
               )
             ]
@@ -105,156 +128,330 @@ const fetchData = async () => {
       }
     })
   })
-  // 如果有更新ID则连接该主机，否则默认连接本地服务器
-  await openSession(updateId.value !== 0 ? updateId.value : LOCAL_SERVER_ID)
+
+  // 默认打开本机标签
+  if (tabs.value.length === 0) {
+    await addTab(LOCAL_SERVER_ID)
+  }
 }
 
-const handleDelete = (id: number) => {
+// 删除主机
+const handleDeleteHost = (id: number) => {
   useRequest(ssh.delete(id)).onSuccess(() => {
-    list.value = list.value.filter((item: any) => item.key !== id)
-    if (current.value === id) {
-      // 删除当前主机后，切换到本地服务器
-      openSession(LOCAL_SERVER_ID)
-    }
+    hostList.value = hostList.value.filter((item: any) => item.key !== id)
   })
 }
 
-const handleChange = (key: number) => {
-  openSession(key)
+// 从侧边栏选择主机
+const handleSelectHost = (key: number) => {
+  addTab(key)
 }
 
-const openSession = async (id: number) => {
-  closeSession()
-
-  // 根据ID选择连接方式：本地服务器使用pty，远程主机使用ssh
-  const socket = id === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(id)
-  sshWs = socket
-  sshWs.binaryType = 'arraybuffer'
-
-  term.value = new Terminal({
-    allowProposedApi: true,
-    lineHeight: 1.2,
-    fontSize: 14,
-    fontFamily: `'JetBrains Mono Variable', monospace`,
-    cursorBlink: true,
-    cursorStyle: 'underline',
-    tabStopWidth: 4,
-    theme: { background: '#111', foreground: '#fff' }
-  })
-
-  fitAddon = new FitAddon()
-  webglAddon = new WebglAddon()
-
-  term.value.loadAddon(fitAddon)
-  term.value.loadAddon(new ClipboardAddon())
-  term.value.loadAddon(new WebLinksAddon())
-  term.value.loadAddon(new Unicode11Addon())
-  term.value.unicode.activeVersion = '11'
-  term.value.loadAddon(webglAddon)
-  webglAddon.onContextLoss(() => {
-    webglAddon?.dispose()
-  })
-  term.value.open(terminal.value!)
-
-  sshWs.onmessage = (ev) => {
-    const data: ArrayBuffer | string = ev.data
-    term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
+// 添加新标签
+const addTab = async (hostId: number) => {
+  const tabId = generateTabId()
+  const tab: TerminalTab = {
+    id: tabId,
+    hostId,
+    name: getHostName(hostId),
+    terminal: null,
+    fitAddon: null,
+    webglAddon: null,
+    ws: null,
+    element: null,
+    connected: false
   }
-  term.value?.onData((data) => {
-    if (sshWs?.readyState === WebSocket.OPEN) {
-      sshWs?.send(data)
-    }
-  })
-  term.value?.onBinary((data) => {
-    if (sshWs?.readyState === WebSocket.OPEN) {
-      const buffer = new Uint8Array(data.length)
-      for (let i = 0; i < data.length; ++i) {
-        buffer[i] = data.charCodeAt(i) & 255
-      }
-      sshWs?.send(buffer)
-    }
-  })
-  term.value.onResize(({ rows, cols }) => {
-    if (sshWs?.readyState === WebSocket.OPEN) {
-      sshWs?.send(
-        JSON.stringify({
-          resize: true,
-          columns: cols,
-          rows: rows
-        })
-      )
-    }
-  })
+  tabs.value.push(tab)
+  activeTabId.value = tabId
 
-  fitAddon.fit()
-  term.value.focus()
-  window.addEventListener('resize', onResize, false)
-  current.value = id
+  await nextTick()
+  await initTerminal(tabId)
+}
 
-  sshWs.onclose = () => {
-    term.value?.write('\r\n' + $gettext('Connection closed. Please refresh.'))
-    window.removeEventListener('resize', onResize)
+// 关闭标签
+const closeTab = (tabId: string) => {
+  const index = tabs.value.findIndex((t) => t.id === tabId)
+  if (index === -1) return
+
+  const tab = tabs.value[index]
+  disposeTab(tab)
+  tabs.value.splice(index, 1)
+
+  // 如果关闭的是当前标签，切换到其他标签
+  if (activeTabId.value === tabId && tabs.value.length > 0) {
+    const newIndex = Math.min(index, tabs.value.length - 1)
+    switchTab(tabs.value[newIndex].id)
   }
 
-  sshWs.onerror = (event) => {
-    term.value?.write('\r\n' + $gettext('Connection error. Please refresh.'))
-    console.error(event)
-    sshWs?.close()
+  // 如果没有标签了，创建一个本机标签
+  if (tabs.value.length === 0) {
+    addTab(LOCAL_SERVER_ID)
   }
 }
 
-const closeSession = () => {
+// 切换标签
+const switchTab = async (tabId: string) => {
+  activeTabId.value = tabId
+  await nextTick()
+
+  const tab = tabs.value.find((t) => t.id === tabId)
+  if (tab?.terminal && tab.fitAddon) {
+    tab.fitAddon.fit()
+    tab.terminal.focus()
+  }
+}
+
+// 初始化终端
+const initTerminal = async (tabId: string) => {
+  const tab = tabs.value.find((t) => t.id === tabId)
+  if (!tab) return
+
+  const container = document.getElementById(`terminal-${tabId}`)
+  if (!container) return
+
+  tab.element = container
+
   try {
-    if (sshWs) {
-      sshWs.close()
-      sshWs = null
+    // 根据ID选择连接方式
+    const socket =
+      tab.hostId === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(tab.hostId)
+    tab.ws = socket
+    tab.ws.binaryType = 'arraybuffer'
+
+    tab.terminal = new Terminal({
+      allowProposedApi: true,
+      lineHeight: 1.2,
+      fontSize: fontSize.value,
+      fontFamily: `'JetBrains Mono Variable', monospace`,
+      cursorBlink: true,
+      cursorStyle: 'underline',
+      tabStopWidth: 4,
+      theme: { background: '#111', foreground: '#fff' }
+    })
+
+    tab.fitAddon = new FitAddon()
+    tab.webglAddon = new WebglAddon()
+
+    tab.terminal.loadAddon(tab.fitAddon)
+    tab.terminal.loadAddon(new ClipboardAddon())
+    tab.terminal.loadAddon(new WebLinksAddon())
+    tab.terminal.loadAddon(new Unicode11Addon())
+    tab.terminal.unicode.activeVersion = '11'
+    tab.terminal.loadAddon(tab.webglAddon)
+    tab.webglAddon.onContextLoss(() => {
+      tab.webglAddon?.dispose()
+    })
+
+    // 选中自动复制
+    tab.terminal.onSelectionChange(() => {
+      const selection = tab.terminal?.getSelection()
+      if (selection) {
+        navigator.clipboard.writeText(selection)
+      }
+    })
+
+    tab.terminal.open(container)
+
+    tab.ws.onmessage = (ev) => {
+      const data: ArrayBuffer | string = ev.data
+      tab.terminal?.write(typeof data === 'string' ? data : new Uint8Array(data))
     }
-    if (term.value) {
-      term.value.dispose()
-      term.value = null
+
+    tab.terminal.onData((data) => {
+      if (tab.ws?.readyState === WebSocket.OPEN) {
+        tab.ws.send(data)
+      }
+    })
+
+    tab.terminal.onBinary((data) => {
+      if (tab.ws?.readyState === WebSocket.OPEN) {
+        const buffer = new Uint8Array(data.length)
+        for (let i = 0; i < data.length; ++i) {
+          buffer[i] = data.charCodeAt(i) & 255
+        }
+        tab.ws.send(buffer)
+      }
+    })
+
+    tab.terminal.onResize(({ rows, cols }) => {
+      if (tab.ws?.readyState === WebSocket.OPEN) {
+        tab.ws.send(
+          JSON.stringify({
+            resize: true,
+            columns: cols,
+            rows: rows
+          })
+        )
+      }
+    })
+
+    tab.fitAddon.fit()
+    tab.terminal.focus()
+    tab.connected = true
+
+    tab.ws.onclose = () => {
+      tab.connected = false
+      tab.terminal?.write('\r\n' + $gettext('Connection closed. Please refresh.'))
     }
-    fitAddon = null
-    webglAddon = null
-    if (terminal.value) {
-      terminal.value.innerHTML = ''
+
+    tab.ws.onerror = (event) => {
+      tab.connected = false
+      tab.terminal?.write('\r\n' + $gettext('Connection error. Please refresh.'))
+      console.error(event)
+      tab.ws?.close()
+    }
+  } catch (error) {
+    console.error('Failed to connect:', error)
+    tab.connected = false
+  }
+}
+
+// 销毁标签
+const disposeTab = (tab: TerminalTab) => {
+  try {
+    tab.ws?.close()
+    tab.terminal?.dispose()
+    tab.fitAddon = null
+    tab.webglAddon = null
+    if (tab.element) {
+      tab.element.innerHTML = ''
     }
   } catch {
     /* empty */
   }
 }
 
+// 窗口大小变化
 const onResize = () => {
-  if (fitAddon && term.value) {
-    fitAddon.fit()
+  const tab = tabs.value.find((t) => t.id === activeTabId.value)
+  if (tab?.fitAddon && tab.terminal) {
+    tab.fitAddon.fit()
   }
 }
 
+// 滚轮缩放
 const onTermWheel = (event: WheelEvent) => {
-  if (event.ctrlKey && term.value && fitAddon) {
+  if (event.ctrlKey) {
     event.preventDefault()
-    const fontSize = term.value.options.fontSize ?? 14
     if (event.deltaY > 0) {
-      if (fontSize > 12) {
-        term.value.options.fontSize = fontSize - 1
+      if (fontSize.value > 10) {
+        fontSize.value--
       }
     } else {
-      term.value.options.fontSize = fontSize + 1
+      if (fontSize.value < 32) {
+        fontSize.value++
+      }
     }
-    fitAddon.fit()
+    applyFontSettings()
   }
 }
 
+// 右键粘贴
+const onContextMenu = async (event: MouseEvent) => {
+  event.preventDefault()
+  const tab = tabs.value.find((t) => t.id === activeTabId.value)
+  if (tab?.terminal && tab.ws?.readyState === WebSocket.OPEN) {
+    try {
+      const text = await navigator.clipboard.readText()
+      if (text) {
+        tab.ws.send(text)
+      }
+    } catch {
+      /* clipboard access denied */
+    }
+  }
+}
+
+// 键盘快捷键
+const onKeyDown = (event: KeyboardEvent) => {
+  const tab = tabs.value.find((t) => t.id === activeTabId.value)
+  if (!tab?.terminal) return
+
+  // Ctrl+Shift+C 或 Command+C 复制
+  if (
+    (event.ctrlKey && event.shiftKey && event.key === 'C') ||
+    (event.metaKey && event.key === 'c')
+  ) {
+    event.preventDefault()
+    const selection = tab.terminal.getSelection()
+    if (selection) {
+      navigator.clipboard.writeText(selection)
+    }
+  }
+
+  // Ctrl+Shift+V 或 Command+V 粘贴
+  if (
+    (event.ctrlKey && event.shiftKey && event.key === 'V') ||
+    (event.metaKey && event.key === 'v')
+  ) {
+    event.preventDefault()
+    navigator.clipboard.readText().then((text) => {
+      if (text && tab.ws?.readyState === WebSocket.OPEN) {
+        tab.ws.send(text)
+      }
+    })
+  }
+}
+
+// 应用字体设置
+const applyFontSettings = () => {
+  tabs.value.forEach((tab) => {
+    if (tab.terminal) {
+      tab.terminal.options.fontSize = fontSize.value
+      tab.fitAddon?.fit()
+    }
+  })
+}
+
+// 全屏切换
+const toggleFullscreen = async () => {
+  const container = terminalContainer.value
+  if (!container) return
+
+  if (!isFullscreen.value) {
+    try {
+      await container.requestFullscreen()
+      isFullscreen.value = true
+    } catch {
+      /* fullscreen not supported */
+    }
+  } else {
+    try {
+      await document.exitFullscreen()
+      isFullscreen.value = false
+    } catch {
+      /* not in fullscreen */
+    }
+  }
+}
+
+// 监听全屏变化
+const onFullscreenChange = () => {
+  isFullscreen.value = !!document.fullscreenElement
+  nextTick(() => onResize())
+}
+
+// 监听字体设置变化
+watch(fontSize, () => {
+  applyFontSettings()
+})
+
 onMounted(() => {
-  // https://github.com/xtermjs/xterm.js/pull/5178
   document.fonts.ready.then((fontFaceSet: any) =>
     Promise.all(Array.from(fontFaceSet).map((el: any) => el.load())).then(fetchData)
   )
   window.$bus.on('ssh:refresh', fetchData)
+  window.addEventListener('resize', onResize)
+  window.addEventListener('keydown', onKeyDown)
+  document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onUnmounted(() => {
-  closeSession()
+  tabs.value.forEach(disposeTab)
   window.$bus.off('ssh:refresh')
+  window.removeEventListener('resize', onResize)
+  window.removeEventListener('keydown', onKeyDown)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 </script>
 
@@ -262,7 +459,87 @@ onUnmounted(() => {
   <common-page show-footer>
     <n-layout has-sider sider-placement="right">
       <n-layout content-style="overflow: visible" bg-hex-111>
-        <div ref="terminal" @wheel="onTermWheel" h-75vh></div>
+        <div
+          ref="terminalContainer"
+          class="terminal-container"
+          :class="{ fullscreen: isFullscreen }"
+        >
+          <!-- 工具栏 -->
+          <div class="terminal-toolbar">
+            <!-- 标签页 -->
+            <div class="tabs-wrapper">
+              <n-tabs
+                v-model:value="activeTabId"
+                type="card"
+                closable
+                size="small"
+                @update:value="switchTab"
+                @close="closeTab"
+              >
+                <n-tab-pane
+                  v-for="tab in tabs"
+                  :key="tab.id"
+                  :name="tab.id"
+                  :tab="tab.name"
+                  display-directive="show:lazy"
+                >
+                </n-tab-pane>
+              </n-tabs>
+            </div>
+
+            <!-- 工具按钮 -->
+            <div class="toolbar-actions">
+              <n-tooltip trigger="hover">
+                <template #trigger>
+                  <n-button quaternary size="small" @click="showSettings = !showSettings">
+                    <template #icon>
+                      <icon-mdi-cog />
+                    </template>
+                  </n-button>
+                </template>
+                {{ $gettext('Settings') }}
+              </n-tooltip>
+              <n-tooltip trigger="hover">
+                <template #trigger>
+                  <n-button quaternary size="small" @click="toggleFullscreen">
+                    <template #icon>
+                      <icon-mdi-fullscreen v-if="!isFullscreen" />
+                      <icon-mdi-fullscreen-exit v-else />
+                    </template>
+                  </n-button>
+                </template>
+                {{ isFullscreen ? $gettext('Exit Fullscreen') : $gettext('Fullscreen') }}
+              </n-tooltip>
+            </div>
+          </div>
+
+          <!-- 设置面板 -->
+          <n-collapse-transition :show="showSettings">
+            <div class="settings-panel">
+              <n-space align="center">
+                <span>{{ $gettext('Font Size') }}:</span>
+                <n-input-number
+                  v-model:value="fontSize"
+                  size="small"
+                  :min="10"
+                  :max="32"
+                  style="width: 100px"
+                />
+              </n-space>
+            </div>
+          </n-collapse-transition>
+
+          <!-- 终端内容区域 -->
+          <div class="terminals-content" @wheel="onTermWheel" @contextmenu="onContextMenu">
+            <div
+              v-for="tab in tabs"
+              :key="tab.id"
+              :id="`terminal-${tab.id}`"
+              class="terminal-pane"
+              :class="{ active: tab.id === activeTabId }"
+            ></div>
+          </div>
+        </div>
       </n-layout>
       <n-layout-sider
         bordered
@@ -276,18 +553,17 @@ onUnmounted(() => {
         @after-leave="onResize"
         pl-10
       >
-        <div class="text-center">
+        <div class="mb-2 text-center">
           <n-button type="primary" @click="create = true">
             {{ $gettext('Create Host') }}
           </n-button>
         </div>
         <n-menu
-          v-model:value="current"
           :collapsed="collapsed"
           :collapsed-width="0"
           :collapsed-icon-size="0"
-          :options="list"
-          @update-value="handleChange"
+          :options="hostList"
+          @update-value="handleSelectHost"
         />
       </n-layout-sider>
     </n-layout>
@@ -297,8 +573,83 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
+.terminal-container {
+  display: flex;
+  flex-direction: column;
+  height: 75vh;
+  background: #111;
+
+  &.fullscreen {
+    height: 100vh;
+  }
+}
+
+.terminal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  padding-right: 8px;
+}
+
+.tabs-wrapper {
+  flex: 1;
+  overflow: hidden;
+
+  :deep(.n-tabs) {
+    .n-tabs-nav {
+      background: transparent;
+    }
+
+    .n-tabs-tab {
+      background: #222;
+      border-color: #333;
+      color: #aaa;
+
+      &.n-tabs-tab--active {
+        background: #111;
+        color: #fff;
+      }
+    }
+  }
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 4px;
+  color: #aaa;
+}
+
+.settings-panel {
+  background: #1a1a1a;
+  padding: 12px 16px;
+  border-bottom: 1px solid #333;
+  color: #aaa;
+}
+
+.terminals-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-pane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
 :deep(.xterm) {
-  padding: 4rem !important;
+  padding: 8px !important;
+  height: 100%;
 }
 
 :deep(.xterm .xterm-viewport::-webkit-scrollbar) {
