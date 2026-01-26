@@ -212,7 +212,7 @@ func (r certAccountRepo) getGoogleEAB() (*acme.EAB, error) {
 	}
 	client := resty.New()
 	client.SetTimeout(5 * time.Second)
-	client.SetRetryCount(2)
+	client.SetRetryCount(3)
 
 	resp, err := client.R().SetResult(&data{}).Get("https://gts.rat.dev/eab")
 	if err != nil || !resp.IsSuccess() {
@@ -235,7 +235,7 @@ func (r certAccountRepo) getZeroSSLEAB(email string) (*acme.EAB, error) {
 	}
 	client := resty.New()
 	client.SetTimeout(5 * time.Second)
-	client.SetRetryCount(2)
+	client.SetRetryCount(3)
 
 	resp, err := client.R().SetFormData(map[string]string{
 		"email": email,

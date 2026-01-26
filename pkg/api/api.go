@@ -34,6 +34,7 @@ func NewAPI(panelVersion, locale string, url ...string) *API {
 	}
 
 	client := resty.New()
+	client.SetRetryCount(3)
 	client.SetTimeout(10 * time.Second)
 	client.SetBaseURL(url[0])
 	client.SetHeader(
