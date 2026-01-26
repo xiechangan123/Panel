@@ -433,7 +433,17 @@ const getRedirectTypeLabel = (type: string) => {
   return option ? option.label : type
 }
 
-// ========== 高级设置相关（限流限速、真实 IP、基本认证）==========
+// ========== 高级设置相关（日志设置、限流限速、真实 IP、基本认证）==========
+// 默认日志路径
+const defaultAccessLog = computed(() => `/opt/ace/sites/${setting.value.name}/log/access.log`)
+const defaultErrorLog = computed(() => `/opt/ace/sites/${setting.value.name}/log/error.log`)
+
+// 重置日志路径为默认值
+const resetLogPaths = () => {
+  setting.value.access_log = defaultAccessLog.value
+  setting.value.error_log = defaultErrorLog.value
+}
+
 // 限流限速是否启用
 const rateLimitEnabled = computed({
   get: () => setting.value.rate_limit !== null,
@@ -1177,6 +1187,23 @@ const removeCustomConfig = (index: number) => {
       </n-tab-pane>
       <n-tab-pane name="advanced" :tab="$gettext('Advanced Settings')">
         <n-flex vertical>
+          <!-- 日志设置 -->
+          <n-card :title="$gettext('Log Settings')" mb-16>
+            <n-form label-placement="left" label-width="140px">
+              <n-form-item :label="$gettext('Access Log')">
+                <n-input v-model:value="setting.access_log" :placeholder="defaultAccessLog" />
+              </n-form-item>
+              <n-form-item :label="$gettext('Error Log')">
+                <n-input v-model:value="setting.error_log" :placeholder="defaultErrorLog" />
+              </n-form-item>
+              <n-form-item>
+                <n-button secondary size="small" @click="resetLogPaths">
+                  {{ $gettext('Reset to Default') }}
+                </n-button>
+              </n-form-item>
+            </n-form>
+          </n-card>
+
           <!-- 限流限速设置 -->
           <n-card :title="$gettext('Rate Limiting')" mb-16>
             <n-form label-placement="left" label-width="140px">

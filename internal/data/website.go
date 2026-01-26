@@ -682,7 +682,19 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		}
 	}
 
-	// 高级设置（限流限速、真实 IP、基本认证）
+	// 高级设置（日志路径、限流限速、真实 IP、基本认证）
+	// 日志路径
+	if req.AccessLog != "" {
+		if err = vhost.SetAccessLog(req.AccessLog); err != nil {
+			return err
+		}
+	}
+	if req.ErrorLog != "" {
+		if err = vhost.SetErrorLog(req.ErrorLog); err != nil {
+			return err
+		}
+	}
+	// 限流限速
 	if req.RateLimit != nil {
 		if err = vhost.SetRateLimit(req.RateLimit); err != nil {
 			return err
