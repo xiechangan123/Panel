@@ -3,6 +3,7 @@ package acme
 import (
 	"context"
 	"crypto/x509"
+	"net"
 	"sort"
 
 	"github.com/libdns/libdns"
@@ -79,6 +80,13 @@ func (c *Client) UsePanel(ip []string, conf string, webServer string) {
 
 // ObtainCertificate 签发 SSL 证书
 func (c *Client) ObtainCertificate(ctx context.Context, sans []string, keyType KeyType) (Certificate, error) {
+	// IP 地址
+	for _, san := range sans {
+		if net.ParseIP(san) != nil {
+			return c.ObtainIPCertificate(ctx, sans, keyType)
+		}
+	}
+
 	certPrivateKey, err := generatePrivateKey(keyType)
 	if err != nil {
 		return Certificate{}, err
