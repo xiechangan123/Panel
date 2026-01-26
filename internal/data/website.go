@@ -186,7 +186,11 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.SSLNotAfter = decode.NotAfter.Format(time.DateTime)
 		setting.SSLIssuer = decode.Issuer.CommonName
 		setting.SSLOCSPServer = decode.OCSPServer
+		// 合并 DNSNames 和 IPAddresses
 		setting.SSLDNSNames = decode.DNSNames
+		for _, ip := range decode.IPAddresses {
+			setting.SSLDNSNames = append(setting.SSLDNSNames, ip.String())
+		}
 	}
 	// 访问日志
 	if setting.AccessLog = vhost.AccessLog(); setting.AccessLog == "" {

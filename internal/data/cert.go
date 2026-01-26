@@ -71,7 +71,11 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			item.NotAfter = decode.NotAfter
 			item.Issuer = decode.Issuer.CommonName
 			item.OCSPServer = decode.OCSPServer
+			// 合并 DNSNames 和 IPAddresses
 			item.DNSNames = decode.DNSNames
+			for _, ip := range decode.IPAddresses {
+				item.DNSNames = append(item.DNSNames, ip.String())
+			}
 		}
 		list = append(list, item)
 	}
@@ -100,9 +104,15 @@ func (r *certRepo) Upload(ctx context.Context, req *request.CertUpload) (*biz.Ce
 		return nil, errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 
+	// 合并 DNSNames 和 IPAddresses
+	domains := info.DNSNames
+	for _, ip := range info.IPAddresses {
+		domains = append(domains, ip.String())
+	}
+
 	cert := &biz.Cert{
 		Type:    "upload",
-		Domains: info.DNSNames,
+		Domains: domains,
 		Cert:    req.Cert,
 		Key:     req.Key,
 	}
@@ -138,7 +148,11 @@ func (r *certRepo) Create(ctx context.Context, req *request.CertCreate) (*biz.Ce
 func (r *certRepo) Update(ctx context.Context, req *request.CertUpdate) error {
 	info, err := pkgcert.ParseCert(req.Cert)
 	if err == nil && req.Type == "upload" {
+		// 合并 DNSNames 和 IPAddresses
 		req.Domains = info.DNSNames
+		for _, ip := range info.IPAddresses {
+			req.Domains = append(req.Domains, ip.String())
+		}
 	}
 	if req.Type == "upload" && req.AutoRenewal {
 		return errors.New(r.t.Get("upload certificate cannot be set to auto renewal"))
