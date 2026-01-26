@@ -128,7 +128,7 @@ const columns: any = [
   {
     title: $gettext('Issuer'),
     key: 'issuer',
-    width: 120,
+    width: 250,
     ellipsis: { tooltip: true },
     render(row: any) {
       return row.issuer == '' ? $gettext('None') : row.issuer
@@ -533,7 +533,10 @@ onUnmounted(() => {
     :bordered="false"
     :segmented="false"
   >
-    <n-space vertical>
+    <n-flex vertical>
+      <n-alert type="info">
+        {{ $gettext('If website not enabled HTTPS, please enable it after deployment.') }}
+      </n-alert>
       <n-form :model="deployModel">
         <n-form-item path="website_id" :label="$gettext('Website')">
           <n-select
@@ -546,7 +549,7 @@ onUnmounted(() => {
         </n-form-item>
       </n-form>
       <n-button type="info" block @click="handleDeployCert">{{ $gettext('Submit') }}</n-button>
-    </n-space>
+    </n-flex>
   </n-modal>
   <n-modal
     v-model:show="showModal"
