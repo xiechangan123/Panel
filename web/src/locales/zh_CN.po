@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-01-26 13:21\n"
+"PO-Revision-Date: 2026-01-26 13:38\n"
 
 #: src/components/common/AppFooter.vue:13
 #: src/views/home/IndexView.vue:467
@@ -32,7 +32,7 @@ msgstr "QQ 群"
 #: src/views/backup/ListView.vue:251
 #: src/views/backup/ListView.vue:287
 #: src/views/cert/CertView.vue:455
-#: src/views/cert/CertView.vue:538
+#: src/views/cert/CertView.vue:541
 #: src/views/cert/CreateCertModal.vue:90
 #: src/views/home/IndexView.vue:449
 #: src/views/task/CreateModal.vue:155
@@ -502,7 +502,7 @@ msgstr "根目录"
 #: src/views/backup/StorageView.vue:511
 #: src/views/cert/AccountView.vue:268
 #: src/views/cert/CertView.vue:524
-#: src/views/cert/CertView.vue:548
+#: src/views/cert/CertView.vue:551
 #: src/views/cert/CreateAccountModal.vue:125
 #: src/views/cert/CreateCertModal.vue:115
 #: src/views/cert/CreateDnsModal.vue:173
@@ -1385,7 +1385,7 @@ msgstr "备份"
 
 #: src/locales/menu.ts:9
 #: src/views/cert/CertView.vue:486
-#: src/views/cert/CertView.vue:563
+#: src/views/cert/CertView.vue:566
 #: src/views/cert/IndexView.vue:96
 #: src/views/cert/UploadCertModal.vue:38
 #: src/views/setting/SettingSafe.vue:290
@@ -3091,7 +3091,7 @@ msgstr "恢复备份"
 #: src/views/backup/StorageView.vue:315
 #: src/views/backup/StorageView.vue:463
 #: src/views/cert/CertView.vue:498
-#: src/views/cert/CertView.vue:566
+#: src/views/cert/CertView.vue:569
 #: src/views/cert/UploadCertModal.vue:46
 #: src/views/setting/SettingSafe.vue:297
 #: src/views/ssh/CreateModal.vue:80
@@ -3487,11 +3487,15 @@ msgstr "脚本中的 {cert} 和 {key} 将被替换为证书和私钥内容"
 msgid "Deploy Certificate"
 msgstr "部署证书"
 
-#: src/views/cert/CertView.vue:541
+#: src/views/cert/CertView.vue:538
+msgid "If website not enabled HTTPS, please enable it after deployment."
+msgstr "如果网站未启用 HTTPS，请在部署后启用它。"
+
+#: src/views/cert/CertView.vue:544
 msgid "Select websites to deploy the certificate"
 msgstr "选择要部署证书的网站"
 
-#: src/views/cert/CertView.vue:554
+#: src/views/cert/CertView.vue:557
 msgid "View Certificate"
 msgstr "查看证书"
 
