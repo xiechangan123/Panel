@@ -23,8 +23,8 @@ const year = new Date().getFullYear()
         {{ $gettext('QQ Group') }} 12370907
       </a>
       <n-divider vertical />
-      <a hover="decoration-primary color-primary" target="_blank" href="https://acepanel.net/docs">
-        {{ $gettext('Documentation') }}
+      <a hover="decoration-primary color-primary" target="_blank" href="https://acepanel.net">
+        {{ $gettext('Website') }}
       </a>
       <n-divider vertical />
       <a
