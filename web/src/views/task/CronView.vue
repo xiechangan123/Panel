@@ -5,12 +5,16 @@ import { useGettext } from 'vue3-gettext'
 import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import CronPreview from '@/components/common/CronPreview.vue'
+import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { decodeBase64, formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
 const logPath = ref('')
 const logModal = ref(false)
 const editModal = ref(false)
+const runModal = ref(false)
+const runCommand = ref('')
+const runTaskName = ref('')
 
 const editTask = ref({
   id: 0,
@@ -97,7 +101,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 280,
+    width: 350,
     hideInExcel: true,
     render(row: any) {
       return [
@@ -105,8 +109,21 @@ const columns: any = [
           NButton,
           {
             size: 'small',
+            type: 'success',
+            secondary: true,
+            onClick: () => handleRun(row)
+          },
+          {
+            default: () => $gettext('Run')
+          }
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
             type: 'warning',
             secondary: true,
+            style: 'margin-left: 15px;',
             onClick: () => {
               logPath.value = row.log
               logModal.value = true
@@ -174,6 +191,14 @@ const handleStatusChange = (row: any) => {
   })
 }
 
+const handleRun = (row: any) => {
+  useRequest(cron.get(row.id)).onSuccess(({ data }) => {
+    runTaskName.value = row.name
+    runCommand.value = `bash '${data.shell}'`
+    runModal.value = true
+  })
+}
+
 const handleEdit = (row: any) => {
   useRequest(cron.get(row.id)).onSuccess(({ data }) => {
     useRequest(file.content(encodeURIComponent(data.shell))).onSuccess(({ data }) => {
@@ -219,7 +244,7 @@ onUnmounted(() => {
   <n-data-table
     striped
     remote
-    :scroll-x="1300"
+    :scroll-x="1400"
     :loading="loading"
     :columns="columns"
     :data="data"
@@ -259,4 +284,9 @@ onUnmounted(() => {
       {{ $gettext('Save') }}
     </n-button>
   </n-modal>
+  <pty-terminal-modal
+    v-model:show="runModal"
+    :title="$gettext('Run Task - %{ name }', { name: runTaskName })"
+    :command="runCommand"
+  />
 </template>
