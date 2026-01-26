@@ -26,6 +26,8 @@ let sshWs: WebSocket | null = null
 let fitAddon: FitAddon | null = null
 let webglAddon: WebglAddon | null = null
 
+const LOCAL_SERVER_ID = -1
+
 const current = ref(0)
 const collapsed = ref(true)
 const create = ref(false)
@@ -34,13 +36,15 @@ const updateId = ref(0)
 
 const list = ref<any[]>([])
 
+// 本机选项
+const localServerOption = {
+  label: $gettext('Local'),
+  key: LOCAL_SERVER_ID
+}
+
 const fetchData = async () => {
-  list.value = []
+  list.value = [localServerOption]
   const data = await ssh.list(1, 10000)
-  if (data.items.length === 0) {
-    window.$message.info($gettext('Please create a host first'))
-    return
-  }
   data.items.forEach((item: any) => {
     list.value.push({
       label: item.name === '' ? item.host : item.name,
@@ -101,21 +105,16 @@ const fetchData = async () => {
       }
     })
   })
-  await openSession(updateId.value === 0 ? Number(list.value[0].key) : updateId.value)
+  // 如果有更新ID则连接该主机，否则默认连接本地服务器
+  await openSession(updateId.value !== 0 ? updateId.value : LOCAL_SERVER_ID)
 }
 
 const handleDelete = (id: number) => {
   useRequest(ssh.delete(id)).onSuccess(() => {
     list.value = list.value.filter((item: any) => item.key !== id)
     if (current.value === id) {
-      if (list.value.length > 0) {
-        openSession(Number(list.value[0].key))
-      } else {
-        term.value?.dispose()
-      }
-      if (list.value.length === 0) {
-        create.value = true
-      }
+      // 删除当前主机后，切换到本地服务器
+      openSession(LOCAL_SERVER_ID)
     }
   })
 }
@@ -126,81 +125,82 @@ const handleChange = (key: number) => {
 
 const openSession = async (id: number) => {
   closeSession()
-  await ws.ssh(id).then((socket) => {
-    sshWs = socket
-    sshWs.binaryType = 'arraybuffer'
 
-    term.value = new Terminal({
-      allowProposedApi: true,
-      lineHeight: 1.2,
-      fontSize: 14,
-      fontFamily: `'JetBrains Mono Variable', monospace`,
-      cursorBlink: true,
-      cursorStyle: 'underline',
-      tabStopWidth: 4,
-      theme: { background: '#111', foreground: '#fff' }
-    })
+  // 根据ID选择连接方式：本地服务器使用pty，远程主机使用ssh
+  const socket = id === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(id)
+  sshWs = socket
+  sshWs.binaryType = 'arraybuffer'
 
-    fitAddon = new FitAddon()
-    webglAddon = new WebglAddon()
+  term.value = new Terminal({
+    allowProposedApi: true,
+    lineHeight: 1.2,
+    fontSize: 14,
+    fontFamily: `'JetBrains Mono Variable', monospace`,
+    cursorBlink: true,
+    cursorStyle: 'underline',
+    tabStopWidth: 4,
+    theme: { background: '#111', foreground: '#fff' }
+  })
 
-    term.value.loadAddon(fitAddon)
-    term.value.loadAddon(new ClipboardAddon())
-    term.value.loadAddon(new WebLinksAddon())
-    term.value.loadAddon(new Unicode11Addon())
-    term.value.unicode.activeVersion = '11'
-    term.value.loadAddon(webglAddon)
-    webglAddon.onContextLoss(() => {
-      webglAddon?.dispose()
-    })
-    term.value.open(terminal.value!)
+  fitAddon = new FitAddon()
+  webglAddon = new WebglAddon()
 
-    sshWs.onmessage = (ev) => {
-      const data: ArrayBuffer | string = ev.data
-      term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
-    }
-    term.value?.onData((data) => {
-      if (sshWs?.readyState === WebSocket.OPEN) {
-        sshWs?.send(data)
-      }
-    })
-    term.value?.onBinary((data) => {
-      if (sshWs?.readyState === WebSocket.OPEN) {
-        const buffer = new Uint8Array(data.length)
-        for (let i = 0; i < data.length; ++i) {
-          buffer[i] = data.charCodeAt(i) & 255
-        }
-        sshWs?.send(buffer)
-      }
-    })
-    term.value.onResize(({ rows, cols }) => {
-      if (sshWs?.readyState === WebSocket.OPEN) {
-        sshWs?.send(
-          JSON.stringify({
-            resize: true,
-            columns: cols,
-            rows: rows
-          })
-        )
-      }
-    })
+  term.value.loadAddon(fitAddon)
+  term.value.loadAddon(new ClipboardAddon())
+  term.value.loadAddon(new WebLinksAddon())
+  term.value.loadAddon(new Unicode11Addon())
+  term.value.unicode.activeVersion = '11'
+  term.value.loadAddon(webglAddon)
+  webglAddon.onContextLoss(() => {
+    webglAddon?.dispose()
+  })
+  term.value.open(terminal.value!)
 
-    fitAddon.fit()
-    term.value.focus()
-    window.addEventListener('resize', onResize, false)
-    current.value = id
-
-    sshWs.onclose = () => {
-      term.value?.write('\r\n' + $gettext('Connection closed. Please refresh.'))
-      window.removeEventListener('resize', onResize)
-    }
-
-    sshWs.onerror = (event) => {
-      term.value?.write('\r\n' + $gettext('Connection error. Please refresh.'))
-      console.error(event)
-      sshWs?.close()
+  sshWs.onmessage = (ev) => {
+    const data: ArrayBuffer | string = ev.data
+    term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
+  }
+  term.value?.onData((data) => {
+    if (sshWs?.readyState === WebSocket.OPEN) {
+      sshWs?.send(data)
     }
   })
+  term.value?.onBinary((data) => {
+    if (sshWs?.readyState === WebSocket.OPEN) {
+      const buffer = new Uint8Array(data.length)
+      for (let i = 0; i < data.length; ++i) {
+        buffer[i] = data.charCodeAt(i) & 255
+      }
+      sshWs?.send(buffer)
+    }
+  })
+  term.value.onResize(({ rows, cols }) => {
+    if (sshWs?.readyState === WebSocket.OPEN) {
+      sshWs?.send(
+        JSON.stringify({
+          resize: true,
+          columns: cols,
+          rows: rows
+        })
+      )
+    }
+  })
+
+  fitAddon.fit()
+  term.value.focus()
+  window.addEventListener('resize', onResize, false)
+  current.value = id
+
+  sshWs.onclose = () => {
+    term.value?.write('\r\n' + $gettext('Connection closed. Please refresh.'))
+    window.removeEventListener('resize', onResize)
+  }
+
+  sshWs.onerror = (event) => {
+    term.value?.write('\r\n' + $gettext('Connection error. Please refresh.'))
+    console.error(event)
+    sshWs?.close()
+  }
 }
 
 const closeSession = () => {
