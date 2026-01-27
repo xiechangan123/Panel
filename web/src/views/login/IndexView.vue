@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import user from '@/api/panel/user'
 import bgImg from '@/assets/images/login_bg.webp'
-import logoImg from '@/assets/images/logo.png'
+import logoImg from '@/assets/images/logo.svg'
 import { addDynamicRoutes } from '@/router'
 import { useThemeStore, useUserStore } from '@/store'
 import { getLocal, removeLocal, setLocal } from '@/utils'

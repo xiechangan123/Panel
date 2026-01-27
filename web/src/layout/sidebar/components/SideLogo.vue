@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import logoImg from '@/assets/images/logo.png'
+import logoImg from '@/assets/images/logo.svg'
 import { useThemeStore } from '@/store'
 
 const themeStore = useThemeStore()
