@@ -194,6 +194,35 @@ const hasArg = (args: string[], arg: string) => {
   return args.includes(arg)
 }
 
+// ========== 唯一 ID 生成 ==========
+let idCounter = 0
+const generateId = () => `_${Date.now()}_${++idCounter}`
+
+// 确保列表项有唯一 ID
+const ensureItemIds = () => {
+  setting.value.upstreams?.forEach((item: any) => {
+    if (!item._id) item._id = generateId()
+  })
+  setting.value.proxies?.forEach((item: any) => {
+    if (!item._id) item._id = generateId()
+  })
+  setting.value.redirects?.forEach((item: any) => {
+    if (!item._id) item._id = generateId()
+  })
+  setting.value.custom_configs?.forEach((item: any) => {
+    if (!item._id) item._id = generateId()
+  })
+}
+
+// 监听 setting 变化，确保所有项都有 ID
+watch(
+  () => setting.value,
+  () => {
+    ensureItemIds()
+  },
+  { immediate: true, deep: false }
+)
+
 // ========== Upstreams 相关 ==========
 // 添加新的上游
 const addUpstream = () => {
@@ -202,6 +231,7 @@ const addUpstream = () => {
     setting.value.upstreams = []
   }
   setting.value.upstreams.push({
+    _id: generateId(),
     name,
     servers: {},
     algo: '',
@@ -295,6 +325,7 @@ const addProxy = () => {
     setting.value.proxies = []
   }
   setting.value.proxies.push({
+    _id: generateId(),
     location: '/',
     pass: 'http://127.0.0.1:8080',
     host: '$host',
@@ -412,6 +443,7 @@ const addRedirect = () => {
     setting.value.redirects = []
   }
   setting.value.redirects.push({
+    _id: generateId(),
     type: 'url',
     from: '/',
     to: '/new',
@@ -520,6 +552,7 @@ const addCustomConfig = () => {
   }
   const index = setting.value.custom_configs.length + 1
   setting.value.custom_configs.push({
+    _id: generateId(),
     name: `custom_${index}`,
     scope: 'site',
     content: ''
@@ -620,7 +653,7 @@ const removeCustomConfig = (index: number) => {
           <!-- 上游卡片列表 -->
           <draggable
             v-model="setting.upstreams"
-            item-key="name"
+            item-key="_id"
             handle=".drag-handle"
             :animation="200"
             ghost-class="ghost-card"
@@ -766,7 +799,7 @@ const removeCustomConfig = (index: number) => {
           <!-- 代理卡片列表 -->
           <draggable
             v-model="setting.proxies"
-            item-key="location"
+            item-key="_id"
             handle=".drag-handle"
             :animation="200"
             ghost-class="ghost-card"
@@ -1104,7 +1137,7 @@ const removeCustomConfig = (index: number) => {
           <!-- 重定向卡片列表 -->
           <draggable
             v-model="setting.redirects"
-            item-key="from"
+            item-key="_id"
             handle=".drag-handle"
             :animation="200"
             ghost-class="ghost-card"
@@ -1372,7 +1405,7 @@ const removeCustomConfig = (index: number) => {
           <!-- 自定义配置列表 -->
           <draggable
             v-model="setting.custom_configs"
-            item-key="name"
+            item-key="_id"
             handle=".drag-handle"
             :animation="200"
             ghost-class="ghost-card"
