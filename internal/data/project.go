@@ -109,7 +109,7 @@ func (r *projectRepo) Create(ctx context.Context, req *request.ProjectCreate) (*
 		}
 
 		// 生成 systemd unit 文件
-		if err := r.generateUnitFile(project.ID, req); err != nil {
+		if err := r.generateUnitFile(req); err != nil {
 			return fmt.Errorf("%s: %w", r.t.Get("failed to generate systemd config"), err)
 		}
 
@@ -368,7 +368,7 @@ func (r *projectRepo) parsePercent(value string) (float64, error) {
 }
 
 // generateUnitFile 生成 systemd unit 文件
-func (r *projectRepo) generateUnitFile(id uint, req *request.ProjectCreate) error {
+func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
 	options := []*unit.UnitOption{
 		// [Unit] section
 		unit.NewUnitOption("Unit", "Description", req.Description),
@@ -407,7 +407,11 @@ func (r *projectRepo) generateUnitFile(id uint, req *request.ProjectCreate) erro
 		return err
 	}
 
-	return os.WriteFile(unitPath, content, 0644)
+	if err = os.WriteFile(unitPath, content, 0644); err != nil {
+		return err
+	}
+
+	return systemctl.DaemonReload()
 }
 
 // updateUnitFile 更新 systemd unit 文件
@@ -526,5 +530,9 @@ func (r *projectRepo) updateUnitFile(name string, req *request.ProjectUpdate) er
 		return err
 	}
 
-	return os.WriteFile(unitPath, content, 0644)
+	if err = os.WriteFile(unitPath, content, 0644); err != nil {
+		return err
+	}
+
+	return systemctl.DaemonReload()
 }
