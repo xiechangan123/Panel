@@ -244,7 +244,7 @@ func generateProxyConfig(proxy types.Proxy) string {
 	}
 
 	sb.WriteString(fmt.Sprintf("    proxy_pass %s;\n", proxy.Pass))
-	sb.WriteString("    proxy_http_version 2;\n")
+	sb.WriteString("    proxy_http_version 1.1;\n")
 
 	// Host 头
 	if proxy.Host != "" {
