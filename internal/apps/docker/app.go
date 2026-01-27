@@ -60,10 +60,8 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 func (s *App) GetSettings(w http.ResponseWriter, r *http.Request) {
 	configPath := "/etc/docker/daemon.json"
 
-	// 读取配置文件
 	content, err := io.Read(configPath)
 	if err != nil {
-		// 如果文件不存在，返回默认设置
 		if os.IsNotExist(err) {
 			service.Success(w, Settings{})
 			return
@@ -72,14 +70,12 @@ func (s *App) GetSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 解析 JSON
 	var daemonConfig DaemonConfig
 	if err = json.Unmarshal([]byte(content), &daemonConfig); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
+		service.Success(w, Settings{}) // 配置文件可能为空或格式错误，返回默认设置
 		return
 	}
 
-	// 转换为 Settings 结构
 	settings := Settings{
 		RegistryMirrors:    daemonConfig.RegistryMirrors,
 		InsecureRegistries: daemonConfig.InsecureRegistries,
@@ -127,7 +123,7 @@ func (s *App) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	configPath := "/etc/docker/daemon.json"
 	settings := req.Settings
 
-	// 读取现有配置（保留其他字段）
+	// 读取现有配置
 	var existingConfig map[string]any
 	content, err := io.Read(configPath)
 	if err == nil && content != "" {
