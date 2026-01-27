@@ -100,11 +100,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, err = shell.Execf("mount -a"); err != nil {
 		_, _ = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
+		_ = os.Remove("/etc/passwd-s3fs-" + cast.ToString(id))
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	if _, err = shell.Execf(`df -h | grep '%s'`, req.Path); err != nil {
 		_, _ = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
+		_ = os.Remove("/etc/passwd-s3fs-" + cast.ToString(id))
 		service.Error(w, http.StatusInternalServerError, s.t.Get("mount failed: %v", err))
 		return
 	}
