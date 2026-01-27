@@ -138,7 +138,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, _ = shell.Execf(`fusermount -uz '%s'`, mount.Path)
+	_, _ = shell.Execf(`fusermount3 -uz '%s'`, mount.Path)
 	_, err2 := shell.Execf(`umount -lf '%s'`, mount.Path)
 	// 卸载之后再检查下是否还有挂载
 	if _, err = shell.Execf(`df -h | grep '%s'`, mount.Path); err == nil {
