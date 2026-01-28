@@ -282,7 +282,7 @@ func generateProxyConfig(proxy types.Proxy) string {
 
 	// Cache 配置
 	if proxy.Cache {
-		sb.WriteString("    proxy_cache proxy_cache;\n")
+		sb.WriteString("    proxy_cache cache_one;\n")
 		sb.WriteString("    proxy_cache_valid 200 302 10m;\n")
 		sb.WriteString("    proxy_cache_valid 404 1m;\n")
 	}
