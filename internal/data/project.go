@@ -369,6 +369,9 @@ func (r *projectRepo) parsePercent(value string) (float64, error) {
 
 // generateUnitFile 生成 systemd unit 文件
 func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
+	req.RootDir = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
+	req.WorkingDir = lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)
+	req.WorkingDir = lo.If(!strings.HasPrefix(req.WorkingDir, "/"), filepath.Join("/", req.WorkingDir)).Else(req.WorkingDir)
 	options := []*unit.UnitOption{
 		// [Unit] section
 		unit.NewUnitOption("Unit", "Description", req.Description),
@@ -376,7 +379,7 @@ func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
 
 		// [Service] section
 		unit.NewUnitOption("Service", "Type", "simple"),
-		unit.NewUnitOption("Service", "WorkingDirectory", lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)),
+		unit.NewUnitOption("Service", "WorkingDirectory", req.WorkingDir),
 	}
 
 	if req.ExecStart != "" {
@@ -416,6 +419,10 @@ func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
 
 // updateUnitFile 更新 systemd unit 文件
 func (r *projectRepo) updateUnitFile(name string, req *request.ProjectUpdate) error {
+	req.RootDir = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
+	req.WorkingDir = lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)
+	req.WorkingDir = lo.If(!strings.HasPrefix(req.WorkingDir, "/"), filepath.Join("/", req.WorkingDir)).Else(req.WorkingDir)
+
 	options := []*unit.UnitOption{
 		// [Unit] section
 		unit.NewUnitOption("Unit", "Description", req.Description),
@@ -440,7 +447,7 @@ func (r *projectRepo) updateUnitFile(name string, req *request.ProjectUpdate) er
 
 	// [Service] section
 	options = append(options, unit.NewUnitOption("Service", "Type", "simple"))
-	options = append(options, unit.NewUnitOption("Service", "WorkingDirectory", lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)))
+	options = append(options, unit.NewUnitOption("Service", "WorkingDirectory", req.WorkingDir))
 
 	if req.ExecStartPre != "" {
 		options = append(options, unit.NewUnitOption("Service", "ExecStartPre", req.ExecStartPre))
