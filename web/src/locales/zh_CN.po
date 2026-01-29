@@ -165,12 +165,12 @@ msgid "Month %{month}"
 msgstr "%{month} 月"
 
 #: src/components/common/CronSelector.vue:170
-#: src/views/apps/nginx/NginxIndex.vue:745 src/views/website/EditView.vue:451
+#: src/views/apps/nginx/NginxIndex.vue:745 src/views/website/EditView.vue:651
 msgid "Minutes"
 msgstr "分"
 
 #: src/components/common/CronSelector.vue:181
-#: src/views/apps/nginx/NginxIndex.vue:746 src/views/website/EditView.vue:452
+#: src/views/apps/nginx/NginxIndex.vue:746 src/views/website/EditView.vue:652
 msgid "Hours"
 msgstr "时"
 
@@ -331,7 +331,7 @@ msgstr "选择文件"
 #: src/views/toolbox/ProcessView.vue:109 src/views/toolbox/ProcessView.vue:388
 #: src/views/toolbox/WebHookView.vue:33 src/views/toolbox/WebHookView.vue:332
 #: src/views/toolbox/WebHookView.vue:367 src/views/website/CreateModal.vue:123
-#: src/views/website/EditView.vue:1609
+#: src/views/website/EditView.vue:2150
 msgid "Name"
 msgstr "名称"
 
@@ -760,7 +760,7 @@ msgstr "保存（Ctrl+S）"
 #: src/views/toolbox/SshView.vue:239 src/views/toolbox/SystemView.vue:152
 #: src/views/toolbox/SystemView.vue:176 src/views/toolbox/SystemView.vue:194
 #: src/views/toolbox/SystemView.vue:232 src/views/toolbox/SystemView.vue:304
-#: src/views/toolbox/WebHookView.vue:390 src/views/website/EditView.vue:1682
+#: src/views/toolbox/WebHookView.vue:390 src/views/website/EditView.vue:2223
 msgid "Save"
 msgstr "保存"
 
@@ -1216,7 +1216,7 @@ msgstr "备份"
 #: src/locales/menu.ts:9 src/views/cert/CertView.vue:486
 #: src/views/cert/CertView.vue:566 src/views/cert/IndexView.vue:96
 #: src/views/cert/UploadCertModal.vue:38 src/views/setting/SettingSafe.vue:290
-#: src/views/website/EditView.vue:1283
+#: src/views/website/EditView.vue:1818
 msgid "Certificate"
 msgstr "证书"
 
@@ -1716,7 +1716,7 @@ msgstr ""
 "这将修改 Code Server 配置文件。如果您不理解每个参数的含义，请不要随意修改！"
 
 #: src/views/apps/docker/IndexView.vue:63
-#: src/views/apps/docker/IndexView.vue:70
+#: src/views/apps/docker/IndexView.vue:70 src/views/website/EditView.vue:1264
 msgid "Default"
 msgstr "默认"
 
@@ -1734,7 +1734,7 @@ msgstr "中国 - 腾讯（仅内网）"
 
 #: src/views/apps/docker/IndexView.vue:194
 #: src/views/container/ContainerCreate.vue:191
-#: src/views/project/EditModal.vue:177 src/views/website/EditView.vue:685
+#: src/views/project/EditModal.vue:177 src/views/website/EditView.vue:885
 msgid "Basic Settings"
 msgstr "基本设置"
 
@@ -1742,7 +1742,7 @@ msgstr "基本设置"
 msgid "Registry Mirrors"
 msgstr "注册表镜像"
 
-#: src/views/apps/docker/IndexView.vue:203 src/views/website/EditView.vue:1306
+#: src/views/apps/docker/IndexView.vue:203 src/views/website/EditView.vue:1841
 msgid "Presets"
 msgstr "预设"
 
@@ -2197,7 +2197,7 @@ msgid "Protocol"
 msgstr "协议"
 
 #: src/views/apps/nginx/NginxIndex.vue:169
-#: src/views/apps/nginx/NginxIndex.vue:588 src/views/website/EditView.vue:906
+#: src/views/apps/nginx/NginxIndex.vue:588 src/views/website/EditView.vue:1108
 msgid "Proxy Pass"
 msgstr "代理目标"
 
@@ -2265,15 +2265,15 @@ msgstr "服务器"
 
 #: src/views/apps/nginx/NginxIndex.vue:503
 #: src/views/database/CreateServerModal.vue:47
-#: src/views/database/IndexView.vue:49 src/views/website/EditView.vue:846
+#: src/views/database/IndexView.vue:49 src/views/website/EditView.vue:1048
 msgid "Add Server"
 msgstr "添加服务器"
 
-#: src/views/apps/nginx/NginxIndex.vue:516 src/views/website/EditView.vue:738
+#: src/views/apps/nginx/NginxIndex.vue:516 src/views/website/EditView.vue:938
 msgid "Upstream"
 msgstr "上游"
 
-#: src/views/apps/nginx/NginxIndex.vue:520 src/views/website/EditView.vue:862
+#: src/views/apps/nginx/NginxIndex.vue:520 src/views/website/EditView.vue:1064
 msgid "Add Upstream"
 msgstr "添加上游"
 
@@ -2330,7 +2330,7 @@ msgstr "SSL 私钥路径"
 msgid "e.g. /path/to/key.pem"
 msgstr "例如 /path/to/key.pem"
 
-#: src/views/apps/nginx/NginxIndex.vue:658 src/views/website/EditView.vue:749
+#: src/views/apps/nginx/NginxIndex.vue:658 src/views/website/EditView.vue:949
 msgid "Load Balancing Algorithm"
 msgstr "负载均衡算法"
 
@@ -2360,22 +2360,22 @@ msgstr "选项"
 msgid "No servers added yet"
 msgstr "尚未添加服务器"
 
-#: src/views/apps/nginx/NginxIndex.vue:722 src/views/website/EditView.vue:777
-#: src/views/website/EditView.vue:940
+#: src/views/apps/nginx/NginxIndex.vue:722 src/views/website/EditView.vue:979
+#: src/views/website/EditView.vue:1142
 msgid "DNS Resolver"
 msgstr "DNS 解析器"
 
-#: src/views/apps/nginx/NginxIndex.vue:725 src/views/website/EditView.vue:780
-#: src/views/website/EditView.vue:943
+#: src/views/apps/nginx/NginxIndex.vue:725 src/views/website/EditView.vue:982
+#: src/views/website/EditView.vue:1145
 msgid "e.g., 8.8.8.8"
 msgstr "例如 8.8.8.8"
 
-#: src/views/apps/nginx/NginxIndex.vue:731 src/views/website/EditView.vue:786
-#: src/views/website/EditView.vue:949
+#: src/views/apps/nginx/NginxIndex.vue:731 src/views/website/EditView.vue:988
+#: src/views/website/EditView.vue:1151
 msgid "Resolver Timeout"
 msgstr "解析超时"
 
-#: src/views/apps/nginx/NginxIndex.vue:744 src/views/website/EditView.vue:450
+#: src/views/apps/nginx/NginxIndex.vue:744 src/views/website/EditView.vue:650
 msgid "Seconds"
 msgstr "秒"
 
@@ -2484,7 +2484,7 @@ msgstr "慢日志"
 #: src/views/database/UserList.vue:40 src/views/login/IndexView.vue:166
 #: src/views/setting/CreateModal.vue:40 src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:85 src/views/ssh/UpdateModal.vue:91
-#: src/views/website/EditView.vue:1536
+#: src/views/website/EditView.vue:2077
 msgid "Username"
 msgstr "用户名"
 
@@ -2505,7 +2505,7 @@ msgid "User Management"
 msgstr "用户管理"
 
 #: src/views/apps/pureftpd/IndexView.vue:176
-#: src/views/website/EditView.vue:1571
+#: src/views/website/EditView.vue:2112
 msgid "Add User"
 msgstr "添加用户"
 
@@ -2547,7 +2547,7 @@ msgstr "输入用户名"
 #: src/views/login/IndexView.vue:175 src/views/setting/CreateModal.vue:47
 #: src/views/setting/PasswordModal.vue:34 src/views/ssh/CreateModal.vue:79
 #: src/views/ssh/CreateModal.vue:88 src/views/ssh/UpdateModal.vue:85
-#: src/views/ssh/UpdateModal.vue:94 src/views/website/EditView.vue:1556
+#: src/views/ssh/UpdateModal.vue:94 src/views/website/EditView.vue:2097
 msgid "Password"
 msgstr "密码"
 
@@ -2852,7 +2852,7 @@ msgstr "恢复备份"
 #: src/views/cert/CertView.vue:569 src/views/cert/UploadCertModal.vue:46
 #: src/views/setting/SettingSafe.vue:297 src/views/ssh/CreateModal.vue:80
 #: src/views/ssh/CreateModal.vue:91 src/views/ssh/UpdateModal.vue:86
-#: src/views/ssh/UpdateModal.vue:97 src/views/website/EditView.vue:1291
+#: src/views/ssh/UpdateModal.vue:97 src/views/website/EditView.vue:1826
 msgid "Private Key"
 msgstr "私钥"
 
@@ -3074,7 +3074,7 @@ msgstr "输入 HMAC"
 #: src/views/cert/CertView.vue:63 src/views/cert/CertView.vue:439
 #: src/views/cert/CreateCertModal.vue:74 src/views/cert/ObtainModal.vue:57
 #: src/views/project/CreateModal.vue:583 src/views/website/CreateModal.vue:135
-#: src/views/website/EditView.vue:644
+#: src/views/website/EditView.vue:844
 msgid "Domain"
 msgstr "域名"
 
@@ -3087,7 +3087,7 @@ msgstr "上传"
 msgid "Associated Account"
 msgstr "关联账户"
 
-#: src/views/cert/CertView.vue:129 src/views/website/EditView.vue:1214
+#: src/views/cert/CertView.vue:129 src/views/website/EditView.vue:1749
 msgid "Issuer"
 msgstr "颁发者"
 
@@ -3167,12 +3167,12 @@ msgid "Select DNS for certificate issuance"
 msgstr "选择用于证书颁发的 DNS"
 
 #: src/views/cert/CertView.vue:491 src/views/cert/UploadCertModal.vue:42
-#: src/views/website/EditView.vue:1287
+#: src/views/website/EditView.vue:1822
 msgid "Enter the content of the PEM certificate file"
 msgstr "输入 PEM 证书文件的内容"
 
 #: src/views/cert/CertView.vue:503 src/views/cert/UploadCertModal.vue:50
-#: src/views/website/EditView.vue:1295
+#: src/views/website/EditView.vue:1830
 msgid "Enter the content of the KEY private key file"
 msgstr "输入 KEY 私钥文件的内容"
 
@@ -3854,7 +3854,7 @@ msgid "Driver"
 msgstr "驱动"
 
 #: src/views/container/NetworkView.vue:59 src/views/container/VolumeView.vue:40
-#: src/views/website/EditView.vue:1617
+#: src/views/website/EditView.vue:2158
 msgid "Scope"
 msgstr "范围"
 
@@ -4717,7 +4717,7 @@ msgid "End Port"
 msgstr "结束端口"
 
 #: src/views/firewall/CreateModal.vue:140 src/views/firewall/IpRuleView.vue:109
-#: src/views/firewall/RuleView.vue:143 src/views/website/EditView.vue:1374
+#: src/views/firewall/RuleView.vue:143 src/views/website/EditView.vue:1909
 msgid "Target"
 msgstr "目标"
 
@@ -5210,7 +5210,7 @@ msgstr "天"
 msgid "Clear Monitoring Records"
 msgstr "清除监控记录"
 
-#: src/views/monitor/IndexView.vue:611 src/views/website/EditView.vue:1690
+#: src/views/monitor/IndexView.vue:611 src/views/website/EditView.vue:2231
 msgid "Are you sure you want to clear?"
 msgstr "确定要清除吗？"
 
@@ -5357,12 +5357,12 @@ msgid "Select Node.js Version"
 msgstr "选择 Node.js 版本"
 
 #: src/views/project/CreateModal.vue:498 src/views/website/CreateModal.vue:158
-#: src/views/website/EditView.vue:704
+#: src/views/website/EditView.vue:904
 msgid "PHP Version"
 msgstr "PHP 版本"
 
 #: src/views/project/CreateModal.vue:502 src/views/website/CreateModal.vue:162
-#: src/views/website/EditView.vue:709
+#: src/views/website/EditView.vue:909
 msgid "Select PHP Version"
 msgstr "选择 PHP 版本"
 
@@ -5435,7 +5435,8 @@ msgid "File (truncate)"
 msgstr "文件（截断）"
 
 #: src/views/project/EditModal.vue:72 src/views/setting/SettingSafe.vue:262
-#: src/views/website/EditView.vue:544 src/views/website/EditView.vue:548
+#: src/views/website/EditView.vue:744 src/views/website/EditView.vue:748
+#: src/views/website/EditView.vue:975
 msgid "Disabled"
 msgstr "禁用"
 
@@ -6573,9 +6574,9 @@ msgstr "设备"
 
 #: src/views/toolbox/DiskView.vue:839 src/views/toolbox/DiskView.vue:869
 #: src/views/toolbox/DiskView.vue:907 src/views/toolbox/DiskView.vue:952
-#: src/views/website/EditView.vue:842 src/views/website/EditView.vue:1014
-#: src/views/website/EditView.vue:1116 src/views/website/EditView.vue:1169
-#: src/views/website/EditView.vue:1567
+#: src/views/website/EditView.vue:1044 src/views/website/EditView.vue:1221
+#: src/views/website/EditView.vue:1327 src/views/website/EditView.vue:1386
+#: src/views/website/EditView.vue:1680 src/views/website/EditView.vue:2108
 msgid "Remove"
 msgstr "移除"
 
@@ -7331,430 +7332,576 @@ msgstr "区分大小写的正则匹配 (~)"
 msgid "Case-insensitive Regex (~*)"
 msgstr "不区分大小写的正则匹配 (~*)"
 
-#: src/views/website/EditView.vue:496
+#: src/views/website/EditView.vue:696
 msgid "URL Redirect"
 msgstr "URL 重定向"
 
-#: src/views/website/EditView.vue:497
+#: src/views/website/EditView.vue:697
 msgid "Host Redirect"
 msgstr "Host 重定向"
 
-#: src/views/website/EditView.vue:498
+#: src/views/website/EditView.vue:698
 msgid "404 Redirect"
 msgstr "404 重定向"
 
-#: src/views/website/EditView.vue:503
+#: src/views/website/EditView.vue:703
 msgid "Moved Permanently"
 msgstr "永久移动"
 
-#: src/views/website/EditView.vue:504
+#: src/views/website/EditView.vue:704
 msgid "Found"
 msgstr "已找到"
 
-#: src/views/website/EditView.vue:505
+#: src/views/website/EditView.vue:705
 msgid "Temporary Redirect"
 msgstr "临时重定向"
 
-#: src/views/website/EditView.vue:506
+#: src/views/website/EditView.vue:706
 msgid "Permanent Redirect"
 msgstr "永久重定向"
 
-#: src/views/website/EditView.vue:545 src/views/website/EditView.vue:549
+#: src/views/website/EditView.vue:745 src/views/website/EditView.vue:749
 msgid "Default Path"
 msgstr "默认路径"
 
-#: src/views/website/EditView.vue:613
+#: src/views/website/EditView.vue:813
 msgid "This Website"
 msgstr "此网站"
 
-#: src/views/website/EditView.vue:614
+#: src/views/website/EditView.vue:814
 msgid "Global"
 msgstr "全局"
 
-#: src/views/website/EditView.vue:642
+#: src/views/website/EditView.vue:842
 msgid "Domain & Listening"
 msgstr "域名和监听"
 
-#: src/views/website/EditView.vue:652
+#: src/views/website/EditView.vue:852
 msgid "Listening Address"
 msgstr "监听地址"
 
-#: src/views/website/EditView.vue:687
+#: src/views/website/EditView.vue:887
 msgid "Website Directory"
 msgstr "网站目录"
 
-#: src/views/website/EditView.vue:690
+#: src/views/website/EditView.vue:890
 msgid "Enter website directory (absolute path)"
 msgstr "输入网站目录（绝对路径）"
 
-#: src/views/website/EditView.vue:693
+#: src/views/website/EditView.vue:893
 msgid "Running Directory"
 msgstr "运行目录"
 
-#: src/views/website/EditView.vue:697
+#: src/views/website/EditView.vue:897
 msgid "Enter running directory (needed for Laravel etc.) (absolute path)"
 msgstr "输入运行目录（Laravel等需要）（绝对路径）"
 
-#: src/views/website/EditView.vue:701
+#: src/views/website/EditView.vue:901
 msgid "Default Document"
 msgstr "默认文档"
 
-#: src/views/website/EditView.vue:714
+#: src/views/website/EditView.vue:914
 msgid "Anti-cross-site Attack"
 msgstr "防跨站攻击"
 
-#: src/views/website/EditView.vue:720
+#: src/views/website/EditView.vue:920
 msgid "Upstreams"
 msgstr "上游"
 
-#: src/views/website/EditView.vue:741
+#: src/views/website/EditView.vue:941
 msgid "Upstream name"
 msgstr "上游名称"
 
-#: src/views/website/EditView.vue:755 src/views/website/EditView.vue:762
+#: src/views/website/EditView.vue:955 src/views/website/EditView.vue:962
 msgid "Round Robin (default)"
 msgstr "轮询（默认）"
 
-#: src/views/website/EditView.vue:763
+#: src/views/website/EditView.vue:963
 msgid "Least Busy"
 msgstr "最少繁忙"
 
-#: src/views/website/EditView.vue:764
+#: src/views/website/EditView.vue:964
 msgid "By Traffic"
 msgstr "按流量"
 
-#: src/views/website/EditView.vue:769
+#: src/views/website/EditView.vue:969
 msgid "Keepalive Connections"
 msgstr "保持活动连接"
 
-#: src/views/website/EditView.vue:807
+#: src/views/website/EditView.vue:1009
 msgid "Backend Servers"
 msgstr "后端服务器"
 
-#: src/views/website/EditView.vue:817
+#: src/views/website/EditView.vue:1019
 msgid "Server address, e.g., 127.0.0.1:8080"
 msgstr "服务器地址，例如 127.0.0.1:8080"
 
-#: src/views/website/EditView.vue:831
+#: src/views/website/EditView.vue:1033
 msgid "Options, e.g., weight=5 backup"
 msgstr "选项，例如 weight=5 backup"
 
-#: src/views/website/EditView.vue:857
+#: src/views/website/EditView.vue:1059
 msgid "No upstreams configured"
 msgstr "未配置上游"
 
-#: src/views/website/EditView.vue:866
+#: src/views/website/EditView.vue:1068
 msgid "Proxies"
 msgstr "代理"
 
-#: src/views/website/EditView.vue:884 src/views/website/EditView.vue:1336
+#: src/views/website/EditView.vue:1086 src/views/website/EditView.vue:1871
 msgid "Rule"
 msgstr "规则"
 
-#: src/views/website/EditView.vue:892
+#: src/views/website/EditView.vue:1094
 msgid "Match Type"
 msgstr "匹配类型"
 
-#: src/views/website/EditView.vue:899
+#: src/views/website/EditView.vue:1101
 msgid "Match Expression"
 msgstr "匹配表达式"
 
-#: src/views/website/EditView.vue:902
+#: src/views/website/EditView.vue:1104
 msgid "e.g., /, /api, ^/api/v[0-9]+/"
 msgstr "例如 /, /api, ^/api/v[0-9]+/"
 
-#: src/views/website/EditView.vue:910
+#: src/views/website/EditView.vue:1112
 msgid "Backend address, e.g., http://127.0.0.1:8080 or http://upstream_name"
 msgstr "后端地址，例如 http://127.0.0.1:8080 或 http://upstream_name"
 
-#: src/views/website/EditView.vue:917
+#: src/views/website/EditView.vue:1119
 msgid "Proxy Host"
 msgstr "代理主机名"
 
-#: src/views/website/EditView.vue:921
+#: src/views/website/EditView.vue:1123
 msgid "Default: $proxy_host, or extracted from Proxy Pass"
 msgstr "默认：$proxy_host 或从代理目标中提取"
 
-#: src/views/website/EditView.vue:925
+#: src/views/website/EditView.vue:1127
 msgid "Proxy SNI"
 msgstr "代理 SNI"
 
-#: src/views/website/EditView.vue:928
+#: src/views/website/EditView.vue:1130
 msgid "Optional, for HTTPS backends"
 msgstr "可选，用于 HTTPS 后端"
 
-#: src/views/website/EditView.vue:931
+#: src/views/website/EditView.vue:1133
 msgid "Enable Cache"
 msgstr "启用缓存"
 
-#: src/views/website/EditView.vue:937
+#: src/views/website/EditView.vue:1139
 msgid "Enable Buffering"
 msgstr "启用缓冲区"
 
-#: src/views/website/EditView.vue:970
+#: src/views/website/EditView.vue:1175
 #, fuzzy
 msgid "Cache Settings"
 msgstr "基本设置"
 
-#: src/views/website/EditView.vue:973
+#: src/views/website/EditView.vue:1180
 #, fuzzy
 msgid "Cache Valid"
 msgstr "有效"
 
-#: src/views/website/EditView.vue:983
+#: src/views/website/EditView.vue:1190
 msgid "Status codes, e.g., 200 302 or any"
 msgstr ""
 
-#: src/views/website/EditView.vue:999
+#: src/views/website/EditView.vue:1206
 #, fuzzy
 msgid "Duration, e.g., 10m, 1h, 1d"
 msgstr "例如 10m，100m，1g"
 
-#: src/views/website/EditView.vue:1018
+#: src/views/website/EditView.vue:1225
 #, fuzzy
 msgid "Add Cache Valid Rule"
 msgstr "添加替换规则"
 
-#: src/views/website/EditView.vue:1023
+#: src/views/website/EditView.vue:1230
 #, fuzzy
 msgid "No Cache Conditions"
 msgstr "存储配置"
 
-#: src/views/website/EditView.vue:1030
+#: src/views/website/EditView.vue:1237
 #, fuzzy
 msgid "Select or enter conditions"
 msgstr "选择或输入代理地址"
 
-#: src/views/website/EditView.vue:1034
+#: src/views/website/EditView.vue:1241
 #, fuzzy
 msgid "Use Stale"
 msgstr "使用空格"
 
-#: src/views/website/EditView.vue:1039
+#: src/views/website/EditView.vue:1246
 msgid "When to use stale cache"
 msgstr ""
 
-#: src/views/website/EditView.vue:1043
+#: src/views/website/EditView.vue:1250
 msgid "Background Update"
 msgstr ""
 
-#: src/views/website/EditView.vue:1047
+#: src/views/website/EditView.vue:1254
 msgid "Cache Lock"
 msgstr ""
 
-#: src/views/website/EditView.vue:1051
+#: src/views/website/EditView.vue:1258
 #, fuzzy
 msgid "Min Uses"
 msgstr "使用中"
 
-#: src/views/website/EditView.vue:1060
+#: src/views/website/EditView.vue:1269
 #, fuzzy
 msgid "Cache Methods"
 msgstr "方法"
 
-#: src/views/website/EditView.vue:1065
+#: src/views/website/EditView.vue:1274
 msgid "Default: GET HEAD"
 msgstr ""
 
-#: src/views/website/EditView.vue:1069
+#: src/views/website/EditView.vue:1278
 #, fuzzy
 msgid "Cache Key"
 msgstr "Access Key"
 
-#: src/views/website/EditView.vue:1073
+#: src/views/website/EditView.vue:1282
 msgid "Custom cache key, e.g., $scheme$host$request_uri"
 msgstr ""
 
-#: src/views/website/EditView.vue:1079
+#: src/views/website/EditView.vue:1290
 msgid "Custom Request Headers"
 msgstr "自定义请求头"
 
-#: src/views/website/EditView.vue:1089
+#: src/views/website/EditView.vue:1300 src/views/website/EditView.vue:1649
 msgid "Header name"
 msgstr "请求头"
 
-#: src/views/website/EditView.vue:1105
+#: src/views/website/EditView.vue:1316
 msgid "Value or variable like $host, $remote_addr"
 msgstr "类似于 $host、$remote_addr 的值或变量"
 
-#: src/views/website/EditView.vue:1129
+#: src/views/website/EditView.vue:1340
 msgid "Add Request Header"
 msgstr "添加请求头"
 
-#: src/views/website/EditView.vue:1132
+#: src/views/website/EditView.vue:1347
 msgid "Response Content Replacement"
 msgstr "响应内容替换"
 
-#: src/views/website/EditView.vue:1142
+#: src/views/website/EditView.vue:1359
 msgid "Original content"
 msgstr "原始内容"
 
-#: src/views/website/EditView.vue:1158
+#: src/views/website/EditView.vue:1375
 msgid "Replacement content"
 msgstr "替换内容"
 
-#: src/views/website/EditView.vue:1182
+#: src/views/website/EditView.vue:1399
 msgid "Add Replacement Rule"
 msgstr "添加替换规则"
 
-#: src/views/website/EditView.vue:1192
-msgid "No proxy rules configured"
-msgstr "未配置代理规则"
-
-#: src/views/website/EditView.vue:1197
-msgid "Add Proxy Rule"
-msgstr "添加代理规则"
-
-#: src/views/website/EditView.vue:1204
-msgid "Certificate Information"
-msgstr "证书信息"
-
-#: src/views/website/EditView.vue:1206
-msgid "Certificate Validity"
-msgstr "证书有效期"
-
-#: src/views/website/EditView.vue:1220
-msgid "Domains"
-msgstr "域名"
-
-#: src/views/website/EditView.vue:1235
-msgid "Main Switch"
-msgstr "主开关"
-
-#: src/views/website/EditView.vue:1241
-msgid "Use Existing Certificate"
-msgstr "使用现有证书"
-
-#: src/views/website/EditView.vue:1255
-msgid "HTTP Redirect"
-msgstr "HTTP 重定向"
-
-#: src/views/website/EditView.vue:1258
-msgid "OCSP Stapling"
-msgstr "OCSP 装订"
-
-#: src/views/website/EditView.vue:1263
-msgid "TLS Version"
-msgstr "TLS 版本"
-
-#: src/views/website/EditView.vue:1275
-msgid "Cipher Suites"
-msgstr "密码套件"
-
-#: src/views/website/EditView.vue:1279
-msgid "Enter the cipher suite, leave blank to reset to default"
-msgstr "输入密码套件，留空以重置为默认值"
-
-#: src/views/website/EditView.vue:1303
-msgid "Rewrite"
-msgstr "伪静态"
-
-#: src/views/website/EditView.vue:1318
-msgid "Redirects"
-msgstr "重定向"
-
-#: src/views/website/EditView.vue:1349
-msgid "Redirect Type"
-msgstr "重定向类型"
-
-#: src/views/website/EditView.vue:1352
-msgid "Status Code"
-msgstr "状态码"
-
-#: src/views/website/EditView.vue:1361
-msgid "Source"
-msgstr "来源"
-
-#: src/views/website/EditView.vue:1367
-msgid "Source path, e.g., /old"
-msgstr "源路径，例如 /old"
-
-#: src/views/website/EditView.vue:1368
-msgid "Source host, e.g., example.com"
-msgstr "源主机，例如 example.com"
-
-#: src/views/website/EditView.vue:1380
-msgid "Target path, e.g., /new"
-msgstr "目标路径，例如 /new"
-
-#: src/views/website/EditView.vue:1381
-msgid "Target URL, e.g., https://example.com"
-msgstr "目标 URL，例如 https://example.com"
-
-#: src/views/website/EditView.vue:1385
-msgid "Keep URI"
-msgstr "保持 URI"
-
-#: src/views/website/EditView.vue:1388
-msgid "Keep the original request path and query parameters"
-msgstr "保持原始请求路径和查询参数"
-
-#: src/views/website/EditView.vue:1399
-msgid "No redirect rules configured"
-msgstr "未配置重定向规则"
-
-#: src/views/website/EditView.vue:1404
-msgid "Add Redirect Rule"
-msgstr "添加重定向规则"
-
-#: src/views/website/EditView.vue:1408
+#: src/views/website/EditView.vue:1407 src/views/website/EditView.vue:1943
 msgid "Advanced Settings"
 msgstr "高级设置"
 
-#: src/views/website/EditView.vue:1411
+#: src/views/website/EditView.vue:1412
+#, fuzzy
+msgid "HTTP Version"
+msgstr "PHP 版本"
+
+#: src/views/website/EditView.vue:1416
+#, fuzzy
+msgid "Select HTTP version"
+msgstr "选择 PHP 版本"
+
+#: src/views/website/EditView.vue:1421
+#, fuzzy
+msgid "Max Body Size"
+msgstr "最大大小"
+
+#: src/views/website/EditView.vue:1431
+#, fuzzy
+msgid "Use global"
+msgstr "使用空格"
+
+#: src/views/website/EditView.vue:1448
+#, fuzzy
+msgid "Timeout Settings"
+msgstr "端口设置"
+
+#: src/views/website/EditView.vue:1459
+#, fuzzy
+msgid "Connect Timeout"
+msgstr "连接超时（秒）"
+
+#: src/views/website/EditView.vue:1480
+#, fuzzy
+msgid "Read Timeout"
+msgstr "解析超时"
+
+#: src/views/website/EditView.vue:1501
+#, fuzzy
+msgid "Send Timeout"
+msgstr "登录超时"
+
+#: src/views/website/EditView.vue:1527
+#, fuzzy
+msgid "Retry Settings"
+msgstr "注册表设置"
+
+#: src/views/website/EditView.vue:1538
+#, fuzzy
+msgid "SSL Backend Verify"
+msgstr "后端服务器"
+
+#: src/views/website/EditView.vue:1547
+#, fuzzy
+msgid "Response Headers"
+msgstr "请求 IP 头"
+
+#: src/views/website/EditView.vue:1558
+#, fuzzy
+msgid "Retry Conditions"
+msgstr "注册表配置"
+
+#: src/views/website/EditView.vue:1563
+#, fuzzy
+msgid "Select retry conditions"
+msgstr "选择或输入代理地址"
+
+#: src/views/website/EditView.vue:1566
+#, fuzzy
+msgid "Max Tries"
+msgstr "最大重试次数"
+
+#: src/views/website/EditView.vue:1570 src/views/website/EditView.vue:1584
+#: src/views/website/EditView.vue:1982 src/views/website/EditView.vue:1995
+#: src/views/website/EditView.vue:2008
+msgid "Unlimited"
+msgstr ""
+
+#: src/views/website/EditView.vue:1574
+#, fuzzy
+msgid "Retry Timeout"
+msgstr "解析超时"
+
+#: src/views/website/EditView.vue:1603
+#, fuzzy
+msgid "Enable Verify"
+msgstr "启用缓冲区"
+
+#: src/views/website/EditView.vue:1606
+msgid "Verify Depth"
+msgstr ""
+
+#: src/views/website/EditView.vue:1613
+#, fuzzy
+msgid "Trusted Certificate"
+msgstr "创建证书"
+
+#: src/views/website/EditView.vue:1617
+msgid "CA certificate path, e.g. /etc/ssl/certs/ca-certificates.crt"
+msgstr ""
+
+#: src/views/website/EditView.vue:1629
+#, fuzzy
+msgid "Hide Headers"
+msgstr "IP 头部"
+
+#: src/views/website/EditView.vue:1636
+#, fuzzy
+msgid "Select or input headers to hide"
+msgstr "选择或输入代理地址"
+
+#: src/views/website/EditView.vue:1639
+#, fuzzy
+msgid "Add Headers"
+msgstr "IP 头部"
+
+#: src/views/website/EditView.vue:1666
+#, fuzzy
+msgid "Header value"
+msgstr "请求头"
+
+#: src/views/website/EditView.vue:1684
+#, fuzzy
+msgid "Add Response Header"
+msgstr "添加请求头"
+
+#: src/views/website/EditView.vue:1693
+#, fuzzy
+msgid "IP Access Control"
+msgstr "路径访问控制"
+
+#: src/views/website/EditView.vue:1704
+#, fuzzy
+msgid "Allow IPs"
+msgstr "允许 Ping"
+
+#: src/views/website/EditView.vue:1707
+msgid "IP or CIDR, e.g. 192.168.1.0/24"
+msgstr ""
+
+#: src/views/website/EditView.vue:1710
+msgid "Deny IPs"
+msgstr ""
+
+#: src/views/website/EditView.vue:1713
+msgid "IP or CIDR, e.g. all"
+msgstr ""
+
+#: src/views/website/EditView.vue:1727
+msgid "No proxy rules configured"
+msgstr "未配置代理规则"
+
+#: src/views/website/EditView.vue:1732
+msgid "Add Proxy Rule"
+msgstr "添加代理规则"
+
+#: src/views/website/EditView.vue:1739
+msgid "Certificate Information"
+msgstr "证书信息"
+
+#: src/views/website/EditView.vue:1741
+msgid "Certificate Validity"
+msgstr "证书有效期"
+
+#: src/views/website/EditView.vue:1755
+msgid "Domains"
+msgstr "域名"
+
+#: src/views/website/EditView.vue:1770
+msgid "Main Switch"
+msgstr "主开关"
+
+#: src/views/website/EditView.vue:1776
+msgid "Use Existing Certificate"
+msgstr "使用现有证书"
+
+#: src/views/website/EditView.vue:1790
+msgid "HTTP Redirect"
+msgstr "HTTP 重定向"
+
+#: src/views/website/EditView.vue:1793
+msgid "OCSP Stapling"
+msgstr "OCSP 装订"
+
+#: src/views/website/EditView.vue:1798
+msgid "TLS Version"
+msgstr "TLS 版本"
+
+#: src/views/website/EditView.vue:1810
+msgid "Cipher Suites"
+msgstr "密码套件"
+
+#: src/views/website/EditView.vue:1814
+msgid "Enter the cipher suite, leave blank to reset to default"
+msgstr "输入密码套件，留空以重置为默认值"
+
+#: src/views/website/EditView.vue:1838
+msgid "Rewrite"
+msgstr "伪静态"
+
+#: src/views/website/EditView.vue:1853
+msgid "Redirects"
+msgstr "重定向"
+
+#: src/views/website/EditView.vue:1884
+msgid "Redirect Type"
+msgstr "重定向类型"
+
+#: src/views/website/EditView.vue:1887
+msgid "Status Code"
+msgstr "状态码"
+
+#: src/views/website/EditView.vue:1896
+msgid "Source"
+msgstr "来源"
+
+#: src/views/website/EditView.vue:1902
+msgid "Source path, e.g., /old"
+msgstr "源路径，例如 /old"
+
+#: src/views/website/EditView.vue:1903
+msgid "Source host, e.g., example.com"
+msgstr "源主机，例如 example.com"
+
+#: src/views/website/EditView.vue:1915
+msgid "Target path, e.g., /new"
+msgstr "目标路径，例如 /new"
+
+#: src/views/website/EditView.vue:1916
+msgid "Target URL, e.g., https://example.com"
+msgstr "目标 URL，例如 https://example.com"
+
+#: src/views/website/EditView.vue:1920
+msgid "Keep URI"
+msgstr "保持 URI"
+
+#: src/views/website/EditView.vue:1923
+msgid "Keep the original request path and query parameters"
+msgstr "保持原始请求路径和查询参数"
+
+#: src/views/website/EditView.vue:1934
+msgid "No redirect rules configured"
+msgstr "未配置重定向规则"
+
+#: src/views/website/EditView.vue:1939
+msgid "Add Redirect Rule"
+msgstr "添加重定向规则"
+
+#: src/views/website/EditView.vue:1946
 msgid "Log Settings"
 msgstr "日志设置"
 
-#: src/views/website/EditView.vue:1413 src/views/website/EditView.vue:1647
+#: src/views/website/EditView.vue:1948 src/views/website/EditView.vue:2188
 msgid "Access Log"
 msgstr "访问日志"
 
-#: src/views/website/EditView.vue:1422 src/views/website/EditView.vue:1663
+#: src/views/website/EditView.vue:1957 src/views/website/EditView.vue:2204
 msgid "Error Log"
 msgstr "错误日志"
 
-#: src/views/website/EditView.vue:1435
+#: src/views/website/EditView.vue:1970
 msgid "Rate Limiting"
 msgstr "速率限制"
 
-#: src/views/website/EditView.vue:1437
+#: src/views/website/EditView.vue:1972
 msgid "Enable Rate Limiting"
 msgstr "启用速率限制"
 
-#: src/views/website/EditView.vue:1441
+#: src/views/website/EditView.vue:1976
 msgid "Concurrent Limit"
 msgstr "并发限制"
 
-#: src/views/website/EditView.vue:1449
+#: src/views/website/EditView.vue:1986
 msgid "Limit the maximum concurrent connections for this site"
 msgstr "限制此站点的最大并发连接数"
 
-#: src/views/website/EditView.vue:1452
+#: src/views/website/EditView.vue:1989
 msgid "Per IP Limit"
 msgstr "单 IP 限制"
 
-#: src/views/website/EditView.vue:1460
+#: src/views/website/EditView.vue:1999
 msgid "Limit the maximum concurrent connections per IP"
 msgstr "限制单个 IP 的最大并发连接数"
 
-#: src/views/website/EditView.vue:1463
+#: src/views/website/EditView.vue:2002
 msgid "Rate Limit"
 msgstr "速率限制"
 
-#: src/views/website/EditView.vue:1471
+#: src/views/website/EditView.vue:2012
 msgid "Limit the rate of each request (unit: KB)"
 msgstr "限制每个请求的速率（单位：KB）"
 
-#: src/views/website/EditView.vue:1479
+#: src/views/website/EditView.vue:2020
 msgid "Real IP"
 msgstr "真实 IP"
 
-#: src/views/website/EditView.vue:1482
+#: src/views/website/EditView.vue:2023
 msgid ""
 "Configure trusted proxy IPs (e.g., CDN or Frp) to identify real visitor IPs."
 msgstr "配置可信的代理 IP（例如 CDN 或 Frp）以识别真实的访客 IP。"
 
-#: src/views/website/EditView.vue:1489
+#: src/views/website/EditView.vue:2030
 msgid ""
 "If using Frp, fill in the Frp IP address (e.g., 127.0.0.1). If using CDN, "
 "fill in the CDN IP ranges. If unsure, you can fill in 0.0.0.0/0 (ipv4) "
@@ -7763,88 +7910,88 @@ msgstr ""
 "如果使用 Frp，请填写 Frp IP 地址（例如 127.0.0.1）。如果使用 CDN，请填写 CDN "
 "IP 范围。如果不确定，可以填写 0.0.0.0/0（ipv4）或 ::/0（ipv6）[不安全]。"
 
-#: src/views/website/EditView.vue:1495
+#: src/views/website/EditView.vue:2036
 msgid "Enable"
 msgstr "启用"
 
-#: src/views/website/EditView.vue:1499
+#: src/views/website/EditView.vue:2040
 msgid "IP Sources"
 msgstr "IP 来源"
 
-#: src/views/website/EditView.vue:1502
+#: src/views/website/EditView.vue:2043
 msgid "e.g., 127.0.0.1 or 10.0.0.0/8"
 msgstr "例如 127.0.0.1 或 10.0.0.0/8"
 
-#: src/views/website/EditView.vue:1505
+#: src/views/website/EditView.vue:2046
 msgid "IP Header"
 msgstr "IP 头部"
 
-#: src/views/website/EditView.vue:1513
+#: src/views/website/EditView.vue:2054
 msgid "Recursive"
 msgstr "递归"
 
-#: src/views/website/EditView.vue:1516
+#: src/views/website/EditView.vue:2057
 msgid "Recursively search for real IP in X-Forwarded-For header"
 msgstr "递归地搜索 X-Forwarded-For 头中的真实 IP"
 
-#: src/views/website/EditView.vue:1524
+#: src/views/website/EditView.vue:2065
 msgid "Basic Authentication"
 msgstr "基本身份验证"
 
-#: src/views/website/EditView.vue:1526
+#: src/views/website/EditView.vue:2067
 msgid "User Credentials"
 msgstr "用户凭据"
 
-#: src/views/website/EditView.vue:1578
+#: src/views/website/EditView.vue:2119
 msgid ""
 "Visitors will need to enter a username and password to access this website."
 msgstr "访客需要输入用户名和密码才能访问此网站。"
 
-#: src/views/website/EditView.vue:1586
+#: src/views/website/EditView.vue:2127
 msgid "Custom Configs"
 msgstr "自定义配置"
 
-#: src/views/website/EditView.vue:1604
+#: src/views/website/EditView.vue:2145
 msgid "Config"
 msgstr "配置"
 
-#: src/views/website/EditView.vue:1613
+#: src/views/website/EditView.vue:2154
 msgid "Config name (letters, numbers, underscore, hyphen)"
 msgstr "配置名（字母、数字、下划线、破折号）"
 
-#: src/views/website/EditView.vue:1621
+#: src/views/website/EditView.vue:2162
 msgid "Content"
 msgstr "内容"
 
-#: src/views/website/EditView.vue:1635
+#: src/views/website/EditView.vue:2176
 msgid "No custom configs"
 msgstr "没有自定义配置"
 
-#: src/views/website/EditView.vue:1640
+#: src/views/website/EditView.vue:2181
 msgid "Add Custom Config"
 msgstr "添加自定义配置"
 
-#: src/views/website/EditView.vue:1652 src/views/website/EditView.vue:1668
+#: src/views/website/EditView.vue:2193 src/views/website/EditView.vue:2209
 msgid "All logs can be viewed by downloading the file"
 msgstr "所有日志可通过下载文件查看"
 
-#: src/views/website/EditView.vue:1654 src/views/website/EditView.vue:1670
+#: src/views/website/EditView.vue:2195 src/views/website/EditView.vue:2211
 msgid "view"
 msgstr "查看"
 
-#: src/views/website/EditView.vue:1687
+#: src/views/website/EditView.vue:2228
 msgid "Clear Logs"
 msgstr "清除日志"
 
-#: src/views/website/EditView.vue:1700
+#: src/views/website/EditView.vue:2241
 msgid "One-click Certificate Issuance"
 msgstr "一键签发证书"
 
-#: src/views/website/EditView.vue:1705
+#: src/views/website/EditView.vue:2246
 msgid "Reset Configuration"
 msgstr "重置配置"
 
-#: src/views/website/EditView.vue:1708
+#: src/views/website/EditView.vue:2249
 msgid "Are you sure you want to reset the configuration?"
 msgstr "您确定要重置配置吗？"
 
