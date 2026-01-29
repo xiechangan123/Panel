@@ -335,7 +335,14 @@ const addProxy = () => {
     resolver: [],
     resolver_timeout: 5 * 1000000000, // 5秒，以纳秒为单位
     headers: {},
-    replaces: {}
+    replaces: {},
+    http_version: '1.1',
+    timeout: null,
+    retry: null,
+    client_max_body_size: 0,
+    ssl_backend: null,
+    response_headers: null,
+    access_control: null
   })
 }
 
@@ -407,6 +414,200 @@ const cacheMethodOptions = [
   { label: 'HEAD', value: 'HEAD' },
   { label: 'POST', value: 'POST' }
 ]
+
+// HTTP 协议版本选项
+const httpVersionOptions = [
+  { label: 'HTTP/1.0', value: '1.0' },
+  { label: 'HTTP/1.1', value: '1.1' },
+  { label: 'HTTP/2', value: '2' }
+]
+
+// 大小单位选项
+const sizeUnitOptions = [
+  { label: 'KB', value: 'k' },
+  { label: 'MB', value: 'm' },
+  { label: 'GB', value: 'g' }
+]
+
+// 从字节解析为 {value, unit} 格式
+const parseSize = (bytes: number): { value: number; unit: string } => {
+  if (!bytes || bytes <= 0) return { value: 0, unit: 'm' }
+
+  if (bytes >= 1024 * 1024 * 1024 && bytes % (1024 * 1024 * 1024) === 0) {
+    return { value: bytes / (1024 * 1024 * 1024), unit: 'g' }
+  }
+  if (bytes >= 1024 * 1024 && bytes % (1024 * 1024) === 0) {
+    return { value: bytes / (1024 * 1024), unit: 'm' }
+  }
+  if (bytes >= 1024 && bytes % 1024 === 0) {
+    return { value: bytes / 1024, unit: 'k' }
+  }
+  return { value: bytes, unit: '' }
+}
+
+// 将 {value, unit} 转换为字节
+const buildSize = (value: number, unit: string): number => {
+  if (!value || value <= 0) return 0
+  switch (unit) {
+    case 'g':
+      return value * 1024 * 1024 * 1024
+    case 'm':
+      return value * 1024 * 1024
+    case 'k':
+      return value * 1024
+    default:
+      return value
+  }
+}
+
+// 重试条件选项
+const retryConditionOptions = [
+  { label: 'error', value: 'error' },
+  { label: 'timeout', value: 'timeout' },
+  { label: 'invalid_header', value: 'invalid_header' },
+  { label: 'http_500', value: 'http_500' },
+  { label: 'http_502', value: 'http_502' },
+  { label: 'http_503', value: 'http_503' },
+  { label: 'http_504', value: 'http_504' },
+  { label: 'http_429', value: 'http_429' },
+  { label: 'non_idempotent', value: 'non_idempotent' },
+  { label: 'off', value: 'off' }
+]
+
+// 常见隐藏响应头选项
+const hideHeaderOptions = [
+  { label: 'X-Powered-By', value: 'X-Powered-By' },
+  { label: 'Server', value: 'Server' },
+  { label: 'X-AspNet-Version', value: 'X-AspNet-Version' },
+  { label: 'X-AspNetMvc-Version', value: 'X-AspNetMvc-Version' },
+  { label: 'X-Runtime', value: 'X-Runtime' },
+  { label: 'X-Version', value: 'X-Version' }
+]
+
+// 创建默认超时配置
+const createDefaultTimeoutConfig = () => ({
+  connect: 60 * SECOND,
+  read: 60 * SECOND,
+  send: 60 * SECOND
+})
+
+// 创建默认重试配置
+const createDefaultRetryConfig = () => ({
+  conditions: ['error', 'timeout'],
+  tries: 0,
+  timeout: 0
+})
+
+// 创建默认 SSL 后端配置
+const createDefaultSSLBackendConfig = () => ({
+  verify: false,
+  trusted_certificate: '',
+  verify_depth: 1
+})
+
+// 创建默认响应头配置
+const createDefaultResponseHeadersConfig = () => ({
+  hide: [],
+  add: {}
+})
+
+// 创建默认访问控制配置
+const createDefaultAccessControlConfig = () => ({
+  allow: [],
+  deny: []
+})
+
+// 切换超时配置启用状态
+const toggleProxyTimeout = (proxy: any, enabled: boolean) => {
+  if (enabled) {
+    proxy.timeout = createDefaultTimeoutConfig()
+  } else {
+    proxy.timeout = null
+  }
+}
+
+// 切换重试配置启用状态
+const toggleProxyRetry = (proxy: any, enabled: boolean) => {
+  if (enabled) {
+    proxy.retry = createDefaultRetryConfig()
+  } else {
+    proxy.retry = null
+  }
+}
+
+// 切换 SSL 后端验证启用状态
+const toggleProxySSLBackend = (proxy: any, enabled: boolean) => {
+  if (enabled) {
+    proxy.ssl_backend = createDefaultSSLBackendConfig()
+  } else {
+    proxy.ssl_backend = null
+  }
+}
+
+// 切换响应头配置启用状态
+const toggleProxyResponseHeaders = (proxy: any, enabled: boolean) => {
+  if (enabled) {
+    proxy.response_headers = createDefaultResponseHeadersConfig()
+  } else {
+    proxy.response_headers = null
+  }
+}
+
+// 切换访问控制启用状态
+const toggleProxyAccessControl = (proxy: any, enabled: boolean) => {
+  if (enabled) {
+    proxy.access_control = createDefaultAccessControlConfig()
+  } else {
+    proxy.access_control = null
+  }
+}
+
+// 更新超时时间值
+const updateProxyTimeoutValue = (proxy: any, field: string, value: number) => {
+  if (!proxy.timeout) return
+  const parsed = parseDuration(proxy.timeout[field])
+  proxy.timeout[field] = buildDuration(value, parsed.unit)
+}
+
+// 更新超时时间单位
+const updateProxyTimeoutUnit = (proxy: any, field: string, unit: string) => {
+  if (!proxy.timeout) return
+  const parsed = parseDuration(proxy.timeout[field])
+  proxy.timeout[field] = buildDuration(parsed.value, unit)
+}
+
+// 更新请求体大小值
+const updateClientMaxBodySizeValue = (proxy: any, value: number) => {
+  const parsed = parseSize(proxy.client_max_body_size)
+  proxy.client_max_body_size = buildSize(value, parsed.unit || 'm')
+}
+
+// 更新请求体大小单位
+const updateClientMaxBodySizeUnit = (proxy: any, unit: string) => {
+  const parsed = parseSize(proxy.client_max_body_size)
+  proxy.client_max_body_size = buildSize(parsed.value || 0, unit)
+}
+
+// 更新重试超时值
+const updateRetryTimeoutValue = (proxy: any, value: number) => {
+  if (!proxy.retry) return
+  const parsed = parseDuration(proxy.retry.timeout)
+  proxy.retry.timeout = buildDuration(value, parsed.unit)
+}
+
+// 更新重试超时单位
+const updateRetryTimeoutUnit = (proxy: any, unit: string) => {
+  if (!proxy.retry) return
+  const parsed = parseDuration(proxy.retry.timeout)
+  proxy.retry.timeout = buildDuration(parsed.value, unit)
+}
+
+// 添加响应头
+const addResponseHeader = (proxy: any) => {
+  if (!proxy.response_headers) return
+  if (!proxy.response_headers.add) proxy.response_headers.add = {}
+  proxy.response_headers.add['X-Custom-Header'] = 'value'
+}
 
 // 删除代理
 const removeProxy = (index: number) => {
@@ -1182,6 +1383,284 @@ const removeCustomConfig = (index: number) => {
                       {{ $gettext('Add Replacement Rule') }}
                     </n-button>
                   </n-flex>
+
+                  <!-- 高级配置（仅 Nginx） -->
+                  <template v-if="isNginx">
+                    <n-divider>{{ $gettext('Advanced Settings') }}</n-divider>
+                    <n-grid :cols="24" :x-gap="16">
+                      <!-- HTTP 协议版本 -->
+                      <n-form-item-gi :span="8" :label="$gettext('HTTP Version')">
+                        <n-select
+                          v-model:value="proxy.http_version"
+                          :options="httpVersionOptions"
+                          :placeholder="$gettext('Select HTTP version')"
+                        />
+                      </n-form-item-gi>
+
+                      <!-- 请求体大小限制 -->
+                      <n-form-item-gi :span="8" :label="$gettext('Max Body Size')">
+                        <n-input-group>
+                          <n-input-number
+                            :value="parseSize(proxy.client_max_body_size).value"
+                            :min="0"
+                            flex-1
+                            :placeholder="$gettext('0 = global')"
+                            @update:value="(v: number) => updateClientMaxBodySizeValue(proxy, v)"
+                          />
+                          <n-select
+                            :value="parseSize(proxy.client_max_body_size).unit || 'm'"
+                            :options="sizeUnitOptions"
+                            style="width: 80px"
+                            @update:value="(v: string) => updateClientMaxBodySizeUnit(proxy, v)"
+                          />
+                        </n-input-group>
+                      </n-form-item-gi>
+
+                      <!-- 超时设置开关 -->
+                      <n-form-item-gi :span="8" :label="$gettext('Timeout Settings')">
+                        <n-switch
+                          :value="proxy.timeout !== null"
+                          @update:value="(v: boolean) => toggleProxyTimeout(proxy, v)"
+                        />
+                      </n-form-item-gi>
+                    </n-grid>
+
+                    <!-- 超时配置详情 -->
+                    <template v-if="proxy.timeout">
+                      <n-grid :cols="24" :x-gap="16">
+                        <n-form-item-gi :span="8" :label="$gettext('Connect Timeout')">
+                          <n-input-group>
+                            <n-input-number
+                              :value="parseDuration(proxy.timeout.connect).value"
+                              :min="1"
+                              flex-1
+                              @update:value="(v: number) => updateProxyTimeoutValue(proxy, 'connect', v)"
+                            />
+                            <n-select
+                              :value="parseDuration(proxy.timeout.connect).unit"
+                              :options="timeUnitOptions"
+                              style="width: 100px"
+                              @update:value="(v: string) => updateProxyTimeoutUnit(proxy, 'connect', v)"
+                            />
+                          </n-input-group>
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="8" :label="$gettext('Read Timeout')">
+                          <n-input-group>
+                            <n-input-number
+                              :value="parseDuration(proxy.timeout.read).value"
+                              :min="1"
+                              flex-1
+                              @update:value="(v: number) => updateProxyTimeoutValue(proxy, 'read', v)"
+                            />
+                            <n-select
+                              :value="parseDuration(proxy.timeout.read).unit"
+                              :options="timeUnitOptions"
+                              style="width: 100px"
+                              @update:value="(v: string) => updateProxyTimeoutUnit(proxy, 'read', v)"
+                            />
+                          </n-input-group>
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="8" :label="$gettext('Send Timeout')">
+                          <n-input-group>
+                            <n-input-number
+                              :value="parseDuration(proxy.timeout.send).value"
+                              :min="1"
+                              flex-1
+                              @update:value="(v: number) => updateProxyTimeoutValue(proxy, 'send', v)"
+                            />
+                            <n-select
+                              :value="parseDuration(proxy.timeout.send).unit"
+                              :options="timeUnitOptions"
+                              style="width: 100px"
+                              @update:value="(v: string) => updateProxyTimeoutUnit(proxy, 'send', v)"
+                            />
+                          </n-input-group>
+                        </n-form-item-gi>
+                      </n-grid>
+                    </template>
+
+                    <n-grid :cols="24" :x-gap="16">
+                      <!-- 重试配置开关 -->
+                      <n-form-item-gi :span="8" :label="$gettext('Retry Settings')">
+                        <n-switch
+                          :value="proxy.retry !== null"
+                          @update:value="(v: boolean) => toggleProxyRetry(proxy, v)"
+                        />
+                      </n-form-item-gi>
+
+                      <!-- SSL 后端验证开关（仅 https） -->
+                      <n-form-item-gi
+                        v-if="proxy.pass?.startsWith('https')"
+                        :span="8"
+                        :label="$gettext('SSL Backend Verify')"
+                      >
+                        <n-switch
+                          :value="proxy.ssl_backend !== null"
+                          @update:value="(v: boolean) => toggleProxySSLBackend(proxy, v)"
+                        />
+                      </n-form-item-gi>
+
+                      <!-- 响应头修改开关 -->
+                      <n-form-item-gi :span="8" :label="$gettext('Response Headers')">
+                        <n-switch
+                          :value="proxy.response_headers !== null"
+                          @update:value="(v: boolean) => toggleProxyResponseHeaders(proxy, v)"
+                        />
+                      </n-form-item-gi>
+                    </n-grid>
+
+                    <!-- 重试配置详情 -->
+                    <template v-if="proxy.retry">
+                      <n-grid :cols="24" :x-gap="16">
+                        <n-form-item-gi :span="12" :label="$gettext('Retry Conditions')">
+                          <n-select
+                            v-model:value="proxy.retry.conditions"
+                            :options="retryConditionOptions"
+                            multiple
+                            :placeholder="$gettext('Select retry conditions')"
+                          />
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="6" :label="$gettext('Max Tries')">
+                          <n-input-number
+                            v-model:value="proxy.retry.tries"
+                            :min="0"
+                            :placeholder="$gettext('0 = unlimited')"
+                          />
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="6" :label="$gettext('Retry Timeout')">
+                          <n-input-group>
+                            <n-input-number
+                              :value="parseDuration(proxy.retry.timeout).value"
+                              :min="0"
+                              flex-1
+                              :placeholder="$gettext('0 = unlimited')"
+                              @update:value="(v: number) => updateRetryTimeoutValue(proxy, v)"
+                            />
+                            <n-select
+                              :value="parseDuration(proxy.retry.timeout).unit"
+                              :options="timeUnitOptions"
+                              style="width: 100px"
+                              @update:value="(v: string) => updateRetryTimeoutUnit(proxy, v)"
+                            />
+                          </n-input-group>
+                        </n-form-item-gi>
+                      </n-grid>
+                    </template>
+
+                    <!-- SSL 后端验证详情 -->
+                    <template v-if="proxy.ssl_backend && proxy.pass?.startsWith('https')">
+                      <n-grid :cols="24" :x-gap="16">
+                        <n-form-item-gi :span="6" :label="$gettext('Enable Verify')">
+                          <n-switch v-model:value="proxy.ssl_backend.verify" />
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="6" :label="$gettext('Verify Depth')">
+                          <n-input-number
+                            v-model:value="proxy.ssl_backend.verify_depth"
+                            :min="1"
+                            :max="10"
+                          />
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="12" :label="$gettext('Trusted Certificate')">
+                          <n-input
+                            v-model:value="proxy.ssl_backend.trusted_certificate"
+                            :placeholder="$gettext('CA certificate path, e.g. /etc/ssl/certs/ca-certificates.crt')"
+                          />
+                        </n-form-item-gi>
+                      </n-grid>
+                    </template>
+
+                    <!-- 响应头修改详情 -->
+                    <template v-if="proxy.response_headers">
+                      <n-grid :cols="24" :x-gap="16">
+                        <n-form-item-gi :span="12" :label="$gettext('Hide Headers')">
+                          <n-select
+                            v-model:value="proxy.response_headers.hide"
+                            :options="hideHeaderOptions"
+                            multiple
+                            filterable
+                            tag
+                            :placeholder="$gettext('Select or input headers to hide')"
+                          />
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="12" :label="$gettext('Add Headers')">
+                          <n-flex vertical :size="8" w-full>
+                            <n-flex
+                              v-for="(headerValue, headerName) in proxy.response_headers.add"
+                              :key="String(headerName)"
+                              :size="8"
+                              align="center"
+                            >
+                              <n-input
+                                :value="String(headerName)"
+                                :placeholder="$gettext('Header name')"
+                                flex-1
+                                @blur="
+                                  (e: FocusEvent) => {
+                                    const newName = (e.target as HTMLInputElement).value
+                                    const oldName = String(headerName)
+                                    if (newName && newName !== oldName) {
+                                      proxy.response_headers.add[newName] =
+                                        proxy.response_headers.add[oldName]
+                                      delete proxy.response_headers.add[oldName]
+                                    }
+                                  }
+                                "
+                              />
+                              <span flex-shrink-0>=</span>
+                              <n-input
+                                :value="String(headerValue)"
+                                :placeholder="$gettext('Header value')"
+                                flex-1
+                                @update:value="
+                                  (v: string) => (proxy.response_headers.add[String(headerName)] = v)
+                                "
+                              />
+                              <n-button
+                                type="error"
+                                secondary
+                                size="small"
+                                flex-shrink-0
+                                @click="delete proxy.response_headers.add[String(headerName)]"
+                              >
+                                {{ $gettext('Remove') }}
+                              </n-button>
+                            </n-flex>
+                            <n-button dashed size="small" @click="addResponseHeader(proxy)">
+                              {{ $gettext('Add Response Header') }}
+                            </n-button>
+                          </n-flex>
+                        </n-form-item-gi>
+                      </n-grid>
+                    </template>
+
+                    <n-grid :cols="24" :x-gap="16">
+                      <!-- IP 访问控制开关 -->
+                      <n-form-item-gi :span="8" :label="$gettext('IP Access Control')">
+                        <n-switch
+                          :value="proxy.access_control !== null"
+                          @update:value="(v: boolean) => toggleProxyAccessControl(proxy, v)"
+                        />
+                      </n-form-item-gi>
+                    </n-grid>
+
+                    <!-- IP 访问控制详情 -->
+                    <template v-if="proxy.access_control">
+                      <n-grid :cols="24" :x-gap="16">
+                        <n-form-item-gi :span="12" :label="$gettext('Allow IPs')">
+                          <n-dynamic-tags
+                            v-model:value="proxy.access_control.allow"
+                            :placeholder="$gettext('IP or CIDR, e.g. 192.168.1.0/24')"
+                          />
+                        </n-form-item-gi>
+                        <n-form-item-gi :span="12" :label="$gettext('Deny IPs')">
+                          <n-dynamic-tags
+                            v-model:value="proxy.access_control.deny"
+                            :placeholder="$gettext('IP or CIDR, e.g. all')"
+                          />
+                        </n-form-item-gi>
+                      </n-grid>
+                    </template>
+                  </template>
                 </n-form>
               </n-card>
             </template>
