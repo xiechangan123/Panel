@@ -279,7 +279,7 @@ onUnmounted(() => {
         <cron-selector v-model:value="editTask.time"></cron-selector>
       </n-form-item>
     </n-form>
-    <common-editor v-model:value="editTask.script" lang="sh" height="40vh" />
+    <common-editor v-model:value="editTask.script" lang="shell" height="40vh" />
     <n-button type="info" @click="saveTaskEdit" mt-10 block>
       {{ $gettext('Save') }}
     </n-button>

@@ -19,7 +19,10 @@ const createModel = ref({
   keep: 1,
   backup_type: 'website',
   backup_storage: 0,
-  script: $gettext('# Enter your script content here'),
+  script:
+    `#!/bin/bash\nexport PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n\n` +
+    $gettext('# Enter your script content here') +
+    `\n`,
   time: '* * * * *'
 })
 
@@ -148,7 +151,7 @@ onMounted(() => {
       </n-form-item>
       <div v-if="createModel.type === 'shell'">
         <n-text>{{ $gettext('Script Content') }}</n-text>
-        <common-editor v-model:value="createModel.script" lang="sh" height="40vh" />
+        <common-editor v-model:value="createModel.script" lang="shell" height="40vh" />
       </div>
       <n-form-item v-if="createModel.type === 'backup'" :label="$gettext('Backup Type')">
         <n-radio-group v-model:value="createModel.backup_type">

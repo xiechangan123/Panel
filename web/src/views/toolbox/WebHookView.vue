@@ -345,7 +345,7 @@ onMounted(() => {
         </span>
       </n-form-item>
       <n-form-item :label="$gettext('Script')">
-        <common-editor v-model:value="createModel.script" lang="sh" height="40vh" />
+        <common-editor v-model:value="createModel.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
     <n-button type="info" @click="handleCreate" block>
@@ -383,7 +383,7 @@ onMounted(() => {
         <n-switch v-model:value="editModel.status" />
       </n-form-item>
       <n-form-item :label="$gettext('Script')">
-        <common-editor v-model:value="editModel.script" lang="sh" height="40vh" />
+        <common-editor v-model:value="editModel.script" lang="shell" height="40vh" />
       </n-form-item>
     </n-form>
     <n-button type="info" @click="handleUpdate" block>
