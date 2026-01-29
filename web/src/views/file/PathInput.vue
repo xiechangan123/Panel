@@ -53,7 +53,7 @@ const handleUp = () => {
 const handleBack = () => {
   if (current > 0) {
     current--
-    path.value = history[current]
+    path.value = history[current] ?? '/'
     input.value = path.value.slice(1)
   }
 }
@@ -61,7 +61,7 @@ const handleBack = () => {
 const handleForward = () => {
   if (current < history.length - 1) {
     current++
-    path.value = history[current]
+    path.value = history[current] ?? '/'
     input.value = path.value.slice(1)
   }
 }

@@ -120,7 +120,7 @@ const handleDrop = async (e: DragEvent) => {
   // 使用 webkitGetAsEntry 来支持文件夹
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
-    if (item.kind === 'file') {
+    if (item?.kind === 'file') {
       const entry = item.webkitGetAsEntry()
       if (entry) {
         if (entry.isFile) {

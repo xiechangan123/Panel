@@ -27,7 +27,6 @@ const minimized = defineModel<boolean>('minimized', { default: false })
 
 // 窗口状态
 const isMaximized = ref(false)
-const windowRef = ref<HTMLDivElement>()
 
 // 窗口位置和大小
 const position = ref({ x: 0, y: 0 })

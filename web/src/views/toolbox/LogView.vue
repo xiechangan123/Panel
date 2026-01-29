@@ -76,24 +76,28 @@ const scanResults = ref<Record<string, ScanResult>>({
 
 // 扫描日志
 const handleScan = async (type: string) => {
-  scanResults.value[type].loading = true
-  scanResults.value[type].scanned = false
-  scanResults.value[type].items = []
+  const result = scanResults.value[type]
+  if (!result) return
+  result.loading = true
+  result.scanned = false
+  result.items = []
 
   try {
     const { data } = await useRequest(toolboxLog.scan(type))
-    scanResults.value[type].items = data || []
-    scanResults.value[type].scanned = true
+    result.items = data || []
+    result.scanned = true
   } catch (e) {
     window.$message.error($gettext('Scan failed'))
   } finally {
-    scanResults.value[type].loading = false
+    result.loading = false
   }
 }
 
 // 清理日志
 const handleClean = async (type: string) => {
-  scanResults.value[type].cleaning = true
+  const result = scanResults.value[type]
+  if (!result) return
+  result.cleaning = true
 
   try {
     const { data } = await useRequest(toolboxLog.clean(type))
@@ -103,7 +107,7 @@ const handleClean = async (type: string) => {
   } catch (e) {
     window.$message.error($gettext('Clean failed'))
   } finally {
-    scanResults.value[type].cleaning = false
+    result.cleaning = false
   }
 }
 
@@ -117,7 +121,8 @@ const handleScanAll = async () => {
 // 清理所有
 const handleCleanAll = async () => {
   for (const logType of logTypes) {
-    if (scanResults.value[logType.key].items.length > 0) {
+    const result = scanResults.value[logType.key]
+    if (result && result.items.length > 0) {
       await handleClean(logType.key)
     }
   }
@@ -132,6 +137,11 @@ const totalItems = computed(() => {
 const anyLoading = computed(() => {
   return Object.values(scanResults.value).some((r) => r.loading || r.cleaning)
 })
+
+// 获取扫描结果
+const getResult = (key: string): ScanResult => {
+  return scanResults.value[key] ?? { loading: false, items: [], scanned: false, cleaning: false }
+}
 </script>
 
 <template>
@@ -163,7 +173,7 @@ const anyLoading = computed(() => {
             <n-flex :size="8">
               <n-button
                 size="small"
-                :loading="scanResults[logType.key].loading"
+                :loading="getResult(logType.key).loading"
                 @click="handleScan(logType.key)"
               >
                 <template #icon>
@@ -174,8 +184,8 @@ const anyLoading = computed(() => {
               <n-button
                 size="small"
                 type="warning"
-                :loading="scanResults[logType.key].cleaning"
-                :disabled="scanResults[logType.key].items.length === 0"
+                :loading="getResult(logType.key).cleaning"
+                :disabled="getResult(logType.key).items.length === 0"
                 @click="handleClean(logType.key)"
               >
                 <template #icon>
@@ -189,15 +199,15 @@ const anyLoading = computed(() => {
           <n-flex vertical>
             <n-text depth="3">{{ logType.description }}</n-text>
 
-            <template v-if="scanResults[logType.key].loading">
+            <template v-if="getResult(logType.key).loading">
               <n-flex justify="center" align="center" style="min-height: 60px">
                 <n-spin size="small" />
                 <n-text>{{ $gettext('Scanning...') }}</n-text>
               </n-flex>
             </template>
 
-            <template v-else-if="scanResults[logType.key].scanned">
-              <template v-if="scanResults[logType.key].items.length === 0">
+            <template v-else-if="getResult(logType.key).scanned">
+              <template v-if="getResult(logType.key).items.length === 0">
                 <n-empty :description="$gettext('No logs found')" size="small" />
               </template>
               <template v-else>
@@ -206,7 +216,7 @@ const anyLoading = computed(() => {
                     { title: $gettext('Name'), key: 'name', ellipsis: { tooltip: true } },
                     { title: $gettext('Size'), key: 'size', width: 120 }
                   ]"
-                  :data="scanResults[logType.key].items"
+                  :data="getResult(logType.key).items"
                   :bordered="false"
                   size="small"
                   :max-height="200"

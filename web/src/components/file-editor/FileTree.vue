@@ -187,17 +187,18 @@ function showCreate(type: 'file' | 'dir') {
 
   // 确定父目录
   if (selectedKeys.value.length > 0) {
-    const selectedNode = findNode(treeData.value, selectedKeys.value[0])
+    const selectedKey = selectedKeys.value[0] ?? ''
+    const selectedNode = findNode(treeData.value, selectedKey)
     if (selectedNode && !selectedNode.isLeaf) {
       // 选中的是目录，在该目录下新建
-      inlineCreateParentPath.value = selectedKeys.value[0]
+      inlineCreateParentPath.value = selectedKey
       // 确保目录已展开
-      if (!expandedKeys.value.includes(selectedKeys.value[0])) {
-        expandedKeys.value = [...expandedKeys.value, selectedKeys.value[0]]
+      if (!expandedKeys.value.includes(selectedKey)) {
+        expandedKeys.value = [...expandedKeys.value, selectedKey]
       }
     } else {
       // 选中的是文件，在其父目录下新建
-      const parts = selectedKeys.value[0].split('/')
+      const parts = selectedKey.split('/')
       parts.pop()
       inlineCreateParentPath.value = parts.join('/') || props.rootPath
     }

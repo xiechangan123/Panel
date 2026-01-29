@@ -180,13 +180,14 @@ const closeTab = (tabId: string) => {
   if (index === -1) return
 
   const tab = tabs.value[index]
-  disposeTab(tab)
+  if (tab) disposeTab(tab)
   tabs.value.splice(index, 1)
 
   // 如果关闭的是当前标签，切换到其他标签
   if (activeTabId.value === tabId && tabs.value.length > 0) {
     const newIndex = Math.min(index, tabs.value.length - 1)
-    switchTab(tabs.value[newIndex].id)
+    const newTab = tabs.value[newIndex]
+    if (newTab) switchTab(newTab.id)
   }
 
   // 如果没有标签了，创建一个本机标签

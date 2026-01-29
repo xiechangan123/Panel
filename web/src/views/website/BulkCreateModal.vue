@@ -5,7 +5,6 @@ import { useGettext } from 'vue3-gettext'
 import website from '@/api/panel/website'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const type = defineModel<string>('type', { type: String, required: true })
 
 const { $gettext } = useGettext()
 
@@ -24,16 +23,16 @@ const handleCreate = async () => {
       return
     }
     // 去除空格
-    const name = parts[0].trim()
-    const domains = parts[1]
+    const name = (parts[0] ?? '').trim()
+    const domains = (parts[1] ?? '')
       .trim()
       .split(',')
       .map((item) => item.trim())
-    const listens = parts[2]
+    const listens = (parts[2] ?? '')
       .trim()
       .split(',')
       .map((item) => item.trim())
-    const path = parts[3].trim()
+    const path = (parts[3] ?? '').trim()
     const remark = parts[4] ? parts[4].trim() : ''
     let model = {
       name: '',

@@ -65,7 +65,7 @@ function handleLanguageChange(value: string) {
 
 // 更新缩进
 function handleIndentChange(value: string) {
-  const [size, type] = value.split('-')
+  const [size, type] = value.split('-') as [string, string]
   editorStore.updateSettings({
     tabSize: parseInt(size),
     insertSpaces: type === 'spaces'

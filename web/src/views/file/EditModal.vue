@@ -13,8 +13,6 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const minimized = defineModel<boolean>('minimized', { type: Boolean, default: false })
 const filePath = defineModel<string>('file', { type: String, required: true })
 
-const editorRef = ref<InstanceType<typeof FileEditorView>>()
-
 // 窗口默认尺寸
 const defaultWidth = Math.min(1400, window.innerWidth * 0.9)
 const defaultHeight = Math.min(900, window.innerHeight * 0.85)

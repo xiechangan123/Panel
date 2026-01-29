@@ -47,9 +47,10 @@ export function generateRandomString(length: number) {
     for (let i = 0; i < randomBytes.length && result.length < length; i++) {
       // Only use values that map evenly to the character set to avoid bias
       const maxValue = Math.floor(256 / charactersLength) * charactersLength
-      if (randomBytes[i] < maxValue) {
-        const randomIndex = randomBytes[i] % charactersLength
-        result += characters[randomIndex]
+      const byteValue = randomBytes[i] ?? 0
+      if (byteValue < maxValue) {
+        const randomIndex = byteValue % charactersLength
+        result += characters[randomIndex] ?? ''
       }
     }
   }

@@ -20,10 +20,10 @@ export const useThemeStore = defineStore('theme', {
       return this.darkMode ? darkTheme : undefined
     },
     naiveLocale(): NLocale {
-      return locales[this.locale].locale
+      return locales[this.locale]?.locale ?? enUS
     },
     naiveDateLocale(): NDateLocale {
-      return locales[this.locale].dateLocale
+      return locales[this.locale]?.dateLocale ?? dateEnUS
     }
   },
   actions: {

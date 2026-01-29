@@ -38,7 +38,8 @@ const modules = import.meta.glob('@/views/**/route.ts', {
 }) as RouteModule
 const asyncRoutes: RoutesType = []
 Object.keys(modules).forEach((key) => {
-  asyncRoutes.push(modules[key].default)
+  const route = modules[key]?.default
+  if (route) asyncRoutes.push(route)
 })
 
 export { asyncRoutes }

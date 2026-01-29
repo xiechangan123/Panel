@@ -137,9 +137,9 @@ export const useEditorStore = defineStore('editor', {
         if (this.tabs.length === 0) {
           this.activeTabPath = null
         } else if (index >= this.tabs.length) {
-          this.activeTabPath = this.tabs[this.tabs.length - 1].path
+          this.activeTabPath = this.tabs[this.tabs.length - 1]?.path ?? null
         } else {
-          this.activeTabPath = this.tabs[index].path
+          this.activeTabPath = this.tabs[index]?.path ?? null
         }
       }
     },
@@ -162,7 +162,7 @@ export const useEditorStore = defineStore('editor', {
       if (this.tabs.length === 0) {
         this.activeTabPath = null
       } else if (!this.tabs.find((tab) => tab.path === this.activeTabPath)) {
-        this.activeTabPath = this.tabs[0].path
+        this.activeTabPath = this.tabs[0]?.path ?? null
       }
     },
 
@@ -255,7 +255,7 @@ export const useEditorStore = defineStore('editor', {
       if (toIndex < 0 || toIndex >= this.tabs.length) return
 
       const [movedTab] = this.tabs.splice(fromIndex, 1)
-      this.tabs.splice(toIndex, 0, movedTab)
+      if (movedTab) this.tabs.splice(toIndex, 0, movedTab)
     }
   },
 

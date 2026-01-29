@@ -34,10 +34,12 @@ watch(
   (newVal) => {
     if (newVal && fileInfoList.value.length > 0) {
       const firstFile = fileInfoList.value[0]
-      mode.value = normalizeMode(firstFile.mode)
-      owner.value = firstFile.owner || 'www'
-      group.value = firstFile.group || 'www'
-      updateCheckboxes()
+      if (firstFile) {
+        mode.value = normalizeMode(firstFile.mode)
+        owner.value = firstFile.owner || 'www'
+        group.value = firstFile.group || 'www'
+        updateCheckboxes()
+      }
     }
   }
 )
@@ -73,7 +75,7 @@ const calculateMode = () => {
 
 const updateCheckboxes = () => {
   const paddedMode = normalizeMode(mode.value)
-  const permissions = paddedMode.split('').map(Number)
+  const permissions = paddedMode.split('').map(Number) as [number, number, number]
 
   checkbox.value.owner = permissions[0] & 4 ? ['read'] : []
   if (permissions[0] & 2) checkbox.value.owner.push('write')
@@ -94,7 +96,7 @@ const title = computed(() => {
   }
   return selected.value.length > 1
     ? $gettext('Batch modify permissions')
-    : $gettext('Modify permissions - %{ path }', { path: selected.value[0] })
+    : $gettext('Modify permissions - %{ path }', { path: selected.value[0] ?? '' })
 })
 
 watch(mode, updateCheckboxes, { immediate: true })

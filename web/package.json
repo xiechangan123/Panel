@@ -15,7 +15,7 @@
     "build": "run-s gen-auto-import type-check build-only copy",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit",
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json",
     "lint": "run-s gen-auto-import lint-only",
     "lint-only": "eslint . --fix",
     "format": "prettier --write src/",

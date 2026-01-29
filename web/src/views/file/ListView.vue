@@ -184,7 +184,7 @@ const selectionBox = computed(() => {
 const hexToRgb = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   return result
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    ? `${parseInt(result[1] ?? '0', 16)}, ${parseInt(result[2] ?? '0', 16)}, ${parseInt(result[3] ?? '0', 16)}`
     : '24, 160, 88'
 }
 
@@ -843,7 +843,8 @@ const handlePaste = () => {
     for (let i = 0; i < data.length; i++) {
       if (data[i]) {
         flag = true
-        paths[i].force = true
+        const pathItem = paths[i]
+        if (pathItem) pathItem.force = true
       }
     }
     if (flag) {

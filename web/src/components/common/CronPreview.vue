@@ -39,7 +39,7 @@ const parseDescription = computed((): string => {
     return $gettext('Cron expression: %{cron}', { cron })
   }
 
-  const [minute, hour, day, month, weekday] = parts
+  const [minute, hour, day, month, weekday] = parts as [string, string, string, string, string]
 
   try {
     // 每 N 分钟：*/N * * * *

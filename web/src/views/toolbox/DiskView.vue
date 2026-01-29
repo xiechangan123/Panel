@@ -6,6 +6,7 @@ defineOptions({
 import { useRequest } from 'alova/client'
 import type { DataTableColumns } from 'naive-ui'
 import { NButton, NProgress, NTag } from 'naive-ui'
+import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import disk from '@/api/panel/toolbox-disk'

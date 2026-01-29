@@ -69,7 +69,7 @@ const updateKey = (oldKey: string, newKey: string) => {
   if (props.modelValue[newKey] !== undefined) return // 键已存在
 
   const data = { ...props.modelValue }
-  data[newKey] = data[oldKey]
+  data[newKey] = data[oldKey] ?? ''
   delete data[oldKey]
   emit('update:modelValue', data)
 }

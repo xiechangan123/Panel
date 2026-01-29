@@ -64,28 +64,28 @@ export const useTabStore = defineStore('tab', {
     removeTab(path: string) {
       if (path === this.active) {
         const activeIndex = this.tabs.findIndex((item) => item.path === path)
-        if (activeIndex > 0) router.push(this.tabs[activeIndex - 1].path)
-        else router.push(this.tabs[activeIndex + 1].path)
+        if (activeIndex > 0) router.push(this.tabs[activeIndex - 1]?.path ?? '/')
+        else router.push(this.tabs[activeIndex + 1]?.path ?? '/')
       }
       this.setTabs(this.tabs.filter((tab) => tab.path !== path))
     },
     removeOther(curPath: string) {
       this.setTabs(this.tabs.filter((tab) => tab.path === curPath))
-      if (curPath !== this.active) router.push(this.tabs[this.tabs.length - 1].path)
+      if (curPath !== this.active) router.push(this.tabs[this.tabs.length - 1]?.path ?? '/')
     },
     removeLeft(curPath: string) {
       const curIndex = this.tabs.findIndex((item) => item.path === curPath)
       const filterTabs = this.tabs.filter((item, index) => index >= curIndex)
       this.setTabs(filterTabs)
       if (!filterTabs.find((item) => item.path === this.active))
-        router.push(filterTabs[filterTabs.length - 1].path)
+        router.push(filterTabs[filterTabs.length - 1]?.path ?? '/')
     },
     removeRight(curPath: string) {
       const curIndex = this.tabs.findIndex((item) => item.path === curPath)
       const filterTabs = this.tabs.filter((item, index) => index <= curIndex)
       this.setTabs(filterTabs)
       if (!filterTabs.find((item) => item.path === this.active))
-        router.push(filterTabs[filterTabs.length - 1].path)
+        router.push(filterTabs[filterTabs.length - 1]?.path ?? '/')
     },
     resetTabs() {
       this.setTabs([])

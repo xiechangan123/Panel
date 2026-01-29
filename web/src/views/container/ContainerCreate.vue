@@ -94,7 +94,7 @@ const getNetworks = () => {
       value: item.id
     }))
     if (networks.value.length > 0) {
-      createModel.network = networks.value[0].value
+      createModel.network = networks.value[0]?.value ?? ''
     }
   })
 }

@@ -105,7 +105,8 @@ const handlePaste = () => {
     for (let i = 0; i < data.length; i++) {
       if (data[i]) {
         flag = true
-        paths[i].force = true
+        const pathItem = paths[i]
+        if (pathItem) pathItem.force = true
       }
     }
     if (flag) {

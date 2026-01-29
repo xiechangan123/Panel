@@ -7,7 +7,6 @@ import api from '@/api/panel/backup'
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const type = defineModel<string>('type', { type: String, required: true })
-const upload = ref<any>(null)
 
 const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequestOptions) => {
   const formData = new FormData()

@@ -64,7 +64,7 @@ const handleTest = async () => {
   inTest.value = true
   progress.value = 0
   for (let i = 0; i < tests.length; i++) {
-    const test = tests[i]
+    const test = tests[i] ?? ''
     current.value = test
     if (test != 'memory' && test != 'disk') {
       cpu.value[test as keyof typeof cpu.value] = await benchmark.test(test)

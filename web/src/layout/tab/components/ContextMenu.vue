@@ -57,7 +57,7 @@ const options = computed(() => [
   {
     label: $gettext('Close Left'),
     key: 'close-left',
-    disabled: tabStore.tabs.length <= 1 || props.currentPath === tabStore.tabs[0].path,
+    disabled: tabStore.tabs.length <= 1 || props.currentPath === tabStore.tabs[0]?.path,
     icon: renderIcon('mdi:arrow-expand-left', { size: 14 })
   },
   {
@@ -65,7 +65,7 @@ const options = computed(() => [
     key: 'close-right',
     disabled:
       tabStore.tabs.length <= 1 ||
-      props.currentPath === tabStore.tabs[tabStore.tabs.length - 1].path,
+      props.currentPath === tabStore.tabs[tabStore.tabs.length - 1]?.path,
     icon: renderIcon('mdi:arrow-expand-right', { size: 14 })
   }
 ])

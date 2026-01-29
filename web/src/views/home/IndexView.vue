@@ -540,13 +540,13 @@ if (import.meta.hot) {
                 <n-table :single-line="false" striped>
                   <tr>
                     <th>{{ $gettext('Model') }}</th>
-                    <td>{{ realtime.cpus[0].modelName }}</td>
+                    <td>{{ realtime.cpus[0]?.modelName }}</td>
                   </tr>
                   <tr>
                     <th>{{ $gettext('Parameters') }}</th>
                     <td>
                       {{ realtime.cpus.length }} CPU {{ cores }} {{ $gettext('cores') }}
-                      {{ formatBytes(realtime.cpus[0].cacheSize * 1024) }} {{ $gettext('cache') }}
+                      {{ formatBytes((realtime.cpus[0]?.cacheSize ?? 0) * 1024) }} {{ $gettext('cache') }}
                     </td>
                   </tr>
                   <tr v-for="item in realtime.cpus" :key="item.modelName">

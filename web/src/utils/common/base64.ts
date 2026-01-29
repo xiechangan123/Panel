@@ -11,7 +11,7 @@ export function encodeBase64(str: string): string {
   const bytes = new TextEncoder().encode(str)
   let binary = ''
   for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i])
+    binary += String.fromCharCode(bytes[i] ?? 0)
   }
   return btoa(binary)
 }

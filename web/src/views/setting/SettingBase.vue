@@ -83,6 +83,7 @@ const getOption = (route: RouteType): TreeSelectOption => {
   if (visibleChildren.length === 1) {
     // 单个子路由处理
     const singleRoute = visibleChildren[0]
+    if (!singleRoute) return menuItem
     const isSingleDisabled = forbiddenHiddenMenus.includes(singleRoute.name as string)
     menuItem.label = singleRoute.meta?.title
       ? translateTitle(singleRoute.meta.title)
@@ -93,7 +94,8 @@ const getOption = (route: RouteType): TreeSelectOption => {
       ? singleRoute.children.filter((item: RouteType) => item.name && !item.isHidden)
       : []
 
-    if (visibleItems.length === 1) menuItem = getOption(visibleItems[0])
+    const firstVisibleItem = visibleItems[0]
+    if (visibleItems.length === 1 && firstVisibleItem) menuItem = getOption(firstVisibleItem)
     else if (visibleItems.length > 1)
       menuItem.children = visibleItems.map((item) => getOption(item))
   } else {
