@@ -11,6 +11,7 @@ import draggable from 'vuedraggable'
 import cert from '@/api/panel/cert'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
+import KeyValueEditor from '@/components/common/KeyValueEditor.vue'
 
 const { $gettext } = useGettext()
 let messageReactive: MessageReactive | null = null
@@ -248,15 +249,6 @@ const removeUpstream = (index: number) => {
   }
 }
 
-// 为上游添加服务器
-const addServerToUpstream = (index: number) => {
-  const upstream = setting.value.upstreams[index]
-  if (!upstream.servers) {
-    upstream.servers = {}
-  }
-  upstream.servers[`127.0.0.1:${8080 + Object.keys(upstream.servers).length}`] = ''
-}
-
 // 更新上游超时时间值
 const updateUpstreamTimeoutValue = (upstream: any, value: number) => {
   const parsed = parseDuration(upstream.resolver_timeout)
@@ -373,61 +365,6 @@ const isCacheEnabled = (proxy: any) => {
   return proxy.cache !== null && proxy.cache !== undefined
 }
 
-// 添加缓存有效期规则
-const addCacheValidRule = (proxy: any) => {
-  if (!proxy.cache) return
-  if (!proxy.cache.valid) proxy.cache.valid = {}
-  proxy.cache.valid[`any`] = '5m'
-}
-
-// 删除缓存有效期规则
-const removeCacheValidRule = (proxy: any, codes: string) => {
-  if (proxy.cache?.valid) {
-    delete proxy.cache.valid[codes]
-  }
-}
-
-// 不缓存条件选项
-const noCacheConditionOptions = [
-  { label: '$cookie_nocache', value: '$cookie_nocache' },
-  { label: '$arg_nocache', value: '$arg_nocache' },
-  { label: '$http_pragma', value: '$http_pragma' },
-  { label: '$http_authorization', value: '$http_authorization' },
-  { label: '$http_cache_control', value: '$http_cache_control' }
-]
-
-// 过期缓存使用策略选项
-const useStaleOptions = [
-  { label: 'error', value: 'error' },
-  { label: 'timeout', value: 'timeout' },
-  { label: 'updating', value: 'updating' },
-  { label: 'http_500', value: 'http_500' },
-  { label: 'http_502', value: 'http_502' },
-  { label: 'http_503', value: 'http_503' },
-  { label: 'http_504', value: 'http_504' }
-]
-
-// 缓存方法选项
-const cacheMethodOptions = [
-  { label: 'GET', value: 'GET' },
-  { label: 'HEAD', value: 'HEAD' },
-  { label: 'POST', value: 'POST' }
-]
-
-// HTTP 协议版本选项
-const httpVersionOptions = [
-  { label: 'HTTP/1.0', value: '1.0' },
-  { label: 'HTTP/1.1', value: '1.1' },
-  { label: 'HTTP/2', value: '2' }
-]
-
-// 大小单位选项
-const sizeUnitOptions = [
-  { label: 'KB', value: 'k' },
-  { label: 'MB', value: 'm' },
-  { label: 'GB', value: 'g' }
-]
-
 // 从字节解析为 {value, unit} 格式
 const parseSize = (bytes: number): { value: number; unit: string } => {
   if (!bytes || bytes <= 0) return { value: 0, unit: 'm' }
@@ -458,30 +395,6 @@ const buildSize = (value: number, unit: string): number => {
       return value
   }
 }
-
-// 重试条件选项
-const retryConditionOptions = [
-  { label: 'error', value: 'error' },
-  { label: 'timeout', value: 'timeout' },
-  { label: 'invalid_header', value: 'invalid_header' },
-  { label: 'http_500', value: 'http_500' },
-  { label: 'http_502', value: 'http_502' },
-  { label: 'http_503', value: 'http_503' },
-  { label: 'http_504', value: 'http_504' },
-  { label: 'http_429', value: 'http_429' },
-  { label: 'non_idempotent', value: 'non_idempotent' },
-  { label: 'off', value: 'off' }
-]
-
-// 常见隐藏响应头选项
-const hideHeaderOptions = [
-  { label: 'X-Powered-By', value: 'X-Powered-By' },
-  { label: 'Server', value: 'Server' },
-  { label: 'X-AspNet-Version', value: 'X-AspNet-Version' },
-  { label: 'X-AspNetMvc-Version', value: 'X-AspNetMvc-Version' },
-  { label: 'X-Runtime', value: 'X-Runtime' },
-  { label: 'X-Version', value: 'X-Version' }
-]
 
 // 创建默认超时配置
 const createDefaultTimeoutConfig = () => ({
@@ -599,13 +512,6 @@ const updateRetryTimeoutUnit = (proxy: any, unit: string) => {
   if (!proxy.retry) return
   const parsed = parseDuration(proxy.retry.timeout)
   proxy.retry.timeout = buildDuration(parsed.value, unit)
-}
-
-// 添加响应头
-const addResponseHeader = (proxy: any) => {
-  if (!proxy.response_headers) return
-  if (!proxy.response_headers.add) proxy.response_headers.add = {}
-  proxy.response_headers.add['X-Custom-Header'] = 'value'
 }
 
 // 删除代理
@@ -781,39 +687,7 @@ const realIPEnabled = computed({
   }
 })
 
-// 真实 IP Header 选项
-const realIPHeaderOptions = [
-  { label: 'X-Real-IP', value: 'X-Real-IP' },
-  { label: 'X-Forwarded-For', value: 'X-Forwarded-For' },
-  { label: 'CF-Connecting-IP', value: 'CF-Connecting-IP' },
-  { label: 'True-Client-IP', value: 'True-Client-IP' },
-  { label: 'Ali-Cdn-Real-Ip', value: 'Ali-Cdn-Real-Ip' },
-  { label: 'EO-Connecting-IP', value: 'EO-Connecting-IP' }
-]
-
-// 添加基本认证用户
-const addBasicAuthUser = () => {
-  if (!setting.value.basic_auth) {
-    setting.value.basic_auth = {}
-  }
-  const index = Object.keys(setting.value.basic_auth).length + 1
-  setting.value.basic_auth[`user${index}`] = ''
-}
-
-// 删除基本认证用户
-const removeBasicAuthUser = (username: string) => {
-  if (setting.value.basic_auth) {
-    delete setting.value.basic_auth[username]
-  }
-}
-
 // ========== 自定义配置相关 ==========
-// 作用域选项
-const scopeOptions = [
-  { label: $gettext('This Website'), value: 'site' },
-  { label: $gettext('Global'), value: 'shared' }
-]
-
 // 添加自定义配置
 const addCustomConfig = () => {
   if (!setting.value.custom_configs) {
@@ -1007,47 +881,13 @@ const removeCustomConfig = (index: number) => {
                     </n-form-item-gi>
                   </n-grid>
                   <n-form-item :label="$gettext('Backend Servers')">
-                    <n-flex vertical :size="8" w-full>
-                      <n-flex
-                        v-for="(options, address) in upstream.servers"
-                        :key="String(address)"
-                        :size="8"
-                        align="center"
-                      >
-                        <n-input
-                          :default-value="String(address)"
-                          :placeholder="$gettext('Server address, e.g., 127.0.0.1:8080')"
-                          flex-1
-                          @change="
-                            (newAddr: string) => {
-                              const oldAddr = String(address)
-                              if (newAddr && newAddr !== oldAddr) {
-                                upstream.servers[newAddr] = upstream.servers[oldAddr]
-                                delete upstream.servers[oldAddr]
-                              }
-                            }
-                          "
-                        />
-                        <n-input
-                          :value="String(options)"
-                          :placeholder="$gettext('Options, e.g., weight=5 backup')"
-                          flex-1
-                          @update:value="(v: string) => (upstream.servers[String(address)] = v)"
-                        />
-                        <n-button
-                          type="error"
-                          secondary
-                          size="small"
-                          flex-shrink-0
-                          @click="delete upstream.servers[String(address)]"
-                        >
-                          {{ $gettext('Remove') }}
-                        </n-button>
-                      </n-flex>
-                      <n-button dashed size="small" @click="addServerToUpstream(index)">
-                        {{ $gettext('Add Server') }}
-                      </n-button>
-                    </n-flex>
+                    <key-value-editor
+                      v-model="upstream.servers"
+                      :key-placeholder="$gettext('Server address, e.g., 127.0.0.1:8080')"
+                      :value-placeholder="$gettext('Options, e.g., weight=5 backup')"
+                      :add-button-text="$gettext('Add Server')"
+                      default-key-prefix="127.0.0.1:8080"
+                    />
                   </n-form-item>
                 </n-form>
               </n-card>
@@ -1178,59 +1018,26 @@ const removeCustomConfig = (index: number) => {
                       <n-grid :cols="24" :x-gap="16">
                         <!-- 缓存有效期 -->
                         <n-form-item-gi :span="24" :label="$gettext('Cache Valid')">
-                          <n-flex vertical :size="8" w-full>
-                            <n-flex
-                              v-for="(duration, codes) in proxy.cache?.valid"
-                              :key="String(codes)"
-                              :size="8"
-                              align="center"
-                            >
-                              <n-input
-                                :value="String(codes)"
-                                :placeholder="$gettext('Status codes, e.g., 200 302 or any')"
-                                flex-1
-                                @blur="
-                                  (e: FocusEvent) => {
-                                    const newCodes = (e.target as HTMLInputElement).value
-                                    const oldCodes = String(codes)
-                                    if (newCodes && newCodes !== oldCodes && proxy.cache?.valid) {
-                                      proxy.cache.valid[newCodes] = proxy.cache.valid[oldCodes]
-                                      delete proxy.cache.valid[oldCodes]
-                                    }
-                                  }
-                                "
-                              />
-                              <span flex-shrink-0>=</span>
-                              <n-input
-                                :value="String(duration)"
-                                :placeholder="$gettext('Duration, e.g., 10m, 1h, 1d')"
-                                style="width: 120px"
-                                @update:value="
-                                  (v: string) => {
-                                    if (proxy.cache?.valid) proxy.cache.valid[String(codes)] = v
-                                  }
-                                "
-                              />
-                              <n-button
-                                type="error"
-                                secondary
-                                size="small"
-                                flex-shrink-0
-                                @click="removeCacheValidRule(proxy, String(codes))"
-                              >
-                                {{ $gettext('Remove') }}
-                              </n-button>
-                            </n-flex>
-                            <n-button dashed size="small" @click="addCacheValidRule(proxy)">
-                              {{ $gettext('Add Cache Valid Rule') }}
-                            </n-button>
-                          </n-flex>
+                          <key-value-editor
+                            v-model="proxy.cache.valid"
+                            :key-placeholder="$gettext('Status codes, e.g., 200 302 or any')"
+                            :value-placeholder="$gettext('Duration, e.g., 10m, 1h, 1d')"
+                            :add-button-text="$gettext('Add Cache Valid Rule')"
+                            default-key-prefix="20"
+                            default-value="10m"
+                          />
                         </n-form-item-gi>
                         <!-- 不缓存条件 -->
                         <n-form-item-gi :span="12" :label="$gettext('No Cache Conditions')">
                           <n-select
                             v-model:value="proxy.cache.no_cache_conditions"
-                            :options="noCacheConditionOptions"
+                            :options="[
+                              { label: '$cookie_nocache', value: '$cookie_nocache' },
+                              { label: '$arg_nocache', value: '$arg_nocache' },
+                              { label: '$http_pragma', value: '$http_pragma' },
+                              { label: '$http_authorization', value: '$http_authorization' },
+                              { label: '$http_cache_control', value: '$http_cache_control' }
+                            ]"
                             multiple
                             filterable
                             tag
@@ -1241,7 +1048,15 @@ const removeCustomConfig = (index: number) => {
                         <n-form-item-gi :span="12" :label="$gettext('Use Stale')">
                           <n-select
                             v-model:value="proxy.cache.use_stale"
-                            :options="useStaleOptions"
+                            :options="[
+                              { label: 'error', value: 'error' },
+                              { label: 'timeout', value: 'timeout' },
+                              { label: 'updating', value: 'updating' },
+                              { label: 'http_500', value: 'http_500' },
+                              { label: 'http_502', value: 'http_502' },
+                              { label: 'http_503', value: 'http_503' },
+                              { label: 'http_504', value: 'http_504' }
+                            ]"
                             multiple
                             :placeholder="$gettext('When to use stale cache')"
                           />
@@ -1269,7 +1084,11 @@ const removeCustomConfig = (index: number) => {
                         <n-form-item-gi :span="6" :label="$gettext('Cache Methods')">
                           <n-select
                             v-model:value="proxy.cache.methods"
-                            :options="cacheMethodOptions"
+                            :options="[
+                              { label: 'GET', value: 'GET' },
+                              { label: 'HEAD', value: 'HEAD' },
+                              { label: 'POST', value: 'POST' }
+                            ]"
                             multiple
                             :placeholder="$gettext('Default: GET HEAD')"
                           />
@@ -1288,58 +1107,13 @@ const removeCustomConfig = (index: number) => {
 
                     <!-- 自定义请求头 -->
                     <n-collapse-item :title="$gettext('Custom Request Headers')" name="headers">
-                      <n-flex vertical :size="8">
-                        <n-flex
-                          v-for="(headerValue, headerName) in proxy.headers"
-                          :key="String(headerName)"
-                          :size="8"
-                          align="center"
-                        >
-                          <n-input
-                            :value="String(headerName)"
-                            :placeholder="$gettext('Header name')"
-                            flex-1
-                            @blur="
-                              (e: FocusEvent) => {
-                                const newName = (e.target as HTMLInputElement).value
-                                const oldName = String(headerName)
-                                if (newName && newName !== oldName) {
-                                  proxy.headers[newName] = proxy.headers[oldName]
-                                  delete proxy.headers[oldName]
-                                }
-                              }
-                            "
-                          />
-                          <span flex-shrink-0>=</span>
-                          <n-input
-                            :value="String(headerValue)"
-                            :placeholder="$gettext('Value or variable like $host, $remote_addr')"
-                            flex-1
-                            @update:value="(v: string) => (proxy.headers[String(headerName)] = v)"
-                          />
-                          <n-button
-                            type="error"
-                            secondary
-                            size="small"
-                            flex-shrink-0
-                            @click="delete proxy.headers[String(headerName)]"
-                          >
-                            {{ $gettext('Remove') }}
-                          </n-button>
-                        </n-flex>
-                        <n-button
-                          dashed
-                          size="small"
-                          @click="
-                            () => {
-                              if (!proxy.headers) proxy.headers = {}
-                              proxy.headers[`X-Custom-${Object.keys(proxy.headers).length}`] = ''
-                            }
-                          "
-                        >
-                          {{ $gettext('Add Request Header') }}
-                        </n-button>
-                      </n-flex>
+                      <key-value-editor
+                        v-model="proxy.headers"
+                        :key-placeholder="$gettext('Header name')"
+                        :value-placeholder="$gettext('Value or variable like $host, $remote_addr')"
+                        :add-button-text="$gettext('Add Request Header')"
+                        default-key-prefix="X-Custom-Header"
+                      />
                     </n-collapse-item>
 
                     <!-- 响应内容替换 -->
@@ -1347,58 +1121,15 @@ const removeCustomConfig = (index: number) => {
                       :title="$gettext('Response Content Replacement')"
                       name="replaces"
                     >
-                      <n-flex vertical :size="8">
-                        <n-flex
-                          v-for="(toValue, fromValue) in proxy.replaces"
-                          :key="String(fromValue)"
-                          :size="8"
-                          align="center"
-                        >
-                          <n-input
-                            :value="String(fromValue)"
-                            :placeholder="$gettext('Original content')"
-                            flex-1
-                            @blur="
-                              (e: FocusEvent) => {
-                                const newFrom = (e.target as HTMLInputElement).value
-                                const oldFrom = String(fromValue)
-                                if (newFrom && newFrom !== oldFrom) {
-                                  proxy.replaces[newFrom] = proxy.replaces[oldFrom]
-                                  delete proxy.replaces[oldFrom]
-                                }
-                              }
-                            "
-                          />
-                          <span flex-shrink-0>=></span>
-                          <n-input
-                            :value="String(toValue)"
-                            :placeholder="$gettext('Replacement content')"
-                            flex-1
-                            @update:value="(v: string) => (proxy.replaces[String(fromValue)] = v)"
-                          />
-                          <n-button
-                            type="error"
-                            secondary
-                            size="small"
-                            flex-shrink-0
-                            @click="delete proxy.replaces[String(fromValue)]"
-                          >
-                            {{ $gettext('Remove') }}
-                          </n-button>
-                        </n-flex>
-                        <n-button
-                          dashed
-                          size="small"
-                          @click="
-                            () => {
-                              if (!proxy.replaces) proxy.replaces = {}
-                              proxy.replaces[`/old_${Object.keys(proxy.replaces).length}`] = '/new'
-                            }
-                          "
-                        >
-                          {{ $gettext('Add Replacement Rule') }}
-                        </n-button>
-                      </n-flex>
+                      <key-value-editor
+                        v-model="proxy.replaces"
+                        :key-placeholder="$gettext('Original content')"
+                        :value-placeholder="$gettext('Replacement content')"
+                        :add-button-text="$gettext('Add Replacement Rule')"
+                        default-key-prefix="/old_"
+                        default-value="/new"
+                        separator="=>"
+                      />
                     </n-collapse-item>
 
                     <!-- 高级配置（仅 Nginx） -->
@@ -1412,7 +1143,11 @@ const removeCustomConfig = (index: number) => {
                         <n-form-item-gi :span="8" :label="$gettext('HTTP Version')">
                           <n-select
                             v-model:value="proxy.http_version"
-                            :options="httpVersionOptions"
+                            :options="[
+                              { label: 'HTTP/1.0', value: '1.0' },
+                              { label: 'HTTP/1.1', value: '1.1' },
+                              { label: 'HTTP/2', value: '2' }
+                            ]"
                             :placeholder="$gettext('Select HTTP version')"
                           />
                         </n-form-item-gi>
@@ -1437,7 +1172,11 @@ const removeCustomConfig = (index: number) => {
                               :value="
                                 parseSize(proxy.client_max_body_size || 1024 * 1024).unit || 'm'
                               "
-                              :options="sizeUnitOptions"
+                              :options="[
+                                { label: 'KB', value: 'k' },
+                                { label: 'MB', value: 'm' },
+                                { label: 'GB', value: 'g' }
+                              ]"
                               style="width: 80px"
                               @update:value="(v: string) => updateClientMaxBodySizeUnit(proxy, v)"
                             />
@@ -1558,7 +1297,18 @@ const removeCustomConfig = (index: number) => {
                           <n-form-item-gi :span="12" :label="$gettext('Retry Conditions')">
                             <n-select
                               v-model:value="proxy.retry.conditions"
-                              :options="retryConditionOptions"
+                              :options="[
+                                { label: 'error', value: 'error' },
+                                { label: 'timeout', value: 'timeout' },
+                                { label: 'invalid_header', value: 'invalid_header' },
+                                { label: 'http_500', value: 'http_500' },
+                                { label: 'http_502', value: 'http_502' },
+                                { label: 'http_503', value: 'http_503' },
+                                { label: 'http_504', value: 'http_504' },
+                                { label: 'http_429', value: 'http_429' },
+                                { label: 'non_idempotent', value: 'non_idempotent' },
+                                { label: 'off', value: 'off' }
+                              ]"
                               multiple
                               :placeholder="$gettext('Select retry conditions')"
                             />
@@ -1629,7 +1379,14 @@ const removeCustomConfig = (index: number) => {
                           <n-form-item-gi :span="12" :label="$gettext('Hide Headers')">
                             <n-select
                               v-model:value="proxy.response_headers.hide"
-                              :options="hideHeaderOptions"
+                              :options="[
+                                { label: 'X-Powered-By', value: 'X-Powered-By' },
+                                { label: 'Server', value: 'Server' },
+                                { label: 'X-AspNet-Version', value: 'X-AspNet-Version' },
+                                { label: 'X-AspNetMvc-Version', value: 'X-AspNetMvc-Version' },
+                                { label: 'X-Runtime', value: 'X-Runtime' },
+                                { label: 'X-Version', value: 'X-Version' }
+                              ]"
                               multiple
                               filterable
                               tag
@@ -1637,53 +1394,13 @@ const removeCustomConfig = (index: number) => {
                             />
                           </n-form-item-gi>
                           <n-form-item-gi :span="12" :label="$gettext('Add Headers')">
-                            <n-flex vertical :size="8" w-full>
-                              <n-flex
-                                v-for="(headerValue, headerName) in proxy.response_headers.add"
-                                :key="String(headerName)"
-                                :size="8"
-                                align="center"
-                              >
-                                <n-input
-                                  :value="String(headerName)"
-                                  :placeholder="$gettext('Header name')"
-                                  flex-1
-                                  @blur="
-                                    (e: FocusEvent) => {
-                                      const newName = (e.target as HTMLInputElement).value
-                                      const oldName = String(headerName)
-                                      if (newName && newName !== oldName) {
-                                        proxy.response_headers.add[newName] =
-                                          proxy.response_headers.add[oldName]
-                                        delete proxy.response_headers.add[oldName]
-                                      }
-                                    }
-                                  "
-                                />
-                                <span flex-shrink-0>=</span>
-                                <n-input
-                                  :value="String(headerValue)"
-                                  :placeholder="$gettext('Header value')"
-                                  flex-1
-                                  @update:value="
-                                    (v: string) =>
-                                      (proxy.response_headers.add[String(headerName)] = v)
-                                  "
-                                />
-                                <n-button
-                                  type="error"
-                                  secondary
-                                  size="small"
-                                  flex-shrink-0
-                                  @click="delete proxy.response_headers.add[String(headerName)]"
-                                >
-                                  {{ $gettext('Remove') }}
-                                </n-button>
-                              </n-flex>
-                              <n-button dashed size="small" @click="addResponseHeader(proxy)">
-                                {{ $gettext('Add Response Header') }}
-                              </n-button>
-                            </n-flex>
+                            <key-value-editor
+                              v-model="proxy.response_headers.add"
+                              :key-placeholder="$gettext('Header name')"
+                              :value-placeholder="$gettext('Header value')"
+                              :add-button-text="$gettext('Add Response Header')"
+                              default-key-prefix="X-Custom-Header"
+                            />
                           </n-form-item-gi>
                         </n-grid>
                       </template>
@@ -2046,7 +1763,14 @@ const removeCustomConfig = (index: number) => {
                 <n-form-item :label="$gettext('IP Header')">
                   <n-select
                     v-model:value="setting.real_ip.header"
-                    :options="realIPHeaderOptions"
+                    :options="[
+                      { label: 'X-Real-IP', value: 'X-Real-IP' },
+                      { label: 'X-Forwarded-For', value: 'X-Forwarded-For' },
+                      { label: 'CF-Connecting-IP', value: 'CF-Connecting-IP' },
+                      { label: 'True-Client-IP', value: 'True-Client-IP' },
+                      { label: 'Ali-Cdn-Real-Ip', value: 'Ali-Cdn-Real-Ip' },
+                      { label: 'EO-Connecting-IP', value: 'EO-Connecting-IP' }
+                    ]"
                     filterable
                     tag
                   />
@@ -2065,53 +1789,15 @@ const removeCustomConfig = (index: number) => {
           <n-card :title="$gettext('Basic Authentication')" mb-16>
             <n-form label-placement="left" label-width="140px">
               <n-form-item :label="$gettext('User Credentials')">
-                <n-flex vertical :size="8" w-full>
-                  <n-flex
-                    v-for="(password, username) in setting.basic_auth"
-                    :key="String(username)"
-                    :size="8"
-                    align="center"
-                  >
-                    <n-input
-                      :default-value="String(username)"
-                      :placeholder="$gettext('Username')"
-                      flex-1
-                      @change="
-                        (newUsername: string) => {
-                          const oldUsername = String(username)
-                          if (newUsername && newUsername !== oldUsername) {
-                            // 检查新用户名是否已存在
-                            if (setting.basic_auth[newUsername] !== undefined) {
-                              return
-                            }
-                            setting.basic_auth[newUsername] = setting.basic_auth[oldUsername]
-                            delete setting.basic_auth[oldUsername]
-                          }
-                        }
-                      "
-                    />
-                    <n-input
-                      :value="String(password)"
-                      type="password"
-                      show-password-on="click"
-                      :placeholder="$gettext('Password')"
-                      flex-1
-                      @update:value="(v: string) => (setting.basic_auth[String(username)] = v)"
-                    />
-                    <n-button
-                      type="error"
-                      secondary
-                      size="small"
-                      flex-shrink-0
-                      @click="removeBasicAuthUser(String(username))"
-                    >
-                      {{ $gettext('Remove') }}
-                    </n-button>
-                  </n-flex>
-                  <n-button dashed size="small" @click="addBasicAuthUser">
-                    {{ $gettext('Add User') }}
-                  </n-button>
-                </n-flex>
+                <key-value-editor
+                  v-model="setting.basic_auth"
+                  :key-placeholder="$gettext('Username')"
+                  :value-placeholder="$gettext('Password')"
+                  :add-button-text="$gettext('Add User')"
+                  default-key-prefix="user"
+                  value-type="password"
+                  :show-password-toggle="true"
+                />
               </n-form-item>
             </n-form>
             <n-alert v-if="Object.keys(setting.basic_auth || {}).length > 0" type="info">
@@ -2156,7 +1842,13 @@ const removeCustomConfig = (index: number) => {
                       />
                     </n-form-item-gi>
                     <n-form-item-gi :span="12" :label="$gettext('Scope')">
-                      <n-select v-model:value="config.scope" :options="scopeOptions" />
+                      <n-select
+                        v-model:value="config.scope"
+                        :options="[
+                          { label: $gettext('This Website'), value: 'site' },
+                          { label: $gettext('Global'), value: 'shared' }
+                        ]"
+                      />
                     </n-form-item-gi>
                   </n-grid>
                   <n-form-item :label="$gettext('Content')">
