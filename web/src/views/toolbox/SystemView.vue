@@ -30,6 +30,14 @@ const editingNtpServers = ref<string[]>([])
 
 const dnsManager = ref('')
 
+// loading 状态
+const dnsLoading = ref(false)
+const swapLoading = ref(false)
+const hostLoading = ref(false)
+const timeLoading = ref(false)
+const syncTimeLoading = ref(false)
+const ntpLoading = ref(false)
+
 useRequest(system.dns()).onSuccess(({ data }) => {
   dns1.value = data.dns?.[0] ?? ''
   dns2.value = data.dns?.[1] ?? ''
@@ -58,39 +66,64 @@ useRequest(system.ntpServers()).onSuccess(({ data }) => {
 })
 
 const handleUpdateDNS = () => {
-  useRequest(system.updateDns(dns1.value, dns2.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  dnsLoading.value = true
+  useRequest(system.updateDns(dns1.value, dns2.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      dnsLoading.value = false
+    })
 }
 
 const handleUpdateSwap = () => {
-  useRequest(system.updateSwap(swap.value)).onSuccess(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  swapLoading.value = true
+  useRequest(system.updateSwap(swap.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      swapLoading.value = false
+    })
 }
 
-const handleUpdateHost = async () => {
-  await Promise.all([
+const handleUpdateHost = () => {
+  hostLoading.value = true
+  Promise.all([
     useRequest(system.updateHostname(hostname.value)),
     useRequest(system.updateHosts(hosts.value))
-  ]).then(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  ])
+    .then(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .finally(() => {
+      hostLoading.value = false
+    })
 }
 
-const handleUpdateTime = async () => {
-  await Promise.all([
+const handleUpdateTime = () => {
+  timeLoading.value = true
+  Promise.all([
     useRequest(system.updateTime(String(DateTime.fromMillis(time.value).toISO()))),
     useRequest(system.updateTimezone(timezone.value))
-  ]).then(() => {
-    window.$message.success($gettext('Saved successfully'))
-  })
+  ])
+    .then(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .finally(() => {
+      timeLoading.value = false
+    })
 }
 
 const handleSyncTime = () => {
-  useRequest(system.syncTime(syncServer.value || undefined)).onSuccess(() => {
-    window.$message.success($gettext('Synchronized successfully'))
-  })
+  syncTimeLoading.value = true
+  useRequest(system.syncTime(syncServer.value || undefined))
+    .onSuccess(() => {
+      window.$message.success($gettext('Synchronized successfully'))
+    })
+    .onComplete(() => {
+      syncTimeLoading.value = false
+    })
 }
 
 const handleOpenNtpSettings = () => {
@@ -117,11 +150,16 @@ const handleSaveNtpServers = () => {
     window.$message.error($gettext('At least one NTP server is required'))
     return
   }
-  useRequest(system.updateNtpServers(servers)).onSuccess(() => {
-    ntpServers.value = servers
-    showNtpModal.value = false
-    window.$message.success($gettext('Saved successfully'))
-  })
+  ntpLoading.value = true
+  useRequest(system.updateNtpServers(servers))
+    .onSuccess(() => {
+      ntpServers.value = servers
+      showNtpModal.value = false
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      ntpLoading.value = false
+    })
 }
 </script>
 
@@ -148,7 +186,7 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" @click="handleUpdateDNS">
+          <n-button type="primary" :loading="dnsLoading" :disabled="dnsLoading" @click="handleUpdateDNS">
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -172,7 +210,7 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" @click="handleUpdateSwap">
+          <n-button type="primary" :loading="swapLoading" :disabled="swapLoading" @click="handleUpdateSwap">
             {{ $gettext('Save') }}
           </n-button>
         </n-flex>
@@ -190,7 +228,7 @@ const handleSaveNtpServers = () => {
           <common-editor v-model:value="hosts" height="60vh" />
         </n-form-item>
       </n-form>
-      <n-button type="primary" @click="handleUpdateHost">
+      <n-button type="primary" :loading="hostLoading" :disabled="hostLoading" @click="handleUpdateHost">
         {{ $gettext('Save') }}
       </n-button>
     </n-tab-pane>
@@ -228,10 +266,10 @@ const handleSaveNtpServers = () => {
           </n-form-item>
         </n-form>
         <n-flex>
-          <n-button type="primary" @click="handleUpdateTime">
+          <n-button type="primary" :loading="timeLoading" :disabled="timeLoading" @click="handleUpdateTime">
             {{ $gettext('Save') }}
           </n-button>
-          <n-button type="info" @click="handleSyncTime">
+          <n-button type="info" :loading="syncTimeLoading" :disabled="syncTimeLoading" @click="handleSyncTime">
             {{ $gettext('Synchronize Time') }}
           </n-button>
         </n-flex>
@@ -300,7 +338,7 @@ const handleSaveNtpServers = () => {
             {{ $gettext('Reset to Default') }}
           </n-button>
         </n-flex>
-        <n-button type="primary" @click="handleSaveNtpServers">
+        <n-button type="primary" :loading="ntpLoading" :disabled="ntpLoading" @click="handleSaveNtpServers">
           {{ $gettext('Save') }}
         </n-button>
       </n-flex>
