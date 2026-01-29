@@ -1762,7 +1762,7 @@ msgstr ""
 msgid "failed to get redis status: %v"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:125
+#: internal/apps/s3fs/app.go:127
 #: internal/apps/s3fs/app.go:40
 #: internal/apps/s3fs/app.go:80
 msgid "failed to get s3fs list: %v"
@@ -2010,7 +2010,7 @@ msgstr ""
 msgid "failed to umount partition: %v"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:145
+#: internal/apps/s3fs/app.go:147
 msgid "failed to unmount: %v"
 msgstr ""
 
@@ -2160,11 +2160,11 @@ msgstr ""
 msgid "module %s does not exist"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:108
+#: internal/apps/s3fs/app.go:110
 msgid "mount failed: %v"
 msgstr ""
 
-#: internal/apps/s3fs/app.go:137
+#: internal/apps/s3fs/app.go:139
 msgid "mount not found"
 msgstr ""
 
