@@ -12,6 +12,38 @@ import (
 	"github.com/samber/lo"
 )
 
+// parseDurationToSeconds 将时长字符串转换为秒数
+// 支持格式: "10s", "5m", "1h", "1d"
+func parseDurationToSeconds(duration string) int {
+	duration = strings.TrimSpace(duration)
+	if duration == "" {
+		return 600 // 默认 10 分钟
+	}
+
+	// 提取数字和单位
+	re := regexp.MustCompile(`^(\d+)([smhd]?)$`)
+	matches := re.FindStringSubmatch(duration)
+	if matches == nil {
+		return 600
+	}
+
+	value, _ := strconv.Atoi(matches[1])
+	unit := matches[2]
+
+	switch unit {
+	case "s", "":
+		return value
+	case "m":
+		return value * 60
+	case "h":
+		return value * 3600
+	case "d":
+		return value * 86400
+	default:
+		return value
+	}
+}
+
 // proxyFilePattern 匹配代理配置文件名 (200-299)
 var proxyFilePattern = regexp.MustCompile(`^(\d{3})-proxy\.conf$`)
 
@@ -104,7 +136,24 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 
 	// 解析 CacheEnable
 	if regexp.MustCompile(`CacheEnable`).MatchString(contentStr) {
-		proxy.Cache = true
+		proxy.Cache = &types.CacheConfig{
+			Valid:             make(map[string]string),
+			NoCacheConditions: []string{},
+			UseStale:          []string{},
+			Methods:           []string{},
+		}
+
+		// 解析 CacheDefaultExpire
+		expirePattern := regexp.MustCompile(`CacheDefaultExpire\s+(\d+)`)
+		if em := expirePattern.FindStringSubmatch(contentStr); em != nil {
+			seconds, _ := strconv.Atoi(em[1])
+			minutes := seconds / 60
+			if minutes > 0 {
+				proxy.Cache.Valid["any"] = fmt.Sprintf("%dm", minutes)
+			} else {
+				proxy.Cache.Valid["any"] = fmt.Sprintf("%ds", seconds)
+			}
+		}
 	}
 
 	// 解析 Substitute (响应内容替换)
@@ -243,10 +292,20 @@ func generateProxyConfig(proxy types.Proxy) string {
 	}
 
 	// Cache 配置
-	if proxy.Cache {
+	if proxy.Cache != nil {
 		sb.WriteString("    <IfModule mod_cache.c>\n")
 		sb.WriteString(fmt.Sprintf("        CacheEnable disk %s\n", location))
-		sb.WriteString("        CacheDefaultExpire 600\n")
+
+		// 从 Valid 中获取默认过期时间
+		expireSeconds := 600 // 默认 10 分钟
+		if len(proxy.Cache.Valid) > 0 {
+			// 取第一个值作为默认过期时间
+			for _, duration := range proxy.Cache.Valid {
+				expireSeconds = parseDurationToSeconds(duration)
+				break
+			}
+		}
+		sb.WriteString(fmt.Sprintf("        CacheDefaultExpire %d\n", expireSeconds))
 		sb.WriteString("    </IfModule>\n")
 	}
 
