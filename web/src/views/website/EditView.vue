@@ -377,7 +377,6 @@ const isCacheEnabled = (proxy: any) => {
 const addCacheValidRule = (proxy: any) => {
   if (!proxy.cache) return
   if (!proxy.cache.valid) proxy.cache.valid = {}
-  const index = Object.keys(proxy.cache.valid).length + 1
   proxy.cache.valid[`any`] = '5m'
 }
 
@@ -1464,7 +1463,8 @@ const removeCustomConfig = (index: number) => {
                                 :min="1"
                                 flex-1
                                 @update:value="
-                                  (v: number | null) => updateProxyTimeoutValue(proxy, 'connect', v ?? 1)
+                                  (v: number | null) =>
+                                    updateProxyTimeoutValue(proxy, 'connect', v ?? 1)
                                 "
                               />
                               <n-select
@@ -1484,7 +1484,8 @@ const removeCustomConfig = (index: number) => {
                                 :min="1"
                                 flex-1
                                 @update:value="
-                                  (v: number | null) => updateProxyTimeoutValue(proxy, 'read', v ?? 1)
+                                  (v: number | null) =>
+                                    updateProxyTimeoutValue(proxy, 'read', v ?? 1)
                                 "
                               />
                               <n-select
@@ -1504,7 +1505,8 @@ const removeCustomConfig = (index: number) => {
                                 :min="1"
                                 flex-1
                                 @update:value="
-                                  (v: number | null) => updateProxyTimeoutValue(proxy, 'send', v ?? 1)
+                                  (v: number | null) =>
+                                    updateProxyTimeoutValue(proxy, 'send', v ?? 1)
                                 "
                               />
                               <n-select
