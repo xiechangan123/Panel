@@ -12,13 +12,15 @@ const toHome = () => {
 </script>
 
 <template>
-  <div class="f-c-c h-60 cursor-pointer" @click="toHome">
-    <n-image :src="logo" preview-disabled class="h-36" />
-    <h2
-      v-show="!themeStore.sider.collapsed"
-      class="text-18 font-bold ml-10 flex-shrink-0 max-w-140"
-    >
+  <div class="px-12 f-c-c h-60 cursor-pointer" @click="toHome">
+    <n-image :src="logo" preview-disabled class="flex-shrink-0 h-36" />
+    <n-tooltip v-if="!themeStore.sider.collapsed" trigger="hover" :delay="500">
+      <template #trigger>
+        <h2 class="text-18 font-bold ml-10 max-w-140 truncate">
+          {{ themeStore.name }}
+        </h2>
+      </template>
       {{ themeStore.name }}
-    </h2>
+    </n-tooltip>
   </div>
 </template>
