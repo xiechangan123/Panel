@@ -330,7 +330,7 @@ const addProxy = () => {
     pass: 'http://127.0.0.1:8080',
     host: '$host',
     sni: '',
-    cache: false,
+    cache: null, // null 表示禁用缓存
     buffering: true,
     resolver: [],
     resolver_timeout: 5 * 1000000000, // 5秒，以纳秒为单位
@@ -338,6 +338,75 @@ const addProxy = () => {
     replaces: {}
   })
 }
+
+// ========== 缓存配置相关 ==========
+// 创建默认缓存配置
+const createDefaultCacheConfig = () => ({
+  valid: { '200 302': '10m', '404': '1m' },
+  no_cache_conditions: [],
+  use_stale: [],
+  background_update: false,
+  lock: false,
+  min_uses: 0,
+  methods: [],
+  key: ''
+})
+
+// 切换缓存启用状态
+const toggleProxyCache = (proxy: any, enabled: boolean) => {
+  if (enabled) {
+    proxy.cache = createDefaultCacheConfig()
+  } else {
+    proxy.cache = null
+  }
+}
+
+// 判断缓存是否启用
+const isCacheEnabled = (proxy: any) => {
+  return proxy.cache !== null && proxy.cache !== undefined
+}
+
+// 添加缓存有效期规则
+const addCacheValidRule = (proxy: any) => {
+  if (!proxy.cache) return
+  if (!proxy.cache.valid) proxy.cache.valid = {}
+  const index = Object.keys(proxy.cache.valid).length + 1
+  proxy.cache.valid[`any`] = '5m'
+}
+
+// 删除缓存有效期规则
+const removeCacheValidRule = (proxy: any, codes: string) => {
+  if (proxy.cache?.valid) {
+    delete proxy.cache.valid[codes]
+  }
+}
+
+// 不缓存条件选项
+const noCacheConditionOptions = [
+  { label: '$cookie_nocache', value: '$cookie_nocache' },
+  { label: '$arg_nocache', value: '$arg_nocache' },
+  { label: '$http_pragma', value: '$http_pragma' },
+  { label: '$http_authorization', value: '$http_authorization' },
+  { label: '$http_cache_control', value: '$http_cache_control' }
+]
+
+// 过期缓存使用策略选项
+const useStaleOptions = [
+  { label: 'error', value: 'error' },
+  { label: 'timeout', value: 'timeout' },
+  { label: 'updating', value: 'updating' },
+  { label: 'http_500', value: 'http_500' },
+  { label: 'http_502', value: 'http_502' },
+  { label: 'http_503', value: 'http_503' },
+  { label: 'http_504', value: 'http_504' }
+]
+
+// 缓存方法选项
+const cacheMethodOptions = [
+  { label: 'GET', value: 'GET' },
+  { label: 'HEAD', value: 'HEAD' },
+  { label: 'POST', value: 'POST' }
+]
 
 // 删除代理
 const removeProxy = (index: number) => {
@@ -860,7 +929,10 @@ const removeCustomConfig = (index: number) => {
                       />
                     </n-form-item-gi>
                     <n-form-item-gi :span="6" :label="$gettext('Enable Cache')">
-                      <n-switch v-model:value="proxy.cache" />
+                      <n-switch
+                        :value="isCacheEnabled(proxy)"
+                        @update:value="(v: boolean) => toggleProxyCache(proxy, v)"
+                      />
                     </n-form-item-gi>
                     <n-form-item-gi :span="6" :label="$gettext('Enable Buffering')">
                       <n-switch v-model:value="proxy.buffering" />
@@ -893,6 +965,117 @@ const removeCustomConfig = (index: number) => {
                       </n-input-group>
                     </n-form-item-gi>
                   </n-grid>
+                  <!-- 缓存配置详情 -->
+                  <template v-if="isNginx && isCacheEnabled(proxy)">
+                    <n-divider>{{ $gettext('Cache Settings') }}</n-divider>
+                    <n-grid :cols="24" :x-gap="16">
+                      <!-- 缓存有效期 -->
+                      <n-form-item-gi :span="24" :label="$gettext('Cache Valid')">
+                        <n-flex vertical :size="8" w-full>
+                          <n-flex
+                            v-for="(duration, codes) in proxy.cache?.valid"
+                            :key="String(codes)"
+                            :size="8"
+                            align="center"
+                          >
+                            <n-input
+                              :value="String(codes)"
+                              :placeholder="$gettext('Status codes, e.g., 200 302 or any')"
+                              flex-1
+                              @blur="
+                                (e: FocusEvent) => {
+                                  const newCodes = (e.target as HTMLInputElement).value
+                                  const oldCodes = String(codes)
+                                  if (newCodes && newCodes !== oldCodes && proxy.cache?.valid) {
+                                    proxy.cache.valid[newCodes] = proxy.cache.valid[oldCodes]
+                                    delete proxy.cache.valid[oldCodes]
+                                  }
+                                }
+                              "
+                            />
+                            <span flex-shrink-0>=</span>
+                            <n-input
+                              :value="String(duration)"
+                              :placeholder="$gettext('Duration, e.g., 10m, 1h, 1d')"
+                              style="width: 120px"
+                              @update:value="
+                                (v: string) => {
+                                  if (proxy.cache?.valid) proxy.cache.valid[String(codes)] = v
+                                }
+                              "
+                            />
+                            <n-button
+                              type="error"
+                              secondary
+                              size="small"
+                              flex-shrink-0
+                              @click="removeCacheValidRule(proxy, String(codes))"
+                            >
+                              {{ $gettext('Remove') }}
+                            </n-button>
+                          </n-flex>
+                          <n-button dashed size="small" @click="addCacheValidRule(proxy)">
+                            {{ $gettext('Add Cache Valid Rule') }}
+                          </n-button>
+                        </n-flex>
+                      </n-form-item-gi>
+                      <!-- 不缓存条件 -->
+                      <n-form-item-gi :span="12" :label="$gettext('No Cache Conditions')">
+                        <n-select
+                          v-model:value="proxy.cache.no_cache_conditions"
+                          :options="noCacheConditionOptions"
+                          multiple
+                          filterable
+                          tag
+                          :placeholder="$gettext('Select or enter conditions')"
+                        />
+                      </n-form-item-gi>
+                      <!-- 过期缓存使用策略 -->
+                      <n-form-item-gi :span="12" :label="$gettext('Use Stale')">
+                        <n-select
+                          v-model:value="proxy.cache.use_stale"
+                          :options="useStaleOptions"
+                          multiple
+                          :placeholder="$gettext('When to use stale cache')"
+                        />
+                      </n-form-item-gi>
+                      <!-- 后台更新 -->
+                      <n-form-item-gi :span="6" :label="$gettext('Background Update')">
+                        <n-switch v-model:value="proxy.cache.background_update" />
+                      </n-form-item-gi>
+                      <!-- 缓存锁 -->
+                      <n-form-item-gi :span="6" :label="$gettext('Cache Lock')">
+                        <n-switch v-model:value="proxy.cache.lock" />
+                      </n-form-item-gi>
+                      <!-- 最小请求次数 -->
+                      <n-form-item-gi :span="6" :label="$gettext('Min Uses')">
+                        <n-input-number
+                          v-model:value="proxy.cache.min_uses"
+                          :min="0"
+                          :max="100"
+                          w-full
+                        />
+                      </n-form-item-gi>
+                      <!-- 缓存方法 -->
+                      <n-form-item-gi :span="6" :label="$gettext('Cache Methods')">
+                        <n-select
+                          v-model:value="proxy.cache.methods"
+                          :options="cacheMethodOptions"
+                          multiple
+                          :placeholder="$gettext('Default: GET HEAD')"
+                        />
+                      </n-form-item-gi>
+                      <!-- 自定义缓存键 -->
+                      <n-form-item-gi :span="24" :label="$gettext('Cache Key')">
+                        <n-input
+                          v-model:value="proxy.cache.key"
+                          :placeholder="
+                            $gettext('Custom cache key, e.g., $scheme$host$request_uri')
+                          "
+                        />
+                      </n-form-item-gi>
+                    </n-grid>
+                  </template>
                   <n-divider>{{ $gettext('Custom Request Headers') }}</n-divider>
                   <n-flex vertical :size="8">
                     <n-flex
