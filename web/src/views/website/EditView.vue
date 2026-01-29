@@ -734,7 +734,7 @@ const removeCustomConfig = (index: number) => {
                   <n-input v-model:value="value.address" clearable />
                   <n-checkbox
                     :checked="hasArg(value.args, 'ssl')"
-                    @update:checked="(checked) => toggleArg(value.args, 'ssl', checked)"
+                    @update:checked="(checked: boolean) => toggleArg(value.args, 'ssl', checked)"
                     ml-20
                     mr-20
                     w-120
@@ -744,7 +744,7 @@ const removeCustomConfig = (index: number) => {
                   <n-checkbox
                     v-if="isNginx"
                     :checked="hasArg(value.args, 'quic')"
-                    @update:checked="(checked) => toggleArg(value.args, 'quic', checked)"
+                    @update:checked="(checked: boolean) => toggleArg(value.args, 'quic', checked)"
                     w-200
                   >
                     QUIC(HTTP3)

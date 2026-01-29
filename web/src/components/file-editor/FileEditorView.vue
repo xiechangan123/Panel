@@ -149,13 +149,13 @@ defineExpose({
               v-model:value="editorStore.settings.tabSize"
               :min="1"
               :max="8"
-              @update:value="(v) => editorStore.updateSettings({ tabSize: v || 4 })"
+              @update:value="(v: number | null) => editorStore.updateSettings({ tabSize: v || 4 })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Use Spaces')">
             <n-switch
               :value="editorStore.settings.insertSpaces"
-              @update:value="(v) => editorStore.updateSettings({ insertSpaces: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ insertSpaces: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Font Size')">
@@ -163,7 +163,7 @@ defineExpose({
               v-model:value="editorStore.settings.fontSize"
               :min="10"
               :max="24"
-              @update:value="(v) => editorStore.updateSettings({ fontSize: v || 14 })"
+              @update:value="(v: number | null) => editorStore.updateSettings({ fontSize: v || 14 })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Word Wrap')">
@@ -175,13 +175,13 @@ defineExpose({
                 { label: $gettext('Word Wrap Column'), value: 'wordWrapColumn' },
                 { label: $gettext('Bounded'), value: 'bounded' }
               ]"
-              @update:value="(v) => editorStore.updateSettings({ wordWrap: v })"
+              @update:value="(v: 'on' | 'off' | 'wordWrapColumn' | 'bounded') => editorStore.updateSettings({ wordWrap: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Show Minimap')">
             <n-switch
               :value="editorStore.settings.minimap"
-              @update:value="(v) => editorStore.updateSettings({ minimap: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ minimap: v })"
             />
           </n-form-item>
 
@@ -197,7 +197,7 @@ defineExpose({
                 { label: $gettext('Relative'), value: 'relative' },
                 { label: $gettext('Interval'), value: 'interval' }
               ]"
-              @update:value="(v) => editorStore.updateSettings({ lineNumbers: v })"
+              @update:value="(v: 'on' | 'off' | 'relative' | 'interval') => editorStore.updateSettings({ lineNumbers: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Render Whitespace')">
@@ -210,25 +210,25 @@ defineExpose({
                 { label: $gettext('Trailing'), value: 'trailing' },
                 { label: $gettext('All'), value: 'all' }
               ]"
-              @update:value="(v) => editorStore.updateSettings({ renderWhitespace: v })"
+              @update:value="(v: 'none' | 'boundary' | 'selection' | 'trailing' | 'all') => editorStore.updateSettings({ renderWhitespace: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Bracket Colorization')">
             <n-switch
               :value="editorStore.settings.bracketPairColorization"
-              @update:value="(v) => editorStore.updateSettings({ bracketPairColorization: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ bracketPairColorization: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Indent Guides')">
             <n-switch
               :value="editorStore.settings.guides"
-              @update:value="(v) => editorStore.updateSettings({ guides: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ guides: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Code Folding')">
             <n-switch
               :value="editorStore.settings.folding"
-              @update:value="(v) => editorStore.updateSettings({ folding: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ folding: v })"
             />
           </n-form-item>
 
@@ -246,7 +246,7 @@ defineExpose({
                 { label: $gettext('Block Outline'), value: 'block-outline' },
                 { label: $gettext('Underline Thin'), value: 'underline-thin' }
               ]"
-              @update:value="(v) => editorStore.updateSettings({ cursorStyle: v })"
+              @update:value="(v: 'line' | 'block' | 'underline' | 'line-thin' | 'block-outline' | 'underline-thin') => editorStore.updateSettings({ cursorStyle: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Cursor Blinking')">
@@ -259,13 +259,13 @@ defineExpose({
                 { label: $gettext('Expand'), value: 'expand' },
                 { label: $gettext('Solid'), value: 'solid' }
               ]"
-              @update:value="(v) => editorStore.updateSettings({ cursorBlinking: v })"
+              @update:value="(v: 'blink' | 'smooth' | 'phase' | 'expand' | 'solid') => editorStore.updateSettings({ cursorBlinking: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Smooth Scrolling')">
             <n-switch
               :value="editorStore.settings.smoothScrolling"
-              @update:value="(v) => editorStore.updateSettings({ smoothScrolling: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ smoothScrolling: v })"
             />
           </n-form-item>
 
@@ -275,19 +275,19 @@ defineExpose({
           <n-form-item :label="$gettext('Mouse Wheel Zoom')">
             <n-switch
               :value="editorStore.settings.mouseWheelZoom"
-              @update:value="(v) => editorStore.updateSettings({ mouseWheelZoom: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ mouseWheelZoom: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Format On Paste')">
             <n-switch
               :value="editorStore.settings.formatOnPaste"
-              @update:value="(v) => editorStore.updateSettings({ formatOnPaste: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ formatOnPaste: v })"
             />
           </n-form-item>
           <n-form-item :label="$gettext('Format On Type')">
             <n-switch
               :value="editorStore.settings.formatOnType"
-              @update:value="(v) => editorStore.updateSettings({ formatOnType: v })"
+              @update:value="(v: boolean) => editorStore.updateSettings({ formatOnType: v })"
             />
           </n-form-item>
         </n-form>
