@@ -411,10 +411,7 @@ const useStaleOptions = [
 const cacheMethodOptions = [
   { label: 'GET', value: 'GET' },
   { label: 'HEAD', value: 'HEAD' },
-  { label: 'POST', value: 'POST' },
-  { label: 'PUT', value: 'PUT' },
-  { label: 'PATCH', value: 'PATCH' },
-  { label: 'DELETE', value: 'DELETE' }
+  { label: 'POST', value: 'POST' }
 ]
 
 // HTTP 协议版本选项
