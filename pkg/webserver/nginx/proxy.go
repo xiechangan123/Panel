@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
@@ -95,9 +97,7 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		host := strings.TrimSpace(hm[1])
 		// 移除引号
 		host = strings.Trim(host, `"'`)
-		if host != "$host" && host != "$http_host" {
-			proxy.Host = host
-		}
+		proxy.Host = host
 	}
 
 	// 解析 proxy_ssl_name (SNI)
@@ -247,11 +247,10 @@ func generateProxyConfig(proxy types.Proxy) string {
 	sb.WriteString("    proxy_http_version 1.1;\n")
 
 	// Host 头
-	if proxy.Host != "" {
-		sb.WriteString(fmt.Sprintf("    proxy_set_header Host \"%s\";\n", proxy.Host))
-	} else {
-		sb.WriteString("    proxy_set_header Host $proxy_host;\n")
-	}
+	host := lo.If(proxy.Host == "" || proxy.Host == "$proxy_host", "$proxy_host").ElseF(func() string {
+		return lo.If(strings.HasPrefix(proxy.Host, "$"), proxy.Host).Else("\"" + proxy.Host + "\"")
+	})
+	sb.WriteString(fmt.Sprintf("    proxy_set_header Host %s;\n", host))
 
 	// 标准代理头
 	sb.WriteString("    proxy_set_header X-Real-IP $remote_addr;\n")
@@ -266,19 +265,11 @@ func generateProxyConfig(proxy types.Proxy) string {
 		sb.WriteString("    proxy_ssl_protocols TLSv1.2 TLSv1.3;\n")
 		sb.WriteString("    proxy_ssl_session_reuse off;\n")
 		sb.WriteString("    proxy_ssl_server_name on;\n")
-		if proxy.SNI != "" {
-			sb.WriteString(fmt.Sprintf("    proxy_ssl_name %s;\n", proxy.SNI))
-		} else {
-			sb.WriteString("    proxy_ssl_name $proxy_host;\n")
-		}
+		sb.WriteString(fmt.Sprintf("    proxy_ssl_name %s;\n", lo.If(proxy.SNI != "", proxy.SNI).Else("$proxy_host")))
 	}
 
 	// Buffering 配置
-	if proxy.Buffering {
-		sb.WriteString("    proxy_buffering on;\n")
-	} else {
-		sb.WriteString("    proxy_buffering off;\n")
-	}
+	sb.WriteString(fmt.Sprintf("    proxy_buffering %s;\n", lo.If(proxy.Buffering, "on").Else("off")))
 
 	// Cache 配置
 	if proxy.Cache {
@@ -288,15 +279,8 @@ func generateProxyConfig(proxy types.Proxy) string {
 	}
 
 	// 自定义请求头
-	if len(proxy.Headers) > 0 {
-		for name, value := range proxy.Headers {
-			// 变量值不加引号
-			if strings.HasPrefix(value, "$") {
-				sb.WriteString(fmt.Sprintf("    proxy_set_header %s %s;\n", name, value))
-			} else {
-				sb.WriteString(fmt.Sprintf("    proxy_set_header %s \"%s\";\n", name, value))
-			}
-		}
+	for name, value := range proxy.Headers {
+		sb.WriteString(fmt.Sprintf("    proxy_set_header %s %s;\n", name, lo.If(strings.HasPrefix(value, "$"), value).Else("\""+value+"\"")))
 	}
 
 	// 响应内容替换
