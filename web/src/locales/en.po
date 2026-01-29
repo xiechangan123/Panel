@@ -3639,7 +3639,7 @@ msgid "Image"
 msgstr "Image"
 
 #: src/views/container/ContainerCreate.vue:207
-msgid "e.g., nginx, mysql:8.0, your_username/your_image:tag"
+msgid "e.g., nginx, mysql:8.4, your_username/your_image:tag"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:211 src/views/home/IndexView.vue:147
