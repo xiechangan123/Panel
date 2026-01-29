@@ -402,7 +402,7 @@ const handleSave = async () => {
             <n-alert type="info" style="margin-bottom: 16px">
               {{
                 $gettext(
-                  'Configure service dependencies to control startup order. Common services: network.target, mysql.service, redis.service'
+                  'Configure service dependencies to control startup order. Common services: network.target, mysqld.service, postgresql.service, redis.service'
                 )
               }}
             </n-alert>
