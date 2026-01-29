@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/tufanbarisyildirim/gonginx/config"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
@@ -406,14 +407,7 @@ func (v *baseVhost) RemoveConfig(name string, typ string) error {
 
 func (v *baseVhost) SSL() bool {
 	directive, err := v.parser.FindOne("server.ssl_certificate")
-	if err != nil {
-		return false
-	}
-	if len(v.parser.parameters2Slices(directive.GetParameters())) == 0 {
-		return false
-	}
-
-	return true
+	return err == nil && len(v.parser.parameters2Slices(directive.GetParameters())) != 0
 }
 
 func (v *baseVhost) SSLConfig() *types.SSLConfig {
@@ -695,21 +689,14 @@ func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
 	_ = v.parser.Clear("server.auth_basic")
 	_ = v.parser.Clear("server.auth_basic_user_file")
 
-	realm := auth["realm"]
-	userFile := auth["user_file"]
-
-	if realm == "" {
-		realm = "Restricted"
-	}
-
 	return v.parser.Set("server", []*config.Directive{
 		{
 			Name:       "auth_basic",
-			Parameters: []config.Parameter{{Value: realm}},
+			Parameters: []config.Parameter{{Value: lo.If(auth["realm"] != "", auth["realm"]).Else("Restricted")}},
 		},
 		{
 			Name:       "auth_basic_user_file",
-			Parameters: []config.Parameter{{Value: userFile}},
+			Parameters: []config.Parameter{{Value: auth["user_file"]}},
 		},
 	})
 }

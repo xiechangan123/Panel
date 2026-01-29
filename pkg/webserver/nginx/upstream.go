@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
+	"github.com/samber/lo"
 )
 
 // upstreamFilePattern 匹配 upstream 配置文件名 (100-XXX-name.conf)
@@ -217,11 +218,7 @@ func generateUpstreamConfig(upstream types.Upstream) string {
 
 	// 服务器列表
 	for addr, options := range upstream.Servers {
-		if options != "" {
-			sb.WriteString(fmt.Sprintf("    server %s %s;\n", addr, options))
-		} else {
-			sb.WriteString(fmt.Sprintf("    server %s;\n", addr))
-		}
+		sb.WriteString(fmt.Sprintf("    server %s;\n", lo.If(options != "", addr+" "+options).Else(addr)))
 	}
 
 	// keepalive 连接数

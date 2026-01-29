@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
+	"github.com/samber/lo"
 )
 
 // proxyFilePattern 匹配代理配置文件名 (200-299)
@@ -222,11 +223,7 @@ func generateProxyConfig(proxy types.Proxy) string {
 	sb.WriteString(fmt.Sprintf("    ProxyPassReverse %s %s\n", location, proxy.Pass))
 
 	// Host 配置
-	if proxy.Host != "" {
-		sb.WriteString(fmt.Sprintf("    RequestHeader set Host \"%s\"\n", proxy.Host))
-	} else {
-		sb.WriteString("    ProxyPreserveHost On\n")
-	}
+	sb.WriteString(lo.If(proxy.Host != "", fmt.Sprintf("    RequestHeader set Host \"%s\"\n", proxy.Host)).Else("    ProxyPreserveHost On\n"))
 
 	// SSL/SNI 配置
 	if proxy.SNI != "" || strings.HasPrefix(proxy.Pass, "https://") {
@@ -424,19 +421,11 @@ func generateBalancerConfig(upstream types.Upstream) string {
 
 	// 服务器列表
 	for addr, options := range upstream.Servers {
-		if options != "" {
-			sb.WriteString(fmt.Sprintf("        BalancerMember %s %s\n", addr, options))
-		} else {
-			sb.WriteString(fmt.Sprintf("        BalancerMember %s\n", addr))
-		}
+		sb.WriteString(fmt.Sprintf("        BalancerMember %s\n", lo.If(options != "", addr+" "+options).Else(addr)))
 	}
 
 	// 负载均衡方法
-	lbMethod := "byrequests" // 默认轮询
-	if upstream.Algo != "" {
-		lbMethod = upstream.Algo
-	}
-	sb.WriteString(fmt.Sprintf("        ProxySet lbmethod=%s\n", lbMethod))
+	sb.WriteString(fmt.Sprintf("        ProxySet lbmethod=%s\n", lo.If(upstream.Algo != "", upstream.Algo).Else("byrequests")))
 
 	// 连接池配置
 	if upstream.Keepalive > 0 {

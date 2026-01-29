@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/acepanel/panel/pkg/webserver/types"
+	"github.com/samber/lo"
 )
 
 // StaticVhost 纯静态虚拟主机
@@ -584,16 +585,9 @@ func (v *baseVhost) BasicAuth() map[string]string {
 }
 
 func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
-	realm := auth["realm"]
-	userFile := auth["user_file"]
-
-	if realm == "" {
-		realm = "Restricted"
-	}
-
 	v.vhost.SetDirective("AuthType", "Basic")
-	v.vhost.SetDirective("AuthName", fmt.Sprintf(`"%s"`, realm))
-	v.vhost.SetDirective("AuthUserFile", userFile)
+	v.vhost.SetDirective("AuthName", fmt.Sprintf(`"%s"`, lo.If(auth["realm"] != "", auth["realm"]).Else("Restricted")))
+	v.vhost.SetDirective("AuthUserFile", auth["user_file"])
 	v.vhost.SetDirective("Require", "valid-user")
 
 	return nil
