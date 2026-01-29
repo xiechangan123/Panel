@@ -204,7 +204,7 @@ watch(show, (val) => {
               v-model:value="createModel.image"
               type="text"
               @keydown.enter.prevent
-              :placeholder="$gettext('e.g., nginx:latest, mysql:8.0')"
+              :placeholder="$gettext('e.g., nginx, mysql:8.0, your_username/your_image:tag')"
             />
           </n-form-item>
 

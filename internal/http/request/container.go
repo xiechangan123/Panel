@@ -12,7 +12,7 @@ type ContainerRename struct {
 }
 
 type ContainerCreate struct {
-	Name            string                           `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
+	Name            string                           `form:"name" json:"name"`
 	Image           string                           `form:"image" json:"image" validate:"required"`
 	Ports           []types.ContainerPort            `form:"ports" json:"ports"`
 	Network         string                           `form:"network" json:"network"`
