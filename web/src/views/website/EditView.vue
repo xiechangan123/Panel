@@ -342,7 +342,7 @@ const addProxy = () => {
 // ========== 缓存配置相关 ==========
 // 创建默认缓存配置
 const createDefaultCacheConfig = () => ({
-  valid: { '200 302': '10m', '404': '1m' },
+  valid: { '200 302': '10m', '404': '10s' },
   no_cache_conditions: [],
   use_stale: [],
   background_update: false,

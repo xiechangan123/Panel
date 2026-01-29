@@ -350,7 +350,7 @@ func generateProxyConfig(proxy types.Proxy) string {
 		} else {
 			// 默认缓存时长
 			sb.WriteString("    proxy_cache_valid 200 302 10m;\n")
-			sb.WriteString("    proxy_cache_valid 404 1m;\n")
+			sb.WriteString("    proxy_cache_valid 404 10s;\n")
 		}
 
 		// 不缓存条件
