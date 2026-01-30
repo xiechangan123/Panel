@@ -30,7 +30,7 @@ const year = new Date().getFullYear()
       <a
         hover="decoration-primary color-primary"
         target="_blank"
-        href="https://tom.moe/c/technical/panel"
+        href="https://tom.moe/c/technical/acepanel"
       >
         {{ $gettext('Community') }}
       </a>
