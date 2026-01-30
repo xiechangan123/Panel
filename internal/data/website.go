@@ -1202,10 +1202,10 @@ func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		// htpasswd 格式: username:password
+		// htpasswd 格式: username:{PLAIN}password或直接username:password
 		parts := strings.SplitN(line, ":", 2)
 		if len(parts) == 2 {
-			users[parts[0]] = parts[1]
+			users[parts[0]] = strings.TrimPrefix(parts[1], "{PLAIN}")
 		}
 	}
 
@@ -1217,12 +1217,24 @@ func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 
 // writeBasicAuthUsers 将用户凭证写入 htpasswd 文件
 func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]string) error {
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver, "unknown")
+	if err != nil {
+		return err
+	}
+
 	var lines []string
 	for username, password := range users {
 		if username == "" || password == "" {
 			continue
 		}
-		lines = append(lines, fmt.Sprintf("%s:%s", username, password))
+		switch webServer {
+		case "nginx":
+			lines = append(lines, fmt.Sprintf("%s:%s", username, "{PLAIN}"+password))
+		case "apache":
+			lines = append(lines, fmt.Sprintf("%s:%s", username, password))
+		default:
+			return errors.New(r.t.Get("unsupported web server: %s", webServer))
+		}
 	}
 
 	content := strings.Join(lines, "\n")
