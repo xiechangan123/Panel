@@ -25,7 +25,7 @@ msgstr ""
 #: src/views/cert/CertView.vue:541
 #: src/views/cert/CreateCertModal.vue:90
 #: src/views/home/IndexView.vue:449
-#: src/views/task/CreateModal.vue:155
+#: src/views/task/CreateModal.vue:158
 msgid "Website"
 msgstr ""
 
@@ -39,37 +39,37 @@ msgstr ""
 
 #: src/components/common/CronPreview.vue:15
 #: src/components/common/CronPreview.vue:22
-#: src/components/common/CronSelector.vue:49
+#: src/components/common/CronSelector.vue:142
 msgid "Sunday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:16
-#: src/components/common/CronSelector.vue:50
+#: src/components/common/CronSelector.vue:143
 msgid "Monday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:17
-#: src/components/common/CronSelector.vue:51
+#: src/components/common/CronSelector.vue:144
 msgid "Tuesday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:18
-#: src/components/common/CronSelector.vue:52
+#: src/components/common/CronSelector.vue:145
 msgid "Wednesday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:19
-#: src/components/common/CronSelector.vue:53
+#: src/components/common/CronSelector.vue:146
 msgid "Thursday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:20
-#: src/components/common/CronSelector.vue:54
+#: src/components/common/CronSelector.vue:147
 msgid "Friday"
 msgstr ""
 
 #: src/components/common/CronPreview.vue:21
-#: src/components/common/CronSelector.vue:55
+#: src/components/common/CronSelector.vue:148
 msgid "Saturday"
 msgstr ""
 
@@ -115,39 +115,39 @@ msgstr ""
 msgid "Run every minute"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:36
+#: src/components/common/CronSelector.vue:129
 msgid "Every N Minutes"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:37
+#: src/components/common/CronSelector.vue:130
 msgid "Every N Hours"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:38
+#: src/components/common/CronSelector.vue:131
 msgid "Every N Days"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:39
+#: src/components/common/CronSelector.vue:132
 msgid "Hourly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:40
+#: src/components/common/CronSelector.vue:133
 msgid "Daily"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:41
+#: src/components/common/CronSelector.vue:134
 msgid "Weekly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:42
+#: src/components/common/CronSelector.vue:135
 msgid "Monthly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:43
+#: src/components/common/CronSelector.vue:136
 msgid "Yearly"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:44
+#: src/components/common/CronSelector.vue:137
 #: src/views/monitor/IndexView.vue:650
 #: src/views/monitor/IndexView.vue:704
 #: src/views/monitor/IndexView.vue:756
@@ -160,39 +160,39 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:60
+#: src/components/common/CronSelector.vue:153
 msgid "Month %{month}"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:170
+#: src/components/common/CronSelector.vue:276
 #: src/views/apps/nginx/NginxIndex.vue:745
 #: src/views/website/EditView.vue:557
 msgid "Minutes"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:181
+#: src/components/common/CronSelector.vue:287
 #: src/views/apps/nginx/NginxIndex.vue:746
 #: src/views/website/EditView.vue:558
 msgid "Hours"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:192
+#: src/components/common/CronSelector.vue:298
 msgid "Days"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:211
+#: src/components/common/CronSelector.vue:317
 msgid "Day"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:230
+#: src/components/common/CronSelector.vue:336
 msgid "Hour"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:241
+#: src/components/common/CronSelector.vue:347
 msgid "Minute"
 msgstr ""
 
-#: src/components/common/CronSelector.vue:248
+#: src/components/common/CronSelector.vue:354
 msgid "Enter Cron expression"
 msgstr ""
 
@@ -452,7 +452,7 @@ msgstr ""
 #: src/views/setting/CreateModal.vue:19
 #: src/views/setting/TokenModal.vue:125
 #: src/views/ssh/CreateModal.vue:40
-#: src/views/task/CreateModal.vue:52
+#: src/views/task/CreateModal.vue:55
 #: src/views/toolbox/WebHookView.vue:258
 msgid "Created successfully"
 msgstr ""
@@ -505,7 +505,7 @@ msgstr ""
 #: src/views/cert/CreateCertModal.vue:115
 #: src/views/cert/CreateDnsModal.vue:173
 #: src/views/cert/DnsView.vue:310
-#: src/views/cert/ObtainModal.vue:130
+#: src/views/cert/ObtainModal.vue:66
 #: src/views/cert/UploadCertModal.vue:55
 #: src/views/container/ComposeView.vue:377
 #: src/views/container/ComposeView.vue:403
@@ -527,7 +527,7 @@ msgstr ""
 #: src/views/setting/TwoFaModal.vue:87
 #: src/views/ssh/CreateModal.vue:109
 #: src/views/ssh/UpdateModal.vue:115
-#: src/views/task/CreateModal.vue:195
+#: src/views/task/CreateModal.vue:198
 msgid "Submit"
 msgstr ""
 
@@ -1377,7 +1377,7 @@ msgid "Apps"
 msgstr ""
 
 #: src/locales/menu.ts:8
-#: src/views/task/CreateModal.vue:79
+#: src/views/task/CreateModal.vue:82
 msgid "Backup"
 msgstr ""
 
@@ -2228,7 +2228,6 @@ msgstr ""
 #: src/views/backup/StorageView.vue:381
 #: src/views/cert/CertView.vue:86
 #: src/views/cert/DnsView.vue:38
-#: src/views/cert/ObtainModal.vue:58
 #: src/views/database/CreateServerModal.vue:63
 #: src/views/database/DatabaseList.vue:12
 #: src/views/database/ServerList.vue:45
@@ -2246,8 +2245,8 @@ msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:321
 #: src/views/apps/fail2ban/IndexView.vue:325
-#: src/views/task/CreateModal.vue:169
-#: src/views/task/CreateModal.vue:174
+#: src/views/task/CreateModal.vue:172
+#: src/views/task/CreateModal.vue:177
 msgid "Select Website"
 msgstr ""
 
@@ -3058,8 +3057,8 @@ msgstr ""
 #: src/views/backup/ListView.vue:258
 #: src/views/database/CreateDatabaseModal.vue:82
 #: src/views/database/DatabaseList.vue:35
-#: src/views/task/CreateModal.vue:179
-#: src/views/task/CreateModal.vue:181
+#: src/views/task/CreateModal.vue:182
+#: src/views/task/CreateModal.vue:184
 #: src/views/website/CreateModal.vue:191
 #: src/views/website/CreateModal.vue:196
 msgid "Database Name"
@@ -3073,12 +3072,12 @@ msgid "Enter database name"
 msgstr ""
 
 #: src/views/backup/ListView.vue:266
-#: src/views/task/CreateModal.vue:183
+#: src/views/task/CreateModal.vue:186
 msgid "Backup Storage"
 msgstr ""
 
 #: src/views/backup/ListView.vue:270
-#: src/views/task/CreateModal.vue:187
+#: src/views/task/CreateModal.vue:190
 msgid "Select backup storage"
 msgstr ""
 
@@ -3359,7 +3358,6 @@ msgstr ""
 #: src/views/cert/CertView.vue:63
 #: src/views/cert/CertView.vue:439
 #: src/views/cert/CreateCertModal.vue:74
-#: src/views/cert/ObtainModal.vue:57
 #: src/views/project/CreateModal.vue:583
 #: src/views/website/CreateModal.vue:135
 #: src/views/website/EditView.vue:718
@@ -3398,13 +3396,11 @@ msgid "Auto Renewal"
 msgstr ""
 
 #: src/views/cert/CertView.vue:189
-#: src/views/cert/ObtainModal.vue:78
 msgid "Issue"
 msgstr ""
 
 #: src/views/cert/CertView.vue:220
-#: src/views/cert/ObtainModal.vue:24
-#: src/views/cert/ObtainModal.vue:81
+#: src/views/cert/ObtainModal.vue:23
 #: src/views/website/EditView.vue:147
 msgid "Please wait..."
 msgstr ""
@@ -3632,40 +3628,19 @@ msgid "Automatic"
 msgstr ""
 
 #: src/views/cert/ObtainModal.vue:19
-msgid "Manual"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:20
 msgid "Self-signed"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:33
-#: src/views/cert/ObtainModal.vue:89
-#: src/views/cert/ObtainModal.vue:107
+#: src/views/cert/ObtainModal.vue:32
+#: src/views/cert/ObtainModal.vue:43
 msgid "Issuance successful"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:42
-msgid "Please set up DNS resolution for the domain first, then continue with the issuance"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:48
-msgid "DNS Records to Set"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:59
-msgid "Host Record"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:60
-msgid "Record Value"
-msgstr ""
-
-#: src/views/cert/ObtainModal.vue:120
+#: src/views/cert/ObtainModal.vue:56
 msgid "Issue Certificate"
 msgstr ""
 
-#: src/views/cert/ObtainModal.vue:127
+#: src/views/cert/ObtainModal.vue:63
 msgid "Issuance Mode"
 msgstr ""
 
@@ -6424,50 +6399,50 @@ msgstr ""
 msgid "Update Host"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:22
+#: src/views/task/CreateModal.vue:24
 msgid "# Enter your script content here"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:75
+#: src/views/task/CreateModal.vue:78
 msgid "Backup Website"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:76
+#: src/views/task/CreateModal.vue:79
 msgid "Backup MySQL"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:77
+#: src/views/task/CreateModal.vue:80
 msgid "Backup PostgreSQL"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:83
-#: src/views/task/CreateModal.vue:84
-#: src/views/task/CreateModal.vue:138
+#: src/views/task/CreateModal.vue:86
+#: src/views/task/CreateModal.vue:87
+#: src/views/task/CreateModal.vue:141
 #: src/views/task/CronView.vue:52
 msgid "Log Rotation"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:125
+#: src/views/task/CreateModal.vue:128
 msgid "Create Scheduled Task"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:132
+#: src/views/task/CreateModal.vue:135
 #: src/views/task/CronView.vue:36
 msgid "Task Type"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:136
+#: src/views/task/CreateModal.vue:139
 #: src/views/task/CronView.vue:49
 msgid "Run Script"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:137
+#: src/views/task/CreateModal.vue:140
 #: src/views/task/CronView.vue:51
 msgid "Backup Data"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:143
-#: src/views/task/CreateModal.vue:144
+#: src/views/task/CreateModal.vue:146
+#: src/views/task/CreateModal.vue:147
 #: src/views/task/CronView.vue:29
 #: src/views/task/CronView.vue:275
 #: src/views/task/CronView.vue:276
@@ -6475,29 +6450,29 @@ msgstr ""
 msgid "Task Name"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:146
+#: src/views/task/CreateModal.vue:149
 #: src/views/task/CronView.vue:73
 #: src/views/task/CronView.vue:278
 msgid "Task Schedule"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:150
+#: src/views/task/CreateModal.vue:153
 msgid "Script Content"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:153
+#: src/views/task/CreateModal.vue:156
 msgid "Backup Type"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:157
+#: src/views/task/CreateModal.vue:160
 msgid "MySQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:160
+#: src/views/task/CreateModal.vue:163
 msgid "PostgreSQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:190
+#: src/views/task/CreateModal.vue:193
 msgid "Retention Count"
 msgstr ""
 
