@@ -46,7 +46,11 @@ const parseCron = (cron: string) => {
     return
   }
 
-  const [minute, hour, day, month, weekday] = parts
+  const minute = parts[0]!
+  const hour = parts[1]!
+  const day = parts[2]!
+  const month = parts[3]!
+  const weekday = parts[4]!
 
   // 每 N 分钟：*/N * * * *
   if (minute.startsWith('*/') && hour === '*' && day === '*' && month === '*' && weekday === '*') {
