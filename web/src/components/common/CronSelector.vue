@@ -31,6 +31,95 @@ const formData = ref({
   customCron: '* * * * *'
 })
 
+// 是否已初始化
+const initialized = ref(false)
+
+// 解析 Cron 表达式，反向设置表单数据
+const parseCron = (cron: string) => {
+  if (!cron) return
+
+  const parts = cron.split(' ')
+  if (parts.length !== 5) {
+    // 无法解析，使用自定义模式
+    selectedOption.value = 'custom'
+    formData.value.customCron = cron
+    return
+  }
+
+  const [minute, hour, day, month, weekday] = parts
+
+  // 每 N 分钟：*/N * * * *
+  if (minute.startsWith('*/') && hour === '*' && day === '*' && month === '*' && weekday === '*') {
+    selectedOption.value = 'every-n-minutes'
+    formData.value.nMinutes = parseInt(minute.slice(2)) || 30
+    return
+  }
+
+  // 每 N 小时：M */N * * *
+  if (hour.startsWith('*/') && day === '*' && month === '*' && weekday === '*') {
+    selectedOption.value = 'every-n-hours'
+    formData.value.minute = parseInt(minute) || 0
+    formData.value.nHours = parseInt(hour.slice(2)) || 2
+    return
+  }
+
+  // 每 N 天：M H */N * *
+  if (day.startsWith('*/') && month === '*' && weekday === '*') {
+    selectedOption.value = 'every-n-days'
+    formData.value.minute = parseInt(minute) || 0
+    formData.value.hour = parseInt(hour) || 0
+    formData.value.nDays = parseInt(day.slice(2)) || 3
+    return
+  }
+
+  // 每小时：M * * * *
+  if (hour === '*' && day === '*' && month === '*' && weekday === '*' && !minute.includes('/')) {
+    selectedOption.value = 'every-hour'
+    formData.value.minute = parseInt(minute) || 0
+    return
+  }
+
+  // 每天：M H * * *
+  if (day === '*' && month === '*' && weekday === '*' && !hour.includes('/')) {
+    selectedOption.value = 'every-day'
+    formData.value.minute = parseInt(minute) || 0
+    formData.value.hour = parseInt(hour) || 0
+    return
+  }
+
+  // 每周：M H * * W
+  if (day === '*' && month === '*' && weekday !== '*') {
+    selectedOption.value = 'every-week'
+    formData.value.minute = parseInt(minute) || 0
+    formData.value.hour = parseInt(hour) || 0
+    formData.value.weekday = parseInt(weekday) || 0
+    return
+  }
+
+  // 每月：M H D * *
+  if (month === '*' && weekday === '*' && day !== '*' && !day.includes('/')) {
+    selectedOption.value = 'every-month'
+    formData.value.minute = parseInt(minute) || 0
+    formData.value.hour = parseInt(hour) || 0
+    formData.value.day = parseInt(day) || 1
+    return
+  }
+
+  // 每年：M H D Mon *
+  if (weekday === '*' && month !== '*' && day !== '*') {
+    selectedOption.value = 'every-year'
+    formData.value.minute = parseInt(minute) || 0
+    formData.value.hour = parseInt(hour) || 0
+    formData.value.day = parseInt(day) || 1
+    formData.value.month = parseInt(month) || 1
+    return
+  }
+
+  // 无法匹配，使用自定义模式
+  selectedOption.value = 'custom'
+  formData.value.customCron = cron
+}
+
 // 周期选项
 const options = [
   { label: $gettext('Every N Minutes'), value: 'every-n-minutes' },
@@ -106,13 +195,26 @@ const generateCron = (): string => {
   }
 }
 
-// 监听变化，更新 Cron 表达式
+// 组件挂载时，解析传入的 Cron 表达式
+onMounted(() => {
+  if (value.value) {
+    parseCron(value.value)
+  }
+  // 标记已初始化
+  nextTick(() => {
+    initialized.value = true
+  })
+})
+
+// 监听变化，更新 Cron 表达式（仅在初始化后）
 watch(
   [selectedOption, formData],
   () => {
-    value.value = generateCron()
+    if (initialized.value) {
+      value.value = generateCron()
+    }
   },
-  { deep: true, immediate: true }
+  { deep: true }
 )
 
 // 判断是否显示某个输入框
