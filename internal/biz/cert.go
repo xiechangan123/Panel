@@ -41,11 +41,9 @@ type CertRepo interface {
 	Update(ctx context.Context, req *request.CertUpdate) error
 	Delete(ctx context.Context, id uint) error
 	ObtainAuto(id uint) (*acme.Certificate, error)
-	ObtainManual(id uint) (*acme.Certificate, error)
 	ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error)
 	ObtainSelfSigned(id uint) error
 	Renew(id uint) (*acme.Certificate, error)
 	RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error)
-	ManualDNS(id uint) ([]acme.DNSRecord, error)
 	Deploy(ID, WebsiteID uint) error
 }

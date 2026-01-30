@@ -288,10 +288,8 @@ func (route *Http) Register(r *chi.Mux) {
 				r.Get("/{id}", route.cert.Get)
 				r.Delete("/{id}", route.cert.Delete)
 				r.Post("/{id}/obtain_auto", route.cert.ObtainAuto)
-				r.Post("/{id}/obtain_manual", route.cert.ObtainManual)
 				r.Post("/{id}/obtain_self_signed", route.cert.ObtainSelfSigned)
 				r.Post("/{id}/renew", route.cert.Renew)
-				r.Post("/{id}/manual_dns", route.cert.ManualDNS)
 				r.Post("/{id}/deploy", route.cert.Deploy)
 			})
 			r.Route("/dns", func(r chi.Router) {

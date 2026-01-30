@@ -31,7 +31,6 @@ type certRepo struct {
 	db          *gorm.DB
 	log         *slog.Logger
 	settingRepo biz.SettingRepo
-	client      *acme.Client
 }
 
 func NewCertRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, settingRepo biz.SettingRepo) biz.CertRepo {
@@ -245,40 +244,6 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	return &ssl, nil
 }
 
-func (r *certRepo) ObtainManual(id uint) (*acme.Certificate, error) {
-	cert, err := r.Get(id)
-	if err != nil {
-		return nil, err
-	}
-
-	if r.client == nil {
-		return nil, errors.New(r.t.Get("please retry the manual obtain operation"))
-	}
-
-	ssl, err := r.client.ObtainCertificateManual()
-	if err != nil {
-		return nil, err
-	}
-
-	cert.RenewalInfo = *ssl.RenewalInfo
-	cert.CertURL = ssl.URL
-	cert.Cert = string(ssl.ChainPEM)
-	cert.Key = string(ssl.PrivateKey)
-	if err = r.db.Save(cert).Error; err != nil {
-		return nil, err
-	}
-
-	if cert.Website != nil {
-		return &ssl, r.Deploy(cert.ID, cert.WebsiteID)
-	}
-
-	if err = r.runScript(cert); err != nil {
-		return nil, err
-	}
-
-	return &ssl, nil
-}
-
 func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, []byte, error) {
 	client, err := acme.NewPrivateKeyAccount(account.Email, account.PrivateKey, acme.CALetsEncrypt, nil, r.log)
 	if err != nil {
@@ -419,34 +384,6 @@ func (r *certRepo) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
 	return renewInfo, nil
 }
 
-func (r *certRepo) ManualDNS(id uint) ([]acme.DNSRecord, error) {
-	cert, err := r.Get(id)
-	if err != nil {
-		return nil, err
-	}
-
-	client, err := r.getClient(cert)
-	if err != nil {
-		return nil, err
-	}
-
-	client.UseManualDns()
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
-	defer cancel()
-	records, err := client.GetDNSRecords(ctx, cert.Domains, acme.KeyType(cert.Type))
-	if err != nil {
-		return nil, err
-	}
-
-	// 15 分钟后清理客户端
-	r.client = client
-	time.AfterFunc(15*time.Minute, func() {
-		r.client = nil
-	})
-
-	return records, nil
-}
-
 func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	cert, err := r.Get(ID)
 	if err != nil {
@@ -501,12 +438,9 @@ func (r *certRepo) runScript(cert *biz.Cert) error {
 	if _, err = f.WriteString(cert.Script); err != nil {
 		return err
 	}
-	if err = f.Chmod(0755); err != nil {
-		return err
-	}
-	if err = f.Close(); err != nil {
-		return err
-	}
+
+	_ = f.Chmod(0755)
+	_ = f.Close()
 	defer func(name string) { _ = os.Remove(name) }(f.Name())
 
 	_, err = shell.Execf("bash " + f.Name())

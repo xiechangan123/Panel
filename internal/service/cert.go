@@ -234,21 +234,6 @@ func (s *CertService) ObtainAuto(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-func (s *CertService) ObtainManual(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if _, err = s.certRepo.ObtainManual(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
-}
-
 func (s *CertService) ObtainSelfSigned(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ID](r)
 	if err != nil {
@@ -278,22 +263,6 @@ func (s *CertService) Renew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
-}
-
-func (s *CertService) ManualDNS(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	dns, err := s.certRepo.ManualDNS(req.ID)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, dns)
 }
 
 func (s *CertService) Deploy(w http.ResponseWriter, r *http.Request) {
