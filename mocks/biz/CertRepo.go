@@ -365,64 +365,6 @@ func (_c *CertRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*types.CertLi
 	return _c
 }
 
-// ManualDNS provides a mock function with given fields: id
-func (_m *CertRepo) ManualDNS(id uint) ([]acme.DNSRecord, error) {
-	ret := _m.Called(id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ManualDNS")
-	}
-
-	var r0 []acme.DNSRecord
-	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) ([]acme.DNSRecord, error)); ok {
-		return rf(id)
-	}
-	if rf, ok := ret.Get(0).(func(uint) []acme.DNSRecord); ok {
-		r0 = rf(id)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]acme.DNSRecord)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// CertRepo_ManualDNS_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ManualDNS'
-type CertRepo_ManualDNS_Call struct {
-	*mock.Call
-}
-
-// ManualDNS is a helper method to define mock.On call
-//   - id uint
-func (_e *CertRepo_Expecter) ManualDNS(id interface{}) *CertRepo_ManualDNS_Call {
-	return &CertRepo_ManualDNS_Call{Call: _e.mock.On("ManualDNS", id)}
-}
-
-func (_c *CertRepo_ManualDNS_Call) Run(run func(id uint)) *CertRepo_ManualDNS_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
-	})
-	return _c
-}
-
-func (_c *CertRepo_ManualDNS_Call) Return(_a0 []acme.DNSRecord, _a1 error) *CertRepo_ManualDNS_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *CertRepo_ManualDNS_Call) RunAndReturn(run func(uint) ([]acme.DNSRecord, error)) *CertRepo_ManualDNS_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // ObtainAuto provides a mock function with given fields: id
 func (_m *CertRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	ret := _m.Called(id)
@@ -477,64 +419,6 @@ func (_c *CertRepo_ObtainAuto_Call) Return(_a0 *acme.Certificate, _a1 error) *Ce
 }
 
 func (_c *CertRepo_ObtainAuto_Call) RunAndReturn(run func(uint) (*acme.Certificate, error)) *CertRepo_ObtainAuto_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ObtainManual provides a mock function with given fields: id
-func (_m *CertRepo) ObtainManual(id uint) (*acme.Certificate, error) {
-	ret := _m.Called(id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ObtainManual")
-	}
-
-	var r0 *acme.Certificate
-	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) (*acme.Certificate, error)); ok {
-		return rf(id)
-	}
-	if rf, ok := ret.Get(0).(func(uint) *acme.Certificate); ok {
-		r0 = rf(id)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*acme.Certificate)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// CertRepo_ObtainManual_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ObtainManual'
-type CertRepo_ObtainManual_Call struct {
-	*mock.Call
-}
-
-// ObtainManual is a helper method to define mock.On call
-//   - id uint
-func (_e *CertRepo_Expecter) ObtainManual(id interface{}) *CertRepo_ObtainManual_Call {
-	return &CertRepo_ObtainManual_Call{Call: _e.mock.On("ObtainManual", id)}
-}
-
-func (_c *CertRepo_ObtainManual_Call) Run(run func(id uint)) *CertRepo_ObtainManual_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
-	})
-	return _c
-}
-
-func (_c *CertRepo_ObtainManual_Call) Return(_a0 *acme.Certificate, _a1 error) *CertRepo_ObtainManual_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *CertRepo_ObtainManual_Call) RunAndReturn(run func(uint) (*acme.Certificate, error)) *CertRepo_ObtainManual_Call {
 	_c.Call.Return(run)
 	return _c
 }
