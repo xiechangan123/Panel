@@ -387,7 +387,6 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	rec := libdns.TXT{
 		Name: libdns.RelativeName(dnsName+".", zone+"."),
 		Text: keyAuth,
-		TTL:  10 * time.Minute,
 	}
 
 	results, err := provider.SetRecords(ctx, zone+".", []libdns.Record{rec})
