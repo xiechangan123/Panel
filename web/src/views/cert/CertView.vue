@@ -199,7 +199,7 @@ const columns: any = [
                 onClick: () => {
                   deployModel.value.id = row.id
                   if (row.website_id != 0) {
-                    deployModel.value.websites.push(row.website_id)
+                    deployModel.value.websites = [row.website_id]
                   }
                   deployModal.value = true
                 }
