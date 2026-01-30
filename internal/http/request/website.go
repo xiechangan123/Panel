@@ -1,6 +1,8 @@
 package request
 
 import (
+	"net/http"
+
 	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
@@ -10,6 +12,12 @@ type WebsiteDefaultConfig struct {
 	NotFound     string   `json:"not_found" form:"not_found"`
 	TLSVersions  []string `json:"tls_versions" form:"tls_versions" validate:"required|isSlice"`
 	CipherSuites string   `json:"cipher_suites" form:"cipher_suites" validate:"required"`
+}
+
+func (r *WebsiteDefaultConfig) Rules(_ *http.Request) map[string]string {
+	return map[string]string{
+		"TLSVersions.*": "required",
+	}
 }
 
 type WebsiteList struct {
@@ -32,6 +40,13 @@ type WebsiteCreate struct {
 
 	PHP   uint   `form:"php" json:"php" validate:"requiredIf:Type,php"`       // 仅 PHP 网站需要
 	Proxy string `form:"proxy" json:"proxy" validate:"requiredIf:Type,proxy"` // 仅反向代理网站需要
+}
+
+func (r *WebsiteCreate) Rules(_ *http.Request) map[string]string {
+	return map[string]string{
+		"Listens.*": "required",
+		"Domains.*": "required",
+	}
 }
 
 type WebsiteDelete struct {
@@ -79,6 +94,14 @@ type WebsiteUpdate struct {
 
 	// 自定义配置
 	CustomConfigs []WebsiteCustomConfig `json:"custom_configs"`
+}
+
+func (r *WebsiteUpdate) Rules(_ *http.Request) map[string]string {
+	return map[string]string{
+		"Listens.*": "required",
+		"Domains.*": "required",
+		"Index.*":   "required",
+	}
 }
 
 // WebsiteCustomConfig 网站自定义配置请求

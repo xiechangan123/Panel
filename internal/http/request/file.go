@@ -56,6 +56,12 @@ type FileCompress struct {
 	File  string   `form:"file" json:"file" validate:"required|isUnixPath"`
 }
 
+func (r *FileCompress) Rules(_ *http.Request) map[string]string {
+	return map[string]string{
+		"Paths.*": "required",
+	}
+}
+
 type FileUnCompress struct {
 	File string `form:"file" json:"file" validate:"required|isUnixPath"`
 	Path string `form:"path" json:"path" validate:"required|isUnixPath"`
