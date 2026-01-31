@@ -4,13 +4,13 @@ import "time"
 
 type BackupStorageInfo struct {
 	// S3
-	AccessKey string `json:"access_key"`                                       // 访问密钥
-	SecretKey string `json:"secret_key"`                                       // 私钥
-	Style     string `json:"style" validate:"required|in:path,virtual-hosted"` // virtual-hosted, path
-	Region    string `json:"region"`                                           // 地区
-	Endpoint  string `json:"endpoint" validate:"required"`                     // 端点
-	Scheme    string `json:"scheme" validate:"required|in:http,https"`         // http, https
-	Bucket    string `json:"bucket" validate:"required"`                       // 存储桶
+	AccessKey string `json:"access_key"`                             // 访问密钥
+	SecretKey string `json:"secret_key"`                             // 私钥
+	Style     string `json:"style" validate:"requiredIf:Type,s3"`    // virtual-hosted, path
+	Region    string `json:"region"`                                 // 地区
+	Endpoint  string `json:"endpoint" validate:"requiredIf:Type,s3"` // 端点
+	Scheme    string `json:"scheme" validate:"requiredIf:Type,s3"`   // http, https
+	Bucket    string `json:"bucket" validate:"requiredIf:Type,s3"`   // 存储桶
 
 	// SFTP / WebDAV
 	URL        string `json:"url"`         // 网址
