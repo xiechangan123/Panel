@@ -52,6 +52,12 @@ const parseCron = (cron: string) => {
   const month = parts[3]!
   const weekday = parts[4]!
 
+  // 每分钟：* * * * *
+  if (minute === '*' && hour === '*' && day === '*' && month === '*' && weekday === '*') {
+    selectedOption.value = 'every-minute'
+    return
+  }
+
   // 每 N 分钟：*/N * * * *
   if (minute.startsWith('*/') && hour === '*' && day === '*' && month === '*' && weekday === '*') {
     selectedOption.value = 'every-n-minutes'
@@ -76,15 +82,29 @@ const parseCron = (cron: string) => {
     return
   }
 
-  // 每小时：M * * * *
-  if (hour === '*' && day === '*' && month === '*' && weekday === '*' && !minute.includes('/')) {
+  // 每小时：M * * * *（M 必须是具体数字，不能是 *）
+  if (
+    minute !== '*' &&
+    !minute.includes('/') &&
+    hour === '*' &&
+    day === '*' &&
+    month === '*' &&
+    weekday === '*'
+  ) {
     selectedOption.value = 'every-hour'
     formData.value.minute = parseInt(minute) || 0
     return
   }
 
-  // 每天：M H * * *
-  if (day === '*' && month === '*' && weekday === '*' && !hour.includes('/')) {
+  // 每天：M H * * *（M 和 H 必须是具体数字）
+  if (
+    minute !== '*' &&
+    hour !== '*' &&
+    !hour.includes('/') &&
+    day === '*' &&
+    month === '*' &&
+    weekday === '*'
+  ) {
     selectedOption.value = 'every-day'
     formData.value.minute = parseInt(minute) || 0
     formData.value.hour = parseInt(hour) || 0
@@ -126,6 +146,7 @@ const parseCron = (cron: string) => {
 
 // 周期选项
 const options = [
+  { label: $gettext('Every Minute'), value: 'every-minute' },
   { label: $gettext('Every N Minutes'), value: 'every-n-minutes' },
   { label: $gettext('Every N Hours'), value: 'every-n-hours' },
   { label: $gettext('Every N Days'), value: 'every-n-days' },
@@ -159,6 +180,10 @@ const generateCron = (): string => {
   const { minute, hour, day, month, weekday, nMinutes, nHours, nDays, customCron } = formData.value
 
   switch (selectedOption.value) {
+    case 'every-minute':
+      // 每分钟：* * * * *
+      return '* * * * *'
+
     case 'every-n-minutes':
       // 每 N 分钟：*/N * * * *
       return `*/${nMinutes} * * * *`

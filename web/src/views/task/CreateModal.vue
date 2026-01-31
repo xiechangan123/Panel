@@ -23,7 +23,7 @@ const createModel = ref({
     `#!/bin/bash\nexport PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n\n` +
     $gettext('# Enter your script content here') +
     `\n`,
-  time: '* * * * *'
+  time: '*/30 * * * *'
 })
 
 const websites = ref<any>([])
