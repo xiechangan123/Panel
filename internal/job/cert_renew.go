@@ -3,6 +3,7 @@ package job
 import (
 	"encoding/json"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -74,14 +75,16 @@ func (r *CertRenew) Run() {
 
 	// 面板证书续签
 	if r.conf.HTTP.ACME {
-		decode, err := pkgcert.ParseCert(filepath.Join(app.Root, "panel/storage/cert.pem"))
-		if err != nil {
+		crt, _ := os.ReadFile(filepath.Join(app.Root, "panel/storage/cert.pem"))
+		decode, err := pkgcert.ParseCert(crt)
+		if err == nil {
+			// 结束时间大于 2 天不续签
+			if time.Until(decode.NotAfter) > 24*2*time.Hour {
+				return
+			}
+		} else {
+			// 解析失败则继续续签流程，可能是证书格式不对或者文件不存在
 			r.log.Warn("failed to parse panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
-			return
-		}
-		// 结束时间大于 2 天不续签
-		if time.Until(decode.NotAfter) > 24*2*time.Hour {
-			return
 		}
 
 		ip, err := r.settingRepo.Get(biz.SettingKeyPublicIPs)

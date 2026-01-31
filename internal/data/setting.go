@@ -284,10 +284,10 @@ func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel
 		}
 		restartFlag = true
 	}
-	if _, err := cert.ParseCert(req.Cert); err != nil {
+	if _, err := cert.ParseCert([]byte(req.Cert)); err != nil {
 		return false, errors.New(r.t.Get("failed to parse certificate: %v", err))
 	}
-	if _, err := cert.ParseKey(req.Key); err != nil {
+	if _, err := cert.ParseKey([]byte(req.Key)); err != nil {
 		return false, errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0600); err != nil {
@@ -357,10 +357,10 @@ func (r *settingRepo) UpdateCert(req *request.SettingCert) error {
 	if r.task.HasRunningTask() {
 		return errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
 	}
-	if _, err := cert.ParseCert(req.Cert); err != nil {
+	if _, err := cert.ParseCert([]byte(req.Cert)); err != nil {
 		return errors.New(r.t.Get("failed to parse certificate: %v", err))
 	}
-	if _, err := cert.ParseKey(req.Key); err != nil {
+	if _, err := cert.ParseKey([]byte(req.Key)); err != nil {
 		return errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 

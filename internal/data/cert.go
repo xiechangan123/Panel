@@ -65,7 +65,7 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			CreatedAt:   cert.CreatedAt,
 			UpdatedAt:   cert.UpdatedAt,
 		}
-		if decode, err := pkgcert.ParseCert(cert.Cert); err == nil {
+		if decode, err := pkgcert.ParseCert([]byte(cert.Cert)); err == nil {
 			item.NotBefore = decode.NotBefore
 			item.NotAfter = decode.NotAfter
 			item.Issuer = decode.Issuer.CommonName
@@ -95,11 +95,11 @@ func (r *certRepo) GetByWebsite(WebsiteID uint) (*biz.Cert, error) {
 }
 
 func (r *certRepo) Upload(ctx context.Context, req *request.CertUpload) (*biz.Cert, error) {
-	info, err := pkgcert.ParseCert(req.Cert)
+	info, err := pkgcert.ParseCert([]byte(req.Cert))
 	if err != nil {
 		return nil, errors.New(r.t.Get("failed to parse certificate: %v", err))
 	}
-	if _, err = pkgcert.ParseKey(req.Key); err != nil {
+	if _, err = pkgcert.ParseKey([]byte(req.Key)); err != nil {
 		return nil, errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 
@@ -145,7 +145,7 @@ func (r *certRepo) Create(ctx context.Context, req *request.CertCreate) (*biz.Ce
 }
 
 func (r *certRepo) Update(ctx context.Context, req *request.CertUpdate) error {
-	info, err := pkgcert.ParseCert(req.Cert)
+	info, err := pkgcert.ParseCert([]byte(req.Cert))
 	if err == nil && req.Type == "upload" {
 		// 合并 DNSNames 和 IPAddresses
 		req.Domains = info.DNSNames
@@ -364,7 +364,7 @@ func (r *certRepo) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
 		return mholtacme.RenewalInfo{}, err
 	}
 
-	crt, err := pkgcert.ParseCert(cert.Cert)
+	crt, err := pkgcert.ParseCert([]byte(cert.Cert))
 	if err != nil {
 		return mholtacme.RenewalInfo{}, err
 	}

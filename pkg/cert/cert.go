@@ -18,8 +18,8 @@ import (
 	"time"
 )
 
-func ParseCert(crt string) (x509.Certificate, error) {
-	certBlock, _ := pem.Decode([]byte(crt))
+func ParseCert(crt []byte) (x509.Certificate, error) {
+	certBlock, _ := pem.Decode(crt)
 	if certBlock == nil {
 		return x509.Certificate{}, errors.New("invalid PEM block")
 	}
@@ -31,8 +31,8 @@ func ParseCert(crt string) (x509.Certificate, error) {
 	return *cert, nil
 }
 
-func ParseKey(key string) (crypto.Signer, error) {
-	keyBlockDER, _ := pem.Decode([]byte(key))
+func ParseKey(key []byte) (crypto.Signer, error) {
+	keyBlockDER, _ := pem.Decode(key)
 	if keyBlockDER == nil {
 		return nil, errors.New("invalid PEM block")
 	}

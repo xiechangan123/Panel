@@ -76,7 +76,7 @@ func NewPrivateKeyAccount(email string, privateKey string, CA string, eab *EAB, 
 		return nil, err
 	}
 
-	key, err := cert.ParseKey(privateKey)
+	key, err := cert.ParseKey([]byte(privateKey))
 	if err != nil {
 		return nil, err
 	}

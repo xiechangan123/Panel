@@ -176,10 +176,10 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.SSLCiphers = sslConfig.Ciphers
 	}
 	// 证书
-	crt, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
-	setting.SSLCert = crt
-	key, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "private.key"))
-	setting.SSLKey = key
+	crt, _ := os.ReadFile(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
+	setting.SSLCert = string(crt)
+	key, _ := os.ReadFile(filepath.Join(app.Root, "sites", website.Name, "config", "private.key"))
+	setting.SSLKey = string(key)
 	// 解析证书信息
 	if decode, err := cert.ParseCert(crt); err == nil {
 		setting.SSLNotBefore = decode.NotBefore.Format(time.DateTime)
@@ -259,7 +259,7 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 
 	// 取证书剩余有效时间和PHP版本
 	for _, website := range websites {
-		crt, _ := io.Read(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
+		crt, _ := os.ReadFile(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
 		if decode, err := cert.ParseCert(crt); err == nil {
 			hours := time.Until(decode.NotAfter).Hours()
 			website.CertExpire = fmt.Sprintf("%.2f", hours/24)
@@ -605,10 +605,10 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 	}
 	website.SSL = req.SSL
 	if req.SSL {
-		if _, err = cert.ParseCert(req.SSLCert); err != nil {
+		if _, err = cert.ParseCert([]byte(req.SSLCert)); err != nil {
 			return errors.New(r.t.Get("failed to parse certificate: %v", err))
 		}
-		if _, err = cert.ParseKey(req.SSLKey); err != nil {
+		if _, err = cert.ParseKey([]byte(req.SSLKey)); err != nil {
 			return errors.New(r.t.Get("failed to parse private key: %v", err))
 		}
 		quic := false
@@ -925,10 +925,10 @@ func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 		return err
 	}
 
-	if _, err := cert.ParseCert(req.Cert); err != nil {
+	if _, err := cert.ParseCert([]byte(req.Cert)); err != nil {
 		return errors.New(r.t.Get("failed to parse certificate: %v", err))
 	}
-	if _, err := cert.ParseKey(req.Key); err != nil {
+	if _, err := cert.ParseKey([]byte(req.Key)); err != nil {
 		return errors.New(r.t.Get("failed to parse private key: %v", err))
 	}
 
