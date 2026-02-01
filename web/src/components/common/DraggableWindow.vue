@@ -12,13 +12,16 @@ const props = withDefaults(
     minHeight?: number
     defaultWidth?: number
     defaultHeight?: number
+    beforeClose?: () => Promise<boolean> | boolean // 关闭前的确认回调，返回 true 继续关闭，false 取消关闭
+    closeOnOverlay?: boolean // 点击遮罩层是否最小化窗口，默认 true
   }>(),
   {
     title: '',
     minWidth: 400,
     minHeight: 300,
     defaultWidth: 800,
-    defaultHeight: 600
+    defaultHeight: 600,
+    closeOnOverlay: true
   }
 )
 
@@ -200,8 +203,20 @@ function restore() {
   minimized.value = false
 }
 
+// 处理遮罩层点击
+function handleOverlayClick() {
+  if (props.closeOnOverlay) {
+    minimize()
+  }
+}
+
 // 关闭
-function close() {
+async function close() {
+  // 如果提供了 beforeClose 回调，先执行它
+  if (props.beforeClose) {
+    const result = await props.beforeClose()
+    if (!result) return // 如果返回 false，取消关闭
+  }
   show.value = false
 }
 
@@ -240,7 +255,7 @@ onBeforeUnmount(() => {
   <Teleport to="body">
     <!-- 遮罩层 -->
     <Transition name="fade">
-      <div v-if="show && !minimized" class="draggable-window-overlay" @click="minimize" />
+      <div v-if="show && !minimized" class="draggable-window-overlay" @click="handleOverlayClick" />
     </Transition>
 
     <!-- 主窗口 -->
