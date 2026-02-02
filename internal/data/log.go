@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -12,6 +14,12 @@ import (
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
+)
+
+var (
+	logArchivePatternApp  = regexp.MustCompile(`^app-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	logArchivePatternDB   = regexp.MustCompile(`^db-(\d{4}-\d{2}-\d{2})T.*\.log$`)
+	logArchivePatternHTTP = regexp.MustCompile(`^http-(\d{4}-\d{2}-\d{2})T.*\.log$`)
 )
 
 type logRepo struct {
@@ -25,20 +33,43 @@ func NewLogRepo(db *gorm.DB) biz.LogRepo {
 }
 
 // List 获取日志列表
-func (r *logRepo) List(logType string, limit int) ([]biz.LogEntry, error) {
-	var filename string
-	switch logType {
-	case biz.LogTypeApp:
-		filename = "app.log"
-	case biz.LogTypeDB:
-		filename = "db.log"
-	case biz.LogTypeHTTP:
-		filename = "http.log"
-	default:
-		filename = "app.log"
-	}
+// date 格式为 YYYY-MM-DD，空字符串表示当天日志
+func (r *logRepo) List(logType string, limit int, date string) ([]biz.LogEntry, error) {
+	logDir := filepath.Join(app.Root, "panel/storage/logs")
 
-	logPath := filepath.Join(app.Root, "panel/storage/logs", filename)
+	var logPath string
+	if date == "" {
+		// 无日期参数，读取当前日志文件
+		logPath = filepath.Join(logDir, logType+".log")
+	} else {
+		// 有日期参数，查找对应的归档日志文件
+		pattern := getLogArchivePattern(logType)
+
+		entries, err := os.ReadDir(logDir)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return []biz.LogEntry{}, nil
+			}
+			return nil, err
+		}
+
+		found := false
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			matches := pattern.FindStringSubmatch(entry.Name())
+			if len(matches) == 2 && matches[1] == date {
+				logPath = filepath.Join(logDir, entry.Name())
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return []biz.LogEntry{}, nil
+		}
+	}
 
 	file, err := os.Open(logPath)
 	if err != nil {
@@ -90,6 +121,37 @@ func (r *logRepo) List(logType string, limit int) ([]biz.LogEntry, error) {
 	}
 
 	return entries, nil
+}
+
+// ListDates 获取可用的日志日期列表
+func (r *logRepo) ListDates(logType string) ([]string, error) {
+	logDir := filepath.Join(app.Root, "panel/storage/logs")
+
+	entries, err := os.ReadDir(logDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []string{}, nil
+		}
+		return nil, err
+	}
+
+	pattern := getLogArchivePattern(logType)
+
+	dates := make([]string, 0)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		matches := pattern.FindStringSubmatch(entry.Name())
+		if len(matches) == 2 {
+			dates = append(dates, matches[1])
+		}
+	}
+
+	// 按日期倒序排列，最新的在前面
+	sort.Sort(sort.Reverse(sort.StringSlice(dates)))
+
+	return dates, nil
 }
 
 // fillOperatorNames 填充操作员用户名
@@ -176,4 +238,18 @@ func (r *logRepo) parseLine(line string, logType string) (biz.LogEntry, error) {
 	}
 
 	return entry, nil
+}
+
+// getLogArchivePattern 获取归档日志文件名匹配正则表达式
+func getLogArchivePattern(logType string) *regexp.Regexp {
+	switch logType {
+	case biz.LogTypeApp:
+		return logArchivePatternApp
+	case biz.LogTypeDB:
+		return logArchivePatternDB
+	case biz.LogTypeHTTP:
+		return logArchivePatternHTTP
+	default:
+		return logArchivePatternApp
+	}
 }
