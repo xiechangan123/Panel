@@ -20,9 +20,9 @@ func (_m *LogRepo) EXPECT() *LogRepo_Expecter {
 	return &LogRepo_Expecter{mock: &_m.Mock}
 }
 
-// List provides a mock function with given fields: logType, limit
-func (_m *LogRepo) List(logType string, limit int) ([]biz.LogEntry, error) {
-	ret := _m.Called(logType, limit)
+// List provides a mock function with given fields: logType, limit, date
+func (_m *LogRepo) List(logType string, limit int, date string) ([]biz.LogEntry, error) {
+	ret := _m.Called(logType, limit, date)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -30,19 +30,19 @@ func (_m *LogRepo) List(logType string, limit int) ([]biz.LogEntry, error) {
 
 	var r0 []biz.LogEntry
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int) ([]biz.LogEntry, error)); ok {
-		return rf(logType, limit)
+	if rf, ok := ret.Get(0).(func(string, int, string) ([]biz.LogEntry, error)); ok {
+		return rf(logType, limit, date)
 	}
-	if rf, ok := ret.Get(0).(func(string, int) []biz.LogEntry); ok {
-		r0 = rf(logType, limit)
+	if rf, ok := ret.Get(0).(func(string, int, string) []biz.LogEntry); ok {
+		r0 = rf(logType, limit, date)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]biz.LogEntry)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(logType, limit)
+	if rf, ok := ret.Get(1).(func(string, int, string) error); ok {
+		r1 = rf(logType, limit, date)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -58,13 +58,14 @@ type LogRepo_List_Call struct {
 // List is a helper method to define mock.On call
 //   - logType string
 //   - limit int
-func (_e *LogRepo_Expecter) List(logType interface{}, limit interface{}) *LogRepo_List_Call {
-	return &LogRepo_List_Call{Call: _e.mock.On("List", logType, limit)}
+//   - date string
+func (_e *LogRepo_Expecter) List(logType interface{}, limit interface{}, date interface{}) *LogRepo_List_Call {
+	return &LogRepo_List_Call{Call: _e.mock.On("List", logType, limit, date)}
 }
 
-func (_c *LogRepo_List_Call) Run(run func(logType string, limit int)) *LogRepo_List_Call {
+func (_c *LogRepo_List_Call) Run(run func(logType string, limit int, date string)) *LogRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int))
+		run(args[0].(string), args[1].(int), args[2].(string))
 	})
 	return _c
 }
@@ -74,7 +75,65 @@ func (_c *LogRepo_List_Call) Return(_a0 []biz.LogEntry, _a1 error) *LogRepo_List
 	return _c
 }
 
-func (_c *LogRepo_List_Call) RunAndReturn(run func(string, int) ([]biz.LogEntry, error)) *LogRepo_List_Call {
+func (_c *LogRepo_List_Call) RunAndReturn(run func(string, int, string) ([]biz.LogEntry, error)) *LogRepo_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListDates provides a mock function with given fields: logType
+func (_m *LogRepo) ListDates(logType string) ([]string, error) {
+	ret := _m.Called(logType)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListDates")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) ([]string, error)); ok {
+		return rf(logType)
+	}
+	if rf, ok := ret.Get(0).(func(string) []string); ok {
+		r0 = rf(logType)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(logType)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// LogRepo_ListDates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListDates'
+type LogRepo_ListDates_Call struct {
+	*mock.Call
+}
+
+// ListDates is a helper method to define mock.On call
+//   - logType string
+func (_e *LogRepo_Expecter) ListDates(logType interface{}) *LogRepo_ListDates_Call {
+	return &LogRepo_ListDates_Call{Call: _e.mock.On("ListDates", logType)}
+}
+
+func (_c *LogRepo_ListDates_Call) Run(run func(logType string)) *LogRepo_ListDates_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *LogRepo_ListDates_Call) Return(_a0 []string, _a1 error) *LogRepo_ListDates_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *LogRepo_ListDates_Call) RunAndReturn(run func(string) ([]string, error)) *LogRepo_ListDates_Call {
 	_c.Call.Return(run)
 	return _c
 }
