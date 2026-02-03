@@ -9,7 +9,12 @@ const year = new Date().getFullYear()
   <footer text-14 f-c-c flex-col>
     <p>
       © 2022 - {{ year }}
-      <a hover="decoration-primary color-primary" target="__blank" href="https://acepanel.net/">
+      <a
+        hover="decoration-primary color-primary"
+        rel="noreferrer"
+        target="__blank"
+        href="https://acepanel.net/"
+      >
         {{ $gettext('AcePanel') }}
       </a>
       {{ $gettext('All Rights Reserved.') }}
@@ -17,18 +22,25 @@ const year = new Date().getFullYear()
     <p>
       <a
         hover="decoration-primary color-primary"
+        rel="noreferrer"
         target="_blank"
         href="https://jq.qq.com/?_wv=1027&k=I1oJKSTH"
       >
         {{ $gettext('QQ Group') }} 12370907
       </a>
       <n-divider vertical />
-      <a hover="decoration-primary color-primary" target="_blank" href="https://acepanel.net">
+      <a
+        hover="decoration-primary color-primary"
+        rel="noreferrer"
+        target="_blank"
+        href="https://acepanel.net"
+      >
         {{ $gettext('Website') }}
       </a>
       <n-divider vertical />
       <a
         hover="decoration-primary color-primary"
+        rel="noreferrer"
         target="_blank"
         href="https://tom.moe/c/technical/acepanel"
       >
@@ -37,6 +49,7 @@ const year = new Date().getFullYear()
       <n-divider vertical />
       <a
         hover="decoration-primary color-primary"
+        rel="noreferrer"
         target="_blank"
         href="https://afdian.com/a/tnborg"
       >
