@@ -334,7 +334,7 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:299
+#: internal/service/file.go:300
 msgid "Download remote file %v"
 msgstr ""
 
@@ -1407,6 +1407,7 @@ msgid "background task is running, modifying some settings is prohibited, please
 msgstr ""
 
 #: internal/service/home.go:396
+#: internal/service/home.go:406
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
@@ -1427,7 +1428,7 @@ msgstr ""
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/file.go:281
+#: internal/service/file.go:282
 msgid "can't download a directory"
 msgstr ""
 
@@ -1448,7 +1449,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:653
+#: internal/service/file.go:654
 msgid "chunk hash mismatch"
 msgstr ""
 
@@ -1468,12 +1469,12 @@ msgstr ""
 msgid "could not find .sql backup file"
 msgstr ""
 
-#: internal/service/file.go:170
-#: internal/service/file.go:576
+#: internal/service/file.go:171
+#: internal/service/file.go:577
 msgid "create directory error: %v"
 msgstr ""
 
-#: internal/service/file.go:691
+#: internal/service/file.go:692
 msgid "create target file error: %v"
 msgstr ""
 
@@ -1702,7 +1703,7 @@ msgstr ""
 msgid "failed to get disk space: %v"
 msgstr ""
 
-#: internal/service/file.go:327
+#: internal/service/file.go:328
 msgid "failed to get file system info"
 msgstr ""
 
@@ -2089,7 +2090,7 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/service/file.go:630
+#: internal/service/file.go:631
 msgid "get upload file error: %v"
 msgstr ""
 
@@ -2195,11 +2196,11 @@ msgstr ""
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
-#: internal/service/file.go:178
+#: internal/service/file.go:179
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:636
+#: internal/service/file.go:637
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -2223,7 +2224,7 @@ msgstr ""
 msgid "partition has no UUID"
 msgstr ""
 
-#: internal/service/file.go:623
+#: internal/service/file.go:624
 msgid "path, file_name and file_hash are required"
 msgstr ""
 
@@ -2250,8 +2251,8 @@ msgstr ""
 
 #: internal/data/user.go:134
 #: internal/service/file.go:139
-#: internal/service/file.go:226
-#: internal/service/file.go:255
+#: internal/service/file.go:227
+#: internal/service/file.go:256
 msgid "please don't do this"
 msgstr ""
 
@@ -2275,15 +2276,15 @@ msgstr ""
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
-#: internal/service/file.go:708
+#: internal/service/file.go:709
 msgid "read chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:644
+#: internal/service/file.go:645
 msgid "read chunk data error: %v"
 msgstr ""
 
-#: internal/service/file.go:585
+#: internal/service/file.go:586
 msgid "read directory error: %v"
 msgstr ""
 
@@ -2307,7 +2308,7 @@ msgstr ""
 msgid "s3 configuration error: %v"
 msgstr ""
 
-#: internal/service/file.go:663
+#: internal/service/file.go:664
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -2368,9 +2369,9 @@ msgstr ""
 msgid "target is a directory"
 msgstr ""
 
-#: internal/service/file.go:164
-#: internal/service/file.go:569
-#: internal/service/file.go:684
+#: internal/service/file.go:165
+#: internal/service/file.go:570
+#: internal/service/file.go:685
 msgid "target path %s already exists"
 msgstr ""
 
@@ -2457,6 +2458,7 @@ msgid "unsupported system"
 msgstr ""
 
 #: internal/data/website.go:1179
+#: internal/data/website.go:1236
 msgid "unsupported web server: %s"
 msgstr ""
 
@@ -2468,7 +2470,7 @@ msgstr ""
 msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
-#: internal/service/file.go:160
+#: internal/service/file.go:161
 msgid "upload file error: %v"
 msgstr ""
 
@@ -2507,11 +2509,11 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/service/file.go:714
+#: internal/service/file.go:715
 msgid "write chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:183
+#: internal/service/file.go:184
 msgid "write file error: %v"
 msgstr ""
 

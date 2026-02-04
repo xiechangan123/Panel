@@ -12,32 +12,32 @@ msgstr ""
 "X-Crowdin-File: frontend.pot\n"
 "X-Crowdin-File-ID: 1168\n"
 
-#: src/components/common/AppFooter.vue:13 src/views/home/IndexView.vue:467
+#: src/components/common/AppFooter.vue:18 src/views/home/IndexView.vue:494
 msgid "AcePanel"
 msgstr "AcePanel"
 
-#: src/components/common/AppFooter.vue:15
+#: src/components/common/AppFooter.vue:20
 msgid "All Rights Reserved."
 msgstr "版權所有"
 
-#: src/components/common/AppFooter.vue:23
+#: src/components/common/AppFooter.vue:29
 msgid "QQ Group"
 msgstr "QQ 群"
 
-#: src/components/common/AppFooter.vue:27 src/locales/menu.ts:23
+#: src/components/common/AppFooter.vue:38 src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:315 src/views/backup/IndexView.vue:38
 #: src/views/backup/ListView.vue:251 src/views/backup/ListView.vue:287
 #: src/views/cert/CertView.vue:455 src/views/cert/CertView.vue:541
-#: src/views/cert/CreateCertModal.vue:90 src/views/home/IndexView.vue:449
+#: src/views/cert/CreateCertModal.vue:90 src/views/home/IndexView.vue:476
 #: src/views/task/CreateModal.vue:158
 msgid "Website"
 msgstr "網站"
 
-#: src/components/common/AppFooter.vue:35
+#: src/components/common/AppFooter.vue:47
 msgid "Community"
 msgstr "社區"
 
-#: src/components/common/AppFooter.vue:43
+#: src/components/common/AppFooter.vue:56
 msgid "Sponsor"
 msgstr "贊助"
 
@@ -203,17 +203,17 @@ msgstr "輸入 Cron 表達式"
 #: src/components/common/PtyTerminalModal.vue:195
 #: src/components/common/PtyTerminalModal.vue:199
 #: src/layout/header/components/UserAvatar.vue:29
-#: src/views/app/TemplateDeployModal.vue:341 src/views/home/UpdateView.vue:26
-#: src/views/monitor/IndexView.vue:600 src/views/toolbox/DiskView.vue:404
-#: src/views/toolbox/DiskView.vue:406 src/views/toolbox/DiskView.vue:429
-#: src/views/toolbox/DiskView.vue:431 src/views/toolbox/DiskView.vue:501
-#: src/views/toolbox/DiskView.vue:505 src/views/toolbox/DiskView.vue:524
-#: src/views/toolbox/DiskView.vue:543 src/views/toolbox/DiskView.vue:547
-#: src/views/toolbox/DiskView.vue:568 src/views/toolbox/DiskView.vue:587
-#: src/views/toolbox/DiskView.vue:595 src/views/toolbox/DiskView.vue:617
-#: src/views/toolbox/DiskView.vue:636 src/views/toolbox/DiskView.vue:641
-#: src/views/toolbox/DiskView.vue:664 src/views/toolbox/ProcessView.vue:236
-#: src/views/toolbox/ProcessView.vue:241
+#: src/views/app/TemplateDeployModal.vue:341 src/views/home/IndexView.vue:930
+#: src/views/home/UpdateView.vue:26 src/views/monitor/IndexView.vue:600
+#: src/views/toolbox/DiskView.vue:404 src/views/toolbox/DiskView.vue:406
+#: src/views/toolbox/DiskView.vue:429 src/views/toolbox/DiskView.vue:431
+#: src/views/toolbox/DiskView.vue:501 src/views/toolbox/DiskView.vue:505
+#: src/views/toolbox/DiskView.vue:524 src/views/toolbox/DiskView.vue:543
+#: src/views/toolbox/DiskView.vue:547 src/views/toolbox/DiskView.vue:568
+#: src/views/toolbox/DiskView.vue:587 src/views/toolbox/DiskView.vue:595
+#: src/views/toolbox/DiskView.vue:617 src/views/toolbox/DiskView.vue:636
+#: src/views/toolbox/DiskView.vue:641 src/views/toolbox/DiskView.vue:664
+#: src/views/toolbox/ProcessView.vue:236 src/views/toolbox/ProcessView.vue:241
 msgid "Confirm"
 msgstr "確認"
 
@@ -231,15 +231,15 @@ msgstr "確認"
 #: src/views/file/EditModal.vue:41 src/views/file/ListView.vue:245
 #: src/views/file/ListView.vue:738 src/views/file/ListView.vue:863
 #: src/views/file/ToolBar.vue:125 src/views/file/ToolBar.vue:260
-#: src/views/file/UploadModal.vue:335 src/views/file/UploadModal.vue:444
-#: src/views/home/UpdateView.vue:27 src/views/project/EditModal.vue:572
-#: src/views/toolbox/DiskView.vue:407 src/views/toolbox/DiskView.vue:432
-#: src/views/toolbox/DiskView.vue:455 src/views/toolbox/DiskView.vue:481
-#: src/views/toolbox/DiskView.vue:506 src/views/toolbox/DiskView.vue:525
-#: src/views/toolbox/DiskView.vue:548 src/views/toolbox/DiskView.vue:569
-#: src/views/toolbox/DiskView.vue:596 src/views/toolbox/DiskView.vue:618
-#: src/views/toolbox/DiskView.vue:642 src/views/toolbox/DiskView.vue:665
-#: src/views/toolbox/ProcessView.vue:242
+#: src/views/file/UploadModal.vue:340 src/views/file/UploadModal.vue:450
+#: src/views/home/IndexView.vue:931 src/views/home/UpdateView.vue:27
+#: src/views/project/EditModal.vue:574 src/views/toolbox/DiskView.vue:407
+#: src/views/toolbox/DiskView.vue:432 src/views/toolbox/DiskView.vue:455
+#: src/views/toolbox/DiskView.vue:481 src/views/toolbox/DiskView.vue:506
+#: src/views/toolbox/DiskView.vue:525 src/views/toolbox/DiskView.vue:548
+#: src/views/toolbox/DiskView.vue:569 src/views/toolbox/DiskView.vue:596
+#: src/views/toolbox/DiskView.vue:618 src/views/toolbox/DiskView.vue:642
+#: src/views/toolbox/DiskView.vue:665 src/views/toolbox/ProcessView.vue:242
 msgid "Cancel"
 msgstr "取消"
 
@@ -342,7 +342,7 @@ msgstr "選擇文件"
 #: src/views/ssh/UpdateModal.vue:65 src/views/toolbox/LogView.vue:216
 #: src/views/toolbox/ProcessView.vue:109 src/views/toolbox/ProcessView.vue:388
 #: src/views/toolbox/WebHookView.vue:33 src/views/toolbox/WebHookView.vue:332
-#: src/views/toolbox/WebHookView.vue:367 src/views/website/CreateModal.vue:123
+#: src/views/toolbox/WebHookView.vue:367 src/views/website/CreateModal.vue:181
 #: src/views/website/EditView.vue:1836
 msgid "Name"
 msgstr "名稱"
@@ -414,10 +414,10 @@ msgstr "文件夾"
 #: src/components/common/PathSelector.vue:380
 #: src/views/app/TemplateDeployModal.vue:651
 #: src/views/container/ContainerCreate.vue:539
-#: src/views/project/CreateModal.vue:608 src/views/setting/TokenModal.vue:266
+#: src/views/project/CreateModal.vue:610 src/views/setting/TokenModal.vue:266
 #: src/views/toolbox/WebHookView.vue:352
-#: src/views/website/BulkCreateModal.vue:128
-#: src/views/website/CreateModal.vue:264
+#: src/views/website/BulkCreateModal.vue:190
+#: src/views/website/CreateModal.vue:334
 msgid "Create"
 msgstr "創建"
 
@@ -519,10 +519,10 @@ msgstr "暫無日誌數據"
 msgid "Logs"
 msgstr "日誌"
 
-#: src/components/common/ServiceStatus.vue:25 src/views/home/IndexView.vue:770
-#: src/views/home/IndexView.vue:778 src/views/home/IndexView.vue:785
-#: src/views/home/IndexView.vue:791 src/views/home/IndexView.vue:802
-#: src/views/home/IndexView.vue:814
+#: src/components/common/ServiceStatus.vue:25 src/views/home/IndexView.vue:794
+#: src/views/home/IndexView.vue:802 src/views/home/IndexView.vue:809
+#: src/views/home/IndexView.vue:815 src/views/home/IndexView.vue:826
+#: src/views/home/IndexView.vue:838
 msgid "Loading..."
 msgstr "載入中……"
 
@@ -639,7 +639,7 @@ msgstr "您確定要停止 %{ service } 嗎？"
 #: src/components/common/ServiceStatus.vue:162
 #: src/views/apps/supervisor/IndexView.vue:168
 #: src/views/container/ContainerView.vue:171
-#: src/views/container/ContainerView.vue:564 src/views/home/IndexView.vue:475
+#: src/views/container/ContainerView.vue:564 src/views/home/IndexView.vue:501
 #: src/views/project/ListView.vue:144
 msgid "Restart"
 msgstr "重啟"
@@ -770,7 +770,7 @@ msgstr "保存（Ctrl+S）"
 #: src/views/environment/GoView.vue:90 src/views/environment/NodejsView.vue:93
 #: src/views/environment/PHPView.vue:238 src/views/environment/PHPView.vue:256
 #: src/views/environment/PythonView.vue:97 src/views/file/EditModal.vue:40
-#: src/views/project/EditModal.vue:575 src/views/setting/IndexView.vue:107
+#: src/views/project/EditModal.vue:577 src/views/setting/IndexView.vue:107
 #: src/views/task/CronView.vue:284 src/views/toolbox/SshView.vue:239
 #: src/views/toolbox/SystemView.vue:190 src/views/toolbox/SystemView.vue:214
 #: src/views/toolbox/SystemView.vue:232 src/views/toolbox/SystemView.vue:270
@@ -822,7 +822,7 @@ msgstr "切換小地圖"
 
 #: src/components/file-editor/EditorToolbar.vue:291
 #: src/views/firewall/IndexView.vue:23 src/views/ssh/IndexView.vue:562
-#: src/views/website/IndexView.vue:24
+#: src/views/website/IndexView.vue:25
 msgid "Settings"
 msgstr "設置"
 
@@ -921,7 +921,7 @@ msgstr "尾部"
 #: src/components/file-editor/FileEditorView.vue:211
 #: src/views/app/AppView.vue:229 src/views/app/EnvironmentView.vue:217
 #: src/views/app/TemplateView.vue:72 src/views/firewall/RuleView.vue:150
-#: src/views/project/IndexView.vue:21
+#: src/views/project/IndexView.vue:21 src/views/website/IndexView.vue:21
 msgid "All"
 msgstr "全部"
 
@@ -1240,8 +1240,8 @@ msgid "Container"
 msgstr "容器"
 
 #: src/locales/menu.ts:11 src/views/backup/ListView.vue:294
-#: src/views/database/IndexView.vue:27 src/views/home/IndexView.vue:453
-#: src/views/website/CreateModal.vue:170
+#: src/views/database/IndexView.vue:27 src/views/home/IndexView.vue:480
+#: src/views/website/CreateModal.vue:240
 msgid "Database"
 msgstr "數據庫"
 
@@ -1261,7 +1261,7 @@ msgstr "首頁"
 msgid "Monitoring"
 msgstr "監控"
 
-#: src/locales/menu.ts:17 src/views/home/IndexView.vue:458
+#: src/locales/menu.ts:17 src/views/home/IndexView.vue:485
 msgid "Project"
 msgstr "項目"
 
@@ -1279,7 +1279,7 @@ msgstr "工具箱"
 
 #: src/locales/menu.ts:22 src/views/app/AppView.vue:93
 #: src/views/app/EnvironmentView.vue:78
-#: src/views/app/TemplateDeployModal.vue:651 src/views/home/IndexView.vue:479
+#: src/views/app/TemplateDeployModal.vue:651 src/views/home/IndexView.vue:503
 #: src/views/setting/TokenModal.vue:299
 msgid "Update"
 msgstr "更新"
@@ -1529,7 +1529,7 @@ msgstr "自動放行在 compose 中定義的端口"
 #: src/views/container/ComposeView.vue:367
 #: src/views/container/ComposeView.vue:393
 #: src/views/container/ContainerCreate.vue:454
-#: src/views/project/EditModal.vue:373 src/views/toolbox/ProcessView.vue:440
+#: src/views/project/EditModal.vue:375 src/views/toolbox/ProcessView.vue:440
 msgid "Environment Variables"
 msgstr "環境變數"
 
@@ -1687,7 +1687,7 @@ msgstr ""
 #: src/views/apps/nginx/NginxIndex.vue:535
 #: src/views/apps/postgresql/IndexView.vue:144
 #: src/views/apps/redis/IndexView.vue:68 src/views/environment/PHPView.vue:261
-#: src/views/home/IndexView.vue:490
+#: src/views/home/IndexView.vue:514
 msgid "Load Status"
 msgstr "負載狀態"
 
@@ -2574,7 +2574,7 @@ msgstr "建議使用生成器生成隨機密碼"
 #: src/views/apps/rsync/IndexView.vue:46 src/views/apps/rsync/IndexView.vue:264
 #: src/views/apps/rsync/IndexView.vue:318
 #: src/views/container/ComposeView.vue:64 src/views/file/PropertyModal.vue:34
-#: src/views/project/ListView.vue:95 src/views/website/CreateModal.vue:227
+#: src/views/project/ListView.vue:95 src/views/website/CreateModal.vue:297
 #: src/views/website/ListView.vue:103
 msgid "Directory"
 msgstr "目錄"
@@ -2757,7 +2757,7 @@ msgid "Daemon Logs"
 msgstr "守護進程日誌"
 
 #: src/views/apps/supervisor/IndexView.vue:381
-#: src/views/project/CreateModal.vue:563 src/views/project/EditModal.vue:250
+#: src/views/project/CreateModal.vue:565 src/views/project/EditModal.vue:252
 msgid "Start Command"
 msgstr "啟動命令"
 
@@ -2837,8 +2837,8 @@ msgstr "選擇網站"
 #: src/views/backup/ListView.vue:258
 #: src/views/database/CreateDatabaseModal.vue:82
 #: src/views/database/DatabaseList.vue:35 src/views/task/CreateModal.vue:182
-#: src/views/task/CreateModal.vue:184 src/views/website/CreateModal.vue:191
-#: src/views/website/CreateModal.vue:196
+#: src/views/task/CreateModal.vue:184 src/views/website/CreateModal.vue:261
+#: src/views/website/CreateModal.vue:266
 msgid "Database Name"
 msgstr "數據庫名稱"
 
@@ -2959,7 +2959,7 @@ msgstr "輸入主機"
 #: src/views/database/UpdateServerModal.vue:76
 #: src/views/firewall/ForwardView.vue:31 src/views/firewall/RuleView.vue:48
 #: src/views/setting/SettingBase.vue:125 src/views/ssh/CreateModal.vue:70
-#: src/views/ssh/UpdateModal.vue:76 src/views/website/CreateModal.vue:146
+#: src/views/ssh/UpdateModal.vue:76 src/views/website/CreateModal.vue:216
 msgid "Port"
 msgstr "端口"
 
@@ -3000,7 +3000,7 @@ msgstr "編輯儲存"
 msgid "Upload %{ filename } successfully"
 msgstr "上傳 %{ filename } 成功"
 
-#: src/views/backup/UploadModal.vue:50 src/views/file/UploadModal.vue:490
+#: src/views/backup/UploadModal.vue:50 src/views/file/UploadModal.vue:500
 msgid "Click or drag files to this area to upload"
 msgstr "點擊或將文件拖到此區域上傳"
 
@@ -3087,13 +3087,13 @@ msgid "Enter HMAC"
 msgstr "輸入 HMAC"
 
 #: src/views/cert/CertView.vue:63 src/views/cert/CertView.vue:439
-#: src/views/cert/CreateCertModal.vue:74 src/views/project/CreateModal.vue:583
-#: src/views/website/CreateModal.vue:135 src/views/website/EditView.vue:718
+#: src/views/cert/CreateCertModal.vue:74 src/views/project/CreateModal.vue:585
+#: src/views/website/CreateModal.vue:193 src/views/website/EditView.vue:718
 msgid "Domain"
 msgstr "域名"
 
 #: src/views/cert/CertView.vue:108 src/views/file/ToolBar.vue:233
-#: src/views/file/UploadModal.vue:459 src/views/monitor/IndexView.vue:492
+#: src/views/file/UploadModal.vue:465 src/views/monitor/IndexView.vue:492
 msgid "Upload"
 msgstr "上傳"
 
@@ -3457,7 +3457,7 @@ msgid "e.g., nginx, mysql:8.4, your_username/your_image:tag"
 msgstr "例如 nginx，mysql:8.4，your_username/your_image:tag"
 
 #: src/views/container/ContainerCreate.vue:211 src/views/home/IndexView.vue:147
-#: src/views/home/IndexView.vue:834 src/views/monitor/IndexView.vue:851
+#: src/views/home/IndexView.vue:858 src/views/monitor/IndexView.vue:851
 msgid "Network"
 msgstr "網絡"
 
@@ -3466,7 +3466,7 @@ msgid "Select network"
 msgstr "選擇網絡"
 
 #: src/views/container/ContainerCreate.vue:219
-#: src/views/project/EditModal.vue:291
+#: src/views/project/EditModal.vue:293
 msgid "Restart Policy"
 msgstr "重啟策略"
 
@@ -3561,7 +3561,7 @@ msgid ""
 msgstr "將主機目錄或卷掛載到容器中。主機目錄需使用絕對路徑。"
 
 #: src/views/container/ContainerCreate.vue:380
-#: src/views/project/EditModal.vue:451
+#: src/views/project/EditModal.vue:453
 msgid "Resource Limits"
 msgstr "資源限制"
 
@@ -3594,7 +3594,7 @@ msgstr "CPU 份額"
 msgid "Resource Limit Description"
 msgstr "資源限制描述"
 
-#: src/views/container/ContainerCreate.vue:428 src/views/home/IndexView.vue:565
+#: src/views/container/ContainerCreate.vue:428 src/views/home/IndexView.vue:589
 #: src/views/monitor/IndexView.vue:435 src/views/monitor/IndexView.vue:451
 #: src/views/monitor/IndexView.vue:728 src/views/toolbox/BenchmarkView.vue:177
 #: src/views/toolbox/ProcessView.vue:155
@@ -3623,12 +3623,12 @@ msgid "Environment"
 msgstr "環境"
 
 #: src/views/container/ContainerCreate.vue:464
-#: src/views/project/EditModal.vue:383
+#: src/views/project/EditModal.vue:385
 msgid "Variable name"
 msgstr "變量名稱"
 
 #: src/views/container/ContainerCreate.vue:470
-#: src/views/project/EditModal.vue:389
+#: src/views/project/EditModal.vue:391
 msgid "Variable value"
 msgstr "變量值"
 
@@ -3924,7 +3924,7 @@ msgstr "選項名稱"
 msgid "Option Value"
 msgstr "選項值"
 
-#: src/views/container/VolumeView.vue:47 src/views/home/IndexView.vue:680
+#: src/views/container/VolumeView.vue:47 src/views/home/IndexView.vue:704
 #: src/views/toolbox/DiskView.vue:325 src/views/toolbox/DiskView.vue:823
 msgid "Mount Point"
 msgstr "掛載點"
@@ -4342,8 +4342,8 @@ msgstr ""
 "%{ name } 具有不可變屬性。面板將暫時移除不可變屬性，執行操作，然後恢復不可變"
 "屬性。您要繼續嗎？"
 
-#: src/views/file/ListView.vue:244 src/views/file/UploadModal.vue:334
-#: src/views/file/UploadModal.vue:443
+#: src/views/file/ListView.vue:244 src/views/file/UploadModal.vue:339
+#: src/views/file/UploadModal.vue:449
 msgid "Continue"
 msgstr "繼續"
 
@@ -4395,10 +4395,6 @@ msgstr "存在同名項目。您要覆蓋嗎？"
 #: src/views/file/ToolBar.vue:124
 msgid "Overwrite"
 msgstr "覆蓋"
-
-#: src/views/file/UploadModal.vue
-msgid "Overwrite existing files"
-msgstr "覆蓋已存在的檔案"
 
 #: src/views/file/ListView.vue:744 src/views/file/ListView.vue:763
 msgid "Renamed %{ source } to %{ target } successfully"
@@ -4514,7 +4510,7 @@ msgstr "擁有者"
 #: src/views/file/PermissionModal.vue:121
 #: src/views/file/PermissionModal.vue:130
 #: src/views/file/PermissionModal.vue:139 src/views/home/IndexView.vue:171
-#: src/views/home/IndexView.vue:187 src/views/home/IndexView.vue:879
+#: src/views/home/IndexView.vue:187 src/views/home/IndexView.vue:903
 #: src/views/monitor/IndexView.vue:535
 msgid "Read"
 msgstr "讀取"
@@ -4522,7 +4518,7 @@ msgstr "讀取"
 #: src/views/file/PermissionModal.vue:122
 #: src/views/file/PermissionModal.vue:131
 #: src/views/file/PermissionModal.vue:140 src/views/home/IndexView.vue:171
-#: src/views/home/IndexView.vue:211 src/views/home/IndexView.vue:880
+#: src/views/home/IndexView.vue:211 src/views/home/IndexView.vue:904
 #: src/views/monitor/IndexView.vue:544
 msgid "Write"
 msgstr "寫入"
@@ -4601,25 +4597,29 @@ msgstr "下載 URL"
 msgid "Save as"
 msgstr "另存為"
 
-#: src/views/file/UploadModal.vue:301 src/views/file/UploadModal.vue:403
+#: src/views/file/UploadModal.vue:306 src/views/file/UploadModal.vue:409
 msgid "Upload %{ fileName } successful"
 msgstr "上傳 %{ fileName } 成功"
 
-#: src/views/file/UploadModal.vue:329 src/views/file/UploadModal.vue:438
+#: src/views/file/UploadModal.vue:334 src/views/file/UploadModal.vue:444
 msgid "Confirm Upload"
 msgstr "確認上傳"
 
-#: src/views/file/UploadModal.vue:330 src/views/file/UploadModal.vue:439
+#: src/views/file/UploadModal.vue:335 src/views/file/UploadModal.vue:445
 msgid ""
 "You are about to upload %{count} files. This may take a while. Do you want "
 "to continue?"
 msgstr "您即將上傳 %{count} 個文件。這可能需要一些時間。您想繼續嗎？"
 
-#: src/views/file/UploadModal.vue:475
+#: src/views/file/UploadModal.vue:474
+msgid "Overwrite existing files"
+msgstr "覆蓋已存在的檔案"
+
+#: src/views/file/UploadModal.vue:485
 msgid "Preparing..."
 msgstr "準備中……"
 
-#: src/views/file/UploadModal.vue:493
+#: src/views/file/UploadModal.vue:503
 msgid ""
 "For large files, it is recommended to use SFTP and other methods to upload"
 msgstr "對於大檔案，建議使用 SFTP 等方法上傳"
@@ -4802,8 +4802,8 @@ msgstr "運行正常"
 msgid "Running smoothly"
 msgstr "運行流暢"
 
-#: src/views/home/IndexView.vue:147 src/views/home/IndexView.vue:835
-#: src/views/home/IndexView.vue:855 src/views/toolbox/BenchmarkView.vue:203
+#: src/views/home/IndexView.vue:147 src/views/home/IndexView.vue:859
+#: src/views/home/IndexView.vue:879 src/views/toolbox/BenchmarkView.vue:203
 #: src/views/toolbox/DiskView.vue:799 src/views/toolbox/IndexView.vue:26
 msgid "Disk"
 msgstr "磁碟"
@@ -4846,27 +4846,23 @@ msgstr "面板重啟中……"
 msgid "Panel restarted successfully"
 msgstr "面板重啟成功"
 
-#: src/views/home/IndexView.vue:338
+#: src/views/home/IndexView.vue:343
 msgid "Server restarting..."
 msgstr "伺服器重啟中……"
 
-#: src/views/home/IndexView.vue:344
+#: src/views/home/IndexView.vue:349
 msgid "Restart Panel"
 msgstr "重啟面板"
 
-#: src/views/home/IndexView.vue:348
+#: src/views/home/IndexView.vue:353 src/views/home/IndexView.vue:928
 msgid "Restart Server"
 msgstr "重啟伺服器"
 
-#: src/views/home/IndexView.vue:362
-msgid "Are you sure you want to restart the server? This will disconnect all connections."
-msgstr "您確定要重啟伺服器嗎？這將斷開所有連線。"
-
-#: src/views/home/IndexView.vue:344
+#: src/views/home/IndexView.vue:371
 msgid "Current version is the latest"
 msgstr "當前版本是最新版本"
 
-#: src/views/home/IndexView.vue:426
+#: src/views/home/IndexView.vue:453
 msgid ""
 "Your operating system %{ os_name } has reached its end-of-life. Please "
 "consider upgrading to a supported version to ensure optimal performance and "
@@ -4875,7 +4871,7 @@ msgstr ""
 "您的操作系統 %{ os_name } 已經結束生命週期。請考慮升級到受支持的版本，以確保"
 "最佳的性能和安全性。"
 
-#: src/views/home/IndexView.vue:437
+#: src/views/home/IndexView.vue:464
 msgid ""
 "Your operating system %{ os_name } is not officially supported. Some "
 "features may not work as expected. Please consider using a supported "
@@ -4884,198 +4880,200 @@ msgstr ""
 "您的操作系統 %{ os_name } 不受官方支持。某些功能可能無法按預期工作。請考慮使"
 "用受支持的操作系統以獲得最佳體驗。"
 
-#: src/views/home/IndexView.vue:462 src/views/task/IndexView.vue:23
+#: src/views/home/IndexView.vue:489 src/views/task/IndexView.vue:23
 msgid "Scheduled Tasks"
 msgstr "計劃任務"
 
-#: src/views/home/IndexView.vue:471
+#: src/views/home/IndexView.vue:498
 msgid "Sponsor Support"
 msgstr "贊助支持"
 
-#: src/views/home/IndexView.vue:477
-msgid "Are you sure you want to restart the panel?"
-msgstr "您確定要重啟面板嗎？"
-
-#: src/views/home/IndexView.vue:485
+#: src/views/home/IndexView.vue:509
 msgid "Resource Overview"
 msgstr "資源概覽"
 
-#: src/views/home/IndexView.vue:503
+#: src/views/home/IndexView.vue:527
 msgid "Last 1 minute"
 msgstr "最近 1 分鐘"
 
-#: src/views/home/IndexView.vue:510
+#: src/views/home/IndexView.vue:534
 msgid "Last 5 minutes"
 msgstr "最近 5 分鐘"
 
-#: src/views/home/IndexView.vue:517
+#: src/views/home/IndexView.vue:541
 msgid "Last 15 minutes"
 msgstr "最近 15 分鐘"
 
-#: src/views/home/IndexView.vue:536 src/views/home/IndexView.vue:548
+#: src/views/home/IndexView.vue:560 src/views/home/IndexView.vue:572
 msgid "cores"
 msgstr "核心"
 
-#: src/views/home/IndexView.vue:542
+#: src/views/home/IndexView.vue:566
 msgid "Model"
 msgstr "型號"
 
-#: src/views/home/IndexView.vue:546
+#: src/views/home/IndexView.vue:570
 msgid "Parameters"
 msgstr "參數"
 
-#: src/views/home/IndexView.vue:549
+#: src/views/home/IndexView.vue:573
 msgid "cache"
 msgstr "快取"
 
-#: src/views/home/IndexView.vue:555 src/views/monitor/IndexView.vue:405
+#: src/views/home/IndexView.vue:579 src/views/monitor/IndexView.vue:405
 #: src/views/toolbox/DiskView.vue:302
 msgid "Usage"
 msgstr "使用率"
 
-#: src/views/home/IndexView.vue:556
+#: src/views/home/IndexView.vue:580
 msgid "Frequency"
 msgstr "頻率"
 
-#: src/views/home/IndexView.vue:578
+#: src/views/home/IndexView.vue:602
 msgid "Active"
 msgstr "活躍"
 
-#: src/views/home/IndexView.vue:584 src/views/project/ListView.vue:74
+#: src/views/home/IndexView.vue:608 src/views/project/ListView.vue:74
 msgid "Inactive"
 msgstr "非活躍"
 
-#: src/views/home/IndexView.vue:590 src/views/toolbox/DiskView.vue:255
+#: src/views/home/IndexView.vue:614 src/views/toolbox/DiskView.vue:255
 msgid "Free"
 msgstr "空閒"
 
-#: src/views/home/IndexView.vue:596
+#: src/views/home/IndexView.vue:620
 msgid "Shared"
 msgstr "共享"
 
-#: src/views/home/IndexView.vue:602
+#: src/views/home/IndexView.vue:626
 msgid "Committed"
 msgstr "已提交"
 
-#: src/views/home/IndexView.vue:608
+#: src/views/home/IndexView.vue:632
 msgid "Commit Limit"
 msgstr "提交限制"
 
-#: src/views/home/IndexView.vue:614
+#: src/views/home/IndexView.vue:638
 msgid "SWAP Size"
 msgstr "SWAP 大小"
 
-#: src/views/home/IndexView.vue:620
+#: src/views/home/IndexView.vue:644
 msgid "SWAP Used"
 msgstr "已用 SWAP"
 
-#: src/views/home/IndexView.vue:626
+#: src/views/home/IndexView.vue:650
 msgid "SWAP Available"
 msgstr "可用 SWAP"
 
-#: src/views/home/IndexView.vue:632
+#: src/views/home/IndexView.vue:656
 msgid "Physical Memory Size"
 msgstr "物理記憶體大小"
 
-#: src/views/home/IndexView.vue:638
+#: src/views/home/IndexView.vue:662
 msgid "Physical Memory Used"
 msgstr "已用物理記憶體"
 
-#: src/views/home/IndexView.vue:644
+#: src/views/home/IndexView.vue:668
 msgid "Physical Memory Available"
 msgstr "可用實體記憶體"
 
-#: src/views/home/IndexView.vue:684
+#: src/views/home/IndexView.vue:708
 msgid "File System"
 msgstr "檔案系統"
 
-#: src/views/home/IndexView.vue:688
+#: src/views/home/IndexView.vue:712
 msgid "Inodes Usage"
 msgstr "Inodes 使用率"
 
-#: src/views/home/IndexView.vue:692
+#: src/views/home/IndexView.vue:716
 msgid "Inodes Total"
 msgstr "Inodes 總數"
 
-#: src/views/home/IndexView.vue:696
+#: src/views/home/IndexView.vue:720
 msgid "Inodes Used"
 msgstr "已用 Inodes"
 
-#: src/views/home/IndexView.vue:700
+#: src/views/home/IndexView.vue:724
 msgid "Inodes Available"
 msgstr "可用 Inodes"
 
-#: src/views/home/IndexView.vue:718
+#: src/views/home/IndexView.vue:742
 msgid "Quick Apps"
 msgstr "快速應用"
 
-#: src/views/home/IndexView.vue:761
+#: src/views/home/IndexView.vue:785
 msgid "You have not set any apps to display here!"
 msgstr "您尚未設置任何要在此處顯示的應用！"
 
-#: src/views/home/IndexView.vue:765
+#: src/views/home/IndexView.vue:789
 msgid "Environment Information"
 msgstr "環境資訊"
 
-#: src/views/home/IndexView.vue:768 src/views/toolbox/SystemView.vue:221
+#: src/views/home/IndexView.vue:792 src/views/toolbox/SystemView.vue:221
 msgid "System Hostname"
 msgstr "系統主機名"
 
-#: src/views/home/IndexView.vue:774
+#: src/views/home/IndexView.vue:798
 msgid "System Version"
 msgstr "系統版本"
 
-#: src/views/home/IndexView.vue:783
+#: src/views/home/IndexView.vue:807
 msgid "System Kernel Version"
 msgstr "系統內核版本"
 
-#: src/views/home/IndexView.vue:789
+#: src/views/home/IndexView.vue:813
 msgid "System Uptime"
 msgstr "系統運行時間"
 
-#: src/views/home/IndexView.vue:795
+#: src/views/home/IndexView.vue:819
 msgid "Panel Internal Version"
 msgstr "面板內部版本"
 
-#: src/views/home/IndexView.vue:807
+#: src/views/home/IndexView.vue:831
 msgid "Panel Compile Information"
 msgstr "面板編譯資訊"
 
-#: src/views/home/IndexView.vue:824
+#: src/views/home/IndexView.vue:848
 msgid "Real-time Monitoring"
 msgstr "即時監控"
 
-#: src/views/home/IndexView.vue:838
+#: src/views/home/IndexView.vue:862
 msgid "Unit"
 msgstr "單位"
 
-#: src/views/home/IndexView.vue:846
+#: src/views/home/IndexView.vue:870
 msgid "Network Card"
 msgstr "網卡"
 
-#: src/views/home/IndexView.vue:866
+#: src/views/home/IndexView.vue:890
 msgid "Total Sent"
 msgstr "總發送量"
 
-#: src/views/home/IndexView.vue:868
+#: src/views/home/IndexView.vue:892
 msgid "Total Received"
 msgstr "總接收量"
 
-#: src/views/home/IndexView.vue:871
+#: src/views/home/IndexView.vue:895
 msgid "Real-time Sent"
 msgstr "實時發送"
 
-#: src/views/home/IndexView.vue:875
+#: src/views/home/IndexView.vue:899
 msgid "Real-time Received"
 msgstr "實時接收"
 
-#: src/views/home/IndexView.vue:882
+#: src/views/home/IndexView.vue:906
 msgid "Real-time Read/Write"
 msgstr "實時讀/寫"
 
-#: src/views/home/IndexView.vue:885
+#: src/views/home/IndexView.vue:909
 msgid "Read/Write Latency"
 msgstr "讀/寫延遲"
+
+#: src/views/home/IndexView.vue:929
+msgid ""
+"Are you sure you want to restart the server? This will disconnect all "
+"connections."
+msgstr "您確定要重啟伺服器嗎？這將斷開所有連線。"
 
 #: src/views/home/UpdateView.vue:24
 msgid "Update Panel"
@@ -5388,12 +5386,12 @@ msgstr "Node.js 版本"
 msgid "Select Node.js Version"
 msgstr "選擇 Node.js 版本"
 
-#: src/views/project/CreateModal.vue:498 src/views/website/CreateModal.vue:158
+#: src/views/project/CreateModal.vue:498 src/views/website/CreateModal.vue:228
 #: src/views/website/EditView.vue:778
 msgid "PHP Version"
 msgstr "PHP 版本"
 
-#: src/views/project/CreateModal.vue:502 src/views/website/CreateModal.vue:162
+#: src/views/project/CreateModal.vue:502 src/views/website/CreateModal.vue:232
 #: src/views/website/EditView.vue:783
 msgid "Select PHP Version"
 msgstr "選擇 PHP 版本"
@@ -5407,30 +5405,33 @@ msgid "Select Python Version"
 msgstr "選擇 Python 版本"
 
 #: src/views/project/CreateModal.vue:554 src/views/project/EditModal.vue:240
-msgid "Select User"
-msgstr "選擇用戶"
+#, fuzzy
+msgid "Select or enter user"
+msgstr "選擇或輸入條件"
 
-#: src/views/project/CreateModal.vue:559
+#: src/views/project/CreateModal.vue:561
 msgid "Select www user if no special requirements"
 msgstr "如果沒有特殊要求，請選擇 www 用戶"
 
-#: src/views/project/CreateModal.vue:568 src/views/project/EditModal.vue:255
+#: src/views/project/CreateModal.vue:570 src/views/project/EditModal.vue:257
 msgid "e.g., php artisan serve, node app.js"
 msgstr "例如，php artisan serve、node app.js"
 
-#: src/views/project/CreateModal.vue:571 src/views/website/IndexView.vue:21
+#: src/views/project/CreateModal.vue:573
+#: src/views/website/BulkCreateModal.vue:38
+#: src/views/website/CreateModal.vue:28 src/views/website/IndexView.vue:22
 msgid "Reverse Proxy"
 msgstr "反向代理"
 
-#: src/views/project/CreateModal.vue:575
+#: src/views/project/CreateModal.vue:577
 msgid "Automatically create a reverse proxy website for this project"
 msgstr "自動為此專案創建反向代理網站"
 
-#: src/views/project/CreateModal.vue:593
+#: src/views/project/CreateModal.vue:595
 msgid "Project Port"
 msgstr "專案連接埠"
 
-#: src/views/project/CreateModal.vue:599
+#: src/views/project/CreateModal.vue:601
 msgid "e.g., 3000"
 msgstr "例如 3000"
 
@@ -5488,83 +5489,83 @@ msgstr "項目根目錄"
 msgid "Working directory (optional, defaults to project directory)"
 msgstr "工作目錄（可選，默認為項目目錄）"
 
-#: src/views/project/EditModal.vue:248
+#: src/views/project/EditModal.vue:250
 msgid "Runtime Settings"
 msgstr "運行設置"
 
-#: src/views/project/EditModal.vue:258
+#: src/views/project/EditModal.vue:260
 msgid "Pre-start Command"
 msgstr "預啟動命令"
 
-#: src/views/project/EditModal.vue:263
+#: src/views/project/EditModal.vue:265
 msgid "Command to run before starting (optional)"
 msgstr "啟動前運行的命令（可選）"
 
-#: src/views/project/EditModal.vue:266
+#: src/views/project/EditModal.vue:268
 msgid "Post-start Command"
 msgstr "啟動後命令"
 
-#: src/views/project/EditModal.vue:271
+#: src/views/project/EditModal.vue:273
 msgid "Command to run after starting (optional)"
 msgstr "啟動後運行的命令（可選）"
 
-#: src/views/project/EditModal.vue:274
+#: src/views/project/EditModal.vue:276
 msgid "Stop Command"
 msgstr "停止命令"
 
-#: src/views/project/EditModal.vue:279
+#: src/views/project/EditModal.vue:281
 msgid "Custom stop command (optional)"
 msgstr "自定義停止命令（可選）"
 
-#: src/views/project/EditModal.vue:282
+#: src/views/project/EditModal.vue:284
 msgid "Reload Command"
 msgstr "重載命令"
 
-#: src/views/project/EditModal.vue:287
+#: src/views/project/EditModal.vue:289
 msgid "Custom reload command (optional)"
 msgstr "自定義重載命令（可選）"
 
-#: src/views/project/EditModal.vue:295
+#: src/views/project/EditModal.vue:297
 msgid "Restart Strategy"
 msgstr "重啟策略"
 
-#: src/views/project/EditModal.vue:304
+#: src/views/project/EditModal.vue:306
 msgid "Restart Interval"
 msgstr "重啟間隔"
 
-#: src/views/project/EditModal.vue:309
+#: src/views/project/EditModal.vue:311
 msgid "e.g., 5s, 1min"
 msgstr "例如 5s，1min"
 
-#: src/views/project/EditModal.vue:316
+#: src/views/project/EditModal.vue:318
 msgid "Max Restarts"
 msgstr "最大重啟次數"
 
-#: src/views/project/EditModal.vue:326
+#: src/views/project/EditModal.vue:328
 msgid "Start Timeout (s)"
 msgstr "啟動超時（秒）"
 
-#: src/views/project/EditModal.vue:336
+#: src/views/project/EditModal.vue:338
 msgid "Stop Timeout (s)"
 msgstr "停止超時（秒）"
 
-#: src/views/project/EditModal.vue:347
+#: src/views/project/EditModal.vue:349
 msgid "Other"
 msgstr "其他"
 
-#: src/views/project/EditModal.vue:351
+#: src/views/project/EditModal.vue:353
 msgid "Standard Output"
 msgstr "標準輸出"
 
-#: src/views/project/EditModal.vue:362
+#: src/views/project/EditModal.vue:364
 msgid "Standard Error"
 msgstr "標準錯誤"
 
-#: src/views/project/EditModal.vue:400
+#: src/views/project/EditModal.vue:402
 msgid "Dependencies"
 msgstr "依賴"
 
-#: src/views/project/EditModal.vue:404
+#: src/views/project/EditModal.vue:406
 msgid ""
 "Configure service dependencies to control startup order. Common services: "
 "network.target, mysqld.service, postgresql.service, redis.service"
@@ -5572,122 +5573,122 @@ msgstr ""
 "配置服務依賴關係以控制啟動順序。常見服務：network.target、mysqld.service、"
 "postgresql.service、redis.service"
 
-#: src/views/project/EditModal.vue:410
+#: src/views/project/EditModal.vue:412
 msgid "Requires"
 msgstr "Requires"
 
-#: src/views/project/EditModal.vue:415
+#: src/views/project/EditModal.vue:417
 msgid "Strong dependencies, service will fail if these are not available"
 msgstr "強依賴，如果這些不可用，服務將會失敗"
 
-#: src/views/project/EditModal.vue:421
+#: src/views/project/EditModal.vue:423
 msgid "Wants"
 msgstr "Wants"
 
-#: src/views/project/EditModal.vue:425
+#: src/views/project/EditModal.vue:427
 msgid "Weak dependencies, service will still start if these fail"
 msgstr "弱依賴，如果這些失敗服務仍然會啟動"
 
-#: src/views/project/EditModal.vue:430
+#: src/views/project/EditModal.vue:432
 msgid "After"
 msgstr "After"
 
-#: src/views/project/EditModal.vue:434
+#: src/views/project/EditModal.vue:436
 msgid "Start this service after the specified services"
 msgstr "在指定服務之後啟動此服務"
 
-#: src/views/project/EditModal.vue:439
+#: src/views/project/EditModal.vue:441
 msgid "Before"
 msgstr "Before"
 
-#: src/views/project/EditModal.vue:443
+#: src/views/project/EditModal.vue:445
 msgid "Start this service before the specified services"
 msgstr "在指定的服務之前啟動此服務"
 
-#: src/views/project/EditModal.vue:455
+#: src/views/project/EditModal.vue:457
 msgid ""
 "Set resource limits to prevent the service from consuming too many system "
 "resources"
 msgstr "設置資源限制以防止服務消耗過多系統資源"
 
-#: src/views/project/EditModal.vue:463
+#: src/views/project/EditModal.vue:465
 msgid "Memory Limit (MB)"
 msgstr "內存限制（MB）"
 
-#: src/views/project/EditModal.vue:469
+#: src/views/project/EditModal.vue:471
 msgid "0 means no limit"
 msgstr "0 表示無限制"
 
-#: src/views/project/EditModal.vue:473
+#: src/views/project/EditModal.vue:475
 msgid "Set to 0 to disable memory limit"
 msgstr "設置為 0 以禁用內存限制"
 
-#: src/views/project/EditModal.vue:479
+#: src/views/project/EditModal.vue:481
 msgid "CPU Quota"
 msgstr "CPU 配額"
 
-#: src/views/project/EditModal.vue:484
+#: src/views/project/EditModal.vue:486
 msgid "e.g., 50% or 200%"
 msgstr "例如 50% 或 200%"
 
-#: src/views/project/EditModal.vue:488
+#: src/views/project/EditModal.vue:490
 msgid "100% = 1 CPU core, 200% = 2 cores"
 msgstr "100% = 1 個 CPU 核心，200% = 2 個核心"
 
-#: src/views/project/EditModal.vue:498
+#: src/views/project/EditModal.vue:500
 msgid "Security Settings"
 msgstr "安全設置"
 
-#: src/views/project/EditModal.vue:502
+#: src/views/project/EditModal.vue:504
 msgid ""
 "Security settings can enhance service isolation but may affect "
 "functionality. Please test thoroughly before enabling."
 msgstr "安全設置可以增強服務隔離，但可能會影響功能。請在啟用之前進行充分測試。"
 
-#: src/views/project/EditModal.vue:508
+#: src/views/project/EditModal.vue:510
 msgid "Privilege Control"
 msgstr "權限控制"
 
-#: src/views/project/EditModal.vue:512
+#: src/views/project/EditModal.vue:514
 msgid "No New Privileges"
 msgstr "沒有新權限"
 
-#: src/views/project/EditModal.vue:517
+#: src/views/project/EditModal.vue:519
 msgid "Protect /tmp"
 msgstr "保護 /tmp"
 
-#: src/views/project/EditModal.vue:522
+#: src/views/project/EditModal.vue:524
 msgid "Protect /home"
 msgstr "保護 /home"
 
-#: src/views/project/EditModal.vue:528
+#: src/views/project/EditModal.vue:530
 msgid "Protect System"
 msgstr "保護系統"
 
-#: src/views/project/EditModal.vue:537
+#: src/views/project/EditModal.vue:539
 msgid ""
 "true: /usr, /boot read-only; full: + /etc read-only; strict: entire "
 "filesystem read-only"
 msgstr ""
 "true：/usr，/boot 為只讀；full：+ /etc 為只讀；strict：整個文件系統為只讀"
 
-#: src/views/project/EditModal.vue:545
+#: src/views/project/EditModal.vue:547
 msgid "Path Access Control"
 msgstr "路徑訪問控制"
 
-#: src/views/project/EditModal.vue:547
+#: src/views/project/EditModal.vue:549
 msgid "Read-Write Paths"
 msgstr "讀寫路徑"
 
-#: src/views/project/EditModal.vue:551
+#: src/views/project/EditModal.vue:553
 msgid "Paths that the service can read and write to"
 msgstr "服務可以讀寫的路徑"
 
-#: src/views/project/EditModal.vue:556
+#: src/views/project/EditModal.vue:558
 msgid "Read-Only Paths"
 msgstr "只讀路徑"
 
-#: src/views/project/EditModal.vue:560
+#: src/views/project/EditModal.vue:562
 msgid "Paths that the service can only read from"
 msgstr "服務只能讀取的路徑"
 
@@ -5707,7 +5708,8 @@ msgstr "Java"
 msgid "Node.js"
 msgstr "Node.js"
 
-#: src/views/project/IndexView.vue:26 src/views/website/IndexView.vue:22
+#: src/views/project/IndexView.vue:26 src/views/website/BulkCreateModal.vue:39
+#: src/views/website/CreateModal.vue:29 src/views/website/IndexView.vue:23
 msgid "PHP"
 msgstr "PHP"
 
@@ -7222,95 +7224,154 @@ msgstr "腳本"
 msgid "Edit WebHook"
 msgstr "編輯 Web 掛鉤"
 
-#: src/views/website/BulkCreateModal.vue:22
-msgid "The format is incorrect, please check"
-msgstr "格式不正確，請檢查"
+#: src/views/website/BulkCreateModal.vue:40
+#: src/views/website/CreateModal.vue:30 src/views/website/IndexView.vue:24
+msgid "Pure Static"
+msgstr "純靜態"
 
-#: src/views/website/BulkCreateModal.vue:60
-#: src/views/website/CreateModal.vue:66
-msgid "Website %{ name } created successfully"
-msgstr "網站 %{ name } 創建成功"
+#: src/views/website/BulkCreateModal.vue:47
+#, fuzzy
+msgid "Bulk Create Reverse Proxy Website"
+msgstr "批量創建網站"
 
-#: src/views/website/BulkCreateModal.vue:78 src/views/website/ListView.vue:346
+#: src/views/website/BulkCreateModal.vue:49
+#, fuzzy
+msgid "Bulk Create PHP Website"
+msgstr "批量創建網站"
+
+#: src/views/website/BulkCreateModal.vue:51
+#, fuzzy
+msgid "Bulk Create Pure Static Website"
+msgstr "批量創建網站"
+
+#: src/views/website/BulkCreateModal.vue:53 src/views/website/ListView.vue:346
 msgid "Bulk Create Website"
 msgstr "批量創建網站"
 
-#: src/views/website/BulkCreateModal.vue:89
+#: src/views/website/BulkCreateModal.vue:60
+#, fuzzy
+msgid "name|domain|port|proxy_target|remark"
+msgstr "名稱|域名|端口|路徑|備註"
+
+#: src/views/website/BulkCreateModal.vue:62
+msgid "name|domain|port|path|remark"
+msgstr "名稱|域名|端口|路徑|備註"
+
+#: src/views/website/BulkCreateModal.vue:68
+#, fuzzy
+msgid ""
+"Proxy Target: The target address for reverse proxy (e.g., "
+"http://127.0.0.1:3000)."
+msgstr "代理目標地址（如：http://127.0.0.1:3000）"
+
+#: src/views/website/BulkCreateModal.vue:72
+msgid "Path: The path of the website, can be empty to use the default path."
+msgstr "路徑：網站的根目錄，可以為空以使用默認路徑。"
+
+#: src/views/website/BulkCreateModal.vue:84
+msgid "The format is incorrect, please check"
+msgstr "格式不正確，請檢查"
+
+#: src/views/website/BulkCreateModal.vue:122
+#: src/views/website/CreateModal.vue:117
+msgid "Website %{ name } created successfully"
+msgstr "網站 %{ name } 創建成功"
+
+#: src/views/website/BulkCreateModal.vue:142
+#: src/views/website/CreateModal.vue:174
+#, fuzzy
+msgid "Website Type"
+msgstr "網站名稱"
+
+#: src/views/website/BulkCreateModal.vue:146
+#: src/views/website/CreateModal.vue:178
+#, fuzzy
+msgid "Select Website Type"
+msgstr "選擇網站"
+
+#: src/views/website/BulkCreateModal.vue:151
 msgid ""
 "Please enter the website name, domain, port, path, and remark in the text "
 "area below, one per line."
 msgstr "請在下面的文本區域輸入網站名稱、域名、端口、路徑和備註，每行一個。"
 
-#: src/views/website/BulkCreateModal.vue:97
-msgid "name|domain|port|path|remark"
-msgstr "名稱|域名|端口|路徑|備註"
-
-#: src/views/website/BulkCreateModal.vue:102
+#: src/views/website/BulkCreateModal.vue:164
 msgid ""
 "Name: The name of the website, which will be displayed in the website list, "
 "must be unique."
 msgstr "名稱：網站的名稱，將顯示在網站列表中，必須是唯一的。"
 
-#: src/views/website/BulkCreateModal.vue:109
+#: src/views/website/BulkCreateModal.vue:171
 msgid ""
 "Domain: The domain name of the website, multiple domains can be separated by "
 "commas."
 msgstr "域名：網站的域名，多個域名可以用英文逗號分隔。"
 
-#: src/views/website/BulkCreateModal.vue:116
+#: src/views/website/BulkCreateModal.vue:178
 msgid ""
 "Port: The port number of the website, multiple ports can be separated by "
 "commas."
 msgstr "端口：網站的端口號，多個端口可以用英文逗號分隔。"
 
-#: src/views/website/BulkCreateModal.vue:122
-msgid "Path: The path of the website, can be empty to use the default path."
-msgstr "路徑：網站的根目錄，可以為空以使用默認路徑。"
-
-#: src/views/website/BulkCreateModal.vue:125
+#: src/views/website/BulkCreateModal.vue:187
 msgid "Remark: The remark of the website, can be empty."
 msgstr "備註：網站的備註，可以為空。"
 
-#: src/views/website/CreateModal.vue:39 src/views/website/EditView.vue:64
+#: src/views/website/CreateModal.vue:56 src/views/website/EditView.vue:64
 msgid "Not used"
 msgstr "未使用"
 
-#: src/views/website/CreateModal.vue:114 src/views/website/ListView.vue:343
+#: src/views/website/CreateModal.vue:73
+#, fuzzy
+msgid "Create Reverse Proxy Website"
+msgstr "創建網站"
+
+#: src/views/website/CreateModal.vue:75
+#, fuzzy
+msgid "Create PHP Website"
+msgstr "創建網站"
+
+#: src/views/website/CreateModal.vue:77
+#, fuzzy
+msgid "Create Pure Static Website"
+msgstr "創建網站"
+
+#: src/views/website/CreateModal.vue:79 src/views/website/ListView.vue:343
 msgid "Create Website"
 msgstr "創建網站"
 
-#: src/views/website/CreateModal.vue:129
+#: src/views/website/CreateModal.vue:187
 msgid ""
 "Must use English for the website name, it cannot be modified after setting"
 msgstr "網站名稱必須使用英文，設置後將無法修改"
 
-#: src/views/website/CreateModal.vue:174
+#: src/views/website/CreateModal.vue:244
 msgid "Select Database"
 msgstr "選擇數據庫"
 
-#: src/views/website/CreateModal.vue:202 src/views/website/CreateModal.vue:207
+#: src/views/website/CreateModal.vue:272 src/views/website/CreateModal.vue:277
 msgid "Database User"
 msgstr "數據庫用戶"
 
-#: src/views/website/CreateModal.vue:216 src/views/website/CreateModal.vue:222
+#: src/views/website/CreateModal.vue:286 src/views/website/CreateModal.vue:292
 msgid "Database Password"
 msgstr "數據庫密碼"
 
-#: src/views/website/CreateModal.vue:234
+#: src/views/website/CreateModal.vue:304
 msgid ""
 "Website root directory (if left empty, defaults to website directory/website "
 "name/public)"
 msgstr "網站根目錄（如果留空，預設為網站目錄/網站名稱/public）"
 
-#: src/views/website/CreateModal.vue:246
+#: src/views/website/CreateModal.vue:316
 msgid "Proxy Target"
 msgstr "代理目標"
 
-#: src/views/website/CreateModal.vue:251
+#: src/views/website/CreateModal.vue:321
 msgid "Proxy target address (e.g., http://127.0.0.1:3000)"
 msgstr "代理目標地址（如：http://127.0.0.1:3000）"
 
-#: src/views/website/CreateModal.vue:254 src/views/website/CreateModal.vue:259
+#: src/views/website/CreateModal.vue:324 src/views/website/CreateModal.vue:329
 #: src/views/website/ListView.vue:168
 msgid "Remark"
 msgstr "備註"
@@ -7984,10 +8045,6 @@ msgstr "重置配置"
 msgid "Are you sure you want to reset the configuration?"
 msgstr "您確定要重置配置嗎？"
 
-#: src/views/website/IndexView.vue:23
-msgid "Pure Static"
-msgstr "純靜態"
-
 #: src/views/website/ListView.vue:24
 msgid "Website Name"
 msgstr "網站名稱"
@@ -8079,3 +8136,9 @@ msgstr "預設密碼套件"
 #: src/views/website/SettingView.vue:110
 msgid "Enter the default cipher suite, leave blank to reset to default"
 msgstr "輸入預設密碼套件，留空以重置為預設值"
+
+#~ msgid "Are you sure you want to restart the panel?"
+#~ msgstr "您確定要重啟面板嗎？"
+
+#~ msgid "Select User"
+#~ msgstr "選擇用戶"
