@@ -847,6 +847,7 @@ location ~ \.php$ {
     try_files $uri =404;
     fastcgi_pass unix:/tmp/php-cgi-%d.sock;
     fastcgi_index index.php;
+    fastcgi_param HTTP_HOST $host;
     include fastcgi.conf;
     include pathinfo.conf;
 }
