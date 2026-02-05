@@ -19,6 +19,23 @@ const permissionStore = usePermissionStore()
 const currentTab = ref('base')
 const createModal = ref(false)
 
+// 记录已保存的 HTTPS 相关设置，用于判断是否有未保存的修改
+const savedHttpsState = ref({ https: false, acme: false, public_ip: '[]' })
+const httpsSettingsDirty = computed(() => {
+  return (
+    model.value.https !== savedHttpsState.value.https ||
+    model.value.acme !== savedHttpsState.value.acme ||
+    JSON.stringify(model.value.public_ip) !== savedHttpsState.value.public_ip
+  )
+})
+const snapshotHttpsState = () => {
+  savedHttpsState.value = {
+    https: model.value.https,
+    acme: model.value.acme,
+    public_ip: JSON.stringify(model.value.public_ip)
+  }
+}
+
 const { data: model } = useRequest(setting.list, {
   initialData: {
     name: '',
@@ -48,12 +65,18 @@ const { data: model } = useRequest(setting.list, {
   }
 })
 
+// 数据加载完成后快照 HTTPS 状态
+watch(model, () => snapshotHttpsState(), { once: true, deep: true })
+
 const handleSave = () => {
   if (model.value.entrance.trim() === '') {
     model.value.entrance = '/'
   }
   useRequest(setting.update(model.value)).onSuccess(({ data }) => {
     window.$message.success($gettext('Saved successfully'))
+
+    // 更新 HTTPS 快照
+    snapshotHttpsState()
 
     // 更新语言设置
     if (model.value.locale !== themeStore.locale) {
@@ -76,6 +99,19 @@ const handleSave = () => {
         window.location.href = `${protocol}//${hostname}:${port}${entrance}`
       }, 5000)
     }
+  })
+}
+
+const handleObtainCert = () => {
+  useRequest(setting.obtainCert()).onSuccess(() => {
+    window.$message.success($gettext('Certificate refreshed successfully'))
+    window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
+    setTimeout(() => {
+      const hostname = window.location.hostname
+      const port = model.value.port
+      const entrance = model.value.entrance || '/'
+      window.location.href = `https://${hostname}:${port}${entrance}`
+    }, 5000)
   })
 }
 
@@ -105,6 +141,14 @@ const handleCreate = () => {
       <n-flex>
         <n-button v-if="currentTab != 'user'" type="primary" @click="handleSave">
           {{ $gettext('Save') }}
+        </n-button>
+        <n-button
+          v-if="currentTab === 'safe' && model.https && model.acme"
+          type="info"
+          :disabled="httpsSettingsDirty"
+          @click="handleObtainCert"
+        >
+          {{ $gettext('Refresh Certificate') }}
         </n-button>
       </n-flex>
     </n-flex>
