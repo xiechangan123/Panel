@@ -3,6 +3,7 @@ defineOptions({
   name: 'setting-index'
 })
 
+import type { MessageReactive } from 'naive-ui'
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
@@ -13,11 +14,13 @@ import SettingBase from '@/views/setting/SettingBase.vue'
 import SettingSafe from '@/views/setting/SettingSafe.vue'
 import SettingUser from '@/views/setting/SettingUser.vue'
 
+let messageReactive: MessageReactive | null = null
 const { $gettext } = useGettext()
 const themeStore = useThemeStore()
 const permissionStore = usePermissionStore()
 const currentTab = ref('base')
 const createModal = ref(false)
+const isObtainCert = ref(false)
 
 // 记录已保存的 HTTPS 相关设置，用于判断是否有未保存的修改
 const savedHttpsState = ref({ https: false, acme: false, public_ip: '[]' })
@@ -103,16 +106,25 @@ const handleSave = () => {
 }
 
 const handleObtainCert = () => {
-  useRequest(setting.obtainCert()).onSuccess(() => {
-    window.$message.success($gettext('Certificate refreshed successfully'))
-    window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
-    setTimeout(() => {
-      const hostname = window.location.hostname
-      const port = model.value.port
-      const entrance = model.value.entrance || '/'
-      window.location.href = `https://${hostname}:${port}${entrance}`
-    }, 5000)
+  isObtainCert.value = true
+  messageReactive = window.$message.loading($gettext('Please wait...'), {
+    duration: 0
   })
+  useRequest(setting.obtainCert())
+    .onSuccess(() => {
+      window.$message.success($gettext('Certificate refreshed successfully'))
+      window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
+      setTimeout(() => {
+        const hostname = window.location.hostname
+        const port = model.value.port
+        const entrance = model.value.entrance || '/'
+        window.location.href = `https://${hostname}:${port}${entrance}`
+      }, 5000)
+    })
+    .onComplete(() => {
+      isObtainCert.value = false
+      messageReactive?.destroy()
+    })
 }
 
 const handleCreate = () => {
@@ -145,7 +157,7 @@ const handleCreate = () => {
         <n-button
           v-if="currentTab === 'safe' && model.https && model.acme"
           type="info"
-          :disabled="httpsSettingsDirty"
+          :disabled="httpsSettingsDirty || isObtainCert"
           @click="handleObtainCert"
         >
           {{ $gettext('Refresh Certificate') }}
