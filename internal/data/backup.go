@@ -873,10 +873,10 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Downloading..."))
 	}
-	if _, err := shell.Execf("wget -T 120 -t 3 -O /tmp/%s %s", name, url); err != nil {
+	if _, err := shell.Execf("aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --retry-wait=5 --max-tries=5 -x 16 -s 16 -k 1M -d /tmp -o %s %s", name, url); err != nil {
 		return errors.New(r.t.Get("Download failed: %v", err))
 	}
-	if _, err := shell.Execf("wget -T 20 -t 3 -O /tmp/%s %s", name+".sha256", checksum); err != nil {
+	if _, err := shell.Execf("aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --retry-wait=5 --max-tries=5 -x 1 -s 1 -k 1M -d /tmp -o %s %s", name+".sha256", checksum); err != nil {
 		return errors.New(r.t.Get("Download failed: %v", err))
 	}
 	if !io.Exists(filepath.Join("/tmp", name)) || !io.Exists(filepath.Join("/tmp", name+".sha256")) {
