@@ -2458,7 +2458,7 @@ msgid "unsupported system"
 msgstr ""
 
 #: internal/data/website.go:1179
-#: internal/data/website.go:1236
+#: internal/data/website.go:1233
 msgid "unsupported web server: %s"
 msgstr ""
 

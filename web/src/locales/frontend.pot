@@ -330,7 +330,7 @@ msgstr ""
 #: src/views/environment/PHPView.vue:160
 #: src/views/environment/PythonView.vue:59
 #: src/views/project/EditModal.vue:157
-#: src/views/setting/IndexView.vue:56
+#: src/views/setting/IndexView.vue:79
 #: src/views/toolbox/SystemView.vue:72
 #: src/views/toolbox/SystemView.vue:83
 #: src/views/toolbox/SystemView.vue:97
@@ -616,7 +616,7 @@ msgstr ""
 #: src/views/task/TaskView.vue:33
 #: src/views/toolbox/ProcessView.vue:48
 #: src/views/toolbox/ProcessView.vue:80
-#: src/views/website/ListView.vue:90
+#: src/views/website/ListView.vue:105
 msgid "Running"
 msgstr ""
 
@@ -634,7 +634,7 @@ msgstr ""
 #: src/components/common/ServiceStatus.vue:48
 #: src/views/apps/supervisor/IndexView.vue:240
 #: src/views/project/ListView.vue:228
-#: src/views/website/ListView.vue:290
+#: src/views/website/ListView.vue:305
 msgid "Started successfully"
 msgstr ""
 
@@ -646,7 +646,7 @@ msgstr ""
 #: src/components/common/ServiceStatus.vue:63
 #: src/views/apps/supervisor/IndexView.vue:247
 #: src/views/project/ListView.vue:223
-#: src/views/website/ListView.vue:292
+#: src/views/website/ListView.vue:307
 msgid "Stopped successfully"
 msgstr ""
 
@@ -877,7 +877,7 @@ msgstr ""
 #: src/views/environment/PythonView.vue:97
 #: src/views/file/EditModal.vue:40
 #: src/views/project/EditModal.vue:577
-#: src/views/setting/IndexView.vue:107
+#: src/views/setting/IndexView.vue:155
 #: src/views/task/CronView.vue:284
 #: src/views/toolbox/SshView.vue:239
 #: src/views/toolbox/SystemView.vue:190
@@ -943,7 +943,7 @@ msgid "Editor Settings"
 msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:145
-#: src/views/setting/IndexView.vue:91
+#: src/views/setting/IndexView.vue:139
 msgid "Basic"
 msgstr ""
 
@@ -1208,8 +1208,8 @@ msgstr ""
 #: src/views/task/CronView.vue:166
 #: src/views/task/TaskView.vue:97
 #: src/views/toolbox/WebHookView.vue:179
-#: src/views/website/ListView.vue:257
-#: src/views/website/ListView.vue:351
+#: src/views/website/ListView.vue:272
+#: src/views/website/ListView.vue:366
 msgid "Delete"
 msgstr ""
 
@@ -1268,8 +1268,8 @@ msgstr ""
 #: src/views/task/CronView.vue:216
 #: src/views/task/TaskView.vue:122
 #: src/views/toolbox/WebHookView.vue:236
-#: src/views/website/ListView.vue:316
-#: src/views/website/ListView.vue:326
+#: src/views/website/ListView.vue:331
+#: src/views/website/ListView.vue:341
 msgid "Deleted successfully"
 msgstr ""
 
@@ -1551,7 +1551,7 @@ msgstr ""
 #: src/views/toolbox/DiskView.vue:341
 #: src/views/toolbox/DiskView.vue:827
 #: src/views/toolbox/WebHookView.vue:131
-#: src/views/website/ListView.vue:185
+#: src/views/website/ListView.vue:200
 msgid "Actions"
 msgstr ""
 
@@ -2318,7 +2318,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:272
 #: src/views/apps/rsync/IndexView.vue:326
 #: src/views/database/IndexView.vue:28
-#: src/views/setting/IndexView.vue:93
+#: src/views/setting/IndexView.vue:141
 #: src/views/toolbox/ProcessView.vue:131
 #: src/views/toolbox/ProcessView.vue:391
 #: src/views/toolbox/WebHookView.vue:335
@@ -2363,7 +2363,7 @@ msgstr ""
 #: src/views/task/CronView.vue:226
 #: src/views/toolbox/WebHookView.vue:211
 #: src/views/toolbox/WebHookView.vue:282
-#: src/views/website/ListView.vue:299
+#: src/views/website/ListView.vue:314
 #: src/views/website/SettingView.vue:36
 msgid "Modified successfully"
 msgstr ""
@@ -2437,7 +2437,7 @@ msgstr ""
 #: src/views/ssh/IndexView.vue:106
 #: src/views/task/CronView.vue:145
 #: src/views/toolbox/WebHookView.vue:158
-#: src/views/website/ListView.vue:200
+#: src/views/website/ListView.vue:215
 msgid "Edit"
 msgstr ""
 
@@ -2746,7 +2746,7 @@ msgstr ""
 #: src/views/database/CreateUserModal.vue:66
 #: src/views/database/IndexView.vue:42
 #: src/views/setting/CreateModal.vue:32
-#: src/views/setting/IndexView.vue:99
+#: src/views/setting/IndexView.vue:147
 msgid "Create User"
 msgstr ""
 
@@ -2802,7 +2802,7 @@ msgstr ""
 #: src/views/file/PropertyModal.vue:34
 #: src/views/project/ListView.vue:95
 #: src/views/website/CreateModal.vue:297
-#: src/views/website/ListView.vue:103
+#: src/views/website/ListView.vue:118
 msgid "Directory"
 msgstr ""
 
@@ -3412,6 +3412,7 @@ msgstr ""
 
 #: src/views/cert/CertView.vue:220
 #: src/views/cert/ObtainModal.vue:23
+#: src/views/setting/IndexView.vue:110
 #: src/views/website/EditView.vue:147
 msgid "Please wait..."
 msgstr ""
@@ -5795,6 +5796,7 @@ msgstr ""
 #: src/views/website/BulkCreateModal.vue:38
 #: src/views/website/CreateModal.vue:28
 #: src/views/website/IndexView.vue:22
+#: src/views/website/ListView.vue:96
 msgid "Reverse Proxy"
 msgstr ""
 
@@ -6079,6 +6081,7 @@ msgstr ""
 #: src/views/website/BulkCreateModal.vue:39
 #: src/views/website/CreateModal.vue:29
 #: src/views/website/IndexView.vue:23
+#: src/views/website/ListView.vue:97
 msgid "PHP"
 msgstr ""
 
@@ -6124,12 +6127,21 @@ msgstr ""
 msgid "Enter user email"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:69
+#: src/views/setting/IndexView.vue:95
+#: src/views/setting/IndexView.vue:116
 msgid "Panel is restarting, page will refresh in 5 seconds"
 msgstr ""
 
-#: src/views/setting/IndexView.vue:92
+#: src/views/setting/IndexView.vue:115
+msgid "Certificate refreshed successfully"
+msgstr ""
+
+#: src/views/setting/IndexView.vue:140
 msgid "Safe"
+msgstr ""
+
+#: src/views/setting/IndexView.vue:163
+msgid "Refresh Certificate"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:56
@@ -7577,6 +7589,7 @@ msgstr ""
 #: src/views/website/BulkCreateModal.vue:40
 #: src/views/website/CreateModal.vue:30
 #: src/views/website/IndexView.vue:24
+#: src/views/website/ListView.vue:98
 msgid "Pure Static"
 msgstr ""
 
@@ -7593,7 +7606,7 @@ msgid "Bulk Create Pure Static Website"
 msgstr ""
 
 #: src/views/website/BulkCreateModal.vue:53
-#: src/views/website/ListView.vue:346
+#: src/views/website/ListView.vue:361
 msgid "Bulk Create Website"
 msgstr ""
 
@@ -7624,6 +7637,7 @@ msgstr ""
 
 #: src/views/website/BulkCreateModal.vue:142
 #: src/views/website/CreateModal.vue:174
+#: src/views/website/ListView.vue:90
 msgid "Website Type"
 msgstr ""
 
@@ -7670,7 +7684,7 @@ msgid "Create Pure Static Website"
 msgstr ""
 
 #: src/views/website/CreateModal.vue:79
-#: src/views/website/ListView.vue:343
+#: src/views/website/ListView.vue:358
 msgid "Create Website"
 msgstr ""
 
@@ -7706,7 +7720,7 @@ msgstr ""
 
 #: src/views/website/CreateModal.vue:324
 #: src/views/website/CreateModal.vue:329
-#: src/views/website/ListView.vue:168
+#: src/views/website/ListView.vue:183
 msgid "Remark"
 msgstr ""
 
@@ -8391,35 +8405,35 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: src/views/website/ListView.vue:136
+#: src/views/website/ListView.vue:151
 msgid "Certificate expiration"
 msgstr ""
 
-#: src/views/website/ListView.vue:150
+#: src/views/website/ListView.vue:165
 msgid "Not configured"
 msgstr ""
 
-#: src/views/website/ListView.vue:153
+#: src/views/website/ListView.vue:168
 msgid "Expired %{ days } days ago"
 msgstr ""
 
-#: src/views/website/ListView.vue:158
+#: src/views/website/ListView.vue:173
 msgid "Expires in %{ days } days"
 msgstr ""
 
-#: src/views/website/ListView.vue:223
+#: src/views/website/ListView.vue:238
 msgid "Are you sure you want to delete website %{ name }?"
 msgstr ""
 
-#: src/views/website/ListView.vue:234
+#: src/views/website/ListView.vue:249
 msgid "Delete website directory"
 msgstr ""
 
-#: src/views/website/ListView.vue:242
+#: src/views/website/ListView.vue:257
 msgid "Delete local database with the same name"
 msgstr ""
 
-#: src/views/website/ListView.vue:355
+#: src/views/website/ListView.vue:370
 msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
 msgstr ""
 
