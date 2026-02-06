@@ -87,6 +87,21 @@ const columns: any = [
     }
   },
   {
+    title: $gettext('Website Type'),
+    key: 'type',
+    width: 150,
+    resizable: true,
+    render(row: any) {
+      const typeMap: any = {
+        proxy: { label: $gettext('Reverse Proxy'), type: 'warning' },
+        php: { label: $gettext('PHP'), type: 'info' },
+        static: { label: $gettext('Pure Static'), type: 'success' }
+      }
+      const config = typeMap[row.type] || { label: row.type, type: 'default' }
+      return h(NTag, { type: config.type }, { default: () => config.label })
+    }
+  },
+  {
     title: $gettext('Running'),
     key: 'status',
     width: 150,
@@ -362,7 +377,7 @@ onMounted(() => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1400"
+      :scroll-x="1500"
       :columns="columns"
       :data="data"
       :row-key="(row: any) => row.id"

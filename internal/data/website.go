@@ -1186,12 +1186,12 @@ func (r *websiteRepo) reloadWebServer() error {
 func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 	htpasswdPath := filepath.Join(app.Root, "sites", siteName, "htpasswd")
 	if !io.Exists(htpasswdPath) {
-		return nil
+		return make(map[string]string)
 	}
 
 	file, err := os.Open(htpasswdPath)
 	if err != nil {
-		return nil
+		return make(map[string]string)
 	}
 	defer func(file *os.File) { _ = file.Close() }(file)
 
@@ -1209,9 +1209,6 @@ func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 		}
 	}
 
-	if len(users) == 0 {
-		return nil
-	}
 	return users
 }
 
