@@ -24,21 +24,24 @@ const errorReporting = ref('')
 const disableFunctions = ref('')
 
 // 上传限制
-const uploadMaxFilesize = ref('')
-const postMaxSize = ref('')
-const maxFileUploads = ref('')
-const memoryLimit = ref('')
+const uploadMaxFilesizeNum = ref<number | null>(null)
+const uploadMaxFilesizeUnit = ref('M')
+const postMaxSizeNum = ref<number | null>(null)
+const postMaxSizeUnit = ref('M')
+const maxFileUploads = ref<number | null>(null)
+const memoryLimitNum = ref<number | null>(null)
+const memoryLimitUnit = ref('M')
 
 // 超时限制
-const maxExecutionTime = ref('')
-const maxInputTime = ref('')
-const maxInputVars = ref('')
+const maxExecutionTime = ref<number | null>(null)
+const maxInputTime = ref<number | null>(null)
+const maxInputVars = ref<number | null>(null)
 
 // Session
 const sessionSaveHandler = ref('')
 const sessionSavePath = ref('')
-const sessionGcMaxlifetime = ref('')
-const sessionCookieLifetime = ref('')
+const sessionGcMaxlifetime = ref<number | null>(null)
+const sessionCookieLifetime = ref<number | null>(null)
 
 // Redis/Memcached 可视化字段
 const sessionRedisHost = ref('127.0.0.1')
@@ -49,10 +52,10 @@ const sessionMemcachedPort = ref('11211')
 
 // 性能调整
 const pm = ref('')
-const pmMaxChildren = ref('')
-const pmStartServers = ref('')
-const pmMinSpareServers = ref('')
-const pmMaxSpareServers = ref('')
+const pmMaxChildren = ref<number | null>(null)
+const pmStartServers = ref<number | null>(null)
+const pmMinSpareServers = ref<number | null>(null)
+const pmMaxSpareServers = ref<number | null>(null)
 
 // loading 状态
 const saveLoading = ref(false)
@@ -106,22 +109,28 @@ useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
   displayErrors.value = data.display_errors ?? ''
   errorReporting.value = data.error_reporting ?? ''
   disableFunctions.value = data.disable_functions ?? ''
-  uploadMaxFilesize.value = data.upload_max_filesize ?? ''
-  postMaxSize.value = data.post_max_size ?? ''
-  maxFileUploads.value = data.max_file_uploads ?? ''
-  memoryLimit.value = data.memory_limit ?? ''
-  maxExecutionTime.value = data.max_execution_time ?? ''
-  maxInputTime.value = data.max_input_time ?? ''
-  maxInputVars.value = data.max_input_vars ?? ''
+  const uploadParsed = parseSizeValue(data.upload_max_filesize ?? '')
+  uploadMaxFilesizeNum.value = uploadParsed.num
+  uploadMaxFilesizeUnit.value = uploadParsed.unit
+  const postParsed = parseSizeValue(data.post_max_size ?? '')
+  postMaxSizeNum.value = postParsed.num
+  postMaxSizeUnit.value = postParsed.unit
+  maxFileUploads.value = Number(data.max_file_uploads) || null
+  const memParsed = parseSizeValue(data.memory_limit ?? '')
+  memoryLimitNum.value = memParsed.num
+  memoryLimitUnit.value = memParsed.unit
+  maxExecutionTime.value = Number(data.max_execution_time) || null
+  maxInputTime.value = Number(data.max_input_time) || null
+  maxInputVars.value = Number(data.max_input_vars) || null
   sessionSaveHandler.value = data.session_save_handler ?? 'files'
   sessionSavePath.value = data.session_save_path ?? ''
-  sessionGcMaxlifetime.value = data.session_gc_maxlifetime ?? ''
-  sessionCookieLifetime.value = data.session_cookie_lifetime ?? ''
+  sessionGcMaxlifetime.value = Number(data.session_gc_maxlifetime) || null
+  sessionCookieLifetime.value = Number(data.session_cookie_lifetime) || null
   pm.value = data.pm ?? 'dynamic'
-  pmMaxChildren.value = data.pm_max_children ?? ''
-  pmStartServers.value = data.pm_start_servers ?? ''
-  pmMinSpareServers.value = data.pm_min_spare_servers ?? ''
-  pmMaxSpareServers.value = data.pm_max_spare_servers ?? ''
+  pmMaxChildren.value = Number(data.pm_max_children) || null
+  pmStartServers.value = Number(data.pm_start_servers) || null
+  pmMinSpareServers.value = Number(data.pm_min_spare_servers) || null
+  pmMaxSpareServers.value = Number(data.pm_max_spare_servers) || null
 
   // 解析 save_path 到可视化字段
   if (sessionSaveHandler.value === 'redis' && sessionSavePath.value) {
@@ -147,22 +156,22 @@ const getConfigData = () => {
     display_errors: displayErrors.value,
     error_reporting: errorReporting.value,
     disable_functions: disableFunctions.value,
-    upload_max_filesize: uploadMaxFilesize.value,
-    post_max_size: postMaxSize.value,
-    max_file_uploads: maxFileUploads.value,
-    memory_limit: memoryLimit.value,
-    max_execution_time: maxExecutionTime.value,
-    max_input_time: maxInputTime.value,
-    max_input_vars: maxInputVars.value,
+    upload_max_filesize: composeSizeValue(uploadMaxFilesizeNum.value, uploadMaxFilesizeUnit.value),
+    post_max_size: composeSizeValue(postMaxSizeNum.value, postMaxSizeUnit.value),
+    max_file_uploads: String(maxFileUploads.value ?? ''),
+    memory_limit: composeSizeValue(memoryLimitNum.value, memoryLimitUnit.value),
+    max_execution_time: String(maxExecutionTime.value ?? ''),
+    max_input_time: String(maxInputTime.value ?? ''),
+    max_input_vars: String(maxInputVars.value ?? ''),
     session_save_handler: sessionSaveHandler.value,
     session_save_path: savePath,
-    session_gc_maxlifetime: sessionGcMaxlifetime.value,
-    session_cookie_lifetime: sessionCookieLifetime.value,
+    session_gc_maxlifetime: String(sessionGcMaxlifetime.value ?? ''),
+    session_cookie_lifetime: String(sessionCookieLifetime.value ?? ''),
     pm: pm.value,
-    pm_max_children: pmMaxChildren.value,
-    pm_start_servers: pmStartServers.value,
-    pm_min_spare_servers: pmMinSpareServers.value,
-    pm_max_spare_servers: pmMaxSpareServers.value
+    pm_max_children: String(pmMaxChildren.value ?? ''),
+    pm_start_servers: String(pmStartServers.value ?? ''),
+    pm_min_spare_servers: String(pmMinSpareServers.value ?? ''),
+    pm_max_spare_servers: String(pmMaxSpareServers.value ?? '')
   }
 }
 
@@ -209,6 +218,29 @@ const onOffOptions = [
   { label: 'On', value: 'On' },
   { label: 'Off', value: 'Off' }
 ]
+
+// 容量单位选项
+const sizeUnitOptions = [
+  { label: 'K', value: 'K' },
+  { label: 'M', value: 'M' },
+  { label: 'G', value: 'G' }
+]
+
+// 解析带单位的值，如 "50M" -> { num: 50, unit: "M" }
+const parseSizeValue = (val: string): { num: number | null; unit: string } => {
+  if (!val) return { num: null, unit: 'M' }
+  const match = val.match(/^(\d+)\s*([KMG])$/i)
+  if (match) {
+    return { num: Number(match[1]), unit: match[2].toUpperCase() }
+  }
+  return { num: Number(val) || null, unit: 'M' }
+}
+
+// 组合数值和单位，如 50 + "M" -> "50M"
+const composeSizeValue = (num: number | null, unit: string): string => {
+  if (num == null) return ''
+  return `${num}${unit}`
+}
 </script>
 
 <template>
@@ -219,23 +251,17 @@ const onOffOptions = [
           {{ $gettext('Common PHP general settings.') }}
         </n-alert>
         <n-form>
-          <n-form-item label="short_open_tag">
+          <n-form-item label="Short Tag (short_open_tag)">
             <n-select v-model:value="shortOpenTag" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="date.timezone">
-            <n-input
-              v-model:value="dateTimezone"
-              :placeholder="$gettext('e.g. Asia/Shanghai')"
-            />
+          <n-form-item label="Timezone (date.timezone)">
+            <n-input v-model:value="dateTimezone" :placeholder="$gettext('e.g. Asia/Shanghai')" />
           </n-form-item>
-          <n-form-item label="display_errors">
+          <n-form-item label="Display Errors (display_errors)">
             <n-select v-model:value="displayErrors" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="error_reporting">
-            <n-input
-              v-model:value="errorReporting"
-              :placeholder="$gettext('e.g. E_ALL')"
-            />
+          <n-form-item label="Error Reporting (error_reporting)">
+            <n-input v-model:value="errorReporting" :placeholder="$gettext('e.g. E_ALL')" />
           </n-form-item>
         </n-form>
         <n-flex>
@@ -291,29 +317,61 @@ const onOffOptions = [
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="upload_max_filesize">
-            <n-input
-              v-model:value="uploadMaxFilesize"
-              :placeholder="$gettext('e.g. 50M')"
-            />
+          <n-form-item label="Max Upload Size (upload_max_filesize)">
+            <n-input-group>
+              <n-input-number
+                class="w-full"
+                v-model:value="uploadMaxFilesizeNum"
+                :placeholder="$gettext('e.g. 50')"
+                :min="0"
+                style="flex: 1"
+              />
+              <n-select
+                v-model:value="uploadMaxFilesizeUnit"
+                :options="sizeUnitOptions"
+                style="width: 80px"
+              />
+            </n-input-group>
           </n-form-item>
-          <n-form-item label="post_max_size">
-            <n-input
-              v-model:value="postMaxSize"
-              :placeholder="$gettext('e.g. 50M')"
-            />
+          <n-form-item label="Max POST Size (post_max_size)">
+            <n-input-group>
+              <n-input-number
+                class="w-full"
+                v-model:value="postMaxSizeNum"
+                :placeholder="$gettext('e.g. 50')"
+                :min="0"
+                style="flex: 1"
+              />
+              <n-select
+                v-model:value="postMaxSizeUnit"
+                :options="sizeUnitOptions"
+                style="width: 80px"
+              />
+            </n-input-group>
           </n-form-item>
-          <n-form-item label="max_file_uploads">
-            <n-input
+          <n-form-item label="Max File Uploads (max_file_uploads)">
+            <n-input-number
+              class="w-full"
               v-model:value="maxFileUploads"
               :placeholder="$gettext('e.g. 20')"
+              :min="0"
             />
           </n-form-item>
-          <n-form-item label="memory_limit">
-            <n-input
-              v-model:value="memoryLimit"
-              :placeholder="$gettext('e.g. 256M')"
-            />
+          <n-form-item label="Memory Limit (memory_limit)">
+            <n-input-group>
+              <n-input-number
+                class="w-full"
+                v-model:value="memoryLimitNum"
+                :placeholder="$gettext('e.g. 256')"
+                :min="0"
+                style="flex: 1"
+              />
+              <n-select
+                v-model:value="memoryLimitUnit"
+                :options="sizeUnitOptions"
+                style="width: 80px"
+              />
+            </n-input-group>
           </n-form-item>
         </n-form>
         <n-flex>
@@ -332,28 +390,32 @@ const onOffOptions = [
       <n-flex vertical>
         <n-alert type="info">
           {{
-            $gettext(
-              'Adjust PHP script timeout limits. Values are in seconds, -1 means no limit.'
-            )
+            $gettext('Adjust PHP script timeout limits. Values are in seconds, -1 means no limit.')
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="max_execution_time">
-            <n-input
+          <n-form-item label="Max Execution Time (max_execution_time)">
+            <n-input-number
+              class="w-full"
               v-model:value="maxExecutionTime"
               :placeholder="$gettext('e.g. 30')"
+              :min="-1"
             />
           </n-form-item>
-          <n-form-item label="max_input_time">
-            <n-input
+          <n-form-item label="Max Input Time (max_input_time)">
+            <n-input-number
+              class="w-full"
               v-model:value="maxInputTime"
               :placeholder="$gettext('e.g. 60')"
+              :min="-1"
             />
           </n-form-item>
-          <n-form-item label="max_input_vars">
-            <n-input
+          <n-form-item label="Max Input Vars (max_input_vars)">
+            <n-input-number
+              class="w-full"
               v-model:value="maxInputVars"
               :placeholder="$gettext('e.g. 1000')"
+              :min="0"
             />
           </n-form-item>
         </n-form>
@@ -373,46 +435,43 @@ const onOffOptions = [
       <n-flex vertical>
         <n-alert type="info">
           {{
-            $gettext(
-              'Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf.'
-            )
+            $gettext('Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf.')
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="pm">
+          <n-form-item label="Process Manager (pm)">
             <n-select v-model:value="pm" :options="pmOptions" />
           </n-form-item>
-          <n-form-item label="pm.max_children">
-            <n-input
+          <n-form-item label="Max Children (pm.max_children)">
+            <n-input-number
+              class="w-full"
               v-model:value="pmMaxChildren"
               :placeholder="$gettext('e.g. 30')"
+              :min="1"
             />
           </n-form-item>
-          <n-form-item
-            v-if="pm === 'dynamic'"
-            label="pm.start_servers"
-          >
-            <n-input
+          <n-form-item v-if="pm === 'dynamic'" label="Start Servers (pm.start_servers)">
+            <n-input-number
+              class="w-full"
               v-model:value="pmStartServers"
               :placeholder="$gettext('e.g. 5')"
+              :min="1"
             />
           </n-form-item>
-          <n-form-item
-            v-if="pm === 'dynamic'"
-            label="pm.min_spare_servers"
-          >
-            <n-input
+          <n-form-item v-if="pm === 'dynamic'" label="Min Spare Servers (pm.min_spare_servers)">
+            <n-input-number
+              class="w-full"
               v-model:value="pmMinSpareServers"
               :placeholder="$gettext('e.g. 3')"
+              :min="1"
             />
           </n-form-item>
-          <n-form-item
-            v-if="pm === 'dynamic'"
-            label="pm.max_spare_servers"
-          >
-            <n-input
+          <n-form-item v-if="pm === 'dynamic'" label="Max Spare Servers (pm.max_spare_servers)">
+            <n-input-number
+              class="w-full"
               v-model:value="pmMaxSpareServers"
               :placeholder="$gettext('e.g. 10')"
+              :min="1"
             />
           </n-form-item>
         </n-form>
@@ -438,35 +497,20 @@ const onOffOptions = [
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="session.save_handler">
-            <n-select
-              v-model:value="sessionSaveHandler"
-              :options="sessionHandlerOptions"
-            />
+          <n-form-item label="Save Handler (session.save_handler)">
+            <n-select v-model:value="sessionSaveHandler" :options="sessionHandlerOptions" />
           </n-form-item>
           <!-- files 模式：显示路径 -->
-          <n-form-item
-            v-if="sessionSaveHandler === 'files'"
-            label="session.save_path"
-          >
-            <n-input
-              v-model:value="sessionSavePath"
-              :placeholder="$gettext('e.g. /tmp')"
-            />
+          <n-form-item v-if="sessionSaveHandler === 'files'" label="Save Path (session.save_path)">
+            <n-input v-model:value="sessionSavePath" :placeholder="$gettext('e.g. /tmp')" />
           </n-form-item>
           <!-- redis 模式：显示主机、端口、密码 -->
           <template v-if="sessionSaveHandler === 'redis'">
             <n-form-item :label="$gettext('Redis Host')">
-              <n-input
-                v-model:value="sessionRedisHost"
-                placeholder="127.0.0.1"
-              />
+              <n-input v-model:value="sessionRedisHost" placeholder="127.0.0.1" />
             </n-form-item>
             <n-form-item :label="$gettext('Redis Port')">
-              <n-input
-                v-model:value="sessionRedisPort"
-                placeholder="6379"
-              />
+              <n-input v-model:value="sessionRedisPort" placeholder="6379" />
             </n-form-item>
             <n-form-item :label="$gettext('Redis Password')">
               <n-input
@@ -480,28 +524,26 @@ const onOffOptions = [
           <!-- memcached 模式：显示主机、端口 -->
           <template v-if="sessionSaveHandler === 'memcached'">
             <n-form-item :label="$gettext('Memcached Host')">
-              <n-input
-                v-model:value="sessionMemcachedHost"
-                placeholder="127.0.0.1"
-              />
+              <n-input v-model:value="sessionMemcachedHost" placeholder="127.0.0.1" />
             </n-form-item>
             <n-form-item :label="$gettext('Memcached Port')">
-              <n-input
-                v-model:value="sessionMemcachedPort"
-                placeholder="11211"
-              />
+              <n-input v-model:value="sessionMemcachedPort" placeholder="11211" />
             </n-form-item>
           </template>
-          <n-form-item label="session.gc_maxlifetime">
-            <n-input
+          <n-form-item label="GC Max Lifetime (session.gc_maxlifetime)">
+            <n-input-number
+              class="w-full"
               v-model:value="sessionGcMaxlifetime"
               :placeholder="$gettext('e.g. 1440 (seconds)')"
+              :min="0"
             />
           </n-form-item>
-          <n-form-item label="session.cookie_lifetime">
-            <n-input
+          <n-form-item label="Cookie Lifetime (session.cookie_lifetime)">
+            <n-input-number
+              class="w-full"
               v-model:value="sessionCookieLifetime"
               :placeholder="$gettext('e.g. 0 (until browser closes)')"
+              :min="0"
             />
           </n-form-item>
         </n-form>
@@ -514,10 +556,7 @@ const onOffOptions = [
           >
             {{ $gettext('Save') }}
           </n-button>
-          <n-popconfirm
-            v-if="sessionSaveHandler === 'files'"
-            @positive-click="handleCleanSession"
-          >
+          <n-popconfirm v-if="sessionSaveHandler === 'files'" @positive-click="handleCleanSession">
             <template #trigger>
               <n-button
                 type="warning"
