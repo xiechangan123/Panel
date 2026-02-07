@@ -75,7 +75,7 @@ const parseSizeValue = (val: string): { num: number | null; unit: string } => {
   if (!val) return { num: null, unit: 'k' }
   const match = val.match(/^(\d+)\s*([kmg])$/i)
   if (match) {
-    return { num: Number(match[1]), unit: match[2].toLowerCase() }
+    return { num: Number(match[1]), unit: match[2]!.toLowerCase() }
   }
   return { num: Number(val) || null, unit: 'k' }
 }

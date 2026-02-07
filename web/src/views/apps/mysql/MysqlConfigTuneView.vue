@@ -72,7 +72,7 @@ const parseSizeValue = (val: string): { num: number | null; unit: string } => {
   if (!val) return { num: null, unit: 'M' }
   const match = val.match(/^(\d+)\s*([KMG])$/i)
   if (match) {
-    return { num: Number(match[1]), unit: match[2].toUpperCase() }
+    return { num: Number(match[1]), unit: match[2]!.toUpperCase() }
   }
   return { num: Number(val) || null, unit: 'M' }
 }

@@ -64,7 +64,7 @@ const parseSizeValue = (val: string): { num: number | null; unit: string } => {
   if (!val) return { num: null, unit: 'MB' }
   const match = val.match(/^(\d+)\s*(kB|MB|GB)$/i)
   if (match) {
-    const unit = match[2]
+    const unit = match[2]!
     const normalized = unit === 'kb' ? 'kB' : unit === 'mb' ? 'MB' : unit === 'gb' ? 'GB' : unit
     return { num: Number(match[1]), unit: normalized }
   }

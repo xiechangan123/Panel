@@ -41,7 +41,7 @@ const parseSizeValue = (val: string): { num: number | null; unit: string } => {
   if (!val) return { num: null, unit: 'mb' }
   const match = val.match(/^(\d+)\s*(kb|mb|gb)$/i)
   if (match) {
-    return { num: Number(match[1]), unit: match[2].toLowerCase() }
+    return { num: Number(match[1]), unit: match[2]!.toLowerCase() }
   }
   return { num: Number(val) || null, unit: 'mb' }
 }
