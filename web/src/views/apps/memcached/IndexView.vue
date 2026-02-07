@@ -8,6 +8,7 @@ import { useGettext } from 'vue3-gettext'
 
 import memcached from '@/api/apps/memcached'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import MemcachedConfigTuneView from './MemcachedConfigTuneView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -32,9 +33,15 @@ const { data: load } = useRequest(memcached.load, {
   initialData: []
 })
 
-const { data: config } = useRequest(memcached.config, {
+const { data: config, send: refreshConfig } = useRequest(memcached.config, {
   initialData: {
     config: ''
+  }
+})
+
+watch(currentTab, (val) => {
+  if (val === 'config') {
+    refreshConfig()
   }
 })
 
@@ -60,6 +67,9 @@ const handleSaveConfig = () => {
             </n-button>
           </n-flex>
         </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
+        <memcached-config-tune-view />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table

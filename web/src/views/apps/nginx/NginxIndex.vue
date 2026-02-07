@@ -12,6 +12,7 @@ import { useGettext } from 'vue3-gettext'
 
 import nginx from '@/api/apps/nginx'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
+import NginxConfigTuneView from './NginxConfigTuneView.vue'
 
 const props = defineProps<{
   api: typeof nginx
@@ -64,7 +65,7 @@ const updateResolverTimeoutUnit = (unit: string) => {
   streamUpstreamModel.value.resolver_timeout = buildDuration(parsed.value, unit)
 }
 
-const { data: config } = useRequest(props.api.config, {
+const { data: config, send: refreshConfig } = useRequest(props.api.config, {
   initialData: ''
 })
 const { data: errorLog } = useRequest(props.api.errorLog, {
@@ -304,7 +305,9 @@ const streamUpstreamColumns: any = [
 
 // 监听标签页切换
 watch(currentTab, (val) => {
-  if (val === 'stream') {
+  if (val === 'config') {
+    refreshConfig()
+  } else if (val === 'stream') {
     loadStreamServers()
     loadStreamUpstreams()
   }
@@ -493,6 +496,9 @@ const handleDeleteStreamUpstream = (name: string) => {
             </n-button>
           </n-flex>
         </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
+        <nginx-config-tune-view :api="props.api" />
       </n-tab-pane>
       <n-tab-pane name="stream" :tab="$gettext('Stream')">
         <n-tabs v-model:value="streamTab" type="line" placement="left" animated>
