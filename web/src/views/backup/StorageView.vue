@@ -7,7 +7,9 @@ import { useGettext } from 'vue3-gettext'
 const { $gettext } = useGettext()
 
 const createModal = ref(false)
+const createLoading = ref(false)
 const editModal = ref(false)
+const editLoading = ref(false)
 const editId = ref(0)
 
 const typeOptions = [
@@ -144,12 +146,17 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const handleCreate = () => {
-  useRequest(storage.create(createModel.value)).onSuccess(() => {
-    createModal.value = false
-    createModel.value = { ...defaultModel, info: { ...defaultModel.info } }
-    refresh()
-    window.$message.success($gettext('Created successfully'))
-  })
+  createLoading.value = true
+  useRequest(storage.create(createModel.value))
+    .onSuccess(() => {
+      createModal.value = false
+      createModel.value = { ...defaultModel, info: { ...defaultModel.info } }
+      refresh()
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      createLoading.value = false
+    })
 }
 
 const handleEdit = (row: any) => {
@@ -163,11 +170,16 @@ const handleEdit = (row: any) => {
 }
 
 const handleUpdate = () => {
-  useRequest(storage.update(editId.value, editModel.value)).onSuccess(() => {
-    editModal.value = false
-    refresh()
-    window.$message.success($gettext('Updated successfully'))
-  })
+  editLoading.value = true
+  useRequest(storage.update(editId.value, editModel.value))
+    .onSuccess(() => {
+      editModal.value = false
+      refresh()
+      window.$message.success($gettext('Updated successfully'))
+    })
+    .onComplete(() => {
+      editLoading.value = false
+    })
 }
 
 const handleDelete = (id: number) => {
@@ -360,7 +372,7 @@ onMounted(() => {
         </n-form-item>
       </template>
     </n-form>
-    <n-button type="info" block @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="createLoading" :disabled="createLoading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
 
   <!-- Edit Modal -->
@@ -508,7 +520,7 @@ onMounted(() => {
         </n-form-item>
       </template>
     </n-form>
-    <n-button type="info" block @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="editLoading" :disabled="editLoading" @click="handleUpdate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
 </template>
 

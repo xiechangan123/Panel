@@ -30,16 +30,21 @@ const createModel = ref({
 })
 
 const handleCreate = () => {
-  useRequest(firewall.createForward(createModel.value)).onSuccess(() => {
-    show.value = false
-    createModel.value = {
-      protocol: 'tcp',
-      port: 8080,
-      target_ip: '127.0.0.1',
-      target_port: 80
-    }
-    window.$message.success($gettext('Created successfully'))
-  })
+  loading.value = true
+  useRequest(firewall.createForward(createModel.value))
+    .onSuccess(() => {
+      show.value = false
+      createModel.value = {
+        protocol: 'tcp',
+        port: 8080,
+        target_ip: '127.0.0.1',
+        target_port: 80
+      }
+      window.$message.success($gettext('Created successfully'))
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 

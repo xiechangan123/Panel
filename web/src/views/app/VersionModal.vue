@@ -30,13 +30,13 @@ const handleSubmit = () => {
   doSubmit.value = true
   useRequest(app.install(info.value.slug, model.value.channel))
     .onSuccess(() => {
+      show.value = false
       window.$message.success(
         $gettext('Task submitted, please check the progress in background tasks')
       )
     })
     .onComplete(() => {
       doSubmit.value = false
-      show.value = false
       model.value = {
         channel: null,
         version: '',

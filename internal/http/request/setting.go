@@ -32,9 +32,7 @@ type SettingPanel struct {
 
 func (r *SettingPanel) Rules(_ *http.Request) map[string]string {
 	return map[string]string{
-		"BindDomain.*": "required",
-		"BindIP.*":     "required|ipcidr",
-		"BindUA.*":     "required",
+		"BindIP.*": "ipcidr",
 	}
 }
 

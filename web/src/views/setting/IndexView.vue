@@ -79,33 +79,33 @@ const handleSave = () => {
   saveLoading.value = true
   useRequest(setting.update(model.value))
     .onSuccess(({ data }) => {
-    window.$message.success($gettext('Saved successfully'))
+      window.$message.success($gettext('Saved successfully'))
 
-    // 更新 HTTPS 快照
-    snapshotHttpsState()
+      // 更新 HTTPS 快照
+      snapshotHttpsState()
 
-    // 更新语言设置
-    if (model.value.locale !== themeStore.locale) {
-      themeStore.setLocale(model.value.locale)
-    }
+      // 更新语言设置
+      if (model.value.locale !== themeStore.locale) {
+        themeStore.setLocale(model.value.locale)
+      }
 
-    // 更新隐藏菜单和自定义 Logo
-    themeStore.setLogo(model.value.custom_logo || '')
-    permissionStore.setHiddenRoutes(model.value.hidden_menu || [])
+      // 更新隐藏菜单和自定义 Logo
+      themeStore.setLogo(model.value.custom_logo || '')
+      permissionStore.setHiddenRoutes(model.value.hidden_menu || [])
 
-    // 如果需要重启，则自动刷新页面
-    if (data.restart) {
-      window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
-      setTimeout(() => {
-        const protocol = model.value.https ? 'https:' : 'http:'
-        const hostname = window.location.hostname
-        const port = model.value.port
-        const entrance = model.value.entrance || '/'
-        // 构建新的 URL
-        window.location.href = `${protocol}//${hostname}:${port}${entrance}`
-      }, 5000)
-    }
-  })
+      // 如果需要重启，则自动刷新页面
+      if (data.restart) {
+        window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
+        setTimeout(() => {
+          const protocol = model.value.https ? 'https:' : 'http:'
+          const hostname = window.location.hostname
+          const port = model.value.port
+          const entrance = model.value.entrance || '/'
+          // 构建新的 URL
+          window.location.href = `${protocol}//${hostname}:${port}${entrance}`
+        }, 5000)
+      }
+    })
     .onComplete(() => {
       saveLoading.value = false
     })
@@ -157,12 +157,19 @@ const handleCreate = () => {
       <setting-safe v-if="currentTab === 'safe'" v-model:model="model" />
       <setting-user v-if="currentTab === 'user'" />
       <n-flex>
-        <n-button v-if="currentTab != 'user'" type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+        <n-button
+          v-if="currentTab != 'user'"
+          type="primary"
+          :loading="saveLoading"
+          :disabled="saveLoading"
+          @click="handleSave"
+        >
           {{ $gettext('Save') }}
         </n-button>
         <n-button
           v-if="currentTab === 'safe' && model.https && model.acme"
           type="info"
+          :loading="isObtainCert"
           :disabled="httpsSettingsDirty || isObtainCert"
           @click="handleObtainCert"
         >

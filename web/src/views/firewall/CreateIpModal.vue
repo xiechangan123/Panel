@@ -68,10 +68,11 @@ const createModel = ref({
 })
 
 const handleCreate = async () => {
+  loading.value = true
   if (!createModel.value.address.length) {
     createModel.value.address.push('')
   }
-  for (const address of createModel.value.address) {
+  const promises = createModel.value.address.map((address) =>
     useRequest(
       firewall.createIpRule({
         ...createModel.value,
@@ -79,9 +80,11 @@ const handleCreate = async () => {
       })
     ).onSuccess(() => {
       window.$message.success($gettext('%{ address } created successfully', { address: address }))
-      show.value = false
     })
-  }
+  )
+  await Promise.all(promises)
+  loading.value = false
+  show.value = false
 }
 </script>
 

@@ -52,11 +52,11 @@ const handleSubmit = async () => {
   loading.value = true
   useRequest(cron.create(createModel.value))
     .onSuccess(() => {
+      show.value = false
       window.$message.success($gettext('Created successfully'))
       window.$bus.emit('task:refresh-cron')
     })
     .onComplete(() => {
-      show.value = false
       loading.value = false
     })
 }

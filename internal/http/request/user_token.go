@@ -15,7 +15,7 @@ type UserTokenCreate struct {
 
 func (r *UserTokenCreate) Rules(_ *http.Request) map[string]string {
 	return map[string]string{
-		"IPs.*": "required|ipcidr",
+		"IPs.*": "ipcidr",
 	}
 }
 
@@ -27,6 +27,6 @@ type UserTokenUpdate struct {
 
 func (r *UserTokenUpdate) Rules(_ *http.Request) map[string]string {
 	return map[string]string{
-		"IPs.*": "required|ipcidr",
+		"IPs.*": "ipcidr",
 	}
 }
