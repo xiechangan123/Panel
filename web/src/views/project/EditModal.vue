@@ -152,11 +152,16 @@ const onCreateEnv = () => {
 
 // 保存
 const handleSave = async () => {
-  useRequest(project.update(model.value.id, model.value)).onSuccess(() => {
-    window.$bus.emit('project:refresh')
-    window.$message.success($gettext('Saved successfully'))
-    show.value = false
-  })
+  loading.value = true
+  useRequest(project.update(model.value.id, model.value))
+    .onSuccess(() => {
+      window.$bus.emit('project:refresh')
+      window.$message.success($gettext('Saved successfully'))
+      show.value = false
+    })
+    .onComplete(() => {
+      loading.value = false
+    })
 }
 </script>
 

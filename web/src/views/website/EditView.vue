@@ -17,6 +17,9 @@ const { $gettext } = useGettext()
 let messageReactive: MessageReactive | null = null
 
 const current = ref('listen')
+const saveLoading = ref(false)
+const resetLoading = ref(false)
+const clearLogLoading = ref(false)
 const route = useRoute()
 const { id } = route.params
 const { data: setting, send: fetchSetting } = useRequest(website.config(Number(id)), {
@@ -124,17 +127,27 @@ const handleSave = () => {
     })
   }
 
-  useRequest(website.saveConfig(Number(id), setting.value)).onSuccess(() => {
-    fetchSetting()
-    window.$message.success($gettext('Saved successfully'))
-  })
+  saveLoading.value = true
+  useRequest(website.saveConfig(Number(id), setting.value))
+    .onSuccess(() => {
+      fetchSetting()
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveLoading.value = false
+    })
 }
 
 const handleReset = () => {
-  useRequest(website.resetConfig(Number(id))).onSuccess(() => {
-    fetchSetting()
-    window.$message.success($gettext('Reset successfully'))
-  })
+  resetLoading.value = true
+  useRequest(website.resetConfig(Number(id)))
+    .onSuccess(() => {
+      fetchSetting()
+      window.$message.success($gettext('Reset successfully'))
+    })
+    .onComplete(() => {
+      resetLoading.value = false
+    })
 }
 
 const handleRewrite = (value: string) => {
@@ -169,10 +182,15 @@ const handleSelectCert = (value: number) => {
 }
 
 const clearLog = async () => {
-  useRequest(website.clearLog(Number(id))).onSuccess(() => {
-    fetchSetting()
-    window.$message.success($gettext('Cleared successfully'))
-  })
+  clearLogLoading.value = true
+  useRequest(website.clearLog(Number(id)))
+    .onSuccess(() => {
+      fetchSetting()
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearLogLoading.value = false
+    })
 }
 
 const onCreateListen = () => {
@@ -1910,13 +1928,15 @@ const removeCustomConfig = (index: number) => {
     <n-button
       v-if="current !== 'log' && current !== 'error_log'"
       type="primary"
+      :loading="saveLoading"
+      :disabled="saveLoading"
       @click="handleSave"
     >
       {{ $gettext('Save') }}
     </n-button>
     <n-popconfirm v-if="current == 'log'" @positive-click="clearLog">
       <template #trigger>
-        <n-button type="primary">
+        <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading">
           {{ $gettext('Clear Logs') }}
         </n-button>
       </template>
@@ -1934,7 +1954,7 @@ const removeCustomConfig = (index: number) => {
     </n-button>
     <n-popconfirm v-if="current === 'config'" @positive-click="handleReset">
       <template #trigger>
-        <n-button type="warning" ml-16>
+        <n-button type="warning" ml-16 :loading="resetLoading" :disabled="resetLoading">
           {{ $gettext('Reset Configuration') }}
         </n-button>
       </template>
