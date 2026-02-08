@@ -121,9 +121,7 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 
 const handleCreate = () => {
   createLoading.value = true
-  useRequest(
-    backup.create(type.value, createModel.value.target, createModel.value.storage)
-  )
+  useRequest(backup.create(type.value, createModel.value.target, createModel.value.storage))
     .onSuccess(() => {
       createModal.value = false
       window.$bus.emit('backup:refresh')
@@ -174,7 +172,7 @@ watch(
 )
 
 onMounted(() => {
-  useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
+  useRequest(app.isInstalled('nginx,openresty,apache,caddy')).onSuccess(({ data }) => {
     if (data) {
       useRequest(website.list('all', 1, 10000)).onSuccess(({ data }: { data: any }) => {
         for (const item of data.items) {
@@ -280,7 +278,14 @@ onUnmounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="createLoading" :disabled="createLoading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
+    <n-button
+      type="info"
+      block
+      :loading="createLoading"
+      :disabled="createLoading"
+      @click="handleCreate"
+      >{{ $gettext('Submit') }}</n-button
+    >
   </n-modal>
   <n-modal
     v-model:show="restoreModal"
@@ -304,7 +309,14 @@ onUnmounted(() => {
         <n-input v-model:value="restoreModel.target" type="text" @keydown.enter.prevent />
       </n-form-item>
     </n-form>
-    <n-button type="info" block :loading="restoreLoading" :disabled="restoreLoading" @click="handleRestore">{{ $gettext('Submit') }}</n-button>
+    <n-button
+      type="info"
+      block
+      :loading="restoreLoading"
+      :disabled="restoreLoading"
+      @click="handleRestore"
+      >{{ $gettext('Submit') }}</n-button
+    >
   </n-modal>
   <upload-modal v-model:show="uploadModal" v-model:type="type" />
 </template>

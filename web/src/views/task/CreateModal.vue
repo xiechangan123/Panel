@@ -96,7 +96,7 @@ watch(
 )
 
 onMounted(() => {
-  useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
+  useRequest(app.isInstalled('nginx,openresty,apache,caddy')).onSuccess(({ data }) => {
     if (data) {
       useRequest(website.list('all', 1, 10000)).onSuccess(({ data }: { data: any }) => {
         for (const item of data.items) {

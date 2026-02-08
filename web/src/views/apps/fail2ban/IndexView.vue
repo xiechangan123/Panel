@@ -226,7 +226,7 @@ const handleUnBan = (name: string, ip: string) => {
 onMounted(() => {
   refresh()
   getWhiteList()
-  useRequest(app.isInstalled('nginx')).onSuccess(({ data }) => {
+  useRequest(app.isInstalled('nginx,openresty,apache,caddy')).onSuccess(({ data }) => {
     if (data) {
       getWebsiteList(1, 10000)
     }
@@ -249,7 +249,12 @@ onMounted(() => {
             />
           </n-card>
           <n-flex>
-            <n-button type="primary" :loading="saveWhiteListLoading" :disabled="saveWhiteListLoading" @click="handleSaveWhiteList">
+            <n-button
+              type="primary"
+              :loading="saveWhiteListLoading"
+              :disabled="saveWhiteListLoading"
+              @click="handleSaveWhiteList"
+            >
               {{ $gettext('Save Whitelist') }}
             </n-button>
           </n-flex>
@@ -377,7 +382,14 @@ onMounted(() => {
             <n-input-number v-model:value="addJailModel.bantime" @keydown.enter.prevent :min="1" />
           </n-form-item>
         </n-form>
-        <n-button type="info" block :loading="addJailLoading" :disabled="addJailLoading" @click="handleAddJail">{{ $gettext('Submit') }}</n-button>
+        <n-button
+          type="info"
+          block
+          :loading="addJailLoading"
+          :disabled="addJailLoading"
+          @click="handleAddJail"
+          >{{ $gettext('Submit') }}</n-button
+        >
       </n-space>
     </n-card>
   </n-modal>

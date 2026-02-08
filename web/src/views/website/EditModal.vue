@@ -1503,7 +1503,7 @@ const removeCustomConfig = (index: number) => {
         <n-tab-pane name="https" tab="HTTPS">
           <n-flex vertical v-if="setting">
             <n-card v-if="setting.ssl && setting.ssl_issuer != ''">
-              <n-descriptions :title="$gettext('Certificate Information')" :column="2">
+              <n-descriptions :column="3">
                 <n-descriptions-item>
                   <template #label>{{ $gettext('Certificate Validity') }}</template>
                   <n-flex>
@@ -1522,12 +1522,6 @@ const removeCustomConfig = (index: number) => {
                   <template #label>{{ $gettext('Domains') }}</template>
                   <n-flex>
                     <n-tag v-for="item in setting.ssl_dns_names" :key="item">{{ item }}</n-tag>
-                  </n-flex>
-                </n-descriptions-item>
-                <n-descriptions-item>
-                  <template #label>OCSP</template>
-                  <n-flex>
-                    <n-tag v-for="item in setting.ssl_ocsp_server" :key="item">{{ item }}</n-tag>
                   </n-flex>
                 </n-descriptions-item>
               </n-descriptions>
@@ -1582,10 +1576,8 @@ const removeCustomConfig = (index: number) => {
             <n-form v-if="setting.ssl">
               <n-form-item :label="$gettext('Cipher Suites')">
                 <n-input
-                  type="textarea"
                   v-model:value="setting.ssl_ciphers"
                   :placeholder="$gettext('Enter the cipher suite, leave blank to reset to default')"
-                  rows="4"
                 />
               </n-form-item>
               <n-grid :cols="2" :x-gap="24">
@@ -1595,7 +1587,7 @@ const removeCustomConfig = (index: number) => {
                       v-model:value="setting.ssl_cert"
                       type="textarea"
                       :placeholder="$gettext('Enter the content of the PEM certificate file')"
-                      :autosize="{ minRows: 10, maxRows: 15 }"
+                      rows="10"
                     />
                   </n-form-item>
                 </n-gi>
@@ -1605,7 +1597,7 @@ const removeCustomConfig = (index: number) => {
                       v-model:value="setting.ssl_key"
                       type="textarea"
                       :placeholder="$gettext('Enter the content of the KEY private key file')"
-                      :autosize="{ minRows: 10, maxRows: 15 }"
+                      rows="10"
                     />
                   </n-form-item>
                 </n-gi>
