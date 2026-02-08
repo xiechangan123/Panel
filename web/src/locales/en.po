@@ -2714,7 +2714,7 @@ msgid ""
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:287
-msgid "Gzip(gzip)"
+msgid "Gzip (gzip)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:290
@@ -2726,7 +2726,7 @@ msgid "Compression Level (gzip_comp_level)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:309
-msgid "Types(gzip_types)"
+msgid "Types (gzip_types)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:310
@@ -2736,11 +2736,11 @@ msgid "e.g. *"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:312
-msgid "Vary(gzip_vary)"
+msgid "Vary (gzip_vary)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:315
-msgid "Proxied(gzip_proxied)"
+msgid "Proxied (gzip_proxied)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:316
@@ -2754,7 +2754,7 @@ msgid ""
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:341
-msgid "Brotli(brotli)"
+msgid "Brotli (brotli)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:344
@@ -2766,11 +2766,11 @@ msgid "Compression Level (brotli_comp_level)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:363
-msgid "Types(brotli_types)"
+msgid "Types (brotli_types)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:366
-msgid "Static(brotli_static)"
+msgid "Static (brotli_static)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:386
@@ -2779,7 +2779,7 @@ msgid ""
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:390
-msgid "Zstd(zstd)"
+msgid "Zstd (zstd)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:393
@@ -2791,11 +2791,11 @@ msgid "Compression Level (zstd_comp_level)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:412
-msgid "Types(zstd_types)"
+msgid "Types (zstd_types)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:415
-msgid "Static(zstd_static)"
+msgid "Static (zstd_static)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:159
