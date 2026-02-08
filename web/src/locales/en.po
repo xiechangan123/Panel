@@ -792,10 +792,10 @@ msgstr ""
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:371
 #: src/views/apps/mysql/MysqlIndex.vue:131
 #: src/views/apps/mysql/MysqlIndex.vue:151
-#: src/views/apps/nginx/NginxConfigTuneView.vue:270
-#: src/views/apps/nginx/NginxConfigTuneView.vue:324
-#: src/views/apps/nginx/NginxConfigTuneView.vue:375
-#: src/views/apps/nginx/NginxConfigTuneView.vue:424
+#: src/views/apps/nginx/NginxConfigTuneView.vue:272
+#: src/views/apps/nginx/NginxConfigTuneView.vue:326
+#: src/views/apps/nginx/NginxConfigTuneView.vue:377
+#: src/views/apps/nginx/NginxConfigTuneView.vue:426
 #: src/views/apps/nginx/NginxIndex.vue:519
 #: src/views/apps/phpmyadmin/IndexView.vue:78
 #: src/views/apps/phpmyadmin/IndexView.vue:97
@@ -2379,9 +2379,22 @@ msgstr ""
 msgid "Common MySQL general settings."
 msgstr ""
 
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:207
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:186
+#: src/views/apps/redis/RedisConfigTuneView.vue:128
+#, fuzzy
+msgid "Port (port)"
+msgstr "Port"
+
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:208
 msgid "e.g. 3306"
 msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:210
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:195
+#, fuzzy
+msgid "Max Connections (max_connections)"
+msgstr "Network Protocol"
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:211
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:332
@@ -2391,19 +2404,39 @@ msgstr ""
 msgid "e.g. 50"
 msgstr ""
 
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:213
+msgid "Max Connect Errors (max_connect_errors)"
+msgstr ""
+
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:214
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:396
 msgid "e.g. 100"
 msgstr ""
 
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:216
+msgid "Default Storage Engine (default_storage_engine)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:219
+msgid "Table Open Cache (table_open_cache)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:222
+msgid "Max Allowed Packet (max_allowed_packet)"
+msgstr ""
+
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:224
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:338
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:341
-#: src/views/apps/nginx/NginxConfigTuneView.vue:293
-#: src/views/apps/nginx/NginxConfigTuneView.vue:347
-#: src/views/apps/nginx/NginxConfigTuneView.vue:396
+#: src/views/apps/nginx/NginxConfigTuneView.vue:295
+#: src/views/apps/nginx/NginxConfigTuneView.vue:349
+#: src/views/apps/nginx/NginxConfigTuneView.vue:398
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:356
 msgid "e.g. 1"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:228
+msgid "Open Files Limit (open_files_limit)"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:229
@@ -2420,10 +2453,18 @@ msgstr ""
 msgid "MySQL performance buffer and cache settings."
 msgstr ""
 
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:245
+msgid "Key Buffer Size (key_buffer_size)"
+msgstr ""
+
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:247
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:298
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:72
 msgid "e.g. 8"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:251
+msgid "Sort Buffer Size (sort_buffer_size)"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:253
@@ -2435,8 +2476,24 @@ msgstr ""
 msgid "e.g. 256"
 msgstr ""
 
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:257
+msgid "Read Buffer Size (read_buffer_size)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:263
+msgid "Read Rnd Buffer Size (read_rnd_buffer_size)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:269
+msgid "Join Buffer Size (join_buffer_size)"
+msgstr ""
+
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:271
 msgid "e.g. 128"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:275
+msgid "Thread Cache Size (thread_cache_size)"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:276
@@ -2447,16 +2504,60 @@ msgstr ""
 msgid "e.g. 16"
 msgstr ""
 
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:278
+msgid "Thread Stack (thread_stack)"
+msgstr ""
+
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:280
 msgid "e.g. 192"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:284
+msgid "Tmp Table Size (tmp_table_size)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:290
+msgid "Max Heap Table Size (max_heap_table_size)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:296
+msgid "MyISAM Sort Buffer Size (myisam_sort_buffer_size)"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:313
 msgid "InnoDB storage engine settings."
 msgstr ""
 
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:316
+msgid "Buffer Pool Size (innodb_buffer_pool_size)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:322
+msgid "Log Buffer Size (innodb_log_buffer_size)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:328
+msgid "Flush Log At Trx Commit (innodb_flush_log_at_trx_commit)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:331
+msgid "Lock Wait Timeout (innodb_lock_wait_timeout)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:334
+msgid "Max Dirty Pages Pct (innodb_max_dirty_pages_pct)"
+msgstr ""
+
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:335
 msgid "e.g. 90"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:337
+msgid "Read IO Threads (innodb_read_io_threads)"
+msgstr ""
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:340
+msgid "Write IO Threads (innodb_write_io_threads)"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:351
@@ -2468,6 +2569,15 @@ msgstr ""
 #, fuzzy
 msgid "MySQL logging settings."
 msgstr "Port Settings"
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:357
+#, fuzzy
+msgid "Slow Query Log (slow_query_log)"
+msgstr "Slow Query Log"
+
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:360
+msgid "Long Query Time (long_query_time)"
+msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:364
 msgid "e.g. 3 (seconds)"
@@ -2537,13 +2647,29 @@ msgstr "Clear Slow Log"
 msgid "Common Nginx general settings."
 msgstr ""
 
+#: src/views/apps/nginx/NginxConfigTuneView.vue:181
+msgid "Worker Processes (worker_processes)"
+msgstr ""
+
 #: src/views/apps/nginx/NginxConfigTuneView.vue:184
 msgid "e.g. auto or number"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:187
+msgid "Worker Connections (worker_connections)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:195
+msgid "Keepalive Timeout (keepalive_timeout)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:199
 #: src/views/environment/PhpConfigTuneView.vue:409
 msgid "e.g. 60"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:203
+msgid "Client Max Body Size (client_max_body_size)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:208
@@ -2552,44 +2678,124 @@ msgstr ""
 msgid "e.g. 200"
 msgstr ""
 
+#: src/views/apps/nginx/NginxConfigTuneView.vue:219
+msgid "Client Body Buffer Size (client_body_buffer_size)"
+msgstr ""
+
 #: src/views/apps/nginx/NginxConfigTuneView.vue:224
 #: src/views/environment/PhpConfigTuneView.vue:473
 msgid "e.g. 10"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:235
+msgid "Client Header Buffer Size (client_header_buffer_size)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:240
 msgid "e.g. 32"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:255
+#: src/views/apps/nginx/NginxConfigTuneView.vue:252
+msgid "Server Names Hash Bucket Size (server_names_hash_bucket_size)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:257
 msgid "e.g. 512"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:279
+#: src/views/apps/nginx/NginxConfigTuneView.vue:261
+msgid "Server Tokens (server_tokens)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:281
 msgid ""
 "Gzip compression settings. Gzip is the most widely supported compression "
 "method."
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:308
-#: src/views/apps/nginx/NginxConfigTuneView.vue:362
-#: src/views/apps/nginx/NginxConfigTuneView.vue:411
+#: src/views/apps/nginx/NginxConfigTuneView.vue:287
+msgid "Gzip(gzip)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:290
+msgid "Min Length (gzip_min_length)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:306
+msgid "Compression Level (gzip_comp_level)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:309
+msgid "Types(gzip_types)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:310
+#: src/views/apps/nginx/NginxConfigTuneView.vue:364
+#: src/views/apps/nginx/NginxConfigTuneView.vue:413
 msgid "e.g. *"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:314
+#: src/views/apps/nginx/NginxConfigTuneView.vue:312
+msgid "Vary(gzip_vary)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:315
+msgid "Proxied(gzip_proxied)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:316
 msgid "e.g. any"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:333
+#: src/views/apps/nginx/NginxConfigTuneView.vue:335
 msgid ""
 "Brotli compression settings. Brotli provides better compression ratio than "
 "Gzip."
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:384
+#: src/views/apps/nginx/NginxConfigTuneView.vue:341
+msgid "Brotli(brotli)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:344
+msgid "Min Length (brotli_min_length)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:360
+msgid "Compression Level (brotli_comp_level)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:363
+msgid "Types(brotli_types)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:366
+msgid "Static(brotli_static)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:386
 msgid ""
 "Zstd compression settings. Zstd provides fast compression with high ratio."
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:390
+msgid "Zstd(zstd)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:393
+msgid "Min Length (zstd_min_length)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:409
+msgid "Compression Level (zstd_comp_level)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:412
+msgid "Types(zstd_types)"
+msgstr ""
+
+#: src/views/apps/nginx/NginxConfigTuneView.vue:415
+msgid "Static(zstd_static)"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:159
@@ -2909,12 +3115,21 @@ msgstr "Compressing..."
 msgid "PostgreSQL connection and authentication settings."
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:180
+#, fuzzy
+msgid "Listen Addresses (listen_addresses)"
+msgstr "Listening Address"
+
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:183
 msgid "e.g. localhost or *"
 msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:190
 msgid "e.g. 5432"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:203
+msgid "Superuser Reserved Connections (superuser_reserved_connections)"
 msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:207
@@ -2935,20 +3150,60 @@ msgstr "Memory"
 msgid "PostgreSQL memory allocation settings."
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:230
+msgid "Shared Buffers (shared_buffers)"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:246
+msgid "Work Mem (work_mem)"
+msgstr ""
+
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:251
 msgid "e.g. 1260"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:262
+msgid "Maintenance Work Mem (maintenance_work_mem)"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:278
+msgid "Effective Cache Size (effective_cache_size)"
 msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:283
 msgid "e.g. 768"
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:294
+msgid "Huge Pages (huge_pages)"
+msgstr ""
+
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:313
 msgid "Write-Ahead Logging (WAL) settings."
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:316
+msgid "WAL Level (wal_level)"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:319
+msgid "WAL Buffers (wal_buffers)"
+msgstr ""
+
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:324
 msgid "e.g. 7864"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:335
+msgid "Max WAL Size (max_wal_size)"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:351
+msgid "Min WAL Size (min_wal_size)"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:367
+msgid "Checkpoint Completion Target (checkpoint_completion_target)"
 msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:370
@@ -2963,20 +3218,44 @@ msgstr ""
 msgid "Query planner and optimization settings."
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:392
+msgid "Default Statistics Target (default_statistics_target)"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:400
+msgid "Random Page Cost (random_page_cost)"
+msgstr ""
+
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:401
 msgid "e.g. 1.1"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:403
+msgid "Effective IO Concurrency (effective_io_concurrency)"
 msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:427
 msgid "PostgreSQL logging settings."
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:430
+msgid "Log Destination (log_destination)"
+msgstr ""
+
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:431
 msgid "e.g. stderr"
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:433
+msgid "Log Min Duration Statement (log_min_duration_statement)"
+msgstr ""
+
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:437
 msgid "e.g. -1 (disabled) or milliseconds"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:441
+msgid "Log Timezone (log_timezone)"
 msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:442
@@ -2986,6 +3265,10 @@ msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:460
 msgid "IO method settings. Requires PostgreSQL restart to take effect."
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:463
+msgid "IO Method (io_method)"
 msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:36
@@ -3090,6 +3373,14 @@ msgstr "Enter the directory authorized to the user"
 msgid "Common Pure-FTPd settings."
 msgstr ""
 
+#: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:68
+msgid "MaxClientsNumber"
+msgstr ""
+
+#: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:71
+msgid "MaxClientsPerIP"
+msgstr ""
+
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:74
 #, fuzzy
 msgid "MaxIdleTime (minutes)"
@@ -3099,12 +3390,25 @@ msgstr "Cache time (minutes)"
 msgid "e.g. 15"
 msgstr ""
 
+#: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:77
+#, fuzzy
+msgid "MaxLoad"
+msgstr "Load"
+
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:80
 msgid "PassivePortRange (start end)"
 msgstr ""
 
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:81
 msgid "e.g. 39000 40000"
+msgstr ""
+
+#: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:83
+msgid "AnonymousOnly"
+msgstr ""
+
+#: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:86
+msgid "NoAnonymous"
 msgstr ""
 
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:89
@@ -3128,8 +3432,22 @@ msgstr ""
 msgid "Common Redis general settings."
 msgstr ""
 
+#: src/views/apps/redis/RedisConfigTuneView.vue:125
+#, fuzzy
+msgid "Bind (bind)"
+msgstr "Bind Domain"
+
 #: src/views/apps/redis/RedisConfigTuneView.vue:129
 msgid "e.g. 6379"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:131
+#, fuzzy
+msgid "Databases (databases)"
+msgstr "Database Name"
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:134
+msgid "Password (requirepass)"
 msgstr ""
 
 #: src/views/apps/redis/RedisConfigTuneView.vue:139
@@ -3137,8 +3455,17 @@ msgstr ""
 msgid "Leave empty for no password"
 msgstr "Please enter username and password"
 
+#: src/views/apps/redis/RedisConfigTuneView.vue:142
+#, fuzzy
+msgid "Timeout (timeout)"
+msgstr "Resource Overview"
+
 #: src/views/apps/redis/RedisConfigTuneView.vue:143
 msgid "e.g. 0 (disabled) or seconds"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:145
+msgid "TCP Keepalive (tcp-keepalive)"
 msgstr ""
 
 #: src/views/apps/redis/RedisConfigTuneView.vue:146
@@ -3149,12 +3476,28 @@ msgstr ""
 msgid "Redis memory management settings."
 msgstr ""
 
+#: src/views/apps/redis/RedisConfigTuneView.vue:162
+msgid "Max Memory (maxmemory)"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:168
+msgid "Maxmemory Policy (maxmemory-policy)"
+msgstr ""
+
 #: src/views/apps/redis/RedisConfigTuneView.vue:179
 msgid "Persistence"
 msgstr ""
 
 #: src/views/apps/redis/RedisConfigTuneView.vue:182
 msgid "Redis AOF persistence settings."
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:185
+msgid "Append Only (appendonly)"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:188
+msgid "Append Fsync (appendfsync)"
 msgstr ""
 
 #: src/views/apps/rsync/IndexView.vue:62 src/views/apps/rsync/IndexView.vue:300
@@ -4855,6 +5198,22 @@ msgstr "Cleared successfully"
 msgid "Common PHP general settings."
 msgstr ""
 
+#: src/views/environment/PhpConfigTuneView.vue:254
+msgid "Short Tag (short_open_tag)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:257
+msgid "Timezone (date.timezone)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:260
+msgid "Display Errors (display_errors)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:263
+msgid "Error Reporting (error_reporting)"
+msgstr ""
+
 #: src/views/environment/PhpConfigTuneView.vue:264
 msgid "e.g. E_ALL"
 msgstr ""
@@ -4886,9 +5245,26 @@ msgid ""
 "upload_max_filesize."
 msgstr ""
 
+#: src/views/environment/PhpConfigTuneView.vue:320
+msgid "Max Upload Size (upload_max_filesize)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:336
+msgid "Max POST Size (post_max_size)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:352
+msgid "Max File Uploads (max_file_uploads)"
+msgstr ""
+
 #: src/views/environment/PhpConfigTuneView.vue:356
 msgid "e.g. 20"
 msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:360
+#, fuzzy
+msgid "Memory Limit (memory_limit)"
+msgstr "Memory"
 
 #: src/views/environment/PhpConfigTuneView.vue:389
 #, fuzzy
@@ -4900,9 +5276,22 @@ msgid ""
 "Adjust PHP script timeout limits. Values are in seconds, -1 means no limit."
 msgstr ""
 
+#: src/views/environment/PhpConfigTuneView.vue:397
+msgid "Max Execution Time (max_execution_time)"
+msgstr ""
+
 #: src/views/environment/PhpConfigTuneView.vue:401
 #: src/views/environment/PhpConfigTuneView.vue:449
 msgid "e.g. 30"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:405
+#, fuzzy
+msgid "Max Input Time (max_input_time)"
+msgstr "Cache time (minutes)"
+
+#: src/views/environment/PhpConfigTuneView.vue:413
+msgid "Max Input Vars (max_input_vars)"
 msgstr ""
 
 #: src/views/environment/PhpConfigTuneView.vue:417
@@ -4914,14 +5303,43 @@ msgid ""
 "Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf."
 msgstr ""
 
+#: src/views/environment/PhpConfigTuneView.vue:442
+#, fuzzy
+msgid "Process Manager (pm)"
+msgstr "Process Management"
+
+#: src/views/environment/PhpConfigTuneView.vue:445
+msgid "Max Children (pm.max_children)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:453
+msgid "Start Servers (pm.start_servers)"
+msgstr ""
+
 #: src/views/environment/PhpConfigTuneView.vue:457
 msgid "e.g. 5"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:461
+msgid "Min Spare Servers (pm.min_spare_servers)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:469
+msgid "Max Spare Servers (pm.max_spare_servers)"
 msgstr ""
 
 #: src/views/environment/PhpConfigTuneView.vue:494
 msgid ""
 "Adjust PHP session settings. When using redis or memcached, make sure the "
 "corresponding extension is installed and the service is running."
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:500
+msgid "Save Handler (session.save_handler)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:504
+msgid "Save Path (session.save_path)"
 msgstr ""
 
 #: src/views/environment/PhpConfigTuneView.vue:505
@@ -4958,8 +5376,16 @@ msgstr "Create Host"
 msgid "Memcached Port"
 msgstr "Map Ports"
 
+#: src/views/environment/PhpConfigTuneView.vue:533
+msgid "GC Max Lifetime (session.gc_maxlifetime)"
+msgstr ""
+
 #: src/views/environment/PhpConfigTuneView.vue:537
 msgid "e.g. 1440 (seconds)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:541
+msgid "Cookie Lifetime (session.cookie_lifetime)"
 msgstr ""
 
 #: src/views/environment/PhpConfigTuneView.vue:545
