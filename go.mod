@@ -20,7 +20,7 @@ require (
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
-	github.com/gookit/validate v1.5.6
+	github.com/gookit/validate v1.5.7-0.20260207022141-dc32dc1276cd
 	github.com/hashicorp/go-version v1.8.0
 	github.com/klauspost/compress v1.18.3
 	github.com/leonelquinteros/gotext v1.7.2
@@ -106,8 +106,6 @@ require (
 )
 
 replace (
-	// TODO: remove this after https://github.com/gookit/validate/pull/329 is merged
-	github.com/gookit/validate => github.com/devhaozi/validate v0.0.0-20260206130245-26dfc60977ce
 	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20260103184942-a835890fc93e
 	github.com/moby/moby/client => github.com/libtnb/moby/client v0.0.0-20260127104057-d4b7902a560b
 	github.com/rhnvrm/simples3 => github.com/devhaozi/simples3 v0.0.0-20260124160558-447c94ecedff

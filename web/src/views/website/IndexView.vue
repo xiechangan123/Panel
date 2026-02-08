@@ -5,6 +5,7 @@ defineOptions({
 
 import BulkCreateModal from '@/views/website/BulkCreateModal.vue'
 import CreateModal from '@/views/website/CreateModal.vue'
+import EditModal from '@/views/website/EditModal.vue'
 import ListView from '@/views/website/ListView.vue'
 import SettingView from '@/views/website/SettingView.vue'
 
@@ -12,6 +13,8 @@ const currentTab = ref('all')
 
 const createModal = ref(false)
 const bulkCreateModal = ref(false)
+const editModal = ref(false)
+const editId = ref(0)
 </script>
 
 <template>
@@ -30,9 +33,12 @@ const bulkCreateModal = ref(false)
       v-model:type="currentTab"
       v-model:create-modal="createModal"
       v-model:bulk-create-modal="bulkCreateModal"
+      v-model:edit-modal="editModal"
+      v-model:edit-id="editId"
     />
     <setting-view v-if="currentTab === 'setting'" />
     <create-modal v-model:show="createModal" v-model:type="currentTab" />
     <bulk-create-modal v-model:show="bulkCreateModal" v-model:type="currentTab" />
+    <edit-modal v-model:show="editModal" v-model:edit-id="editId" @saved="() => window.$bus.emit('website:refresh')" />
   </common-page>
 </template>

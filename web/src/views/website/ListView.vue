@@ -12,6 +12,8 @@ import copy2clipboard from '@vavt/copy2clipboard'
 const type = defineModel<string>('type', { type: String, required: true }) // 网站类型
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true }) // 创建网站
 const bulkCreateModal = defineModel<boolean>('bulkCreateModal', { type: Boolean, required: true }) // 批量创建网站
+const editModal = defineModel<boolean>('editModal', { type: Boolean, required: true }) // 编辑网站
+const editId = defineModel<number>('editId', { type: Number, required: true }) // 编辑网站ID
 
 const fileStore = useFileStore()
 const { $gettext } = useGettext()
@@ -324,12 +326,8 @@ const handleRemark = (row: any) => {
 }
 
 const handleEdit = (row: any) => {
-  router.push({
-    name: 'website-edit',
-    params: {
-      id: row.id
-    }
-  })
+  editId.value = row.id
+  editModal.value = true
 }
 
 const handleDelete = (id: number) => {

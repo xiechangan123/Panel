@@ -20,18 +20,6 @@ export default {
         role: ['admin'],
         requireAuth: true
       }
-    },
-    {
-      name: 'website-edit',
-      path: 'edit/:id',
-      component: () => import('./EditView.vue'),
-      isHidden: true,
-      meta: {
-        title: 'Website Edit',
-        icon: 'mdi:web',
-        role: ['admin'],
-        requireAuth: true
-      }
     }
   ]
 } as RouteType
