@@ -243,11 +243,11 @@ onMounted(() => {
       </n-button>
       <n-popconfirm @positive-click="batchDelete">
         <template #trigger>
-          <n-button type="warning">
-            {{ $gettext('Batch Delete') }}
+          <n-button type="error" ghost>
+            {{ $gettext('Delete') }}
           </n-button>
         </template>
-        {{ $gettext('Are you sure you want to batch delete?') }}
+        {{ $gettext('Are you sure you want to delete the selected rules?') }}
       </n-popconfirm>
     </n-flex>
     <n-data-table
