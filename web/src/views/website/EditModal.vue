@@ -11,7 +11,6 @@ import KeyValueEditor from '@/components/common/KeyValueEditor.vue'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const editId = defineModel<number>('editId', { type: Number, required: true })
-const emit = defineEmits(['saved'])
 
 const { $gettext } = useGettext()
 let messageReactive: MessageReactive | null = null
@@ -149,7 +148,7 @@ const handleSave = () => {
     .onSuccess(() => {
       fetchSetting()
       window.$message.success($gettext('Saved successfully'))
-      emit('saved')
+      window.$bus.emit('website:refresh')
     })
     .onComplete(() => {
       saveLoading.value = false

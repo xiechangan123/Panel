@@ -39,6 +39,6 @@ const editId = ref(0)
     <setting-view v-if="currentTab === 'setting'" />
     <create-modal v-model:show="createModal" v-model:type="currentTab" />
     <bulk-create-modal v-model:show="bulkCreateModal" v-model:type="currentTab" />
-    <edit-modal v-model:show="editModal" v-model:edit-id="editId" @saved="() => window.$bus.emit('website:refresh')" />
+    <edit-modal v-model:show="editModal" v-model:edit-id="editId" />
   </common-page>
 </template>
