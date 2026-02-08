@@ -84,9 +84,9 @@ useRequest(redis.configTune()).onSuccess(({ data }: any) => {
   const mm = parseSizeValue(data.maxmemory ?? '')
   maxmemoryNum.value = mm.num
   maxmemoryUnit.value = mm.unit
-  maxmemoryPolicy.value = data.maxmemory_policy ?? ''
-  appendonly.value = data.appendonly ?? ''
-  appendfsync.value = data.appendfsync ?? ''
+  maxmemoryPolicy.value = data.maxmemory_policy || null
+  appendonly.value = data.appendonly || null
+  appendfsync.value = data.appendfsync || null
 })
 
 const getConfigData = () => ({
@@ -97,9 +97,9 @@ const getConfigData = () => ({
   timeout: String(timeout.value ?? ''),
   tcp_keepalive: String(tcpKeepalive.value ?? ''),
   maxmemory: composeSizeValue(maxmemoryNum.value, maxmemoryUnit.value),
-  maxmemory_policy: maxmemoryPolicy.value,
-  appendonly: appendonly.value,
-  appendfsync: appendfsync.value
+  maxmemory_policy: maxmemoryPolicy.value ?? '',
+  appendonly: appendonly.value ?? '',
+  appendfsync: appendfsync.value ?? ''
 })
 
 const handleSave = () => {
@@ -166,7 +166,7 @@ const handleSave = () => {
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Maxmemory Policy (maxmemory-policy)')">
-            <n-select v-model:value="maxmemoryPolicy" :options="maxmemoryPolicyOptions" />
+            <n-select v-model:value="maxmemoryPolicy" :options="maxmemoryPolicyOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>
@@ -183,10 +183,10 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Append Only (appendonly)')">
-            <n-select v-model:value="appendonly" :options="yesNoOptions" />
+            <n-select v-model:value="appendonly" :options="yesNoOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Append Fsync (appendfsync)')">
-            <n-select v-model:value="appendfsync" :options="appendfsyncOptions" />
+            <n-select v-model:value="appendfsync" :options="appendfsyncOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>

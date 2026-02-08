@@ -104,9 +104,9 @@ const composeMemcachedSavePath = () => {
 
 // 加载配置
 useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
-  shortOpenTag.value = data.short_open_tag ?? ''
+  shortOpenTag.value = data.short_open_tag || null
   dateTimezone.value = data.date_timezone ?? ''
-  displayErrors.value = data.display_errors ?? ''
+  displayErrors.value = data.display_errors || null
   errorReporting.value = data.error_reporting ?? ''
   disableFunctions.value = data.disable_functions ?? ''
   const uploadParsed = parseSizeValue(data.upload_max_filesize ?? '')
@@ -122,11 +122,11 @@ useRequest(php.configTune(props.slug)).onSuccess(({ data }) => {
   maxExecutionTime.value = Number(data.max_execution_time) || null
   maxInputTime.value = Number(data.max_input_time) || null
   maxInputVars.value = Number(data.max_input_vars) || null
-  sessionSaveHandler.value = data.session_save_handler ?? 'files'
+  sessionSaveHandler.value = data.session_save_handler || 'files'
   sessionSavePath.value = data.session_save_path ?? ''
   sessionGcMaxlifetime.value = Number(data.session_gc_maxlifetime) || null
   sessionCookieLifetime.value = Number(data.session_cookie_lifetime) || null
-  pm.value = data.pm ?? 'dynamic'
+  pm.value = data.pm || 'dynamic'
   pmMaxChildren.value = Number(data.pm_max_children) || null
   pmStartServers.value = Number(data.pm_start_servers) || null
   pmMinSpareServers.value = Number(data.pm_min_spare_servers) || null
@@ -151,9 +151,9 @@ const getConfigData = () => {
   }
 
   return {
-    short_open_tag: shortOpenTag.value,
+    short_open_tag: shortOpenTag.value ?? '',
     date_timezone: dateTimezone.value,
-    display_errors: displayErrors.value,
+    display_errors: displayErrors.value ?? '',
     error_reporting: errorReporting.value,
     disable_functions: disableFunctions.value,
     upload_max_filesize: composeSizeValue(uploadMaxFilesizeNum.value, uploadMaxFilesizeUnit.value),
@@ -252,13 +252,13 @@ const composeSizeValue = (num: number | null, unit: string): string => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Short Tag (short_open_tag)')">
-            <n-select v-model:value="shortOpenTag" :options="onOffOptions" />
+            <n-select v-model:value="shortOpenTag" :options="onOffOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Timezone (date.timezone)')">
             <n-input v-model:value="dateTimezone" :placeholder="$gettext('e.g. Asia/Shanghai')" />
           </n-form-item>
           <n-form-item :label="$gettext('Display Errors (display_errors)')">
-            <n-select v-model:value="displayErrors" :options="onOffOptions" />
+            <n-select v-model:value="displayErrors" :options="onOffOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Error Reporting (error_reporting)')">
             <n-input v-model:value="errorReporting" :placeholder="$gettext('e.g. E_ALL')" />

@@ -112,8 +112,8 @@ useRequest(postgresql.configTune()).onSuccess(({ data }: any) => {
   const ecs = parseSizeValue(data.effective_cache_size ?? '')
   effectiveCacheSizeNum.value = ecs.num
   effectiveCacheSizeUnit.value = ecs.unit
-  hugePages.value = data.huge_pages ?? ''
-  walLevel.value = data.wal_level ?? ''
+  hugePages.value = data.huge_pages || null
+  walLevel.value = data.wal_level || null
   const wb = parseSizeValue(data.wal_buffers ?? '')
   walBuffersNum.value = wb.num
   walBuffersUnit.value = wb.unit
@@ -127,10 +127,10 @@ useRequest(postgresql.configTune()).onSuccess(({ data }: any) => {
   defaultStatisticsTarget.value = Number(data.default_statistics_target) || null
   randomPageCost.value = data.random_page_cost ?? ''
   effectiveIoConcurrency.value = Number(data.effective_io_concurrency) || null
-  logDestination.value = data.log_destination ?? ''
+  logDestination.value = data.log_destination || null
   logMinDurationStatement.value = Number(data.log_min_duration_statement) ?? null
   logTimezone.value = data.log_timezone ?? ''
-  ioMethod.value = data.io_method ?? ''
+  ioMethod.value = data.io_method || null
 })
 
 const getConfigData = () => ({
@@ -142,8 +142,8 @@ const getConfigData = () => ({
   work_mem: composeSizeValue(workMemNum.value, workMemUnit.value),
   maintenance_work_mem: composeSizeValue(maintenanceWorkMemNum.value, maintenanceWorkMemUnit.value),
   effective_cache_size: composeSizeValue(effectiveCacheSizeNum.value, effectiveCacheSizeUnit.value),
-  huge_pages: hugePages.value,
-  wal_level: walLevel.value,
+  huge_pages: hugePages.value ?? '',
+  wal_level: walLevel.value ?? '',
   wal_buffers: composeSizeValue(walBuffersNum.value, walBuffersUnit.value),
   max_wal_size: composeSizeValue(maxWalSizeNum.value, maxWalSizeUnit.value),
   min_wal_size: composeSizeValue(minWalSizeNum.value, minWalSizeUnit.value),
@@ -151,10 +151,10 @@ const getConfigData = () => ({
   default_statistics_target: String(defaultStatisticsTarget.value ?? ''),
   random_page_cost: randomPageCost.value,
   effective_io_concurrency: String(effectiveIoConcurrency.value ?? ''),
-  log_destination: logDestination.value,
+  log_destination: logDestination.value ?? '',
   log_min_duration_statement: String(logMinDurationStatement.value ?? ''),
   log_timezone: logTimezone.value,
-  io_method: ioMethod.value
+  io_method: ioMethod.value ?? ''
 })
 
 const handleSave = () => {
@@ -292,7 +292,7 @@ const handleSave = () => {
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Huge Pages (huge_pages)')">
-            <n-select v-model:value="hugePages" :options="hugePagesOptions" />
+            <n-select v-model:value="hugePages" :options="hugePagesOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>
@@ -314,7 +314,7 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('WAL Level (wal_level)')">
-            <n-select v-model:value="walLevel" :options="walLevelOptions" />
+            <n-select v-model:value="walLevel" :options="walLevelOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('WAL Buffers (wal_buffers)')">
             <n-input-group>
@@ -461,7 +461,7 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('IO Method (io_method)')">
-            <n-select v-model:value="ioMethod" :options="ioMethodOptions" />
+            <n-select v-model:value="ioMethod" :options="ioMethodOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>

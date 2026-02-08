@@ -100,29 +100,29 @@ useRequest(props.api.configTune()).onSuccess(({ data }: any) => {
   clientHeaderBufferSizeNum.value = chbs.num
   clientHeaderBufferSizeUnit.value = chbs.unit
   serverNamesHashBucketSize.value = Number(data.server_names_hash_bucket_size) || null
-  serverTokens.value = data.server_tokens ?? ''
-  gzip.value = data.gzip ?? ''
+  serverTokens.value = data.server_tokens || null
+  gzip.value = data.gzip || null
   const gml = parseSizeValue(data.gzip_min_length ?? '')
   gzipMinLengthNum.value = gml.num
   gzipMinLengthUnit.value = gml.unit
   gzipCompLevel.value = Number(data.gzip_comp_level) || null
   gzipTypes.value = data.gzip_types ?? ''
-  gzipVary.value = data.gzip_vary ?? ''
+  gzipVary.value = data.gzip_vary || null
   gzipProxied.value = data.gzip_proxied ?? ''
-  brotli.value = data.brotli ?? ''
+  brotli.value = data.brotli || null
   const bml = parseSizeValue(data.brotli_min_length ?? '')
   brotliMinLengthNum.value = bml.num
   brotliMinLengthUnit.value = bml.unit
   brotliCompLevel.value = Number(data.brotli_comp_level) || null
   brotliTypes.value = data.brotli_types ?? ''
-  brotliStatic.value = data.brotli_static ?? ''
-  zstd.value = data.zstd ?? ''
+  brotliStatic.value = data.brotli_static || null
+  zstd.value = data.zstd || null
   const zml = parseSizeValue(data.zstd_min_length ?? '')
   zstdMinLengthNum.value = zml.num
   zstdMinLengthUnit.value = zml.unit
   zstdCompLevel.value = Number(data.zstd_comp_level) || null
   zstdTypes.value = data.zstd_types ?? ''
-  zstdStatic.value = data.zstd_static ?? ''
+  zstdStatic.value = data.zstd_static || null
 })
 
 const getConfigData = () => ({
@@ -139,23 +139,23 @@ const getConfigData = () => ({
     clientHeaderBufferSizeUnit.value
   ),
   server_names_hash_bucket_size: String(serverNamesHashBucketSize.value ?? ''),
-  server_tokens: serverTokens.value,
-  gzip: gzip.value,
+  server_tokens: serverTokens.value ?? '',
+  gzip: gzip.value ?? '',
   gzip_min_length: composeSizeValue(gzipMinLengthNum.value, gzipMinLengthUnit.value),
   gzip_comp_level: String(gzipCompLevel.value ?? ''),
   gzip_types: gzipTypes.value,
-  gzip_vary: gzipVary.value,
+  gzip_vary: gzipVary.value ?? '',
   gzip_proxied: gzipProxied.value,
-  brotli: brotli.value,
+  brotli: brotli.value ?? '',
   brotli_min_length: composeSizeValue(brotliMinLengthNum.value, brotliMinLengthUnit.value),
   brotli_comp_level: String(brotliCompLevel.value ?? ''),
   brotli_types: brotliTypes.value,
-  brotli_static: brotliStatic.value,
-  zstd: zstd.value,
+  brotli_static: brotliStatic.value ?? '',
+  zstd: zstd.value ?? '',
   zstd_min_length: composeSizeValue(zstdMinLengthNum.value, zstdMinLengthUnit.value),
   zstd_comp_level: String(zstdCompLevel.value ?? ''),
   zstd_types: zstdTypes.value,
-  zstd_static: zstdStatic.value
+  zstd_static: zstdStatic.value ?? ''
 })
 
 const handleSave = () => {
@@ -259,7 +259,7 @@ const handleSave = () => {
             />
           </n-form-item>
           <n-form-item :label="$gettext('Server Tokens (server_tokens)')">
-            <n-select v-model:value="serverTokens" :options="onOffOptions" />
+            <n-select v-model:value="serverTokens" :options="onOffOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>
@@ -285,7 +285,7 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Gzip (gzip)')">
-            <n-select v-model:value="gzip" :options="onOffOptions" />
+            <n-select v-model:value="gzip" :options="onOffOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Min Length (gzip_min_length)')">
             <n-input-group>
@@ -310,7 +310,7 @@ const handleSave = () => {
             <n-input v-model:value="gzipTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
           <n-form-item :label="$gettext('Vary (gzip_vary)')">
-            <n-select v-model:value="gzipVary" :options="onOffOptions" />
+            <n-select v-model:value="gzipVary" :options="onOffOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Proxied (gzip_proxied)')">
             <n-input v-model:value="gzipProxied" :placeholder="$gettext('e.g. any')" />
@@ -339,7 +339,7 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Brotli (brotli)')">
-            <n-select v-model:value="brotli" :options="onOffOptions" />
+            <n-select v-model:value="brotli" :options="onOffOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Min Length (brotli_min_length)')">
             <n-input-group>
@@ -364,7 +364,7 @@ const handleSave = () => {
             <n-input v-model:value="brotliTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
           <n-form-item :label="$gettext('Static (brotli_static)')">
-            <n-select v-model:value="brotliStatic" :options="onOffAlwaysOptions" />
+            <n-select v-model:value="brotliStatic" :options="onOffAlwaysOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>
@@ -388,7 +388,7 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Zstd (zstd)')">
-            <n-select v-model:value="zstd" :options="onOffOptions" />
+            <n-select v-model:value="zstd" :options="onOffOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Min Length (zstd_min_length)')">
             <n-input-group>
@@ -413,7 +413,7 @@ const handleSave = () => {
             <n-input v-model:value="zstdTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
           <n-form-item :label="$gettext('Static (zstd_static)')">
-            <n-select v-model:value="zstdStatic" :options="onOffAlwaysOptions" />
+            <n-select v-model:value="zstdStatic" :options="onOffAlwaysOptions" clearable />
           </n-form-item>
         </n-form>
         <n-flex>

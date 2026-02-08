@@ -31,8 +31,8 @@ useRequest(pureftpd.configTune()).onSuccess(({ data }: any) => {
   maxIdleTime.value = Number(data.max_idle_time) || null
   maxLoad.value = Number(data.max_load) || null
   passivePortRange.value = data.passive_port_range ?? ''
-  anonymousOnly.value = data.anonymous_only ?? ''
-  noAnonymous.value = data.no_anonymous ?? ''
+  anonymousOnly.value = data.anonymous_only || null
+  noAnonymous.value = data.no_anonymous || null
   maxDiskUsage.value = Number(data.max_disk_usage) || null
 })
 
@@ -45,8 +45,8 @@ const handleSave = () => {
       max_idle_time: String(maxIdleTime.value ?? ''),
       max_load: String(maxLoad.value ?? ''),
       passive_port_range: passivePortRange.value,
-      anonymous_only: anonymousOnly.value,
-      no_anonymous: noAnonymous.value,
+      anonymous_only: anonymousOnly.value ?? '',
+      no_anonymous: noAnonymous.value ?? '',
       max_disk_usage: String(maxDiskUsage.value ?? '')
     })
   )
@@ -81,10 +81,10 @@ const handleSave = () => {
         <n-input v-model:value="passivePortRange" :placeholder="$gettext('e.g. 39000 40000')" />
       </n-form-item>
       <n-form-item :label="$gettext('AnonymousOnly')">
-        <n-select v-model:value="anonymousOnly" :options="yesNoOptions" />
+        <n-select v-model:value="anonymousOnly" :options="yesNoOptions" clearable />
       </n-form-item>
       <n-form-item :label="$gettext('NoAnonymous')">
-        <n-select v-model:value="noAnonymous" :options="yesNoOptions" />
+        <n-select v-model:value="noAnonymous" :options="yesNoOptions" clearable />
       </n-form-item>
       <n-form-item :label="$gettext('MaxDiskUsage (%)')">
         <n-input-number class="w-full" v-model:value="maxDiskUsage" :placeholder="$gettext('e.g. 99')" :min="1" :max="100" />

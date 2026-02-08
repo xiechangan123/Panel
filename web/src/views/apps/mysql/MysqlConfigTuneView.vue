@@ -106,7 +106,7 @@ useRequest(props.api.configTune()).onSuccess(({ data }: any) => {
   port.value = Number(data.port) || null
   maxConnections.value = Number(data.max_connections) || null
   maxConnectErrors.value = Number(data.max_connect_errors) || null
-  defaultStorageEngine.value = data.default_storage_engine ?? ''
+  defaultStorageEngine.value = data.default_storage_engine || null
   tableOpenCache.value = Number(data.table_open_cache) || null
   const map = parseSizeValue(data.max_allowed_packet ?? '')
   maxAllowedPacketNum.value = map.num
@@ -146,12 +146,12 @@ useRequest(props.api.configTune()).onSuccess(({ data }: any) => {
   const ilbs = parseSizeValue(data.innodb_log_buffer_size ?? '')
   innodbLogBufferSizeNum.value = ilbs.num
   innodbLogBufferSizeUnit.value = ilbs.unit
-  innodbFlushLogAtTrxCommit.value = data.innodb_flush_log_at_trx_commit ?? ''
+  innodbFlushLogAtTrxCommit.value = data.innodb_flush_log_at_trx_commit || null
   innodbLockWaitTimeout.value = Number(data.innodb_lock_wait_timeout) || null
   innodbMaxDirtyPagesPct.value = Number(data.innodb_max_dirty_pages_pct) || null
   innodbReadIoThreads.value = Number(data.innodb_read_io_threads) || null
   innodbWriteIoThreads.value = Number(data.innodb_write_io_threads) || null
-  slowQueryLog.value = data.slow_query_log ?? ''
+  slowQueryLog.value = data.slow_query_log || null
   longQueryTime.value = Number(data.long_query_time) || null
 })
 
@@ -159,7 +159,7 @@ const getConfigData = () => ({
   port: String(port.value ?? ''),
   max_connections: String(maxConnections.value ?? ''),
   max_connect_errors: String(maxConnectErrors.value ?? ''),
-  default_storage_engine: defaultStorageEngine.value,
+  default_storage_engine: defaultStorageEngine.value ?? '',
   table_open_cache: String(tableOpenCache.value ?? ''),
   max_allowed_packet: composeSizeValue(maxAllowedPacketNum.value, maxAllowedPacketUnit.value),
   open_files_limit: String(openFilesLimit.value ?? ''),
@@ -175,12 +175,12 @@ const getConfigData = () => ({
   myisam_sort_buffer_size: composeSizeValue(myisamSortBufferSizeNum.value, myisamSortBufferSizeUnit.value),
   innodb_buffer_pool_size: composeSizeValue(innodbBufferPoolSizeNum.value, innodbBufferPoolSizeUnit.value),
   innodb_log_buffer_size: composeSizeValue(innodbLogBufferSizeNum.value, innodbLogBufferSizeUnit.value),
-  innodb_flush_log_at_trx_commit: innodbFlushLogAtTrxCommit.value,
+  innodb_flush_log_at_trx_commit: innodbFlushLogAtTrxCommit.value ?? '',
   innodb_lock_wait_timeout: String(innodbLockWaitTimeout.value ?? ''),
   innodb_max_dirty_pages_pct: String(innodbMaxDirtyPagesPct.value ?? ''),
   innodb_read_io_threads: String(innodbReadIoThreads.value ?? ''),
   innodb_write_io_threads: String(innodbWriteIoThreads.value ?? ''),
-  slow_query_log: slowQueryLog.value,
+  slow_query_log: slowQueryLog.value ?? '',
   long_query_time: String(longQueryTime.value ?? '')
 })
 
@@ -214,7 +214,7 @@ const handleSave = () => {
             <n-input-number class="w-full" v-model:value="maxConnectErrors" :placeholder="$gettext('e.g. 100')" :min="1" />
           </n-form-item>
           <n-form-item :label="$gettext('Default Storage Engine (default_storage_engine)')">
-            <n-select v-model:value="defaultStorageEngine" :options="storageEngineOptions" />
+            <n-select v-model:value="defaultStorageEngine" :options="storageEngineOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Table Open Cache (table_open_cache)')">
             <n-input-number class="w-full" v-model:value="tableOpenCache" :placeholder="$gettext('e.g. 64')" :min="1" />
@@ -326,7 +326,7 @@ const handleSave = () => {
             </n-input-group>
           </n-form-item>
           <n-form-item :label="$gettext('Flush Log At Trx Commit (innodb_flush_log_at_trx_commit)')">
-            <n-select v-model:value="innodbFlushLogAtTrxCommit" :options="flushLogOptions" />
+            <n-select v-model:value="innodbFlushLogAtTrxCommit" :options="flushLogOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Lock Wait Timeout (innodb_lock_wait_timeout)')">
             <n-input-number class="w-full" v-model:value="innodbLockWaitTimeout" :placeholder="$gettext('e.g. 50')" :min="0" />
@@ -355,7 +355,7 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Slow Query Log (slow_query_log)')">
-            <n-select v-model:value="slowQueryLog" :options="slowQueryLogOptions" />
+            <n-select v-model:value="slowQueryLog" :options="slowQueryLogOptions" clearable />
           </n-form-item>
           <n-form-item :label="$gettext('Long Query Time (long_query_time)')">
             <n-input-number
