@@ -122,16 +122,16 @@ const handleSave = () => {
           {{ $gettext('Common Redis general settings.') }}
         </n-alert>
         <n-form>
-          <n-form-item label="Bind (bind)">
+          <n-form-item :label="$gettext('Bind (bind)')">
             <n-input v-model:value="bind" :placeholder="$gettext('e.g. 127.0.0.1')" />
           </n-form-item>
-          <n-form-item label="Port (port)">
+          <n-form-item :label="$gettext('Port (port)')">
             <n-input-number class="w-full" v-model:value="port" :placeholder="$gettext('e.g. 6379')" :min="1" :max="65535" />
           </n-form-item>
-          <n-form-item label="Databases (databases)">
+          <n-form-item :label="$gettext('Databases (databases)')">
             <n-input-number class="w-full" v-model:value="databases" :placeholder="$gettext('e.g. 16')" :min="1" />
           </n-form-item>
-          <n-form-item label="Password (requirepass)">
+          <n-form-item :label="$gettext('Password (requirepass)')">
             <n-input
               v-model:value="requirepass"
               type="password"
@@ -139,10 +139,10 @@ const handleSave = () => {
               :placeholder="$gettext('Leave empty for no password')"
             />
           </n-form-item>
-          <n-form-item label="Timeout (timeout)">
+          <n-form-item :label="$gettext('Timeout (timeout)')">
             <n-input-number class="w-full" v-model:value="timeout" :placeholder="$gettext('e.g. 0 (disabled) or seconds')" :min="0" />
           </n-form-item>
-          <n-form-item label="TCP Keepalive (tcp-keepalive)">
+          <n-form-item :label="$gettext('TCP Keepalive (tcp-keepalive)')">
             <n-input-number class="w-full" v-model:value="tcpKeepalive" :placeholder="$gettext('e.g. 300')" :min="0" />
           </n-form-item>
         </n-form>
@@ -159,13 +159,13 @@ const handleSave = () => {
           {{ $gettext('Redis memory management settings.') }}
         </n-alert>
         <n-form>
-          <n-form-item label="Max Memory (maxmemory)">
+          <n-form-item :label="$gettext('Max Memory (maxmemory)')">
             <n-input-group>
               <n-input-number class="w-full" v-model:value="maxmemoryNum" :placeholder="$gettext('e.g. 256')" :min="0" style="flex: 1" />
               <n-select v-model:value="maxmemoryUnit" :options="sizeUnitOptions" style="width: 80px" />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Maxmemory Policy (maxmemory-policy)">
+          <n-form-item :label="$gettext('Maxmemory Policy (maxmemory-policy)')">
             <n-select v-model:value="maxmemoryPolicy" :options="maxmemoryPolicyOptions" />
           </n-form-item>
         </n-form>
@@ -182,10 +182,10 @@ const handleSave = () => {
           {{ $gettext('Redis AOF persistence settings.') }}
         </n-alert>
         <n-form>
-          <n-form-item label="Append Only (appendonly)">
+          <n-form-item :label="$gettext('Append Only (appendonly)')">
             <n-select v-model:value="appendonly" :options="yesNoOptions" />
           </n-form-item>
-          <n-form-item label="Append Fsync (appendfsync)">
+          <n-form-item :label="$gettext('Append Fsync (appendfsync)')">
             <n-select v-model:value="appendfsync" :options="appendfsyncOptions" />
           </n-form-item>
         </n-form>

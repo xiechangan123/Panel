@@ -178,13 +178,13 @@ const handleSave = () => {
           {{ $gettext('Common Nginx general settings.') }}
         </n-alert>
         <n-form>
-          <n-form-item label="Worker Processes (worker_processes)">
+          <n-form-item :label="$gettext('Worker Processes (worker_processes)')">
             <n-input
               v-model:value="workerProcesses"
               :placeholder="$gettext('e.g. auto or number')"
             />
           </n-form-item>
-          <n-form-item label="Worker Connections (worker_connections)">
+          <n-form-item :label="$gettext('Worker Connections (worker_connections)')">
             <n-input-number
               class="w-full"
               v-model:value="workerConnections"
@@ -192,7 +192,7 @@ const handleSave = () => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item label="Keepalive Timeout (keepalive_timeout)">
+          <n-form-item :label="$gettext('Keepalive Timeout (keepalive_timeout)')">
             <n-input-number
               class="w-full"
               v-model:value="keepaliveTimeout"
@@ -200,7 +200,7 @@ const handleSave = () => {
               :min="0"
             />
           </n-form-item>
-          <n-form-item label="Client Max Body Size (client_max_body_size)">
+          <n-form-item :label="$gettext('Client Max Body Size (client_max_body_size)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -216,7 +216,7 @@ const handleSave = () => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Client Body Buffer Size (client_body_buffer_size)">
+          <n-form-item :label="$gettext('Client Body Buffer Size (client_body_buffer_size)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -232,7 +232,7 @@ const handleSave = () => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Client Header Buffer Size (client_header_buffer_size)">
+          <n-form-item :label="$gettext('Client Header Buffer Size (client_header_buffer_size)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -248,7 +248,9 @@ const handleSave = () => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Server Names Hash Bucket Size (server_names_hash_bucket_size)">
+          <n-form-item
+            :label="$gettext('Server Names Hash Bucket Size (server_names_hash_bucket_size)')"
+          >
             <n-input-number
               class="w-full"
               v-model:value="serverNamesHashBucketSize"
@@ -256,7 +258,7 @@ const handleSave = () => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item label="Server Tokens (server_tokens)">
+          <n-form-item :label="$gettext('Server Tokens (server_tokens)')">
             <n-select v-model:value="serverTokens" :options="onOffOptions" />
           </n-form-item>
         </n-form>
@@ -282,10 +284,10 @@ const handleSave = () => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="Gzip (gzip)">
+          <n-form-item :label="$gettext('Gzip(gzip)')">
             <n-select v-model:value="gzip" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="Min Length (gzip_min_length)">
+          <n-form-item :label="$gettext('Min Length (gzip_min_length)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -301,16 +303,16 @@ const handleSave = () => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Compression Level (gzip_comp_level)">
+          <n-form-item :label="$gettext('Compression Level (gzip_comp_level)')">
             <n-input-number class="w-full" v-model:value="gzipCompLevel" :min="1" :max="9" />
           </n-form-item>
-          <n-form-item label="Types (gzip_types)">
+          <n-form-item :label="$gettext('Types(gzip_types)')">
             <n-input v-model:value="gzipTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
-          <n-form-item label="Vary (gzip_vary)">
+          <n-form-item :label="$gettext('Vary(gzip_vary)')">
             <n-select v-model:value="gzipVary" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="Proxied (gzip_proxied)">
+          <n-form-item :label="$gettext('Proxied(gzip_proxied)')">
             <n-input v-model:value="gzipProxied" :placeholder="$gettext('e.g. any')" />
           </n-form-item>
         </n-form>
@@ -336,10 +338,10 @@ const handleSave = () => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="Brotli (brotli)">
+          <n-form-item :label="$gettext('Brotli(brotli)')">
             <n-select v-model:value="brotli" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="Min Length (brotli_min_length)">
+          <n-form-item :label="$gettext('Min Length (brotli_min_length)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -355,13 +357,13 @@ const handleSave = () => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Compression Level (brotli_comp_level)">
+          <n-form-item :label="$gettext('Compression Level (brotli_comp_level)')">
             <n-input-number class="w-full" v-model:value="brotliCompLevel" :min="0" :max="11" />
           </n-form-item>
-          <n-form-item label="Types (brotli_types)">
+          <n-form-item :label="$gettext('Types(brotli_types)')">
             <n-input v-model:value="brotliTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
-          <n-form-item label="Static (brotli_static)">
+          <n-form-item :label="$gettext('Static(brotli_static)')">
             <n-select v-model:value="brotliStatic" :options="onOffAlwaysOptions" />
           </n-form-item>
         </n-form>
@@ -385,10 +387,10 @@ const handleSave = () => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="Zstd (zstd)">
+          <n-form-item :label="$gettext('Zstd(zstd)')">
             <n-select v-model:value="zstd" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="Min Length (zstd_min_length)">
+          <n-form-item :label="$gettext('Min Length (zstd_min_length)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -404,13 +406,13 @@ const handleSave = () => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Compression Level (zstd_comp_level)">
+          <n-form-item :label="$gettext('Compression Level (zstd_comp_level)')">
             <n-input-number class="w-full" v-model:value="zstdCompLevel" :min="1" :max="22" />
           </n-form-item>
-          <n-form-item label="Types (zstd_types)">
+          <n-form-item :label="$gettext('Types(zstd_types)')">
             <n-input v-model:value="zstdTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
-          <n-form-item label="Static (zstd_static)">
+          <n-form-item :label="$gettext('Static(zstd_static)')">
             <n-select v-model:value="zstdStatic" :options="onOffAlwaysOptions" />
           </n-form-item>
         </n-form>

@@ -65,25 +65,25 @@ const handleSave = () => {
       {{ $gettext('Common Pure-FTPd settings.') }}
     </n-alert>
     <n-form>
-      <n-form-item label="MaxClientsNumber">
+      <n-form-item :label="$gettext('MaxClientsNumber')">
         <n-input-number class="w-full" v-model:value="maxClientsNumber" :placeholder="$gettext('e.g. 50')" :min="1" />
       </n-form-item>
-      <n-form-item label="MaxClientsPerIP">
+      <n-form-item :label="$gettext('MaxClientsPerIP')">
         <n-input-number class="w-full" v-model:value="maxClientsPerIP" :placeholder="$gettext('e.g. 8')" :min="1" />
       </n-form-item>
       <n-form-item :label="$gettext('MaxIdleTime (minutes)')">
         <n-input-number class="w-full" v-model:value="maxIdleTime" :placeholder="$gettext('e.g. 15')" :min="0" />
       </n-form-item>
-      <n-form-item label="MaxLoad">
+      <n-form-item :label="$gettext('MaxLoad')">
         <n-input-number class="w-full" v-model:value="maxLoad" :placeholder="$gettext('e.g. 4')" :min="1" />
       </n-form-item>
       <n-form-item :label="$gettext('PassivePortRange (start end)')">
         <n-input v-model:value="passivePortRange" :placeholder="$gettext('e.g. 39000 40000')" />
       </n-form-item>
-      <n-form-item label="AnonymousOnly">
+      <n-form-item :label="$gettext('AnonymousOnly')">
         <n-select v-model:value="anonymousOnly" :options="yesNoOptions" />
       </n-form-item>
-      <n-form-item label="NoAnonymous">
+      <n-form-item :label="$gettext('NoAnonymous')">
         <n-select v-model:value="noAnonymous" :options="yesNoOptions" />
       </n-form-item>
       <n-form-item :label="$gettext('MaxDiskUsage (%)')">

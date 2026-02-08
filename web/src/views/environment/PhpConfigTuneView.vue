@@ -251,16 +251,16 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           {{ $gettext('Common PHP general settings.') }}
         </n-alert>
         <n-form>
-          <n-form-item label="Short Tag (short_open_tag)">
+          <n-form-item :label="$gettext('Short Tag (short_open_tag)')">
             <n-select v-model:value="shortOpenTag" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="Timezone (date.timezone)">
+          <n-form-item :label="$gettext('Timezone (date.timezone)')">
             <n-input v-model:value="dateTimezone" :placeholder="$gettext('e.g. Asia/Shanghai')" />
           </n-form-item>
-          <n-form-item label="Display Errors (display_errors)">
+          <n-form-item :label="$gettext('Display Errors (display_errors)')">
             <n-select v-model:value="displayErrors" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item label="Error Reporting (error_reporting)">
+          <n-form-item :label="$gettext('Error Reporting (error_reporting)')">
             <n-input v-model:value="errorReporting" :placeholder="$gettext('e.g. E_ALL')" />
           </n-form-item>
         </n-form>
@@ -317,7 +317,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="Max Upload Size (upload_max_filesize)">
+          <n-form-item :label="$gettext('Max Upload Size (upload_max_filesize)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -333,7 +333,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Max POST Size (post_max_size)">
+          <n-form-item :label="$gettext('Max POST Size (post_max_size)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -349,7 +349,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               />
             </n-input-group>
           </n-form-item>
-          <n-form-item label="Max File Uploads (max_file_uploads)">
+          <n-form-item :label="$gettext('Max File Uploads (max_file_uploads)')">
             <n-input-number
               class="w-full"
               v-model:value="maxFileUploads"
@@ -357,7 +357,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="0"
             />
           </n-form-item>
-          <n-form-item label="Memory Limit (memory_limit)">
+          <n-form-item :label="$gettext('Memory Limit (memory_limit)')">
             <n-input-group>
               <n-input-number
                 class="w-full"
@@ -394,7 +394,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="Max Execution Time (max_execution_time)">
+          <n-form-item :label="$gettext('Max Execution Time (max_execution_time)')">
             <n-input-number
               class="w-full"
               v-model:value="maxExecutionTime"
@@ -402,7 +402,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="-1"
             />
           </n-form-item>
-          <n-form-item label="Max Input Time (max_input_time)">
+          <n-form-item :label="$gettext('Max Input Time (max_input_time)')">
             <n-input-number
               class="w-full"
               v-model:value="maxInputTime"
@@ -410,7 +410,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="-1"
             />
           </n-form-item>
-          <n-form-item label="Max Input Vars (max_input_vars)">
+          <n-form-item :label="$gettext('Max Input Vars (max_input_vars)')">
             <n-input-number
               class="w-full"
               v-model:value="maxInputVars"
@@ -439,10 +439,10 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="Process Manager (pm)">
+          <n-form-item :label="$gettext('Process Manager (pm)')">
             <n-select v-model:value="pm" :options="pmOptions" />
           </n-form-item>
-          <n-form-item label="Max Children (pm.max_children)">
+          <n-form-item :label="$gettext('Max Children (pm.max_children)')">
             <n-input-number
               class="w-full"
               v-model:value="pmMaxChildren"
@@ -450,7 +450,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item v-if="pm === 'dynamic'" label="Start Servers (pm.start_servers)">
+          <n-form-item v-if="pm === 'dynamic'" :label="$gettext('Start Servers (pm.start_servers)')">
             <n-input-number
               class="w-full"
               v-model:value="pmStartServers"
@@ -458,7 +458,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item v-if="pm === 'dynamic'" label="Min Spare Servers (pm.min_spare_servers)">
+          <n-form-item v-if="pm === 'dynamic'" :label="$gettext('Min Spare Servers (pm.min_spare_servers)')">
             <n-input-number
               class="w-full"
               v-model:value="pmMinSpareServers"
@@ -466,7 +466,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="1"
             />
           </n-form-item>
-          <n-form-item v-if="pm === 'dynamic'" label="Max Spare Servers (pm.max_spare_servers)">
+          <n-form-item v-if="pm === 'dynamic'" :label="$gettext('Max Spare Servers (pm.max_spare_servers)')">
             <n-input-number
               class="w-full"
               v-model:value="pmMaxSpareServers"
@@ -497,11 +497,11 @@ const composeSizeValue = (num: number | null, unit: string): string => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item label="Save Handler (session.save_handler)">
+          <n-form-item :label="$gettext('Save Handler (session.save_handler)')">
             <n-select v-model:value="sessionSaveHandler" :options="sessionHandlerOptions" />
           </n-form-item>
           <!-- files 模式：显示路径 -->
-          <n-form-item v-if="sessionSaveHandler === 'files'" label="Save Path (session.save_path)">
+          <n-form-item v-if="sessionSaveHandler === 'files'" :label="$gettext('Save Path (session.save_path)')">
             <n-input v-model:value="sessionSavePath" :placeholder="$gettext('e.g. /tmp')" />
           </n-form-item>
           <!-- redis 模式：显示主机、端口、密码 -->
@@ -530,7 +530,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               <n-input v-model:value="sessionMemcachedPort" placeholder="11211" />
             </n-form-item>
           </template>
-          <n-form-item label="GC Max Lifetime (session.gc_maxlifetime)">
+          <n-form-item :label="$gettext('GC Max Lifetime (session.gc_maxlifetime)')">
             <n-input-number
               class="w-full"
               v-model:value="sessionGcMaxlifetime"
@@ -538,7 +538,7 @@ const composeSizeValue = (num: number | null, unit: string): string => {
               :min="0"
             />
           </n-form-item>
-          <n-form-item label="Cookie Lifetime (session.cookie_lifetime)">
+          <n-form-item :label="$gettext('Cookie Lifetime (session.cookie_lifetime)')">
             <n-input-number
               class="w-full"
               v-model:value="sessionCookieLifetime"
