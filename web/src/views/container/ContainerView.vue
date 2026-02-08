@@ -20,6 +20,7 @@ const { $gettext } = useGettext()
 const logModal = ref(false)
 const logs = ref('')
 const renameModal = ref(false)
+const renameLoading = ref(false)
 const renameModel = ref({
   id: '',
   name: ''
@@ -35,6 +36,7 @@ let fitAddon: FitAddon | null = null
 let webglAddon: WebglAddon | null = null
 
 const containerCreateModal = ref(false)
+const pruneLoading = ref(false)
 const selectedRowKeys = ref<any>([])
 
 const columns: any = [
@@ -257,13 +259,16 @@ const handleShowLog = async (row: any) => {
 }
 
 const handleRename = () => {
-  useRequest(container.containerRename(renameModel.value.id, renameModel.value.name)).onSuccess(
-    () => {
+  renameLoading.value = true
+  useRequest(container.containerRename(renameModel.value.id, renameModel.value.name))
+    .onSuccess(() => {
       refresh()
       renameModal.value = false
       window.$message.success($gettext('Rename successful'))
-    }
-  )
+    })
+    .onComplete(() => {
+      renameLoading.value = false
+    })
 }
 
 const handleStart = (id: string) => {
@@ -316,10 +321,15 @@ const handleDelete = (id: string) => {
 }
 
 const handlePrune = () => {
-  useRequest(container.containerPrune()).onSuccess(() => {
-    refresh()
-    window.$message.success($gettext('Cleanup successful'))
-  })
+  pruneLoading.value = true
+  useRequest(container.containerPrune())
+    .onSuccess(() => {
+      refresh()
+      window.$message.success($gettext('Cleanup successful'))
+    })
+    .onComplete(() => {
+      pruneLoading.value = false
+    })
 }
 
 const bulkStart = async () => {
@@ -550,7 +560,7 @@ onUnmounted(() => {
       <n-button type="primary" @click="containerCreateModal = true">
         {{ $gettext('Create Container') }}
       </n-button>
-      <n-button type="primary" @click="handlePrune" ghost>
+      <n-button type="primary" :loading="pruneLoading" :disabled="pruneLoading" @click="handlePrune" ghost>
         {{ $gettext('Cleanup Containers') }}
       </n-button>
       <n-button-group>
@@ -629,7 +639,7 @@ onUnmounted(() => {
         />
       </n-form-item>
     </n-form>
-    <n-button type="info" block @click="handleRename">{{ $gettext('Submit') }}</n-button>
+    <n-button type="info" block :loading="renameLoading" :disabled="renameLoading" @click="handleRename">{{ $gettext('Submit') }}</n-button>
   </n-modal>
   <n-modal
     v-model:show="terminalModal"
