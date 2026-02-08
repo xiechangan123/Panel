@@ -284,7 +284,7 @@ const handleSave = () => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item :label="$gettext('Gzip(gzip)')">
+          <n-form-item :label="$gettext('Gzip (gzip)')">
             <n-select v-model:value="gzip" :options="onOffOptions" />
           </n-form-item>
           <n-form-item :label="$gettext('Min Length (gzip_min_length)')">
@@ -306,13 +306,13 @@ const handleSave = () => {
           <n-form-item :label="$gettext('Compression Level (gzip_comp_level)')">
             <n-input-number class="w-full" v-model:value="gzipCompLevel" :min="1" :max="9" />
           </n-form-item>
-          <n-form-item :label="$gettext('Types(gzip_types)')">
+          <n-form-item :label="$gettext('Types (gzip_types)')">
             <n-input v-model:value="gzipTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
-          <n-form-item :label="$gettext('Vary(gzip_vary)')">
+          <n-form-item :label="$gettext('Vary (gzip_vary)')">
             <n-select v-model:value="gzipVary" :options="onOffOptions" />
           </n-form-item>
-          <n-form-item :label="$gettext('Proxied(gzip_proxied)')">
+          <n-form-item :label="$gettext('Proxied (gzip_proxied)')">
             <n-input v-model:value="gzipProxied" :placeholder="$gettext('e.g. any')" />
           </n-form-item>
         </n-form>
@@ -338,7 +338,7 @@ const handleSave = () => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item :label="$gettext('Brotli(brotli)')">
+          <n-form-item :label="$gettext('Brotli (brotli)')">
             <n-select v-model:value="brotli" :options="onOffOptions" />
           </n-form-item>
           <n-form-item :label="$gettext('Min Length (brotli_min_length)')">
@@ -360,10 +360,10 @@ const handleSave = () => {
           <n-form-item :label="$gettext('Compression Level (brotli_comp_level)')">
             <n-input-number class="w-full" v-model:value="brotliCompLevel" :min="0" :max="11" />
           </n-form-item>
-          <n-form-item :label="$gettext('Types(brotli_types)')">
+          <n-form-item :label="$gettext('Types (brotli_types)')">
             <n-input v-model:value="brotliTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
-          <n-form-item :label="$gettext('Static(brotli_static)')">
+          <n-form-item :label="$gettext('Static (brotli_static)')">
             <n-select v-model:value="brotliStatic" :options="onOffAlwaysOptions" />
           </n-form-item>
         </n-form>
@@ -387,7 +387,7 @@ const handleSave = () => {
           }}
         </n-alert>
         <n-form>
-          <n-form-item :label="$gettext('Zstd(zstd)')">
+          <n-form-item :label="$gettext('Zstd (zstd)')">
             <n-select v-model:value="zstd" :options="onOffOptions" />
           </n-form-item>
           <n-form-item :label="$gettext('Min Length (zstd_min_length)')">
@@ -409,10 +409,10 @@ const handleSave = () => {
           <n-form-item :label="$gettext('Compression Level (zstd_comp_level)')">
             <n-input-number class="w-full" v-model:value="zstdCompLevel" :min="1" :max="22" />
           </n-form-item>
-          <n-form-item :label="$gettext('Types(zstd_types)')">
+          <n-form-item :label="$gettext('Types (zstd_types)')">
             <n-input v-model:value="zstdTypes" :placeholder="$gettext('e.g. *')" />
           </n-form-item>
-          <n-form-item :label="$gettext('Static(zstd_static)')">
+          <n-form-item :label="$gettext('Static (zstd_static)')">
             <n-select v-model:value="zstdStatic" :options="onOffAlwaysOptions" />
           </n-form-item>
         </n-form>
