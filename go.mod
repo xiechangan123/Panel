@@ -12,6 +12,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/dchest/captcha v1.1.0
 	github.com/expr-lang/expr v1.17.7
+	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-chi/httplog/v3 v3.3.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
@@ -47,6 +48,7 @@ require (
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
+	github.com/quic-go/quic-go v0.59.0
 	github.com/rhnvrm/simples3 v0.11.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.52.0
@@ -90,6 +92,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/tetratelabs/wazero v1.11.0 // indirect

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -15,26 +14,33 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/gookit/validate"
+	"github.com/quic-go/quic-go"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/robfig/cron/v3"
 
 	"github.com/acepanel/panel/pkg/config"
 	"github.com/acepanel/panel/pkg/queue"
+	"github.com/acepanel/panel/pkg/tlscert"
 )
 
 type Ace struct {
 	conf     *config.Config
 	router   *chi.Mux
 	server   *hlfhr.Server
+	h3server *http3.Server
+	reloader *tlscert.Reloader
 	migrator *gormigrate.Gormigrate
 	cron     *cron.Cron
 	queue    *queue.Queue
 }
 
-func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
+func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, h3server *http3.Server, reloader *tlscert.Reloader, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
 	return &Ace{
 		conf:     conf,
 		router:   router,
 		server:   server,
+		h3server: h3server,
+		reloader: reloader,
 		migrator: migrator,
 		cron:     cron,
 		queue:    queue,
@@ -66,15 +72,12 @@ func (r *Ace) Run() error {
 	// run http server in goroutine
 	serverErr := make(chan error, 1)
 	go func() {
+		fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port)
 		if r.conf.HTTP.TLS {
-			cert := filepath.Join(Root, "panel/storage/cert.pem")
-			key := filepath.Join(Root, "panel/storage/cert.key")
-			fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port, "with tls")
-			if err := r.server.ListenAndServeTLS(cert, key); !errors.Is(err, http.ErrServerClosed) {
+			if err := r.server.ListenAndServeTLS("", ""); !errors.Is(err, http.ErrServerClosed) {
 				serverErr <- err
 			}
 		} else {
-			fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port)
 			if err := r.server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 				serverErr <- err
 			}
@@ -82,14 +85,32 @@ func (r *Ace) Run() error {
 		close(serverErr)
 	}()
 
+	// run http/3 server in goroutine if enabled
+	h3Err := make(chan error, 1)
+	if r.h3server != nil {
+		go func() {
+			fmt.Println("[QUIC] listening and serving on port", r.conf.HTTP.Port)
+			if err := r.h3server.ListenAndServe(); !errors.Is(err, quic.ErrServerClosed) {
+				h3Err <- err
+			}
+			close(h3Err)
+		}()
+	} else {
+		close(h3Err)
+	}
+
 	// wait for shutdown signal or server error
 	select {
 	case err := <-serverErr:
 		if err != nil {
 			return err
 		}
+	case err := <-h3Err:
+		if err != nil {
+			return err
+		}
 	case sig := <-quit:
-		fmt.Println("\n[APP] received signal:", sig)
+		fmt.Println("[APP] received signal:", sig)
 	}
 
 	// graceful shutdown
@@ -103,6 +124,21 @@ func (r *Ace) Run() error {
 	// stop queue
 	queueCancel()
 	fmt.Println("[QUEUE] queue stopped")
+
+	// close certificate reloader
+	if r.reloader != nil {
+		if err := r.reloader.Close(); err != nil {
+			fmt.Println("[TLS] certificate reloader close error:", err)
+		}
+	}
+
+	// shutdown http/3 server
+	if r.h3server != nil {
+		if err := r.h3server.Close(); err != nil {
+			fmt.Println("[QUIC] server shutdown error:", err)
+		}
+		fmt.Println("[QUIC] server stopped")
+	}
 
 	// shutdown http server
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
