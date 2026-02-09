@@ -44,8 +44,9 @@ const handleDownload = () => {
   )
     .onSuccess(() => {
       download.value = false
-      window.$bus.emit('file:refresh')
-      window.$message.success($gettext('Download task created successfully'))
+      window.$message.success(
+        $gettext('Download task created successfully, please check the task list for progress')
+      )
     })
     .onComplete(() => {
       downloadLoading.value = false
@@ -185,7 +186,10 @@ watch(
       const url = new URL(newUrl)
       const path = url.pathname.split('/').pop()
       if (path) {
-        downloadModel.value.path = decodeURIComponent(path)
+        downloadModel.value.path = decodeURIComponent(path).replace(
+          /[~!@#$%^&*()+=\[\]{}|;:'",<>?/]/g,
+          '-'
+        )
       }
     } catch (error) {
       /* empty */
@@ -303,7 +307,14 @@ const handleSortSelect = (key: string) => {
           <n-input v-model:value="downloadModel.path" />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="downloadLoading" :disabled="downloadLoading" @click="handleDownload">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :loading="downloadLoading"
+        :disabled="downloadLoading"
+        @click="handleDownload"
+        >{{ $gettext('Submit') }}</n-button
+      >
     </n-space>
   </n-modal>
   <!-- 终端弹窗 -->

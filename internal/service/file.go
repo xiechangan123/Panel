@@ -299,7 +299,7 @@ func (s *FileService) RemoteDownload(w http.ResponseWriter, r *http.Request) {
 	task := new(biz.Task)
 	task.Name = s.t.Get("Download remote file %v", filepath.Base(req.Path))
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`wget -o /tmp/remote-download-%s.log -O '%s' '%s' && chmod 0755 '%s' && chown www:www '%s'`, timestamp, req.Path, req.URL, req.Path, req.Path)
+	task.Shell = fmt.Sprintf(`aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --retry-wait=5 --max-tries=5 -x 16 -s 16 -k 1M -d '%s' -o '%s' '%s' > /tmp/remote-download-%s.log 2>&1 && chmod 0755 '%s' && chown www:www '%s'`, filepath.Dir(req.Path), filepath.Base(req.Path), req.URL, timestamp, req.Path, req.Path)
 	task.Log = fmt.Sprintf("/tmp/remote-download-%s.log", timestamp)
 
 	if err = s.taskRepo.Push(task); err != nil {
