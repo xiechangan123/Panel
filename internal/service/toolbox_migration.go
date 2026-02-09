@@ -908,7 +908,7 @@ func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigratio
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return respBody, fmt.Errorf("remote API returned status %d: %s", resp.StatusCode, string(respBody))
+		return respBody, fmt.Errorf("status %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	return respBody, nil
