@@ -220,6 +220,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Request) {
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug IN ?", []string{"mysql", "mariadb", "percona"})
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
+	rsyncInstalled, _ := s.appRepo.IsInstalled("slug = ?", "rsync")
 
 	// Go 版本
 	var goData []types.LV
@@ -275,6 +276,7 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 		"php":       phpData,
 		"python":    pythonData,
 		"db":        dbData,
+		"rsync":     rsyncInstalled,
 	})
 }
 
