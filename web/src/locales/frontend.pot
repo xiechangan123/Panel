@@ -224,6 +224,7 @@ msgstr ""
 #: src/views/toolbox/DiskView.vue:636
 #: src/views/toolbox/DiskView.vue:641
 #: src/views/toolbox/DiskView.vue:664
+#: src/views/toolbox/MigrationView.vue:331
 #: src/views/toolbox/ProcessView.vue:236
 #: src/views/toolbox/ProcessView.vue:241
 msgid "Confirm"
@@ -245,8 +246,8 @@ msgstr ""
 #: src/views/file/ListView.vue:245
 #: src/views/file/ListView.vue:738
 #: src/views/file/ListView.vue:863
-#: src/views/file/ToolBar.vue:131
-#: src/views/file/ToolBar.vue:266
+#: src/views/file/ToolBar.vue:132
+#: src/views/file/ToolBar.vue:270
 #: src/views/file/UploadModal.vue:340
 #: src/views/file/UploadModal.vue:450
 #: src/views/home/IndexView.vue:938
@@ -264,6 +265,8 @@ msgstr ""
 #: src/views/toolbox/DiskView.vue:618
 #: src/views/toolbox/DiskView.vue:642
 #: src/views/toolbox/DiskView.vue:665
+#: src/views/toolbox/MigrationView.vue:242
+#: src/views/toolbox/MigrationView.vue:332
 #: src/views/toolbox/ProcessView.vue:242
 #: src/views/website/EditModal.vue:1968
 msgid "Cancel"
@@ -387,11 +390,13 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:62
 #: src/views/file/ListView.vue:1370
 #: src/views/file/PropertyModal.vue:27
-#: src/views/file/ToolBar.vue:208
+#: src/views/file/ToolBar.vue:212
 #: src/views/project/ListView.vue:35
 #: src/views/ssh/CreateModal.vue:59
 #: src/views/ssh/UpdateModal.vue:65
 #: src/views/toolbox/LogView.vue:216
+#: src/views/toolbox/MigrationView.vue:660
+#: src/views/toolbox/MigrationView.vue:747
 #: src/views/toolbox/ProcessView.vue:109
 #: src/views/toolbox/ProcessView.vue:388
 #: src/views/toolbox/WebHookView.vue:35
@@ -416,7 +421,7 @@ msgstr ""
 #: src/views/container/ImageView.vue:75
 #: src/views/file/ListView.vue:1377
 #: src/views/file/PropertyModal.vue:39
-#: src/views/file/ToolBar.vue:209
+#: src/views/file/ToolBar.vue:213
 #: src/views/toolbox/DiskView.vue:276
 #: src/views/toolbox/LogView.vue:217
 msgid "Size"
@@ -430,7 +435,7 @@ msgstr ""
 #: src/components/common/PathSelector.vue:153
 #: src/views/file/ListView.vue:1386
 #: src/views/file/PropertyModal.vue:51
-#: src/views/file/ToolBar.vue:210
+#: src/views/file/ToolBar.vue:214
 msgid "Modification Time"
 msgstr ""
 
@@ -474,12 +479,12 @@ msgstr ""
 
 #: src/components/common/PathSelector.vue:318
 #: src/views/file/PropertyModal.vue:34
-#: src/views/file/ToolBar.vue:232
+#: src/views/file/ToolBar.vue:236
 msgid "File"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:319
-#: src/views/file/ToolBar.vue:233
+#: src/views/file/ToolBar.vue:237
 msgid "Folder"
 msgstr ""
 
@@ -533,7 +538,7 @@ msgstr ""
 #: src/views/database/CreateUserModal.vue:148
 #: src/views/database/UpdateServerModal.vue:119
 #: src/views/database/UpdateUserModal.vue:86
-#: src/views/file/ToolBar.vue:306
+#: src/views/file/ToolBar.vue:316
 #: src/views/firewall/CreateForwardModal.vue:93
 #: src/views/firewall/CreateIpModal.vue:124
 #: src/views/firewall/CreateModal.vue:158
@@ -579,7 +584,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:177
 #: src/views/file/ListView.vue:356
 #: src/views/file/ListView.vue:997
-#: src/views/file/ToolBar.vue:241
+#: src/views/file/ToolBar.vue:245
 msgid "Terminal"
 msgstr ""
 
@@ -724,6 +729,7 @@ msgstr ""
 #: src/views/container/ContainerView.vue:163
 #: src/views/container/ContainerView.vue:568
 #: src/views/project/ListView.vue:128
+#: src/views/toolbox/MigrationView.vue:241
 msgid "Start"
 msgstr ""
 
@@ -840,6 +846,7 @@ msgstr ""
 #: src/views/log/DatabaseLog.vue:131
 #: src/views/log/HttpLog.vue:156
 #: src/views/log/OperationLog.vue:183
+#: src/views/toolbox/MigrationView.vue:570
 #: src/views/toolbox/ProcessView.vue:329
 msgid "Refresh"
 msgstr ""
@@ -1057,6 +1064,10 @@ msgstr ""
 #: src/views/firewall/IpRuleView.vue:42
 #: src/views/firewall/RuleView.vue:25
 #: src/views/firewall/RuleView.vue:42
+#: src/views/toolbox/MigrationView.vue:461
+#: src/views/toolbox/MigrationView.vue:462
+#: src/views/toolbox/MigrationView.vue:541
+#: src/views/toolbox/MigrationView.vue:556
 msgid "None"
 msgstr ""
 
@@ -1231,7 +1242,7 @@ msgstr ""
 #: src/views/file/ListView.vue:311
 #: src/views/file/ListView.vue:361
 #: src/views/file/ListView.vue:1581
-#: src/views/file/ToolBar.vue:279
+#: src/views/file/ToolBar.vue:283
 #: src/views/firewall/ForwardView.vue:103
 #: src/views/firewall/ForwardView.vue:168
 #: src/views/firewall/IpRuleView.vue:145
@@ -1292,7 +1303,7 @@ msgstr ""
 #: src/views/database/UserList.vue:214
 #: src/views/file/ListView.vue:793
 #: src/views/file/ListView.vue:813
-#: src/views/file/ToolBar.vue:176
+#: src/views/file/ToolBar.vue:177
 #: src/views/firewall/ForwardView.vue:129
 #: src/views/firewall/ForwardView.vue:147
 #: src/views/firewall/IpRuleView.vue:171
@@ -1330,7 +1341,7 @@ msgid "New Folder"
 msgstr ""
 
 #: src/components/file-editor/FileTree.vue:708
-#: src/views/file/ToolBar.vue:237
+#: src/views/file/ToolBar.vue:241
 msgid "New"
 msgstr ""
 
@@ -1448,6 +1459,7 @@ msgstr ""
 #: src/views/backup/ListView.vue:308
 #: src/views/database/IndexView.vue:27
 #: src/views/home/IndexView.vue:487
+#: src/views/toolbox/MigrationView.vue:528
 #: src/views/website/CreateModal.vue:246
 msgid "Database"
 msgstr ""
@@ -1839,11 +1851,15 @@ msgid "Compose Content"
 msgstr ""
 
 #: src/views/app/TemplateDeployModal.vue:630
+#: src/views/toolbox/MigrationView.vue:568
+#: src/views/toolbox/MigrationView.vue:641
 msgid "Previous"
 msgstr ""
 
 #: src/views/app/TemplateDeployModal.vue:639
 #: src/views/app/TemplateDeployModal.vue:642
+#: src/views/toolbox/MigrationView.vue:429
+#: src/views/toolbox/MigrationView.vue:579
 msgid "Next"
 msgstr ""
 
@@ -2187,6 +2203,9 @@ msgstr ""
 #: src/views/log/HttpLog.vue:90
 #: src/views/project/ListView.vue:57
 #: src/views/task/TaskView.vue:22
+#: src/views/toolbox/MigrationView.vue:455
+#: src/views/toolbox/MigrationView.vue:661
+#: src/views/toolbox/MigrationView.vue:748
 #: src/views/toolbox/ProcessView.vue:137
 #: src/views/toolbox/ProcessView.vue:394
 msgid "Status"
@@ -2284,6 +2303,8 @@ msgstr ""
 #: src/views/file/PropertyModal.vue:33
 #: src/views/log/OperationLog.vue:73
 #: src/views/project/ListView.vue:49
+#: src/views/toolbox/MigrationView.vue:659
+#: src/views/toolbox/MigrationView.vue:746
 msgid "Type"
 msgstr ""
 
@@ -2693,8 +2714,8 @@ msgstr ""
 #: src/views/database/UserList.vue:70
 #: src/views/file/ListView.vue:869
 #: src/views/file/ListView.vue:889
-#: src/views/file/ToolBar.vue:137
-#: src/views/file/ToolBar.vue:157
+#: src/views/file/ToolBar.vue:138
+#: src/views/file/ToolBar.vue:158
 #: src/views/setting/TokenModal.vue:166
 msgid "Copied successfully"
 msgstr ""
@@ -2715,7 +2736,7 @@ msgstr ""
 #: src/views/file/ListView.vue:307
 #: src/views/file/ListView.vue:341
 #: src/views/file/ListView.vue:982
-#: src/views/file/ToolBar.vue:272
+#: src/views/file/ToolBar.vue:276
 msgid "Copy"
 msgstr ""
 
@@ -3163,6 +3184,7 @@ msgid "Slow Logs"
 msgstr ""
 
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:174
+#: src/views/toolbox/MigrationView.vue:388
 msgid "Connection"
 msgstr ""
 
@@ -3865,6 +3887,7 @@ msgstr ""
 #: src/views/backup/StorageView.vue:74
 #: src/views/ssh/IndexView.vue:64
 #: src/views/ssh/IndexView.vue:73
+#: src/views/toolbox/MigrationView.vue:453
 msgid "Local"
 msgstr ""
 
@@ -4127,7 +4150,7 @@ msgid "Domain"
 msgstr ""
 
 #: src/views/cert/CertView.vue:109
-#: src/views/file/ToolBar.vue:239
+#: src/views/file/ToolBar.vue:243
 #: src/views/file/UploadModal.vue:465
 #: src/views/monitor/IndexView.vue:493
 msgid "Upload"
@@ -4666,6 +4689,7 @@ msgid "Relative CPU weight. Default is 1024. Higher values get more CPU time whe
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:452
+#: src/views/toolbox/MigrationView.vue:452
 msgid "Environment"
 msgstr ""
 
@@ -5531,7 +5555,7 @@ msgstr ""
 #: src/views/file/ListView.vue:345
 #: src/views/file/ListView.vue:985
 #: src/views/file/ListView.vue:1562
-#: src/views/file/ToolBar.vue:274
+#: src/views/file/ToolBar.vue:278
 msgid "Compress"
 msgstr ""
 
@@ -5563,7 +5587,7 @@ msgstr ""
 #: src/views/file/ListView.vue:735
 #: src/views/file/ListView.vue:803
 #: src/views/file/ListView.vue:852
-#: src/views/file/ToolBar.vue:120
+#: src/views/file/ToolBar.vue:121
 msgid "Warning"
 msgstr ""
 
@@ -5580,14 +5604,14 @@ msgstr ""
 #: src/views/file/ListView.vue:297
 #: src/views/file/ListView.vue:315
 #: src/views/file/ListView.vue:365
-#: src/views/file/ToolBar.vue:269
+#: src/views/file/ToolBar.vue:273
 msgid "Paste"
 msgstr ""
 
 #: src/views/file/ListView.vue:308
 #: src/views/file/ListView.vue:342
 #: src/views/file/ListView.vue:983
-#: src/views/file/ToolBar.vue:273
+#: src/views/file/ToolBar.vue:277
 msgid "Move"
 msgstr ""
 
@@ -5597,7 +5621,7 @@ msgstr ""
 #: src/views/file/ListView.vue:1380
 #: src/views/file/PermissionModal.vue:146
 #: src/views/file/PropertyModal.vue:42
-#: src/views/file/ToolBar.vue:275
+#: src/views/file/ToolBar.vue:279
 msgid "Permission"
 msgstr ""
 
@@ -5625,8 +5649,8 @@ msgid "Properties"
 msgstr ""
 
 #: src/views/file/ListView.vue:646
-#: src/views/file/ToolBar.vue:68
-#: src/views/file/ToolBar.vue:85
+#: src/views/file/ToolBar.vue:69
+#: src/views/file/ToolBar.vue:86
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr ""
 
@@ -5636,7 +5660,7 @@ msgstr ""
 
 #: src/views/file/ListView.vue:737
 #: src/views/file/ListView.vue:862
-#: src/views/file/ToolBar.vue:130
+#: src/views/file/ToolBar.vue:131
 msgid "Overwrite"
 msgstr ""
 
@@ -5659,24 +5683,24 @@ msgid "Path copied to clipboard"
 msgstr ""
 
 #: src/views/file/ListView.vue:830
-#: src/views/file/ToolBar.vue:95
+#: src/views/file/ToolBar.vue:96
 msgid "Please mark the files/folders to copy or move first"
 msgstr ""
 
 #: src/views/file/ListView.vue:853
-#: src/views/file/ToolBar.vue:121
+#: src/views/file/ToolBar.vue:122
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr ""
 
 #: src/views/file/ListView.vue:875
 #: src/views/file/ListView.vue:895
-#: src/views/file/ToolBar.vue:143
-#: src/views/file/ToolBar.vue:163
+#: src/views/file/ToolBar.vue:144
+#: src/views/file/ToolBar.vue:164
 msgid "Moved successfully"
 msgstr ""
 
 #: src/views/file/ListView.vue:881
-#: src/views/file/ToolBar.vue:149
+#: src/views/file/ToolBar.vue:150
 msgid "Canceled"
 msgstr ""
 
@@ -5717,7 +5741,7 @@ msgid "Uncompress to"
 msgstr ""
 
 #: src/views/file/ListView.vue:1680
-#: src/views/file/ToolBar.vue:312
+#: src/views/file/ToolBar.vue:323
 msgid "Terminal - %{ path }"
 msgstr ""
 
@@ -5814,43 +5838,43 @@ msgid "Immutable"
 msgstr ""
 
 #: src/views/file/ToolBar.vue:48
-msgid "Download task created successfully"
+msgid "Download task created successfully, please check the task list for progress"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:57
+#: src/views/file/ToolBar.vue:58
 msgid "Please select files/folders to copy"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:74
+#: src/views/file/ToolBar.vue:75
 msgid "Please select files/folders to move"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:215
+#: src/views/file/ToolBar.vue:219
 msgid "Sort"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:240
-#: src/views/file/ToolBar.vue:291
+#: src/views/file/ToolBar.vue:244
+#: src/views/file/ToolBar.vue:295
 msgid "Remote Download"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:259
+#: src/views/file/ToolBar.vue:263
 msgid "Switch to grid view"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:260
+#: src/views/file/ToolBar.vue:264
 msgid "Switch to list view"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:282
+#: src/views/file/ToolBar.vue:286
 msgid "Are you sure you want to delete in bulk?"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:299
+#: src/views/file/ToolBar.vue:303
 msgid "Download URL"
 msgstr ""
 
-#: src/views/file/ToolBar.vue:302
+#: src/views/file/ToolBar.vue:306
 msgid "Save as"
 msgstr ""
 
@@ -6076,7 +6100,7 @@ msgstr ""
 #: src/views/home/IndexView.vue:886
 #: src/views/toolbox/BenchmarkView.vue:203
 #: src/views/toolbox/DiskView.vue:799
-#: src/views/toolbox/IndexView.vue:26
+#: src/views/toolbox/IndexView.vue:27
 msgid "Disk"
 msgstr ""
 
@@ -6407,6 +6431,8 @@ msgstr ""
 
 #: src/views/log/DatabaseLog.vue:80
 #: src/views/log/HttpLog.vue:102
+#: src/views/toolbox/MigrationView.vue:662
+#: src/views/toolbox/MigrationView.vue:749
 msgid "Duration"
 msgstr ""
 
@@ -6451,7 +6477,7 @@ msgid "Operator"
 msgstr ""
 
 #: src/views/log/OperationLog.vue:86
-#: src/views/toolbox/IndexView.vue:24
+#: src/views/toolbox/IndexView.vue:25
 msgid "System"
 msgstr ""
 
@@ -6460,6 +6486,7 @@ msgid "Message"
 msgstr ""
 
 #: src/views/log/OperationLog.vue:99
+#: src/views/toolbox/MigrationView.vue:750
 msgid "Details"
 msgstr ""
 
@@ -7993,20 +8020,24 @@ msgstr ""
 msgid "Extend LV"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:23
+#: src/views/toolbox/IndexView.vue:24
 msgid "Process"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:27
+#: src/views/toolbox/IndexView.vue:28
 msgid "Log Clean"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:28
+#: src/views/toolbox/IndexView.vue:29
 msgid "WebHook"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:29
+#: src/views/toolbox/IndexView.vue:30
 msgid "Benchmark"
+msgstr ""
+
+#: src/views/toolbox/IndexView.vue:31
+msgid "Migration"
 msgstr ""
 
 #: src/views/toolbox/LogView.vue:38
@@ -8087,6 +8118,239 @@ msgstr ""
 
 #: src/views/toolbox/LogView.vue:229
 msgid "Click Scan to check logs"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:85
+#: src/views/toolbox/MigrationView.vue:109
+msgid "Please fill in all connection fields"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:121
+msgid "Environment check refreshed"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:139
+msgid "Web server mismatch: local is %{local}, remote is %{remote}. Migration cannot proceed."
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:142
+#: src/views/toolbox/MigrationView.vue:143
+msgid "none"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:157
+msgid "%{type} is installed locally but not on the remote server. Related projects may need reconfiguration."
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:177
+msgid "%{type} is installed locally but not on the remote server. Database migration for this type will be skipped."
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:232
+msgid "Please select at least one item to migrate"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:237
+msgid "Confirm Migration"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:238
+msgid "Are you sure you want to start migration? This will transfer the selected items to the remote server."
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:329
+msgid "Reset Migration"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:330
+msgid "Are you sure you want to reset the migration state?"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:351
+msgid "Migration state has been reset"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:389
+msgid "Enter remote server info"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:391
+msgid "Pre-check"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:391
+msgid "Verify environment"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:393
+msgid "Select Items"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:394
+msgid "Choose what to migrate"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:396
+msgid "Migrating"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:396
+msgid "Transfer in progress"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:397
+msgid "Complete"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:397
+msgid "View results"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:402
+msgid "Remote Server Connection"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:404
+msgid "Panel URL"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:407
+msgid "e.g. https://remote-server:8888"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:410
+msgid "Token ID"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:413
+msgid "API Token ID"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:418
+msgid "Access Token"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:423
+msgid "API Access Token"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:435
+msgid "Environment Pre-check"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:454
+msgid "Remote"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:460
+msgid "Web Server"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:470
+#: src/views/toolbox/MigrationView.vue:521
+msgid "Match"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:471
+msgid "Mismatch"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:490
+#: src/views/toolbox/MigrationView.vue:505
+msgid "Not installed"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:522
+msgid "Different"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:585
+msgid "Select Migration Items"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:587
+msgid "Websites"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:598
+msgid "No websites found"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:602
+msgid "Databases"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:614
+msgid "No databases found"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:618
+msgid "Projects"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:630
+msgid "No projects found"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:636
+msgid "Stop services during migration to ensure data consistency (recommended)"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:648
+msgid "Start Migration"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:654
+msgid "Migration Progress"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:682
+msgid "Migration Logs"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:691
+#: src/views/toolbox/MigrationView.vue:796
+msgid "Download Log"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:715
+msgid "Migration in progress..."
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:722
+msgid "Migration Complete"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:727
+msgid "All items migrated successfully"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:728
+msgid "Migration completed with some issues"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:734
+msgid "Started"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:736
+msgid "Ended"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:768
+msgid "Migration succeeded"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:784
+msgid "Reminder"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:788
+msgid "Some environments differ between local and remote servers. You may need to adjust settings on the remote server otherwise related items may not work properly after migration."
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:799
+msgid "Start New Migration"
 msgstr ""
 
 #: src/views/toolbox/ProcessView.vue:47
