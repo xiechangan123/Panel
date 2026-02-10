@@ -965,7 +965,7 @@ func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrati
 
 	// 远程解压并清理
 	s.addLog("  " + s.t.Get("extracting on remote server"))
-	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf %s -C %s && rm -f %s", remoteDir, tarPath, remoteDir, tarPath)
+	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf %s --overwrite -C %s && rm -f %s", remoteDir, tarPath, remoteDir, tarPath)
 	if err = s.remoteExec(conn, extractCmd); err != nil {
 		return fmt.Errorf("remote extract failed: %w", err)
 	}
@@ -1126,7 +1126,11 @@ func (s *ToolboxMigrationService) newRestyClient(conn *request.ToolboxMigrationC
 			rawReq.Body = io.NopCloser(bytes.NewReader(body))
 		}
 
+		// 签名路径必须是 /api/... 部分（服务端验签时入口前缀已被 strip）
 		canonicalPath := rawReq.URL.Path
+		if idx := strings.Index(canonicalPath, "/api/"); idx > 0 {
+			canonicalPath = canonicalPath[idx:]
+		}
 		queryString := rawReq.URL.Query().Encode()
 
 		canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s",
