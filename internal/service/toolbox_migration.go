@@ -965,7 +965,7 @@ func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrati
 
 	// 远程解压并清理
 	s.addLog("  " + s.t.Get("extracting on remote server"))
-	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf %s --overwrite -C %s && rm -f %s", remoteDir, tarPath, remoteDir, tarPath)
+	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf %s --overwrite -C %s; rm -f %s", remoteDir, tarPath, remoteDir, tarPath)
 	if err = s.remoteExec(conn, extractCmd); err != nil {
 		return fmt.Errorf("remote extract failed: %w", err)
 	}
@@ -1086,7 +1086,7 @@ func (s *ToolboxMigrationService) failResult(typ, name, errMsg string) {
 		}
 	}
 	s.state.mu.Unlock()
-	s.addLog(fmt.Sprintf("❌ %s [%s]: %s", s.t.Get("failed"), name, errMsg))
+	s.addLog(fmt.Sprintf("%s [%s]: %s", s.t.Get("failed"), name, errMsg))
 }
 
 // succeedResult 标记迁移项成功
