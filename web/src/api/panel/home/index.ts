@@ -23,5 +23,7 @@ export default {
   // 重启面板
   restart: (): any => http.Post('/home/restart'),
   // 重启服务器
-  restartServer: (): any => http.Post('/home/restart_server')
+  restartServer: (): any => http.Post('/home/restart_server'),
+  // Top 进程
+  topProcesses: (type: string): any => http.Get('/home/top_processes', { params: { type } })
 }

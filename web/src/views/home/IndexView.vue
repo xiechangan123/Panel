@@ -25,7 +25,7 @@ import { useTabStore } from '@/store'
 import { formatDateTime, formatDuration, toTimestamp } from '@/utils/common'
 import { formatBytes, formatPercent } from '@/utils/file'
 import VChart from 'vue-echarts'
-import type { Realtime } from './types'
+import type { ProcessStat, Realtime } from './types'
 
 use([
   CanvasRenderer,
@@ -41,6 +41,45 @@ const { current: locale, $gettext } = useGettext()
 const themeVars = useThemeVars()
 const tabStore = useTabStore()
 const realtime = ref<Realtime | null>(null)
+
+const cpuTopProcesses = ref<ProcessStat[]>([])
+const memTopProcesses = ref<ProcessStat[]>([])
+const cpuTopLoading = ref(false)
+const memTopLoading = ref(false)
+const cpuTopVisible = ref(false)
+const memTopVisible = ref(false)
+
+const loadTopProcesses = (type: 'cpu' | 'memory') => {
+  if (type === 'cpu') {
+    if (cpuTopVisible.value) {
+      cpuTopVisible.value = false
+      return
+    }
+    cpuTopLoading.value = true
+    useRequest(home.topProcesses('cpu'))
+      .onSuccess(({ data }) => {
+        cpuTopProcesses.value = data
+        cpuTopVisible.value = true
+      })
+      .onComplete(() => {
+        cpuTopLoading.value = false
+      })
+  } else {
+    if (memTopVisible.value) {
+      memTopVisible.value = false
+      return
+    }
+    memTopLoading.value = true
+    useRequest(home.topProcesses('memory'))
+      .onSuccess(({ data }) => {
+        memTopProcesses.value = data
+        memTopVisible.value = true
+      })
+      .onComplete(() => {
+        memTopLoading.value = false
+      })
+  }
+}
 
 const { data: systemInfo } = useRequest(home.systemInfo, {
   initialData: {
@@ -529,29 +568,20 @@ if (import.meta.hot) {
                 </n-flex>
               </template>
               <n-scrollbar max-h-340>
-                <n-table :single-line="false" striped>
-                  <tr>
-                    <th>{{ $gettext('Last 1 minute') }}</th>
-                    <td>
-                      {{ formatPercent((realtime.load.load1 / cores) * 100) }}% /
-                      {{ realtime.load.load1 }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Last 5 minutes') }}</th>
-                    <td>
-                      {{ formatPercent((realtime.load.load5 / cores) * 100) }}% /
-                      {{ realtime.load.load5 }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Last 15 minutes') }}</th>
-                    <td>
-                      {{ formatPercent((realtime.load.load15 / cores) * 100) }}% /
-                      {{ realtime.load.load15 }}
-                    </td>
-                  </tr>
-                </n-table>
+                <n-descriptions label-placement="top" :column="3" bordered size="small">
+                  <n-descriptions-item :label="$gettext('Last 1 minute')">
+                    {{ formatPercent((realtime.load.load1 / cores) * 100) }}% /
+                    {{ realtime.load.load1 }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Last 5 minutes')">
+                    {{ formatPercent((realtime.load.load5 / cores) * 100) }}% /
+                    {{ realtime.load.load5 }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Last 15 minutes')">
+                    {{ formatPercent((realtime.load.load15 / cores) * 100) }}% /
+                    {{ realtime.load.load15 }}
+                  </n-descriptions-item>
+                </n-descriptions>
               </n-scrollbar>
             </n-popover>
             <n-popover placement="bottom" trigger="hover">
@@ -567,26 +597,73 @@ if (import.meta.hot) {
                   <p>{{ cores }} {{ $gettext('cores') }}</p>
                 </n-flex>
               </template>
-              <n-scrollbar max-h-340>
-                <n-table :single-line="false" striped>
-                  <tr>
-                    <th>{{ $gettext('Model') }}</th>
-                    <td>{{ realtime.cpus[0]?.modelName }}</td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Parameters') }}</th>
-                    <td>
-                      {{ realtime.cpus.length }} CPU {{ cores }} {{ $gettext('cores') }}
-                      {{ formatBytes((realtime.cpus[0]?.cacheSize ?? 0) * 1024) }} {{ $gettext('cache') }}
-                    </td>
-                  </tr>
-                  <tr v-for="item in realtime.cpus" :key="item.modelName">
-                    <th>CPU-{{ item.cpu }}</th>
-                    <td>
-                      {{ $gettext('Usage') }} {{ formatPercent(realtime.percents[item.cpu]) }}%
-                      {{ $gettext('Frequency') }} {{ item.mhz }} MHz
-                    </td>
-                  </tr>
+              <n-scrollbar max-h-440>
+                <n-descriptions label-placement="top" :column="3" bordered size="small">
+                  <n-descriptions-item :label="$gettext('Model')" :span="3">
+                    {{ realtime.cpus[0]?.modelName }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('CPU Count')">
+                    {{ realtime.cpus.length }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Cores')">
+                    {{ cores }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Cache')">
+                    {{ formatBytes((realtime.cpus[0]?.cacheSize ?? 0) * 1024) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item
+                    v-for="item in realtime.cpus"
+                    :key="item.modelName"
+                    :label="'CPU-' + item.cpu"
+                  >
+                    {{ formatPercent(realtime.percents[item.cpu]) }}% / {{ item.mhz }} MHz
+                  </n-descriptions-item>
+                </n-descriptions>
+                <n-divider style="margin: 8px 0" />
+                <n-flex justify="center">
+                  <n-button
+                    text
+                    type="primary"
+                    size="small"
+                    :loading="cpuTopLoading"
+                    @click="loadTopProcesses('cpu')"
+                  >
+                    {{ $gettext('CPU Top5 Processes') }} {{ cpuTopVisible ? '∧' : '>' }}
+                  </n-button>
+                </n-flex>
+                <n-table
+                  v-if="cpuTopVisible && cpuTopProcesses.length"
+                  :single-line="false"
+                  size="small"
+                  striped
+                  style="margin-top: 8px"
+                >
+                  <thead>
+                    <tr>
+                      <th>PID</th>
+                      <th>{{ $gettext('Name') }}</th>
+                      <th>CPU</th>
+                      <th>{{ $gettext('User') }}</th>
+                      <th>{{ $gettext('Command') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="proc in cpuTopProcesses" :key="proc.pid">
+                      <td>{{ proc.pid }}</td>
+                      <td>
+                        <n-ellipsis style="max-width: 120px">
+                          {{ proc.name }}
+                        </n-ellipsis>
+                      </td>
+                      <td>{{ proc.value.toFixed(1) }}%</td>
+                      <td>{{ proc.username }}</td>
+                      <td>
+                        <n-ellipsis style="max-width: 200px">
+                          {{ proc.command }}
+                        </n-ellipsis>
+                      </td>
+                    </tr>
+                  </tbody>
                 </n-table>
               </n-scrollbar>
             </n-popover>
@@ -603,87 +680,91 @@ if (import.meta.hot) {
                   <p>{{ formatBytes(realtime.mem.total) }}</p>
                 </n-flex>
               </template>
-              <n-scrollbar max-h-340>
-                <n-table :single-line="false" striped>
-                  <tr>
-                    <th>{{ $gettext('Active') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.active) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Inactive') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.inactive) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Free') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.free) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Shared') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.shared) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Committed') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.committedAS) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Commit Limit') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.commitLimit) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('SWAP Size') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.swapTotal) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('SWAP Used') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.swapCached) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('SWAP Available') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.swapFree) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Physical Memory Size') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.total) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Physical Memory Used') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.used) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Physical Memory Available') }}</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.available) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>buffers/cached</th>
-                    <td>
-                      {{ formatBytes(realtime.mem.buffers) }} /
-                      {{ formatBytes(realtime.mem.cached) }}
-                    </td>
-                  </tr>
+              <n-scrollbar max-h-440>
+                <n-descriptions label-placement="top" :column="4" bordered size="small">
+                  <n-descriptions-item :label="$gettext('Physical Memory Size')">
+                    {{ formatBytes(realtime.mem.total) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Physical Memory Used')">
+                    {{ formatBytes(realtime.mem.used) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Physical Memory Available')">
+                    {{ formatBytes(realtime.mem.available) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Free')">
+                    {{ formatBytes(realtime.mem.free) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Active')">
+                    {{ formatBytes(realtime.mem.active) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Inactive')">
+                    {{ formatBytes(realtime.mem.inactive) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Shared')">
+                    {{ formatBytes(realtime.mem.shared) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item label="buffers/cached">
+                    {{ formatBytes(realtime.mem.buffers) }} /
+                    {{ formatBytes(realtime.mem.cached) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Committed')">
+                    {{ formatBytes(realtime.mem.committedAS) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Commit Limit')">
+                    {{ formatBytes(realtime.mem.commitLimit) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('SWAP Size')">
+                    {{ formatBytes(realtime.mem.swapTotal) }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('SWAP Used')">
+                    {{ formatBytes(realtime.mem.swapCached) }}
+                  </n-descriptions-item>
+                </n-descriptions>
+                <n-divider style="margin: 8px 0" />
+                <n-flex justify="center">
+                  <n-button
+                    text
+                    type="primary"
+                    size="small"
+                    :loading="memTopLoading"
+                    @click="loadTopProcesses('memory')"
+                  >
+                    {{ $gettext('Memory Top5 Processes') }} {{ memTopVisible ? '∧' : '>' }}
+                  </n-button>
+                </n-flex>
+                <n-table
+                  v-if="memTopVisible && memTopProcesses.length"
+                  :single-line="false"
+                  size="small"
+                  striped
+                  style="margin-top: 8px"
+                >
+                  <thead>
+                    <tr>
+                      <th>PID</th>
+                      <th>{{ $gettext('Name') }}</th>
+                      <th>{{ $gettext('Memory') }}</th>
+                      <th>{{ $gettext('User') }}</th>
+                      <th>{{ $gettext('Command') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="proc in memTopProcesses" :key="proc.pid">
+                      <td>{{ proc.pid }}</td>
+                      <td>
+                        <n-ellipsis style="max-width: 120px">
+                          {{ proc.name }}
+                        </n-ellipsis>
+                      </td>
+                      <td>{{ formatBytes(proc.value) }}</td>
+                      <td>{{ proc.username }}</td>
+                      <td>
+                        <n-ellipsis style="max-width: 200px">
+                          {{ proc.command }}
+                        </n-ellipsis>
+                      </td>
+                    </tr>
+                  </tbody>
                 </n-table>
               </n-scrollbar>
             </n-popover>
@@ -706,32 +787,26 @@ if (import.meta.hot) {
                 </n-flex>
               </template>
               <n-scrollbar max-h-340>
-                <n-table :single-line="false">
-                  <tr>
-                    <th>{{ $gettext('Mount Point') }}</th>
-                    <td>{{ item.path }}</td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('File System') }}</th>
-                    <td>{{ item.fstype }}</td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Inodes Usage') }}</th>
-                    <td>{{ formatPercent(item.inodesUsedPercent) }}%</td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Inodes Total') }}</th>
-                    <td>{{ item.inodesTotal }}</td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Inodes Used') }}</th>
-                    <td>{{ item.inodesUsed }}</td>
-                  </tr>
-                  <tr>
-                    <th>{{ $gettext('Inodes Available') }}</th>
-                    <td>{{ item.inodesFree }}</td>
-                  </tr>
-                </n-table>
+                <n-descriptions label-placement="top" :column="3" bordered size="small">
+                  <n-descriptions-item :label="$gettext('Mount Point')">
+                    {{ item.path }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('File System')">
+                    {{ item.fstype }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Inodes Usage')">
+                    {{ formatPercent(item.inodesUsedPercent) }}%
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Inodes Total')">
+                    {{ item.inodesTotal }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Inodes Used')">
+                    {{ item.inodesUsed }}
+                  </n-descriptions-item>
+                  <n-descriptions-item :label="$gettext('Inodes Available')">
+                    {{ item.inodesFree }}
+                  </n-descriptions-item>
+                </n-descriptions>
               </n-scrollbar>
             </n-popover>
           </n-flex>

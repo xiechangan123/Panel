@@ -209,6 +209,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/update_info", route.home.UpdateInfo)
 			r.Post("/update", route.home.Update)
 			r.Post("/restart", route.home.Restart)
+			r.Get("/top_processes", route.home.TopProcesses)
 			r.Post("/restart_server", route.home.RestartServer)
 		})
 

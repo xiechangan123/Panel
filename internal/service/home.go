@@ -420,3 +420,23 @@ func (s *HomeService) RestartServer(w http.ResponseWriter, r *http.Request) {
 	tools.RestartServer()
 	Success(w, nil)
 }
+
+func (s *HomeService) TopProcesses(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.HomeTopProcesses](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	tp := tools.CollectTopProcesses()
+	switch req.Type {
+	case "cpu":
+		Success(w, tp.CPU)
+	case "memory":
+		Success(w, tp.Memory)
+	case "disk_io":
+		Success(w, tp.DiskIO)
+	default:
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid type"))
+	}
+}

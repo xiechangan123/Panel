@@ -154,3 +154,13 @@ export interface Realtime {
   disk: PartitionStat[]
   disk_usage: DiskUsageStat[]
 }
+
+export interface ProcessStat {
+  pid: number
+  name: string
+  username: string
+  command: string
+  value: number
+  read?: number
+  write?: number
+}
