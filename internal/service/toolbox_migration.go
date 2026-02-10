@@ -58,6 +58,7 @@ type ToolboxMigrationService struct {
 	websiteRepo        biz.WebsiteRepo
 	databaseRepo       biz.DatabaseRepo
 	databaseServerRepo biz.DatabaseServerRepo
+	databaseUserRepo   biz.DatabaseUserRepo
 	projectRepo        biz.ProjectRepo
 	appRepo            biz.AppRepo
 	environmentRepo    biz.EnvironmentRepo
@@ -74,6 +75,7 @@ func NewToolboxMigrationService(
 	website biz.WebsiteRepo,
 	database biz.DatabaseRepo,
 	databaseServer biz.DatabaseServerRepo,
+	databaseUser biz.DatabaseUserRepo,
 	project biz.ProjectRepo,
 	appRepo biz.AppRepo,
 	environment biz.EnvironmentRepo,
@@ -86,6 +88,7 @@ func NewToolboxMigrationService(
 		websiteRepo:        website,
 		databaseRepo:       database,
 		databaseServerRepo: databaseServer,
+		databaseUserRepo:   databaseUser,
 		projectRepo:        project,
 		appRepo:            appRepo,
 		environmentRepo:    environment,
@@ -217,6 +220,13 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// 数据库用户列表
+	databaseUsers, _, err := s.databaseUserRepo.List(1, 10000)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to get database user list: %v", err))
+		return
+	}
+
 	s.state.mu.Lock()
 	if s.state.Step == types.MigrationStepPreCheck {
 		s.state.Step = types.MigrationStepSelect
@@ -224,9 +234,10 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 	s.state.mu.Unlock()
 
 	Success(w, chix.M{
-		"websites":  websites,
-		"databases": databases,
-		"projects":  projects,
+		"websites":       websites,
+		"databases":      databases,
+		"database_users": databaseUsers,
+		"projects":       projects,
 	})
 }
 
@@ -388,6 +399,11 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 	// 迁移数据库
 	for _, db := range items.Databases {
 		s.migrateDatabase(conn, &db, items.StopOnMig)
+	}
+
+	// 迁移数据库用户
+	for _, user := range items.DatabaseUsers {
+		s.migrateDatabaseUser(conn, &user)
 	}
 
 	// 迁移项目
@@ -591,6 +607,88 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 	s.succeedResult("database", displayName)
 	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("database migration completed")))
+}
+
+// migrateDatabaseUser 迁移单个数据库用户
+func (s *ToolboxMigrationService) migrateDatabaseUser(conn *request.ToolboxMigrationConnection, user *request.ToolboxMigrationDatabaseUser) {
+	displayName := fmt.Sprintf("%s@%s (%s)", user.Username, user.Host, user.Type)
+	result := types.MigrationItemResult{
+		Type:   "database_user",
+		Name:   displayName,
+		Status: types.MigrationItemRunning,
+	}
+	now := time.Now()
+	result.StartedAt = &now
+	s.addResult(result)
+
+	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database User"), s.t.Get("start migrating"), displayName))
+
+	// 获取本地用户详情（含权限）
+	userDetail, err := s.databaseUserRepo.Get(user.ID)
+	if err != nil {
+		s.failResult("database_user", displayName, s.t.Get("failed to get database user detail: %v", err))
+		return
+	}
+
+	// 获取本地数据库服务器信息
+	dbServer, err := s.databaseServerRepo.Get(user.ServerID)
+	if err != nil {
+		s.failResult("database_user", displayName, s.t.Get("failed to get database server: %v", err))
+		return
+	}
+
+	// 查找远程对应的数据库服务器
+	remoteDBServersBody, err := s.remoteAPIRequest(conn, "GET", "/api/database_server", map[string]any{
+		"page":  1,
+		"limit": 10000,
+	})
+	if err != nil {
+		s.failResult("database_user", displayName, s.t.Get("failed to get remote database servers: %v", err))
+		return
+	}
+	var remoteDBServersResp struct {
+		Data struct {
+			Items []struct {
+				ID   uint             `json:"id"`
+				Name string           `json:"name"`
+				Type biz.DatabaseType `json:"type"`
+			}
+		}
+	}
+	if err = json.Unmarshal(remoteDBServersBody, &remoteDBServersResp); err != nil {
+		s.failResult("database_user", displayName, s.t.Get("invalid response: %v", err))
+		return
+	}
+
+	var remoteServerID uint
+	for _, srv := range remoteDBServersResp.Data.Items {
+		if srv.Name == dbServer.Name && srv.Type == dbServer.Type {
+			remoteServerID = srv.ID
+			break
+		}
+	}
+	if remoteServerID == 0 {
+		s.failResult("database_user", displayName, s.t.Get("no matching database server found on remote"))
+		return
+	}
+
+	// 在远程创建数据库用户
+	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("creating database user on remote server")))
+	createReq := &request.DatabaseUserCreate{
+		ServerID:   remoteServerID,
+		Username:   user.Username,
+		Password:   user.Password,
+		Host:       user.Host,
+		Privileges: userDetail.Privileges,
+	}
+	_, err = s.remoteAPIRequest(conn, "POST", "/api/database_user", createReq)
+	if err != nil {
+		s.failResult("database_user", displayName, s.t.Get("failed to create database user on remote: %v", err))
+		return
+	}
+
+	s.succeedResult("database_user", displayName)
+	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("database user migration completed")))
 }
 
 // migrateProject 迁移单个项目

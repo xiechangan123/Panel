@@ -31,9 +31,11 @@ const envWarnings = ref<string[]>([])
 // 第三步：迁移项选择
 const websites = ref<any[]>([])
 const databases = ref<any[]>([])
+const databaseUsers = ref<any[]>([])
 const projects = ref<any[]>([])
 const selectedWebsites = ref<number[]>([])
 const selectedDatabases = ref<string[]>([])
+const selectedDatabaseUsers = ref<number[]>([])
 const selectedProjects = ref<number[]>([])
 const stopOnMig = ref(true)
 
@@ -195,6 +197,7 @@ const handleGetItems = () => {
     .onSuccess(({ data }: any) => {
       websites.value = data.websites || []
       databases.value = data.databases || []
+      databaseUsers.value = data.database_users || []
       projects.value = data.projects || []
       currentStep.value = 3
       loading.value = false
@@ -218,6 +221,17 @@ const handleStartMigration = () => {
         server_id: d.server_id,
         server: d.server
       })),
+    database_users: databaseUsers.value
+      .filter((_: any, i: number) => selectedDatabaseUsers.value.includes(i))
+      .map((u: any) => ({
+        id: u.id,
+        username: u.username,
+        password: u.password,
+        host: u.host,
+        server_id: u.server_id,
+        server: u.server,
+        type: u.type
+      })),
     projects: projects.value
       .filter((_: any, i: number) => selectedProjects.value.includes(i))
       .map((p: any) => ({ id: p.id, name: p.name, path: p.root_dir || p.path })),
@@ -227,6 +241,7 @@ const handleStartMigration = () => {
   if (
     selectedItems.websites.length === 0 &&
     selectedItems.databases.length === 0 &&
+    selectedItems.database_users.length === 0 &&
     selectedItems.projects.length === 0
   ) {
     window.$message.warning($gettext('Please select at least one item to migrate'))
@@ -340,9 +355,11 @@ const handleReset = () => {
         envWarnings.value = []
         websites.value = []
         databases.value = []
+        databaseUsers.value = []
         projects.value = []
         selectedWebsites.value = []
         selectedDatabases.value = []
+        selectedDatabaseUsers.value = []
         selectedProjects.value = []
         migrationLogs.value = []
         migrationResults.value = []
@@ -612,6 +629,23 @@ const formatDuration = (seconds: number) => {
           </n-checkbox-group>
         </template>
         <n-empty v-else :description="$gettext('No databases found')" />
+      </n-card>
+
+      <!-- 数据库用户 -->
+      <n-card :title="$gettext('Database Users')" size="small" embedded style="margin-bottom: 12px">
+        <template v-if="databaseUsers.length > 0">
+          <n-checkbox-group v-model:value="selectedDatabaseUsers">
+            <n-flex vertical>
+              <n-checkbox v-for="(user, index) in databaseUsers" :key="user.id" :value="index">
+                {{ user.username }}
+                <n-text v-if="user.host" depth="3" style="margin-left: 4px">@{{ user.host }}</n-text>
+                <n-tag size="small" style="margin-left: 8px">{{ user.type }}</n-tag>
+                <n-text depth="3" style="margin-left: 8px">{{ user.server }}</n-text>
+              </n-checkbox>
+            </n-flex>
+          </n-checkbox-group>
+        </template>
+        <n-empty v-else :description="$gettext('No database users found')" />
       </n-card>
 
       <!-- 项目 -->

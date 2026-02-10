@@ -134,7 +134,7 @@ func initAce() (*app.Ace, error) {
 	toolboxSSHService := service.NewToolboxSSHService(locale)
 	toolboxDiskService := service.NewToolboxDiskService(locale)
 	toolboxLogService := service.NewToolboxLogService(locale, db, containerImageRepo, settingRepo)
-	toolboxMigrationService := service.NewToolboxMigrationService(locale, config, logger, settingRepo, websiteRepo, databaseRepo, projectRepo, appRepo, environmentRepo)
+	toolboxMigrationService := service.NewToolboxMigrationService(locale, config, logger, settingRepo, websiteRepo, databaseRepo, databaseServerRepo, databaseUserRepo, projectRepo, appRepo, environmentRepo)
 	webHookRepo := data.NewWebHookRepo(locale, db, logger)
 	webHookService := service.NewWebHookService(webHookRepo)
 	templateRepo := data.NewTemplateRepo(locale, cacheRepo)

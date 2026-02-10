@@ -9,10 +9,11 @@ type ToolboxMigrationConnection struct {
 
 // ToolboxMigrationItems 迁移选择项
 type ToolboxMigrationItems struct {
-	Websites  []ToolboxMigrationWebsite  `json:"websites"`
-	Databases []ToolboxMigrationDatabase `json:"databases"`
-	Projects  []ToolboxMigrationProject  `json:"projects"`
-	StopOnMig bool                       `json:"stop_on_mig"` // 迁移中是否停止服务
+	Websites      []ToolboxMigrationWebsite      `json:"websites"`
+	Databases     []ToolboxMigrationDatabase     `json:"databases"`
+	DatabaseUsers []ToolboxMigrationDatabaseUser `json:"database_users"`
+	Projects      []ToolboxMigrationProject      `json:"projects"`
+	StopOnMig     bool                           `json:"stop_on_mig"` // 迁移中是否停止服务
 }
 
 // ToolboxMigrationWebsite 迁移网站项
@@ -28,6 +29,17 @@ type ToolboxMigrationDatabase struct {
 	Name     string `json:"name"`
 	ServerID uint   `json:"server_id"`
 	Server   string `json:"server"` // 服务器名称
+}
+
+// ToolboxMigrationDatabaseUser 迁移数据库用户项
+type ToolboxMigrationDatabaseUser struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Host     string `json:"host"` // 仅 mysql
+	ServerID uint   `json:"server_id"`
+	Server   string `json:"server"` // 服务器名称
+	Type     string `json:"type"`   // mysql / postgresql
 }
 
 // ToolboxMigrationProject 迁移项目项
