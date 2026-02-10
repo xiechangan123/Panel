@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"os/exec"
@@ -24,6 +23,7 @@ import (
 	"time"
 
 	"github.com/coder/websocket"
+	"github.com/go-resty/resty/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 
@@ -636,36 +636,23 @@ func (s *ToolboxMigrationService) fetchRemoteEnvironment(conn *request.ToolboxMi
 
 // remoteExec 调用远程面板 SSE exec 接口执行命令
 func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConnection, command string) error {
-	bodyBytes, _ := json.Marshal(map[string]string{"command": command})
-
-	url := strings.TrimRight(conn.URL, "/") + "/api/toolbox_migration/exec"
-	req, err := http.NewRequest("POST", url, bytes.NewReader(bodyBytes))
+	resp, err := s.newRestyClient(conn, 0).
+		SetDoNotParseResponse(true).
+		R().
+		SetBody(map[string]string{"command": command}).
+		Post("/api/toolbox_migration/exec")
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/json")
+	defer func() { _ = resp.RawBody().Close() }()
 
-	if err = signRequest(req, conn.TokenID, conn.Token); err != nil {
-		return fmt.Errorf("sign request failed: %w", err)
-	}
-
-	client := &http.Client{
-		// SSE 流可能很长，不设超时
-		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("remote exec returned status %d: %s", resp.StatusCode, string(body))
+	if resp.StatusCode() != http.StatusOK {
+		body, _ := io.ReadAll(resp.RawBody())
+		return fmt.Errorf("remote exec returned status %d: %s", resp.StatusCode(), string(body))
 	}
 
 	// 读取 SSE 流
-	scanner := bufio.NewScanner(resp.Body)
+	scanner := bufio.NewScanner(resp.RawBody())
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "data: ") {
@@ -796,51 +783,20 @@ func (s *ToolboxMigrationService) remoteMultipartUpload(
 	conn *request.ToolboxMigrationConnection, path string, fields map[string]string,
 	fileField, fileName string, fileData []byte,
 ) ([]byte, error) {
-	var body bytes.Buffer
-	writer := multipart.NewWriter(&body)
-	for k, v := range fields {
-		_ = writer.WriteField(k, v)
-	}
-	part, err := writer.CreateFormFile(fileField, fileName)
-	if err != nil {
-		return nil, err
-	}
-	if _, err = part.Write(fileData); err != nil {
-		return nil, err
-	}
-	_ = writer.Close()
-
-	url := strings.TrimRight(conn.URL, "/") + path
-	req, err := http.NewRequest("POST", url, &body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	if err = signRequest(req, conn.TokenID, conn.Token); err != nil {
-		return nil, fmt.Errorf("sign request failed: %w", err)
-	}
-
-	client := &http.Client{
-		Timeout:   5 * time.Minute,
-		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	respBody, err := io.ReadAll(resp.Body)
+	resp, err := s.newRestyClient(conn, 5*time.Minute).
+		R().
+		SetFormData(fields).
+		SetFileReader(fileField, fileName, bytes.NewReader(fileData)).
+		Post(path)
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return respBody, fmt.Errorf("multipart upload returned status %d: %s", resp.StatusCode, string(respBody))
+	if resp.StatusCode() != http.StatusOK {
+		return resp.Body(), fmt.Errorf("multipart upload returned status %d: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
-	return respBody, nil
+	return resp.Body(), nil
 }
 
 // uploadDirToRemote 上传目录到远程
@@ -873,45 +829,21 @@ func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrati
 
 // remoteAPIRequest 向远程面板发送 API 请求
 func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigrationConnection, method, path string, body any) ([]byte, error) {
-	var reqBody io.Reader
-	var bodyBytes []byte
+	req := s.newRestyClient(conn, 30*time.Second).R()
 	if body != nil {
-		bodyBytes, _ = json.Marshal(body)
-		reqBody = bytes.NewReader(bodyBytes)
+		req.SetBody(body)
 	}
 
-	url := strings.TrimRight(conn.URL, "/") + path
-	req, err := http.NewRequest(method, url, reqBody)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	// 签名请求
-	if err = signRequest(req, conn.TokenID, conn.Token); err != nil {
-		return nil, fmt.Errorf("sign request failed: %w", err)
-	}
-
-	client := &http.Client{
-		Timeout:   30 * time.Second,
-		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	respBody, err := io.ReadAll(resp.Body)
+	resp, err := req.Execute(method, path)
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return respBody, fmt.Errorf("status %d: %s", resp.StatusCode, string(respBody))
+	if resp.StatusCode() != http.StatusOK {
+		return resp.Body(), fmt.Errorf("status %d: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
-	return respBody, nil
+	return resp.Body(), nil
 }
 
 // maskPassword 掩盖命令中的密码
@@ -1021,48 +953,52 @@ func (s *ToolboxMigrationService) succeedResult(typ, name string) {
 	s.state.mu.Unlock()
 }
 
-// signRequest 对请求进行 HMAC-SHA256 签名
-func signRequest(req *http.Request, tokenID uint, token string) error {
-	var body []byte
-	var err error
-
-	if req.Body != nil {
-		body, err = io.ReadAll(req.Body)
-		if err != nil {
-			return err
-		}
-		req.Body = io.NopCloser(bytes.NewReader(body))
+func (s *ToolboxMigrationService) newRestyClient(conn *request.ToolboxMigrationConnection, timeout time.Duration) *resty.Client {
+	client := resty.New().
+		SetBaseURL(strings.TrimRight(conn.URL, "/")).
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+		SetHeader("Content-Type", "application/json")
+	if timeout > 0 {
+		client.SetTimeout(timeout)
 	}
 
-	// 规范化路径
-	canonicalPath := req.URL.Path
-	if !strings.HasPrefix(canonicalPath, "/api") {
-		index := strings.Index(canonicalPath, "/api")
-		if index != -1 {
-			canonicalPath = canonicalPath[index:]
+	client.OnBeforeRequest(func(_ *resty.Client, req *resty.Request) error {
+		// 获取 body 内容
+		var body []byte
+		if req.Body != nil {
+			switch v := req.Body.(type) {
+			case []byte:
+				body = v
+			case string:
+				body = []byte(v)
+			default:
+				body, _ = json.Marshal(v)
+			}
 		}
-	}
 
-	canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s",
-		req.Method,
-		canonicalPath,
-		req.URL.Query().Encode(),
-		sha256Hex(string(body)))
+		// 规范化路径
+		canonicalPath := req.URL
+		if !strings.HasPrefix(canonicalPath, "/api") {
+			if idx := strings.Index(canonicalPath, "/api"); idx != -1 {
+				canonicalPath = canonicalPath[idx:]
+			}
+		}
 
-	timestamp := time.Now().Unix()
-	req.Header.Set("X-Timestamp", fmt.Sprintf("%d", timestamp))
+		canonicalRequest := fmt.Sprintf("%s\n%s\n\n%s",
+			req.Method, canonicalPath, sha256Hex(string(body)))
 
-	stringToSign := fmt.Sprintf("%s\n%d\n%s",
-		"HMAC-SHA256",
-		timestamp,
-		sha256Hex(canonicalRequest))
+		timestamp := time.Now().Unix()
+		stringToSign := fmt.Sprintf("HMAC-SHA256\n%d\n%s",
+			timestamp, sha256Hex(canonicalRequest))
 
-	signature := hmacSHA256(stringToSign, token)
+		signature := hmacSHA256(stringToSign, conn.Token)
 
-	authHeader := fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", tokenID, signature)
-	req.Header.Set("Authorization", authHeader)
+		req.SetHeader("X-Timestamp", fmt.Sprintf("%d", timestamp))
+		req.SetHeader("Authorization", fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", conn.TokenID, signature))
+		return nil
+	})
 
-	return nil
+	return client
 }
 
 func sha256Hex(str string) string {
