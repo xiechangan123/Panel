@@ -971,6 +971,8 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 		fmt.Println(r.t.Get("|-Update completed"))
 	}
 
+	r.log.Info("panel updated", slog.String("version", version))
+
 	_, _ = shell.Execf("systemctl daemon-reload")
 	_ = io.Remove("/tmp/panel-storage.zip")
 	_ = io.Remove(filepath.Join(app.Root, "panel/config.example.yml"))
