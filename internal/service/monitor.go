@@ -175,6 +175,9 @@ func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
 		list.Mem.Used = append(list.Mem.Used, fmt.Sprintf("%.2f", float64(monitor.Info.Mem.Used)/1024/1024))
 		list.SWAP.Used = append(list.SWAP.Used, fmt.Sprintf("%.2f", float64(monitor.Info.Swap.Used)/1024/1024))
 		list.SWAP.Free = append(list.SWAP.Free, fmt.Sprintf("%.2f", float64(monitor.Info.Swap.Free)/1024/1024))
+
+		// Top 5 进程数据
+		list.TopProcesses = append(list.TopProcesses, monitor.Info.TopProcesses)
 	}
 
 	// 将 map 转换为 slice

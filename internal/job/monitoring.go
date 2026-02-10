@@ -38,6 +38,7 @@ func (r *Monitoring) Run() {
 	}
 
 	info := tools.CurrentInfo(nil, nil)
+	info.TopProcesses = tools.CollectTopProcesses()
 
 	// 去除部分数据以减少数据库存储
 	info.Disk = nil

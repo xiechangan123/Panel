@@ -9,6 +9,7 @@ import (
 	stdnet "net"
 	"net/http"
 	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/shirou/gopsutil/v4/load"
 	"github.com/shirou/gopsutil/v4/mem"
 	"github.com/shirou/gopsutil/v4/net"
+	"github.com/shirou/gopsutil/v4/process"
 
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/types"
@@ -81,6 +83,98 @@ func CurrentInfo(nets, disks []string) types.CurrentInfo {
 
 	res.Time = time.Now()
 	return res
+}
+
+// CollectTopProcesses 采集各指标 Top 5 进程
+func CollectTopProcesses() types.TopProcesses {
+	procs, err := process.Processes()
+	if err != nil {
+		return types.TopProcesses{}
+	}
+
+	type procMetrics struct {
+		pid      int32
+		name     string
+		username string
+		cmdline  string
+		cpu      float64
+		rss      uint64
+		ioRead   uint64
+		ioWrite  uint64
+	}
+
+	metrics := make([]procMetrics, 0, len(procs))
+	for _, p := range procs {
+		name, _ := p.Name()
+		if name == "" {
+			continue
+		}
+
+		m := procMetrics{pid: p.Pid, name: name}
+		m.username, _ = p.Username()
+		m.cmdline, _ = p.Cmdline()
+		if len(m.cmdline) > 80 {
+			m.cmdline = m.cmdline[:80]
+		}
+		m.cpu, _ = p.CPUPercent()
+		if memInfo, err := p.MemoryInfo(); err == nil && memInfo != nil {
+			m.rss = memInfo.RSS
+		}
+		if ioCounters, err := p.IOCounters(); err == nil && ioCounters != nil {
+			m.ioRead = ioCounters.ReadBytes
+			m.ioWrite = ioCounters.WriteBytes
+		}
+
+		metrics = append(metrics, m)
+	}
+
+	var result types.TopProcesses
+	topN := 5
+
+	// CPU Top 5
+	sort.Slice(metrics, func(i, j int) bool { return metrics[i].cpu > metrics[j].cpu })
+	for i := range min(topN, len(metrics)) {
+		m := metrics[i]
+		if m.cpu <= 0 {
+			break
+		}
+		result.CPU = append(result.CPU, types.ProcessStat{
+			PID: m.pid, Name: m.name, Username: m.username, Command: m.cmdline,
+			Value: m.cpu,
+		})
+	}
+
+	// 内存 Top 5
+	sort.Slice(metrics, func(i, j int) bool { return metrics[i].rss > metrics[j].rss })
+	for i := range min(topN, len(metrics)) {
+		m := metrics[i]
+		if m.rss == 0 {
+			break
+		}
+		result.Memory = append(result.Memory, types.ProcessStat{
+			PID: m.pid, Name: m.name, Username: m.username, Command: m.cmdline,
+			Value: float64(m.rss),
+		})
+	}
+
+	// 磁盘 IO Top 5（按累计读+写排序）
+	sort.Slice(metrics, func(i, j int) bool {
+		return (metrics[i].ioRead + metrics[i].ioWrite) > (metrics[j].ioRead + metrics[j].ioWrite)
+	})
+	for i := range min(topN, len(metrics)) {
+		m := metrics[i]
+		if m.ioRead+m.ioWrite == 0 {
+			break
+		}
+		result.DiskIO = append(result.DiskIO, types.ProcessStat{
+			PID: m.pid, Name: m.name, Username: m.username, Command: m.cmdline,
+			Value: float64(m.ioRead + m.ioWrite),
+			Read:  float64(m.ioRead),
+			Write: float64(m.ioWrite),
+		})
+	}
+
+	return result
 }
 
 // RestartPanel 重启面板

@@ -176,6 +176,22 @@ function confirmCustomTime(key: 'load' | 'cpu' | 'mem' | 'net' | 'diskIO') {
 }
 
 // 数据请求
+interface ProcessStat {
+  pid: number
+  name: string
+  username: string
+  command: string
+  value: number
+  read?: number
+  write?: number
+}
+
+interface TopProcesses {
+  cpu: ProcessStat[]
+  memory: ProcessStat[]
+  disk_io: ProcessStat[]
+}
+
 interface MonitorData {
   times: string[]
   load: { load1: number[]; load5: number[]; load15: number[] }
@@ -190,6 +206,7 @@ interface MonitorData {
     read_speed: string[]
     write_speed: string[]
   }>
+  top_processes: TopProcesses[]
 }
 
 const emptyData: MonitorData = {
@@ -199,7 +216,8 @@ const emptyData: MonitorData = {
   mem: { total: '0', available: [], used: [] },
   swap: { total: '0', used: [], free: [] },
   net: [],
-  disk_io: []
+  disk_io: [],
+  top_processes: []
 }
 
 // 各图表数据
@@ -279,6 +297,57 @@ function formatMemory(value: number | string): string {
     return `${(num / 1024).toFixed(2)} GB`
   }
   return `${num.toFixed(2)} MB`
+}
+
+// 格式化字节大小 (B -> KB -> MB -> GB)
+function formatBytes(bytes: number): string {
+  if (bytes >= 1024 * 1024 * 1024) {
+    return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
+  } else if (bytes >= 1024 * 1024) {
+    return `${(bytes / 1024 / 1024).toFixed(2)} MB`
+  } else if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(2)} KB`
+  }
+  return `${bytes.toFixed(0)} B`
+}
+
+// 截断字符串
+function truncateStr(str: string, maxLen: number): string {
+  if (!str) return ''
+  return str.length > maxLen ? str.slice(0, maxLen) + '...' : str
+}
+
+// 进程表格 tooltip 样式
+const procTableStyle = `margin-top:8px;border-collapse:collapse;width:100%;font-size:11px`
+const procThStyle = `padding:2px 6px;text-align:left;border-bottom:1px solid rgba(128,128,128,0.3);white-space:nowrap`
+const procTdStyle = `padding:2px 6px;white-space:nowrap`
+
+// 生成进程表格 HTML（CPU / 内存通用）
+function buildProcessTable(
+  procs: ProcessStat[],
+  metricHeader: string,
+  formatValue: (v: number) => string
+): string {
+  if (!procs || procs.length === 0) return ''
+  let html = `<table style="${procTableStyle}">`
+  html += `<tr><th style="${procThStyle}">PID</th><th style="${procThStyle}">${$gettext('Process')}</th><th style="${procThStyle}">${metricHeader}</th><th style="${procThStyle}">${$gettext('User')}</th><th style="${procThStyle}">${$gettext('Command')}</th></tr>`
+  for (const proc of procs) {
+    html += `<tr><td style="${procTdStyle}">${proc.pid}</td><td style="${procTdStyle}">${truncateStr(proc.name, 16)}</td><td style="${procTdStyle}">${formatValue(proc.value)}</td><td style="${procTdStyle}">${truncateStr(proc.username, 10)}</td><td style="${procTdStyle}">${truncateStr(proc.command, 30)}</td></tr>`
+  }
+  html += `</table>`
+  return html
+}
+
+// 生成磁盘 IO 进程表格 HTML（总读取/总写入分开显示）
+function buildDiskIOProcessTable(procs: ProcessStat[]): string {
+  if (!procs || procs.length === 0) return ''
+  let html = `<table style="${procTableStyle}">`
+  html += `<tr><th style="${procThStyle}">PID</th><th style="${procThStyle}">${$gettext('Process')}</th><th style="${procThStyle}">${$gettext('Total Read')}</th><th style="${procThStyle}">${$gettext('Total Write')}</th><th style="${procThStyle}">${$gettext('User')}</th><th style="${procThStyle}">${$gettext('Command')}</th></tr>`
+  for (const proc of procs) {
+    html += `<tr><td style="${procTdStyle}">${proc.pid}</td><td style="${procTdStyle}">${truncateStr(proc.name, 16)}</td><td style="${procTdStyle}">${formatBytes(proc.read || 0)}</td><td style="${procTdStyle}">${formatBytes(proc.write || 0)}</td><td style="${procTdStyle}">${truncateStr(proc.username, 10)}</td><td style="${procTdStyle}">${truncateStr(proc.command, 30)}</td></tr>`
+  }
+  html += `</table>`
+  return html
 }
 
 // 基础图表配置
@@ -386,9 +455,25 @@ const loadOption = computed<EChartsOption>(() => {
 // CPU图表配置
 const cpuOption = computed<EChartsOption>(() => {
   const timeRange = cpuTime.value.end - cpuTime.value.start
-  const base = createBaseOption((value: any) => `${value}%`, timeRange)
+  const base = createBaseOption(undefined, timeRange)
   return {
     ...base,
+    tooltip: {
+      trigger: 'axis',
+      enterable: true,
+      formatter: (params: any) => {
+        if (!Array.isArray(params) || params.length === 0) return ''
+        const idx = params[0].dataIndex
+        let html = `<div style="font-size:12px"><div style="margin-bottom:4px;font-weight:bold">${params[0].name}</div>`
+        for (const p of params) {
+          html += `<div>${p.marker} ${p.seriesName}: ${p.value}%</div>`
+        }
+        const procs = cpuData.value?.top_processes?.[idx]?.cpu
+        html += buildProcessTable(procs, 'CPU%', (v) => `${v.toFixed(1)}%`)
+        html += `</div>`
+        return html
+      }
+    },
     xAxis: { ...base.xAxis, data: cpuData.value?.times || [] },
     yAxis: [
       {
@@ -427,10 +512,26 @@ const cpuOption = computed<EChartsOption>(() => {
 // 内存图表配置
 const memOption = computed<EChartsOption>(() => {
   const timeRange = memTime.value.end - memTime.value.start
-  const base = createBaseOption(formatMemory, timeRange)
+  const base = createBaseOption(undefined, timeRange)
   const total = parseFloat(memData.value?.mem?.total || '0')
   return {
     ...base,
+    tooltip: {
+      trigger: 'axis',
+      enterable: true,
+      formatter: (params: any) => {
+        if (!Array.isArray(params) || params.length === 0) return ''
+        const idx = params[0].dataIndex
+        let html = `<div style="font-size:12px"><div style="margin-bottom:4px;font-weight:bold">${params[0].name}</div>`
+        for (const p of params) {
+          html += `<div>${p.marker} ${p.seriesName}: ${formatMemory(p.value)}</div>`
+        }
+        const procs = memData.value?.top_processes?.[idx]?.memory
+        html += buildProcessTable(procs, $gettext('Memory'), (v) => formatBytes(v))
+        html += `</div>`
+        return html
+      }
+    },
     legend: {
       ...base.legend,
       data: [$gettext('Memory'), 'Swap']
@@ -522,7 +623,7 @@ const netOption = computed<EChartsOption>(() => {
 // 磁盘IO图表配置
 const diskIOOption = computed<EChartsOption>(() => {
   const timeRange = diskIOTime.value.end - diskIOTime.value.start
-  const base = createBaseOption(formatSpeed, timeRange)
+  const base = createBaseOption(undefined, timeRange)
 
   // 根据选中的磁盘筛选数据
   const disks =
@@ -554,6 +655,22 @@ const diskIOOption = computed<EChartsOption>(() => {
 
   return {
     ...base,
+    tooltip: {
+      trigger: 'axis',
+      enterable: true,
+      formatter: (params: any) => {
+        if (!Array.isArray(params) || params.length === 0) return ''
+        const idx = params[0].dataIndex
+        let html = `<div style="font-size:12px"><div style="margin-bottom:4px;font-weight:bold">${params[0].name}</div>`
+        for (const p of params) {
+          html += `<div>${p.marker} ${p.seriesName}: ${formatSpeed(p.value)}</div>`
+        }
+        const procs = diskIOData.value?.top_processes?.[idx]?.disk_io
+        html += buildDiskIOProcessTable(procs)
+        html += `</div>`
+        return html
+      }
+    },
     xAxis: { ...base.xAxis, data: diskIOData.value?.times || [] },
     yAxis: [
       {

@@ -41,11 +41,12 @@ type DiskIO struct {
 }
 
 type MonitorDetail struct {
-	Times  []string  `json:"times"`
-	Load   Load      `json:"load"`
-	CPU    CPU       `json:"cpu"`
-	Mem    Mem       `json:"mem"`
-	SWAP   SWAP      `json:"swap"`
-	Net    []Network `json:"net"`
-	DiskIO []DiskIO  `json:"disk_io"`
+	Times        []string       `json:"times"`
+	Load         Load           `json:"load"`
+	CPU          CPU            `json:"cpu"`
+	Mem          Mem            `json:"mem"`
+	SWAP         SWAP           `json:"swap"`
+	Net          []Network      `json:"net"`
+	DiskIO       []DiskIO       `json:"disk_io"`
+	TopProcesses []TopProcesses `json:"top_processes"`
 }
