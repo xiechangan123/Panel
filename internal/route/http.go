@@ -54,6 +54,7 @@ type Http struct {
 	monitor           *service.MonitorService
 	setting           *service.SettingService
 	systemctl         *service.SystemctlService
+	toolboxNetwork    *service.ToolboxNetworkService
 	toolboxSystem     *service.ToolboxSystemService
 	toolboxBenchmark  *service.ToolboxBenchmarkService
 	toolboxSSH        *service.ToolboxSSHService
@@ -104,6 +105,7 @@ func NewHttp(
 	monitor *service.MonitorService,
 	setting *service.SettingService,
 	systemctl *service.SystemctlService,
+	toolboxNetwork *service.ToolboxNetworkService,
 	toolboxSystem *service.ToolboxSystemService,
 	toolboxBenchmark *service.ToolboxBenchmarkService,
 	toolboxSSH *service.ToolboxSSHService,
@@ -153,6 +155,7 @@ func NewHttp(
 		monitor:           monitor,
 		setting:           setting,
 		systemctl:         systemctl,
+		toolboxNetwork:    toolboxNetwork,
 		toolboxSystem:     toolboxSystem,
 		toolboxBenchmark:  toolboxBenchmark,
 		toolboxSSH:        toolboxSSH,
@@ -518,6 +521,10 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/reload", route.systemctl.Reload)
 			r.Post("/start", route.systemctl.Start)
 			r.Post("/stop", route.systemctl.Stop)
+		})
+
+		r.Route("/toolbox_network", func(r chi.Router) {
+			r.Get("/list", route.toolboxNetwork.List)
 		})
 
 		r.Route("/toolbox_system", func(r chi.Router) {

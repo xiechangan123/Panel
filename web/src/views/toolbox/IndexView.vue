@@ -7,6 +7,7 @@ import BenchmarkView from '@/views/toolbox/BenchmarkView.vue'
 import DiskView from '@/views/toolbox/DiskView.vue'
 import LogView from '@/views/toolbox/LogView.vue'
 import MigrationView from '@/views/toolbox/MigrationView.vue'
+import NetworkView from '@/views/toolbox/NetworkView.vue'
 import ProcessView from '@/views/toolbox/ProcessView.vue'
 import SshView from '@/views/toolbox/SshView.vue'
 import SystemView from '@/views/toolbox/SystemView.vue'
@@ -22,6 +23,7 @@ const current = ref('process')
     <template #tabbar>
       <n-tabs v-model:value="current" animated>
         <n-tab name="process" :tab="$gettext('Process')" />
+        <n-tab name="network" :tab="$gettext('Network')" />
         <n-tab name="system" :tab="$gettext('System')" />
         <n-tab name="ssh" tab="SSH" />
         <n-tab name="disk" :tab="$gettext('Disk')" />
@@ -33,6 +35,7 @@ const current = ref('process')
     </template>
     <n-flex vertical>
       <process-view v-if="current === 'process'" />
+      <network-view v-if="current === 'network'" />
       <system-view v-if="current === 'system'" />
       <ssh-view v-if="current === 'ssh'" />
       <disk-view v-if="current === 'disk'" />

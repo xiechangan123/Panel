@@ -44,6 +44,7 @@ var ProviderSet = wire.NewSet(
 	NewUserTokenService,
 	NewWebHookService,
 	NewWebsiteService,
+	NewToolboxNetworkService,
 	NewToolboxSystemService,
 	NewToolboxBenchmarkService,
 	NewToolboxSSHService,
