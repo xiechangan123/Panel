@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-resty/resty/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
+	"resty.dev/v3"
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/service"
@@ -96,6 +96,7 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	client := resty.New().SetTimeout(10 * time.Second)
+	defer func(client *resty.Client) { _ = client.Close() }(client)
 	resp, err := client.R().Get("http://127.0.0.1/nginx_status")
 	if err != nil || !resp.IsSuccess() {
 		service.Success(w, []types.NV{})

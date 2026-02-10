@@ -23,9 +23,10 @@ import (
 	"time"
 
 	"github.com/coder/websocket"
-	"github.com/go-resty/resty/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/spf13/cast"
+	"resty.dev/v3"
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
@@ -541,11 +542,10 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("creating database on remote server")))
 
 	// 找到数据库服务器对应的服务器 ID
-	listReq := map[string]any{
+	remoteDBServersBody, err := s.remoteAPIRequest(conn, "GET", "/api/database_server", map[string]any{
 		"page":  1,
 		"limit": 10000,
-	}
-	remoteDBServersBody, err := s.remoteAPIRequest(conn, "GET", "/api/database_server", listReq)
+	})
 	if err != nil {
 		s.failResult("database", displayName, s.t.Get("failed to get database servers: %v", err))
 		return
@@ -780,36 +780,36 @@ func (s *ToolboxMigrationService) fetchRemoteEnvironment(conn *request.ToolboxMi
 
 // remoteExec 调用远程面板 SSE exec 接口执行命令
 func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConnection, command string) error {
-	resp, err := s.newRestyClient(conn, 0).
+	client := s.newRestyClient(conn, 0)
+	defer func(client *resty.Client) { _ = client.Close() }(client)
+
+	resp, err := client.R().
 		SetDoNotParseResponse(true).
-		R().
 		SetBody(map[string]string{"command": command}).
 		Post("/api/toolbox_migration/exec")
 	if err != nil {
 		return err
 	}
-	defer func() { _ = resp.RawBody().Close() }()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode() != http.StatusOK {
-		body, _ := io.ReadAll(resp.RawBody())
+		body, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("remote exec returned status %d: %s", resp.StatusCode(), string(body))
 	}
 
 	// 读取 SSE 流
-	scanner := bufio.NewScanner(resp.RawBody())
+	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "data: ") {
 			data := strings.TrimPrefix(line, "data: ")
 			s.addLog("  " + data)
 		} else if strings.HasPrefix(line, "event: error") {
-			// 下一行是 data
 			if scanner.Scan() {
 				errData := strings.TrimPrefix(scanner.Text(), "data: ")
 				return fmt.Errorf("remote exec error: %s", errData)
 			}
 		} else if strings.HasPrefix(line, "event: done") {
-			// 读取 data 行然后返回
 			scanner.Scan()
 			return nil
 		}
@@ -927,8 +927,10 @@ func (s *ToolboxMigrationService) remoteMultipartUpload(
 	conn *request.ToolboxMigrationConnection, path string, fields map[string]string,
 	fileField, fileName string, fileData []byte,
 ) ([]byte, error) {
-	resp, err := s.newRestyClient(conn, 5*time.Minute).
-		R().
+	client := s.newRestyClient(conn, 5*time.Minute)
+	defer func(client *resty.Client) { _ = client.Close() }(client)
+
+	resp, err := client.R().
 		SetFormData(fields).
 		SetFileReader(fileField, fileName, bytes.NewReader(fileData)).
 		Post(path)
@@ -937,10 +939,10 @@ func (s *ToolboxMigrationService) remoteMultipartUpload(
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		return resp.Body(), fmt.Errorf("multipart upload returned status %d: %s", resp.StatusCode(), string(resp.Body()))
+		return resp.Bytes(), fmt.Errorf("multipart upload returned status %d: %s", resp.StatusCode(), resp.String())
 	}
 
-	return resp.Body(), nil
+	return resp.Bytes(), nil
 }
 
 // uploadDirToRemote 上传目录到远程
@@ -973,9 +975,16 @@ func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrati
 
 // remoteAPIRequest 向远程面板发送 API 请求
 func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigrationConnection, method, path string, body any) ([]byte, error) {
-	req := s.newRestyClient(conn, 30*time.Second).R()
+	client := s.newRestyClient(conn, 30*time.Second)
+	defer func(client *resty.Client) { _ = client.Close() }(client)
+
+	req := client.R()
 	if body != nil {
-		req.SetBody(body)
+		if method == "GET" {
+			req.SetQueryParams(cast.ToStringMapString(body))
+		} else {
+			req.SetBody(body)
+		}
 	}
 
 	resp, err := req.Execute(method, path)
@@ -984,10 +993,10 @@ func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigratio
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		return resp.Body(), fmt.Errorf("status %d: %s", resp.StatusCode(), string(resp.Body()))
+		return resp.Bytes(), fmt.Errorf("status %d: %s", resp.StatusCode(), resp.String())
 	}
 
-	return resp.Body(), nil
+	return resp.Bytes(), nil
 }
 
 // maskPassword 掩盖命令中的密码
@@ -1106,30 +1115,22 @@ func (s *ToolboxMigrationService) newRestyClient(conn *request.ToolboxMigrationC
 		client.SetTimeout(timeout)
 	}
 
-	client.OnBeforeRequest(func(_ *resty.Client, req *resty.Request) error {
-		// 获取 body 内容
+	// 签名中间件放在 PrepareRequestMiddleware 之后，此时 RawRequest 已构建完毕
+	signMiddleware := resty.RequestMiddleware(func(_ *resty.Client, req *resty.Request) error {
+		rawReq := req.RawRequest
+
+		// 读取已序列化的真实 body
 		var body []byte
-		if req.Body != nil {
-			switch v := req.Body.(type) {
-			case []byte:
-				body = v
-			case string:
-				body = []byte(v)
-			default:
-				body, _ = json.Marshal(v)
-			}
+		if rawReq.Body != nil {
+			body, _ = io.ReadAll(rawReq.Body)
+			rawReq.Body = io.NopCloser(bytes.NewReader(body))
 		}
 
-		// 规范化路径
-		canonicalPath := req.URL
-		if !strings.HasPrefix(canonicalPath, "/api") {
-			if idx := strings.Index(canonicalPath, "/api"); idx != -1 {
-				canonicalPath = canonicalPath[idx:]
-			}
-		}
+		canonicalPath := rawReq.URL.Path
+		queryString := rawReq.URL.Query().Encode()
 
-		canonicalRequest := fmt.Sprintf("%s\n%s\n\n%s",
-			req.Method, canonicalPath, sha256Hex(string(body)))
+		canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s",
+			rawReq.Method, canonicalPath, queryString, sha256Hex(string(body)))
 
 		timestamp := time.Now().Unix()
 		stringToSign := fmt.Sprintf("HMAC-SHA256\n%d\n%s",
@@ -1137,10 +1138,15 @@ func (s *ToolboxMigrationService) newRestyClient(conn *request.ToolboxMigrationC
 
 		signature := hmacSHA256(stringToSign, conn.Token)
 
-		req.SetHeader("X-Timestamp", fmt.Sprintf("%d", timestamp))
-		req.SetHeader("Authorization", fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", conn.TokenID, signature))
+		rawReq.Header.Set("X-Timestamp", fmt.Sprintf("%d", timestamp))
+		rawReq.Header.Set("Authorization", fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", conn.TokenID, signature))
 		return nil
 	})
+
+	client.SetRequestMiddlewares(
+		resty.PrepareRequestMiddleware,
+		signMiddleware,
+	)
 
 	return client
 }

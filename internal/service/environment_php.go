@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
+	"resty.dev/v3"
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
@@ -168,6 +168,7 @@ func (s *EnvironmentPHPService) Load(w http.ResponseWriter, r *http.Request) {
 
 	var raw map[string]any
 	client := resty.New().SetTimeout(10 * time.Second)
+	defer func(client *resty.Client) { _ = client.Close() }(client)
 	_, err = client.R().SetResult(&raw).Get(fmt.Sprintf("http://127.0.0.1/phpfpm_status/%d?json", req.Version))
 	if err != nil {
 		Success(w, []types.NV{})

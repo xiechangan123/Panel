@@ -16,7 +16,6 @@ require (
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-chi/httplog/v3 v3.3.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
-	github.com/go-resty/resty/v2 v2.17.1
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
@@ -63,6 +62,7 @@ require (
 	golang.org/x/crypto v0.48.0
 	golang.org/x/net v0.50.0
 	gorm.io/gorm v1.31.1
+	resty.dev/v3 v3.0.0-beta.6
 )
 
 require (

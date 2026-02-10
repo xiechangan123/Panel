@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -21,6 +20,7 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/process"
+	"resty.dev/v3"
 
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/types"
@@ -190,6 +190,7 @@ func RestartServer() {
 // IsChina 是否中国大陆
 func IsChina() bool {
 	client := resty.New()
+	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetLogger(NoopLogger{})
 	client.SetDisableWarn(true)
 	client.SetTimeout(3 * time.Second)
@@ -211,6 +212,7 @@ func IsChina() bool {
 // GetPublicIPv4 获取公网IPv4
 func GetPublicIPv4() (string, error) {
 	client := resty.New()
+	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetLogger(NoopLogger{})
 	client.SetDisableWarn(true)
 	client.SetTimeout(3 * time.Second)
@@ -233,6 +235,7 @@ func GetPublicIPv4() (string, error) {
 // GetPublicIPv6 获取公网IPv6
 func GetPublicIPv6() (string, error) {
 	client := resty.New()
+	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetLogger(NoopLogger{})
 	client.SetDisableWarn(true)
 	client.SetTimeout(3 * time.Second)

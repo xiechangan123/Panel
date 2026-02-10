@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/libtnb/utils/copier"
 	"github.com/shirou/gopsutil/v4/host"
+	"resty.dev/v3"
 )
 
 type API struct {

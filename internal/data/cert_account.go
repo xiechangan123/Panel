@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
+	"resty.dev/v3"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/internal/http/request"
@@ -211,6 +211,7 @@ func (r certAccountRepo) getGoogleEAB() (*acme.EAB, error) {
 		} `json:"data"`
 	}
 	client := resty.New()
+	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetTimeout(5 * time.Second)
 	client.SetRetryCount(3)
 
@@ -234,6 +235,7 @@ func (r certAccountRepo) getZeroSSLEAB(email string) (*acme.EAB, error) {
 		EabHmacKey string `json:"eab_hmac_key"`
 	}
 	client := resty.New()
+	defer func(client *resty.Client) { _ = client.Close() }(client)
 	client.SetTimeout(5 * time.Second)
 	client.SetRetryCount(3)
 
