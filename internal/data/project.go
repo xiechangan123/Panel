@@ -99,7 +99,7 @@ func (r *projectRepo) Create(ctx context.Context, req *request.ProjectCreate) (*
 	project := &biz.Project{
 		Name: req.Name,
 		Type: req.Type,
-		Path: req.RootDir,
+		Path: lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir),
 	}
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {
@@ -141,7 +141,7 @@ func (r *projectRepo) Update(ctx context.Context, req *request.ProjectUpdate) er
 		project.Name = req.Name
 	}
 
-	project.Path = req.RootDir
+	project.Path = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
 	if err := r.db.Save(project).Error; err != nil {
 		return err
 	}
