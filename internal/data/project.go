@@ -108,6 +108,11 @@ func (r *projectRepo) Create(ctx context.Context, req *request.ProjectCreate) (*
 			return err
 		}
 
+		// 创建项目目录
+		if err := os.MkdirAll(project.Path, 0755); err != nil {
+			return fmt.Errorf("%s: %w", r.t.Get("failed to create project directory"), err)
+		}
+
 		// 生成 systemd unit 文件
 		if err := r.generateUnitFile(req); err != nil {
 			return fmt.Errorf("%s: %w", r.t.Get("failed to generate systemd config"), err)

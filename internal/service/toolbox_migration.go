@@ -951,7 +951,7 @@ func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrati
 
 	// 本地打包
 	s.addLog("  " + s.t.Get("compressing directory: %s", localDir))
-	_, err := shell.Exec(fmt.Sprintf("tar cJf %s -C %s .", tarPath, localDir))
+	_, err := shell.Exec(fmt.Sprintf("tar cJf %s --exclude='.user.ini' -C %s .", tarPath, localDir))
 	if err != nil {
 		return fmt.Errorf("compress failed: %w", err)
 	}
