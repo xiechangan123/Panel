@@ -229,8 +229,8 @@ const handleStartMigration = () => {
         password: u.password,
         host: u.host,
         server_id: u.server_id,
-        server: u.server,
-        type: u.type
+        server: u.server?.name,
+        type: u.server?.type
       })),
     projects: projects.value
       .filter((_: any, i: number) => selectedProjects.value.includes(i))
@@ -639,8 +639,8 @@ const formatDuration = (seconds: number) => {
               <n-checkbox v-for="(user, index) in databaseUsers" :key="user.id" :value="index">
                 {{ user.username }}
                 <n-text v-if="user.host" depth="3" style="margin-left: 4px">@{{ user.host }}</n-text>
-                <n-tag size="small" style="margin-left: 8px">{{ user.type }}</n-tag>
-                <n-text depth="3" style="margin-left: 8px">{{ user.server }}</n-text>
+                <n-tag size="small" style="margin-left: 8px">{{ user.server?.type }}</n-tag>
+                <n-text depth="3" style="margin-left: 8px">{{ user.server?.name }}</n-text>
               </n-checkbox>
             </n-flex>
           </n-checkbox-group>
