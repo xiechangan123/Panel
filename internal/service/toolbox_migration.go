@@ -51,15 +51,16 @@ type migrationState struct {
 
 // ToolboxMigrationService 迁移服务
 type ToolboxMigrationService struct {
-	t               *gotext.Locale
-	conf            *config.Config
-	log             *slog.Logger
-	settingRepo     biz.SettingRepo
-	websiteRepo     biz.WebsiteRepo
-	databaseRepo    biz.DatabaseRepo
-	projectRepo     biz.ProjectRepo
-	appRepo         biz.AppRepo
-	environmentRepo biz.EnvironmentRepo
+	t                  *gotext.Locale
+	conf               *config.Config
+	log                *slog.Logger
+	settingRepo        biz.SettingRepo
+	websiteRepo        biz.WebsiteRepo
+	databaseRepo       biz.DatabaseRepo
+	databaseServerRepo biz.DatabaseServerRepo
+	projectRepo        biz.ProjectRepo
+	appRepo            biz.AppRepo
+	environmentRepo    biz.EnvironmentRepo
 
 	state migrationState
 }
@@ -72,20 +73,22 @@ func NewToolboxMigrationService(
 	setting biz.SettingRepo,
 	website biz.WebsiteRepo,
 	database biz.DatabaseRepo,
+	databaseServer biz.DatabaseServerRepo,
 	project biz.ProjectRepo,
 	appRepo biz.AppRepo,
 	environment biz.EnvironmentRepo,
 ) *ToolboxMigrationService {
 	return &ToolboxMigrationService{
-		t:               t,
-		conf:            conf,
-		log:             log,
-		settingRepo:     setting,
-		websiteRepo:     website,
-		databaseRepo:    database,
-		projectRepo:     project,
-		appRepo:         appRepo,
-		environmentRepo: environment,
+		t:                  t,
+		conf:               conf,
+		log:                log,
+		settingRepo:        setting,
+		websiteRepo:        website,
+		databaseRepo:       database,
+		databaseServerRepo: databaseServer,
+		projectRepo:        project,
+		appRepo:            appRepo,
+		environmentRepo:    environment,
 		state: migrationState{
 			Step: types.MigrationStepIdle,
 		},
@@ -488,16 +491,21 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database"), s.t.Get("start migrating"), displayName))
 
+	// 取本地数据库服务器信息
+	dbServer, err := s.databaseServerRepo.Get(db.ServerID)
+	if err != nil {
+		s.failResult("database", displayName, s.t.Get("failed to get database server: %v", err))
+		return
+	}
+
 	backupPath := fmt.Sprintf("/tmp/ace_migration_%s_%s.sql", db.Type, db.Name)
 
 	var dumpCmd string
 	switch db.Type {
 	case "mysql":
-		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-		dumpCmd = fmt.Sprintf("MYSQL_PWD='%s' mysqldump -u root --single-transaction --quick '%s' > %s", rootPassword, db.Name, backupPath)
+		dumpCmd = fmt.Sprintf("MYSQL_PWD='%s' mysqldump -u root --single-transaction --quick '%s' > %s", dbServer.Password, db.Name, backupPath)
 	case "postgresql":
-		postgresPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
-		dumpCmd = fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres '%s' > %s", postgresPassword, db.Name, backupPath)
+		dumpCmd = fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres '%s' > %s", dbServer.Password, db.Name, backupPath)
 	default:
 		s.failResult("database", displayName, s.t.Get("unsupported database type: %s", db.Type))
 		return
@@ -506,7 +514,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	// 导出数据库
 	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("exporting database")))
 	s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
-	_, err := shell.Exec(dumpCmd)
+	_, err = shell.Exec(dumpCmd)
 	if err != nil {
 		s.failResult("database", displayName, s.t.Get("database export failed: %v", err))
 		return
@@ -515,8 +523,46 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 	// 在远程创建数据库
 	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("creating database on remote server")))
+
+	// 找到数据库服务器对应的服务器 ID
+	listReq := map[string]any{
+		"page":  1,
+		"limit": 10000,
+	}
+	remoteDBServersBody, err := s.remoteAPIRequest(conn, "GET", "/api/database_server", listReq)
+	if err != nil {
+		s.failResult("database", displayName, s.t.Get("failed to get database servers: %v", err))
+		return
+	}
+	var remoteDBServersResp struct {
+		Msg  string `json:"msg"`
+		Data struct {
+			Items []struct {
+				ID   uint             `json:"id"`
+				Name string           `json:"name"`
+				Type biz.DatabaseType `json:"type"`
+			}
+		}
+	}
+	if err = json.Unmarshal(remoteDBServersBody, &remoteDBServersResp); err != nil {
+		s.failResult("database", displayName, s.t.Get("invalid response when getting database servers: %v", err))
+		return
+	}
+
+	var remoteServerID uint
+	for _, srv := range remoteDBServersResp.Data.Items {
+		if srv.Name == dbServer.Name && srv.Type == dbServer.Type {
+			remoteServerID = srv.ID
+			break
+		}
+	}
+	if remoteServerID == 0 {
+		s.failResult("database", displayName, s.t.Get("no matching database server found on remote"))
+		return
+	}
+
 	dbCreateReq := &request.DatabaseCreate{
-		ServerID: db.ServerID,
+		ServerID: remoteServerID,
 		Name:     db.Name,
 	}
 	_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
