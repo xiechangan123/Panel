@@ -9,6 +9,7 @@ const (
 	ProjectTypeGo      ProjectType = "go"
 	ProjectTypePython  ProjectType = "python"
 	ProjectTypeNodejs  ProjectType = "nodejs"
+	ProjectTypeDotnet  ProjectType = "dotnet"
 )
 
 type ProjectDetail struct {

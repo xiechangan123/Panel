@@ -41,6 +41,7 @@ func (r *environmentRepo) Types() []types.LV {
 		{Label: "Node.js", Value: "nodejs"},
 		{Label: "PHP", Value: "php"},
 		{Label: "Python", Value: "python"},
+		{Label: ".NET", Value: "dotnet"},
 	}
 }
 
@@ -86,6 +87,8 @@ func (r *environmentRepo) IsInstalled(typ, slug string) bool {
 		binFile = filepath.Join(path, "bin", "php")
 	case "python":
 		binFile = filepath.Join(path, "bin", "python3")
+	case "dotnet":
+		binFile = filepath.Join(path, "dotnet")
 	default:
 		return false
 	}
@@ -133,6 +136,9 @@ func (r *environmentRepo) InstalledVersion(typ, slug string) string {
 	case "python":
 		// Python 3.11.5 -> 3.11.5
 		version, err = shell.Exec(filepath.Join(basePath, "bin", "python3") + " --version | awk '{print $2}'")
+	case "dotnet":
+		// 8.0.100
+		version, err = shell.Exec(filepath.Join(basePath, "dotnet") + " --version")
 	default:
 		return ""
 	}

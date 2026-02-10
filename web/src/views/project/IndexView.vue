@@ -25,6 +25,7 @@ const editId = ref(0)
         <n-tab name="nodejs" :tab="$gettext('Node.js')" />
         <n-tab name="php" :tab="$gettext('PHP')" />
         <n-tab name="python" :tab="$gettext('Python')" />
+        <n-tab name="dotnet" :tab="$gettext('.NET')" />
       </n-tabs>
     </template>
     <list-view

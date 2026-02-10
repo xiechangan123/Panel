@@ -38,6 +38,7 @@ type Http struct {
 	environmentNodejs *service.EnvironmentNodejsService
 	environmentPHP    *service.EnvironmentPHPService
 	environmentPython *service.EnvironmentPythonService
+	environmentDotnet *service.EnvironmentDotnetService
 	cron              *service.CronService
 	process           *service.ProcessService
 	safe              *service.SafeService
@@ -87,6 +88,7 @@ func NewHttp(
 	environmentNodejs *service.EnvironmentNodejsService,
 	environmentPHP *service.EnvironmentPHPService,
 	environmentPython *service.EnvironmentPythonService,
+	environmentDotnet *service.EnvironmentDotnetService,
 	cron *service.CronService,
 	process *service.ProcessService,
 	safe *service.SafeService,
@@ -135,6 +137,7 @@ func NewHttp(
 		environmentNodejs: environmentNodejs,
 		environmentPHP:    environmentPHP,
 		environmentPython: environmentPython,
+		environmentDotnet: environmentDotnet,
 		cron:              cron,
 		process:           process,
 		safe:              safe,
@@ -367,6 +370,9 @@ func (route *Http) Register(r *chi.Mux) {
 				r.Post("/{slug}/set_cli", route.environmentPython.SetCli)
 				r.Get("/{slug}/mirror", route.environmentPython.GetMirror)
 				r.Post("/{slug}/mirror", route.environmentPython.SetMirror)
+			})
+			r.Route("/dotnet", func(r chi.Router) {
+				r.Post("/{slug}/set_cli", route.environmentDotnet.SetCli)
 			})
 		})
 

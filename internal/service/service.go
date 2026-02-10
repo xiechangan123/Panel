@@ -26,6 +26,7 @@ var ProviderSet = wire.NewSet(
 	NewEnvironmentNodejsService,
 	NewEnvironmentPHPService,
 	NewEnvironmentPythonService,
+	NewEnvironmentDotnetService,
 	NewFileService,
 	NewFirewallService,
 	NewHomeService,

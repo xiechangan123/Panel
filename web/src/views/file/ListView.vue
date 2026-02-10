@@ -1678,7 +1678,7 @@ onUnmounted(() => {
   <pty-terminal-modal
     v-model:show="terminalModal"
     :title="$gettext('Terminal - %{ path }', { path: terminalPath })"
-    :command="`cd '${terminalPath}' && exec bash`"
+    :command="`cd '${terminalPath}' && exec bash -l`"
   />
 </template>
 

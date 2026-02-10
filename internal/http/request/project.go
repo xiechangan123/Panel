@@ -4,7 +4,7 @@ import "github.com/acepanel/panel/pkg/types"
 
 type ProjectCreate struct {
 	Name         string            `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
-	Type         types.ProjectType `form:"type" json:"type" validate:"required|in:general,php,java,go,python,nodejs"`
+	Type         types.ProjectType `form:"type" json:"type" validate:"required|in:general,php,java,go,python,nodejs,dotnet"`
 	Description  string            `form:"description" json:"description"`
 	RootDir      string            `form:"root_dir" json:"root_dir"`
 	WorkingDir   string            `form:"working_dir" json:"working_dir"`

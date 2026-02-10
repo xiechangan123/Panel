@@ -67,6 +67,18 @@ export default {
         role: ['admin'],
         requireAuth: true
       }
+    },
+    {
+      name: 'environment-dotnet',
+      path: 'dotnet/:slug',
+      isHidden: true,
+      component: () => import('./DotnetView.vue'),
+      meta: {
+        title: '.NET',
+        icon: 'mdi:dot-net',
+        role: ['admin'],
+        requireAuth: true
+      }
     }
   ]
 } as RouteType

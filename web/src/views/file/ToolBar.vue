@@ -321,7 +321,7 @@ const handleSortSelect = (key: string) => {
   <pty-terminal-modal
     v-model:show="terminalModal"
     :title="$gettext('Terminal - %{ path }', { path })"
-    :command="`cd '${path}' && exec bash`"
+    :command="`cd '${path}' && exec bash -l`"
   />
 </template>
 

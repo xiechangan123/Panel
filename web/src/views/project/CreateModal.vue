@@ -65,6 +65,16 @@ const pythonFrameworks = [
   { label: 'Gunicorn', value: 'gunicorn', command: '-m gunicorn -w 4 app:app' }
 ]
 
+// .NET 框架预设
+const dotnetFrameworks = [
+  { label: $gettext('Custom'), value: 'custom', command: '' },
+  { label: 'ASP.NET Core Web', value: 'aspnet-web', command: 'run' },
+  { label: 'ASP.NET Core API', value: 'aspnet-api', command: 'run' },
+  { label: 'Blazor Server', value: 'blazor-server', command: 'run' },
+  { label: 'gRPC Service', value: 'grpc', command: 'run' },
+  { label: 'Worker Service', value: 'worker', command: 'run' }
+]
+
 const createModel = ref({
   name: '',
   type: '',
@@ -112,6 +122,12 @@ const pythonOptions = ref({
   framework: 'custom'
 })
 
+// .NET 特有字段
+const dotnetOptions = ref({
+  version: '' as string,
+  framework: 'custom'
+})
+
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('/opt/ace/projects')
 const loading = ref(false)
@@ -122,7 +138,8 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
     java: [],
     nodejs: [],
     php: [],
-    python: []
+    python: [],
+    dotnet: []
   }
 })
 
@@ -149,6 +166,11 @@ const phpVersionOptions = computed(() => {
 // Python 版本选项
 const pythonVersionOptions = computed(() => {
   return installedEnvironment.value?.python || []
+})
+
+// .NET 版本选项
+const dotnetVersionOptions = computed(() => {
+  return installedEnvironment.value?.dotnet || []
 })
 
 // 根据语言版本和框架生成启动命令
@@ -200,6 +222,14 @@ const generateCommand = () => {
       createModel.value.exec_start = `${pythonBin} ${framework.command}`
       break
     }
+    case 'dotnet': {
+      if (!dotnetOptions.value.version) return
+      const framework = dotnetFrameworks.find((f) => f.value === dotnetOptions.value.framework)
+      if (!framework || framework.value === 'custom') return
+      const dotnetBin = `dotnet${dotnetOptions.value.version}`
+      createModel.value.exec_start = `${dotnetBin} ${framework.command}`
+      break
+    }
   }
 }
 
@@ -246,6 +276,14 @@ watch(
   () => [pythonOptions.value.version, pythonOptions.value.framework],
   () => {
     if (type.value === 'python') generateCommand()
+  }
+)
+
+// 监听 .NET 版本和框架变化
+watch(
+  () => [dotnetOptions.value.version, dotnetOptions.value.framework],
+  () => {
+    if (type.value === 'dotnet') generateCommand()
   }
 )
 
@@ -345,6 +383,10 @@ const handleCreate = async () => {
         version: '',
         framework: 'custom'
       }
+      dotnetOptions.value = {
+        version: '',
+        framework: 'custom'
+      }
     })
     .onComplete(() => {
       loading.value = false
@@ -359,7 +401,8 @@ const modalTitle = computed(() => {
     java: $gettext('Create Java Project'),
     nodejs: $gettext('Create Node.js Project'),
     php: $gettext('Create PHP Project'),
-    python: $gettext('Create Python Project')
+    python: $gettext('Create Python Project'),
+    dotnet: $gettext('Create .NET Project')
   }
   return titles[type.value] || $gettext('Create Project')
 })
@@ -542,6 +585,32 @@ const modalTitle = computed(() => {
               <n-select
                 v-model:value="pythonOptions.framework"
                 :options="pythonFrameworks"
+                :placeholder="$gettext('Select Framework')"
+                @keydown.enter.prevent
+              />
+            </n-form-item>
+          </n-col>
+        </n-row>
+      </template>
+
+      <!-- .NET 类型特有字段 -->
+      <template v-if="type === 'dotnet'">
+        <n-row :gutter="[24, 0]">
+          <n-col :span="12">
+            <n-form-item :label="$gettext('.NET Version')">
+              <n-select
+                v-model:value="dotnetOptions.version"
+                :options="dotnetVersionOptions"
+                :placeholder="$gettext('Select .NET Version')"
+                @keydown.enter.prevent
+              />
+            </n-form-item>
+          </n-col>
+          <n-col :span="12">
+            <n-form-item :label="$gettext('Framework')">
+              <n-select
+                v-model:value="dotnetOptions.framework"
+                :options="dotnetFrameworks"
                 :placeholder="$gettext('Select Framework')"
                 @keydown.enter.prevent
               />

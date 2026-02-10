@@ -26,7 +26,8 @@ const typeMap: Record<string, string> = {
   java: 'Java',
   go: 'Go',
   python: 'Python',
-  nodejs: 'Node.js'
+  nodejs: 'Node.js',
+  dotnet: '.NET'
 }
 
 const columns: any = [

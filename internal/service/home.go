@@ -257,6 +257,13 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 		pythonData = append(pythonData, types.LV{Value: slug, Label: fmt.Sprintf("Python %s", ver)})
 	}
 
+	// .NET 版本
+	var dotnetData []types.LV
+	for _, slug := range s.environmentRepo.InstalledSlugs("dotnet") {
+		ver := s.environmentRepo.InstalledVersion("dotnet", slug)
+		dotnetData = append(dotnetData, types.LV{Value: slug, Label: fmt.Sprintf(".NET %s", ver)})
+	}
+
 	// 数据库
 	var dbData []types.LV
 	dbData = append(dbData, types.LV{Value: "0", Label: s.t.Get("Not used")})
@@ -275,6 +282,7 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 		"nodejs":    nodejsData,
 		"php":       phpData,
 		"python":    pythonData,
+		"dotnet":    dotnetData,
 		"db":        dbData,
 		"rsync":     rsyncInstalled,
 	})
