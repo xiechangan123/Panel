@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import ReloadPage from '@/layout/header/components/ReloadPage.vue'
+import StickyNote from '@/layout/header/components/StickyNote.vue'
 import TaskStatus from '@/layout/header/components/TaskStatus.vue'
 import AppTab from '@/layout/tab/IndexView.vue'
 import FullScreen from './components/FullScreen.vue'
@@ -21,6 +22,7 @@ const themeStore = useThemeStore()
     <span v-if="!themeStore.isMobile && themeStore.tab.visible" mx-6 opacity-20>|</span>
     <div ml-auto px-12 flex flex-shrink-0 items-center>
       <task-status />
+      <sticky-note />
       <reload-page />
       <full-screen />
       <theme-mode />

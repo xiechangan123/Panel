@@ -40,3 +40,7 @@ type SettingCert struct {
 	Cert string `json:"cert" validate:"required"`
 	Key  string `json:"key" validate:"required"`
 }
+
+type SettingMemo struct {
+	Content string `json:"content"`
+}

@@ -505,6 +505,8 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/", route.setting.Update)
 			r.Post("/cert", route.setting.UpdateCert)
 			r.Post("/obtain_cert", route.setting.ObtainCert)
+			r.Get("/memo", route.setting.GetMemo)
+			r.Post("/memo", route.setting.UpdateMemo)
 		})
 
 		r.Route("/systemctl", func(r chi.Router) {

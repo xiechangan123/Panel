@@ -122,3 +122,30 @@ func (s *SettingService) UpdateCert(w http.ResponseWriter, r *http.Request) {
 
 	Success(w, nil)
 }
+
+// GetMemo 获取便签内容
+func (s *SettingService) GetMemo(w http.ResponseWriter, r *http.Request) {
+	memo, err := s.settingRepo.Get(biz.SettingKeyMemo)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, memo)
+}
+
+// UpdateMemo 更新便签内容
+func (s *SettingService) UpdateMemo(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.SettingMemo](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.settingRepo.Set(biz.SettingKeyMemo, req.Content); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}

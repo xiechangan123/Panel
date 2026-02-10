@@ -28,6 +28,7 @@ const (
 	SettingKeyPublicIPs           SettingKey = "public_ips"
 	SettingHiddenMenu             SettingKey = "hidden_menu"
 	SettingKeyCustomLogo          SettingKey = "custom_logo"
+	SettingKeyMemo                SettingKey = "memo"
 )
 
 type Setting struct {
