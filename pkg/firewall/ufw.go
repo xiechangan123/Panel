@@ -344,6 +344,7 @@ func (r *ufw) RichRules(rule FireInfo, operation Operation) error {
 }
 
 // buildRichCmd 构建 ufw 富规则命令
+// UFW 扩展语法: ufw [delete] allow|deny|reject [in|out] [proto PROTO] [from ADDR] [to ADDR port PORT]
 func (r *ufw) buildRichCmd(rule FireInfo, protocol string, operation Operation) string {
 	var sb strings.Builder
 
@@ -365,6 +366,14 @@ func (r *ufw) buildRichCmd(rule FireInfo, protocol string, operation Operation) 
 		sb.WriteString("in ")
 	}
 
+	// 协议
+	hasPort := rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535)
+	if protocol != "" && (hasPort || rule.Address != "") {
+		sb.WriteString("proto ")
+		sb.WriteString(protocol)
+		sb.WriteString(" ")
+	}
+
 	// 地址
 	if rule.Address != "" {
 		if dir == "out" {
@@ -375,23 +384,13 @@ func (r *ufw) buildRichCmd(rule FireInfo, protocol string, operation Operation) 
 	}
 
 	// 端口
-	hasPort := rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535)
 	if hasPort {
-		if protocol != "" {
-			sb.WriteString("proto ")
-			sb.WriteString(protocol)
-			sb.WriteString(" ")
-		}
 		sb.WriteString("to any port ")
 		if rule.PortStart == rule.PortEnd {
 			sb.WriteString(fmt.Sprintf("%d", rule.PortStart))
 		} else {
 			sb.WriteString(fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd))
 		}
-	} else if rule.Address != "" && protocol != "" {
-		// 纯 IP 规则，指定协议
-		sb.WriteString("proto ")
-		sb.WriteString(protocol)
 	}
 
 	return sb.String()
