@@ -119,20 +119,36 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 		source = strings.ReplaceAll(source, " (v6)", "")
 	}
 
-	// 解析地址
+	// 从 source/target 中提取可能附带的协议后缀（如 8.8.8.8/tcp、Anywhere/tcp）
 	source = strings.TrimSpace(source)
+	target = strings.TrimSpace(target)
+	sourceProto := ""
+	targetProto := ""
+	source, sourceProto = stripProtocolSuffix(source)
+	target, targetProto = stripProtocolSuffix(target)
+
+	// 解析地址
 	if source != "Anywhere" {
 		info.Address = source
 	}
 
+	// 确定协议（source 和 target 侧的协议后缀取先出现的）
+	extractedProto := targetProto
+	if extractedProto == "" {
+		extractedProto = sourceProto
+	}
+
 	// 解析端口和协议
-	target = strings.TrimSpace(target)
 	if target == "Anywhere" {
 		// 纯 IP 规则，无端口
 		info.Type = TypeRich
 		info.PortStart = 1
 		info.PortEnd = 65535
-		info.Protocol = ProtocolTCPUDP
+		if extractedProto != "" {
+			info.Protocol = Protocol(extractedProto)
+		} else {
+			info.Protocol = ProtocolTCPUDP
+		}
 		return info
 	}
 
@@ -165,6 +181,22 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 	}
 
 	return info
+}
+
+// stripProtocolSuffix 从地址中剥离协议后缀（如 "8.8.8.8/tcp" → "8.8.8.8", "tcp"）
+// CIDR 格式（如 "192.168.1.0/24"）不受影响
+func stripProtocolSuffix(addr string) (string, string) {
+	idx := strings.LastIndex(addr, "/")
+	if idx == -1 {
+		return addr, ""
+	}
+	suffix := strings.ToLower(addr[idx+1:])
+	switch suffix {
+	case "tcp", "udp":
+		return addr[:idx], suffix
+	default:
+		return addr, ""
+	}
 }
 
 // parsePort 解析端口部分（支持范围如 80:443）
