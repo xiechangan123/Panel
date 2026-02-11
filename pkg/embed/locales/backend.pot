@@ -1030,6 +1030,10 @@ msgstr ""
 msgid "SNMP is a protocol for network management"
 msgstr ""
 
+#: internal/service/log.go:154
+msgid "SSH log file not found"
+msgstr ""
+
 #: internal/service/environment_php.go:467
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
@@ -1432,9 +1436,9 @@ msgstr ""
 msgid "app not found"
 msgstr ""
 
-#: internal/data/setting.go:283
-#: internal/data/setting.go:342
-#: internal/data/setting.go:358
+#: internal/data/setting.go:282
+#: internal/data/setting.go:341
+#: internal/data/setting.go:357
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -1480,8 +1484,8 @@ msgstr ""
 msgid "cannot initialize system disk"
 msgstr ""
 
-#: internal/data/database_server.go:106
-#: internal/data/database_server.go:86
+#: internal/data/database_server.go:110
+#: internal/data/database_server.go:90
 msgid "check server connection failed"
 msgstr ""
 
@@ -1958,8 +1962,8 @@ msgid "failed to mount partition: %v"
 msgstr ""
 
 #: internal/data/cert.go:100
-#: internal/data/setting.go:288
-#: internal/data/setting.go:361
+#: internal/data/setting.go:287
+#: internal/data/setting.go:360
 #: internal/data/website.go:609
 #: internal/data/website.go:945
 msgid "failed to parse certificate: %v"
@@ -1970,8 +1974,8 @@ msgid "failed to parse disk list: %v"
 msgstr ""
 
 #: internal/data/cert.go:103
-#: internal/data/setting.go:291
-#: internal/data/setting.go:364
+#: internal/data/setting.go:290
+#: internal/data/setting.go:363
 #: internal/data/website.go:612
 #: internal/data/website.go:948
 msgid "failed to parse private key: %v"
@@ -2293,6 +2297,10 @@ msgstr ""
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
+#: internal/service/log.go:106
+msgid "journalctl is not available"
+msgstr ""
+
 #: internal/data/backup.go:266
 msgid "log file %s not exists"
 msgstr ""
@@ -2341,7 +2349,7 @@ msgstr ""
 msgid "mount point %s already exists in fstab"
 msgstr ""
 
-#: internal/data/database.go:170
+#: internal/data/database.go:174
 msgid "mysql not support database comment"
 msgstr ""
 
@@ -2350,6 +2358,10 @@ msgstr ""
 #: internal/apps/nginx/stream.go:219
 #: internal/apps/nginx/stream.go:62
 msgid "name is required"
+msgstr ""
+
+#: internal/service/log.go:137
+msgid "no SSH log entries found"
 msgstr ""
 
 #: internal/service/toolbox_migration.go:576
@@ -2433,7 +2445,7 @@ msgstr ""
 msgid "please set public ips first"
 msgstr ""
 
-#: internal/data/setting.go:308
+#: internal/data/setting.go:307
 msgid "port is already in use"
 msgstr ""
 
@@ -2556,8 +2568,8 @@ msgstr ""
 msgid "stream upstream not found: %s"
 msgstr ""
 
-#: internal/data/database_server.go:164
-#: internal/data/database_server.go:183
+#: internal/data/database_server.go:168
+#: internal/data/database_server.go:187
 msgid "sync from server %s"
 msgstr ""
 
