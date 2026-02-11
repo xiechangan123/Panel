@@ -9,11 +9,10 @@ import (
 	"github.com/acepanel/panel/internal/http/request"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/os"
-	"github.com/acepanel/panel/pkg/systemctl"
 )
 
 type FirewallService struct {
-	firewall *firewall.Firewall
+	firewall firewall.Firewall
 }
 
 func NewFirewallService() *FirewallService {
@@ -40,15 +39,9 @@ func (s *FirewallService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Status {
-		err = systemctl.Start("firewalld")
-		if err == nil {
-			err = systemctl.Enable("firewalld")
-		}
+		err = s.firewall.Enable()
 	} else {
-		err = systemctl.Stop("firewalld")
-		if err == nil {
-			err = systemctl.Disable("firewalld")
-		}
+		err = s.firewall.Disable()
 	}
 
 	if err != nil {

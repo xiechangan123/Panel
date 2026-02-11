@@ -21,7 +21,7 @@ type templateRepo struct {
 	t        *gotext.Locale
 	cache    biz.CacheRepo
 	api      *api.API
-	firewall *firewall.Firewall
+	firewall firewall.Firewall
 }
 
 func NewTemplateRepo(t *gotext.Locale, cache biz.CacheRepo) biz.TemplateRepo {

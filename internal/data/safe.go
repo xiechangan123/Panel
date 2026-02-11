@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strings"
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/firewall"
 	"github.com/acepanel/panel/pkg/os"
-	"github.com/acepanel/panel/pkg/shell"
 )
 
 type safeRepo struct {
@@ -31,38 +29,21 @@ func NewSafeRepo(log *slog.Logger) biz.SafeRepo {
 }
 
 func (r *safeRepo) GetPingStatus() (bool, error) {
-	out, err := shell.Execf(`firewall-cmd --list-rich-rules`)
-	if err != nil { // 可能防火墙已关闭等
-		return true, nil
-	}
-
-	if !strings.Contains(out, `rule protocol value="icmp" drop`) {
-		return true, nil
-	}
-
-	return false, nil
+	fw := firewall.NewFirewall()
+	return fw.PingStatus()
 }
 
 func (r *safeRepo) UpdatePingStatus(ctx context.Context, status bool) error {
-	fw, err := firewall.NewFirewall().Status()
+	fw := firewall.NewFirewall()
+	running, err := fw.Status()
 	if err != nil {
 		return err
 	}
-	if !fw {
-		return fmt.Errorf("failed to update ping status: firewalld is not running")
+	if !running {
+		return fmt.Errorf("failed to update ping status: firewall is not running")
 	}
 
-	if status {
-		_, err = shell.Execf(`firewall-cmd --permanent --remove-rich-rule='rule protocol value=icmp drop'`)
-	} else {
-		_, err = shell.Execf(`firewall-cmd --permanent --add-rich-rule='rule protocol value=icmp drop'`)
-	}
-	if err != nil {
-		return err
-	}
-
-	_, err = shell.Execf(`firewall-cmd --reload`)
-	if err != nil {
+	if err = fw.UpdatePingStatus(status); err != nil {
 		return err
 	}
 

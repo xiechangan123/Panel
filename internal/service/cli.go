@@ -534,8 +534,8 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 	conf.HTTP.Port = port
 
 	// 放行端口
-	if ok, _ := systemctl.IsEnabled("firewalld"); ok {
-		fw := firewall.NewFirewall()
+	fw := firewall.NewFirewall()
+	if ok, _ := fw.Status(); ok {
 		err = fw.Port(firewall.FireInfo{
 			Type:      firewall.TypeNormal,
 			PortStart: port,
