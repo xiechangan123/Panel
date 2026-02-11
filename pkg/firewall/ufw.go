@@ -391,7 +391,8 @@ func (r *ufw) Forward(rule Forward, operation Operation) error {
 func (r *ufw) addForward(rule Forward) error {
 	// 启用 IP 转发
 	_, _ = shell.Execf("sysctl -w net.ipv4.ip_forward=1")
-	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\n"), 0644)
+	_, _ = shell.Execf("sysctl -w net.ipv6.conf.all.forwarding=1")
+	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
 
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 	"slices"
 	"strings"
@@ -270,6 +271,11 @@ func (r *firewalld) Forward(rule Forward, operation Operation) error {
 	if err := r.enableForward(); err != nil {
 		return err
 	}
+
+	// 启用 IP 转发
+	_, _ = shell.Execf("sysctl -w net.ipv4.ip_forward=1")
+	_, _ = shell.Execf("sysctl -w net.ipv6.conf.all.forwarding=1")
+	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		var ruleBuilder strings.Builder
