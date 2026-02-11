@@ -32,7 +32,7 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 		options = append(options, sloggorm.WithTraceAll())
 	}
 
-	db, err := gorm.Open(sqlite.Open(filepath.Join(app.Root, "panel/storage/panel.db?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)")),
+	db, err := gorm.Open(sqlite.Open("file:"+filepath.Join(app.Root, "panel/storage/panel.db?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)")),
 		&gorm.Config{
 			Logger:                                   sloggorm.New(options...),
 			SkipDefaultTransaction:                   true,
