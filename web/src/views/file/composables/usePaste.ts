@@ -58,7 +58,6 @@ export function usePaste() {
           negativeText: $gettext('Cancel'),
           onPositiveClick: executePaste,
           onNegativeClick: () => {
-            fileStore.clearClipboard()
             window.$message.info($gettext('Canceled'))
           }
         })

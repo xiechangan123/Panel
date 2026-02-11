@@ -92,9 +92,6 @@ importers:
       remove:
         specifier: ^0.1.5
         version: 0.1.5
-      sortablejs:
-        specifier: ^1.15.6
-        version: 1.15.6
       vue:
         specifier: ^3.5.22
         version: 3.5.28(typescript@5.9.3)
@@ -135,9 +132,6 @@ importers:
       '@types/node-forge':
         specifier: ^1.3.14
         version: 1.3.14
-      '@types/sortablejs':
-        specifier: ^1.15.9
-        version: 1.15.9
       '@unocss/eslint-config':
         specifier: ^66.5.4
         version: 66.6.0(eslint@10.0.0(jiti@2.6.1))(typescript@5.9.3)
@@ -1096,9 +1090,6 @@ packages:
 
   '@types/node@24.10.13':
     resolution: {integrity: sha512-oH72nZRfDv9lADUBSo104Aq7gPHpQZc4BTx38r9xf9pg5LfP6EzSyH2n7qFmmxRQXh7YlUXODcYsg6PuTDSxGg==}
-
-  '@types/sortablejs@1.15.9':
-    resolution: {integrity: sha512-7HP+rZGE2p886PKV9c9OJzLBI6BBJu1O7lJGYnPyG3fS4/duUCcngkNCjsLwIMV+WMqANe3tt4irrXHSIe68OQ==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -2993,9 +2984,6 @@ packages:
   sortablejs@1.14.0:
     resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
 
-  sortablejs@1.15.6:
-    resolution: {integrity: sha512-aNfiuwMEpfBM/CN6LY0ibyhxPfPbyFeBTYJKCvzkJ2GkUpazIt3H+QIPAMHwqQ7tMKaHz1Qj+rJJCqljnf4p3A==}
-
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -4444,8 +4432,6 @@ snapshots:
   '@types/node@24.10.13':
     dependencies:
       undici-types: 7.16.0
-
-  '@types/sortablejs@1.15.9': {}
 
   '@types/trusted-types@2.0.7':
     optional: true
@@ -6612,8 +6598,6 @@ snapshots:
       totalist: 3.0.1
 
   sortablejs@1.14.0: {}
-
-  sortablejs@1.15.6: {}
 
   source-map-js@1.2.1: {}
 

@@ -113,6 +113,12 @@ export const useFileStore = defineStore('file', {
       tab.history.splice(tab.historyCursor + 1)
       tab.history.push(path)
       tab.historyCursor = tab.history.length - 1
+      // 限制历史栈长度，防止无限增长
+      if (tab.history.length > 100) {
+        const excess = tab.history.length - 100
+        tab.history.splice(0, excess)
+        tab.historyCursor -= excess
+      }
     },
     // 历史后退
     historyBack(tabId: string) {
@@ -133,10 +139,6 @@ export const useFileStore = defineStore('file', {
       tab.label = getLabelFromPath(tab.path)
       tab.keyword = ''
       tab.sub = false
-    },
-    // 重新排序标签页（拖拽）
-    reorderTabs(tabs: FileTab[]) {
-      this.tabs = tabs
     },
     // 设置剪贴板
     setClipboard(marked: Marked[], markedType: 'copy' | 'move') {

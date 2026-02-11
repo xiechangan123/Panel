@@ -3,8 +3,6 @@ defineOptions({
   name: 'file-index'
 })
 
-import Sortable from 'sortablejs'
-
 import { useFileStore } from '@/store'
 import CompressModal from '@/views/file/CompressModal.vue'
 import ListView from '@/views/file/ListView.vue'
@@ -53,59 +51,6 @@ const handleTabMiddleClick = (tabId: string) => {
     fileStore.closeTab(tabId)
   }
 }
-
-// ==================== SortableJS 拖拽排序 ====================
-const tabsRef = ref<InstanceType<(typeof import('naive-ui'))['NTabs']> | null>(null)
-let sortableInstance: Sortable | null = null
-
-const initSortable = () => {
-  nextTick(() => {
-    sortableInstance?.destroy()
-    sortableInstance = null
-
-    // n-tabs 内部结构: .n-tabs-wrapper 包含 scroll-padding + tab-wrapper + addable
-    const container = tabsRef.value?.$el?.querySelector('.n-tabs-wrapper')
-    if (!container) return
-
-    sortableInstance = Sortable.create(container as HTMLElement, {
-      animation: 200,
-      draggable: '.n-tabs-tab-wrapper',
-      filter: '.n-tabs-scroll-padding, .n-tabs-tab--addable',
-      preventOnFilter: false,
-      onMove: (evt) => {
-        // 禁止拖到 scroll-padding 和 addable 按钮的位置
-        const related = evt.related as HTMLElement
-        if (
-          related.classList.contains('n-tabs-scroll-padding') ||
-          related.querySelector('.n-tabs-tab--addable')
-        ) {
-          return false
-        }
-      },
-      onEnd: (evt) => {
-        const { oldIndex, newIndex } = evt
-        if (oldIndex == null || newIndex == null || oldIndex === newIndex) return
-        // scroll-padding 占了 index 0，实际 tab 从 index 1 开始，需要偏移
-        const realOld = oldIndex - 1
-        const realNew = newIndex - 1
-        if (realOld < 0 || realNew < 0) return
-        const tabs = [...fileStore.tabs]
-        const [moved] = tabs.splice(realOld, 1)
-        if (moved) {
-          tabs.splice(realNew, 0, moved)
-          fileStore.reorderTabs(tabs)
-        }
-      }
-    })
-  })
-}
-
-onMounted(initSortable)
-// 标签页增减时重新初始化 Sortable
-watch(() => fileStore.tabs.length, initSortable)
-onUnmounted(() => {
-  sortableInstance?.destroy()
-})
 
 // ==================== 文件拖拽上传 ====================
 const handleDragEnter = (e: DragEvent) => {
@@ -234,7 +179,6 @@ watch(upload, (val) => {
     <n-flex vertical :size="20" class="flex-1 min-h-0">
       <!-- 标签页栏 -->
       <n-tabs
-        ref="tabsRef"
         type="card"
         size="small"
         :value="fileStore.activeTabId"
