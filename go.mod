@@ -22,7 +22,6 @@ require (
 	github.com/gookit/color v1.6.0
 	github.com/gookit/validate v1.5.7-0.20260207022141-dc32dc1276cd
 	github.com/hashicorp/go-version v1.8.0
-	github.com/klauspost/compress v1.18.4
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.11.2
 	github.com/libdns/alidns v1.0.6-beta.3.0.20260121104221-597b1e580e21
@@ -84,6 +83,7 @@ require (
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/klauspost/compress v1.18.4 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/libtnb/securecookie v1.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
