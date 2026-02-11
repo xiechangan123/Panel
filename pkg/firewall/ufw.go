@@ -119,13 +119,18 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 		source = strings.ReplaceAll(source, " (v6)", "")
 	}
 
-	// 从 source/target 中提取可能附带的协议后缀（如 8.8.8.8/tcp、Anywhere/tcp）
+	// 从 source 中提取可能附带的协议后缀（如 8.8.8.8/tcp）
+	// target 的 /tcp 是端口协议规格（如 80/tcp），不能剥离
 	source = strings.TrimSpace(source)
 	target = strings.TrimSpace(target)
 	sourceProto := ""
-	targetProto := ""
 	source, sourceProto = stripProtocolSuffix(source)
-	target, targetProto = stripProtocolSuffix(target)
+
+	// target 仅在 "Anywhere/tcp" 形式下才需要剥离协议后缀
+	targetProto := ""
+	if strings.HasPrefix(target, "Anywhere") {
+		target, targetProto = stripProtocolSuffix(target)
+	}
 
 	// 解析地址
 	if source != "Anywhere" {
