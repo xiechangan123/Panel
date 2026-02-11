@@ -100,18 +100,38 @@ watch(
 <template>
   <n-flex>
     <n-button-group>
-      <n-button @click="handleBack">
-        <i-mdi-arrow-left :size="16" />
-      </n-button>
-      <n-button @click="handleForward">
-        <i-mdi-arrow-right :size="16" />
-      </n-button>
-      <n-button @click="handleUp">
-        <i-mdi-arrow-up :size="16" />
-      </n-button>
-      <n-button @click="handleRefresh">
-        <i-mdi-refresh :size="16" />
-      </n-button>
+      <n-tooltip>
+        <template #trigger>
+          <n-button @click="handleBack">
+            <i-mdi-arrow-left :size="16" />
+          </n-button>
+        </template>
+        {{ $gettext('Back') }}
+      </n-tooltip>
+      <n-tooltip>
+        <template #trigger>
+          <n-button @click="handleForward">
+            <i-mdi-arrow-right :size="16" />
+          </n-button>
+        </template>
+        {{ $gettext('Forward') }}
+      </n-tooltip>
+      <n-tooltip>
+        <template #trigger>
+          <n-button @click="handleUp">
+            <i-mdi-arrow-up :size="16" />
+          </n-button>
+        </template>
+        {{ $gettext('Up') }}
+      </n-tooltip>
+      <n-tooltip>
+        <template #trigger>
+          <n-button @click="handleRefresh">
+            <i-mdi-refresh :size="16" />
+          </n-button>
+        </template>
+        {{ $gettext('Refresh') }}
+      </n-tooltip>
       <n-tooltip>
         <template #trigger>
           <n-button @click="toggleHidden" :type="fileStore.showHidden ? 'primary' : 'default'">

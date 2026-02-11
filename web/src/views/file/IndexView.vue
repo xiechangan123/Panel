@@ -3,11 +3,9 @@ defineOptions({
   name: 'file-index'
 })
 
-import { useThemeVars } from 'naive-ui'
-import draggable from 'vuedraggable'
+import Sortable from 'sortablejs'
 
 import { useFileStore } from '@/store'
-import type { FileTab } from '@/store/modules/file'
 import CompressModal from '@/views/file/CompressModal.vue'
 import ListView from '@/views/file/ListView.vue'
 import PathInput from '@/views/file/PathInput.vue'
@@ -17,7 +15,6 @@ import UploadModal from '@/views/file/UploadModal.vue'
 import type { FileInfo } from '@/views/file/types'
 
 const fileStore = useFileStore()
-const themeVars = useThemeVars()
 
 const selected = ref<string[]>([])
 // 权限编辑时的文件信息列表
@@ -31,12 +28,6 @@ const upload = ref(false)
 const droppedFiles = ref<File[]>([])
 const isDragging = ref(false)
 
-// 拖拽排序用的本地副本
-const localTabs = computed({
-  get: () => fileStore.tabs,
-  set: (val: FileTab[]) => fileStore.reorderTabs(val)
-})
-
 // 切换标签页时清空选中
 watch(
   () => fileStore.activeTabId,
@@ -45,7 +36,78 @@ watch(
   }
 )
 
-// 处理拖拽进入
+// n-tabs 事件
+const handleTabSwitch = (tabId: string | number) => {
+  fileStore.switchTab(tabId as string)
+}
+const handleTabClose = (tabId: string | number) => {
+  fileStore.closeTab(tabId as string)
+}
+const handleTabAdd = () => {
+  fileStore.createTab()
+}
+
+// 中键关闭标签页
+const handleTabMiddleClick = (tabId: string) => {
+  if (fileStore.tabs.length > 1) {
+    fileStore.closeTab(tabId)
+  }
+}
+
+// ==================== SortableJS 拖拽排序 ====================
+const tabsRef = ref<InstanceType<(typeof import('naive-ui'))['NTabs']> | null>(null)
+let sortableInstance: Sortable | null = null
+
+const initSortable = () => {
+  nextTick(() => {
+    sortableInstance?.destroy()
+    sortableInstance = null
+
+    // n-tabs 内部结构: .n-tabs-wrapper 包含 scroll-padding + tab-wrapper + addable
+    const container = tabsRef.value?.$el?.querySelector('.n-tabs-wrapper')
+    if (!container) return
+
+    sortableInstance = Sortable.create(container as HTMLElement, {
+      animation: 200,
+      draggable: '.n-tabs-tab-wrapper',
+      filter: '.n-tabs-scroll-padding, .n-tabs-tab--addable',
+      preventOnFilter: false,
+      onMove: (evt) => {
+        // 禁止拖到 scroll-padding 和 addable 按钮的位置
+        const related = evt.related as HTMLElement
+        if (
+          related.classList.contains('n-tabs-scroll-padding') ||
+          related.querySelector('.n-tabs-tab--addable')
+        ) {
+          return false
+        }
+      },
+      onEnd: (evt) => {
+        const { oldIndex, newIndex } = evt
+        if (oldIndex == null || newIndex == null || oldIndex === newIndex) return
+        // scroll-padding 占了 index 0，实际 tab 从 index 1 开始，需要偏移
+        const realOld = oldIndex - 1
+        const realNew = newIndex - 1
+        if (realOld < 0 || realNew < 0) return
+        const tabs = [...fileStore.tabs]
+        const [moved] = tabs.splice(realOld, 1)
+        if (moved) {
+          tabs.splice(realNew, 0, moved)
+          fileStore.reorderTabs(tabs)
+        }
+      }
+    })
+  })
+}
+
+onMounted(initSortable)
+// 标签页增减时重新初始化 Sortable
+watch(() => fileStore.tabs.length, initSortable)
+onUnmounted(() => {
+  sortableInstance?.destroy()
+})
+
+// ==================== 文件拖拽上传 ====================
 const handleDragEnter = (e: DragEvent) => {
   e.preventDefault()
   e.stopPropagation()
@@ -54,7 +116,6 @@ const handleDragEnter = (e: DragEvent) => {
   }
 }
 
-// 处理拖拽离开
 const handleDragLeave = (e: DragEvent) => {
   e.preventDefault()
   e.stopPropagation()
@@ -69,7 +130,6 @@ const handleDragLeave = (e: DragEvent) => {
   }
 }
 
-// 处理拖拽悬停
 const handleDragOver = (e: DragEvent) => {
   e.preventDefault()
   e.stopPropagation()
@@ -119,7 +179,6 @@ const readDirectoryRecursively = async (
   return files
 }
 
-// 处理拖拽放下
 const handleDrop = async (e: DragEvent) => {
   e.preventDefault()
   e.stopPropagation()
@@ -161,25 +220,6 @@ watch(upload, (val) => {
     droppedFiles.value = []
   }
 })
-
-// 中键点击标签页关闭
-const handleTabMouseDown = (e: MouseEvent, tabId: string) => {
-  if (e.button === 1) {
-    e.preventDefault()
-    fileStore.closeTab(tabId)
-  }
-}
-
-// 主题变量映射到 CSS
-const tabStyles = computed(() => ({
-  '--tab-bg': themeVars.value.cardColor,
-  '--tab-bg-hover': themeVars.value.hoverColor,
-  '--tab-border': themeVars.value.borderColor,
-  '--tab-text': themeVars.value.textColor2,
-  '--tab-text-active': themeVars.value.textColor1,
-  '--tab-text-muted': themeVars.value.textColor3,
-  '--tab-primary': themeVars.value.primaryColor
-}))
 </script>
 
 <template>
@@ -193,40 +233,29 @@ const tabStyles = computed(() => ({
   >
     <n-flex vertical :size="20" class="flex-1 min-h-0">
       <!-- 标签页栏 -->
-      <div class="file-tabs" :style="tabStyles">
-        <draggable
-          v-model="localTabs"
-          item-key="id"
-          class="file-tabs-list"
-          :animation="200"
-          ghost-class="file-tab-ghost"
-          drag-class="file-tab-drag"
-        >
-          <template #item="{ element: tab }">
-            <div
-              class="file-tab"
-              :class="{ active: tab.id === fileStore.activeTabId }"
-              @click="fileStore.switchTab(tab.id)"
-              @mousedown="handleTabMouseDown($event, tab.id)"
+      <n-tabs
+        ref="tabsRef"
+        type="card"
+        size="small"
+        :value="fileStore.activeTabId"
+        :closable="fileStore.tabs.length > 1"
+        addable
+        class="file-tabs"
+        @update:value="handleTabSwitch"
+        @close="handleTabClose"
+        @add="handleTabAdd"
+      >
+        <n-tab-pane v-for="tab in fileStore.tabs" :key="tab.id" :name="tab.id">
+          <template #tab>
+            <span
+              :title="tab.path"
+              @mousedown.middle.prevent="handleTabMiddleClick(tab.id)"
             >
-              <i-mdi-folder-outline class="file-tab-icon" />
-              <span class="file-tab-label" :title="tab.path">{{ tab.label }}</span>
-              <span
-                v-if="fileStore.tabs.length > 1"
-                class="file-tab-close"
-                @click.stop="fileStore.closeTab(tab.id)"
-              >
-                <i-mdi-close :size="14" />
-              </span>
-            </div>
+              {{ tab.label }}
+            </span>
           </template>
-          <template #footer>
-            <div class="file-tab-add" @click="fileStore.createTab()">
-              <i-mdi-plus :size="16" />
-            </div>
-          </template>
-        </draggable>
-      </div>
+        </n-tab-pane>
+      </n-tabs>
 
       <!-- 每个标签页内容（v-if 只渲染活跃的） -->
       <template v-for="tab in fileStore.tabs" :key="tab.id">
@@ -299,128 +328,17 @@ const tabStyles = computed(() => ({
   font-size: 18px;
 }
 
+// n-tabs 只用作导航栏，隐藏空的 pane 区域
 .file-tabs {
   flex-shrink: 0;
   margin-bottom: -8px;
-  border-bottom: 1px solid var(--tab-border);
-}
 
-.file-tabs-list {
-  display: flex;
-  align-items: stretch;
-  overflow-x: auto;
-  padding: 0;
-
-  // 隐藏滚动条
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
+  :deep(.n-tabs-pane-wrapper) {
     display: none;
   }
-}
 
-.file-tab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-  user-select: none;
-  color: var(--tab-text);
-  transition: all 0.15s ease;
-  position: relative;
-  min-width: 0;
-
-  &:hover {
-    background: var(--tab-bg-hover);
-    color: var(--tab-text-active);
-
-    .file-tab-close {
-      opacity: 1;
-    }
+  :deep(.n-tabs-tab) {
+    padding: 4px 12px !important;
   }
-
-  &.active {
-    background: var(--tab-bg);
-    color: var(--tab-text-active);
-    font-weight: 500;
-
-    // 底部 primary 色指示条
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--tab-primary);
-    }
-
-    .file-tab-close {
-      opacity: 0.6;
-    }
-  }
-}
-
-.file-tab-icon {
-  font-size: 15px;
-  flex-shrink: 0;
-  opacity: 0.6;
-}
-
-.file-tab-label {
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-tab-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  opacity: 0;
-  color: var(--tab-text-muted);
-  transition: all 0.1s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.12);
-    color: var(--tab-text-active);
-    opacity: 1 !important;
-  }
-}
-
-.file-tab-add {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin: auto 0;
-  border-radius: 6px;
-  cursor: pointer;
-  color: var(--tab-text-muted);
-  flex-shrink: 0;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: var(--tab-bg-hover);
-    color: var(--tab-text-active);
-  }
-}
-
-// 拖拽时的幽灵元素
-.file-tab-ghost {
-  opacity: 0.4;
-}
-
-// 拖拽中的元素
-.file-tab-drag {
-  background: var(--tab-bg) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 </style>

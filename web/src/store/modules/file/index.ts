@@ -25,9 +25,6 @@ export interface FileState {
   }
 }
 
-// 最大标签页数量
-const MAX_TABS = 10
-
 // 根据路径生成标签页显示名
 const getLabelFromPath = (path: string): string => {
   if (path === '/') return '/'
@@ -73,10 +70,6 @@ export const useFileStore = defineStore('file', {
   actions: {
     // 新建标签页
     createTab(path?: string) {
-      if (this.tabs.length >= MAX_TABS) {
-        window.$message.warning('标签页数量已达上限')
-        return
-      }
       const tabPath = path ?? this.activeTab?.path ?? '/opt'
       const tab = createNewTab(tabPath)
       this.tabs.push(tab)
