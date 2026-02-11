@@ -313,8 +313,9 @@ func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel
 				Type:      firewall.TypeNormal,
 				PortStart: req.Port,
 				PortEnd:   req.Port,
-				Direction: firewall.DirectionIn,
+				Protocol:  firewall.ProtocolTCPUDP,
 				Strategy:  firewall.StrategyAccept,
+				Direction: firewall.DirectionIn,
 			}, firewall.OperationAdd)
 			if err != nil {
 				return false, err

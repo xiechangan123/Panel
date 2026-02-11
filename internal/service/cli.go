@@ -540,8 +540,9 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 			Type:      firewall.TypeNormal,
 			PortStart: port,
 			PortEnd:   port,
-			Direction: firewall.DirectionIn,
+			Protocol:  firewall.ProtocolTCPUDP,
 			Strategy:  firewall.StrategyAccept,
+			Direction: firewall.DirectionIn,
 		}, firewall.OperationAdd)
 		if err != nil {
 			return err
@@ -996,8 +997,9 @@ checkPort:
 		Type:      firewall.TypeNormal,
 		PortStart: port,
 		PortEnd:   port,
-		Direction: firewall.DirectionIn,
+		Protocol:  firewall.ProtocolTCPUDP,
 		Strategy:  firewall.StrategyAccept,
+		Direction: firewall.DirectionIn,
 	}, firewall.OperationAdd)
 
 	if err = config.Save(conf); err != nil {
