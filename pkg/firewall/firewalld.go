@@ -209,8 +209,11 @@ func (r *firewalld) Port(rule FireInfo, operation Operation) error {
 	if rule.Protocol == "" {
 		rule.Protocol = ProtocolTCPUDP
 	}
+
+	// 删除时忽略错误（规则可能已不存在）
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		if _, err := shell.Execf("firewall-cmd --zone=public --%s-port=%d-%d/%s --permanent", operation, rule.PortStart, rule.PortEnd, protocol); err != nil {
+		_, err := shell.Execf("firewall-cmd --zone=public --%s-port=%d-%d/%s --permanent", operation, rule.PortStart, rule.PortEnd, protocol)
+		if err != nil && operation != OperationRemove {
 			return err
 		}
 	}
@@ -226,45 +229,43 @@ func (r *firewalld) RichRules(rule FireInfo, operation Operation) error {
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		var ruleBuilder strings.Builder
-		ruleBuilder.WriteString(fmt.Sprintf(`rule family="%s" `, rule.Family))
-
-		if len(rule.Address) != 0 {
-			if rule.Direction == "in" {
-				ruleBuilder.WriteString(fmt.Sprintf(`source address="%s" `, rule.Address))
-			} else if rule.Direction == "out" {
-				ruleBuilder.WriteString(fmt.Sprintf(`destination address="%s" `, rule.Address))
-			} else if rule.Direction != "" {
-				return fmt.Errorf("invalid direction: %s", rule.Direction)
-			}
-		}
-		if rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535) { // 1-65535是解析出来无端口规则的情况
-			ruleBuilder.WriteString(fmt.Sprintf(`port port="%d-%d" `, rule.PortStart, rule.PortEnd))
-		}
-		if operation == OperationRemove && protocol != "" && rule.Protocol != "tcp/udp" { // 删除操作，可以不指定协议
-			ruleBuilder.WriteString(`protocol`)
-			if rule.PortStart == 0 && rule.PortEnd == 0 { // IP 规则下，必须添加 value
-				ruleBuilder.WriteString(` value`)
-			}
-			ruleBuilder.WriteString(fmt.Sprintf(`="%s" `, protocol))
-		}
-		if operation == OperationAdd && protocol != "" {
-			ruleBuilder.WriteString(`protocol`)
-			if rule.PortStart == 0 && rule.PortEnd == 0 { // IP 规则下，必须添加 value
-				ruleBuilder.WriteString(` value`)
-			}
-			ruleBuilder.WriteString(fmt.Sprintf(`="%s" `, protocol))
-		}
-
-		ruleBuilder.WriteString(string(rule.Strategy))
-		_, err := shell.Execf("firewall-cmd --zone=public --%s-rich-rule '%s' --permanent", operation, ruleBuilder.String())
-		if err != nil {
+		cmd := r.buildRichRuleStr(rule, protocol)
+		_, err := shell.Execf("firewall-cmd --zone=public --%s-rich-rule '%s' --permanent", operation, cmd)
+		if err != nil && operation != OperationRemove {
 			return err
 		}
 	}
 
 	_, err := shell.Execf("firewall-cmd --reload")
 	return err
+}
+
+// buildRichRuleStr 构建 firewalld 富规则字符串
+func (r *firewalld) buildRichRuleStr(rule FireInfo, protocol string) string {
+	var sb strings.Builder
+	_, _ = fmt.Fprintf(&sb, `rule family="%s" `, rule.Family)
+
+	if rule.Address != "" {
+		switch rule.Direction {
+		case "out":
+			_, _ = fmt.Fprintf(&sb, `destination address="%s" `, rule.Address)
+		default:
+			_, _ = fmt.Fprintf(&sb, `source address="%s" `, rule.Address)
+		}
+	}
+	if rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535) {
+		_, _ = fmt.Fprintf(&sb, `port port="%d-%d" `, rule.PortStart, rule.PortEnd)
+	}
+	if protocol != "" {
+		sb.WriteString(`protocol`)
+		if rule.PortStart == 0 && rule.PortEnd == 0 { // IP 规则下，必须添加 value
+			sb.WriteString(` value`)
+		}
+		_, _ = fmt.Fprintf(&sb, `="%s" `, protocol)
+	}
+
+	sb.WriteString(string(rule.Strategy))
+	return sb.String()
 }
 
 func (r *firewalld) Forward(rule Forward, operation Operation) error {
@@ -278,17 +279,14 @@ func (r *firewalld) Forward(rule Forward, operation Operation) error {
 	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		var ruleBuilder strings.Builder
-		ruleBuilder.WriteString(fmt.Sprintf("firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:", operation, rule.Port, protocol))
+		var cmd string
 		if rule.TargetIP != "" && !isLocalAddress(rule.TargetIP) {
-			ruleBuilder.WriteString(fmt.Sprintf("toport=%d:toaddr=%s", rule.TargetPort, rule.TargetIP))
+			cmd = fmt.Sprintf("firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d:toaddr=%s --permanent", operation, rule.Port, protocol, rule.TargetPort, rule.TargetIP)
 		} else {
-			ruleBuilder.WriteString(fmt.Sprintf("toport=%d", rule.TargetPort))
+			cmd = fmt.Sprintf("firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d --permanent", operation, rule.Port, protocol, rule.TargetPort)
 		}
-		ruleBuilder.WriteString(" --permanent")
-
-		_, err := shell.Exec(ruleBuilder.String())
-		if err != nil {
+		_, err := shell.Exec(cmd)
+		if err != nil && operation != OperationRemove {
 			return err
 		}
 	}
