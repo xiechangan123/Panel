@@ -6,8 +6,7 @@ import (
 
 	"github.com/DeRuina/timberjack"
 	"github.com/go-gormigrate/gormigrate/v2"
-	_ "github.com/ncruces/go-sqlite3/embed"
-	"github.com/ncruces/go-sqlite3/gormlite"
+	"github.com/libtnb/sqlite"
 	sloggorm "github.com/orandin/slog-gorm"
 	"gorm.io/gorm"
 
@@ -33,11 +32,12 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 		options = append(options, sloggorm.WithTraceAll())
 	}
 
-	db, err := gorm.Open(gormlite.Open("file:"+filepath.Join(app.Root, "panel/storage/panel.db?_txlock=immediate")), &gorm.Config{
-		Logger:                                   sloggorm.New(options...),
-		SkipDefaultTransaction:                   true,
-		DisableForeignKeyConstraintWhenMigrating: true,
-	})
+	db, err := gorm.Open(sqlite.Open(filepath.Join(app.Root, "panel/storage/panel.db?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)")),
+		&gorm.Config{
+			Logger:                                   sloggorm.New(options...),
+			SkipDefaultTransaction:                   true,
+			DisableForeignKeyConstraintWhenMigrating: true,
+		})
 	if err != nil {
 		return nil, err
 	}
