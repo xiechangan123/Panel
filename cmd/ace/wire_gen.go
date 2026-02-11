@@ -176,7 +176,6 @@ func initAce() (*app.Ace, error) {
 	if err != nil {
 		return nil, err
 	}
-	http3Server := bootstrap.NewHTTP3(config, mux, server)
 	gormigrate := bootstrap.NewMigrate(db)
 	jobs := job.NewJobs(config, db, logger, settingRepo, certRepo, certAccountRepo, backupRepo, cacheRepo, taskRepo)
 	cron, err := bootstrap.NewCron(config, logger, jobs)
@@ -184,6 +183,6 @@ func initAce() (*app.Ace, error) {
 		return nil, err
 	}
 	validation := bootstrap.NewValidator(config, db)
-	ace := app.NewAce(config, mux, server, http3Server, reloader, gormigrate, cron, queue, validation)
+	ace := app.NewAce(config, mux, server, reloader, gormigrate, cron, queue, validation)
 	return ace, nil
 }
