@@ -13,7 +13,7 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
-const currentTab = ref('database')
+const currentTab = ref('mysql')
 
 const createDatabaseModalShow = ref(false)
 const createUserModalShow = ref(false)
@@ -24,7 +24,8 @@ const createServerModalShow = ref(false)
   <common-page show-header show-footer>
     <template #tabbar>
       <n-tabs v-model:value="currentTab" animated>
-        <n-tab name="database" :tab="$gettext('Database')" />
+        <n-tab name="mysql" tab="MySQL" />
+        <n-tab name="postgresql" tab="PostgreSQL" />
         <n-tab name="user" :tab="$gettext('User')" />
         <n-tab name="server" :tab="$gettext('Server')" />
       </n-tabs>
@@ -32,7 +33,7 @@ const createServerModalShow = ref(false)
     <n-flex vertical>
       <n-flex>
         <n-button
-          v-if="currentTab === 'database'"
+          v-if="currentTab === 'mysql' || currentTab === 'postgresql'"
           type="primary"
           @click="createDatabaseModalShow = true"
         >
@@ -49,12 +50,13 @@ const createServerModalShow = ref(false)
           {{ $gettext('Add Server') }}
         </n-button>
       </n-flex>
-      <database-list v-if="currentTab === 'database'" />
+      <database-list v-if="currentTab === 'mysql'" type="mysql" />
+      <database-list v-if="currentTab === 'postgresql'" type="postgresql" />
       <user-list v-if="currentTab === 'user'" />
       <server-list v-if="currentTab === 'server'" />
     </n-flex>
   </common-page>
-  <create-database-modal v-model:show="createDatabaseModalShow" />
+  <create-database-modal v-model:show="createDatabaseModalShow" :type="currentTab" />
   <create-user-modal v-model:show="createUserModalShow" />
   <create-server-modal v-model:show="createServerModalShow" />
 </template>

@@ -5,32 +5,13 @@ import { useGettext } from 'vue3-gettext'
 import database from '@/api/panel/database'
 import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 
+const props = defineProps<{
+  type: string
+}>()
+
 const { $gettext } = useGettext()
 
 const columns: any = [
-  {
-    title: $gettext('Type'),
-    key: 'type',
-    width: 150,
-    render(row: any) {
-      return h(
-        NTag,
-        { type: 'info' },
-        {
-          default: () => {
-            switch (row.type) {
-              case 'mysql':
-                return 'MySQL'
-              case 'postgresql':
-                return 'PostgreSQL'
-              default:
-                return row.type
-            }
-          }
-        }
-      )
-    }
-  },
   {
     title: $gettext('Database Name'),
     key: 'name',
@@ -111,7 +92,7 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => database.list(page, pageSize),
+  (page, pageSize) => database.list(page, pageSize, props.type),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,

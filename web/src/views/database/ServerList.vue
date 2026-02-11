@@ -8,6 +8,10 @@ import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { formatDateTime } from '@/utils'
 import UpdateServerModal from '@/views/database/UpdateServerModal.vue'
 
+const props = defineProps<{
+  type?: string
+}>()
+
 const { $gettext } = useGettext()
 const updateModal = ref(false)
 const updateID = ref(0)
@@ -20,17 +24,13 @@ const terminalCommand = ref('')
 // 打开数据库终端
 const openTerminal = (row: any) => {
   if (row.type === 'mysql') {
-    // MySQL 使用 mysql 命令行
     terminalTitle.value = `MySQL - ${row.name}`
     terminalCommand.value = `mysql -u'${row.username}' -p'${row.password}' -h'${row.host}' -P'${row.port}'`
   } else if (row.type === 'postgresql') {
-    // PostgreSQL 判断是否有密码
     terminalTitle.value = `PostgreSQL - ${row.name}`
     if (row.password) {
-      // 有密码时使用 PGPASSWORD 环境变量
       terminalCommand.value = `PGPASSWORD='${row.password}' psql -U '${row.username}' -h '${row.host}' -p '${row.port}'`
     } else {
-      // 无密码时切换到 postgres 用户
       terminalCommand.value = `su - postgres -c 'psql'`
     }
   } else {
@@ -41,29 +41,6 @@ const openTerminal = (row: any) => {
 }
 
 const columns: any = [
-  {
-    title: $gettext('Type'),
-    key: 'type',
-    width: 150,
-    render(row: any) {
-      return h(
-        NTag,
-        { type: 'info' },
-        {
-          default: () => {
-            switch (row.type) {
-              case 'mysql':
-                return 'MySQL'
-              case 'postgresql':
-                return 'PostgreSQL'
-              default:
-                return row.type
-            }
-          }
-        }
-      )
-    }
-  },
   {
     title: $gettext('Name'),
     key: 'name',
@@ -264,7 +241,7 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => database.serverList(page, pageSize),
+  (page, pageSize) => database.serverList(page, pageSize, props.type),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,

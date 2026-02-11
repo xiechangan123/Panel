@@ -8,34 +8,15 @@ import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import { formatDateTime } from '@/utils'
 import UpdateUserModal from '@/views/database/UpdateUserModal.vue'
 
+const props = defineProps<{
+  type?: string
+}>()
+
 const { $gettext } = useGettext()
 const updateModal = ref(false)
 const updateID = ref(0)
 
 const columns: any = [
-  {
-    title: $gettext('Type'),
-    key: 'type',
-    width: 150,
-    render(row: any) {
-      return h(
-        NTag,
-        { type: 'info' },
-        {
-          default: () => {
-            switch (row.server.type) {
-              case 'mysql':
-                return 'MySQL'
-              case 'postgresql':
-                return 'PostgreSQL'
-              default:
-                return row.server.type
-            }
-          }
-        }
-      )
-    }
-  },
   {
     title: $gettext('Username'),
     key: 'username',
@@ -199,7 +180,7 @@ const columns: any = [
 ]
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
-  (page, pageSize) => database.userList(page, pageSize),
+  (page, pageSize) => database.userList(page, pageSize, props.type),
   {
     initialData: { total: 0, list: [] },
     initialPageSize: 20,

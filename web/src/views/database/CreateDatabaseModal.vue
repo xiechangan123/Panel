@@ -4,6 +4,10 @@ import { generateRandomString } from '@/utils'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+const props = defineProps<{
+  type: string
+}>()
+
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const createModel = ref({
@@ -52,7 +56,7 @@ watch(
   () => show.value,
   (value) => {
     if (value) {
-      useRequest(database.serverList(1, 10000)).onSuccess(({ data }: { data: any }) => {
+      useRequest(database.serverList(1, 10000, props.type)).onSuccess(({ data }: { data: any }) => {
         servers.value = []
         for (const server of data.items) {
           servers.value.push({
@@ -131,7 +135,7 @@ watch(
           </n-button>
         </n-input-group>
       </n-form-item>
-      <n-form-item v-if="createModel.create_user" path="host-select" :label="$gettext('Host')">
+      <n-form-item v-if="createModel.create_user && props.type === 'mysql'" path="host-select" :label="$gettext('Host')">
         <n-select
           v-model:value="hostType"
           @keydown.enter.prevent
@@ -140,7 +144,7 @@ watch(
         />
       </n-form-item>
       <n-form-item
-        v-if="createModel.create_user && hostType === 'specific'"
+        v-if="createModel.create_user && hostType === 'specific' && props.type === 'mysql'"
         path="host"
         :label="$gettext('Specific Host')"
       >

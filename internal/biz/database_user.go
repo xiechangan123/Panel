@@ -64,7 +64,7 @@ func (r *DatabaseUser) AfterFind(tx *gorm.DB) error {
 
 type DatabaseUserRepo interface {
 	Count() (int64, error)
-	List(page, limit uint) ([]*DatabaseUser, int64, error)
+	List(page, limit uint, typ string) ([]*DatabaseUser, int64, error)
 	Get(id uint) (*DatabaseUser, error)
 	Create(ctx context.Context, req *request.DatabaseUserCreate) error
 	Update(req *request.DatabaseUserUpdate) error

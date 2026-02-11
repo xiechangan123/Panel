@@ -1,5 +1,10 @@
 package request
 
+type DatabaseList struct {
+	Paginate
+	Type string `form:"type" json:"type" query:"type"`
+}
+
 type DatabaseCreate struct {
 	ServerID   uint   `form:"server_id" json:"server_id" validate:"required|exists:database_servers,id"`
 	Name       string `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`

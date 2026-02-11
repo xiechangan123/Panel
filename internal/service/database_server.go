@@ -20,13 +20,13 @@ func NewDatabaseServerService(databaseServer biz.DatabaseServerRepo) *DatabaseSe
 }
 
 func (s *DatabaseServerService) List(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.Paginate](r)
+	req, err := Bind[request.DatabaseList](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	servers, total, err := s.databaseServerRepo.List(req.Page, req.Limit)
+	servers, total, err := s.databaseServerRepo.List(req.Page, req.Limit, req.Type)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

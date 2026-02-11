@@ -26,7 +26,7 @@ type Database struct {
 }
 
 type DatabaseRepo interface {
-	List(page, limit uint) ([]*Database, int64, error)
+	List(page, limit uint, typ string) ([]*Database, int64, error)
 	Create(ctx context.Context, req *request.DatabaseCreate) error
 	Delete(ctx context.Context, serverID uint, name string) error
 	Comment(req *request.DatabaseComment) error

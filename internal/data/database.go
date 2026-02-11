@@ -33,9 +33,13 @@ func NewDatabaseRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, server biz
 	}
 }
 
-func (r *databaseRepo) List(page, limit uint) ([]*biz.Database, int64, error) {
+func (r *databaseRepo) List(page, limit uint, typ string) ([]*biz.Database, int64, error) {
 	var databaseServer []*biz.DatabaseServer
-	if err := r.db.Model(&biz.DatabaseServer{}).Order("id desc").Find(&databaseServer).Error; err != nil {
+	query := r.db.Model(&biz.DatabaseServer{}).Order("id desc")
+	if typ != "" {
+		query = query.Where("type = ?", typ)
+	}
+	if err := query.Find(&databaseServer).Error; err != nil {
 		return nil, 0, err
 	}
 

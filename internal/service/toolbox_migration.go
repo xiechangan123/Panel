@@ -208,7 +208,7 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 	}
 
 	// 数据库列表
-	databases, _, err := s.databaseRepo.List(1, 10000)
+	databases, _, err := s.databaseRepo.List(1, 10000, "")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get database list: %v", err))
 		return
@@ -222,7 +222,7 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 	}
 
 	// 数据库用户列表
-	databaseUsers, _, err := s.databaseUserRepo.List(1, 10000)
+	databaseUsers, _, err := s.databaseUserRepo.List(1, 10000, "")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get database user list: %v", err))
 		return

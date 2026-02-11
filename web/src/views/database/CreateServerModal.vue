@@ -3,30 +3,42 @@ import database from '@/api/panel/database'
 import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+const props = defineProps<{
+  type?: string
+}>()
+
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const createModel = ref({
   name: '',
-  type: 'mysql',
+  type: props.type || 'mysql',
   host: '127.0.0.1',
-  port: 3306,
+  port: (props.type || 'mysql') === 'postgresql' ? 5432 : 3306,
   username: '',
   password: '',
   remark: ''
 })
 
-const databaseType = [
+const typeOptions = [
   { label: 'MySQL', value: 'mysql' },
   { label: 'PostgreSQL', value: 'postgresql' }
 ]
 
+// 切换类型时自动更新端口
 watch(
   () => createModel.value.type,
+  (val) => {
+    createModel.value.port = val === 'postgresql' ? 5432 : 3306
+  }
+)
+
+// 每次弹窗打开时重置 type 和端口
+watch(
+  () => show.value,
   (value) => {
-    if (value === 'mysql') {
-      createModel.value.port = 3306
-    } else if (value === 'postgresql') {
-      createModel.value.port = 5432
+    if (value) {
+      createModel.value.type = props.type || 'mysql'
+      createModel.value.port = (props.type || 'mysql') === 'postgresql' ? 5432 : 3306
     }
   }
 )
@@ -59,20 +71,20 @@ const handleCreate = () => {
     @close="show = false"
   >
     <n-form :model="createModel">
+      <n-form-item v-if="!props.type" path="type" :label="$gettext('Type')">
+        <n-select
+          v-model:value="createModel.type"
+          @keydown.enter.prevent
+          :placeholder="$gettext('Select type')"
+          :options="typeOptions"
+        />
+      </n-form-item>
       <n-form-item path="name" :label="$gettext('Name')">
         <n-input
           v-model:value="createModel.name"
           type="text"
           @keydown.enter.prevent
           :placeholder="$gettext('Enter database server name')"
-        />
-      </n-form-item>
-      <n-form-item path="type" :label="$gettext('Type')">
-        <n-select
-          v-model:value="createModel.type"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Select database type')"
-          :options="databaseType"
         />
       </n-form-item>
       <n-row :gutter="[0, 24]">

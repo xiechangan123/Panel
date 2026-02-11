@@ -37,10 +37,14 @@ func (r *databaseServerRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *databaseServerRepo) List(page, limit uint) ([]*biz.DatabaseServer, int64, error) {
+func (r *databaseServerRepo) List(page, limit uint, typ string) ([]*biz.DatabaseServer, int64, error) {
 	databaseServer := make([]*biz.DatabaseServer, 0)
 	var total int64
-	err := r.db.Model(&biz.DatabaseServer{}).Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&databaseServer).Error
+	query := r.db.Model(&biz.DatabaseServer{}).Order("id desc")
+	if typ != "" {
+		query = query.Where("type = ?", typ)
+	}
+	err := query.Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&databaseServer).Error
 
 	for server := range slices.Values(databaseServer) {
 		r.checkServer(server)

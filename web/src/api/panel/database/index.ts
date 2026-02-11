@@ -2,7 +2,8 @@ import { http } from '@/utils'
 
 export default {
   // 获取数据库列表
-  list: (page: number, limit: number) => http.Get(`/database`, { params: { page, limit } }),
+  list: (page: number, limit: number, type?: string) =>
+    http.Get(`/database`, { params: { page, limit, type } }),
   // 创建数据库
   create: (data: any) => http.Post(`/database`, data),
   // 删除数据库
@@ -11,8 +12,8 @@ export default {
   comment: (server_id: number, name: string, comment: string) =>
     http.Post(`/database/comment`, { server_id, name, comment }),
   // 获取数据库服务器列表
-  serverList: (page: number, limit: number) =>
-    http.Get('/database_server', { params: { page, limit } }),
+  serverList: (page: number, limit: number, type?: string) =>
+    http.Get('/database_server', { params: { page, limit, type } }),
   // 创建数据库服务器
   serverCreate: (data: any) => http.Post('/database_server', data),
   // 获取数据库服务器
@@ -27,8 +28,8 @@ export default {
   serverRemark: (id: number, remark: string) =>
     http.Put(`/database_server/${id}/remark`, { remark }),
   // 获取数据库用户列表
-  userList: (page: number, limit: number) =>
-    http.Get('/database_user', { params: { page, limit } }),
+  userList: (page: number, limit: number, type?: string) =>
+    http.Get('/database_user', { params: { page, limit, type } }),
   // 创建数据库用户
   userCreate: (data: any) => http.Post('/database_user', data),
   // 获取数据库用户

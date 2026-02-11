@@ -62,7 +62,7 @@ func (r *DatabaseServer) AfterFind(tx *gorm.DB) error {
 
 type DatabaseServerRepo interface {
 	Count() (int64, error)
-	List(page, limit uint) ([]*DatabaseServer, int64, error)
+	List(page, limit uint, typ string) ([]*DatabaseServer, int64, error)
 	Get(id uint) (*DatabaseServer, error)
 	GetByName(name string) (*DatabaseServer, error)
 	Create(req *request.DatabaseServerCreate) error

@@ -39,10 +39,14 @@ func (r *databaseUserRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *databaseUserRepo) List(page, limit uint) ([]*biz.DatabaseUser, int64, error) {
+func (r *databaseUserRepo) List(page, limit uint, typ string) ([]*biz.DatabaseUser, int64, error) {
 	user := make([]*biz.DatabaseUser, 0)
 	var total int64
-	err := r.db.Model(&biz.DatabaseUser{}).Preload("Server").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&user).Error
+	query := r.db.Model(&biz.DatabaseUser{}).Preload("Server").Order("id desc")
+	if typ != "" {
+		query = query.Joins("JOIN database_servers ON database_servers.id = database_users.server_id").Where("database_servers.type = ?", typ)
+	}
+	err := query.Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&user).Error
 
 	for u := range slices.Values(user) {
 		r.fillUser(u)
