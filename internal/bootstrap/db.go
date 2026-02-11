@@ -33,11 +33,23 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 		options = append(options, sloggorm.WithTraceAll())
 	}
 
-	return gorm.Open(gormlite.Open("file:"+filepath.Join(app.Root, "panel/storage/panel.db?_txlock=immediate")), &gorm.Config{
+	db, err := gorm.Open(gormlite.Open("file:"+filepath.Join(app.Root, "panel/storage/panel.db?_txlock=immediate")), &gorm.Config{
 		Logger:                                   sloggorm.New(options...),
 		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	sqlDB.SetMaxOpenConns(1)
+	sqlDB.SetMaxIdleConns(1)
+
+	return db, nil
 }
 
 func NewMigrate(db *gorm.DB) *gormigrate.Gormigrate {

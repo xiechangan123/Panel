@@ -2,7 +2,9 @@ package route
 
 import (
 	"io/fs"
+	"mime"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -628,36 +630,57 @@ func (route *Http) Register(r *chi.Mux) {
 		}
 		// 其他返回前端页面
 		frontend, _ := fs.Sub(embed.PublicFS, "frontend")
-		spaHandler := func(fs http.FileSystem) http.HandlerFunc {
-			fileServer := http.FileServer(fs)
-			return func(w http.ResponseWriter, r *http.Request) {
-				path := r.URL.Path
-				f, err := fs.Open(path)
-				if err != nil {
-					indexFile, err := fs.Open("index.html")
-					if err != nil {
-						http.NotFound(w, r)
-						return
-					}
-					defer func(indexFile http.File) {
-						_ = indexFile.Close()
-					}(indexFile)
-
-					fi, err := indexFile.Stat()
-					if err != nil {
-						http.NotFound(w, r)
-						return
-					}
-
-					http.ServeContent(w, r, "index.html", fi.ModTime(), indexFile)
-					return
-				}
-				defer func(f http.File) {
-					_ = f.Close()
-				}(f)
-				fileServer.ServeHTTP(w, r)
-			}
-		}
-		spaHandler(http.FS(frontend)).ServeHTTP(writer, request)
+		spaHandler := newPrecompressedSPAHandler(http.FS(frontend))
+		spaHandler.ServeHTTP(writer, request)
 	})
+}
+
+func newPrecompressedSPAHandler(fsys http.FileSystem) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		acceptBr := strings.Contains(r.Header.Get("Accept-Encoding"), "br")
+
+		if served := serveFileWithBr(w, r, fsys, path, acceptBr); served {
+			return
+		}
+
+		// 文件不存在，SPA fallback 到 index.html
+		serveFileWithBr(w, r, fsys, "/index.html", acceptBr)
+	}
+}
+
+func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSystem, path string, acceptBr bool) bool {
+	// 优先尝试 .br 版本
+	if acceptBr {
+		if f, err := fsys.Open(path + ".br"); err == nil {
+			defer func(f http.File) { _ = f.Close() }(f)
+			fi, err := f.Stat()
+			if err != nil || fi.IsDir() {
+				return false
+			}
+			// 根据原始文件扩展名设置 Content-Type
+			ct := mime.TypeByExtension(filepath.Ext(path))
+			if ct == "" {
+				ct = "application/octet-stream"
+			}
+			w.Header().Set("Content-Type", ct)
+			w.Header().Set("Content-Encoding", "br")
+			w.Header().Set("Vary", "Accept-Encoding")
+			http.ServeContent(w, r, "", fi.ModTime(), f)
+			return true
+		}
+	}
+
+	// 回退到原始文件
+	f, err := fsys.Open(path)
+	if err != nil {
+		return false
+	}
+	defer func(f http.File) { _ = f.Close() }(f)
+	fi, err := f.Stat()
+	if err != nil || fi.IsDir() {
+		return false
+	}
+	http.ServeContent(w, r, filepath.Base(path), fi.ModTime(), f)
+	return true
 }
