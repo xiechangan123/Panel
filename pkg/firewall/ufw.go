@@ -235,16 +235,13 @@ func (r *ufw) Port(rule FireInfo, operation Operation) error {
 		rule.Protocol = ProtocolTCPUDP
 	}
 
-	// 删除 tcp/udp 规则时，先尝试无协议命令（匹配原生合并规则），失败再逐个删
-	if operation == OperationRemove && rule.Protocol == ProtocolTCPUDP {
-		cmd := r.buildPortCmdNoProto(rule, operation)
-		if _, err := shell.Exec(cmd); err == nil {
-			return nil
-		}
+	if operation == OperationRemove {
+		return r.deletePort(rule)
 	}
 
+	// 添加规则：使用简单语法
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		cmd := r.buildPortCmd(rule, protocol, operation)
+		cmd := r.buildSimplePortCmd(rule, protocol)
 		if _, err := shell.Exec(cmd); err != nil {
 			return err
 		}
@@ -253,7 +250,55 @@ func (r *ufw) Port(rule FireInfo, operation Operation) error {
 	return nil
 }
 
-// buildPortCmd 构建 ufw 端口规则命令（带协议）
+// deletePort 删除端口规则，先尝试简单语法，失败再试扩展语法
+func (r *ufw) deletePort(rule FireInfo) error {
+	// tcp/udp 时先尝试无协议删除（匹配 ufw allow 8888 这种原生规则）
+	if rule.Protocol == ProtocolTCPUDP {
+		cmd := fmt.Sprintf("ufw delete %s %s", r.strategyToUFW(rule.Strategy), r.formatPort(rule))
+		if _, err := shell.Exec(cmd); err == nil {
+			return nil
+		}
+	}
+
+	for _, protocol := range buildProtocols(rule.Protocol) {
+		// 先尝试简单语法: ufw delete allow 443/tcp
+		simple := fmt.Sprintf("ufw delete %s %s/%s", r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
+		if _, err := shell.Exec(simple); err == nil {
+			continue
+		}
+		// 回退扩展语法: ufw delete allow in proto tcp to any port 443
+		extended := r.buildPortCmd(rule, protocol, OperationRemove)
+		if _, err := shell.Exec(extended); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// formatPort 格式化端口（单端口或范围）
+func (r *ufw) formatPort(rule FireInfo) string {
+	if rule.PortStart == rule.PortEnd {
+		return fmt.Sprintf("%d", rule.PortStart)
+	}
+	return fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd)
+}
+
+// buildSimplePortCmd 构建简单语法命令: ufw allow 443/tcp
+func (r *ufw) buildSimplePortCmd(rule FireInfo, protocol string) string {
+	var sb strings.Builder
+	sb.WriteString("ufw ")
+	sb.WriteString(r.strategyToUFW(rule.Strategy))
+	sb.WriteString(" ")
+	sb.WriteString(r.formatPort(rule))
+	if protocol != "" {
+		sb.WriteString("/")
+		sb.WriteString(protocol)
+	}
+	return sb.String()
+}
+
+// buildPortCmd 构建扩展语法命令（带协议、方向）
 func (r *ufw) buildPortCmd(rule FireInfo, protocol string, operation Operation) string {
 	var sb strings.Builder
 
@@ -276,36 +321,6 @@ func (r *ufw) buildPortCmd(rule FireInfo, protocol string, operation Operation) 
 	sb.WriteString("proto ")
 	sb.WriteString(protocol)
 	sb.WriteString(" to any port ")
-	if rule.PortStart == rule.PortEnd {
-		sb.WriteString(fmt.Sprintf("%d", rule.PortStart))
-	} else {
-		sb.WriteString(fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd))
-	}
-
-	return sb.String()
-}
-
-// buildPortCmdNoProto 构建不带协议的端口规则命令（匹配 ufw allow 8888 这种原生规则）
-func (r *ufw) buildPortCmdNoProto(rule FireInfo, operation Operation) string {
-	var sb strings.Builder
-
-	if operation == OperationRemove {
-		sb.WriteString("ufw delete ")
-	} else {
-		sb.WriteString("ufw ")
-	}
-
-	sb.WriteString(r.strategyToUFW(rule.Strategy))
-	sb.WriteString(" ")
-
-	dir := strings.ToLower(string(rule.Direction))
-	if dir == "out" {
-		sb.WriteString("out ")
-	} else {
-		sb.WriteString("in ")
-	}
-
-	sb.WriteString("to any port ")
 	if rule.PortStart == rule.PortEnd {
 		sb.WriteString(fmt.Sprintf("%d", rule.PortStart))
 	} else {
