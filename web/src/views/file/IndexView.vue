@@ -3,20 +3,23 @@ defineOptions({
   name: 'file-index'
 })
 
+import { useThemeVars } from 'naive-ui'
+import draggable from 'vuedraggable'
+
 import { useFileStore } from '@/store'
+import type { FileTab } from '@/store/modules/file'
 import CompressModal from '@/views/file/CompressModal.vue'
 import ListView from '@/views/file/ListView.vue'
 import PathInput from '@/views/file/PathInput.vue'
 import PermissionModal from '@/views/file/PermissionModal.vue'
 import ToolBar from '@/views/file/ToolBar.vue'
 import UploadModal from '@/views/file/UploadModal.vue'
-import type { FileInfo, Marked } from '@/views/file/types'
+import type { FileInfo } from '@/views/file/types'
 
 const fileStore = useFileStore()
+const themeVars = useThemeVars()
 
 const selected = ref<string[]>([])
-const marked = ref<Marked[]>([])
-const markedType = ref<string>('copy')
 // 权限编辑时的文件信息列表
 const permissionFileInfoList = ref<FileInfo[]>([])
 
@@ -28,11 +31,24 @@ const upload = ref(false)
 const droppedFiles = ref<File[]>([])
 const isDragging = ref(false)
 
+// 拖拽排序用的本地副本
+const localTabs = computed({
+  get: () => fileStore.tabs,
+  set: (val: FileTab[]) => fileStore.reorderTabs(val)
+})
+
+// 切换标签页时清空选中
+watch(
+  () => fileStore.activeTabId,
+  () => {
+    selected.value = []
+  }
+)
+
 // 处理拖拽进入
 const handleDragEnter = (e: DragEvent) => {
   e.preventDefault()
   e.stopPropagation()
-  // 检查是否有文件
   if (e.dataTransfer?.types.includes('Files')) {
     isDragging.value = true
   }
@@ -42,7 +58,6 @@ const handleDragEnter = (e: DragEvent) => {
 const handleDragLeave = (e: DragEvent) => {
   e.preventDefault()
   e.stopPropagation()
-  // 只有当离开整个容器时才隐藏
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   if (
     e.clientX <= rect.left ||
@@ -75,7 +90,6 @@ const readDirectoryRecursively = async (
   }
 
   let entries: FileSystemEntry[] = []
-  // readEntries 可能需要多次调用才能获取所有条目
   let batch: FileSystemEntry[]
   do {
     batch = await readEntries()
@@ -88,7 +102,6 @@ const readDirectoryRecursively = async (
       const fileEntry = childEntry as FileSystemFileEntry
       const file = await new Promise<File>((resolve, reject) => {
         fileEntry.file((f) => {
-          // 创建带有相对路径的新 File 对象
           const newFile = new File([f], childPath, { type: f.type, lastModified: f.lastModified })
           resolve(newFile)
         }, reject)
@@ -117,7 +130,6 @@ const handleDrop = async (e: DragEvent) => {
 
   const files: File[] = []
 
-  // 使用 webkitGetAsEntry 来支持文件夹
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
     if (item?.kind === 'file') {
@@ -149,6 +161,25 @@ watch(upload, (val) => {
     droppedFiles.value = []
   }
 })
+
+// 中键点击标签页关闭
+const handleTabMouseDown = (e: MouseEvent, tabId: string) => {
+  if (e.button === 1) {
+    e.preventDefault()
+    fileStore.closeTab(tabId)
+  }
+}
+
+// 主题变量映射到 CSS
+const tabStyles = computed(() => ({
+  '--tab-bg': themeVars.value.cardColor,
+  '--tab-bg-hover': themeVars.value.hoverColor,
+  '--tab-border': themeVars.value.borderColor,
+  '--tab-text': themeVars.value.textColor2,
+  '--tab-text-active': themeVars.value.textColor1,
+  '--tab-text-muted': themeVars.value.textColor3,
+  '--tab-primary': themeVars.value.primaryColor
+}))
 </script>
 
 <template>
@@ -161,34 +192,66 @@ watch(upload, (val) => {
     @drop="handleDrop"
   >
     <n-flex vertical :size="20" class="flex-1 min-h-0">
-      <path-input
-        v-model:path="fileStore.path"
-        v-model:keyword="fileStore.keyword"
-        v-model:sub="fileStore.sub"
-      />
-      <tool-bar
-        v-model:path="fileStore.path"
-        v-model:selected="selected"
-        v-model:marked="marked"
-        v-model:markedType="markedType"
-        v-model:compress="compress"
-        v-model:permission="permission"
-        v-model:upload="upload"
-      />
-      <list-view
-        v-model:path="fileStore.path"
-        v-model:keyword="fileStore.keyword"
-        v-model:sub="fileStore.sub"
-        v-model:selected="selected"
-        v-model:marked="marked"
-        v-model:markedType="markedType"
-        v-model:compress="compress"
-        v-model:permission="permission"
-        v-model:permission-file-info-list="permissionFileInfoList"
-      />
+      <!-- 标签页栏 -->
+      <div class="file-tabs" :style="tabStyles">
+        <draggable
+          v-model="localTabs"
+          item-key="id"
+          class="file-tabs-list"
+          :animation="200"
+          ghost-class="file-tab-ghost"
+          drag-class="file-tab-drag"
+        >
+          <template #item="{ element: tab }">
+            <div
+              class="file-tab"
+              :class="{ active: tab.id === fileStore.activeTabId }"
+              @click="fileStore.switchTab(tab.id)"
+              @mousedown="handleTabMouseDown($event, tab.id)"
+            >
+              <i-mdi-folder-outline class="file-tab-icon" />
+              <span class="file-tab-label" :title="tab.path">{{ tab.label }}</span>
+              <span
+                v-if="fileStore.tabs.length > 1"
+                class="file-tab-close"
+                @click.stop="fileStore.closeTab(tab.id)"
+              >
+                <i-mdi-close :size="14" />
+              </span>
+            </div>
+          </template>
+          <template #footer>
+            <div class="file-tab-add" @click="fileStore.createTab()">
+              <i-mdi-plus :size="16" />
+            </div>
+          </template>
+        </draggable>
+      </div>
+
+      <!-- 每个标签页内容（v-if 只渲染活跃的） -->
+      <template v-for="tab in fileStore.tabs" :key="tab.id">
+        <template v-if="tab.id === fileStore.activeTabId">
+          <path-input :tab-id="tab.id" />
+          <tool-bar
+            :tab-id="tab.id"
+            v-model:selected="selected"
+            v-model:compress="compress"
+            v-model:permission="permission"
+            v-model:upload="upload"
+          />
+          <list-view
+            :tab-id="tab.id"
+            v-model:selected="selected"
+            v-model:compress="compress"
+            v-model:permission="permission"
+            v-model:permission-file-info-list="permissionFileInfoList"
+          />
+        </template>
+      </template>
+
       <compress-modal
         v-model:show="compress"
-        v-model:path="fileStore.path"
+        v-model:path="fileStore.activeTab!.path"
         v-model:selected="selected"
       />
       <permission-modal
@@ -209,7 +272,7 @@ watch(upload, (val) => {
     <!-- 上传弹窗 -->
     <upload-modal
       v-model:show="upload"
-      v-model:path="fileStore.path"
+      v-model:path="fileStore.activeTab!.path"
       :initial-files="droppedFiles"
     />
   </common-page>
@@ -234,5 +297,130 @@ watch(upload, (val) => {
   gap: 16px;
   color: white;
   font-size: 18px;
+}
+
+.file-tabs {
+  flex-shrink: 0;
+  margin-bottom: -8px;
+  border-bottom: 1px solid var(--tab-border);
+}
+
+.file-tabs-list {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  padding: 0;
+
+  // 隐藏滚动条
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.file-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  color: var(--tab-text);
+  transition: all 0.15s ease;
+  position: relative;
+  min-width: 0;
+
+  &:hover {
+    background: var(--tab-bg-hover);
+    color: var(--tab-text-active);
+
+    .file-tab-close {
+      opacity: 1;
+    }
+  }
+
+  &.active {
+    background: var(--tab-bg);
+    color: var(--tab-text-active);
+    font-weight: 500;
+
+    // 底部 primary 色指示条
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--tab-primary);
+    }
+
+    .file-tab-close {
+      opacity: 0.6;
+    }
+  }
+}
+
+.file-tab-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.file-tab-label {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-tab-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  opacity: 0;
+  color: var(--tab-text-muted);
+  transition: all 0.1s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.12);
+    color: var(--tab-text-active);
+    opacity: 1 !important;
+  }
+}
+
+.file-tab-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: auto 0;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--tab-text-muted);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--tab-bg-hover);
+    color: var(--tab-text-active);
+  }
+}
+
+// 拖拽时的幽灵元素
+.file-tab-ghost {
+  opacity: 0.4;
+}
+
+// 拖拽中的元素
+.file-tab-drag {
+  background: var(--tab-bg) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 </style>

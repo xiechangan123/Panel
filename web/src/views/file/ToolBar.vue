@@ -3,19 +3,25 @@ import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useFileStore } from '@/store'
 import { checkName, lastDirectory } from '@/utils/file'
-import type { Marked } from '@/views/file/types'
+import { usePaste } from '@/views/file/composables/usePaste'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
+const { handlePaste: doPaste } = usePaste()
 
-const path = defineModel<string>('path', { type: String, required: true })
+const props = defineProps<{
+  tabId: string
+}>()
+
 const selected = defineModel<string[]>('selected', { type: Array, default: () => [] })
-const marked = defineModel<Marked[]>('marked', { type: Array, default: () => [] })
-const markedType = defineModel<string>('markedType', { type: String, required: true })
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
 const upload = defineModel<boolean>('upload', { type: Boolean, required: true })
+
+const tab = computed(() => fileStore.tabs.find((t) => t.id === props.tabId)!)
+const path = computed(() => tab.value.path)
+const marked = computed(() => fileStore.clipboard.marked)
 
 // 终端弹窗
 const terminalModal = ref(false)
@@ -58,12 +64,14 @@ const handleCopy = () => {
     window.$message.error($gettext('Please select files/folders to copy'))
     return
   }
-  markedType.value = 'copy'
-  marked.value = selected.value.map((path) => ({
-    name: lastDirectory(path),
-    source: path,
-    force: false
-  }))
+  fileStore.setClipboard(
+    selected.value.map((p) => ({
+      name: lastDirectory(p),
+      source: p,
+      force: false
+    })),
+    'copy'
+  )
   selected.value = []
   window.$message.success(
     $gettext('Marked successfully, please navigate to the destination path to paste')
@@ -75,12 +83,14 @@ const handleMove = () => {
     window.$message.error($gettext('Please select files/folders to move'))
     return
   }
-  markedType.value = 'move'
-  marked.value = selected.value.map((path) => ({
-    name: lastDirectory(path),
-    source: path,
-    force: false
-  }))
+  fileStore.setClipboard(
+    selected.value.map((p) => ({
+      name: lastDirectory(p),
+      source: p,
+      force: false
+    })),
+    'move'
+  )
   selected.value = []
   window.$message.success(
     $gettext('Marked successfully, please navigate to the destination path to paste')
@@ -88,84 +98,11 @@ const handleMove = () => {
 }
 
 const handleCancel = () => {
-  marked.value = []
+  fileStore.clearClipboard()
 }
 
 const handlePaste = () => {
-  if (!marked.value.length) {
-    window.$message.error($gettext('Please mark the files/folders to copy or move first'))
-    return
-  }
-
-  // 查重
-  let flag = false
-  const paths = marked.value.map((item) => {
-    return {
-      name: item.name,
-      source: item.source,
-      target: path.value + '/' + item.name,
-      force: false
-    }
-  })
-  const sources = paths.map((item: any) => item.target)
-  useRequest(file.exist(sources)).onSuccess(({ data }) => {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i]) {
-        flag = true
-        const pathItem = paths[i]
-        if (pathItem) pathItem.force = true
-      }
-    }
-    if (flag) {
-      window.$dialog.warning({
-        title: $gettext('Warning'),
-        content: $gettext(
-          'There are items with the same name %{ items } Do you want to overwrite?',
-          {
-            items: `${paths
-              .filter((item) => item.force)
-              .map((item) => item.name)
-              .join(', ')}`
-          }
-        ),
-        positiveText: $gettext('Overwrite'),
-        negativeText: $gettext('Cancel'),
-        onPositiveClick: async () => {
-          if (markedType.value == 'copy') {
-            useRequest(file.copy(paths)).onSuccess(() => {
-              marked.value = []
-              window.$bus.emit('file:refresh')
-              window.$message.success($gettext('Copied successfully'))
-            })
-          } else {
-            useRequest(file.move(paths)).onSuccess(() => {
-              marked.value = []
-              window.$bus.emit('file:refresh')
-              window.$message.success($gettext('Moved successfully'))
-            })
-          }
-        },
-        onNegativeClick: () => {
-          marked.value = []
-          window.$message.info($gettext('Canceled'))
-        }
-      })
-    } else {
-      if (markedType.value == 'copy') {
-        useRequest(file.copy(paths)).onSuccess(() => {
-          marked.value = []
-          window.$bus.emit('file:refresh')
-          window.$message.success($gettext('Copied successfully'))
-        })
-      } else {
-        useRequest(file.move(paths)).onSuccess(() => {
-          marked.value = []
-          window.$bus.emit('file:refresh')
-          window.$message.success($gettext('Moved successfully'))
-        })
-      }
-    }
-  })
+  doPaste(path.value)
 }
 
 const bulkDelete = async () => {

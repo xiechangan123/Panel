@@ -8,15 +8,17 @@ import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
-const path = defineModel<string>('path', { type: String, required: true }) // 当前路径
-const keyword = defineModel<string>('keyword', { type: String, default: '' }) // 搜索关键词
-const sub = defineModel<boolean>('sub', { type: Boolean, default: false }) // 搜索是否包括子目录
+
+const props = defineProps<{
+  tabId: string
+}>()
+
+const tab = computed(() => fileStore.tabs.find((t) => t.id === props.tabId)!)
+const path = computed(() => tab.value.path)
+
 const isInput = ref(false)
 const pathInput = ref<InputInst | null>(null)
 const input = ref('www')
-
-const history: string[] = []
-let current = -1
 
 const handleInput = () => {
   isInput.value = true
@@ -43,8 +45,7 @@ const handleBlur = () => {
   }
 
   isInput.value = false
-  path.value = '/' + input.value
-  handlePushHistory(path.value)
+  fileStore.updateTabPath(props.tabId, '/' + input.value)
 }
 
 const handleRefresh = () => {
@@ -62,19 +63,11 @@ const handleUp = () => {
 }
 
 const handleBack = () => {
-  if (current > 0) {
-    current--
-    path.value = history[current] ?? '/'
-    input.value = path.value.slice(1)
-  }
+  fileStore.historyBack(props.tabId)
 }
 
 const handleForward = () => {
-  if (current < history.length - 1) {
-    current++
-    path.value = history[current] ?? '/'
-    input.value = path.value.slice(1)
-  }
+  fileStore.historyForward(props.tabId)
 }
 
 const splitPath = (str: string, delimiter: string) => {
@@ -88,20 +81,7 @@ const setPath = (index: number) => {
   const newPath = splitPath(path.value, '/')
     .slice(0, index + 1)
     .join('/')
-  path.value = '/' + newPath
-  input.value = newPath
-  handlePushHistory(path.value)
-}
-
-const handlePushHistory = (path: string) => {
-  // 防止在前进后退时重复添加
-  if (current != history.length - 1) {
-    return
-  }
-
-  history.splice(current + 1)
-  history.push(path)
-  current = history.length - 1
+  fileStore.updateTabPath(props.tabId, '/' + newPath)
 }
 
 const handleSearch = () => {
@@ -115,14 +95,6 @@ watch(
   },
   { immediate: true }
 )
-
-onMounted(() => {
-  window.$bus.on('file:push-history', handlePushHistory)
-})
-
-onUnmounted(() => {
-  window.$bus.off('file:push-history')
-})
 </script>
 
 <template>
@@ -181,9 +153,9 @@ onUnmounted(() => {
       />
     </n-input-group>
     <n-input-group w-400>
-      <n-input v-model:value="keyword" :placeholder="$gettext('Enter search content')">
+      <n-input v-model:value="tab.keyword" :placeholder="$gettext('Enter search content')">
         <template #suffix>
-          <n-checkbox v-model:checked="sub">
+          <n-checkbox v-model:checked="tab.sub">
             {{ $gettext('Include subdirectories') }}
           </n-checkbox>
         </template>

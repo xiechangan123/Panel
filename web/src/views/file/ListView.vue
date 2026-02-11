@@ -26,25 +26,36 @@ import {
   isCompress,
   isImage
 } from '@/utils/file'
+import { usePaste } from '@/views/file/composables/usePaste'
 import EditModal from '@/views/file/EditModal.vue'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import PropertyModal from '@/views/file/PropertyModal.vue'
-import type { FileInfo, Marked } from '@/views/file/types'
+import type { FileInfo } from '@/views/file/types'
 import copy2clipboard from '@vavt/copy2clipboard'
 
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
 const fileStore = useFileStore()
+const { handlePaste: doPaste } = usePaste()
+
+const props = defineProps<{
+  tabId: string
+}>()
 
 // 排序状态
 const sort = computed(() => fileStore.sort)
 
-const path = defineModel<string>('path', { type: String, required: true })
-const keyword = defineModel<string>('keyword', { type: String, default: '' })
-const sub = defineModel<boolean>('sub', { type: Boolean, default: false })
+const tab = computed(() => fileStore.tabs.find((t) => t.id === props.tabId)!)
+const path = computed({
+  get: () => tab.value.path,
+  set: (v: string) => fileStore.updateTabPath(props.tabId, v)
+})
+const keyword = computed(() => tab.value.keyword)
+const sub = computed(() => tab.value.sub)
+const marked = computed(() => fileStore.clipboard.marked)
+const markedType = computed(() => fileStore.clipboard.markedType)
+
 const selected = defineModel<any[]>('selected', { type: Array, default: () => [] })
-const marked = defineModel<Marked[]>('marked', { type: Array, default: () => [] })
-const markedType = defineModel<string>('markedType', { type: String, required: true })
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
 const permissionFileInfoList = defineModel<FileInfo[]>('permissionFileInfoList', {
@@ -636,12 +647,14 @@ const getSelectedItems = () => {
 
 // 标记文件（复制/移动）
 const markFiles = (items: any[], type: 'copy' | 'move') => {
-  marked.value = items.map((item: any) => ({
-    name: item.name,
-    source: item.full,
-    force: false
-  }))
-  markedType.value = type
+  fileStore.setClipboard(
+    items.map((item: any) => ({
+      name: item.name,
+      source: item.full,
+      force: false
+    })),
+    type
+  )
   window.$message.success(
     $gettext('Marked successfully, please navigate to the destination path to paste')
   )
@@ -826,77 +839,7 @@ const copyPath = (item: any) => {
 
 // ==================== 处理粘贴 ====================
 const handlePaste = () => {
-  if (!marked.value.length) {
-    window.$message.error($gettext('Please mark the files/folders to copy or move first'))
-    return
-  }
-
-  let flag = false
-  const paths = marked.value.map((item) => ({
-    name: item.name,
-    source: item.source,
-    target: path.value + '/' + item.name,
-    force: false
-  }))
-  const sources = paths.map((item: any) => item.target)
-  useRequest(file.exist(sources)).onSuccess(({ data }) => {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i]) {
-        flag = true
-        const pathItem = paths[i]
-        if (pathItem) pathItem.force = true
-      }
-    }
-    if (flag) {
-      window.$dialog.warning({
-        title: $gettext('Warning'),
-        content: $gettext(
-          'There are items with the same name %{ items } Do you want to overwrite?',
-          {
-            items: `${paths
-              .filter((item) => item.force)
-              .map((item) => item.name)
-              .join(', ')}`
-          }
-        ),
-        positiveText: $gettext('Overwrite'),
-        negativeText: $gettext('Cancel'),
-        onPositiveClick: () => {
-          if (markedType.value == 'copy') {
-            useRequest(file.copy(paths)).onSuccess(() => {
-              marked.value = []
-              window.$bus.emit('file:refresh')
-              window.$message.success($gettext('Copied successfully'))
-            })
-          } else {
-            useRequest(file.move(paths)).onSuccess(() => {
-              marked.value = []
-              window.$bus.emit('file:refresh')
-              window.$message.success($gettext('Moved successfully'))
-            })
-          }
-        },
-        onNegativeClick: () => {
-          marked.value = []
-          window.$message.info($gettext('Canceled'))
-        }
-      })
-    } else {
-      if (markedType.value == 'copy') {
-        useRequest(file.copy(paths)).onSuccess(() => {
-          marked.value = []
-          window.$bus.emit('file:refresh')
-          window.$message.success($gettext('Copied successfully'))
-        })
-      } else {
-        useRequest(file.move(paths)).onSuccess(() => {
-          marked.value = []
-          window.$bus.emit('file:refresh')
-          window.$message.success($gettext('Moved successfully'))
-        })
-      }
-    }
-  })
+  doPaste(path.value)
 }
 
 const handleSelect = (key: string) => {
@@ -1135,6 +1078,16 @@ const handleKeyDown = (event: KeyboardEvent) => {
           handlePaste()
         }
         break
+      case 't':
+        // Ctrl/Cmd + T: 新建标签页
+        event.preventDefault()
+        fileStore.createTab()
+        break
+      case 'w':
+        // Ctrl/Cmd + W: 关闭当前标签页
+        event.preventDefault()
+        fileStore.closeTab(props.tabId)
+        break
     }
   } else {
     const currentIndex = getSelectedIndex()
@@ -1277,7 +1230,7 @@ const handleFileSearch = () => {
   nextTick(() => {
     refresh()
   })
-  window.$bus.emit('file:push-history', path.value)
+  fileStore.pushHistory(props.tabId, path.value)
 }
 
 onMounted(() => {
@@ -1285,14 +1238,11 @@ onMounted(() => {
     path,
     () => {
       selected.value = []
-      keyword.value = ''
-      sub.value = false
       sizeCache.value.clear()
       sizeLoading.value.clear()
       nextTick(() => {
         refresh()
       })
-      window.$bus.emit('file:push-history', path.value)
     },
     { immediate: true }
   )
