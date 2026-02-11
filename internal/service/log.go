@@ -153,7 +153,7 @@ func (s *LogService) sshFromLogFile(limit int) ([]types.SSHLoginLog, error) {
 	if file == nil {
 		return nil, errors.New(s.t.Get("SSH log file not found"))
 	}
-	defer file.Close()
+	defer func(file *os.File) { _ = file.Close() }(file)
 
 	// 读取所有匹配行后取最后 limit 条（日志文件按时间正序）
 	var logs []types.SSHLoginLog

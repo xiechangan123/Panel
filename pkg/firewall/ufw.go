@@ -297,7 +297,7 @@ func (r *ufw) buildRichCmd(rule FireInfo, protocol string, operation Operation) 
 	}
 
 	// 端口
-	hasPort := rule.PortStart != 0 && rule.PortEnd != 0 && !(rule.PortStart == 1 && rule.PortEnd == 65535)
+	hasPort := rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535)
 	if hasPort {
 		sb.WriteString("proto ")
 		sb.WriteString(protocol)
