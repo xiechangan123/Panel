@@ -230,6 +230,14 @@ func (r *ufw) Port(rule FireInfo, operation Operation) error {
 		rule.Protocol = ProtocolTCPUDP
 	}
 
+	// 删除 tcp/udp 规则时，先尝试无协议命令（匹配原生合并规则），失败再逐个删
+	if operation == OperationRemove && rule.Protocol == ProtocolTCPUDP {
+		cmd := r.buildPortCmdNoProto(rule, operation)
+		if _, err := shell.Exec(cmd); err == nil {
+			return nil
+		}
+	}
+
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		cmd := r.buildPortCmd(rule, protocol, operation)
 		if _, err := shell.Exec(cmd); err != nil {
@@ -240,7 +248,7 @@ func (r *ufw) Port(rule FireInfo, operation Operation) error {
 	return nil
 }
 
-// buildPortCmd 构建 ufw 端口规则命令
+// buildPortCmd 构建 ufw 端口规则命令（带协议）
 func (r *ufw) buildPortCmd(rule FireInfo, protocol string, operation Operation) string {
 	var sb strings.Builder
 
@@ -250,24 +258,49 @@ func (r *ufw) buildPortCmd(rule FireInfo, protocol string, operation Operation) 
 		sb.WriteString("ufw ")
 	}
 
-	// 方向
-	dir := strings.ToLower(string(rule.Direction))
-
-	// 策略
 	sb.WriteString(r.strategyToUFW(rule.Strategy))
 	sb.WriteString(" ")
 
-	// 方向
+	dir := strings.ToLower(string(rule.Direction))
 	if dir == "out" {
 		sb.WriteString("out ")
 	} else {
 		sb.WriteString("in ")
 	}
 
-	// 端口
 	sb.WriteString("proto ")
 	sb.WriteString(protocol)
 	sb.WriteString(" to any port ")
+	if rule.PortStart == rule.PortEnd {
+		sb.WriteString(fmt.Sprintf("%d", rule.PortStart))
+	} else {
+		sb.WriteString(fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd))
+	}
+
+	return sb.String()
+}
+
+// buildPortCmdNoProto 构建不带协议的端口规则命令（匹配 ufw allow 8888 这种原生规则）
+func (r *ufw) buildPortCmdNoProto(rule FireInfo, operation Operation) string {
+	var sb strings.Builder
+
+	if operation == OperationRemove {
+		sb.WriteString("ufw delete ")
+	} else {
+		sb.WriteString("ufw ")
+	}
+
+	sb.WriteString(r.strategyToUFW(rule.Strategy))
+	sb.WriteString(" ")
+
+	dir := strings.ToLower(string(rule.Direction))
+	if dir == "out" {
+		sb.WriteString("out ")
+	} else {
+		sb.WriteString("in ")
+	}
+
+	sb.WriteString("to any port ")
 	if rule.PortStart == rule.PortEnd {
 		sb.WriteString(fmt.Sprintf("%d", rule.PortStart))
 	} else {
@@ -285,6 +318,14 @@ func (r *ufw) RichRules(rule FireInfo, operation Operation) error {
 
 	if rule.Protocol == "" {
 		rule.Protocol = ProtocolTCPUDP
+	}
+
+	// 删除 tcp/udp 规则时，先尝试无协议命令（匹配原生合并规则），失败再逐个删
+	if operation == OperationRemove && rule.Protocol == ProtocolTCPUDP {
+		cmd := r.buildRichCmd(rule, "", operation)
+		if _, err := shell.Exec(cmd); err == nil {
+			return nil
+		}
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
@@ -331,15 +372,18 @@ func (r *ufw) buildRichCmd(rule FireInfo, protocol string, operation Operation) 
 	// 端口
 	hasPort := rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535)
 	if hasPort {
-		sb.WriteString("proto ")
-		sb.WriteString(protocol)
-		sb.WriteString(" to any port ")
+		if protocol != "" {
+			sb.WriteString("proto ")
+			sb.WriteString(protocol)
+			sb.WriteString(" ")
+		}
+		sb.WriteString("to any port ")
 		if rule.PortStart == rule.PortEnd {
 			sb.WriteString(fmt.Sprintf("%d", rule.PortStart))
 		} else {
 			sb.WriteString(fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd))
 		}
-	} else if rule.Address != "" {
+	} else if rule.Address != "" && protocol != "" {
 		// 纯 IP 规则，指定协议
 		sb.WriteString("proto ")
 		sb.WriteString(protocol)
@@ -445,7 +489,7 @@ func (r *ufw) addForward(rule Forward) error {
 		// 查找或创建 *nat 段
 		if !strings.Contains(text, "*nat") {
 			// 在文件开头（filter 段之前）插入 *nat 段
-			natBlock := fmt.Sprintf("%s\n*nat\n:PREROUTING ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n%s\n%s\nCOMMIT\n\n", natMarker, dnatRule, masqRule)
+			natBlock := fmt.Sprintf("*nat\n:PREROUTING ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n%s\n%s\n%s\nCOMMIT\n\n", natMarker, dnatRule, masqRule)
 			text = natBlock + text
 		} else {
 			// 在 *nat 段的 COMMIT 前插入规则

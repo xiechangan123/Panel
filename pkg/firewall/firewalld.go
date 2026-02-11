@@ -238,7 +238,7 @@ func (r *firewalld) RichRules(rule FireInfo, operation Operation) error {
 				return fmt.Errorf("invalid direction: %s", rule.Direction)
 			}
 		}
-		if rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 && rule.PortEnd != 65535) { // 1-65535是解析出来无端口规则的情况
+		if rule.PortStart != 0 && rule.PortEnd != 0 && (rule.PortStart != 1 || rule.PortEnd != 65535) { // 1-65535是解析出来无端口规则的情况
 			ruleBuilder.WriteString(fmt.Sprintf(`port port="%d-%d" `, rule.PortStart, rule.PortEnd))
 		}
 		if operation == OperationRemove && protocol != "" && rule.Protocol != "tcp/udp" { // 删除操作，可以不指定协议

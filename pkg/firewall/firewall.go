@@ -70,16 +70,6 @@ func buildProtocols(protocol Protocol) []string {
 
 // mergeRules 将同端口/同地址/同策略/同方向、仅协议不同（tcp vs udp）的规则合并为 tcp/udp
 func mergeRules(rules []FireInfo) []FireInfo {
-	type ruleKey struct {
-		Type      Type
-		Family    string
-		Address   string
-		PortStart uint
-		PortEnd   uint
-		Strategy  Strategy
-		Direction Direction
-	}
-
 	grouped := make(map[string]*FireInfo)
 	var order []string
 
