@@ -45,20 +45,9 @@ func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
 }
 
 func NewHttp(conf *config.Config, mux *chi.Mux, reloader *tlscert.Reloader) (*hlfhr.Server, error) {
-	handler := http.Handler(mux)
-
-	// 启用 TLS 时，添加 Alt-Svc 响应头通告 HTTP/3 支持
-	if conf.HTTP.TLS {
-		altSvc := fmt.Sprintf(`h3=":%d"; ma=2592000`, conf.HTTP.Port)
-		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Alt-Svc", altSvc)
-			mux.ServeHTTP(w, r)
-		})
-	}
-
 	srv := hlfhr.New(&http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.HTTP.Port),
-		Handler:        handler,
+		Handler:        mux,
 		MaxHeaderBytes: 4 << 20,
 	})
 	srv.Listen80RedirectTo443 = true
