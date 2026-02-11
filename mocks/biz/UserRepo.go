@@ -4,11 +4,9 @@ package biz
 
 import (
 	context "context"
-
-	biz "github.com/acepanel/panel/internal/biz"
-
 	image "image"
 
+	biz "github.com/acepanel/panel/internal/biz"
 	mock "github.com/stretchr/testify/mock"
 )
 
