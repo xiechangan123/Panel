@@ -85,7 +85,7 @@ func (r *ufw) ListRule() ([]FireInfo, error) {
 		return strings.Compare(string(a.Protocol), string(b.Protocol))
 	})
 
-	return data, nil
+	return mergeRules(data), nil
 }
 
 // parseRule 解析 ufw status numbered 的单行规则

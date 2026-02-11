@@ -123,7 +123,7 @@ func (r *firewalld) ListRule() ([]FireInfo, error) {
 		return 0
 	})
 
-	return data, nil
+	return mergeRules(data), nil
 }
 
 func (r *firewalld) ListForward() ([]FireForwardInfo, error) {

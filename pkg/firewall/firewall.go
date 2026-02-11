@@ -1,6 +1,7 @@
 package firewall
 
 import (
+	"fmt"
 	"net"
 	"strings"
 
@@ -65,4 +66,43 @@ func isLocalAddress(ip string) bool {
 // buildProtocols 拆分协议字符串为列表
 func buildProtocols(protocol Protocol) []string {
 	return strings.Split(string(protocol), "/")
+}
+
+// mergeRules 将同端口/同地址/同策略/同方向、仅协议不同（tcp vs udp）的规则合并为 tcp/udp
+func mergeRules(rules []FireInfo) []FireInfo {
+	type ruleKey struct {
+		Type      Type
+		Family    string
+		Address   string
+		PortStart uint
+		PortEnd   uint
+		Strategy  Strategy
+		Direction Direction
+	}
+
+	grouped := make(map[string]*FireInfo)
+	var order []string
+
+	for i := range rules {
+		r := rules[i]
+		key := fmt.Sprintf("%s|%s|%s|%d|%d|%s|%s",
+			r.Type, r.Family, r.Address, r.PortStart, r.PortEnd, r.Strategy, r.Direction)
+
+		if existing, ok := grouped[key]; ok {
+			// 合并协议：tcp + udp → tcp/udp
+			if existing.Protocol != r.Protocol {
+				existing.Protocol = ProtocolTCPUDP
+			}
+		} else {
+			clone := r
+			grouped[key] = &clone
+			order = append(order, key)
+		}
+	}
+
+	merged := make([]FireInfo, 0, len(order))
+	for _, key := range order {
+		merged = append(merged, *grouped[key])
+	}
+	return merged
 }
