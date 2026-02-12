@@ -393,22 +393,22 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 	s.addLog("===== " + s.t.Get("Migration started") + " =====")
 
 	// 迁移网站
-	for _, site := range items.Websites {
+	for _, site := range slices.Backward(items.Websites) {
 		s.migrateWebsite(conn, &site, items.StopOnMig)
 	}
 
 	// 迁移数据库
-	for _, db := range items.Databases {
+	for _, db := range slices.Backward(items.Databases) {
 		s.migrateDatabase(conn, &db, items.StopOnMig)
 	}
 
 	// 迁移数据库用户
-	for _, user := range items.DatabaseUsers {
+	for _, user := range slices.Backward(items.DatabaseUsers) {
 		s.migrateDatabaseUser(conn, &user)
 	}
 
 	// 迁移项目
-	for _, proj := range items.Projects {
+	for _, proj := range slices.Backward(items.Projects) {
 		s.migrateProject(conn, &proj, items.StopOnMig)
 	}
 
