@@ -453,7 +453,9 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("creating website on remote server")))
 	var listens []string
 	for _, l := range websiteDetail.Listens {
-		listens = append(listens, l.Address)
+		if l.Address != "443" && !slices.Contains(l.Args, "ssl") { // 此阶段远程面板没有证书，添加 443 端口会报错
+			listens = append(listens, l.Address)
+		}
 	}
 	if len(listens) == 0 {
 		listens = []string{"80"}
