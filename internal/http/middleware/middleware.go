@@ -7,7 +7,7 @@ import (
 
 	"github.com/DeRuina/timberjack"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v3"
 	"github.com/google/wire"
 	"github.com/leonelquinteros/gotext"
@@ -51,10 +51,10 @@ func NewMiddlewares(conf *config.Config, session *sessions.Manager, appRepo biz.
 
 // Globals is a collection of global middleware that will be applied to every request.
 func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handler) http.Handler {
-	compressor := middleware.NewCompressor(6)
+	compressor := chimiddleware.NewCompressor(6)
 
 	return []func(http.Handler) http.Handler{
-		middleware.Recoverer,
+		Recoverer,
 		httplog.RequestLogger(r.log, &httplog.Options{
 			Level:             slog.LevelInfo,
 			LogRequestHeaders: []string{"User-Agent"},
