@@ -106,11 +106,13 @@ func (r *containerRepo) Create(req *request.ContainerCreate) (string, error) {
 		return "", fmt.Errorf("failed to inspect image: %v", err)
 	}
 	// 兼容一些没有指定命令和入口点的镜像
-	if len(req.Command) == 0 && len(image.Config.Cmd) > 0 {
-		req.Command = image.Config.Cmd
-	}
-	if len(req.Entrypoint) == 0 && len(image.Config.Entrypoint) > 0 {
-		req.Entrypoint = image.Config.Entrypoint
+	if image.Config != nil {
+		if len(req.Command) == 0 && len(image.Config.Cmd) > 0 {
+			req.Command = image.Config.Cmd
+		}
+		if len(req.Entrypoint) == 0 && len(image.Config.Entrypoint) > 0 {
+			req.Entrypoint = image.Config.Entrypoint
+		}
 	}
 
 	// 构建容器配置
