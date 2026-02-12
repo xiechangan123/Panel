@@ -36,6 +36,12 @@ func (r *containerVolumeRepo) List() ([]types.ContainerVolume, error) {
 	var volumes []types.ContainerVolume
 	for _, item := range resp.Items {
 		createdAt, _ := time.Parse(time.RFC3339Nano, item.CreatedAt)
+		var refCount int64
+		var size string
+		if item.UsageData != nil {
+			refCount = item.UsageData.RefCount
+			size = tools.FormatBytes(float64(item.UsageData.Size))
+		}
 		volumes = append(volumes, types.ContainerVolume{
 			Name:       item.Name,
 			Driver:     item.Driver,
@@ -44,8 +50,8 @@ func (r *containerVolumeRepo) List() ([]types.ContainerVolume, error) {
 			CreatedAt:  createdAt,
 			Labels:     types.MapToKV(item.Labels),
 			Options:    types.MapToKV(item.Options),
-			RefCount:   item.UsageData.RefCount,
-			Size:       tools.FormatBytes(float64(item.UsageData.Size)),
+			RefCount:   refCount,
+			Size:       size,
 		})
 	}
 
