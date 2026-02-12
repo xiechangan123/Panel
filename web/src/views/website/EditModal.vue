@@ -1964,18 +1964,6 @@ const removeCustomConfig = (index: number) => {
     </n-spin>
     <template #footer>
       <n-flex justify="end">
-        <n-button @click="show = false">
-          {{ $gettext('Cancel') }}
-        </n-button>
-        <n-button
-          v-if="current !== 'log' && current !== 'error_log'"
-          type="primary"
-          :loading="saveLoading"
-          :disabled="saveLoading"
-          @click="handleSave"
-        >
-          {{ $gettext('Save') }}
-        </n-button>
         <n-popconfirm v-if="current == 'log'" @positive-click="clearLog">
           <template #trigger>
             <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading">
@@ -2001,6 +1989,18 @@ const removeCustomConfig = (index: number) => {
           </template>
           {{ $gettext('Are you sure you want to reset the configuration?') }}
         </n-popconfirm>
+        <n-button @click="show = false">
+          {{ $gettext('Cancel') }}
+        </n-button>
+        <n-button
+          v-if="current !== 'log' && current !== 'error_log'"
+          type="primary"
+          :loading="saveLoading"
+          :disabled="saveLoading"
+          @click="handleSave"
+        >
+          {{ $gettext('Save') }}
+        </n-button>
       </n-flex>
     </template>
   </n-modal>
