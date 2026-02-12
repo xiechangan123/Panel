@@ -62,7 +62,7 @@ const handleUpdate = () => {
       <n-list-item v-for="(item, index) in versions" :key="index">
         <n-thing>
           <template #header>
-            <div flex items-center gap-3>
+            <div flex gap-3 items-center>
               <span>v{{ item.version }}</span>
               <n-tag v-if="index === 0" type="success" size="small" :bordered="false">
                 {{ $gettext('Latest') }}
