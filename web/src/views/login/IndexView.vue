@@ -72,13 +72,25 @@ async function handleLogin() {
     window.$message.warning($gettext('Please enter captcha code'))
     return
   }
-  if (!key) {
+  logining.value = true
+  // 等待公钥加载完成（密码管理器可能在公钥就绪前自动提交）
+  if (isLoading.value) {
+    await new Promise<void>((resolve) => {
+      const stop = watch(isLoading, (v) => {
+        if (!v) {
+          stop()
+          resolve()
+        }
+      })
+    })
+  }
+  if (!key.value) {
+    logining.value = false
     window.$message.warning(
       $gettext('Failed to get encryption public key, please refresh the page and try again')
     )
     return
   }
-  logining.value = true
   useRequest(
     user.login(
       rsaEncrypt(username, String(unref(key))),
