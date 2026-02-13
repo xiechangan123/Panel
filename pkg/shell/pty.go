@@ -157,8 +157,7 @@ func (t *Turn) Resize(rows, cols uint16) error {
 // terminal which no longer has an open slave. So ignore error here.
 // See https://github.com/creack/pty/issues/21
 func IsPTYError(err error) error {
-	var pathErr *os.PathError
-	if !errors.As(err, &pathErr) || !errors.Is(pathErr.Err, syscall.EIO) || !errors.Is(err, io.EOF) {
+	if pathErr, ok := errors.AsType[*os.PathError](err); !ok || !errors.Is(pathErr.Err, syscall.EIO) || !errors.Is(err, io.EOF) {
 		return err
 	}
 

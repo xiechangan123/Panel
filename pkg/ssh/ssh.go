@@ -85,8 +85,7 @@ func parseKey(key, passphrase string) (ssh.Signer, error) {
 	signer, err := ssh.ParsePrivateKey(keyBytes)
 	if err != nil {
 		// 密钥被加密
-		var passphraseMissingError *ssh.PassphraseMissingError
-		if errors.As(err, &passphraseMissingError) {
+		if passphraseMissingError, ok := errors.AsType[*ssh.PassphraseMissingError](err); ok {
 			return nil, passphraseMissingError
 		}
 		return nil, err

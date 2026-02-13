@@ -262,18 +262,16 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	now := time.Now()
 	s.state.Step = types.MigrationStepRunning
 	s.state.Items = req
 	s.state.Results = nil
 	s.state.Logs = nil
-	s.state.StartedAt = &now
+	s.state.StartedAt = new(time.Now())
 	s.state.EndedAt = nil
-	conn := *s.state.Connection
 	s.state.mu.Unlock()
 
 	// 异步执行迁移
-	go s.runMigration(&conn, req)
+	go s.runMigration(new(*s.state.Connection), req)
 
 	Success(w, nil)
 }
@@ -412,10 +410,9 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 		s.migrateProject(conn, &proj, items.StopOnMig)
 	}
 
-	now := time.Now()
 	s.state.mu.Lock()
 	s.state.Step = types.MigrationStepDone
-	s.state.EndedAt = &now
+	s.state.EndedAt = new(time.Now())
 	s.state.mu.Unlock()
 
 	s.addLog("===== " + s.t.Get("Migration completed") + " =====")
@@ -428,8 +425,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 		Name:   site.Name,
 		Status: types.MigrationItemRunning,
 	}
-	now := time.Now()
-	result.StartedAt = &now
+	result.StartedAt = new(time.Now())
 	s.addResult(result)
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Website"), s.t.Get("start migrating"), site.Name))
@@ -504,8 +500,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 		Name:   displayName,
 		Status: types.MigrationItemRunning,
 	}
-	now := time.Now()
-	result.StartedAt = &now
+	result.StartedAt = new(time.Now())
 	s.addResult(result)
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database"), s.t.Get("start migrating"), displayName))
@@ -619,8 +614,7 @@ func (s *ToolboxMigrationService) migrateDatabaseUser(conn *request.ToolboxMigra
 		Name:   displayName,
 		Status: types.MigrationItemRunning,
 	}
-	now := time.Now()
-	result.StartedAt = &now
+	result.StartedAt = new(time.Now())
 	s.addResult(result)
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database User"), s.t.Get("start migrating"), displayName))
@@ -700,8 +694,7 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 		Name:   proj.Name,
 		Status: types.MigrationItemRunning,
 	}
-	now := time.Now()
-	result.StartedAt = &now
+	result.StartedAt = new(time.Now())
 	s.addResult(result)
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Project"), s.t.Get("start migrating"), proj.Name))

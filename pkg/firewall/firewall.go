@@ -84,8 +84,7 @@ func mergeRules(rules []FireInfo) []FireInfo {
 				existing.Protocol = ProtocolTCPUDP
 			}
 		} else {
-			clone := r
-			grouped[key] = &clone
+			grouped[key] = new(r)
 			order = append(order, key)
 		}
 	}

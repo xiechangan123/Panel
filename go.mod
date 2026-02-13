@@ -1,6 +1,6 @@
 module github.com/acepanel/panel
 
-go 1.25.6
+go 1.26.0
 
 require (
 	github.com/DeRuina/timberjack v1.3.9
@@ -25,7 +25,7 @@ require (
 	github.com/hashicorp/go-version v1.8.0
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.11.2
-	github.com/libdns/alidns v1.0.6-beta.3.0.20260121104221-597b1e580e21
+	github.com/libdns/alidns v1.0.6
 	github.com/libdns/cloudflare v0.2.2
 	github.com/libdns/cloudns v1.1.0
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
