@@ -1,6 +1,8 @@
 package route
 
 import (
+	"bytes"
+	"io"
 	"io/fs"
 	"mime"
 	"net/http"
@@ -8,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/andybalholm/brotli"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/acepanel/panel/internal/http/middleware"
@@ -650,28 +653,37 @@ func newPrecompressedSPAHandler(fsys http.FileSystem) http.HandlerFunc {
 }
 
 func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSystem, path string, acceptBr bool) bool {
-	// 优先尝试 .br 版本
-	if acceptBr {
-		if f, err := fsys.Open(path + ".br"); err == nil {
-			defer func(f http.File) { _ = f.Close() }(f)
-			fi, err := f.Stat()
-			if err != nil || fi.IsDir() {
+	// 尝试打开 .br 版本
+	if f, err := fsys.Open(path + ".br"); err == nil {
+		defer func(f http.File) { _ = f.Close() }(f)
+		fi, err := f.Stat()
+		if err != nil || fi.IsDir() {
+			return false
+		}
+
+		ct := mime.TypeByExtension(filepath.Ext(path))
+		if ct == "" {
+			ct = "application/octet-stream"
+		}
+		w.Header().Set("Content-Type", ct)
+		w.Header().Set("Vary", "Accept-Encoding")
+
+		if acceptBr {
+			// 客户端支持 br，直接透传
+			w.Header().Set("Content-Encoding", "br")
+			http.ServeContent(w, r, "", fi.ModTime(), f)
+		} else {
+			// 客户端不支持 br，解压后返回（由中间件处理 gzip）
+			decoded, err := io.ReadAll(brotli.NewReader(f))
+			if err != nil {
 				return false
 			}
-			// 根据原始文件扩展名设置 Content-Type
-			ct := mime.TypeByExtension(filepath.Ext(path))
-			if ct == "" {
-				ct = "application/octet-stream"
-			}
-			w.Header().Set("Content-Type", ct)
-			w.Header().Set("Content-Encoding", "br")
-			w.Header().Set("Vary", "Accept-Encoding")
-			http.ServeContent(w, r, "", fi.ModTime(), f)
-			return true
+			http.ServeContent(w, r, "", fi.ModTime(), bytes.NewReader(decoded))
 		}
+		return true
 	}
 
-	// 回退到原始文件
+	// 回退到原始文件（字体、图片等未压缩的资源）
 	f, err := fsys.Open(path)
 	if err != nil {
 		return false
