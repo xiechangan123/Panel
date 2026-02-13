@@ -203,6 +203,9 @@ func generateUpstreamConfig(upstream types.Upstream) string {
 	sb.WriteString(fmt.Sprintf("# Upstream: %s\n", upstream.Name))
 	sb.WriteString(fmt.Sprintf("upstream %s {\n", upstream.Name))
 
+	// zone 512k
+	sb.WriteString(fmt.Sprintf("    zone %s 512k;\n", upstream.Name))
+
 	// 负载均衡算法
 	if upstream.Algo != "" {
 		sb.WriteString(fmt.Sprintf("    %s;\n", upstream.Algo))
