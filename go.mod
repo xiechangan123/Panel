@@ -1,6 +1,6 @@
 module github.com/acepanel/panel
 
-go 1.26
+go 1.26.0
 
 require (
 	github.com/DeRuina/timberjack v1.3.9
