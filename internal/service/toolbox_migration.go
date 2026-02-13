@@ -338,7 +338,7 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 
 	ws, err := websocket.Accept(w, r, opts)
 	if err != nil {
-		s.log.Warn("[Migration] websocket upgrade error", slog.Any("err", err))
+		s.log.Warn("websocket upgrade error", slog.Any("err", err))
 		return
 	}
 	defer func() { _ = ws.CloseNow() }()
@@ -1055,7 +1055,7 @@ func (s *ToolboxMigrationService) addLog(msg string) {
 	s.state.mu.Lock()
 	s.state.Logs = append(s.state.Logs, fmt.Sprintf("[%s] %s", time.Now().Format("15:04:05"), msg))
 	s.state.mu.Unlock()
-	s.log.Info("[Migration] " + msg)
+	s.log.Info(msg)
 }
 
 // addResult 添加迁移结果

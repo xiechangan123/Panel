@@ -41,7 +41,7 @@ func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh b
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("[Websocket] upgrade exec ws error", slog.Any("err", err))
+		s.log.Warn("upgrade exec ws error", slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -81,7 +81,7 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("[Websocket] upgrade pty ws error", slog.Any("err", err))
+		s.log.Warn("upgrade pty ws error", slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -131,7 +131,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("[Websocket] upgrade session ws error", slog.Any("err", err))
+		s.log.Warn("upgrade session ws error", slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -170,7 +170,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("[Websocket] upgrade container terminal ws error", slog.Any("err", err))
+		s.log.Warn("upgrade container terminal ws error", slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -200,7 +200,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	ws, err := s.upgrade(w, r)
 	if err != nil {
-		s.log.Warn("[Websocket] upgrade image pull ws error", slog.Any("err", err))
+		s.log.Warn("upgrade image pull ws error", slog.Any("err", err))
 		return
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
@@ -252,7 +252,7 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	// 迭代进度
 	for msg, err := range resp.JSONMessages(ctx) {
 		if err != nil {
-			s.log.Warn("[Websocket] image pull error", slog.Any("err", err))
+			s.log.Warn("image pull error", slog.Any("err", err))
 			errorMsg, _ := json.Marshal(map[string]any{
 				"status": "error",
 				"error":  err.Error(),
@@ -274,7 +274,7 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 		// 转发进度信息
 		progressMsg, _ := json.Marshal(msg)
 		if err = ws.Write(ctx, websocket.MessageText, progressMsg); err != nil {
-			s.log.Warn("[Websocket] write image pull progress error", slog.Any("err", err))
+			s.log.Warn("write image pull progress error", slog.Any("err", err))
 			return
 		}
 	}
