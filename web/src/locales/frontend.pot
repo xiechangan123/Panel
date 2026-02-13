@@ -1547,7 +1547,7 @@ msgid "Frp Manager"
 msgstr ""
 
 #: src/router/routes/index.ts:18
-#: src/views/login/IndexView.vue:241
+#: src/views/login/IndexView.vue:231
 msgid "Login"
 msgstr ""
 
@@ -3383,7 +3383,7 @@ msgstr ""
 #: src/views/database/ServerList.vue:52
 #: src/views/database/UpdateServerModal.vue:93
 #: src/views/database/UserList.vue:21
-#: src/views/login/IndexView.vue:185
+#: src/views/login/IndexView.vue:175
 #: src/views/setting/CreateModal.vue:47
 #: src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:85
@@ -3455,7 +3455,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:101
 #: src/views/database/UpdateUserModal.vue:62
 #: src/views/database/UserList.vue:31
-#: src/views/login/IndexView.vue:194
+#: src/views/login/IndexView.vue:184
 #: src/views/setting/CreateModal.vue:54
 #: src/views/setting/PasswordModal.vue:41
 #: src/views/ssh/CreateModal.vue:79
@@ -6559,35 +6559,35 @@ msgstr ""
 msgid "Auth Method"
 msgstr ""
 
-#: src/views/login/IndexView.vue:72
+#: src/views/login/IndexView.vue:71
 msgid "Please enter username and password"
 msgstr ""
 
-#: src/views/login/IndexView.vue:77
+#: src/views/login/IndexView.vue:76
 msgid "Please enter captcha code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:95
+#: src/views/login/IndexView.vue:85
 msgid "Failed to get encryption public key, please refresh the page and try again"
 msgstr ""
 
-#: src/views/login/IndexView.vue:109
+#: src/views/login/IndexView.vue:99
 msgid "Login successful!"
 msgstr ""
 
-#: src/views/login/IndexView.vue:205
+#: src/views/login/IndexView.vue:195
 msgid "2FA Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:215
+#: src/views/login/IndexView.vue:205
 msgid "Captcha Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:230
+#: src/views/login/IndexView.vue:220
 msgid "Safe Login"
 msgstr ""
 
-#: src/views/login/IndexView.vue:231
+#: src/views/login/IndexView.vue:221
 msgid "Remember Me"
 msgstr ""
 
