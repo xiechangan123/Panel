@@ -12,7 +12,12 @@ const { $gettext } = useGettext()
 const router = useRouter()
 const route = useRoute()
 const query = route.query
-const { data: key, loading: isLoading } = useRequest(user.key, { initialData: '' })
+const keyLoaded = ref(false)
+const { data: key, loading: isLoading } = useRequest(user.key, { initialData: '' }).onComplete(
+  () => {
+    keyLoaded.value = true
+  }
+)
 const { data: isLogin } = useRequest(user.isLogin, { initialData: false })
 
 interface LoginInfo {
@@ -74,9 +79,9 @@ async function handleLogin() {
   }
   logining.value = true
   // 等待公钥加载完成（密码管理器可能在公钥就绪前自动提交）
-  if (isLoading.value) {
+  if (keyLoaded.value) {
     await new Promise<void>((resolve) => {
-      const stop = watch(isLoading, (v) => {
+      const stop = watch(keyLoaded, (v) => {
         if (!v) {
           stop()
           resolve()
