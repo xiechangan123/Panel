@@ -273,11 +273,11 @@ msgstr ""
 msgid "Data synchronized successfully"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:509
+#: internal/service/toolbox_migration.go:511
 msgid "Database"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:624
+#: internal/service/toolbox_migration.go:626
 msgid "Database User"
 msgstr ""
 
@@ -940,7 +940,7 @@ msgstr ""
 msgid "Process PID"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:705
+#: internal/service/toolbox_migration.go:707
 msgid "Project"
 msgstr ""
 
@@ -1460,7 +1460,7 @@ msgstr ""
 msgid "backup storage not found"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:589
+#: internal/service/toolbox_migration.go:591
 msgid "backup transfer failed: %v"
 msgstr ""
 
@@ -1505,7 +1505,7 @@ msgstr ""
 msgid "compose %s already exists"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:953
+#: internal/service/toolbox_migration.go:955
 msgid "compressing directory: %s"
 msgstr ""
 
@@ -1522,15 +1522,15 @@ msgstr ""
 msgid "create target file error: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:542
+#: internal/service/toolbox_migration.go:544
 msgid "creating database on remote server"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:676
+#: internal/service/toolbox_migration.go:678
 msgid "creating database user on remote server"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:723
+#: internal/service/toolbox_migration.go:725
 msgid "creating project on remote server"
 msgstr ""
 
@@ -1545,15 +1545,15 @@ msgstr ""
 msgid "database does not exist: %s"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:536
+#: internal/service/toolbox_migration.go:538
 msgid "database export failed: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:609
+#: internal/service/toolbox_migration.go:611
 msgid "database migration completed"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:691
+#: internal/service/toolbox_migration.go:693
 msgid "database user migration completed"
 msgstr ""
 
@@ -1596,15 +1596,15 @@ msgstr ""
 msgid "expiration time must be less than 10 years"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:532
+#: internal/service/toolbox_migration.go:534
 msgid "exporting database"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:967
+#: internal/service/toolbox_migration.go:969
 msgid "extracting on remote server"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:1089
+#: internal/service/toolbox_migration.go:1091
 msgid "failed"
 msgstr ""
 
@@ -1625,7 +1625,7 @@ msgstr ""
 msgid "failed to create .ssh directory: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:686
+#: internal/service/toolbox_migration.go:688
 msgid "failed to create database user on remote: %v"
 msgstr ""
 
@@ -1795,16 +1795,16 @@ msgstr ""
 msgid "failed to get database list: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:514
-#: internal/service/toolbox_migration.go:636
+#: internal/service/toolbox_migration.go:516
+#: internal/service/toolbox_migration.go:638
 msgid "failed to get database server: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:550
+#: internal/service/toolbox_migration.go:552
 msgid "failed to get database servers: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:629
+#: internal/service/toolbox_migration.go:631
 msgid "failed to get database user detail: %v"
 msgstr ""
 
@@ -1872,7 +1872,7 @@ msgstr ""
 msgid "failed to get private key: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:718
+#: internal/service/toolbox_migration.go:720
 msgid "failed to get project detail: %v"
 msgstr ""
 
@@ -1888,7 +1888,7 @@ msgstr ""
 msgid "failed to get redis status: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:646
+#: internal/service/toolbox_migration.go:648
 msgid "failed to get remote database servers: %v"
 msgstr ""
 
@@ -2233,7 +2233,7 @@ msgstr ""
 msgid "get upload file error: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:594
+#: internal/service/toolbox_migration.go:596
 msgid "importing database on remote server"
 msgstr ""
 
@@ -2267,11 +2267,11 @@ msgstr ""
 msgid "invalid request ip: %s"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:564
+#: internal/service/toolbox_migration.go:566
 msgid "invalid response when getting database servers: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:659
+#: internal/service/toolbox_migration.go:661
 msgid "invalid response: %v"
 msgstr ""
 
@@ -2364,8 +2364,8 @@ msgstr ""
 msgid "no SSH log entries found"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:576
-#: internal/service/toolbox_migration.go:671
+#: internal/service/toolbox_migration.go:578
+#: internal/service/toolbox_migration.go:673
 msgid "no matching database server found on remote"
 msgstr ""
 
@@ -2449,7 +2449,7 @@ msgstr ""
 msgid "port is already in use"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:760
+#: internal/service/toolbox_migration.go:762
 msgid "project migration completed"
 msgstr ""
 
@@ -2477,7 +2477,7 @@ msgstr ""
 msgid "read directory error: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:604
+#: internal/service/toolbox_migration.go:606
 msgid "remote import failed: %v"
 msgstr ""
 
@@ -2505,7 +2505,7 @@ msgstr ""
 msgid "save chunk error: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:587
+#: internal/service/toolbox_migration.go:589
 msgid "sending backup to remote server"
 msgstr ""
 
@@ -2526,9 +2526,9 @@ msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
 #: internal/service/toolbox_migration.go:435
-#: internal/service/toolbox_migration.go:509
-#: internal/service/toolbox_migration.go:624
-#: internal/service/toolbox_migration.go:705
+#: internal/service/toolbox_migration.go:511
+#: internal/service/toolbox_migration.go:626
+#: internal/service/toolbox_migration.go:707
 msgid "start migrating"
 msgstr ""
 
@@ -2536,7 +2536,7 @@ msgstr ""
 msgid "stopped"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:709
+#: internal/service/toolbox_migration.go:711
 msgid "stopping project service"
 msgstr ""
 
@@ -2656,7 +2656,7 @@ msgstr ""
 msgid "unsupported CA"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:527
+#: internal/service/toolbox_migration.go:529
 msgid "unsupported database type: %s"
 msgstr ""
 
@@ -2686,8 +2686,8 @@ msgstr ""
 msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:481
-#: internal/service/toolbox_migration.go:742
+#: internal/service/toolbox_migration.go:483
+#: internal/service/toolbox_migration.go:744
 msgid "upload failed: %v"
 msgstr ""
 
@@ -2695,24 +2695,24 @@ msgstr ""
 msgid "upload file error: %v"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:905
+#: internal/service/toolbox_migration.go:907
 msgid "uploading"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:479
-#: internal/service/toolbox_migration.go:740
+#: internal/service/toolbox_migration.go:481
+#: internal/service/toolbox_migration.go:742
 msgid "uploading directory:"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:750
+#: internal/service/toolbox_migration.go:752
 msgid "uploading systemd service file"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:961
+#: internal/service/toolbox_migration.go:963
 msgid "uploading to remote server"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:487
+#: internal/service/toolbox_migration.go:489
 msgid "uploading website directory:"
 msgstr ""
 
@@ -2722,15 +2722,15 @@ msgstr ""
 msgid "username or password error"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:735
+#: internal/service/toolbox_migration.go:737
 msgid "warning: failed to create remote project, trying to upload directly"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:474
+#: internal/service/toolbox_migration.go:476
 msgid "warning: failed to create remote website, trying to upload directly"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:711
+#: internal/service/toolbox_migration.go:713
 msgid "warning: failed to stop service"
 msgstr ""
 
@@ -2738,11 +2738,11 @@ msgstr ""
 msgid "warning: failed to stop website"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:752
+#: internal/service/toolbox_migration.go:754
 msgid "warning: service file upload failed"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:489
+#: internal/service/toolbox_migration.go:491
 msgid "warning: website directory upload failed"
 msgstr ""
 
@@ -2770,7 +2770,7 @@ msgstr ""
 msgid "website directory does not exist"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:494
+#: internal/service/toolbox_migration.go:496
 msgid "website migration completed"
 msgstr ""
 

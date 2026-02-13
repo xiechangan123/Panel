@@ -207,7 +207,7 @@ msgstr "Enter user password"
 #: src/components/common/PtyTerminalModal.vue:199
 #: src/layout/header/components/UserAvatar.vue:29
 #: src/views/app/TemplateDeployModal.vue:341 src/views/home/IndexView.vue:1012
-#: src/views/home/UpdateView.vue:27 src/views/monitor/IndexView.vue:723
+#: src/views/home/UpdateView.vue:30 src/views/monitor/IndexView.vue:723
 #: src/views/toolbox/DiskView.vue:404 src/views/toolbox/DiskView.vue:406
 #: src/views/toolbox/DiskView.vue:429 src/views/toolbox/DiskView.vue:431
 #: src/views/toolbox/DiskView.vue:501 src/views/toolbox/DiskView.vue:505
@@ -236,7 +236,7 @@ msgstr "Confirm"
 #: src/views/file/ListView.vue:245 src/views/file/ListView.vue:777
 #: src/views/file/ToolBar.vue:207 src/views/file/UploadModal.vue:340
 #: src/views/file/UploadModal.vue:450 src/views/home/IndexView.vue:1013
-#: src/views/home/UpdateView.vue:28 src/views/project/EditModal.vue:579
+#: src/views/home/UpdateView.vue:31 src/views/project/EditModal.vue:579
 #: src/views/toolbox/DiskView.vue:407 src/views/toolbox/DiskView.vue:432
 #: src/views/toolbox/DiskView.vue:455 src/views/toolbox/DiskView.vue:481
 #: src/views/toolbox/DiskView.vue:506 src/views/toolbox/DiskView.vue:525
@@ -245,7 +245,7 @@ msgstr "Confirm"
 #: src/views/toolbox/DiskView.vue:642 src/views/toolbox/DiskView.vue:665
 #: src/views/toolbox/MigrationView.vue:257
 #: src/views/toolbox/MigrationView.vue:347
-#: src/views/toolbox/ProcessView.vue:242 src/views/website/EditModal.vue:1968
+#: src/views/toolbox/ProcessView.vue:242 src/views/website/EditModal.vue:1993
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -840,7 +840,7 @@ msgstr ""
 #: src/views/toolbox/SystemView.vue:190 src/views/toolbox/SystemView.vue:214
 #: src/views/toolbox/SystemView.vue:232 src/views/toolbox/SystemView.vue:270
 #: src/views/toolbox/SystemView.vue:342 src/views/toolbox/WebHookView.vue:402
-#: src/views/website/EditModal.vue:1977
+#: src/views/website/EditModal.vue:2002
 msgid "Save"
 msgstr "Save"
 
@@ -1419,7 +1419,7 @@ msgstr "Rsync Manager"
 msgid "Frp Manager"
 msgstr "Frp Manager"
 
-#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:224
+#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:241
 msgid "Login"
 msgstr "Login"
 
@@ -3316,7 +3316,7 @@ msgstr ""
 #: src/views/database/CreateUserModal.vue:99
 #: src/views/database/ServerList.vue:52
 #: src/views/database/UpdateServerModal.vue:93
-#: src/views/database/UserList.vue:21 src/views/login/IndexView.vue:168
+#: src/views/database/UserList.vue:21 src/views/login/IndexView.vue:185
 #: src/views/setting/CreateModal.vue:47 src/views/setting/SettingUser.vue:19
 #: src/views/ssh/CreateModal.vue:85 src/views/ssh/UpdateModal.vue:91
 #: src/views/website/EditModal.vue:1848
@@ -3379,7 +3379,7 @@ msgstr "Enter username"
 #: src/views/database/ServerList.vue:61
 #: src/views/database/UpdateServerModal.vue:101
 #: src/views/database/UpdateUserModal.vue:62 src/views/database/UserList.vue:31
-#: src/views/login/IndexView.vue:177 src/views/setting/CreateModal.vue:54
+#: src/views/login/IndexView.vue:194 src/views/setting/CreateModal.vue:54
 #: src/views/setting/PasswordModal.vue:41 src/views/ssh/CreateModal.vue:79
 #: src/views/ssh/CreateModal.vue:88 src/views/ssh/UpdateModal.vue:85
 #: src/views/ssh/UpdateModal.vue:94 src/views/website/EditModal.vue:1849
@@ -6347,31 +6347,36 @@ msgstr ""
 "Are you sure you want to restart the server? This will disconnect all "
 "connections."
 
-#: src/views/home/UpdateView.vue:25
+#: src/views/home/UpdateView.vue:28
 msgid "Update Panel"
 msgstr "Update Panel"
 
-#: src/views/home/UpdateView.vue:26
+#: src/views/home/UpdateView.vue:29
 msgid "Are you sure you want to update the panel?"
 msgstr "Are you sure you want to update the panel?"
 
-#: src/views/home/UpdateView.vue:31
+#: src/views/home/UpdateView.vue:34
 msgid "Panel updating..."
 msgstr "Panel updating..."
 
-#: src/views/home/UpdateView.vue:42
+#: src/views/home/UpdateView.vue:45
 msgid "Panel updated successfully"
 msgstr "Panel updated successfully"
 
-#: src/views/home/UpdateView.vue:50
+#: src/views/home/UpdateView.vue:53
 msgid "Update canceled"
 msgstr "Update canceled"
 
-#: src/views/home/UpdateView.vue:76
+#: src/views/home/UpdateView.vue:68
+#, fuzzy
+msgid "Latest"
+msgstr "System Version"
+
+#: src/views/home/UpdateView.vue:83
 msgid "Update Now"
 msgstr "Update Now"
 
-#: src/views/home/UpdateView.vue:83
+#: src/views/home/UpdateView.vue:103
 msgid "Loading update information, please wait a moment"
 msgstr "Loading update information, please wait a moment"
 
@@ -6496,38 +6501,38 @@ msgstr "Source Port"
 msgid "Auth Method"
 msgstr "Authentication Method"
 
-#: src/views/login/IndexView.vue:67
+#: src/views/login/IndexView.vue:72
 msgid "Please enter username and password"
 msgstr "Please enter username and password"
 
-#: src/views/login/IndexView.vue:72
+#: src/views/login/IndexView.vue:77
 #, fuzzy
 msgid "Please enter captcha code"
 msgstr "Please enter username and password"
 
-#: src/views/login/IndexView.vue:77
+#: src/views/login/IndexView.vue:95
 msgid ""
 "Failed to get encryption public key, please refresh the page and try again"
 msgstr ""
 "Failed to get encryption public key, please refresh the page and try again"
 
-#: src/views/login/IndexView.vue:92
+#: src/views/login/IndexView.vue:109
 msgid "Login successful!"
 msgstr "Login successful!"
 
-#: src/views/login/IndexView.vue:188
+#: src/views/login/IndexView.vue:205
 msgid "2FA Code"
 msgstr "2FA Code"
 
-#: src/views/login/IndexView.vue:198
+#: src/views/login/IndexView.vue:215
 msgid "Captcha Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:213
+#: src/views/login/IndexView.vue:230
 msgid "Safe Login"
 msgstr "Safe Login"
 
-#: src/views/login/IndexView.vue:214
+#: src/views/login/IndexView.vue:231
 msgid "Remember Me"
 msgstr "Remember Me"
 
@@ -6592,7 +6597,7 @@ msgstr "days"
 msgid "Clear Monitoring Records"
 msgstr "Clear Monitoring Records"
 
-#: src/views/monitor/IndexView.vue:734 src/views/website/EditModal.vue:1985
+#: src/views/monitor/IndexView.vue:734 src/views/website/EditModal.vue:1973
 msgid "Are you sure you want to clear?"
 msgstr "Are you sure you want to clear?"
 
@@ -9997,19 +10002,19 @@ msgstr "All logs can be viewed by downloading the file"
 msgid "view"
 msgstr "view"
 
-#: src/views/website/EditModal.vue:1982
+#: src/views/website/EditModal.vue:1970
 msgid "Clear Logs"
 msgstr "Clear Logs"
 
-#: src/views/website/EditModal.vue:1994
+#: src/views/website/EditModal.vue:1982
 msgid "One-click Certificate Issuance"
 msgstr "One-click Certificate Issuance"
 
-#: src/views/website/EditModal.vue:1999
+#: src/views/website/EditModal.vue:1987
 msgid "Reset Configuration"
 msgstr "Reset Configuration"
 
-#: src/views/website/EditModal.vue:2002
+#: src/views/website/EditModal.vue:1990
 msgid "Are you sure you want to reset the configuration?"
 msgstr "Are you sure you want to reset the configuration?"
 
