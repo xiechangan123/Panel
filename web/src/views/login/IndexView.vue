@@ -6,6 +6,7 @@ import { addDynamicRoutes } from '@/router'
 import { useThemeStore, useUserStore } from '@/store'
 import { getLocal, removeLocal, setLocal } from '@/utils'
 import { rsaEncrypt } from '@/utils/encrypt'
+import { until } from '@vueuse/core'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -13,11 +14,9 @@ const router = useRouter()
 const route = useRoute()
 const query = route.query
 const keyLoaded = ref(false)
-const { data: key, loading: isLoading } = useRequest(user.key, { initialData: '' }).onComplete(
-  () => {
-    keyLoaded.value = true
-  }
-)
+const { data: key } = useRequest(user.key, { initialData: '' }).onComplete(() => {
+  keyLoaded.value = true
+})
 const { data: isLogin } = useRequest(user.isLogin, { initialData: false })
 
 interface LoginInfo {
@@ -79,16 +78,7 @@ async function handleLogin() {
   }
   logining.value = true
   // 等待公钥加载完成（密码管理器可能在公钥就绪前自动提交）
-  if (keyLoaded.value) {
-    await new Promise<void>((resolve) => {
-      const stop = watch(keyLoaded, (v) => {
-        if (!v) {
-          stop()
-          resolve()
-        }
-      })
-    })
-  }
+  await until(keyLoaded).toBe(true)
   if (!key.value) {
     logining.value = false
     window.$message.warning(
@@ -149,7 +139,7 @@ const isTwoFA = () => {
 }
 
 watch(isLogin, async () => {
-  if (isLogin) {
+  if (isLogin.value) {
     await addDynamicRoutes()
     useRequest(user.info()).onSuccess(({ data }) => {
       userStore.set(data as any)
@@ -232,8 +222,8 @@ onMounted(() => {
         </n-flex>
 
         <n-button
-          :loading="isLoading || logining"
-          :disabled="isLoading || logining"
+          :loading="!keyLoaded || logining"
+          :disabled="!keyLoaded || logining"
           class="text-16 mt-24 h-48 w-full"
           type="primary"
           @click="handleLogin"
