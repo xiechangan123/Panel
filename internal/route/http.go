@@ -653,6 +653,7 @@ func newPrecompressedSPAHandler(fsys http.FileSystem) http.HandlerFunc {
 }
 
 func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSystem, path string, acceptBr bool) bool {
+	name := filepath.Base(path)
 	// 尝试打开 .br 版本
 	if f, err := fsys.Open(path + ".br"); err == nil {
 		defer func(f http.File) { _ = f.Close() }(f)
@@ -671,14 +672,14 @@ func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSyste
 		if acceptBr {
 			// 客户端支持 br，直接透传
 			w.Header().Set("Content-Encoding", "br")
-			http.ServeContent(w, r, "", fi.ModTime(), f)
+			http.ServeContent(w, r, name, fi.ModTime(), f)
 		} else {
 			// 客户端不支持 br，解压后返回（由中间件处理 gzip）
 			decoded, err := io.ReadAll(brotli.NewReader(f))
 			if err != nil {
 				return false
 			}
-			http.ServeContent(w, r, "", fi.ModTime(), bytes.NewReader(decoded))
+			http.ServeContent(w, r, name, fi.ModTime(), bytes.NewReader(decoded))
 		}
 		return true
 	}
@@ -693,6 +694,6 @@ func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSyste
 	if err != nil || fi.IsDir() {
 		return false
 	}
-	http.ServeContent(w, r, filepath.Base(path), fi.ModTime(), f)
+	http.ServeContent(w, r, name, fi.ModTime(), f)
 	return true
 }
