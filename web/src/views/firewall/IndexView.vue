@@ -25,8 +25,8 @@ const currentTab = ref('scan')
         <n-tab name="setting" :tab="$gettext('Settings')" />
       </n-tabs>
     </template>
-    <rule-view v-if="currentTab === 'rule'" />
     <scan-view v-if="currentTab === 'scan'" />
+    <rule-view v-if="currentTab === 'rule'" />
     <ip-rule-view v-if="currentTab === 'ip-rule'" />
     <forward-view v-if="currentTab === 'forward'" />
     <setting-view v-if="currentTab === 'setting'" />

@@ -15,6 +15,8 @@ const { $gettext, $pgettext } = useGettext()
 
 use([CanvasRenderer, LineChart, TooltipComponent, LegendComponent, GridComponent])
 
+const scanEnabled = ref(false)
+const ready = ref(false)
 const currentTab = ref('overview')
 
 // 日期范围
@@ -167,7 +169,13 @@ watch(currentTab, (val) => {
 })
 
 onMounted(() => {
-  refreshOverview()
+  useRequest(firewall.scanSetting()).onSuccess(({ data }) => {
+    scanEnabled.value = data.enabled
+    ready.value = true
+    if (data.enabled) {
+      refreshOverview()
+    }
+  })
 })
 
 // 趋势图表
@@ -304,7 +312,17 @@ const handleClear = () => {
 </script>
 
 <template>
-  <n-flex vertical :size="20">
+  <!-- 未启用提示 -->
+  <n-result v-if="ready && !scanEnabled" status="info" :title="$gettext('Scan Awareness Disabled')">
+    <template #footer>
+      <n-text depth="3">
+        {{ $gettext('Enable scan awareness in the Settings tab to start detecting port scans.') }}
+      </n-text>
+    </template>
+  </n-result>
+
+  <!-- 已启用 -->
+  <n-flex v-else-if="ready" vertical :size="20">
     <n-tabs v-model:value="currentTab" type="segment">
       <n-tab name="overview" :tab="$gettext('Overview')" />
       <n-tab name="events" :tab="$gettext('Scan Events')" />
