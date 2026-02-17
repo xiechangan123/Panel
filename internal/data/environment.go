@@ -210,8 +210,7 @@ func (r *environmentRepo) do(typ, slug, action string) error {
 	task := new(biz.Task)
 	task.Name = name
 	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s" >> /tmp/%s-%s.log 2>&1`, shellUrl, env.Slug, env.Version, env.Type, env.Slug)
-	task.Log = fmt.Sprintf("/tmp/%s-%s.log", env.Type, env.Slug)
+	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, env.Slug, env.Version)
 
 	return r.task.Push(task)
 }

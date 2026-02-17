@@ -31,6 +31,27 @@ func Exec(shell string) (string, error) {
 	return strings.TrimSpace(stdout.String()), nil
 }
 
+// ExecWithLog 执行 shell 命令并将输出写入指定的日志文件
+func ExecWithLog(shell string, logFile string) error {
+	_ = os.Setenv("LC_ALL", "C")
+
+	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer func(f *os.File) { _ = f.Close() }(f)
+
+	cmd := exec.Command("bash", "-c", shell)
+	cmd.Stdout = f
+	cmd.Stderr = f
+
+	if err = cmd.Run(); err != nil {
+		return fmt.Errorf("run %s failed, err: %w", shell, err)
+	}
+
+	return nil
+}
+
 // Execf 安全执行 shell 命令
 func Execf(shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {

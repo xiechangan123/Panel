@@ -2,8 +2,12 @@ package queuejob
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 
+	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/shell"
 )
@@ -39,7 +43,15 @@ func (r *ProcessTask) Handle(args ...any) error {
 		return err
 	}
 
-	if _, err = shell.Exec(task.Shell); err != nil {
+	// 计算日志路径并保存
+	logDir := filepath.Join(app.Root, "storage/logs/task")
+	_ = os.MkdirAll(logDir, 0o700)
+	logFile := filepath.Join(logDir, fmt.Sprintf("%d.log", taskID))
+	if err = r.taskRepo.UpdateLog(taskID, logFile); err != nil {
+		return err
+	}
+
+	if err = shell.ExecWithLog(task.Shell, logFile); err != nil {
 		return err
 	}
 

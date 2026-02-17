@@ -55,6 +55,10 @@ func (r *taskRepo) UpdateStatus(id uint, status biz.TaskStatus) error {
 	return r.db.Model(&biz.Task{}).Where("id = ?", id).Update("status", status).Error
 }
 
+func (r *taskRepo) UpdateLog(id uint, log string) error {
+	return r.db.Model(&biz.Task{}).Where("id = ?", id).Update("log", log).Error
+}
+
 func (r *taskRepo) Push(task *biz.Task) error {
 	// 防止有人喜欢酒吧点炒饭
 	var count int64

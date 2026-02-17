@@ -27,6 +27,7 @@ type TaskRepo interface {
 	Get(id uint) (*Task, error)
 	Delete(id uint) error
 	UpdateStatus(id uint, status TaskStatus) error
+	UpdateLog(id uint, log string) error
 	Push(task *Task) error
 	ClearZombieTasks() error
 }
