@@ -7,6 +7,7 @@ import CreateDatabaseModal from '@/views/database/CreateDatabaseModal.vue'
 import CreateServerModal from '@/views/database/CreateServerModal.vue'
 import CreateUserModal from '@/views/database/CreateUserModal.vue'
 import DatabaseList from '@/views/database/DatabaseList.vue'
+import RedisDataView from '@/views/database/RedisDataView.vue'
 import ServerList from '@/views/database/ServerList.vue'
 import UserList from '@/views/database/UserList.vue'
 import { NButton } from 'naive-ui'
@@ -26,12 +27,13 @@ const createServerModalShow = ref(false)
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="mysql" tab="MySQL" />
         <n-tab name="postgresql" tab="PostgreSQL" />
+        <n-tab name="redis" tab="Redis" />
         <n-tab name="user" :tab="$gettext('User')" />
         <n-tab name="server" :tab="$gettext('Server')" />
       </n-tabs>
     </template>
     <n-flex vertical>
-      <n-flex>
+      <n-flex v-if="currentTab !== 'redis'">
         <n-button
           v-if="currentTab === 'mysql' || currentTab === 'postgresql'"
           type="primary"
@@ -52,6 +54,7 @@ const createServerModalShow = ref(false)
       </n-flex>
       <database-list v-if="currentTab === 'mysql'" type="mysql" />
       <database-list v-if="currentTab === 'postgresql'" type="postgresql" />
+      <redis-data-view v-if="currentTab === 'redis'" />
       <user-list v-if="currentTab === 'user'" />
       <server-list v-if="currentTab === 'server'" />
     </n-flex>

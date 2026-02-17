@@ -30,6 +30,7 @@ type Http struct {
 	project           *service.ProjectService
 	database          *service.DatabaseService
 	databaseServer    *service.DatabaseServerService
+	databaseRedis     *service.DatabaseRedisService
 	databaseUser      *service.DatabaseUserService
 	backup            *service.BackupService
 	backupStorage     *service.BackupStorageService
@@ -81,6 +82,7 @@ func NewHttp(
 	project *service.ProjectService,
 	database *service.DatabaseService,
 	databaseServer *service.DatabaseServerService,
+	databaseRedis *service.DatabaseRedisService,
 	databaseUser *service.DatabaseUserService,
 	backup *service.BackupService,
 	backupStorage *service.BackupStorageService,
@@ -131,6 +133,7 @@ func NewHttp(
 		project:           project,
 		database:          database,
 		databaseServer:    databaseServer,
+		databaseRedis:     databaseRedis,
 		databaseUser:      databaseUser,
 		backup:            backup,
 		backupStorage:     backupStorage,
@@ -274,6 +277,17 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Put("/{id}", route.databaseUser.Update)
 			r.Put("/{id}/remark", route.databaseUser.UpdateRemark)
 			r.Delete("/{id}", route.databaseUser.Delete)
+		})
+
+		r.Route("/database_redis", func(r chi.Router) {
+			r.Get("/databases", route.databaseRedis.Databases)
+			r.Get("/data", route.databaseRedis.Data)
+			r.Get("/key", route.databaseRedis.KeyGet)
+			r.Post("/key", route.databaseRedis.KeySet)
+			r.Delete("/key", route.databaseRedis.KeyDelete)
+			r.Post("/key/ttl", route.databaseRedis.KeyTTL)
+			r.Post("/key/rename", route.databaseRedis.KeyRename)
+			r.Post("/clear", route.databaseRedis.Clear)
 		})
 
 		r.Route("/backup", func(r chi.Router) {

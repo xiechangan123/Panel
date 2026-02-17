@@ -18,6 +18,7 @@ var ProviderSet = wire.NewSet(
 	NewContainerVolumeRepo,
 	NewCronRepo,
 	NewDatabaseRepo,
+	NewDatabaseRedisRepo,
 	NewDatabaseServerRepo,
 	NewDatabaseUserRepo,
 	NewEnvironmentRepo,

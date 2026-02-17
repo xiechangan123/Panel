@@ -33,6 +33,13 @@ const openTerminal = (row: any) => {
     } else {
       terminalCommand.value = `su - postgres -c 'psql'`
     }
+  } else if (row.type === 'redis') {
+    terminalTitle.value = `Redis - ${row.name}`
+    if (row.password) {
+      terminalCommand.value = `redis-cli -h '${row.host}' -p '${row.port}' -a '${row.password}'`
+    } else {
+      terminalCommand.value = `redis-cli -h '${row.host}' -p '${row.port}'`
+    }
   } else {
     window.$message.error($gettext('Unsupported database type'))
     return
@@ -154,37 +161,39 @@ const columns: any = [
             default: () => $gettext('Terminal')
           }
         ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => {
-              useRequest(database.serverSync(row.id)).onSuccess(() => {
-                refresh()
-                window.$message.success($gettext('Synchronized successfully'))
-              })
-            }
-          },
-          {
-            default: () => {
-              return $gettext(
-                'Are you sure you want to synchronize database users (excluding password) to the panel?'
-              )
-            },
-            trigger: () => {
-              return h(
-                NButton,
-                {
-                  size: 'small',
-                  type: 'success',
-                  style: 'margin-left: 15px;'
-                },
-                {
-                  default: () => $gettext('Sync')
+        row.type !== 'redis'
+          ? h(
+              NPopconfirm,
+              {
+                onPositiveClick: () => {
+                  useRequest(database.serverSync(row.id)).onSuccess(() => {
+                    refresh()
+                    window.$message.success($gettext('Synchronized successfully'))
+                  })
                 }
-              )
-            }
-          }
-        ),
+              },
+              {
+                default: () => {
+                  return $gettext(
+                    'Are you sure you want to synchronize database users (excluding password) to the panel?'
+                  )
+                },
+                trigger: () => {
+                  return h(
+                    NButton,
+                    {
+                      size: 'small',
+                      type: 'success',
+                      style: 'margin-left: 15px;'
+                    },
+                    {
+                      default: () => $gettext('Sync')
+                    }
+                  )
+                }
+              }
+            )
+          : null,
         h(
           NButton,
           {

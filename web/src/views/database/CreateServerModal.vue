@@ -9,11 +9,17 @@ const props = defineProps<{
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
+const defaultPort = (type: string) => {
+  if (type === 'postgresql') return 5432
+  if (type === 'redis') return 6379
+  return 3306
+}
+
 const createModel = ref({
   name: '',
   type: props.type || 'mysql',
   host: '127.0.0.1',
-  port: (props.type || 'mysql') === 'postgresql' ? 5432 : 3306,
+  port: defaultPort(props.type || 'mysql'),
   username: '',
   password: '',
   remark: ''
@@ -21,14 +27,21 @@ const createModel = ref({
 
 const typeOptions = [
   { label: 'MySQL', value: 'mysql' },
-  { label: 'PostgreSQL', value: 'postgresql' }
+  { label: 'PostgreSQL', value: 'postgresql' },
+  { label: 'Redis', value: 'redis' }
 ]
 
 // 切换类型时自动更新端口
 watch(
   () => createModel.value.type,
   (val) => {
-    createModel.value.port = val === 'postgresql' ? 5432 : 3306
+    if (val === 'postgresql') {
+      createModel.value.port = 5432
+    } else if (val === 'redis') {
+      createModel.value.port = 6379
+    } else {
+      createModel.value.port = 3306
+    }
   }
 )
 
@@ -38,7 +51,7 @@ watch(
   (value) => {
     if (value) {
       createModel.value.type = props.type || 'mysql'
-      createModel.value.port = (props.type || 'mysql') === 'postgresql' ? 5432 : 3306
+      createModel.value.port = defaultPort(props.type || 'mysql')
     }
   }
 )
@@ -110,7 +123,7 @@ const handleCreate = () => {
           </n-form-item>
         </n-col>
       </n-row>
-      <n-form-item path="username" :label="$gettext('Username')">
+      <n-form-item v-if="createModel.type !== 'redis'" path="username" :label="$gettext('Username')">
         <n-input
           v-model:value="createModel.username"
           type="text"

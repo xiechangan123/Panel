@@ -39,5 +39,29 @@ export default {
   // 删除数据库用户
   userDelete: (id: number) => http.Delete(`/database_user/${id}`),
   // 更新用户备注
-  userRemark: (id: number, remark: string) => http.Put(`/database_user/${id}/remark`, { remark })
+  userRemark: (id: number, remark: string) =>
+    http.Put(`/database_user/${id}/remark`, { remark }),
+  // Redis 获取数据库数量
+  redisDatabases: (server_id: number) =>
+    http.Get('/database_redis/databases', { params: { server_id } }),
+  // Redis 获取 key 列表
+  redisData: (server_id: number, db: number, page: number, limit: number, search?: string) =>
+    http.Get('/database_redis/data', { params: { server_id, db, page, limit, search } }),
+  // Redis 获取单个 key
+  redisKeyGet: (server_id: number, db: number, key: string) =>
+    http.Get('/database_redis/key', { params: { server_id, db, key } }),
+  // Redis 设置 key
+  redisKeySet: (data: any) => http.Post('/database_redis/key', data),
+  // Redis 删除 key
+  redisKeyDelete: (server_id: number, db: number, key: string) =>
+    http.Delete('/database_redis/key', { server_id, db, key }),
+  // Redis 设置 TTL
+  redisKeyTTL: (server_id: number, db: number, key: string, ttl: number) =>
+    http.Post('/database_redis/key/ttl', { server_id, db, key, ttl }),
+  // Redis 重命名 key
+  redisKeyRename: (server_id: number, db: number, old_key: string, new_key: string) =>
+    http.Post('/database_redis/key/rename', { server_id, db, old_key, new_key }),
+  // Redis 清空数据库
+  redisClear: (server_id: number, db: number) =>
+    http.Post('/database_redis/clear', { server_id, db })
 }
