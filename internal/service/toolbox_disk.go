@@ -773,9 +773,9 @@ func (s *ToolboxDiskService) parseMdadm(name, detail string) raidArray {
 		} else if strings.HasPrefix(line, "State :") {
 			arr.State = strings.TrimSpace(strings.TrimPrefix(line, "State :"))
 		} else if strings.HasPrefix(line, "Active Devices :") {
-			fmt.Sscanf(strings.TrimPrefix(line, "Active Devices :"), "%d", &arr.ActiveDevices)
+			_, _ = fmt.Sscanf(strings.TrimPrefix(line, "Active Devices :"), "%d", &arr.ActiveDevices)
 		} else if strings.HasPrefix(line, "Total Devices :") {
-			fmt.Sscanf(strings.TrimPrefix(line, "Total Devices :"), "%d", &arr.TotalDevices)
+			_, _ = fmt.Sscanf(strings.TrimPrefix(line, "Total Devices :"), "%d", &arr.TotalDevices)
 		} else if strings.HasPrefix(line, "Chunk Size :") {
 			arr.StripSize = strings.TrimSpace(strings.TrimPrefix(line, "Chunk Size :"))
 		} else if strings.HasPrefix(line, "Rebuild Status :") {
