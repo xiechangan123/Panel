@@ -190,7 +190,9 @@ watch(showPathSelector, (val) => {
           type="text"
           @keydown.enter.prevent
           :placeholder="
-            $gettext('Must use English for the website name, it cannot be modified after setting')
+            $gettext(
+              'Must be unique, used for directory naming, database naming, etc., and only supports letters, numbers, hyphens, and underscores'
+            )
           "
         />
       </n-form-item>
