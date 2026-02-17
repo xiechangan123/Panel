@@ -181,7 +181,11 @@ const nvmeAttributes = computed(() => {
     if (nvme[key] != null) {
       let val = String(nvme[key])
       if (key === 'temperature') val += ' °C'
-      else if (key === 'available_spare' || key === 'available_spare_threshold' || key === 'percentage_used')
+      else if (
+        key === 'available_spare' ||
+        key === 'available_spare_threshold' ||
+        key === 'percentage_used'
+      )
         val += '%'
       items.push({ key, name: label, value: val })
     }
@@ -255,8 +259,8 @@ const formatCapacity = (bytes: number): string => {
     <!-- 可用时 -->
     <n-flex v-if="!loadingDisks && available" vertical :size="16">
       <!-- 磁盘选择 -->
-      <n-flex align="center" :size="12">
-        <span style="font-weight: 500">{{ $gettext('Select Disk') }}:</span>
+      <n-flex v-if="diskOptions.length > 0" align="center" :size="12">
+        <span>{{ $gettext('Select Disk') }}:</span>
         <n-select
           v-model:value="selectedDisk"
           :options="diskOptions"
@@ -287,7 +291,7 @@ const formatCapacity = (bytes: number): string => {
                   :stroke-width="10"
                   style="width: 120px"
                 >
-                  <span style="font-size: 24px; font-weight: 600">{{ temperature }}°C</span>
+                  <span>{{ temperature }}°C</span>
                 </n-progress>
                 <span style="color: var(--text-color-3)">{{ $gettext('Temperature') }}</span>
               </n-flex>
@@ -296,7 +300,7 @@ const formatCapacity = (bytes: number): string => {
               <n-flex vertical :size="12" style="flex: 1">
                 <!-- 健康状态 -->
                 <n-flex v-if="healthStatus != null" align="center" :size="8">
-                  <span style="font-weight: 500">{{ $gettext('Health Status') }}:</span>
+                  <span>{{ $gettext('Health Status') }}:</span>
                   <n-tag :type="healthStatus ? 'success' : 'error'" size="small">
                     {{ healthStatus ? $gettext('PASSED') : $gettext('FAILED') }}
                   </n-tag>

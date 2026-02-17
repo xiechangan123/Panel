@@ -129,7 +129,7 @@ const deviceColumns = computed<DataTableColumns<RaidDevice>>(() => {
     <n-flex v-if="!loading && available" vertical :size="16">
       <!-- RAID 类型标识 -->
       <n-flex align="center" :size="8">
-        <span style="font-weight: 500">{{ $gettext('RAID Type') }}:</span>
+        <span>{{ $gettext('RAID Type') }}:</span>
         <n-tag type="info">{{ raidTypeLabel }}</n-tag>
       </n-flex>
 
@@ -160,7 +160,7 @@ const deviceColumns = computed<DataTableColumns<RaidDevice>>(() => {
       <n-card v-for="(arr, i) in arrays" :key="'arr-' + i" size="small">
         <template #header>
           <n-flex align="center" :size="8">
-            <span style="font-weight: 600">{{ arr.name }}</span>
+            <span>{{ arr.name }}</span>
             <n-tag :type="getStateType(arr.state)" size="small">{{ arr.state || '-' }}</n-tag>
           </n-flex>
         </template>
