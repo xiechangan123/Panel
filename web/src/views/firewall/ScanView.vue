@@ -249,9 +249,7 @@ const blockColumn = {
       {
         default: () => $pgettext('firewall', 'Block %{ ip }?', { ip: row.source_ip }),
         trigger: () =>
-          h(NButton, { size: 'tiny', type: 'error', ghost: true }, () =>
-            $pgettext('firewall', 'Block')
-          )
+          h(NButton, { size: 'tiny', type: 'error' }, () => $pgettext('firewall', 'Block'))
       }
     )
 }
@@ -340,13 +338,13 @@ const handleClear = () => {
           @keyup.enter="loadEvents()"
         />
         <n-popconfirm @positive-click="handleClear">
-        <template #trigger>
-          <n-button type="error" ghost>
-            {{ $gettext('Clear Data') }}
-          </n-button>
-        </template>
-        {{ $gettext('Are you sure you want to clear all scan data?') }}
-      </n-popconfirm>
+          <template #trigger>
+            <n-button type="error" ghost>
+              {{ $gettext('Clear Data') }}
+            </n-button>
+          </template>
+          {{ $gettext('Are you sure you want to clear all scan data?') }}
+        </n-popconfirm>
       </n-flex>
     </div>
 
