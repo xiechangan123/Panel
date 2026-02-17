@@ -251,9 +251,9 @@ pnpm build
 
 - **`internal/migration/`**: 数据库迁移
 
-- **`internal/job/`**: 后台任务
+- **`internal/job/`**: 定时任务
 
-- **`internal/queuejob/`**: 任务队列
+- **`internal/taskqueue/`**: 任务队列运行器（基于 DB 轮询，实现 `types.TaskRunner` 接口）
 
 - **`pkg/`**: 工具函数和通用包
     - 包含各种独立的工具模块
