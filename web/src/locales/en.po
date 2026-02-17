@@ -1478,7 +1478,7 @@ msgstr "Show in Home"
 #: src/views/database/ServerList.vue:147 src/views/database/UserList.vue:133
 #: src/views/environment/PHPView.vue:64 src/views/file/ListView.vue:1365
 #: src/views/firewall/ForwardView.vue:79 src/views/firewall/IpRuleView.vue:121
-#: src/views/firewall/RuleView.vue:225 src/views/firewall/ScanView.vue:242
+#: src/views/firewall/RuleView.vue:225 src/views/firewall/ScanView.vue:250
 #: src/views/project/ListView.vue:116 src/views/setting/SettingUser.vue:85
 #: src/views/setting/TokenModal.vue:54 src/views/task/CronView.vue:108
 #: src/views/task/TaskView.vue:55 src/views/toolbox/DiskView.vue:344
@@ -1825,7 +1825,7 @@ msgstr "Current Value"
 #: src/views/apps/supervisor/IndexView.vue:235
 #: src/views/database/RedisDataView.vue:223
 #: src/views/environment/PHPView.vue:175 src/views/environment/PHPView.vue:181
-#: src/views/firewall/ScanView.vue:301 src/views/website/EditModal.vue:206
+#: src/views/firewall/ScanView.vue:307 src/views/website/EditModal.vue:206
 msgid "Cleared successfully"
 msgstr "Cleared successfully"
 
@@ -2857,8 +2857,8 @@ msgstr ""
 msgid "Listen"
 msgstr ""
 
-#: src/views/apps/nginx/NginxIndex.vue:166 src/views/firewall/ScanView.vue:274
-#: src/views/firewall/ScanView.vue:282
+#: src/views/apps/nginx/NginxIndex.vue:166 src/views/firewall/ScanView.vue:280
+#: src/views/firewall/ScanView.vue:288
 msgid "Protocol"
 msgstr "Protocol"
 
@@ -3947,8 +3947,8 @@ msgstr "Container Name"
 #: src/views/database/CreateServerModal.vue:116
 #: src/views/database/UpdateServerModal.vue:83
 #: src/views/firewall/ForwardView.vue:31 src/views/firewall/RuleView.vue:65
-#: src/views/firewall/ScanView.vue:273 src/views/firewall/ScanView.vue:281
-#: src/views/firewall/ScanView.vue:335 src/views/log/SSHLog.vue:81
+#: src/views/firewall/ScanView.vue:279 src/views/firewall/ScanView.vue:287
+#: src/views/firewall/ScanView.vue:351 src/views/log/SSHLog.vue:81
 #: src/views/setting/SettingBase.vue:125 src/views/ssh/CreateModal.vue:70
 #: src/views/ssh/UpdateModal.vue:76 src/views/website/CreateModal.vue:224
 msgid "Port"
@@ -6151,104 +6151,113 @@ msgstr "In Use"
 msgid "No process information"
 msgstr "Access Information"
 
-#: src/views/firewall/ScanView.vue:179 src/views/firewall/ScanView.vue:197
-#: src/views/firewall/ScanView.vue:209 src/views/firewall/ScanView.vue:261
-#: src/views/firewall/ScanView.vue:275 src/views/firewall/ScanView.vue:283
+#: src/views/firewall/ScanView.vue:187 src/views/firewall/ScanView.vue:205
+#: src/views/firewall/ScanView.vue:217 src/views/firewall/ScanView.vue:267
+#: src/views/firewall/ScanView.vue:281 src/views/firewall/ScanView.vue:289
 #, fuzzy
 msgid "Scan Count"
 msgstr "Container Count"
 
-#: src/views/firewall/ScanView.vue:179 src/views/firewall/ScanView.vue:202
-#: src/views/firewall/ScanView.vue:215 src/views/firewall/ScanView.vue:383
+#: src/views/firewall/ScanView.vue:187 src/views/firewall/ScanView.vue:210
+#: src/views/firewall/ScanView.vue:223 src/views/firewall/ScanView.vue:399
 #, fuzzy
 msgid "Source IPs"
 msgstr "Source Port"
 
-#: src/views/firewall/ScanView.vue:236
+#: src/views/firewall/ScanView.vue:244
 #, fuzzy
 msgid "%{ address } blocked successfully"
 msgstr "%{ address } created successfully"
 
-#: src/views/firewall/ScanView.vue:250
+#: src/views/firewall/ScanView.vue:258
 msgctxt "firewall"
 msgid "Block %{ ip }?"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:253
+#: src/views/firewall/ScanView.vue:260
 #, fuzzy
 msgctxt "firewall"
 msgid "Block"
 msgstr "Locked"
 
-#: src/views/firewall/ScanView.vue:260 src/views/firewall/ScanView.vue:280
+#: src/views/firewall/ScanView.vue:266 src/views/firewall/ScanView.vue:286
 #: src/views/log/SSHLog.vue:76
 #, fuzzy
 msgid "Source IP"
 msgstr "Source Port"
 
-#: src/views/firewall/ScanView.vue:262
+#: src/views/firewall/ScanView.vue:268
 #, fuzzy
 msgid "Port Count"
 msgstr "Container Count"
 
-#: src/views/firewall/ScanView.vue:264 src/views/firewall/ScanView.vue:291
+#: src/views/firewall/ScanView.vue:270 src/views/firewall/ScanView.vue:297
 msgid "Last Seen"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:276
+#: src/views/firewall/ScanView.vue:282
 #, fuzzy
 msgid "IP Count"
 msgstr "Container Count"
 
-#: src/views/firewall/ScanView.vue:285
+#: src/views/firewall/ScanView.vue:291
 msgid "First Seen"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:311
+#: src/views/firewall/ScanView.vue:316
+msgid "Scan Awareness Disabled"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:319
+msgid ""
+"Enable scan awareness in the Settings tab to start detecting port scans."
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:327
 #, fuzzy
 msgid "Overview"
 msgstr "Overwrite"
 
-#: src/views/firewall/ScanView.vue:312
+#: src/views/firewall/ScanView.vue:328
 msgid "Scan Events"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:326
+#: src/views/firewall/ScanView.vue:342
 #, fuzzy
 msgid "Search IP"
 msgstr "Parent PID"
 
-#: src/views/firewall/ScanView.vue:345
+#: src/views/firewall/ScanView.vue:361
 #, fuzzy
 msgid "Clear Data"
 msgstr "Clear Log"
 
-#: src/views/firewall/ScanView.vue:348
+#: src/views/firewall/ScanView.vue:364
 #, fuzzy
 msgid "Are you sure you want to clear all scan data?"
 msgstr "Are you sure you want to clear?"
 
-#: src/views/firewall/ScanView.vue:359
+#: src/views/firewall/ScanView.vue:375
 #, fuzzy
 msgid "Total Scans"
 msgstr "Total Bans"
 
-#: src/views/firewall/ScanView.vue:370
+#: src/views/firewall/ScanView.vue:386
 #, fuzzy
 msgid "Scanned Ports"
 msgstr "Map Ports"
 
-#: src/views/firewall/ScanView.vue:395
+#: src/views/firewall/ScanView.vue:411
 #, fuzzy
 msgid "Scan Trend"
 msgstr "Copy failed"
 
-#: src/views/firewall/ScanView.vue:404
+#: src/views/firewall/ScanView.vue:420
 #, fuzzy
 msgid "Top 10 Source IPs"
 msgstr "Source Port"
 
-#: src/views/firewall/ScanView.vue:415
+#: src/views/firewall/ScanView.vue:431
 msgid "Top 10 Scanned Ports"
 msgstr ""
 
