@@ -214,7 +214,7 @@ const columns: any = [
           {
             onPositiveClick: () => {
               // 防手贱
-              if (['local_mysql', 'local_postgresql'].includes(row.name)) {
+              if (['local_mysql', 'local_postgresql', 'local_redis'].includes(row.name)) {
                 window.$message.error(
                   $gettext(
                     'Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app'

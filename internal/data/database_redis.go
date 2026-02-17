@@ -1,6 +1,7 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -115,21 +116,21 @@ func (r *databaseRedisRepo) Clear(req *request.DatabaseRedisClear) error {
 func (r *databaseRedisRepo) getClient(serverID uint, dbIndex int) (*db.Redis, error) {
 	server := new(biz.DatabaseServer)
 	if err := r.orm.Where("id = ?", serverID).First(server).Error; err != nil {
-		return nil, fmt.Errorf(r.t.Get("server not found"))
+		return nil, errors.New(r.t.Get("server not found"))
 	}
 	if server.Type != biz.DatabaseTypeRedis {
-		return nil, fmt.Errorf(r.t.Get("server is not Redis type"))
+		return nil, errors.New(r.t.Get("server is not Redis type"))
 	}
 
 	client, err := db.NewRedis(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 	if err != nil {
-		return nil, fmt.Errorf(r.t.Get("failed to connect to Redis: %v"), err)
+		return nil, errors.New(r.t.Get("failed to connect to Redis: %v", err))
 	}
 
 	if dbIndex > 0 {
 		if err = client.Select(dbIndex); err != nil {
 			client.Close()
-			return nil, fmt.Errorf(r.t.Get("failed to select database: %v"), err)
+			return nil, errors.New(r.t.Get("failed to select database: %v", err))
 		}
 	}
 
