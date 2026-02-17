@@ -215,21 +215,31 @@ func (_c *BackupRepo_CreatePanel_Call) RunAndReturn(run func() error) *BackupRep
 }
 
 // CutoffLog provides a mock function with given fields: path, target
-func (_m *BackupRepo) CutoffLog(path string, target string) error {
+func (_m *BackupRepo) CutoffLog(path string, target string) (string, error) {
 	ret := _m.Called(path, target)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CutoffLog")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return rf(path, target)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
 		r0 = rf(path, target)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(path, target)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // BackupRepo_CutoffLog_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CutoffLog'
@@ -251,12 +261,61 @@ func (_c *BackupRepo_CutoffLog_Call) Run(run func(path string, target string)) *
 	return _c
 }
 
-func (_c *BackupRepo_CutoffLog_Call) Return(_a0 error) *BackupRepo_CutoffLog_Call {
+func (_c *BackupRepo_CutoffLog_Call) Return(_a0 string, _a1 error) *BackupRepo_CutoffLog_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *BackupRepo_CutoffLog_Call) RunAndReturn(run func(string, string) (string, error)) *BackupRepo_CutoffLog_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CutoffUpload provides a mock function with given fields: account, typ, name, files
+func (_m *BackupRepo) CutoffUpload(account uint, typ biz.BackupType, name string, files []string) error {
+	ret := _m.Called(account, typ, name, files)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CutoffUpload")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, biz.BackupType, string, []string) error); ok {
+		r0 = rf(account, typ, name, files)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// BackupRepo_CutoffUpload_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CutoffUpload'
+type BackupRepo_CutoffUpload_Call struct {
+	*mock.Call
+}
+
+// CutoffUpload is a helper method to define mock.On call
+//   - account uint
+//   - typ biz.BackupType
+//   - name string
+//   - files []string
+func (_e *BackupRepo_Expecter) CutoffUpload(account interface{}, typ interface{}, name interface{}, files interface{}) *BackupRepo_CutoffUpload_Call {
+	return &BackupRepo_CutoffUpload_Call{Call: _e.mock.On("CutoffUpload", account, typ, name, files)}
+}
+
+func (_c *BackupRepo_CutoffUpload_Call) Run(run func(account uint, typ biz.BackupType, name string, files []string)) *BackupRepo_CutoffUpload_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint), args[1].(biz.BackupType), args[2].(string), args[3].([]string))
+	})
+	return _c
+}
+
+func (_c *BackupRepo_CutoffUpload_Call) Return(_a0 error) *BackupRepo_CutoffUpload_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *BackupRepo_CutoffLog_Call) RunAndReturn(run func(string, string) error) *BackupRepo_CutoffLog_Call {
+func (_c *BackupRepo_CutoffUpload_Call) RunAndReturn(run func(uint, biz.BackupType, string, []string) error) *BackupRepo_CutoffUpload_Call {
 	_c.Call.Return(run)
 	return _c
 }
