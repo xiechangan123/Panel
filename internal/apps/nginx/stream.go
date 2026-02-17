@@ -558,7 +558,7 @@ func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream
 	if len(upstream.Resolver) > 0 {
 		_, _ = fmt.Fprintf(&sb, "    resolver %s;\n", strings.Join(upstream.Resolver, " "))
 		if upstream.ResolverTimeout > 0 {
-			sb.WriteString(fmt.Sprintf("    resolver_timeout %s;\n", formatNginxDuration(upstream.ResolverTimeout)))
+			_, _ = fmt.Fprintf(&sb, "    resolver_timeout %s;\n", formatNginxDuration(upstream.ResolverTimeout))
 		}
 	}
 
@@ -572,9 +572,9 @@ func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream
 	for _, addr := range addrs {
 		options := upstream.Servers[addr]
 		if options != "" {
-			sb.WriteString(fmt.Sprintf("    server %s %s;\n", addr, options))
+			_, _ = fmt.Fprintf(&sb, "    server %s %s;\n", addr, options)
 		} else {
-			sb.WriteString(fmt.Sprintf("    server %s;\n", addr))
+			_, _ = fmt.Fprintf(&sb, "    server %s;\n", addr)
 		}
 	}
 

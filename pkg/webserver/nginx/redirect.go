@@ -189,24 +189,24 @@ func generateRedirectConfig(redirect types.Redirect) string {
 	switch redirect.Type {
 	case types.RedirectTypeURL:
 		// URL 重定向
-		sb.WriteString(fmt.Sprintf("# URL redirect: %s -> %s\n", redirect.From, redirect.To))
-		sb.WriteString(fmt.Sprintf("location = %s {\n", redirect.From))
-		sb.WriteString(fmt.Sprintf("    return %d %s%s;\n", statusCode, redirect.To, uriSuffix))
+		_, _ = fmt.Fprintf(&sb, "# URL redirect: %s -> %s\n", redirect.From, redirect.To)
+		_, _ = fmt.Fprintf(&sb, "location = %s {\n", redirect.From)
+		_, _ = fmt.Fprintf(&sb, "    return %d %s%s;\n", statusCode, redirect.To, uriSuffix)
 		sb.WriteString("}\n")
 
 	case types.RedirectTypeHost:
 		// Host 重定向
-		sb.WriteString(fmt.Sprintf("# Host redirect: %s -> %s\n", redirect.From, redirect.To))
-		sb.WriteString(fmt.Sprintf("if ($host = \"%s\") {\n", redirect.From))
-		sb.WriteString(fmt.Sprintf("    return %d %s%s;\n", statusCode, redirect.To, uriSuffix))
+		_, _ = fmt.Fprintf(&sb, "# Host redirect: %s -> %s\n", redirect.From, redirect.To)
+		_, _ = fmt.Fprintf(&sb, "if ($host = \"%s\") {\n", redirect.From)
+		_, _ = fmt.Fprintf(&sb, "    return %d %s%s;\n", statusCode, redirect.To, uriSuffix)
 		sb.WriteString("}\n")
 
 	case types.RedirectType404:
 		// 404 重定向
-		sb.WriteString(fmt.Sprintf("# 404 redirect -> %s\n", redirect.To))
+		_, _ = fmt.Fprintf(&sb, "# 404 redirect -> %s\n", redirect.To)
 		sb.WriteString("error_page 404 = @redirect_404;\n")
 		sb.WriteString("location @redirect_404 {\n")
-		sb.WriteString(fmt.Sprintf("    return %d %s%s;\n", statusCode, redirect.To, uriSuffix))
+		_, _ = fmt.Fprintf(&sb, "    return %d %s%s;\n", statusCode, redirect.To, uriSuffix)
 		sb.WriteString("}\n")
 	}
 

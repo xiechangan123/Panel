@@ -254,34 +254,34 @@ func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript
 		for _, target := range config.Targets {
 			switch config.Type {
 			case "website":
-				sb.WriteString(fmt.Sprintf("acepanel backup website -n '%s' -s '%d'\n", target, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel backup website -n '%s' -s '%d'\n", target, config.Storage)
 			case "mysql", "postgres":
-				sb.WriteString(fmt.Sprintf("acepanel backup database -t '%s' -n '%s' -s '%d'\n", config.Type, target, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel backup database -t '%s' -n '%s' -s '%d'\n", config.Type, target, config.Storage)
 			}
 		}
 		for _, target := range config.Targets {
 			switch config.Type {
 			case "website":
-				sb.WriteString(fmt.Sprintf("acepanel backup clear -t website -f '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel backup clear -t website -f '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage)
 			case "mysql", "postgres":
-				sb.WriteString(fmt.Sprintf("acepanel backup clear -t '%s' -f '%s' -k '%d' -s '%d'\n", config.Type, target, config.Keep, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel backup clear -t '%s' -f '%s' -k '%d' -s '%d'\n", config.Type, target, config.Keep, config.Storage)
 			}
 		}
 	case "cutoff":
 		for _, target := range config.Targets {
 			switch config.Type {
 			case "website":
-				sb.WriteString(fmt.Sprintf("acepanel cutoff website -n '%s' -s '%d'\n", target, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel cutoff website -n '%s' -s '%d'\n", target, config.Storage)
 			case "container":
-				sb.WriteString(fmt.Sprintf("acepanel cutoff container -n '%s' -s '%d'\n", target, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel cutoff container -n '%s' -s '%d'\n", target, config.Storage)
 			}
 		}
 		for _, target := range config.Targets {
 			switch config.Type {
 			case "website":
-				sb.WriteString(fmt.Sprintf("acepanel cutoff clear -t website -n '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel cutoff clear -t website -n '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage)
 			case "container":
-				sb.WriteString(fmt.Sprintf("acepanel cutoff clear -t container -n '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage))
+				_, _ = fmt.Fprintf(&sb, "acepanel cutoff clear -t container -n '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage)
 			}
 		}
 	case "url":
@@ -289,23 +289,23 @@ func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript
 		if method == "" {
 			method = "GET"
 		}
-		sb.WriteString(fmt.Sprintf("curl -sSL -X %s", method))
+		_, _ = fmt.Fprintf(&sb, "curl -sSL -X %s", method)
 		if config.Timeout > 0 {
-			sb.WriteString(fmt.Sprintf(" --connect-timeout %d", config.Timeout))
+			_, _ = fmt.Fprintf(&sb, " --connect-timeout %d", config.Timeout)
 		}
 		if config.Insecure {
 			sb.WriteString(" -k")
 		}
 		if config.Retries > 0 {
-			sb.WriteString(fmt.Sprintf(" --retry %d", config.Retries))
+			_, _ = fmt.Fprintf(&sb, " --retry %d", config.Retries)
 		}
 		for key, value := range config.Headers {
-			sb.WriteString(fmt.Sprintf(" -H '%s: %s'", strings.ReplaceAll(key, "'", "'\"'\"'"), strings.ReplaceAll(value, "'", "'\"'\"'")))
+			_, _ = fmt.Fprintf(&sb, " -H '%s: %s'", strings.ReplaceAll(key, "'", "'\"'\"'"), strings.ReplaceAll(value, "'", "'\"'\"'"))
 		}
 		if config.Body != "" {
-			sb.WriteString(fmt.Sprintf(" -d '%s'", strings.ReplaceAll(config.Body, "'", "'\"'\"'")))
+			_, _ = fmt.Fprintf(&sb, " -d '%s'", strings.ReplaceAll(config.Body, "'", "'\"'\"'"))
 		}
-		sb.WriteString(fmt.Sprintf(" '%s'\n", strings.ReplaceAll(config.URL, "'", "'\"'\"'")))
+		_, _ = fmt.Fprintf(&sb, " '%s'\n", strings.ReplaceAll(config.URL, "'", "'\"'\"'"))
 	case "synctime":
 		sb.WriteString("acepanel sync-time\n")
 	}

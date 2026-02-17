@@ -114,9 +114,9 @@ func (s *panelSolver) startServer() error {
 
 func (s *panelSolver) writeNginxConfig() error {
 	var conf strings.Builder
-	conf.WriteString(fmt.Sprintf("server {\n    listen 80;\n    server_name %s;\n", strings.Join(s.ip, " ")))
+	_, _ = fmt.Fprintf(&conf, "server {\n    listen 80;\n    server_name %s;\n", strings.Join(s.ip, " "))
 	for path, token := range s.tokens {
-		conf.WriteString(fmt.Sprintf("    location = %s {\n        default_type text/plain;\n        return 200 %q;\n    }\n", path, token))
+		_, _ = fmt.Fprintf(&conf, "    location = %s {\n        default_type text/plain;\n        return 200 %q;\n    }\n", path, token)
 	}
 	conf.WriteString("}\n")
 
@@ -149,14 +149,14 @@ func (s *panelSolver) writeApacheConfig() error {
 	}
 
 	var conf strings.Builder
-	conf.WriteString(fmt.Sprintf("<VirtualHost *:80>\n    ServerName %s\n", s.ip[0]))
+	_, _ = fmt.Fprintf(&conf, "<VirtualHost *:80>\n    ServerName %s\n", s.ip[0])
 	if len(s.ip) > 1 {
 		for _, ip := range s.ip[1:] {
-			conf.WriteString(fmt.Sprintf("    ServerAlias %s\n", ip))
+			_, _ = fmt.Fprintf(&conf, "    ServerAlias %s\n", ip)
 		}
 	}
-	conf.WriteString(fmt.Sprintf("    Alias /.well-known/acme-challenge %s\n", tokenDir))
-	conf.WriteString(fmt.Sprintf("    <Directory %s>\n", tokenDir))
+	_, _ = fmt.Fprintf(&conf, "    Alias /.well-known/acme-challenge %s\n", tokenDir)
+	_, _ = fmt.Fprintf(&conf, "    <Directory %s>\n", tokenDir)
 	conf.WriteString("        Require all granted\n")
 	conf.WriteString("        ForceType text/plain\n")
 	conf.WriteString("    </Directory>\n")

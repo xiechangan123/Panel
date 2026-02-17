@@ -201,7 +201,7 @@ func generateRedirectConfig(redirect types.Redirect) string {
 	switch redirect.Type {
 	case types.RedirectTypeURL:
 		// URL 重定向
-		sb.WriteString(fmt.Sprintf("# URL redirect: %s -> %s\n", redirect.From, redirect.To))
+		_, _ = fmt.Fprintf(&sb, "# URL redirect: %s -> %s\n", redirect.From, redirect.To)
 		if redirect.KeepURI {
 			// 使用 RedirectMatch 保持 URI
 			from := lo.If(strings.HasPrefix(redirect.From, "^"), redirect.From).Else("^" + redirect.From)
@@ -209,23 +209,23 @@ func generateRedirectConfig(redirect types.Redirect) string {
 				from = from + "(.*)$"
 			}
 			to := lo.If(strings.HasSuffix(redirect.To, "$1"), redirect.To).Else(redirect.To + "$1")
-			sb.WriteString(fmt.Sprintf("RedirectMatch %d %s %s\n", statusCode, from, to))
+			_, _ = fmt.Fprintf(&sb, "RedirectMatch %d %s %s\n", statusCode, from, to)
 		} else {
-			sb.WriteString(fmt.Sprintf("Redirect %d %s %s\n", statusCode, redirect.From, redirect.To))
+			_, _ = fmt.Fprintf(&sb, "Redirect %d %s %s\n", statusCode, redirect.From, redirect.To)
 		}
 
 	case types.RedirectTypeHost:
 		// Host 重定向
-		sb.WriteString(fmt.Sprintf("# Host redirect: %s -> %s\n", redirect.From, redirect.To))
+		_, _ = fmt.Fprintf(&sb, "# Host redirect: %s -> %s\n", redirect.From, redirect.To)
 		sb.WriteString("RewriteEngine on\n")
 		escapedHost := strings.ReplaceAll(redirect.From, ".", `\.`)
-		sb.WriteString(fmt.Sprintf("RewriteCond %%{HTTP_HOST} ^%s$ [NC]\n", escapedHost))
-		sb.WriteString(fmt.Sprintf("RewriteRule ^(.*)$ %s [R=%d,L]\n", redirect.To+lo.If(redirect.KeepURI, "$1").Else(""), statusCode))
+		_, _ = fmt.Fprintf(&sb, "RewriteCond %%{HTTP_HOST} ^%s$ [NC]\n", escapedHost)
+		_, _ = fmt.Fprintf(&sb, "RewriteRule ^(.*)$ %s [R=%d,L]\n", redirect.To+lo.If(redirect.KeepURI, "$1").Else(""), statusCode)
 
 	case types.RedirectType404:
 		// 404 重定向
-		sb.WriteString(fmt.Sprintf("# 404 redirect -> %s\n", redirect.To))
-		sb.WriteString(fmt.Sprintf("ErrorDocument 404 %s\n", redirect.To))
+		_, _ = fmt.Fprintf(&sb, "# 404 redirect -> %s\n", redirect.To)
+		_, _ = fmt.Fprintf(&sb, "ErrorDocument 404 %s\n", redirect.To)
 	}
 
 	return sb.String()
