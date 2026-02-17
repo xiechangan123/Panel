@@ -2036,7 +2036,7 @@ msgstr "這將修改 Docker 配置文件 (/etc/docker/daemon.json)"
 #: src/views/firewall/RuleView.vue:78 src/views/log/HttpLog.vue:90
 #: src/views/log/SSHLog.vue:63 src/views/project/ListView.vue:58
 #: src/views/task/TaskView.vue:22 src/views/toolbox/disk/RaidView.vue:97
-#: src/views/toolbox/disk/SmartView.vue:213
+#: src/views/toolbox/disk/SmartView.vue:217
 #: src/views/toolbox/MigrationView.vue:472
 #: src/views/toolbox/MigrationView.vue:695
 #: src/views/toolbox/MigrationView.vue:782 src/views/toolbox/NetworkView.vue:96
@@ -4931,8 +4931,8 @@ msgid "Enter key name"
 msgstr "輸入新名稱"
 
 #: src/views/database/RedisKeyModal.vue:112
-#: src/views/toolbox/disk/SmartView.vue:201
-#: src/views/toolbox/disk/SmartView.vue:228
+#: src/views/toolbox/disk/SmartView.vue:205
+#: src/views/toolbox/disk/SmartView.vue:232
 #, fuzzy
 msgid "Value"
 msgstr "標籤值"
@@ -7836,7 +7836,7 @@ msgid "Critical Warning"
 msgstr "警告"
 
 #: src/views/toolbox/disk/SmartView.vue:165
-#: src/views/toolbox/disk/SmartView.vue:292
+#: src/views/toolbox/disk/SmartView.vue:296
 #, fuzzy
 msgid "Temperature"
 msgstr "操作員"
@@ -7892,68 +7892,68 @@ msgstr "標準錯誤"
 msgid "Error Log Entries"
 msgstr "錯誤日誌"
 
-#: src/views/toolbox/disk/SmartView.vue:200
-#: src/views/toolbox/disk/SmartView.vue:227
+#: src/views/toolbox/disk/SmartView.vue:204
+#: src/views/toolbox/disk/SmartView.vue:231
 msgid "Attribute"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:202
+#: src/views/toolbox/disk/SmartView.vue:206
 msgid "Worst"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:203
+#: src/views/toolbox/disk/SmartView.vue:207
 #, fuzzy
 msgid "Threshold"
 msgstr "線程"
 
-#: src/views/toolbox/disk/SmartView.vue:205
+#: src/views/toolbox/disk/SmartView.vue:209
 #, fuzzy
 msgid "Raw Value"
 msgstr "標籤值"
 
-#: src/views/toolbox/disk/SmartView.vue:251
+#: src/views/toolbox/disk/SmartView.vue:255
 #, fuzzy
 msgid "SMART Not Available"
 msgstr "可用"
 
-#: src/views/toolbox/disk/SmartView.vue:259
+#: src/views/toolbox/disk/SmartView.vue:263
 #, fuzzy
 msgid "Select Disk"
 msgstr "選擇磁碟"
 
-#: src/views/toolbox/disk/SmartView.vue:264
+#: src/views/toolbox/disk/SmartView.vue:268
 #, fuzzy
 msgid "Select a disk"
 msgstr "選擇磁碟"
 
-#: src/views/toolbox/disk/SmartView.vue:271
+#: src/views/toolbox/disk/SmartView.vue:275
 #, fuzzy
 msgid "No SMART-capable disks found"
 msgstr "未找到磁碟"
 
-#: src/views/toolbox/disk/SmartView.vue:278
+#: src/views/toolbox/disk/SmartView.vue:282
 #, fuzzy
 msgid "Basic Info"
 msgstr "基本"
 
-#: src/views/toolbox/disk/SmartView.vue:299
+#: src/views/toolbox/disk/SmartView.vue:303
 #, fuzzy
 msgid "Health Status"
 msgstr "所有狀態"
 
-#: src/views/toolbox/disk/SmartView.vue:301
+#: src/views/toolbox/disk/SmartView.vue:305
 msgid "PASSED"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:301
+#: src/views/toolbox/disk/SmartView.vue:305
 msgid "FAILED"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:319
+#: src/views/toolbox/disk/SmartView.vue:323
 msgid "SMART Attributes"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:340
+#: src/views/toolbox/disk/SmartView.vue:344
 #, fuzzy
 msgid "No SMART attributes available"
 msgstr "暫無日誌數據"

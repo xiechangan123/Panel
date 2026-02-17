@@ -2241,7 +2241,7 @@ msgstr ""
 #: src/views/project/ListView.vue:58
 #: src/views/task/TaskView.vue:22
 #: src/views/toolbox/disk/RaidView.vue:97
-#: src/views/toolbox/disk/SmartView.vue:213
+#: src/views/toolbox/disk/SmartView.vue:217
 #: src/views/toolbox/MigrationView.vue:472
 #: src/views/toolbox/MigrationView.vue:695
 #: src/views/toolbox/MigrationView.vue:782
@@ -5252,8 +5252,8 @@ msgid "Enter key name"
 msgstr ""
 
 #: src/views/database/RedisKeyModal.vue:112
-#: src/views/toolbox/disk/SmartView.vue:201
-#: src/views/toolbox/disk/SmartView.vue:228
+#: src/views/toolbox/disk/SmartView.vue:205
+#: src/views/toolbox/disk/SmartView.vue:232
 msgid "Value"
 msgstr ""
 
@@ -8146,7 +8146,7 @@ msgid "Critical Warning"
 msgstr ""
 
 #: src/views/toolbox/disk/SmartView.vue:165
-#: src/views/toolbox/disk/SmartView.vue:292
+#: src/views/toolbox/disk/SmartView.vue:296
 msgid "Temperature"
 msgstr ""
 
@@ -8194,60 +8194,60 @@ msgstr ""
 msgid "Error Log Entries"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:200
-#: src/views/toolbox/disk/SmartView.vue:227
+#: src/views/toolbox/disk/SmartView.vue:204
+#: src/views/toolbox/disk/SmartView.vue:231
 msgid "Attribute"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:202
+#: src/views/toolbox/disk/SmartView.vue:206
 msgid "Worst"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:203
+#: src/views/toolbox/disk/SmartView.vue:207
 msgid "Threshold"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:205
+#: src/views/toolbox/disk/SmartView.vue:209
 msgid "Raw Value"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:251
+#: src/views/toolbox/disk/SmartView.vue:255
 msgid "SMART Not Available"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:259
+#: src/views/toolbox/disk/SmartView.vue:263
 msgid "Select Disk"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:264
+#: src/views/toolbox/disk/SmartView.vue:268
 msgid "Select a disk"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:271
+#: src/views/toolbox/disk/SmartView.vue:275
 msgid "No SMART-capable disks found"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:278
+#: src/views/toolbox/disk/SmartView.vue:282
 msgid "Basic Info"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:299
+#: src/views/toolbox/disk/SmartView.vue:303
 msgid "Health Status"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:301
+#: src/views/toolbox/disk/SmartView.vue:305
 msgid "PASSED"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:301
+#: src/views/toolbox/disk/SmartView.vue:305
 msgid "FAILED"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:319
+#: src/views/toolbox/disk/SmartView.vue:323
 msgid "SMART Attributes"
 msgstr ""
 
-#: src/views/toolbox/disk/SmartView.vue:340
+#: src/views/toolbox/disk/SmartView.vue:344
 msgid "No SMART attributes available"
 msgstr ""
 
