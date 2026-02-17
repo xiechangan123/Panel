@@ -117,7 +117,8 @@ const { data: countInfo } = useRequest(home.countInfo, {
     website: 0,
     database: 0,
     project: 0,
-    cron: 0
+    cron: 0,
+    container: -1
   }
 })
 
@@ -517,7 +518,13 @@ if (import.meta.hot) {
         </n-alert>
         <n-card :segmented="true" size="small">
           <n-page-header :subtitle="systemInfo?.panel_version">
-            <n-grid :cols="4" pb-10>
+            <n-grid :cols="countInfo.container >= 0 ? 5 : 4" pb-10>
+              <n-gi v-if="countInfo.container >= 0">
+                <n-statistic
+                  :label="$gettext('Container')"
+                  :value="countInfo.container + quantifier"
+                />
+              </n-gi>
               <n-gi>
                 <n-statistic :label="$gettext('Website')" :value="countInfo.website + quantifier" />
               </n-gi>
@@ -546,7 +553,14 @@ if (import.meta.hot) {
                 <n-dropdown :options="restartOptions" @select="handleRestartSelect">
                   <n-button type="warning"> {{ $gettext('Restart') }} </n-button>
                 </n-dropdown>
-                <n-button type="info" :loading="checkUpdateLoading" :disabled="checkUpdateLoading" @click="handleUpdate"> {{ $gettext('Update') }} </n-button>
+                <n-button
+                  type="info"
+                  :loading="checkUpdateLoading"
+                  :disabled="checkUpdateLoading"
+                  @click="handleUpdate"
+                >
+                  {{ $gettext('Update') }}
+                </n-button>
               </n-flex>
             </template>
           </n-page-header>
@@ -1008,7 +1022,9 @@ if (import.meta.hot) {
     preset="dialog"
     type="warning"
     :title="$gettext('Restart Server')"
-    :content="$gettext('Are you sure you want to restart the server? This will disconnect all connections.')"
+    :content="
+      $gettext('Are you sure you want to restart the server? This will disconnect all connections.')
+    "
     :positive-text="$gettext('Confirm')"
     :negative-text="$gettext('Cancel')"
     @positive-click="handleRestartServer"

@@ -37,9 +37,10 @@ type HomeService struct {
 	settingRepo     biz.SettingRepo
 	cronRepo        biz.CronRepo
 	backupRepo      biz.BackupRepo
+	containerRepo   biz.ContainerRepo
 }
 
-func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, project biz.ProjectRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo) *HomeService {
+func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, project biz.ProjectRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, cron biz.CronRepo, backupRepo biz.BackupRepo, container biz.ContainerRepo) *HomeService {
 	return &HomeService{
 		t:               t,
 		api:             api.NewAPI(app.Version, app.Locale),
@@ -52,6 +53,7 @@ func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, we
 		settingRepo:     setting,
 		cronRepo:        cron,
 		backupRepo:      backupRepo,
+		containerRepo:   container,
 	}
 }
 
@@ -209,11 +211,18 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		cronCount = -1
 	}
 
+	containerCount := -1
+	containers, err := s.containerRepo.ListAll()
+	if err == nil {
+		containerCount = len(containers)
+	}
+
 	Success(w, chix.M{
-		"website":  websiteCount,
-		"database": databaseCount,
-		"project":  projectCount,
-		"cron":     cronCount,
+		"website":   websiteCount,
+		"database":  databaseCount,
+		"project":   projectCount,
+		"cron":      cronCount,
+		"container": containerCount,
 	})
 }
 
