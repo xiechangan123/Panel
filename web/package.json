@@ -44,7 +44,6 @@
     "js-sha256": "^0.11.1",
     "lodash-es": "^4.17.21",
     "luxon": "^3.7.2",
-    "marked": "^17.0.0",
     "mitt": "^3.0.1",
     "monaco-editor": "^0.55.1",
     "monaco-editor-nginx": "^2.0.2",
