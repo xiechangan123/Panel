@@ -59,6 +59,8 @@ const eventsTotal = ref(0)
 const eventsPage = ref(1)
 const eventsPageSize = ref(20)
 const eventsLoading = ref(false)
+const searchIP = ref('')
+const searchPort = ref<number | null>(null)
 
 const loadSummary = () => {
   summaryLoading.value = true
@@ -120,7 +122,14 @@ const loadTopPorts = () => {
 const loadEvents = () => {
   eventsLoading.value = true
   useRequest(
-    firewall.scanEvents(startDate.value, endDate.value, eventsPage.value, eventsPageSize.value)
+    firewall.scanEvents(
+      startDate.value,
+      endDate.value,
+      eventsPage.value,
+      eventsPageSize.value,
+      searchIP.value || undefined,
+      searchPort.value || undefined
+    )
   )
     .onSuccess(({ data }) => {
       events.value = data.items || []
@@ -175,7 +184,8 @@ const trendOption = computed<EChartsOption>(() => ({
     right: '4%',
     top: '15%',
     bottom: '3%',
-    containLabel: true
+    outerBoundsMode: 'same',
+    outerBoundsContain: 'axisLabel'
   },
   xAxis: {
     type: 'category',
@@ -184,11 +194,14 @@ const trendOption = computed<EChartsOption>(() => ({
   yAxis: [
     {
       type: 'value',
-      name: $gettext('Scan Count')
+      name: $gettext('Scan Count'),
+      axisLine: { show: false }
     },
     {
       type: 'value',
-      name: $gettext('Source IPs')
+      name: $gettext('Source IPs'),
+      splitLine: { lineStyle: { type: 'dashed' } },
+      axisLine: { show: false }
     }
   ],
   series: [
@@ -306,7 +319,27 @@ const handleClear = () => {
         clearable
         :default-time="['00:00:00', '23:59:59']"
       />
-      <n-popconfirm @positive-click="handleClear">
+      <n-flex items-center :size="8">
+        <n-input
+          v-if="currentTab === 'events'"
+          v-model:value="searchIP"
+          :placeholder="$gettext('Search IP')"
+          clearable
+          style="width: 160px"
+          @clear="loadEvents()"
+          @keyup.enter="loadEvents()"
+        />
+        <n-input-number
+          v-if="currentTab === 'events'"
+          v-model:value="searchPort"
+          :placeholder="$gettext('Port')"
+          clearable
+          :show-button="false"
+          style="width: 100px"
+          @clear="loadEvents()"
+          @keyup.enter="loadEvents()"
+        />
+        <n-popconfirm @positive-click="handleClear">
         <template #trigger>
           <n-button type="error" ghost>
             {{ $gettext('Clear Data') }}
@@ -314,6 +347,7 @@ const handleClear = () => {
         </template>
         {{ $gettext('Are you sure you want to clear all scan data?') }}
       </n-popconfirm>
+      </n-flex>
     </div>
 
     <!-- 概览 -->

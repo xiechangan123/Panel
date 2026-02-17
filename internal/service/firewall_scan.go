@@ -125,6 +125,8 @@ func (s *FirewallScanService) GetTopPorts(w http.ResponseWriter, r *http.Request
 func (s *FirewallScanService) ListEvents(w http.ResponseWriter, r *http.Request) {
 	start := r.URL.Query().Get("start")
 	end := r.URL.Query().Get("end")
+	sourceIP := r.URL.Query().Get("source_ip")
+	port := cast.ToUint(r.URL.Query().Get("port"))
 	page := cast.ToUint(r.URL.Query().Get("page"))
 	limit := cast.ToUint(r.URL.Query().Get("limit"))
 	if page == 0 {
@@ -134,7 +136,7 @@ func (s *FirewallScanService) ListEvents(w http.ResponseWriter, r *http.Request)
 		limit = 20
 	}
 
-	items, total, err := s.scanRepo.List(start, end, page, limit)
+	items, total, err := s.scanRepo.List(start, end, sourceIP, port, page, limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

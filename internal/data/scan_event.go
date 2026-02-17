@@ -46,11 +46,17 @@ func (r scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 	return nil
 }
 
-func (r scanEventRepo) List(start, end string, page, limit uint) ([]*biz.ScanEvent, uint, error) {
+func (r scanEventRepo) List(start, end, sourceIP string, port uint, page, limit uint) ([]*biz.ScanEvent, uint, error) {
 	var total int64
 	var items []*biz.ScanEvent
 
 	tx := r.db.Model(&biz.ScanEvent{}).Where("date BETWEEN ? AND ?", start, end)
+	if sourceIP != "" {
+		tx = tx.Where("source_ip LIKE ?", "%"+sourceIP+"%")
+	}
+	if port > 0 {
+		tx = tx.Where("port = ?", port)
+	}
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}

@@ -56,7 +56,7 @@ type ScanSetting struct {
 // ScanEventRepo 扫描事件数据访问接口
 type ScanEventRepo interface {
 	Upsert(events []*ScanEvent) error
-	List(start, end string, page, limit uint) ([]*ScanEvent, uint, error)
+	List(start, end, sourceIP string, port uint, page, limit uint) ([]*ScanEvent, uint, error)
 	Summary(start, end string) (*ScanSummary, error)
 	Trend(start, end string) ([]*ScanDayTrend, error)
 	TopSourceIPs(start, end string, limit uint) ([]*ScanSourceRank, error)
