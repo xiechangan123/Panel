@@ -5,18 +5,20 @@ import (
 	"time"
 
 	"github.com/acepanel/panel/internal/http/request"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type Cron struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Name      string    `gorm:"not null;default:'';unique" json:"name"`
-	Status    bool      `gorm:"not null;default:false" json:"status"`
-	Type      string    `gorm:"not null;default:''" json:"type"`
-	Time      string    `gorm:"not null;default:''" json:"time"`
-	Shell     string    `gorm:"not null;default:''" json:"shell"`
-	Log       string    `gorm:"not null;default:''" json:"log"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint             `gorm:"primaryKey" json:"id"`
+	Name      string           `gorm:"not null;default:'';unique" json:"name"`
+	Status    bool             `gorm:"not null;default:false" json:"status"`
+	Type      string           `gorm:"not null;default:''" json:"type"`
+	Time      string           `gorm:"not null;default:''" json:"time"`
+	Config    types.CronConfig `gorm:"serializer:json;not null;default:'{}'" json:"config"`
+	Shell     string           `gorm:"not null;default:''" json:"shell"`
+	Log       string           `gorm:"not null;default:''" json:"log"`
+	CreatedAt time.Time        `json:"created_at"`
+	UpdatedAt time.Time        `json:"updated_at"`
 }
 
 type CronRepo interface {

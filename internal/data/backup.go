@@ -261,19 +261,50 @@ func (r *backupRepo) GetDefaultPath(typ biz.BackupType) string {
 // CutoffLog 切割日志
 // path 保存目录绝对路径
 // target 待切割日志文件绝对路径
-func (r *backupRepo) CutoffLog(path, target string) error {
+func (r *backupRepo) CutoffLog(path, target string) (string, error) {
 	if !io.Exists(target) {
-		return errors.New(r.t.Get("log file %s not exists", target))
+		return "", errors.New(r.t.Get("log file %s not exists", target))
 	}
 
 	to := filepath.Join(path, fmt.Sprintf("%s_%s.zip", time.Now().Format("20060102150405"), filepath.Base(target)))
 	if err := io.Compress(filepath.Dir(target), []string{filepath.Base(target)}, to); err != nil {
-		return err
+		return "", err
 	}
 
 	// 原文件不能直接删除，直接删的话仍会占用空间直到重启相关的应用
 	if _, err := shell.Execf("cat /dev/null > '%s'", target); err != nil {
+		return "", err
+	}
+
+	return to, nil
+}
+
+// CutoffUpload 将指定的切割日志文件上传到远程存储
+func (r *backupRepo) CutoffUpload(account uint, typ biz.BackupType, name string, files []string) error {
+	backupStorage := new(biz.BackupStorage)
+	if err := r.db.First(backupStorage, account).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(r.t.Get("backup storage not found"))
+		}
 		return err
+	}
+
+	client, err := r.getStorage(*backupStorage)
+	if err != nil {
+		return err
+	}
+
+	for _, localPath := range files {
+		file, err := os.Open(localPath)
+		if err != nil {
+			return err
+		}
+		remotePath := filepath.Join("cutoff", string(typ), name, filepath.Base(localPath))
+		if putErr := client.Put(remotePath, file); putErr != nil {
+			_ = file.Close()
+			return putErr
+		}
+		_ = file.Close()
 	}
 
 	return nil

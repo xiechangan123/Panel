@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"strings"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
@@ -18,6 +19,7 @@ import (
 	"github.com/acepanel/panel/pkg/os"
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/systemctl"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type cronRepo struct {
@@ -60,36 +62,13 @@ func (r *cronRepo) Get(id uint) (*biz.Cron, error) {
 }
 
 func (r *cronRepo) Create(ctx context.Context, req *request.CronCreate) error {
-	var script string
-	if req.Type == "backup" {
-		if req.BackupType == "website" {
-			script = fmt.Sprintf(`#!/bin/bash
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
-
-acepanel backup website -n '%s' -s '%d'
-acepanel backup clear -t website -f '%s' -k '%d' -s '%d'
-`, req.Target, req.BackupStorage, req.Target, req.Keep, req.BackupStorage)
-		}
-		if req.BackupType == "mysql" || req.BackupType == "postgres" {
-			script = fmt.Sprintf(`#!/bin/bash
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
-
-acepanel backup database -t '%s' -n '%s' -s '%d'
-acepanel backup clear -t '%s' -f '%s' -k '%d' -s '%d'
-`, req.BackupType, req.Target, req.BackupStorage, req.BackupType, req.Target, req.Keep, req.BackupStorage)
-		}
+	config := types.CronConfig{
+		Type:    req.SubType,
+		Targets: req.Targets,
+		Storage: req.Storage,
+		Keep:    req.Keep,
 	}
-	if req.Type == "cutoff" {
-		script = fmt.Sprintf(`#!/bin/bash
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
-
-acepanel cutoff website -n '%s'
-acepanel cutoff clear -t website -n '%s' -k '%d'
-`, req.Target, req.Target, req.Keep)
-	}
-	if req.Type == "shell" {
-		script = req.Script
-	}
+	script := r.generateScript(req.Type, config, req.Script)
 
 	shellDir := fmt.Sprintf("%s/server/cron/", app.Root)
 	shellLogDir := fmt.Sprintf("%s/server/cron/logs/", app.Root)
@@ -107,6 +86,7 @@ acepanel cutoff clear -t website -n '%s' -k '%d'
 	cron.Time = req.Time
 	cron.Shell = shellDir + shellFile + ".sh"
 	cron.Log = shellLogDir + shellFile + ".log"
+	cron.Config = config
 
 	if err := r.db.Create(cron).Error; err != nil {
 		return err
@@ -129,13 +109,30 @@ func (r *cronRepo) Update(ctx context.Context, req *request.CronUpdate) error {
 
 	cron.Time = req.Time
 	cron.Name = req.Name
+
+	// 根据类型重新生成脚本
+	if req.Type == "backup" || req.Type == "cutoff" {
+		config := types.CronConfig{
+			Type:    req.SubType,
+			Targets: req.Targets,
+			Storage: req.Storage,
+			Keep:    req.Keep,
+		}
+		cron.Config = config
+		script := r.generateScript(req.Type, config, "")
+		if err = io.Write(cron.Shell, script, 0700); err != nil {
+			return err
+		}
+	} else {
+		if err = io.Write(cron.Shell, req.Script, 0700); err != nil {
+			return err
+		}
+	}
+
 	if err = r.db.Save(cron).Error; err != nil {
 		return err
 	}
 
-	if err = io.Write(cron.Shell, req.Script, 0700); err != nil {
-		return err
-	}
 	if out, err := shell.Execf("dos2unix %s", cron.Shell); err != nil {
 		return errors.New(out)
 	}
@@ -227,4 +224,53 @@ func (r *cronRepo) restartCron() error {
 	}
 
 	return errors.New(r.t.Get("unsupported system"))
+}
+
+// generateScript 根据任务类型和配置生成 shell 脚本
+func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript string) string {
+	if typ == "shell" {
+		return rawScript
+	}
+
+	var sb strings.Builder
+	sb.WriteString("#!/bin/bash\nexport PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n\n")
+
+	switch typ {
+	case "backup":
+		for _, target := range config.Targets {
+			switch config.Type {
+			case "website":
+				sb.WriteString(fmt.Sprintf("acepanel backup website -n '%s' -s '%d'\n", target, config.Storage))
+			case "mysql", "postgres":
+				sb.WriteString(fmt.Sprintf("acepanel backup database -t '%s' -n '%s' -s '%d'\n", config.Type, target, config.Storage))
+			}
+		}
+		for _, target := range config.Targets {
+			switch config.Type {
+			case "website":
+				sb.WriteString(fmt.Sprintf("acepanel backup clear -t website -f '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage))
+			case "mysql", "postgres":
+				sb.WriteString(fmt.Sprintf("acepanel backup clear -t '%s' -f '%s' -k '%d' -s '%d'\n", config.Type, target, config.Keep, config.Storage))
+			}
+		}
+	case "cutoff":
+		for _, target := range config.Targets {
+			switch config.Type {
+			case "website":
+				sb.WriteString(fmt.Sprintf("acepanel cutoff website -n '%s' -s '%d'\n", target, config.Storage))
+			case "container":
+				sb.WriteString(fmt.Sprintf("acepanel cutoff container -n '%s' -s '%d'\n", target, config.Storage))
+			}
+		}
+		for _, target := range config.Targets {
+			switch config.Type {
+			case "website":
+				sb.WriteString(fmt.Sprintf("acepanel cutoff clear -t website -n '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage))
+			case "container":
+				sb.WriteString(fmt.Sprintf("acepanel cutoff clear -t container -n '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage))
+			}
+		}
+	}
+
+	return sb.String()
 }

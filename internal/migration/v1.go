@@ -68,4 +68,13 @@ func init() {
 			return tx.Migrator().DropTable(&biz.BackupStorage{})
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260216-add-cron-config",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.Cron{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return nil
+		},
+	})
 }

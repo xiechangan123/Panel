@@ -32,8 +32,8 @@ const typeOptions = computed(() => [
 const createModel = ref({
   type: '',
   name: '',
-  listens: [] as Array<string>,
-  domains: [] as Array<string>,
+  listens: [''],
+  domains: [''],
   path: '',
   db: false,
   db_type: '0',
@@ -88,7 +88,10 @@ const DOMAIN_SEPARATORS_REGEX = /[\s,\n\r]+/
 const handleDomainCreate = (index: number, value: string) => {
   if (DOMAIN_SEPARATORS_REGEX.test(value)) {
     // 解析多个域名并去除空白
-    const domains = value.split(DOMAIN_SEPARATORS_REGEX).map((d) => d.trim()).filter((d) => d !== '')
+    const domains = value
+      .split(DOMAIN_SEPARATORS_REGEX)
+      .map((d) => d.trim())
+      .filter((d) => d !== '')
     if (domains.length > 1) {
       // 移除当前空输入框
       createModel.value.domains.splice(index, 1)
@@ -103,9 +106,6 @@ const handleDomainCreate = (index: number, value: string) => {
 
 const handleCreate = async () => {
   createModel.value.type = effectiveType.value
-  // 去除空的域名和端口
-  createModel.value.domains = createModel.value.domains.filter((item) => item !== '')
-  createModel.value.listens = createModel.value.listens.filter((item) => item !== '')
   // 端口为空自动添加 80 端口
   if (createModel.value.listens.length === 0) {
     createModel.value.listens.push('80')
@@ -115,27 +115,27 @@ const handleCreate = async () => {
   loading.value = true
   useRequest(website.create(createModel.value))
     .onSuccess(() => {
-    window.$bus.emit('website:refresh')
-    window.$message.success(
-      $gettext('Website %{ name } created successfully', { name: createModel.value.name })
-    )
-    show.value = false
-    createModel.value = {
-      type: '',
-      name: '',
-      domains: [] as Array<string>,
-      listens: [] as Array<string>,
-      db: false,
-      db_type: '0',
-      db_name: '',
-      db_user: '',
-      db_password: '',
-      path: '',
-      remark: '',
-      php: null,
-      proxy: ''
-    }
-  })
+      window.$bus.emit('website:refresh')
+      window.$message.success(
+        $gettext('Website %{ name } created successfully', { name: createModel.value.name })
+      )
+      show.value = false
+      createModel.value = {
+        type: '',
+        name: '',
+        domains: [''],
+        listens: [''],
+        db: false,
+        db_type: '0',
+        db_name: '',
+        db_user: '',
+        db_password: '',
+        path: '',
+        remark: '',
+        php: null,
+        proxy: ''
+      }
+    })
     .onComplete(() => {
       loading.value = false
     })

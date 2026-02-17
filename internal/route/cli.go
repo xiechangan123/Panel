@@ -390,10 +390,28 @@ func (route *Cli) Commands() []*cli.Command {
 							Usage:    route.t.Get("Website name"),
 							Required: true,
 						},
+						&cli.UintFlag{
+							Name:    "storage",
+							Aliases: []string{"s"},
+							Usage:   route.t.Get("Storage ID (local storage if not filled)"),
+						},
+					},
+				},
+				{
+					Name:   "container",
+					Usage:  route.t.Get("Container"),
+					Action: route.cli.CutoffContainer,
+					Flags: []cli.Flag{
 						&cli.StringFlag{
-							Name:    "path",
-							Aliases: []string{"p"},
-							Usage:   route.t.Get("Save directory (default path if not filled)"),
+							Name:     "name",
+							Aliases:  []string{"n"},
+							Usage:    route.t.Get("Container name"),
+							Required: true,
+						},
+						&cli.UintFlag{
+							Name:    "storage",
+							Aliases: []string{"s"},
+							Usage:   route.t.Get("Storage ID (local storage if not filled)"),
 						},
 					},
 				},
@@ -411,7 +429,7 @@ func (route *Cli) Commands() []*cli.Command {
 						&cli.StringFlag{
 							Name:     "name",
 							Aliases:  []string{"n"},
-							Usage:    route.t.Get("Website name"),
+							Usage:    route.t.Get("Target name"),
 							Required: true,
 						},
 						&cli.UintFlag{
@@ -420,10 +438,10 @@ func (route *Cli) Commands() []*cli.Command {
 							Usage:    route.t.Get("Number of logs to keep"),
 							Required: true,
 						},
-						&cli.StringFlag{
-							Name:    "path",
-							Aliases: []string{"p"},
-							Usage:   route.t.Get("Rotation directory (default path if not filled)"),
+						&cli.UintFlag{
+							Name:    "storage",
+							Aliases: []string{"s"},
+							Usage:   route.t.Get("Storage ID (local storage if not filled)"),
 						},
 					},
 				},

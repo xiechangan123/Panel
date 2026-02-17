@@ -34,7 +34,7 @@ const create = ref(false)
       <task-view v-if="current === 'task'" />
     </n-flex>
   </common-page>
-  <create-modal v-model:show="create" />
+  <create-modal v-model:show="create" mode="create" />
 </template>
 
 <style scoped lang="scss"></style>

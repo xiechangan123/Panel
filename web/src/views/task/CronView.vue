@@ -6,23 +6,30 @@ import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import CronPreview from '@/components/common/CronPreview.vue'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
+import CreateModal from '@/views/task/CreateModal.vue'
 import { decodeBase64, formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
 const logPath = ref('')
 const logModal = ref(false)
-const editModal = ref(false)
+const shellEditModal = ref(false)
+const visualEditModal = ref(false)
 const saveTaskEditLoading = ref(false)
 const runModal = ref(false)
 const runCommand = ref('')
 const runTaskName = ref('')
 
-const editTask = ref({
+// shell 类型编辑
+const shellEditTask = ref({
   id: 0,
   name: '',
+  type: 'shell',
   time: '',
   script: ''
 })
+
+// backup/cutoff 类型编辑数据
+const visualEditData = ref<any>(null)
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -201,15 +208,25 @@ const handleRun = (row: any) => {
 }
 
 const handleEdit = (row: any) => {
-  useRequest(cron.get(row.id)).onSuccess(({ data }) => {
-    useRequest(file.content(encodeURIComponent(data.shell))).onSuccess(({ data }) => {
-      editTask.value.id = row.id
-      editTask.value.name = row.name
-      editTask.value.time = row.time
-      editTask.value.script = decodeBase64(data.content)
-      editModal.value = true
+  if (row.type === 'backup' || row.type === 'cutoff') {
+    // 可视化编辑
+    useRequest(cron.get(row.id)).onSuccess(({ data }) => {
+      visualEditData.value = data
+      visualEditModal.value = true
     })
-  })
+  } else {
+    // shell 脚本编辑
+    useRequest(cron.get(row.id)).onSuccess(({ data }) => {
+      useRequest(file.content(encodeURIComponent(data.shell))).onSuccess(({ data: fileData }) => {
+        shellEditTask.value.id = row.id
+        shellEditTask.value.name = row.name
+        shellEditTask.value.type = row.type
+        shellEditTask.value.time = row.time
+        shellEditTask.value.script = decodeBase64(fileData.content)
+        shellEditModal.value = true
+      })
+    })
+  }
 }
 
 const handleDelete = async (id: number) => {
@@ -219,13 +236,18 @@ const handleDelete = async (id: number) => {
   })
 }
 
-const saveTaskEdit = async () => {
+const saveShellEdit = async () => {
   saveTaskEditLoading.value = true
   useRequest(
-    cron.update(editTask.value.id, editTask.value.name, editTask.value.time, editTask.value.script)
+    cron.update(shellEditTask.value.id, {
+      name: shellEditTask.value.name,
+      type: shellEditTask.value.type,
+      time: shellEditTask.value.time,
+      script: shellEditTask.value.script
+    })
   )
     .onSuccess(() => {
-      editModal.value = false
+      shellEditModal.value = false
       window.$message.success($gettext('Modified successfully'))
       window.$bus.emit('task:refresh-cron')
     })
@@ -268,8 +290,9 @@ onUnmounted(() => {
     }"
   />
   <realtime-log-modal v-model:show="logModal" :path="logPath" />
+  <!-- Shell 脚本编辑模态框 -->
   <n-modal
-    v-model:show="editModal"
+    v-model:show="shellEditModal"
     preset="card"
     :title="$gettext('Edit Task')"
     style="width: 60vw"
@@ -279,17 +302,22 @@ onUnmounted(() => {
   >
     <n-form>
       <n-form-item :label="$gettext('Task Name')">
-        <n-input v-model:value="editTask.name" :placeholder="$gettext('Task Name')" />
+        <n-input v-model:value="shellEditTask.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Task Schedule')">
-        <cron-selector v-model:value="editTask.time"></cron-selector>
+        <cron-selector v-model:value="shellEditTask.time"></cron-selector>
       </n-form-item>
     </n-form>
-    <common-editor v-model:value="editTask.script" lang="shell" height="40vh" />
-    <n-button type="info" :loading="saveTaskEditLoading" :disabled="saveTaskEditLoading" @click="saveTaskEdit" mt-10 block>
+    <common-editor v-model:value="shellEditTask.script" lang="shell" height="40vh" />
+    <n-button type="info" :loading="saveTaskEditLoading" :disabled="saveTaskEditLoading" @click="saveShellEdit" mt-10 block>
       {{ $gettext('Save') }}
     </n-button>
   </n-modal>
+  <create-modal
+    v-model:show="visualEditModal"
+    mode="edit"
+    :edit-data="visualEditData"
+  />
   <pty-terminal-modal
     v-model:show="runModal"
     :title="$gettext('Run Task - %{ name }', { name: runTaskName })"
