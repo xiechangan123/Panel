@@ -798,10 +798,10 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 			return err
 		}
 		path := filepath.Join(app.Root, "sites", website.Name, "log")
-		if err = s.backupRepo.ClearExpired(path, "access.log", keep); err != nil {
+		if err = s.backupRepo.ClearExpired(path, "access_", keep); err != nil {
 			return err
 		}
-		if err = s.backupRepo.ClearExpired(path, "error.log", keep); err != nil {
+		if err = s.backupRepo.ClearExpired(path, "error_", keep); err != nil {
 			return err
 		}
 	case "container":

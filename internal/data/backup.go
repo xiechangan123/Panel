@@ -266,7 +266,8 @@ func (r *backupRepo) CutoffLog(path, target string) (string, error) {
 		return "", errors.New(r.t.Get("log file %s not exists", target))
 	}
 
-	to := filepath.Join(path, fmt.Sprintf("%s_%s.zip", time.Now().Format("20060102150405"), filepath.Base(target)))
+	name := strings.TrimSuffix(filepath.Base(target), filepath.Ext(target))
+	to := filepath.Join(path, fmt.Sprintf("%s_%s.zip", name, time.Now().Format("20060102150405")))
 	if err := io.Compress(filepath.Dir(target), []string{filepath.Base(target)}, to); err != nil {
 		return "", err
 	}
