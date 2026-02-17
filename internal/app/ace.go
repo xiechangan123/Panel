@@ -17,8 +17,8 @@ import (
 	"github.com/robfig/cron/v3"
 
 	"github.com/acepanel/panel/pkg/config"
-	"github.com/acepanel/panel/pkg/queue"
 	"github.com/acepanel/panel/pkg/tlscert"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type Ace struct {
@@ -28,10 +28,10 @@ type Ace struct {
 	reloader *tlscert.Reloader
 	migrator *gormigrate.Gormigrate
 	cron     *cron.Cron
-	queue    *queue.Queue
+	runner   types.TaskRunner
 }
 
-func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, reloader *tlscert.Reloader, migrator *gormigrate.Gormigrate, cron *cron.Cron, queue *queue.Queue, _ *validate.Validation) *Ace {
+func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, reloader *tlscert.Reloader, migrator *gormigrate.Gormigrate, cron *cron.Cron, runner types.TaskRunner, _ *validate.Validation) *Ace {
 	return &Ace{
 		conf:     conf,
 		router:   router,
@@ -39,7 +39,7 @@ func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, reloader
 		reloader: reloader,
 		migrator: migrator,
 		cron:     cron,
-		queue:    queue,
+		runner:   runner,
 	}
 }
 
@@ -54,12 +54,12 @@ func (r *Ace) Run() error {
 	r.cron.Start()
 	fmt.Println("[CRON] cron scheduler started")
 
-	// create context for queue
-	queueCtx, queueCancel := context.WithCancel(context.Background())
-	defer queueCancel()
+	// create context for runner
+	runnerCtx, runnerCancel := context.WithCancel(context.Background())
+	defer runnerCancel()
 
-	// start queue
-	r.queue.Run(queueCtx)
+	// start task runner
+	r.runner.Run(runnerCtx)
 
 	// setup graceful shutdown
 	quit := make(chan os.Signal, 1)
@@ -99,9 +99,9 @@ func (r *Ace) Run() error {
 	<-ctx.Done()
 	fmt.Println("[CRON] cron scheduler stopped")
 
-	// stop queue
-	queueCancel()
-	fmt.Println("[QUEUE] queue stopped")
+	// stop task runner
+	runnerCancel()
+	fmt.Println("[QUEUE] task runner stopped")
 
 	// close certificate reloader
 	if r.reloader != nil {

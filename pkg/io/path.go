@@ -88,7 +88,7 @@ func SizeX(path string) (int64, error) {
 
 	parts := strings.Fields(out)
 	if len(parts) == 0 {
-		return 0, fmt.Errorf("无法解析 du 输出")
+		return 0, fmt.Errorf("failed to parse du output: %s", out)
 	}
 
 	return strconv.ParseInt(parts[0], 10, 64)

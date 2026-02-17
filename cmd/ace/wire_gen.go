@@ -63,8 +63,8 @@ func initAce() (*app.Ace, error) {
 	}
 	logger := bootstrap.NewLog(config)
 	cacheRepo := data.NewCacheRepo(db)
-	queue := bootstrap.NewQueue()
-	taskRepo := data.NewTaskRepo(locale, db, logger, queue)
+	taskRunner := bootstrap.NewRunner(db, logger)
+	taskRepo := data.NewTaskRepo(locale, db, logger, taskRunner)
 	appRepo := data.NewAppRepo(locale, config, db, logger, cacheRepo, taskRepo)
 	userTokenRepo := data.NewUserTokenRepo(locale, config, db)
 	middlewares := middleware.NewMiddlewares(config, manager, appRepo, userTokenRepo)
@@ -183,6 +183,6 @@ func initAce() (*app.Ace, error) {
 		return nil, err
 	}
 	validation := bootstrap.NewValidator(config, db)
-	ace := app.NewAce(config, mux, server, reloader, gormigrate, cron, queue, validation)
+	ace := app.NewAce(config, mux, server, reloader, gormigrate, cron, taskRunner, validation)
 	return ace, nil
 }

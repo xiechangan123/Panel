@@ -8,23 +8,22 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/internal/biz"
-	"github.com/acepanel/panel/internal/queuejob"
-	"github.com/acepanel/panel/pkg/queue"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type taskRepo struct {
-	t     *gotext.Locale
-	db    *gorm.DB
-	log   *slog.Logger
-	queue *queue.Queue
+	t      *gotext.Locale
+	db     *gorm.DB
+	log    *slog.Logger
+	runner types.TaskRunner
 }
 
-func NewTaskRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, queue *queue.Queue) biz.TaskRepo {
+func NewTaskRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, runner types.TaskRunner) biz.TaskRepo {
 	return &taskRepo{
-		t:     t,
-		db:    db,
-		log:   log,
-		queue: queue,
+		t:      t,
+		db:     db,
+		log:    log,
+		runner: runner,
 	}
 }
 
@@ -73,14 +72,6 @@ func (r *taskRepo) Push(task *biz.Task) error {
 		return err
 	}
 
-	return r.queue.Push(queuejob.NewProcessTask(r.log, r), []any{
-		task.ID,
-	})
-}
-
-func (r *taskRepo) ClearZombieTasks() error {
-	if err := r.db.Model(&biz.Task{}).Where("status = ? or status = ?", biz.TaskStatusRunning, biz.TaskStatusWaiting).Update("status", biz.TaskStatusFailed).Error; err != nil {
-		return err
-	}
+	r.runner.Notify()
 	return nil
 }
