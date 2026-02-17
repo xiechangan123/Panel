@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"regexp"
 	"strings"
 	"time"
+
+	"github.com/acepanel/panel/pkg/shell"
 )
 
 func readOSRelease() map[string]string {
@@ -134,4 +137,60 @@ func UDPPortInUse(port uint) bool {
 	}
 	defer func(conn net.PacketConn) { _ = conn.Close() }(conn)
 	return false
+}
+
+// PortProcess 端口占用进程信息
+type PortProcess struct {
+	PID     string `json:"pid"`
+	Name    string `json:"name"`
+	Command string `json:"command"`
+}
+
+// GetPortProcess 获取占用指定端口的进程信息
+func GetPortProcess(port uint, protocol string) []PortProcess {
+	var flag string
+	switch protocol {
+	case "udp":
+		flag = "-ulnp"
+	default:
+		flag = "-tlnp"
+	}
+
+	output, err := shell.Execf("ss %s sport = :%d", flag, port)
+	if err != nil {
+		return nil
+	}
+
+	re := regexp.MustCompile(`\("([^"]*)",pid=(\d+),`)
+	seen := make(map[string]struct{})
+	var processes []PortProcess
+
+	for _, line := range strings.Split(output, "\n") {
+		matches := re.FindAllStringSubmatch(line, -1)
+		for _, match := range matches {
+			pid := match[2]
+			if _, ok := seen[pid]; ok {
+				continue
+			}
+			seen[pid] = struct{}{}
+
+			name := match[1]
+			command := name
+			if cmdline, err := os.ReadFile(fmt.Sprintf("/proc/%s/cmdline", pid)); err == nil {
+				// cmdline 以 \0 分隔参数
+				cmd := strings.ReplaceAll(strings.TrimRight(string(cmdline), "\x00"), "\x00", " ")
+				if cmd != "" {
+					command = cmd
+				}
+			}
+
+			processes = append(processes, PortProcess{
+				PID:     pid,
+				Name:    name,
+				Command: command,
+			})
+		}
+	}
+
+	return processes
 }
