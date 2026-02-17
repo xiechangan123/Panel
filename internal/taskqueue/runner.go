@@ -102,7 +102,7 @@ func (r *Runner) execute(task *biz.Task) {
 	}
 
 	// 计算日志路径并保存
-	logDir := filepath.Join(app.Root, "storage/logs/task")
+	logDir := filepath.Join(app.Root, "panel/storage/logs/task")
 	_ = os.MkdirAll(logDir, 0o700)
 	logFile := filepath.Join(logDir, fmt.Sprintf("%d.log", task.ID))
 	if err := r.db.Model(task).Update("log", logFile).Error; err != nil {
