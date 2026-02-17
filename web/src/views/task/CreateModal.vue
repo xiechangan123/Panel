@@ -27,6 +27,7 @@ const defaultModel = () => ({
   targets: [] as string[],
   keep: 1,
   sub_type: 'website',
+  flock: false,
   storage: 0,
   script:
     `#!/bin/bash\nexport PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n\n` +
@@ -198,6 +199,7 @@ watch(show, (val) => {
         targets: config.targets || [],
         keep: config.keep || 1,
         sub_type: config.type || '',
+        flock: config.flock ?? false,
         storage: config.storage || 0,
         script: '',
         url: config.url || '',
@@ -314,6 +316,16 @@ onMounted(() => {
           </n-form-item>
         </n-gi>
       </n-grid>
+      <n-form-item :label="$gettext('Process Lock')">
+        <n-switch v-model:value="formModel.flock" />
+        <n-text ml-10 depth="3">
+          {{
+            $gettext(
+              'Prevent duplicate execution: skip this run if the previous one is still running'
+            )
+          }}
+        </n-text>
+      </n-form-item>
       <div v-if="formModel.type === 'shell'">
         <n-text>{{ $gettext('Script Content') }}</n-text>
         <common-editor v-model:value="formModel.script" lang="shell" height="40vh" />

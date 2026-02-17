@@ -6,8 +6,8 @@ import cron from '@/api/panel/cron'
 import file from '@/api/panel/file'
 import CronPreview from '@/components/common/CronPreview.vue'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
-import CreateModal from '@/views/task/CreateModal.vue'
 import { decodeBase64, formatDateTime } from '@/utils'
+import CreateModal from '@/views/task/CreateModal.vue'
 
 const { $gettext } = useGettext()
 const logPath = ref('')
@@ -24,6 +24,7 @@ const shellEditTask = ref({
   id: 0,
   name: '',
   type: 'shell',
+  flock: false,
   time: '',
   script: ''
 })
@@ -47,7 +48,10 @@ const columns: any = [
     width: 200,
     resizable: true,
     render(row: any) {
-      const typeMap: Record<string, { type: 'default' | 'error' | 'warning' | 'success' | 'info' | 'primary'; label: string }> = {
+      const typeMap: Record<
+        string,
+        { type: 'default' | 'error' | 'warning' | 'success' | 'info' | 'primary'; label: string }
+      > = {
         shell: { type: 'warning', label: $gettext('Run Script') },
         backup: { type: 'success', label: $gettext('Backup Data') },
         url: { type: 'default', label: $gettext('Access URL') },
@@ -202,7 +206,12 @@ const handleRun = (row: any) => {
 }
 
 const handleEdit = (row: any) => {
-  if (row.type === 'backup' || row.type === 'cutoff' || row.type === 'url' || row.type === 'synctime') {
+  if (
+    row.type === 'backup' ||
+    row.type === 'cutoff' ||
+    row.type === 'url' ||
+    row.type === 'synctime'
+  ) {
     // 可视化编辑
     useRequest(cron.get(row.id)).onSuccess(({ data }) => {
       visualEditData.value = data
@@ -215,6 +224,7 @@ const handleEdit = (row: any) => {
         shellEditTask.value.id = row.id
         shellEditTask.value.name = row.name
         shellEditTask.value.type = row.type
+        shellEditTask.value.flock = data.config?.flock ?? false
         shellEditTask.value.time = row.time
         shellEditTask.value.script = decodeBase64(fileData.content)
         shellEditModal.value = true
@@ -246,6 +256,7 @@ const saveShellEdit = async () => {
     cron.update(shellEditTask.value.id, {
       name: shellEditTask.value.name,
       type: shellEditTask.value.type,
+      flock: shellEditTask.value.flock,
       time: shellEditTask.value.time,
       script: shellEditTask.value.script
     })
@@ -312,17 +323,30 @@ onUnmounted(() => {
       <n-form-item :label="$gettext('Task Schedule')">
         <cron-selector v-model:value="shellEditTask.time"></cron-selector>
       </n-form-item>
+      <n-form-item :label="$gettext('Process Lock')">
+        <n-switch v-model:value="shellEditTask.flock" />
+        <n-text ml-10 depth="3">
+          {{
+            $gettext(
+              'Prevent duplicate execution: skip this run if the previous one is still running'
+            )
+          }}
+        </n-text>
+      </n-form-item>
     </n-form>
     <common-editor v-model:value="shellEditTask.script" lang="shell" height="40vh" />
-    <n-button type="info" :loading="saveTaskEditLoading" :disabled="saveTaskEditLoading" @click="saveShellEdit" mt-10 block>
+    <n-button
+      type="info"
+      :loading="saveTaskEditLoading"
+      :disabled="saveTaskEditLoading"
+      @click="saveShellEdit"
+      mt-10
+      block
+    >
       {{ $gettext('Save') }}
     </n-button>
   </n-modal>
-  <create-modal
-    v-model:show="visualEditModal"
-    mode="edit"
-    :edit-data="visualEditData"
-  />
+  <create-modal v-model:show="visualEditModal" mode="edit" :edit-data="visualEditData" />
   <pty-terminal-modal
     v-model:show="runModal"
     :title="$gettext('Run Task - %{ name }', { name: runTaskName })"

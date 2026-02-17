@@ -64,6 +64,7 @@ func (r *cronRepo) Get(id uint) (*biz.Cron, error) {
 func (r *cronRepo) Create(ctx context.Context, req *request.CronCreate) error {
 	config := types.CronConfig{
 		Type:     req.SubType,
+		Flock:    req.Flock,
 		Targets:  req.Targets,
 		Storage:  req.Storage,
 		Keep:     req.Keep,
@@ -121,6 +122,7 @@ func (r *cronRepo) Update(ctx context.Context, req *request.CronUpdate) error {
 	if req.Type != "shell" {
 		config := types.CronConfig{
 			Type:     req.SubType,
+			Flock:    req.Flock,
 			Targets:  req.Targets,
 			Storage:  req.Storage,
 			Keep:     req.Keep,
@@ -138,6 +140,7 @@ func (r *cronRepo) Update(ctx context.Context, req *request.CronUpdate) error {
 			return err
 		}
 	} else {
+		cron.Config.Flock = req.Flock
 		if err = io.Write(cron.Shell, req.Script, 0700); err != nil {
 			return err
 		}
@@ -178,6 +181,9 @@ func (r *cronRepo) Delete(ctx context.Context, id uint) error {
 	if err = io.Remove(cron.Shell); err != nil {
 		return err
 	}
+	// 清理 .lock 文件
+	lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
+	_ = io.Remove(lockFile)
 
 	if err = r.db.Delete(cron).Error; err != nil {
 		return err
@@ -211,7 +217,12 @@ func (r *cronRepo) Status(id uint, status bool) error {
 
 // addToSystem 添加到系统
 func (r *cronRepo) addToSystem(cron *biz.Cron) error {
-	if _, err := shell.Execf(`( crontab -l; echo "%s %s >> %s 2>&1" ) | sort - | uniq - | crontab -`, cron.Time, cron.Shell, cron.Log); err != nil {
+	cmd := cron.Shell
+	if cron.Config.Flock {
+		lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
+		cmd = fmt.Sprintf("flock -xn %s %s", lockFile, cron.Shell)
+	}
+	if _, err := shell.Execf(`( crontab -l; echo "%s %s >> %s 2>&1" ) | sort - | uniq - | crontab -`, cron.Time, cmd, cron.Log); err != nil {
 		return err
 	}
 
@@ -220,7 +231,7 @@ func (r *cronRepo) addToSystem(cron *biz.Cron) error {
 
 // deleteFromSystem 从系统中删除
 func (r *cronRepo) deleteFromSystem(cron *biz.Cron) error {
-	if _, err := shell.Execf(`( crontab -l | grep -v -F "%s %s >> %s 2>&1" ) | crontab -`, cron.Time, cron.Shell, cron.Log); err != nil {
+	if _, err := shell.Execf(`( crontab -l | grep -v -F "%s >> %s 2>&1" ) | crontab -`, cron.Shell, cron.Log); err != nil {
 		return err
 	}
 

@@ -6,6 +6,7 @@ type CronCreate struct {
 	Time     string            `form:"time" json:"time" validate:"required|cron"`
 	Script   string            `form:"script" json:"script"`
 	SubType  string            `form:"sub_type" json:"sub_type" validate:"requiredIf:Type,backup,cutoff"`
+	Flock    bool              `form:"flock" json:"flock"`
 	Storage  uint              `form:"storage" json:"storage"`
 	Targets  []string          `form:"targets" json:"targets" validate:"requiredIf:Type,backup,cutoff"`
 	Keep     uint              `form:"keep" json:"keep" validate:"required"`
@@ -25,6 +26,7 @@ type CronUpdate struct {
 	Time     string            `form:"time" json:"time" validate:"required|cron"`
 	Script   string            `form:"script" json:"script"`
 	SubType  string            `form:"sub_type" json:"sub_type"`
+	Flock    bool              `form:"flock" json:"flock"`
 	Storage  uint              `form:"storage" json:"storage"`
 	Targets  []string          `form:"targets" json:"targets"`
 	Keep     uint              `form:"keep" json:"keep"`
