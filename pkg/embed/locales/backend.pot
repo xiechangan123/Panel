@@ -31,7 +31,7 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/service/home.go:61
+#: internal/service/home.go:63
 msgid "AcePanel"
 msgstr ""
 
@@ -211,16 +211,16 @@ msgstr ""
 msgid "Cleaning failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:812
+#: internal/data/backup.go:813
 msgid "Cleaning temporary directory failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:845
+#: internal/data/backup.go:846
 msgid "Cleaning temporary file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:356
-#: internal/data/backup.go:420
+#: internal/data/backup.go:357
+#: internal/data/backup.go:421
 msgid "Cleanup failed: %v"
 msgstr ""
 
@@ -345,12 +345,12 @@ msgstr ""
 msgid "Download URL is empty"
 msgstr ""
 
-#: internal/data/backup.go:908
-#: internal/data/backup.go:911
+#: internal/data/backup.go:909
+#: internal/data/backup.go:912
 msgid "Download failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:914
+#: internal/data/backup.go:915
 msgid "Download file check failed"
 msgstr ""
 
@@ -491,7 +491,7 @@ msgstr ""
 msgid "Failed to save user info: %v"
 msgstr ""
 
-#: internal/service/ws.go:107
+#: internal/service/ws.go:111
 msgid "Failed to start command: %v"
 msgstr ""
 
@@ -513,7 +513,7 @@ msgstr ""
 msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
-#: internal/data/backup.go:763
+#: internal/data/backup.go:764
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr ""
 
@@ -615,10 +615,10 @@ msgstr ""
 msgid "Index Hit Rate"
 msgstr ""
 
-#: internal/service/cli.go:1028
-#: internal/service/cli.go:1033
-#: internal/service/cli.go:1038
-#: internal/service/cli.go:1078
+#: internal/service/cli.go:1031
+#: internal/service/cli.go:1036
+#: internal/service/cli.go:1041
+#: internal/service/cli.go:1081
 msgid "Initialization failed: %v"
 msgstr ""
 
@@ -744,11 +744,11 @@ msgstr ""
 msgid "Migration started"
 msgstr ""
 
-#: internal/data/backup.go:832
+#: internal/data/backup.go:833
 msgid "Move acepanel file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:827
+#: internal/data/backup.go:828
 msgid "Move panel file failed: %v"
 msgstr ""
 
@@ -766,7 +766,7 @@ msgstr ""
 msgid "New username cannot be empty"
 msgstr ""
 
-#: internal/data/backup.go:799
+#: internal/data/backup.go:800
 msgid "No backup file found, unable to automatically repair"
 msgstr ""
 
@@ -780,7 +780,7 @@ msgstr ""
 msgid "Not supported"
 msgstr ""
 
-#: internal/service/home.go:269
+#: internal/service/home.go:278
 msgid "Not used"
 msgstr ""
 
@@ -1006,7 +1006,7 @@ msgstr ""
 msgid "Remove panel application mark (use only under guidance)"
 msgstr ""
 
-#: internal/data/backup.go:824
+#: internal/data/backup.go:825
 msgid "Remove panel file failed: %v"
 msgstr ""
 
@@ -1177,7 +1177,7 @@ msgstr ""
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
-#: internal/data/backup.go:928
+#: internal/data/backup.go:929
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr ""
 
@@ -1185,7 +1185,7 @@ msgstr ""
 msgid "Tencent Cloud"
 msgstr ""
 
-#: internal/data/backup.go:731
+#: internal/data/backup.go:732
 msgid "The number of files contained in the compressed file is not 1, actual %d"
 msgstr ""
 
@@ -1285,11 +1285,11 @@ msgstr ""
 msgid "Unused container images: %d"
 msgstr ""
 
-#: internal/data/backup.go:815
+#: internal/data/backup.go:816
 msgid "Unzip backup file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:842
+#: internal/data/backup.go:843
 msgid "Unzip panel data failed: %v"
 msgstr ""
 
@@ -1343,7 +1343,7 @@ msgstr ""
 msgid "VERSION"
 msgstr ""
 
-#: internal/data/backup.go:921
+#: internal/data/backup.go:922
 msgid "Verify download file failed: %v"
 msgstr ""
 
@@ -1450,18 +1450,18 @@ msgstr ""
 msgid "app not found"
 msgstr ""
 
-#: internal/data/setting.go:282
-#: internal/data/setting.go:342
-#: internal/data/setting.go:358
+#: internal/data/setting.go:290
+#: internal/data/setting.go:350
+#: internal/data/setting.go:366
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:406
-#: internal/service/home.go:416
+#: internal/service/home.go:415
+#: internal/service/home.go:425
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:372
+#: internal/service/home.go:381
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
@@ -1469,8 +1469,8 @@ msgstr ""
 msgid "backup file not exists"
 msgstr ""
 
-#: internal/data/backup.go:287
-#: internal/data/backup.go:368
+#: internal/data/backup.go:288
+#: internal/data/backup.go:369
 #: internal/data/backup.go:88
 msgid "backup storage not found"
 msgstr ""
@@ -1479,7 +1479,7 @@ msgstr ""
 msgid "backup transfer failed: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:466
+#: internal/service/toolbox_disk.go:467
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
@@ -1491,11 +1491,11 @@ msgstr ""
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:552
+#: internal/service/toolbox_disk.go:553
 msgid "cannot delete root mount point"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:224
+#: internal/service/toolbox_disk.go:225
 msgid "cannot initialize system disk"
 msgstr ""
 
@@ -1512,7 +1512,7 @@ msgstr ""
 msgid "client ip changed, please login again"
 msgstr ""
 
-#: internal/service/ws.go:100
+#: internal/service/ws.go:104
 msgid "command is empty"
 msgstr ""
 
@@ -1524,7 +1524,7 @@ msgstr ""
 msgid "compressing directory: %s"
 msgstr ""
 
-#: internal/data/backup.go:739
+#: internal/data/backup.go:740
 msgid "could not find .sql backup file"
 msgstr ""
 
@@ -1553,10 +1553,10 @@ msgstr ""
 msgid "creating website on remote server"
 msgstr ""
 
-#: internal/data/backup.go:518
-#: internal/data/backup.go:576
-#: internal/data/backup.go:657
-#: internal/data/backup.go:693
+#: internal/data/backup.go:519
+#: internal/data/backup.go:577
+#: internal/data/backup.go:658
+#: internal/data/backup.go:694
 msgid "database does not exist: %s"
 msgstr ""
 
@@ -1572,7 +1572,7 @@ msgstr ""
 msgid "database user migration completed"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:217
+#: internal/service/toolbox_disk.go:218
 msgid "device not found: %s"
 msgstr ""
 
@@ -1628,12 +1628,16 @@ msgstr ""
 msgid "failed to check ssh connection: %v"
 msgstr ""
 
-#: internal/data/backup.go:773
+#: internal/data/backup.go:774
 msgid "failed to clean temporary files: %v"
 msgstr ""
 
 #: internal/service/toolbox_migration.go:186
 msgid "failed to connect remote server: %v"
+msgstr ""
+
+#: internal/data/database_redis.go:127
+msgid "failed to connect to Redis: %v"
 msgstr ""
 
 #: internal/service/toolbox_ssh.go:211
@@ -1644,11 +1648,11 @@ msgstr ""
 msgid "failed to create database user on remote: %v"
 msgstr ""
 
-#: internal/service/ws.go:225
+#: internal/service/ws.go:231
 msgid "failed to create docker client: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:353
+#: internal/service/toolbox_disk.go:354
 msgid "failed to create logical volume: %v"
 msgstr ""
 
@@ -1656,11 +1660,11 @@ msgstr ""
 msgid "failed to create mount path: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:100
+#: internal/service/toolbox_disk.go:101
 msgid "failed to create mount point: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:239
+#: internal/service/toolbox_disk.go:240
 msgid "failed to create partition: %v"
 msgstr ""
 
@@ -1668,7 +1672,7 @@ msgstr ""
 msgid "failed to create passwd file: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:308
+#: internal/service/toolbox_disk.go:309
 msgid "failed to create physical volume: %v"
 msgstr ""
 
@@ -1676,7 +1680,7 @@ msgstr ""
 msgid "failed to create project directory"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:330
+#: internal/service/toolbox_disk.go:331
 msgid "failed to create volume group: %v"
 msgstr ""
 
@@ -1684,7 +1688,7 @@ msgstr ""
 msgid "failed to create webhook directory: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:557
+#: internal/service/toolbox_disk.go:558
 msgid "failed to delete fstab entry: %v"
 msgstr ""
 
@@ -1708,16 +1712,16 @@ msgstr ""
 msgid "failed to enable %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:239
+#: internal/service/ws.go:245
 msgid "failed to encode auth: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:424
+#: internal/service/toolbox_disk.go:425
 msgid "failed to extend logical volume: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:198
-#: internal/service/toolbox_disk.go:272
+#: internal/service/toolbox_disk.go:199
+#: internal/service/toolbox_disk.go:273
 msgid "failed to format partition: %v"
 msgstr ""
 
@@ -1777,6 +1781,10 @@ msgstr ""
 msgid "failed to get PostgreSQL start time: %v"
 msgstr ""
 
+#: internal/service/toolbox_disk.go:643
+msgid "failed to get SMART info for device %s"
+msgstr ""
+
 #: internal/service/toolbox_system.go:79
 msgid "failed to get SWAP: %v"
 msgstr ""
@@ -1827,7 +1835,7 @@ msgstr ""
 msgid "failed to get database user list: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:32
+#: internal/service/toolbox_disk.go:33
 msgid "failed to get disk list: %v"
 msgstr ""
 
@@ -1839,11 +1847,11 @@ msgstr ""
 msgid "failed to get file system info"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:126
+#: internal/service/toolbox_disk.go:127
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/service/home.go:77
+#: internal/service/home.go:79
 msgid "failed to get home apps: %v"
 msgstr ""
 
@@ -1863,11 +1871,11 @@ msgstr ""
 msgid "failed to get nginx workers: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:114
+#: internal/service/toolbox_disk.go:115
 msgid "failed to get partition UUID: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:84
+#: internal/service/toolbox_disk.go:85
 msgid "failed to get partitions: %v"
 msgstr ""
 
@@ -1913,17 +1921,17 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
-#: internal/service/home.go:97
+#: internal/service/home.go:99
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:385
+#: internal/service/home.go:394
 msgid "failed to get the latest version download link"
 msgstr ""
 
-#: internal/service/home.go:301
-#: internal/service/home.go:337
-#: internal/service/home.go:379
+#: internal/service/home.go:310
+#: internal/service/home.go:346
+#: internal/service/home.go:388
 msgid "failed to get the latest version: %v"
 msgstr ""
 
@@ -1931,7 +1939,7 @@ msgstr ""
 msgid "failed to get the secret key for module %s"
 msgstr ""
 
-#: internal/service/home.go:358
+#: internal/service/home.go:367
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -1972,28 +1980,36 @@ msgstr ""
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:105
+#: internal/service/toolbox_disk.go:106
 msgid "failed to mount partition: %v"
 msgstr ""
 
+#: internal/service/toolbox_disk.go:650
+msgid "failed to parse SMART info: %v"
+msgstr ""
+
 #: internal/data/cert.go:100
-#: internal/data/setting.go:287
-#: internal/data/setting.go:361
+#: internal/data/setting.go:295
+#: internal/data/setting.go:369
 #: internal/data/website.go:609
 #: internal/data/website.go:945
 msgid "failed to parse certificate: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:41
+#: internal/service/toolbox_disk.go:42
 msgid "failed to parse disk list: %v"
 msgstr ""
 
 #: internal/data/cert.go:103
-#: internal/data/setting.go:290
-#: internal/data/setting.go:364
+#: internal/data/setting.go:298
+#: internal/data/setting.go:372
 #: internal/data/website.go:612
 #: internal/data/website.go:948
 msgid "failed to parse private key: %v"
+msgstr ""
+
+#: internal/service/toolbox_disk.go:602
+msgid "failed to parse smartctl output: %v"
 msgstr ""
 
 #: internal/data/project.go:210
@@ -2005,23 +2021,23 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
-#: internal/service/home.go:307
-#: internal/service/home.go:312
-#: internal/service/home.go:343
-#: internal/service/home.go:348
+#: internal/service/home.go:316
+#: internal/service/home.go:321
+#: internal/service/home.go:352
+#: internal/service/home.go:357
 msgid "failed to parse version: %v"
 msgstr ""
 
-#: internal/service/ws.go:248
+#: internal/service/ws.go:254
 msgid "failed to pull image: %v"
 msgstr ""
 
-#: internal/service/ws.go:72
+#: internal/service/ws.go:76
 msgid "failed to read command output: %v"
 msgstr ""
 
-#: internal/service/ws.go:55
-#: internal/service/ws.go:95
+#: internal/service/ws.go:59
+#: internal/service/ws.go:99
 msgid "failed to read command: %v"
 msgstr ""
 
@@ -2029,7 +2045,7 @@ msgstr ""
 msgid "failed to read from Memcached: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:508
+#: internal/service/toolbox_disk.go:509
 msgid "failed to read fstab: %v"
 msgstr ""
 
@@ -2037,7 +2053,7 @@ msgstr ""
 msgid "failed to read generated key: %v"
 msgstr ""
 
-#: internal/service/ws.go:213
+#: internal/service/ws.go:219
 msgid "failed to read params: %v"
 msgstr ""
 
@@ -2077,19 +2093,19 @@ msgstr ""
 msgid "failed to reload nginx: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:562
+#: internal/service/toolbox_disk.go:563
 msgid "failed to remount filesystems: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:401
+#: internal/service/toolbox_disk.go:402
 msgid "failed to remove logical volume: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:369
+#: internal/service/toolbox_disk.go:370
 msgid "failed to remove physical volume: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:385
+#: internal/service/toolbox_disk.go:386
 msgid "failed to remove volume group: %v"
 msgstr ""
 
@@ -2097,9 +2113,9 @@ msgstr ""
 msgid "failed to rename systemd config"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:437
-#: internal/service/toolbox_disk.go:446
-#: internal/service/toolbox_disk.go:461
+#: internal/service/toolbox_disk.go:438
+#: internal/service/toolbox_disk.go:447
+#: internal/service/toolbox_disk.go:462
 msgid "failed to resize filesystem: %v"
 msgstr ""
 
@@ -2115,8 +2131,12 @@ msgstr ""
 msgid "failed to restart MySQL: %v"
 msgstr ""
 
-#: internal/service/ws.go:61
+#: internal/service/ws.go:65
 msgid "failed to run command: %v"
+msgstr ""
+
+#: internal/data/database_redis.go:133
+msgid "failed to select database: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:99
@@ -2153,7 +2173,7 @@ msgstr ""
 msgid "failed to start %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:186
+#: internal/service/ws.go:192
 msgid "failed to start container terminal: %v"
 msgstr ""
 
@@ -2161,7 +2181,7 @@ msgstr ""
 msgid "failed to stop %s service: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:167
+#: internal/service/toolbox_disk.go:168
 msgid "failed to umount partition: %v"
 msgstr ""
 
@@ -2205,11 +2225,11 @@ msgstr ""
 msgid "failed to update root password: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:233
+#: internal/service/toolbox_disk.go:234
 msgid "failed to wipe disk: %v"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:150
+#: internal/service/toolbox_disk.go:151
 msgid "failed to write fstab: %v"
 msgstr ""
 
@@ -2270,11 +2290,11 @@ msgstr ""
 msgid "invalid key, please refresh the page"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:347
+#: internal/service/toolbox_disk.go:348
 msgid "invalid logical volume size"
 msgstr ""
 
-#: internal/service/ws.go:218
+#: internal/service/ws.go:224
 msgid "invalid params: %v"
 msgstr ""
 
@@ -2296,11 +2316,11 @@ msgstr ""
 msgid "invalid signature"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:418
+#: internal/service/toolbox_disk.go:419
 msgid "invalid size"
 msgstr ""
 
-#: internal/service/home.go:440
+#: internal/service/home.go:449
 msgid "invalid type"
 msgstr ""
 
@@ -2360,7 +2380,7 @@ msgstr ""
 msgid "mount path is not empty"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:143
+#: internal/service/toolbox_disk.go:144
 msgid "mount point %s already exists in fstab"
 msgstr ""
 
@@ -2373,6 +2393,10 @@ msgstr ""
 #: internal/apps/nginx/stream.go:219
 #: internal/apps/nginx/stream.go:62
 msgid "name is required"
+msgstr ""
+
+#: internal/service/toolbox_disk.go:684
+msgid "no RAID configuration detected"
 msgstr ""
 
 #: internal/service/log.go:137
@@ -2416,7 +2440,7 @@ msgstr ""
 msgid "panel run error, please check or contact support"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:119
+#: internal/service/toolbox_disk.go:120
 msgid "partition has no UUID"
 msgstr ""
 
@@ -2460,7 +2484,7 @@ msgstr ""
 msgid "please set public ips first"
 msgstr ""
 
-#: internal/data/setting.go:307
+#: internal/data/setting.go:315
 msgid "port is already in use"
 msgstr ""
 
@@ -2524,6 +2548,14 @@ msgstr ""
 msgid "sending backup to remote server"
 msgstr ""
 
+#: internal/data/database_redis.go:122
+msgid "server is not Redis type"
+msgstr ""
+
+#: internal/data/database_redis.go:119
+msgid "server not found"
+msgstr ""
+
 #: internal/http/middleware/must_login.go:61
 msgid "session expired, please login again"
 msgstr ""
@@ -2534,6 +2566,10 @@ msgstr ""
 
 #: internal/data/user_token.go:141
 msgid "signature expired"
+msgstr ""
+
+#: internal/service/toolbox_disk.go:576
+msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr ""
 
 #: internal/service/environment_php.go:440
@@ -2606,7 +2642,7 @@ msgstr ""
 msgid "template %s not found"
 msgstr ""
 
-#: internal/service/home.go:352
+#: internal/service/home.go:361
 msgid "the current version is the latest version"
 msgstr ""
 
@@ -2631,12 +2667,12 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/service/home.go:293
-#: internal/service/home.go:329
+#: internal/service/home.go:302
+#: internal/service/home.go:338
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:367
+#: internal/service/home.go:376
 msgid "unable to update in offline mode"
 msgstr ""
 
@@ -2658,7 +2694,7 @@ msgstr ""
 msgid "unknown service"
 msgstr ""
 
-#: internal/data/backup.go:460
+#: internal/data/backup.go:461
 msgid "unknown storage type"
 msgstr ""
 
@@ -2679,12 +2715,12 @@ msgstr ""
 msgid "unsupported file type"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:193
-#: internal/service/toolbox_disk.go:267
+#: internal/service/toolbox_disk.go:194
+#: internal/service/toolbox_disk.go:268
 msgid "unsupported filesystem type: %s"
 msgstr ""
 
-#: internal/data/cron.go:226
+#: internal/data/cron.go:251
 msgid "unsupported system"
 msgstr ""
 
@@ -2810,7 +2846,7 @@ msgstr ""
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr ""
 
-#: internal/service/toolbox_disk.go:451
+#: internal/service/toolbox_disk.go:452
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
@@ -2826,27 +2862,27 @@ msgstr ""
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 
-#: internal/data/backup.go:804
+#: internal/data/backup.go:805
 msgid "|-Backup file used: %s"
 msgstr ""
 
 #: internal/data/backup.go:192
-#: internal/data/backup.go:500
-#: internal/data/backup.go:558
-#: internal/data/backup.go:616
+#: internal/data/backup.go:501
+#: internal/data/backup.go:559
+#: internal/data/backup.go:617
 msgid "|-Backup file: %s"
 msgstr ""
 
-#: internal/data/backup.go:942
+#: internal/data/backup.go:943
 msgid "|-Backup panel data failed, missing file"
 msgstr ""
 
-#: internal/data/backup.go:936
-#: internal/data/backup.go:939
+#: internal/data/backup.go:937
+#: internal/data/backup.go:940
 msgid "|-Backup panel data failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:932
+#: internal/data/backup.go:933
 msgid "|-Backup panel data..."
 msgstr ""
 
@@ -2871,28 +2907,28 @@ msgstr ""
 msgid "|-Backup type: panel"
 msgstr ""
 
-#: internal/data/backup.go:962
+#: internal/data/backup.go:963
 msgid "|-Clean up temporary file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:924
+#: internal/data/backup.go:925
 msgid "|-Clean up verification file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:776
+#: internal/data/backup.go:777
 msgid "|-Cleaned up temporary files, please run acepanel update to update the panel"
 msgstr ""
 
-#: internal/data/backup.go:353
-#: internal/data/backup.go:417
+#: internal/data/backup.go:354
+#: internal/data/backup.go:418
 msgid "|-Cleaning expired file: %s"
 msgstr ""
 
-#: internal/data/backup.go:949
+#: internal/data/backup.go:950
 msgid "|-Cleaning old version failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:946
+#: internal/data/backup.go:947
 msgid "|-Cleaning old version..."
 msgstr ""
 
@@ -2906,23 +2942,23 @@ msgstr ""
 msgid "|-Cleaning type: %s"
 msgstr ""
 
-#: internal/data/backup.go:900
+#: internal/data/backup.go:901
 msgid "|-Download link: %s"
 msgstr ""
 
-#: internal/data/backup.go:985
+#: internal/data/backup.go:986
 msgid "|-Download panel service file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:905
+#: internal/data/backup.go:906
 msgid "|-Downloading..."
 msgstr ""
 
-#: internal/data/backup.go:901
+#: internal/data/backup.go:902
 msgid "|-File name: %s"
 msgstr ""
 
-#: internal/data/backup.go:881
+#: internal/data/backup.go:882
 msgid "|-Fix completed"
 msgstr ""
 
@@ -2931,24 +2967,24 @@ msgstr ""
 msgid "|-Keep count: %d"
 msgstr ""
 
-#: internal/data/backup.go:991
+#: internal/data/backup.go:992
 msgid "|-Move acepanel tool failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:820
+#: internal/data/backup.go:821
 msgid "|-Move backup file..."
 msgstr ""
 
-#: internal/data/backup.go:972
+#: internal/data/backup.go:973
 msgid "|-Restore panel data failed, missing file"
 msgstr ""
 
-#: internal/data/backup.go:969
+#: internal/data/backup.go:970
 msgid "|-Restore panel data failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:838
-#: internal/data/backup.go:966
+#: internal/data/backup.go:839
+#: internal/data/backup.go:967
 msgid "|-Restore panel data..."
 msgstr ""
 
@@ -2965,58 +3001,58 @@ msgstr ""
 msgid "|-Rotation type: website"
 msgstr ""
 
-#: internal/data/backup.go:979
+#: internal/data/backup.go:980
 msgid "|-Run post-update script failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:976
+#: internal/data/backup.go:977
 msgid "|-Run post-update script..."
 msgstr ""
 
-#: internal/data/backup.go:858
-#: internal/data/backup.go:995
+#: internal/data/backup.go:859
+#: internal/data/backup.go:996
 msgid "|-Set key file permissions..."
 msgstr ""
 
-#: internal/data/backup.go:747
+#: internal/data/backup.go:748
 msgid "|-Start fixing the panel..."
 msgstr ""
 
-#: internal/data/backup.go:899
+#: internal/data/backup.go:900
 msgid "|-Target version: %s"
 msgstr ""
 
-#: internal/data/backup.go:479
-#: internal/data/backup.go:529
-#: internal/data/backup.go:587
+#: internal/data/backup.go:480
+#: internal/data/backup.go:530
+#: internal/data/backup.go:588
 msgid "|-Temporary directory: %s"
 msgstr ""
 
-#: internal/data/backup.go:809
+#: internal/data/backup.go:810
 msgid "|-Unzip backup file..."
 msgstr ""
 
-#: internal/data/backup.go:959
+#: internal/data/backup.go:960
 msgid "|-Unzip new version failed, missing file"
 msgstr ""
 
-#: internal/data/backup.go:956
+#: internal/data/backup.go:957
 msgid "|-Unzip new version failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:953
+#: internal/data/backup.go:954
 msgid "|-Unzip new version..."
 msgstr ""
 
-#: internal/data/backup.go:1002
+#: internal/data/backup.go:1003
 msgid "|-Update completed"
 msgstr ""
 
-#: internal/data/backup.go:918
+#: internal/data/backup.go:919
 msgid "|-Verify download file..."
 msgstr ""
 
-#: internal/data/backup.go:988
+#: internal/data/backup.go:989
 msgid "|-Write new panel version failed: %v"
 msgstr ""
 
