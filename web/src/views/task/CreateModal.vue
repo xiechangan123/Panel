@@ -124,6 +124,8 @@ const generateTaskName = () => {
     formModel.value.name = formModel.value.url
       ? `${formModel.value.method} - ${formModel.value.url}`
       : $gettext('Access URL')
+  } else if (type === 'synctime') {
+    formModel.value.name = $gettext('Sync Time')
   }
 }
 
@@ -289,7 +291,8 @@ onMounted(() => {
             { label: $gettext('Run Script'), value: 'shell' },
             { label: $gettext('Backup Data'), value: 'backup' },
             { label: $gettext('Log Rotation'), value: 'cutoff' },
-            { label: $gettext('Access URL'), value: 'url' }
+            { label: $gettext('Access URL'), value: 'url' },
+            { label: $gettext('Sync Time'), value: 'synctime' }
           ]"
         />
       </n-form-item>

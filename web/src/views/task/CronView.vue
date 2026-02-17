@@ -47,23 +47,14 @@ const columns: any = [
     width: 200,
     resizable: true,
     render(row: any) {
-      return h(
-        NTag,
-        {
-          type: row.type === 'shell' ? 'warning' : row.type === 'backup' ? 'success' : row.type === 'url' ? 'default' : 'info'
-        },
-        {
-          default: () => {
-            return row.type === 'shell'
-              ? $gettext('Run Script')
-              : row.type === 'backup'
-                ? $gettext('Backup Data')
-                : row.type === 'url'
-                  ? $gettext('Access URL')
-                  : $gettext('Log Rotation')
-          }
-        }
-      )
+      const typeMap: Record<string, { type: 'default' | 'error' | 'warning' | 'success' | 'info' | 'primary'; label: string }> = {
+        shell: { type: 'warning', label: $gettext('Run Script') },
+        backup: { type: 'success', label: $gettext('Backup Data') },
+        url: { type: 'default', label: $gettext('Access URL') },
+        synctime: { type: 'primary', label: $gettext('Sync Time') }
+      }
+      const info = typeMap[row.type] || { type: 'info' as const, label: $gettext('Log Rotation') }
+      return h(NTag, { type: info.type }, { default: () => info.label })
     }
   },
   {
@@ -211,7 +202,7 @@ const handleRun = (row: any) => {
 }
 
 const handleEdit = (row: any) => {
-  if (row.type === 'backup' || row.type === 'cutoff' || row.type === 'url') {
+  if (row.type === 'backup' || row.type === 'cutoff' || row.type === 'url' || row.type === 'synctime') {
     // 可视化编辑
     useRequest(cron.get(row.id)).onSuccess(({ data }) => {
       visualEditData.value = data

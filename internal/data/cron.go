@@ -306,6 +306,8 @@ func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript
 			sb.WriteString(fmt.Sprintf(" -d '%s'", strings.ReplaceAll(config.Body, "'", "'\"'\"'")))
 		}
 		sb.WriteString(fmt.Sprintf(" '%s'\n", strings.ReplaceAll(config.URL, "'", "'\"'\"'")))
+	case "synctime":
+		sb.WriteString("acepanel sync-time\n")
 	}
 
 	return sb.String()
