@@ -14,6 +14,7 @@ const route = useRoute()
 const current = ref(route.query.tab === 'task' ? 'task' : 'cron')
 
 const create = ref(false)
+const cronViewRef = ref<InstanceType<typeof CronView>>()
 </script>
 
 <template>
@@ -25,12 +26,20 @@ const create = ref(false)
       </n-tabs>
     </template>
     <n-flex vertical>
-      <n-flex>
-        <n-button v-if="current == 'cron'" type="primary" @click="create = true">
+      <n-flex v-if="current === 'cron'">
+        <n-button type="primary" @click="create = true">
           {{ $gettext('Create Task') }}
         </n-button>
+        <delete-confirm @positive-click="cronViewRef?.bulkDelete">
+          <template #trigger>
+            <n-button type="error" :disabled="!cronViewRef?.selectedRowKeys?.length" ghost>
+              {{ $gettext('Delete') }}
+            </n-button>
+          </template>
+          {{ $gettext('Are you sure you want to delete the selected tasks?') }}
+        </delete-confirm>
       </n-flex>
-      <cron-view v-if="current === 'cron'" />
+      <cron-view v-if="current === 'cron'" ref="cronViewRef" />
       <task-view v-if="current === 'task'" />
     </n-flex>
   </common-page>

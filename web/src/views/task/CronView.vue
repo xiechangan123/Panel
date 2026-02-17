@@ -30,6 +30,7 @@ const shellEditTask = ref({
 
 // backup/cutoff 类型编辑数据
 const visualEditData = ref<any>(null)
+const selectedRowKeys = ref<any[]>([])
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -236,6 +237,16 @@ const handleDelete = async (id: number) => {
   })
 }
 
+const bulkDelete = async () => {
+  const promises = selectedRowKeys.value.map((id: any) => cron.delete(id))
+  await Promise.all(promises)
+  selectedRowKeys.value = []
+  refresh()
+  window.$message.success($gettext('Deleted successfully'))
+}
+
+defineExpose({ selectedRowKeys, bulkDelete })
+
 const saveShellEdit = async () => {
   saveTaskEditLoading.value = true
   useRequest(
@@ -277,6 +288,7 @@ onUnmounted(() => {
     :columns="columns"
     :data="data"
     :row-key="(row: any) => row.id"
+    v-model:checked-row-keys="selectedRowKeys"
     v-model:page="page"
     v-model:pageSize="pageSize"
     :pagination="{

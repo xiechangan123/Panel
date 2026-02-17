@@ -252,9 +252,18 @@ onMounted(() => {
       <n-form-item :label="$gettext('Task Name')">
         <n-input v-model:value="formModel.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
-      <n-form-item :label="$gettext('Task Schedule')">
-        <cron-selector v-model:value="formModel.time" />
-      </n-form-item>
+      <n-grid :cols="formModel.type !== 'shell' ? 2 : 1" :x-gap="16">
+        <n-gi>
+          <n-form-item :label="$gettext('Task Schedule')">
+            <cron-selector v-model:value="formModel.time" />
+          </n-form-item>
+        </n-gi>
+        <n-gi v-if="formModel.type !== 'shell'">
+          <n-form-item :label="$gettext('Retention Count')">
+            <n-input-number v-model:value="formModel.keep" :min="1" w-full />
+          </n-form-item>
+        </n-gi>
+      </n-grid>
       <div v-if="formModel.type === 'shell'">
         <n-text>{{ $gettext('Script Content') }}</n-text>
         <common-editor v-model:value="formModel.script" lang="shell" height="40vh" />
@@ -327,10 +336,6 @@ onMounted(() => {
           :options="storages"
           :placeholder="$gettext('Select storage')"
         />
-      </n-form-item>
-      <!-- 保留份数 -->
-      <n-form-item v-if="formModel.type !== 'shell'" :label="$gettext('Retention Count')">
-        <n-input-number v-model:value="formModel.keep" :min="1" />
       </n-form-item>
     </n-form>
     <n-button type="info" :loading="loading" :disabled="loading" @click="handleSubmit" mt-10 block>
