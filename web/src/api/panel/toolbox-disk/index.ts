@@ -42,5 +42,12 @@ export default {
   removeLV: (path: string): any => http.Delete('/toolbox_disk/lvm/lv', { path }),
   // 扩容逻辑卷
   extendLV: (path: string, size: number, resize: boolean): any =>
-    http.Post('/toolbox_disk/lvm/lv/extend', { path, size, resize })
+    http.Post('/toolbox_disk/lvm/lv/extend', { path, size, resize }),
+  // 获取 SMART 磁盘列表
+  smartDisks: (): any => http.Get('/toolbox_disk/smart/disks'),
+  // 获取 SMART 详细信息
+  smartInfo: (device: string): any =>
+    http.Get('/toolbox_disk/smart/info', { params: { device } }),
+  // 获取 RAID 状态
+  raidInfo: (): any => http.Get('/toolbox_disk/raid/info')
 }

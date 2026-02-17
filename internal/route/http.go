@@ -612,6 +612,9 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/lvm/lv", route.toolboxDisk.CreateLV)
 			r.Delete("/lvm/lv", route.toolboxDisk.RemoveLV)
 			r.Post("/lvm/lv/extend", route.toolboxDisk.ExtendLV)
+			r.Get("/smart/disks", route.toolboxDisk.GetSmartDisks)
+			r.Get("/smart/info", route.toolboxDisk.GetSmartInfo)
+			r.Get("/raid/info", route.toolboxDisk.GetRaidInfo)
 		})
 
 		r.Route("/toolbox_log", func(r chi.Router) {

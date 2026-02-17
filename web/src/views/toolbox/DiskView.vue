@@ -12,6 +12,9 @@ import { useGettext } from 'vue3-gettext'
 import disk from '@/api/panel/toolbox-disk'
 import { formatBytes } from '@/utils'
 
+import SmartView from './disk/SmartView.vue'
+import RaidView from './disk/RaidView.vue'
+
 // lsblk JSON 输出的数据结构
 interface BlockDevice {
   name: string
@@ -1009,6 +1012,16 @@ const handleDeleteFstab = (mountPoint: string) => {
           </n-form>
         </n-card>
       </n-flex>
+    </n-tab-pane>
+
+    <!-- SMART 状态标签页 -->
+    <n-tab-pane name="smart" tab="SMART">
+      <smart-view />
+    </n-tab-pane>
+
+    <!-- RAID 状态标签页 -->
+    <n-tab-pane name="raid" tab="RAID">
+      <raid-view />
     </n-tab-pane>
   </n-tabs>
 </template>
