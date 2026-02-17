@@ -50,7 +50,7 @@ const columns: any = [
       return h(
         NTag,
         {
-          type: row.type === 'shell' ? 'warning' : row.type === 'backup' ? 'success' : 'info'
+          type: row.type === 'shell' ? 'warning' : row.type === 'backup' ? 'success' : row.type === 'url' ? 'default' : 'info'
         },
         {
           default: () => {
@@ -58,7 +58,9 @@ const columns: any = [
               ? $gettext('Run Script')
               : row.type === 'backup'
                 ? $gettext('Backup Data')
-                : $gettext('Log Rotation')
+                : row.type === 'url'
+                  ? $gettext('Access URL')
+                  : $gettext('Log Rotation')
           }
         }
       )
@@ -209,7 +211,7 @@ const handleRun = (row: any) => {
 }
 
 const handleEdit = (row: any) => {
-  if (row.type === 'backup' || row.type === 'cutoff') {
+  if (row.type === 'backup' || row.type === 'cutoff' || row.type === 'url') {
     // 可视化编辑
     useRequest(cron.get(row.id)).onSuccess(({ data }) => {
       visualEditData.value = data

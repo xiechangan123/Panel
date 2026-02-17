@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import app from '@/api/panel/app'
-import container from '@/api/panel/container'
-import database from '@/api/panel/database'
 import storage from '@/api/panel/backup-storage'
+import container from '@/api/panel/container'
 import cron from '@/api/panel/cron'
+import database from '@/api/panel/database'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import CronSelector from '@/components/common/CronSelector.vue'
@@ -32,8 +32,17 @@ const defaultModel = () => ({
     `#!/bin/bash\nexport PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n\n` +
     $gettext('# Enter your script content here') +
     `\n`,
-  time: '*/30 * * * *'
+  time: '*/30 * * * *',
+  url: '',
+  method: 'GET',
+  headers: {} as Record<string, string>,
+  body: '',
+  timeout: 10,
+  insecure: false,
+  retries: 0
 })
+
+const headerList = ref<{ key: string; value: string }[]>([])
 
 const formModel = ref(defaultModel())
 
@@ -65,15 +74,24 @@ const containerInstalled = ref(false)
 
 const handleSubmit = async () => {
   loading.value = true
+  // 提交前将 headerList 同步到 headers map
+  const headersMap: Record<string, string> = {}
+  for (const item of headerList.value) {
+    if (item.key) {
+      headersMap[item.key] = item.value
+    }
+  }
+  formModel.value.headers = headersMap
   const data = { ...formModel.value }
-  const request =
-    props.mode === 'create' ? cron.create(data) : cron.update(data.id, data)
+  const request = props.mode === 'create' ? cron.create(data) : cron.update(data.id, data)
 
   useRequest(request)
     .onSuccess(() => {
       show.value = false
       window.$message.success(
-        props.mode === 'create' ? $gettext('Created successfully') : $gettext('Modified successfully')
+        props.mode === 'create'
+          ? $gettext('Created successfully')
+          : $gettext('Modified successfully')
       )
       emit('saved')
       window.$bus.emit('task:refresh-cron')
@@ -102,12 +120,22 @@ const generateTaskName = () => {
     }
     const prefix = cutoffTypeMap[formModel.value.sub_type] || $gettext('Log Rotation')
     formModel.value.name = targets.length ? `${prefix} - ${targets.join(', ')}` : prefix
+  } else if (type === 'url') {
+    formModel.value.name = formModel.value.url
+      ? `${formModel.value.method} - ${formModel.value.url}`
+      : $gettext('Access URL')
   }
 }
 
 // 监听类型变更自动生成名称
 watch(
-  () => [formModel.value.type, formModel.value.sub_type, formModel.value.targets],
+  () => [
+    formModel.value.type,
+    formModel.value.sub_type,
+    formModel.value.targets,
+    formModel.value.url,
+    formModel.value.method
+  ],
   () => {
     if (props.mode === 'create') {
       generateTaskName()
@@ -169,20 +197,35 @@ watch(show, (val) => {
         keep: config.keep || 1,
         sub_type: config.type || '',
         storage: config.storage || 0,
-        script: ''
+        script: '',
+        url: config.url || '',
+        method: config.method || 'GET',
+        headers: config.headers || {},
+        body: config.body || '',
+        timeout: config.timeout ?? 10,
+        insecure: config.insecure ?? false,
+        retries: config.retries ?? 0
       }
       nextTick(() => {
         skipClearTargets.value = false
       })
+      // 回填 headerList
+      headerList.value = Object.entries(config.headers || {}).map(
+        ([key, value]: [string, any]) => ({ key, value })
+      )
       // 加载关联数据
       if (props.editData.type === 'cutoff' && config.type === 'container') {
         loadContainers()
       }
-      if (props.editData.type === 'backup' && (config.type === 'mysql' || config.type === 'postgres')) {
+      if (
+        props.editData.type === 'backup' &&
+        (config.type === 'mysql' || config.type === 'postgres')
+      ) {
         loadDatabases(config.type)
       }
     } else {
       formModel.value = defaultModel()
+      headerList.value = []
     }
   }
 })
@@ -245,20 +288,24 @@ onMounted(() => {
           :options="[
             { label: $gettext('Run Script'), value: 'shell' },
             { label: $gettext('Backup Data'), value: 'backup' },
-            { label: $gettext('Log Rotation'), value: 'cutoff' }
+            { label: $gettext('Log Rotation'), value: 'cutoff' },
+            { label: $gettext('Access URL'), value: 'url' }
           ]"
         />
       </n-form-item>
       <n-form-item :label="$gettext('Task Name')">
         <n-input v-model:value="formModel.name" :placeholder="$gettext('Task Name')" />
       </n-form-item>
-      <n-grid :cols="formModel.type !== 'shell' ? 2 : 1" :x-gap="16">
+      <n-grid
+        :cols="formModel.type === 'backup' || formModel.type === 'cutoff' ? 2 : 1"
+        :x-gap="16"
+      >
         <n-gi>
           <n-form-item :label="$gettext('Task Schedule')">
             <cron-selector v-model:value="formModel.time" />
           </n-form-item>
         </n-gi>
-        <n-gi v-if="formModel.type !== 'shell'">
+        <n-gi v-if="formModel.type === 'backup' || formModel.type === 'cutoff'">
           <n-form-item :label="$gettext('Retention Count')">
             <n-input-number v-model:value="formModel.keep" :min="1" w-full />
           </n-form-item>
@@ -268,6 +315,75 @@ onMounted(() => {
         <n-text>{{ $gettext('Script Content') }}</n-text>
         <common-editor v-model:value="formModel.script" lang="shell" height="40vh" />
       </div>
+      <!-- URL 类型 -->
+      <template v-if="formModel.type === 'url'">
+        <n-form-item :label="$gettext('Request Method')">
+          <n-select
+            v-model:value="formModel.method"
+            :options="[
+              { label: 'GET', value: 'GET' },
+              { label: 'POST', value: 'POST' },
+              { label: 'PUT', value: 'PUT' },
+              { label: 'DELETE', value: 'DELETE' },
+              { label: 'PATCH', value: 'PATCH' },
+              { label: 'HEAD', value: 'HEAD' }
+            ]"
+          />
+        </n-form-item>
+        <n-form-item label="URL">
+          <n-input v-model:value="formModel.url" placeholder="https://example.com" />
+        </n-form-item>
+        <n-form-item :label="$gettext('Request Headers')">
+          <n-dynamic-input v-model:value="headerList" :on-create="() => ({ key: '', value: '' })">
+            <template #default="{ value }">
+              <div style="display: flex; align-items: center; width: 100%; gap: 8px">
+                <n-input
+                  v-model:value="value.key"
+                  :placeholder="$gettext('Header Name')"
+                  style="flex: 1"
+                />
+                <n-input
+                  v-model:value="value.value"
+                  :placeholder="$gettext('Header Value')"
+                  style="flex: 2"
+                />
+              </div>
+            </template>
+          </n-dynamic-input>
+        </n-form-item>
+        <n-form-item
+          v-if="
+            formModel.method === 'POST' ||
+            formModel.method === 'PUT' ||
+            formModel.method === 'PATCH'
+          "
+          :label="$gettext('Request Body')"
+        >
+          <n-input
+            v-model:value="formModel.body"
+            type="textarea"
+            :placeholder="$gettext('Request Body')"
+            :autosize="{ minRows: 3, maxRows: 10 }"
+          />
+        </n-form-item>
+        <n-grid :cols="3" :x-gap="16">
+          <n-gi>
+            <n-form-item :label="$gettext('Timeout (seconds)')">
+              <n-input-number v-model:value="formModel.timeout" :min="0" w-full />
+            </n-form-item>
+          </n-gi>
+          <n-gi>
+            <n-form-item :label="$gettext('Retry Count')">
+              <n-input-number v-model:value="formModel.retries" :min="0" w-full />
+            </n-form-item>
+          </n-gi>
+          <n-gi>
+            <n-form-item :label="$gettext('Ignore Certificate')">
+              <n-switch v-model:value="formModel.insecure" />
+            </n-form-item>
+          </n-gi>
+        </n-grid>
+      </template>
       <!-- 备份类型 -->
       <n-form-item v-if="formModel.type === 'backup'" :label="$gettext('Backup Type')">
         <n-radio-group v-model:value="formModel.sub_type">
@@ -284,7 +400,9 @@ onMounted(() => {
       <n-form-item v-if="formModel.type === 'cutoff'" :label="$gettext('Rotation Type')">
         <n-radio-group v-model:value="formModel.sub_type">
           <n-radio value="website">{{ $gettext('Website') }}</n-radio>
-          <n-radio value="container" :disabled="!containerInstalled">{{ $gettext('Container') }}</n-radio>
+          <n-radio value="container" :disabled="!containerInstalled">{{
+            $gettext('Container')
+          }}</n-radio>
         </n-radio-group>
       </n-form-item>
       <!-- 网站多选 -->
@@ -304,7 +422,10 @@ onMounted(() => {
       </n-form-item>
       <!-- 数据库多选 -->
       <n-form-item
-        v-if="formModel.type === 'backup' && (formModel.sub_type === 'mysql' || formModel.sub_type === 'postgres')"
+        v-if="
+          formModel.type === 'backup' &&
+          (formModel.sub_type === 'mysql' || formModel.sub_type === 'postgres')
+        "
         :label="$gettext('Select Database')"
       >
         <n-select

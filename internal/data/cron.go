@@ -63,10 +63,17 @@ func (r *cronRepo) Get(id uint) (*biz.Cron, error) {
 
 func (r *cronRepo) Create(ctx context.Context, req *request.CronCreate) error {
 	config := types.CronConfig{
-		Type:    req.SubType,
-		Targets: req.Targets,
-		Storage: req.Storage,
-		Keep:    req.Keep,
+		Type:     req.SubType,
+		Targets:  req.Targets,
+		Storage:  req.Storage,
+		Keep:     req.Keep,
+		URL:      req.URL,
+		Method:   req.Method,
+		Headers:  req.Headers,
+		Body:     req.Body,
+		Timeout:  req.Timeout,
+		Insecure: req.Insecure,
+		Retries:  req.Retries,
 	}
 	script := r.generateScript(req.Type, config, req.Script)
 
@@ -111,12 +118,19 @@ func (r *cronRepo) Update(ctx context.Context, req *request.CronUpdate) error {
 	cron.Name = req.Name
 
 	// 根据类型重新生成脚本
-	if req.Type == "backup" || req.Type == "cutoff" {
+	if req.Type != "shell" {
 		config := types.CronConfig{
-			Type:    req.SubType,
-			Targets: req.Targets,
-			Storage: req.Storage,
-			Keep:    req.Keep,
+			Type:     req.SubType,
+			Targets:  req.Targets,
+			Storage:  req.Storage,
+			Keep:     req.Keep,
+			URL:      req.URL,
+			Method:   req.Method,
+			Headers:  req.Headers,
+			Body:     req.Body,
+			Timeout:  req.Timeout,
+			Insecure: req.Insecure,
+			Retries:  req.Retries,
 		}
 		cron.Config = config
 		script := r.generateScript(req.Type, config, "")
@@ -270,6 +284,28 @@ func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript
 				sb.WriteString(fmt.Sprintf("acepanel cutoff clear -t container -n '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage))
 			}
 		}
+	case "url":
+		method := config.Method
+		if method == "" {
+			method = "GET"
+		}
+		sb.WriteString(fmt.Sprintf("curl -sSL -X %s", method))
+		if config.Timeout > 0 {
+			sb.WriteString(fmt.Sprintf(" --connect-timeout %d", config.Timeout))
+		}
+		if config.Insecure {
+			sb.WriteString(" -k")
+		}
+		if config.Retries > 0 {
+			sb.WriteString(fmt.Sprintf(" --retry %d", config.Retries))
+		}
+		for key, value := range config.Headers {
+			sb.WriteString(fmt.Sprintf(" -H '%s: %s'", strings.ReplaceAll(key, "'", "'\"'\"'"), strings.ReplaceAll(value, "'", "'\"'\"'")))
+		}
+		if config.Body != "" {
+			sb.WriteString(fmt.Sprintf(" -d '%s'", strings.ReplaceAll(config.Body, "'", "'\"'\"'")))
+		}
+		sb.WriteString(fmt.Sprintf(" '%s'\n", strings.ReplaceAll(config.URL, "'", "'\"'\"'")))
 	}
 
 	return sb.String()
