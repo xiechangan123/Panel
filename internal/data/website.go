@@ -613,7 +613,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		}
 		// 检查证书是否已存在于面板的证书管理中，如果不存在则作为本地证书上传
 		var certCount int64
-		r.db.Model(&biz.Cert{}).Where("TRIM(cert, char(9) || char(10) || char(13) || ' ')", strings.TrimSpace(req.SSLCert)).Count(&certCount)
+		r.db.Model(&biz.Cert{}).Where("TRIM(cert, char(9) || char(10) || char(13) || ' ') = ?", strings.TrimSpace(req.SSLCert)).Count(&certCount)
 		if certCount == 0 {
 			certInfo, _ := cert.ParseCert([]byte(req.SSLCert))
 			sans := certInfo.DNSNames
