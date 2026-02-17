@@ -1024,6 +1024,8 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingKeyOfflineMode, Value: "false"},
 		{Key: biz.SettingKeyAutoUpdate, Value: "true"},
 		{Key: biz.SettingHiddenMenu, Value: "[]"},
+		{Key: biz.SettingKeyScanAware, Value: "true"},
+		{Key: biz.SettingKeyScanAwareDays, Value: "30"},
 	}
 	if err = s.db.Create(&settings).Error; err != nil {
 		return errors.New(s.t.Get("Initialization failed: %v", err))

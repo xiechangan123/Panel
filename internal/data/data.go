@@ -26,6 +26,7 @@ var ProviderSet = wire.NewSet(
 	NewMonitorRepo,
 	NewProjectRepo,
 	NewSafeRepo,
+	NewScanEventRepo,
 	NewSettingRepo,
 	NewSSHRepo,
 	NewTaskRepo,

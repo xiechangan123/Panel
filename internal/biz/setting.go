@@ -30,6 +30,9 @@ const (
 	SettingHiddenMenu             SettingKey = "hidden_menu"
 	SettingKeyCustomLogo          SettingKey = "custom_logo"
 	SettingKeyMemo                SettingKey = "memo"
+	SettingKeyScanAware           SettingKey = "scan_aware"
+	SettingKeyScanAwareDays       SettingKey = "scan_aware_days"
+	SettingKeyScanAwareInterfaces SettingKey = "scan_aware_interfaces"
 )
 
 type Setting struct {

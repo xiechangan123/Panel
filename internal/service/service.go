@@ -30,6 +30,7 @@ var ProviderSet = wire.NewSet(
 	NewEnvironmentDotnetService,
 	NewFileService,
 	NewFirewallService,
+	NewFirewallScanService,
 	NewHomeService,
 	NewLogService,
 	NewMonitorService,

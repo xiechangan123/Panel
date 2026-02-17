@@ -77,4 +77,13 @@ func init() {
 			return nil
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260218-add-scan-events",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.ScanEvent{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.ScanEvent{})
+		},
+	})
 }

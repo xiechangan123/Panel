@@ -112,6 +112,8 @@ func initAce() (*app.Ace, error) {
 	safeRepo := data.NewSafeRepo(logger)
 	safeService := service.NewSafeService(safeRepo)
 	firewallService := service.NewFirewallService()
+	scanEventRepo := data.NewScanEventRepo(db, settingRepo)
+	firewallScanService := service.NewFirewallScanService(scanEventRepo)
 	sshRepo := data.NewSSHRepo(locale, db, logger)
 	sshService := service.NewSSHService(sshRepo)
 	containerService := service.NewContainerService(containerRepo)
@@ -163,7 +165,7 @@ func initAce() (*app.Ace, error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
-	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseRedisService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, environmentDotnetService, cronService, processService, safeService, firewallService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxNetworkService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, loader)
+	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseRedisService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, environmentDotnetService, cronService, processService, safeService, firewallService, firewallScanService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxNetworkService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, loader)
 	wsService := service.NewWsService(locale, config, logger, sshRepo, settingRepo)
 	ws := route.NewWs(wsService, toolboxMigrationService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
@@ -179,7 +181,7 @@ func initAce() (*app.Ace, error) {
 		return nil, err
 	}
 	gormigrate := bootstrap.NewMigrate(db)
-	jobs := job.NewJobs(config, db, logger, settingRepo, certRepo, certAccountRepo, backupRepo, cacheRepo, taskRepo)
+	jobs := job.NewJobs(config, db, logger, settingRepo, certRepo, certAccountRepo, backupRepo, cacheRepo, taskRepo, scanEventRepo)
 	cron, err := bootstrap.NewCron(config, logger, jobs)
 	if err != nil {
 		return nil, err

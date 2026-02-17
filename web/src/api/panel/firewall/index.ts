@@ -28,5 +28,28 @@ export default {
   deleteForward: (rule: any): any => http.Delete('/firewall/forward', rule),
   // 获取端口占用进程信息
   portUsage: (port: number, protocol: string): any =>
-    http.Get('/firewall/rule/port_usage', { params: { port, protocol } })
+    http.Get('/firewall/rule/port_usage', { params: { port, protocol } }),
+  // 扫描感知 - 获取设置
+  scanSetting: (): any => http.Get('/firewall/scan/setting'),
+  // 扫描感知 - 更新设置
+  updateScanSetting: (setting: any): any => http.Post('/firewall/scan/setting', setting),
+  // 扫描感知 - 获取可用网卡
+  scanInterfaces: (): any => http.Get('/firewall/scan/interfaces'),
+  // 扫描感知 - 获取汇总
+  scanSummary: (start: string, end: string): any =>
+    http.Get('/firewall/scan/summary', { params: { start, end } }),
+  // 扫描感知 - 获取趋势
+  scanTrend: (start: string, end: string): any =>
+    http.Get('/firewall/scan/trend', { params: { start, end } }),
+  // 扫描感知 - 获取 Top 源 IP
+  scanTopIPs: (start: string, end: string, limit: number): any =>
+    http.Get('/firewall/scan/top_ips', { params: { start, end, limit } }),
+  // 扫描感知 - 获取 Top 端口
+  scanTopPorts: (start: string, end: string, limit: number): any =>
+    http.Get('/firewall/scan/top_ports', { params: { start, end, limit } }),
+  // 扫描感知 - 获取事件列表
+  scanEvents: (start: string, end: string, page: number, limit: number): any =>
+    http.Get('/firewall/scan/events', { params: { start, end, page, limit } }),
+  // 扫描感知 - 清空数据
+  scanClear: (): any => http.Post('/firewall/scan/clear')
 }

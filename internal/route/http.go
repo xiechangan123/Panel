@@ -49,6 +49,7 @@ type Http struct {
 	process           *service.ProcessService
 	safe              *service.SafeService
 	firewall          *service.FirewallService
+	firewallScan      *service.FirewallScanService
 	ssh               *service.SSHService
 	container         *service.ContainerService
 	containerCompose  *service.ContainerComposeService
@@ -101,6 +102,7 @@ func NewHttp(
 	process *service.ProcessService,
 	safe *service.SafeService,
 	firewall *service.FirewallService,
+	firewallScan *service.FirewallScanService,
 	ssh *service.SSHService,
 	container *service.ContainerService,
 	containerCompose *service.ContainerComposeService,
@@ -152,6 +154,7 @@ func NewHttp(
 		process:           process,
 		safe:              safe,
 		firewall:          firewall,
+		firewallScan:      firewallScan,
 		ssh:               ssh,
 		container:         container,
 		containerCompose:  containerCompose,
@@ -433,6 +436,17 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/forward", route.firewall.GetForwards)
 			r.Post("/forward", route.firewall.CreateForward)
 			r.Delete("/forward", route.firewall.DeleteForward)
+
+			// 扫描感知
+			r.Get("/scan/setting", route.firewallScan.GetSetting)
+			r.Post("/scan/setting", route.firewallScan.UpdateSetting)
+			r.Get("/scan/interfaces", route.firewallScan.GetInterfaces)
+			r.Get("/scan/summary", route.firewallScan.GetSummary)
+			r.Get("/scan/trend", route.firewallScan.GetTrend)
+			r.Get("/scan/top_ips", route.firewallScan.GetTopSourceIPs)
+			r.Get("/scan/top_ports", route.firewallScan.GetTopPorts)
+			r.Get("/scan/events", route.firewallScan.ListEvents)
+			r.Post("/scan/clear", route.firewallScan.Clear)
 		})
 
 		r.Route("/ssh", func(r chi.Router) {
