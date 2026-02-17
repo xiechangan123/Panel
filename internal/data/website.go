@@ -623,8 +623,8 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			r.db.Create(&biz.Cert{
 				Type:    "upload",
 				Domains: sans,
-				Cert:    req.SSLCert,
-				Key:     req.SSLKey,
+				Cert:    strings.TrimSpace(req.SSLCert),
+				Key:     strings.TrimSpace(req.SSLKey),
 			})
 		}
 		quic := false
