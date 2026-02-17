@@ -59,6 +59,7 @@ const { data: model } = useRequest(setting.list, {
     website_path: '',
     backup_path: '',
     project_path: '',
+    container_sock: '',
     hidden_menu: [],
     custom_logo: '',
     https: false,

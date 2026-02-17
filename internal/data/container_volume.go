@@ -14,15 +14,17 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
-type containerVolumeRepo struct{}
+type containerVolumeRepo struct {
+	settingRepo biz.SettingRepo
+}
 
-func NewContainerVolumeRepo() biz.ContainerVolumeRepo {
-	return &containerVolumeRepo{}
+func NewContainerVolumeRepo(settingRepo biz.SettingRepo) biz.ContainerVolumeRepo {
+	return &containerVolumeRepo{settingRepo: settingRepo}
 }
 
 // List 列出存储卷
 func (r *containerVolumeRepo) List() ([]types.ContainerVolume, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +66,7 @@ func (r *containerVolumeRepo) List() ([]types.ContainerVolume, error) {
 
 // Create 创建存储卷
 func (r *containerVolumeRepo) Create(req *request.ContainerVolumeCreate) (string, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return "", err
 	}
@@ -85,7 +87,7 @@ func (r *containerVolumeRepo) Create(req *request.ContainerVolumeCreate) (string
 
 // Remove 删除存储卷
 func (r *containerVolumeRepo) Remove(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -99,7 +101,7 @@ func (r *containerVolumeRepo) Remove(id string) error {
 
 // Prune 清理未使用的存储卷
 func (r *containerVolumeRepo) Prune() error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}

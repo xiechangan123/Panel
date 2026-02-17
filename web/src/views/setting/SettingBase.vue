@@ -158,6 +158,12 @@ const menus = computed<TreeSelectOption[]>(() => {
           </n-button>
         </n-input-group>
       </n-form-item>
+      <n-form-item :label="$gettext('Container Socket')">
+        <n-input
+          v-model:value="model.container_sock"
+          :placeholder="'/var/run/docker.sock'"
+        />
+      </n-form-item>
       <n-form-item :label="$gettext('Custom Logo')">
         <n-input
           v-model:value="model.custom_logo"

@@ -18,15 +18,17 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
-type containerImageRepo struct{}
+type containerImageRepo struct {
+	settingRepo biz.SettingRepo
+}
 
-func NewContainerImageRepo() biz.ContainerImageRepo {
-	return &containerImageRepo{}
+func NewContainerImageRepo(settingRepo biz.SettingRepo) biz.ContainerImageRepo {
+	return &containerImageRepo{settingRepo: settingRepo}
 }
 
 // List 列出镜像
 func (r *containerImageRepo) List() ([]types.ContainerImage, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +63,7 @@ func (r *containerImageRepo) List() ([]types.ContainerImage, error) {
 
 // Exist 检查镜像是否存在
 func (r *containerImageRepo) Exist(name string) (bool, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return false, err
 	}
@@ -80,7 +82,7 @@ func (r *containerImageRepo) Exist(name string) (bool, error) {
 
 // Pull 拉取镜像
 func (r *containerImageRepo) Pull(req *request.ContainerImagePull) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -111,7 +113,7 @@ func (r *containerImageRepo) Pull(req *request.ContainerImagePull) error {
 
 // Remove 删除镜像
 func (r *containerImageRepo) Remove(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -126,7 +128,7 @@ func (r *containerImageRepo) Remove(id string) error {
 
 // Prune 清理未使用的镜像
 func (r *containerImageRepo) Prune() error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}

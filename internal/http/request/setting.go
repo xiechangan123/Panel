@@ -20,6 +20,7 @@ type SettingPanel struct {
 	WebsitePath   string   `json:"website_path" validate:"required"`
 	BackupPath    string   `json:"backup_path" validate:"required"`
 	ProjectPath   string   `json:"project_path" validate:"required"`
+	ContainerSock string   `json:"container_sock"`
 	HiddenMenu    []string `json:"hidden_menu"`                      // 隐藏的菜单项
 	CustomLogo    string   `json:"custom_logo" validate:"isFullURL"` // 自定义 Logo URL
 	Port          uint     `json:"port" validate:"required|min:1|max:65535"`

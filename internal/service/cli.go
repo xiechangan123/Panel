@@ -1018,6 +1018,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingKeyBackupPath, Value: filepath.Join(app.Root, "backup")},
 		{Key: biz.SettingKeyWebsitePath, Value: filepath.Join(app.Root, "sites")},
 		{Key: biz.SettingKeyProjectPath, Value: filepath.Join(app.Root, "projects")},
+		{Key: biz.SettingKeyContainerSock, Value: filepath.Join(app.Root, "/var/run/docker.sock")},
 		{Key: biz.SettingKeyWebsiteTLSVersions, Value: `["TLSv1.2","TLSv1.3"]`},
 		{Key: biz.SettingKeyWebsiteCipherSuites, Value: `ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305`},
 		{Key: biz.SettingKeyOfflineMode, Value: "false"},

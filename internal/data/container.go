@@ -18,15 +18,17 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
-type containerRepo struct{}
+type containerRepo struct {
+	settingRepo biz.SettingRepo
+}
 
-func NewContainerRepo() biz.ContainerRepo {
-	return &containerRepo{}
+func NewContainerRepo(settingRepo biz.SettingRepo) biz.ContainerRepo {
+	return &containerRepo{settingRepo: settingRepo}
 }
 
 // ListAll 列出所有容器
 func (r *containerRepo) ListAll() ([]types.Container, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +94,7 @@ func (r *containerRepo) ListByName(names string) ([]types.Container, error) {
 
 // Create 创建容器
 func (r *containerRepo) Create(req *request.ContainerCreate) (string, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return "", err
 	}
@@ -209,7 +211,7 @@ func (r *containerRepo) Create(req *request.ContainerCreate) (string, error) {
 
 // Remove 移除容器
 func (r *containerRepo) Remove(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -223,7 +225,7 @@ func (r *containerRepo) Remove(id string) error {
 
 // Start 启动容器
 func (r *containerRepo) Start(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -235,7 +237,7 @@ func (r *containerRepo) Start(id string) error {
 
 // Stop 停止容器
 func (r *containerRepo) Stop(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -247,7 +249,7 @@ func (r *containerRepo) Stop(id string) error {
 
 // Restart 重启容器
 func (r *containerRepo) Restart(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -259,7 +261,7 @@ func (r *containerRepo) Restart(id string) error {
 
 // Pause 暂停容器
 func (r *containerRepo) Pause(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -271,7 +273,7 @@ func (r *containerRepo) Pause(id string) error {
 
 // Unpause 恢复容器
 func (r *containerRepo) Unpause(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -283,7 +285,7 @@ func (r *containerRepo) Unpause(id string) error {
 
 // Kill 杀死容器
 func (r *containerRepo) Kill(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -297,7 +299,7 @@ func (r *containerRepo) Kill(id string) error {
 
 // Rename 重命名容器
 func (r *containerRepo) Rename(id string, newName string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -311,7 +313,7 @@ func (r *containerRepo) Rename(id string, newName string) error {
 
 // Logs 查看容器日志
 func (r *containerRepo) Logs(id string) (string, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return "", err
 	}
@@ -337,7 +339,7 @@ func (r *containerRepo) Logs(id string) (string, error) {
 
 // Prune 清理未使用的容器
 func (r *containerRepo) Prune() error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}

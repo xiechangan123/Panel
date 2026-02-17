@@ -15,15 +15,17 @@ import (
 	"github.com/acepanel/panel/pkg/types"
 )
 
-type containerNetworkRepo struct{}
+type containerNetworkRepo struct {
+	settingRepo biz.SettingRepo
+}
 
-func NewContainerNetworkRepo() biz.ContainerNetworkRepo {
-	return &containerNetworkRepo{}
+func NewContainerNetworkRepo(settingRepo biz.SettingRepo) biz.ContainerNetworkRepo {
+	return &containerNetworkRepo{settingRepo: settingRepo}
 }
 
 // List 列出网络
 func (r *containerNetworkRepo) List() ([]types.ContainerNetwork, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +76,7 @@ func (r *containerNetworkRepo) List() ([]types.ContainerNetwork, error) {
 
 // Create 创建网络
 func (r *containerNetworkRepo) Create(req *request.ContainerNetworkCreate) (string, error) {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return "", err
 	}
@@ -143,7 +145,7 @@ func (r *containerNetworkRepo) Create(req *request.ContainerNetworkCreate) (stri
 
 // Remove 删除网络
 func (r *containerNetworkRepo) Remove(id string) error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}
@@ -155,7 +157,7 @@ func (r *containerNetworkRepo) Remove(id string) error {
 
 // Prune 清理未使用的网络
 func (r *containerNetworkRepo) Prune() error {
-	apiClient, err := getDockerClient("/var/run/docker.sock")
+	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return err
 	}

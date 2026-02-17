@@ -18,6 +18,7 @@ const (
 	SettingKeyBackupPath          SettingKey = "backup_path"
 	SettingKeyWebsitePath         SettingKey = "website_path"
 	SettingKeyProjectPath         SettingKey = "project_path"
+	SettingKeyContainerSock       SettingKey = "container_sock"
 	SettingKeyWebsiteTLSVersions  SettingKey = "website_tls_versions"
 	SettingKeyWebsiteCipherSuites SettingKey = "website_tls_cipher_suites"
 	SettingKeyMySQLRootPassword   SettingKey = "mysql_root_password"
