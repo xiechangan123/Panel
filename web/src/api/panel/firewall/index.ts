@@ -25,5 +25,8 @@ export default {
   // 创建防火墙转发规则
   createForward: (rule: any): any => http.Post('/firewall/forward', rule),
   // 删除防火墙转发规则
-  deleteForward: (rule: any): any => http.Delete('/firewall/forward', rule)
+  deleteForward: (rule: any): any => http.Delete('/firewall/forward', rule),
+  // 获取端口占用进程信息
+  portUsage: (port: number, protocol: string): any =>
+    http.Get('/firewall/rule/port_usage', { params: { port, protocol } })
 }

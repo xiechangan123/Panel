@@ -410,6 +410,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/status", route.firewall.GetStatus)
 			r.Post("/status", route.firewall.UpdateStatus)
 			r.Get("/rule", route.firewall.GetRules)
+			r.Get("/rule/port_usage", route.firewall.GetPortUsage)
 			r.Post("/rule", route.firewall.CreateRule)
 			r.Delete("/rule", route.firewall.DeleteRule)
 			r.Get("/ip_rule", route.firewall.GetIPRules)

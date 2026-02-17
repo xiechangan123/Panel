@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NDataTable, NPopconfirm, NPopover, NSpin, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
@@ -7,6 +7,23 @@ import CreateModal from '@/views/firewall/CreateModal.vue'
 
 const { $gettext } = useGettext()
 const createModalShow = ref(false)
+
+// 端口进程信息缓存
+const portUsageCache = ref<Record<string, any>>({})
+const portUsageLoading = ref<Record<string, boolean>>({})
+
+const fetchPortUsage = async (port: number, protocol: string) => {
+  const key = `${protocol}:${port}`
+  if (portUsageCache.value[key]) return
+  portUsageLoading.value[key] = true
+  try {
+    const proto = protocol === 'tcp/udp' ? 'tcp' : protocol
+    const data = await firewall.portUsage(port, proto)
+    portUsageCache.value[key] = data || []
+  } finally {
+    portUsageLoading.value[key] = false
+  }
+}
 
 const columns: any = [
   { type: 'selection', fixed: 'left' },
@@ -62,17 +79,67 @@ const columns: any = [
     key: 'in_use',
     width: 150,
     render(row: any): any {
+      if (!row.in_use) {
+        return h(NTag, { type: 'default' }, { default: () => $gettext('Not Used') })
+      }
+
+      const key = `${row.protocol}:${row.port_start}`
       return h(
-        NTag,
+        NPopover,
         {
-          type: row.in_use ? 'success' : 'default'
+          trigger: 'click',
+          placement: 'bottom',
+          onUpdateShow: (show: boolean) => {
+            if (show) fetchPortUsage(row.port_start, row.protocol)
+          }
         },
         {
+          trigger: () =>
+            h(
+              NTag,
+              {
+                type: 'success',
+                style: 'cursor: pointer;'
+              },
+              { default: () => $gettext('In Use') }
+            ),
           default: () => {
-            if (row.in_use) {
-              return $gettext('In Use')
+            if (portUsageLoading.value[key]) {
+              return h(NSpin, { size: 'small', style: 'padding: 12px;' })
             }
-            return $gettext('Not Used')
+            const processes = portUsageCache.value[key]
+            if (!processes || processes.length === 0) {
+              return h('div', { style: 'padding: 4px; color: var(--n-text-color);' }, $gettext('No process information'))
+            }
+            return h(
+              'div',
+              { style: 'max-height: 300px; overflow-y: auto;' },
+              processes.map((p: any, i: number) => {
+                return h(
+                  'div',
+                  {
+                    style:
+                      i > 0
+                        ? 'padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--n-border-color);'
+                        : ''
+                  },
+                  [
+                    h('div', { style: 'font-size: 13px;' }, [
+                      h('span', { style: 'font-weight: bold;' }, `${p.name}`),
+                      h('span', { style: 'margin-left: 8px; opacity: 0.6;' }, `PID: ${p.pid}`)
+                    ]),
+                    h(
+                      'div',
+                      {
+                        style:
+                          'font-size: 12px; opacity: 0.8; margin-top: 4px; word-break: break-all; font-family: monospace;'
+                      },
+                      p.command
+                    )
+                  ]
+                )
+              })
+            )
           }
         }
       )
