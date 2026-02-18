@@ -860,6 +860,8 @@ msgstr ""
 #: src/views/log/SSHLog.vue:113
 #: src/views/toolbox/MigrationView.vue:587
 #: src/views/toolbox/NetworkView.vue:188
+#: src/views/toolbox/PanelView.vue:99
+#: src/views/toolbox/PanelView.vue:232
 #: src/views/toolbox/ProcessView.vue:329
 msgid "Refresh"
 msgstr ""
@@ -3275,6 +3277,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:553
 #: src/views/monitor/IndexView.vue:851
 #: src/views/toolbox/BenchmarkView.vue:177
+#: src/views/toolbox/PanelView.vue:121
 #: src/views/toolbox/ProcessView.vue:155
 msgid "Memory"
 msgstr ""
@@ -3779,6 +3782,7 @@ msgid "Enter mount directory (e.g., /oss)"
 msgstr ""
 
 #: src/views/apps/supervisor/IndexView.vue:70
+#: src/views/toolbox/PanelView.vue:103
 msgid "Uptime"
 msgstr ""
 
@@ -4602,7 +4606,7 @@ msgstr ""
 #: src/views/home/IndexView.vue:187
 #: src/views/home/IndexView.vue:954
 #: src/views/monitor/IndexView.vue:974
-#: src/views/toolbox/IndexView.vue:26
+#: src/views/toolbox/IndexView.vue:27
 msgid "Network"
 msgstr ""
 
@@ -4721,6 +4725,7 @@ msgstr ""
 
 #: src/views/container/ContainerCreate.vue:402
 #: src/views/container/ContainerCreate.vue:431
+#: src/views/toolbox/PanelView.vue:112
 msgid "CPU Cores"
 msgstr ""
 
@@ -6199,6 +6204,7 @@ msgid "Not Used"
 msgstr ""
 
 #: src/views/firewall/RuleView.vue:104
+#: src/views/toolbox/PanelView.vue:153
 msgid "In Use"
 msgstr ""
 
@@ -6360,7 +6366,7 @@ msgstr ""
 #: src/views/home/IndexView.vue:975
 #: src/views/toolbox/BenchmarkView.vue:203
 #: src/views/toolbox/DiskView.vue:802
-#: src/views/toolbox/IndexView.vue:29
+#: src/views/toolbox/IndexView.vue:30
 msgid "Disk"
 msgstr ""
 
@@ -6750,7 +6756,9 @@ msgid "Operator"
 msgstr ""
 
 #: src/views/log/OperationLog.vue:86
-#: src/views/toolbox/IndexView.vue:27
+#: src/views/toolbox/IndexView.vue:28
+#: src/views/toolbox/PanelView.vue:128
+#: src/views/toolbox/PanelView.vue:147
 msgid "System"
 msgstr ""
 
@@ -6823,7 +6831,7 @@ msgstr ""
 
 #: src/views/monitor/IndexView.vue:333
 #: src/views/monitor/IndexView.vue:345
-#: src/views/toolbox/IndexView.vue:25
+#: src/views/toolbox/IndexView.vue:26
 #: src/views/toolbox/NetworkView.vue:75
 msgid "Process"
 msgstr ""
@@ -8249,6 +8257,7 @@ msgid "No SMART-capable disks found"
 msgstr ""
 
 #: src/views/toolbox/disk/SmartView.vue:282
+#: src/views/toolbox/PanelView.vue:97
 msgid "Basic Info"
 msgstr ""
 
@@ -8643,20 +8652,24 @@ msgstr ""
 msgid "Extend LV"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:30
+#: src/views/toolbox/IndexView.vue:31
 msgid "Log Clean"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:31
+#: src/views/toolbox/IndexView.vue:32
 msgid "WebHook"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:32
+#: src/views/toolbox/IndexView.vue:33
 msgid "Benchmark"
 msgstr ""
 
-#: src/views/toolbox/IndexView.vue:33
+#: src/views/toolbox/IndexView.vue:34
 msgid "Migration"
+msgstr ""
+
+#: src/views/toolbox/IndexView.vue:35
+msgid "Panel"
 msgstr ""
 
 #: src/views/toolbox/LogView.vue:38
@@ -9004,6 +9017,85 @@ msgstr ""
 msgid "Search port"
 msgstr ""
 
+#: src/views/toolbox/PanelView.vue:90
+msgid "Runtime"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:109
+msgid "Goroutines"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:115
+msgid "Cgo Calls"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:122
+#: src/views/toolbox/PanelView.vue:144
+msgid "Allocated"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:125
+msgid "Total Allocated"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:131
+msgid "Lookups"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:134
+msgid "Mallocs"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:137
+msgid "Frees"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:150
+#: src/views/toolbox/ProcessView.vue:51
+#: src/views/toolbox/ProcessView.vue:88
+msgid "Idle"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:156
+msgid "Released"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:159
+msgid "Objects"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:199
+msgid "GC Runs"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:202
+msgid "Forced GC Runs"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:205
+msgid "GC Pause Total"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:208
+msgid "Last GC"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:211
+msgid "Next GC Target"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:214
+msgid "GC Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:217
+msgid "GC CPU Fraction"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:229
+msgid "Total: %{ count }"
+msgstr ""
+
 #: src/views/toolbox/ProcessView.vue:47
 msgid "All Status"
 msgstr ""
@@ -9011,11 +9103,6 @@ msgstr ""
 #: src/views/toolbox/ProcessView.vue:49
 #: src/views/toolbox/ProcessView.vue:84
 msgid "Sleeping"
-msgstr ""
-
-#: src/views/toolbox/ProcessView.vue:51
-#: src/views/toolbox/ProcessView.vue:88
-msgid "Idle"
 msgstr ""
 
 #: src/views/toolbox/ProcessView.vue:52
