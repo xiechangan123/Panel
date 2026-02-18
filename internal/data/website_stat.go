@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -66,7 +65,7 @@ func (r *websiteStatRepo) DailySeries(start, end string, sites []string) ([]*biz
 func (r *websiteStatRepo) HourlySeries(date string, sites []string) ([]*biz.WebsiteStatSeries, error) {
 	var series []*biz.WebsiteStatSeries
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select(fmt.Sprintf("CAST(hour AS TEXT) as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders")).
+		Select("CAST(hour AS TEXT) as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders").
 		Where("date = ? AND hour >= 0", date)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
