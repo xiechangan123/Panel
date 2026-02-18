@@ -22,8 +22,12 @@ func IsPageView(entry *LogEntry) bool {
 		return strings.Contains(entry.ContentType, "text/html")
 	}
 
-	// 回退到 URI 扩展名判定
-	ext := strings.ToLower(path.Ext(entry.URI))
+	// 回退到 URI 扩展名判定，先去掉 query string
+	uri := entry.URI
+	if i := strings.IndexByte(uri, '?'); i >= 0 {
+		uri = uri[:i]
+	}
+	ext := strings.ToLower(path.Ext(uri))
 	// 无扩展名视为页面（如 /about, /api/xxx）
 	if ext == "" {
 		return true

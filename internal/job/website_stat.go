@@ -3,6 +3,7 @@ package job
 import (
 	"log/slog"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/acepanel/panel/internal/app"
@@ -17,7 +18,7 @@ type WebsiteStat struct {
 	statRepo   biz.WebsiteStatRepo
 	aggregator *websitestat.Aggregator
 	listener   *websitestat.Listener
-	started    bool
+	started    atomic.Bool
 }
 
 // NewWebsiteStat 创建网站统计任务
@@ -44,7 +45,8 @@ func (r *WebsiteStat) Run() {
 
 // ensureListener 确保 listener goroutine 已启动
 func (r *WebsiteStat) ensureListener() {
-	if r.started {
+	// 防止重复启动
+	if !r.started.CompareAndSwap(false, true) {
 		return
 	}
 
@@ -67,11 +69,11 @@ func (r *WebsiteStat) ensureListener() {
 	listener, err := websitestat.NewListener("/tmp/ace_stats.sock", r.log)
 	if err != nil {
 		r.log.Warn("fail to start website stat listener", slog.Any("err", err))
+		r.started.Store(false)
 		return
 	}
 
 	r.listener = listener
-	r.started = true
 
 	go r.readLoop()
 }
@@ -82,7 +84,7 @@ func (r *WebsiteStat) readLoop() {
 		tag, data, err := r.listener.Read()
 		if err != nil {
 			r.log.Warn("failed to read from website stat listener", slog.Any("err", err))
-			r.started = false
+			r.started.Store(false)
 			return
 		}
 
@@ -97,59 +99,71 @@ func (r *WebsiteStat) readLoop() {
 
 // flush 将增量快照写入数据库（含每日汇总和小时数据）
 func (r *WebsiteStat) flush() {
-	date, snapshots := r.aggregator.DrainSnapshot()
-	if len(snapshots) == 0 {
+	snapshotsByDate, commit := r.aggregator.DrainSnapshot()
+	if len(snapshotsByDate) == 0 {
 		return
 	}
 
 	now := time.Now()
 	var stats []*biz.WebsiteStat
 
-	for site, snap := range snapshots {
-		// 每日汇总行 (hour = -1)
-		stats = append(stats, &biz.WebsiteStat{
-			Site:      site,
-			Date:      date,
-			Hour:      -1,
-			PV:        snap.PV,
-			UV:        snap.UV,
-			IP:        snap.IP,
-			Bandwidth: snap.Bandwidth,
-			Requests:  snap.Requests,
-			Errors:    snap.Errors,
-			Spiders:   snap.Spiders,
-			UpdatedAt: now,
-		})
+	for date, snapshots := range snapshotsByDate {
+		for site, snap := range snapshots {
+			siteHasData := !isZeroSiteSnapshot(snap)
 
-		// 每小时行 (hour = 0-23)
-		for h, hs := range snap.Hours {
-			if hs == nil {
-				continue
+			// 每日汇总行 (hour = -1)
+			if siteHasData {
+				stats = append(stats, &biz.WebsiteStat{
+					Site:      site,
+					Date:      date,
+					Hour:      -1,
+					PV:        snap.PV,
+					UV:        snap.UV,
+					IP:        snap.IP,
+					Bandwidth: snap.Bandwidth,
+					Requests:  snap.Requests,
+					Errors:    snap.Errors,
+					Spiders:   snap.Spiders,
+					UpdatedAt: now,
+				})
 			}
-			stats = append(stats, &biz.WebsiteStat{
-				Site:      site,
-				Date:      date,
-				Hour:      h,
-				PV:        hs.PV,
-				UV:        hs.UV,
-				IP:        hs.IP,
-				Bandwidth: hs.Bandwidth,
-				Requests:  hs.Requests,
-				Errors:    hs.Errors,
-				Spiders:   hs.Spiders,
-				UpdatedAt: now,
-			})
+
+			// 每小时行 (hour = 0-23)
+			for h, hs := range snap.Hours {
+				if hs == nil || isZeroHourSnapshot(hs) {
+					continue
+				}
+				stats = append(stats, &biz.WebsiteStat{
+					Site:      site,
+					Date:      date,
+					Hour:      h,
+					PV:        hs.PV,
+					UV:        hs.UV,
+					IP:        hs.IP,
+					Bandwidth: hs.Bandwidth,
+					Requests:  hs.Requests,
+					Errors:    hs.Errors,
+					Spiders:   hs.Spiders,
+					UpdatedAt: now,
+				})
+			}
 		}
+	}
+	if len(stats) == 0 {
+		commit()
+		return
 	}
 
 	if err := r.statRepo.Upsert(stats); err != nil {
 		r.log.Warn("failed to upsert website stats", slog.Any("err", err))
+		return
 	}
+	commit()
 }
 
 // flushErrors 将错误日志缓冲写入数据库
 func (r *WebsiteStat) flushErrors() {
-	entries := r.aggregator.DrainErrors()
+	entries, commit := r.aggregator.DrainErrors()
 	if len(entries) == 0 {
 		return
 	}
@@ -171,13 +185,15 @@ func (r *WebsiteStat) flushErrors() {
 
 	if err := r.statRepo.InsertErrors(errors); err != nil {
 		r.log.Warn("failed to insert website error logs", slog.Any("err", err))
+		return
 	}
+	commit()
 }
 
 // flushDetails 将详细统计增量写入数据库（蜘蛛/客户端/IP/URI）
 func (r *WebsiteStat) flushDetails() {
-	date, details := r.aggregator.DrainDetailStats()
-	if len(details) == 0 {
+	detailsByDate, commit := r.aggregator.DrainDetailStats()
+	if len(detailsByDate) == 0 {
 		return
 	}
 
@@ -188,67 +204,77 @@ func (r *WebsiteStat) flushDetails() {
 	var ips []*biz.WebsiteStatIP
 	var uris []*biz.WebsiteStatURI
 
-	for site, snap := range details {
-		for spider, requests := range snap.Spiders {
-			spiders = append(spiders, &biz.WebsiteStatSpider{
-				Site:      site,
-				Date:      date,
-				Spider:    spider,
-				Requests:  requests,
-				UpdatedAt: now,
-			})
-		}
-
-		for key, cc := range snap.Clients {
-			parts := strings.SplitN(key, "|", 2)
-			if len(parts) != 2 {
-				continue
+	for date, details := range detailsByDate {
+		for site, snap := range details {
+			for spider, requests := range snap.Spiders {
+				spiders = append(spiders, &biz.WebsiteStatSpider{
+					Site:      site,
+					Date:      date,
+					Spider:    spider,
+					Requests:  requests,
+					UpdatedAt: now,
+				})
 			}
-			clients = append(clients, &biz.WebsiteStatClient{
-				Site:      site,
-				Date:      date,
-				Browser:   parts[0],
-				OS:        parts[1],
-				Requests:  cc.Requests,
-				UpdatedAt: now,
-			})
-		}
 
-		for ip, ic := range snap.IPs {
-			ips = append(ips, &biz.WebsiteStatIP{
-				Site:      site,
-				Date:      date,
-				IP:        ip,
-				Requests:  ic.Requests,
-				Bandwidth: ic.Bandwidth,
-				UpdatedAt: now,
-			})
-		}
+			for key, cc := range snap.Clients {
+				parts := strings.SplitN(key, "|", 2)
+				if len(parts) != 2 {
+					continue
+				}
+				clients = append(clients, &biz.WebsiteStatClient{
+					Site:      site,
+					Date:      date,
+					Browser:   parts[0],
+					OS:        parts[1],
+					Requests:  cc.Requests,
+					UpdatedAt: now,
+				})
+			}
 
-		for uri, uc := range snap.URIs {
-			uris = append(uris, &biz.WebsiteStatURI{
-				Site:      site,
-				Date:      date,
-				URI:       uri,
-				Requests:  uc.Requests,
-				Bandwidth: uc.Bandwidth,
-				Errors:    uc.Errors,
-				UpdatedAt: now,
-			})
+			for ip, ic := range snap.IPs {
+				ips = append(ips, &biz.WebsiteStatIP{
+					Site:      site,
+					Date:      date,
+					IP:        ip,
+					Requests:  ic.Requests,
+					Bandwidth: ic.Bandwidth,
+					UpdatedAt: now,
+				})
+			}
+
+			for uri, uc := range snap.URIs {
+				uris = append(uris, &biz.WebsiteStatURI{
+					Site:      site,
+					Date:      date,
+					URI:       uri,
+					Requests:  uc.Requests,
+					Bandwidth: uc.Bandwidth,
+					Errors:    uc.Errors,
+					UpdatedAt: now,
+				})
+			}
 		}
 	}
 
+	failed := false
 	if err := r.statRepo.UpsertSpiders(spiders); err != nil {
 		r.log.Warn("failed to upsert spider stats", slog.Any("err", err))
+		failed = true
 	}
 	if err := r.statRepo.UpsertClients(clients); err != nil {
 		r.log.Warn("failed to upsert client stats", slog.Any("err", err))
+		failed = true
 	}
 	if err := r.statRepo.UpsertIPs(ips); err != nil {
 		r.log.Warn("failed to upsert ip stats", slog.Any("err", err))
+		failed = true
 	}
 	if err := r.statRepo.UpsertURIs(uris); err != nil {
 		r.log.Warn("failed to upsert uri stats", slog.Any("err", err))
+		failed = true
+	}
+	if !failed {
+		commit()
 	}
 }
 
@@ -282,4 +308,26 @@ func (r *WebsiteStat) cleanup() {
 	if err = r.statRepo.ClearURIsBefore(cutoff); err != nil {
 		r.log.Warn("failed to clear expired uri stats", slog.Any("err", err))
 	}
+}
+
+// isZeroSiteSnapshot 判断站点快照是否全为零
+func isZeroSiteSnapshot(s *websitestat.SiteSnapshot) bool {
+	return s.PV == 0 &&
+		s.UV == 0 &&
+		s.IP == 0 &&
+		s.Bandwidth == 0 &&
+		s.Requests == 0 &&
+		s.Errors == 0 &&
+		s.Spiders == 0
+}
+
+// isZeroHourSnapshot 判断小时快照是否全为零
+func isZeroHourSnapshot(h *websitestat.HourSnapshot) bool {
+	return h.PV == 0 &&
+		h.UV == 0 &&
+		h.IP == 0 &&
+		h.Bandwidth == 0 &&
+		h.Requests == 0 &&
+		h.Errors == 0 &&
+		h.Spiders == 0
 }

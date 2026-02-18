@@ -346,6 +346,7 @@ func (s *WebsiteStatService) Clear(w http.ResponseWriter, r *http.Request) {
 		ErrorSystem(w)
 		return
 	}
+	s.aggregator.Reset()
 	Success(w, nil)
 }
 
