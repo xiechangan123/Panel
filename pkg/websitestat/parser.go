@@ -52,6 +52,7 @@ func ParseSyslog(msg []byte) (string, []byte) {
 
 // jsonEntry 内部 JSON 解析结构（与 nginx log_format 对应）
 type jsonEntry struct {
+	Site        string      `json:"site"`
 	URI         string      `json:"uri"`
 	Status      json.Number `json:"status"`
 	Bytes       json.Number `json:"bytes"`
@@ -74,8 +75,13 @@ func ParseLogEntry(tag string, data []byte) (*LogEntry, error) {
 	bytes, _ := je.Bytes.Int64()
 	reqLen, _ := je.ReqLength.Int64()
 
+	site := je.Site
+	if site == "" {
+		site = tag
+	}
+
 	entry := &LogEntry{
-		Site:        tag,
+		Site:        site,
 		URI:         je.URI,
 		Status:      int(status),
 		Bytes:       uint64(bytes),

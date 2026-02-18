@@ -759,8 +759,11 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 	webServer, _ := r.setting.Get(biz.SettingKeyWebserver)
 	if webServer == "nginx" {
 		if req.StatEnabled {
+			// nginx syslog tag 和 log_format 名只允许字母数字和下划线
+			safeName := strings.ReplaceAll(website.Name, "-", "_")
 			formatConf := fmt.Sprintf(`log_format ace_stat_%s escape=json
-  '{"uri":"$request_uri",'
+  '{"site":"%s",'
+  '"uri":"$request_uri",'
   '"status":$status,'
   '"bytes":$body_bytes_sent,'
   '"ua":"$http_user_agent",'
@@ -777,11 +780,11 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
   '"req_length":$request_length,'
   '"https":"$https",'
   '"upstream_time":"$upstream_response_time",'
-  '"upstream_status":"$upstream_status"}';`, website.Name)
+  '"upstream_status":"$upstream_status"}';`, safeName, website.Name)
 			if err = vhost.SetConfig("010-stat-format.conf", "shared", formatConf); err != nil {
 				return err
 			}
-			logConf := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", website.Name, website.Name)
+			logConf := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", safeName, safeName)
 			if err = vhost.SetConfig("021-stats-log.conf", "site", logConf); err != nil {
 				return err
 			}
