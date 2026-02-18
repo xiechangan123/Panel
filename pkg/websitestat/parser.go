@@ -59,7 +59,6 @@ type jsonEntry struct {
 	UA          string      `json:"ua"`
 	IP          string      `json:"ip"`
 	Method      string      `json:"method"`
-	Body        string      `json:"body"`
 	ContentType string      `json:"content_type"`
 	ReqLength   json.Number `json:"req_length"`
 }
@@ -92,9 +91,14 @@ func ParseLogEntry(tag string, data []byte) (*LogEntry, error) {
 		ReqLength:   uint64(reqLen),
 	}
 
-	// 仅在 4xx/5xx 且请求体 <= 64KB 时保留 body
-	if status >= 400 && status < 600 && len(je.Body) <= 65536 {
-		entry.Body = je.Body
+	// 仅 4xx/5xx 时才解析 body，避免为正常请求分配 body 字符串
+	if status >= 400 && status < 600 {
+		var body struct {
+			Body string `json:"body"`
+		}
+		if json.Unmarshal(data, &body) == nil {
+			entry.Body = body.Body
+		}
 	}
 
 	return entry, nil

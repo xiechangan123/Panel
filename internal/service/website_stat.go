@@ -133,29 +133,21 @@ func (s *WebsiteStatService) Realtime(w http.ResponseWriter, r *http.Request) {
 func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
 	start, end, sites := s.parseDateSites(r)
 	today := time.Now().Format(time.DateOnly)
-
-	// DB 查询（排除今天）
-	dbEnd := end
 	includeToday := start <= today && today <= end
-	if includeToday {
-		yesterday := time.Now().AddDate(0, 0, -1).Format(time.DateOnly)
-		dbEnd = yesterday
-	}
 
 	siteMap := make(map[string]*biz.WebsiteStatSiteItem)
 
-	if dbEnd >= start {
-		dbItems, err := s.statRepo.ListSiteStats(start, dbEnd, sites)
-		if err != nil {
-			ErrorSystem(w)
-			return
-		}
-		for _, item := range dbItems {
-			siteMap[item.Site] = item
-		}
+	// DB 查询全部日期范围（含今日）
+	dbItems, err := s.statRepo.ListSiteStats(start, end, sites)
+	if err != nil {
+		ErrorSystem(w)
+		return
+	}
+	for _, item := range dbItems {
+		siteMap[item.Site] = item
 	}
 
-	// 合并今日内存数据
+	// 叠加今日未刷新的增量
 	if includeToday {
 		liveStats := s.aggregator.SiteStats()
 		siteSet := make(map[string]struct{}, len(sites))
@@ -364,12 +356,14 @@ func (s *WebsiteStatService) GetSetting(w http.ResponseWriter, r *http.Request) 
 	uvMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatUVMaxKeys, 1000000)
 	ipMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatIPMaxKeys, 500000)
 	detailMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys, 100000)
+	bodyEnabled, _ := s.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled, true)
 	Success(w, chix.M{
 		"days":            days,
 		"err_buf_max":     errBufMax,
 		"uv_max_keys":     uvMaxKeys,
 		"ip_max_keys":     ipMaxKeys,
 		"detail_max_keys": detailMaxKeys,
+		"body_enabled":    bodyEnabled,
 	})
 }
 
@@ -397,6 +391,7 @@ func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Reques
 	if req.DetailMaxKeys > 0 {
 		_ = s.setting.Set(biz.SettingKeyWebsiteStatDetailMaxKeys, fmt.Sprintf("%d", req.DetailMaxKeys))
 	}
+	_ = s.setting.Set(biz.SettingKeyWebsiteStatBodyEnabled, fmt.Sprintf("%t", req.BodyEnabled))
 
 	Success(w, nil)
 }
@@ -433,37 +428,27 @@ func (s *WebsiteStatService) parseDateSites(r *http.Request) (start, end string,
 }
 
 // queryTotals 查询指定日期范围的汇总数据
-// 今日数据从内存聚合器获取（避免与 DB 重复计算），历史数据从 DB 查询
+// DB 包含全部日期（含今日已刷新数据），再叠加内存中未刷新的增量
 func (s *WebsiteStatService) queryTotals(start, end string, sites []string, today string) (*statTotals, error) {
-	includeToday := start <= today && today <= end
-
 	var total statTotals
 
-	// DB 查询：排除今天（今天的数据从内存获取）
-	dbEnd := end
-	if includeToday {
-		yesterday := time.Now().AddDate(0, 0, -1).Format(time.DateOnly)
-		dbEnd = yesterday
+	// DB 查询全部日期范围（含今日）
+	dbStats, err := s.statRepo.ListByDateRange(start, end, sites)
+	if err != nil {
+		return nil, err
+	}
+	for _, st := range dbStats {
+		total.PV += st.PV
+		total.UV += st.UV
+		total.IP += st.IP
+		total.Bandwidth += st.Bandwidth
+		total.Requests += st.Requests
+		total.Errors += st.Errors
+		total.Spiders += st.Spiders
 	}
 
-	if dbEnd >= start {
-		dbStats, err := s.statRepo.ListByDateRange(start, dbEnd, sites)
-		if err != nil {
-			return nil, err
-		}
-		for _, st := range dbStats {
-			total.PV += st.PV
-			total.UV += st.UV
-			total.IP += st.IP
-			total.Bandwidth += st.Bandwidth
-			total.Requests += st.Requests
-			total.Errors += st.Errors
-			total.Spiders += st.Spiders
-		}
-	}
-
-	// 今天的数据从内存获取
-	if includeToday {
+	// 叠加今日未刷新的增量
+	if start <= today && today <= end {
 		s.mergeLiveTotals(&total, sites)
 	}
 
@@ -498,8 +483,18 @@ func (s *WebsiteStatService) mergeLiveTotals(total *statTotals, sites []string) 
 func (s *WebsiteStatService) queryHourlySeries(date string, sites []string, today string) ([]*biz.WebsiteStatSeries, error) {
 	hourMap := make(map[int]*biz.WebsiteStatSeries, 24)
 
+	// 从 DB 查询小时数据
+	dbSeries, err := s.statRepo.HourlySeries(date, sites)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range dbSeries {
+		h, _ := strconv.Atoi(item.Key)
+		hourMap[h] = item
+	}
+
+	// 今天叠加内存中未刷新的增量
 	if date == today {
-		// 今天的小时数据从内存获取
 		liveStats := s.aggregator.SiteStats()
 		siteSet := make(map[string]struct{}, len(sites))
 		for _, name := range sites {
@@ -538,16 +533,6 @@ func (s *WebsiteStatService) queryHourlySeries(date string, sites []string, toda
 				}
 			}
 		}
-	} else {
-		// 历史数据从 DB 查询
-		dbSeries, err := s.statRepo.HourlySeries(date, sites)
-		if err != nil {
-			return nil, err
-		}
-		for _, item := range dbSeries {
-			h, _ := strconv.Atoi(item.Key)
-			hourMap[h] = item
-		}
 	}
 
 	// 填充完整 24 小时
@@ -568,25 +553,17 @@ func (s *WebsiteStatService) queryHourlySeries(date string, sites []string, toda
 func (s *WebsiteStatService) queryDailySeries(start, end string, sites []string, today string) ([]*biz.WebsiteStatSeries, error) {
 	includeToday := start <= today && today <= end
 
-	// DB 查询排除今天
-	dbEnd := end
-	if includeToday {
-		yesterday := time.Now().AddDate(0, 0, -1).Format(time.DateOnly)
-		dbEnd = yesterday
-	}
-
+	// DB 查询全部日期范围（含今日）
 	dateMap := make(map[string]*biz.WebsiteStatSeries)
-	if dbEnd >= start {
-		dbSeries, err := s.statRepo.DailySeries(start, dbEnd, sites)
-		if err != nil {
-			return nil, err
-		}
-		for _, item := range dbSeries {
-			dateMap[item.Key] = item
-		}
+	dbSeries, err := s.statRepo.DailySeries(start, end, sites)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range dbSeries {
+		dateMap[item.Key] = item
 	}
 
-	// 今天的数据从内存获取
+	// 今天叠加内存中未刷新的增量
 	if includeToday {
 		liveStats := s.aggregator.SiteStats()
 		siteSet := make(map[string]struct{}, len(sites))
@@ -594,7 +571,11 @@ func (s *WebsiteStatService) queryDailySeries(start, end string, sites []string,
 			siteSet[name] = struct{}{}
 		}
 
-		todayData := &biz.WebsiteStatSeries{Key: today}
+		todayData := dateMap[today]
+		if todayData == nil {
+			todayData = &biz.WebsiteStatSeries{Key: today}
+			dateMap[today] = todayData
+		}
 		for name, snap := range liveStats {
 			if len(sites) > 0 {
 				if _, ok := siteSet[name]; !ok {
@@ -609,7 +590,6 @@ func (s *WebsiteStatService) queryDailySeries(start, end string, sites []string,
 			todayData.Errors += snap.Errors
 			todayData.Spiders += snap.Spiders
 		}
-		dateMap[today] = todayData
 	}
 
 	// 填充日期范围内所有天

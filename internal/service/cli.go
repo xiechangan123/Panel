@@ -1031,6 +1031,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingKeyWebsiteStatUVMaxKeys, Value: "1000000"},
 		{Key: biz.SettingKeyWebsiteStatIPMaxKeys, Value: "500000"},
 		{Key: biz.SettingKeyWebsiteStatDetailMaxKeys, Value: "100000"},
+		{Key: biz.SettingKeyWebsiteStatBodyEnabled, Value: "true"},
 	}
 	if err = s.db.Create(&settings).Error; err != nil {
 		return errors.New(s.t.Get("Initialization failed: %v", err))

@@ -36,7 +36,7 @@ func NewListener(path string, log *slog.Logger) (*Listener, error) {
 		path: path,
 		conn: conn,
 		log:  log,
-		buf:  make([]byte, 65536),
+		buf:  make([]byte, 256*1024),
 	}, nil
 }
 

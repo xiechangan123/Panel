@@ -7,4 +7,5 @@ type WebsiteStatSetting struct {
 	UVMaxKeys     int  `json:"uv_max_keys" validate:"min:0|max:100000000"`
 	IPMaxKeys     int  `json:"ip_max_keys" validate:"min:0|max:100000000"`
 	DetailMaxKeys int  `json:"detail_max_keys" validate:"min:0|max:100000000"`
+	BodyEnabled   bool `json:"body_enabled"`
 }

@@ -30,7 +30,8 @@ const statSetting = ref({
   err_buf_max: 10000,
   uv_max_keys: 1000000,
   ip_max_keys: 500000,
-  detail_max_keys: 100000
+  detail_max_keys: 100000,
+  body_enabled: true
 })
 const statSaveLoading = ref(false)
 
@@ -205,6 +206,9 @@ const handleSaveStatSetting = () => {
               :step="10000"
               style="width: 200px"
             />
+          </n-form-item>
+          <n-form-item :label="$gettext('Record Request Body')">
+            <n-switch v-model:value="statSetting.body_enabled" />
           </n-form-item>
           <n-button
             type="primary"

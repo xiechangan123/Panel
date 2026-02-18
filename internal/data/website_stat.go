@@ -26,13 +26,13 @@ func (r *websiteStatRepo) Upsert(stats []*biz.WebsiteStat) error {
 	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "hour"}},
 		DoUpdates: clause.Assignments(map[string]any{
-			"pv":         gorm.Expr("excluded.pv"),
-			"uv":         gorm.Expr("excluded.uv"),
-			"ip":         gorm.Expr("excluded.ip"),
-			"bandwidth":  gorm.Expr("excluded.bandwidth"),
-			"requests":   gorm.Expr("excluded.requests"),
-			"errors":     gorm.Expr("excluded.errors"),
-			"spiders":    gorm.Expr("excluded.spiders"),
+			"pv":         gorm.Expr("website_stats.pv + excluded.pv"),
+			"uv":         gorm.Expr("website_stats.uv + excluded.uv"),
+			"ip":         gorm.Expr("website_stats.ip + excluded.ip"),
+			"bandwidth":  gorm.Expr("website_stats.bandwidth + excluded.bandwidth"),
+			"requests":   gorm.Expr("website_stats.requests + excluded.requests"),
+			"errors":     gorm.Expr("website_stats.errors + excluded.errors"),
+			"spiders":    gorm.Expr("website_stats.spiders + excluded.spiders"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
 		}),
 	})

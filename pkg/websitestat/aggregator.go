@@ -16,10 +16,11 @@ type Aggregator struct {
 	errBuf []*ErrorEntry
 
 	// 可配置上限
-	ErrBufMaxSize int // 错误缓冲最大条目数，默认 10000
-	UVMaxKeys     int // 每站每天 UV 去重 set 上限，默认 1000000
-	IPMaxKeys     int // 每站每天 IP 去重 set 上限，默认 500000
-	DetailMaxKeys int // 详细统计（蜘蛛/客户端/IP/URI）每站每天最大条目数，默认 100000
+	ErrBufMaxSize int  // 错误缓冲最大条目数，默认 10000
+	UVMaxKeys     int  // 每站每天 UV 去重 set 上限，默认 1000000
+	IPMaxKeys     int  // 每站每天 IP 去重 set 上限，默认 500000
+	DetailMaxKeys int  // 详细统计（蜘蛛/客户端/IP/URI）每站每天最大条目数，默认 100000
+	BodyEnabled   bool // 是否记录错误请求体，默认 true
 
 	// 实时统计（滑动窗口 60 秒）
 	rtSlots [60]rtSlot
@@ -30,6 +31,9 @@ type hourBucket struct {
 	pv, requests, errors, spiders, bandwidth uint64
 	ips                                      map[string]struct{}
 	uvs                                      map[string]struct{}
+
+	// drain 后记录 set 大小，用于计算增量
+	lastUVCount, lastIPCount uint64
 }
 
 type siteDay struct {
@@ -37,6 +41,9 @@ type siteDay struct {
 	ips                                      map[string]struct{}
 	uvs                                      map[string]struct{}
 	hours                                    [24]*hourBucket
+
+	// drain 后记录 set 大小，用于计算增量
+	lastUVCount, lastIPCount uint64
 
 	// 详细统计（增量计数器，DrainDetailStats 后清空）
 	spiderCounts map[string]uint64       // spider_name → requests
@@ -74,6 +81,7 @@ func NewAggregator() *Aggregator {
 		UVMaxKeys:     1000000,
 		IPMaxKeys:     500000,
 		DetailMaxKeys: 100000,
+		BodyEnabled:   true,
 	}
 }
 
@@ -198,15 +206,18 @@ func (a *Aggregator) Record(entry *LogEntry) {
 		sd.errors++
 		hb.errors++
 		if len(a.errBuf) < a.ErrBufMaxSize {
-			a.errBuf = append(a.errBuf, &ErrorEntry{
+			errEntry := &ErrorEntry{
 				Site:   entry.Site,
 				URI:    entry.URI,
 				Method: entry.Method,
 				IP:     entry.IP,
 				UA:     entry.UA,
-				Body:   entry.Body,
 				Status: entry.Status,
-			})
+			}
+			if a.BodyEnabled {
+				errEntry.Body = entry.Body
+			}
+			a.errBuf = append(a.errBuf, errEntry)
 		}
 	}
 
@@ -227,49 +238,80 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	atomic.AddUint64(&a.rtSlots[idx].requests, 1)
 }
 
-// Snapshot 返回当前日期和各站点快照（不重置数据）
-func (a *Aggregator) Snapshot() (string, map[string]*SiteSnapshot) {
+// snapshotHour 从 hourBucket 生成增量快照
+func snapshotHour(hb *hourBucket) *HourSnapshot {
+	if hb == nil {
+		return nil
+	}
+	return &HourSnapshot{
+		PV:        hb.pv,
+		UV:        uint64(len(hb.uvs)) - hb.lastUVCount,
+		IP:        uint64(len(hb.ips)) - hb.lastIPCount,
+		Bandwidth: hb.bandwidth,
+		Requests:  hb.requests,
+		Errors:    hb.errors,
+		Spiders:   hb.spiders,
+	}
+}
+
+// snapshotSite 从 siteDay 生成增量快照
+func snapshotSite(sd *siteDay) *SiteSnapshot {
+	snap := &SiteSnapshot{
+		PV:        sd.pv,
+		UV:        uint64(len(sd.uvs)) - sd.lastUVCount,
+		IP:        uint64(len(sd.ips)) - sd.lastIPCount,
+		Bandwidth: sd.bandwidth,
+		Requests:  sd.requests,
+		Errors:    sd.errors,
+		Spiders:   sd.spiders,
+	}
+	for h := 0; h < 24; h++ {
+		snap.Hours[h] = snapshotHour(sd.hours[h])
+	}
+	return snap
+}
+
+// SiteStats 返回各站点自上次刷新以来的未刷新增量（用于实时展示叠加到 DB 数据上）
+func (a *Aggregator) SiteStats() map[string]*SiteSnapshot {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	result := make(map[string]*SiteSnapshot, len(a.sites))
+	for name, sd := range a.sites {
+		result[name] = snapshotSite(sd)
+	}
+	return result
+}
+
+// DrainSnapshot 返回自上次 drain 以来的增量快照，并重置计数器
+// 用于将增量写入数据库（配合累加 upsert）
+func (a *Aggregator) DrainSnapshot() (string, map[string]*SiteSnapshot) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
 	date := a.date
 	result := make(map[string]*SiteSnapshot, len(a.sites))
+
 	for name, sd := range a.sites {
-		snap := &SiteSnapshot{
-			PV:        sd.pv,
-			UV:        uint64(len(sd.uvs)),
-			IP:        uint64(len(sd.ips)),
-			Bandwidth: sd.bandwidth,
-			Requests:  sd.requests,
-			Errors:    sd.errors,
-			Spiders:   sd.spiders,
-		}
+		result[name] = snapshotSite(sd)
 
-		// 填充小时快照
-		for h := 0; h < 24; h++ {
-			if hb := sd.hours[h]; hb != nil {
-				snap.Hours[h] = &HourSnapshot{
-					PV:        hb.pv,
-					UV:        uint64(len(hb.uvs)),
-					IP:        uint64(len(hb.ips)),
-					Bandwidth: hb.bandwidth,
-					Requests:  hb.requests,
-					Errors:    hb.errors,
-					Spiders:   hb.spiders,
-				}
+		// 重置可加计数器
+		sd.pv, sd.requests, sd.errors, sd.spiders, sd.bandwidth = 0, 0, 0, 0, 0
+		sd.lastUVCount = uint64(len(sd.uvs))
+		sd.lastIPCount = uint64(len(sd.ips))
+
+		// 重置小时桶
+		for _, hb := range sd.hours {
+			if hb == nil {
+				continue
 			}
+			hb.pv, hb.requests, hb.errors, hb.spiders, hb.bandwidth = 0, 0, 0, 0, 0
+			hb.lastUVCount = uint64(len(hb.uvs))
+			hb.lastIPCount = uint64(len(hb.ips))
 		}
-
-		result[name] = snap
 	}
 
 	return date, result
-}
-
-// SiteStats 返回各站点当前统计（不重置）
-func (a *Aggregator) SiteStats() map[string]*SiteSnapshot {
-	_, stats := a.Snapshot()
-	return stats
 }
 
 // DrainErrors 取出并清空错误缓冲

@@ -60,6 +60,9 @@ func (r *WebsiteStat) ensureListener() {
 	if v, err := r.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys); err == nil && v > 0 {
 		r.aggregator.DetailMaxKeys = v
 	}
+	if v, err := r.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled); err == nil {
+		r.aggregator.BodyEnabled = v
+	}
 
 	listener, err := websitestat.NewListener("/tmp/ace_stats.sock", r.log)
 	if err != nil {
@@ -92,9 +95,9 @@ func (r *WebsiteStat) readLoop() {
 	}
 }
 
-// flush 将内存快照写入数据库（含每日汇总和小时数据）
+// flush 将增量快照写入数据库（含每日汇总和小时数据）
 func (r *WebsiteStat) flush() {
-	date, snapshots := r.aggregator.Snapshot()
+	date, snapshots := r.aggregator.DrainSnapshot()
 	if len(snapshots) == 0 {
 		return
 	}
