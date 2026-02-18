@@ -1,8 +1,12 @@
 package websitestat
 
 import (
-	"encoding/json"
+	"strconv"
+
+	"github.com/valyala/fastjson"
 )
+
+var parserPool fastjson.ParserPool
 
 // ParseSyslog 从 syslog 消息中提取 tag 和 JSON 体
 // 格式: <PRI>MMM DD HH:MM:SS tag: JSON（nohostname 模式下无主机名）
@@ -50,56 +54,61 @@ func ParseSyslog(msg []byte) (string, []byte) {
 	return tag, data
 }
 
-// jsonEntry 内部 JSON 解析结构（与 nginx log_format 对应）
-type jsonEntry struct {
-	Site        string      `json:"site"`
-	URI         string      `json:"uri"`
-	Status      json.Number `json:"status"`
-	Bytes       json.Number `json:"bytes"`
-	UA          string      `json:"ua"`
-	IP          string      `json:"ip"`
-	Method      string      `json:"method"`
-	ContentType string      `json:"content_type"`
-	ReqLength   json.Number `json:"req_length"`
-}
-
 // ParseLogEntry 将 JSON 数据解析为 LogEntry
 func ParseLogEntry(tag string, data []byte) (*LogEntry, error) {
-	var je jsonEntry
-	if err := json.Unmarshal(data, &je); err != nil {
+	p := parserPool.Get()
+	defer parserPool.Put(p)
+
+	v, err := p.ParseBytes(data)
+	if err != nil {
 		return nil, err
 	}
 
-	status, _ := je.Status.Int64()
-	bytes, _ := je.Bytes.Int64()
-	reqLen, _ := je.ReqLength.Int64()
+	status := getInt(v, "status")
 
-	site := je.Site
+	site := getString(v, "site")
 	if site == "" {
 		site = tag
 	}
 
 	entry := &LogEntry{
 		Site:        site,
-		URI:         je.URI,
+		URI:         getString(v, "uri"),
 		Status:      int(status),
-		Bytes:       uint64(bytes),
-		UA:          je.UA,
-		IP:          je.IP,
-		Method:      je.Method,
-		ContentType: je.ContentType,
-		ReqLength:   uint64(reqLen),
+		Bytes:       uint64(getInt(v, "bytes")),
+		UA:          getString(v, "ua"),
+		IP:          getString(v, "ip"),
+		Method:      getString(v, "method"),
+		ContentType: getString(v, "content_type"),
+		ReqLength:   uint64(getInt(v, "req_length")),
 	}
 
-	// 仅 4xx/5xx 时才解析 body，避免为正常请求分配 body 字符串
+	// 仅 4xx/5xx 时才提取 body
 	if status >= 400 && status < 600 {
-		var body struct {
-			Body string `json:"body"`
-		}
-		if json.Unmarshal(data, &body) == nil {
-			entry.Body = body.Body
-		}
+		entry.Body = getString(v, "body")
 	}
 
 	return entry, nil
+}
+
+// getString 从 JSON value 中提取字符串字段
+func getString(v *fastjson.Value, key string) string {
+	return string(v.GetStringBytes(key))
+}
+
+// getInt 从 JSON value 中提取数值字段
+func getInt(v *fastjson.Value, key string) int64 {
+	val := v.Get(key)
+	if val == nil {
+		return 0
+	}
+	switch val.Type() {
+	case fastjson.TypeNumber:
+		return val.GetInt64()
+	case fastjson.TypeString:
+		n, _ := strconv.ParseInt(string(val.GetStringBytes()), 10, 64)
+		return n
+	default:
+		return 0
+	}
 }
