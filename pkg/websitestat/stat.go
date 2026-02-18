@@ -9,7 +9,7 @@ type LogEntry struct {
 	UA          string // User-Agent
 	IP          string // 客户端 IP
 	Method      string // 请求方法
-	Body        string // 请求体（仅 400-599 状态码且 <= 64KB 时保留）
+	Body        string // 请求体（仅 400-599 状态码时保留）
 	ContentType string // 响应 Content-Type（PV 判定用）
 	ReqLength   uint64 // 请求大小（入站流量）
 }
