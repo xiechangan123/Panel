@@ -25,5 +25,9 @@ export default {
   // 重启服务器
   restartServer: (): any => http.Post('/home/restart_server'),
   // Top 进程
-  topProcesses: (type: string): any => http.Get('/home/top_processes', { params: { type } })
+  topProcesses: (type: string): any => http.Get('/home/top_processes', { params: { type } }),
+  // 运行时信息
+  runtimeInfo: (): any => http.Get('/home/runtime_info'),
+  // Goroutine 列表
+  goroutines: (): any => http.Get('/home/goroutines')
 }

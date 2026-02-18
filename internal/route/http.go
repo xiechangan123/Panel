@@ -225,6 +225,8 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/restart", route.home.Restart)
 			r.Get("/top_processes", route.home.TopProcesses)
 			r.Post("/restart_server", route.home.RestartServer)
+			r.Get("/runtime_info", route.home.RuntimeInfo)
+			r.Get("/goroutines", route.home.Goroutines)
 		})
 
 		r.Route("/task", func(r chi.Router) {

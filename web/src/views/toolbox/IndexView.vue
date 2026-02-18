@@ -8,6 +8,7 @@ import DiskView from '@/views/toolbox/DiskView.vue'
 import LogView from '@/views/toolbox/LogView.vue'
 import MigrationView from '@/views/toolbox/MigrationView.vue'
 import NetworkView from '@/views/toolbox/NetworkView.vue'
+import PanelView from '@/views/toolbox/PanelView.vue'
 import ProcessView from '@/views/toolbox/ProcessView.vue'
 import SshView from '@/views/toolbox/SshView.vue'
 import SystemView from '@/views/toolbox/SystemView.vue'
@@ -31,6 +32,7 @@ const current = ref('process')
         <n-tab name="webhook" :tab="$gettext('WebHook')" />
         <n-tab name="benchmark" :tab="$gettext('Benchmark')" />
         <n-tab name="migration" :tab="$gettext('Migration')" />
+        <n-tab name="panel" :tab="$gettext('Panel')" />
       </n-tabs>
     </template>
     <n-flex vertical>
@@ -43,6 +45,7 @@ const current = ref('process')
       <web-hook-view v-if="current === 'webhook'" />
       <benchmark-view v-if="current === 'benchmark'" />
       <migration-view v-if="current === 'migration'" />
+      <panel-view v-if="current === 'panel'" />
     </n-flex>
   </common-page>
 </template>

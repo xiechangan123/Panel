@@ -1,5 +1,10 @@
 package app
 
+import "time"
+
+// StartTime 面板启动时间
+var StartTime = time.Now()
+
 // 面板状态常量
 const (
 	StatusNormal = iota
