@@ -615,10 +615,10 @@ msgstr ""
 msgid "Index Hit Rate"
 msgstr ""
 
-#: internal/service/cli.go:1036
-#: internal/service/cli.go:1041
-#: internal/service/cli.go:1046
-#: internal/service/cli.go:1086
+#: internal/service/cli.go:1037
+#: internal/service/cli.go:1042
+#: internal/service/cli.go:1047
+#: internal/service/cli.go:1087
 msgid "Initialization failed: %v"
 msgstr ""
 

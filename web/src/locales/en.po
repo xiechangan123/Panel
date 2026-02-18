@@ -2654,7 +2654,7 @@ msgstr ""
 #: src/views/task/CreateModal.vue:95 src/views/task/CronView.vue:196
 #: src/views/task/CronView.vue:266 src/views/toolbox/WebHookView.vue:213
 #: src/views/toolbox/WebHookView.vue:291 src/views/website/ListView.vue:324
-#: src/views/website/SettingView.vue:60 src/views/website/SettingView.vue:71
+#: src/views/website/SettingView.vue:61 src/views/website/SettingView.vue:72
 msgid "Modified successfully"
 msgstr "Modified successfully"
 
@@ -10642,93 +10642,98 @@ msgstr ""
 "This will delete the website directory but not the database with the same "
 "name. Are you sure you want to delete the selected websites?"
 
-#: src/views/website/SettingView.vue:81
+#: src/views/website/SettingView.vue:82
 msgid "Default Page"
 msgstr "Default Page"
 
-#: src/views/website/SettingView.vue:86 src/views/website/SettingView.vue:96
-#: src/views/website/SettingView.vue:106 src/views/website/SettingView.vue:154
-#: src/views/website/SettingView.vue:215
+#: src/views/website/SettingView.vue:87 src/views/website/SettingView.vue:97
+#: src/views/website/SettingView.vue:107 src/views/website/SettingView.vue:155
+#: src/views/website/SettingView.vue:219
 msgid "Save Changes"
 msgstr "Save Changes"
 
-#: src/views/website/SettingView.vue:91
+#: src/views/website/SettingView.vue:92
 msgid "Stop Page"
 msgstr "Stop Page"
 
-#: src/views/website/SettingView.vue:101
+#: src/views/website/SettingView.vue:102
 msgid "404 Page"
 msgstr ""
 
-#: src/views/website/SettingView.vue:111
+#: src/views/website/SettingView.vue:112
 #, fuzzy
 msgid "Default Site"
 msgstr "Default Page"
 
-#: src/views/website/SettingView.vue:114
+#: src/views/website/SettingView.vue:115
 #, fuzzy
 msgid "Default Settings"
 msgstr "Menu Settings"
 
-#: src/views/website/SettingView.vue:118
+#: src/views/website/SettingView.vue:119
 msgid ""
 "Modifying the default TLS version and cipher suites will affect all newly "
 "created websites. Existing websites will not be affected."
 msgstr ""
 
-#: src/views/website/SettingView.vue:125
+#: src/views/website/SettingView.vue:126
 msgid ""
 "Please adjust the settings carefully, improper configuration may lead to "
 "website inaccessible."
 msgstr ""
 
-#: src/views/website/SettingView.vue:131
+#: src/views/website/SettingView.vue:132
 #, fuzzy
 msgid "Default TLS Version"
 msgstr "Set as CLI Default Version"
 
-#: src/views/website/SettingView.vue:143
+#: src/views/website/SettingView.vue:144
 msgid "Default Cipher Suites"
 msgstr ""
 
-#: src/views/website/SettingView.vue:148
+#: src/views/website/SettingView.vue:149
 msgid "Enter the default cipher suite, leave blank to reset to default"
 msgstr ""
 
-#: src/views/website/SettingView.vue:159
+#: src/views/website/SettingView.vue:160
 #, fuzzy
 msgid "Statistics"
 msgstr "Status"
 
-#: src/views/website/SettingView.vue:162
+#: src/views/website/SettingView.vue:163
 msgid ""
 "Modifications to the limits below will take effect after restarting the "
 "panel."
 msgstr ""
 
-#: src/views/website/SettingView.vue:165
+#: src/views/website/SettingView.vue:166
 #, fuzzy
 msgid "Data Retention Days"
 msgstr "Retention Count"
 
-#: src/views/website/SettingView.vue:173
+#: src/views/website/SettingView.vue:174
 msgid "Error Buffer Max Size"
 msgstr ""
 
-#: src/views/website/SettingView.vue:182
+#: src/views/website/SettingView.vue:183
 #, fuzzy
 msgid "UV Max Keys"
 msgstr "Files"
 
-#: src/views/website/SettingView.vue:191
+#: src/views/website/SettingView.vue:192
 #, fuzzy
 msgid "IP Max Keys"
 msgstr "Files"
 
-#: src/views/website/SettingView.vue:200
+#: src/views/website/SettingView.vue:201
 #, fuzzy
 msgid "Detail Max Keys"
 msgstr "Add Process"
+
+#: src/views/website/SettingView.vue:210
+#, fuzzy
+msgid "Record Request Body"
+msgstr "Authentication Method"
 
 #: src/views/website/stats/ClientsTab.vue:92
 msgid "Browser"
