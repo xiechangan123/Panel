@@ -69,7 +69,20 @@ function formatTime(t: string): string {
   return d.toLocaleString()
 }
 
-const columns = computed(() => [
+const columns = computed<any[]>(() => [
+  {
+    type: 'expand',
+    renderExpand: (row: any) => {
+      return h(
+        'pre',
+        {
+          style:
+            'margin:0;padding:8px 12px;white-space:pre-wrap;word-break:break-all;font-size:12px;max-height:300px;overflow:auto'
+        },
+        row.body || $gettext('No request body')
+      )
+    }
+  },
   {
     title: $gettext('Time'),
     key: 'created_at',
@@ -109,7 +122,13 @@ const handlePageSizeChange = (s: number) => {
     </n-flex>
 
     <n-spin :show="loading">
-      <n-data-table :columns="columns" :data="items" :bordered="false" size="small" />
+      <n-data-table
+        :columns="columns"
+        :data="items"
+        :bordered="false"
+        size="small"
+        :row-key="(row: any) => row.id"
+      />
       <n-flex justify="end" class="mt-12" v-if="total > 0">
         <n-pagination
           v-model:page="page"
