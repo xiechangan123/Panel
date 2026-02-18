@@ -143,6 +143,14 @@ const handleSave = () => {
     })
   }
 
+  // 将真实 IP 文本转回数组
+  if (setting.value.real_ip) {
+    setting.value.real_ip.from = realIPFrom.value
+      .split('\n')
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0)
+  }
+
   saveLoading.value = true
   useRequest(website.saveConfig(id.value, setting.value))
     .onSuccess(() => {
@@ -718,6 +726,16 @@ const realIPEnabled = computed({
       }
     } else {
       setting.value.real_ip = null
+    }
+  }
+})
+
+// 真实 IP 来源列表，多行文本与数组双向转换
+const realIPFrom = computed({
+  get: () => setting.value.real_ip?.from?.join('\n') ?? '',
+  set: (value: string) => {
+    if (setting.value.real_ip) {
+      setting.value.real_ip.from = value.split('\n')
     }
   }
 })
@@ -1809,9 +1827,11 @@ const removeCustomConfig = (index: number) => {
                 </n-form-item>
                 <template v-if="realIPEnabled && setting.real_ip">
                   <n-form-item :label="$gettext('IP Sources')">
-                    <n-dynamic-input
-                      v-model:value="setting.real_ip.from"
-                      :placeholder="$gettext('e.g., 127.0.0.1 or 10.0.0.0/8')"
+                    <n-input
+                      v-model:value="realIPFrom"
+                      type="textarea"
+                      :placeholder="$gettext('One per line, e.g., 127.0.0.1 or 10.0.0.0/8')"
+                      :autosize="{ minRows: 3, maxRows: 10 }"
                     />
                   </n-form-item>
                   <n-form-item :label="$gettext('IP Header')">
