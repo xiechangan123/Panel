@@ -17,7 +17,6 @@ type WebsiteStat struct {
 	setting    biz.SettingRepo
 	statRepo   biz.WebsiteStatRepo
 	aggregator *websitestat.Aggregator
-	listener   *websitestat.Listener
 	started    atomic.Bool
 }
 
@@ -73,17 +72,16 @@ func (r *WebsiteStat) ensureListener() {
 		return
 	}
 
-	r.listener = listener
-
-	go r.readLoop()
+	go r.readLoop(listener)
 }
 
 // readLoop 持续读取 syslog 消息并记录到聚合器
-func (r *WebsiteStat) readLoop() {
+func (r *WebsiteStat) readLoop(listener *websitestat.Listener) {
 	for {
-		tag, data, err := r.listener.Read()
+		tag, data, err := listener.Read()
 		if err != nil {
 			r.log.Warn("failed to read from website stat listener", slog.Any("err", err))
+			_ = listener.Close()
 			r.started.Store(false)
 			return
 		}
