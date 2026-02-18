@@ -2251,7 +2251,7 @@ msgstr ""
 #: src/views/toolbox/NetworkView.vue:96
 #: src/views/toolbox/ProcessView.vue:137
 #: src/views/toolbox/ProcessView.vue:394
-#: src/views/website/stats/ErrorsTab.vue:82
+#: src/views/website/stats/ErrorsTab.vue:95
 msgid "Status"
 msgstr ""
 
@@ -6683,7 +6683,7 @@ msgstr ""
 #: src/views/log/OperationLog.vue:50
 #: src/views/log/SSHLog.vue:58
 #: src/views/toolbox/SystemView.vue:235
-#: src/views/website/stats/ErrorsTab.vue:74
+#: src/views/website/stats/ErrorsTab.vue:87
 msgid "Time"
 msgstr ""
 
@@ -6721,7 +6721,7 @@ msgid "Show entries"
 msgstr ""
 
 #: src/views/log/HttpLog.vue:64
-#: src/views/website/stats/ErrorsTab.vue:81
+#: src/views/website/stats/ErrorsTab.vue:94
 msgid "Method"
 msgstr ""
 
@@ -10037,7 +10037,7 @@ msgid "Redirect Type"
 msgstr ""
 
 #: src/views/website/EditModal.vue:1676
-#: src/views/website/stats/ErrorsTab.vue:102
+#: src/views/website/stats/ErrorsTab.vue:115
 msgid "Status Code"
 msgstr ""
 
@@ -10380,7 +10380,11 @@ msgstr ""
 msgid "Browsers"
 msgstr ""
 
-#: src/views/website/stats/ErrorsTab.vue:79
+#: src/views/website/stats/ErrorsTab.vue:82
+msgid "No request body"
+msgstr ""
+
+#: src/views/website/stats/ErrorsTab.vue:92
 #: src/views/website/stats/SitesTab.vue:36
 msgid "Site"
 msgstr ""
