@@ -31,7 +31,7 @@ msgstr ""
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/service/home.go:63
+#: internal/service/home.go:67
 msgid "AcePanel"
 msgstr ""
 
@@ -780,7 +780,7 @@ msgstr ""
 msgid "Not supported"
 msgstr ""
 
-#: internal/service/home.go:278
+#: internal/service/home.go:282
 msgid "Not used"
 msgstr ""
 
@@ -1456,12 +1456,12 @@ msgstr ""
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:415
-#: internal/service/home.go:425
+#: internal/service/home.go:419
+#: internal/service/home.go:429
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:381
+#: internal/service/home.go:385
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
@@ -1851,7 +1851,7 @@ msgstr ""
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/service/home.go:79
+#: internal/service/home.go:83
 msgid "failed to get home apps: %v"
 msgstr ""
 
@@ -1921,17 +1921,17 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
-#: internal/service/home.go:99
+#: internal/service/home.go:103
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:394
+#: internal/service/home.go:398
 msgid "failed to get the latest version download link"
 msgstr ""
 
-#: internal/service/home.go:310
-#: internal/service/home.go:346
-#: internal/service/home.go:388
+#: internal/service/home.go:314
+#: internal/service/home.go:350
+#: internal/service/home.go:392
 msgid "failed to get the latest version: %v"
 msgstr ""
 
@@ -1939,7 +1939,7 @@ msgstr ""
 msgid "failed to get the secret key for module %s"
 msgstr ""
 
-#: internal/service/home.go:367
+#: internal/service/home.go:371
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -2021,10 +2021,10 @@ msgstr ""
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
-#: internal/service/home.go:316
-#: internal/service/home.go:321
-#: internal/service/home.go:352
-#: internal/service/home.go:357
+#: internal/service/home.go:320
+#: internal/service/home.go:325
+#: internal/service/home.go:356
+#: internal/service/home.go:361
 msgid "failed to parse version: %v"
 msgstr ""
 
@@ -2320,7 +2320,7 @@ msgstr ""
 msgid "invalid size"
 msgstr ""
 
-#: internal/service/home.go:449
+#: internal/service/home.go:453
 msgid "invalid type"
 msgstr ""
 
@@ -2642,7 +2642,7 @@ msgstr ""
 msgid "template %s not found"
 msgstr ""
 
-#: internal/service/home.go:361
+#: internal/service/home.go:365
 msgid "the current version is the latest version"
 msgstr ""
 
@@ -2667,12 +2667,12 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/service/home.go:302
-#: internal/service/home.go:338
+#: internal/service/home.go:306
+#: internal/service/home.go:342
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:376
+#: internal/service/home.go:380
 msgid "unable to update in offline mode"
 msgstr ""
 
