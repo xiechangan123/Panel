@@ -168,28 +168,28 @@ watch(currentTab, (val) => {
             label-placement="left"
             bordered
           >
-            <n-descriptions-item label="Stack In Use">
+            <n-descriptions-item :label="$gettext('Stack In Use')">
               {{ formatBytes(runtimeData.stack_inuse || 0) }}
             </n-descriptions-item>
-            <n-descriptions-item label="Stack Sys">
+            <n-descriptions-item :label="$gettext('Stack Sys')">
               {{ formatBytes(runtimeData.stack_sys || 0) }}
             </n-descriptions-item>
-            <n-descriptions-item label="MSpan In Use">
+            <n-descriptions-item :label="$gettext('MSpan In Use')">
               {{ formatBytes(runtimeData.mspan_inuse || 0) }}
             </n-descriptions-item>
-            <n-descriptions-item label="MSpan Sys">
+            <n-descriptions-item :label="$gettext('MSpan Sys')">
               {{ formatBytes(runtimeData.mspan_sys || 0) }}
             </n-descriptions-item>
-            <n-descriptions-item label="MCache In Use">
+            <n-descriptions-item :label="$gettext('MCache In Use')">
               {{ formatBytes(runtimeData.mcache_inuse || 0) }}
             </n-descriptions-item>
-            <n-descriptions-item label="MCache Sys">
+            <n-descriptions-item :label="$gettext('MCache Sys')">
               {{ formatBytes(runtimeData.mcache_sys || 0) }}
             </n-descriptions-item>
-            <n-descriptions-item label="BuckHash Sys">
+            <n-descriptions-item :label="$gettext('BuckHash Sys')">
               {{ formatBytes(runtimeData.buck_hash_sys || 0) }}
             </n-descriptions-item>
-            <n-descriptions-item label="Other Sys">
+            <n-descriptions-item :label="$gettext('Other Sys')">
               {{ formatBytes(runtimeData.other_sys || 0) }}
             </n-descriptions-item>
           </n-descriptions>
