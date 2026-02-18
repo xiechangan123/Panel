@@ -70,6 +70,7 @@ type Http struct {
 	toolboxMigration  *service.ToolboxMigrationService
 	webhook           *service.WebHookService
 	template          *service.TemplateService
+	websiteStat       *service.WebsiteStatService
 	apps              *apploader.Loader
 }
 
@@ -123,6 +124,7 @@ func NewHttp(
 	toolboxMigration *service.ToolboxMigrationService,
 	webhook *service.WebHookService,
 	template *service.TemplateService,
+	websiteStat *service.WebsiteStatService,
 	apps *apploader.Loader,
 ) *Http {
 	return &Http{
@@ -175,6 +177,7 @@ func NewHttp(
 		toolboxMigration:  toolboxMigration,
 		webhook:           webhook,
 		template:          template,
+		websiteStat:       websiteStat,
 		apps:              apps,
 	}
 }
@@ -246,6 +249,13 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/{id}/reset_config", route.website.ResetConfig)
 			r.Post("/{id}/status", route.website.UpdateStatus)
 			r.Post("/{id}/obtain_cert", route.website.ObtainCert)
+
+			// 网站统计
+			r.Get("/stat/overview", route.websiteStat.Overview)
+			r.Get("/stat/realtime", route.websiteStat.Realtime)
+			r.Get("/stat/setting", route.websiteStat.GetSetting)
+			r.Post("/stat/setting", route.websiteStat.UpdateSetting)
+			r.Post("/stat/clear", route.websiteStat.Clear)
 		})
 
 		r.Route("/project", func(r chi.Router) {

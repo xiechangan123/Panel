@@ -229,6 +229,9 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
 	setting.CustomConfigs = r.getCustomConfigs(configDir)
 
+	// 访问统计
+	setting.StatEnabled = vhost.Config("021-stats-log.conf", "site") != ""
+
 	return setting, err
 }
 
@@ -749,6 +752,42 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		_ = io.Remove(htpasswdPath)
 		if err = vhost.ClearBasicAuth(); err != nil {
 			return err
+		}
+	}
+
+	// 访问统计
+	webServer, _ := r.setting.Get(biz.SettingKeyWebserver)
+	if webServer == "nginx" {
+		if req.StatEnabled {
+			formatConf := fmt.Sprintf(`log_format ace_stat_%s escape=json
+  '{"uri":"$request_uri",'
+  '"status":$status,'
+  '"bytes":$body_bytes_sent,'
+  '"ua":"$http_user_agent",'
+  '"ip":"$remote_addr",'
+  '"host":"$host",'
+  '"method":"$request_method",'
+  '"referer":"$http_referer",'
+  '"xff":"$http_x_forwarded_for",'
+  '"rt":$request_time,'
+  '"proto":"$server_protocol",'
+  '"port":"$remote_port",'
+  '"body":"$request_body",'
+  '"content_type":"$sent_http_content_type",'
+  '"req_length":$request_length,'
+  '"https":"$https",'
+  '"upstream_time":"$upstream_response_time",'
+  '"upstream_status":"$upstream_status"}';`, website.Name)
+			if err = vhost.SetConfig("010-stat-format.conf", "shared", formatConf); err != nil {
+				return err
+			}
+			logConf := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", website.Name, website.Name)
+			if err = vhost.SetConfig("021-stats-log.conf", "site", logConf); err != nil {
+				return err
+			}
+		} else {
+			_ = vhost.RemoveConfig("010-stat-format.conf", "shared")
+			_ = vhost.RemoveConfig("021-stats-log.conf", "site")
 		}
 	}
 

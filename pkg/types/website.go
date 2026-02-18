@@ -51,9 +51,10 @@ type WebsiteSetting struct {
 	Redirects []types.Redirect `json:"redirects"`
 
 	// 高级设置
-	RateLimit *types.RateLimit  `json:"rate_limit"` // 限流限速配置
-	RealIP    *types.RealIP     `json:"real_ip"`    // 真实 IP 配置
-	BasicAuth map[string]string `json:"basic_auth"` // 基本认证配置
+	StatEnabled bool              `json:"stat_enabled"` // 是否启用访问统计
+	RateLimit   *types.RateLimit  `json:"rate_limit"`   // 限流限速配置
+	RealIP      *types.RealIP     `json:"real_ip"`      // 真实 IP 配置
+	BasicAuth   map[string]string `json:"basic_auth"`   // 基本认证配置
 
 	// 自定义配置
 	CustomConfigs []WebsiteCustomConfig `json:"custom_configs"`

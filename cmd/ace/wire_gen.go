@@ -35,6 +35,7 @@ import (
 	"github.com/acepanel/panel/internal/job"
 	"github.com/acepanel/panel/internal/route"
 	"github.com/acepanel/panel/internal/service"
+	"github.com/acepanel/panel/pkg/websitestat"
 )
 
 import (
@@ -143,6 +144,9 @@ func initAce() (*app.Ace, error) {
 	webHookService := service.NewWebHookService(webHookRepo)
 	templateRepo := data.NewTemplateRepo(locale, cacheRepo)
 	templateService := service.NewTemplateService(locale, templateRepo, settingRepo)
+	websiteStatRepo := data.NewWebsiteStatRepo(db)
+	aggregator := websitestat.NewAggregator()
+	websiteStatService := service.NewWebsiteStatService(settingRepo, websiteStatRepo, websiteRepo, aggregator)
 	apacheApp := apache.NewApp(locale)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
@@ -165,7 +169,7 @@ func initAce() (*app.Ace, error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
-	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseRedisService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, environmentDotnetService, cronService, processService, safeService, firewallService, firewallScanService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxNetworkService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, loader)
+	http := route.NewHttp(config, userService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseRedisService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, environmentDotnetService, cronService, processService, safeService, firewallService, firewallScanService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxNetworkService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, websiteStatService, loader)
 	wsService := service.NewWsService(locale, config, logger, sshRepo, settingRepo)
 	ws := route.NewWs(wsService, toolboxMigrationService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
@@ -181,7 +185,7 @@ func initAce() (*app.Ace, error) {
 		return nil, err
 	}
 	gormigrate := bootstrap.NewMigrate(db)
-	jobs := job.NewJobs(config, db, logger, settingRepo, certRepo, certAccountRepo, backupRepo, cacheRepo, taskRepo, scanEventRepo)
+	jobs := job.NewJobs(config, db, logger, settingRepo, certRepo, certAccountRepo, backupRepo, cacheRepo, taskRepo, scanEventRepo, websiteStatRepo, aggregator)
 	cron, err := bootstrap.NewCron(config, logger, jobs)
 	if err != nil {
 		return nil, err

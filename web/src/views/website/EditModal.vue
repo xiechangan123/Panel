@@ -1731,6 +1731,19 @@ const removeCustomConfig = (index: number) => {
         </n-tab-pane>
         <n-tab-pane name="advanced" :tab="$gettext('Advanced Settings')">
           <n-collapse accordion>
+            <!-- 访问统计（仅 nginx） -->
+            <n-collapse-item
+              v-if="isNginx"
+              :title="$gettext('Access Statistics')"
+              name="stat_settings"
+            >
+              <n-form label-placement="left" label-width="140px">
+                <n-form-item :label="$gettext('Enable Statistics')">
+                  <n-switch v-model:value="setting.stat_enabled" />
+                </n-form-item>
+              </n-form>
+            </n-collapse-item>
+
             <!-- 日志设置 -->
             <n-collapse-item :title="$gettext('Log Settings')" name="log_settings">
               <n-form label-placement="left" label-width="140px">

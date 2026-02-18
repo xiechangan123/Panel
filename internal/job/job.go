@@ -9,6 +9,7 @@ import (
 
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/config"
+	"github.com/acepanel/panel/pkg/websitestat"
 )
 
 var ProviderSet = wire.NewSet(NewJobs)
@@ -24,9 +25,11 @@ type Jobs struct {
 	cache       biz.CacheRepo
 	task        biz.TaskRepo
 	scanRepo    biz.ScanEventRepo
+	statRepo    biz.WebsiteStatRepo
+	aggregator  *websitestat.Aggregator
 }
 
-func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, scanRepo biz.ScanEventRepo) *Jobs {
+func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, scanRepo biz.ScanEventRepo, statRepo biz.WebsiteStatRepo, aggregator *websitestat.Aggregator) *Jobs {
 	return &Jobs{
 		conf:        conf,
 		db:          db,
@@ -38,6 +41,8 @@ func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.Set
 		cache:       cache,
 		task:        task,
 		scanRepo:    scanRepo,
+		statRepo:    statRepo,
+		aggregator:  aggregator,
 	}
 }
 
@@ -52,6 +57,9 @@ func (r *Jobs) Register(c *cron.Cron) error {
 		return err
 	}
 	if _, err := c.AddJob("0 2 * * *", NewPanelTask(r.conf, r.db, r.log, r.backup, r.cache, r.task, r.setting)); err != nil {
+		return err
+	}
+	if _, err := c.AddJob("* * * * *", NewWebsiteStat(r.log, r.setting, r.statRepo, r.aggregator)); err != nil {
 		return err
 	}
 

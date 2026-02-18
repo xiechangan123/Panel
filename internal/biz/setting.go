@@ -33,6 +33,7 @@ const (
 	SettingKeyScanAware           SettingKey = "scan_aware"
 	SettingKeyScanAwareDays       SettingKey = "scan_aware_days"
 	SettingKeyScanAwareInterfaces SettingKey = "scan_aware_interfaces"
+	SettingKeyWebsiteStatDays     SettingKey = "website_stat_days"
 )
 
 type Setting struct {

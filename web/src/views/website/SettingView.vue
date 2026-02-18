@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import website from '@/api/panel/website'
+import home from '@/api/panel/home'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -15,6 +16,20 @@ const { data: model } = useRequest(website.defaultConfig, {
     tls_versions: ['TLSv1.2', 'TLSv1.3'],
     cipher_suites: ''
   }
+})
+
+// 判断 webserver 类型
+const isNginx = ref(false)
+useRequest(home.installedEnvironment()).onSuccess(({ data }: any) => {
+  isNginx.value = data.webserver === 'nginx'
+})
+
+// 统计设置
+const statSetting = ref({ days: 30 })
+const statSaveLoading = ref(false)
+
+useRequest(website.statSetting()).onSuccess(({ data }: any) => {
+  statSetting.value = data
 })
 
 watch(
@@ -40,6 +55,17 @@ const handleSave = () => {
     })
     .onComplete(() => {
       saveLoading.value = false
+    })
+}
+
+const handleSaveStatSetting = () => {
+  statSaveLoading.value = true
+  useRequest(website.saveStatSetting(statSetting.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Modified successfully'))
+    })
+    .onComplete(() => {
+      statSaveLoading.value = false
     })
 }
 </script>
@@ -119,6 +145,28 @@ const handleSave = () => {
             />
           </n-form-item>
           <n-button type="primary" :loading="saveLoading" :disabled="saveLoading" @click="handleSave">
+            {{ $gettext('Save Changes') }}
+          </n-button>
+        </n-form>
+      </n-flex>
+    </n-tab-pane>
+    <n-tab-pane v-if="isNginx" name="stat-setting" :tab="$gettext('Statistics')">
+      <n-flex vertical>
+        <n-form>
+          <n-form-item :label="$gettext('Data Retention Days')">
+            <n-input-number
+              v-model:value="statSetting.days"
+              :min="1"
+              :max="365"
+              style="width: 200px"
+            />
+          </n-form-item>
+          <n-button
+            type="primary"
+            :loading="statSaveLoading"
+            :disabled="statSaveLoading"
+            @click="handleSaveStatSetting"
+          >
             {{ $gettext('Save Changes') }}
           </n-button>
         </n-form>

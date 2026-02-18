@@ -32,7 +32,7 @@ const typeOptions = computed(() => [
 const createModel = ref({
   type: '',
   name: '',
-  listens: [''],
+  listens: ['80'],
   domains: [''],
   path: '',
   db: false,
@@ -124,7 +124,7 @@ const handleCreate = async () => {
         type: '',
         name: '',
         domains: [''],
-        listens: [''],
+        listens: ['80'],
         db: false,
         db_type: '0',
         db_name: '',

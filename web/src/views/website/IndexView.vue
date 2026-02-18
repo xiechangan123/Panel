@@ -7,9 +7,10 @@ import BulkCreateModal from '@/views/website/BulkCreateModal.vue'
 import CreateModal from '@/views/website/CreateModal.vue'
 import EditModal from '@/views/website/EditModal.vue'
 import ListView from '@/views/website/ListView.vue'
+import StatsView from '@/views/website/StatsView.vue'
 import SettingView from '@/views/website/SettingView.vue'
 
-const currentTab = ref('all')
+const currentTab = ref('stats')
 
 const createModal = ref(false)
 const bulkCreateModal = ref(false)
@@ -21,6 +22,7 @@ const editId = ref(0)
   <common-page show-header show-footer>
     <template #tabbar>
       <n-tabs v-model:value="currentTab" animated>
+        <n-tab name="stats" :tab="$gettext('Stats')" />
         <n-tab name="all" :tab="$gettext('All')" />
         <n-tab name="proxy" :tab="$gettext('Reverse Proxy')" />
         <n-tab name="php" :tab="$gettext('PHP')" />
@@ -28,8 +30,9 @@ const editId = ref(0)
         <n-tab name="setting" :tab="$gettext('Settings')" />
       </n-tabs>
     </template>
+    <stats-view v-if="currentTab === 'stats'" />
     <list-view
-      v-if="currentTab != 'setting'"
+      v-if="currentTab != 'setting' && currentTab != 'stats'"
       v-model:type="currentTab"
       v-model:create-modal="createModal"
       v-model:bulk-create-modal="bulkCreateModal"
