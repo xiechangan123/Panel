@@ -356,7 +356,7 @@ func (s *WebsiteStatService) GetSetting(w http.ResponseWriter, r *http.Request) 
 	uvMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatUVMaxKeys, 1000000)
 	ipMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatIPMaxKeys, 500000)
 	detailMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys, 100000)
-	bodyEnabled, _ := s.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled, true)
+	bodyEnabled, _ := s.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled)
 	Success(w, chix.M{
 		"days":            days,
 		"err_buf_max":     errBufMax,
