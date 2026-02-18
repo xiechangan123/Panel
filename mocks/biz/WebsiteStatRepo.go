@@ -113,6 +113,52 @@ func (_c *WebsiteStatRepo_ClearBefore_Call) RunAndReturn(run func(string) error)
 	return _c
 }
 
+// ClearClientsBefore provides a mock function with given fields: date
+func (_m *WebsiteStatRepo) ClearClientsBefore(date string) error {
+	ret := _m.Called(date)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearClientsBefore")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(date)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_ClearClientsBefore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearClientsBefore'
+type WebsiteStatRepo_ClearClientsBefore_Call struct {
+	*mock.Call
+}
+
+// ClearClientsBefore is a helper method to define mock.On call
+//   - date string
+func (_e *WebsiteStatRepo_Expecter) ClearClientsBefore(date interface{}) *WebsiteStatRepo_ClearClientsBefore_Call {
+	return &WebsiteStatRepo_ClearClientsBefore_Call{Call: _e.mock.On("ClearClientsBefore", date)}
+}
+
+func (_c *WebsiteStatRepo_ClearClientsBefore_Call) Run(run func(date string)) *WebsiteStatRepo_ClearClientsBefore_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearClientsBefore_Call) Return(_a0 error) *WebsiteStatRepo_ClearClientsBefore_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearClientsBefore_Call) RunAndReturn(run func(string) error) *WebsiteStatRepo_ClearClientsBefore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ClearErrorsBefore provides a mock function with given fields: t
 func (_m *WebsiteStatRepo) ClearErrorsBefore(t time.Time) error {
 	ret := _m.Called(t)
@@ -155,6 +201,144 @@ func (_c *WebsiteStatRepo_ClearErrorsBefore_Call) Return(_a0 error) *WebsiteStat
 }
 
 func (_c *WebsiteStatRepo_ClearErrorsBefore_Call) RunAndReturn(run func(time.Time) error) *WebsiteStatRepo_ClearErrorsBefore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ClearIPsBefore provides a mock function with given fields: date
+func (_m *WebsiteStatRepo) ClearIPsBefore(date string) error {
+	ret := _m.Called(date)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearIPsBefore")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(date)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_ClearIPsBefore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearIPsBefore'
+type WebsiteStatRepo_ClearIPsBefore_Call struct {
+	*mock.Call
+}
+
+// ClearIPsBefore is a helper method to define mock.On call
+//   - date string
+func (_e *WebsiteStatRepo_Expecter) ClearIPsBefore(date interface{}) *WebsiteStatRepo_ClearIPsBefore_Call {
+	return &WebsiteStatRepo_ClearIPsBefore_Call{Call: _e.mock.On("ClearIPsBefore", date)}
+}
+
+func (_c *WebsiteStatRepo_ClearIPsBefore_Call) Run(run func(date string)) *WebsiteStatRepo_ClearIPsBefore_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearIPsBefore_Call) Return(_a0 error) *WebsiteStatRepo_ClearIPsBefore_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearIPsBefore_Call) RunAndReturn(run func(string) error) *WebsiteStatRepo_ClearIPsBefore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ClearSpidersBefore provides a mock function with given fields: date
+func (_m *WebsiteStatRepo) ClearSpidersBefore(date string) error {
+	ret := _m.Called(date)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearSpidersBefore")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(date)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_ClearSpidersBefore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearSpidersBefore'
+type WebsiteStatRepo_ClearSpidersBefore_Call struct {
+	*mock.Call
+}
+
+// ClearSpidersBefore is a helper method to define mock.On call
+//   - date string
+func (_e *WebsiteStatRepo_Expecter) ClearSpidersBefore(date interface{}) *WebsiteStatRepo_ClearSpidersBefore_Call {
+	return &WebsiteStatRepo_ClearSpidersBefore_Call{Call: _e.mock.On("ClearSpidersBefore", date)}
+}
+
+func (_c *WebsiteStatRepo_ClearSpidersBefore_Call) Run(run func(date string)) *WebsiteStatRepo_ClearSpidersBefore_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearSpidersBefore_Call) Return(_a0 error) *WebsiteStatRepo_ClearSpidersBefore_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearSpidersBefore_Call) RunAndReturn(run func(string) error) *WebsiteStatRepo_ClearSpidersBefore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ClearURIsBefore provides a mock function with given fields: date
+func (_m *WebsiteStatRepo) ClearURIsBefore(date string) error {
+	ret := _m.Called(date)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearURIsBefore")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(date)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_ClearURIsBefore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearURIsBefore'
+type WebsiteStatRepo_ClearURIsBefore_Call struct {
+	*mock.Call
+}
+
+// ClearURIsBefore is a helper method to define mock.On call
+//   - date string
+func (_e *WebsiteStatRepo_Expecter) ClearURIsBefore(date interface{}) *WebsiteStatRepo_ClearURIsBefore_Call {
+	return &WebsiteStatRepo_ClearURIsBefore_Call{Call: _e.mock.On("ClearURIsBefore", date)}
+}
+
+func (_c *WebsiteStatRepo_ClearURIsBefore_Call) Run(run func(date string)) *WebsiteStatRepo_ClearURIsBefore_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearURIsBefore_Call) Return(_a0 error) *WebsiteStatRepo_ClearURIsBefore_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ClearURIsBefore_Call) RunAndReturn(run func(string) error) *WebsiteStatRepo_ClearURIsBefore_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -384,6 +568,396 @@ func (_c *WebsiteStatRepo_ListByDateRange_Call) RunAndReturn(run func(string, st
 	return _c
 }
 
+// ListErrors provides a mock function with given fields: start, end, sites, status, page, limit
+func (_m *WebsiteStatRepo) ListErrors(start string, end string, sites []string, status int, page uint, limit uint) ([]*biz.WebsiteErrorLog, uint, error) {
+	ret := _m.Called(start, end, sites, status, page, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListErrors")
+	}
+
+	var r0 []*biz.WebsiteErrorLog
+	var r1 uint
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string, string, []string, int, uint, uint) ([]*biz.WebsiteErrorLog, uint, error)); ok {
+		return rf(start, end, sites, status, page, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string, int, uint, uint) []*biz.WebsiteErrorLog); ok {
+		r0 = rf(start, end, sites, status, page, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteErrorLog)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string, int, uint, uint) uint); ok {
+		r1 = rf(start, end, sites, status, page, limit)
+	} else {
+		r1 = ret.Get(1).(uint)
+	}
+
+	if rf, ok := ret.Get(2).(func(string, string, []string, int, uint, uint) error); ok {
+		r2 = rf(start, end, sites, status, page, limit)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// WebsiteStatRepo_ListErrors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListErrors'
+type WebsiteStatRepo_ListErrors_Call struct {
+	*mock.Call
+}
+
+// ListErrors is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+//   - status int
+//   - page uint
+//   - limit uint
+func (_e *WebsiteStatRepo_Expecter) ListErrors(start interface{}, end interface{}, sites interface{}, status interface{}, page interface{}, limit interface{}) *WebsiteStatRepo_ListErrors_Call {
+	return &WebsiteStatRepo_ListErrors_Call{Call: _e.mock.On("ListErrors", start, end, sites, status, page, limit)}
+}
+
+func (_c *WebsiteStatRepo_ListErrors_Call) Run(run func(start string, end string, sites []string, status int, page uint, limit uint)) *WebsiteStatRepo_ListErrors_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string), args[3].(int), args[4].(uint), args[5].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ListErrors_Call) Return(_a0 []*biz.WebsiteErrorLog, _a1 uint, _a2 error) *WebsiteStatRepo_ListErrors_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ListErrors_Call) RunAndReturn(run func(string, string, []string, int, uint, uint) ([]*biz.WebsiteErrorLog, uint, error)) *WebsiteStatRepo_ListErrors_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListSiteStats provides a mock function with given fields: start, end, sites
+func (_m *WebsiteStatRepo) ListSiteStats(start string, end string, sites []string) ([]*biz.WebsiteStatSiteItem, error) {
+	ret := _m.Called(start, end, sites)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListSiteStats")
+	}
+
+	var r0 []*biz.WebsiteStatSiteItem
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, []string) ([]*biz.WebsiteStatSiteItem, error)); ok {
+		return rf(start, end, sites)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string) []*biz.WebsiteStatSiteItem); ok {
+		r0 = rf(start, end, sites)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteStatSiteItem)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string) error); ok {
+		r1 = rf(start, end, sites)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebsiteStatRepo_ListSiteStats_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListSiteStats'
+type WebsiteStatRepo_ListSiteStats_Call struct {
+	*mock.Call
+}
+
+// ListSiteStats is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+func (_e *WebsiteStatRepo_Expecter) ListSiteStats(start interface{}, end interface{}, sites interface{}) *WebsiteStatRepo_ListSiteStats_Call {
+	return &WebsiteStatRepo_ListSiteStats_Call{Call: _e.mock.On("ListSiteStats", start, end, sites)}
+}
+
+func (_c *WebsiteStatRepo_ListSiteStats_Call) Run(run func(start string, end string, sites []string)) *WebsiteStatRepo_ListSiteStats_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ListSiteStats_Call) Return(_a0 []*biz.WebsiteStatSiteItem, _a1 error) *WebsiteStatRepo_ListSiteStats_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_ListSiteStats_Call) RunAndReturn(run func(string, string, []string) ([]*biz.WebsiteStatSiteItem, error)) *WebsiteStatRepo_ListSiteStats_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TopClients provides a mock function with given fields: start, end, sites, limit
+func (_m *WebsiteStatRepo) TopClients(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatClientRank, error) {
+	ret := _m.Called(start, end, sites, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TopClients")
+	}
+
+	var r0 []*biz.WebsiteStatClientRank
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint) ([]*biz.WebsiteStatClientRank, error)); ok {
+		return rf(start, end, sites, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint) []*biz.WebsiteStatClientRank); ok {
+		r0 = rf(start, end, sites, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteStatClientRank)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string, uint) error); ok {
+		r1 = rf(start, end, sites, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebsiteStatRepo_TopClients_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TopClients'
+type WebsiteStatRepo_TopClients_Call struct {
+	*mock.Call
+}
+
+// TopClients is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+//   - limit uint
+func (_e *WebsiteStatRepo_Expecter) TopClients(start interface{}, end interface{}, sites interface{}, limit interface{}) *WebsiteStatRepo_TopClients_Call {
+	return &WebsiteStatRepo_TopClients_Call{Call: _e.mock.On("TopClients", start, end, sites, limit)}
+}
+
+func (_c *WebsiteStatRepo_TopClients_Call) Run(run func(start string, end string, sites []string, limit uint)) *WebsiteStatRepo_TopClients_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string), args[3].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopClients_Call) Return(_a0 []*biz.WebsiteStatClientRank, _a1 error) *WebsiteStatRepo_TopClients_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopClients_Call) RunAndReturn(run func(string, string, []string, uint) ([]*biz.WebsiteStatClientRank, error)) *WebsiteStatRepo_TopClients_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TopIPs provides a mock function with given fields: start, end, sites, page, limit
+func (_m *WebsiteStatRepo) TopIPs(start string, end string, sites []string, page uint, limit uint) ([]*biz.WebsiteStatIPRank, uint, error) {
+	ret := _m.Called(start, end, sites, page, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TopIPs")
+	}
+
+	var r0 []*biz.WebsiteStatIPRank
+	var r1 uint
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint, uint) ([]*biz.WebsiteStatIPRank, uint, error)); ok {
+		return rf(start, end, sites, page, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint, uint) []*biz.WebsiteStatIPRank); ok {
+		r0 = rf(start, end, sites, page, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteStatIPRank)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string, uint, uint) uint); ok {
+		r1 = rf(start, end, sites, page, limit)
+	} else {
+		r1 = ret.Get(1).(uint)
+	}
+
+	if rf, ok := ret.Get(2).(func(string, string, []string, uint, uint) error); ok {
+		r2 = rf(start, end, sites, page, limit)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// WebsiteStatRepo_TopIPs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TopIPs'
+type WebsiteStatRepo_TopIPs_Call struct {
+	*mock.Call
+}
+
+// TopIPs is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+//   - page uint
+//   - limit uint
+func (_e *WebsiteStatRepo_Expecter) TopIPs(start interface{}, end interface{}, sites interface{}, page interface{}, limit interface{}) *WebsiteStatRepo_TopIPs_Call {
+	return &WebsiteStatRepo_TopIPs_Call{Call: _e.mock.On("TopIPs", start, end, sites, page, limit)}
+}
+
+func (_c *WebsiteStatRepo_TopIPs_Call) Run(run func(start string, end string, sites []string, page uint, limit uint)) *WebsiteStatRepo_TopIPs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string), args[3].(uint), args[4].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopIPs_Call) Return(_a0 []*biz.WebsiteStatIPRank, _a1 uint, _a2 error) *WebsiteStatRepo_TopIPs_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopIPs_Call) RunAndReturn(run func(string, string, []string, uint, uint) ([]*biz.WebsiteStatIPRank, uint, error)) *WebsiteStatRepo_TopIPs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TopSpiders provides a mock function with given fields: start, end, sites, limit
+func (_m *WebsiteStatRepo) TopSpiders(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error) {
+	ret := _m.Called(start, end, sites, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TopSpiders")
+	}
+
+	var r0 []*biz.WebsiteStatSpiderRank
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint) ([]*biz.WebsiteStatSpiderRank, error)); ok {
+		return rf(start, end, sites, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint) []*biz.WebsiteStatSpiderRank); ok {
+		r0 = rf(start, end, sites, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteStatSpiderRank)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string, uint) error); ok {
+		r1 = rf(start, end, sites, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebsiteStatRepo_TopSpiders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TopSpiders'
+type WebsiteStatRepo_TopSpiders_Call struct {
+	*mock.Call
+}
+
+// TopSpiders is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+//   - limit uint
+func (_e *WebsiteStatRepo_Expecter) TopSpiders(start interface{}, end interface{}, sites interface{}, limit interface{}) *WebsiteStatRepo_TopSpiders_Call {
+	return &WebsiteStatRepo_TopSpiders_Call{Call: _e.mock.On("TopSpiders", start, end, sites, limit)}
+}
+
+func (_c *WebsiteStatRepo_TopSpiders_Call) Run(run func(start string, end string, sites []string, limit uint)) *WebsiteStatRepo_TopSpiders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string), args[3].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopSpiders_Call) Return(_a0 []*biz.WebsiteStatSpiderRank, _a1 error) *WebsiteStatRepo_TopSpiders_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopSpiders_Call) RunAndReturn(run func(string, string, []string, uint) ([]*biz.WebsiteStatSpiderRank, error)) *WebsiteStatRepo_TopSpiders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TopURIs provides a mock function with given fields: start, end, sites, page, limit
+func (_m *WebsiteStatRepo) TopURIs(start string, end string, sites []string, page uint, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
+	ret := _m.Called(start, end, sites, page, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TopURIs")
+	}
+
+	var r0 []*biz.WebsiteStatURIRank
+	var r1 uint
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint, uint) ([]*biz.WebsiteStatURIRank, uint, error)); ok {
+		return rf(start, end, sites, page, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint, uint) []*biz.WebsiteStatURIRank); ok {
+		r0 = rf(start, end, sites, page, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteStatURIRank)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string, uint, uint) uint); ok {
+		r1 = rf(start, end, sites, page, limit)
+	} else {
+		r1 = ret.Get(1).(uint)
+	}
+
+	if rf, ok := ret.Get(2).(func(string, string, []string, uint, uint) error); ok {
+		r2 = rf(start, end, sites, page, limit)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// WebsiteStatRepo_TopURIs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TopURIs'
+type WebsiteStatRepo_TopURIs_Call struct {
+	*mock.Call
+}
+
+// TopURIs is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+//   - page uint
+//   - limit uint
+func (_e *WebsiteStatRepo_Expecter) TopURIs(start interface{}, end interface{}, sites interface{}, page interface{}, limit interface{}) *WebsiteStatRepo_TopURIs_Call {
+	return &WebsiteStatRepo_TopURIs_Call{Call: _e.mock.On("TopURIs", start, end, sites, page, limit)}
+}
+
+func (_c *WebsiteStatRepo_TopURIs_Call) Run(run func(start string, end string, sites []string, page uint, limit uint)) *WebsiteStatRepo_TopURIs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string), args[3].(uint), args[4].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopURIs_Call) Return(_a0 []*biz.WebsiteStatURIRank, _a1 uint, _a2 error) *WebsiteStatRepo_TopURIs_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopURIs_Call) RunAndReturn(run func(string, string, []string, uint, uint) ([]*biz.WebsiteStatURIRank, uint, error)) *WebsiteStatRepo_TopURIs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Upsert provides a mock function with given fields: stats
 func (_m *WebsiteStatRepo) Upsert(stats []*biz.WebsiteStat) error {
 	ret := _m.Called(stats)
@@ -426,6 +1000,190 @@ func (_c *WebsiteStatRepo_Upsert_Call) Return(_a0 error) *WebsiteStatRepo_Upsert
 }
 
 func (_c *WebsiteStatRepo_Upsert_Call) RunAndReturn(run func([]*biz.WebsiteStat) error) *WebsiteStatRepo_Upsert_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertClients provides a mock function with given fields: stats
+func (_m *WebsiteStatRepo) UpsertClients(stats []*biz.WebsiteStatClient) error {
+	ret := _m.Called(stats)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertClients")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]*biz.WebsiteStatClient) error); ok {
+		r0 = rf(stats)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_UpsertClients_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertClients'
+type WebsiteStatRepo_UpsertClients_Call struct {
+	*mock.Call
+}
+
+// UpsertClients is a helper method to define mock.On call
+//   - stats []*biz.WebsiteStatClient
+func (_e *WebsiteStatRepo_Expecter) UpsertClients(stats interface{}) *WebsiteStatRepo_UpsertClients_Call {
+	return &WebsiteStatRepo_UpsertClients_Call{Call: _e.mock.On("UpsertClients", stats)}
+}
+
+func (_c *WebsiteStatRepo_UpsertClients_Call) Run(run func(stats []*biz.WebsiteStatClient)) *WebsiteStatRepo_UpsertClients_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]*biz.WebsiteStatClient))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertClients_Call) Return(_a0 error) *WebsiteStatRepo_UpsertClients_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertClients_Call) RunAndReturn(run func([]*biz.WebsiteStatClient) error) *WebsiteStatRepo_UpsertClients_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertIPs provides a mock function with given fields: stats
+func (_m *WebsiteStatRepo) UpsertIPs(stats []*biz.WebsiteStatIP) error {
+	ret := _m.Called(stats)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertIPs")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]*biz.WebsiteStatIP) error); ok {
+		r0 = rf(stats)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_UpsertIPs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertIPs'
+type WebsiteStatRepo_UpsertIPs_Call struct {
+	*mock.Call
+}
+
+// UpsertIPs is a helper method to define mock.On call
+//   - stats []*biz.WebsiteStatIP
+func (_e *WebsiteStatRepo_Expecter) UpsertIPs(stats interface{}) *WebsiteStatRepo_UpsertIPs_Call {
+	return &WebsiteStatRepo_UpsertIPs_Call{Call: _e.mock.On("UpsertIPs", stats)}
+}
+
+func (_c *WebsiteStatRepo_UpsertIPs_Call) Run(run func(stats []*biz.WebsiteStatIP)) *WebsiteStatRepo_UpsertIPs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]*biz.WebsiteStatIP))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertIPs_Call) Return(_a0 error) *WebsiteStatRepo_UpsertIPs_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertIPs_Call) RunAndReturn(run func([]*biz.WebsiteStatIP) error) *WebsiteStatRepo_UpsertIPs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertSpiders provides a mock function with given fields: stats
+func (_m *WebsiteStatRepo) UpsertSpiders(stats []*biz.WebsiteStatSpider) error {
+	ret := _m.Called(stats)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertSpiders")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]*biz.WebsiteStatSpider) error); ok {
+		r0 = rf(stats)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_UpsertSpiders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertSpiders'
+type WebsiteStatRepo_UpsertSpiders_Call struct {
+	*mock.Call
+}
+
+// UpsertSpiders is a helper method to define mock.On call
+//   - stats []*biz.WebsiteStatSpider
+func (_e *WebsiteStatRepo_Expecter) UpsertSpiders(stats interface{}) *WebsiteStatRepo_UpsertSpiders_Call {
+	return &WebsiteStatRepo_UpsertSpiders_Call{Call: _e.mock.On("UpsertSpiders", stats)}
+}
+
+func (_c *WebsiteStatRepo_UpsertSpiders_Call) Run(run func(stats []*biz.WebsiteStatSpider)) *WebsiteStatRepo_UpsertSpiders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]*biz.WebsiteStatSpider))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertSpiders_Call) Return(_a0 error) *WebsiteStatRepo_UpsertSpiders_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertSpiders_Call) RunAndReturn(run func([]*biz.WebsiteStatSpider) error) *WebsiteStatRepo_UpsertSpiders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertURIs provides a mock function with given fields: stats
+func (_m *WebsiteStatRepo) UpsertURIs(stats []*biz.WebsiteStatURI) error {
+	ret := _m.Called(stats)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertURIs")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]*biz.WebsiteStatURI) error); ok {
+		r0 = rf(stats)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_UpsertURIs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertURIs'
+type WebsiteStatRepo_UpsertURIs_Call struct {
+	*mock.Call
+}
+
+// UpsertURIs is a helper method to define mock.On call
+//   - stats []*biz.WebsiteStatURI
+func (_e *WebsiteStatRepo_Expecter) UpsertURIs(stats interface{}) *WebsiteStatRepo_UpsertURIs_Call {
+	return &WebsiteStatRepo_UpsertURIs_Call{Call: _e.mock.On("UpsertURIs", stats)}
+}
+
+func (_c *WebsiteStatRepo_UpsertURIs_Call) Run(run func(stats []*biz.WebsiteStatURI)) *WebsiteStatRepo_UpsertURIs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]*biz.WebsiteStatURI))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertURIs_Call) Return(_a0 error) *WebsiteStatRepo_UpsertURIs_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_UpsertURIs_Call) RunAndReturn(run func([]*biz.WebsiteStatURI) error) *WebsiteStatRepo_UpsertURIs_Call {
 	_c.Call.Return(run)
 	return _c
 }
