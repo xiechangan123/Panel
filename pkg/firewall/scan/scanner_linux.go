@@ -47,7 +47,7 @@ const (
 	ethVLAN   = 0x8100 // ETH_P_8021Q
 	ethQinQ   = 0x88A8 // ETH_P_8021AD
 	ethVLANQ  = 0x9100 // 兼容部分设备上的外层 VLAN
-	maxV6Exts = 6
+	maxV6Exts = 8
 )
 
 // 协议常量
