@@ -101,6 +101,7 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 	// TCP 处理器：边界检查 → SYN 过滤 → 端口白名单 → 输出事件
 	tcpHandler := func(sym string, boundsEnd, flagsOff, portOff int) asm.Instructions {
 		return asm.Instructions{
+			// 边界检查
 			asm.Mov.Reg(asm.R2, asm.R6).WithSymbol(sym),
 			asm.Add.Imm(asm.R2, int32(boundsEnd)),
 			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
@@ -140,10 +141,12 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 	// UDP 处理器：边界检查 → 端口白名单 → 输出事件
 	udpHandler := func(sym string, boundsEnd, portOff int) asm.Instructions {
 		return asm.Instructions{
+			// 边界检查
 			asm.Mov.Reg(asm.R2, asm.R6).WithSymbol(sym),
 			asm.Add.Imm(asm.R2, int32(boundsEnd)),
 			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 
+			// 加载端口并转换字节序
 			asm.LoadMem(asm.R2, asm.R6, int16(portOff), asm.Half),
 			asm.HostTo(asm.BE, asm.R2, asm.Half),
 			asm.Mov.Reg(asm.R9, asm.R2),
@@ -156,6 +159,7 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 			asm.FnMapLookupElem.Call(),
 			asm.JNE.Imm(asm.R0, 0, "exit"),
 
+			// 写入事件
 			asm.StoreMem(asm.RFP, -4, asm.R9, asm.Half),
 			asm.StoreImm(asm.RFP, -2, ipUDP, asm.Byte),
 
