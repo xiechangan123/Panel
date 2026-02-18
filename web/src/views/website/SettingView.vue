@@ -25,7 +25,13 @@ useRequest(home.installedEnvironment()).onSuccess(({ data }: any) => {
 })
 
 // 统计设置
-const statSetting = ref({ days: 30 })
+const statSetting = ref({
+  days: 30,
+  err_buf_max: 10000,
+  uv_max_keys: 1000000,
+  ip_max_keys: 500000,
+  detail_max_keys: 100000
+})
 const statSaveLoading = ref(false)
 
 useRequest(website.statSetting()).onSuccess(({ data }: any) => {
@@ -152,12 +158,51 @@ const handleSaveStatSetting = () => {
     </n-tab-pane>
     <n-tab-pane v-if="isNginx" name="stat-setting" :tab="$gettext('Statistics')">
       <n-flex vertical>
+        <n-alert type="info">
+          {{ $gettext('Modifications to the limits below will take effect after restarting the panel.') }}
+        </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Data Retention Days')">
             <n-input-number
               v-model:value="statSetting.days"
               :min="1"
               :max="365"
+              style="width: 200px"
+            />
+          </n-form-item>
+          <n-form-item :label="$gettext('Error Buffer Max Size')">
+            <n-input-number
+              v-model:value="statSetting.err_buf_max"
+              :min="100"
+              :max="1000000"
+              :step="1000"
+              style="width: 200px"
+            />
+          </n-form-item>
+          <n-form-item :label="$gettext('UV Max Keys')">
+            <n-input-number
+              v-model:value="statSetting.uv_max_keys"
+              :min="1000"
+              :max="100000000"
+              :step="100000"
+              style="width: 200px"
+            />
+          </n-form-item>
+          <n-form-item :label="$gettext('IP Max Keys')">
+            <n-input-number
+              v-model:value="statSetting.ip_max_keys"
+              :min="1000"
+              :max="100000000"
+              :step="100000"
+              style="width: 200px"
+            />
+          </n-form-item>
+          <n-form-item :label="$gettext('Detail Max Keys')">
+            <n-input-number
+              v-model:value="statSetting.detail_max_keys"
+              :min="1000"
+              :max="100000000"
+              :step="10000"
               style="width: 200px"
             />
           </n-form-item>

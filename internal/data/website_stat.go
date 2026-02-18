@@ -24,7 +24,7 @@ func (r *websiteStatRepo) Upsert(stats []*biz.WebsiteStat) error {
 		return nil
 	}
 
-	return r.db.Clauses(clause.OnConflict{
+	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "hour"}},
 		DoUpdates: clause.Assignments(map[string]any{
 			"pv":         gorm.Expr("excluded.pv"),
@@ -36,7 +36,7 @@ func (r *websiteStatRepo) Upsert(stats []*biz.WebsiteStat) error {
 			"spiders":    gorm.Expr("excluded.spiders"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
 		}),
-	}).Create(stats).Error
+	})
 }
 
 func (r *websiteStatRepo) ListByDateRange(start, end string, sites []string) ([]*biz.WebsiteStat, error) {
@@ -84,12 +84,8 @@ func (r *websiteStatRepo) InsertErrors(errors []*biz.WebsiteErrorLog) error {
 		return nil
 	}
 
-	const batchSize = 100
-	for i := 0; i < len(errors); i += batchSize {
-		end := i + batchSize
-		if end > len(errors) {
-			end = len(errors)
-		}
+	for i := 0; i < len(errors); i += upsertBatchSize {
+		end := min(i+upsertBatchSize, len(errors))
 		if err := r.db.Create(errors[i:end]).Error; err != nil {
 			return err
 		}
@@ -126,13 +122,13 @@ func (r *websiteStatRepo) UpsertSpiders(stats []*biz.WebsiteStatSpider) error {
 	if len(stats) == 0 {
 		return nil
 	}
-	return r.db.Clauses(clause.OnConflict{
+	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "spider"}},
 		DoUpdates: clause.Assignments(map[string]any{
 			"requests":   gorm.Expr("website_stat_spiders.requests + excluded.requests"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
 		}),
-	}).Create(stats).Error
+	})
 }
 
 func (r *websiteStatRepo) TopSpiders(start, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error) {
@@ -157,13 +153,13 @@ func (r *websiteStatRepo) UpsertClients(stats []*biz.WebsiteStatClient) error {
 	if len(stats) == 0 {
 		return nil
 	}
-	return r.db.Clauses(clause.OnConflict{
+	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "browser"}, {Name: "os"}},
 		DoUpdates: clause.Assignments(map[string]any{
 			"requests":   gorm.Expr("website_stat_clients.requests + excluded.requests"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
 		}),
-	}).Create(stats).Error
+	})
 }
 
 func (r *websiteStatRepo) TopClients(start, end string, sites []string, limit uint) ([]*biz.WebsiteStatClientRank, error) {
@@ -188,14 +184,14 @@ func (r *websiteStatRepo) UpsertIPs(stats []*biz.WebsiteStatIP) error {
 	if len(stats) == 0 {
 		return nil
 	}
-	return r.db.Clauses(clause.OnConflict{
+	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "ip"}},
 		DoUpdates: clause.Assignments(map[string]any{
 			"requests":   gorm.Expr("website_stat_ips.requests + excluded.requests"),
 			"bandwidth":  gorm.Expr("website_stat_ips.bandwidth + excluded.bandwidth"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
 		}),
-	}).Create(stats).Error
+	})
 }
 
 func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit uint) ([]*biz.WebsiteStatIPRank, uint, error) {
@@ -236,7 +232,7 @@ func (r *websiteStatRepo) UpsertURIs(stats []*biz.WebsiteStatURI) error {
 	if len(stats) == 0 {
 		return nil
 	}
-	return r.db.Clauses(clause.OnConflict{
+	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "uri"}},
 		DoUpdates: clause.Assignments(map[string]any{
 			"requests":   gorm.Expr("website_stat_uris.requests + excluded.requests"),
@@ -244,7 +240,7 @@ func (r *websiteStatRepo) UpsertURIs(stats []*biz.WebsiteStatURI) error {
 			"errors":     gorm.Expr("website_stat_uris.errors + excluded.errors"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
 		}),
-	}).Create(stats).Error
+	})
 }
 
 func (r *websiteStatRepo) TopURIs(start, end string, sites []string, page, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
@@ -313,4 +309,18 @@ func (r *websiteStatRepo) ListSiteStats(start, end string, sites []string) ([]*b
 	}
 	err := q.Group("site").Order("requests DESC").Scan(&items).Error
 	return items, err
+}
+
+// upsert 分批大小，避免超出 SQLite 变量数限制
+const upsertBatchSize = 100
+
+// batchUpsert 通用分批 upsert 辅助函数
+func batchUpsert[T any](db *gorm.DB, items []T, conflict clause.OnConflict) error {
+	for i := 0; i < len(items); i += upsertBatchSize {
+		end := min(i+upsertBatchSize, len(items))
+		if err := db.Clauses(conflict).Create(items[i:end]).Error; err != nil {
+			return err
+		}
+	}
+	return nil
 }

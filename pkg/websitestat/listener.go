@@ -12,6 +12,7 @@ type Listener struct {
 	path string
 	conn *net.UnixConn
 	log  *slog.Logger
+	buf  []byte // 读缓冲区，在 readLoop 单 goroutine 中复用
 }
 
 // NewListener 创建并绑定 Unix Datagram Socket 监听器
@@ -35,18 +36,18 @@ func NewListener(path string, log *slog.Logger) (*Listener, error) {
 		path: path,
 		conn: conn,
 		log:  log,
+		buf:  make([]byte, 65536),
 	}, nil
 }
 
 // Read 读取一条 syslog 消息，返回 tag 和 JSON 数据
 func (l *Listener) Read() (string, []byte, error) {
-	buf := make([]byte, 65536)
-	n, err := l.conn.Read(buf)
+	n, err := l.conn.Read(l.buf)
 	if err != nil {
 		return "", nil, err
 	}
 
-	tag, data := ParseSyslog(buf[:n])
+	tag, data := ParseSyslog(l.buf[:n])
 	return tag, data, nil
 }
 

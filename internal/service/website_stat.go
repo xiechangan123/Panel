@@ -360,8 +360,16 @@ func (s *WebsiteStatService) Clear(w http.ResponseWriter, r *http.Request) {
 // GetSetting 获取统计设置
 func (s *WebsiteStatService) GetSetting(w http.ResponseWriter, r *http.Request) {
 	days, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDays, 30)
+	errBufMax, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatErrBufMax, 10000)
+	uvMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatUVMaxKeys, 1000000)
+	ipMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatIPMaxKeys, 500000)
+	detailMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys, 100000)
 	Success(w, chix.M{
-		"days": days,
+		"days":            days,
+		"err_buf_max":     errBufMax,
+		"uv_max_keys":     uvMaxKeys,
+		"ip_max_keys":     ipMaxKeys,
+		"detail_max_keys": detailMaxKeys,
 	})
 }
 
@@ -376,6 +384,18 @@ func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Reques
 	if err = s.setting.Set(biz.SettingKeyWebsiteStatDays, fmt.Sprintf("%d", req.Days)); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
+	}
+	if req.ErrBufMax > 0 {
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatErrBufMax, fmt.Sprintf("%d", req.ErrBufMax))
+	}
+	if req.UVMaxKeys > 0 {
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatUVMaxKeys, fmt.Sprintf("%d", req.UVMaxKeys))
+	}
+	if req.IPMaxKeys > 0 {
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatIPMaxKeys, fmt.Sprintf("%d", req.IPMaxKeys))
+	}
+	if req.DetailMaxKeys > 0 {
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatDetailMaxKeys, fmt.Sprintf("%d", req.DetailMaxKeys))
 	}
 
 	Success(w, nil)

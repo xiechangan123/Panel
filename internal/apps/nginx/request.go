@@ -9,14 +9,14 @@ type UpdateConfig struct {
 // ConfigTune Nginx 配置调整
 type ConfigTune struct {
 	// 常规设置
-	WorkerProcesses          string `form:"worker_processes" json:"worker_processes"`
-	WorkerConnections        string `form:"worker_connections" json:"worker_connections"`
-	KeepaliveTimeout         string `form:"keepalive_timeout" json:"keepalive_timeout"`
-	ClientMaxBodySize        string `form:"client_max_body_size" json:"client_max_body_size"`
-	ClientBodyBufferSize     string `form:"client_body_buffer_size" json:"client_body_buffer_size"`
-	ClientHeaderBufferSize   string `form:"client_header_buffer_size" json:"client_header_buffer_size"`
+	WorkerProcesses           string `form:"worker_processes" json:"worker_processes"`
+	WorkerConnections         string `form:"worker_connections" json:"worker_connections"`
+	KeepaliveTimeout          string `form:"keepalive_timeout" json:"keepalive_timeout"`
+	ClientMaxBodySize         string `form:"client_max_body_size" json:"client_max_body_size"`
+	ClientBodyBufferSize      string `form:"client_body_buffer_size" json:"client_body_buffer_size"`
+	ClientHeaderBufferSize    string `form:"client_header_buffer_size" json:"client_header_buffer_size"`
 	ServerNamesHashBucketSize string `form:"server_names_hash_bucket_size" json:"server_names_hash_bucket_size"`
-	ServerTokens             string `form:"server_tokens" json:"server_tokens"`
+	ServerTokens              string `form:"server_tokens" json:"server_tokens"`
 	// Gzip 压缩
 	Gzip          string `form:"gzip" json:"gzip"`
 	GzipMinLength string `form:"gzip_min_length" json:"gzip_min_length"`

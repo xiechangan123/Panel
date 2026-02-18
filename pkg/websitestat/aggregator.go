@@ -6,9 +6,6 @@ import (
 	"time"
 )
 
-// 详细统计每站每天最大条目数
-const detailMaxKeys = 100000
-
 // Aggregator 内存聚合器，将日志条目聚合为站点统计快照
 type Aggregator struct {
 	mu    sync.Mutex
@@ -17,6 +14,12 @@ type Aggregator struct {
 
 	// 错误日志缓冲
 	errBuf []*ErrorEntry
+
+	// 可配置上限
+	ErrBufMaxSize int // 错误缓冲最大条目数，默认 10000
+	UVMaxKeys     int // 每站每天 UV 去重 set 上限，默认 1000000
+	IPMaxKeys     int // 每站每天 IP 去重 set 上限，默认 500000
+	DetailMaxKeys int // 详细统计（蜘蛛/客户端/IP/URI）每站每天最大条目数，默认 100000
 
 	// 实时统计（滑动窗口 60 秒）
 	rtSlots [60]rtSlot
@@ -65,8 +68,12 @@ type rtSlot struct {
 // NewAggregator 创建聚合器实例
 func NewAggregator() *Aggregator {
 	return &Aggregator{
-		sites: make(map[string]*siteDay),
-		date:  time.Now().Format(time.DateOnly),
+		sites:         make(map[string]*siteDay),
+		date:          time.Now().Format(time.DateOnly),
+		ErrBufMaxSize: 10000,
+		UVMaxKeys:     1000000,
+		IPMaxKeys:     500000,
+		DetailMaxKeys: 100000,
 	}
 }
 
@@ -86,6 +93,17 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	now := time.Now()
 	today := now.Format(time.DateOnly)
 	hour := now.Hour()
+
+	// 锁外预计算 CPU 密集操作
+	spiderName := SpiderName(entry.UA)
+	var browser, os string
+	if spiderName == "" {
+		browser, os = ParseUA(entry.UA)
+	}
+	uvKey := entry.IP + "|" + entry.UA
+	isErr := entry.Status >= 400 && entry.Status < 600
+	isPV := IsPageView(entry)
+	clientKey := browser + "|" + os
 
 	a.mu.Lock()
 
@@ -119,25 +137,25 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	hb.requests++
 	hb.bandwidth += entry.Bytes
 
-	// UV: IP+UA 去重（每日 + 每小时）
-	uvKey := entry.IP + "|" + entry.UA
-	sd.uvs[uvKey] = struct{}{}
+	// UV: IP+UA 去重（每日 + 每小时），超限后不再插入
+	if len(sd.uvs) < a.UVMaxKeys {
+		sd.uvs[uvKey] = struct{}{}
+	}
 	hb.uvs[uvKey] = struct{}{}
 
-	// IP 去重（每日 + 每小时）
-	sd.ips[entry.IP] = struct{}{}
+	// IP 去重（每日 + 每小时），超限后不再插入
+	if len(sd.ips) < a.IPMaxKeys {
+		sd.ips[entry.IP] = struct{}{}
+	}
 	hb.ips[entry.IP] = struct{}{}
 
 	// PV 判定
-	if IsPageView(entry) {
+	if isPV {
 		sd.pv++
 		hb.pv++
 	}
 
-	isErr := entry.Status >= 400 && entry.Status < 600
-
 	// 蜘蛛检测
-	spiderName := SpiderName(entry.UA)
 	if spiderName != "" {
 		sd.spiders++
 		hb.spiders++
@@ -145,11 +163,9 @@ func (a *Aggregator) Record(entry *LogEntry) {
 		sd.spiderCounts[spiderName]++
 	} else {
 		// 非蜘蛛请求才统计客户端（浏览器/OS）
-		browser, os := ParseUA(entry.UA)
-		clientKey := browser + "|" + os
 		if cc, exists := sd.clientCounts[clientKey]; exists {
 			cc.requests++
-		} else if len(sd.clientCounts) < detailMaxKeys {
+		} else if len(sd.clientCounts) < a.DetailMaxKeys {
 			sd.clientCounts[clientKey] = &clientCount{requests: 1}
 		}
 	}
@@ -158,7 +174,7 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	if ic, exists := sd.ipCounts[entry.IP]; exists {
 		ic.requests++
 		ic.bandwidth += entry.Bytes
-	} else if len(sd.ipCounts) < detailMaxKeys {
+	} else if len(sd.ipCounts) < a.DetailMaxKeys {
 		sd.ipCounts[entry.IP] = &ipCount{requests: 1, bandwidth: entry.Bytes}
 	}
 
@@ -169,7 +185,7 @@ func (a *Aggregator) Record(entry *LogEntry) {
 		if isErr {
 			uc.errors++
 		}
-	} else if len(sd.uriCounts) < detailMaxKeys {
+	} else if len(sd.uriCounts) < a.DetailMaxKeys {
 		uc := &uriCount{requests: 1, bandwidth: entry.Bytes}
 		if isErr {
 			uc.errors = 1
@@ -181,15 +197,17 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	if isErr {
 		sd.errors++
 		hb.errors++
-		a.errBuf = append(a.errBuf, &ErrorEntry{
-			Site:   entry.Site,
-			URI:    entry.URI,
-			Method: entry.Method,
-			IP:     entry.IP,
-			UA:     entry.UA,
-			Body:   entry.Body,
-			Status: entry.Status,
-		})
+		if len(a.errBuf) < a.ErrBufMaxSize {
+			a.errBuf = append(a.errBuf, &ErrorEntry{
+				Site:   entry.Site,
+				URI:    entry.URI,
+				Method: entry.Method,
+				IP:     entry.IP,
+				UA:     entry.UA,
+				Body:   entry.Body,
+				Status: entry.Status,
+			})
+		}
 	}
 
 	a.mu.Unlock()

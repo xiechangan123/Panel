@@ -83,20 +83,6 @@ const sitesParam = computed(() => {
 
 const siteOptions = ref<Array<{ label: string; value: string }>>([])
 
-const loadSiteOptions = () => {
-  useRequest(website.statOverview(dateRange.value.start, dateRange.value.end, sitesParam.value))
-    .onSuccess(({ data }: any) => {
-      siteOptions.value = (data.sites || []).map((s: any) => ({
-        label: s.name,
-        value: s.name
-      }))
-    })
-}
-
-onMounted(() => {
-  loadSiteOptions()
-})
-
 // ============ 清空数据 ============
 
 const handleClear = () => {

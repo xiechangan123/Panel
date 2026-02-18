@@ -1,8 +1,6 @@
 package websitestat
 
 import (
-	"fmt"
-
 	ua "github.com/medama-io/go-useragent"
 )
 
@@ -20,7 +18,7 @@ func ParseUA(rawUA string) (browser, os string) {
 	} else if bMajor == "" {
 		browser = bName
 	} else {
-		browser = fmt.Sprintf("%s %s", bName, bMajor)
+		browser = bName + " " + bMajor
 	}
 
 	// 操作系统

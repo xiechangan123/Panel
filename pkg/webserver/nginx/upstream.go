@@ -9,8 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/acepanel/panel/pkg/webserver/types"
 	"github.com/samber/lo"
+
+	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
 // upstreamFilePattern 匹配 upstream 配置文件名 (100-XXX-name.conf)

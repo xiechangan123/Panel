@@ -7,8 +7,8 @@ import (
 )
 
 type Ws struct {
-	ws                *service.WsService
-	toolboxMigration  *service.ToolboxMigrationService
+	ws               *service.WsService
+	toolboxMigration *service.ToolboxMigrationService
 }
 
 func NewWs(ws *service.WsService, toolboxMigration *service.ToolboxMigrationService) *Ws {

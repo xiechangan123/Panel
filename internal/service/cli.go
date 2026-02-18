@@ -1026,6 +1026,11 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingHiddenMenu, Value: "[]"},
 		{Key: biz.SettingKeyScanAware, Value: "true"},
 		{Key: biz.SettingKeyScanAwareDays, Value: "30"},
+		{Key: biz.SettingKeyWebsiteStatDays, Value: "30"},
+		{Key: biz.SettingKeyWebsiteStatErrBufMax, Value: "10000"},
+		{Key: biz.SettingKeyWebsiteStatUVMaxKeys, Value: "1000000"},
+		{Key: biz.SettingKeyWebsiteStatIPMaxKeys, Value: "500000"},
+		{Key: biz.SettingKeyWebsiteStatDetailMaxKeys, Value: "100000"},
 	}
 	if err = s.db.Create(&settings).Error; err != nil {
 		return errors.New(s.t.Get("Initialization failed: %v", err))

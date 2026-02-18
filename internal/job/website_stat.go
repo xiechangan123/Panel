@@ -48,6 +48,19 @@ func (r *WebsiteStat) ensureListener() {
 		return
 	}
 
+	if v, err := r.setting.GetInt(biz.SettingKeyWebsiteStatErrBufMax); err == nil && v > 0 {
+		r.aggregator.ErrBufMaxSize = v
+	}
+	if v, err := r.setting.GetInt(biz.SettingKeyWebsiteStatUVMaxKeys); err == nil && v > 0 {
+		r.aggregator.UVMaxKeys = v
+	}
+	if v, err := r.setting.GetInt(biz.SettingKeyWebsiteStatIPMaxKeys); err == nil && v > 0 {
+		r.aggregator.IPMaxKeys = v
+	}
+	if v, err := r.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys); err == nil && v > 0 {
+		r.aggregator.DetailMaxKeys = v
+	}
+
 	listener, err := websitestat.NewListener("/tmp/ace_stats.sock", r.log)
 	if err != nil {
 		r.log.Warn("fail to start website stat listener", slog.Any("err", err))

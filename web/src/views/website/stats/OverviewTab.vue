@@ -73,6 +73,11 @@ const loadOverview = () => {
   )
     .onSuccess(({ data }: any) => {
       overview.value = data
+      // 回填站点选项到父组件
+      ctx.siteOptions.value = (data.sites || []).map((s: any) => ({
+        label: s.name,
+        value: s.name
+      }))
     })
     .onComplete(() => {
       loading.value = false

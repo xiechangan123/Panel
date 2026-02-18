@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/acepanel/panel/pkg/webserver/types"
 	"github.com/samber/lo"
+
+	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
 // StaticVhost 纯静态虚拟主机

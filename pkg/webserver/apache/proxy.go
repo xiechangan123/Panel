@@ -8,8 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/acepanel/panel/pkg/webserver/types"
 	"github.com/samber/lo"
+
+	"github.com/acepanel/panel/pkg/webserver/types"
 )
 
 // parseDurationToSeconds 将时长字符串转换为秒数

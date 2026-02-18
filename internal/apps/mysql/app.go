@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/acepanel/panel/pkg/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
@@ -20,6 +19,7 @@ import (
 	"github.com/acepanel/panel/pkg/shell"
 	"github.com/acepanel/panel/pkg/systemctl"
 	"github.com/acepanel/panel/pkg/tools"
+	"github.com/acepanel/panel/pkg/types"
 )
 
 type App struct {
