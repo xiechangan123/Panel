@@ -89,16 +89,24 @@ func init() {
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260218-website-stats",
 		Migrate: func(tx *gorm.DB) error {
-			if err := tx.AutoMigrate(&biz.WebsiteStat{}); err != nil {
-				return err
-			}
-			return tx.AutoMigrate(&biz.WebsiteErrorLog{})
+			return tx.AutoMigrate(
+				&biz.WebsiteStat{},
+				&biz.WebsiteErrorLog{},
+				&biz.WebsiteStatSpider{},
+				&biz.WebsiteStatClient{},
+				&biz.WebsiteStatIP{},
+				&biz.WebsiteStatURI{},
+			)
 		},
 		Rollback: func(tx *gorm.DB) error {
-			if err := tx.Migrator().DropTable(&biz.WebsiteErrorLog{}); err != nil {
-				return err
-			}
-			return tx.Migrator().DropTable(&biz.WebsiteStat{})
+			return tx.Migrator().DropTable(
+				&biz.WebsiteStatURI{},
+				&biz.WebsiteStatIP{},
+				&biz.WebsiteStatClient{},
+				&biz.WebsiteStatSpider{},
+				&biz.WebsiteErrorLog{},
+				&biz.WebsiteStat{},
+			)
 		},
 	})
 }

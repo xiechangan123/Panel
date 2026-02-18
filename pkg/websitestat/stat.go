@@ -53,3 +53,29 @@ type ErrorEntry struct {
 	Body   string
 	Status int
 }
+
+// SiteDetailSnapshot 站点详细统计快照（用于 DrainDetailStats）
+type SiteDetailSnapshot struct {
+	Spiders map[string]uint64       // spider_name → requests
+	Clients map[string]*ClientCount // "browser|os" → count
+	IPs     map[string]*IPCount     // ip → count
+	URIs    map[string]*URICount    // uri → count
+}
+
+// ClientCount 客户端计数
+type ClientCount struct {
+	Requests uint64
+}
+
+// IPCount IP 计数
+type IPCount struct {
+	Requests  uint64
+	Bandwidth uint64
+}
+
+// URICount URI 计数
+type URICount struct {
+	Requests  uint64
+	Bandwidth uint64
+	Errors    uint64
+}

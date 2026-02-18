@@ -2,6 +2,7 @@ package job
 
 import (
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/acepanel/panel/internal/app"
@@ -37,6 +38,7 @@ func (r *WebsiteStat) Run() {
 	r.ensureListener()
 	r.flush()
 	r.flushErrors()
+	r.flushDetails()
 	r.cleanup()
 }
 
@@ -156,6 +158,84 @@ func (r *WebsiteStat) flushErrors() {
 	}
 }
 
+// flushDetails 将详细统计增量写入数据库（蜘蛛/客户端/IP/URI）
+func (r *WebsiteStat) flushDetails() {
+	date, details := r.aggregator.DrainDetailStats()
+	if len(details) == 0 {
+		return
+	}
+
+	now := time.Now()
+
+	var spiders []*biz.WebsiteStatSpider
+	var clients []*biz.WebsiteStatClient
+	var ips []*biz.WebsiteStatIP
+	var uris []*biz.WebsiteStatURI
+
+	for site, snap := range details {
+		for spider, requests := range snap.Spiders {
+			spiders = append(spiders, &biz.WebsiteStatSpider{
+				Site:      site,
+				Date:      date,
+				Spider:    spider,
+				Requests:  requests,
+				UpdatedAt: now,
+			})
+		}
+
+		for key, cc := range snap.Clients {
+			parts := strings.SplitN(key, "|", 2)
+			if len(parts) != 2 {
+				continue
+			}
+			clients = append(clients, &biz.WebsiteStatClient{
+				Site:      site,
+				Date:      date,
+				Browser:   parts[0],
+				OS:        parts[1],
+				Requests:  cc.Requests,
+				UpdatedAt: now,
+			})
+		}
+
+		for ip, ic := range snap.IPs {
+			ips = append(ips, &biz.WebsiteStatIP{
+				Site:      site,
+				Date:      date,
+				IP:        ip,
+				Requests:  ic.Requests,
+				Bandwidth: ic.Bandwidth,
+				UpdatedAt: now,
+			})
+		}
+
+		for uri, uc := range snap.URIs {
+			uris = append(uris, &biz.WebsiteStatURI{
+				Site:      site,
+				Date:      date,
+				URI:       uri,
+				Requests:  uc.Requests,
+				Bandwidth: uc.Bandwidth,
+				Errors:    uc.Errors,
+				UpdatedAt: now,
+			})
+		}
+	}
+
+	if err := r.statRepo.UpsertSpiders(spiders); err != nil {
+		r.log.Warn("failed to upsert spider stats", slog.Any("err", err))
+	}
+	if err := r.statRepo.UpsertClients(clients); err != nil {
+		r.log.Warn("failed to upsert client stats", slog.Any("err", err))
+	}
+	if err := r.statRepo.UpsertIPs(ips); err != nil {
+		r.log.Warn("failed to upsert ip stats", slog.Any("err", err))
+	}
+	if err := r.statRepo.UpsertURIs(uris); err != nil {
+		r.log.Warn("failed to upsert uri stats", slog.Any("err", err))
+	}
+}
+
 // cleanup 清理过期数据
 func (r *WebsiteStat) cleanup() {
 	days, err := r.setting.GetInt(biz.SettingKeyWebsiteStatDays, 30)
@@ -171,5 +251,19 @@ func (r *WebsiteStat) cleanup() {
 	errCutoff := time.Now().AddDate(0, 0, -days)
 	if err = r.statRepo.ClearErrorsBefore(errCutoff); err != nil {
 		r.log.Warn("failed to clear expired website error logs", slog.Any("err", err))
+	}
+
+	// 清理详细统计表
+	if err = r.statRepo.ClearSpidersBefore(cutoff); err != nil {
+		r.log.Warn("failed to clear expired spider stats", slog.Any("err", err))
+	}
+	if err = r.statRepo.ClearClientsBefore(cutoff); err != nil {
+		r.log.Warn("failed to clear expired client stats", slog.Any("err", err))
+	}
+	if err = r.statRepo.ClearIPsBefore(cutoff); err != nil {
+		r.log.Warn("failed to clear expired ip stats", slog.Any("err", err))
+	}
+	if err = r.statRepo.ClearURIsBefore(cutoff); err != nil {
+		r.log.Warn("failed to clear expired uri stats", slog.Any("err", err))
 	}
 }

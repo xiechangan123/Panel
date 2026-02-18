@@ -2,51 +2,65 @@ package websitestat
 
 import "strings"
 
-// 已知搜索引擎蜘蛛 UA 关键词
-var spiderKeywords = []string{
-	"googlebot",
-	"bingbot",
-	"baiduspider",
-	"yandexbot",
-	"sogou",
-	"360spider",
-	"bytespider",
-	"gptbot",
-	"claudebot",
-	"ahrefsbot",
-	"semrushbot",
-	"dotbot",
-	"mj12bot",
-	"petalbot",
-	"applebot",
-	"duckduckbot",
-	"slurp",
-	"ia_archiver",
-	"facebookexternalhit",
-	"twitterbot",
-	"rogerbot",
-	"linkedinbot",
-	"embedly",
-	"quora link preview",
-	"showyoubot",
-	"outbrain",
-	"pinterest",
-	"slackbot",
-	"vkshare",
-	"w3c_validator",
-	"redditbot",
-	"scrapy",
-	"curl",
-	"wget",
+// spiderDef 蜘蛛定义：UA 关键词 → 展示名称
+type spiderDef struct {
+	keyword string
+	name    string
 }
 
-// IsSpider 检测 User-Agent 是否为已知蜘蛛
-func IsSpider(ua string) bool {
+// 已知蜘蛛 UA 关键词及对应展示名称
+var spiderDefs = []spiderDef{
+	{"googlebot", "Googlebot"},
+	{"bingbot", "Bingbot"},
+	{"baiduspider", "Baiduspider"},
+	{"yandexbot", "YandexBot"},
+	{"sogou", "Sogou"},
+	{"360spider", "360Spider"},
+	{"bytespider", "Bytespider"},
+	{"gptbot", "GPTBot"},
+	{"claudebot", "ClaudeBot"},
+	{"ahrefsbot", "AhrefsBot"},
+	{"semrushbot", "SemrushBot"},
+	{"dotbot", "DotBot"},
+	{"mj12bot", "MJ12Bot"},
+	{"petalbot", "PetalBot"},
+	{"applebot", "Applebot"},
+	{"duckduckbot", "DuckDuckBot"},
+	{"slurp", "Slurp"},
+	{"ia_archiver", "Alexa"},
+	{"facebookexternalhit", "Facebook"},
+	{"twitterbot", "Twitterbot"},
+	{"rogerbot", "Rogerbot"},
+	{"linkedinbot", "LinkedInBot"},
+	{"embedly", "Embedly"},
+	{"quora link preview", "Quora"},
+	{"showyoubot", "ShowyouBot"},
+	{"outbrain", "Outbrain"},
+	{"pinterest", "Pinterest"},
+	{"slackbot", "Slackbot"},
+	{"vkshare", "VKShare"},
+	{"w3c_validator", "W3CValidator"},
+	{"redditbot", "Redditbot"},
+	{"scrapy", "Scrapy"},
+	{"curl", "cURL"},
+	{"wget", "Wget"},
+}
+
+// SpiderName 返回蜘蛛名称，非蜘蛛返回空字符串
+func SpiderName(ua string) string {
+	// 先用关键词表精确命名
 	lower := strings.ToLower(ua)
-	for _, kw := range spiderKeywords {
-		if strings.Contains(lower, kw) {
-			return true
+	for _, def := range spiderDefs {
+		if strings.Contains(lower, def.keyword) {
+			return def.name
 		}
 	}
-	return false
+
+	// 关键词没命中，用 UA 库兜底检测
+	agent := uaParser.Parse(ua)
+	if agent.IsBot() {
+		return "Other"
+	}
+
+	return ""
 }

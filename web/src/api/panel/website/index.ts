@@ -35,6 +35,30 @@ export default {
     http.Get('/website/stat/overview', { params: { start, end, sites } }),
   // 实时统计
   statRealtime: (): any => http.Get('/website/stat/realtime'),
+  // 网站维度汇总
+  statSites: (start: string, end: string, sites?: string): any =>
+    http.Get('/website/stat/sites', { params: { start, end, sites } }),
+  // 蜘蛛统计
+  statSpiders: (start: string, end: string, sites?: string): any =>
+    http.Get('/website/stat/spiders', { params: { start, end, sites } }),
+  // 客户端统计
+  statClients: (start: string, end: string, sites?: string): any =>
+    http.Get('/website/stat/clients', { params: { start, end, sites } }),
+  // IP 统计
+  statIPs: (start: string, end: string, sites?: string, page?: number, limit?: number): any =>
+    http.Get('/website/stat/ips', { params: { start, end, sites, page, limit } }),
+  // URI 统计
+  statURIs: (start: string, end: string, sites?: string, page?: number, limit?: number): any =>
+    http.Get('/website/stat/uris', { params: { start, end, sites, page, limit } }),
+  // 错误统计
+  statErrors: (
+    start: string,
+    end: string,
+    sites?: string,
+    status?: number,
+    page?: number,
+    limit?: number
+  ): any => http.Get('/website/stat/errors', { params: { start, end, sites, status, page, limit } }),
   // 清空统计
   statClear: (): any => http.Post('/website/stat/clear'),
   // 统计设置

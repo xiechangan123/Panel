@@ -32,9 +32,98 @@ type WebsiteErrorLog struct {
 	CreatedAt time.Time `gorm:"index:idx_werr_site_time" json:"created_at"`
 }
 
+// WebsiteStatSpider 蜘蛛统计（site, date, spider 唯一）
+type WebsiteStatSpider struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Site      string    `gorm:"not null;uniqueIndex:idx_wspider_unique" json:"site"`
+	Date      string    `gorm:"not null;uniqueIndex:idx_wspider_unique;index" json:"date"`
+	Spider    string    `gorm:"not null;uniqueIndex:idx_wspider_unique" json:"spider"`
+	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// WebsiteStatClient 客户端统计（site, date, browser, os 唯一）
+type WebsiteStatClient struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Site      string    `gorm:"not null;uniqueIndex:idx_wclient_unique" json:"site"`
+	Date      string    `gorm:"not null;uniqueIndex:idx_wclient_unique;index" json:"date"`
+	Browser   string    `gorm:"not null;uniqueIndex:idx_wclient_unique" json:"browser"`
+	OS        string    `gorm:"not null;uniqueIndex:idx_wclient_unique" json:"os"`
+	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// WebsiteStatIP IP 统计（site, date, ip 唯一）
+type WebsiteStatIP struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Site      string    `gorm:"not null;uniqueIndex:idx_wip_unique" json:"site"`
+	Date      string    `gorm:"not null;uniqueIndex:idx_wip_unique;index" json:"date"`
+	IP        string    `gorm:"not null;uniqueIndex:idx_wip_unique" json:"ip"`
+	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
+	Bandwidth uint64    `gorm:"not null;default:0" json:"bandwidth"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// WebsiteStatURI URI 统计（site, date, uri 唯一）
+type WebsiteStatURI struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Site      string    `gorm:"not null;uniqueIndex:idx_wuri_unique" json:"site"`
+	Date      string    `gorm:"not null;uniqueIndex:idx_wuri_unique;index" json:"date"`
+	URI       string    `gorm:"not null;uniqueIndex:idx_wuri_unique" json:"uri"`
+	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
+	Bandwidth uint64    `gorm:"not null;default:0" json:"bandwidth"`
+	Errors    uint64    `gorm:"not null;default:0" json:"errors"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 // WebsiteStatSeries 时间序列数据点（用于 API 返回）
 type WebsiteStatSeries struct {
 	Key       string `json:"key"` // 小时 "0"-"23" 或日期 "2026-02-18"
+	PV        uint64 `json:"pv"`
+	UV        uint64 `json:"uv"`
+	IP        uint64 `json:"ip"`
+	Bandwidth uint64 `json:"bandwidth"`
+	Requests  uint64 `json:"requests"`
+	Errors    uint64 `json:"errors"`
+	Spiders   uint64 `json:"spiders"`
+}
+
+// WebsiteStatSpiderRank 蜘蛛排名
+type WebsiteStatSpiderRank struct {
+	Spider   string  `json:"spider"`
+	Requests uint64  `json:"requests"`
+	Percent  float64 `json:"percent"`
+}
+
+// WebsiteStatClientRank 客户端排名
+type WebsiteStatClientRank struct {
+	Browser  string `json:"browser"`
+	OS       string `json:"os"`
+	Requests uint64 `json:"requests"`
+}
+
+// WebsiteStatIPRank IP 排名
+type WebsiteStatIPRank struct {
+	IP        string `json:"ip"`
+	Requests  uint64 `json:"requests"`
+	Bandwidth uint64 `json:"bandwidth"`
+}
+
+// WebsiteStatURIRank URI 排名
+type WebsiteStatURIRank struct {
+	URI       string `json:"uri"`
+	Requests  uint64 `json:"requests"`
+	Bandwidth uint64 `json:"bandwidth"`
+	Errors    uint64 `json:"errors"`
+}
+
+// WebsiteStatSiteItem 网站维度汇总
+type WebsiteStatSiteItem struct {
+	Site      string `json:"site"`
 	PV        uint64 `json:"pv"`
 	UV        uint64 `json:"uv"`
 	IP        uint64 `json:"ip"`
@@ -62,4 +151,30 @@ type WebsiteStatRepo interface {
 	ClearErrorsBefore(t time.Time) error
 	// Clear 清空所有统计数据
 	Clear() error
+
+	// 蜘蛛统计
+	UpsertSpiders(stats []*WebsiteStatSpider) error
+	TopSpiders(start, end string, sites []string, limit uint) ([]*WebsiteStatSpiderRank, error)
+	ClearSpidersBefore(date string) error
+
+	// 客户端统计
+	UpsertClients(stats []*WebsiteStatClient) error
+	TopClients(start, end string, sites []string, limit uint) ([]*WebsiteStatClientRank, error)
+	ClearClientsBefore(date string) error
+
+	// IP 统计
+	UpsertIPs(stats []*WebsiteStatIP) error
+	TopIPs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatIPRank, uint, error)
+	ClearIPsBefore(date string) error
+
+	// URI 统计
+	UpsertURIs(stats []*WebsiteStatURI) error
+	TopURIs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatURIRank, uint, error)
+	ClearURIsBefore(date string) error
+
+	// 错误日志查询
+	ListErrors(start, end string, sites []string, status int, page, limit uint) ([]*WebsiteErrorLog, uint, error)
+
+	// 网站维度汇总
+	ListSiteStats(start, end string, sites []string) ([]*WebsiteStatSiteItem, error)
 }

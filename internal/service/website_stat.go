@@ -1,8 +1,10 @@
 package service
 
 import (
+	"cmp"
 	"fmt"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -119,6 +121,295 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 		"previous_series": prevSeries,
 		"sites":           siteList,
 	})
+}
+
+// Realtime 实时流量/RPS
+func (s *WebsiteStatService) Realtime(w http.ResponseWriter, r *http.Request) {
+	rt := s.aggregator.Realtime()
+	Success(w, rt)
+}
+
+// SiteStats 网站维度汇总（每站 PV/UV/IP/带宽/请求/错误/蜘蛛）
+func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+	today := time.Now().Format(time.DateOnly)
+
+	// DB 查询（排除今天）
+	dbEnd := end
+	includeToday := start <= today && today <= end
+	if includeToday {
+		yesterday := time.Now().AddDate(0, 0, -1).Format(time.DateOnly)
+		dbEnd = yesterday
+	}
+
+	siteMap := make(map[string]*biz.WebsiteStatSiteItem)
+
+	if dbEnd >= start {
+		dbItems, err := s.statRepo.ListSiteStats(start, dbEnd, sites)
+		if err != nil {
+			ErrorSystem(w)
+			return
+		}
+		for _, item := range dbItems {
+			siteMap[item.Site] = item
+		}
+	}
+
+	// 合并今日内存数据
+	if includeToday {
+		liveStats := s.aggregator.SiteStats()
+		siteSet := make(map[string]struct{}, len(sites))
+		for _, name := range sites {
+			siteSet[name] = struct{}{}
+		}
+
+		for name, snap := range liveStats {
+			if len(sites) > 0 {
+				if _, ok := siteSet[name]; !ok {
+					continue
+				}
+			}
+			if existing, ok := siteMap[name]; ok {
+				existing.PV += snap.PV
+				existing.UV += snap.UV
+				existing.IP += snap.IP
+				existing.Bandwidth += snap.Bandwidth
+				existing.Requests += snap.Requests
+				existing.Errors += snap.Errors
+				existing.Spiders += snap.Spiders
+			} else {
+				siteMap[name] = &biz.WebsiteStatSiteItem{
+					Site:      name,
+					PV:        snap.PV,
+					UV:        snap.UV,
+					IP:        snap.IP,
+					Bandwidth: snap.Bandwidth,
+					Requests:  snap.Requests,
+					Errors:    snap.Errors,
+					Spiders:   snap.Spiders,
+				}
+			}
+		}
+	}
+
+	// 转换为切片
+	items := make([]*biz.WebsiteStatSiteItem, 0, len(siteMap))
+	for _, item := range siteMap {
+		items = append(items, item)
+	}
+
+	Success(w, chix.M{
+		"items": items,
+	})
+}
+
+// SpiderStats 蜘蛛统计排名
+func (s *WebsiteStatService) SpiderStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+
+	items, err := s.statRepo.TopSpiders(start, end, sites, 50)
+	if err != nil {
+		ErrorSystem(w)
+		return
+	}
+
+	// 计算总请求数和百分比
+	var total uint64
+	for _, item := range items {
+		total += item.Requests
+	}
+	if total > 0 {
+		for _, item := range items {
+			item.Percent = float64(item.Requests) / float64(total) * 100
+		}
+	}
+
+	Success(w, chix.M{
+		"items": items,
+		"total": total,
+	})
+}
+
+// ClientStats 客户端统计
+func (s *WebsiteStatService) ClientStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+
+	items, err := s.statRepo.TopClients(start, end, sites, 100)
+	if err != nil {
+		ErrorSystem(w)
+		return
+	}
+
+	// 按浏览器聚合
+	browserMap := make(map[string]uint64)
+	osMap := make(map[string]uint64)
+	for _, item := range items {
+		browserMap[item.Browser] += item.Requests
+		osMap[item.OS] += item.Requests
+	}
+
+	type rankItem struct {
+		Name     string `json:"name"`
+		Requests uint64 `json:"requests"`
+	}
+	browsers := make([]rankItem, 0, len(browserMap))
+	for name, reqs := range browserMap {
+		browsers = append(browsers, rankItem{Name: name, Requests: reqs})
+	}
+	oss := make([]rankItem, 0, len(osMap))
+	for name, reqs := range osMap {
+		oss = append(oss, rankItem{Name: name, Requests: reqs})
+	}
+
+	// 按请求数排序
+	slices.SortFunc(browsers, func(a, b rankItem) int { return cmp.Compare(b.Requests, a.Requests) })
+	slices.SortFunc(oss, func(a, b rankItem) int { return cmp.Compare(b.Requests, a.Requests) })
+
+	Success(w, chix.M{
+		"items":    items,
+		"browsers": browsers,
+		"os":       oss,
+	})
+}
+
+// IPStats IP 统计（分页）
+func (s *WebsiteStatService) IPStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+
+	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
+	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 50
+	}
+
+	items, total, err := s.statRepo.TopIPs(start, end, sites, uint(page), uint(limit))
+	if err != nil {
+		ErrorSystem(w)
+		return
+	}
+
+	Success(w, chix.M{
+		"items": items,
+		"total": total,
+	})
+}
+
+// URIStats URI 统计（分页）
+func (s *WebsiteStatService) URIStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+
+	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
+	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 50
+	}
+
+	items, total, err := s.statRepo.TopURIs(start, end, sites, uint(page), uint(limit))
+	if err != nil {
+		ErrorSystem(w)
+		return
+	}
+
+	Success(w, chix.M{
+		"items": items,
+		"total": total,
+	})
+}
+
+// ErrorStats 错误日志（分页 + 状态码过滤）
+func (s *WebsiteStatService) ErrorStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+
+	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
+	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
+	status, _ := strconv.Atoi(r.URL.Query().Get("status"))
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 50
+	}
+
+	items, total, err := s.statRepo.ListErrors(start, end, sites, status, uint(page), uint(limit))
+	if err != nil {
+		ErrorSystem(w)
+		return
+	}
+
+	Success(w, chix.M{
+		"items": items,
+		"total": total,
+	})
+}
+
+// Clear 清空所有统计数据
+func (s *WebsiteStatService) Clear(w http.ResponseWriter, r *http.Request) {
+	if err := s.statRepo.Clear(); err != nil {
+		ErrorSystem(w)
+		return
+	}
+	Success(w, nil)
+}
+
+// GetSetting 获取统计设置
+func (s *WebsiteStatService) GetSetting(w http.ResponseWriter, r *http.Request) {
+	days, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDays, 30)
+	Success(w, chix.M{
+		"days": days,
+	})
+}
+
+// UpdateSetting 更新统计设置
+func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.WebsiteStatSetting](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.setting.Set(biz.SettingKeyWebsiteStatDays, fmt.Sprintf("%d", req.Days)); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+type statTotals struct {
+	PV        uint64 `json:"pv"`
+	UV        uint64 `json:"uv"`
+	IP        uint64 `json:"ip"`
+	Bandwidth uint64 `json:"bandwidth"`
+	Requests  uint64 `json:"requests"`
+	Errors    uint64 `json:"errors"`
+	Spiders   uint64 `json:"spiders"`
+}
+
+// parseDateSites 解析公共查询参数 start, end, sites
+func (s *WebsiteStatService) parseDateSites(r *http.Request) (start, end string, sites []string) {
+	start = r.URL.Query().Get("start")
+	end = r.URL.Query().Get("end")
+	if start == "" || end == "" {
+		today := time.Now().Format(time.DateOnly)
+		start = today
+		end = today
+	}
+
+	if sitesParam := r.URL.Query().Get("sites"); sitesParam != "" {
+		sites = lo.Filter(strings.Split(sitesParam, ","), func(s string, _ int) bool {
+			return strings.TrimSpace(s) != ""
+		})
+		sites = lo.Map(sites, func(s string, _ int) string {
+			return strings.TrimSpace(s)
+		})
+	}
+	return
 }
 
 // queryTotals 查询指定日期范围的汇总数据
@@ -315,53 +606,4 @@ func (s *WebsiteStatService) queryDailySeries(start, end string, sites []string,
 	}
 
 	return result, nil
-}
-
-// Realtime 实时流量/RPS
-func (s *WebsiteStatService) Realtime(w http.ResponseWriter, r *http.Request) {
-	rt := s.aggregator.Realtime()
-	Success(w, rt)
-}
-
-// Clear 清空所有统计数据
-func (s *WebsiteStatService) Clear(w http.ResponseWriter, r *http.Request) {
-	if err := s.statRepo.Clear(); err != nil {
-		ErrorSystem(w)
-		return
-	}
-	Success(w, nil)
-}
-
-// GetSetting 获取统计设置
-func (s *WebsiteStatService) GetSetting(w http.ResponseWriter, r *http.Request) {
-	days, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDays, 30)
-	Success(w, chix.M{
-		"days": days,
-	})
-}
-
-// UpdateSetting 更新统计设置
-func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.WebsiteStatSetting](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = s.setting.Set(biz.SettingKeyWebsiteStatDays, fmt.Sprintf("%d", req.Days)); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
-}
-
-type statTotals struct {
-	PV        uint64 `json:"pv"`
-	UV        uint64 `json:"uv"`
-	IP        uint64 `json:"ip"`
-	Bandwidth uint64 `json:"bandwidth"`
-	Requests  uint64 `json:"requests"`
-	Errors    uint64 `json:"errors"`
-	Spiders   uint64 `json:"spiders"`
 }

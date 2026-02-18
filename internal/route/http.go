@@ -253,6 +253,12 @@ func (route *Http) Register(r *chi.Mux) {
 			// 网站统计
 			r.Get("/stat/overview", route.websiteStat.Overview)
 			r.Get("/stat/realtime", route.websiteStat.Realtime)
+			r.Get("/stat/sites", route.websiteStat.SiteStats)
+			r.Get("/stat/spiders", route.websiteStat.SpiderStats)
+			r.Get("/stat/clients", route.websiteStat.ClientStats)
+			r.Get("/stat/ips", route.websiteStat.IPStats)
+			r.Get("/stat/uris", route.websiteStat.URIStats)
+			r.Get("/stat/errors", route.websiteStat.ErrorStats)
 			r.Get("/stat/setting", route.websiteStat.GetSetting)
 			r.Post("/stat/setting", route.websiteStat.UpdateSetting)
 			r.Post("/stat/clear", route.websiteStat.Clear)

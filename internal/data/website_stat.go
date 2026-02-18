@@ -105,5 +105,212 @@ func (r *websiteStatRepo) Clear() error {
 	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStat{}).Error; err != nil {
 		return err
 	}
-	return r.db.Where("1 = 1").Delete(&biz.WebsiteErrorLog{}).Error
+	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteErrorLog{}).Error; err != nil {
+		return err
+	}
+	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStatSpider{}).Error; err != nil {
+		return err
+	}
+	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStatClient{}).Error; err != nil {
+		return err
+	}
+	if err := r.db.Where("1 = 1").Delete(&biz.WebsiteStatIP{}).Error; err != nil {
+		return err
+	}
+	return r.db.Where("1 = 1").Delete(&biz.WebsiteStatURI{}).Error
+}
+
+// ========== 蜘蛛统计 ==========
+
+func (r *websiteStatRepo) UpsertSpiders(stats []*biz.WebsiteStatSpider) error {
+	if len(stats) == 0 {
+		return nil
+	}
+	return r.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "spider"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"requests":   gorm.Expr("website_stat_spiders.requests + excluded.requests"),
+			"updated_at": gorm.Expr("excluded.updated_at"),
+		}),
+	}).Create(stats).Error
+}
+
+func (r *websiteStatRepo) TopSpiders(start, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error) {
+	var items []*biz.WebsiteStatSpiderRank
+	q := r.db.Model(&biz.WebsiteStatSpider{}).
+		Select("spider, SUM(requests) as requests").
+		Where("date BETWEEN ? AND ?", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+	err := q.Group("spider").Order("requests DESC").Limit(int(limit)).Scan(&items).Error
+	return items, err
+}
+
+func (r *websiteStatRepo) ClearSpidersBefore(date string) error {
+	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatSpider{}).Error
+}
+
+// ========== 客户端统计 ==========
+
+func (r *websiteStatRepo) UpsertClients(stats []*biz.WebsiteStatClient) error {
+	if len(stats) == 0 {
+		return nil
+	}
+	return r.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "browser"}, {Name: "os"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"requests":   gorm.Expr("website_stat_clients.requests + excluded.requests"),
+			"updated_at": gorm.Expr("excluded.updated_at"),
+		}),
+	}).Create(stats).Error
+}
+
+func (r *websiteStatRepo) TopClients(start, end string, sites []string, limit uint) ([]*biz.WebsiteStatClientRank, error) {
+	var items []*biz.WebsiteStatClientRank
+	q := r.db.Model(&biz.WebsiteStatClient{}).
+		Select("browser, os, SUM(requests) as requests").
+		Where("date BETWEEN ? AND ?", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+	err := q.Group("browser, os").Order("requests DESC").Limit(int(limit)).Scan(&items).Error
+	return items, err
+}
+
+func (r *websiteStatRepo) ClearClientsBefore(date string) error {
+	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatClient{}).Error
+}
+
+// ========== IP 统计 ==========
+
+func (r *websiteStatRepo) UpsertIPs(stats []*biz.WebsiteStatIP) error {
+	if len(stats) == 0 {
+		return nil
+	}
+	return r.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "ip"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"requests":   gorm.Expr("website_stat_ips.requests + excluded.requests"),
+			"bandwidth":  gorm.Expr("website_stat_ips.bandwidth + excluded.bandwidth"),
+			"updated_at": gorm.Expr("excluded.updated_at"),
+		}),
+	}).Create(stats).Error
+}
+
+func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit uint) ([]*biz.WebsiteStatIPRank, uint, error) {
+	var total int64
+	q := r.db.Model(&biz.WebsiteStatIP{}).
+		Where("date BETWEEN ? AND ?", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+
+	// 计算唯一 IP 总数
+	countQ := r.db.Table("(?) as sub",
+		q.Select("ip").Group("ip"),
+	)
+	if err := countQ.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var items []*biz.WebsiteStatIPRank
+	dataQ := r.db.Model(&biz.WebsiteStatIP{}).
+		Select("ip, SUM(requests) as requests, SUM(bandwidth) as bandwidth").
+		Where("date BETWEEN ? AND ?", start, end)
+	if len(sites) > 0 {
+		dataQ = dataQ.Where("site IN ?", sites)
+	}
+	offset := (page - 1) * limit
+	err := dataQ.Group("ip").Order("requests DESC").Offset(int(offset)).Limit(int(limit)).Scan(&items).Error
+	return items, uint(total), err
+}
+
+func (r *websiteStatRepo) ClearIPsBefore(date string) error {
+	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatIP{}).Error
+}
+
+// ========== URI 统计 ==========
+
+func (r *websiteStatRepo) UpsertURIs(stats []*biz.WebsiteStatURI) error {
+	if len(stats) == 0 {
+		return nil
+	}
+	return r.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "uri"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"requests":   gorm.Expr("website_stat_uris.requests + excluded.requests"),
+			"bandwidth":  gorm.Expr("website_stat_uris.bandwidth + excluded.bandwidth"),
+			"errors":     gorm.Expr("website_stat_uris.errors + excluded.errors"),
+			"updated_at": gorm.Expr("excluded.updated_at"),
+		}),
+	}).Create(stats).Error
+}
+
+func (r *websiteStatRepo) TopURIs(start, end string, sites []string, page, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
+	var total int64
+	q := r.db.Model(&biz.WebsiteStatURI{}).
+		Where("date BETWEEN ? AND ?", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+
+	// 计算唯一 URI 总数
+	countQ := r.db.Table("(?) as sub",
+		q.Select("uri").Group("uri"),
+	)
+	if err := countQ.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var items []*biz.WebsiteStatURIRank
+	dataQ := r.db.Model(&biz.WebsiteStatURI{}).
+		Select("uri, SUM(requests) as requests, SUM(bandwidth) as bandwidth, SUM(errors) as errors").
+		Where("date BETWEEN ? AND ?", start, end)
+	if len(sites) > 0 {
+		dataQ = dataQ.Where("site IN ?", sites)
+	}
+	offset := (page - 1) * limit
+	err := dataQ.Group("uri").Order("requests DESC").Offset(int(offset)).Limit(int(limit)).Scan(&items).Error
+	return items, uint(total), err
+}
+
+func (r *websiteStatRepo) ClearURIsBefore(date string) error {
+	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatURI{}).Error
+}
+
+// ========== 错误日志查询 ==========
+
+func (r *websiteStatRepo) ListErrors(start, end string, sites []string, status int, page, limit uint) ([]*biz.WebsiteErrorLog, uint, error) {
+	var total int64
+	q := r.db.Model(&biz.WebsiteErrorLog{}).
+		Where("created_at >= ? AND created_at < DATE(?, '+1 day')", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+	if status > 0 {
+		q = q.Where("status = ?", status)
+	}
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var items []*biz.WebsiteErrorLog
+	offset := (page - 1) * limit
+	err := q.Order("created_at DESC").Offset(int(offset)).Limit(int(limit)).Find(&items).Error
+	return items, uint(total), err
+}
+
+// ========== 网站维度汇总 ==========
+
+func (r *websiteStatRepo) ListSiteStats(start, end string, sites []string) ([]*biz.WebsiteStatSiteItem, error) {
+	var items []*biz.WebsiteStatSiteItem
+	q := r.db.Model(&biz.WebsiteStat{}).
+		Select("site, SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders").
+		Where("date BETWEEN ? AND ? AND hour = -1", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+	err := q.Group("site").Order("requests DESC").Scan(&items).Error
+	return items, err
 }
