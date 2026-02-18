@@ -40,30 +40,36 @@ const (
 	udpLen  = 8  // UDP 头长度
 )
 
-// EtherType（小端序 16 位加载值）
+// EtherType（标准数值，配合 HostTo(BE) 使用）
 const (
-	ethIPv4 = 0x0008 // ETH_P_IP (0x0800)
-	ethIPv6 = 0xDD86 // ETH_P_IPV6 (0x86DD)
+	ethIPv4   = 0x0800 // ETH_P_IP
+	ethIPv6   = 0x86DD // ETH_P_IPV6
+	ethVLAN   = 0x8100 // ETH_P_8021Q
+	ethQinQ   = 0x88A8 // ETH_P_8021AD
+	ethVLANQ  = 0x9100 // 兼容部分设备上的外层 VLAN
+	maxV6Exts = 6
 )
 
 // 协议常量
 const (
-	ipTCP      = 6
-	ipUDP      = 17
-	synAckMask = 0x12 // SYN + ACK
-	synOnly    = 0x02 // 仅 SYN
+	ipTCP   = 6
+	ipUDP   = 17
+	synOnly = 0x02 // 仅 SYN
 )
 
-// IPv4 字段偏移量（从 data 起始）
+// IPv6 扩展头协议号
 const (
-	offV4Proto = ethLen + 9  // IP protocol (23)
-	offV4SrcIP = ethLen + 12 // IP 源地址 (26)
+	ipv6HopByHop = 0
+	ipv6Routing  = 43
+	ipv6Fragment = 44
+	ipv6AH       = 51
+	ipv6DestOpts = 60
 )
 
-// IPv6 字段偏移量（从 data 起始）
+// IPv6 字段偏移量（从 IPv6 头起始）
 const (
-	offV6Proto = ethLen + 6 // Next Header (20)
-	offV6SrcIP = ethLen + 8 // 源地址 (22)，16 字节
+	offV6NextHdr = 6 // Next Header
+	offV6SrcIP   = 8 // 源地址，16 字节
 )
 
 // ifaceHandle 单个网卡的 eBPF 挂载句柄
@@ -91,31 +97,15 @@ func newPortsMap() (*ebpf.Map, error) {
 		Type:       ebpf.Hash,
 		KeySize:    4, // uint32
 		ValueSize:  1, // uint8
-		MaxEntries: 65535,
+		MaxEntries: 65536,
 	})
 }
 
 // buildDetector eBPF TC ingress 扫描检测程序
 // 只捕获目标端口不在 ports 白名单中的 SYN/UDP 包
 func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
-	// TCP 处理器：边界检查 → SYN 过滤 → 端口白名单 → 输出事件
-	tcpHandler := func(sym string, boundsEnd, flagsOff, portOff int) asm.Instructions {
+	emitEvent := func(proto int64) asm.Instructions {
 		return asm.Instructions{
-			// 边界检查
-			asm.Mov.Reg(asm.R2, asm.R6).WithSymbol(sym),
-			asm.Add.Imm(asm.R2, int32(boundsEnd)),
-			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
-
-			// 仅 SYN 包
-			asm.LoadMem(asm.R2, asm.R6, int16(flagsOff), asm.Byte),
-			asm.And.Imm(asm.R2, synAckMask),
-			asm.JNE.Imm(asm.R2, synOnly, "exit"),
-
-			// 加载端口并转换字节序
-			asm.LoadMem(asm.R2, asm.R6, int16(portOff), asm.Half),
-			asm.HostTo(asm.BE, asm.R2, asm.Half),
-			asm.Mov.Reg(asm.R9, asm.R2), // 保存端口到 R9
-
 			// 查询端口白名单
 			asm.StoreMem(asm.RFP, -24, asm.R9, asm.Word),
 			asm.LoadMapPtr(asm.R1, ports.FD()),
@@ -126,7 +116,7 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 
 			// 写入事件
 			asm.StoreMem(asm.RFP, -4, asm.R9, asm.Half),
-			asm.StoreImm(asm.RFP, -2, ipTCP, asm.Byte),
+			asm.StoreImm(asm.RFP, -2, proto, asm.Byte),
 
 			asm.LoadMapPtr(asm.R1, events.FD()),
 			asm.Mov.Reg(asm.R2, asm.RFP),
@@ -138,38 +128,102 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 		}
 	}
 
-	// UDP 处理器：边界检查 → 端口白名单 → 输出事件
-	udpHandler := func(sym string, boundsEnd, portOff int) asm.Instructions {
-		return asm.Instructions{
-			// 边界检查
-			asm.Mov.Reg(asm.R2, asm.R6).WithSymbol(sym),
-			asm.Add.Imm(asm.R2, int32(boundsEnd)),
+	// TCP 处理器：边界检查 → SYN 过滤 → 端口白名单 → 输出事件
+	tcpHandler := func(sym string) asm.Instructions {
+		insns := asm.Instructions{
+			asm.Mov.Reg(asm.R2, asm.R4).WithSymbol(sym),
+			asm.Add.Imm(asm.R2, tcpLen),
 			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 
-			// 加载端口并转换字节序
-			asm.LoadMem(asm.R2, asm.R6, int16(portOff), asm.Half),
+			// 仅 SYN（忽略 ECE/CWR，禁止 ACK/RST/FIN 等控制位）
+			asm.LoadMem(asm.R2, asm.R4, 13, asm.Byte),
+			asm.And.Imm(asm.R2, 0x3f),
+			asm.JNE.Imm(asm.R2, synOnly, "exit"),
+
+			// 目标端口
+			asm.LoadMem(asm.R2, asm.R4, 2, asm.Half),
 			asm.HostTo(asm.BE, asm.R2, asm.Half),
 			asm.Mov.Reg(asm.R9, asm.R2),
+		}
 
-			// 查询端口白名单
-			asm.StoreMem(asm.RFP, -24, asm.R9, asm.Word),
-			asm.LoadMapPtr(asm.R1, ports.FD()),
-			asm.Mov.Reg(asm.R2, asm.RFP),
-			asm.Add.Imm(asm.R2, -24),
-			asm.FnMapLookupElem.Call(),
-			asm.JNE.Imm(asm.R0, 0, "exit"),
+		insns = append(insns, emitEvent(ipTCP)...)
+		return insns
+	}
 
-			// 写入事件
-			asm.StoreMem(asm.RFP, -4, asm.R9, asm.Half),
-			asm.StoreImm(asm.RFP, -2, ipUDP, asm.Byte),
+	// UDP 处理器：边界检查 → 端口白名单 → 输出事件
+	udpHandler := func(sym string) asm.Instructions {
+		insns := asm.Instructions{
+			asm.Mov.Reg(asm.R2, asm.R4).WithSymbol(sym),
+			asm.Add.Imm(asm.R2, udpLen),
+			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 
-			asm.LoadMapPtr(asm.R1, events.FD()),
-			asm.Mov.Reg(asm.R2, asm.RFP),
-			asm.Add.Imm(asm.R2, -eventSize),
-			asm.Mov.Imm(asm.R3, eventSize),
-			asm.Mov.Imm(asm.R4, 0),
-			asm.FnRingbufOutput.Call(),
-			asm.Ja.Label("exit"),
+			// 目标端口
+			asm.LoadMem(asm.R2, asm.R4, 2, asm.Half),
+			asm.HostTo(asm.BE, asm.R2, asm.Half),
+			asm.Mov.Reg(asm.R9, asm.R2),
+		}
+
+		insns = append(insns, emitEvent(ipUDP)...)
+		return insns
+	}
+
+	// IPv6 扩展头解析步骤（R4=当前头指针，R8=NextHeader）
+	ipv6ExtStep := func(sym, next, dispatch string) asm.Instructions {
+		generic := fmt.Sprintf("%s_generic", sym)
+		fragment := fmt.Sprintf("%s_fragment", sym)
+		ah := fmt.Sprintf("%s_ah", sym)
+
+		return asm.Instructions{
+			asm.Mov.Reg(asm.R2, asm.R8).WithSymbol(sym),
+			asm.JEq.Imm(asm.R2, ipv6HopByHop, generic),
+			asm.JEq.Imm(asm.R2, ipv6Routing, generic),
+			asm.JEq.Imm(asm.R2, ipv6DestOpts, generic),
+			asm.JEq.Imm(asm.R2, ipv6Fragment, fragment),
+			asm.JEq.Imm(asm.R2, ipv6AH, ah),
+			asm.Ja.Label(dispatch),
+
+			// Hop-by-Hop / Routing / Destination Options
+			asm.Mov.Reg(asm.R9, asm.R4).WithSymbol(generic),
+			asm.Add.Imm(asm.R9, 2),
+			asm.JGT.Reg(asm.R9, asm.R7, "exit"),
+			asm.LoadMem(asm.R2, asm.R4, 0, asm.Byte), // Next Header
+			asm.LoadMem(asm.R3, asm.R4, 1, asm.Byte), // Hdr Ext Len
+			asm.LSh.Imm(asm.R3, 3),
+			asm.Add.Imm(asm.R3, 8),
+			asm.Mov.Reg(asm.R9, asm.R4),
+			asm.Add.Reg(asm.R9, asm.R3),
+			asm.JGT.Reg(asm.R9, asm.R7, "exit"),
+			asm.Mov.Reg(asm.R8, asm.R2),
+			asm.Mov.Reg(asm.R4, asm.R9),
+			asm.Ja.Label(next),
+
+			// Fragment header：仅接受首片
+			asm.Mov.Reg(asm.R9, asm.R4).WithSymbol(fragment),
+			asm.Add.Imm(asm.R9, 8),
+			asm.JGT.Reg(asm.R9, asm.R7, "exit"),
+			asm.LoadMem(asm.R2, asm.R4, 0, asm.Byte), // Next Header
+			asm.LoadMem(asm.R3, asm.R4, 2, asm.Half),
+			asm.HostTo(asm.BE, asm.R3, asm.Half),
+			asm.And.Imm(asm.R3, 0xfff8), // Fragment Offset 非 0 直接跳过
+			asm.JNE.Imm(asm.R3, 0, "exit"),
+			asm.Mov.Reg(asm.R8, asm.R2),
+			asm.Mov.Reg(asm.R4, asm.R9),
+			asm.Ja.Label(next),
+
+			// Authentication Header
+			asm.Mov.Reg(asm.R9, asm.R4).WithSymbol(ah),
+			asm.Add.Imm(asm.R9, 2),
+			asm.JGT.Reg(asm.R9, asm.R7, "exit"),
+			asm.LoadMem(asm.R2, asm.R4, 0, asm.Byte), // Next Header
+			asm.LoadMem(asm.R3, asm.R4, 1, asm.Byte), // Payload Len
+			asm.Add.Imm(asm.R3, 2),
+			asm.LSh.Imm(asm.R3, 2),
+			asm.Mov.Reg(asm.R9, asm.R4),
+			asm.Add.Reg(asm.R9, asm.R3),
+			asm.JGT.Reg(asm.R9, asm.R7, "exit"),
+			asm.Mov.Reg(asm.R8, asm.R2),
+			asm.Mov.Reg(asm.R4, asm.R9),
+			asm.Ja.Label(next),
 		}
 	}
 
@@ -181,73 +235,153 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 		asm.LoadMem(asm.R7, asm.R1, skbDataEnd, asm.Word),
 	)
 
-	// 边界检查：以太网头
+	// 以太网头边界检查
 	insns = append(insns,
 		asm.Mov.Reg(asm.R2, asm.R6),
 		asm.Add.Imm(asm.R2, ethLen),
 		asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 	)
 
-	// EtherType 分支
+	// 读取 EtherType（R0）并处理 VLAN
 	insns = append(insns,
 		asm.LoadMem(asm.R0, asm.R6, 12, asm.Half),
-		asm.JEq.Imm(asm.R0, ethIPv4, "ipv4"),
+		asm.HostTo(asm.BE, asm.R0, asm.Half),
+
+		asm.JEq.Imm(asm.R0, ethIPv4, "no_vlan"),
+		asm.JEq.Imm(asm.R0, ethIPv6, "no_vlan"),
+		asm.JEq.Imm(asm.R0, ethVLAN, "vlan1"),
+		asm.JEq.Imm(asm.R0, ethQinQ, "vlan1"),
+		asm.JEq.Imm(asm.R0, ethVLANQ, "vlan1"),
+		asm.Ja.Label("exit"),
+
+		asm.Mov.Reg(asm.R5, asm.R6).WithSymbol("no_vlan"),
+		asm.Add.Imm(asm.R5, ethLen),
+		asm.Ja.Label("l3dispatch"),
+
+		// 第一层 VLAN
+		asm.Mov.Reg(asm.R2, asm.R6).WithSymbol("vlan1"),
+		asm.Add.Imm(asm.R2, ethLen+4),
+		asm.JGT.Reg(asm.R2, asm.R7, "exit"),
+		asm.LoadMem(asm.R0, asm.R6, 16, asm.Half),
+		asm.HostTo(asm.BE, asm.R0, asm.Half),
+		asm.JEq.Imm(asm.R0, ethVLAN, "vlan2"),
+		asm.JEq.Imm(asm.R0, ethQinQ, "vlan2"),
+		asm.JEq.Imm(asm.R0, ethVLANQ, "vlan2"),
+		asm.Mov.Reg(asm.R5, asm.R6),
+		asm.Add.Imm(asm.R5, ethLen+4),
+		asm.Ja.Label("l3dispatch"),
+
+		// 第二层 VLAN（QinQ）
+		asm.Mov.Reg(asm.R2, asm.R6).WithSymbol("vlan2"),
+		asm.Add.Imm(asm.R2, ethLen+8),
+		asm.JGT.Reg(asm.R2, asm.R7, "exit"),
+		asm.LoadMem(asm.R0, asm.R6, 20, asm.Half),
+		asm.HostTo(asm.BE, asm.R0, asm.Half),
+		asm.Mov.Reg(asm.R5, asm.R6),
+		asm.Add.Imm(asm.R5, ethLen+8),
+	)
+
+	// L3 分发（R0=EtherType，R5=L3 起始）
+	insns = append(insns,
+		asm.JEq.Imm(asm.R0, ethIPv4, "ipv4").WithSymbol("l3dispatch"),
 		asm.JEq.Imm(asm.R0, ethIPv6, "ipv6"),
 		asm.Ja.Label("exit"),
 	)
 
 	// ========== IPv4 ==========
 	insns = append(insns,
-		asm.Mov.Reg(asm.R2, asm.R6).WithSymbol("ipv4"),
-		asm.Add.Imm(asm.R2, ethLen+ipLen),
+		// 基础头
+		asm.Mov.Reg(asm.R2, asm.R5).WithSymbol("ipv4"),
+		asm.Add.Imm(asm.R2, ipLen),
 		asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 
-		asm.LoadMem(asm.R8, asm.R6, offV4Proto, asm.Byte),
-		asm.LoadMem(asm.R9, asm.R6, offV4SrcIP, asm.Word),
+		// Version + IHL
+		asm.LoadMem(asm.R2, asm.R5, 0, asm.Byte),
+		asm.Mov.Reg(asm.R3, asm.R2),
+		asm.RSh.Imm(asm.R3, 4),
+		asm.JNE.Imm(asm.R3, 4, "exit"),
+		asm.And.Imm(asm.R2, 0x0f),
+		asm.LSh.Imm(asm.R2, 2), // IHL * 4
+		asm.JLT.Imm(asm.R2, ipLen, "exit"),
+		asm.Mov.Reg(asm.R3, asm.R5),
+		asm.Add.Reg(asm.R3, asm.R2),
+		asm.JGT.Reg(asm.R3, asm.R7, "exit"),
 
-		// 栈布局：[src_ip(16) | port(2) | proto(1) | ver(1)] = 20 字节
+		// 分片：只处理 offset=0
+		asm.LoadMem(asm.R3, asm.R5, 6, asm.Half),
+		asm.HostTo(asm.BE, asm.R3, asm.Half),
+		asm.And.Imm(asm.R3, 0x1fff),
+		asm.JNE.Imm(asm.R3, 0, "exit"),
+
+		// 协议 + 源 IP
+		asm.LoadMem(asm.R8, asm.R5, 9, asm.Byte),
+		asm.LoadMem(asm.R9, asm.R5, 12, asm.Word),
+
+		// 栈布局：[src_ip(16) | port(2) | proto(1) | ver(1)]
 		asm.StoreMem(asm.RFP, -20, asm.R9, asm.Word),
 		asm.StoreImm(asm.RFP, -16, 0, asm.Word),
 		asm.StoreImm(asm.RFP, -12, 0, asm.Word),
 		asm.StoreImm(asm.RFP, -8, 0, asm.Word),
-		asm.StoreImm(asm.RFP, -1, 4, asm.Byte), // version = 4
+		asm.StoreImm(asm.RFP, -1, 4, asm.Byte),
 
-		asm.JEq.Imm(asm.R8, ipTCP, "v4tcp"),
-		asm.JEq.Imm(asm.R8, ipUDP, "v4udp"),
+		// R4 指向 L4 头
+		asm.Mov.Reg(asm.R4, asm.R5),
+		asm.Add.Reg(asm.R4, asm.R2),
+
+		asm.JEq.Imm(asm.R8, ipTCP, "tcp"),
+		asm.JEq.Imm(asm.R8, ipUDP, "udp"),
 		asm.Ja.Label("exit"),
 	)
-
-	v4t := ethLen + ipLen
-	insns = append(insns, tcpHandler("v4tcp", v4t+tcpLen, v4t+13, v4t+2)...)
-	insns = append(insns, udpHandler("v4udp", v4t+udpLen, v4t+2)...)
 
 	// ========== IPv6 ==========
 	insns = append(insns,
-		asm.Mov.Reg(asm.R2, asm.R6).WithSymbol("ipv6"),
-		asm.Add.Imm(asm.R2, ethLen+ipv6Len),
+		asm.Mov.Reg(asm.R2, asm.R5).WithSymbol("ipv6"),
+		asm.Add.Imm(asm.R2, ipv6Len),
 		asm.JGT.Reg(asm.R2, asm.R7, "exit"),
 
-		asm.LoadMem(asm.R8, asm.R6, offV6Proto, asm.Byte),
+		// 版本检查
+		asm.LoadMem(asm.R2, asm.R5, 0, asm.Byte),
+		asm.RSh.Imm(asm.R2, 4),
+		asm.JNE.Imm(asm.R2, 6, "exit"),
 
-		// 16 字节源地址
-		asm.LoadMem(asm.R2, asm.R6, offV6SrcIP, asm.Word),
+		asm.LoadMem(asm.R8, asm.R5, offV6NextHdr, asm.Byte),
+
+		// 源地址 16 字节
+		asm.LoadMem(asm.R2, asm.R5, offV6SrcIP, asm.Word),
 		asm.StoreMem(asm.RFP, -20, asm.R2, asm.Word),
-		asm.LoadMem(asm.R2, asm.R6, offV6SrcIP+4, asm.Word),
+		asm.LoadMem(asm.R2, asm.R5, offV6SrcIP+4, asm.Word),
 		asm.StoreMem(asm.RFP, -16, asm.R2, asm.Word),
-		asm.LoadMem(asm.R2, asm.R6, offV6SrcIP+8, asm.Word),
+		asm.LoadMem(asm.R2, asm.R5, offV6SrcIP+8, asm.Word),
 		asm.StoreMem(asm.RFP, -12, asm.R2, asm.Word),
-		asm.LoadMem(asm.R2, asm.R6, offV6SrcIP+12, asm.Word),
+		asm.LoadMem(asm.R2, asm.R5, offV6SrcIP+12, asm.Word),
 		asm.StoreMem(asm.RFP, -8, asm.R2, asm.Word),
-		asm.StoreImm(asm.RFP, -1, 6, asm.Byte), // version = 6
+		asm.StoreImm(asm.RFP, -1, 6, asm.Byte),
 
-		asm.JEq.Imm(asm.R8, ipTCP, "v6tcp"),
-		asm.JEq.Imm(asm.R8, ipUDP, "v6udp"),
+		// R4 指向 IPv6 负载起始
+		asm.Mov.Reg(asm.R4, asm.R5),
+		asm.Add.Imm(asm.R4, ipv6Len),
+		asm.Ja.Label("v6ext_0"),
+	)
+
+	// 最多解析 maxV6Exts 层扩展头，避免 verifier 复杂循环
+	for i := 0; i < maxV6Exts; i++ {
+		start := fmt.Sprintf("v6ext_%d", i)
+		next := "v6dispatch"
+		if i < maxV6Exts-1 {
+			next = fmt.Sprintf("v6ext_%d", i+1)
+		}
+		insns = append(insns, ipv6ExtStep(start, next, "v6dispatch")...)
+	}
+
+	insns = append(insns,
+		asm.Mov.Reg(asm.R2, asm.R8).WithSymbol("v6dispatch"),
+		asm.JEq.Imm(asm.R2, ipTCP, "tcp"),
+		asm.JEq.Imm(asm.R2, ipUDP, "udp"),
 		asm.Ja.Label("exit"),
 	)
 
-	v6t := ethLen + ipv6Len
-	insns = append(insns, tcpHandler("v6tcp", v6t+tcpLen, v6t+13, v6t+2)...)
-	insns = append(insns, udpHandler("v6udp", v6t+udpLen, v6t+2)...)
+	insns = append(insns, tcpHandler("tcp")...)
+	insns = append(insns, udpHandler("udp")...)
 
 	// ========== 退出 ==========
 	insns = append(insns,
@@ -420,6 +554,8 @@ func (s *Scanner) attach(ifaceName string) error {
 
 // readLoop 持续读取 Ring Buffer 事件
 func (s *Scanner) readLoop() {
+	defer close(s.eventsCh)
+
 	for {
 		record, err := s.reader.Read()
 		if err != nil {
@@ -525,7 +661,7 @@ func parseEvent(data []byte) Event {
 		ip = net.IPv4(data[0], data[1], data[2], data[3])
 	}
 
-	dstPort := binary.LittleEndian.Uint16(data[16:18])
+	dstPort := binary.NativeEndian.Uint16(data[16:18])
 	proto := data[18]
 
 	protoStr := "tcp"
