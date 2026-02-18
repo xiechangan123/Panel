@@ -1107,7 +1107,7 @@ msgstr ""
 #: src/views/app/TemplateView.vue:72
 #: src/views/firewall/RuleView.vue:217
 #: src/views/project/IndexView.vue:21
-#: src/views/website/IndexView.vue:26
+#: src/views/website/IndexView.vue:25
 #: src/views/website/stats/ErrorsTab.vue:18
 msgid "All"
 msgstr ""
@@ -7095,7 +7095,7 @@ msgstr ""
 #: src/views/project/CreateModal.vue:649
 #: src/views/website/BulkCreateModal.vue:39
 #: src/views/website/CreateModal.vue:28
-#: src/views/website/IndexView.vue:27
+#: src/views/website/IndexView.vue:26
 #: src/views/website/ListView.vue:106
 msgid "Reverse Proxy"
 msgstr ""
@@ -7375,7 +7375,7 @@ msgstr ""
 #: src/views/project/IndexView.vue:26
 #: src/views/website/BulkCreateModal.vue:40
 #: src/views/website/CreateModal.vue:29
-#: src/views/website/IndexView.vue:28
+#: src/views/website/IndexView.vue:27
 #: src/views/website/ListView.vue:107
 msgid "PHP"
 msgstr ""
@@ -9064,6 +9064,38 @@ msgstr ""
 msgid "Objects"
 msgstr ""
 
+#: src/views/toolbox/PanelView.vue:171
+msgid "Stack In Use"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:174
+msgid "Stack Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:177
+msgid "MSpan In Use"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:180
+msgid "MSpan Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:183
+msgid "MCache In Use"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:186
+msgid "MCache Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:189
+msgid "BuckHash Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:192
+msgid "Other Sys"
+msgstr ""
+
 #: src/views/toolbox/PanelView.vue:199
 msgid "GC Runs"
 msgstr ""
@@ -9514,7 +9546,7 @@ msgstr ""
 
 #: src/views/website/BulkCreateModal.vue:41
 #: src/views/website/CreateModal.vue:30
-#: src/views/website/IndexView.vue:29
+#: src/views/website/IndexView.vue:28
 #: src/views/website/ListView.vue:108
 msgid "Pure Static"
 msgstr ""
@@ -10324,7 +10356,7 @@ msgstr ""
 msgid "Are you sure you want to reset the configuration?"
 msgstr ""
 
-#: src/views/website/IndexView.vue:25
+#: src/views/website/IndexView.vue:29
 msgid "Stats"
 msgstr ""
 

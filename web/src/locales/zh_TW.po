@@ -980,7 +980,7 @@ msgstr "尾部"
 #: src/components/file-editor/FileEditorView.vue:211
 #: src/views/app/AppView.vue:229 src/views/app/EnvironmentView.vue:217
 #: src/views/app/TemplateView.vue:72 src/views/firewall/RuleView.vue:217
-#: src/views/project/IndexView.vue:21 src/views/website/IndexView.vue:26
+#: src/views/project/IndexView.vue:21 src/views/website/IndexView.vue:25
 #: src/views/website/stats/ErrorsTab.vue:18
 msgid "All"
 msgstr "全部"
@@ -6702,7 +6702,7 @@ msgstr "例如，php artisan serve、node app.js"
 
 #: src/views/project/CreateModal.vue:649
 #: src/views/website/BulkCreateModal.vue:39
-#: src/views/website/CreateModal.vue:28 src/views/website/IndexView.vue:27
+#: src/views/website/CreateModal.vue:28 src/views/website/IndexView.vue:26
 #: src/views/website/ListView.vue:106
 msgid "Reverse Proxy"
 msgstr "反向代理"
@@ -6989,7 +6989,7 @@ msgid "Node.js"
 msgstr "Node.js"
 
 #: src/views/project/IndexView.vue:26 src/views/website/BulkCreateModal.vue:40
-#: src/views/website/CreateModal.vue:29 src/views/website/IndexView.vue:28
+#: src/views/website/CreateModal.vue:29 src/views/website/IndexView.vue:27
 #: src/views/website/ListView.vue:107
 msgid "PHP"
 msgstr "PHP"
@@ -8717,6 +8717,43 @@ msgstr "發行日誌"
 msgid "Objects"
 msgstr "項目"
 
+#: src/views/toolbox/PanelView.vue:171
+#, fuzzy
+msgid "Stack In Use"
+msgstr "使用中"
+
+#: src/views/toolbox/PanelView.vue:174
+msgid "Stack Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:177
+#, fuzzy
+msgid "MSpan In Use"
+msgstr "使用中"
+
+#: src/views/toolbox/PanelView.vue:180
+msgid "MSpan Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:183
+#, fuzzy
+msgid "MCache In Use"
+msgstr "快取鍵"
+
+#: src/views/toolbox/PanelView.vue:186
+#, fuzzy
+msgid "MCache Sys"
+msgstr "快取鍵"
+
+#: src/views/toolbox/PanelView.vue:189
+msgid "BuckHash Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:192
+#, fuzzy
+msgid "Other Sys"
+msgstr "其他"
+
 #: src/views/toolbox/PanelView.vue:199
 msgid "GC Runs"
 msgstr ""
@@ -9163,7 +9200,7 @@ msgid "Edit WebHook"
 msgstr "編輯 Web 掛鉤"
 
 #: src/views/website/BulkCreateModal.vue:41
-#: src/views/website/CreateModal.vue:30 src/views/website/IndexView.vue:29
+#: src/views/website/CreateModal.vue:30 src/views/website/IndexView.vue:28
 #: src/views/website/ListView.vue:108
 msgid "Pure Static"
 msgstr "純靜態"
@@ -9976,7 +10013,7 @@ msgstr "重置配置"
 msgid "Are you sure you want to reset the configuration?"
 msgstr "您確定要重置配置嗎？"
 
-#: src/views/website/IndexView.vue:25
+#: src/views/website/IndexView.vue:29
 msgid "Stats"
 msgstr "統計"
 

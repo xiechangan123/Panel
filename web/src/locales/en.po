@@ -1010,7 +1010,7 @@ msgstr ""
 #: src/components/file-editor/FileEditorView.vue:211
 #: src/views/app/AppView.vue:229 src/views/app/EnvironmentView.vue:217
 #: src/views/app/TemplateView.vue:72 src/views/firewall/RuleView.vue:217
-#: src/views/project/IndexView.vue:21 src/views/website/IndexView.vue:26
+#: src/views/project/IndexView.vue:21 src/views/website/IndexView.vue:25
 #: src/views/website/stats/ErrorsTab.vue:18
 msgid "All"
 msgstr "All"
@@ -7063,7 +7063,7 @@ msgstr ""
 
 #: src/views/project/CreateModal.vue:649
 #: src/views/website/BulkCreateModal.vue:39
-#: src/views/website/CreateModal.vue:28 src/views/website/IndexView.vue:27
+#: src/views/website/CreateModal.vue:28 src/views/website/IndexView.vue:26
 #: src/views/website/ListView.vue:106
 msgid "Reverse Proxy"
 msgstr ""
@@ -7381,7 +7381,7 @@ msgid "Node.js"
 msgstr ""
 
 #: src/views/project/IndexView.vue:26 src/views/website/BulkCreateModal.vue:40
-#: src/views/website/CreateModal.vue:29 src/views/website/IndexView.vue:28
+#: src/views/website/CreateModal.vue:29 src/views/website/IndexView.vue:27
 #: src/views/website/ListView.vue:107
 msgid "PHP"
 msgstr ""
@@ -9274,6 +9274,43 @@ msgstr "Clear Log"
 msgid "Objects"
 msgstr "Reject"
 
+#: src/views/toolbox/PanelView.vue:171
+#, fuzzy
+msgid "Stack In Use"
+msgstr "In Use"
+
+#: src/views/toolbox/PanelView.vue:174
+msgid "Stack Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:177
+#, fuzzy
+msgid "MSpan In Use"
+msgstr "In Use"
+
+#: src/views/toolbox/PanelView.vue:180
+msgid "MSpan Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:183
+#, fuzzy
+msgid "MCache In Use"
+msgstr "Cache Time"
+
+#: src/views/toolbox/PanelView.vue:186
+#, fuzzy
+msgid "MCache Sys"
+msgstr "Cache Time"
+
+#: src/views/toolbox/PanelView.vue:189
+msgid "BuckHash Sys"
+msgstr ""
+
+#: src/views/toolbox/PanelView.vue:192
+#, fuzzy
+msgid "Other Sys"
+msgstr "Others"
+
 #: src/views/toolbox/PanelView.vue:199
 msgid "GC Runs"
 msgstr ""
@@ -9769,7 +9806,7 @@ msgid "Edit WebHook"
 msgstr "Edit Website"
 
 #: src/views/website/BulkCreateModal.vue:41
-#: src/views/website/CreateModal.vue:30 src/views/website/IndexView.vue:29
+#: src/views/website/CreateModal.vue:30 src/views/website/IndexView.vue:28
 #: src/views/website/ListView.vue:108
 #, fuzzy
 msgid "Pure Static"
@@ -10681,7 +10718,7 @@ msgstr "Reset Configuration"
 msgid "Are you sure you want to reset the configuration?"
 msgstr "Are you sure you want to reset the configuration?"
 
-#: src/views/website/IndexView.vue:25
+#: src/views/website/IndexView.vue:29
 #, fuzzy
 msgid "Stats"
 msgstr "Status"
