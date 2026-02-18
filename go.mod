@@ -41,6 +41,7 @@ require (
 	github.com/libtnb/sessions v1.2.2
 	github.com/libtnb/sqlite v0.1.0
 	github.com/libtnb/utils v1.2.1
+	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.4
 	github.com/moby/moby/api v1.53.0
 	github.com/moby/moby/client v0.2.2
@@ -91,7 +92,6 @@ require (
 	github.com/libtnb/securecookie v1.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/medama-io/go-useragent v1.2.3 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
