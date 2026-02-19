@@ -78,7 +78,7 @@ func (r *containerComposeRepo) Get(name string) (string, []types.KV, error) {
 	env, _ := os.ReadFile(filepath.Join(app.Root, "compose", name, ".env"))
 
 	var envs []types.KV
-	for _, line := range strings.Split(string(env), "\n") {
+	for line := range strings.SplitSeq(string(env), "\n") {
 		if line == "" {
 			continue
 		}

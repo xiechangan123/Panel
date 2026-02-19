@@ -45,7 +45,7 @@ func getSlug(app types.App) string {
 	}
 
 	t := reflect.TypeOf(app)
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 

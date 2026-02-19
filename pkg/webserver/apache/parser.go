@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -351,10 +352,8 @@ func (p *Parser) processInclude(directive *Directive) (*Config, error) {
 	}
 
 	// 检查循环包含
-	for _, stackPath := range p.includeStack {
-		if stackPath == absPath {
-			return nil, fmt.Errorf("circular include detected: %s", absPath)
-		}
+	if slices.Contains(p.includeStack, absPath) {
+		return nil, fmt.Errorf("circular include detected: %s", absPath)
 	}
 
 	// 检查文件是否存在

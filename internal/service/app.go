@@ -185,8 +185,8 @@ func (s *AppService) IsInstalled(w http.ResponseWriter, r *http.Request) {
 	}
 
 	flag := false
-	slugs := strings.Split(req.Slugs, ",")
-	for _, item := range slugs {
+	slugs := strings.SplitSeq(req.Slugs, ",")
+	for item := range slugs {
 		installed, err := s.appRepo.IsInstalled(item)
 		if err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)

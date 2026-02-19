@@ -189,8 +189,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 // getRedisValue 从 Redis 配置内容中获取指定键的值
 func (s *App) getRedisValue(content string, key string) string {
-	lines := strings.Split(content, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(content, "\n")
+	for line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
 			continue

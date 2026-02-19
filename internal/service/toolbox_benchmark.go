@@ -80,22 +80,12 @@ func (s *ToolboxBenchmarkService) Test(w http.ResponseWriter, r *http.Request) {
 
 // calculateCpuScore 计算CPU成绩
 func (s *ToolboxBenchmarkService) calculateCpuScore(duration time.Duration) int {
-	score := int((10 / duration.Seconds()) * float64(3000))
-
-	if score < 0 {
-		score = 0
-	}
-	return score
+	return max(int((10/duration.Seconds())*float64(3000)), 0)
 }
 
 // calculateScore 计算内存/硬盘成绩
 func (s *ToolboxBenchmarkService) calculateScore(duration time.Duration) int {
-	score := int((20 / duration.Seconds()) * float64(30000))
-
-	if score < 0 {
-		score = 0
-	}
-	return score
+	return max(int((20/duration.Seconds())*float64(30000)), 0)
 }
 
 // 图像处理
@@ -111,8 +101,8 @@ func (s *ToolboxBenchmarkService) imageProcessing() int {
 
 func (s *ToolboxBenchmarkService) imageProcessingTask() error {
 	img := image.NewRGBA(image.Rect(0, 0, 4000, 4000))
-	for x := 0; x < 4000; x++ {
-		for y := 0; y < 4000; y++ {
+	for x := range 4000 {
+		for y := range 4000 {
 			img.Set(x, y, color.RGBA{R: uint8(x % 256), G: uint8(y % 256), A: 255})
 		}
 	}
@@ -155,24 +145,24 @@ func (s *ToolboxBenchmarkService) machineLearningTask() {
 	size := 900
 	a := make([][]float64, size)
 	b := make([][]float64, size)
-	for i := 0; i < size; i++ {
+	for i := range size {
 		a[i] = make([]float64, size)
 		b[i] = make([]float64, size)
-		for j := 0; j < size; j++ {
+		for j := range size {
 			a[i][j] = rand.Float64()
 			b[i][j] = rand.Float64()
 		}
 	}
 
 	c := make([][]float64, size)
-	for i := 0; i < size; i++ {
+	for i := range size {
 		c[i] = make([]float64, size)
 	}
 
-	for i := 0; i < size; i++ {
-		for j := 0; j < size; j++ {
+	for i := range size {
+		for j := range size {
 			sum := 0.0
-			for l := 0; l < size; l++ {
+			for l := range size {
 				sum += a[i][l] * b[l][j]
 			}
 			c[i][j] = sum
@@ -187,7 +177,7 @@ func (s *ToolboxBenchmarkService) compileSimulationSingle() int {
 	totalCalculations := 1000
 	fibNumber := 20000
 
-	for j := 0; j < totalCalculations; j++ {
+	for range totalCalculations {
 		s.fib(fibNumber)
 	}
 
@@ -294,7 +284,7 @@ func (s *ToolboxBenchmarkService) physicsSimulationTask() {
 	}
 
 	bodies := make([]Body, numBodies)
-	for i := 0; i < numBodies; i++ {
+	for i := range numBodies {
 		bodies[i] = Body{
 			x:  rand.Float64(),
 			y:  rand.Float64(),
@@ -305,11 +295,11 @@ func (s *ToolboxBenchmarkService) physicsSimulationTask() {
 		}
 	}
 
-	for step := 0; step < steps; step++ {
+	for range steps {
 		// 更新速度
-		for i := 0; i < numBodies; i++ {
+		for i := range numBodies {
 			bi := &bodies[i]
-			for j := 0; j < numBodies; j++ {
+			for j := range numBodies {
 				if i == j {
 					continue
 				}
@@ -329,7 +319,7 @@ func (s *ToolboxBenchmarkService) physicsSimulationTask() {
 		}
 
 		// 更新位置
-		for i := 0; i < numBodies; i++ {
+		for i := range numBodies {
 			bi := &bodies[i]
 			bi.x += bi.vx
 			bi.y += bi.vy
@@ -351,7 +341,7 @@ func (s *ToolboxBenchmarkService) jsonProcessingTask() {
 	numElements := 500000
 
 	elements := make([]map[string]any, 0, numElements)
-	for j := 0; j < numElements; j++ {
+	for j := range numElements {
 		elements = append(elements, map[string]any{
 			"id":    j,
 			"value": fmt.Sprintf("Value%d", j),
@@ -392,7 +382,7 @@ func (s *ToolboxBenchmarkService) memoryBandwidthTest(data []byte) string {
 	dataSize := len(data)
 
 	startTime := time.Now()
-	for i := 0; i < dataSize; i++ {
+	for i := range dataSize {
 		data[i] ^= 0xFF
 	}
 

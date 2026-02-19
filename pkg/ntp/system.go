@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/acepanel/panel/pkg/io"
@@ -50,10 +51,8 @@ func DetectNTPService() NTPServiceType {
 	}
 
 	// 检查配置文件是否存在
-	for _, path := range chronyConfigPaths {
-		if io.Exists(path) {
-			return NTPServiceChrony
-		}
+	if slices.ContainsFunc(chronyConfigPaths, io.Exists) {
+		return NTPServiceChrony
 	}
 	if io.Exists(timesyncdConfigPath) {
 		return NTPServiceTimesyncd
@@ -125,7 +124,7 @@ func getTimesyncdServers() ([]string, error) {
 		}
 		if matches := ntpRegex.FindStringSubmatch(line); len(matches) > 1 {
 			// NTP 服务器以空格分隔
-			for _, server := range strings.Fields(matches[1]) {
+			for server := range strings.FieldsSeq(matches[1]) {
 				if server != "" {
 					servers = append(servers, server)
 				}

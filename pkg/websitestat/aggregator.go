@@ -1,6 +1,7 @@
 package websitestat
 
 import (
+	"maps"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -356,9 +357,7 @@ func (a *Aggregator) DrainDetailStats() (detailsByDate map[string]map[string]*Si
 		for name, sd := range sites {
 			// 复制 Spiders map，避免共享引用被后续写入污染
 			spiders := make(map[string]uint64, len(sd.spiderCounts))
-			for k, v := range sd.spiderCounts {
-				spiders[k] = v
-			}
+			maps.Copy(spiders, sd.spiderCounts)
 
 			snap := &SiteDetailSnapshot{
 				Spiders: spiders,
@@ -545,7 +544,7 @@ func snapshotSite(sd *siteDay) *SiteSnapshot {
 		Errors:    sd.errors,
 		Spiders:   sd.spiders,
 	}
-	for h := 0; h < 24; h++ {
+	for h := range 24 {
 		snap.Hours[h] = snapshotHour(sd.hours[h])
 	}
 	return snap

@@ -314,7 +314,7 @@ func (b *Block) ExportWithOptions(options *ExportOptions, indent int) string {
 // exportItem 用于排序的导出项目
 type exportItem struct {
 	line int
-	item interface{}
+	item any
 	typ  string
 }
 

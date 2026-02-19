@@ -143,8 +143,8 @@ func getDNSFromNetworkManager() ([]string, error) {
 	}
 
 	var dns []string
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(output, "\n")
+	for line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
@@ -275,8 +275,8 @@ func getActiveNMConnections() ([]nmConnection, error) {
 	}
 
 	var connections []nmConnection
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(output, "\n")
+	for line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
@@ -529,8 +529,8 @@ func detectActiveInterface() string {
 	// 回退：获取所有 UP 状态的接口
 	output, err = shell.Execf("ip -o link show up 2>/dev/null | awk -F': ' '{print $2}'")
 	if err == nil {
-		lines := strings.Split(strings.TrimSpace(output), "\n")
-		for _, line := range lines {
+		lines := strings.SplitSeq(strings.TrimSpace(output), "\n")
+		for line := range lines {
 			iface := strings.TrimSpace(line)
 			if isValidNetworkInterface(iface) {
 				return iface

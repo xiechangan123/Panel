@@ -83,7 +83,7 @@ func (t *Turn) Close() {
 	if err == nil && inspectResp.Running {
 		_ = syscall.Kill(inspectResp.PID, syscall.SIGTERM)
 		// 等待最多 10 秒
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			time.Sleep(1 * time.Second)
 			inspectResp, err = t.client.ExecInspect(t.ctx, t.execID, client.ExecInspectOptions{})
 			if err != nil || !inspectResp.Running {

@@ -178,7 +178,7 @@ func (s *App) mounts() ([]Mount, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, id := range strings.Split(ids, "\n") {
+	for id := range strings.SplitSeq(ids, "\n") {
 		if id == "" {
 			continue
 		}

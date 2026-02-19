@@ -392,8 +392,8 @@ func parseBalancerFile(filePath string, name string) (*types.Upstream, error) {
 
 	// 解析 BalancerMember
 	memberPattern := regexp.MustCompile(`^\s*BalancerMember\s+(\S+)(?:\s+(.*))?$`)
-	lines := strings.Split(contentStr, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(contentStr, "\n")
+	for line := range lines {
 		if mm := memberPattern.FindStringSubmatch(line); mm != nil {
 			addr := mm[1]
 			options := ""

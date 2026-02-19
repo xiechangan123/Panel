@@ -48,8 +48,8 @@ func (s *ToolboxDiskService) List(w http.ResponseWriter, r *http.Request) {
 
 	// 解析 df 输出为 map
 	dfMap := make(map[string]map[string]string)
-	lines := strings.Split(strings.TrimSpace(dfOutput), "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(strings.TrimSpace(dfOutput), "\n")
+	for line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
@@ -511,8 +511,8 @@ func (s *ToolboxDiskService) GetFstab(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var entries []request.ToolboxDiskFstabEntry
-	lines := strings.Split(content, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(content, "\n")
+	for line := range lines {
 		line = strings.TrimSpace(line)
 		// 跳过空行和注释
 		if line == "" || strings.HasPrefix(line, "#") {
@@ -728,7 +728,7 @@ func (s *ToolboxDiskService) detectMdadm() chix.M {
 
 	// 获取 md 设备列表
 	var mdDevices []string
-	for _, line := range strings.Split(mdstat, "\n") {
+	for line := range strings.SplitSeq(mdstat, "\n") {
 		line = strings.TrimSpace(line)
 		if strings.Contains(line, " : ") {
 			parts := strings.SplitN(line, " ", 2)
@@ -764,28 +764,28 @@ func (s *ToolboxDiskService) detectMdadm() chix.M {
 func (s *ToolboxDiskService) parseMdadm(name, detail string) raidArray {
 	arr := raidArray{Name: name}
 
-	for _, line := range strings.Split(detail, "\n") {
+	for line := range strings.SplitSeq(detail, "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Raid Level :") {
-			arr.RaidLevel = strings.TrimSpace(strings.TrimPrefix(line, "Raid Level :"))
-		} else if strings.HasPrefix(line, "Array Size :") {
-			arr.Size = strings.TrimSpace(strings.TrimPrefix(line, "Array Size :"))
-		} else if strings.HasPrefix(line, "State :") {
-			arr.State = strings.TrimSpace(strings.TrimPrefix(line, "State :"))
-		} else if strings.HasPrefix(line, "Active Devices :") {
-			_, _ = fmt.Sscanf(strings.TrimPrefix(line, "Active Devices :"), "%d", &arr.ActiveDevices)
-		} else if strings.HasPrefix(line, "Total Devices :") {
-			_, _ = fmt.Sscanf(strings.TrimPrefix(line, "Total Devices :"), "%d", &arr.TotalDevices)
-		} else if strings.HasPrefix(line, "Chunk Size :") {
-			arr.StripSize = strings.TrimSpace(strings.TrimPrefix(line, "Chunk Size :"))
-		} else if strings.HasPrefix(line, "Rebuild Status :") {
-			arr.RebuildPct = strings.TrimSpace(strings.TrimPrefix(line, "Rebuild Status :"))
+		if after, ok := strings.CutPrefix(line, "Raid Level :"); ok {
+			arr.RaidLevel = strings.TrimSpace(after)
+		} else if after, ok := strings.CutPrefix(line, "Array Size :"); ok {
+			arr.Size = strings.TrimSpace(after)
+		} else if after, ok := strings.CutPrefix(line, "State :"); ok {
+			arr.State = strings.TrimSpace(after)
+		} else if after, ok := strings.CutPrefix(line, "Active Devices :"); ok {
+			_, _ = fmt.Sscanf(after, "%d", &arr.ActiveDevices)
+		} else if after, ok := strings.CutPrefix(line, "Total Devices :"); ok {
+			_, _ = fmt.Sscanf(after, "%d", &arr.TotalDevices)
+		} else if after, ok := strings.CutPrefix(line, "Chunk Size :"); ok {
+			arr.StripSize = strings.TrimSpace(after)
+		} else if after, ok := strings.CutPrefix(line, "Rebuild Status :"); ok {
+			arr.RebuildPct = strings.TrimSpace(after)
 		}
 	}
 
 	// 解析磁盘列表（在 Number Major Minor RaidDevice State 之后的行）
 	inDevSection := false
-	for _, line := range strings.Split(detail, "\n") {
+	for line := range strings.SplitSeq(detail, "\n") {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "Number") && strings.Contains(line, "RaidDevice") {
 			inDevSection = true
@@ -962,7 +962,7 @@ func (s *ToolboxDiskService) parseHPSA(output string) ([]raidController, []raidA
 	var currentArray *raidArray
 	var currentDev *raidDevice
 
-	for _, line := range strings.Split(output, "\n") {
+	for line := range strings.SplitSeq(output, "\n") {
 		trimmed := strings.TrimSpace(line)
 
 		// 控制器
@@ -974,10 +974,10 @@ func (s *ToolboxDiskService) parseHPSA(output string) ([]raidController, []raidA
 		}
 
 		if currentCtrl != nil {
-			if strings.HasPrefix(trimmed, "Serial Number:") {
-				currentCtrl.Serial = strings.TrimSpace(strings.TrimPrefix(trimmed, "Serial Number:"))
-			} else if strings.HasPrefix(trimmed, "Firmware Version:") {
-				currentCtrl.Firmware = strings.TrimSpace(strings.TrimPrefix(trimmed, "Firmware Version:"))
+			if after, ok := strings.CutPrefix(trimmed, "Serial Number:"); ok {
+				currentCtrl.Serial = strings.TrimSpace(after)
+			} else if after, ok := strings.CutPrefix(trimmed, "Firmware Version:"); ok {
+				currentCtrl.Firmware = strings.TrimSpace(after)
 			} else if strings.HasPrefix(trimmed, "Cache Board Present:") || strings.HasPrefix(trimmed, "Total Cache Size:") {
 				currentCtrl.Cache = strings.TrimSpace(strings.SplitN(trimmed, ":", 2)[1])
 			}
@@ -996,14 +996,14 @@ func (s *ToolboxDiskService) parseHPSA(output string) ([]raidController, []raidA
 		}
 
 		if currentArray != nil {
-			if strings.HasPrefix(trimmed, "Fault Tolerance:") {
-				currentArray.RaidLevel = strings.TrimSpace(strings.TrimPrefix(trimmed, "Fault Tolerance:"))
-			} else if strings.HasPrefix(trimmed, "Size:") {
-				currentArray.Size = strings.TrimSpace(strings.TrimPrefix(trimmed, "Size:"))
-			} else if strings.HasPrefix(trimmed, "Status:") {
-				currentArray.State = strings.TrimSpace(strings.TrimPrefix(trimmed, "Status:"))
-			} else if strings.HasPrefix(trimmed, "Strip Size:") {
-				currentArray.StripSize = strings.TrimSpace(strings.TrimPrefix(trimmed, "Strip Size:"))
+			if after, ok := strings.CutPrefix(trimmed, "Fault Tolerance:"); ok {
+				currentArray.RaidLevel = strings.TrimSpace(after)
+			} else if after, ok := strings.CutPrefix(trimmed, "Size:"); ok {
+				currentArray.Size = strings.TrimSpace(after)
+			} else if after, ok := strings.CutPrefix(trimmed, "Status:"); ok {
+				currentArray.State = strings.TrimSpace(after)
+			} else if after, ok := strings.CutPrefix(trimmed, "Strip Size:"); ok {
+				currentArray.StripSize = strings.TrimSpace(after)
 			}
 
 			// 物理磁盘
@@ -1016,14 +1016,14 @@ func (s *ToolboxDiskService) parseHPSA(output string) ([]raidController, []raidA
 			if currentDev != nil {
 				if strings.HasPrefix(trimmed, "Port:") || strings.HasPrefix(trimmed, "Bay:") {
 					currentDev.Slot = strings.TrimSpace(strings.SplitN(trimmed, ":", 2)[1])
-				} else if strings.HasPrefix(trimmed, "Size:") {
-					currentDev.Size = strings.TrimSpace(strings.TrimPrefix(trimmed, "Size:"))
-				} else if strings.HasPrefix(trimmed, "Status:") {
-					currentDev.State = strings.TrimSpace(strings.TrimPrefix(trimmed, "Status:"))
-				} else if strings.HasPrefix(trimmed, "Model:") {
-					currentDev.Model = strings.TrimSpace(strings.TrimPrefix(trimmed, "Model:"))
-				} else if strings.HasPrefix(trimmed, "Serial Number:") {
-					currentDev.Serial = strings.TrimSpace(strings.TrimPrefix(trimmed, "Serial Number:"))
+				} else if after, ok := strings.CutPrefix(trimmed, "Size:"); ok {
+					currentDev.Size = strings.TrimSpace(after)
+				} else if after, ok := strings.CutPrefix(trimmed, "Status:"); ok {
+					currentDev.State = strings.TrimSpace(after)
+				} else if after, ok := strings.CutPrefix(trimmed, "Model:"); ok {
+					currentDev.Model = strings.TrimSpace(after)
+				} else if after, ok := strings.CutPrefix(trimmed, "Serial Number:"); ok {
+					currentDev.Serial = strings.TrimSpace(after)
 				}
 			}
 		}
@@ -1079,7 +1079,7 @@ func (s *ToolboxDiskService) parseAdaptec(output string) ([]raidController, []ra
 	inLogicalDev := false
 	inPhysicalDev := false
 
-	for _, line := range strings.Split(output, "\n") {
+	for line := range strings.SplitSeq(output, "\n") {
 		trimmed := strings.TrimSpace(line)
 
 		// 控制器信息

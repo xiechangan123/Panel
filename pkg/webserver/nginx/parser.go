@@ -151,7 +151,7 @@ func (p *Parser) Set(key string, directives []*config.Directive, after ...string
 	var blockDirective config.IDirective
 	var ok bool
 	block = p.cfg.Block
-	for i := 0; i < len(parts); i++ {
+	for i := range parts {
 		sub := block.FindDirectives(parts[i])
 		if len(sub) == 0 {
 			return fmt.Errorf("given key %s not found", parts[i])

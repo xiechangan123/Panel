@@ -32,10 +32,7 @@ func (r scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 
 	const batchSize = 100
 	for i := 0; i < len(events); i += batchSize {
-		end := i + batchSize
-		if end > len(events) {
-			end = len(events)
-		}
+		end := min(i+batchSize, len(events))
 		if err := r.db.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "source_ip"}, {Name: "port"}, {Name: "protocol"}, {Name: "date"}},
 			DoUpdates: clause.Assignments(map[string]any{"count": gorm.Expr("count + ?", gorm.Expr("excluded.count")), "last_seen": gorm.Expr("excluded.last_seen")}),

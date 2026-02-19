@@ -170,8 +170,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 // getExecStartArg 从 systemd service 文件的 ExecStart 行中获取指定参数值
 func (s *App) getExecStartArg(content string, flag string) string {
-	lines := strings.Split(content, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(content, "\n")
+	for line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if !strings.HasPrefix(trimmed, "ExecStart=") {
 			continue

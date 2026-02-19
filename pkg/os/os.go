@@ -165,7 +165,7 @@ func GetPortProcess(port uint, protocol string) []PortProcess {
 	seen := make(map[string]struct{})
 	var processes []PortProcess
 
-	for _, line := range strings.Split(output, "\n") {
+	for line := range strings.SplitSeq(output, "\n") {
 		matches := re.FindAllStringSubmatch(line, -1)
 		for _, match := range matches {
 			pid := match[2]

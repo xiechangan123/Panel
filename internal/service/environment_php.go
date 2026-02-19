@@ -309,8 +309,8 @@ func (s *EnvironmentPHPService) ModuleList(w http.ResponseWriter, r *http.Reques
 		moduleMap[modules[i].Slug] = &modules[i]
 	}
 
-	rawModuleList := strings.Split(raw, "\n")
-	for _, item := range rawModuleList {
+	rawModuleList := strings.SplitSeq(raw, "\n")
+	for item := range rawModuleList {
 		if ext, exists := moduleMap[item]; exists && !strings.Contains(item, "[") && item != "" {
 			ext.Installed = true
 		}
@@ -613,8 +613,8 @@ func (s *EnvironmentPHPService) getModules(version uint) []types.EnvironmentPHPM
 		moduleMap[modules[i].Slug] = &modules[i]
 	}
 
-	rawModuleList := strings.Split(raw, "\n")
-	for _, item := range rawModuleList {
+	rawModuleList := strings.SplitSeq(raw, "\n")
+	for item := range rawModuleList {
 		if ext, exists := moduleMap[item]; exists && !strings.Contains(item, "[") && item != "" {
 			ext.Installed = true
 		}
@@ -797,8 +797,8 @@ func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Requ
 
 // getINIValue 从 INI 格式内容中获取指定键的值
 func (s *EnvironmentPHPService) getINIValue(content string, key string) string {
-	lines := strings.Split(content, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(content, "\n")
+	for line := range lines {
 		trimmed := strings.TrimSpace(line)
 		// 跳过注释行和空行
 		if trimmed == "" || strings.HasPrefix(trimmed, ";") || strings.HasPrefix(trimmed, "#") {

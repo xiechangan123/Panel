@@ -591,9 +591,9 @@ func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		name := entry.Name()
-		if strings.HasPrefix(name, prefix) {
+		if after, ok := strings.CutPrefix(name, prefix); ok {
 			// 提取分块索引
-			indexStr := strings.TrimPrefix(name, prefix)
+			indexStr := after
 			if index, err := strconv.Atoi(indexStr); err == nil && index >= 0 && index < req.ChunkCount {
 				uploadedChunks = append(uploadedChunks, index)
 			}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 )
 
@@ -31,11 +32,8 @@ type Templates []*Template
 func (t Templates) FilterByCategory(category string) Templates {
 	filtered := make(Templates, 0)
 	for _, tpl := range t {
-		for _, cat := range tpl.Categories {
-			if cat == category {
-				filtered = append(filtered, tpl)
-				break
-			}
+		if slices.Contains(tpl.Categories, category) {
+			filtered = append(filtered, tpl)
 		}
 	}
 	return filtered

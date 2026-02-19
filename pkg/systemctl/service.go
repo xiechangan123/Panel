@@ -28,7 +28,7 @@ func GetServiceInfo(name string) (*ServiceInfo, error) {
 	}
 
 	info := &ServiceInfo{}
-	for _, line := range strings.Split(output, "\n") {
+	for line := range strings.SplitSeq(output, "\n") {
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
 			continue

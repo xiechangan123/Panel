@@ -43,8 +43,8 @@ func SearchX(path, keyword string, sub bool) ([]os.DirEntry, error) {
 	}
 
 	var entries []os.DirEntry
-	lines := strings.Split(out, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(out, "\n")
+	for line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" || line == path {
 			continue

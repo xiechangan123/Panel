@@ -796,8 +796,8 @@ func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConne
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "data: ") {
-			data := strings.TrimPrefix(line, "data: ")
+		if after, ok := strings.CutPrefix(line, "data: "); ok {
+			data := after
 			s.addLog("  " + data)
 		} else if strings.HasPrefix(line, "event: error") {
 			if scanner.Scan() {

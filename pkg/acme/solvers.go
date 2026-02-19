@@ -464,9 +464,9 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 			APIToken: s.param.AK,
 		}
 	case ClouDNS:
-		if strings.HasPrefix(s.param.AK, "sub-") {
+		if after, ok := strings.CutPrefix(s.param.AK, "sub-"); ok {
 			dns = &cloudns.Provider{
-				SubAuthId:    strings.TrimPrefix(s.param.AK, "sub-"),
+				SubAuthId:    after,
 				AuthPassword: s.param.SK,
 			}
 		} else {

@@ -16,7 +16,7 @@ type Settings struct {
 	InsecureRegistries []string `json:"insecure-registries,omitempty"` // 非安全镜像仓库
 	LiveRestore        bool     `json:"live-restore,omitempty"`        // Live restore
 	LogDriver          string   `json:"log-driver,omitempty"`          // 日志驱动
-	LogOpts            LogOpts  `json:"log-opts,omitempty"`            // 日志配置选项
+	LogOpts            LogOpts  `json:"log-opts"`                      // 日志配置选项
 	CgroupDriver       string   `json:"cgroup-driver,omitempty"`       // cgroup 驱动（从 exec-opts 中提取）
 	Hosts              []string `json:"hosts,omitempty"`               // Socket 路径
 	DataRoot           string   `json:"data-root,omitempty"`           // 数据目录

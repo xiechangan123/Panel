@@ -121,7 +121,7 @@ func (s *App) Processes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var processes []Process
-	for _, line := range strings.Split(out, "\n") {
+	for line := range strings.SplitSeq(out, "\n") {
 		if len(line) == 0 {
 			continue
 		}

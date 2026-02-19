@@ -103,8 +103,8 @@ func (s *App) GetSettings(w http.ResponseWriter, r *http.Request) {
 
 	// 从 exec-opts 中提取 cgroup-driver
 	for _, opt := range daemonConfig.ExecOpts {
-		if strings.HasPrefix(opt, "native.cgroupdriver=") {
-			settings.CgroupDriver = strings.TrimPrefix(opt, "native.cgroupdriver=")
+		if after, ok := strings.CutPrefix(opt, "native.cgroupdriver="); ok {
+			settings.CgroupDriver = after
 			break
 		}
 	}

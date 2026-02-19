@@ -364,7 +364,7 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 	)
 
 	// 最多解析 maxV6Exts 层扩展头，避免 verifier 复杂循环
-	for i := 0; i < maxV6Exts; i++ {
+	for i := range maxV6Exts {
 		start := fmt.Sprintf("v6ext_%d", i)
 		next := "v6dispatch"
 		if i < maxV6Exts-1 {
@@ -630,7 +630,7 @@ func parseProcNet(path, state string, ports map[uint16]bool) {
 	if err != nil {
 		return
 	}
-	for _, line := range strings.Split(string(data), "\n") {
+	for line := range strings.SplitSeq(string(data), "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 4 || fields[3] != state {
 			continue
