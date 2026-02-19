@@ -1487,7 +1487,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/data/website.go:543
+#: internal/data/website.go:551
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1991,8 +1991,8 @@ msgstr ""
 #: internal/data/cert.go:100
 #: internal/data/setting.go:295
 #: internal/data/setting.go:369
-#: internal/data/website.go:612
-#: internal/data/website.go:987
+#: internal/data/website.go:620
+#: internal/data/website.go:969
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -2003,8 +2003,8 @@ msgstr ""
 #: internal/data/cert.go:103
 #: internal/data/setting.go:298
 #: internal/data/setting.go:372
-#: internal/data/website.go:615
-#: internal/data/website.go:990
+#: internal/data/website.go:623
+#: internal/data/website.go:972
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -2340,7 +2340,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1135
+#: internal/data/website.go:1117
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -2412,7 +2412,7 @@ msgstr ""
 msgid "no migration logs available"
 msgstr ""
 
-#: internal/data/website.go:1015
+#: internal/data/website.go:997
 msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
@@ -2532,7 +2532,7 @@ msgstr ""
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:590
+#: internal/data/website.go:598
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -2724,12 +2724,12 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1237
-#: internal/data/website.go:1291
+#: internal/data/website.go:1219
+#: internal/data/website.go:1273
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:1203
+#: internal/data/website.go:1185
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -2813,11 +2813,11 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:823
+#: internal/data/website.go:805
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
-#: internal/data/website.go:597
+#: internal/data/website.go:605
 msgid "website directory does not exist"
 msgstr ""
 
