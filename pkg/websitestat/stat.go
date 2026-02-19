@@ -54,8 +54,9 @@ type SiteSnapshot struct {
 
 // RealtimeStats 实时统计
 type RealtimeStats struct {
-	Bandwidth float64 `json:"bandwidth"` // 字节/秒
-	RPS       float64 `json:"rps"`       // 请求/秒
+	Bandwidth   float64 `json:"bandwidth"`    // 出站字节/秒
+	BandwidthIn float64 `json:"bandwidth_in"` // 入站字节/秒
+	RPS         float64 `json:"rps"`          // 请求/秒
 }
 
 // ErrorEntry 错误日志条目

@@ -74,9 +74,10 @@ type uriCount struct {
 }
 
 type rtSlot struct {
-	sec       int64
-	bandwidth uint64
-	requests  uint64
+	sec         int64
+	bandwidth   uint64
+	bandwidthIn uint64
+	requests    uint64
 }
 
 // NewAggregator 创建聚合器实例
@@ -271,7 +272,7 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	a.mu.Unlock()
 
 	// 实时统计（无锁原子写入）
-	a.addRealtime(now.Unix(), entry.Bytes)
+	a.addRealtime(now.Unix(), entry.Bytes, entry.ReqLength)
 }
 
 // SiteStats 返回各站点自上次刷新以来的未刷新增量（用于实时展示叠加到 DB 数据上）
@@ -500,7 +501,7 @@ func (a *Aggregator) DrainDetailStats() (detailsByDate map[string]map[string]*Si
 func (a *Aggregator) Realtime() RealtimeStats {
 	now := time.Now().Unix()
 
-	var totalBw, totalReq uint64
+	var totalBw, totalBwIn, totalReq uint64
 	var count int64
 	// 统计最近 5 秒（排除当前秒）
 	for i := int64(1); i <= 5; i++ {
@@ -509,6 +510,7 @@ func (a *Aggregator) Realtime() RealtimeStats {
 		// 校验槽位秒戳，只读取确实属于目标秒的数据
 		if atomic.LoadInt64(&a.rtSlots[idx].sec) == sec {
 			totalBw += atomic.LoadUint64(&a.rtSlots[idx].bandwidth)
+			totalBwIn += atomic.LoadUint64(&a.rtSlots[idx].bandwidthIn)
 			totalReq += atomic.LoadUint64(&a.rtSlots[idx].requests)
 			count++
 		}
@@ -519,8 +521,9 @@ func (a *Aggregator) Realtime() RealtimeStats {
 	}
 
 	return RealtimeStats{
-		Bandwidth: float64(totalBw) / float64(count),
-		RPS:       float64(totalReq) / float64(count),
+		Bandwidth:   float64(totalBw) / float64(count),
+		BandwidthIn: float64(totalBwIn) / float64(count),
+		RPS:         float64(totalReq) / float64(count),
 	}
 }
 
@@ -545,7 +548,7 @@ func (a *Aggregator) gcDrainedPastDaysLocked() {
 }
 
 // addRealtime 写入实时槽位，保证秒切换时不会因清零覆盖并发写入
-func (a *Aggregator) addRealtime(sec int64, bytes uint64) {
+func (a *Aggregator) addRealtime(sec int64, bytes, bytesIn uint64) {
 	idx := sec % 60
 	slot := &a.rtSlots[idx]
 	initMark := -sec
@@ -554,6 +557,7 @@ func (a *Aggregator) addRealtime(sec int64, bytes uint64) {
 		cur := atomic.LoadInt64(&slot.sec)
 		if cur == sec {
 			atomic.AddUint64(&slot.bandwidth, bytes)
+			atomic.AddUint64(&slot.bandwidthIn, bytesIn)
 			atomic.AddUint64(&slot.requests, 1)
 			return
 		}
@@ -567,9 +571,11 @@ func (a *Aggregator) addRealtime(sec int64, bytes uint64) {
 		// 抢到初始化权后，先清零，再发布秒戳，最后写入当前请求
 		if atomic.CompareAndSwapInt64(&slot.sec, cur, initMark) {
 			atomic.StoreUint64(&slot.bandwidth, 0)
+			atomic.StoreUint64(&slot.bandwidthIn, 0)
 			atomic.StoreUint64(&slot.requests, 0)
 			atomic.StoreInt64(&slot.sec, sec)
 			atomic.AddUint64(&slot.bandwidth, bytes)
+			atomic.AddUint64(&slot.bandwidthIn, bytesIn)
 			atomic.AddUint64(&slot.requests, 1)
 			return
 		}

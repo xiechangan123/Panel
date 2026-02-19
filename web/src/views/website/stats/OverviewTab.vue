@@ -106,7 +106,7 @@ const loadOverview = () => {
 }
 
 // 实时数据
-const realtime = ref({ bandwidth: 0, rps: 0 })
+const realtime = ref({ bandwidth: 0, bandwidth_in: 0, rps: 0 })
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const loadRealtime = () => {
@@ -439,7 +439,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
   <n-flex vertical :size="20">
     <!-- 统计卡片 -->
     <n-spin :show="loading">
-      <div class="gap-12 grid grid-cols-3 lg:grid-cols-9 sm:grid-cols-5">
+      <div class="gap-12 grid grid-cols-3 lg:grid-cols-10 sm:grid-cols-5">
         <n-card v-for="m in metrics" :key="m.key" :bordered="false" size="small">
           <div class="flex flex-col gap-4">
             <span class="text-12px text-[var(--text-color-3)]">{{ m.label }}</span>
@@ -468,10 +468,14 @@ const trafficChartOption = computed<EChartsOption>(() => {
         </n-card>
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-4">
-            <span class="text-12px text-[var(--text-color-3)]">{{
-              $gettext('Realtime Bandwidth')
-            }}</span>
+            <span class="text-12px text-[var(--text-color-3)]">{{ $gettext('Outbound') }}</span>
             <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth) }}/s</span>
+          </div>
+        </n-card>
+        <n-card :bordered="false" size="small">
+          <div class="flex flex-col gap-4">
+            <span class="text-12px text-[var(--text-color-3)]">{{ $gettext('Inbound') }}</span>
+            <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth_in) }}/s</span>
           </div>
         </n-card>
         <n-card :bordered="false" size="small">
