@@ -479,6 +479,14 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 	if err = vhost.SetConfig("001-acme.conf", "site", ""); err != nil {
 		return nil, err
 	}
+
+	// 访问统计（nginx 默认启用）
+	if webServer == "nginx" {
+		if err = r.enableStat(vhost, req.Name); err != nil {
+			return nil, err
+		}
+	}
+
 	if err = vhost.Save(); err != nil {
 		return nil, err
 	}
@@ -759,33 +767,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 	webServer, _ := r.setting.Get(biz.SettingKeyWebserver)
 	if webServer == "nginx" {
 		if req.StatEnabled {
-			// nginx syslog tag 和 log_format 名只允许字母数字和下划线
-			safeName := strings.ReplaceAll(website.Name, "-", "_")
-			formatConf := fmt.Sprintf(`log_format ace_stat_%s escape=json
-  '{"site":"%s",'
-  '"uri":"$request_uri",'
-  '"status":$status,'
-  '"bytes":$body_bytes_sent,'
-  '"ua":"$http_user_agent",'
-  '"ip":"$remote_addr",'
-  '"host":"$host",'
-  '"method":"$request_method",'
-  '"referer":"$http_referer",'
-  '"xff":"$http_x_forwarded_for",'
-  '"rt":$request_time,'
-  '"proto":"$server_protocol",'
-  '"port":"$remote_port",'
-  '"body":"$request_body",'
-  '"content_type":"$sent_http_content_type",'
-  '"req_length":$request_length,'
-  '"https":"$https",'
-  '"upstream_time":"$upstream_response_time",'
-  '"upstream_status":"$upstream_status"}';`, safeName, website.Name)
-			if err = vhost.SetConfig("010-stat-format.conf", "shared", formatConf); err != nil {
-				return err
-			}
-			logConf := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", safeName, safeName)
-			if err = vhost.SetConfig("021-stats-log.conf", "site", logConf); err != nil {
+			if err = r.enableStat(vhost, website.Name); err != nil {
 				return err
 			}
 		} else {
@@ -1297,4 +1279,35 @@ func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]
 		content += "\n"
 	}
 	return io.Write(htpasswdPath, content, 0644) // 必须 0644，Nginx 在运行中以 www 用户读取
+}
+
+// enableStat 写入 nginx 访问统计配置（log_format + syslog access_log）
+func (r *websiteRepo) enableStat(vhost webservertypes.Vhost, name string) error {
+	// nginx syslog tag 和 log_format 名只允许字母数字和下划线
+	safeName := strings.ReplaceAll(name, "-", "_")
+	formatConf := fmt.Sprintf(`log_format ace_stat_%s escape=json
+  '{"site":"%s",'
+  '"uri":"$request_uri",'
+  '"status":$status,'
+  '"bytes":$body_bytes_sent,'
+  '"ua":"$http_user_agent",'
+  '"ip":"$remote_addr",'
+  '"host":"$host",'
+  '"method":"$request_method",'
+  '"referer":"$http_referer",'
+  '"xff":"$http_x_forwarded_for",'
+  '"rt":$request_time,'
+  '"proto":"$server_protocol",'
+  '"port":"$remote_port",'
+  '"body":"$request_body",'
+  '"content_type":"$sent_http_content_type",'
+  '"req_length":$request_length,'
+  '"https":"$https",'
+  '"upstream_time":"$upstream_response_time",'
+  '"upstream_status":"$upstream_status"}';`, safeName, name)
+	if err := vhost.SetConfig("010-stat-format.conf", "shared", formatConf); err != nil {
+		return err
+	}
+	logConf := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", safeName, safeName)
+	return vhost.SetConfig("021-stats-log.conf", "site", logConf)
 }
