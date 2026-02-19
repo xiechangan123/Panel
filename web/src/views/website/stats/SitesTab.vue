@@ -38,10 +38,16 @@ const columns = computed(() => [
   { title: 'UV', key: 'uv', sorter: (a: any, b: any) => a.uv - b.uv },
   { title: 'IP', key: 'ip', sorter: (a: any, b: any) => a.ip - b.ip },
   {
-    title: $gettext('Bandwidth'),
+    title: $gettext('Outbound Bandwidth'),
     key: 'bandwidth',
     render: (row: any) => formatBytes(row.bandwidth),
     sorter: (a: any, b: any) => a.bandwidth - b.bandwidth
+  },
+  {
+    title: $gettext('Inbound Bandwidth'),
+    key: 'bandwidth_in',
+    render: (row: any) => formatBytes(row.bandwidth_in),
+    sorter: (a: any, b: any) => a.bandwidth_in - b.bandwidth_in
   },
   {
     title: $gettext('Requests'),

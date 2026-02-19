@@ -468,13 +468,17 @@ const trafficChartOption = computed<EChartsOption>(() => {
         </n-card>
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-4">
-            <span class="text-12px text-[var(--text-color-3)]">{{ $gettext('Outbound') }}</span>
+            <span class="text-12px text-[var(--text-color-3)]">
+              {{ $gettext('Outbound Bandwidth') }}
+            </span>
             <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth) }}/s</span>
           </div>
         </n-card>
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-4">
-            <span class="text-12px text-[var(--text-color-3)]">{{ $gettext('Inbound') }}</span>
+            <span class="text-12px text-[var(--text-color-3)]">
+              {{ $gettext('Inbound Bandwidth') }}
+            </span>
             <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth_in) }}/s</span>
           </div>
         </n-card>
@@ -506,7 +510,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
       </n-spin>
     </n-card>
 
-    <!-- 性能/负载 + 流量 -->
+    <!-- 性能 + 流量 -->
     <n-grid :cols="2" :x-gap="20">
       <n-gi>
         <n-card :bordered="false" :title="$gettext('Performance')">
