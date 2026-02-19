@@ -759,6 +759,69 @@ func (_c *WebsiteStatRepo_TopClients_Call) RunAndReturn(run func(string, string,
 	return _c
 }
 
+// TopGeos provides a mock function with given fields: start, end, sites, groupBy, country, limit
+func (_m *WebsiteStatRepo) TopGeos(start string, end string, sites []string, groupBy string, country string, limit uint) ([]*biz.WebsiteStatGeoRank, error) {
+	ret := _m.Called(start, end, sites, groupBy, country, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TopGeos")
+	}
+
+	var r0 []*biz.WebsiteStatGeoRank
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, []string, string, string, uint) ([]*biz.WebsiteStatGeoRank, error)); ok {
+		return rf(start, end, sites, groupBy, country, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string, string, string, uint) []*biz.WebsiteStatGeoRank); ok {
+		r0 = rf(start, end, sites, groupBy, country, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteStatGeoRank)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string, string, string, uint) error); ok {
+		r1 = rf(start, end, sites, groupBy, country, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebsiteStatRepo_TopGeos_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TopGeos'
+type WebsiteStatRepo_TopGeos_Call struct {
+	*mock.Call
+}
+
+// TopGeos is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+//   - groupBy string
+//   - country string
+//   - limit uint
+func (_e *WebsiteStatRepo_Expecter) TopGeos(start interface{}, end interface{}, sites interface{}, groupBy interface{}, country interface{}, limit interface{}) *WebsiteStatRepo_TopGeos_Call {
+	return &WebsiteStatRepo_TopGeos_Call{Call: _e.mock.On("TopGeos", start, end, sites, groupBy, country, limit)}
+}
+
+func (_c *WebsiteStatRepo_TopGeos_Call) Run(run func(start string, end string, sites []string, groupBy string, country string, limit uint)) *WebsiteStatRepo_TopGeos_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string), args[3].(string), args[4].(string), args[5].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopGeos_Call) Return(_a0 []*biz.WebsiteStatGeoRank, _a1 error) *WebsiteStatRepo_TopGeos_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopGeos_Call) RunAndReturn(run func(string, string, []string, string, string, uint) ([]*biz.WebsiteStatGeoRank, error)) *WebsiteStatRepo_TopGeos_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // TopIPs provides a mock function with given fields: start, end, sites, page, limit
 func (_m *WebsiteStatRepo) TopIPs(start string, end string, sites []string, page uint, limit uint) ([]*biz.WebsiteStatIPRank, uint, error) {
 	ret := _m.Called(start, end, sites, page, limit)

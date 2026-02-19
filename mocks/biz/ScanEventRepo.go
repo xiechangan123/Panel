@@ -168,9 +168,9 @@ func (_c *ScanEventRepo_GetSetting_Call) RunAndReturn(run func() (*biz.ScanSetti
 	return _c
 }
 
-// List provides a mock function with given fields: start, end, sourceIP, port, page, limit
-func (_m *ScanEventRepo) List(start string, end string, sourceIP string, port uint, page uint, limit uint) ([]*biz.ScanEvent, uint, error) {
-	ret := _m.Called(start, end, sourceIP, port, page, limit)
+// List provides a mock function with given fields: start, end, sourceIP, port, location, page, limit
+func (_m *ScanEventRepo) List(start string, end string, sourceIP string, port uint, location string, page uint, limit uint) ([]*biz.ScanEvent, uint, error) {
+	ret := _m.Called(start, end, sourceIP, port, location, page, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -179,25 +179,25 @@ func (_m *ScanEventRepo) List(start string, end string, sourceIP string, port ui
 	var r0 []*biz.ScanEvent
 	var r1 uint
 	var r2 error
-	if rf, ok := ret.Get(0).(func(string, string, string, uint, uint, uint) ([]*biz.ScanEvent, uint, error)); ok {
-		return rf(start, end, sourceIP, port, page, limit)
+	if rf, ok := ret.Get(0).(func(string, string, string, uint, string, uint, uint) ([]*biz.ScanEvent, uint, error)); ok {
+		return rf(start, end, sourceIP, port, location, page, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string, uint, uint, uint) []*biz.ScanEvent); ok {
-		r0 = rf(start, end, sourceIP, port, page, limit)
+	if rf, ok := ret.Get(0).(func(string, string, string, uint, string, uint, uint) []*biz.ScanEvent); ok {
+		r0 = rf(start, end, sourceIP, port, location, page, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*biz.ScanEvent)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string, uint, uint, uint) uint); ok {
-		r1 = rf(start, end, sourceIP, port, page, limit)
+	if rf, ok := ret.Get(1).(func(string, string, string, uint, string, uint, uint) uint); ok {
+		r1 = rf(start, end, sourceIP, port, location, page, limit)
 	} else {
 		r1 = ret.Get(1).(uint)
 	}
 
-	if rf, ok := ret.Get(2).(func(string, string, string, uint, uint, uint) error); ok {
-		r2 = rf(start, end, sourceIP, port, page, limit)
+	if rf, ok := ret.Get(2).(func(string, string, string, uint, string, uint, uint) error); ok {
+		r2 = rf(start, end, sourceIP, port, location, page, limit)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -215,15 +215,16 @@ type ScanEventRepo_List_Call struct {
 //   - end string
 //   - sourceIP string
 //   - port uint
+//   - location string
 //   - page uint
 //   - limit uint
-func (_e *ScanEventRepo_Expecter) List(start interface{}, end interface{}, sourceIP interface{}, port interface{}, page interface{}, limit interface{}) *ScanEventRepo_List_Call {
-	return &ScanEventRepo_List_Call{Call: _e.mock.On("List", start, end, sourceIP, port, page, limit)}
+func (_e *ScanEventRepo_Expecter) List(start interface{}, end interface{}, sourceIP interface{}, port interface{}, location interface{}, page interface{}, limit interface{}) *ScanEventRepo_List_Call {
+	return &ScanEventRepo_List_Call{Call: _e.mock.On("List", start, end, sourceIP, port, location, page, limit)}
 }
 
-func (_c *ScanEventRepo_List_Call) Run(run func(start string, end string, sourceIP string, port uint, page uint, limit uint)) *ScanEventRepo_List_Call {
+func (_c *ScanEventRepo_List_Call) Run(run func(start string, end string, sourceIP string, port uint, location string, page uint, limit uint)) *ScanEventRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string), args[3].(uint), args[4].(uint), args[5].(uint))
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(uint), args[4].(string), args[5].(uint), args[6].(uint))
 	})
 	return _c
 }
@@ -233,7 +234,7 @@ func (_c *ScanEventRepo_List_Call) Return(_a0 []*biz.ScanEvent, _a1 uint, _a2 er
 	return _c
 }
 
-func (_c *ScanEventRepo_List_Call) RunAndReturn(run func(string, string, string, uint, uint, uint) ([]*biz.ScanEvent, uint, error)) *ScanEventRepo_List_Call {
+func (_c *ScanEventRepo_List_Call) RunAndReturn(run func(string, string, string, uint, string, uint, uint) ([]*biz.ScanEvent, uint, error)) *ScanEventRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
