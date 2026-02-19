@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-02-18 20:47\n"
+"PO-Revision-Date: 2026-02-19 07:33\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:547
@@ -9076,11 +9076,11 @@ msgstr "对象数"
 
 #: src/views/toolbox/PanelView.vue:171
 msgid "Stack In Use"
-msgstr "堆栈使用"
+msgstr "Stack 使用"
 
 #: src/views/toolbox/PanelView.vue:174
 msgid "Stack Sys"
-msgstr "堆栈系统"
+msgstr "Stack 系统"
 
 #: src/views/toolbox/PanelView.vue:177
 msgid "MSpan In Use"

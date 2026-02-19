@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-02-18 20:42\n"
+"PO-Revision-Date: 2026-02-19 07:39\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:547
@@ -8680,7 +8680,7 @@ msgstr "遷移"
 
 #: src/views/toolbox/IndexView.vue:35
 msgid "Panel"
-msgstr ""
+msgstr "面板"
 
 #: src/views/toolbox/LogView.vue:38
 msgid "Panel Logs"
@@ -9029,36 +9029,36 @@ msgstr "搜尋連接埠"
 
 #: src/views/toolbox/PanelView.vue:90
 msgid "Runtime"
-msgstr ""
+msgstr "運行時"
 
 #: src/views/toolbox/PanelView.vue:109
 msgid "Goroutines"
-msgstr ""
+msgstr "Goroutines"
 
 #: src/views/toolbox/PanelView.vue:115
 msgid "Cgo Calls"
-msgstr ""
+msgstr "Cgo 調用"
 
 #: src/views/toolbox/PanelView.vue:122
 #: src/views/toolbox/PanelView.vue:144
 msgid "Allocated"
-msgstr ""
+msgstr "已分配"
 
 #: src/views/toolbox/PanelView.vue:125
 msgid "Total Allocated"
-msgstr ""
+msgstr "已分配總量"
 
 #: src/views/toolbox/PanelView.vue:131
 msgid "Lookups"
-msgstr ""
+msgstr "查找次數"
 
 #: src/views/toolbox/PanelView.vue:134
 msgid "Mallocs"
-msgstr ""
+msgstr "分配次數"
 
 #: src/views/toolbox/PanelView.vue:137
 msgid "Frees"
-msgstr ""
+msgstr "釋放次數"
 
 #: src/views/toolbox/PanelView.vue:150
 #: src/views/toolbox/ProcessView.vue:51
@@ -9068,75 +9068,75 @@ msgstr "空閒"
 
 #: src/views/toolbox/PanelView.vue:156
 msgid "Released"
-msgstr ""
+msgstr "已釋放"
 
 #: src/views/toolbox/PanelView.vue:159
 msgid "Objects"
-msgstr ""
+msgstr "對象數"
 
 #: src/views/toolbox/PanelView.vue:171
 msgid "Stack In Use"
-msgstr ""
+msgstr "Stack 使用"
 
 #: src/views/toolbox/PanelView.vue:174
 msgid "Stack Sys"
-msgstr ""
+msgstr "Stack 系統"
 
 #: src/views/toolbox/PanelView.vue:177
 msgid "MSpan In Use"
-msgstr ""
+msgstr "MSpan 使用"
 
 #: src/views/toolbox/PanelView.vue:180
 msgid "MSpan Sys"
-msgstr ""
+msgstr "MSpan 系統"
 
 #: src/views/toolbox/PanelView.vue:183
 msgid "MCache In Use"
-msgstr ""
+msgstr "MCache 使用"
 
 #: src/views/toolbox/PanelView.vue:186
 msgid "MCache Sys"
-msgstr ""
+msgstr "MCache 系統"
 
 #: src/views/toolbox/PanelView.vue:189
 msgid "BuckHash Sys"
-msgstr ""
+msgstr "BuckHash 系統"
 
 #: src/views/toolbox/PanelView.vue:192
 msgid "Other Sys"
-msgstr ""
+msgstr "其他系統"
 
 #: src/views/toolbox/PanelView.vue:199
 msgid "GC Runs"
-msgstr ""
+msgstr "GC 運行次數"
 
 #: src/views/toolbox/PanelView.vue:202
 msgid "Forced GC Runs"
-msgstr ""
+msgstr "GC 強制運行次數"
 
 #: src/views/toolbox/PanelView.vue:205
 msgid "GC Pause Total"
-msgstr ""
+msgstr "GC 暫停總計"
 
 #: src/views/toolbox/PanelView.vue:208
 msgid "Last GC"
-msgstr ""
+msgstr "上次 GC"
 
 #: src/views/toolbox/PanelView.vue:211
 msgid "Next GC Target"
-msgstr ""
+msgstr "下次 GC 閾值"
 
 #: src/views/toolbox/PanelView.vue:214
 msgid "GC Sys"
-msgstr ""
+msgstr "GC 系統"
 
 #: src/views/toolbox/PanelView.vue:217
 msgid "GC CPU Fraction"
-msgstr ""
+msgstr "GC CPU 時長"
 
 #: src/views/toolbox/PanelView.vue:229
 msgid "Total: %{ count }"
-msgstr ""
+msgstr "總計：%{ count }"
 
 #: src/views/toolbox/ProcessView.vue:47
 msgid "All Status"
@@ -10488,7 +10488,7 @@ msgstr "詳情鍵最大值"
 
 #: src/views/website/SettingView.vue:210
 msgid "Record Request Body"
-msgstr ""
+msgstr "記錄請求體"
 
 #: src/views/website/stats/ClientsTab.vue:92
 msgid "Browser"
