@@ -7115,8 +7115,8 @@ msgstr "请输入完整的 URL"
 
 #: src/views/setting/SettingBase.vue:174
 #, fuzzy
-msgid "IPDB Source"
-msgstr "IP 来源"
+msgid "IP Database"
+msgstr "数据库"
 
 #: src/views/setting/SettingBase.vue:177
 msgid "Subscribe"
@@ -10295,6 +10295,10 @@ msgstr "Geo"
 #: src/views/website/StatsView.vue:203
 msgid "URIs"
 msgstr "URIs"
+
+#, fuzzy
+#~ msgid "IPDB Source"
+#~ msgstr "IP 来源"
 
 #~ msgid ""
 #~ "Compatible with IPIP.NET format (.ipdb), due to the licensing agreement, "

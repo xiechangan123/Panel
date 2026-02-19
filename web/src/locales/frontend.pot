@@ -7510,7 +7510,7 @@ msgid "Please enter the complete URL"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:174
-msgid "IPDB Source"
+msgid "IP Database"
 msgstr ""
 
 #: src/views/setting/SettingBase.vue:177

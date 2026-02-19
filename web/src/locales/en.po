@@ -7521,8 +7521,8 @@ msgstr "Please enter the complete URL"
 
 #: src/views/setting/SettingBase.vue:174
 #, fuzzy
-msgid "IPDB Source"
-msgstr "Source Port"
+msgid "IP Database"
+msgstr "Database"
 
 #: src/views/setting/SettingBase.vue:177
 msgid "Subscribe"
@@ -11042,6 +11042,10 @@ msgstr ""
 #: src/views/website/StatsView.vue:203
 msgid "URIs"
 msgstr ""
+
+#, fuzzy
+#~ msgid "IPDB Source"
+#~ msgstr "Source Port"
 
 #, fuzzy
 #~ msgid ""
