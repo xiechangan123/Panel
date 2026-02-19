@@ -171,7 +171,7 @@ const menus = computed<TreeSelectOption[]>(() => {
           :placeholder="$gettext('Please enter the complete URL')"
         />
       </n-form-item>
-      <n-form-item :label="$gettext('IPDB Source')">
+      <n-form-item :label="$gettext('IP Database')">
         <n-radio-group v-model:value="model.ipdb_type">
           <n-radio-button value="">{{ $gettext('Disabled') }}</n-radio-button>
           <n-radio-button value="subscribe">{{ $gettext('Subscribe') }}</n-radio-button>
