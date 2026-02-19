@@ -891,6 +891,76 @@ func (_c *WebsiteStatRepo_TopIPs_Call) RunAndReturn(run func(string, string, []s
 	return _c
 }
 
+// TopSlowURIs provides a mock function with given fields: start, end, sites, threshold, page, limit
+func (_m *WebsiteStatRepo) TopSlowURIs(start string, end string, sites []string, threshold uint, page uint, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
+	ret := _m.Called(start, end, sites, threshold, page, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TopSlowURIs")
+	}
+
+	var r0 []*biz.WebsiteStatURIRank
+	var r1 uint
+	var r2 error
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint, uint, uint) ([]*biz.WebsiteStatURIRank, uint, error)); ok {
+		return rf(start, end, sites, threshold, page, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []string, uint, uint, uint) []*biz.WebsiteStatURIRank); ok {
+		r0 = rf(start, end, sites, threshold, page, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.WebsiteStatURIRank)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []string, uint, uint, uint) uint); ok {
+		r1 = rf(start, end, sites, threshold, page, limit)
+	} else {
+		r1 = ret.Get(1).(uint)
+	}
+
+	if rf, ok := ret.Get(2).(func(string, string, []string, uint, uint, uint) error); ok {
+		r2 = rf(start, end, sites, threshold, page, limit)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// WebsiteStatRepo_TopSlowURIs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TopSlowURIs'
+type WebsiteStatRepo_TopSlowURIs_Call struct {
+	*mock.Call
+}
+
+// TopSlowURIs is a helper method to define mock.On call
+//   - start string
+//   - end string
+//   - sites []string
+//   - threshold uint
+//   - page uint
+//   - limit uint
+func (_e *WebsiteStatRepo_Expecter) TopSlowURIs(start interface{}, end interface{}, sites interface{}, threshold interface{}, page interface{}, limit interface{}) *WebsiteStatRepo_TopSlowURIs_Call {
+	return &WebsiteStatRepo_TopSlowURIs_Call{Call: _e.mock.On("TopSlowURIs", start, end, sites, threshold, page, limit)}
+}
+
+func (_c *WebsiteStatRepo_TopSlowURIs_Call) Run(run func(start string, end string, sites []string, threshold uint, page uint, limit uint)) *WebsiteStatRepo_TopSlowURIs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]string), args[3].(uint), args[4].(uint), args[5].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopSlowURIs_Call) Return(_a0 []*biz.WebsiteStatURIRank, _a1 uint, _a2 error) *WebsiteStatRepo_TopSlowURIs_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_TopSlowURIs_Call) RunAndReturn(run func(string, string, []string, uint, uint, uint) ([]*biz.WebsiteStatURIRank, uint, error)) *WebsiteStatRepo_TopSlowURIs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // TopSpiders provides a mock function with given fields: start, end, sites, limit
 func (_m *WebsiteStatRepo) TopSpiders(start string, end string, sites []string, limit uint) ([]*biz.WebsiteStatSpiderRank, error) {
 	ret := _m.Called(start, end, sites, limit)
