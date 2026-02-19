@@ -163,7 +163,7 @@ msgstr ""
 #: src/views/project/CreateModal.vue:46
 #: src/views/project/CreateModal.vue:58
 #: src/views/project/CreateModal.vue:70
-#: src/views/website/StatsView.vue:157
+#: src/views/website/StatsView.vue:153
 msgid "Custom"
 msgstr ""
 
@@ -1962,7 +1962,7 @@ msgstr ""
 #: src/views/environment/PHPView.vue:181
 #: src/views/firewall/ScanView.vue:321
 #: src/views/website/EditModal.vue:214
-#: src/views/website/StatsView.vue:91
+#: src/views/website/StatsView.vue:93
 msgid "Cleared successfully"
 msgstr ""
 
@@ -6104,6 +6104,8 @@ msgstr ""
 #: src/views/firewall/CreateModal.vue:53
 #: src/views/firewall/IpRuleView.vue:97
 #: src/views/firewall/RuleView.vue:198
+#: src/views/website/stats/OverviewTab.vue:390
+#: src/views/website/stats/OverviewTab.vue:424
 msgid "Inbound"
 msgstr ""
 
@@ -6111,6 +6113,9 @@ msgstr ""
 #: src/views/firewall/CreateModal.vue:57
 #: src/views/firewall/IpRuleView.vue:99
 #: src/views/firewall/RuleView.vue:200
+#: src/views/website/stats/OverviewTab.vue:388
+#: src/views/website/stats/OverviewTab.vue:389
+#: src/views/website/stats/OverviewTab.vue:414
 msgid "Outbound"
 msgstr ""
 
@@ -6287,7 +6292,7 @@ msgid "Enable scan awareness in the Settings tab to start detecting port scans."
 msgstr ""
 
 #: src/views/firewall/ScanView.vue:341
-#: src/views/website/StatsView.vue:185
+#: src/views/website/StatsView.vue:181
 msgid "Overview"
 msgstr ""
 
@@ -6300,7 +6305,7 @@ msgid "Search IP"
 msgstr ""
 
 #: src/views/firewall/ScanView.vue:384
-#: src/views/website/StatsView.vue:175
+#: src/views/website/StatsView.vue:171
 msgid "Clear Data"
 msgstr ""
 
@@ -6693,7 +6698,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:863
 #: src/views/monitor/IndexView.vue:919
 #: src/views/monitor/IndexView.vue:986
-#: src/views/website/StatsView.vue:129
+#: src/views/website/StatsView.vue:131
 msgid "Today"
 msgstr ""
 
@@ -6917,8 +6922,8 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:857
 #: src/views/monitor/IndexView.vue:913
 #: src/views/monitor/IndexView.vue:980
-#: src/views/website/stats/OverviewTab.vue:238
-#: src/views/website/StatsView.vue:135
+#: src/views/website/stats/OverviewTab.vue:259
+#: src/views/website/StatsView.vue:137
 msgid "Yesterday"
 msgstr ""
 
@@ -6927,7 +6932,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:869
 #: src/views/monitor/IndexView.vue:925
 #: src/views/monitor/IndexView.vue:992
-#: src/views/website/StatsView.vue:141
+#: src/views/website/StatsView.vue:140
 msgid "Last 7 Days"
 msgstr ""
 
@@ -8279,6 +8284,7 @@ msgid "Worst"
 msgstr ""
 
 #: src/views/toolbox/disk/SmartView.vue:207
+#: src/views/website/stats/SlowURIsTab.vue:99
 msgid "Threshold"
 msgstr ""
 
@@ -10540,8 +10546,9 @@ msgstr ""
 #: src/views/website/stats/GeoTab.vue:103
 #: src/views/website/stats/IPsTab.vue:115
 #: src/views/website/stats/IPsTab.vue:151
-#: src/views/website/stats/OverviewTab.vue:120
+#: src/views/website/stats/OverviewTab.vue:141
 #: src/views/website/stats/SitesTab.vue:47
+#: src/views/website/stats/SlowURIsTab.vue:61
 #: src/views/website/stats/SpidersTab.vue:54
 #: src/views/website/stats/SpidersTab.vue:77
 #: src/views/website/stats/URIsTab.vue:49
@@ -10570,8 +10577,9 @@ msgstr ""
 #: src/views/website/stats/GeoTab.vue:103
 #: src/views/website/stats/IPsTab.vue:115
 #: src/views/website/stats/IPsTab.vue:156
-#: src/views/website/stats/OverviewTab.vue:119
+#: src/views/website/stats/OverviewTab.vue:140
 #: src/views/website/stats/SitesTab.vue:41
+#: src/views/website/stats/SlowURIsTab.vue:76
 #: src/views/website/stats/URIsTab.vue:54
 msgid "Bandwidth"
 msgstr ""
@@ -10586,34 +10594,49 @@ msgstr ""
 msgid "Country Distribution"
 msgstr ""
 
-#: src/views/website/stats/OverviewTab.vue:121
+#: src/views/website/stats/OverviewTab.vue:142
 #: src/views/website/stats/SitesTab.vue:51
+#: src/views/website/stats/SlowURIsTab.vue:81
 #: src/views/website/stats/URIsTab.vue:59
-#: src/views/website/StatsView.vue:206
+#: src/views/website/StatsView.vue:208
 msgid "Errors"
 msgstr ""
 
-#: src/views/website/stats/OverviewTab.vue:122
+#: src/views/website/stats/OverviewTab.vue:143
 #: src/views/website/stats/SitesTab.vue:53
-#: src/views/website/StatsView.vue:191
+#: src/views/website/StatsView.vue:187
 msgid "Spiders"
 msgstr ""
 
-#: src/views/website/stats/OverviewTab.vue:174
+#: src/views/website/stats/OverviewTab.vue:195
 msgid "Current Period"
 msgstr ""
 
-#: src/views/website/stats/OverviewTab.vue:186
-#: src/views/website/stats/OverviewTab.vue:240
+#: src/views/website/stats/OverviewTab.vue:207
+#: src/views/website/stats/OverviewTab.vue:261
 msgid "Previous Period"
 msgstr ""
 
-#: src/views/website/stats/OverviewTab.vue:239
+#: src/views/website/stats/OverviewTab.vue:260
 msgid "Day Before Yesterday"
 msgstr ""
 
-#: src/views/website/stats/OverviewTab.vue:280
+#: src/views/website/stats/OverviewTab.vue:303
+#: src/views/website/stats/OverviewTab.vue:344
+#: src/views/website/stats/SlowURIsTab.vue:66
+msgid "Avg Response Time"
+msgstr ""
+
+#: src/views/website/stats/OverviewTab.vue:472
 msgid "Realtime Bandwidth"
+msgstr ""
+
+#: src/views/website/stats/OverviewTab.vue:508
+msgid "Performance"
+msgstr ""
+
+#: src/views/website/stats/OverviewTab.vue:515
+msgid "Traffic"
 msgstr ""
 
 #: src/views/website/stats/SpidersTab.vue:54
@@ -10625,34 +10648,43 @@ msgstr ""
 msgid "Spider"
 msgstr ""
 
-#: src/views/website/StatsView.vue:119
+#: src/views/website/stats/StatusCodesTab.vue:193
+#: src/views/website/StatsView.vue:202
+msgid "Status Codes"
+msgstr ""
+
+#: src/views/website/StatsView.vue:121
 msgid "All Sites"
 msgstr ""
 
-#: src/views/website/StatsView.vue:147
+#: src/views/website/StatsView.vue:143
 msgid "Last 30 Days"
 msgstr ""
 
-#: src/views/website/StatsView.vue:178
+#: src/views/website/StatsView.vue:174
 msgid "Are you sure you want to clear all statistics data?"
 msgstr ""
 
-#: src/views/website/StatsView.vue:188
+#: src/views/website/StatsView.vue:184
 msgid "Sites"
 msgstr ""
 
-#: src/views/website/StatsView.vue:194
+#: src/views/website/StatsView.vue:190
 msgid "Clients"
 msgstr ""
 
-#: src/views/website/StatsView.vue:197
+#: src/views/website/StatsView.vue:193
 msgid "IPs"
 msgstr ""
 
-#: src/views/website/StatsView.vue:200
+#: src/views/website/StatsView.vue:196
 msgid "Geo"
 msgstr ""
 
-#: src/views/website/StatsView.vue:203
+#: src/views/website/StatsView.vue:199
 msgid "URIs"
+msgstr ""
+
+#: src/views/website/StatsView.vue:205
+msgid "Slow Requests"
 msgstr ""
