@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
+	"path/filepath"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -75,8 +76,14 @@ func (r *PanelTask) Run() {
 
 	// 非离线模式下任务
 	if offline, err := r.settingRepo.GetBool(biz.SettingKeyOfflineMode); err == nil && !offline {
+		// 更新 IPDB 订阅
+		r.updateIPDB()
+		// 同步云端数据
 		r.updateCategories()
 		r.updateApps()
+		r.updateEnvironments()
+		r.updateTemplates()
+		// 自动更新面板
 		if autoUpdate, err := r.settingRepo.GetBool(biz.SettingKeyAutoUpdate); err == nil && autoUpdate {
 			r.updatePanel()
 		}
@@ -107,6 +114,24 @@ func (r *PanelTask) updateApps() {
 	})
 }
 
+// 更新运行环境缓存
+func (r *PanelTask) updateEnvironments() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
+		if err := r.cacheRepo.UpdateEnvironments(); err != nil {
+			r.log.Warn("failed to update environment cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		}
+	})
+}
+
+// 更新模版缓存
+func (r *PanelTask) updateTemplates() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
+		if err := r.cacheRepo.UpdateTemplates(); err != nil {
+			r.log.Warn("failed to update template cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		}
+	})
+}
+
 // 更新面板
 func (r *PanelTask) updatePanel() {
 	if r.taskRepo.HasRunningTask() {
@@ -115,8 +140,8 @@ func (r *PanelTask) updatePanel() {
 
 	channel, _ := r.settingRepo.Get(biz.SettingKeyChannel)
 
-	// 加 300 秒确保在缓存更新后才更新面板
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+300*time.Second, func() {
+	// 加 360 秒确保在缓存更新后才更新面板
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+360*time.Second, func() {
 		panel, err := r.api.LatestVersion(channel)
 		if err != nil {
 			return
@@ -141,4 +166,28 @@ func (r *PanelTask) updatePanel() {
 			}
 		}
 	})
+}
+
+// updateIPDB 更新 IPDB 订阅文件
+func (r *PanelTask) updateIPDB() {
+	// 每周五更新
+	if time.Now().Weekday() != time.Friday {
+		return
+	}
+	ipdbType, _ := r.settingRepo.Get(biz.SettingKeyIPDBType)
+	if ipdbType != "subscribe" {
+		return
+	}
+	ipdbURL, _ := r.settingRepo.Get(biz.SettingKeyIPDBURL)
+	if ipdbURL == "" {
+		return
+	}
+
+	destPath := filepath.Join(app.Root, "panel/storage/geo/qqwry.ipdb")
+	if err := downloadFile(ipdbURL, destPath); err != nil {
+		r.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
+		return
+	}
+
+	r.log.Info("ipdb updated", slog.String("url", ipdbURL), slog.String("path", destPath))
 }

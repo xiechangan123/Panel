@@ -14,12 +14,14 @@ import (
 
 // WebsiteStat 网站统计后台任务
 type WebsiteStat struct {
-	log        *slog.Logger
-	setting    biz.SettingRepo
-	statRepo   biz.WebsiteStatRepo
-	aggregator *websitestat.Aggregator
-	geoIP      *geoip.GeoIP
-	started    atomic.Bool
+	log          *slog.Logger
+	setting      biz.SettingRepo
+	statRepo     biz.WebsiteStatRepo
+	aggregator   *websitestat.Aggregator
+	geoIP        *geoip.GeoIP
+	geoIPPath    string
+	geoIPModTime time.Time
+	started      atomic.Bool
 }
 
 // NewWebsiteStat 创建网站统计任务
@@ -38,6 +40,7 @@ func (r *WebsiteStat) Run() {
 	}
 
 	r.ensureListener()
+	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.log)
 	r.flush()
 	r.flushErrors()
 	r.flushDetails()
@@ -65,16 +68,6 @@ func (r *WebsiteStat) ensureListener() {
 	}
 	if v, err := r.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled); err == nil {
 		r.aggregator.BodyEnabled = v
-	}
-
-	// 加载 GeoIP 数据库
-	if ipdbPath, err := r.setting.Get(biz.SettingKeyIPDBPath); err == nil && ipdbPath != "" {
-		if g, err := geoip.NewGeoIP(ipdbPath); err != nil {
-			r.log.Warn("failed to load ipdb", slog.String("path", ipdbPath), slog.Any("err", err))
-		} else {
-			r.geoIP = g
-			r.log.Info("geoip database loaded", slog.String("path", ipdbPath))
-		}
 	}
 
 	listener, err := websitestat.NewListener("/tmp/ace_stats.sock", r.log)

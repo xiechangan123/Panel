@@ -171,7 +171,23 @@ const menus = computed<TreeSelectOption[]>(() => {
           :placeholder="$gettext('Please enter the complete URL')"
         />
       </n-form-item>
-      <n-form-item :label="$gettext('IPDB Path')">
+      <n-form-item :label="$gettext('IPDB Source')">
+        <n-radio-group v-model:value="model.ipdb_type">
+          <n-radio-button value="">{{ $gettext('Disabled') }}</n-radio-button>
+          <n-radio-button value="subscribe">{{ $gettext('Subscribe') }}</n-radio-button>
+          <n-radio-button value="custom">{{ $gettext('Custom File') }}</n-radio-button>
+        </n-radio-group>
+      </n-form-item>
+      <n-form-item v-if="model.ipdb_type === 'subscribe'" :label="$gettext('Subscribe URL')">
+        <n-input
+          v-model:value="model.ipdb_url"
+          placeholder="https://fastly.jsdelivr.net/npm/qqwry.ipdb/qqwry.ipdb"
+        />
+        <template #feedback>
+          {{ $gettext('Auto-update weekly, compatible with IPIP.NET format (.ipdb)') }}
+        </template>
+      </n-form-item>
+      <n-form-item v-if="model.ipdb_type === 'custom'" :label="$gettext('IPDB Path')">
         <n-input-group>
           <n-input
             v-model:value="model.ipdb_path"
@@ -184,11 +200,7 @@ const menus = computed<TreeSelectOption[]>(() => {
           </n-button>
         </n-input-group>
         <template #feedback>
-          {{
-            $gettext(
-              'Compatible with IPIP.NET format (.ipdb), due to the licensing agreement, you need to provide the database yourself.'
-            )
-          }}
+          {{ $gettext('Compatible with IPIP.NET format (.ipdb)') }}
         </template>
       </n-form-item>
       <n-form-item :label="$gettext('Hide Menu')">

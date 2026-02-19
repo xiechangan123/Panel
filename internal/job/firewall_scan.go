@@ -14,13 +14,15 @@ import (
 
 // FirewallScan 防火墙扫描感知任务
 type FirewallScan struct {
-	log      *slog.Logger
-	setting  biz.SettingRepo
-	scanRepo biz.ScanEventRepo
-	scanner  *scan.Scanner
-	geoIP    *geoip.GeoIP
-	buffer   map[string]*biz.ScanEvent // key: "ip:port:proto:date"
-	mu       sync.Mutex
+	log          *slog.Logger
+	setting      biz.SettingRepo
+	scanRepo     biz.ScanEventRepo
+	scanner      *scan.Scanner
+	geoIP        *geoip.GeoIP
+	geoIPPath    string
+	geoIPModTime time.Time
+	buffer       map[string]*biz.ScanEvent // key: "ip:port:proto:date"
+	mu           sync.Mutex
 }
 
 // NewFirewallScan 创建扫描感知任务
@@ -47,6 +49,9 @@ func (r *FirewallScan) Run() {
 
 	// 确保 scanner 已启动
 	r.ensureScanner()
+
+	// 热更新 GeoIP
+	r.geoIP, r.geoIPPath, r.geoIPModTime = refreshGeoIP(r.setting, r.geoIP, r.geoIPPath, r.geoIPModTime, r.log)
 
 	// flush 缓冲到数据库
 	r.flush()
@@ -78,17 +83,6 @@ func (r *FirewallScan) ensureScanner() {
 	}
 
 	r.scanner = scanner
-
-	// 加载 GeoIP 数据库
-	if r.geoIP == nil {
-		if ipdbPath, err := r.setting.Get(biz.SettingKeyIPDBPath); err == nil && ipdbPath != "" {
-			if g, err := geoip.NewGeoIP(ipdbPath); err != nil {
-				r.log.Warn("failed to load ipdb", slog.String("path", ipdbPath), slog.Any("err", err))
-			} else {
-				r.geoIP = g
-			}
-		}
-	}
 
 	// 启动后台事件聚合
 	go r.aggregate()

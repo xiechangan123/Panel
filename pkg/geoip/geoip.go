@@ -28,6 +28,11 @@ type GeoResult struct {
 	District string
 }
 
+// Reload 重新加载 IP 数据库文件
+func (g *GeoIP) Reload(path string) error {
+	return g.db.Reload(path)
+}
+
 // Lookup 查询 IP 的地理位置，失败返回空结果
 func (g *GeoIP) Lookup(ip string) GeoResult {
 	if g == nil || g.db == nil {

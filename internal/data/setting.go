@@ -204,6 +204,14 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	if err != nil {
 		return nil, err
 	}
+	ipdbType, err := r.Get(biz.SettingKeyIPDBType)
+	if err != nil {
+		return nil, err
+	}
+	ipdbURL, err := r.Get(biz.SettingKeyIPDBURL)
+	if err != nil {
+		return nil, err
+	}
 	ipdbPath, err := r.Get(biz.SettingKeyIPDBPath)
 	if err != nil {
 		return nil, err
@@ -240,6 +248,8 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		ContainerSock: containerSock,
 		HiddenMenu:    hiddenMenu,
 		CustomLogo:    customLogo,
+		IPDBType:      ipdbType,
+		IPDBURL:       ipdbURL,
 		IPDBPath:      ipdbPath,
 		Port:          r.conf.HTTP.Port,
 		HTTPS:         r.conf.HTTP.TLS,
@@ -279,6 +289,17 @@ func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyCustomLogo, req.CustomLogo); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyIPDBType, req.IPDBType); err != nil {
+		return false, err
+	}
+	ipdbURL := req.IPDBURL
+	if req.IPDBType == "subscribe" && ipdbURL == "" {
+		// https://github.com/metowolf/qqwry.ipdb
+		ipdbURL = "https://fastly.jsdelivr.net/npm/qqwry.ipdb/qqwry.ipdb"
+	}
+	if err := r.Set(biz.SettingKeyIPDBURL, ipdbURL); err != nil {
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyIPDBPath, req.IPDBPath); err != nil {

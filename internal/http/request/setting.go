@@ -23,6 +23,8 @@ type SettingPanel struct {
 	ContainerSock string   `json:"container_sock"`
 	HiddenMenu    []string `json:"hidden_menu"`                      // 隐藏的菜单项
 	CustomLogo    string   `json:"custom_logo" validate:"isFullURL"` // 自定义 Logo URL
+	IPDBType      string   `json:"ipdb_type"`                        // IPDB 来源类型: "" / "custom" / "subscribe"
+	IPDBURL       string   `json:"ipdb_url"`                         // IPDB 订阅链接
 	IPDBPath      string   `json:"ipdb_path"`                        // IPDB 地理位置库路径
 	Port          uint     `json:"port" validate:"required|min:1|max:65535"`
 	HTTPS         bool     `json:"https"`

@@ -39,6 +39,8 @@ const (
 	SettingKeyWebsiteStatIPMaxKeys     SettingKey = "website_stat_ip_max_keys"
 	SettingKeyWebsiteStatDetailMaxKeys SettingKey = "website_stat_detail_max_keys"
 	SettingKeyWebsiteStatBodyEnabled   SettingKey = "website_stat_body_enabled"
+	SettingKeyIPDBType                 SettingKey = "ipdb_type" // "" / "custom" / "subscribe"
+	SettingKeyIPDBURL                  SettingKey = "ipdb_url"  // 订阅链接
 	SettingKeyIPDBPath                 SettingKey = "ipdb_path"
 )
 
