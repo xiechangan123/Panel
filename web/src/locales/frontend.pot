@@ -163,7 +163,7 @@ msgstr ""
 #: src/views/project/CreateModal.vue:46
 #: src/views/project/CreateModal.vue:58
 #: src/views/project/CreateModal.vue:70
-#: src/views/website/StatsView.vue:156
+#: src/views/website/StatsView.vue:157
 msgid "Custom"
 msgstr ""
 
@@ -819,7 +819,7 @@ msgid "Col"
 msgstr ""
 
 #: src/components/file-editor/EditorStatusBar.vue:122
-#: src/views/setting/SettingBase.vue:119
+#: src/views/setting/SettingBase.vue:123
 msgid "Language"
 msgstr ""
 
@@ -1448,6 +1448,10 @@ msgstr ""
 #: src/views/firewall/RuleView.vue:177
 #: src/views/firewall/RuleView.vue:202
 #: src/views/toolbox/DiskView.vue:176
+#: src/views/website/stats/GeoTab.vue:67
+#: src/views/website/stats/GeoTab.vue:110
+#: src/views/website/stats/IPsTab.vue:59
+#: src/views/website/stats/IPsTab.vue:91
 msgid "Unknown"
 msgstr ""
 
@@ -1630,7 +1634,7 @@ msgstr ""
 #: src/views/firewall/ForwardView.vue:79
 #: src/views/firewall/IpRuleView.vue:121
 #: src/views/firewall/RuleView.vue:225
-#: src/views/firewall/ScanView.vue:250
+#: src/views/firewall/ScanView.vue:252
 #: src/views/project/ListView.vue:116
 #: src/views/setting/SettingUser.vue:85
 #: src/views/setting/TokenModal.vue:54
@@ -1956,9 +1960,9 @@ msgstr ""
 #: src/views/database/RedisDataView.vue:223
 #: src/views/environment/PHPView.vue:175
 #: src/views/environment/PHPView.vue:181
-#: src/views/firewall/ScanView.vue:307
+#: src/views/firewall/ScanView.vue:321
 #: src/views/website/EditModal.vue:214
-#: src/views/website/StatsView.vue:90
+#: src/views/website/StatsView.vue:91
 msgid "Cleared successfully"
 msgstr ""
 
@@ -2960,8 +2964,8 @@ msgid "Listen"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:166
-#: src/views/firewall/ScanView.vue:280
 #: src/views/firewall/ScanView.vue:288
+#: src/views/firewall/ScanView.vue:302
 msgid "Protocol"
 msgstr ""
 
@@ -3999,6 +4003,8 @@ msgid "Style"
 msgstr ""
 
 #: src/views/backup/StorageView.vue:262
+#: src/views/website/stats/GeoTab.vue:59
+#: src/views/website/stats/GeoTab.vue:131
 msgid "Region"
 msgstr ""
 
@@ -4049,11 +4055,11 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:83
 #: src/views/firewall/ForwardView.vue:31
 #: src/views/firewall/RuleView.vue:65
-#: src/views/firewall/ScanView.vue:279
 #: src/views/firewall/ScanView.vue:287
-#: src/views/firewall/ScanView.vue:351
+#: src/views/firewall/ScanView.vue:301
+#: src/views/firewall/ScanView.vue:365
 #: src/views/log/SSHLog.vue:81
-#: src/views/setting/SettingBase.vue:125
+#: src/views/setting/SettingBase.vue:129
 #: src/views/ssh/CreateModal.vue:70
 #: src/views/ssh/UpdateModal.vue:76
 #: src/views/website/CreateModal.vue:224
@@ -6212,106 +6218,113 @@ msgstr ""
 msgid "No process information"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:187
-#: src/views/firewall/ScanView.vue:205
-#: src/views/firewall/ScanView.vue:217
-#: src/views/firewall/ScanView.vue:267
-#: src/views/firewall/ScanView.vue:281
+#: src/views/firewall/ScanView.vue:189
+#: src/views/firewall/ScanView.vue:207
+#: src/views/firewall/ScanView.vue:219
+#: src/views/firewall/ScanView.vue:275
 #: src/views/firewall/ScanView.vue:289
+#: src/views/firewall/ScanView.vue:303
 msgid "Scan Count"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:187
-#: src/views/firewall/ScanView.vue:210
-#: src/views/firewall/ScanView.vue:223
-#: src/views/firewall/ScanView.vue:399
+#: src/views/firewall/ScanView.vue:189
+#: src/views/firewall/ScanView.vue:212
+#: src/views/firewall/ScanView.vue:225
+#: src/views/firewall/ScanView.vue:422
 msgid "Source IPs"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:244
+#: src/views/firewall/ScanView.vue:246
 msgid "%{ address } blocked successfully"
-msgstr ""
-
-#: src/views/firewall/ScanView.vue:258
-msgctxt "firewall"
-msgid "Block %{ ip }?"
 msgstr ""
 
 #: src/views/firewall/ScanView.vue:260
 msgctxt "firewall"
+msgid "Block %{ ip }?"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:262
+msgctxt "firewall"
 msgid "Block"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:266
-#: src/views/firewall/ScanView.vue:286
+#: src/views/firewall/ScanView.vue:268
+#: src/views/firewall/ScanView.vue:294
 #: src/views/log/SSHLog.vue:76
 msgid "Source IP"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:268
+#: src/views/firewall/ScanView.vue:270
+#: src/views/firewall/ScanView.vue:296
+#: src/views/firewall/ScanView.vue:375
+#: src/views/website/stats/IPsTab.vue:145
+msgid "Location"
+msgstr ""
+
+#: src/views/firewall/ScanView.vue:276
 msgid "Port Count"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:270
-#: src/views/firewall/ScanView.vue:297
+#: src/views/firewall/ScanView.vue:278
+#: src/views/firewall/ScanView.vue:311
 msgid "Last Seen"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:282
+#: src/views/firewall/ScanView.vue:290
 msgid "IP Count"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:291
+#: src/views/firewall/ScanView.vue:305
 msgid "First Seen"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:316
+#: src/views/firewall/ScanView.vue:330
 msgid "Scan Awareness Disabled"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:319
+#: src/views/firewall/ScanView.vue:333
 msgid "Enable scan awareness in the Settings tab to start detecting port scans."
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:327
-#: src/views/website/StatsView.vue:184
+#: src/views/firewall/ScanView.vue:341
+#: src/views/website/StatsView.vue:185
 msgid "Overview"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:328
+#: src/views/firewall/ScanView.vue:342
 msgid "Scan Events"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:342
+#: src/views/firewall/ScanView.vue:356
 msgid "Search IP"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:361
-#: src/views/website/StatsView.vue:174
+#: src/views/firewall/ScanView.vue:384
+#: src/views/website/StatsView.vue:175
 msgid "Clear Data"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:364
+#: src/views/firewall/ScanView.vue:387
 msgid "Are you sure you want to clear all scan data?"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:375
+#: src/views/firewall/ScanView.vue:398
 msgid "Total Scans"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:386
+#: src/views/firewall/ScanView.vue:409
 msgid "Scanned Ports"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:411
+#: src/views/firewall/ScanView.vue:434
 msgid "Scan Trend"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:420
+#: src/views/firewall/ScanView.vue:443
 msgid "Top 10 Source IPs"
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:431
+#: src/views/firewall/ScanView.vue:454
 msgid "Top 10 Scanned Ports"
 msgstr ""
 
@@ -6680,7 +6693,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:863
 #: src/views/monitor/IndexView.vue:919
 #: src/views/monitor/IndexView.vue:986
-#: src/views/website/StatsView.vue:128
+#: src/views/website/StatsView.vue:129
 msgid "Today"
 msgstr ""
 
@@ -6905,7 +6918,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:913
 #: src/views/monitor/IndexView.vue:980
 #: src/views/website/stats/OverviewTab.vue:238
-#: src/views/website/StatsView.vue:134
+#: src/views/website/StatsView.vue:135
 msgid "Yesterday"
 msgstr ""
 
@@ -6914,7 +6927,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:869
 #: src/views/monitor/IndexView.vue:925
 #: src/views/monitor/IndexView.vue:992
-#: src/views/website/StatsView.vue:140
+#: src/views/website/StatsView.vue:141
 msgid "Last 7 Days"
 msgstr ""
 
@@ -7438,64 +7451,76 @@ msgstr ""
 msgid "Refresh Certificate"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:56
+#: src/views/setting/SettingBase.vue:60
 msgid "Stable"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:60
+#: src/views/setting/SettingBase.vue:64
 msgid "Beta"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:116
-#: src/views/setting/SettingBase.vue:117
+#: src/views/setting/SettingBase.vue:120
+#: src/views/setting/SettingBase.vue:121
 msgid "Panel Name"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:122
+#: src/views/setting/SettingBase.vue:126
 msgid "Update Channel"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:126
+#: src/views/setting/SettingBase.vue:130
 msgid "8888"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:128
+#: src/views/setting/SettingBase.vue:132
 msgid "Default Website Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:130
+#: src/views/setting/SettingBase.vue:134
 msgid "/opt/ace/sites"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:138
+#: src/views/setting/SettingBase.vue:142
 msgid "Default Backup Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:140
+#: src/views/setting/SettingBase.vue:144
 msgid "/opt/ace/backup"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:148
+#: src/views/setting/SettingBase.vue:152
 msgid "Default Project Directory"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:152
+#: src/views/setting/SettingBase.vue:156
 msgid "/opt/ace/projects"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:161
+#: src/views/setting/SettingBase.vue:165
 msgid "Container Socket"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:167
+#: src/views/setting/SettingBase.vue:168
 msgid "Custom Logo"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:170
+#: src/views/setting/SettingBase.vue:171
 msgid "Please enter the complete URL"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:173
+#: src/views/setting/SettingBase.vue:174
+msgid "IPDB Path"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:178
+msgid "GeoIP database file path (.ipdb)"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:188
+msgid "Compatible with IPIP.NET format (.ipdb), due to the licensing agreement, you need to provide the database yourself."
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:194
 msgid "Hide Menu"
 msgstr ""
 
@@ -10490,7 +10515,10 @@ msgid "OS"
 msgstr ""
 
 #: src/views/website/stats/ClientsTab.vue:95
-#: src/views/website/stats/IPsTab.vue:49
+#: src/views/website/stats/GeoTab.vue:70
+#: src/views/website/stats/GeoTab.vue:103
+#: src/views/website/stats/IPsTab.vue:115
+#: src/views/website/stats/IPsTab.vue:151
 #: src/views/website/stats/OverviewTab.vue:120
 #: src/views/website/stats/SitesTab.vue:47
 #: src/views/website/stats/SpidersTab.vue:54
@@ -10512,23 +10540,41 @@ msgstr ""
 msgid "Site"
 msgstr ""
 
-#: src/views/website/stats/IPsTab.vue:54
+#: src/views/website/stats/GeoTab.vue:60
+#: src/views/website/stats/GeoTab.vue:130
+msgid "Country"
+msgstr ""
+
+#: src/views/website/stats/GeoTab.vue:75
+#: src/views/website/stats/GeoTab.vue:103
+#: src/views/website/stats/IPsTab.vue:115
+#: src/views/website/stats/IPsTab.vue:156
 #: src/views/website/stats/OverviewTab.vue:119
 #: src/views/website/stats/SitesTab.vue:41
 #: src/views/website/stats/URIsTab.vue:54
 msgid "Bandwidth"
 msgstr ""
 
+#: src/views/website/stats/GeoTab.vue:86
+#: src/views/website/stats/IPsTab.vue:182
+msgid "Region Distribution"
+msgstr ""
+
+#: src/views/website/stats/GeoTab.vue:87
+#: src/views/website/stats/IPsTab.vue:179
+msgid "Country Distribution"
+msgstr ""
+
 #: src/views/website/stats/OverviewTab.vue:121
 #: src/views/website/stats/SitesTab.vue:51
 #: src/views/website/stats/URIsTab.vue:59
-#: src/views/website/StatsView.vue:202
+#: src/views/website/StatsView.vue:206
 msgid "Errors"
 msgstr ""
 
 #: src/views/website/stats/OverviewTab.vue:122
 #: src/views/website/stats/SitesTab.vue:53
-#: src/views/website/StatsView.vue:190
+#: src/views/website/StatsView.vue:191
 msgid "Spiders"
 msgstr ""
 
@@ -10558,30 +10604,34 @@ msgstr ""
 msgid "Spider"
 msgstr ""
 
-#: src/views/website/StatsView.vue:118
+#: src/views/website/StatsView.vue:119
 msgid "All Sites"
 msgstr ""
 
-#: src/views/website/StatsView.vue:146
+#: src/views/website/StatsView.vue:147
 msgid "Last 30 Days"
 msgstr ""
 
-#: src/views/website/StatsView.vue:177
+#: src/views/website/StatsView.vue:178
 msgid "Are you sure you want to clear all statistics data?"
 msgstr ""
 
-#: src/views/website/StatsView.vue:187
+#: src/views/website/StatsView.vue:188
 msgid "Sites"
 msgstr ""
 
-#: src/views/website/StatsView.vue:193
+#: src/views/website/StatsView.vue:194
 msgid "Clients"
 msgstr ""
 
-#: src/views/website/StatsView.vue:196
+#: src/views/website/StatsView.vue:197
 msgid "IPs"
 msgstr ""
 
-#: src/views/website/StatsView.vue:199
+#: src/views/website/StatsView.vue:200
+msgid "Geo"
+msgstr ""
+
+#: src/views/website/StatsView.vue:203
 msgid "URIs"
 msgstr ""
