@@ -1,13 +1,10 @@
 package job
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
-
-	"resty.dev/v3"
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
@@ -19,7 +16,7 @@ func resolveIPDBPath(setting biz.SettingRepo) string {
 	ipdbType, _ := setting.Get(biz.SettingKeyIPDBType)
 	switch ipdbType {
 	case "subscribe":
-		return filepath.Join(app.Root, "panel/storage/geo/qqwry.ipdb")
+		return filepath.Join(app.Root, "panel/storage/geo.ipdb")
 	case "custom":
 		path, _ := setting.Get(biz.SettingKeyIPDBPath)
 		return path
@@ -70,33 +67,4 @@ func refreshGeoIP(setting biz.SettingRepo, current *geoip.GeoIP, curPath string,
 	}
 	log.Info("ipdb loaded", slog.String("path", path))
 	return g, path, modTime
-}
-
-// downloadFile 下载文件到指定路径原子替换
-func downloadFile(url, destPath string) error {
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
-		return fmt.Errorf("failed to create directory: %w", err)
-	}
-
-	tmpPath := destPath + ".tmp"
-	client := resty.New()
-	defer func() { _ = client.Close() }()
-	defer func() { _ = os.Remove(tmpPath) }()
-
-	resp, err := client.R().
-		SetSaveResponse(true).
-		SetOutputFileName(tmpPath).
-		Get(url)
-	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
-	}
-	if resp.IsError() {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode())
-	}
-
-	if err = os.Rename(tmpPath, destPath); err != nil {
-		return fmt.Errorf("failed to rename file: %w", err)
-	}
-
-	return nil
 }

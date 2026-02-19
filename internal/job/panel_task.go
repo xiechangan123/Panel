@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
+	"os"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
@@ -17,6 +18,7 @@ import (
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/api"
 	"github.com/acepanel/panel/pkg/config"
+	"github.com/acepanel/panel/pkg/io"
 )
 
 // PanelTask 面板每日任务
@@ -170,10 +172,12 @@ func (r *PanelTask) updatePanel() {
 
 // updateIPDB 更新 IPDB 订阅文件
 func (r *PanelTask) updateIPDB() {
-	// 每周五更新
-	if time.Now().Weekday() != time.Friday {
+	// 文件已存在时每周五更新，不存在则立即下载
+	destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
+	if _, err := os.Stat(destPath); err == nil && time.Now().Weekday() != time.Friday {
 		return
 	}
+
 	ipdbType, _ := r.settingRepo.Get(biz.SettingKeyIPDBType)
 	if ipdbType != "subscribe" {
 		return
@@ -183,8 +187,7 @@ func (r *PanelTask) updateIPDB() {
 		return
 	}
 
-	destPath := filepath.Join(app.Root, "panel/storage/geo/qqwry.ipdb")
-	if err := downloadFile(ipdbURL, destPath); err != nil {
+	if err := io.DownloadFile(ipdbURL, destPath); err != nil {
 		r.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
 		return
 	}

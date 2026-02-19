@@ -309,6 +309,18 @@ func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel
 		return false, err
 	}
 
+	// 订阅模式后台下载 IPDB
+	if req.IPDBType == "subscribe" && ipdbURL != "" {
+		go func() {
+			destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
+			if err := io.DownloadFile(ipdbURL, destPath); err != nil {
+				r.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
+			} else {
+				r.log.Info("ipdb downloaded", slog.String("url", ipdbURL))
+			}
+		}()
+	}
+
 	// 下面是需要需要重启的设置
 	// 面板HTTPS
 	restartFlag := false

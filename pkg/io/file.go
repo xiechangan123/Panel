@@ -1,9 +1,12 @@
 package io
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"resty.dev/v3"
 
 	"github.com/acepanel/panel/pkg/chattr"
 )
@@ -109,4 +112,33 @@ func GetSymlink(path string) string {
 		return ""
 	}
 	return linkPath
+}
+
+// DownloadFile 下载文件到指定路径，使用 .tmp 原子替换
+func DownloadFile(url, destPath string) error {
+	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	tmpPath := destPath + ".tmp"
+	client := resty.New()
+	defer func() { _ = client.Close() }()
+	defer func() { _ = os.Remove(tmpPath) }()
+
+	resp, err := client.R().
+		SetSaveResponse(true).
+		SetOutputFileName(tmpPath).
+		Get(url)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	if resp.IsError() {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode())
+	}
+
+	if err = os.Rename(tmpPath, destPath); err != nil {
+		return fmt.Errorf("failed to rename file: %w", err)
+	}
+
+	return nil
 }
