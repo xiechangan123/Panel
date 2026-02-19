@@ -161,7 +161,7 @@ msgstr "每年"
 #: src/views/monitor/IndexView.vue:1002 src/views/project/CreateModal.vue:22
 #: src/views/project/CreateModal.vue:33 src/views/project/CreateModal.vue:46
 #: src/views/project/CreateModal.vue:58 src/views/project/CreateModal.vue:70
-#: src/views/website/StatsView.vue:153
+#: src/views/website/StatsView.vue:160
 msgid "Custom"
 msgstr "自定义"
 
@@ -760,6 +760,7 @@ msgstr "此文件有未保存的更改。刷新将丢弃它们。是否继续？
 #: src/views/toolbox/MigrationView.vue:587
 #: src/views/toolbox/NetworkView.vue:188 src/views/toolbox/PanelView.vue:99
 #: src/views/toolbox/PanelView.vue:232 src/views/toolbox/ProcessView.vue:329
+#: src/views/website/StatsView.vue:176
 msgid "Refresh"
 msgstr "刷新"
 
@@ -5771,6 +5772,8 @@ msgstr "拒绝"
 #: src/views/firewall/RuleView.vue:198
 #: src/views/website/stats/OverviewTab.vue:390
 #: src/views/website/stats/OverviewTab.vue:424
+#: src/views/website/stats/OverviewTab.vue:480
+#: src/views/website/stats/SitesTab.vue:47
 msgid "Inbound"
 msgstr "入站"
 
@@ -5780,6 +5783,8 @@ msgstr "入站"
 #: src/views/website/stats/OverviewTab.vue:388
 #: src/views/website/stats/OverviewTab.vue:389
 #: src/views/website/stats/OverviewTab.vue:414
+#: src/views/website/stats/OverviewTab.vue:472
+#: src/views/website/stats/SitesTab.vue:41
 msgid "Outbound"
 msgstr "出站"
 
@@ -5936,7 +5941,7 @@ msgid ""
 "Enable scan awareness in the Settings tab to start detecting port scans."
 msgstr "在设置标签页中启用扫描感知以开始检测端口扫描。"
 
-#: src/views/firewall/ScanView.vue:341 src/views/website/StatsView.vue:181
+#: src/views/firewall/ScanView.vue:341 src/views/website/StatsView.vue:191
 msgid "Overview"
 msgstr "概览"
 
@@ -5948,7 +5953,7 @@ msgstr "扫描事件"
 msgid "Search IP"
 msgstr "搜索 IP"
 
-#: src/views/firewall/ScanView.vue:384 src/views/website/StatsView.vue:171
+#: src/views/firewall/ScanView.vue:384 src/views/website/StatsView.vue:181
 msgid "Clear Data"
 msgstr "清除数据"
 
@@ -6331,7 +6336,7 @@ msgstr "正在加载更新信息，请稍候"
 #: src/views/log/OperationLog.vue:33 src/views/monitor/IndexView.vue:757
 #: src/views/monitor/IndexView.vue:811 src/views/monitor/IndexView.vue:863
 #: src/views/monitor/IndexView.vue:919 src/views/monitor/IndexView.vue:986
-#: src/views/website/StatsView.vue:131
+#: src/views/website/StatsView.vue:138
 msgid "Today"
 msgstr "今天"
 
@@ -6538,13 +6543,13 @@ msgstr "负载"
 #: src/views/monitor/IndexView.vue:857 src/views/monitor/IndexView.vue:913
 #: src/views/monitor/IndexView.vue:980
 #: src/views/website/stats/OverviewTab.vue:259
-#: src/views/website/StatsView.vue:137
+#: src/views/website/StatsView.vue:144
 msgid "Yesterday"
 msgstr "昨天"
 
 #: src/views/monitor/IndexView.vue:763 src/views/monitor/IndexView.vue:817
 #: src/views/monitor/IndexView.vue:869 src/views/monitor/IndexView.vue:925
-#: src/views/monitor/IndexView.vue:992 src/views/website/StatsView.vue:140
+#: src/views/monitor/IndexView.vue:992 src/views/website/StatsView.vue:147
 msgid "Last 7 Days"
 msgstr "近 7 天"
 
@@ -10190,7 +10195,7 @@ msgstr "操作系统"
 #: src/views/website/stats/IPsTab.vue:115
 #: src/views/website/stats/IPsTab.vue:151
 #: src/views/website/stats/OverviewTab.vue:141
-#: src/views/website/stats/SitesTab.vue:47
+#: src/views/website/stats/SitesTab.vue:53
 #: src/views/website/stats/SlowURIsTab.vue:61
 #: src/views/website/stats/SpidersTab.vue:54
 #: src/views/website/stats/SpidersTab.vue:77
@@ -10219,7 +10224,6 @@ msgstr "国家"
 #: src/views/website/stats/IPsTab.vue:115
 #: src/views/website/stats/IPsTab.vue:156
 #: src/views/website/stats/OverviewTab.vue:140
-#: src/views/website/stats/SitesTab.vue:41
 #: src/views/website/stats/SlowURIsTab.vue:76
 #: src/views/website/stats/URIsTab.vue:54
 msgid "Bandwidth"
@@ -10234,14 +10238,14 @@ msgid "Country Distribution"
 msgstr "国家分布"
 
 #: src/views/website/stats/OverviewTab.vue:142
-#: src/views/website/stats/SitesTab.vue:51
+#: src/views/website/stats/SitesTab.vue:57
 #: src/views/website/stats/SlowURIsTab.vue:81
-#: src/views/website/stats/URIsTab.vue:59 src/views/website/StatsView.vue:208
+#: src/views/website/stats/URIsTab.vue:59 src/views/website/StatsView.vue:218
 msgid "Errors"
 msgstr "错误"
 
 #: src/views/website/stats/OverviewTab.vue:143
-#: src/views/website/stats/SitesTab.vue:53 src/views/website/StatsView.vue:187
+#: src/views/website/stats/SitesTab.vue:59 src/views/website/StatsView.vue:197
 msgid "Spiders"
 msgstr "蜘蛛"
 
@@ -10265,16 +10269,12 @@ msgstr "前天"
 msgid "Avg Response Time"
 msgstr "添加响应头"
 
-#: src/views/website/stats/OverviewTab.vue:472
-msgid "Realtime Bandwidth"
-msgstr "实时流量"
-
-#: src/views/website/stats/OverviewTab.vue:508
+#: src/views/website/stats/OverviewTab.vue:516
 #, fuzzy
 msgid "Performance"
 msgstr "性能调优"
 
-#: src/views/website/stats/OverviewTab.vue:515
+#: src/views/website/stats/OverviewTab.vue:523
 #, fuzzy
 msgid "Traffic"
 msgstr "按流量"
@@ -10289,44 +10289,47 @@ msgid "Spider"
 msgstr "蜘蛛"
 
 #: src/views/website/stats/StatusCodesTab.vue:193
-#: src/views/website/StatsView.vue:202
+#: src/views/website/StatsView.vue:212
 #, fuzzy
 msgid "Status Codes"
 msgstr "状态码"
 
-#: src/views/website/StatsView.vue:121
+#: src/views/website/StatsView.vue:128
 msgid "All Sites"
 msgstr "所有站点"
 
-#: src/views/website/StatsView.vue:143
+#: src/views/website/StatsView.vue:150
 msgid "Last 30 Days"
 msgstr "近 30 天"
 
-#: src/views/website/StatsView.vue:174
+#: src/views/website/StatsView.vue:184
 msgid "Are you sure you want to clear all statistics data?"
 msgstr "您确定要清除所有统计数据吗？"
 
-#: src/views/website/StatsView.vue:184
+#: src/views/website/StatsView.vue:194
 msgid "Sites"
 msgstr "站点"
 
-#: src/views/website/StatsView.vue:190
+#: src/views/website/StatsView.vue:200
 msgid "Clients"
 msgstr "客户端"
 
-#: src/views/website/StatsView.vue:193
+#: src/views/website/StatsView.vue:203
 msgid "IPs"
 msgstr "IPs"
 
-#: src/views/website/StatsView.vue:196
+#: src/views/website/StatsView.vue:206
 msgid "Geo"
 msgstr "Geo"
 
-#: src/views/website/StatsView.vue:199
+#: src/views/website/StatsView.vue:209
 msgid "URIs"
 msgstr "URIs"
 
-#: src/views/website/StatsView.vue:205
+#: src/views/website/StatsView.vue:215
 #, fuzzy
 msgid "Slow Requests"
 msgstr "请求"
+
+#~ msgid "Realtime Bandwidth"
+#~ msgstr "实时流量"

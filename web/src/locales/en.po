@@ -160,7 +160,7 @@ msgstr ""
 #: src/views/monitor/IndexView.vue:1002 src/views/project/CreateModal.vue:22
 #: src/views/project/CreateModal.vue:33 src/views/project/CreateModal.vue:46
 #: src/views/project/CreateModal.vue:58 src/views/project/CreateModal.vue:70
-#: src/views/website/StatsView.vue:153
+#: src/views/website/StatsView.vue:160
 #, fuzzy
 msgid "Custom"
 msgstr "Custom Logo"
@@ -780,6 +780,7 @@ msgstr ""
 #: src/views/toolbox/MigrationView.vue:587
 #: src/views/toolbox/NetworkView.vue:188 src/views/toolbox/PanelView.vue:99
 #: src/views/toolbox/PanelView.vue:232 src/views/toolbox/ProcessView.vue:329
+#: src/views/website/StatsView.vue:176
 msgid "Refresh"
 msgstr "Refresh"
 
@@ -6059,6 +6060,8 @@ msgstr "Reject"
 #: src/views/firewall/RuleView.vue:198
 #: src/views/website/stats/OverviewTab.vue:390
 #: src/views/website/stats/OverviewTab.vue:424
+#: src/views/website/stats/OverviewTab.vue:480
+#: src/views/website/stats/SitesTab.vue:47
 msgid "Inbound"
 msgstr "Inbound"
 
@@ -6068,6 +6071,8 @@ msgstr "Inbound"
 #: src/views/website/stats/OverviewTab.vue:388
 #: src/views/website/stats/OverviewTab.vue:389
 #: src/views/website/stats/OverviewTab.vue:414
+#: src/views/website/stats/OverviewTab.vue:472
+#: src/views/website/stats/SitesTab.vue:41
 msgid "Outbound"
 msgstr "Outbound"
 
@@ -6234,7 +6239,7 @@ msgid ""
 "Enable scan awareness in the Settings tab to start detecting port scans."
 msgstr ""
 
-#: src/views/firewall/ScanView.vue:341 src/views/website/StatsView.vue:181
+#: src/views/firewall/ScanView.vue:341 src/views/website/StatsView.vue:191
 #, fuzzy
 msgid "Overview"
 msgstr "Overwrite"
@@ -6248,7 +6253,7 @@ msgstr ""
 msgid "Search IP"
 msgstr "Parent PID"
 
-#: src/views/firewall/ScanView.vue:384 src/views/website/StatsView.vue:171
+#: src/views/firewall/ScanView.vue:384 src/views/website/StatsView.vue:181
 #, fuzzy
 msgid "Clear Data"
 msgstr "Clear Log"
@@ -6644,7 +6649,7 @@ msgstr "Loading update information, please wait a moment"
 #: src/views/log/OperationLog.vue:33 src/views/monitor/IndexView.vue:757
 #: src/views/monitor/IndexView.vue:811 src/views/monitor/IndexView.vue:863
 #: src/views/monitor/IndexView.vue:919 src/views/monitor/IndexView.vue:986
-#: src/views/website/StatsView.vue:131
+#: src/views/website/StatsView.vue:138
 msgid "Today"
 msgstr ""
 
@@ -6867,13 +6872,13 @@ msgstr "Load"
 #: src/views/monitor/IndexView.vue:857 src/views/monitor/IndexView.vue:913
 #: src/views/monitor/IndexView.vue:980
 #: src/views/website/stats/OverviewTab.vue:259
-#: src/views/website/StatsView.vue:137
+#: src/views/website/StatsView.vue:144
 msgid "Yesterday"
 msgstr ""
 
 #: src/views/monitor/IndexView.vue:763 src/views/monitor/IndexView.vue:817
 #: src/views/monitor/IndexView.vue:869 src/views/monitor/IndexView.vue:925
-#: src/views/monitor/IndexView.vue:992 src/views/website/StatsView.vue:140
+#: src/views/monitor/IndexView.vue:992 src/views/website/StatsView.vue:147
 #, fuzzy
 msgid "Last 7 Days"
 msgstr "Save Days"
@@ -10924,7 +10929,7 @@ msgstr ""
 #: src/views/website/stats/IPsTab.vue:115
 #: src/views/website/stats/IPsTab.vue:151
 #: src/views/website/stats/OverviewTab.vue:141
-#: src/views/website/stats/SitesTab.vue:47
+#: src/views/website/stats/SitesTab.vue:53
 #: src/views/website/stats/SlowURIsTab.vue:61
 #: src/views/website/stats/SpidersTab.vue:54
 #: src/views/website/stats/SpidersTab.vue:77
@@ -10956,7 +10961,6 @@ msgstr "Container Count"
 #: src/views/website/stats/IPsTab.vue:115
 #: src/views/website/stats/IPsTab.vue:156
 #: src/views/website/stats/OverviewTab.vue:140
-#: src/views/website/stats/SitesTab.vue:41
 #: src/views/website/stats/SlowURIsTab.vue:76
 #: src/views/website/stats/URIsTab.vue:54
 #, fuzzy
@@ -10974,15 +10978,15 @@ msgid "Country Distribution"
 msgstr "Mount Path"
 
 #: src/views/website/stats/OverviewTab.vue:142
-#: src/views/website/stats/SitesTab.vue:51
+#: src/views/website/stats/SitesTab.vue:57
 #: src/views/website/stats/SlowURIsTab.vue:81
-#: src/views/website/stats/URIsTab.vue:59 src/views/website/StatsView.vue:208
+#: src/views/website/stats/URIsTab.vue:59 src/views/website/StatsView.vue:218
 #, fuzzy
 msgid "Errors"
 msgstr "Error Logs"
 
 #: src/views/website/stats/OverviewTab.vue:143
-#: src/views/website/stats/SitesTab.vue:53 src/views/website/StatsView.vue:187
+#: src/views/website/stats/SitesTab.vue:59 src/views/website/StatsView.vue:197
 msgid "Spiders"
 msgstr ""
 
@@ -11008,17 +11012,12 @@ msgstr ""
 msgid "Avg Response Time"
 msgstr "Login Timeout"
 
-#: src/views/website/stats/OverviewTab.vue:472
-#, fuzzy
-msgid "Realtime Bandwidth"
-msgstr "Memory Bandwidth"
-
-#: src/views/website/stats/OverviewTab.vue:508
+#: src/views/website/stats/OverviewTab.vue:516
 #, fuzzy
 msgid "Performance"
 msgstr "HTTP Redirect"
 
-#: src/views/website/stats/OverviewTab.vue:515
+#: src/views/website/stats/OverviewTab.vue:523
 msgid "Traffic"
 msgstr ""
 
@@ -11033,51 +11032,55 @@ msgid "Spider"
 msgstr ""
 
 #: src/views/website/stats/StatusCodesTab.vue:193
-#: src/views/website/StatsView.vue:202
+#: src/views/website/StatsView.vue:212
 #, fuzzy
 msgid "Status Codes"
 msgstr "Status"
 
-#: src/views/website/StatsView.vue:121
+#: src/views/website/StatsView.vue:128
 #, fuzzy
 msgid "All Sites"
 msgstr "Status"
 
-#: src/views/website/StatsView.vue:143
+#: src/views/website/StatsView.vue:150
 #, fuzzy
 msgid "Last 30 Days"
 msgstr "Save Days"
 
-#: src/views/website/StatsView.vue:174
+#: src/views/website/StatsView.vue:184
 #, fuzzy
 msgid "Are you sure you want to clear all statistics data?"
 msgstr "Are you sure you want to clear?"
 
-#: src/views/website/StatsView.vue:184
+#: src/views/website/StatsView.vue:194
 #, fuzzy
 msgid "Sites"
 msgstr "Website"
 
-#: src/views/website/StatsView.vue:190
+#: src/views/website/StatsView.vue:200
 msgid "Clients"
 msgstr ""
 
-#: src/views/website/StatsView.vue:193
+#: src/views/website/StatsView.vue:203
 msgid "IPs"
 msgstr ""
 
-#: src/views/website/StatsView.vue:196
+#: src/views/website/StatsView.vue:206
 msgid "Geo"
 msgstr ""
 
-#: src/views/website/StatsView.vue:199
+#: src/views/website/StatsView.vue:209
 msgid "URIs"
 msgstr ""
 
-#: src/views/website/StatsView.vue:205
+#: src/views/website/StatsView.vue:215
 #, fuzzy
 msgid "Slow Requests"
 msgstr "Add Server"
+
+#, fuzzy
+#~ msgid "Realtime Bandwidth"
+#~ msgstr "Memory Bandwidth"
 
 #, fuzzy
 #~ msgid "IPDB Source"
