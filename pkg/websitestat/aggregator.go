@@ -66,9 +66,11 @@ type ipCount struct {
 }
 
 type uriCount struct {
-	requests  uint64
-	bandwidth uint64
-	errors    uint64
+	requests         uint64
+	bandwidth        uint64
+	errors           uint64
+	requestTimeSum   uint64
+	requestTimeCount uint64
 }
 
 type rtSlot struct {
@@ -228,10 +230,20 @@ func (a *Aggregator) Record(entry *LogEntry) {
 		if isErr {
 			uc.errors++
 		}
+		if entry.RequestTime > 0 {
+			ms := uint64(entry.RequestTime * 1000)
+			uc.requestTimeSum += ms
+			uc.requestTimeCount++
+		}
 	} else if len(sd.uriCounts) < a.DetailMaxKeys {
 		uc := &uriCount{requests: 1, bandwidth: entry.Bytes}
 		if isErr {
 			uc.errors = 1
+		}
+		if entry.RequestTime > 0 {
+			ms := uint64(entry.RequestTime * 1000)
+			uc.requestTimeSum = ms
+			uc.requestTimeCount = 1
 		}
 		sd.uriCounts[entry.URI] = uc
 	}
@@ -418,7 +430,7 @@ func (a *Aggregator) DrainDetailStats() (detailsByDate map[string]map[string]*Si
 				snap.IPs[k] = &IPCount{Requests: v.requests, Bandwidth: v.bandwidth}
 			}
 			for k, v := range sd.uriCounts {
-				snap.URIs[k] = &URICount{Requests: v.requests, Bandwidth: v.bandwidth, Errors: v.errors}
+				snap.URIs[k] = &URICount{Requests: v.requests, Bandwidth: v.bandwidth, Errors: v.errors, RequestTimeSum: v.requestTimeSum, RequestTimeCount: v.requestTimeCount}
 			}
 
 			details[name] = snap
@@ -469,7 +481,9 @@ func (a *Aggregator) DrainDetailStats() (detailsByDate map[string]map[string]*Si
 						cur.requests = saturatingSub(cur.requests, uc.Requests)
 						cur.bandwidth = saturatingSub(cur.bandwidth, uc.Bandwidth)
 						cur.errors = saturatingSub(cur.errors, uc.Errors)
-						if cur.requests == 0 && cur.bandwidth == 0 && cur.errors == 0 {
+						cur.requestTimeSum = saturatingSub(cur.requestTimeSum, uc.RequestTimeSum)
+						cur.requestTimeCount = saturatingSub(cur.requestTimeCount, uc.RequestTimeCount)
+						if cur.requests == 0 && cur.bandwidth == 0 && cur.errors == 0 && cur.requestTimeSum == 0 && cur.requestTimeCount == 0 {
 							delete(sd.uriCounts, uri)
 						}
 					}

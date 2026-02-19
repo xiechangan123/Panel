@@ -269,13 +269,15 @@ func (r *WebsiteStat) flushDetails() {
 
 			for uri, uc := range snap.URIs {
 				uris = append(uris, &biz.WebsiteStatURI{
-					Site:      site,
-					Date:      date,
-					URI:       uri,
-					Requests:  uc.Requests,
-					Bandwidth: uc.Bandwidth,
-					Errors:    uc.Errors,
-					UpdatedAt: now,
+					Site:             site,
+					Date:             date,
+					URI:              uri,
+					Requests:         uc.Requests,
+					Bandwidth:        uc.Bandwidth,
+					Errors:           uc.Errors,
+					RequestTimeSum:   uc.RequestTimeSum,
+					RequestTimeCount: uc.RequestTimeCount,
+					UpdatedAt:        now,
 				})
 			}
 		}

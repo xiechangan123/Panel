@@ -9,7 +9,9 @@ import GeoTab from './stats/GeoTab.vue'
 import IPsTab from './stats/IPsTab.vue'
 import OverviewTab from './stats/OverviewTab.vue'
 import SitesTab from './stats/SitesTab.vue'
+import SlowURIsTab from './stats/SlowURIsTab.vue'
 import SpidersTab from './stats/SpidersTab.vue'
+import StatusCodesTab from './stats/StatusCodesTab.vue'
 import URIsTab from './stats/URIsTab.vue'
 
 const { $gettext } = useGettext()
@@ -109,7 +111,7 @@ provide('statContext', {
 <template>
   <n-flex vertical :size="20">
     <!-- 共享工具栏 -->
-    <div class="flex w-full flex-wrap items-center gap-12">
+    <div class="flex flex-wrap gap-12 w-full items-center">
       <!-- 站点选择器 -->
       <n-select
         v-model:value="selectedSites"
@@ -134,16 +136,10 @@ provide('statContext', {
         >
           {{ $gettext('Yesterday') }}
         </n-button>
-        <n-button
-          :type="activePreset === '7d' ? 'primary' : 'default'"
-          @click="setPreset('7d')"
-        >
+        <n-button :type="activePreset === '7d' ? 'primary' : 'default'" @click="setPreset('7d')">
           {{ $gettext('Last 7 Days') }}
         </n-button>
-        <n-button
-          :type="activePreset === '30d' ? 'primary' : 'default'"
-          @click="setPreset('30d')"
-        >
+        <n-button :type="activePreset === '30d' ? 'primary' : 'default'" @click="setPreset('30d')">
           {{ $gettext('Last 30 Days') }}
         </n-button>
         <n-popover
@@ -202,6 +198,12 @@ provide('statContext', {
       </n-tab-pane>
       <n-tab-pane name="uris" :tab="$gettext('URIs')">
         <URIsTab />
+      </n-tab-pane>
+      <n-tab-pane name="status_codes" :tab="$gettext('Status Codes')">
+        <StatusCodesTab />
+      </n-tab-pane>
+      <n-tab-pane name="slow_uris" :tab="$gettext('Slow Requests')">
+        <SlowURIsTab />
       </n-tab-pane>
       <n-tab-pane name="errors" :tab="$gettext('Errors')">
         <ErrorsTab />

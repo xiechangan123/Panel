@@ -60,6 +60,16 @@ export default {
   // URI 统计
   statURIs: (start: string, end: string, sites?: string, page?: number, limit?: number): any =>
     http.Get('/website/stat/uris', { params: { start, end, sites, page, limit } }),
+  // 慢请求 URI 统计
+  statSlowURIs: (
+    start: string,
+    end: string,
+    sites?: string,
+    threshold?: number,
+    page?: number,
+    limit?: number
+  ): any =>
+    http.Get('/website/stat/slow_uris', { params: { start, end, sites, threshold, page, limit } }),
   // 错误统计
   statErrors: (
     start: string,

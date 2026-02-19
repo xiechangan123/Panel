@@ -269,10 +269,12 @@ func (r *websiteStatRepo) UpsertURIs(stats []*biz.WebsiteStatURI) error {
 	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "uri"}},
 		DoUpdates: clause.Assignments(map[string]any{
-			"requests":   gorm.Expr("website_stat_uris.requests + excluded.requests"),
-			"bandwidth":  gorm.Expr("website_stat_uris.bandwidth + excluded.bandwidth"),
-			"errors":     gorm.Expr("website_stat_uris.errors + excluded.errors"),
-			"updated_at": gorm.Expr("excluded.updated_at"),
+			"requests":           gorm.Expr("website_stat_uris.requests + excluded.requests"),
+			"bandwidth":          gorm.Expr("website_stat_uris.bandwidth + excluded.bandwidth"),
+			"errors":             gorm.Expr("website_stat_uris.errors + excluded.errors"),
+			"request_time_sum":   gorm.Expr("website_stat_uris.request_time_sum + excluded.request_time_sum"),
+			"request_time_count": gorm.Expr("website_stat_uris.request_time_count + excluded.request_time_count"),
+			"updated_at":         gorm.Expr("excluded.updated_at"),
 		}),
 	})
 }
@@ -295,7 +297,7 @@ func (r *websiteStatRepo) TopURIs(start, end string, sites []string, page, limit
 
 	var items []*biz.WebsiteStatURIRank
 	dataQ := r.db.Model(&biz.WebsiteStatURI{}).
-		Select("uri, SUM(requests) as requests, SUM(bandwidth) as bandwidth, SUM(errors) as errors").
+		Select("uri, SUM(requests) as requests, SUM(bandwidth) as bandwidth, SUM(errors) as errors, SUM(request_time_sum) as request_time_sum, SUM(request_time_count) as request_time_count").
 		Where("date BETWEEN ? AND ?", start, end)
 	if len(sites) > 0 {
 		dataQ = dataQ.Where("site IN ?", sites)
@@ -307,6 +309,44 @@ func (r *websiteStatRepo) TopURIs(start, end string, sites []string, page, limit
 
 func (r *websiteStatRepo) ClearURIsBefore(date string) error {
 	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatURI{}).Error
+}
+
+func (r *websiteStatRepo) TopSlowURIs(start, end string, sites []string, threshold, page, limit uint) ([]*biz.WebsiteStatURIRank, uint, error) {
+	var total int64
+	q := r.db.Model(&biz.WebsiteStatURI{}).
+		Where("date BETWEEN ? AND ? AND request_time_count > 0", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+
+	// HAVING 条件：平均响应时间 >= threshold（ms）
+	having := "SUM(request_time_count) > 0"
+	var havingArgs []any
+	if threshold > 0 {
+		having = "SUM(request_time_count) > 0 AND CAST(SUM(request_time_sum) AS REAL) / SUM(request_time_count) >= ?"
+		havingArgs = append(havingArgs, threshold)
+	}
+
+	// 计算符合条件的唯一 URI 总数
+	countQ := r.db.Table("(?) as sub",
+		q.Select("uri").Group("uri").Having(having, havingArgs...),
+	)
+	if err := countQ.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var items []*biz.WebsiteStatURIRank
+	dataQ := r.db.Model(&biz.WebsiteStatURI{}).
+		Select("uri, SUM(requests) as requests, SUM(bandwidth) as bandwidth, SUM(errors) as errors, SUM(request_time_sum) as request_time_sum, SUM(request_time_count) as request_time_count").
+		Where("date BETWEEN ? AND ? AND request_time_count > 0", start, end)
+	if len(sites) > 0 {
+		dataQ = dataQ.Where("site IN ?", sites)
+	}
+	offset := (page - 1) * limit
+	err := dataQ.Group("uri").Having(having, havingArgs...).
+		Order("CAST(SUM(request_time_sum) AS REAL) / SUM(request_time_count) DESC").
+		Offset(int(offset)).Limit(int(limit)).Scan(&items).Error
+	return items, uint(total), err
 }
 
 // ========== 错误日志查询 ==========

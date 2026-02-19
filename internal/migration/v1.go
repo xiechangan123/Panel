@@ -112,19 +112,22 @@ func init() {
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: "20260220-add-ip-geo-fields",
 		Migrate: func(tx *gorm.DB) error {
-			if err := tx.AutoMigrate(&biz.WebsiteStatIP{}); err != nil {
-				return err
-			}
-			return tx.AutoMigrate(&biz.ScanEvent{})
+			return tx.AutoMigrate(
+				&biz.WebsiteStatIP{},
+				&biz.ScanEvent{},
+			)
 		},
 		Rollback: func(tx *gorm.DB) error {
 			return nil
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{
-		ID: "20260221-add-perf-traffic-fields",
+		ID: "20260220-add-perf-traffic-fields",
 		Migrate: func(tx *gorm.DB) error {
-			return tx.AutoMigrate(&biz.WebsiteStat{})
+			return tx.AutoMigrate(
+				&biz.WebsiteStat{},
+				&biz.WebsiteStatURI{},
+			)
 		},
 		Rollback: func(tx *gorm.DB) error {
 			return nil

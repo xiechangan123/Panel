@@ -354,6 +354,32 @@ func (s *WebsiteStatService) URIStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// SlowURIStats 慢请求 URI 统计（按平均响应时间排序，分页）
+func (s *WebsiteStatService) SlowURIStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+
+	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
+	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
+	threshold, _ := strconv.ParseUint(r.URL.Query().Get("threshold"), 10, 64)
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 50
+	}
+
+	items, total, err := s.statRepo.TopSlowURIs(start, end, sites, uint(threshold), uint(page), uint(limit))
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, chix.M{
+		"items": items,
+		"total": total,
+	})
+}
+
 // ErrorStats 错误日志（分页 + 状态码过滤）
 func (s *WebsiteStatService) ErrorStats(w http.ResponseWriter, r *http.Request) {
 	start, end, sites := s.parseDateSites(r)

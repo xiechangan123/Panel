@@ -80,15 +80,17 @@ type WebsiteStatIP struct {
 
 // WebsiteStatURI URI 统计（site, date, uri 唯一）
 type WebsiteStatURI struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Site      string    `gorm:"not null;uniqueIndex:idx_wuri_unique" json:"site"`
-	Date      string    `gorm:"not null;uniqueIndex:idx_wuri_unique;index" json:"date"`
-	URI       string    `gorm:"not null;uniqueIndex:idx_wuri_unique" json:"uri"`
-	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
-	Bandwidth uint64    `gorm:"not null;default:0" json:"bandwidth"`
-	Errors    uint64    `gorm:"not null;default:0" json:"errors"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID               uint      `gorm:"primaryKey" json:"id"`
+	Site             string    `gorm:"not null;uniqueIndex:idx_wuri_unique" json:"site"`
+	Date             string    `gorm:"not null;uniqueIndex:idx_wuri_unique;index" json:"date"`
+	URI              string    `gorm:"not null;uniqueIndex:idx_wuri_unique" json:"uri"`
+	Requests         uint64    `gorm:"not null;default:0" json:"requests"`
+	Bandwidth        uint64    `gorm:"not null;default:0" json:"bandwidth"`
+	Errors           uint64    `gorm:"not null;default:0" json:"errors"`
+	RequestTimeSum   uint64    `gorm:"not null;default:0" json:"request_time_sum"`
+	RequestTimeCount uint64    `gorm:"not null;default:0" json:"request_time_count"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 // WebsiteStatSeries 时间序列数据点（用于 API 返回）
@@ -146,10 +148,12 @@ type WebsiteStatGeoRank struct {
 
 // WebsiteStatURIRank URI 排名
 type WebsiteStatURIRank struct {
-	URI       string `json:"uri"`
-	Requests  uint64 `json:"requests"`
-	Bandwidth uint64 `json:"bandwidth"`
-	Errors    uint64 `json:"errors"`
+	URI              string `json:"uri"`
+	Requests         uint64 `json:"requests"`
+	Bandwidth        uint64 `json:"bandwidth"`
+	Errors           uint64 `json:"errors"`
+	RequestTimeSum   uint64 `json:"request_time_sum"`
+	RequestTimeCount uint64 `json:"request_time_count"`
 }
 
 // WebsiteStatSiteItem 网站维度汇总
@@ -209,6 +213,7 @@ type WebsiteStatRepo interface {
 	// URI 统计
 	UpsertURIs(stats []*WebsiteStatURI) error
 	TopURIs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatURIRank, uint, error)
+	TopSlowURIs(start, end string, sites []string, threshold, page, limit uint) ([]*WebsiteStatURIRank, uint, error)
 	ClearURIsBefore(date string) error
 
 	// 错误日志查询

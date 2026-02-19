@@ -90,7 +90,9 @@ type IPCount struct {
 
 // URICount URI 计数
 type URICount struct {
-	Requests  uint64
-	Bandwidth uint64
-	Errors    uint64
+	Requests         uint64
+	Bandwidth        uint64
+	Errors           uint64
+	RequestTimeSum   uint64
+	RequestTimeCount uint64
 }
