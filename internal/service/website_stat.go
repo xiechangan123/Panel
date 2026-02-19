@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/libtnb/chix"
@@ -35,24 +34,13 @@ func NewWebsiteStatService(setting biz.SettingRepo, statRepo biz.WebsiteStatRepo
 
 // Overview 概览数据（汇总 + 时间序列 + 对比 + 站点列表）
 func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
-	start := r.URL.Query().Get("start")
-	end := r.URL.Query().Get("end")
-	if start == "" || end == "" {
-		today := time.Now().Format(time.DateOnly)
-		start = today
-		end = today
+	req, err := Bind[request.WebsiteStatDateRange](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
 	}
 
-	// 解析站点过滤
-	var sites []string
-	if sitesParam := r.URL.Query().Get("sites"); sitesParam != "" {
-		sites = lo.Filter(strings.Split(sitesParam, ","), func(s string, _ int) bool {
-			return strings.TrimSpace(s) != ""
-		})
-		sites = lo.Map(sites, func(s string, _ int) string {
-			return strings.TrimSpace(s)
-		})
-	}
+	start, end, sites := req.Start, req.End, req.SiteList()
 
 	// 计算对比周期
 	startDate, _ := time.Parse(time.DateOnly, start)
@@ -131,7 +119,13 @@ func (s *WebsiteStatService) Realtime(w http.ResponseWriter, r *http.Request) {
 
 // SiteStats 网站维度汇总（每站 PV/UV/IP/带宽/请求/错误/蜘蛛）
 func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
+	req, err := Bind[request.WebsiteStatDateRange](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	start, end, sites := req.Start, req.End, req.SiteList()
 	today := time.Now().Format(time.DateOnly)
 	includeToday := start <= today && today <= end
 
@@ -211,9 +205,13 @@ func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
 
 // SpiderStats 蜘蛛统计排名
 func (s *WebsiteStatService) SpiderStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
+	req, err := Bind[request.WebsiteStatDateRange](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
 
-	items, err := s.statRepo.TopSpiders(start, end, sites, 50)
+	items, err := s.statRepo.TopSpiders(req.Start, req.End, req.SiteList(), 50)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -238,9 +236,13 @@ func (s *WebsiteStatService) SpiderStats(w http.ResponseWriter, r *http.Request)
 
 // ClientStats 客户端统计
 func (s *WebsiteStatService) ClientStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
+	req, err := Bind[request.WebsiteStatDateRange](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
 
-	items, err := s.statRepo.TopClients(start, end, sites, 100)
+	items, err := s.statRepo.TopClients(req.Start, req.End, req.SiteList(), 100)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -280,18 +282,13 @@ func (s *WebsiteStatService) ClientStats(w http.ResponseWriter, r *http.Request)
 
 // IPStats IP 统计（分页）
 func (s *WebsiteStatService) IPStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
-
-	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
-	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
-	if page == 0 {
-		page = 1
-	}
-	if limit == 0 {
-		limit = 50
+	req, err := Bind[request.WebsiteStatPaginate](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
 	}
 
-	items, total, err := s.statRepo.TopIPs(start, end, sites, uint(page), uint(limit))
+	items, total, err := s.statRepo.TopIPs(req.Start, req.End, req.SiteList(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -305,20 +302,13 @@ func (s *WebsiteStatService) IPStats(w http.ResponseWriter, r *http.Request) {
 
 // GeoStats 地理位置归类统计
 func (s *WebsiteStatService) GeoStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
-
-	groupBy := r.URL.Query().Get("group_by")
-	if groupBy == "" {
-		groupBy = "country"
-	}
-	country := r.URL.Query().Get("country")
-
-	var limit uint = 100
-	if l, err := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64); err == nil && l > 0 {
-		limit = uint(l)
+	req, err := Bind[request.WebsiteStatGeo](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
 	}
 
-	items, err := s.statRepo.TopGeos(start, end, sites, groupBy, country, limit)
+	items, err := s.statRepo.TopGeos(req.Start, req.End, req.SiteList(), req.GroupBy, req.Country, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -331,18 +321,13 @@ func (s *WebsiteStatService) GeoStats(w http.ResponseWriter, r *http.Request) {
 
 // URIStats URI 统计（分页）
 func (s *WebsiteStatService) URIStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
-
-	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
-	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
-	if page == 0 {
-		page = 1
-	}
-	if limit == 0 {
-		limit = 50
+	req, err := Bind[request.WebsiteStatPaginate](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
 	}
 
-	items, total, err := s.statRepo.TopURIs(start, end, sites, uint(page), uint(limit))
+	items, total, err := s.statRepo.TopURIs(req.Start, req.End, req.SiteList(), req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -356,19 +341,13 @@ func (s *WebsiteStatService) URIStats(w http.ResponseWriter, r *http.Request) {
 
 // SlowURIStats 慢请求 URI 统计（按平均响应时间排序，分页）
 func (s *WebsiteStatService) SlowURIStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
-
-	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
-	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
-	threshold, _ := strconv.ParseUint(r.URL.Query().Get("threshold"), 10, 64)
-	if page == 0 {
-		page = 1
-	}
-	if limit == 0 {
-		limit = 50
+	req, err := Bind[request.WebsiteStatSlowURIs](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
 	}
 
-	items, total, err := s.statRepo.TopSlowURIs(start, end, sites, uint(threshold), uint(page), uint(limit))
+	items, total, err := s.statRepo.TopSlowURIs(req.Start, req.End, req.SiteList(), req.Threshold, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -382,19 +361,13 @@ func (s *WebsiteStatService) SlowURIStats(w http.ResponseWriter, r *http.Request
 
 // ErrorStats 错误日志（分页 + 状态码过滤）
 func (s *WebsiteStatService) ErrorStats(w http.ResponseWriter, r *http.Request) {
-	start, end, sites := s.parseDateSites(r)
-
-	page, _ := strconv.ParseUint(r.URL.Query().Get("page"), 10, 64)
-	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
-	status, _ := strconv.Atoi(r.URL.Query().Get("status"))
-	if page == 0 {
-		page = 1
-	}
-	if limit == 0 {
-		limit = 50
+	req, err := Bind[request.WebsiteStatErrors](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
 	}
 
-	items, total, err := s.statRepo.ListErrors(start, end, sites, status, uint(page), uint(limit))
+	items, total, err := s.statRepo.ListErrors(req.Start, req.End, req.SiteList(), req.Status, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -478,27 +451,6 @@ type statTotals struct {
 	Status3xx        uint64 `json:"status_3xx"`
 	Status4xx        uint64 `json:"status_4xx"`
 	Status5xx        uint64 `json:"status_5xx"`
-}
-
-// parseDateSites 解析公共查询参数 start, end, sites
-func (s *WebsiteStatService) parseDateSites(r *http.Request) (start, end string, sites []string) {
-	start = r.URL.Query().Get("start")
-	end = r.URL.Query().Get("end")
-	if start == "" || end == "" {
-		today := time.Now().Format(time.DateOnly)
-		start = today
-		end = today
-	}
-
-	if sitesParam := r.URL.Query().Get("sites"); sitesParam != "" {
-		sites = lo.Filter(strings.Split(sitesParam, ","), func(s string, _ int) bool {
-			return strings.TrimSpace(s) != ""
-		})
-		sites = lo.Map(sites, func(s string, _ int) string {
-			return strings.TrimSpace(s)
-		})
-	}
-	return
 }
 
 // queryTotals 查询指定日期范围的汇总数据
