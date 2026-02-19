@@ -303,7 +303,7 @@ const perfChartOption = computed<EChartsOption>(() => {
         return `${$gettext('Avg Response Time')}: ${lastRt}ms`
       }
     },
-    grid: { left: 50, right: 50, top: 40, bottom: 30 },
+    grid: { left: 50, right: 50, top: 50, bottom: 30 },
     xAxis: {
       type: 'category',
       boundaryGap: false,
@@ -390,7 +390,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         return `${$gettext('Inbound')}: ${formatBytes(totalIn)}`
       }
     },
-    grid: { left: 60, right: 20, top: 40, bottom: 30 },
+    grid: { left: 60, right: 20, top: 50, bottom: 30 },
     xAxis: {
       type: 'category',
       boundaryGap: false,
