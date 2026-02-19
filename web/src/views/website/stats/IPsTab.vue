@@ -42,7 +42,7 @@ const loadData = () => {
     })
 }
 
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value], () => {
+watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
   page.value = 1
   loadData()
 })

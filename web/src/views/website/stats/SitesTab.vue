@@ -24,7 +24,7 @@ const loadData = () => {
     })
 }
 
-watch([() => ctx.dateRange.value, () => ctx.sitesParam.value], () => {
+watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
   loadData()
 })
 

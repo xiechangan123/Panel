@@ -100,11 +100,18 @@ const activeTab = ref('overview')
 
 // ============ provide/inject 共享状态 ============
 
+const refreshKey = ref(0)
+
+const handleRefresh = () => {
+  refreshKey.value++
+}
+
 provide('statContext', {
   dateRange,
   sitesParam,
   siteOptions,
-  activePreset
+  activePreset,
+  refreshKey
 })
 </script>
 
@@ -164,7 +171,10 @@ provide('statContext', {
         </n-popover>
       </n-button-group>
 
-      <div class="ml-auto">
+      <div class="ml-auto flex gap-8">
+        <n-button size="small" @click="handleRefresh">
+          {{ $gettext('Refresh') }}
+        </n-button>
         <n-popconfirm @positive-click="handleClear">
           <template #trigger>
             <n-button type="error" ghost size="small">
