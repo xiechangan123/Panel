@@ -239,17 +239,11 @@ func (r *websiteStatRepo) TopGeos(start, end string, sites []string, groupBy str
 
 	switch groupBy {
 	case "region":
-		q = q.Select("country, region, '' as city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
+		q = q.Select("'' as country, region, '' as city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
 		if country != "" {
 			q = q.Where("country = ?", country)
 		}
-		q = q.Group("country, region")
-	case "city":
-		q = q.Select("country, region, city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
-		if country != "" {
-			q = q.Where("country = ?", country)
-		}
-		q = q.Group("country, region, city")
+		q = q.Group("region")
 	default: // country
 		q = q.Select("country, '' as region, '' as city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
 		q = q.Group("country")
