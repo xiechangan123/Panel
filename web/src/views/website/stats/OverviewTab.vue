@@ -469,7 +469,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-4">
             <span class="text-12px text-[var(--text-color-3)]">
-              {{ $gettext('Outbound Bandwidth') }}
+              {{ $gettext('Outbound') }}
             </span>
             <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth) }}/s</span>
           </div>
@@ -477,7 +477,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
         <n-card :bordered="false" size="small">
           <div class="flex flex-col gap-4">
             <span class="text-12px text-[var(--text-color-3)]">
-              {{ $gettext('Inbound Bandwidth') }}
+              {{ $gettext('Inbound') }}
             </span>
             <span class="text-20px font-bold">{{ formatBytes(realtime.bandwidth_in) }}/s</span>
           </div>
