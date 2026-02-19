@@ -121,4 +121,13 @@ func init() {
 			return nil
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260221-add-perf-traffic-fields",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.WebsiteStat{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return nil
+		},
+	})
 }

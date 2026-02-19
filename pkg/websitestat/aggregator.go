@@ -28,19 +28,23 @@ type Aggregator struct {
 }
 
 type hourBucket struct {
-	pv, requests, errors, spiders, bandwidth uint64
-	ips                                      map[string]struct{}
-	uvs                                      map[string]struct{}
+	pv, requests, errors, spiders, bandwidth      uint64
+	bandwidthIn, requestTimeSum, requestTimeCount uint64
+	status2xx, status3xx, status4xx, status5xx    uint64
+	ips                                           map[string]struct{}
+	uvs                                           map[string]struct{}
 
 	// drain 后记录 set 大小，用于计算增量
 	lastUVCount, lastIPCount uint64
 }
 
 type siteDay struct {
-	pv, requests, errors, spiders, bandwidth uint64
-	ips                                      map[string]struct{}
-	uvs                                      map[string]struct{}
-	hours                                    [24]*hourBucket
+	pv, requests, errors, spiders, bandwidth      uint64
+	bandwidthIn, requestTimeSum, requestTimeCount uint64
+	status2xx, status3xx, status4xx, status5xx    uint64
+	ips                                           map[string]struct{}
+	uvs                                           map[string]struct{}
+	hours                                         [24]*hourBucket
 
 	// drain 后记录 set 大小，用于计算增量
 	lastUVCount, lastIPCount uint64
@@ -140,10 +144,37 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	// 更新每日总计
 	sd.requests++
 	sd.bandwidth += entry.Bytes
+	sd.bandwidthIn += entry.ReqLength
 
 	// 更新小时桶
 	hb.requests++
 	hb.bandwidth += entry.Bytes
+	hb.bandwidthIn += entry.ReqLength
+
+	// 请求耗时聚合
+	if entry.RequestTime > 0 {
+		ms := uint64(entry.RequestTime * 1000)
+		sd.requestTimeSum += ms
+		sd.requestTimeCount++
+		hb.requestTimeSum += ms
+		hb.requestTimeCount++
+	}
+
+	// 状态码分组
+	switch {
+	case entry.Status >= 200 && entry.Status < 300:
+		sd.status2xx++
+		hb.status2xx++
+	case entry.Status >= 300 && entry.Status < 400:
+		sd.status3xx++
+		hb.status3xx++
+	case entry.Status >= 400 && entry.Status < 500:
+		sd.status4xx++
+		hb.status4xx++
+	case entry.Status >= 500 && entry.Status < 600:
+		sd.status5xx++
+		hb.status5xx++
+	}
 
 	// UV: IP+UA 去重（每日 + 每小时），超限后不再插入
 	if len(sd.uvs) < a.UVMaxKeys {
@@ -286,6 +317,13 @@ func (a *Aggregator) DrainSnapshot() (snapshotsByDate map[string]map[string]*Sit
 				sd.errors = saturatingSub(sd.errors, snap.Errors)
 				sd.spiders = saturatingSub(sd.spiders, snap.Spiders)
 				sd.bandwidth = saturatingSub(sd.bandwidth, snap.Bandwidth)
+				sd.bandwidthIn = saturatingSub(sd.bandwidthIn, snap.BandwidthIn)
+				sd.requestTimeSum = saturatingSub(sd.requestTimeSum, snap.RequestTimeSum)
+				sd.requestTimeCount = saturatingSub(sd.requestTimeCount, snap.RequestTimeCount)
+				sd.status2xx = saturatingSub(sd.status2xx, snap.Status2xx)
+				sd.status3xx = saturatingSub(sd.status3xx, snap.Status3xx)
+				sd.status4xx = saturatingSub(sd.status4xx, snap.Status4xx)
+				sd.status5xx = saturatingSub(sd.status5xx, snap.Status5xx)
 				sd.lastUVCount = cappedAdd(sd.lastUVCount, snap.UV, uint64(len(sd.uvs)))
 				sd.lastIPCount = cappedAdd(sd.lastIPCount, snap.IP, uint64(len(sd.ips)))
 
@@ -302,6 +340,13 @@ func (a *Aggregator) DrainSnapshot() (snapshotsByDate map[string]map[string]*Sit
 					hb.errors = saturatingSub(hb.errors, hs.Errors)
 					hb.spiders = saturatingSub(hb.spiders, hs.Spiders)
 					hb.bandwidth = saturatingSub(hb.bandwidth, hs.Bandwidth)
+					hb.bandwidthIn = saturatingSub(hb.bandwidthIn, hs.BandwidthIn)
+					hb.requestTimeSum = saturatingSub(hb.requestTimeSum, hs.RequestTimeSum)
+					hb.requestTimeCount = saturatingSub(hb.requestTimeCount, hs.RequestTimeCount)
+					hb.status2xx = saturatingSub(hb.status2xx, hs.Status2xx)
+					hb.status3xx = saturatingSub(hb.status3xx, hs.Status3xx)
+					hb.status4xx = saturatingSub(hb.status4xx, hs.Status4xx)
+					hb.status5xx = saturatingSub(hb.status5xx, hs.Status5xx)
 					hb.lastUVCount = cappedAdd(hb.lastUVCount, hs.UV, uint64(len(hb.uvs)))
 					hb.lastIPCount = cappedAdd(hb.lastIPCount, hs.IP, uint64(len(hb.ips)))
 				}
@@ -523,26 +568,40 @@ func snapshotHour(hb *hourBucket) *HourSnapshot {
 		return nil
 	}
 	return &HourSnapshot{
-		PV:        hb.pv,
-		UV:        uint64(len(hb.uvs)) - hb.lastUVCount,
-		IP:        uint64(len(hb.ips)) - hb.lastIPCount,
-		Bandwidth: hb.bandwidth,
-		Requests:  hb.requests,
-		Errors:    hb.errors,
-		Spiders:   hb.spiders,
+		PV:               hb.pv,
+		UV:               uint64(len(hb.uvs)) - hb.lastUVCount,
+		IP:               uint64(len(hb.ips)) - hb.lastIPCount,
+		Bandwidth:        hb.bandwidth,
+		BandwidthIn:      hb.bandwidthIn,
+		Requests:         hb.requests,
+		Errors:           hb.errors,
+		Spiders:          hb.spiders,
+		RequestTimeSum:   hb.requestTimeSum,
+		RequestTimeCount: hb.requestTimeCount,
+		Status2xx:        hb.status2xx,
+		Status3xx:        hb.status3xx,
+		Status4xx:        hb.status4xx,
+		Status5xx:        hb.status5xx,
 	}
 }
 
 // snapshotSite 从 siteDay 生成增量快照
 func snapshotSite(sd *siteDay) *SiteSnapshot {
 	snap := &SiteSnapshot{
-		PV:        sd.pv,
-		UV:        uint64(len(sd.uvs)) - sd.lastUVCount,
-		IP:        uint64(len(sd.ips)) - sd.lastIPCount,
-		Bandwidth: sd.bandwidth,
-		Requests:  sd.requests,
-		Errors:    sd.errors,
-		Spiders:   sd.spiders,
+		PV:               sd.pv,
+		UV:               uint64(len(sd.uvs)) - sd.lastUVCount,
+		IP:               uint64(len(sd.ips)) - sd.lastIPCount,
+		Bandwidth:        sd.bandwidth,
+		BandwidthIn:      sd.bandwidthIn,
+		Requests:         sd.requests,
+		Errors:           sd.errors,
+		Spiders:          sd.spiders,
+		RequestTimeSum:   sd.requestTimeSum,
+		RequestTimeCount: sd.requestTimeCount,
+		Status2xx:        sd.status2xx,
+		Status3xx:        sd.status3xx,
+		Status4xx:        sd.status4xx,
+		Status5xx:        sd.status5xx,
 	}
 	for h := range 24 {
 		snap.Hours[h] = snapshotHour(sd.hours[h])
@@ -552,14 +611,18 @@ func snapshotSite(sd *siteDay) *SiteSnapshot {
 
 // hasPending 判断站点是否仍有未落库增量
 func hasPending(sd *siteDay) bool {
-	if sd.pv > 0 || sd.requests > 0 || sd.errors > 0 || sd.spiders > 0 || sd.bandwidth > 0 {
+	if sd.pv > 0 || sd.requests > 0 || sd.errors > 0 || sd.spiders > 0 || sd.bandwidth > 0 ||
+		sd.bandwidthIn > 0 || sd.requestTimeSum > 0 || sd.requestTimeCount > 0 ||
+		sd.status2xx > 0 || sd.status3xx > 0 || sd.status4xx > 0 || sd.status5xx > 0 {
 		return true
 	}
 	for _, hb := range sd.hours {
 		if hb == nil {
 			continue
 		}
-		if hb.pv > 0 || hb.requests > 0 || hb.errors > 0 || hb.spiders > 0 || hb.bandwidth > 0 {
+		if hb.pv > 0 || hb.requests > 0 || hb.errors > 0 || hb.spiders > 0 || hb.bandwidth > 0 ||
+			hb.bandwidthIn > 0 || hb.requestTimeSum > 0 || hb.requestTimeCount > 0 ||
+			hb.status2xx > 0 || hb.status3xx > 0 || hb.status4xx > 0 || hb.status5xx > 0 {
 			return true
 		}
 	}

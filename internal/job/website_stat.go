@@ -117,17 +117,24 @@ func (r *WebsiteStat) flush() {
 			// 每日汇总行 (hour = -1)
 			if siteHasData {
 				stats = append(stats, &biz.WebsiteStat{
-					Site:      site,
-					Date:      date,
-					Hour:      -1,
-					PV:        snap.PV,
-					UV:        snap.UV,
-					IP:        snap.IP,
-					Bandwidth: snap.Bandwidth,
-					Requests:  snap.Requests,
-					Errors:    snap.Errors,
-					Spiders:   snap.Spiders,
-					UpdatedAt: now,
+					Site:             site,
+					Date:             date,
+					Hour:             -1,
+					PV:               snap.PV,
+					UV:               snap.UV,
+					IP:               snap.IP,
+					Bandwidth:        snap.Bandwidth,
+					BandwidthIn:      snap.BandwidthIn,
+					Requests:         snap.Requests,
+					Errors:           snap.Errors,
+					Spiders:          snap.Spiders,
+					RequestTimeSum:   snap.RequestTimeSum,
+					RequestTimeCount: snap.RequestTimeCount,
+					Status2xx:        snap.Status2xx,
+					Status3xx:        snap.Status3xx,
+					Status4xx:        snap.Status4xx,
+					Status5xx:        snap.Status5xx,
+					UpdatedAt:        now,
 				})
 			}
 
@@ -137,17 +144,24 @@ func (r *WebsiteStat) flush() {
 					continue
 				}
 				stats = append(stats, &biz.WebsiteStat{
-					Site:      site,
-					Date:      date,
-					Hour:      h,
-					PV:        hs.PV,
-					UV:        hs.UV,
-					IP:        hs.IP,
-					Bandwidth: hs.Bandwidth,
-					Requests:  hs.Requests,
-					Errors:    hs.Errors,
-					Spiders:   hs.Spiders,
-					UpdatedAt: now,
+					Site:             site,
+					Date:             date,
+					Hour:             h,
+					PV:               hs.PV,
+					UV:               hs.UV,
+					IP:               hs.IP,
+					Bandwidth:        hs.Bandwidth,
+					BandwidthIn:      hs.BandwidthIn,
+					Requests:         hs.Requests,
+					Errors:           hs.Errors,
+					Spiders:          hs.Spiders,
+					RequestTimeSum:   hs.RequestTimeSum,
+					RequestTimeCount: hs.RequestTimeCount,
+					Status2xx:        hs.Status2xx,
+					Status3xx:        hs.Status3xx,
+					Status4xx:        hs.Status4xx,
+					Status5xx:        hs.Status5xx,
+					UpdatedAt:        now,
 				})
 			}
 		}
@@ -327,9 +341,16 @@ func isZeroSiteSnapshot(s *websitestat.SiteSnapshot) bool {
 		s.UV == 0 &&
 		s.IP == 0 &&
 		s.Bandwidth == 0 &&
+		s.BandwidthIn == 0 &&
 		s.Requests == 0 &&
 		s.Errors == 0 &&
-		s.Spiders == 0
+		s.Spiders == 0 &&
+		s.RequestTimeSum == 0 &&
+		s.RequestTimeCount == 0 &&
+		s.Status2xx == 0 &&
+		s.Status3xx == 0 &&
+		s.Status4xx == 0 &&
+		s.Status5xx == 0
 }
 
 // isZeroHourSnapshot 判断小时快照是否全为零
@@ -338,7 +359,14 @@ func isZeroHourSnapshot(h *websitestat.HourSnapshot) bool {
 		h.UV == 0 &&
 		h.IP == 0 &&
 		h.Bandwidth == 0 &&
+		h.BandwidthIn == 0 &&
 		h.Requests == 0 &&
 		h.Errors == 0 &&
-		h.Spiders == 0
+		h.Spiders == 0 &&
+		h.RequestTimeSum == 0 &&
+		h.RequestTimeCount == 0 &&
+		h.Status2xx == 0 &&
+		h.Status3xx == 0 &&
+		h.Status4xx == 0 &&
+		h.Status5xx == 0
 }

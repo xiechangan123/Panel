@@ -26,14 +26,21 @@ func (r *websiteStatRepo) Upsert(stats []*biz.WebsiteStat) error {
 	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "hour"}},
 		DoUpdates: clause.Assignments(map[string]any{
-			"pv":         gorm.Expr("website_stats.pv + excluded.pv"),
-			"uv":         gorm.Expr("website_stats.uv + excluded.uv"),
-			"ip":         gorm.Expr("website_stats.ip + excluded.ip"),
-			"bandwidth":  gorm.Expr("website_stats.bandwidth + excluded.bandwidth"),
-			"requests":   gorm.Expr("website_stats.requests + excluded.requests"),
-			"errors":     gorm.Expr("website_stats.errors + excluded.errors"),
-			"spiders":    gorm.Expr("website_stats.spiders + excluded.spiders"),
-			"updated_at": gorm.Expr("excluded.updated_at"),
+			"pv":                 gorm.Expr("website_stats.pv + excluded.pv"),
+			"uv":                 gorm.Expr("website_stats.uv + excluded.uv"),
+			"ip":                 gorm.Expr("website_stats.ip + excluded.ip"),
+			"bandwidth":          gorm.Expr("website_stats.bandwidth + excluded.bandwidth"),
+			"bandwidth_in":       gorm.Expr("website_stats.bandwidth_in + excluded.bandwidth_in"),
+			"requests":           gorm.Expr("website_stats.requests + excluded.requests"),
+			"errors":             gorm.Expr("website_stats.errors + excluded.errors"),
+			"spiders":            gorm.Expr("website_stats.spiders + excluded.spiders"),
+			"request_time_sum":   gorm.Expr("website_stats.request_time_sum + excluded.request_time_sum"),
+			"request_time_count": gorm.Expr("website_stats.request_time_count + excluded.request_time_count"),
+			"status2xx":          gorm.Expr("website_stats.status2xx + excluded.status2xx"),
+			"status3xx":          gorm.Expr("website_stats.status3xx + excluded.status3xx"),
+			"status4xx":          gorm.Expr("website_stats.status4xx + excluded.status4xx"),
+			"status5xx":          gorm.Expr("website_stats.status5xx + excluded.status5xx"),
+			"updated_at":         gorm.Expr("excluded.updated_at"),
 		}),
 	})
 }
@@ -41,7 +48,7 @@ func (r *websiteStatRepo) Upsert(stats []*biz.WebsiteStat) error {
 func (r *websiteStatRepo) ListByDateRange(start, end string, sites []string) ([]*biz.WebsiteStat, error) {
 	var items []*biz.WebsiteStat
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("site, SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders").
+		Select("site, SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(bandwidth_in) as bandwidth_in, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders, SUM(request_time_sum) as request_time_sum, SUM(request_time_count) as request_time_count, SUM(status2xx) as status2xx, SUM(status3xx) as status3xx, SUM(status4xx) as status4xx, SUM(status5xx) as status5xx").
 		Where("date BETWEEN ? AND ? AND hour = -1", start, end)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
@@ -53,7 +60,7 @@ func (r *websiteStatRepo) ListByDateRange(start, end string, sites []string) ([]
 func (r *websiteStatRepo) DailySeries(start, end string, sites []string) ([]*biz.WebsiteStatSeries, error) {
 	var series []*biz.WebsiteStatSeries
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("date as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders").
+		Select("date as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(bandwidth_in), 0) as bandwidth_in, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders, COALESCE(SUM(request_time_sum), 0) as request_time_sum, COALESCE(SUM(request_time_count), 0) as request_time_count, COALESCE(SUM(status2xx), 0) as status2xx, COALESCE(SUM(status3xx), 0) as status3xx, COALESCE(SUM(status4xx), 0) as status4xx, COALESCE(SUM(status5xx), 0) as status5xx").
 		Where("date BETWEEN ? AND ? AND hour = -1", start, end)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
@@ -65,7 +72,7 @@ func (r *websiteStatRepo) DailySeries(start, end string, sites []string) ([]*biz
 func (r *websiteStatRepo) HourlySeries(date string, sites []string) ([]*biz.WebsiteStatSeries, error) {
 	var series []*biz.WebsiteStatSeries
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("CAST(hour AS TEXT) as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders").
+		Select("CAST(hour AS TEXT) as key, COALESCE(SUM(pv), 0) as pv, COALESCE(SUM(uv), 0) as uv, COALESCE(SUM(ip), 0) as ip, COALESCE(SUM(bandwidth_in), 0) as bandwidth_in, COALESCE(SUM(bandwidth), 0) as bandwidth, COALESCE(SUM(requests), 0) as requests, COALESCE(SUM(errors), 0) as errors, COALESCE(SUM(spiders), 0) as spiders, COALESCE(SUM(request_time_sum), 0) as request_time_sum, COALESCE(SUM(request_time_count), 0) as request_time_count, COALESCE(SUM(status2xx), 0) as status2xx, COALESCE(SUM(status3xx), 0) as status3xx, COALESCE(SUM(status4xx), 0) as status4xx, COALESCE(SUM(status5xx), 0) as status5xx").
 		Where("date = ? AND hour >= 0", date)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)
@@ -329,7 +336,7 @@ func (r *websiteStatRepo) ListErrors(start, end string, sites []string, status i
 func (r *websiteStatRepo) ListSiteStats(start, end string, sites []string) ([]*biz.WebsiteStatSiteItem, error) {
 	var items []*biz.WebsiteStatSiteItem
 	q := r.db.Model(&biz.WebsiteStat{}).
-		Select("site, SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders").
+		Select("site, SUM(pv) as pv, SUM(uv) as uv, SUM(ip) as ip, SUM(bandwidth) as bandwidth, SUM(bandwidth_in) as bandwidth_in, SUM(requests) as requests, SUM(errors) as errors, SUM(spiders) as spiders, SUM(request_time_sum) as request_time_sum, SUM(request_time_count) as request_time_count, SUM(status2xx) as status2xx, SUM(status3xx) as status3xx, SUM(status4xx) as status4xx, SUM(status5xx) as status5xx").
 		Where("date BETWEEN ? AND ? AND hour = -1", start, end)
 	if len(sites) > 0 {
 		q = q.Where("site IN ?", sites)

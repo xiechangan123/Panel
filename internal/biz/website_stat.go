@@ -4,19 +4,26 @@ import "time"
 
 // WebsiteStat 网站统计（每站每天一行或每小时一行）
 type WebsiteStat struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Site      string    `gorm:"not null;uniqueIndex:idx_wstat_unique" json:"site"`
-	Date      string    `gorm:"not null;uniqueIndex:idx_wstat_unique;index" json:"date"`
-	Hour      int       `gorm:"not null;uniqueIndex:idx_wstat_unique;default:-1" json:"hour"` // -1=每日汇总, 0-23=小时
-	PV        uint64    `gorm:"not null;default:0" json:"pv"`
-	UV        uint64    `gorm:"not null;default:0" json:"uv"`
-	IP        uint64    `gorm:"not null;default:0" json:"ip"`
-	Bandwidth uint64    `gorm:"not null;default:0" json:"bandwidth"`
-	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
-	Errors    uint64    `gorm:"not null;default:0" json:"errors"`
-	Spiders   uint64    `gorm:"not null;default:0" json:"spiders"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID               uint      `gorm:"primaryKey" json:"id"`
+	Site             string    `gorm:"not null;uniqueIndex:idx_wstat_unique" json:"site"`
+	Date             string    `gorm:"not null;uniqueIndex:idx_wstat_unique;index" json:"date"`
+	Hour             int       `gorm:"not null;uniqueIndex:idx_wstat_unique;default:-1" json:"hour"` // -1=每日汇总, 0-23=小时
+	PV               uint64    `gorm:"not null;default:0" json:"pv"`
+	UV               uint64    `gorm:"not null;default:0" json:"uv"`
+	IP               uint64    `gorm:"not null;default:0" json:"ip"`
+	Bandwidth        uint64    `gorm:"not null;default:0" json:"bandwidth"`
+	BandwidthIn      uint64    `gorm:"not null;default:0" json:"bandwidth_in"`
+	Requests         uint64    `gorm:"not null;default:0" json:"requests"`
+	Errors           uint64    `gorm:"not null;default:0" json:"errors"`
+	Spiders          uint64    `gorm:"not null;default:0" json:"spiders"`
+	RequestTimeSum   uint64    `gorm:"not null;default:0" json:"request_time_sum"`
+	RequestTimeCount uint64    `gorm:"not null;default:0" json:"request_time_count"`
+	Status2xx        uint64    `gorm:"not null;default:0" json:"status_2xx"`
+	Status3xx        uint64    `gorm:"not null;default:0" json:"status_3xx"`
+	Status4xx        uint64    `gorm:"not null;default:0" json:"status_4xx"`
+	Status5xx        uint64    `gorm:"not null;default:0" json:"status_5xx"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 // WebsiteErrorLog 网站错误日志（400-599 状态码详情）
@@ -86,14 +93,21 @@ type WebsiteStatURI struct {
 
 // WebsiteStatSeries 时间序列数据点（用于 API 返回）
 type WebsiteStatSeries struct {
-	Key       string `json:"key"` // 小时 "0"-"23" 或日期 "2026-02-18"
-	PV        uint64 `json:"pv"`
-	UV        uint64 `json:"uv"`
-	IP        uint64 `json:"ip"`
-	Bandwidth uint64 `json:"bandwidth"`
-	Requests  uint64 `json:"requests"`
-	Errors    uint64 `json:"errors"`
-	Spiders   uint64 `json:"spiders"`
+	Key              string `json:"key"` // 小时 "0"-"23" 或日期 "2026-02-18"
+	PV               uint64 `json:"pv"`
+	UV               uint64 `json:"uv"`
+	IP               uint64 `json:"ip"`
+	Bandwidth        uint64 `json:"bandwidth"`
+	BandwidthIn      uint64 `json:"bandwidth_in"`
+	Requests         uint64 `json:"requests"`
+	Errors           uint64 `json:"errors"`
+	Spiders          uint64 `json:"spiders"`
+	RequestTimeSum   uint64 `json:"request_time_sum"`
+	RequestTimeCount uint64 `json:"request_time_count"`
+	Status2xx        uint64 `json:"status_2xx"`
+	Status3xx        uint64 `json:"status_3xx"`
+	Status4xx        uint64 `json:"status_4xx"`
+	Status5xx        uint64 `json:"status_5xx"`
 }
 
 // WebsiteStatSpiderRank 蜘蛛排名
@@ -140,14 +154,21 @@ type WebsiteStatURIRank struct {
 
 // WebsiteStatSiteItem 网站维度汇总
 type WebsiteStatSiteItem struct {
-	Site      string `json:"site"`
-	PV        uint64 `json:"pv"`
-	UV        uint64 `json:"uv"`
-	IP        uint64 `json:"ip"`
-	Bandwidth uint64 `json:"bandwidth"`
-	Requests  uint64 `json:"requests"`
-	Errors    uint64 `json:"errors"`
-	Spiders   uint64 `json:"spiders"`
+	Site             string `json:"site"`
+	PV               uint64 `json:"pv"`
+	UV               uint64 `json:"uv"`
+	IP               uint64 `json:"ip"`
+	Bandwidth        uint64 `json:"bandwidth"`
+	BandwidthIn      uint64 `json:"bandwidth_in"`
+	Requests         uint64 `json:"requests"`
+	Errors           uint64 `json:"errors"`
+	Spiders          uint64 `json:"spiders"`
+	RequestTimeSum   uint64 `json:"request_time_sum"`
+	RequestTimeCount uint64 `json:"request_time_count"`
+	Status2xx        uint64 `json:"status_2xx"`
+	Status3xx        uint64 `json:"status_3xx"`
+	Status4xx        uint64 `json:"status_4xx"`
+	Status5xx        uint64 `json:"status_5xx"`
 }
 
 // WebsiteStatRepo 网站统计数据访问接口

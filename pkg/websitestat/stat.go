@@ -2,39 +2,54 @@ package websitestat
 
 // LogEntry 解析后的访问日志条目
 type LogEntry struct {
-	Site        string // 来自 syslog tag
-	URI         string // 请求 URI
-	Status      int    // HTTP 状态码
-	Bytes       uint64 // 响应体大小
-	UA          string // User-Agent
-	IP          string // 客户端 IP
-	Method      string // 请求方法
-	Body        string // 请求体（仅 400-599 状态码时保留）
-	ContentType string // 响应 Content-Type（PV 判定用）
-	ReqLength   uint64 // 请求大小（入站流量）
+	Site        string  // 来自 syslog tag
+	URI         string  // 请求 URI
+	Status      int     // HTTP 状态码
+	Bytes       uint64  // 响应体大小
+	UA          string  // User-Agent
+	IP          string  // 客户端 IP
+	Method      string  // 请求方法
+	Body        string  // 请求体（仅 400-599 状态码时保留）
+	ContentType string  // 响应 Content-Type（PV 判定用）
+	ReqLength   uint64  // 请求大小（入站流量）
+	RequestTime float64 // 请求耗时（秒）
 }
 
 // HourSnapshot 小时粒度快照
 type HourSnapshot struct {
-	PV        uint64 `json:"pv"`
-	UV        uint64 `json:"uv"`
-	IP        uint64 `json:"ip"`
-	Bandwidth uint64 `json:"bandwidth"`
-	Requests  uint64 `json:"requests"`
-	Errors    uint64 `json:"errors"`
-	Spiders   uint64 `json:"spiders"`
+	PV               uint64 `json:"pv"`
+	UV               uint64 `json:"uv"`
+	IP               uint64 `json:"ip"`
+	Bandwidth        uint64 `json:"bandwidth"`
+	BandwidthIn      uint64 `json:"bandwidth_in"`
+	Requests         uint64 `json:"requests"`
+	Errors           uint64 `json:"errors"`
+	Spiders          uint64 `json:"spiders"`
+	RequestTimeSum   uint64 `json:"request_time_sum"`
+	RequestTimeCount uint64 `json:"request_time_count"`
+	Status2xx        uint64 `json:"status_2xx"`
+	Status3xx        uint64 `json:"status_3xx"`
+	Status4xx        uint64 `json:"status_4xx"`
+	Status5xx        uint64 `json:"status_5xx"`
 }
 
 // SiteSnapshot 站点快照（用于 DB flush）
 type SiteSnapshot struct {
-	PV        uint64            `json:"pv"`
-	UV        uint64            `json:"uv"`
-	IP        uint64            `json:"ip"`
-	Bandwidth uint64            `json:"bandwidth"`
-	Requests  uint64            `json:"requests"`
-	Errors    uint64            `json:"errors"`
-	Spiders   uint64            `json:"spiders"`
-	Hours     [24]*HourSnapshot `json:"-"`
+	PV               uint64            `json:"pv"`
+	UV               uint64            `json:"uv"`
+	IP               uint64            `json:"ip"`
+	Bandwidth        uint64            `json:"bandwidth"`
+	BandwidthIn      uint64            `json:"bandwidth_in"`
+	Requests         uint64            `json:"requests"`
+	Errors           uint64            `json:"errors"`
+	Spiders          uint64            `json:"spiders"`
+	RequestTimeSum   uint64            `json:"request_time_sum"`
+	RequestTimeCount uint64            `json:"request_time_count"`
+	Status2xx        uint64            `json:"status_2xx"`
+	Status3xx        uint64            `json:"status_3xx"`
+	Status4xx        uint64            `json:"status_4xx"`
+	Status5xx        uint64            `json:"status_5xx"`
+	Hours            [24]*HourSnapshot `json:"-"`
 }
 
 // RealtimeStats 实时统计

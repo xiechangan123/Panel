@@ -81,6 +81,7 @@ func ParseLogEntry(tag string, data []byte) (*LogEntry, error) {
 		Method:      getString(v, "method"),
 		ContentType: getString(v, "content_type"),
 		ReqLength:   uint64(getInt(v, "req_length")),
+		RequestTime: getFloat(v, "rt"),
 	}
 
 	// 仅 4xx/5xx 时才提取 body
@@ -108,6 +109,23 @@ func getInt(v *fastjson.Value, key string) int64 {
 	case fastjson.TypeString:
 		n, _ := strconv.ParseInt(string(val.GetStringBytes()), 10, 64)
 		return n
+	default:
+		return 0
+	}
+}
+
+// getFloat 从 JSON value 中提取浮点数字段
+func getFloat(v *fastjson.Value, key string) float64 {
+	val := v.Get(key)
+	if val == nil {
+		return 0
+	}
+	switch val.Type() {
+	case fastjson.TypeNumber:
+		return val.GetFloat64()
+	case fastjson.TypeString:
+		f, _ := strconv.ParseFloat(string(val.GetStringBytes()), 64)
+		return f
 	default:
 		return 0
 	}

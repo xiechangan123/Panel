@@ -26,6 +26,13 @@ interface StatTotals {
   requests: number
   errors: number
   spiders: number
+  bandwidth_in: number
+  request_time_sum: number
+  request_time_count: number
+  status_2xx: number
+  status_3xx: number
+  status_4xx: number
+  status_5xx: number
 }
 
 interface SeriesPoint {
@@ -37,6 +44,13 @@ interface SeriesPoint {
   requests: number
   errors: number
   spiders: number
+  bandwidth_in: number
+  request_time_sum: number
+  request_time_count: number
+  status_2xx: number
+  status_3xx: number
+  status_4xx: number
+  status_5xx: number
 }
 
 interface OverviewData {
@@ -54,7 +68,14 @@ const emptyTotals: StatTotals = {
   bandwidth: 0,
   requests: 0,
   errors: 0,
-  spiders: 0
+  spiders: 0,
+  bandwidth_in: 0,
+  request_time_sum: 0,
+  request_time_count: 0,
+  status_2xx: 0,
+  status_3xx: 0,
+  status_4xx: 0,
+  status_5xx: 0
 }
 
 const overview = ref<OverviewData>({
@@ -239,20 +260,192 @@ const previousLabel = computed(() => {
   if (preset === 'yesterday') return $gettext('Day Before Yesterday')
   return $gettext('Previous Period')
 })
+
+// ============ 性能/负载图表 ============
+
+const perfChartOption = computed<EChartsOption>(() => {
+  const series = overview.value.series || []
+  const xData = series.map((s) => formatXLabel(s.key))
+  const secondsPerSlot = isSingleDay.value ? 3600 : 86400
+
+  const qpsData = series.map((s) => {
+    if (!s.requests) return 0
+    return Number((s.requests / secondsPerSlot).toFixed(2))
+  })
+  const avgRtData = series.map((s) => {
+    if (!s.request_time_count) return 0
+    return Number((s.request_time_sum / s.request_time_count).toFixed(1))
+  })
+
+  // 计算最新非零值用于 legend
+  const lastQps = qpsData.findLast((v) => v > 0) ?? 0
+  const lastRt = avgRtData.findLast((v) => v > 0) ?? 0
+
+  return {
+    tooltip: {
+      trigger: 'axis',
+      formatter: (params: any) => {
+        if (!Array.isArray(params) || params.length === 0) return ''
+        let html = `<div style="font-size:12px"><div style="margin-bottom:4px;font-weight:bold">${params[0].name}</div>`
+        for (const p of params) {
+          const unit = p.seriesIndex === 0 ? '' : 'ms'
+          html += `<div>${p.marker} ${p.seriesName}: ${p.value}${unit}</div>`
+        }
+        html += '</div>'
+        return html
+      }
+    },
+    legend: {
+      top: 0,
+      right: 0,
+      formatter: (name: string) => {
+        if (name === 'QPS') return `QPS: ${lastQps}`
+        return `${$gettext('Avg Response Time')}: ${lastRt}ms`
+      }
+    },
+    grid: { left: 50, right: 50, top: 40, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: xData,
+      axisLabel: {
+        interval: isSingleDay.value
+          ? (_: number, value: string) => {
+              const hour = parseInt(value.split(':')[0] || '0', 10)
+              return hour % 3 === 0
+            }
+          : 'auto'
+      }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: 'QPS',
+        splitLine: { lineStyle: { type: 'dashed' } }
+      },
+      {
+        type: 'value',
+        name: 'ms',
+        splitLine: { show: false }
+      }
+    ],
+    series: [
+      {
+        name: 'QPS',
+        type: 'line',
+        smooth: true,
+        symbol: 'none',
+        areaStyle: { opacity: 0.15 },
+        lineStyle: { width: 2 },
+        itemStyle: { color: '#18a058' },
+        data: qpsData
+      },
+      {
+        name: $gettext('Avg Response Time'),
+        type: 'line',
+        smooth: true,
+        symbol: 'none',
+        yAxisIndex: 1,
+        areaStyle: { opacity: 0.1 },
+        lineStyle: { width: 2 },
+        itemStyle: { color: '#2080f0' },
+        data: avgRtData
+      }
+    ]
+  }
+})
+
+// ============ 流量图表 ============
+
+const trafficChartOption = computed<EChartsOption>(() => {
+  const series = overview.value.series || []
+  const xData = series.map((s) => formatXLabel(s.key))
+
+  const outData = series.map((s) => s.bandwidth || 0)
+  const inData = series.map((s) => s.bandwidth_in || 0)
+
+  // 汇总值用于 legend
+  const totalOut = outData.reduce((a, b) => a + b, 0)
+  const totalIn = inData.reduce((a, b) => a + b, 0)
+
+  return {
+    tooltip: {
+      trigger: 'axis',
+      formatter: (params: any) => {
+        if (!Array.isArray(params) || params.length === 0) return ''
+        let html = `<div style="font-size:12px"><div style="margin-bottom:4px;font-weight:bold">${params[0].name}</div>`
+        for (const p of params) {
+          html += `<div>${p.marker} ${p.seriesName}: ${formatBytes(p.value)}</div>`
+        }
+        html += '</div>'
+        return html
+      }
+    },
+    legend: {
+      top: 0,
+      right: 0,
+      formatter: (name: string) => {
+        if (name === $gettext('Outbound')) return `${$gettext('Outbound')}: ${formatBytes(totalOut)}`
+        return `${$gettext('Inbound')}: ${formatBytes(totalIn)}`
+      }
+    },
+    grid: { left: 60, right: 20, top: 40, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: xData,
+      axisLabel: {
+        interval: isSingleDay.value
+          ? (_: number, value: string) => {
+              const hour = parseInt(value.split(':')[0] || '0', 10)
+              return hour % 3 === 0
+            }
+          : 'auto'
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { formatter: (v: number) => formatBytes(v) },
+      splitLine: { lineStyle: { type: 'dashed' } }
+    },
+    series: [
+      {
+        name: $gettext('Outbound'),
+        type: 'line',
+        smooth: true,
+        symbol: 'none',
+        areaStyle: { opacity: 0.15 },
+        lineStyle: { width: 2 },
+        itemStyle: { color: '#18a058' },
+        data: outData
+      },
+      {
+        name: $gettext('Inbound'),
+        type: 'line',
+        smooth: true,
+        symbol: 'none',
+        areaStyle: { opacity: 0.1 },
+        lineStyle: { width: 2 },
+        itemStyle: { color: '#2080f0' },
+        data: inData
+      }
+    ]
+  }
+})
 </script>
 
 <template>
   <n-flex vertical :size="20">
     <!-- 统计卡片 -->
     <n-spin :show="loading">
-      <div class="grid grid-cols-3 gap-12 sm:grid-cols-5 lg:grid-cols-9">
+      <div class="gap-12 grid grid-cols-3 lg:grid-cols-9 sm:grid-cols-5">
         <n-card v-for="m in metrics" :key="m.key" :bordered="false" size="small">
           <div class="flex flex-col gap-4">
             <span class="text-12px text-[var(--text-color-3)]">{{ m.label }}</span>
             <span class="text-20px font-bold">{{
               formatValue(overview.current[m.key] || 0, m.isBytes)
             }}</span>
-            <div class="text-12px flex items-center gap-4">
+            <div class="text-12px flex gap-4 items-center">
               <span
                 :class="{
                   'text-[var(--success-color)]':
@@ -294,7 +487,7 @@ const previousLabel = computed(() => {
     <!-- 趋势图 -->
     <n-card :bordered="false">
       <template #header>
-        <div class="flex flex-wrap items-center justify-between gap-8">
+        <div class="flex flex-wrap gap-8 items-center justify-between">
           <n-radio-group v-model:value="activeMetric" size="small">
             <n-radio-button v-for="m in metrics" :key="m.key" :value="m.key">
               {{ m.label }}
@@ -309,5 +502,23 @@ const previousLabel = computed(() => {
         <v-chart class="h-350px" :option="chartOption" autoresize />
       </n-spin>
     </n-card>
+
+    <!-- 性能/负载 + 流量 -->
+    <n-grid :cols="2" :x-gap="20">
+      <n-gi>
+        <n-card :bordered="false" :title="$gettext('Performance / Load')">
+          <n-spin :show="loading">
+            <v-chart class="h-280px" :option="perfChartOption" autoresize />
+          </n-spin>
+        </n-card>
+      </n-gi>
+      <n-gi>
+        <n-card :bordered="false" :title="$gettext('Traffic')">
+          <n-spin :show="loading">
+            <v-chart class="h-280px" :option="trafficChartOption" autoresize />
+          </n-spin>
+        </n-card>
+      </n-gi>
+    </n-grid>
   </n-flex>
 </template>

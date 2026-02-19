@@ -67,14 +67,14 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 	// 查询当前周期汇总
 	current, err := s.queryTotals(start, end, sites, today)
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	// 查询对比周期汇总
 	previous, err := s.queryTotals(prevStart, prevEnd, sites, today)
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -86,7 +86,7 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 		series, err = s.queryDailySeries(start, end, sites, today)
 	}
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -99,14 +99,14 @@ func (s *WebsiteStatService) Overview(w http.ResponseWriter, r *http.Request) {
 		prevSeries, err = s.queryDailySeries(prevStart, prevEnd, sites, today)
 	}
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	// 获取所有网站列表（用于站点选择器）
 	websites, _, err := s.websiteRepo.List("all", 1, 10000)
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -140,7 +140,7 @@ func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
 	// DB 查询全部日期范围（含今日）
 	dbItems, err := s.statRepo.ListSiteStats(start, end, sites)
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	for _, item := range dbItems {
@@ -166,19 +166,33 @@ func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
 				existing.UV += snap.UV
 				existing.IP += snap.IP
 				existing.Bandwidth += snap.Bandwidth
+				existing.BandwidthIn += snap.BandwidthIn
 				existing.Requests += snap.Requests
 				existing.Errors += snap.Errors
 				existing.Spiders += snap.Spiders
+				existing.RequestTimeSum += snap.RequestTimeSum
+				existing.RequestTimeCount += snap.RequestTimeCount
+				existing.Status2xx += snap.Status2xx
+				existing.Status3xx += snap.Status3xx
+				existing.Status4xx += snap.Status4xx
+				existing.Status5xx += snap.Status5xx
 			} else {
 				siteMap[name] = &biz.WebsiteStatSiteItem{
-					Site:      name,
-					PV:        snap.PV,
-					UV:        snap.UV,
-					IP:        snap.IP,
-					Bandwidth: snap.Bandwidth,
-					Requests:  snap.Requests,
-					Errors:    snap.Errors,
-					Spiders:   snap.Spiders,
+					Site:             name,
+					PV:               snap.PV,
+					UV:               snap.UV,
+					IP:               snap.IP,
+					Bandwidth:        snap.Bandwidth,
+					BandwidthIn:      snap.BandwidthIn,
+					Requests:         snap.Requests,
+					Errors:           snap.Errors,
+					Spiders:          snap.Spiders,
+					RequestTimeSum:   snap.RequestTimeSum,
+					RequestTimeCount: snap.RequestTimeCount,
+					Status2xx:        snap.Status2xx,
+					Status3xx:        snap.Status3xx,
+					Status4xx:        snap.Status4xx,
+					Status5xx:        snap.Status5xx,
 				}
 			}
 		}
@@ -201,7 +215,7 @@ func (s *WebsiteStatService) SpiderStats(w http.ResponseWriter, r *http.Request)
 
 	items, err := s.statRepo.TopSpiders(start, end, sites, 50)
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -228,7 +242,7 @@ func (s *WebsiteStatService) ClientStats(w http.ResponseWriter, r *http.Request)
 
 	items, err := s.statRepo.TopClients(start, end, sites, 100)
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -279,7 +293,7 @@ func (s *WebsiteStatService) IPStats(w http.ResponseWriter, r *http.Request) {
 
 	items, total, err := s.statRepo.TopIPs(start, end, sites, uint(page), uint(limit))
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -306,7 +320,7 @@ func (s *WebsiteStatService) GeoStats(w http.ResponseWriter, r *http.Request) {
 
 	items, err := s.statRepo.TopGeos(start, end, sites, groupBy, country, limit)
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -330,7 +344,7 @@ func (s *WebsiteStatService) URIStats(w http.ResponseWriter, r *http.Request) {
 
 	items, total, err := s.statRepo.TopURIs(start, end, sites, uint(page), uint(limit))
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -356,7 +370,7 @@ func (s *WebsiteStatService) ErrorStats(w http.ResponseWriter, r *http.Request) 
 
 	items, total, err := s.statRepo.ListErrors(start, end, sites, status, uint(page), uint(limit))
 	if err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -369,7 +383,7 @@ func (s *WebsiteStatService) ErrorStats(w http.ResponseWriter, r *http.Request) 
 // Clear 清空所有统计数据
 func (s *WebsiteStatService) Clear(w http.ResponseWriter, r *http.Request) {
 	if err := s.statRepo.Clear(); err != nil {
-		ErrorSystem(w)
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	s.aggregator.Reset()
@@ -424,13 +438,20 @@ func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Reques
 }
 
 type statTotals struct {
-	PV        uint64 `json:"pv"`
-	UV        uint64 `json:"uv"`
-	IP        uint64 `json:"ip"`
-	Bandwidth uint64 `json:"bandwidth"`
-	Requests  uint64 `json:"requests"`
-	Errors    uint64 `json:"errors"`
-	Spiders   uint64 `json:"spiders"`
+	PV               uint64 `json:"pv"`
+	UV               uint64 `json:"uv"`
+	IP               uint64 `json:"ip"`
+	Bandwidth        uint64 `json:"bandwidth"`
+	BandwidthIn      uint64 `json:"bandwidth_in"`
+	Requests         uint64 `json:"requests"`
+	Errors           uint64 `json:"errors"`
+	Spiders          uint64 `json:"spiders"`
+	RequestTimeSum   uint64 `json:"request_time_sum"`
+	RequestTimeCount uint64 `json:"request_time_count"`
+	Status2xx        uint64 `json:"status_2xx"`
+	Status3xx        uint64 `json:"status_3xx"`
+	Status4xx        uint64 `json:"status_4xx"`
+	Status5xx        uint64 `json:"status_5xx"`
 }
 
 // parseDateSites 解析公共查询参数 start, end, sites
@@ -469,9 +490,16 @@ func (s *WebsiteStatService) queryTotals(start, end string, sites []string, toda
 		total.UV += st.UV
 		total.IP += st.IP
 		total.Bandwidth += st.Bandwidth
+		total.BandwidthIn += st.BandwidthIn
 		total.Requests += st.Requests
 		total.Errors += st.Errors
 		total.Spiders += st.Spiders
+		total.RequestTimeSum += st.RequestTimeSum
+		total.RequestTimeCount += st.RequestTimeCount
+		total.Status2xx += st.Status2xx
+		total.Status3xx += st.Status3xx
+		total.Status4xx += st.Status4xx
+		total.Status5xx += st.Status5xx
 	}
 
 	// 叠加今日未刷新的增量
@@ -500,9 +528,16 @@ func (s *WebsiteStatService) mergeLiveTotals(total *statTotals, sites []string) 
 		total.UV += snap.UV
 		total.IP += snap.IP
 		total.Bandwidth += snap.Bandwidth
+		total.BandwidthIn += snap.BandwidthIn
 		total.Requests += snap.Requests
 		total.Errors += snap.Errors
 		total.Spiders += snap.Spiders
+		total.RequestTimeSum += snap.RequestTimeSum
+		total.RequestTimeCount += snap.RequestTimeCount
+		total.Status2xx += snap.Status2xx
+		total.Status3xx += snap.Status3xx
+		total.Status4xx += snap.Status4xx
+		total.Status5xx += snap.Status5xx
 	}
 }
 
@@ -543,19 +578,33 @@ func (s *WebsiteStatService) queryHourlySeries(date string, sites []string, toda
 					existing.UV += hs.UV
 					existing.IP += hs.IP
 					existing.Bandwidth += hs.Bandwidth
+					existing.BandwidthIn += hs.BandwidthIn
 					existing.Requests += hs.Requests
 					existing.Errors += hs.Errors
 					existing.Spiders += hs.Spiders
+					existing.RequestTimeSum += hs.RequestTimeSum
+					existing.RequestTimeCount += hs.RequestTimeCount
+					existing.Status2xx += hs.Status2xx
+					existing.Status3xx += hs.Status3xx
+					existing.Status4xx += hs.Status4xx
+					existing.Status5xx += hs.Status5xx
 				} else {
 					hourMap[h] = &biz.WebsiteStatSeries{
-						Key:       strconv.Itoa(h),
-						PV:        hs.PV,
-						UV:        hs.UV,
-						IP:        hs.IP,
-						Bandwidth: hs.Bandwidth,
-						Requests:  hs.Requests,
-						Errors:    hs.Errors,
-						Spiders:   hs.Spiders,
+						Key:              strconv.Itoa(h),
+						PV:               hs.PV,
+						UV:               hs.UV,
+						IP:               hs.IP,
+						Bandwidth:        hs.Bandwidth,
+						BandwidthIn:      hs.BandwidthIn,
+						Requests:         hs.Requests,
+						Errors:           hs.Errors,
+						Spiders:          hs.Spiders,
+						RequestTimeSum:   hs.RequestTimeSum,
+						RequestTimeCount: hs.RequestTimeCount,
+						Status2xx:        hs.Status2xx,
+						Status3xx:        hs.Status3xx,
+						Status4xx:        hs.Status4xx,
+						Status5xx:        hs.Status5xx,
 					}
 				}
 			}
@@ -613,9 +662,16 @@ func (s *WebsiteStatService) queryDailySeries(start, end string, sites []string,
 			todayData.UV += snap.UV
 			todayData.IP += snap.IP
 			todayData.Bandwidth += snap.Bandwidth
+			todayData.BandwidthIn += snap.BandwidthIn
 			todayData.Requests += snap.Requests
 			todayData.Errors += snap.Errors
 			todayData.Spiders += snap.Spiders
+			todayData.RequestTimeSum += snap.RequestTimeSum
+			todayData.RequestTimeCount += snap.RequestTimeCount
+			todayData.Status2xx += snap.Status2xx
+			todayData.Status3xx += snap.Status3xx
+			todayData.Status4xx += snap.Status4xx
+			todayData.Status5xx += snap.Status5xx
 		}
 	}
 
