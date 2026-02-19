@@ -318,7 +318,7 @@ msgstr "Cannot save in current state"
 #: src/views/environment/PhpConfigTuneView.vue:183
 #: src/views/environment/PHPView.vue:163 src/views/environment/PHPView.vue:169
 #: src/views/environment/PythonView.vue:59 src/views/project/EditModal.vue:159
-#: src/views/setting/IndexView.vue:83 src/views/toolbox/SystemView.vue:72
+#: src/views/setting/IndexView.vue:86 src/views/toolbox/SystemView.vue:72
 #: src/views/toolbox/SystemView.vue:83 src/views/toolbox/SystemView.vue:97
 #: src/views/toolbox/SystemView.vue:111 src/views/toolbox/SystemView.vue:158
 #: src/views/website/EditModal.vue:158
@@ -844,7 +844,7 @@ msgstr ""
 #: src/views/environment/PHPView.vue:250 src/views/environment/PHPView.vue:268
 #: src/views/environment/PythonView.vue:97 src/views/file/EditModal.vue:40
 #: src/views/firewall/SettingView.vue:95 src/views/project/EditModal.vue:582
-#: src/views/setting/IndexView.vue:168 src/views/task/CreateModal.vue:478
+#: src/views/setting/IndexView.vue:171 src/views/task/CreateModal.vue:478
 #: src/views/task/CronView.vue:346 src/views/toolbox/SshView.vue:239
 #: src/views/toolbox/SystemView.vue:190 src/views/toolbox/SystemView.vue:214
 #: src/views/toolbox/SystemView.vue:232 src/views/toolbox/SystemView.vue:270
@@ -908,7 +908,7 @@ msgid "Editor Settings"
 msgstr "Port Settings"
 
 #: src/components/file-editor/FileEditorView.vue:145
-#: src/views/setting/IndexView.vue:146
+#: src/views/setting/IndexView.vue:149
 msgid "Basic"
 msgstr "Basic"
 
@@ -2317,7 +2317,7 @@ msgstr "Run As User"
 #: src/views/apps/rsync/IndexView.vue:338 src/views/database/IndexView.vue:31
 #: src/views/home/IndexView.vue:660 src/views/home/IndexView.vue:761
 #: src/views/log/SSHLog.vue:71 src/views/monitor/IndexView.vue:333
-#: src/views/monitor/IndexView.vue:345 src/views/setting/IndexView.vue:148
+#: src/views/monitor/IndexView.vue:345 src/views/setting/IndexView.vue:151
 #: src/views/toolbox/ProcessView.vue:131 src/views/toolbox/ProcessView.vue:391
 #: src/views/toolbox/WebHookView.vue:347 src/views/toolbox/WebHookView.vue:382
 msgid "User"
@@ -3383,7 +3383,7 @@ msgstr "Run Log"
 #: src/views/database/CreateDatabaseModal.vue:101
 #: src/views/database/CreateUserModal.vue:77
 #: src/views/database/IndexView.vue:45 src/views/setting/CreateModal.vue:39
-#: src/views/setting/IndexView.vue:154
+#: src/views/setting/IndexView.vue:157
 msgid "Create User"
 msgstr "Create User"
 
@@ -4133,7 +4133,7 @@ msgid "Issue"
 msgstr "Issue"
 
 #: src/views/cert/CertView.vue:221 src/views/cert/ObtainModal.vue:26
-#: src/views/setting/IndexView.vue:117 src/views/website/EditModal.vue:185
+#: src/views/setting/IndexView.vue:120 src/views/website/EditModal.vue:185
 msgid "Please wait..."
 msgstr "Please wait..."
 
@@ -7129,9 +7129,9 @@ msgstr ""
 msgid "File (truncate)"
 msgstr "Filename"
 
-#: src/views/project/EditModal.vue:72 src/views/setting/SettingSafe.vue:262
-#: src/views/website/EditModal.vue:693 src/views/website/EditModal.vue:697
-#: src/views/website/EditModal.vue:912
+#: src/views/project/EditModal.vue:72 src/views/setting/SettingBase.vue:176
+#: src/views/setting/SettingSafe.vue:262 src/views/website/EditModal.vue:693
+#: src/views/website/EditModal.vue:697 src/views/website/EditModal.vue:912
 #, fuzzy
 msgid "Disabled"
 msgstr "Enabled"
@@ -7440,21 +7440,21 @@ msgstr "Enter user password"
 msgid "Enter user email"
 msgstr "Enter user email"
 
-#: src/views/setting/IndexView.vue:99 src/views/setting/IndexView.vue:123
+#: src/views/setting/IndexView.vue:102 src/views/setting/IndexView.vue:126
 #, fuzzy
 msgid "Panel is restarting, page will refresh in 5 seconds"
 msgstr "Panel is restarting, page will refresh in 3 seconds"
 
-#: src/views/setting/IndexView.vue:122
+#: src/views/setting/IndexView.vue:125
 #, fuzzy
 msgid "Certificate refreshed successfully"
 msgstr "Retrieved successfully"
 
-#: src/views/setting/IndexView.vue:147
+#: src/views/setting/IndexView.vue:150
 msgid "Safe"
 msgstr "Safe"
 
-#: src/views/setting/IndexView.vue:177
+#: src/views/setting/IndexView.vue:180
 #, fuzzy
 msgid "Refresh Certificate"
 msgstr "Create Certificate"
@@ -7521,20 +7521,40 @@ msgstr "Please enter the complete URL"
 
 #: src/views/setting/SettingBase.vue:174
 #, fuzzy
+msgid "IPDB Source"
+msgstr "Source Port"
+
+#: src/views/setting/SettingBase.vue:177
+msgid "Subscribe"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:178
+#, fuzzy
+msgid "Custom File"
+msgstr "Custom Logo"
+
+#: src/views/setting/SettingBase.vue:181
+msgid "Subscribe URL"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:187
+msgid "Auto-update weekly, compatible with IPIP.NET format (.ipdb)"
+msgstr ""
+
+#: src/views/setting/SettingBase.vue:190
+#, fuzzy
 msgid "IPDB Path"
 msgstr "Path"
 
-#: src/views/setting/SettingBase.vue:178
+#: src/views/setting/SettingBase.vue:194
 msgid "GeoIP database file path (.ipdb)"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:188
-msgid ""
-"Compatible with IPIP.NET format (.ipdb), due to the licensing agreement, you "
-"need to provide the database yourself."
+#: src/views/setting/SettingBase.vue:203
+msgid "Compatible with IPIP.NET format (.ipdb)"
 msgstr ""
 
-#: src/views/setting/SettingBase.vue:194
+#: src/views/setting/SettingBase.vue:206
 msgid "Hide Menu"
 msgstr "Hide Menu"
 
