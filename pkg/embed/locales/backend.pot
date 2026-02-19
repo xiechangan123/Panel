@@ -1450,9 +1450,9 @@ msgstr ""
 msgid "app not found"
 msgstr ""
 
-#: internal/data/setting.go:319
-#: internal/data/setting.go:379
-#: internal/data/setting.go:395
+#: internal/data/setting.go:331
+#: internal/data/setting.go:391
+#: internal/data/setting.go:407
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
@@ -1989,8 +1989,8 @@ msgid "failed to parse SMART info: %v"
 msgstr ""
 
 #: internal/data/cert.go:100
-#: internal/data/setting.go:324
-#: internal/data/setting.go:398
+#: internal/data/setting.go:336
+#: internal/data/setting.go:410
 #: internal/data/website.go:620
 #: internal/data/website.go:969
 msgid "failed to parse certificate: %v"
@@ -2001,8 +2001,8 @@ msgid "failed to parse disk list: %v"
 msgstr ""
 
 #: internal/data/cert.go:103
-#: internal/data/setting.go:327
-#: internal/data/setting.go:401
+#: internal/data/setting.go:339
+#: internal/data/setting.go:413
 #: internal/data/website.go:623
 #: internal/data/website.go:972
 msgid "failed to parse private key: %v"
@@ -2484,7 +2484,7 @@ msgstr ""
 msgid "please set public ips first"
 msgstr ""
 
-#: internal/data/setting.go:344
+#: internal/data/setting.go:356
 msgid "port is already in use"
 msgstr ""
 
