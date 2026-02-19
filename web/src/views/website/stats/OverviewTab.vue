@@ -385,7 +385,8 @@ const trafficChartOption = computed<EChartsOption>(() => {
       top: 0,
       right: 0,
       formatter: (name: string) => {
-        if (name === $gettext('Outbound')) return `${$gettext('Outbound')}: ${formatBytes(totalOut)}`
+        if (name === $gettext('Outbound'))
+          return `${$gettext('Outbound')}: ${formatBytes(totalOut)}`
         return `${$gettext('Inbound')}: ${formatBytes(totalIn)}`
       }
     },
@@ -459,9 +460,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
                     'same'
                 }"
               >
-                {{
-                  formatDiff(overview.current[m.key] || 0, overview.previous[m.key] || 0).text
-                }}
+                {{ formatDiff(overview.current[m.key] || 0, overview.previous[m.key] || 0).text }}
               </span>
               <span class="text-[var(--text-color-3)]">{{ previousLabel }}</span>
             </div>
@@ -506,7 +505,7 @@ const trafficChartOption = computed<EChartsOption>(() => {
     <!-- 性能/负载 + 流量 -->
     <n-grid :cols="2" :x-gap="20">
       <n-gi>
-        <n-card :bordered="false" :title="$gettext('Performance / Load')">
+        <n-card :bordered="false" :title="$gettext('Performance')">
           <n-spin :show="loading">
             <v-chart class="h-280px" :option="perfChartOption" autoresize />
           </n-spin>
