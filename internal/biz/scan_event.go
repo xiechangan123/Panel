@@ -10,6 +10,10 @@ type ScanEvent struct {
 	Protocol  string    `gorm:"not null;default:'tcp';uniqueIndex:idx_scan_unique" json:"protocol"`
 	Date      string    `gorm:"not null;uniqueIndex:idx_scan_unique;index:idx_scan_date" json:"date"` // YYYY-MM-DD
 	Count     uint      `gorm:"not null;default:1" json:"count"`
+	Country   string    `gorm:"not null;default:''" json:"country"`
+	Region    string    `gorm:"not null;default:''" json:"region"`
+	City      string    `gorm:"not null;default:''" json:"city"`
+	District  string    `gorm:"not null;default:''" json:"district"`
 	FirstSeen time.Time `gorm:"not null" json:"first_seen"`
 	LastSeen  time.Time `gorm:"not null" json:"last_seen"`
 	CreatedAt time.Time `json:"created_at"`
@@ -36,6 +40,10 @@ type ScanSourceRank struct {
 	TotalCount uint   `json:"total_count"`
 	PortCount  uint   `json:"port_count"`
 	LastSeen   string `json:"last_seen"`
+	Country    string `json:"country"`
+	Region     string `json:"region"`
+	City       string `json:"city"`
+	District   string `json:"district"`
 }
 
 // ScanPortRank 被扫描端口排行
@@ -56,7 +64,7 @@ type ScanSetting struct {
 // ScanEventRepo 扫描事件数据访问接口
 type ScanEventRepo interface {
 	Upsert(events []*ScanEvent) error
-	List(start, end, sourceIP string, port uint, page, limit uint) ([]*ScanEvent, uint, error)
+	List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*ScanEvent, uint, error)
 	Summary(start, end string) (*ScanSummary, error)
 	Trend(start, end string) ([]*ScanDayTrend, error)
 	TopSourceIPs(start, end string, limit uint) ([]*ScanSourceRank, error)

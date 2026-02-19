@@ -9,6 +9,7 @@ import (
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 	"github.com/acepanel/panel/pkg/firewall/scan"
+	"github.com/acepanel/panel/pkg/geoip"
 )
 
 // FirewallScan 防火墙扫描感知任务
@@ -17,6 +18,7 @@ type FirewallScan struct {
 	setting  biz.SettingRepo
 	scanRepo biz.ScanEventRepo
 	scanner  *scan.Scanner
+	geoIP    *geoip.GeoIP
 	buffer   map[string]*biz.ScanEvent // key: "ip:port:proto:date"
 	mu       sync.Mutex
 }
@@ -77,6 +79,17 @@ func (r *FirewallScan) ensureScanner() {
 
 	r.scanner = scanner
 
+	// 加载 GeoIP 数据库
+	if r.geoIP == nil {
+		if ipdbPath, err := r.setting.Get(biz.SettingKeyIPDBPath); err == nil && ipdbPath != "" {
+			if g, err := geoip.NewGeoIP(ipdbPath); err != nil {
+				r.log.Warn("failed to load ipdb", slog.String("path", ipdbPath), slog.Any("err", err))
+			} else {
+				r.geoIP = g
+			}
+		}
+	}
+
 	// 启动后台事件聚合
 	go r.aggregate()
 }
@@ -134,6 +147,17 @@ func (r *FirewallScan) flush() {
 	}
 	r.buffer = make(map[string]*biz.ScanEvent)
 	r.mu.Unlock()
+
+	// 解析 IP 地理位置
+	if r.geoIP != nil {
+		for _, evt := range events {
+			geo := r.geoIP.Lookup(evt.SourceIP)
+			evt.Country = geo.Country
+			evt.Region = geo.Region
+			evt.City = geo.City
+			evt.District = geo.District
+		}
+	}
 
 	if err := r.scanRepo.Upsert(events); err != nil {
 		r.log.Warn("failed to upsert scan events", slog.Any("err", err))

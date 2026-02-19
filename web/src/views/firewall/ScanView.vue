@@ -63,6 +63,7 @@ const eventsPageSize = ref(20)
 const eventsLoading = ref(false)
 const searchIP = ref('')
 const searchPort = ref<number | null>(null)
+const searchLocation = ref('')
 
 const loadSummary = () => {
   summaryLoading.value = true
@@ -130,7 +131,8 @@ const loadEvents = () => {
       eventsPage.value,
       eventsPageSize.value,
       searchIP.value || undefined,
-      searchPort.value || undefined
+      searchPort.value || undefined,
+      searchLocation.value || undefined
     )
   )
     .onSuccess(({ data }) => {
@@ -264,6 +266,12 @@ const blockColumn = {
 
 const topIPColumns: any = [
   { title: $gettext('Source IP'), key: 'source_ip', minWidth: 150 },
+  {
+    title: $gettext('Location'),
+    key: 'country',
+    minWidth: 120,
+    render: (row: any) => [row.country, row.region, row.city].filter(Boolean).join(' ') || '-'
+  },
   { title: $gettext('Scan Count'), key: 'total_count', width: 120, sorter: 'default' },
   { title: $gettext('Port Count'), key: 'port_count', width: 120 },
   {
@@ -284,6 +292,12 @@ const topPortColumns: any = [
 
 const eventColumns: any = [
   { title: $gettext('Source IP'), key: 'source_ip', minWidth: 150 },
+  {
+    title: $gettext('Location'),
+    key: 'country',
+    minWidth: 120,
+    render: (row: any) => [row.country, row.region, row.city].filter(Boolean).join(' ') || '-'
+  },
   { title: $gettext('Port'), key: 'port', width: 100 },
   { title: $gettext('Protocol'), key: 'protocol', width: 100 },
   { title: $gettext('Scan Count'), key: 'count', width: 120 },
@@ -352,6 +366,15 @@ const handleClear = () => {
           clearable
           :show-button="false"
           style="width: 100px"
+          @clear="loadEvents()"
+          @keyup.enter="loadEvents()"
+        />
+        <n-input
+          v-if="currentTab === 'events'"
+          v-model:value="searchLocation"
+          :placeholder="$gettext('Location')"
+          clearable
+          style="width: 160px"
           @clear="loadEvents()"
           @keyup.enter="loadEvents()"
         />
@@ -447,7 +470,7 @@ const handleClear = () => {
         <n-data-table
           striped
           remote
-          :scroll-x="1000"
+          :scroll-x="1100"
           :loading="eventsLoading"
           :columns="eventColumns"
           :data="events"

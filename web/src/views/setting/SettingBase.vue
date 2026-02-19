@@ -16,14 +16,16 @@ const model = defineModel<any>('model', { type: Object, required: true })
 // 目录选择器
 const showPathSelector = ref(false)
 const pathSelectorPath = ref('/opt/ace')
-const pathSelectorTarget = ref<'website' | 'backup' | 'project'>('website')
+const pathSelectorTarget = ref<'website' | 'backup' | 'project' | 'ipdb'>('website')
 
-const handleSelectPath = (target: 'website' | 'backup' | 'project') => {
+const handleSelectPath = (target: 'website' | 'backup' | 'project' | 'ipdb') => {
   pathSelectorTarget.value = target
   if (target === 'website') {
     pathSelectorPath.value = model.value.website_path || '/opt/ace/sites'
   } else if (target === 'backup') {
     pathSelectorPath.value = model.value.backup_path || '/opt/ace/backup'
+  } else if (target === 'ipdb') {
+    pathSelectorPath.value = model.value.ipdb_path || '/opt/ace'
   } else {
     pathSelectorPath.value = model.value.project_path || '/opt/ace/projects'
   }
@@ -36,6 +38,8 @@ watch(showPathSelector, (val) => {
       model.value.website_path = pathSelectorPath.value
     } else if (pathSelectorTarget.value === 'backup') {
       model.value.backup_path = pathSelectorPath.value
+    } else if (pathSelectorTarget.value === 'ipdb') {
+      model.value.ipdb_path = pathSelectorPath.value
     } else {
       model.value.project_path = pathSelectorPath.value
     }
@@ -159,16 +163,33 @@ const menus = computed<TreeSelectOption[]>(() => {
         </n-input-group>
       </n-form-item>
       <n-form-item :label="$gettext('Container Socket')">
-        <n-input
-          v-model:value="model.container_sock"
-          :placeholder="'/var/run/docker.sock'"
-        />
+        <n-input v-model:value="model.container_sock" :placeholder="'/var/run/docker.sock'" />
       </n-form-item>
       <n-form-item :label="$gettext('Custom Logo')">
         <n-input
           v-model:value="model.custom_logo"
           :placeholder="$gettext('Please enter the complete URL')"
         />
+      </n-form-item>
+      <n-form-item :label="$gettext('IPDB Path')">
+        <n-input-group>
+          <n-input
+            v-model:value="model.ipdb_path"
+            :placeholder="$gettext('GeoIP database file path (.ipdb)')"
+          />
+          <n-button @click="handleSelectPath('ipdb')">
+            <template #icon>
+              <i-mdi-folder-open />
+            </template>
+          </n-button>
+        </n-input-group>
+        <template #feedback>
+          {{
+            $gettext(
+              'Compatible with IPIP.NET format (.ipdb), due to the licensing agreement, you need to provide the database yourself.'
+            )
+          }}
+        </template>
       </n-form-item>
       <n-form-item :label="$gettext('Hide Menu')">
         <n-tree-select
@@ -183,8 +204,12 @@ const menus = computed<TreeSelectOption[]>(() => {
     </n-form>
   </n-flex>
 
-  <!-- 目录选择器 -->
-  <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="true" />
+  <!-- 文件/目录选择器 -->
+  <path-selector
+    v-model:show="showPathSelector"
+    v-model:path="pathSelectorPath"
+    :dir="pathSelectorTarget !== 'ipdb'"
+  />
 </template>
 
 <style scoped lang="scss"></style>

@@ -47,6 +47,16 @@ export default {
   // IP 统计
   statIPs: (start: string, end: string, sites?: string, page?: number, limit?: number): any =>
     http.Get('/website/stat/ips', { params: { start, end, sites, page, limit } }),
+  // 地理位置统计
+  statGeos: (
+    start: string,
+    end: string,
+    sites?: string,
+    group_by?: string,
+    country?: string,
+    limit?: number
+  ): any =>
+    http.Get('/website/stat/geos', { params: { start, end, sites, group_by, country, limit } }),
   // URI 统计
   statURIs: (start: string, end: string, sites?: string, page?: number, limit?: number): any =>
     http.Get('/website/stat/uris', { params: { start, end, sites, page, limit } }),

@@ -259,6 +259,7 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Get("/stat/spiders", route.websiteStat.SpiderStats)
 			r.Get("/stat/clients", route.websiteStat.ClientStats)
 			r.Get("/stat/ips", route.websiteStat.IPStats)
+			r.Get("/stat/geos", route.websiteStat.GeoStats)
 			r.Get("/stat/uris", route.websiteStat.URIStats)
 			r.Get("/stat/errors", route.websiteStat.ErrorStats)
 			r.Get("/stat/setting", route.websiteStat.GetSetting)

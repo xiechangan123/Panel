@@ -34,8 +34,15 @@ func (r scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 	for i := 0; i < len(events); i += batchSize {
 		end := min(i+batchSize, len(events))
 		if err := r.db.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "source_ip"}, {Name: "port"}, {Name: "protocol"}, {Name: "date"}},
-			DoUpdates: clause.Assignments(map[string]any{"count": gorm.Expr("count + ?", gorm.Expr("excluded.count")), "last_seen": gorm.Expr("excluded.last_seen")}),
+			Columns: []clause.Column{{Name: "source_ip"}, {Name: "port"}, {Name: "protocol"}, {Name: "date"}},
+			DoUpdates: clause.Assignments(map[string]any{
+				"count":     gorm.Expr("count + ?", gorm.Expr("excluded.count")),
+				"last_seen": gorm.Expr("excluded.last_seen"),
+				"country":   gorm.Expr("excluded.country"),
+				"region":    gorm.Expr("excluded.region"),
+				"city":      gorm.Expr("excluded.city"),
+				"district":  gorm.Expr("excluded.district"),
+			}),
 		}).Create(events[i:end]).Error; err != nil {
 			return err
 		}
@@ -43,7 +50,7 @@ func (r scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 	return nil
 }
 
-func (r scanEventRepo) List(start, end, sourceIP string, port uint, page, limit uint) ([]*biz.ScanEvent, uint, error) {
+func (r scanEventRepo) List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*biz.ScanEvent, uint, error) {
 	var total int64
 	var items []*biz.ScanEvent
 
@@ -53,6 +60,10 @@ func (r scanEventRepo) List(start, end, sourceIP string, port uint, page, limit 
 	}
 	if port > 0 {
 		tx = tx.Where("port = ?", port)
+	}
+	if location != "" {
+		like := "%" + location + "%"
+		tx = tx.Where("country LIKE ? OR region LIKE ? OR city LIKE ? OR district LIKE ?", like, like, like, like)
 	}
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -89,7 +100,7 @@ func (r scanEventRepo) TopSourceIPs(start, end string, limit uint) ([]*biz.ScanS
 	var ranks []*biz.ScanSourceRank
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
-		Select("source_ip, COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT port || '-' || protocol) as port_count, MAX(last_seen) as last_seen").
+		Select("source_ip, COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT port || '-' || protocol) as port_count, MAX(last_seen) as last_seen, MAX(country) as country, MAX(region) as region, MAX(city) as city, MAX(district) as district").
 		Group("source_ip").
 		Order("total_count DESC").
 		Limit(int(limit)).

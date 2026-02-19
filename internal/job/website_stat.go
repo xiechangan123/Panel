@@ -8,6 +8,7 @@ import (
 
 	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
+	"github.com/acepanel/panel/pkg/geoip"
 	"github.com/acepanel/panel/pkg/websitestat"
 )
 
@@ -17,6 +18,7 @@ type WebsiteStat struct {
 	setting    biz.SettingRepo
 	statRepo   biz.WebsiteStatRepo
 	aggregator *websitestat.Aggregator
+	geoIP      *geoip.GeoIP
 	started    atomic.Bool
 }
 
@@ -63,6 +65,16 @@ func (r *WebsiteStat) ensureListener() {
 	}
 	if v, err := r.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled); err == nil {
 		r.aggregator.BodyEnabled = v
+	}
+
+	// 加载 GeoIP 数据库
+	if ipdbPath, err := r.setting.Get(biz.SettingKeyIPDBPath); err == nil && ipdbPath != "" {
+		if g, err := geoip.NewGeoIP(ipdbPath); err != nil {
+			r.log.Warn("failed to load ipdb", slog.String("path", ipdbPath), slog.Any("err", err))
+		} else {
+			r.geoIP = g
+			r.log.Info("geoip database loaded", slog.String("path", ipdbPath))
+		}
 	}
 
 	listener, err := websitestat.NewListener("/tmp/ace_stats.sock", r.log)
@@ -230,14 +242,22 @@ func (r *WebsiteStat) flushDetails() {
 			}
 
 			for ip, ic := range snap.IPs {
-				ips = append(ips, &biz.WebsiteStatIP{
+				rec := &biz.WebsiteStatIP{
 					Site:      site,
 					Date:      date,
 					IP:        ip,
 					Requests:  ic.Requests,
 					Bandwidth: ic.Bandwidth,
 					UpdatedAt: now,
-				})
+				}
+				if r.geoIP != nil {
+					geo := r.geoIP.Lookup(ip)
+					rec.Country = geo.Country
+					rec.Region = geo.Region
+					rec.City = geo.City
+					rec.District = geo.District
+				}
+				ips = append(ips, rec)
 			}
 
 			for uri, uc := range snap.URIs {

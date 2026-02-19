@@ -39,6 +39,7 @@ const (
 	SettingKeyWebsiteStatIPMaxKeys     SettingKey = "website_stat_ip_max_keys"
 	SettingKeyWebsiteStatDetailMaxKeys SettingKey = "website_stat_detail_max_keys"
 	SettingKeyWebsiteStatBodyEnabled   SettingKey = "website_stat_body_enabled"
+	SettingKeyIPDBPath                 SettingKey = "ipdb_path"
 )
 
 type Setting struct {

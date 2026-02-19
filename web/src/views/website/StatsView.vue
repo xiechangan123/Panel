@@ -5,6 +5,7 @@ import website from '@/api/panel/website'
 
 import ClientsTab from './stats/ClientsTab.vue'
 import ErrorsTab from './stats/ErrorsTab.vue'
+import GeoTab from './stats/GeoTab.vue'
 import IPsTab from './stats/IPsTab.vue'
 import OverviewTab from './stats/OverviewTab.vue'
 import SitesTab from './stats/SitesTab.vue'
@@ -195,6 +196,9 @@ provide('statContext', {
       </n-tab-pane>
       <n-tab-pane name="ips" :tab="$gettext('IPs')">
         <IPsTab />
+      </n-tab-pane>
+      <n-tab-pane name="geos" :tab="$gettext('Geo')">
+        <GeoTab />
       </n-tab-pane>
       <n-tab-pane name="uris" :tab="$gettext('URIs')">
         <URIsTab />

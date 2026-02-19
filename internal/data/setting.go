@@ -204,6 +204,10 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	if err != nil {
 		return nil, err
 	}
+	ipdbPath, err := r.Get(biz.SettingKeyIPDBPath)
+	if err != nil {
+		return nil, err
+	}
 	ip, err := r.Get(biz.SettingKeyPublicIPs)
 	if err != nil {
 		return nil, err
@@ -236,6 +240,7 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		ContainerSock: containerSock,
 		HiddenMenu:    hiddenMenu,
 		CustomLogo:    customLogo,
+		IPDBPath:      ipdbPath,
 		Port:          r.conf.HTTP.Port,
 		HTTPS:         r.conf.HTTP.TLS,
 		ACME:          r.conf.HTTP.ACME,
@@ -274,6 +279,9 @@ func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyCustomLogo, req.CustomLogo); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyIPDBPath, req.IPDBPath); err != nil {
 		return false, err
 	}
 	if err := r.SetSlice(biz.SettingKeyPublicIPs, req.PublicIP); err != nil {

@@ -61,6 +61,10 @@ type WebsiteStatIP struct {
 	Site      string    `gorm:"not null;uniqueIndex:idx_wip_unique" json:"site"`
 	Date      string    `gorm:"not null;uniqueIndex:idx_wip_unique;index" json:"date"`
 	IP        string    `gorm:"not null;uniqueIndex:idx_wip_unique" json:"ip"`
+	Country   string    `gorm:"not null;default:''" json:"country"`
+	Region    string    `gorm:"not null;default:''" json:"region"`
+	City      string    `gorm:"not null;default:''" json:"city"`
+	District  string    `gorm:"not null;default:''" json:"district"`
 	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
 	Bandwidth uint64    `gorm:"not null;default:0" json:"bandwidth"`
 	CreatedAt time.Time `json:"created_at"`
@@ -109,6 +113,19 @@ type WebsiteStatClientRank struct {
 // WebsiteStatIPRank IP 排名
 type WebsiteStatIPRank struct {
 	IP        string `json:"ip"`
+	Country   string `json:"country"`
+	Region    string `json:"region"`
+	City      string `json:"city"`
+	District  string `json:"district"`
+	Requests  uint64 `json:"requests"`
+	Bandwidth uint64 `json:"bandwidth"`
+}
+
+// WebsiteStatGeoRank 地理位置归类统计
+type WebsiteStatGeoRank struct {
+	Country   string `json:"country"`
+	Region    string `json:"region"`
+	City      string `json:"city"`
 	Requests  uint64 `json:"requests"`
 	Bandwidth uint64 `json:"bandwidth"`
 }
@@ -165,6 +182,7 @@ type WebsiteStatRepo interface {
 	// IP 统计
 	UpsertIPs(stats []*WebsiteStatIP) error
 	TopIPs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatIPRank, uint, error)
+	TopGeos(start, end string, sites []string, groupBy string, country string, limit uint) ([]*WebsiteStatGeoRank, error)
 	ClearIPsBefore(date string) error
 
 	// URI 统计

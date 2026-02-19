@@ -289,6 +289,32 @@ func (s *WebsiteStatService) IPStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GeoStats 地理位置归类统计
+func (s *WebsiteStatService) GeoStats(w http.ResponseWriter, r *http.Request) {
+	start, end, sites := s.parseDateSites(r)
+
+	groupBy := r.URL.Query().Get("group_by")
+	if groupBy == "" {
+		groupBy = "country"
+	}
+	country := r.URL.Query().Get("country")
+
+	var limit uint = 100
+	if l, err := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64); err == nil && l > 0 {
+		limit = uint(l)
+	}
+
+	items, err := s.statRepo.TopGeos(start, end, sites, groupBy, country, limit)
+	if err != nil {
+		ErrorSystem(w)
+		return
+	}
+
+	Success(w, chix.M{
+		"items": items,
+	})
+}
+
 // URIStats URI 统计（分页）
 func (s *WebsiteStatService) URIStats(w http.ResponseWriter, r *http.Request) {
 	start, end, sites := s.parseDateSites(r)

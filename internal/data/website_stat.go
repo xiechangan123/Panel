@@ -186,6 +186,10 @@ func (r *websiteStatRepo) UpsertIPs(stats []*biz.WebsiteStatIP) error {
 	return batchUpsert(r.db, stats, clause.OnConflict{
 		Columns: []clause.Column{{Name: "site"}, {Name: "date"}, {Name: "ip"}},
 		DoUpdates: clause.Assignments(map[string]any{
+			"country":    gorm.Expr("excluded.country"),
+			"region":     gorm.Expr("excluded.region"),
+			"city":       gorm.Expr("excluded.city"),
+			"district":   gorm.Expr("excluded.district"),
 			"requests":   gorm.Expr("website_stat_ips.requests + excluded.requests"),
 			"bandwidth":  gorm.Expr("website_stat_ips.bandwidth + excluded.bandwidth"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
@@ -211,7 +215,7 @@ func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit 
 
 	var items []*biz.WebsiteStatIPRank
 	dataQ := r.db.Model(&biz.WebsiteStatIP{}).
-		Select("ip, SUM(requests) as requests, SUM(bandwidth) as bandwidth").
+		Select("ip, MAX(country) as country, MAX(region) as region, MAX(city) as city, MAX(district) as district, SUM(requests) as requests, SUM(bandwidth) as bandwidth").
 		Where("date BETWEEN ? AND ?", start, end)
 	if len(sites) > 0 {
 		dataQ = dataQ.Where("site IN ?", sites)
@@ -223,6 +227,36 @@ func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit 
 
 func (r *websiteStatRepo) ClearIPsBefore(date string) error {
 	return r.db.Where("date < ?", date).Delete(&biz.WebsiteStatIP{}).Error
+}
+
+func (r *websiteStatRepo) TopGeos(start, end string, sites []string, groupBy string, country string, limit uint) ([]*biz.WebsiteStatGeoRank, error) {
+	var items []*biz.WebsiteStatGeoRank
+	q := r.db.Model(&biz.WebsiteStatIP{}).
+		Where("date BETWEEN ? AND ?", start, end)
+	if len(sites) > 0 {
+		q = q.Where("site IN ?", sites)
+	}
+
+	switch groupBy {
+	case "region":
+		q = q.Select("country, region, '' as city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
+		if country != "" {
+			q = q.Where("country = ?", country)
+		}
+		q = q.Group("country, region")
+	case "city":
+		q = q.Select("country, region, city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
+		if country != "" {
+			q = q.Where("country = ?", country)
+		}
+		q = q.Group("country, region, city")
+	default: // country
+		q = q.Select("country, '' as region, '' as city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
+		q = q.Group("country")
+	}
+
+	err := q.Order("requests DESC").Limit(int(limit)).Scan(&items).Error
+	return items, err
 }
 
 // ========== URI 统计 ==========

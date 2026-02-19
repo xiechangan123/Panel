@@ -127,6 +127,7 @@ func (s *FirewallScanService) ListEvents(w http.ResponseWriter, r *http.Request)
 	end := r.URL.Query().Get("end")
 	sourceIP := r.URL.Query().Get("source_ip")
 	port := cast.ToUint(r.URL.Query().Get("port"))
+	location := r.URL.Query().Get("location")
 	page := cast.ToUint(r.URL.Query().Get("page"))
 	limit := cast.ToUint(r.URL.Query().Get("limit"))
 	if page == 0 {
@@ -136,7 +137,7 @@ func (s *FirewallScanService) ListEvents(w http.ResponseWriter, r *http.Request)
 		limit = 20
 	}
 
-	items, total, err := s.scanRepo.List(start, end, sourceIP, port, page, limit)
+	items, total, err := s.scanRepo.List(start, end, sourceIP, port, location, page, limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

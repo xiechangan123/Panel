@@ -109,4 +109,16 @@ func init() {
 			)
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260220-add-ip-geo-fields",
+		Migrate: func(tx *gorm.DB) error {
+			if err := tx.AutoMigrate(&biz.WebsiteStatIP{}); err != nil {
+				return err
+			}
+			return tx.AutoMigrate(&biz.ScanEvent{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return nil
+		},
+	})
 }
