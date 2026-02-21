@@ -3,13 +3,16 @@ package data
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 
+	"github.com/libtnb/sqlite"
 	"github.com/moby/moby/client"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 )
 
@@ -47,6 +50,23 @@ func getOperatorID(ctx context.Context) uint64 {
 		return 0
 	}
 	return cast.ToUint64(userID)
+}
+
+// openDB 打开数据库
+func openDB(name string) (*gorm.DB, error) {
+	dsn := "file:" + filepath.Join(app.Root, fmt.Sprintf("panel/storage/%s.db", name)) +
+		"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)"
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
+		SkipDefaultTransaction:                   true,
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxOpenConns(1)
+	sqlDB.SetMaxIdleConns(1)
+	return db, nil
 }
 
 // upsert 分批大小，避免超出 SQLite 变量数限制

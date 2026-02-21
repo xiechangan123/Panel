@@ -113,7 +113,10 @@ func initAce() (*app.Ace, error) {
 	safeRepo := data.NewSafeRepo(logger)
 	safeService := service.NewSafeService(safeRepo)
 	firewallService := service.NewFirewallService()
-	scanEventRepo := data.NewScanEventRepo(db, settingRepo)
+	scanEventRepo, err := data.NewScanEventRepo(settingRepo)
+	if err != nil {
+		return nil, err
+	}
 	firewallScanService := service.NewFirewallScanService(scanEventRepo)
 	sshRepo := data.NewSSHRepo(locale, db, logger)
 	sshService := service.NewSSHService(sshRepo)

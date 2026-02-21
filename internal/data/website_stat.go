@@ -1,14 +1,11 @@
 package data
 
 import (
-	"path/filepath"
 	"time"
 
-	"github.com/libtnb/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/acepanel/panel/internal/app"
 	"github.com/acepanel/panel/internal/biz"
 )
 
@@ -18,7 +15,7 @@ type websiteStatRepo struct {
 
 // NewWebsiteStatRepo 创建网站统计数据访问实例
 func NewWebsiteStatRepo() (biz.WebsiteStatRepo, error) {
-	statDB, err := openStatDB()
+	statDB, err := openDB("stat")
 	if err != nil {
 		return nil, err
 	}
@@ -399,21 +396,4 @@ func (r *websiteStatRepo) ListSiteStats(start, end string, sites []string) ([]*b
 	}
 	err := q.Group("site").Order("requests DESC").Scan(&items).Error
 	return items, err
-}
-
-// openStatDB 打开统计数据库
-func openStatDB() (*gorm.DB, error) {
-	dsn := "file:" + filepath.Join(app.Root, "panel/storage/stat.db") +
-		"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)"
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
-		SkipDefaultTransaction:                   true,
-		DisableForeignKeyConstraintWhenMigrating: true,
-	})
-	if err != nil {
-		return nil, err
-	}
-	sqlDB, _ := db.DB()
-	sqlDB.SetMaxOpenConns(1)
-	sqlDB.SetMaxIdleConns(1)
-	return db, nil
 }

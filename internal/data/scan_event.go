@@ -18,11 +18,20 @@ type scanEventRepo struct {
 }
 
 // NewScanEventRepo 创建扫描事件数据访问实例
-func NewScanEventRepo(db *gorm.DB, setting biz.SettingRepo) biz.ScanEventRepo {
-	return &scanEventRepo{
-		db:      db,
-		setting: setting,
+func NewScanEventRepo(setting biz.SettingRepo) (biz.ScanEventRepo, error) {
+	scanDB, err := openDB("scan")
+	if err != nil {
+		return nil, err
 	}
+
+	if err = scanDB.AutoMigrate(&biz.ScanEvent{}); err != nil {
+		return nil, err
+	}
+
+	return &scanEventRepo{
+		db:      scanDB,
+		setting: setting,
+	}, nil
 }
 
 func (r scanEventRepo) Upsert(events []*biz.ScanEvent) error {
