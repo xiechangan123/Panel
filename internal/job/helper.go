@@ -31,6 +31,7 @@ func refreshGeoIP(setting biz.SettingRepo, current *geoip.GeoIP, curPath string,
 
 	// 禁用模式，释放内存
 	if path == "" {
+		_ = current.Close()
 		return nil, "", time.Time{}
 	}
 
@@ -39,6 +40,7 @@ func refreshGeoIP(setting biz.SettingRepo, current *geoip.GeoIP, curPath string,
 		if current != nil {
 			log.Warn("ipdb file inaccessible, releasing GeoIP", slog.String("path", path), slog.Any("err", err))
 		}
+		_ = current.Close()
 		return nil, path, time.Time{}
 	}
 
@@ -60,6 +62,7 @@ func refreshGeoIP(setting biz.SettingRepo, current *geoip.GeoIP, curPath string,
 	}
 
 	// 路径变化，重新初始化
+	_ = current.Close()
 	g, err := geoip.NewGeoIP(path)
 	if err != nil {
 		log.Warn("failed to load ipdb", slog.String("path", path), slog.Any("err", err))

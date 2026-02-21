@@ -20,6 +20,10 @@ func (s *GeoIPSuite) SetupSuite() {
 	s.g = g
 }
 
+func (s *GeoIPSuite) TearDownSuite() {
+	s.Require().NoError(s.g.Close())
+}
+
 func TestGeoIPSuite(t *testing.T) {
 	suite.Run(t, new(GeoIPSuite))
 }

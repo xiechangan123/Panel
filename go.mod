@@ -24,7 +24,6 @@ require (
 	github.com/gookit/color v1.6.0
 	github.com/gookit/validate v1.5.7-0.20260207022141-dc32dc1276cd
 	github.com/hashicorp/go-version v1.8.0
-	github.com/ipipdotnet/ipdb-go v1.3.3
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.11.2
 	github.com/libdns/alidns v1.0.6
