@@ -211,11 +211,11 @@ msgstr ""
 msgid "Cleaning failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:813
+#: internal/data/backup.go:851
 msgid "Cleaning temporary directory failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:846
+#: internal/data/backup.go:884
 msgid "Cleaning temporary file failed: %v"
 msgstr ""
 
@@ -345,12 +345,12 @@ msgstr ""
 msgid "Download URL is empty"
 msgstr ""
 
-#: internal/data/backup.go:909
-#: internal/data/backup.go:912
+#: internal/data/backup.go:947
+#: internal/data/backup.go:950
 msgid "Download failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:915
+#: internal/data/backup.go:953
 msgid "Download file check failed"
 msgstr ""
 
@@ -479,6 +479,10 @@ msgstr ""
 msgid "Failed to read input: %v"
 msgstr ""
 
+#: internal/data/backup.go:789
+msgid "Failed to remove %s.db: %v"
+msgstr ""
+
 #: internal/service/cli.go:890
 msgid "Failed to save app: %v"
 msgstr ""
@@ -513,7 +517,7 @@ msgstr ""
 msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
-#: internal/data/backup.go:764
+#: internal/data/backup.go:779
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr ""
 
@@ -744,11 +748,11 @@ msgstr ""
 msgid "Migration started"
 msgstr ""
 
-#: internal/data/backup.go:833
+#: internal/data/backup.go:871
 msgid "Move acepanel file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:828
+#: internal/data/backup.go:866
 msgid "Move panel file failed: %v"
 msgstr ""
 
@@ -766,7 +770,7 @@ msgstr ""
 msgid "New username cannot be empty"
 msgstr ""
 
-#: internal/data/backup.go:800
+#: internal/data/backup.go:838
 msgid "No backup file found, unable to automatically repair"
 msgstr ""
 
@@ -1006,7 +1010,7 @@ msgstr ""
 msgid "Remove panel application mark (use only under guidance)"
 msgstr ""
 
-#: internal/data/backup.go:825
+#: internal/data/backup.go:863
 msgid "Remove panel file failed: %v"
 msgstr ""
 
@@ -1177,7 +1181,7 @@ msgstr ""
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
-#: internal/data/backup.go:929
+#: internal/data/backup.go:967
 msgid "Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"
 msgstr ""
 
@@ -1285,11 +1289,11 @@ msgstr ""
 msgid "Unused container images: %d"
 msgstr ""
 
-#: internal/data/backup.go:816
+#: internal/data/backup.go:854
 msgid "Unzip backup file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:843
+#: internal/data/backup.go:881
 msgid "Unzip panel data failed: %v"
 msgstr ""
 
@@ -1343,7 +1347,7 @@ msgstr ""
 msgid "VERSION"
 msgstr ""
 
-#: internal/data/backup.go:922
+#: internal/data/backup.go:960
 msgid "Verify download file failed: %v"
 msgstr ""
 
@@ -1628,7 +1632,7 @@ msgstr ""
 msgid "failed to check ssh connection: %v"
 msgstr ""
 
-#: internal/data/backup.go:774
+#: internal/data/backup.go:812
 msgid "failed to clean temporary files: %v"
 msgstr ""
 
@@ -2862,7 +2866,7 @@ msgstr ""
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 
-#: internal/data/backup.go:805
+#: internal/data/backup.go:843
 msgid "|-Backup file used: %s"
 msgstr ""
 
@@ -2873,16 +2877,16 @@ msgstr ""
 msgid "|-Backup file: %s"
 msgstr ""
 
-#: internal/data/backup.go:943
+#: internal/data/backup.go:981
 msgid "|-Backup panel data failed, missing file"
 msgstr ""
 
-#: internal/data/backup.go:937
-#: internal/data/backup.go:940
+#: internal/data/backup.go:975
+#: internal/data/backup.go:978
 msgid "|-Backup panel data failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:933
+#: internal/data/backup.go:971
 msgid "|-Backup panel data..."
 msgstr ""
 
@@ -2907,15 +2911,15 @@ msgstr ""
 msgid "|-Backup type: panel"
 msgstr ""
 
-#: internal/data/backup.go:963
+#: internal/data/backup.go:1001
 msgid "|-Clean up temporary file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:925
+#: internal/data/backup.go:963
 msgid "|-Clean up verification file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:777
+#: internal/data/backup.go:815
 msgid "|-Cleaned up temporary files, please run acepanel update to update the panel"
 msgstr ""
 
@@ -2924,11 +2928,11 @@ msgstr ""
 msgid "|-Cleaning expired file: %s"
 msgstr ""
 
-#: internal/data/backup.go:950
+#: internal/data/backup.go:988
 msgid "|-Cleaning old version failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:947
+#: internal/data/backup.go:985
 msgid "|-Cleaning old version..."
 msgstr ""
 
@@ -2942,24 +2946,29 @@ msgstr ""
 msgid "|-Cleaning type: %s"
 msgstr ""
 
-#: internal/data/backup.go:901
+#: internal/data/backup.go:939
 msgid "|-Download link: %s"
 msgstr ""
 
-#: internal/data/backup.go:986
+#: internal/data/backup.go:1024
 msgid "|-Download panel service file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:906
+#: internal/data/backup.go:944
 msgid "|-Downloading..."
 msgstr ""
 
-#: internal/data/backup.go:902
+#: internal/data/backup.go:940
 msgid "|-File name: %s"
 msgstr ""
 
-#: internal/data/backup.go:882
+#: internal/data/backup.go:799
+#: internal/data/backup.go:920
 msgid "|-Fix completed"
+msgstr ""
+
+#: internal/data/backup.go:792
+msgid "|-Found %s.db is abnormal, removed it"
 msgstr ""
 
 #: internal/service/cli.go:685
@@ -2967,24 +2976,24 @@ msgstr ""
 msgid "|-Keep count: %d"
 msgstr ""
 
-#: internal/data/backup.go:992
+#: internal/data/backup.go:1030
 msgid "|-Move acepanel tool failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:821
+#: internal/data/backup.go:859
 msgid "|-Move backup file..."
 msgstr ""
 
-#: internal/data/backup.go:973
+#: internal/data/backup.go:1011
 msgid "|-Restore panel data failed, missing file"
 msgstr ""
 
-#: internal/data/backup.go:970
+#: internal/data/backup.go:1008
 msgid "|-Restore panel data failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:839
-#: internal/data/backup.go:967
+#: internal/data/backup.go:1005
+#: internal/data/backup.go:877
 msgid "|-Restore panel data..."
 msgstr ""
 
@@ -3001,16 +3010,16 @@ msgstr ""
 msgid "|-Rotation type: website"
 msgstr ""
 
-#: internal/data/backup.go:980
+#: internal/data/backup.go:1018
 msgid "|-Run post-update script failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:977
+#: internal/data/backup.go:1015
 msgid "|-Run post-update script..."
 msgstr ""
 
-#: internal/data/backup.go:859
-#: internal/data/backup.go:996
+#: internal/data/backup.go:1034
+#: internal/data/backup.go:897
 msgid "|-Set key file permissions..."
 msgstr ""
 
@@ -3018,7 +3027,7 @@ msgstr ""
 msgid "|-Start fixing the panel..."
 msgstr ""
 
-#: internal/data/backup.go:900
+#: internal/data/backup.go:938
 msgid "|-Target version: %s"
 msgstr ""
 
@@ -3028,31 +3037,31 @@ msgstr ""
 msgid "|-Temporary directory: %s"
 msgstr ""
 
-#: internal/data/backup.go:810
+#: internal/data/backup.go:848
 msgid "|-Unzip backup file..."
 msgstr ""
 
-#: internal/data/backup.go:960
+#: internal/data/backup.go:998
 msgid "|-Unzip new version failed, missing file"
 msgstr ""
 
-#: internal/data/backup.go:957
+#: internal/data/backup.go:995
 msgid "|-Unzip new version failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:954
+#: internal/data/backup.go:992
 msgid "|-Unzip new version..."
 msgstr ""
 
-#: internal/data/backup.go:1003
+#: internal/data/backup.go:1041
 msgid "|-Update completed"
 msgstr ""
 
-#: internal/data/backup.go:919
+#: internal/data/backup.go:957
 msgid "|-Verify download file..."
 msgstr ""
 
-#: internal/data/backup.go:989
+#: internal/data/backup.go:1027
 msgid "|-Write new panel version failed: %v"
 msgstr ""
 
