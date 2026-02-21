@@ -7,6 +7,8 @@ import (
 
 	"github.com/moby/moby/client"
 	"github.com/spf13/cast"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/acepanel/panel/internal/biz"
 )
@@ -45,4 +47,18 @@ func getOperatorID(ctx context.Context) uint64 {
 		return 0
 	}
 	return cast.ToUint64(userID)
+}
+
+// upsert 分批大小，避免超出 SQLite 变量数限制
+const upsertBatchSize = 100
+
+// batchUpsert 通用分批 upsert 辅助函数
+func batchUpsert[T any](db *gorm.DB, items []T, conflict clause.OnConflict) error {
+	for i := 0; i < len(items); i += upsertBatchSize {
+		end := min(i+upsertBatchSize, len(items))
+		if err := db.Clauses(conflict).Create(items[i:end]).Error; err != nil {
+			return err
+		}
+	}
+	return nil
 }

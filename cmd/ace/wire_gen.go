@@ -144,7 +144,10 @@ func initAce() (*app.Ace, error) {
 	webHookService := service.NewWebHookService(webHookRepo)
 	templateRepo := data.NewTemplateRepo(locale, cacheRepo)
 	templateService := service.NewTemplateService(locale, templateRepo, settingRepo)
-	websiteStatRepo := data.NewWebsiteStatRepo(db)
+	websiteStatRepo, err := data.NewWebsiteStatRepo()
+	if err != nil {
+		return nil, err
+	}
 	aggregator := websitestat.NewAggregator()
 	websiteStatService := service.NewWebsiteStatService(settingRepo, websiteStatRepo, websiteRepo, aggregator)
 	apacheApp := apache.NewApp(locale)
