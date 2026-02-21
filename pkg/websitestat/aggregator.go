@@ -118,6 +118,7 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	uvKey := entry.IP + "|" + entry.UA
 	isErr := entry.Status >= 400 && entry.Status < 600
 	isPV := IsPageView(entry)
+	isStatic := IsStaticResource(entry.URI)
 	clientKey := browser + "|" + os
 
 	a.mu.Lock()
@@ -206,8 +207,10 @@ func (a *Aggregator) Record(entry *LogEntry) {
 		sd.spiders++
 		hb.spiders++
 		// 蜘蛛详细统计
-		sd.spiderCounts[spiderName]++
-	} else {
+		if !isStatic {
+			sd.spiderCounts[spiderName]++
+		}
+	} else if !isStatic {
 		// 非蜘蛛请求才统计客户端（浏览器/OS）
 		if cc, exists := sd.clientCounts[clientKey]; exists {
 			cc.requests++
@@ -217,43 +220,48 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	}
 
 	// IP 详细统计
-	if ic, exists := sd.ipCounts[entry.IP]; exists {
-		ic.requests++
-		ic.bandwidth += entry.Bytes
-	} else if len(sd.ipCounts) < a.DetailMaxKeys {
-		sd.ipCounts[entry.IP] = &ipCount{requests: 1, bandwidth: entry.Bytes}
+	if !isStatic {
+		if ic, exists := sd.ipCounts[entry.IP]; exists {
+			ic.requests++
+			ic.bandwidth += entry.Bytes
+		} else if len(sd.ipCounts) < a.DetailMaxKeys {
+			sd.ipCounts[entry.IP] = &ipCount{requests: 1, bandwidth: entry.Bytes}
+		}
 	}
 
 	// URI 详细统计
-	if uc, exists := sd.uriCounts[entry.URI]; exists {
-		uc.requests++
-		uc.bandwidth += entry.Bytes
-		if isErr {
-			uc.errors++
+	if !isStatic {
+		if uc, exists := sd.uriCounts[entry.URI]; exists {
+			uc.requests++
+			uc.bandwidth += entry.Bytes
+			if isErr {
+				uc.errors++
+			}
+			if entry.RequestTime > 0 {
+				ms := uint64(entry.RequestTime * 1000)
+				uc.requestTimeSum += ms
+				uc.requestTimeCount++
+			}
+		} else if len(sd.uriCounts) < a.DetailMaxKeys {
+			uc := &uriCount{requests: 1, bandwidth: entry.Bytes}
+			if isErr {
+				uc.errors = 1
+			}
+			if entry.RequestTime > 0 {
+				ms := uint64(entry.RequestTime * 1000)
+				uc.requestTimeSum = ms
+				uc.requestTimeCount = 1
+			}
+			sd.uriCounts[entry.URI] = uc
 		}
-		if entry.RequestTime > 0 {
-			ms := uint64(entry.RequestTime * 1000)
-			uc.requestTimeSum += ms
-			uc.requestTimeCount++
-		}
-	} else if len(sd.uriCounts) < a.DetailMaxKeys {
-		uc := &uriCount{requests: 1, bandwidth: entry.Bytes}
-		if isErr {
-			uc.errors = 1
-		}
-		if entry.RequestTime > 0 {
-			ms := uint64(entry.RequestTime * 1000)
-			uc.requestTimeSum = ms
-			uc.requestTimeCount = 1
-		}
-		sd.uriCounts[entry.URI] = uc
 	}
 
 	// 错误计数
 	if isErr {
 		sd.errors++
 		hb.errors++
-		if len(a.errBuf) < a.ErrBufMaxSize {
+		// 错误日志详细记录
+		if !isStatic && len(a.errBuf) < a.ErrBufMaxSize {
 			errEntry := &ErrorEntry{
 				Site:   entry.Site,
 				URI:    entry.URI,
