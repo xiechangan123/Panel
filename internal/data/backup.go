@@ -749,19 +749,57 @@ func (r *backupRepo) FixPanel() error {
 	}
 
 	// 检查关键文件是否正常
-	flag := !io.Exists(filepath.Join(app.Root, "panel", "ace")) ||
+	panelBroken := !io.Exists(filepath.Join(app.Root, "panel", "ace")) ||
 		!io.Exists(filepath.Join(app.Root, "panel", "storage", "config.yml")) ||
 		!io.Exists(filepath.Join(app.Root, "panel", "storage", "panel.db")) ||
 		io.Exists("/tmp/panel-storage.zip")
-	// 检查数据库连接
+	// 检查主数据库连接
 	if err := r.db.Exec("VACUUM").Error; err != nil {
-		flag = true
+		panelBroken = true
 	}
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
-		flag = true
+		panelBroken = true
 	}
-	if !flag {
+
+	// 检查辅助数据库是否异常
+	var brokenAuxDBs []string
+	for _, name := range []string{"stat", "scan"} {
+		auxDB, err := openDB(name)
+		if err == nil {
+			if sqlDB, dbErr := auxDB.DB(); dbErr == nil {
+				_ = sqlDB.Close()
+			}
+			continue
+		}
+		brokenAuxDBs = append(brokenAuxDBs, name)
+	}
+
+	// 一切正常，无需修复
+	if !panelBroken && len(brokenAuxDBs) == 0 {
 		return errors.New(r.t.Get("Files are normal and do not need to be repaired, please run acepanel update to update the panel"))
+	}
+
+	// 有异常，先停止面板
+	tools.StopPanel()
+
+	// 删除损坏的辅助数据库（会自动重建）
+	for _, name := range brokenAuxDBs {
+		dbPath := filepath.Join(app.Root, "panel", "storage", name+".db")
+		if removeErr := io.Remove(dbPath); removeErr != nil {
+			return errors.New(r.t.Get("Failed to remove %s.db: %v", name, removeErr))
+		}
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Found %s.db is abnormal, removed it", name))
+		}
+	}
+
+	// 仅辅助数据库异常，重启即可恢复
+	if !panelBroken {
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Fix completed"))
+		}
+		tools.RestartPanel()
+		return nil
 	}
 
 	// 再次确认是否需要修复

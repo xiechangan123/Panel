@@ -177,6 +177,11 @@ func CollectTopProcesses() types.TopProcesses {
 	return result
 }
 
+// StopPanel 停止面板
+func StopPanel() {
+	_ = shell.ExecfAsync("sleep 1 && systemctl stop acepanel")
+}
+
 // RestartPanel 重启面板
 func RestartPanel() {
 	_ = shell.ExecfAsync("sleep 1 && systemctl restart acepanel")
