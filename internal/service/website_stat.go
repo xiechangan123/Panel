@@ -391,11 +391,11 @@ func (s *WebsiteStatService) Clear(w http.ResponseWriter, r *http.Request) {
 
 // GetSetting 获取统计设置
 func (s *WebsiteStatService) GetSetting(w http.ResponseWriter, r *http.Request) {
-	days, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDays, 30)
+	days, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDays, 14)
 	errBufMax, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatErrBufMax, 10000)
 	uvMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatUVMaxKeys, 1000000)
 	ipMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatIPMaxKeys, 500000)
-	detailMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys, 100000)
+	detailMaxKeys, _ := s.setting.GetInt(biz.SettingKeyWebsiteStatDetailMaxKeys, 50000)
 	bodyEnabled, _ := s.setting.GetBool(biz.SettingKeyWebsiteStatBodyEnabled)
 	Success(w, chix.M{
 		"days":            days,

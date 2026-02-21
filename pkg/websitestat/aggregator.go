@@ -20,7 +20,7 @@ type Aggregator struct {
 	ErrBufMaxSize int  // 错误缓冲最大条目数，默认 10000
 	UVMaxKeys     int  // 每站每天 UV 去重 set 上限，默认 1000000
 	IPMaxKeys     int  // 每站每天 IP 去重 set 上限，默认 500000
-	DetailMaxKeys int  // 详细统计（蜘蛛/客户端/IP/URI）每站每天最大条目数，默认 100000
+	DetailMaxKeys int  // 详细统计（蜘蛛/客户端/IP/URI）每站每天最大条目数，默认 50000
 	BodyEnabled   bool // 是否记录错误请求体，默认 false
 
 	// 实时统计（滑动窗口 60 秒）
@@ -87,7 +87,7 @@ func NewAggregator() *Aggregator {
 		ErrBufMaxSize: 10000,
 		UVMaxKeys:     1000000,
 		IPMaxKeys:     500000,
-		DetailMaxKeys: 100000,
+		DetailMaxKeys: 50000,
 		BodyEnabled:   false,
 	}
 }

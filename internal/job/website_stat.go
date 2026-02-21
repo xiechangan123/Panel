@@ -307,7 +307,7 @@ func (r *WebsiteStat) flushDetails() {
 
 // cleanup 清理过期数据
 func (r *WebsiteStat) cleanup() {
-	days, err := r.setting.GetInt(biz.SettingKeyWebsiteStatDays, 30)
+	days, err := r.setting.GetInt(biz.SettingKeyWebsiteStatDays, 14)
 	if err != nil {
 		return
 	}
