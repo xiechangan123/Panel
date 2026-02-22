@@ -1321,6 +1321,51 @@ func (_c *WebsiteStatRepo_UpsertURIs_Call) RunAndReturn(run func([]*biz.WebsiteS
 	return _c
 }
 
+// VacuumDB provides a mock function with no fields
+func (_m *WebsiteStatRepo) VacuumDB() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for VacuumDB")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_VacuumDB_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VacuumDB'
+type WebsiteStatRepo_VacuumDB_Call struct {
+	*mock.Call
+}
+
+// VacuumDB is a helper method to define mock.On call
+func (_e *WebsiteStatRepo_Expecter) VacuumDB() *WebsiteStatRepo_VacuumDB_Call {
+	return &WebsiteStatRepo_VacuumDB_Call{Call: _e.mock.On("VacuumDB")}
+}
+
+func (_c *WebsiteStatRepo_VacuumDB_Call) Run(run func()) *WebsiteStatRepo_VacuumDB_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_VacuumDB_Call) Return(_a0 error) *WebsiteStatRepo_VacuumDB_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_VacuumDB_Call) RunAndReturn(run func() error) *WebsiteStatRepo_VacuumDB_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewWebsiteStatRepo creates a new instance of WebsiteStatRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewWebsiteStatRepo(t interface {

@@ -569,6 +569,51 @@ func (_c *ScanEventRepo_Upsert_Call) RunAndReturn(run func([]*biz.ScanEvent) err
 	return _c
 }
 
+// VacuumDB provides a mock function with no fields
+func (_m *ScanEventRepo) VacuumDB() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for VacuumDB")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ScanEventRepo_VacuumDB_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VacuumDB'
+type ScanEventRepo_VacuumDB_Call struct {
+	*mock.Call
+}
+
+// VacuumDB is a helper method to define mock.On call
+func (_e *ScanEventRepo_Expecter) VacuumDB() *ScanEventRepo_VacuumDB_Call {
+	return &ScanEventRepo_VacuumDB_Call{Call: _e.mock.On("VacuumDB")}
+}
+
+func (_c *ScanEventRepo_VacuumDB_Call) Run(run func()) *ScanEventRepo_VacuumDB_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *ScanEventRepo_VacuumDB_Call) Return(_a0 error) *ScanEventRepo_VacuumDB_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ScanEventRepo_VacuumDB_Call) RunAndReturn(run func() error) *ScanEventRepo_VacuumDB_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewScanEventRepo creates a new instance of ScanEventRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewScanEventRepo(t interface {
