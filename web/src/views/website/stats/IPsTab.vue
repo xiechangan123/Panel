@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EChartsOption } from 'echarts'
-import { BarChart, PieChart } from 'echarts/charts'
-import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
+import { BarChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
@@ -10,9 +10,11 @@ import { useGettext } from 'vue3-gettext'
 import website from '@/api/panel/website'
 import { formatBytes } from '@/utils/file'
 
+import { codeToName } from './country-name-map'
+
 const { $gettext } = useGettext()
 
-use([CanvasRenderer, BarChart, PieChart, TooltipComponent, LegendComponent, GridComponent])
+use([CanvasRenderer, BarChart, TooltipComponent, GridComponent])
 
 const ctx = inject<any>('statContext')!
 
@@ -51,54 +53,16 @@ onMounted(() => {
   loadData()
 })
 
-// ========== 国家饼图 ==========
+// ========== ISP 分布柱状图 ==========
 
-const countryPieOption = computed<EChartsOption>(() => {
-  const countryMap = new Map<string, number>()
+const ispBarOption = computed<EChartsOption>(() => {
+  const ispMap = new Map<string, number>()
   for (const item of items.value) {
-    const name = item.country || $gettext('Unknown')
-    countryMap.set(name, (countryMap.get(name) || 0) + item.requests)
+    const name = item.isp || $gettext('Unknown')
+    ispMap.set(name, (ispMap.get(name) || 0) + item.requests)
   }
-  const data = [...countryMap.entries()]
-    .map(([name, requests]) => ({ name, value: requests }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 10)
-
-  return {
-    tooltip: {
-      trigger: 'item',
-      formatter: '{b}: {c} ({d}%)'
-    },
-    legend: { orient: 'vertical', right: 10, top: 'center' },
-    series: [
-      {
-        type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['35%', '50%'],
-        avoidLabelOverlap: false,
-        label: { show: false },
-        data
-      }
-    ]
-  }
-})
-
-// ========== 省份柱状图 ==========
-
-const regionBarOption = computed<EChartsOption>(() => {
-  const regionMap = new Map<string, { requests: number; bandwidth: number }>()
-  for (const item of items.value) {
-    const name = item.region || item.country || $gettext('Unknown')
-    const existing = regionMap.get(name)
-    if (existing) {
-      existing.requests += item.requests
-      existing.bandwidth += item.bandwidth
-    } else {
-      regionMap.set(name, { requests: item.requests, bandwidth: item.bandwidth })
-    }
-  }
-  const sorted = [...regionMap.entries()]
-    .map(([name, v]) => ({ name, ...v }))
+  const sorted = [...ispMap.entries()]
+    .map(([name, requests]) => ({ name, requests }))
     .sort((a, b) => b.requests - a.requests)
     .slice(0, 15)
   const reversed = [...sorted].reverse()
@@ -106,14 +70,7 @@ const regionBarOption = computed<EChartsOption>(() => {
   return {
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      formatter: (params: any) => {
-        if (!Array.isArray(params) || params.length === 0) return ''
-        const idx = sorted.length - 1 - params[0].dataIndex
-        const item = sorted[idx]
-        if (!item) return ''
-        return `${params[0].name}<br/>${$gettext('Requests')}: ${params[0].value.toLocaleString()}<br/>${$gettext('Bandwidth')}: ${formatBytes(item.bandwidth)}`
-      }
+      axisPointer: { type: 'shadow' }
     },
     grid: { left: 100, right: 40, top: 10, bottom: 30 },
     xAxis: { type: 'value' },
@@ -135,7 +92,8 @@ const regionBarOption = computed<EChartsOption>(() => {
 // ========== 表格 ==========
 
 const formatGeo = (row: any) => {
-  const parts = [row.country, row.region, row.city].filter((s) => s && s !== '')
+  const country = codeToName[row.country] || row.country
+  const parts = [country, row.region, row.city].filter((s) => s && s !== '')
   return parts.join(' ') || '-'
 }
 
@@ -145,6 +103,12 @@ const columns = computed(() => [
     title: $gettext('Location'),
     key: 'country',
     render: (row: any) => formatGeo(row),
+    ellipsis: { tooltip: true }
+  },
+  {
+    title: 'ISP',
+    key: 'isp',
+    render: (row: any) => row.isp || '-',
     ellipsis: { tooltip: true }
   },
   {
@@ -175,14 +139,9 @@ const handlePageSizeChange = (s: number) => {
 <template>
   <n-flex vertical :size="20">
     <n-spin :show="loading">
-      <div class="gap-12 grid grid-cols-1 lg:grid-cols-2" v-if="items.length > 0">
-        <n-card :bordered="false" :title="$gettext('Country Distribution')">
-          <v-chart class="h-300px" :option="countryPieOption" autoresize />
-        </n-card>
-        <n-card :bordered="false" :title="$gettext('Region Distribution')">
-          <v-chart class="h-300px" :option="regionBarOption" autoresize />
-        </n-card>
-      </div>
+      <n-card :bordered="false" :title="$gettext('ISP Distribution')" v-if="items.length > 0">
+        <v-chart class="h-300px" :option="ispBarOption" autoresize />
+      </n-card>
       <n-data-table :columns="columns" :data="items" :bordered="false" size="small" />
       <n-flex justify="end" class="mt-12" v-if="total > 0">
         <n-pagination

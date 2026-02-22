@@ -13,7 +13,7 @@ type ScanEvent struct {
 	Country   string    `gorm:"not null;default:''" json:"country"`
 	Region    string    `gorm:"not null;default:''" json:"region"`
 	City      string    `gorm:"not null;default:''" json:"city"`
-	District  string    `gorm:"not null;default:''" json:"district"`
+	ISP       string    `gorm:"not null;default:''" json:"isp"`
 	FirstSeen time.Time `gorm:"not null" json:"first_seen"`
 	LastSeen  time.Time `gorm:"not null" json:"last_seen"`
 	CreatedAt time.Time `json:"created_at"`
@@ -43,7 +43,7 @@ type ScanSourceRank struct {
 	Country    string `json:"country"`
 	Region     string `json:"region"`
 	City       string `json:"city"`
-	District   string `json:"district"`
+	ISP        string `json:"isp"`
 }
 
 // ScanPortRank 被扫描端口排行

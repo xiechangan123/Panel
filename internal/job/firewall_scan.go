@@ -146,10 +146,10 @@ func (r *FirewallScan) flush() {
 	if r.geoIP != nil {
 		for _, evt := range events {
 			geo := r.geoIP.Lookup(evt.SourceIP)
-			evt.Country = geo.Country
+			evt.Country = geo.CountryCode
 			evt.Region = geo.Region
 			evt.City = geo.City
-			evt.District = geo.District
+			evt.ISP = geo.ISP
 		}
 	}
 

@@ -11,6 +11,8 @@ import firewall from '@/api/panel/firewall'
 import { formatDateTime } from '@/utils'
 import { NButton, NPopconfirm } from 'naive-ui'
 
+import { codeToName } from '../website/stats/country-name-map'
+
 const { $gettext, $pgettext } = useGettext()
 
 use([CanvasRenderer, LineChart, TooltipComponent, LegendComponent, GridComponent])
@@ -270,7 +272,9 @@ const topIPColumns: any = [
     title: $gettext('Location'),
     key: 'country',
     minWidth: 120,
-    render: (row: any) => [row.country, row.region, row.city].filter(Boolean).join(' ') || '-'
+    render: (row: any) =>
+      [codeToName[row.country] || row.country, row.region, row.city].filter(Boolean).join(' ') ||
+      '-'
   },
   { title: $gettext('Scan Count'), key: 'total_count', width: 120, sorter: 'default' },
   { title: $gettext('Port Count'), key: 'port_count', width: 120 },
@@ -296,7 +300,9 @@ const eventColumns: any = [
     title: $gettext('Location'),
     key: 'country',
     minWidth: 120,
-    render: (row: any) => [row.country, row.region, row.city].filter(Boolean).join(' ') || '-'
+    render: (row: any) =>
+      [codeToName[row.country] || row.country, row.region, row.city].filter(Boolean).join(' ') ||
+      '-'
   },
   { title: $gettext('Port'), key: 'port', width: 100 },
   { title: $gettext('Protocol'), key: 'protocol', width: 100 },

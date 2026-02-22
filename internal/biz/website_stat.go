@@ -71,7 +71,7 @@ type WebsiteStatIP struct {
 	Country   string    `gorm:"not null;default:''" json:"country"`
 	Region    string    `gorm:"not null;default:''" json:"region"`
 	City      string    `gorm:"not null;default:''" json:"city"`
-	District  string    `gorm:"not null;default:''" json:"district"`
+	ISP       string    `gorm:"not null;default:''" json:"isp"`
 	Requests  uint64    `gorm:"not null;default:0" json:"requests"`
 	Bandwidth uint64    `gorm:"not null;default:0" json:"bandwidth"`
 	CreatedAt time.Time `json:"created_at"`
@@ -132,7 +132,7 @@ type WebsiteStatIPRank struct {
 	Country   string `json:"country"`
 	Region    string `json:"region"`
 	City      string `json:"city"`
-	District  string `json:"district"`
+	ISP       string `json:"isp"`
 	Requests  uint64 `json:"requests"`
 	Bandwidth uint64 `json:"bandwidth"`
 }

@@ -40,19 +40,19 @@ func (s *GeoIPSuite) TestNewGeoIP_InvalidPath() {
 func (s *GeoIPSuite) TestLookup_ChinaIP() {
 	r := s.g.Lookup("114.114.114.114")
 	s.NotEmpty(r.Country)
-	s.T().Logf("114.114.114.114 -> %s %s %s %s", r.Country, r.Region, r.City, r.District)
+	s.T().Logf("114.114.114.114 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
 }
 
 func (s *GeoIPSuite) TestLookup_ForeignIP() {
 	r := s.g.Lookup("8.8.8.8")
 	s.NotEmpty(r.Country)
-	s.T().Logf("8.8.8.8 -> %s %s %s %s", r.Country, r.Region, r.City, r.District)
+	s.T().Logf("8.8.8.8 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
 }
 
 func (s *GeoIPSuite) TestLookup_PrivateIP() {
 	// 内网 IP，不应 panic
 	r := s.g.Lookup("192.168.1.1")
-	s.T().Logf("192.168.1.1 -> %s %s %s %s", r.Country, r.Region, r.City, r.District)
+	s.T().Logf("192.168.1.1 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
 }
 
 func (s *GeoIPSuite) TestLookup_InvalidIP() {
@@ -69,5 +69,5 @@ func (s *GeoIPSuite) TestLookup_NilReceiver() {
 func (s *GeoIPSuite) TestLookup_IPv6() {
 	// IPv6 地址，数据库可能不支持，不应 panic
 	r := s.g.Lookup("2001:4860:4860::8888")
-	s.T().Logf("2001:4860:4860::8888 -> %s %s %s %s", r.Country, r.Region, r.City, r.District)
+	s.T().Logf("2001:4860:4860::8888 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
 }

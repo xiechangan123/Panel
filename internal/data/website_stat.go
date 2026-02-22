@@ -219,7 +219,7 @@ func (r *websiteStatRepo) UpsertIPs(stats []*biz.WebsiteStatIP) error {
 			"country":    gorm.Expr("excluded.country"),
 			"region":     gorm.Expr("excluded.region"),
 			"city":       gorm.Expr("excluded.city"),
-			"district":   gorm.Expr("excluded.district"),
+			"isp":        gorm.Expr("excluded.isp"),
 			"requests":   gorm.Expr("website_stat_ips.requests + excluded.requests"),
 			"bandwidth":  gorm.Expr("website_stat_ips.bandwidth + excluded.bandwidth"),
 			"updated_at": gorm.Expr("excluded.updated_at"),
@@ -245,7 +245,7 @@ func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit 
 
 	var items []*biz.WebsiteStatIPRank
 	dataQ := r.db.Model(&biz.WebsiteStatIP{}).
-		Select("ip, MAX(country) as country, MAX(region) as region, MAX(city) as city, MAX(district) as district, SUM(requests) as requests, SUM(bandwidth) as bandwidth").
+		Select("ip, MAX(country) as country, MAX(region) as region, MAX(city) as city, MAX(isp) as isp, SUM(requests) as requests, SUM(bandwidth) as bandwidth").
 		Where("date BETWEEN ? AND ?", start, end)
 	if len(sites) > 0 {
 		dataQ = dataQ.Where("site IN ?", sites)

@@ -259,10 +259,10 @@ func (r *WebsiteStat) flushDetails() {
 				}
 				if r.geoIP != nil {
 					geo := r.geoIP.Lookup(ip)
-					rec.Country = geo.Country
+					rec.Country = geo.CountryCode
 					rec.Region = geo.Region
 					rec.City = geo.City
-					rec.District = geo.District
+					rec.ISP = geo.ISP
 				}
 				ips = append(ips, rec)
 			}

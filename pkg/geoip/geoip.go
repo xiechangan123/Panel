@@ -8,11 +8,12 @@ import (
 
 // GeoIP IP 地理位置解析
 type GeoIP struct {
-	db          *ipdb.Reader
-	idxCountry  int
-	idxRegion   int
-	idxCity     int
-	idxDistrict int
+	db             *ipdb.Reader
+	idxCountry     int
+	idxRegion      int
+	idxCity        int
+	idxCountryCode int
+	idxISP         int
 }
 
 // NewGeoIP 加载 .ipdb 文件，返回 GeoIP 实例
@@ -31,7 +32,8 @@ func (g *GeoIP) cacheFieldIndices() {
 	g.idxCountry = -1
 	g.idxRegion = -1
 	g.idxCity = -1
-	g.idxDistrict = -1
+	g.idxCountryCode = -1
+	g.idxISP = -1
 	for i, f := range g.db.Fields() {
 		switch f {
 		case "country_name":
@@ -40,18 +42,21 @@ func (g *GeoIP) cacheFieldIndices() {
 			g.idxRegion = i
 		case "city_name":
 			g.idxCity = i
-		case "district_name":
-			g.idxDistrict = i
+		case "country_code":
+			g.idxCountryCode = i
+		case "isp_domain":
+			g.idxISP = i
 		}
 	}
 }
 
 // GeoResult 地理位置查询结果
 type GeoResult struct {
-	Country  string
-	Region   string
-	City     string
-	District string
+	Country     string
+	Region      string
+	City        string
+	CountryCode string
+	ISP         string
 }
 
 // Reload 重新加载 IP 数据库文件
@@ -93,8 +98,11 @@ func (g *GeoIP) Lookup(ip string) GeoResult {
 	if g.idxCity >= 0 {
 		r.City = fields[g.idxCity]
 	}
-	if g.idxDistrict >= 0 {
-		r.District = fields[g.idxDistrict]
+	if g.idxCountryCode >= 0 {
+		r.CountryCode = fields[g.idxCountryCode]
+	}
+	if g.idxISP >= 0 {
+		r.ISP = fields[g.idxISP]
 	}
 	return r
 }
