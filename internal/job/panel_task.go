@@ -23,30 +23,30 @@ import (
 
 // PanelTask 面板每日任务
 type PanelTask struct {
-	api             *api.API
-	conf            *config.Config
-	db              *gorm.DB
-	log             *slog.Logger
-	backupRepo      biz.BackupRepo
-	cacheRepo       biz.CacheRepo
-	taskRepo        biz.TaskRepo
-	settingRepo     biz.SettingRepo
-	websiteStatRepo biz.WebsiteStatRepo
-	scanEventRepo   biz.ScanEventRepo
+	api         *api.API
+	conf        *config.Config
+	db          *gorm.DB
+	log         *slog.Logger
+	backupRepo  biz.BackupRepo
+	cacheRepo   biz.CacheRepo
+	taskRepo    biz.TaskRepo
+	settingRepo biz.SettingRepo
+	scanRepo    biz.ScanEventRepo
+	statRepo    biz.WebsiteStatRepo
 }
 
-func NewPanelTask(conf *config.Config, db *gorm.DB, log *slog.Logger, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, setting biz.SettingRepo, websiteStat biz.WebsiteStatRepo, scanEvent biz.ScanEventRepo) *PanelTask {
+func NewPanelTask(conf *config.Config, db *gorm.DB, log *slog.Logger, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, setting biz.SettingRepo, scan biz.ScanEventRepo, stat biz.WebsiteStatRepo) *PanelTask {
 	return &PanelTask{
-		api:             api.NewAPI(app.Version, app.Locale),
-		conf:            conf,
-		db:              db,
-		log:             log,
-		backupRepo:      backup,
-		cacheRepo:       cache,
-		taskRepo:        task,
-		settingRepo:     setting,
-		websiteStatRepo: websiteStat,
-		scanEventRepo:   scanEvent,
+		api:         api.NewAPI(app.Version, app.Locale),
+		conf:        conf,
+		db:          db,
+		log:         log,
+		backupRepo:  backup,
+		cacheRepo:   cache,
+		taskRepo:    task,
+		settingRepo: setting,
+		scanRepo:    scan,
+		statRepo:    stat,
 	}
 }
 
@@ -65,11 +65,11 @@ func (r *PanelTask) Run() {
 		return
 	}
 	// 优化辅助数据库
-	if err := r.websiteStatRepo.VacuumDB(); err != nil {
-		r.log.Warn("failed to vacuum website stat database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-	}
-	if err := r.scanEventRepo.VacuumDB(); err != nil {
+	if err := r.scanRepo.VacuumDB(); err != nil {
 		r.log.Warn("failed to vacuum scan event database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+	}
+	if err := r.statRepo.VacuumDB(); err != nil {
+		r.log.Warn("failed to vacuum website stat database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 备份面板
