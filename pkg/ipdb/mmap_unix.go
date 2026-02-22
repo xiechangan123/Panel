@@ -11,7 +11,7 @@ type mmapFile struct {
 	data []byte
 }
 
-// mmapOpen 通过 mmap 映射文件到内存，零堆分配
+// mmapOpen 通过 mmap 映射文件到内存
 func mmapOpen(path string) (*mmapFile, error) {
 	f, err := os.Open(path)
 	if err != nil {
