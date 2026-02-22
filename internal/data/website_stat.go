@@ -135,6 +135,16 @@ func (r *websiteStatRepo) Clear() error {
 	return r.db.Where("1 = 1").Delete(&biz.WebsiteStatURI{}).Error
 }
 
+func (r *websiteStatRepo) VacuumDB() error {
+	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
+		return err
+	}
+	if err := r.db.Exec("VACUUM").Error; err != nil {
+		return err
+	}
+	return r.db.Exec("PRAGMA optimize").Error
+}
+
 // ========== 蜘蛛统计 ==========
 
 func (r *websiteStatRepo) UpsertSpiders(stats []*biz.WebsiteStatSpider) error {

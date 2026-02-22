@@ -193,6 +193,7 @@ type WebsiteStatRepo interface {
 	ClearErrorsBefore(t time.Time) error
 	// Clear 清空所有统计数据
 	Clear() error
+	VacuumDB() error
 
 	// 蜘蛛统计
 	UpsertSpiders(stats []*WebsiteStatSpider) error

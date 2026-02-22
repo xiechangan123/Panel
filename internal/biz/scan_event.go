@@ -73,4 +73,5 @@ type ScanEventRepo interface {
 	GetSetting() (*ScanSetting, error)
 	UpdateSetting(setting *ScanSetting) error
 	Clear() error
+	VacuumDB() error
 }

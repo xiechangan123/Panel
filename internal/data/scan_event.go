@@ -34,7 +34,7 @@ func NewScanEventRepo(setting biz.SettingRepo) (biz.ScanEventRepo, error) {
 	}, nil
 }
 
-func (r scanEventRepo) Upsert(events []*biz.ScanEvent) error {
+func (r *scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 	if len(events) == 0 {
 		return nil
 	}
@@ -59,7 +59,7 @@ func (r scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 	return nil
 }
 
-func (r scanEventRepo) List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*biz.ScanEvent, uint, error) {
+func (r *scanEventRepo) List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*biz.ScanEvent, uint, error) {
 	var total int64
 	var items []*biz.ScanEvent
 
@@ -85,7 +85,7 @@ func (r scanEventRepo) List(start, end, sourceIP string, port uint, location str
 	return items, uint(total), nil
 }
 
-func (r scanEventRepo) Summary(start, end string) (*biz.ScanSummary, error) {
+func (r *scanEventRepo) Summary(start, end string) (*biz.ScanSummary, error) {
 	var summary biz.ScanSummary
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
@@ -94,7 +94,7 @@ func (r scanEventRepo) Summary(start, end string) (*biz.ScanSummary, error) {
 	return &summary, err
 }
 
-func (r scanEventRepo) Trend(start, end string) ([]*biz.ScanDayTrend, error) {
+func (r *scanEventRepo) Trend(start, end string) ([]*biz.ScanDayTrend, error) {
 	var trends []*biz.ScanDayTrend
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
@@ -105,7 +105,7 @@ func (r scanEventRepo) Trend(start, end string) ([]*biz.ScanDayTrend, error) {
 	return trends, err
 }
 
-func (r scanEventRepo) TopSourceIPs(start, end string, limit uint) ([]*biz.ScanSourceRank, error) {
+func (r *scanEventRepo) TopSourceIPs(start, end string, limit uint) ([]*biz.ScanSourceRank, error) {
 	var ranks []*biz.ScanSourceRank
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
@@ -120,7 +120,7 @@ func (r scanEventRepo) TopSourceIPs(start, end string, limit uint) ([]*biz.ScanS
 	return ranks, err
 }
 
-func (r scanEventRepo) TopPorts(start, end string, limit uint) ([]*biz.ScanPortRank, error) {
+func (r *scanEventRepo) TopPorts(start, end string, limit uint) ([]*biz.ScanPortRank, error) {
 	var ranks []*biz.ScanPortRank
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
@@ -132,11 +132,11 @@ func (r scanEventRepo) TopPorts(start, end string, limit uint) ([]*biz.ScanPortR
 	return ranks, err
 }
 
-func (r scanEventRepo) ClearBefore(date string) error {
+func (r *scanEventRepo) ClearBefore(date string) error {
 	return r.db.Where("date < ?", date).Delete(&biz.ScanEvent{}).Error
 }
 
-func (r scanEventRepo) GetSetting() (*biz.ScanSetting, error) {
+func (r *scanEventRepo) GetSetting() (*biz.ScanSetting, error) {
 	enabled, err := r.setting.GetBool(biz.SettingKeyScanAware)
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ func (r scanEventRepo) GetSetting() (*biz.ScanSetting, error) {
 	}, nil
 }
 
-func (r scanEventRepo) UpdateSetting(setting *biz.ScanSetting) error {
+func (r *scanEventRepo) UpdateSetting(setting *biz.ScanSetting) error {
 	if err := r.setting.Set(biz.SettingKeyScanAware, cast.ToString(setting.Enabled)); err != nil {
 		return err
 	}
@@ -178,12 +178,22 @@ func (r scanEventRepo) UpdateSetting(setting *biz.ScanSetting) error {
 	return r.setting.Set(biz.SettingKeyScanAwareInterfaces, string(interfacesJSON))
 }
 
-func (r scanEventRepo) Clear() error {
+func (r *scanEventRepo) Clear() error {
 	return r.db.Where("1 = 1").Delete(&biz.ScanEvent{}).Error
 }
 
+func (r *scanEventRepo) VacuumDB() error {
+	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
+		return err
+	}
+	if err := r.db.Exec("VACUUM").Error; err != nil {
+		return err
+	}
+	return r.db.Exec("PRAGMA optimize").Error
+}
+
 // parseTimeStr 解析 Go time.String() 格式并转为 RFC3339
-func (r scanEventRepo) parseTimeStr(s string) string {
+func (r *scanEventRepo) parseTimeStr(s string) string {
 	if idx := strings.Index(s, " m="); idx > 0 {
 		s = s[:idx]
 	}
