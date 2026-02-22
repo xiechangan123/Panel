@@ -24,6 +24,9 @@ const total = ref(0)
 const page = ref(1)
 const limit = ref(50)
 
+// ISP 分布数据
+const ispItems = ref<any[]>([])
+
 const loadData = () => {
   loading.value = true
   useRequest(
@@ -44,45 +47,61 @@ const loadData = () => {
     })
 }
 
+const loadISPs = () => {
+  useRequest(
+    website.statGeos(
+      ctx.dateRange.value.start,
+      ctx.dateRange.value.end,
+      ctx.sitesParam.value,
+      'isp',
+      undefined,
+      15
+    )
+  ).onSuccess(({ data }: any) => {
+    ispItems.value = data.items || []
+  })
+}
+
 watch([() => ctx.dateRange.value, () => ctx.sitesParam.value, () => ctx.refreshKey.value], () => {
   page.value = 1
   loadData()
+  loadISPs()
 })
 
 onMounted(() => {
   loadData()
+  loadISPs()
 })
 
 // ========== ISP 分布柱状图 ==========
 
 const ispBarOption = computed<EChartsOption>(() => {
-  const ispMap = new Map<string, number>()
-  for (const item of items.value) {
-    const name = item.isp || $gettext('Unknown')
-    ispMap.set(name, (ispMap.get(name) || 0) + item.requests)
-  }
-  const sorted = [...ispMap.entries()]
-    .map(([name, requests]) => ({ name, requests }))
-    .sort((a, b) => b.requests - a.requests)
-    .slice(0, 15)
+  const sorted = ispItems.value.filter((i: any) => i.country)
   const reversed = [...sorted].reverse()
 
   return {
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' }
+      axisPointer: { type: 'shadow' },
+      formatter: (params: any) => {
+        if (!Array.isArray(params) || params.length === 0) return ''
+        const idx = sorted.length - 1 - params[0].dataIndex
+        const item = sorted[idx]
+        if (!item) return ''
+        return `${params[0].name}<br/>${$gettext('Requests')}: ${params[0].value.toLocaleString()}<br/>${$gettext('Bandwidth')}: ${formatBytes(item.bandwidth)}`
+      }
     },
     grid: { left: 100, right: 40, top: 10, bottom: 30 },
     xAxis: { type: 'value' },
     yAxis: {
       type: 'category',
-      data: reversed.map((i) => i.name),
+      data: reversed.map((i: any) => i.country || $gettext('Unknown')),
       axisLabel: { width: 80, overflow: 'truncate' }
     },
     series: [
       {
         type: 'bar',
-        data: reversed.map((i) => i.requests),
+        data: reversed.map((i: any) => i.requests),
         barMaxWidth: 30
       }
     ]
@@ -139,7 +158,7 @@ const handlePageSizeChange = (s: number) => {
 <template>
   <n-flex vertical :size="20">
     <n-spin :show="loading">
-      <n-card :bordered="false" :title="$gettext('ISP Distribution')" v-if="items.length > 0">
+      <n-card :bordered="false" :title="$gettext('ISP Distribution')" v-if="ispItems.length > 0">
         <v-chart class="h-300px" :option="ispBarOption" autoresize />
       </n-card>
       <n-data-table :columns="columns" :data="items" :bordered="false" size="small" />

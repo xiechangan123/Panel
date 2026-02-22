@@ -274,6 +274,9 @@ func (r *websiteStatRepo) TopGeos(start, end string, sites []string, groupBy str
 			q = q.Where("country = ?", country)
 		}
 		q = q.Group("region")
+	case "isp":
+		q = q.Select("isp as country, '' as region, '' as city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
+		q = q.Group("isp")
 	default: // country
 		q = q.Select("country, '' as region, '' as city, SUM(requests) as requests, SUM(bandwidth) as bandwidth")
 		q = q.Group("country")
