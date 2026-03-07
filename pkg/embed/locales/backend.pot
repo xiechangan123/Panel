@@ -1539,7 +1539,7 @@ msgstr ""
 msgid "command is empty"
 msgstr ""
 
-#: internal/data/template.go:74
+#: internal/data/template.go:96
 msgid "compose %s already exists"
 msgstr ""
 
@@ -2011,7 +2011,7 @@ msgstr ""
 msgid "failed to parse SMART info: %v"
 msgstr ""
 
-#: internal/data/cert.go:100
+#: internal/data/cert.go:102
 #: internal/data/setting.go:338
 #: internal/data/setting.go:412
 #: internal/data/website.go:620
@@ -2023,7 +2023,7 @@ msgstr ""
 msgid "failed to parse disk list: %v"
 msgstr ""
 
-#: internal/data/cert.go:103
+#: internal/data/cert.go:105
 #: internal/data/setting.go:341
 #: internal/data/setting.go:415
 #: internal/data/website.go:623
@@ -2368,7 +2368,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1117
+#: internal/data/website.go:1124
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -2438,10 +2438,6 @@ msgstr ""
 
 #: internal/service/toolbox_migration.go:321
 msgid "no migration logs available"
-msgstr ""
-
-#: internal/data/website.go:997
-msgid "not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"
 msgstr ""
 
 #: internal/service/file.go:179
@@ -2674,7 +2670,7 @@ msgstr ""
 msgid "target path %s already exists"
 msgstr ""
 
-#: internal/data/template.go:60
+#: internal/data/template.go:82
 msgid "template %s not found"
 msgstr ""
 
@@ -2682,20 +2678,20 @@ msgstr ""
 msgid "the current version is the latest version"
 msgstr ""
 
-#: internal/data/cert.go:394
+#: internal/data/cert.go:396
 msgid "this certificate has not been obtained successfully and cannot be deployed"
 msgstr ""
 
-#: internal/data/cert.go:310
+#: internal/data/cert.go:312
 msgid "this certificate has not been obtained successfully and cannot be renewed"
 msgstr ""
 
-#: internal/data/cert.go:209
-#: internal/data/cert.go:319
+#: internal/data/cert.go:211
+#: internal/data/cert.go:321
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr ""
 
-#: internal/data/cert.go:452
+#: internal/data/cert.go:529
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr ""
 
@@ -2760,16 +2756,17 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1219
-#: internal/data/website.go:1273
+#: internal/data/website.go:1226
+#: internal/data/website.go:1280
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/website.go:1185
+#: internal/data/cert.go:492
+#: internal/data/website.go:1192
 msgid "unsupported website type: %s"
 msgstr ""
 
-#: internal/data/cert.go:157
+#: internal/data/cert.go:159
 msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
@@ -2861,9 +2858,13 @@ msgstr ""
 msgid "website migration completed"
 msgstr ""
 
-#: internal/data/cert.go:213
-#: internal/data/cert.go:323
+#: internal/data/cert.go:217
+#: internal/data/cert.go:325
 msgid "wildcard domains cannot use HTTP verification"
+msgstr ""
+
+#: internal/data/website.go:1002
+msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
 #: internal/service/file.go:713
