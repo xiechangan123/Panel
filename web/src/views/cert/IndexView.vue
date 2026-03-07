@@ -61,21 +61,21 @@ const getAsyncData = () => {
     }
   })
 
-  accounts.value = []
-  useRequest(cert.accounts(1, 10000)).onSuccess(({ data }) => {
-    for (const item of data.items) {
-      accounts.value.push({
-        label: item.email,
-        value: item.id
-      })
-    }
-  })
-
   useRequest(cert.dnsProviders()).onSuccess(({ data }) => {
     dnsProviders.value = data
   })
   useRequest(cert.caProviders()).onSuccess(({ data }) => {
     caProviders.value = data
+    accounts.value = []
+    useRequest(cert.accounts(1, 10000)).onSuccess(({ data }) => {
+      for (const item of data.items) {
+        const caLabel = caProviders.value?.find((ca: any) => ca.value === item.ca)?.label
+        accounts.value.push({
+          label: `${item.email} (${caLabel ?? item.ca})`,
+          value: item.id
+        })
+      }
+    })
   })
 }
 
