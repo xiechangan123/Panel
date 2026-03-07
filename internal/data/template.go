@@ -1,14 +1,21 @@
 package data
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"log/slog"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
+	"sort"
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/spf13/cast"
+	"go.yaml.in/yaml/v4"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -19,29 +26,44 @@ import (
 
 type templateRepo struct {
 	t        *gotext.Locale
+	log      *slog.Logger
 	cache    biz.CacheRepo
 	api      *api.API
 	firewall firewall.Firewall
 }
 
-func NewTemplateRepo(t *gotext.Locale, cache biz.CacheRepo) biz.TemplateRepo {
+func NewTemplateRepo(t *gotext.Locale, log *slog.Logger, cache biz.CacheRepo) biz.TemplateRepo {
 	return &templateRepo{
 		t:        t,
+		log:      log,
 		cache:    cache,
 		api:      api.NewAPI(app.Version, app.Locale),
 		firewall: firewall.NewFirewall(),
 	}
 }
 
-// List 获取所有模版
+// List 获取所有模版，包括本地模板
 func (r *templateRepo) List() api.Templates {
-	cached, err := r.cache.Get(biz.CacheKeyTemplates)
-	if err != nil {
-		return nil
-	}
 	templates := make(api.Templates, 0)
-	if err = json.Unmarshal([]byte(cached), &templates); err != nil {
-		return nil
+	cached, err := r.cache.Get(biz.CacheKeyTemplates)
+	if err == nil {
+		_ = json.Unmarshal([]byte(cached), &templates)
+	}
+
+	// 加载本地模板并合并，本地模板覆盖同 slug 的远端模板
+	localTemplates := r.loadLocalTemplates()
+	if len(localTemplates) > 0 {
+		slugMap := make(map[string]int, len(templates))
+		for i, t := range templates {
+			slugMap[t.Slug] = i
+		}
+		for _, lt := range localTemplates {
+			if i, ok := slugMap[lt.Slug]; ok {
+				templates[i] = lt
+			} else {
+				templates = append(templates, lt)
+			}
+		}
 	}
 
 	return templates
@@ -153,10 +175,10 @@ func (r *templateRepo) parsePortsFromCompose(compose string) []composePort {
 			// 格式: host:container
 			parts := strings.Split(portStr, ":")
 			if len(parts) > 0 {
-				port = parseUint(parts[0])
+				port = cast.ToUint(parts[0])
 			}
 		} else {
-			port = parseUint(portStr)
+			port = cast.ToUint(portStr)
 		}
 
 		if port > 0 && port <= 65535 {
@@ -170,14 +192,128 @@ func (r *templateRepo) parsePortsFromCompose(compose string) []composePort {
 	return ports
 }
 
-func parseUint(s string) uint {
-	var n uint
-	for _, c := range s {
-		if c >= '0' && c <= '9' {
-			n = n*10 + uint(c-'0')
-		} else {
-			break
+// loadLocalTemplates 从本地目录加载模板
+func (r *templateRepo) loadLocalTemplates() api.Templates {
+	dir := filepath.Join(app.Root, "panel/storage/templates")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			r.log.Warn("failed to read templates directory", "path", dir, "err", err)
 		}
+		return nil
 	}
-	return n
+
+	var templates api.Templates
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		slug := entry.Name()
+		tplDir := filepath.Join(dir, slug)
+
+		// 读取 data.yml
+		dataPath := filepath.Join(tplDir, "data.yml")
+		dataBytes, err := os.ReadFile(dataPath)
+		if err != nil {
+			r.log.Warn("failed to read template data.yml", "path", dataPath, "err", err)
+			continue
+		}
+
+		var data types.TemplateData
+		if err = yaml.Unmarshal(dataBytes, &data); err != nil {
+			r.log.Warn("failed to parse template data.yml", "path", dataPath, "err", err)
+			continue
+		}
+
+		// 读取 docker-compose.yml
+		composePath := filepath.Join(tplDir, "docker-compose.yml")
+		composeBytes, err := os.ReadFile(composePath)
+		if err != nil {
+			r.log.Warn("failed to read template docker-compose.yml", "path", composePath, "err", err)
+			continue
+		}
+
+		// 构建模板
+		t := &api.Template{
+			Slug:          slug,
+			Name:          r.resolveLocale(data.Name),
+			Description:   r.resolveLocale(data.Description),
+			Website:       data.Website,
+			Categories:    data.Categories,
+			Architectures: data.Architectures,
+			Compose:       string(composeBytes),
+			Local:         true,
+		}
+
+		// 转换环境变量，从 map 格式转为数组格式
+		names := make([]string, 0, len(data.Environments))
+		for name := range data.Environments {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			env := data.Environments[name]
+			t.Environments = append(t.Environments, struct {
+				Name        string            `json:"name"`
+				Description string            `json:"description"`
+				Type        string            `json:"type"`
+				Options     map[string]string `json:"options,omitempty"`
+				Default     any               `json:"default,omitempty"`
+			}{
+				Name:        name,
+				Description: r.resolveLocale(env.Description),
+				Type:        env.Type,
+				Options:     env.Options,
+				Default:     env.Default,
+			})
+		}
+
+		// 读取 logo
+		if icon := r.readLogo(tplDir); icon != "" {
+			t.Icon = icon
+		}
+
+		templates = append(templates, t)
+	}
+
+	return templates
+}
+
+// resolveLocale 根据当前语言环境解析国际化字段
+func (r *templateRepo) resolveLocale(m map[string]string) string {
+	if m == nil {
+		return ""
+	}
+	if v, ok := m[app.Locale]; ok {
+		return v
+	}
+	if v, ok := m["en"]; ok {
+		return v
+	}
+	// 按 key 排序取第一个，保证结果稳定
+	keys := slices.Sorted(maps.Keys(m))
+	if len(keys) > 0 {
+		return m[keys[0]]
+	}
+	return ""
+}
+
+// readLogo 读取模板目录中的 logo 文件并返回 base64 data URI
+func (r *templateRepo) readLogo(dir string) string {
+	candidates := []struct {
+		name string
+		mime string
+	}{
+		{"logo.svg", "image/svg+xml"},
+		{"logo.png", "image/png"},
+	}
+	for _, c := range candidates {
+		data, err := os.ReadFile(filepath.Join(dir, c.name))
+		if err != nil {
+			continue
+		}
+		return "data:" + c.mime + ";base64," + base64.StdEncoding.EncodeToString(data)
+	}
+	return ""
 }
