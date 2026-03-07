@@ -136,17 +136,17 @@ func (_c *CertRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) err
 	return _c
 }
 
-// Deploy provides a mock function with given fields: ID, WebsiteID
-func (_m *CertRepo) Deploy(ID uint, WebsiteID uint) error {
-	ret := _m.Called(ID, WebsiteID)
+// Deploy provides a mock function with given fields: ID, WebsiteID, enableHTTPS
+func (_m *CertRepo) Deploy(ID uint, WebsiteID uint, enableHTTPS bool) error {
+	ret := _m.Called(ID, WebsiteID, enableHTTPS)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Deploy")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, uint) error); ok {
-		r0 = rf(ID, WebsiteID)
+	if rf, ok := ret.Get(0).(func(uint, uint, bool) error); ok {
+		r0 = rf(ID, WebsiteID, enableHTTPS)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -162,13 +162,14 @@ type CertRepo_Deploy_Call struct {
 // Deploy is a helper method to define mock.On call
 //   - ID uint
 //   - WebsiteID uint
-func (_e *CertRepo_Expecter) Deploy(ID interface{}, WebsiteID interface{}) *CertRepo_Deploy_Call {
-	return &CertRepo_Deploy_Call{Call: _e.mock.On("Deploy", ID, WebsiteID)}
+//   - enableHTTPS bool
+func (_e *CertRepo_Expecter) Deploy(ID interface{}, WebsiteID interface{}, enableHTTPS interface{}) *CertRepo_Deploy_Call {
+	return &CertRepo_Deploy_Call{Call: _e.mock.On("Deploy", ID, WebsiteID, enableHTTPS)}
 }
 
-func (_c *CertRepo_Deploy_Call) Run(run func(ID uint, WebsiteID uint)) *CertRepo_Deploy_Call {
+func (_c *CertRepo_Deploy_Call) Run(run func(ID uint, WebsiteID uint, enableHTTPS bool)) *CertRepo_Deploy_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(uint))
+		run(args[0].(uint), args[1].(uint), args[2].(bool))
 	})
 	return _c
 }
@@ -178,7 +179,7 @@ func (_c *CertRepo_Deploy_Call) Return(_a0 error) *CertRepo_Deploy_Call {
 	return _c
 }
 
-func (_c *CertRepo_Deploy_Call) RunAndReturn(run func(uint, uint) error) *CertRepo_Deploy_Call {
+func (_c *CertRepo_Deploy_Call) RunAndReturn(run func(uint, uint, bool) error) *CertRepo_Deploy_Call {
 	_c.Call.Return(run)
 	return _c
 }
