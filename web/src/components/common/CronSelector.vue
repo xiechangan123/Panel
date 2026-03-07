@@ -38,6 +38,12 @@ const initialized = ref(false)
 const parseCron = (cron: string) => {
   if (!cron) return
 
+  // 特殊表达式
+  if (cron === '@reboot') {
+    selectedOption.value = 'reboot'
+    return
+  }
+
   const parts = cron.split(' ')
   if (parts.length !== 5) {
     // 无法解析，使用自定义模式
@@ -155,6 +161,7 @@ const options = [
   { label: $gettext('Weekly'), value: 'every-week' },
   { label: $gettext('Monthly'), value: 'every-month' },
   { label: $gettext('Yearly'), value: 'every-year' },
+  { label: $gettext('After Reboot'), value: 'reboot' },
   { label: $gettext('Custom'), value: 'custom' }
 ]
 
@@ -218,6 +225,9 @@ const generateCron = (): string => {
 
     case 'custom':
       return customCron
+
+    case 'reboot':
+      return '@reboot'
 
     default:
       return '* * * * *'

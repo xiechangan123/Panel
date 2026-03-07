@@ -32,6 +32,12 @@ const formatTime = (hour: string, minute: string): string => {
 // 解析 Cron 表达式并生成人类可读描述
 const parseDescription = computed((): string => {
   const cron = props.cron.trim()
+
+  // 特殊表达式
+  if (cron === '@reboot') {
+    return $gettext('Run once after system reboot')
+  }
+
   const parts = cron.split(/\s+/)
 
   // Cron 表达式应该有 5 个部分：分 时 日 月 周
