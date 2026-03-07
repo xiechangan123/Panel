@@ -24,6 +24,8 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
+	webservertypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
 type certRepo struct {
@@ -207,15 +209,15 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	} else {
 		if cert.Website == nil {
 			return nil, errors.New(r.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
-		} else {
-			for _, domain := range cert.Domains {
-				if strings.Contains(domain, "*") {
-					return nil, errors.New(r.t.Get("wildcard domains cannot use HTTP verification"))
-				}
-			}
-			conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
-			client.UseHTTP(conf, webServer)
 		}
+		hasWildcard := slices.ContainsFunc(cert.Domains, func(d string) bool {
+			return strings.Contains(d, "*")
+		})
+		if hasWildcard {
+			return nil, errors.New(r.t.Get("wildcard domains cannot use HTTP verification"))
+		}
+		conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
+		client.UseHTTP(conf, webServer)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
@@ -234,7 +236,7 @@ func (r *certRepo) ObtainAuto(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.Website != nil {
-		return &ssl, r.Deploy(cert.ID, cert.WebsiteID)
+		return &ssl, r.Deploy(cert.ID, cert.WebsiteID, false)
 	}
 
 	if err = r.runScript(cert); err != nil {
@@ -285,7 +287,7 @@ func (r *certRepo) ObtainSelfSigned(id uint) error {
 	}
 
 	if cert.Website != nil {
-		return r.Deploy(cert.ID, cert.WebsiteID)
+		return r.Deploy(cert.ID, cert.WebsiteID, false)
 	}
 
 	if err = r.runScript(cert); err != nil {
@@ -348,7 +350,7 @@ func (r *certRepo) Renew(id uint) (*acme.Certificate, error) {
 	}
 
 	if cert.Website != nil {
-		return &ssl, r.Deploy(cert.ID, cert.WebsiteID)
+		return &ssl, r.Deploy(cert.ID, cert.WebsiteID, false)
 	}
 
 	return &ssl, nil
@@ -384,7 +386,7 @@ func (r *certRepo) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
 	return renewInfo, nil
 }
 
-func (r *certRepo) Deploy(ID, WebsiteID uint) error {
+func (r *certRepo) Deploy(ID, WebsiteID uint, enableHTTPS bool) error {
 	cert, err := r.Get(ID)
 	if err != nil {
 		return err
@@ -398,11 +400,60 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	if err = r.db.Where("id", WebsiteID).First(website).Error; err != nil {
 		return err
 	}
-	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/fullchain.pem", app.Root, website.Name), cert.Cert, 0600); err != nil {
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	certPath := filepath.Join(configDir, "fullchain.pem")
+	keyPath := filepath.Join(configDir, "private.key")
+	if err = io.Write(certPath, cert.Cert, 0600); err != nil {
 		return err
 	}
-	if err = io.Write(fmt.Sprintf("%s/sites/%s/config/private.key", app.Root, website.Name), cert.Key, 0600); err != nil {
+	if err = io.Write(keyPath, cert.Key, 0600); err != nil {
 		return err
+	}
+
+	// 开启 HTTPS
+	if enableHTTPS && !website.SSL {
+		vhost, vhostErr := r.getVhost(website)
+		if vhostErr != nil {
+			return vhostErr
+		}
+
+		// 添加 443 监听
+		listens := vhost.Listen()
+		hasSSL := slices.ContainsFunc(listens, func(l webservertypes.Listen) bool {
+			return slices.Contains(l.Args, "ssl")
+		})
+		if !hasSSL {
+			webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
+			args := []string{"ssl"}
+			if webServer != "apache" {
+				args = append(args, "quic")
+			}
+			listens = append(listens, webservertypes.Listen{Address: "443", Args: args})
+			if err = vhost.SetListen(listens); err != nil {
+				return err
+			}
+		}
+
+		// 配置 SSL
+		defaultTLSVersions, _ := r.settingRepo.GetSlice(biz.SettingKeyWebsiteTLSVersions)
+		defaultCipherSuites, _ := r.settingRepo.Get(biz.SettingKeyWebsiteCipherSuites)
+		if err = vhost.SetSSLConfig(&webservertypes.SSLConfig{
+			Cert:      certPath,
+			Key:       keyPath,
+			Protocols: defaultTLSVersions,
+			Ciphers:   defaultCipherSuites,
+		}); err != nil {
+			return err
+		}
+
+		if err = vhost.Save(); err != nil {
+			return err
+		}
+
+		website.SSL = true
+		if err = r.db.Save(website).Error; err != nil {
+			return err
+		}
 	}
 
 	webServer, _ := r.settingRepo.Get(biz.SettingKeyWebserver)
@@ -419,6 +470,32 @@ func (r *certRepo) Deploy(ID, WebsiteID uint) error {
 	}
 
 	return nil
+}
+
+// getVhost 根据网站类型获取虚拟主机配置
+func (r *certRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
+	webServer, err := r.settingRepo.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return nil, err
+	}
+
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	var vhost webservertypes.Vhost
+	switch website.Type {
+	case biz.WebsiteTypeProxy:
+		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), configDir)
+	case biz.WebsiteTypePHP:
+		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), configDir)
+	case biz.WebsiteTypeStatic:
+		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), configDir)
+	default:
+		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return vhost, nil
 }
 
 func (r *certRepo) runScript(cert *biz.Cert) error {

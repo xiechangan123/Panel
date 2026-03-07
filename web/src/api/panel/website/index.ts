@@ -29,7 +29,8 @@ export default {
   // 修改状态
   status: (id: number, status: boolean): any => http.Post(`/website/${id}/status`, { status }),
   // 签发证书
-  obtainCert: (id: number): any => http.Post(`/website/${id}/obtain_cert`),
+  obtainCert: (id: number, dns_id?: number): any =>
+    http.Post(`/website/${id}/obtain_cert`, dns_id ? { dns_id } : {}),
   // 统计概览
   statOverview: (start: string, end: string, sites?: string): any =>
     http.Get('/website/stat/overview', { params: { start, end, sites } }),

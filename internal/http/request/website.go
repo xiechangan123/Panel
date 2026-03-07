@@ -127,3 +127,8 @@ type WebsiteUpdateCert struct {
 	Cert string `json:"cert" validate:"required"`
 	Key  string `json:"key" validate:"required"`
 }
+
+type WebsiteObtainCert struct {
+	ID    uint `json:"id" form:"id" uri:"id" validate:"required|exists:websites,id"`
+	DNSID uint `json:"dns_id" form:"dns_id"`
+}

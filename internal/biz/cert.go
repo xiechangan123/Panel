@@ -45,5 +45,5 @@ type CertRepo interface {
 	ObtainSelfSigned(id uint) error
 	Renew(id uint) (*acme.Certificate, error)
 	RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error)
-	Deploy(ID, WebsiteID uint) error
+	Deploy(ID, WebsiteID uint, enableHTTPS bool) error
 }

@@ -54,7 +54,8 @@ const showModel = ref<any>({
 const deployModal = ref(false)
 const deployModel = ref<any>({
   id: null,
-  websites: []
+  websites: [],
+  enable_https: true
 })
 const obtain = ref(false)
 const obtainCert = ref(0)
@@ -374,13 +375,14 @@ const handleAutoRenewalUpdate = (row: any) => {
 
 const handleDeployCert = async () => {
   const promises = deployModel.value.websites.map((website: any) =>
-    cert.deploy(deployModel.value.id, website)
+    cert.deploy(deployModel.value.id, website, deployModel.value.enable_https)
   )
   await Promise.all(promises)
 
   deployModal.value = false
   deployModel.value.id = null
   deployModel.value.websites = []
+  deployModel.value.enable_https = true
   window.$message.success($gettext('Deployment successful'))
 }
 
@@ -540,9 +542,6 @@ onUnmounted(() => {
     :segmented="false"
   >
     <n-flex vertical>
-      <n-alert type="info">
-        {{ $gettext('If website not enabled HTTPS, please enable it after deployment.') }}
-      </n-alert>
       <n-form :model="deployModel">
         <n-form-item path="website_id" :label="$gettext('Website')">
           <n-select
@@ -552,6 +551,9 @@ onUnmounted(() => {
             multiple
             :options="websites"
           />
+        </n-form-item>
+        <n-form-item path="enable_https" :label="$gettext('Enable HTTPS')">
+          <n-switch v-model:value="deployModel.enable_https" />
         </n-form-item>
       </n-form>
       <n-button type="info" block @click="handleDeployCert">{{ $gettext('Submit') }}</n-button>

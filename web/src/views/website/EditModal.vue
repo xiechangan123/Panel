@@ -180,12 +180,52 @@ const handleRewrite = (value: string) => {
 }
 
 const isObtainCert = ref(false)
+const dnsModal = ref(false)
+const dnsList = ref<any>([])
+const selectedDnsId = ref<number | null>(null)
+
 const handleObtainCert = () => {
+  // 检测泛域名
+  const hasWildcard = setting.value.domains?.some((domain: string) => domain.includes('*'))
+  if (hasWildcard) {
+    // 加载 DNS 列表并弹窗选择
+    useRequest(cert.dns(1, 10000)).onSuccess(({ data }) => {
+      dnsList.value = data.items.map((item: any) => ({
+        label: item.name,
+        value: item.id
+      }))
+      if (dnsList.value.length === 0) {
+        window.$message.error(
+          $gettext(
+            'Your website contains wildcard domains, which require DNS verification. Please add a DNS provider in Certificate Management first.'
+          )
+        )
+        return
+      }
+      selectedDnsId.value = null
+      dnsModal.value = true
+    })
+    return
+  }
+
+  doObtainCert()
+}
+
+const handleDnsObtainCert = () => {
+  if (!selectedDnsId.value) {
+    window.$message.error($gettext('Please select a DNS provider'))
+    return
+  }
+  dnsModal.value = false
+  doObtainCert(selectedDnsId.value)
+}
+
+const doObtainCert = (dnsId?: number) => {
   isObtainCert.value = true
   messageReactive = window.$message.loading($gettext('Please wait...'), {
     duration: 0
   })
-  useRequest(website.obtainCert(id.value))
+  useRequest(website.obtainCert(id.value, dnsId))
     .onSuccess(() => {
       fetchSetting()
       window.$message.success($gettext('Issued successfully'))
@@ -2036,6 +2076,36 @@ const removeCustomConfig = (index: number) => {
         </n-button>
       </n-flex>
     </template>
+  </n-modal>
+  <n-modal
+    v-model:show="dnsModal"
+    preset="card"
+    :title="$gettext('Select DNS Provider')"
+    style="width: 60vw"
+    :bordered="false"
+    :segmented="false"
+  >
+    <n-flex vertical>
+      <n-alert type="warning">
+        {{
+          $gettext(
+            'Your website contains wildcard domains (e.g. *.example.com), which require DNS verification to issue certificates.'
+          )
+        }}
+      </n-alert>
+      <n-form>
+        <n-form-item :label="$gettext('DNS')">
+          <n-select
+            v-model:value="selectedDnsId"
+            :placeholder="$gettext('Select DNS for certificate issuance')"
+            :options="dnsList"
+          />
+        </n-form-item>
+      </n-form>
+      <n-button type="info" block :disabled="!selectedDnsId" @click="handleDnsObtainCert">
+        {{ $gettext('Issue') }}
+      </n-button>
+    </n-flex>
   </n-modal>
 </template>
 

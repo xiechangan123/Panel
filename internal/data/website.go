@@ -988,13 +988,18 @@ func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 	return nil
 }
 
-func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
+func (r *websiteRepo) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
 	website, err := r.Get(id)
 	if err != nil {
 		return err
 	}
-	if slices.Contains(website.Domains, "*") {
-		return errors.New(r.t.Get("not support one-key obtain wildcard certificate, please use Cert menu to obtain it with DNS method"))
+
+	// 泛域名必须使用 DNS 验证
+	hasWildcard := slices.ContainsFunc(website.Domains, func(d string) bool {
+		return strings.Contains(d, "*")
+	})
+	if hasWildcard && dnsID == 0 {
+		return errors.New(r.t.Get("wildcard domains require DNS verification, please select a DNS provider"))
 	}
 
 	account, err := r.certAccount.GetDefault(cast.ToUint(ctx.Value("user_id")))
@@ -1010,6 +1015,7 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 				Domains:     website.Domains,
 				AutoRenewal: true,
 				AccountID:   account.ID,
+				DNSID:       dnsID,
 				WebsiteID:   website.ID,
 			})
 			if err != nil {
@@ -1020,6 +1026,7 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 		}
 	}
 	newCert.Domains = website.Domains
+	newCert.DNSID = dnsID
 	if err = r.db.Save(newCert).Error; err != nil {
 		return err
 	}
@@ -1029,7 +1036,7 @@ func (r *websiteRepo) ObtainCert(ctx context.Context, id uint) error {
 		return err
 	}
 
-	return r.cert.Deploy(newCert.ID, website.ID)
+	return r.cert.Deploy(newCert.ID, website.ID, false)
 }
 
 // customConfigStartNum 自定义配置起始序号
