@@ -184,14 +184,11 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 
 	sock := s.getContainerSock()
 
-	// 默认使用 bash 作为 shell，如果不存在则回退到 sh
-	turn, err := docker.NewTurn(ctx, ws, req.ID, []string{"/bin/bash"}, sock)
+	// 通过 /bin/sh 启动，自动尝试切换到 bash，不存在则留在 sh
+	turn, err := docker.NewTurn(ctx, ws, req.ID, []string{"/bin/sh", "-c", "exec bash 2>/dev/null || exec sh"}, sock)
 	if err != nil {
-		turn, err = docker.NewTurn(ctx, ws, req.ID, []string{"/bin/sh"}, sock)
-		if err != nil {
-			_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to start container terminal: %v", err))
-			return
-		}
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to start container terminal: %v", err))
+		return
 	}
 
 	go func() {
