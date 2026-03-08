@@ -102,7 +102,7 @@ const columns = computed(() => [
 <template>
   <n-flex vertical :size="20">
     <n-spin :show="loading">
-      <div class="grid grid-cols-1 gap-12 lg:grid-cols-2" v-if="browsers.length > 0">
+      <div class="gap-12 grid grid-cols-1 lg:grid-cols-2" v-if="browsers.length > 0">
         <n-card :bordered="false" :title="$gettext('Browsers')">
           <v-chart class="h-300px" :option="browserChartOption" autoresize />
         </n-card>

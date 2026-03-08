@@ -1,14 +1,14 @@
 import { FlatCompat } from '@eslint/eslintrc'
 import unocss from '@unocss/eslint-config/flat'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
-import vueTsEslintConfig from '@vue/eslint-config-typescript'
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
 
 const compat = new FlatCompat()
 
-export default [
-  ...pluginVue.configs['flat/essential'],
-  ...vueTsEslintConfig(),
+export default defineConfigWithVueTs(
+  pluginVue.configs['flat/essential'],
+  vueTsConfigs.recommended,
   unocss,
   ...compat.extends('./.eslintrc-auto-import.json'),
   skipFormatting,
@@ -28,4 +28,4 @@ export default [
     name: 'app/files-to-ignore',
     ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**']
   }
-]
+)
