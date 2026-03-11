@@ -37,7 +37,6 @@ const initialSetting = {
   ocsp: false,
   http_redirect: false,
   ssl_protocols: [],
-  ssl_ciphers: '',
   ssl_not_before: '',
   ssl_not_after: '',
   ssl_dns_names: [],
@@ -1621,7 +1620,7 @@ const removeCustomConfig = (index: number) => {
                   <n-select
                     v-model:value="setting.ssl_protocols"
                     :options="[
-                      { label: 'TLS 1.0', value: 'TLSv1.0' },
+                      { label: 'TLS 1.0', value: 'TLSv1' },
                       { label: 'TLS 1.1', value: 'TLSv1.1' },
                       { label: 'TLS 1.2', value: 'TLSv1.2' },
                       { label: 'TLS 1.3', value: 'TLSv1.3' }
@@ -1632,12 +1631,6 @@ const removeCustomConfig = (index: number) => {
               </n-grid>
             </n-form>
             <n-form v-if="setting.ssl">
-              <n-form-item :label="$gettext('Cipher Suites')">
-                <n-input
-                  v-model:value="setting.ssl_ciphers"
-                  :placeholder="$gettext('Enter the cipher suite, leave blank to reset to default')"
-                />
-              </n-form-item>
               <n-grid :cols="2" :x-gap="24">
                 <n-gi>
                   <n-form-item :label="$gettext('Certificate')">

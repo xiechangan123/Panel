@@ -50,14 +50,12 @@ func (s *WebsiteService) GetDefaultConfig(w http.ResponseWriter, r *http.Request
 	stop, _ := io.Read(filepath.Join(htmlPath, "stop.html"))
 	notFound, _ := io.Read(filepath.Join(htmlPath, "404.html"))
 	tlsVersions, _ := s.settingRepo.GetSlice(biz.SettingKeyWebsiteTLSVersions)
-	cipherSuites, _ := s.settingRepo.Get(biz.SettingKeyWebsiteCipherSuites)
 
 	Success(w, chix.M{
-		"index":         index,
-		"stop":          stop,
-		"not_found":     notFound,
-		"tls_versions":  tlsVersions,
-		"cipher_suites": cipherSuites,
+		"index":        index,
+		"stop":         stop,
+		"not_found":    notFound,
+		"tls_versions": tlsVersions,
 	})
 }
 

@@ -397,9 +397,6 @@ func (v *baseVhost) SSLConfig() *types.SSLConfig {
 		config.Protocols = protocols
 	}
 
-	// 获取加密套件
-	config.Ciphers = v.vhost.GetDirectiveValue("SSLCipherSuite")
-
 	// 检查 HSTS
 	headers := v.vhost.GetDirectives("Header")
 	for _, h := range headers {
@@ -445,13 +442,6 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 		v.vhost.SetDirective("SSLProtocol", cfg.Protocols...)
 	} else {
 		v.vhost.SetDirective("SSLProtocol", "all", "-SSLv2", "-SSLv3", "-TLSv1", "-TLSv1.1")
-	}
-
-	// 设置加密套件
-	if cfg.Ciphers != "" {
-		v.vhost.SetDirective("SSLCipherSuite", cfg.Ciphers)
-	} else {
-		v.vhost.SetDirective("SSLCipherSuite", "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384")
 	}
 
 	// 设置 HSTS

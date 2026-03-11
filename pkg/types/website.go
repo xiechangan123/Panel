@@ -28,7 +28,6 @@ type WebsiteSetting struct {
 	OCSP          bool     `json:"ocsp"`
 	HTTPRedirect  bool     `json:"http_redirect"`
 	SSLProtocols  []string `json:"ssl_protocols"`
-	SSLCiphers    string   `json:"ssl_ciphers"`
 	SSLNotBefore  string   `json:"ssl_not_before"`
 	SSLNotAfter   string   `json:"ssl_not_after"`
 	SSLDNSNames   []string `json:"ssl_dns_names"`

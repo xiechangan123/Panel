@@ -21,7 +21,6 @@ const (
 	SettingKeyProjectPath              SettingKey = "project_path"
 	SettingKeyContainerSock            SettingKey = "container_sock"
 	SettingKeyWebsiteTLSVersions       SettingKey = "website_tls_versions"
-	SettingKeyWebsiteCipherSuites      SettingKey = "website_tls_cipher_suites"
 	SettingKeyMySQLRootPassword        SettingKey = "mysql_root_password"
 	SettingKeyPostgresPassword         SettingKey = "postgres_password"
 	SettingKeyOfflineMode              SettingKey = "offline_mode"

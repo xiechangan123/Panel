@@ -436,12 +436,10 @@ func (r *certRepo) Deploy(ID, WebsiteID uint, enableHTTPS bool) error {
 
 		// 配置 SSL
 		defaultTLSVersions, _ := r.settingRepo.GetSlice(biz.SettingKeyWebsiteTLSVersions)
-		defaultCipherSuites, _ := r.settingRepo.Get(biz.SettingKeyWebsiteCipherSuites)
 		if err = vhost.SetSSLConfig(&webservertypes.SSLConfig{
 			Cert:      certPath,
 			Key:       keyPath,
 			Protocols: defaultTLSVersions,
-			Ciphers:   defaultCipherSuites,
 		}); err != nil {
 			return err
 		}

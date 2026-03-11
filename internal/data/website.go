@@ -114,9 +114,6 @@ func (r *websiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) err
 	if err = r.setting.SetSlice(biz.SettingKeyWebsiteTLSVersions, req.TLSVersions); err != nil {
 		return err
 	}
-	if err = r.setting.Set(biz.SettingKeyWebsiteCipherSuites, req.CipherSuites); err != nil {
-		return err
-	}
 
 	return r.reloadWebServer()
 }
@@ -173,7 +170,6 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 		setting.HSTS = sslConfig.HSTS
 		setting.OCSP = sslConfig.OCSP
 		setting.SSLProtocols = sslConfig.Protocols
-		setting.SSLCiphers = sslConfig.Ciphers
 	}
 	// 证书
 	crt, _ := os.ReadFile(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
@@ -646,12 +642,10 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			}
 		}
 		defaultTLSVersions, _ := r.setting.GetSlice(biz.SettingKeyWebsiteTLSVersions)
-		defaultCipherSuites, _ := r.setting.Get(biz.SettingKeyWebsiteCipherSuites)
 		if err = vhost.SetSSLConfig(&webservertypes.SSLConfig{
 			Cert:         certPath,
 			Key:          keyPath,
 			Protocols:    lo.If(len(req.SSLProtocols) > 0, req.SSLProtocols).Else(defaultTLSVersions),
-			Ciphers:      lo.If(req.SSLCiphers != "", req.SSLCiphers).Else(defaultCipherSuites),
 			HSTS:         req.HSTS,
 			OCSP:         req.OCSP,
 			HTTPRedirect: req.HTTPRedirect,

@@ -419,7 +419,6 @@ func (v *baseVhost) SSLConfig() *types.SSLConfig {
 	}
 
 	protocols, _ := v.parser.FindOne("server.ssl_protocols")
-	ciphers, _ := v.parser.FindOne("server.ssl_ciphers")
 	hsts := false
 	ocsp := false
 	httpRedirect := false
@@ -459,7 +458,6 @@ func (v *baseVhost) SSLConfig() *types.SSLConfig {
 
 	return &types.SSLConfig{
 		Protocols:    v.parser.parameters2Slices(protocols.GetParameters()),
-		Ciphers:      ciphers.GetParameters()[0].GetValue(),
 		HSTS:         hsts,
 		OCSP:         ocsp,
 		HTTPRedirect: httpRedirect,
@@ -477,9 +475,6 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	}
 	if len(cfg.Protocols) == 0 {
 		cfg.Protocols = []string{"TLSv1.2", "TLSv1.3"}
-	}
-	if cfg.Ciphers == "" {
-		cfg.Ciphers = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305"
 	}
 
 	err := v.parser.Set("server", []*config.Directive{
@@ -504,12 +499,8 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 			Parameters: v.parser.slices2Parameters(cfg.Protocols),
 		},
 		{
-			Name:       "ssl_ciphers",
-			Parameters: []config.Parameter{{Value: cfg.Ciphers}},
-		},
-		{
 			Name:       "ssl_prefer_server_ciphers",
-			Parameters: []config.Parameter{{Value: "off"}},
+			Parameters: []config.Parameter{{Value: "on"}},
 		},
 		{
 			Name:       "ssl_early_data",
