@@ -372,7 +372,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		if err = phpVhost.SetIndex([]string{"index.php", "index.html"}); err != nil {
 			return nil, err
 		}
-		if err = phpVhost.SetConfig("010-rewrite.conf", "site", ""); err != nil {
+		if err = phpVhost.SetConfig("010-rewrite.conf", "site", "", true); err != nil {
 			return nil, err
 		}
 		var cacheConfig string
@@ -671,7 +671,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			return err
 		}
 		// 伪静态
-		if err = phpVhost.SetConfig("010-rewrite.conf", "site", req.Rewrite); err != nil {
+		if err = phpVhost.SetConfig("010-rewrite.conf", "site", req.Rewrite, true); err != nil {
 			return err
 		}
 		// 防跨站

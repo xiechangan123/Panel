@@ -88,7 +88,7 @@ type Vhost interface {
 	Config(name string, typ string) string
 	// SetConfig 设置指定名称的配置内容
 	// type 可选值: "site", "shared"
-	SetConfig(name string, typ string, content string) error
+	SetConfig(name string, typ string, content string, skipComment ...bool) error
 	// RemoveConfig 清除指定名称的配置内容
 	// type 可选值: "site", "shared"
 	RemoveConfig(name string, typ string) error
