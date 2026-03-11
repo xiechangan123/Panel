@@ -215,7 +215,8 @@ msgstr "Enter user password"
 #: src/components/common/PtyTerminalModal.vue:195
 #: src/components/common/PtyTerminalModal.vue:199
 #: src/layout/header/components/UserAvatar.vue:29
-#: src/views/app/TemplateDeployModal.vue:341 src/views/home/IndexView.vue:1028
+#: src/views/app/TemplateDeployModal.vue:341
+#: src/views/file/composables/usePaste.ts:61 src/views/home/IndexView.vue:1028
 #: src/views/home/UpdateView.vue:30 src/views/monitor/IndexView.vue:731
 #: src/views/toolbox/DiskView.vue:407 src/views/toolbox/DiskView.vue:409
 #: src/views/toolbox/DiskView.vue:432 src/views/toolbox/DiskView.vue:434
@@ -241,7 +242,8 @@ msgstr "Confirm"
 #: src/views/container/ImagePullModal.vue:184
 #: src/views/container/ImagePullModal.vue:198
 #: src/views/container/ImageView.vue:357 src/views/container/ImageView.vue:372
-#: src/views/file/composables/usePaste.ts:58 src/views/file/EditModal.vue:41
+#: src/views/file/composables/usePaste.ts:62
+#: src/views/file/composables/usePaste.ts:133 src/views/file/EditModal.vue:41
 #: src/views/file/ListView.vue:245 src/views/file/ListView.vue:777
 #: src/views/file/ToolBar.vue:207 src/views/file/UploadModal.vue:340
 #: src/views/file/UploadModal.vue:450 src/views/home/IndexView.vue:1029
@@ -1138,7 +1140,9 @@ msgstr "Filename"
 
 #: src/components/file-editor/FileTree.vue:478
 #: src/views/container/ContainerView.vue:155
-#: src/views/container/ContainerView.vue:626 src/views/file/ListView.vue:348
+#: src/views/container/ContainerView.vue:626
+#: src/views/file/composables/usePaste.ts:40
+#: src/views/file/composables/usePaste.ts:144 src/views/file/ListView.vue:348
 #: src/views/file/ListView.vue:1552
 msgid "Rename"
 msgstr "Rename"
@@ -2682,7 +2686,7 @@ msgstr "Modified successfully"
 #: src/views/apps/mysql/MysqlIndex.vue:103
 #: src/views/apps/postgresql/IndexView.vue:107
 #: src/views/database/ServerList.vue:88 src/views/database/UserList.vue:51
-#: src/views/file/composables/usePaste.ts:37
+#: src/views/file/composables/usePaste.ts:27
 #: src/views/setting/TokenModal.vue:166
 msgid "Copied successfully"
 msgstr "Copied successfully"
@@ -5661,32 +5665,44 @@ msgstr "Sorry, the page you visited does not exist."
 msgid "Back to Home"
 msgstr "Back to Home"
 
-#: src/views/file/composables/usePaste.ts:12
+#: src/views/file/composables/usePaste.ts:13
 msgid "Please mark the files/folders to copy or move first"
 msgstr "Please mark the files/folders to copy or move first"
 
-#: src/views/file/composables/usePaste.ts:37
+#: src/views/file/composables/usePaste.ts:27
 msgid "Moved successfully"
 msgstr "Moved successfully"
 
-#: src/views/file/composables/usePaste.ts:47 src/views/file/ListView.vue:239
+#: src/views/file/composables/usePaste.ts:48
+#, fuzzy
+msgid "Please enter a new name"
+msgstr "Please enter absolute path"
+
+#: src/views/file/composables/usePaste.ts:53
+#: src/views/file/composables/usePaste.ts:66
+#, fuzzy
+msgid "Name cannot be empty"
+msgstr "Proxy address cannot be empty"
+
+#: src/views/file/composables/usePaste.ts:84
+#: src/views/file/composables/usePaste.ts:130
+msgid "Canceled"
+msgstr "Canceled"
+
+#: src/views/file/composables/usePaste.ts:118 src/views/file/ListView.vue:239
 #: src/views/file/ListView.vue:774 src/views/file/ListView.vue:842
 msgid "Warning"
 msgstr "Warning"
 
-#: src/views/file/composables/usePaste.ts:48
+#: src/views/file/composables/usePaste.ts:119
 #, fuzzy
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr ""
 "There are items with the same name. %{ items } Do you want to overwrite?"
 
-#: src/views/file/composables/usePaste.ts:57 src/views/file/ListView.vue:776
+#: src/views/file/composables/usePaste.ts:155 src/views/file/ListView.vue:776
 msgid "Overwrite"
 msgstr "Overwrite"
-
-#: src/views/file/composables/usePaste.ts:61
-msgid "Canceled"
-msgstr "Canceled"
 
 #: src/views/file/CompressModal.vue:41
 msgid "Compressing..."
@@ -11393,9 +11409,6 @@ msgstr "Add Server"
 
 #~ msgid "Matching expression cannot be empty"
 #~ msgstr "Matching expression cannot be empty"
-
-#~ msgid "Proxy address cannot be empty"
-#~ msgstr "Proxy address cannot be empty"
 
 #~ msgid "Exact match expression must start with /"
 #~ msgstr "Exact match expression must start with /"

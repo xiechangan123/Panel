@@ -362,7 +362,7 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:299
+#: internal/service/file.go:309
 msgid "Download remote file %v"
 msgstr ""
 
@@ -1506,7 +1506,7 @@ msgstr ""
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/file.go:282
+#: internal/service/file.go:292
 msgid "can't download a directory"
 msgstr ""
 
@@ -1527,7 +1527,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:652
+#: internal/service/file.go:662
 msgid "chunk hash mismatch"
 msgstr ""
 
@@ -1552,11 +1552,11 @@ msgid "could not find .sql backup file"
 msgstr ""
 
 #: internal/service/file.go:171
-#: internal/service/file.go:575
+#: internal/service/file.go:585
 msgid "create directory error: %v"
 msgstr ""
 
-#: internal/service/file.go:690
+#: internal/service/file.go:700
 msgid "create target file error: %v"
 msgstr ""
 
@@ -1866,7 +1866,7 @@ msgstr ""
 msgid "failed to get disk space: %v"
 msgstr ""
 
-#: internal/service/file.go:326
+#: internal/service/file.go:336
 msgid "failed to get file system info"
 msgstr ""
 
@@ -2287,7 +2287,7 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/service/file.go:629
+#: internal/service/file.go:639
 msgid "get upload file error: %v"
 msgstr ""
 
@@ -2444,7 +2444,7 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:635
+#: internal/service/file.go:645
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -2476,7 +2476,7 @@ msgstr ""
 msgid "passkey registration failed: %v"
 msgstr ""
 
-#: internal/service/file.go:622
+#: internal/service/file.go:632
 msgid "path, file_name and file_hash are required"
 msgstr ""
 
@@ -2507,8 +2507,8 @@ msgstr ""
 
 #: internal/data/user.go:134
 #: internal/service/file.go:139
-#: internal/service/file.go:227
-#: internal/service/file.go:256
+#: internal/service/file.go:232
+#: internal/service/file.go:266
 msgid "please don't do this"
 msgstr ""
 
@@ -2536,15 +2536,15 @@ msgstr ""
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
-#: internal/service/file.go:707
+#: internal/service/file.go:717
 msgid "read chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:643
+#: internal/service/file.go:653
 msgid "read chunk data error: %v"
 msgstr ""
 
-#: internal/service/file.go:584
+#: internal/service/file.go:594
 msgid "read directory error: %v"
 msgstr ""
 
@@ -2572,7 +2572,7 @@ msgstr ""
 msgid "s3 configuration error: %v"
 msgstr ""
 
-#: internal/service/file.go:662
+#: internal/service/file.go:672
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -2665,8 +2665,8 @@ msgid "target is a directory"
 msgstr ""
 
 #: internal/service/file.go:165
-#: internal/service/file.go:568
-#: internal/service/file.go:683
+#: internal/service/file.go:578
+#: internal/service/file.go:693
 msgid "target path %s already exists"
 msgstr ""
 
@@ -2867,7 +2867,7 @@ msgstr ""
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
-#: internal/service/file.go:713
+#: internal/service/file.go:723
 msgid "write chunk %d error: %v"
 msgstr ""
 

@@ -216,6 +216,7 @@ msgstr ""
 #: src/components/common/PtyTerminalModal.vue:199
 #: src/layout/header/components/UserAvatar.vue:29
 #: src/views/app/TemplateDeployModal.vue:341
+#: src/views/file/composables/usePaste.ts:61
 #: src/views/home/IndexView.vue:1028
 #: src/views/home/UpdateView.vue:30
 #: src/views/monitor/IndexView.vue:731
@@ -253,7 +254,8 @@ msgstr ""
 #: src/views/container/ImagePullModal.vue:198
 #: src/views/container/ImageView.vue:357
 #: src/views/container/ImageView.vue:372
-#: src/views/file/composables/usePaste.ts:58
+#: src/views/file/composables/usePaste.ts:62
+#: src/views/file/composables/usePaste.ts:133
 #: src/views/file/EditModal.vue:41
 #: src/views/file/ListView.vue:245
 #: src/views/file/ListView.vue:777
@@ -1234,6 +1236,8 @@ msgstr ""
 #: src/components/file-editor/FileTree.vue:478
 #: src/views/container/ContainerView.vue:155
 #: src/views/container/ContainerView.vue:626
+#: src/views/file/composables/usePaste.ts:40
+#: src/views/file/composables/usePaste.ts:144
 #: src/views/file/ListView.vue:348
 #: src/views/file/ListView.vue:1552
 msgid "Rename"
@@ -2794,7 +2798,7 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:107
 #: src/views/database/ServerList.vue:88
 #: src/views/database/UserList.vue:51
-#: src/views/file/composables/usePaste.ts:37
+#: src/views/file/composables/usePaste.ts:27
 #: src/views/setting/TokenModal.vue:166
 msgid "Copied successfully"
 msgstr ""
@@ -5705,32 +5709,42 @@ msgstr ""
 msgid "Back to Home"
 msgstr ""
 
-#: src/views/file/composables/usePaste.ts:12
+#: src/views/file/composables/usePaste.ts:13
 msgid "Please mark the files/folders to copy or move first"
 msgstr ""
 
-#: src/views/file/composables/usePaste.ts:37
+#: src/views/file/composables/usePaste.ts:27
 msgid "Moved successfully"
 msgstr ""
 
-#: src/views/file/composables/usePaste.ts:47
+#: src/views/file/composables/usePaste.ts:48
+msgid "Please enter a new name"
+msgstr ""
+
+#: src/views/file/composables/usePaste.ts:53
+#: src/views/file/composables/usePaste.ts:66
+msgid "Name cannot be empty"
+msgstr ""
+
+#: src/views/file/composables/usePaste.ts:84
+#: src/views/file/composables/usePaste.ts:130
+msgid "Canceled"
+msgstr ""
+
+#: src/views/file/composables/usePaste.ts:118
 #: src/views/file/ListView.vue:239
 #: src/views/file/ListView.vue:774
 #: src/views/file/ListView.vue:842
 msgid "Warning"
 msgstr ""
 
-#: src/views/file/composables/usePaste.ts:48
+#: src/views/file/composables/usePaste.ts:119
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr ""
 
-#: src/views/file/composables/usePaste.ts:57
+#: src/views/file/composables/usePaste.ts:155
 #: src/views/file/ListView.vue:776
 msgid "Overwrite"
-msgstr ""
-
-#: src/views/file/composables/usePaste.ts:61
-msgid "Canceled"
 msgstr ""
 
 #: src/views/file/CompressModal.vue:41
