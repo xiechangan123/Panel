@@ -1,6 +1,7 @@
 package apache
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -285,12 +286,21 @@ func (v *baseVhost) AccessLog() string {
 		return ""
 	}
 
-	var result string
-	_, err := fmt.Sscanf(content, "CustomLog %s combined", &result)
-	if err != nil {
-		return ""
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		var result string
+		_, err := fmt.Sscanf(line, "CustomLog %s combined", &result)
+		if err == nil {
+			return result
+		}
 	}
-	return result
+
+	return ""
 }
 
 func (v *baseVhost) SetAccessLog(accessLog string) error {
@@ -306,12 +316,21 @@ func (v *baseVhost) ErrorLog() string {
 		return ""
 	}
 
-	var result string
-	_, err := fmt.Sscanf(content, "ErrorLog %s", &result)
-	if err != nil {
-		return ""
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		var result string
+		_, err := fmt.Sscanf(line, "ErrorLog %s", &result)
+		if err == nil {
+			return result
+		}
 	}
-	return result
+
+	return ""
 }
 
 func (v *baseVhost) SetErrorLog(errorLog string) error {

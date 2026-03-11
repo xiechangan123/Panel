@@ -1,6 +1,7 @@
 package nginx
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -324,12 +325,21 @@ func (v *baseVhost) AccessLog() string {
 		return ""
 	}
 
-	var result string
-	_, err := fmt.Sscanf(content, "access_log %s", &result)
-	if err != nil {
-		return ""
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		var result string
+		_, err := fmt.Sscanf(line, "access_log %s", &result)
+		if err == nil {
+			return strings.TrimSuffix(result, ";")
+		}
 	}
-	return strings.TrimSuffix(result, ";")
+
+	return ""
 }
 
 func (v *baseVhost) SetAccessLog(accessLog string) error {
@@ -345,12 +355,21 @@ func (v *baseVhost) ErrorLog() string {
 		return ""
 	}
 
-	var result string
-	_, err := fmt.Sscanf(content, "error_log %s", &result)
-	if err != nil {
-		return ""
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		var result string
+		_, err := fmt.Sscanf(line, "error_log %s", &result)
+		if err == nil {
+			return strings.TrimSuffix(result, ";")
+		}
 	}
-	return strings.TrimSuffix(result, ";")
+
+	return ""
 }
 
 func (v *baseVhost) SetErrorLog(errorLog string) error {
@@ -485,14 +504,6 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 		{
 			Name:       "ssl_certificate_key",
 			Parameters: []config.Parameter{{Value: cfg.Key}},
-		},
-		{
-			Name:       "ssl_session_timeout",
-			Parameters: []config.Parameter{{Value: "1d"}},
-		},
-		{
-			Name:       "ssl_session_cache",
-			Parameters: []config.Parameter{{Value: "shared:SSL:10m"}},
 		},
 		{
 			Name:       "ssl_protocols",
