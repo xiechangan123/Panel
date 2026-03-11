@@ -632,10 +632,10 @@ msgstr ""
 msgid "Index Hit Rate"
 msgstr ""
 
-#: internal/service/cli.go:1062
-#: internal/service/cli.go:1067
-#: internal/service/cli.go:1072
-#: internal/service/cli.go:1112
+#: internal/service/cli.go:1061
+#: internal/service/cli.go:1066
+#: internal/service/cli.go:1071
+#: internal/service/cli.go:1111
 msgid "Initialization failed: %v"
 msgstr ""
 
@@ -1510,7 +1510,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/data/website.go:551
+#: internal/data/website.go:547
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1671,7 +1671,7 @@ msgstr ""
 msgid "failed to create database user on remote: %v"
 msgstr ""
 
-#: internal/service/ws.go:231
+#: internal/service/ws.go:228
 msgid "failed to create docker client: %v"
 msgstr ""
 
@@ -1735,7 +1735,7 @@ msgstr ""
 msgid "failed to enable %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:245
+#: internal/service/ws.go:242
 msgid "failed to encode auth: %v"
 msgstr ""
 
@@ -1878,7 +1878,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:446
+#: internal/data/website.go:442
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -2014,8 +2014,8 @@ msgstr ""
 #: internal/data/cert.go:102
 #: internal/data/setting.go:338
 #: internal/data/setting.go:412
-#: internal/data/website.go:620
-#: internal/data/website.go:969
+#: internal/data/website.go:616
+#: internal/data/website.go:963
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -2026,8 +2026,8 @@ msgstr ""
 #: internal/data/cert.go:105
 #: internal/data/setting.go:341
 #: internal/data/setting.go:415
-#: internal/data/website.go:623
-#: internal/data/website.go:972
+#: internal/data/website.go:619
+#: internal/data/website.go:966
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -2051,7 +2051,7 @@ msgstr ""
 msgid "failed to parse version: %v"
 msgstr ""
 
-#: internal/service/ws.go:254
+#: internal/service/ws.go:251
 msgid "failed to pull image: %v"
 msgstr ""
 
@@ -2076,7 +2076,7 @@ msgstr ""
 msgid "failed to read generated key: %v"
 msgstr ""
 
-#: internal/service/ws.go:219
+#: internal/service/ws.go:216
 msgid "failed to read params: %v"
 msgstr ""
 
@@ -2196,7 +2196,7 @@ msgstr ""
 msgid "failed to start %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:192
+#: internal/service/ws.go:190
 msgid "failed to start container terminal: %v"
 msgstr ""
 
@@ -2317,7 +2317,7 @@ msgstr ""
 msgid "invalid logical volume size"
 msgstr ""
 
-#: internal/service/ws.go:224
+#: internal/service/ws.go:221
 msgid "invalid params: %v"
 msgstr ""
 
@@ -2368,7 +2368,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1124
+#: internal/data/website.go:1118
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -2564,7 +2564,7 @@ msgstr ""
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:598
+#: internal/data/website.go:594
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -2691,7 +2691,7 @@ msgstr ""
 msgid "this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"
 msgstr ""
 
-#: internal/data/cert.go:529
+#: internal/data/cert.go:527
 msgid "this certificate is not associated with an ACME account and cannot be obtained"
 msgstr ""
 
@@ -2756,13 +2756,13 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1226
-#: internal/data/website.go:1280
+#: internal/data/website.go:1220
+#: internal/data/website.go:1274
 msgid "unsupported web server: %s"
 msgstr ""
 
-#: internal/data/cert.go:492
-#: internal/data/website.go:1192
+#: internal/data/cert.go:490
+#: internal/data/website.go:1186
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -2846,11 +2846,11 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/data/website.go:805
+#: internal/data/website.go:799
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
-#: internal/data/website.go:605
+#: internal/data/website.go:601
 msgid "website directory does not exist"
 msgstr ""
 
@@ -2863,7 +2863,7 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/data/website.go:1002
+#: internal/data/website.go:996
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
