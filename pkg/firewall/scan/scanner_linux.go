@@ -150,12 +150,29 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 		return insns
 	}
 
-	// UDP 处理器：边界检查 → 端口白名单 → 输出事件
+	// UDP 处理器：边界检查 → 响应流量过滤 → 端口白名单 → 输出事件
 	udpHandler := func(sym string) asm.Instructions {
 		insns := asm.Instructions{
 			asm.Mov.Reg(asm.R2, asm.R4).WithSymbol(sym),
 			asm.Add.Imm(asm.R2, udpLen),
 			asm.JGT.Reg(asm.R2, asm.R7, "exit"),
+
+			// 源端口 - 跳过已知服务端口的响应流量
+			// UDP 无连接态，无法像 TCP 那样靠 SYN 标志区分新连接和响应
+			// 来自这些源端口的入站 UDP 包几乎必定是我方主动请求的响应，非扫描
+			asm.LoadMem(asm.R2, asm.R4, 0, asm.Half),
+			asm.HostTo(asm.BE, asm.R2, asm.Half),
+			asm.JEq.Imm(asm.R2, 53, "exit"),   // DNS
+			asm.JEq.Imm(asm.R2, 67, "exit"),   // DHCP Server
+			asm.JEq.Imm(asm.R2, 68, "exit"),   // DHCP Client/Relay
+			asm.JEq.Imm(asm.R2, 123, "exit"),  // NTP
+			asm.JEq.Imm(asm.R2, 443, "exit"),  // QUIC
+			asm.JEq.Imm(asm.R2, 500, "exit"),  // IKE (IPsec)
+			asm.JEq.Imm(asm.R2, 546, "exit"),  // DHCPv6 Client
+			asm.JEq.Imm(asm.R2, 547, "exit"),  // DHCPv6 Server
+			asm.JEq.Imm(asm.R2, 853, "exit"),  // DoQ (DNS over QUIC)
+			asm.JEq.Imm(asm.R2, 4500, "exit"), // IPsec NAT-T
+			asm.JEq.Imm(asm.R2, 5353, "exit"), // mDNS
 
 			// 目标端口
 			asm.LoadMem(asm.R2, asm.R4, 2, asm.Half),
