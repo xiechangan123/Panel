@@ -101,7 +101,7 @@ const handleSaveStatSetting = () => {
         <n-alert type="info">
           {{
             $gettext(
-              'Modifying the default TLS version and cipher suites will affect all newly created websites. Existing websites will not be affected.'
+              'Modifying the default TLS version will affect all newly created websites. Existing websites will not be affected.'
             )
           }}
         </n-alert>
