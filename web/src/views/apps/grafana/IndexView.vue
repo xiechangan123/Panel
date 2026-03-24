@@ -9,6 +9,7 @@ import { useGettext } from 'vue3-gettext'
 import grafana from '@/api/apps/grafana'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import GrafanaConfigTuneView from './GrafanaConfigTuneView.vue'
+import GrafanaDataSourcesView from './GrafanaDataSourcesView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -80,6 +81,9 @@ const handleSaveConfig = () => {
       </n-tab-pane>
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <grafana-config-tune-view />
+      </n-tab-pane>
+      <n-tab-pane name="datasources" :tab="$gettext('Data Sources')">
+        <grafana-data-sources-view />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table

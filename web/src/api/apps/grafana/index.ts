@@ -10,5 +10,11 @@ export default {
   // 获取配置调整参数
   configTune: (): any => http.Get('/apps/grafana/config_tune'),
   // 保存配置调整参数
-  saveConfigTune: (data: any): any => http.Post('/apps/grafana/config_tune', data)
+  saveConfigTune: (data: any): any => http.Post('/apps/grafana/config_tune', data),
+  // 数据源管理
+  datasources: (): any => http.Get('/apps/grafana/datasources'),
+  createDatasource: (data: any): any => http.Post('/apps/grafana/datasources', data),
+  updateDatasource: (name: string, data: any): any =>
+    http.Post(`/apps/grafana/datasources/${name}`, data),
+  deleteDatasource: (name: string): any => http.Delete(`/apps/grafana/datasources/${name}`)
 }

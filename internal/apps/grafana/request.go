@@ -33,3 +33,16 @@ type ConfigTune struct {
 	LogMode  string `form:"log_mode" json:"log_mode"`
 	LogLevel string `form:"log_level" json:"log_level"`
 }
+
+// DataSource 数据源
+type DataSource struct {
+	Name      string `form:"name" json:"name" validate:"required"`
+	Type      string `form:"type" json:"type" validate:"required"`
+	URL       string `form:"url" json:"url" validate:"required"`
+	Access    string `form:"access" json:"access"`
+	IsDefault bool   `form:"is_default" json:"is_default"`
+	// 数据库类型专用
+	Database string `form:"database" json:"database"`
+	User     string `form:"user" json:"user"`
+	Password string `form:"password" json:"password"`
+}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"go.yaml.in/yaml/v4"
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -32,6 +33,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 	r.Get("/config_tune", s.GetConfigTune)
 	r.Post("/config_tune", s.UpdateConfigTune)
+	// 数据源管理
+	r.Get("/datasources", s.DataSourceList)
+	r.Post("/datasources", s.CreateDataSource)
+	r.Post("/datasources/{name}", s.UpdateDataSource)
+	r.Delete("/datasources/{name}", s.DeleteDataSource)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
@@ -45,10 +51,13 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 从配置中获取端口
-	confPath := fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root)
-	config, _ := io.Read(confPath)
-	port := s.getINIValue(config, "server", "http_port")
+	// 从配置中获取端口（优先 grafana.ini，回退 defaults.ini）
+	custom, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
+	port := s.getINIValue(custom, "server", "http_port")
+	if port == "" {
+		defaults, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/defaults.ini", app.Root))
+		port = s.getINIValue(defaults, "server", "http_port")
+	}
 	if port == "" {
 		port = "3000"
 	}
@@ -109,35 +118,44 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Grafana 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
+	// 先读 defaults.ini 获取默认值，再用 grafana.ini 覆盖
+	defaults, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/defaults.ini", app.Root))
+	custom, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
+
+	get := func(section, key string) string {
+		if v := s.getINIValue(custom, section, key); v != "" {
+			return v
+		}
+		return s.getINIValue(defaults, section, key)
+	}
 
 	tune := ConfigTune{
 		// [server]
-		HTTPPort: s.getINIValue(config, "server", "http_port"),
-		Domain:   s.getINIValue(config, "server", "domain"),
-		RootURL:  s.getINIValue(config, "server", "root_url"),
-		Protocol: s.getINIValue(config, "server", "protocol"),
+		HTTPPort: get("server", "http_port"),
+		Domain:   get("server", "domain"),
+		RootURL:  get("server", "root_url"),
+		Protocol: get("server", "protocol"),
 		// [database]
-		DBType:     s.getINIValue(config, "database", "type"),
-		DBHost:     s.getINIValue(config, "database", "host"),
-		DBName:     s.getINIValue(config, "database", "name"),
-		DBUser:     s.getINIValue(config, "database", "user"),
-		DBPassword: s.getINIValue(config, "database", "password"),
+		DBType:     get("database", "type"),
+		DBHost:     get("database", "host"),
+		DBName:     get("database", "name"),
+		DBUser:     get("database", "user"),
+		DBPassword: get("database", "password"),
 		// [security]
-		AdminUser:     s.getINIValue(config, "security", "admin_user"),
-		AdminPassword: s.getINIValue(config, "security", "admin_password"),
+		AdminUser:     get("security", "admin_user"),
+		AdminPassword: get("security", "admin_password"),
 		// [users]
-		AllowSignUp:       s.getINIValue(config, "users", "allow_sign_up"),
-		AutoAssignOrgRole: s.getINIValue(config, "users", "auto_assign_org_role"),
+		AllowSignUp:       get("users", "allow_sign_up"),
+		AutoAssignOrgRole: get("users", "auto_assign_org_role"),
 		// [smtp]
-		SMTPEnabled:     s.getINIValue(config, "smtp", "enabled"),
-		SMTPHost:        s.getINIValue(config, "smtp", "host"),
-		SMTPUser:        s.getINIValue(config, "smtp", "user"),
-		SMTPPassword:    s.getINIValue(config, "smtp", "password"),
-		SMTPFromAddress: s.getINIValue(config, "smtp", "from_address"),
+		SMTPEnabled:     get("smtp", "enabled"),
+		SMTPHost:        get("smtp", "host"),
+		SMTPUser:        get("smtp", "user"),
+		SMTPPassword:    get("smtp", "password"),
+		SMTPFromAddress: get("smtp", "from_address"),
 		// [log]
-		LogMode:  s.getINIValue(config, "log", "mode"),
-		LogLevel: s.getINIValue(config, "log", "level"),
+		LogMode:  get("log", "mode"),
+		LogLevel: get("log", "level"),
 	}
 
 	service.Success(w, tune)
@@ -187,6 +205,123 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = systemctl.Restart("grafana"); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// DataSourceList 获取数据源列表
+func (s *App) DataSourceList(w http.ResponseWriter, r *http.Request) {
+	service.Success(w, s.getDatasourceList(s.readDatasources()))
+}
+
+// CreateDataSource 创建数据源
+func (s *App) CreateDataSource(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[DataSource](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	cfg := s.readDatasources()
+
+	for _, item := range s.getDatasourceList(cfg) {
+		if ds, ok := item.(map[string]any); ok && ds["name"] == req.Name {
+			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s already exists", req.Name))
+			return
+		}
+	}
+
+	if req.IsDefault {
+		s.clearDefault(cfg)
+	}
+
+	list := s.getDatasourceList(cfg)
+	list = append(list, s.buildDatasourceMap(req))
+	cfg["datasources"] = list
+
+	if err = s.writeDatasources(cfg); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// UpdateDataSource 更新数据源
+func (s *App) UpdateDataSource(w http.ResponseWriter, r *http.Request) {
+	oldName := chi.URLParam(r, "name")
+	req, err := service.Bind[DataSource](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	cfg := s.readDatasources()
+	list := s.getDatasourceList(cfg)
+
+	found := false
+	for i, item := range list {
+		if ds, ok := item.(map[string]any); ok && ds["name"] == oldName {
+			found = true
+			list[i] = s.buildDatasourceMap(req)
+			break
+		}
+	}
+	if !found {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s not found", oldName))
+		return
+	}
+
+	if req.IsDefault {
+		s.clearDefault(cfg)
+		for _, item := range list {
+			if ds, ok := item.(map[string]any); ok && ds["name"] == req.Name {
+				ds["isDefault"] = true
+			}
+		}
+	}
+
+	if oldName != req.Name {
+		s.addDeleteEntry(cfg, oldName)
+	}
+
+	cfg["datasources"] = list
+
+	if err = s.writeDatasources(cfg); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// DeleteDataSource 删除数据源
+func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
+	name := chi.URLParam(r, "name")
+	cfg := s.readDatasources()
+	list := s.getDatasourceList(cfg)
+
+	found := false
+	newList := make([]any, 0, len(list))
+	for _, item := range list {
+		if ds, ok := item.(map[string]any); ok && ds["name"] == name {
+			found = true
+			continue
+		}
+		newList = append(newList, item)
+	}
+	if !found {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s not found", name))
+		return
+	}
+
+	cfg["datasources"] = newList
+	s.addDeleteEntry(cfg, name)
+
+	if err := s.writeDatasources(cfg); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -295,4 +430,93 @@ func (s *App) setINIValue(content string, section string, key string, value stri
 	}
 
 	return strings.Join(result, "\n")
+}
+
+// datasourcePath 返回 provisioning 数据源文件路径
+func (s *App) datasourcePath() string {
+	return fmt.Sprintf("%s/server/grafana/conf/provisioning/datasources/panel.yml", app.Root)
+}
+
+// readDatasources 读取 provisioning 文件
+func (s *App) readDatasources() map[string]any {
+	raw, _ := io.Read(s.datasourcePath())
+	if raw == "" {
+		return map[string]any{
+			"apiVersion":  1,
+			"datasources": []any{},
+		}
+	}
+	var cfg map[string]any
+	if err := yaml.Unmarshal([]byte(raw), &cfg); err != nil {
+		return map[string]any{
+			"apiVersion":  1,
+			"datasources": []any{},
+		}
+	}
+	return cfg
+}
+
+// writeDatasources 写入 provisioning 文件并重启 Grafana
+func (s *App) writeDatasources(cfg map[string]any) error {
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	if err = io.Write(s.datasourcePath(), string(data), 0644); err != nil {
+		return err
+	}
+	return systemctl.Restart("grafana")
+}
+
+// getDatasourceList 从 cfg 中提取 datasources 切片
+func (s *App) getDatasourceList(cfg map[string]any) []any {
+	ds, ok := cfg["datasources"].([]any)
+	if !ok {
+		return []any{}
+	}
+	return ds
+}
+
+// buildDatasourceMap 从请求构建单条 datasource map
+func (s *App) buildDatasourceMap(req *DataSource) map[string]any {
+	ds := map[string]any{
+		"name":      req.Name,
+		"type":      req.Type,
+		"access":    req.Access,
+		"url":       req.URL,
+		"isDefault": req.IsDefault,
+		"editable":  true,
+	}
+	if req.Access == "" {
+		ds["access"] = "proxy"
+	}
+	switch req.Type {
+	case "mysql", "postgres", "influxdb":
+		if req.Database != "" {
+			ds["database"] = req.Database
+		}
+		if req.User != "" {
+			ds["user"] = req.User
+		}
+		if req.Password != "" {
+			ds["secureJsonData"] = map[string]any{"password": req.Password}
+		}
+	}
+	return ds
+}
+
+// clearDefault 清除所有数据源的默认标记
+func (s *App) clearDefault(cfg map[string]any) {
+	for _, item := range s.getDatasourceList(cfg) {
+		if ds, ok := item.(map[string]any); ok {
+			ds["isDefault"] = false
+		}
+	}
+}
+
+// addDeleteEntry 向 deleteDatasources 添加条目
+func (s *App) addDeleteEntry(cfg map[string]any, name string) {
+	delList, _ := cfg["deleteDatasources"].([]any)
+	delList = append(delList, map[string]any{"name": name, "orgId": 1})
+	cfg["deleteDatasources"] = delList
 }
