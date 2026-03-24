@@ -223,8 +223,13 @@ func (s *App) getPort() string {
 	return "9200"
 }
 
-// getYAMLValue 获取嵌套 YAML 值，支持 dot notation（如 "cluster.name"）
+// getYAMLValue 获取 YAML 值，优先匹配平铺键（如 "path.data"），回退到嵌套键（如 path -> data）
 func (s *App) getYAMLValue(cfg map[string]any, key string) string {
+	// 优先匹配平铺键（安装脚本用 sed 生成的格式）
+	if val, ok := cfg[key]; ok {
+		return cast.ToString(val)
+	}
+	// 回退到嵌套键
 	parts := strings.SplitN(key, ".", 2)
 	val, ok := cfg[parts[0]]
 	if !ok {
@@ -240,22 +245,22 @@ func (s *App) getYAMLValue(cfg map[string]any, key string) string {
 	return s.getYAMLValue(nested, parts[1])
 }
 
-// setYAMLValue 设置嵌套 YAML 值，支持 dot notation
+// setYAMLValue 设置 YAML 值
 func (s *App) setYAMLValue(cfg map[string]any, key string, value string) {
 	if value == "" {
 		return
 	}
+	// 使用平铺键，同时清理可能存在的嵌套键
+	cfg[key] = value
 	parts := strings.SplitN(key, ".", 2)
-	if len(parts) == 1 {
-		cfg[parts[0]] = value
-		return
+	if len(parts) == 2 {
+		if nested, ok := cfg[parts[0]].(map[string]any); ok {
+			delete(nested, parts[1])
+			if len(nested) == 0 {
+				delete(cfg, parts[0])
+			}
+		}
 	}
-	nested, ok := cfg[parts[0]].(map[string]any)
-	if !ok {
-		nested = make(map[string]any)
-		cfg[parts[0]] = nested
-	}
-	s.setYAMLValue(nested, parts[1], value)
 }
 
 // parseJVMHeap 从 jvm.options 中提取堆内存配置

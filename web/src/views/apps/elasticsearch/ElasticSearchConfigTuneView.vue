@@ -24,7 +24,7 @@ const saveLoading = ref(false)
 
 const discoveryTypeOptions = [
   { label: 'single-node', value: 'single-node' },
-  { label: 'zen', value: 'zen' }
+  { label: 'multi-node', value: 'multi-node' }
 ]
 
 useRequest(elasticsearch.configTune()).onSuccess(({ data }: any) => {
