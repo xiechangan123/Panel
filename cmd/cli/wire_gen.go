@@ -11,6 +11,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/apache"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
 	"github.com/acepanel/panel/v3/internal/apps/docker"
+	"github.com/acepanel/panel/v3/internal/apps/elasticsearch"
 	"github.com/acepanel/panel/v3/internal/apps/fail2ban"
 	"github.com/acepanel/panel/v3/internal/apps/frp"
 	"github.com/acepanel/panel/v3/internal/apps/gitea"
@@ -21,6 +22,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
+	"github.com/acepanel/panel/v3/internal/apps/opensearch"
 	"github.com/acepanel/panel/v3/internal/apps/percona"
 	"github.com/acepanel/panel/v3/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/v3/internal/apps/podman"
@@ -31,6 +33,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
 	"github.com/acepanel/panel/v3/internal/apps/s3fs"
 	"github.com/acepanel/panel/v3/internal/apps/supervisor"
+	"github.com/acepanel/panel/v3/internal/apps/valkey"
 	"github.com/acepanel/panel/v3/internal/bootstrap"
 	"github.com/acepanel/panel/v3/internal/data"
 	"github.com/acepanel/panel/v3/internal/route"
@@ -79,6 +82,7 @@ func initCli() (*app.Cli, error) {
 	apacheApp := apache.NewApp(locale)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
+	elasticsearchApp := elasticsearch.NewApp(locale)
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
 	frpApp := frp.NewApp()
 	giteaApp := gitea.NewApp()
@@ -89,6 +93,7 @@ func initCli() (*app.Cli, error) {
 	mysqlApp := mysql.NewApp(locale, settingRepo, databaseServerRepo)
 	nginxApp := nginx.NewApp(locale)
 	openrestyApp := openresty.NewApp(locale)
+	opensearchApp := opensearch.NewApp(locale)
 	perconaApp := percona.NewApp(locale, settingRepo, databaseServerRepo)
 	phpmyadminApp := phpmyadmin.NewApp(locale)
 	podmanApp := podman.NewApp()
@@ -99,7 +104,8 @@ func initCli() (*app.Cli, error) {
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
-	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, fail2banApp, frpApp, giteaApp, grafanaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp)
+	valkeyApp := valkey.NewApp(locale, databaseServerRepo)
+	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
 	appCli := app.NewCli(command, gormigrate, loader)
 	return appCli, nil
 }

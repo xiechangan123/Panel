@@ -6,6 +6,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/apache"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
 	"github.com/acepanel/panel/v3/internal/apps/docker"
+	"github.com/acepanel/panel/v3/internal/apps/elasticsearch"
 	"github.com/acepanel/panel/v3/internal/apps/fail2ban"
 	"github.com/acepanel/panel/v3/internal/apps/frp"
 	"github.com/acepanel/panel/v3/internal/apps/gitea"
@@ -16,6 +17,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
+	"github.com/acepanel/panel/v3/internal/apps/opensearch"
 	"github.com/acepanel/panel/v3/internal/apps/percona"
 	"github.com/acepanel/panel/v3/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/v3/internal/apps/podman"
@@ -26,12 +28,14 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
 	"github.com/acepanel/panel/v3/internal/apps/s3fs"
 	"github.com/acepanel/panel/v3/internal/apps/supervisor"
+	"github.com/acepanel/panel/v3/internal/apps/valkey"
 )
 
 var ProviderSet = wire.NewSet(
 	apache.NewApp,
 	codeserver.NewApp,
 	docker.NewApp,
+	elasticsearch.NewApp,
 	fail2ban.NewApp,
 	frp.NewApp,
 	gitea.NewApp,
@@ -42,6 +46,7 @@ var ProviderSet = wire.NewSet(
 	mysql.NewApp,
 	nginx.NewApp,
 	openresty.NewApp,
+	opensearch.NewApp,
 	percona.NewApp,
 	phpmyadmin.NewApp,
 	podman.NewApp,
@@ -52,4 +57,5 @@ var ProviderSet = wire.NewSet(
 	rsync.NewApp,
 	s3fs.NewApp,
 	supervisor.NewApp,
+	valkey.NewApp,
 )
