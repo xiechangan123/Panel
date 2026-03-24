@@ -266,7 +266,14 @@ func (s *App) UpdateDataSource(w http.ResponseWriter, r *http.Request) {
 	for i, item := range list {
 		if ds, ok := item.(map[string]any); ok && ds["name"] == oldName {
 			found = true
-			list[i] = s.buildDatasourceMap(req)
+			newDs := s.buildDatasourceMap(req)
+			// 密码为空时保留原有 secureJsonData
+			if req.Password == "" {
+				if sec, exists := ds["secureJsonData"]; exists {
+					newDs["secureJsonData"] = sec
+				}
+			}
+			list[i] = newDs
 			break
 		}
 	}

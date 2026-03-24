@@ -15,6 +15,7 @@ export default {
   datasources: (): any => http.Get('/apps/grafana/datasources'),
   createDatasource: (data: any): any => http.Post('/apps/grafana/datasources', data),
   updateDatasource: (name: string, data: any): any =>
-    http.Post(`/apps/grafana/datasources/${name}`, data),
-  deleteDatasource: (name: string): any => http.Delete(`/apps/grafana/datasources/${name}`)
+    http.Post(`/apps/grafana/datasources/${encodeURIComponent(name)}`, data),
+  deleteDatasource: (name: string): any =>
+    http.Delete(`/apps/grafana/datasources/${encodeURIComponent(name)}`)
 }
