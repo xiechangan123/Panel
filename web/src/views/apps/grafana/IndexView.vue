@@ -60,7 +60,25 @@ const handleSaveConfig = () => {
   <common-page show-footer>
     <n-tabs v-model:value="currentTab" type="line" animated>
       <n-tab-pane name="status" :tab="$gettext('Running Status')">
-        <service-status service="grafana" />
+        <n-flex vertical>
+          <service-status service="grafana" />
+          <n-alert :title="$gettext('Recommended Dashboards')" type="info">
+            <n-flex vertical :size="2">
+              <span>{{ $gettext('Import dashboards in Grafana via Dashboard ID:') }}</span>
+              <n-ul>
+                <n-li>Node Exporter — <n-text code>1860</n-text></n-li>
+                <n-li>MySQL — <n-text code>14057</n-text></n-li>
+                <n-li>PostgreSQL — <n-text code>9628</n-text></n-li>
+                <n-li>Redis — <n-text code>11835</n-text> / <n-text code>14091</n-text></n-li>
+                <n-li>Memcached — <n-text code>37</n-text></n-li>
+                <n-li>Nginx — <n-text code>12708</n-text></n-li>
+              </n-ul>
+              <span>
+                {{ $gettext('Go to Grafana → Dashboards → New → Import, enter the ID above and select the Prometheus data source.') }}
+              </span>
+            </n-flex>
+          </n-alert>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="config" :tab="$gettext('Main Configuration')">
         <n-flex vertical>
