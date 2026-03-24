@@ -11,6 +11,10 @@ export default {
   configTune: (): any => http.Get('/apps/prometheus/config_tune'),
   // 保存配置调整参数
   saveConfigTune: (data: any): any => http.Post('/apps/prometheus/config_tune', data),
+  // Alertmanager 配置
+  alertmanagerConfig: (): any => http.Get('/apps/prometheus/alertmanager_config'),
+  saveAlertmanagerConfig: (config: string): any =>
+    http.Post('/apps/prometheus/alertmanager_config', { config }),
   // Exporters 管理
   exporters: (): any => http.Get('/apps/prometheus/exporters'),
   installExporter: (slug: string): any => http.Post('/apps/prometheus/exporters', { slug }),

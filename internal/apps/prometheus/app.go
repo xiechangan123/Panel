@@ -38,6 +38,9 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 	r.Get("/config_tune", s.GetConfigTune)
 	r.Post("/config_tune", s.UpdateConfigTune)
+	// Alertmanager 配置
+	r.Get("/alertmanager_config", s.GetAlertmanagerConfig)
+	r.Post("/alertmanager_config", s.UpdateAlertmanagerConfig)
 	// Exporters 管理
 	r.Get("/exporters", s.ExporterList)
 	r.Post("/exporters", s.InstallExporter)
@@ -185,6 +188,33 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = systemctl.Restart("prometheus"); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// GetAlertmanagerConfig 获取 Alertmanager 配置
+func (s *App) GetAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
+	conf, _ := io.Read(fmt.Sprintf("%s/server/prometheus/alertmanager/alertmanager.yml", app.Root))
+	service.Success(w, conf)
+}
+
+// UpdateAlertmanagerConfig 更新 Alertmanager 配置
+func (s *App) UpdateAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[UpdateConfig](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = io.Write(fmt.Sprintf("%s/server/prometheus/alertmanager/alertmanager.yml", app.Root), req.Config, 0644); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	if err = systemctl.Restart("alertmanager"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
