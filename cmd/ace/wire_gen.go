@@ -16,6 +16,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/frp"
 	"github.com/acepanel/panel/v3/internal/apps/gitea"
 	"github.com/acepanel/panel/v3/internal/apps/grafana"
+	"github.com/acepanel/panel/v3/internal/apps/kafka"
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
@@ -30,6 +31,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/prometheus"
 	"github.com/acepanel/panel/v3/internal/apps/pureftpd"
 	"github.com/acepanel/panel/v3/internal/apps/redis"
+	"github.com/acepanel/panel/v3/internal/apps/rocketmq"
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
 	"github.com/acepanel/panel/v3/internal/apps/s3fs"
 	"github.com/acepanel/panel/v3/internal/apps/supervisor"
@@ -168,6 +170,7 @@ func initAce() (*app.Ace, error) {
 	frpApp := frp.NewApp()
 	giteaApp := gitea.NewApp()
 	grafanaApp := grafana.NewApp(locale)
+	kafkaApp := kafka.NewApp(locale)
 	mariadbApp := mariadb.NewApp(locale, settingRepo, databaseServerRepo)
 	memcachedApp := memcached.NewApp(locale)
 	minioApp := minio.NewApp()
@@ -182,11 +185,12 @@ func initAce() (*app.Ace, error) {
 	prometheusApp := prometheus.NewApp(locale, config, taskRepo)
 	pureftpdApp := pureftpd.NewApp(locale)
 	redisApp := redis.NewApp(locale, databaseServerRepo)
+	rocketmqApp := rocketmq.NewApp(locale)
 	rsyncApp := rsync.NewApp(locale)
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	valkeyApp := valkey.NewApp(locale, databaseServerRepo)
-	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
+	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
 	http := route.NewHttp(config, userService, userPasskeyService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseRedisService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, environmentDotnetService, cronService, processService, safeService, firewallService, firewallScanService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxNetworkService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, websiteStatService, loader)
 	wsService := service.NewWsService(locale, config, logger, sshRepo, settingRepo)
 	ws := route.NewWs(wsService, toolboxMigrationService)

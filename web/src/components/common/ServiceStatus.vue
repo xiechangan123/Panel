@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     required: true
   },
+  title: {
+    type: String,
+    required: false
+  },
   showReload: {
     type: Boolean,
     required: false
@@ -131,7 +135,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <n-card :title="$gettext('Running Status')">
+  <n-card :title="props.title ?? $gettext('Running Status')">
     <template #header-extra>
       <n-switch
         :disabled="fetchingIsEnabled"

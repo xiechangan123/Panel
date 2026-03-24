@@ -11,6 +11,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/frp"
 	"github.com/acepanel/panel/v3/internal/apps/gitea"
 	"github.com/acepanel/panel/v3/internal/apps/grafana"
+	"github.com/acepanel/panel/v3/internal/apps/kafka"
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
@@ -25,6 +26,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/prometheus"
 	"github.com/acepanel/panel/v3/internal/apps/pureftpd"
 	"github.com/acepanel/panel/v3/internal/apps/redis"
+	"github.com/acepanel/panel/v3/internal/apps/rocketmq"
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
 	"github.com/acepanel/panel/v3/internal/apps/s3fs"
 	"github.com/acepanel/panel/v3/internal/apps/supervisor"
@@ -40,6 +42,7 @@ var ProviderSet = wire.NewSet(
 	frp.NewApp,
 	gitea.NewApp,
 	grafana.NewApp,
+	kafka.NewApp,
 	mariadb.NewApp,
 	memcached.NewApp,
 	minio.NewApp,
@@ -54,6 +57,7 @@ var ProviderSet = wire.NewSet(
 	prometheus.NewApp,
 	pureftpd.NewApp,
 	redis.NewApp,
+	rocketmq.NewApp,
 	rsync.NewApp,
 	s3fs.NewApp,
 	supervisor.NewApp,

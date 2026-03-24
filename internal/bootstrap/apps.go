@@ -9,6 +9,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/frp"
 	"github.com/acepanel/panel/v3/internal/apps/gitea"
 	"github.com/acepanel/panel/v3/internal/apps/grafana"
+	"github.com/acepanel/panel/v3/internal/apps/kafka"
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
@@ -23,6 +24,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/prometheus"
 	"github.com/acepanel/panel/v3/internal/apps/pureftpd"
 	"github.com/acepanel/panel/v3/internal/apps/redis"
+	"github.com/acepanel/panel/v3/internal/apps/rocketmq"
 	"github.com/acepanel/panel/v3/internal/apps/rsync"
 	"github.com/acepanel/panel/v3/internal/apps/s3fs"
 	"github.com/acepanel/panel/v3/internal/apps/supervisor"
@@ -39,6 +41,7 @@ func NewLoader(
 	frp *frp.App,
 	gitea *gitea.App,
 	grafana *grafana.App,
+	kafka *kafka.App,
 	mariadb *mariadb.App,
 	memcached *memcached.App,
 	minio *minio.App,
@@ -53,12 +56,13 @@ func NewLoader(
 	prometheus *prometheus.App,
 	pureftpd *pureftpd.App,
 	redis *redis.App,
+	rocketmq *rocketmq.App,
 	rsync *rsync.App,
 	s3fs *s3fs.App,
 	supervisor *supervisor.App,
 	valkey *valkey.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(apache, codeserver, docker, elasticsearch, fail2ban, frp, gitea, grafana, mariadb, memcached, minio, mysql, nginx, openresty, opensearch, percona, phpmyadmin, podman, postgresql, prometheus, pureftpd, redis, rsync, s3fs, supervisor, valkey)
+	loader.Add(apache, codeserver, docker, elasticsearch, fail2ban, frp, gitea, grafana, kafka, mariadb, memcached, minio, mysql, nginx, openresty, opensearch, percona, phpmyadmin, podman, postgresql, prometheus, pureftpd, redis, rocketmq, rsync, s3fs, supervisor, valkey)
 	return loader
 }
