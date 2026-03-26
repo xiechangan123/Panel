@@ -31,7 +31,9 @@ const getLabelFromPath = (path: string): string => {
   return path.split('/').pop() || '/'
 }
 
-const generateTabId = (): string => `tab-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+let tabIdCounter = 0
+const generateTabId = (): string =>
+  `tab-${Date.now()}-${tabIdCounter++}-${Math.random().toString(36).slice(2, 9)}`
 
 // 创建新标签页
 const createNewTab = (path: string): FileTab => ({

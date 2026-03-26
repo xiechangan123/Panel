@@ -63,7 +63,10 @@ const readClipboardText = async (): Promise<string> => {
   if (window.isSecureContext && navigator.clipboard?.readText) {
     return navigator.clipboard.readText()
   }
-  return Promise.resolve(window.prompt($gettext('Paste')) ?? '')
+  return Promise.resolve(
+    window.prompt($gettext('Please paste text manually (clipboard is unavailable in non-HTTPS context)')) ??
+      ''
+  )
 }
 
 // 本机选项
