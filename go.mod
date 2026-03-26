@@ -23,7 +23,7 @@ require (
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
-	github.com/gookit/validate v1.5.7-0.20260316033259-350536cc8a5e
+	github.com/gookit/validate v1.5.7-0.20260325020137-d265741f19a7
 	github.com/hashicorp/go-version v1.8.0
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.12.0
@@ -59,7 +59,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/studio-b12/gowebdav v0.12.0
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
-	github.com/urfave/cli/v3 v3.7.0
+	github.com/urfave/cli/v3 v3.8.0
 	github.com/valyala/fastjson v1.6.10
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
 	golang.org/x/crypto v0.49.0
