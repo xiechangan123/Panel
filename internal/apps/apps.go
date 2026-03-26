@@ -4,6 +4,7 @@ import (
 	"github.com/google/wire"
 
 	"github.com/acepanel/panel/v3/internal/apps/apache"
+	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
 	"github.com/acepanel/panel/v3/internal/apps/docker"
 	"github.com/acepanel/panel/v3/internal/apps/elasticsearch"
@@ -15,6 +16,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
+	"github.com/acepanel/panel/v3/internal/apps/mongodb"
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
@@ -35,6 +37,7 @@ import (
 
 var ProviderSet = wire.NewSet(
 	apache.NewApp,
+	clickhouse.NewApp,
 	codeserver.NewApp,
 	docker.NewApp,
 	elasticsearch.NewApp,
@@ -46,6 +49,7 @@ var ProviderSet = wire.NewSet(
 	mariadb.NewApp,
 	memcached.NewApp,
 	minio.NewApp,
+	mongodb.NewApp,
 	mysql.NewApp,
 	nginx.NewApp,
 	openresty.NewApp,

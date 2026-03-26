@@ -12,6 +12,7 @@ const (
 	DatabaseTypeMysql      DatabaseType = "mysql"
 	DatabaseTypePostgresql DatabaseType = "postgresql"
 	DatabaseTypeMongoDB    DatabaseType = "mongodb"
+	DatabaseTypeClickHouse DatabaseType = "clickhouse"
 	DatabaseSQLite         DatabaseType = "sqlite"
 	DatabaseTypeRedis      DatabaseType = "redis"
 )

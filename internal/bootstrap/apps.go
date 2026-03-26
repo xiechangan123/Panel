@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"github.com/acepanel/panel/v3/internal/apps/apache"
+	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
 	"github.com/acepanel/panel/v3/internal/apps/docker"
 	"github.com/acepanel/panel/v3/internal/apps/elasticsearch"
@@ -13,6 +14,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
+	"github.com/acepanel/panel/v3/internal/apps/mongodb"
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
@@ -34,6 +36,7 @@ import (
 
 func NewLoader(
 	apache *apache.App,
+	clickhouse *clickhouse.App,
 	codeserver *codeserver.App,
 	docker *docker.App,
 	elasticsearch *elasticsearch.App,
@@ -45,6 +48,7 @@ func NewLoader(
 	mariadb *mariadb.App,
 	memcached *memcached.App,
 	minio *minio.App,
+	mongodb *mongodb.App,
 	mysql *mysql.App,
 	nginx *nginx.App,
 	openresty *openresty.App,
@@ -63,6 +67,6 @@ func NewLoader(
 	valkey *valkey.App,
 ) *apploader.Loader {
 	loader := new(apploader.Loader)
-	loader.Add(apache, codeserver, docker, elasticsearch, fail2ban, frp, gitea, grafana, kafka, mariadb, memcached, minio, mysql, nginx, openresty, opensearch, percona, phpmyadmin, podman, postgresql, prometheus, pureftpd, redis, rocketmq, rsync, s3fs, supervisor, valkey)
+	loader.Add(apache, clickhouse, codeserver, docker, elasticsearch, fail2ban, frp, gitea, grafana, kafka, mariadb, memcached, minio, mongodb, mysql, nginx, openresty, opensearch, percona, phpmyadmin, podman, postgresql, prometheus, pureftpd, redis, rocketmq, rsync, s3fs, supervisor, valkey)
 	return loader
 }

@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/apache"
+	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
 	"github.com/acepanel/panel/v3/internal/apps/docker"
 	"github.com/acepanel/panel/v3/internal/apps/elasticsearch"
@@ -20,6 +21,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/mariadb"
 	"github.com/acepanel/panel/v3/internal/apps/memcached"
 	"github.com/acepanel/panel/v3/internal/apps/minio"
+	"github.com/acepanel/panel/v3/internal/apps/mongodb"
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
@@ -163,6 +165,7 @@ func initAce() (*app.Ace, error) {
 	aggregator := websitestat.NewAggregator()
 	websiteStatService := service.NewWebsiteStatService(settingRepo, websiteStatRepo, websiteRepo, aggregator)
 	apacheApp := apache.NewApp(locale)
+	clickhouseApp := clickhouse.NewApp(locale, settingRepo, databaseServerRepo)
 	codeserverApp := codeserver.NewApp()
 	dockerApp := docker.NewApp()
 	elasticsearchApp := elasticsearch.NewApp(locale)
@@ -174,6 +177,7 @@ func initAce() (*app.Ace, error) {
 	mariadbApp := mariadb.NewApp(locale, settingRepo, databaseServerRepo)
 	memcachedApp := memcached.NewApp(locale)
 	minioApp := minio.NewApp()
+	mongodbApp := mongodb.NewApp(locale, settingRepo, databaseServerRepo)
 	mysqlApp := mysql.NewApp(locale, settingRepo, databaseServerRepo)
 	nginxApp := nginx.NewApp(locale)
 	openrestyApp := openresty.NewApp(locale)
@@ -190,7 +194,7 @@ func initAce() (*app.Ace, error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	valkeyApp := valkey.NewApp(locale, databaseServerRepo)
-	loader := bootstrap.NewLoader(apacheApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
+	loader := bootstrap.NewLoader(apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
 	http := route.NewHttp(config, userService, userPasskeyService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseRedisService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, environmentDotnetService, cronService, processService, safeService, firewallService, firewallScanService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxNetworkService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, websiteStatService, loader)
 	wsService := service.NewWsService(locale, config, logger, sshRepo, settingRepo)
 	ws := route.NewWs(wsService, toolboxMigrationService)

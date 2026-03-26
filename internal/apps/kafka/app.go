@@ -145,7 +145,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 // configPath 返回配置文件路径
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/kafka/config/kraft/server.properties", app.Root)
+	return fmt.Sprintf("%s/server/kafka/config/server.properties", app.Root)
 }
 
 // heapEnvPath 返回 JVM 堆内存配置文件路径
