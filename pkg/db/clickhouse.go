@@ -185,10 +185,10 @@ func (r *ClickHouse) Databases() ([]Database, error) {
 // exec 通过 HTTP API 执行 SQL
 func (r *ClickHouse) exec(query string) (string, error) {
 	resp, err := r.client.R().
-		SetQueryParam("query", query).
 		SetQueryParam("user", r.username).
 		SetQueryParam("password", r.password).
-		Get("/")
+		SetBody(query).
+		Post("/")
 	if err != nil {
 		return "", fmt.Errorf("clickhouse query failed: %w", err)
 	}

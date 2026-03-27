@@ -140,6 +140,14 @@ func (r *databaseUserRepo) Update(req *request.DatabaseUserUpdate) error {
 		user.Password = req.Password
 	}
 
+	// 撤销被移除的权限
+	currentPrivileges, _ := operator.UserPrivileges(user.Username, user.Host)
+	for name := range slices.Values(currentPrivileges) {
+		if !slices.Contains(req.Privileges, name) {
+			_ = operator.PrivilegesRevoke(user.Username, name, user.Host)
+		}
+	}
+
 	// 创建数据库并授权
 	for name := range slices.Values(req.Privileges) {
 		if err = operator.DatabaseCreate(name); err != nil {
