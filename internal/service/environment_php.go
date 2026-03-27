@@ -416,6 +416,11 @@ func (s *EnvironmentPHPService) getModules(version uint) []types.EnvironmentPHPM
 			Description: s.t.Get("Memcached is a driver for connecting to Memcached servers"),
 		},
 		{
+			Name:        "APCu",
+			Slug:        "apcu",
+			Description: s.t.Get("APCu is a user-level cache for PHP, providing fast in-memory key-value storage"),
+		},
+		{
 			Name:        "ImageMagick",
 			Slug:        "imagick",
 			Description: s.t.Get("ImageMagick is free software for creating, editing, and composing images"),
