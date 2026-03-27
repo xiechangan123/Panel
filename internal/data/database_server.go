@@ -142,7 +142,7 @@ func (r *databaseServerRepo) Sync(id uint) error {
 
 	// 非 Operator 类型不支持用户同步
 	switch server.Type {
-	case biz.DatabaseTypeRedis, biz.DatabaseTypeMongoDB, biz.DatabaseTypeSQLite:
+	case biz.DatabaseTypeRedis, biz.DatabaseTypeMongoDB, biz.DatabaseTypeSQLite, biz.DatabaseTypeElasticsearch:
 		return fmt.Errorf("sync is not supported for %s", server.Type)
 	}
 
@@ -249,6 +249,13 @@ func (r *databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
 		sqlite, err := db.NewSQLite(server.Host)
 		if err == nil {
 			sqlite.Close()
+			server.Status = biz.DatabaseServerStatusValid
+			return true
+		}
+	case biz.DatabaseTypeElasticsearch:
+		es, err := db.NewElasticsearch(fmt.Sprintf("%s:%d", server.Host, server.Port), server.Username, server.Password)
+		if err == nil {
+			es.Close()
 			server.Status = biz.DatabaseServerStatusValid
 			return true
 		}

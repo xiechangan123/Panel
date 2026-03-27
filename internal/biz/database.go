@@ -9,12 +9,13 @@ import (
 type DatabaseType string
 
 const (
-	DatabaseTypeMysql      DatabaseType = "mysql"
-	DatabaseTypePostgresql DatabaseType = "postgresql"
-	DatabaseTypeMongoDB    DatabaseType = "mongodb"
-	DatabaseTypeClickHouse DatabaseType = "clickhouse"
-	DatabaseTypeSQLite     DatabaseType = "sqlite"
-	DatabaseTypeRedis      DatabaseType = "redis"
+	DatabaseTypeMysql         DatabaseType = "mysql"
+	DatabaseTypePostgresql    DatabaseType = "postgresql"
+	DatabaseTypeMongoDB       DatabaseType = "mongodb"
+	DatabaseTypeClickHouse    DatabaseType = "clickhouse"
+	DatabaseTypeSQLite        DatabaseType = "sqlite"
+	DatabaseTypeRedis         DatabaseType = "redis"
+	DatabaseTypeElasticsearch DatabaseType = "elasticsearch"
 )
 
 type Database struct {

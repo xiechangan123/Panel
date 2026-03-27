@@ -16,6 +16,7 @@ const defaultPort = (type: string) => {
   if (type === 'clickhouse') return 8123
   if (type === 'mongodb') return 27017
   if (type === 'sqlite') return 0
+  if (type === 'elasticsearch') return 9200
   return 3306
 }
 
@@ -35,6 +36,7 @@ const typeOptions = [
   { label: 'ClickHouse', value: 'clickhouse' },
   { label: 'MongoDB', value: 'mongodb' },
   { label: 'SQLite', value: 'sqlite' },
+  { label: 'Elasticsearch', value: 'elasticsearch' },
   { label: 'Redis', value: 'redis' }
 ]
 

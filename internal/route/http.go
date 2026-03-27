@@ -21,58 +21,59 @@ import (
 )
 
 type Http struct {
-	conf              *config.Config
-	user              *service.UserService
-	userPasskey       *service.UserPasskeyService
-	userToken         *service.UserTokenService
-	home              *service.HomeService
-	task              *service.TaskService
-	website           *service.WebsiteService
-	project           *service.ProjectService
-	database          *service.DatabaseService
-	databaseServer    *service.DatabaseServerService
-	databaseRedis     *service.DatabaseRedisService
-	databaseUser      *service.DatabaseUserService
-	backup            *service.BackupService
-	backupStorage     *service.BackupStorageService
-	cert              *service.CertService
-	certDNS           *service.CertDNSService
-	certAccount       *service.CertAccountService
-	app               *service.AppService
-	environment       *service.EnvironmentService
-	environmentGo     *service.EnvironmentGoService
-	environmentJava   *service.EnvironmentJavaService
-	environmentNodejs *service.EnvironmentNodejsService
-	environmentPHP    *service.EnvironmentPHPService
-	environmentPython *service.EnvironmentPythonService
-	environmentDotnet *service.EnvironmentDotnetService
-	cron              *service.CronService
-	process           *service.ProcessService
-	safe              *service.SafeService
-	firewall          *service.FirewallService
-	firewallScan      *service.FirewallScanService
-	ssh               *service.SSHService
-	container         *service.ContainerService
-	containerCompose  *service.ContainerComposeService
-	containerNetwork  *service.ContainerNetworkService
-	containerImage    *service.ContainerImageService
-	containerVolume   *service.ContainerVolumeService
-	file              *service.FileService
-	log               *service.LogService
-	monitor           *service.MonitorService
-	setting           *service.SettingService
-	systemctl         *service.SystemctlService
-	toolboxNetwork    *service.ToolboxNetworkService
-	toolboxSystem     *service.ToolboxSystemService
-	toolboxBenchmark  *service.ToolboxBenchmarkService
-	toolboxSSH        *service.ToolboxSSHService
-	toolboxDisk       *service.ToolboxDiskService
-	toolboxLog        *service.ToolboxLogService
-	toolboxMigration  *service.ToolboxMigrationService
-	webhook           *service.WebHookService
-	template          *service.TemplateService
-	websiteStat       *service.WebsiteStatService
-	apps              *apploader.Loader
+	conf                  *config.Config
+	user                  *service.UserService
+	userPasskey           *service.UserPasskeyService
+	userToken             *service.UserTokenService
+	home                  *service.HomeService
+	task                  *service.TaskService
+	website               *service.WebsiteService
+	project               *service.ProjectService
+	database              *service.DatabaseService
+	databaseServer        *service.DatabaseServerService
+	databaseRedis         *service.DatabaseRedisService
+	databaseElasticsearch *service.DatabaseElasticsearchService
+	databaseUser          *service.DatabaseUserService
+	backup                *service.BackupService
+	backupStorage         *service.BackupStorageService
+	cert                  *service.CertService
+	certDNS               *service.CertDNSService
+	certAccount           *service.CertAccountService
+	app                   *service.AppService
+	environment           *service.EnvironmentService
+	environmentGo         *service.EnvironmentGoService
+	environmentJava       *service.EnvironmentJavaService
+	environmentNodejs     *service.EnvironmentNodejsService
+	environmentPHP        *service.EnvironmentPHPService
+	environmentPython     *service.EnvironmentPythonService
+	environmentDotnet     *service.EnvironmentDotnetService
+	cron                  *service.CronService
+	process               *service.ProcessService
+	safe                  *service.SafeService
+	firewall              *service.FirewallService
+	firewallScan          *service.FirewallScanService
+	ssh                   *service.SSHService
+	container             *service.ContainerService
+	containerCompose      *service.ContainerComposeService
+	containerNetwork      *service.ContainerNetworkService
+	containerImage        *service.ContainerImageService
+	containerVolume       *service.ContainerVolumeService
+	file                  *service.FileService
+	log                   *service.LogService
+	monitor               *service.MonitorService
+	setting               *service.SettingService
+	systemctl             *service.SystemctlService
+	toolboxNetwork        *service.ToolboxNetworkService
+	toolboxSystem         *service.ToolboxSystemService
+	toolboxBenchmark      *service.ToolboxBenchmarkService
+	toolboxSSH            *service.ToolboxSSHService
+	toolboxDisk           *service.ToolboxDiskService
+	toolboxLog            *service.ToolboxLogService
+	toolboxMigration      *service.ToolboxMigrationService
+	webhook               *service.WebHookService
+	template              *service.TemplateService
+	websiteStat           *service.WebsiteStatService
+	apps                  *apploader.Loader
 }
 
 func NewHttp(
@@ -87,6 +88,7 @@ func NewHttp(
 	database *service.DatabaseService,
 	databaseServer *service.DatabaseServerService,
 	databaseRedis *service.DatabaseRedisService,
+	databaseElasticsearch *service.DatabaseElasticsearchService,
 	databaseUser *service.DatabaseUserService,
 	backup *service.BackupService,
 	backupStorage *service.BackupStorageService,
@@ -130,58 +132,59 @@ func NewHttp(
 	apps *apploader.Loader,
 ) *Http {
 	return &Http{
-		conf:              conf,
-		user:              user,
-		userPasskey:       userPasskey,
-		userToken:         userToken,
-		home:              home,
-		task:              task,
-		website:           website,
-		project:           project,
-		database:          database,
-		databaseServer:    databaseServer,
-		databaseRedis:     databaseRedis,
-		databaseUser:      databaseUser,
-		backup:            backup,
-		backupStorage:     backupStorage,
-		cert:              cert,
-		certDNS:           certDNS,
-		certAccount:       certAccount,
-		app:               app,
-		environment:       environment,
-		environmentGo:     environmentGo,
-		environmentJava:   environmentJava,
-		environmentNodejs: environmentNodejs,
-		environmentPHP:    environmentPHP,
-		environmentPython: environmentPython,
-		environmentDotnet: environmentDotnet,
-		cron:              cron,
-		process:           process,
-		safe:              safe,
-		firewall:          firewall,
-		firewallScan:      firewallScan,
-		ssh:               ssh,
-		container:         container,
-		containerCompose:  containerCompose,
-		containerNetwork:  containerNetwork,
-		containerImage:    containerImage,
-		containerVolume:   containerVolume,
-		file:              file,
-		log:               log,
-		monitor:           monitor,
-		setting:           setting,
-		systemctl:         systemctl,
-		toolboxNetwork:    toolboxNetwork,
-		toolboxSystem:     toolboxSystem,
-		toolboxBenchmark:  toolboxBenchmark,
-		toolboxSSH:        toolboxSSH,
-		toolboxDisk:       toolboxDisk,
-		toolboxLog:        toolboxLog,
-		toolboxMigration:  toolboxMigration,
-		webhook:           webhook,
-		template:          template,
-		websiteStat:       websiteStat,
-		apps:              apps,
+		conf:                  conf,
+		user:                  user,
+		userPasskey:           userPasskey,
+		userToken:             userToken,
+		home:                  home,
+		task:                  task,
+		website:               website,
+		project:               project,
+		database:              database,
+		databaseServer:        databaseServer,
+		databaseRedis:         databaseRedis,
+		databaseElasticsearch: databaseElasticsearch,
+		databaseUser:          databaseUser,
+		backup:                backup,
+		backupStorage:         backupStorage,
+		cert:                  cert,
+		certDNS:               certDNS,
+		certAccount:           certAccount,
+		app:                   app,
+		environment:           environment,
+		environmentGo:         environmentGo,
+		environmentJava:       environmentJava,
+		environmentNodejs:     environmentNodejs,
+		environmentPHP:        environmentPHP,
+		environmentPython:     environmentPython,
+		environmentDotnet:     environmentDotnet,
+		cron:                  cron,
+		process:               process,
+		safe:                  safe,
+		firewall:              firewall,
+		firewallScan:          firewallScan,
+		ssh:                   ssh,
+		container:             container,
+		containerCompose:      containerCompose,
+		containerNetwork:      containerNetwork,
+		containerImage:        containerImage,
+		containerVolume:       containerVolume,
+		file:                  file,
+		log:                   log,
+		monitor:               monitor,
+		setting:               setting,
+		systemctl:             systemctl,
+		toolboxNetwork:        toolboxNetwork,
+		toolboxSystem:         toolboxSystem,
+		toolboxBenchmark:      toolboxBenchmark,
+		toolboxSSH:            toolboxSSH,
+		toolboxDisk:           toolboxDisk,
+		toolboxLog:            toolboxLog,
+		toolboxMigration:      toolboxMigration,
+		webhook:               webhook,
+		template:              template,
+		websiteStat:           websiteStat,
+		apps:                  apps,
 	}
 }
 
@@ -326,6 +329,16 @@ func (route *Http) Register(r *chi.Mux) {
 			r.Post("/key/ttl", route.databaseRedis.KeyTTL)
 			r.Post("/key/rename", route.databaseRedis.KeyRename)
 			r.Post("/clear", route.databaseRedis.Clear)
+		})
+
+		r.Route("/database_elasticsearch", func(r chi.Router) {
+			r.Get("/indices", route.databaseElasticsearch.Indices)
+			r.Post("/index", route.databaseElasticsearch.IndexCreate)
+			r.Delete("/index", route.databaseElasticsearch.IndexDelete)
+			r.Get("/data", route.databaseElasticsearch.Data)
+			r.Get("/document", route.databaseElasticsearch.DocumentGet)
+			r.Post("/document", route.databaseElasticsearch.DocumentSet)
+			r.Delete("/document", route.databaseElasticsearch.DocumentDelete)
 		})
 
 		r.Route("/backup", func(r chi.Router) {

@@ -63,5 +63,25 @@ export default {
     http.Post('/database_redis/key/rename', { server_id, db, old_key, new_key }),
   // Redis 清空数据库
   redisClear: (server_id: number, db: number) =>
-    http.Post('/database_redis/clear', { server_id, db })
+    http.Post('/database_redis/clear', { server_id, db }),
+  // Elasticsearch 获取索引列表
+  esIndices: (server_id: number) =>
+    http.Get('/database_elasticsearch/indices', { params: { server_id } }),
+  // Elasticsearch 创建索引
+  esIndexCreate: (server_id: number, name: string) =>
+    http.Post('/database_elasticsearch/index', { server_id, name }),
+  // Elasticsearch 删除索引
+  esIndexDelete: (server_id: number, name: string) =>
+    http.Delete('/database_elasticsearch/index', { server_id, name }),
+  // Elasticsearch 搜索文档
+  esData: (server_id: number, index: string, page: number, limit: number, search?: string) =>
+    http.Get('/database_elasticsearch/data', { params: { server_id, index, page, limit, search } }),
+  // Elasticsearch 获取文档
+  esDocumentGet: (server_id: number, index: string, id: string) =>
+    http.Get('/database_elasticsearch/document', { params: { server_id, index, id } }),
+  // Elasticsearch 创建/更新文档
+  esDocumentSet: (data: any) => http.Post('/database_elasticsearch/document', data),
+  // Elasticsearch 删除文档
+  esDocumentDelete: (server_id: number, index: string, id: string) =>
+    http.Delete('/database_elasticsearch/document', { server_id, index, id })
 }

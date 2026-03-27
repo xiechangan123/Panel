@@ -49,6 +49,9 @@ const openTerminal = (row: any) => {
   } else if (row.type === 'sqlite') {
     terminalTitle.value = `SQLite - ${row.name}`
     terminalCommand.value = `sqlite3 '${row.host}'`
+  } else if (row.type === 'elasticsearch') {
+    terminalTitle.value = `Elasticsearch - ${row.name}`
+    terminalCommand.value = `curl -s 'http://${row.host}:${row.port}/_cat/indices?v'`
   } else {
     window.$message.error($gettext('Unsupported database type'))
     return
@@ -170,7 +173,7 @@ const columns: any = [
             default: () => $gettext('Terminal')
           }
         ),
-        !['redis', 'mongodb', 'sqlite'].includes(row.type)
+        !['redis', 'mongodb', 'sqlite', 'elasticsearch'].includes(row.type)
           ? h(
               NPopconfirm,
               {
@@ -223,7 +226,7 @@ const columns: any = [
           {
             onPositiveClick: () => {
               // 防手贱
-              if (['local_mysql', 'local_postgresql', 'local_redis', 'local_clickhouse', 'local_mongodb'].includes(row.name)) {
+              if (['local_mysql', 'local_postgresql', 'local_redis', 'local_valkey', 'local_clickhouse', 'local_mongodb', 'local_elasticsearch', 'local_opensearch'].includes(row.name)) {
                 window.$message.error(
                   $gettext(
                     'Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app'
