@@ -27,6 +27,9 @@ const createServerModalShow = ref(false)
       <n-tabs v-model:value="currentTab" animated>
         <n-tab name="mysql" tab="MySQL" />
         <n-tab name="postgresql" tab="PostgreSQL" />
+        <n-tab name="clickhouse" tab="ClickHouse" />
+        <n-tab name="mongodb" tab="MongoDB" />
+        <n-tab name="sqlite" tab="SQLite" />
         <n-tab name="redis" tab="Redis" />
         <n-tab name="user" :tab="$gettext('User')" />
         <n-tab name="server" :tab="$gettext('Server')" />
@@ -35,7 +38,7 @@ const createServerModalShow = ref(false)
     <n-flex vertical>
       <n-flex v-if="currentTab !== 'redis'">
         <n-button
-          v-if="currentTab === 'mysql' || currentTab === 'postgresql'"
+          v-if="['mysql', 'postgresql', 'clickhouse', 'mongodb'].includes(currentTab)"
           type="primary"
           @click="createDatabaseModalShow = true"
         >
@@ -54,6 +57,9 @@ const createServerModalShow = ref(false)
       </n-flex>
       <database-list v-if="currentTab === 'mysql'" type="mysql" />
       <database-list v-if="currentTab === 'postgresql'" type="postgresql" />
+      <database-list v-if="currentTab === 'clickhouse'" type="clickhouse" />
+      <database-list v-if="currentTab === 'mongodb'" type="mongodb" />
+      <database-list v-if="currentTab === 'sqlite'" type="sqlite" />
       <redis-data-view v-if="currentTab === 'redis'" />
       <user-list v-if="currentTab === 'user'" />
       <server-list v-if="currentTab === 'server'" />

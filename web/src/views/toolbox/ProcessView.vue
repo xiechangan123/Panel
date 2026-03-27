@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DataTableSortState, DropdownOption } from 'naive-ui'
-import { NTag } from 'naive-ui'
+import { NButton, NDropdown, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import process, { type ProcessListParams } from '@/api/panel/process'
@@ -54,24 +54,21 @@ const statusOptions = [
   { label: $gettext('Locked'), value: 'L' }
 ]
 
-// 右键菜单选项
-const dropdownOptions = computed<DropdownOption[]>(() => {
-  if (!selectedRow.value) return []
-  return [
-    { label: $gettext('View Details'), key: 'detail' },
-    { type: 'divider', key: 'd1' },
-    { label: $gettext('Terminate (SIGTERM)'), key: 'sigterm' },
-    { label: $gettext('Kill (SIGKILL)'), key: 'sigkill' },
-    { type: 'divider', key: 'd2' },
-    { label: $gettext('Stop (SIGSTOP)'), key: 'sigstop' },
-    { label: $gettext('Continue (SIGCONT)'), key: 'sigcont' },
-    { type: 'divider', key: 'd3' },
-    { label: $gettext('Interrupt (SIGINT)'), key: 'sigint' },
-    { label: $gettext('Hang Up (SIGHUP)'), key: 'sighup' },
-    { label: $gettext('User Signal 1 (SIGUSR1)'), key: 'sigusr1' },
-    { label: $gettext('User Signal 2 (SIGUSR2)'), key: 'sigusr2' }
-  ]
-})
+// 操作菜单选项
+const actionOptions: DropdownOption[] = [
+  { label: $gettext('View Details'), key: 'detail' },
+  { type: 'divider', key: 'd1' },
+  { label: $gettext('Terminate (SIGTERM)'), key: 'sigterm' },
+  { label: $gettext('Kill (SIGKILL)'), key: 'sigkill' },
+  { type: 'divider', key: 'd2' },
+  { label: $gettext('Stop (SIGSTOP)'), key: 'sigstop' },
+  { label: $gettext('Continue (SIGCONT)'), key: 'sigcont' },
+  { type: 'divider', key: 'd3' },
+  { label: $gettext('Interrupt (SIGINT)'), key: 'sigint' },
+  { label: $gettext('Hang Up (SIGHUP)'), key: 'sighup' },
+  { label: $gettext('User Signal 1 (SIGUSR1)'), key: 'sigusr1' },
+  { label: $gettext('User Signal 2 (SIGUSR2)'), key: 'sigusr2' }
+]
 
 // 渲染状态标签
 const renderStatus = (status: string) => {
@@ -167,10 +164,33 @@ const columns = computed<any[]>(() => [
     width: 240,
     sortOrder: sortKeyMapOrder.value.start_time || false,
     sorter: true
+  },
+  {
+    title: $gettext('Actions'),
+    key: 'actions',
+    width: 80,
+    fixed: 'right' as const,
+    render(row: any) {
+      return h(
+        NDropdown,
+        {
+          options: actionOptions,
+          trigger: 'click',
+          onSelect: (key: string) => {
+            selectedRow.value = row
+            handleDropdownSelect(key)
+          }
+        },
+        {
+          default: () =>
+            h(NButton, { size: 'small', ghost: true }, { default: () => $gettext('Actions') })
+        }
+      )
+    }
   }
 ])
 
-// 行属性 - 右键菜单
+// 行属性 - 右键菜单 & 双击查看详情
 const rowProps = (row: any) => {
   return {
     onContextmenu: (e: MouseEvent) => {
@@ -182,6 +202,9 @@ const rowProps = (row: any) => {
         dropdownX.value = e.clientX
         dropdownY.value = e.clientY
       })
+    },
+    onDblclick: () => {
+      handleShowDetail(row.pid)
     }
   }
 }
@@ -334,7 +357,7 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
       striped
       remote
       virtual-scroll
-      :scroll-x="1400"
+      :scroll-x="1480"
       :loading="loading"
       :columns="columns"
       :data="data"
@@ -361,7 +384,7 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
       trigger="manual"
       :x="dropdownX"
       :y="dropdownY"
-      :options="dropdownOptions"
+      :options="actionOptions"
       :show="showDropdown"
       :on-clickoutside="onCloseDropdown"
       @select="handleDropdownSelect"

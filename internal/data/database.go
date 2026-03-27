@@ -45,25 +45,58 @@ func (r *databaseRepo) List(page, limit uint, typ string) ([]*biz.Database, int6
 
 	database := make([]*biz.Database, 0)
 	for _, server := range databaseServer {
-		operator, err := r.getOperator(server)
-		if err != nil {
-			continue
-		}
-
-		if databases, err := operator.Databases(); err == nil {
-			for item := range slices.Values(databases) {
-				database = append(database, &biz.Database{
-					Type:     server.Type,
-					Name:     item.Name,
-					Server:   server.Name,
-					ServerID: server.ID,
-					Encoding: item.CharSet,
-					Comment:  item.Comment,
-				})
+		switch server.Type {
+		case biz.DatabaseTypeMongoDB:
+			mongo, err := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+			if err != nil {
+				continue
 			}
+			if databases, err := mongo.Databases(); err == nil {
+				for item := range slices.Values(databases) {
+					database = append(database, &biz.Database{
+						Type:     server.Type,
+						Name:     item.Name,
+						Server:   server.Name,
+						ServerID: server.ID,
+					})
+				}
+			}
+			mongo.Close()
+		case biz.DatabaseTypeSQLite:
+			sqlite, err := db.NewSQLite(server.Host)
+			if err != nil {
+				continue
+			}
+			if tables, err := sqlite.Tables(); err == nil {
+				for table := range slices.Values(tables) {
+					database = append(database, &biz.Database{
+						Type:     server.Type,
+						Name:     table,
+						Server:   server.Name,
+						ServerID: server.ID,
+					})
+				}
+			}
+			sqlite.Close()
+		default:
+			operator, err := r.getOperator(server)
+			if err != nil {
+				continue
+			}
+			if databases, err := operator.Databases(); err == nil {
+				for item := range slices.Values(databases) {
+					database = append(database, &biz.Database{
+						Type:     server.Type,
+						Name:     item.Name,
+						Server:   server.Name,
+						ServerID: server.ID,
+						Encoding: item.CharSet,
+						Comment:  item.Comment,
+					})
+				}
+			}
+			operator.Close()
 		}
-
-		operator.Close()
 	}
 
 	if len(database) < int((page-1)*limit) {
@@ -127,6 +160,33 @@ func (r *databaseRepo) Create(ctx context.Context, req *request.DatabaseCreate) 
 		if err = operator.(*db.Postgres).DatabaseComment(req.Name, req.Comment); err != nil {
 			return err
 		}
+	case biz.DatabaseTypeClickHouse:
+		if req.CreateUser {
+			if err = r.user.Create(ctx, &request.DatabaseUserCreate{
+				ServerID: req.ServerID,
+				Username: req.Username,
+				Password: req.Password,
+			}); err != nil {
+				return err
+			}
+		}
+		if err = operator.DatabaseCreate(req.Name); err != nil {
+			return err
+		}
+		if req.Username != "" {
+			if err = operator.PrivilegesGrant(req.Username, req.Name); err != nil {
+				return err
+			}
+		}
+	case biz.DatabaseTypeMongoDB:
+		mongo, mongoErr := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if mongoErr != nil {
+			return mongoErr
+		}
+		defer mongo.Close()
+		if mongoErr = mongo.DatabaseCreate(req.Name); mongoErr != nil {
+			return mongoErr
+		}
 	}
 
 	// 记录日志
@@ -141,14 +201,27 @@ func (r *databaseRepo) Delete(ctx context.Context, serverID uint, name string) e
 		return err
 	}
 
-	operator, err := r.getOperator(server)
-	if err != nil {
-		return err
-	}
-	defer operator.Close()
-
-	if err = operator.DatabaseDrop(name); err != nil {
-		return err
+	switch server.Type {
+	case biz.DatabaseTypeMongoDB:
+		mongo, mongoErr := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if mongoErr != nil {
+			return mongoErr
+		}
+		defer mongo.Close()
+		if mongoErr = mongo.DatabaseDrop(name); mongoErr != nil {
+			return mongoErr
+		}
+	case biz.DatabaseTypeSQLite:
+		return errors.New(r.t.Get("sqlite does not support dropping tables from here"))
+	default:
+		operator, opErr := r.getOperator(server)
+		if opErr != nil {
+			return opErr
+		}
+		defer operator.Close()
+		if opErr = operator.DatabaseDrop(name); opErr != nil {
+			return opErr
+		}
 	}
 
 	// 记录日志
@@ -193,6 +266,12 @@ func (r *databaseRepo) getOperator(server *biz.DatabaseServer) (db.Operator, err
 			return nil, err
 		}
 		return postgres, nil
+	case biz.DatabaseTypeClickHouse:
+		clickhouse, err := db.NewClickHouse(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if err != nil {
+			return nil, err
+		}
+		return clickhouse, nil
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", server.Type)
 	}

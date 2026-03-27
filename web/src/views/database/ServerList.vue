@@ -40,6 +40,15 @@ const openTerminal = (row: any) => {
     } else {
       terminalCommand.value = `redis-cli -h '${row.host}' -p '${row.port}'`
     }
+  } else if (row.type === 'clickhouse') {
+    terminalTitle.value = `ClickHouse - ${row.name}`
+    terminalCommand.value = `clickhouse-client --host '${row.host}' --port 9000 --user '${row.username}' --password '${row.password}'`
+  } else if (row.type === 'mongodb') {
+    terminalTitle.value = `MongoDB - ${row.name}`
+    terminalCommand.value = `mongosh mongodb://${row.username}:${row.password}@${row.host}:${row.port}/admin`
+  } else if (row.type === 'sqlite') {
+    terminalTitle.value = `SQLite - ${row.name}`
+    terminalCommand.value = `sqlite3 '${row.host}'`
   } else {
     window.$message.error($gettext('Unsupported database type'))
     return
@@ -161,7 +170,7 @@ const columns: any = [
             default: () => $gettext('Terminal')
           }
         ),
-        row.type !== 'redis'
+        !['redis', 'mongodb', 'sqlite'].includes(row.type)
           ? h(
               NPopconfirm,
               {
@@ -214,7 +223,7 @@ const columns: any = [
           {
             onPositiveClick: () => {
               // 防手贱
-              if (['local_mysql', 'local_postgresql', 'local_redis'].includes(row.name)) {
+              if (['local_mysql', 'local_postgresql', 'local_redis', 'local_clickhouse', 'local_mongodb'].includes(row.name)) {
                 window.$message.error(
                   $gettext(
                     'Built-in servers cannot be deleted. If you need to delete them, please uninstall the corresponding app'

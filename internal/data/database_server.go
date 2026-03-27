@@ -191,6 +191,25 @@ func (r *databaseServerRepo) Sync(id uint) error {
 				}
 			}
 		}
+	case biz.DatabaseTypeClickHouse:
+		allUsers, err := operator.Users()
+		if err != nil {
+			return err
+		}
+		for user := range slices.Values(allUsers) {
+			if !slices.ContainsFunc(users, func(a *biz.DatabaseUser) bool {
+				return a.Username == user.User
+			}) && !slices.Contains([]string{"default"}, user.User) {
+				newUser := &biz.DatabaseUser{
+					ServerID: id,
+					Username: user.User,
+					Remark:   r.t.Get("sync from server %s", server.Name),
+				}
+				if err = r.db.Create(newUser).Error; err != nil {
+					r.log.Warn("sync clickhouse database user failed", slog.String("type", biz.OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				}
+			}
+		}
 	}
 
 	return nil
@@ -199,7 +218,7 @@ func (r *databaseServerRepo) Sync(id uint) error {
 // checkServer 检查服务器连接
 func (r *databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
 	switch server.Type {
-	case biz.DatabaseTypeMysql, biz.DatabaseTypePostgresql:
+	case biz.DatabaseTypeMysql, biz.DatabaseTypePostgresql, biz.DatabaseTypeClickHouse:
 		operator, err := r.getOperator(server)
 		if err == nil {
 			operator.Close()
@@ -210,6 +229,20 @@ func (r *databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
 		redis, err := db.NewRedis(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err == nil {
 			redis.Close()
+			server.Status = biz.DatabaseServerStatusValid
+			return true
+		}
+	case biz.DatabaseTypeMongoDB:
+		mongo, err := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if err == nil {
+			mongo.Close()
+			server.Status = biz.DatabaseServerStatusValid
+			return true
+		}
+	case biz.DatabaseTypeSQLite:
+		sqlite, err := db.NewSQLite(server.Host)
+		if err == nil {
+			sqlite.Close()
 			server.Status = biz.DatabaseServerStatusValid
 			return true
 		}
@@ -233,6 +266,12 @@ func (r *databaseServerRepo) getOperator(server *biz.DatabaseServer) (db.Operato
 			return nil, err
 		}
 		return postgres, nil
+	case biz.DatabaseTypeClickHouse:
+		clickhouse, err := db.NewClickHouse(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if err != nil {
+			return nil, err
+		}
+		return clickhouse, nil
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", server.Type)
 	}

@@ -223,7 +223,7 @@ func (r *databaseUserRepo) DeleteByNames(serverID uint, names []string) error {
 			}
 			_ = operator.UserDrop(name, host)
 		}
-	case biz.DatabaseTypePostgresql:
+	case biz.DatabaseTypePostgresql, biz.DatabaseTypeClickHouse:
 		for name := range slices.Values(names) {
 			_ = operator.UserDrop(name)
 		}
@@ -257,6 +257,15 @@ func (r *databaseUserRepo) fillUser(user *biz.DatabaseUser) {
 				} else {
 					user.Status = biz.DatabaseUserStatusInvalid
 				}
+			case biz.DatabaseTypeClickHouse:
+				privileges, _ := operator.UserPrivileges(user.Username)
+				user.Privileges = privileges
+				if ch2, err := db.NewClickHouse(user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
+					ch2.Close()
+					user.Status = biz.DatabaseUserStatusValid
+				} else {
+					user.Status = biz.DatabaseUserStatusInvalid
+				}
 			}
 		} else {
 			user.Status = biz.DatabaseUserStatusInvalid
@@ -282,6 +291,12 @@ func (r *databaseUserRepo) getOperator(server *biz.DatabaseServer) (db.Operator,
 			return nil, err
 		}
 		return postgres, nil
+	case biz.DatabaseTypeClickHouse:
+		clickhouse, err := db.NewClickHouse(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if err != nil {
+			return nil, err
+		}
+		return clickhouse, nil
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", server.Type)
 	}
