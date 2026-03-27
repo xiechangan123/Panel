@@ -336,10 +336,10 @@ func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/%s.sh' | bash -s -- 'install' '%d'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version)
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/%s.sh' | bash -s -- 'install' '%d'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version)
 	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
 	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/official.sh' | bash -s -- 'install' '%d' '%s'`, s.conf.App.DownloadEndpoint, req.Version, req.Slug)
+		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/official.sh' | bash -s -- 'install' '%d' '%s'`, s.conf.App.DownloadEndpoint, req.Version, req.Slug)
 	}
 
 	task := new(biz.Task)
@@ -370,10 +370,10 @@ func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/%s.sh' | bash -s -- 'uninstall' '%d'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version)
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/%s.sh' | bash -s -- 'uninstall' '%d'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug), req.Version)
 	officials := []string{"fileinfo", "exif", "imap", "pgsql", "pdo_pgsql", "zip", "bz2", "readline", "snmp", "ldap", "enchant", "pspell", "calendar", "gmp", "sysvmsg", "sysvsem", "sysvshm", "xsl", "intl", "gettext"}
 	if slices.Contains(officials, req.Slug) {
-		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php_exts/official.sh' | bash -s -- 'uninstall' '%d' '%s'`, s.conf.App.DownloadEndpoint, req.Version, req.Slug)
+		cmd = fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/php/modules/official.sh' | bash -s -- 'uninstall' '%d' '%s'`, s.conf.App.DownloadEndpoint, req.Version, req.Slug)
 	}
 
 	task := new(biz.Task)
