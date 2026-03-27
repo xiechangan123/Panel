@@ -11,6 +11,10 @@ msgstr ""
 msgid "%d images"
 msgstr ""
 
+#: internal/data/database.go:253
+msgid "%s does not support database comment"
+msgstr ""
+
 #: internal/service/environment_dotnet.go:34
 msgid ".NET-%s is not installed"
 msgstr ""
@@ -21,6 +25,10 @@ msgstr ""
 
 #: internal/service/cli.go:323
 msgid "2FA url: %s"
+msgstr ""
+
+#: internal/service/environment_php.go:421
+msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
 msgstr ""
 
 #: internal/bootstrap/cli.go:18
@@ -59,8 +67,22 @@ msgstr ""
 msgid "Active Connections"
 msgstr ""
 
+#: internal/apps/elasticsearch/app.go:81
+#: internal/apps/opensearch/app.go:81
+msgid "Active Primary Shards"
+msgstr ""
+
 #: internal/service/environment_php.go:188
 msgid "Active Processes"
+msgstr ""
+
+#: internal/apps/clickhouse/app.go:93
+msgid "Active Queries"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:80
+#: internal/apps/opensearch/app.go:80
+msgid "Active Shards"
 msgstr ""
 
 #: internal/apps/nginx/app.go:133
@@ -159,6 +181,18 @@ msgstr ""
 msgid "Bind domain disabled"
 msgstr ""
 
+#: internal/apps/rocketmq/app.go:58
+msgid "Broker Name"
+msgstr ""
+
+#: internal/apps/rocketmq/app.go:61
+msgid "Broker Role"
+msgstr ""
+
+#: internal/apps/rocketmq/app.go:57
+msgid "Broker Status"
+msgstr ""
+
 #: internal/apps/apache/app.go:130
 msgid "Busy Workers"
 msgstr ""
@@ -177,7 +211,7 @@ msgstr ""
 msgid "Bytes/sec"
 msgstr ""
 
-#: internal/service/environment_php.go:461
+#: internal/service/environment_php.go:466
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr ""
 
@@ -194,7 +228,7 @@ msgstr ""
 msgid "COPYRIGHT"
 msgstr ""
 
-#: internal/service/environment_php.go:501
+#: internal/service/environment_php.go:506
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
@@ -252,11 +286,27 @@ msgstr ""
 msgid "CloudFlare"
 msgstr ""
 
+#: internal/apps/elasticsearch/app.go:76
+#: internal/apps/opensearch/app.go:76
+msgid "Cluster Name"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:77
+#: internal/apps/opensearch/app.go:77
+msgid "Cluster Status"
+msgstr ""
+
 #: internal/apps/redis/app.go:91
+#: internal/apps/valkey/app.go:91
 msgid "Commands Per Second"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:93
+msgid "Config Reload Success"
+msgstr ""
+
 #: internal/apps/redis/app.go:84
+#: internal/apps/valkey/app.go:84
 msgid "Connected Clients"
 msgstr ""
 
@@ -276,6 +326,10 @@ msgstr ""
 msgid "Create new website"
 msgstr ""
 
+#: internal/apps/mongodb/app.go:90
+msgid "Current Connections"
+msgstr ""
+
 #: internal/bootstrap/cli.go:17
 #: internal/bootstrap/cli.go:25
 msgid "DESCRIPTION"
@@ -289,6 +343,7 @@ msgstr ""
 msgid "Data synchronized successfully"
 msgstr ""
 
+#: internal/apps/grafana/app.go:86
 #: internal/service/toolbox_migration.go:506
 msgid "Database"
 msgstr ""
@@ -315,6 +370,14 @@ msgstr ""
 
 #: internal/route/cli.go:329
 msgid "Database type"
+msgstr ""
+
+#: internal/apps/clickhouse/app.go:95
+msgid "Databases"
+msgstr ""
+
+#: internal/apps/mongodb/app.go:95
+msgid "Delete Operations"
 msgstr ""
 
 #: internal/route/cli.go:286
@@ -362,7 +425,7 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:309
+#: internal/service/file.go:314
 msgid "Download remote file %v"
 msgstr ""
 
@@ -374,7 +437,7 @@ msgstr ""
 msgid "Enable access entrance"
 msgstr ""
 
-#: internal/service/environment_php.go:491
+#: internal/service/environment_php.go:496
 msgid "Enchant is a spell-checking library"
 msgstr ""
 
@@ -391,11 +454,11 @@ msgstr ""
 msgid "Entrance: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:471
+#: internal/service/environment_php.go:476
 msgid "Event is a library for handling events"
 msgstr ""
 
-#: internal/service/environment_php.go:426
+#: internal/service/environment_php.go:431
 msgid "Exif is a library for reading and writing image metadata"
 msgstr ""
 
@@ -538,6 +601,10 @@ msgstr ""
 msgid "Fix AcePanel upgrade issues"
 msgstr ""
 
+#: internal/apps/rocketmq/app.go:62
+msgid "Flush Disk Type"
+msgstr ""
+
 #: internal/bootstrap/cli.go:34
 msgid "Forum：https://tom.moe"
 msgstr ""
@@ -554,7 +621,7 @@ msgstr ""
 msgid "GLOBAL OPTIONS"
 msgstr ""
 
-#: internal/service/environment_php.go:506
+#: internal/service/environment_php.go:511
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
@@ -570,7 +637,7 @@ msgstr ""
 msgid "Get panel setting (use only under guidance)"
 msgstr ""
 
-#: internal/service/environment_php.go:526
+#: internal/service/environment_php.go:531
 msgid "Gettext is a library for handling multilingual support"
 msgstr ""
 
@@ -578,6 +645,10 @@ msgstr ""
 #: internal/service/environment_go.go:56
 #: internal/service/environment_go.go:76
 msgid "Go-%s is not installed"
+msgstr ""
+
+#: internal/apps/prometheus/app.go:91
+msgid "Goroutine Count"
 msgstr ""
 
 #: internal/service/cli.go:457
@@ -592,6 +663,10 @@ msgstr ""
 msgid "HTTPS enabled"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:396
+msgid "Hardware and OS metrics"
+msgstr ""
+
 #: internal/service/cert.go:72
 msgid "Huawei Cloud"
 msgstr ""
@@ -600,7 +675,7 @@ msgstr ""
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:451
+#: internal/service/environment_php.go:456
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr ""
 
@@ -624,7 +699,7 @@ msgstr ""
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:421
+#: internal/service/environment_php.go:426
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
@@ -647,8 +722,16 @@ msgstr ""
 msgid "Innodb Index Hit Rate"
 msgstr ""
 
+#: internal/apps/mongodb/app.go:93
+msgid "Insert Operations"
+msgstr ""
+
 #: internal/service/environment_php.go:346
 msgid "Install PHP-%d %s module"
+msgstr ""
+
+#: internal/apps/prometheus/app.go:255
+msgid "Install Prometheus exporter %s"
 msgstr ""
 
 #: internal/data/app.go:228
@@ -663,7 +746,7 @@ msgstr ""
 msgid "Install environment %s"
 msgstr ""
 
-#: internal/service/environment_php.go:521
+#: internal/service/environment_php.go:526
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
 
@@ -676,18 +759,21 @@ msgid "Journal logs"
 msgstr ""
 
 #: internal/apps/redis/app.go:92
+#: internal/apps/valkey/app.go:92
 msgid "Keyspace Hits"
 msgstr ""
 
 #: internal/apps/redis/app.go:93
+#: internal/apps/valkey/app.go:93
 msgid "Keyspace Misses"
 msgstr ""
 
-#: internal/service/environment_php.go:486
+#: internal/service/environment_php.go:491
 msgid "LDAP is a protocol for accessing directory services"
 msgstr ""
 
 #: internal/apps/redis/app.go:94
+#: internal/apps/valkey/app.go:94
 msgid "Latest Fork Time (ms)"
 msgstr ""
 
@@ -703,12 +789,20 @@ msgstr ""
 msgid "List of listening addresses associated with the website"
 msgstr ""
 
+#: internal/apps/rocketmq/app.go:59
+msgid "Listen Port"
+msgstr ""
+
 #: internal/service/environment_php.go:184
 msgid "Listen Queue"
 msgstr ""
 
 #: internal/service/environment_php.go:186
 msgid "Listen Queue Length"
+msgstr ""
+
+#: internal/apps/kafka/app.go:50
+msgid "Listeners"
 msgstr ""
 
 #: internal/service/cli.go:201
@@ -722,6 +816,18 @@ msgstr ""
 #: internal/data/backup.go:94
 #: internal/data/backup_storage.go:62
 msgid "Local Storage"
+msgstr ""
+
+#: internal/apps/kafka/app.go:51
+msgid "Log Dirs"
+msgstr ""
+
+#: internal/apps/kafka/app.go:53
+msgid "Log Retention Hours"
+msgstr ""
+
+#: internal/apps/kafka/app.go:54
+msgid "Log Segment Bytes"
 msgstr ""
 
 #: internal/route/cli.go:385
@@ -744,13 +850,22 @@ msgstr ""
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:400
+msgid "Memcached metrics"
+msgstr ""
+
 #: internal/apps/apache/app.go:109
 #: internal/apps/nginx/app.go:126
 msgid "Memory"
 msgstr ""
 
 #: internal/apps/redis/app.go:88
+#: internal/apps/valkey/app.go:88
 msgid "Memory Fragmentation Ratio"
+msgstr ""
+
+#: internal/apps/clickhouse/app.go:94
+msgid "Memory Usage (bytes)"
 msgstr ""
 
 #: internal/service/toolbox_migration.go:418
@@ -769,10 +884,22 @@ msgstr ""
 msgid "Move panel file failed: %v"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:397
+msgid "MySQL database metrics"
+msgstr ""
+
 #: internal/bootstrap/cli.go:14
 #: internal/bootstrap/cli.go:22
 #: internal/bootstrap/cli.go:27
 msgid "NAME"
+msgstr ""
+
+#: internal/apps/rocketmq/app.go:60
+msgid "NameServer Address"
+msgstr ""
+
+#: internal/apps/rocketmq/app.go:56
+msgid "NameServer Status"
 msgstr ""
 
 #: internal/service/cert.go:92
@@ -783,8 +910,16 @@ msgstr ""
 msgid "New username cannot be empty"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:401
+msgid "Nginx metrics"
+msgstr ""
+
 #: internal/data/backup.go:838
 msgid "No backup file found, unable to automatically repair"
+msgstr ""
+
+#: internal/apps/kafka/app.go:49
+msgid "Node ID"
 msgstr ""
 
 #: internal/service/environment_nodejs.go:36
@@ -799,6 +934,20 @@ msgstr ""
 
 #: internal/service/home.go:282
 msgid "Not used"
+msgstr ""
+
+#: internal/apps/kafka/app.go:52
+msgid "Num Partitions"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:79
+#: internal/apps/opensearch/app.go:79
+msgid "Number of Data Nodes"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:78
+#: internal/apps/opensearch/app.go:78
+msgid "Number of Nodes"
 msgstr ""
 
 #: internal/route/cli.go:371
@@ -874,10 +1023,10 @@ msgstr ""
 #: internal/service/environment_php.go:330
 #: internal/service/environment_php.go:364
 #: internal/service/environment_php.go:47
-#: internal/service/environment_php.go:647
+#: internal/service/environment_php.go:652
 #: internal/service/environment_php.go:67
-#: internal/service/environment_php.go:706
-#: internal/service/environment_php.go:769
+#: internal/service/environment_php.go:711
+#: internal/service/environment_php.go:774
 #: internal/service/environment_php.go:88
 msgid "PHP-%d is not installed"
 msgstr ""
@@ -918,6 +1067,7 @@ msgid "Peak Connections"
 msgstr ""
 
 #: internal/apps/redis/app.go:87
+#: internal/apps/valkey/app.go:87
 msgid "Peak Memory Usage"
 msgstr ""
 
@@ -961,6 +1111,10 @@ msgstr ""
 msgid "Port: %d"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:398
+msgid "PostgreSQL database metrics"
+msgstr ""
+
 #: internal/apps/postgresql/app.go:170
 msgid "Process Count"
 msgstr ""
@@ -977,7 +1131,7 @@ msgstr ""
 msgid "Project"
 msgstr ""
 
-#: internal/service/environment_php.go:496
+#: internal/service/environment_php.go:501
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
@@ -1015,12 +1169,25 @@ msgstr ""
 msgid "Query Cache Not Cached"
 msgstr ""
 
+#: internal/apps/mongodb/app.go:92
+msgid "Query Operations"
+msgstr ""
+
 #: internal/apps/nginx/app.go:157
 msgid "Reading"
 msgstr ""
 
-#: internal/service/environment_php.go:476
+#: internal/service/environment_php.go:481
 msgid "Readline is a library for processing text"
+msgstr ""
+
+#: internal/apps/prometheus/app.go:399
+msgid "Redis metrics"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:82
+#: internal/apps/opensearch/app.go:82
+msgid "Relocating Shards"
 msgstr ""
 
 #: internal/route/cli.go:482
@@ -1043,6 +1210,10 @@ msgstr ""
 msgid "Requests/sec"
 msgstr ""
 
+#: internal/apps/mongodb/app.go:96
+msgid "Resident Memory (MB)"
+msgstr ""
+
 #: internal/route/cli.go:31
 msgid "Restart AcePanel service"
 msgstr ""
@@ -1055,7 +1226,7 @@ msgstr ""
 msgid "Rotation type"
 msgstr ""
 
-#: internal/service/environment_php.go:481
+#: internal/service/environment_php.go:486
 msgid "SNMP is a protocol for network management"
 msgstr ""
 
@@ -1063,7 +1234,7 @@ msgstr ""
 msgid "SSH log file not found"
 msgstr ""
 
-#: internal/service/environment_php.go:466
+#: internal/service/environment_php.go:471
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
 
@@ -1096,7 +1267,7 @@ msgstr ""
 msgid "Server username"
 msgstr ""
 
-#: internal/service/environment_php.go:782
+#: internal/service/environment_php.go:787
 msgid "Session save handler is not files, cannot clean"
 msgstr ""
 
@@ -1121,12 +1292,17 @@ msgid "Start AcePanel service"
 msgstr ""
 
 #: internal/apps/postgresql/app.go:168
+#: internal/apps/prometheus/app.go:89
 #: internal/service/environment_php.go:182
 msgid "Start Time"
 msgstr ""
 
 #: internal/route/cli.go:36
 msgid "Stop AcePanel service"
+msgstr ""
+
+#: internal/apps/mongodb/app.go:97
+msgid "Storage Engine"
 msgstr ""
 
 #: internal/route/cli.go:317
@@ -1136,6 +1312,10 @@ msgstr ""
 #: internal/route/cli.go:419
 #: internal/route/cli.go:449
 msgid "Storage ID (local storage if not filled)"
+msgstr ""
+
+#: internal/apps/prometheus/app.go:90
+msgid "Storage Retention"
 msgstr ""
 
 #: internal/apps/postgresql/app.go:172
@@ -1150,11 +1330,11 @@ msgstr ""
 msgid "Successfully obtained panel certificate via ACME"
 msgstr ""
 
-#: internal/service/environment_php.go:586
+#: internal/service/environment_php.go:591
 msgid "Swoole is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
-#: internal/service/environment_php.go:595
+#: internal/service/environment_php.go:600
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
@@ -1166,24 +1346,29 @@ msgstr ""
 msgid "Sync server time with NTP"
 msgstr ""
 
-#: internal/service/environment_php.go:566
+#: internal/service/environment_php.go:571
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr ""
 
-#: internal/service/environment_php.go:571
+#: internal/service/environment_php.go:576
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr ""
 
-#: internal/service/environment_php.go:576
+#: internal/service/environment_php.go:581
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
 #: internal/apps/redis/app.go:82
+#: internal/apps/valkey/app.go:82
 msgid "TCP Port"
 msgstr ""
 
 #: internal/apps/mysql/app.go:134
 msgid "Table Locks Waited"
+msgstr ""
+
+#: internal/apps/clickhouse/app.go:96
+msgid "Tables"
 msgstr ""
 
 #: internal/route/cli.go:437
@@ -1223,10 +1408,12 @@ msgid "Total Accesses"
 msgstr ""
 
 #: internal/apps/redis/app.go:85
+#: internal/apps/valkey/app.go:85
 msgid "Total Allocated Memory"
 msgstr ""
 
 #: internal/apps/redis/app.go:90
+#: internal/apps/valkey/app.go:90
 msgid "Total Commands Processed"
 msgstr ""
 
@@ -1235,11 +1422,17 @@ msgstr ""
 msgid "Total Connections"
 msgstr ""
 
+#: internal/apps/mongodb/app.go:91
+msgid "Total Connections Created"
+msgstr ""
+
 #: internal/apps/redis/app.go:89
+#: internal/apps/valkey/app.go:89
 msgid "Total Connections Received"
 msgstr ""
 
 #: internal/apps/redis/app.go:86
+#: internal/apps/valkey/app.go:86
 msgid "Total Memory Usage"
 msgstr ""
 
@@ -1278,12 +1471,21 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
-#: internal/service/app.go:206
+#: internal/service/app.go:212
 msgid "Unable to update app list cache in offline mode"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:83
+#: internal/apps/opensearch/app.go:83
+msgid "Unassigned Shards"
 msgstr ""
 
 #: internal/service/environment_php.go:380
 msgid "Uninstall PHP-%d %s module"
+msgstr ""
+
+#: internal/apps/prometheus/app.go:282
+msgid "Uninstall Prometheus exporter %s"
 msgstr ""
 
 #: internal/data/app.go:282
@@ -1318,6 +1520,10 @@ msgstr ""
 msgid "Update AcePanel to the latest version"
 msgstr ""
 
+#: internal/apps/mongodb/app.go:94
+msgid "Update Operations"
+msgstr ""
+
 #: internal/data/app.go:341
 msgid "Update app %s"
 msgstr ""
@@ -1334,7 +1540,13 @@ msgstr ""
 msgid "Uptime"
 msgstr ""
 
+#: internal/apps/clickhouse/app.go:92
+#: internal/apps/mongodb/app.go:89
+msgid "Uptime (seconds)"
+msgstr ""
+
 #: internal/apps/redis/app.go:83
+#: internal/apps/valkey/app.go:83
 msgid "Uptime in Days"
 msgstr ""
 
@@ -1368,6 +1580,12 @@ msgstr ""
 
 #: internal/data/backup.go:960
 msgid "Verify download file failed: %v"
+msgstr ""
+
+#: internal/apps/clickhouse/app.go:91
+#: internal/apps/grafana/app.go:84
+#: internal/apps/mongodb/app.go:88
+msgid "Version"
 msgstr ""
 
 #: internal/apps/nginx/app.go:165
@@ -1432,15 +1650,15 @@ msgstr ""
 msgid "Writing"
 msgstr ""
 
-#: internal/service/environment_php.go:511
+#: internal/service/environment_php.go:516
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr ""
 
-#: internal/service/environment_php.go:516
+#: internal/service/environment_php.go:521
 msgid "XSL is a library for processing XML documents"
 msgstr ""
 
-#: internal/service/environment_php.go:456
+#: internal/service/environment_php.go:461
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
@@ -1506,7 +1724,7 @@ msgstr ""
 msgid "btrfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/file.go:292
+#: internal/service/file.go:297
 msgid "can't download a directory"
 msgstr ""
 
@@ -1527,7 +1745,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:662
+#: internal/service/file.go:667
 msgid "chunk hash mismatch"
 msgstr ""
 
@@ -1539,7 +1757,7 @@ msgstr ""
 msgid "command is empty"
 msgstr ""
 
-#: internal/data/template.go:96
+#: internal/data/template.go:95
 msgid "compose %s already exists"
 msgstr ""
 
@@ -1551,12 +1769,12 @@ msgstr ""
 msgid "could not find .sql backup file"
 msgstr ""
 
-#: internal/service/file.go:171
-#: internal/service/file.go:585
+#: internal/service/file.go:176
+#: internal/service/file.go:590
 msgid "create directory error: %v"
 msgstr ""
 
-#: internal/service/file.go:700
+#: internal/service/file.go:710
 msgid "create target file error: %v"
 msgstr ""
 
@@ -1593,6 +1811,15 @@ msgstr ""
 
 #: internal/service/toolbox_migration.go:687
 msgid "database user migration completed"
+msgstr ""
+
+#: internal/apps/grafana/app.go:232
+msgid "datasource %s already exists"
+msgstr ""
+
+#: internal/apps/grafana/app.go:281
+#: internal/apps/grafana/app.go:324
+msgid "datasource %s not found"
 msgstr ""
 
 #: internal/service/toolbox_disk.go:218
@@ -1634,6 +1861,21 @@ msgstr ""
 msgid "expiration time must be less than 10 years"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:248
+#: internal/apps/prometheus/app.go:275
+#: internal/apps/prometheus/app.go:297
+#: internal/apps/prometheus/app.go:313
+#: internal/apps/prometheus/app.go:329
+#: internal/apps/prometheus/app.go:345
+#: internal/apps/prometheus/app.go:364
+msgid "exporter %s does not exist"
+msgstr ""
+
+#: internal/apps/prometheus/app.go:351
+#: internal/apps/prometheus/app.go:370
+msgid "exporter %s has no configuration file"
+msgstr ""
+
 #: internal/service/toolbox_migration.go:529
 msgid "exporting database"
 msgstr ""
@@ -1657,6 +1899,10 @@ msgstr ""
 
 #: internal/service/toolbox_migration.go:186
 msgid "failed to connect remote server: %v"
+msgstr ""
+
+#: internal/data/database_elasticsearch.go:115
+msgid "failed to connect to Elasticsearch: %v"
 msgstr ""
 
 #: internal/data/database_redis.go:127
@@ -1764,6 +2010,10 @@ msgstr ""
 msgid "failed to get %s service running status: %v"
 msgstr ""
 
+#: internal/apps/clickhouse/app.go:199
+msgid "failed to get ClickHouse default password: %v"
+msgstr ""
+
 #: internal/data/cert_account.go:224
 msgid "failed to get Google EAB: %s"
 msgstr ""
@@ -1774,6 +2024,10 @@ msgstr ""
 
 #: internal/apps/memcached/app.go:40
 msgid "failed to get Memcached status: %v"
+msgstr ""
+
+#: internal/apps/mongodb/app.go:194
+msgid "failed to get MongoDB admin password: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:104
@@ -1866,12 +2120,20 @@ msgstr ""
 msgid "failed to get disk space: %v"
 msgstr ""
 
-#: internal/service/file.go:336
+#: internal/apps/elasticsearch/app.go:43
+msgid "failed to get elasticsearch status: %v"
+msgstr ""
+
+#: internal/service/file.go:341
 msgid "failed to get file system info"
 msgstr ""
 
 #: internal/service/toolbox_disk.go:127
 msgid "failed to get filesystem type: %v"
+msgstr ""
+
+#: internal/apps/grafana/app.go:46
+msgid "failed to get grafana status: %v"
 msgstr ""
 
 #: internal/service/home.go:83
@@ -1880,6 +2142,10 @@ msgstr ""
 
 #: internal/data/website.go:442
 msgid "failed to get index template file: %v"
+msgstr ""
+
+#: internal/apps/kafka/app.go:38
+msgid "failed to get kafka status: %v"
 msgstr ""
 
 #: internal/apps/supervisor/app.go:218
@@ -1892,6 +2158,10 @@ msgstr ""
 #: internal/apps/nginx/app.go:111
 #: internal/apps/nginx/app.go:121
 msgid "failed to get nginx workers: %v"
+msgstr ""
+
+#: internal/apps/opensearch/app.go:43
+msgid "failed to get opensearch status: %v"
 msgstr ""
 
 #: internal/service/toolbox_disk.go:115
@@ -1924,6 +2194,10 @@ msgstr ""
 
 #: internal/service/toolbox_migration.go:220
 msgid "failed to get project list: %v"
+msgstr ""
+
+#: internal/apps/prometheus/app.go:58
+msgid "failed to get prometheus status: %v"
 msgstr ""
 
 #: internal/apps/redis/app.go:67
@@ -1976,6 +2250,14 @@ msgstr ""
 
 #: internal/data/app.go:270
 msgid "failed to get uninstall script for app %s"
+msgstr ""
+
+#: internal/apps/valkey/app.go:67
+msgid "failed to get valkey info: %v"
+msgstr ""
+
+#: internal/apps/valkey/app.go:44
+msgid "failed to get valkey status: %v"
 msgstr ""
 
 #: internal/service/toolbox_migration.go:444
@@ -2158,12 +2440,24 @@ msgstr ""
 msgid "failed to run command: %v"
 msgstr ""
 
+#: internal/apps/clickhouse/app.go:249
+msgid "failed to save ClickHouse default password: %v"
+msgstr ""
+
+#: internal/apps/mongodb/app.go:227
+msgid "failed to save MongoDB admin password: %v"
+msgstr ""
+
 #: internal/data/database_redis.go:133
 msgid "failed to select database: %v"
 msgstr ""
 
 #: internal/apps/mysql/app.go:99
 msgid "failed to set MYSQL_PWD env: %v"
+msgstr ""
+
+#: internal/apps/mongodb/app.go:221
+msgid "failed to set MongoDB admin password: %v"
 msgstr ""
 
 #: internal/service/toolbox_system.go:285
@@ -2252,6 +2546,10 @@ msgstr ""
 msgid "failed to wipe disk: %v"
 msgstr ""
 
+#: internal/apps/clickhouse/app.go:237
+msgid "failed to write ClickHouse user config: %v"
+msgstr ""
+
 #: internal/service/toolbox_disk.go:151
 msgid "failed to write fstab: %v"
 msgstr ""
@@ -2279,7 +2577,7 @@ msgstr ""
 msgid "file is too large, please download it to view"
 msgstr ""
 
-#: internal/service/environment_php.go:531
+#: internal/service/environment_php.go:536
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr ""
 
@@ -2287,7 +2585,7 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/service/file.go:639
+#: internal/service/file.go:644
 msgid "get upload file error: %v"
 msgstr ""
 
@@ -2356,7 +2654,7 @@ msgstr ""
 msgid "invalid user id, please login again"
 msgstr ""
 
-#: internal/service/environment_php.go:581
+#: internal/service/environment_php.go:586
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
@@ -2412,10 +2710,6 @@ msgstr ""
 msgid "mount point %s already exists in fstab"
 msgstr ""
 
-#: internal/data/database.go:174
-msgid "mysql not support database comment"
-msgstr ""
-
 #: internal/apps/nginx/stream.go:108
 #: internal/apps/nginx/stream.go:173
 #: internal/apps/nginx/stream.go:219
@@ -2440,11 +2734,11 @@ msgstr ""
 msgid "no migration logs available"
 msgstr ""
 
-#: internal/service/file.go:179
+#: internal/service/file.go:184
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:645
+#: internal/service/file.go:650
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -2476,19 +2770,19 @@ msgstr ""
 msgid "passkey registration failed: %v"
 msgstr ""
 
-#: internal/service/file.go:632
+#: internal/service/file.go:637
 msgid "path, file_name and file_hash are required"
 msgstr ""
 
-#: internal/service/environment_php.go:436
+#: internal/service/environment_php.go:441
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
-#: internal/service/environment_php.go:446
+#: internal/service/environment_php.go:451
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr ""
 
-#: internal/service/environment_php.go:431
+#: internal/service/environment_php.go:436
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
@@ -2507,8 +2801,8 @@ msgstr ""
 
 #: internal/data/user.go:134
 #: internal/service/file.go:139
-#: internal/service/file.go:232
-#: internal/service/file.go:266
+#: internal/service/file.go:237
+#: internal/service/file.go:271
 msgid "please don't do this"
 msgstr ""
 
@@ -2528,23 +2822,23 @@ msgstr ""
 msgid "project name already exists"
 msgstr ""
 
-#: internal/service/environment_php.go:536
+#: internal/service/environment_php.go:541
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:541
+#: internal/service/environment_php.go:546
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
-#: internal/service/file.go:717
+#: internal/service/file.go:727
 msgid "read chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:653
+#: internal/service/file.go:658
 msgid "read chunk data error: %v"
 msgstr ""
 
-#: internal/service/file.go:594
+#: internal/service/file.go:599
 msgid "read directory error: %v"
 msgstr ""
 
@@ -2572,7 +2866,7 @@ msgstr ""
 msgid "s3 configuration error: %v"
 msgstr ""
 
-#: internal/service/file.go:672
+#: internal/service/file.go:677
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -2580,10 +2874,15 @@ msgstr ""
 msgid "sending backup to remote server"
 msgstr ""
 
+#: internal/data/database_elasticsearch.go:110
+msgid "server is not Elasticsearch type"
+msgstr ""
+
 #: internal/data/database_redis.go:122
 msgid "server is not Redis type"
 msgstr ""
 
+#: internal/data/database_elasticsearch.go:107
 #: internal/data/database_redis.go:119
 msgid "server not found"
 msgstr ""
@@ -2604,7 +2903,11 @@ msgstr ""
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr ""
 
-#: internal/service/environment_php.go:441
+#: internal/data/database.go:220
+msgid "sqlite does not support dropping tables from here"
+msgstr ""
+
+#: internal/service/environment_php.go:446
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
@@ -2651,8 +2954,9 @@ msgstr ""
 msgid "stream upstream not found: %s"
 msgstr ""
 
-#: internal/data/database_server.go:168
-#: internal/data/database_server.go:187
+#: internal/data/database_server.go:174
+#: internal/data/database_server.go:193
+#: internal/data/database_server.go:212
 msgid "sync from server %s"
 msgstr ""
 
@@ -2665,12 +2969,12 @@ msgid "target is a directory"
 msgstr ""
 
 #: internal/service/file.go:165
-#: internal/service/file.go:578
-#: internal/service/file.go:693
+#: internal/service/file.go:583
+#: internal/service/file.go:698
 msgid "target path %s already exists"
 msgstr ""
 
-#: internal/data/template.go:82
+#: internal/data/template.go:81
 msgid "template %s not found"
 msgstr ""
 
@@ -2752,7 +3056,7 @@ msgstr ""
 msgid "unsupported filesystem type: %s"
 msgstr ""
 
-#: internal/data/cron.go:251
+#: internal/data/cron.go:274
 msgid "unsupported system"
 msgstr ""
 
@@ -2867,11 +3171,11 @@ msgstr ""
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
-#: internal/service/file.go:723
+#: internal/service/file.go:733
 msgid "write chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:184
+#: internal/service/file.go:189
 msgid "write file error: %v"
 msgstr ""
 
@@ -2879,7 +3183,7 @@ msgstr ""
 msgid "ws not allowed"
 msgstr ""
 
-#: internal/service/environment_php.go:551
+#: internal/service/environment_php.go:556
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr ""
 
@@ -2887,15 +3191,15 @@ msgstr ""
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/environment_php.go:546
+#: internal/service/environment_php.go:551
 msgid "xhprof is a library for performance profiling"
 msgstr ""
 
-#: internal/service/environment_php.go:556
+#: internal/service/environment_php.go:561
 msgid "yaml is a library for handling YAML"
 msgstr ""
 
-#: internal/service/environment_php.go:561
+#: internal/service/environment_php.go:566
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 
