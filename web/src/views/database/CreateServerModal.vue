@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import database from '@/api/panel/database'
-import { NButton, NInput } from 'naive-ui'
+import PathSelector from '@/components/common/PathSelector.vue'
+import { NButton, NInput, NInputGroup } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 const props = defineProps<{
@@ -37,11 +38,12 @@ const typeOptions = [
   { label: 'Redis', value: 'redis' }
 ]
 
-// 切换类型时自动更新端口
+// 切换类型时自动更新端口和主机
 watch(
   () => createModel.value.type,
   (val) => {
     createModel.value.port = defaultPort(val)
+    createModel.value.host = val === 'sqlite' ? '' : '127.0.0.1'
   }
 )
 
@@ -56,7 +58,15 @@ watch(
   }
 )
 
+const showPathSelector = ref(false)
+const pathSelectorPath = ref('/')
 const loading = ref(false)
+
+watch(showPathSelector, (val) => {
+  if (!val && pathSelectorPath.value) {
+    createModel.value.host = pathSelectorPath.value
+  }
+})
 
 const handleCreate = () => {
   loading.value = true
@@ -102,12 +112,17 @@ const handleCreate = () => {
       </n-form-item>
       <template v-if="createModel.type === 'sqlite'">
         <n-form-item path="host" :label="$gettext('File Path')">
-          <n-input
-            v-model:value="createModel.host"
-            type="text"
-            @keydown.enter.prevent
-            :placeholder="$gettext('Enter SQLite database file path, e.g. /data/app.db')"
-          />
+          <n-input-group>
+            <n-input
+              v-model:value="createModel.host"
+              type="text"
+              @keydown.enter.prevent
+              :placeholder="$gettext('Enter SQLite database file path, e.g. /data/app.db')"
+            />
+            <n-button type="primary" ghost @click="pathSelectorPath = createModel.host || '/'; showPathSelector = true">
+              {{ $gettext('Select') }}
+            </n-button>
+          </n-input-group>
         </n-form-item>
       </template>
       <template v-else>
@@ -163,6 +178,7 @@ const handleCreate = () => {
     </n-form>
     <n-button type="info" block :loading="loading" :disabled="loading" @click="handleCreate">{{ $gettext('Submit') }}</n-button>
   </n-modal>
+  <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="false" />
 </template>
 
 <style scoped lang="scss"></style>

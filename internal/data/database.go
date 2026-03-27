@@ -112,6 +112,20 @@ func (r *databaseRepo) Create(ctx context.Context, req *request.DatabaseCreate) 
 		return err
 	}
 
+	// MongoDB 独立处理，不走 Operator 接口
+	if server.Type == biz.DatabaseTypeMongoDB {
+		mongo, mongoErr := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		if mongoErr != nil {
+			return mongoErr
+		}
+		defer mongo.Close()
+		if mongoErr = mongo.DatabaseCreate(req.Name); mongoErr != nil {
+			return mongoErr
+		}
+		r.log.Info("database created", slog.String("type", biz.OperationTypeDatabase), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
+		return nil
+	}
+
 	operator, err := r.getOperator(server)
 	if err != nil {
 		return err
@@ -178,15 +192,6 @@ func (r *databaseRepo) Create(ctx context.Context, req *request.DatabaseCreate) 
 				return err
 			}
 		}
-	case biz.DatabaseTypeMongoDB:
-		mongo, mongoErr := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-		if mongoErr != nil {
-			return mongoErr
-		}
-		defer mongo.Close()
-		if mongoErr = mongo.DatabaseCreate(req.Name); mongoErr != nil {
-			return mongoErr
-		}
 	}
 
 	// 记录日志
@@ -236,20 +241,17 @@ func (r *databaseRepo) Comment(req *request.DatabaseComment) error {
 		return err
 	}
 
-	operator, err := r.getOperator(server)
-	if err != nil {
-		return err
-	}
-	defer operator.Close()
-
 	switch server.Type {
-	case biz.DatabaseTypeMysql:
-		return errors.New(r.t.Get("mysql not support database comment"))
 	case biz.DatabaseTypePostgresql:
+		operator, opErr := r.getOperator(server)
+		if opErr != nil {
+			return opErr
+		}
+		defer operator.Close()
 		return operator.(*db.Postgres).DatabaseComment(req.Name, req.Comment)
+	default:
+		return fmt.Errorf(r.t.Get("%s does not support database comment"), server.Type)
 	}
-
-	return nil
 }
 
 func (r *databaseRepo) getOperator(server *biz.DatabaseServer) (db.Operator, error) {

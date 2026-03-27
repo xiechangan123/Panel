@@ -140,6 +140,12 @@ func (r *databaseServerRepo) Sync(id uint) error {
 		return err
 	}
 
+	// 非 Operator 类型不支持用户同步
+	switch server.Type {
+	case biz.DatabaseTypeRedis, biz.DatabaseTypeMongoDB, biz.DatabaseTypeSQLite:
+		return fmt.Errorf("sync is not supported for %s", server.Type)
+	}
+
 	users := make([]*biz.DatabaseUser, 0)
 	if err = r.db.Where("server_id = ?", id).Find(&users).Error; err != nil {
 		return err

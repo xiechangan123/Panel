@@ -39,7 +39,7 @@ func (r *SQLite) Tables() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) { _ = rows.Close() }(rows)
 
 	var tables []string
 	for rows.Next() {
@@ -68,7 +68,7 @@ func (r *SQLite) TableInfo(name string) ([]SQLiteColumn, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) { _ = rows.Close() }(rows)
 
 	var columns []SQLiteColumn
 	for rows.Next() {

@@ -11,51 +11,59 @@ const props = defineProps<{
 
 const { $gettext } = useGettext()
 
-const columns: any = [
-  {
-    title: $gettext('Database Name'),
-    key: 'name',
-    minWidth: 100,
-    resizable: true,
-    ellipsis: { tooltip: true }
-  },
-  {
-    title: $gettext('Server'),
-    key: 'server',
-    width: 150
-  },
-  {
-    title: $gettext('Encoding'),
-    key: 'encoding',
-    width: 150,
-    render(row: any) {
-      return h(NTag, null, {
-        default: () => row.encoding
-      })
+const hasEncoding = computed(() => ['mysql', 'postgresql'].includes(props.type))
+const hasComment = computed(() => ['postgresql'].includes(props.type))
+
+const columns: any = computed(() => {
+  const cols: any[] = [
+    {
+      title: $gettext('Database Name'),
+      key: 'name',
+      minWidth: 100,
+      resizable: true,
+      ellipsis: { tooltip: true }
+    },
+    {
+      title: $gettext('Server'),
+      key: 'server',
+      width: 150
     }
-  },
-  {
-    title: $gettext('Comment'),
-    key: 'comment',
-    minWidth: 250,
-    resizable: true,
-    render(row: any) {
-      return h(NInput, {
-        size: 'small',
-        class: 'w-full',
-        value: row.comment,
-        // MySQL 不支持数据库备注
-        disabled: row.type === 'mysql',
-        placeholder:
-          row.type === 'mysql' ? $gettext('MySQL does not support database comments') : undefined,
-        onBlur: () => handleComment(row),
-        onUpdateValue(v) {
-          row.comment = v
-        }
-      })
-    }
-  },
-  {
+  ]
+
+  if (hasEncoding.value) {
+    cols.push({
+      title: $gettext('Encoding'),
+      key: 'encoding',
+      width: 150,
+      render(row: any) {
+        return h(NTag, null, {
+          default: () => row.encoding
+        })
+      }
+    })
+  }
+
+  if (hasComment.value) {
+    cols.push({
+      title: $gettext('Comment'),
+      key: 'comment',
+      minWidth: 250,
+      resizable: true,
+      render(row: any) {
+        return h(NInput, {
+          size: 'small',
+          class: 'w-full',
+          value: row.comment,
+          onBlur: () => handleComment(row),
+          onUpdateValue(v: string) {
+            row.comment = v
+          }
+        })
+      }
+    })
+  }
+
+  cols.push({
     title: $gettext('Actions'),
     key: 'actions',
     width: 200,
@@ -88,8 +96,10 @@ const columns: any = [
         )
       ]
     }
-  }
-]
+  })
+
+  return cols
+})
 
 const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
   (page, pageSize) => database.list(page, pageSize, props.type),

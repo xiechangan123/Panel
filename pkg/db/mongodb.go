@@ -59,7 +59,7 @@ func (r *MongoDB) Databases() ([]MongoDatabase, error) {
 	var result struct {
 		Databases []struct {
 			Name       string `json:"name"`
-			SizeOnDisk int64  `json:"sizeOnDisk"`
+			SizeOnDisk any    `json:"sizeOnDisk"`
 		} `json:"databases"`
 	}
 	if err = json.Unmarshal([]byte(raw), &result); err != nil {
@@ -73,11 +73,25 @@ func (r *MongoDB) Databases() ([]MongoDatabase, error) {
 		}
 		databases = append(databases, MongoDatabase{
 			Name:       db.Name,
-			SizeOnDisk: db.SizeOnDisk,
+			SizeOnDisk: mongoLongToInt64(db.SizeOnDisk),
 		})
 	}
 
 	return databases, nil
+}
+
+// mongoLongToInt64 将 MongoDB Long 对象 {"high":0,"low":8192,"unsigned":false} 转换为 int64
+func mongoLongToInt64(v any) int64 {
+	switch val := v.(type) {
+	case float64:
+		return int64(val)
+	case map[string]any:
+		high, _ := val["high"].(float64)
+		low, _ := val["low"].(float64)
+		return int64(high)*4294967296 + int64(low)
+	default:
+		return 0
+	}
 }
 
 // UserCreate 创建用户

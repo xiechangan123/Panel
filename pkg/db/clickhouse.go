@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"net/url"
 	"strings"
 
 	"resty.dev/v3"
@@ -188,7 +187,7 @@ func (r *ClickHouse) exec(query string) (string, error) {
 	resp, err := r.client.R().
 		SetQueryParam("query", query).
 		SetQueryParam("user", r.username).
-		SetQueryParam("password", url.QueryEscape(r.password)).
+		SetQueryParam("password", r.password).
 		Get("/")
 	if err != nil {
 		return "", fmt.Errorf("clickhouse query failed: %w", err)
