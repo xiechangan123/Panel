@@ -16,7 +16,7 @@ If you find any security issues while using AcePanel, please do not submit an Is
 
 Please do not apply for CVE, CNVD, or similar vulnerability IDs without contacting us first. Once an issue has been confirmed and fixed, we will assist with the related disclosure process. Thank you in advance for your support and cooperation!
 
-**Special Note: ** AcePanel is designed with high-privilege operational capabilities. Any action performed under a valid authenticated session (such as session or access_token), including but not limited to obtaining root privileges, reading or writing sensitive system files, or executing arbitrary shell commands, is considered within the intended design scope and does not constitute a security issue. Please do not submit reports of this nature, as they are effectively self-compromise scenarios and only waste time for both parties.
+**Special Note:** AcePanel is designed with high-privilege operational capabilities. Any action performed under a valid authenticated session (such as session or access_token), including but not limited to obtaining root privileges, reading or writing sensitive system files, or executing arbitrary shell commands, is considered within the intended design scope and does not constitute a security issue. Please do not submit reports of this nature, as they are effectively self-compromise scenarios and only waste time for both parties.
 
 ## 安全说明
 
