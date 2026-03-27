@@ -70,12 +70,11 @@ const handleSaveConfig = () => {
                 <n-li>Nginx — <n-text code>12708</n-text></n-li>
                 <n-li>MySQL — <n-text code>14057</n-text></n-li>
                 <n-li>PostgreSQL — <n-text code>9628</n-text></n-li>
-                <n-li>MongoDB — <n-text code>2583</n-text></n-li>
-                <n-li>ClickHouse — <n-text code>14192</n-text></n-li>
+                <n-li>MongoDB — <n-text code>20867</n-text></n-li>
                 <n-li>Elasticsearch — <n-text code>14191</n-text></n-li>
                 <n-li>Redis — <n-text code>11835</n-text> / <n-text code>14091</n-text></n-li>
                 <n-li>Memcached — <n-text code>37</n-text></n-li>
-                <n-li>Kafka — <n-text code>7589</n-text></n-li>
+                <n-li>Kafka — <n-text code>15465</n-text></n-li>
                 <n-li>RocketMQ — <n-text code>10477</n-text></n-li>
               </n-ul>
               <span>
