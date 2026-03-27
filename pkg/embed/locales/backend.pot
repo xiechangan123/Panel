@@ -429,6 +429,10 @@ msgstr ""
 msgid "Download remote file %v"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:401
+msgid "Elasticsearch metrics"
+msgstr ""
+
 #: internal/route/cli.go:101
 msgid "Enable HTTPS"
 msgstr ""
@@ -758,6 +762,10 @@ msgstr ""
 msgid "Journal logs"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:404
+msgid "Kafka metrics"
+msgstr ""
+
 #: internal/apps/redis/app.go:92
 #: internal/apps/valkey/app.go:92
 msgid "Keyspace Hits"
@@ -850,7 +858,7 @@ msgstr ""
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:400
+#: internal/apps/prometheus/app.go:403
 msgid "Memcached metrics"
 msgstr ""
 
@@ -876,6 +884,10 @@ msgstr ""
 msgid "Migration started"
 msgstr ""
 
+#: internal/apps/prometheus/app.go:400
+msgid "MongoDB metrics"
+msgstr ""
+
 #: internal/data/backup.go:871
 msgid "Move acepanel file failed: %v"
 msgstr ""
@@ -884,7 +896,7 @@ msgstr ""
 msgid "Move panel file failed: %v"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:397
+#: internal/apps/prometheus/app.go:398
 msgid "MySQL database metrics"
 msgstr ""
 
@@ -910,7 +922,7 @@ msgstr ""
 msgid "New username cannot be empty"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:401
+#: internal/apps/prometheus/app.go:397
 msgid "Nginx metrics"
 msgstr ""
 
@@ -1111,7 +1123,7 @@ msgstr ""
 msgid "Port: %d"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:398
+#: internal/apps/prometheus/app.go:399
 msgid "PostgreSQL database metrics"
 msgstr ""
 
@@ -1181,7 +1193,7 @@ msgstr ""
 msgid "Readline is a library for processing text"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:399
+#: internal/apps/prometheus/app.go:402
 msgid "Redis metrics"
 msgstr ""
 

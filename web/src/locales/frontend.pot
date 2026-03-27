@@ -982,7 +982,7 @@ msgstr ""
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:268
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:288
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:195
-#: src/views/apps/grafana/IndexView.vue:95
+#: src/views/apps/grafana/IndexView.vue:109
 #: src/views/apps/kafka/IndexView.vue:76
 #: src/views/apps/kafka/KafkaConfigTuneView.vue:81
 #: src/views/apps/kafka/KafkaConfigTuneView.vue:107
@@ -2162,7 +2162,7 @@ msgstr ""
 #: src/views/apps/apache/IndexView.vue:89
 #: src/views/apps/clickhouse/IndexView.vue:135
 #: src/views/apps/elasticsearch/IndexView.vue:84
-#: src/views/apps/grafana/IndexView.vue:106
+#: src/views/apps/grafana/IndexView.vue:120
 #: src/views/apps/kafka/IndexView.vue:84
 #: src/views/apps/memcached/IndexView.vue:80
 #: src/views/apps/mongodb/IndexView.vue:135
@@ -2186,7 +2186,7 @@ msgstr ""
 #: src/views/apps/elasticsearch/IndexView.vue:94
 #: src/views/apps/fail2ban/IndexView.vue:299
 #: src/views/apps/gitea/IndexView.vue:55
-#: src/views/apps/grafana/IndexView.vue:116
+#: src/views/apps/grafana/IndexView.vue:130
 #: src/views/apps/kafka/IndexView.vue:94
 #: src/views/apps/memcached/IndexView.vue:90
 #: src/views/apps/minio/IndexView.vue:55
@@ -2346,7 +2346,7 @@ msgstr ""
 
 #: src/views/apps/clickhouse/IndexView.vue:115
 #: src/views/apps/elasticsearch/IndexView.vue:64
-#: src/views/apps/grafana/IndexView.vue:83
+#: src/views/apps/grafana/IndexView.vue:92
 #: src/views/apps/kafka/IndexView.vue:64
 #: src/views/apps/mongodb/IndexView.vue:115
 #: src/views/apps/opensearch/IndexView.vue:64
@@ -2367,7 +2367,7 @@ msgstr ""
 
 #: src/views/apps/clickhouse/IndexView.vue:132
 #: src/views/apps/elasticsearch/IndexView.vue:81
-#: src/views/apps/grafana/IndexView.vue:100
+#: src/views/apps/grafana/IndexView.vue:114
 #: src/views/apps/kafka/IndexView.vue:81
 #: src/views/apps/memcached/IndexView.vue:77
 #: src/views/apps/mongodb/IndexView.vue:132
@@ -3129,15 +3129,15 @@ msgstr ""
 msgid "Import dashboards in Grafana via Dashboard ID:"
 msgstr ""
 
-#: src/views/apps/grafana/IndexView.vue:77
+#: src/views/apps/grafana/IndexView.vue:83
 msgid "Go to Grafana → Dashboards → New → Import, enter the ID above and select the Prometheus data source."
 msgstr ""
 
-#: src/views/apps/grafana/IndexView.vue:87
+#: src/views/apps/grafana/IndexView.vue:96
 msgid "This modifies the Grafana main configuration file. If you do not understand the meaning of each parameter, please do not modify it randomly!"
 msgstr ""
 
-#: src/views/apps/grafana/IndexView.vue:103
+#: src/views/apps/grafana/IndexView.vue:117
 msgid "Data Sources"
 msgstr ""
 
