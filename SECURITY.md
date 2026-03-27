@@ -16,7 +16,7 @@ If you find any security issues while using AcePanel, please do not submit an Is
 
 Please do not apply for CVE, CNVD, or similar vulnerability IDs without contacting us first. Once an issue has been confirmed and fixed, we will assist with the related disclosure process. Thank you in advance for your support and cooperation!
 
-**Special Note:** AcePanel is designed with high-privilege operational capabilities. Any action performed under a valid authenticated session (such as session or access_token), including but not limited to obtaining root privileges, reading or writing sensitive system files, or executing arbitrary shell commands, is considered within the intended design scope and does not constitute a security issue. Please do not submit reports of this nature, as they are effectively self-compromise scenarios and only waste time for both parties.
+**Special Note: ** AcePanel is designed with high-privilege operational capabilities. Any action performed under a valid authenticated session (such as session or access_token), including but not limited to obtaining root privileges, reading or writing sensitive system files, or executing arbitrary shell commands, is considered within the intended design scope and does not constitute a security issue. Please do not submit reports of this nature, as they are effectively self-compromise scenarios and only waste time for both parties.
 
 ## 安全说明
 
@@ -28,4 +28,4 @@ Please do not apply for CVE, CNVD, or similar vulnerability IDs without contacti
 
 请勿在未与我们沟通的情况下直接申请 CVE、CNVD 等漏洞编号，相关问题确认并修复后我们会协助处理。提前感谢您的支持与配合！
 
-**特别说明：**AcePanel 本身具备高权限操作能力，基于有效登录态（如 `session`、`access_token`）所执行的任何操作（包括且不限于：获取 root 权限、读取/写入系统敏感文件、执行任意 shell 命令等）均属于预期设计范围，不视为安全问题。请勿提交此类我攻击我自己的报告浪费彼此时间。
+**特别说明：** AcePanel 本身具备高权限操作能力，基于有效登录态（如 `session`、`access_token`）所执行的任何操作（包括且不限于：获取 root 权限、读取/写入系统敏感文件、执行任意 shell 命令等）均属于预期设计范围，不视为安全问题。请勿提交此类我攻击我自己的报告浪费彼此时间。
