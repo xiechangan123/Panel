@@ -213,9 +213,9 @@ func (s *App) SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// 回退：停止服务，无认证模式修改
 		_ = systemctl.Stop("mongod")
-		_, _ = shell.Execf(`mongod --config %s --noauth --fork --logpath /tmp/mongod_reset.log`, s.configPath())
+		_, _ = shell.Execf(`su -s /bin/bash mongod -c "mongod --config %s --noauth --fork --logpath /tmp/mongod_reset.log"`, s.configPath())
 		_, resetErr := shell.Execf(`mongosh --quiet --eval "db.getSiblingDB('admin').changeUserPassword('admin', '%s')"`, req.Password)
-		_, _ = shell.Execf(`mongod --config %s --shutdown 2>/dev/null; pkill -f 'mongod --config.*--noauth' 2>/dev/null`, s.configPath())
+		_, _ = shell.Execf(`su -s /bin/bash mongod -c "mongod --config %s --shutdown" 2>/dev/null; pkill -f 'mongod --config.*--noauth' 2>/dev/null`, s.configPath())
 		_ = systemctl.Start("mongod")
 		if resetErr != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set MongoDB admin password: %v", resetErr))
