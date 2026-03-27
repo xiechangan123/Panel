@@ -394,11 +394,14 @@ func (s *App) UpdateExporterConfig(w http.ResponseWriter, r *http.Request) {
 func (s *App) getExporters() []Exporter {
 	return []Exporter{
 		{Name: "Node Exporter", Slug: "node_exporter", Description: s.t.Get("Hardware and OS metrics")},
+		{Name: "Nginx Exporter", Slug: "nginx_exporter", Description: s.t.Get("Nginx metrics")},
 		{Name: "MySQL Exporter", Slug: "mysqld_exporter", Description: s.t.Get("MySQL database metrics"), HasConfig: true},
 		{Name: "PostgreSQL Exporter", Slug: "postgres_exporter", Description: s.t.Get("PostgreSQL database metrics"), HasConfig: true},
+		{Name: "MongoDB Exporter", Slug: "mongodb_exporter", Description: s.t.Get("MongoDB metrics"), HasConfig: true},
+		{Name: "Elasticsearch Exporter", Slug: "elasticsearch_exporter", Description: s.t.Get("Elasticsearch metrics"), HasConfig: true},
 		{Name: "Redis Exporter", Slug: "redis_exporter", Description: s.t.Get("Redis metrics"), HasConfig: true},
 		{Name: "Memcached Exporter", Slug: "memcached_exporter", Description: s.t.Get("Memcached metrics")},
-		{Name: "Nginx Exporter", Slug: "nginx_exporter", Description: s.t.Get("Nginx metrics")},
+		{Name: "Kafka Exporter", Slug: "kafka_exporter", Description: s.t.Get("Kafka metrics"), HasConfig: true},
 	}
 }
 
@@ -406,7 +409,7 @@ func (s *App) getExporters() []Exporter {
 func (s *App) getExporterConfigPath(slug string) string {
 	base := fmt.Sprintf("%s/server/prometheus/exporters/%s", app.Root, slug)
 	switch slug {
-	case "redis_exporter", "postgres_exporter":
+	case "redis_exporter", "postgres_exporter", "elasticsearch_exporter", "mongodb_exporter", "kafka_exporter":
 		return base + "/env"
 	case "mysqld_exporter":
 		return base + "/.my.cnf"
