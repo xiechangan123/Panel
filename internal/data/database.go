@@ -250,7 +250,7 @@ func (r *databaseRepo) Comment(req *request.DatabaseComment) error {
 		defer operator.Close()
 		return operator.(*db.Postgres).DatabaseComment(req.Name, req.Comment)
 	default:
-		return fmt.Errorf(r.t.Get("%s does not support database comment", server.Type))
+		return errors.New(r.t.Get("%s does not support database comment", server.Type))
 	}
 }
 
