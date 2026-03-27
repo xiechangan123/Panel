@@ -67,14 +67,23 @@ const handleSaveConfig = () => {
               <span>{{ $gettext('Import dashboards in Grafana via Dashboard ID:') }}</span>
               <n-ul>
                 <n-li>Node Exporter — <n-text code>1860</n-text></n-li>
+                <n-li>Nginx — <n-text code>12708</n-text></n-li>
                 <n-li>MySQL — <n-text code>14057</n-text></n-li>
                 <n-li>PostgreSQL — <n-text code>9628</n-text></n-li>
+                <n-li>MongoDB — <n-text code>2583</n-text></n-li>
+                <n-li>ClickHouse — <n-text code>14192</n-text></n-li>
+                <n-li>Elasticsearch — <n-text code>14191</n-text></n-li>
                 <n-li>Redis — <n-text code>11835</n-text> / <n-text code>14091</n-text></n-li>
                 <n-li>Memcached — <n-text code>37</n-text></n-li>
-                <n-li>Nginx — <n-text code>12708</n-text></n-li>
+                <n-li>Kafka — <n-text code>7589</n-text></n-li>
+                <n-li>RocketMQ — <n-text code>10477</n-text></n-li>
               </n-ul>
               <span>
-                {{ $gettext('Go to Grafana → Dashboards → New → Import, enter the ID above and select the Prometheus data source.') }}
+                {{
+                  $gettext(
+                    'Go to Grafana → Dashboards → New → Import, enter the ID above and select the Prometheus data source.'
+                  )
+                }}
               </span>
             </n-flex>
           </n-alert>
@@ -91,7 +100,12 @@ const handleSaveConfig = () => {
           </n-alert>
           <common-editor v-model:value="config" height="60vh" />
           <n-flex>
-            <n-button type="primary" :loading="saveConfigLoading" :disabled="saveConfigLoading" @click="handleSaveConfig">
+            <n-button
+              type="primary"
+              :loading="saveConfigLoading"
+              :disabled="saveConfigLoading"
+              @click="handleSaveConfig"
+            >
               {{ $gettext('Save') }}
             </n-button>
           </n-flex>
