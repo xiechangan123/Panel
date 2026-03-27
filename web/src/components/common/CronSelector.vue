@@ -16,6 +16,7 @@ const selectedOption = ref<string>('every-n-minutes')
 // 表单数据
 const formData = ref({
   // Every N 系列
+  nSeconds: 5, // 每 N 秒
   nMinutes: 30, // 每 N 分钟
   nHours: 2, // 每 N 小时
   nDays: 3, // 每 N 天
@@ -45,6 +46,29 @@ const parseCron = (cron: string) => {
   }
 
   const parts = cron.split(' ')
+
+  // 6 字段表达式（秒级）
+  if (parts.length === 6) {
+    const second = parts[0]!
+    const rest = parts.slice(1)
+    // 后 5 个字段必须全是 *
+    if (rest.every((f) => f === '*')) {
+      if (second === '*') {
+        selectedOption.value = 'every-second'
+        return
+      }
+      if (second.startsWith('*/')) {
+        selectedOption.value = 'every-n-seconds'
+        formData.value.nSeconds = parseInt(second.slice(2)) || 5
+        return
+      }
+    }
+    // 无法匹配的 6 字段，降级到自定义
+    selectedOption.value = 'custom'
+    formData.value.customCron = cron
+    return
+  }
+
   if (parts.length !== 5) {
     // 无法解析，使用自定义模式
     selectedOption.value = 'custom'
@@ -152,6 +176,8 @@ const parseCron = (cron: string) => {
 
 // 周期选项
 const options = [
+  { label: $gettext('Every Second'), value: 'every-second' },
+  { label: $gettext('Every N Seconds'), value: 'every-n-seconds' },
   { label: $gettext('Every Minute'), value: 'every-minute' },
   { label: $gettext('Every N Minutes'), value: 'every-n-minutes' },
   { label: $gettext('Every N Hours'), value: 'every-n-hours' },
@@ -187,6 +213,14 @@ const generateCron = (): string => {
   const { minute, hour, day, month, weekday, nMinutes, nHours, nDays, customCron } = formData.value
 
   switch (selectedOption.value) {
+    case 'every-second':
+      // 每秒：* * * * * *（6 字段）
+      return '* * * * * *'
+
+    case 'every-n-seconds':
+      // 每 N 秒：*/N * * * * *（6 字段）
+      return `*/${formData.value.nSeconds} * * * * *`
+
     case 'every-minute':
       // 每分钟：* * * * *
       return '* * * * *'
@@ -287,6 +321,7 @@ const showMinute = computed(() =>
 const showNDays = computed(() => selectedOption.value === 'every-n-days')
 const showNHours = computed(() => selectedOption.value === 'every-n-hours')
 const showNMinutes = computed(() => selectedOption.value === 'every-n-minutes')
+const showNSeconds = computed(() => selectedOption.value === 'every-n-seconds')
 const showCustom = computed(() => selectedOption.value === 'custom')
 </script>
 
@@ -299,6 +334,17 @@ const showCustom = computed(() => selectedOption.value === 'custom')
         :options="options"
         :style="{ width: '160px', flexShrink: 0 }"
       />
+
+      <!-- 每 N 秒 -->
+      <n-input-number
+        v-if="showNSeconds"
+        v-model:value="formData.nSeconds"
+        :min="1"
+        :max="59"
+        :style="{ width: '140px' }"
+      >
+        <template #suffix>{{ $gettext('Seconds') }}</template>
+      </n-input-number>
 
       <!-- 每 N 分钟 -->
       <n-input-number

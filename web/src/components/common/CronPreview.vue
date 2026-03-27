@@ -40,6 +40,22 @@ const parseDescription = computed((): string => {
 
   const parts = cron.split(/\s+/)
 
+  // 6 字段表达式（秒级）
+  if (parts.length === 6) {
+    const second = parts[0]!
+    const rest = parts.slice(1)
+    if (rest.every((f) => f === '*')) {
+      if (second === '*') {
+        return $gettext('Run every second')
+      }
+      if (second.startsWith('*/')) {
+        const n = second.slice(2)
+        return $gettext('Run every %{n} seconds', { n })
+      }
+    }
+    return $gettext('Cron expression: %{cron}', { cron })
+  }
+
   // Cron 表达式应该有 5 个部分：分 时 日 月 周
   if (parts.length !== 5) {
     return $gettext('Cron expression: %{cron}', { cron })

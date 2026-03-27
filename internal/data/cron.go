@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
@@ -181,9 +182,11 @@ func (r *cronRepo) Delete(ctx context.Context, id uint) error {
 	if err = io.Remove(cron.Shell); err != nil {
 		return err
 	}
-	// 清理 .lock 文件
+	// 清理 .lock 文件和 _wrapper.sh 文件
 	lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
 	_ = io.Remove(lockFile)
+	wrapperFile := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
+	_ = io.Remove(wrapperFile)
 
 	if err = r.db.Delete(cron).Error; err != nil {
 		return err
@@ -222,6 +225,20 @@ func (r *cronRepo) addToSystem(cron *biz.Cron) error {
 		lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
 		cmd = fmt.Sprintf("flock -xn %s %s", lockFile, cron.Shell)
 	}
+
+	// 秒级任务：生成 wrapper 脚本，用每分钟触发模拟秒级执行
+	if seconds := r.parseSeconds(cron.Time); seconds > 0 {
+		wrapperPath := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
+		wrapperScript := r.generateWrapper(cmd, cron.Log, seconds)
+		if err := io.Write(wrapperPath, wrapperScript, 0700); err != nil {
+			return err
+		}
+		if _, err := shell.Execf(`( crontab -l; echo "* * * * * %s" ) | sort - | uniq - | crontab -`, wrapperPath); err != nil {
+			return err
+		}
+		return r.restartCron()
+	}
+
 	if _, err := shell.Execf(`( crontab -l; echo "%s %s >> %s 2>&1" ) | sort - | uniq - | crontab -`, cron.Time, cmd, cron.Log); err != nil {
 		return err
 	}
@@ -231,6 +248,12 @@ func (r *cronRepo) addToSystem(cron *biz.Cron) error {
 
 // deleteFromSystem 从系统中删除
 func (r *cronRepo) deleteFromSystem(cron *biz.Cron) error {
+	// 清理秒级任务的 wrapper 条目和脚本
+	wrapperPath := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
+	_, _ = shell.Execf(`( crontab -l | grep -v -F "%s" ) | crontab -`, wrapperPath)
+	_ = io.Remove(wrapperPath)
+
+	// 清理普通任务的 crontab 条目
 	if _, err := shell.Execf(`( crontab -l | grep -v -F "%s >> %s 2>&1" ) | crontab -`, cron.Shell, cron.Log); err != nil {
 		return err
 	}
@@ -322,4 +345,51 @@ func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript
 	}
 
 	return sb.String()
+}
+
+// parseSeconds 从 6 字段 cron 表达式中解析秒级间隔
+// 返回 0 表示非秒级任务
+func (r *cronRepo) parseSeconds(time string) int {
+	fields := strings.Fields(time)
+	if len(fields) != 6 {
+		return 0
+	}
+
+	// 6 字段格式：秒 分 时 日 月 周，后 5 个字段必须全是 *
+	for _, f := range fields[1:] {
+		if f != "*" {
+			return 0
+		}
+	}
+
+	second := fields[0]
+	// 每秒：* * * * * *
+	if second == "*" {
+		return 1
+	}
+	// 每 N 秒：*/N * * * * *
+	if strings.HasPrefix(second, "*/") {
+		n, err := strconv.Atoi(second[2:])
+		if err != nil || n <= 0 || n > 59 {
+			return 0
+		}
+		return n
+	}
+
+	return 0
+}
+
+// generateWrapper 生成秒级任务的 wrapper 脚本
+// 通过每分钟触发 + 循环 sleep 模拟秒级执行
+func (r *cronRepo) generateWrapper(cmd, logFile string, seconds int) string {
+	count := 60 / seconds
+	return fmt.Sprintf(`#!/bin/bash
+INTERVAL=%d
+COUNT=%d
+for i in $(seq 1 $COUNT); do
+    %s >> %s 2>&1 &
+    [ $i -lt $COUNT ] && sleep $INTERVAL
+done
+wait
+`, seconds, count, cmd, logFile)
 }
