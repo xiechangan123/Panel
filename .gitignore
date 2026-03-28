@@ -35,6 +35,8 @@ cli
 *.log
 *.sqlite
 *.db
+*.db-shm
+*.db-wal
 config.yml
 
 # 临时文件

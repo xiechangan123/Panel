@@ -51,13 +51,9 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 从配置中获取端口（优先 grafana.ini，回退 defaults.ini）
-	custom, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
-	port := s.getINIValue(custom, "server", "http_port")
-	if port == "" {
-		defaults, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/defaults.ini", app.Root))
-		port = s.getINIValue(defaults, "server", "http_port")
-	}
+	// 从 defaults.ini 获取端口
+	config, _ := io.Read(s.configPath())
+	port := s.getINIValue(config, "server", "http_port")
 	if port == "" {
 		port = "3000"
 	}
@@ -90,8 +86,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	confPath := fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root)
-	config, _ := io.Read(confPath)
+	config, _ := io.Read(s.configPath())
 
 	service.Success(w, config)
 }
@@ -103,7 +98,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(s.configPath(), req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -118,15 +113,10 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Grafana 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	// 先读 defaults.ini 获取默认值，再用 grafana.ini 覆盖
-	defaults, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/defaults.ini", app.Root))
-	custom, _ := io.Read(fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root))
+	config, _ := io.Read(s.configPath())
 
 	get := func(section, key string) string {
-		if v := s.getINIValue(custom, section, key); v != "" {
-			return v
-		}
-		return s.getINIValue(defaults, section, key)
+		return s.getINIValue(config, section, key)
 	}
 
 	tune := ConfigTune{
@@ -169,8 +159,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/grafana/conf/grafana.ini", app.Root)
-	config, _ := io.Read(confPath)
+	config, _ := io.Read(s.configPath())
 
 	// [server]
 	config = s.setINIValue(config, "server", "http_port", req.HTTPPort)
@@ -199,7 +188,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	config = s.setINIValue(config, "log", "mode", req.LogMode)
 	config = s.setINIValue(config, "log", "level", req.LogLevel)
 
-	if err = io.Write(confPath, config, 0644); err != nil {
+	if err = io.Write(s.configPath(), config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -334,6 +323,11 @@ func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
+}
+
+// configPath 返回 Grafana 主配置文件路径
+func (s *App) configPath() string {
+	return fmt.Sprintf("%s/server/grafana/conf/defaults.ini", app.Root)
 }
 
 // getINIValue 从 INI 配置中获取指定 section 下的 key 值
