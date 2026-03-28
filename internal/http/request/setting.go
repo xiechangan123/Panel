@@ -30,8 +30,8 @@ type SettingPanel struct {
 	HTTPS         bool     `json:"https"`
 	ACME          bool     `json:"acme"`
 	PublicIP      []string `json:"public_ip"`
-	Cert          string   `json:"cert" validate:"required"`
-	Key           string   `json:"key" validate:"required"`
+	Cert          string   `json:"cert"`
+	Key           string   `json:"key"`
 }
 
 func (r *SettingPanel) Rules(_ *http.Request) map[string]string {
