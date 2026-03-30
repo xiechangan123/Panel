@@ -33,13 +33,18 @@ type HTTPConfig struct {
 	Port          uint     `yaml:"port"`
 	Entrance      string   `yaml:"entrance"`
 	EntranceError string   `yaml:"entrance_error"`
-	TLS           bool     `yaml:"tls"`
-	ACME          bool     `yaml:"acme"`
+	TLS           string   `yaml:"tls"` // off, acme, self-signed, custom
 	LoginCaptcha  bool     `yaml:"login_captcha"`
 	IPHeader      string   `yaml:"ip_header"`
 	BindDomain    []string `yaml:"bind_domain"`
 	BindIP        []string `yaml:"bind_ip"`
 	BindUA        []string `yaml:"bind_ua"`
+}
+
+// IsHTTPS 判断是否启用 HTTPS
+func (c *HTTPConfig) IsHTTPS() bool {
+	// TODO remove false in v4
+	return c.TLS != "off" && c.TLS != "false" && c.TLS != ""
 }
 
 type DatabaseConfig struct {

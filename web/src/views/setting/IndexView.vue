@@ -24,18 +24,16 @@ const isObtainCert = ref(false)
 const saveLoading = ref(false)
 
 // 记录已保存的 HTTPS 相关设置，用于判断是否有未保存的修改
-const savedHttpsState = ref({ https: false, acme: false, public_ip: '[]' })
+const savedHttpsState = ref({ tls: 'off', public_ip: '[]' })
 const httpsSettingsDirty = computed(() => {
   return (
-    model.value.https !== savedHttpsState.value.https ||
-    model.value.acme !== savedHttpsState.value.acme ||
+    model.value.tls !== savedHttpsState.value.tls ||
     JSON.stringify(model.value.public_ip) !== savedHttpsState.value.public_ip
   )
 })
 const snapshotHttpsState = () => {
   savedHttpsState.value = {
-    https: model.value.https,
-    acme: model.value.acme,
+    tls: model.value.tls,
     public_ip: JSON.stringify(model.value.public_ip)
   }
 }
@@ -65,8 +63,7 @@ const { data: model } = useRequest(setting.list, {
     ipdb_type: '',
     ipdb_url: '',
     ipdb_path: '',
-    https: false,
-    acme: false,
+    tls: 'off',
     public_ip: [],
     cert: '',
     key: ''
@@ -101,7 +98,7 @@ const handleSave = () => {
       if (data.restart) {
         window.$message.info($gettext('Panel is restarting, page will refresh in 5 seconds'))
         setTimeout(() => {
-          const protocol = model.value.https ? 'https:' : 'http:'
+          const protocol = model.value.tls !== 'off' ? 'https:' : 'http:'
           const hostname = window.location.hostname
           const port = model.value.port
           const entrance = model.value.entrance || '/'
@@ -171,13 +168,17 @@ const handleCreate = () => {
           {{ $gettext('Save') }}
         </n-button>
         <n-button
-          v-if="currentTab === 'safe' && model.https && model.acme"
+          v-if="currentTab === 'safe' && (model.tls === 'acme' || model.tls === 'self-signed')"
           type="info"
           :loading="isObtainCert"
           :disabled="httpsSettingsDirty || isObtainCert"
           @click="handleObtainCert"
         >
-          {{ $gettext('Refresh Certificate') }}
+          {{
+            model.tls === 'acme'
+              ? $gettext('Refresh Certificate')
+              : $gettext('Regenerate Certificate')
+          }}
         </n-button>
       </n-flex>
     </n-flex>

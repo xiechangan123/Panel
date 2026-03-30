@@ -284,6 +284,24 @@ func GetLocalIPv6() (string, error) {
 	return local.IP.String(), nil
 }
 
+// CollectLocalNames 收集本机所有 IP 地址
+func CollectLocalNames() []string {
+	var names []string
+	if lv4, err := GetLocalIPv4(); err == nil && !slices.Contains(names, lv4) {
+		names = append(names, lv4)
+	}
+	if lv6, err := GetLocalIPv6(); err == nil && !slices.Contains(names, lv6) {
+		names = append(names, lv6)
+	}
+	if rv4, err := GetPublicIPv4(); err == nil && !slices.Contains(names, rv4) {
+		names = append(names, rv4)
+	}
+	if rv6, err := GetPublicIPv6(); err == nil && !slices.Contains(names, rv6) {
+		names = append(names, rv6)
+	}
+	return names
+}
+
 // FormatBytes 格式化bytes
 func FormatBytes(size float64) string {
 	units := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"}

@@ -31,7 +31,7 @@ func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *rout
 }
 
 func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
-	if !conf.HTTP.TLS {
+	if !conf.HTTP.IsHTTPS() {
 		return nil, nil
 	}
 
@@ -52,7 +52,7 @@ func NewHttp(conf *config.Config, mux *chi.Mux, reloader *tlscert.Reloader) (*hl
 	})
 	srv.Listen80RedirectTo443 = true
 
-	if conf.HTTP.TLS && reloader != nil {
+	if conf.HTTP.IsHTTPS() && reloader != nil {
 		srv.TLSConfig = &tls.Config{
 			MinVersion:     tls.VersionTLS12,
 			GetCertificate: reloader.GetCertificate,

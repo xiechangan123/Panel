@@ -14,6 +14,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/http/request"
 	pkgcert "github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
 // CertRenew 证书续签
@@ -73,7 +74,38 @@ func (r *CertRenew) Run() {
 	}
 
 	// 面板证书续签
-	if r.conf.HTTP.ACME {
+	switch r.conf.HTTP.TLS {
+	case "self-signed":
+		// 自签证书续签
+		crt, _ := os.ReadFile(filepath.Join(app.Root, "panel/storage/cert.pem"))
+		decode, err := pkgcert.ParseCert(crt)
+		if err == nil {
+			if time.Until(decode.NotAfter) > 30*24*time.Hour {
+				return
+			}
+		} else {
+			r.log.Warn("failed to parse panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+		}
+
+		newCrt, newKey, err := pkgcert.GenerateSelfSigned(tools.CollectLocalNames())
+		if err != nil {
+			r.log.Warn("failed to generate self-signed certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			return
+		}
+		if err = r.settingRepo.UpdateCert(&request.SettingCert{
+			Cert: string(newCrt),
+			Key:  string(newKey),
+		}); err != nil {
+			r.log.Warn("failed to update panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			return
+		}
+		r.log.Info("panel self-signed certificate renewed", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
+
+	case "off", "custom":
+		// off/custom 不需要自动续签
+
+	default:
+		// ACME 模式
 		crt, _ := os.ReadFile(filepath.Join(app.Root, "panel/storage/cert.pem"))
 		decode, err := pkgcert.ParseCert(crt)
 		if err == nil {

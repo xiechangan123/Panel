@@ -356,7 +356,7 @@ func (s *UserPasskeyService) Delete(w http.ResponseWriter, r *http.Request) {
 // isCertTrusted 检查面板证书是否由 CA 签发（非自签名）
 // 用证书自身公钥验签自身签名，成功说明是自签名证书
 func (s *UserPasskeyService) isCertTrusted() bool {
-	if !s.conf.HTTP.TLS {
+	if !s.conf.HTTP.IsHTTPS() {
 		return false
 	}
 

@@ -6,27 +6,11 @@ const { $gettext } = useGettext()
 
 const model = defineModel<any>('model', { type: Object, required: true })
 
-// HTTPS 模式：off / acme / custom
+// HTTPS 模式：off / acme / self-signed / custom
 const httpsMode = computed({
-  get: () => {
-    if (!model.value.https) return 'off'
-    return model.value.acme ? 'acme' : 'custom'
-  },
-  set: (value: string) => {
-    switch (value) {
-      case 'off':
-        model.value.https = false
-        model.value.acme = false
-        break
-      case 'acme':
-        model.value.https = true
-        model.value.acme = true
-        break
-      case 'custom':
-        model.value.https = true
-        model.value.acme = false
-        break
-    }
+  get: () => model.value.tls || 'off',
+  set: (v: string) => {
+    model.value.tls = v
   }
 })
 </script>
@@ -251,7 +235,7 @@ const httpsMode = computed({
             </template>
             {{
               $gettext(
-                'Enable HTTPS for the panel. ACME will automatically obtain and renew the certificate daily (requires panel accessible via public IP). Custom allows you to provide your own certificate'
+                'Enable HTTPS for the panel. ACME will automatically obtain and renew the certificate daily (requires panel accessible via public IP). Self-Signed generates a certificate automatically (browsers will show a warning). Custom allows you to provide your own certificate'
               )
             }}
           </n-tooltip>
@@ -261,6 +245,7 @@ const httpsMode = computed({
             v-for="option in [
               { label: $gettext('Disabled'), value: 'off' },
               { label: $gettext('ACME (Auto)'), value: 'acme' },
+              { label: $gettext('Self-Signed'), value: 'self-signed' },
               { label: $gettext('Custom Certificate'), value: 'custom' }
             ]"
             :key="option.value"

@@ -69,7 +69,7 @@ func (r *Ace) Run() error {
 	serverErr := make(chan error, 1)
 	go func() {
 		fmt.Println("[HTTP] listening and serving on port", r.conf.HTTP.Port)
-		if r.conf.HTTP.TLS {
+		if r.conf.HTTP.IsHTTPS() {
 			if err := r.server.ListenAndServeTLS("", ""); !errors.Is(err, http.ErrServerClosed) {
 				serverErr <- err
 			}

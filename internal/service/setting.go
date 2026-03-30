@@ -10,6 +10,8 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/pkg/cert"
+	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
@@ -64,6 +66,30 @@ func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
+	// 自签模式
+	conf, err := config.Load()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if conf.HTTP.TLS == "self-signed" {
+		crt, key, err := cert.GenerateSelfSigned(tools.CollectLocalNames())
+		if err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		if err = s.settingRepo.UpdateCert(&request.SettingCert{
+			Cert: string(crt),
+			Key:  string(key),
+		}); err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		Success(w, nil)
+		return
+	}
+
+	// ACME 模式
 	ip, err := s.settingRepo.Get(biz.SettingKeyPublicIPs)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)

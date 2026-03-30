@@ -163,7 +163,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		ip = r.RemoteAddr
 	}
 
-	if req.SafeLogin && !s.conf.HTTP.TLS {
+	if req.SafeLogin && !s.conf.HTTP.IsHTTPS() {
 		sess.Put("safe_login", true)
 		sess.Put("safe_client", fmt.Sprintf("%x", sha256.Sum256([]byte(ip))))
 	} else {

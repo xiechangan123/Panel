@@ -9,7 +9,6 @@ import (
 	"math/rand/v2"
 	stdos "os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -178,7 +177,7 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	protocol := "http"
-	if s.conf.HTTP.TLS {
+	if s.conf.HTTP.IsHTTPS() {
 		protocol = "https"
 	}
 
@@ -362,7 +361,7 @@ func (s *CliService) HTTPSOn(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	conf.HTTP.TLS = true
+	conf.HTTP.TLS = "acme"
 
 	if err = config.Save(conf); err != nil {
 		return err
@@ -378,7 +377,7 @@ func (s *CliService) HTTPSOff(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	conf.HTTP.TLS = false
+	conf.HTTP.TLS = "off"
 
 	if err = config.Save(conf); err != nil {
 		return err
@@ -389,32 +388,26 @@ func (s *CliService) HTTPSOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error {
-	var names []string
-	if lv4, err := tools.GetLocalIPv4(); err == nil {
-		if !slices.Contains(names, lv4) {
-			names = append(names, lv4)
-		}
-	}
-	if lv6, err := tools.GetLocalIPv6(); err == nil {
-		if !slices.Contains(names, lv6) {
-			names = append(names, lv6)
-		}
-	}
-	if rv4, err := tools.GetPublicIPv4(); err == nil {
-		if !slices.Contains(names, rv4) {
-			names = append(names, rv4)
-		}
-	}
-	if rv6, err := tools.GetPublicIPv6(); err == nil {
-		if !slices.Contains(names, rv6) {
-			names = append(names, rv6)
-		}
-	}
+	names := tools.CollectLocalNames()
 
 	var crt, key []byte
 	var err error
 
-	if s.conf.HTTP.ACME {
+	switch s.conf.HTTP.TLS {
+	case "self-signed":
+		// 自签模式
+		crt, key, err = cert.GenerateSelfSigned(names)
+		if err != nil {
+			return err
+		}
+	case "off", "custom":
+		// off/custom 不需要自动生成，回退到自签
+		crt, key, err = cert.GenerateSelfSigned(names)
+		if err != nil {
+			return err
+		}
+	default:
+		// ACME 模式
 		ip, err := s.settingRepo.Get(biz.SettingKeyPublicIPs)
 		if err != nil {
 			return err
@@ -440,6 +433,7 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		}
 	}
 
+	// ACME 失败回退到自签
 	if crt == nil || key == nil {
 		crt, key, err = cert.GenerateSelfSigned(names)
 		if err != nil {
@@ -1080,7 +1074,9 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 	conf.App.APIEndpoint = "api.acepanel.net"
 	conf.App.DownloadEndpoint = "dl.acepanel.net"
 	conf.HTTP.Entrance = "/" + str.Random(6)
-	conf.HTTP.ACME = acme
+	if acme {
+		conf.HTTP.TLS = "acme"
+	}
 
 	// 随机默认端口
 checkPort:

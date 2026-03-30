@@ -97,7 +97,7 @@ func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager,
 						Expires:  time.Now().Add(time.Duration(session.Lifetime) * time.Minute),
 						Path:     "/",
 						HttpOnly: true,
-						Secure:   conf.HTTP.TLS,
+						Secure:   conf.HTTP.IsHTTPS(),
 						SameSite: http.SameSiteLaxMode,
 					})
 				}
