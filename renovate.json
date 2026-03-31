@@ -26,7 +26,16 @@
         "patch",
         "minor"
       ],
+      "minimumReleaseAge": "3 days",
       "automerge": true
+    },
+    {
+      "groupName": "major dependencies",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "minimumReleaseAge": "7 days",
+      "automerge": false
     }
   ],
   "ignoreDeps": [

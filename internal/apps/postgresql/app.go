@@ -397,13 +397,13 @@ func (s *App) setPGValue(content string, key string, value string) string {
 				}
 				continue
 			}
-			result = append(result, key+" = "+value)
+			result = append(result, key+" = '"+value+"'")
 		} else {
 			result = append(result, line)
 		}
 	}
 	if !found && value != "" {
-		result = append(result, key+" = "+value)
+		result = append(result, key+" = '"+value+"'")
 	}
 	return strings.Join(result, "\n")
 }
