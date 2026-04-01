@@ -278,8 +278,8 @@ const perfChartOption = computed<EChartsOption>(() => {
   })
 
   // 计算最新非零值用于 legend
-  const lastQps = qpsData.findLast((v) => v > 0) ?? 0
-  const lastRt = avgRtData.findLast((v) => v > 0) ?? 0
+  const lastQps = [...qpsData].reverse().find((v) => v > 0) ?? 0
+  const lastRt = [...avgRtData].reverse().find((v) => v > 0) ?? 0
 
   return {
     tooltip: {
