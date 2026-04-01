@@ -1,4 +1,4 @@
-import { useTabStore } from '@/store'
+import { useTabStore } from '@/stores'
 import type { Router } from 'vue-router'
 
 export const EXCLUDE_TAB = ['/404', '/403', '/login']

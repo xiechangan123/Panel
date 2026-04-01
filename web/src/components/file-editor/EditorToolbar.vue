@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
-import { useEditorStore } from '@/store'
+import { useEditorStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
 import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'

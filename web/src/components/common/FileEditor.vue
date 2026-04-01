@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
 import { languageByPath } from '@/utils/file'
 import { getMonaco } from '@/utils/monaco'

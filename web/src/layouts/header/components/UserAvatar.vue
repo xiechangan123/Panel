@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import user from '@/api/panel/user'
 import { router } from '@/router'
-import { useUserStore } from '@/store'
+import { useUserStore } from '@/stores'
 import { renderIcon } from '@/utils'
 import { useGettext } from 'vue3-gettext'
 

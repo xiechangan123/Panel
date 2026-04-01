@@ -6,7 +6,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import { setupRouter } from '@/router'
-import { setupStore, usePermissionStore, useThemeStore } from '@/store'
+import { setupStore, usePermissionStore, useThemeStore } from '@/stores'
 import { gettext, setCurrent, setupNaiveDiscreteApi } from '@/utils'
 
 import home from '@/api/panel/home'

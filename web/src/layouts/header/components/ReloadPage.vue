@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useTabStore } from '@/store'
+import { useTabStore } from '@/stores'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()

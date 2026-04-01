@@ -1,5 +1,5 @@
 import file from '@/api/panel/file'
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 import { NButton, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 

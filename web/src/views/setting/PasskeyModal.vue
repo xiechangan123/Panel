@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import user from '@/api/panel/user'
-import { useUserStore } from '@/store'
+import { useUserStore } from '@/stores'
 import { formatDateTime } from '@/utils'
 import { startRegistration } from '@simplewebauthn/browser'
 import { NAlert, NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'

@@ -2,7 +2,7 @@
 import file from '@/api/panel/file'
 import DraggableWindow from '@/components/common/DraggableWindow.vue'
 import { FileEditorView } from '@/components/file-editor'
-import { useEditorStore } from '@/store'
+import { useEditorStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
 import { useGettext } from 'vue3-gettext'
 

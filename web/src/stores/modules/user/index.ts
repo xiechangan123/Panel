@@ -1,5 +1,5 @@
 import { resetRouter } from '@/router'
-import { usePermissionStore, useTabStore } from '@/store'
+import { usePermissionStore, useTabStore } from '@/stores'
 import { toLogin } from '@/utils'
 
 export interface UserInfo {

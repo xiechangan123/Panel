@@ -3,7 +3,7 @@ import AppMain from './AppMain.vue'
 import AppHeader from './header/IndexView.vue'
 import SideBar from './sidebar/IndexView.vue'
 
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 
 const themeStore = useThemeStore()
 </script>

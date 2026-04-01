@@ -3,7 +3,7 @@ defineOptions({
   name: 'file-index'
 })
 
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 import CompressModal from '@/views/file/CompressModal.vue'
 import ListView from '@/views/file/ListView.vue'
 import PathInput from '@/views/file/PathInput.vue'

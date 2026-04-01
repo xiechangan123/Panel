@@ -1,4 +1,4 @@
-import { usePermissionStore } from '@/store'
+import { usePermissionStore } from '@/stores'
 import type { App } from 'vue'
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import type { RoutesType, RouteType } from '@/types/router'

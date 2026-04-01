@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 import { checkName, lastDirectory } from '@/utils/file'
 import { usePaste } from '@/views/file/composables/usePaste'
 import { useGettext } from 'vue3-gettext'

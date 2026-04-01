@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useEditorStore } from '@/store'
+import { useEditorStore } from '@/stores'
 import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 

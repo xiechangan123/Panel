@@ -1,7 +1,7 @@
 import type { Router } from 'vue-router'
 
 import { translateTitle } from '@/locales/menu'
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 
 export function createPageTitleGuard(router: Router) {
   const themeStore = useThemeStore()

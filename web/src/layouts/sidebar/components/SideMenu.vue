@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { translateTitle } from '@/locales/menu'
-import { usePermissionStore, useTabStore, useThemeStore } from '@/store'
+import { usePermissionStore, useTabStore, useThemeStore } from '@/stores'
 import { isUrl, renderIcon } from '@/utils'
 
 import type { MenuInst, MenuOption } from 'naive-ui'

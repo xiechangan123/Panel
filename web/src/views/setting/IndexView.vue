@@ -8,7 +8,7 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import setting from '@/api/panel/setting'
-import { usePermissionStore, useThemeStore } from '@/store'
+import { usePermissionStore, useThemeStore } from '@/stores'
 import CreateModal from '@/views/setting/CreateModal.vue'
 import SettingBase from '@/views/setting/SettingBase.vue'
 import SettingSafe from '@/views/setting/SettingSafe.vue'

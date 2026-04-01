@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import MenuCollapse from '@/layout/header/components/MenuCollapse.vue'
+import MenuCollapse from '@/layouts/header/components/MenuCollapse.vue'
 </script>
 
 <template>

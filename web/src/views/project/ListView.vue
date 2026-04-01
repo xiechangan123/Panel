@@ -6,7 +6,7 @@ import project from '@/api/panel/project'
 import systemctl from '@/api/panel/systemctl'
 import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import RealtimeLog from '@/components/common/RealtimeLog.vue'
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 
 const type = defineModel<string>('type', { type: String, required: true })
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true })

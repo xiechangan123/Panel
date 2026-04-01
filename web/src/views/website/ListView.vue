@@ -5,7 +5,7 @@ import { useGettext } from 'vue3-gettext'
 import website from '@/api/panel/website'
 import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 import { isNullOrUndef } from '@/utils'
 import copy2clipboard from '@vavt/copy2clipboard'
 

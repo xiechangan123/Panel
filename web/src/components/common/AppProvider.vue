@@ -3,7 +3,7 @@ import systemdlog from '@/utils/hljs/systemdlog'
 import hljs from 'highlight.js/lib/core'
 import log from 'highlight.js/lib/languages/accesslog'
 
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 
 hljs.registerLanguage('accesslog', log)
 hljs.registerLanguage('systemdlog', systemdlog)

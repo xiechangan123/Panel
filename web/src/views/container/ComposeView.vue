@@ -4,7 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()

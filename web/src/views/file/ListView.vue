@@ -16,7 +16,7 @@ import { useGettext } from 'vue3-gettext'
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 import {
   checkName,
   checkPath,

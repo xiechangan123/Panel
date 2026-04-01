@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import ReloadPage from '@/layout/header/components/ReloadPage.vue'
-import StickyNote from '@/layout/header/components/StickyNote.vue'
-import TaskStatus from '@/layout/header/components/TaskStatus.vue'
-import AppTab from '@/layout/tab/IndexView.vue'
+import ReloadPage from '@/layouts/header/components/ReloadPage.vue'
+import StickyNote from '@/layouts/header/components/StickyNote.vue'
+import TaskStatus from '@/layouts/header/components/TaskStatus.vue'
+import AppTab from '@/layouts/tab/IndexView.vue'
 import FullScreen from './components/FullScreen.vue'
 import ThemeMode from './components/ThemeMode.vue'
 import UserAvatar from './components/UserAvatar.vue'
 
-import MenuCollapse from '@/layout/header/components/MenuCollapse.vue'
-import { useThemeStore } from '@/store'
+import MenuCollapse from '@/layouts/header/components/MenuCollapse.vue'
+import { useThemeStore } from '@/stores'
 
 const themeStore = useThemeStore()
 </script>

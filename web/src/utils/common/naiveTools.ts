@@ -1,4 +1,4 @@
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 import mitt from 'mitt'
 import * as NaiveUI from 'naive-ui'
 

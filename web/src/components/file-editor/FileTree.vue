@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { useEditorStore } from '@/store'
+import { useEditorStore } from '@/stores'
 import { decodeBase64 } from '@/utils'
 import { getExt, getIconByExt } from '@/utils/file'
 import type { TreeOption } from 'naive-ui'

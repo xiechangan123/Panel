@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import logoImg from '@/assets/images/logo.svg'
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 
 const themeStore = useThemeStore()
 const router = useRouter()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useEditorStore } from '@/store'
+import { useEditorStore } from '@/stores'
 import { useGettext } from 'vue3-gettext'
 import EditorPane from './EditorPane.vue'
 import EditorStatusBar from './EditorStatusBar.vue'

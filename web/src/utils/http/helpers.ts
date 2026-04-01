@@ -1,4 +1,4 @@
-import { useUserStore } from '@/store'
+import { useUserStore } from '@/stores'
 
 export function resolveResError(code: number | string | undefined, msg = ''): string {
   switch (code) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 import { getMonaco } from '@/utils/monaco'
 import type * as Monaco from 'monaco-editor'
 import { useThemeVars } from 'naive-ui'

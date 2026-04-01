@@ -2,7 +2,7 @@
 import type { InputInst } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import { useFileStore } from '@/store'
+import { useFileStore } from '@/stores'
 import { checkPath } from '@/utils/file'
 import copy2clipboard from '@vavt/copy2clipboard'
 

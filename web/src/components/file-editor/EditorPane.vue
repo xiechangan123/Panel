@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useEditorStore, useThemeStore } from '@/store'
+import { useEditorStore, useThemeStore } from '@/stores'
 import { languageByPath } from '@/utils/file'
 import { getMonaco } from '@/utils/monaco'
 import type * as Monaco from 'monaco-editor'

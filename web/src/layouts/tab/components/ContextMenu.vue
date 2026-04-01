@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useTabStore } from '@/store'
+import { useTabStore } from '@/stores'
 import { renderIcon } from '@/utils'
 import { useGettext } from 'vue3-gettext'
 

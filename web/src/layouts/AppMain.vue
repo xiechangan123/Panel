@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useTabStore } from '@/store'
+import { useTabStore } from '@/stores'
 
 const tabStore = useTabStore()
 

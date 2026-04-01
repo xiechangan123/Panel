@@ -13,7 +13,7 @@ import VChart from 'vue-echarts'
 import { useGettext } from 'vue3-gettext'
 
 import website from '@/api/panel/website'
-import { useThemeStore } from '@/store'
+import { useThemeStore } from '@/stores'
 import { formatBytes } from '@/utils/file'
 
 import { codeToGeoName, codeToName } from './country-name-map'
