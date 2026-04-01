@@ -123,7 +123,7 @@ function handleMenuSelect(key: string, item: MenuOption) {
   }
 
   // 手机端自动收起菜单
-  themeStore.isMobile && themeStore.setCollapsed(true)
+  if (themeStore.isMobile) themeStore.setCollapsed(true)
 }
 </script>
 

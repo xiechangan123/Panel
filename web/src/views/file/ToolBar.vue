@@ -124,7 +124,7 @@ watch(
       const path = url.pathname.split('/').pop()
       if (path) {
         downloadModel.value.path = decodeURIComponent(path).replace(
-          /[~!@#$%^&*()+=\[\]{}|;:'",<>?/]/g,
+          /[~!@#$%^&*()+=[\]{}|;:'",<>?/]/g,
           '-'
         )
       }

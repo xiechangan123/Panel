@@ -45,9 +45,6 @@ export default [
     },
     parser: 'acorn',
     vueTemplate: true,
-    addons: {
-      vueDirectives: true
-    },
     viteOptimizeDeps: true
   }),
   Components({

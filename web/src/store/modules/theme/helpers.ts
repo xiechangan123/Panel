@@ -1,4 +1,4 @@
-import themeSetting from '~/settings/theme.json'
+import themeSetting from '~/config/theme.json'
 
 /** 初始化主题配置 */
 export function defaultSettings(): Theme.Setting {

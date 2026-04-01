@@ -57,7 +57,7 @@ const generateUniqueKey = () => {
 
 // 添加新项
 const addItem = () => {
-  const data = { ...(props.modelValue || {}) }
+  const data = { ...props.modelValue }
   const key = generateUniqueKey()
   data[key] = props.defaultValue
   emit('update:modelValue', data)

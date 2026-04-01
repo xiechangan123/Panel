@@ -133,7 +133,7 @@ export default function systemdJournal(hljs: any) {
   }
 
   const PATH = {
-    match: /(?:\/[^\s"'():\[\]]+)+/,
+    match: /(?:\/[^\s"'():[\]]+)+/,
     scope: 'string',
     relevance: 0
   }

@@ -1,19 +1,28 @@
+import { globalIgnores } from 'eslint/config'
 import { FlatCompat } from '@eslint/eslintrc'
-import unocss from '@unocss/eslint-config/flat'
-import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
+import pluginOxlint from 'eslint-plugin-oxlint'
+import unocss from '@unocss/eslint-config/flat'
+import skipFormatting from 'eslint-config-prettier/flat'
 
 const compat = new FlatCompat()
 
 export default defineConfigWithVueTs(
-  pluginVue.configs['flat/essential'],
+  {
+    name: 'app/files-to-lint',
+    files: ['**/*.{ts,mts,tsx,vue}'],
+  },
+
+  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+
+  ...pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
   unocss,
   ...compat.extends('./.eslintrc-auto-import.json'),
-  skipFormatting,
+
   {
-    name: 'app/files-to-lint',
+    name: 'app/rules',
     files: ['**/*.{ts,mts,tsx,vue}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
@@ -21,11 +30,11 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off'
-    }
+      '@typescript-eslint/no-empty-object-type': 'off',
+    },
   },
-  {
-    name: 'app/files-to-ignore',
-    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**']
-  }
+
+  ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
+
+  skipFormatting,
 )

@@ -1,8 +1,9 @@
 import { defineConfig, loadEnv } from 'vite'
 
-import { createViteProxy, viteDefine } from './build/config'
-import { setupVitePlugins } from './build/plugins'
-import { convertEnv, getRootPath, getSrcPath } from './build/utils'
+import { viteDefine } from './config/define'
+import { setupVitePlugins } from './config/plugins'
+import { createViteProxy } from './config/proxy'
+import { convertEnv, getRootPath, getSrcPath } from './config/utils'
 
 export default defineConfig(({ mode }) => {
   const srcPath = getSrcPath()
@@ -30,10 +31,7 @@ export default defineConfig(({ mode }) => {
     build: {
       reportCompressedSize: false,
       sourcemap: false,
-      chunkSizeWarningLimit: 1024, // chunk 大小警告的限制（单位kb）
-      commonjsOptions: {
-        ignoreTryCatch: false
-      }
+      chunkSizeWarningLimit: 1024
     }
   }
 })

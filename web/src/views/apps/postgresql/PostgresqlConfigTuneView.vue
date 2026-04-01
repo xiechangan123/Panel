@@ -128,7 +128,7 @@ useRequest(postgresql.configTune()).onSuccess(({ data }: any) => {
   randomPageCost.value = data.random_page_cost ?? ''
   effectiveIoConcurrency.value = Number(data.effective_io_concurrency) || null
   logDestination.value = data.log_destination || null
-  logMinDurationStatement.value = Number(data.log_min_duration_statement) ?? null
+  logMinDurationStatement.value = Number(data.log_min_duration_statement) || null
   logTimezone.value = data.log_timezone ?? ''
   ioMethod.value = data.io_method || null
 })

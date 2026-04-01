@@ -17,7 +17,8 @@ package-lock.json
 
 
 # Editor directories and files
-.vscode
+.vscode/*
+!.vscode/extensions.json
 .idea
 *.suo
 *.ntvs*
@@ -25,8 +26,16 @@ package-lock.json
 *.sln
 *.sw?
 
-.env
+*.tsbuildinfo
 
+.eslintcache
+
+# Vite
+*.timestamp-*-*.mjs
+
+# Auto-import
 .eslintrc-auto-import.json
 types/components.d.ts
 types/auto-imports.d.ts
+
+.env

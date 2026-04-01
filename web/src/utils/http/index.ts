@@ -20,7 +20,7 @@ export const http = createAlova({
         } else {
           json = { code: response.status, msg: response.data }
         }
-      } catch (error) {
+      } catch {
         json = { code: response.status, msg: 'failed to parse response' }
       }
       const { status, statusText } = response

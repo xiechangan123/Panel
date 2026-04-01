@@ -20,7 +20,7 @@ const saveLoading = ref(false)
 
 useRequest(memcached.configTune()).onSuccess(({ data }: any) => {
   port.value = Number(data.port) || null
-  udpPort.value = Number(data.udp_port) ?? null
+  udpPort.value = Number(data.udp_port) || null
   listenAddress.value = data.listen_address ?? ''
   memory.value = Number(data.memory) || null
   maxConnections.value = Number(data.max_connections) || null

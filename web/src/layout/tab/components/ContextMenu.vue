@@ -130,7 +130,7 @@ function handleHideDropdown() {
 
 function handleSelect(key: string) {
   const actionFn = actionMap.get(key)
-  actionFn && actionFn()
+  if (actionFn) actionFn()
   handleHideDropdown()
 }
 </script>

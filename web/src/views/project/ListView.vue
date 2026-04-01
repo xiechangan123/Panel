@@ -104,7 +104,7 @@ const columns: any = [
           class: 'cursor-pointer hover:opacity-60',
           type: 'info',
           onClick: () => {
-            fileStore.activeTab && fileStore.updateTabPath(fileStore.activeTabId, row.root_dir)
+            if (fileStore.activeTab) fileStore.updateTabPath(fileStore.activeTabId, row.root_dir)
             router.push({ name: 'file-index' })
           }
         },

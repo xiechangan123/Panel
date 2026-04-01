@@ -25,9 +25,9 @@ export async function addDynamicRoutes() {
     const permissionStore = usePermissionStore()
     const accessRoutes = permissionStore.generateRoutes(['admin'])
     accessRoutes.forEach((route: RouteType) => {
-      !router.hasRoute(route.name) && router.addRoute(route)
+      if (!router.hasRoute(route.name)) router.addRoute(route)
     })
-    router.hasRoute(EMPTY_ROUTE.name) && router.removeRoute(EMPTY_ROUTE.name)
+    if (router.hasRoute(EMPTY_ROUTE.name)) router.removeRoute(EMPTY_ROUTE.name)
     router.addRoute(NOT_FOUND_ROUTE)
   } catch (error) {
     console.error(error)

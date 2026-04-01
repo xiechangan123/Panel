@@ -33,7 +33,7 @@ jobs:
         working-directory: web
         run: |
           cp .env.production .env
-          cp settings/proxy-config.example.ts settings/proxy-config.ts
+          cp config/proxy-config.example.ts config/proxy-config.ts
           pnpm run gettext:compile
           pnpm build
       - name: Set environment variables
