@@ -38,7 +38,5 @@
       "automerge": false
     }
   ],
-  "ignoreDeps": [
-    "eslint"
-  ]
+  "ignoreDeps": []
 }
