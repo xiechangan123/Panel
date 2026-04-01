@@ -6,7 +6,7 @@
     "uno.config.*",
     "eslint.config.*",
     "config/**/*.ts",
-    "types/env.d.ts"
+    "src/types/env.d.ts"
   ],
   "compilerOptions": {
     // Most tools use transpilation instead of Node.js's native type-stripping.

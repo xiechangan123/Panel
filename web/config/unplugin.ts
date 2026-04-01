@@ -39,7 +39,7 @@ export default [
         ]
       }
     ],
-    dts: 'types/auto-imports.d.ts',
+    dts: 'src/types/auto-imports.d.ts',
     eslintrc: {
       enabled: true
     },
@@ -52,7 +52,7 @@ export default [
       NaiveUiResolver(),
       IconsResolver()
     ],
-    dts: 'types/components.d.ts'
+    dts: 'src/types/components.d.ts'
   }),
   Icons({
     compiler: 'vue3',

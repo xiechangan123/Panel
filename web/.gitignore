@@ -35,7 +35,7 @@ package-lock.json
 
 # Auto-import
 .eslintrc-auto-import.json
-types/components.d.ts
-types/auto-imports.d.ts
+src/types/components.d.ts
+src/types/auto-imports.d.ts
 
 .env

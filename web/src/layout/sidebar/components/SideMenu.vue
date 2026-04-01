@@ -7,7 +7,7 @@ import type { MenuInst, MenuOption } from 'naive-ui'
 import { useThemeVars } from 'naive-ui'
 import type { VNodeChild } from 'vue'
 import { RouterLink } from 'vue-router'
-import type { Meta, RouteType } from '~/types/router'
+import type { Meta, RouteType } from '@/types/router'
 
 const themeVars = useThemeVars()
 const router = useRouter()

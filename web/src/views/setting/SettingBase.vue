@@ -6,7 +6,7 @@ import { translateTitle } from '@/locales/menu'
 import { usePermissionStore } from '@/store'
 import { locales as availableLocales } from '@/utils'
 import { useGettext } from 'vue3-gettext'
-import type { RouteType } from '~/types/router'
+import type { RouteType } from '@/types/router'
 
 const { $gettext } = useGettext()
 const permissionStore = usePermissionStore()

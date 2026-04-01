@@ -1,5 +1,5 @@
 import { asyncRoutes, basicRoutes } from '@/router/routes'
-import type { RoutesType } from '~/types/router'
+import type { RoutesType } from '@/types/router'
 import { filterAsyncRoutes } from './helpers'
 
 export const usePermissionStore = defineStore('permission', {
