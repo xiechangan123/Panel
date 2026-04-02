@@ -117,6 +117,14 @@ func (r *Postgres) UserCreate(user, password string, host ...string) error {
 }
 
 func (r *Postgres) UserDrop(user string, host ...string) error {
+	// PostgreSQL 中，如果用户拥有数据库对象或权限，直接 DROP USER 会失败
+	// 必须先转移所有权并撤销权限
+	if _, err := r.Exec(fmt.Sprintf("REASSIGN OWNED BY %s TO %s", user, r.username)); err != nil {
+		return err
+	}
+	if _, err := r.Exec(fmt.Sprintf("DROP OWNED BY %s", user)); err != nil {
+		return err
+	}
 	_, err := r.Exec(fmt.Sprintf("DROP USER IF EXISTS %s", user))
 	if err != nil {
 		return err
