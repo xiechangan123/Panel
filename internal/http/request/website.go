@@ -32,8 +32,8 @@ type WebsiteCreate struct {
 	Path       string   `form:"path" json:"path"`
 	DB         bool     `form:"db" json:"db"`
 	DBType     string   `form:"db_type" json:"db_type" validate:"requiredIf:DB,true"`
-	DBName     string   `form:"db_name" json:"db_name" validate:"requiredIf:DB,true"`
-	DBUser     string   `form:"db_user" json:"db_user" validate:"requiredIf:DB,true"`
+	DBName     string   `form:"db_name" json:"db_name" validate:"requiredIf:DB,true|regex:^[a-zA-Z_-][a-zA-Z0-9_-]*$"`
+	DBUser     string   `form:"db_user" json:"db_user" validate:"requiredIf:DB,true|regex:^[a-zA-Z_-][a-zA-Z0-9_-]*$"`
 	DBPassword string   `form:"db_password" json:"db_password" validate:"requiredIf:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
 
