@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
@@ -30,15 +31,17 @@ type WsService struct {
 	log         *slog.Logger
 	sshRepo     biz.SSHRepo
 	settingRepo biz.SettingRepo
+	certRepo    biz.CertRepo
 }
 
-func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo, settingRepo biz.SettingRepo) *WsService {
+func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo, settingRepo biz.SettingRepo, certRepo biz.CertRepo) *WsService {
 	return &WsService{
 		t:           t,
 		conf:        conf,
 		log:         log,
 		sshRepo:     ssh,
 		settingRepo: settingRepo,
+		certRepo:    certRepo,
 	}
 }
 
@@ -286,6 +289,82 @@ func (s *WsService) ContainerImagePull(w http.ResponseWriter, r *http.Request) {
 	completeMsg, _ := json.Marshal(map[string]any{
 		"status":   "complete",
 		"complete": true,
+	})
+	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
+	_ = ws.Close(websocket.StatusNormalClosure, "")
+}
+
+// CertObtain 通过 WebSocket 签发证书并实时推送进度
+func (s *WsService) CertObtain(w http.ResponseWriter, r *http.Request) {
+	s.handleCertWs(w, r, "obtain", func(ctx context.Context, id uint, cb func(string)) error {
+		_, err := s.certRepo.ObtainAutoWithProgressCallback(ctx, id, cb)
+		return err
+	})
+}
+
+// CertRenew 通过 WebSocket 续签证书并实时推送进度
+func (s *WsService) CertRenew(w http.ResponseWriter, r *http.Request) {
+	s.handleCertWs(w, r, "renew", func(ctx context.Context, id uint, cb func(string)) error {
+		_, err := s.certRepo.RenewWithProgressCallback(ctx, id, cb)
+		return err
+	})
+}
+
+// handleCertWs 证书操作的公共 WebSocket 处理逻辑
+func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action string, fn func(ctx context.Context, id uint, cb func(string)) error) {
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn(fmt.Sprintf("upgrade cert %s ws error", action), slog.Any("err", err))
+		return
+	}
+	defer func() { _ = ws.CloseNow() }()
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	// 读取参数，10 秒超时防止连接后不发消息
+	readCtx, readCancel := context.WithTimeout(ctx, 10*time.Second)
+	_, message, err := ws.Read(readCtx)
+	readCancel()
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
+		return
+	}
+	var req struct {
+		ID uint `json:"id"`
+	}
+	if err = json.Unmarshal(message, &req); err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
+		return
+	}
+
+	progressCallback := func(msg string) {
+		if ctx.Err() != nil {
+			return
+		}
+		data, _ := json.Marshal(map[string]any{
+			"status": "progress",
+			"msg":    msg,
+		})
+		if err = ws.Write(ctx, websocket.MessageText, data); err != nil {
+			s.log.Warn("write cert progress error", slog.Any("err", err), slog.String("action", action))
+		}
+	}
+
+	if err = fn(ctx, req.ID, progressCallback); err != nil {
+		errMsg, _ := json.Marshal(map[string]any{
+			"status": "error",
+			"msg":    err.Error(),
+		})
+		_ = ws.Write(ctx, websocket.MessageText, errMsg)
+		_ = ws.Close(websocket.StatusNormalClosure, "")
+		return
+	}
+
+	completeMsg, _ := json.Marshal(map[string]any{
+		"status": "success",
+		"msg":    "success",
+		"data":   nil,
 	})
 	_ = ws.Write(ctx, websocket.MessageText, completeMsg)
 	_ = ws.Close(websocket.StatusNormalClosure, "")
