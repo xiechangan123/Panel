@@ -257,12 +257,12 @@ const {
   }
 )
 
-// 获取已安装环境（环境数量通常很少，无需分页）
+// 获取已安装环境
 const {
   loading: envLoading,
   data: envData,
   send: envRefresh
-} = useRequest(() => environment.list(1, 200, undefined, undefined, true), {
+} = useRequest(() => environment.list(1, 1000, undefined, undefined, true), {
   initialData: []
 })
 

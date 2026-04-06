@@ -34,7 +34,7 @@ async function handleBeforeClose(): Promise<boolean> {
     return true // 没有未保存的文件，直接关闭
   }
 
-  // 显示确认对话框（返回/放弃/保存）
+  // 显示确认对话框
   return new Promise((resolve) => {
     const d = window.$dialog.warning({
       title: $gettext('Unsaved Changes'),
