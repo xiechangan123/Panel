@@ -343,6 +343,24 @@ func (route *Cli) Commands() []*cli.Command {
 					},
 				},
 				{
+					Name:   "path",
+					Usage:  route.t.Get("Backup directory"),
+					Action: route.cli.BackupPath,
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:     "path",
+							Aliases:  []string{"p"},
+							Usage:    route.t.Get("Directory path"),
+							Required: true,
+						},
+						&cli.UintFlag{
+							Name:    "storage",
+							Aliases: []string{"s"},
+							Usage:   route.t.Get("Storage ID (local storage if not filled)"),
+						},
+					},
+				},
+				{
 					Name:   "panel",
 					Usage:  route.t.Get("Backup panel"),
 					Action: route.cli.BackupPanel,

@@ -7,6 +7,7 @@ import database from '@/api/panel/database'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import CronSelector from '@/components/common/CronSelector.vue'
+import PathSelector from '@/components/common/PathSelector.vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -73,6 +74,23 @@ const postgreSQLInstalled = computed(() => {
 
 const containerInstalled = ref(false)
 
+const showPathSelector = ref(false)
+const pathSelectorPath = ref('/')
+const editingPathIndex = ref(-1)
+
+const openPathSelector = (index: number) => {
+  editingPathIndex.value = index
+  pathSelectorPath.value = formModel.value.targets[index] || '/'
+  showPathSelector.value = true
+}
+
+watch(showPathSelector, (val) => {
+  if (!val && pathSelectorPath.value && editingPathIndex.value >= 0) {
+    formModel.value.targets[editingPathIndex.value] = pathSelectorPath.value
+    editingPathIndex.value = -1
+  }
+})
+
 const handleSubmit = async () => {
   loading.value = true
   // 提交前将 headerList 同步到 headers map
@@ -110,7 +128,8 @@ const generateTaskName = () => {
     const backupTypeMap: Record<string, string> = {
       website: $gettext('Backup Website'),
       mysql: $gettext('Backup MySQL'),
-      postgresql: $gettext('Backup PostgreSQL')
+      postgresql: $gettext('Backup PostgreSQL'),
+      path: $gettext('Backup Directory')
     }
     const prefix = backupTypeMap[formModel.value.sub_type] || $gettext('Backup')
     formModel.value.name = targets.length ? `${prefix} - ${targets.join(', ')}` : prefix
@@ -409,6 +428,7 @@ onMounted(() => {
           <n-radio value="postgresql" :disabled="!postgreSQLInstalled">
             {{ $gettext('PostgreSQL Database') }}
           </n-radio>
+          <n-radio value="path">{{ $gettext('Directory') }}</n-radio>
         </n-radio-group>
       </n-form-item>
       <!-- 日志切割子类型 -->
@@ -450,6 +470,26 @@ onMounted(() => {
           :placeholder="$gettext('Select Database')"
         />
       </n-form-item>
+      <!-- 目录路径 -->
+      <n-form-item
+        v-if="formModel.type === 'backup' && formModel.sub_type === 'path'"
+        :label="$gettext('Select Directory')"
+      >
+        <n-dynamic-input v-model:value="formModel.targets" :on-create="() => ''">
+          <template #default="{ index }">
+            <div style="display: flex; align-items: center; width: 100%; gap: 8px">
+              <n-input
+                v-model:value="formModel.targets[index]"
+                :placeholder="$gettext('Enter directory path')"
+                style="flex: 1"
+              />
+              <n-button @click="openPathSelector(index)">
+                {{ $gettext('Browse') }}
+              </n-button>
+            </div>
+          </template>
+        </n-dynamic-input>
+      </n-form-item>
       <!-- 容器多选 -->
       <n-form-item
         v-if="formModel.type === 'cutoff' && formModel.sub_type === 'container'"
@@ -478,6 +518,8 @@ onMounted(() => {
       {{ mode === 'create' ? $gettext('Submit') : $gettext('Save') }}
     </n-button>
   </n-modal>
+  <!-- 目录选择器 -->
+  <path-selector v-model:show="showPathSelector" v-model:path="pathSelectorPath" :dir="true" />
 </template>
 
 <style scoped lang="scss"></style>

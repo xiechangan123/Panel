@@ -105,7 +105,11 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 	}
 
 	start := time.Now()
-	name := fmt.Sprintf("%s_%s", target, start.Format("20060102150405"))
+	namePrefix := target
+	if typ == biz.BackupTypePath {
+		namePrefix = filepath.Base(target)
+	}
+	name := fmt.Sprintf("%s_%s", namePrefix, start.Format("20060102150405"))
 	if app.IsCli {
 		fmt.Println(r.hr)
 		fmt.Println(r.t.Get("★ Start backup [%s]", start.Format(time.DateTime)))
@@ -122,6 +126,8 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		err = r.createMySQL(name, client, target)
 	case biz.BackupTypePostgres:
 		err = r.createPostgres(name, client, target)
+	case biz.BackupTypePath:
+		err = r.createPath(name, client, target)
 	default:
 		return errors.New(r.t.Get("unknown backup type"))
 	}
@@ -610,6 +616,50 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	defer func(file *os.File) { _ = file.Close() }(file)
 
 	if err = storage.Put(filepath.Join(string(biz.BackupTypePostgres), name), file); err != nil {
+		return err
+	}
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Backup file: %s", name))
+	}
+
+	return nil
+}
+
+// createPath 创建目录备份
+func (r *backupRepo) createPath(name string, storage storage.Storage, target string) error {
+	if !io.Exists(target) {
+		return errors.New(r.t.Get("path does not exist: %s", target))
+	}
+	if !io.IsDir(target) {
+		return errors.New(r.t.Get("path is not a directory: %s", target))
+	}
+
+	// 创建用于压缩的临时目录
+	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
+	}
+
+	// 压缩目录
+	name = name + ".zip"
+	if err = io.Compress(target, nil, filepath.Join(tmpDir, name)); err != nil {
+		return err
+	}
+
+	// 上传备份文件到存储器
+	file, err := os.Open(filepath.Join(tmpDir, name))
+	if err != nil {
+		return err
+	}
+	defer func(file *os.File) { _ = file.Close() }(file)
+
+	if err = storage.Put(filepath.Join(string(biz.BackupTypePath), name), file); err != nil {
 		return err
 	}
 

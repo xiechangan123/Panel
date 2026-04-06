@@ -679,6 +679,11 @@ func (s *CliService) BackupDatabase(ctx context.Context, cmd *cli.Command) error
 	return nil
 }
 
+func (s *CliService) BackupPath(ctx context.Context, cmd *cli.Command) error {
+	_ = s.backupRepo.Create(ctx, biz.BackupTypePath, cmd.String("path"), cmd.Uint("storage"))
+	return nil
+}
+
 func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime)))
