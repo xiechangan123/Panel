@@ -424,6 +424,66 @@ func (_c *CertRepo_ObtainAuto_Call) RunAndReturn(run func(uint) (*acme.Certifica
 	return _c
 }
 
+// ObtainAutoWithProgressCallback provides a mock function with given fields: ctx, id, progressCallback
+func (_m *CertRepo) ObtainAutoWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
+	ret := _m.Called(ctx, id, progressCallback)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtainAutoWithProgressCallback")
+	}
+
+	var r0 *acme.Certificate
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint, func(string)) (*acme.Certificate, error)); ok {
+		return rf(ctx, id, progressCallback)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint, func(string)) *acme.Certificate); ok {
+		r0 = rf(ctx, id, progressCallback)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*acme.Certificate)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint, func(string)) error); ok {
+		r1 = rf(ctx, id, progressCallback)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CertRepo_ObtainAutoWithProgressCallback_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ObtainAutoWithProgressCallback'
+type CertRepo_ObtainAutoWithProgressCallback_Call struct {
+	*mock.Call
+}
+
+// ObtainAutoWithProgressCallback is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uint
+//   - progressCallback func(string)
+func (_e *CertRepo_Expecter) ObtainAutoWithProgressCallback(ctx interface{}, id interface{}, progressCallback interface{}) *CertRepo_ObtainAutoWithProgressCallback_Call {
+	return &CertRepo_ObtainAutoWithProgressCallback_Call{Call: _e.mock.On("ObtainAutoWithProgressCallback", ctx, id, progressCallback)}
+}
+
+func (_c *CertRepo_ObtainAutoWithProgressCallback_Call) Run(run func(ctx context.Context, id uint, progressCallback func(string))) *CertRepo_ObtainAutoWithProgressCallback_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uint), args[2].(func(string)))
+	})
+	return _c
+}
+
+func (_c *CertRepo_ObtainAutoWithProgressCallback_Call) Return(_a0 *acme.Certificate, _a1 error) *CertRepo_ObtainAutoWithProgressCallback_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CertRepo_ObtainAutoWithProgressCallback_Call) RunAndReturn(run func(context.Context, uint, func(string)) (*acme.Certificate, error)) *CertRepo_ObtainAutoWithProgressCallback_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ObtainPanel provides a mock function with given fields: account, ips
 func (_m *CertRepo) ObtainPanel(account *biz.CertAccount, ips []string) ([]byte, []byte, error) {
 	ret := _m.Called(account, ips)
@@ -648,6 +708,66 @@ func (_c *CertRepo_Renew_Call) Return(_a0 *acme.Certificate, _a1 error) *CertRep
 }
 
 func (_c *CertRepo_Renew_Call) RunAndReturn(run func(uint) (*acme.Certificate, error)) *CertRepo_Renew_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RenewWithProgressCallback provides a mock function with given fields: ctx, id, progressCallback
+func (_m *CertRepo) RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
+	ret := _m.Called(ctx, id, progressCallback)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RenewWithProgressCallback")
+	}
+
+	var r0 *acme.Certificate
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint, func(string)) (*acme.Certificate, error)); ok {
+		return rf(ctx, id, progressCallback)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint, func(string)) *acme.Certificate); ok {
+		r0 = rf(ctx, id, progressCallback)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*acme.Certificate)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint, func(string)) error); ok {
+		r1 = rf(ctx, id, progressCallback)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CertRepo_RenewWithProgressCallback_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RenewWithProgressCallback'
+type CertRepo_RenewWithProgressCallback_Call struct {
+	*mock.Call
+}
+
+// RenewWithProgressCallback is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uint
+//   - progressCallback func(string)
+func (_e *CertRepo_Expecter) RenewWithProgressCallback(ctx interface{}, id interface{}, progressCallback interface{}) *CertRepo_RenewWithProgressCallback_Call {
+	return &CertRepo_RenewWithProgressCallback_Call{Call: _e.mock.On("RenewWithProgressCallback", ctx, id, progressCallback)}
+}
+
+func (_c *CertRepo_RenewWithProgressCallback_Call) Run(run func(ctx context.Context, id uint, progressCallback func(string))) *CertRepo_RenewWithProgressCallback_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uint), args[2].(func(string)))
+	})
+	return _c
+}
+
+func (_c *CertRepo_RenewWithProgressCallback_Call) Return(_a0 *acme.Certificate, _a1 error) *CertRepo_RenewWithProgressCallback_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CertRepo_RenewWithProgressCallback_Call) RunAndReturn(run func(context.Context, uint, func(string)) (*acme.Certificate, error)) *CertRepo_RenewWithProgressCallback_Call {
 	_c.Call.Return(run)
 	return _c
 }
