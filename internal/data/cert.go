@@ -58,6 +58,7 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			DNSID:       cert.DNSID,
 			Type:        cert.Type,
 			Domains:     cert.Domains,
+			Alias:       cert.Alias,
 			AutoRenewal: cert.AutoRenewal,
 			NextRenewal: cert.RenewalInfo.SelectedTime,
 			Cert:        cert.Cert,
@@ -134,6 +135,7 @@ func (r *certRepo) Create(ctx context.Context, req *request.CertCreate) (*biz.Ce
 		DNSID:       req.DNSID,
 		Type:        req.Type,
 		Domains:     req.Domains,
+		Alias:       req.Alias,
 		AutoRenewal: req.AutoRenewal,
 	}
 	if err := r.db.Create(cert).Error; err != nil {
@@ -169,6 +171,7 @@ func (r *certRepo) Update(ctx context.Context, req *request.CertUpdate) error {
 		Key:         req.Key,
 		Script:      req.Script,
 		Domains:     req.Domains,
+		Alias:       req.Alias,
 		AutoRenewal: req.AutoRenewal,
 	}).Error; err != nil {
 		return err
@@ -202,7 +205,7 @@ func (r *certRepo) ObtainAutoWithProgressCallback(ctx context.Context, id uint, 
 		}
 	}
 
-	report(r.t.Get("preparing ACME client"))
+	report(r.t.Get("initializing ACME client"))
 	cert, err := r.Get(id)
 	if err != nil {
 		return nil, err
@@ -217,6 +220,7 @@ func (r *certRepo) ObtainAutoWithProgressCallback(ctx context.Context, id uint, 
 
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			Alias:            cert.Alias,
 			DnsServer:        cert.DNS.Data.DnsServer,
 			SkipVerify:       cert.DNS.Data.SkipVerify,
 			ProgressCallback: progressCallback,
@@ -345,6 +349,7 @@ func (r *certRepo) RenewWithProgressCallback(ctx context.Context, id uint, progr
 
 	if cert.DNS != nil {
 		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			Alias:            cert.Alias,
 			DnsServer:        cert.DNS.Data.DnsServer,
 			SkipVerify:       cert.DNS.Data.SkipVerify,
 			ProgressCallback: progressCallback,

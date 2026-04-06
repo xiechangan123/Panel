@@ -25,9 +25,10 @@ type Client struct {
 
 // DnsOption DNS 验证的可选配置
 type DnsOption struct {
-	DnsServer        string       // DNS 验证服务器地址
-	SkipVerify       bool         // 跳过解析验证
-	ProgressCallback func(string) // 进度回调
+	Alias            map[string]string // DNS 验证别名映射 (domain → delegated domain)
+	DnsServer        string            // DNS 验证服务器地址
+	SkipVerify       bool              // 跳过解析验证
+	ProgressCallback func(string)      // 进度回调
 }
 
 // UseDns 使用 DNS 接口验证
@@ -35,9 +36,10 @@ func (c *Client) UseDns(dnsType DnsType, param DNSParam, opt ...DnsOption) {
 	solver := &dnsSolver{
 		dns:     dnsType,
 		param:   param,
-		records: []libdns.Record{},
+		records: make(map[string][]libdns.Record),
 	}
 	if len(opt) > 0 {
+		solver.alias = opt[0].Alias
 		solver.dnsServer = opt[0].DnsServer
 		solver.skipVerify = opt[0].SkipVerify
 		solver.progressCallback = opt[0].ProgressCallback

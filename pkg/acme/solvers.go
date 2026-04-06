@@ -396,25 +396,25 @@ type DNSProvider interface {
 }
 
 type dnsSolver struct {
+	mu               sync.Mutex
 	dns              DnsType
 	param            DNSParam
-	records          []libdns.Record
-	mu               sync.Mutex
-	dnsServer        string       // DNS 验证服务器地址
-	skipVerify       bool         // 跳过解析验证
-	progressCallback func(string) // 进度回调
+	records          map[string][]libdns.Record // dnsName|keyAuth → records
+	alias            map[string]string          // DNS 验证别名映射 (domain → delegated domain)
+	dnsServer        string                     // DNS 验证服务器地址
+	skipVerify       bool                       // 跳过解析验证
+	progressCallback func(string)               // 进度回调
 }
 
 func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error {
-	dnsName := challenge.DNS01TXTRecordName()
+	dnsName, zone, err := s.resolveAlias(challenge)
+	if err != nil {
+		return err
+	}
 	keyAuth := challenge.DNS01KeyAuthorization()
 	provider, err := s.getDNSProvider()
 	if err != nil {
 		return fmt.Errorf("failed to get DNS provider: %w", err)
-	}
-	zone, err := publicsuffix.EffectiveTLDPlusOne(dnsName)
-	if err != nil {
-		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
 	}
 
 	s.report(fmt.Sprintf("setting DNS TXT record %s", dnsName))
@@ -433,7 +433,8 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	}
 
 	s.mu.Lock()
-	s.records = append(s.records, results...)
+	key := dnsName + "|" + keyAuth
+	s.records[key] = append(s.records[key], results...)
 	s.mu.Unlock()
 
 	s.report(fmt.Sprintf("DNS TXT record %s set successfully", dnsName))
@@ -454,7 +455,10 @@ func (s *dnsSolver) Wait(ctx context.Context, challenge acme.Challenge) error {
 		}
 	}
 
-	dnsName := challenge.DNS01TXTRecordName()
+	dnsName, _, err := s.resolveAlias(challenge)
+	if err != nil {
+		return err
+	}
 	expected := challenge.DNS01KeyAuthorization()
 
 	// 确定 DNS 服务器
@@ -505,7 +509,10 @@ func (s *dnsSolver) Wait(ctx context.Context, challenge acme.Challenge) error {
 }
 
 func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error {
-	dnsName := challenge.DNS01TXTRecordName()
+	dnsName, zone, err := s.resolveAlias(challenge)
+	if err != nil {
+		return err
+	}
 	provider, err := s.getDNSProvider()
 	if err != nil {
 		return fmt.Errorf("failed to get DNS provider: %w", err)
@@ -514,18 +521,17 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
 
-	zone, err := publicsuffix.EffectiveTLDPlusOne(dnsName)
-	if err != nil {
-		return fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
-	}
-
 	s.report("cleaning up DNS TXT records")
 
 	s.mu.Lock()
-	records := s.records
+	key := dnsName + "|" + challenge.DNS01KeyAuthorization()
+	records := s.records[key]
+	delete(s.records, key)
 	s.mu.Unlock()
 
-	_, _ = provider.DeleteRecords(ctx, zone+".", records)
+	if len(records) > 0 {
+		_, _ = provider.DeleteRecords(ctx, zone+".", records)
+	}
 	return nil
 }
 
@@ -589,6 +595,26 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 	}
 
 	return dns, nil
+}
+
+// resolveAlias 根据别名映射解析实际的 DNS 记录名和 zone
+func (s *dnsSolver) resolveAlias(challenge acme.Challenge) (dnsName string, zone string, err error) {
+	dnsName = challenge.DNS01TXTRecordName()
+
+	// 从 Identifier 获取裸域名（通配符 *.example.com → example.com）
+	domain := strings.TrimPrefix(challenge.Identifier.Value, "*.")
+
+	if s.alias != nil {
+		if target, ok := s.alias[domain]; ok {
+			dnsName = "_acme-challenge." + target
+		}
+	}
+
+	zone, err = publicsuffix.EffectiveTLDPlusOne(dnsName)
+	if err != nil {
+		err = fmt.Errorf("failed to get the effective TLD+1 for %q: %w", dnsName, err)
+	}
+	return
 }
 
 // report 安全地调用进度回调
