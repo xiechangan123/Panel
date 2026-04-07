@@ -13,6 +13,7 @@ import (
 	"github.com/libtnb/cache"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -112,16 +113,10 @@ func (r *settingRepo) GetSlice(key biz.SettingKey, defaultValue ...[]string) ([]
 }
 
 func (r *settingRepo) Set(key biz.SettingKey, value string) error {
-	setting := new(biz.Setting)
-	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-	}
-
-	setting.Key = key
-	setting.Value = value
-	if err := r.db.Save(setting).Error; err != nil {
+	if err := r.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "key"}},
+		DoUpdates: clause.AssignmentColumns([]string{"value"}),
+	}).Create(&biz.Setting{Key: key, Value: value}).Error; err != nil {
 		return err
 	}
 
@@ -130,30 +125,16 @@ func (r *settingRepo) Set(key biz.SettingKey, value string) error {
 }
 
 func (r *settingRepo) SetSlice(key biz.SettingKey, value []string) error {
-	setting := new(biz.Setting)
-	if err := r.db.Where("key = ?", key).First(setting).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-	}
-
-	setting.Key = key
-	if len(value) == 0 {
-		setting.Value = "[]"
-	} else {
+	v := "[]"
+	if len(value) > 0 {
 		b, err := json.Marshal(value)
 		if err != nil {
 			return err
 		}
-		setting.Value = string(b)
+		v = string(b)
 	}
 
-	if err := r.db.Save(setting).Error; err != nil {
-		return err
-	}
-
-	r.cache.Forget(r.cacheKey(key))
-	return nil
+	return r.Set(key, v)
 }
 
 func (r *settingRepo) Delete(key biz.SettingKey) error {

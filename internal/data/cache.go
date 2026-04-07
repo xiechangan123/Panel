@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -41,13 +42,10 @@ func (r *cacheRepo) Get(key biz.CacheKey, defaultValue ...string) (string, error
 }
 
 func (r *cacheRepo) Set(key biz.CacheKey, value string) error {
-	cache := new(biz.Cache)
-	if err := r.db.Where(biz.Cache{Key: key}).FirstOrInit(cache).Error; err != nil {
-		return err
-	}
-
-	cache.Value = value
-	return r.db.Save(cache).Error
+	return r.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "key"}},
+		DoUpdates: clause.AssignmentColumns([]string{"value"}),
+	}).Create(&biz.Cache{Key: key, Value: value}).Error
 }
 
 func (r *cacheRepo) UpdateCategories() error {
