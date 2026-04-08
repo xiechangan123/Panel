@@ -150,7 +150,7 @@ const handleCreateCert = () => {
                 <span>→</span>
                 <n-input
                   v-model:value="value.value"
-                  :placeholder="$gettext('Delegated domain, e.g. delegated.com')"
+                  :placeholder="$gettext('Alias record, e.g. _acme-challenge.delegated.com')"
                   style="flex: 1"
                 />
               </div>

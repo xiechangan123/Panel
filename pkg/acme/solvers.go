@@ -606,7 +606,7 @@ func (s *dnsSolver) resolveAlias(challenge acme.Challenge) (dnsName string, zone
 
 	if s.alias != nil {
 		if target, ok := s.alias[domain]; ok {
-			dnsName = "_acme-challenge." + target
+			dnsName = target
 		}
 	}
 
