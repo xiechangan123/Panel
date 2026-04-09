@@ -601,12 +601,15 @@ func (s *dnsSolver) getDNSProvider() (DNSProvider, error) {
 func (s *dnsSolver) resolveAlias(challenge acme.Challenge) (dnsName string, zone string, err error) {
 	dnsName = challenge.DNS01TXTRecordName()
 
-	// 从 Identifier 获取裸域名（通配符 *.example.com → example.com）
-	domain := strings.TrimPrefix(challenge.Identifier.Value, "*.")
-
+	// 先用原始域名查别名（如 *.example.com），再用裸域名兜底（如 example.com）
 	if s.alias != nil {
+		domain := challenge.Identifier.Value
 		if target, ok := s.alias[domain]; ok {
 			dnsName = target
+		} else if bare := strings.TrimPrefix(domain, "*."); bare != domain {
+			if target, ok := s.alias[bare]; ok {
+				dnsName = target
+			}
 		}
 	}
 
