@@ -582,8 +582,6 @@ func (r *certRepo) getClient(cert *biz.Cert) (*acme.Client, error) {
 		ca = acme.CALetsEncrypt
 	case "litessl":
 		ca = acme.CALiteSSL
-	case "buypass":
-		ca = acme.CABuypass
 	case "zerossl":
 		ca = acme.CAZeroSSL
 		eab = &acme.EAB{KeyID: cert.Account.Kid, MACKey: cert.Account.HmacEncoded}

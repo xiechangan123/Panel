@@ -10,7 +10,7 @@ import (
 type CertAccount struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Email       string    `gorm:"not null;default:''" json:"email"`
-	CA          string    `gorm:"not null;default:'letsencrypt'" json:"ca"` // CA 提供商 (letsencrypt, zerossl, sslcom, google, buypass)
+	CA          string    `gorm:"not null;default:'letsencrypt'" json:"ca"` // CA 提供商 (letsencrypt, zerossl, sslcom, google)
 	Kid         string    `gorm:"not null;default:''" json:"kid"`
 	HmacEncoded string    `gorm:"not null;default:''" json:"hmac_encoded"`
 	PrivateKey  string    `gorm:"not null;default:''" json:"private_key"`

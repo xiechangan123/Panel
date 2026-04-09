@@ -24,7 +24,6 @@ const (
 	CALetsEncrypt        = "https://acme-v02.api.letsencrypt.org/directory"
 	CALiteSSL            = "https://acme.litessl.com/acme/v2/directory"
 	CAZeroSSL            = "https://acme.zerossl.com/v2/DV90"
-	CABuypass            = "https://api.buypass.com/acme/directory"
 	CASSLcom             = "https://acme.ssl.com/sslcom-dv-rsa"
 )
 

@@ -50,10 +50,6 @@ func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
 			Label: "Google",
 			Value: "google",
 		},
-		{
-			Label: "Buypass",
-			Value: "buypass",
-		},
 	})
 
 }
