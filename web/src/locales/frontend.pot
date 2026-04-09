@@ -5188,7 +5188,7 @@ msgstr ""
 
 #: src/views/cert/CertView.vue:526
 #: src/views/cert/CreateCertModal.vue:153
-msgid "Delegated domain, e.g. delegated.com"
+msgid "Alias record, e.g. _acme-challenge.delegated.com"
 msgstr ""
 
 #: src/views/cert/CertView.vue:541
