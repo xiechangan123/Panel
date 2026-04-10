@@ -492,7 +492,7 @@ func (s *App) buildDatasourceMap(req *DataSource) map[string]any {
 		ds["access"] = "proxy"
 	}
 	switch req.Type {
-	case "mysql", "postgres", "influxdb":
+	case "mysql", "postgres", "influxdb", "mssql":
 		if req.Database != "" {
 			ds["database"] = req.Database
 		}

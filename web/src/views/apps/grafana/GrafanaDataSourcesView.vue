@@ -31,12 +31,29 @@ const formModel = ref({
 })
 
 const typeOptions = [
+  // 指标
   { label: 'Prometheus', value: 'prometheus' },
+  { label: 'Graphite', value: 'graphite' },
+  { label: 'OpenTSDB', value: 'opentsdb' },
+  // 日志
+  { label: 'Loki', value: 'loki' },
+  { label: 'Elasticsearch', value: 'elasticsearch' },
+  { label: 'OpenSearch', value: 'grafana-opensearch-datasource' },
+  // 追踪
+  { label: 'Tempo', value: 'tempo' },
+  { label: 'Jaeger', value: 'jaeger' },
+  { label: 'Zipkin', value: 'zipkin' },
+  // 数据库
   { label: 'MySQL', value: 'mysql' },
   { label: 'PostgreSQL', value: 'postgres' },
+  { label: 'Microsoft SQL Server', value: 'mssql' },
   { label: 'InfluxDB', value: 'influxdb' },
-  { label: 'Loki', value: 'loki' },
-  { label: 'Elasticsearch', value: 'elasticsearch' }
+  // 告警
+  { label: 'Alertmanager', value: 'alertmanager' },
+  // 性能分析
+  { label: 'Pyroscope', value: 'grafana-pyroscope-datasource' },
+  // 测试
+  { label: 'TestData', value: 'testdata' }
 ]
 
 const accessOptions = [
@@ -44,7 +61,7 @@ const accessOptions = [
   { label: $gettext('Browser (Direct)'), value: 'direct' }
 ]
 
-const needsDbFields = computed(() => ['mysql', 'postgres', 'influxdb'].includes(formModel.value.type))
+const needsDbFields = computed(() => ['mysql', 'postgres', 'influxdb', 'mssql'].includes(formModel.value.type))
 
 const columns: any = [
   {
