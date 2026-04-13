@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strings"
@@ -108,14 +109,28 @@ func (s *panelSolver) startServer() error {
 	case err := <-errChan:
 		s.server = nil
 		return fmt.Errorf("failed to start HTTP server: %w", err)
-	case <-time.After(100 * time.Millisecond):
+	case <-time.After(500 * time.Millisecond):
 		return nil
 	}
 }
 
 func (s *panelSolver) writeNginxConfig() error {
+	names := make([]string, len(s.ip))
+	hasIPv6 := false
+	for i, host := range s.ip {
+		names[i] = s.formatServerName(host)
+		if s.isIPv6(host) {
+			hasIPv6 = true
+		}
+	}
+
 	var conf strings.Builder
-	_, _ = fmt.Fprintf(&conf, "server {\n    listen 80;\n    server_name %s;\n", strings.Join(s.ip, " "))
+	conf.WriteString("server {\n    listen 80;\n")
+	// 只有在包含 IPv6 地址时才监听 [::]:80，避免纯 IPv4 系统上 nginx 启动失败
+	if hasIPv6 {
+		conf.WriteString("    listen [::]:80;\n")
+	}
+	_, _ = fmt.Fprintf(&conf, "    server_name %s;\n", strings.Join(names, " "))
 	for path, token := range s.tokens {
 		_, _ = fmt.Fprintf(&conf, "    location = %s {\n        default_type text/plain;\n        return 200 %q;\n    }\n", path, token)
 	}
@@ -150,10 +165,10 @@ func (s *panelSolver) writeApacheConfig() error {
 	}
 
 	var conf strings.Builder
-	_, _ = fmt.Fprintf(&conf, "<VirtualHost *:80>\n    ServerName %s\n", s.ip[0])
+	_, _ = fmt.Fprintf(&conf, "<VirtualHost *:80>\n    ServerName %s\n", s.formatServerName(s.ip[0]))
 	if len(s.ip) > 1 {
 		for _, ip := range s.ip[1:] {
-			_, _ = fmt.Fprintf(&conf, "    ServerAlias %s\n", ip)
+			_, _ = fmt.Fprintf(&conf, "    ServerAlias %s\n", s.formatServerName(ip))
 		}
 	}
 	_, _ = fmt.Fprintf(&conf, "    Alias /.well-known/acme-challenge %s\n", tokenDir)
@@ -217,6 +232,20 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 	}
 
 	return nil
+}
+
+// isIPv6 判断 host 是否为 IPv6 地址
+func (s *panelSolver) isIPv6(host string) bool {
+	addr, err := netip.ParseAddr(host)
+	return err == nil && !addr.Is4()
+}
+
+// formatServerName 格式化 web 服务器配置中的主机地址，IPv6 地址需要用 [] 包裹以匹配 Host 头
+func (s *panelSolver) formatServerName(host string) string {
+	if s.isIPv6(host) {
+		return "[" + host + "]"
+	}
+	return host
 }
 
 type httpSolver struct {
