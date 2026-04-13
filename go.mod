@@ -5,7 +5,7 @@ go 1.26
 require (
 	github.com/DeRuina/timberjack v1.4.1
 	github.com/andybalholm/brotli v1.2.1
-	github.com/bddjr/hlfhr v1.5.0
+	github.com/bddjr/hlfhr v1.5.1
 	github.com/beevik/ntp v1.5.0
 	github.com/cilium/ebpf v0.21.0
 	github.com/coder/websocket v1.8.14
@@ -19,7 +19,7 @@ require (
 	github.com/go-chi/httplog/v3 v3.3.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-webauthn/webauthn v0.16.3
+	github.com/go-webauthn/webauthn v0.16.4
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
@@ -62,8 +62,8 @@ require (
 	github.com/urfave/cli/v3 v3.8.0
 	github.com/valyala/fastjson v1.6.10
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
-	golang.org/x/crypto v0.49.0
-	golang.org/x/net v0.52.0
+	golang.org/x/crypto v0.50.0
+	golang.org/x/net v0.53.0
 	gorm.io/gorm v1.31.1
 	modernc.org/sqlite v1.48.2
 	resty.dev/v3 v3.0.0-beta.6
@@ -85,7 +85,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
-	github.com/go-webauthn/x v0.2.2 // indirect
+	github.com/go-webauthn/x v0.2.3 // indirect
 	github.com/gofiber/schema v1.6.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
@@ -120,8 +120,8 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 	modernc.org/libc v1.70.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
