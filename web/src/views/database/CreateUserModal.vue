@@ -21,6 +21,9 @@ const createModel = ref({
 
 const servers = ref<{ label: string; value: string }[]>([])
 
+// 仅这些数据库类型支持用户管理
+const userSupportedTypes = ['mysql', 'postgresql', 'clickhouse']
+
 const hostTypeOptions = [
   { label: $gettext('Local (localhost)'), value: 'localhost' },
   { label: $gettext('All (%)'), value: '%' },
@@ -59,6 +62,9 @@ watch(
       useRequest(database.serverList(1, 10000, props.type)).onSuccess(({ data }: { data: any }) => {
         servers.value = []
         for (const server of data.items) {
+          if (!userSupportedTypes.includes(server.type)) {
+            continue
+          }
           servers.value.push({
             label: server.name,
             value: server.id
