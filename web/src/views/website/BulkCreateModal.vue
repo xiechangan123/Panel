@@ -2,6 +2,7 @@
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -12,7 +13,7 @@ const { $gettext } = useGettext()
 const bulkCreate = ref('')
 const loading = ref(false)
 
-// 内部选择的类型（当外部 type 为 'all' 时使用）
+// 内部选择的类型
 const selectedType = ref('proxy')
 
 // 实际使用的网站类型
@@ -23,6 +24,24 @@ const effectiveType = computed(() => {
   return type.value
 })
 
+// 已安装环境列表
+const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
+  initialData: {
+    php: [
+      {
+        label: $gettext('Not used'),
+        value: 0
+      }
+    ],
+    db: [
+      {
+        label: '',
+        value: ''
+      }
+    ]
+  }
+})
+
 // 批量创建网站请求模型
 interface BulkCreateModel {
   type: string
@@ -31,6 +50,7 @@ interface BulkCreateModel {
   domains: Array<string>
   path: string
   proxy: string
+  php: number
   remark: string
 }
 
@@ -55,10 +75,13 @@ const modalTitle = computed(() => {
   }
 })
 
-// 获取占位符文本（根据类型不同显示不同格式）
+// 获取占位符文本
 const placeholderText = computed(() => {
   if (effectiveType.value === 'proxy') {
     return $gettext('name|domain|port|proxy_target|remark')
+  }
+  if (effectiveType.value === 'php') {
+    return $gettext('name|domain|port|path|php_version|remark')
   }
   return $gettext('name|domain|port|path|remark')
 })
@@ -73,18 +96,28 @@ const fourthColumnHelp = computed(() => {
   return $gettext('Path: The path of the website, can be empty to use the default path.')
 })
 
+// 已安装 PHP 版本的提示文本
+const phpVersionHelp = computed(() => {
+  const items = (installedEnvironment.value?.php ?? [])
+    .map((item: { label: string; value: number }) => `${item.label}=${item.value}`)
+    .join(', ')
+  return $gettext('PHP Version: %{ items }', { items })
+})
+
 const handleCreate = async () => {
   // 按行分割
   const lines = bulkCreate.value.split('\n')
   // 去除空行
   const filteredLines = lines.filter((line) => line.trim() !== '')
   if (filteredLines.length === 0) return
+  // PHP 类型需要额外的 php_version 列，最少 5 列
+  const minParts = effectiveType.value === 'php' ? 5 : 4
   loading.value = true
   let remaining = filteredLines.length
   // 解析每一行
   for (const line of filteredLines) {
     const parts = line.split('|')
-    if (parts.length < 4) {
+    if (parts.length < minParts) {
       window.$message.error($gettext('The format is incorrect, please check'))
       loading.value = false
       return
@@ -100,7 +133,10 @@ const handleCreate = async () => {
       .split(',')
       .map((item) => item.trim())
     const fourthColumn = (parts[3] ?? '').trim()
-    const remark = parts[4] ? parts[4].trim() : ''
+    // PHP 类型：第五列是 php 版本，第六列是备注；其他类型：第五列是备注
+    const isPHP = effectiveType.value === 'php'
+    const php = isPHP ? Number((parts[4] ?? '').trim()) || 0 : 0
+    const remark = (parts[isPHP ? 5 : 4] ?? '').trim()
 
     // 构建请求模型
     const model: BulkCreateModel = {
@@ -110,6 +146,7 @@ const handleCreate = async () => {
       domains: domains,
       path: effectiveType.value === 'proxy' ? '' : fourthColumn,
       proxy: effectiveType.value === 'proxy' ? fourthColumn : '',
+      php: php,
       remark: remark
     }
 
@@ -192,6 +229,9 @@ const handleCreate = async () => {
       </n-text>
       <n-text>
         {{ fourthColumnHelp }}
+      </n-text>
+      <n-text v-if="effectiveType === 'php'">
+        {{ phpVersionHelp }}
       </n-text>
       <n-text>
         {{ $gettext('Remark: The remark of the website, can be empty.') }}
