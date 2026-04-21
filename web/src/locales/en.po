@@ -411,8 +411,8 @@ msgstr "Select File"
 #: src/views/apps/rsync/IndexView.vue:41 src/views/apps/rsync/IndexView.vue:268
 #: src/views/apps/supervisor/IndexView.vue:49
 #: src/views/apps/supervisor/IndexView.vue:391
-#: src/views/backup/StorageView.vue:62 src/views/backup/StorageView.vue:236
-#: src/views/backup/StorageView.vue:390 src/views/container/ComposeView.vue:57
+#: src/views/backup/StorageView.vue:63 src/views/backup/StorageView.vue:237
+#: src/views/backup/StorageView.vue:391 src/views/container/ComposeView.vue:57
 #: src/views/container/NetworkView.vue:46 src/views/container/VolumeView.vue:27
 #: src/views/database/CreateServerModal.vue:107
 #: src/views/database/ServerList.vue:64
@@ -471,7 +471,7 @@ msgstr "Invalid name"
 #: src/components/common/PathSelector.vue:257
 #: src/components/file-editor/FileTree.vue:285
 #: src/views/app/TemplateDeployModal.vue:236 src/views/backup/ListView.vue:128
-#: src/views/backup/StorageView.vue:155
+#: src/views/backup/StorageView.vue:156
 #: src/views/cert/CreateAccountModal.vue:54
 #: src/views/cert/CreateCertModal.vue:74 src/views/cert/CreateDnsModal.vue:43
 #: src/views/cert/UploadCertModal.vue:25
@@ -480,7 +480,7 @@ msgstr "Invalid name"
 #: src/views/container/NetworkView.vue:190
 #: src/views/container/VolumeView.vue:143
 #: src/views/database/CreateDatabaseModal.vue:47
-#: src/views/database/CreateUserModal.vue:47
+#: src/views/database/CreateUserModal.vue:50
 #: src/views/database/ElasticsearchDataView.vue:270
 #: src/views/file/ListView.vue:152 src/views/firewall/CreateForwardModal.vue:43
 #: src/views/setting/CreateModal.vue:23 src/views/setting/TokenModal.vue:128
@@ -504,7 +504,7 @@ msgstr "Folder"
 #: src/views/container/ContainerCreate.vue:539
 #: src/views/project/CreateModal.vue:686 src/views/setting/TokenModal.vue:276
 #: src/views/toolbox/WebHookView.vue:364
-#: src/views/website/BulkCreateModal.vue:200
+#: src/views/website/BulkCreateModal.vue:240
 #: src/views/website/CreateModal.vue:342
 msgid "Create"
 msgstr "Create"
@@ -522,7 +522,7 @@ msgstr "Root Directory"
 #: src/views/apps/rsync/IndexView.vue:317 src/views/apps/s3fs/IndexView.vue:187
 #: src/views/apps/supervisor/IndexView.vue:427
 #: src/views/backup/ListView.vue:287 src/views/backup/ListView.vue:318
-#: src/views/backup/StorageView.vue:375 src/views/backup/StorageView.vue:523
+#: src/views/backup/StorageView.vue:376 src/views/backup/StorageView.vue:524
 #: src/views/cert/AccountView.vue:271 src/views/cert/CertView.vue:574
 #: src/views/cert/CertView.vue:601 src/views/cert/CreateAccountModal.vue:128
 #: src/views/cert/CreateCertModal.vue:161 src/views/cert/CreateDnsModal.vue:197
@@ -536,7 +536,7 @@ msgstr "Root Directory"
 #: src/views/container/VolumeView.vue:236
 #: src/views/database/CreateDatabaseModal.vue:159
 #: src/views/database/CreateServerModal.vue:181
-#: src/views/database/CreateUserModal.vue:152
+#: src/views/database/CreateUserModal.vue:158
 #: src/views/database/ElasticsearchDataView.vue:400
 #: src/views/database/ElasticsearchDocModal.vue:106
 #: src/views/database/RedisDataView.vue:331
@@ -645,7 +645,7 @@ msgstr "Starting..."
 #: src/components/common/ServiceStatus.vue:52
 #: src/views/apps/prometheus/PrometheusExportersView.vue:117
 #: src/views/apps/supervisor/IndexView.vue:258
-#: src/views/project/ListView.vue:229 src/views/website/ListView.vue:315
+#: src/views/project/ListView.vue:229 src/views/website/ListView.vue:331
 msgid "Started successfully"
 msgstr "Started successfully"
 
@@ -657,7 +657,7 @@ msgstr "Stopping..."
 #: src/components/common/ServiceStatus.vue:67
 #: src/views/apps/prometheus/PrometheusExportersView.vue:124
 #: src/views/apps/supervisor/IndexView.vue:265
-#: src/views/project/ListView.vue:224 src/views/website/ListView.vue:317
+#: src/views/project/ListView.vue:224 src/views/website/ListView.vue:333
 msgid "Stopped successfully"
 msgstr "Stopped successfully"
 
@@ -1293,7 +1293,7 @@ msgstr "Rename"
 #: src/views/apps/pureftpd/IndexView.vue:92
 #: src/views/apps/rsync/IndexView.vue:107
 #: src/views/apps/supervisor/IndexView.vue:198
-#: src/views/backup/ListView.vue:101 src/views/backup/StorageView.vue:128
+#: src/views/backup/ListView.vue:101 src/views/backup/StorageView.vue:129
 #: src/views/cert/AccountView.vue:128 src/views/cert/CertView.vue:317
 #: src/views/cert/DnsView.vue:116 src/views/container/ComposeView.vue:243
 #: src/views/container/ComposeView.vue:323
@@ -1318,8 +1318,8 @@ msgstr "Rename"
 #: src/views/setting/SettingUser.vue:156 src/views/setting/TokenModal.vue:93
 #: src/views/ssh/IndexView.vue:132 src/views/task/CronView.vue:172
 #: src/views/task/IndexView.vue:36 src/views/task/TaskView.vue:97
-#: src/views/toolbox/WebHookView.vue:181 src/views/website/ListView.vue:282
-#: src/views/website/ListView.vue:372
+#: src/views/toolbox/WebHookView.vue:181 src/views/website/ListView.vue:298
+#: src/views/website/ListView.vue:401
 msgid "Delete"
 msgstr "Delete"
 
@@ -1353,7 +1353,7 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/apps/pureftpd/IndexView.vue:164
 #: src/views/apps/rsync/IndexView.vue:170 src/views/apps/s3fs/IndexView.vue:95
 #: src/views/apps/supervisor/IndexView.vue:279
-#: src/views/backup/ListView.vue:155 src/views/backup/StorageView.vue:188
+#: src/views/backup/ListView.vue:155 src/views/backup/StorageView.vue:189
 #: src/views/container/ImageView.vue:162
 #: src/views/container/NetworkView.vue:182
 #: src/views/container/VolumeView.vue:135
@@ -1371,7 +1371,7 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/setting/SettingUser.vue:191 src/views/setting/TokenModal.vue:116
 #: src/views/task/CronView.vue:238 src/views/task/CronView.vue:248
 #: src/views/task/TaskView.vue:122 src/views/toolbox/WebHookView.vue:238
-#: src/views/website/ListView.vue:337 src/views/website/ListView.vue:347
+#: src/views/website/ListView.vue:366 src/views/website/ListView.vue:376
 msgid "Deleted successfully"
 msgstr "Deleted successfully"
 
@@ -1640,7 +1640,7 @@ msgstr "Show in Home"
 #: src/views/apps/pureftpd/IndexView.vue:50
 #: src/views/apps/rsync/IndexView.vue:70 src/views/apps/s3fs/IndexView.vue:33
 #: src/views/apps/supervisor/IndexView.vue:77 src/views/backup/ListView.vue:62
-#: src/views/backup/StorageView.vue:91 src/views/cert/AccountView.vue:80
+#: src/views/backup/StorageView.vue:92 src/views/cert/AccountView.vue:80
 #: src/views/cert/CertView.vue:187 src/views/cert/DnsView.vue:67
 #: src/views/container/ComposeView.vue:100
 #: src/views/container/ContainerView.vue:111
@@ -1658,7 +1658,7 @@ msgstr "Show in Home"
 #: src/views/task/CronView.vue:108 src/views/task/TaskView.vue:55
 #: src/views/toolbox/DiskView.vue:344 src/views/toolbox/DiskView.vue:830
 #: src/views/toolbox/ProcessView.vue:169 src/views/toolbox/ProcessView.vue:186
-#: src/views/toolbox/WebHookView.vue:133 src/views/website/ListView.vue:210
+#: src/views/toolbox/WebHookView.vue:133 src/views/website/ListView.vue:226
 msgid "Actions"
 msgstr "Actions"
 
@@ -1964,7 +1964,7 @@ msgstr ""
 msgid "Starting Compose"
 msgstr "Create Compose"
 
-#: src/views/app/TemplateView.vue:141 src/views/backup/StorageView.vue:74
+#: src/views/app/TemplateView.vue:141 src/views/backup/StorageView.vue:75
 #: src/views/ssh/IndexView.vue:72 src/views/ssh/IndexView.vue:81
 #: src/views/toolbox/MigrationView.vue:470
 msgid "Local"
@@ -2208,8 +2208,9 @@ msgstr ""
 #: src/views/setting/SettingUser.vue:179 src/views/setting/SettingUser.vue:185
 #: src/views/task/CreateModal.vue:113 src/views/task/CronView.vue:196
 #: src/views/task/CronView.vue:266 src/views/toolbox/WebHookView.vue:213
-#: src/views/toolbox/WebHookView.vue:291 src/views/website/ListView.vue:324
-#: src/views/website/SettingView.vue:45 src/views/website/SettingView.vue:56
+#: src/views/toolbox/WebHookView.vue:291 src/views/website/ListView.vue:347
+#: src/views/website/ListView.vue:353 src/views/website/SettingView.vue:45
+#: src/views/website/SettingView.vue:56
 msgid "Modified successfully"
 msgstr "Modified successfully"
 
@@ -2727,8 +2728,8 @@ msgstr ""
 #: src/views/apps/fail2ban/IndexView.vue:328
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:74
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:184
-#: src/views/backup/StorageView.vue:69 src/views/backup/StorageView.vue:239
-#: src/views/backup/StorageView.vue:393 src/views/cert/CertView.vue:103
+#: src/views/backup/StorageView.vue:70 src/views/backup/StorageView.vue:240
+#: src/views/backup/StorageView.vue:394 src/views/cert/CertView.vue:103
 #: src/views/cert/DnsView.vue:41 src/views/database/CreateServerModal.vue:99
 #: src/views/database/RedisDataView.vue:87
 #: src/views/database/RedisKeyModal.vue:98 src/views/file/PropertyModal.vue:33
@@ -2755,9 +2756,9 @@ msgstr "Protection Mode"
 
 #: src/views/apps/fail2ban/IndexView.vue:350
 #: src/views/apps/pureftpd/IndexView.vue:43
-#: src/views/backup/StorageView.vue:283 src/views/backup/StorageView.vue:337
-#: src/views/backup/StorageView.vue:367 src/views/backup/StorageView.vue:431
-#: src/views/backup/StorageView.vue:485 src/views/backup/StorageView.vue:515
+#: src/views/backup/StorageView.vue:284 src/views/backup/StorageView.vue:338
+#: src/views/backup/StorageView.vue:368 src/views/backup/StorageView.vue:432
+#: src/views/backup/StorageView.vue:486 src/views/backup/StorageView.vue:516
 #: src/views/log/HttpLog.vue:80
 msgid "Path"
 msgstr "Path"
@@ -2825,7 +2826,7 @@ msgstr ""
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:149
 #: src/views/apps/nginx/NginxIndex.vue:529
 #: src/views/database/CreateDatabaseModal.vue:85
-#: src/views/database/CreateUserModal.vue:91
+#: src/views/database/CreateUserModal.vue:97
 #: src/views/database/DatabaseList.vue:27 src/views/database/IndexView.vue:37
 #: src/views/database/UserList.vue:72
 msgid "Server"
@@ -2999,11 +3000,11 @@ msgstr "Select Directory"
 
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:101
 #: src/views/apps/nginx/NginxIndex.vue:202
-#: src/views/apps/nginx/NginxIndex.vue:278 src/views/backup/StorageView.vue:108
+#: src/views/apps/nginx/NginxIndex.vue:278 src/views/backup/StorageView.vue:109
 #: src/views/container/ComposeView.vue:122 src/views/file/ListView.vue:332
 #: src/views/file/ListView.vue:1544 src/views/project/ListView.vue:180
 #: src/views/ssh/IndexView.vue:114 src/views/task/CronView.vue:151
-#: src/views/toolbox/WebHookView.vue:160 src/views/website/ListView.vue:225
+#: src/views/toolbox/WebHookView.vue:160 src/views/website/ListView.vue:241
 msgid "Edit"
 msgstr "Edit"
 
@@ -3037,12 +3038,12 @@ msgstr "Access Log"
 #: src/views/apps/pureftpd/IndexView.vue:275
 #: src/views/apps/rsync/IndexView.vue:292
 #: src/views/apps/rsync/IndexView.vue:346 src/views/backup/StorageView.vue:32
-#: src/views/backup/StorageView.vue:315 src/views/backup/StorageView.vue:359
-#: src/views/backup/StorageView.vue:463 src/views/backup/StorageView.vue:507
+#: src/views/backup/StorageView.vue:316 src/views/backup/StorageView.vue:360
+#: src/views/backup/StorageView.vue:464 src/views/backup/StorageView.vue:508
 #: src/views/container/ImageView.vue:400
 #: src/views/database/CreateDatabaseModal.vue:124
 #: src/views/database/CreateServerModal.vue:162
-#: src/views/database/CreateUserModal.vue:107
+#: src/views/database/CreateUserModal.vue:113
 #: src/views/database/ServerList.vue:80
 #: src/views/database/UpdateServerModal.vue:103
 #: src/views/database/UpdateUserModal.vue:62 src/views/database/UserList.vue:31
@@ -4240,12 +4241,12 @@ msgstr ""
 
 #: src/views/apps/pureftpd/IndexView.vue:36
 #: src/views/apps/pureftpd/IndexView.vue:236
-#: src/views/backup/StorageView.vue:304 src/views/backup/StorageView.vue:353
-#: src/views/backup/StorageView.vue:452 src/views/backup/StorageView.vue:501
+#: src/views/backup/StorageView.vue:305 src/views/backup/StorageView.vue:354
+#: src/views/backup/StorageView.vue:453 src/views/backup/StorageView.vue:502
 #: src/views/container/ImageView.vue:392
 #: src/views/database/CreateDatabaseModal.vue:116
 #: src/views/database/CreateServerModal.vue:154
-#: src/views/database/CreateUserModal.vue:99
+#: src/views/database/CreateUserModal.vue:105
 #: src/views/database/ServerList.vue:71
 #: src/views/database/UpdateServerModal.vue:95
 #: src/views/database/UserList.vue:21 src/views/login/IndexView.vue:246
@@ -4283,18 +4284,18 @@ msgstr "Run Log"
 #: src/views/apps/pureftpd/IndexView.vue:228
 #: src/views/apps/pureftpd/IndexView.vue:232
 #: src/views/database/CreateDatabaseModal.vue:101
-#: src/views/database/CreateUserModal.vue:77
+#: src/views/database/CreateUserModal.vue:83
 #: src/views/database/IndexView.vue:50 src/views/setting/CreateModal.vue:39
 #: src/views/setting/IndexView.vue:154
 msgid "Create User"
 msgstr "Create User"
 
 #: src/views/apps/pureftpd/IndexView.vue:241
-#: src/views/backup/StorageView.vue:307 src/views/backup/StorageView.vue:356
-#: src/views/backup/StorageView.vue:455 src/views/backup/StorageView.vue:504
+#: src/views/backup/StorageView.vue:308 src/views/backup/StorageView.vue:357
+#: src/views/backup/StorageView.vue:456 src/views/backup/StorageView.vue:505
 #: src/views/container/ImageView.vue:397
 #: src/views/database/CreateDatabaseModal.vue:121
-#: src/views/database/CreateUserModal.vue:104
+#: src/views/database/CreateUserModal.vue:110
 msgid "Enter username"
 msgstr "Enter username"
 
@@ -4520,12 +4521,11 @@ msgid "JVM heap memory settings for NameServer and Broker."
 msgstr ""
 
 #: src/views/apps/rsync/IndexView.vue:62 src/views/apps/rsync/IndexView.vue:300
-#: src/views/apps/rsync/IndexView.vue:355 src/views/backup/StorageView.vue:293
-#: src/views/backup/StorageView.vue:347 src/views/backup/StorageView.vue:441
-#: src/views/backup/StorageView.vue:495
+#: src/views/apps/rsync/IndexView.vue:355 src/views/backup/StorageView.vue:294
+#: src/views/backup/StorageView.vue:442
 #: src/views/database/CreateDatabaseModal.vue:138
 #: src/views/database/CreateServerModal.vue:133
-#: src/views/database/CreateUserModal.vue:121
+#: src/views/database/CreateUserModal.vue:127
 #: src/views/database/ServerList.vue:111
 #: src/views/database/UpdateServerModal.vue:74
 #: src/views/database/UserList.vue:62 src/views/ssh/CreateModal.vue:64
@@ -4536,7 +4536,7 @@ msgstr "Host"
 #: src/views/apps/rsync/IndexView.vue:68 src/views/apps/rsync/IndexView.vue:308
 #: src/views/apps/rsync/IndexView.vue:363
 #: src/views/database/CreateServerModal.vue:172
-#: src/views/database/CreateUserModal.vue:143
+#: src/views/database/CreateUserModal.vue:149
 #: src/views/database/DatabaseList.vue:48 src/views/database/ServerList.vue:121
 #: src/views/database/UpdateServerModal.vue:112
 #: src/views/database/UpdateUserModal.vue:77 src/views/database/UserList.vue:95
@@ -4795,7 +4795,7 @@ msgstr "Database Name"
 
 #: src/views/backup/ListView.vue:270
 #: src/views/database/CreateDatabaseModal.vue:98
-#: src/views/database/CreateUserModal.vue:140
+#: src/views/database/CreateUserModal.vue:146
 #: src/views/database/UpdateUserModal.vue:74
 msgid "Enter database name"
 msgstr "Enter database name"
@@ -4814,8 +4814,8 @@ msgstr "Select server"
 msgid "Restore Backup"
 msgstr "Restore Backup"
 
-#: src/views/backup/StorageView.vue:33 src/views/backup/StorageView.vue:327
-#: src/views/backup/StorageView.vue:475 src/views/cert/CertView.vue:548
+#: src/views/backup/StorageView.vue:33 src/views/backup/StorageView.vue:328
+#: src/views/backup/StorageView.vue:476 src/views/cert/CertView.vue:548
 #: src/views/cert/CertView.vue:619 src/views/cert/UploadCertModal.vue:53
 #: src/views/setting/SettingSafe.vue:282 src/views/ssh/CreateModal.vue:80
 #: src/views/ssh/CreateModal.vue:91 src/views/ssh/UpdateModal.vue:86
@@ -4823,102 +4823,102 @@ msgstr "Restore Backup"
 msgid "Private Key"
 msgstr "Private Key"
 
-#: src/views/backup/StorageView.vue:83
+#: src/views/backup/StorageView.vue:84
 #, fuzzy
 msgid "Created At"
 msgstr "Create Host"
 
-#: src/views/backup/StorageView.vue:117
+#: src/views/backup/StorageView.vue:118
 #, fuzzy
 msgid "Are you sure you want to delete this storage?"
 msgstr "Are you sure you want to delete this user?"
 
-#: src/views/backup/StorageView.vue:178 src/views/setting/PasswordModal.vue:20
+#: src/views/backup/StorageView.vue:179 src/views/setting/PasswordModal.vue:20
 #: src/views/setting/TokenModal.vue:188 src/views/setting/TwoFaModal.vue:27
 #: src/views/ssh/UpdateModal.vue:31
 msgid "Updated successfully"
 msgstr "Updated successfully"
 
-#: src/views/backup/StorageView.vue:200 src/views/backup/StorageView.vue:228
+#: src/views/backup/StorageView.vue:201 src/views/backup/StorageView.vue:229
 #, fuzzy
 msgid "Add Storage"
 msgstr "Add Server"
 
-#: src/views/backup/StorageView.vue:237 src/views/backup/StorageView.vue:391
+#: src/views/backup/StorageView.vue:238 src/views/backup/StorageView.vue:392
 #, fuzzy
 msgid "Enter storage name"
 msgstr "Enter note name"
 
-#: src/views/backup/StorageView.vue:245 src/views/backup/StorageView.vue:399
+#: src/views/backup/StorageView.vue:246 src/views/backup/StorageView.vue:400
 #, fuzzy
 msgid "Access Key"
 msgstr "Access Log"
 
-#: src/views/backup/StorageView.vue:248 src/views/backup/StorageView.vue:402
+#: src/views/backup/StorageView.vue:249 src/views/backup/StorageView.vue:403
 #, fuzzy
 msgid "Enter access key"
 msgstr "Enter Aliyun Access Key"
 
-#: src/views/backup/StorageView.vue:251 src/views/backup/StorageView.vue:405
+#: src/views/backup/StorageView.vue:252 src/views/backup/StorageView.vue:406
 #, fuzzy
 msgid "Secret Key"
 msgstr "Enter Aliyun Secret Key"
 
-#: src/views/backup/StorageView.vue:256 src/views/backup/StorageView.vue:410
+#: src/views/backup/StorageView.vue:257 src/views/backup/StorageView.vue:411
 #, fuzzy
 msgid "Enter secret key"
 msgstr "Enter Aliyun Secret Key"
 
-#: src/views/backup/StorageView.vue:259 src/views/backup/StorageView.vue:413
+#: src/views/backup/StorageView.vue:260 src/views/backup/StorageView.vue:414
 msgid "Style"
 msgstr ""
 
-#: src/views/backup/StorageView.vue:262 src/views/website/stats/GeoTab.vue:91
+#: src/views/backup/StorageView.vue:263 src/views/website/stats/GeoTab.vue:91
 #: src/views/website/stats/GeoTab.vue:248
 msgid "Region"
 msgstr ""
 
-#: src/views/backup/StorageView.vue:265
+#: src/views/backup/StorageView.vue:266
 #, fuzzy
 msgid "Enter region (e.g., us-east-1)"
 msgstr "Enter mount directory (e.g., /oss)"
 
-#: src/views/backup/StorageView.vue:268 src/views/backup/StorageView.vue:416
+#: src/views/backup/StorageView.vue:269 src/views/backup/StorageView.vue:417
 #, fuzzy
 msgid "Endpoint"
 msgstr "Entrypoint"
 
-#: src/views/backup/StorageView.vue:271 src/views/backup/StorageView.vue:419
+#: src/views/backup/StorageView.vue:272 src/views/backup/StorageView.vue:420
 #, fuzzy
 msgid "Enter endpoint URL"
 msgstr "Entrypoint"
 
-#: src/views/backup/StorageView.vue:274 src/views/backup/StorageView.vue:422
+#: src/views/backup/StorageView.vue:275 src/views/backup/StorageView.vue:423
 #, fuzzy
 msgid "Scheme"
 msgstr "Switch Theme"
 
-#: src/views/backup/StorageView.vue:277 src/views/backup/StorageView.vue:425
+#: src/views/backup/StorageView.vue:278 src/views/backup/StorageView.vue:426
 msgid "Bucket"
 msgstr ""
 
-#: src/views/backup/StorageView.vue:280 src/views/backup/StorageView.vue:428
+#: src/views/backup/StorageView.vue:281 src/views/backup/StorageView.vue:429
 #, fuzzy
 msgid "Enter bucket name"
 msgstr "Enter user name"
 
-#: src/views/backup/StorageView.vue:286 src/views/backup/StorageView.vue:370
-#: src/views/backup/StorageView.vue:434 src/views/backup/StorageView.vue:518
+#: src/views/backup/StorageView.vue:287 src/views/backup/StorageView.vue:371
+#: src/views/backup/StorageView.vue:435 src/views/backup/StorageView.vue:519
 #, fuzzy
 msgid "Enter path (optional)"
 msgstr "Optional"
 
-#: src/views/backup/StorageView.vue:294 src/views/backup/StorageView.vue:442
+#: src/views/backup/StorageView.vue:295 src/views/backup/StorageView.vue:443
 #, fuzzy
 msgid "Enter host"
 msgstr "Container Name"
 
-#: src/views/backup/StorageView.vue:296 src/views/backup/StorageView.vue:444
+#: src/views/backup/StorageView.vue:297 src/views/backup/StorageView.vue:445
 #: src/views/database/CreateServerModal.vue:144
 #: src/views/database/UpdateServerModal.vue:85
 #: src/views/firewall/ForwardView.vue:31 src/views/firewall/RuleView.vue:65
@@ -4929,40 +4929,44 @@ msgstr "Container Name"
 msgid "Port"
 msgstr "Port"
 
-#: src/views/backup/StorageView.vue:301 src/views/backup/StorageView.vue:449
+#: src/views/backup/StorageView.vue:302 src/views/backup/StorageView.vue:450
 #, fuzzy
 msgid "Enter port"
 msgstr "Container Name"
 
-#: src/views/backup/StorageView.vue:310 src/views/backup/StorageView.vue:458
+#: src/views/backup/StorageView.vue:311 src/views/backup/StorageView.vue:459
 #, fuzzy
 msgid "Auth Type"
 msgstr "Match Type"
 
-#: src/views/backup/StorageView.vue:322 src/views/backup/StorageView.vue:364
-#: src/views/backup/StorageView.vue:470 src/views/backup/StorageView.vue:512
+#: src/views/backup/StorageView.vue:323 src/views/backup/StorageView.vue:365
+#: src/views/backup/StorageView.vue:471 src/views/backup/StorageView.vue:513
 #: src/views/container/ImageView.vue:406
 #: src/views/database/CreateDatabaseModal.vue:131
-#: src/views/database/CreateUserModal.vue:114
+#: src/views/database/CreateUserModal.vue:120
 #: src/views/database/UpdateUserModal.vue:68
 msgid "Enter password"
 msgstr "Enter password"
 
-#: src/views/backup/StorageView.vue:334 src/views/backup/StorageView.vue:482
+#: src/views/backup/StorageView.vue:335 src/views/backup/StorageView.vue:483
 #, fuzzy
 msgid "Enter private key"
 msgstr "Enter AK key"
 
-#: src/views/backup/StorageView.vue:340 src/views/backup/StorageView.vue:488
+#: src/views/backup/StorageView.vue:341 src/views/backup/StorageView.vue:489
 #, fuzzy
 msgid "Enter remote path"
 msgstr "Container Name"
 
-#: src/views/backup/StorageView.vue:350 src/views/backup/StorageView.vue:498
+#: src/views/backup/StorageView.vue:348 src/views/backup/StorageView.vue:496
+msgid "URL"
+msgstr ""
+
+#: src/views/backup/StorageView.vue:351 src/views/backup/StorageView.vue:499
 msgid "Enter WebDAV URL"
 msgstr ""
 
-#: src/views/backup/StorageView.vue:382
+#: src/views/backup/StorageView.vue:383
 #, fuzzy
 msgid "Edit Storage"
 msgstr "Add User"
@@ -5994,17 +5998,17 @@ msgid "Volume Name"
 msgstr "Volume Name"
 
 #: src/views/database/CreateDatabaseModal.vue:25
-#: src/views/database/CreateUserModal.vue:25
+#: src/views/database/CreateUserModal.vue:28
 msgid "Local (localhost)"
 msgstr "Local (localhost)"
 
 #: src/views/database/CreateDatabaseModal.vue:26
-#: src/views/database/CreateUserModal.vue:26
+#: src/views/database/CreateUserModal.vue:29
 msgid "All (%)"
 msgstr "All (%)"
 
 #: src/views/database/CreateDatabaseModal.vue:27
-#: src/views/database/CreateUserModal.vue:27
+#: src/views/database/CreateUserModal.vue:30
 msgid "Specific"
 msgstr "Specific"
 
@@ -6014,7 +6018,7 @@ msgid "Create Database"
 msgstr "Create Database"
 
 #: src/views/database/CreateDatabaseModal.vue:89
-#: src/views/database/CreateUserModal.vue:95
+#: src/views/database/CreateUserModal.vue:101
 msgid "Select server"
 msgstr "Select server"
 
@@ -6027,22 +6031,22 @@ msgid "Enter authorized username (leave empty for no authorization)"
 msgstr "Enter authorized username (leave empty for no authorization)"
 
 #: src/views/database/CreateDatabaseModal.vue:134
-#: src/views/database/CreateUserModal.vue:117
+#: src/views/database/CreateUserModal.vue:123
 msgid "Generate"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:142
-#: src/views/database/CreateUserModal.vue:125
+#: src/views/database/CreateUserModal.vue:131
 msgid "Select host"
 msgstr "Select host"
 
 #: src/views/database/CreateDatabaseModal.vue:149
-#: src/views/database/CreateUserModal.vue:129
+#: src/views/database/CreateUserModal.vue:135
 msgid "Specific Host"
 msgstr "Specific Host"
 
 #: src/views/database/CreateDatabaseModal.vue:155
-#: src/views/database/CreateUserModal.vue:134
+#: src/views/database/CreateUserModal.vue:140
 msgid "Enter supported host address"
 msgstr "Enter supported host address"
 
@@ -6095,19 +6099,19 @@ msgstr "Enter database server password"
 msgid "Enter database server comment"
 msgstr "Enter database server comment"
 
-#: src/views/database/CreateUserModal.vue:87
+#: src/views/database/CreateUserModal.vue:93
 #: src/views/database/UpdateUserModal.vue:58
 msgid ""
 "If the privilege databases does not exist, it will be created automatically."
 msgstr ""
 "If the privilege databases does not exist, it will be created automatically."
 
-#: src/views/database/CreateUserModal.vue:137
+#: src/views/database/CreateUserModal.vue:143
 #: src/views/database/UpdateUserModal.vue:71 src/views/database/UserList.vue:80
 msgid "Privileges"
 msgstr "Privileges"
 
-#: src/views/database/CreateUserModal.vue:148
+#: src/views/database/CreateUserModal.vue:154
 #: src/views/database/UpdateUserModal.vue:82
 msgid "Enter database user comment"
 msgstr "Enter database user comment"
@@ -8218,7 +8222,7 @@ msgid "e.g., php artisan serve, node app.js"
 msgstr ""
 
 #: src/views/project/CreateModal.vue:649
-#: src/views/website/BulkCreateModal.vue:39
+#: src/views/website/BulkCreateModal.vue:59
 #: src/views/website/CreateModal.vue:28 src/views/website/IndexView.vue:26
 #: src/views/website/ListView.vue:106
 msgid "Reverse Proxy"
@@ -8536,7 +8540,7 @@ msgstr ""
 msgid "Node.js"
 msgstr ""
 
-#: src/views/project/IndexView.vue:26 src/views/website/BulkCreateModal.vue:40
+#: src/views/project/IndexView.vue:26 src/views/website/BulkCreateModal.vue:60
 #: src/views/website/CreateModal.vue:29 src/views/website/IndexView.vue:27
 #: src/views/website/ListView.vue:107
 msgid "PHP"
@@ -11076,73 +11080,88 @@ msgstr "Run Script"
 msgid "Edit WebHook"
 msgstr "Edit Website"
 
-#: src/views/website/BulkCreateModal.vue:41
+#: src/views/website/BulkCreateModal.vue:32
+#: src/views/website/CreateModal.vue:57 src/views/website/EditModal.vue:82
+msgid "Not used"
+msgstr "Not used"
+
+#: src/views/website/BulkCreateModal.vue:61
 #: src/views/website/CreateModal.vue:30 src/views/website/IndexView.vue:28
 #: src/views/website/ListView.vue:108
 #, fuzzy
 msgid "Pure Static"
 msgstr "Automatic"
 
-#: src/views/website/BulkCreateModal.vue:48
+#: src/views/website/BulkCreateModal.vue:68
 #, fuzzy
 msgid "Bulk Create Reverse Proxy Website"
 msgstr "Bulk Create Website"
 
-#: src/views/website/BulkCreateModal.vue:50
+#: src/views/website/BulkCreateModal.vue:70
 #, fuzzy
 msgid "Bulk Create PHP Website"
 msgstr "Bulk Create Website"
 
-#: src/views/website/BulkCreateModal.vue:52
+#: src/views/website/BulkCreateModal.vue:72
 #, fuzzy
 msgid "Bulk Create Pure Static Website"
 msgstr "Bulk Create Website"
 
-#: src/views/website/BulkCreateModal.vue:54 src/views/website/ListView.vue:367
+#: src/views/website/BulkCreateModal.vue:74 src/views/website/ListView.vue:396
 msgid "Bulk Create Website"
 msgstr "Bulk Create Website"
 
-#: src/views/website/BulkCreateModal.vue:61
+#: src/views/website/BulkCreateModal.vue:81
 #, fuzzy
 msgid "name|domain|port|proxy_target|remark"
 msgstr "name|domain|port|path|remark"
 
-#: src/views/website/BulkCreateModal.vue:63
+#: src/views/website/BulkCreateModal.vue:84
+#, fuzzy
+msgid "name|domain|port|path|php_version|remark"
+msgstr "name|domain|port|path|remark"
+
+#: src/views/website/BulkCreateModal.vue:86
 msgid "name|domain|port|path|remark"
 msgstr "name|domain|port|path|remark"
 
-#: src/views/website/BulkCreateModal.vue:69
+#: src/views/website/BulkCreateModal.vue:92
 msgid ""
 "Proxy Target: The target address for reverse proxy (e.g., "
 "http://127.0.0.1:3000)."
 msgstr ""
 
-#: src/views/website/BulkCreateModal.vue:73
+#: src/views/website/BulkCreateModal.vue:96
 msgid "Path: The path of the website, can be empty to use the default path."
 msgstr "Path: The path of the website, can be empty to use the default path."
 
-#: src/views/website/BulkCreateModal.vue:88
+#: src/views/website/BulkCreateModal.vue:104
+#, fuzzy
+msgid "PHP Version: %{ items }"
+msgstr "PHP Version"
+
+#: src/views/website/BulkCreateModal.vue:121
 msgid "The format is incorrect, please check"
 msgstr "The format is incorrect, please check"
 
-#: src/views/website/BulkCreateModal.vue:128
+#: src/views/website/BulkCreateModal.vue:165
 #: src/views/website/CreateModal.vue:120
 msgid "Website %{ name } created successfully"
 msgstr "Website %{ name } created successfully"
 
-#: src/views/website/BulkCreateModal.vue:152
+#: src/views/website/BulkCreateModal.vue:189
 #: src/views/website/CreateModal.vue:180 src/views/website/ListView.vue:100
 #, fuzzy
 msgid "Website Type"
 msgstr "Website Name"
 
-#: src/views/website/BulkCreateModal.vue:156
+#: src/views/website/BulkCreateModal.vue:193
 #: src/views/website/CreateModal.vue:184
 #, fuzzy
 msgid "Select Website Type"
 msgstr "Select Website"
 
-#: src/views/website/BulkCreateModal.vue:161
+#: src/views/website/BulkCreateModal.vue:198
 msgid ""
 "Please enter the website name, domain, port, path, and remark in the text "
 "area below, one per line."
@@ -11150,7 +11169,7 @@ msgstr ""
 "Please enter the website name, domain, port, path, and remark in the text "
 "area below, one per line."
 
-#: src/views/website/BulkCreateModal.vue:174
+#: src/views/website/BulkCreateModal.vue:211
 msgid ""
 "Name: The name of the website, which will be displayed in the website list, "
 "must be unique."
@@ -11158,7 +11177,7 @@ msgstr ""
 "Name: The name of the website, which will be displayed in the website list, "
 "must be unique."
 
-#: src/views/website/BulkCreateModal.vue:181
+#: src/views/website/BulkCreateModal.vue:218
 msgid ""
 "Domain: The domain name of the website, multiple domains can be separated by "
 "commas."
@@ -11166,7 +11185,7 @@ msgstr ""
 "Domain: The domain name of the website, multiple domains can be separated by "
 "commas."
 
-#: src/views/website/BulkCreateModal.vue:188
+#: src/views/website/BulkCreateModal.vue:225
 msgid ""
 "Port: The port number of the website, multiple ports can be separated by "
 "commas."
@@ -11174,13 +11193,9 @@ msgstr ""
 "Port: The port number of the website, multiple ports can be separated by "
 "commas."
 
-#: src/views/website/BulkCreateModal.vue:197
+#: src/views/website/BulkCreateModal.vue:237
 msgid "Remark: The remark of the website, can be empty."
 msgstr "Remark: The remark of the website, can be empty."
-
-#: src/views/website/CreateModal.vue:57 src/views/website/EditModal.vue:82
-msgid "Not used"
-msgstr "Not used"
 
 #: src/views/website/CreateModal.vue:74
 #, fuzzy
@@ -11197,7 +11212,7 @@ msgstr "Create Website"
 msgid "Create Pure Static Website"
 msgstr "Create Website"
 
-#: src/views/website/CreateModal.vue:80 src/views/website/ListView.vue:364
+#: src/views/website/CreateModal.vue:80 src/views/website/ListView.vue:393
 msgid "Create Website"
 msgstr "Create Website"
 
@@ -11234,7 +11249,7 @@ msgid "Proxy target address (e.g., http://127.0.0.1:3000)"
 msgstr ""
 
 #: src/views/website/CreateModal.vue:332 src/views/website/CreateModal.vue:337
-#: src/views/website/ListView.vue:193
+#: src/views/website/ListView.vue:209
 msgid "Remark"
 msgstr "Remark"
 
@@ -12022,19 +12037,24 @@ msgstr "Expired %{ days } days ago"
 msgid "Expires in %{ days } days"
 msgstr "Expires in %{ days } days"
 
-#: src/views/website/ListView.vue:248
+#: src/views/website/ListView.vue:193
+#, fuzzy
+msgid "Expiration"
+msgstr "Expiration Time"
+
+#: src/views/website/ListView.vue:264
 msgid "Are you sure you want to delete website %{ name }?"
 msgstr "Are you sure you want to delete website %{ name }?"
 
-#: src/views/website/ListView.vue:259
+#: src/views/website/ListView.vue:275
 msgid "Delete website directory"
 msgstr "Delete website directory"
 
-#: src/views/website/ListView.vue:267
+#: src/views/website/ListView.vue:283
 msgid "Delete local database with the same name"
 msgstr "Delete local database with the same name"
 
-#: src/views/website/ListView.vue:376
+#: src/views/website/ListView.vue:405
 msgid ""
 "This will delete the website directory but not the database with the same "
 "name. Are you sure you want to delete the selected websites?"
