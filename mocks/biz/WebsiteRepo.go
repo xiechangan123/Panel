@@ -11,6 +11,8 @@ import (
 
 	request "github.com/acepanel/panel/v3/internal/http/request"
 
+	time "time"
+
 	types "github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -703,6 +705,53 @@ func (_c *WebsiteRepo_UpdateDefaultConfig_Call) Return(_a0 error) *WebsiteRepo_U
 }
 
 func (_c *WebsiteRepo_UpdateDefaultConfig_Call) RunAndReturn(run func(*request.WebsiteDefaultConfig) error) *WebsiteRepo_UpdateDefaultConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateExpireAt provides a mock function with given fields: id, expireAt
+func (_m *WebsiteRepo) UpdateExpireAt(id uint, expireAt *time.Time) error {
+	ret := _m.Called(id, expireAt)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateExpireAt")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, *time.Time) error); ok {
+		r0 = rf(id, expireAt)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteRepo_UpdateExpireAt_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateExpireAt'
+type WebsiteRepo_UpdateExpireAt_Call struct {
+	*mock.Call
+}
+
+// UpdateExpireAt is a helper method to define mock.On call
+//   - id uint
+//   - expireAt *time.Time
+func (_e *WebsiteRepo_Expecter) UpdateExpireAt(id interface{}, expireAt interface{}) *WebsiteRepo_UpdateExpireAt_Call {
+	return &WebsiteRepo_UpdateExpireAt_Call{Call: _e.mock.On("UpdateExpireAt", id, expireAt)}
+}
+
+func (_c *WebsiteRepo_UpdateExpireAt_Call) Run(run func(id uint, expireAt *time.Time)) *WebsiteRepo_UpdateExpireAt_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint), args[1].(*time.Time))
+	})
+	return _c
+}
+
+func (_c *WebsiteRepo_UpdateExpireAt_Call) Return(_a0 error) *WebsiteRepo_UpdateExpireAt_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteRepo_UpdateExpireAt_Call) RunAndReturn(run func(uint, *time.Time) error) *WebsiteRepo_UpdateExpireAt_Call {
 	_c.Call.Return(run)
 	return _c
 }
