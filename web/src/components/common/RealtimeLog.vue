@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import ws from '@/api/ws'
-import type { LogInst } from 'naive-ui'
+import '@fontsource-variable/jetbrains-mono/wght-italic.css'
+import '@fontsource-variable/jetbrains-mono/wght.css'
+import { ClipboardAddon } from '@xterm/addon-clipboard'
+import { FitAddon } from '@xterm/addon-fit'
+import { Unicode11Addon } from '@xterm/addon-unicode11'
+import { WebLinksAddon } from '@xterm/addon-web-links'
+import { WebglAddon } from '@xterm/addon-webgl'
+import { Terminal } from '@xterm/xterm'
+import '@xterm/xterm/css/xterm.css'
 import { useGettext } from 'vue3-gettext'
+
+import ws from '@/api/ws'
 
 const { $gettext } = useGettext()
 const props = defineProps({
@@ -12,83 +21,236 @@ const props = defineProps({
   service: {
     type: String,
     required: false
-  },
-  language: {
-    type: String,
-    required: false,
-    default: 'systemdlog'
   }
 })
 
-const log = ref('')
-const logRef = ref<LogInst | null>(null)
-let logWs: WebSocket | null = null
+const terminalRef = ref<HTMLElement | null>(null)
+const term = ref<Terminal | null>(null)
+let ptyWs: WebSocket | null = null
+let fitAddon: FitAddon | null = null
+let webglAddon: WebglAddon | null = null
+let resizeObserver: ResizeObserver | null = null
 
-const init = async () => {
-  let cmd = ''
-  if (props.path) {
-    cmd = `tail -n 100 -f '${props.path}'`
-  } else if (props.service) {
-    cmd = `journalctl -u '${props.service}' -f`
-  } else {
+// 根据 props 构建要执行的命令
+const buildCommand = (): string => {
+  if (props.path) return `tail -n 1000 -F '${props.path}'`
+  if (props.service) return `journalctl --no-pager -n 1000 -f -u '${props.service}'`
+  return ''
+}
+
+// 初始化终端并连接 PTY
+const initTerminal = async () => {
+  if (!terminalRef.value) return
+  const command = buildCommand()
+  if (!command) {
     window.$message.error($gettext('Path or service cannot be empty'))
     return
   }
-  ws.exec(cmd)
-    .then((ws: WebSocket) => {
-      logWs = ws
-      ws.onmessage = (event) => {
-        log.value += event.data + '\n'
-        const lines = log.value.split('\n')
-        if (lines.length > 500) {
-          log.value = lines.slice(lines.length - 500).join('\n')
-        }
+
+  try {
+    ptyWs = await ws.pty(command)
+    ptyWs.binaryType = 'arraybuffer'
+
+    term.value = new Terminal({
+      allowProposedApi: true,
+      lineHeight: 1.2,
+      fontSize: 14,
+      fontFamily: `'JetBrains Mono Variable', monospace`,
+      cursorBlink: false,
+      cursorStyle: 'bar',
+      tabStopWidth: 4,
+      disableStdin: false,
+      convertEol: true,
+      scrollback: 10000,
+      theme: { background: '#111', foreground: '#fff' }
+    })
+
+    fitAddon = new FitAddon()
+    webglAddon = new WebglAddon()
+
+    term.value.loadAddon(fitAddon)
+    term.value.loadAddon(new ClipboardAddon())
+    term.value.loadAddon(new WebLinksAddon())
+    term.value.loadAddon(new Unicode11Addon())
+    term.value.unicode.activeVersion = '11'
+    term.value.loadAddon(webglAddon)
+    webglAddon.onContextLoss(() => {
+      webglAddon?.dispose()
+    })
+    term.value.open(terminalRef.value)
+
+    ptyWs.onmessage = (ev) => {
+      const data: ArrayBuffer | string = ev.data
+      term.value?.write(typeof data === 'string' ? data : new Uint8Array(data))
+    }
+
+    term.value.onData((data) => {
+      if (ptyWs?.readyState === WebSocket.OPEN) {
+        ptyWs.send(data)
       }
     })
-    .catch(() => {
-      window.$message.error($gettext('Failed to get log stream'))
+    term.value.onBinary((data) => {
+      if (ptyWs?.readyState === WebSocket.OPEN) {
+        const buffer = new Uint8Array(data.length)
+        for (let i = 0; i < data.length; ++i) {
+          buffer[i] = data.charCodeAt(i) & 255
+        }
+        ptyWs.send(buffer)
+      }
     })
+    term.value.onResize(({ rows, cols }) => {
+      if (ptyWs && ptyWs.readyState === WebSocket.OPEN) {
+        ptyWs.send(
+          JSON.stringify({
+            resize: true,
+            columns: cols,
+            rows: rows
+          })
+        )
+      }
+    })
+
+    fitAddon.fit()
+    window.addEventListener('resize', onTerminalResize, false)
+
+    // 外层弹窗/容器动画尺寸变化时也能 fit
+    if (terminalRef.value.parentElement) {
+      resizeObserver = new ResizeObserver(() => onTerminalResize())
+      resizeObserver.observe(terminalRef.value.parentElement)
+    }
+
+    ptyWs.onclose = () => {
+      if (term.value) {
+        term.value.write('\r\n' + $gettext('Connection closed.'))
+      }
+    }
+
+    ptyWs.onerror = (event) => {
+      if (term.value) {
+        term.value.write('\r\n' + $gettext('Connection error.'))
+      }
+      console.error(event)
+      ptyWs?.close()
+    }
+  } catch (error) {
+    console.error('Failed to start PTY:', error)
+    window.$message.error($gettext('Failed to get log stream'))
+  }
 }
 
-const close = () => {
-  if (logWs) {
-    logWs.close()
+// 关闭终端并清理资源
+const closeTerminal = () => {
+  try {
+    if (ptyWs) {
+      ptyWs.close()
+      ptyWs = null
+    }
+    if (term.value) {
+      term.value.dispose()
+      term.value = null
+    }
+    fitAddon = null
+    webglAddon = null
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+      resizeObserver = null
+    }
+    if (terminalRef.value) {
+      terminalRef.value.innerHTML = ''
+    }
+    window.removeEventListener('resize', onTerminalResize)
+  } catch {
+    /* empty */
   }
-  log.value = ''
+}
+
+// 窗口或父容器尺寸变化时重新 fit
+const onTerminalResize = () => {
+  if (fitAddon && term.value) {
+    fitAddon.fit()
+  }
+}
+
+// 按住 Ctrl 滚轮缩放字号
+const onTerminalWheel = (event: WheelEvent) => {
+  if (event.ctrlKey && term.value && fitAddon) {
+    event.preventDefault()
+    if (event.deltaY > 0) {
+      if (term.value.options.fontSize! > 12) {
+        term.value.options.fontSize = term.value.options.fontSize! - 1
+      }
+    } else {
+      term.value.options.fontSize = term.value.options.fontSize! + 1
+    }
+    fitAddon.fit()
+  }
 }
 
 watch(
-  () => props.path,
-  () => {
-    close()
-    init()
+  () => [props.path, props.service],
+  async () => {
+    closeTerminal()
+    await nextTick()
+    await initTerminal()
   }
 )
 
-watchEffect(() => {
-  if (log.value) {
-    nextTick(() => {
-      logRef.value?.scrollTo({ position: 'bottom', silent: true })
-    })
-  }
-})
-
-onMounted(() => {
-  init()
+onMounted(async () => {
+  await nextTick()
+  await initTerminal()
 })
 
 onUnmounted(() => {
-  close()
-})
-
-defineExpose({
-  init
+  closeTerminal()
 })
 </script>
 
 <template>
-  <n-log v-if="log" ref="logRef" :log="log" trim :rows="40" :language="props.language" />
+  <div
+    v-if="props.path || props.service"
+    ref="terminalRef"
+    class="realtime-log-terminal"
+    @wheel="onTerminalWheel"
+  ></div>
   <n-empty v-else :description="$gettext('No logs available')" />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.realtime-log-terminal {
+  height: 60vh;
+  min-height: 300px;
+  background: #111;
+}
+
+:deep(.xterm) {
+  padding: 1rem !important;
+}
+
+:deep(.xterm .xterm-viewport::-webkit-scrollbar) {
+  border-radius: 0.4rem;
+  height: 6px;
+  width: 8px;
+}
+
+:deep(.xterm .xterm-viewport::-webkit-scrollbar-thumb) {
+  background-color: #666;
+  border-radius: 0.4rem;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  transition: all 1s;
+}
+
+:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-thumb) {
+  background-color: #aaa;
+}
+
+:deep(.xterm .xterm-viewport::-webkit-scrollbar-track) {
+  background-color: #111;
+  border-radius: 0.4rem;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  transition: all 1s;
+}
+
+:deep(.xterm .xterm-viewport:hover::-webkit-scrollbar-track) {
+  background-color: #444;
+}
+</style>

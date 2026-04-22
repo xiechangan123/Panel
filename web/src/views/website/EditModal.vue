@@ -2007,7 +2007,7 @@ const removeCustomConfig = (index: number) => {
                 {{ $gettext('view') }}.
               </n-alert>
             </n-flex>
-            <realtime-log :path="setting.access_log" language="accesslog" pb-20 />
+            <realtime-log :path="setting.access_log" pb-20 />
           </n-flex>
         </n-tab-pane>
         <n-tab-pane
@@ -2023,7 +2023,7 @@ const removeCustomConfig = (index: number) => {
                 {{ $gettext('view') }}.
               </n-alert>
             </n-flex>
-            <realtime-log :path="setting.error_log" language="accesslog" />
+            <realtime-log :path="setting.error_log" />
           </n-flex>
         </n-tab-pane>
       </n-tabs>
