@@ -25,7 +25,7 @@ func Exec(shell string) (string, error) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
 	}
 
 	return strings.TrimSpace(stdout.String()), nil
@@ -69,7 +69,7 @@ func Execf(shell string, args ...any) (string, error) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
 	}
 
 	return strings.TrimSpace(stdout.String()), nil
@@ -119,7 +119,7 @@ func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string,
 
 	err := cmd.Start()
 	if err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
 	}
 
 	done := make(chan error)
@@ -133,7 +133,7 @@ func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string,
 		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, "timeout")
 	case err = <-done:
 		if err != nil {
-			return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
+			return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
 		}
 	}
 
@@ -200,7 +200,7 @@ func ExecfWithDir(dir, shell string, args ...any) (string, error) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, strings.TrimSpace(stderr.String()))
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
 	}
 
 	return strings.TrimSpace(stdout.String()), nil
