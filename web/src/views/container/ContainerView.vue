@@ -73,11 +73,7 @@ const columns: any = [
     key: 'image',
     minWidth: 300,
     resizable: true,
-    render(row: any): any {
-      return h(NTag, null, {
-        default: () => row.image
-      })
-    }
+    ellipsis: { tooltip: true }
   },
   {
     title: $gettext('Ports (Host->Container)'),
@@ -591,7 +587,7 @@ onUnmounted(() => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1000"
+      :scroll-x="1500"
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.id"

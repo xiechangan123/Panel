@@ -332,7 +332,7 @@ onMounted(() => {
       <n-data-table
         striped
         remote
-        :scroll-x="1200"
+        :scroll-x="1300"
         :loading="appLoading"
         :columns="appColumns"
         :data="appData"

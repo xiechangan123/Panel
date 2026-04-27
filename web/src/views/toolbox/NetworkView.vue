@@ -193,7 +193,7 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
       striped
       remote
       virtual-scroll
-      :scroll-x="1200"
+      :scroll-x="1300"
       :loading="loading"
       :columns="columns"
       :data="data"

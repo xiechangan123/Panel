@@ -535,7 +535,7 @@ const handleDeleteStreamUpstream = (name: string) => {
               </n-flex>
               <n-data-table
                 striped
-                :scroll-x="800"
+                :scroll-x="900"
                 :loading="streamServersLoading"
                 :columns="streamServerColumns"
                 :data="streamServers"
@@ -552,7 +552,7 @@ const handleDeleteStreamUpstream = (name: string) => {
               </n-flex>
               <n-data-table
                 striped
-                :scroll-x="600"
+                :scroll-x="700"
                 :loading="streamUpstreamsLoading"
                 :columns="streamUpstreamColumns"
                 :data="streamUpstreams"

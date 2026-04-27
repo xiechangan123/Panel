@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex, NInput, NPopconfirm, NTag } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import container from '@/api/panel/container'
@@ -60,15 +60,8 @@ const columns: any = [
     minWidth: 200,
     resizable: true,
     ellipsis: { tooltip: true },
-    render(row: any): any {
-      return h(NFlex, null, {
-        default: () =>
-          row.repo_tags.map((tag: any) =>
-            h(NTag, null, {
-              default: () => tag
-            })
-          )
-      })
+    render(row: any): string {
+      return row.repo_tags.join(', ')
     }
   },
   {
@@ -288,7 +281,7 @@ onUnmounted(() => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1000"
+      :scroll-x="1300"
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.id"

@@ -425,7 +425,7 @@ onUnmounted(() => {
     <n-data-table
       striped
       remote
-      :scroll-x="1600"
+      :scroll-x="1800"
       :loading="loading"
       :columns="columns"
       :data="data"

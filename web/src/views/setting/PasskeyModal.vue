@@ -190,7 +190,7 @@ watch(
       </template>
       <n-data-table
         striped
-        :scroll-x="600"
+        :scroll-x="700"
         :loading="loading"
         :columns="columns"
         :data="data"

@@ -225,7 +225,7 @@ watch(
       <n-data-table
         striped
         remote
-        :scroll-x="600"
+        :scroll-x="800"
         :loading="loading"
         :columns="columns"
         :data="data"
