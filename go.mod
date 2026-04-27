@@ -3,7 +3,7 @@ module github.com/acepanel/panel/v3
 go 1.26
 
 require (
-	github.com/DeRuina/timberjack v1.4.1
+	github.com/DeRuina/timberjack v1.4.2
 	github.com/andybalholm/brotli v1.2.1
 	github.com/bddjr/hlfhr v1.5.1
 	github.com/beevik/ntp v1.5.0
@@ -19,7 +19,7 @@ require (
 	github.com/go-chi/httplog/v3 v3.3.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-webauthn/webauthn v0.16.5
+	github.com/go-webauthn/webauthn v0.17.0
 	github.com/gomodule/redigo v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.0
@@ -45,8 +45,8 @@ require (
 	github.com/libtnb/utils v1.2.1
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
-	github.com/moby/moby/api v1.54.1
-	github.com/moby/moby/client v0.4.0
+	github.com/moby/moby/api v1.54.2
+	github.com/moby/moby/client v0.4.1
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
