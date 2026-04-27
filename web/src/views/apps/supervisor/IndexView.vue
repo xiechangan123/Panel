@@ -299,6 +299,8 @@ const handleSaveProcessConfig = () => {
   useRequest(
     supervisor.saveProcessConfig(editProcessModel.value.process, editProcessModel.value.config)
   ).onSuccess(() => {
+    editProcessModal.value = false
+    refresh()
     window.$message.success($gettext('Saved successfully'))
   })
 }
@@ -435,8 +437,14 @@ onUnmounted(() => {
     size="huge"
     :bordered="false"
     :segmented="false"
-    @close="handleSaveProcessConfig"
   >
-    <common-editor v-model:value="editProcessModel.config" height="60vh" />
+    <n-flex vertical>
+      <common-editor v-model:value="editProcessModel.config" height="60vh" />
+      <n-flex>
+        <n-button type="primary" @click="handleSaveProcessConfig">
+          {{ $gettext('Save') }}
+        </n-button>
+      </n-flex>
+    </n-flex>
   </n-modal>
 </template>
