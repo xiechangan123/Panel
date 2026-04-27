@@ -7,6 +7,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
@@ -252,10 +254,9 @@ func setChronyServers(servers []string) error {
 	}
 
 	// 在文件开头添加新的 server 行
-	var serverLines []string
-	for _, server := range servers {
-		serverLines = append(serverLines, fmt.Sprintf("server %s iburst", server))
-	}
+	serverLines := lo.Map(servers, func(server string, _ int) string {
+		return fmt.Sprintf("server %s iburst", server)
+	})
 
 	// 组合新内容
 	newContent := strings.Join(serverLines, "\n")

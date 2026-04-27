@@ -10,6 +10,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -181,15 +182,9 @@ func (s *ToolboxSystemService) GetTimezone(w http.ResponseWriter, r *http.Reques
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get available timezones: %v", err))
 		return
 	}
-	zones := strings.Split(zonesRaw, "\n")
-
-	var zonesList []types.LV
-	for _, z := range zones {
-		zonesList = append(zonesList, types.LV{
-			Label: z,
-			Value: z,
-		})
-	}
+	zonesList := lo.Map(strings.Split(zonesRaw, "\n"), func(z string, _ int) types.LV {
+		return types.LV{Label: z, Value: z}
+	})
 
 	Success(w, chix.M{
 		"timezone":  match[1],

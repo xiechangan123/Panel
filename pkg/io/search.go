@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -42,19 +44,17 @@ func SearchX(path, keyword string, sub bool) ([]os.DirEntry, error) {
 		return nil, err
 	}
 
-	var entries []os.DirEntry
-	lines := strings.SplitSeq(out, "\n")
-	for line := range lines {
+	entries := lo.FilterMap(strings.Split(out, "\n"), func(line string, _ int) (os.DirEntry, bool) {
 		line = strings.TrimSpace(line)
 		if line == "" || line == path {
-			continue
+			return nil, false
 		}
 		entry, err := newSearchEntryFromPath(line)
 		if err != nil {
-			continue // 直接跳过，不返回错误，不然很烦人的
+			return nil, false // 直接跳过，不返回错误，不然很烦人的
 		}
-		entries = append(entries, entry)
-	}
+		return entry, true
+	})
 
 	return entries, nil
 }

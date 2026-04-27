@@ -10,6 +10,7 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
@@ -58,15 +59,9 @@ func (r *appRepo) Categories() []types.LV {
 		return a.Order - b.Order
 	})
 
-	result := make([]types.LV, 0)
-	for item := range slices.Values(categories) {
-		result = append(result, types.LV{
-			Label: item.Name,
-			Value: item.Slug,
-		})
-	}
-
-	return result
+	return lo.Map(categories, func(item *api.Category, _ int) types.LV {
+		return types.LV{Label: item.Name, Value: item.Slug}
+	})
 }
 
 func (r *appRepo) All() api.Apps {

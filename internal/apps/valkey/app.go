@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -68,15 +69,13 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	infoLines := strings.Split(raw, "\n")
-	dataRaw := make(map[string]string)
-
-	for _, item := range infoLines {
+	dataRaw := lo.SliceToMap(strings.Split(raw, "\n"), func(item string) (string, string) {
 		parts := strings.Split(item, ":")
-		if len(parts) == 2 {
-			dataRaw[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+		if len(parts) != 2 {
+			return "", ""
 		}
-	}
+		return strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
+	})
 
 	data := []types.NV{
 		{Name: s.t.Get("TCP Port"), Value: dataRaw["tcp_port"]},

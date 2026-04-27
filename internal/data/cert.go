@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"os"
 	"path/filepath"
 	"slices"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	mholtacme "github.com/mholt/acmez/v3/acme"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -49,8 +51,7 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 	var total int64
 	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&certs).Error
 
-	list := make([]*types.CertList, 0)
-	for cert := range slices.Values(certs) {
+	list := lo.Map(certs, func(cert *biz.Cert, _ int) *types.CertList {
 		item := &types.CertList{
 			ID:          cert.ID,
 			AccountID:   cert.AccountID,
@@ -74,13 +75,12 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			item.Issuer = decode.Issuer.CommonName
 			item.OCSPServer = decode.OCSPServer
 			// 合并 DNSNames 和 IPAddresses
-			item.DNSNames = decode.DNSNames
-			for _, ip := range decode.IPAddresses {
-				item.DNSNames = append(item.DNSNames, ip.String())
-			}
+			item.DNSNames = append(decode.DNSNames, lo.Map(decode.IPAddresses, func(ip net.IP, _ int) string {
+				return ip.String()
+			})...)
 		}
-		list = append(list, item)
-	}
+		return item
+	})
 
 	return list, total, err
 }

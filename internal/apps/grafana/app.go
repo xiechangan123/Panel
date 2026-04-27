@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 	"go.yaml.in/yaml/v4"
 	"resty.dev/v3"
 
@@ -216,11 +217,12 @@ func (s *App) CreateDataSource(w http.ResponseWriter, r *http.Request) {
 
 	cfg := s.readDatasources()
 
-	for _, item := range s.getDatasourceList(cfg) {
-		if ds, ok := item.(map[string]any); ok && ds["name"] == req.Name {
-			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s already exists", req.Name))
-			return
-		}
+	if lo.ContainsBy(s.getDatasourceList(cfg), func(item any) bool {
+		ds, ok := item.(map[string]any)
+		return ok && ds["name"] == req.Name
+	}) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s already exists", req.Name))
+		return
 	}
 
 	if req.IsDefault {
@@ -251,33 +253,31 @@ func (s *App) UpdateDataSource(w http.ResponseWriter, r *http.Request) {
 	cfg := s.readDatasources()
 	list := s.getDatasourceList(cfg)
 
-	found := false
-	for i, item := range list {
-		if ds, ok := item.(map[string]any); ok && ds["name"] == oldName {
-			found = true
-			newDs := s.buildDatasourceMap(req)
-			// 密码为空时保留原有 secureJsonData
-			if req.Password == "" {
-				if sec, exists := ds["secureJsonData"]; exists {
-					newDs["secureJsonData"] = sec
-				}
-			}
-			list[i] = newDs
-			break
-		}
-	}
+	_, idx, found := lo.FindIndexOf(list, func(item any) bool {
+		ds, ok := item.(map[string]any)
+		return ok && ds["name"] == oldName
+	})
 	if !found {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s not found", oldName))
 		return
 	}
+	ds, _ := list[idx].(map[string]any)
+	newDs := s.buildDatasourceMap(req)
+	// 密码为空时保留原有 secureJsonData
+	if req.Password == "" {
+		if sec, exists := ds["secureJsonData"]; exists {
+			newDs["secureJsonData"] = sec
+		}
+	}
+	list[idx] = newDs
 
 	if req.IsDefault {
 		s.clearDefault(cfg)
-		for _, item := range list {
+		lo.ForEach(list, func(item any, _ int) {
 			if ds, ok := item.(map[string]any); ok && ds["name"] == req.Name {
 				ds["isDefault"] = true
 			}
-		}
+		})
 	}
 
 	if oldName != req.Name {
@@ -300,15 +300,11 @@ func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
 	cfg := s.readDatasources()
 	list := s.getDatasourceList(cfg)
 
-	found := false
-	newList := make([]any, 0, len(list))
-	for _, item := range list {
-		if ds, ok := item.(map[string]any); ok && ds["name"] == name {
-			found = true
-			continue
-		}
-		newList = append(newList, item)
-	}
+	newList := lo.Filter(list, func(item any, _ int) bool {
+		ds, ok := item.(map[string]any)
+		return !(ok && ds["name"] == name)
+	})
+	found := len(newList) < len(list)
 	if !found {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("datasource %s not found", name))
 		return
@@ -508,11 +504,11 @@ func (s *App) buildDatasourceMap(req *DataSource) map[string]any {
 
 // clearDefault 清除所有数据源的默认标记
 func (s *App) clearDefault(cfg map[string]any) {
-	for _, item := range s.getDatasourceList(cfg) {
+	lo.ForEach(s.getDatasourceList(cfg), func(item any, _ int) {
 		if ds, ok := item.(map[string]any); ok {
 			ds["isDefault"] = false
 		}
-	}
+	})
 }
 
 // addDeleteEntry 向 deleteDatasources 添加条目

@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 )
@@ -28,18 +29,17 @@ func (u *User) WebAuthnID() []byte {
 func (u *User) WebAuthnName() string        { return u.Inner.Username }
 func (u *User) WebAuthnDisplayName() string { return u.Inner.Username }
 func (u *User) WebAuthnCredentials() []webauthn.Credential {
-	creds := make([]webauthn.Credential, 0, len(u.Passkeys))
-	for _, p := range u.Passkeys {
+	return lo.Map(u.Passkeys, func(p *biz.UserPasskey, _ int) webauthn.Credential {
 		var transports []protocol.AuthenticatorTransport
 		if p.Transports != "" {
 			var ts []string
 			if err := json.Unmarshal([]byte(p.Transports), &ts); err == nil {
-				for _, t := range ts {
-					transports = append(transports, protocol.AuthenticatorTransport(t))
-				}
+				transports = lo.Map(ts, func(t string, _ int) protocol.AuthenticatorTransport {
+					return protocol.AuthenticatorTransport(t)
+				})
 			}
 		}
-		creds = append(creds, webauthn.Credential{
+		return webauthn.Credential{
 			ID:        p.CredentialID,
 			PublicKey: p.PublicKey,
 			Transport: transports,
@@ -51,9 +51,8 @@ func (u *User) WebAuthnCredentials() []webauthn.Credential {
 				AAGUID:    p.AAGUID,
 				SignCount: p.SignCount,
 			},
-		})
-	}
-	return creds
+		}
+	})
 }
 
 // ParseUserID 从 WebAuthnID 字节还原 user ID

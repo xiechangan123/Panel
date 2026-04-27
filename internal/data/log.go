@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -169,19 +170,15 @@ func (r *logRepo) fillOperatorNames(entries []biz.LogEntry) {
 	}
 
 	// 批量查询用户名
-	ids := make([]uint, 0, len(userIDs))
-	for id := range userIDs {
-		ids = append(ids, id)
-	}
+	ids := lo.Keys(userIDs)
 
 	var users []biz.User
 	r.db.Select("id", "username").Where("id IN ?", ids).Find(&users)
 
 	// 构建ID到用户名的映射
-	userMap := make(map[uint]string)
-	for _, user := range users {
-		userMap[user.ID] = user.Username
-	}
+	userMap := lo.SliceToMap(users, func(user biz.User) (uint, string) {
+		return user.ID, user.Username
+	})
 
 	// 填充用户名
 	for i := range entries {

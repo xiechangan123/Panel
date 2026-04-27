@@ -3,11 +3,13 @@ package storage
 import (
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/pkg/sftp"
+	"github.com/samber/lo"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -150,12 +152,12 @@ func (s *SFTP) List(path string) ([]string, error) {
 		return nil, err
 	}
 
-	var files []string
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			files = append(files, entry.Name())
+	files := lo.FilterMap(entries, func(entry os.FileInfo, _ int) (string, bool) {
+		if entry.IsDir() {
+			return "", false
 		}
-	}
+		return entry.Name(), true
+	})
 	return files, nil
 }
 

@@ -24,6 +24,7 @@ import (
 	"github.com/libdns/tencentcloud"
 	"github.com/libdns/westcn"
 	"github.com/mholt/acmez/v3/acme"
+	"github.com/samber/lo"
 	"golang.org/x/net/publicsuffix"
 
 	pkgos "github.com/acepanel/panel/v3/pkg/os"
@@ -115,14 +116,10 @@ func (s *panelSolver) startServer() error {
 }
 
 func (s *panelSolver) writeNginxConfig() error {
-	names := make([]string, len(s.ip))
-	hasIPv6 := false
-	for i, host := range s.ip {
-		names[i] = s.formatServerName(host)
-		if s.isIPv6(host) {
-			hasIPv6 = true
-		}
-	}
+	names := lo.Map(s.ip, func(host string, _ int) string {
+		return s.formatServerName(host)
+	})
+	hasIPv6 := lo.SomeBy(s.ip, s.isIPv6)
 
 	var conf strings.Builder
 	conf.WriteString("server {\n    listen 80;\n")

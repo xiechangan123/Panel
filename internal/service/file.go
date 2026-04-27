@@ -21,6 +21,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/file"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -517,14 +518,13 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 		entry stdos.DirEntry
 		info  stdos.FileInfo
 	}
-	entriesWithInfo := make([]entryWithInfo, 0, len(list))
-	for _, entry := range list {
+	entriesWithInfo := lo.FilterMap(list, func(entry stdos.DirEntry, _ int) (entryWithInfo, bool) {
 		info, err := entry.Info()
 		if err != nil {
-			continue
+			return entryWithInfo{}, false
 		}
-		entriesWithInfo = append(entriesWithInfo, entryWithInfo{entry: entry, info: info})
-	}
+		return entryWithInfo{entry: entry, info: info}, true
+	})
 
 	// 排序
 	slices.SortFunc(entriesWithInfo, func(a, b entryWithInfo) int {

@@ -61,19 +61,18 @@ func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*types.Pr
 		return nil, 0, err
 	}
 
-	details := make([]*types.ProjectDetail, 0, len(projects))
-	for _, p := range projects {
+	details := lo.Map(projects, func(p *biz.Project, _ int) *types.ProjectDetail {
 		detail, err := r.parseProjectDetail(p)
 		if err != nil {
 			// 如果解析失败，返回基本信息
-			detail = &types.ProjectDetail{
+			return &types.ProjectDetail{
 				ID:   p.ID,
 				Name: p.Name,
 				Type: p.Type,
 			}
 		}
-		details = append(details, detail)
-	}
+		return detail
+	})
 
 	return details, total, nil
 }

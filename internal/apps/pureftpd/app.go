@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -50,19 +51,17 @@ func (s *App) List(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	listArr := strings.Split(listRaw, "\n")
-	var users []User
-	for _, v := range listArr {
+	userRe := regexp.MustCompile(`(\S+)\s+(\S+)`)
+	users := lo.FilterMap(strings.Split(listRaw, "\n"), func(v string, _ int) (User, bool) {
 		if len(v) == 0 {
-			continue
+			return User{}, false
 		}
-
-		match := regexp.MustCompile(`(\S+)\s+(\S+)`).FindStringSubmatch(v)
-		users = append(users, User{
+		match := userRe.FindStringSubmatch(v)
+		return User{
 			Username: match[1],
 			Path:     strings.Replace(match[2], "/./", "/", 1),
-		})
-	}
+		}, true
+	})
 
 	paged, total := service.Paginate(r, users)
 

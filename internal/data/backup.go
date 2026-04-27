@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -327,16 +328,16 @@ func (r *backupRepo) ClearExpired(path, prefix string, save uint) error {
 		return err
 	}
 
-	var filtered []os.FileInfo
-	for _, file := range files {
-		if strings.HasPrefix(file.Name(), prefix) && strings.HasSuffix(file.Name(), ".zip") {
-			info, err := os.Stat(filepath.Join(path, file.Name()))
-			if err != nil {
-				continue
-			}
-			filtered = append(filtered, info)
+	filtered := lo.FilterMap(files, func(file os.DirEntry, _ int) (os.FileInfo, bool) {
+		if !strings.HasPrefix(file.Name(), prefix) || !strings.HasSuffix(file.Name(), ".zip") {
+			return nil, false
 		}
-	}
+		info, err := os.Stat(filepath.Join(path, file.Name()))
+		if err != nil {
+			return nil, false
+		}
+		return info, true
+	})
 
 	// 排序所有备份文件，从新到旧
 	slices.SortFunc(filtered, func(a, b os.FileInfo) int {

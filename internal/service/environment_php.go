@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
 
@@ -592,15 +593,9 @@ func (s *EnvironmentPHPService) getModules(version uint) []types.EnvironmentPHPM
 }
 
 func (s *EnvironmentPHPService) checkModule(version uint, slug string) bool {
-	modules := s.getModules(version)
-
-	for _, item := range modules {
-		if item.Slug == slug {
-			return true
-		}
-	}
-
-	return false
+	return lo.ContainsBy(s.getModules(version), func(item types.EnvironmentPHPModule) bool {
+		return item.Slug == slug
+	})
 }
 
 // GetConfigTune 获取 PHP 配置调整参数

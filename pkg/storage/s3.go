@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/rhnvrm/simples3"
+	"github.com/samber/lo"
 )
 
 // S3AddressingStyle S3 地址模式
@@ -87,11 +88,9 @@ func (s *S3) Delete(files ...string) error {
 	}
 
 	// 批量删除
-	var objects []string
-	for _, file := range files {
-		key := s.getKey(file)
-		objects = append(objects, key)
-	}
+	objects := lo.Map(files, func(file string, _ int) string {
+		return s.getKey(file)
+	})
 
 	_, err := s.client.DeleteObjects(simples3.DeleteObjectsInput{
 		Bucket:  s.bucket,

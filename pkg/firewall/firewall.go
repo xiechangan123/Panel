@@ -5,6 +5,8 @@ import (
 	"net"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -89,9 +91,7 @@ func mergeRules(rules []FireInfo) []FireInfo {
 		}
 	}
 
-	merged := make([]FireInfo, 0, len(order))
-	for _, key := range order {
-		merged = append(merged, *grouped[key])
-	}
-	return merged
+	return lo.Map(order, func(key string, _ int) FireInfo {
+		return *grouped[key]
+	})
 }

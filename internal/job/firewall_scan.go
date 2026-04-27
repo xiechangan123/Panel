@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/firewall"
@@ -166,10 +168,7 @@ func (r *FirewallScan) flush() {
 		return
 	}
 
-	events := make([]*biz.ScanEvent, 0, len(r.buffer))
-	for _, evt := range r.buffer {
-		events = append(events, evt)
-	}
+	events := lo.Values(r.buffer)
 	r.buffer = make(map[string]*biz.ScanEvent)
 	r.mu.Unlock()
 
@@ -350,12 +349,9 @@ func isWhitelisted(ip string, whitelist []net.IPNet) bool {
 	if parsed.IsLoopback() || parsed.IsUnspecified() {
 		return true
 	}
-	for _, cidr := range whitelist {
-		if cidr.Contains(parsed) {
-			return true
-		}
-	}
-	return false
+	return lo.ContainsBy(whitelist, func(cidr net.IPNet) bool {
+		return cidr.Contains(parsed)
+	})
 }
 
 // cleanup 清理过期数据

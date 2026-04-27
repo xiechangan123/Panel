@@ -10,6 +10,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/str"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -270,18 +271,15 @@ func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
 	}
 	bannedIpList := strings.Split(bannedIp, " ")
 
-	var list []map[string]string
-	for _, ip := range bannedIpList {
-		if len(ip) > 0 {
-			list = append(list, map[string]string{
-				"name": req.Name,
-				"ip":   ip,
-			})
+	list := lo.FilterMap(bannedIpList, func(ip string, _ int) (map[string]string, bool) {
+		if len(ip) == 0 {
+			return nil, false
 		}
-	}
-	if list == nil {
-		list = []map[string]string{}
-	}
+		return map[string]string{
+			"name": req.Name,
+			"ip":   ip,
+		}, true
+	})
 
 	service.Success(w, chix.M{
 		"currently_ban": currentlyBan,

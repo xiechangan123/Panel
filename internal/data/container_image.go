@@ -9,8 +9,10 @@ import (
 	"time"
 
 	cerrdefs "github.com/containerd/errdefs"
+	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/registry"
 	"github.com/moby/moby/client"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
@@ -41,9 +43,8 @@ func (r *containerImageRepo) List() ([]types.ContainerImage, error) {
 		return nil, err
 	}
 
-	var images []types.ContainerImage
-	for _, item := range resp.Items {
-		images = append(images, types.ContainerImage{
+	images := lo.Map(resp.Items, func(item image.Summary, _ int) types.ContainerImage {
+		return types.ContainerImage{
 			ID:          item.ID,
 			Containers:  item.Containers,
 			RepoTags:    item.RepoTags,
@@ -51,8 +52,8 @@ func (r *containerImageRepo) List() ([]types.ContainerImage, error) {
 			Size:        tools.FormatBytes(float64(item.Size)),
 			Labels:      types.MapToKV(item.Labels),
 			CreatedAt:   time.Unix(item.Created, 0),
-		})
-	}
+		}
+	})
 
 	slices.SortFunc(images, func(a types.ContainerImage, b types.ContainerImage) int {
 		return strings.Compare(a.ID, b.ID)

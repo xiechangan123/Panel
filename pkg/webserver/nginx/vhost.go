@@ -187,12 +187,9 @@ func (v *baseVhost) SetListen(listens []types.Listen) error {
 		// 需要分成两行：listen 443 ssl; 和 listen 443 quic;
 		if hasSSL && hasQUIC {
 			// 生成 ssl 行（包含除 quic 外的所有参数）
-			sslArgs := []string{l.Address}
-			for _, arg := range l.Args {
-				if arg != "quic" {
-					sslArgs = append(sslArgs, arg)
-				}
-			}
+			sslArgs := append([]string{l.Address}, lo.Filter(l.Args, func(arg string, _ int) bool {
+				return arg != "quic"
+			})...)
 			directives = append(directives, &config.Directive{
 				Name:       "listen",
 				Parameters: v.parser.slices2Parameters(sslArgs),

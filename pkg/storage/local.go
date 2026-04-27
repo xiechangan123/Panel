@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/lo"
 	"github.com/shirou/gopsutil/v4/disk"
 
 	pkgio "github.com/acepanel/panel/v3/pkg/io"
@@ -63,12 +64,12 @@ func (l *Local) List(path string) ([]string, error) {
 		return nil, err
 	}
 
-	var files []string
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			files = append(files, entry.Name())
+	files := lo.FilterMap(entries, func(entry os.DirEntry, _ int) (string, bool) {
+		if entry.IsDir() {
+			return "", false
 		}
-	}
+		return entry.Name(), true
+	})
 	return files, nil
 }
 

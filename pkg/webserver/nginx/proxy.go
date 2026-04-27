@@ -380,19 +380,17 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 
 	hideHeaderMatches := hideHeaderPattern.FindAllStringSubmatch(blockContent, -1)
 	if len(hideHeaderMatches) > 0 {
-		responseHeaders.Hide = []string{}
-		for _, hhm := range hideHeaderMatches {
-			responseHeaders.Hide = append(responseHeaders.Hide, strings.TrimSpace(hhm[1]))
-		}
+		responseHeaders.Hide = lo.Map(hideHeaderMatches, func(hhm []string, _ int) string {
+			return strings.TrimSpace(hhm[1])
+		})
 		hasResponseHeaders = true
 	}
 
 	addHeaderMatches := addHeaderPattern.FindAllStringSubmatch(blockContent, -1)
 	if len(addHeaderMatches) > 0 {
-		responseHeaders.Add = make(map[string]string)
-		for _, ahm := range addHeaderMatches {
-			responseHeaders.Add[strings.TrimSpace(ahm[1])] = strings.TrimSpace(ahm[2])
-		}
+		responseHeaders.Add = lo.SliceToMap(addHeaderMatches, func(ahm []string) (string, string) {
+			return strings.TrimSpace(ahm[1]), strings.TrimSpace(ahm[2])
+		})
 		hasResponseHeaders = true
 	}
 	if hasResponseHeaders {
@@ -408,19 +406,17 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 
 	allowMatches := allowPattern.FindAllStringSubmatch(blockContent, -1)
 	if len(allowMatches) > 0 {
-		accessControl.Allow = []string{}
-		for _, am := range allowMatches {
-			accessControl.Allow = append(accessControl.Allow, strings.TrimSpace(am[1]))
-		}
+		accessControl.Allow = lo.Map(allowMatches, func(am []string, _ int) string {
+			return strings.TrimSpace(am[1])
+		})
 		hasAccessControl = true
 	}
 
 	denyMatches := denyPattern.FindAllStringSubmatch(blockContent, -1)
 	if len(denyMatches) > 0 {
-		accessControl.Deny = []string{}
-		for _, dm := range denyMatches {
-			accessControl.Deny = append(accessControl.Deny, strings.TrimSpace(dm[1]))
-		}
+		accessControl.Deny = lo.Map(denyMatches, func(dm []string, _ int) string {
+			return strings.TrimSpace(dm[1])
+		})
 		hasAccessControl = true
 	}
 	if hasAccessControl {

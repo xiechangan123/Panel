@@ -27,7 +27,7 @@ require (
 	github.com/hashicorp/go-version v1.9.0
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.12.3
-	github.com/libdns/alidns v1.0.6
+	github.com/libdns/alidns v1.0.7
 	github.com/libdns/cloudflare v0.2.2
 	github.com/libdns/cloudns v1.1.0
 	github.com/libdns/gcore v0.0.0-20250427050847-9964da923833
@@ -41,7 +41,7 @@ require (
 	github.com/libtnb/chix v1.3.2
 	github.com/libtnb/gormstore v1.2.0
 	github.com/libtnb/sessions v1.4.0
-	github.com/libtnb/sqlite v1.0.3
+	github.com/libtnb/sqlite v1.0.4
 	github.com/libtnb/utils v1.2.1
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
@@ -65,7 +65,7 @@ require (
 	golang.org/x/crypto v0.50.0
 	golang.org/x/net v0.53.0
 	gorm.io/gorm v1.31.1
-	modernc.org/sqlite v1.49.1
+	modernc.org/sqlite v1.50.0
 	resty.dev/v3 v3.0.0-beta.6
 )
 
@@ -86,7 +86,8 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.2.3 // indirect
-	github.com/gofiber/schema v1.6.0 // indirect
+	github.com/gofiber/schema v1.7.1 // indirect
+	github.com/gofiber/utils/v2 v2.0.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect

@@ -6,6 +6,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
@@ -45,11 +46,9 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	installedAppMap := make(map[string]*biz.App)
-
-	for _, p := range installedApps {
-		installedAppMap[p.Slug] = p
-	}
+	installedAppMap := lo.KeyBy(installedApps, func(p *biz.App) string {
+		return p.Slug
+	})
 
 	var apps []types.AppDetail
 	for _, item := range all {

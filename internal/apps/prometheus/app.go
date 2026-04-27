@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
 	"resty.dev/v3"
@@ -420,10 +421,7 @@ func (s *App) getExporterConfigPath(slug string) string {
 
 // checkExporter 检查 slug 是否有效
 func (s *App) checkExporter(slug string) bool {
-	for _, e := range s.getExporters() {
-		if e.Slug == slug {
-			return true
-		}
-	}
-	return false
+	return lo.ContainsBy(s.getExporters(), func(e Exporter) bool {
+		return e.Slug == slug
+	})
 }

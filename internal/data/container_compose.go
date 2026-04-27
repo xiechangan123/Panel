@@ -77,17 +77,7 @@ func (r *containerComposeRepo) Get(name string) (string, []types.KV, error) {
 	content, _ := os.ReadFile(filepath.Join(app.Root, "compose", name, "docker-compose.yml"))
 	env, _ := os.ReadFile(filepath.Join(app.Root, "compose", name, ".env"))
 
-	var envs []types.KV
-	for line := range strings.SplitSeq(string(env), "\n") {
-		if line == "" {
-			continue
-		}
-		kv := strings.SplitN(line, "=", 2)
-		if len(kv) != 2 {
-			continue
-		}
-		envs = append(envs, types.KV{Key: kv[0], Value: kv[1]})
-	}
+	envs := types.SliceToKV(strings.Split(string(env), "\n"))
 
 	return string(content), envs, nil // 有意忽略错误，这样可以允许新建文件
 }

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
 	"github.com/acepanel/panel/v3/pkg/types"
@@ -187,12 +189,12 @@ func (s *MonitorService) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 将 map 转换为 slice
-	for _, device := range netDeviceData {
-		list.Net = append(list.Net, *device)
-	}
-	for _, disk := range diskIOData {
-		list.DiskIO = append(list.DiskIO, *disk)
-	}
+	list.Net = lo.Map(lo.Values(netDeviceData), func(device *types.Network, _ int) types.Network {
+		return *device
+	})
+	list.DiskIO = lo.Map(lo.Values(diskIOData), func(disk *types.DiskIO, _ int) types.DiskIO {
+		return *disk
+	})
 
 	Success(w, list)
 }

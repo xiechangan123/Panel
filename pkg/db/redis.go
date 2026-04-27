@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
+	"github.com/samber/lo"
 )
 
 type RedisKV struct {
@@ -129,10 +130,7 @@ func (r *Redis) Get(key string) (*RedisKV, error) {
 
 // Del 删除 key
 func (r *Redis) Del(keys ...string) error {
-	args := make([]any, len(keys))
-	for i, key := range keys {
-		args[i] = key
-	}
+	args := lo.Map(keys, func(key string, _ int) any { return key })
 	_, err := r.conn.Do("DEL", args...)
 	return err
 }

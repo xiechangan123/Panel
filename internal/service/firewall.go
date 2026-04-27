@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/http/request"
 	"github.com/acepanel/panel/v3/pkg/firewall"
@@ -142,20 +143,19 @@ func (s *FirewallService) GetIPRules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var filledRules []map[string]any
-	for rule := range slices.Values(rules) {
+	filledRules := lo.FilterMap(rules, func(rule firewall.FireInfo, _ int) (map[string]any, bool) {
 		// 保留IP规则
 		if rule.PortStart != 1 || rule.PortEnd != 65535 || rule.Address == "" {
-			continue
+			return nil, false
 		}
-		filledRules = append(filledRules, map[string]any{
+		return map[string]any{
 			"family":    rule.Family,
 			"protocol":  rule.Protocol,
 			"address":   rule.Address,
 			"strategy":  rule.Strategy,
 			"direction": rule.Direction,
-		})
-	}
+		}, true
+	})
 
 	paged, total := Paginate(r, filledRules)
 

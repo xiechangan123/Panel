@@ -193,10 +193,7 @@ func (s *WebsiteStatService) SiteStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 转换为切片
-	items := make([]*biz.WebsiteStatSiteItem, 0, len(siteMap))
-	for _, item := range siteMap {
-		items = append(items, item)
-	}
+	items := lo.Values(siteMap)
 
 	Success(w, chix.M{
 		"items": items,
@@ -260,14 +257,12 @@ func (s *WebsiteStatService) ClientStats(w http.ResponseWriter, r *http.Request)
 		Name     string `json:"name"`
 		Requests uint64 `json:"requests"`
 	}
-	browsers := make([]rankItem, 0, len(browserMap))
-	for name, reqs := range browserMap {
-		browsers = append(browsers, rankItem{Name: name, Requests: reqs})
-	}
-	oss := make([]rankItem, 0, len(osMap))
-	for name, reqs := range osMap {
-		oss = append(oss, rankItem{Name: name, Requests: reqs})
-	}
+	browsers := lo.MapToSlice(browserMap, func(name string, reqs uint64) rankItem {
+		return rankItem{Name: name, Requests: reqs}
+	})
+	oss := lo.MapToSlice(osMap, func(name string, reqs uint64) rankItem {
+		return rankItem{Name: name, Requests: reqs}
+	})
 
 	// 按请求数排序
 	slices.SortFunc(browsers, func(a, b rankItem) int { return cmp.Compare(b.Requests, a.Requests) })

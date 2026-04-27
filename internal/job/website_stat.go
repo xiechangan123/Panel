@@ -6,6 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/geoip"
@@ -186,9 +188,8 @@ func (r *WebsiteStat) flushErrors() {
 	}
 
 	now := time.Now()
-	errors := make([]*biz.WebsiteErrorLog, 0, len(entries))
-	for _, e := range entries {
-		errors = append(errors, &biz.WebsiteErrorLog{
+	errors := lo.Map(entries, func(e *websitestat.ErrorEntry, _ int) *biz.WebsiteErrorLog {
+		return &biz.WebsiteErrorLog{
 			Site:      e.Site,
 			URI:       e.URI,
 			Method:    e.Method,
@@ -197,8 +198,8 @@ func (r *WebsiteStat) flushErrors() {
 			UA:        e.UA,
 			Body:      e.Body,
 			CreatedAt: now,
-		})
-	}
+		}
+	})
 
 	if err := r.statRepo.InsertErrors(errors); err != nil {
 		r.log.Warn("failed to insert website error logs", slog.Any("err", err))

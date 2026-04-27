@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -563,10 +564,7 @@ func (s *App) saveStreamUpstreamConfig(filePath string, upstream *StreamUpstream
 	}
 
 	// 服务器列表
-	var addrs []string
-	for addr := range upstream.Servers {
-		addrs = append(addrs, addr)
-	}
+	addrs := lo.Keys(upstream.Servers)
 	sort.Strings(addrs)
 
 	for _, addr := range addrs {

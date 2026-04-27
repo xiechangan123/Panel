@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 )
@@ -27,13 +28,10 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 				slugs = append(slugs, pathArr[3])
 			}
 
-			flag := false
-			for _, s := range slugs {
-				if installed, _ := app.IsInstalled("slug = ?", s); installed {
-					flag = true
-					break
-				}
-			}
+			flag := lo.SomeBy(slugs, func(s string) bool {
+				installed, _ := app.IsInstalled("slug = ?", s)
+				return installed
+			})
 			if !flag && len(slugs) > 0 {
 				Abort(w, http.StatusForbidden, t.Get("app %s not installed", slugs))
 				return
