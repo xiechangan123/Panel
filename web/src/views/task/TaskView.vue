@@ -2,6 +2,7 @@
 import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import file from '@/api/panel/file'
 import task from '@/api/panel/task'
 import RealtimeLogModal from '@/components/common/RealtimeLogModal.vue'
 import { formatDateTime } from '@/utils'
@@ -9,6 +10,15 @@ import { formatDateTime } from '@/utils'
 const { $gettext } = useGettext()
 const logModal = ref(false)
 const logPath = ref('')
+const logModalRef = ref<{ clear: () => void } | null>(null)
+
+const handleClearLog = () => {
+  if (!logPath.value) return
+  useRequest(file.truncate(logPath.value)).onSuccess(() => {
+    logModalRef.value?.clear()
+    window.$message.success($gettext('Cleared successfully'))
+  })
+}
 
 const columns: any = [
   {
@@ -154,5 +164,11 @@ onMounted(() => {
       }"
     />
   </n-flex>
-  <realtime-log-modal v-model:show="logModal" :path="logPath" />
+  <realtime-log-modal
+    ref="logModalRef"
+    v-model:show="logModal"
+    :path="logPath"
+    clearable
+    @clear="handleClearLog"
+  />
 </template>

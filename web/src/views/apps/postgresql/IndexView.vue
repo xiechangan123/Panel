@@ -8,6 +8,8 @@ import { NButton, NDataTable } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import postgresql from '@/api/apps/postgresql'
+import file from '@/api/panel/file'
+import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import PostgresqlConfigTuneView from './PostgresqlConfigTuneView.vue'
 
@@ -17,13 +19,33 @@ const setPostgresPasswordLoading = ref(false)
 const saveConfigLoading = ref(false)
 const saveUserConfigLoading = ref(false)
 const clearLogLoading = ref(false)
+const clearAppLogLoading = ref(false)
+const runLogRef = ref<{ clear: () => void } | null>(null)
+const appLogRef = ref<{ clear: () => void } | null>(null)
 
 const { data: postgresPassword } = useRequest(postgresql.postgresPassword, {
   initialData: ''
 })
-const { data: log } = useRequest(postgresql.log, {
-  initialData: ''
+const selectedLog = ref('')
+const { data: logList } = useRequest(postgresql.log, {
+  initialData: []
+}).onSuccess(({ data }) => {
+  if (!data?.length) {
+    selectedLog.value = ''
+    return
+  }
+  // log_filename='postgresql-%a.log' 按 weekday 缩写循环；优先选中今天对应的文件
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const today = `postgresql-${weekdays[new Date().getDay()]}.log`
+  selectedLog.value = data.find((p: string) => p.endsWith(today)) ?? data[data.length - 1]
 })
+
+const logOptions = computed(() =>
+  (logList.value as string[]).map((p) => ({
+    label: p.split('/').pop() ?? p,
+    value: p
+  }))
+)
 const { data: config, send: refreshConfig } = useRequest(postgresql.config, {
   initialData: ''
 })
@@ -82,12 +104,26 @@ const handleSaveUserConfig = () => {
 
 const handleClearLog = () => {
   clearLogLoading.value = true
-  useRequest(postgresql.clearLog())
+  useRequest(systemctl.clearLog('postgresql'))
     .onSuccess(() => {
+      runLogRef.value?.clear()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
       clearLogLoading.value = false
+    })
+}
+
+const handleClearAppLog = () => {
+  if (!selectedLog.value) return
+  clearAppLogLoading.value = true
+  useRequest(file.truncate(selectedLog.value))
+    .onSuccess(() => {
+      appLogRef.value?.clear()
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearAppLogLoading.value = false
     })
 }
 
@@ -197,11 +233,19 @@ const handleCopyPostgresPassword = () => {
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
-          <realtime-log service="postgresql" />
+          <realtime-log ref="runLogRef" service="postgresql" />
         </n-flex>
       </n-tab-pane>
-      <n-tab-pane name="slow-log" :tab="$gettext('Slow Logs')">
-        <realtime-log :path="log" />
+      <n-tab-pane name="app-log" :tab="$gettext('Application Logs')">
+        <n-flex vertical>
+          <n-flex>
+            <n-select v-model:value="selectedLog" :options="logOptions" style="width: 240px" />
+            <n-button type="primary" :loading="clearAppLogLoading" :disabled="clearAppLogLoading || !selectedLog" @click="handleClearAppLog">
+              {{ $gettext('Clear Log') }}
+            </n-button>
+          </n-flex>
+          <realtime-log ref="appLogRef" :path="selectedLog" />
+        </n-flex>
       </n-tab-pane>
     </n-tabs>
   </common-page>

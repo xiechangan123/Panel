@@ -7,6 +7,8 @@ export default {
   content: (path: string): any => http.Get('/file/content', { params: { path } }),
   // 保存文件
   save: (path: string, content: string): any => http.Post('/file/save', { path, content }),
+  // 截断文件至 0 长度
+  truncate: (path: string): any => http.Post('/file/truncate', { path }),
   // 删除文件
   delete: (path: string): any => http.Post('/file/delete', { path }),
   // 上传文件

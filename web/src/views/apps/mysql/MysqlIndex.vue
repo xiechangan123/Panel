@@ -4,6 +4,8 @@ import { NButton, NDataTable, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import mysql from '@/api/apps/mysql'
+import file from '@/api/panel/file'
+import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import MysqlConfigTuneView from './MysqlConfigTuneView.vue'
 
@@ -18,6 +20,8 @@ const setRootPasswordLoading = ref(false)
 const saveConfigLoading = ref(false)
 const clearLogLoading = ref(false)
 const clearSlowLogLoading = ref(false)
+const runLogRef = ref<{ clear: () => void } | null>(null)
+const slowLogRef = ref<{ clear: () => void } | null>(null)
 
 const { data: rootPassword } = useRequest(props.api.rootPassword, {
   initialData: ''
@@ -67,8 +71,9 @@ const handleSaveConfig = () => {
 
 const handleClearLog = () => {
   clearLogLoading.value = true
-  useRequest(props.api.clearLog())
+  useRequest(systemctl.clearLog('mysqld'))
     .onSuccess(() => {
+      runLogRef.value?.clear()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
@@ -78,8 +83,9 @@ const handleClearLog = () => {
 
 const handleClearSlowLog = () => {
   clearSlowLogLoading.value = true
-  useRequest(props.api.clearSlowLog())
+  useRequest(file.truncate(slowLog.value))
     .onSuccess(() => {
+      slowLogRef.value?.clear()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
@@ -170,13 +176,13 @@ const handleCopyRootPassword = () => {
         <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
           {{ $gettext('Clear Log') }}
         </n-button>
-        <realtime-log service="mysqld" />
+        <realtime-log ref="runLogRef" service="mysqld" />
       </n-tab-pane>
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Query Log')">
         <n-button type="primary" :loading="clearSlowLogLoading" :disabled="clearSlowLogLoading" @click="handleClearSlowLog">
           {{ $gettext('Clear Slow Log') }}
         </n-button>
-        <realtime-log :path="slowLog" />
+        <realtime-log ref="slowLogRef" :path="slowLog" />
       </n-tab-pane>
     </n-tabs>
   </common-page>

@@ -5,6 +5,7 @@ import { useGettext } from 'vue3-gettext'
 import draggable from 'vuedraggable'
 
 import cert from '@/api/panel/cert'
+import file from '@/api/panel/file'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import KeyValueEditor from '@/components/common/KeyValueEditor.vue'
@@ -246,10 +247,11 @@ const handleSelectCert = (value: number) => {
 }
 
 const clearLog = async () => {
+  const path = current.value === 'error_log' ? setting.value.error_log : setting.value.access_log
+  if (!path || path === 'off') return
   clearLogLoading.value = true
-  useRequest(website.clearLog(id.value))
+  useRequest(file.truncate(path))
     .onSuccess(() => {
-      fetchSetting()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
@@ -2030,7 +2032,7 @@ const removeCustomConfig = (index: number) => {
     </n-spin>
     <template #footer>
       <n-flex justify="end">
-        <n-popconfirm v-if="current == 'log'" @positive-click="clearLog">
+        <n-popconfirm v-if="current === 'log' || current === 'error_log'" @positive-click="clearLog">
           <template #trigger>
             <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading">
               {{ $gettext('Clear Logs') }}

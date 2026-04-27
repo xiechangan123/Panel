@@ -19,12 +19,8 @@ export default {
   load: (slug: number): any => http.Get(`/environment/php/${slug}/load`),
   // 获取日志
   log: (slug: number): any => http.Get(`/environment/php/${slug}/log`),
-  // 清空日志
-  clearLog: (slug: number): any => http.Post(`/environment/php/${slug}/clear_log`),
   // 获取慢日志
   slowLog: (slug: number): any => http.Get(`/environment/php/${slug}/slow_log`),
-  // 清空慢日志
-  clearSlowLog: (slug: number): any => http.Post(`/environment/php/${slug}/clear_slow_log`),
   // 拓展列表
   modules: (slug: number): any => http.Get(`/environment/php/${slug}/modules`),
   // 安装拓展

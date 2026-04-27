@@ -12,6 +12,15 @@ import CreateModal from '@/views/task/CreateModal.vue'
 const { $gettext } = useGettext()
 const logPath = ref('')
 const logModal = ref(false)
+const logModalRef = ref<{ clear: () => void } | null>(null)
+
+const handleClearLog = () => {
+  if (!logPath.value) return
+  useRequest(file.truncate(logPath.value)).onSuccess(() => {
+    logModalRef.value?.clear()
+    window.$message.success($gettext('Cleared successfully'))
+  })
+}
 const shellEditModal = ref(false)
 const visualEditModal = ref(false)
 const saveTaskEditLoading = ref(false)
@@ -305,7 +314,13 @@ onUnmounted(() => {
       pageSizes: [20, 50, 100, 200]
     }"
   />
-  <realtime-log-modal v-model:show="logModal" :path="logPath" />
+  <realtime-log-modal
+    ref="logModalRef"
+    v-model:show="logModal"
+    :path="logPath"
+    clearable
+    @clear="handleClearLog"
+  />
   <!-- Shell 脚本编辑模态框 -->
   <n-modal
     v-model:show="shellEditModal"

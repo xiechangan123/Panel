@@ -249,44 +249,6 @@ func (s *EnvironmentPHPService) SlowLog(w http.ResponseWriter, r *http.Request) 
 	Success(w, fmt.Sprintf("%s/server/php/%d/var/log/slow.log", app.Root, req.Version))
 }
 
-func (s *EnvironmentPHPService) ClearLog(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
-		return
-	}
-
-	if _, err = shell.Execf("cat /dev/null > %s/server/php/%d/var/log/php-fpm.log", app.Root, req.Version); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
-}
-
-func (s *EnvironmentPHPService) ClearSlowLog(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.EnvironmentPHPVersion](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
-		return
-	}
-
-	if _, err = shell.Execf("cat /dev/null > %s/server/php/%d/var/log/slow.log", app.Root, req.Version); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
-}
-
 func (s *EnvironmentPHPService) ModuleList(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.EnvironmentPHPVersion](r)
 	if err != nil {

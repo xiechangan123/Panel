@@ -106,6 +106,22 @@ func (s *FileService) Content(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Truncate 截断文件至 0 长度（保留文件本身和元数据）
+func (s *FileService) Truncate(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.FilePath](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = stdos.Truncate(req.Path, 0); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
 func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.FileSave](r)
 	if err != nil {

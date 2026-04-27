@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
@@ -41,7 +41,6 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/user_config", s.UpdateUserConfig)
 	r.Get("/load", s.Load)
 	r.Get("/log", s.Log)
-	r.Post("/clear_log", s.ClearLog)
 	r.Get("/postgres_password", s.GetPostgresPassword)
 	r.Post("/postgres_password", s.SetPostgresPassword)
 	r.Get("/config_tune", s.GetConfigTune)
@@ -175,19 +174,15 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, data)
 }
 
-// Log 获取日志
+// Log 获取应用日志路径列表
 func (s *App) Log(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, fmt.Sprintf("%s/server/postgresql/logs/postgresql-%s.log", app.Root, time.Now().Format(time.DateOnly)))
-}
-
-// ClearLog 清空日志
-func (s *App) ClearLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("rm -rf %s/server/postgresql/logs/postgresql-*.log", app.Root); err != nil {
+	paths, err := filepath.Glob(fmt.Sprintf("%s/server/postgresql/logs/postgresql-*.log", app.Root))
+	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	service.Success(w, nil)
+	service.Success(w, paths)
 }
 
 // GetPostgresPassword 获取 postgres 用户密码

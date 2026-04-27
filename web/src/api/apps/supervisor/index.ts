@@ -5,8 +5,6 @@ export default {
   service: (): any => http.Get('/apps/supervisor/service'),
   // 获取错误日志
   log: (): any => http.Get('/apps/supervisor/log'),
-  // 清空错误日志
-  clearLog: (): any => http.Post('/apps/supervisor/clear_log'),
   // 获取配置
   config: (): any => http.Get('/apps/supervisor/config'),
   // 保存配置
@@ -23,9 +21,6 @@ export default {
     http.Post(`/apps/supervisor/processes/${process}/restart`),
   // 进程日志
   processLog: (process: string): any => http.Get(`/apps/supervisor/processes/${process}/log`),
-  // 清空进程日志
-  clearProcessLog: (process: string): any =>
-    http.Post(`/apps/supervisor/processes/${process}/clear_log`),
   // 进程配置
   processConfig: (process: string): any => http.Get(`/apps/supervisor/processes/${process}`),
   // 保存进程配置

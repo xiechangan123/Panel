@@ -18,8 +18,13 @@ const props = defineProps({
   path: {
     type: String,
     required: true
+  },
+  clearable: {
+    type: Boolean,
+    default: false
   }
 })
+const emit = defineEmits<{ clear: [] }>()
 
 const terminalRef = ref<HTMLElement | null>(null)
 const term = ref<Terminal | null>(null)
@@ -180,6 +185,14 @@ watch([() => props.path, () => show.value], async () => {
 onUnmounted(() => {
   closeTerminal()
 })
+
+// 由父组件在清空源文件成功后调用，清掉终端 buffer 里残留的旧日志
+const clear = () => {
+  term.value?.clear()
+  term.value?.reset()
+}
+
+defineExpose({ clear })
 </script>
 
 <template>
@@ -193,6 +206,16 @@ onUnmounted(() => {
     :segmented="false"
     @after-leave="closeTerminal"
   >
+    <template v-if="clearable" #header-extra>
+      <n-popconfirm @positive-click="emit('clear')">
+        <template #trigger>
+          <n-button size="small" type="warning">
+            {{ $gettext('Clear Log') }}
+          </n-button>
+        </template>
+        {{ $gettext('Are you sure you want to clear the log?') }}
+      </n-popconfirm>
+    </template>
     <div
       ref="terminalRef"
       class="realtime-log-terminal"

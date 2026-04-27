@@ -40,9 +40,7 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
-	r.Post("/clear_log", s.ClearLog)
 	r.Get("/slow_log", s.SlowLog)
-	r.Post("/clear_slow_log", s.ClearSlowLog)
 	r.Get("/root_password", s.GetRootPassword)
 	r.Post("/root_password", s.SetRootPassword)
 	r.Get("/config_tune", s.GetConfigTune)
@@ -194,29 +192,9 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, load)
 }
 
-// ClearLog 清空日志
-func (s *App) ClearLog(w http.ResponseWriter, r *http.Request) {
-	if err := systemctl.LogClear("mysqld"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
-}
-
 // SlowLog 获取慢查询日志
 func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, fmt.Sprintf("%s/server/mysql/mysql-slow.log", app.Root))
-}
-
-// ClearSlowLog 清空慢查询日志
-func (s *App) ClearSlowLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("cat /dev/null > %s/server/mysql/mysql-slow.log", app.Root); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
 }
 
 // GetRootPassword 获取root密码

@@ -140,3 +140,19 @@ func (s *SystemctlService) Stop(w http.ResponseWriter, r *http.Request) {
 
 	Success(w, nil)
 }
+
+// ClearLog 清空指定 systemd 服务的 journald 日志
+func (s *SystemctlService) ClearLog(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.SystemctlService](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = systemctl.LogClear(req.Service); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to clear log for %s service: %v", req.Service, err))
+		return
+	}
+
+	Success(w, nil)
+}

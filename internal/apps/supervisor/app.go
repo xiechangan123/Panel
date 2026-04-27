@@ -37,7 +37,6 @@ func NewApp(t *gotext.Locale) *App {
 
 func (s *App) Route(r chi.Router) {
 	r.Get("/service", s.Service)
-	r.Post("/clear_log", s.ClearLog)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
 	r.Get("/processes", s.Processes)
@@ -45,7 +44,6 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/processes/{process}/stop", s.StopProcess)
 	r.Post("/processes/{process}/restart", s.RestartProcess)
 	r.Get("/processes/{process}/log", s.ProcessLog)
-	r.Post("/processes/{process}/clear_log", s.ClearProcessLog)
 	r.Get("/processes/{process}", s.ProcessConfig)
 	r.Post("/processes/{process}", s.UpdateProcessConfig)
 	r.Delete("/processes/{process}", s.DeleteProcess)
@@ -55,16 +53,6 @@ func (s *App) Route(r chi.Router) {
 // Service 获取服务名称
 func (s *App) Service(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, s.name)
-}
-
-// ClearLog 清空日志
-func (s *App) ClearLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf(`cat /dev/null > /var/log/supervisor/supervisord.log`); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
 }
 
 // GetConfig 获取配置
@@ -225,35 +213,6 @@ func (s *App) ProcessLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, logPath)
-}
-
-// ClearProcessLog 清空进程日志
-func (s *App) ClearProcessLog(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	name := programName(req.Process)
-	var logPath string
-	if os.IsRHEL() {
-		logPath, err = shell.Execf(`cat '/etc/supervisord.d/%s.conf' | grep stdout_logfile= | awk -F "=" '{print $2}'`, name)
-	} else {
-		logPath, err = shell.Execf(`cat '/etc/supervisor/conf.d/%s.conf' | grep stdout_logfile= | awk -F "=" '{print $2}'`, name)
-	}
-
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get log path for process %s: %v", req.Process, err))
-		return
-	}
-
-	if _, err = shell.Execf(`cat /dev/null > '%s'`, logPath); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
 }
 
 // ProcessConfig 获取进程配置

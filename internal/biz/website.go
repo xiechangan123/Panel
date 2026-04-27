@@ -45,7 +45,6 @@ type WebsiteRepo interface {
 	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
 	Update(ctx context.Context, req *request.WebsiteUpdate) error
 	Delete(ctx context.Context, req *request.WebsiteDelete) error
-	ClearLog(id uint) error
 	UpdateRemark(id uint, remark string) error
 	ResetConfig(id uint) error
 	UpdateStatus(id uint, status bool) error

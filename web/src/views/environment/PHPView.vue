@@ -5,6 +5,7 @@ import { NButton, NDataTable, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import php from '@/api/panel/environment/php'
+import file from '@/api/panel/file'
 
 const route = useRoute()
 const slug = Number(route.params.slug)
@@ -32,6 +33,9 @@ watch(currentTab, (val) => {
     refreshFpmConfig()
   }
 })
+const logRef = ref<{ clear: () => void } | null>(null)
+const slowLogRef = ref<{ clear: () => void } | null>(null)
+
 const { data: log } = useRequest(php.log(slug), {
   initialData: ''
 })
@@ -171,13 +175,15 @@ const handleSaveFPMConfig = async () => {
 }
 
 const handleClearLog = async () => {
-  useRequest(php.clearLog(slug)).onSuccess(() => {
+  useRequest(file.truncate(log.value)).onSuccess(() => {
+    logRef.value?.clear()
     window.$message.success($gettext('Cleared successfully'))
   })
 }
 
 const handleClearSlowLog = async () => {
-  useRequest(php.clearSlowLog(slug)).onSuccess(() => {
+  useRequest(file.truncate(slowLog.value)).onSuccess(() => {
+    slowLogRef.value?.clear()
     window.$message.success($gettext('Cleared successfully'))
   })
 }
@@ -290,7 +296,7 @@ const handleUninstallModule = async (module: string) => {
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
-          <realtime-log :path="log" />
+          <realtime-log ref="logRef" :path="log" />
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Logs')">
@@ -300,7 +306,7 @@ const handleUninstallModule = async (module: string) => {
               {{ $gettext('Clear Slow Log') }}
             </n-button>
           </n-flex>
-          <realtime-log :path="slowLog" />
+          <realtime-log ref="slowLogRef" :path="slowLog" />
         </n-flex>
       </n-tab-pane>
     </n-tabs>

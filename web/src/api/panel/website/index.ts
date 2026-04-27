@@ -19,8 +19,6 @@ export default {
   config: (id: number): any => http.Get('/website/' + id),
   // 保存网站配置
   saveConfig: (id: number, data: any): any => http.Put(`/website/${id}`, data),
-  // 清空日志
-  clearLog: (id: number): any => http.Delete('/website/' + id + '/log'),
   // 更新备注
   updateRemark: (id: number, remark: string): any =>
     http.Post(`/website/${id}` + '/update_remark', { remark }),

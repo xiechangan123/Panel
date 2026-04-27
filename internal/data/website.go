@@ -828,16 +828,6 @@ func (r *websiteRepo) Delete(ctx context.Context, req *request.WebsiteDelete) er
 	return r.reloadWebServer()
 }
 
-func (r *websiteRepo) ClearLog(id uint) error {
-	website := new(biz.Website)
-	if err := r.db.Where("id", id).First(website).Error; err != nil {
-		return err
-	}
-
-	_, err := shell.Execf(`cat /dev/null > %s/sites/%s/log/access.log`, app.Root, website.Name)
-	return err
-}
-
 func (r *websiteRepo) UpdateRemark(id uint, remark string) error {
 	website := new(biz.Website)
 	if err := r.db.Where("id", id).First(website).Error; err != nil {

@@ -7,6 +7,7 @@ import { NButton, NDataTable, NInput, NPopconfirm } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import supervisor from '@/api/apps/supervisor'
+import file from '@/api/panel/file'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 const { $gettext } = useGettext()
@@ -16,6 +17,9 @@ const saveProcessConfigLoading = ref(false)
 const clearLogLoading = ref(false)
 const createProcessLoading = ref(false)
 const processLog = ref('')
+const processLogModalRef = ref<{ clear: () => void } | null>(null)
+const daemonLogRef = ref<{ clear: () => void } | null>(null)
+const daemonLogPath = '/var/log/supervisor/supervisord.log'
 
 const { data: serviceName } = useRequest(supervisor.service, {
   initialData: ''
@@ -231,8 +235,9 @@ const handleSaveConfig = () => {
 
 const handleClearLog = () => {
   clearLogLoading.value = true
-  useRequest(supervisor.clearLog())
+  useRequest(file.truncate(daemonLogPath))
     .onSuccess(() => {
+      daemonLogRef.value?.clear()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
@@ -284,6 +289,13 @@ const handleProcessDelete = (name: string) => {
 const handleShowProcessLog = async (row: any) => {
   processLog.value = await supervisor.processLog(row.name)
   processLogModal.value = true
+}
+
+const handleClearProcessLog = () => {
+  useRequest(file.truncate(processLog.value)).onSuccess(() => {
+    processLogModalRef.value?.clear()
+    window.$message.success($gettext('Cleared successfully'))
+  })
 }
 
 const handleEditProcess = async (name: string) => {
@@ -380,7 +392,7 @@ onUnmounted(() => {
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
-          <realtime-log path="/var/log/supervisor/supervisord.log" />
+          <realtime-log ref="daemonLogRef" :path="daemonLogPath" />
         </n-flex>
       </n-tab-pane>
     </n-tabs>
@@ -434,7 +446,13 @@ onUnmounted(() => {
     </n-form>
     <n-button type="info" block :loading="createProcessLoading" :disabled="createProcessLoading" @click="handleCreateProcess">{{ $gettext('Submit') }}</n-button>
   </n-modal>
-  <realtime-log-modal v-model:show="processLogModal" :path="processLog" />
+  <realtime-log-modal
+    ref="processLogModalRef"
+    v-model:show="processLogModal"
+    :path="processLog"
+    clearable
+    @clear="handleClearProcessLog"
+  />
   <n-modal
     v-model:show="editProcessModal"
     preset="card"

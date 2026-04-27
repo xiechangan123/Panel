@@ -7,12 +7,8 @@ export default {
   config: (): any => http.Get('/apps/mysql/config'),
   // 保存配置
   saveConfig: (config: string): any => http.Post('/apps/mysql/config', { config }),
-  // 清空日志
-  clearLog: (): any => http.Post('/apps/mysql/clear_log'),
   // 获取慢查询日志
   slowLog: (): any => http.Get('/apps/mysql/slow_log'),
-  // 清空慢查询日志
-  clearSlowLog: (): any => http.Post('/apps/mysql/clear_slow_log'),
   // 获取 root 密码
   rootPassword: (): any => http.Get('/apps/mysql/root_password'),
   // 修改 root 密码

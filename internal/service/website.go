@@ -177,21 +177,6 @@ func (s *WebsiteService) Delete(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-func (s *WebsiteService) ClearLog(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ID](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = s.websiteRepo.ClearLog(req.ID); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
-}
-
 func (s *WebsiteService) UpdateRemark(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.WebsiteUpdateRemark](r)
 	if err != nil {
