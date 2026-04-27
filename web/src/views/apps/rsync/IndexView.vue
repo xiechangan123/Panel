@@ -184,6 +184,7 @@ const handleModelEdit = async (row: any) => {
 const handleSaveModuleConfig = async () => {
   useRequest(rsync.updateModule(editModuleModel.value.name, editModuleModel.value)).onSuccess(
     () => {
+      editModuleModal.value = false
       refresh()
       getConfig()
       window.$message.success($gettext('Saved successfully'))
@@ -324,7 +325,6 @@ onMounted(() => {
     size="huge"
     :bordered="false"
     :segmented="false"
-    @close="handleSaveModuleConfig"
   >
     <n-form :model="editModuleModel">
       <n-form-item path="path" :label="$gettext('Directory')">
@@ -369,5 +369,6 @@ onMounted(() => {
         />
       </n-form-item>
     </n-form>
+    <n-button type="info" block @click="handleSaveModuleConfig">{{ $gettext('Save') }}</n-button>
   </n-modal>
 </template>

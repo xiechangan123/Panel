@@ -12,6 +12,7 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 const saveConfigLoading = ref(false)
+const saveProcessConfigLoading = ref(false)
 const clearLogLoading = ref(false)
 const createProcessLoading = ref(false)
 const processLog = ref('')
@@ -296,13 +297,18 @@ const getProcessConfig = async (name: string) => {
 }
 
 const handleSaveProcessConfig = () => {
+  saveProcessConfigLoading.value = true
   useRequest(
     supervisor.saveProcessConfig(editProcessModel.value.process, editProcessModel.value.config)
-  ).onSuccess(() => {
-    editProcessModal.value = false
-    refresh()
-    window.$message.success($gettext('Saved successfully'))
-  })
+  )
+    .onSuccess(() => {
+      editProcessModal.value = false
+      refresh()
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveProcessConfigLoading.value = false
+    })
 }
 
 const timer: any = null
@@ -438,13 +444,16 @@ onUnmounted(() => {
     :bordered="false"
     :segmented="false"
   >
-    <n-flex vertical>
-      <common-editor v-model:value="editProcessModel.config" height="60vh" />
-      <n-flex>
-        <n-button type="primary" @click="handleSaveProcessConfig">
-          {{ $gettext('Save') }}
-        </n-button>
-      </n-flex>
-    </n-flex>
+    <common-editor v-model:value="editProcessModel.config" height="60vh" />
+    <n-button
+      type="info"
+      block
+      mt-16
+      :loading="saveProcessConfigLoading"
+      :disabled="saveProcessConfigLoading"
+      @click="handleSaveProcessConfig"
+    >
+      {{ $gettext('Save') }}
+    </n-button>
   </n-modal>
 </template>
