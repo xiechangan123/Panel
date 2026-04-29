@@ -302,7 +302,7 @@ func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
 
 	newList := lo.Filter(list, func(item any, _ int) bool {
 		ds, ok := item.(map[string]any)
-		return !(ok && ds["name"] == name)
+		return !ok || ds["name"] != name
 	})
 	found := len(newList) < len(list)
 	if !found {
