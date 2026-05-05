@@ -64,7 +64,13 @@ func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
 
 	// 更新状态
 	for _, item := range composeRaws {
-		if i, ok := index[item.Name]; ok {
+		if item.ConfigFiles == "" {
+			continue
+		}
+		// ConfigFiles 可能包含多个以逗号分隔的路径，取第一个
+		first := strings.SplitN(item.ConfigFiles, ",", 2)[0]
+		dir := filepath.Base(filepath.Dir(first))
+		if i, ok := index[dir]; ok {
 			composes[i].Status = item.Status
 		}
 	}
