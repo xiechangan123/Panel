@@ -1339,7 +1339,7 @@ msgstr "Rename"
 #: src/views/firewall/IpRuleView.vue:210 src/views/firewall/RuleView.vue:249
 #: src/views/firewall/RuleView.vue:314 src/views/project/ListView.vue:199
 #: src/views/project/ListView.vue:307 src/views/setting/PasskeyModal.vue:70
-#: src/views/setting/SettingUser.vue:156 src/views/setting/TokenModal.vue:93
+#: src/views/setting/SettingUser.vue:154 src/views/setting/TokenModal.vue:93
 #: src/views/ssh/IndexView.vue:132 src/views/task/CronView.vue:181
 #: src/views/task/IndexView.vue:36 src/views/task/TaskView.vue:107
 #: src/views/toolbox/WebHookView.vue:181 src/views/website/ListView.vue:298
@@ -1392,7 +1392,7 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/firewall/IpRuleView.vue:189 src/views/firewall/RuleView.vue:275
 #: src/views/firewall/RuleView.vue:293 src/views/project/ListView.vue:275
 #: src/views/project/ListView.vue:285 src/views/setting/PasskeyModal.vue:102
-#: src/views/setting/SettingUser.vue:191 src/views/setting/TokenModal.vue:116
+#: src/views/setting/SettingUser.vue:189 src/views/setting/TokenModal.vue:116
 #: src/views/task/CronView.vue:247 src/views/task/CronView.vue:257
 #: src/views/task/TaskView.vue:132 src/views/toolbox/WebHookView.vue:238
 #: src/views/website/ListView.vue:366 src/views/website/ListView.vue:376
@@ -1479,7 +1479,7 @@ msgstr "Switch Theme"
 #: src/layouts/header/components/UserAvatar.vue:13
 #: src/views/apps/pureftpd/IndexView.vue:69
 #: src/views/apps/pureftpd/IndexView.vue:271
-#: src/views/setting/PasswordModal.vue:33 src/views/setting/SettingUser.vue:134
+#: src/views/setting/PasswordModal.vue:33 src/views/setting/SettingUser.vue:132
 msgid "Change Password"
 msgstr "Change Password"
 
@@ -1678,7 +1678,7 @@ msgstr "Show in Home"
 #: src/views/firewall/ForwardView.vue:79 src/views/firewall/IpRuleView.vue:121
 #: src/views/firewall/RuleView.vue:225 src/views/firewall/ScanView.vue:254
 #: src/views/project/ListView.vue:116 src/views/setting/PasskeyModal.vue:48
-#: src/views/setting/SettingUser.vue:87 src/views/setting/TokenModal.vue:54
+#: src/views/setting/SettingUser.vue:85 src/views/setting/TokenModal.vue:54
 #: src/views/task/CronView.vue:117 src/views/task/TaskView.vue:65
 #: src/views/toolbox/DiskView.vue:344 src/views/toolbox/DiskView.vue:830
 #: src/views/toolbox/WebHookView.vue:133 src/views/website/ListView.vue:226
@@ -2251,7 +2251,7 @@ msgstr ""
 #: src/views/database/UpdateServerModal.vue:26
 #: src/views/database/UpdateUserModal.vue:22
 #: src/views/database/UserList.vue:201 src/views/file/PermissionModal.vue:57
-#: src/views/setting/SettingUser.vue:179 src/views/setting/SettingUser.vue:185
+#: src/views/setting/SettingUser.vue:177 src/views/setting/SettingUser.vue:183
 #: src/views/task/CreateModal.vue:113 src/views/task/CronView.vue:205
 #: src/views/task/CronView.vue:275 src/views/toolbox/WebHookView.vue:213
 #: src/views/toolbox/WebHookView.vue:291 src/views/website/ListView.vue:347
@@ -5014,7 +5014,7 @@ msgstr ""
 
 #: src/views/cert/AccountView.vue:45 src/views/cert/AccountView.vue:246
 #: src/views/cert/CreateAccountModal.vue:103
-#: src/views/setting/CreateModal.vue:63 src/views/setting/SettingUser.vue:38
+#: src/views/setting/CreateModal.vue:63 src/views/setting/SettingUser.vue:37
 msgid "Email"
 msgstr "Email"
 
@@ -5402,7 +5402,7 @@ msgstr "Issuance Mode"
 #: src/views/container/ComposeView.vue:91 src/views/container/ImageView.vue:75
 #: src/views/container/NetworkView.vue:101
 #: src/views/container/VolumeView.vue:55 src/views/setting/PasskeyModal.vue:30
-#: src/views/setting/SettingUser.vue:78 src/views/setting/TokenModal.vue:36
+#: src/views/setting/SettingUser.vue:76 src/views/setting/TokenModal.vue:36
 #: src/views/task/CronView.vue:98 src/views/task/TaskView.vue:47
 #: src/views/toolbox/WebHookView.vue:123
 msgid "Creation Time"
@@ -8682,7 +8682,7 @@ msgstr "Operation successful"
 msgid "Passkey registration failed: %{msg}"
 msgstr ""
 
-#: src/views/setting/PasskeyModal.vue:158 src/views/setting/SettingUser.vue:119
+#: src/views/setting/PasskeyModal.vue:158 src/views/setting/SettingUser.vue:117
 msgid "Passkeys"
 msgstr ""
 
@@ -8964,19 +8964,19 @@ msgid ""
 "the entered IP address is accessible from the public network."
 msgstr ""
 
-#: src/views/setting/SettingUser.vue:55
+#: src/views/setting/SettingUser.vue:53
 msgid "2FA"
 msgstr "2FA"
 
-#: src/views/setting/SettingUser.vue:69
+#: src/views/setting/SettingUser.vue:67
 msgid "Disabled successfully"
 msgstr "Disabled successfully"
 
-#: src/views/setting/SettingUser.vue:104 src/views/setting/TokenModal.vue:212
+#: src/views/setting/SettingUser.vue:102 src/views/setting/TokenModal.vue:212
 msgid "Access Tokens"
 msgstr "Access Tokens"
 
-#: src/views/setting/SettingUser.vue:145
+#: src/views/setting/SettingUser.vue:143
 msgid "Are you sure you want to delete this user?"
 msgstr "Are you sure you want to delete this user?"
 
