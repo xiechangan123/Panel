@@ -22,7 +22,6 @@ const columns: any = [
     key: 'username',
     minWidth: 100,
     resizable: true,
-    ellipsis: { tooltip: true },
     render(row: any) {
       return h(NInput, {
         size: 'small',
@@ -39,7 +38,6 @@ const columns: any = [
     key: 'email',
     minWidth: 200,
     resizable: true,
-    ellipsis: { tooltip: true },
     render(row: any) {
       return h(NInput, {
         size: 'small',

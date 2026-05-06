@@ -1839,8 +1839,9 @@ onUnmounted(() => {
 
   // 列表模式下的样式
   &.list-mode {
-    width: 200px;
-    max-width: 300px;
+    flex: 1;
+    width: auto;
+    margin-right: 8px;
     text-align: left;
     font-size: 14px;
     padding: 2px 8px;
