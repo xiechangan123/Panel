@@ -173,16 +173,24 @@ const handleCopyRootPassword = () => {
         />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
-          {{ $gettext('Clear Log') }}
-        </n-button>
-        <realtime-log ref="runLogRef" service="mysqld" />
+        <n-flex vertical>
+          <n-flex>
+            <n-button type="primary" :loading="clearLogLoading" :disabled="clearLogLoading" @click="handleClearLog">
+              {{ $gettext('Clear Log') }}
+            </n-button>
+          </n-flex>
+          <realtime-log ref="runLogRef" service="mysqld" />
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="slow-log" :tab="$gettext('Slow Query Log')">
-        <n-button type="primary" :loading="clearSlowLogLoading" :disabled="clearSlowLogLoading" @click="handleClearSlowLog">
-          {{ $gettext('Clear Slow Log') }}
-        </n-button>
-        <realtime-log ref="slowLogRef" :path="slowLog" />
+        <n-flex vertical>
+          <n-flex>
+            <n-button type="primary" :loading="clearSlowLogLoading" :disabled="clearSlowLogLoading" @click="handleClearSlowLog">
+              {{ $gettext('Clear Slow Log') }}
+            </n-button>
+          </n-flex>
+          <realtime-log ref="slowLogRef" :path="slowLog" />
+        </n-flex>
       </n-tab-pane>
     </n-tabs>
   </common-page>

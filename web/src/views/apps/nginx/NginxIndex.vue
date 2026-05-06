@@ -11,6 +11,7 @@ import {
 import { useGettext } from 'vue3-gettext'
 
 import nginx from '@/api/apps/nginx'
+import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import NginxConfigTuneView from './NginxConfigTuneView.vue'
 
@@ -24,6 +25,7 @@ const currentTab = ref('status')
 const streamTab = ref('server')
 const saveConfigLoading = ref(false)
 const clearErrorLogLoading = ref(false)
+const clearRunLogLoading = ref(false)
 const saveStreamServerLoading = ref(false)
 const saveStreamUpstreamLoading = ref(false)
 
@@ -336,10 +338,26 @@ const handleSaveConfig = () => {
     })
 }
 
+const runLogRef = ref<{ clear: () => void } | null>(null)
+const errorLogRef = ref<{ clear: () => void } | null>(null)
+
+const handleClearRunLog = () => {
+  clearRunLogLoading.value = true
+  useRequest(systemctl.clearLog(props.service))
+    .onSuccess(() => {
+      runLogRef.value?.clear()
+      window.$message.success($gettext('Cleared successfully'))
+    })
+    .onComplete(() => {
+      clearRunLogLoading.value = false
+    })
+}
+
 const handleClearErrorLog = () => {
   clearErrorLogLoading.value = true
   useRequest(props.api.clearErrorLog())
     .onSuccess(() => {
+      errorLogRef.value?.clear()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
@@ -573,7 +591,14 @@ const handleDeleteStreamUpstream = (name: string) => {
         />
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
-        <realtime-log service="nginx" />
+        <n-flex vertical>
+          <n-flex>
+            <n-button type="primary" :loading="clearRunLogLoading" :disabled="clearRunLogLoading" @click="handleClearRunLog">
+              {{ $gettext('Clear Log') }}
+            </n-button>
+          </n-flex>
+          <realtime-log ref="runLogRef" :service="props.service" />
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="error-log" :tab="$gettext('Error Logs')">
         <n-flex vertical>
@@ -582,7 +607,7 @@ const handleDeleteStreamUpstream = (name: string) => {
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
-          <realtime-log :path="errorLog" />
+          <realtime-log ref="errorLogRef" :path="errorLog" />
         </n-flex>
       </n-tab-pane>
     </n-tabs>

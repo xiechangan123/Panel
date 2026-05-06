@@ -246,12 +246,18 @@ const handleSelectCert = (value: number) => {
   }
 }
 
+const accessLogRef = ref<{ clear: () => void } | null>(null)
+const errorLogRef = ref<{ clear: () => void } | null>(null)
+
 const clearLog = async () => {
-  const path = current.value === 'error_log' ? setting.value.error_log : setting.value.access_log
+  const isError = current.value === 'error_log'
+  const path = isError ? setting.value.error_log : setting.value.access_log
   if (!path || path === 'off') return
   clearLogLoading.value = true
   useRequest(file.truncate(path))
     .onSuccess(() => {
+      if (isError) errorLogRef.value?.clear()
+      else accessLogRef.value?.clear()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
@@ -2009,7 +2015,7 @@ const removeCustomConfig = (index: number) => {
                 {{ $gettext('view') }}.
               </n-alert>
             </n-flex>
-            <realtime-log :path="setting.access_log" pb-20 />
+            <realtime-log ref="accessLogRef" :path="setting.access_log" pb-20 />
           </n-flex>
         </n-tab-pane>
         <n-tab-pane
@@ -2025,7 +2031,7 @@ const removeCustomConfig = (index: number) => {
                 {{ $gettext('view') }}.
               </n-alert>
             </n-flex>
-            <realtime-log :path="setting.error_log" />
+            <realtime-log ref="errorLogRef" :path="setting.error_log" />
           </n-flex>
         </n-tab-pane>
       </n-tabs>

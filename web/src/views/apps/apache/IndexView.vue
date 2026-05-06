@@ -50,10 +50,13 @@ const handleSaveConfig = () => {
     })
 }
 
+const errorLogRef = ref<{ clear: () => void } | null>(null)
+
 const handleClearErrorLog = () => {
   clearErrorLogLoading.value = true
   useRequest(apache.clearErrorLog())
     .onSuccess(() => {
+      errorLogRef.value?.clear()
       window.$message.success($gettext('Cleared successfully'))
     })
     .onComplete(() => {
@@ -106,7 +109,7 @@ const handleClearErrorLog = () => {
               {{ $gettext('Clear Log') }}
             </n-button>
           </n-flex>
-          <realtime-log :path="errorLog" />
+          <realtime-log ref="errorLogRef" :path="errorLog" />
         </n-flex>
       </n-tab-pane>
     </n-tabs>

@@ -204,10 +204,11 @@ onUnmounted(() => {
   closeTerminal()
 })
 
-// 由父组件在清空源文件/日志成功后调用，清掉终端 buffer 里残留的旧内容
-const clear = () => {
-  term.value?.clear()
-  term.value?.reset()
+// 由父组件在清空源文件/日志成功后调用，重启 PTY 让 tail/journalctl 重新读取已清空的源
+const clear = async () => {
+  closeTerminal()
+  await nextTick()
+  await initTerminal()
 }
 
 defineExpose({ clear })
