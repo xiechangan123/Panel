@@ -17,6 +17,7 @@ const (
 	SettingKeyMonitorDays               SettingKey = "monitor_days"
 	SettingKeyMonitorInterval           SettingKey = "monitor_interval"
 	SettingKeyBackupPath                SettingKey = "backup_path"
+	SettingKeyBackupFormat              SettingKey = "backup_format" // tar.xz / tar.gz / zip / 7z
 	SettingKeyWebsitePath               SettingKey = "website_path"
 	SettingKeyProjectPath               SettingKey = "project_path"
 	SettingKeyContainerSock             SettingKey = "container_sock"

@@ -19,6 +19,7 @@ type SettingPanel struct {
 	BindUA        []string `json:"bind_ua"`
 	WebsitePath   string   `json:"website_path" validate:"required"`
 	BackupPath    string   `json:"backup_path" validate:"required"`
+	BackupFormat  string   `json:"backup_format" validate:"in:tar.xz,tar.gz,zip,7z"` // 备份压缩格式
 	ProjectPath   string   `json:"project_path" validate:"required"`
 	ContainerSock string   `json:"container_sock"`
 	HiddenMenu    []string `json:"hidden_menu"`                              // 隐藏的菜单项

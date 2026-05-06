@@ -56,6 +56,7 @@ const { data: model } = useRequest(setting.list, {
     bind_ua: [],
     website_path: '',
     backup_path: '',
+    backup_format: 'tar.xz',
     project_path: '',
     container_sock: '',
     hidden_menu: [],

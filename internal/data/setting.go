@@ -172,6 +172,10 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	if err != nil {
 		return nil, err
 	}
+	backupFormat, err := r.Get(biz.SettingKeyBackupFormat, "tar.xz")
+	if err != nil {
+		return nil, err
+	}
 	projectPath, err := r.Get(biz.SettingKeyProjectPath)
 	if err != nil {
 		return nil, err
@@ -228,6 +232,7 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		BindUA:        r.conf.HTTP.BindUA,
 		WebsitePath:   websitePath,
 		BackupPath:    backupPath,
+		BackupFormat:  backupFormat,
 		ProjectPath:   projectPath,
 		ContainerSock: containerSock,
 		HiddenMenu:    hiddenMenu,
@@ -260,6 +265,9 @@ func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyBackupPath, req.BackupPath); err != nil {
+		return false, err
+	}
+	if err := r.Set(biz.SettingKeyBackupFormat, req.BackupFormat); err != nil {
 		return false, err
 	}
 	if err := r.Set(biz.SettingKeyProjectPath, req.ProjectPath); err != nil {

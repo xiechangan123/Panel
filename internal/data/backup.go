@@ -171,7 +171,7 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 func (r *backupRepo) CreatePanel() error {
 	start := time.Now()
 
-	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), fmt.Sprintf("panel_%s.zip", time.Now().Format("20060102150405")))
+	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), fmt.Sprintf("panel_%s%s", time.Now().Format("20060102150405"), r.backupExt()))
 
 	temp, err := os.MkdirTemp("", "ace-backup-*")
 	if err != nil {
@@ -274,7 +274,7 @@ func (r *backupRepo) CutoffLog(path, target string) (string, error) {
 	}
 
 	name := strings.TrimSuffix(filepath.Base(target), filepath.Ext(target))
-	to := filepath.Join(path, fmt.Sprintf("%s_%s.zip", name, time.Now().Format("20060102150405")))
+	to := filepath.Join(path, fmt.Sprintf("%s_%s%s", name, time.Now().Format("20060102150405"), r.backupExt()))
 	if err := io.Compress(filepath.Dir(target), []string{filepath.Base(target)}, to); err != nil {
 		return "", err
 	}
@@ -329,7 +329,7 @@ func (r *backupRepo) ClearExpired(path, prefix string, save uint) error {
 	}
 
 	filtered := lo.FilterMap(files, func(file os.DirEntry, _ int) (os.FileInfo, bool) {
-		if !strings.HasPrefix(file.Name(), prefix) || !strings.HasSuffix(file.Name(), ".zip") {
+		if !strings.HasPrefix(file.Name(), prefix) || !r.isBackupArchive(file.Name()) {
 			return nil, false
 		}
 		info, err := os.Stat(filepath.Join(path, file.Name()))
@@ -394,7 +394,7 @@ func (r *backupRepo) ClearStorageExpired(storage uint, typ biz.BackupType, prefi
 	}
 	var filtered []fileInfo
 	for _, file := range files {
-		if strings.HasPrefix(file, prefix) && strings.HasSuffix(file, ".zip") {
+		if strings.HasPrefix(file, prefix) && r.isBackupArchive(file) {
 			lastModified, modErr := client.LastModified(filepath.Join(string(typ), file))
 			if modErr != nil {
 				continue
@@ -488,7 +488,7 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 	}
 
 	// 压缩网站
-	name = name + ".zip"
+	name = name + r.backupExt()
 	if err = io.Compress(website.Path, nil, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
@@ -546,12 +546,12 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	_ = os.Unsetenv("MYSQL_PWD")
 
 	// 压缩备份文件
-	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+".zip")); err != nil {
+	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+r.backupExt())); err != nil {
 		return err
 	}
 
 	// 上传备份文件到存储器
-	name = name + ".zip"
+	name = name + r.backupExt()
 	file, err := os.Open(filepath.Join(tmpDir, name))
 	if err != nil {
 		return err
@@ -604,12 +604,12 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	_ = os.Unsetenv("PGPASSWORD")
 
 	// 压缩备份文件
-	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+".zip")); err != nil {
+	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+r.backupExt())); err != nil {
 		return err
 	}
 
 	// 上传备份文件到存储器
-	name = name + ".zip"
+	name = name + r.backupExt()
 	file, err := os.Open(filepath.Join(tmpDir, name))
 	if err != nil {
 		return err
@@ -648,7 +648,7 @@ func (r *backupRepo) createPath(name string, storage storage.Storage, target str
 	}
 
 	// 压缩目录
-	name = name + ".zip"
+	name = name + r.backupExt()
 	if err = io.Compress(target, nil, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
@@ -1103,4 +1103,20 @@ func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
 	tools.RestartPanel()
 
 	return nil
+}
+
+// backupExt 根据全局设置返回备份文件扩展名
+func (r *backupRepo) backupExt() string {
+	format, _ := r.setting.Get(biz.SettingKeyBackupFormat, "tar.xz")
+	return "." + format
+}
+
+// isBackupArchive 判断文件名是否是已知的备份压缩包后缀
+func (r *backupRepo) isBackupArchive(name string) bool {
+	for _, ext := range []string{".tar.xz", ".tar.gz", ".zip", ".7z"} {
+		if strings.HasSuffix(name, ext) {
+			return true
+		}
+	}
+	return false
 }

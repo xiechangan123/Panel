@@ -66,6 +66,13 @@ const channels = [
   }
 ]
 
+const backupFormats = [
+  { label: 'tar.xz', value: 'tar.xz' },
+  { label: 'tar.gz', value: 'tar.gz' },
+  { label: 'zip', value: 'zip' },
+  { label: '7z', value: '7z' }
+]
+
 // 不允许隐藏的菜单项（首页 home/home-index 和设置页 setting/setting-index）
 const forbiddenHiddenMenus = ['home', 'home-index', 'setting', 'setting-index']
 
@@ -148,6 +155,9 @@ const menus = computed<TreeSelectOption[]>(() => {
             </template>
           </n-button>
         </n-input-group>
+      </n-form-item>
+      <n-form-item :label="$gettext('Backup Compression Format')">
+        <n-select v-model:value="model.backup_format" :options="backupFormats" />
       </n-form-item>
       <n-form-item :label="$gettext('Default Project Directory')">
         <n-input-group>

@@ -1040,6 +1040,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingKeyMonitorDays, Value: "30"},
 		{Key: biz.SettingKeyMonitorInterval, Value: "1"},
 		{Key: biz.SettingKeyBackupPath, Value: filepath.Join(app.Root, "backup")},
+		{Key: biz.SettingKeyBackupFormat, Value: filepath.Join(app.Root, "tar.xz")},
 		{Key: biz.SettingKeyWebsitePath, Value: filepath.Join(app.Root, "sites")},
 		{Key: biz.SettingKeyProjectPath, Value: filepath.Join(app.Root, "projects")},
 		{Key: biz.SettingKeyContainerSock, Value: "/var/run/docker.sock"},
