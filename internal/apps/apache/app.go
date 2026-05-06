@@ -36,6 +36,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/clear_error_log", s.ClearErrorLog)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("apache")
+	return types.AggregateAppStatus(ok)
+}
+
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	config, err := io.Read(fmt.Sprintf("%s/server/apache/conf/httpd.conf", app.Root))
 	if err != nil {

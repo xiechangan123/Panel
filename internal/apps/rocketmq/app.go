@@ -32,6 +32,12 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
+func (s *App) Status() string {
+	namesrv, _ := systemctl.Status("rocketmq-namesrv")
+	broker, _ := systemctl.Status("rocketmq-broker")
+	return types.AggregateAppStatus(namesrv, broker)
+}
+
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	namesrvStatus, _ := systemctl.Status("rocketmq-namesrv")
 	brokerStatus, _ := systemctl.Status("rocketmq-broker")

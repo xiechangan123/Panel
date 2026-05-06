@@ -15,6 +15,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct {
@@ -34,6 +35,11 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/modules/{name}", s.Delete)
 	r.Get("/config", s.GetConfig)
 	r.Post("/config", s.UpdateConfig)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("rsyncd")
+	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) List(w http.ResponseWriter, r *http.Request) {

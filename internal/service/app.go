@@ -7,9 +7,11 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/pkg/apploader"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -18,14 +20,16 @@ type AppService struct {
 	appRepo     biz.AppRepo
 	cacheRepo   biz.CacheRepo
 	settingRepo biz.SettingRepo
+	loader      *apploader.Loader
 }
 
-func NewAppService(t *gotext.Locale, app biz.AppRepo, cache biz.CacheRepo, setting biz.SettingRepo) *AppService {
+func NewAppService(t *gotext.Locale, app biz.AppRepo, cache biz.CacheRepo, setting biz.SettingRepo, loader *apploader.Loader) *AppService {
 	return &AppService{
 		t:           t,
 		appRepo:     app,
 		cacheRepo:   cache,
 		settingRepo: setting,
+		loader:      loader,
 	}
 }
 
@@ -50,15 +54,18 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 		return p.Slug
 	})
 
+	statusMap := s.collectStatuses(installedApps)
+
 	var apps []types.AppDetail
 	for _, item := range all {
-		installed, installedChannel, installedVersion, updateExist, show := false, "", "", false, false
+		installed, installedChannel, installedVersion, updateExist, show, status := false, "", "", false, false, ""
 		if _, ok := installedAppMap[item.Slug]; ok {
 			installed = true
 			installedChannel = installedAppMap[item.Slug].Channel
 			installedVersion = installedAppMap[item.Slug].Version
 			updateExist = s.appRepo.UpdateExist(item.Slug)
 			show = installedAppMap[item.Slug].Show
+			status = statusMap[item.Slug]
 		}
 		if onlyInstalled && !installed {
 			continue
@@ -82,6 +89,7 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 			InstalledVersion: installedVersion,
 			UpdateExist:      updateExist,
 			Show:             show,
+			Status:           status,
 		}
 
 		for _, c := range item.Channels {
@@ -234,4 +242,15 @@ func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
+}
+
+// collectStatuses 并发获取已安装应用的运行状态
+func (s *AppService) collectStatuses(installed []*biz.App) map[string]string {
+	pairs := lop.Map(installed, func(item *biz.App, _ int) lo.Entry[string, string] {
+		if a, ok := s.loader.Get(item.Slug); ok {
+			return lo.Entry[string, string]{Key: item.Slug, Value: a.Status()}
+		}
+		return lo.Entry[string, string]{Key: item.Slug, Value: types.AppStatusNA}
+	})
+	return lo.FromEntries(pairs)
 }

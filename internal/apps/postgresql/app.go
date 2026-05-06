@@ -47,6 +47,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("postgresql")
+	return types.AggregateAppStatus(ok)
+}
+
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	// 获取配置

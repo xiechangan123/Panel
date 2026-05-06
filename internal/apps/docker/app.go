@@ -11,6 +11,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct{}
@@ -24,6 +25,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 	r.Get("/settings", s.GetSettings)
 	r.Post("/settings", s.UpdateSettings)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("docker")
+	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {

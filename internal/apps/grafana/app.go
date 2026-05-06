@@ -41,6 +41,11 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/datasources/{name}", s.DeleteDataSource)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("grafana")
+	return types.AggregateAppStatus(ok)
+}
+
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	status, err := systemctl.Status("grafana")
 	if err != nil {

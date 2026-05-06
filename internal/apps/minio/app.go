@@ -8,6 +8,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct{}
@@ -19,6 +20,11 @@ func NewApp() *App {
 func (s *App) Route(r chi.Router) {
 	r.Get("/env", s.GetEnv)
 	r.Post("/env", s.UpdateEnv)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("minio")
+	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) GetEnv(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch, NH3 } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NPopconfirm, NSwitch, NH3, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import app from '@/api/panel/app'
@@ -8,6 +8,14 @@ import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
 
 const { $gettext } = useGettext()
+
+// 运行状态映射
+const statusMap: Record<string, { type: 'success' | 'error' | 'warning' | 'default'; label: string }> = {
+  running: { type: 'success', label: $gettext('Running') },
+  stopped: { type: 'error', label: $gettext('Stopped') },
+  partial: { type: 'warning', label: $gettext('Partial') },
+  'n/a': { type: 'default', label: $gettext('N/A') }
+}
 
 // 应用表格列
 const appColumns: any = [
@@ -37,6 +45,15 @@ const appColumns: any = [
     key: 'installed_version',
     width: 160,
     ellipsis: { tooltip: true }
+  },
+  {
+    title: $gettext('Status'),
+    key: 'status',
+    width: 120,
+    render(row: any) {
+      const meta = statusMap[row.status] || statusMap['n/a']!
+      return h(NTag, { type: meta.type, size: 'small', round: true }, { default: () => meta.label })
+    }
   },
   {
     title: $gettext('Show in Home'),
@@ -332,7 +349,7 @@ onMounted(() => {
       <n-data-table
         striped
         remote
-        :scroll-x="1300"
+        :scroll-x="1420"
         :loading="appLoading"
         :columns="appColumns"
         :data="appData"

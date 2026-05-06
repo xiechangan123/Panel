@@ -44,6 +44,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/admin_password", s.SetAdminPassword)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("mongod")
+	return types.AggregateAppStatus(ok)
+}
+
 // Load 获取 MongoDB 运行状态
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	status, _ := systemctl.Status("mongod")

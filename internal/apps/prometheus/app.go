@@ -53,6 +53,12 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/exporters/{slug}/config", s.UpdateExporterConfig)
 }
 
+func (s *App) Status() string {
+	prom, _ := systemctl.Status("prometheus")
+	alert, _ := systemctl.Status("alertmanager")
+	return types.AggregateAppStatus(prom, alert)
+}
+
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	status, err := systemctl.Status("prometheus")
 	if err != nil {

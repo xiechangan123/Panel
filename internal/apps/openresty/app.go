@@ -5,6 +5,8 @@ import (
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct {
@@ -19,4 +21,9 @@ func NewApp(t *gotext.Locale) *App {
 
 func (s *App) Route(r chi.Router) {
 	s.nginx.Route(r)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("openresty")
+	return types.AggregateAppStatus(ok)
 }

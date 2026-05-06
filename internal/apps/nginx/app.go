@@ -50,6 +50,11 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/stream/upstreams/{name}", s.DeleteStreamUpstream)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("nginx")
+	return types.AggregateAppStatus(ok)
+}
+
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	config, err := io.Read(fmt.Sprintf("%s/server/nginx/conf/nginx.conf", app.Root))
 	if err != nil {

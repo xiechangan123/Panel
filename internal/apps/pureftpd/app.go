@@ -18,6 +18,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct {
@@ -39,6 +40,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/port", s.UpdatePort)
 	r.Get("/config_tune", s.GetConfigTune)
 	r.Post("/config_tune", s.UpdateConfigTune)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("pure-ftpd")
+	return types.AggregateAppStatus(ok)
 }
 
 // List 获取用户列表

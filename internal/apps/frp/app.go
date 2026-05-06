@@ -10,6 +10,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct{}
@@ -23,6 +24,12 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 	r.Get("/user", s.GetUser)
 	r.Post("/user", s.UpdateUser)
+}
+
+func (s *App) Status() string {
+	frps, _ := systemctl.Status("frps")
+	frpc, _ := systemctl.Status("frpc")
+	return types.AggregateAppStatus(frps, frpc)
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {

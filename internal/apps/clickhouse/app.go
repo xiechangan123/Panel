@@ -45,6 +45,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/default_password", s.SetDefaultPassword)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("clickhouse-server")
+	return types.AggregateAppStatus(ok)
+}
+
 // Load 获取 ClickHouse 运行状态
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	status, _ := systemctl.Status("clickhouse-server")

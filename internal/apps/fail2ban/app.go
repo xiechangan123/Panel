@@ -18,6 +18,8 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct {
@@ -40,6 +42,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/unban", s.Unban)
 	r.Post("/white_list", s.SetWhiteList)
 	r.Get("/white_list", s.GetWhiteList)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("fail2ban")
+	return types.AggregateAppStatus(ok)
 }
 
 // List 所有规则

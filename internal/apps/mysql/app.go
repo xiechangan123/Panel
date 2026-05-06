@@ -47,6 +47,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("mysqld")
+	return types.AggregateAppStatus(ok)
+}
+
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")

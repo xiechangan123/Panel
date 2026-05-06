@@ -30,6 +30,14 @@ func (r *Loader) Register(mux chi.Router) {
 	})
 }
 
+func (r *Loader) Get(slug string) (types.App, bool) {
+	v, ok := apps.Load(slug)
+	if !ok {
+		return nil, false
+	}
+	return v.(types.App), true
+}
+
 func Slugs() []string {
 	var slugs []string
 	apps.Range(func(key, value any) bool {

@@ -16,6 +16,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct {
@@ -32,6 +33,10 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/mounts", s.List)
 	r.Post("/mounts", s.Create)
 	r.Delete("/mounts", s.Delete)
+}
+
+func (s *App) Status() string {
+	return types.AppStatusNA
 }
 
 // List 所有 S3fs 挂载

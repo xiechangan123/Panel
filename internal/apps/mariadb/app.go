@@ -21,3 +21,7 @@ func NewApp(t *gotext.Locale, setting biz.SettingRepo, databaseServer biz.Databa
 func (s *App) Route(r chi.Router) {
 	s.mysql.Route(r)
 }
+
+func (s *App) Status() string {
+	return s.mysql.Status()
+}

@@ -8,6 +8,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct{}
@@ -21,6 +22,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/registry_config", s.UpdateRegistryConfig)
 	r.Get("/storage_config", s.GetStorageConfig)
 	r.Post("/storage_config", s.UpdateStorageConfig)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("podman")
+	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) GetRegistryConfig(w http.ResponseWriter, r *http.Request) {

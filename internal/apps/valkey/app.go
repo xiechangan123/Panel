@@ -39,6 +39,11 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
+func (s *App) Status() string {
+	ok, _ := systemctl.Status("valkey")
+	return types.AggregateAppStatus(ok)
+}
+
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	status, err := systemctl.Status("valkey")
 	if err != nil {

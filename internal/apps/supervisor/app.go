@@ -14,6 +14,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/os"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct {
@@ -53,6 +54,11 @@ func (s *App) Route(r chi.Router) {
 // Service 获取服务名称
 func (s *App) Service(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, s.name)
+}
+
+func (s *App) Status() string {
+	ok, _ := systemctl.Status(s.name)
+	return types.AggregateAppStatus(ok)
 }
 
 // GetConfig 获取配置
