@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DataTableSortState, DropdownOption } from 'naive-ui'
-import { NButton, NDropdown, NTag } from 'naive-ui'
+import { NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import process, { type ProcessListParams } from '@/api/panel/process'
@@ -164,44 +164,27 @@ const columns = computed<any[]>(() => [
     width: 240,
     sortOrder: sortKeyMapOrder.value.start_time || false,
     sorter: true
-  },
-  {
-    title: $gettext('Actions'),
-    key: 'actions',
-    width: 80,
-    fixed: 'right' as const,
-    render(row: any) {
-      return h(
-        NDropdown,
-        {
-          options: actionOptions,
-          trigger: 'click',
-          onSelect: (key: string) => {
-            selectedRow.value = row
-            handleDropdownSelect(key)
-          }
-        },
-        {
-          default: () =>
-            h(NButton, { size: 'small', ghost: true }, { default: () => $gettext('Actions') })
-        }
-      )
-    }
   }
 ])
 
-// 行属性 - 右键菜单 & 双击查看详情
+// 行属性 - 左键/右键菜单 & 双击查看详情
+const openDropdownAt = (row: any, e: MouseEvent) => {
+  showDropdown.value = false
+  nextTick().then(() => {
+    showDropdown.value = true
+    selectedRow.value = row
+    dropdownX.value = e.clientX
+    dropdownY.value = e.clientY
+  })
+}
+
 const rowProps = (row: any) => {
   return {
+    style: 'cursor: pointer',
+    onClick: (e: MouseEvent) => openDropdownAt(row, e),
     onContextmenu: (e: MouseEvent) => {
       e.preventDefault()
-      showDropdown.value = false
-      nextTick().then(() => {
-        showDropdown.value = true
-        selectedRow.value = row
-        dropdownX.value = e.clientX
-        dropdownY.value = e.clientY
-      })
+      openDropdownAt(row, e)
     },
     onDblclick: () => {
       handleShowDetail(row.pid)
@@ -357,7 +340,7 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
       striped
       remote
       virtual-scroll
-      :scroll-x="1480"
+      :scroll-x="1400"
       :loading="loading"
       :columns="columns"
       :data="data"
