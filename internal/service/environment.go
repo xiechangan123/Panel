@@ -34,7 +34,7 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 	query := strings.ToLower(r.URL.Query().Get("query"))
 	onlyInstalled := r.URL.Query().Get("installed") == "true"
 	all := s.environmentRepo.All()
-	var environments []types.EnvironmentDetail
+	environments := make([]types.EnvironmentDetail, 0)
 	for _, item := range all {
 		if typ != "" && !strings.EqualFold(item.Type, typ) {
 			continue
