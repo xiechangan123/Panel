@@ -6,7 +6,7 @@ const { replace } = useRouter()
 </script>
 
 <template>
-  <PageContainer>
+  <PageContainer bare>
     <n-result
       class="m-auto"
       :description="$gettext('Sorry, the page you visited does not exist.')"

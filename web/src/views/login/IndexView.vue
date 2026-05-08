@@ -217,7 +217,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageContainer :show-footer="true" :style="{ backgroundImage: `url(${bgImg})` }" class="bg-cover">
+  <PageContainer
+    bare
+    :show-footer="true"
+    :style="{ backgroundImage: `url(${bgImg})` }"
+    class="bg-cover"
+  >
     <div m-auto flex flex-col items-center>
       <!-- Logo -->
       <n-image :src="logo" preview-disabled mb-22 h-20 w-20 object-contain />
