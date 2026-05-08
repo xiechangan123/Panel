@@ -273,6 +273,8 @@ github.com/libtnb/cache v1.2.0 h1:6MHHRTzP2GgNs1gD9VJoTIeQ3ud20tkkgvbOtzIf0Zs=
 github.com/libtnb/cache v1.2.0/go.mod h1:QzCzSS5KBP2dcwMZtwKZO94eFMOViYMkUuxeLallZTE=
 github.com/libtnb/chix v1.3.2 h1:LkA/+OaHeMyTiQoWEcCQKAMSKDZ0LxBXSENQO5d+OKk=
 github.com/libtnb/chix v1.3.2/go.mod h1:ItssStBa/ov7v4qujyYzORqIf7Z6DO7Q4carOM7pyAQ=
+github.com/libtnb/cron v0.2.0 h1:Dgn8kgooA+bYGC16OHnufGLQlvtFDmnoM0NVjyLOfrE=
+github.com/libtnb/cron v0.2.0/go.mod h1:nrOHxS4Ernkn1E//vs64xzC58hGfoL0+lYSW2zsROGI=
 github.com/libtnb/gormstore v1.2.0 h1:VdNTiG8Ah+glDFNxtj+ZrBhcqiLFxMviqlz2gez6zWU=
 github.com/libtnb/gormstore v1.2.0/go.mod h1:8A5QzeZxi1MpSmjUVsHTDAL6KnU84feIXMutFLPawwA=
 github.com/libtnb/moby/client v0.0.0-20260127104057-d4b7902a560b h1:73OlJdl4Zk6Ipnm7KKeE6yCjfd7nk0BhTArujx6WJCU=
@@ -354,8 +356,6 @@ github.com/prometheus/procfs v0.0.0-20190507164030-5867b95ac084/go.mod h1:TjEm7z
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
-github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
-github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=

@@ -3,22 +3,16 @@ package bootstrap
 import (
 	"log/slog"
 
-	"github.com/robfig/cron/v3"
+	"github.com/libtnb/cron"
+	"github.com/libtnb/cron/wrap"
 
 	"github.com/acepanel/panel/v3/internal/job"
-	"github.com/acepanel/panel/v3/pkg/config"
-	pkgcron "github.com/acepanel/panel/v3/pkg/cron"
 )
 
-func NewCron(conf *config.Config, log *slog.Logger, jobs *job.Jobs) (*cron.Cron, error) {
-	logger := pkgcron.NewLogger(log, conf.App.Debug)
-
+func NewCron(log *slog.Logger, jobs *job.Jobs) (*cron.Cron, error) {
 	c := cron.New(
-		cron.WithParser(cron.NewParser(
-			cron.SecondOptional|cron.Minute|cron.Hour|cron.Dom|cron.Month|cron.Dow|cron.Descriptor,
-		)),
-		cron.WithLogger(logger),
-		cron.WithChain(cron.Recover(logger), cron.SkipIfStillRunning(logger)),
+		cron.WithLogger(log),
+		cron.WithChain(wrap.Recover(), wrap.SkipIfRunning()),
 	)
 	if err := jobs.Register(c); err != nil {
 		return nil, err

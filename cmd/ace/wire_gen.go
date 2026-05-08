@@ -214,7 +214,7 @@ func initAce() (*app.Ace, error) {
 	}
 	gormigrate := bootstrap.NewMigrate(db)
 	jobs := job.NewJobs(config, db, logger, aggregator, settingRepo, certRepo, certAccountRepo, backupRepo, cacheRepo, taskRepo, scanEventRepo, websiteStatRepo, websiteRepo)
-	cron, err := bootstrap.NewCron(config, logger, jobs)
+	cron, err := bootstrap.NewCron(logger, jobs)
 	if err != nil {
 		return nil, err
 	}

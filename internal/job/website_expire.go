@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"log/slog"
 	"time"
 
@@ -26,9 +27,9 @@ func NewWebsiteExpire(db *gorm.DB, log *slog.Logger, websiteRepo biz.WebsiteRepo
 	}
 }
 
-func (r *WebsiteExpire) Run() {
+func (r *WebsiteExpire) Run(_ context.Context) error {
 	if app.Status != app.StatusNormal {
-		return
+		return nil
 	}
 
 	var websites []biz.Website
@@ -36,7 +37,7 @@ func (r *WebsiteExpire) Run() {
 	// 直接查询已到期且仍在运行的网站
 	if err := r.db.Where("expire_at IS NOT NULL AND expire_at <= ? AND status = ?", now, true).Find(&websites).Error; err != nil {
 		r.log.Warn("failed to query expired websites", slog.Any("err", err))
-		return
+		return nil
 	}
 
 	for _, website := range websites {
@@ -46,4 +47,5 @@ func (r *WebsiteExpire) Run() {
 		}
 		r.log.Info("website expired and disabled", slog.String("name", website.Name), slog.Time("expire_at", *website.ExpireAt))
 	}
+	return nil
 }

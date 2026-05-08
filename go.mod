@@ -39,6 +39,7 @@ require (
 	github.com/libdns/westcn v1.0.2
 	github.com/libtnb/cache v1.2.0
 	github.com/libtnb/chix v1.3.2
+	github.com/libtnb/cron v0.2.0
 	github.com/libtnb/gormstore v1.2.0
 	github.com/libtnb/sessions v1.4.0
 	github.com/libtnb/sqlite v1.1.1
@@ -51,7 +52,6 @@ require (
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
 	github.com/rhnvrm/simples3 v0.11.1
-	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.53.0
 	github.com/sethvargo/go-limiter v1.1.0
 	github.com/shirou/gopsutil/v4 v4.26.4

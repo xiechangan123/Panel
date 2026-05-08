@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -50,16 +51,16 @@ func NewFirewallScan(log *slog.Logger, setting biz.SettingRepo, scanRepo biz.Sca
 	}
 }
 
-func (r *FirewallScan) Run() {
+func (r *FirewallScan) Run(_ context.Context) error {
 	if app.Status != app.StatusNormal {
-		return
+		return nil
 	}
 
 	enabled, err := r.setting.GetBool(biz.SettingKeyScanAware)
 	if err != nil || !enabled {
 		// 未启用时，确保 scanner 已停止
 		r.stopScanner()
-		return
+		return nil
 	}
 
 	// 确保 scanner 已启动
@@ -76,6 +77,7 @@ func (r *FirewallScan) Run() {
 
 	// 清理过期数据
 	r.cleanup()
+	return nil
 }
 
 // ensureScanner 确保 scanner 正在运行

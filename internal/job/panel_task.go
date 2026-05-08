@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
@@ -50,19 +51,19 @@ func NewPanelTask(conf *config.Config, db *gorm.DB, log *slog.Logger, backup biz
 	}
 }
 
-func (r *PanelTask) Run() {
+func (r *PanelTask) Run(_ context.Context) error {
 	app.Status = app.StatusMaintain
 
 	// 优化主数据库
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
 		app.Status = app.StatusFailed
 		r.log.Warn("failed to wal checkpoint database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		return
+		return nil
 	}
 	if err := r.db.Exec("VACUUM").Error; err != nil {
 		app.Status = app.StatusFailed
 		r.log.Warn("failed to vacuum database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		return
+		return nil
 	}
 	// 优化辅助数据库
 	if err := r.scanRepo.VacuumDB(); err != nil {
@@ -102,6 +103,7 @@ func (r *PanelTask) Run() {
 	debug.FreeOSMemory()
 
 	app.Status = app.StatusNormal
+	return nil
 }
 
 // 更新分类缓存

@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"log/slog"
 	"strings"
 	"sync/atomic"
@@ -36,9 +37,9 @@ func NewWebsiteStat(log *slog.Logger, setting biz.SettingRepo, statRepo biz.Webs
 	}
 }
 
-func (r *WebsiteStat) Run() {
+func (r *WebsiteStat) Run(_ context.Context) error {
 	if app.Status != app.StatusNormal {
-		return
+		return nil
 	}
 
 	r.ensureListener()
@@ -47,6 +48,7 @@ func (r *WebsiteStat) Run() {
 	r.flushErrors()
 	r.flushDetails()
 	r.cleanup()
+	return nil
 }
 
 // ensureListener 确保 listener goroutine 已启动

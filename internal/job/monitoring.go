@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"log/slog"
 	"time"
 
@@ -28,14 +29,14 @@ func NewMonitoring(db *gorm.DB, log *slog.Logger, setting biz.SettingRepo) *Moni
 	}
 }
 
-func (r *Monitoring) Run() {
+func (r *Monitoring) Run(_ context.Context) error {
 	if app.Status != app.StatusNormal {
-		return
+		return nil
 	}
 
 	monitor, err := r.settingRepo.Get(biz.SettingKeyMonitor)
 	if err != nil || !cast.ToBool(monitor) {
-		return
+		return nil
 	}
 
 	// 根据采集间隔判断是否该采集
@@ -44,7 +45,7 @@ func (r *Monitoring) Run() {
 		interval = 1
 	}
 	if !r.lastRun.IsZero() && time.Since(r.lastRun) < time.Duration(interval)*time.Minute-30*time.Second {
-		return
+		return nil
 	}
 	r.lastRun = time.Now()
 
@@ -56,25 +57,26 @@ func (r *Monitoring) Run() {
 	info.Cpus = nil
 
 	if app.Status != app.StatusNormal {
-		return
+		return nil
 	}
 
 	if err = r.db.Create(&biz.Monitor{Info: info}).Error; err != nil {
 		r.log.Warn("failed to create monitor record", slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		return
+		return nil
 	}
 
 	// 删除过期数据
 	dayStr, err := r.settingRepo.Get(biz.SettingKeyMonitorDays)
 	if err != nil {
-		return
+		return nil
 	}
 	day := cast.ToInt(dayStr)
 	if day <= 0 || app.Status != app.StatusNormal {
-		return
+		return nil
 	}
 	if err = r.db.Where("created_at < ?", time.Now().AddDate(0, 0, -day).Format(time.DateTime)).Delete(&biz.Monitor{}).Error; err != nil {
 		r.log.Warn("failed to delete monitor record", slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
-		return
+		return nil
 	}
+	return nil
 }
