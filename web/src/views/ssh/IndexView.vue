@@ -72,7 +72,7 @@ interface HostItem {
   label: string
   host?: string
   port?: number
-  username?: string
+  user?: string
 }
 
 const localHost: HostItem = {
@@ -102,7 +102,7 @@ const fetchData = async () => {
       label: item.name === '' ? item.host : item.name,
       host: item.host,
       port: item.port,
-      username: item.username,
+      user: item.config.user,
     })
   })
 
@@ -546,7 +546,10 @@ onUnmounted(() => {
             <div class="host-card__body">
               <div class="host-card__name">{{ host.label }}</div>
               <div v-if="host.host" class="host-card__meta">
-                {{ host.username }}@{{ host.host }}:{{ host.port }}
+                {{ host.user }}@{{ host.host }}:{{ host.port }}
+              </div>
+              <div v-else class="host-card__meta">
+                {{ $gettext('Bash session on this server') }}
               </div>
             </div>
             <div v-if="host.key !== LOCAL_SERVER_ID" class="host-card__actions">
@@ -874,15 +877,6 @@ onUnmounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.host-card__meta {
-  font-size: 12px;
-  color: var(--color-text-tertiary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 2px;
 }
 
 .host-card__actions {
