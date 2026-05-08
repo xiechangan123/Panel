@@ -75,7 +75,8 @@ func UnCompress(src string, dst string) error {
 
 	switch format {
 	case Zip:
-		_, err = shell.Execf("unzip -qo '%s' -d '%s'", src, dst)
+		// 用 7z 解压 zip,自动检测文件名编码,避免中文文件名变成 #Uxxxx
+		_, err = shell.Execf("7z x -y '%s' -o'%s'", src, dst)
 	case Gz:
 		// 单独的 gzip 文件（如 .sql.gz），解压到目标目录
 		// gunzip -k 保留原文件，-c 输出到标准输出，重定向到目标文件
@@ -107,16 +108,14 @@ func ListCompress(src string) ([]string, error) {
 
 	var out string
 	switch format {
-	case Zip:
-		out, err = shell.Execf("unzip -Z1 '%s'", src)
+	case Zip, SevenZip:
+		out, err = shell.Execf(`7z l -ba -slt '%s' | grep "^Path = " | sed 's/^Path = //'`, src)
 	case Gz:
 		// 单独的 gzip 文件只包含一个文件，返回去除 .gz 后缀的文件名
 		baseName := strings.TrimSuffix(filepath.Base(src), ".gz")
 		return []string{baseName}, nil
 	case TGz, Bz2, Tar, Xz:
 		out, err = shell.Execf("tar -tf '%s'", src)
-	case SevenZip:
-		out, err = shell.Execf(`7z l -ba -slt '%s' | grep "^Path = " | sed 's/^Path = //'`, src)
 	default:
 		return nil, errors.New("unsupported format")
 	}
