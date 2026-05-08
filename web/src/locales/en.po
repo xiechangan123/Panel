@@ -1379,7 +1379,7 @@ msgstr "Rename"
 #: src/views/firewall/RuleView.vue:312 src/views/project/ListView.vue:197
 #: src/views/project/ListView.vue:307 src/views/setting/PasskeyModal.vue:68
 #: src/views/setting/SettingUser.vue:142 src/views/setting/TokenModal.vue:87
-#: src/views/ssh/IndexView.vue:569 src/views/task/CronView.vue:169
+#: src/views/ssh/IndexView.vue:572 src/views/task/CronView.vue:169
 #: src/views/task/IndexView.vue:41 src/views/task/TaskView.vue:104
 #: src/views/toolbox/WebHookView.vue:172 src/views/website/ListView.vue:304
 #: src/views/website/ListView.vue:421
@@ -1707,7 +1707,7 @@ msgstr "Rsync Manager"
 msgid "Frp Manager"
 msgstr "Frp Manager"
 
-#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:304
+#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:309
 msgid "Login"
 msgstr "Login"
 
@@ -3133,7 +3133,7 @@ msgstr "Select Directory"
 #: src/views/apps/nginx/NginxIndex.vue:262 src/views/backup/StorageView.vue:111
 #: src/views/container/ComposeView.vue:123 src/views/file/ListView.vue:332
 #: src/views/file/ListView.vue:1536 src/views/project/ListView.vue:181
-#: src/views/ssh/IndexView.vue:557 src/views/task/CronView.vue:155
+#: src/views/ssh/IndexView.vue:560 src/views/task/CronView.vue:155
 #: src/views/toolbox/WebHookView.vue:158 src/views/website/ListView.vue:259
 msgid "Edit"
 msgstr "Edit"
@@ -3177,7 +3177,7 @@ msgstr "Access Log"
 #: src/views/database/ServerList.vue:82
 #: src/views/database/UpdateServerModal.vue:104
 #: src/views/database/UpdateUserModal.vue:63 src/views/database/UserList.vue:32
-#: src/views/login/IndexView.vue:256 src/views/setting/CreateModal.vue:53
+#: src/views/login/IndexView.vue:261 src/views/setting/CreateModal.vue:53
 #: src/views/setting/PasswordModal.vue:42 src/views/ssh/CreateModal.vue:80
 #: src/views/ssh/CreateModal.vue:89 src/views/ssh/UpdateModal.vue:86
 #: src/views/ssh/UpdateModal.vue:95 src/views/website/EditModal.vue:1923
@@ -4379,7 +4379,7 @@ msgstr ""
 #: src/views/database/CreateUserModal.vue:106
 #: src/views/database/ServerList.vue:73
 #: src/views/database/UpdateServerModal.vue:96
-#: src/views/database/UserList.vue:22 src/views/login/IndexView.vue:247
+#: src/views/database/UserList.vue:22 src/views/login/IndexView.vue:252
 #: src/views/setting/CreateModal.vue:46 src/views/setting/SettingUser.vue:24
 #: src/views/ssh/CreateModal.vue:86 src/views/ssh/UpdateModal.vue:92
 #: src/views/website/EditModal.vue:1922
@@ -8036,33 +8036,33 @@ msgid ""
 msgstr ""
 "Failed to get encryption public key, please refresh the page and try again"
 
-#: src/views/login/IndexView.vue:233
+#: src/views/login/IndexView.vue:238
 #, fuzzy
 msgid "Authenticating with passkey..."
 msgstr "Authentication Method"
 
-#: src/views/login/IndexView.vue:241
+#: src/views/login/IndexView.vue:246
 #, fuzzy
 msgid "Passkey login failed, please use username and password."
 msgstr "Please enter username and password"
 
-#: src/views/login/IndexView.vue:267
+#: src/views/login/IndexView.vue:272
 msgid "2FA Code"
 msgstr "2FA Code"
 
-#: src/views/login/IndexView.vue:278
+#: src/views/login/IndexView.vue:283
 msgid "Captcha Code"
 msgstr ""
 
-#: src/views/login/IndexView.vue:293
+#: src/views/login/IndexView.vue:298
 msgid "Safe Login"
 msgstr "Safe Login"
 
-#: src/views/login/IndexView.vue:294
+#: src/views/login/IndexView.vue:299
 msgid "Remember Me"
 msgstr "Remember Me"
 
-#: src/views/login/IndexView.vue:314
+#: src/views/login/IndexView.vue:319
 msgid "Login with Passkey"
 msgstr ""
 
@@ -9213,6 +9213,10 @@ msgstr "Fullscreen Display"
 #, fuzzy
 msgid "Hosts"
 msgstr "Host"
+
+#: src/views/ssh/IndexView.vue:552
+msgid "Bash session on this server"
+msgstr ""
 
 #: src/views/ssh/UpdateModal.vue:59
 msgid "Update Host"
