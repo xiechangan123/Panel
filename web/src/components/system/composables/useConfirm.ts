@@ -26,15 +26,16 @@ export function useConfirm() {
 
   const confirmDelete = (opts: DeleteOptions): Promise<boolean> => {
     return new Promise((resolve) => {
-      const total = opts.countdown ?? 5
+      const total = opts.countdown ?? 0
       let remain = total
       let timer: ReturnType<typeof setInterval> | null = null
+      const positiveBase = opts.positiveText ?? $gettext('Delete')
       const dialog = window.$dialog?.warning({
         title: opts.title ?? $gettext('Confirm Deletion'),
         content: opts.content,
-        positiveText: `${opts.positiveText ?? $gettext('Delete')} (${remain}s)`,
+        positiveText: total > 0 ? `${positiveBase} (${remain}s)` : positiveBase,
         negativeText: opts.negativeText ?? $gettext('Cancel'),
-        positiveButtonProps: { type: 'error', disabled: true },
+        positiveButtonProps: { type: 'error', disabled: total > 0 },
         autoFocus: false,
         maskClosable: false,
         onPositiveClick: () => {
@@ -57,13 +58,14 @@ export function useConfirm() {
           timer = null
         }
       }
-      timer = setInterval(() => {
-        remain -= 1
-        if (!dialog) return
-        dialog.positiveText = `${opts.positiveText ?? $gettext('Delete')}${remain > 0 ? ` (${remain}s)` : ''}`
-        dialog.positiveButtonProps = { type: 'error', disabled: remain > 0 }
-        if (remain <= 0) stop()
-      }, 1000)
+      if (total > 0 && dialog) {
+        timer = setInterval(() => {
+          remain -= 1
+          dialog.positiveText = `${positiveBase}${remain > 0 ? ` (${remain}s)` : ''}`
+          dialog.positiveButtonProps = { type: 'error', disabled: remain > 0 }
+          if (remain <= 0) stop()
+        }, 1000)
+      }
     })
   }
 

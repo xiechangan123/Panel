@@ -63,7 +63,7 @@ const invokeWithConfirm = async (action: ActionItem<T>) => {
   const confirmType = action.confirm.type ?? 'normal'
   const confirmed = await new Promise<boolean>((resolve) => {
     if (confirmType === 'delete' || confirmType === 'danger') {
-      const total = action.confirm?.countdown ?? (confirmType === 'delete' ? 5 : 0)
+      const total = action.confirm?.countdown ?? 0
       let remain = total
       let timer: ReturnType<typeof setInterval> | null = null
       const dialog = window.$dialog?.warning({

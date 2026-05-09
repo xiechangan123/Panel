@@ -37,7 +37,7 @@ const { $gettext } = useGettext()
 
 const totalCountdown = computed(() => {
   if (typeof props.countdown === 'number') return props.countdown
-  return props.type === 'delete' ? 5 : 0
+  return 0
 })
 
 const remain = ref(0)
