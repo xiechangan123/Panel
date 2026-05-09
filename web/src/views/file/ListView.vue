@@ -815,8 +815,8 @@ const handleInlineRenameKeydown = (event: KeyboardEvent) => {
   }
 }
 
-// 删除文件
-const deleteFiles = (items: any[]) => {
+// 执行删除（不带确认）
+const doDelete = (items: any[]) => {
   if (items.length === 1) {
     confirmImmutableOperation(items[0], () => {
       useRequest(file.delete(items[0].full)).onSuccess(() => {
@@ -825,27 +825,34 @@ const deleteFiles = (items: any[]) => {
       })
     })
   } else {
+    const deletePromises = items.map((item: any) => file.delete(item.full))
+    Promise.all(deletePromises).then(() => {
+      window.$bus.emit('file:refresh')
+      window.$message.success($gettext('Deleted successfully'))
+    })
+  }
+}
+
+// 删除文件（右键菜单/键盘 Delete 入口，带二次确认）
+const deleteFiles = (items: any[]) => {
+  if (items.length > 1) {
     const hasImmutable = items.some((item: any) => item.immutable)
     if (hasImmutable) {
       window.$message.warning($gettext('Some files are immutable and cannot be deleted'))
       return
     }
-    window.$dialog.warning({
-      title: $gettext('Warning'),
-      content: $gettext('Are you sure you want to delete %{count} items?', {
-        count: items.length,
-      }),
-      positiveText: $gettext('Yes'),
-      negativeText: $gettext('No'),
-      onPositiveClick: () => {
-        const deletePromises = items.map((item: any) => file.delete(item.full))
-        Promise.all(deletePromises).then(() => {
-          window.$bus.emit('file:refresh')
-          window.$message.success($gettext('Deleted successfully'))
-        })
-      },
-    })
   }
+  const content =
+    items.length === 1
+      ? $gettext('Are you sure you want to delete %{ name }?', { name: items[0].name })
+      : $gettext('Are you sure you want to delete %{count} items?', { count: items.length })
+  window.$dialog.warning({
+    title: $gettext('Warning'),
+    content,
+    positiveText: $gettext('Yes'),
+    negativeText: $gettext('No'),
+    onPositiveClick: () => doDelete(items),
+  })
 }
 
 // 复制路径到剪贴板
@@ -934,7 +941,7 @@ const handleRenameClick = (item: any) => {
 }
 
 const handleDeleteClick = (item: any) => {
-  deleteFiles([item])
+  doDelete([item])
 }
 
 // 更多操作选项
