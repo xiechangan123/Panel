@@ -414,7 +414,8 @@ type dnsSolver struct {
 	mu               sync.Mutex
 	dns              DnsType
 	param            DNSParam
-	records          map[string][]libdns.Record // dnsName|keyAuth → records
+	keyAuths         map[string][]string        // dnsName → keyAuth 列表
+	records          map[string][]libdns.Record // dnsName → 已设置的记录
 	alias            map[string]string          // DNS 验证别名映射 (domain → delegated domain)
 	dnsServer        string                     // DNS 验证服务器地址
 	skipVerify       bool                       // 跳过解析验证
@@ -434,12 +435,20 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 
 	s.report(fmt.Sprintf("setting DNS TXT record %s", dnsName))
 
-	rec := libdns.TXT{
-		Name: libdns.RelativeName(dnsName+".", zone+"."),
-		Text: keyAuth,
+	// 同名 TXT 记录可能对应多个 challenge， SetRecords 以 (name, type) 为单位覆盖
+	// 因此需把该记录名下所有 keyAuth 一次性写入，避免后者覆盖前者
+	s.mu.Lock()
+	s.keyAuths[dnsName] = append(s.keyAuths[dnsName], keyAuth)
+	recs := make([]libdns.Record, 0, len(s.keyAuths[dnsName]))
+	for _, ka := range s.keyAuths[dnsName] {
+		recs = append(recs, libdns.TXT{
+			Name: libdns.RelativeName(dnsName+".", zone+"."),
+			Text: ka,
+		})
 	}
+	s.mu.Unlock()
 
-	results, err := provider.SetRecords(ctx, zone+".", []libdns.Record{rec})
+	results, err := provider.SetRecords(ctx, zone+".", recs)
 	if err != nil {
 		return fmt.Errorf("failed to set DNS record %q for %q: %w", dnsName, zone, err)
 	}
@@ -448,8 +457,7 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 	}
 
 	s.mu.Lock()
-	key := dnsName + "|" + keyAuth
-	s.records[key] = append(s.records[key], results...)
+	s.records[dnsName] = results
 	s.mu.Unlock()
 
 	s.report(fmt.Sprintf("DNS TXT record %s set successfully", dnsName))
@@ -538,10 +546,11 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 
 	s.report("cleaning up DNS TXT records")
 
+	// 同名 TXT 记录下的多条 challenge 记录由首次 CleanUp 一并删除
 	s.mu.Lock()
-	key := dnsName + "|" + challenge.DNS01KeyAuthorization()
-	records := s.records[key]
-	delete(s.records, key)
+	records := s.records[dnsName]
+	delete(s.records, dnsName)
+	delete(s.keyAuths, dnsName)
 	s.mu.Unlock()
 
 	if len(records) > 0 {
