@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/netip"
 	"slices"
@@ -150,6 +151,15 @@ func (r *containerNetworkRepo) Remove(id string) error {
 		return err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	// 拦截受保护网络的删除
+	info, err := apiClient.NetworkInspect(context.Background(), id, client.NetworkInspectOptions{})
+	if err != nil {
+		return err
+	}
+	if info.Network.Name == "acepanel-network" {
+		return errors.New("cannot delete acepanel-network")
+	}
 
 	_, err = apiClient.NetworkRemove(context.Background(), id, client.NetworkRemoveOptions{})
 	return err
