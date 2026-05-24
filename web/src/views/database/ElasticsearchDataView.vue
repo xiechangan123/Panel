@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, NTag } from 'naive-ui'
+import { NButton, NFlex, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
@@ -119,7 +119,7 @@ const indexColumns: any = [
     width: 250,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -145,7 +145,7 @@ const indexColumns: any = [
           },
           { default: () => $gettext('Delete') },
         ),
-      ]
+      ])
     },
   },
 ]
@@ -171,7 +171,7 @@ const docColumns: any = [
     width: 200,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -199,7 +199,7 @@ const docColumns: any = [
           },
           { default: () => $gettext('Delete') },
         ),
-      ]
+      ])
     },
   },
 ]

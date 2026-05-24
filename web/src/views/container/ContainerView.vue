@@ -110,7 +110,7 @@ const columns: any = [
     width: 320,
     hideInExcel: true,
     render(row: any) {
-      return [
+      return h(NFlex, { size: 'small', align: 'center' }, () => [
         h(
           NButton,
           {
@@ -129,7 +129,6 @@ const columns: any = [
             size: 'small',
             type: 'warning',
             secondary: true,
-            style: 'margin-left: 10px;',
             onClick: () => handleShowLog(row),
           },
           {
@@ -141,7 +140,6 @@ const columns: any = [
           {
             size: 'small',
             type: 'success',
-            style: 'margin-left: 10px;',
             onClick: () => {
               renameModel.value.id = row.id
               renameModel.value.name = row.name
@@ -224,7 +222,6 @@ const columns: any = [
                 {
                   size: 'small',
                   type: 'primary',
-                  style: 'margin-left: 10px;',
                 },
                 {
                   default: () => $gettext('More'),
@@ -233,7 +230,7 @@ const columns: any = [
             },
           },
         ),
-      ]
+      ])
     },
   },
 ]

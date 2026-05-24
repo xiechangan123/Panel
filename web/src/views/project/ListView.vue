@@ -140,7 +140,6 @@ const columns: any = [
               size: 'small',
               type: 'warning',
               secondary: true,
-              style: 'margin-left: 10px;',
               onClick: () => handleRestart(row),
             },
             { default: () => $gettext('Restart') },
@@ -151,7 +150,6 @@ const columns: any = [
               size: 'small',
               type: 'info',
               secondary: true,
-              style: 'margin-left: 10px;',
               onClick: () => handleReload(row),
             },
             { default: () => $gettext('Reload') },
@@ -165,7 +163,6 @@ const columns: any = [
           {
             size: 'small',
             type: 'info',
-            style: 'margin-left: 10px;',
             onClick: () => handleShowLog(row),
           },
           { default: () => $gettext('Logs') },
@@ -175,7 +172,6 @@ const columns: any = [
           {
             size: 'small',
             type: 'primary',
-            style: 'margin-left: 10px;',
             onClick: () => handleEdit(row),
           },
           { default: () => $gettext('Edit') },
@@ -198,7 +194,7 @@ const columns: any = [
         ),
       )
 
-      return buttons
+      return h(NFlex, { size: 'small', align: 'center' }, () => buttons)
     },
   },
 ]
