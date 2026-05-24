@@ -12,7 +12,7 @@ var staticExts = map[string]struct{}{
 	".ttf": {}, ".eot": {}, ".otf": {}, ".map": {}, ".webp": {},
 	".avif": {}, ".mp4": {}, ".mp3": {}, ".webm": {}, ".ogg": {},
 	".pdf": {}, ".zip": {}, ".gz": {}, ".tar": {}, ".rar": {},
-	".7z": {}, ".bz2": {}, ".xz": {}, ".swf": {}, ".flv": {},
+	".7z": {}, ".bz2": {}, ".xz": {}, ".zst": {}, ".swf": {}, ".flv": {},
 }
 
 // IsStaticResource 判定 URI 是否为静态资源（js/css/图片/字体等）

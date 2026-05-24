@@ -77,8 +77,8 @@ func (s *BackupService) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 只允许上传 .sql .zip .tar .gz .tgz .bz2 .xz .7z
-	if !slices.Contains([]string{".sql", ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".7z"}, filepath.Ext(req.File.Filename)) {
+	// 只允许上传 .sql .zip .tar .gz .tgz .bz2 .xz .zst .7z
+	if !slices.Contains([]string{".sql", ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".zst", ".7z"}, filepath.Ext(req.File.Filename)) {
 		Error(w, http.StatusForbidden, s.t.Get("unsupported file type"))
 		return
 	}

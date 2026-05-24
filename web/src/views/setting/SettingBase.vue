@@ -69,6 +69,7 @@ const channels = [
 const backupFormats = [
   { label: 'tar.xz', value: 'tar.xz' },
   { label: 'tar.gz', value: 'tar.gz' },
+  { label: 'tar.zst', value: 'tar.zst' },
   { label: 'zip', value: 'zip' },
   { label: '7z', value: '7z' },
 ]

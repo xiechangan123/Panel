@@ -1113,7 +1113,7 @@ func (r *backupRepo) backupExt() string {
 
 // isBackupArchive 判断文件名是否是已知的备份压缩包后缀
 func (r *backupRepo) isBackupArchive(name string) bool {
-	for _, ext := range []string{".tar.xz", ".tar.gz", ".zip", ".7z"} {
+	for _, ext := range []string{".tar.xz", ".tar.gz", ".tar.zst", ".zip", ".7z"} {
 		if strings.HasSuffix(name, ext) {
 			return true
 		}

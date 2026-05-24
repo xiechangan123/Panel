@@ -19,6 +19,7 @@ const (
 	TGz      FormatArchive = "tgz"
 	Xz       FormatArchive = "xz"
 	SevenZip FormatArchive = "7z"
+	Zst      FormatArchive = "zst"
 )
 
 // Compress 压缩文件
@@ -52,6 +53,8 @@ func Compress(dir string, src []string, dst string) error {
 		_, err = shell.ExecfWithDir(dir, "tar -cJf %s %s", dst, strings.Join(src, " "))
 	case SevenZip:
 		_, err = shell.ExecfWithDir(dir, "7z a -y %s %s", dst, strings.Join(src, " "))
+	case Zst:
+		_, err = shell.ExecfWithDir(dir, "tar --zstd -cf %s %s", dst, strings.Join(src, " "))
 	default:
 		return errors.New("unsupported format")
 	}
@@ -92,6 +95,8 @@ func UnCompress(src string, dst string) error {
 		_, err = shell.Execf("tar -xJf '%s' -C '%s'", src, dst)
 	case SevenZip:
 		_, err = shell.Execf("7z x -y '%s' -o'%s'", src, dst)
+	case Zst:
+		_, err = shell.Execf("tar --zstd -xf '%s' -C '%s'", src, dst)
 	default:
 		return errors.New("unsupported format")
 	}
@@ -116,6 +121,8 @@ func ListCompress(src string) ([]string, error) {
 		return []string{baseName}, nil
 	case TGz, Bz2, Tar, Xz:
 		out, err = shell.Execf("tar -tf '%s'", src)
+	case Zst:
+		out, err = shell.Execf("tar --zstd -tf '%s'", src)
 	default:
 		return nil, errors.New("unsupported format")
 	}
@@ -149,6 +156,9 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 		return Xz, nil
 	case ".7z":
 		return SevenZip, nil
+	case ".zst":
+		// .zst 后缀使用 tar --zstd 解压，适用于 .tar.zst 格式
+		return Zst, nil
 	}
 
 	return "", errors.New("unknown format")
