@@ -126,6 +126,7 @@ const columns: any = [
                     name: row.name,
                   }),
                   positiveText: $gettext('Uninstall'),
+                  countdown: 5,
                 })
                 if (ok) handleUninstall(row.slug)
               },

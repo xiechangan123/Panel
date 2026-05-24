@@ -78,6 +78,7 @@ const columns: any = computed(() => {
           onClick: async () => {
             const ok = await confirmDelete({
               content: $gettext('Are you sure you want to delete this database?'),
+              countdown: 5,
             })
             if (ok) handleDelete(row.server_id, row.name)
           },

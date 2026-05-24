@@ -123,6 +123,7 @@ const columns: any = [
                           )
                         : $gettext('Are you sure to uninstall app %{ app }?', { app: row.name }),
                       positiveText: $gettext('Uninstall'),
+                      countdown: 5,
                     })
                     if (ok) handleUninstall(row.slug)
                   },

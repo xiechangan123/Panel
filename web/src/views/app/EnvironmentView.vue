@@ -105,6 +105,7 @@ const columns: any = [
                         environment: row.name,
                       }),
                       positiveText: $gettext('Uninstall'),
+                      countdown: 5,
                     })
                     if (ok) handleUninstall(row.type, row.slug)
                   },

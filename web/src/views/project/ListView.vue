@@ -186,6 +186,7 @@ const columns: any = [
                 content: $gettext('Are you sure you want to delete project %{ name }?', {
                   name: row.name,
                 }),
+                countdown: 5,
               })
               if (ok) handleDelete(row.id)
             },
@@ -295,6 +296,7 @@ watch(type, () => {
       </n-button>
       <ConfirmDialog
         type="delete"
+        :countdown="5"
         :content="$gettext('Are you sure you want to delete the selected projects?')"
         @confirm="bulkDelete"
       >

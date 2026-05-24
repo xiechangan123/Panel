@@ -131,6 +131,7 @@ const appColumns: any = [
                         )
                       : $gettext('Are you sure to uninstall app %{ app }?', { app: row.name }),
                     positiveText: $gettext('Uninstall'),
+                    countdown: 5,
                   })
                   if (ok) handleAppUninstall(row.slug)
                 },
@@ -227,6 +228,7 @@ const envColumns: any = [
                       environment: row.name,
                     }),
                     positiveText: $gettext('Uninstall'),
+                    countdown: 5,
                   })
                   if (ok) handleEnvUninstall(row.type, row.slug)
                 },

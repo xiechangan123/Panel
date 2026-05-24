@@ -157,6 +157,7 @@ const columns: any = [
             onClick: async () => {
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete the user?'),
+                countdown: 5,
               })
               if (ok) handleDelete(row.id)
             },

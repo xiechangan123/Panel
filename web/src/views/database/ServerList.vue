@@ -239,6 +239,7 @@ const columns: any = [
               }
               const ok = await confirmDelete({
                 content: $gettext('Are you sure you want to delete the server?'),
+                countdown: 5,
               })
               if (ok) handleDelete(row.id)
             },

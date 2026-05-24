@@ -262,6 +262,7 @@ const columns: any = [
           ConfirmDialog,
           {
             type: 'delete',
+            countdown: 5,
             onConfirm: () => handleDelete(row.id),
           },
           {
@@ -409,6 +410,7 @@ onMounted(() => {
       </n-button>
       <ConfirmDialog
         type="delete"
+        :countdown="5"
         :content="
           $gettext(
             'This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?',
