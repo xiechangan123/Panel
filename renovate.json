@@ -26,7 +26,6 @@
         "patch",
         "minor"
       ],
-      "minimumReleaseAge": "3 days",
       "automerge": true
     },
     {
@@ -34,7 +33,7 @@
       "matchUpdateTypes": [
         "major"
       ],
-      "minimumReleaseAge": "7 days",
+      "minimumReleaseAge": "3 days",
       "automerge": false
     }
   ],
