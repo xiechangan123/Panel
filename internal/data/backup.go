@@ -876,6 +876,9 @@ func (r *backupRepo) FixPanel() error {
 	}
 	var list []os.FileInfo
 	for _, file := range files {
+		if !r.isBackupArchive(file.Name()) {
+			continue
+		}
 		info, infoErr := file.Info()
 		if infoErr != nil {
 			continue
