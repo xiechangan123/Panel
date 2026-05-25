@@ -24,6 +24,6 @@ func (s *App) Route(r chi.Router) {
 }
 
 func (s *App) Status() string {
-	ok, _ := systemctl.Status("openresty")
+	ok, _ := systemctl.Status("nginx")
 	return types.AggregateAppStatus(ok)
 }
