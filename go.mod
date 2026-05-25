@@ -40,10 +40,10 @@ require (
 	github.com/libtnb/cache v1.2.0
 	github.com/libtnb/chix v1.3.2
 	github.com/libtnb/cron v0.2.1
-	github.com/libtnb/gormstore v1.2.0
-	github.com/libtnb/sessions v1.4.0
+	github.com/libtnb/gormstore v1.2.1
+	github.com/libtnb/sessions v1.4.2
 	github.com/libtnb/sqlite v1.1.1
-	github.com/libtnb/utils v1.2.1
+	github.com/libtnb/utils v1.2.2
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.54.2
@@ -62,7 +62,7 @@ require (
 	github.com/urfave/cli/v3 v3.9.0
 	github.com/valyala/fastjson v1.6.10
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
-	golang.org/x/crypto v0.51.0
+	golang.org/x/crypto v0.52.0
 	golang.org/x/net v0.54.0
 	gorm.io/gorm v1.31.1
 	modernc.org/sqlite v1.50.1
@@ -120,9 +120,9 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
+	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	modernc.org/libc v1.72.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
