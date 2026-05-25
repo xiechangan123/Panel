@@ -27,7 +27,7 @@ export default {
   // 是否2FA
   isTwoFA: (username: string): any => http.Get('/user/is_2fa', { params: { username } }),
   // 获取用户信息
-  info: (): any => http.Get('/user/info'),
+  info: (config = {}): any => http.Get('/user/info', config),
   // 获取用户列表
   list: (page: number, limit: number): any => http.Get(`/users`, { params: { page, limit } }),
   // 创建用户

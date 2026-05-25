@@ -100,15 +100,13 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 				}
 			}
 
-			// 情况三：通过APIKey+入口路径访问，重写请求路径并跳过验证
-			if strings.HasPrefix(r.URL.Path, entrance) && r.Header.Get("Authorization") != "" {
-				// 只在设置了入口路径的情况下，才进行重写
-				if entrance != "/" {
-					if rctx := chi.RouteContext(r.Context()); rctx != nil {
-						rctx.RoutePath = strings.TrimPrefix(rctx.RoutePath, entrance)
-						r.URL.Path = strings.TrimPrefix(r.URL.Path, entrance)
-					}
+			// 情况三：通过 APIKey+入口路径访问 API，重写请求路径并跳过入口验证
+			apiPath, ok := trimEntranceAPIPath(r.URL.Path, entrance)
+			if ok && r.Header.Get("Authorization") != "" {
+				if rctx := chi.RouteContext(r.Context()); rctx != nil {
+					rctx.RoutePath = apiPath
 				}
+				r.URL.Path = apiPath
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -130,6 +128,29 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+func trimEntranceAPIPath(path string, entrance string) (string, bool) {
+	if entrance == "/" {
+		if path == "/api" || strings.HasPrefix(path, "/api/") {
+			return path, true
+		}
+		return "", false
+	}
+
+	if path != entrance && !strings.HasPrefix(path, entrance+"/") {
+		return "", false
+	}
+
+	apiPath := strings.TrimPrefix(path, entrance)
+	if apiPath == "" {
+		return "", false
+	}
+	if apiPath != "/api" && !strings.HasPrefix(apiPath, "/api/") {
+		return "", false
+	}
+
+	return apiPath, true
 }
 
 func abortEntrance(w http.ResponseWriter, r *http.Request, conf *config.Config, locale string) {
