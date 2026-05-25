@@ -37,5 +37,7 @@
       "automerge": false
     }
   ],
-  "ignoreDeps": []
+  "ignoreDeps": [
+    "vite"
+  ]
 }
