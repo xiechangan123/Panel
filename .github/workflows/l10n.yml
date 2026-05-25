@@ -16,7 +16,8 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          run_install: true
+          run_install: |
+            - cwd: web
           package_json_file: web/package.json
       - name: Setup Node.js
         uses: actions/setup-node@v6
