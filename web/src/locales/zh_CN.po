@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: acepanel\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-05-08 12:14\n"
+"PO-Revision-Date: 2026-05-25 17:23\n"
 
 #: src/components/common/AppFooter.vue:18
 #: src/views/home/IndexView.vue:548
@@ -316,7 +316,7 @@ msgstr "当前状态无法保存"
 #: src/views/apps/prometheus/IndexView.vue:62
 #: src/views/apps/prometheus/IndexView.vue:73
 #: src/views/apps/prometheus/PrometheusConfigTuneView.vue:34
-#: src/views/apps/prometheus/PrometheusExportersView.vue:190
+#: src/views/apps/prometheus/PrometheusExportersView.vue:191
 #: src/views/apps/pureftpd/IndexView.vue:112
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:54
 #: src/views/apps/redis/IndexView.vue:51
@@ -365,7 +365,7 @@ msgstr "选择文件"
 #: src/components/common/PathSelector.vue:51
 #: src/components/common/PathSelector.vue:395
 #: src/views/app/EnvironmentView.vue:31
-#: src/views/app/InstalledView.vue:160
+#: src/views/app/InstalledView.vue:161
 #: src/views/apps/fail2ban/IndexView.vue:41
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:72
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:206
@@ -387,7 +387,7 @@ msgstr "选择文件"
 #: src/views/database/CreateServerModal.vue:108
 #: src/views/database/ServerList.vue:66
 #: src/views/database/UpdateServerModal.vue:65
-#: src/views/file/ListView.vue:1338
+#: src/views/file/ListView.vue:1345
 #: src/views/file/PropertyModal.vue:27
 #: src/views/file/ToolBar.vue:150
 #: src/views/home/IndexView.vue:659
@@ -414,7 +414,7 @@ msgid "Permissions"
 msgstr "权限"
 
 #: src/components/common/PathSelector.vue:102
-#: src/views/file/ListView.vue:1349
+#: src/views/file/ListView.vue:1356
 msgid "Owner / Group"
 msgstr "所有者 / 组"
 
@@ -423,7 +423,7 @@ msgstr "所有者 / 组"
 #: src/views/container/ImageView.vue:70
 #: src/views/database/ElasticsearchDataView.vue:112
 #: src/views/database/RedisDataView.vue:111
-#: src/views/file/ListView.vue:1345
+#: src/views/file/ListView.vue:1352
 #: src/views/file/PropertyModal.vue:39
 #: src/views/file/ToolBar.vue:151
 #: src/views/toolbox/disk/RaidView.vue:95
@@ -434,19 +434,19 @@ msgid "Size"
 msgstr "大小"
 
 #: src/components/common/PathSelector.vue:149
-#: src/views/file/ListView.vue:1488
+#: src/views/file/ListView.vue:1495
 msgid "Calculate"
 msgstr "计算"
 
 #: src/components/common/PathSelector.vue:154
-#: src/views/file/ListView.vue:1354
+#: src/views/file/ListView.vue:1361
 #: src/views/file/PropertyModal.vue:51
 #: src/views/file/ToolBar.vue:152
 msgid "Modification Time"
 msgstr "修改时间"
 
 #: src/components/common/PathSelector.vue:188
-#: src/views/file/ListView.vue:1203
+#: src/views/file/ListView.vue:1210
 #: src/views/file/PathInput.vue:43
 msgid "Invalid path"
 msgstr "无效路径"
@@ -469,7 +469,7 @@ msgstr "无效的名称"
 #: src/views/cert/UploadCertModal.vue:26
 #: src/views/container/ComposeView.vue:231
 #: src/views/container/ContainerCreate.vue:109
-#: src/views/container/NetworkView.vue:179
+#: src/views/container/NetworkView.vue:184
 #: src/views/container/VolumeView.vue:132
 #: src/views/database/CreateDatabaseModal.vue:48
 #: src/views/database/CreateUserModal.vue:51
@@ -538,9 +538,9 @@ msgstr "根目录"
 #: src/views/cert/UploadCertModal.vue:64
 #: src/views/container/ComposeView.vue:341
 #: src/views/container/ComposeView.vue:367
-#: src/views/container/ContainerView.vue:651
+#: src/views/container/ContainerView.vue:648
 #: src/views/container/ImageView.vue:401
-#: src/views/container/NetworkView.vue:334
+#: src/views/container/NetworkView.vue:339
 #: src/views/container/VolumeView.vue:233
 #: src/views/database/CreateDatabaseModal.vue:165
 #: src/views/database/CreateServerModal.vue:200
@@ -565,12 +565,12 @@ msgid "Submit"
 msgstr "提交"
 
 #: src/components/common/PtyTerminalModal.vue:125
-#: src/views/container/ContainerView.vue:477
+#: src/views/container/ContainerView.vue:474
 msgid "Connection closed."
 msgstr "连接已关闭。"
 
 #: src/components/common/PtyTerminalModal.vue:134
-#: src/views/container/ContainerView.vue:484
+#: src/views/container/ContainerView.vue:481
 msgid "Connection error."
 msgstr "连接错误。"
 
@@ -588,7 +588,7 @@ msgstr "连接失败"
 
 #: src/components/common/PtyTerminalModal.vue:202
 #: src/components/common/PtyTerminalModal.vue:206
-#: src/components/system/composables/useConfirm.ts:80
+#: src/components/system/composables/useConfirm.ts:82
 #: src/components/system/ConfirmDialog.vue:54
 #: src/layouts/header/components/UserAvatar.vue:30
 #: src/views/app/TemplateDeployModal.vue:342
@@ -628,8 +628,8 @@ msgstr "命令可能仍在运行。关闭窗口将终止命令。您确定吗？
 #: src/components/common/PtyTerminalModal.vue:207
 #: src/components/file-editor/EditorToolbar.vue:102
 #: src/components/file-editor/FileTree.vue:605
-#: src/components/system/composables/useConfirm.ts:36
-#: src/components/system/composables/useConfirm.ts:81
+#: src/components/system/composables/useConfirm.ts:37
+#: src/components/system/composables/useConfirm.ts:83
 #: src/components/system/ConfirmDialog.vue:58
 #: src/components/system/FormDrawer.vue:105
 #: src/components/system/FormModal.vue:103
@@ -673,10 +673,10 @@ msgstr "取消"
 #: src/components/common/PtyTerminalModal.vue:259
 #: src/locales/menu.ts:19
 #: src/views/container/ContainerView.vue:123
-#: src/views/container/ContainerView.vue:657
+#: src/views/container/ContainerView.vue:654
 #: src/views/database/ServerList.vue:174
 #: src/views/file/ListView.vue:350
-#: src/views/file/ListView.vue:958
+#: src/views/file/ListView.vue:965
 #: src/views/file/ToolBar.vue:183
 msgid "Terminal"
 msgstr "终端"
@@ -705,8 +705,8 @@ msgstr "跳转到底部"
 #: src/components/file-editor/EditorToolbar.vue:222
 #: src/components/file-editor/FileTree.vue:719
 #: src/components/system/SearchToolbar.vue:58
-#: src/views/app/AppView.vue:236
-#: src/views/app/EnvironmentView.vue:225
+#: src/views/app/AppView.vue:237
+#: src/views/app/EnvironmentView.vue:226
 #: src/views/app/TemplateView.vue:102
 #: src/views/database/ElasticsearchDataView.vue:314
 #: src/views/database/RedisDataView.vue:254
@@ -732,10 +732,10 @@ msgstr "暂无日志数据"
 #: src/components/common/RealtimeLogModal.vue:33
 #: src/locales/menu.ts:15
 #: src/views/apps/supervisor/IndexView.vue:98
-#: src/views/container/ContainerView.vue:136
-#: src/views/container/ContainerView.vue:617
-#: src/views/project/ListView.vue:171
-#: src/views/project/ListView.vue:336
+#: src/views/container/ContainerView.vue:135
+#: src/views/container/ContainerView.vue:614
+#: src/views/project/ListView.vue:168
+#: src/views/project/ListView.vue:334
 #: src/views/task/CronView.vue:146
 #: src/views/task/TaskView.vue:86
 msgid "Logs"
@@ -792,10 +792,10 @@ msgid "Starting..."
 msgstr "正在启动……"
 
 #: src/components/common/ServiceStatus.vue:52
-#: src/views/apps/prometheus/PrometheusExportersView.vue:159
+#: src/views/apps/prometheus/PrometheusExportersView.vue:160
 #: src/views/apps/supervisor/IndexView.vue:236
-#: src/views/project/ListView.vue:225
-#: src/views/website/ListView.vue:334
+#: src/views/project/ListView.vue:222
+#: src/views/website/ListView.vue:335
 msgid "Started successfully"
 msgstr "启动成功"
 
@@ -805,10 +805,10 @@ msgid "Stopping..."
 msgstr "停止中..."
 
 #: src/components/common/ServiceStatus.vue:67
-#: src/views/apps/prometheus/PrometheusExportersView.vue:166
+#: src/views/apps/prometheus/PrometheusExportersView.vue:167
 #: src/views/apps/supervisor/IndexView.vue:243
-#: src/views/project/ListView.vue:220
-#: src/views/website/ListView.vue:336
+#: src/views/project/ListView.vue:217
+#: src/views/website/ListView.vue:337
 msgid "Stopped successfully"
 msgstr "停止成功"
 
@@ -817,9 +817,9 @@ msgid "Restarting..."
 msgstr "重启中..."
 
 #: src/components/common/ServiceStatus.vue:82
-#: src/views/apps/prometheus/PrometheusExportersView.vue:173
+#: src/views/apps/prometheus/PrometheusExportersView.vue:174
 #: src/views/apps/supervisor/IndexView.vue:250
-#: src/views/project/ListView.vue:233
+#: src/views/project/ListView.vue:230
 msgid "Restarted successfully"
 msgstr "重启成功"
 
@@ -828,7 +828,7 @@ msgid "Reloading..."
 msgstr "重载中..."
 
 #: src/components/common/ServiceStatus.vue:97
-#: src/views/project/ListView.vue:240
+#: src/views/project/ListView.vue:237
 msgid "Reloaded successfully"
 msgstr "重载成功"
 
@@ -886,8 +886,8 @@ msgstr "自启动关闭"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:88
 #: src/views/apps/supervisor/IndexView.vue:120
 #: src/views/container/ComposeView.vue:160
-#: src/views/container/ContainerView.vue:160
-#: src/views/container/ContainerView.vue:571
+#: src/views/container/ContainerView.vue:158
+#: src/views/container/ContainerView.vue:568
 #: src/views/project/ListView.vue:130
 #: src/views/toolbox/MigrationView.vue:257
 msgid "Start"
@@ -901,8 +901,8 @@ msgstr "您确定要停止 %{ service } 吗？"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:96
 #: src/views/apps/supervisor/IndexView.vue:141
 #: src/views/container/ComposeView.vue:189
-#: src/views/container/ContainerView.vue:165
-#: src/views/container/ContainerView.vue:574
+#: src/views/container/ContainerView.vue:163
+#: src/views/container/ContainerView.vue:571
 #: src/views/project/ListView.vue:130
 msgid "Stop"
 msgstr "停止"
@@ -910,16 +910,16 @@ msgstr "停止"
 #: src/components/common/ServiceStatus.vue:181
 #: src/views/apps/prometheus/PrometheusExportersView.vue:103
 #: src/views/apps/supervisor/IndexView.vue:159
-#: src/views/container/ContainerView.vue:170
-#: src/views/container/ContainerView.vue:577
+#: src/views/container/ContainerView.vue:168
+#: src/views/container/ContainerView.vue:574
 #: src/views/home/IndexView.vue:555
-#: src/views/project/ListView.vue:146
+#: src/views/project/ListView.vue:145
 msgid "Restart"
 msgstr "重启"
 
 #: src/components/common/ServiceStatus.vue:190
 #: src/layouts/tab/components/ContextMenu.vue:35
-#: src/views/project/ListView.vue:157
+#: src/views/project/ListView.vue:155
 msgid "Reload"
 msgstr "重载"
 
@@ -1016,7 +1016,7 @@ msgstr "保存文件失败"
 #: src/views/apps/prometheus/IndexView.vue:113
 #: src/views/apps/prometheus/IndexView.vue:139
 #: src/views/apps/prometheus/PrometheusConfigTuneView.vue:60
-#: src/views/apps/prometheus/PrometheusExportersView.vue:225
+#: src/views/apps/prometheus/PrometheusExportersView.vue:226
 #: src/views/apps/pureftpd/IndexView.vue:180
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:121
 #: src/views/apps/redis/IndexView.vue:82
@@ -1101,7 +1101,7 @@ msgid "Col"
 msgstr "列"
 
 #: src/components/file-editor/EditorStatusBar.vue:123
-#: src/views/setting/SettingBase.vue:130
+#: src/views/setting/SettingBase.vue:131
 msgid "Language"
 msgstr "语言"
 
@@ -1308,8 +1308,8 @@ msgid "Trailing"
 msgstr "尾部"
 
 #: src/components/file-editor/FileEditorView.vue:226
-#: src/views/app/AppView.vue:221
-#: src/views/app/EnvironmentView.vue:210
+#: src/views/app/AppView.vue:222
+#: src/views/app/EnvironmentView.vue:211
 #: src/views/app/TemplateView.vue:87
 #: src/views/firewall/RuleView.vue:223
 #: src/views/project/IndexView.vue:21
@@ -1416,39 +1416,38 @@ msgid "Failed to create"
 msgstr "创建失败"
 
 #: src/components/file-editor/FileTree.vue:380
-#: src/views/file/ListView.vue:1375
-#: src/views/file/ListView.vue:1396
+#: src/views/file/ListView.vue:1382
+#: src/views/file/ListView.vue:1403
 msgid "Folder name"
 msgstr "文件夹名"
 
 #: src/components/file-editor/FileTree.vue:380
-#: src/views/file/ListView.vue:1375
-#: src/views/file/ListView.vue:1396
+#: src/views/file/ListView.vue:1382
+#: src/views/file/ListView.vue:1403
 msgid "File name"
 msgstr "文件名"
 
 #: src/components/file-editor/FileTree.vue:479
-#: src/views/container/ContainerView.vue:152
-#: src/views/container/ContainerView.vue:628
+#: src/views/container/ContainerView.vue:150
+#: src/views/container/ContainerView.vue:625
 #: src/views/file/composables/usePaste.ts:41
 #: src/views/file/composables/usePaste.ts:157
 #: src/views/file/ListView.vue:348
-#: src/views/file/ListView.vue:1544
+#: src/views/file/ListView.vue:1551
 msgid "Rename"
 msgstr "重命名"
 
 #: src/components/file-editor/FileTree.vue:480
 #: src/components/file-editor/FileTree.vue:602
 #: src/components/file-editor/FileTree.vue:604
-#: src/components/system/composables/useConfirm.ts:35
-#: src/components/system/composables/useConfirm.ts:63
+#: src/components/system/composables/useConfirm.ts:32
 #: src/components/system/ConfirmDialog.vue:54
 #: src/views/apps/fail2ban/IndexView.vue:96
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:127
 #: src/views/apps/nginx/NginxIndex.vue:212
 #: src/views/apps/nginx/NginxIndex.vue:276
 #: src/views/apps/nginx/NginxIndex.vue:758
-#: src/views/apps/prometheus/PrometheusExportersView.vue:133
+#: src/views/apps/prometheus/PrometheusExportersView.vue:134
 #: src/views/apps/pureftpd/IndexView.vue:87
 #: src/views/apps/rsync/IndexView.vue:101
 #: src/views/apps/supervisor/IndexView.vue:178
@@ -1459,24 +1458,24 @@ msgstr "重命名"
 #: src/views/cert/DnsView.vue:109
 #: src/views/container/ComposeView.vue:209
 #: src/views/container/ComposeView.vue:289
-#: src/views/container/ContainerView.vue:190
-#: src/views/container/ContainerView.vue:589
+#: src/views/container/ContainerView.vue:188
+#: src/views/container/ContainerView.vue:586
 #: src/views/container/ImageView.vue:103
 #: src/views/container/ImageView.vue:273
 #: src/views/container/NetworkView.vue:130
-#: src/views/container/NetworkView.vue:214
+#: src/views/container/NetworkView.vue:219
 #: src/views/container/VolumeView.vue:83
 #: src/views/container/VolumeView.vue:167
-#: src/views/database/DatabaseList.vue:85
+#: src/views/database/DatabaseList.vue:86
 #: src/views/database/ElasticsearchDataView.vue:146
 #: src/views/database/ElasticsearchDataView.vue:200
 #: src/views/database/RedisDataView.vue:163
-#: src/views/database/ServerList.vue:246
-#: src/views/database/UserList.vue:164
+#: src/views/database/ServerList.vue:247
+#: src/views/database/UserList.vue:165
 #: src/views/environment/PHPView.vue:107
 #: src/views/file/ListView.vue:311
 #: src/views/file/ListView.vue:355
-#: src/views/file/ListView.vue:1555
+#: src/views/file/ListView.vue:1562
 #: src/views/file/ToolBar.vue:225
 #: src/views/firewall/ForwardView.vue:98
 #: src/views/firewall/ForwardView.vue:162
@@ -1484,8 +1483,8 @@ msgstr "重命名"
 #: src/views/firewall/IpRuleView.vue:204
 #: src/views/firewall/RuleView.vue:248
 #: src/views/firewall/RuleView.vue:312
-#: src/views/project/ListView.vue:197
-#: src/views/project/ListView.vue:307
+#: src/views/project/ListView.vue:194
+#: src/views/project/ListView.vue:305
 #: src/views/setting/PasskeyModal.vue:68
 #: src/views/setting/SettingUser.vue:142
 #: src/views/setting/TokenModal.vue:87
@@ -1494,14 +1493,14 @@ msgstr "重命名"
 #: src/views/task/IndexView.vue:41
 #: src/views/task/TaskView.vue:104
 #: src/views/toolbox/WebHookView.vue:172
-#: src/views/website/ListView.vue:304
-#: src/views/website/ListView.vue:421
+#: src/views/website/ListView.vue:305
+#: src/views/website/ListView.vue:423
 msgid "Delete"
 msgstr "删除"
 
 #: src/components/file-editor/FileTree.vue:483
 #: src/views/file/ListView.vue:345
-#: src/views/file/ListView.vue:1539
+#: src/views/file/ListView.vue:1546
 #: src/views/monitor/IndexView.vue:602
 #: src/views/toolbox/SshView.vue:345
 msgid "Download"
@@ -1518,7 +1517,8 @@ msgstr "重命名失败"
 #: src/components/file-editor/FileTree.vue:603
 #: src/views/apps/nginx/NginxIndex.vue:207
 #: src/views/apps/nginx/NginxIndex.vue:271
-#: src/views/file/ListView.vue:1549
+#: src/views/file/ListView.vue:847
+#: src/views/file/ListView.vue:1556
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "您确定要删除 %{ name } 吗？"
 
@@ -1534,16 +1534,16 @@ msgstr "您确定要删除 %{ name } 吗？"
 #: src/views/backup/ListView.vue:145
 #: src/views/backup/StorageView.vue:183
 #: src/views/container/ImageView.vue:144
-#: src/views/container/NetworkView.vue:171
+#: src/views/container/NetworkView.vue:176
 #: src/views/container/VolumeView.vue:124
-#: src/views/database/DatabaseList.vue:106
+#: src/views/database/DatabaseList.vue:107
 #: src/views/database/ElasticsearchDataView.vue:241
 #: src/views/database/ElasticsearchDataView.vue:250
 #: src/views/database/RedisDataView.vue:192
-#: src/views/database/ServerList.vue:267
-#: src/views/database/UserList.vue:184
+#: src/views/database/ServerList.vue:268
+#: src/views/database/UserList.vue:185
 #: src/views/file/ListView.vue:824
-#: src/views/file/ListView.vue:844
+#: src/views/file/ListView.vue:831
 #: src/views/file/ToolBar.vue:115
 #: src/views/firewall/ForwardView.vue:119
 #: src/views/firewall/ForwardView.vue:137
@@ -1551,8 +1551,8 @@ msgstr "您确定要删除 %{ name } 吗？"
 #: src/views/firewall/IpRuleView.vue:179
 #: src/views/firewall/RuleView.vue:269
 #: src/views/firewall/RuleView.vue:287
-#: src/views/project/ListView.vue:271
-#: src/views/project/ListView.vue:281
+#: src/views/project/ListView.vue:268
+#: src/views/project/ListView.vue:278
 #: src/views/setting/PasskeyModal.vue:96
 #: src/views/setting/SettingUser.vue:173
 #: src/views/setting/TokenModal.vue:106
@@ -1560,8 +1560,8 @@ msgstr "您确定要删除 %{ name } 吗？"
 #: src/views/task/CronView.vue:241
 #: src/views/task/TaskView.vue:126
 #: src/views/toolbox/WebHookView.vue:225
-#: src/views/website/ListView.vue:378
-#: src/views/website/ListView.vue:388
+#: src/views/website/ListView.vue:379
+#: src/views/website/ListView.vue:389
 msgid "Deleted successfully"
 msgstr "删除成功"
 
@@ -1607,11 +1607,11 @@ msgid "selected"
 msgstr "已选择"
 
 #: src/components/system/BatchActions.vue:70
-#: src/views/file/ListView.vue:1589
+#: src/views/file/ListView.vue:1596
 msgid "Clear"
 msgstr "清除"
 
-#: src/components/system/composables/useConfirm.ts:33
+#: src/components/system/composables/useConfirm.ts:34
 msgid "Confirm Deletion"
 msgstr "确认删除"
 
@@ -1631,7 +1631,7 @@ msgstr "已复制"
 #: src/views/database/UserList.vue:56
 #: src/views/file/ListView.vue:307
 #: src/views/file/ListView.vue:341
-#: src/views/file/ListView.vue:943
+#: src/views/file/ListView.vue:950
 #: src/views/file/ToolBar.vue:214
 msgid "Copy"
 msgstr "复制"
@@ -1813,7 +1813,7 @@ msgstr "工具箱"
 #: src/views/app/AppView.vue:97
 #: src/views/app/EnvironmentView.vue:81
 #: src/views/app/InstalledView.vue:106
-#: src/views/app/InstalledView.vue:204
+#: src/views/app/InstalledView.vue:205
 #: src/views/app/TemplateDeployModal.vue:652
 #: src/views/home/IndexView.vue:563
 #: src/views/setting/TokenModal.vue:308
@@ -1850,9 +1850,9 @@ msgid "Login"
 msgstr "登录"
 
 #: src/views/app/AppView.vue:19
-#: src/views/app/AppView.vue:142
-#: src/views/app/AppView.vue:146
-#: src/views/app/EnvironmentView.vue:133
+#: src/views/app/AppView.vue:143
+#: src/views/app/AppView.vue:147
+#: src/views/app/EnvironmentView.vue:134
 #: src/views/apps/prometheus/PrometheusExportersView.vue:79
 #: src/views/environment/PHPView.vue:107
 msgid "Install"
@@ -1866,7 +1866,7 @@ msgstr "应用名称"
 #: src/views/app/AppView.vue:43
 #: src/views/app/EnvironmentView.vue:37
 #: src/views/app/InstalledView.vue:43
-#: src/views/app/InstalledView.vue:166
+#: src/views/app/InstalledView.vue:167
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
 #: src/views/environment/PHPView.vue:64
 #: src/views/project/EditModal.vue:193
@@ -1877,7 +1877,7 @@ msgstr "描述"
 #: src/views/app/AppView.vue:49
 #: src/views/app/EnvironmentView.vue:49
 #: src/views/app/InstalledView.vue:49
-#: src/views/app/InstalledView.vue:172
+#: src/views/app/InstalledView.vue:173
 msgid "Installed Version"
 msgstr "已安装版本"
 
@@ -1889,7 +1889,7 @@ msgstr "在主页显示"
 #: src/views/app/AppView.vue:68
 #: src/views/app/EnvironmentView.vue:55
 #: src/views/app/InstalledView.vue:77
-#: src/views/app/InstalledView.vue:178
+#: src/views/app/InstalledView.vue:179
 #: src/views/apps/fail2ban/IndexView.vue:63
 #: src/views/apps/fail2ban/IndexView.vue:112
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:99
@@ -1918,7 +1918,7 @@ msgstr "在主页显示"
 #: src/views/database/ServerList.vue:161
 #: src/views/database/UserList.vue:134
 #: src/views/environment/PHPView.vue:71
-#: src/views/file/ListView.vue:1357
+#: src/views/file/ListView.vue:1364
 #: src/views/firewall/ForwardView.vue:81
 #: src/views/firewall/IpRuleView.vue:123
 #: src/views/firewall/RuleView.vue:231
@@ -1939,7 +1939,7 @@ msgstr "操作"
 #: src/views/app/AppView.vue:88
 #: src/views/app/EnvironmentView.vue:73
 #: src/views/app/InstalledView.vue:97
-#: src/views/app/InstalledView.vue:196
+#: src/views/app/InstalledView.vue:197
 msgid "Confirm Update"
 msgstr "确认更新"
 
@@ -1951,14 +1951,14 @@ msgstr "更新应用 %{ app } 到 %{ version } 可能会将相关配置重置为
 #: src/views/app/AppView.vue:110
 #: src/views/app/EnvironmentView.vue:94
 #: src/views/app/InstalledView.vue:118
-#: src/views/app/InstalledView.vue:216
+#: src/views/app/InstalledView.vue:217
 msgid "Manage"
 msgstr "管理"
 
 #: src/views/app/AppView.vue:119
 #: src/views/app/EnvironmentView.vue:103
 #: src/views/app/InstalledView.vue:127
-#: src/views/app/InstalledView.vue:225
+#: src/views/app/InstalledView.vue:226
 #: src/views/apps/prometheus/PrometheusExportersView.vue:124
 #: src/views/environment/PHPView.vue:85
 msgid "Confirm Uninstall"
@@ -1975,31 +1975,31 @@ msgid "Are you sure to uninstall app %{ app }?"
 msgstr "您确定要卸载应用 %{ app } 吗？"
 
 #: src/views/app/AppView.vue:125
-#: src/views/app/AppView.vue:130
+#: src/views/app/AppView.vue:131
 #: src/views/app/EnvironmentView.vue:107
-#: src/views/app/EnvironmentView.vue:112
+#: src/views/app/EnvironmentView.vue:113
 #: src/views/app/InstalledView.vue:133
-#: src/views/app/InstalledView.vue:138
-#: src/views/app/InstalledView.vue:229
-#: src/views/app/InstalledView.vue:234
+#: src/views/app/InstalledView.vue:139
+#: src/views/app/InstalledView.vue:230
+#: src/views/app/InstalledView.vue:236
 #: src/views/apps/prometheus/PrometheusExportersView.vue:128
 msgid "Uninstall"
 msgstr "卸载"
 
-#: src/views/app/AppView.vue:182
-#: src/views/app/InstalledView.vue:273
+#: src/views/app/AppView.vue:183
+#: src/views/app/InstalledView.vue:275
 msgid "Setup successfully"
 msgstr "设置成功"
 
-#: src/views/app/AppView.vue:189
-#: src/views/app/AppView.vue:197
-#: src/views/app/EnvironmentView.vue:170
-#: src/views/app/EnvironmentView.vue:178
-#: src/views/app/EnvironmentView.vue:186
-#: src/views/app/InstalledView.vue:280
-#: src/views/app/InstalledView.vue:288
-#: src/views/app/InstalledView.vue:301
-#: src/views/app/InstalledView.vue:309
+#: src/views/app/AppView.vue:190
+#: src/views/app/AppView.vue:198
+#: src/views/app/EnvironmentView.vue:171
+#: src/views/app/EnvironmentView.vue:179
+#: src/views/app/EnvironmentView.vue:187
+#: src/views/app/InstalledView.vue:282
+#: src/views/app/InstalledView.vue:290
+#: src/views/app/InstalledView.vue:303
+#: src/views/app/InstalledView.vue:311
 #: src/views/app/VersionModal.vue:42
 msgid "Task submitted, please check the progress in background tasks"
 msgstr "任务已提交，请在后台任务中查看进度"
@@ -2009,22 +2009,22 @@ msgid "Latest Version"
 msgstr "最新版本"
 
 #: src/views/app/EnvironmentView.vue:74
-#: src/views/app/InstalledView.vue:197
+#: src/views/app/InstalledView.vue:198
 msgid "Are you sure to update environment %{ environment }?"
 msgstr "您确定要更新环境 %{ environment } 吗？"
 
 #: src/views/app/EnvironmentView.vue:104
-#: src/views/app/InstalledView.vue:226
+#: src/views/app/InstalledView.vue:227
 msgid "Are you sure to uninstall environment %{ environment }?"
 msgstr "您确定要卸载环境 %{ environment } 吗？"
 
-#: src/views/app/EnvironmentView.vue:125
+#: src/views/app/EnvironmentView.vue:126
 #: src/views/apps/prometheus/PrometheusExportersView.vue:71
 #: src/views/environment/PHPView.vue:99
 msgid "Confirm Install"
 msgstr "确认安装"
 
-#: src/views/app/EnvironmentView.vue:126
+#: src/views/app/EnvironmentView.vue:127
 msgid "Are you sure to install environment %{ environment }?"
 msgstr "您确定要安装环境 %{ environment } 吗？"
 
@@ -2037,12 +2037,12 @@ msgid "Installed"
 msgstr "已安装"
 
 #: src/views/app/IndexView.vue:41
-#: src/views/app/InstalledView.vue:328
+#: src/views/app/InstalledView.vue:330
 msgid "Native App"
 msgstr "原生应用"
 
 #: src/views/app/IndexView.vue:42
-#: src/views/app/InstalledView.vue:352
+#: src/views/app/InstalledView.vue:354
 msgid "Operating Environment"
 msgstr "运行环境"
 
@@ -2238,7 +2238,7 @@ msgstr "更新现有"
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:94
 #: src/views/apps/nginx/NginxIndex.vue:182
-#: src/views/file/ListView.vue:838
+#: src/views/file/ListView.vue:852
 #: src/views/file/PropertyModal.vue:55
 #: src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:85
@@ -2249,7 +2249,7 @@ msgstr "是"
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:95
 #: src/views/apps/nginx/NginxIndex.vue:182
-#: src/views/file/ListView.vue:839
+#: src/views/file/ListView.vue:853
 #: src/views/file/PropertyModal.vue:55
 #: src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:85
@@ -2509,12 +2509,12 @@ msgstr "日志级别（logger.level）"
 #: src/views/apps/mysql/MysqlIndex.vue:101
 #: src/views/apps/postgresql/IndexView.vue:135
 #: src/views/apps/pureftpd/IndexView.vue:145
-#: src/views/database/DatabaseList.vue:112
+#: src/views/database/DatabaseList.vue:113
 #: src/views/database/RedisDataView.vue:203
-#: src/views/database/ServerList.vue:273
+#: src/views/database/ServerList.vue:274
 #: src/views/database/UpdateServerModal.vue:27
 #: src/views/database/UpdateUserModal.vue:23
-#: src/views/database/UserList.vue:190
+#: src/views/database/UserList.vue:191
 #: src/views/file/PermissionModal.vue:57
 #: src/views/setting/SettingUser.vue:161
 #: src/views/setting/SettingUser.vue:167
@@ -2523,8 +2523,8 @@ msgstr "日志级别（logger.level）"
 #: src/views/task/CronView.vue:259
 #: src/views/toolbox/WebHookView.vue:200
 #: src/views/toolbox/WebHookView.vue:278
-#: src/views/website/ListView.vue:359
-#: src/views/website/ListView.vue:365
+#: src/views/website/ListView.vue:360
+#: src/views/website/ListView.vue:366
 #: src/views/website/SettingView.vue:46
 #: src/views/website/SettingView.vue:57
 msgid "Modified successfully"
@@ -3239,8 +3239,8 @@ msgstr "浏览器（直连）"
 #: src/views/backup/StorageView.vue:111
 #: src/views/container/ComposeView.vue:123
 #: src/views/file/ListView.vue:332
-#: src/views/file/ListView.vue:1536
-#: src/views/project/ListView.vue:181
+#: src/views/file/ListView.vue:1543
+#: src/views/project/ListView.vue:177
 #: src/views/ssh/IndexView.vue:560
 #: src/views/task/CronView.vue:155
 #: src/views/toolbox/WebHookView.vue:158
@@ -4021,7 +4021,7 @@ msgid "Address"
 msgstr "地址"
 
 #: src/views/apps/nginx/NginxIndex.vue:744
-#: src/views/container/NetworkView.vue:324
+#: src/views/container/NetworkView.vue:329
 #: src/views/container/VolumeView.vue:223
 #: src/views/toolbox/DiskView.vue:606
 msgid "Options"
@@ -4356,22 +4356,22 @@ msgstr "配置"
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr "您确定要卸载 %{ name } 吗？"
 
-#: src/views/apps/prometheus/PrometheusExportersView.vue:145
-#: src/views/apps/prometheus/PrometheusExportersView.vue:152
+#: src/views/apps/prometheus/PrometheusExportersView.vue:146
+#: src/views/apps/prometheus/PrometheusExportersView.vue:153
 #: src/views/environment/PHPView.vue:175
 #: src/views/environment/PHPView.vue:181
 msgid "Task submitted, please check progress in background tasks"
 msgstr "任务已提交，请在后台任务中查看进度"
 
-#: src/views/apps/prometheus/PrometheusExportersView.vue:203
+#: src/views/apps/prometheus/PrometheusExportersView.vue:204
 msgid "Manage Prometheus exporters. Exporters collect metrics from various services."
 msgstr "管理 Prometheus exporters。Exporters 从各种服务中收集指标。"
 
-#: src/views/apps/prometheus/PrometheusExportersView.vue:210
+#: src/views/apps/prometheus/PrometheusExportersView.vue:211
 msgid "Exporter Configuration"
 msgstr "Exporter 配置"
 
-#: src/views/apps/prometheus/PrometheusExportersView.vue:215
+#: src/views/apps/prometheus/PrometheusExportersView.vue:216
 msgid "Modifying the exporter configuration will restart the exporter service."
 msgstr "修改 exporter 配置将重启 exporter 服务。"
 
@@ -5065,7 +5065,7 @@ msgstr "输入主机"
 #: src/views/firewall/ScanView.vue:316
 #: src/views/firewall/ScanView.vue:380
 #: src/views/log/SSHLog.vue:83
-#: src/views/setting/SettingBase.vue:136
+#: src/views/setting/SettingBase.vue:137
 #: src/views/ssh/CreateModal.vue:71
 #: src/views/ssh/UpdateModal.vue:77
 #: src/views/website/CreateModal.vue:224
@@ -5575,8 +5575,8 @@ msgid "Are you sure you want to stop compose %{ name }?"
 msgstr "您确定要停止编排 %{ name } 吗？"
 
 #: src/views/container/ComposeView.vue:184
-#: src/views/container/ContainerView.vue:281
-#: src/views/container/ContainerView.vue:347
+#: src/views/container/ContainerView.vue:278
+#: src/views/container/ContainerView.vue:344
 msgid "Stop successful"
 msgstr "停止成功"
 
@@ -5586,8 +5586,8 @@ msgstr "您确定要删除编排 %{ name } 吗？"
 
 #: src/views/container/ComposeView.vue:205
 #: src/views/container/ComposeView.vue:268
-#: src/views/container/ContainerView.vue:316
-#: src/views/container/ContainerView.vue:374
+#: src/views/container/ContainerView.vue:313
+#: src/views/container/ContainerView.vue:371
 #: src/views/container/ImageView.vue:122
 #: src/views/container/NetworkView.vue:149
 #: src/views/container/VolumeView.vue:102
@@ -5639,7 +5639,7 @@ msgid "Please enter image name"
 msgstr "请输入镜像名"
 
 #: src/views/container/ContainerCreate.vue:182
-#: src/views/container/ContainerView.vue:558
+#: src/views/container/ContainerView.vue:555
 msgid "Create Container"
 msgstr "创建容器"
 
@@ -5850,7 +5850,7 @@ msgid "Override the default ENTRYPOINT of the image"
 msgstr "覆盖镜像的默认 ENTRYPOINT"
 
 #: src/views/container/ContainerCreate.vue:502
-#: src/views/container/NetworkView.vue:316
+#: src/views/container/NetworkView.vue:321
 #: src/views/container/VolumeView.vue:215
 msgid "Labels"
 msgstr "标签"
@@ -5871,79 +5871,79 @@ msgstr "标签值"
 msgid "Ports (Host->Container)"
 msgstr "端口（主机->容器）"
 
-#: src/views/container/ContainerView.vue:175
-#: src/views/container/ContainerView.vue:580
+#: src/views/container/ContainerView.vue:173
+#: src/views/container/ContainerView.vue:577
 msgid "Force Stop"
 msgstr "强制停止"
 
-#: src/views/container/ContainerView.vue:180
-#: src/views/container/ContainerView.vue:583
+#: src/views/container/ContainerView.vue:178
+#: src/views/container/ContainerView.vue:580
 msgid "Pause"
 msgstr "暂停"
 
-#: src/views/container/ContainerView.vue:185
-#: src/views/container/ContainerView.vue:586
+#: src/views/container/ContainerView.vue:183
+#: src/views/container/ContainerView.vue:583
 msgid "Resume"
 msgstr "恢复"
 
-#: src/views/container/ContainerView.vue:230
-#: src/views/file/ListView.vue:1565
+#: src/views/container/ContainerView.vue:227
+#: src/views/file/ListView.vue:1572
 msgid "More"
 msgstr "更多"
 
-#: src/views/container/ContainerView.vue:264
+#: src/views/container/ContainerView.vue:261
 msgid "Rename successful"
 msgstr "重命名成功"
 
-#: src/views/container/ContainerView.vue:274
-#: src/views/container/ContainerView.vue:338
+#: src/views/container/ContainerView.vue:271
+#: src/views/container/ContainerView.vue:335
 msgid "Start successful"
 msgstr "启动成功"
 
-#: src/views/container/ContainerView.vue:288
-#: src/views/container/ContainerView.vue:356
+#: src/views/container/ContainerView.vue:285
+#: src/views/container/ContainerView.vue:353
 msgid "Restart successful"
 msgstr "重启成功"
 
-#: src/views/container/ContainerView.vue:295
-#: src/views/container/ContainerView.vue:365
+#: src/views/container/ContainerView.vue:292
+#: src/views/container/ContainerView.vue:362
 msgid "Force stop successful"
 msgstr "强制停止成功"
 
-#: src/views/container/ContainerView.vue:302
-#: src/views/container/ContainerView.vue:383
+#: src/views/container/ContainerView.vue:299
+#: src/views/container/ContainerView.vue:380
 msgid "Pause successful"
 msgstr "暂停成功"
 
-#: src/views/container/ContainerView.vue:309
-#: src/views/container/ContainerView.vue:392
+#: src/views/container/ContainerView.vue:306
+#: src/views/container/ContainerView.vue:389
 msgid "Resume successful"
 msgstr "恢复成功"
 
-#: src/views/container/ContainerView.vue:325
+#: src/views/container/ContainerView.vue:322
 #: src/views/container/ImageView.vue:131
 #: src/views/container/NetworkView.vue:158
 #: src/views/container/VolumeView.vue:111
 msgid "Cleanup successful"
 msgstr "清理成功"
 
-#: src/views/container/ContainerView.vue:408
+#: src/views/container/ContainerView.vue:405
 msgid "Terminal container not found"
 msgstr "未找到终端容器"
 
-#: src/views/container/ContainerView.vue:491
+#: src/views/container/ContainerView.vue:488
 msgid "Failed to connect to container terminal"
 msgstr "无法连接到容器终端"
 
-#: src/views/container/ContainerView.vue:567
+#: src/views/container/ContainerView.vue:564
 msgid "Cleanup Containers"
 msgstr "清理容器"
 
-#: src/views/container/ContainerView.vue:635
+#: src/views/container/ContainerView.vue:632
 msgid "New Name"
 msgstr "新名称"
 
-#: src/views/container/ContainerView.vue:640
+#: src/views/container/ContainerView.vue:637
 msgid "Enter new name"
 msgstr "输入新名称"
 
@@ -6027,7 +6027,7 @@ msgid "Networks"
 msgstr "网络"
 
 #: src/views/container/NetworkView.vue:55
-#: src/views/container/NetworkView.vue:253
+#: src/views/container/NetworkView.vue:258
 #: src/views/container/VolumeView.vue:36
 #: src/views/container/VolumeView.vue:206
 msgid "Driver"
@@ -6040,76 +6040,76 @@ msgid "Scope"
 msgstr "范围"
 
 #: src/views/container/NetworkView.vue:69
-#: src/views/container/NetworkView.vue:265
-#: src/views/container/NetworkView.vue:292
+#: src/views/container/NetworkView.vue:270
+#: src/views/container/NetworkView.vue:297
 msgid "Subnet"
 msgstr "子网"
 
 #: src/views/container/NetworkView.vue:86
-#: src/views/container/NetworkView.vue:273
-#: src/views/container/NetworkView.vue:300
+#: src/views/container/NetworkView.vue:278
+#: src/views/container/NetworkView.vue:305
 msgid "Gateway"
 msgstr "网关"
 
-#: src/views/container/NetworkView.vue:196
-#: src/views/container/NetworkView.vue:243
+#: src/views/container/NetworkView.vue:201
+#: src/views/container/NetworkView.vue:248
 msgid "Create Network"
 msgstr "创建网络"
 
-#: src/views/container/NetworkView.vue:205
+#: src/views/container/NetworkView.vue:210
 msgid "Cleanup Networks"
 msgstr "清理网络"
 
-#: src/views/container/NetworkView.vue:209
+#: src/views/container/NetworkView.vue:214
 msgid "Are you sure you want to delete the selected networks?"
 msgstr "您确定要删除所选网络吗？"
 
-#: src/views/container/NetworkView.vue:250
+#: src/views/container/NetworkView.vue:255
 msgid "Network Name"
 msgstr "网络名称"
 
-#: src/views/container/NetworkView.vue:270
-#: src/views/container/NetworkView.vue:286
+#: src/views/container/NetworkView.vue:275
+#: src/views/container/NetworkView.vue:291
 msgid "172.16.10.0/24"
 msgstr "172.16.10.0/24"
 
-#: src/views/container/NetworkView.vue:278
+#: src/views/container/NetworkView.vue:283
 msgid "172.16.10.254"
 msgstr "172.16.10.254"
 
-#: src/views/container/NetworkView.vue:281
-#: src/views/container/NetworkView.vue:308
+#: src/views/container/NetworkView.vue:286
+#: src/views/container/NetworkView.vue:313
 msgid "IP Range"
 msgstr "IP 范围"
 
-#: src/views/container/NetworkView.vue:297
+#: src/views/container/NetworkView.vue:302
 msgid "2408:400e::/48"
 msgstr "2408:400e::/48"
 
-#: src/views/container/NetworkView.vue:305
+#: src/views/container/NetworkView.vue:310
 msgid "2408:400e::1"
 msgstr "2408:400e::1"
 
-#: src/views/container/NetworkView.vue:313
+#: src/views/container/NetworkView.vue:318
 msgid "2408:400e::/64"
 msgstr "2408:400e::/64"
 
-#: src/views/container/NetworkView.vue:320
+#: src/views/container/NetworkView.vue:325
 #: src/views/container/VolumeView.vue:219
 msgid "Label Name"
 msgstr "标签名称"
 
-#: src/views/container/NetworkView.vue:321
+#: src/views/container/NetworkView.vue:326
 #: src/views/container/VolumeView.vue:220
 msgid "Label Value"
 msgstr "标签值"
 
-#: src/views/container/NetworkView.vue:328
+#: src/views/container/NetworkView.vue:333
 #: src/views/container/VolumeView.vue:227
 msgid "Option Name"
 msgstr "选项名称"
 
-#: src/views/container/NetworkView.vue:329
+#: src/views/container/NetworkView.vue:334
 #: src/views/container/VolumeView.vue:228
 msgid "Option Value"
 msgstr "选项值"
@@ -6828,7 +6828,7 @@ msgstr "已取消"
 #: src/views/file/composables/usePaste.ts:131
 #: src/views/file/ListView.vue:239
 #: src/views/file/ListView.vue:766
-#: src/views/file/ListView.vue:834
+#: src/views/file/ListView.vue:850
 msgid "Warning"
 msgstr "警告"
 
@@ -6850,11 +6850,11 @@ msgid "Compressed successfully"
 msgstr "压缩成功"
 
 #: src/views/file/CompressModal.vue:73
-#: src/views/file/CompressModal.vue:105
+#: src/views/file/CompressModal.vue:106
 #: src/views/file/ListView.vue:309
 #: src/views/file/ListView.vue:345
-#: src/views/file/ListView.vue:946
-#: src/views/file/ListView.vue:1530
+#: src/views/file/ListView.vue:953
+#: src/views/file/ListView.vue:1537
 #: src/views/file/ToolBar.vue:216
 msgid "Compress"
 msgstr "压缩"
@@ -6902,15 +6902,15 @@ msgstr "粘贴"
 
 #: src/views/file/ListView.vue:308
 #: src/views/file/ListView.vue:342
-#: src/views/file/ListView.vue:944
+#: src/views/file/ListView.vue:951
 #: src/views/file/ToolBar.vue:215
 msgid "Move"
 msgstr "移动"
 
 #: src/views/file/ListView.vue:310
 #: src/views/file/ListView.vue:343
-#: src/views/file/ListView.vue:945
-#: src/views/file/ListView.vue:1348
+#: src/views/file/ListView.vue:952
+#: src/views/file/ListView.vue:1355
 #: src/views/file/PermissionModal.vue:146
 #: src/views/file/PropertyModal.vue:42
 #: src/views/file/ToolBar.vue:217
@@ -6918,23 +6918,23 @@ msgid "Permission"
 msgstr "权限"
 
 #: src/views/file/ListView.vue:327
-#: src/views/file/ListView.vue:1517
+#: src/views/file/ListView.vue:1524
 msgid "Open"
 msgstr "打开"
 
 #: src/views/file/ListView.vue:329
-#: src/views/file/ListView.vue:1536
+#: src/views/file/ListView.vue:1543
 msgid "Preview"
 msgstr "预览"
 
 #: src/views/file/ListView.vue:331
-#: src/views/file/ListView.vue:951
-#: src/views/file/ListView.vue:1645
+#: src/views/file/ListView.vue:958
+#: src/views/file/ListView.vue:1652
 msgid "Uncompress"
 msgstr "解压"
 
 #: src/views/file/ListView.vue:354
-#: src/views/file/ListView.vue:961
+#: src/views/file/ListView.vue:968
 #: src/views/file/PropertyModal.vue:11
 msgid "Properties"
 msgstr "属性"
@@ -6954,52 +6954,52 @@ msgstr "存在同名项目。您要覆盖吗？"
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr "成功将 %{ source } 重命名为 %{ target }"
 
-#: src/views/file/ListView.vue:830
+#: src/views/file/ListView.vue:841
 msgid "Some files are immutable and cannot be deleted"
 msgstr "某些文件是不可变的，无法删除"
 
-#: src/views/file/ListView.vue:835
+#: src/views/file/ListView.vue:848
 msgid "Are you sure you want to delete %{count} items?"
 msgstr "您确定要删除 %{count} 项吗？"
 
-#: src/views/file/ListView.vue:854
+#: src/views/file/ListView.vue:861
 #: src/views/file/PathInput.vue:34
 msgid "Path copied to clipboard"
 msgstr "路径已复制到剪贴板"
 
-#: src/views/file/ListView.vue:954
+#: src/views/file/ListView.vue:961
 msgid "Copy Path"
 msgstr "复制路径"
 
-#: src/views/file/ListView.vue:1206
+#: src/views/file/ListView.vue:1213
 msgid "Uncompressing..."
 msgstr "解压中……"
 
-#: src/views/file/ListView.vue:1213
+#: src/views/file/ListView.vue:1220
 msgid "Uncompressed successfully"
 msgstr "解压成功"
 
-#: src/views/file/ListView.vue:1576
+#: src/views/file/ListView.vue:1583
 msgid "No files"
 msgstr "没有文件"
 
-#: src/views/file/ListView.vue:1586
+#: src/views/file/ListView.vue:1593
 msgid "%{count} item(s) selected"
 msgstr "选择了 %{count} 项"
 
-#: src/views/file/ListView.vue:1594
+#: src/views/file/ListView.vue:1601
 msgid "%{count} item(s)"
 msgstr "共 %{count} 项"
 
-#: src/views/file/ListView.vue:1633
+#: src/views/file/ListView.vue:1640
 msgid "Uncompress - %{ file }"
 msgstr "解压 - %{ file }"
 
-#: src/views/file/ListView.vue:1641
+#: src/views/file/ListView.vue:1648
 msgid "Uncompress to"
 msgstr "解压到"
 
-#: src/views/file/ListView.vue:1653
+#: src/views/file/ListView.vue:1660
 #: src/views/file/ToolBar.vue:264
 msgid "Terminal - %{ path }"
 msgstr "终端 - %{ path }"
@@ -8164,7 +8164,7 @@ msgid "Create .NET Project"
 msgstr "创建 .NET 项目"
 
 #: src/views/project/CreateModal.vue:407
-#: src/views/project/ListView.vue:298
+#: src/views/project/ListView.vue:295
 msgid "Create Project"
 msgstr "创建项目"
 
@@ -8334,7 +8334,7 @@ msgid "File (truncate)"
 msgstr "文件（截断）"
 
 #: src/views/project/EditModal.vue:72
-#: src/views/setting/SettingBase.vue:186
+#: src/views/setting/SettingBase.vue:187
 #: src/views/setting/SettingSafe.vue:246
 #: src/views/website/EditModal.vue:740
 #: src/views/website/EditModal.vue:744
@@ -8582,19 +8582,19 @@ msgstr ".NET"
 msgid "Autostart"
 msgstr "自启动"
 
-#: src/views/project/ListView.vue:190
+#: src/views/project/ListView.vue:186
 msgid "Are you sure you want to delete project %{ name }?"
 msgstr "您确定要删除项目 %{ name } 吗？"
 
-#: src/views/project/ListView.vue:248
+#: src/views/project/ListView.vue:245
 msgid "Autostart enabled"
 msgstr "自启动开启"
 
-#: src/views/project/ListView.vue:253
+#: src/views/project/ListView.vue:250
 msgid "Autostart disabled"
 msgstr "自启动关闭"
 
-#: src/views/project/ListView.vue:302
+#: src/views/project/ListView.vue:300
 msgid "Are you sure you want to delete the selected projects?"
 msgstr "您确定要删除所选项目吗？"
 
@@ -8690,92 +8690,92 @@ msgstr "稳定版"
 msgid "Beta"
 msgstr "测试版"
 
-#: src/views/setting/SettingBase.vue:127
 #: src/views/setting/SettingBase.vue:128
+#: src/views/setting/SettingBase.vue:129
 msgid "Panel Name"
 msgstr "面板名称"
 
-#: src/views/setting/SettingBase.vue:133
+#: src/views/setting/SettingBase.vue:134
 msgid "Update Channel"
 msgstr "更新渠道"
 
-#: src/views/setting/SettingBase.vue:137
+#: src/views/setting/SettingBase.vue:138
 msgid "8888"
 msgstr "8888"
 
-#: src/views/setting/SettingBase.vue:139
+#: src/views/setting/SettingBase.vue:140
 msgid "Default Website Directory"
 msgstr "默认网站目录"
 
-#: src/views/setting/SettingBase.vue:141
+#: src/views/setting/SettingBase.vue:142
 msgid "/opt/ace/sites"
 msgstr "/opt/ace/sites"
 
-#: src/views/setting/SettingBase.vue:149
+#: src/views/setting/SettingBase.vue:150
 msgid "Default Backup Directory"
 msgstr "默认备份目录"
 
-#: src/views/setting/SettingBase.vue:151
+#: src/views/setting/SettingBase.vue:152
 msgid "/opt/ace/backup"
 msgstr "/opt/ace/backup"
 
-#: src/views/setting/SettingBase.vue:159
+#: src/views/setting/SettingBase.vue:160
 msgid "Backup Compression Format"
 msgstr "备份压缩格式"
 
-#: src/views/setting/SettingBase.vue:162
+#: src/views/setting/SettingBase.vue:163
 msgid "Default Project Directory"
 msgstr "默认项目目录"
 
-#: src/views/setting/SettingBase.vue:166
+#: src/views/setting/SettingBase.vue:167
 msgid "/opt/ace/projects"
 msgstr "/opt/ace/projects"
 
-#: src/views/setting/SettingBase.vue:175
+#: src/views/setting/SettingBase.vue:176
 msgid "Container Socket"
 msgstr "容器套接字"
 
-#: src/views/setting/SettingBase.vue:178
+#: src/views/setting/SettingBase.vue:179
 msgid "Custom Logo"
 msgstr "自定义 Logo"
 
-#: src/views/setting/SettingBase.vue:181
+#: src/views/setting/SettingBase.vue:182
 msgid "Please enter the complete URL"
 msgstr "请输入完整的 URL"
 
-#: src/views/setting/SettingBase.vue:184
+#: src/views/setting/SettingBase.vue:185
 msgid "IP Database"
 msgstr "IP 数据库"
 
-#: src/views/setting/SettingBase.vue:187
+#: src/views/setting/SettingBase.vue:188
 msgid "Subscribe"
 msgstr "订阅"
 
-#: src/views/setting/SettingBase.vue:188
+#: src/views/setting/SettingBase.vue:189
 msgid "Custom File"
 msgstr "自定义文件"
 
-#: src/views/setting/SettingBase.vue:191
+#: src/views/setting/SettingBase.vue:192
 msgid "Subscribe URL"
 msgstr "订阅链接"
 
-#: src/views/setting/SettingBase.vue:197
+#: src/views/setting/SettingBase.vue:198
 msgid "Auto-update weekly, compatible with IPIP.NET format (.ipdb)"
 msgstr "每周自动更新，兼容 IPIP.NET 格式（.ipdb）"
 
-#: src/views/setting/SettingBase.vue:200
+#: src/views/setting/SettingBase.vue:201
 msgid "IPDB Path"
 msgstr "IPDB 路径"
 
-#: src/views/setting/SettingBase.vue:204
+#: src/views/setting/SettingBase.vue:205
 msgid "GeoIP database file path (.ipdb)"
 msgstr "GeoIP 数据库文件路径（.ipdb）"
 
-#: src/views/setting/SettingBase.vue:213
+#: src/views/setting/SettingBase.vue:214
 msgid "Compatible with IPIP.NET format (.ipdb)"
 msgstr "兼容 IPIP.NET 格式（.ipdb）"
 
-#: src/views/setting/SettingBase.vue:216
+#: src/views/setting/SettingBase.vue:217
 msgid "Hide Menu"
 msgstr "隐藏菜单"
 
@@ -10872,7 +10872,7 @@ msgid "Bulk Create Pure Static Website"
 msgstr "批量创建纯静态网站"
 
 #: src/views/website/BulkCreateModal.vue:74
-#: src/views/website/ListView.vue:408
+#: src/views/website/ListView.vue:409
 msgid "Bulk Create Website"
 msgstr "批量创建网站"
 
@@ -10953,7 +10953,7 @@ msgid "Create Pure Static Website"
 msgstr "创建纯静态网站"
 
 #: src/views/website/CreateModal.vue:80
-#: src/views/website/ListView.vue:405
+#: src/views/website/ListView.vue:406
 msgid "Create Website"
 msgstr "创建网站"
 
@@ -11699,19 +11699,19 @@ msgstr "%{ days } 天后过期"
 msgid "Expiration"
 msgstr "有效期"
 
-#: src/views/website/ListView.vue:279
+#: src/views/website/ListView.vue:280
 msgid "Are you sure you want to delete website %{ name }?"
 msgstr "您确定要删除网站 %{ name } 吗？"
 
-#: src/views/website/ListView.vue:290
+#: src/views/website/ListView.vue:291
 msgid "Delete website directory"
 msgstr "删除网站目录"
 
-#: src/views/website/ListView.vue:298
+#: src/views/website/ListView.vue:299
 msgid "Delete local database with the same name"
 msgstr "删除同名的本地数据库"
 
-#: src/views/website/ListView.vue:413
+#: src/views/website/ListView.vue:415
 msgid "This will delete the website directory but not the database with the same name. Are you sure you want to delete the selected websites?"
 msgstr "这将删除网站目录，但不会删除同名的数据库。您确定要删除所选网站吗？"
 
