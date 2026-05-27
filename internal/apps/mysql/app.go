@@ -247,30 +247,6 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-func (s *App) getSock() string {
-	if io.Exists("/tmp/mysql.sock") {
-		return "/tmp/mysql.sock"
-	}
-	if io.Exists(app.Root + "/server/mysql/config/my.cnf") {
-		config, _ := io.Read(app.Root + "/server/mysql/config/my.cnf")
-		re := regexp.MustCompile(`socket\s*=\s*(['"]?)([^'"]+)`)
-		matches := re.FindStringSubmatch(config)
-		if len(matches) > 2 {
-			return matches[2]
-		}
-	}
-	if io.Exists("/etc/my.cnf") {
-		config, _ := io.Read("/etc/my.cnf")
-		re := regexp.MustCompile(`socket\s*=\s*(['"]?)([^'"]+)`)
-		matches := re.FindStringSubmatch(config)
-		if len(matches) > 2 {
-			return matches[2]
-		}
-	}
-
-	return "/tmp/mysql.sock"
-}
-
 // GetConfigTune 获取 MySQL 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
@@ -367,6 +343,30 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
+}
+
+func (s *App) getSock() string {
+	if io.Exists("/tmp/mysql.sock") {
+		return "/tmp/mysql.sock"
+	}
+	if io.Exists(app.Root + "/server/mysql/config/my.cnf") {
+		config, _ := io.Read(app.Root + "/server/mysql/config/my.cnf")
+		re := regexp.MustCompile(`socket\s*=\s*(['"]?)([^'"]+)`)
+		matches := re.FindStringSubmatch(config)
+		if len(matches) > 2 {
+			return matches[2]
+		}
+	}
+	if io.Exists("/etc/my.cnf") {
+		config, _ := io.Read("/etc/my.cnf")
+		re := regexp.MustCompile(`socket\s*=\s*(['"]?)([^'"]+)`)
+		matches := re.FindStringSubmatch(config)
+		if len(matches) > 2 {
+			return matches[2]
+		}
+	}
+
+	return "/tmp/mysql.sock"
 }
 
 // getINIValue 从 INI 格式内容中获取指定键的值
