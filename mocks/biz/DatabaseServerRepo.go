@@ -537,6 +537,53 @@ func (_c *DatabaseServerRepo_UpdatePassword_Call) RunAndReturn(run func(string, 
 	return _c
 }
 
+// UpdatePort provides a mock function with given fields: name, port
+func (_m *DatabaseServerRepo) UpdatePort(name string, port uint) error {
+	ret := _m.Called(name, port)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePort")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, uint) error); ok {
+		r0 = rf(name, port)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DatabaseServerRepo_UpdatePort_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePort'
+type DatabaseServerRepo_UpdatePort_Call struct {
+	*mock.Call
+}
+
+// UpdatePort is a helper method to define mock.On call
+//   - name string
+//   - port uint
+func (_e *DatabaseServerRepo_Expecter) UpdatePort(name interface{}, port interface{}) *DatabaseServerRepo_UpdatePort_Call {
+	return &DatabaseServerRepo_UpdatePort_Call{Call: _e.mock.On("UpdatePort", name, port)}
+}
+
+func (_c *DatabaseServerRepo_UpdatePort_Call) Run(run func(name string, port uint)) *DatabaseServerRepo_UpdatePort_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(uint))
+	})
+	return _c
+}
+
+func (_c *DatabaseServerRepo_UpdatePort_Call) Return(_a0 error) *DatabaseServerRepo_UpdatePort_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *DatabaseServerRepo_UpdatePort_Call) RunAndReturn(run func(string, uint) error) *DatabaseServerRepo_UpdatePort_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateRemark provides a mock function with given fields: req
 func (_m *DatabaseServerRepo) UpdateRemark(req *request.DatabaseServerUpdateRemark) error {
 	ret := _m.Called(req)
