@@ -169,17 +169,24 @@ func ExecfWithPipe(ctx context.Context, shell string, args ...any) (io.ReadClose
 	_ = os.Setenv("LC_ALL", "C")
 	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 
-	out, err := cmd.StdoutPipe()
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
 	}
-
 	cmd.Stderr = cmd.Stdout
-	err = cmd.Start()
 
-	go func() { _ = cmd.Wait() }()
+	if err = cmd.Start(); err != nil {
+		return nil, err
+	}
 
-	return out, err
+	pr, pw := io.Pipe()
+	go func() {
+		_, _ = io.Copy(pw, stdout)
+		_ = cmd.Wait()
+		_ = pw.Close()
+	}()
+
+	return pr, nil
 }
 
 // ExecfWithDir 在指定目录下执行 shell 命令

@@ -78,27 +78,25 @@ func (t *Turn) Write(p []byte) (n int, err error) {
 
 // Close 关闭连接
 func (t *Turn) Close() {
-	// 检查进程是否仍在运行
-	inspectResp, err := t.client.ExecInspect(t.ctx, t.execID, client.ExecInspectOptions{})
-	if err == nil && inspectResp.Running {
-		_ = syscall.Kill(inspectResp.PID, syscall.SIGTERM)
-		// 等待最多 10 秒
-		for range 10 {
-			time.Sleep(1 * time.Second)
-			inspectResp, err = t.client.ExecInspect(t.ctx, t.execID, client.ExecInspectOptions{})
-			if err != nil || !inspectResp.Running {
-				break
-			}
-		}
-		// 如果仍在运行，KILL
-		if err == nil && inspectResp.Running {
-			_ = syscall.Kill(inspectResp.PID, syscall.SIGKILL)
-		}
-	}
-
 	t.hijack.Close()
 	_ = t.hijack.CloseWrite()
-	_ = t.client.Close()
+
+	ctx := context.Background()
+	resp, err := t.client.ExecInspect(ctx, t.execID, client.ExecInspectOptions{})
+	if err != nil || !resp.Running || resp.PID <= 0 {
+		_ = t.client.Close()
+		return
+	}
+
+	_ = syscall.Kill(resp.PID, syscall.SIGTERM)
+	// 3 秒后若仍未退出再强制杀死
+	pid := resp.PID
+	time.AfterFunc(3*time.Second, func() {
+		if r, e := t.client.ExecInspect(ctx, t.execID, client.ExecInspectOptions{}); e == nil && r.Running {
+			_ = syscall.Kill(pid, syscall.SIGKILL)
+		}
+		_ = t.client.Close()
+	})
 }
 
 // Handle 处理 WebSocket 消息
