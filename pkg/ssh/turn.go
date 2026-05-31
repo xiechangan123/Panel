@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/coder/websocket"
 	"golang.org/x/crypto/ssh"
@@ -66,11 +65,9 @@ func (t *Turn) Write(p []byte) (n int, err error) {
 }
 
 func (t *Turn) Close() {
+	// 关闭 stdin 并发 SIGTERM，再关闭 session 触发远程 SIGHUP
 	_ = t.stdin.Close()
 	_ = t.session.Signal(ssh.SIGTERM)
-	// 等待 10 秒
-	time.Sleep(10 * time.Second)
-	_ = t.session.Signal(ssh.SIGKILL)
 	_ = t.session.Close()
 }
 

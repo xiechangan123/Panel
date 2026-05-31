@@ -122,7 +122,7 @@ func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string,
 		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
 	}
 
-	done := make(chan error)
+	done := make(chan error, 1)
 	go func() {
 		done <- cmd.Wait()
 	}()
@@ -227,6 +227,7 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 		return "", fmt.Errorf("run %s failed", shell)
 	}
 	defer func(f *os.File) { _ = f.Close() }(f)
+	defer func() { _ = cmd.Wait() }() // 回收进程
 
 	if _, err = io.Copy(&out, f); IsPTYError(err) != nil {
 		return "", fmt.Errorf("run %s failed, out: %s, err: %w", shell, strings.TrimSpace(out.String()), err)

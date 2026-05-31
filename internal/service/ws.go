@@ -123,7 +123,10 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	done := make(chan struct{})
 	go func() {
+		defer close(done)
+		defer cancel() // 进程输出结束时取消，促使下方读取循环退出
 		buf := make([]byte, 4096)
 		for {
 			n, rerr := stdout.Read(buf)
@@ -136,6 +139,13 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+	}()
+
+	// 连接结束时取消 ctx 杀掉进程，待输出读取完成后 Wait 回收，避免残留僵尸进程
+	defer func() {
+		cancel()
+		<-done
+		_ = cmd.Wait()
 	}()
 
 	for {

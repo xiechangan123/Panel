@@ -73,10 +73,11 @@ func (t *Turn) Wait() {
 
 // Close 关闭 PTY 并终止子进程
 func (t *Turn) Close() {
+	// 先发 SIGTERM 优雅终止，3 秒后仍未退出再强制杀死
 	_ = t.cmd.Process.Signal(syscall.SIGTERM)
-	// 等待 10 秒
-	time.Sleep(10 * time.Second)
-	_ = t.cmd.Process.Kill()
+	time.AfterFunc(3*time.Second, func() {
+		_ = t.cmd.Process.Kill()
+	})
 	_ = t.ptmx.Close()
 }
 

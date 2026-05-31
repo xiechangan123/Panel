@@ -117,7 +117,7 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := exec.Command("bash", "-c", req.Command)
+	cmd := exec.CommandContext(r.Context(), "bash", "-c", req.Command)
 	pr, pw := io.Pipe()
 	cmd.Stdout = pw
 	cmd.Stderr = pw
