@@ -80,6 +80,7 @@ func IsEOL() bool {
 		"ubuntu": {
 			"22.04": time.Date(2027, 4, 1, 0, 0, 0, 0, time.UTC),
 			"24.04": time.Date(2029, 5, 31, 0, 0, 0, 0, time.UTC),
+			"26.04": time.Date(2031, 4, 30, 0, 0, 0, 0, time.UTC),
 		},
 	}
 

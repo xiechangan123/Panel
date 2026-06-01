@@ -40,6 +40,11 @@ const ttlModalShow = ref(false)
 const ttlKey = ref('')
 const ttlValue = ref(0)
 
+// Rename 弹窗
+const renameModalShow = ref(false)
+const renameOldKey = ref('')
+const renameNewKey = ref('')
+
 // 类型对应颜色
 const typeColorMap: Record<string, 'info' | 'success' | 'warning' | 'default' | 'error'> = {
   string: 'info',
@@ -118,7 +123,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 300,
+    width: 380,
     hideInExcel: true,
     render(row: any) {
       return h(NFlex, { size: 'small', align: 'center' }, () => [
@@ -147,6 +152,20 @@ const columns: any = [
             },
           },
           { default: () => 'TTL' },
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'primary',
+            ghost: true,
+            onClick: () => {
+              renameOldKey.value = row.key
+              renameNewKey.value = row.key
+              renameModalShow.value = true
+            },
+          },
+          { default: () => $gettext('Rename') },
         ),
         h(
           NButton,
@@ -201,6 +220,22 @@ const handleSetTTL = () => {
     ttlModalShow.value = false
     refresh()
     window.$message.success($gettext('Modified successfully'))
+  })
+}
+
+const handleRename = () => {
+  if (!selectedServer.value) return
+  useRequest(
+    database.redisKeyRename(
+      selectedServer.value,
+      selectedDB.value,
+      renameOldKey.value,
+      renameNewKey.value,
+    ),
+  ).onSuccess(() => {
+    renameModalShow.value = false
+    refresh()
+    window.$message.success($gettext('Renamed successfully'))
   })
 }
 
@@ -320,6 +355,26 @@ onUnmounted(() => {
       </n-form-item>
     </n-form>
     <n-button type="info" block @click="handleSetTTL">
+      {{ $gettext('Submit') }}
+    </n-button>
+  </n-modal>
+  <!-- Rename 弹窗 -->
+  <n-modal
+    v-model:show="renameModalShow"
+    preset="card"
+    :title="$gettext('Rename Key')"
+    class="w-100"
+    :bordered="false"
+  >
+    <n-form>
+      <n-form-item :label="$gettext('Old Key')">
+        <n-input :value="renameOldKey" disabled />
+      </n-form-item>
+      <n-form-item :label="$gettext('New Key')">
+        <n-input v-model:value="renameNewKey" :placeholder="$gettext('Enter new key name')" />
+      </n-form-item>
+    </n-form>
+    <n-button type="info" block @click="handleRename">
       {{ $gettext('Submit') }}
     </n-button>
   </n-modal>
