@@ -260,9 +260,11 @@ func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, ta
 func (r *backupRepo) GetDefaultPath(typ biz.BackupType) string {
 	backupPath, err := r.setting.Get(biz.SettingKeyBackupPath)
 	if err != nil {
-		return filepath.Join(app.Root, "backup", string(typ))
+		backupPath = filepath.Join(app.Root, "backup")
 	}
-	return filepath.Join(backupPath, string(typ))
+	path := filepath.Join(backupPath, string(typ))
+	_ = os.MkdirAll(path, 0755)
+	return path
 }
 
 // CutoffLog 切割日志
