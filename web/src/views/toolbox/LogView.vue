@@ -71,51 +71,47 @@ const scanResults = ref<Record<string, ScanResult>>({
   system: { loading: false, items: [], scanned: false, cleaning: false },
 })
 
-const handleScan = async (type: string) => {
+const handleScan = (type: string) => {
   const result = scanResults.value[type]
   if (!result) return
   result.loading = true
   result.scanned = false
   result.items = []
-
-  try {
-    const { data } = await useRequest(toolboxLog.scan(type))
-    result.items = data || []
-    result.scanned = true
-  } catch (e) {
-    window.$message.error($gettext('Scan failed'))
-  } finally {
-    result.loading = false
-  }
+  useRequest(toolboxLog.scan(type))
+    .onSuccess(({ data }) => {
+      result.items = data || []
+      result.scanned = true
+    })
+    .onComplete(() => {
+      result.loading = false
+    })
 }
 
-const handleClean = async (type: string) => {
+const handleClean = (type: string) => {
   const result = scanResults.value[type]
   if (!result) return
   result.cleaning = true
-
-  try {
-    const { data } = await useRequest(toolboxLog.clean(type))
-    window.$message.success($gettext('Cleaned: %{ size }', { size: data.cleaned }))
-    await handleScan(type)
-  } catch (e) {
-    window.$message.error($gettext('Clean failed'))
-  } finally {
-    result.cleaning = false
-  }
+  useRequest(toolboxLog.clean(type))
+    .onSuccess(({ data }) => {
+      window.$message.success($gettext('Cleaned: %{ size }', { size: data.cleaned }))
+      handleScan(type)
+    })
+    .onComplete(() => {
+      result.cleaning = false
+    })
 }
 
-const handleScanAll = async () => {
+const handleScanAll = () => {
   for (const logType of logTypes) {
-    await handleScan(logType.key)
+    handleScan(logType.key)
   }
 }
 
-const handleCleanAll = async () => {
+const handleCleanAll = () => {
   for (const logType of logTypes) {
     const result = scanResults.value[logType.key]
     if (result && result.items.length > 0) {
-      await handleClean(logType.key)
+      handleClean(logType.key)
     }
   }
 }
