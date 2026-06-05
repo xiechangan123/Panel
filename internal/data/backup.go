@@ -127,6 +127,8 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		err = r.createMySQL(name, client, target)
 	case biz.BackupTypePostgres:
 		err = r.createPostgres(name, client, target)
+	case biz.BackupTypeClickHouse:
+		err = r.createClickHouse(name, client, target)
 	case biz.BackupTypePath:
 		err = r.createPath(name, client, target)
 	default:
@@ -237,6 +239,8 @@ func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, ta
 		err = r.restoreMySQL(backup, target)
 	case biz.BackupTypePostgres:
 		err = r.restorePostgres(backup, target)
+	case biz.BackupTypeClickHouse:
+		err = r.restoreClickHouse(backup, target)
 	default:
 		return errors.New(r.t.Get("unknown backup type"))
 	}
@@ -629,6 +633,119 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	return nil
 }
 
+// createClickHouse 创建 ClickHouse 备份
+func (r *backupRepo) createClickHouse(name string, storage storage.Storage, target string) error {
+	password, err := r.setting.Get(biz.SettingKeyClickHouseDefaultPassword)
+	if err != nil {
+		return err
+	}
+	// clickhouse-client 走 native 9000 端口，本地 default 用户
+	conn := fmt.Sprintf("--host 127.0.0.1 --port 9000 --user default --password '%s'", password)
+
+	// 校验数据库是否存在
+	exist, err := shell.Execf("clickhouse-client %s --query \"SELECT count() FROM system.databases WHERE name = '%s'\"", conn, target)
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(exist) == "0" {
+		return errors.New(r.t.Get("database does not exist: %s", target))
+	}
+
+	// 创建用于压缩的临时目录
+	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
+	}
+
+	// 数据表（含数据）在前，视图（仅结构）在后
+	dataTables, err := r.clickHouseTables(conn, target, false)
+	if err != nil {
+		return err
+	}
+	views, err := r.clickHouseTables(conn, target, true)
+	if err != nil {
+		return err
+	}
+
+	// 导出结构到 schema.sql，去掉库名限定（恢复时由 --database 指定目标库）
+	objects := make([]string, 0, len(dataTables)+len(views))
+	objects = append(objects, dataTables...)
+	objects = append(objects, views...)
+	var schema strings.Builder
+	for _, tbl := range objects {
+		create, err := shell.Execf("clickhouse-client %s --query \"SELECT create_table_query FROM system.tables WHERE database = '%s' AND name = '%s' FORMAT TabSeparatedRaw\"", conn, target, tbl)
+		if err != nil {
+			return err
+		}
+		stmt := strings.TrimSpace(create)
+		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("`%s`.", target), "")
+		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("%s.", target), "")
+		schema.WriteString(stmt)
+		schema.WriteString(";\n")
+	}
+	if err = io.Write(filepath.Join(tmpDir, "schema.sql"), schema.String(), 0644); err != nil {
+		return err
+	}
+
+	// 导出数据（仅数据表，Native 格式）
+	files := []string{"schema.sql"}
+	for _, tbl := range dataTables {
+		dataFile := tbl + ".native"
+		if _, err = shell.Execf("clickhouse-client %s --query 'SELECT * FROM `%s`.`%s` FORMAT Native' > '%s'", conn, target, tbl, filepath.Join(tmpDir, dataFile)); err != nil {
+			return err
+		}
+		files = append(files, dataFile)
+	}
+
+	// 压缩备份文件
+	name = name + r.backupExt()
+	if err = io.Compress(tmpDir, files, filepath.Join(tmpDir, name)); err != nil {
+		return err
+	}
+
+	// 上传备份文件到存储器
+	file, err := os.Open(filepath.Join(tmpDir, name))
+	if err != nil {
+		return err
+	}
+	defer func(file *os.File) { _ = file.Close() }(file)
+
+	if err = storage.Put(filepath.Join(string(biz.BackupTypeClickHouse), name), file); err != nil {
+		return err
+	}
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Backup file: %s", name))
+	}
+
+	return nil
+}
+
+// clickHouseTables 列出库中对象名，onlyView 为 true 时仅返回视图，否则返回非视图数据表
+func (r *backupRepo) clickHouseTables(conn, database string, onlyView bool) ([]string, error) {
+	op := "NOT LIKE"
+	if onlyView {
+		op = "LIKE"
+	}
+	out, err := shell.Execf("clickhouse-client %s --query \"SELECT name FROM system.tables WHERE database = '%s' AND NOT is_temporary AND engine %s '%%View%%' ORDER BY name FORMAT TabSeparated\"", conn, database, op)
+	if err != nil {
+		return nil, err
+	}
+
+	var tables []string
+	for line := range strings.SplitSeq(out, "\n") {
+		if l := strings.TrimSpace(line); l != "" {
+			tables = append(tables, l)
+		}
+	}
+	return tables, nil
+}
+
 // createPath 创建目录备份
 func (r *backupRepo) createPath(name string, storage storage.Storage, target string) error {
 	if !io.Exists(target) {
@@ -763,6 +880,66 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	_ = os.Unsetenv("PGPASSWORD")
 	if clean {
 		_ = io.Remove(filepath.Dir(backup))
+	}
+
+	return nil
+}
+
+// restoreClickHouse 恢复 ClickHouse 备份
+func (r *backupRepo) restoreClickHouse(backup, target string) error {
+	password, err := r.setting.Get(biz.SettingKeyClickHouseDefaultPassword)
+	if err != nil {
+		return err
+	}
+	conn := fmt.Sprintf("--host 127.0.0.1 --port 9000 --user default --password '%s'", password)
+
+	// 校验目标数据库是否存在
+	exist, err := shell.Execf("clickhouse-client %s --query \"SELECT count() FROM system.databases WHERE name = '%s'\"", conn, target)
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(exist) == "0" {
+		return errors.New(r.t.Get("database does not exist: %s", target))
+	}
+
+	// 纯 SQL 文件直接执行
+	if strings.HasSuffix(backup, ".sql") {
+		_, err = shell.Execf("clickhouse-client %s --database '%s' --multiquery < '%s'", conn, target, backup)
+		return err
+	}
+
+	// 解压到临时目录
+	tmpDir, err := os.MkdirTemp("", "acepanel-ch-*")
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+
+	if err = io.UnCompress(backup, tmpDir); err != nil {
+		return err
+	}
+
+	// 先恢复结构（视图已排在末尾，源表先建好，规避物化视图依赖顺序问题）
+	schemaPath := filepath.Join(tmpDir, "schema.sql")
+	if io.Exists(schemaPath) {
+		if _, err = shell.Execf("clickhouse-client %s --database '%s' --multiquery < '%s'", conn, target, schemaPath); err != nil {
+			return err
+		}
+	}
+
+	// 再导入数据
+	entries, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".native") {
+			continue
+		}
+		tbl := strings.TrimSuffix(entry.Name(), ".native")
+		if _, err = shell.Execf("clickhouse-client %s --database '%s' --query 'INSERT INTO `%s` FORMAT Native' < '%s'", conn, target, tbl, filepath.Join(tmpDir, entry.Name())); err != nil {
+			return err
+		}
 	}
 
 	return nil

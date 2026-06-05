@@ -227,6 +227,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Request) {
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug IN ?", []string{"mysql", "mariadb", "percona"})
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
+	clickhouseInstalled, _ := s.appRepo.IsInstalled("slug = ?", "clickhouse")
 	rsyncInstalled, _ := s.appRepo.IsInstalled("slug = ?", "rsync")
 
 	// Go 版本
@@ -267,6 +268,9 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 	}
 	if postgresqlInstalled {
 		dbData = append(dbData, types.LV{Value: "postgresql", Label: "PostgreSQL"})
+	}
+	if clickhouseInstalled {
+		dbData = append(dbData, types.LV{Value: "clickhouse", Label: "ClickHouse"})
 	}
 
 	webserver, _ := s.settingRepo.Get(biz.SettingKeyWebserver)

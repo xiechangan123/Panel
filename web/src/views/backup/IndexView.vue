@@ -30,6 +30,10 @@ const mySQLInstalled = computed(() => {
 const postgreSQLInstalled = computed(() => {
   return installedEnvironment.value.db.find((item: any) => item.value === 'postgresql')
 })
+
+const clickHouseInstalled = computed(() => {
+  return installedEnvironment.value.db.find((item: any) => item.value === 'clickhouse')
+})
 </script>
 
 <template>
@@ -39,6 +43,7 @@ const postgreSQLInstalled = computed(() => {
         <n-tab name="website" :tab="$gettext('Website')" />
         <n-tab v-if="mySQLInstalled" name="mysql" tab="MySQL" />
         <n-tab v-if="postgreSQLInstalled" name="postgresql" tab="PostgreSQL" />
+        <n-tab v-if="clickHouseInstalled" name="clickhouse" tab="ClickHouse" />
         <n-tab name="storage" :tab="$gettext('Storage')" />
       </n-tabs>
     </template>
