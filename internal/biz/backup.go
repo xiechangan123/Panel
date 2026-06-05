@@ -15,6 +15,7 @@ const (
 	BackupTypePostgres   BackupType = "postgresql"
 	BackupTypeClickHouse BackupType = "clickhouse"
 	BackupTypeRedis      BackupType = "redis"
+	BackupTypeValkey     BackupType = "valkey"
 	BackupTypePanel      BackupType = "panel"
 )
 

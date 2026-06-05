@@ -22,6 +22,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/storage"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -129,6 +130,10 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		err = r.createPostgres(name, client, target)
 	case biz.BackupTypeClickHouse:
 		err = r.createClickHouse(name, client, target)
+	case biz.BackupTypeRedis:
+		err = r.createRedisLike(name, client, "redis")
+	case biz.BackupTypeValkey:
+		err = r.createRedisLike(name, client, "valkey")
 	case biz.BackupTypePath:
 		err = r.createPath(name, client, target)
 	default:
@@ -241,6 +246,10 @@ func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, ta
 		err = r.restorePostgres(backup, target)
 	case biz.BackupTypeClickHouse:
 		err = r.restoreClickHouse(backup, target)
+	case biz.BackupTypeRedis:
+		err = r.restoreRedisLike(backup, "redis")
+	case biz.BackupTypeValkey:
+		err = r.restoreRedisLike(backup, "valkey")
 	default:
 		return errors.New(r.t.Get("unknown backup type"))
 	}
@@ -943,6 +952,216 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 	}
 
 	return nil
+}
+
+// redisLikeConf redis/valkey 的连接与持久化参数
+type redisLikeConf struct {
+	kind       string // redis / valkey
+	cli        string // redis-cli / valkey-cli
+	authEnv    string // REDISCLI_AUTH / VALKEYCLI_AUTH
+	dataDir    string // {app.Root}/server/{kind}
+	confPath   string
+	port       string
+	password   string
+	appendonly bool
+}
+
+// loadRedisLikeConf 从 {kind}.conf 读取连接与持久化参数
+func (r *backupRepo) loadRedisLikeConf(kind string) (*redisLikeConf, error) {
+	dataDir := fmt.Sprintf("%s/server/%s", app.Root, kind)
+	confPath := fmt.Sprintf("%s/%s.conf", dataDir, kind)
+	content, err := io.Read(confPath)
+	if err != nil {
+		return nil, err
+	}
+
+	port := redisLikeValue(content, "port")
+	if port == "" {
+		port = "6379"
+	}
+	authEnv := "REDISCLI_AUTH"
+	if kind == "valkey" {
+		authEnv = "VALKEYCLI_AUTH"
+	}
+
+	return &redisLikeConf{
+		kind:       kind,
+		cli:        kind + "-cli",
+		authEnv:    authEnv,
+		dataDir:    dataDir,
+		confPath:   confPath,
+		port:       port,
+		password:   redisLikeValue(content, "requirepass"),
+		appendonly: redisLikeValue(content, "appendonly") == "yes",
+	}, nil
+}
+
+// redisLikeValue 从 redis/valkey 配置内容中读取指定键的有效值（忽略注释行）
+func redisLikeValue(content, key string) string {
+	for line := range strings.SplitSeq(content, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		fields := strings.Fields(trimmed)
+		if len(fields) >= 2 && fields[0] == key {
+			return strings.Join(fields[1:], " ")
+		}
+	}
+	return ""
+}
+
+// createRedisLike 创建 Redis/Valkey 整实例备份（{kind}-cli --rdb 导出快照）
+// redis 与 valkey 共用本实现，kind 为 "redis" 或 "valkey"
+func (r *backupRepo) createRedisLike(name string, storage storage.Storage, kind string) error {
+	conf, err := r.loadRedisLikeConf(kind)
+	if err != nil {
+		return err
+	}
+	// 用环境变量传密码，避免密码出现在命令行/进程列表
+	if conf.password != "" {
+		_ = os.Setenv(conf.authEnv, conf.password)
+		defer func() { _ = os.Unsetenv(conf.authEnv) }()
+	}
+
+	// 创建用于压缩的临时目录
+	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	if err != nil {
+		return err
+	}
+	defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Temporary directory: %s", tmpDir))
+	}
+
+	// 通过复制协议拉取整实例 RDB 快照到本地文件
+	rdb := filepath.Join(tmpDir, "dump.rdb")
+	if _, err = shell.Execf("%s -h 127.0.0.1 -p %s --rdb '%s'", conf.cli, conf.port, rdb); err != nil {
+		return err
+	}
+	if !io.Exists(rdb) {
+		return errors.New(r.t.Get("failed to export RDB snapshot"))
+	}
+
+	// 压缩备份文件
+	name = name + r.backupExt()
+	if err = io.Compress(tmpDir, []string{"dump.rdb"}, filepath.Join(tmpDir, name)); err != nil {
+		return err
+	}
+
+	// 上传备份文件到存储器
+	file, err := os.Open(filepath.Join(tmpDir, name))
+	if err != nil {
+		return err
+	}
+	defer func(file *os.File) { _ = file.Close() }(file)
+
+	if err = storage.Put(filepath.Join(kind, name), file); err != nil {
+		return err
+	}
+
+	if app.IsCli {
+		fmt.Println(r.t.Get("|-Backup file: %s", name))
+	}
+
+	return nil
+}
+
+// restoreRedisLike 恢复 Redis/Valkey 整实例备份
+// 停服务 → 替换 dump.rdb → 启动；妥善处理 AOF 优先级陷阱（appendonly=yes 时 AOF 会盖过 RDB）
+func (r *backupRepo) restoreRedisLike(backup, kind string) error {
+	conf, err := r.loadRedisLikeConf(kind)
+	if err != nil {
+		return err
+	}
+
+	// 准备 dump.rdb：裸 .rdb 直接用，否则解压取包内的 dump.rdb
+	rdb := backup
+	if !strings.HasSuffix(backup, ".rdb") {
+		tmpDir, err := os.MkdirTemp("", "acepanel-rdb-*")
+		if err != nil {
+			return err
+		}
+		defer func(path string) { _ = os.RemoveAll(path) }(tmpDir)
+		if err = io.UnCompress(backup, tmpDir); err != nil {
+			return err
+		}
+		rdb = filepath.Join(tmpDir, "dump.rdb")
+		if !io.Exists(rdb) {
+			return errors.New(r.t.Get("dump.rdb not found in backup file"))
+		}
+	}
+
+	// 停止服务
+	if err = systemctl.Stop(conf.kind); err != nil {
+		return err
+	}
+
+	// 清理旧 AOF（多部件目录与旧式单文件），避免 AOF 优先于 RDB 被加载
+	_ = io.Remove(filepath.Join(conf.dataDir, "appendonlydir"))
+	_ = io.Remove(filepath.Join(conf.dataDir, "appendonly.aof"))
+
+	// 覆盖 dump.rdb
+	target := filepath.Join(conf.dataDir, "dump.rdb")
+	if err = io.Cp(rdb, target); err != nil {
+		_ = systemctl.Start(conf.kind) // 尽力恢复服务
+		return err
+	}
+	_ = io.Chown(target, kind, kind)
+	_ = io.Chmod(target, 0640)
+
+	// 若原本开启 AOF，必须先以 appendonly no 启动加载 RDB，否则会建空 AOF 以空库覆盖
+	if conf.appendonly {
+		if err = r.disableAppendonly(conf.confPath); err != nil {
+			_ = systemctl.Start(conf.kind)
+			return err
+		}
+	}
+
+	// 启动服务（Type=notify，返回即已加载 RDB）
+	if err = systemctl.Start(conf.kind); err != nil {
+		return err
+	}
+
+	// 原本开启 AOF 的，在线转回并持久化配置
+	if conf.appendonly {
+		if conf.password != "" {
+			_ = os.Setenv(conf.authEnv, conf.password)
+			defer func() { _ = os.Unsetenv(conf.authEnv) }()
+		}
+		_, _ = shell.Execf("%s -h 127.0.0.1 -p %s config set appendonly yes", conf.cli, conf.port)
+		_, _ = shell.Execf("%s -h 127.0.0.1 -p %s config rewrite", conf.cli, conf.port)
+	}
+
+	return nil
+}
+
+// disableAppendonly 将 redis/valkey 配置中的 appendonly 临时改为 no
+func (r *backupRepo) disableAppendonly(confPath string) error {
+	content, err := io.Read(confPath)
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(content, "\n")
+	found := false
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		if fields := strings.Fields(trimmed); len(fields) >= 1 && fields[0] == "appendonly" {
+			lines[i] = "appendonly no"
+			found = true
+			break
+		}
+	}
+	if !found {
+		lines = append(lines, "appendonly no")
+	}
+
+	return io.Write(confPath, strings.Join(lines, "\n"), 0644)
 }
 
 // autoUnCompressSQL 自动处理压缩文件

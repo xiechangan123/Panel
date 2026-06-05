@@ -5,6 +5,7 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import app from '@/api/panel/app'
 import home from '@/api/panel/home'
 import ListView from '@/views/backup/ListView.vue'
 import StorageView from '@/views/backup/StorageView.vue'
@@ -34,6 +35,15 @@ const postgreSQLInstalled = computed(() => {
 const clickHouseInstalled = computed(() => {
   return installedEnvironment.value.db.find((item: any) => item.value === 'clickhouse')
 })
+
+const redisInstalled = ref(false)
+const valkeyInstalled = ref(false)
+useRequest(app.isInstalled('redis')).onSuccess(({ data }) => {
+  redisInstalled.value = !!data
+})
+useRequest(app.isInstalled('valkey')).onSuccess(({ data }) => {
+  valkeyInstalled.value = !!data
+})
 </script>
 
 <template>
@@ -44,6 +54,8 @@ const clickHouseInstalled = computed(() => {
         <n-tab v-if="mySQLInstalled" name="mysql" tab="MySQL" />
         <n-tab v-if="postgreSQLInstalled" name="postgresql" tab="PostgreSQL" />
         <n-tab v-if="clickHouseInstalled" name="clickhouse" tab="ClickHouse" />
+        <n-tab v-if="redisInstalled" name="redis" tab="Redis" />
+        <n-tab v-if="valkeyInstalled" name="valkey" tab="Valkey" />
         <n-tab name="storage" :tab="$gettext('Storage')" />
       </n-tabs>
     </template>

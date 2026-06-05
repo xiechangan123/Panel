@@ -152,6 +152,10 @@ watch(
     if (newType === 'website') {
       createModel.value.target = websites.value[0]?.value || ''
       restoreModel.value.target = websites.value[0]?.value || ''
+    } else if (newType === 'redis' || newType === 'valkey') {
+      // Redis/Valkey 整实例备份，无库名，target 固定为实例类型
+      createModel.value.target = newType
+      restoreModel.value.target = newType
     } else {
       createModel.value.target = ''
       restoreModel.value.target = ''
@@ -251,7 +255,11 @@ onUnmounted(() => {
           :placeholder="$gettext('Select website')"
         />
       </n-form-item>
-      <n-form-item v-if="type != 'website'" path="name" :label="$gettext('Database Name')">
+      <n-form-item
+        v-if="!['website', 'redis', 'valkey'].includes(type)"
+        path="name"
+        :label="$gettext('Database Name')"
+      >
         <n-input
           v-model:value="createModel.target"
           type="text"
@@ -295,7 +303,11 @@ onUnmounted(() => {
           :placeholder="$gettext('Select website')"
         />
       </n-form-item>
-      <n-form-item v-if="type != 'website'" path="name" :label="$gettext('Database')">
+      <n-form-item
+        v-if="!['website', 'redis', 'valkey'].includes(type)"
+        path="name"
+        :label="$gettext('Database')"
+      >
         <n-input v-model:value="restoreModel.target" type="text" @keydown.enter.prevent />
       </n-form-item>
     </n-form>

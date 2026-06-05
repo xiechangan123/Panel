@@ -3,11 +3,11 @@ package request
 import "mime/multipart"
 
 type BackupList struct {
-	Type string `uri:"type" form:"type" validate:"required|in:path,website,mysql,postgresql,clickhouse,redis,panel"`
+	Type string `uri:"type" form:"type" validate:"required|in:path,website,mysql,postgresql,clickhouse,redis,valkey,panel"`
 }
 
 type BackupCreate struct {
-	Type    string `uri:"type" form:"type" validate:"required|in:website,mysql,postgresql,clickhouse,redis,panel"`
+	Type    string `uri:"type" form:"type" validate:"required|in:website,mysql,postgresql,clickhouse,redis,valkey,panel"`
 	Target  string `json:"target" form:"target" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
 	Storage uint   `form:"storage" json:"storage"`
 }
@@ -18,7 +18,7 @@ type BackupUpload struct {
 }
 
 type BackupFile struct {
-	Type string `uri:"type" form:"type" validate:"required|in:website,mysql,postgresql,clickhouse,redis,panel"`
+	Type string `uri:"type" form:"type" validate:"required|in:website,mysql,postgresql,clickhouse,redis,valkey,panel"`
 	File string `json:"file" form:"file" validate:"required"`
 }
 
