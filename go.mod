@@ -51,7 +51,6 @@ require (
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
-	github.com/rhnvrm/simples3 v0.11.1
 	github.com/samber/lo v1.53.0
 	github.com/sethvargo/go-limiter v1.1.0
 	github.com/shirou/gopsutil/v4 v4.26.5
@@ -64,6 +63,7 @@ require (
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
 	golang.org/x/crypto v0.52.0
 	golang.org/x/net v0.55.0
+	golang.org/x/sync v0.20.0
 	gorm.io/gorm v1.31.1
 	modernc.org/sqlite v1.51.0
 	resty.dev/v3 v3.0.0-beta.6
@@ -129,7 +129,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a // indirect
-	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	modernc.org/libc v1.72.3 // indirect
@@ -139,7 +138,6 @@ require (
 
 replace (
 	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20260406165834-a264acd02292
-	github.com/rhnvrm/simples3 => github.com/devhaozi/simples3 v0.0.0-20260124160558-447c94ecedff
 	github.com/stretchr/testify => github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7
 )
 

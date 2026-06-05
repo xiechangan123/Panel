@@ -7,8 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rhnvrm/simples3"
 	"github.com/samber/lo"
+
+	"github.com/acepanel/panel/v3/pkg/storage/s3sdk"
 )
 
 // S3AddressingStyle S3 地址模式
@@ -33,7 +34,7 @@ type S3Config struct {
 }
 
 type S3 struct {
-	client *simples3.S3
+	client *s3sdk.S3
 	config S3Config
 	bucket string // bucket 用于 API 调用
 }
@@ -48,7 +49,7 @@ func NewS3(cfg S3Config) (Storage, error) {
 
 	cfg.BasePath = strings.Trim(cfg.BasePath, "/")
 
-	client := simples3.New(cfg.Region, cfg.AccessKey, cfg.SecretKey)
+	client := s3sdk.New(cfg.Region, cfg.AccessKey, cfg.SecretKey)
 
 	// bucket 用于 API 调用
 	bucket := cfg.Bucket
@@ -92,7 +93,7 @@ func (s *S3) Delete(files ...string) error {
 		return s.getKey(file)
 	})
 
-	_, err := s.client.DeleteObjects(simples3.DeleteObjectsInput{
+	_, err := s.client.DeleteObjects(s3sdk.DeleteObjectsInput{
 		Bucket:  s.bucket,
 		Objects: objects,
 		Quiet:   true,
@@ -104,7 +105,7 @@ func (s *S3) Delete(files ...string) error {
 // Exists 检查文件是否存在
 func (s *S3) Exists(file string) bool {
 	key := s.getKey(file)
-	_, err := s.client.FileDetails(simples3.DetailsInput{
+	_, err := s.client.FileDetails(s3sdk.DetailsInput{
 		Bucket:    s.bucket,
 		ObjectKey: key,
 	})
@@ -114,7 +115,7 @@ func (s *S3) Exists(file string) bool {
 // LastModified 获取文件最后修改时间
 func (s *S3) LastModified(file string) (time.Time, error) {
 	key := s.getKey(file)
-	output, err := s.client.FileDetails(simples3.DetailsInput{
+	output, err := s.client.FileDetails(s3sdk.DetailsInput{
 		Bucket:    s.bucket,
 		ObjectKey: key,
 	})
@@ -147,7 +148,7 @@ func (s *S3) List(path string) ([]string, error) {
 	}
 
 	var files []string
-	seq, finish := s.client.ListAll(simples3.ListInput{
+	seq, finish := s.client.ListAll(s3sdk.ListInput{
 		Bucket:    s.bucket,
 		Prefix:    prefix,
 		Delimiter: "/",
@@ -177,7 +178,7 @@ func (s *S3) List(path string) ([]string, error) {
 func (s *S3) Put(file string, content io.Reader) error {
 	key := s.getKey(file)
 
-	_, err := s.client.FileUploadMultipart(simples3.MultipartUploadInput{
+	_, err := s.client.FileUploadMultipart(s3sdk.MultipartUploadInput{
 		Bucket:      s.bucket,
 		ObjectKey:   key,
 		ContentType: "application/octet-stream",
@@ -191,7 +192,7 @@ func (s *S3) Put(file string, content io.Reader) error {
 // Size 获取文件大小
 func (s *S3) Size(file string) (int64, error) {
 	key := s.getKey(file)
-	output, err := s.client.FileDetails(simples3.DetailsInput{
+	output, err := s.client.FileDetails(s3sdk.DetailsInput{
 		Bucket:    s.bucket,
 		ObjectKey: key,
 	})
