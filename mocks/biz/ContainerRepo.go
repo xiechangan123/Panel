@@ -238,9 +238,9 @@ func (_c *ContainerRepo_ListByName_Call) RunAndReturn(run func(string) ([]types.
 	return _c
 }
 
-// Logs provides a mock function with given fields: id
-func (_m *ContainerRepo) Logs(id string) (string, error) {
-	ret := _m.Called(id)
+// Logs provides a mock function with given fields: id, tail
+func (_m *ContainerRepo) Logs(id string, tail int) (string, error) {
+	ret := _m.Called(id, tail)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Logs")
@@ -248,17 +248,17 @@ func (_m *ContainerRepo) Logs(id string) (string, error) {
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (string, error)); ok {
-		return rf(id)
+	if rf, ok := ret.Get(0).(func(string, int) (string, error)); ok {
+		return rf(id, tail)
 	}
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, int) string); ok {
+		r0 = rf(id, tail)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(string, int) error); ok {
+		r1 = rf(id, tail)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -273,13 +273,14 @@ type ContainerRepo_Logs_Call struct {
 
 // Logs is a helper method to define mock.On call
 //   - id string
-func (_e *ContainerRepo_Expecter) Logs(id interface{}) *ContainerRepo_Logs_Call {
-	return &ContainerRepo_Logs_Call{Call: _e.mock.On("Logs", id)}
+//   - tail int
+func (_e *ContainerRepo_Expecter) Logs(id interface{}, tail interface{}) *ContainerRepo_Logs_Call {
+	return &ContainerRepo_Logs_Call{Call: _e.mock.On("Logs", id, tail)}
 }
 
-func (_c *ContainerRepo_Logs_Call) Run(run func(id string)) *ContainerRepo_Logs_Call {
+func (_c *ContainerRepo_Logs_Call) Run(run func(id string, tail int)) *ContainerRepo_Logs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(int))
 	})
 	return _c
 }
@@ -289,7 +290,7 @@ func (_c *ContainerRepo_Logs_Call) Return(_a0 string, _a1 error) *ContainerRepo_
 	return _c
 }
 
-func (_c *ContainerRepo_Logs_Call) RunAndReturn(run func(string) (string, error)) *ContainerRepo_Logs_Call {
+func (_c *ContainerRepo_Logs_Call) RunAndReturn(run func(string, int) (string, error)) *ContainerRepo_Logs_Call {
 	_c.Call.Return(run)
 	return _c
 }
