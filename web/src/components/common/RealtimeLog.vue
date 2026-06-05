@@ -17,6 +17,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  container: {
+    type: String,
+    required: false,
+  },
 })
 
 interface LogLine {
@@ -44,10 +48,16 @@ let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 let lastSearchIndex = -1
 
 const sourceParams = computed(() =>
-  props.path ? { path: props.path } : props.service ? { service: props.service } : null,
+  props.path
+    ? { path: props.path }
+    : props.service
+      ? { service: props.service }
+      : props.container
+        ? { container: props.container }
+        : null,
 )
 
-const titleLabel = computed(() => props.path || props.service || '')
+const titleLabel = computed(() => props.path || props.service || props.container || '')
 
 const supported = computed(() => !!sourceParams.value)
 
@@ -245,7 +255,7 @@ const cleanup = () => {
 }
 
 watch(
-  () => [props.path, props.service],
+  () => [props.path, props.service, props.container],
   () => {
     cleanup()
     nextTick(() => loadInitial())

@@ -17,6 +17,6 @@ type ContainerRepo interface {
 	Unpause(id string) error
 	Kill(id string) error
 	Rename(id string, newName string) error
-	Logs(id string) (string, error)
+	Logs(id string, tail int) (string, error)
 	Prune() error
 }

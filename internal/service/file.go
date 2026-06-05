@@ -35,14 +35,16 @@ import (
 )
 
 type FileService struct {
-	t        *gotext.Locale
-	taskRepo biz.TaskRepo
+	t             *gotext.Locale
+	taskRepo      biz.TaskRepo
+	containerRepo biz.ContainerRepo
 }
 
-func NewFileService(t *gotext.Locale, task biz.TaskRepo) *FileService {
+func NewFileService(t *gotext.Locale, task biz.TaskRepo, container biz.ContainerRepo) *FileService {
 	return &FileService{
-		t:        t,
-		taskRepo: task,
+		t:             t,
+		taskRepo:      task,
+		containerRepo: container,
 	}
 }
 
@@ -127,13 +129,18 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 		req.Offset = 0
 	}
 
-	if req.Path == "" && req.Service == "" {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("path or service is required"))
+	if req.Path == "" && req.Service == "" && req.Container == "" {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("path, service or container is required"))
 		return
 	}
 
 	if req.Service != "" {
 		s.tailService(w, req)
+		return
+	}
+
+	if req.Container != "" {
+		s.tailContainer(w, req)
 		return
 	}
 
@@ -960,6 +967,40 @@ func (s *FileService) tailService(w http.ResponseWriter, req *request.FileTail) 
 		result = all[startIdx:endIdx]
 	}
 	// journalctl -n 拿到的就是末尾,如果 totalLoaded == total 说明可能还有更早
+	hasMore := totalLoaded >= total
+	Success(w, chix.M{
+		"lines":    result,
+		"has_more": hasMore,
+		"size":     0,
+	})
+}
+
+// tailContainer 反向读取容器末尾日志
+func (s *FileService) tailContainer(w http.ResponseWriter, req *request.FileTail) {
+	total := req.Offset + req.Limit
+	out, err := s.containerRepo.Logs(req.Container, total)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	all := strings.Split(strings.TrimRight(out, "\n"), "\n")
+	totalLoaded := len(all)
+	endIdx := totalLoaded - req.Offset
+	startIdx := endIdx - req.Limit
+	if startIdx < 0 {
+		startIdx = 0
+	}
+	if endIdx < startIdx {
+		endIdx = startIdx
+	}
+	if endIdx > totalLoaded {
+		endIdx = totalLoaded
+	}
+	result := []string{}
+	if startIdx < endIdx {
+		result = all[startIdx:endIdx]
+	}
+	// 取到的行数达到请求总数，说明可能还有更早的日志
 	hasMore := totalLoaded >= total
 	Success(w, chix.M{
 		"lines":    result,

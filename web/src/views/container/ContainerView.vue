@@ -19,7 +19,7 @@ import ContainerCreate from '@/views/container/ContainerCreate.vue'
 const { $gettext } = useGettext()
 
 const logModal = ref(false)
-const logs = ref('')
+const logId = ref('')
 const renameModal = ref(false)
 const renameLoading = ref(false)
 const renameModel = ref({
@@ -245,11 +245,9 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
   },
 )
 
-const handleShowLog = async (row: any) => {
-  useRequest(container.containerLogs(row.id)).onSuccess(({ data }) => {
-    logs.value = data
-    logModal.value = true
-  })
+const handleShowLog = (row: any) => {
+  logId.value = row.id
+  logModal.value = true
 }
 
 const handleRename = () => {
@@ -608,17 +606,7 @@ onUnmounted(() => {
       }"
     />
   </n-flex>
-  <n-modal
-    v-model:show="logModal"
-    preset="card"
-    :title="$gettext('Logs')"
-    style="width: 80vw"
-    size="huge"
-    :bordered="false"
-    :segmented="false"
-  >
-    <common-editor v-model:value="logs" height="60vh" read-only />
-  </n-modal>
+  <realtime-log-modal v-model:show="logModal" :container="logId" />
   <n-modal
     v-model:show="renameModal"
     preset="card"

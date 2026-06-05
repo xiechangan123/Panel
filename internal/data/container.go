@@ -1,9 +1,9 @@
 package data
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"slices"
 	"strconv"
 	"strings"
@@ -15,6 +15,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -311,30 +312,37 @@ func (r *containerRepo) Rename(id string, newName string) error {
 	return err
 }
 
-// Logs 查看容器日志
-func (r *containerRepo) Logs(id string) (string, error) {
+// Logs 查看容器末尾 tail 行日志
+func (r *containerRepo) Logs(id string, tail int) (string, error) {
 	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
 	if err != nil {
 		return "", err
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
+	// 非 TTY 容器日志为多路复用流，需按 TTY 设置决定是否解复用
+	inspect, err := apiClient.ContainerInspect(context.Background(), id, client.ContainerInspectOptions{})
+	if err != nil {
+		return "", err
+	}
+	tty := inspect.Container.Config != nil && inspect.Container.Config.Tty
+
 	reader, err := apiClient.ContainerLogs(context.Background(), id, client.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
-		Tail:       "100",
+		Tail:       strconv.Itoa(tail),
 	})
 	if err != nil {
 		return "", err
 	}
-	defer func(reader io.ReadCloser) { _ = reader.Close() }(reader)
+	defer func(reader client.ContainerLogsResult) { _ = reader.Close() }(reader)
 
-	logs, err := io.ReadAll(reader)
-	if err != nil {
+	var buf bytes.Buffer
+	if err = docker.CopyLogs(&buf, reader, tty); err != nil {
 		return "", err
 	}
 
-	return string(logs), nil
+	return buf.String(), nil
 }
 
 // Prune 清理未使用的容器

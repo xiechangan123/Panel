@@ -173,7 +173,7 @@ func initAce() (*app.Ace, error) {
 	containerImageService := service.NewContainerImageService(containerImageRepo)
 	containerVolumeRepo := data.NewContainerVolumeRepo(settingRepo)
 	containerVolumeService := service.NewContainerVolumeService(containerVolumeRepo)
-	fileService := service.NewFileService(locale, taskRepo)
+	fileService := service.NewFileService(locale, taskRepo, containerRepo)
 	logRepo := data.NewLogRepo(db)
 	logService := service.NewLogService(locale, logRepo)
 	monitorRepo := data.NewMonitorRepo(db, settingRepo)

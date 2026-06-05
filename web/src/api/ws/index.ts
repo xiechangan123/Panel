@@ -25,11 +25,12 @@ export default {
     })
   },
   // 文件或 systemd 服务实时跟踪
-  follow: (params: { path?: string; service?: string }): Promise<WebSocket> => {
+  follow: (params: { path?: string; service?: string; container?: string }): Promise<WebSocket> => {
     return new Promise((resolve, reject) => {
       const qs = new URLSearchParams()
       if (params.path) qs.set('path', params.path)
       if (params.service) qs.set('service', params.service)
+      if (params.container) qs.set('container', params.container)
       const ws = new WebSocket(`${base}/follow?${qs.toString()}`)
       ws.onopen = () => resolve(ws)
       ws.onerror = (e) => reject(e)

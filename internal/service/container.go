@@ -182,22 +182,6 @@ func (s *ContainerService) Rename(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-func (s *ContainerService) Logs(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ContainerID](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	logs, err := s.containerRepo.Logs(req.ID)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, logs)
-}
-
 func (s *ContainerService) Prune(w http.ResponseWriter, r *http.Request) {
 	if err := s.containerRepo.Prune(); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)

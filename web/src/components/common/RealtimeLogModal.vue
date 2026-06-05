@@ -8,7 +8,11 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const props = defineProps({
   path: {
     type: String,
-    required: true,
+    required: false,
+  },
+  container: {
+    type: String,
+    required: false,
   },
   clearable: {
     type: Boolean,
@@ -49,6 +53,6 @@ defineExpose({ clear })
         </template>
       </ConfirmDialog>
     </template>
-    <realtime-log v-if="show" ref="logRef" :path="props.path" />
+    <realtime-log v-if="show" ref="logRef" :path="props.path" :container="props.container" />
   </n-modal>
 </template>

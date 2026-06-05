@@ -92,8 +92,8 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if req.Path == "" && req.Service == "" {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("path or service is required"))
+	if req.Path == "" && req.Service == "" && req.Container == "" {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("path, service or container is required"))
 		return
 	}
 
@@ -106,6 +106,11 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
+
+	if req.Container != "" {
+		s.followContainer(ctx, ws, req.Container)
+		return
+	}
 
 	var cmd *exec.Cmd
 	if req.Service != "" {
@@ -453,6 +458,72 @@ func (s *WsService) getContainerSock() string {
 		sock = fmt.Sprintf("unix://%s", sock)
 	}
 	return sock
+}
+
+// wsBinaryWriter 将写入转发为 WebSocket 二进制帧
+type wsBinaryWriter struct {
+	ctx context.Context
+	ws  *websocket.Conn
+}
+
+func (w *wsBinaryWriter) Write(p []byte) (int, error) {
+	if err := w.ws.Write(w.ctx, websocket.MessageBinary, p); err != nil {
+		return 0, err
+	}
+	return len(p), nil
+}
+
+// followContainer 通过 Docker SDK 实时跟踪容器日志并转发到 WebSocket
+func (s *WsService) followContainer(ctx context.Context, ws *websocket.Conn, id string) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	apiClient, err := client.New(client.WithHost(s.getContainerSock()))
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	// 非 TTY 容器日志为多路复用流，需按 TTY 设置决定是否解复用
+	inspect, err := apiClient.ContainerInspect(ctx, id, client.ContainerInspectOptions{})
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+	tty := inspect.Container.Config != nil && inspect.Container.Config.Tty
+
+	// Tail "0" 表示只推送新增日志，历史由 HTTP /file/tail 反向分页加载
+	reader, err := apiClient.ContainerLogs(ctx, id, client.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Tail:       "0",
+	})
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, err.Error())
+		return
+	}
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		defer cancel() // 日志流结束(如容器停止)时取消，促使下方读取循环退出
+		_ = docker.CopyLogs(&wsBinaryWriter{ctx: ctx, ws: ws}, reader, tty)
+	}()
+
+	// 连接结束时取消 ctx 并关闭日志流，待拷贝协程退出后返回，避免泄漏
+	defer func() {
+		cancel()
+		_ = reader.Close()
+		<-done
+	}()
+
+	for {
+		if _, _, rerr := ws.Read(ctx); rerr != nil {
+			return
+		}
+	}
 }
 
 func (s *WsService) upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {

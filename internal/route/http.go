@@ -516,7 +516,6 @@ func (route *Http) Register(r *chi.Mux) {
 				r.Post("/{id}/unpause", route.container.Unpause)
 				r.Post("/{id}/kill", route.container.Kill)
 				r.Post("/{id}/rename", route.container.Rename)
-				r.Get("/{id}/logs", route.container.Logs)
 				r.Post("/prune", route.container.Prune)
 			})
 			r.Route("/compose", func(r chi.Router) {

@@ -23,15 +23,17 @@ type FilePath struct {
 }
 
 type FileTail struct {
-	Path    string `json:"path" form:"path"`
-	Service string `json:"service" form:"service"`
-	Offset  int    `json:"offset" form:"offset"`
-	Limit   int    `json:"limit" form:"limit"`
+	Path      string `json:"path" form:"path"`
+	Service   string `json:"service" form:"service"`
+	Container string `json:"container" form:"container"`
+	Offset    int    `json:"offset" form:"offset"`
+	Limit     int    `json:"limit" form:"limit"`
 }
 
 type FileFollow struct {
-	Path    string `json:"path" form:"path"`
-	Service string `json:"service" form:"service"`
+	Path      string `json:"path" form:"path"`
+	Service   string `json:"service" form:"service"`
+	Container string `json:"container" form:"container"`
 }
 
 type FileCreate struct {

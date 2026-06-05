@@ -13,14 +13,16 @@ import (
 )
 
 type FileService struct {
-	t        *gotext.Locale
-	taskRepo biz.TaskRepo
+	t             *gotext.Locale
+	taskRepo      biz.TaskRepo
+	containerRepo biz.ContainerRepo
 }
 
-func NewFileService(t *gotext.Locale, task biz.TaskRepo) *FileService {
+func NewFileService(t *gotext.Locale, task biz.TaskRepo, container biz.ContainerRepo) *FileService {
 	return &FileService{
-		t:        t,
-		taskRepo: task,
+		t:             t,
+		taskRepo:      task,
+		containerRepo: container,
 	}
 }
 
