@@ -145,6 +145,10 @@ msgstr ""
 msgid "Application management"
 msgstr ""
 
+#: internal/service/backup.go:71
+msgid "Backup %s: %s"
+msgstr ""
+
 #: internal/route/cli.go:323
 msgid "Backup database"
 msgstr ""
@@ -3044,7 +3048,7 @@ msgstr ""
 msgid "sync from server %s"
 msgstr ""
 
-#: internal/service/backup.go:88
+#: internal/service/backup.go:105
 msgid "target backup %s already exists"
 msgstr ""
 
@@ -3131,7 +3135,7 @@ msgstr ""
 msgid "unsupported database type: %s"
 msgstr ""
 
-#: internal/service/backup.go:82
+#: internal/service/backup.go:99
 msgid "unsupported file type"
 msgstr ""
 

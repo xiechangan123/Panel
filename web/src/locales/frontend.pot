@@ -19,14 +19,14 @@ msgstr ""
 #: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:313
 #: src/views/backup/IndexView.vue:53
-#: src/views/backup/ListView.vue:251
-#: src/views/backup/ListView.vue:299
+#: src/views/backup/ListView.vue:269
+#: src/views/backup/ListView.vue:317
 #: src/views/cert/CertView.vue:467
 #: src/views/cert/CertView.vue:583
 #: src/views/cert/CreateCertModal.vue:118
 #: src/views/home/IndexView.vue:530
-#: src/views/task/CreateModal.vue:425
-#: src/views/task/CreateModal.vue:438
+#: src/views/task/CreateModal.vue:448
+#: src/views/task/CreateModal.vue:470
 msgid "Website"
 msgstr ""
 
@@ -239,7 +239,7 @@ msgid "Minimize"
 msgstr ""
 
 #: src/components/common/DraggableWindow.vue:284
-#: src/views/backup/ListView.vue:81
+#: src/views/backup/ListView.vue:83
 msgid "Restore"
 msgstr ""
 
@@ -344,7 +344,7 @@ msgid "Remove"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:28
-#: src/views/task/CreateModal.vue:477
+#: src/views/task/CreateModal.vue:509
 msgid "Select Directory"
 msgstr ""
 
@@ -409,7 +409,7 @@ msgid "Owner / Group"
 msgstr ""
 
 #: src/components/common/PathSelector.vue:114
-#: src/views/backup/ListView.vue:49
+#: src/views/backup/ListView.vue:51
 #: src/views/container/ImageView.vue:70
 #: src/views/database/ElasticsearchDataView.vue:112
 #: src/views/database/RedisDataView.vue:116
@@ -451,7 +451,6 @@ msgstr ""
 #: src/components/common/PathSelector.vue:258
 #: src/components/file-editor/FileTree.vue:286
 #: src/views/app/TemplateDeployModal.vue:237
-#: src/views/backup/ListView.vue:118
 #: src/views/backup/StorageView.vue:150
 #: src/views/cert/CreateAccountModal.vue:55
 #: src/views/cert/CreateCertModal.vue:75
@@ -469,7 +468,7 @@ msgstr ""
 #: src/views/setting/CreateModal.vue:22
 #: src/views/setting/TokenModal.vue:117
 #: src/views/ssh/CreateModal.vue:41
-#: src/views/task/CreateModal.vue:113
+#: src/views/task/CreateModal.vue:120
 #: src/views/toolbox/WebHookView.vue:249
 msgid "Created successfully"
 msgstr ""
@@ -513,8 +512,8 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:319
 #: src/views/apps/s3fs/IndexView.vue:185
 #: src/views/apps/supervisor/IndexView.vue:435
-#: src/views/backup/ListView.vue:285
-#: src/views/backup/ListView.vue:321
+#: src/views/backup/ListView.vue:303
+#: src/views/backup/ListView.vue:344
 #: src/views/backup/StorageView.vue:376
 #: src/views/backup/StorageView.vue:529
 #: src/views/cert/AccountView.vue:258
@@ -551,7 +550,7 @@ msgstr ""
 #: src/views/setting/TwoFaModal.vue:95
 #: src/views/ssh/CreateModal.vue:110
 #: src/views/ssh/UpdateModal.vue:116
-#: src/views/task/CreateModal.vue:519
+#: src/views/task/CreateModal.vue:551
 msgid "Submit"
 msgstr ""
 
@@ -1040,7 +1039,7 @@ msgstr ""
 #: src/views/firewall/SettingView.vue:136
 #: src/views/project/EditModal.vue:582
 #: src/views/setting/IndexView.vue:169
-#: src/views/task/CreateModal.vue:519
+#: src/views/task/CreateModal.vue:551
 #: src/views/task/CronView.vue:344
 #: src/views/toolbox/SshView.vue:220
 #: src/views/toolbox/SystemView.vue:195
@@ -1442,7 +1441,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:87
 #: src/views/apps/rsync/IndexView.vue:101
 #: src/views/apps/supervisor/IndexView.vue:178
-#: src/views/backup/ListView.vue:95
+#: src/views/backup/ListView.vue:97
 #: src/views/backup/StorageView.vue:126
 #: src/views/cert/AccountView.vue:113
 #: src/views/cert/CertView.vue:308
@@ -1523,7 +1522,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:160
 #: src/views/apps/s3fs/IndexView.vue:87
 #: src/views/apps/supervisor/IndexView.vue:257
-#: src/views/backup/ListView.vue:145
+#: src/views/backup/ListView.vue:149
 #: src/views/backup/StorageView.vue:183
 #: src/views/container/ImageView.vue:144
 #: src/views/container/NetworkView.vue:176
@@ -1738,7 +1737,7 @@ msgid "Apps"
 msgstr ""
 
 #: src/locales/menu.ts:8
-#: src/views/task/CreateModal.vue:135
+#: src/views/task/CreateModal.vue:145
 msgid "Backup"
 msgstr ""
 
@@ -1754,14 +1753,14 @@ msgstr ""
 
 #: src/locales/menu.ts:10
 #: src/views/home/IndexView.vue:525
-#: src/views/task/CreateModal.vue:440
+#: src/views/task/CreateModal.vue:472
 msgid "Container"
 msgstr ""
 
 #: src/locales/menu.ts:11
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:189
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:222
-#: src/views/backup/ListView.vue:309
+#: src/views/backup/ListView.vue:327
 #: src/views/home/IndexView.vue:534
 #: src/views/toolbox/MigrationView.vue:546
 #: src/views/website/CreateModal.vue:248
@@ -1893,7 +1892,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:72
 #: src/views/apps/s3fs/IndexView.vue:35
 #: src/views/apps/supervisor/IndexView.vue:84
-#: src/views/backup/ListView.vue:64
+#: src/views/backup/ListView.vue:66
 #: src/views/backup/StorageView.vue:95
 #: src/views/cert/AccountView.vue:74
 #: src/views/cert/CertView.vue:189
@@ -2510,7 +2509,7 @@ msgstr ""
 #: src/views/file/PermissionModal.vue:57
 #: src/views/setting/SettingUser.vue:161
 #: src/views/setting/SettingUser.vue:167
-#: src/views/task/CreateModal.vue:114
+#: src/views/task/CreateModal.vue:121
 #: src/views/task/CronView.vue:189
 #: src/views/task/CronView.vue:259
 #: src/views/toolbox/WebHookView.vue:200
@@ -2978,8 +2977,8 @@ msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:319
 #: src/views/apps/fail2ban/IndexView.vue:323
-#: src/views/task/CreateModal.vue:450
-#: src/views/task/CreateModal.vue:456
+#: src/views/task/CreateModal.vue:482
+#: src/views/task/CreateModal.vue:488
 msgid "Select Website"
 msgstr ""
 
@@ -3441,7 +3440,7 @@ msgstr ""
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:59
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:117
 #: src/views/backup/IndexView.vue:59
-#: src/views/task/CreateModal.vue:509
+#: src/views/task/CreateModal.vue:541
 msgid "Storage"
 msgstr ""
 
@@ -4447,7 +4446,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:66
 #: src/views/file/PropertyModal.vue:34
 #: src/views/project/ListView.vue:97
-#: src/views/task/CreateModal.vue:432
+#: src/views/task/CreateModal.vue:464
 #: src/views/website/CreateModal.vue:305
 #: src/views/website/ListView.vue:148
 msgid "Directory"
@@ -4866,48 +4865,52 @@ msgstr ""
 msgid "Valkey AOF persistence settings."
 msgstr ""
 
-#: src/views/backup/ListView.vue:42
+#: src/views/backup/ListView.vue:44
 msgid "Filename"
 msgstr ""
 
-#: src/views/backup/ListView.vue:55
+#: src/views/backup/ListView.vue:57
 #: src/views/database/ServerList.vue:152
 #: src/views/database/UserList.vue:125
 msgid "Update Date"
 msgstr ""
 
-#: src/views/backup/ListView.vue:90
+#: src/views/backup/ListView.vue:92
 msgid "Are you sure you want to delete this backup?"
 msgstr ""
 
-#: src/views/backup/ListView.vue:127
+#: src/views/backup/ListView.vue:121
+msgid "Backup task created, please check the progress in background tasks"
+msgstr ""
+
+#: src/views/backup/ListView.vue:131
 msgid "Restoring..."
 msgstr ""
 
-#: src/views/backup/ListView.vue:134
+#: src/views/backup/ListView.vue:138
 msgid "Restored successfully"
 msgstr ""
 
-#: src/views/backup/ListView.vue:207
+#: src/views/backup/ListView.vue:225
 msgid "Only local backups are displayed here. Remote backups are stored in the corresponding backup storage."
 msgstr ""
 
-#: src/views/backup/ListView.vue:214
-#: src/views/backup/ListView.vue:243
+#: src/views/backup/ListView.vue:232
+#: src/views/backup/ListView.vue:261
 msgid "Create Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:217
+#: src/views/backup/ListView.vue:235
 #: src/views/backup/UploadModal.vue:38
 msgid "Upload Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:255
-#: src/views/backup/ListView.vue:303
+#: src/views/backup/ListView.vue:273
+#: src/views/backup/ListView.vue:321
 msgid "Select website"
 msgstr ""
 
-#: src/views/backup/ListView.vue:261
+#: src/views/backup/ListView.vue:279
 #: src/views/database/CreateDatabaseModal.vue:94
 #: src/views/database/DatabaseList.vue:21
 #: src/views/website/CreateModal.vue:269
@@ -4915,22 +4918,20 @@ msgstr ""
 msgid "Database Name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:267
-#: src/views/database/CreateDatabaseModal.vue:99
-#: src/views/database/CreateUserModal.vue:157
-#: src/views/database/UpdateUserModal.vue:75
-msgid "Enter database name"
+#: src/views/backup/ListView.vue:285
+#: src/views/backup/ListView.vue:333
+msgid "Select database"
 msgstr ""
 
-#: src/views/backup/ListView.vue:270
+#: src/views/backup/ListView.vue:288
 msgid "Backup Storage"
 msgstr ""
 
-#: src/views/backup/ListView.vue:274
+#: src/views/backup/ListView.vue:292
 msgid "Select backup storage"
 msgstr ""
 
-#: src/views/backup/ListView.vue:291
+#: src/views/backup/ListView.vue:309
 msgid "Restore Backup"
 msgstr ""
 
@@ -6155,6 +6156,12 @@ msgstr ""
 msgid "Select server"
 msgstr ""
 
+#: src/views/database/CreateDatabaseModal.vue:99
+#: src/views/database/CreateUserModal.vue:157
+#: src/views/database/UpdateUserModal.vue:75
+msgid "Enter database name"
+msgstr ""
+
 #: src/views/database/CreateDatabaseModal.vue:108
 msgid "Authorized User"
 msgstr ""
@@ -6267,7 +6274,7 @@ msgid "Documents"
 msgstr ""
 
 #: src/views/database/ElasticsearchDataView.vue:132
-#: src/views/task/CreateModal.vue:488
+#: src/views/task/CreateModal.vue:520
 msgid "Browse"
 msgstr ""
 
@@ -9076,73 +9083,85 @@ msgstr ""
 msgid "# Enter your script content here"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:130
+#: src/views/task/CreateModal.vue:137
 msgid "Backup Website"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:131
+#: src/views/task/CreateModal.vue:138
 msgid "Backup MySQL"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:132
+#: src/views/task/CreateModal.vue:139
 msgid "Backup PostgreSQL"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:133
-msgid "Backup Directory"
-msgstr ""
-
-#: src/views/task/CreateModal.vue:139
-msgid "Log Rotation - Website"
-msgstr ""
-
 #: src/views/task/CreateModal.vue:140
-msgid "Log Rotation - Container"
+msgid "Backup ClickHouse"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:141
+msgid "Backup Redis"
 msgstr ""
 
 #: src/views/task/CreateModal.vue:142
-#: src/views/task/CreateModal.vue:315
+msgid "Backup Valkey"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:143
+msgid "Backup Directory"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:149
+msgid "Log Rotation - Website"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:150
+msgid "Log Rotation - Container"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:152
+#: src/views/task/CreateModal.vue:338
 #: src/views/task/CronView.vue:71
 msgid "Log Rotation"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:147
-#: src/views/task/CreateModal.vue:316
+#: src/views/task/CreateModal.vue:157
+#: src/views/task/CreateModal.vue:339
 #: src/views/task/CronView.vue:68
 msgid "Access URL"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:149
-#: src/views/task/CreateModal.vue:317
+#: src/views/task/CreateModal.vue:159
+#: src/views/task/CreateModal.vue:340
 #: src/views/task/CronView.vue:69
 msgid "Sync Time"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:302
+#: src/views/task/CreateModal.vue:325
 msgid "Create Scheduled Task"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:302
+#: src/views/task/CreateModal.vue:325
 msgid "Edit Scheduled Task"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:309
+#: src/views/task/CreateModal.vue:332
 #: src/views/task/CronView.vue:57
 msgid "Task Type"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:313
+#: src/views/task/CreateModal.vue:336
 #: src/views/task/CronView.vue:66
 msgid "Run Script"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:314
+#: src/views/task/CreateModal.vue:337
 #: src/views/task/CronView.vue:67
 msgid "Backup Data"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:321
-#: src/views/task/CreateModal.vue:322
+#: src/views/task/CreateModal.vue:344
+#: src/views/task/CreateModal.vue:345
 #: src/views/task/CronView.vue:50
 #: src/views/task/CronView.vue:318
 #: src/views/task/CronView.vue:319
@@ -9150,95 +9169,107 @@ msgstr ""
 msgid "Task Name"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:329
+#: src/views/task/CreateModal.vue:352
 #: src/views/task/CronView.vue:90
 #: src/views/task/CronView.vue:321
 msgid "Task Schedule"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:334
+#: src/views/task/CreateModal.vue:357
 msgid "Retention Count"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:339
+#: src/views/task/CreateModal.vue:362
 #: src/views/task/CronView.vue:324
 msgid "Process Lock"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:343
+#: src/views/task/CreateModal.vue:366
 #: src/views/task/CronView.vue:328
 msgid "Prevent duplicate execution: skip this run if the previous one is still running"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:350
+#: src/views/task/CreateModal.vue:373
 msgid "Script Content"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:355
+#: src/views/task/CreateModal.vue:378
 msgid "Request Method"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:371
+#: src/views/task/CreateModal.vue:394
 msgid "Request Headers"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:377
+#: src/views/task/CreateModal.vue:400
 msgid "Header Name"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:382
+#: src/views/task/CreateModal.vue:405
 msgid "Header Value"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:395
-#: src/views/task/CreateModal.vue:400
+#: src/views/task/CreateModal.vue:418
+#: src/views/task/CreateModal.vue:423
 msgid "Request Body"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:406
+#: src/views/task/CreateModal.vue:429
 msgid "Timeout (seconds)"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:411
+#: src/views/task/CreateModal.vue:434
 msgid "Retry Count"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:416
+#: src/views/task/CreateModal.vue:439
 msgid "Ignore Certificate"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:423
+#: src/views/task/CreateModal.vue:446
 msgid "Backup Type"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:427
+#: src/views/task/CreateModal.vue:450
 msgid "MySQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:430
+#: src/views/task/CreateModal.vue:453
 msgid "PostgreSQL Database"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:436
+#: src/views/task/CreateModal.vue:456
+msgid "ClickHouse Database"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:459
+msgid "Redis"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:462
+msgid "Valkey"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:468
 msgid "Rotation Type"
-msgstr ""
-
-#: src/views/task/CreateModal.vue:465
-#: src/views/task/CreateModal.vue:471
-#: src/views/website/CreateModal.vue:252
-msgid "Select Database"
-msgstr ""
-
-#: src/views/task/CreateModal.vue:484
-msgid "Enter directory path"
 msgstr ""
 
 #: src/views/task/CreateModal.vue:497
 #: src/views/task/CreateModal.vue:503
+#: src/views/website/CreateModal.vue:252
+msgid "Select Database"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:516
+msgid "Enter directory path"
+msgstr ""
+
+#: src/views/task/CreateModal.vue:529
+#: src/views/task/CreateModal.vue:535
 msgid "Select Container"
 msgstr ""
 
-#: src/views/task/CreateModal.vue:514
+#: src/views/task/CreateModal.vue:546
 msgid "Select storage"
 msgstr ""
 
