@@ -18,9 +18,9 @@ msgstr ""
 #: src/components/common/AppFooter.vue:38
 #: src/locales/menu.ts:23
 #: src/views/apps/fail2ban/IndexView.vue:313
-#: src/views/backup/IndexView.vue:39
-#: src/views/backup/ListView.vue:247
-#: src/views/backup/ListView.vue:291
+#: src/views/backup/IndexView.vue:53
+#: src/views/backup/ListView.vue:251
+#: src/views/backup/ListView.vue:299
 #: src/views/cert/CertView.vue:467
 #: src/views/cert/CertView.vue:583
 #: src/views/cert/CreateCertModal.vue:118
@@ -386,7 +386,7 @@ msgstr ""
 #: src/views/setting/PasskeyModal.vue:26
 #: src/views/ssh/CreateModal.vue:60
 #: src/views/ssh/UpdateModal.vue:66
-#: src/views/toolbox/LogView.vue:223
+#: src/views/toolbox/LogView.vue:219
 #: src/views/toolbox/MigrationView.vue:695
 #: src/views/toolbox/MigrationView.vue:782
 #: src/views/toolbox/ProcessView.vue:106
@@ -412,14 +412,14 @@ msgstr ""
 #: src/views/backup/ListView.vue:49
 #: src/views/container/ImageView.vue:70
 #: src/views/database/ElasticsearchDataView.vue:112
-#: src/views/database/RedisDataView.vue:111
+#: src/views/database/RedisDataView.vue:116
 #: src/views/file/ListView.vue:1352
 #: src/views/file/PropertyModal.vue:39
 #: src/views/file/ToolBar.vue:151
 #: src/views/toolbox/disk/RaidView.vue:95
 #: src/views/toolbox/disk/RaidView.vue:177
 #: src/views/toolbox/DiskView.vue:233
-#: src/views/toolbox/LogView.vue:224
+#: src/views/toolbox/LogView.vue:220
 msgid "Size"
 msgstr ""
 
@@ -462,7 +462,7 @@ msgstr ""
 #: src/views/container/NetworkView.vue:184
 #: src/views/container/VolumeView.vue:132
 #: src/views/database/CreateDatabaseModal.vue:48
-#: src/views/database/CreateUserModal.vue:51
+#: src/views/database/CreateUserModal.vue:56
 #: src/views/database/ElasticsearchDataView.vue:263
 #: src/views/file/ListView.vue:151
 #: src/views/firewall/CreateForwardModal.vue:44
@@ -513,8 +513,8 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:319
 #: src/views/apps/s3fs/IndexView.vue:185
 #: src/views/apps/supervisor/IndexView.vue:435
-#: src/views/backup/ListView.vue:277
-#: src/views/backup/ListView.vue:309
+#: src/views/backup/ListView.vue:285
+#: src/views/backup/ListView.vue:321
 #: src/views/backup/StorageView.vue:376
 #: src/views/backup/StorageView.vue:529
 #: src/views/cert/AccountView.vue:258
@@ -528,16 +528,17 @@ msgstr ""
 #: src/views/cert/UploadCertModal.vue:64
 #: src/views/container/ComposeView.vue:341
 #: src/views/container/ComposeView.vue:367
-#: src/views/container/ContainerView.vue:648
+#: src/views/container/ContainerView.vue:636
 #: src/views/container/ImageView.vue:401
 #: src/views/container/NetworkView.vue:339
 #: src/views/container/VolumeView.vue:233
 #: src/views/database/CreateDatabaseModal.vue:165
 #: src/views/database/CreateServerModal.vue:200
-#: src/views/database/CreateUserModal.vue:164
+#: src/views/database/CreateUserModal.vue:170
 #: src/views/database/ElasticsearchDataView.vue:392
 #: src/views/database/ElasticsearchDocModal.vue:101
-#: src/views/database/RedisDataView.vue:323
+#: src/views/database/RedisDataView.vue:358
+#: src/views/database/RedisDataView.vue:378
 #: src/views/database/RedisKeyModal.vue:130
 #: src/views/database/UpdateServerModal.vue:123
 #: src/views/database/UpdateUserModal.vue:88
@@ -555,12 +556,12 @@ msgid "Submit"
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:125
-#: src/views/container/ContainerView.vue:474
+#: src/views/container/ContainerView.vue:472
 msgid "Connection closed."
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:134
-#: src/views/container/ContainerView.vue:481
+#: src/views/container/ContainerView.vue:479
 msgid "Connection error."
 msgstr ""
 
@@ -663,7 +664,7 @@ msgstr ""
 #: src/components/common/PtyTerminalModal.vue:259
 #: src/locales/menu.ts:19
 #: src/views/container/ContainerView.vue:123
-#: src/views/container/ContainerView.vue:654
+#: src/views/container/ContainerView.vue:642
 #: src/views/database/ServerList.vue:174
 #: src/views/file/ListView.vue:350
 #: src/views/file/ListView.vue:965
@@ -671,27 +672,27 @@ msgstr ""
 msgid "Terminal"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:222
+#: src/components/common/RealtimeLog.vue:232
 msgid "Not found"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:282
+#: src/components/common/RealtimeLog.vue:292
 msgid "Pause Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:282
+#: src/components/common/RealtimeLog.vue:292
 msgid "Resume Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:288
+#: src/components/common/RealtimeLog.vue:298
 msgid "Jump to Top"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:291
+#: src/components/common/RealtimeLog.vue:301
 msgid "Jump to Bottom"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:296
+#: src/components/common/RealtimeLog.vue:306
 #: src/components/file-editor/EditorToolbar.vue:222
 #: src/components/file-editor/FileTree.vue:719
 #: src/components/system/SearchToolbar.vue:58
@@ -699,31 +700,30 @@ msgstr ""
 #: src/views/app/EnvironmentView.vue:226
 #: src/views/app/TemplateView.vue:102
 #: src/views/database/ElasticsearchDataView.vue:314
-#: src/views/database/RedisDataView.vue:254
+#: src/views/database/RedisDataView.vue:289
 msgid "Search"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:303
+#: src/components/common/RealtimeLog.vue:313
 msgid "Enter keyword and press Enter"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:309
+#: src/components/common/RealtimeLog.vue:319
 msgid "Decrease Font Size"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:312
+#: src/components/common/RealtimeLog.vue:322
 msgid "Increase Font Size"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:327
+#: src/components/common/RealtimeLog.vue:337
 msgid "No logs available"
 msgstr ""
 
-#: src/components/common/RealtimeLogModal.vue:33
+#: src/components/common/RealtimeLogModal.vue:37
 #: src/locales/menu.ts:15
 #: src/views/apps/supervisor/IndexView.vue:98
 #: src/views/container/ContainerView.vue:135
-#: src/views/container/ContainerView.vue:614
 #: src/views/project/ListView.vue:168
 #: src/views/project/ListView.vue:334
 #: src/views/task/CronView.vue:146
@@ -731,11 +731,11 @@ msgstr ""
 msgid "Logs"
 msgstr ""
 
-#: src/components/common/RealtimeLogModal.vue:42
+#: src/components/common/RealtimeLogModal.vue:46
 msgid "Are you sure you want to clear the log?"
 msgstr ""
 
-#: src/components/common/RealtimeLogModal.vue:47
+#: src/components/common/RealtimeLogModal.vue:51
 #: src/views/apps/apache/IndexView.vue:119
 #: src/views/apps/mysql/MysqlIndex.vue:195
 #: src/views/apps/nginx/NginxIndex.vue:578
@@ -877,7 +877,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:120
 #: src/views/container/ComposeView.vue:160
 #: src/views/container/ContainerView.vue:158
-#: src/views/container/ContainerView.vue:568
+#: src/views/container/ContainerView.vue:566
 #: src/views/project/ListView.vue:130
 #: src/views/toolbox/MigrationView.vue:257
 msgid "Start"
@@ -892,7 +892,7 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:141
 #: src/views/container/ComposeView.vue:189
 #: src/views/container/ContainerView.vue:163
-#: src/views/container/ContainerView.vue:571
+#: src/views/container/ContainerView.vue:569
 #: src/views/project/ListView.vue:130
 msgid "Stop"
 msgstr ""
@@ -901,7 +901,7 @@ msgstr ""
 #: src/views/apps/prometheus/PrometheusExportersView.vue:103
 #: src/views/apps/supervisor/IndexView.vue:159
 #: src/views/container/ContainerView.vue:168
-#: src/views/container/ContainerView.vue:574
+#: src/views/container/ContainerView.vue:572
 #: src/views/home/IndexView.vue:555
 #: src/views/project/ListView.vue:145
 msgid "Restart"
@@ -1419,7 +1419,8 @@ msgstr ""
 
 #: src/components/file-editor/FileTree.vue:479
 #: src/views/container/ContainerView.vue:150
-#: src/views/container/ContainerView.vue:625
+#: src/views/container/ContainerView.vue:613
+#: src/views/database/RedisDataView.vue:168
 #: src/views/file/composables/usePaste.ts:41
 #: src/views/file/composables/usePaste.ts:157
 #: src/views/file/ListView.vue:348
@@ -1449,7 +1450,7 @@ msgstr ""
 #: src/views/container/ComposeView.vue:209
 #: src/views/container/ComposeView.vue:289
 #: src/views/container/ContainerView.vue:188
-#: src/views/container/ContainerView.vue:586
+#: src/views/container/ContainerView.vue:584
 #: src/views/container/ImageView.vue:103
 #: src/views/container/ImageView.vue:273
 #: src/views/container/NetworkView.vue:130
@@ -1459,7 +1460,7 @@ msgstr ""
 #: src/views/database/DatabaseList.vue:86
 #: src/views/database/ElasticsearchDataView.vue:146
 #: src/views/database/ElasticsearchDataView.vue:200
-#: src/views/database/RedisDataView.vue:163
+#: src/views/database/RedisDataView.vue:182
 #: src/views/database/ServerList.vue:247
 #: src/views/database/UserList.vue:165
 #: src/views/environment/PHPView.vue:107
@@ -1497,6 +1498,7 @@ msgid "Download"
 msgstr ""
 
 #: src/components/file-editor/FileTree.vue:567
+#: src/views/database/RedisDataView.vue:238
 msgid "Renamed successfully"
 msgstr ""
 
@@ -1529,7 +1531,7 @@ msgstr ""
 #: src/views/database/DatabaseList.vue:107
 #: src/views/database/ElasticsearchDataView.vue:241
 #: src/views/database/ElasticsearchDataView.vue:250
-#: src/views/database/RedisDataView.vue:192
+#: src/views/database/RedisDataView.vue:211
 #: src/views/database/ServerList.vue:268
 #: src/views/database/UserList.vue:185
 #: src/views/file/ListView.vue:824
@@ -1759,7 +1761,7 @@ msgstr ""
 #: src/locales/menu.ts:11
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:189
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:222
-#: src/views/backup/ListView.vue:298
+#: src/views/backup/ListView.vue:309
 #: src/views/home/IndexView.vue:534
 #: src/views/toolbox/MigrationView.vue:546
 #: src/views/website/CreateModal.vue:248
@@ -1904,7 +1906,7 @@ msgstr ""
 #: src/views/database/DatabaseList.vue:68
 #: src/views/database/ElasticsearchDataView.vue:117
 #: src/views/database/ElasticsearchDataView.vue:169
-#: src/views/database/RedisDataView.vue:119
+#: src/views/database/RedisDataView.vue:124
 #: src/views/database/ServerList.vue:161
 #: src/views/database/UserList.vue:134
 #: src/views/environment/PHPView.vue:71
@@ -2348,7 +2350,7 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:124
 #: src/views/apps/supervisor/IndexView.vue:213
 #: src/views/apps/supervisor/IndexView.vue:269
-#: src/views/database/RedisDataView.vue:217
+#: src/views/database/RedisDataView.vue:252
 #: src/views/environment/PHPView.vue:162
 #: src/views/environment/PHPView.vue:169
 #: src/views/firewall/ScanView.vue:336
@@ -2500,7 +2502,7 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:135
 #: src/views/apps/pureftpd/IndexView.vue:145
 #: src/views/database/DatabaseList.vue:113
-#: src/views/database/RedisDataView.vue:203
+#: src/views/database/RedisDataView.vue:222
 #: src/views/database/ServerList.vue:274
 #: src/views/database/UpdateServerModal.vue:27
 #: src/views/database/UpdateUserModal.vue:23
@@ -2884,7 +2886,7 @@ msgstr ""
 #: src/views/apps/fail2ban/IndexView.vue:80
 #: src/views/cert/CertView.vue:261
 #: src/views/database/ElasticsearchDataView.vue:186
-#: src/views/database/RedisDataView.vue:136
+#: src/views/database/RedisDataView.vue:141
 msgid "View"
 msgstr ""
 
@@ -2958,7 +2960,7 @@ msgstr ""
 #: src/views/cert/CertView.vue:105
 #: src/views/cert/DnsView.vue:43
 #: src/views/database/CreateServerModal.vue:100
-#: src/views/database/RedisDataView.vue:89
+#: src/views/database/RedisDataView.vue:94
 #: src/views/database/RedisKeyModal.vue:99
 #: src/views/file/PropertyModal.vue:33
 #: src/views/log/OperationLog.vue:74
@@ -3069,7 +3071,7 @@ msgstr ""
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:149
 #: src/views/apps/nginx/NginxIndex.vue:523
 #: src/views/database/CreateDatabaseModal.vue:86
-#: src/views/database/CreateUserModal.vue:98
+#: src/views/database/CreateUserModal.vue:104
 #: src/views/database/DatabaseList.vue:28
 #: src/views/database/IndexView.vue:38
 #: src/views/database/UserList.vue:73
@@ -3272,7 +3274,7 @@ msgstr ""
 #: src/views/container/ImageView.vue:390
 #: src/views/database/CreateDatabaseModal.vue:125
 #: src/views/database/CreateServerModal.vue:179
-#: src/views/database/CreateUserModal.vue:114
+#: src/views/database/CreateUserModal.vue:120
 #: src/views/database/ServerList.vue:82
 #: src/views/database/UpdateServerModal.vue:104
 #: src/views/database/UpdateUserModal.vue:63
@@ -3438,7 +3440,7 @@ msgstr ""
 
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:59
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:117
-#: src/views/backup/IndexView.vue:42
+#: src/views/backup/IndexView.vue:59
 #: src/views/task/CreateModal.vue:509
 msgid "Storage"
 msgstr ""
@@ -4374,7 +4376,7 @@ msgstr ""
 #: src/views/container/ImageView.vue:382
 #: src/views/database/CreateDatabaseModal.vue:117
 #: src/views/database/CreateServerModal.vue:167
-#: src/views/database/CreateUserModal.vue:106
+#: src/views/database/CreateUserModal.vue:112
 #: src/views/database/ServerList.vue:73
 #: src/views/database/UpdateServerModal.vue:96
 #: src/views/database/UserList.vue:22
@@ -4415,7 +4417,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:223
 #: src/views/apps/pureftpd/IndexView.vue:227
 #: src/views/database/CreateDatabaseModal.vue:102
-#: src/views/database/CreateUserModal.vue:84
+#: src/views/database/CreateUserModal.vue:90
 #: src/views/database/IndexView.vue:51
 #: src/views/setting/CreateModal.vue:38
 #: src/views/setting/IndexView.vue:155
@@ -4429,7 +4431,7 @@ msgstr ""
 #: src/views/backup/StorageView.vue:503
 #: src/views/container/ImageView.vue:387
 #: src/views/database/CreateDatabaseModal.vue:122
-#: src/views/database/CreateUserModal.vue:111
+#: src/views/database/CreateUserModal.vue:117
 msgid "Enter username"
 msgstr ""
 
@@ -4648,7 +4650,7 @@ msgstr ""
 #: src/views/backup/StorageView.vue:443
 #: src/views/database/CreateDatabaseModal.vue:142
 #: src/views/database/CreateServerModal.vue:143
-#: src/views/database/CreateUserModal.vue:128
+#: src/views/database/CreateUserModal.vue:134
 #: src/views/database/ServerList.vue:113
 #: src/views/database/UpdateServerModal.vue:75
 #: src/views/database/UserList.vue:63
@@ -4662,7 +4664,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:303
 #: src/views/apps/rsync/IndexView.vue:365
 #: src/views/database/CreateServerModal.vue:190
-#: src/views/database/CreateUserModal.vue:154
+#: src/views/database/CreateUserModal.vue:160
 #: src/views/database/DatabaseList.vue:49
 #: src/views/database/ServerList.vue:123
 #: src/views/database/UpdateServerModal.vue:113
@@ -4886,26 +4888,26 @@ msgstr ""
 msgid "Restored successfully"
 msgstr ""
 
-#: src/views/backup/ListView.vue:203
+#: src/views/backup/ListView.vue:207
 msgid "Only local backups are displayed here. Remote backups are stored in the corresponding backup storage."
 msgstr ""
 
-#: src/views/backup/ListView.vue:210
-#: src/views/backup/ListView.vue:239
+#: src/views/backup/ListView.vue:214
+#: src/views/backup/ListView.vue:243
 msgid "Create Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:213
+#: src/views/backup/ListView.vue:217
 #: src/views/backup/UploadModal.vue:38
 msgid "Upload Backup"
 msgstr ""
 
-#: src/views/backup/ListView.vue:251
-#: src/views/backup/ListView.vue:295
+#: src/views/backup/ListView.vue:255
+#: src/views/backup/ListView.vue:303
 msgid "Select website"
 msgstr ""
 
-#: src/views/backup/ListView.vue:254
+#: src/views/backup/ListView.vue:261
 #: src/views/database/CreateDatabaseModal.vue:94
 #: src/views/database/DatabaseList.vue:21
 #: src/views/website/CreateModal.vue:269
@@ -4913,22 +4915,22 @@ msgstr ""
 msgid "Database Name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:259
+#: src/views/backup/ListView.vue:267
 #: src/views/database/CreateDatabaseModal.vue:99
-#: src/views/database/CreateUserModal.vue:151
+#: src/views/database/CreateUserModal.vue:157
 #: src/views/database/UpdateUserModal.vue:75
 msgid "Enter database name"
 msgstr ""
 
-#: src/views/backup/ListView.vue:262
+#: src/views/backup/ListView.vue:270
 msgid "Backup Storage"
 msgstr ""
 
-#: src/views/backup/ListView.vue:266
+#: src/views/backup/ListView.vue:274
 msgid "Select backup storage"
 msgstr ""
 
-#: src/views/backup/ListView.vue:283
+#: src/views/backup/ListView.vue:291
 msgid "Restore Backup"
 msgstr ""
 
@@ -5078,7 +5080,7 @@ msgstr ""
 #: src/views/backup/StorageView.vue:511
 #: src/views/container/ImageView.vue:396
 #: src/views/database/CreateDatabaseModal.vue:132
-#: src/views/database/CreateUserModal.vue:121
+#: src/views/database/CreateUserModal.vue:127
 #: src/views/database/UpdateUserModal.vue:69
 msgid "Enter password"
 msgstr ""
@@ -5565,8 +5567,8 @@ msgid "Are you sure you want to stop compose %{ name }?"
 msgstr ""
 
 #: src/views/container/ComposeView.vue:184
-#: src/views/container/ContainerView.vue:278
-#: src/views/container/ContainerView.vue:344
+#: src/views/container/ContainerView.vue:276
+#: src/views/container/ContainerView.vue:342
 msgid "Stop successful"
 msgstr ""
 
@@ -5576,8 +5578,8 @@ msgstr ""
 
 #: src/views/container/ComposeView.vue:205
 #: src/views/container/ComposeView.vue:268
-#: src/views/container/ContainerView.vue:313
-#: src/views/container/ContainerView.vue:371
+#: src/views/container/ContainerView.vue:311
+#: src/views/container/ContainerView.vue:369
 #: src/views/container/ImageView.vue:122
 #: src/views/container/NetworkView.vue:149
 #: src/views/container/VolumeView.vue:102
@@ -5629,7 +5631,7 @@ msgid "Please enter image name"
 msgstr ""
 
 #: src/views/container/ContainerCreate.vue:182
-#: src/views/container/ContainerView.vue:555
+#: src/views/container/ContainerView.vue:553
 msgid "Create Container"
 msgstr ""
 
@@ -5862,17 +5864,17 @@ msgid "Ports (Host->Container)"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:173
-#: src/views/container/ContainerView.vue:577
+#: src/views/container/ContainerView.vue:575
 msgid "Force Stop"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:178
-#: src/views/container/ContainerView.vue:580
+#: src/views/container/ContainerView.vue:578
 msgid "Pause"
 msgstr ""
 
 #: src/views/container/ContainerView.vue:183
-#: src/views/container/ContainerView.vue:583
+#: src/views/container/ContainerView.vue:581
 msgid "Resume"
 msgstr ""
 
@@ -5881,59 +5883,59 @@ msgstr ""
 msgid "More"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:261
+#: src/views/container/ContainerView.vue:259
 msgid "Rename successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:271
-#: src/views/container/ContainerView.vue:335
+#: src/views/container/ContainerView.vue:269
+#: src/views/container/ContainerView.vue:333
 msgid "Start successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:285
-#: src/views/container/ContainerView.vue:353
+#: src/views/container/ContainerView.vue:283
+#: src/views/container/ContainerView.vue:351
 msgid "Restart successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:292
-#: src/views/container/ContainerView.vue:362
+#: src/views/container/ContainerView.vue:290
+#: src/views/container/ContainerView.vue:360
 msgid "Force stop successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:299
-#: src/views/container/ContainerView.vue:380
+#: src/views/container/ContainerView.vue:297
+#: src/views/container/ContainerView.vue:378
 msgid "Pause successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:306
-#: src/views/container/ContainerView.vue:389
+#: src/views/container/ContainerView.vue:304
+#: src/views/container/ContainerView.vue:387
 msgid "Resume successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:322
+#: src/views/container/ContainerView.vue:320
 #: src/views/container/ImageView.vue:131
 #: src/views/container/NetworkView.vue:158
 #: src/views/container/VolumeView.vue:111
 msgid "Cleanup successful"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:405
+#: src/views/container/ContainerView.vue:403
 msgid "Terminal container not found"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:488
+#: src/views/container/ContainerView.vue:486
 msgid "Failed to connect to container terminal"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:564
+#: src/views/container/ContainerView.vue:562
 msgid "Cleanup Containers"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:632
+#: src/views/container/ContainerView.vue:620
 msgid "New Name"
 msgstr ""
 
-#: src/views/container/ContainerView.vue:637
+#: src/views/container/ContainerView.vue:625
 msgid "Enter new name"
 msgstr ""
 
@@ -6129,17 +6131,17 @@ msgid "Volume Name"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:26
-#: src/views/database/CreateUserModal.vue:29
+#: src/views/database/CreateUserModal.vue:34
 msgid "Local (localhost)"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:27
-#: src/views/database/CreateUserModal.vue:30
+#: src/views/database/CreateUserModal.vue:35
 msgid "All (%)"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:28
-#: src/views/database/CreateUserModal.vue:31
+#: src/views/database/CreateUserModal.vue:36
 msgid "Specific"
 msgstr ""
 
@@ -6149,7 +6151,7 @@ msgid "Create Database"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:90
-#: src/views/database/CreateUserModal.vue:102
+#: src/views/database/CreateUserModal.vue:108
 msgid "Select server"
 msgstr ""
 
@@ -6162,22 +6164,22 @@ msgid "Enter authorized username (leave empty for no authorization)"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:135
-#: src/views/database/CreateUserModal.vue:124
+#: src/views/database/CreateUserModal.vue:130
 msgid "Generate"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:147
-#: src/views/database/CreateUserModal.vue:132
+#: src/views/database/CreateUserModal.vue:138
 msgid "Select host"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:154
-#: src/views/database/CreateUserModal.vue:139
+#: src/views/database/CreateUserModal.vue:145
 msgid "Specific Host"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:160
-#: src/views/database/CreateUserModal.vue:145
+#: src/views/database/CreateUserModal.vue:151
 msgid "Enter supported host address"
 msgstr ""
 
@@ -6227,18 +6229,18 @@ msgstr ""
 msgid "Enter database server comment"
 msgstr ""
 
-#: src/views/database/CreateUserModal.vue:94
+#: src/views/database/CreateUserModal.vue:100
 #: src/views/database/UpdateUserModal.vue:59
 msgid "If the privilege databases does not exist, it will be created automatically."
 msgstr ""
 
-#: src/views/database/CreateUserModal.vue:148
+#: src/views/database/CreateUserModal.vue:154
 #: src/views/database/UpdateUserModal.vue:72
 #: src/views/database/UserList.vue:81
 msgid "Privileges"
 msgstr ""
 
-#: src/views/database/CreateUserModal.vue:159
+#: src/views/database/CreateUserModal.vue:165
 #: src/views/database/UpdateUserModal.vue:83
 msgid "Enter database user comment"
 msgstr ""
@@ -6283,7 +6285,7 @@ msgid "Are you sure you want to delete this document?"
 msgstr ""
 
 #: src/views/database/ElasticsearchDataView.vue:294
-#: src/views/database/RedisDataView.vue:239
+#: src/views/database/RedisDataView.vue:274
 msgid "Select Server"
 msgstr ""
 
@@ -6329,43 +6331,59 @@ msgstr ""
 msgid "Enter JSON document"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:105
+#: src/views/database/RedisDataView.vue:110
 #: src/views/firewall/SettingView.vue:125
 msgid "Permanent"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:106
+#: src/views/database/RedisDataView.vue:111
 msgid "Expired"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:158
+#: src/views/database/RedisDataView.vue:177
 msgid "Are you sure you want to delete this key?"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:248
+#: src/views/database/RedisDataView.vue:283
 msgid "Search key pattern, e.g. user:*"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:258
+#: src/views/database/RedisDataView.vue:293
 #: src/views/database/RedisKeyModal.vue:90
 msgid "Create Key"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:262
+#: src/views/database/RedisDataView.vue:297
 msgid "Are you sure you want to clear the current database?"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:267
+#: src/views/database/RedisDataView.vue:302
 msgid "Clear DB"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:305
+#: src/views/database/RedisDataView.vue:340
 msgid "Set TTL"
 msgstr ""
 
-#: src/views/database/RedisDataView.vue:318
+#: src/views/database/RedisDataView.vue:353
 #: src/views/database/RedisKeyModal.vue:124
 msgid "-1 means no expiration"
+msgstr ""
+
+#: src/views/database/RedisDataView.vue:365
+msgid "Rename Key"
+msgstr ""
+
+#: src/views/database/RedisDataView.vue:370
+msgid "Old Key"
+msgstr ""
+
+#: src/views/database/RedisDataView.vue:373
+msgid "New Key"
+msgstr ""
+
+#: src/views/database/RedisDataView.vue:374
+msgid "Enter new key name"
 msgstr ""
 
 #: src/views/database/RedisKeyModal.vue:90
@@ -9980,55 +9998,47 @@ msgstr ""
 msgid "System logs and journal logs"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:86
-msgid "Scan failed"
-msgstr ""
-
-#: src/views/toolbox/LogView.vue:99
+#: src/views/toolbox/LogView.vue:96
 msgid "Cleaned: %{ size }"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:102
-msgid "Clean failed"
-msgstr ""
-
-#: src/views/toolbox/LogView.vue:142
+#: src/views/toolbox/LogView.vue:138
 msgid "Log Cleaner"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:146
+#: src/views/toolbox/LogView.vue:142
 msgid "Scan and clean redundant logs to free up disk space. Cleaning is irreversible."
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:162
+#: src/views/toolbox/LogView.vue:158
 msgid "Scan All"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:173
+#: src/views/toolbox/LogView.vue:169
 msgid "Clean All"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:204
+#: src/views/toolbox/LogView.vue:200
 msgid "Scanning..."
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:209
+#: src/views/toolbox/LogView.vue:205
 msgid "No logs found"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:215
+#: src/views/toolbox/LogView.vue:211
 msgid "Found %{ count } items"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:237
+#: src/views/toolbox/LogView.vue:233
 msgid "Click Scan to check logs"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:251
+#: src/views/toolbox/LogView.vue:247
 msgid "Scan"
 msgstr ""
 
-#: src/views/toolbox/LogView.vue:263
+#: src/views/toolbox/LogView.vue:259
 msgid "Clean"
 msgstr ""
 
