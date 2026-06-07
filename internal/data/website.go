@@ -201,7 +201,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	if phpVhost, ok := vhost.(webservertypes.PHPVhost); ok {
 		setting.PHP = phpVhost.PHP()
 		// 伪静态
-		setting.Rewrite = phpVhost.Config("010-rewrite.conf", "site")
+		setting.Rewrite = phpVhost.Config("010-rewrite.conf", webservertypes.ScopeSite)
 	}
 
 	// 反向代理网站特有
@@ -226,7 +226,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	setting.CustomConfigs = r.getCustomConfigs(configDir)
 
 	// 访问统计
-	setting.StatEnabled = vhost.Config("021-stats-log.conf", "site") != ""
+	setting.StatEnabled = vhost.Config("021-stats-log.conf", webservertypes.ScopeSite) != ""
 
 	return setting, err
 }
@@ -344,7 +344,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 	case "apache":
 		errorPageConfig = `ErrorDocument 404 /404.html`
 	}
-	if err = vhost.SetConfig("010-error-404.conf", "site", errorPageConfig); err != nil {
+	if err = vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, errorPageConfig); err != nil {
 		return nil, err
 	}
 
@@ -368,7 +368,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		if err = phpVhost.SetIndex([]string{"index.php", "index.html"}); err != nil {
 			return nil, err
 		}
-		if err = phpVhost.SetConfig("010-rewrite.conf", "site", "", true); err != nil {
+		if err = phpVhost.SetRawConfig("010-rewrite.conf", webservertypes.ScopeSite, ""); err != nil {
 			return nil, err
 		}
 		var cacheConfig string
@@ -420,7 +420,7 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 </FilesMatch>
 `
 		}
-		if err = phpVhost.SetConfig("010-cache.conf", "site", cacheConfig); err != nil {
+		if err = phpVhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig); err != nil {
 			return nil, err
 		}
 	}
@@ -472,7 +472,7 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 	}
 
 	// 写配置
-	if err = vhost.SetConfig("001-acme.conf", "site", ""); err != nil {
+	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
 		return nil, err
 	}
 
@@ -665,7 +665,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 			return err
 		}
 		// 伪静态
-		if err = phpVhost.SetConfig("010-rewrite.conf", "site", req.Rewrite, true); err != nil {
+		if err = phpVhost.SetRawConfig("010-rewrite.conf", webservertypes.ScopeSite, req.Rewrite); err != nil {
 			return err
 		}
 		// 防跨站
@@ -765,8 +765,8 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 				return err
 			}
 		} else {
-			_ = vhost.RemoveConfig("010-stat-format.conf", "shared")
-			_ = vhost.RemoveConfig("021-stats-log.conf", "site")
+			_ = vhost.RemoveConfig("010-stat-format.conf", webservertypes.ScopeShared)
+			_ = vhost.RemoveConfig("021-stats-log.conf", webservertypes.ScopeSite)
 		}
 	}
 
@@ -870,7 +870,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 	// 保存配置
-	if err = vhost.SetConfig("001-acme.conf", "site", ""); err != nil {
+	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
 		return err
 	}
 	if err = vhost.Save(); err != nil {
@@ -1300,9 +1300,9 @@ func (r *websiteRepo) enableStat(vhost webservertypes.Vhost, name string) error 
   '"https":"$https",'
   '"upstream_time":"$upstream_response_time",'
   '"upstream_status":"$upstream_status"}';`, safeName, name)
-	if err := vhost.SetConfig("010-stat-format.conf", "shared", formatConf); err != nil {
+	if err := vhost.SetConfig("010-stat-format.conf", webservertypes.ScopeShared, formatConf); err != nil {
 		return err
 	}
 	logConf := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", safeName, safeName)
-	return vhost.SetConfig("021-stats-log.conf", "site", logConf)
+	return vhost.SetConfig("021-stats-log.conf", webservertypes.ScopeSite, logConf)
 }

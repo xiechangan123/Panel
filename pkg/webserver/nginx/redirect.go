@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
+	"github.com/tufanbarisyildirim/gonginx/config"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
@@ -62,63 +63,81 @@ func parseRedirectFile(filePath string) (*types.Redirect, error) {
 		return nil, err
 	}
 
-	contentStr := string(content)
+	p, err := NewParserFromString(string(content))
+	if err != nil {
+		return nil, err
+	}
+	cfg := p.Config()
 
-	// 解析 URL 重定向: location = /old { return 308 /new; }
-	urlPattern := regexp.MustCompile(`location\s*=\s*(\S+)\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
-	if matches := urlPattern.FindStringSubmatch(contentStr); matches != nil {
-		statusCode, _ := strconv.Atoi(matches[2])
-		to := strings.TrimSpace(matches[3])
-		keepURI := strings.Contains(to, "$request_uri")
-		if keepURI {
-			to = strings.TrimSuffix(to, "$request_uri")
-		}
-		return &types.Redirect{
-			Type:       types.RedirectTypeURL,
-			From:       matches[1],
-			To:         to,
-			KeepURI:    keepURI,
-			StatusCode: statusCode,
-		}, nil
+	// 取 return 指令的状态码与目标（三种重定向各只含一条 return）
+	statusCode, to, keepURI, ok := parseReturn(p, cfg.FindDirectives("return"))
+	if !ok {
+		return nil, nil
 	}
 
 	// 解析 Host 重定向: if ($host = "old.example.com") { return 308 https://new.example.com$request_uri; }
-	hostPattern := regexp.MustCompile(`if\s*\(\s*\$host\s*=\s*"?([^")\s]+)"?\s*\)\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
-	if matches := hostPattern.FindStringSubmatch(contentStr); matches != nil {
-		statusCode, _ := strconv.Atoi(matches[2])
-		to := strings.TrimSpace(matches[3])
-		keepURI := strings.Contains(to, "$request_uri")
-		if keepURI {
-			to = strings.TrimSuffix(to, "$request_uri")
+	for _, ifd := range cfg.FindDirectives("if") {
+		params := p.parameters2Slices(ifd.GetParameters())
+		// gonginx 形态: ["($host", "=", "\"old.example.com\"", ")"]
+		if len(params) >= 3 && strings.Contains(params[0], "$host") {
+			return &types.Redirect{
+				Type:       types.RedirectTypeHost,
+				From:       unquote(strings.TrimSuffix(params[2], ")")),
+				To:         to,
+				KeepURI:    keepURI,
+				StatusCode: statusCode,
+			}, nil
 		}
-		return &types.Redirect{
-			Type:       types.RedirectTypeHost,
-			From:       matches[1],
-			To:         to,
-			KeepURI:    keepURI,
-			StatusCode: statusCode,
-		}, nil
 	}
 
 	// 解析 404 重定向: error_page 404 = @redirect_404; location @redirect_404 { return 308 /custom; }
-	errorPattern := regexp.MustCompile(`error_page\s+404\s*=\s*@redirect_404;[^@]*location\s+@redirect_404\s*\{[^}]*return\s+(\d+)\s+([^;]+);`)
-	if matches := errorPattern.FindStringSubmatch(contentStr); matches != nil {
-		statusCode, _ := strconv.Atoi(matches[1])
-		to := strings.TrimSpace(matches[2])
-		keepURI := strings.Contains(to, "$request_uri")
-		if keepURI {
-			to = strings.TrimSuffix(to, "$request_uri")
+	for _, ed := range cfg.FindDirectives("error_page") {
+		params := p.parameters2Slices(ed.GetParameters())
+		if len(params) > 0 && params[0] == "404" {
+			return &types.Redirect{
+				Type:       types.RedirectType404,
+				From:       "",
+				To:         to,
+				KeepURI:    keepURI,
+				StatusCode: statusCode,
+			}, nil
 		}
-		return &types.Redirect{
-			Type:       types.RedirectType404,
-			From:       "",
-			To:         to,
-			KeepURI:    keepURI,
-			StatusCode: statusCode,
-		}, nil
+	}
+
+	// 解析 URL 重定向: location = /old { return 308 /new; }
+	for _, ld := range cfg.FindDirectives("location") {
+		params := p.parameters2Slices(ld.GetParameters())
+		// 带 = 修饰符的 location，形态: ["=", "/old"]
+		if len(params) >= 2 && params[0] == "=" {
+			return &types.Redirect{
+				Type:       types.RedirectTypeURL,
+				From:       params[1],
+				To:         to,
+				KeepURI:    keepURI,
+				StatusCode: statusCode,
+			}, nil
+		}
 	}
 
 	return nil, nil
+}
+
+// parseReturn 从 return 指令解析状态码、目标与是否保留 URI
+func parseReturn(p *Parser, dirs []config.IDirective) (statusCode int, to string, keepURI bool, ok bool) {
+	if len(dirs) == 0 {
+		return 0, "", false, false
+	}
+	params := p.parameters2Slices(dirs[0].GetParameters())
+	if len(params) < 2 {
+		return 0, "", false, false
+	}
+	statusCode, _ = strconv.Atoi(params[0])
+	to = strings.Join(params[1:], " ")
+	keepURI = strings.Contains(to, "$request_uri")
+	if keepURI {
+		to = strings.TrimSuffix(to, "$request_uri")
+	}
+	return statusCode, to, keepURI, true
 }
 
 // writeRedirectFiles 将重定向配置写入文件

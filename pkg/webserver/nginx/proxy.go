@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+	"github.com/tufanbarisyildirim/gonginx/config"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
@@ -17,9 +18,34 @@ import (
 // proxyFilePattern 匹配代理配置文件名 (200-299)
 var proxyFilePattern = regexp.MustCompile(`^(\d{3})-proxy\.conf$`)
 
-// parseDurationFromNginx 从 Nginx 时间格式解析为 time.Duration
-func parseDurationFromNginx(valueStr, unit string) time.Duration {
-	value, _ := strconv.Atoi(valueStr)
+// firstParam 返回指令切片中首个指令的首个参数值
+func firstParam(p *Parser, dirs []config.IDirective) string {
+	if len(dirs) == 0 {
+		return ""
+	}
+	params := p.parameters2Slices(dirs[0].GetParameters())
+	if len(params) == 0 {
+		return ""
+	}
+	return params[0]
+}
+
+// unquote 去除字符串两端的引号
+func unquote(s string) string {
+	return strings.Trim(s, `"'`)
+}
+
+// parseDuration 解析 Nginx 时间格式整串为 time.Duration，如 "5s" "5m" "5h"
+func parseDuration(s string) time.Duration {
+	s = strings.TrimSpace(s)
+	unit := ""
+	if len(s) > 0 {
+		if last := s[len(s)-1]; last < '0' || last > '9' {
+			unit = string(last)
+			s = s[:len(s)-1]
+		}
+	}
+	value, _ := strconv.Atoi(s)
 	switch unit {
 	case "m":
 		return time.Duration(value) * time.Minute
@@ -30,10 +56,18 @@ func parseDurationFromNginx(valueStr, unit string) time.Duration {
 	}
 }
 
-// parseSizeToBytes 解析大小字符串为字节数
-func parseSizeToBytes(valueStr, unit string) int64 {
-	value, _ := strconv.ParseInt(valueStr, 10, 64)
-	switch strings.ToLower(unit) {
+// parseSize 解析 Nginx 大小格式整串为字节数，如 "10m" "512k" "1g"
+func parseSize(s string) int64 {
+	s = strings.TrimSpace(s)
+	unit := ""
+	if len(s) > 0 {
+		if last := s[len(s)-1]; last < '0' || last > '9' {
+			unit = strings.ToLower(string(last))
+			s = s[:len(s)-1]
+		}
+	}
+	value, _ := strconv.ParseInt(s, 10, 64)
+	switch unit {
 	case "k":
 		return value * 1024
 	case "m":
@@ -123,194 +157,104 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 		return nil, err
 	}
 
-	contentStr := string(content)
+	p, err := NewParserFromString(string(content))
+	if err != nil {
+		return nil, err
+	}
+	cfg := p.Config()
 
 	// 解析 location 块
 	// location / {
 	//     proxy_pass http://backend;
 	//     ...
 	// }
-	locationPattern := regexp.MustCompile(`location\s+([^{]+)\{([^}]+(?:\{[^}]*}[^}]*)*)}`)
-	matches := locationPattern.FindStringSubmatch(contentStr)
-	if matches == nil {
+	locations := cfg.FindDirectives("location")
+	if len(locations) == 0 {
 		return nil, nil
 	}
 
 	proxy := &types.Proxy{
-		Location: strings.TrimSpace(matches[1]),
+		Location: strings.Join(p.parameters2Slices(locations[0].GetParameters()), " "),
 		Resolver: []string{},
 		Headers:  make(map[string]string),
 		Replaces: make(map[string]string),
 	}
 
-	blockContent := matches[2]
-
 	// 解析 proxy_pass
-	passPattern := regexp.MustCompile(`proxy_pass\s+([^;]+);`)
-	if pm := passPattern.FindStringSubmatch(blockContent); pm != nil {
-		proxy.Pass = strings.TrimSpace(pm[1])
+	if d := cfg.FindDirectives("proxy_pass"); len(d) > 0 {
+		proxy.Pass = firstParam(p, d)
 	}
 
-	// 解析 proxy_set_header Host
-	hostPattern := regexp.MustCompile(`proxy_set_header\s+Host\s+([^;]+);`)
-	if hm := hostPattern.FindStringSubmatch(blockContent); hm != nil {
-		host := strings.TrimSpace(hm[1])
-		// 移除引号
-		host = strings.Trim(host, `"'`)
-		proxy.Host = host
-	}
-
-	// 解析 proxy_ssl_name (SNI)
-	sniPattern := regexp.MustCompile(`proxy_ssl_name\s+([^;]+);`)
-	if sm := sniPattern.FindStringSubmatch(blockContent); sm != nil {
-		proxy.SNI = strings.TrimSpace(sm[1])
-	}
-
-	// 解析 proxy_buffering
-	bufferingPattern := regexp.MustCompile(`proxy_buffering\s+(on|off);`)
-	if bm := bufferingPattern.FindStringSubmatch(blockContent); bm != nil {
-		proxy.Buffering = bm[1] == "on"
-	}
-
-	// 解析 proxy_cache
-	cachePattern := regexp.MustCompile(`proxy_cache\s+(\S+);`)
-	if cm := cachePattern.FindStringSubmatch(blockContent); cm != nil && cm[1] != "off" {
-		proxy.Cache = &types.CacheConfig{
-			Valid:             make(map[string]string),
-			NoCacheConditions: []string{},
-			UseStale:          []string{},
-			Methods:           []string{},
-		}
-
-		// 解析 proxy_cache_valid
-		cacheValidPattern := regexp.MustCompile(`proxy_cache_valid\s+([^;]+);`)
-		cacheValidMatches := cacheValidPattern.FindAllStringSubmatch(blockContent, -1)
-		for _, cvm := range cacheValidMatches {
-			parts := strings.Fields(cvm[1])
-			if len(parts) >= 2 {
-				// 最后一个是时长，前面的是状态码
-				duration := parts[len(parts)-1]
-				codes := strings.Join(parts[:len(parts)-1], " ")
-				proxy.Cache.Valid[codes] = duration
-			} else if len(parts) == 1 {
-				// 只有时长，表示 any
-				proxy.Cache.Valid["any"] = parts[0]
-			}
-		}
-
-		// 解析 proxy_cache_bypass / proxy_no_cache
-		bypassPattern := regexp.MustCompile(`proxy_cache_bypass\s+([^;]+);`)
-		if bm := bypassPattern.FindStringSubmatch(blockContent); bm != nil {
-			proxy.Cache.NoCacheConditions = strings.Fields(bm[1])
-		}
-
-		// 解析 proxy_cache_use_stale
-		useStalePattern := regexp.MustCompile(`proxy_cache_use_stale\s+([^;]+);`)
-		if usm := useStalePattern.FindStringSubmatch(blockContent); usm != nil {
-			proxy.Cache.UseStale = strings.Fields(usm[1])
-		}
-
-		// 解析 proxy_cache_background_update
-		bgUpdatePattern := regexp.MustCompile(`proxy_cache_background_update\s+(on|off);`)
-		if bgm := bgUpdatePattern.FindStringSubmatch(blockContent); bgm != nil {
-			proxy.Cache.BackgroundUpdate = bgm[1] == "on"
-		}
-
-		// 解析 proxy_cache_lock
-		lockPattern := regexp.MustCompile(`proxy_cache_lock\s+(on|off);`)
-		if lm := lockPattern.FindStringSubmatch(blockContent); lm != nil {
-			proxy.Cache.Lock = lm[1] == "on"
-		}
-
-		// 解析 proxy_cache_min_uses
-		minUsesPattern := regexp.MustCompile(`proxy_cache_min_uses\s+(\d+);`)
-		if mum := minUsesPattern.FindStringSubmatch(blockContent); mum != nil {
-			proxy.Cache.MinUses, _ = strconv.Atoi(mum[1])
-		}
-
-		// 解析 proxy_cache_methods
-		methodsPattern := regexp.MustCompile(`proxy_cache_methods\s+([^;]+);`)
-		if mm := methodsPattern.FindStringSubmatch(blockContent); mm != nil {
-			proxy.Cache.Methods = strings.Fields(mm[1])
-		}
-
-		// 解析 proxy_cache_key
-		keyPattern := regexp.MustCompile(`proxy_cache_key\s+"?([^";]+)"?;`)
-		if km := keyPattern.FindStringSubmatch(blockContent); km != nil {
-			proxy.Cache.Key = strings.TrimSpace(km[1])
-		}
-	}
-
-	// 解析 resolver
-	resolverPattern := regexp.MustCompile(`resolver\s+([^;]+);`)
-	if rm := resolverPattern.FindStringSubmatch(blockContent); rm != nil {
-		parts := strings.Fields(rm[1])
-		proxy.Resolver = parts
-	}
-
-	// 解析 resolver_timeout
-	resolverTimeoutPattern := regexp.MustCompile(`resolver_timeout\s+(\d+)([smh]?);`)
-	if rtm := resolverTimeoutPattern.FindStringSubmatch(blockContent); rtm != nil {
-		value, _ := strconv.Atoi(rtm[1])
-		unit := rtm[2]
-		switch unit {
-		case "m":
-			proxy.ResolverTimeout = time.Duration(value) * time.Minute
-		case "h":
-			proxy.ResolverTimeout = time.Duration(value) * time.Hour
-		default:
-			proxy.ResolverTimeout = time.Duration(value) * time.Second
-		}
-	}
-
-	// 解析 sub_filter (响应内容替换)
-	subFilterPattern := regexp.MustCompile(`sub_filter\s+"([^"]+)"\s+"([^"]*)";`)
-	subFilterMatches := subFilterPattern.FindAllStringSubmatch(blockContent, -1)
-	for _, sfm := range subFilterMatches {
-		proxy.Replaces[sfm[1]] = sfm[2]
-	}
-
-	// 解析自定义请求头
+	// 解析 proxy_set_header：Host 单独提取，其余非标准头收入 Headers
 	standardHeaders := map[string]bool{
 		"Host": true, "X-Real-IP": true, "X-Forwarded-For": true,
 		"X-Forwarded-Proto": true, "Upgrade": true, "Connection": true,
 		"Early-Data": true, "Accept-Encoding": true,
 	}
-	headerPattern := regexp.MustCompile(`proxy_set_header\s+(\S+)\s+"?([^";]+)"?;`)
-	headerMatches := headerPattern.FindAllStringSubmatch(blockContent, -1)
-	for _, hm := range headerMatches {
-		headerName := strings.TrimSpace(hm[1])
-		headerValue := strings.TrimSpace(hm[2])
-		// 排除标准头
-		if !standardHeaders[headerName] {
-			proxy.Headers[headerName] = headerValue
+	for _, d := range cfg.FindDirectives("proxy_set_header") {
+		vals := p.parameters2Slices(d.GetParameters())
+		if len(vals) < 2 {
+			continue
+		}
+		name, value := vals[0], unquote(strings.Join(vals[1:], " "))
+		if name == "Host" {
+			proxy.Host = value
+		} else if !standardHeaders[name] {
+			proxy.Headers[name] = value
+		}
+	}
+
+	// 解析 proxy_ssl_name (SNI)
+	if d := cfg.FindDirectives("proxy_ssl_name"); len(d) > 0 {
+		proxy.SNI = firstParam(p, d)
+	}
+
+	// 解析 proxy_buffering
+	if d := cfg.FindDirectives("proxy_buffering"); len(d) > 0 {
+		proxy.Buffering = firstParam(p, d) == "on"
+	}
+
+	// 解析 proxy_cache 及其子指令
+	if d := cfg.FindDirectives("proxy_cache"); len(d) > 0 && firstParam(p, d) != "off" {
+		proxy.Cache = parseProxyCache(p, cfg)
+	}
+
+	// 解析 resolver
+	if d := cfg.FindDirectives("resolver"); len(d) > 0 {
+		proxy.Resolver = p.parameters2Slices(d[0].GetParameters())
+	}
+
+	// 解析 resolver_timeout
+	if d := cfg.FindDirectives("resolver_timeout"); len(d) > 0 {
+		proxy.ResolverTimeout = parseDuration(firstParam(p, d))
+	}
+
+	// 解析 sub_filter (响应内容替换)
+	for _, d := range cfg.FindDirectives("sub_filter") {
+		vals := p.parameters2Slices(d.GetParameters())
+		if len(vals) >= 2 {
+			proxy.Replaces[unquote(vals[0])] = unquote(vals[1])
 		}
 	}
 
 	// 解析 proxy_http_version
-	httpVersionPattern := regexp.MustCompile(`proxy_http_version\s+([\d.]+);`)
-	if hvm := httpVersionPattern.FindStringSubmatch(blockContent); hvm != nil {
-		proxy.HTTPVersion = strings.TrimSpace(hvm[1])
+	if d := cfg.FindDirectives("proxy_http_version"); len(d) > 0 {
+		proxy.HTTPVersion = firstParam(p, d)
 	}
 
 	// 解析超时配置
-	connectTimeoutPattern := regexp.MustCompile(`proxy_connect_timeout\s+(\d+)([smh]?);`)
-	readTimeoutPattern := regexp.MustCompile(`proxy_read_timeout\s+(\d+)([smh]?);`)
-	sendTimeoutPattern := regexp.MustCompile(`proxy_send_timeout\s+(\d+)([smh]?);`)
-
 	var timeout types.TimeoutConfig
 	hasTimeout := false
-
-	if ctm := connectTimeoutPattern.FindStringSubmatch(blockContent); ctm != nil {
-		timeout.Connect = parseDurationFromNginx(ctm[1], ctm[2])
+	if d := cfg.FindDirectives("proxy_connect_timeout"); len(d) > 0 {
+		timeout.Connect = parseDuration(firstParam(p, d))
 		hasTimeout = true
 	}
-	if rtm := readTimeoutPattern.FindStringSubmatch(blockContent); rtm != nil {
-		timeout.Read = parseDurationFromNginx(rtm[1], rtm[2])
+	if d := cfg.FindDirectives("proxy_read_timeout"); len(d) > 0 {
+		timeout.Read = parseDuration(firstParam(p, d))
 		hasTimeout = true
 	}
-	if stm := sendTimeoutPattern.FindStringSubmatch(blockContent); stm != nil {
-		timeout.Send = parseDurationFromNginx(stm[1], stm[2])
+	if d := cfg.FindDirectives("proxy_send_timeout"); len(d) > 0 {
+		timeout.Send = parseDuration(firstParam(p, d))
 		hasTimeout = true
 	}
 	if hasTimeout {
@@ -318,23 +262,18 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 
 	// 解析重试配置
-	nextUpstreamPattern := regexp.MustCompile(`proxy_next_upstream\s+([^;]+);`)
-	nextUpstreamTriesPattern := regexp.MustCompile(`proxy_next_upstream_tries\s+(\d+);`)
-	nextUpstreamTimeoutPattern := regexp.MustCompile(`proxy_next_upstream_timeout\s+(\d+)([smh]?);`)
-
 	var retry types.RetryConfig
 	hasRetry := false
-
-	if num := nextUpstreamPattern.FindStringSubmatch(blockContent); num != nil {
-		retry.Conditions = strings.Fields(num[1])
+	if d := cfg.FindDirectives("proxy_next_upstream"); len(d) > 0 {
+		retry.Conditions = p.parameters2Slices(d[0].GetParameters())
 		hasRetry = true
 	}
-	if nutm := nextUpstreamTriesPattern.FindStringSubmatch(blockContent); nutm != nil {
-		retry.Tries, _ = strconv.Atoi(nutm[1])
+	if d := cfg.FindDirectives("proxy_next_upstream_tries"); len(d) > 0 {
+		retry.Tries, _ = strconv.Atoi(firstParam(p, d))
 		hasRetry = true
 	}
-	if nutom := nextUpstreamTimeoutPattern.FindStringSubmatch(blockContent); nutom != nil {
-		retry.Timeout = parseDurationFromNginx(nutom[1], nutom[2])
+	if d := cfg.FindDirectives("proxy_next_upstream_timeout"); len(d) > 0 {
+		retry.Timeout = parseDuration(firstParam(p, d))
 		hasRetry = true
 	}
 	if hasRetry {
@@ -342,29 +281,23 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 
 	// 解析 client_max_body_size
-	clientMaxBodySizePattern := regexp.MustCompile(`client_max_body_size\s+(\d+)([kmgKMG]?);`)
-	if cmbsm := clientMaxBodySizePattern.FindStringSubmatch(blockContent); cmbsm != nil {
-		proxy.ClientMaxBodySize = parseSizeToBytes(cmbsm[1], cmbsm[2])
+	if d := cfg.FindDirectives("client_max_body_size"); len(d) > 0 {
+		proxy.ClientMaxBodySize = parseSize(firstParam(p, d))
 	}
 
 	// 解析 SSL 后端验证配置
-	sslVerifyPattern := regexp.MustCompile(`proxy_ssl_verify\s+(on|off);`)
-	sslTrustedCertPattern := regexp.MustCompile(`proxy_ssl_trusted_certificate\s+([^;]+);`)
-	sslVerifyDepthPattern := regexp.MustCompile(`proxy_ssl_verify_depth\s+(\d+);`)
-
 	var sslBackend types.SSLBackendConfig
 	hasSSLBackend := false
-
-	if svm := sslVerifyPattern.FindStringSubmatch(blockContent); svm != nil {
-		sslBackend.Verify = svm[1] == "on"
+	if d := cfg.FindDirectives("proxy_ssl_verify"); len(d) > 0 {
+		sslBackend.Verify = firstParam(p, d) == "on"
 		hasSSLBackend = true
 	}
-	if stcm := sslTrustedCertPattern.FindStringSubmatch(blockContent); stcm != nil {
-		sslBackend.TrustedCertificate = strings.TrimSpace(stcm[1])
+	if d := cfg.FindDirectives("proxy_ssl_trusted_certificate"); len(d) > 0 {
+		sslBackend.TrustedCertificate = firstParam(p, d)
 		hasSSLBackend = true
 	}
-	if svdm := sslVerifyDepthPattern.FindStringSubmatch(blockContent); svdm != nil {
-		sslBackend.VerifyDepth, _ = strconv.Atoi(svdm[1])
+	if d := cfg.FindDirectives("proxy_ssl_verify_depth"); len(d) > 0 {
+		sslBackend.VerifyDepth, _ = strconv.Atoi(firstParam(p, d))
 		hasSSLBackend = true
 	}
 	if hasSSLBackend {
@@ -372,25 +305,22 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 
 	// 解析响应头配置
-	hideHeaderPattern := regexp.MustCompile(`proxy_hide_header\s+([^;]+);`)
-	addHeaderPattern := regexp.MustCompile(`add_header\s+(\S+)\s+"?([^";]+)"?(?:\s+always)?;`)
-
 	var responseHeaders types.ResponseHeaderConfig
 	hasResponseHeaders := false
-
-	hideHeaderMatches := hideHeaderPattern.FindAllStringSubmatch(blockContent, -1)
-	if len(hideHeaderMatches) > 0 {
-		responseHeaders.Hide = lo.Map(hideHeaderMatches, func(hhm []string, _ int) string {
-			return strings.TrimSpace(hhm[1])
+	if hide := cfg.FindDirectives("proxy_hide_header"); len(hide) > 0 {
+		responseHeaders.Hide = lo.Map(hide, func(d config.IDirective, _ int) string {
+			return firstParam(p, []config.IDirective{d})
 		})
 		hasResponseHeaders = true
 	}
-
-	addHeaderMatches := addHeaderPattern.FindAllStringSubmatch(blockContent, -1)
-	if len(addHeaderMatches) > 0 {
-		responseHeaders.Add = lo.SliceToMap(addHeaderMatches, func(ahm []string) (string, string) {
-			return strings.TrimSpace(ahm[1]), strings.TrimSpace(ahm[2])
-		})
+	if add := cfg.FindDirectives("add_header"); len(add) > 0 {
+		responseHeaders.Add = make(map[string]string)
+		for _, d := range add {
+			vals := p.parameters2Slices(d.GetParameters())
+			if len(vals) >= 2 {
+				responseHeaders.Add[vals[0]] = unquote(vals[1])
+			}
+		}
 		hasResponseHeaders = true
 	}
 	if hasResponseHeaders {
@@ -398,24 +328,17 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 
 	// 解析 IP 访问控制
-	allowPattern := regexp.MustCompile(`allow\s+([^;]+);`)
-	denyPattern := regexp.MustCompile(`deny\s+([^;]+);`)
-
 	var accessControl types.AccessControlConfig
 	hasAccessControl := false
-
-	allowMatches := allowPattern.FindAllStringSubmatch(blockContent, -1)
-	if len(allowMatches) > 0 {
-		accessControl.Allow = lo.Map(allowMatches, func(am []string, _ int) string {
-			return strings.TrimSpace(am[1])
+	if allow := cfg.FindDirectives("allow"); len(allow) > 0 {
+		accessControl.Allow = lo.Map(allow, func(d config.IDirective, _ int) string {
+			return firstParam(p, []config.IDirective{d})
 		})
 		hasAccessControl = true
 	}
-
-	denyMatches := denyPattern.FindAllStringSubmatch(blockContent, -1)
-	if len(denyMatches) > 0 {
-		accessControl.Deny = lo.Map(denyMatches, func(dm []string, _ int) string {
-			return strings.TrimSpace(dm[1])
+	if deny := cfg.FindDirectives("deny"); len(deny) > 0 {
+		accessControl.Deny = lo.Map(deny, func(d config.IDirective, _ int) string {
+			return firstParam(p, []config.IDirective{d})
 		})
 		hasAccessControl = true
 	}
@@ -424,6 +347,63 @@ func parseProxyFile(filePath string) (*types.Proxy, error) {
 	}
 
 	return proxy, nil
+}
+
+// parseProxyCache 从配置中解析 proxy_cache 相关子指令
+func parseProxyCache(p *Parser, cfg *config.Config) *types.CacheConfig {
+	cache := &types.CacheConfig{
+		Valid:             make(map[string]string),
+		NoCacheConditions: []string{},
+		UseStale:          []string{},
+		Methods:           []string{},
+	}
+
+	// proxy_cache_valid：最后一个参数是时长，其余为状态码；仅时长则归入 any
+	for _, d := range cfg.FindDirectives("proxy_cache_valid") {
+		parts := p.parameters2Slices(d.GetParameters())
+		if len(parts) >= 2 {
+			cache.Valid[strings.Join(parts[:len(parts)-1], " ")] = parts[len(parts)-1]
+		} else if len(parts) == 1 {
+			cache.Valid["any"] = parts[0]
+		}
+	}
+
+	// proxy_cache_bypass / proxy_no_cache（两者参数一致，取其一）
+	if d := cfg.FindDirectives("proxy_cache_bypass"); len(d) > 0 {
+		cache.NoCacheConditions = p.parameters2Slices(d[0].GetParameters())
+	}
+
+	// proxy_cache_use_stale
+	if d := cfg.FindDirectives("proxy_cache_use_stale"); len(d) > 0 {
+		cache.UseStale = p.parameters2Slices(d[0].GetParameters())
+	}
+
+	// proxy_cache_background_update
+	if d := cfg.FindDirectives("proxy_cache_background_update"); len(d) > 0 {
+		cache.BackgroundUpdate = firstParam(p, d) == "on"
+	}
+
+	// proxy_cache_lock
+	if d := cfg.FindDirectives("proxy_cache_lock"); len(d) > 0 {
+		cache.Lock = firstParam(p, d) == "on"
+	}
+
+	// proxy_cache_min_uses
+	if d := cfg.FindDirectives("proxy_cache_min_uses"); len(d) > 0 {
+		cache.MinUses, _ = strconv.Atoi(firstParam(p, d))
+	}
+
+	// proxy_cache_methods
+	if d := cfg.FindDirectives("proxy_cache_methods"); len(d) > 0 {
+		cache.Methods = p.parameters2Slices(d[0].GetParameters())
+	}
+
+	// proxy_cache_key（gonginx 保留引号，需去引号）
+	if d := cfg.FindDirectives("proxy_cache_key"); len(d) > 0 {
+		cache.Key = unquote(firstParam(p, d))
+	}
+
+	return cache
 }
 
 // writeProxyFiles 将代理配置写入文件

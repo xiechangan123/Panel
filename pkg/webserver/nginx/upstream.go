@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/samber/lo"
 
@@ -63,7 +62,11 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 		return nil, err
 	}
 
-	contentStr := string(content)
+	p, err := NewParserFromString(string(content))
+	if err != nil {
+		return nil, err
+	}
+	cfg := p.Config()
 
 	// 解析 upstream 块
 	// upstream backend {
@@ -71,18 +74,17 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 	//     server 127.0.0.1:8080 weight=5;
 	//     keepalive 32;
 	// }
-	upstreamPattern := regexp.MustCompile(`upstream\s+(\S+)\s*\{([^}]+)}`)
-	matches := upstreamPattern.FindStringSubmatch(contentStr)
-	if matches == nil {
+	upstreams := cfg.FindUpstreams()
+	if len(upstreams) == 0 {
 		return nil, nil
 	}
+	up := upstreams[0]
 
-	name := matches[1]
+	name := up.UpstreamName
 	if expectedName != "" && name != expectedName {
 		return nil, nil
 	}
 
-	blockContent := matches[2]
 	upstream := &types.Upstream{
 		Name:     name,
 		Servers:  make(map[string]string),
@@ -90,52 +92,37 @@ func parseUpstreamFile(filePath string, expectedName string) (*types.Upstream, e
 	}
 
 	// 解析负载均衡算法
-	algoPatterns := []string{"least_conn", "ip_hash", "hash", "random"}
-	for _, algo := range algoPatterns {
-		if regexp.MustCompile(`\b` + algo + `\b`).MatchString(blockContent) {
+	for _, algo := range []string{"least_conn", "ip_hash", "hash", "random"} {
+		if len(up.FindDirectives(algo)) > 0 {
 			upstream.Algo = algo
 			break
 		}
 	}
 
 	// 解析 server 指令
-	// 匹配: server 127.0.0.1:8080; 或 server 127.0.0.1:8080 weight=5;
-	serverPattern := regexp.MustCompile(`server\s+([^\s;]+)(?:\s+([^;]+))?;`)
-	serverMatches := serverPattern.FindAllStringSubmatch(blockContent, -1)
-	for _, sm := range serverMatches {
-		addr := sm[1]
-		options := ""
-		if len(sm) > 2 {
-			options = strings.TrimSpace(sm[2])
-		}
-		upstream.Servers[addr] = options
+	for _, srv := range up.UpstreamServers {
+		params := p.parameters2Slices(srv.GetDirective().Parameters)
+		upstream.Servers[srv.Address] = strings.Join(params[1:], " ")
 	}
 
 	// 解析 keepalive 指令
-	keepalivePattern := regexp.MustCompile(`keepalive\s+(\d+);`)
-	if km := keepalivePattern.FindStringSubmatch(blockContent); km != nil {
-		upstream.Keepalive, _ = strconv.Atoi(km[1])
+	if d := up.FindDirectives("keepalive"); len(d) > 0 {
+		params := p.parameters2Slices(d[0].GetParameters())
+		if len(params) > 0 {
+			upstream.Keepalive, _ = strconv.Atoi(params[0])
+		}
 	}
 
 	// 解析 resolver
-	resolverPattern := regexp.MustCompile(`resolver\s+([^;]+);`)
-	if rm := resolverPattern.FindStringSubmatch(blockContent); rm != nil {
-		parts := strings.Fields(rm[1])
-		upstream.Resolver = parts
+	if d := up.FindDirectives("resolver"); len(d) > 0 {
+		upstream.Resolver = p.parameters2Slices(d[0].GetParameters())
 	}
 
 	// 解析 resolver_timeout
-	resolverTimeoutPattern := regexp.MustCompile(`resolver_timeout\s+(\d+)([smh]?);`)
-	if rtm := resolverTimeoutPattern.FindStringSubmatch(blockContent); rtm != nil {
-		value, _ := strconv.Atoi(rtm[1])
-		unit := rtm[2]
-		switch unit {
-		case "m":
-			upstream.ResolverTimeout = time.Duration(value) * time.Minute
-		case "h":
-			upstream.ResolverTimeout = time.Duration(value) * time.Hour
-		default:
-			upstream.ResolverTimeout = time.Duration(value) * time.Second
+	if d := up.FindDirectives("resolver_timeout"); len(d) > 0 {
+		params := p.parameters2Slices(d[0].GetParameters())
+		if len(params) > 0 {
+			upstream.ResolverTimeout = parseDuration(params[0])
 		}
 	}
 

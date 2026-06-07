@@ -155,7 +155,7 @@ func (s *VhostTestSuite) TestClearSSL() {
 
 func (s *VhostTestSuite) TestClearHTTPSPreservesOtherHeaders() {
 	// 添加一个非 HSTS 的 Header
-	s.vhost.vhost.AddDirective("Header", "set", "X-Custom-Header", "value")
+	s.vhost.vhost.Add("Header", "set", "X-Custom-Header", "value")
 
 	// 设置 SSL 和 HSTS
 	sslConfig := &types.SSLConfig{
@@ -169,11 +169,11 @@ func (s *VhostTestSuite) TestClearHTTPSPreservesOtherHeaders() {
 	s.NoError(s.vhost.ClearSSL())
 
 	// 检查自定义 Header 是否保留
-	headers := s.vhost.vhost.GetDirectives("Header")
+	headers := s.vhost.vhost.GetAll("Header")
 	s.NotEmpty(headers)
 	found := false
 	for _, h := range headers {
-		if len(h.Args) >= 2 && h.Args[1] == "X-Custom-Header" {
+		if len(h.Args) >= 2 && h.Args[1].Value == "X-Custom-Header" {
 			found = true
 			break
 		}

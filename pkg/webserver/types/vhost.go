@@ -1,5 +1,13 @@
 package types
 
+// ConfigScope 配置片段的作用域
+type ConfigScope string
+
+const (
+	ScopeSite   ConfigScope = "site"   // 站点级片段（site/ 目录）
+	ScopeShared ConfigScope = "shared" // 共享级片段（shared/ 目录）
+)
+
 // Vhost 虚拟主机通用接口
 type Vhost interface {
 	// ========== 核心方法 ==========
@@ -84,14 +92,13 @@ type Vhost interface {
 	ClearRealIP() error
 
 	// Config 取指定名称的配置内容
-	// type 可选值: "site", "shared"
-	Config(name string, typ string) string
-	// SetConfig 设置指定名称的配置内容
-	// type 可选值: "site", "shared"
-	SetConfig(name string, typ string, content string, skipComment ...bool) error
+	Config(name string, scope ConfigScope) string
+	// SetConfig 设置指定名称的配置内容，自动添加生成标记注释
+	SetConfig(name string, scope ConfigScope, content string) error
+	// SetRawConfig 设置配置内容但不添加生成标记注释（用于用户可编辑的片段）
+	SetRawConfig(name string, scope ConfigScope, content string) error
 	// RemoveConfig 清除指定名称的配置内容
-	// type 可选值: "site", "shared"
-	RemoveConfig(name string, typ string) error
+	RemoveConfig(name string, scope ConfigScope) error
 }
 
 // StaticVhost 纯静态虚拟主机接口

@@ -6,6 +6,12 @@ const DisablePage = "/opt/ace/server/apache/htdocs/stop.html"
 // SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"
 
+// HSTSValue 是 HSTS 响应头的默认 max-age（1 年）
+const HSTSValue = "max-age=31536000"
+
+// orderDefault 是未知指令的排序键，排在已知功能指令之后、容器块之前
+const orderDefault = 1250
+
 // 配置文件序号范围
 const (
 	RedirectStartNum = 100 // 重定向配置起始序号 (100-199)
@@ -169,6 +175,8 @@ var order = map[string]int{
 
 	"Include":         1290,
 	"IncludeOptional": 1291,
+
+	"VirtualHost": 2000,
 
 	"ErrorLog":    1500,
 	"CustomLog":   1501,

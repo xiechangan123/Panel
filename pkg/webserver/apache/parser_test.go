@@ -4,259 +4,258 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-type ParserTestSuite struct {
-	suite.Suite
+func TestParseDirective(t *testing.T) {
+	cfg, err := ParseString("ServerName www.example.com")
+	require.NoError(t, err)
+
+	d := cfg.Get("ServerName")
+	require.NotNil(t, d)
+	assert.Equal(t, "ServerName", d.Name)
+	assert.Equal(t, []string{"www.example.com"}, argValues(d.Args))
 }
 
-func TestParserTestSuite(t *testing.T) {
-	suite.Run(t, &ParserTestSuite{})
+func TestParseMultipleArgs(t *testing.T) {
+	cfg, err := ParseString("Listen 192.168.1.100:80")
+	require.NoError(t, err)
+	assert.Equal(t, []string{"192.168.1.100:80"}, argValues(cfg.Get("Listen").Args))
 }
 
-func (s *ParserTestSuite) TestParseSimpleDirective() {
-	input := "ServerName www.example.com"
+func TestParseQuotedArgs(t *testing.T) {
+	cfg, err := ParseString(`CustomLog "/var/log/apache2/access.log" combined`)
+	require.NoError(t, err)
 
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
-
-	s.Len(config.Directives, 1)
-
-	directive := config.Directives[0]
-	s.Equal("ServerName", directive.Name)
-	s.Equal([]string{"www.example.com"}, directive.Args)
+	d := cfg.Get("CustomLog")
+	require.NotNil(t, d)
+	// 引号被解析，值不含引号
+	assert.Equal(t, "/var/log/apache2/access.log", d.Args[0].Value)
+	assert.Equal(t, QuoteDouble, d.Args[0].Quote)
+	assert.Equal(t, "combined", d.Args[1].Value)
+	assert.Equal(t, QuoteNone, d.Args[1].Quote)
+	// 导出时引号按原风格还原
+	assert.Contains(t, cfg.Export(), `CustomLog "/var/log/apache2/access.log" combined`)
 }
 
-func (s *ParserTestSuite) TestParseDirectiveWithMultipleArgs() {
-	input := "Listen 192.168.1.100:80"
-
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
-
-	s.Len(config.Directives, 1)
-
-	directive := config.Directives[0]
-	s.Equal("Listen", directive.Name)
-	s.Equal([]string{"192.168.1.100:80"}, directive.Args)
-}
-
-func (s *ParserTestSuite) TestParseComment() {
-	input := "# This is a comment\nServerName www.example.com"
-
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
-
-	s.Len(config.Comments, 1)
-	s.Len(config.Directives, 1)
-
-	comment := config.Comments[0]
-	s.Equal("This is a comment", comment.Text)
-	s.Equal(1, comment.Line)
-
-	directive := config.Directives[0]
-	s.Equal("ServerName", directive.Name)
-}
-
-func (s *ParserTestSuite) TestParseVirtualHost() {
+func TestParseVirtualHost(t *testing.T) {
 	input := `<VirtualHost *:80>
     ServerName www.example.com
     DocumentRoot /var/www/html
 </VirtualHost>`
 
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
+	cfg, err := ParseString(input)
+	require.NoError(t, err)
 
-	s.Len(config.VirtualHosts, 1)
-
-	vhost := config.VirtualHosts[0]
-	s.Equal("VirtualHost", vhost.Name)
-	s.Equal([]string{"*:80"}, vhost.Args)
-	s.Len(vhost.Directives, 2)
-
-	serverName := vhost.Directives[0]
-	s.Equal("ServerName", serverName.Name)
-	s.Equal([]string{"www.example.com"}, serverName.Args)
-
-	docRoot := vhost.Directives[1]
-	s.Equal("DocumentRoot", docRoot.Name)
-	s.Equal([]string{"/var/www/html"}, docRoot.Args)
+	vhosts := cfg.VirtualHosts()
+	require.Len(t, vhosts, 1)
+	assert.Equal(t, []string{"*:80"}, vhosts[0].ArgValues())
+	assert.Equal(t, "www.example.com", vhosts[0].Value("ServerName"))
+	assert.Equal(t, "/var/www/html", vhosts[0].Value("DocumentRoot"))
 }
 
-func (s *ParserTestSuite) TestParseComplexConfig() {
-	input := `# Apache 配置示例
-ServerRoot /etc/apache2
-ServerName www.example.com:80
-
-# SSL 配置
-LoadModule ssl_module modules/mod_ssl.so
-
-<VirtualHost *:80>
-    ServerName www.example.com
-    DocumentRoot /var/www/html
-    ErrorLog logs/error.log
-    CustomLog logs/access.log common
-</VirtualHost>
-
-<VirtualHost *:443>
-    ServerName www.example.com
-    DocumentRoot /var/www/html
-    SSLEngine on
-    SSLCertificateFile /path/to/certificate.crt
-    SSLCertificateKeyFile /path/to/private.key
+// TestNestedBlocksTriple 验证三层嵌套块正确解析
+func TestNestedBlocksTriple(t *testing.T) {
+	input := `<VirtualHost *:80>
+    <Directory /var/www>
+        <Files index.php>
+            Require all granted
+        </Files>
+    </Directory>
 </VirtualHost>`
 
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
+	cfg, err := ParseString(input)
+	require.NoError(t, err)
 
-	// 检查注释
-	s.Len(config.Comments, 2)
-	s.Equal("Apache 配置示例", config.Comments[0].Text)
-	s.Equal("SSL 配置", config.Comments[1].Text)
-
-	// 检查全局指令
-	s.Len(config.Directives, 3)
-	s.Equal("ServerRoot", config.Directives[0].Name)
-	s.Equal("ServerName", config.Directives[1].Name)
-	s.Equal("LoadModule", config.Directives[2].Name)
-
-	// 检查虚拟主机
-	s.Len(config.VirtualHosts, 2)
-
-	// HTTP 虚拟主机
-	httpVhost := config.VirtualHosts[0]
-	s.Equal([]string{"*:80"}, httpVhost.Args)
-	s.Len(httpVhost.Directives, 4)
-
-	// HTTPS 虚拟主机
-	httpsVhost := config.VirtualHosts[1]
-	s.Equal([]string{"*:443"}, httpsVhost.Args)
-	s.Len(httpsVhost.Directives, 5)
-
-	// 检查 SSL 指令
-	sslEngine := httpsVhost.Directives[2]
-	s.Equal("SSLEngine", sslEngine.Name)
-	s.Equal([]string{"on"}, sslEngine.Args)
+	dir := cfg.VirtualHosts()[0].GetBlock("Directory")
+	require.NotNil(t, dir)
+	files := dir.GetBlock("Files")
+	require.NotNil(t, files)
+	assert.Equal(t, []string{"all", "granted"}, files.Values("Require"))
 }
 
-func (s *ParserTestSuite) TestParseQuotedStrings() {
-	input := `ServerName "www.example.com"
-CustomLog "/var/log/apache2/access.log" combined`
+// TestNestedIfModuleNotDropped 验证双层嵌套块不被丢弃（旧实现的头号 bug）
+func TestNestedIfModuleNotDropped(t *testing.T) {
+	input := `<IfModule mod_proxy_balancer.c>
+    <Proxy balancer://backend>
+        BalancerMember http://127.0.0.1:8080 loadfactor=5
+        BalancerMember http://127.0.0.1:8081
+        ProxySet lbmethod=byrequests
+    </Proxy>
+</IfModule>`
 
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
+	cfg, err := ParseString(input)
+	require.NoError(t, err)
 
-	s.Len(config.Directives, 2)
-
-	serverName := config.Directives[0]
-	s.Equal("ServerName", serverName.Name)
-	s.Equal([]string{"\"www.example.com\""}, serverName.Args)
-
-	customLog := config.Directives[1]
-	s.Equal("CustomLog", customLog.Name)
-	s.Equal([]string{"\"/var/log/apache2/access.log\"", "combined"}, customLog.Args)
+	members := cfg.Find("IfModule.Proxy.BalancerMember")
+	require.Len(t, members, 2)
+	assert.Equal(t, "http://127.0.0.1:8080", members[0].Args[0].Value)
+	assert.Equal(t, "loadfactor=5", members[0].Args[1].Value)
 }
 
-func (s *ParserTestSuite) TestParseEmptyConfig() {
-	input := ""
-
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
-
-	s.Len(config.Directives, 0)
-	s.Len(config.VirtualHosts, 0)
-	s.Len(config.Comments, 0)
+// TestTokenizeSpecialChars 验证特殊字符不被分词器粘连或截断（旧 lexer 的字符白名单 bug）
+func TestTokenizeSpecialChars(t *testing.T) {
+	cases := []struct {
+		input string
+		want  []string
+	}{
+		{`RewriteCond %{HTTP_HOST} ^old\.example\.com$ [NC]`, []string{"%{HTTP_HOST}", `^old\.example\.com$`, "[NC]"}},
+		{`RewriteRule ^(.*)$ https://new.example.com$1 [R=308,L]`, []string{"^(.*)$", "https://new.example.com$1", "[R=308,L]"}},
+		{`ProxyPass / http://127.0.0.1:8080/app`, []string{"/", "http://127.0.0.1:8080/app"}},
+		{`SetHandler "proxy:unix:/tmp/php-cgi-84.sock|fcgi://localhost/"`, []string{"proxy:unix:/tmp/php-cgi-84.sock|fcgi://localhost/"}},
+	}
+	for _, c := range cases {
+		cfg, err := ParseString(c.input)
+		require.NoError(t, err, c.input)
+		d, ok := cfg.Nodes[0].(*Directive)
+		require.True(t, ok, c.input)
+		assert.Equal(t, c.want, argValues(d.Args), c.input)
+	}
 }
 
-func (s *ParserTestSuite) TestParseOnlyComments() {
-	input := `# 这是第一个注释
-# 这是第二个注释`
-
-	config, err := ParseString(input)
-	s.NoError(err)
-	s.NotNil(config)
-
-	s.Len(config.Comments, 2)
-	s.Len(config.Directives, 0)
-	s.Len(config.VirtualHosts, 0)
-
-	s.Equal("这是第一个注释", config.Comments[0].Text)
-	s.Equal("这是第二个注释", config.Comments[1].Text)
+// TestLineContinuation 验证续行符合并
+func TestLineContinuation(t *testing.T) {
+	cfg, err := ParseString("RewriteCond %{HTTP_HOST} foo \\\n    [NC]")
+	require.NoError(t, err)
+	d := cfg.Get("RewriteCond")
+	require.NotNil(t, d)
+	assert.Equal(t, []string{"%{HTTP_HOST}", "foo", "[NC]"}, argValues(d.Args))
 }
 
-func (s *ParserTestSuite) TestConfigGetMethods() {
-	input := `ServerName www.example.com
-ServerAdmin admin@example.com
-ServerName backup.example.com
+// TestLineContinuationEscapedBackslash 验证偶数反斜杠不触发续行
+func TestLineContinuationEscapedBackslash(t *testing.T) {
+	cfg, err := ParseString("ServerName a\\\\\nServerAdmin b")
+	require.NoError(t, err)
+	assert.NotNil(t, cfg.Get("ServerName"))
+	assert.NotNil(t, cfg.Get("ServerAdmin"))
+}
 
-<VirtualHost *:80>
-    ServerName www.example.com
-    DocumentRoot /var/www/html
-</VirtualHost>
+// TestCommentSemantics 验证注释语义：整行注释 vs 行内 #
+func TestCommentSemantics(t *testing.T) {
+	cfg, err := ParseString("# a comment\nServerName x")
+	require.NoError(t, err)
+	cmts := collectComments(cfg.Nodes)
+	require.Len(t, cmts, 1)
+	assert.Equal(t, " a comment", cmts[0].Text)
 
-<VirtualHost *:443>
-    ServerName www.example.com
-    DocumentRoot /var/www/secure
+	// 行内 # 是参数的一部分，不当注释
+	cfg2, err := ParseString("Redirect 301 /a /b#frag")
+	require.NoError(t, err)
+	d := cfg2.Get("Redirect")
+	require.NotNil(t, d)
+	assert.Equal(t, "/b#frag", d.Args[2].Value)
+}
+
+// TestCommentPreserveLeadingSpace 验证注释首空格不丢失
+func TestCommentPreserveLeadingSpace(t *testing.T) {
+	cfg, err := ParseString("#  double space")
+	require.NoError(t, err)
+	assert.Contains(t, cfg.Export(), "#  double space")
+}
+
+// TestRoundTripDefaultVhostConf 验证默认模板规范化幂等且 IncludeOptional 在 VirtualHost 前
+func TestRoundTripDefaultVhostConf(t *testing.T) {
+	cfg, err := ParseString(DefaultVhostConf)
+	require.NoError(t, err)
+
+	rendered := cfg.Render()
+	cfg2, err := ParseString(rendered)
+	require.NoError(t, err)
+	assert.Equal(t, rendered, cfg2.Render(), "规范化导出应幂等")
+
+	idxInclude := strings.Index(rendered, "IncludeOptional")
+	idxVhost := strings.Index(rendered, "<VirtualHost")
+	require.GreaterOrEqual(t, idxInclude, 0)
+	require.GreaterOrEqual(t, idxVhost, 0)
+	assert.Less(t, idxInclude, idxVhost, "顶层 IncludeOptional 应排在 VirtualHost 之前")
+}
+
+// TestExportNestedRoundTrip 验证嵌套块导出后可再次解析为等价结构
+func TestExportNestedRoundTrip(t *testing.T) {
+	input := `<VirtualHost *:80>
+    ServerName x
+    <Directory /var/www>
+        Require all granted
+    </Directory>
 </VirtualHost>`
 
-	config, err := ParseString(input)
-	s.NoError(err)
+	cfg, err := ParseString(input)
+	require.NoError(t, err)
 
-	// 测试 GetDirective
-	serverName := config.GetDirective("ServerName")
-	s.NotNil(serverName)
-	s.Equal("ServerName", serverName.Name)
-	s.Equal([]string{"www.example.com"}, serverName.Args)
-
-	// 测试 GetDirectives
-	serverNames := config.GetDirectives("ServerName")
-	s.Len(serverNames, 2)
-
-	// 测试 GetVirtualHost
-	vhost := config.GetVirtualHost("*:80")
-	s.NotNil(vhost)
-	s.Equal([]string{"*:80"}, vhost.Args)
-
-	// 测试虚拟主机中的 GetDirective
-	vhostServerName := vhost.GetDirective("ServerName")
-	s.NotNil(vhostServerName)
-	s.Equal([]string{"www.example.com"}, vhostServerName.Args)
+	out := cfg.Export()
+	cfg2, err := ParseString(out)
+	require.NoError(t, err)
+	assert.Equal(t, out, cfg2.Export(), "保序导出应幂等")
+	assert.NotNil(t, cfg2.VirtualHosts()[0].GetBlock("Directory"))
 }
 
-func (s *ParserTestSuite) TestLexerTokens() {
-	input := `# Comment
-ServerName www.example.com
-<VirtualHost *:80>
-    DocumentRoot "/var/www/html"
-</VirtualHost>`
+func TestQueryCaseInsensitive(t *testing.T) {
+	cfg, err := ParseString("ServerName x")
+	require.NoError(t, err)
+	assert.NotNil(t, cfg.Get("servername"))
+	assert.Equal(t, "x", cfg.Value("SERVERNAME"))
+	assert.True(t, cfg.Has("ServerName"))
+}
 
-	lexer, err := NewLexer(strings.NewReader(input))
-	s.NoError(err)
+func TestFindDotPath(t *testing.T) {
+	input := `<IfModule a.c>
+    <Proxy p>
+        Member 1
+        Member 2
+    </Proxy>
+</IfModule>`
 
-	// 测试第一个 token - 注释
-	token := lexer.NextToken()
-	s.Equal(COMMENT, token.Type)
-	s.Equal("Comment", token.Value)
-	s.Equal(1, token.Line)
+	cfg, err := ParseString(input)
+	require.NoError(t, err)
+	assert.Len(t, cfg.Find("IfModule.Proxy.Member"), 2)
+	assert.Len(t, cfg.FindBlocks("IfModule.Proxy"), 1)
+	assert.Nil(t, cfg.FindOne("IfModule.Proxy.Missing"))
+}
 
-	// 跳过换行
-	token = lexer.NextToken()
-	s.Equal(NEWLINE, token.Type)
+// TestTolerantUnclosedBlock 验证未闭合块在容错模式下不致命
+func TestTolerantUnclosedBlock(t *testing.T) {
+	cfg, err := ParseString("<VirtualHost *:80>\n    ServerName x")
+	require.NoError(t, err)
+	require.Len(t, cfg.VirtualHosts(), 1)
+	assert.Equal(t, "x", cfg.VirtualHosts()[0].Value("ServerName"))
+}
 
-	// 测试指令
-	token = lexer.NextToken()
-	s.Equal(DIRECTIVE, token.Type)
-	s.Equal("ServerName", token.Value)
+// TestTolerantOrphanCloseTag 验证孤立闭合标签在容错模式下被跳过
+func TestTolerantOrphanCloseTag(t *testing.T) {
+	cfg, err := ParseString("</Foo>\nServerName x")
+	require.NoError(t, err)
+	assert.Equal(t, "x", cfg.Value("ServerName"))
+}
 
-	// 测试参数
-	token = lexer.NextToken()
-	s.Equal(DIRECTIVE, token.Type)
-	s.Equal("www.example.com", token.Value)
+func TestParseEmpty(t *testing.T) {
+	cfg, err := ParseString("")
+	require.NoError(t, err)
+	assert.Empty(t, cfg.Nodes)
+}
+
+func TestSetAndRemove(t *testing.T) {
+	cfg, err := ParseString("ServerName old")
+	require.NoError(t, err)
+
+	cfg.Set("ServerName", "new")
+	assert.Equal(t, "new", cfg.Value("ServerName"))
+
+	cfg.Add("ServerAlias", "a", "b")
+	assert.Equal(t, []string{"a", "b"}, cfg.Values("ServerAlias"))
+
+	assert.True(t, cfg.Remove("ServerName"))
+	assert.False(t, cfg.Has("ServerName"))
+}
+
+// TestAddDirectiveAutoQuote 验证 Add 对含空格的参数自动加引号
+func TestAddDirectiveAutoQuote(t *testing.T) {
+	cfg := &Config{}
+	cfg.Add("AuthName", "My Realm")
+	assert.Contains(t, cfg.Export(), `AuthName "My Realm"`)
+
+	cfg2 := &Config{}
+	cfg2.Add("DocumentRoot", "/var/www")
+	assert.Contains(t, cfg2.Export(), "DocumentRoot /var/www")
+	assert.NotContains(t, cfg2.Export(), `"`)
 }

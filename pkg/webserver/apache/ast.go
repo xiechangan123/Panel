@@ -1,243 +1,142 @@
 package apache
 
-import (
-	"strings"
+import "strings"
+
+// QuoteStyle 表示参数原始的引号风格，用于忠实复现
+type QuoteStyle uint8
+
+const (
+	QuoteNone   QuoteStyle = iota // 无引号
+	QuoteDouble                   // 双引号
+	QuoteSingle                   // 单引号
 )
 
-// Config Apache 配置文件的 AST 根节点
+// Argument 是一个指令或块参数：解引号后的纯值 + 原始引号风格
+type Argument struct {
+	Value string     // 解引号后的真实值，如 www.example.com
+	Quote QuoteStyle // 复现时据此加回引号
+}
+
+// String 返回参数的纯值，便于直接当字符串使用
+func (a Argument) String() string { return a.Value }
+
+// text 按引号风格复现带引号的文本
+func (a Argument) text() string {
+	switch a.Quote {
+	case QuoteDouble:
+		return `"` + strings.ReplaceAll(a.Value, `"`, `\"`) + `"`
+	case QuoteSingle:
+		return "'" + a.Value + "'"
+	default:
+		return a.Value
+	}
+}
+
+// needsQuote 判断裸值是否必须加双引号才能安全写入配置
+func needsQuote(s string) bool {
+	if s == "" {
+		return true
+	}
+	return strings.ContainsAny(s, " \t\"<>")
+}
+
+// arg 由裸字符串构造参数，自动决定是否加引号
+func arg(value string) Argument {
+	if needsQuote(value) {
+		return Argument{Value: value, Quote: QuoteDouble}
+	}
+	return Argument{Value: value, Quote: QuoteNone}
+}
+
+// dquote 构造一个强制双引号的参数，用于值含特殊编码必须加引号的指令（如 Substitute）
+func dquote(value string) Argument {
+	return Argument{Value: value, Quote: QuoteDouble}
+}
+
+// argsOf 批量构造参数
+func argsOf(values ...string) []Argument {
+	if len(values) == 0 {
+		return nil
+	}
+	out := make([]Argument, len(values))
+	for i, v := range values {
+		out[i] = arg(v)
+	}
+	return out
+}
+
+// argValues 提取参数的纯值切片
+func argValues(args []Argument) []string {
+	if len(args) == 0 {
+		return nil
+	}
+	out := make([]string, len(args))
+	for i, a := range args {
+		out[i] = a.Value
+	}
+	return out
+}
+
+// Node 是配置中可出现在容器内的元素：指令、块或注释
+type Node interface {
+	node()
+}
+
+// nodeList 是有序节点容器，被 Config 和 Block 嵌入以共享查询/修改方法
+type nodeList struct {
+	Nodes []Node
+}
+
+// Config 是一个配置单元（apache.conf 或片段文件）的根节点
 type Config struct {
-	Directives   []*Directive   `json:"directives"`
-	VirtualHosts []*VirtualHost `json:"virtual_hosts"`
-	Comments     []*Comment     `json:"comments"`
-	Includes     []*Include     `json:"includes"`
+	nodeList
 }
 
-// Directive Apache 指令
+// Directive 是普通指令，独占一行，如 ServerName a b
 type Directive struct {
-	Name   string   `json:"name"`
-	Args   []string `json:"args"`
-	Line   int      `json:"line"`
-	Column int      `json:"column"`
-	Block  *Block   `json:"block,omitempty"` // 对于有块的指令如 <Directory>
+	Name string
+	Args []Argument
 }
 
-// VirtualHost 虚拟主机配置
-type VirtualHost struct {
-	Name       string       `json:"name"`
-	Args       []string     `json:"args"` // 通常是 IP:Port
-	Line       int          `json:"line"`
-	Column     int          `json:"column"`
-	Directives []*Directive `json:"directives"`
-	Comments   []*Comment   `json:"comments"` // 虚拟主机内的注释
-}
-
-// Block 配置块，如 <Directory>, <Location> 等
+// Block 是容器块，如 <Directory /x> ... </Directory>，可任意深度嵌套
+// VirtualHost 即 Name=="VirtualHost" 的 Block，不再是独立类型
 type Block struct {
-	Type       string       `json:"type"` // Directory, Location, Files 等
-	Args       []string     `json:"args"` // 块的参数
-	Directives []*Directive `json:"directives"`
-	Comments   []*Comment   `json:"comments"` // 块内注释
-	Line       int          `json:"line"`
-	Column     int          `json:"column"`
+	Name     string
+	Args     []Argument
+	nodeList // 子节点（Nodes 字段），嵌套块就在这里
 }
 
-// Comment 注释
+// Comment 是整行注释，Text 为 # 之后的原文（含前导空格）
 type Comment struct {
-	Text   string `json:"text"`
-	Line   int    `json:"line"`
-	Column int    `json:"column"`
+	Text string
 }
 
-// Include 包含其他配置文件的指令
-type Include struct {
-	Path   string `json:"path"`
-	Line   int    `json:"line"`
-	Column int    `json:"column"`
+func (*Directive) node() {}
+func (*Block) node()     {}
+func (*Comment) node()   {}
+
+// Dir 构造一条指令，参数自动判断引号
+func Dir(name string, args ...string) *Directive {
+	return &Directive{Name: name, Args: argsOf(args...)}
 }
 
-// GetDirective 根据名称查找指令
-func (c *Config) GetDirective(name string) *Directive {
-	for _, dir := range c.Directives {
-		if strings.EqualFold(dir.Name, name) {
-			return dir
-		}
-	}
-	return nil
+// Blk 构造一个块，参数自动判断引号；用 Add 填充子节点
+func Blk(name string, args ...string) *Block {
+	return &Block{Name: name, Args: argsOf(args...)}
 }
 
-// GetDirectives 根据名称查找所有匹配的指令
-func (c *Config) GetDirectives(name string) []*Directive {
-	var result []*Directive
-	for _, dir := range c.Directives {
-		if strings.EqualFold(dir.Name, name) {
-			result = append(result, dir)
-		}
-	}
-	return result
+// Cmt 构造一条注释，传入不含 # 的纯文本
+func Cmt(text string) *Comment {
+	return &Comment{Text: " " + text}
 }
 
-// GetVirtualHost 根据参数查找虚拟主机
-func (c *Config) GetVirtualHost(args ...string) *VirtualHost {
-	for _, vhost := range c.VirtualHosts {
-		if len(vhost.Args) == len(args) {
-			match := true
-			for i, arg := range args {
-				if vhost.Args[i] != arg {
-					match = false
-					break
-				}
-			}
-			if match {
-				return vhost
-			}
-		}
-	}
-	return nil
+// Append 向容器追加节点
+func (l *nodeList) Append(nodes ...Node) {
+	l.Nodes = append(l.Nodes, nodes...)
 }
 
-// AddVirtualHost 添加新虚拟主机到配置
-func (c *Config) AddVirtualHost(args ...string) *VirtualHost {
-	vhost := &VirtualHost{
-		Name:       "VirtualHost",
-		Args:       args,
-		Directives: make([]*Directive, 0),
-	}
-	c.VirtualHosts = append(c.VirtualHosts, vhost)
-	return vhost
-}
-
-// AddDirective 为虚拟主机添加指令
-func (v *VirtualHost) AddDirective(name string, args ...string) *Directive {
-	directive := &Directive{
-		Name: name,
-		Args: args,
-	}
-	v.Directives = append(v.Directives, directive)
-	return directive
-}
-
-// GetDirective 在虚拟主机中根据名称查找指令
-func (v *VirtualHost) GetDirective(name string) *Directive {
-	for _, dir := range v.Directives {
-		if strings.EqualFold(dir.Name, name) {
-			return dir
-		}
-	}
-	return nil
-}
-
-// GetDirectives 在虚拟主机中根据名称查找所有匹配的指令
-func (v *VirtualHost) GetDirectives(name string) []*Directive {
-	var result []*Directive
-	for _, dir := range v.Directives {
-		if strings.EqualFold(dir.Name, name) {
-			result = append(result, dir)
-		}
-	}
-	return result
-}
-
-// SetDirective 设置指令（如果存在则更新，不存在则添加）
-func (v *VirtualHost) SetDirective(name string, args ...string) *Directive {
-	// 查找现有指令
-	for _, dir := range v.Directives {
-		if strings.EqualFold(dir.Name, name) {
-			dir.Args = args
-			return dir
-		}
-	}
-	// 不存在，添加新指令
-	return v.AddDirective(name, args...)
-}
-
-// RemoveDirective 删除指令
-func (v *VirtualHost) RemoveDirective(name string) bool {
-	for i, dir := range v.Directives {
-		if strings.EqualFold(dir.Name, name) {
-			v.Directives = append(v.Directives[:i], v.Directives[i+1:]...)
-			return true
-		}
-	}
-	return false
-}
-
-// RemoveDirectives 删除所有匹配名称的指令
-func (v *VirtualHost) RemoveDirectives(name string) int {
-	count := 0
-	newDirectives := make([]*Directive, 0, len(v.Directives))
-	for _, dir := range v.Directives {
-		if strings.EqualFold(dir.Name, name) {
-			count++
-		} else {
-			newDirectives = append(newDirectives, dir)
-		}
-	}
-	v.Directives = newDirectives
-	return count
-}
-
-// HasDirective 检查是否存在指定指令
-func (v *VirtualHost) HasDirective(name string) bool {
-	return v.GetDirective(name) != nil
-}
-
-// GetDirectiveValue 获取指令的第一个参数值
-func (v *VirtualHost) GetDirectiveValue(name string) string {
-	dir := v.GetDirective(name)
-	if dir != nil && len(dir.Args) > 0 {
-		return dir.Args[0]
-	}
-	return ""
-}
-
-// GetDirectiveValues 获取指令的所有参数值
-func (v *VirtualHost) GetDirectiveValues(name string) []string {
-	dir := v.GetDirective(name)
-	if dir != nil {
-		return dir.Args
-	}
-	return nil
-}
-
-// AddBlock 添加块指令（如 Directory, Location 等）
-func (v *VirtualHost) AddBlock(blockType string, args ...string) *Directive {
-	block := &Block{
-		Type:       blockType,
-		Args:       args,
-		Directives: make([]*Directive, 0),
-		Comments:   make([]*Comment, 0),
-	}
-	directive := &Directive{
-		Name:  blockType,
-		Args:  args,
-		Block: block,
-	}
-	v.Directives = append(v.Directives, directive)
-	return directive
-}
-
-// GetBlock 获取块指令
-func (v *VirtualHost) GetBlock(blockType string, args ...string) *Block {
-	for _, dir := range v.Directives {
-		if dir.Block != nil && strings.EqualFold(dir.Block.Type, blockType) {
-			// 如果指定了参数，需要匹配
-			if len(args) > 0 {
-				if len(dir.Block.Args) != len(args) {
-					continue
-				}
-				match := true
-				for i, arg := range args {
-					if dir.Block.Args[i] != arg {
-						match = false
-						break
-					}
-				}
-				if !match {
-					continue
-				}
-			}
-			return dir.Block
-		}
-	}
-	return nil
+// Append 向块追加子节点，返回自身以便链式调用
+func (b *Block) Append(nodes ...Node) *Block {
+	b.Nodes = append(b.Nodes, nodes...)
+	return b
 }
