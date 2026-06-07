@@ -2,90 +2,155 @@ package s3sdk
 
 import (
 	"bytes"
-	"encoding/hex"
+	"context"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
-	"regexp"
+	"net/url"
 	"strings"
-	"unicode/utf8"
+	"sync"
+	"time"
 )
 
-// AMZMetaPrefix 是对象自定义元数据 header 的前缀。
-const AMZMetaPrefix = "x-amz-meta-"
+const amzMetaPrefix = "x-amz-meta-"
 
-// S3 封装 S3 访问凭证与端点配置。
-type S3 struct {
+// Config 是创建 S3 客户端的配置
+type Config struct {
+	Region    string
+	Bucket    string
 	AccessKey string
 	SecretKey string
-	Region    string
-	Client    *http.Client // 为空时使用 http.DefaultClient
 
-	Endpoint  string // 自定义端点；为空时使用 AWS 默认端点
-	PathStyle bool   // true 为 path-style，false 为 virtual-hosted style
+	Endpoint  string // 可选：自定义端点（不含 bucket），可带或不带协议
+	Scheme    string // 可选：Endpoint 不含协议时使用，默认 https
+	PathStyle bool   // true 为 path-style，false 为 virtual-hosted（默认）
+
+	PartSize    int64 // 可选：分片大小，默认 5MB，最小 5MB
+	Concurrency int   // 可选：分片并发数，默认 1
+	MaxRetries  int   // 可选：单分片重试次数，默认 3
+
+	Client *http.Client // 可选：自定义 HTTP 客户端
 }
 
-// New 返回一个使用 path-style 寻址的 S3 客户端。
-func New(region, accessKey, secretKey string) *S3 {
+// S3 是绑定到单个 bucket 的客户端
+type S3 struct {
+	region    string
+	accessKey string
+	secretKey string
+	base      string // 预计算的基础 URL（已包含寻址风格的处理）
+
+	partSize    int64
+	concurrency int
+	maxRetries  int
+	client      *http.Client
+
+	mu       sync.Mutex
+	keyDate  string // 签名密钥缓存对应的日期（UTC yyyymmdd）
+	keyCache []byte // 按天缓存的签名密钥
+}
+
+// New 按配置创建一个 S3 客户端。
+func New(cfg Config) *S3 {
+	partSize := cfg.PartSize
+	if partSize < MinPartSize {
+		partSize = DefaultPartSize
+	}
+	concurrency := cfg.Concurrency
+	if concurrency <= 0 {
+		concurrency = 1
+	}
+	maxRetries := cfg.MaxRetries
+	if maxRetries <= 0 {
+		maxRetries = defaultMaxRetries
+	}
 	return &S3{
-		Region:    region,
-		AccessKey: accessKey,
-		SecretKey: secretKey,
-		PathStyle: true,
+		region:      cfg.Region,
+		accessKey:   cfg.AccessKey,
+		secretKey:   cfg.SecretKey,
+		base:        computeBase(cfg),
+		partSize:    partSize,
+		concurrency: concurrency,
+		maxRetries:  maxRetries,
+		client:      cfg.Client,
 	}
 }
 
-// SetEndpoint 设置兼容 S3 API 的自定义端点；未带协议时默认 HTTPS。
-func (c *S3) SetEndpoint(endpoint string) *S3 {
-	if endpoint != "" {
-		if !strings.HasPrefix(endpoint, "http") {
-			endpoint = "https://" + endpoint
+// computeBase 根据寻址风格与端点预计算请求基础 URL
+// path-style：     {base} = {endpoint|aws}/{bucket}，对象 URL 为 {base}/{key}
+// virtual-hosted： {base} = {scheme}://{bucket}.{host}，对象 URL 为 {base}/{key}
+func computeBase(cfg Config) string {
+	scheme := cfg.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+
+	if cfg.Endpoint != "" {
+		ep := cfg.Endpoint
+		if !strings.Contains(ep, "://") {
+			ep = scheme + "://" + ep
 		}
-		c.Endpoint = strings.TrimRight(endpoint, "/")
+		ep = strings.TrimRight(ep, "/")
+
+		if cfg.PathStyle {
+			return ep + "/" + cfg.Bucket
+		}
+		// virtual-hosted：把 bucket 插入 host 最前
+		if u, err := url.Parse(ep); err == nil {
+			u.Host = cfg.Bucket + "." + u.Host
+			return strings.TrimRight(u.String(), "/")
+		}
+		return ep
 	}
-	return c
+
+	// 无自定义端点，使用 AWS S3 默认端点
+	if cfg.PathStyle {
+		return fmt.Sprintf("https://s3.%s.amazonaws.com/%s", cfg.Region, cfg.Bucket)
+	}
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com", cfg.Bucket, cfg.Region)
 }
 
-// SetVirtualHostedStyle 启用 virtual-hosted 风格寻址
-// （形如 https://bucket.s3.region.amazonaws.com/key）。
-// 此时 bucket 名应包含在 Endpoint 中，调用各方法时 Bucket 参数留空。
-func (c *S3) SetVirtualHostedStyle() *S3 {
-	c.PathStyle = false
-	return c
+// objectURL 返回对象的请求 URL
+func (c *S3) objectURL(key string) string {
+	return c.base + "/" + uriEncode(key, false)
 }
 
 func (c *S3) httpClient() *http.Client {
-	if c.Client == nil {
+	if c.client == nil {
 		return http.DefaultClient
 	}
-	return c.Client
+	return c.client
 }
 
-// buildURL 根据端点配置为 bucket/key 构造请求 URL，key 为空时只到 bucket 层级。
-func (c *S3) buildURL(bucket, key string) string {
-	path := bucket
-	if key != "" {
-		if path != "" {
-			path += "/" + key
-		} else {
-			path = key
+// do 对请求签名并执行，对可重试错误（5xx、网络错误）按指数退避重试
+// 读取完整响应体；状态码不等于 wantStatus 时返回 *apiError
+// 返回的 *http.Response 仅用于读取响应头，其 Body 已被读尽并关闭
+func (c *S3) do(ctx context.Context, req *http.Request, wantStatus int) ([]byte, *http.Response, error) {
+	for attempt := 0; ; attempt++ {
+		if attempt > 0 {
+			// 重置请求体以便重放（bytes/strings reader 经 http.NewRequest 会自动提供 GetBody）
+			if req.GetBody != nil {
+				body, err := req.GetBody()
+				if err != nil {
+					return nil, nil, err
+				}
+				req.Body = body
+			}
+			select {
+			case <-ctx.Done():
+				return nil, nil, ctx.Err()
+			case <-time.After(backoff(attempt)):
+			}
 		}
-	}
-	path = encodePath(path)
 
-	if c.Endpoint != "" {
-		if path == "" {
-			return c.Endpoint
+		body, res, err := c.doOnce(req, wantStatus)
+		if err == nil || attempt >= c.maxRetries || !isRetryable(err) {
+			return body, res, err
 		}
-		return c.Endpoint + "/" + path
 	}
-	return fmt.Sprintf("https://s3.%s.amazonaws.com/%s", c.Region, path)
 }
 
-// do 对请求签名并执行，读取完整响应体；当状态码不等于 wantStatus 时返回 *apiError。
-// 返回的 *http.Response 仅用于读取响应头，其 Body 已被读尽并关闭。
-func (c *S3) do(req *http.Request, wantStatus int) ([]byte, *http.Response, error) {
+func (c *S3) doOnce(req *http.Request, wantStatus int) ([]byte, *http.Response, error) {
 	c.signRequest(req)
 
 	res, err := c.httpClient().Do(req)
@@ -107,7 +172,15 @@ func (c *S3) do(req *http.Request, wantStatus int) ([]byte, *http.Response, erro
 	return body, res, nil
 }
 
-// apiError 表示一个非预期状态码的 S3 响应。
+// backoff 返回第 attempt 次重试前的等待时长（指数退避，上限 5 秒）
+func backoff(attempt int) time.Duration {
+	if d := time.Duration(1<<(attempt-1)) * 100 * time.Millisecond; d < 5*time.Second {
+		return d
+	}
+	return 5 * time.Second
+}
+
+// apiError 表示一个非预期状态码的 S3 响应
 type apiError struct {
 	status     int
 	statusText string
@@ -127,36 +200,4 @@ func (e *apiError) Error() string {
 		return fmt.Sprintf("s3: unexpected status %s: %s", e.statusText, trimmed)
 	}
 	return fmt.Sprintf("s3: unexpected status %s", e.statusText)
-}
-
-// 仅由未保留字符组成的对象名无需编码。
-var reservedObjectNames = regexp.MustCompile(`^[a-zA-Z0-9\-_.~/]+$`)
-
-// encodePath 将路径按 RFC3986 对每个 UTF-8 字符做百分号编码，但保留 / 等未保留字符。
-// 标准库 url 包无法正确处理路径中的非 ASCII 字符，故自行实现。
-// 改编自 minio-go 的 s3utils.EncodePath。
-func encodePath(pathName string) string {
-	if reservedObjectNames.MatchString(pathName) {
-		return pathName
-	}
-	var b strings.Builder
-	for _, r := range pathName {
-		switch {
-		case 'A' <= r && r <= 'Z', 'a' <= r && r <= 'z', '0' <= r && r <= '9':
-			b.WriteRune(r)
-		case r == '-', r == '_', r == '.', r == '~', r == '/':
-			b.WriteRune(r)
-		default:
-			n := utf8.RuneLen(r)
-			if n < 0 {
-				return pathName // 无法编码则原样返回
-			}
-			buf := make([]byte, n)
-			utf8.EncodeRune(buf, r)
-			for _, c := range buf {
-				b.WriteString("%" + strings.ToUpper(hex.EncodeToString([]byte{c})))
-			}
-		}
-	}
-	return b.String()
 }

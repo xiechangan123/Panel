@@ -3,7 +3,6 @@ package storage
 import (
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 	"time"
 
@@ -36,50 +35,23 @@ type S3Config struct {
 type S3 struct {
 	client *s3sdk.S3
 	config S3Config
-	bucket string // bucket 用于 API 调用
 }
 
 func NewS3(cfg S3Config) (Storage, error) {
-	if cfg.AddressingStyle == "" {
-		cfg.AddressingStyle = S3AddressingStyleVirtualHosted
-	}
-	if cfg.Scheme == "" {
-		cfg.Scheme = "https"
-	}
-
 	cfg.BasePath = strings.Trim(cfg.BasePath, "/")
 
-	client := s3sdk.New(cfg.Region, cfg.AccessKey, cfg.SecretKey)
+	client := s3sdk.New(s3sdk.Config{
+		Region:      cfg.Region,
+		Bucket:      cfg.Bucket,
+		AccessKey:   cfg.AccessKey,
+		SecretKey:   cfg.SecretKey,
+		Endpoint:    cfg.Endpoint,
+		Scheme:      cfg.Scheme,
+		PathStyle:   cfg.AddressingStyle == S3AddressingStylePath,
+		Concurrency: 5,
+	})
 
-	// bucket 用于 API 调用
-	bucket := cfg.Bucket
-
-	if cfg.Endpoint != "" {
-		// 自定义 Endpoint
-		if cfg.AddressingStyle == S3AddressingStyleVirtualHosted {
-			// Virtual Hosted Style: https://{bucket}.{endpoint}/{key}
-			client.SetEndpoint(fmt.Sprintf("%s://%s.%s", cfg.Scheme, cfg.Bucket, cfg.Endpoint))
-			client.SetVirtualHostedStyle()
-			bucket = ""
-		} else {
-			// Path Style: https://{endpoint}/{bucket}/{key}
-			client.SetEndpoint(fmt.Sprintf("%s://%s", cfg.Scheme, cfg.Endpoint))
-		}
-	} else {
-		// AWS S3
-		if cfg.AddressingStyle == S3AddressingStyleVirtualHosted {
-			// Virtual Hosted Style: https://{bucket}.s3.{region}.amazonaws.com/{key}
-			client.SetEndpoint(fmt.Sprintf("https://%s.s3.%s.amazonaws.com", cfg.Bucket, cfg.Region))
-			client.SetVirtualHostedStyle()
-			bucket = ""
-		}
-	}
-
-	return &S3{
-		client: client,
-		config: cfg,
-		bucket: bucket,
-	}, nil
+	return &S3{client: client, config: cfg}, nil
 }
 
 // Delete 删除文件
@@ -87,57 +59,25 @@ func (s *S3) Delete(files ...string) error {
 	if len(files) == 0 {
 		return nil
 	}
-
-	// 批量删除
-	objects := lo.Map(files, func(file string, _ int) string {
+	keys := lo.Map(files, func(file string, _ int) string {
 		return s.getKey(file)
 	})
-
-	_, err := s.client.DeleteObjects(s3sdk.DeleteObjectsInput{
-		Bucket:  s.bucket,
-		Objects: objects,
-		Quiet:   true,
-	})
-
-	return err
+	return s.client.Delete(keys...)
 }
 
 // Exists 检查文件是否存在
 func (s *S3) Exists(file string) bool {
-	key := s.getKey(file)
-	_, err := s.client.FileDetails(s3sdk.DetailsInput{
-		Bucket:    s.bucket,
-		ObjectKey: key,
-	})
+	_, err := s.client.Stat(s.getKey(file))
 	return err == nil
 }
 
 // LastModified 获取文件最后修改时间
 func (s *S3) LastModified(file string) (time.Time, error) {
-	key := s.getKey(file)
-	output, err := s.client.FileDetails(s3sdk.DetailsInput{
-		Bucket:    s.bucket,
-		ObjectKey: key,
-	})
+	info, err := s.client.Stat(s.getKey(file))
 	if err != nil {
 		return time.Time{}, err
 	}
-
-	if output.LastModified == "" {
-		return time.Time{}, nil
-	}
-
-	// 解析 HTTP 日期格式
-	t, err := time.Parse(time.RFC1123, output.LastModified)
-	if err != nil {
-		// 尝试其他格式
-		t, err = time.Parse(time.RFC1123Z, output.LastModified)
-		if err != nil {
-			return time.Time{}, fmt.Errorf("failed to parse LastModified: %w", err)
-		}
-	}
-
-	return t, nil
+	return info.LastModified, nil
 }
 
 // List 列出目录下的所有文件
@@ -148,27 +88,15 @@ func (s *S3) List(path string) ([]string, error) {
 	}
 
 	var files []string
-	seq, finish := s.client.ListAll(s3sdk.ListInput{
-		Bucket:    s.bucket,
-		Prefix:    prefix,
-		Delimiter: "/",
-	})
-
-	for obj := range seq {
-		key := obj.Key
-		// 跳过目录本身
-		if key == prefix {
-			continue
+	for obj, err := range s.client.List(prefix, "/") {
+		if err != nil {
+			return nil, err
 		}
-		// 提取文件名
-		name := strings.TrimPrefix(key, prefix)
+		// 提取文件名，跳过子目录
+		name := strings.TrimPrefix(obj.Key, prefix)
 		if name != "" && !strings.Contains(name, "/") {
 			files = append(files, name)
 		}
-	}
-
-	if err := finish(); err != nil {
-		return nil, err
 	}
 
 	return files, nil
@@ -176,36 +104,16 @@ func (s *S3) List(path string) ([]string, error) {
 
 // Put 写入文件内容
 func (s *S3) Put(file string, content io.Reader) error {
-	key := s.getKey(file)
-
-	_, err := s.client.FileUploadMultipart(s3sdk.MultipartUploadInput{
-		Bucket:      s.bucket,
-		ObjectKey:   key,
-		ContentType: "application/octet-stream",
-		Body:        content,
-		Concurrency: 5,
-	})
-
-	return err
+	return s.client.Put(s.getKey(file), content, "application/octet-stream")
 }
 
 // Size 获取文件大小
 func (s *S3) Size(file string) (int64, error) {
-	key := s.getKey(file)
-	output, err := s.client.FileDetails(s3sdk.DetailsInput{
-		Bucket:    s.bucket,
-		ObjectKey: key,
-	})
+	info, err := s.client.Stat(s.getKey(file))
 	if err != nil {
 		return 0, err
 	}
-
-	size, err := strconv.ParseInt(output.ContentLength, 10, 64)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse ContentLength: %w", err)
-	}
-
-	return size, nil
+	return info.Size, nil
 }
 
 // getKey 获取完整的对象键
