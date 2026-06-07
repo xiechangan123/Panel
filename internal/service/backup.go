@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	stdio "io"
 	"net/http"
 	"os"
@@ -18,12 +19,14 @@ import (
 type BackupService struct {
 	t          *gotext.Locale
 	backupRepo biz.BackupRepo
+	taskRepo   biz.TaskRepo
 }
 
-func NewBackupService(t *gotext.Locale, backup biz.BackupRepo) *BackupService {
+func NewBackupService(t *gotext.Locale, backup biz.BackupRepo, task biz.TaskRepo) *BackupService {
 	return &BackupService{
 		t:          t,
 		backupRepo: backup,
+		taskRepo:   task,
 	}
 }
 
@@ -55,7 +58,21 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.backupRepo.Create(r.Context(), biz.BackupType(req.Type), req.Target, req.Storage); err != nil {
+	// 备份可能耗时较长（大库），提交到后台任务队列异步执行
+	pathEnv := "export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n"
+	var cmd string
+	if req.Type == "website" {
+		cmd = fmt.Sprintf("%sacepanel backup website -n '%s' -s '%d'", pathEnv, req.Target, req.Storage)
+	} else {
+		cmd = fmt.Sprintf("%sacepanel backup database -t '%s' -n '%s' -s '%d'", pathEnv, req.Type, req.Target, req.Storage)
+	}
+
+	task := &biz.Task{
+		Name:   s.t.Get("Backup %s: %s", req.Type, req.Target),
+		Status: biz.TaskStatusWaiting,
+		Shell:  cmd,
+	}
+	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -6,6 +6,7 @@ import { useGettext } from 'vue3-gettext'
 import app from '@/api/panel/app'
 import backup from '@/api/panel/backup'
 import storage from '@/api/panel/backup-storage'
+import database from '@/api/panel/database'
 import website from '@/api/panel/website'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
@@ -22,20 +23,21 @@ const createLoading = ref(false)
 const restoreLoading = ref(false)
 
 const createModal = ref(false)
-const createModel = ref({
-  target: '',
+const createModel = ref<{ target: string | null; storage: number }>({
+  target: null,
   storage: 0,
 })
 
 const storages = ref<any[]>([])
 
 const restoreModal = ref(false)
-const restoreModel = ref({
+const restoreModel = ref<{ file: string; target: string | null }>({
   file: '',
-  target: '',
+  target: null,
 })
 
 const websites = ref<any>([])
+const databases = ref<any[]>([])
 
 const columns: any = [
   {
@@ -115,7 +117,9 @@ const handleCreate = () => {
     .onSuccess(() => {
       createModal.value = false
       window.$bus.emit('backup:refresh')
-      window.$message.success($gettext('Created successfully'))
+      window.$message.success(
+        $gettext('Backup task created, please check the progress in background tasks'),
+      )
     })
     .onComplete(() => {
       createLoading.value = false
@@ -146,6 +150,18 @@ const handleDelete = async (file: string) => {
   })
 }
 
+const loadDatabases = (dbType: string) => {
+  databases.value = []
+  useRequest(database.list(1, 10000, dbType)).onSuccess(({ data }: { data: any }) => {
+    for (const item of data.items) {
+      databases.value.push({
+        label: `${item.name} (${item.server_name || 'local'})`,
+        value: item.name,
+      })
+    }
+  })
+}
+
 watch(
   type,
   (newType) => {
@@ -157,8 +173,10 @@ watch(
       createModel.value.target = newType
       restoreModel.value.target = newType
     } else {
-      createModel.value.target = ''
-      restoreModel.value.target = ''
+      // mysql/postgresql/clickhouse 加载数据库列表供下拉选择
+      createModel.value.target = null
+      restoreModel.value.target = null
+      loadDatabases(newType)
     }
     refresh()
   },
@@ -256,15 +274,15 @@ onUnmounted(() => {
         />
       </n-form-item>
       <n-form-item
-        v-if="!['website', 'redis', 'valkey'].includes(type)"
+        v-if="['mysql', 'postgresql', 'clickhouse'].includes(type)"
         path="name"
         :label="$gettext('Database Name')"
       >
-        <n-input
+        <n-select
           v-model:value="createModel.target"
-          type="text"
-          @keydown.enter.prevent
-          :placeholder="$gettext('Enter database name')"
+          :options="databases"
+          filterable
+          :placeholder="$gettext('Select database')"
         />
       </n-form-item>
       <n-form-item path="storage" :label="$gettext('Backup Storage')">
@@ -304,11 +322,16 @@ onUnmounted(() => {
         />
       </n-form-item>
       <n-form-item
-        v-if="!['website', 'redis', 'valkey'].includes(type)"
+        v-if="['mysql', 'postgresql', 'clickhouse'].includes(type)"
         path="name"
         :label="$gettext('Database')"
       >
-        <n-input v-model:value="restoreModel.target" type="text" @keydown.enter.prevent />
+        <n-select
+          v-model:value="restoreModel.target"
+          :options="databases"
+          filterable
+          :placeholder="$gettext('Select database')"
+        />
       </n-form-item>
     </n-form>
     <n-button

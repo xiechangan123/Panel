@@ -106,7 +106,7 @@ func initAce() (*app.Ace, error) {
 	databaseElasticsearchRepo := data.NewDatabaseElasticsearchRepo(locale, db, logger)
 	databaseElasticsearchService := service.NewDatabaseElasticsearchService(databaseElasticsearchRepo)
 	databaseUserService := service.NewDatabaseUserService(databaseUserRepo)
-	backupService := service.NewBackupService(locale, backupRepo)
+	backupService := service.NewBackupService(locale, backupRepo, taskRepo)
 	backupAccountRepo := data.NewBackupAccountRepo(locale, db, logger, settingRepo)
 	backupStorageService := service.NewBackupStorageService(locale, backupAccountRepo)
 	certService := service.NewCertService(locale, certRepo)
