@@ -42,7 +42,7 @@ require (
 	github.com/libtnb/cron v0.2.1
 	github.com/libtnb/gormstore v1.2.1
 	github.com/libtnb/sessions v1.4.2
-	github.com/libtnb/sqlite v1.1.1
+	github.com/libtnb/sqlite v1.1.2
 	github.com/libtnb/utils v1.2.2
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
@@ -65,7 +65,7 @@ require (
 	golang.org/x/net v0.55.0
 	golang.org/x/sync v0.20.0
 	gorm.io/gorm v1.31.1
-	modernc.org/sqlite v1.51.0
+	modernc.org/sqlite v1.52.0
 	resty.dev/v3 v3.0.0-beta.6
 )
 

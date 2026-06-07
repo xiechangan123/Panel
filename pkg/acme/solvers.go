@@ -124,7 +124,13 @@ func (s *panelSolver) writeNginxConfig() error {
 	if hasIPv6 {
 		conf.WriteString("    listen [::]:80;\n")
 	}
-	_, _ = fmt.Fprintf(&conf, "    server_name %s;\n", strings.Join(s.ip, " "))
+	names := lo.Map(s.ip, func(ip string, _ int) string {
+		if s.isIPv6(ip) {
+			return "[" + ip + "]"
+		}
+		return ip
+	})
+	_, _ = fmt.Fprintf(&conf, "    server_name %s;\n", strings.Join(names, " "))
 	for path, token := range s.tokens {
 		_, _ = fmt.Fprintf(&conf, "    location = %s {\n        default_type text/plain;\n        return 200 %q;\n    }\n", path, token)
 	}
@@ -159,12 +165,14 @@ func (s *panelSolver) writeApacheConfig() error {
 	}
 
 	var conf strings.Builder
-	_, _ = fmt.Fprintf(&conf, "<VirtualHost *:80>\n    ServerName %s\n", s.ip[0])
-	if len(s.ip) > 1 {
-		for _, ip := range s.ip[1:] {
-			_, _ = fmt.Fprintf(&conf, "    ServerAlias %s\n", ip)
+	addrs := lo.Map(s.ip, func(ip string, _ int) string {
+		if s.isIPv6(ip) {
+			return "[" + ip + "]:80"
 		}
-	}
+		return ip + ":80"
+	})
+	_, _ = fmt.Fprintf(&conf, "<VirtualHost %s>\n", strings.Join(addrs, " "))
+	conf.WriteString("    ServerName acme-ip-validation\n")
 	_, _ = fmt.Fprintf(&conf, "    Alias /.well-known/acme-challenge %s\n", tokenDir)
 	_, _ = fmt.Fprintf(&conf, "    <Directory %s>\n", tokenDir)
 	conf.WriteString("        Require all granted\n")
