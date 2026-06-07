@@ -289,7 +289,7 @@ func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript
 			switch config.Type {
 			case "website":
 				_, _ = fmt.Fprintf(&sb, "acepanel backup website -n '%s' -s '%d'\n", target, config.Storage)
-			case "mysql", "postgresql":
+			case "mysql", "postgresql", "clickhouse", "redis", "valkey":
 				_, _ = fmt.Fprintf(&sb, "acepanel backup database -t '%s' -n '%s' -s '%d'\n", config.Type, target, config.Storage)
 			case "path":
 				_, _ = fmt.Fprintf(&sb, "acepanel backup path -p '%s' -s '%d'\n", target, config.Storage)
@@ -299,7 +299,7 @@ func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript
 			switch config.Type {
 			case "website":
 				_, _ = fmt.Fprintf(&sb, "acepanel backup clear -t website -f '%s' -k '%d' -s '%d'\n", target, config.Keep, config.Storage)
-			case "mysql", "postgresql":
+			case "mysql", "postgresql", "clickhouse", "redis", "valkey":
 				_, _ = fmt.Fprintf(&sb, "acepanel backup clear -t '%s' -f '%s' -k '%d' -s '%d'\n", config.Type, target, config.Keep, config.Storage)
 			case "path":
 				_, _ = fmt.Fprintf(&sb, "acepanel backup clear -t path -f '%s' -k '%d' -s '%d'\n", filepath.Base(target), config.Keep, config.Storage)

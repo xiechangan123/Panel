@@ -73,6 +73,13 @@ const postgreSQLInstalled = computed(() => {
   return installedEnvironment.value.db.find((item: any) => item.value === 'postgresql')
 })
 
+const clickHouseInstalled = computed(() => {
+  return installedEnvironment.value.db.find((item: any) => item.value === 'clickhouse')
+})
+
+const redisInstalled = ref(false)
+const valkeyInstalled = ref(false)
+
 const containerInstalled = ref(false)
 
 const showPathSelector = ref(false)
@@ -130,6 +137,9 @@ const generateTaskName = () => {
       website: $gettext('Backup Website'),
       mysql: $gettext('Backup MySQL'),
       postgresql: $gettext('Backup PostgreSQL'),
+      clickhouse: $gettext('Backup ClickHouse'),
+      redis: $gettext('Backup Redis'),
+      valkey: $gettext('Backup Valkey'),
       path: $gettext('Backup Directory'),
     }
     const prefix = backupTypeMap[formModel.value.sub_type] || $gettext('Backup')
@@ -243,7 +253,7 @@ watch(show, (val) => {
       }
       if (
         props.editData.type === 'backup' &&
-        (config.type === 'mysql' || config.type === 'postgresql')
+        ['mysql', 'postgresql', 'clickhouse'].includes(config.type)
       ) {
         loadDatabases(config.type)
       }
@@ -261,8 +271,15 @@ watch(
     if (formModel.value.type === 'cutoff' && val === 'container') {
       loadContainers()
     }
-    if (formModel.value.type === 'backup' && (val === 'mysql' || val === 'postgresql')) {
+    if (
+      formModel.value.type === 'backup' &&
+      ['mysql', 'postgresql', 'clickhouse'].includes(val)
+    ) {
       loadDatabases(val)
+    }
+    // Redis/Valkey 整实例备份，无库名，target 固定为实例类型
+    if (formModel.value.type === 'backup' && (val === 'redis' || val === 'valkey')) {
+      formModel.value.targets = [val]
     }
   },
 )
@@ -282,6 +299,12 @@ onMounted(() => {
   })
   useRequest(app.isInstalled('docker,podman')).onSuccess(({ data }) => {
     containerInstalled.value = !!data
+  })
+  useRequest(app.isInstalled('redis')).onSuccess(({ data }) => {
+    redisInstalled.value = !!data
+  })
+  useRequest(app.isInstalled('valkey')).onSuccess(({ data }) => {
+    valkeyInstalled.value = !!data
   })
   useRequest(storage.list(1, 10000)).onSuccess(({ data }: { data: any }) => {
     storages.value = []
@@ -429,6 +452,15 @@ onMounted(() => {
           <n-radio value="postgresql" :disabled="!postgreSQLInstalled">
             {{ $gettext('PostgreSQL Database') }}
           </n-radio>
+          <n-radio value="clickhouse" :disabled="!clickHouseInstalled">
+            {{ $gettext('ClickHouse Database') }}
+          </n-radio>
+          <n-radio value="redis" :disabled="!redisInstalled">
+            {{ $gettext('Redis') }}
+          </n-radio>
+          <n-radio value="valkey" :disabled="!valkeyInstalled">
+            {{ $gettext('Valkey') }}
+          </n-radio>
           <n-radio value="path">{{ $gettext('Directory') }}</n-radio>
         </n-radio-group>
       </n-form-item>
@@ -460,7 +492,7 @@ onMounted(() => {
       <n-form-item
         v-if="
           formModel.type === 'backup' &&
-          (formModel.sub_type === 'mysql' || formModel.sub_type === 'postgresql')
+          ['mysql', 'postgresql', 'clickhouse'].includes(formModel.sub_type)
         "
         :label="$gettext('Select Database')"
       >
