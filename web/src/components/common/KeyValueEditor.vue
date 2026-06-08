@@ -44,10 +44,11 @@ const emit = defineEmits<{
   'update:modelValue': [value: Record<string, string>]
 }>()
 
-// 生成唯一键名
+// 生成唯一键名，优先使用前缀本身，仅在冲突时追加序号
 const generateUniqueKey = () => {
   const data = props.modelValue || {}
   const prefix = props.defaultKeyPrefix
+  if (data[prefix] === undefined) return prefix
   let i = 1
   while (data[`${prefix}${i}`] !== undefined) {
     i++

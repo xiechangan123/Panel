@@ -1409,7 +1409,7 @@ const removeCustomConfig = (index: number) => {
                         <!-- 重试配置详情 -->
                         <template v-if="proxy.retry">
                           <n-grid :cols="24" :x-gap="16">
-                            <n-form-item-gi :span="12" :label="$gettext('Retry Conditions')">
+                            <n-form-item-gi :span="8" :label="$gettext('Retry Conditions')">
                               <n-select
                                 v-model:value="proxy.retry.conditions"
                                 :options="[
@@ -1428,7 +1428,7 @@ const removeCustomConfig = (index: number) => {
                                 :placeholder="$gettext('Select retry conditions')"
                               />
                             </n-form-item-gi>
-                            <n-form-item-gi :span="6" :label="$gettext('Max Tries')">
+                            <n-form-item-gi :span="8" :label="$gettext('Max Tries')">
                               <n-input-number
                                 :value="proxy.retry.tries || null"
                                 :min="0"
@@ -1436,7 +1436,7 @@ const removeCustomConfig = (index: number) => {
                                 @update:value="(v: number | null) => (proxy.retry.tries = v ?? 0)"
                               />
                             </n-form-item-gi>
-                            <n-form-item-gi :span="6" :label="$gettext('Retry Timeout')">
+                            <n-form-item-gi :span="8" :label="$gettext('Retry Timeout')">
                               <n-input-group>
                                 <n-input-number
                                   :value="
