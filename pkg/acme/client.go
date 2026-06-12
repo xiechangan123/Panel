@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/x509"
 	"net"
-	"sort"
 
 	"github.com/libdns/libdns"
 	"github.com/mholt/acmez/v3"
@@ -99,8 +98,7 @@ func (c *Client) ObtainCertificate(ctx context.Context, sans []string, keyType K
 		return Certificate{}, err
 	}
 
-	crt := c.selectPreferredChain(certs)
-	return Certificate{PrivateKey: pemPrivateKey, Certificate: crt}, nil
+	return Certificate{PrivateKey: pemPrivateKey, Certificate: certs[0]}, nil
 }
 
 // ObtainIPCertificate 签发 IP SSL 证书
@@ -130,8 +128,7 @@ func (c *Client) ObtainIPCertificate(ctx context.Context, sans []string, keyType
 		return Certificate{}, err
 	}
 
-	crt := c.selectPreferredChain(certs)
-	return Certificate{PrivateKey: pemPrivateKey, Certificate: crt}, nil
+	return Certificate{PrivateKey: pemPrivateKey, Certificate: certs[0]}, nil
 }
 
 // RenewCertificate 续签 SSL 证书
@@ -147,16 +144,4 @@ func (c *Client) RenewCertificate(ctx context.Context, certUrl string, domains [
 // GetRenewalInfo 获取续签建议
 func (c *Client) GetRenewalInfo(ctx context.Context, cert x509.Certificate) (acme.RenewalInfo, error) {
 	return c.zClient.GetRenewalInfo(ctx, &cert)
-}
-
-func (c *Client) selectPreferredChain(certChains []acme.Certificate) acme.Certificate {
-	if len(certChains) == 1 {
-		return certChains[0]
-	}
-
-	sort.Slice(certChains, func(i, j int) bool {
-		return len(certChains[i].ChainPEM) < len(certChains[j].ChainPEM)
-	})
-
-	return certChains[0]
 }
