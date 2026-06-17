@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/acepanel/panel/v3/pkg/chattr"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -18,14 +19,74 @@ func Remove(path string) error {
 
 // Chmod 修改文件/目录权限
 func Chmod(path string, permission os.FileMode) error {
-	_, err := shell.Execf("chmod -R '%o' '%s'", permission, path)
-	return err
+	return withUnlock(path, func() (string, error) {
+		return shell.Execf("chmod -R '%o' '%s'", permission, path)
+	})
 }
 
 // Chown 修改文件或目录所有者
 func Chown(path, user, group string) error {
-	_, err := shell.Execf("chown -R '%s:%s' '%s'", user, group, path)
+	return withUnlock(path, func() (string, error) {
+		return shell.Execf("chown -R '%s:%s' '%s'", user, group, path)
+	})
+}
+
+// withUnlock 执行 chmod/chown 等递归命令，若被 immutable/append 锁定文件（如 .user.ini）阻挡，
+// 则解锁后重试并在完成后恢复锁定属性
+func withUnlock(path string, run func() (string, error)) error {
+	_, err := run()
+	if err == nil || !strings.Contains(err.Error(), "Operation not permitted") {
+		return err
+	}
+	locked := unlockAttr(path)
+	_, err = run()
+	relockAttr(locked)
 	return err
+}
+
+type lockedFile struct {
+	path  string
+	attrs uint32
+}
+
+// unlockAttr 递归解除 path 下文件的 immutable/append 属性，返回解除记录用于后续恢复
+func unlockAttr(path string) []lockedFile {
+	var locked []lockedFile
+	_ = filepath.WalkDir(path, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		file, err := os.OpenFile(p, os.O_RDONLY, 0)
+		if err != nil {
+			return nil
+		}
+		var attrs uint32
+		if ok, _ := chattr.IsAttr(file, chattr.FS_IMMUTABLE_FL); ok {
+			attrs |= chattr.FS_IMMUTABLE_FL
+		}
+		if ok, _ := chattr.IsAttr(file, chattr.FS_APPEND_FL); ok {
+			attrs |= chattr.FS_APPEND_FL
+		}
+		if attrs != 0 {
+			_ = chattr.UnsetAttr(file, attrs)
+			locked = append(locked, lockedFile{path: p, attrs: attrs})
+		}
+		_ = file.Close()
+		return nil
+	})
+	return locked
+}
+
+// relockAttr 恢复 unlockAttr 解除的 immutable/append 属性
+func relockAttr(files []lockedFile) {
+	for _, f := range files {
+		file, err := os.OpenFile(f.path, os.O_RDONLY, 0)
+		if err != nil {
+			continue
+		}
+		_ = chattr.SetAttr(file, f.attrs)
+		_ = file.Close()
+	}
 }
 
 // Exists 判断路径是否存在
