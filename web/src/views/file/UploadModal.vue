@@ -47,8 +47,171 @@ interface UploadTask {
 // 以文件唯一标识为 key 存储每个上传任务的状态
 const uploadTasks = new Map<string, UploadTask>()
 
+// 每个文件的上传计划：实际写入目录的名字（重命名时与原名不同）+ 是否覆盖
+interface UploadPlan {
+  uploadName: string
+  force: boolean
+}
+const uploadPlanMap = new Map<string, UploadPlan>()
+
 // 获取文件唯一标识
 const getFileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
+
+// 拼接目标完整路径
+const buildTargetPath = (fileName: string) => {
+  const base = path.value.endsWith('/') ? path.value.slice(0, -1) : path.value
+  return `${base}/${fileName}`
+}
+
+// 读取单个文件的上传计划，无记录时按原名 + 不覆盖处理
+const getUploadPlan = (file: File): UploadPlan => {
+  return uploadPlanMap.get(getFileKey(file)) ?? { uploadName: file.name, force: false }
+}
+
+// 找一个目录里不存在、且本批次未占用的新文件名（追加 -1 -2 -3）
+const generateUniqueName = async (fileName: string, reserved: Set<string>): Promise<string> => {
+  const dot = fileName.lastIndexOf('.')
+  const base = dot > 0 ? fileName.slice(0, dot) : fileName
+  const ext = dot > 0 ? fileName.slice(dot) : ''
+
+  const batchSize = 10
+  let offset = 1
+  for (let round = 0; round < 100; round++) {
+    const candidates: string[] = []
+    for (let i = 0; i < batchSize; i++) {
+      candidates.push(`${base}-${offset + i}${ext}`)
+    }
+    let existsArr: boolean[] = []
+    try {
+      existsArr = await api.exist(candidates.map(buildTargetPath))
+    } catch {
+      existsArr = candidates.map(() => false)
+    }
+    for (let i = 0; i < batchSize; i++) {
+      if (!existsArr[i] && !reserved.has(candidates[i])) {
+        return candidates[i]
+      }
+    }
+    offset += batchSize
+  }
+  // 兜底：极端情况下用纳秒级后缀避免阻塞
+  return `${base}-${offset}${ext}`
+}
+
+// 冲突解决弹窗的状态
+type ConflictAction = 'skip' | 'rename' | 'overwrite'
+interface ConflictItem {
+  file: File
+  suggestedName: string
+  action: ConflictAction
+}
+const conflictItems = ref<ConflictItem[]>([])
+const conflictModalShow = ref(false)
+let conflictResolver: ((items: ConflictItem[]) => void) | null = null
+
+const setAllConflictAction = (action: ConflictAction) => {
+  conflictItems.value.forEach((i) => (i.action = action))
+}
+
+const onConflictConfirm = () => {
+  const items = conflictItems.value
+  const renameItems = items.filter((i) => i.action === 'rename')
+
+  // 文件名非空 + 无路径分隔符 + 不能用 . / ..
+  for (const item of renameItems) {
+    const name = item.suggestedName.trim()
+    if (!name) {
+      window.$message.error(
+        $gettext('New name for "%{name}" cannot be empty', { name: item.file.name }),
+      )
+      return
+    }
+    if (name.includes('/') || name.includes('\\') || name === '.' || name === '..') {
+      window.$message.error($gettext('Invalid new name "%{name}"', { name }))
+      return
+    }
+    item.suggestedName = name
+  }
+
+  // 本批次内重命名后不能重名
+  const seen = new Set<string>()
+  for (const item of renameItems) {
+    if (seen.has(item.suggestedName)) {
+      window.$message.error(
+        $gettext('Duplicate new name "%{name}"', { name: item.suggestedName }),
+      )
+      return
+    }
+    seen.add(item.suggestedName)
+  }
+
+  conflictModalShow.value = false
+  conflictResolver?.(items)
+  conflictResolver = null
+}
+
+const onConflictCancel = () => {
+  const items = conflictItems.value.map((i) => ({ ...i, action: 'skip' as ConflictAction }))
+  conflictModalShow.value = false
+  conflictResolver?.(items)
+  conflictResolver = null
+}
+
+// 上传前检查：批量查询存在性，对冲突文件统一弹一个窗，让用户逐个选择
+const precheckFiles = async (files: File[]): Promise<File[]> => {
+  if (files.length === 0) return []
+
+  // 全局勾选覆盖：跳过询问，全部按覆盖处理
+  if (forceOverwrite.value) {
+    files.forEach((f) => uploadPlanMap.set(getFileKey(f), { uploadName: f.name, force: true }))
+    return files
+  }
+
+  let existsArr: boolean[] = []
+  try {
+    existsArr = await api.exist(files.map((f) => buildTargetPath(f.name)))
+  } catch {
+    // 检查失败时按不存在处理，让后端在上传阶段兜底
+    existsArr = files.map(() => false)
+  }
+
+  const accepted: File[] = []
+  const conflicts: File[] = []
+  for (let i = 0; i < files.length; i++) {
+    if (existsArr[i]) {
+      conflicts.push(files[i])
+    } else {
+      uploadPlanMap.set(getFileKey(files[i]), { uploadName: files[i].name, force: false })
+      accepted.push(files[i])
+    }
+  }
+
+  if (conflicts.length === 0) return accepted
+
+  // 为每个冲突文件预算一个不冲突的重命名候选
+  const reserved = new Set<string>()
+  const items: ConflictItem[] = []
+  for (const file of conflicts) {
+    const suggestedName = await generateUniqueName(file.name, reserved)
+    reserved.add(suggestedName)
+    items.push({ file, suggestedName, action: 'rename' })
+  }
+
+  conflictItems.value = items
+  conflictModalShow.value = true
+  const resolved = await new Promise<ConflictItem[]>((resolve) => {
+    conflictResolver = resolve
+  })
+
+  for (const item of resolved) {
+    if (item.action === 'skip') continue
+    const uploadName = item.action === 'rename' ? item.suggestedName : item.file.name
+    const force = item.action === 'overwrite'
+    uploadPlanMap.set(getFileKey(item.file), { uploadName, force })
+    accepted.push(item.file)
+  }
+  return accepted
+}
 
 // 取消单个文件的上传
 const cancelUpload = (file: File) => {
@@ -182,6 +345,7 @@ const chunkedUpload = async (
 ) => {
   // 创建此文件的上传任务
   const fileKey = getFileKey(file)
+  const plan = getUploadPlan(file)
   const task: UploadTask = { isCancelled: false, activeRequests: [] }
   uploadTasks.set(fileKey, task)
 
@@ -204,10 +368,10 @@ const chunkedUpload = async (
     // 开始分块上传（查询已上传的分块）
     const startMethod = api.chunkStart({
       path: path.value,
-      file_name: file.name,
+      file_name: plan.uploadName,
       file_hash: fileHash,
       chunk_count: chunkCount,
-      force: forceOverwrite.value,
+      force: plan.force,
     })
     task.activeRequests.push(startMethod)
     const startRes = await startMethod
@@ -268,7 +432,7 @@ const chunkedUpload = async (
       // 上传分块
       const formData = new FormData()
       formData.append('path', path.value)
-      formData.append('file_name', file.name)
+      formData.append('file_name', plan.uploadName)
       formData.append('file_hash', fileHash)
       formData.append('chunk_index', chunkIndex.toString())
       formData.append('chunk_hash', chunkHash)
@@ -289,10 +453,10 @@ const chunkedUpload = async (
     // 完成分块上传（合并）
     const finishMethod = api.chunkFinish({
       path: path.value,
-      file_name: file.name,
+      file_name: plan.uploadName,
       file_hash: fileHash,
       chunk_count: chunkCount,
-      force: forceOverwrite.value,
+      force: plan.force,
     })
     task.activeRequests.push(finishMethod)
     await finishMethod
@@ -354,8 +518,15 @@ watch(
 )
 
 // 将文件添加到上传列表
-const addFilesToList = (files: File[], autoUpload: boolean = false) => {
-  fileList.value = files.map((file, index) => ({
+const addFilesToList = async (files: File[], autoUpload: boolean = false) => {
+  const accepted = await precheckFiles(files)
+  if (accepted.length === 0) {
+    fileList.value = []
+    if (autoUpload) show.value = false
+    return
+  }
+
+  fileList.value = accepted.map((file, index) => ({
     id: `dropped-${Date.now()}-${index}`,
     name: file.name,
     status: 'pending' as const,
@@ -375,6 +546,14 @@ watch(show, (val) => {
   if (!val) {
     cancelAllUploads()
     fileList.value = []
+    uploadPlanMap.clear()
+    // 主弹窗关闭时也兜底关掉冲突弹窗并放弃等待
+    if (conflictResolver) {
+      conflictResolver([])
+      conflictResolver = null
+    }
+    conflictModalShow.value = false
+    conflictItems.value = []
   }
 })
 
@@ -389,13 +568,14 @@ const uploadRequest = ({ file, onFinish, onError, onProgress }: UploadCustomRequ
 
   // 小文件使用普通上传
   const fileKey = getFileKey(fileObj)
+  const plan = getUploadPlan(fileObj)
   const task: UploadTask = { isCancelled: false, activeRequests: [] }
   uploadTasks.set(fileKey, task)
 
   const formData = new FormData()
-  formData.append('path', `${path.value}/${file.name}`)
+  formData.append('path', `${path.value}/${plan.uploadName}`)
   formData.append('file', fileObj)
-  formData.append('force', forceOverwrite.value.toString())
+  formData.append('force', plan.force.toString())
 
   const method = api.upload(formData)
   task.activeRequests.push(method)
@@ -434,28 +614,54 @@ const handleRemove = ({ file }: { file: UploadFileInfo }) => {
   }
 }
 
-// 处理文件选择变化（用于文件数量确认）
-const handleChange = (data: { fileList: UploadFileInfo[] }) => {
-  const newFiles = data.fileList.filter(
-    (f) => !fileList.value.some((existing) => existing.id === f.id),
+// 处理文件选择变化：对新增文件做 precheck 与数量确认后再触发上传
+const handleChange = async (data: { fileList: UploadFileInfo[] }) => {
+  const existingIds = new Set(fileList.value.map((f) => f.id))
+  const newInfos = data.fileList.filter((f) => !existingIds.has(f.id))
+  const keptInfos = data.fileList.filter((f) => existingIds.has(f.id))
+
+  // 没有新增（可能是移除场景），直接同步
+  if (newInfos.length === 0) {
+    fileList.value = keptInfos
+    return
+  }
+
+  // 数量阈值确认
+  if (newInfos.length > FILE_COUNT_THRESHOLD) {
+    const confirmed = await new Promise<boolean>((resolve) => {
+      window.$dialog.warning({
+        title: $gettext('Confirm Upload'),
+        content: $gettext(
+          'You are about to upload %{count} files. This may take a while. Do you want to continue?',
+          { count: newInfos.length },
+        ),
+        positiveText: $gettext('Continue'),
+        negativeText: $gettext('Cancel'),
+        onPositiveClick: () => resolve(true),
+        onNegativeClick: () => resolve(false),
+      })
+    })
+    if (!confirmed) {
+      fileList.value = keptInfos
+      return
+    }
+  }
+
+  // 对新文件做存在性 precheck
+  const newFiles = newInfos.map((info) => info.file).filter((f): f is File => !!f)
+  const accepted = await precheckFiles(newFiles)
+  const acceptedKeys = new Set(accepted.map(getFileKey))
+
+  const filteredNewInfos = newInfos.filter(
+    (info) => info.file && acceptedKeys.has(getFileKey(info.file as File)),
   )
 
-  // 如果新增文件数量超过阈值，弹窗确认
-  if (newFiles.length > FILE_COUNT_THRESHOLD) {
-    window.$dialog.warning({
-      title: $gettext('Confirm Upload'),
-      content: $gettext(
-        'You are about to upload %{count} files. This may take a while. Do you want to continue?',
-        { count: newFiles.length },
-      ),
-      positiveText: $gettext('Continue'),
-      negativeText: $gettext('Cancel'),
-      onPositiveClick: () => {
-        fileList.value = data.fileList
-      },
+  fileList.value = [...keptInfos, ...filteredNewInfos]
+
+  if (filteredNewInfos.length > 0) {
+    nextTick(() => {
+      upload.value?.submit()
     })
-  } else {
-    fileList.value = data.fileList
   }
 }
 </script>
@@ -491,6 +697,7 @@ const handleChange = (data: { fileList: UploadFileInfo[] }) => {
         v-model:file-list="fileList"
         multiple
         directory-dnd
+        :default-upload="false"
         :custom-request="uploadRequest"
         @change="handleChange"
         @remove="handleRemove"
@@ -509,6 +716,79 @@ const handleChange = (data: { fileList: UploadFileInfo[] }) => {
       </n-upload>
     </n-flex>
   </n-modal>
+
+  <!-- 文件冲突处理弹窗：批量列出冲突文件，每个单独选 跳过/重命名/覆盖 -->
+  <n-modal
+    v-model:show="conflictModalShow"
+    preset="card"
+    :title="$gettext('Files already exist')"
+    style="width: 60vw"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+    :mask-closable="false"
+    :closable="false"
+  >
+    <n-flex vertical :size="16">
+      <NText depth="3">
+        {{
+          $gettext(
+            'The following files already exist in the target directory. Choose an action for each.',
+          )
+        }}
+      </NText>
+      <n-flex align="center" :size="8">
+        <NText>{{ $gettext('Apply to all:') }}</NText>
+        <n-button size="small" @click="setAllConflictAction('skip')">
+          {{ $gettext('Skip') }}
+        </n-button>
+        <n-button size="small" @click="setAllConflictAction('rename')">
+          {{ $gettext('Rename') }}
+        </n-button>
+        <n-button size="small" @click="setAllConflictAction('overwrite')">
+          {{ $gettext('Overwrite') }}
+        </n-button>
+      </n-flex>
+      <n-scrollbar style="max-height: 50vh">
+        <n-flex vertical :size="8">
+          <n-flex
+            v-for="item in conflictItems"
+            :key="item.file.name"
+            align="center"
+            justify="space-between"
+            class="conflict-row"
+          >
+            <n-flex vertical :size="4" style="min-width: 0; flex: 1">
+              <NText style="word-break: break-all">{{ item.file.name }}</NText>
+              <n-flex
+                v-if="item.action === 'rename'"
+                align="center"
+                :size="6"
+                style="min-width: 0"
+              >
+                <NText depth="3" style="font-size: 12px">→</NText>
+                <n-input
+                  v-model:value="item.suggestedName"
+                  size="small"
+                  :placeholder="$gettext('New file name')"
+                  style="flex: 1; min-width: 160px"
+                />
+              </n-flex>
+            </n-flex>
+            <n-radio-group v-model:value="item.action" size="small">
+              <n-radio-button value="skip">{{ $gettext('Skip') }}</n-radio-button>
+              <n-radio-button value="rename">{{ $gettext('Rename') }}</n-radio-button>
+              <n-radio-button value="overwrite">{{ $gettext('Overwrite') }}</n-radio-button>
+            </n-radio-group>
+          </n-flex>
+        </n-flex>
+      </n-scrollbar>
+      <n-flex justify="end" :size="8">
+        <n-button @click="onConflictCancel">{{ $gettext('Cancel') }}</n-button>
+        <n-button type="primary" @click="onConflictConfirm">{{ $gettext('Confirm') }}</n-button>
+      </n-flex>
+    </n-flex>
+  </n-modal>
 </template>
 
 <style scoped lang="scss">
@@ -517,5 +797,11 @@ const handleChange = (data: { fileList: UploadFileInfo[] }) => {
   background: var(--n-color-embedded);
   border-radius: 4px;
   margin-bottom: 12px;
+}
+
+.conflict-row {
+  padding: 8px 12px;
+  background: var(--n-color-embedded);
+  border-radius: 4px;
 }
 </style>
