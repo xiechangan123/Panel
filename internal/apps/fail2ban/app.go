@@ -177,7 +177,7 @@ ignoreregex =
 		switch jailName {
 		case "ssh":
 			filter = "sshd"
-			port, err = shell.Execf("cat /etc/ssh/sshd_config | grep 'Port ' | awk '{print $2}'")
+			port, err = shell.Execf("cat /etc/ssh/sshd_config | grep 'Port ' | awk '{print $2}' | paste -sd ','")
 		case "mysql":
 			filter = "mysqld-auth"
 			port, err = shell.Execf("cat %s/server/mysql/conf/my.cnf | grep 'port' | head -n 1 | awk '{print $3}'", app.Root)
