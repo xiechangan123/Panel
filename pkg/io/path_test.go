@@ -40,7 +40,7 @@ func isImmutable(path string) bool {
 func TestChmodNormalDir(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "test_chmod_normal")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	sub := filepath.Join(tmpDir, "sub")
 	assert.NoError(t, os.Mkdir(sub, 0755))
@@ -59,7 +59,7 @@ func TestChmodNormalDir(t *testing.T) {
 func TestUnlockRelockAttr(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "test_unlock_attr")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	locked := filepath.Join(tmpDir, "locked.txt")
 	normal := filepath.Join(tmpDir, "normal.txt")
@@ -86,7 +86,7 @@ func TestUnlockRelockAttr(t *testing.T) {
 func TestChmodWithImmutable(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "test_chmod_immutable")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	userIni := filepath.Join(tmpDir, ".user.ini")
 	assert.NoError(t, Write(userIni, "open_basedir=/tmp/", 0644))

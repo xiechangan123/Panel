@@ -88,8 +88,9 @@ const generateUniqueName = async (fileName: string, reserved: Set<string>): Prom
       existsArr = candidates.map(() => false)
     }
     for (let i = 0; i < batchSize; i++) {
-      if (!existsArr[i] && !reserved.has(candidates[i])) {
-        return candidates[i]
+      const name = candidates[i]
+      if (name && !existsArr[i] && !reserved.has(name)) {
+        return name
       }
     }
     offset += batchSize
@@ -178,11 +179,13 @@ const precheckFiles = async (files: File[]): Promise<File[]> => {
   const accepted: File[] = []
   const conflicts: File[] = []
   for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    if (!file) continue
     if (existsArr[i]) {
-      conflicts.push(files[i])
+      conflicts.push(file)
     } else {
-      uploadPlanMap.set(getFileKey(files[i]), { uploadName: files[i].name, force: false })
-      accepted.push(files[i])
+      uploadPlanMap.set(getFileKey(file), { uploadName: file.name, force: false })
+      accepted.push(file)
     }
   }
 
