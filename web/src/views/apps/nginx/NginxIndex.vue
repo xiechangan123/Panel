@@ -29,41 +29,45 @@ const SECOND = 1000000000
 const MINUTE = 60 * SECOND
 const HOUR = 60 * MINUTE
 
-// 从纳秒解析为 {value, unit} 格式
-const parseDuration = (ns: number): { value: number; unit: string } => {
-  if (!ns || ns <= 0) return { value: 5, unit: 's' }
-
-  if (ns >= HOUR && ns % HOUR === 0) {
-    return { value: ns / HOUR, unit: 'h' }
-  }
-  if (ns >= MINUTE && ns % MINUTE === 0) {
-    return { value: ns / MINUTE, unit: 'm' }
-  }
-  return { value: Math.floor(ns / SECOND), unit: 's' }
-}
-
-// 构建纳秒时间
-const buildDuration = (value: number, unit: string): number => {
+// 时间单位换算因子（纳秒）
+const durationUnitFactor = (unit: string): number => {
   switch (unit) {
     case 'h':
-      return value * HOUR
+      return HOUR
     case 'm':
-      return value * MINUTE
+      return MINUTE
     default:
-      return value * SECOND
+      return SECOND
   }
 }
+
+// 从纳秒推断显示单位（仅用于编辑时初始化）
+const parseDurationUnit = (ns: number | null | undefined): string => {
+  if (!ns || ns <= 0) return 's'
+  if (ns >= HOUR && ns % HOUR === 0) return 'h'
+  if (ns >= MINUTE && ns % MINUTE === 0) return 'm'
+  return 's'
+}
+
+// 当前选中单位（独立 UI 状态，避免从纳秒反推导致单位跳变）
+const resolverTimeoutUnit = ref<string>('s')
+
+// 按当前单位把纳秒换算为显示值
+const resolverTimeoutDisplay = computed<number | null>(() => {
+  const ns = streamUpstreamModel.value.resolver_timeout
+  if (!ns || ns <= 0) return null
+  return ns / durationUnitFactor(resolverTimeoutUnit.value)
+})
 
 // 更新超时时间值
 const updateResolverTimeoutValue = (value: number) => {
-  const parsed = parseDuration(streamUpstreamModel.value.resolver_timeout)
-  streamUpstreamModel.value.resolver_timeout = buildDuration(value, parsed.unit)
+  streamUpstreamModel.value.resolver_timeout =
+    value > 0 ? value * durationUnitFactor(resolverTimeoutUnit.value) : 0
 }
 
-// 更新超时时间单位
+// 更新超时时间单位（仅改 UI 状态，纳秒值保持不变）
 const updateResolverTimeoutUnit = (unit: string) => {
-  const parsed = parseDuration(streamUpstreamModel.value.resolver_timeout)
-  streamUpstreamModel.value.resolver_timeout = buildDuration(parsed.value, unit)
+  resolverTimeoutUnit.value = unit
 }
 
 const { data: config, send: refreshConfig } = useRequest(props.api.config, {
@@ -414,6 +418,7 @@ const handleCreateStreamUpstream = () => {
     resolver: [],
     resolver_timeout: 5 * SECOND,
   }
+  resolverTimeoutUnit.value = 's'
   upstreamServerAddr.value = ''
   upstreamServerOptions.value = ''
   streamUpstreamModal.value = true
@@ -429,6 +434,7 @@ const handleEditStreamUpstream = (row: any) => {
     resolver: row.resolver,
     resolver_timeout: row.resolver_timeout || 5 * SECOND,
   }
+  resolverTimeoutUnit.value = parseDurationUnit(streamUpstreamModel.value.resolver_timeout)
   upstreamServerAddr.value = ''
   upstreamServerOptions.value = ''
   streamUpstreamModal.value = true
@@ -781,14 +787,14 @@ const handleDeleteStreamUpstream = (name: string) => {
       >
         <n-input-group>
           <n-input-number
-            :value="parseDuration(streamUpstreamModel.resolver_timeout).value"
+            :value="resolverTimeoutDisplay"
             :min="1"
             :max="3600"
             class="flex-1"
-            @update:value="(v: number | null) => updateResolverTimeoutValue(v ?? 5)"
+            @update:value="(v: number | null) => updateResolverTimeoutValue(v ?? 0)"
           />
           <n-select
-            :value="parseDuration(streamUpstreamModel.resolver_timeout).unit"
+            :value="resolverTimeoutUnit"
             :options="[
               { label: $gettext('Seconds'), value: 's' },
               { label: $gettext('Minutes'), value: 'm' },
