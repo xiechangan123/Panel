@@ -414,7 +414,7 @@ type DNSParam struct {
 }
 
 type DNSProvider interface {
-	libdns.RecordSetter
+	libdns.RecordAppender
 	libdns.RecordDeleter
 }
 
@@ -422,9 +422,8 @@ type dnsSolver struct {
 	mu               sync.Mutex
 	dns              DnsType
 	param            DNSParam
-	keyAuths         map[string][]string        // dnsName → keyAuth 列表
-	records          map[string][]libdns.Record // dnsName → 已设置的记录
-	alias            map[string]string          // DNS 验证别名映射 (domain → delegated domain)
+	records          map[string][]libdns.Record // dnsName → 已写入的记录
+	alias            map[string]string          // DNS 验证别名映射
 	dnsServer        string                     // DNS 验证服务器地址
 	skipVerify       bool                       // 跳过解析验证
 	progressCallback func(string)               // 进度回调
@@ -443,29 +442,22 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 
 	s.report(fmt.Sprintf("setting DNS TXT record %s", dnsName))
 
-	// 同名 TXT 记录可能对应多个 challenge， SetRecords 以 (name, type) 为单位覆盖
-	// 因此需把该记录名下所有 keyAuth 一次性写入，避免后者覆盖前者
-	s.mu.Lock()
-	s.keyAuths[dnsName] = append(s.keyAuths[dnsName], keyAuth)
-	recs := make([]libdns.Record, 0, len(s.keyAuths[dnsName]))
-	for _, ka := range s.keyAuths[dnsName] {
-		recs = append(recs, libdns.TXT{
-			Name: libdns.RelativeName(dnsName+".", zone+"."),
-			Text: ka,
-		})
+	// 同时签主域 + 通配符（如 example.com 与 *.example.com）会产生两个 challenge，
+	// 它们落在同一个 _acme-challenge.example.com TXT 名下，但 keyAuth 不同
+	rec := libdns.TXT{
+		Name: libdns.RelativeName(dnsName+".", zone+"."),
+		Text: keyAuth,
 	}
-	s.mu.Unlock()
-
-	results, err := provider.SetRecords(ctx, zone+".", recs)
+	results, err := provider.AppendRecords(ctx, zone+".", []libdns.Record{rec})
 	if err != nil {
-		return fmt.Errorf("failed to set DNS record %q for %q: %w", dnsName, zone, err)
+		return fmt.Errorf("failed to append DNS record %q for %q: %w", dnsName, zone, err)
 	}
-	if len(results) == 0 {
-		return fmt.Errorf("DNS provider returned no records after setting %q", dnsName)
+	if len(results) != 1 {
+		return fmt.Errorf("DNS provider returned %d records after appending %q, expected 1", len(results), dnsName)
 	}
 
 	s.mu.Lock()
-	s.records[dnsName] = results
+	s.records[dnsName] = append(s.records[dnsName], results[0])
 	s.mu.Unlock()
 
 	s.report(fmt.Sprintf("DNS TXT record %s set successfully", dnsName))
@@ -558,7 +550,6 @@ func (s *dnsSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 	s.mu.Lock()
 	records := s.records[dnsName]
 	delete(s.records, dnsName)
-	delete(s.keyAuths, dnsName)
 	s.mu.Unlock()
 
 	if len(records) > 0 {
