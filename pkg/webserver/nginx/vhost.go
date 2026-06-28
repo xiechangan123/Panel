@@ -508,14 +508,6 @@ func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 			Name:       "ssl_protocols",
 			Parameters: v.parser.slices2Parameters(cfg.Protocols),
 		},
-		{
-			Name:       "ssl_prefer_server_ciphers",
-			Parameters: []config.Parameter{{Value: "on"}},
-		},
-		{
-			Name:       "ssl_early_data",
-			Parameters: []config.Parameter{{Value: "on"}},
-		},
 	}, "root")
 	if err != nil {
 		return err
