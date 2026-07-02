@@ -425,6 +425,28 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
 		}
 	}
 
+	// 纯静态网站默认写入单页应用（SPA）前端路由回退配置
+	if w.Type == biz.WebsiteTypeStatic {
+		var spaConfig string
+		switch webServer {
+		case "nginx":
+			spaConfig = `# single-page application route fallback, remove if not needed
+location / {
+    try_files $uri $uri/ /index.html;
+}
+`
+		case "apache":
+			spaConfig = `# single-page application route fallback, remove if not needed
+FallbackResource /index.html
+`
+		}
+		if spaConfig != "" {
+			if err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig); err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	// 初始化网站目录
 	if err = os.MkdirAll(req.Path, 0755); err != nil {
 		return nil, err
