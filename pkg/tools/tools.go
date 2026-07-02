@@ -8,6 +8,7 @@ import (
 	"fmt"
 	stdnet "net"
 	"net/http"
+	"net/netip"
 	"slices"
 	"sort"
 	"strings"
@@ -312,4 +313,29 @@ func FormatBytes(size float64) string {
 	}
 
 	return fmt.Sprintf("%.2f %s", size, units[i])
+}
+
+// IsIPv6 判断 host 是否为 IPv6 地址（裸地址，不含方括号）
+func IsIPv6(host string) bool {
+	addr, err := netip.ParseAddr(host)
+	return err == nil && !addr.Is4()
+}
+
+// WrapIPv6 为裸 IPv6 地址套上方括号（如 ::1 → [::1]），用于 nginx server_name、URL 等语境
+// 非 IPv6 或已带方括号则原样返回
+func WrapIPv6(host string) string {
+	if IsIPv6(host) {
+		return "[" + host + "]"
+	}
+	return host
+}
+
+// UnwrapIPv6 去除 IPv6 地址的方括号（如 [::1] → ::1），非此形式则原样返回
+func UnwrapIPv6(host string) string {
+	if inner, ok := strings.CutPrefix(host, "["); ok {
+		if inner, ok = strings.CutSuffix(inner, "]"); ok && IsIPv6(inner) {
+			return inner
+		}
+	}
+	return host
 }

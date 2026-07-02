@@ -28,6 +28,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/punycode"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
 	webservertypes "github.com/acepanel/panel/v3/pkg/webserver/types"
@@ -147,6 +148,7 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	setting.Listens = vhost.Listen()
 	// 域名
 	domains := vhost.ServerName()
+	domains = lo.Map(domains, func(d string, _ int) string { return tools.UnwrapIPv6(d) })
 	domains, err = punycode.DecodeDomains(domains)
 	if err != nil {
 		return nil, err
@@ -322,6 +324,7 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 	if err != nil {
 		return nil, err
 	}
+	domains = lo.Map(domains, func(d string, _ int) string { return tools.WrapIPv6(d) })
 	if err = vhost.SetServerName(domains); err != nil {
 		return nil, err
 	}
@@ -604,6 +607,7 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 	if err != nil {
 		return err
 	}
+	domains = lo.Map(domains, func(d string, _ int) string { return tools.WrapIPv6(d) })
 	if err = vhost.SetServerName(domains); err != nil {
 		return err
 	}

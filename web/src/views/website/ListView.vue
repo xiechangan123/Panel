@@ -17,7 +17,7 @@ import website from '@/api/panel/website'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import ConfirmDialog from '@/components/system/ConfirmDialog.vue'
 import { useFileStore } from '@/stores'
-import { isNullOrUndef } from '@/utils'
+import { isNullOrUndef, wrapIPv6 } from '@/utils'
 
 const type = defineModel<string>('type', { type: String, required: true }) // 网站类型
 const createModal = defineModel<boolean>('createModal', { type: Boolean, required: true }) // 创建网站
@@ -63,7 +63,7 @@ const columns: any = [
                     class: 'cursor-pointer hover:opacity-60 inline-flex',
                     onDblclick: () => {
                       const protocol = row.ssl ? 'https' : 'http'
-                      window.open(`${protocol}://${row.domains[0]}`, '_blank')
+                      window.open(`${protocol}://${wrapIPv6(row.domains[0])}`, '_blank')
                     },
                   },
                   [h(TheIcon, { icon: 'mdi:link-variant', size: 16 })],
@@ -76,7 +76,7 @@ const columns: any = [
                     default: () =>
                       row.domains.map((domain: string) => {
                         const protocol = row.ssl ? 'https' : 'http'
-                        const url = `${protocol}://${domain}`
+                        const url = `${protocol}://${wrapIPv6(domain)}`
                         return h(
                           NFlex,
                           { align: 'center', size: 'small' },

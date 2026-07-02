@@ -56,3 +56,8 @@ export function generateRandomString(length: number) {
   }
   return result
 }
+
+/** 为裸 IPv6 地址套上方括号（如 ::1 → [::1]），用于拼接 URL；非 IPv6 或已带方括号则原样返回 */
+export function wrapIPv6(host: string): string {
+  return host.includes(':') && !host.startsWith('[') ? `[${host}]` : host
+}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"net/netip"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,6 +29,7 @@ import (
 	pkgos "github.com/acepanel/panel/v3/pkg/os"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
 var panelSolverGlobal sync.Mutex
@@ -116,7 +116,7 @@ func (s *panelSolver) startServer() error {
 }
 
 func (s *panelSolver) writeNginxConfig() error {
-	hasIPv6 := lo.SomeBy(s.ip, s.isIPv6)
+	hasIPv6 := lo.SomeBy(s.ip, tools.IsIPv6)
 
 	var conf strings.Builder
 	conf.WriteString("server {\n    listen 80;\n")
@@ -125,10 +125,7 @@ func (s *panelSolver) writeNginxConfig() error {
 		conf.WriteString("    listen [::]:80;\n")
 	}
 	names := lo.Map(s.ip, func(ip string, _ int) string {
-		if s.isIPv6(ip) {
-			return "[" + ip + "]"
-		}
-		return ip
+		return tools.WrapIPv6(ip)
 	})
 	_, _ = fmt.Fprintf(&conf, "    server_name %s;\n", strings.Join(names, " "))
 	for path, token := range s.tokens {
@@ -166,10 +163,7 @@ func (s *panelSolver) writeApacheConfig() error {
 
 	var conf strings.Builder
 	addrs := lo.Map(s.ip, func(ip string, _ int) string {
-		if s.isIPv6(ip) {
-			return "[" + ip + "]:80"
-		}
-		return ip + ":80"
+		return tools.WrapIPv6(ip) + ":80"
 	})
 	_, _ = fmt.Fprintf(&conf, "<VirtualHost %s>\n", strings.Join(addrs, " "))
 	conf.WriteString("    ServerName acme-ip-validation\n")
@@ -234,12 +228,6 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 	}
 
 	return nil
-}
-
-// isIPv6 判断 host 是否为 IPv6 地址
-func (s *panelSolver) isIPv6(host string) bool {
-	addr, err := netip.ParseAddr(host)
-	return err == nil && !addr.Is4()
 }
 
 type httpSolver struct {
