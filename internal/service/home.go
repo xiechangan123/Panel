@@ -522,3 +522,8 @@ func (s *HomeService) Goroutines(w http.ResponseWriter, r *http.Request) {
 
 	Success(w, goroutines)
 }
+
+// Health 返回当前所有健康问题，供前端全局横幅展示
+func (s *HomeService) Health(w http.ResponseWriter, r *http.Request) {
+	Success(w, app.Health.Snapshot())
+}

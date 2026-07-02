@@ -1211,8 +1211,8 @@ func (r *backupRepo) FixPanel() error {
 	panelBroken := !io.Exists(filepath.Join(app.Root, "panel", "ace")) ||
 		!io.Exists(filepath.Join(app.Root, "panel", "storage", "config.yml")) ||
 		!io.Exists(filepath.Join(app.Root, "panel", "storage", "panel.db"))
-	// 检查主数据库连接
-	if err := r.db.Exec("VACUUM").Error; err != nil {
+	// 检查主数据库完整性
+	if !quickCheck(r.db) {
 		panelBroken = true
 	}
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
@@ -1223,13 +1223,17 @@ func (r *backupRepo) FixPanel() error {
 	var brokenAuxDBs []string
 	for _, name := range []string{"stat", "scan"} {
 		auxDB, err := openDB(name)
-		if err == nil {
-			if sqlDB, dbErr := auxDB.DB(); dbErr == nil {
-				_ = sqlDB.Close()
-			}
+		if err != nil {
+			brokenAuxDBs = append(brokenAuxDBs, name)
 			continue
 		}
-		brokenAuxDBs = append(brokenAuxDBs, name)
+		ok := quickCheck(auxDB)
+		if sqlDB, dbErr := auxDB.DB(); dbErr == nil {
+			_ = sqlDB.Close()
+		}
+		if !ok {
+			brokenAuxDBs = append(brokenAuxDBs, name)
+		}
 	}
 
 	// 一切正常，无需修复

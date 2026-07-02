@@ -17,6 +17,9 @@ import (
 	"github.com/acepanel/panel/v3/pkg/geoip"
 )
 
+// healthKeyScanDB 扫描事件辅助数据库健康问题上报 key
+const healthKeyScanDB = "database:scan"
+
 // ipCounter 单个 IP 的扫描计数器
 type ipCounter struct {
 	count     uint
@@ -187,7 +190,10 @@ func (r *FirewallScan) flush() {
 
 	if err := r.scanRepo.Upsert(events); err != nil {
 		r.log.Warn("failed to upsert scan events", slog.Any("err", err))
+		app.Health.Report(healthKeyScanDB, app.HealthLevelError, err.Error())
+		return
 	}
+	app.Health.Clear(healthKeyScanDB)
 }
 
 // ensureFirewall 懒加载防火墙实例

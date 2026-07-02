@@ -55,7 +55,7 @@ func getOperatorID(ctx context.Context) uint64 {
 // openDB 打开数据库
 func openDB(name string) (*gorm.DB, error) {
 	dsn := "file:" + filepath.Join(app.Root, fmt.Sprintf("panel/storage/%s.db", name)) +
-		"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)"
+		"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=synchronous(FULL)"
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -67,6 +67,15 @@ func openDB(name string) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetMaxIdleConns(1)
 	return db, nil
+}
+
+// quickCheck 用 PRAGMA quick_check 检测 SQLite 数据库是否损坏
+func quickCheck(db *gorm.DB) bool {
+	var result string
+	if err := db.Raw("PRAGMA quick_check").Row().Scan(&result); err != nil {
+		return false
+	}
+	return result == "ok"
 }
 
 // upsert 分批大小，避免超出 SQLite 变量数限制

@@ -15,6 +15,9 @@ import (
 	"github.com/acepanel/panel/v3/pkg/websitestat"
 )
 
+// healthKeyStatDB 网站统计辅助数据库健康问题上报 key
+const healthKeyStatDB = "database:stat"
+
 // WebsiteStat 网站统计后台任务
 type WebsiteStat struct {
 	log          *slog.Logger
@@ -177,9 +180,13 @@ func (r *WebsiteStat) flush() {
 
 	if err := r.statRepo.Upsert(stats); err != nil {
 		r.log.Warn("failed to upsert website stats", slog.Any("err", err))
+		app.Health.Report(healthKeyStatDB, app.HealthLevelError, err.Error())
+		// 直接丢弃已 drain 的增量，避免 DB 长期不可写时内存无界累积
+		commit()
 		return
 	}
 	commit()
+	app.Health.Clear(healthKeyStatDB)
 }
 
 // flushErrors 将错误日志缓冲写入数据库
@@ -205,9 +212,13 @@ func (r *WebsiteStat) flushErrors() {
 
 	if err := r.statRepo.InsertErrors(errors); err != nil {
 		r.log.Warn("failed to insert website error logs", slog.Any("err", err))
+		app.Health.Report(healthKeyStatDB, app.HealthLevelError, err.Error())
+		// 直接丢弃已 snapshot 的错误缓冲，避免内存无界累积
+		commit()
 		return
 	}
 	commit()
+	app.Health.Clear(healthKeyStatDB)
 }
 
 // flushDetails 将详细统计增量写入数据库（蜘蛛/客户端/IP/URI）
@@ -286,25 +297,29 @@ func (r *WebsiteStat) flushDetails() {
 		}
 	}
 
-	failed := false
+	var lastErr error
 	if err := r.statRepo.UpsertSpiders(spiders); err != nil {
 		r.log.Warn("failed to upsert spider stats", slog.Any("err", err))
-		failed = true
+		lastErr = err
 	}
 	if err := r.statRepo.UpsertClients(clients); err != nil {
 		r.log.Warn("failed to upsert client stats", slog.Any("err", err))
-		failed = true
+		lastErr = err
 	}
 	if err := r.statRepo.UpsertIPs(ips); err != nil {
 		r.log.Warn("failed to upsert ip stats", slog.Any("err", err))
-		failed = true
+		lastErr = err
 	}
 	if err := r.statRepo.UpsertURIs(uris); err != nil {
 		r.log.Warn("failed to upsert uri stats", slog.Any("err", err))
-		failed = true
+		lastErr = err
 	}
-	if !failed {
-		commit()
+	// 无论成败都 commit：成功→减去已入库增量；失败→直接丢弃，避免内存无界累积
+	commit()
+	if lastErr != nil {
+		app.Health.Report(healthKeyStatDB, app.HealthLevelError, lastErr.Error())
+	} else {
+		app.Health.Clear(healthKeyStatDB)
 	}
 }
 

@@ -12,7 +12,6 @@ func main() {
 	}
 
 	debug.SetGCPercent(10)
-	debug.SetMemoryLimit(256 << 20)
 
 	ace, err := initAce()
 	if err != nil {

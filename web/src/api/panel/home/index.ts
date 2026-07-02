@@ -30,4 +30,6 @@ export default {
   runtimeInfo: (): any => http.Get('/home/runtime_info'),
   // Goroutine 列表
   goroutines: (): any => http.Get('/home/goroutines'),
+  // 面板健康问题列表（全局横幅使用）
+  health: (): any => http.Get('/home/health', { meta: { noAlert: true } }),
 }
