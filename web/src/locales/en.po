@@ -1522,6 +1522,29 @@ msgstr ""
 msgid "Retry"
 msgstr ""
 
+#: src/components/system/HealthBanner.vue:22
+msgid "Main database write failed, panel may not work properly"
+msgstr ""
+
+#: src/components/system/HealthBanner.vue:24
+msgid "Website statistics database write failed, statistics may be inaccurate"
+msgstr ""
+
+#: src/components/system/HealthBanner.vue:26
+msgid ""
+"Scan events database write failed, situation awareness may be inaccurate"
+msgstr ""
+
+#: src/components/system/HealthBanner.vue:28
+msgid "Panel encountered a fault: %{key}"
+msgstr ""
+
+#: src/components/system/HealthBanner.vue:37
+msgid ""
+"Try running \"acepanel fix\" on the server to detect and rebuild the broken "
+"database file."
+msgstr ""
+
 #: src/components/system/TableLayout.vue:86
 #, fuzzy
 msgid "Total: %{n}"
