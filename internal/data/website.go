@@ -1202,13 +1202,13 @@ func (r *websiteRepo) reloadWebServer() error {
 	switch webServer {
 	case "nginx":
 		if err = systemctl.Reload("nginx"); err != nil {
-			_, err = shell.Execf("nginx -t")
-			return err
+			out, _ := shell.Execf("nginx -t")
+			return fmt.Errorf("failed to reload nginx: %w; config test: %s", err, out)
 		}
 	case "apache":
 		if err = systemctl.Reload("apache"); err != nil {
-			_, err = shell.Execf("apachectl configtest")
-			return err
+			out, _ := shell.Execf("apachectl configtest")
+			return fmt.Errorf("failed to reload apache: %w; config test: %s", err, out)
 		}
 	default:
 		return errors.New(r.t.Get("unsupported web server: %s", webServer))
