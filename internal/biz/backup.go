@@ -31,5 +31,5 @@ type BackupRepo interface {
 	CutoffUpload(account uint, typ BackupType, name string, files []string) error
 	GetDefaultPath(typ BackupType) string
 	FixPanel() error
-	UpdatePanel(version, url, checksum string) error
+	UpdatePanel(version, url, checksum string, progress func(string)) error
 }

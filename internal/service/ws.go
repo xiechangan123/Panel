@@ -14,35 +14,45 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/utils/collect"
 	"github.com/moby/moby/api/types/registry"
 	"github.com/moby/moby/client"
 	stdssh "golang.org/x/crypto/ssh"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/ssh"
+	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
 type WsService struct {
 	t           *gotext.Locale
 	conf        *config.Config
 	log         *slog.Logger
+	api         *api.API
 	sshRepo     biz.SSHRepo
 	settingRepo biz.SettingRepo
 	certRepo    biz.CertRepo
+	backupRepo  biz.BackupRepo
+	taskRepo    biz.TaskRepo
 }
 
-func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo, settingRepo biz.SettingRepo, certRepo biz.CertRepo) *WsService {
+func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo, settingRepo biz.SettingRepo, certRepo biz.CertRepo, backup biz.BackupRepo, task biz.TaskRepo) *WsService {
 	return &WsService{
 		t:           t,
 		conf:        conf,
 		log:         log,
+		api:         api.NewAPI(app.Version, app.Locale),
 		sshRepo:     ssh,
 		settingRepo: settingRepo,
 		certRepo:    certRepo,
+		backupRepo:  backup,
+		taskRepo:    task,
 	}
 }
 
@@ -386,6 +396,60 @@ func (s *WsService) CertRenew(w http.ResponseWriter, r *http.Request) {
 		_, err := s.certRepo.RenewWithProgressCallback(ctx, id, cb)
 		return err
 	})
+}
+
+// PanelUpdate 通过 WebSocket 升级面板并实时推送进度
+func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
+	// 前置检查在建连前完成（此时 app.Status 仍为 Normal，握手可过状态中间件）
+	if offline, _ := s.settingRepo.GetBool(biz.SettingKeyOfflineMode); offline {
+		Error(w, http.StatusForbidden, s.t.Get("unable to update in offline mode"))
+		return
+	}
+	if s.taskRepo.HasRunningTask() {
+		Error(w, http.StatusInternalServerError, s.t.Get("background task is running, updating is prohibited, please try again later"))
+		return
+	}
+	channel, _ := s.settingRepo.Get(biz.SettingKeyChannel)
+	panel, err := s.api.LatestVersion(channel)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version: %v", err))
+		return
+	}
+	download := collect.First(panel.Downloads)
+	if download == nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to get the latest version download link"))
+		return
+	}
+	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
+	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
+
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("upgrade panel update ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	// 写入用带超时的独立 context：与请求/WS 生命周期解耦，
+	// 用户关闭页面导致连接断开也不会中断升级（升级内部 shell 执行不带 ctx）
+	write := func(status, msg string) {
+		data, _ := json.Marshal(map[string]any{"status": status, "msg": msg})
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = ws.Write(ctx, websocket.MessageText, data)
+	}
+
+	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum, func(msg string) { write("progress", msg) }); err != nil {
+		write("error", err.Error())
+		_ = ws.Close(websocket.StatusNormalClosure, "")
+		return
+	}
+
+	write("success", "success")
+	_ = ws.Close(websocket.StatusNormalClosure, "")
+
+	// 升级成功，由本入口负责重启面板（唯一一次重启）
+	tools.RestartPanel()
 }
 
 // handleCertWs 证书操作的公共 WebSocket 处理逻辑

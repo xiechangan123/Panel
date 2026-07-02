@@ -388,14 +388,12 @@ func (s *HomeService) Update(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
 	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
 
-	app.Status = app.StatusUpgrade
-	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum); err != nil {
-		app.Status = app.StatusFailed
+	// UpdatePanel 内部管理升级锁与 app.Status（失败自动恢复 Normal，不锁死 UI）
+	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum, nil); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	app.Status = app.StatusNormal
 	Success(w, nil)
 	tools.RestartPanel()
 }

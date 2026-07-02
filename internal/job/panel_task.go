@@ -20,6 +20,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/io"
+	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
 // PanelTask 面板每日任务
@@ -170,10 +171,14 @@ func (r *PanelTask) updatePanel() {
 		if download := collect.First(panel.Downloads); download != nil {
 			url := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.URL)
 			checksum := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.Checksum)
-			if err = r.backupRepo.UpdatePanel(panel.Version, url, checksum); err != nil {
+			if err = r.backupRepo.UpdatePanel(panel.Version, url, checksum, func(msg string) {
+				r.log.Info("panel updating", slog.String("type", biz.OperationTypePanel), slog.String("msg", msg))
+			}); err != nil {
 				r.log.Warn("failed to update panel", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
-				_ = r.backupRepo.FixPanel()
+				return
 			}
+			// 新流程非破坏性、storage 原地不动，失败无需 FixPanel；成功后由本入口负责重启
+			tools.RestartPanel()
 		}
 	})
 }

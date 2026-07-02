@@ -133,7 +133,13 @@ func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
 	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
 
-	return s.backupRepo.UpdatePanel(panel.Version, url, checksum)
+	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum, func(msg string) {
+		fmt.Println("|-" + msg)
+	}); err != nil {
+		return err
+	}
+	tools.RestartPanel()
+	return nil
 }
 
 func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {

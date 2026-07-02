@@ -198,7 +198,7 @@ func initAce() (*app.Ace, error) {
 	aggregator := websitestat.NewAggregator()
 	websiteStatService := service.NewWebsiteStatService(settingRepo, websiteStatRepo, websiteRepo, aggregator)
 	http := route.NewHttp(config, userService, userPasskeyService, userTokenService, homeService, taskService, websiteService, projectService, databaseService, databaseServerService, databaseRedisService, databaseElasticsearchService, databaseUserService, backupService, backupStorageService, certService, certDNSService, certAccountService, appService, environmentService, environmentGoService, environmentJavaService, environmentNodejsService, environmentPHPService, environmentPythonService, environmentDotnetService, cronService, processService, safeService, firewallService, firewallScanService, sshService, containerService, containerComposeService, containerNetworkService, containerImageService, containerVolumeService, fileService, logService, monitorService, settingService, systemctlService, toolboxNetworkService, toolboxSystemService, toolboxBenchmarkService, toolboxSSHService, toolboxDiskService, toolboxLogService, toolboxMigrationService, webHookService, templateService, websiteStatService, loader)
-	wsService := service.NewWsService(locale, config, logger, sshRepo, settingRepo, certRepo)
+	wsService := service.NewWsService(locale, config, logger, sshRepo, settingRepo, certRepo, backupRepo, taskRepo)
 	ws := route.NewWs(wsService, toolboxMigrationService)
 	mux, err := bootstrap.NewRouter(locale, middlewares, http, ws)
 	if err != nil {

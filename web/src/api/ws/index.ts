@@ -100,4 +100,12 @@ export default {
       ws.onerror = (e) => reject(e)
     })
   },
+  // 面板升级进度
+  panelUpdate: (): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/panel/update`)
+      ws.onopen = () => resolve(ws)
+      ws.onerror = (e) => reject(e)
+    })
+  },
 }

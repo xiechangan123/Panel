@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
@@ -28,13 +29,14 @@ import (
 )
 
 type backupRepo struct {
-	hr      string
-	t       *gotext.Locale
-	conf    *config.Config
-	db      *gorm.DB
-	log     *slog.Logger
-	setting biz.SettingRepo
-	website biz.WebsiteRepo
+	hr       string
+	t        *gotext.Locale
+	conf     *config.Config
+	db       *gorm.DB
+	log      *slog.Logger
+	setting  biz.SettingRepo
+	website  biz.WebsiteRepo
+	updating atomic.Bool // 面板升级进行中标志，防止并发触发
 }
 
 func NewBackupRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, website biz.WebsiteRepo) biz.BackupRepo {
@@ -178,26 +180,34 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 func (r *backupRepo) CreatePanel() error {
 	start := time.Now()
 
-	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), fmt.Sprintf("panel_%s%s", time.Now().Format("20060102150405"), r.backupExt()))
+	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), fmt.Sprintf("panel_%s.tar.xz", time.Now().Format("20060102150405")))
 
-	temp, err := os.MkdirTemp("", "ace-backup-*")
-	if err != nil {
-		return err
-	}
-	defer func(path string) { _ = os.RemoveAll(path) }(temp)
+	// 备份前 checkpoint 主库，尽量减少 -wal 中未落盘数据（热备份一致性）
+	_ = r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error
 
-	if err = io.Cp(filepath.Join(app.Root, "panel"), temp); err != nil {
-		return err
-	}
-	if err = io.Cp("/usr/local/sbin/acepanel", temp); err != nil {
-		return err
+	// 只备份恢复面板运行所必需的核心文件；checkpoint 后 -wal 已并入 panel.db、
+	// -shm 为纯临时共享内存，均无需备份
+	var files []string
+	for _, f := range []string{
+		"panel/ace",
+		"panel/storage/panel.db",
+		"panel/storage/config.yml",
+		"panel/storage/cert.pem",
+		"panel/storage/cert.key",
+	} {
+		if io.Exists(filepath.Join(app.Root, f)) {
+			files = append(files, f)
+		}
 	}
 
-	_ = io.Chmod(temp, 0600)
-	if err = io.Compress(temp, nil, backup); err != nil {
+	// 两个 -C 把 panel 内的核心文件与 panel 外的 cli 二进制收进同一个包
+	if _, err := shell.Execf(
+		"tar -cJf '%s' -C '%s' %s -C /usr/local/sbin acepanel",
+		backup, app.Root, strings.Join(files, " "),
+	); err != nil {
 		return err
 	}
-	if err = io.Chmod(backup, 0600); err != nil {
+	if err := io.Chmod(backup, 0600); err != nil {
 		return err
 	}
 
@@ -1200,8 +1210,7 @@ func (r *backupRepo) FixPanel() error {
 	// 检查关键文件是否正常
 	panelBroken := !io.Exists(filepath.Join(app.Root, "panel", "ace")) ||
 		!io.Exists(filepath.Join(app.Root, "panel", "storage", "config.yml")) ||
-		!io.Exists(filepath.Join(app.Root, "panel", "storage", "panel.db")) ||
-		io.Exists("/tmp/panel-storage.zip")
+		!io.Exists(filepath.Join(app.Root, "panel", "storage", "panel.db"))
 	// 检查主数据库连接
 	if err := r.db.Exec("VACUUM").Error; err != nil {
 		panelBroken = true
@@ -1249,22 +1258,6 @@ func (r *backupRepo) FixPanel() error {
 		}
 		tools.RestartPanel()
 		return nil
-	}
-
-	// 再次确认是否需要修复
-	if io.Exists("/tmp/panel-storage.zip") {
-		// 文件齐全情况下只移除临时文件
-		if io.Exists(filepath.Join(app.Root, "panel", "ace")) &&
-			io.Exists(filepath.Join(app.Root, "panel", "storage", "config.yml")) &&
-			io.Exists(filepath.Join(app.Root, "panel", "storage", "panel.db")) {
-			if err := io.Remove("/tmp/panel-storage.zip"); err != nil {
-				return errors.New(r.t.Get("failed to clean temporary files: %v", err))
-			}
-			if app.IsCli {
-				fmt.Println(r.t.Get("|-Cleaned up temporary files, please run acepanel update to update the panel"))
-			}
-			return nil
-		}
 	}
 
 	// 从备份目录中找最新的备份文件
@@ -1324,19 +1317,6 @@ func (r *backupRepo) FixPanel() error {
 		}
 	}
 
-	// tmp 目录下如果有 storage 备份，则解压回去
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Restore panel data..."))
-	}
-	if io.Exists("/tmp/panel-storage.zip") {
-		if err = io.UnCompress("/tmp/panel-storage.zip", filepath.Join(app.Root, "panel")); err != nil {
-			return errors.New(r.t.Get("Unzip panel data failed: %v", err))
-		}
-		if err = io.Remove("/tmp/panel-storage.zip"); err != nil {
-			return errors.New(r.t.Get("Cleaning temporary file failed: %v", err))
-		}
-	}
-
 	// 下载服务文件
 	if !io.Exists("/etc/systemd/system/acepanel.service") {
 		if _, err = shell.Execf(`wget -O /etc/systemd/system/acepanel.service https://%s/acepanel.service && sed -i "s|/opt/ace|%s|g" /etc/systemd/system/acepanel.service`, r.conf.App.DownloadEndpoint, app.Root); err != nil {
@@ -1376,132 +1356,170 @@ func (r *backupRepo) FixPanel() error {
 	return nil
 }
 
-func (r *backupRepo) UpdatePanel(version, url, checksum string) error {
-	// 预先优化数据库
-	if err := r.db.Exec("VACUUM").Error; err != nil {
+// UpdatePanel 升级面板
+func (r *backupRepo) UpdatePanel(version, url, checksum string, progress func(string)) error {
+	if progress == nil {
+		progress = func(string) {}
+	}
+
+	// 进程级升级锁
+	if !r.updating.CompareAndSwap(false, true) {
+		return errors.New(r.t.Get("panel is already updating, please try again later"))
+	}
+	defer r.updating.Store(false)
+
+	panelDir := filepath.Join(app.Root, "panel")
+	workDir := filepath.Join(panelDir, ".update-work") // staging 目录固定在 panel 内，绝不用 /tmp（可能跨分区）
+	newDir := filepath.Join(workDir, "new")
+	name := filepath.Base(url)
+
+	// 失败回滚
+	rollback := func(err error) error {
+		_ = io.Remove(workDir)
+		app.Status = app.StatusNormal
 		return err
+	}
+
+	app.Status = app.StatusUpgrade
+
+	progress(r.t.Get("Preparing to update to %s...", version))
+	if err := io.Remove(workDir); err != nil {
+		return rollback(errors.New(r.t.Get("Failed to clean up temporary directory: %v", err)))
 	}
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error; err != nil {
-		return err
+		return rollback(errors.New(r.t.Get("Failed to optimize database: %v", err)))
 	}
 
-	name := filepath.Base(url)
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Target version: %s", version))
-		fmt.Println(r.t.Get("|-Download link: %s", url))
-		fmt.Println(r.t.Get("|-File name: %s", name))
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Downloading..."))
-	}
-	if _, err := shell.Execf("aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --retry-wait=5 --max-tries=5 -x 16 -s 16 -k 1M -d /tmp -o %s %s", name, url); err != nil {
-		return errors.New(r.t.Get("Download failed: %v", err))
-	}
-	if _, err := shell.Execf("aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --retry-wait=5 --max-tries=5 -x 1 -s 1 -k 1M -d /tmp -o %s %s", name+".sha256", checksum); err != nil {
-		return errors.New(r.t.Get("Download failed: %v", err))
-	}
-	if !io.Exists(filepath.Join("/tmp", name)) || !io.Exists(filepath.Join("/tmp", name+".sha256")) {
-		return errors.New(r.t.Get("Download file check failed"))
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Verify download file..."))
-	}
-	if check, err := shell.Execf("cd /tmp && sha256sum -c %s --ignore-missing", name+".sha256"); check != name+": OK" || err != nil {
-		return errors.New(r.t.Get("Verify download file failed: %v", err))
-	}
-	if err := io.Remove(filepath.Join("/tmp", name+".sha256")); err != nil {
-		return errors.New(r.t.Get("|-Clean up verification file failed: %v", err))
-	}
-
-	if io.Exists("/tmp/panel-storage.zip") {
-		return errors.New(r.t.Get("Temporary file detected in /tmp, this may be caused by the last update failure, please run acepanel fix to repair and try again"))
-	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Backup panel data..."))
-	}
-	// 备份面板
+	// 备份留档
+	progress(r.t.Get("Backing up panel data..."))
 	if err := r.CreatePanel(); err != nil {
-		return errors.New(r.t.Get("|-Backup panel data failed: %v", err))
-	}
-	if err := io.Compress(filepath.Join(app.Root, "panel/storage"), nil, "/tmp/panel-storage.zip"); err != nil {
-		return errors.New(r.t.Get("|-Backup panel data failed: %v", err))
-	}
-	if !io.Exists("/tmp/panel-storage.zip") {
-		return errors.New(r.t.Get("|-Backup panel data failed, missing file"))
+		r.log.Warn("failed to backup panel before update", slog.Any("err", err))
 	}
 
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Cleaning old version..."))
+	// 下载新版本
+	if err := os.MkdirAll(workDir, 0700); err != nil {
+		return rollback(errors.New(r.t.Get("Failed to create temporary directory: %v", err)))
 	}
-	if _, err := shell.Execf("rm -rf %s/panel/*", app.Root); err != nil {
-		return errors.New(r.t.Get("|-Cleaning old version failed: %v", err))
+	progress(r.t.Get("Downloading new version..."))
+	if _, err := shell.Execf("aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --retry-wait=5 --max-tries=5 -x 16 -s 16 -k 1M -d %s -o %s %s", workDir, name, url); err != nil {
+		return rollback(errors.New(r.t.Get("Download failed: %v", err)))
 	}
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Unzip new version..."))
+	if _, err := shell.Execf("aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --retry-wait=5 --max-tries=5 -x 1 -s 1 -k 1M -d %s -o %s %s", workDir, name+".sha256", checksum); err != nil {
+		return rollback(errors.New(r.t.Get("Download failed: %v", err)))
 	}
-	if err := io.UnCompress(filepath.Join("/tmp", name), filepath.Join(app.Root, "panel")); err != nil {
-		return errors.New(r.t.Get("|-Unzip new version failed: %v", err))
-	}
-	if !io.Exists(filepath.Join(app.Root, "panel", "ace")) {
-		return errors.New(r.t.Get("|-Unzip new version failed, missing file"))
-	}
-	if err := io.Remove(filepath.Join("/tmp", name)); err != nil {
-		return errors.New(r.t.Get("|-Clean up temporary file failed: %v", err))
+	if !io.Exists(filepath.Join(workDir, name)) || !io.Exists(filepath.Join(workDir, name+".sha256")) {
+		return rollback(errors.New(r.t.Get("Download file check failed")))
 	}
 
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Restore panel data..."))
-	}
-	if err := io.UnCompress("/tmp/panel-storage.zip", filepath.Join(app.Root, "panel", "storage")); err != nil {
-		return errors.New(r.t.Get("|-Restore panel data failed: %v", err))
-	}
-	if !io.Exists(filepath.Join(app.Root, "panel/storage/panel.db")) {
-		return errors.New(r.t.Get("|-Restore panel data failed, missing file"))
+	// 校验 sha256
+	progress(r.t.Get("Verifying download file..."))
+	if check, err := shell.ExecfWithDir(workDir, "sha256sum -c %s --ignore-missing", name+".sha256"); check != name+": OK" || err != nil {
+		return rollback(errors.New(r.t.Get("Verify download file failed: %v", err)))
 	}
 
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Run post-update script..."))
+	// 解压
+	progress(r.t.Get("Extracting new version..."))
+	if err := io.UnCompress(filepath.Join(workDir, name), newDir); err != nil {
+		return rollback(errors.New(r.t.Get("Unzip new version failed: %v", err)))
 	}
-	if _, err := shell.Execf("curl -sSLm 10 https://%s/auto_update.sh | bash", r.conf.App.DownloadEndpoint); err != nil {
-		return errors.New(r.t.Get("|-Run post-update script failed: %v", err))
-	}
-	if _, err := shell.Execf(
-		`wget -O /etc/systemd/system/acepanel.service https://%s/acepanel.service && sed -i "s|/www|%s|g" /etc/systemd/system/acepanel.service`,
-		r.conf.App.DownloadEndpoint, app.Root,
-	); err != nil {
-		return errors.New(r.t.Get("|-Download panel service file failed: %v", err))
-	}
-	if _, err := shell.Execf("acepanel setting write version %s", version); err != nil {
-		return errors.New(r.t.Get("|-Write new panel version failed: %v", err))
-	}
-	if err := io.Mv(filepath.Join(app.Root, "panel/cli"), "/usr/local/sbin/acepanel"); err != nil {
-		return errors.New(r.t.Get("|-Move acepanel tool failed: %v", err))
+	if !io.Exists(filepath.Join(newDir, "ace")) {
+		return rollback(errors.New(r.t.Get("Unzip new version failed, missing file")))
 	}
 
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Set key file permissions..."))
-	}
-	_ = io.Chmod("/usr/local/sbin/acepanel", 0700)
-	_ = io.Chmod("/etc/systemd/system/acepanel.service", 0644)
-	_ = io.Chmod(filepath.Join(app.Root, "panel"), 0700)
-
-	if app.IsCli {
-		fmt.Println(r.t.Get("|-Update completed"))
+	// 应用
+	progress(r.t.Get("Applying update..."))
+	if err := r.applyUpdate(newDir); err != nil {
+		return rollback(errors.New(r.t.Get("Applying update failed: %v", err)))
 	}
 
+	// 收尾
+	progress(r.t.Get("Finishing up..."))
+	if err := r.finishUpdate(version); err != nil {
+		return rollback(errors.New(r.t.Get("Finishing update failed: %v", err)))
+	}
+
+	_ = io.Remove(workDir)
 	r.log.Info("panel updated", slog.String("version", version))
+	progress(r.t.Get("Update completed"))
 
-	_, _ = shell.Execf("systemctl daemon-reload")
-	_ = io.Remove("/tmp/panel-storage.zip")
-	_ = io.Remove(filepath.Join(app.Root, "panel/config.example.yml"))
+	// 由调用方重启面板
 	if sqlDB, err := r.db.DB(); err == nil {
 		_ = sqlDB.Close()
 	}
-	tools.RestartPanel()
+	return nil
+}
+
+// applyUpdate 用 newDir 下的新版本文件替换 panel/ 中的程序文件
+func (r *backupRepo) applyUpdate(newDir string) error {
+	entries, err := os.ReadDir(newDir)
+	if err != nil {
+		return err
+	}
+	panelDir := filepath.Join(app.Root, "panel")
+	for _, e := range entries {
+		name := e.Name()
+		if name == "storage" {
+			continue
+		}
+		src := filepath.Join(newDir, name)
+		if name == "cli" {
+			// 先 cp 保证原子替换
+			tmp := "/usr/local/sbin/.acepanel.new"
+			if err = io.Cp(src, tmp); err != nil {
+				return err
+			}
+			if err = io.Mv(tmp, "/usr/local/sbin/acepanel"); err != nil {
+				return err
+			}
+			continue
+		}
+		// 其余程序文件
+		if err = io.Mv(src, filepath.Join(panelDir, name)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// finishUpdate 升级收尾
+func (r *backupRepo) finishUpdate(version string) error {
+	panelDir := filepath.Join(app.Root, "panel")
+	serviceFile := "/etc/systemd/system/acepanel.service"
+
+	// 更新 service 文件
+	tmpService := serviceFile + ".new"
+	if _, err := shell.Execf(`wget -O %s https://%s/acepanel.service`, tmpService, r.conf.App.DownloadEndpoint); err == nil {
+		_, _ = shell.Execf(`sed -i "s|/opt/ace|%s|g" %s`, app.Root, tmpService)
+		if out, _ := shell.Execf("grep -c ExecStart %s", tmpService); strings.TrimSpace(out) != "0" {
+			_ = io.Mv(tmpService, serviceFile) // 同在 /etc/systemd/system → 同分区 rename
+		}
+	}
+	_ = io.Remove(tmpService)
+	if !io.Exists(serviceFile) {
+		return errors.New(r.t.Get("panel service file is missing"))
+	}
+	// 校验 unit 指向的主程序确实存在，避免 daemon-reload 后起不来
+	if !io.Exists(filepath.Join(panelDir, "ace")) {
+		return errors.New(r.t.Get("panel binary is missing after update"))
+	}
+	_, _ = shell.Execf("systemctl daemon-reload")
+
+	// 执行后置脚本
+	_, _ = shell.Execf("curl -sSLm 10 --fail --retry 3 https://%s/auto_update.sh | bash", r.conf.App.DownloadEndpoint)
+
+	// 后置脚本之后再写版本号
+	if err := r.setting.Set(biz.SettingKeyVersion, version); err != nil {
+		return err
+	}
+
+	// 设置权限
+	_ = io.Chmod(filepath.Join(panelDir, "ace"), 0700)
+	_ = io.Chmod("/usr/local/sbin/acepanel", 0700)
+	_ = io.Chmod(serviceFile, 0644)
+	_ = io.Remove(filepath.Join(panelDir, "config.example.yml"))
+
+	// 修正可能从 staging 继承的错误 SELinux 上下文
+	_, _ = shell.Execf("restorecon %s /usr/local/sbin/acepanel %s", filepath.Join(panelDir, "ace"), serviceFile)
 
 	return nil
 }
