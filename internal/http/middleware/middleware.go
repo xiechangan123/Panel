@@ -62,10 +62,10 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 				return respStatus == 404 || respStatus == 405
 			},
 			LogRequestBody: func(req *http.Request) bool {
-				return req.Header.Get("X-Debug-Request") == "1"
+				return r.conf.App.Debug && req.Header.Get("X-Debug-Request") == "1"
 			},
 			LogResponseBody: func(req *http.Request) bool {
-				return req.Header.Get("X-Debug-Response") == "1"
+				return r.conf.App.Debug && req.Header.Get("X-Debug-Response") == "1"
 			},
 		}),
 		compressor.Handler,
