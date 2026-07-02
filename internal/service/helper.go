@@ -1,12 +1,12 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
 	"strings"
 
-	"github.com/gookit/validate"
 	"github.com/libtnb/chix"
 
 	"github.com/acepanel/panel/v3/internal/http/request"
@@ -80,46 +80,44 @@ func Bind[T any](r *http.Request) (*T, error) {
 	}
 
 	// 准备验证
-	df, err := validate.FromStruct(req)
-	if err != nil {
-		return nil, err
-	}
-	v := df.Create()
-
 	if reqWithPrepare, ok := any(req).(request.WithPrepare); ok {
-		if err = reqWithPrepare.Prepare(r); err != nil {
+		if err := reqWithPrepare.Prepare(r); err != nil {
 			return nil, err
 		}
 	}
 	if reqWithAuthorize, ok := any(req).(request.WithAuthorize); ok {
-		if err = reqWithAuthorize.Authorize(r); err != nil {
+		if err := reqWithAuthorize.Authorize(r); err != nil {
 			return nil, err
 		}
 	}
+
+	vd := sharedValidator.Struct(req)
 	if reqWithRules, ok := any(req).(request.WithRules); ok {
 		if rules := reqWithRules.Rules(r); rules != nil {
 			for key, value := range rules {
-				v.StringRule(key, value)
+				if err := vd.AddRules(key, value); err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
 	if reqWithFilters, ok := any(req).(request.WithFilters); ok {
 		if filters := reqWithFilters.Filters(r); filters != nil {
-			v.FilterRules(filters)
-		}
-	}
-	if reqWithMessages, ok := any(req).(request.WithMessages); ok {
-		if messages := reqWithMessages.Messages(r); messages != nil {
-			v.AddMessages(messages)
+			for key, value := range filters {
+				if err := vd.AddFilters(key, value); err != nil {
+					return nil, err
+				}
+			}
 		}
 	}
 
 	// 开始验证
-	if v.Validate() && v.IsSuccess() {
-		return req, nil
+	vd.Validate(r.Context())
+	if vd.Fails() {
+		return nil, errors.New(vd.Errors().One())
 	}
 
-	return nil, v.Errors.OneError()
+	return req, nil
 }
 
 // Paginate 取分页条目

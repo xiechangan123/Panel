@@ -218,7 +218,7 @@ func initAce() (*app.Ace, error) {
 	if err != nil {
 		return nil, err
 	}
-	validation := bootstrap.NewValidator(config, db)
-	ace := app.NewAce(config, mux, server, reloader, gormigrate, cron, taskRunner, validation)
+	validator := service.NewValidator(config, db)
+	ace := app.NewAce(config, mux, server, reloader, gormigrate, cron, taskRunner, validator)
 	return ace, nil
 }

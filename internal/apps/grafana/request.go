@@ -37,9 +37,9 @@ type ConfigTune struct {
 // DataSource 数据源
 type DataSource struct {
 	Name      string `form:"name" json:"name" validate:"required"`
-	Type      string `form:"type" json:"type" validate:"required|in:prometheus,mysql,postgres,influxdb,loki,elasticsearch,tempo,jaeger,zipkin,graphite,alertmanager,opentsdb,mssql,testdata,grafana-pyroscope-datasource,grafana-opensearch-datasource"`
+	Type      string `form:"type" json:"type" validate:"required && in:prometheus,mysql,postgres,influxdb,loki,elasticsearch,tempo,jaeger,zipkin,graphite,alertmanager,opentsdb,mssql,testdata,grafana-pyroscope-datasource,grafana-opensearch-datasource"`
 	URL       string `form:"url" json:"url" validate:"required"`
-	Access    string `form:"access" json:"access"`
+	Access    string `form:"access" json:"access" validate:"in:proxy,direct"`
 	IsDefault bool   `form:"is_default" json:"is_default"`
 	// 数据库类型专用
 	Database string `form:"database" json:"database"`

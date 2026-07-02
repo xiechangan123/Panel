@@ -3,8 +3,8 @@ package request
 import "github.com/acepanel/panel/v3/pkg/types"
 
 type ProjectCreate struct {
-	Name         string            `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
-	Type         types.ProjectType `form:"type" json:"type" validate:"required|in:general,php,java,go,python,nodejs,dotnet"`
+	Name         string            `form:"name" json:"name" validate:"required && regex:\"^[a-zA-Z0-9_-]+$\""`
+	Type         types.ProjectType `form:"type" json:"type" validate:"required && in:general,php,java,go,python,nodejs,dotnet"`
 	Description  string            `form:"description" json:"description"`
 	RootDir      string            `form:"root_dir" json:"root_dir"`
 	WorkingDir   string            `form:"working_dir" json:"working_dir"`
@@ -15,8 +15,8 @@ type ProjectCreate struct {
 }
 
 type ProjectUpdate struct {
-	ID              uint       `form:"id" json:"id" validate:"required|exists:projects,id"`
-	Name            string     `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
+	ID              uint       `form:"id" json:"id" validate:"required && exists:projects,id"`
+	Name            string     `form:"name" json:"name" validate:"required && regex:\"^[a-zA-Z0-9_-]+$\""`
 	Description     string     `form:"description" json:"description"`
 	RootDir         string     `form:"root_dir" json:"root_dir" validate:"required"`
 	WorkingDir      string     `form:"working_dir" json:"working_dir"`
@@ -28,9 +28,9 @@ type ProjectUpdate struct {
 	User            string     `form:"user" json:"user"`
 	Restart         string     `json:"restart"`
 	RestartSec      string     `json:"restart_sec"`
-	RestartMax      int        `json:"restart_max"`
-	TimeoutStartSec int        `json:"timeout_start_sec"`
-	TimeoutStopSec  int        `json:"timeout_stop_sec"`
+	RestartMax      int        `json:"restart_max" validate:"min:0"`
+	TimeoutStartSec int        `json:"timeout_start_sec" validate:"min:0"`
+	TimeoutStopSec  int        `json:"timeout_stop_sec" validate:"min:0"`
 	Environments    []types.KV `form:"environments" json:"environments"`
 	StandardOutput  string     `form:"standard_output" json:"standard_output"`
 	StandardError   string     `form:"standard_error" json:"standard_error"`
@@ -39,7 +39,7 @@ type ProjectUpdate struct {
 	After           []string   `form:"after" json:"after"`
 	Before          []string   `form:"before" json:"before"`
 
-	MemoryLimit float64 `form:"memory_limit" json:"memory_limit"`
+	MemoryLimit float64 `form:"memory_limit" json:"memory_limit" validate:"min:0"`
 	CPUQuota    string  `form:"cpu_quota" json:"cpu_quota"`
 
 	NoNewPrivileges bool     `form:"no_new_privileges" json:"no_new_privileges"`

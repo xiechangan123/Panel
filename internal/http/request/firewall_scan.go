@@ -3,11 +3,11 @@ package request
 // FirewallScanSetting 扫描感知设置
 type FirewallScanSetting struct {
 	Enabled        bool     `json:"enabled"`
-	Days           uint     `json:"days" validate:"min:1|max:365"`
+	Days           uint     `json:"days" validate:"min:1 && max:365"`
 	Interfaces     []string `json:"interfaces"`
 	AutoBlock      bool     `json:"auto_block"`
-	BlockThreshold uint     `json:"block_threshold" validate:"min:1|max:100000"`
-	BlockWindow    uint     `json:"block_window" validate:"min:1|max:1440"`
+	BlockThreshold uint     `json:"block_threshold" validate:"min:1 && max:100000"`
+	BlockWindow    uint     `json:"block_window" validate:"min:1 && max:1440"`
 	BlockDuration  uint     `json:"block_duration" validate:"max:87600"`
-	Whitelist      []string `json:"whitelist"`
+	Whitelist      []string `json:"whitelist" validate:"dive && ipcidr"`
 }

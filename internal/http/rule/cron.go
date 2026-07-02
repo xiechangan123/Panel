@@ -3,6 +3,7 @@ package rule
 import (
 	"regexp"
 
+	"github.com/libtnb/validator"
 	"github.com/spf13/cast"
 )
 
@@ -17,6 +18,13 @@ func NewCron() *Cron {
 	}
 }
 
-func (s *Cron) Passes(val any, options ...any) bool {
-	return s.re.MatchString(cast.ToString(val))
+func (s *Cron) Signature() string { return "cron" }
+
+func (s *Cron) Message() string { return "{field} must be a valid cron expression" }
+
+func (s *Cron) Passes(f validator.Field) bool {
+	if validator.IsEmptyValue(f.Val()) {
+		return true
+	}
+	return s.re.MatchString(cast.ToString(f.Val().Interface()))
 }

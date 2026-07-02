@@ -3,8 +3,8 @@ package request
 import "time"
 
 type ToolboxSystemDNS struct {
-	DNS1 string `form:"dns1" json:"dns1" validate:"required"`
-	DNS2 string `form:"dns2" json:"dns2" validate:"required"`
+	DNS1 string `form:"dns1" json:"dns1" validate:"required && ip"`
+	DNS2 string `form:"dns2" json:"dns2" validate:"required && ip"`
 }
 
 type ToolboxSystemSWAP struct {
@@ -20,7 +20,7 @@ type ToolboxSystemTime struct {
 }
 
 type ToolboxSystemHostname struct {
-	Hostname string `form:"hostname" json:"hostname" validate:"required|regex:^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]$"`
+	Hostname string `form:"hostname" json:"hostname" validate:"required && regex:\"^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]$\""`
 }
 
 type ToolboxSystemHosts struct {
@@ -28,7 +28,7 @@ type ToolboxSystemHosts struct {
 }
 
 type ToolboxSystemPassword struct {
-	Password string `form:"password" json:"password" validate:"required|password"`
+	Password string `form:"password" json:"password" validate:"required && password"`
 }
 
 type ToolboxSystemSyncTime struct {

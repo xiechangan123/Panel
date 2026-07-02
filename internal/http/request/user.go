@@ -1,7 +1,7 @@
 package request
 
 type UserID struct {
-	ID uint `json:"id" validate:"required|exists:users,id"`
+	ID uint `json:"id" validate:"required && exists:users,id"`
 }
 
 type UserLogin struct {
@@ -17,28 +17,28 @@ type UserIsTwoFA struct {
 }
 
 type UserCreate struct {
-	Username string `json:"username" validate:"required|notExists:users,username|regex:^[a-zA-Z0-9_-]+$"`
-	Password string `json:"password" validate:"required|password"`
-	Email    string `json:"email" validate:"required|email"`
+	Username string `json:"username" validate:"required && not_exists:users,username && regex:\"^[a-zA-Z0-9_-]+$\""`
+	Password string `json:"password" validate:"required && password"`
+	Email    string `json:"email" validate:"required && email"`
 }
 
 type UserUpdateUsername struct {
-	ID       uint   `json:"id" validate:"required|exists:users,id"`
-	Username string `json:"username" validate:"required|notExists:users,username|regex:^[a-zA-Z0-9_-]+$"`
+	ID       uint   `json:"id" validate:"required && exists:users,id"`
+	Username string `json:"username" validate:"required && not_exists:users,username && regex:\"^[a-zA-Z0-9_-]+$\""`
 }
 
 type UserUpdatePassword struct {
-	ID       uint   `json:"id" validate:"required|exists:users,id"`
-	Password string `json:"password" validate:"required|password"`
+	ID       uint   `json:"id" validate:"required && exists:users,id"`
+	Password string `json:"password" validate:"required && password"`
 }
 
 type UserUpdateEmail struct {
-	ID    uint   `json:"id" validate:"required|exists:users,id"`
-	Email string `json:"email" validate:"required|email"`
+	ID    uint   `json:"id" validate:"required && exists:users,id"`
+	Email string `json:"email" validate:"required && email"`
 }
 
 type UserUpdateTwoFA struct {
-	ID     uint   `uri:"id" validate:"required|exists:users,id"`
+	ID     uint   `uri:"id" validate:"required && exists:users,id"`
 	Secret string `json:"secret"`
 	Code   string `json:"code"`
 }

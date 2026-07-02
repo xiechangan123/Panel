@@ -13,8 +13,8 @@ import (
 	"github.com/bddjr/hlfhr"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-gormigrate/gormigrate/v2"
-	"github.com/gookit/validate"
 	"github.com/libtnb/cron"
+	"github.com/libtnb/validator"
 
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/tlscert"
@@ -31,7 +31,7 @@ type Ace struct {
 	runner   types.TaskRunner
 }
 
-func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, reloader *tlscert.Reloader, migrator *gormigrate.Gormigrate, cron *cron.Cron, runner types.TaskRunner, _ *validate.Validation) *Ace {
+func NewAce(conf *config.Config, router *chi.Mux, server *hlfhr.Server, reloader *tlscert.Reloader, migrator *gormigrate.Gormigrate, cron *cron.Cron, runner types.TaskRunner, _ *validator.Validator) *Ace {
 	return &Ace{
 		conf:     conf,
 		router:   router,

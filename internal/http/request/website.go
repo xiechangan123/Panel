@@ -10,7 +10,7 @@ type WebsiteDefaultConfig struct {
 	Index       string   `json:"index" form:"index" validate:"required"`
 	Stop        string   `json:"stop" form:"stop" validate:"required"`
 	NotFound    string   `json:"not_found" form:"not_found"`
-	TLSVersions []string `json:"tls_versions" form:"tls_versions" validate:"required|isSlice"`
+	TLSVersions []string `json:"tls_versions" form:"tls_versions" validate:"required"`
 }
 
 func (r *WebsiteDefaultConfig) Rules(_ *http.Request) map[string]string {
@@ -20,25 +20,25 @@ func (r *WebsiteDefaultConfig) Rules(_ *http.Request) map[string]string {
 }
 
 type WebsiteList struct {
-	Type string `json:"type" form:"type" validate:"required|in:all,proxy,static,php"`
+	Type string `json:"type" form:"type" validate:"required && in:all,proxy,static,php"`
 	Paginate
 }
 
 type WebsiteCreate struct {
-	Type       string   `json:"type" form:"type" validate:"required|in:proxy,static,php"`
-	Name       string   `form:"name" json:"name" validate:"required|notExists:websites,name|not_in:phpmyadmin,default|regex:^[a-zA-Z0-9_-]+$"`
-	Listens    []string `form:"listens" json:"listens" validate:"required|isSlice"`
-	Domains    []string `form:"domains" json:"domains" validate:"required|isSlice"`
+	Type       string   `json:"type" form:"type" validate:"required && in:proxy,static,php"`
+	Name       string   `form:"name" json:"name" validate:"required && not_exists:websites,name && not_in:phpmyadmin,default && regex:\"^[a-zA-Z0-9_-]+$\""`
+	Listens    []string `form:"listens" json:"listens" validate:"required"`
+	Domains    []string `form:"domains" json:"domains" validate:"required"`
 	Path       string   `form:"path" json:"path"`
 	DB         bool     `form:"db" json:"db"`
-	DBType     string   `form:"db_type" json:"db_type" validate:"requiredIf:DB,true"`
-	DBName     string   `form:"db_name" json:"db_name" validate:"requiredIf:DB,true|regex:^[a-zA-Z_-][a-zA-Z0-9_-]*$"`
-	DBUser     string   `form:"db_user" json:"db_user" validate:"requiredIf:DB,true|regex:^[a-zA-Z_-][a-zA-Z0-9_-]*$"`
-	DBPassword string   `form:"db_password" json:"db_password" validate:"requiredIf:DB,true"`
+	DBType     string   `form:"db_type" json:"db_type" validate:"required_if:DB,true"`
+	DBName     string   `form:"db_name" json:"db_name" validate:"required_if:DB,true && regex:\"^[a-zA-Z_-][a-zA-Z0-9_-]*$\""`
+	DBUser     string   `form:"db_user" json:"db_user" validate:"required_if:DB,true && regex:\"^[a-zA-Z_-][a-zA-Z0-9_-]*$\""`
+	DBPassword string   `form:"db_password" json:"db_password" validate:"required_if:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
 
-	PHP   uint   `form:"php" json:"php" validate:"requiredIf:Type,php"`       // 仅 PHP 网站需要
-	Proxy string `form:"proxy" json:"proxy" validate:"requiredIf:Type,proxy"` // 仅反向代理网站需要
+	PHP   uint   `form:"php" json:"php" validate:"required_if:Type,php"`       // 仅 PHP 网站需要
+	Proxy string `form:"proxy" json:"proxy" validate:"required_if:Type,proxy"` // 仅反向代理网站需要
 }
 
 func (r *WebsiteCreate) Rules(_ *http.Request) map[string]string {
@@ -49,18 +49,18 @@ func (r *WebsiteCreate) Rules(_ *http.Request) map[string]string {
 }
 
 type WebsiteDelete struct {
-	ID   uint `form:"id" json:"id" validate:"required|exists:websites,id"`
+	ID   uint `form:"id" json:"id" validate:"required && exists:websites,id"`
 	Path bool `form:"path" json:"path"`
 	DB   bool `form:"db" json:"db"`
 }
 
 type WebsiteUpdate struct {
-	ID      uint           `form:"id" json:"id" validate:"required|exists:websites,id"`
-	Listens []types.Listen `form:"listens" json:"listens" validate:"required|isSlice"`
-	Domains []string       `form:"domains" json:"domains" validate:"required|isSlice"`
-	Path    string         `form:"path" json:"path" validate:"required"` // 网站目录
-	Root    string         `form:"root" json:"root" validate:"required"` // 运行目录
-	Index   []string       `form:"index" json:"index" validate:"required|isSlice"`
+	ID      uint           `form:"id" json:"id" validate:"required && exists:websites,id"`
+	Listens []types.Listen `form:"listens" json:"listens" validate:"required"`
+	Domains []string       `form:"domains" json:"domains" validate:"required"`
+	Path    string         `form:"path" json:"path" validate:"required && unix_path"` // 网站目录
+	Root    string         `form:"root" json:"root" validate:"required && unix_path"` // 运行目录
+	Index   []string       `form:"index" json:"index" validate:"required"`
 
 	// SSL 相关
 	SSL          bool     `form:"ssl" json:"ssl"`
@@ -105,33 +105,33 @@ func (r *WebsiteUpdate) Rules(_ *http.Request) map[string]string {
 
 // WebsiteCustomConfig 网站自定义配置请求
 type WebsiteCustomConfig struct {
-	Name    string `json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"` // 配置名称
-	Scope   string `json:"scope" validate:"required|in:site,shared"`        // 作用域: site(此网站), shared(全局)
-	Content string `json:"content"`                                         // 配置内容
+	Name    string `json:"name" validate:"required && regex:\"^[a-zA-Z0-9_-]+$\""` // 配置名称
+	Scope   string `json:"scope" validate:"required && in:site,shared"`            // 作用域: site(此网站), shared(全局)
+	Content string `json:"content"`                                                // 配置内容
 }
 
 type WebsiteUpdateRemark struct {
-	ID     uint   `form:"id" json:"id" validate:"required|exists:websites,id"`
+	ID     uint   `form:"id" json:"id" validate:"required && exists:websites,id"`
 	Remark string `form:"remark" json:"remark"`
 }
 
 type WebsiteUpdateStatus struct {
-	ID     uint `json:"id" form:"id" validate:"required|exists:websites,id"`
+	ID     uint `json:"id" form:"id" validate:"required && exists:websites,id"`
 	Status bool `json:"status" form:"status"`
 }
 
 type WebsiteUpdateExpireAt struct {
-	ID       uint   `json:"id" form:"id" validate:"required|exists:websites,id"`
+	ID       uint   `json:"id" form:"id" validate:"required && exists:websites,id"`
 	ExpireAt string `json:"expire_at" form:"expire_at"` // 为空表示清除到期时间（不限时）
 }
 
 type WebsiteUpdateCert struct {
-	Name string `json:"name" validate:"required|exists:websites,name|regex:^[a-zA-Z0-9_-]+$"`
+	Name string `json:"name" validate:"required && exists:websites,name && regex:\"^[a-zA-Z0-9_-]+$\""`
 	Cert string `json:"cert" validate:"required"`
 	Key  string `json:"key" validate:"required"`
 }
 
 type WebsiteObtainCert struct {
-	ID    uint `json:"id" form:"id" uri:"id" validate:"required|exists:websites,id"`
+	ID    uint `json:"id" form:"id" uri:"id" validate:"required && exists:websites,id"`
 	DNSID uint `json:"dns_id" form:"dns_id"`
 }

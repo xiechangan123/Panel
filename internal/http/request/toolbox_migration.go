@@ -25,7 +25,7 @@ type ToolboxMigrationWebsite struct {
 
 // ToolboxMigrationDatabase 迁移数据库项
 type ToolboxMigrationDatabase struct {
-	Type     string `json:"type"` // mysql / postgresql
+	Type     string `json:"type" validate:"in:mysql,postgresql"` // mysql / postgresql
 	Name     string `json:"name"`
 	ServerID uint   `json:"server_id"`
 	Server   string `json:"server"` // 服务器名称
@@ -38,8 +38,8 @@ type ToolboxMigrationDatabaseUser struct {
 	Password string `json:"password"`
 	Host     string `json:"host"` // 仅 mysql
 	ServerID uint   `json:"server_id"`
-	Server   string `json:"server"` // 服务器名称
-	Type     string `json:"type"`   // mysql / postgresql
+	Server   string `json:"server"`                              // 服务器名称
+	Type     string `json:"type" validate:"in:mysql,postgresql"` // mysql / postgresql
 }
 
 // ToolboxMigrationProject 迁移项目项

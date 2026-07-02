@@ -7,19 +7,19 @@ type UpdateConfig struct {
 
 // SetAdminPassword 设置 admin 密码
 type SetAdminPassword struct {
-	Password string `form:"password" json:"password" validate:"required|password"`
+	Password string `form:"password" json:"password" validate:"required && password"`
 }
 
 // ConfigTune MongoDB 配置调整
 type ConfigTune struct {
 	// 存储
-	DbPath      string `form:"db_path" json:"db_path"`
+	DbPath      string `form:"db_path" json:"db_path" validate:"unix_path"`
 	CacheSizeGB string `form:"cache_size_gb" json:"cache_size_gb"`
 	// 网络
-	Port   string `form:"port" json:"port"`
+	Port   string `form:"port" json:"port" validate:"number && min:1 && max:65535"`
 	BindIp string `form:"bind_ip" json:"bind_ip"`
 	// 日志
-	SystemLogPath string `form:"system_log_path" json:"system_log_path"`
+	SystemLogPath string `form:"system_log_path" json:"system_log_path" validate:"unix_path"`
 	// 安全
-	Authorization string `form:"authorization" json:"authorization"`
+	Authorization string `form:"authorization" json:"authorization" validate:"in:enabled,disabled"`
 }

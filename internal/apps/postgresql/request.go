@@ -5,14 +5,14 @@ type UpdateConfig struct {
 }
 
 type SetPostgresPassword struct {
-	Password string `form:"password" json:"password" validate:"required|password"`
+	Password string `form:"password" json:"password" validate:"required && password"`
 }
 
 // ConfigTune PostgreSQL 配置调整
 type ConfigTune struct {
 	// 连接设置
 	ListenAddresses              string `form:"listen_addresses" json:"listen_addresses"`
-	Port                         string `form:"port" json:"port"`
+	Port                         string `form:"port" json:"port" validate:"number && min:1 && max:65535"`
 	MaxConnections               string `form:"max_connections" json:"max_connections"`
 	SuperuserReservedConnections string `form:"superuser_reserved_connections" json:"superuser_reserved_connections"`
 	// 内存设置

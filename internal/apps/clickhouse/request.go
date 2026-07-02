@@ -7,21 +7,21 @@ type UpdateConfig struct {
 
 // SetDefaultPassword 设置 default 用户密码
 type SetDefaultPassword struct {
-	Password string `form:"password" json:"password" validate:"required|password"`
+	Password string `form:"password" json:"password" validate:"required && password"`
 }
 
 // ConfigTune ClickHouse 配置调整
 type ConfigTune struct {
 	// 网络
 	ListenHost string `form:"listen_host" json:"listen_host"`
-	HTTPPort   string `form:"http_port" json:"http_port"`
-	TCPPort    string `form:"tcp_port" json:"tcp_port"`
+	HTTPPort   string `form:"http_port" json:"http_port" validate:"number && min:1 && max:65535"`
+	TCPPort    string `form:"tcp_port" json:"tcp_port" validate:"number && min:1 && max:65535"`
 	// 性能
 	MaxMemoryUsage string `form:"max_memory_usage" json:"max_memory_usage"`
 	MaxThreads     string `form:"max_threads" json:"max_threads"`
 	// 路径
-	Path    string `form:"path" json:"path"`
-	TmpPath string `form:"tmp_path" json:"tmp_path"`
+	Path    string `form:"path" json:"path" validate:"unix_path"`
+	TmpPath string `form:"tmp_path" json:"tmp_path" validate:"unix_path"`
 	// 日志
-	LogLevel string `form:"log_level" json:"log_level"`
+	LogLevel string `form:"log_level" json:"log_level" validate:"in:trace,debug,information,warning,error"`
 }

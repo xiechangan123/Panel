@@ -1,23 +1,16 @@
 package rule
 
 import (
-	"github.com/gookit/validate"
+	"github.com/libtnb/validator"
 	"gorm.io/gorm"
 )
 
-func GlobalRules(db *gorm.DB) {
-	validate.AddValidators(validate.M{
-		"exists":    NewExists(db).Passes,
-		"notExists": NewNotExists(db).Passes,
-		"password":  NewPassword().Passes,
-		"cron":      NewCron().Passes,
-		"ipcidr":    NewIPCIDR().Passes,
-	})
-	validate.AddGlobalMessages(map[string]string{
-		"exists":    "{field} 不存在",
-		"notExists": "{field} 已存在",
-		"password":  "密码不满足要求（8-20位，至少包含字母、数字、特殊字符中的两种）",
-		"cron":      "Cron 表达式不合法",
-		"ipcidr":    "IP 或 CIDR 格式不合法",
-	})
+// RegisterRules 注册面板自定义规则到验证器实例
+func RegisterRules(v *validator.Validator, db *gorm.DB) {
+	v.RegisterRule(NewExists(db))
+	v.RegisterRule(NewNotExists(db))
+	v.RegisterRule(NewPassword())
+	v.RegisterRule(NewCron())
+	v.RegisterRule(NewIPCIDR())
+	v.RegisterRule(NewUnixPath())
 }

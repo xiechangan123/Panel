@@ -8,7 +8,7 @@ type ContainerID struct {
 
 type ContainerRename struct {
 	ID   string `form:"id" json:"id" validate:"required"`
-	Name string `form:"name" json:"name" validate:"required|regex:^[a-zA-Z0-9_-]+$"`
+	Name string `form:"name" json:"name" validate:"required && regex:\"^[a-zA-Z0-9_-]+$\""`
 }
 
 type ContainerCreate struct {
@@ -21,7 +21,7 @@ type ContainerCreate struct {
 	Env             []types.KV                       `form:"env" json:"env"`
 	Entrypoint      []string                         `form:"entrypoint" json:"entrypoint"`
 	Command         []string                         `form:"command" json:"command"`
-	RestartPolicy   string                           `form:"restart_policy" json:"restart_policy"`
+	RestartPolicy   string                           `form:"restart_policy" json:"restart_policy" validate:"in:no,always,on-failure,unless-stopped"`
 	AutoRemove      bool                             `form:"auto_remove" json:"auto_remove"`
 	Privileged      bool                             `form:"privileged" json:"privileged"`
 	OpenStdin       bool                             `form:"openStdin" json:"open_stdin"`

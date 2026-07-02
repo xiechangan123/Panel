@@ -3,6 +3,7 @@ package rule
 import (
 	"unicode"
 
+	"github.com/libtnb/validator"
 	"github.com/spf13/cast"
 )
 
@@ -13,18 +14,22 @@ func NewPassword() *Password {
 	return &Password{}
 }
 
-func (r *Password) Passes(val any, options ...any) bool {
-	password := cast.ToString(val)
-	// 不对空密码进行校验，有需要可以使用 required 标签
-	if password == "" {
+func (r *Password) Signature() string { return "password" }
+
+func (r *Password) Message() string {
+	return "{field} must be 8-20 characters long and contain at least two types of characters: uppercase letters, lowercase letters, numbers, and special characters"
+}
+
+func (r *Password) Passes(f validator.Field) bool {
+	if validator.IsEmptyValue(f.Val()) {
 		return true
 	}
-
-	var hasUpper, hasLower, hasNumber, hasSpecial bool
+	password := cast.ToString(f.Val().Interface())
 	if len(password) < 8 || len(password) > 20 {
 		return false
 	}
 
+	var hasUpper, hasLower, hasNumber, hasSpecial bool
 	for _, char := range password {
 		switch {
 		case unicode.IsUpper(char):
@@ -39,12 +44,10 @@ func (r *Password) Passes(val any, options ...any) bool {
 	}
 
 	// 至少包含两类字符组合
-	valid := (hasUpper && hasLower) ||
+	return (hasUpper && hasLower) ||
 		(hasUpper && hasNumber) ||
 		(hasUpper && hasSpecial) ||
 		(hasLower && hasNumber) ||
 		(hasLower && hasSpecial) ||
 		(hasNumber && hasSpecial)
-
-	return valid
 }

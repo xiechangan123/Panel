@@ -5,13 +5,13 @@ type UpdateConfig struct {
 }
 
 type SetRootPassword struct {
-	Password string `form:"password" json:"password" validate:"required|password"`
+	Password string `form:"password" json:"password" validate:"required && password"`
 }
 
 // ConfigTune MySQL 配置调整
 type ConfigTune struct {
 	// 常规设置
-	Port                 string `form:"port" json:"port"`
+	Port                 string `form:"port" json:"port" validate:"number && min:1 && max:65535"`
 	MaxConnections       string `form:"max_connections" json:"max_connections"`
 	MaxConnectErrors     string `form:"max_connect_errors" json:"max_connect_errors"`
 	DefaultStorageEngine string `form:"default_storage_engine" json:"default_storage_engine"`
@@ -32,7 +32,7 @@ type ConfigTune struct {
 	// InnoDB
 	InnodbBufferPoolSize      string `form:"innodb_buffer_pool_size" json:"innodb_buffer_pool_size"`
 	InnodbLogBufferSize       string `form:"innodb_log_buffer_size" json:"innodb_log_buffer_size"`
-	InnodbFlushLogAtTrxCommit string `form:"innodb_flush_log_at_trx_commit" json:"innodb_flush_log_at_trx_commit"`
+	InnodbFlushLogAtTrxCommit string `form:"innodb_flush_log_at_trx_commit" json:"innodb_flush_log_at_trx_commit" validate:"in:0,1,2"`
 	InnodbLockWaitTimeout     string `form:"innodb_lock_wait_timeout" json:"innodb_lock_wait_timeout"`
 	InnodbMaxDirtyPagesPct    string `form:"innodb_max_dirty_pages_pct" json:"innodb_max_dirty_pages_pct"`
 	InnodbReadIoThreads       string `form:"innodb_read_io_threads" json:"innodb_read_io_threads"`

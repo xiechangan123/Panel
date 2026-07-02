@@ -2,7 +2,7 @@ package request
 
 // ToolboxSSHPort SSH 端口设置
 type ToolboxSSHPort struct {
-	Port uint `form:"port" json:"port" validate:"required|min:1|max:65535"`
+	Port uint `form:"port" json:"port" validate:"required && min:1 && max:65535"`
 }
 
 // ToolboxSSHPasswordAuth SSH 密码认证设置
@@ -17,10 +17,10 @@ type ToolboxSSHPubKeyAuth struct {
 
 // ToolboxSSHRootLogin Root 登录设置
 type ToolboxSSHRootLogin struct {
-	Mode string `form:"mode" json:"mode" validate:"required|in:yes,no,prohibit-password,forced-commands-only"`
+	Mode string `form:"mode" json:"mode" validate:"required && in:yes,no,prohibit-password,forced-commands-only"`
 }
 
 // ToolboxSSHRootPassword Root 密码设置
 type ToolboxSSHRootPassword struct {
-	Password string `form:"password" json:"password" validate:"required|password"`
+	Password string `form:"password" json:"password" validate:"required && password"`
 }

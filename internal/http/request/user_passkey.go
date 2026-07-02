@@ -5,6 +5,6 @@ type UserPasskeyList struct {
 }
 
 type UserPasskeyDelete struct {
-	ID     uint `uri:"id" validate:"required|min:1"`
+	ID     uint `uri:"id" validate:"required && min:1"`
 	UserID uint `query:"user_id"`
 }

@@ -27,21 +27,21 @@ type EnvironmentPHPConfigTune struct {
 	// php.ini 上传限制
 	UploadMaxFilesize string `form:"upload_max_filesize" json:"upload_max_filesize"`
 	PostMaxSize       string `form:"post_max_size" json:"post_max_size"`
-	MaxFileUploads    string `form:"max_file_uploads" json:"max_file_uploads"`
+	MaxFileUploads    string `form:"max_file_uploads" json:"max_file_uploads" validate:"number"`
 	MemoryLimit       string `form:"memory_limit" json:"memory_limit"`
 	// php.ini 超时限制
-	MaxExecutionTime string `form:"max_execution_time" json:"max_execution_time"`
-	MaxInputTime     string `form:"max_input_time" json:"max_input_time"`
-	MaxInputVars     string `form:"max_input_vars" json:"max_input_vars"`
+	MaxExecutionTime string `form:"max_execution_time" json:"max_execution_time" validate:"number"`
+	MaxInputTime     string `form:"max_input_time" json:"max_input_time" validate:"number"`
+	MaxInputVars     string `form:"max_input_vars" json:"max_input_vars" validate:"number"`
 	// php.ini Session 相关
 	SessionSaveHandler    string `form:"session_save_handler" json:"session_save_handler"`
 	SessionSavePath       string `form:"session_save_path" json:"session_save_path"`
-	SessionGcMaxlifetime  string `form:"session_gc_maxlifetime" json:"session_gc_maxlifetime"`
-	SessionCookieLifetime string `form:"session_cookie_lifetime" json:"session_cookie_lifetime"`
+	SessionGcMaxlifetime  string `form:"session_gc_maxlifetime" json:"session_gc_maxlifetime" validate:"number"`
+	SessionCookieLifetime string `form:"session_cookie_lifetime" json:"session_cookie_lifetime" validate:"number"`
 	// php-fpm.conf 相关
-	Pm                string `form:"pm" json:"pm"`
-	PmMaxChildren     string `form:"pm_max_children" json:"pm_max_children"`
-	PmStartServers    string `form:"pm_start_servers" json:"pm_start_servers"`
-	PmMinSpareServers string `form:"pm_min_spare_servers" json:"pm_min_spare_servers"`
-	PmMaxSpareServers string `form:"pm_max_spare_servers" json:"pm_max_spare_servers"`
+	Pm                string `form:"pm" json:"pm" validate:"in:static,dynamic,ondemand"`
+	PmMaxChildren     string `form:"pm_max_children" json:"pm_max_children" validate:"number"`
+	PmStartServers    string `form:"pm_start_servers" json:"pm_start_servers" validate:"number"`
+	PmMinSpareServers string `form:"pm_min_spare_servers" json:"pm_min_spare_servers" validate:"number"`
+	PmMaxSpareServers string `form:"pm_max_spare_servers" json:"pm_max_spare_servers" validate:"number"`
 }

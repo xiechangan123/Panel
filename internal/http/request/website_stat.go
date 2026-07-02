@@ -10,18 +10,18 @@ import (
 
 // WebsiteStatSetting 网站统计设置
 type WebsiteStatSetting struct {
-	Days          uint `json:"days" validate:"required|min:1|max:365"`
-	ErrBufMax     int  `json:"err_buf_max" validate:"min:0|max:1000000"`
-	UVMaxKeys     int  `json:"uv_max_keys" validate:"min:0|max:100000000"`
-	IPMaxKeys     int  `json:"ip_max_keys" validate:"min:0|max:100000000"`
-	DetailMaxKeys int  `json:"detail_max_keys" validate:"min:0|max:100000000"`
+	Days          uint `json:"days" validate:"required && min:1 && max:365"`
+	ErrBufMax     int  `json:"err_buf_max" validate:"min:0 && max:1000000"`
+	UVMaxKeys     int  `json:"uv_max_keys" validate:"min:0 && max:100000000"`
+	IPMaxKeys     int  `json:"ip_max_keys" validate:"min:0 && max:100000000"`
+	DetailMaxKeys int  `json:"detail_max_keys" validate:"min:0 && max:100000000"`
 	BodyEnabled   bool `json:"body_enabled"`
 }
 
 // WebsiteStatDateRange 统计日期范围查询参数
 type WebsiteStatDateRange struct {
-	Start string `json:"start" form:"start" query:"start"`
-	End   string `json:"end" form:"end" query:"end"`
+	Start string `json:"start" form:"start" query:"start" validate:"datetime:2006-01-02"`
+	End   string `json:"end" form:"end" query:"end" validate:"datetime:2006-01-02"`
 	Sites string `json:"sites" form:"sites" query:"sites"`
 }
 
