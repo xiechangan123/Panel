@@ -568,17 +568,17 @@ func (_c *BackupRepo_Restore_Call) RunAndReturn(run func(context.Context, biz.Ba
 	return _c
 }
 
-// UpdatePanel provides a mock function with given fields: version, url, checksum
-func (_m *BackupRepo) UpdatePanel(version string, url string, checksum string) error {
-	ret := _m.Called(version, url, checksum)
+// UpdatePanel provides a mock function with given fields: version, url, checksum, progress
+func (_m *BackupRepo) UpdatePanel(version string, url string, checksum string, progress func(string)) error {
+	ret := _m.Called(version, url, checksum, progress)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdatePanel")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, string) error); ok {
-		r0 = rf(version, url, checksum)
+	if rf, ok := ret.Get(0).(func(string, string, string, func(string)) error); ok {
+		r0 = rf(version, url, checksum, progress)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -595,13 +595,14 @@ type BackupRepo_UpdatePanel_Call struct {
 //   - version string
 //   - url string
 //   - checksum string
-func (_e *BackupRepo_Expecter) UpdatePanel(version interface{}, url interface{}, checksum interface{}) *BackupRepo_UpdatePanel_Call {
-	return &BackupRepo_UpdatePanel_Call{Call: _e.mock.On("UpdatePanel", version, url, checksum)}
+//   - progress func(string)
+func (_e *BackupRepo_Expecter) UpdatePanel(version interface{}, url interface{}, checksum interface{}, progress interface{}) *BackupRepo_UpdatePanel_Call {
+	return &BackupRepo_UpdatePanel_Call{Call: _e.mock.On("UpdatePanel", version, url, checksum, progress)}
 }
 
-func (_c *BackupRepo_UpdatePanel_Call) Run(run func(version string, url string, checksum string)) *BackupRepo_UpdatePanel_Call {
+func (_c *BackupRepo_UpdatePanel_Call) Run(run func(version string, url string, checksum string, progress func(string))) *BackupRepo_UpdatePanel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string))
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(func(string)))
 	})
 	return _c
 }
@@ -611,7 +612,7 @@ func (_c *BackupRepo_UpdatePanel_Call) Return(_a0 error) *BackupRepo_UpdatePanel
 	return _c
 }
 
-func (_c *BackupRepo_UpdatePanel_Call) RunAndReturn(run func(string, string, string) error) *BackupRepo_UpdatePanel_Call {
+func (_c *BackupRepo_UpdatePanel_Call) RunAndReturn(run func(string, string, string, func(string)) error) *BackupRepo_UpdatePanel_Call {
 	_c.Call.Return(run)
 	return _c
 }
