@@ -38,20 +38,17 @@ const ensureExtension = (extension: string) => {
 const handleArchive = () => {
   ensureExtension(format.value)
   loading.value = true
-  const message = window.$message.loading($gettext('Compressing...'), {
-    duration: 0,
-  })
   const paths = selected.value.map((item) => item.replace(path.value, '').replace(/^\//, ''))
   useRequest(api.compress(path.value, paths, file.value))
     .onSuccess(() => {
       show.value = false
       selected.value = []
-      window.$message.success($gettext('Compressed successfully'))
+      window.$message.success(
+        $gettext('Compress task created successfully, please check the task list for progress'),
+      )
     })
     .onComplete(() => {
-      message?.destroy()
       loading.value = false
-      window.$bus.emit('file:refresh')
     })
 }
 

@@ -561,12 +561,22 @@ func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Compress(req.Dir, req.Paths, req.File); err != nil {
+	cmd, err := io.CompressShell(req.Dir, req.Paths, req.File)
+	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	s.setPermission(req.File, 0755, "www", "www")
+	task := new(biz.Task)
+	task.Name = s.t.Get("Compress %v", filepath.Base(req.File))
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = fmt.Sprintf(`%s && chmod 0755 '%s' && chown www:www '%s'`, cmd, req.File, req.File)
+
+	if err = s.taskRepo.Push(task); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
 	Success(w, nil)
 }
 
@@ -577,19 +587,20 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.UnCompress(req.File, req.Path); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	list, err := io.ListCompress(req.File)
+	cmd, err := io.UnCompressShell(req.File, req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	for item := range slices.Values(list) {
-		s.setPermission(filepath.Join(req.Path, item), 0755, "www", "www")
+	task := new(biz.Task)
+	task.Name = s.t.Get("Uncompress %v", filepath.Base(req.File))
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = fmt.Sprintf(`%s && chmod -R 0755 '%s' && chown -R www:www '%s'`, cmd, req.Path, req.Path)
+
+	if err = s.taskRepo.Push(task); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
 
 	Success(w, nil)

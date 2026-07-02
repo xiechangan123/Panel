@@ -2,6 +2,7 @@ package io
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -102,6 +103,81 @@ func UnCompress(src string, dst string) error {
 	}
 
 	return err
+}
+
+// CompressShell 生成压缩命令的 shell 字符串, 便于作为后台任务执行
+func CompressShell(dir string, src []string, dst string) (string, error) {
+	if !filepath.IsAbs(dir) || !filepath.IsAbs(dst) {
+		return "", errors.New("dir and dst must be absolute path")
+	}
+	if len(src) == 0 {
+		src = append(src, ".")
+	}
+
+	format, err := formatArchiveByPath(dst)
+	if err != nil {
+		return "", err
+	}
+
+	sources := strings.Join(src, " ")
+	var cmd string
+	switch format {
+	case Zip:
+		cmd = fmt.Sprintf("zip -qr -o '%s' %s", dst, sources)
+	case TGz:
+		cmd = fmt.Sprintf("tar -czf '%s' %s", dst, sources)
+	case Bz2:
+		cmd = fmt.Sprintf("tar -cjf '%s' %s", dst, sources)
+	case Tar:
+		cmd = fmt.Sprintf("tar -cf '%s' %s", dst, sources)
+	case Xz:
+		cmd = fmt.Sprintf("tar -cJf '%s' %s", dst, sources)
+	case SevenZip:
+		cmd = fmt.Sprintf("7z a -y '%s' %s", dst, sources)
+	case Zst:
+		cmd = fmt.Sprintf("tar --zstd -cf '%s' %s", dst, sources)
+	default:
+		return "", errors.New("unsupported format")
+	}
+
+	return fmt.Sprintf("mkdir -p '%s' && cd '%s' && %s", filepath.Dir(dst), dir, cmd), nil
+}
+
+// UnCompressShell 生成解压命令的 shell 字符串, 便于作为后台任务执行
+func UnCompressShell(src, dst string) (string, error) {
+	if !filepath.IsAbs(src) || !filepath.IsAbs(dst) {
+		return "", errors.New("src and dst must be absolute path")
+	}
+
+	format, err := formatArchiveByPath(src)
+	if err != nil {
+		return "", err
+	}
+
+	var cmd string
+	switch format {
+	case Zip:
+		cmd = fmt.Sprintf("7z x -y '%s' -o'%s'", src, dst)
+	case Gz:
+		baseName := strings.TrimSuffix(filepath.Base(src), ".gz")
+		cmd = fmt.Sprintf("gunzip -c '%s' > '%s'", src, filepath.Join(dst, baseName))
+	case TGz:
+		cmd = fmt.Sprintf("tar -xzf '%s' -C '%s'", src, dst)
+	case Bz2:
+		cmd = fmt.Sprintf("tar -xjf '%s' -C '%s'", src, dst)
+	case Tar:
+		cmd = fmt.Sprintf("tar -xf '%s' -C '%s'", src, dst)
+	case Xz:
+		cmd = fmt.Sprintf("tar -xJf '%s' -C '%s'", src, dst)
+	case SevenZip:
+		cmd = fmt.Sprintf("7z x -y '%s' -o'%s'", src, dst)
+	case Zst:
+		cmd = fmt.Sprintf("tar --zstd -xf '%s' -C '%s'", src, dst)
+	default:
+		return "", errors.New("unsupported format")
+	}
+
+	return fmt.Sprintf("mkdir -p '%s' && %s", dst, cmd), nil
 }
 
 // ListCompress 获取压缩包内文件列表

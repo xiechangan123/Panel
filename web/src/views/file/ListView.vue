@@ -1210,17 +1210,12 @@ const handleUnCompress = () => {
     window.$message.error($gettext('Invalid path'))
     return
   }
-  const message = window.$message.loading($gettext('Uncompressing...'), {
-    duration: 0,
-  })
   useRequest(file.unCompress(unCompressModel.value.file, unCompressModel.value.path))
     .onSuccess(() => {
       unCompressModal.value = false
-      window.$bus.emit('file:refresh')
-      window.$message.success($gettext('Uncompressed successfully'))
-    })
-    .onComplete(() => {
-      message?.destroy()
+      window.$message.success(
+        $gettext('Uncompress task created successfully, please check the task list for progress'),
+      )
     })
 }
 
