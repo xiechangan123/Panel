@@ -23,7 +23,7 @@ const titleFor = (issue: HealthIssue): string => {
     case 'database:stat':
       return $gettext('Website statistics database write failed, statistics may be inaccurate')
     case 'database:scan':
-      return $gettext('Scan events database write failed, situation awareness may be inaccurate')
+      return $gettext('Scan events database write failed, scan awareness may be inaccurate')
     default:
       return $gettext('Panel encountered a fault: %{key}', { key: issue.key })
   }
