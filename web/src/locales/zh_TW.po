@@ -1476,8 +1476,7 @@ msgid "Website statistics database write failed, statistics may be inaccurate"
 msgstr ""
 
 #: src/components/system/HealthBanner.vue:26
-msgid ""
-"Scan events database write failed, situation awareness may be inaccurate"
+msgid "Scan events database write failed, scan awareness may be inaccurate"
 msgstr ""
 
 #: src/components/system/HealthBanner.vue:28
