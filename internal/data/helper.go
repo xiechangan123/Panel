@@ -55,7 +55,7 @@ func getOperatorID(ctx context.Context) uint64 {
 // openDB 打开数据库
 func openDB(name string) (*gorm.DB, error) {
 	dsn := "file:" + filepath.Join(app.Root, fmt.Sprintf("panel/storage/%s.db", name)) +
-		"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=synchronous(FULL)"
+		"?_txlock=immediate&_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)"
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
