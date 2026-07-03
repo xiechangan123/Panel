@@ -66,14 +66,8 @@ type FilePermission struct {
 
 type FileCompress struct {
 	Dir   string   `form:"dir" json:"dir" validate:"required && unix_path"`
-	Paths []string `form:"paths" json:"paths" validate:"required"`
+	Paths []string `form:"paths" json:"paths" validate:"required && dive && required"`
 	File  string   `form:"file" json:"file" validate:"required && unix_path"`
-}
-
-func (r *FileCompress) Rules(_ *http.Request) map[string]string {
-	return map[string]string{
-		"Paths.*": "required",
-	}
 }
 
 type FileUnCompress struct {

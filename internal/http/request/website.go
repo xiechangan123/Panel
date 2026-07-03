@@ -1,8 +1,6 @@
 package request
 
 import (
-	"net/http"
-
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -10,13 +8,7 @@ type WebsiteDefaultConfig struct {
 	Index       string   `json:"index" form:"index" validate:"required"`
 	Stop        string   `json:"stop" form:"stop" validate:"required"`
 	NotFound    string   `json:"not_found" form:"not_found"`
-	TLSVersions []string `json:"tls_versions" form:"tls_versions" validate:"required"`
-}
-
-func (r *WebsiteDefaultConfig) Rules(_ *http.Request) map[string]string {
-	return map[string]string{
-		"TLSVersions.*": "required",
-	}
+	TLSVersions []string `json:"tls_versions" form:"tls_versions" validate:"required && dive && required"`
 }
 
 type WebsiteList struct {
@@ -27,8 +19,8 @@ type WebsiteList struct {
 type WebsiteCreate struct {
 	Type       string   `json:"type" form:"type" validate:"required && in:proxy,static,php"`
 	Name       string   `form:"name" json:"name" validate:"required && not_exists:websites,name && not_in:phpmyadmin,default && regex:\"^[a-zA-Z0-9_-]+$\""`
-	Listens    []string `form:"listens" json:"listens" validate:"required"`
-	Domains    []string `form:"domains" json:"domains" validate:"required"`
+	Listens    []string `form:"listens" json:"listens" validate:"required && dive && required"`
+	Domains    []string `form:"domains" json:"domains" validate:"required && dive && required"`
 	Path       string   `form:"path" json:"path"`
 	DB         bool     `form:"db" json:"db"`
 	DBType     string   `form:"db_type" json:"db_type" validate:"required_if:DB,true"`
@@ -41,13 +33,6 @@ type WebsiteCreate struct {
 	Proxy string `form:"proxy" json:"proxy" validate:"required_if:Type,proxy"` // 仅反向代理网站需要
 }
 
-func (r *WebsiteCreate) Rules(_ *http.Request) map[string]string {
-	return map[string]string{
-		"Listens.*": "required",
-		"Domains.*": "required",
-	}
-}
-
 type WebsiteDelete struct {
 	ID   uint `form:"id" json:"id" validate:"required && exists:websites,id"`
 	Path bool `form:"path" json:"path"`
@@ -56,11 +41,11 @@ type WebsiteDelete struct {
 
 type WebsiteUpdate struct {
 	ID      uint           `form:"id" json:"id" validate:"required && exists:websites,id"`
-	Listens []types.Listen `form:"listens" json:"listens" validate:"required"`
-	Domains []string       `form:"domains" json:"domains" validate:"required"`
+	Listens []types.Listen `form:"listens" json:"listens" validate:"required && dive && required"`
+	Domains []string       `form:"domains" json:"domains" validate:"required && dive && required"`
 	Path    string         `form:"path" json:"path" validate:"required && unix_path"` // 网站目录
 	Root    string         `form:"root" json:"root" validate:"required && unix_path"` // 运行目录
-	Index   []string       `form:"index" json:"index" validate:"required"`
+	Index   []string       `form:"index" json:"index" validate:"required && dive && required"`
 
 	// SSL 相关
 	SSL          bool     `form:"ssl" json:"ssl"`
@@ -93,14 +78,6 @@ type WebsiteUpdate struct {
 
 	// 自定义配置
 	CustomConfigs []WebsiteCustomConfig `json:"custom_configs"`
-}
-
-func (r *WebsiteUpdate) Rules(_ *http.Request) map[string]string {
-	return map[string]string{
-		"Listens.*": "required",
-		"Domains.*": "required",
-		"Index.*":   "required",
-	}
 }
 
 // WebsiteCustomConfig 网站自定义配置请求

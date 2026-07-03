@@ -1,7 +1,5 @@
 package request
 
-import "net/http"
-
 type UserTokenList struct {
 	UserID uint `query:"user_id"`
 	Paginate
@@ -9,24 +7,12 @@ type UserTokenList struct {
 
 type UserTokenCreate struct {
 	UserID    uint     `json:"user_id" validate:"required && exists:users,id"`
-	IPs       []string `json:"ips"`
+	IPs       []string `json:"ips" validate:"dive && ipcidr"`
 	ExpiredAt int64    `json:"expired_at" validate:"required"`
-}
-
-func (r *UserTokenCreate) Rules(_ *http.Request) map[string]string {
-	return map[string]string{
-		"IPs.*": "ipcidr",
-	}
 }
 
 type UserTokenUpdate struct {
 	ID        uint     `uri:"id"`
-	IPs       []string `json:"ips"`
+	IPs       []string `json:"ips" validate:"dive && ipcidr"`
 	ExpiredAt int64    `json:"expired_at" validate:"required"`
-}
-
-func (r *UserTokenUpdate) Rules(_ *http.Request) map[string]string {
-	return map[string]string{
-		"IPs.*": "ipcidr",
-	}
 }

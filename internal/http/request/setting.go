@@ -1,7 +1,5 @@
 package request
 
-import "net/http"
-
 type SettingPanel struct {
 	Name          string   `json:"name" validate:"required"`
 	Channel       string   `json:"channel" validate:"required && in:stable,beta"`
@@ -15,7 +13,7 @@ type SettingPanel struct {
 	Lifetime      uint     `json:"lifetime" validate:"required && min:10 && max:43200"` // 登录超时，单位：分
 	IPHeader      string   `json:"ip_header"`
 	BindDomain    []string `json:"bind_domain"`
-	BindIP        []string `json:"bind_ip"`
+	BindIP        []string `json:"bind_ip" validate:"dive && ipcidr"`
 	BindUA        []string `json:"bind_ua"`
 	WebsitePath   string   `json:"website_path" validate:"required"`
 	BackupPath    string   `json:"backup_path" validate:"required"`
@@ -32,12 +30,6 @@ type SettingPanel struct {
 	PublicIP      []string `json:"public_ip"`
 	Cert          string   `json:"cert"`
 	Key           string   `json:"key"`
-}
-
-func (r *SettingPanel) Rules(_ *http.Request) map[string]string {
-	return map[string]string{
-		"BindIP.*": "ipcidr",
-	}
 }
 
 type SettingCert struct {
