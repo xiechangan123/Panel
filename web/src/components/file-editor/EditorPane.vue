@@ -5,8 +5,8 @@ import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
+import type { EditorTab } from '@/stores'
 import { useEditorStore, useThemeStore } from '@/stores'
-import { languageByPath } from '@/utils/file'
 import { getMonaco } from '@/utils/monaco'
 
 const { $gettext } = useGettext()
@@ -24,6 +24,12 @@ const monacoRef = shallowRef<typeof Monaco>()
 const editorReady = ref(false)
 const tabsContainerRef = ref<HTMLDivElement>()
 
+// 每个 tab 拥有独立的 Monaco model，切换 tab 通过 setModel 而非 setValue
+// 消除单一 model 时因异步事件与 activeTabPath 错位导致的内容/回写污染
+const models = new Map<string, Monaco.editor.ITextModel>()
+const viewStates = new Map<string, Monaco.editor.ICodeEditorViewState | null>()
+let currentPath: string | null = null
+
 // 标签页滚轮横向滚动
 function handleTabsWheel(e: WheelEvent) {
   if (tabsContainerRef.value) {
@@ -36,6 +42,65 @@ function getEditorTheme(language: string) {
   return (language === 'nginx' ? 'nginx-theme' : 'vs') + (themeStore.darkMode ? '-dark' : '')
 }
 
+// 获取或创建 tab 对应的 model
+function ensureModel(tab: EditorTab): Monaco.editor.ITextModel {
+  const monaco = monacoRef.value!
+  const existing = models.get(tab.path)
+  if (existing && !existing.isDisposed()) return existing
+
+  const model = monaco.editor.createModel(tab.content, tab.language)
+  const eol =
+    tab.lineEnding === 'CRLF'
+      ? monaco.editor.EndOfLineSequence.CRLF
+      : monaco.editor.EndOfLineSequence.LF
+  model.setEOL(eol)
+
+  const boundPath = tab.path
+  model.onDidChangeContent(() => {
+    if (model.isDisposed()) return
+    editorStore.updateContent(boundPath, model.getValue())
+  })
+
+  models.set(tab.path, model)
+  return model
+}
+
+// 释放 model 及其视图状态
+function disposeModel(path: string) {
+  const model = models.get(path)
+  if (model && !model.isDisposed()) model.dispose()
+  models.delete(path)
+  viewStates.delete(path)
+  if (currentPath === path) currentPath = null
+}
+
+// 切换 editor 显示的 model，同时保存/恢复视图状态
+function applyActiveTab() {
+  if (!editorRef.value || !monacoRef.value) return
+
+  if (currentPath) {
+    viewStates.set(currentPath, editorRef.value.saveViewState())
+  }
+
+  const tab = editorStore.activeTab
+  if (!tab) {
+    editorRef.value.setModel(null)
+    currentPath = null
+    return
+  }
+
+  const model = ensureModel(tab)
+  if (editorRef.value.getModel() !== model) {
+    editorRef.value.setModel(model)
+  }
+  currentPath = tab.path
+
+  const state = viewStates.get(tab.path)
+  if (state) editorRef.value.restoreViewState(state)
+
+  monacoRef.value.editor.setTheme(getEditorTheme(tab.language))
+}
+
 // 初始化编辑器
 async function initEditor() {
   if (!containerRef.value) return
@@ -45,8 +110,6 @@ async function initEditor() {
 
   const settings = editorStore.settings
   editorRef.value = monaco.editor.create(containerRef.value, {
-    value: '',
-    language: 'plaintext',
     theme: 'vs' + (themeStore.darkMode ? '-dark' : ''),
     readOnly: props.readOnly,
     automaticLayout: true,
@@ -75,13 +138,6 @@ async function initEditor() {
     formatOnType: settings.formatOnType,
   })
 
-  // 监听内容变化
-  editorRef.value.onDidChangeModelContent(() => {
-    if (!editorStore.activeTab) return
-    const newValue = editorRef.value?.getValue() ?? ''
-    editorStore.updateContent(editorStore.activeTab.path, newValue)
-  })
-
   // 监听光标位置变化
   editorRef.value.onDidChangeCursorPosition((e) => {
     if (!editorStore.activeTab) return
@@ -89,32 +145,7 @@ async function initEditor() {
   })
 
   editorReady.value = true
-  updateEditorContent()
-}
-
-// 更新编辑器内容
-function updateEditorContent() {
-  if (!editorRef.value || !monacoRef.value) return
-
-  const tab = editorStore.activeTab
-  if (!tab) {
-    editorRef.value.setValue('')
-    return
-  }
-
-  // 更新内容
-  const currentValue = editorRef.value.getValue()
-  if (currentValue !== tab.content) {
-    editorRef.value.setValue(tab.content)
-  }
-
-  // 更新语言
-  const model = editorRef.value.getModel()
-  if (model) {
-    const language = languageByPath(tab.path)
-    monacoRef.value.editor.setModelLanguage(model, language)
-    monacoRef.value.editor.setTheme(getEditorTheme(language))
-  }
+  applyActiveTab()
 }
 
 // 关闭标签页
@@ -307,49 +338,64 @@ function handleClickOutside() {
 watch(
   () => editorStore.activeTabPath,
   () => {
-    if (editorReady.value) {
-      updateEditorContent()
-    }
+    if (editorReady.value) applyActiveTab()
   },
 )
 
-// 监听语言变化（用户手动切换语言时更新 Monaco 高亮）
+// 监听语言变化（用户手动切换语言时更新对应 model）
 watch(
   () => editorStore.activeTab?.language,
   (newLanguage) => {
-    if (!editorRef.value || !monacoRef.value || !newLanguage) return
-    const model = editorRef.value.getModel()
-    if (model) {
-      monacoRef.value.editor.setModelLanguage(model, newLanguage)
+    if (!monacoRef.value || !newLanguage) return
+    const tab = editorStore.activeTab
+    if (!tab) return
+    const model = models.get(tab.path)
+    if (!model) return
+    monacoRef.value.editor.setModelLanguage(model, newLanguage)
+    if (editorRef.value?.getModel() === model) {
       monacoRef.value.editor.setTheme(getEditorTheme(newLanguage))
     }
   },
 )
 
-// 监听行分隔符变化（用户手动切换行分隔符时更新 Monaco）
+// 监听行分隔符变化（用户手动切换行分隔符时更新对应 model）
 watch(
   () => editorStore.activeTab?.lineEnding,
   (newLineEnding) => {
-    if (!editorRef.value || !monacoRef.value || !newLineEnding) return
-    const model = editorRef.value.getModel()
-    if (model) {
-      const eol =
-        newLineEnding === 'CRLF'
-          ? monacoRef.value.editor.EndOfLineSequence.CRLF
-          : monacoRef.value.editor.EndOfLineSequence.LF
-      model.setEOL(eol)
+    if (!monacoRef.value || !newLineEnding) return
+    const tab = editorStore.activeTab
+    if (!tab) return
+    const model = models.get(tab.path)
+    if (!model) return
+    const eol =
+      newLineEnding === 'CRLF'
+        ? monacoRef.value.editor.EndOfLineSequence.CRLF
+        : monacoRef.value.editor.EndOfLineSequence.LF
+    model.setEOL(eol)
+  },
+)
+
+// 监听当前标签页内容变化（reloadFile 等外部更新时同步到 model）
+watch(
+  () => editorStore.activeTab?.content,
+  (newContent) => {
+    if (newContent === undefined) return
+    const tab = editorStore.activeTab
+    if (!tab) return
+    const model = models.get(tab.path)
+    if (model && model.getValue() !== newContent) {
+      model.setValue(newContent)
     }
   },
 )
 
-// 监听当前标签页内容变化（外部更新）
+// 监听 tabs 列表变化
 watch(
-  () => editorStore.activeTab?.content,
-  (newContent) => {
-    if (!editorRef.value || !editorStore.activeTab) return
-    const currentValue = editorRef.value.getValue()
-    if (newContent !== undefined && currentValue !== newContent) {
-      editorRef.value.setValue(newContent)
+  () => editorStore.tabs.map((t) => t.path).join('|'),
+  () => {
+    const active = new Set(editorStore.tabs.map((t) => t.path))
+    for (const path of Array.from(models.keys())) {
+      if (!active.has(path)) disposeModel(path)
     }
   },
 )
@@ -359,8 +405,7 @@ watch(
   () => themeStore.darkMode,
   () => {
     if (!monacoRef.value || !editorStore.activeTab) return
-    const language = languageByPath(editorStore.activeTab.path)
-    monacoRef.value.editor.setTheme(getEditorTheme(language))
+    monacoRef.value.editor.setTheme(getEditorTheme(editorStore.activeTab.language))
   },
 )
 
@@ -404,6 +449,12 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   editorRef.value?.dispose()
+  for (const model of models.values()) {
+    if (!model.isDisposed()) model.dispose()
+  }
+  models.clear()
+  viewStates.clear()
+  currentPath = null
 })
 
 // 暴露方法
