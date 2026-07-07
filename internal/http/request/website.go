@@ -8,7 +8,7 @@ type WebsiteDefaultConfig struct {
 	Index       string   `json:"index" form:"index" validate:"required"`
 	Stop        string   `json:"stop" form:"stop" validate:"required"`
 	NotFound    string   `json:"not_found" form:"not_found"`
-	TLSVersions []string `json:"tls_versions" form:"tls_versions" validate:"required && dive && required"`
+	TLSVersions []string `json:"tls_versions" form:"tls_versions" validate:"required && unique && dive && required"`
 }
 
 type WebsiteList struct {
@@ -19,8 +19,8 @@ type WebsiteList struct {
 type WebsiteCreate struct {
 	Type       string   `json:"type" form:"type" validate:"required && in:proxy,static,php"`
 	Name       string   `form:"name" json:"name" validate:"required && not_exists:websites,name && not_in:phpmyadmin,default && regex:\"^[a-zA-Z0-9_-]+$\""`
-	Listens    []string `form:"listens" json:"listens" validate:"required && dive && required"`
-	Domains    []string `form:"domains" json:"domains" validate:"required && dive && required"`
+	Listens    []string `form:"listens" json:"listens" validate:"required && unique && dive && required"`
+	Domains    []string `form:"domains" json:"domains" validate:"required && unique && dive && required"`
 	Path       string   `form:"path" json:"path"`
 	DB         bool     `form:"db" json:"db"`
 	DBType     string   `form:"db_type" json:"db_type" validate:"required_if:DB,true"`
@@ -42,10 +42,10 @@ type WebsiteDelete struct {
 type WebsiteUpdate struct {
 	ID      uint           `form:"id" json:"id" validate:"required && exists:websites,id"`
 	Listens []types.Listen `form:"listens" json:"listens" validate:"required && dive && required"`
-	Domains []string       `form:"domains" json:"domains" validate:"required && dive && required"`
+	Domains []string       `form:"domains" json:"domains" validate:"required && unique && dive && required"`
 	Path    string         `form:"path" json:"path" validate:"required && unix_path"` // 网站目录
 	Root    string         `form:"root" json:"root" validate:"required && unix_path"` // 运行目录
-	Index   []string       `form:"index" json:"index" validate:"required && dive && required"`
+	Index   []string       `form:"index" json:"index" validate:"required && unique && dive && required"`
 
 	// SSL 相关
 	SSL          bool     `form:"ssl" json:"ssl"`

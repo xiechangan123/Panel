@@ -21,7 +21,7 @@ type WebsiteStatSetting struct {
 // WebsiteStatDateRange 统计日期范围查询参数
 type WebsiteStatDateRange struct {
 	Start string `json:"start" form:"start" query:"start" validate:"datetime:2006-01-02"`
-	End   string `json:"end" form:"end" query:"end" validate:"datetime:2006-01-02"`
+	End   string `json:"end" form:"end" query:"end" validate:"datetime:2006-01-02 && after_or_equal:Start"`
 	Sites string `json:"sites" form:"sites" query:"sites"`
 }
 

@@ -19,5 +19,5 @@ type AppUpdateShow struct {
 }
 
 type AppUpdateOrder struct {
-	Slugs []string `json:"slugs" form:"slugs" validate:"required"`
+	Slugs []string `json:"slugs" form:"slugs" validate:"required && unique"`
 }

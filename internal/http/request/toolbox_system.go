@@ -36,5 +36,5 @@ type ToolboxSystemSyncTime struct {
 }
 
 type ToolboxSystemNTPServers struct {
-	Servers []string `form:"servers" json:"servers" validate:"required"`
+	Servers []string `form:"servers" json:"servers" validate:"required && unique"`
 }

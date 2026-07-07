@@ -43,7 +43,7 @@ require (
 	github.com/libtnb/sessions v1.4.2
 	github.com/libtnb/sqlite v1.1.2
 	github.com/libtnb/utils v1.2.2
-	github.com/libtnb/validator v0.1.1
+	github.com/libtnb/validator v0.2.1
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.55.0

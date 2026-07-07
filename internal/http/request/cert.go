@@ -7,7 +7,7 @@ type CertUpload struct {
 
 type CertCreate struct {
 	Type        string            `form:"type" json:"type" validate:"required && in:P256,P384,2048,3072,4096"`
-	Domains     []string          `form:"domains" json:"domains" validate:"required && dive && required"`
+	Domains     []string          `form:"domains" json:"domains" validate:"required && unique && dive && required"`
 	Alias       map[string]string `form:"alias" json:"alias"`
 	AutoRenewal bool              `form:"auto_renewal" json:"auto_renewal"`
 	AccountID   uint              `form:"account_id" json:"account_id"`
@@ -18,7 +18,7 @@ type CertCreate struct {
 type CertUpdate struct {
 	ID          uint              `form:"id" json:"id" validate:"required && exists:certs,id"`
 	Type        string            `form:"type" json:"type" validate:"required && in:P256,P384,2048,3072,4096,upload"`
-	Domains     []string          `form:"domains" json:"domains" validate:"required && dive && required"`
+	Domains     []string          `form:"domains" json:"domains" validate:"required && unique && dive && required"`
 	Alias       map[string]string `form:"alias" json:"alias"`
 	Cert        string            `form:"cert" json:"cert"`
 	Key         string            `form:"key" json:"key"`

@@ -27,7 +27,7 @@ type ToolboxDiskFormat struct {
 // ToolboxDiskVG 卷组请求
 type ToolboxDiskVG struct {
 	Name    string   `form:"name" json:"name" validate:"required"`
-	Devices []string `form:"devices" json:"devices" validate:"required"`
+	Devices []string `form:"devices" json:"devices" validate:"required && unique"`
 }
 
 // ToolboxDiskLV 逻辑卷请求

@@ -288,8 +288,8 @@ github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7 h1:ZzONsNhw69uC/wJQ
 github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7/go.mod h1:HeQeTfKU6tj2Lx1z79UacwYeDioo6M4ZD7BDDI6+rrg=
 github.com/libtnb/utils v1.2.2 h1:HUqgAIb+TIrZPXRytYB5XqzkEXG2U4a4/ZGpprNtL5A=
 github.com/libtnb/utils v1.2.2/go.mod h1:KUCx2+Phw3cLXOwuQDy6XwFOliaYuU1rpAuJQuHf+lQ=
-github.com/libtnb/validator v0.1.1 h1:8D3YkPGR9N2Ildb2PeApvgzCgIfKznEb6cTHWPskmNs=
-github.com/libtnb/validator v0.1.1/go.mod h1:j08Lydxwy7ModkoKeYIHxvZvAtnzzdE8xi2J+SGVrgc=
+github.com/libtnb/validator v0.2.1 h1:ZbFx7bEXB9ri0Eb7p81LOSAq0M+VrizDR4aD06TcCvg=
+github.com/libtnb/validator v0.2.1/go.mod h1:j08Lydxwy7ModkoKeYIHxvZvAtnzzdE8xi2J+SGVrgc=
 github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 h1:PwQumkgq4/acIiZhtifTV5OUqqiP82UAl0h87xj/l9k=
 github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3/go.mod h1:autxFIvghDt3jPTLoqZ9OZ7s9qTGNAWmYCjVFWPX/zg=
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=

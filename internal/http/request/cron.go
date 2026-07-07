@@ -8,7 +8,7 @@ type CronCreate struct {
 	SubType  string            `form:"sub_type" json:"sub_type" validate:"required_if:Type,backup,cutoff"`
 	Flock    bool              `form:"flock" json:"flock"`
 	Storage  uint              `form:"storage" json:"storage"`
-	Targets  []string          `form:"targets" json:"targets" validate:"required_if:Type,backup,cutoff"`
+	Targets  []string          `form:"targets" json:"targets" validate:"required_if:Type,backup,cutoff && unique"`
 	Keep     uint              `form:"keep" json:"keep" validate:"required"`
 	URL      string            `form:"url" json:"url"`
 	Method   string            `form:"method" json:"method"`

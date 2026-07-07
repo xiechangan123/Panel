@@ -13,7 +13,7 @@ type SettingPanel struct {
 	Lifetime      uint     `json:"lifetime" validate:"required && min:10 && max:43200"` // 登录超时，单位：分
 	IPHeader      string   `json:"ip_header"`
 	BindDomain    []string `json:"bind_domain"`
-	BindIP        []string `json:"bind_ip" validate:"dive && ipcidr"`
+	BindIP        []string `json:"bind_ip" validate:"unique && dive && ipcidr"`
 	BindUA        []string `json:"bind_ua"`
 	WebsitePath   string   `json:"website_path" validate:"required"`
 	BackupPath    string   `json:"backup_path" validate:"required"`
