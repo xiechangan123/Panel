@@ -16,6 +16,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
@@ -29,12 +30,12 @@ type userTokenRepo struct {
 	db   *gorm.DB
 }
 
-func NewUserTokenRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB) biz.UserTokenRepo {
+func NewUserTokenRepo(i do.Injector) (biz.UserTokenRepo, error) {
 	return &userTokenRepo{
-		t:    t,
-		conf: conf,
-		db:   db,
-	}
+		t:    do.MustInvoke[*gotext.Locale](i),
+		conf: do.MustInvoke[*config.Config](i),
+		db:   do.MustInvoke[*gorm.DB](i),
+	}, nil
 }
 
 func (r userTokenRepo) List(userID, page, limit uint) ([]*biz.UserToken, int64, error) {

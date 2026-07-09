@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
+	"github.com/libtnb/cron"
 	"github.com/libtnb/utils/collect"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -29,15 +31,15 @@ type PanelTask struct {
 	conf        *config.Config
 	db          *gorm.DB
 	log         *slog.Logger
-	backupRepo  biz.BackupRepo
-	cacheRepo   biz.CacheRepo
-	taskRepo    biz.TaskRepo
-	settingRepo biz.SettingRepo
-	scanRepo    biz.ScanEventRepo
-	statRepo    biz.WebsiteStatRepo
+	backupRepo  *biz.BackupUsecase
+	cacheRepo   *biz.CacheUsecase
+	taskRepo    *biz.TaskUsecase
+	settingRepo *biz.SettingUsecase
+	scanRepo    *biz.ScanEventUsecase
+	statRepo    *biz.WebsiteStatUsecase
 }
 
-func NewPanelTask(conf *config.Config, db *gorm.DB, log *slog.Logger, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, setting biz.SettingRepo, scan biz.ScanEventRepo, stat biz.WebsiteStatRepo) *PanelTask {
+func NewPanelTask(conf *config.Config, db *gorm.DB, log *slog.Logger, backup *biz.BackupUsecase, cache *biz.CacheUsecase, task *biz.TaskUsecase, setting *biz.SettingUsecase, scan *biz.ScanEventUsecase, stat *biz.WebsiteStatUsecase) *PanelTask {
 	return &PanelTask{
 		api:         api.NewAPI(app.Version, app.Locale),
 		conf:        conf,
@@ -206,4 +208,21 @@ func (r *PanelTask) updateIPDB() {
 	}
 
 	r.log.Info("ipdb updated", slog.String("url", ipdbURL), slog.String("path", destPath))
+}
+
+// PanelTaskJob 注册面板每日任务
+func PanelTaskJob(i do.Injector) (JobFn, error) {
+	conf := do.MustInvoke[*config.Config](i)
+	db := do.MustInvoke[*gorm.DB](i)
+	log := do.MustInvoke[*slog.Logger](i)
+	backup := do.MustInvoke[*biz.BackupUsecase](i)
+	cache := do.MustInvoke[*biz.CacheUsecase](i)
+	task := do.MustInvoke[*biz.TaskUsecase](i)
+	setting := do.MustInvoke[*biz.SettingUsecase](i)
+	scan := do.MustInvoke[*biz.ScanEventUsecase](i)
+	stat := do.MustInvoke[*biz.WebsiteStatUsecase](i)
+	return func(c *cron.Cron) error {
+		_, err := c.Add("0 2 * * *", NewPanelTask(conf, db, log, backup, cache, task, setting, scan, stat))
+		return err
+	}, nil
 }

@@ -10,17 +10,18 @@ import (
 	"time"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/shirou/gopsutil/v4/process"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type ProcessService struct {
 }
 
-func NewProcessService() *ProcessService {
-	return &ProcessService{}
+func NewProcessService(i do.Injector) (*ProcessService, error) {
+	return &ProcessService{}, nil
 }
 
 func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {

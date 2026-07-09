@@ -4,11 +4,13 @@ import (
 	"log"
 	"time"
 
+	"github.com/samber/do/v2"
+
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
-func NewConf() (*config.Config, error) {
+func NewConf(i do.Injector) (*config.Config, error) {
 	conf, err := config.Load()
 	if err != nil {
 		return nil, err

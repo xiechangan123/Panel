@@ -8,11 +8,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/libtnb/cron"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	pkgcert "github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/tools"
@@ -23,12 +25,12 @@ type CertRenew struct {
 	conf            *config.Config
 	db              *gorm.DB
 	log             *slog.Logger
-	settingRepo     biz.SettingRepo
-	certRepo        biz.CertRepo
-	certAccountRepo biz.CertAccountRepo
+	settingRepo     *biz.SettingUsecase
+	certRepo        *biz.CertUsecase
+	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewCertRenew(conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) *CertRenew {
+func NewCertRenew(conf *config.Config, db *gorm.DB, log *slog.Logger, setting *biz.SettingUsecase, cert *biz.CertUsecase, certAccount *biz.CertAccountUsecase) *CertRenew {
 	return &CertRenew{
 		conf:            conf,
 		db:              db,
@@ -158,4 +160,18 @@ func (r *CertRenew) Run(_ context.Context) error {
 	}
 
 	return nil
+}
+
+// CertRenewJob 注册证书续签任务
+func CertRenewJob(i do.Injector) (JobFn, error) {
+	conf := do.MustInvoke[*config.Config](i)
+	db := do.MustInvoke[*gorm.DB](i)
+	log := do.MustInvoke[*slog.Logger](i)
+	setting := do.MustInvoke[*biz.SettingUsecase](i)
+	cert := do.MustInvoke[*biz.CertUsecase](i)
+	certAccount := do.MustInvoke[*biz.CertAccountUsecase](i)
+	return func(c *cron.Cron) error {
+		_, err := c.Add("0 4 * * *", NewCertRenew(conf, db, log, setting, cert, certAccount))
+		return err
+	}, nil
 }

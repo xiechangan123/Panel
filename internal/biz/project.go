@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -24,4 +24,36 @@ type ProjectRepo interface {
 	Create(ctx context.Context, req *request.ProjectCreate) (*types.ProjectDetail, error)
 	Update(ctx context.Context, req *request.ProjectUpdate) error
 	Delete(ctx context.Context, id uint) error
+}
+
+type ProjectUsecase struct {
+	repo ProjectRepo
+}
+
+func NewProjectUsecase(repo ProjectRepo) *ProjectUsecase {
+	return &ProjectUsecase{repo: repo}
+}
+
+func (uc *ProjectUsecase) Count() (int64, error) {
+	return uc.repo.Count()
+}
+
+func (uc *ProjectUsecase) List(typ types.ProjectType, page, limit uint) ([]*types.ProjectDetail, int64, error) {
+	return uc.repo.List(typ, page, limit)
+}
+
+func (uc *ProjectUsecase) Get(id uint) (*types.ProjectDetail, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *ProjectUsecase) Create(ctx context.Context, req *request.ProjectCreate) (*types.ProjectDetail, error) {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *ProjectUsecase) Update(ctx context.Context, req *request.ProjectUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *ProjectUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
 }

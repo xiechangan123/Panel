@@ -14,13 +14,14 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
 	"github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/embed"
@@ -47,19 +48,19 @@ type websiteRepo struct {
 	setting        biz.SettingRepo
 }
 
-func NewWebsiteRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, cache biz.CacheRepo, database biz.DatabaseRepo, databaseServer biz.DatabaseServerRepo, databaseUser biz.DatabaseUserRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, setting biz.SettingRepo) biz.WebsiteRepo {
+func NewWebsiteRepo(i do.Injector) (biz.WebsiteRepo, error) {
 	return &websiteRepo{
-		t:              t,
-		db:             db,
-		log:            log,
-		cache:          cache,
-		database:       database,
-		databaseServer: databaseServer,
-		databaseUser:   databaseUser,
-		cert:           cert,
-		certAccount:    certAccount,
-		setting:        setting,
-	}
+		t:              do.MustInvoke[*gotext.Locale](i),
+		db:             do.MustInvoke[*gorm.DB](i),
+		log:            do.MustInvoke[*slog.Logger](i),
+		cache:          do.MustInvoke[biz.CacheRepo](i),
+		database:       do.MustInvoke[biz.DatabaseRepo](i),
+		databaseServer: do.MustInvoke[biz.DatabaseServerRepo](i),
+		databaseUser:   do.MustInvoke[biz.DatabaseUserRepo](i),
+		cert:           do.MustInvoke[biz.CertRepo](i),
+		certAccount:    do.MustInvoke[biz.CertAccountRepo](i),
+		setting:        do.MustInvoke[biz.SettingRepo](i),
+	}, nil
 }
 
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {

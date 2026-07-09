@@ -6,7 +6,7 @@ import (
 
 	mholtacme "github.com/mholt/acmez/v3/acme"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -49,4 +49,72 @@ type CertRepo interface {
 	RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error)
 	RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error)
 	Deploy(ID, WebsiteID uint, enableHTTPS bool) error
+}
+
+type CertUsecase struct {
+	repo CertRepo
+}
+
+func NewCertUsecase(repo CertRepo) *CertUsecase {
+	return &CertUsecase{repo: repo}
+}
+
+func (uc *CertUsecase) List(page, limit uint) ([]*types.CertList, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *CertUsecase) Get(id uint) (*Cert, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *CertUsecase) GetByWebsite(WebsiteID uint) (*Cert, error) {
+	return uc.repo.GetByWebsite(WebsiteID)
+}
+
+func (uc *CertUsecase) Upload(ctx context.Context, req *request.CertUpload) (*Cert, error) {
+	return uc.repo.Upload(ctx, req)
+}
+
+func (uc *CertUsecase) Create(ctx context.Context, req *request.CertCreate) (*Cert, error) {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *CertUsecase) Update(ctx context.Context, req *request.CertUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *CertUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *CertUsecase) ObtainAuto(id uint) (*acme.Certificate, error) {
+	return uc.repo.ObtainAuto(id)
+}
+
+func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
+	return uc.repo.ObtainAutoWithProgressCallback(ctx, id, progressCallback)
+}
+
+func (uc *CertUsecase) ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error) {
+	return uc.repo.ObtainPanel(account, ips)
+}
+
+func (uc *CertUsecase) ObtainSelfSigned(id uint) error {
+	return uc.repo.ObtainSelfSigned(id)
+}
+
+func (uc *CertUsecase) Renew(id uint) (*acme.Certificate, error) {
+	return uc.repo.Renew(id)
+}
+
+func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
+	return uc.repo.RenewWithProgressCallback(ctx, id, progressCallback)
+}
+
+func (uc *CertUsecase) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
+	return uc.repo.RefreshRenewalInfo(id)
+}
+
+func (uc *CertUsecase) Deploy(ID, WebsiteID uint, enableHTTPS bool) error {
+	return uc.repo.Deploy(ID, WebsiteID, enableHTTPS)
 }

@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type DatabaseServerStatus string
@@ -73,4 +73,61 @@ type DatabaseServerRepo interface {
 	Delete(id uint) error
 	ClearUsers(id uint) error
 	Sync(id uint) error
+}
+
+// DatabaseServerUsecase 数据库服务器业务用例
+type DatabaseServerUsecase struct {
+	repo DatabaseServerRepo
+}
+
+func NewDatabaseServerUsecase(repo DatabaseServerRepo) *DatabaseServerUsecase {
+	return &DatabaseServerUsecase{repo: repo}
+}
+
+func (uc *DatabaseServerUsecase) Count() (int64, error) {
+	return uc.repo.Count()
+}
+
+func (uc *DatabaseServerUsecase) List(page, limit uint, typ string) ([]*DatabaseServer, int64, error) {
+	return uc.repo.List(page, limit, typ)
+}
+
+func (uc *DatabaseServerUsecase) Get(id uint) (*DatabaseServer, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *DatabaseServerUsecase) GetByName(name string) (*DatabaseServer, error) {
+	return uc.repo.GetByName(name)
+}
+
+func (uc *DatabaseServerUsecase) Create(req *request.DatabaseServerCreate) error {
+	return uc.repo.Create(req)
+}
+
+func (uc *DatabaseServerUsecase) Update(req *request.DatabaseServerUpdate) error {
+	return uc.repo.Update(req)
+}
+
+func (uc *DatabaseServerUsecase) UpdateRemark(req *request.DatabaseServerUpdateRemark) error {
+	return uc.repo.UpdateRemark(req)
+}
+
+func (uc *DatabaseServerUsecase) UpdatePassword(name string, password string) error {
+	return uc.repo.UpdatePassword(name, password)
+}
+
+func (uc *DatabaseServerUsecase) UpdatePort(name string, port uint) error {
+	return uc.repo.UpdatePort(name, port)
+}
+
+func (uc *DatabaseServerUsecase) Delete(id uint) error {
+	return uc.repo.Delete(id)
+}
+
+func (uc *DatabaseServerUsecase) ClearUsers(id uint) error {
+	return uc.repo.ClearUsers(id)
+}
+
+func (uc *DatabaseServerUsecase) Sync(id uint) error {
+	return uc.repo.Sync(id)
 }

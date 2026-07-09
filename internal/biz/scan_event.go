@@ -80,3 +80,56 @@ type ScanEventRepo interface {
 	Clear() error
 	VacuumDB() error
 }
+
+// ScanEventUsecase 扫描事件业务逻辑
+type ScanEventUsecase struct {
+	repo ScanEventRepo
+}
+
+func NewScanEventUsecase(repo ScanEventRepo) *ScanEventUsecase {
+	return &ScanEventUsecase{repo: repo}
+}
+
+func (uc *ScanEventUsecase) Upsert(events []*ScanEvent) error {
+	return uc.repo.Upsert(events)
+}
+
+func (uc *ScanEventUsecase) List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*ScanEvent, uint, error) {
+	return uc.repo.List(start, end, sourceIP, port, location, page, limit)
+}
+
+func (uc *ScanEventUsecase) Summary(start, end string) (*ScanSummary, error) {
+	return uc.repo.Summary(start, end)
+}
+
+func (uc *ScanEventUsecase) Trend(start, end string) ([]*ScanDayTrend, error) {
+	return uc.repo.Trend(start, end)
+}
+
+func (uc *ScanEventUsecase) TopSourceIPs(start, end string, limit uint) ([]*ScanSourceRank, error) {
+	return uc.repo.TopSourceIPs(start, end, limit)
+}
+
+func (uc *ScanEventUsecase) TopPorts(start, end string, limit uint) ([]*ScanPortRank, error) {
+	return uc.repo.TopPorts(start, end, limit)
+}
+
+func (uc *ScanEventUsecase) ClearBefore(date string) error {
+	return uc.repo.ClearBefore(date)
+}
+
+func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
+	return uc.repo.GetSetting()
+}
+
+func (uc *ScanEventUsecase) UpdateSetting(setting *ScanSetting) error {
+	return uc.repo.UpdateSetting(setting)
+}
+
+func (uc *ScanEventUsecase) Clear() error {
+	return uc.repo.Clear()
+}
+
+func (uc *ScanEventUsecase) VacuumDB() error {
+	return uc.repo.VacuumDB()
+}

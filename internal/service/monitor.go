@@ -5,23 +5,24 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type MonitorService struct {
-	settingRepo biz.SettingRepo
-	monitorRepo biz.MonitorRepo
+	settingRepo *biz.SettingUsecase
+	monitorRepo *biz.MonitorUsecase
 }
 
-func NewMonitorService(setting biz.SettingRepo, monitor biz.MonitorRepo) *MonitorService {
+func NewMonitorService(i do.Injector) (*MonitorService, error) {
 	return &MonitorService{
-		settingRepo: setting,
-		monitorRepo: monitor,
-	}
+		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+		monitorRepo: do.MustInvoke[*biz.MonitorUsecase](i),
+	}, nil
 }
 
 func (s *MonitorService) GetSetting(w http.ResponseWriter, r *http.Request) {

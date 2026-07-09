@@ -223,3 +223,111 @@ type WebsiteStatRepo interface {
 	// 网站维度汇总
 	ListSiteStats(start, end string, sites []string) ([]*WebsiteStatSiteItem, error)
 }
+
+type WebsiteStatUsecase struct {
+	repo WebsiteStatRepo
+}
+
+func NewWebsiteStatUsecase(repo WebsiteStatRepo) *WebsiteStatUsecase {
+	return &WebsiteStatUsecase{repo: repo}
+}
+
+func (uc *WebsiteStatUsecase) Upsert(stats []*WebsiteStat) error {
+	return uc.repo.Upsert(stats)
+}
+
+func (uc *WebsiteStatUsecase) ListByDateRange(start, end string, sites []string) ([]*WebsiteStat, error) {
+	return uc.repo.ListByDateRange(start, end, sites)
+}
+
+func (uc *WebsiteStatUsecase) DailySeries(start, end string, sites []string) ([]*WebsiteStatSeries, error) {
+	return uc.repo.DailySeries(start, end, sites)
+}
+
+func (uc *WebsiteStatUsecase) HourlySeries(date string, sites []string) ([]*WebsiteStatSeries, error) {
+	return uc.repo.HourlySeries(date, sites)
+}
+
+func (uc *WebsiteStatUsecase) ClearBefore(date string) error {
+	return uc.repo.ClearBefore(date)
+}
+
+func (uc *WebsiteStatUsecase) InsertErrors(errors []*WebsiteErrorLog) error {
+	return uc.repo.InsertErrors(errors)
+}
+
+func (uc *WebsiteStatUsecase) ClearErrorsBefore(t time.Time) error {
+	return uc.repo.ClearErrorsBefore(t)
+}
+
+func (uc *WebsiteStatUsecase) Clear() error {
+	return uc.repo.Clear()
+}
+
+func (uc *WebsiteStatUsecase) VacuumDB() error {
+	return uc.repo.VacuumDB()
+}
+
+func (uc *WebsiteStatUsecase) UpsertSpiders(stats []*WebsiteStatSpider) error {
+	return uc.repo.UpsertSpiders(stats)
+}
+
+func (uc *WebsiteStatUsecase) TopSpiders(start, end string, sites []string, limit uint) ([]*WebsiteStatSpiderRank, error) {
+	return uc.repo.TopSpiders(start, end, sites, limit)
+}
+
+func (uc *WebsiteStatUsecase) ClearSpidersBefore(date string) error {
+	return uc.repo.ClearSpidersBefore(date)
+}
+
+func (uc *WebsiteStatUsecase) UpsertClients(stats []*WebsiteStatClient) error {
+	return uc.repo.UpsertClients(stats)
+}
+
+func (uc *WebsiteStatUsecase) TopClients(start, end string, sites []string, limit uint) ([]*WebsiteStatClientRank, error) {
+	return uc.repo.TopClients(start, end, sites, limit)
+}
+
+func (uc *WebsiteStatUsecase) ClearClientsBefore(date string) error {
+	return uc.repo.ClearClientsBefore(date)
+}
+
+func (uc *WebsiteStatUsecase) UpsertIPs(stats []*WebsiteStatIP) error {
+	return uc.repo.UpsertIPs(stats)
+}
+
+func (uc *WebsiteStatUsecase) TopIPs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatIPRank, uint, error) {
+	return uc.repo.TopIPs(start, end, sites, page, limit)
+}
+
+func (uc *WebsiteStatUsecase) TopGeos(start, end string, sites []string, groupBy string, country string, limit uint) ([]*WebsiteStatGeoRank, error) {
+	return uc.repo.TopGeos(start, end, sites, groupBy, country, limit)
+}
+
+func (uc *WebsiteStatUsecase) ClearIPsBefore(date string) error {
+	return uc.repo.ClearIPsBefore(date)
+}
+
+func (uc *WebsiteStatUsecase) UpsertURIs(stats []*WebsiteStatURI) error {
+	return uc.repo.UpsertURIs(stats)
+}
+
+func (uc *WebsiteStatUsecase) TopURIs(start, end string, sites []string, page, limit uint) ([]*WebsiteStatURIRank, uint, error) {
+	return uc.repo.TopURIs(start, end, sites, page, limit)
+}
+
+func (uc *WebsiteStatUsecase) TopSlowURIs(start, end string, sites []string, threshold, page, limit uint) ([]*WebsiteStatURIRank, uint, error) {
+	return uc.repo.TopSlowURIs(start, end, sites, threshold, page, limit)
+}
+
+func (uc *WebsiteStatUsecase) ClearURIsBefore(date string) error {
+	return uc.repo.ClearURIsBefore(date)
+}
+
+func (uc *WebsiteStatUsecase) ListErrors(start, end string, sites []string, status int, page, limit uint) ([]*WebsiteErrorLog, uint, error) {
+	return uc.repo.ListErrors(start, end, sites, status, page, limit)
+}
+
+func (uc *WebsiteStatUsecase) ListSiteStats(start, end string, sites []string) ([]*WebsiteStatSiteItem, error) {
+	return uc.repo.ListSiteStats(start, end, sites)
+}

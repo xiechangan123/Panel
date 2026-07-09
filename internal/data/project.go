@@ -13,12 +13,13 @@ import (
 
 	"github.com/coreos/go-systemd/v22/unit"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -29,12 +30,12 @@ type projectRepo struct {
 	log *slog.Logger
 }
 
-func NewProjectRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.ProjectRepo {
+func NewProjectRepo(i do.Injector) (biz.ProjectRepo, error) {
 	return &projectRepo{
-		t:   t,
-		db:  db,
-		log: log,
-	}
+		t:   do.MustInvoke[*gotext.Locale](i),
+		db:  do.MustInvoke[*gorm.DB](i),
+		log: do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (r *projectRepo) Count() (int64, error) {

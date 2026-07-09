@@ -4,10 +4,11 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type certDNSRepo struct {
@@ -15,11 +16,11 @@ type certDNSRepo struct {
 	log *slog.Logger
 }
 
-func NewCertDNSRepo(db *gorm.DB, log *slog.Logger) biz.CertDNSRepo {
+func NewCertDNSRepo(i do.Injector) (biz.CertDNSRepo, error) {
 	return &certDNSRepo{
-		db:  db,
-		log: log,
-	}
+		db:  do.MustInvoke[*gorm.DB](i),
+		log: do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (r certDNSRepo) List(page, limit uint) ([]*biz.CertDNS, int64, error) {

@@ -12,7 +12,7 @@ import (
 )
 
 // resolveIPDBPath 根据设置返回 IPDB 文件路径
-func resolveIPDBPath(setting biz.SettingRepo) string {
+func resolveIPDBPath(setting *biz.SettingUsecase) string {
 	ipdbType, _ := setting.Get(biz.SettingKeyIPDBType)
 	switch ipdbType {
 	case "subscribe":
@@ -26,7 +26,7 @@ func resolveIPDBPath(setting biz.SettingRepo) string {
 }
 
 // refreshGeoIP 检查 IPDB 文件变化并热更新 GeoIP 实例
-func refreshGeoIP(setting biz.SettingRepo, current *geoip.GeoIP, curPath string, curModTime time.Time, log *slog.Logger) (*geoip.GeoIP, string, time.Time) {
+func refreshGeoIP(setting *biz.SettingUsecase, current *geoip.GeoIP, curPath string, curModTime time.Time, log *slog.Logger) (*geoip.GeoIP, string, time.Time) {
 	path := resolveIPDBPath(setting)
 
 	// 禁用模式，释放内存

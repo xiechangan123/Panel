@@ -5,23 +5,24 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 )
 
 type EnvironmentDotnetService struct {
 	t               *gotext.Locale
-	environmentRepo biz.EnvironmentRepo
+	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentDotnetService(t *gotext.Locale, environmentRepo biz.EnvironmentRepo) *EnvironmentDotnetService {
+func NewEnvironmentDotnetService(i do.Injector) (*EnvironmentDotnetService, error) {
 	return &EnvironmentDotnetService{
-		t:               t,
-		environmentRepo: environmentRepo,
-	}
+		t:               do.MustInvoke[*gotext.Locale](i),
+		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
+	}, nil
 }
 
 func (s *EnvironmentDotnetService) SetCli(w http.ResponseWriter, r *http.Request) {

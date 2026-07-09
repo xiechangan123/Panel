@@ -12,9 +12,10 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -29,14 +30,14 @@ var (
 
 type LogService struct {
 	t       *gotext.Locale
-	logRepo biz.LogRepo
+	logRepo *biz.LogUsecase
 }
 
-func NewLogService(t *gotext.Locale, logRepo biz.LogRepo) *LogService {
+func NewLogService(i do.Injector) (*LogService, error) {
 	return &LogService{
-		t:       t,
-		logRepo: logRepo,
-	}
+		t:       do.MustInvoke[*gotext.Locale](i),
+		logRepo: do.MustInvoke[*biz.LogUsecase](i),
+	}, nil
 }
 
 // List 获取日志列表

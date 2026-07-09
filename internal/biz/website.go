@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -51,4 +51,72 @@ type WebsiteRepo interface {
 	UpdateExpireAt(id uint, expireAt *time.Time) error
 	UpdateCert(req *request.WebsiteUpdateCert) error
 	ObtainCert(ctx context.Context, id uint, dnsID uint) error
+}
+
+type WebsiteUsecase struct {
+	repo WebsiteRepo
+}
+
+func NewWebsiteUsecase(repo WebsiteRepo) *WebsiteUsecase {
+	return &WebsiteUsecase{repo: repo}
+}
+
+func (uc *WebsiteUsecase) GetRewrites() (map[string]string, error) {
+	return uc.repo.GetRewrites()
+}
+
+func (uc *WebsiteUsecase) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) error {
+	return uc.repo.UpdateDefaultConfig(req)
+}
+
+func (uc *WebsiteUsecase) Count() (int64, error) {
+	return uc.repo.Count()
+}
+
+func (uc *WebsiteUsecase) Get(id uint) (*types.WebsiteSetting, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *WebsiteUsecase) GetByName(name string) (*types.WebsiteSetting, error) {
+	return uc.repo.GetByName(name)
+}
+
+func (uc *WebsiteUsecase) List(typ string, page, limit uint) ([]*Website, int64, error) {
+	return uc.repo.List(typ, page, limit)
+}
+
+func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error) {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *WebsiteUsecase) Update(ctx context.Context, req *request.WebsiteUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete) error {
+	return uc.repo.Delete(ctx, req)
+}
+
+func (uc *WebsiteUsecase) UpdateRemark(id uint, remark string) error {
+	return uc.repo.UpdateRemark(id, remark)
+}
+
+func (uc *WebsiteUsecase) ResetConfig(id uint) error {
+	return uc.repo.ResetConfig(id)
+}
+
+func (uc *WebsiteUsecase) UpdateStatus(id uint, status bool) error {
+	return uc.repo.UpdateStatus(id, status)
+}
+
+func (uc *WebsiteUsecase) UpdateExpireAt(id uint, expireAt *time.Time) error {
+	return uc.repo.UpdateExpireAt(id, expireAt)
+}
+
+func (uc *WebsiteUsecase) UpdateCert(req *request.WebsiteUpdateCert) error {
+	return uc.repo.UpdateCert(req)
+}
+
+func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
+	return uc.repo.ObtainCert(ctx, id, dnsID)
 }

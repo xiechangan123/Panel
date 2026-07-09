@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -134,4 +134,32 @@ type BackupAccountRepo interface {
 	Create(ctx context.Context, req *request.BackupStorageCreate) (*BackupStorage, error)
 	Update(ctx context.Context, req *request.BackupStorageUpdate) error
 	Delete(ctx context.Context, id uint) error
+}
+
+type BackupAccountUsecase struct {
+	repo BackupAccountRepo
+}
+
+func NewBackupAccountUsecase(repo BackupAccountRepo) *BackupAccountUsecase {
+	return &BackupAccountUsecase{repo: repo}
+}
+
+func (uc *BackupAccountUsecase) List(page, limit uint) ([]*BackupStorage, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *BackupAccountUsecase) Get(id uint) (*BackupStorage, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *BackupAccountUsecase) Create(ctx context.Context, req *request.BackupStorageCreate) (*BackupStorage, error) {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *BackupAccountUsecase) Update(ctx context.Context, req *request.BackupStorageUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *BackupAccountUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
 }

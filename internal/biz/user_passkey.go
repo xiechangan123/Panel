@@ -34,3 +34,47 @@ type UserPasskeyRepo interface {
 	HasAny() (bool, error)
 	DeleteAllByUserID(userID uint) error
 }
+
+type UserPasskeyUsecase struct {
+	repo UserPasskeyRepo
+}
+
+func NewUserPasskeyUsecase(repo UserPasskeyRepo) *UserPasskeyUsecase {
+	return &UserPasskeyUsecase{repo: repo}
+}
+
+func (uc *UserPasskeyUsecase) List(userID uint) ([]*UserPasskey, error) {
+	return uc.repo.List(userID)
+}
+
+func (uc *UserPasskeyUsecase) Create(passkey *UserPasskey) error {
+	return uc.repo.Create(passkey)
+}
+
+func (uc *UserPasskeyUsecase) UpdateSignCount(credentialID []byte, signCount uint32) error {
+	return uc.repo.UpdateSignCount(credentialID, signCount)
+}
+
+func (uc *UserPasskeyUsecase) UpdateLastUsed(credentialID []byte) error {
+	return uc.repo.UpdateLastUsed(credentialID)
+}
+
+func (uc *UserPasskeyUsecase) Delete(userID, id uint) error {
+	return uc.repo.Delete(userID, id)
+}
+
+func (uc *UserPasskeyUsecase) GetByCredentialID(credentialID []byte) (*UserPasskey, *User, error) {
+	return uc.repo.GetByCredentialID(credentialID)
+}
+
+func (uc *UserPasskeyUsecase) HasPasskey(userID uint) (bool, error) {
+	return uc.repo.HasPasskey(userID)
+}
+
+func (uc *UserPasskeyUsecase) HasAny() (bool, error) {
+	return uc.repo.HasAny()
+}
+
+func (uc *UserPasskeyUsecase) DeleteAllByUserID(userID uint) error {
+	return uc.repo.DeleteAllByUserID(userID)
+}

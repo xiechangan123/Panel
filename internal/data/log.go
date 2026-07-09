@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -27,10 +28,10 @@ type logRepo struct {
 	db *gorm.DB
 }
 
-func NewLogRepo(db *gorm.DB) biz.LogRepo {
+func NewLogRepo(i do.Injector) (biz.LogRepo, error) {
 	return &logRepo{
-		db: db,
-	}
+		db: do.MustInvoke[*gorm.DB](i),
+	}, nil
 }
 
 // List 获取日志列表

@@ -6,31 +6,32 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/apploader"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type AppService struct {
 	t           *gotext.Locale
-	appRepo     biz.AppRepo
-	cacheRepo   biz.CacheRepo
-	settingRepo biz.SettingRepo
+	appRepo     *biz.AppUsecase
+	cacheRepo   *biz.CacheUsecase
+	settingRepo *biz.SettingUsecase
 	loader      *apploader.Loader
 }
 
-func NewAppService(t *gotext.Locale, app biz.AppRepo, cache biz.CacheRepo, setting biz.SettingRepo, loader *apploader.Loader) *AppService {
+func NewAppService(i do.Injector) (*AppService, error) {
 	return &AppService{
-		t:           t,
-		appRepo:     app,
-		cacheRepo:   cache,
-		settingRepo: setting,
-		loader:      loader,
-	}
+		t:           do.MustInvoke[*gotext.Locale](i),
+		appRepo:     do.MustInvoke[*biz.AppUsecase](i),
+		cacheRepo:   do.MustInvoke[*biz.CacheUsecase](i),
+		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+		loader:      do.MustInvoke[*apploader.Loader](i),
+	}, nil
 }
 
 func (s *AppService) Categories(w http.ResponseWriter, r *http.Request) {

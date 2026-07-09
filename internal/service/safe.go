@@ -3,18 +3,20 @@ package service
 import (
 	"net/http"
 
+	"github.com/samber/do/v2"
+
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type SafeService struct {
-	safeRepo biz.SafeRepo
+	safeRepo *biz.SafeUsecase
 }
 
-func NewSafeService(safe biz.SafeRepo) *SafeService {
+func NewSafeService(i do.Injector) (*SafeService, error) {
 	return &SafeService{
-		safeRepo: safe,
-	}
+		safeRepo: do.MustInvoke[*biz.SafeUsecase](i),
+	}, nil
 }
 
 func (s *SafeService) GetPingStatus(w http.ResponseWriter, r *http.Request) {

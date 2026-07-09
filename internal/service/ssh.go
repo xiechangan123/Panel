@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type SSHService struct {
-	sshRepo biz.SSHRepo
+	sshRepo *biz.SSHUsecase
 }
 
-func NewSSHService(ssh biz.SSHRepo) *SSHService {
+func NewSSHService(i do.Injector) (*SSHService, error) {
 	return &SSHService{
-		sshRepo: ssh,
-	}
+		sshRepo: do.MustInvoke[*biz.SSHUsecase](i),
+	}, nil
 }
 
 func (s *SSHService) List(w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"slices"
 
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -19,11 +20,11 @@ type cacheRepo struct {
 	db  *gorm.DB
 }
 
-func NewCacheRepo(db *gorm.DB) biz.CacheRepo {
+func NewCacheRepo(i do.Injector) (biz.CacheRepo, error) {
 	return &cacheRepo{
 		api: api.NewAPI(app.Version, app.Locale),
-		db:  db,
-	}
+		db:  do.MustInvoke[*gorm.DB](i),
+	}, nil
 }
 
 func (r *cacheRepo) Get(key biz.CacheKey, defaultValue ...string) (string, error) {

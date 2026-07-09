@@ -10,6 +10,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/str"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -22,10 +23,11 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(i do.Injector) (*App, error) {
+	t := do.MustInvoke[*gotext.Locale](i)
 	return &App{
 		t: t,
-	}
+	}, nil
 }
 
 func (s *App) Route(r chi.Router) {

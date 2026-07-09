@@ -14,6 +14,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/collect"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -21,7 +22,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/db"
@@ -34,34 +35,34 @@ type HomeService struct {
 	t                  *gotext.Locale
 	api                *api.API
 	conf               *config.Config
-	taskRepo           biz.TaskRepo
-	websiteRepo        biz.WebsiteRepo
-	projectRepo        biz.ProjectRepo
-	appRepo            biz.AppRepo
-	environmentRepo    biz.EnvironmentRepo
-	settingRepo        biz.SettingRepo
-	databaseServerRepo biz.DatabaseServerRepo
-	cronRepo           biz.CronRepo
-	backupRepo         biz.BackupRepo
-	containerRepo      biz.ContainerRepo
+	taskRepo           *biz.TaskUsecase
+	websiteRepo        *biz.WebsiteUsecase
+	projectRepo        *biz.ProjectUsecase
+	appRepo            *biz.AppUsecase
+	environmentRepo    *biz.EnvironmentUsecase
+	settingRepo        *biz.SettingUsecase
+	databaseServerRepo *biz.DatabaseServerUsecase
+	cronRepo           *biz.CronUsecase
+	backupRepo         *biz.BackupUsecase
+	containerRepo      *biz.ContainerUsecase
 }
 
-func NewHomeService(t *gotext.Locale, conf *config.Config, task biz.TaskRepo, website biz.WebsiteRepo, project biz.ProjectRepo, appRepo biz.AppRepo, environment biz.EnvironmentRepo, setting biz.SettingRepo, databaseServer biz.DatabaseServerRepo, cron biz.CronRepo, backupRepo biz.BackupRepo, container biz.ContainerRepo) *HomeService {
+func NewHomeService(i do.Injector) (*HomeService, error) {
 	return &HomeService{
-		t:                  t,
+		t:                  do.MustInvoke[*gotext.Locale](i),
 		api:                api.NewAPI(app.Version, app.Locale),
-		conf:               conf,
-		taskRepo:           task,
-		websiteRepo:        website,
-		projectRepo:        project,
-		appRepo:            appRepo,
-		environmentRepo:    environment,
-		settingRepo:        setting,
-		databaseServerRepo: databaseServer,
-		cronRepo:           cron,
-		backupRepo:         backupRepo,
-		containerRepo:      container,
-	}
+		conf:               do.MustInvoke[*config.Config](i),
+		taskRepo:           do.MustInvoke[*biz.TaskUsecase](i),
+		websiteRepo:        do.MustInvoke[*biz.WebsiteUsecase](i),
+		projectRepo:        do.MustInvoke[*biz.ProjectUsecase](i),
+		appRepo:            do.MustInvoke[*biz.AppUsecase](i),
+		environmentRepo:    do.MustInvoke[*biz.EnvironmentUsecase](i),
+		settingRepo:        do.MustInvoke[*biz.SettingUsecase](i),
+		databaseServerRepo: do.MustInvoke[*biz.DatabaseServerUsecase](i),
+		cronRepo:           do.MustInvoke[*biz.CronUsecase](i),
+		backupRepo:         do.MustInvoke[*biz.BackupUsecase](i),
+		containerRepo:      do.MustInvoke[*biz.ContainerUsecase](i),
+	}, nil
 }
 
 func (s *HomeService) Panel(w http.ResponseWriter, r *http.Request) {

@@ -7,10 +7,11 @@ import (
 	"slices"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/db"
 )
 
@@ -21,13 +22,13 @@ type databaseUserRepo struct {
 	server biz.DatabaseServerRepo
 }
 
-func NewDatabaseUserRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, server biz.DatabaseServerRepo) biz.DatabaseUserRepo {
+func NewDatabaseUserRepo(i do.Injector) (biz.DatabaseUserRepo, error) {
 	return &databaseUserRepo{
-		t:      t,
-		db:     db,
-		log:    log,
-		server: server,
-	}
+		t:      do.MustInvoke[*gotext.Locale](i),
+		db:     do.MustInvoke[*gorm.DB](i),
+		log:    do.MustInvoke[*slog.Logger](i),
+		server: do.MustInvoke[biz.DatabaseServerRepo](i),
+	}, nil
 }
 
 func (r *databaseUserRepo) Count() (int64, error) {

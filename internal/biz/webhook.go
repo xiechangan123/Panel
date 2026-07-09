@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type WebHook struct {
@@ -29,4 +29,40 @@ type WebHookRepo interface {
 	Update(ctx context.Context, req *request.WebHookUpdate) error
 	Delete(ctx context.Context, id uint) error
 	Call(key string) (string, error)
+}
+
+type WebHookUsecase struct {
+	repo WebHookRepo
+}
+
+func NewWebHookUsecase(repo WebHookRepo) *WebHookUsecase {
+	return &WebHookUsecase{repo: repo}
+}
+
+func (uc *WebHookUsecase) List(page, limit uint) ([]*WebHook, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *WebHookUsecase) Get(id uint) (*WebHook, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *WebHookUsecase) GetByKey(key string) (*WebHook, error) {
+	return uc.repo.GetByKey(key)
+}
+
+func (uc *WebHookUsecase) Create(ctx context.Context, req *request.WebHookCreate) (*WebHook, error) {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *WebHookUsecase) Update(ctx context.Context, req *request.WebHookUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *WebHookUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *WebHookUsecase) Call(key string) (string, error) {
+	return uc.repo.Call(key)
 }

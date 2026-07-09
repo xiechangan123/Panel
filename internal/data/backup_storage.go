@@ -5,10 +5,11 @@ import (
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -19,13 +20,13 @@ type backupAccountRepo struct {
 	setting biz.SettingRepo
 }
 
-func NewBackupAccountRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo) biz.BackupAccountRepo {
+func NewBackupAccountRepo(i do.Injector) (biz.BackupAccountRepo, error) {
 	return &backupAccountRepo{
-		t:       t,
-		db:      db,
-		log:     log,
-		setting: setting,
-	}
+		t:       do.MustInvoke[*gotext.Locale](i),
+		db:      do.MustInvoke[*gorm.DB](i),
+		log:     do.MustInvoke[*slog.Logger](i),
+		setting: do.MustInvoke[biz.SettingRepo](i),
+	}, nil
 }
 
 func (r backupAccountRepo) List(page, limit uint) ([]*biz.BackupStorage, int64, error) {

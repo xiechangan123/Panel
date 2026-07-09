@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/libtnb/chix"
+	"github.com/libtnb/validator"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 // SuccessResponse 通用成功响应
@@ -91,7 +92,7 @@ func Bind[T any](r *http.Request) (*T, error) {
 		}
 	}
 
-	vd := sharedValidator.Struct(req)
+	vd := validator.Default().Struct(req)
 	if reqWithRules, ok := any(req).(request.WithRules); ok {
 		if rules := reqWithRules.Rules(r); rules != nil {
 			for key, value := range rules {

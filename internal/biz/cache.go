@@ -26,3 +26,35 @@ type CacheRepo interface {
 	UpdateEnvironments() error
 	UpdateTemplates() error
 }
+
+type CacheUsecase struct {
+	repo CacheRepo
+}
+
+func NewCacheUsecase(repo CacheRepo) *CacheUsecase {
+	return &CacheUsecase{repo: repo}
+}
+
+func (uc *CacheUsecase) Get(key CacheKey, defaultValue ...string) (string, error) {
+	return uc.repo.Get(key, defaultValue...)
+}
+
+func (uc *CacheUsecase) Set(key CacheKey, value string) error {
+	return uc.repo.Set(key, value)
+}
+
+func (uc *CacheUsecase) UpdateCategories() error {
+	return uc.repo.UpdateCategories()
+}
+
+func (uc *CacheUsecase) UpdateApps() error {
+	return uc.repo.UpdateApps()
+}
+
+func (uc *CacheUsecase) UpdateEnvironments() error {
+	return uc.repo.UpdateEnvironments()
+}
+
+func (uc *CacheUsecase) UpdateTemplates() error {
+	return uc.repo.UpdateTemplates()
+}

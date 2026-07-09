@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/do/v2"
+
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -15,8 +17,8 @@ import (
 
 type containerComposeRepo struct{}
 
-func NewContainerComposeRepo() biz.ContainerComposeRepo {
-	return &containerComposeRepo{}
+func NewContainerComposeRepo(i do.Injector) (biz.ContainerComposeRepo, error) {
+	return &containerComposeRepo{}, nil
 }
 
 // List 列出所有编排

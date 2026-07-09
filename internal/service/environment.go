@@ -5,24 +5,25 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type EnvironmentService struct {
 	t               *gotext.Locale
-	environmentRepo biz.EnvironmentRepo
-	taskRepo        biz.TaskRepo
+	environmentRepo *biz.EnvironmentUsecase
+	taskRepo        *biz.TaskUsecase
 }
 
-func NewEnvironmentService(t *gotext.Locale, environmentRepo biz.EnvironmentRepo, taskRepo biz.TaskRepo) *EnvironmentService {
+func NewEnvironmentService(i do.Injector) (*EnvironmentService, error) {
 	return &EnvironmentService{
-		t:               t,
-		environmentRepo: environmentRepo,
-		taskRepo:        taskRepo,
-	}
+		t:               do.MustInvoke[*gotext.Locale](i),
+		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
+		taskRepo:        do.MustInvoke[*biz.TaskUsecase](i),
+	}, nil
 }
 
 func (s *EnvironmentService) Types(w http.ResponseWriter, r *http.Request) {

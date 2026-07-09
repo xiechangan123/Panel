@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/do/v2"
+
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/os"
@@ -15,7 +17,7 @@ type safeRepo struct {
 	log *slog.Logger
 }
 
-func NewSafeRepo(log *slog.Logger) biz.SafeRepo {
+func NewSafeRepo(i do.Injector) (biz.SafeRepo, error) {
 	var ssh string
 	if os.IsRHEL() {
 		ssh = "sshd"
@@ -24,8 +26,8 @@ func NewSafeRepo(log *slog.Logger) biz.SafeRepo {
 	}
 	return &safeRepo{
 		ssh: ssh,
-		log: log,
-	}
+		log: do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (r *safeRepo) GetPingStatus() (bool, error) {

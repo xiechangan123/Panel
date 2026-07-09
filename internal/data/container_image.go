@@ -12,10 +12,11 @@ import (
 	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/registry"
 	"github.com/moby/moby/client"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -24,8 +25,8 @@ type containerImageRepo struct {
 	settingRepo biz.SettingRepo
 }
 
-func NewContainerImageRepo(settingRepo biz.SettingRepo) biz.ContainerImageRepo {
-	return &containerImageRepo{settingRepo: settingRepo}
+func NewContainerImageRepo(i do.Injector) (biz.ContainerImageRepo, error) {
+	return &containerImageRepo{settingRepo: do.MustInvoke[biz.SettingRepo](i)}, nil
 }
 
 // List 列出镜像

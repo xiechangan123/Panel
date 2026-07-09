@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/libtnb/cron"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -29,8 +31,8 @@ type ipCounter struct {
 // FirewallScan 防火墙扫描感知任务
 type FirewallScan struct {
 	log          *slog.Logger
-	setting      biz.SettingRepo
-	scanRepo     biz.ScanEventRepo
+	setting      *biz.SettingUsecase
+	scanRepo     *biz.ScanEventUsecase
 	scanner      *scan.Scanner
 	geoIP        *geoip.GeoIP
 	geoIPPath    string
@@ -43,7 +45,7 @@ type FirewallScan struct {
 }
 
 // NewFirewallScan 创建扫描感知任务
-func NewFirewallScan(log *slog.Logger, setting biz.SettingRepo, scanRepo biz.ScanEventRepo) *FirewallScan {
+func NewFirewallScan(log *slog.Logger, setting *biz.SettingUsecase, scanRepo *biz.ScanEventUsecase) *FirewallScan {
 	return &FirewallScan{
 		log:        log,
 		setting:    setting,
@@ -373,4 +375,15 @@ func (r *FirewallScan) cleanup() {
 	if err = r.scanRepo.ClearBefore(cutoff); err != nil {
 		r.log.Warn("failed to clear expired scan data", slog.Any("err", err))
 	}
+}
+
+// FirewallScanJob 注册防火墙扫描感知任务
+func FirewallScanJob(i do.Injector) (JobFn, error) {
+	log := do.MustInvoke[*slog.Logger](i)
+	setting := do.MustInvoke[*biz.SettingUsecase](i)
+	scan := do.MustInvoke[*biz.ScanEventUsecase](i)
+	return func(c *cron.Cron) error {
+		_, err := c.Add("*/2 * * * *", NewFirewallScan(log, setting, scan))
+		return err
+	}, nil
 }

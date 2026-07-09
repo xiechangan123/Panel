@@ -5,16 +5,18 @@ import (
 
 	"github.com/libtnb/cron"
 	"github.com/libtnb/cron/wrap"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/job"
 )
 
-func NewCron(log *slog.Logger, jobs *job.Jobs) (*cron.Cron, error) {
+func NewCron(i do.Injector) (*cron.Cron, error) {
+	// 面板任务均为 5 段表达式，不启用 WithSecondsField
 	c := cron.New(
-		cron.WithLogger(log),
+		cron.WithLogger(do.MustInvoke[*slog.Logger](i)),
 		cron.WithChain(wrap.Recover(), wrap.SkipIfRunning()),
 	)
-	if err := jobs.Register(c); err != nil {
+	if err := job.Register(i, c); err != nil {
 		return nil, err
 	}
 

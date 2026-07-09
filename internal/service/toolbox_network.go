@@ -9,16 +9,17 @@ import (
 	"strings"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/process"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type ToolboxNetworkService struct{}
 
-func NewToolboxNetworkService() *ToolboxNetworkService {
-	return &ToolboxNetworkService{}
+func NewToolboxNetworkService(i do.Injector) (*ToolboxNetworkService, error) {
+	return &ToolboxNetworkService{}, nil
 }
 
 type networkConnection struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
 )
 
@@ -25,4 +25,32 @@ type CertDNSRepo interface {
 	Create(ctx context.Context, req *request.CertDNSCreate) (*CertDNS, error)
 	Update(ctx context.Context, req *request.CertDNSUpdate) error
 	Delete(ctx context.Context, id uint) error
+}
+
+type CertDNSUsecase struct {
+	repo CertDNSRepo
+}
+
+func NewCertDNSUsecase(repo CertDNSRepo) *CertDNSUsecase {
+	return &CertDNSUsecase{repo: repo}
+}
+
+func (uc *CertDNSUsecase) List(page, limit uint) ([]*CertDNS, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *CertDNSUsecase) Get(id uint) (*CertDNS, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *CertDNSUsecase) Create(ctx context.Context, req *request.CertDNSCreate) (*CertDNS, error) {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *CertDNSUsecase) Update(ctx context.Context, req *request.CertDNSUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *CertDNSUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
 }

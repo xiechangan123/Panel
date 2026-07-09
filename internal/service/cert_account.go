@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type CertAccountService struct {
-	certAccountRepo biz.CertAccountRepo
+	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewCertAccountService(certAccount biz.CertAccountRepo) *CertAccountService {
+func NewCertAccountService(i do.Injector) (*CertAccountService, error) {
 	return &CertAccountService{
-		certAccountRepo: certAccount,
-	}
+		certAccountRepo: do.MustInvoke[*biz.CertAccountUsecase](i),
+	}, nil
 }
 
 func (s *CertAccountService) List(w http.ResponseWriter, r *http.Request) {

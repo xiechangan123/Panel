@@ -11,7 +11,7 @@ import (
 
 	"github.com/libtnb/validator"
 
-	"github.com/acepanel/panel/v3/internal/http/rule"
+	"github.com/acepanel/panel/v3/internal/rule"
 )
 
 // tagValidator mirrors service.NewValidator's rule set. db is nil: CheckRules and

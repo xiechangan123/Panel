@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -13,8 +14,8 @@ import (
 
 type App struct{}
 
-func NewApp() *App {
-	return &App{}
+func NewApp(i do.Injector) (*App, error) {
+	return &App{}, nil
 }
 
 func (s *App) Route(r chi.Router) {

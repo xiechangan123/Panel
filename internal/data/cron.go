@@ -11,11 +11,12 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/os"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -29,12 +30,12 @@ type cronRepo struct {
 	log *slog.Logger
 }
 
-func NewCronRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.CronRepo {
+func NewCronRepo(i do.Injector) (biz.CronRepo, error) {
 	return &cronRepo{
-		t:   t,
-		db:  db,
-		log: log,
-	}
+		t:   do.MustInvoke[*gotext.Locale](i),
+		db:  do.MustInvoke[*gorm.DB](i),
+		log: do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (r *cronRepo) Count() (int64, error) {

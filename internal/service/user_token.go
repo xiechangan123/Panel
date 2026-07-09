@@ -6,21 +6,22 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type UserTokenService struct {
 	t             *gotext.Locale
-	userTokenRepo biz.UserTokenRepo
+	userTokenRepo *biz.UserTokenUsecase
 }
 
-func NewUserTokenService(t *gotext.Locale, userToken biz.UserTokenRepo) *UserTokenService {
+func NewUserTokenService(i do.Injector) (*UserTokenService, error) {
 	return &UserTokenService{
-		t:             t,
-		userTokenRepo: userToken,
-	}
+		t:             do.MustInvoke[*gotext.Locale](i),
+		userTokenRepo: do.MustInvoke[*biz.UserTokenUsecase](i),
+	}, nil
 }
 
 func (s *UserTokenService) List(w http.ResponseWriter, r *http.Request) {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -22,10 +23,10 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(i do.Injector) (*App, error) {
 	return &App{
-		t: t,
-	}
+		t: do.MustInvoke[*gotext.Locale](i),
+	}, nil
 }
 
 func (s *App) Route(r chi.Router) {

@@ -4,24 +4,24 @@ import (
 	"log/slog"
 	"net/http"
 	"path/filepath"
+	"time"
 
-	"github.com/DeRuina/timberjack"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v3"
-	"github.com/google/wire"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/logrotate"
 	"github.com/libtnb/sessions"
 	sessionmiddleware "github.com/libtnb/sessions/middleware"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
-var ProviderSet = wire.NewSet(NewMiddlewares)
-
 type Middlewares struct {
+	t         *gotext.Locale
 	conf      *config.Config
 	log       *slog.Logger
 	session   *sessions.Manager
@@ -29,28 +29,31 @@ type Middlewares struct {
 	userToken biz.UserTokenRepo
 }
 
-func NewMiddlewares(conf *config.Config, session *sessions.Manager, appRepo biz.AppRepo, userToken biz.UserTokenRepo) *Middlewares {
-	tjLogger := &timberjack.Logger{
-		Filename:    filepath.Join(app.Root, "panel/storage/logs/http.log"),
-		MaxSize:     10,
-		MaxAge:      30,
-		LocalTime:   true,
-		RotateAt:    []string{"00:00"},
-		FileMode:    0o600,
-		Compression: "none",
+func NewMiddlewares(i do.Injector) (*Middlewares, error) {
+	// http 访问日志写入轮转文件
+	w, err := logrotate.New(filepath.Join(app.Root, "panel/storage/logs/http.log"),
+		logrotate.WithMaxSize(10*logrotate.MB),
+		logrotate.WithMaxAge(30*logrotate.Day),
+		logrotate.WithRotateAt("00:00"),
+		logrotate.WithFileMode(0o600),
+		logrotate.WithLocation(time.Local),
+	)
+	if err != nil {
+		return nil, err
 	}
 
 	return &Middlewares{
-		conf:      conf,
-		log:       slog.New(slog.NewJSONHandler(tjLogger, &slog.HandlerOptions{Level: slog.LevelInfo})),
-		session:   session,
-		appRepo:   appRepo,
-		userToken: userToken,
-	}
+		t:         do.MustInvoke[*gotext.Locale](i),
+		conf:      do.MustInvoke[*config.Config](i),
+		log:       slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{Level: slog.LevelInfo})),
+		session:   do.MustInvoke[*sessions.Manager](i),
+		appRepo:   do.MustInvoke[biz.AppRepo](i),
+		userToken: do.MustInvoke[biz.UserTokenRepo](i),
+	}, nil
 }
 
-// Globals is a collection of global middleware that will be applied to every request.
-func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handler) http.Handler {
+// Globals 全局中间件集合，应用到每个请求；whitelist 为登录白名单路径。
+func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux, whitelist []string) []func(http.Handler) http.Handler {
 	compressor := chimiddleware.NewCompressor(6)
 
 	return []func(http.Handler) http.Handler{
@@ -72,7 +75,7 @@ func (r *Middlewares) Globals(t *gotext.Locale, mux *chi.Mux) []func(http.Handle
 		sessionmiddleware.StartSession(r.session),
 		Status(t),
 		Entrance(t, r.conf, r.session),
-		MustLogin(t, r.conf, r.session, r.userToken),
+		MustLogin(t, r.conf, r.session, r.userToken, whitelist),
 		MustInstall(t, r.appRepo),
 	}
 }

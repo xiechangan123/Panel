@@ -4,13 +4,16 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/urfave/cli/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/route"
+	"github.com/acepanel/panel/v3/internal/command"
 )
 
-func NewCli(t *gotext.Locale, cmd *route.Cli) *cli.Command {
+func NewCli(i do.Injector) (*cli.Command, error) {
+	t := do.MustInvoke[*gotext.Locale](i)
+
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "NAME", t.Get("NAME"))
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "USAGE", t.Get("USAGE"))
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "VERSION", t.Get("VERSION"))
@@ -34,10 +37,15 @@ func NewCli(t *gotext.Locale, cmd *route.Cli) *cli.Command {
 	cli.RootCommandHelpTemplate += "\n" + t.Get("Forum：https://tom.moe")
 	cli.RootCommandHelpTemplate += "\n" + t.Get("QQ Group：12370907") + "\n"
 
+	cmds, err := command.Commands(i)
+	if err != nil {
+		return nil, err
+	}
+
 	return &cli.Command{
 		Name:     "acepanel",
 		Usage:    t.Get("AcePanel CLI Tool"),
 		Version:  app.Version,
-		Commands: cmd.Commands(),
-	}
+		Commands: cmds,
+	}, nil
 }

@@ -7,9 +7,10 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/os"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -21,16 +22,16 @@ type ToolboxSSHService struct {
 	service string
 }
 
-func NewToolboxSSHService(t *gotext.Locale) *ToolboxSSHService {
+func NewToolboxSSHService(i do.Injector) (*ToolboxSSHService, error) {
 	// 沟槽的大便和乌班图喜欢搞特殊
 	service := "sshd"
 	if os.IsDebian() || os.IsUbuntu() {
 		service = "ssh"
 	}
 	return &ToolboxSSHService{
-		t:       t,
+		t:       do.MustInvoke[*gotext.Locale](i),
 		service: service,
-	}
+	}, nil
 }
 
 // GetInfo 获取 SSH 信息

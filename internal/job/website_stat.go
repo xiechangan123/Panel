@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/libtnb/cron"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -21,8 +23,8 @@ const healthKeyStatDB = "database:stat"
 // WebsiteStat 网站统计后台任务
 type WebsiteStat struct {
 	log          *slog.Logger
-	setting      biz.SettingRepo
-	statRepo     biz.WebsiteStatRepo
+	setting      *biz.SettingUsecase
+	statRepo     *biz.WebsiteStatUsecase
 	aggregator   *websitestat.Aggregator
 	geoIP        *geoip.GeoIP
 	geoIPPath    string
@@ -31,7 +33,7 @@ type WebsiteStat struct {
 }
 
 // NewWebsiteStat 创建网站统计任务
-func NewWebsiteStat(log *slog.Logger, setting biz.SettingRepo, statRepo biz.WebsiteStatRepo, aggregator *websitestat.Aggregator) *WebsiteStat {
+func NewWebsiteStat(log *slog.Logger, setting *biz.SettingUsecase, statRepo *biz.WebsiteStatUsecase, aggregator *websitestat.Aggregator) *WebsiteStat {
 	return &WebsiteStat{
 		log:        log,
 		setting:    setting,
@@ -389,4 +391,16 @@ func isZeroHourSnapshot(h *websitestat.HourSnapshot) bool {
 		h.Status3xx == 0 &&
 		h.Status4xx == 0 &&
 		h.Status5xx == 0
+}
+
+// WebsiteStatJob 注册网站统计任务
+func WebsiteStatJob(i do.Injector) (JobFn, error) {
+	log := do.MustInvoke[*slog.Logger](i)
+	setting := do.MustInvoke[*biz.SettingUsecase](i)
+	stat := do.MustInvoke[*biz.WebsiteStatUsecase](i)
+	aggregator := do.MustInvoke[*websitestat.Aggregator](i)
+	return func(c *cron.Cron) error {
+		_, err := c.Add("* * * * *", NewWebsiteStat(log, setting, stat, aggregator))
+		return err
+	}, nil
 }

@@ -10,12 +10,13 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/tools"
@@ -24,17 +25,17 @@ import (
 type ToolboxLogService struct {
 	t                  *gotext.Locale
 	db                 *gorm.DB
-	containerImageRepo biz.ContainerImageRepo
-	settingRepo        biz.SettingRepo
+	containerImageRepo *biz.ContainerImageUsecase
+	settingRepo        *biz.SettingUsecase
 }
 
-func NewToolboxLogService(t *gotext.Locale, db *gorm.DB, containerImageRepo biz.ContainerImageRepo, settingRepo biz.SettingRepo) *ToolboxLogService {
+func NewToolboxLogService(i do.Injector) (*ToolboxLogService, error) {
 	return &ToolboxLogService{
-		t:                  t,
-		db:                 db,
-		containerImageRepo: containerImageRepo,
-		settingRepo:        settingRepo,
-	}
+		t:                  do.MustInvoke[*gotext.Locale](i),
+		db:                 do.MustInvoke[*gorm.DB](i),
+		containerImageRepo: do.MustInvoke[*biz.ContainerImageUsecase](i),
+		settingRepo:        do.MustInvoke[*biz.SettingUsecase](i),
+	}, nil
 }
 
 // LogItem 日志项信息

@@ -1,71 +1,34 @@
 package job
 
 import (
-	"log/slog"
-
-	"github.com/google/wire"
 	"github.com/libtnb/cron"
-	"gorm.io/gorm"
+	"github.com/samber/do/v2"
 
-	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/websitestat"
+	"github.com/acepanel/panel/v3/internal/registry"
 )
 
-var ProviderSet = wire.NewSet(NewJobs)
+const Prefix = "jobs:"
 
-type Jobs struct {
-	conf        *config.Config
-	db          *gorm.DB
-	log         *slog.Logger
-	aggregator  *websitestat.Aggregator
-	setting     biz.SettingRepo
-	cert        biz.CertRepo
-	certAccount biz.CertAccountRepo
-	backup      biz.BackupRepo
-	cache       biz.CacheRepo
-	task        biz.TaskRepo
-	scan        biz.ScanEventRepo
-	stat        biz.WebsiteStatRepo
-	website     biz.WebsiteRepo
-}
+// JobFn 向调度器注册一个任务。
+type JobFn func(c *cron.Cron) error
 
-func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, aggregator *websitestat.Aggregator, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, scan biz.ScanEventRepo, stat biz.WebsiteStatRepo, website biz.WebsiteRepo) *Jobs {
-	return &Jobs{
-		conf:        conf,
-		db:          db,
-		log:         log,
-		aggregator:  aggregator,
-		setting:     setting,
-		cert:        cert,
-		certAccount: certAccount,
-		backup:      backup,
-		cache:       cache,
-		task:        task,
-		scan:        scan,
-		stat:        stat,
-		website:     website,
-	}
-}
+// Package 装配定时任务层。
+var Package = do.Package(
+	do.LazyNamed(Prefix+"monitoring", MonitoringJob), do.LazyNamed(Prefix+"firewall_scan", FirewallScanJob),
+	do.LazyNamed(Prefix+"cert_renew", CertRenewJob), do.LazyNamed(Prefix+"panel_task", PanelTaskJob),
+	do.LazyNamed(Prefix+"website_stat", WebsiteStatJob), do.LazyNamed(Prefix+"website_expire", WebsiteExpireJob),
+)
 
-func (r *Jobs) Register(c *cron.Cron) error {
-	if _, err := c.Add("* * * * *", NewMonitoring(r.db, r.log, r.setting)); err != nil {
+// Register 收集并注册全部任务贡献到调度器。
+func Register(i do.Injector, c *cron.Cron) error {
+	jobs, err := registry.Collect[JobFn](i, Prefix)
+	if err != nil {
 		return err
 	}
-	if _, err := c.Add("*/2 * * * *", NewFirewallScan(r.log, r.setting, r.scan)); err != nil {
-		return err
-	}
-	if _, err := c.Add("0 4 * * *", NewCertRenew(r.conf, r.db, r.log, r.setting, r.cert, r.certAccount)); err != nil {
-		return err
-	}
-	if _, err := c.Add("0 2 * * *", NewPanelTask(r.conf, r.db, r.log, r.backup, r.cache, r.task, r.setting, r.scan, r.stat)); err != nil {
-		return err
-	}
-	if _, err := c.Add("* * * * *", NewWebsiteStat(r.log, r.setting, r.stat, r.aggregator)); err != nil {
-		return err
-	}
-	if _, err := c.Add("* * * * *", NewWebsiteExpire(r.db, r.log, r.website)); err != nil {
-		return err
+	for _, reg := range jobs {
+		if err := reg(c); err != nil {
+			return err
+		}
 	}
 
 	return nil

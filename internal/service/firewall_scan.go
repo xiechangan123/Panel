@@ -4,21 +4,22 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/firewall/scan"
 )
 
 type FirewallScanService struct {
-	scanRepo biz.ScanEventRepo
+	scanRepo *biz.ScanEventUsecase
 }
 
-func NewFirewallScanService(scanRepo biz.ScanEventRepo) *FirewallScanService {
+func NewFirewallScanService(i do.Injector) (*FirewallScanService, error) {
 	return &FirewallScanService{
-		scanRepo: scanRepo,
-	}
+		scanRepo: do.MustInvoke[*biz.ScanEventUsecase](i),
+	}, nil
 }
 
 // GetSetting 获取扫描感知设置

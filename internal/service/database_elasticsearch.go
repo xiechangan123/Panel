@@ -4,17 +4,18 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type DatabaseElasticsearchService struct {
-	repo biz.DatabaseElasticsearchRepo
+	repo *biz.DatabaseElasticsearchUsecase
 }
 
-func NewDatabaseElasticsearchService(repo biz.DatabaseElasticsearchRepo) *DatabaseElasticsearchService {
-	return &DatabaseElasticsearchService{repo: repo}
+func NewDatabaseElasticsearchService(i do.Injector) (*DatabaseElasticsearchService, error) {
+	return &DatabaseElasticsearchService{repo: do.MustInvoke[*biz.DatabaseElasticsearchUsecase](i)}, nil
 }
 
 func (s *DatabaseElasticsearchService) Indices(w http.ResponseWriter, r *http.Request) {

@@ -6,23 +6,24 @@ import (
 	"time"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 )
 
 type WebsiteService struct {
-	websiteRepo biz.WebsiteRepo
-	settingRepo biz.SettingRepo
+	websiteRepo *biz.WebsiteUsecase
+	settingRepo *biz.SettingUsecase
 }
 
-func NewWebsiteService(website biz.WebsiteRepo, setting biz.SettingRepo) *WebsiteService {
+func NewWebsiteService(i do.Injector) (*WebsiteService, error) {
 	return &WebsiteService{
-		websiteRepo: website,
-		settingRepo: setting,
-	}
+		websiteRepo: do.MustInvoke[*biz.WebsiteUsecase](i),
+		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+	}, nil
 }
 
 func (s *WebsiteService) GetRewrites(w http.ResponseWriter, r *http.Request) {

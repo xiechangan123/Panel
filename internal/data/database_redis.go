@@ -6,10 +6,11 @@ import (
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/db"
 )
 
@@ -19,12 +20,12 @@ type databaseRedisRepo struct {
 	log *slog.Logger
 }
 
-func NewDatabaseRedisRepo(t *gotext.Locale, orm *gorm.DB, log *slog.Logger) biz.DatabaseRedisRepo {
+func NewDatabaseRedisRepo(i do.Injector) (biz.DatabaseRedisRepo, error) {
 	return &databaseRedisRepo{
-		t:   t,
-		orm: orm,
-		log: log,
-	}
+		t:   do.MustInvoke[*gotext.Locale](i),
+		orm: do.MustInvoke[*gorm.DB](i),
+		log: do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (r *databaseRedisRepo) Databases(req *request.DatabaseRedisDatabases) (int, error) {

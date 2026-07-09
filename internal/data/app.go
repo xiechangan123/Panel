@@ -10,6 +10,7 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -32,16 +33,16 @@ type appRepo struct {
 	api   *api.API
 }
 
-func NewAppRepo(t *gotext.Locale, conf *config.Config, db *gorm.DB, log *slog.Logger, cache biz.CacheRepo, task biz.TaskRepo) biz.AppRepo {
+func NewAppRepo(i do.Injector) (biz.AppRepo, error) {
 	return &appRepo{
-		t:     t,
-		conf:  conf,
-		db:    db,
-		log:   log,
-		cache: cache,
-		task:  task,
+		t:     do.MustInvoke[*gotext.Locale](i),
+		conf:  do.MustInvoke[*config.Config](i),
+		db:    do.MustInvoke[*gorm.DB](i),
+		log:   do.MustInvoke[*slog.Logger](i),
+		cache: do.MustInvoke[biz.CacheRepo](i),
+		task:  do.MustInvoke[biz.TaskRepo](i),
 		api:   api.NewAPI(app.Version, app.Locale),
-	}
+	}, nil
 }
 
 func (r *appRepo) Categories() []types.LV {

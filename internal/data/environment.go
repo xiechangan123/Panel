@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -25,13 +26,13 @@ type environmentRepo struct {
 	task  biz.TaskRepo
 }
 
-func NewEnvironmentRepo(t *gotext.Locale, conf *config.Config, cache biz.CacheRepo, task biz.TaskRepo) biz.EnvironmentRepo {
+func NewEnvironmentRepo(i do.Injector) (biz.EnvironmentRepo, error) {
 	return &environmentRepo{
-		t:     t,
-		conf:  conf,
-		cache: cache,
-		task:  task,
-	}
+		t:     do.MustInvoke[*gotext.Locale](i),
+		conf:  do.MustInvoke[*config.Config](i),
+		cache: do.MustInvoke[biz.CacheRepo](i),
+		task:  do.MustInvoke[biz.TaskRepo](i),
+	}, nil
 }
 
 func (r *environmentRepo) Types() []types.LV {

@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
 	"github.com/acepanel/panel/v3/pkg/cert"
 )
@@ -23,13 +24,13 @@ type certAccountRepo struct {
 	user biz.UserRepo
 }
 
-func NewCertAccountRepo(t *gotext.Locale, db *gorm.DB, user biz.UserRepo, log *slog.Logger) biz.CertAccountRepo {
+func NewCertAccountRepo(i do.Injector) (biz.CertAccountRepo, error) {
 	return &certAccountRepo{
-		t:    t,
-		db:   db,
-		log:  log,
-		user: user,
-	}
+		t:    do.MustInvoke[*gotext.Locale](i),
+		db:   do.MustInvoke[*gorm.DB](i),
+		log:  do.MustInvoke[*slog.Logger](i),
+		user: do.MustInvoke[biz.UserRepo](i),
+	}, nil
 }
 
 func (r certAccountRepo) List(page, limit uint) ([]*biz.CertAccount, int64, error) {

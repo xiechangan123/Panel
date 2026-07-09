@@ -5,23 +5,24 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type CertService struct {
 	t        *gotext.Locale
-	certRepo biz.CertRepo
+	certRepo *biz.CertUsecase
 }
 
-func NewCertService(t *gotext.Locale, cert biz.CertRepo) *CertService {
+func NewCertService(i do.Injector) (*CertService, error) {
 	return &CertService{
-		t:        t,
-		certRepo: cert,
-	}
+		t:        do.MustInvoke[*gotext.Locale](i),
+		certRepo: do.MustInvoke[*biz.CertUsecase](i),
+	}, nil
 }
 
 func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {

@@ -1,41 +1,20 @@
 package data
 
-import "github.com/google/wire"
+import (
+	"github.com/samber/do/v2"
+)
 
-// ProviderSet is data providers.
-var ProviderSet = wire.NewSet(
-	NewAppRepo,
-	NewBackupRepo,
-	NewBackupAccountRepo,
-	NewCacheRepo,
-	NewCertRepo,
-	NewCertAccountRepo,
-	NewCertDNSRepo,
-	NewContainerRepo,
-	NewContainerComposeRepo,
-	NewContainerImageRepo,
-	NewContainerNetworkRepo,
-	NewContainerVolumeRepo,
-	NewCronRepo,
-	NewDatabaseRepo,
-	NewDatabaseRedisRepo,
-	NewDatabaseElasticsearchRepo,
-	NewDatabaseServerRepo,
-	NewDatabaseUserRepo,
-	NewEnvironmentRepo,
-	NewLogRepo,
-	NewMonitorRepo,
-	NewProjectRepo,
-	NewSafeRepo,
-	NewScanEventRepo,
-	NewSettingRepo,
-	NewSSHRepo,
-	NewTaskRepo,
-	NewTemplateRepo,
-	NewUserRepo,
-	NewUserPasskeyRepo,
-	NewUserTokenRepo,
-	NewWebHookRepo,
-	NewWebsiteRepo,
-	NewWebsiteStatRepo,
+var Package = do.Package(
+	do.Lazy(NewAppRepo), do.Lazy(NewBackupRepo), do.Lazy(NewBackupAccountRepo),
+	do.Lazy(NewCacheRepo), do.Lazy(NewCertRepo), do.Lazy(NewCertAccountRepo),
+	do.Lazy(NewCertDNSRepo), do.Lazy(NewContainerRepo), do.Lazy(NewContainerComposeRepo),
+	do.Lazy(NewContainerImageRepo), do.Lazy(NewContainerNetworkRepo), do.Lazy(NewContainerVolumeRepo),
+	do.Lazy(NewCronRepo), do.Lazy(NewDatabaseRepo), do.Lazy(NewDatabaseRedisRepo),
+	do.Lazy(NewDatabaseElasticsearchRepo), do.Lazy(NewDatabaseServerRepo), do.Lazy(NewDatabaseUserRepo),
+	do.Lazy(NewEnvironmentRepo), do.Lazy(NewLogRepo), do.Lazy(NewMonitorRepo),
+	do.Lazy(NewProjectRepo), do.Lazy(NewSafeRepo), do.Lazy(NewScanEventRepo),
+	do.Lazy(NewSettingRepo), do.Lazy(NewSSHRepo), do.Lazy(NewTaskRepo),
+	do.Lazy(NewTemplateRepo), do.Lazy(NewUserRepo), do.Lazy(NewUserPasskeyRepo),
+	do.Lazy(NewUserTokenRepo), do.Lazy(NewWebHookRepo), do.Lazy(NewWebsiteRepo),
+	do.Lazy(NewWebsiteStatRepo),
 )

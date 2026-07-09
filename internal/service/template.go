@@ -5,23 +5,24 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type TemplateService struct {
 	t            *gotext.Locale
-	templateRepo biz.TemplateRepo
-	settingRepo  biz.SettingRepo
+	templateRepo *biz.TemplateUsecase
+	settingRepo  *biz.SettingUsecase
 }
 
-func NewTemplateService(t *gotext.Locale, template biz.TemplateRepo, setting biz.SettingRepo) *TemplateService {
+func NewTemplateService(i do.Injector) (*TemplateService, error) {
 	return &TemplateService{
-		t:            t,
-		templateRepo: template,
-		settingRepo:  setting,
-	}
+		t:            do.MustInvoke[*gotext.Locale](i),
+		templateRepo: do.MustInvoke[*biz.TemplateUsecase](i),
+		settingRepo:  do.MustInvoke[*biz.SettingUsecase](i),
+	}, nil
 }
 
 // List 获取所有模版

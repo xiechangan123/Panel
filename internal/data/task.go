@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -18,13 +19,13 @@ type taskRepo struct {
 	runner types.TaskRunner
 }
 
-func NewTaskRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, runner types.TaskRunner) biz.TaskRepo {
+func NewTaskRepo(i do.Injector) (biz.TaskRepo, error) {
 	return &taskRepo{
-		t:      t,
-		db:     db,
-		log:    log,
-		runner: runner,
-	}
+		t:      do.MustInvoke[*gotext.Locale](i),
+		db:     do.MustInvoke[*gorm.DB](i),
+		log:    do.MustInvoke[*slog.Logger](i),
+		runner: do.MustInvoke[types.TaskRunner](i),
+	}, nil
 }
 
 func (r *taskRepo) HasRunningTask() bool {

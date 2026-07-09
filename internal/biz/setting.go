@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type SettingKey string
@@ -72,4 +72,52 @@ type SettingRepo interface {
 	GetPanel() (*request.SettingPanel, error)
 	UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error)
 	UpdateCert(req *request.SettingCert) error
+}
+
+type SettingUsecase struct {
+	repo SettingRepo
+}
+
+func NewSettingUsecase(repo SettingRepo) *SettingUsecase {
+	return &SettingUsecase{repo: repo}
+}
+
+func (uc *SettingUsecase) Get(key SettingKey, defaultValue ...string) (string, error) {
+	return uc.repo.Get(key, defaultValue...)
+}
+
+func (uc *SettingUsecase) GetBool(key SettingKey, defaultValue ...bool) (bool, error) {
+	return uc.repo.GetBool(key, defaultValue...)
+}
+
+func (uc *SettingUsecase) GetInt(key SettingKey, defaultValue ...int) (int, error) {
+	return uc.repo.GetInt(key, defaultValue...)
+}
+
+func (uc *SettingUsecase) GetSlice(key SettingKey, defaultValue ...[]string) ([]string, error) {
+	return uc.repo.GetSlice(key, defaultValue...)
+}
+
+func (uc *SettingUsecase) Set(key SettingKey, value string) error {
+	return uc.repo.Set(key, value)
+}
+
+func (uc *SettingUsecase) SetSlice(key SettingKey, value []string) error {
+	return uc.repo.SetSlice(key, value)
+}
+
+func (uc *SettingUsecase) Delete(key SettingKey) error {
+	return uc.repo.Delete(key)
+}
+
+func (uc *SettingUsecase) GetPanel() (*request.SettingPanel, error) {
+	return uc.repo.GetPanel()
+}
+
+func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error) {
+	return uc.repo.UpdatePanel(ctx, req)
+}
+
+func (uc *SettingUsecase) UpdateCert(req *request.SettingCert) error {
+	return uc.repo.UpdateCert(req)
 }

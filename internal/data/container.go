@@ -12,9 +12,10 @@ import (
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/client"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -23,8 +24,8 @@ type containerRepo struct {
 	settingRepo biz.SettingRepo
 }
 
-func NewContainerRepo(settingRepo biz.SettingRepo) biz.ContainerRepo {
-	return &containerRepo{settingRepo: settingRepo}
+func NewContainerRepo(i do.Injector) (biz.ContainerRepo, error) {
+	return &containerRepo{settingRepo: do.MustInvoke[biz.SettingRepo](i)}, nil
 }
 
 // ListAll 列出所有容器

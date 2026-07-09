@@ -5,7 +5,7 @@ package biz
 import (
 	context "context"
 
-	request "github.com/acepanel/panel/v3/internal/http/request"
+	request "github.com/acepanel/panel/v3/internal/request"
 	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/acepanel/panel/v3/pkg/types"
