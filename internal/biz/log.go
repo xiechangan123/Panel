@@ -52,3 +52,19 @@ type LogRepo interface {
 	// ListDates 获取可用的日志日期列表
 	ListDates(logType string) ([]string, error)
 }
+
+type LogUsecase struct {
+	repo LogRepo
+}
+
+func NewLogUsecase(repo LogRepo) *LogUsecase {
+	return &LogUsecase{repo: repo}
+}
+
+func (uc *LogUsecase) List(logType string, limit int, date string) ([]LogEntry, error) {
+	return uc.repo.List(logType, limit, date)
+}
+
+func (uc *LogUsecase) ListDates(logType string) ([]string, error) {
+	return uc.repo.ListDates(logType)
+}

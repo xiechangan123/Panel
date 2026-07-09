@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/ssh"
 )
 
@@ -65,4 +65,33 @@ type SSHRepo interface {
 	Create(ctx context.Context, req *request.SSHCreate) error
 	Update(ctx context.Context, req *request.SSHUpdate) error
 	Delete(ctx context.Context, id uint) error
+}
+
+// SSHUsecase SSH 业务逻辑
+type SSHUsecase struct {
+	repo SSHRepo
+}
+
+func NewSSHUsecase(repo SSHRepo) *SSHUsecase {
+	return &SSHUsecase{repo: repo}
+}
+
+func (uc *SSHUsecase) List(page, limit uint) ([]*SSH, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *SSHUsecase) Get(id uint) (*SSH, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *SSHUsecase) Create(ctx context.Context, req *request.SSHCreate) error {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *SSHUsecase) Update(ctx context.Context, req *request.SSHUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *SSHUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
 }

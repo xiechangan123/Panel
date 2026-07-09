@@ -3,7 +3,6 @@ module github.com/acepanel/panel/v3
 go 1.26
 
 require (
-	github.com/DeRuina/timberjack v1.4.5
 	github.com/andybalholm/brotli v1.2.2
 	github.com/bddjr/hlfhr v1.6.1
 	github.com/beevik/ntp v1.5.0
@@ -21,7 +20,6 @@ require (
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/go-webauthn/webauthn v0.17.4
 	github.com/gomodule/redigo v1.9.3
-	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.1
 	github.com/hashicorp/go-version v1.9.0
 	github.com/leonelquinteros/gotext v1.7.2
@@ -40,10 +38,12 @@ require (
 	github.com/libtnb/chix v1.3.2
 	github.com/libtnb/cron v0.5.2
 	github.com/libtnb/gormstore v1.3.0
+	github.com/libtnb/logrotate v0.1.2
 	github.com/libtnb/sessions v1.5.0
 	github.com/libtnb/sqlite v1.2.0
 	github.com/libtnb/utils v1.2.2
 	github.com/libtnb/validator v0.4.1
+	github.com/libtnb/validator/contrib/openapi v0.1.2
 	github.com/medama-io/go-useragent v1.2.3
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.55.0
@@ -51,6 +51,7 @@ require (
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/sftp v1.13.10
 	github.com/pquerna/otp v1.5.0
+	github.com/samber/do/v2 v2.0.0
 	github.com/samber/lo v1.53.0
 	github.com/sethvargo/go-limiter v1.1.0
 	github.com/shirou/gopsutil/v4 v4.26.6
@@ -99,7 +100,6 @@ require (
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/klauspost/compress v1.18.5 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/libtnb/securecookie v1.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
@@ -111,6 +111,7 @@ require (
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/samber/go-type-to-string v1.8.0 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/timtadh/data-structures v0.6.2 // indirect
 	github.com/timtadh/lexmachine v0.2.3 // indirect
@@ -137,5 +138,3 @@ replace (
 	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20260406165834-a264acd02292
 	github.com/stretchr/testify => github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7
 )
-
-tool github.com/google/wire

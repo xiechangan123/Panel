@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+	"github.com/samber/do/v2"
+
 	"github.com/acepanel/panel/v3/internal/apps/apache"
 	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
 	"github.com/acepanel/panel/v3/internal/apps/codeserver"
@@ -34,39 +36,39 @@ import (
 	"github.com/acepanel/panel/v3/pkg/apploader"
 )
 
-func NewLoader(
-	apache *apache.App,
-	clickhouse *clickhouse.App,
-	codeserver *codeserver.App,
-	docker *docker.App,
-	elasticsearch *elasticsearch.App,
-	fail2ban *fail2ban.App,
-	frp *frp.App,
-	gitea *gitea.App,
-	grafana *grafana.App,
-	kafka *kafka.App,
-	mariadb *mariadb.App,
-	memcached *memcached.App,
-	minio *minio.App,
-	mongodb *mongodb.App,
-	mysql *mysql.App,
-	nginx *nginx.App,
-	openresty *openresty.App,
-	opensearch *opensearch.App,
-	percona *percona.App,
-	phpmyadmin *phpmyadmin.App,
-	podman *podman.App,
-	postgresql *postgresql.App,
-	prometheus *prometheus.App,
-	pureftpd *pureftpd.App,
-	redis *redis.App,
-	rocketmq *rocketmq.App,
-	rsync *rsync.App,
-	s3fs *s3fs.App,
-	supervisor *supervisor.App,
-	valkey *valkey.App,
-) *apploader.Loader {
+func NewLoader(i do.Injector) (*apploader.Loader, error) {
 	loader := new(apploader.Loader)
-	loader.Add(apache, clickhouse, codeserver, docker, elasticsearch, fail2ban, frp, gitea, grafana, kafka, mariadb, memcached, minio, mongodb, mysql, nginx, openresty, opensearch, percona, phpmyadmin, podman, postgresql, prometheus, pureftpd, redis, rocketmq, rsync, s3fs, supervisor, valkey)
-	return loader
+	loader.Add(
+		do.MustInvoke[*apache.App](i),
+		do.MustInvoke[*clickhouse.App](i),
+		do.MustInvoke[*codeserver.App](i),
+		do.MustInvoke[*docker.App](i),
+		do.MustInvoke[*elasticsearch.App](i),
+		do.MustInvoke[*fail2ban.App](i),
+		do.MustInvoke[*frp.App](i),
+		do.MustInvoke[*gitea.App](i),
+		do.MustInvoke[*grafana.App](i),
+		do.MustInvoke[*kafka.App](i),
+		do.MustInvoke[*mariadb.App](i),
+		do.MustInvoke[*memcached.App](i),
+		do.MustInvoke[*minio.App](i),
+		do.MustInvoke[*mongodb.App](i),
+		do.MustInvoke[*mysql.App](i),
+		do.MustInvoke[*nginx.App](i),
+		do.MustInvoke[*openresty.App](i),
+		do.MustInvoke[*opensearch.App](i),
+		do.MustInvoke[*percona.App](i),
+		do.MustInvoke[*phpmyadmin.App](i),
+		do.MustInvoke[*podman.App](i),
+		do.MustInvoke[*postgresql.App](i),
+		do.MustInvoke[*prometheus.App](i),
+		do.MustInvoke[*pureftpd.App](i),
+		do.MustInvoke[*redis.App](i),
+		do.MustInvoke[*rocketmq.App](i),
+		do.MustInvoke[*rsync.App](i),
+		do.MustInvoke[*s3fs.App](i),
+		do.MustInvoke[*supervisor.App](i),
+		do.MustInvoke[*valkey.App](i),
+	)
+	return loader, nil
 }

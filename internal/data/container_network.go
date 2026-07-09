@@ -10,9 +10,10 @@ import (
 
 	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/client"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -20,8 +21,8 @@ type containerNetworkRepo struct {
 	settingRepo biz.SettingRepo
 }
 
-func NewContainerNetworkRepo(settingRepo biz.SettingRepo) biz.ContainerNetworkRepo {
-	return &containerNetworkRepo{settingRepo: settingRepo}
+func NewContainerNetworkRepo(i do.Injector) (biz.ContainerNetworkRepo, error) {
+	return &containerNetworkRepo{settingRepo: do.MustInvoke[biz.SettingRepo](i)}, nil
 }
 
 // List 列出网络

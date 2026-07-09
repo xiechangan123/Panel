@@ -6,24 +6,25 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 type EnvironmentPythonService struct {
 	t               *gotext.Locale
-	environmentRepo biz.EnvironmentRepo
+	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentPythonService(t *gotext.Locale, environmentRepo biz.EnvironmentRepo) *EnvironmentPythonService {
+func NewEnvironmentPythonService(i do.Injector) (*EnvironmentPythonService, error) {
 	return &EnvironmentPythonService{
-		t:               t,
-		environmentRepo: environmentRepo,
-	}
+		t:               do.MustInvoke[*gotext.Locale](i),
+		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
+	}, nil
 }
 
 func (s *EnvironmentPythonService) SetCli(w http.ResponseWriter, r *http.Request) {

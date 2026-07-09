@@ -14,12 +14,13 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	mholtacme "github.com/mholt/acmez/v3/acme"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
 	pkgcert "github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -37,13 +38,13 @@ type certRepo struct {
 	settingRepo biz.SettingRepo
 }
 
-func NewCertRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, settingRepo biz.SettingRepo) biz.CertRepo {
+func NewCertRepo(i do.Injector) (biz.CertRepo, error) {
 	return &certRepo{
-		t:           t,
-		db:          db,
-		log:         log,
-		settingRepo: settingRepo,
-	}
+		t:           do.MustInvoke[*gotext.Locale](i),
+		db:          do.MustInvoke[*gorm.DB](i),
+		log:         do.MustInvoke[*slog.Logger](i),
+		settingRepo: do.MustInvoke[biz.SettingRepo](i),
+	}, nil
 }
 
 func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {

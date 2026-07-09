@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type CronService struct {
-	cronRepo biz.CronRepo
+	cronRepo *biz.CronUsecase
 }
 
-func NewCronService(cron biz.CronRepo) *CronService {
+func NewCronService(i do.Injector) (*CronService, error) {
 	return &CronService{
-		cronRepo: cron,
-	}
+		cronRepo: do.MustInvoke[*biz.CronUsecase](i),
+	}, nil
 }
 
 func (s *CronService) List(w http.ResponseWriter, r *http.Request) {

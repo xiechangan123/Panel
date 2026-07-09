@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	pkgcert "github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/tools"
@@ -23,20 +24,24 @@ type CertRenew struct {
 	conf            *config.Config
 	db              *gorm.DB
 	log             *slog.Logger
-	settingRepo     biz.SettingRepo
-	certRepo        biz.CertRepo
-	certAccountRepo biz.CertAccountRepo
+	settingRepo     *biz.SettingUsecase
+	certRepo        *biz.CertUsecase
+	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewCertRenew(conf *config.Config, db *gorm.DB, log *slog.Logger, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) *CertRenew {
-	return &CertRenew{
-		conf:            conf,
-		db:              db,
-		log:             log,
-		settingRepo:     setting,
-		certRepo:        cert,
-		certAccountRepo: certAccount,
-	}
+// NewCertRenew 构造证书续签任务
+func NewCertRenew(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "0 4 * * *",
+		Task: &CertRenew{
+			conf:            do.MustInvoke[*config.Config](i),
+			db:              do.MustInvoke[*gorm.DB](i),
+			log:             do.MustInvoke[*slog.Logger](i),
+			settingRepo:     do.MustInvoke[*biz.SettingUsecase](i),
+			certRepo:        do.MustInvoke[*biz.CertUsecase](i),
+			certAccountRepo: do.MustInvoke[*biz.CertAccountUsecase](i),
+		},
+	}, nil
 }
 
 func (r *CertRenew) Run(_ context.Context) error {

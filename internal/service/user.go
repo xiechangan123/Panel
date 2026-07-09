@@ -18,10 +18,11 @@ import (
 	"github.com/libtnb/chix"
 	"github.com/libtnb/sessions"
 	"github.com/pquerna/otp/totp"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/rsacrypto"
 )
@@ -33,17 +34,17 @@ type UserService struct {
 	t        *gotext.Locale
 	conf     *config.Config
 	session  *sessions.Manager
-	userRepo biz.UserRepo
+	userRepo *biz.UserUsecase
 }
 
-func NewUserService(t *gotext.Locale, conf *config.Config, session *sessions.Manager, user biz.UserRepo) *UserService {
+func NewUserService(i do.Injector) (*UserService, error) {
 	gob.Register(rsa.PrivateKey{}) // 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	return &UserService{
-		t:        t,
-		conf:     conf,
-		session:  session,
-		userRepo: user,
-	}
+		t:        do.MustInvoke[*gotext.Locale](i),
+		conf:     do.MustInvoke[*config.Config](i),
+		session:  do.MustInvoke[*sessions.Manager](i),
+		userRepo: do.MustInvoke[*biz.UserUsecase](i),
+	}, nil
 }
 
 func (s *UserService) GetKey(w http.ResponseWriter, r *http.Request) {

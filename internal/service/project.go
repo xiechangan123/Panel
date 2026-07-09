@@ -5,22 +5,23 @@ import (
 	"path/filepath"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type ProjectService struct {
-	projectRepo biz.ProjectRepo
-	settingRepo biz.SettingRepo
+	projectRepo *biz.ProjectUsecase
+	settingRepo *biz.SettingUsecase
 }
 
-func NewProjectService(project biz.ProjectRepo, setting biz.SettingRepo) *ProjectService {
+func NewProjectService(i do.Injector) (*ProjectService, error) {
 	return &ProjectService{
-		projectRepo: project,
-		settingRepo: setting,
-	}
+		projectRepo: do.MustInvoke[*biz.ProjectUsecase](i),
+		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+	}, nil
 }
 
 func (s *ProjectService) List(w http.ResponseWriter, r *http.Request) {

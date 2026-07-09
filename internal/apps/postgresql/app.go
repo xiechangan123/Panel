@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -27,12 +28,15 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, setting biz.SettingRepo, databaseServer biz.DatabaseServerRepo) *App {
+func NewApp(i do.Injector) (*App, error) {
+	t := do.MustInvoke[*gotext.Locale](i)
+	setting := do.MustInvoke[biz.SettingRepo](i)
+	databaseServer := do.MustInvoke[biz.DatabaseServerRepo](i)
 	return &App{
 		t:                  t,
 		settingRepo:        setting,
 		databaseServerRepo: databaseServer,
-	}
+	}, nil
 }
 
 func (s *App) Route(r chi.Router) {

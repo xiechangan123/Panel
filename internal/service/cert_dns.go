@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type CertDNSService struct {
-	certDNSRepo biz.CertDNSRepo
+	certDNSRepo *biz.CertDNSUsecase
 }
 
-func NewCertDNSService(certDNS biz.CertDNSRepo) *CertDNSService {
+func NewCertDNSService(i do.Injector) (*CertDNSService, error) {
 	return &CertDNSService{
-		certDNSRepo: certDNS,
-	}
+		certDNSRepo: do.MustInvoke[*biz.CertDNSUsecase](i),
+	}, nil
 }
 
 func (s *CertDNSService) List(w http.ResponseWriter, r *http.Request) {

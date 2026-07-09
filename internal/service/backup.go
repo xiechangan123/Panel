@@ -10,24 +10,25 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 )
 
 type BackupService struct {
 	t          *gotext.Locale
-	backupRepo biz.BackupRepo
-	taskRepo   biz.TaskRepo
+	backupRepo *biz.BackupUsecase
+	taskRepo   *biz.TaskUsecase
 }
 
-func NewBackupService(t *gotext.Locale, backup biz.BackupRepo, task biz.TaskRepo) *BackupService {
+func NewBackupService(i do.Injector) (*BackupService, error) {
 	return &BackupService{
-		t:          t,
-		backupRepo: backup,
-		taskRepo:   task,
-	}
+		t:          do.MustInvoke[*gotext.Locale](i),
+		backupRepo: do.MustInvoke[*biz.BackupUsecase](i),
+		taskRepo:   do.MustInvoke[*biz.TaskUsecase](i),
+	}, nil
 }
 
 func (s *BackupService) List(w http.ResponseWriter, r *http.Request) {

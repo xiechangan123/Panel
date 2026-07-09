@@ -10,11 +10,12 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/dns"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/ntp"
@@ -27,10 +28,10 @@ type ToolboxSystemService struct {
 	t *gotext.Locale
 }
 
-func NewToolboxSystemService(t *gotext.Locale) *ToolboxSystemService {
+func NewToolboxSystemService(i do.Injector) (*ToolboxSystemService, error) {
 	return &ToolboxSystemService{
-		t: t,
-	}
+		t: do.MustInvoke[*gotext.Locale](i),
+	}, nil
 }
 
 // GetDNS 获取 DNS 信息

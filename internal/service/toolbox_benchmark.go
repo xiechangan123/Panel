@@ -22,8 +22,9 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -31,10 +32,10 @@ type ToolboxBenchmarkService struct {
 	t *gotext.Locale
 }
 
-func NewToolboxBenchmarkService(t *gotext.Locale) *ToolboxBenchmarkService {
+func NewToolboxBenchmarkService(i do.Injector) (*ToolboxBenchmarkService, error) {
 	return &ToolboxBenchmarkService{
-		t: t,
-	}
+		t: do.MustInvoke[*gotext.Locale](i),
+	}, nil
 }
 
 // Test 运行测试

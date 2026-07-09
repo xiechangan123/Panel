@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type CertAccount struct {
@@ -28,4 +28,36 @@ type CertAccountRepo interface {
 	Create(ctx context.Context, req *request.CertAccountCreate) (*CertAccount, error)
 	Update(ctx context.Context, req *request.CertAccountUpdate) error
 	Delete(ctx context.Context, id uint) error
+}
+
+type CertAccountUsecase struct {
+	repo CertAccountRepo
+}
+
+func NewCertAccountUsecase(repo CertAccountRepo) *CertAccountUsecase {
+	return &CertAccountUsecase{repo: repo}
+}
+
+func (uc *CertAccountUsecase) List(page, limit uint) ([]*CertAccount, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *CertAccountUsecase) GetDefault(userID uint) (*CertAccount, error) {
+	return uc.repo.GetDefault(userID)
+}
+
+func (uc *CertAccountUsecase) Get(id uint) (*CertAccount, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *CertAccountUsecase) Create(ctx context.Context, req *request.CertAccountCreate) (*CertAccount, error) {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *CertAccountUsecase) Update(ctx context.Context, req *request.CertAccountUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *CertAccountUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
 }

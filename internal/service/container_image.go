@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type ContainerImageService struct {
-	containerImageRepo biz.ContainerImageRepo
+	containerImageRepo *biz.ContainerImageUsecase
 }
 
-func NewContainerImageService(containerImage biz.ContainerImageRepo) *ContainerImageService {
+func NewContainerImageService(i do.Injector) (*ContainerImageService, error) {
 	return &ContainerImageService{
-		containerImageRepo: containerImage,
-	}
+		containerImageRepo: do.MustInvoke[*biz.ContainerImageUsecase](i),
+	}, nil
 }
 
 func (s *ContainerImageService) List(w http.ResponseWriter, r *http.Request) {

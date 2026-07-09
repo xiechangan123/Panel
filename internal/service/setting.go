@@ -6,10 +6,11 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/tools"
@@ -18,19 +19,19 @@ import (
 type SettingService struct {
 	t               *gotext.Locale
 	db              *gorm.DB
-	settingRepo     biz.SettingRepo
-	certRepo        biz.CertRepo
-	certAccountRepo biz.CertAccountRepo
+	settingRepo     *biz.SettingUsecase
+	certRepo        *biz.CertUsecase
+	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewSettingService(t *gotext.Locale, db *gorm.DB, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo) *SettingService {
+func NewSettingService(i do.Injector) (*SettingService, error) {
 	return &SettingService{
-		t:               t,
-		db:              db,
-		settingRepo:     setting,
-		certRepo:        cert,
-		certAccountRepo: certAccount,
-	}
+		t:               do.MustInvoke[*gotext.Locale](i),
+		db:              do.MustInvoke[*gorm.DB](i),
+		settingRepo:     do.MustInvoke[*biz.SettingUsecase](i),
+		certRepo:        do.MustInvoke[*biz.CertUsecase](i),
+		certAccountRepo: do.MustInvoke[*biz.CertAccountUsecase](i),
+	}, nil
 }
 
 func (s *SettingService) Get(w http.ResponseWriter, r *http.Request) {

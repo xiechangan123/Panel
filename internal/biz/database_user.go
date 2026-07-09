@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type DatabaseUserStatus string
@@ -71,4 +71,45 @@ type DatabaseUserRepo interface {
 	UpdateRemark(req *request.DatabaseUserUpdateRemark) error
 	Delete(ctx context.Context, id uint) error
 	DeleteByNames(serverID uint, names []string) error
+}
+
+// DatabaseUserUsecase 数据库用户业务用例
+type DatabaseUserUsecase struct {
+	repo DatabaseUserRepo
+}
+
+func NewDatabaseUserUsecase(repo DatabaseUserRepo) *DatabaseUserUsecase {
+	return &DatabaseUserUsecase{repo: repo}
+}
+
+func (uc *DatabaseUserUsecase) Count() (int64, error) {
+	return uc.repo.Count()
+}
+
+func (uc *DatabaseUserUsecase) List(page, limit uint, typ string) ([]*DatabaseUser, int64, error) {
+	return uc.repo.List(page, limit, typ)
+}
+
+func (uc *DatabaseUserUsecase) Get(id uint) (*DatabaseUser, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *DatabaseUserUsecase) Create(ctx context.Context, req *request.DatabaseUserCreate) error {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *DatabaseUserUsecase) Update(req *request.DatabaseUserUpdate) error {
+	return uc.repo.Update(req)
+}
+
+func (uc *DatabaseUserUsecase) UpdateRemark(req *request.DatabaseUserUpdateRemark) error {
+	return uc.repo.UpdateRemark(req)
+}
+
+func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *DatabaseUserUsecase) DeleteByNames(serverID uint, names []string) error {
+	return uc.repo.DeleteByNames(serverID, names)
 }

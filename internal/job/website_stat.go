@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -21,8 +22,8 @@ const healthKeyStatDB = "database:stat"
 // WebsiteStat 网站统计后台任务
 type WebsiteStat struct {
 	log          *slog.Logger
-	setting      biz.SettingRepo
-	statRepo     biz.WebsiteStatRepo
+	setting      *biz.SettingUsecase
+	statRepo     *biz.WebsiteStatUsecase
 	aggregator   *websitestat.Aggregator
 	geoIP        *geoip.GeoIP
 	geoIPPath    string
@@ -30,14 +31,17 @@ type WebsiteStat struct {
 	started      atomic.Bool
 }
 
-// NewWebsiteStat 创建网站统计任务
-func NewWebsiteStat(log *slog.Logger, setting biz.SettingRepo, statRepo biz.WebsiteStatRepo, aggregator *websitestat.Aggregator) *WebsiteStat {
-	return &WebsiteStat{
-		log:        log,
-		setting:    setting,
-		statRepo:   statRepo,
-		aggregator: aggregator,
-	}
+// NewWebsiteStat 构造网站统计任务
+func NewWebsiteStat(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "* * * * *",
+		Task: &WebsiteStat{
+			log:        do.MustInvoke[*slog.Logger](i),
+			setting:    do.MustInvoke[*biz.SettingUsecase](i),
+			statRepo:   do.MustInvoke[*biz.WebsiteStatUsecase](i),
+			aggregator: do.MustInvoke[*websitestat.Aggregator](i),
+		},
+	}, nil
 }
 
 func (r *WebsiteStat) Run(_ context.Context) error {

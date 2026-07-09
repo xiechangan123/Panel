@@ -19,19 +19,7 @@ import (
 )
 
 // MustLogin 确保已登录
-func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager, userToken biz.UserTokenRepo) func(next http.Handler) http.Handler {
-	// 白名单
-	whiteList := []string{
-		"/api/user/key",
-		"/api/user/captcha",
-		"/api/user/login",
-		"/api/user/logout",
-		"/api/user/passkey/enabled",
-		"/api/user/passkey/login",
-		"/api/user/is_login",
-		"/api/user/is_2fa",
-		"/api/home/panel",
-	}
+func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager, userToken biz.UserTokenRepo, whitelist []string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sess, err := session.GetSession(r)
@@ -41,7 +29,7 @@ func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager,
 			}
 
 			// 对白名单和非 API 请求放行
-			if slices.Contains(whiteList, r.URL.Path) || !strings.HasPrefix(r.URL.Path, "/api") {
+			if slices.Contains(whitelist, r.URL.Path) || !strings.HasPrefix(r.URL.Path, "/api") {
 				next.ServeHTTP(w, r)
 				return
 			}

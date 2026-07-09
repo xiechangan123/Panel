@@ -3,11 +3,13 @@ package bootstrap
 import (
 	"log/slog"
 	"path/filepath"
+	"time"
 
-	"github.com/DeRuina/timberjack"
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/libtnb/logrotate"
 	"github.com/libtnb/sqlite"
 	sloggorm "github.com/orandin/slog-gorm"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -15,18 +17,22 @@ import (
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
-func NewDB(conf *config.Config) (*gorm.DB, error) {
-	tjLogger := &timberjack.Logger{
-		Filename:    filepath.Join(app.Root, "panel/storage/logs/db.log"),
-		MaxSize:     10,
-		MaxAge:      30,
-		LocalTime:   true,
-		RotateAt:    []string{"00:00"},
-		FileMode:    0o600,
-		Compression: "none",
+func NewDB(i do.Injector) (*gorm.DB, error) {
+	conf := do.MustInvoke[*config.Config](i)
+
+	// db 日志写入轮转文件
+	w, err := logrotate.New(filepath.Join(app.Root, "panel/storage/logs/db.log"),
+		logrotate.WithMaxSize(10*logrotate.MB),
+		logrotate.WithMaxAge(30*logrotate.Day),
+		logrotate.WithRotateAt("00:00"),
+		logrotate.WithFileMode(0o600),
+		logrotate.WithLocation(time.Local),
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	handler := slog.New(slog.NewJSONHandler(tjLogger, nil)).Handler()
+	handler := slog.New(slog.NewJSONHandler(w, nil)).Handler()
 	options := []sloggorm.Option{sloggorm.WithHandler(handler)}
 	if conf.Database.Debug {
 		options = append(options, sloggorm.WithTraceAll())
@@ -52,8 +58,9 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewMigrate(db *gorm.DB) *gormigrate.Gormigrate {
+func NewMigrate(i do.Injector) (*gormigrate.Gormigrate, error) {
+	db := do.MustInvoke[*gorm.DB](i)
 	return gormigrate.New(db, &gormigrate.Options{
 		UseTransaction: true, // Note: MySQL not support DDL transaction
-	}, migration.Migrations)
+	}, migration.Migrations), nil
 }

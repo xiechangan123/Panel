@@ -3,6 +3,7 @@ package data
 import (
 	"time"
 
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -14,7 +15,7 @@ type websiteStatRepo struct {
 }
 
 // NewWebsiteStatRepo 创建网站统计数据访问实例
-func NewWebsiteStatRepo() (biz.WebsiteStatRepo, error) {
+func NewWebsiteStatRepo(i do.Injector) (biz.WebsiteStatRepo, error) {
 	statDB, err := openDB("stat")
 	if err != nil {
 		return nil, err

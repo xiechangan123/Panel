@@ -1,7 +1,7 @@
 package apps
 
 import (
-	"github.com/google/wire"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/apps/apache"
 	"github.com/acepanel/panel/v3/internal/apps/clickhouse"
@@ -35,35 +35,15 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/valkey"
 )
 
-var ProviderSet = wire.NewSet(
-	apache.NewApp,
-	clickhouse.NewApp,
-	codeserver.NewApp,
-	docker.NewApp,
-	elasticsearch.NewApp,
-	fail2ban.NewApp,
-	frp.NewApp,
-	gitea.NewApp,
-	grafana.NewApp,
-	kafka.NewApp,
-	mariadb.NewApp,
-	memcached.NewApp,
-	minio.NewApp,
-	mongodb.NewApp,
-	mysql.NewApp,
-	nginx.NewApp,
-	openresty.NewApp,
-	opensearch.NewApp,
-	percona.NewApp,
-	phpmyadmin.NewApp,
-	podman.NewApp,
-	postgresql.NewApp,
-	prometheus.NewApp,
-	pureftpd.NewApp,
-	redis.NewApp,
-	rocketmq.NewApp,
-	rsync.NewApp,
-	s3fs.NewApp,
-	supervisor.NewApp,
-	valkey.NewApp,
+var Package = do.Package(
+	do.Lazy(apache.NewApp), do.Lazy(clickhouse.NewApp), do.Lazy(codeserver.NewApp),
+	do.Lazy(docker.NewApp), do.Lazy(elasticsearch.NewApp), do.Lazy(fail2ban.NewApp),
+	do.Lazy(frp.NewApp), do.Lazy(gitea.NewApp), do.Lazy(grafana.NewApp),
+	do.Lazy(kafka.NewApp), do.Lazy(mariadb.NewApp), do.Lazy(memcached.NewApp),
+	do.Lazy(minio.NewApp), do.Lazy(mongodb.NewApp), do.Lazy(mysql.NewApp),
+	do.Lazy(nginx.NewApp), do.Lazy(openresty.NewApp), do.Lazy(opensearch.NewApp),
+	do.Lazy(percona.NewApp), do.Lazy(phpmyadmin.NewApp), do.Lazy(podman.NewApp),
+	do.Lazy(postgresql.NewApp), do.Lazy(prometheus.NewApp), do.Lazy(pureftpd.NewApp),
+	do.Lazy(redis.NewApp), do.Lazy(rocketmq.NewApp), do.Lazy(rsync.NewApp),
+	do.Lazy(s3fs.NewApp), do.Lazy(supervisor.NewApp), do.Lazy(valkey.NewApp),
 )

@@ -25,12 +25,13 @@ import (
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/types"
@@ -55,48 +56,36 @@ type ToolboxMigrationService struct {
 	t                  *gotext.Locale
 	conf               *config.Config
 	log                *slog.Logger
-	settingRepo        biz.SettingRepo
-	websiteRepo        biz.WebsiteRepo
-	databaseRepo       biz.DatabaseRepo
-	databaseServerRepo biz.DatabaseServerRepo
-	databaseUserRepo   biz.DatabaseUserRepo
-	projectRepo        biz.ProjectRepo
-	appRepo            biz.AppRepo
-	environmentRepo    biz.EnvironmentRepo
+	settingRepo        *biz.SettingUsecase
+	websiteRepo        *biz.WebsiteUsecase
+	databaseRepo       *biz.DatabaseUsecase
+	databaseServerRepo *biz.DatabaseServerUsecase
+	databaseUserRepo   *biz.DatabaseUserUsecase
+	projectRepo        *biz.ProjectUsecase
+	appRepo            *biz.AppUsecase
+	environmentRepo    *biz.EnvironmentUsecase
 
 	state migrationState
 }
 
 // NewToolboxMigrationService 创建迁移服务
-func NewToolboxMigrationService(
-	t *gotext.Locale,
-	conf *config.Config,
-	log *slog.Logger,
-	setting biz.SettingRepo,
-	website biz.WebsiteRepo,
-	database biz.DatabaseRepo,
-	databaseServer biz.DatabaseServerRepo,
-	databaseUser biz.DatabaseUserRepo,
-	project biz.ProjectRepo,
-	appRepo biz.AppRepo,
-	environment biz.EnvironmentRepo,
-) *ToolboxMigrationService {
+func NewToolboxMigrationService(i do.Injector) (*ToolboxMigrationService, error) {
 	return &ToolboxMigrationService{
-		t:                  t,
-		conf:               conf,
-		log:                log,
-		settingRepo:        setting,
-		websiteRepo:        website,
-		databaseRepo:       database,
-		databaseServerRepo: databaseServer,
-		databaseUserRepo:   databaseUser,
-		projectRepo:        project,
-		appRepo:            appRepo,
-		environmentRepo:    environment,
+		t:                  do.MustInvoke[*gotext.Locale](i),
+		conf:               do.MustInvoke[*config.Config](i),
+		log:                do.MustInvoke[*slog.Logger](i),
+		settingRepo:        do.MustInvoke[*biz.SettingUsecase](i),
+		websiteRepo:        do.MustInvoke[*biz.WebsiteUsecase](i),
+		databaseRepo:       do.MustInvoke[*biz.DatabaseUsecase](i),
+		databaseServerRepo: do.MustInvoke[*biz.DatabaseServerUsecase](i),
+		databaseUserRepo:   do.MustInvoke[*biz.DatabaseUserUsecase](i),
+		projectRepo:        do.MustInvoke[*biz.ProjectUsecase](i),
+		appRepo:            do.MustInvoke[*biz.AppUsecase](i),
+		environmentRepo:    do.MustInvoke[*biz.EnvironmentUsecase](i),
 		state: migrationState{
 			Step: types.MigrationStepIdle,
 		},
-	}
+	}, nil
 }
 
 // Exec SSE 实时执行命令（供远程面板调用）

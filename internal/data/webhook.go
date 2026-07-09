@@ -12,11 +12,12 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 )
 
@@ -26,12 +27,12 @@ type webhookRepo struct {
 	log *slog.Logger
 }
 
-func NewWebHookRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.WebHookRepo {
+func NewWebHookRepo(i do.Injector) (biz.WebHookRepo, error) {
 	return &webhookRepo{
-		t:   t,
-		db:  db,
-		log: log,
-	}
+		t:   do.MustInvoke[*gotext.Locale](i),
+		db:  do.MustInvoke[*gorm.DB](i),
+		log: do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (r *webhookRepo) List(page, limit uint) ([]*biz.WebHook, int64, error) {

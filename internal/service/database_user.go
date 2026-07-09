@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type DatabaseUserService struct {
-	databaseUserRepo biz.DatabaseUserRepo
+	databaseUserRepo *biz.DatabaseUserUsecase
 }
 
-func NewDatabaseUserService(databaseUser biz.DatabaseUserRepo) *DatabaseUserService {
+func NewDatabaseUserService(i do.Injector) (*DatabaseUserService, error) {
 	return &DatabaseUserService{
-		databaseUserRepo: databaseUser,
-	}
+		databaseUserRepo: do.MustInvoke[*biz.DatabaseUserUsecase](i),
+	}, nil
 }
 
 func (s *DatabaseUserService) List(w http.ResponseWriter, r *http.Request) {

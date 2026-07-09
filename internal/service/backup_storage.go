@@ -6,23 +6,24 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/storage"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type BackupStorageService struct {
 	t                 *gotext.Locale
-	backupAccountRepo biz.BackupAccountRepo
+	backupAccountRepo *biz.BackupAccountUsecase
 }
 
-func NewBackupStorageService(t *gotext.Locale, backupAccount biz.BackupAccountRepo) *BackupStorageService {
+func NewBackupStorageService(i do.Injector) (*BackupStorageService, error) {
 	return &BackupStorageService{
-		t:                 t,
-		backupAccountRepo: backupAccount,
-	}
+		t:                 do.MustInvoke[*gotext.Locale](i),
+		backupAccountRepo: do.MustInvoke[*biz.BackupAccountUsecase](i),
+	}, nil
 }
 
 func (s *BackupStorageService) List(w http.ResponseWriter, r *http.Request) {

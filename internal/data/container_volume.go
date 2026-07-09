@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/moby/moby/client"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -18,8 +19,8 @@ type containerVolumeRepo struct {
 	settingRepo biz.SettingRepo
 }
 
-func NewContainerVolumeRepo(settingRepo biz.SettingRepo) biz.ContainerVolumeRepo {
-	return &containerVolumeRepo{settingRepo: settingRepo}
+func NewContainerVolumeRepo(i do.Injector) (biz.ContainerVolumeRepo, error) {
+	return &containerVolumeRepo{settingRepo: do.MustInvoke[biz.SettingRepo](i)}, nil
 }
 
 // List 列出存储卷

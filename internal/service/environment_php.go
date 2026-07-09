@@ -9,13 +9,14 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -25,17 +26,17 @@ import (
 type EnvironmentPHPService struct {
 	t               *gotext.Locale
 	conf            *config.Config
-	environmentRepo biz.EnvironmentRepo
-	taskRepo        biz.TaskRepo
+	environmentRepo *biz.EnvironmentUsecase
+	taskRepo        *biz.TaskUsecase
 }
 
-func NewEnvironmentPHPService(t *gotext.Locale, conf *config.Config, environmentRepo biz.EnvironmentRepo, taskRepo biz.TaskRepo) *EnvironmentPHPService {
+func NewEnvironmentPHPService(i do.Injector) (*EnvironmentPHPService, error) {
 	return &EnvironmentPHPService{
-		t:               t,
-		conf:            conf,
-		environmentRepo: environmentRepo,
-		taskRepo:        taskRepo,
-	}
+		t:               do.MustInvoke[*gotext.Locale](i),
+		conf:            do.MustInvoke[*config.Config](i),
+		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
+		taskRepo:        do.MustInvoke[*biz.TaskUsecase](i),
+	}, nil
 }
 
 func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {

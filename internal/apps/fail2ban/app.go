@@ -10,6 +10,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/utils/str"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
@@ -27,11 +28,11 @@ type App struct {
 	websiteRepo biz.WebsiteRepo
 }
 
-func NewApp(t *gotext.Locale, website biz.WebsiteRepo) *App {
+func NewApp(i do.Injector) (*App, error) {
 	return &App{
-		t:           t,
-		websiteRepo: website,
-	}
+		t:           do.MustInvoke[*gotext.Locale](i),
+		websiteRepo: do.MustInvoke[biz.WebsiteRepo](i),
+	}, nil
 }
 
 func (s *App) Route(r chi.Router) {

@@ -9,7 +9,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
-	request "github.com/acepanel/panel/v3/internal/http/request"
+	request "github.com/acepanel/panel/v3/internal/request"
 
 	time "time"
 

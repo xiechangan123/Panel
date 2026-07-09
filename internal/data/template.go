@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
 
@@ -31,14 +32,14 @@ type templateRepo struct {
 	firewall firewall.Firewall
 }
 
-func NewTemplateRepo(t *gotext.Locale, log *slog.Logger, cache biz.CacheRepo) biz.TemplateRepo {
+func NewTemplateRepo(i do.Injector) (biz.TemplateRepo, error) {
 	return &templateRepo{
-		t:        t,
-		log:      log,
-		cache:    cache,
+		t:        do.MustInvoke[*gotext.Locale](i),
+		log:      do.MustInvoke[*slog.Logger](i),
+		cache:    do.MustInvoke[biz.CacheRepo](i),
 		api:      api.NewAPI(app.Version, app.Locale),
 		firewall: firewall.NewFirewall(),
-	}
+	}, nil
 }
 
 // List 获取所有模版，包括本地模板

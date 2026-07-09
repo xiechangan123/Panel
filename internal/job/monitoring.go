@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
@@ -17,16 +18,20 @@ import (
 type Monitoring struct {
 	db          *gorm.DB
 	log         *slog.Logger
-	settingRepo biz.SettingRepo
+	settingRepo *biz.SettingUsecase
 	lastRun     time.Time
 }
 
-func NewMonitoring(db *gorm.DB, log *slog.Logger, setting biz.SettingRepo) *Monitoring {
-	return &Monitoring{
-		db:          db,
-		log:         log,
-		settingRepo: setting,
-	}
+// NewMonitoring 构造系统监控任务
+func NewMonitoring(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "* * * * *",
+		Task: &Monitoring{
+			db:          do.MustInvoke[*gorm.DB](i),
+			log:         do.MustInvoke[*slog.Logger](i),
+			settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+		},
+	}, nil
 }
 
 func (r *Monitoring) Run(_ context.Context) error {

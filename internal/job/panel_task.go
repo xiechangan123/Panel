@@ -13,6 +13,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/libtnb/utils/collect"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -29,27 +30,31 @@ type PanelTask struct {
 	conf        *config.Config
 	db          *gorm.DB
 	log         *slog.Logger
-	backupRepo  biz.BackupRepo
-	cacheRepo   biz.CacheRepo
-	taskRepo    biz.TaskRepo
-	settingRepo biz.SettingRepo
-	scanRepo    biz.ScanEventRepo
-	statRepo    biz.WebsiteStatRepo
+	backupRepo  *biz.BackupUsecase
+	cacheRepo   *biz.CacheUsecase
+	taskRepo    *biz.TaskUsecase
+	settingRepo *biz.SettingUsecase
+	scanRepo    *biz.ScanEventUsecase
+	statRepo    *biz.WebsiteStatUsecase
 }
 
-func NewPanelTask(conf *config.Config, db *gorm.DB, log *slog.Logger, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, setting biz.SettingRepo, scan biz.ScanEventRepo, stat biz.WebsiteStatRepo) *PanelTask {
-	return &PanelTask{
-		api:         api.NewAPI(app.Version, app.Locale),
-		conf:        conf,
-		db:          db,
-		log:         log,
-		backupRepo:  backup,
-		cacheRepo:   cache,
-		taskRepo:    task,
-		settingRepo: setting,
-		scanRepo:    scan,
-		statRepo:    stat,
-	}
+// NewPanelTask 构造面板每日任务
+func NewPanelTask(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "0 2 * * *",
+		Task: &PanelTask{
+			api:         api.NewAPI(app.Version, app.Locale),
+			conf:        do.MustInvoke[*config.Config](i),
+			db:          do.MustInvoke[*gorm.DB](i),
+			log:         do.MustInvoke[*slog.Logger](i),
+			backupRepo:  do.MustInvoke[*biz.BackupUsecase](i),
+			cacheRepo:   do.MustInvoke[*biz.CacheUsecase](i),
+			taskRepo:    do.MustInvoke[*biz.TaskUsecase](i),
+			settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+			scanRepo:    do.MustInvoke[*biz.ScanEventUsecase](i),
+			statRepo:    do.MustInvoke[*biz.WebsiteStatUsecase](i),
+		},
+	}, nil
 }
 
 func (r *PanelTask) Run(_ context.Context) error {

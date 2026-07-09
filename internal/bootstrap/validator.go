@@ -1,17 +1,19 @@
-package service
+package bootstrap
 
 import (
 	"github.com/libtnb/validator"
 	"github.com/libtnb/validator/translations"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
-	"github.com/acepanel/panel/v3/internal/http/rule"
+	"github.com/acepanel/panel/v3/internal/rule"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
-var sharedValidator *validator.Validator
+// NewValidator 构建校验器
+func NewValidator(i do.Injector) (*validator.Validator, error) {
+	conf := do.MustInvoke[*config.Config](i)
 
-func NewValidator(conf *config.Config, db *gorm.DB) *validator.Validator {
 	opts := []validator.Option{validator.WithStrictRequired()}
 	switch conf.App.Locale {
 	case "zh_CN":
@@ -21,7 +23,7 @@ func NewValidator(conf *config.Config, db *gorm.DB) *validator.Validator {
 	}
 
 	v := validator.NewValidator(opts...)
-	rule.RegisterRules(v, db)
-	sharedValidator = v
-	return v
+	rule.RegisterRules(v, do.MustInvoke[*gorm.DB](i))
+
+	return v, nil
 }

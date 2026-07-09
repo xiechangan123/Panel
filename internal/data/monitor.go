@@ -3,11 +3,12 @@ package data
 import (
 	"time"
 
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type monitorRepo struct {
@@ -15,11 +16,11 @@ type monitorRepo struct {
 	setting biz.SettingRepo
 }
 
-func NewMonitorRepo(db *gorm.DB, setting biz.SettingRepo) biz.MonitorRepo {
+func NewMonitorRepo(i do.Injector) (biz.MonitorRepo, error) {
 	return &monitorRepo{
-		db:      db,
-		setting: setting,
-	}
+		db:      do.MustInvoke[*gorm.DB](i),
+		setting: do.MustInvoke[biz.SettingRepo](i),
+	}, nil
 }
 
 func (r monitorRepo) GetSetting() (*request.MonitorSetting, error) {

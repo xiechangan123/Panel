@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -18,7 +19,7 @@ type scanEventRepo struct {
 }
 
 // NewScanEventRepo 创建扫描事件数据访问实例
-func NewScanEventRepo(setting biz.SettingRepo) (biz.ScanEventRepo, error) {
+func NewScanEventRepo(i do.Injector) (biz.ScanEventRepo, error) {
 	scanDB, err := openDB("scan")
 	if err != nil {
 		return nil, err
@@ -30,7 +31,7 @@ func NewScanEventRepo(setting biz.SettingRepo) (biz.ScanEventRepo, error) {
 
 	return &scanEventRepo{
 		db:      scanDB,
-		setting: setting,
+		setting: do.MustInvoke[biz.SettingRepo](i),
 	}, nil
 }
 

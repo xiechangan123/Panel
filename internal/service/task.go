@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type TaskService struct {
-	taskRepo biz.TaskRepo
+	taskRepo *biz.TaskUsecase
 }
 
-func NewTaskService(task biz.TaskRepo) *TaskService {
+func NewTaskService(i do.Injector) (*TaskService, error) {
 	return &TaskService{
-		taskRepo: task,
-	}
+		taskRepo: do.MustInvoke[*biz.TaskUsecase](i),
+	}, nil
 }
 
 func (s *TaskService) Status(w http.ResponseWriter, r *http.Request) {

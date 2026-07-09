@@ -1,72 +1,23 @@
 package job
 
 import (
-	"log/slog"
-
-	"github.com/google/wire"
 	"github.com/libtnb/cron"
-	"gorm.io/gorm"
-
-	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/websitestat"
+	"github.com/samber/do/v2"
 )
 
-var ProviderSet = wire.NewSet(NewJobs)
+const Prefix = "jobs:"
 
-type Jobs struct {
-	conf        *config.Config
-	db          *gorm.DB
-	log         *slog.Logger
-	aggregator  *websitestat.Aggregator
-	setting     biz.SettingRepo
-	cert        biz.CertRepo
-	certAccount biz.CertAccountRepo
-	backup      biz.BackupRepo
-	cache       biz.CacheRepo
-	task        biz.TaskRepo
-	scan        biz.ScanEventRepo
-	stat        biz.WebsiteStatRepo
-	website     biz.WebsiteRepo
+// Job 声明一个定时任务
+type Job struct {
+	Spec string   // cron 表达式
+	Task cron.Job // 任务体
 }
 
-func NewJobs(conf *config.Config, db *gorm.DB, log *slog.Logger, aggregator *websitestat.Aggregator, setting biz.SettingRepo, cert biz.CertRepo, certAccount biz.CertAccountRepo, backup biz.BackupRepo, cache biz.CacheRepo, task biz.TaskRepo, scan biz.ScanEventRepo, stat biz.WebsiteStatRepo, website biz.WebsiteRepo) *Jobs {
-	return &Jobs{
-		conf:        conf,
-		db:          db,
-		log:         log,
-		aggregator:  aggregator,
-		setting:     setting,
-		cert:        cert,
-		certAccount: certAccount,
-		backup:      backup,
-		cache:       cache,
-		task:        task,
-		scan:        scan,
-		stat:        stat,
-		website:     website,
-	}
-}
-
-func (r *Jobs) Register(c *cron.Cron) error {
-	if _, err := c.Add("* * * * *", NewMonitoring(r.db, r.log, r.setting)); err != nil {
-		return err
-	}
-	if _, err := c.Add("*/2 * * * *", NewFirewallScan(r.log, r.setting, r.scan)); err != nil {
-		return err
-	}
-	if _, err := c.Add("0 4 * * *", NewCertRenew(r.conf, r.db, r.log, r.setting, r.cert, r.certAccount)); err != nil {
-		return err
-	}
-	if _, err := c.Add("0 2 * * *", NewPanelTask(r.conf, r.db, r.log, r.backup, r.cache, r.task, r.setting, r.scan, r.stat)); err != nil {
-		return err
-	}
-	if _, err := c.Add("* * * * *", NewWebsiteStat(r.log, r.setting, r.stat, r.aggregator)); err != nil {
-		return err
-	}
-	if _, err := c.Add("* * * * *", NewWebsiteExpire(r.db, r.log, r.website)); err != nil {
-		return err
-	}
-
-	return nil
-}
+var Package = do.Package(
+	do.LazyNamed(Prefix+"monitoring", NewMonitoring),
+	do.LazyNamed(Prefix+"firewall_scan", NewFirewallScan),
+	do.LazyNamed(Prefix+"cert_renew", NewCertRenew),
+	do.LazyNamed(Prefix+"panel_task", NewPanelTask),
+	do.LazyNamed(Prefix+"website_stat", NewWebsiteStat),
+	do.LazyNamed(Prefix+"website_expire", NewWebsiteExpire),
+)

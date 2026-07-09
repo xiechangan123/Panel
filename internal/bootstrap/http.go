@@ -1,36 +1,93 @@
 package bootstrap
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io"
+	"io/fs"
+	"mime"
 	"net/http"
 	"path/filepath"
+	"strings"
 
+	"github.com/andybalholm/brotli"
 	"github.com/bddjr/hlfhr"
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/validator"
+	"github.com/libtnb/validator/contrib/openapi"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/http/middleware"
+	"github.com/acepanel/panel/v3/internal/middleware"
 	"github.com/acepanel/panel/v3/internal/route"
+	"github.com/acepanel/panel/v3/pkg/apploader"
 	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/embed"
 	"github.com/acepanel/panel/v3/pkg/tlscert"
 )
 
-func NewRouter(t *gotext.Locale, middlewares *middleware.Middlewares, http *route.Http, ws *route.Ws) (*chi.Mux, error) {
-	r := chi.NewRouter()
+func NewRouter(i do.Injector) (*chi.Mux, error) {
+	t := do.MustInvoke[*gotext.Locale](i)
+	mws := do.MustInvoke[*middleware.Middlewares](i)
+	conf := do.MustInvoke[*config.Config](i)
+	loader := do.MustInvoke[*apploader.Loader](i)
+	// 供 service.Bind / route.SpecJSON 使用
+	validator.SetDefault(do.MustInvoke[*validator.Validator](i))
 
-	// add middleware
-	r.Use(middlewares.Globals(t, r)...)
-	// add http route
-	http.Register(r)
-	// add ws route
-	ws.Register(r)
+	// 数据驱动的登录白名单
+	public, err := route.PublicPaths(i)
+	if err != nil {
+		return nil, err
+	}
+
+	r := chi.NewRouter()
+	r.Use(mws.Globals(t, r, public)...)
+
+	// 注册各域路由
+	if err := route.HTTP(i, r); err != nil {
+		return nil, err
+	}
+
+	// 动态应用子路由
+	r.Route("/api/apps", func(r chi.Router) {
+		loader.Register(r)
+	})
+
+	// 仅调试模式挂载 OpenAPI 文档
+	if conf.App.Debug {
+		spec, err := route.SpecJSON(i, "AcePanel")
+		if err != nil {
+			return nil, err
+		}
+		docs := openapi.DocsHTML("AcePanel", "/openapi.json")
+		r.Get("/openapi.json", func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(spec)
+		})
+		r.Get("/docs", func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			_, _ = w.Write(docs)
+		})
+	}
+
+	r.NotFound(func(w http.ResponseWriter, req *http.Request) {
+		// /api 开头的返回 404
+		if strings.HasPrefix(req.URL.Path, "/api") {
+			http.NotFound(w, req)
+			return
+		}
+		// 其他返回前端页面
+		frontend, _ := fs.Sub(embed.PublicFS, "frontend")
+		newPrecompressedSPAHandler(http.FS(frontend)).ServeHTTP(w, req)
+	})
 
 	return r, nil
 }
 
-func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
+func NewTLSReloader(i do.Injector) (*tlscert.Reloader, error) {
+	conf := do.MustInvoke[*config.Config](i)
 	if !conf.HTTP.IsHTTPS() {
 		return nil, nil
 	}
@@ -44,7 +101,11 @@ func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
 	return reloader, nil
 }
 
-func NewHttp(conf *config.Config, mux *chi.Mux, reloader *tlscert.Reloader) (*hlfhr.Server, error) {
+func NewHttp(i do.Injector) (*hlfhr.Server, error) {
+	conf := do.MustInvoke[*config.Config](i)
+	mux := do.MustInvoke[*chi.Mux](i)
+	reloader := do.MustInvoke[*tlscert.Reloader](i)
+
 	srv := hlfhr.New(&http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.HTTP.Port),
 		Handler:        mux,
@@ -60,4 +121,64 @@ func NewHttp(conf *config.Config, mux *chi.Mux, reloader *tlscert.Reloader) (*hl
 	}
 
 	return srv, nil
+}
+
+func newPrecompressedSPAHandler(fsys http.FileSystem) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		acceptBr := strings.Contains(r.Header.Get("Accept-Encoding"), "br")
+
+		if served := serveFileWithBr(w, r, fsys, path, acceptBr); served {
+			return
+		}
+
+		// 文件不存在，SPA fallback 到 index.html
+		serveFileWithBr(w, r, fsys, "/index.html", acceptBr)
+	}
+}
+
+func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSystem, path string, acceptBr bool) bool {
+	name := filepath.Base(path)
+	// 尝试打开 .br 版本
+	if f, err := fsys.Open(path + ".br"); err == nil {
+		defer func(f http.File) { _ = f.Close() }(f)
+		fi, err := f.Stat()
+		if err != nil || fi.IsDir() {
+			return false
+		}
+
+		ct := mime.TypeByExtension(filepath.Ext(path))
+		if ct == "" {
+			ct = "application/octet-stream"
+		}
+		w.Header().Set("Content-Type", ct)
+		w.Header().Set("Vary", "Accept-Encoding")
+
+		if acceptBr {
+			// 客户端支持 br，直接透传
+			w.Header().Set("Content-Encoding", "br")
+			http.ServeContent(w, r, name, fi.ModTime(), f)
+		} else {
+			// 客户端不支持 br，解压后返回（由中间件处理 gzip）
+			decoded, err := io.ReadAll(brotli.NewReader(f))
+			if err != nil {
+				return false
+			}
+			http.ServeContent(w, r, name, fi.ModTime(), bytes.NewReader(decoded))
+		}
+		return true
+	}
+
+	// 回退到原始文件（字体、图片等未压缩的资源）
+	f, err := fsys.Open(path)
+	if err != nil {
+		return false
+	}
+	defer func(f http.File) { _ = f.Close() }(f)
+	fi, err := f.Stat()
+	if err != nil || fi.IsDir() {
+		return false
+	}
+	http.ServeContent(w, r, name, fi.ModTime(), f)
+	return true
 }

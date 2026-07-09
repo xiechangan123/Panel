@@ -15,11 +15,12 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
 	"github.com/libtnb/sessions"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/passkey"
 )
@@ -28,20 +29,20 @@ type UserPasskeyService struct {
 	t               *gotext.Locale
 	conf            *config.Config
 	session         *sessions.Manager
-	userPasskeyRepo biz.UserPasskeyRepo
-	userRepo        biz.UserRepo
+	userPasskeyRepo *biz.UserPasskeyUsecase
+	userRepo        *biz.UserUsecase
 }
 
-func NewUserPasskeyService(t *gotext.Locale, conf *config.Config, session *sessions.Manager, userPasskeyRepo biz.UserPasskeyRepo, userRepo biz.UserRepo) *UserPasskeyService {
+func NewUserPasskeyService(i do.Injector) (*UserPasskeyService, error) {
 	// 注册 webauthn.SessionData 类型，否则 gob 无法序列化
 	gob.Register(webauthn.SessionData{})
 	return &UserPasskeyService{
-		t:               t,
-		conf:            conf,
-		session:         session,
-		userPasskeyRepo: userPasskeyRepo,
-		userRepo:        userRepo,
-	}
+		t:               do.MustInvoke[*gotext.Locale](i),
+		conf:            do.MustInvoke[*config.Config](i),
+		session:         do.MustInvoke[*sessions.Manager](i),
+		userPasskeyRepo: do.MustInvoke[*biz.UserPasskeyUsecase](i),
+		userRepo:        do.MustInvoke[*biz.UserUsecase](i),
+	}, nil
 }
 
 // Enabled 检查是否有任何已注册的通行密钥

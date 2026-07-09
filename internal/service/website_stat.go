@@ -9,27 +9,28 @@ import (
 	"time"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/websitestat"
 )
 
 type WebsiteStatService struct {
-	setting     biz.SettingRepo
-	statRepo    biz.WebsiteStatRepo
-	websiteRepo biz.WebsiteRepo
+	setting     *biz.SettingUsecase
+	statRepo    *biz.WebsiteStatUsecase
+	websiteRepo *biz.WebsiteUsecase
 	aggregator  *websitestat.Aggregator
 }
 
-func NewWebsiteStatService(setting biz.SettingRepo, statRepo biz.WebsiteStatRepo, websiteRepo biz.WebsiteRepo, aggregator *websitestat.Aggregator) *WebsiteStatService {
+func NewWebsiteStatService(i do.Injector) (*WebsiteStatService, error) {
 	return &WebsiteStatService{
-		setting:     setting,
-		statRepo:    statRepo,
-		websiteRepo: websiteRepo,
-		aggregator:  aggregator,
-	}
+		setting:     do.MustInvoke[*biz.SettingUsecase](i),
+		statRepo:    do.MustInvoke[*biz.WebsiteStatUsecase](i),
+		websiteRepo: do.MustInvoke[*biz.WebsiteUsecase](i),
+		aggregator:  do.MustInvoke[*websitestat.Aggregator](i),
+	}, nil
 }
 
 // Overview 概览数据（汇总 + 时间序列 + 对比 + 站点列表）

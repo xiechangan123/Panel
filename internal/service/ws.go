@@ -17,11 +17,12 @@ import (
 	"github.com/libtnb/utils/collect"
 	"github.com/moby/moby/api/types/registry"
 	"github.com/moby/moby/client"
+	"github.com/samber/do/v2"
 	stdssh "golang.org/x/crypto/ssh"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/docker"
@@ -35,25 +36,25 @@ type WsService struct {
 	conf        *config.Config
 	log         *slog.Logger
 	api         *api.API
-	sshRepo     biz.SSHRepo
-	settingRepo biz.SettingRepo
-	certRepo    biz.CertRepo
-	backupRepo  biz.BackupRepo
-	taskRepo    biz.TaskRepo
+	sshRepo     *biz.SSHUsecase
+	settingRepo *biz.SettingUsecase
+	certRepo    *biz.CertUsecase
+	backupRepo  *biz.BackupUsecase
+	taskRepo    *biz.TaskUsecase
 }
 
-func NewWsService(t *gotext.Locale, conf *config.Config, log *slog.Logger, ssh biz.SSHRepo, settingRepo biz.SettingRepo, certRepo biz.CertRepo, backup biz.BackupRepo, task biz.TaskRepo) *WsService {
+func NewWsService(i do.Injector) (*WsService, error) {
 	return &WsService{
-		t:           t,
-		conf:        conf,
-		log:         log,
+		t:           do.MustInvoke[*gotext.Locale](i),
+		conf:        do.MustInvoke[*config.Config](i),
+		log:         do.MustInvoke[*slog.Logger](i),
 		api:         api.NewAPI(app.Version, app.Locale),
-		sshRepo:     ssh,
-		settingRepo: settingRepo,
-		certRepo:    certRepo,
-		backupRepo:  backup,
-		taskRepo:    task,
-	}
+		sshRepo:     do.MustInvoke[*biz.SSHUsecase](i),
+		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+		certRepo:    do.MustInvoke[*biz.CertUsecase](i),
+		backupRepo:  do.MustInvoke[*biz.BackupUsecase](i),
+		taskRepo:    do.MustInvoke[*biz.TaskUsecase](i),
+	}, nil
 }
 
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {

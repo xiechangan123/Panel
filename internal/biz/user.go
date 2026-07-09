@@ -34,3 +34,55 @@ type UserRepo interface {
 	GenerateTwoFA(id uint) (image.Image, string, string, error)
 	UpdateTwoFA(id uint, code, secret string) error
 }
+
+type UserUsecase struct {
+	repo UserRepo
+}
+
+func NewUserUsecase(repo UserRepo) *UserUsecase {
+	return &UserUsecase{repo: repo}
+}
+
+func (uc *UserUsecase) List(page, limit uint) ([]*User, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *UserUsecase) Get(id uint) (*User, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *UserUsecase) Create(ctx context.Context, username, password, email string) (*User, error) {
+	return uc.repo.Create(ctx, username, password, email)
+}
+
+func (uc *UserUsecase) UpdateUsername(ctx context.Context, id uint, username string) error {
+	return uc.repo.UpdateUsername(ctx, id, username)
+}
+
+func (uc *UserUsecase) UpdatePassword(ctx context.Context, id uint, password string) error {
+	return uc.repo.UpdatePassword(ctx, id, password)
+}
+
+func (uc *UserUsecase) UpdateEmail(ctx context.Context, id uint, email string) error {
+	return uc.repo.UpdateEmail(ctx, id, email)
+}
+
+func (uc *UserUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *UserUsecase) CheckPassword(username, password string) (*User, error) {
+	return uc.repo.CheckPassword(username, password)
+}
+
+func (uc *UserUsecase) IsTwoFA(username string) (bool, error) {
+	return uc.repo.IsTwoFA(username)
+}
+
+func (uc *UserUsecase) GenerateTwoFA(id uint) (image.Image, string, string, error) {
+	return uc.repo.GenerateTwoFA(id)
+}
+
+func (uc *UserUsecase) UpdateTwoFA(id uint, code, secret string) error {
+	return uc.repo.UpdateTwoFA(id, code, secret)
+}

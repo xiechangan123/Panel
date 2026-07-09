@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -29,4 +29,41 @@ type CronRepo interface {
 	Update(ctx context.Context, req *request.CronUpdate) error
 	Delete(ctx context.Context, id uint) error
 	Status(id uint, status bool) error
+}
+
+// CronUsecase 计划任务业务逻辑
+type CronUsecase struct {
+	repo CronRepo
+}
+
+func NewCronUsecase(repo CronRepo) *CronUsecase {
+	return &CronUsecase{repo: repo}
+}
+
+func (uc *CronUsecase) Count() (int64, error) {
+	return uc.repo.Count()
+}
+
+func (uc *CronUsecase) List(page, limit uint) ([]*Cron, int64, error) {
+	return uc.repo.List(page, limit)
+}
+
+func (uc *CronUsecase) Get(id uint) (*Cron, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *CronUsecase) Create(ctx context.Context, req *request.CronCreate) error {
+	return uc.repo.Create(ctx, req)
+}
+
+func (uc *CronUsecase) Update(ctx context.Context, req *request.CronUpdate) error {
+	return uc.repo.Update(ctx, req)
+}
+
+func (uc *CronUsecase) Delete(ctx context.Context, id uint) error {
+	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *CronUsecase) Status(id uint, status bool) error {
+	return uc.repo.Status(id, status)
 }

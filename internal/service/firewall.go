@@ -6,9 +6,10 @@ import (
 	"strconv"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/os"
 )
@@ -17,10 +18,10 @@ type FirewallService struct {
 	firewall firewall.Firewall
 }
 
-func NewFirewallService() *FirewallService {
+func NewFirewallService(i do.Injector) (*FirewallService, error) {
 	return &FirewallService{
 		firewall: firewall.NewFirewall(),
-	}
+	}, nil
 }
 
 func (s *FirewallService) GetStatus(w http.ResponseWriter, r *http.Request) {

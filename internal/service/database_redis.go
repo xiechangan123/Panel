@@ -4,17 +4,18 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type DatabaseRedisService struct {
-	repo biz.DatabaseRedisRepo
+	repo *biz.DatabaseRedisUsecase
 }
 
-func NewDatabaseRedisService(repo biz.DatabaseRedisRepo) *DatabaseRedisService {
-	return &DatabaseRedisService{repo: repo}
+func NewDatabaseRedisService(i do.Injector) (*DatabaseRedisService, error) {
+	return &DatabaseRedisService{repo: do.MustInvoke[*biz.DatabaseRedisUsecase](i)}, nil
 }
 
 func (s *DatabaseRedisService) Databases(w http.ResponseWriter, r *http.Request) {

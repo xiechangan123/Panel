@@ -8,22 +8,23 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 )
 
 type FileService struct {
 	t             *gotext.Locale
-	taskRepo      biz.TaskRepo
-	containerRepo biz.ContainerRepo
+	taskRepo      *biz.TaskUsecase
+	containerRepo *biz.ContainerUsecase
 }
 
-func NewFileService(t *gotext.Locale, task biz.TaskRepo, container biz.ContainerRepo) *FileService {
+func NewFileService(i do.Injector) (*FileService, error) {
 	return &FileService{
-		t:             t,
-		taskRepo:      task,
-		containerRepo: container,
-	}
+		t:             do.MustInvoke[*gotext.Locale](i),
+		taskRepo:      do.MustInvoke[*biz.TaskUsecase](i),
+		containerRepo: do.MustInvoke[*biz.ContainerUsecase](i),
+	}, nil
 }
 
 func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {}

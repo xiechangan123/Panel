@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 )
 
 type ContainerComposeService struct {
-	containerComposeRepo biz.ContainerComposeRepo
+	containerComposeRepo *biz.ContainerComposeUsecase
 }
 
-func NewContainerComposeService(containerCompose biz.ContainerComposeRepo) *ContainerComposeService {
+func NewContainerComposeService(i do.Injector) (*ContainerComposeService, error) {
 	return &ContainerComposeService{
-		containerComposeRepo: containerCompose,
-	}
+		containerComposeRepo: do.MustInvoke[*biz.ContainerComposeUsecase](i),
+	}, nil
 }
 
 func (s *ContainerComposeService) List(w http.ResponseWriter, r *http.Request) {

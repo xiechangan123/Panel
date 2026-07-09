@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/service"
@@ -22,7 +23,8 @@ type App struct {
 	name string
 }
 
-func NewApp(t *gotext.Locale) *App {
+func NewApp(i do.Injector) (*App, error) {
+	t := do.MustInvoke[*gotext.Locale](i)
 	var name string
 	if os.IsRHEL() {
 		name = "supervisord"
@@ -33,7 +35,7 @@ func NewApp(t *gotext.Locale) *App {
 	return &App{
 		t:    t,
 		name: name,
-	}
+	}, nil
 }
 
 func (s *App) Route(r chi.Router) {

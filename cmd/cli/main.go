@@ -1,21 +1,36 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	_ "time/tzdata"
+
+	"github.com/samber/do/v2"
+
+	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/injector"
 )
 
 func main() {
+	if err := run(); err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, "Error:", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	if os.Geteuid() != 0 {
-		panic("panel must run as root")
+		return errors.New("panel must run as root")
 	}
 
-	cli, err := initCli()
+	inj := injector.New()
+	defer func() { _ = inj.Shutdown() }()
+
+	cli, err := do.Invoke[*app.Cli](inj)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	if err = cli.Run(); err != nil {
-		panic(err)
-	}
+	return cli.Run()
 }

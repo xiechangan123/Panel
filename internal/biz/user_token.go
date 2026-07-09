@@ -56,3 +56,35 @@ type UserTokenRepo interface {
 	Update(id uint, ips []string, expired time.Time) (*UserToken, error)
 	ValidateReq(req *http.Request) (uint, error)
 }
+
+type UserTokenUsecase struct {
+	repo UserTokenRepo
+}
+
+func NewUserTokenUsecase(repo UserTokenRepo) *UserTokenUsecase {
+	return &UserTokenUsecase{repo: repo}
+}
+
+func (uc *UserTokenUsecase) List(userID, page, limit uint) ([]*UserToken, int64, error) {
+	return uc.repo.List(userID, page, limit)
+}
+
+func (uc *UserTokenUsecase) Create(userID uint, ips []string, expired time.Time) (*UserToken, error) {
+	return uc.repo.Create(userID, ips, expired)
+}
+
+func (uc *UserTokenUsecase) Get(id uint) (*UserToken, error) {
+	return uc.repo.Get(id)
+}
+
+func (uc *UserTokenUsecase) Delete(id uint) error {
+	return uc.repo.Delete(id)
+}
+
+func (uc *UserTokenUsecase) Update(id uint, ips []string, expired time.Time) (*UserToken, error) {
+	return uc.repo.Update(id, ips, expired)
+}
+
+func (uc *UserTokenUsecase) ValidateReq(req *http.Request) (uint, error) {
+	return uc.repo.ValidateReq(req)
+}

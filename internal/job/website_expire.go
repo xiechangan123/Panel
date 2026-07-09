@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -15,16 +16,19 @@ import (
 type WebsiteExpire struct {
 	db          *gorm.DB
 	log         *slog.Logger
-	websiteRepo biz.WebsiteRepo
+	websiteRepo *biz.WebsiteUsecase
 }
 
-// NewWebsiteExpire 创建网站到期检查任务
-func NewWebsiteExpire(db *gorm.DB, log *slog.Logger, websiteRepo biz.WebsiteRepo) *WebsiteExpire {
-	return &WebsiteExpire{
-		db:          db,
-		log:         log,
-		websiteRepo: websiteRepo,
-	}
+// NewWebsiteExpire 构造网站到期检查任务
+func NewWebsiteExpire(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "* * * * *",
+		Task: &WebsiteExpire{
+			db:          do.MustInvoke[*gorm.DB](i),
+			log:         do.MustInvoke[*slog.Logger](i),
+			websiteRepo: do.MustInvoke[*biz.WebsiteUsecase](i),
+		},
+	}, nil
 }
 
 func (r *WebsiteExpire) Run(_ context.Context) error {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
@@ -29,8 +30,11 @@ type App struct {
 	taskRepo biz.TaskRepo
 }
 
-func NewApp(t *gotext.Locale, conf *config.Config, taskRepo biz.TaskRepo) *App {
-	return &App{t: t, conf: conf, taskRepo: taskRepo}
+func NewApp(i do.Injector) (*App, error) {
+	t := do.MustInvoke[*gotext.Locale](i)
+	conf := do.MustInvoke[*config.Config](i)
+	taskRepo := do.MustInvoke[biz.TaskRepo](i)
+	return &App{t: t, conf: conf, taskRepo: taskRepo}, nil
 }
 
 func (s *App) Route(r chi.Router) {

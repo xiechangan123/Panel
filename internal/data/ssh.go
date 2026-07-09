@@ -7,11 +7,12 @@ import (
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 	cryptossh "golang.org/x/crypto/ssh"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	pkgssh "github.com/acepanel/panel/v3/pkg/ssh"
 )
 
@@ -21,12 +22,12 @@ type sshRepo struct {
 	log *slog.Logger
 }
 
-func NewSSHRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger) biz.SSHRepo {
+func NewSSHRepo(i do.Injector) (biz.SSHRepo, error) {
 	return &sshRepo{
-		t:   t,
-		db:  db,
-		log: log,
-	}
+		t:   do.MustInvoke[*gotext.Locale](i),
+		db:  do.MustInvoke[*gorm.DB](i),
+		log: do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (r *sshRepo) List(page, limit uint) ([]*biz.SSH, int64, error) {

@@ -11,13 +11,14 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/cache"
+	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/http/request"
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/firewall"
@@ -37,15 +38,15 @@ type settingRepo struct {
 	task  biz.TaskRepo
 }
 
-func NewSettingRepo(t *gotext.Locale, db *gorm.DB, log *slog.Logger, conf *config.Config, task biz.TaskRepo) biz.SettingRepo {
+func NewSettingRepo(i do.Injector) (biz.SettingRepo, error) {
 	return &settingRepo{
-		t:     t,
-		db:    db,
-		log:   log,
-		conf:  conf,
+		t:     do.MustInvoke[*gotext.Locale](i),
+		db:    do.MustInvoke[*gorm.DB](i),
+		log:   do.MustInvoke[*slog.Logger](i),
+		conf:  do.MustInvoke[*config.Config](i),
 		cache: cache.NewCache(),
-		task:  task,
-	}
+		task:  do.MustInvoke[biz.TaskRepo](i),
+	}, nil
 }
 
 func (r *settingRepo) Get(key biz.SettingKey, defaultValue ...string) (string, error) {
