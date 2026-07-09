@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/libtnb/cron"
 	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
@@ -30,15 +29,19 @@ type CertRenew struct {
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewCertRenew(conf *config.Config, db *gorm.DB, log *slog.Logger, setting *biz.SettingUsecase, cert *biz.CertUsecase, certAccount *biz.CertAccountUsecase) *CertRenew {
-	return &CertRenew{
-		conf:            conf,
-		db:              db,
-		log:             log,
-		settingRepo:     setting,
-		certRepo:        cert,
-		certAccountRepo: certAccount,
-	}
+// NewCertRenew 构造证书续签任务
+func NewCertRenew(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "0 4 * * *",
+		Task: &CertRenew{
+			conf:            do.MustInvoke[*config.Config](i),
+			db:              do.MustInvoke[*gorm.DB](i),
+			log:             do.MustInvoke[*slog.Logger](i),
+			settingRepo:     do.MustInvoke[*biz.SettingUsecase](i),
+			certRepo:        do.MustInvoke[*biz.CertUsecase](i),
+			certAccountRepo: do.MustInvoke[*biz.CertAccountUsecase](i),
+		},
+	}, nil
 }
 
 func (r *CertRenew) Run(_ context.Context) error {
@@ -160,18 +163,4 @@ func (r *CertRenew) Run(_ context.Context) error {
 	}
 
 	return nil
-}
-
-// CertRenewJob 注册证书续签任务
-func CertRenewJob(i do.Injector) (JobFn, error) {
-	conf := do.MustInvoke[*config.Config](i)
-	db := do.MustInvoke[*gorm.DB](i)
-	log := do.MustInvoke[*slog.Logger](i)
-	setting := do.MustInvoke[*biz.SettingUsecase](i)
-	cert := do.MustInvoke[*biz.CertUsecase](i)
-	certAccount := do.MustInvoke[*biz.CertAccountUsecase](i)
-	return func(c *cron.Cron) error {
-		_, err := c.Add("0 4 * * *", NewCertRenew(conf, db, log, setting, cert, certAccount))
-		return err
-	}, nil
 }

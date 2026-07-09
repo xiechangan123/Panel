@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/libtnb/cron"
 	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
@@ -32,14 +31,17 @@ type WebsiteStat struct {
 	started      atomic.Bool
 }
 
-// NewWebsiteStat 创建网站统计任务
-func NewWebsiteStat(log *slog.Logger, setting *biz.SettingUsecase, statRepo *biz.WebsiteStatUsecase, aggregator *websitestat.Aggregator) *WebsiteStat {
-	return &WebsiteStat{
-		log:        log,
-		setting:    setting,
-		statRepo:   statRepo,
-		aggregator: aggregator,
-	}
+// NewWebsiteStat 构造网站统计任务
+func NewWebsiteStat(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "* * * * *",
+		Task: &WebsiteStat{
+			log:        do.MustInvoke[*slog.Logger](i),
+			setting:    do.MustInvoke[*biz.SettingUsecase](i),
+			statRepo:   do.MustInvoke[*biz.WebsiteStatUsecase](i),
+			aggregator: do.MustInvoke[*websitestat.Aggregator](i),
+		},
+	}, nil
 }
 
 func (r *WebsiteStat) Run(_ context.Context) error {
@@ -391,16 +393,4 @@ func isZeroHourSnapshot(h *websitestat.HourSnapshot) bool {
 		h.Status3xx == 0 &&
 		h.Status4xx == 0 &&
 		h.Status5xx == 0
-}
-
-// WebsiteStatJob 注册网站统计任务
-func WebsiteStatJob(i do.Injector) (JobFn, error) {
-	log := do.MustInvoke[*slog.Logger](i)
-	setting := do.MustInvoke[*biz.SettingUsecase](i)
-	stat := do.MustInvoke[*biz.WebsiteStatUsecase](i)
-	aggregator := do.MustInvoke[*websitestat.Aggregator](i)
-	return func(c *cron.Cron) error {
-		_, err := c.Add("* * * * *", NewWebsiteStat(log, setting, stat, aggregator))
-		return err
-	}, nil
 }

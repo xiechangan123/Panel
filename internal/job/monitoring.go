@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/libtnb/cron"
 	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -23,12 +22,16 @@ type Monitoring struct {
 	lastRun     time.Time
 }
 
-func NewMonitoring(db *gorm.DB, log *slog.Logger, setting *biz.SettingUsecase) *Monitoring {
-	return &Monitoring{
-		db:          db,
-		log:         log,
-		settingRepo: setting,
-	}
+// NewMonitoring 构造系统监控任务
+func NewMonitoring(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "* * * * *",
+		Task: &Monitoring{
+			db:          do.MustInvoke[*gorm.DB](i),
+			log:         do.MustInvoke[*slog.Logger](i),
+			settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+		},
+	}, nil
 }
 
 func (r *Monitoring) Run(_ context.Context) error {
@@ -81,15 +84,4 @@ func (r *Monitoring) Run(_ context.Context) error {
 		return nil
 	}
 	return nil
-}
-
-// MonitoringJob 注册系统监控任务
-func MonitoringJob(i do.Injector) (JobFn, error) {
-	db := do.MustInvoke[*gorm.DB](i)
-	log := do.MustInvoke[*slog.Logger](i)
-	setting := do.MustInvoke[*biz.SettingUsecase](i)
-	return func(c *cron.Cron) error {
-		_, err := c.Add("* * * * *", NewMonitoring(db, log, setting))
-		return err
-	}, nil
 }

@@ -1,7 +1,8 @@
 package bootstrap
 
 import (
-	"log"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/samber/do/v2"
@@ -16,23 +17,31 @@ func NewConf(i do.Injector) (*config.Config, error) {
 		return nil, err
 	}
 
-	initGlobal(conf)
+	if err = InitGlobal(conf); err != nil {
+		return nil, err
+	}
 	return conf, nil
 }
 
-func initGlobal(conf *config.Config) {
-	app.Key = conf.App.Key
-	if len(app.Key) != 32 {
-		log.Fatalf("panel app key must be 32 characters")
+// InitGlobal 用配置初始化全局状态
+func InitGlobal(conf *config.Config) error {
+	if len(conf.App.Key) != 32 {
+		return errors.New("panel app key must be 32 characters")
 	}
+	app.Key = conf.App.Key
 
-	app.Root = "/opt/ace"
+	app.Root = conf.App.Root
+	if app.Root == "" {
+		app.Root = "/opt/ace"
+	}
 	app.Locale = conf.App.Locale
 
 	// 初始化时区
 	loc, err := time.LoadLocation(conf.App.Timezone)
 	if err != nil {
-		log.Fatalf("failed to load timezone: %v", err)
+		return fmt.Errorf("failed to load timezone: %w", err)
 	}
 	time.Local = loc
+
+	return nil
 }

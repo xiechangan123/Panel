@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/libtnb/cron"
 	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
@@ -44,16 +43,19 @@ type FirewallScan struct {
 	mu           sync.Mutex
 }
 
-// NewFirewallScan 创建扫描感知任务
-func NewFirewallScan(log *slog.Logger, setting *biz.SettingUsecase, scanRepo *biz.ScanEventUsecase) *FirewallScan {
-	return &FirewallScan{
-		log:        log,
-		setting:    setting,
-		scanRepo:   scanRepo,
-		buffer:     make(map[string]*biz.ScanEvent),
-		ipCounters: make(map[string]*ipCounter),
-		blockedIPs: make(map[string]time.Time),
-	}
+// NewFirewallScan 构造防火墙扫描感知任务
+func NewFirewallScan(i do.Injector) (Job, error) {
+	return Job{
+		Spec: "*/2 * * * *",
+		Task: &FirewallScan{
+			log:        do.MustInvoke[*slog.Logger](i),
+			setting:    do.MustInvoke[*biz.SettingUsecase](i),
+			scanRepo:   do.MustInvoke[*biz.ScanEventUsecase](i),
+			buffer:     make(map[string]*biz.ScanEvent),
+			ipCounters: make(map[string]*ipCounter),
+			blockedIPs: make(map[string]time.Time),
+		},
+	}, nil
 }
 
 func (r *FirewallScan) Run(_ context.Context) error {
@@ -375,15 +377,4 @@ func (r *FirewallScan) cleanup() {
 	if err = r.scanRepo.ClearBefore(cutoff); err != nil {
 		r.log.Warn("failed to clear expired scan data", slog.Any("err", err))
 	}
-}
-
-// FirewallScanJob 注册防火墙扫描感知任务
-func FirewallScanJob(i do.Injector) (JobFn, error) {
-	log := do.MustInvoke[*slog.Logger](i)
-	setting := do.MustInvoke[*biz.SettingUsecase](i)
-	scan := do.MustInvoke[*biz.ScanEventUsecase](i)
-	return func(c *cron.Cron) error {
-		_, err := c.Add("*/2 * * * *", NewFirewallScan(log, setting, scan))
-		return err
-	}, nil
 }
