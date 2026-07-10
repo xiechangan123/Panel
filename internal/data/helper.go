@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/libtnb/sqlite"
 	"github.com/moby/moby/client"
@@ -13,22 +12,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/biz"
 )
-
-// getContainerSock 从设置中读取容器 socket 路径
-// 如果未配置或读取失败，返回默认值 unix:///var/run/docker.sock
-func getContainerSock(settingRepo biz.SettingRepo) string {
-	sock, _ := settingRepo.Get(biz.SettingKeyContainerSock)
-	if sock == "" {
-		sock = "/var/run/docker.sock"
-	}
-	// 自动补全 scheme
-	if !strings.Contains(sock, "://") {
-		sock = fmt.Sprintf("unix://%s", sock)
-	}
-	return sock
-}
 
 func getDockerClient(sock string) (*client.Client, error) {
 	apiClient, err := client.New(client.WithHost(sock))

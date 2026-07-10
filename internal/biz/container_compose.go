@@ -9,7 +9,7 @@ type ContainerComposeRepo interface {
 	Update(name, compose string, envs []types.KV) error
 	Up(name string, force bool) error
 	Down(name string) error
-	Remove(name string) error
+	RemoveDir(name string) error
 }
 
 type ContainerComposeUsecase struct {
@@ -45,5 +45,8 @@ func (uc *ContainerComposeUsecase) Down(name string) error {
 }
 
 func (uc *ContainerComposeUsecase) Remove(name string) error {
-	return uc.repo.Remove(name)
+	if err := uc.repo.Down(name); err != nil {
+		return err
+	}
+	return uc.repo.RemoveDir(name)
 }

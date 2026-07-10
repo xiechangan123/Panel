@@ -2,7 +2,12 @@ package biz
 
 import (
 	"context"
+	"log/slog"
 	"time"
+
+	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/utils/str"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/request"
 )
@@ -25,18 +30,25 @@ type WebHookRepo interface {
 	List(page, limit uint) ([]*WebHook, int64, error)
 	Get(id uint) (*WebHook, error)
 	GetByKey(key string) (*WebHook, error)
-	Create(ctx context.Context, req *request.WebHookCreate) (*WebHook, error)
-	Update(ctx context.Context, req *request.WebHookUpdate) error
-	Delete(ctx context.Context, id uint) error
+	CreateWithScript(webhook *WebHook, script string) error
+	UpdateWithScript(webhook *WebHook, req *request.WebHookUpdate) error
+	RemoveScript(key string) error
+	Delete(id uint) error
 	Call(key string) (string, error)
 }
 
 type WebHookUsecase struct {
 	repo WebHookRepo
+	log  *slog.Logger
+	t    *gotext.Locale
 }
 
-func NewWebHookUsecase(repo WebHookRepo) *WebHookUsecase {
-	return &WebHookUsecase{repo: repo}
+func NewWebHookUsecase(i do.Injector) (*WebHookUsecase, error) {
+	return &WebHookUsecase{
+		repo: do.MustInvoke[WebHookRepo](i),
+		log:  do.MustInvoke[*slog.Logger](i),
+		t:    do.MustInvoke[*gotext.Locale](i),
+	}, nil
 }
 
 func (uc *WebHookUsecase) List(page, limit uint) ([]*WebHook, int64, error) {
@@ -52,17 +64,61 @@ func (uc *WebHookUsecase) GetByKey(key string) (*WebHook, error) {
 }
 
 func (uc *WebHookUsecase) Create(ctx context.Context, req *request.WebHookCreate) (*WebHook, error) {
-	return uc.repo.Create(ctx, req)
+	key := str.Random(32)
+	webhook := &WebHook{
+		Name:   req.Name,
+		Key:    key,
+		Script: req.Script,
+		Raw:    req.Raw,
+		User:   req.User,
+		Status: true,
+	}
+
+	if err := uc.repo.CreateWithScript(webhook, req.Script); err != nil {
+		return nil, err
+	}
+
+	// 记录日志
+	uc.log.Info("webhook created", slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name))
+
+	return webhook, nil
 }
 
 func (uc *WebHookUsecase) Update(ctx context.Context, req *request.WebHookUpdate) error {
-	return uc.repo.Update(ctx, req)
+	webhook, err := uc.repo.Get(req.ID)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.UpdateWithScript(webhook, req); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("webhook updated", slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+
+	return nil
 }
 
 func (uc *WebHookUsecase) Delete(ctx context.Context, id uint) error {
-	return uc.repo.Delete(ctx, id)
+	webhook, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	_ = uc.repo.RemoveScript(webhook.Key)
+
+	if err = uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("webhook deleted", slog.String("type", OperationTypeWebhook), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
+
+	return nil
 }
 
 func (uc *WebHookUsecase) Call(key string) (string, error) {
+	// 校验与执行紧耦合，留 repo.Call 内单次读取，避免重复读与 TOCTOU
 	return uc.repo.Call(key)
 }

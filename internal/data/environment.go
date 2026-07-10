@@ -1,77 +1,29 @@
 package data
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/shell"
-	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type environmentRepo struct {
-	t     *gotext.Locale
-	conf  *config.Config
-	cache biz.CacheRepo
-	task  biz.TaskRepo
+	t    *gotext.Locale
+	conf *config.Config
 }
 
 func NewEnvironmentRepo(i do.Injector) (biz.EnvironmentRepo, error) {
 	return &environmentRepo{
-		t:     do.MustInvoke[*gotext.Locale](i),
-		conf:  do.MustInvoke[*config.Config](i),
-		cache: do.MustInvoke[biz.CacheRepo](i),
-		task:  do.MustInvoke[biz.TaskRepo](i),
+		t:    do.MustInvoke[*gotext.Locale](i),
+		conf: do.MustInvoke[*config.Config](i),
 	}, nil
-}
-
-func (r *environmentRepo) Types() []types.LV {
-	return []types.LV{
-		{Label: "Go", Value: "go"},
-		{Label: "Java", Value: "java"},
-		{Label: "Node.js", Value: "nodejs"},
-		{Label: "PHP", Value: "php"},
-		{Label: "Python", Value: "python"},
-		{Label: ".NET", Value: "dotnet"},
-	}
-}
-
-func (r *environmentRepo) All(typ ...string) api.Environments {
-	cached, err := r.cache.Get(biz.CacheKeyEnvironment)
-	if err != nil {
-		return nil
-	}
-	var environments api.Environments
-	if err = json.Unmarshal([]byte(cached), &environments); err != nil {
-		return nil
-	}
-
-	// 过滤
-	environments = slices.DeleteFunc(environments, func(env *api.Environment) bool {
-		return len(typ) > 0 && typ[0] != "" && env.Type != typ[0]
-	})
-
-	return environments
-}
-
-func (r *environmentRepo) GetByTypeAndSlug(typ, slug string) *api.Environment {
-	all := r.All()
-	for _, env := range all {
-		if env.Type == typ && env.Slug == slug {
-			return env
-		}
-	}
-	return nil
 }
 
 func (r *environmentRepo) IsInstalled(typ, slug string) bool {
@@ -96,20 +48,6 @@ func (r *environmentRepo) IsInstalled(typ, slug string) bool {
 
 	_, err := os.Stat(binFile)
 	return err == nil
-}
-
-func (r *environmentRepo) InstalledSlugs(typ string) []string {
-	var slugs []string
-	all := r.All()
-	for _, env := range all {
-		if env.Type != typ {
-			continue
-		}
-		if r.IsInstalled(typ, env.Slug) {
-			slugs = append(slugs, env.Slug)
-		}
-	}
-	return slugs
 }
 
 func (r *environmentRepo) InstalledVersion(typ, slug string) string {
@@ -150,68 +88,11 @@ func (r *environmentRepo) InstalledVersion(typ, slug string) string {
 	return version
 }
 
-func (r *environmentRepo) HasUpdate(typ, slug string) bool {
-	if !r.IsInstalled(typ, slug) {
-		return false
-	}
-	env := r.GetByTypeAndSlug(typ, slug)
-	if env == nil {
-		return false
-	}
-
-	mainlineVersion := env.Version
-	installedVersion := r.InstalledVersion(typ, slug)
-
-	return mainlineVersion != installedVersion && mainlineVersion != "" && installedVersion != ""
-}
-
-func (r *environmentRepo) Install(typ, slug string) error {
-	if installed := r.IsInstalled(typ, slug); installed {
-		return errors.New(r.t.Get("environment %s-%s already installed", typ, slug))
-	}
-	return r.do(typ, slug, "install")
-}
-
-func (r *environmentRepo) Uninstall(typ, slug string) error {
-	if installed := r.IsInstalled(typ, slug); !installed {
-		return errors.New(r.t.Get("environment %s-%s not installed", typ, slug))
-	}
-	return r.do(typ, slug, "uninstall")
-}
-
-func (r *environmentRepo) Update(typ, slug string) error {
-	if installed := r.IsInstalled(typ, slug); !installed {
-		return errors.New(r.t.Get("environment %s-%s not installed", typ, slug))
-	}
-	return r.do(typ, slug, "update")
-}
-
-func (r *environmentRepo) do(typ, slug, action string) error {
-	env := r.GetByTypeAndSlug(typ, slug)
-	if env == nil {
-		return fmt.Errorf("environment not found: %s-%s", typ, slug)
-	}
-
+func (r *environmentRepo) ScriptCommand(typ, action, slug, version string) string {
 	shellUrl := fmt.Sprintf("https://%s/%s/%s.sh", r.conf.App.DownloadEndpoint, typ, action)
+	return fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, slug, version)
+}
 
-	if app.IsCli {
-		return shell.ExecfWithOutput(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, env.Slug, env.Version)
-	}
-
-	var name string
-	switch action {
-	case "install":
-		name = r.t.Get("Install environment %s", env.Name)
-	case "uninstall":
-		name = r.t.Get("Uninstall environment %s", env.Name)
-	case "update":
-		name = r.t.Get("Update environment %s", env.Name)
-	}
-
-	task := new(biz.Task)
-	task.Name = name
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, env.Slug, env.Version)
-
-	return r.task.Push(task)
+func (r *environmentRepo) ExecScript(cmd string) error {
+	return shell.ExecfWithOutput(cmd)
 }

@@ -2,12 +2,22 @@ package biz
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"path/filepath"
+	"slices"
+	"strings"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	mholtacme "github.com/mholt/acmez/v3/acme"
+	"github.com/samber/do/v2"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
+	pkgcert "github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -37,26 +47,35 @@ type CertRepo interface {
 	List(page, limit uint) ([]*types.CertList, int64, error)
 	Get(id uint) (*Cert, error)
 	GetByWebsite(WebsiteID uint) (*Cert, error)
-	Upload(ctx context.Context, req *request.CertUpload) (*Cert, error)
-	Create(ctx context.Context, req *request.CertCreate) (*Cert, error)
-	Update(ctx context.Context, req *request.CertUpdate) error
-	Delete(ctx context.Context, id uint) error
-	ObtainAuto(id uint) (*acme.Certificate, error)
-	ObtainAutoWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error)
-	ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error)
-	ObtainSelfSigned(id uint) error
-	Renew(id uint) (*acme.Certificate, error)
-	RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error)
-	RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error)
-	Deploy(ID, WebsiteID uint, enableHTTPS bool) error
+	Create(req *request.CertCreate) (*Cert, error)
+	CreateUploaded(cert *Cert) error
+	Update(req *request.CertUpdate) error
+	Delete(id uint) error
+	Save(cert *Cert) error
+	GetClient(cert *Cert) (*acme.Client, error)
+	GenerateSelfSigned(domains []string) ([]byte, []byte, error)
+	RunScript(cert *Cert) error
+	ObtainPanel(account *CertAccount, ips []string, webServer string) ([]byte, []byte, error)
+	LoadWebsite(WebsiteID uint) (*Website, error)
+	WriteCertFiles(cert *Cert, certPath, keyPath string) error
+	EnableWebsiteSSL(website *Website, certPath, keyPath, webServer string, tlsVersions []string) error
+	ReloadWebserver(webServer string) error
 }
 
 type CertUsecase struct {
-	repo CertRepo
+	repo    CertRepo
+	setting SettingRepo
+	t       *gotext.Locale
+	log     *slog.Logger
 }
 
-func NewCertUsecase(repo CertRepo) *CertUsecase {
-	return &CertUsecase{repo: repo}
+func NewCertUsecase(i do.Injector) (*CertUsecase, error) {
+	return &CertUsecase{
+		repo:    do.MustInvoke[CertRepo](i),
+		setting: do.MustInvoke[SettingRepo](i),
+		t:       do.MustInvoke[*gotext.Locale](i),
+		log:     do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (uc *CertUsecase) List(page, limit uint) ([]*types.CertList, int64, error) {
@@ -72,49 +91,336 @@ func (uc *CertUsecase) GetByWebsite(WebsiteID uint) (*Cert, error) {
 }
 
 func (uc *CertUsecase) Upload(ctx context.Context, req *request.CertUpload) (*Cert, error) {
-	return uc.repo.Upload(ctx, req)
+	info, err := pkgcert.ParseCert([]byte(req.Cert))
+	if err != nil {
+		return nil, errors.New(uc.t.Get("failed to parse certificate: %v", err))
+	}
+	if _, err = pkgcert.ParseKey([]byte(req.Key)); err != nil {
+		return nil, errors.New(uc.t.Get("failed to parse private key: %v", err))
+	}
+
+	// 合并 DNSNames 和 IPAddresses
+	domains := info.DNSNames
+	for _, ip := range info.IPAddresses {
+		domains = append(domains, ip.String())
+	}
+
+	cert := &Cert{
+		Type:    "upload",
+		Domains: domains,
+		Cert:    req.Cert,
+		Key:     req.Key,
+	}
+	if err = uc.repo.CreateUploaded(cert); err != nil {
+		return nil, err
+	}
+
+	// 记录日志
+	uc.log.Info("cert uploaded", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(cert.ID)))
+
+	return cert, nil
 }
 
 func (uc *CertUsecase) Create(ctx context.Context, req *request.CertCreate) (*Cert, error) {
-	return uc.repo.Create(ctx, req)
+	cert, err := uc.repo.Create(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// 记录日志
+	uc.log.Info("cert created", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(cert.ID)), slog.String("cert_type", req.Type))
+
+	return cert, nil
 }
 
 func (uc *CertUsecase) Update(ctx context.Context, req *request.CertUpdate) error {
-	return uc.repo.Update(ctx, req)
+	info, err := pkgcert.ParseCert([]byte(req.Cert))
+	if err == nil && req.Type == "upload" {
+		// 合并 DNSNames 和 IPAddresses
+		req.Domains = info.DNSNames
+		for _, ip := range info.IPAddresses {
+			req.Domains = append(req.Domains, ip.String())
+		}
+	}
+	if req.Type == "upload" && req.AutoRenewal {
+		return errors.New(uc.t.Get("upload certificate cannot be set to auto renewal"))
+	}
+
+	if err = uc.repo.Update(req); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("cert updated", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)))
+
+	return nil
 }
 
 func (uc *CertUsecase) Delete(ctx context.Context, id uint) error {
-	return uc.repo.Delete(ctx, id)
+	if err := uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("cert deleted", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)))
+
+	return nil
 }
 
 func (uc *CertUsecase) ObtainAuto(id uint) (*acme.Certificate, error) {
-	return uc.repo.ObtainAuto(id)
+	return uc.ObtainAutoWithProgressCallback(context.Background(), id, nil)
 }
 
 func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
-	return uc.repo.ObtainAutoWithProgressCallback(ctx, id, progressCallback)
+	report := func(msg string) {
+		if progressCallback != nil {
+			progressCallback(msg)
+		}
+	}
+
+	report(uc.t.Get("initializing ACME client"))
+	cert, err := uc.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := uc.repo.GetClient(cert)
+	if err != nil {
+		return nil, err
+	}
+
+	webServer, _ := uc.setting.Get(SettingKeyWebserver)
+
+	if cert.DNS != nil {
+		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			Alias:            cert.Alias,
+			DnsServer:        cert.DNS.Data.DnsServer,
+			SkipVerify:       cert.DNS.Data.SkipVerify,
+			ProgressCallback: progressCallback,
+		})
+	} else {
+		if cert.Website == nil {
+			return nil, errors.New(uc.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
+		}
+		hasWildcard := slices.ContainsFunc(cert.Domains, func(d string) bool {
+			return strings.Contains(d, "*")
+		})
+		if hasWildcard {
+			return nil, errors.New(uc.t.Get("wildcard domains cannot use HTTP verification"))
+		}
+		conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
+		client.UseHTTP(conf, webServer)
+	}
+
+	report(uc.t.Get("issuing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	defer cancel()
+	ssl, err := client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
+	if err != nil {
+		return nil, err
+	}
+
+	report(uc.t.Get("obtaining and saving certificate"))
+	cert.RenewalInfo = *ssl.RenewalInfo
+	cert.CertURL = ssl.URL
+	cert.Cert = string(ssl.ChainPEM)
+	cert.Key = string(ssl.PrivateKey)
+	if err = uc.repo.Save(cert); err != nil {
+		return nil, err
+	}
+
+	if cert.Website != nil {
+		report(uc.t.Get("deploying certificate to website"))
+		return &ssl, uc.Deploy(cert.ID, cert.WebsiteID, false)
+	}
+
+	if err = uc.repo.RunScript(cert); err != nil {
+		return nil, err
+	}
+
+	return &ssl, nil
 }
 
 func (uc *CertUsecase) ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error) {
-	return uc.repo.ObtainPanel(account, ips)
+	webServer, _ := uc.setting.Get(SettingKeyWebserver)
+	return uc.repo.ObtainPanel(account, ips, webServer)
 }
 
 func (uc *CertUsecase) ObtainSelfSigned(id uint) error {
-	return uc.repo.ObtainSelfSigned(id)
+	cert, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	crt, key, err := uc.repo.GenerateSelfSigned(cert.Domains)
+	if err != nil {
+		return err
+	}
+
+	cert.Cert = string(crt)
+	cert.Key = string(key)
+	if err = uc.repo.Save(cert); err != nil {
+		return err
+	}
+
+	if cert.Website != nil {
+		return uc.Deploy(cert.ID, cert.WebsiteID, false)
+	}
+
+	if err = uc.repo.RunScript(cert); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (uc *CertUsecase) Renew(id uint) (*acme.Certificate, error) {
-	return uc.repo.Renew(id)
+	return uc.RenewWithProgressCallback(context.Background(), id, nil)
 }
 
 func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
-	return uc.repo.RenewWithProgressCallback(ctx, id, progressCallback)
+	report := func(msg string) {
+		if progressCallback != nil {
+			progressCallback(msg)
+		}
+	}
+
+	report(uc.t.Get("preparing renewal"))
+	cert, err := uc.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := uc.repo.GetClient(cert)
+	if err != nil {
+		return nil, err
+	}
+
+	if cert.CertURL == "" {
+		return nil, errors.New(uc.t.Get("this certificate has not been obtained successfully and cannot be renewed"))
+	}
+
+	webServer, _ := uc.setting.Get(SettingKeyWebserver)
+
+	if cert.DNS != nil {
+		client.UseDns(cert.DNS.Type, cert.DNS.Data, acme.DnsOption{
+			Alias:            cert.Alias,
+			DnsServer:        cert.DNS.Data.DnsServer,
+			SkipVerify:       cert.DNS.Data.SkipVerify,
+			ProgressCallback: progressCallback,
+		})
+	} else {
+		if cert.Website == nil {
+			return nil, errors.New(uc.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
+		} else {
+			for _, domain := range cert.Domains {
+				if strings.Contains(domain, "*") {
+					return nil, errors.New(uc.t.Get("wildcard domains cannot use HTTP verification"))
+				}
+			}
+			conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
+			client.UseHTTP(conf, webServer)
+		}
+	}
+
+	report(uc.t.Get("renewing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	defer cancel()
+	ssl, err := client.RenewCertificate(ctx, cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
+	if err != nil {
+		// 续签失败，尝试重签
+		report(uc.t.Get("renewal failed, attempting re-issuance"))
+		ssl, err = client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	report(uc.t.Get("obtaining and saving certificate"))
+	cert.RenewalInfo = *ssl.RenewalInfo
+	cert.CertURL = ssl.URL
+	cert.Cert = string(ssl.ChainPEM)
+	cert.Key = string(ssl.PrivateKey)
+	if err = uc.repo.Save(cert); err != nil {
+		return nil, err
+	}
+
+	if cert.Website != nil {
+		report(uc.t.Get("deploying certificate to website"))
+		return &ssl, uc.Deploy(cert.ID, cert.WebsiteID, false)
+	}
+
+	return &ssl, nil
 }
 
 func (uc *CertUsecase) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
-	return uc.repo.RefreshRenewalInfo(id)
+	cert, err := uc.repo.Get(id)
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+	client, err := uc.repo.GetClient(cert)
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	crt, err := pkgcert.ParseCert([]byte(cert.Cert))
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	renewInfo, err := client.GetRenewalInfo(ctx, crt)
+	if err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	cert.RenewalInfo = renewInfo
+	if err = uc.repo.Save(cert); err != nil {
+		return mholtacme.RenewalInfo{}, err
+	}
+
+	return renewInfo, nil
 }
 
 func (uc *CertUsecase) Deploy(ID, WebsiteID uint, enableHTTPS bool) error {
-	return uc.repo.Deploy(ID, WebsiteID, enableHTTPS)
+	cert, err := uc.repo.Get(ID)
+	if err != nil {
+		return err
+	}
+
+	if cert.Cert == "" || cert.Key == "" {
+		return errors.New(uc.t.Get("this certificate has not been obtained successfully and cannot be deployed"))
+	}
+
+	website, err := uc.repo.LoadWebsite(WebsiteID)
+	if err != nil {
+		return err
+	}
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	certPath := filepath.Join(configDir, "fullchain.pem")
+	keyPath := filepath.Join(configDir, "private.key")
+	if err = uc.repo.WriteCertFiles(cert, certPath, keyPath); err != nil {
+		return err
+	}
+
+	// 开启 HTTPS
+	if enableHTTPS && !website.SSL {
+		// 原 getVhost 首步读 webserver 设置并传播错误，保持该语义
+		webServer, err := uc.setting.Get(SettingKeyWebserver)
+		if err != nil {
+			return err
+		}
+		tlsVersions, _ := uc.setting.GetSlice(SettingKeyWebsiteTLSVersions)
+		if err = uc.repo.EnableWebsiteSSL(website, certPath, keyPath, webServer, tlsVersions); err != nil {
+			return err
+		}
+	}
+
+	webServer, _ := uc.setting.Get(SettingKeyWebserver)
+	return uc.repo.ReloadWebserver(webServer)
+}
+
+func (uc *CertUsecase) Save(cert *Cert) error {
+	return uc.repo.Save(cert)
 }

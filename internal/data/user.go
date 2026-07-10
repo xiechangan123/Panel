@@ -1,10 +1,8 @@
 package data
 
 import (
-	"context"
 	"errors"
 	"image"
-	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/hash"
@@ -20,7 +18,6 @@ import (
 type userRepo struct {
 	t      *gotext.Locale
 	db     *gorm.DB
-	log    *slog.Logger
 	hasher hash.Hasher
 }
 
@@ -28,7 +25,6 @@ func NewUserRepo(i do.Injector) (biz.UserRepo, error) {
 	return &userRepo{
 		t:      do.MustInvoke[*gotext.Locale](i),
 		db:     do.MustInvoke[*gorm.DB](i),
-		log:    do.MustInvoke[*slog.Logger](i),
 		hasher: hash.NewArgon2id(),
 	}, nil
 }
@@ -49,7 +45,15 @@ func (r *userRepo) Get(id uint) (*biz.User, error) {
 	return user, nil
 }
 
-func (r *userRepo) Create(ctx context.Context, username, password, email string) (*biz.User, error) {
+func (r *userRepo) Count() (int64, error) {
+	var count int64
+	if err := r.db.Model(&biz.User{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *userRepo) Create(username, password, email string) (*biz.User, error) {
 	value, err := r.hasher.Make(password)
 	if err != nil {
 		return nil, err
@@ -64,13 +68,10 @@ func (r *userRepo) Create(ctx context.Context, username, password, email string)
 		return nil, err
 	}
 
-	// 记录日志
-	r.log.Info("user created", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(user.ID)), slog.String("username", username))
-
 	return user, nil
 }
 
-func (r *userRepo) UpdateUsername(ctx context.Context, id uint, username string) error {
+func (r *userRepo) UpdateUsername(id uint, username string) error {
 	user, err := r.Get(id)
 	if err != nil {
 		return err
@@ -81,13 +82,10 @@ func (r *userRepo) UpdateUsername(ctx context.Context, id uint, username string)
 		return err
 	}
 
-	// 记录日志
-	r.log.Info("user username updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", username))
-
 	return nil
 }
 
-func (r *userRepo) UpdatePassword(ctx context.Context, id uint, password string) error {
+func (r *userRepo) UpdatePassword(id uint, password string) error {
 	value, err := r.hasher.Make(password)
 	if err != nil {
 		return err
@@ -103,13 +101,10 @@ func (r *userRepo) UpdatePassword(ctx context.Context, id uint, password string)
 		return err
 	}
 
-	// 记录日志
-	r.log.Info("user password updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)))
-
 	return nil
 }
 
-func (r *userRepo) UpdateEmail(ctx context.Context, id uint, email string) error {
+func (r *userRepo) UpdateEmail(id uint, email string) error {
 	user, err := r.Get(id)
 	if err != nil {
 		return err
@@ -120,24 +115,13 @@ func (r *userRepo) UpdateEmail(ctx context.Context, id uint, email string) error
 		return err
 	}
 
-	// 记录日志
-	r.log.Info("user email updated", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("email", email))
-
 	return nil
 }
 
-func (r *userRepo) Delete(ctx context.Context, id uint) error {
-	var count int64
-	if err := r.db.Model(&biz.User{}).Count(&count).Error; err != nil {
-		return err
-	}
-	if count <= 1 {
-		return errors.New(r.t.Get("please don't do this"))
-	}
-
+func (r *userRepo) Delete(id uint) (string, error) {
 	user := new(biz.User)
 	if err := r.db.Preload("Tokens").First(user, id).Error; err != nil {
-		return err
+		return "", err
 	}
 
 	username := user.Username
@@ -147,13 +131,10 @@ func (r *userRepo) Delete(ctx context.Context, id uint) error {
 		}
 		return tx.Delete(&user).Error
 	}); err != nil {
-		return err
+		return "", err
 	}
 
-	// 记录日志
-	r.log.Info("user deleted", slog.String("type", biz.OperationTypeUser), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("username", username))
-
-	return nil
+	return username, nil
 }
 
 func (r *userRepo) CheckPassword(username, password string) (*biz.User, error) {

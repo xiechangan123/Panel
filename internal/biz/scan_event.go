@@ -1,6 +1,11 @@
 package biz
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/spf13/cast"
+)
 
 // ScanEvent 扫描事件模型
 type ScanEvent struct {
@@ -75,19 +80,18 @@ type ScanEventRepo interface {
 	TopSourceIPs(start, end string, limit uint) ([]*ScanSourceRank, error)
 	TopPorts(start, end string, limit uint) ([]*ScanPortRank, error)
 	ClearBefore(date string) error
-	GetSetting() (*ScanSetting, error)
-	UpdateSetting(setting *ScanSetting) error
 	Clear() error
 	VacuumDB() error
 }
 
 // ScanEventUsecase 扫描事件业务逻辑
 type ScanEventUsecase struct {
-	repo ScanEventRepo
+	repo    ScanEventRepo
+	setting SettingRepo
 }
 
-func NewScanEventUsecase(repo ScanEventRepo) *ScanEventUsecase {
-	return &ScanEventUsecase{repo: repo}
+func NewScanEventUsecase(repo ScanEventRepo, setting SettingRepo) *ScanEventUsecase {
+	return &ScanEventUsecase{repo: repo, setting: setting}
 }
 
 func (uc *ScanEventUsecase) Upsert(events []*ScanEvent) error {
@@ -119,11 +123,89 @@ func (uc *ScanEventUsecase) ClearBefore(date string) error {
 }
 
 func (uc *ScanEventUsecase) GetSetting() (*ScanSetting, error) {
-	return uc.repo.GetSetting()
+	enabled, err := uc.setting.GetBool(SettingKeyScanAware)
+	if err != nil {
+		return nil, err
+	}
+	days, err := uc.setting.GetInt(SettingKeyScanAwareDays, 30)
+	if err != nil {
+		return nil, err
+	}
+
+	interfacesStr, err := uc.setting.Get(SettingKeyScanAwareInterfaces)
+	if err != nil {
+		return nil, err
+	}
+
+	var interfaces []string
+	if interfacesStr != "" {
+		_ = json.Unmarshal([]byte(interfacesStr), &interfaces)
+	}
+
+	autoBlock, err := uc.setting.GetBool(SettingKeyScanAwareAutoBlock)
+	if err != nil {
+		return nil, err
+	}
+	blockThreshold, err := uc.setting.GetInt(SettingKeyScanAwareBlockThreshold, 100)
+	if err != nil {
+		return nil, err
+	}
+	blockWindow, err := uc.setting.GetInt(SettingKeyScanAwareBlockWindow, 5)
+	if err != nil {
+		return nil, err
+	}
+	blockDuration, err := uc.setting.GetInt(SettingKeyScanAwareBlockDuration, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	whitelist, err := uc.setting.GetSlice(SettingKeyScanAwareWhitelist)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ScanSetting{
+		Enabled:        enabled,
+		Days:           uint(days),
+		Interfaces:     interfaces,
+		AutoBlock:      autoBlock,
+		BlockThreshold: uint(blockThreshold),
+		BlockWindow:    uint(blockWindow),
+		BlockDuration:  uint(blockDuration),
+		Whitelist:      whitelist,
+	}, nil
 }
 
 func (uc *ScanEventUsecase) UpdateSetting(setting *ScanSetting) error {
-	return uc.repo.UpdateSetting(setting)
+	if err := uc.setting.Set(SettingKeyScanAware, cast.ToString(setting.Enabled)); err != nil {
+		return err
+	}
+	if err := uc.setting.Set(SettingKeyScanAwareDays, cast.ToString(setting.Days)); err != nil {
+		return err
+	}
+
+	interfacesJSON, err := json.Marshal(setting.Interfaces)
+	if err != nil {
+		return err
+	}
+	if err = uc.setting.Set(SettingKeyScanAwareInterfaces, string(interfacesJSON)); err != nil {
+		return err
+	}
+
+	if err = uc.setting.Set(SettingKeyScanAwareAutoBlock, cast.ToString(setting.AutoBlock)); err != nil {
+		return err
+	}
+	if err = uc.setting.Set(SettingKeyScanAwareBlockThreshold, cast.ToString(setting.BlockThreshold)); err != nil {
+		return err
+	}
+	if err = uc.setting.Set(SettingKeyScanAwareBlockWindow, cast.ToString(setting.BlockWindow)); err != nil {
+		return err
+	}
+	if err = uc.setting.Set(SettingKeyScanAwareBlockDuration, cast.ToString(setting.BlockDuration)); err != nil {
+		return err
+	}
+
+	return uc.setting.SetSlice(SettingKeyScanAwareWhitelist, setting.Whitelist)
 }
 
 func (uc *ScanEventUsecase) Clear() error {

@@ -3,10 +3,7 @@
 package biz
 
 import (
-	context "context"
-
 	biz "github.com/acepanel/panel/v3/internal/biz"
-
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/v3/internal/request"
@@ -81,76 +78,64 @@ func (_c *WebHookRepo_Call_Call) RunAndReturn(run func(string) (string, error)) 
 	return _c
 }
 
-// Create provides a mock function with given fields: ctx, req
-func (_m *WebHookRepo) Create(ctx context.Context, req *request.WebHookCreate) (*biz.WebHook, error) {
-	ret := _m.Called(ctx, req)
+// CreateWithScript provides a mock function with given fields: webhook, script
+func (_m *WebHookRepo) CreateWithScript(webhook *biz.WebHook, script string) error {
+	ret := _m.Called(webhook, script)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Create")
+		panic("no return value specified for CreateWithScript")
 	}
 
-	var r0 *biz.WebHook
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.WebHookCreate) (*biz.WebHook, error)); ok {
-		return rf(ctx, req)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *request.WebHookCreate) *biz.WebHook); ok {
-		r0 = rf(ctx, req)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*biz.WebHook, string) error); ok {
+		r0 = rf(webhook, script)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*biz.WebHook)
-		}
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *request.WebHookCreate) error); ok {
-		r1 = rf(ctx, req)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// WebHookRepo_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type WebHookRepo_Create_Call struct {
+// WebHookRepo_CreateWithScript_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateWithScript'
+type WebHookRepo_CreateWithScript_Call struct {
 	*mock.Call
 }
 
-// Create is a helper method to define mock.On call
-//   - ctx context.Context
-//   - req *request.WebHookCreate
-func (_e *WebHookRepo_Expecter) Create(ctx interface{}, req interface{}) *WebHookRepo_Create_Call {
-	return &WebHookRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
+// CreateWithScript is a helper method to define mock.On call
+//   - webhook *biz.WebHook
+//   - script string
+func (_e *WebHookRepo_Expecter) CreateWithScript(webhook interface{}, script interface{}) *WebHookRepo_CreateWithScript_Call {
+	return &WebHookRepo_CreateWithScript_Call{Call: _e.mock.On("CreateWithScript", webhook, script)}
 }
 
-func (_c *WebHookRepo_Create_Call) Run(run func(ctx context.Context, req *request.WebHookCreate)) *WebHookRepo_Create_Call {
+func (_c *WebHookRepo_CreateWithScript_Call) Run(run func(webhook *biz.WebHook, script string)) *WebHookRepo_CreateWithScript_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.WebHookCreate))
+		run(args[0].(*biz.WebHook), args[1].(string))
 	})
 	return _c
 }
 
-func (_c *WebHookRepo_Create_Call) Return(_a0 *biz.WebHook, _a1 error) *WebHookRepo_Create_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *WebHookRepo_CreateWithScript_Call) Return(_a0 error) *WebHookRepo_CreateWithScript_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *WebHookRepo_Create_Call) RunAndReturn(run func(context.Context, *request.WebHookCreate) (*biz.WebHook, error)) *WebHookRepo_Create_Call {
+func (_c *WebHookRepo_CreateWithScript_Call) RunAndReturn(run func(*biz.WebHook, string) error) *WebHookRepo_CreateWithScript_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: ctx, id
-func (_m *WebHookRepo) Delete(ctx context.Context, id uint) error {
-	ret := _m.Called(ctx, id)
+// Delete provides a mock function with given fields: id
+func (_m *WebHookRepo) Delete(id uint) error {
+	ret := _m.Called(id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(uint) error); ok {
+		r0 = rf(id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -164,15 +149,14 @@ type WebHookRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - ctx context.Context
 //   - id uint
-func (_e *WebHookRepo_Expecter) Delete(ctx interface{}, id interface{}) *WebHookRepo_Delete_Call {
-	return &WebHookRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+func (_e *WebHookRepo_Expecter) Delete(id interface{}) *WebHookRepo_Delete_Call {
+	return &WebHookRepo_Delete_Call{Call: _e.mock.On("Delete", id)}
 }
 
-func (_c *WebHookRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *WebHookRepo_Delete_Call {
+func (_c *WebHookRepo_Delete_Call) Run(run func(id uint)) *WebHookRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uint))
+		run(args[0].(uint))
 	})
 	return _c
 }
@@ -182,7 +166,7 @@ func (_c *WebHookRepo_Delete_Call) Return(_a0 error) *WebHookRepo_Delete_Call {
 	return _c
 }
 
-func (_c *WebHookRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *WebHookRepo_Delete_Call {
+func (_c *WebHookRepo_Delete_Call) RunAndReturn(run func(uint) error) *WebHookRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -369,17 +353,17 @@ func (_c *WebHookRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.WebHo
 	return _c
 }
 
-// Update provides a mock function with given fields: ctx, req
-func (_m *WebHookRepo) Update(ctx context.Context, req *request.WebHookUpdate) error {
-	ret := _m.Called(ctx, req)
+// RemoveScript provides a mock function with given fields: key
+func (_m *WebHookRepo) RemoveScript(key string) error {
+	ret := _m.Called(key)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Update")
+		panic("no return value specified for RemoveScript")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.WebHookUpdate) error); ok {
-		r0 = rf(ctx, req)
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(key)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -387,31 +371,77 @@ func (_m *WebHookRepo) Update(ctx context.Context, req *request.WebHookUpdate) e
 	return r0
 }
 
-// WebHookRepo_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type WebHookRepo_Update_Call struct {
+// WebHookRepo_RemoveScript_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveScript'
+type WebHookRepo_RemoveScript_Call struct {
 	*mock.Call
 }
 
-// Update is a helper method to define mock.On call
-//   - ctx context.Context
-//   - req *request.WebHookUpdate
-func (_e *WebHookRepo_Expecter) Update(ctx interface{}, req interface{}) *WebHookRepo_Update_Call {
-	return &WebHookRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
+// RemoveScript is a helper method to define mock.On call
+//   - key string
+func (_e *WebHookRepo_Expecter) RemoveScript(key interface{}) *WebHookRepo_RemoveScript_Call {
+	return &WebHookRepo_RemoveScript_Call{Call: _e.mock.On("RemoveScript", key)}
 }
 
-func (_c *WebHookRepo_Update_Call) Run(run func(ctx context.Context, req *request.WebHookUpdate)) *WebHookRepo_Update_Call {
+func (_c *WebHookRepo_RemoveScript_Call) Run(run func(key string)) *WebHookRepo_RemoveScript_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.WebHookUpdate))
+		run(args[0].(string))
 	})
 	return _c
 }
 
-func (_c *WebHookRepo_Update_Call) Return(_a0 error) *WebHookRepo_Update_Call {
+func (_c *WebHookRepo_RemoveScript_Call) Return(_a0 error) *WebHookRepo_RemoveScript_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *WebHookRepo_Update_Call) RunAndReturn(run func(context.Context, *request.WebHookUpdate) error) *WebHookRepo_Update_Call {
+func (_c *WebHookRepo_RemoveScript_Call) RunAndReturn(run func(string) error) *WebHookRepo_RemoveScript_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateWithScript provides a mock function with given fields: webhook, req
+func (_m *WebHookRepo) UpdateWithScript(webhook *biz.WebHook, req *request.WebHookUpdate) error {
+	ret := _m.Called(webhook, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateWithScript")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*biz.WebHook, *request.WebHookUpdate) error); ok {
+		r0 = rf(webhook, req)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebHookRepo_UpdateWithScript_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateWithScript'
+type WebHookRepo_UpdateWithScript_Call struct {
+	*mock.Call
+}
+
+// UpdateWithScript is a helper method to define mock.On call
+//   - webhook *biz.WebHook
+//   - req *request.WebHookUpdate
+func (_e *WebHookRepo_Expecter) UpdateWithScript(webhook interface{}, req interface{}) *WebHookRepo_UpdateWithScript_Call {
+	return &WebHookRepo_UpdateWithScript_Call{Call: _e.mock.On("UpdateWithScript", webhook, req)}
+}
+
+func (_c *WebHookRepo_UpdateWithScript_Call) Run(run func(webhook *biz.WebHook, req *request.WebHookUpdate)) *WebHookRepo_UpdateWithScript_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.WebHook), args[1].(*request.WebHookUpdate))
+	})
+	return _c
+}
+
+func (_c *WebHookRepo_UpdateWithScript_Call) Return(_a0 error) *WebHookRepo_UpdateWithScript_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebHookRepo_UpdateWithScript_Call) RunAndReturn(run func(*biz.WebHook, *request.WebHookUpdate) error) *WebHookRepo_UpdateWithScript_Call {
 	_c.Call.Return(run)
 	return _c
 }

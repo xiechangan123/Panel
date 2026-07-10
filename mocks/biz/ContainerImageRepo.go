@@ -21,9 +21,9 @@ func (_m *ContainerImageRepo) EXPECT() *ContainerImageRepo_Expecter {
 	return &ContainerImageRepo_Expecter{mock: &_m.Mock}
 }
 
-// Exist provides a mock function with given fields: name
-func (_m *ContainerImageRepo) Exist(name string) (bool, error) {
-	ret := _m.Called(name)
+// Exist provides a mock function with given fields: sock, name
+func (_m *ContainerImageRepo) Exist(sock string, name string) (bool, error) {
+	ret := _m.Called(sock, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Exist")
@@ -31,17 +31,17 @@ func (_m *ContainerImageRepo) Exist(name string) (bool, error) {
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (bool, error)); ok {
-		return rf(name)
+	if rf, ok := ret.Get(0).(func(string, string) (bool, error)); ok {
+		return rf(sock, name)
 	}
-	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(name)
+	if rf, ok := ret.Get(0).(func(string, string) bool); ok {
+		r0 = rf(sock, name)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(name)
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(sock, name)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -55,14 +55,15 @@ type ContainerImageRepo_Exist_Call struct {
 }
 
 // Exist is a helper method to define mock.On call
+//   - sock string
 //   - name string
-func (_e *ContainerImageRepo_Expecter) Exist(name interface{}) *ContainerImageRepo_Exist_Call {
-	return &ContainerImageRepo_Exist_Call{Call: _e.mock.On("Exist", name)}
+func (_e *ContainerImageRepo_Expecter) Exist(sock interface{}, name interface{}) *ContainerImageRepo_Exist_Call {
+	return &ContainerImageRepo_Exist_Call{Call: _e.mock.On("Exist", sock, name)}
 }
 
-func (_c *ContainerImageRepo_Exist_Call) Run(run func(name string)) *ContainerImageRepo_Exist_Call {
+func (_c *ContainerImageRepo_Exist_Call) Run(run func(sock string, name string)) *ContainerImageRepo_Exist_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -72,14 +73,14 @@ func (_c *ContainerImageRepo_Exist_Call) Return(_a0 bool, _a1 error) *ContainerI
 	return _c
 }
 
-func (_c *ContainerImageRepo_Exist_Call) RunAndReturn(run func(string) (bool, error)) *ContainerImageRepo_Exist_Call {
+func (_c *ContainerImageRepo_Exist_Call) RunAndReturn(run func(string, string) (bool, error)) *ContainerImageRepo_Exist_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with no fields
-func (_m *ContainerImageRepo) List() ([]types.ContainerImage, error) {
-	ret := _m.Called()
+// List provides a mock function with given fields: sock
+func (_m *ContainerImageRepo) List(sock string) ([]types.ContainerImage, error) {
+	ret := _m.Called(sock)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -87,19 +88,19 @@ func (_m *ContainerImageRepo) List() ([]types.ContainerImage, error) {
 
 	var r0 []types.ContainerImage
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]types.ContainerImage, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(string) ([]types.ContainerImage, error)); ok {
+		return rf(sock)
 	}
-	if rf, ok := ret.Get(0).(func() []types.ContainerImage); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) []types.ContainerImage); ok {
+		r0 = rf(sock)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.ContainerImage)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(sock)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,13 +114,14 @@ type ContainerImageRepo_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
-func (_e *ContainerImageRepo_Expecter) List() *ContainerImageRepo_List_Call {
-	return &ContainerImageRepo_List_Call{Call: _e.mock.On("List")}
+//   - sock string
+func (_e *ContainerImageRepo_Expecter) List(sock interface{}) *ContainerImageRepo_List_Call {
+	return &ContainerImageRepo_List_Call{Call: _e.mock.On("List", sock)}
 }
 
-func (_c *ContainerImageRepo_List_Call) Run(run func()) *ContainerImageRepo_List_Call {
+func (_c *ContainerImageRepo_List_Call) Run(run func(sock string)) *ContainerImageRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -129,22 +131,22 @@ func (_c *ContainerImageRepo_List_Call) Return(_a0 []types.ContainerImage, _a1 e
 	return _c
 }
 
-func (_c *ContainerImageRepo_List_Call) RunAndReturn(run func() ([]types.ContainerImage, error)) *ContainerImageRepo_List_Call {
+func (_c *ContainerImageRepo_List_Call) RunAndReturn(run func(string) ([]types.ContainerImage, error)) *ContainerImageRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Prune provides a mock function with no fields
-func (_m *ContainerImageRepo) Prune() error {
-	ret := _m.Called()
+// Prune provides a mock function with given fields: sock
+func (_m *ContainerImageRepo) Prune(sock string) error {
+	ret := _m.Called(sock)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Prune")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(sock)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -158,13 +160,14 @@ type ContainerImageRepo_Prune_Call struct {
 }
 
 // Prune is a helper method to define mock.On call
-func (_e *ContainerImageRepo_Expecter) Prune() *ContainerImageRepo_Prune_Call {
-	return &ContainerImageRepo_Prune_Call{Call: _e.mock.On("Prune")}
+//   - sock string
+func (_e *ContainerImageRepo_Expecter) Prune(sock interface{}) *ContainerImageRepo_Prune_Call {
+	return &ContainerImageRepo_Prune_Call{Call: _e.mock.On("Prune", sock)}
 }
 
-func (_c *ContainerImageRepo_Prune_Call) Run(run func()) *ContainerImageRepo_Prune_Call {
+func (_c *ContainerImageRepo_Prune_Call) Run(run func(sock string)) *ContainerImageRepo_Prune_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -174,22 +177,22 @@ func (_c *ContainerImageRepo_Prune_Call) Return(_a0 error) *ContainerImageRepo_P
 	return _c
 }
 
-func (_c *ContainerImageRepo_Prune_Call) RunAndReturn(run func() error) *ContainerImageRepo_Prune_Call {
+func (_c *ContainerImageRepo_Prune_Call) RunAndReturn(run func(string) error) *ContainerImageRepo_Prune_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Pull provides a mock function with given fields: req
-func (_m *ContainerImageRepo) Pull(req *request.ContainerImagePull) error {
-	ret := _m.Called(req)
+// Pull provides a mock function with given fields: sock, req
+func (_m *ContainerImageRepo) Pull(sock string, req *request.ContainerImagePull) error {
+	ret := _m.Called(sock, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Pull")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.ContainerImagePull) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(string, *request.ContainerImagePull) error); ok {
+		r0 = rf(sock, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -203,14 +206,15 @@ type ContainerImageRepo_Pull_Call struct {
 }
 
 // Pull is a helper method to define mock.On call
+//   - sock string
 //   - req *request.ContainerImagePull
-func (_e *ContainerImageRepo_Expecter) Pull(req interface{}) *ContainerImageRepo_Pull_Call {
-	return &ContainerImageRepo_Pull_Call{Call: _e.mock.On("Pull", req)}
+func (_e *ContainerImageRepo_Expecter) Pull(sock interface{}, req interface{}) *ContainerImageRepo_Pull_Call {
+	return &ContainerImageRepo_Pull_Call{Call: _e.mock.On("Pull", sock, req)}
 }
 
-func (_c *ContainerImageRepo_Pull_Call) Run(run func(req *request.ContainerImagePull)) *ContainerImageRepo_Pull_Call {
+func (_c *ContainerImageRepo_Pull_Call) Run(run func(sock string, req *request.ContainerImagePull)) *ContainerImageRepo_Pull_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.ContainerImagePull))
+		run(args[0].(string), args[1].(*request.ContainerImagePull))
 	})
 	return _c
 }
@@ -220,22 +224,22 @@ func (_c *ContainerImageRepo_Pull_Call) Return(_a0 error) *ContainerImageRepo_Pu
 	return _c
 }
 
-func (_c *ContainerImageRepo_Pull_Call) RunAndReturn(run func(*request.ContainerImagePull) error) *ContainerImageRepo_Pull_Call {
+func (_c *ContainerImageRepo_Pull_Call) RunAndReturn(run func(string, *request.ContainerImagePull) error) *ContainerImageRepo_Pull_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Remove provides a mock function with given fields: id
-func (_m *ContainerImageRepo) Remove(id string) error {
-	ret := _m.Called(id)
+// Remove provides a mock function with given fields: sock, id
+func (_m *ContainerImageRepo) Remove(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Remove")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -249,14 +253,15 @@ type ContainerImageRepo_Remove_Call struct {
 }
 
 // Remove is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerImageRepo_Expecter) Remove(id interface{}) *ContainerImageRepo_Remove_Call {
-	return &ContainerImageRepo_Remove_Call{Call: _e.mock.On("Remove", id)}
+func (_e *ContainerImageRepo_Expecter) Remove(sock interface{}, id interface{}) *ContainerImageRepo_Remove_Call {
+	return &ContainerImageRepo_Remove_Call{Call: _e.mock.On("Remove", sock, id)}
 }
 
-func (_c *ContainerImageRepo_Remove_Call) Run(run func(id string)) *ContainerImageRepo_Remove_Call {
+func (_c *ContainerImageRepo_Remove_Call) Run(run func(sock string, id string)) *ContainerImageRepo_Remove_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -266,7 +271,7 @@ func (_c *ContainerImageRepo_Remove_Call) Return(_a0 error) *ContainerImageRepo_
 	return _c
 }
 
-func (_c *ContainerImageRepo_Remove_Call) RunAndReturn(run func(string) error) *ContainerImageRepo_Remove_Call {
+func (_c *ContainerImageRepo_Remove_Call) RunAndReturn(run func(string, string) error) *ContainerImageRepo_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }

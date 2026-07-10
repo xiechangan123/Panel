@@ -2,9 +2,12 @@ package biz
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -129,37 +132,110 @@ func (r *BackupStorage) AfterFind(tx *gorm.DB) error {
 }
 
 type BackupAccountRepo interface {
-	List(page, limit uint) ([]*BackupStorage, int64, error)
-	Get(id uint) (*BackupStorage, error)
-	Create(ctx context.Context, req *request.BackupStorageCreate) (*BackupStorage, error)
-	Update(ctx context.Context, req *request.BackupStorageUpdate) error
-	Delete(ctx context.Context, id uint) error
+	ListPaged(page, limit uint) ([]*BackupStorage, int64, error)
+	GetByID(id uint) (*BackupStorage, error)
+	Create(account *BackupStorage) error
+	Update(account *BackupStorage) error
+	Delete(id uint) error
 }
 
 type BackupAccountUsecase struct {
-	repo BackupAccountRepo
+	repo    BackupAccountRepo
+	setting SettingRepo
+	t       *gotext.Locale
+	log     *slog.Logger
 }
 
-func NewBackupAccountUsecase(repo BackupAccountRepo) *BackupAccountUsecase {
-	return &BackupAccountUsecase{repo: repo}
+func NewBackupAccountUsecase(i do.Injector) (*BackupAccountUsecase, error) {
+	return &BackupAccountUsecase{
+		repo:    do.MustInvoke[BackupAccountRepo](i),
+		setting: do.MustInvoke[SettingRepo](i),
+		t:       do.MustInvoke[*gotext.Locale](i),
+		log:     do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (uc *BackupAccountUsecase) List(page, limit uint) ([]*BackupStorage, int64, error) {
-	return uc.repo.List(page, limit)
+	// 本地存储
+	localStorage, err := uc.Get(0)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	dbAccounts, total, err := uc.repo.ListPaged(page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	accounts := make([]*BackupStorage, 0, len(dbAccounts)+1)
+	if page == 1 {
+		accounts = append(accounts, localStorage)
+	}
+	accounts = append(accounts, dbAccounts...)
+
+	return accounts, total + 1, nil
 }
 
 func (uc *BackupAccountUsecase) Get(id uint) (*BackupStorage, error) {
-	return uc.repo.Get(id)
+	if id == 0 {
+		path, err := uc.setting.Get(SettingKeyBackupPath)
+		if err != nil {
+			return nil, err
+		}
+		return &BackupStorage{
+			ID:   0,
+			Type: BackupStorageTypeLocal,
+			Name: uc.t.Get("Local Storage"),
+			Info: types.BackupStorageInfo{
+				Path: path,
+			},
+		}, nil
+	}
+
+	return uc.repo.GetByID(id)
 }
 
 func (uc *BackupAccountUsecase) Create(ctx context.Context, req *request.BackupStorageCreate) (*BackupStorage, error) {
-	return uc.repo.Create(ctx, req)
+	account := &BackupStorage{
+		Type: BackupStorageType(req.Type),
+		Name: req.Name,
+		Info: req.Info,
+	}
+
+	if err := uc.repo.Create(account); err != nil {
+		return nil, err
+	}
+
+	uc.log.Info("backup storage created", slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(account.ID)), slog.String("account_type", req.Type), slog.String("name", req.Name))
+
+	return account, nil
 }
 
 func (uc *BackupAccountUsecase) Update(ctx context.Context, req *request.BackupStorageUpdate) error {
-	return uc.repo.Update(ctx, req)
+	account, err := uc.Get(req.ID)
+	if err != nil {
+		return err
+	}
+
+	account.Type = BackupStorageType(req.Type)
+	account.Name = req.Name
+	account.Info = req.Info
+
+	if err = uc.repo.Update(account); err != nil {
+		return err
+	}
+
+	uc.log.Info("backup storage updated", slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("account_type", req.Type))
+
+	return nil
 }
 
 func (uc *BackupAccountUsecase) Delete(ctx context.Context, id uint) error {
-	return uc.repo.Delete(ctx, id)
+	if err := uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	uc.log.Info("backup storage deleted", slog.String("type", OperationTypeBackup), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)))
+
+	return nil
 }

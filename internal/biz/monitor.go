@@ -3,6 +3,8 @@ package biz
 import (
 	"time"
 
+	"github.com/spf13/cast"
+
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -15,26 +17,53 @@ type Monitor struct {
 }
 
 type MonitorRepo interface {
-	GetSetting() (*request.MonitorSetting, error)
-	UpdateSetting(setting *request.MonitorSetting) error
 	Clear() error
 	List(start, end time.Time) ([]*Monitor, error)
 }
 
 type MonitorUsecase struct {
-	repo MonitorRepo
+	repo    MonitorRepo
+	setting SettingRepo
 }
 
-func NewMonitorUsecase(repo MonitorRepo) *MonitorUsecase {
-	return &MonitorUsecase{repo: repo}
+func NewMonitorUsecase(repo MonitorRepo, setting SettingRepo) *MonitorUsecase {
+	return &MonitorUsecase{repo: repo, setting: setting}
 }
 
 func (uc *MonitorUsecase) GetSetting() (*request.MonitorSetting, error) {
-	return uc.repo.GetSetting()
+	monitor, err := uc.setting.Get(SettingKeyMonitor)
+	if err != nil {
+		return nil, err
+	}
+	monitorDays, err := uc.setting.Get(SettingKeyMonitorDays)
+	if err != nil {
+		return nil, err
+	}
+	monitorInterval, err := uc.setting.GetInt(SettingKeyMonitorInterval, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	setting := new(request.MonitorSetting)
+	setting.Enabled = cast.ToBool(monitor)
+	setting.Days = cast.ToUint(monitorDays)
+	setting.Interval = uint(monitorInterval)
+
+	return setting, nil
 }
 
 func (uc *MonitorUsecase) UpdateSetting(setting *request.MonitorSetting) error {
-	return uc.repo.UpdateSetting(setting)
+	if err := uc.setting.Set(SettingKeyMonitor, cast.ToString(setting.Enabled)); err != nil {
+		return err
+	}
+	if err := uc.setting.Set(SettingKeyMonitorDays, cast.ToString(setting.Days)); err != nil {
+		return err
+	}
+	if err := uc.setting.Set(SettingKeyMonitorInterval, cast.ToString(setting.Interval)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (uc *MonitorUsecase) Clear() error {

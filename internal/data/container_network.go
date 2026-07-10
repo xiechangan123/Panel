@@ -17,17 +17,15 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-type containerNetworkRepo struct {
-	settingRepo biz.SettingRepo
-}
+type containerNetworkRepo struct{}
 
 func NewContainerNetworkRepo(i do.Injector) (biz.ContainerNetworkRepo, error) {
-	return &containerNetworkRepo{settingRepo: do.MustInvoke[biz.SettingRepo](i)}, nil
+	return &containerNetworkRepo{}, nil
 }
 
 // List 列出网络
-func (r *containerNetworkRepo) List() ([]types.ContainerNetwork, error) {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerNetworkRepo) List(sock string) ([]types.ContainerNetwork, error) {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +75,8 @@ func (r *containerNetworkRepo) List() ([]types.ContainerNetwork, error) {
 }
 
 // Create 创建网络
-func (r *containerNetworkRepo) Create(req *request.ContainerNetworkCreate) (string, error) {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerNetworkRepo) Create(sock string, req *request.ContainerNetworkCreate) (string, error) {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return "", err
 	}
@@ -146,8 +144,8 @@ func (r *containerNetworkRepo) Create(req *request.ContainerNetworkCreate) (stri
 }
 
 // Remove 删除网络
-func (r *containerNetworkRepo) Remove(id string) error {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerNetworkRepo) Remove(sock string, id string) error {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
@@ -167,8 +165,8 @@ func (r *containerNetworkRepo) Remove(id string) error {
 }
 
 // Prune 清理未使用的网络
-func (r *containerNetworkRepo) Prune() error {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerNetworkRepo) Prune(sock string) error {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}

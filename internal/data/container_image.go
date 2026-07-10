@@ -21,17 +21,15 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-type containerImageRepo struct {
-	settingRepo biz.SettingRepo
-}
+type containerImageRepo struct{}
 
 func NewContainerImageRepo(i do.Injector) (biz.ContainerImageRepo, error) {
-	return &containerImageRepo{settingRepo: do.MustInvoke[biz.SettingRepo](i)}, nil
+	return &containerImageRepo{}, nil
 }
 
 // List 列出镜像
-func (r *containerImageRepo) List() ([]types.ContainerImage, error) {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerImageRepo) List(sock string) ([]types.ContainerImage, error) {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +62,8 @@ func (r *containerImageRepo) List() ([]types.ContainerImage, error) {
 }
 
 // Exist 检查镜像是否存在
-func (r *containerImageRepo) Exist(name string) (bool, error) {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerImageRepo) Exist(sock string, name string) (bool, error) {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return false, err
 	}
@@ -83,8 +81,8 @@ func (r *containerImageRepo) Exist(name string) (bool, error) {
 }
 
 // Pull 拉取镜像
-func (r *containerImageRepo) Pull(req *request.ContainerImagePull) error {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerImageRepo) Pull(sock string, req *request.ContainerImagePull) error {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
@@ -114,8 +112,8 @@ func (r *containerImageRepo) Pull(req *request.ContainerImagePull) error {
 }
 
 // Remove 删除镜像
-func (r *containerImageRepo) Remove(id string) error {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerImageRepo) Remove(sock string, id string) error {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}
@@ -129,8 +127,8 @@ func (r *containerImageRepo) Remove(id string) error {
 }
 
 // Prune 清理未使用的镜像
-func (r *containerImageRepo) Prune() error {
-	apiClient, err := getDockerClient(getContainerSock(r.settingRepo))
+func (r *containerImageRepo) Prune(sock string) error {
+	apiClient, err := getDockerClient(sock)
 	if err != nil {
 		return err
 	}

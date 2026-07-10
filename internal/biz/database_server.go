@@ -1,13 +1,20 @@
 package biz
 
 import (
+	"errors"
+	"fmt"
+	"log/slog"
+	"slices"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
+	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/db"
 )
 
 type DatabaseServerStatus string
@@ -65,23 +72,32 @@ type DatabaseServerRepo interface {
 	List(page, limit uint, typ string) ([]*DatabaseServer, int64, error)
 	Get(id uint) (*DatabaseServer, error)
 	GetByName(name string) (*DatabaseServer, error)
-	Create(req *request.DatabaseServerCreate) error
-	Update(req *request.DatabaseServerUpdate) error
+	Create(server *DatabaseServer) error
+	Save(server *DatabaseServer) error
 	UpdateRemark(req *request.DatabaseServerUpdateRemark) error
 	UpdatePassword(name string, password string) error
 	UpdatePort(name string, port uint) error
 	Delete(id uint) error
 	ClearUsers(id uint) error
-	Sync(id uint) error
+	ListUsers(serverID uint) ([]*DatabaseUser, error)
+	CreateUser(user *DatabaseUser) error
+	Operator(server *DatabaseServer) (db.Operator, error)
+	CheckServer(server *DatabaseServer) bool
 }
 
 // DatabaseServerUsecase 数据库服务器业务用例
 type DatabaseServerUsecase struct {
 	repo DatabaseServerRepo
+	t    *gotext.Locale
+	log  *slog.Logger
 }
 
-func NewDatabaseServerUsecase(repo DatabaseServerRepo) *DatabaseServerUsecase {
-	return &DatabaseServerUsecase{repo: repo}
+func NewDatabaseServerUsecase(i do.Injector) (*DatabaseServerUsecase, error) {
+	return &DatabaseServerUsecase{
+		repo: do.MustInvoke[DatabaseServerRepo](i),
+		t:    do.MustInvoke[*gotext.Locale](i),
+		log:  do.MustInvoke[*slog.Logger](i),
+	}, nil
 }
 
 func (uc *DatabaseServerUsecase) Count() (int64, error) {
@@ -101,11 +117,41 @@ func (uc *DatabaseServerUsecase) GetByName(name string) (*DatabaseServer, error)
 }
 
 func (uc *DatabaseServerUsecase) Create(req *request.DatabaseServerCreate) error {
-	return uc.repo.Create(req)
+	databaseServer := &DatabaseServer{
+		Name:     req.Name,
+		Type:     DatabaseType(req.Type),
+		Host:     req.Host,
+		Port:     req.Port,
+		Username: req.Username,
+		Password: req.Password,
+		Remark:   req.Remark,
+	}
+
+	if !uc.repo.CheckServer(databaseServer) {
+		return errors.New(uc.t.Get("check server connection failed"))
+	}
+
+	return uc.repo.Create(databaseServer)
 }
 
 func (uc *DatabaseServerUsecase) Update(req *request.DatabaseServerUpdate) error {
-	return uc.repo.Update(req)
+	server, err := uc.repo.Get(req.ID)
+	if err != nil {
+		return err
+	}
+
+	server.Name = req.Name
+	server.Host = req.Host
+	server.Port = req.Port
+	server.Username = req.Username
+	server.Password = req.Password
+	server.Remark = req.Remark
+
+	if !uc.repo.CheckServer(server) {
+		return errors.New(uc.t.Get("check server connection failed"))
+	}
+
+	return uc.repo.Save(server)
 }
 
 func (uc *DatabaseServerUsecase) UpdateRemark(req *request.DatabaseServerUpdateRemark) error {
@@ -129,5 +175,88 @@ func (uc *DatabaseServerUsecase) ClearUsers(id uint) error {
 }
 
 func (uc *DatabaseServerUsecase) Sync(id uint) error {
-	return uc.repo.Sync(id)
+	server, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	// 非 Operator 类型不支持用户同步
+	switch server.Type {
+	case DatabaseTypeRedis, DatabaseTypeMongoDB, DatabaseTypeSQLite, DatabaseTypeElasticsearch:
+		return fmt.Errorf("sync is not supported for %s", server.Type)
+	}
+
+	users, err := uc.repo.ListUsers(id)
+	if err != nil {
+		return err
+	}
+
+	operator, err := uc.repo.Operator(server)
+	if err != nil {
+		return err
+	}
+	defer operator.Close()
+
+	switch server.Type {
+	case DatabaseTypeMysql:
+		allUsers, err := operator.Users()
+		if err != nil {
+			return err
+		}
+		for user := range slices.Values(allUsers) {
+			if !slices.ContainsFunc(users, func(a *DatabaseUser) bool {
+				return a.Username == user.User && a.Host == user.Host
+			}) && !slices.Contains([]string{"root", "mysql.sys", "mysql.session", "mysql.infoschema"}, user.User) {
+				newUser := &DatabaseUser{
+					ServerID: id,
+					Username: user.User,
+					Host:     user.Host,
+					Remark:   uc.t.Get("sync from server %s", server.Name),
+				}
+				if err = uc.repo.CreateUser(newUser); err != nil {
+					uc.log.Warn("sync mysql database user failed", slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				}
+			}
+		}
+	case DatabaseTypePostgresql:
+		allUsers, err := operator.Users()
+		if err != nil {
+			return err
+		}
+		for user := range slices.Values(allUsers) {
+			if !slices.ContainsFunc(users, func(a *DatabaseUser) bool {
+				return a.Username == user.User
+			}) && !slices.Contains([]string{"postgres"}, user.User) {
+				newUser := &DatabaseUser{
+					ServerID: id,
+					Username: user.User,
+					Remark:   uc.t.Get("sync from server %s", server.Name),
+				}
+				if err = uc.repo.CreateUser(newUser); err != nil {
+					uc.log.Warn("sync postgresql database user failed", slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				}
+			}
+		}
+	case DatabaseTypeClickHouse:
+		allUsers, err := operator.Users()
+		if err != nil {
+			return err
+		}
+		for user := range slices.Values(allUsers) {
+			if !slices.ContainsFunc(users, func(a *DatabaseUser) bool {
+				return a.Username == user.User
+			}) && !slices.Contains([]string{"default"}, user.User) {
+				newUser := &DatabaseUser{
+					ServerID: id,
+					Username: user.User,
+					Remark:   uc.t.Get("sync from server %s", server.Name),
+				}
+				if err = uc.repo.CreateUser(newUser); err != nil {
+					uc.log.Warn("sync clickhouse database user failed", slog.String("type", OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				}
+			}
+		}
+	}
+
+	return nil
 }

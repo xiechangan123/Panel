@@ -1,12 +1,9 @@
 package data
 
 import (
-	"errors"
 	"fmt"
-	"log/slog"
 	"slices"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
@@ -16,16 +13,12 @@ import (
 )
 
 type databaseServerRepo struct {
-	t   *gotext.Locale
-	db  *gorm.DB
-	log *slog.Logger
+	db *gorm.DB
 }
 
 func NewDatabaseServerRepo(i do.Injector) (biz.DatabaseServerRepo, error) {
 	return &databaseServerRepo{
-		t:   do.MustInvoke[*gotext.Locale](i),
-		db:  do.MustInvoke[*gorm.DB](i),
-		log: do.MustInvoke[*slog.Logger](i),
+		db: do.MustInvoke[*gorm.DB](i),
 	}, nil
 }
 
@@ -48,7 +41,7 @@ func (r *databaseServerRepo) List(page, limit uint, typ string) ([]*biz.Database
 	err := query.Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&databaseServer).Error
 
 	for server := range slices.Values(databaseServer) {
-		r.checkServer(server)
+		r.CheckServer(server)
 	}
 
 	return databaseServer, total, err
@@ -60,7 +53,7 @@ func (r *databaseServerRepo) Get(id uint) (*biz.DatabaseServer, error) {
 		return nil, err
 	}
 
-	r.checkServer(databaseServer)
+	r.CheckServer(databaseServer)
 
 	return databaseServer, nil
 }
@@ -71,46 +64,18 @@ func (r *databaseServerRepo) GetByName(name string) (*biz.DatabaseServer, error)
 		return nil, err
 	}
 
-	r.checkServer(databaseServer)
+	r.CheckServer(databaseServer)
 
 	return databaseServer, nil
 }
 
-func (r *databaseServerRepo) Create(req *request.DatabaseServerCreate) error {
-	databaseServer := &biz.DatabaseServer{
-		Name:     req.Name,
-		Type:     biz.DatabaseType(req.Type),
-		Host:     req.Host,
-		Port:     req.Port,
-		Username: req.Username,
-		Password: req.Password,
-		Remark:   req.Remark,
-	}
-
-	if !r.checkServer(databaseServer) {
-		return errors.New(r.t.Get("check server connection failed"))
-	}
-
-	return r.db.Create(databaseServer).Error
+// Create 创建服务器记录
+func (r *databaseServerRepo) Create(server *biz.DatabaseServer) error {
+	return r.db.Create(server).Error
 }
 
-func (r *databaseServerRepo) Update(req *request.DatabaseServerUpdate) error {
-	server, err := r.Get(req.ID)
-	if err != nil {
-		return err
-	}
-
-	server.Name = req.Name
-	server.Host = req.Host
-	server.Port = req.Port
-	server.Username = req.Username
-	server.Password = req.Password
-	server.Remark = req.Remark
-
-	if !r.checkServer(server) {
-		return errors.New(r.t.Get("check server connection failed"))
-	}
-
+// Save 保存服务器记录
+func (r *databaseServerRepo) Save(server *biz.DatabaseServer) error {
 	return r.db.Save(server).Error
 }
 
@@ -139,98 +104,26 @@ func (r *databaseServerRepo) ClearUsers(serverID uint) error {
 	return r.db.Where("server_id = ?", serverID).Delete(&biz.DatabaseUser{}).Error
 }
 
-func (r *databaseServerRepo) Sync(id uint) error {
-	server, err := r.Get(id)
-	if err != nil {
-		return err
-	}
-
-	// 非 Operator 类型不支持用户同步
-	switch server.Type {
-	case biz.DatabaseTypeRedis, biz.DatabaseTypeMongoDB, biz.DatabaseTypeSQLite, biz.DatabaseTypeElasticsearch:
-		return fmt.Errorf("sync is not supported for %s", server.Type)
-	}
-
+// ListUsers 查询指定服务器的本地用户记录
+func (r *databaseServerRepo) ListUsers(serverID uint) ([]*biz.DatabaseUser, error) {
 	users := make([]*biz.DatabaseUser, 0)
-	if err = r.db.Where("server_id = ?", id).Find(&users).Error; err != nil {
-		return err
+	if err := r.db.Where("server_id = ?", serverID).Find(&users).Error; err != nil {
+		return nil, err
 	}
 
-	operator, err := r.getOperator(server)
-	if err != nil {
-		return err
-	}
-	defer operator.Close()
-
-	switch server.Type {
-	case biz.DatabaseTypeMysql:
-		allUsers, err := operator.Users()
-		if err != nil {
-			return err
-		}
-		for user := range slices.Values(allUsers) {
-			if !slices.ContainsFunc(users, func(a *biz.DatabaseUser) bool {
-				return a.Username == user.User && a.Host == user.Host
-			}) && !slices.Contains([]string{"root", "mysql.sys", "mysql.session", "mysql.infoschema"}, user.User) {
-				newUser := &biz.DatabaseUser{
-					ServerID: id,
-					Username: user.User,
-					Host:     user.Host,
-					Remark:   r.t.Get("sync from server %s", server.Name),
-				}
-				if err = r.db.Create(newUser).Error; err != nil {
-					r.log.Warn("sync mysql database user failed", slog.String("type", biz.OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
-				}
-			}
-		}
-	case biz.DatabaseTypePostgresql:
-		allUsers, err := operator.Users()
-		if err != nil {
-			return err
-		}
-		for user := range slices.Values(allUsers) {
-			if !slices.ContainsFunc(users, func(a *biz.DatabaseUser) bool {
-				return a.Username == user.User
-			}) && !slices.Contains([]string{"postgres"}, user.User) {
-				newUser := &biz.DatabaseUser{
-					ServerID: id,
-					Username: user.User,
-					Remark:   r.t.Get("sync from server %s", server.Name),
-				}
-				if err = r.db.Create(newUser).Error; err != nil {
-					r.log.Warn("sync postgresql database user failed", slog.String("type", biz.OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
-				}
-			}
-		}
-	case biz.DatabaseTypeClickHouse:
-		allUsers, err := operator.Users()
-		if err != nil {
-			return err
-		}
-		for user := range slices.Values(allUsers) {
-			if !slices.ContainsFunc(users, func(a *biz.DatabaseUser) bool {
-				return a.Username == user.User
-			}) && !slices.Contains([]string{"default"}, user.User) {
-				newUser := &biz.DatabaseUser{
-					ServerID: id,
-					Username: user.User,
-					Remark:   r.t.Get("sync from server %s", server.Name),
-				}
-				if err = r.db.Create(newUser).Error; err != nil {
-					r.log.Warn("sync clickhouse database user failed", slog.String("type", biz.OperationTypeDatabaseServer), slog.Uint64("operator_id", 0), slog.Any("err", err))
-				}
-			}
-		}
-	}
-
-	return nil
+	return users, nil
 }
 
-// checkServer 检查服务器连接
-func (r *databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
+// CreateUser 创建同步用户记录
+func (r *databaseServerRepo) CreateUser(user *biz.DatabaseUser) error {
+	return r.db.Create(user).Error
+}
+
+// CheckServer 检查服务器连接
+func (r *databaseServerRepo) CheckServer(server *biz.DatabaseServer) bool {
 	switch server.Type {
 	case biz.DatabaseTypeMysql, biz.DatabaseTypePostgresql, biz.DatabaseTypeClickHouse:
-		operator, err := r.getOperator(server)
+		operator, err := r.Operator(server)
 		if err == nil {
 			operator.Close()
 			server.Status = biz.DatabaseServerStatusValid
@@ -270,7 +163,8 @@ func (r *databaseServerRepo) checkServer(server *biz.DatabaseServer) bool {
 	return false
 }
 
-func (r *databaseServerRepo) getOperator(server *biz.DatabaseServer) (db.Operator, error) {
+// Operator 获取数据库操作句柄
+func (r *databaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
 		mysql, err := db.NewMySQL(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))

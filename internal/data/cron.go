@@ -1,10 +1,8 @@
 package data
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -16,7 +14,6 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
-	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/os"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -25,16 +22,14 @@ import (
 )
 
 type cronRepo struct {
-	t   *gotext.Locale
-	db  *gorm.DB
-	log *slog.Logger
+	t  *gotext.Locale
+	db *gorm.DB
 }
 
 func NewCronRepo(i do.Injector) (biz.CronRepo, error) {
 	return &cronRepo{
-		t:   do.MustInvoke[*gotext.Locale](i),
-		db:  do.MustInvoke[*gorm.DB](i),
-		log: do.MustInvoke[*slog.Logger](i),
+		t:  do.MustInvoke[*gotext.Locale](i),
+		db: do.MustInvoke[*gorm.DB](i),
 	}, nil
 }
 
@@ -63,164 +58,62 @@ func (r *cronRepo) Get(id uint) (*biz.Cron, error) {
 	return cron, nil
 }
 
-func (r *cronRepo) Create(ctx context.Context, req *request.CronCreate) error {
-	config := types.CronConfig{
-		Type:     req.SubType,
-		Flock:    req.Flock,
-		Targets:  req.Targets,
-		Storage:  req.Storage,
-		Keep:     req.Keep,
-		URL:      req.URL,
-		Method:   req.Method,
-		Headers:  req.Headers,
-		Body:     req.Body,
-		Timeout:  req.Timeout,
-		Insecure: req.Insecure,
-		Retries:  req.Retries,
-	}
-	script := r.generateScript(req.Type, config, req.Script)
+func (r *cronRepo) Create(cron *biz.Cron) error {
+	return r.db.Create(cron).Error
+}
 
+func (r *cronRepo) Save(cron *biz.Cron) error {
+	return r.db.Save(cron).Error
+}
+
+func (r *cronRepo) Delete(cron *biz.Cron) error {
+	return r.db.Delete(cron).Error
+}
+
+// WriteNewScript 生成随机脚本文件并返回脚本与日志路径
+func (r *cronRepo) WriteNewScript(script string) (string, string, error) {
 	shellDir := fmt.Sprintf("%s/server/cron/", app.Root)
 	shellLogDir := fmt.Sprintf("%s/server/cron/logs/", app.Root)
 	shellFile := str.Random(16)
 	if err := io.Write(filepath.Join(shellDir, shellFile+".sh"), script, 0700); err != nil {
-		return errors.New(err.Error())
+		return "", "", errors.New(err.Error())
 	}
 	// 编码转换
 	_, _ = shell.Execf("dos2unix %s%s.sh", shellDir, shellFile)
 
-	cron := new(biz.Cron)
-	cron.Name = req.Name
-	cron.Type = req.Type
-	cron.Status = true
-	cron.Time = req.Time
-	cron.Shell = shellDir + shellFile + ".sh"
-	cron.Log = shellLogDir + shellFile + ".log"
-	cron.Config = config
-
-	if err := r.db.Create(cron).Error; err != nil {
-		return err
-	}
-	if err := r.addToSystem(cron); err != nil {
-		return err
-	}
-
-	// 记录日志
-	r.log.Info("cron created", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.String("cron_type", req.Type))
-
-	return nil
+	return shellDir + shellFile + ".sh", shellLogDir + shellFile + ".log", nil
 }
 
-func (r *cronRepo) Update(ctx context.Context, req *request.CronUpdate) error {
-	cron, err := r.Get(req.ID)
-	if err != nil {
-		return err
-	}
+// WriteScript 写入脚本内容到指定路径
+func (r *cronRepo) WriteScript(path, script string) error {
+	return io.Write(path, script, 0700)
+}
 
-	cron.Time = req.Time
-	cron.Name = req.Name
-
-	// 根据类型重新生成脚本
-	if req.Type != "shell" {
-		config := types.CronConfig{
-			Type:     req.SubType,
-			Flock:    req.Flock,
-			Targets:  req.Targets,
-			Storage:  req.Storage,
-			Keep:     req.Keep,
-			URL:      req.URL,
-			Method:   req.Method,
-			Headers:  req.Headers,
-			Body:     req.Body,
-			Timeout:  req.Timeout,
-			Insecure: req.Insecure,
-			Retries:  req.Retries,
-		}
-		cron.Config = config
-		script := r.generateScript(req.Type, config, "")
-		if err = io.Write(cron.Shell, script, 0700); err != nil {
-			return err
-		}
-	} else {
-		cron.Config.Flock = req.Flock
-		if err = io.Write(cron.Shell, req.Script, 0700); err != nil {
-			return err
-		}
-	}
-
-	if err = r.db.Save(cron).Error; err != nil {
-		return err
-	}
-
-	if out, err := shell.Execf("dos2unix %s", cron.Shell); err != nil {
+// Dos2Unix 转换脚本文件编码
+func (r *cronRepo) Dos2Unix(path string) error {
+	if out, err := shell.Execf("dos2unix %s", path); err != nil {
 		return errors.New(out)
 	}
 
-	if err = r.deleteFromSystem(cron); err != nil {
-		return err
-	}
-	if cron.Status {
-		if err = r.addToSystem(cron); err != nil {
-			return err
-		}
-	}
-
-	// 记录日志
-	r.log.Info("cron updated", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name))
-
 	return nil
 }
 
-func (r *cronRepo) Delete(ctx context.Context, id uint) error {
-	cron, err := r.Get(id)
-	if err != nil {
-		return err
-	}
-
-	if err = r.deleteFromSystem(cron); err != nil {
-		return err
-	}
-	if err = io.Remove(cron.Shell); err != nil {
+// RemoveScriptFiles 清理脚本及关联的 .lock、_wrapper.sh 文件
+func (r *cronRepo) RemoveScriptFiles(shellPath string) error {
+	if err := io.Remove(shellPath); err != nil {
 		return err
 	}
 	// 清理 .lock 文件和 _wrapper.sh 文件
-	lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
+	lockFile := strings.TrimSuffix(shellPath, ".sh") + ".lock"
 	_ = io.Remove(lockFile)
-	wrapperFile := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
+	wrapperFile := strings.TrimSuffix(shellPath, ".sh") + "_wrapper.sh"
 	_ = io.Remove(wrapperFile)
-
-	if err = r.db.Delete(cron).Error; err != nil {
-		return err
-	}
-
-	// 记录日志
-	r.log.Info("cron deleted", slog.String("type", biz.OperationTypeCron), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name))
 
 	return nil
 }
 
-func (r *cronRepo) Status(id uint, status bool) error {
-	cron, err := r.Get(id)
-	if err != nil {
-		return err
-	}
-
-	if err = r.deleteFromSystem(cron); err != nil {
-		return err
-	}
-	if status {
-		if err = r.addToSystem(cron); err != nil {
-			return err
-		}
-	}
-
-	cron.Status = status
-
-	return r.db.Save(cron).Error
-}
-
-// addToSystem 添加到系统
-func (r *cronRepo) addToSystem(cron *biz.Cron) error {
+// AddToSystem 添加到系统
+func (r *cronRepo) AddToSystem(cron *biz.Cron) error {
 	cmd := cron.Shell
 	if cron.Config.Flock {
 		lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
@@ -247,8 +140,8 @@ func (r *cronRepo) addToSystem(cron *biz.Cron) error {
 	return r.restartCron()
 }
 
-// deleteFromSystem 从系统中删除
-func (r *cronRepo) deleteFromSystem(cron *biz.Cron) error {
+// DeleteFromSystem 从系统中删除
+func (r *cronRepo) DeleteFromSystem(cron *biz.Cron) error {
 	// 清理秒级任务的 wrapper 条目和脚本
 	wrapperPath := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
 	_, _ = shell.Execf(`( crontab -l | grep -v -F "%s" ) | crontab -`, wrapperPath)
@@ -275,8 +168,8 @@ func (r *cronRepo) restartCron() error {
 	return errors.New(r.t.Get("unsupported system"))
 }
 
-// generateScript 根据任务类型和配置生成 shell 脚本
-func (r *cronRepo) generateScript(typ string, config types.CronConfig, rawScript string) string {
+// GenerateScript 根据任务类型和配置生成 shell 脚本
+func (r *cronRepo) GenerateScript(typ string, config types.CronConfig, rawScript string) string {
 	if typ == "shell" {
 		return rawScript
 	}

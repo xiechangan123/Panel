@@ -1,11 +1,9 @@
 package data
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -25,16 +23,14 @@ import (
 )
 
 type projectRepo struct {
-	t   *gotext.Locale
-	db  *gorm.DB
-	log *slog.Logger
+	t  *gotext.Locale
+	db *gorm.DB
 }
 
 func NewProjectRepo(i do.Injector) (biz.ProjectRepo, error) {
 	return &projectRepo{
-		t:   do.MustInvoke[*gotext.Locale](i),
-		db:  do.MustInvoke[*gorm.DB](i),
-		log: do.MustInvoke[*slog.Logger](i),
+		t:  do.MustInvoke[*gotext.Locale](i),
+		db: do.MustInvoke[*gorm.DB](i),
 	}, nil
 }
 
@@ -46,7 +42,7 @@ func (r *projectRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*types.ProjectDetail, int64, error) {
+func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*biz.Project, int64, error) {
 	var projects []*biz.Project
 	var total int64
 
@@ -62,47 +58,28 @@ func (r *projectRepo) List(typ types.ProjectType, page, limit uint) ([]*types.Pr
 		return nil, 0, err
 	}
 
-	details := lo.Map(projects, func(p *biz.Project, _ int) *types.ProjectDetail {
-		detail, err := r.parseProjectDetail(p)
-		if err != nil {
-			// 如果解析失败，返回基本信息
-			return &types.ProjectDetail{
-				ID:   p.ID,
-				Name: p.Name,
-				Type: p.Type,
-			}
-		}
-		return detail
-	})
-
-	return details, total, nil
+	return projects, total, nil
 }
 
-func (r *projectRepo) Get(id uint) (*types.ProjectDetail, error) {
+func (r *projectRepo) GetEntity(id uint) (*biz.Project, error) {
 	project := new(biz.Project)
 	if err := r.db.First(project, id).Error; err != nil {
 		return nil, err
 	}
-	return r.parseProjectDetail(project)
+	return project, nil
 }
 
-func (r *projectRepo) Create(ctx context.Context, req *request.ProjectCreate) (*types.ProjectDetail, error) {
-	// 检查项目名是否已存在
+// NameExists 检查项目名是否已存在
+func (r *projectRepo) NameExists(name string) (bool, error) {
 	var count int64
-	if err := r.db.Model(&biz.Project{}).Where("name = ?", req.Name).Count(&count).Error; err != nil {
-		return nil, err
+	if err := r.db.Model(&biz.Project{}).Where("name = ?", name).Count(&count).Error; err != nil {
+		return false, err
 	}
-	if count > 0 {
-		return nil, errors.New(r.t.Get("project name already exists"))
-	}
+	return count > 0, nil
+}
 
-	project := &biz.Project{
-		Name: req.Name,
-		Type: req.Type,
-		Path: lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir),
-	}
-
-	err := r.db.Transaction(func(tx *gorm.DB) error {
+func (r *projectRepo) Create(project *biz.Project, req *request.ProjectCreate) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
 		// 创建数据库记录
 		if err := tx.Create(project).Error; err != nil {
 			return err
@@ -120,64 +97,33 @@ func (r *projectRepo) Create(ctx context.Context, req *request.ProjectCreate) (*
 
 		return nil
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	// 记录日志
-	r.log.Info("project created", slog.String("type", biz.OperationTypeProject), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.String("project_type", string(req.Type)))
-
-	return r.parseProjectDetail(project)
 }
 
-func (r *projectRepo) Update(ctx context.Context, req *request.ProjectUpdate) error {
-	project := new(biz.Project)
-	if err := r.db.First(project, req.ID).Error; err != nil {
-		return err
-	}
-
-	// 如果名称变更，需要重命名 unit 文件
-	if req.Name != project.Name {
-		oldPath := r.unitFilePath(project.Name)
-		newPath := r.unitFilePath(req.Name)
-		if err := os.Rename(oldPath, newPath); err != nil && !os.IsNotExist(err) {
-			return fmt.Errorf("%s: %w", r.t.Get("failed to rename systemd config"), err)
-		}
-		project.Name = req.Name
-	}
-
-	project.Path = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
-	if err := r.db.Save(project).Error; err != nil {
-		return err
-	}
-
-	// 记录日志
-	r.log.Info("project updated", slog.String("type", biz.OperationTypeProject), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", project.Name))
-
-	// 更新 systemd unit 文件
-	return r.updateUnitFile(project.Name, req)
+func (r *projectRepo) Save(project *biz.Project) error {
+	return r.db.Save(project).Error
 }
 
-func (r *projectRepo) Delete(ctx context.Context, id uint) error {
-	project := new(biz.Project)
-	if err := r.db.First(project, id).Error; err != nil {
-		return err
+// RenameUnitFile 重命名 systemd unit 文件
+func (r *projectRepo) RenameUnitFile(old, new string) error {
+	oldPath := r.unitFilePath(old)
+	newPath := r.unitFilePath(new)
+	if err := os.Rename(oldPath, newPath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("%s: %w", r.t.Get("failed to rename systemd config"), err)
 	}
+	return nil
+}
 
-	// 删除 systemd unit 文件
-	unitPath := r.unitFilePath(project.Name)
+// RemoveUnitFile 删除 systemd unit 文件
+func (r *projectRepo) RemoveUnitFile(name string) error {
+	unitPath := r.unitFilePath(name)
 	if err := os.Remove(unitPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("%s: %w", r.t.Get("failed to delete systemd config"), err)
 	}
-
-	if err := r.db.Delete(project).Error; err != nil {
-		return err
-	}
-
-	// 记录日志
-	r.log.Info("project deleted", slog.String("type", biz.OperationTypeProject), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", project.Name))
-
 	return nil
+}
+
+func (r *projectRepo) Delete(project *biz.Project) error {
+	return r.db.Delete(project).Error
 }
 
 // unitFilePath 返回 systemd unit 文件路径
@@ -185,8 +131,8 @@ func (r *projectRepo) unitFilePath(name string) string {
 	return filepath.Join("/etc/systemd/system", fmt.Sprintf("%s.service", name))
 }
 
-// parseProjectDetail 从数据库记录和 systemd unit 文件解析项目详情
-func (r *projectRepo) parseProjectDetail(project *biz.Project) (*types.ProjectDetail, error) {
+// ParseDetail 从数据库记录和 systemd unit 文件解析项目详情
+func (r *projectRepo) ParseDetail(project *biz.Project) (*types.ProjectDetail, error) {
 	detail := &types.ProjectDetail{
 		ID:      project.ID,
 		Name:    project.Name,
@@ -422,8 +368,8 @@ func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
 	return systemctl.DaemonReload()
 }
 
-// updateUnitFile 更新 systemd unit 文件
-func (r *projectRepo) updateUnitFile(name string, req *request.ProjectUpdate) error {
+// UpdateUnitFile 更新 systemd unit 文件
+func (r *projectRepo) UpdateUnitFile(name string, req *request.ProjectUpdate) error {
 	req.RootDir = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
 	req.WorkingDir = lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)
 	req.WorkingDir = lo.If(!strings.HasPrefix(req.WorkingDir, "/"), filepath.Join("/", req.WorkingDir)).Else(req.WorkingDir)

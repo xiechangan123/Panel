@@ -2,9 +2,19 @@ package biz
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"slices"
+	"strings"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
+	"github.com/spf13/cast"
+
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/acme"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -42,23 +52,41 @@ type WebsiteRepo interface {
 	Get(id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
 	List(typ string, page, limit uint) ([]*Website, int64, error)
-	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
-	Update(ctx context.Context, req *request.WebsiteUpdate) error
-	Delete(ctx context.Context, req *request.WebsiteDelete) error
+	Create(req *request.WebsiteCreate) (*Website, error)
+	Update(req *request.WebsiteUpdate) (*Website, error)
+	GetForDelete(id uint) (*Website, error)
+	RemoveFiles(name string, removePath bool) error
+	Delete(website *Website) error
+	ReloadWebServer() error
 	UpdateRemark(id uint, remark string) error
 	ResetConfig(id uint) error
 	UpdateStatus(id uint, status bool) error
 	UpdateExpireAt(id uint, expireAt *time.Time) error
 	UpdateCert(req *request.WebsiteUpdateCert) error
-	ObtainCert(ctx context.Context, id uint, dnsID uint) error
 }
 
 type WebsiteUsecase struct {
-	repo WebsiteRepo
+	repo           WebsiteRepo
+	log            *slog.Logger
+	t              *gotext.Locale
+	cert           *CertUsecase
+	certAccount    *CertAccountUsecase
+	database       *DatabaseUsecase
+	databaseUser   *DatabaseUserUsecase
+	databaseServer DatabaseServerRepo
 }
 
-func NewWebsiteUsecase(repo WebsiteRepo) *WebsiteUsecase {
-	return &WebsiteUsecase{repo: repo}
+func NewWebsiteUsecase(i do.Injector) (*WebsiteUsecase, error) {
+	return &WebsiteUsecase{
+		repo:           do.MustInvoke[WebsiteRepo](i),
+		log:            do.MustInvoke[*slog.Logger](i),
+		t:              do.MustInvoke[*gotext.Locale](i),
+		cert:           do.MustInvoke[*CertUsecase](i),
+		certAccount:    do.MustInvoke[*CertAccountUsecase](i),
+		database:       do.MustInvoke[*DatabaseUsecase](i),
+		databaseUser:   do.MustInvoke[*DatabaseUserUsecase](i),
+		databaseServer: do.MustInvoke[DatabaseServerRepo](i),
+	}, nil
 }
 
 func (uc *WebsiteUsecase) GetRewrites() (map[string]string, error) {
@@ -86,15 +114,83 @@ func (uc *WebsiteUsecase) List(typ string, page, limit uint) ([]*Website, int64,
 }
 
 func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error) {
-	return uc.repo.Create(ctx, req)
+	w, err := uc.repo.Create(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// 记录日志
+	uc.log.Info("website created", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.String("path", req.Path))
+
+	// 重载 Web 服务器
+	if err = uc.repo.ReloadWebServer(); err != nil {
+		return nil, err
+	}
+
+	// 创建数据库
+	name := "local_" + req.DBType
+	if req.DB {
+		server, err := uc.databaseServer.GetByName(name)
+		if err != nil {
+			return nil, errors.New(uc.t.Get("can't find %s database server, please add it first", name))
+		}
+		if err = uc.database.Create(ctx, &request.DatabaseCreate{
+			ServerID:   server.ID,
+			Name:       req.DBName,
+			CreateUser: true,
+			Username:   req.DBUser,
+			Password:   req.DBPassword,
+			Host:       "localhost",
+			Comment:    fmt.Sprintf("website %s", req.Name),
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	return w, nil
 }
 
 func (uc *WebsiteUsecase) Update(ctx context.Context, req *request.WebsiteUpdate) error {
-	return uc.repo.Update(ctx, req)
+	website, err := uc.repo.Update(req)
+	if err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("website updated", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
+
+	return uc.repo.ReloadWebServer()
 }
 
 func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete) error {
-	return uc.repo.Delete(ctx, req)
+	website, err := uc.repo.GetForDelete(req.ID)
+	if err != nil {
+		return err
+	}
+	if website.Cert != nil {
+		return errors.New(uc.t.Get("website %s has bound certificates, please delete the certificate first", website.Name))
+	}
+
+	_ = uc.repo.RemoveFiles(website.Name, req.Path)
+	if req.DB {
+		if mysql, err := uc.databaseServer.GetByName("local_mysql"); err == nil {
+			_ = uc.databaseUser.DeleteByNames(mysql.ID, []string{website.Name})
+			_ = uc.database.Delete(ctx, mysql.ID, website.Name)
+		}
+		if postgres, err := uc.databaseServer.GetByName("local_postgresql"); err == nil {
+			_ = uc.databaseUser.DeleteByNames(postgres.ID, []string{website.Name})
+			_ = uc.database.Delete(ctx, postgres.ID, website.Name)
+		}
+	}
+
+	if err = uc.repo.Delete(website); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("website deleted", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
+
+	return uc.repo.ReloadWebServer()
 }
 
 func (uc *WebsiteUsecase) UpdateRemark(id uint, remark string) error {
@@ -118,5 +214,52 @@ func (uc *WebsiteUsecase) UpdateCert(req *request.WebsiteUpdateCert) error {
 }
 
 func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
-	return uc.repo.ObtainCert(ctx, id, dnsID)
+	website, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	// 泛域名必须使用 DNS 验证
+	hasWildcard := slices.ContainsFunc(website.Domains, func(d string) bool {
+		return strings.Contains(d, "*")
+	})
+	if hasWildcard && dnsID == 0 {
+		return errors.New(uc.t.Get("wildcard domains require DNS verification, please select a DNS provider"))
+	}
+
+	account, err := uc.certAccount.GetDefault(cast.ToUint(ctx.Value("user_id")))
+	if err != nil {
+		return err
+	}
+
+	newCert, err := uc.cert.GetByWebsite(website.ID)
+	if err != nil {
+		if IsNotFound(err) {
+			newCert, err = uc.cert.Create(ctx, &request.CertCreate{
+				Type:        string(acme.KeyEC256),
+				Domains:     website.Domains,
+				AutoRenewal: true,
+				AccountID:   account.ID,
+				DNSID:       dnsID,
+				WebsiteID:   website.ID,
+			})
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	newCert.Domains = website.Domains
+	newCert.DNSID = dnsID
+	if err = uc.cert.Save(newCert); err != nil {
+		return err
+	}
+
+	_, err = uc.cert.ObtainAuto(newCert.ID)
+	if err != nil {
+		return err
+	}
+
+	return uc.cert.Deploy(newCert.ID, website.ID, false)
 }

@@ -2,10 +2,8 @@ package data
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -16,13 +14,11 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
 	"github.com/samber/lo"
-	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/acme"
 	"github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/embed"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -36,30 +32,16 @@ import (
 )
 
 type websiteRepo struct {
-	t              *gotext.Locale
-	db             *gorm.DB
-	log            *slog.Logger
-	cache          biz.CacheRepo
-	database       biz.DatabaseRepo
-	databaseServer biz.DatabaseServerRepo
-	databaseUser   biz.DatabaseUserRepo
-	cert           biz.CertRepo
-	certAccount    biz.CertAccountRepo
-	setting        biz.SettingRepo
+	t       *gotext.Locale
+	db      *gorm.DB
+	setting biz.SettingRepo
 }
 
 func NewWebsiteRepo(i do.Injector) (biz.WebsiteRepo, error) {
 	return &websiteRepo{
-		t:              do.MustInvoke[*gotext.Locale](i),
-		db:             do.MustInvoke[*gorm.DB](i),
-		log:            do.MustInvoke[*slog.Logger](i),
-		cache:          do.MustInvoke[biz.CacheRepo](i),
-		database:       do.MustInvoke[biz.DatabaseRepo](i),
-		databaseServer: do.MustInvoke[biz.DatabaseServerRepo](i),
-		databaseUser:   do.MustInvoke[biz.DatabaseUserRepo](i),
-		cert:           do.MustInvoke[biz.CertRepo](i),
-		certAccount:    do.MustInvoke[biz.CertAccountRepo](i),
-		setting:        do.MustInvoke[biz.SettingRepo](i),
+		t:       do.MustInvoke[*gotext.Locale](i),
+		db:      do.MustInvoke[*gorm.DB](i),
+		setting: do.MustInvoke[biz.SettingRepo](i),
 	}, nil
 }
 
@@ -117,7 +99,7 @@ func (r *websiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) err
 		return err
 	}
 
-	return r.reloadWebServer()
+	return r.ReloadWebServer()
 }
 
 func (r *websiteRepo) Count() (int64, error) {
@@ -280,7 +262,7 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 	return websites, total, nil
 }
 
-func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
+func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	w := &biz.Website{
 		Name:   req.Name,
 		Type:   biz.WebsiteType(req.Type),
@@ -557,43 +539,24 @@ FallbackResource /index.html
 		return nil, err
 	}
 
-	// 记录日志
-	r.log.Info("website created", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.String("path", req.Path))
-
-	// 重载 Web 服务器
-	if err = r.reloadWebServer(); err != nil {
-		return nil, err
-	}
-
-	// 创建数据库
-	name := "local_" + req.DBType
-	if req.DB {
-		server, err := r.databaseServer.GetByName(name)
-		if err != nil {
-			return nil, errors.New(r.t.Get("can't find %s database server, please add it first", name))
-		}
-		if err = r.database.Create(ctx, &request.DatabaseCreate{
-			ServerID:   server.ID,
-			Name:       req.DBName,
-			CreateUser: true,
-			Username:   req.DBUser,
-			Password:   req.DBPassword,
-			Host:       "localhost",
-			Comment:    fmt.Sprintf("website %s", req.Name),
-		}); err != nil {
-			return nil, err
-		}
-	}
-
 	return w, nil
 }
 
-func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) error {
+func (r *websiteRepo) Update(req *request.WebsiteUpdate) (*biz.Website, error) {
 	website := new(biz.Website)
 	if err := r.db.Where("id", req.ID).First(website).Error; err != nil {
-		return err
+		return nil, err
 	}
 
+	if err := r.applyUpdate(req, website); err != nil {
+		return nil, err
+	}
+
+	return website, nil
+}
+
+// applyUpdate 将更新请求应用到网站配置与实体，供 Update 复用
+func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Website) error {
 	vhost, err := r.getVhost(website)
 	if err != nil {
 		return err
@@ -811,48 +774,31 @@ func (r *websiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) er
 		return err
 	}
 
-	// 记录日志
-	r.log.Info("website updated", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
-
-	return r.reloadWebServer()
+	return nil
 }
 
-func (r *websiteRepo) Delete(ctx context.Context, req *request.WebsiteDelete) error {
+func (r *websiteRepo) GetForDelete(id uint) (*biz.Website, error) {
 	website := new(biz.Website)
-	if err := r.db.Preload("Cert").Where("id", req.ID).First(website).Error; err != nil {
-		return err
+	if err := r.db.Preload("Cert").Where("id", id).First(website).Error; err != nil {
+		return nil, err
 	}
-	if website.Cert != nil {
-		return errors.New(r.t.Get("website %s has bound certificates, please delete the certificate first", website.Name))
-	}
+	return website, nil
+}
 
-	if req.Path {
-		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name))
+func (r *websiteRepo) RemoveFiles(name string, removePath bool) error {
+	if removePath {
+		_ = io.Remove(filepath.Join(app.Root, "sites", name))
 	} else {
 		// 仅删除配置和日志
-		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name, "config"))
-		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name, "log"))
-		_ = io.Remove(filepath.Join(app.Root, "sites", website.Name, "htpasswd"))
+		_ = io.Remove(filepath.Join(app.Root, "sites", name, "config"))
+		_ = io.Remove(filepath.Join(app.Root, "sites", name, "log"))
+		_ = io.Remove(filepath.Join(app.Root, "sites", name, "htpasswd"))
 	}
-	if req.DB {
-		if mysql, err := r.databaseServer.GetByName("local_mysql"); err == nil {
-			_ = r.databaseUser.DeleteByNames(mysql.ID, []string{website.Name})
-			_ = r.database.Delete(ctx, mysql.ID, website.Name)
-		}
-		if postgres, err := r.databaseServer.GetByName("local_postgresql"); err == nil {
-			_ = r.databaseUser.DeleteByNames(postgres.ID, []string{website.Name})
-			_ = r.database.Delete(ctx, postgres.ID, website.Name)
-		}
-	}
+	return nil
+}
 
-	if err := r.db.Delete(website).Error; err != nil {
-		return err
-	}
-
-	// 记录日志
-	r.log.Info("website deleted", slog.String("type", biz.OperationTypeWebsite), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
-
-	return r.reloadWebServer()
+func (r *websiteRepo) Delete(website *biz.Website) error {
+	return r.db.Delete(website).Error
 }
 
 func (r *websiteRepo) UpdateRemark(id uint, remark string) error {
@@ -942,7 +888,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 
-	return r.reloadWebServer()
+	return r.ReloadWebServer()
 }
 
 func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
@@ -967,7 +913,7 @@ func (r *websiteRepo) UpdateStatus(id uint, status bool) error {
 		return err
 	}
 
-	return r.reloadWebServer()
+	return r.ReloadWebServer()
 }
 
 func (r *websiteRepo) UpdateExpireAt(id uint, expireAt *time.Time) error {
@@ -997,61 +943,10 @@ func (r *websiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 	}
 
 	if website.SSL {
-		return r.reloadWebServer()
+		return r.ReloadWebServer()
 	}
 
 	return nil
-}
-
-func (r *websiteRepo) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
-	website, err := r.Get(id)
-	if err != nil {
-		return err
-	}
-
-	// 泛域名必须使用 DNS 验证
-	hasWildcard := slices.ContainsFunc(website.Domains, func(d string) bool {
-		return strings.Contains(d, "*")
-	})
-	if hasWildcard && dnsID == 0 {
-		return errors.New(r.t.Get("wildcard domains require DNS verification, please select a DNS provider"))
-	}
-
-	account, err := r.certAccount.GetDefault(cast.ToUint(ctx.Value("user_id")))
-	if err != nil {
-		return err
-	}
-
-	newCert, err := r.cert.GetByWebsite(website.ID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			newCert, err = r.cert.Create(ctx, &request.CertCreate{
-				Type:        string(acme.KeyEC256),
-				Domains:     website.Domains,
-				AutoRenewal: true,
-				AccountID:   account.ID,
-				DNSID:       dnsID,
-				WebsiteID:   website.ID,
-			})
-			if err != nil {
-				return err
-			}
-		} else {
-			return err
-		}
-	}
-	newCert.Domains = website.Domains
-	newCert.DNSID = dnsID
-	if err = r.db.Save(newCert).Error; err != nil {
-		return err
-	}
-
-	_, err = r.cert.ObtainAuto(newCert.ID)
-	if err != nil {
-		return err
-	}
-
-	return r.cert.Deploy(newCert.ID, website.ID, false)
 }
 
 // customConfigStartNum 自定义配置起始序号
@@ -1221,7 +1116,7 @@ func (r *websiteRepo) getPHPVersion(name string) uint {
 	return vhost.PHP()
 }
 
-func (r *websiteRepo) reloadWebServer() error {
+func (r *websiteRepo) ReloadWebServer() error {
 	webServer, err := r.setting.Get(biz.SettingKeyWebserver, "unknown")
 	if err != nil {
 		return err

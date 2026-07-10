@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -22,17 +23,18 @@ type CertDNS struct {
 type CertDNSRepo interface {
 	List(page, limit uint) ([]*CertDNS, int64, error)
 	Get(id uint) (*CertDNS, error)
-	Create(ctx context.Context, req *request.CertDNSCreate) (*CertDNS, error)
-	Update(ctx context.Context, req *request.CertDNSUpdate) error
-	Delete(ctx context.Context, id uint) error
+	Create(req *request.CertDNSCreate) (*CertDNS, error)
+	Update(req *request.CertDNSUpdate) error
+	Delete(id uint) error
 }
 
 type CertDNSUsecase struct {
 	repo CertDNSRepo
+	log  *slog.Logger
 }
 
-func NewCertDNSUsecase(repo CertDNSRepo) *CertDNSUsecase {
-	return &CertDNSUsecase{repo: repo}
+func NewCertDNSUsecase(repo CertDNSRepo, log *slog.Logger) *CertDNSUsecase {
+	return &CertDNSUsecase{repo: repo, log: log}
 }
 
 func (uc *CertDNSUsecase) List(page, limit uint) ([]*CertDNS, int64, error) {
@@ -44,13 +46,40 @@ func (uc *CertDNSUsecase) Get(id uint) (*CertDNS, error) {
 }
 
 func (uc *CertDNSUsecase) Create(ctx context.Context, req *request.CertDNSCreate) (*CertDNS, error) {
-	return uc.repo.Create(ctx, req)
+	certDNS, err := uc.repo.Create(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// 记录日志
+	uc.log.Info("cert dns created", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(certDNS.ID)), slog.String("name", req.Name))
+
+	return certDNS, nil
 }
 
 func (uc *CertDNSUsecase) Update(ctx context.Context, req *request.CertDNSUpdate) error {
-	return uc.repo.Update(ctx, req)
+	if err := uc.repo.Update(req); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("cert dns updated", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+
+	return nil
 }
 
 func (uc *CertDNSUsecase) Delete(ctx context.Context, id uint) error {
-	return uc.repo.Delete(ctx, id)
+	certDNS, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("cert dns deleted", slog.String("type", OperationTypeCert), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", certDNS.Name))
+
+	return nil
 }

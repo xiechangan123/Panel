@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/libtnb/utils/crypt"
@@ -62,18 +63,19 @@ func (r *SSH) AfterFind(tx *gorm.DB) error {
 type SSHRepo interface {
 	List(page, limit uint) ([]*SSH, int64, error)
 	Get(id uint) (*SSH, error)
-	Create(ctx context.Context, req *request.SSHCreate) error
-	Update(ctx context.Context, req *request.SSHUpdate) error
-	Delete(ctx context.Context, id uint) error
+	Create(req *request.SSHCreate) error
+	Update(req *request.SSHUpdate) error
+	Delete(id uint) error
 }
 
 // SSHUsecase SSH 业务逻辑
 type SSHUsecase struct {
 	repo SSHRepo
+	log  *slog.Logger
 }
 
-func NewSSHUsecase(repo SSHRepo) *SSHUsecase {
-	return &SSHUsecase{repo: repo}
+func NewSSHUsecase(repo SSHRepo, log *slog.Logger) *SSHUsecase {
+	return &SSHUsecase{repo: repo, log: log}
 }
 
 func (uc *SSHUsecase) List(page, limit uint) ([]*SSH, int64, error) {
@@ -85,13 +87,39 @@ func (uc *SSHUsecase) Get(id uint) (*SSH, error) {
 }
 
 func (uc *SSHUsecase) Create(ctx context.Context, req *request.SSHCreate) error {
-	return uc.repo.Create(ctx, req)
+	if err := uc.repo.Create(req); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("ssh created", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("host", req.Host))
+
+	return nil
 }
 
 func (uc *SSHUsecase) Update(ctx context.Context, req *request.SSHUpdate) error {
-	return uc.repo.Update(ctx, req)
+	if err := uc.repo.Update(req); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("ssh updated", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
+
+	return nil
 }
 
 func (uc *SSHUsecase) Delete(ctx context.Context, id uint) error {
-	return uc.repo.Delete(ctx, id)
+	s, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.Delete(id); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("ssh deleted", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", s.Name))
+
+	return nil
 }

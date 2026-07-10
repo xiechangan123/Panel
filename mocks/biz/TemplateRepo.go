@@ -69,129 +69,12 @@ func (_c *TemplateRepo_Callback_Call) RunAndReturn(run func(string) error) *Temp
 	return _c
 }
 
-// CreateCompose provides a mock function with given fields: name, compose, envs, autoFirewall
-func (_m *TemplateRepo) CreateCompose(name string, compose string, envs []types.KV, autoFirewall bool) (string, error) {
-	ret := _m.Called(name, compose, envs, autoFirewall)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateCompose")
-	}
-
-	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, []types.KV, bool) (string, error)); ok {
-		return rf(name, compose, envs, autoFirewall)
-	}
-	if rf, ok := ret.Get(0).(func(string, string, []types.KV, bool) string); ok {
-		r0 = rf(name, compose, envs, autoFirewall)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	if rf, ok := ret.Get(1).(func(string, string, []types.KV, bool) error); ok {
-		r1 = rf(name, compose, envs, autoFirewall)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// TemplateRepo_CreateCompose_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateCompose'
-type TemplateRepo_CreateCompose_Call struct {
-	*mock.Call
-}
-
-// CreateCompose is a helper method to define mock.On call
-//   - name string
-//   - compose string
-//   - envs []types.KV
-//   - autoFirewall bool
-func (_e *TemplateRepo_Expecter) CreateCompose(name interface{}, compose interface{}, envs interface{}, autoFirewall interface{}) *TemplateRepo_CreateCompose_Call {
-	return &TemplateRepo_CreateCompose_Call{Call: _e.mock.On("CreateCompose", name, compose, envs, autoFirewall)}
-}
-
-func (_c *TemplateRepo_CreateCompose_Call) Run(run func(name string, compose string, envs []types.KV, autoFirewall bool)) *TemplateRepo_CreateCompose_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].([]types.KV), args[3].(bool))
-	})
-	return _c
-}
-
-func (_c *TemplateRepo_CreateCompose_Call) Return(_a0 string, _a1 error) *TemplateRepo_CreateCompose_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *TemplateRepo_CreateCompose_Call) RunAndReturn(run func(string, string, []types.KV, bool) (string, error)) *TemplateRepo_CreateCompose_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Get provides a mock function with given fields: slug
-func (_m *TemplateRepo) Get(slug string) (*api.Template, error) {
-	ret := _m.Called(slug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Get")
-	}
-
-	var r0 *api.Template
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*api.Template, error)); ok {
-		return rf(slug)
-	}
-	if rf, ok := ret.Get(0).(func(string) *api.Template); ok {
-		r0 = rf(slug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*api.Template)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(slug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// TemplateRepo_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
-type TemplateRepo_Get_Call struct {
-	*mock.Call
-}
-
-// Get is a helper method to define mock.On call
-//   - slug string
-func (_e *TemplateRepo_Expecter) Get(slug interface{}) *TemplateRepo_Get_Call {
-	return &TemplateRepo_Get_Call{Call: _e.mock.On("Get", slug)}
-}
-
-func (_c *TemplateRepo_Get_Call) Run(run func(slug string)) *TemplateRepo_Get_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *TemplateRepo_Get_Call) Return(_a0 *api.Template, _a1 error) *TemplateRepo_Get_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *TemplateRepo_Get_Call) RunAndReturn(run func(string) (*api.Template, error)) *TemplateRepo_Get_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// List provides a mock function with no fields
-func (_m *TemplateRepo) List() api.Templates {
+// LoadLocalTemplates provides a mock function with no fields
+func (_m *TemplateRepo) LoadLocalTemplates() api.Templates {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for List")
+		panic("no return value specified for LoadLocalTemplates")
 	}
 
 	var r0 api.Templates
@@ -206,29 +89,133 @@ func (_m *TemplateRepo) List() api.Templates {
 	return r0
 }
 
-// TemplateRepo_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
-type TemplateRepo_List_Call struct {
+// TemplateRepo_LoadLocalTemplates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LoadLocalTemplates'
+type TemplateRepo_LoadLocalTemplates_Call struct {
 	*mock.Call
 }
 
-// List is a helper method to define mock.On call
-func (_e *TemplateRepo_Expecter) List() *TemplateRepo_List_Call {
-	return &TemplateRepo_List_Call{Call: _e.mock.On("List")}
+// LoadLocalTemplates is a helper method to define mock.On call
+func (_e *TemplateRepo_Expecter) LoadLocalTemplates() *TemplateRepo_LoadLocalTemplates_Call {
+	return &TemplateRepo_LoadLocalTemplates_Call{Call: _e.mock.On("LoadLocalTemplates")}
 }
 
-func (_c *TemplateRepo_List_Call) Run(run func()) *TemplateRepo_List_Call {
+func (_c *TemplateRepo_LoadLocalTemplates_Call) Run(run func()) *TemplateRepo_LoadLocalTemplates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *TemplateRepo_List_Call) Return(_a0 api.Templates) *TemplateRepo_List_Call {
+func (_c *TemplateRepo_LoadLocalTemplates_Call) Return(_a0 api.Templates) *TemplateRepo_LoadLocalTemplates_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *TemplateRepo_List_Call) RunAndReturn(run func() api.Templates) *TemplateRepo_List_Call {
+func (_c *TemplateRepo_LoadLocalTemplates_Call) RunAndReturn(run func() api.Templates) *TemplateRepo_LoadLocalTemplates_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// OpenComposePorts provides a mock function with given fields: compose
+func (_m *TemplateRepo) OpenComposePorts(compose string) error {
+	ret := _m.Called(compose)
+
+	if len(ret) == 0 {
+		panic("no return value specified for OpenComposePorts")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(compose)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// TemplateRepo_OpenComposePorts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OpenComposePorts'
+type TemplateRepo_OpenComposePorts_Call struct {
+	*mock.Call
+}
+
+// OpenComposePorts is a helper method to define mock.On call
+//   - compose string
+func (_e *TemplateRepo_Expecter) OpenComposePorts(compose interface{}) *TemplateRepo_OpenComposePorts_Call {
+	return &TemplateRepo_OpenComposePorts_Call{Call: _e.mock.On("OpenComposePorts", compose)}
+}
+
+func (_c *TemplateRepo_OpenComposePorts_Call) Run(run func(compose string)) *TemplateRepo_OpenComposePorts_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *TemplateRepo_OpenComposePorts_Call) Return(_a0 error) *TemplateRepo_OpenComposePorts_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *TemplateRepo_OpenComposePorts_Call) RunAndReturn(run func(string) error) *TemplateRepo_OpenComposePorts_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// WriteCompose provides a mock function with given fields: name, compose, envs
+func (_m *TemplateRepo) WriteCompose(name string, compose string, envs []types.KV) (string, error) {
+	ret := _m.Called(name, compose, envs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for WriteCompose")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, []types.KV) (string, error)); ok {
+		return rf(name, compose, envs)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, []types.KV) string); ok {
+		r0 = rf(name, compose, envs)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, []types.KV) error); ok {
+		r1 = rf(name, compose, envs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TemplateRepo_WriteCompose_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WriteCompose'
+type TemplateRepo_WriteCompose_Call struct {
+	*mock.Call
+}
+
+// WriteCompose is a helper method to define mock.On call
+//   - name string
+//   - compose string
+//   - envs []types.KV
+func (_e *TemplateRepo_Expecter) WriteCompose(name interface{}, compose interface{}, envs interface{}) *TemplateRepo_WriteCompose_Call {
+	return &TemplateRepo_WriteCompose_Call{Call: _e.mock.On("WriteCompose", name, compose, envs)}
+}
+
+func (_c *TemplateRepo_WriteCompose_Call) Run(run func(name string, compose string, envs []types.KV)) *TemplateRepo_WriteCompose_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].([]types.KV))
+	})
+	return _c
+}
+
+func (_c *TemplateRepo_WriteCompose_Call) Return(_a0 string, _a1 error) *TemplateRepo_WriteCompose_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *TemplateRepo_WriteCompose_Call) RunAndReturn(run func(string, string, []types.KV) (string, error)) *TemplateRepo_WriteCompose_Call {
 	_c.Call.Return(run)
 	return _c
 }

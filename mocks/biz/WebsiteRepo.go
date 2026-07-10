@@ -3,10 +3,7 @@
 package biz
 
 import (
-	context "context"
-
 	biz "github.com/acepanel/panel/v3/internal/biz"
-
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/v3/internal/request"
@@ -84,9 +81,9 @@ func (_c *WebsiteRepo_Count_Call) RunAndReturn(run func() (int64, error)) *Websi
 	return _c
 }
 
-// Create provides a mock function with given fields: ctx, req
-func (_m *WebsiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
-	ret := _m.Called(ctx, req)
+// Create provides a mock function with given fields: req
+func (_m *WebsiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
+	ret := _m.Called(req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -94,19 +91,19 @@ func (_m *WebsiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (
 
 	var r0 *biz.Website
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteCreate) (*biz.Website, error)); ok {
-		return rf(ctx, req)
+	if rf, ok := ret.Get(0).(func(*request.WebsiteCreate) (*biz.Website, error)); ok {
+		return rf(req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteCreate) *biz.Website); ok {
-		r0 = rf(ctx, req)
+	if rf, ok := ret.Get(0).(func(*request.WebsiteCreate) *biz.Website); ok {
+		r0 = rf(req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.Website)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *request.WebsiteCreate) error); ok {
-		r1 = rf(ctx, req)
+	if rf, ok := ret.Get(1).(func(*request.WebsiteCreate) error); ok {
+		r1 = rf(req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -120,15 +117,14 @@ type WebsiteRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
-//   - ctx context.Context
 //   - req *request.WebsiteCreate
-func (_e *WebsiteRepo_Expecter) Create(ctx interface{}, req interface{}) *WebsiteRepo_Create_Call {
-	return &WebsiteRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
+func (_e *WebsiteRepo_Expecter) Create(req interface{}) *WebsiteRepo_Create_Call {
+	return &WebsiteRepo_Create_Call{Call: _e.mock.On("Create", req)}
 }
 
-func (_c *WebsiteRepo_Create_Call) Run(run func(ctx context.Context, req *request.WebsiteCreate)) *WebsiteRepo_Create_Call {
+func (_c *WebsiteRepo_Create_Call) Run(run func(req *request.WebsiteCreate)) *WebsiteRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.WebsiteCreate))
+		run(args[0].(*request.WebsiteCreate))
 	})
 	return _c
 }
@@ -138,22 +134,22 @@ func (_c *WebsiteRepo_Create_Call) Return(_a0 *biz.Website, _a1 error) *WebsiteR
 	return _c
 }
 
-func (_c *WebsiteRepo_Create_Call) RunAndReturn(run func(context.Context, *request.WebsiteCreate) (*biz.Website, error)) *WebsiteRepo_Create_Call {
+func (_c *WebsiteRepo_Create_Call) RunAndReturn(run func(*request.WebsiteCreate) (*biz.Website, error)) *WebsiteRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: ctx, req
-func (_m *WebsiteRepo) Delete(ctx context.Context, req *request.WebsiteDelete) error {
-	ret := _m.Called(ctx, req)
+// Delete provides a mock function with given fields: website
+func (_m *WebsiteRepo) Delete(website *biz.Website) error {
+	ret := _m.Called(website)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteDelete) error); ok {
-		r0 = rf(ctx, req)
+	if rf, ok := ret.Get(0).(func(*biz.Website) error); ok {
+		r0 = rf(website)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -167,15 +163,14 @@ type WebsiteRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - ctx context.Context
-//   - req *request.WebsiteDelete
-func (_e *WebsiteRepo_Expecter) Delete(ctx interface{}, req interface{}) *WebsiteRepo_Delete_Call {
-	return &WebsiteRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, req)}
+//   - website *biz.Website
+func (_e *WebsiteRepo_Expecter) Delete(website interface{}) *WebsiteRepo_Delete_Call {
+	return &WebsiteRepo_Delete_Call{Call: _e.mock.On("Delete", website)}
 }
 
-func (_c *WebsiteRepo_Delete_Call) Run(run func(ctx context.Context, req *request.WebsiteDelete)) *WebsiteRepo_Delete_Call {
+func (_c *WebsiteRepo_Delete_Call) Run(run func(website *biz.Website)) *WebsiteRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.WebsiteDelete))
+		run(args[0].(*biz.Website))
 	})
 	return _c
 }
@@ -185,7 +180,7 @@ func (_c *WebsiteRepo_Delete_Call) Return(_a0 error) *WebsiteRepo_Delete_Call {
 	return _c
 }
 
-func (_c *WebsiteRepo_Delete_Call) RunAndReturn(run func(context.Context, *request.WebsiteDelete) error) *WebsiteRepo_Delete_Call {
+func (_c *WebsiteRepo_Delete_Call) RunAndReturn(run func(*biz.Website) error) *WebsiteRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -302,6 +297,64 @@ func (_c *WebsiteRepo_GetByName_Call) Return(_a0 *types.WebsiteSetting, _a1 erro
 }
 
 func (_c *WebsiteRepo_GetByName_Call) RunAndReturn(run func(string) (*types.WebsiteSetting, error)) *WebsiteRepo_GetByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetForDelete provides a mock function with given fields: id
+func (_m *WebsiteRepo) GetForDelete(id uint) (*biz.Website, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetForDelete")
+	}
+
+	var r0 *biz.Website
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint) (*biz.Website, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(uint) *biz.Website); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*biz.Website)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebsiteRepo_GetForDelete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetForDelete'
+type WebsiteRepo_GetForDelete_Call struct {
+	*mock.Call
+}
+
+// GetForDelete is a helper method to define mock.On call
+//   - id uint
+func (_e *WebsiteRepo_Expecter) GetForDelete(id interface{}) *WebsiteRepo_GetForDelete_Call {
+	return &WebsiteRepo_GetForDelete_Call{Call: _e.mock.On("GetForDelete", id)}
+}
+
+func (_c *WebsiteRepo_GetForDelete_Call) Run(run func(id uint)) *WebsiteRepo_GetForDelete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint))
+	})
+	return _c
+}
+
+func (_c *WebsiteRepo_GetForDelete_Call) Return(_a0 *biz.Website, _a1 error) *WebsiteRepo_GetForDelete_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebsiteRepo_GetForDelete_Call) RunAndReturn(run func(uint) (*biz.Website, error)) *WebsiteRepo_GetForDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -430,17 +483,17 @@ func (_c *WebsiteRepo_List_Call) RunAndReturn(run func(string, uint, uint) ([]*b
 	return _c
 }
 
-// ObtainCert provides a mock function with given fields: ctx, id, dnsID
-func (_m *WebsiteRepo) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
-	ret := _m.Called(ctx, id, dnsID)
+// ReloadWebServer provides a mock function with no fields
+func (_m *WebsiteRepo) ReloadWebServer() error {
+	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for ObtainCert")
+		panic("no return value specified for ReloadWebServer")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint, uint) error); ok {
-		r0 = rf(ctx, id, dnsID)
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -448,32 +501,76 @@ func (_m *WebsiteRepo) ObtainCert(ctx context.Context, id uint, dnsID uint) erro
 	return r0
 }
 
-// WebsiteRepo_ObtainCert_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ObtainCert'
-type WebsiteRepo_ObtainCert_Call struct {
+// WebsiteRepo_ReloadWebServer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReloadWebServer'
+type WebsiteRepo_ReloadWebServer_Call struct {
 	*mock.Call
 }
 
-// ObtainCert is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id uint
-//   - dnsID uint
-func (_e *WebsiteRepo_Expecter) ObtainCert(ctx interface{}, id interface{}, dnsID interface{}) *WebsiteRepo_ObtainCert_Call {
-	return &WebsiteRepo_ObtainCert_Call{Call: _e.mock.On("ObtainCert", ctx, id, dnsID)}
+// ReloadWebServer is a helper method to define mock.On call
+func (_e *WebsiteRepo_Expecter) ReloadWebServer() *WebsiteRepo_ReloadWebServer_Call {
+	return &WebsiteRepo_ReloadWebServer_Call{Call: _e.mock.On("ReloadWebServer")}
 }
 
-func (_c *WebsiteRepo_ObtainCert_Call) Run(run func(ctx context.Context, id uint, dnsID uint)) *WebsiteRepo_ObtainCert_Call {
+func (_c *WebsiteRepo_ReloadWebServer_Call) Run(run func()) *WebsiteRepo_ReloadWebServer_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uint), args[2].(uint))
+		run()
 	})
 	return _c
 }
 
-func (_c *WebsiteRepo_ObtainCert_Call) Return(_a0 error) *WebsiteRepo_ObtainCert_Call {
+func (_c *WebsiteRepo_ReloadWebServer_Call) Return(_a0 error) *WebsiteRepo_ReloadWebServer_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *WebsiteRepo_ObtainCert_Call) RunAndReturn(run func(context.Context, uint, uint) error) *WebsiteRepo_ObtainCert_Call {
+func (_c *WebsiteRepo_ReloadWebServer_Call) RunAndReturn(run func() error) *WebsiteRepo_ReloadWebServer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoveFiles provides a mock function with given fields: name, removePath
+func (_m *WebsiteRepo) RemoveFiles(name string, removePath bool) error {
+	ret := _m.Called(name, removePath)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveFiles")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, bool) error); ok {
+		r0 = rf(name, removePath)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteRepo_RemoveFiles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveFiles'
+type WebsiteRepo_RemoveFiles_Call struct {
+	*mock.Call
+}
+
+// RemoveFiles is a helper method to define mock.On call
+//   - name string
+//   - removePath bool
+func (_e *WebsiteRepo_Expecter) RemoveFiles(name interface{}, removePath interface{}) *WebsiteRepo_RemoveFiles_Call {
+	return &WebsiteRepo_RemoveFiles_Call{Call: _e.mock.On("RemoveFiles", name, removePath)}
+}
+
+func (_c *WebsiteRepo_RemoveFiles_Call) Run(run func(name string, removePath bool)) *WebsiteRepo_RemoveFiles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(bool))
+	})
+	return _c
+}
+
+func (_c *WebsiteRepo_RemoveFiles_Call) Return(_a0 error) *WebsiteRepo_RemoveFiles_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteRepo_RemoveFiles_Call) RunAndReturn(run func(string, bool) error) *WebsiteRepo_RemoveFiles_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -524,22 +621,34 @@ func (_c *WebsiteRepo_ResetConfig_Call) RunAndReturn(run func(uint) error) *Webs
 	return _c
 }
 
-// Update provides a mock function with given fields: ctx, req
-func (_m *WebsiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) error {
-	ret := _m.Called(ctx, req)
+// Update provides a mock function with given fields: req
+func (_m *WebsiteRepo) Update(req *request.WebsiteUpdate) (*biz.Website, error) {
+	ret := _m.Called(req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.WebsiteUpdate) error); ok {
-		r0 = rf(ctx, req)
+	var r0 *biz.Website
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*request.WebsiteUpdate) (*biz.Website, error)); ok {
+		return rf(req)
+	}
+	if rf, ok := ret.Get(0).(func(*request.WebsiteUpdate) *biz.Website); ok {
+		r0 = rf(req)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*biz.Website)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(*request.WebsiteUpdate) error); ok {
+		r1 = rf(req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // WebsiteRepo_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
@@ -548,25 +657,24 @@ type WebsiteRepo_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - ctx context.Context
 //   - req *request.WebsiteUpdate
-func (_e *WebsiteRepo_Expecter) Update(ctx interface{}, req interface{}) *WebsiteRepo_Update_Call {
-	return &WebsiteRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
+func (_e *WebsiteRepo_Expecter) Update(req interface{}) *WebsiteRepo_Update_Call {
+	return &WebsiteRepo_Update_Call{Call: _e.mock.On("Update", req)}
 }
 
-func (_c *WebsiteRepo_Update_Call) Run(run func(ctx context.Context, req *request.WebsiteUpdate)) *WebsiteRepo_Update_Call {
+func (_c *WebsiteRepo_Update_Call) Run(run func(req *request.WebsiteUpdate)) *WebsiteRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.WebsiteUpdate))
+		run(args[0].(*request.WebsiteUpdate))
 	})
 	return _c
 }
 
-func (_c *WebsiteRepo_Update_Call) Return(_a0 error) *WebsiteRepo_Update_Call {
-	_c.Call.Return(_a0)
+func (_c *WebsiteRepo_Update_Call) Return(_a0 *biz.Website, _a1 error) *WebsiteRepo_Update_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebsiteRepo_Update_Call) RunAndReturn(run func(context.Context, *request.WebsiteUpdate) error) *WebsiteRepo_Update_Call {
+func (_c *WebsiteRepo_Update_Call) RunAndReturn(run func(*request.WebsiteUpdate) (*biz.Website, error)) *WebsiteRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

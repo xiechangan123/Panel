@@ -3,10 +3,10 @@
 package biz
 
 import (
-	context "context"
+	biz "github.com/acepanel/panel/v3/internal/biz"
+	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/v3/internal/request"
-	mock "github.com/stretchr/testify/mock"
 
 	types "github.com/acepanel/panel/v3/pkg/types"
 )
@@ -79,34 +79,22 @@ func (_c *ProjectRepo_Count_Call) RunAndReturn(run func() (int64, error)) *Proje
 	return _c
 }
 
-// Create provides a mock function with given fields: ctx, req
-func (_m *ProjectRepo) Create(ctx context.Context, req *request.ProjectCreate) (*types.ProjectDetail, error) {
-	ret := _m.Called(ctx, req)
+// Create provides a mock function with given fields: project, req
+func (_m *ProjectRepo) Create(project *biz.Project, req *request.ProjectCreate) error {
+	ret := _m.Called(project, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *types.ProjectDetail
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.ProjectCreate) (*types.ProjectDetail, error)); ok {
-		return rf(ctx, req)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *request.ProjectCreate) *types.ProjectDetail); ok {
-		r0 = rf(ctx, req)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*biz.Project, *request.ProjectCreate) error); ok {
+		r0 = rf(project, req)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*types.ProjectDetail)
-		}
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *request.ProjectCreate) error); ok {
-		r1 = rf(ctx, req)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // ProjectRepo_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
@@ -115,40 +103,40 @@ type ProjectRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
-//   - ctx context.Context
+//   - project *biz.Project
 //   - req *request.ProjectCreate
-func (_e *ProjectRepo_Expecter) Create(ctx interface{}, req interface{}) *ProjectRepo_Create_Call {
-	return &ProjectRepo_Create_Call{Call: _e.mock.On("Create", ctx, req)}
+func (_e *ProjectRepo_Expecter) Create(project interface{}, req interface{}) *ProjectRepo_Create_Call {
+	return &ProjectRepo_Create_Call{Call: _e.mock.On("Create", project, req)}
 }
 
-func (_c *ProjectRepo_Create_Call) Run(run func(ctx context.Context, req *request.ProjectCreate)) *ProjectRepo_Create_Call {
+func (_c *ProjectRepo_Create_Call) Run(run func(project *biz.Project, req *request.ProjectCreate)) *ProjectRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.ProjectCreate))
+		run(args[0].(*biz.Project), args[1].(*request.ProjectCreate))
 	})
 	return _c
 }
 
-func (_c *ProjectRepo_Create_Call) Return(_a0 *types.ProjectDetail, _a1 error) *ProjectRepo_Create_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *ProjectRepo_Create_Call) Return(_a0 error) *ProjectRepo_Create_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *ProjectRepo_Create_Call) RunAndReturn(run func(context.Context, *request.ProjectCreate) (*types.ProjectDetail, error)) *ProjectRepo_Create_Call {
+func (_c *ProjectRepo_Create_Call) RunAndReturn(run func(*biz.Project, *request.ProjectCreate) error) *ProjectRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Delete provides a mock function with given fields: ctx, id
-func (_m *ProjectRepo) Delete(ctx context.Context, id uint) error {
-	ret := _m.Called(ctx, id)
+// Delete provides a mock function with given fields: project
+func (_m *ProjectRepo) Delete(project *biz.Project) error {
+	ret := _m.Called(project)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(*biz.Project) error); ok {
+		r0 = rf(project)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -162,15 +150,14 @@ type ProjectRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id uint
-func (_e *ProjectRepo_Expecter) Delete(ctx interface{}, id interface{}) *ProjectRepo_Delete_Call {
-	return &ProjectRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+//   - project *biz.Project
+func (_e *ProjectRepo_Expecter) Delete(project interface{}) *ProjectRepo_Delete_Call {
+	return &ProjectRepo_Delete_Call{Call: _e.mock.On("Delete", project)}
 }
 
-func (_c *ProjectRepo_Delete_Call) Run(run func(ctx context.Context, id uint)) *ProjectRepo_Delete_Call {
+func (_c *ProjectRepo_Delete_Call) Run(run func(project *biz.Project)) *ProjectRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uint))
+		run(args[0].(*biz.Project))
 	})
 	return _c
 }
@@ -180,29 +167,29 @@ func (_c *ProjectRepo_Delete_Call) Return(_a0 error) *ProjectRepo_Delete_Call {
 	return _c
 }
 
-func (_c *ProjectRepo_Delete_Call) RunAndReturn(run func(context.Context, uint) error) *ProjectRepo_Delete_Call {
+func (_c *ProjectRepo_Delete_Call) RunAndReturn(run func(*biz.Project) error) *ProjectRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Get provides a mock function with given fields: id
-func (_m *ProjectRepo) Get(id uint) (*types.ProjectDetail, error) {
+// GetEntity provides a mock function with given fields: id
+func (_m *ProjectRepo) GetEntity(id uint) (*biz.Project, error) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Get")
+		panic("no return value specified for GetEntity")
 	}
 
-	var r0 *types.ProjectDetail
+	var r0 *biz.Project
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) (*types.ProjectDetail, error)); ok {
+	if rf, ok := ret.Get(0).(func(uint) (*biz.Project, error)); ok {
 		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(uint) *types.ProjectDetail); ok {
+	if rf, ok := ret.Get(0).(func(uint) *biz.Project); ok {
 		r0 = rf(id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*types.ProjectDetail)
+			r0 = ret.Get(0).(*biz.Project)
 		}
 	}
 
@@ -215,53 +202,53 @@ func (_m *ProjectRepo) Get(id uint) (*types.ProjectDetail, error) {
 	return r0, r1
 }
 
-// ProjectRepo_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
-type ProjectRepo_Get_Call struct {
+// ProjectRepo_GetEntity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetEntity'
+type ProjectRepo_GetEntity_Call struct {
 	*mock.Call
 }
 
-// Get is a helper method to define mock.On call
+// GetEntity is a helper method to define mock.On call
 //   - id uint
-func (_e *ProjectRepo_Expecter) Get(id interface{}) *ProjectRepo_Get_Call {
-	return &ProjectRepo_Get_Call{Call: _e.mock.On("Get", id)}
+func (_e *ProjectRepo_Expecter) GetEntity(id interface{}) *ProjectRepo_GetEntity_Call {
+	return &ProjectRepo_GetEntity_Call{Call: _e.mock.On("GetEntity", id)}
 }
 
-func (_c *ProjectRepo_Get_Call) Run(run func(id uint)) *ProjectRepo_Get_Call {
+func (_c *ProjectRepo_GetEntity_Call) Run(run func(id uint)) *ProjectRepo_GetEntity_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(uint))
 	})
 	return _c
 }
 
-func (_c *ProjectRepo_Get_Call) Return(_a0 *types.ProjectDetail, _a1 error) *ProjectRepo_Get_Call {
+func (_c *ProjectRepo_GetEntity_Call) Return(_a0 *biz.Project, _a1 error) *ProjectRepo_GetEntity_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ProjectRepo_Get_Call) RunAndReturn(run func(uint) (*types.ProjectDetail, error)) *ProjectRepo_Get_Call {
+func (_c *ProjectRepo_GetEntity_Call) RunAndReturn(run func(uint) (*biz.Project, error)) *ProjectRepo_GetEntity_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function with given fields: typ, page, limit
-func (_m *ProjectRepo) List(typ types.ProjectType, page uint, limit uint) ([]*types.ProjectDetail, int64, error) {
+func (_m *ProjectRepo) List(typ types.ProjectType, page uint, limit uint) ([]*biz.Project, int64, error) {
 	ret := _m.Called(typ, page, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 []*types.ProjectDetail
+	var r0 []*biz.Project
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(types.ProjectType, uint, uint) ([]*types.ProjectDetail, int64, error)); ok {
+	if rf, ok := ret.Get(0).(func(types.ProjectType, uint, uint) ([]*biz.Project, int64, error)); ok {
 		return rf(typ, page, limit)
 	}
-	if rf, ok := ret.Get(0).(func(types.ProjectType, uint, uint) []*types.ProjectDetail); ok {
+	if rf, ok := ret.Get(0).(func(types.ProjectType, uint, uint) []*biz.Project); ok {
 		r0 = rf(typ, page, limit)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*types.ProjectDetail)
+			r0 = ret.Get(0).([]*biz.Project)
 		}
 	}
 
@@ -300,27 +287,141 @@ func (_c *ProjectRepo_List_Call) Run(run func(typ types.ProjectType, page uint, 
 	return _c
 }
 
-func (_c *ProjectRepo_List_Call) Return(_a0 []*types.ProjectDetail, _a1 int64, _a2 error) *ProjectRepo_List_Call {
+func (_c *ProjectRepo_List_Call) Return(_a0 []*biz.Project, _a1 int64, _a2 error) *ProjectRepo_List_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *ProjectRepo_List_Call) RunAndReturn(run func(types.ProjectType, uint, uint) ([]*types.ProjectDetail, int64, error)) *ProjectRepo_List_Call {
+func (_c *ProjectRepo_List_Call) RunAndReturn(run func(types.ProjectType, uint, uint) ([]*biz.Project, int64, error)) *ProjectRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Update provides a mock function with given fields: ctx, req
-func (_m *ProjectRepo) Update(ctx context.Context, req *request.ProjectUpdate) error {
-	ret := _m.Called(ctx, req)
+// NameExists provides a mock function with given fields: name
+func (_m *ProjectRepo) NameExists(name string) (bool, error) {
+	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Update")
+		panic("no return value specified for NameExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (bool, error)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(name)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProjectRepo_NameExists_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NameExists'
+type ProjectRepo_NameExists_Call struct {
+	*mock.Call
+}
+
+// NameExists is a helper method to define mock.On call
+//   - name string
+func (_e *ProjectRepo_Expecter) NameExists(name interface{}) *ProjectRepo_NameExists_Call {
+	return &ProjectRepo_NameExists_Call{Call: _e.mock.On("NameExists", name)}
+}
+
+func (_c *ProjectRepo_NameExists_Call) Run(run func(name string)) *ProjectRepo_NameExists_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *ProjectRepo_NameExists_Call) Return(_a0 bool, _a1 error) *ProjectRepo_NameExists_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProjectRepo_NameExists_Call) RunAndReturn(run func(string) (bool, error)) *ProjectRepo_NameExists_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ParseDetail provides a mock function with given fields: project
+func (_m *ProjectRepo) ParseDetail(project *biz.Project) (*types.ProjectDetail, error) {
+	ret := _m.Called(project)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ParseDetail")
+	}
+
+	var r0 *types.ProjectDetail
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*biz.Project) (*types.ProjectDetail, error)); ok {
+		return rf(project)
+	}
+	if rf, ok := ret.Get(0).(func(*biz.Project) *types.ProjectDetail); ok {
+		r0 = rf(project)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.ProjectDetail)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*biz.Project) error); ok {
+		r1 = rf(project)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProjectRepo_ParseDetail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ParseDetail'
+type ProjectRepo_ParseDetail_Call struct {
+	*mock.Call
+}
+
+// ParseDetail is a helper method to define mock.On call
+//   - project *biz.Project
+func (_e *ProjectRepo_Expecter) ParseDetail(project interface{}) *ProjectRepo_ParseDetail_Call {
+	return &ProjectRepo_ParseDetail_Call{Call: _e.mock.On("ParseDetail", project)}
+}
+
+func (_c *ProjectRepo_ParseDetail_Call) Run(run func(project *biz.Project)) *ProjectRepo_ParseDetail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.Project))
+	})
+	return _c
+}
+
+func (_c *ProjectRepo_ParseDetail_Call) Return(_a0 *types.ProjectDetail, _a1 error) *ProjectRepo_ParseDetail_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProjectRepo_ParseDetail_Call) RunAndReturn(run func(*biz.Project) (*types.ProjectDetail, error)) *ProjectRepo_ParseDetail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoveUnitFile provides a mock function with given fields: name
+func (_m *ProjectRepo) RemoveUnitFile(name string) error {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveUnitFile")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.ProjectUpdate) error); ok {
-		r0 = rf(ctx, req)
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(name)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -328,31 +429,170 @@ func (_m *ProjectRepo) Update(ctx context.Context, req *request.ProjectUpdate) e
 	return r0
 }
 
-// ProjectRepo_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type ProjectRepo_Update_Call struct {
+// ProjectRepo_RemoveUnitFile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveUnitFile'
+type ProjectRepo_RemoveUnitFile_Call struct {
 	*mock.Call
 }
 
-// Update is a helper method to define mock.On call
-//   - ctx context.Context
-//   - req *request.ProjectUpdate
-func (_e *ProjectRepo_Expecter) Update(ctx interface{}, req interface{}) *ProjectRepo_Update_Call {
-	return &ProjectRepo_Update_Call{Call: _e.mock.On("Update", ctx, req)}
+// RemoveUnitFile is a helper method to define mock.On call
+//   - name string
+func (_e *ProjectRepo_Expecter) RemoveUnitFile(name interface{}) *ProjectRepo_RemoveUnitFile_Call {
+	return &ProjectRepo_RemoveUnitFile_Call{Call: _e.mock.On("RemoveUnitFile", name)}
 }
 
-func (_c *ProjectRepo_Update_Call) Run(run func(ctx context.Context, req *request.ProjectUpdate)) *ProjectRepo_Update_Call {
+func (_c *ProjectRepo_RemoveUnitFile_Call) Run(run func(name string)) *ProjectRepo_RemoveUnitFile_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.ProjectUpdate))
+		run(args[0].(string))
 	})
 	return _c
 }
 
-func (_c *ProjectRepo_Update_Call) Return(_a0 error) *ProjectRepo_Update_Call {
+func (_c *ProjectRepo_RemoveUnitFile_Call) Return(_a0 error) *ProjectRepo_RemoveUnitFile_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *ProjectRepo_Update_Call) RunAndReturn(run func(context.Context, *request.ProjectUpdate) error) *ProjectRepo_Update_Call {
+func (_c *ProjectRepo_RemoveUnitFile_Call) RunAndReturn(run func(string) error) *ProjectRepo_RemoveUnitFile_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RenameUnitFile provides a mock function with given fields: old, new
+func (_m *ProjectRepo) RenameUnitFile(old string, new string) error {
+	ret := _m.Called(old, new)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RenameUnitFile")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(old, new)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ProjectRepo_RenameUnitFile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RenameUnitFile'
+type ProjectRepo_RenameUnitFile_Call struct {
+	*mock.Call
+}
+
+// RenameUnitFile is a helper method to define mock.On call
+//   - old string
+//   - new string
+func (_e *ProjectRepo_Expecter) RenameUnitFile(old interface{}, new interface{}) *ProjectRepo_RenameUnitFile_Call {
+	return &ProjectRepo_RenameUnitFile_Call{Call: _e.mock.On("RenameUnitFile", old, new)}
+}
+
+func (_c *ProjectRepo_RenameUnitFile_Call) Run(run func(old string, new string)) *ProjectRepo_RenameUnitFile_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *ProjectRepo_RenameUnitFile_Call) Return(_a0 error) *ProjectRepo_RenameUnitFile_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ProjectRepo_RenameUnitFile_Call) RunAndReturn(run func(string, string) error) *ProjectRepo_RenameUnitFile_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Save provides a mock function with given fields: project
+func (_m *ProjectRepo) Save(project *biz.Project) error {
+	ret := _m.Called(project)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Save")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*biz.Project) error); ok {
+		r0 = rf(project)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ProjectRepo_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
+type ProjectRepo_Save_Call struct {
+	*mock.Call
+}
+
+// Save is a helper method to define mock.On call
+//   - project *biz.Project
+func (_e *ProjectRepo_Expecter) Save(project interface{}) *ProjectRepo_Save_Call {
+	return &ProjectRepo_Save_Call{Call: _e.mock.On("Save", project)}
+}
+
+func (_c *ProjectRepo_Save_Call) Run(run func(project *biz.Project)) *ProjectRepo_Save_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.Project))
+	})
+	return _c
+}
+
+func (_c *ProjectRepo_Save_Call) Return(_a0 error) *ProjectRepo_Save_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ProjectRepo_Save_Call) RunAndReturn(run func(*biz.Project) error) *ProjectRepo_Save_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateUnitFile provides a mock function with given fields: name, req
+func (_m *ProjectRepo) UpdateUnitFile(name string, req *request.ProjectUpdate) error {
+	ret := _m.Called(name, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUnitFile")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, *request.ProjectUpdate) error); ok {
+		r0 = rf(name, req)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ProjectRepo_UpdateUnitFile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUnitFile'
+type ProjectRepo_UpdateUnitFile_Call struct {
+	*mock.Call
+}
+
+// UpdateUnitFile is a helper method to define mock.On call
+//   - name string
+//   - req *request.ProjectUpdate
+func (_e *ProjectRepo_Expecter) UpdateUnitFile(name interface{}, req interface{}) *ProjectRepo_UpdateUnitFile_Call {
+	return &ProjectRepo_UpdateUnitFile_Call{Call: _e.mock.On("UpdateUnitFile", name, req)}
+}
+
+func (_c *ProjectRepo_UpdateUnitFile_Call) Run(run func(name string, req *request.ProjectUpdate)) *ProjectRepo_UpdateUnitFile_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(*request.ProjectUpdate))
+	})
+	return _c
+}
+
+func (_c *ProjectRepo_UpdateUnitFile_Call) Return(_a0 error) *ProjectRepo_UpdateUnitFile_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ProjectRepo_UpdateUnitFile_Call) RunAndReturn(run func(string, *request.ProjectUpdate) error) *ProjectRepo_UpdateUnitFile_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -6,37 +6,43 @@ import (
 )
 
 type ContainerImageRepo interface {
-	List() ([]types.ContainerImage, error)
-	Exist(name string) (bool, error)
-	Pull(req *request.ContainerImagePull) error
-	Remove(id string) error
-	Prune() error
+	List(sock string) ([]types.ContainerImage, error)
+	Exist(sock string, name string) (bool, error)
+	Pull(sock string, req *request.ContainerImagePull) error
+	Remove(sock string, id string) error
+	Prune(sock string) error
 }
 
 type ContainerImageUsecase struct {
-	repo ContainerImageRepo
+	repo    ContainerImageRepo
+	setting SettingRepo
 }
 
-func NewContainerImageUsecase(repo ContainerImageRepo) *ContainerImageUsecase {
-	return &ContainerImageUsecase{repo: repo}
+func NewContainerImageUsecase(repo ContainerImageRepo, setting SettingRepo) *ContainerImageUsecase {
+	return &ContainerImageUsecase{repo: repo, setting: setting}
 }
 
 func (uc *ContainerImageUsecase) List() ([]types.ContainerImage, error) {
-	return uc.repo.List()
+	sock := containerSock(uc.setting)
+	return uc.repo.List(sock)
 }
 
 func (uc *ContainerImageUsecase) Exist(name string) (bool, error) {
-	return uc.repo.Exist(name)
+	sock := containerSock(uc.setting)
+	return uc.repo.Exist(sock, name)
 }
 
 func (uc *ContainerImageUsecase) Pull(req *request.ContainerImagePull) error {
-	return uc.repo.Pull(req)
+	sock := containerSock(uc.setting)
+	return uc.repo.Pull(sock, req)
 }
 
 func (uc *ContainerImageUsecase) Remove(id string) error {
-	return uc.repo.Remove(id)
+	sock := containerSock(uc.setting)
+	return uc.repo.Remove(sock, id)
 }
 
 func (uc *ContainerImageUsecase) Prune() error {
-	return uc.repo.Prune()
+	sock := containerSock(uc.setting)
+	return uc.repo.Prune(sock)
 }

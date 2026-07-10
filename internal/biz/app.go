@@ -1,8 +1,16 @@
 package biz
 
 import (
+	"encoding/json"
+	"errors"
+	"slices"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
+	"github.com/samber/lo"
+
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -19,44 +27,96 @@ type App struct {
 }
 
 type AppRepo interface {
-	Categories() []types.LV
-	All() api.Apps
-	Get(slug string) (*api.App, error)
-	UpdateExist(slug string) bool
 	Installed() ([]*App, error)
 	GetInstalled(slug string) (*App, error)
 	GetInstalledAll(query string, cond ...string) ([]*App, error)
-	GetHomeShow() ([]map[string]string, error)
+	ListHomeShow() ([]*App, error)
 	IsInstalled(query string, cond ...any) (bool, error)
-	Install(channel, slug string) error
-	UnInstall(slug string) error
-	Update(slug string) error
 	UpdateShow(slug string, show bool) error
 	UpdateOrder(slugs []string) error
+	DownloadCallback(slug string)
+	CheckPanelVersion() error
+	ResolveScript(item *api.App, matchChannel, action, execVersion string) (string, error)
+	ExecScript(script string) error
+	PreCheck(item *api.App, catalog api.Apps) error
 }
 
 type AppUsecase struct {
-	repo AppRepo
+	repo  AppRepo
+	cache CacheRepo
+	task  TaskRepo
+	t     *gotext.Locale
 }
 
-func NewAppUsecase(repo AppRepo) *AppUsecase {
-	return &AppUsecase{repo: repo}
+func NewAppUsecase(i do.Injector) (*AppUsecase, error) {
+	return &AppUsecase{
+		repo:  do.MustInvoke[AppRepo](i),
+		cache: do.MustInvoke[CacheRepo](i),
+		task:  do.MustInvoke[TaskRepo](i),
+		t:     do.MustInvoke[*gotext.Locale](i),
+	}, nil
 }
 
 func (uc *AppUsecase) Categories() []types.LV {
-	return uc.repo.Categories()
+	cached, err := uc.cache.Get(CacheKeyCategories)
+	if err != nil {
+		return nil
+	}
+
+	var categories api.Categories
+	if err = json.Unmarshal([]byte(cached), &categories); err != nil {
+		return nil
+	}
+
+	slices.SortFunc(categories, func(a, b *api.Category) int {
+		return a.Order - b.Order
+	})
+
+	return lo.Map(categories, func(item *api.Category, _ int) types.LV {
+		return types.LV{Label: item.Name, Value: item.Slug}
+	})
 }
 
 func (uc *AppUsecase) All() api.Apps {
-	return uc.repo.All()
+	cached, err := uc.cache.Get(CacheKeyApps)
+	if err != nil {
+		return nil
+	}
+	var apps api.Apps
+	if err = json.Unmarshal([]byte(cached), &apps); err != nil {
+		return nil
+	}
+	return apps
 }
 
 func (uc *AppUsecase) Get(slug string) (*api.App, error) {
-	return uc.repo.Get(slug)
+	for item := range slices.Values(uc.All()) {
+		if item.Slug == slug {
+			return item, nil
+		}
+	}
+	return nil, errors.New(uc.t.Get("app %s not found", slug))
 }
 
 func (uc *AppUsecase) UpdateExist(slug string) bool {
-	return uc.repo.UpdateExist(slug)
+	item, err := uc.Get(slug)
+	if err != nil {
+		return false
+	}
+	installed, err := uc.repo.GetInstalled(slug)
+	if err != nil {
+		return false
+	}
+
+	for channel := range slices.Values(item.Channels) {
+		if channel.Slug == installed.Channel {
+			if channel.Version != installed.Version {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func (uc *AppUsecase) Installed() ([]*App, error) {
@@ -72,7 +132,26 @@ func (uc *AppUsecase) GetInstalledAll(query string, cond ...string) ([]*App, err
 }
 
 func (uc *AppUsecase) GetHomeShow() ([]map[string]string, error) {
-	return uc.repo.GetHomeShow()
+	apps, err := uc.repo.ListHomeShow()
+	if err != nil {
+		return nil, err
+	}
+
+	filtered := make([]map[string]string, 0)
+	for item := range slices.Values(apps) {
+		loaded, err := uc.Get(item.Slug)
+		if err != nil {
+			continue
+		}
+		filtered = append(filtered, map[string]string{
+			"name":        loaded.Name,
+			"description": loaded.Description,
+			"slug":        loaded.Slug,
+			"version":     item.Version,
+		})
+	}
+
+	return filtered, nil
 }
 
 func (uc *AppUsecase) IsInstalled(query string, cond ...any) (bool, error) {
@@ -80,15 +159,123 @@ func (uc *AppUsecase) IsInstalled(query string, cond ...any) (bool, error) {
 }
 
 func (uc *AppUsecase) Install(channel, slug string) error {
-	return uc.repo.Install(channel, slug)
+	item, err := uc.Get(slug)
+	if err != nil {
+		return err
+	}
+
+	// 恢复原编排：非法面板版本应在存在性检查前报错
+	if err = uc.repo.CheckPanelVersion(); err != nil {
+		return err
+	}
+
+	if installed, _ := uc.repo.IsInstalled(slug); installed {
+		return errors.New(uc.t.Get("app %s already installed", slug))
+	}
+
+	script, err := uc.repo.ResolveScript(item, channel, "install", "")
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.PreCheck(item, uc.All()); err != nil {
+		return err
+	}
+
+	uc.repo.DownloadCallback(slug)
+
+	if app.IsCli {
+		return uc.repo.ExecScript(script)
+	}
+
+	task := new(Task)
+	task.Name = uc.t.Get("Install app %s", item.Name)
+	task.Status = TaskStatusWaiting
+	task.Shell = script
+
+	return uc.task.Push(task)
 }
 
 func (uc *AppUsecase) UnInstall(slug string) error {
-	return uc.repo.UnInstall(slug)
+	item, err := uc.Get(slug)
+	if err != nil {
+		return err
+	}
+
+	// 恢复原编排：非法面板版本应在存在性检查前报错
+	if err = uc.repo.CheckPanelVersion(); err != nil {
+		return err
+	}
+
+	if installed, _ := uc.repo.IsInstalled(slug); !installed {
+		return errors.New(uc.t.Get("app %s not installed", item.Name))
+	}
+	installed, err := uc.repo.GetInstalled(slug)
+	if err != nil {
+		return err
+	}
+
+	script, err := uc.repo.ResolveScript(item, installed.Channel, "uninstall", installed.Version)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.PreCheck(item, uc.All()); err != nil {
+		return err
+	}
+
+	if app.IsCli {
+		return uc.repo.ExecScript(script)
+	}
+
+	task := new(Task)
+	task.Name = uc.t.Get("Uninstall app %s", item.Name)
+	task.Status = TaskStatusWaiting
+	task.Shell = script
+
+	return uc.task.Push(task)
 }
 
 func (uc *AppUsecase) Update(slug string) error {
-	return uc.repo.Update(slug)
+	item, err := uc.Get(slug)
+	if err != nil {
+		return err
+	}
+
+	// 恢复原编排：非法面板版本应在存在性检查前报错
+	if err = uc.repo.CheckPanelVersion(); err != nil {
+		return err
+	}
+
+	if installed, _ := uc.repo.IsInstalled(slug); !installed {
+		return errors.New(uc.t.Get("app %s not installed", item.Name))
+	}
+	installed, err := uc.repo.GetInstalled(slug)
+	if err != nil {
+		return err
+	}
+
+	script, err := uc.repo.ResolveScript(item, installed.Channel, "update", "")
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.PreCheck(item, uc.All()); err != nil {
+		return err
+	}
+
+	uc.repo.DownloadCallback(slug)
+
+	if app.IsCli {
+		return uc.repo.ExecScript(script)
+	}
+
+	task := new(Task)
+	task.Name = uc.t.Get("Update app %s", item.Name)
+	task.Status = TaskStatusWaiting
+	task.Shell = script
+
+	return uc.task.Push(task)
 }
 
 func (uc *AppUsecase) UpdateShow(slug string, show bool) error {

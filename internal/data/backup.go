@@ -52,6 +52,18 @@ func NewBackupRepo(i do.Injector) (biz.BackupRepo, error) {
 	}, nil
 }
 
+// GetStorage 获取备份存储
+func (r *backupRepo) GetStorage(id uint) (*biz.BackupStorage, error) {
+	backupStorage := new(biz.BackupStorage)
+	if err := r.db.First(backupStorage, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New(r.t.Get("backup storage not found"))
+		}
+		return nil, err
+	}
+	return backupStorage, nil
+}
+
 // List 备份列表
 func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 	path := r.GetDefaultPath(typ)
@@ -86,12 +98,11 @@ func (r *backupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 // storage 备份存储ID
 func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target string, storage uint) error {
 	// 取备份存储，0 为本地备份
-	backupStorage := new(biz.BackupStorage)
+	var backupStorage *biz.BackupStorage
 	if storage != 0 {
-		if err := r.db.First(backupStorage, storage).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New(r.t.Get("backup storage not found"))
-			}
+		var err error
+		backupStorage, err = r.GetStorage(storage)
+		if err != nil {
 			return err
 		}
 	} else {
@@ -148,25 +159,25 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 		fmt.Println(r.hr)
 	}
 	if err != nil {
+		if app.IsCli {
+			fmt.Println(r.t.Get("☆ Backup failed: %v [%s]", err, time.Now().Format(time.DateTime)))
+		}
 		r.log.Warn("backup failed",
 			slog.String("type", biz.OperationTypeBackup),
 			slog.Uint64("operator_id", getOperatorID(ctx)),
 			slog.String("backup_type", string(typ)),
 			slog.String("target", target),
 		)
-		if app.IsCli {
-			fmt.Println(r.t.Get("☆ Backup failed: %v [%s]", err, time.Now().Format(time.DateTime)))
-		}
 	} else {
+		if app.IsCli {
+			fmt.Println(r.t.Get("☆ Backup completed [%s]", time.Now().Format(time.DateTime)))
+		}
 		r.log.Info("backup created",
 			slog.String("type", biz.OperationTypeBackup),
 			slog.Uint64("operator_id", getOperatorID(ctx)),
 			slog.String("backup_type", string(typ)),
 			slog.String("target", target),
 		)
-		if app.IsCli {
-			fmt.Println(r.t.Get("☆ Backup completed [%s]", time.Now().Format(time.DateTime)))
-		}
 	}
 
 	if app.IsCli {
@@ -221,16 +232,13 @@ func (r *backupRepo) CreatePanel() error {
 }
 
 // Delete 删除备份
-func (r *backupRepo) Delete(ctx context.Context, typ biz.BackupType, name string) error {
+func (r *backupRepo) Delete(typ biz.BackupType, name string) error {
 	path := r.GetDefaultPath(typ)
 
 	file := filepath.Join(path, name)
 	if err := io.Remove(file); err != nil {
 		return err
 	}
-
-	// 记录日志
-	r.log.Info("backup deleted", slog.String("type", biz.OperationTypeBackup), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("backup_type", string(typ)), slog.String("name", name))
 
 	return nil
 }
@@ -239,7 +247,7 @@ func (r *backupRepo) Delete(ctx context.Context, typ biz.BackupType, name string
 // typ 备份类型
 // backup 备份压缩包，可以是绝对路径或者相对路径
 // target 目标名称
-func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, target string) error {
+func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 	if !io.Exists(backup) {
 		backup = filepath.Join(r.GetDefaultPath(typ), backup)
 	}
@@ -268,14 +276,6 @@ func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, ta
 	if err != nil {
 		return err
 	}
-
-	// 记录日志
-	r.log.Info("backup restored",
-		slog.String("type", biz.OperationTypeBackup),
-		slog.Uint64("operator_id", getOperatorID(ctx)),
-		slog.String("backup_type", string(typ)),
-		slog.String("target", target),
-	)
 
 	return nil
 }
@@ -315,11 +315,8 @@ func (r *backupRepo) CutoffLog(path, target string) (string, error) {
 
 // CutoffUpload 将指定的切割日志文件上传到远程存储
 func (r *backupRepo) CutoffUpload(account uint, typ biz.BackupType, name string, files []string) error {
-	backupStorage := new(biz.BackupStorage)
-	if err := r.db.First(backupStorage, account).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(r.t.Get("backup storage not found"))
-		}
+	backupStorage, err := r.GetStorage(account)
+	if err != nil {
 		return err
 	}
 
@@ -396,11 +393,8 @@ func (r *backupRepo) ClearExpired(path, prefix string, save uint) error {
 
 // ClearStorageExpired 清理备份账号过期备份
 func (r *backupRepo) ClearStorageExpired(storage uint, typ biz.BackupType, prefix string, save uint) error {
-	backupStorage := new(biz.BackupStorage)
-	if err := r.db.First(backupStorage, storage).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(r.t.Get("backup storage not found"))
-		}
+	backupStorage, err := r.GetStorage(storage)
+	if err != nil {
 		return err
 	}
 

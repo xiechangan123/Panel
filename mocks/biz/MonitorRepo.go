@@ -6,8 +6,6 @@ import (
 	biz "github.com/acepanel/panel/v3/internal/biz"
 	mock "github.com/stretchr/testify/mock"
 
-	request "github.com/acepanel/panel/v3/internal/request"
-
 	time "time"
 )
 
@@ -69,63 +67,6 @@ func (_c *MonitorRepo_Clear_Call) RunAndReturn(run func() error) *MonitorRepo_Cl
 	return _c
 }
 
-// GetSetting provides a mock function with no fields
-func (_m *MonitorRepo) GetSetting() (*request.MonitorSetting, error) {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSetting")
-	}
-
-	var r0 *request.MonitorSetting
-	var r1 error
-	if rf, ok := ret.Get(0).(func() (*request.MonitorSetting, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() *request.MonitorSetting); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*request.MonitorSetting)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MonitorRepo_GetSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSetting'
-type MonitorRepo_GetSetting_Call struct {
-	*mock.Call
-}
-
-// GetSetting is a helper method to define mock.On call
-func (_e *MonitorRepo_Expecter) GetSetting() *MonitorRepo_GetSetting_Call {
-	return &MonitorRepo_GetSetting_Call{Call: _e.mock.On("GetSetting")}
-}
-
-func (_c *MonitorRepo_GetSetting_Call) Run(run func()) *MonitorRepo_GetSetting_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MonitorRepo_GetSetting_Call) Return(_a0 *request.MonitorSetting, _a1 error) *MonitorRepo_GetSetting_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MonitorRepo_GetSetting_Call) RunAndReturn(run func() (*request.MonitorSetting, error)) *MonitorRepo_GetSetting_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // List provides a mock function with given fields: start, end
 func (_m *MonitorRepo) List(start time.Time, end time.Time) ([]*biz.Monitor, error) {
 	ret := _m.Called(start, end)
@@ -181,52 +122,6 @@ func (_c *MonitorRepo_List_Call) Return(_a0 []*biz.Monitor, _a1 error) *MonitorR
 }
 
 func (_c *MonitorRepo_List_Call) RunAndReturn(run func(time.Time, time.Time) ([]*biz.Monitor, error)) *MonitorRepo_List_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateSetting provides a mock function with given fields: setting
-func (_m *MonitorRepo) UpdateSetting(setting *request.MonitorSetting) error {
-	ret := _m.Called(setting)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateSetting")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.MonitorSetting) error); ok {
-		r0 = rf(setting)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MonitorRepo_UpdateSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSetting'
-type MonitorRepo_UpdateSetting_Call struct {
-	*mock.Call
-}
-
-// UpdateSetting is a helper method to define mock.On call
-//   - setting *request.MonitorSetting
-func (_e *MonitorRepo_Expecter) UpdateSetting(setting interface{}) *MonitorRepo_UpdateSetting_Call {
-	return &MonitorRepo_UpdateSetting_Call{Call: _e.mock.On("UpdateSetting", setting)}
-}
-
-func (_c *MonitorRepo_UpdateSetting_Call) Run(run func(setting *request.MonitorSetting)) *MonitorRepo_UpdateSetting_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.MonitorSetting))
-	})
-	return _c
-}
-
-func (_c *MonitorRepo_UpdateSetting_Call) Return(_a0 error) *MonitorRepo_UpdateSetting_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MonitorRepo_UpdateSetting_Call) RunAndReturn(run func(*request.MonitorSetting) error) *MonitorRepo_UpdateSetting_Call {
 	_c.Call.Return(run)
 	return _c
 }

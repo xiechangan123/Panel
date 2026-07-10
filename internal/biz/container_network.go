@@ -6,32 +6,37 @@ import (
 )
 
 type ContainerNetworkRepo interface {
-	List() ([]types.ContainerNetwork, error)
-	Create(req *request.ContainerNetworkCreate) (string, error)
-	Remove(id string) error
-	Prune() error
+	List(sock string) ([]types.ContainerNetwork, error)
+	Create(sock string, req *request.ContainerNetworkCreate) (string, error)
+	Remove(sock string, id string) error
+	Prune(sock string) error
 }
 
 type ContainerNetworkUsecase struct {
-	repo ContainerNetworkRepo
+	repo    ContainerNetworkRepo
+	setting SettingRepo
 }
 
-func NewContainerNetworkUsecase(repo ContainerNetworkRepo) *ContainerNetworkUsecase {
-	return &ContainerNetworkUsecase{repo: repo}
+func NewContainerNetworkUsecase(repo ContainerNetworkRepo, setting SettingRepo) *ContainerNetworkUsecase {
+	return &ContainerNetworkUsecase{repo: repo, setting: setting}
 }
 
 func (uc *ContainerNetworkUsecase) List() ([]types.ContainerNetwork, error) {
-	return uc.repo.List()
+	sock := containerSock(uc.setting)
+	return uc.repo.List(sock)
 }
 
 func (uc *ContainerNetworkUsecase) Create(req *request.ContainerNetworkCreate) (string, error) {
-	return uc.repo.Create(req)
+	sock := containerSock(uc.setting)
+	return uc.repo.Create(sock, req)
 }
 
 func (uc *ContainerNetworkUsecase) Remove(id string) error {
-	return uc.repo.Remove(id)
+	sock := containerSock(uc.setting)
+	return uc.repo.Remove(sock, id)
 }
 
 func (uc *ContainerNetworkUsecase) Prune() error {
-	return uc.repo.Prune()
+	sock := containerSock(uc.setting)
+	return uc.repo.Prune(sock)
 }

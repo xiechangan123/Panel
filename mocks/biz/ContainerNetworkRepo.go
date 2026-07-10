@@ -21,9 +21,9 @@ func (_m *ContainerNetworkRepo) EXPECT() *ContainerNetworkRepo_Expecter {
 	return &ContainerNetworkRepo_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: req
-func (_m *ContainerNetworkRepo) Create(req *request.ContainerNetworkCreate) (string, error) {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: sock, req
+func (_m *ContainerNetworkRepo) Create(sock string, req *request.ContainerNetworkCreate) (string, error) {
+	ret := _m.Called(sock, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -31,17 +31,17 @@ func (_m *ContainerNetworkRepo) Create(req *request.ContainerNetworkCreate) (str
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.ContainerNetworkCreate) (string, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(string, *request.ContainerNetworkCreate) (string, error)); ok {
+		return rf(sock, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.ContainerNetworkCreate) string); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(string, *request.ContainerNetworkCreate) string); ok {
+		r0 = rf(sock, req)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.ContainerNetworkCreate) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(string, *request.ContainerNetworkCreate) error); ok {
+		r1 = rf(sock, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -55,14 +55,15 @@ type ContainerNetworkRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - sock string
 //   - req *request.ContainerNetworkCreate
-func (_e *ContainerNetworkRepo_Expecter) Create(req interface{}) *ContainerNetworkRepo_Create_Call {
-	return &ContainerNetworkRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *ContainerNetworkRepo_Expecter) Create(sock interface{}, req interface{}) *ContainerNetworkRepo_Create_Call {
+	return &ContainerNetworkRepo_Create_Call{Call: _e.mock.On("Create", sock, req)}
 }
 
-func (_c *ContainerNetworkRepo_Create_Call) Run(run func(req *request.ContainerNetworkCreate)) *ContainerNetworkRepo_Create_Call {
+func (_c *ContainerNetworkRepo_Create_Call) Run(run func(sock string, req *request.ContainerNetworkCreate)) *ContainerNetworkRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.ContainerNetworkCreate))
+		run(args[0].(string), args[1].(*request.ContainerNetworkCreate))
 	})
 	return _c
 }
@@ -72,14 +73,14 @@ func (_c *ContainerNetworkRepo_Create_Call) Return(_a0 string, _a1 error) *Conta
 	return _c
 }
 
-func (_c *ContainerNetworkRepo_Create_Call) RunAndReturn(run func(*request.ContainerNetworkCreate) (string, error)) *ContainerNetworkRepo_Create_Call {
+func (_c *ContainerNetworkRepo_Create_Call) RunAndReturn(run func(string, *request.ContainerNetworkCreate) (string, error)) *ContainerNetworkRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with no fields
-func (_m *ContainerNetworkRepo) List() ([]types.ContainerNetwork, error) {
-	ret := _m.Called()
+// List provides a mock function with given fields: sock
+func (_m *ContainerNetworkRepo) List(sock string) ([]types.ContainerNetwork, error) {
+	ret := _m.Called(sock)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -87,19 +88,19 @@ func (_m *ContainerNetworkRepo) List() ([]types.ContainerNetwork, error) {
 
 	var r0 []types.ContainerNetwork
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]types.ContainerNetwork, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(string) ([]types.ContainerNetwork, error)); ok {
+		return rf(sock)
 	}
-	if rf, ok := ret.Get(0).(func() []types.ContainerNetwork); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) []types.ContainerNetwork); ok {
+		r0 = rf(sock)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.ContainerNetwork)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(sock)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,13 +114,14 @@ type ContainerNetworkRepo_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
-func (_e *ContainerNetworkRepo_Expecter) List() *ContainerNetworkRepo_List_Call {
-	return &ContainerNetworkRepo_List_Call{Call: _e.mock.On("List")}
+//   - sock string
+func (_e *ContainerNetworkRepo_Expecter) List(sock interface{}) *ContainerNetworkRepo_List_Call {
+	return &ContainerNetworkRepo_List_Call{Call: _e.mock.On("List", sock)}
 }
 
-func (_c *ContainerNetworkRepo_List_Call) Run(run func()) *ContainerNetworkRepo_List_Call {
+func (_c *ContainerNetworkRepo_List_Call) Run(run func(sock string)) *ContainerNetworkRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -129,22 +131,22 @@ func (_c *ContainerNetworkRepo_List_Call) Return(_a0 []types.ContainerNetwork, _
 	return _c
 }
 
-func (_c *ContainerNetworkRepo_List_Call) RunAndReturn(run func() ([]types.ContainerNetwork, error)) *ContainerNetworkRepo_List_Call {
+func (_c *ContainerNetworkRepo_List_Call) RunAndReturn(run func(string) ([]types.ContainerNetwork, error)) *ContainerNetworkRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Prune provides a mock function with no fields
-func (_m *ContainerNetworkRepo) Prune() error {
-	ret := _m.Called()
+// Prune provides a mock function with given fields: sock
+func (_m *ContainerNetworkRepo) Prune(sock string) error {
+	ret := _m.Called(sock)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Prune")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(sock)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -158,13 +160,14 @@ type ContainerNetworkRepo_Prune_Call struct {
 }
 
 // Prune is a helper method to define mock.On call
-func (_e *ContainerNetworkRepo_Expecter) Prune() *ContainerNetworkRepo_Prune_Call {
-	return &ContainerNetworkRepo_Prune_Call{Call: _e.mock.On("Prune")}
+//   - sock string
+func (_e *ContainerNetworkRepo_Expecter) Prune(sock interface{}) *ContainerNetworkRepo_Prune_Call {
+	return &ContainerNetworkRepo_Prune_Call{Call: _e.mock.On("Prune", sock)}
 }
 
-func (_c *ContainerNetworkRepo_Prune_Call) Run(run func()) *ContainerNetworkRepo_Prune_Call {
+func (_c *ContainerNetworkRepo_Prune_Call) Run(run func(sock string)) *ContainerNetworkRepo_Prune_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -174,22 +177,22 @@ func (_c *ContainerNetworkRepo_Prune_Call) Return(_a0 error) *ContainerNetworkRe
 	return _c
 }
 
-func (_c *ContainerNetworkRepo_Prune_Call) RunAndReturn(run func() error) *ContainerNetworkRepo_Prune_Call {
+func (_c *ContainerNetworkRepo_Prune_Call) RunAndReturn(run func(string) error) *ContainerNetworkRepo_Prune_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Remove provides a mock function with given fields: id
-func (_m *ContainerNetworkRepo) Remove(id string) error {
-	ret := _m.Called(id)
+// Remove provides a mock function with given fields: sock, id
+func (_m *ContainerNetworkRepo) Remove(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Remove")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -203,14 +206,15 @@ type ContainerNetworkRepo_Remove_Call struct {
 }
 
 // Remove is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerNetworkRepo_Expecter) Remove(id interface{}) *ContainerNetworkRepo_Remove_Call {
-	return &ContainerNetworkRepo_Remove_Call{Call: _e.mock.On("Remove", id)}
+func (_e *ContainerNetworkRepo_Expecter) Remove(sock interface{}, id interface{}) *ContainerNetworkRepo_Remove_Call {
+	return &ContainerNetworkRepo_Remove_Call{Call: _e.mock.On("Remove", sock, id)}
 }
 
-func (_c *ContainerNetworkRepo_Remove_Call) Run(run func(id string)) *ContainerNetworkRepo_Remove_Call {
+func (_c *ContainerNetworkRepo_Remove_Call) Run(run func(sock string, id string)) *ContainerNetworkRepo_Remove_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -220,7 +224,7 @@ func (_c *ContainerNetworkRepo_Remove_Call) Return(_a0 error) *ContainerNetworkR
 	return _c
 }
 
-func (_c *ContainerNetworkRepo_Remove_Call) RunAndReturn(run func(string) error) *ContainerNetworkRepo_Remove_Call {
+func (_c *ContainerNetworkRepo_Remove_Call) RunAndReturn(run func(string, string) error) *ContainerNetworkRepo_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }

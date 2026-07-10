@@ -1,6 +1,13 @@
 package biz
 
-import "time"
+import (
+	"encoding/json"
+	"slices"
+	"time"
+
+	"github.com/acepanel/panel/v3/pkg/api"
+	"github.com/acepanel/panel/v3/pkg/apploader"
+)
 
 type CacheKey string
 
@@ -21,10 +28,10 @@ type Cache struct {
 type CacheRepo interface {
 	Get(key CacheKey, defaultValue ...string) (string, error)
 	Set(key CacheKey, value string) error
-	UpdateCategories() error
-	UpdateApps() error
-	UpdateEnvironments() error
-	UpdateTemplates() error
+	FetchCategories() (*api.Categories, error)
+	FetchApps() (*api.Apps, error)
+	FetchEnvironments() (*api.Environments, error)
+	FetchTemplates() (*api.Templates, error)
 }
 
 type CacheUsecase struct {
@@ -44,17 +51,62 @@ func (uc *CacheUsecase) Set(key CacheKey, value string) error {
 }
 
 func (uc *CacheUsecase) UpdateCategories() error {
-	return uc.repo.UpdateCategories()
+	categories, err := uc.repo.FetchCategories()
+	if err != nil {
+		return err
+	}
+
+	encoded, err := json.Marshal(categories)
+	if err != nil {
+		return err
+	}
+
+	return uc.repo.Set(CacheKeyCategories, string(encoded))
 }
 
 func (uc *CacheUsecase) UpdateApps() error {
-	return uc.repo.UpdateApps()
+	remote, err := uc.repo.FetchApps()
+	if err != nil {
+		return err
+	}
+
+	// 去除本地不存在的应用
+	*remote = slices.Clip(slices.DeleteFunc(*remote, func(item *api.App) bool {
+		return !slices.Contains(apploader.Slugs(), item.Slug)
+	}))
+
+	encoded, err := json.Marshal(remote)
+	if err != nil {
+		return err
+	}
+
+	return uc.repo.Set(CacheKeyApps, string(encoded))
 }
 
 func (uc *CacheUsecase) UpdateEnvironments() error {
-	return uc.repo.UpdateEnvironments()
+	environments, err := uc.repo.FetchEnvironments()
+	if err != nil {
+		return err
+	}
+
+	encoded, err := json.Marshal(environments)
+	if err != nil {
+		return err
+	}
+
+	return uc.repo.Set(CacheKeyEnvironment, string(encoded))
 }
 
 func (uc *CacheUsecase) UpdateTemplates() error {
-	return uc.repo.UpdateTemplates()
+	templates, err := uc.repo.FetchTemplates()
+	if err != nil {
+		return err
+	}
+
+	encoded, err := json.Marshal(templates)
+	if err != nil {
+		return err
+	}
+
+	return uc.repo.Set(CacheKeyTemplates, string(encoded))
 }

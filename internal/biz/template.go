@@ -1,37 +1,103 @@
 package biz
 
 import (
+	"encoding/json"
+	"errors"
+	"os"
+	"path/filepath"
+
+	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
+
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type TemplateRepo interface {
-	List() api.Templates
-	Get(slug string) (*api.Template, error)
+	LoadLocalTemplates() api.Templates
 	Callback(slug string) error
-	CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) (string, error)
+	WriteCompose(name, compose string, envs []types.KV) (string, error)
+	OpenComposePorts(compose string) error
 }
 
 type TemplateUsecase struct {
-	repo TemplateRepo
+	repo  TemplateRepo
+	cache CacheRepo
+	t     *gotext.Locale
 }
 
-func NewTemplateUsecase(repo TemplateRepo) *TemplateUsecase {
-	return &TemplateUsecase{repo: repo}
+func NewTemplateUsecase(i do.Injector) (*TemplateUsecase, error) {
+	return &TemplateUsecase{
+		repo:  do.MustInvoke[TemplateRepo](i),
+		cache: do.MustInvoke[CacheRepo](i),
+		t:     do.MustInvoke[*gotext.Locale](i),
+	}, nil
 }
 
+// List 获取所有模版，包括本地模板
 func (uc *TemplateUsecase) List() api.Templates {
-	return uc.repo.List()
+	templates := make(api.Templates, 0)
+	cached, err := uc.cache.Get(CacheKeyTemplates)
+	if err == nil {
+		_ = json.Unmarshal([]byte(cached), &templates)
+	}
+
+	// 加载本地模板并合并，本地模板覆盖同 slug 的远端模板
+	localTemplates := uc.repo.LoadLocalTemplates()
+	if len(localTemplates) > 0 {
+		slugMap := make(map[string]int, len(templates))
+		for i, t := range templates {
+			slugMap[t.Slug] = i
+		}
+		for _, lt := range localTemplates {
+			if i, ok := slugMap[lt.Slug]; ok {
+				templates[i] = lt
+			} else {
+				templates = append(templates, lt)
+			}
+		}
+	}
+
+	return templates
 }
 
+// Get 获取模版详情
 func (uc *TemplateUsecase) Get(slug string) (*api.Template, error) {
-	return uc.repo.Get(slug)
+	templates := uc.List()
+
+	for _, t := range templates {
+		if t.Slug == slug {
+			return t, nil
+		}
+	}
+
+	return nil, errors.New(uc.t.Get("template %s not found", slug))
 }
 
+// Callback 模版下载回调
 func (uc *TemplateUsecase) Callback(slug string) error {
 	return uc.repo.Callback(slug)
 }
 
+// CreateCompose 创建编排
 func (uc *TemplateUsecase) CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) (string, error) {
-	return uc.repo.CreateCompose(name, compose, envs, autoFirewall)
+	dir := filepath.Join(app.Root, "compose", name)
+
+	// 检查编排是否已存在
+	if _, err := os.Stat(dir); err == nil {
+		return "", errors.New(uc.t.Get("compose %s already exists", name))
+	}
+
+	dir, err := uc.repo.WriteCompose(name, compose, envs)
+	if err != nil {
+		return "", err
+	}
+
+	// 自动放行端口
+	if autoFirewall {
+		_ = uc.repo.OpenComposePorts(compose)
+	}
+
+	return dir, nil
 }

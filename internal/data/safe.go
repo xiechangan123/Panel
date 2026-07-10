@@ -1,10 +1,6 @@
 package data
 
 import (
-	"context"
-	"fmt"
-	"log/slog"
-
 	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -14,7 +10,6 @@ import (
 
 type safeRepo struct {
 	ssh string
-	log *slog.Logger
 }
 
 func NewSafeRepo(i do.Injector) (biz.SafeRepo, error) {
@@ -26,7 +21,6 @@ func NewSafeRepo(i do.Injector) (biz.SafeRepo, error) {
 	}
 	return &safeRepo{
 		ssh: ssh,
-		log: do.MustInvoke[*slog.Logger](i),
 	}, nil
 }
 
@@ -35,22 +29,12 @@ func (r *safeRepo) GetPingStatus() (bool, error) {
 	return fw.PingStatus()
 }
 
-func (r *safeRepo) UpdatePingStatus(ctx context.Context, status bool) error {
+func (r *safeRepo) FirewallRunning() (bool, error) {
 	fw := firewall.NewFirewall()
-	running, err := fw.Status()
-	if err != nil {
-		return err
-	}
-	if !running {
-		return fmt.Errorf("failed to update ping status: firewall is not running")
-	}
+	return fw.Status()
+}
 
-	if err = fw.UpdatePingStatus(status); err != nil {
-		return err
-	}
-
-	// 记录日志
-	r.log.Info("ping status updated", slog.String("type", biz.OperationTypeSafe), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Bool("status", status))
-
-	return nil
+func (r *safeRepo) SetPingStatus(status bool) error {
+	fw := firewall.NewFirewall()
+	return fw.UpdatePingStatus(status)
 }

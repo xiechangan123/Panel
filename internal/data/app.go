@@ -1,7 +1,6 @@
 package data
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -11,7 +10,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
-	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
@@ -20,91 +18,24 @@ import (
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/shell"
-	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type appRepo struct {
-	t     *gotext.Locale
-	conf  *config.Config
-	db    *gorm.DB
-	log   *slog.Logger
-	cache biz.CacheRepo
-	task  biz.TaskRepo
-	api   *api.API
+	t    *gotext.Locale
+	conf *config.Config
+	db   *gorm.DB
+	log  *slog.Logger
+	api  *api.API
 }
 
 func NewAppRepo(i do.Injector) (biz.AppRepo, error) {
 	return &appRepo{
-		t:     do.MustInvoke[*gotext.Locale](i),
-		conf:  do.MustInvoke[*config.Config](i),
-		db:    do.MustInvoke[*gorm.DB](i),
-		log:   do.MustInvoke[*slog.Logger](i),
-		cache: do.MustInvoke[biz.CacheRepo](i),
-		task:  do.MustInvoke[biz.TaskRepo](i),
-		api:   api.NewAPI(app.Version, app.Locale),
+		t:    do.MustInvoke[*gotext.Locale](i),
+		conf: do.MustInvoke[*config.Config](i),
+		db:   do.MustInvoke[*gorm.DB](i),
+		log:  do.MustInvoke[*slog.Logger](i),
+		api:  api.NewAPI(app.Version, app.Locale),
 	}, nil
-}
-
-func (r *appRepo) Categories() []types.LV {
-	cached, err := r.cache.Get(biz.CacheKeyCategories)
-	if err != nil {
-		return nil
-	}
-
-	var categories api.Categories
-	if err = json.Unmarshal([]byte(cached), &categories); err != nil {
-		return nil
-	}
-
-	slices.SortFunc(categories, func(a, b *api.Category) int {
-		return a.Order - b.Order
-	})
-
-	return lo.Map(categories, func(item *api.Category, _ int) types.LV {
-		return types.LV{Label: item.Name, Value: item.Slug}
-	})
-}
-
-func (r *appRepo) All() api.Apps {
-	cached, err := r.cache.Get(biz.CacheKeyApps)
-	if err != nil {
-		return nil
-	}
-	var apps api.Apps
-	if err = json.Unmarshal([]byte(cached), &apps); err != nil {
-		return nil
-	}
-	return apps
-}
-
-func (r *appRepo) Get(slug string) (*api.App, error) {
-	for item := range slices.Values(r.All()) {
-		if item.Slug == slug {
-			return item, nil
-		}
-	}
-	return nil, errors.New(r.t.Get("app %s not found", slug))
-}
-
-func (r *appRepo) UpdateExist(slug string) bool {
-	item, err := r.Get(slug)
-	if err != nil {
-		return false
-	}
-	installed, err := r.GetInstalled(slug)
-	if err != nil {
-		return false
-	}
-
-	for channel := range slices.Values(item.Channels) {
-		if channel.Slug == installed.Channel {
-			if channel.Version != installed.Version {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 func (r *appRepo) Installed() ([]*biz.App, error) {
@@ -135,27 +66,13 @@ func (r *appRepo) GetInstalledAll(query string, cond ...string) ([]*biz.App, err
 	return apps, nil
 }
 
-func (r *appRepo) GetHomeShow() ([]map[string]string, error) {
+func (r *appRepo) ListHomeShow() ([]*biz.App, error) {
 	var apps []*biz.App
 	if err := r.db.Where("show = ?", true).Order("show_order").Find(&apps).Error; err != nil {
 		return nil, err
 	}
 
-	filtered := make([]map[string]string, 0)
-	for item := range slices.Values(apps) {
-		loaded, err := r.Get(item.Slug)
-		if err != nil {
-			continue
-		}
-		filtered = append(filtered, map[string]string{
-			"name":        loaded.Name,
-			"description": loaded.Description,
-			"slug":        loaded.Slug,
-			"version":     item.Version,
-		})
-	}
-
-	return filtered, nil
+	return apps, nil
 }
 
 func (r *appRepo) IsInstalled(query string, cond ...any) (bool, error) {
@@ -171,174 +88,6 @@ func (r *appRepo) IsInstalled(query string, cond ...any) (bool, error) {
 	}
 
 	return count > 0, nil
-}
-
-func (r *appRepo) Install(channel, slug string) error {
-	item, err := r.Get(slug)
-	if err != nil {
-		return err
-	}
-	panel, err := version.NewVersion(app.Version)
-	if err != nil {
-		return err
-	}
-
-	if installed, _ := r.IsInstalled(slug); installed {
-		return errors.New(r.t.Get("app %s already installed", slug))
-	}
-
-	shellUrl, shellChannel, shellVersion := "", "", ""
-	for ch := range slices.Values(item.Channels) {
-		vs, err := version.NewVersion(ch.Panel)
-		if err != nil {
-			continue
-		}
-		if ch.Slug == channel {
-			if vs.GreaterThan(panel) && !r.conf.App.Debug {
-				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
-			}
-			shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Install)
-			shellChannel = ch.Slug
-			shellVersion = ch.Version
-			break
-		}
-	}
-	if shellUrl == "" {
-		return errors.New(r.t.Get("app %s not support current panel version", item.Name))
-	}
-
-	if err = r.preCheck(item); err != nil {
-		return err
-	}
-
-	// 下载回调
-	if err = r.api.AppCallback(slug); err != nil {
-		r.log.Warn("download callback failed", slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", 0), slog.String("app", slug), slog.Any("err", err))
-	}
-
-	if app.IsCli {
-		return shell.ExecfWithOutput(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion)
-	}
-
-	task := new(biz.Task)
-	task.Name = r.t.Get("Install app %s", item.Name)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion)
-
-	return r.task.Push(task)
-}
-
-func (r *appRepo) UnInstall(slug string) error {
-	item, err := r.Get(slug)
-	if err != nil {
-		return err
-	}
-	panel, err := version.NewVersion(app.Version)
-	if err != nil {
-		return err
-	}
-
-	if installed, _ := r.IsInstalled(slug); !installed {
-		return errors.New(r.t.Get("app %s not installed", item.Name))
-	}
-	installed, err := r.GetInstalled(slug)
-	if err != nil {
-		return err
-	}
-
-	shellUrl, shellChannel, shellVersion := "", "", ""
-	for ch := range slices.Values(item.Channels) {
-		vs, err := version.NewVersion(ch.Panel)
-		if err != nil {
-			continue
-		}
-		if ch.Slug == installed.Channel {
-			if vs.GreaterThan(panel) && !r.conf.App.Debug {
-				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
-			}
-			shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Uninstall)
-			shellChannel = ch.Slug
-			shellVersion = installed.Version
-			break
-		}
-	}
-	if shellUrl == "" {
-		return errors.New(r.t.Get("failed to get uninstall script for app %s", item.Name))
-	}
-
-	if err = r.preCheck(item); err != nil {
-		return err
-	}
-
-	if app.IsCli {
-		return shell.ExecfWithOutput(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion)
-	}
-
-	task := new(biz.Task)
-	task.Name = r.t.Get("Uninstall app %s", item.Name)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion)
-
-	return r.task.Push(task)
-}
-
-func (r *appRepo) Update(slug string) error {
-	item, err := r.Get(slug)
-	if err != nil {
-		return err
-	}
-	panel, err := version.NewVersion(app.Version)
-	if err != nil {
-		return err
-	}
-
-	if installed, _ := r.IsInstalled(slug); !installed {
-		return errors.New(r.t.Get("app %s not installed", item.Name))
-	}
-	installed, err := r.GetInstalled(slug)
-	if err != nil {
-		return err
-	}
-
-	shellUrl, shellChannel, shellVersion := "", "", ""
-	for ch := range slices.Values(item.Channels) {
-		vs, err := version.NewVersion(ch.Panel)
-		if err != nil {
-			continue
-		}
-		if ch.Slug == installed.Channel {
-			if vs.GreaterThan(panel) && !r.conf.App.Debug {
-				return errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
-			}
-			shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Update)
-			shellChannel = ch.Slug
-			shellVersion = ch.Version
-			break
-		}
-	}
-	if shellUrl == "" {
-		return errors.New(r.t.Get("app %s not support current panel version", item.Name))
-	}
-
-	if err = r.preCheck(item); err != nil {
-		return err
-	}
-
-	// 下载回调
-	if err = r.api.AppCallback(slug); err != nil {
-		r.log.Warn("download callback failed", slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", 0), slog.String("app", slug), slog.Any("err", err))
-	}
-
-	if app.IsCli {
-		return shell.ExecfWithOutput(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion)
-	}
-
-	task := new(biz.Task)
-	task.Name = r.t.Get("Update app %s", item.Name)
-	task.Status = biz.TaskStatusWaiting
-	task.Shell = fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion)
-
-	return r.task.Push(task)
 }
 
 func (r *appRepo) UpdateShow(slug string, show bool) error {
@@ -361,11 +110,71 @@ func (r *appRepo) UpdateOrder(slugs []string) error {
 	return nil
 }
 
-func (r *appRepo) preCheck(app *api.App) error {
+func (r *appRepo) DownloadCallback(slug string) {
+	// 下载回调
+	if err := r.api.AppCallback(slug); err != nil {
+		r.log.Warn("download callback failed", slog.String("type", biz.OperationTypeApp), slog.Uint64("operator_id", 0), slog.String("app", slug), slog.Any("err", err))
+	}
+}
+
+// CheckPanelVersion 校验面板版本号可解析；原编排在存在性检查前先做此校验
+func (r *appRepo) CheckPanelVersion() error {
+	_, err := version.NewVersion(app.Version)
+	return err
+}
+
+// ResolveScript 解析渠道并按操作类型生成执行脚本
+func (r *appRepo) ResolveScript(item *api.App, matchChannel, action, execVersion string) (string, error) {
+	panel, err := version.NewVersion(app.Version)
+	if err != nil {
+		return "", err
+	}
+
+	shellUrl, shellChannel, shellVersion := "", "", ""
+	for ch := range slices.Values(item.Channels) {
+		vs, err := version.NewVersion(ch.Panel)
+		if err != nil {
+			continue
+		}
+		if ch.Slug == matchChannel {
+			if vs.GreaterThan(panel) && !r.conf.App.Debug {
+				return "", errors.New(r.t.Get("app %s requires panel version %s, current version %s", item.Name, ch.Panel, app.Version))
+			}
+			switch action {
+			case "install":
+				shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Install)
+				shellVersion = ch.Version
+			case "uninstall":
+				shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Uninstall)
+				shellVersion = execVersion
+			case "update":
+				shellUrl = fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, ch.Update)
+				shellVersion = ch.Version
+			}
+			shellChannel = ch.Slug
+			break
+		}
+	}
+	if shellUrl == "" {
+		if action == "uninstall" {
+			return "", errors.New(r.t.Get("failed to get uninstall script for app %s", item.Name))
+		}
+		return "", errors.New(r.t.Get("app %s not support current panel version", item.Name))
+	}
+
+	return fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, shellChannel, shellVersion), nil
+}
+
+// ExecScript 执行脚本
+func (r *appRepo) ExecScript(script string) error {
+	return shell.ExecfWithOutput(script)
+}
+
+func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {
 	var apps []string
 	var installed []string
 
-	all := r.All()
+	all := catalog
 	for _, item := range all {
 		apps = append(apps, item.Slug)
 	}

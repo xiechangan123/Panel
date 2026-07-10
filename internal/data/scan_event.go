@@ -1,12 +1,10 @@
 package data
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
 
 	"github.com/samber/do/v2"
-	"github.com/spf13/cast"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -14,8 +12,7 @@ import (
 )
 
 type scanEventRepo struct {
-	db      *gorm.DB
-	setting biz.SettingRepo
+	db *gorm.DB
 }
 
 // NewScanEventRepo 创建扫描事件数据访问实例
@@ -30,8 +27,7 @@ func NewScanEventRepo(i do.Injector) (biz.ScanEventRepo, error) {
 	}
 
 	return &scanEventRepo{
-		db:      scanDB,
-		setting: do.MustInvoke[biz.SettingRepo](i),
+		db: scanDB,
 	}, nil
 }
 
@@ -135,92 +131,6 @@ func (r *scanEventRepo) TopPorts(start, end string, limit uint) ([]*biz.ScanPort
 
 func (r *scanEventRepo) ClearBefore(date string) error {
 	return r.db.Where("date < ?", date).Delete(&biz.ScanEvent{}).Error
-}
-
-func (r *scanEventRepo) GetSetting() (*biz.ScanSetting, error) {
-	enabled, err := r.setting.GetBool(biz.SettingKeyScanAware)
-	if err != nil {
-		return nil, err
-	}
-	days, err := r.setting.GetInt(biz.SettingKeyScanAwareDays, 30)
-	if err != nil {
-		return nil, err
-	}
-
-	interfacesStr, err := r.setting.Get(biz.SettingKeyScanAwareInterfaces)
-	if err != nil {
-		return nil, err
-	}
-
-	var interfaces []string
-	if interfacesStr != "" {
-		_ = json.Unmarshal([]byte(interfacesStr), &interfaces)
-	}
-
-	autoBlock, err := r.setting.GetBool(biz.SettingKeyScanAwareAutoBlock)
-	if err != nil {
-		return nil, err
-	}
-	blockThreshold, err := r.setting.GetInt(biz.SettingKeyScanAwareBlockThreshold, 100)
-	if err != nil {
-		return nil, err
-	}
-	blockWindow, err := r.setting.GetInt(biz.SettingKeyScanAwareBlockWindow, 5)
-	if err != nil {
-		return nil, err
-	}
-	blockDuration, err := r.setting.GetInt(biz.SettingKeyScanAwareBlockDuration, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	whitelist, err := r.setting.GetSlice(biz.SettingKeyScanAwareWhitelist)
-	if err != nil {
-		return nil, err
-	}
-
-	return &biz.ScanSetting{
-		Enabled:        enabled,
-		Days:           uint(days),
-		Interfaces:     interfaces,
-		AutoBlock:      autoBlock,
-		BlockThreshold: uint(blockThreshold),
-		BlockWindow:    uint(blockWindow),
-		BlockDuration:  uint(blockDuration),
-		Whitelist:      whitelist,
-	}, nil
-}
-
-func (r *scanEventRepo) UpdateSetting(setting *biz.ScanSetting) error {
-	if err := r.setting.Set(biz.SettingKeyScanAware, cast.ToString(setting.Enabled)); err != nil {
-		return err
-	}
-	if err := r.setting.Set(biz.SettingKeyScanAwareDays, cast.ToString(setting.Days)); err != nil {
-		return err
-	}
-
-	interfacesJSON, err := json.Marshal(setting.Interfaces)
-	if err != nil {
-		return err
-	}
-	if err = r.setting.Set(biz.SettingKeyScanAwareInterfaces, string(interfacesJSON)); err != nil {
-		return err
-	}
-
-	if err = r.setting.Set(biz.SettingKeyScanAwareAutoBlock, cast.ToString(setting.AutoBlock)); err != nil {
-		return err
-	}
-	if err = r.setting.Set(biz.SettingKeyScanAwareBlockThreshold, cast.ToString(setting.BlockThreshold)); err != nil {
-		return err
-	}
-	if err = r.setting.Set(biz.SettingKeyScanAwareBlockWindow, cast.ToString(setting.BlockWindow)); err != nil {
-		return err
-	}
-	if err = r.setting.Set(biz.SettingKeyScanAwareBlockDuration, cast.ToString(setting.BlockDuration)); err != nil {
-		return err
-	}
-
-	return r.setting.SetSlice(biz.SettingKeyScanAwareWhitelist, setting.Whitelist)
 }
 
 func (r *scanEventRepo) Clear() error {

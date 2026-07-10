@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -25,19 +26,26 @@ type CronRepo interface {
 	Count() (int64, error)
 	List(page, limit uint) ([]*Cron, int64, error)
 	Get(id uint) (*Cron, error)
-	Create(ctx context.Context, req *request.CronCreate) error
-	Update(ctx context.Context, req *request.CronUpdate) error
-	Delete(ctx context.Context, id uint) error
-	Status(id uint, status bool) error
+	Create(cron *Cron) error
+	Save(cron *Cron) error
+	Delete(cron *Cron) error
+	GenerateScript(typ string, config types.CronConfig, rawScript string) string
+	WriteNewScript(script string) (string, string, error)
+	WriteScript(path, script string) error
+	Dos2Unix(path string) error
+	AddToSystem(cron *Cron) error
+	DeleteFromSystem(cron *Cron) error
+	RemoveScriptFiles(shellPath string) error
 }
 
 // CronUsecase 计划任务业务逻辑
 type CronUsecase struct {
 	repo CronRepo
+	log  *slog.Logger
 }
 
-func NewCronUsecase(repo CronRepo) *CronUsecase {
-	return &CronUsecase{repo: repo}
+func NewCronUsecase(repo CronRepo, log *slog.Logger) *CronUsecase {
+	return &CronUsecase{repo: repo, log: log}
 }
 
 func (uc *CronUsecase) Count() (int64, error) {
@@ -53,17 +61,148 @@ func (uc *CronUsecase) Get(id uint) (*Cron, error) {
 }
 
 func (uc *CronUsecase) Create(ctx context.Context, req *request.CronCreate) error {
-	return uc.repo.Create(ctx, req)
+	config := types.CronConfig{
+		Type:     req.SubType,
+		Flock:    req.Flock,
+		Targets:  req.Targets,
+		Storage:  req.Storage,
+		Keep:     req.Keep,
+		URL:      req.URL,
+		Method:   req.Method,
+		Headers:  req.Headers,
+		Body:     req.Body,
+		Timeout:  req.Timeout,
+		Insecure: req.Insecure,
+		Retries:  req.Retries,
+	}
+	script := uc.repo.GenerateScript(req.Type, config, req.Script)
+
+	shellPath, logPath, err := uc.repo.WriteNewScript(script)
+	if err != nil {
+		return err
+	}
+
+	cron := new(Cron)
+	cron.Name = req.Name
+	cron.Type = req.Type
+	cron.Status = true
+	cron.Time = req.Time
+	cron.Shell = shellPath
+	cron.Log = logPath
+	cron.Config = config
+
+	if err := uc.repo.Create(cron); err != nil {
+		return err
+	}
+	if err := uc.repo.AddToSystem(cron); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("cron created", slog.String("type", OperationTypeCron), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("cron_type", req.Type))
+
+	return nil
 }
 
 func (uc *CronUsecase) Update(ctx context.Context, req *request.CronUpdate) error {
-	return uc.repo.Update(ctx, req)
+	cron, err := uc.repo.Get(req.ID)
+	if err != nil {
+		return err
+	}
+
+	cron.Time = req.Time
+	cron.Name = req.Name
+
+	// 根据类型重新生成脚本
+	if req.Type != "shell" {
+		config := types.CronConfig{
+			Type:     req.SubType,
+			Flock:    req.Flock,
+			Targets:  req.Targets,
+			Storage:  req.Storage,
+			Keep:     req.Keep,
+			URL:      req.URL,
+			Method:   req.Method,
+			Headers:  req.Headers,
+			Body:     req.Body,
+			Timeout:  req.Timeout,
+			Insecure: req.Insecure,
+			Retries:  req.Retries,
+		}
+		cron.Config = config
+		script := uc.repo.GenerateScript(req.Type, config, "")
+		if err = uc.repo.WriteScript(cron.Shell, script); err != nil {
+			return err
+		}
+	} else {
+		cron.Config.Flock = req.Flock
+		if err = uc.repo.WriteScript(cron.Shell, req.Script); err != nil {
+			return err
+		}
+	}
+
+	if err = uc.repo.Save(cron); err != nil {
+		return err
+	}
+
+	if err = uc.repo.Dos2Unix(cron.Shell); err != nil {
+		return err
+	}
+
+	if err = uc.repo.DeleteFromSystem(cron); err != nil {
+		return err
+	}
+	if cron.Status {
+		if err = uc.repo.AddToSystem(cron); err != nil {
+			return err
+		}
+	}
+
+	// 记录日志
+	uc.log.Info("cron updated", slog.String("type", OperationTypeCron), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", cron.Name))
+
+	return nil
 }
 
 func (uc *CronUsecase) Delete(ctx context.Context, id uint) error {
-	return uc.repo.Delete(ctx, id)
+	cron, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.DeleteFromSystem(cron); err != nil {
+		return err
+	}
+	if err = uc.repo.RemoveScriptFiles(cron.Shell); err != nil {
+		return err
+	}
+
+	if err = uc.repo.Delete(cron); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("cron deleted", slog.String("type", OperationTypeCron), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", cron.Name))
+
+	return nil
 }
 
 func (uc *CronUsecase) Status(id uint, status bool) error {
-	return uc.repo.Status(id, status)
+	cron, err := uc.repo.Get(id)
+	if err != nil {
+		return err
+	}
+
+	if err = uc.repo.DeleteFromSystem(cron); err != nil {
+		return err
+	}
+	if status {
+		if err = uc.repo.AddToSystem(cron); err != nil {
+			return err
+		}
+	}
+
+	cron.Status = status
+
+	return uc.repo.Save(cron)
 }

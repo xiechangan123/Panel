@@ -1,17 +1,14 @@
 package data
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/libtnb/utils/str"
 	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
@@ -22,16 +19,14 @@ import (
 )
 
 type webhookRepo struct {
-	t   *gotext.Locale
-	db  *gorm.DB
-	log *slog.Logger
+	t  *gotext.Locale
+	db *gorm.DB
 }
 
 func NewWebHookRepo(i do.Injector) (biz.WebHookRepo, error) {
 	return &webhookRepo{
-		t:   do.MustInvoke[*gotext.Locale](i),
-		db:  do.MustInvoke[*gorm.DB](i),
-		log: do.MustInvoke[*slog.Logger](i),
+		t:  do.MustInvoke[*gotext.Locale](i),
+		db: do.MustInvoke[*gorm.DB](i),
 	}, nil
 }
 
@@ -58,49 +53,31 @@ func (r *webhookRepo) GetByKey(key string) (*biz.WebHook, error) {
 	return webhook, nil
 }
 
-func (r *webhookRepo) Create(ctx context.Context, req *request.WebHookCreate) (*biz.WebHook, error) {
+func (r *webhookRepo) CreateWithScript(webhook *biz.WebHook, script string) error {
 	if err := os.MkdirAll(r.webhookDir(), 0755); err != nil {
-		return nil, errors.New(r.t.Get("failed to create webhook directory: %v", err))
+		return errors.New(r.t.Get("failed to create webhook directory: %v", err))
 	}
 
-	key := str.Random(32)
-	scriptFile := r.scriptPath(key)
-	if err := io.Write(scriptFile, req.Script, 0755); err != nil {
-		return nil, errors.New(r.t.Get("failed to write webhook script: %v", err))
-	}
-
-	webhook := &biz.WebHook{
-		Name:   req.Name,
-		Key:    key,
-		Script: req.Script,
-		Raw:    req.Raw,
-		User:   req.User,
-		Status: true,
+	scriptFile := r.scriptPath(webhook.Key)
+	if err := io.Write(scriptFile, script, 0755); err != nil {
+		return errors.New(r.t.Get("failed to write webhook script: %v", err))
 	}
 
 	if err := r.db.Create(webhook).Error; err != nil {
 		_ = os.Remove(scriptFile)
-		return nil, err
-	}
-
-	// 记录日志
-	r.log.Info("webhook created", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.String("name", req.Name))
-
-	return webhook, nil
-}
-
-func (r *webhookRepo) Update(ctx context.Context, req *request.WebHookUpdate) error {
-	webhook, err := r.Get(req.ID)
-	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (r *webhookRepo) UpdateWithScript(webhook *biz.WebHook, req *request.WebHookUpdate) error {
 	scriptFile := r.scriptPath(webhook.Key)
-	if err = io.Write(scriptFile, req.Script, 0755); err != nil {
+	if err := io.Write(scriptFile, req.Script, 0755); err != nil {
 		return errors.New(r.t.Get("failed to write webhook script: %v", err))
 	}
 
-	if err = r.db.Model(&biz.WebHook{}).Where("id = ?", req.ID).Updates(map[string]any{
+	if err := r.db.Model(&biz.WebHook{}).Where("id = ?", req.ID).Updates(map[string]any{
 		"name":   req.Name,
 		"script": req.Script,
 		"raw":    req.Raw,
@@ -110,29 +87,17 @@ func (r *webhookRepo) Update(ctx context.Context, req *request.WebHookUpdate) er
 		return err
 	}
 
-	// 记录日志
-	r.log.Info("webhook updated", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", req.Name))
-
 	return nil
 }
 
-func (r *webhookRepo) Delete(ctx context.Context, id uint) error {
-	webhook, err := r.Get(id)
-	if err != nil {
-		return err
-	}
-
-	scriptFile := r.scriptPath(webhook.Key)
+func (r *webhookRepo) RemoveScript(key string) error {
+	scriptFile := r.scriptPath(key)
 	_ = os.Remove(scriptFile)
-
-	if err = r.db.Delete(&biz.WebHook{}, id).Error; err != nil {
-		return err
-	}
-
-	// 记录日志
-	r.log.Info("webhook deleted", slog.String("type", biz.OperationTypeWebhook), slog.Uint64("operator_id", getOperatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", webhook.Name))
-
 	return nil
+}
+
+func (r *webhookRepo) Delete(id uint) error {
+	return r.db.Delete(&biz.WebHook{}, id).Error
 }
 
 func (r *webhookRepo) Call(key string) (string, error) {

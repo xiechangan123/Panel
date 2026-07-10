@@ -322,17 +322,17 @@ func (_c *BackupRepo_CutoffUpload_Call) RunAndReturn(run func(uint, biz.BackupTy
 	return _c
 }
 
-// Delete provides a mock function with given fields: ctx, typ, name
-func (_m *BackupRepo) Delete(ctx context.Context, typ biz.BackupType, name string) error {
-	ret := _m.Called(ctx, typ, name)
+// Delete provides a mock function with given fields: typ, name
+func (_m *BackupRepo) Delete(typ biz.BackupType, name string) error {
+	ret := _m.Called(typ, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, biz.BackupType, string) error); ok {
-		r0 = rf(ctx, typ, name)
+	if rf, ok := ret.Get(0).(func(biz.BackupType, string) error); ok {
+		r0 = rf(typ, name)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -346,16 +346,15 @@ type BackupRepo_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - ctx context.Context
 //   - typ biz.BackupType
 //   - name string
-func (_e *BackupRepo_Expecter) Delete(ctx interface{}, typ interface{}, name interface{}) *BackupRepo_Delete_Call {
-	return &BackupRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, typ, name)}
+func (_e *BackupRepo_Expecter) Delete(typ interface{}, name interface{}) *BackupRepo_Delete_Call {
+	return &BackupRepo_Delete_Call{Call: _e.mock.On("Delete", typ, name)}
 }
 
-func (_c *BackupRepo_Delete_Call) Run(run func(ctx context.Context, typ biz.BackupType, name string)) *BackupRepo_Delete_Call {
+func (_c *BackupRepo_Delete_Call) Run(run func(typ biz.BackupType, name string)) *BackupRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(biz.BackupType), args[2].(string))
+		run(args[0].(biz.BackupType), args[1].(string))
 	})
 	return _c
 }
@@ -365,7 +364,7 @@ func (_c *BackupRepo_Delete_Call) Return(_a0 error) *BackupRepo_Delete_Call {
 	return _c
 }
 
-func (_c *BackupRepo_Delete_Call) RunAndReturn(run func(context.Context, biz.BackupType, string) error) *BackupRepo_Delete_Call {
+func (_c *BackupRepo_Delete_Call) RunAndReturn(run func(biz.BackupType, string) error) *BackupRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -461,6 +460,64 @@ func (_c *BackupRepo_GetDefaultPath_Call) RunAndReturn(run func(biz.BackupType) 
 	return _c
 }
 
+// GetStorage provides a mock function with given fields: id
+func (_m *BackupRepo) GetStorage(id uint) (*biz.BackupStorage, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStorage")
+	}
+
+	var r0 *biz.BackupStorage
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint) (*biz.BackupStorage, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(uint) *biz.BackupStorage); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*biz.BackupStorage)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// BackupRepo_GetStorage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStorage'
+type BackupRepo_GetStorage_Call struct {
+	*mock.Call
+}
+
+// GetStorage is a helper method to define mock.On call
+//   - id uint
+func (_e *BackupRepo_Expecter) GetStorage(id interface{}) *BackupRepo_GetStorage_Call {
+	return &BackupRepo_GetStorage_Call{Call: _e.mock.On("GetStorage", id)}
+}
+
+func (_c *BackupRepo_GetStorage_Call) Run(run func(id uint)) *BackupRepo_GetStorage_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint))
+	})
+	return _c
+}
+
+func (_c *BackupRepo_GetStorage_Call) Return(_a0 *biz.BackupStorage, _a1 error) *BackupRepo_GetStorage_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *BackupRepo_GetStorage_Call) RunAndReturn(run func(uint) (*biz.BackupStorage, error)) *BackupRepo_GetStorage_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // List provides a mock function with given fields: typ
 func (_m *BackupRepo) List(typ biz.BackupType) ([]*types.BackupFile, error) {
 	ret := _m.Called(typ)
@@ -519,17 +576,17 @@ func (_c *BackupRepo_List_Call) RunAndReturn(run func(biz.BackupType) ([]*types.
 	return _c
 }
 
-// Restore provides a mock function with given fields: ctx, typ, backup, target
-func (_m *BackupRepo) Restore(ctx context.Context, typ biz.BackupType, backup string, target string) error {
-	ret := _m.Called(ctx, typ, backup, target)
+// Restore provides a mock function with given fields: typ, backup, target
+func (_m *BackupRepo) Restore(typ biz.BackupType, backup string, target string) error {
+	ret := _m.Called(typ, backup, target)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Restore")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, biz.BackupType, string, string) error); ok {
-		r0 = rf(ctx, typ, backup, target)
+	if rf, ok := ret.Get(0).(func(biz.BackupType, string, string) error); ok {
+		r0 = rf(typ, backup, target)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -543,17 +600,16 @@ type BackupRepo_Restore_Call struct {
 }
 
 // Restore is a helper method to define mock.On call
-//   - ctx context.Context
 //   - typ biz.BackupType
 //   - backup string
 //   - target string
-func (_e *BackupRepo_Expecter) Restore(ctx interface{}, typ interface{}, backup interface{}, target interface{}) *BackupRepo_Restore_Call {
-	return &BackupRepo_Restore_Call{Call: _e.mock.On("Restore", ctx, typ, backup, target)}
+func (_e *BackupRepo_Expecter) Restore(typ interface{}, backup interface{}, target interface{}) *BackupRepo_Restore_Call {
+	return &BackupRepo_Restore_Call{Call: _e.mock.On("Restore", typ, backup, target)}
 }
 
-func (_c *BackupRepo_Restore_Call) Run(run func(ctx context.Context, typ biz.BackupType, backup string, target string)) *BackupRepo_Restore_Call {
+func (_c *BackupRepo_Restore_Call) Run(run func(typ biz.BackupType, backup string, target string)) *BackupRepo_Restore_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(biz.BackupType), args[2].(string), args[3].(string))
+		run(args[0].(biz.BackupType), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -563,7 +619,7 @@ func (_c *BackupRepo_Restore_Call) Return(_a0 error) *BackupRepo_Restore_Call {
 	return _c
 }
 
-func (_c *BackupRepo_Restore_Call) RunAndReturn(run func(context.Context, biz.BackupType, string, string) error) *BackupRepo_Restore_Call {
+func (_c *BackupRepo_Restore_Call) RunAndReturn(run func(biz.BackupType, string, string) error) *BackupRepo_Restore_Call {
 	_c.Call.Return(run)
 	return _c
 }

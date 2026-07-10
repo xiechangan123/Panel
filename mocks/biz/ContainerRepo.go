@@ -21,9 +21,9 @@ func (_m *ContainerRepo) EXPECT() *ContainerRepo_Expecter {
 	return &ContainerRepo_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: req
-func (_m *ContainerRepo) Create(req *request.ContainerCreate) (string, error) {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: sock, req
+func (_m *ContainerRepo) Create(sock string, req *request.ContainerCreate) (string, error) {
+	ret := _m.Called(sock, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -31,17 +31,17 @@ func (_m *ContainerRepo) Create(req *request.ContainerCreate) (string, error) {
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.ContainerCreate) (string, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(string, *request.ContainerCreate) (string, error)); ok {
+		return rf(sock, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.ContainerCreate) string); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(string, *request.ContainerCreate) string); ok {
+		r0 = rf(sock, req)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.ContainerCreate) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(string, *request.ContainerCreate) error); ok {
+		r1 = rf(sock, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -55,14 +55,15 @@ type ContainerRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
+//   - sock string
 //   - req *request.ContainerCreate
-func (_e *ContainerRepo_Expecter) Create(req interface{}) *ContainerRepo_Create_Call {
-	return &ContainerRepo_Create_Call{Call: _e.mock.On("Create", req)}
+func (_e *ContainerRepo_Expecter) Create(sock interface{}, req interface{}) *ContainerRepo_Create_Call {
+	return &ContainerRepo_Create_Call{Call: _e.mock.On("Create", sock, req)}
 }
 
-func (_c *ContainerRepo_Create_Call) Run(run func(req *request.ContainerCreate)) *ContainerRepo_Create_Call {
+func (_c *ContainerRepo_Create_Call) Run(run func(sock string, req *request.ContainerCreate)) *ContainerRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.ContainerCreate))
+		run(args[0].(string), args[1].(*request.ContainerCreate))
 	})
 	return _c
 }
@@ -72,22 +73,22 @@ func (_c *ContainerRepo_Create_Call) Return(_a0 string, _a1 error) *ContainerRep
 	return _c
 }
 
-func (_c *ContainerRepo_Create_Call) RunAndReturn(run func(*request.ContainerCreate) (string, error)) *ContainerRepo_Create_Call {
+func (_c *ContainerRepo_Create_Call) RunAndReturn(run func(string, *request.ContainerCreate) (string, error)) *ContainerRepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Kill provides a mock function with given fields: id
-func (_m *ContainerRepo) Kill(id string) error {
-	ret := _m.Called(id)
+// Kill provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Kill(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Kill")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -101,14 +102,15 @@ type ContainerRepo_Kill_Call struct {
 }
 
 // Kill is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerRepo_Expecter) Kill(id interface{}) *ContainerRepo_Kill_Call {
-	return &ContainerRepo_Kill_Call{Call: _e.mock.On("Kill", id)}
+func (_e *ContainerRepo_Expecter) Kill(sock interface{}, id interface{}) *ContainerRepo_Kill_Call {
+	return &ContainerRepo_Kill_Call{Call: _e.mock.On("Kill", sock, id)}
 }
 
-func (_c *ContainerRepo_Kill_Call) Run(run func(id string)) *ContainerRepo_Kill_Call {
+func (_c *ContainerRepo_Kill_Call) Run(run func(sock string, id string)) *ContainerRepo_Kill_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -118,14 +120,14 @@ func (_c *ContainerRepo_Kill_Call) Return(_a0 error) *ContainerRepo_Kill_Call {
 	return _c
 }
 
-func (_c *ContainerRepo_Kill_Call) RunAndReturn(run func(string) error) *ContainerRepo_Kill_Call {
+func (_c *ContainerRepo_Kill_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Kill_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// ListAll provides a mock function with no fields
-func (_m *ContainerRepo) ListAll() ([]types.Container, error) {
-	ret := _m.Called()
+// ListAll provides a mock function with given fields: sock
+func (_m *ContainerRepo) ListAll(sock string) ([]types.Container, error) {
+	ret := _m.Called(sock)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListAll")
@@ -133,19 +135,19 @@ func (_m *ContainerRepo) ListAll() ([]types.Container, error) {
 
 	var r0 []types.Container
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]types.Container, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(string) ([]types.Container, error)); ok {
+		return rf(sock)
 	}
-	if rf, ok := ret.Get(0).(func() []types.Container); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) []types.Container); ok {
+		r0 = rf(sock)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.Container)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(sock)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -159,13 +161,14 @@ type ContainerRepo_ListAll_Call struct {
 }
 
 // ListAll is a helper method to define mock.On call
-func (_e *ContainerRepo_Expecter) ListAll() *ContainerRepo_ListAll_Call {
-	return &ContainerRepo_ListAll_Call{Call: _e.mock.On("ListAll")}
+//   - sock string
+func (_e *ContainerRepo_Expecter) ListAll(sock interface{}) *ContainerRepo_ListAll_Call {
+	return &ContainerRepo_ListAll_Call{Call: _e.mock.On("ListAll", sock)}
 }
 
-func (_c *ContainerRepo_ListAll_Call) Run(run func()) *ContainerRepo_ListAll_Call {
+func (_c *ContainerRepo_ListAll_Call) Run(run func(sock string)) *ContainerRepo_ListAll_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -175,72 +178,14 @@ func (_c *ContainerRepo_ListAll_Call) Return(_a0 []types.Container, _a1 error) *
 	return _c
 }
 
-func (_c *ContainerRepo_ListAll_Call) RunAndReturn(run func() ([]types.Container, error)) *ContainerRepo_ListAll_Call {
+func (_c *ContainerRepo_ListAll_Call) RunAndReturn(run func(string) ([]types.Container, error)) *ContainerRepo_ListAll_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// ListByName provides a mock function with given fields: name
-func (_m *ContainerRepo) ListByName(name string) ([]types.Container, error) {
-	ret := _m.Called(name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListByName")
-	}
-
-	var r0 []types.Container
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) ([]types.Container, error)); ok {
-		return rf(name)
-	}
-	if rf, ok := ret.Get(0).(func(string) []types.Container); ok {
-		r0 = rf(name)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]types.Container)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ContainerRepo_ListByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListByName'
-type ContainerRepo_ListByName_Call struct {
-	*mock.Call
-}
-
-// ListByName is a helper method to define mock.On call
-//   - name string
-func (_e *ContainerRepo_Expecter) ListByName(name interface{}) *ContainerRepo_ListByName_Call {
-	return &ContainerRepo_ListByName_Call{Call: _e.mock.On("ListByName", name)}
-}
-
-func (_c *ContainerRepo_ListByName_Call) Run(run func(name string)) *ContainerRepo_ListByName_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *ContainerRepo_ListByName_Call) Return(_a0 []types.Container, _a1 error) *ContainerRepo_ListByName_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ContainerRepo_ListByName_Call) RunAndReturn(run func(string) ([]types.Container, error)) *ContainerRepo_ListByName_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Logs provides a mock function with given fields: id, tail
-func (_m *ContainerRepo) Logs(id string, tail int) (string, error) {
-	ret := _m.Called(id, tail)
+// Logs provides a mock function with given fields: sock, id, tail
+func (_m *ContainerRepo) Logs(sock string, id string, tail int) (string, error) {
+	ret := _m.Called(sock, id, tail)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Logs")
@@ -248,17 +193,17 @@ func (_m *ContainerRepo) Logs(id string, tail int) (string, error) {
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int) (string, error)); ok {
-		return rf(id, tail)
+	if rf, ok := ret.Get(0).(func(string, string, int) (string, error)); ok {
+		return rf(sock, id, tail)
 	}
-	if rf, ok := ret.Get(0).(func(string, int) string); ok {
-		r0 = rf(id, tail)
+	if rf, ok := ret.Get(0).(func(string, string, int) string); ok {
+		r0 = rf(sock, id, tail)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(id, tail)
+	if rf, ok := ret.Get(1).(func(string, string, int) error); ok {
+		r1 = rf(sock, id, tail)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -272,15 +217,16 @@ type ContainerRepo_Logs_Call struct {
 }
 
 // Logs is a helper method to define mock.On call
+//   - sock string
 //   - id string
 //   - tail int
-func (_e *ContainerRepo_Expecter) Logs(id interface{}, tail interface{}) *ContainerRepo_Logs_Call {
-	return &ContainerRepo_Logs_Call{Call: _e.mock.On("Logs", id, tail)}
+func (_e *ContainerRepo_Expecter) Logs(sock interface{}, id interface{}, tail interface{}) *ContainerRepo_Logs_Call {
+	return &ContainerRepo_Logs_Call{Call: _e.mock.On("Logs", sock, id, tail)}
 }
 
-func (_c *ContainerRepo_Logs_Call) Run(run func(id string, tail int)) *ContainerRepo_Logs_Call {
+func (_c *ContainerRepo_Logs_Call) Run(run func(sock string, id string, tail int)) *ContainerRepo_Logs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int))
+		run(args[0].(string), args[1].(string), args[2].(int))
 	})
 	return _c
 }
@@ -290,22 +236,22 @@ func (_c *ContainerRepo_Logs_Call) Return(_a0 string, _a1 error) *ContainerRepo_
 	return _c
 }
 
-func (_c *ContainerRepo_Logs_Call) RunAndReturn(run func(string, int) (string, error)) *ContainerRepo_Logs_Call {
+func (_c *ContainerRepo_Logs_Call) RunAndReturn(run func(string, string, int) (string, error)) *ContainerRepo_Logs_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Pause provides a mock function with given fields: id
-func (_m *ContainerRepo) Pause(id string) error {
-	ret := _m.Called(id)
+// Pause provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Pause(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Pause")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -319,14 +265,15 @@ type ContainerRepo_Pause_Call struct {
 }
 
 // Pause is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerRepo_Expecter) Pause(id interface{}) *ContainerRepo_Pause_Call {
-	return &ContainerRepo_Pause_Call{Call: _e.mock.On("Pause", id)}
+func (_e *ContainerRepo_Expecter) Pause(sock interface{}, id interface{}) *ContainerRepo_Pause_Call {
+	return &ContainerRepo_Pause_Call{Call: _e.mock.On("Pause", sock, id)}
 }
 
-func (_c *ContainerRepo_Pause_Call) Run(run func(id string)) *ContainerRepo_Pause_Call {
+func (_c *ContainerRepo_Pause_Call) Run(run func(sock string, id string)) *ContainerRepo_Pause_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -336,22 +283,22 @@ func (_c *ContainerRepo_Pause_Call) Return(_a0 error) *ContainerRepo_Pause_Call 
 	return _c
 }
 
-func (_c *ContainerRepo_Pause_Call) RunAndReturn(run func(string) error) *ContainerRepo_Pause_Call {
+func (_c *ContainerRepo_Pause_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Pause_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Prune provides a mock function with no fields
-func (_m *ContainerRepo) Prune() error {
-	ret := _m.Called()
+// Prune provides a mock function with given fields: sock
+func (_m *ContainerRepo) Prune(sock string) error {
+	ret := _m.Called(sock)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Prune")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(sock)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -365,13 +312,14 @@ type ContainerRepo_Prune_Call struct {
 }
 
 // Prune is a helper method to define mock.On call
-func (_e *ContainerRepo_Expecter) Prune() *ContainerRepo_Prune_Call {
-	return &ContainerRepo_Prune_Call{Call: _e.mock.On("Prune")}
+//   - sock string
+func (_e *ContainerRepo_Expecter) Prune(sock interface{}) *ContainerRepo_Prune_Call {
+	return &ContainerRepo_Prune_Call{Call: _e.mock.On("Prune", sock)}
 }
 
-func (_c *ContainerRepo_Prune_Call) Run(run func()) *ContainerRepo_Prune_Call {
+func (_c *ContainerRepo_Prune_Call) Run(run func(sock string)) *ContainerRepo_Prune_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -381,22 +329,22 @@ func (_c *ContainerRepo_Prune_Call) Return(_a0 error) *ContainerRepo_Prune_Call 
 	return _c
 }
 
-func (_c *ContainerRepo_Prune_Call) RunAndReturn(run func() error) *ContainerRepo_Prune_Call {
+func (_c *ContainerRepo_Prune_Call) RunAndReturn(run func(string) error) *ContainerRepo_Prune_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Remove provides a mock function with given fields: id
-func (_m *ContainerRepo) Remove(id string) error {
-	ret := _m.Called(id)
+// Remove provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Remove(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Remove")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -410,14 +358,15 @@ type ContainerRepo_Remove_Call struct {
 }
 
 // Remove is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerRepo_Expecter) Remove(id interface{}) *ContainerRepo_Remove_Call {
-	return &ContainerRepo_Remove_Call{Call: _e.mock.On("Remove", id)}
+func (_e *ContainerRepo_Expecter) Remove(sock interface{}, id interface{}) *ContainerRepo_Remove_Call {
+	return &ContainerRepo_Remove_Call{Call: _e.mock.On("Remove", sock, id)}
 }
 
-func (_c *ContainerRepo_Remove_Call) Run(run func(id string)) *ContainerRepo_Remove_Call {
+func (_c *ContainerRepo_Remove_Call) Run(run func(sock string, id string)) *ContainerRepo_Remove_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -427,22 +376,22 @@ func (_c *ContainerRepo_Remove_Call) Return(_a0 error) *ContainerRepo_Remove_Cal
 	return _c
 }
 
-func (_c *ContainerRepo_Remove_Call) RunAndReturn(run func(string) error) *ContainerRepo_Remove_Call {
+func (_c *ContainerRepo_Remove_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Rename provides a mock function with given fields: id, newName
-func (_m *ContainerRepo) Rename(id string, newName string) error {
-	ret := _m.Called(id, newName)
+// Rename provides a mock function with given fields: sock, id, newName
+func (_m *ContainerRepo) Rename(sock string, id string, newName string) error {
+	ret := _m.Called(sock, id, newName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Rename")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(id, newName)
+	if rf, ok := ret.Get(0).(func(string, string, string) error); ok {
+		r0 = rf(sock, id, newName)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -456,15 +405,16 @@ type ContainerRepo_Rename_Call struct {
 }
 
 // Rename is a helper method to define mock.On call
+//   - sock string
 //   - id string
 //   - newName string
-func (_e *ContainerRepo_Expecter) Rename(id interface{}, newName interface{}) *ContainerRepo_Rename_Call {
-	return &ContainerRepo_Rename_Call{Call: _e.mock.On("Rename", id, newName)}
+func (_e *ContainerRepo_Expecter) Rename(sock interface{}, id interface{}, newName interface{}) *ContainerRepo_Rename_Call {
+	return &ContainerRepo_Rename_Call{Call: _e.mock.On("Rename", sock, id, newName)}
 }
 
-func (_c *ContainerRepo_Rename_Call) Run(run func(id string, newName string)) *ContainerRepo_Rename_Call {
+func (_c *ContainerRepo_Rename_Call) Run(run func(sock string, id string, newName string)) *ContainerRepo_Rename_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string))
+		run(args[0].(string), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -474,22 +424,22 @@ func (_c *ContainerRepo_Rename_Call) Return(_a0 error) *ContainerRepo_Rename_Cal
 	return _c
 }
 
-func (_c *ContainerRepo_Rename_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Rename_Call {
+func (_c *ContainerRepo_Rename_Call) RunAndReturn(run func(string, string, string) error) *ContainerRepo_Rename_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Restart provides a mock function with given fields: id
-func (_m *ContainerRepo) Restart(id string) error {
-	ret := _m.Called(id)
+// Restart provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Restart(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Restart")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -503,14 +453,15 @@ type ContainerRepo_Restart_Call struct {
 }
 
 // Restart is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerRepo_Expecter) Restart(id interface{}) *ContainerRepo_Restart_Call {
-	return &ContainerRepo_Restart_Call{Call: _e.mock.On("Restart", id)}
+func (_e *ContainerRepo_Expecter) Restart(sock interface{}, id interface{}) *ContainerRepo_Restart_Call {
+	return &ContainerRepo_Restart_Call{Call: _e.mock.On("Restart", sock, id)}
 }
 
-func (_c *ContainerRepo_Restart_Call) Run(run func(id string)) *ContainerRepo_Restart_Call {
+func (_c *ContainerRepo_Restart_Call) Run(run func(sock string, id string)) *ContainerRepo_Restart_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -520,22 +471,22 @@ func (_c *ContainerRepo_Restart_Call) Return(_a0 error) *ContainerRepo_Restart_C
 	return _c
 }
 
-func (_c *ContainerRepo_Restart_Call) RunAndReturn(run func(string) error) *ContainerRepo_Restart_Call {
+func (_c *ContainerRepo_Restart_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Restart_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Start provides a mock function with given fields: id
-func (_m *ContainerRepo) Start(id string) error {
-	ret := _m.Called(id)
+// Start provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Start(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Start")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -549,14 +500,15 @@ type ContainerRepo_Start_Call struct {
 }
 
 // Start is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerRepo_Expecter) Start(id interface{}) *ContainerRepo_Start_Call {
-	return &ContainerRepo_Start_Call{Call: _e.mock.On("Start", id)}
+func (_e *ContainerRepo_Expecter) Start(sock interface{}, id interface{}) *ContainerRepo_Start_Call {
+	return &ContainerRepo_Start_Call{Call: _e.mock.On("Start", sock, id)}
 }
 
-func (_c *ContainerRepo_Start_Call) Run(run func(id string)) *ContainerRepo_Start_Call {
+func (_c *ContainerRepo_Start_Call) Run(run func(sock string, id string)) *ContainerRepo_Start_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -566,22 +518,22 @@ func (_c *ContainerRepo_Start_Call) Return(_a0 error) *ContainerRepo_Start_Call 
 	return _c
 }
 
-func (_c *ContainerRepo_Start_Call) RunAndReturn(run func(string) error) *ContainerRepo_Start_Call {
+func (_c *ContainerRepo_Start_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Start_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Stop provides a mock function with given fields: id
-func (_m *ContainerRepo) Stop(id string) error {
-	ret := _m.Called(id)
+// Stop provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Stop(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Stop")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -595,14 +547,15 @@ type ContainerRepo_Stop_Call struct {
 }
 
 // Stop is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerRepo_Expecter) Stop(id interface{}) *ContainerRepo_Stop_Call {
-	return &ContainerRepo_Stop_Call{Call: _e.mock.On("Stop", id)}
+func (_e *ContainerRepo_Expecter) Stop(sock interface{}, id interface{}) *ContainerRepo_Stop_Call {
+	return &ContainerRepo_Stop_Call{Call: _e.mock.On("Stop", sock, id)}
 }
 
-func (_c *ContainerRepo_Stop_Call) Run(run func(id string)) *ContainerRepo_Stop_Call {
+func (_c *ContainerRepo_Stop_Call) Run(run func(sock string, id string)) *ContainerRepo_Stop_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -612,22 +565,22 @@ func (_c *ContainerRepo_Stop_Call) Return(_a0 error) *ContainerRepo_Stop_Call {
 	return _c
 }
 
-func (_c *ContainerRepo_Stop_Call) RunAndReturn(run func(string) error) *ContainerRepo_Stop_Call {
+func (_c *ContainerRepo_Stop_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Stop_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Unpause provides a mock function with given fields: id
-func (_m *ContainerRepo) Unpause(id string) error {
-	ret := _m.Called(id)
+// Unpause provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Unpause(sock string, id string) error {
+	ret := _m.Called(sock, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Unpause")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(sock, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -641,14 +594,15 @@ type ContainerRepo_Unpause_Call struct {
 }
 
 // Unpause is a helper method to define mock.On call
+//   - sock string
 //   - id string
-func (_e *ContainerRepo_Expecter) Unpause(id interface{}) *ContainerRepo_Unpause_Call {
-	return &ContainerRepo_Unpause_Call{Call: _e.mock.On("Unpause", id)}
+func (_e *ContainerRepo_Expecter) Unpause(sock interface{}, id interface{}) *ContainerRepo_Unpause_Call {
+	return &ContainerRepo_Unpause_Call{Call: _e.mock.On("Unpause", sock, id)}
 }
 
-func (_c *ContainerRepo_Unpause_Call) Run(run func(id string)) *ContainerRepo_Unpause_Call {
+func (_c *ContainerRepo_Unpause_Call) Run(run func(sock string, id string)) *ContainerRepo_Unpause_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -658,7 +612,7 @@ func (_c *ContainerRepo_Unpause_Call) Return(_a0 error) *ContainerRepo_Unpause_C
 	return _c
 }
 
-func (_c *ContainerRepo_Unpause_Call) RunAndReturn(run func(string) error) *ContainerRepo_Unpause_Call {
+func (_c *ContainerRepo_Unpause_Call) RunAndReturn(run func(string, string) error) *ContainerRepo_Unpause_Call {
 	_c.Call.Return(run)
 	return _c
 }

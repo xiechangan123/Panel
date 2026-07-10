@@ -4,6 +4,8 @@ package biz
 
 import (
 	biz "github.com/acepanel/panel/v3/internal/biz"
+	api "github.com/acepanel/panel/v3/pkg/api"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -18,6 +20,234 @@ type CacheRepo_Expecter struct {
 
 func (_m *CacheRepo) EXPECT() *CacheRepo_Expecter {
 	return &CacheRepo_Expecter{mock: &_m.Mock}
+}
+
+// FetchApps provides a mock function with no fields
+func (_m *CacheRepo) FetchApps() (*api.Apps, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchApps")
+	}
+
+	var r0 *api.Apps
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*api.Apps, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *api.Apps); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*api.Apps)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CacheRepo_FetchApps_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FetchApps'
+type CacheRepo_FetchApps_Call struct {
+	*mock.Call
+}
+
+// FetchApps is a helper method to define mock.On call
+func (_e *CacheRepo_Expecter) FetchApps() *CacheRepo_FetchApps_Call {
+	return &CacheRepo_FetchApps_Call{Call: _e.mock.On("FetchApps")}
+}
+
+func (_c *CacheRepo_FetchApps_Call) Run(run func()) *CacheRepo_FetchApps_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CacheRepo_FetchApps_Call) Return(_a0 *api.Apps, _a1 error) *CacheRepo_FetchApps_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CacheRepo_FetchApps_Call) RunAndReturn(run func() (*api.Apps, error)) *CacheRepo_FetchApps_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FetchCategories provides a mock function with no fields
+func (_m *CacheRepo) FetchCategories() (*api.Categories, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchCategories")
+	}
+
+	var r0 *api.Categories
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*api.Categories, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *api.Categories); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*api.Categories)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CacheRepo_FetchCategories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FetchCategories'
+type CacheRepo_FetchCategories_Call struct {
+	*mock.Call
+}
+
+// FetchCategories is a helper method to define mock.On call
+func (_e *CacheRepo_Expecter) FetchCategories() *CacheRepo_FetchCategories_Call {
+	return &CacheRepo_FetchCategories_Call{Call: _e.mock.On("FetchCategories")}
+}
+
+func (_c *CacheRepo_FetchCategories_Call) Run(run func()) *CacheRepo_FetchCategories_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CacheRepo_FetchCategories_Call) Return(_a0 *api.Categories, _a1 error) *CacheRepo_FetchCategories_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CacheRepo_FetchCategories_Call) RunAndReturn(run func() (*api.Categories, error)) *CacheRepo_FetchCategories_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FetchEnvironments provides a mock function with no fields
+func (_m *CacheRepo) FetchEnvironments() (*api.Environments, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchEnvironments")
+	}
+
+	var r0 *api.Environments
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*api.Environments, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *api.Environments); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*api.Environments)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CacheRepo_FetchEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FetchEnvironments'
+type CacheRepo_FetchEnvironments_Call struct {
+	*mock.Call
+}
+
+// FetchEnvironments is a helper method to define mock.On call
+func (_e *CacheRepo_Expecter) FetchEnvironments() *CacheRepo_FetchEnvironments_Call {
+	return &CacheRepo_FetchEnvironments_Call{Call: _e.mock.On("FetchEnvironments")}
+}
+
+func (_c *CacheRepo_FetchEnvironments_Call) Run(run func()) *CacheRepo_FetchEnvironments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CacheRepo_FetchEnvironments_Call) Return(_a0 *api.Environments, _a1 error) *CacheRepo_FetchEnvironments_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CacheRepo_FetchEnvironments_Call) RunAndReturn(run func() (*api.Environments, error)) *CacheRepo_FetchEnvironments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FetchTemplates provides a mock function with no fields
+func (_m *CacheRepo) FetchTemplates() (*api.Templates, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchTemplates")
+	}
+
+	var r0 *api.Templates
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*api.Templates, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *api.Templates); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*api.Templates)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CacheRepo_FetchTemplates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FetchTemplates'
+type CacheRepo_FetchTemplates_Call struct {
+	*mock.Call
+}
+
+// FetchTemplates is a helper method to define mock.On call
+func (_e *CacheRepo_Expecter) FetchTemplates() *CacheRepo_FetchTemplates_Call {
+	return &CacheRepo_FetchTemplates_Call{Call: _e.mock.On("FetchTemplates")}
+}
+
+func (_c *CacheRepo_FetchTemplates_Call) Run(run func()) *CacheRepo_FetchTemplates_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CacheRepo_FetchTemplates_Call) Return(_a0 *api.Templates, _a1 error) *CacheRepo_FetchTemplates_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CacheRepo_FetchTemplates_Call) RunAndReturn(run func() (*api.Templates, error)) *CacheRepo_FetchTemplates_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Get provides a mock function with given fields: key, defaultValue
@@ -134,186 +364,6 @@ func (_c *CacheRepo_Set_Call) Return(_a0 error) *CacheRepo_Set_Call {
 }
 
 func (_c *CacheRepo_Set_Call) RunAndReturn(run func(biz.CacheKey, string) error) *CacheRepo_Set_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateApps provides a mock function with no fields
-func (_m *CacheRepo) UpdateApps() error {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateApps")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// CacheRepo_UpdateApps_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateApps'
-type CacheRepo_UpdateApps_Call struct {
-	*mock.Call
-}
-
-// UpdateApps is a helper method to define mock.On call
-func (_e *CacheRepo_Expecter) UpdateApps() *CacheRepo_UpdateApps_Call {
-	return &CacheRepo_UpdateApps_Call{Call: _e.mock.On("UpdateApps")}
-}
-
-func (_c *CacheRepo_UpdateApps_Call) Run(run func()) *CacheRepo_UpdateApps_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *CacheRepo_UpdateApps_Call) Return(_a0 error) *CacheRepo_UpdateApps_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *CacheRepo_UpdateApps_Call) RunAndReturn(run func() error) *CacheRepo_UpdateApps_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateCategories provides a mock function with no fields
-func (_m *CacheRepo) UpdateCategories() error {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateCategories")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// CacheRepo_UpdateCategories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCategories'
-type CacheRepo_UpdateCategories_Call struct {
-	*mock.Call
-}
-
-// UpdateCategories is a helper method to define mock.On call
-func (_e *CacheRepo_Expecter) UpdateCategories() *CacheRepo_UpdateCategories_Call {
-	return &CacheRepo_UpdateCategories_Call{Call: _e.mock.On("UpdateCategories")}
-}
-
-func (_c *CacheRepo_UpdateCategories_Call) Run(run func()) *CacheRepo_UpdateCategories_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *CacheRepo_UpdateCategories_Call) Return(_a0 error) *CacheRepo_UpdateCategories_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *CacheRepo_UpdateCategories_Call) RunAndReturn(run func() error) *CacheRepo_UpdateCategories_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateEnvironments provides a mock function with no fields
-func (_m *CacheRepo) UpdateEnvironments() error {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateEnvironments")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// CacheRepo_UpdateEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateEnvironments'
-type CacheRepo_UpdateEnvironments_Call struct {
-	*mock.Call
-}
-
-// UpdateEnvironments is a helper method to define mock.On call
-func (_e *CacheRepo_Expecter) UpdateEnvironments() *CacheRepo_UpdateEnvironments_Call {
-	return &CacheRepo_UpdateEnvironments_Call{Call: _e.mock.On("UpdateEnvironments")}
-}
-
-func (_c *CacheRepo_UpdateEnvironments_Call) Run(run func()) *CacheRepo_UpdateEnvironments_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *CacheRepo_UpdateEnvironments_Call) Return(_a0 error) *CacheRepo_UpdateEnvironments_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *CacheRepo_UpdateEnvironments_Call) RunAndReturn(run func() error) *CacheRepo_UpdateEnvironments_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateTemplates provides a mock function with no fields
-func (_m *CacheRepo) UpdateTemplates() error {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateTemplates")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// CacheRepo_UpdateTemplates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTemplates'
-type CacheRepo_UpdateTemplates_Call struct {
-	*mock.Call
-}
-
-// UpdateTemplates is a helper method to define mock.On call
-func (_e *CacheRepo_Expecter) UpdateTemplates() *CacheRepo_UpdateTemplates_Call {
-	return &CacheRepo_UpdateTemplates_Call{Call: _e.mock.On("UpdateTemplates")}
-}
-
-func (_c *CacheRepo_UpdateTemplates_Call) Run(run func()) *CacheRepo_UpdateTemplates_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *CacheRepo_UpdateTemplates_Call) Return(_a0 error) *CacheRepo_UpdateTemplates_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *CacheRepo_UpdateTemplates_Call) RunAndReturn(run func() error) *CacheRepo_UpdateTemplates_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,15 +1,12 @@
 package data
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"path/filepath"
 	"time"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/cache"
 	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
@@ -19,33 +16,23 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
-	"github.com/acepanel/panel/v3/pkg/os"
-	"github.com/acepanel/panel/v3/pkg/tools"
 )
 
 const settingCacheTTL = 5 * time.Minute
 
 type settingRepo struct {
-	t     *gotext.Locale
 	db    *gorm.DB
-	log   *slog.Logger
 	conf  *config.Config
 	cache cache.Cache
-	task  biz.TaskRepo
 }
 
 func NewSettingRepo(i do.Injector) (biz.SettingRepo, error) {
 	return &settingRepo{
-		t:     do.MustInvoke[*gotext.Locale](i),
 		db:    do.MustInvoke[*gorm.DB](i),
-		log:   do.MustInvoke[*slog.Logger](i),
 		conf:  do.MustInvoke[*config.Config](i),
 		cache: cache.NewCache(),
-		task:  do.MustInvoke[biz.TaskRepo](i),
 	}, nil
 }
 
@@ -247,193 +234,6 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		Cert:          crt,
 		Key:           key,
 	}, nil
-}
-
-func (r *settingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error) {
-	if err := r.Set(biz.SettingKeyName, req.Name); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyChannel, req.Channel); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyOfflineMode, cast.ToString(req.OfflineMode)); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyAutoUpdate, cast.ToString(req.AutoUpdate)); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyWebsitePath, req.WebsitePath); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyBackupPath, req.BackupPath); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyBackupFormat, req.BackupFormat); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyProjectPath, req.ProjectPath); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyContainerSock, req.ContainerSock); err != nil {
-		return false, err
-	}
-	if err := r.SetSlice(biz.SettingHiddenMenu, req.HiddenMenu); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyCustomLogo, req.CustomLogo); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyIPDBType, req.IPDBType); err != nil {
-		return false, err
-	}
-	ipdbURL := req.IPDBURL
-	if req.IPDBType == "subscribe" && ipdbURL == "" {
-		// https://github.com/metowolf/qqwry.ipdb
-		ipdbURL = "https://fastly.jsdelivr.net/npm/qqwry.ipdb/qqwry.ipdb"
-	}
-	if err := r.Set(biz.SettingKeyIPDBURL, ipdbURL); err != nil {
-		return false, err
-	}
-	if err := r.Set(biz.SettingKeyIPDBPath, req.IPDBPath); err != nil {
-		return false, err
-	}
-	if err := r.SetSlice(biz.SettingKeyPublicIPs, req.PublicIP); err != nil {
-		return false, err
-	}
-
-	// 订阅模式后台下载 IPDB
-	if req.IPDBType == "subscribe" && ipdbURL != "" {
-		go func() {
-			destPath := filepath.Join(app.Root, "panel/storage/geo.ipdb")
-			if err := io.DownloadFile(ipdbURL, destPath); err != nil {
-				r.log.Warn("failed to download ipdb", slog.String("url", ipdbURL), slog.Any("err", err))
-			} else {
-				r.log.Info("ipdb downloaded", slog.String("url", ipdbURL))
-			}
-		}()
-	}
-
-	// 下面是需要需要重启的设置
-	// 面板HTTPS
-	restartFlag := false
-
-	// 自签模式
-	if req.TLS == "self-signed" {
-		needGen := req.Cert == "" || req.Key == ""
-		if !needGen {
-			if _, err := cert.ParseCert([]byte(req.Cert)); err != nil {
-				needGen = true
-			}
-		}
-		if needGen {
-			crt, key, err := cert.GenerateSelfSigned(tools.CollectLocalNames())
-			if err != nil {
-				return false, errors.New(r.t.Get("failed to generate self-signed certificate: %v", err))
-			}
-			req.Cert = string(crt)
-			req.Key = string(key)
-		}
-	}
-
-	oldCert, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.pem"))
-	oldKey, _ := io.Read(filepath.Join(app.Root, "panel/storage/cert.key"))
-	if oldCert != req.Cert || oldKey != req.Key {
-		if r.task.HasRunningTask() {
-			return false, errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
-		}
-		restartFlag = true
-	}
-	// custom 模式需要验证证书格式
-	if req.TLS == "custom" {
-		if _, err := cert.ParseCert([]byte(req.Cert)); err != nil {
-			return false, errors.New(r.t.Get("failed to parse certificate: %v", err))
-		}
-		if _, err := cert.ParseKey([]byte(req.Key)); err != nil {
-			return false, errors.New(r.t.Get("failed to parse private key: %v", err))
-		}
-	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0600); err != nil {
-		return false, err
-	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0600); err != nil {
-		return false, err
-	}
-
-	// 面板主配置
-	conf, err := config.Load()
-	if err != nil {
-		return false, err
-	}
-
-	if req.Port != conf.HTTP.Port {
-		if os.TCPPortInUse(req.Port) {
-			return false, errors.New(r.t.Get("port is already in use"))
-		}
-		// 放行端口
-		fw := firewall.NewFirewall()
-		if ok, _ := fw.Status(); ok {
-			err = fw.Port(firewall.FireInfo{
-				Type:      firewall.TypeNormal,
-				PortStart: req.Port,
-				PortEnd:   req.Port,
-				Protocol:  firewall.ProtocolTCPUDP,
-				Strategy:  firewall.StrategyAccept,
-				Direction: firewall.DirectionIn,
-			}, firewall.OperationAdd)
-			if err != nil {
-				return false, err
-			}
-		}
-	}
-
-	conf.App.Locale = req.Locale
-	conf.HTTP.Port = req.Port
-	conf.HTTP.Entrance = req.Entrance
-	conf.HTTP.EntranceError = req.EntranceError
-	conf.HTTP.LoginCaptcha = req.LoginCaptcha
-	conf.HTTP.TLS = req.TLS
-	conf.HTTP.IPHeader = req.IPHeader
-	conf.HTTP.BindDomain = req.BindDomain
-	conf.HTTP.BindIP = req.BindIP
-	conf.HTTP.BindUA = req.BindUA
-	conf.Session.Lifetime = req.Lifetime
-
-	// 检查配置是否有变更
-	if same, _ := config.Check(conf); !same {
-		if r.task.HasRunningTask() {
-			return false, errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
-		}
-		restartFlag = true
-	}
-	if err = config.Save(conf); err != nil {
-		return false, err
-	}
-
-	// 记录日志
-	r.log.Info("panel settings updated", slog.String("type", biz.OperationTypeSetting), slog.Uint64("operator_id", getOperatorID(ctx)))
-
-	return restartFlag, nil
-}
-
-func (r *settingRepo) UpdateCert(req *request.SettingCert) error {
-	if r.task.HasRunningTask() {
-		return errors.New(r.t.Get("background task is running, modifying some settings is prohibited, please try again later"))
-	}
-	if _, err := cert.ParseCert([]byte(req.Cert)); err != nil {
-		return errors.New(r.t.Get("failed to parse certificate: %v", err))
-	}
-	if _, err := cert.ParseKey([]byte(req.Key)); err != nil {
-		return errors.New(r.t.Get("failed to parse private key: %v", err))
-	}
-
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.pem"), req.Cert, 0600); err != nil {
-		return err
-	}
-	if err := io.Write(filepath.Join(app.Root, "panel/storage/cert.key"), req.Key, 0600); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // cacheKey 生成设置项的缓存 key

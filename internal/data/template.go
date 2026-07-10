@@ -2,8 +2,6 @@ package data
 
 import (
 	"encoding/base64"
-	"encoding/json"
-	"errors"
 	"log/slog"
 	"maps"
 	"os"
@@ -12,7 +10,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
@@ -25,61 +22,17 @@ import (
 )
 
 type templateRepo struct {
-	t        *gotext.Locale
 	log      *slog.Logger
-	cache    biz.CacheRepo
 	api      *api.API
 	firewall firewall.Firewall
 }
 
 func NewTemplateRepo(i do.Injector) (biz.TemplateRepo, error) {
 	return &templateRepo{
-		t:        do.MustInvoke[*gotext.Locale](i),
 		log:      do.MustInvoke[*slog.Logger](i),
-		cache:    do.MustInvoke[biz.CacheRepo](i),
 		api:      api.NewAPI(app.Version, app.Locale),
 		firewall: firewall.NewFirewall(),
 	}, nil
-}
-
-// List 获取所有模版，包括本地模板
-func (r *templateRepo) List() api.Templates {
-	templates := make(api.Templates, 0)
-	cached, err := r.cache.Get(biz.CacheKeyTemplates)
-	if err == nil {
-		_ = json.Unmarshal([]byte(cached), &templates)
-	}
-
-	// 加载本地模板并合并，本地模板覆盖同 slug 的远端模板
-	localTemplates := r.loadLocalTemplates()
-	if len(localTemplates) > 0 {
-		slugMap := make(map[string]int, len(templates))
-		for i, t := range templates {
-			slugMap[t.Slug] = i
-		}
-		for _, lt := range localTemplates {
-			if i, ok := slugMap[lt.Slug]; ok {
-				templates[i] = lt
-			} else {
-				templates = append(templates, lt)
-			}
-		}
-	}
-
-	return templates
-}
-
-// Get 获取模版详情
-func (r *templateRepo) Get(slug string) (*api.Template, error) {
-	templates := r.List()
-
-	for _, t := range templates {
-		if t.Slug == slug {
-			return t, nil
-		}
-	}
-
-	return nil, errors.New(r.t.Get("template %s not found", slug))
 }
 
 // Callback 模版下载回调
@@ -87,14 +40,9 @@ func (r *templateRepo) Callback(slug string) error {
 	return r.api.TemplateCallback(slug)
 }
 
-// CreateCompose 创建编排
-func (r *templateRepo) CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) (string, error) {
+// WriteCompose 写入编排文件
+func (r *templateRepo) WriteCompose(name, compose string, envs []types.KV) (string, error) {
 	dir := filepath.Join(app.Root, "compose", name)
-
-	// 检查编排是否已存在
-	if _, err := os.Stat(dir); err == nil {
-		return "", errors.New(r.t.Get("compose %s already exists", name))
-	}
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
@@ -114,22 +62,23 @@ func (r *templateRepo) CreateCompose(name, compose string, envs []types.KV, auto
 		return "", err
 	}
 
-	// 自动放行端口
-	if autoFirewall {
-		ports := r.parsePortsFromCompose(compose)
-		for _, port := range ports {
-			_ = r.firewall.Port(firewall.FireInfo{
-				Family:    "ipv4",
-				PortStart: port.Port,
-				PortEnd:   port.Port,
-				Protocol:  port.Protocol,
-				Strategy:  firewall.StrategyAccept,
-				Direction: "in",
-			}, firewall.OperationAdd)
-		}
-	}
-
 	return dir, nil
+}
+
+// OpenComposePorts 自动放行编排端口
+func (r *templateRepo) OpenComposePorts(compose string) error {
+	ports := r.parsePortsFromCompose(compose)
+	for _, port := range ports {
+		_ = r.firewall.Port(firewall.FireInfo{
+			Family:    "ipv4",
+			PortStart: port.Port,
+			PortEnd:   port.Port,
+			Protocol:  port.Protocol,
+			Strategy:  firewall.StrategyAccept,
+			Direction: "in",
+		}, firewall.OperationAdd)
+	}
+	return nil
 }
 
 type composePort struct {
@@ -192,8 +141,8 @@ func (r *templateRepo) parsePortsFromCompose(compose string) []composePort {
 	return ports
 }
 
-// loadLocalTemplates 从本地目录加载模板
-func (r *templateRepo) loadLocalTemplates() api.Templates {
+// LoadLocalTemplates 从本地目录加载模板
+func (r *templateRepo) LoadLocalTemplates() api.Templates {
 	dir := filepath.Join(app.Root, "panel/storage/templates")
 	entries, err := os.ReadDir(dir)
 	if err != nil {

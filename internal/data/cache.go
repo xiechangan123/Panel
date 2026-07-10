@@ -1,9 +1,7 @@
 package data
 
 import (
-	"encoding/json"
 	"errors"
-	"slices"
 
 	"github.com/samber/do/v2"
 	"gorm.io/gorm"
@@ -12,7 +10,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/api"
-	"github.com/acepanel/panel/v3/pkg/apploader"
 )
 
 type cacheRepo struct {
@@ -49,63 +46,18 @@ func (r *cacheRepo) Set(key biz.CacheKey, value string) error {
 	}).Create(&biz.Cache{Key: key, Value: value}).Error
 }
 
-func (r *cacheRepo) UpdateCategories() error {
-	categories, err := r.api.Categories()
-	if err != nil {
-		return err
-	}
-
-	encoded, err := json.Marshal(categories)
-	if err != nil {
-		return err
-	}
-
-	return r.Set(biz.CacheKeyCategories, string(encoded))
+func (r *cacheRepo) FetchCategories() (*api.Categories, error) {
+	return r.api.Categories()
 }
 
-func (r *cacheRepo) UpdateApps() error {
-	remote, err := r.api.Apps()
-	if err != nil {
-		return err
-	}
-
-	// 去除本地不存在的应用
-	*remote = slices.Clip(slices.DeleteFunc(*remote, func(item *api.App) bool {
-		return !slices.Contains(apploader.Slugs(), item.Slug)
-	}))
-
-	encoded, err := json.Marshal(remote)
-	if err != nil {
-		return err
-	}
-
-	return r.Set(biz.CacheKeyApps, string(encoded))
+func (r *cacheRepo) FetchApps() (*api.Apps, error) {
+	return r.api.Apps()
 }
 
-func (r *cacheRepo) UpdateEnvironments() error {
-	environments, err := r.api.Environments()
-	if err != nil {
-		return err
-	}
-
-	encoded, err := json.Marshal(environments)
-	if err != nil {
-		return err
-	}
-
-	return r.Set(biz.CacheKeyEnvironment, string(encoded))
+func (r *cacheRepo) FetchEnvironments() (*api.Environments, error) {
+	return r.api.Environments()
 }
 
-func (r *cacheRepo) UpdateTemplates() error {
-	templates, err := r.api.Templates()
-	if err != nil {
-		return err
-	}
-
-	encoded, err := json.Marshal(templates)
-	if err != nil {
-		return err
-	}
-
-	return r.Set(biz.CacheKeyTemplates, string(encoded))
+func (r *cacheRepo) FetchTemplates() (*api.Templates, error) {
+	return r.api.Templates()
 }

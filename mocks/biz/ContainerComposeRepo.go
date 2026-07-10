@@ -236,12 +236,12 @@ func (_c *ContainerComposeRepo_List_Call) RunAndReturn(run func() ([]types.Conta
 	return _c
 }
 
-// Remove provides a mock function with given fields: name
-func (_m *ContainerComposeRepo) Remove(name string) error {
+// RemoveDir provides a mock function with given fields: name
+func (_m *ContainerComposeRepo) RemoveDir(name string) error {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Remove")
+		panic("no return value specified for RemoveDir")
 	}
 
 	var r0 error
@@ -254,30 +254,30 @@ func (_m *ContainerComposeRepo) Remove(name string) error {
 	return r0
 }
 
-// ContainerComposeRepo_Remove_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Remove'
-type ContainerComposeRepo_Remove_Call struct {
+// ContainerComposeRepo_RemoveDir_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveDir'
+type ContainerComposeRepo_RemoveDir_Call struct {
 	*mock.Call
 }
 
-// Remove is a helper method to define mock.On call
+// RemoveDir is a helper method to define mock.On call
 //   - name string
-func (_e *ContainerComposeRepo_Expecter) Remove(name interface{}) *ContainerComposeRepo_Remove_Call {
-	return &ContainerComposeRepo_Remove_Call{Call: _e.mock.On("Remove", name)}
+func (_e *ContainerComposeRepo_Expecter) RemoveDir(name interface{}) *ContainerComposeRepo_RemoveDir_Call {
+	return &ContainerComposeRepo_RemoveDir_Call{Call: _e.mock.On("RemoveDir", name)}
 }
 
-func (_c *ContainerComposeRepo_Remove_Call) Run(run func(name string)) *ContainerComposeRepo_Remove_Call {
+func (_c *ContainerComposeRepo_RemoveDir_Call) Run(run func(name string)) *ContainerComposeRepo_RemoveDir_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string))
 	})
 	return _c
 }
 
-func (_c *ContainerComposeRepo_Remove_Call) Return(_a0 error) *ContainerComposeRepo_Remove_Call {
+func (_c *ContainerComposeRepo_RemoveDir_Call) Return(_a0 error) *ContainerComposeRepo_RemoveDir_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *ContainerComposeRepo_Remove_Call) RunAndReturn(run func(string) error) *ContainerComposeRepo_Remove_Call {
+func (_c *ContainerComposeRepo_RemoveDir_Call) RunAndReturn(run func(string) error) *ContainerComposeRepo_RemoveDir_Call {
 	_c.Call.Return(run)
 	return _c
 }

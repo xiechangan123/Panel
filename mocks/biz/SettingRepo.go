@@ -3,10 +3,7 @@
 package biz
 
 import (
-	context "context"
-
 	biz "github.com/acepanel/panel/v3/internal/biz"
-
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/v3/internal/request"
@@ -504,109 +501,6 @@ func (_c *SettingRepo_SetSlice_Call) Return(_a0 error) *SettingRepo_SetSlice_Cal
 }
 
 func (_c *SettingRepo_SetSlice_Call) RunAndReturn(run func(biz.SettingKey, []string) error) *SettingRepo_SetSlice_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateCert provides a mock function with given fields: req
-func (_m *SettingRepo) UpdateCert(req *request.SettingCert) error {
-	ret := _m.Called(req)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateCert")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.SettingCert) error); ok {
-		r0 = rf(req)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// SettingRepo_UpdateCert_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCert'
-type SettingRepo_UpdateCert_Call struct {
-	*mock.Call
-}
-
-// UpdateCert is a helper method to define mock.On call
-//   - req *request.SettingCert
-func (_e *SettingRepo_Expecter) UpdateCert(req interface{}) *SettingRepo_UpdateCert_Call {
-	return &SettingRepo_UpdateCert_Call{Call: _e.mock.On("UpdateCert", req)}
-}
-
-func (_c *SettingRepo_UpdateCert_Call) Run(run func(req *request.SettingCert)) *SettingRepo_UpdateCert_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.SettingCert))
-	})
-	return _c
-}
-
-func (_c *SettingRepo_UpdateCert_Call) Return(_a0 error) *SettingRepo_UpdateCert_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *SettingRepo_UpdateCert_Call) RunAndReturn(run func(*request.SettingCert) error) *SettingRepo_UpdateCert_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdatePanel provides a mock function with given fields: ctx, req
-func (_m *SettingRepo) UpdatePanel(ctx context.Context, req *request.SettingPanel) (bool, error) {
-	ret := _m.Called(ctx, req)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdatePanel")
-	}
-
-	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.SettingPanel) (bool, error)); ok {
-		return rf(ctx, req)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *request.SettingPanel) bool); ok {
-		r0 = rf(ctx, req)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *request.SettingPanel) error); ok {
-		r1 = rf(ctx, req)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// SettingRepo_UpdatePanel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePanel'
-type SettingRepo_UpdatePanel_Call struct {
-	*mock.Call
-}
-
-// UpdatePanel is a helper method to define mock.On call
-//   - ctx context.Context
-//   - req *request.SettingPanel
-func (_e *SettingRepo_Expecter) UpdatePanel(ctx interface{}, req interface{}) *SettingRepo_UpdatePanel_Call {
-	return &SettingRepo_UpdatePanel_Call{Call: _e.mock.On("UpdatePanel", ctx, req)}
-}
-
-func (_c *SettingRepo_UpdatePanel_Call) Run(run func(ctx context.Context, req *request.SettingPanel)) *SettingRepo_UpdatePanel_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.SettingPanel))
-	})
-	return _c
-}
-
-func (_c *SettingRepo_UpdatePanel_Call) Return(_a0 bool, _a1 error) *SettingRepo_UpdatePanel_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *SettingRepo_UpdatePanel_Call) RunAndReturn(run func(context.Context, *request.SettingPanel) (bool, error)) *SettingRepo_UpdatePanel_Call {
 	_c.Call.Return(run)
 	return _c
 }

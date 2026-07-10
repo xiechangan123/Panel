@@ -6,32 +6,37 @@ import (
 )
 
 type ContainerVolumeRepo interface {
-	List() ([]types.ContainerVolume, error)
-	Create(req *request.ContainerVolumeCreate) (string, error)
-	Remove(id string) error
-	Prune() error
+	List(sock string) ([]types.ContainerVolume, error)
+	Create(sock string, req *request.ContainerVolumeCreate) (string, error)
+	Remove(sock string, id string) error
+	Prune(sock string) error
 }
 
 type ContainerVolumeUsecase struct {
-	repo ContainerVolumeRepo
+	repo    ContainerVolumeRepo
+	setting SettingRepo
 }
 
-func NewContainerVolumeUsecase(repo ContainerVolumeRepo) *ContainerVolumeUsecase {
-	return &ContainerVolumeUsecase{repo: repo}
+func NewContainerVolumeUsecase(repo ContainerVolumeRepo, setting SettingRepo) *ContainerVolumeUsecase {
+	return &ContainerVolumeUsecase{repo: repo, setting: setting}
 }
 
 func (uc *ContainerVolumeUsecase) List() ([]types.ContainerVolume, error) {
-	return uc.repo.List()
+	sock := containerSock(uc.setting)
+	return uc.repo.List(sock)
 }
 
 func (uc *ContainerVolumeUsecase) Create(req *request.ContainerVolumeCreate) (string, error) {
-	return uc.repo.Create(req)
+	sock := containerSock(uc.setting)
+	return uc.repo.Create(sock, req)
 }
 
 func (uc *ContainerVolumeUsecase) Remove(id string) error {
-	return uc.repo.Remove(id)
+	sock := containerSock(uc.setting)
+	return uc.repo.Remove(sock, id)
 }
 
 func (uc *ContainerVolumeUsecase) Prune() error {
-	return uc.repo.Prune()
+	sock := containerSock(uc.setting)
+	return uc.repo.Prune(sock)
 }

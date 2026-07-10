@@ -111,63 +111,6 @@ func (_c *ScanEventRepo_ClearBefore_Call) RunAndReturn(run func(string) error) *
 	return _c
 }
 
-// GetSetting provides a mock function with no fields
-func (_m *ScanEventRepo) GetSetting() (*biz.ScanSetting, error) {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSetting")
-	}
-
-	var r0 *biz.ScanSetting
-	var r1 error
-	if rf, ok := ret.Get(0).(func() (*biz.ScanSetting, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() *biz.ScanSetting); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*biz.ScanSetting)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ScanEventRepo_GetSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSetting'
-type ScanEventRepo_GetSetting_Call struct {
-	*mock.Call
-}
-
-// GetSetting is a helper method to define mock.On call
-func (_e *ScanEventRepo_Expecter) GetSetting() *ScanEventRepo_GetSetting_Call {
-	return &ScanEventRepo_GetSetting_Call{Call: _e.mock.On("GetSetting")}
-}
-
-func (_c *ScanEventRepo_GetSetting_Call) Run(run func()) *ScanEventRepo_GetSetting_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ScanEventRepo_GetSetting_Call) Return(_a0 *biz.ScanSetting, _a1 error) *ScanEventRepo_GetSetting_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *ScanEventRepo_GetSetting_Call) RunAndReturn(run func() (*biz.ScanSetting, error)) *ScanEventRepo_GetSetting_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // List provides a mock function with given fields: start, end, sourceIP, port, location, page, limit
 func (_m *ScanEventRepo) List(start string, end string, sourceIP string, port uint, location string, page uint, limit uint) ([]*biz.ScanEvent, uint, error) {
 	ret := _m.Called(start, end, sourceIP, port, location, page, limit)
@@ -473,52 +416,6 @@ func (_c *ScanEventRepo_Trend_Call) Return(_a0 []*biz.ScanDayTrend, _a1 error) *
 }
 
 func (_c *ScanEventRepo_Trend_Call) RunAndReturn(run func(string, string) ([]*biz.ScanDayTrend, error)) *ScanEventRepo_Trend_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateSetting provides a mock function with given fields: setting
-func (_m *ScanEventRepo) UpdateSetting(setting *biz.ScanSetting) error {
-	ret := _m.Called(setting)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateSetting")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*biz.ScanSetting) error); ok {
-		r0 = rf(setting)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// ScanEventRepo_UpdateSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSetting'
-type ScanEventRepo_UpdateSetting_Call struct {
-	*mock.Call
-}
-
-// UpdateSetting is a helper method to define mock.On call
-//   - setting *biz.ScanSetting
-func (_e *ScanEventRepo_Expecter) UpdateSetting(setting interface{}) *ScanEventRepo_UpdateSetting_Call {
-	return &ScanEventRepo_UpdateSetting_Call{Call: _e.mock.On("UpdateSetting", setting)}
-}
-
-func (_c *ScanEventRepo_UpdateSetting_Call) Run(run func(setting *biz.ScanSetting)) *ScanEventRepo_UpdateSetting_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*biz.ScanSetting))
-	})
-	return _c
-}
-
-func (_c *ScanEventRepo_UpdateSetting_Call) Return(_a0 error) *ScanEventRepo_UpdateSetting_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ScanEventRepo_UpdateSetting_Call) RunAndReturn(run func(*biz.ScanSetting) error) *ScanEventRepo_UpdateSetting_Call {
 	_c.Call.Return(run)
 	return _c
 }

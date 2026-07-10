@@ -4,6 +4,8 @@ package biz
 
 import (
 	biz "github.com/acepanel/panel/v3/internal/biz"
+	db "github.com/acepanel/panel/v3/pkg/db"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/v3/internal/request"
@@ -20,6 +22,52 @@ type DatabaseServerRepo_Expecter struct {
 
 func (_m *DatabaseServerRepo) EXPECT() *DatabaseServerRepo_Expecter {
 	return &DatabaseServerRepo_Expecter{mock: &_m.Mock}
+}
+
+// CheckServer provides a mock function with given fields: server
+func (_m *DatabaseServerRepo) CheckServer(server *biz.DatabaseServer) bool {
+	ret := _m.Called(server)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckServer")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) bool); ok {
+		r0 = rf(server)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// DatabaseServerRepo_CheckServer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckServer'
+type DatabaseServerRepo_CheckServer_Call struct {
+	*mock.Call
+}
+
+// CheckServer is a helper method to define mock.On call
+//   - server *biz.DatabaseServer
+func (_e *DatabaseServerRepo_Expecter) CheckServer(server interface{}) *DatabaseServerRepo_CheckServer_Call {
+	return &DatabaseServerRepo_CheckServer_Call{Call: _e.mock.On("CheckServer", server)}
+}
+
+func (_c *DatabaseServerRepo_CheckServer_Call) Run(run func(server *biz.DatabaseServer)) *DatabaseServerRepo_CheckServer_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.DatabaseServer))
+	})
+	return _c
+}
+
+func (_c *DatabaseServerRepo_CheckServer_Call) Return(_a0 bool) *DatabaseServerRepo_CheckServer_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *DatabaseServerRepo_CheckServer_Call) RunAndReturn(run func(*biz.DatabaseServer) bool) *DatabaseServerRepo_CheckServer_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ClearUsers provides a mock function with given fields: id
@@ -123,17 +171,17 @@ func (_c *DatabaseServerRepo_Count_Call) RunAndReturn(run func() (int64, error))
 	return _c
 }
 
-// Create provides a mock function with given fields: req
-func (_m *DatabaseServerRepo) Create(req *request.DatabaseServerCreate) error {
-	ret := _m.Called(req)
+// Create provides a mock function with given fields: server
+func (_m *DatabaseServerRepo) Create(server *biz.DatabaseServer) error {
+	ret := _m.Called(server)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseServerCreate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) error); ok {
+		r0 = rf(server)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -147,14 +195,14 @@ type DatabaseServerRepo_Create_Call struct {
 }
 
 // Create is a helper method to define mock.On call
-//   - req *request.DatabaseServerCreate
-func (_e *DatabaseServerRepo_Expecter) Create(req interface{}) *DatabaseServerRepo_Create_Call {
-	return &DatabaseServerRepo_Create_Call{Call: _e.mock.On("Create", req)}
+//   - server *biz.DatabaseServer
+func (_e *DatabaseServerRepo_Expecter) Create(server interface{}) *DatabaseServerRepo_Create_Call {
+	return &DatabaseServerRepo_Create_Call{Call: _e.mock.On("Create", server)}
 }
 
-func (_c *DatabaseServerRepo_Create_Call) Run(run func(req *request.DatabaseServerCreate)) *DatabaseServerRepo_Create_Call {
+func (_c *DatabaseServerRepo_Create_Call) Run(run func(server *biz.DatabaseServer)) *DatabaseServerRepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseServerCreate))
+		run(args[0].(*biz.DatabaseServer))
 	})
 	return _c
 }
@@ -164,7 +212,53 @@ func (_c *DatabaseServerRepo_Create_Call) Return(_a0 error) *DatabaseServerRepo_
 	return _c
 }
 
-func (_c *DatabaseServerRepo_Create_Call) RunAndReturn(run func(*request.DatabaseServerCreate) error) *DatabaseServerRepo_Create_Call {
+func (_c *DatabaseServerRepo_Create_Call) RunAndReturn(run func(*biz.DatabaseServer) error) *DatabaseServerRepo_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateUser provides a mock function with given fields: user
+func (_m *DatabaseServerRepo) CreateUser(user *biz.DatabaseUser) error {
+	ret := _m.Called(user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*biz.DatabaseUser) error); ok {
+		r0 = rf(user)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DatabaseServerRepo_CreateUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUser'
+type DatabaseServerRepo_CreateUser_Call struct {
+	*mock.Call
+}
+
+// CreateUser is a helper method to define mock.On call
+//   - user *biz.DatabaseUser
+func (_e *DatabaseServerRepo_Expecter) CreateUser(user interface{}) *DatabaseServerRepo_CreateUser_Call {
+	return &DatabaseServerRepo_CreateUser_Call{Call: _e.mock.On("CreateUser", user)}
+}
+
+func (_c *DatabaseServerRepo_CreateUser_Call) Run(run func(user *biz.DatabaseUser)) *DatabaseServerRepo_CreateUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.DatabaseUser))
+	})
+	return _c
+}
+
+func (_c *DatabaseServerRepo_CreateUser_Call) Return(_a0 error) *DatabaseServerRepo_CreateUser_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *DatabaseServerRepo_CreateUser_Call) RunAndReturn(run func(*biz.DatabaseUser) error) *DatabaseServerRepo_CreateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -398,63 +492,133 @@ func (_c *DatabaseServerRepo_List_Call) RunAndReturn(run func(uint, uint, string
 	return _c
 }
 
-// Sync provides a mock function with given fields: id
-func (_m *DatabaseServerRepo) Sync(id uint) error {
-	ret := _m.Called(id)
+// ListUsers provides a mock function with given fields: serverID
+func (_m *DatabaseServerRepo) ListUsers(serverID uint) ([]*biz.DatabaseUser, error) {
+	ret := _m.Called(serverID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Sync")
+		panic("no return value specified for ListUsers")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	var r0 []*biz.DatabaseUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint) ([]*biz.DatabaseUser, error)); ok {
+		return rf(serverID)
+	}
+	if rf, ok := ret.Get(0).(func(uint) []*biz.DatabaseUser); ok {
+		r0 = rf(serverID)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.DatabaseUser)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(serverID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
-// DatabaseServerRepo_Sync_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Sync'
-type DatabaseServerRepo_Sync_Call struct {
+// DatabaseServerRepo_ListUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListUsers'
+type DatabaseServerRepo_ListUsers_Call struct {
 	*mock.Call
 }
 
-// Sync is a helper method to define mock.On call
-//   - id uint
-func (_e *DatabaseServerRepo_Expecter) Sync(id interface{}) *DatabaseServerRepo_Sync_Call {
-	return &DatabaseServerRepo_Sync_Call{Call: _e.mock.On("Sync", id)}
+// ListUsers is a helper method to define mock.On call
+//   - serverID uint
+func (_e *DatabaseServerRepo_Expecter) ListUsers(serverID interface{}) *DatabaseServerRepo_ListUsers_Call {
+	return &DatabaseServerRepo_ListUsers_Call{Call: _e.mock.On("ListUsers", serverID)}
 }
 
-func (_c *DatabaseServerRepo_Sync_Call) Run(run func(id uint)) *DatabaseServerRepo_Sync_Call {
+func (_c *DatabaseServerRepo_ListUsers_Call) Run(run func(serverID uint)) *DatabaseServerRepo_ListUsers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(uint))
 	})
 	return _c
 }
 
-func (_c *DatabaseServerRepo_Sync_Call) Return(_a0 error) *DatabaseServerRepo_Sync_Call {
-	_c.Call.Return(_a0)
+func (_c *DatabaseServerRepo_ListUsers_Call) Return(_a0 []*biz.DatabaseUser, _a1 error) *DatabaseServerRepo_ListUsers_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *DatabaseServerRepo_Sync_Call) RunAndReturn(run func(uint) error) *DatabaseServerRepo_Sync_Call {
+func (_c *DatabaseServerRepo_ListUsers_Call) RunAndReturn(run func(uint) ([]*biz.DatabaseUser, error)) *DatabaseServerRepo_ListUsers_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Update provides a mock function with given fields: req
-func (_m *DatabaseServerRepo) Update(req *request.DatabaseServerUpdate) error {
-	ret := _m.Called(req)
+// Operator provides a mock function with given fields: server
+func (_m *DatabaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
+	ret := _m.Called(server)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Update")
+		panic("no return value specified for Operator")
+	}
+
+	var r0 db.Operator
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) (db.Operator, error)); ok {
+		return rf(server)
+	}
+	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) db.Operator); ok {
+		r0 = rf(server)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(db.Operator)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*biz.DatabaseServer) error); ok {
+		r1 = rf(server)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DatabaseServerRepo_Operator_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Operator'
+type DatabaseServerRepo_Operator_Call struct {
+	*mock.Call
+}
+
+// Operator is a helper method to define mock.On call
+//   - server *biz.DatabaseServer
+func (_e *DatabaseServerRepo_Expecter) Operator(server interface{}) *DatabaseServerRepo_Operator_Call {
+	return &DatabaseServerRepo_Operator_Call{Call: _e.mock.On("Operator", server)}
+}
+
+func (_c *DatabaseServerRepo_Operator_Call) Run(run func(server *biz.DatabaseServer)) *DatabaseServerRepo_Operator_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.DatabaseServer))
+	})
+	return _c
+}
+
+func (_c *DatabaseServerRepo_Operator_Call) Return(_a0 db.Operator, _a1 error) *DatabaseServerRepo_Operator_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *DatabaseServerRepo_Operator_Call) RunAndReturn(run func(*biz.DatabaseServer) (db.Operator, error)) *DatabaseServerRepo_Operator_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Save provides a mock function with given fields: server
+func (_m *DatabaseServerRepo) Save(server *biz.DatabaseServer) error {
+	ret := _m.Called(server)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Save")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseServerUpdate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) error); ok {
+		r0 = rf(server)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -462,30 +626,30 @@ func (_m *DatabaseServerRepo) Update(req *request.DatabaseServerUpdate) error {
 	return r0
 }
 
-// DatabaseServerRepo_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type DatabaseServerRepo_Update_Call struct {
+// DatabaseServerRepo_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
+type DatabaseServerRepo_Save_Call struct {
 	*mock.Call
 }
 
-// Update is a helper method to define mock.On call
-//   - req *request.DatabaseServerUpdate
-func (_e *DatabaseServerRepo_Expecter) Update(req interface{}) *DatabaseServerRepo_Update_Call {
-	return &DatabaseServerRepo_Update_Call{Call: _e.mock.On("Update", req)}
+// Save is a helper method to define mock.On call
+//   - server *biz.DatabaseServer
+func (_e *DatabaseServerRepo_Expecter) Save(server interface{}) *DatabaseServerRepo_Save_Call {
+	return &DatabaseServerRepo_Save_Call{Call: _e.mock.On("Save", server)}
 }
 
-func (_c *DatabaseServerRepo_Update_Call) Run(run func(req *request.DatabaseServerUpdate)) *DatabaseServerRepo_Update_Call {
+func (_c *DatabaseServerRepo_Save_Call) Run(run func(server *biz.DatabaseServer)) *DatabaseServerRepo_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseServerUpdate))
+		run(args[0].(*biz.DatabaseServer))
 	})
 	return _c
 }
 
-func (_c *DatabaseServerRepo_Update_Call) Return(_a0 error) *DatabaseServerRepo_Update_Call {
+func (_c *DatabaseServerRepo_Save_Call) Return(_a0 error) *DatabaseServerRepo_Save_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *DatabaseServerRepo_Update_Call) RunAndReturn(run func(*request.DatabaseServerUpdate) error) *DatabaseServerRepo_Update_Call {
+func (_c *DatabaseServerRepo_Save_Call) RunAndReturn(run func(*biz.DatabaseServer) error) *DatabaseServerRepo_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }
