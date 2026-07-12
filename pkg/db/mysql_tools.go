@@ -2,6 +2,8 @@ package db
 
 import (
 	"fmt"
+	"os"
+	"regexp"
 
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -29,4 +31,23 @@ func MySQLResetRootPassword(password string) error {
 	}
 
 	return nil
+}
+
+// MySQLSocket 探测本地 MySQL 的 unix socket 路径
+// 依次检查 /tmp/mysql.sock 及传入配置文件中的 socket 配置，均未命中返回空
+func MySQLSocket(configs ...string) string {
+	if _, err := os.Stat("/tmp/mysql.sock"); err == nil {
+		return "/tmp/mysql.sock"
+	}
+	re := regexp.MustCompile(`socket\s*=\s*['"]?([^'"\s]+)`)
+	for _, conf := range configs {
+		content, err := os.ReadFile(conf)
+		if err != nil {
+			continue
+		}
+		if matches := re.FindStringSubmatch(string(content)); len(matches) > 1 {
+			return matches[1]
+		}
+	}
+	return ""
 }

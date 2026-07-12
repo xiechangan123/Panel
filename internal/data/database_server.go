@@ -2,11 +2,13 @@ package data
 
 import (
 	"fmt"
+	"path/filepath"
 	"slices"
 
 	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/db"
@@ -167,11 +169,7 @@ func (r *databaseServerRepo) CheckServer(server *biz.DatabaseServer) bool {
 func (r *databaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		mysql, err := db.NewMySQL(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-		if err != nil {
-			return nil, err
-		}
-		return mysql, nil
+		return newMySQLOperator(server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypePostgresql:
 		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
 		if err != nil {
@@ -187,4 +185,23 @@ func (r *databaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator, 
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", server.Type)
 	}
+}
+
+// newMySQLOperator 构建 MySQL 操作句柄
+// 本地 MySQL 优先使用 unix socket 连接：开启 skip-name-resolve 后 TCP 127.0.0.1 无法反解为 localhost，默认的 root@localhost 账户会匹配失败
+func newMySQLOperator(username, password, host string, port uint) (db.Operator, error) {
+	if sock := localMySQLSocket(host); sock != "" {
+		if mysql, err := db.NewMySQL(username, password, sock, "unix"); err == nil {
+			return mysql, nil
+		}
+	}
+	return db.NewMySQL(username, password, fmt.Sprintf("%s:%d", host, port))
+}
+
+// localMySQLSocket 返回本地 MySQL 的 unix socket 路径，非本地或未探测到返回空
+func localMySQLSocket(host string) string {
+	if host != "127.0.0.1" && host != "localhost" && host != "::1" {
+		return ""
+	}
+	return db.MySQLSocket(filepath.Join(app.Root, "server/mysql/config/my.cnf"), "/etc/my.cnf")
 }

@@ -130,17 +130,27 @@ const handleSave = () => {
     if (isNginx.value) {
       args.push('quic')
     }
+    // 存在 IPv6 监听时同步添加 IPv6 SSL 监听
+    if (setting.value.listens.some((item: any) => item.address?.startsWith('[::]'))) {
+      setting.value.listens.push({
+        address: '[::]:443',
+        args: [...args],
+      })
+    }
     setting.value.listens.push({
       address: '443',
       args,
     })
   }
-  // 如果关闭了ssl，自动禁用所有ssl和quic
+  // 如果关闭了ssl，移除所有 SSL 监听（443、[::]:443 及带 ssl/quic 参数的地址）
   if (!setting.value.ssl) {
-    setting.value.listens = setting.value.listens.filter((item: any) => item.address !== '443') // 443直接删掉
-    setting.value.listens.forEach((item: any) => {
-      item.args = []
-    })
+    setting.value.listens = setting.value.listens.filter(
+      (item: any) =>
+        item.address !== '443' &&
+        !item.address?.endsWith(':443') &&
+        !item.args?.includes('ssl') &&
+        !item.args?.includes('quic')
+    )
   }
 
   // 将真实 IP 文本转回数组

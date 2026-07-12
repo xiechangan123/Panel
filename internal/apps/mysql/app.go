@@ -347,26 +347,9 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) getSock() string {
-	if io.Exists("/tmp/mysql.sock") {
-		return "/tmp/mysql.sock"
+	if sock := db.MySQLSocket(app.Root+"/server/mysql/config/my.cnf", "/etc/my.cnf"); sock != "" {
+		return sock
 	}
-	if io.Exists(app.Root + "/server/mysql/config/my.cnf") {
-		config, _ := io.Read(app.Root + "/server/mysql/config/my.cnf")
-		re := regexp.MustCompile(`socket\s*=\s*(['"]?)([^'"]+)`)
-		matches := re.FindStringSubmatch(config)
-		if len(matches) > 2 {
-			return matches[2]
-		}
-	}
-	if io.Exists("/etc/my.cnf") {
-		config, _ := io.Read("/etc/my.cnf")
-		re := regexp.MustCompile(`socket\s*=\s*(['"]?)([^'"]+)`)
-		matches := re.FindStringSubmatch(config)
-		if len(matches) > 2 {
-			return matches[2]
-		}
-	}
-
 	return "/tmp/mysql.sock"
 }
 

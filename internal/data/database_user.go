@@ -73,11 +73,7 @@ func (r *databaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) e
 func (r *databaseUserRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		mysql, err := db.NewMySQL(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-		if err != nil {
-			return nil, err
-		}
-		return mysql, nil
+		return newMySQLOperator(server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypePostgresql:
 		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
 		if err != nil {
@@ -139,7 +135,7 @@ func (r *databaseUserRepo) fillUser(user *biz.DatabaseUser) {
 			case biz.DatabaseTypeMysql:
 				privileges, _ := operator.UserPrivileges(user.Username, user.Host)
 				user.Privileges = privileges
-				if mysql2, err := db.NewMySQL(user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
+				if mysql2, err := newMySQLOperator(user.Username, user.Password, server.Host, server.Port); err == nil {
 					mysql2.Close()
 					user.Status = biz.DatabaseUserStatusValid
 				} else {

@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net"
 	"os"
@@ -231,16 +232,21 @@ func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, web
 
 // ReloadWebserver 重载 Web 服务器
 func (r *certRepo) ReloadWebserver(webServer string) error {
+	test := "nginx -t 2>&1"
 	if webServer == "apache" {
-		if err := systemctl.Reload("apache"); err != nil {
-			_, err = shell.Execf("apachectl -t")
-			return err
-		}
+		test = "apachectl configtest 2>&1"
 	} else {
-		if err := systemctl.Reload("nginx"); err != nil {
-			_, err = shell.Execf("nginx -t")
-			return err
-		}
+		webServer = "nginx"
+	}
+
+	// 服务未运行时无需重载，配置会在下次启动时生效
+	if running, _ := systemctl.Status(webServer); !running {
+		return nil
+	}
+
+	if err := systemctl.Reload(webServer); err != nil {
+		out, _ := shell.Execf(test)
+		return fmt.Errorf("failed to reload %s: %w; config test: %s", webServer, err, out)
 	}
 
 	return nil

@@ -100,11 +100,7 @@ func (r *databaseRepo) Mongo(server *biz.DatabaseServer) (*db.MongoDB, error) {
 func (r *databaseRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		mysql, err := db.NewMySQL(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
-		if err != nil {
-			return nil, err
-		}
-		return mysql, nil
+		return newMySQLOperator(server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypePostgresql:
 		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
 		if err != nil {

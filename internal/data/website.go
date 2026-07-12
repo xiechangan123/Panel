@@ -563,6 +563,12 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 	}
 
 	// 监听地址
+	// 关闭 HTTPS 时移除 SSL 专用监听（含 IPv6），避免残留 ssl/quic 参数导致 nginx 无法启动
+	if !req.SSL {
+		req.Listens = lo.Filter(req.Listens, func(l webservertypes.Listen, _ int) bool {
+			return !slices.Contains(l.Args, "ssl") && !slices.Contains(l.Args, "quic")
+		})
+	}
 	if err = vhost.SetListen(req.Listens); err != nil {
 		return err
 	}
@@ -1121,19 +1127,24 @@ func (r *websiteRepo) ReloadWebServer() error {
 	if err != nil {
 		return err
 	}
+	var test string
 	switch webServer {
 	case "nginx":
-		if err = systemctl.Reload("nginx"); err != nil {
-			out, _ := shell.Execf("nginx -t")
-			return fmt.Errorf("failed to reload nginx: %w; config test: %s", err, out)
-		}
+		test = "nginx -t 2>&1"
 	case "apache":
-		if err = systemctl.Reload("apache"); err != nil {
-			out, _ := shell.Execf("apachectl configtest")
-			return fmt.Errorf("failed to reload apache: %w; config test: %s", err, out)
-		}
+		test = "apachectl configtest 2>&1"
 	default:
 		return errors.New(r.t.Get("unsupported web server: %s", webServer))
+	}
+
+	// 服务未运行时无需重载，配置会在下次启动时生效
+	if running, _ := systemctl.Status(webServer); !running {
+		return nil
+	}
+
+	if err = systemctl.Reload(webServer); err != nil {
+		out, _ := shell.Execf(test)
+		return fmt.Errorf("failed to reload %s: %w; config test: %s", webServer, err, out)
 	}
 
 	return nil
