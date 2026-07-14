@@ -4,18 +4,19 @@ import { useGettext } from 'vue3-gettext'
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useFileStore } from '@/stores'
-import { checkName, lastDirectory } from '@/utils/file'
+import { checkName } from '@/utils/file'
+import { useFileOps } from '@/views/file/composables/useFileOps'
 import { usePaste } from '@/views/file/composables/usePaste'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
 const { handlePaste: doPaste } = usePaste()
+const { deletePaths, markClipboard } = useFileOps()
 
 const props = defineProps<{
   tabId: string
 }>()
 
-const selected = defineModel<string[]>('selected', { type: Array, default: () => [] })
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
 const upload = defineModel<boolean>('upload', { type: Boolean, required: true })
@@ -23,6 +24,7 @@ const upload = defineModel<boolean>('upload', { type: Boolean, required: true })
 const tab = computed(() => fileStore.tabs.find((t) => t.id === props.tabId)!)
 const path = computed(() => tab.value.path)
 const marked = computed(() => fileStore.clipboard.marked)
+const selected = computed(() => tab.value.selected)
 
 // 终端弹窗
 const terminalModal = ref(false)
@@ -65,18 +67,7 @@ const handleCopy = () => {
     window.$message.error($gettext('Please select files/folders to copy'))
     return
   }
-  fileStore.setClipboard(
-    selected.value.map((p) => ({
-      name: lastDirectory(p),
-      source: p,
-      force: false,
-    })),
-    'copy',
-  )
-  selected.value = []
-  window.$message.success(
-    $gettext('Marked successfully, please navigate to the destination path to paste'),
-  )
+  markClipboard(selected.value, 'copy')
 }
 
 const handleMove = () => {
@@ -84,18 +75,7 @@ const handleMove = () => {
     window.$message.error($gettext('Please select files/folders to move'))
     return
   }
-  fileStore.setClipboard(
-    selected.value.map((p) => ({
-      name: lastDirectory(p),
-      source: p,
-      force: false,
-    })),
-    'move',
-  )
-  selected.value = []
-  window.$message.success(
-    $gettext('Marked successfully, please navigate to the destination path to paste'),
-  )
+  markClipboard(selected.value, 'move')
 }
 
 const handleCancel = () => {
@@ -106,14 +86,7 @@ const handlePaste = () => {
   doPaste(path.value)
 }
 
-const bulkDelete = async () => {
-  const promises = selected.value.map((path) => file.delete(path))
-  await Promise.all(promises)
-
-  selected.value = []
-  window.$bus.emit('file:refresh')
-  window.$message.success($gettext('Deleted successfully'))
-}
+const bulkDelete = () => deletePaths(selected.value)
 
 // 自动填充下载文件名
 watch(

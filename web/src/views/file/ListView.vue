@@ -26,8 +26,8 @@ import {
   isCompress,
   isImage,
 } from '@/utils/file'
+import { useFileOps } from '@/views/file/composables/useFileOps'
 import { usePaste } from '@/views/file/composables/usePaste'
-import EditModal from '@/views/file/EditModal.vue'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import PropertyModal from '@/views/file/PropertyModal.vue'
 import type { FileInfo } from '@/views/file/types'
@@ -36,6 +36,7 @@ const { $gettext } = useGettext()
 const themeVars = useThemeVars()
 const fileStore = useFileStore()
 const { handlePaste: doPaste } = usePaste()
+const { deletePaths, movePath, markClipboard } = useFileOps()
 
 const props = defineProps<{
   tabId: string
@@ -54,16 +55,16 @@ const sub = computed(() => tab.value.sub)
 const marked = computed(() => fileStore.clipboard.marked)
 const markedType = computed(() => fileStore.clipboard.markedType)
 
-const selected = defineModel<any[]>('selected', { type: Array, default: () => [] })
+// 选中状态归属 fileStore（按标签页隔离），此处仅做读写代理
+const selected = computed<string[]>({
+  get: () => tab.value.selected,
+  set: (v) => {
+    tab.value.selected = v
+  },
+})
 const compress = defineModel<boolean>('compress', { type: Boolean, required: true })
 const permission = defineModel<boolean>('permission', { type: Boolean, required: true })
-const permissionFileInfoList = defineModel<FileInfo[]>('permissionFileInfoList', {
-  type: Array,
-  default: () => [],
-})
 
-const editorModal = ref(false)
-const editorMinimized = ref(false)
 const previewModal = ref(false)
 const currentFile = ref('')
 const propertyModal = ref(false)
@@ -365,7 +366,6 @@ const options = computed<DropdownOption[]>(() => {
 
 const openPermissionModal = (row: any) => {
   selected.value = [row.full]
-  permissionFileInfoList.value = [row as FileInfo]
   permission.value = true
 }
 
@@ -395,9 +395,8 @@ const openFile = (row: any) => {
     unCompressModel.value.path = path.value
     unCompressModal.value = true
   } else {
-    currentFile.value = row.full
-    editorModal.value = true
-    editorMinimized.value = false
+    // 编辑器由 IndexView 承载，跨文件标签页共享同一实例
+    window.$bus.emit('file:edit', row.full)
   }
 }
 
@@ -665,23 +664,15 @@ const getSelectedItems = () => {
 
 // 标记文件（复制/移动）
 const markFiles = (items: any[], type: 'copy' | 'move') => {
-  fileStore.setClipboard(
-    items.map((item: any) => ({
-      name: item.name,
-      source: item.full,
-      force: false,
-    })),
+  markClipboard(
+    items.map((item: any) => item.full),
     type,
-  )
-  window.$message.success(
-    $gettext('Marked successfully, please navigate to the destination path to paste'),
   )
 }
 
 // 打开权限弹窗
 const openPermission = (items: any[]) => {
   selected.value = items.map((item: any) => item.full)
-  permissionFileInfoList.value = items as FileInfo[]
   permission.value = true
 }
 
@@ -760,6 +751,19 @@ const submitInlineRename = () => {
   const source = path.value + '/' + sourceName
   const target = path.value + '/' + targetName
 
+  // 执行重命名，成功后编辑器标签页同步与列表刷新由 movePath 收敛处理
+  const doRename = async (force: boolean) => {
+    if (await movePath(source, target, force)) {
+      window.$message.success(
+        $gettext('Renamed %{ source } to %{ target } successfully', {
+          source: sourceName,
+          target: targetName,
+        }),
+      )
+    }
+    cancelInlineRename()
+  }
+
   useRequest(file.exist([target])).onSuccess(({ data: existData }) => {
     if (existData[0]) {
       window.$dialog.warning({
@@ -767,39 +771,13 @@ const submitInlineRename = () => {
         content: $gettext('There are items with the same name. Do you want to overwrite?'),
         positiveText: $gettext('Overwrite'),
         negativeText: $gettext('Cancel'),
-        onPositiveClick: () => {
-          useRequest(file.move([{ source, target, force: true }]))
-            .onSuccess(() => {
-              window.$bus.emit('file:refresh')
-              window.$message.success(
-                $gettext('Renamed %{ source } to %{ target } successfully', {
-                  source: sourceName,
-                  target: targetName,
-                }),
-              )
-            })
-            .onComplete(() => {
-              cancelInlineRename()
-            })
-        },
+        onPositiveClick: () => doRename(true),
         onNegativeClick: () => {
           // 保持编辑状态，让用户修改名称
         },
       })
     } else {
-      useRequest(file.move([{ source, target, force: false }]))
-        .onSuccess(() => {
-          window.$bus.emit('file:refresh')
-          window.$message.success(
-            $gettext('Renamed %{ source } to %{ target } successfully', {
-              source: sourceName,
-              target: targetName,
-            }),
-          )
-        })
-        .onComplete(() => {
-          cancelInlineRename()
-        })
+      doRename(false)
     }
   })
 }
@@ -818,18 +796,9 @@ const handleInlineRenameKeydown = (event: KeyboardEvent) => {
 // 执行删除（不带确认）
 const doDelete = (items: any[]) => {
   if (items.length === 1) {
-    confirmImmutableOperation(items[0], () => {
-      useRequest(file.delete(items[0].full)).onSuccess(() => {
-        window.$bus.emit('file:refresh')
-        window.$message.success($gettext('Deleted successfully'))
-      })
-    })
+    confirmImmutableOperation(items[0], () => deletePaths([items[0].full]))
   } else {
-    const deletePromises = items.map((item: any) => file.delete(item.full))
-    Promise.all(deletePromises).then(() => {
-      window.$bus.emit('file:refresh')
-      window.$message.success($gettext('Deleted successfully'))
-    })
+    deletePaths(items.map((item: any) => item.full))
   }
 }
 
@@ -1244,6 +1213,24 @@ const data = computed(() => {
   return rawData.value.filter((item: any) => !item.hidden)
 })
 
+// selected 只保留当前列表中存在的项，避免删除/翻页/排序后残留导致表头复选框显示部分勾选
+// 目录大小缓存同样只保留仍存在的项，避免删除后重建同名目录显示旧值
+watch(data, (list) => {
+  const dataSet = new Set(list.map((item: any) => item.full))
+  if (selected.value.length > 0) {
+    const filtered = selected.value.filter((p: any) => dataSet.has(p))
+    if (filtered.length !== selected.value.length) {
+      selected.value = filtered
+    }
+  }
+  for (const key of [...sizeCache.value.keys()]) {
+    if (!dataSet.has(key)) sizeCache.value.delete(key)
+  }
+  for (const key of [...sizeLoading.value.keys()]) {
+    if (!dataSet.has(key)) sizeLoading.value.delete(key)
+  }
+})
+
 // 搜索事件处理函数
 const handleFileSearch = () => {
   selected.value = []
@@ -1620,12 +1607,6 @@ onUnmounted(() => {
     @select="handleSelect"
   />
 
-  <!-- 编辑弹窗 -->
-  <edit-modal
-    v-model:show="editorModal"
-    v-model:minimized="editorMinimized"
-    v-model:file="currentFile"
-  />
   <!-- 预览弹窗 -->
   <preview-modal v-model:show="previewModal" v-model:path="currentFile" />
   <!-- 解压弹窗 -->

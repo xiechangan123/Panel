@@ -3,36 +3,38 @@ defineOptions({
   name: 'file-index',
 })
 
+import { useGettext } from 'vue3-gettext'
+
 import { useFileStore } from '@/stores'
 import CompressModal from '@/views/file/CompressModal.vue'
+import EditModal from '@/views/file/EditModal.vue'
 import ListView from '@/views/file/ListView.vue'
 import PathInput from '@/views/file/PathInput.vue'
 import PermissionModal from '@/views/file/PermissionModal.vue'
 import ToolBar from '@/views/file/ToolBar.vue'
-import type { FileInfo } from '@/views/file/types'
 import UploadModal from '@/views/file/UploadModal.vue'
 
+const { $gettext } = useGettext()
 const fileStore = useFileStore()
-
-const selected = ref<string[]>([])
-// 权限编辑时的文件信息列表
-const permissionFileInfoList = ref<FileInfo[]>([])
 
 const compress = ref(false)
 const permission = ref(false)
+
+// 编辑器承载在此层，跨文件标签页共享同一实例，避免切换标签页销毁未保存内容
+const editorModal = ref(false)
+const editorMinimized = ref(false)
+const editorFile = ref('')
+
+const handleEditFile = (path: string) => {
+  editorFile.value = path
+  editorMinimized.value = false
+  editorModal.value = true
+}
 
 // 上传相关
 const upload = ref(false)
 const droppedFiles = ref<File[]>([])
 const isDragging = ref(false)
-
-// 切换标签页时清空选中
-watch(
-  () => fileStore.activeTabId,
-  () => {
-    selected.value = []
-  },
-)
 
 // n-tabs 事件
 const handleTabSwitch = (tabId: string | number) => {
@@ -165,6 +167,14 @@ watch(upload, (val) => {
     droppedFiles.value = []
   }
 })
+
+onMounted(() => {
+  window.$bus.on('file:edit', handleEditFile)
+})
+
+onUnmounted(() => {
+  window.$bus.off('file:edit', handleEditFile)
+})
 </script>
 
 <template>
@@ -204,40 +214,32 @@ watch(upload, (val) => {
           <path-input :tab-id="tab.id" />
           <tool-bar
             :tab-id="tab.id"
-            v-model:selected="selected"
             v-model:compress="compress"
             v-model:permission="permission"
             v-model:upload="upload"
           />
-          <list-view
-            :tab-id="tab.id"
-            v-model:selected="selected"
-            v-model:compress="compress"
-            v-model:permission="permission"
-            v-model:permission-file-info-list="permissionFileInfoList"
-          />
+          <list-view :tab-id="tab.id" v-model:compress="compress" v-model:permission="permission" />
         </template>
       </template>
 
       <template v-if="fileStore.activeTab">
-        <compress-modal
-          v-model:show="compress"
-          v-model:path="fileStore.activeTab.path"
-          v-model:selected="selected"
-        />
-        <permission-modal
-          v-model:show="permission"
-          v-model:selected="selected"
-          v-model:file-info-list="permissionFileInfoList"
-        />
+        <compress-modal v-model:show="compress" v-model:path="fileStore.activeTab.path" />
+        <permission-modal v-model:show="permission" />
       </template>
+
+      <!-- 编辑弹窗（跨标签页共享） -->
+      <edit-modal
+        v-model:show="editorModal"
+        v-model:minimized="editorMinimized"
+        v-model:file="editorFile"
+      />
     </n-flex>
 
     <!-- 拖拽上传遮罩 -->
     <div v-if="isDragging" class="drag-overlay">
       <div class="drag-content">
         <the-icon icon="mdi:cloud-upload" :size="64" />
-        <p>释放文件以上传</p>
+        <p>{{ $gettext('Drop files to upload') }}</p>
       </div>
     </div>
 

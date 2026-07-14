@@ -13,16 +13,15 @@ const img = computed(() => {
   return `data:${mime.value};base64,${content.value}`
 })
 
-watch(
-  () => path.value,
-  () => {
-    content.value = ''
-    useRequest(file.content(encodeURIComponent(path.value))).onSuccess(({ data }) => {
-      mime.value = data.mime
-      content.value = data.content
-    })
-  },
-)
+// 弹窗打开时加载，保证同一文件再次预览也能拿到最新内容
+watch(show, (val) => {
+  if (!val) return
+  content.value = ''
+  useRequest(file.content(encodeURIComponent(path.value))).onSuccess(({ data }) => {
+    mime.value = data.mime
+    content.value = data.content
+  })
+})
 </script>
 
 <template>

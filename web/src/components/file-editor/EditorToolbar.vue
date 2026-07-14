@@ -2,12 +2,12 @@
 import { useThemeVars } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
-import file from '@/api/panel/file'
+import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
 import { useEditorStore } from '@/stores'
-import { decodeBase64 } from '@/utils'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
+const { loadTab, saveTab, saveTabs } = useEditorOps()
 const themeVars = useThemeVars()
 
 const emit = defineEmits<{
@@ -21,7 +21,7 @@ const saving = ref(false)
 const savingAll = ref(false)
 
 // 保存当前文件
-function handleSave() {
+async function handleSave() {
   const tab = editorStore.activeTab
   if (!tab) {
     window.$message.warning($gettext('No file to save'))
@@ -34,56 +34,31 @@ function handleSave() {
   }
 
   saving.value = true
-  useRequest(file.save(tab.path, tab.content))
-    .onSuccess(() => {
-      editorStore.markSaved(tab.path)
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      saving.value = false
-    })
+  if (await saveTab(tab.path)) {
+    window.$message.success($gettext('Saved successfully'))
+  }
+  saving.value = false
 }
 
 // 保存所有文件
 async function handleSaveAll() {
-  const unsavedTabs = editorStore.unsavedTabs
-  if (unsavedTabs.length === 0) {
+  const paths = editorStore.unsavedTabs.map((t) => t.path)
+  if (paths.length === 0) {
     window.$message.info($gettext('No changes to save'))
     return
   }
 
   savingAll.value = true
-  let successCount = 0
-  let failCount = 0
-
-  for (const tab of unsavedTabs) {
-    try {
-      await new Promise<void>((resolve, reject) => {
-        useRequest(file.save(tab.path, tab.content))
-          .onSuccess(() => {
-            editorStore.markSaved(tab.path)
-            successCount++
-            resolve()
-          })
-          .onError(() => {
-            failCount++
-            reject()
-          })
-      })
-    } catch {
-      // 继续处理下一个文件
-    }
-  }
-
+  const failed = await saveTabs(paths)
   savingAll.value = false
 
-  if (failCount === 0) {
+  if (failed.length === 0) {
     window.$message.success($gettext('All files saved successfully'))
   } else {
     window.$message.warning(
       $gettext('Saved %{ success } files, %{ fail } failed', {
-        success: successCount,
-        fail: failCount,
+        success: paths.length - failed.length,
+        fail: failed.length,
       }),
     )
   }
@@ -109,17 +84,10 @@ function handleRefresh() {
   }
 }
 
-function doRefresh(path: string) {
-  editorStore.setLoading(path, true)
-  useRequest(file.content(encodeURIComponent(path)))
-    .onSuccess(({ data }) => {
-      const content = decodeBase64(data.content)
-      editorStore.reloadFile(path, content)
-      window.$message.success($gettext('Refreshed successfully'))
-    })
-    .onComplete(() => {
-      editorStore.setLoading(path, false)
-    })
+async function doRefresh(path: string) {
+  if (await loadTab(path)) {
+    window.$message.success($gettext('Refreshed successfully'))
+  }
 }
 
 // 搜索

@@ -14,6 +14,8 @@ const editorStore = useEditorStore()
 const props = defineProps<{
   initialPath?: string
   readOnly?: boolean
+  // 为 false 时（如窗口最小化）禁用全局快捷键
+  active?: boolean
 }>()
 
 // 侧边栏折叠状态
@@ -66,6 +68,7 @@ watch(rootPath, (newPath) => {
 
 // 键盘快捷键
 function handleKeydown(e: KeyboardEvent) {
+  if (props.active === false) return
   const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent)
   const modKey = isMac ? e.metaKey : e.ctrlKey
 

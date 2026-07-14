@@ -20,5 +20,5 @@ export async function setupNaiveDiscreteApi() {
   window.$notification = notification
   window.$message = message
   window.$dialog = dialog
-  window.$bus = mitt()
+  window.$bus = mitt<BusEvents>()
 }

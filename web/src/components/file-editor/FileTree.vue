@@ -5,12 +5,13 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
+import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
 import { useEditorStore } from '@/stores'
-import { decodeBase64 } from '@/utils'
 import { getExt, getIconByExt } from '@/utils/file'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
+const { openInEditor } = useEditorOps()
 const themeVars = useThemeVars()
 
 const props = defineProps<{
@@ -136,28 +137,7 @@ function handleSelect(keys: string[], option: (TreeOption | null)[]) {
   }
 
   if (node && node.isLeaf && !isDir) {
-    // 打开文件
-    const path = node.key as string
-    const existingTab = editorStore.tabs.find((t) => t.path === path)
-    if (existingTab) {
-      editorStore.switchTab(path)
-    } else {
-      // 加载文件内容
-      editorStore.openFile(path, '')
-      editorStore.setLoading(path, true)
-      useRequest(file.content(encodeURIComponent(path)))
-        .onSuccess(({ data }) => {
-          const content = decodeBase64(data.content)
-          editorStore.reloadFile(path, content)
-        })
-        .onError(() => {
-          editorStore.closeTab(path)
-          window.$message.error($gettext('Failed to load file'))
-        })
-        .onComplete(() => {
-          editorStore.setLoading(path, false)
-        })
-    }
+    openInEditor(node.key as string)
   }
 }
 
@@ -513,14 +493,13 @@ function handleContextMenuSelect(key: string) {
 
   const nodePath = contextMenuNode.value.key as string
   const nodeName = contextMenuNode.value.label as string
-  const isDir = !contextMenuNode.value.isLeaf
 
   switch (key) {
     case 'rename':
       startInlineRename(nodePath, nodeName)
       break
     case 'delete':
-      handleDelete(nodePath, nodeName, isDir)
+      handleDelete(nodePath, nodeName)
       break
     case 'download':
       handleDownload(nodePath)
@@ -562,42 +541,48 @@ function confirmInlineRename() {
   const newPath = `${parentPath}/${newName}`.replace(/\/+/g, '/')
 
   inlineRenameLoading.value = true
-  useRequest(file.move([{ source: oldPath, target: newPath, force: false }]))
-    .onSuccess(async () => {
-      window.$message.success($gettext('Renamed successfully'))
-
-      // 如果重命名的文件在编辑器中打开，更新标签页
-      const tab = editorStore.tabs.find((t) => t.path === oldPath)
-      if (tab) {
-        editorStore.closeTab(oldPath)
-        editorStore.openFile(newPath, tab.content)
-        if (!tab.modified) {
-          editorStore.markSaved(newPath)
-        }
+  // 后端对已存在的目标会静默跳过，先检查避免假成功
+  useRequest(file.exist([newPath]))
+    .onSuccess(({ data: exists }) => {
+      if (exists[0]) {
+        inlineRenameLoading.value = false
+        window.$message.error($gettext('Target name already exists'))
+        return
       }
 
-      cancelInlineRename()
+      useRequest(file.move([{ source: oldPath, target: newPath, force: false }]))
+        .onSuccess(async () => {
+          window.$message.success($gettext('Renamed successfully'))
 
-      // 刷新父目录
-      if (parentPath === props.rootPath) {
-        await initTree()
-      } else {
-        const parentNode = findNode(treeData.value, parentPath)
-        if (parentNode) {
-          parentNode.children = await loadDirectory(parentPath)
-        }
-      }
+          // 同步编辑器中已打开的标签页路径(含重命名目录下的子文件)
+          editorStore.movePath(oldPath, newPath)
+
+          cancelInlineRename()
+
+          // 刷新父目录
+          if (parentPath === props.rootPath) {
+            await initTree()
+          } else {
+            const parentNode = findNode(treeData.value, parentPath)
+            if (parentNode) {
+              parentNode.children = await loadDirectory(parentPath)
+            }
+          }
+        })
+        .onError(() => {
+          window.$message.error($gettext('Failed to rename'))
+        })
+        .onComplete(() => {
+          inlineRenameLoading.value = false
+        })
     })
     .onError(() => {
-      window.$message.error($gettext('Failed to rename'))
-    })
-    .onComplete(() => {
       inlineRenameLoading.value = false
     })
 }
 
 // 删除文件/目录
-function handleDelete(path: string, name: string, isDir: boolean) {
+function handleDelete(path: string, name: string) {
   window.$dialog.warning({
     title: $gettext('Delete'),
     content: $gettext('Are you sure you want to delete %{ name }?', { name }),
@@ -608,10 +593,8 @@ function handleDelete(path: string, name: string, isDir: boolean) {
         .onSuccess(async () => {
           window.$message.success($gettext('Deleted successfully'))
 
-          // 如果删除的文件在编辑器中打开，关闭标签页
-          if (!isDir) {
-            editorStore.closeTab(path)
-          }
+          // 关闭编辑器中已打开的该文件及该目录下所有文件的标签页
+          editorStore.closePath(path)
 
           // 刷新父目录
           const parentPath = path.substring(0, path.lastIndexOf('/')) || '/'
@@ -788,7 +771,7 @@ defineExpose({
           @update:selected-keys="handleSelect"
           selectable
           expand-on-click
-          virtual-scrollå
+          virtual-scroll
           class="file-tree-content"
           style="height: 100%"
         />

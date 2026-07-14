@@ -2,11 +2,12 @@ import { NButton, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
-import { useFileStore } from '@/stores'
+import { useEditorStore, useFileStore } from '@/stores'
 
 export function usePaste() {
   const { $gettext } = useGettext()
   const fileStore = useFileStore()
+  const editorStore = useEditorStore()
 
   const handlePaste = (targetPath: string) => {
     const { marked, markedType } = fileStore.clipboard
@@ -27,6 +28,12 @@ export function usePaste() {
       const successMsg =
         markedType === 'copy' ? $gettext('Copied successfully') : $gettext('Moved successfully')
       useRequest(request).onSuccess(() => {
+        // 移动成功后同步编辑器中已打开的标签页路径
+        if (markedType === 'move') {
+          for (const item of paths) {
+            editorStore.movePath(item.source, item.target)
+          }
+        }
         fileStore.clearClipboard()
         window.$bus.emit('file:refresh')
         window.$message.success(successMsg)

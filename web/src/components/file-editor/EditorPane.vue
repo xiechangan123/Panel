@@ -4,13 +4,14 @@ import { NButton, NFlex, useThemeVars } from 'naive-ui'
 import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
-import file from '@/api/panel/file'
+import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
 import type { EditorTab } from '@/stores'
 import { useEditorStore, useThemeStore } from '@/stores'
 import { getMonaco } from '@/utils/monaco'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
+const { saveTab } = useEditorOps()
 const themeStore = useThemeStore()
 const themeVars = useThemeVars()
 
@@ -184,18 +185,14 @@ function handleCloseTab(path: string, e: MouseEvent) {
             NButton,
             {
               type: 'primary',
-              onClick: () => {
-                useRequest(file.save(tab.path, tab.content))
-                  .onSuccess(() => {
-                    editorStore.markSaved(tab.path)
-                    window.$message.success($gettext('Saved successfully'))
-                    d.destroy()
-                    editorStore.closeTab(path) // 保存成功，关闭标签页
-                  })
-                  .onError(() => {
-                    window.$message.error($gettext('Failed to save file'))
-                    d.destroy() // 保存失败，不关闭标签页
-                  })
+              onClick: async () => {
+                if (await saveTab(tab.path)) {
+                  window.$message.success($gettext('Saved successfully'))
+                  d.destroy()
+                  editorStore.closeTab(path) // 保存成功，关闭标签页
+                } else {
+                  d.destroy() // 保存失败，不关闭标签页
+                }
               },
             },
             () => $gettext('Save'),

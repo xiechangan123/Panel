@@ -3,13 +3,12 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
-import type { FileInfo } from '@/views/file/types'
+import { useFileStore } from '@/stores'
 
 const { $gettext } = useGettext()
+const fileStore = useFileStore()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const selected = defineModel<string[]>('selected', { type: Array, required: true })
-// 文件信息列表，用于获取当前所有者和组
-const fileInfoList = defineModel<FileInfo[]>('fileInfoList', { type: Array, default: () => [] })
+const selected = computed(() => fileStore.activeTab?.selected ?? [])
 const mode = ref('755')
 const owner = ref('www')
 const group = ref('www')
@@ -28,32 +27,33 @@ const normalizeMode = (modeStr: string): string => {
   return trimmed.padStart(3, '0') || '755'
 }
 
-// 当打开弹窗时，从文件信息中获取当前权限/所有者/组
+// 打开弹窗时拉取第一个选中文件的信息作为初值，避免依赖调用方传入导致残留旧值
 watch(
   () => show.value,
   (newVal) => {
-    if (newVal && fileInfoList.value.length > 0) {
-      const firstFile = fileInfoList.value[0]
-      if (firstFile) {
-        mode.value = normalizeMode(firstFile.mode)
-        owner.value = firstFile.owner || 'www'
-        group.value = firstFile.group || 'www'
-        updateCheckboxes()
-      }
-    }
+    if (!newVal || !selected.value.length) return
+    useRequest(file.info(selected.value[0]!)).onSuccess(({ data }) => {
+      mode.value = normalizeMode(data.mode)
+      owner.value = data.owner || 'www'
+      group.value = data.group || 'www'
+      updateCheckboxes()
+    })
   },
 )
 
 const handlePermission = async () => {
-  const promises = selected.value.map((path) =>
-    file.permission(path, `0${mode.value}`, owner.value, group.value),
+  // allSettled 保证部分失败时也刷新列表，失败的错误弹窗由全局拦截器负责
+  const results = await Promise.allSettled(
+    selected.value.map((path) => file.permission(path, `0${mode.value}`, owner.value, group.value)),
   )
-  await Promise.all(promises)
+
+  window.$bus.emit('file:refresh')
+  if (results.some((r) => r.status === 'rejected')) return
 
   show.value = false
-  selected.value = []
-  fileInfoList.value = []
-  window.$bus.emit('file:refresh')
+  if (fileStore.activeTab) {
+    fileStore.activeTab.selected = []
+  }
   window.$message.success($gettext('Modified successfully'))
 }
 

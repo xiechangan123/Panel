@@ -194,6 +194,15 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    // 按当前行分隔符规范化后的待保存内容
+    // 兼容粘贴带入的异种换行：统一为状态栏显示的 lineEnding，避免 LF 文件被存成 CRLF
+    contentForSave(path: string): string {
+      const tab = this.tabs.find((t) => t.path === path)
+      if (!tab) return ''
+      const lf = tab.content.replace(/\r\n?/g, '\n')
+      return tab.lineEnding === 'CRLF' ? lf.replace(/\n/g, '\r\n') : lf
+    },
+
     // 更新光标位置
     updateCursor(path: string, line: number, column: number) {
       const tab = this.tabs.find((t) => t.path === path)
@@ -208,6 +217,37 @@ export const useEditorStore = defineStore('editor', {
       const tab = this.tabs.find((t) => t.path === path)
       if (tab && tab.lineEnding !== lineEnding) {
         tab.lineEnding = lineEnding
+      }
+    },
+
+    // 重命名标签页(文件/目录重命名后同步路径,保留内容与修改状态)
+    renameTab(oldPath: string, newPath: string) {
+      const tab = this.tabs.find((t) => t.path === oldPath)
+      if (!tab) return
+      tab.path = newPath
+      tab.name = newPath.split('/').pop() || newPath
+      tab.language = languageByPath(newPath)
+      if (this.activeTabPath === oldPath) {
+        this.activeTabPath = newPath
+      }
+    },
+
+    // 关闭指定路径及其目录下所有已打开的标签页(文件/目录删除后同步)
+    closePath(path: string) {
+      const stale = this.tabs
+        .filter((t) => t.path === path || t.path.startsWith(path + '/'))
+        .map((t) => t.path)
+      stale.forEach((p) => this.closeTab(p))
+    },
+
+    // 迁移指定路径及其目录下的标签页到新路径(重命名/移动后同步)
+    movePath(oldPath: string, newPath: string) {
+      for (const tab of this.tabs) {
+        if (tab.path === oldPath) {
+          this.renameTab(oldPath, newPath)
+        } else if (tab.path.startsWith(oldPath + '/')) {
+          this.renameTab(tab.path, newPath + tab.path.slice(oldPath.length))
+        }
       }
     },
 

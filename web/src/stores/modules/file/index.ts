@@ -8,6 +8,7 @@ export interface FileTab {
   sub: boolean // 搜索是否包含子目录
   history: string[] // 浏览历史栈
   historyCursor: number // 历史指针
+  selected: string[] // 选中的文件路径
 }
 
 export interface FileState {
@@ -42,6 +43,7 @@ const createNewTab = (path: string): FileTab => ({
   sub: false,
   history: [path],
   historyCursor: 0,
+  selected: [],
 })
 
 export const useFileStore = defineStore('file', {
@@ -184,6 +186,8 @@ export const useFileStore = defineStore('file', {
       } else if (!store.tabs.some((t) => t.id === store.activeTabId)) {
         store.activeTabId = store.tabs[0]!.id
       }
+      // 恢复后清空选中（兼容无 selected 字段的旧持久化数据）
+      store.tabs.forEach((t) => (t.selected = []))
     },
   },
 })

@@ -3,12 +3,15 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import api from '@/api/panel/file'
+import { useFileStore } from '@/stores'
 import { generateRandomString, getBase } from '@/utils'
 
 const { $gettext } = useGettext()
+const fileStore = useFileStore()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const path = defineModel<string>('path', { type: String, required: true })
-const selected = defineModel<string[]>('selected', { type: Array, default: () => [] })
+// 打开时快照选中项，弹窗内编辑不影响列表选中状态
+const paths = ref<string[]>([])
 const format = ref('.zip')
 const loading = ref(false)
 
@@ -17,17 +20,17 @@ const generateName = () => {
   // 如果选择多个文件，文件名为目录名 + 随机字符串，否则就直接文件名 + 随机字符串
   // 特殊处理根目录，防止出现 //xxx 的情况
   if (path.value == '/') {
-    return selected.value.length > 1
+    return paths.value.length > 1
       ? `/${generateRandomString(6)}${format.value}`
-      : `${selected.value[0]}-${generateRandomString(6)}${format.value}`
+      : `${paths.value[0]}-${generateRandomString(6)}${format.value}`
   }
   const parts = path.value.split('/')
-  return selected.value.length > 1
+  return paths.value.length > 1
     ? `${path.value}/${parts.pop()}-${generateRandomString(6)}${format.value}`
-    : `${selected.value[0]}-${generateRandomString(6)}${format.value}`
+    : `${paths.value[0]}-${generateRandomString(6)}${format.value}`
 }
 
-const file = ref(generateName())
+const file = ref('')
 
 const ensureExtension = (extension: string) => {
   if (!file.value.endsWith(extension)) {
@@ -38,11 +41,13 @@ const ensureExtension = (extension: string) => {
 const handleArchive = () => {
   ensureExtension(format.value)
   loading.value = true
-  const paths = selected.value.map((item) => item.replace(path.value, '').replace(/^\//, ''))
-  useRequest(api.compress(path.value, paths, file.value))
+  const relative = paths.value.map((item) => item.replace(path.value, '').replace(/^\//, ''))
+  useRequest(api.compress(path.value, relative, file.value))
     .onSuccess(() => {
       show.value = false
-      selected.value = []
+      if (fileStore.activeTab) {
+        fileStore.activeTab.selected = []
+      }
       window.$message.success(
         $gettext('Compress task created successfully, please check the task list for progress'),
       )
@@ -52,14 +57,12 @@ const handleArchive = () => {
     })
 }
 
-onMounted(() => {
-  watch(
-    selected,
-    () => {
-      file.value = generateName()
-    },
-    { immediate: true },
-  )
+// 弹窗打开时快照选中项并生成默认文件名，弹窗内编辑不重置用户已修改的名字
+watch(show, (val) => {
+  if (val) {
+    paths.value = [...(fileStore.activeTab?.selected ?? [])]
+    file.value = generateName()
+  }
 })
 </script>
 
@@ -76,7 +79,7 @@ onMounted(() => {
     <n-flex vertical>
       <n-form>
         <n-form-item :label="$gettext('Files to compress')">
-          <n-dynamic-input v-model:value="selected" :min="1" />
+          <n-dynamic-input v-model:value="paths" :min="1" />
         </n-form-item>
         <n-form-item :label="$gettext('Compress to')">
           <n-input v-model:value="file" />

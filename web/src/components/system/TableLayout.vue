@@ -21,7 +21,7 @@ interface Props {
   batchActions?: BatchAction[]
   primaryAction?: ToolbarAction
   toolbarActions?: ToolbarAction[]
-  refreshEvent?: string
+  refreshEvent?: keyof BusEvents
   mobileCard?: (row: T) => any
   empty?: { title?: string; description?: string; icon?: string }
   immediate?: boolean

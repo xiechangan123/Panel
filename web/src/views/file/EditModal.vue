@@ -3,14 +3,14 @@ import { NButton, NFlex } from 'naive-ui'
 import { h } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
-import file from '@/api/panel/file'
 import DraggableWindow from '@/components/common/DraggableWindow.vue'
 import { FileEditorView } from '@/components/file-editor'
+import { useEditorOps } from '@/components/file-editor/composables/useEditorOps'
 import { useEditorStore } from '@/stores'
-import { decodeBase64 } from '@/utils'
 
 const { $gettext } = useGettext()
 const editorStore = useEditorStore()
+const { openInEditor, saveTabs } = useEditorOps()
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const minimized = defineModel<boolean>('minimized', { type: Boolean, default: false })
@@ -71,36 +71,14 @@ async function handleBeforeClose(): Promise<boolean> {
               type: 'primary',
               onClick: async () => {
                 // 保存所有未保存的文件
-                const unsavedTabs = editorStore.unsavedTabs
-                let allSaved = true
-                const failedFiles: string[] = []
-
-                for (const tab of unsavedTabs) {
-                  try {
-                    await new Promise<void>((resolveInner, rejectInner) => {
-                      useRequest(file.save(tab.path, tab.content))
-                        .onSuccess(() => {
-                          editorStore.markSaved(tab.path)
-                          resolveInner()
-                        })
-                        .onError(() => {
-                          allSaved = false
-                          failedFiles.push(tab.path)
-                          rejectInner()
-                        })
-                    })
-                  } catch {
-                    // 保存失败，已记录到 failedFiles 数组中
-                    // 继续尝试保存其他文件
-                  }
-                }
+                const failed = await saveTabs(editorStore.unsavedTabs.map((t) => t.path))
 
                 d.destroy()
-                if (allSaved) {
+                if (failed.length === 0) {
                   window.$message.success($gettext('All files saved successfully'))
                   resolve(true) // 保存成功，关闭窗口
                 } else {
-                  const fileList = failedFiles.map((f) => f.split('/').pop()).join(', ')
+                  const fileList = failed.map((f) => f.split('/').pop()).join(', ')
                   window.$message.error(
                     $gettext('Failed to save files: %{ files }', { files: fileList }),
                   )
@@ -115,32 +93,10 @@ async function handleBeforeClose(): Promise<boolean> {
   })
 }
 
-// 加载文件
+// 加载文件（已打开则切换，加载失败自动关闭标签页）
 function loadFile(path: string) {
   if (!path) return
-
-  // 如果文件已经打开，直接切换到该标签页
-  if (editorStore.tabs.some((f) => f.path === path)) {
-    editorStore.switchTab(path)
-    return
-  }
-
-  // 打开新文件
-  editorStore.openFile(path, '')
-  editorStore.setLoading(path, true)
-
-  useRequest(file.content(encodeURIComponent(path)))
-    .onSuccess(({ data }) => {
-      const content = decodeBase64(data.content)
-      editorStore.reloadFile(path, content)
-    })
-    .onError(() => {
-      window.$message.error($gettext('Failed to load file'))
-      editorStore.closeTab(path)
-    })
-    .onComplete(() => {
-      editorStore.setLoading(path, false)
-    })
+  openInEditor(path)
 }
 
 // 打开时自动加载文件
@@ -190,6 +146,6 @@ watch(minimized, (isMinimized) => {
     :before-close="handleBeforeClose"
     :close-on-overlay="false"
   >
-    <FileEditorView ref="editorRef" :initial-path="initialPath" />
+    <FileEditorView ref="editorRef" :initial-path="initialPath" :active="!minimized" />
   </DraggableWindow>
 </template>
