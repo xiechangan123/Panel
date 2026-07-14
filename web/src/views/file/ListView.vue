@@ -1223,10 +1223,10 @@ watch(data, (list) => {
       selected.value = filtered
     }
   }
-  for (const key of [...sizeCache.value.keys()]) {
+  for (const key of sizeCache.value.keys()) {
     if (!dataSet.has(key)) sizeCache.value.delete(key)
   }
-  for (const key of [...sizeLoading.value.keys()]) {
+  for (const key of sizeLoading.value.keys()) {
     if (!dataSet.has(key)) sizeLoading.value.delete(key)
   }
 })
