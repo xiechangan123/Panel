@@ -18,6 +18,9 @@ const (
 	Bz2      FormatArchive = "bz2"
 	Tar      FormatArchive = "tar"
 	TGz      FormatArchive = "tgz"
+	TXz      FormatArchive = "txz"
+	TBz2     FormatArchive = "tbz2"
+	TZst     FormatArchive = "tzst"
 	Xz       FormatArchive = "xz"
 	SevenZip FormatArchive = "7z"
 	Zst      FormatArchive = "zst"
@@ -46,15 +49,15 @@ func Compress(dir string, src []string, dst string) error {
 		_, err = shell.ExecfWithDir(dir, "zip -qr -o %s %s", dst, strings.Join(src, " "))
 	case TGz:
 		_, err = shell.ExecfWithDir(dir, "tar -czf %s %s", dst, strings.Join(src, " "))
-	case Bz2:
+	case TBz2:
 		_, err = shell.ExecfWithDir(dir, "tar -cjf %s %s", dst, strings.Join(src, " "))
 	case Tar:
 		_, err = shell.ExecfWithDir(dir, "tar -cf %s %s", dst, strings.Join(src, " "))
-	case Xz:
+	case TXz:
 		_, err = shell.ExecfWithDir(dir, "tar -cJf %s %s", dst, strings.Join(src, " "))
 	case SevenZip:
 		_, err = shell.ExecfWithDir(dir, "7z a -y %s %s", dst, strings.Join(src, " "))
-	case Zst:
+	case TZst:
 		_, err = shell.ExecfWithDir(dir, "tar --zstd -cf %s %s", dst, strings.Join(src, " "))
 	default:
 		return errors.New("unsupported format")
@@ -88,16 +91,28 @@ func UnCompress(src string, dst string) error {
 		_, err = shell.Execf("gunzip -c '%s' > '%s'", src, filepath.Join(dst, baseName))
 	case TGz:
 		_, err = shell.Execf("tar -xzf '%s' -C '%s'", src, dst)
-	case Bz2:
+	case TBz2:
 		_, err = shell.Execf("tar -xjf '%s' -C '%s'", src, dst)
 	case Tar:
 		_, err = shell.Execf("tar -xf '%s' -C '%s'", src, dst)
-	case Xz:
+	case TXz:
 		_, err = shell.Execf("tar -xJf '%s' -C '%s'", src, dst)
+	case Xz:
+		// 单独的 xz 文件（如 .sql.xz），解压到目标目录
+		baseName := strings.TrimSuffix(filepath.Base(src), ".xz")
+		_, err = shell.Execf("xz -dc '%s' > '%s'", src, filepath.Join(dst, baseName))
+	case Bz2:
+		// 单独的 bzip2 文件（如 .sql.bz2），解压到目标目录
+		baseName := strings.TrimSuffix(filepath.Base(src), ".bz2")
+		_, err = shell.Execf("bzip2 -dc '%s' > '%s'", src, filepath.Join(dst, baseName))
 	case SevenZip:
 		_, err = shell.Execf("7z x -y '%s' -o'%s'", src, dst)
-	case Zst:
+	case TZst:
 		_, err = shell.Execf("tar --zstd -xf '%s' -C '%s'", src, dst)
+	case Zst:
+		// 单独的 zstd 文件（如 .sql.zst），解压到目标目录
+		baseName := strings.TrimSuffix(filepath.Base(src), ".zst")
+		_, err = shell.Execf("zstd -dc '%s' > '%s'", src, filepath.Join(dst, baseName))
 	default:
 		return errors.New("unsupported format")
 	}
@@ -126,15 +141,15 @@ func CompressShell(dir string, src []string, dst string) (string, error) {
 		cmd = fmt.Sprintf("zip -qr -o '%s' %s", dst, sources)
 	case TGz:
 		cmd = fmt.Sprintf("tar -czf '%s' %s", dst, sources)
-	case Bz2:
+	case TBz2:
 		cmd = fmt.Sprintf("tar -cjf '%s' %s", dst, sources)
 	case Tar:
 		cmd = fmt.Sprintf("tar -cf '%s' %s", dst, sources)
-	case Xz:
+	case TXz:
 		cmd = fmt.Sprintf("tar -cJf '%s' %s", dst, sources)
 	case SevenZip:
 		cmd = fmt.Sprintf("7z a -y '%s' %s", dst, sources)
-	case Zst:
+	case TZst:
 		cmd = fmt.Sprintf("tar --zstd -cf '%s' %s", dst, sources)
 	default:
 		return "", errors.New("unsupported format")
@@ -163,16 +178,25 @@ func UnCompressShell(src, dst string) (string, error) {
 		cmd = fmt.Sprintf("gunzip -c '%s' > '%s'", src, filepath.Join(dst, baseName))
 	case TGz:
 		cmd = fmt.Sprintf("tar -xzf '%s' -C '%s'", src, dst)
-	case Bz2:
+	case TBz2:
 		cmd = fmt.Sprintf("tar -xjf '%s' -C '%s'", src, dst)
 	case Tar:
 		cmd = fmt.Sprintf("tar -xf '%s' -C '%s'", src, dst)
-	case Xz:
+	case TXz:
 		cmd = fmt.Sprintf("tar -xJf '%s' -C '%s'", src, dst)
+	case Xz:
+		baseName := strings.TrimSuffix(filepath.Base(src), ".xz")
+		cmd = fmt.Sprintf("xz -dc '%s' > '%s'", src, filepath.Join(dst, baseName))
+	case Bz2:
+		baseName := strings.TrimSuffix(filepath.Base(src), ".bz2")
+		cmd = fmt.Sprintf("bzip2 -dc '%s' > '%s'", src, filepath.Join(dst, baseName))
 	case SevenZip:
 		cmd = fmt.Sprintf("7z x -y '%s' -o'%s'", src, dst)
-	case Zst:
+	case TZst:
 		cmd = fmt.Sprintf("tar --zstd -xf '%s' -C '%s'", src, dst)
+	case Zst:
+		baseName := strings.TrimSuffix(filepath.Base(src), ".zst")
+		cmd = fmt.Sprintf("zstd -dc '%s' > '%s'", src, filepath.Join(dst, baseName))
 	default:
 		return "", errors.New("unsupported format")
 	}
@@ -191,13 +215,13 @@ func ListCompress(src string) ([]string, error) {
 	switch format {
 	case Zip, SevenZip:
 		out, err = shell.Execf(`7z l -ba -slt '%s' | grep "^Path = " | sed 's/^Path = //'`, src)
-	case Gz:
-		// 单独的 gzip 文件只包含一个文件，返回去除 .gz 后缀的文件名
-		baseName := strings.TrimSuffix(filepath.Base(src), ".gz")
+	case Gz, Xz, Bz2, Zst:
+		// 单独压缩的文件只包含一个文件，返回去除压缩后缀的文件名
+		baseName := strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))
 		return []string{baseName}, nil
-	case TGz, Bz2, Tar, Xz:
+	case TGz, TBz2, Tar, TXz:
 		out, err = shell.Execf("tar -tf '%s'", src)
-	case Zst:
+	case TZst:
 		out, err = shell.Execf("tar --zstd -tf '%s'", src)
 	default:
 		return nil, errors.New("unsupported format")
@@ -215,7 +239,10 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 	case ".zip":
 		return Zip, nil
 	case ".bz2":
-		// .bz2 后缀的文件使用 tar -xjf 解压，适用于 .tar.bz2 格式
+		// 支持 .tar.bz2 和单独的 .bz2 格式（如 .sql.bz2）
+		if strings.HasSuffix(path, ".tar.bz2") {
+			return TBz2, nil
+		}
 		return Bz2, nil
 	case ".tar":
 		return Tar, nil
@@ -228,12 +255,18 @@ func formatArchiveByPath(path string) (FormatArchive, error) {
 		}
 		return Gz, nil
 	case ".xz":
-		// .xz 后缀的文件使用 tar -xJf 解压，适用于 .tar.xz 格式
+		// 支持 .tar.xz 和单独的 .xz 格式（如 .sql.xz）
+		if strings.HasSuffix(path, ".tar.xz") {
+			return TXz, nil
+		}
 		return Xz, nil
 	case ".7z":
 		return SevenZip, nil
 	case ".zst":
-		// .zst 后缀使用 tar --zstd 解压，适用于 .tar.zst 格式
+		// 支持 .tar.zst 和单独的 .zst 格式（如 .sql.zst）
+		if strings.HasSuffix(path, ".tar.zst") {
+			return TZst, nil
+		}
 		return Zst, nil
 	}
 
