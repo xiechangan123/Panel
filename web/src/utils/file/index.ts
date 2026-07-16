@@ -308,7 +308,7 @@ const getFilename = (path: string) => {
 
 const isCompress = (name: string) => {
   const ext = getExt(name)
-  return ['zip', 'bz2', 'tar', 'gz', 'tgz', 'xz', '7z'].includes(ext)
+  return ['zip', 'bz2', 'tar', 'gz', 'tgz', 'xz', 'zst', '7z'].includes(ext)
 }
 
 const isImage = (name: string) => {

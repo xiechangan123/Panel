@@ -47,6 +47,12 @@ func Compress(dir string, src []string, dst string) error {
 	switch format {
 	case Zip:
 		_, err = shell.ExecfWithDir(dir, "zip -qr -o %s %s", dst, strings.Join(src, " "))
+	case Gz:
+		// gzip 仅支持压缩单个文件
+		if len(src) != 1 {
+			return errors.New("gz format only supports compressing a single file")
+		}
+		_, err = shell.ExecfWithDir(dir, "gzip -c %s > %s", src[0], dst)
 	case TGz:
 		_, err = shell.ExecfWithDir(dir, "tar -czf %s %s", dst, strings.Join(src, " "))
 	case TBz2:
@@ -139,6 +145,12 @@ func CompressShell(dir string, src []string, dst string) (string, error) {
 	switch format {
 	case Zip:
 		cmd = fmt.Sprintf("zip -qr -o '%s' %s", dst, sources)
+	case Gz:
+		// gzip 仅支持压缩单个文件
+		if len(src) != 1 {
+			return "", errors.New("gz format only supports compressing a single file")
+		}
+		cmd = fmt.Sprintf("gzip -c %s > '%s'", sources, dst)
 	case TGz:
 		cmd = fmt.Sprintf("tar -czf '%s' %s", dst, sources)
 	case TBz2:

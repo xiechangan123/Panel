@@ -57,6 +57,30 @@ const handleArchive = () => {
     })
 }
 
+// gzip 仅支持压缩单个文件，多选时禁用 .gz 选项
+const formatOptions = computed(() => [
+  { label: '.zip', value: '.zip' },
+  { label: '.gz', value: '.gz', disabled: paths.value.length > 1 },
+  { label: '.tar', value: '.tar' },
+  { label: '.tar.gz', value: '.tar.gz' },
+  { label: '.tgz', value: '.tgz' },
+  { label: '.tar.bz2', value: '.tar.bz2' },
+  { label: '.tar.xz', value: '.tar.xz' },
+  { label: '.tar.zst', value: '.tar.zst' },
+  { label: '.7z', value: '.7z' },
+])
+
+// 已选 .gz 后又添加多个文件时回退到 .zip
+watch(
+  () => paths.value.length,
+  (len) => {
+    if (len > 1 && format.value === '.gz') {
+      format.value = '.zip'
+      ensureExtension(format.value)
+    }
+  },
+)
+
 // 弹窗打开时快照选中项并生成默认文件名，弹窗内编辑不重置用户已修改的名字
 watch(show, (val) => {
   if (val) {
@@ -85,21 +109,7 @@ watch(show, (val) => {
           <n-input v-model:value="file" />
         </n-form-item>
         <n-form-item :label="$gettext('Format')">
-          <n-select
-            v-model:value="format"
-            :options="[
-              { label: '.zip', value: '.zip' },
-              { label: '.gz', value: '.gz' },
-              { label: '.tar', value: '.tar' },
-              { label: '.tar.gz', value: '.tar.gz' },
-              { label: '.tgz', value: '.tgz' },
-              { label: '.tar.bz2', value: '.tar.bz2' },
-              { label: '.tar.xz', value: '.tar.xz' },
-              { label: '.tar.zst', value: '.tar.zst' },
-              { label: '.7z', value: '.7z' },
-            ]"
-            @update:value="ensureExtension"
-          />
+          <n-select v-model:value="format" :options="formatOptions" @update:value="ensureExtension" />
         </n-form-item>
       </n-form>
       <n-button :loading="loading" :disabled="loading" type="primary" @click="handleArchive">
