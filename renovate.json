@@ -46,8 +46,5 @@
       ],
       "enabled": false
     }
-  ],
-  "ignoreDeps": [
-    "vite"
   ]
 }
