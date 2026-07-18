@@ -35,6 +35,16 @@
       ],
       "minimumReleaseAge": "3 days",
       "automerge": false
+    },
+    {
+      "description": "vue-tsc 尚未支持 TypeScript 7 (tsgo)，暂时忽略其 major 升级",
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
     }
   ],
   "ignoreDeps": [
