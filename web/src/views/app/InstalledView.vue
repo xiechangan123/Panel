@@ -11,15 +11,14 @@ import { renderLocalIcon } from '@/utils'
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
 
-// 运行状态映射
+// 运行状态映射，无运行状态概念的应用（如挂载工具）不在此列，渲染为 -
 const statusMap: Record<
   string,
-  { type: 'success' | 'error' | 'warning' | 'default'; label: string }
+  { type: 'success' | 'error' | 'warning'; label: string }
 > = {
   running: { type: 'success', label: $gettext('Running') },
   stopped: { type: 'error', label: $gettext('Stopped') },
   partial: { type: 'warning', label: $gettext('Partial') },
-  'n/a': { type: 'default', label: $gettext('N/A') },
 }
 
 // 应用表格列
@@ -56,7 +55,8 @@ const appColumns: any = [
     key: 'status',
     width: 120,
     render(row: any) {
-      const meta = statusMap[row.status] || statusMap['n/a']!
+      const meta = statusMap[row.status]
+      if (!meta) return '-'
       return h(NTag, { type: meta.type, size: 'small', round: true }, { default: () => meta.label })
     },
   },
