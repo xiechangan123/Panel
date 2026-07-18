@@ -40,8 +40,10 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 }
 
+// Status phpMyAdmin 由 nginx 站点承载，运行状态与 nginx 一致
 func (s *App) Status() string {
-	return types.AppStatusNA
+	ok, _ := systemctl.Status("nginx")
+	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) Info(w http.ResponseWriter, r *http.Request) {
