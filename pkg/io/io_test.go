@@ -3,6 +3,7 @@ package io
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/libtnb/utils/env"
@@ -52,164 +53,77 @@ func (s *IOTestSuite) TestWriteAppendAppendsToFile() {
 	s.Equal("Hello, World!", content)
 }
 
+// archiveExts 归档格式，支持多文件压缩
+var archiveExts = []string{".zip", ".tar", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz", ".tar.zst", ".7z"}
+
+// singleExts 单文件压缩格式，仅支持压缩单个文件
+var singleExts = []string{".gz", ".bz2", ".xz", ".zst"}
+
 func (s *IOTestSuite) TestCompress() {
 	abs, err := filepath.Abs("testdata")
 	s.NoError(err)
 	src := []string{"compress_test1.txt", "compress_test2.txt"}
-	err = Write(filepath.Join(abs, src[0]), "File 1", 0644)
-	s.NoError(err)
-	err = Write(filepath.Join(abs, src[1]), "File 2", 0644)
-	s.NoError(err)
+	s.NoError(Write(filepath.Join(abs, src[0]), "File 1", 0644))
+	s.NoError(Write(filepath.Join(abs, src[1]), "File 2", 0644))
 
-	err = Compress(abs, src, filepath.Join(abs, "compress_test.zip"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "compress_test.bz2"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "compress_test.tar"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "compress_test.tar.gz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "compress_test.tgz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "compress_test.xz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "compress_test.7z"))
-	s.NoError(err)
-
-	s.NoError(Remove("testdata"))
+	for _, ext := range archiveExts {
+		s.NoError(Compress(abs, src, filepath.Join(abs, "compress_test"+ext)), ext)
+	}
+	for _, ext := range singleExts {
+		s.NoError(Compress(abs, src[:1], filepath.Join(abs, "compress_single"+ext)), ext)
+		s.Error(Compress(abs, src, filepath.Join(abs, "compress_multi"+ext)), ext)
+	}
 }
 
 func (s *IOTestSuite) TestUnCompress() {
 	abs, err := filepath.Abs("testdata")
 	s.NoError(err)
 	src := []string{"uncompress_test1.txt", "uncompress_test2.txt"}
-	err = Write(filepath.Join(abs, src[0]), "File 1", 0644)
-	s.NoError(err)
-	err = Write(filepath.Join(abs, src[1]), "File 2", 0644)
-	s.NoError(err)
+	s.NoError(Write(filepath.Join(abs, src[0]), "File 1", 0644))
+	s.NoError(Write(filepath.Join(abs, src[1]), "File 2", 0644))
 
-	err = Compress(abs, src, filepath.Join(abs, "uncompress_test.zip"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "uncompress_test.bz2"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "uncompress_test.tar"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "uncompress_test.tar.gz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "uncompress_test.tgz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "uncompress_test.xz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "uncompress_test.7z"))
-	s.NoError(err)
-
-	err = UnCompress(filepath.Join(abs, "uncompress_test.zip"), filepath.Join(abs, "uncompressed_zip"))
-	s.NoError(err)
-	data, err := Read("testdata/uncompressed_zip/uncompress_test1.txt")
-	s.NoError(err)
-	s.Equal("File 1", data)
-	data, err = Read("testdata/uncompressed_zip/uncompress_test2.txt")
-	s.NoError(err)
-	s.Equal("File 2", data)
-	err = UnCompress(filepath.Join(abs, "uncompress_test.bz2"), filepath.Join(abs, "uncompressed_bz2"))
-	s.NoError(err)
-	data, err = Read("testdata/uncompressed_bz2/uncompress_test1.txt")
-	s.NoError(err)
-	s.Equal("File 1", data)
-	data, err = Read("testdata/uncompressed_bz2/uncompress_test2.txt")
-	s.NoError(err)
-	s.Equal("File 2", data)
-	err = UnCompress(filepath.Join(abs, "uncompress_test.tar"), filepath.Join(abs, "uncompressed_tar"))
-	s.NoError(err)
-	data, err = Read("testdata/uncompressed_tar/uncompress_test1.txt")
-	s.NoError(err)
-	s.Equal("File 1", data)
-	data, err = Read("testdata/uncompressed_tar/uncompress_test2.txt")
-	s.NoError(err)
-	s.Equal("File 2", data)
-	err = UnCompress(filepath.Join(abs, "uncompress_test.tar.gz"), filepath.Join(abs, "uncompressed_tar_gz"))
-	s.NoError(err)
-	data, err = Read("testdata/uncompressed_tar_gz/uncompress_test1.txt")
-	s.NoError(err)
-	s.Equal("File 1", data)
-	data, err = Read("testdata/uncompressed_tar_gz/uncompress_test2.txt")
-	s.NoError(err)
-	s.Equal("File 2", data)
-	err = UnCompress(filepath.Join(abs, "uncompress_test.tgz"), filepath.Join(abs, "uncompressed_tgz"))
-	s.NoError(err)
-	data, err = Read("testdata/uncompressed_tgz/uncompress_test1.txt")
-	s.NoError(err)
-	s.Equal("File 1", data)
-	data, err = Read("testdata/uncompressed_tgz/uncompress_test2.txt")
-	s.NoError(err)
-	s.Equal("File 2", data)
-	err = UnCompress(filepath.Join(abs, "uncompress_test.xz"), filepath.Join(abs, "uncompressed_xz"))
-	s.NoError(err)
-	data, err = Read("testdata/uncompressed_xz/uncompress_test1.txt")
-	s.NoError(err)
-	s.Equal("File 1", data)
-	data, err = Read("testdata/uncompressed_xz/uncompress_test2.txt")
-	s.NoError(err)
-	s.Equal("File 2", data)
-	err = UnCompress(filepath.Join(abs, "uncompress_test.7z"), filepath.Join(abs, "uncompressed_7z"))
-	s.NoError(err)
-	data, err = Read("testdata/uncompressed_7z/uncompress_test1.txt")
-	s.NoError(err)
-	s.Equal("File 1", data)
-	data, err = Read("testdata/uncompressed_7z/uncompress_test2.txt")
-	s.NoError(err)
-	s.Equal("File 2", data)
-
-	s.NoError(Remove("testdata"))
+	for _, ext := range archiveExts {
+		dst := filepath.Join(abs, "uncompressed"+strings.ReplaceAll(ext, ".", "_"))
+		s.NoError(Compress(abs, src, filepath.Join(abs, "uncompress_test"+ext)), ext)
+		s.NoError(UnCompress(filepath.Join(abs, "uncompress_test"+ext), dst), ext)
+		data, err := Read(filepath.Join(dst, src[0]))
+		s.NoError(err, ext)
+		s.Equal("File 1", data, ext)
+		data, err = Read(filepath.Join(dst, src[1]))
+		s.NoError(err, ext)
+		s.Equal("File 2", data, ext)
+	}
+	// 单文件压缩格式解压后去掉压缩后缀恢复原文件名
+	for _, ext := range singleExts {
+		dst := filepath.Join(abs, "uncompressed_single"+strings.ReplaceAll(ext, ".", "_"))
+		s.NoError(Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)), ext)
+		s.NoError(UnCompress(filepath.Join(abs, src[0]+ext), dst), ext)
+		data, err := Read(filepath.Join(dst, src[0]))
+		s.NoError(err, ext)
+		s.Equal("File 1", data, ext)
+	}
 }
 
 func (s *IOTestSuite) TestListCompress() {
 	abs, err := filepath.Abs("testdata")
 	s.NoError(err)
 	src := []string{"list_archive_test1.txt", "list_archive_test2.txt"}
-	err = Write(filepath.Join(abs, src[0]), "File 1", 0644)
-	s.NoError(err)
-	err = Write(filepath.Join(abs, src[1]), "File 2", 0644)
-	s.NoError(err)
+	s.NoError(Write(filepath.Join(abs, src[0]), "File 1", 0644))
+	s.NoError(Write(filepath.Join(abs, src[1]), "File 2", 0644))
 
-	err = Compress(abs, src, filepath.Join(abs, "list_archive_test.zip"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "list_archive_test.bz2"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "list_archive_test.tar"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "list_archive_test.tar.gz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "list_archive_test.tgz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "list_archive_test.xz"))
-	s.NoError(err)
-	err = Compress(abs, src, filepath.Join(abs, "list_archive_test.7z"))
-	s.NoError(err)
-
-	list, err := ListCompress(filepath.Join(abs, "list_archive_test.zip"))
-	s.NoError(err)
-	s.Len(list, 2)
-	list, err = ListCompress(filepath.Join(abs, "list_archive_test.bz2"))
-	s.NoError(err)
-	s.Len(list, 2)
-	list, err = ListCompress(filepath.Join(abs, "list_archive_test.tar"))
-	s.NoError(err)
-	s.Len(list, 2)
-	list, err = ListCompress(filepath.Join(abs, "list_archive_test.tar.gz"))
-	s.NoError(err)
-	s.Len(list, 2)
-	list, err = ListCompress(filepath.Join(abs, "list_archive_test.tgz"))
-	s.NoError(err)
-	s.Len(list, 2)
-	list, err = ListCompress(filepath.Join(abs, "list_archive_test.xz"))
-	s.NoError(err)
-	s.Len(list, 2)
-	list, err = ListCompress(filepath.Join(abs, "list_archive_test.7z"))
-	s.NoError(err)
-	s.Len(list, 2)
-
-	s.NoError(Remove("testdata"))
+	for _, ext := range archiveExts {
+		s.NoError(Compress(abs, src, filepath.Join(abs, "list_archive_test"+ext)), ext)
+		list, err := ListCompress(filepath.Join(abs, "list_archive_test"+ext))
+		s.NoError(err, ext)
+		s.Len(list, 2, ext)
+	}
+	// 单文件压缩格式返回去掉压缩后缀的文件名
+	for _, ext := range singleExts {
+		s.NoError(Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)), ext)
+		list, err := ListCompress(filepath.Join(abs, src[0]+ext))
+		s.NoError(err, ext)
+		s.Equal([]string{src[0]}, list, ext)
+	}
 }
 
 func (s *IOTestSuite) TestRemoveDeletesFileOrDirectory() {
