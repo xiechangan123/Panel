@@ -28,6 +28,7 @@ const localEnv = ref<any>(null)
 const remoteEnv = ref<any>(null)
 const envCheckPassed = ref(false)
 const envWarnings = ref<string[]>([])
+const ignoreEnvCheck = ref(false)
 
 // 第三步：迁移项选择
 const websites = ref<any[]>([])
@@ -120,8 +121,9 @@ const handleRefreshPreCheck = () => {
       useRequest(home.installedEnvironment()).onSuccess(({ data: localData }: any) => {
         localEnv.value = localData
         checkEnvironment()
-        loading.value = false
+        ignoreEnvCheck.value = false
         window.$message.success($gettext('Environment check refreshed'))
+        loading.value = false
       })
     })
     .onComplete(() => {
@@ -189,6 +191,25 @@ const checkEnvironment = () => {
 
   envWarnings.value = warnings
   envCheckPassed.value = passed
+}
+
+// 忽略环境一致性验证，需警告二次确认
+const handleIgnoreEnvCheck = (value: boolean) => {
+  if (!value) {
+    ignoreEnvCheck.value = false
+    return
+  }
+  window.$dialog.warning({
+    title: $gettext('Ignore Environment Check'),
+    content: $gettext(
+      'Due to environment inconsistency, migrated items may not work properly after migration. Do you still want to continue?',
+    ),
+    positiveText: $gettext('Continue'),
+    negativeText: $gettext('Cancel'),
+    onPositiveClick: () => {
+      ignoreEnvCheck.value = true
+    },
+  })
 }
 
 // 第二步：获取可迁移项列表
@@ -354,6 +375,7 @@ const handleReset = () => {
         remoteEnv.value = null
         envCheckPassed.value = false
         envWarnings.value = []
+        ignoreEnvCheck.value = false
         websites.value = []
         databases.value = []
         databaseUsers.value = []
@@ -588,14 +610,23 @@ const formatDuration = (seconds: number) => {
             {{ $gettext('Refresh') }}
           </n-button>
         </n-flex>
-        <n-button
-          type="primary"
-          :disabled="!envCheckPassed || loading"
-          :loading="loading"
-          @click="handleGetItems"
-        >
-          {{ $gettext('Next') }}
-        </n-button>
+        <n-flex align="center">
+          <n-checkbox
+            v-if="!envCheckPassed"
+            :checked="ignoreEnvCheck"
+            @update:checked="handleIgnoreEnvCheck"
+          >
+            {{ $gettext('Ignore environment check') }}
+          </n-checkbox>
+          <n-button
+            type="primary"
+            :disabled="(!envCheckPassed && !ignoreEnvCheck) || loading"
+            :loading="loading"
+            @click="handleGetItems"
+          >
+            {{ $gettext('Next') }}
+          </n-button>
+        </n-flex>
       </n-flex>
     </n-card>
 
