@@ -44,6 +44,22 @@ export default {
       ws.onerror = (e) => reject(e)
     })
   },
+  // 主机间文件传输(id 为 0 表示面板本机)
+  sshTransfer: (params: {
+    src_id: number
+    src_path: string
+    dst_id: number
+    dst_path: string
+  }): Promise<WebSocket> => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(`${base}/ssh/transfer`)
+      ws.onopen = () => {
+        ws.send(JSON.stringify(params))
+        resolve(ws)
+      }
+      ws.onerror = (e) => reject(e)
+    })
+  },
   // 连接容器终端
   container: (id: string): Promise<WebSocket> => {
     return new Promise((resolve, reject) => {

@@ -60,12 +60,26 @@ func (r *SSH) AfterFind(tx *gorm.DB) error {
 	return nil
 }
 
+// SSHFileInfo SFTP 文件信息
+type SSHFileInfo struct {
+	Name    string `json:"name"`
+	Size    int64  `json:"size"`
+	Mode    string `json:"mode"`
+	ModTime int64  `json:"mod_time"`
+	IsDir   bool   `json:"is_dir"`
+	IsLink  bool   `json:"is_link"`
+}
+
 type SSHRepo interface {
 	List(page, limit uint) ([]*SSH, int64, error)
 	Get(id uint) (*SSH, error)
 	Create(req *request.SSHCreate) error
 	Update(req *request.SSHUpdate) error
 	Delete(id uint) error
+	// 文件互传相关,hostID 为 0 表示面板本机
+	ListFiles(hostID uint, path string) ([]*SSHFileInfo, error)
+	Mkdir(hostID uint, path string) error
+	TransferFile(ctx context.Context, srcID uint, srcPath string, dstID uint, dstPath string, progress func(transferred, total int64)) error
 }
 
 // SSHUsecase SSH 业务逻辑
@@ -120,6 +134,25 @@ func (uc *SSHUsecase) Delete(ctx context.Context, id uint) error {
 
 	// 记录日志
 	uc.log.Info("ssh deleted", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(id)), slog.String("name", s.Name))
+
+	return nil
+}
+
+func (uc *SSHUsecase) ListFiles(hostID uint, path string) ([]*SSHFileInfo, error) {
+	return uc.repo.ListFiles(hostID, path)
+}
+
+func (uc *SSHUsecase) Mkdir(hostID uint, path string) error {
+	return uc.repo.Mkdir(hostID, path)
+}
+
+func (uc *SSHUsecase) TransferFile(ctx context.Context, srcID uint, srcPath string, dstID uint, dstPath string, progress func(transferred, total int64)) error {
+	if err := uc.repo.TransferFile(ctx, srcID, srcPath, dstID, dstPath, progress); err != nil {
+		return err
+	}
+
+	// 记录日志
+	uc.log.Info("ssh file transferred", slog.String("type", OperationTypeSSH), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("src_id", uint64(srcID)), slog.String("src_path", srcPath), slog.Uint64("dst_id", uint64(dstID)), slog.String("dst_path", dstPath))
 
 	return nil
 }

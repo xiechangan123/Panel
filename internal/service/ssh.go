@@ -99,3 +99,34 @@ func (s *SSHService) Delete(w http.ResponseWriter, r *http.Request) {
 
 	Success(w, nil)
 }
+
+func (s *SSHService) ListFiles(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.SSHFile](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	files, err := s.sshRepo.ListFiles(req.ID, req.Path)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, files)
+}
+
+func (s *SSHService) Mkdir(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.SSHFile](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.sshRepo.Mkdir(req.ID, req.Path); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}

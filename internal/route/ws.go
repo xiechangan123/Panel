@@ -18,6 +18,7 @@ func WsRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodGet, Path: "/api/ws/pty", Handler: ws.PTY},
 		{Method: http.MethodGet, Path: "/api/ws/follow", Handler: ws.Follow},
 		{Method: http.MethodGet, Path: "/api/ws/ssh", Handler: ws.Session},
+		{Method: http.MethodGet, Path: "/api/ws/ssh/transfer", Handler: ws.SSHTransfer},
 		{Method: http.MethodGet, Path: "/api/ws/container/{id}", Handler: ws.ContainerTerminal},
 		{Method: http.MethodGet, Path: "/api/ws/container/image/pull", Handler: ws.ContainerImagePull},
 		{Method: http.MethodGet, Path: "/api/ws/migration/progress", Handler: toolboxMigration.Progress},

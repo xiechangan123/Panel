@@ -30,5 +30,11 @@ func SSHRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodDelete, Path: "/api/ssh/{id}", Handler: svc.Delete,
 			Summary: "删除 SSH", Tags: []string{"SSH"},
 			Request: request.ID{}},
+		{Method: http.MethodGet, Path: "/api/ssh/{id}/file", Handler: svc.ListFiles,
+			Summary: "浏览主机文件", Tags: []string{"SSH"},
+			Request: request.SSHFile{}, Response: service.Envelope[[]*biz.SSHFileInfo]{}},
+		{Method: http.MethodPost, Path: "/api/ssh/{id}/mkdir", Handler: svc.Mkdir,
+			Summary: "创建主机目录", Tags: []string{"SSH"},
+			Request: request.SSHFile{}},
 	}, nil
 }

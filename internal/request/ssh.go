@@ -24,3 +24,17 @@ type SSHUpdate struct {
 	Passphrase string `json:"passphrase" form:"passphrase"`
 	Remark     string `json:"remark" form:"remark"`
 }
+
+// SSHFile 文件浏览请求,ID 为 0 表示面板本机
+type SSHFile struct {
+	ID   uint   `json:"id" form:"id" uri:"id"`
+	Path string `json:"path" form:"path" query:"path" validate:"required"`
+}
+
+// SSHTransfer 文件传输请求,ID 为 0 表示面板本机
+type SSHTransfer struct {
+	SrcID   uint   `json:"src_id"`
+	SrcPath string `json:"src_path"`
+	DstID   uint   `json:"dst_id"`
+	DstPath string `json:"dst_path"`
+}

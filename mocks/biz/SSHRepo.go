@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/v3/internal/biz"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "github.com/acepanel/panel/v3/internal/request"
@@ -234,6 +237,163 @@ func (_c *SSHRepo_List_Call) Return(_a0 []*biz.SSH, _a1 int64, _a2 error) *SSHRe
 }
 
 func (_c *SSHRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*biz.SSH, int64, error)) *SSHRepo_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListFiles provides a mock function with given fields: hostID, path
+func (_m *SSHRepo) ListFiles(hostID uint, path string) ([]*biz.SSHFileInfo, error) {
+	ret := _m.Called(hostID, path)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListFiles")
+	}
+
+	var r0 []*biz.SSHFileInfo
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint, string) ([]*biz.SSHFileInfo, error)); ok {
+		return rf(hostID, path)
+	}
+	if rf, ok := ret.Get(0).(func(uint, string) []*biz.SSHFileInfo); ok {
+		r0 = rf(hostID, path)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*biz.SSHFileInfo)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(uint, string) error); ok {
+		r1 = rf(hostID, path)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SSHRepo_ListFiles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListFiles'
+type SSHRepo_ListFiles_Call struct {
+	*mock.Call
+}
+
+// ListFiles is a helper method to define mock.On call
+//   - hostID uint
+//   - path string
+func (_e *SSHRepo_Expecter) ListFiles(hostID interface{}, path interface{}) *SSHRepo_ListFiles_Call {
+	return &SSHRepo_ListFiles_Call{Call: _e.mock.On("ListFiles", hostID, path)}
+}
+
+func (_c *SSHRepo_ListFiles_Call) Run(run func(hostID uint, path string)) *SSHRepo_ListFiles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *SSHRepo_ListFiles_Call) Return(_a0 []*biz.SSHFileInfo, _a1 error) *SSHRepo_ListFiles_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SSHRepo_ListFiles_Call) RunAndReturn(run func(uint, string) ([]*biz.SSHFileInfo, error)) *SSHRepo_ListFiles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Mkdir provides a mock function with given fields: hostID, path
+func (_m *SSHRepo) Mkdir(hostID uint, path string) error {
+	ret := _m.Called(hostID, path)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Mkdir")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
+		r0 = rf(hostID, path)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SSHRepo_Mkdir_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Mkdir'
+type SSHRepo_Mkdir_Call struct {
+	*mock.Call
+}
+
+// Mkdir is a helper method to define mock.On call
+//   - hostID uint
+//   - path string
+func (_e *SSHRepo_Expecter) Mkdir(hostID interface{}, path interface{}) *SSHRepo_Mkdir_Call {
+	return &SSHRepo_Mkdir_Call{Call: _e.mock.On("Mkdir", hostID, path)}
+}
+
+func (_c *SSHRepo_Mkdir_Call) Run(run func(hostID uint, path string)) *SSHRepo_Mkdir_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *SSHRepo_Mkdir_Call) Return(_a0 error) *SSHRepo_Mkdir_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *SSHRepo_Mkdir_Call) RunAndReturn(run func(uint, string) error) *SSHRepo_Mkdir_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TransferFile provides a mock function with given fields: ctx, srcID, srcPath, dstID, dstPath, progress
+func (_m *SSHRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, dstID uint, dstPath string, progress func(int64, int64)) error {
+	ret := _m.Called(ctx, srcID, srcPath, dstID, dstPath, progress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TransferFile")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string, uint, string, func(int64, int64)) error); ok {
+		r0 = rf(ctx, srcID, srcPath, dstID, dstPath, progress)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SSHRepo_TransferFile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TransferFile'
+type SSHRepo_TransferFile_Call struct {
+	*mock.Call
+}
+
+// TransferFile is a helper method to define mock.On call
+//   - ctx context.Context
+//   - srcID uint
+//   - srcPath string
+//   - dstID uint
+//   - dstPath string
+//   - progress func(int64 , int64)
+func (_e *SSHRepo_Expecter) TransferFile(ctx interface{}, srcID interface{}, srcPath interface{}, dstID interface{}, dstPath interface{}, progress interface{}) *SSHRepo_TransferFile_Call {
+	return &SSHRepo_TransferFile_Call{Call: _e.mock.On("TransferFile", ctx, srcID, srcPath, dstID, dstPath, progress)}
+}
+
+func (_c *SSHRepo_TransferFile_Call) Run(run func(ctx context.Context, srcID uint, srcPath string, dstID uint, dstPath string, progress func(int64, int64))) *SSHRepo_TransferFile_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uint), args[2].(string), args[3].(uint), args[4].(string), args[5].(func(int64, int64)))
+	})
+	return _c
+}
+
+func (_c *SSHRepo_TransferFile_Call) Return(_a0 error) *SSHRepo_TransferFile_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *SSHRepo_TransferFile_Call) RunAndReturn(run func(context.Context, uint, string, uint, string, func(int64, int64)) error) *SSHRepo_TransferFile_Call {
 	_c.Call.Return(run)
 	return _c
 }

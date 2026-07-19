@@ -256,6 +256,81 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 	turn.Wait()
 }
 
+// SSHTransfer 通过 WebSocket 在主机间传输文件并实时推送进度
+// 连接后发送 JSON 参数,断开连接即取消传输
+func (s *WsService) SSHTransfer(w http.ResponseWriter, r *http.Request) {
+	ws, err := s.upgrade(w, r)
+	if err != nil {
+		s.log.Warn("upgrade ssh transfer ws error", slog.Any("err", err))
+		return
+	}
+	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	// 读取参数,10 秒超时防止连接后不发消息
+	readCtx, readCancel := context.WithTimeout(ctx, 10*time.Second)
+	_, message, err := ws.Read(readCtx)
+	readCancel()
+	if err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read params: %v", err))
+		return
+	}
+	var req request.SSHTransfer
+	if err = json.Unmarshal(message, &req); err != nil {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("invalid params: %v", err))
+		return
+	}
+	if req.SrcPath == "" || req.DstPath == "" {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("source and destination path are required"))
+		return
+	}
+	if req.SrcID == req.DstID && req.SrcPath == req.DstPath {
+		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("source and destination are the same file"))
+		return
+	}
+
+	// 客户端断开时取消传输
+	go func() {
+		for {
+			if _, _, rerr := ws.Read(ctx); rerr != nil {
+				cancel()
+				return
+			}
+		}
+	}()
+
+	// 进度节流推送,完成时必推
+	var lastPush time.Time
+	progress := func(transferred, total int64) {
+		if transferred != total && time.Since(lastPush) < 500*time.Millisecond {
+			return
+		}
+		lastPush = time.Now()
+		data, _ := json.Marshal(map[string]any{
+			"status":      "progress",
+			"transferred": transferred,
+			"total":       total,
+		})
+		_ = ws.Write(ctx, websocket.MessageText, data)
+	}
+
+	if err = s.sshRepo.TransferFile(ctx, req.SrcID, req.SrcPath, req.DstID, req.DstPath, progress); err != nil {
+		errMsg, _ := json.Marshal(map[string]any{
+			"status": "error",
+			"msg":    err.Error(),
+		})
+		_ = ws.Write(ctx, websocket.MessageText, errMsg)
+		_ = ws.Close(websocket.StatusNormalClosure, "")
+		return
+	}
+
+	successMsg, _ := json.Marshal(map[string]any{"status": "success"})
+	_ = ws.Write(ctx, websocket.MessageText, successMsg)
+	_ = ws.Close(websocket.StatusNormalClosure, "")
+}
+
 // ContainerTerminal 容器终端
 func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ContainerID](r)
