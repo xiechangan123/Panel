@@ -3,6 +3,7 @@ package service
 import (
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/libtnb/chix/v2"
 	"github.com/samber/do/v2"
 
@@ -45,6 +46,32 @@ func (s *ContainerService) Search(w http.ResponseWriter, r *http.Request) {
 		"total": len(containers),
 		"items": containers,
 	})
+}
+
+func (s *ContainerService) Inspect(w http.ResponseWriter, r *http.Request) {
+	data, err := s.containerRepo.Inspect(chi.URLParam(r, "id"))
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, data)
+}
+
+func (s *ContainerService) Update(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ContainerCreate](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	id, err := s.containerRepo.Update(chi.URLParam(r, "id"), req)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, id)
 }
 
 func (s *ContainerService) Create(w http.ResponseWriter, r *http.Request) {

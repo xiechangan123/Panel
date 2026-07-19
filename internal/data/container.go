@@ -78,6 +78,22 @@ func (r *containerRepo) ListAll(sock string) ([]types.Container, error) {
 	return containers, nil
 }
 
+// Inspect 获取容器详细信息
+func (r *containerRepo) Inspect(sock string, id string) (any, error) {
+	apiClient, err := getDockerClient(sock)
+	if err != nil {
+		return nil, err
+	}
+	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
+
+	resp, err := apiClient.ContainerInspect(context.Background(), id, client.ContainerInspectOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Container, nil
+}
+
 // Create 创建容器
 func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (string, error) {
 	apiClient, err := getDockerClient(sock)

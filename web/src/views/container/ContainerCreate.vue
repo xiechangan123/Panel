@@ -8,7 +8,11 @@ import ImagePullModal from './ImagePullModal.vue'
 const { $gettext } = useGettext()
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
+const props = defineProps<{
+  editId?: string
+}>()
 
+const isEdit = computed(() => !!props.editId)
 const doSubmit = ref(false)
 const currentTab = ref('basic')
 
@@ -95,18 +99,24 @@ const getNetworks = () => {
       label: item.name,
       value: item.id,
     }))
-    if (networks.value.length > 0) {
+    // 编辑模式下网络由 inspect 回填，避免竞态覆盖
+    if (!isEdit.value && networks.value.length > 0) {
       createModel.network = networks.value[0]?.value ?? ''
     }
   })
 }
 
-// 创建容器
+// 创建/更新容器
 const createContainer = () => {
   doSubmit.value = true
-  useRequest(container.containerCreate(createModel))
+  const req = isEdit.value
+    ? container.containerUpdate(props.editId!, createModel)
+    : container.containerCreate(createModel)
+  useRequest(req)
     .onSuccess(() => {
-      window.$message.success($gettext('Created successfully'))
+      window.$message.success(
+        isEdit.value ? $gettext('Updated successfully') : $gettext('Created successfully'),
+      )
       show.value = false
     })
     .onComplete(() => {
@@ -126,9 +136,29 @@ const handleSubmit = () => {
     return
   }
 
+  if (isEdit.value) {
+    // 更新容器需要删除重建，二次确认
+    window.$dialog.warning({
+      title: $gettext('Confirm Update'),
+      content: $gettext(
+        'Updating will remove the current container and recreate it with the new configuration. Data not stored in mounted volumes will be lost. Continue?',
+      ),
+      positiveText: $gettext('Continue'),
+      negativeText: $gettext('Cancel'),
+      onPositiveClick: () => {
+        checkImageAndSubmit()
+      },
+    })
+    return
+  }
+
+  checkImageAndSubmit()
+}
+
+// 检查镜像是否存在后提交
+const checkImageAndSubmit = () => {
   doSubmit.value = true
 
-  // 检查镜像是否存在
   useRequest(container.imageExist(createModel.image))
     .onSuccess(({ data }) => {
       if (data) {
@@ -144,6 +174,74 @@ const handleSubmit = () => {
         doSubmit.value = false
       }
     })
+}
+
+// 编辑模式：从 inspect 数据回填表单
+const fillFromInspect = (info: any) => {
+  createModel.name = String(info.Name || '').replace(/^\//, '')
+  createModel.image = info.Config?.Image || ''
+  createModel.restart_policy = info.HostConfig?.RestartPolicy?.Name || 'no'
+  createModel.tty = !!info.Config?.Tty
+  createModel.open_stdin = !!info.Config?.OpenStdin
+  createModel.auto_remove = !!info.HostConfig?.AutoRemove
+  createModel.privileged = !!info.HostConfig?.Privileged
+  createModel.publish_all_ports = !!info.HostConfig?.PublishAllPorts
+  createModel.cpus = (info.HostConfig?.NanoCpus || 0) / 1e9
+  createModel.memory = Math.round((info.HostConfig?.Memory || 0) / 1024 / 1024)
+  createModel.cpu_shares = info.HostConfig?.CpuShares || 1024
+  createModel.command = info.Config?.Cmd || []
+  createModel.entrypoint = info.Config?.Entrypoint || []
+
+  // 端口映射："80/tcp" -> [{HostIp, HostPort}]
+  createModel.ports = []
+  for (const [containerPort, bindings] of Object.entries(info.HostConfig?.PortBindings || {})) {
+    const [port, protocol] = containerPort.split('/')
+    for (const binding of (bindings as any[]) || []) {
+      createModel.ports.push({
+        container_start: Number(port),
+        container_end: Number(port),
+        host_start: Number(binding.HostPort),
+        host_end: Number(binding.HostPort),
+        host: binding.HostIp || '',
+        protocol: protocol || 'tcp',
+      })
+    }
+  }
+
+  // 挂载："host:container[:mode]"
+  createModel.volumes = (info.HostConfig?.Binds || []).map((bind: string) => {
+    const parts = bind.split(':')
+    return {
+      host: parts[0] || '',
+      container: parts[1] || '',
+      mode: parts[2] || 'rw',
+    }
+  })
+
+  // 环境变量："K=V"
+  createModel.env = (info.Config?.Env || []).map((env: string) => {
+    const idx = env.indexOf('=')
+    return { key: env.slice(0, idx), value: env.slice(idx + 1) }
+  })
+
+  // 标签
+  createModel.labels = Object.entries(info.Config?.Labels || {}).map(([key, value]) => ({
+    key,
+    value: String(value),
+  }))
+
+  // 网络：按 NetworkID 匹配下拉项
+  const networkSettings: any = Object.values(info.NetworkSettings?.Networks || {})[0]
+  if (networkSettings?.NetworkID) {
+    createModel.network = networkSettings.NetworkID
+  }
+}
+
+// 编辑模式：加载容器当前配置
+const loadContainer = () => {
+  useRequest(container.containerInspect(props.editId!)).onSuccess(({ data }: any) => {
+    fillFromInspect(data)
+  })
 }
 
 const resetForm = () => {
@@ -172,6 +270,9 @@ watch(show, (val) => {
   if (val) {
     resetForm()
     getNetworks()
+    if (isEdit.value) {
+      loadContainer()
+    }
   }
 })
 </script>
@@ -179,7 +280,7 @@ watch(show, (val) => {
 <template>
   <n-modal
     v-model:show="show"
-    :title="$gettext('Create Container')"
+    :title="isEdit ? $gettext('Edit Container') : $gettext('Create Container')"
     preset="card"
     :style="{ width: '70vw', maxWidth: '1080px' }"
     size="huge"
@@ -534,7 +635,7 @@ watch(show, (val) => {
           {{ $gettext('Cancel') }}
         </n-button>
         <n-button type="primary" :loading="doSubmit" :disabled="doSubmit" @click="handleSubmit">
-          {{ $gettext('Create') }}
+          {{ isEdit ? $gettext('Save') : $gettext('Create') }}
         </n-button>
       </n-flex>
     </template>

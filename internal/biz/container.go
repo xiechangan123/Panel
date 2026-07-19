@@ -10,6 +10,7 @@ import (
 
 type ContainerRepo interface {
 	ListAll(sock string) ([]types.Container, error)
+	Inspect(sock string, id string) (any, error)
 	Create(sock string, req *request.ContainerCreate) (string, error)
 	Remove(sock string, id string) error
 	Start(sock string, id string) error
@@ -51,8 +52,22 @@ func (uc *ContainerUsecase) ListByName(name string) ([]types.Container, error) {
 	return containers, nil
 }
 
+func (uc *ContainerUsecase) Inspect(id string) (any, error) {
+	sock := containerSock(uc.setting)
+	return uc.repo.Inspect(sock, id)
+}
+
 func (uc *ContainerUsecase) Create(req *request.ContainerCreate) (string, error) {
 	sock := containerSock(uc.setting)
+	return uc.repo.Create(sock, req)
+}
+
+// Update 删除旧容器后按新配置重建同名容器
+func (uc *ContainerUsecase) Update(id string, req *request.ContainerCreate) (string, error) {
+	sock := containerSock(uc.setting)
+	if err := uc.repo.Remove(sock, id); err != nil {
+		return "", err
+	}
 	return uc.repo.Create(sock, req)
 }
 

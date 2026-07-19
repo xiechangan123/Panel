@@ -78,6 +78,65 @@ func (_c *ContainerRepo_Create_Call) RunAndReturn(run func(string, *request.Cont
 	return _c
 }
 
+// Inspect provides a mock function with given fields: sock, id
+func (_m *ContainerRepo) Inspect(sock string, id string) (interface{}, error) {
+	ret := _m.Called(sock, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Inspect")
+	}
+
+	var r0 interface{}
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (interface{}, error)); ok {
+		return rf(sock, id)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) interface{}); ok {
+		r0 = rf(sock, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(interface{})
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(sock, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ContainerRepo_Inspect_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Inspect'
+type ContainerRepo_Inspect_Call struct {
+	*mock.Call
+}
+
+// Inspect is a helper method to define mock.On call
+//   - sock string
+//   - id string
+func (_e *ContainerRepo_Expecter) Inspect(sock interface{}, id interface{}) *ContainerRepo_Inspect_Call {
+	return &ContainerRepo_Inspect_Call{Call: _e.mock.On("Inspect", sock, id)}
+}
+
+func (_c *ContainerRepo_Inspect_Call) Run(run func(sock string, id string)) *ContainerRepo_Inspect_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *ContainerRepo_Inspect_Call) Return(_a0 interface{}, _a1 error) *ContainerRepo_Inspect_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ContainerRepo_Inspect_Call) RunAndReturn(run func(string, string) (interface{}, error)) *ContainerRepo_Inspect_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Kill provides a mock function with given fields: sock, id
 func (_m *ContainerRepo) Kill(sock string, id string) error {
 	ret := _m.Called(sock, id)

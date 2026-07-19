@@ -15,11 +15,16 @@ import { useGettext } from 'vue3-gettext'
 import container from '@/api/panel/container'
 import ws from '@/api/ws'
 import ContainerCreate from '@/views/container/ContainerCreate.vue'
+import ContainerInfoModal from '@/views/container/ContainerInfoModal.vue'
 
 const { $gettext } = useGettext()
 
 const logModal = ref(false)
 const logId = ref('')
+const infoModal = ref(false)
+const infoContainerId = ref('')
+const editModal = ref(false)
+const editContainerId = ref('')
 const renameModal = ref(false)
 const renameLoading = ref(false)
 const renameModel = ref({
@@ -107,10 +112,24 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 320,
+    width: 380,
     hideInExcel: true,
     render(row: any) {
       return h(NFlex, { size: 'small', align: 'center' }, () => [
+        h(
+          NButton,
+          {
+            size: 'small',
+            secondary: true,
+            onClick: () => {
+              infoContainerId.value = row.id
+              infoModal.value = true
+            },
+          },
+          {
+            default: () => $gettext('Info'),
+          },
+        ),
         h(
           NButton,
           {
@@ -155,6 +174,10 @@ const columns: any = [
           {
             options: [
               {
+                label: $gettext('Edit'),
+                key: 'edit',
+              },
+              {
                 label: $gettext('Start'),
                 key: 'start',
                 disabled: row.state === 'running',
@@ -191,6 +214,10 @@ const columns: any = [
             ],
             onSelect: (key: string) => {
               switch (key) {
+                case 'edit':
+                  editContainerId.value = row.id
+                  editModal.value = true
+                  break
                 case 'start':
                   handleStart(row.id)
                   break
@@ -589,7 +616,7 @@ onUnmounted(() => {
       striped
       remote
       :loading="loading"
-      :scroll-x="1500"
+      :scroll-x="1600"
       :data="data"
       :columns="columns"
       :row-key="(row: any) => row.id"
@@ -653,6 +680,12 @@ onUnmounted(() => {
     ></div>
   </n-modal>
   <ContainerCreate v-model:show="containerCreateModal" @update:show="closeContainerCreateModal" />
+  <ContainerCreate
+    v-model:show="editModal"
+    :edit-id="editContainerId"
+    @update:show="closeContainerCreateModal"
+  />
+  <ContainerInfoModal v-model:show="infoModal" :container-id="infoContainerId" />
 </template>
 
 <style scoped lang="scss">

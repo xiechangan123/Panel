@@ -4,8 +4,13 @@ export default {
   // 获取容器列表
   containerList: (page: number, limit: number): any =>
     http.Get('/container/container', { params: { page, limit } }),
+  // 获取容器详情
+  containerInspect: (id: string): any => http.Get(`/container/container/${id}`),
   // 添加容器
   containerCreate: (config: any): any => http.Post('/container/container', config),
+  // 更新容器（删除重建）
+  containerUpdate: (id: string, config: any): any =>
+    http.Put(`/container/container/${id}`, config),
   // 删除容器
   containerRemove: (id: string): any => http.Delete(`/container/container/${id}`),
   // 启动容器
