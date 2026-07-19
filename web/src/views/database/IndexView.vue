@@ -6,6 +6,9 @@ defineOptions({
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import phpmyadmin from '@/api/apps/phpmyadmin'
+import app from '@/api/panel/app'
+import database from '@/api/panel/database'
 import CreateDatabaseModal from '@/views/database/CreateDatabaseModal.vue'
 import CreateServerModal from '@/views/database/CreateServerModal.vue'
 import CreateUserModal from '@/views/database/CreateUserModal.vue'
@@ -21,6 +24,51 @@ const currentTab = ref('mysql')
 const createDatabaseModalShow = ref(false)
 const createUserModalShow = ref(false)
 const createServerModalShow = ref(false)
+
+const phpMyAdminInstalled = ref(false)
+const phpMyAdminLoading = ref(false)
+const mysqlServers = ref<any[]>([])
+
+useRequest(app.isInstalled('phpmyadmin')).onSuccess(({ data }: any) => {
+  phpMyAdminInstalled.value = data
+})
+
+// 切换到 MySQL 标签页时刷新可用的 MySQL 服务器列表
+watch(
+  currentTab,
+  (tab) => {
+    if (tab !== 'mysql') return
+    useRequest(database.serverList(1, 10000, 'mysql')).onSuccess(({ data }: any) => {
+      mysqlServers.value = data.items || []
+    })
+  },
+  { immediate: true },
+)
+
+const serverOptions = computed(() =>
+  mysqlServers.value.map((item: any) => ({ label: item.name, key: item.id })),
+)
+
+const handlePhpMyAdmin = (serverID: number) => {
+  // 预先打开空白窗口,避免异步回调中 window.open 被浏览器拦截
+  const win = window.open('about:blank', '_blank')
+  phpMyAdminLoading.value = true
+  useRequest(phpmyadmin.login(serverID))
+    .onSuccess(({ data }: any) => {
+      const url = `http://${window.location.hostname}:${data.port}/${data.path}/`
+      if (win) {
+        win.location.href = url
+      } else {
+        window.open(url, '_blank')
+      }
+    })
+    .onError(() => {
+      win?.close()
+    })
+    .onComplete(() => {
+      phpMyAdminLoading.value = false
+    })
+}
 </script>
 
 <template>
@@ -47,6 +95,26 @@ const createServerModalShow = ref(false)
         >
           {{ $gettext('Create Database') }}
         </n-button>
+        <template v-if="currentTab === 'mysql' && phpMyAdminInstalled && mysqlServers.length > 0">
+          <n-dropdown
+            v-if="mysqlServers.length > 1"
+            :options="serverOptions"
+            trigger="click"
+            @select="handlePhpMyAdmin"
+          >
+            <n-button :loading="phpMyAdminLoading" :disabled="phpMyAdminLoading">
+              phpMyAdmin
+            </n-button>
+          </n-dropdown>
+          <n-button
+            v-else
+            :loading="phpMyAdminLoading"
+            :disabled="phpMyAdminLoading"
+            @click="handlePhpMyAdmin(mysqlServers[0].id)"
+          >
+            phpMyAdmin
+          </n-button>
+        </template>
         <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
           {{ $gettext('Create User') }}
         </n-button>
