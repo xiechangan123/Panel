@@ -17,6 +17,17 @@ type TamperRuleCreate struct {
 	Enabled  bool     `json:"enabled" form:"enabled"`
 }
 
+// TamperCheckPaths 批量查询路径保护状态
+type TamperCheckPaths struct {
+	Paths []string `json:"paths" form:"paths" validate:"required"`
+}
+
+// TamperProtect 切换路径保护状态
+type TamperProtect struct {
+	Path    string `json:"path" form:"path" validate:"required"`
+	Protect bool   `json:"protect" form:"protect"`
+}
+
 // TamperRuleUpdate 更新保护规则
 type TamperRuleUpdate struct {
 	ID       uint     `json:"id" form:"id" uri:"id" validate:"required"`

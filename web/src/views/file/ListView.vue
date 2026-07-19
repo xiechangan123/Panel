@@ -14,6 +14,7 @@ import {
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
+import tamper from '@/api/panel/tamper'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import { useFileStore } from '@/stores'
@@ -233,6 +234,46 @@ const getSortIcon = (key: string) => {
   return fileStore.sortOrder === 'asc' ? 'mdi:chevron-up' : 'mdi:chevron-down'
 }
 
+// ==================== 防篡改保护 ====================
+const tamperRunning = ref(false)
+const protectedSet = ref<Set<string>>(new Set())
+
+const isProtected = (item: any) => protectedSet.value.has(item.full)
+
+// 拉取当前列表各路径的保护状态(防篡改未运行时后端返回全 false)
+const refreshProtected = (list: any[]) => {
+  const paths = list.map((item: any) => item.full)
+  if (!paths.length) {
+    protectedSet.value = new Set()
+    return
+  }
+  useRequest(tamper.checkPaths(paths)).onSuccess(({ data }: any) => {
+    tamperRunning.value = data.running
+    protectedSet.value = new Set(Object.keys(data.items || {}).filter((p) => data.items[p]))
+  })
+}
+
+// 添加/移除保护(二次确认)
+const handleProtect = (item: any, protect: boolean) => {
+  window.$dialog.warning({
+    title: protect ? $gettext('Add Protection') : $gettext('Remove Protection'),
+    content: protect
+      ? $gettext('Add tamper protection for %{ name }?', { name: item.name })
+      : $gettext(
+          'Remove tamper protection for %{ name }? The matching rule or exclusions will be adjusted accordingly.',
+          { name: item.name },
+        ),
+    positiveText: $gettext('Yes'),
+    negativeText: $gettext('No'),
+    onPositiveClick: () => {
+      useRequest(tamper.protect(item.full, protect)).onSuccess(() => {
+        window.$message.success($gettext('Operation successful'))
+        refresh()
+      })
+    },
+  })
+}
+
 // 检查是否有 immutable 属性
 const confirmImmutableOperation = (row: any, callback: () => void) => {
   if (row.immutable) {
@@ -351,6 +392,13 @@ const options = computed<DropdownOption[]>(() => {
       label: $gettext('Terminal'),
       key: 'terminal',
       show: selectedRow.value.dir,
+    },
+    {
+      label: isProtected(selectedRow.value)
+        ? $gettext('Remove Protection')
+        : $gettext('Add Protection'),
+      key: isProtected(selectedRow.value) ? 'unprotect' : 'protect',
+      show: tamperRunning.value,
     },
     { label: $gettext('Properties'), key: 'properties' },
     { label: () => h('span', { style: { color: 'red' } }, $gettext('Delete')), key: 'delete' },
@@ -892,6 +940,10 @@ const handleSelect = (key: string) => {
     case 'properties':
       openProperty(selectedRow.value)
       break
+    case 'protect':
+    case 'unprotect':
+      handleProtect(selectedRow.value, key === 'protect')
+      break
     case 'delete':
       deleteFiles(items)
       break
@@ -1216,6 +1268,7 @@ const data = computed(() => {
 // selected 只保留当前列表中存在的项，避免删除/翻页/排序后残留导致表头复选框显示部分勾选
 // 目录大小缓存同样只保留仍存在的项，避免删除后重建同名目录显示旧值
 watch(data, (list) => {
+  refreshProtected(list)
   const dataSet = new Set(list.map((item: any) => item.full))
   if (selected.value.length > 0) {
     const filtered = selected.value.filter((p: any) => dataSet.has(p))
@@ -1410,7 +1463,13 @@ onUnmounted(() => {
           <template v-if="fileStore.viewType === 'grid'">
             <div class="icon-wrapper">
               <the-icon :icon="getFileIcon(item)" :size="48" :color="getIconColor(item)" />
-              <the-icon v-if="item.immutable" icon="mdi:lock" :size="16" class="lock-icon" />
+              <the-icon
+                v-if="isProtected(item)"
+                icon="mdi:shield-lock"
+                :size="16"
+                class="lock-icon text-success"
+              />
+              <the-icon v-else-if="item.immutable" icon="mdi:lock" :size="16" class="lock-icon" />
             </div>
             <!-- 内联重命名输入框 -->
             <input
@@ -1458,7 +1517,13 @@ onUnmounted(() => {
                 {{ item.symlink ? item.name + ' -> ' + item.link : item.name }}
               </n-ellipsis>
               <the-icon
-                v-if="item.immutable"
+                v-if="isProtected(item)"
+                icon="mdi:shield-lock"
+                :size="14"
+                class="text-success ml-1 shrink-0"
+              />
+              <the-icon
+                v-else-if="item.immutable"
                 icon="mdi:lock"
                 :size="14"
                 class="text-warning ml-1 shrink-0"

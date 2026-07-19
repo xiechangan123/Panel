@@ -1,7 +1,11 @@
 package biz
 
 import (
+	"errors"
 	"log/slog"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -269,7 +273,7 @@ func (uc *TamperUsecase) FlushLogs() {
 	uc.bufMu.Unlock()
 
 	if err := uc.repo.AddLogs(logs); err != nil {
-		uc.log.Warn("防篡改日志落库失败", slog.Any("err", err))
+		uc.log.Warn("failed to persist tamper logs", slog.Any("err", err))
 	}
 }
 
@@ -297,6 +301,121 @@ func (uc *TamperUsecase) Stats() tamper.Stats {
 		return tamper.Stats{}
 	}
 	return uc.mgr.Stats()
+}
+
+// enabledRules 取启用规则并转为 tamper.Rule
+func (uc *TamperUsecase) enabledRules() ([]*TamperRule, []tamper.Rule, error) {
+	rules, err := uc.repo.ListRules()
+	if err != nil {
+		return nil, nil, err
+	}
+	var converted []tamper.Rule
+	for _, r := range rules {
+		if !r.Enabled || r.Path == "" {
+			continue
+		}
+		converted = append(converted, tamper.Rule{
+			Name:     r.Name,
+			Paths:    []string{r.Path},
+			Exts:     r.Exts,
+			Excludes: r.Excludes,
+		})
+	}
+	return rules, converted, nil
+}
+
+// CheckPaths 批量查询路径是否处于保护范围(防篡改未运行时全为 false)
+func (uc *TamperUsecase) CheckPaths(paths []string) (map[string]bool, error) {
+	res := make(map[string]bool, len(paths))
+	for _, p := range paths {
+		res[p] = false
+	}
+	if !uc.Running() {
+		return res, nil
+	}
+	_, rules, err := uc.enabledRules()
+	if err != nil {
+		return nil, err
+	}
+	for _, p := range paths {
+		info, err := os.Lstat(p)
+		if err != nil {
+			continue
+		}
+		res[p] = tamper.Covered(rules, p, info.IsDir())
+	}
+	return res, nil
+}
+
+// SetProtect 切换单个路径的保护状态,经由规则/排除联动实现:
+// 保护:命中排除则移除排除项,无覆盖规则则对目录新建整树规则
+// 解除:路径即规则根则删除规则,否则加入排除项
+func (uc *TamperUsecase) SetProtect(path string, protect bool) error {
+	path = filepath.Clean(path)
+	info, err := os.Lstat(path)
+	if err != nil {
+		return err
+	}
+	isDir := info.IsDir()
+
+	rules, _, err := uc.enabledRules()
+	if err != nil {
+		return err
+	}
+	var covering *TamperRule
+	for _, r := range rules {
+		if r.Enabled && r.Path != "" && tamper.UnderRoot(path, filepath.Clean(r.Path)) {
+			covering = r
+			break
+		}
+	}
+
+	if protect {
+		if covering == nil {
+			if !isDir {
+				return errors.New("file is not inside any protection rule, protect its directory instead")
+			}
+			return uc.CreateRule(&TamperRule{Name: uc.ruleNameFor(rules, path), Path: path, Enabled: true})
+		}
+		// 移除导致该路径被排除的排除项
+		kept := make([]string, 0, len(covering.Excludes))
+		for _, ex := range covering.Excludes {
+			if !tamper.ExcludeMatches(ex, path) {
+				kept = append(kept, ex)
+			}
+		}
+		if len(kept) != len(covering.Excludes) {
+			covering.Excludes = kept
+			return uc.UpdateRule(covering)
+		}
+		if !isDir && !tamper.MatchExt(path, covering.Exts) {
+			return errors.New("file extension is not protected by the rule, edit the rule extensions instead")
+		}
+		return nil // 已处于保护中
+	}
+
+	if covering == nil {
+		return nil // 本就未受保护
+	}
+	if path == filepath.Clean(covering.Path) {
+		return uc.DeleteRule(covering.ID)
+	}
+	if !tamper.Covered([]tamper.Rule{{Paths: []string{covering.Path}, Exts: covering.Exts, Excludes: covering.Excludes}}, path, isDir) {
+		return nil // 本就未受保护(已排除或后缀不匹配)
+	}
+	covering.Excludes = append(covering.Excludes, path)
+	return uc.UpdateRule(covering)
+}
+
+// ruleNameFor 生成不冲突的规则名
+func (uc *TamperUsecase) ruleNameFor(rules []*TamperRule, path string) string {
+	name := filepath.Base(path)
+	for _, r := range rules {
+		if r.Name == name {
+			return strings.Trim(strings.ReplaceAll(path, "/", "-"), "-")
+		}
+	}
+	return name
 }
 
 // Unlock 临时解除指定路径保护(供面板合法写入前调用),返回是否处于保护中

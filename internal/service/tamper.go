@@ -82,6 +82,38 @@ func (s *TamperService) SaveSetting(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+// CheckPaths 批量查询路径保护状态(供文件管理器展示)
+func (s *TamperService) CheckPaths(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.TamperCheckPaths](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	res, err := s.tamperRepo.CheckPaths(req.Paths)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	Success(w, chix.M{
+		"running": s.tamperRepo.Running(),
+		"items":   res,
+	})
+}
+
+// Protect 切换路径保护状态(供文件管理器右键操作)
+func (s *TamperService) Protect(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.TamperProtect](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if err = s.tamperRepo.SetProtect(req.Path, req.Protect); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	Success(w, nil)
+}
+
 // ListRules 保护规则列表
 func (s *TamperService) ListRules(w http.ResponseWriter, r *http.Request) {
 	rules, err := s.tamperRepo.ListRules()

@@ -9,6 +9,10 @@ export default {
   saveSetting: (data: any): any => http.Post('/tamper/setting', data),
   // 激活 eBPF(改 grub 并重启系统)
   activateEBPF: (): any => http.Post('/tamper/activate_ebpf'),
+  // 批量查询路径保护状态
+  checkPaths: (paths: string[]): any => http.Post('/tamper/check_paths', { paths }),
+  // 添加/移除路径保护
+  protect: (path: string, protect: boolean): any => http.Post('/tamper/protect', { path, protect }),
   // 规则列表
   rules: (page: number, limit: number): any =>
     http.Get('/tamper/rule', { params: { page, limit } }),
