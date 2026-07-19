@@ -126,7 +126,7 @@ func (uc *TamperUsecase) SaveSetting(s *TamperSetting) error {
 }
 
 // Rules 规则管理
-func (uc *TamperUsecase) ListRules() ([]*TamperRule, error) { return uc.repo.ListRules() }
+func (uc *TamperUsecase) ListRules() ([]*TamperRule, error)    { return uc.repo.ListRules() }
 func (uc *TamperUsecase) GetRule(id uint) (*TamperRule, error) { return uc.repo.GetRule(id) }
 
 func (uc *TamperUsecase) CreateRule(rule *TamperRule) error {

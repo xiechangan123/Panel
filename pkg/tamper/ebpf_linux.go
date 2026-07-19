@@ -23,8 +23,15 @@ const (
 	oRdWr   = 2
 )
 
-// 事件结构体大小:inode(8)+pid(4)+op(4)+comm(16)
-const eventStructSize = 32
+// 事件结构体大小:inode(8)+dev(8)+pid(4)+op(4)+comm(16)
+const eventStructSize = 40
+
+// protKey 保护集合的键:设备号+inode 号唯一标识一个文件
+// 仅用 inode 会在不同文件系统(如 tmpfs)间冲突,导致合法操作被误拦
+type protKey struct {
+	Ino uint64
+	Dev uint64
+}
 
 // btfOffsets 从内核 BTF 查得的字段偏移
 type btfOffsets struct {
@@ -32,6 +39,8 @@ type btfOffsets struct {
 	fInode uint32 // file.f_inode
 	dInode uint32 // dentry.d_inode
 	iIno   uint32 // inode.i_ino
+	iSb    uint32 // inode.i_sb
+	sDev   uint32 // super_block.s_dev
 }
 
 // hookSpec 描述一个 LSM 拦截点
@@ -100,7 +109,7 @@ func paramLayout(spec *btf.Spec, hook, param string) (paramIdx, nargs int, err e
 }
 
 // buildProg 为一个拦截点生成 LSM 程序指令
-// 寄存器约定:R7=前序返回值,R9=inode 号,R6=事件指针(R6-R9 跨 helper 调用保留)
+// 寄存器约定:R6=事件指针,R7=前序返回值,R8=设备号,R9=inode 号(R6-R9 跨 helper 调用保留)
 func buildProg(h hookSpec, offs btfOffsets, paramIdx, nargs int, protectedFD, eventsFD int) asm.Instructions {
 	retOff := int16(nargs * 8)
 	argOff := int16(paramIdx * 8)
@@ -111,29 +120,35 @@ func buildProg(h hookSpec, offs btfOffsets, paramIdx, nargs int, protectedFD, ev
 		asm.JNE.Imm(asm.R7, 0, "deny_prev"),
 	}
 
+	// 取出被操作文件的 inode 指针到 R2
 	if h.isFile {
 		insns = append(insns,
-			asm.LoadMem(asm.R2, asm.R1, argOff, asm.DWord),                  // file
-			asm.LoadMem(asm.R3, asm.R2, int16(offs.fFlags), asm.Word),       // f_flags
+			asm.LoadMem(asm.R2, asm.R1, argOff, asm.DWord),            // file
+			asm.LoadMem(asm.R3, asm.R2, int16(offs.fFlags), asm.Word), // f_flags
 			asm.And.Imm(asm.R3, oWrOnly|oRdWr),
-			asm.JEq.Imm(asm.R3, 0, "allow"),                                 // 非写打开放行
-			asm.LoadMem(asm.R2, asm.R2, int16(offs.fInode), asm.DWord),      // f_inode
-			asm.LoadMem(asm.R9, asm.R2, int16(offs.iIno), asm.DWord),        // i_ino
+			asm.JEq.Imm(asm.R3, 0, "allow"),                            // 非写打开放行
+			asm.LoadMem(asm.R2, asm.R2, int16(offs.fInode), asm.DWord), // f_inode
 		)
 	} else {
 		insns = append(insns,
-			asm.LoadMem(asm.R2, asm.R1, argOff, asm.DWord),                  // dentry
-			asm.LoadMem(asm.R2, asm.R2, int16(offs.dInode), asm.DWord),      // d_inode
-			asm.LoadMem(asm.R9, asm.R2, int16(offs.iIno), asm.DWord),        // i_ino
+			asm.LoadMem(asm.R2, asm.R1, argOff, asm.DWord),             // dentry
+			asm.LoadMem(asm.R2, asm.R2, int16(offs.dInode), asm.DWord), // d_inode
 		)
 	}
 
-	// 查 protected map
+	// R9 = i_ino,R8 = i_sb->s_dev(设备号,零扩展),二者构成唯一键
+	// R8/R9 为被调用者保留寄存器,可跨 helper 调用存活
 	insns = append(insns,
-		asm.StoreMem(asm.RFP, -8, asm.R9, asm.DWord),
+		asm.LoadMem(asm.R9, asm.R2, int16(offs.iIno), asm.DWord), // i_ino
+		asm.LoadMem(asm.R8, asm.R2, int16(offs.iSb), asm.DWord),  // i_sb
+		asm.LoadMem(asm.R8, asm.R8, int16(offs.sDev), asm.Word),  // s_dev
+
+		// 栈上构造 16 字节键 {ino, dev} 并查 protected map
+		asm.StoreMem(asm.RFP, -16, asm.R9, asm.DWord),
+		asm.StoreMem(asm.RFP, -8, asm.R8, asm.DWord),
 		asm.LoadMapPtr(asm.R1, protectedFD),
 		asm.Mov.Reg(asm.R2, asm.RFP),
-		asm.Add.Imm(asm.R2, -8),
+		asm.Add.Imm(asm.R2, -16),
 		asm.FnMapLookupElem.Call(),
 		asm.JEq.Imm(asm.R0, 0, "allow"), // 未命中放行
 
@@ -146,14 +161,15 @@ func buildProg(h hookSpec, offs btfOffsets, paramIdx, nargs int, protectedFD, ev
 		asm.Mov.Reg(asm.R6, asm.R0),
 
 		asm.StoreMem(asm.R6, 0, asm.R9, asm.DWord), // inode
+		asm.StoreMem(asm.R6, 8, asm.R8, asm.DWord), // dev
 		asm.FnGetCurrentPidTgid.Call(),
 		asm.RSh.Imm(asm.R0, 32),
-		asm.StoreMem(asm.R6, 8, asm.R0, asm.Word),          // pid
-		asm.StoreImm(asm.R6, 12, int64(h.op), asm.Word),    // op
+		asm.StoreMem(asm.R6, 16, asm.R0, asm.Word),      // pid
+		asm.StoreImm(asm.R6, 20, int64(h.op), asm.Word), // op
 		asm.Mov.Reg(asm.R1, asm.R6),
-		asm.Add.Imm(asm.R1, 16),
+		asm.Add.Imm(asm.R1, 24),
 		asm.Mov.Imm(asm.R2, 16),
-		asm.FnGetCurrentComm.Call(),                        // comm
+		asm.FnGetCurrentComm.Call(), // comm
 		asm.Mov.Reg(asm.R1, asm.R6),
 		asm.Mov.Imm(asm.R2, 0),
 		asm.FnRingbufSubmit.Call(),
@@ -182,13 +198,15 @@ func newEBPFEngine() (*ebpfEngine, error) {
 
 	var offs btfOffsets
 	for _, f := range []struct {
-		dst              *uint32
+		dst             *uint32
 		structN, fieldN string
 	}{
 		{&offs.fFlags, "file", "f_flags"},
 		{&offs.fInode, "file", "f_inode"},
 		{&offs.dInode, "dentry", "d_inode"},
 		{&offs.iIno, "inode", "i_ino"},
+		{&offs.iSb, "inode", "i_sb"},
+		{&offs.sDev, "super_block", "s_dev"},
 	} {
 		if *f.dst, err = fieldOffset(spec, f.structN, f.fieldN); err != nil {
 			return nil, err
@@ -196,7 +214,7 @@ func newEBPFEngine() (*ebpfEngine, error) {
 	}
 
 	protected, err := ebpf.NewMap(&ebpf.MapSpec{
-		Type: ebpf.Hash, KeySize: 8, ValueSize: 1, MaxEntries: 1 << 20,
+		Type: ebpf.Hash, KeySize: 16, ValueSize: 1, MaxEntries: 1 << 20,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("创建 protected map: %w", err)
@@ -263,24 +281,18 @@ func (e *ebpfEngine) readLoop() {
 		if err != nil {
 			return // reader 关闭
 		}
-		if len(rec.RawSample) < eventStructSize {
+		b := rec.RawSample
+		if len(b) < eventStructSize {
 			continue
 		}
-		var raw struct {
-			Ino  uint64
-			Pid  uint32
-			Op   uint32
-			Comm [16]byte
-		}
-		if err := binary.Read(bytes.NewReader(rec.RawSample), binary.LittleEndian, &raw); err != nil {
-			continue
-		}
+		op := Op(binary.LittleEndian.Uint32(b[20:24]))
 		ev := Event{
-			Inode: raw.Ino,
-			PID:   raw.Pid,
-			Comm:  string(bytes.TrimRight(raw.Comm[:], "\x00")),
-			Op:    Op(raw.Op),
-			OpStr: Op(raw.Op).String(),
+			Inode: binary.LittleEndian.Uint64(b[0:8]),
+			Dev:   binary.LittleEndian.Uint64(b[8:16]),
+			PID:   binary.LittleEndian.Uint32(b[16:20]),
+			Op:    op,
+			OpStr: op.String(),
+			Comm:  string(bytes.TrimRight(b[24:40], "\x00")),
 		}
 		select {
 		case e.out <- ev:
@@ -291,80 +303,47 @@ func (e *ebpfEngine) readLoop() {
 	}
 }
 
-// apply 将条目中的文件 inode 加入保护集合(目录对 eBPF 无意义)
-func (e *ebpfEngine) apply(entries []fileEntry) error {
-	inodes := make([]uint64, 0, len(entries))
+// keysOf 从条目提取受保护文件的复合键(目录对 eBPF 无意义,跳过)
+func keysOf(entries []fileEntry) []protKey {
+	keys := make([]protKey, 0, len(entries))
 	for _, en := range entries {
 		if !en.isDir && en.inode != 0 {
-			inodes = append(inodes, en.inode)
+			keys = append(keys, protKey{Ino: en.inode, Dev: en.dev})
 		}
 	}
-	return e.Add(inodes)
+	return keys
 }
 
-// remove 将条目中的文件 inode 移出保护集合
+// apply 将条目中的文件加入保护集合
+func (e *ebpfEngine) apply(entries []fileEntry) error {
+	return e.Add(keysOf(entries))
+}
+
+// remove 将条目中的文件移出保护集合
 func (e *ebpfEngine) remove(entries []fileEntry) error {
-	inodes := make([]uint64, 0, len(entries))
-	for _, en := range entries {
-		if !en.isDir && en.inode != 0 {
-			inodes = append(inodes, en.inode)
-		}
-	}
-	return e.Remove(inodes)
+	return e.Remove(keysOf(entries))
 }
 
 func (e *ebpfEngine) events() <-chan Event { return e.out }
 
 func (e *ebpfEngine) close() error { return e.Close() }
 
-// Add 将文件 inode 加入保护集合
-func (e *ebpfEngine) Add(inodes []uint64) error {
-	for _, ino := range inodes {
-		if err := e.protected.Put(ino, uint8(1)); err != nil {
+// Add 将文件加入保护集合
+func (e *ebpfEngine) Add(keys []protKey) error {
+	for _, k := range keys {
+		if err := e.protected.Put(k, uint8(1)); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// Remove 将文件 inode 移出保护集合
-func (e *ebpfEngine) Remove(inodes []uint64) error {
-	for _, ino := range inodes {
-		_ = e.protected.Delete(ino)
-	}
-	return nil
-}
-
-// Clear 清空保护集合
-func (e *ebpfEngine) Clear() error {
-	var key uint64
-	var keys []uint64
-	iter := e.protected.Iterate()
-	var val uint8
-	for iter.Next(&key, &val) {
-		keys = append(keys, key)
-	}
+// Remove 将文件移出保护集合
+func (e *ebpfEngine) Remove(keys []protKey) error {
 	for _, k := range keys {
 		_ = e.protected.Delete(k)
 	}
-	return iter.Err()
-}
-
-// Count 当前受保护 inode 数
-func (e *ebpfEngine) Count() int {
-	n := 0
-	iter := e.protected.Iterate()
-	var key uint64
-	var val uint8
-	for iter.Next(&key, &val) {
-		n++
-	}
-	return n
-}
-
-// Events 拦截事件通道
-func (e *ebpfEngine) Events() <-chan Event {
-	return e.out
+	return nil
 }
 
 // Close 释放所有资源

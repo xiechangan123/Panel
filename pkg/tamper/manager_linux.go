@@ -15,13 +15,21 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"golang.org/x/sys/unix"
 )
 
 // fileEntry 一个受保护条目
 type fileEntry struct {
 	path  string
+	dev   uint64
 	inode uint64
 	isDir bool
+}
+
+// fileKey 设备号+inode 唯一标识一个文件,用于事件回填路径
+type fileKey struct {
+	dev   uint64
+	inode uint64
 }
 
 // engine 防篡改底层引擎(chattr / ebpf 各一实现)
@@ -43,7 +51,7 @@ type Manager struct {
 
 	mu        sync.RWMutex
 	entries   []fileEntry
-	inodePath map[uint64]string // eBPF 事件回填路径
+	inodePath map[fileKey]string // eBPF 事件回填路径
 	nFiles    int
 	nDirs     int
 	running   bool
@@ -58,7 +66,7 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 	m := &Manager{
 		cfg:       cfg,
 		log:       log,
-		inodePath: make(map[uint64]string),
+		inodePath: make(map[fileKey]string),
 		out:       make(chan Event, 256),
 		closed:    make(chan struct{}),
 	}
@@ -119,13 +127,16 @@ func isExcluded(path string, excludes []string) bool {
 	return false
 }
 
-// inodeOf 取路径 inode 号
-func inodeOf(path string) uint64 {
+// statOf 取路径的设备号(内核 dev_t 编码)与 inode 号
+// stat 返回的 st_dev 为 glibc 编码,需转换为内核 s_dev 格式以便与 eBPF 读到的值一致
+func statOf(path string) (dev, ino uint64) {
 	var st syscall.Stat_t
 	if err := syscall.Lstat(path, &st); err != nil {
-		return 0
+		return 0, 0
 	}
-	return st.Ino
+	major := unix.Major(uint64(st.Dev))
+	minor := unix.Minor(uint64(st.Dev))
+	return uint64(major)<<20 | uint64(minor)&0xfffff, st.Ino
 }
 
 // scan 遍历规则计算受保护条目
@@ -153,13 +164,15 @@ func (m *Manager) scan() []fileEntry {
 				if d.IsDir() {
 					if wholeTree {
 						seen[path] = true
-						entries = append(entries, fileEntry{path: path, inode: inodeOf(path), isDir: true})
+						dev, ino := statOf(path)
+						entries = append(entries, fileEntry{path: path, dev: dev, inode: ino, isDir: true})
 					}
 					return nil
 				}
 				if matchExt(path, rule.Exts) {
 					seen[path] = true
-					entries = append(entries, fileEntry{path: path, inode: inodeOf(path), isDir: false})
+					dev, ino := statOf(path)
+					entries = append(entries, fileEntry{path: path, dev: dev, inode: ino, isDir: false})
 				}
 				return nil
 			})
@@ -181,7 +194,7 @@ func (m *Manager) Start() error {
 			m.nDirs++
 		} else {
 			m.nFiles++
-			m.inodePath[e.inode] = e.path
+			m.inodePath[fileKey{e.dev, e.inode}] = e.path
 		}
 	}
 	m.running = true
@@ -281,9 +294,11 @@ func (m *Manager) onCreate(path string) {
 		return
 	}
 
+	dev, ino := statOf(path)
 	ev := Event{
 		Path:  path,
-		Inode: inodeOf(path),
+		Dev:   dev,
+		Inode: ino,
 		Op:    OpCreate,
 		OpStr: OpCreate.String(),
 		Time:  time.Now(),
@@ -295,15 +310,15 @@ func (m *Manager) onCreate(path string) {
 	} else {
 		// 冻结策略:锁定新文件防止后续修改
 		m.mu.Lock()
-		m.inodePath[ev.Inode] = path
-		m.entries = append(m.entries, fileEntry{path: path, inode: ev.Inode, isDir: false})
+		m.inodePath[fileKey{dev, ino}] = path
+		m.entries = append(m.entries, fileEntry{path: path, dev: dev, inode: ino, isDir: false})
 		m.nFiles++
 		m.mu.Unlock()
 		switch e := m.eng.(type) {
 		case *chattrEngine:
 			e.lockOne(path, false)
 		case *ebpfEngine:
-			_ = e.Add([]uint64{ev.Inode})
+			_ = e.Add([]protKey{{Ino: ino, Dev: dev}})
 		}
 	}
 
@@ -333,7 +348,7 @@ func (m *Manager) forwardEvents(ch <-chan Event) {
 				return
 			}
 			m.mu.RLock()
-			ev.Path = m.inodePath[ev.Inode]
+			ev.Path = m.inodePath[fileKey{ev.Dev, ev.Inode}]
 			m.mu.RUnlock()
 			ev.Time = time.Now()
 			m.emit(ev)
@@ -375,7 +390,8 @@ func (m *Manager) Unlock(paths []string) {
 		if err != nil {
 			continue
 		}
-		entries = append(entries, fileEntry{path: p, inode: inodeOf(p), isDir: info.IsDir()})
+		dev, ino := statOf(p)
+		entries = append(entries, fileEntry{path: p, dev: dev, inode: ino, isDir: info.IsDir()})
 	}
 	_ = m.eng.remove(entries)
 }
@@ -388,7 +404,8 @@ func (m *Manager) Relock(paths []string) {
 		if err != nil {
 			continue
 		}
-		entries = append(entries, fileEntry{path: p, inode: inodeOf(p), isDir: info.IsDir()})
+		dev, ino := statOf(p)
+		entries = append(entries, fileEntry{path: p, dev: dev, inode: ino, isDir: info.IsDir()})
 	}
 	_ = m.eng.apply(entries)
 }

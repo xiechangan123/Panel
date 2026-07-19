@@ -19,8 +19,8 @@ const (
 	OpWrite   Op = iota // 写打开
 	OpUnlink            // 删除
 	OpRename            // 重命名
-	OpSetattr          // 修改权限/属主
-	OpCreate           // 新建(用户态监控)
+	OpSetattr           // 修改权限/属主
+	OpCreate            // 新建(用户态监控)
 )
 
 func (o Op) String() string {
@@ -43,6 +43,7 @@ func (o Op) String() string {
 // Event 一次篡改拦截/告警事件
 type Event struct {
 	Path  string    `json:"path"`
+	Dev   uint64    `json:"-"` // 设备号,与 inode 共同唯一标识文件(内部使用)
 	Inode uint64    `json:"inode"`
 	PID   uint32    `json:"pid"`
 	Comm  string    `json:"comm"`
@@ -78,7 +79,7 @@ type Stats struct {
 type EBPFStatus struct {
 	Available     bool   `json:"available"`      // 当前是否可直接使用
 	KernelVersion string `json:"kernel_version"` // 内核版本
-	BPFLSMActive  bool   `json:"bpf_lsm_active"`  // bpf 是否在激活的 LSM 列表中
-	ActiveLSM     string `json:"active_lsm"`      // 当前激活的 LSM 列表
-	Reason        string `json:"reason"`          // 不可用原因
+	BPFLSMActive  bool   `json:"bpf_lsm_active"` // bpf 是否在激活的 LSM 列表中
+	ActiveLSM     string `json:"active_lsm"`     // 当前激活的 LSM 列表
+	Reason        string `json:"reason"`         // 不可用原因
 }
