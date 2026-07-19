@@ -29,6 +29,10 @@ export default {
   // 获取端口占用进程信息
   portUsage: (port: number, protocol: string): any =>
     http.Get('/firewall/rule/port_usage', { params: { port, protocol } }),
+  // 导出防火墙规则
+  ruleExportUrl: '/api/firewall/rule/export',
+  // 导入防火墙规则
+  importRules: (formData: FormData): any => http.Post('/firewall/rule/import', formData),
   // 扫描感知 - 获取设置
   scanSetting: (): any => http.Get('/firewall/scan/setting'),
   // 扫描感知 - 更新设置

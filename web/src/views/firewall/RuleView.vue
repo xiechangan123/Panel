@@ -262,6 +262,27 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 )
 
 const selectedRowKeys = ref<any>([])
+const importing = ref(false)
+
+// 从 xlsx 导入规则
+const handleImport = ({ file }: any) => {
+  const formData = new FormData()
+  formData.append('file', file.file)
+  importing.value = true
+  useRequest(firewall.importRules(formData))
+    .onSuccess(({ data }: any) => {
+      window.$message.success(
+        $gettext('Import finished: %{succeeded} succeeded, %{failed} failed', {
+          succeeded: data.succeeded,
+          failed: data.failed,
+        }),
+      )
+      refresh()
+    })
+    .onComplete(() => {
+      importing.value = false
+    })
+}
 
 const handleDelete = async (row: any) => {
   useRequest(firewall.deleteRule(row)).onSuccess(() => {
@@ -313,6 +334,14 @@ onMounted(() => {
           </n-button>
         </template>
       </ConfirmDialog>
+      <n-button tag="a" :href="firewall.ruleExportUrl" target="_blank" ghost>
+        {{ $gettext('Export') }}
+      </n-button>
+      <n-upload accept=".xlsx" :show-file-list="false" :custom-request="handleImport">
+        <n-button :loading="importing" :disabled="importing" ghost>
+          {{ $gettext('Import') }}
+        </n-button>
+      </n-upload>
     </n-flex>
     <n-data-table
       v-model:checked-row-keys="selectedRowKeys"

@@ -1,13 +1,19 @@
 package service
 
 import (
+	"cmp"
+	"fmt"
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/samber/do/v2"
 	"github.com/samber/lo"
+	"github.com/spf13/cast"
+	"github.com/xuri/excelize/v2"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/firewall"
@@ -15,11 +21,13 @@ import (
 )
 
 type FirewallService struct {
+	t        *gotext.Locale
 	firewall firewall.Firewall
 }
 
 func NewFirewallService(i do.Injector) (*FirewallService, error) {
 	return &FirewallService{
+		t:        do.MustInvoke[*gotext.Locale](i),
 		firewall: firewall.NewFirewall(),
 	}, nil
 }
@@ -135,6 +143,115 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
+}
+
+// ExportRules 导出端口规则为 xlsx
+func (s *FirewallService) ExportRules(w http.ResponseWriter, r *http.Request) {
+	rules, err := s.firewall.ListRule()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	f := excelize.NewFile()
+	defer func() { _ = f.Close() }()
+
+	sheet := f.GetSheetName(0)
+	_ = f.SetSheetRow(sheet, "A1", &[]any{"type", "family", "protocol", "port_start", "port_end", "address", "strategy", "direction"})
+	row := 2
+	for rule := range slices.Values(rules) {
+		// 去除IP规则
+		if rule.PortStart == 1 && rule.PortEnd == 65535 {
+			continue
+		}
+		_ = f.SetSheetRow(sheet, fmt.Sprintf("A%d", row), &[]any{string(rule.Type), rule.Family, string(rule.Protocol), rule.PortStart, rule.PortEnd, rule.Address, string(rule.Strategy), string(rule.Direction)})
+		row++
+	}
+
+	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	w.Header().Set("Content-Disposition", `attachment; filename="firewall_rules.xlsx"`)
+	_ = f.Write(w)
+}
+
+// ImportRules 从 xlsx 导入端口规则
+func (s *FirewallService) ImportRules(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	defer func() { _ = file.Close() }()
+
+	f, err := excelize.OpenReader(file)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("failed to parse xlsx: %v", err))
+		return
+	}
+	defer func() { _ = f.Close() }()
+
+	rows, err := f.GetRows(f.GetSheetName(0))
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if len(rows) < 2 {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("no rules found in file"))
+		return
+	}
+
+	// 按表头定位列，兼容列顺序变化
+	index := make(map[string]int)
+	for i, name := range rows[0] {
+		index[strings.TrimSpace(name)] = i
+	}
+	if _, ok := index["port_start"]; !ok {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid file: missing port_start column"))
+		return
+	}
+	cell := func(row []string, name string) string {
+		i, ok := index[name]
+		if !ok || i >= len(row) {
+			return ""
+		}
+		return strings.TrimSpace(row[i])
+	}
+
+	succeeded, failed := 0, 0
+	for _, row := range rows[1:] {
+		portStart := cast.ToUint(cell(row, "port_start"))
+		portEnd := cast.ToUint(cell(row, "port_end"))
+		if portEnd == 0 {
+			portEnd = portStart
+		}
+		if portStart < 1 || portEnd > 65535 || portStart > portEnd {
+			failed++
+			continue
+		}
+		info := firewall.FireInfo{
+			Type:      firewall.Type(cmp.Or(cell(row, "type"), string(firewall.TypeNormal))),
+			Family:    cmp.Or(cell(row, "family"), "ipv4"),
+			Address:   cell(row, "address"),
+			PortStart: portStart,
+			PortEnd:   portEnd,
+			Protocol:  firewall.Protocol(cmp.Or(cell(row, "protocol"), string(firewall.ProtocolTCP))),
+			Strategy:  firewall.Strategy(cmp.Or(cell(row, "strategy"), string(firewall.StrategyAccept))),
+			Direction: firewall.Direction(cmp.Or(cell(row, "direction"), string(firewall.DirectionIn))),
+		}
+		if err = s.firewall.Port(info, firewall.OperationAdd); err != nil {
+			failed++
+			continue
+		}
+		succeeded++
+	}
+
+	Success(w, chix.M{
+		"succeeded": succeeded,
+		"failed":    failed,
+	})
 }
 
 func (s *FirewallService) GetIPRules(w http.ResponseWriter, r *http.Request) {
