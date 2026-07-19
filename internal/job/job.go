@@ -20,4 +20,5 @@ var Package = do.Package(
 	do.LazyNamed(Prefix+"panel_task", NewPanelTask),
 	do.LazyNamed(Prefix+"website_stat", NewWebsiteStat),
 	do.LazyNamed(Prefix+"website_expire", NewWebsiteExpire),
+	do.LazyNamed(Prefix+"tamper", NewTamper),
 )

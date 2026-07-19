@@ -1,0 +1,38 @@
+//go:build !linux
+
+package tamper
+
+import (
+	"errors"
+	"log/slog"
+)
+
+// Supported 非 Linux 平台不支持防篡改
+func Supported() bool {
+	return false
+}
+
+// DetectEBPF 非 Linux 平台不可用
+func DetectEBPF() EBPFStatus {
+	return EBPFStatus{Reason: "仅支持 Linux"}
+}
+
+// EnableBPFLSMGrub 非 Linux 平台不支持
+func EnableBPFLSMGrub() error {
+	return errors.New("仅支持 Linux")
+}
+
+// Manager 非 Linux 占位
+type Manager struct{}
+
+// NewManager 非 Linux 平台不支持
+func NewManager(_ Config, _ *slog.Logger) (*Manager, error) {
+	return nil, errors.New("防篡改仅支持 Linux")
+}
+
+func (m *Manager) Start() error          { return errors.New("not supported") }
+func (m *Manager) Stop() error           { return nil }
+func (m *Manager) Events() <-chan Event  { return nil }
+func (m *Manager) Stats() Stats          { return Stats{} }
+func (m *Manager) Unlock(_ []string)     {}
+func (m *Manager) Relock(_ []string)     {}

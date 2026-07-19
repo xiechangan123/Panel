@@ -39,6 +39,7 @@ type FileService struct {
 	t             *gotext.Locale
 	taskRepo      *biz.TaskUsecase
 	containerRepo *biz.ContainerUsecase
+	tamperRepo    *biz.TamperUsecase
 }
 
 func NewFileService(i do.Injector) (*FileService, error) {
@@ -46,6 +47,7 @@ func NewFileService(i do.Injector) (*FileService, error) {
 		t:             do.MustInvoke[*gotext.Locale](i),
 		taskRepo:      do.MustInvoke[*biz.TaskUsecase](i),
 		containerRepo: do.MustInvoke[*biz.ContainerUsecase](i),
+		tamperRepo:    do.MustInvoke[*biz.TamperUsecase](i),
 	}, nil
 }
 
@@ -249,6 +251,11 @@ func (s *FileService) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 防篡改保护中的文件先解锁再写入,写后恢复
+	if s.tamperRepo.Unlock(req.Path) {
+		defer s.tamperRepo.Relock(req.Path)
+	}
+
 	if err = io.Write(req.Path, req.Content, fileInfo.Mode()); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -269,6 +276,9 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusForbidden, s.t.Get("please don't do this"))
 		return
 	}
+
+	// 解除防篡改保护后再删除
+	s.tamperRepo.Unlock(req.Path)
 
 	if err = io.Remove(req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -298,6 +308,7 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 
 	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
 	if force && io.Exists(path) {
+		s.tamperRepo.Unlock(path)
 		_ = stdos.Remove(path)
 	}
 
@@ -368,9 +379,14 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// 源受保护则先解锁,移动后按目标路径恢复
+		relock := s.tamperRepo.Unlock(item.Source)
 		if err := io.Mv(item.Source, item.Target); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
+		}
+		if relock {
+			s.tamperRepo.Relock(item.Target)
 		}
 	}
 

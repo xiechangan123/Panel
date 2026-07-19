@@ -65,6 +65,10 @@ const (
 	SettingKeyIPDBURL                   SettingKey = "ipdb_url"  // 订阅链接
 	SettingKeyIPDBPath                  SettingKey = "ipdb_path"
 	SettingKeyInfoRan                   SettingKey = "info_ran" // info 命令是否已运行过
+	SettingKeyTamperEnabled             SettingKey = "tamper_enabled"
+	SettingKeyTamperMode                SettingKey = "tamper_mode"      // chattr / ebpf
+	SettingKeyTamperBlockNew            SettingKey = "tamper_block_new" // 新建受保护类型文件时删除拦截
+	SettingKeyTamperLogDays             SettingKey = "tamper_log_days"  // 拦截日志保留天数
 )
 
 type Setting struct {

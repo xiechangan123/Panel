@@ -17,7 +17,7 @@ var Package = do.Package(
 	do.Lazy(NewFirewallScanService), do.Lazy(NewHomeService), do.Lazy(NewLogService),
 	do.Lazy(NewMonitorService), do.Lazy(NewProcessService), do.Lazy(NewProjectService),
 	do.Lazy(NewSafeService), do.Lazy(NewSettingService), do.Lazy(NewSSHService),
-	do.Lazy(NewSystemctlService), do.Lazy(NewTaskService), do.Lazy(NewTemplateService),
+	do.Lazy(NewSystemctlService), do.Lazy(NewTamperService), do.Lazy(NewTaskService), do.Lazy(NewTemplateService),
 	do.Lazy(NewUserService), do.Lazy(NewUserPasskeyService), do.Lazy(NewUserTokenService),
 	do.Lazy(NewWebHookService), do.Lazy(NewWebsiteService), do.Lazy(NewWebsiteStatService),
 	do.Lazy(NewToolboxNetworkService), do.Lazy(NewToolboxSystemService), do.Lazy(NewToolboxBenchmarkService),

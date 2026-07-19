@@ -36,6 +36,7 @@ var Package = do.Package(
 	do.LazyNamed(RoutePrefix+"toolbox_system", ToolboxSystemRoutes), do.LazyNamed(RoutePrefix+"toolbox_benchmark", ToolboxBenchmarkRoutes),
 	do.LazyNamed(RoutePrefix+"toolbox_ssh", ToolboxSSHRoutes), do.LazyNamed(RoutePrefix+"toolbox_disk", ToolboxDiskRoutes),
 	do.LazyNamed(RoutePrefix+"toolbox_log", ToolboxLogRoutes), do.LazyNamed(RoutePrefix+"toolbox_migration", ToolboxMigrationRoutes),
+	do.LazyNamed(RoutePrefix+"tamper", TamperRoutes),
 	do.LazyNamed(RoutePrefix+"ws", WsRoutes),
 )
 

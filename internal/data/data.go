@@ -13,7 +13,7 @@ var Package = do.Package(
 	do.Lazy(NewDatabaseElasticsearchRepo), do.Lazy(NewDatabaseServerRepo), do.Lazy(NewDatabaseUserRepo),
 	do.Lazy(NewEnvironmentRepo), do.Lazy(NewLogRepo), do.Lazy(NewMonitorRepo),
 	do.Lazy(NewProjectRepo), do.Lazy(NewSafeRepo), do.Lazy(NewScanEventRepo),
-	do.Lazy(NewSettingRepo), do.Lazy(NewSSHRepo), do.Lazy(NewTaskRepo),
+	do.Lazy(NewSettingRepo), do.Lazy(NewSSHRepo), do.Lazy(NewTamperRepo), do.Lazy(NewTaskRepo),
 	do.Lazy(NewTemplateRepo), do.Lazy(NewUserRepo), do.Lazy(NewUserPasskeyRepo),
 	do.Lazy(NewUserTokenRepo), do.Lazy(NewWebHookRepo), do.Lazy(NewWebsiteRepo),
 	do.Lazy(NewWebsiteStatRepo),

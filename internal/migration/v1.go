@@ -122,4 +122,13 @@ func init() {
 			return nil
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260720-add-tamper-rules",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.TamperRule{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.TamperRule{})
+		},
+	})
 }

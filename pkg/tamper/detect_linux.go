@@ -1,0 +1,165 @@
+//go:build linux
+
+package tamper
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"regexp"
+	"strconv"
+	"strings"
+
+	"golang.org/x/sys/unix"
+)
+
+// Supported 当前平台是否支持防篡改(Linux 即支持 chattr 模式)
+func Supported() bool {
+	return true
+}
+
+// kernelVersion 返回形如 6.12.0 的内核版本
+func kernelVersion() string {
+	var uts unix.Utsname
+	if err := unix.Uname(&uts); err != nil {
+		return ""
+	}
+	return string(uts.Release[:strings.IndexByte(string(uts.Release[:]), 0)])
+}
+
+// kernelAtLeast 判断内核是否 >= major.minor
+func kernelAtLeast(major, minor int) bool {
+	v := kernelVersion()
+	parts := strings.SplitN(v, ".", 3)
+	if len(parts) < 2 {
+		return false
+	}
+	maj, err1 := strconv.Atoi(parts[0])
+	// 次版本号可能带后缀,截断非数字部分
+	minStr := parts[1]
+	for i, c := range minStr {
+		if c < '0' || c > '9' {
+			minStr = minStr[:i]
+			break
+		}
+	}
+	min, err2 := strconv.Atoi(minStr)
+	if err1 != nil || err2 != nil {
+		return false
+	}
+	if maj != major {
+		return maj > major
+	}
+	return min >= minor
+}
+
+// activeLSM 读取当前激活的 LSM 列表
+func activeLSM() string {
+	data, err := os.ReadFile("/sys/kernel/security/lsm")
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(data))
+}
+
+// DetectEBPF 检测 eBPF-LSM 模式可用性
+func DetectEBPF() EBPFStatus {
+	st := EBPFStatus{
+		KernelVersion: kernelVersion(),
+		ActiveLSM:     activeLSM(),
+	}
+
+	// bpf LSM 需内核 5.7+
+	if !kernelAtLeast(5, 7) {
+		st.Reason = "内核版本过低,eBPF-LSM 需要 5.7 及以上"
+		return st
+	}
+
+	// bpf 必须在激活的 LSM 列表中
+	lsms := strings.Split(st.ActiveLSM, ",")
+	for _, l := range lsms {
+		if strings.TrimSpace(l) == "bpf" {
+			st.BPFLSMActive = true
+			break
+		}
+	}
+	if !st.BPFLSMActive {
+		st.Reason = "内核未激活 bpf LSM,需在启动参数追加 lsm=...,bpf 并重启"
+		return st
+	}
+
+	st.Available = true
+	return st
+}
+
+// grubCmdlineRe 匹配 grub 的内核命令行配置项
+var grubCmdlineRe = regexp.MustCompile(`(?m)^(GRUB_CMDLINE_LINUX(?:_DEFAULT)?=)"([^"]*)"`)
+
+// injectLSMBpf 在 grub 内核命令行中注入 bpf LSM
+// 已有 lsm= 则向其追加 bpf,否则新增 lsm=<当前激活列表>,bpf
+func injectLSMBpf(content, active string) (string, bool) {
+	changed := false
+	out := grubCmdlineRe.ReplaceAllStringFunc(content, func(line string) string {
+		m := grubCmdlineRe.FindStringSubmatch(line)
+		prefix, value := m[1], m[2]
+
+		if idx := regexp.MustCompile(`lsm=([^\s"]*)`).FindStringSubmatchIndex(value); idx != nil {
+			lsmVal := value[idx[2]:idx[3]]
+			for _, l := range strings.Split(lsmVal, ",") {
+				if strings.TrimSpace(l) == "bpf" {
+					return line // 已含 bpf
+				}
+			}
+			newVal := value[:idx[2]] + lsmVal + ",bpf" + value[idx[3]:]
+			changed = true
+			return prefix + `"` + newVal + `"`
+		}
+
+		// 无 lsm= 项,追加
+		lsmList := active
+		if lsmList == "" {
+			lsmList = "landlock,lockdown,yama,integrity,apparmor,bpf"
+		} else if !strings.Contains(lsmList, "bpf") {
+			lsmList += ",bpf"
+		}
+		newVal := strings.TrimSpace(value + " lsm=" + lsmList)
+		changed = true
+		return prefix + `"` + newVal + `"`
+	})
+	return out, changed
+}
+
+// regenerateGrub 重新生成 grub 配置(兼容各发行版路径)
+func regenerateGrub() error {
+	if _, err := exec.LookPath("update-grub"); err == nil {
+		return exec.Command("update-grub").Run()
+	}
+	candidates := []string{"/boot/grub2/grub.cfg", "/boot/grub/grub.cfg", "/boot/efi/EFI/centos/grub.cfg", "/boot/efi/EFI/redhat/grub.cfg"}
+	for _, out := range candidates {
+		if _, err := os.Stat(out); err == nil {
+			return exec.Command("grub2-mkconfig", "-o", out).Run()
+		}
+	}
+	return exec.Command("grub2-mkconfig", "-o", "/boot/grub2/grub.cfg").Run()
+}
+
+// EnableBPFLSMGrub 修改 grub 激活 bpf LSM,需重启系统生效
+func EnableBPFLSMGrub() error {
+	const grubFile = "/etc/default/grub"
+	data, err := os.ReadFile(grubFile)
+	if err != nil {
+		return fmt.Errorf("读取 %s 失败: %w", grubFile, err)
+	}
+
+	newContent, changed := injectLSMBpf(string(data), activeLSM())
+	if changed {
+		if err = os.WriteFile(grubFile, []byte(newContent), 0644); err != nil {
+			return fmt.Errorf("写入 %s 失败: %w", grubFile, err)
+		}
+	}
+
+	if err = regenerateGrub(); err != nil {
+		return fmt.Errorf("重新生成 grub 配置失败: %w", err)
+	}
+	return nil
+}

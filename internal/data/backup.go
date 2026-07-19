@@ -1216,7 +1216,7 @@ func (r *backupRepo) FixPanel() error {
 
 	// 检查辅助数据库是否异常
 	var brokenAuxDBs []string
-	for _, name := range []string{"stat", "scan"} {
+	for _, name := range []string{"stat", "scan", "tamper"} {
 		auxDB, err := openDB(name)
 		if err != nil {
 			brokenAuxDBs = append(brokenAuxDBs, name)

@@ -15,7 +15,7 @@ var Package = do.Package(
 	registry.Lazy(NewDatabaseElasticsearchUsecase), do.Lazy(NewDatabaseServerUsecase), do.Lazy(NewDatabaseUserUsecase),
 	do.Lazy(NewEnvironmentUsecase), registry.Lazy(NewLogUsecase), registry.Lazy2(NewMonitorUsecase),
 	do.Lazy(NewProjectUsecase), registry.Lazy2(NewSafeUsecase), registry.Lazy2(NewScanEventUsecase),
-	do.Lazy(NewSettingUsecase), registry.Lazy2(NewSSHUsecase), registry.Lazy(NewTaskUsecase),
+	do.Lazy(NewSettingUsecase), registry.Lazy2(NewSSHUsecase), do.Lazy(NewTamperUsecase), registry.Lazy(NewTaskUsecase),
 	do.Lazy(NewTemplateUsecase), do.Lazy(NewUserUsecase), registry.Lazy(NewUserPasskeyUsecase),
 	registry.Lazy(NewUserTokenUsecase), do.Lazy(NewWebHookUsecase), do.Lazy(NewWebsiteUsecase),
 	registry.Lazy(NewWebsiteStatUsecase),
