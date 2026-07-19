@@ -986,6 +986,14 @@ const getMoreOptions = (item: any): SelectOption[] => {
     options.push({ label: $gettext('Terminal'), value: 'terminal' })
   }
 
+  // 防篡改运行时，添加/移除保护
+  if (tamperRunning.value) {
+    options.push({
+      label: isProtected(item) ? $gettext('Remove Protection') : $gettext('Add Protection'),
+      value: isProtected(item) ? 'unprotect' : 'protect',
+    })
+  }
+
   options.push({ label: $gettext('Properties'), value: 'properties' })
 
   return options
@@ -1022,6 +1030,10 @@ const handleMoreSelect = (key: string, item: any) => {
       break
     case 'properties':
       openProperty(item)
+      break
+    case 'protect':
+    case 'unprotect':
+      handleProtect(item, key === 'protect')
       break
   }
 }
