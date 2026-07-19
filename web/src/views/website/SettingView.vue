@@ -60,6 +60,37 @@ const handleSaveStatSetting = () => {
       statSaveLoading.value = false
     })
 }
+
+// 默认站点
+const defaultSite = ref(0)
+const defaultSiteSaving = ref(false)
+const websiteOptions = ref<{ label: string; value: number }[]>([])
+
+useRequest(website.defaultSite()).onSuccess(({ data }: any) => {
+  defaultSite.value = data.id
+})
+useRequest(website.list('', 1, 10000)).onSuccess(({ data }: any) => {
+  websiteOptions.value = (data.items || []).map((item: any) => ({
+    label: item.name,
+    value: item.id,
+  }))
+})
+
+const defaultSiteOptions = computed(() => [
+  { label: $gettext('Built-in default page'), value: 0 },
+  ...websiteOptions.value,
+])
+
+const handleSaveDefaultSite = () => {
+  defaultSiteSaving.value = true
+  useRequest(website.saveDefaultSite(defaultSite.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Modified successfully'))
+    })
+    .onComplete(() => {
+      defaultSiteSaving.value = false
+    })
+}
 </script>
 
 <template>
@@ -109,8 +140,29 @@ const handleSaveStatSetting = () => {
         </n-flex>
       </n-flex>
     </n-tab-pane>
-    <n-tab-pane name="default-site" :tab="$gettext('Default Site')">
-      <n-alert type="info">待开发</n-alert>
+    <n-tab-pane v-if="isNginx" name="default-site" :tab="$gettext('Default Site')">
+      <n-flex vertical>
+        <n-alert type="info">
+          {{
+            $gettext(
+              'The default site handles requests that do not match any website domain, such as direct access via IP address. By default, the panel built-in page is displayed.',
+            )
+          }}
+        </n-alert>
+        <n-form>
+          <n-form-item :label="$gettext('Default Site')">
+            <n-select v-model:value="defaultSite" :options="defaultSiteOptions" class="w-100" />
+          </n-form-item>
+          <n-button
+            type="primary"
+            :loading="defaultSiteSaving"
+            :disabled="defaultSiteSaving"
+            @click="handleSaveDefaultSite"
+          >
+            {{ $gettext('Save Changes') }}
+          </n-button>
+        </n-form>
+      </n-flex>
     </n-tab-pane>
     <n-tab-pane name="default-setting" :tab="$gettext('Default Settings')">
       <n-flex vertical>
