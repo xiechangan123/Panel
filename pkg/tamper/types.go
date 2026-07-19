@@ -19,7 +19,7 @@ const (
 	OpWrite   Op = iota // 写打开
 	OpUnlink            // 删除
 	OpRename            // 重命名
-	OpSetattr           // 修改权限/属主
+	OpSetattr           // 属性修改(chmod/chown/truncate)
 	OpCreate            // 新建(用户态监控)
 )
 

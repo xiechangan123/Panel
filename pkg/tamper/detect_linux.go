@@ -76,8 +76,7 @@ func DetectEBPF() EBPFStatus {
 	}
 
 	// bpf 必须在激活的 LSM 列表中
-	lsms := strings.Split(st.ActiveLSM, ",")
-	for _, l := range lsms {
+	for l := range strings.SplitSeq(st.ActiveLSM, ",") {
 		if strings.TrimSpace(l) == "bpf" {
 			st.BPFLSMActive = true
 			break
@@ -103,9 +102,9 @@ func injectLSMBpf(content, active string) (string, bool) {
 		m := grubCmdlineRe.FindStringSubmatch(line)
 		prefix, value := m[1], m[2]
 
-		if idx := regexp.MustCompile(`lsm=([^\s"]*)`).FindStringSubmatchIndex(value); idx != nil {
+		if idx := regexp.MustCompile(`(?:^|\s)lsm=([^\s"]*)`).FindStringSubmatchIndex(value); idx != nil {
 			lsmVal := value[idx[2]:idx[3]]
-			for _, l := range strings.Split(lsmVal, ",") {
+			for l := range strings.SplitSeq(lsmVal, ",") {
 				if strings.TrimSpace(l) == "bpf" {
 					return line // 已含 bpf
 				}

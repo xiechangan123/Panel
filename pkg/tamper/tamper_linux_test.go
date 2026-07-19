@@ -143,6 +143,20 @@ func TestEBPFMode(t *testing.T) {
 	if err := os.Rename(protected, filepath.Join(dir, "renamed.php")); err == nil {
 		t.Fatal("受保护 .php 应重命名被拒")
 	}
+	// 改名覆盖拦截(rename 到受保护目标,经 new_dentry 检查)
+	evil := filepath.Join(dir, "evil.txt")
+	writeFile(t, evil, "evil")
+	if err := os.Rename(evil, victim); err == nil {
+		t.Fatal("改名覆盖受保护 .php 应被拒")
+	}
+	// 截断拦截(truncate 不经写打开,经 inode_setattr)
+	if err := os.Truncate(protected, 0); err == nil {
+		t.Fatal("受保护 .php 应截断被拒")
+	}
+	// 属性修改拦截
+	if err := os.Chmod(protected, 0777); err == nil {
+		t.Fatal("受保护 .php 应 chmod 被拒")
+	}
 
 	// 事件回填路径
 	select {
@@ -165,7 +179,7 @@ func TestEBPFMode(t *testing.T) {
 		t.Error("恢复后应再次被拒")
 	}
 
-	t.Log("eBPF 模式: 写/删/改名拦截、事件回填、解锁恢复 ✓")
+	t.Log("eBPF 模式: 写/删/改名/覆盖/截断/属性拦截、事件回填、解锁恢复 ✓")
 }
 
 func TestScanExcludeAndExt(t *testing.T) {

@@ -41,6 +41,8 @@ type FirewallScan struct {
 	blockedIPs   map[string]time.Time      // 已屏蔽 IP → 屏蔽时间
 	fw           firewall.Firewall         // 懒加载
 	mu           sync.Mutex
+
+	unsupportedLogged bool // 内核不支持仅告警一次
 }
 
 // NewFirewallScan 构造防火墙扫描感知任务
@@ -94,6 +96,10 @@ func (r *FirewallScan) ensureScanner() {
 	}
 
 	if !scan.Supported() {
+		if !r.unsupportedLogged {
+			r.log.Warn("eBPF scan detector unavailable on this kernel (TCX attach requires 6.6+)")
+			r.unsupportedLogged = true
+		}
 		return
 	}
 

@@ -173,6 +173,7 @@ const opTypeMap: Record<string, 'error' | 'warning' | 'info' | 'default'> = {
   write: 'error',
   unlink: 'error',
   rename: 'warning',
+  setattr: 'warning',
   create: 'info',
 }
 
