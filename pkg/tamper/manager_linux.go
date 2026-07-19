@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -75,7 +74,7 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 	case ModeEBPF:
 		st := DetectEBPF()
 		if !st.Available {
-			return nil, fmt.Errorf("eBPF 模式不可用: %s", st.Reason)
+			return nil, fmt.Errorf("eBPF mode unavailable: %s", st.Reason)
 		}
 		eng, err := newEBPFEngine()
 		if err != nil {
@@ -86,45 +85,10 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 	case ModeChattr:
 		m.eng = newChattrEngine()
 	default:
-		return nil, fmt.Errorf("未知防篡改模式: %s", cfg.Mode)
+		return nil, fmt.Errorf("unknown tamper mode: %s", cfg.Mode)
 	}
 
 	return m, nil
-}
-
-// matchExt 判断文件是否命中受保护后缀(exts 为空表示全部文件)
-func matchExt(path string, exts []string) bool {
-	if len(exts) == 0 {
-		return true
-	}
-	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(path), "."))
-	for _, e := range exts {
-		if strings.ToLower(strings.TrimPrefix(e, ".")) == ext {
-			return true
-		}
-	}
-	return false
-}
-
-// isExcluded 判断路径是否落在排除项内(支持绝对路径前缀与路径段名)
-func isExcluded(path string, excludes []string) bool {
-	for _, ex := range excludes {
-		ex = strings.TrimSpace(ex)
-		if ex == "" {
-			continue
-		}
-		if filepath.IsAbs(ex) {
-			if path == ex || strings.HasPrefix(path, strings.TrimRight(ex, "/")+"/") {
-				return true
-			}
-			continue
-		}
-		// 相对名:匹配任意路径段
-		if slices.Contains(strings.Split(path, string(os.PathSeparator)), ex) {
-			return true
-		}
-	}
-	return false
 }
 
 // statOf 取路径的设备号(内核 dev_t 编码)与 inode 号
@@ -169,7 +133,7 @@ func (m *Manager) scan() []fileEntry {
 					}
 					return nil
 				}
-				if matchExt(path, rule.Exts) {
+				if MatchExt(path, rule.Exts) {
 					seen[path] = true
 					dev, ino := statOf(path)
 					entries = append(entries, fileEntry{path: path, dev: dev, inode: ino, isDir: false})
@@ -188,20 +152,17 @@ func (m *Manager) Start() error {
 
 	m.mu.Lock()
 	m.entries = entries
-	m.nFiles, m.nDirs = 0, 0
 	for _, e := range entries {
-		if e.isDir {
-			m.nDirs++
-		} else {
-			m.nFiles++
+		if !e.isDir {
 			m.inodePath[fileKey{e.dev, e.inode}] = e.path
 		}
 	}
+	m.recount()
 	m.running = true
 	m.mu.Unlock()
 
 	if err := m.eng.apply(entries); err != nil {
-		return fmt.Errorf("应用保护失败: %w", err)
+		return fmt.Errorf("failed to apply protection: %w", err)
 	}
 
 	// eBPF 事件转发(回填路径)
@@ -211,10 +172,10 @@ func (m *Manager) Start() error {
 
 	// fsnotify 监控受保护目录下的新建
 	if err := m.startWatcher(); err != nil {
-		m.log.Warn("防篡改文件监控启动失败,新建拦截不可用", slog.Any("err", err))
+		m.log.Warn("failed to start tamper file watcher, new file interception unavailable", slog.Any("err", err))
 	}
 
-	m.log.Info("防篡改已启用",
+	m.log.Info("tamper protection enabled",
 		slog.String("mode", string(m.cfg.Mode)),
 		slog.Int("files", m.nFiles),
 		slog.Int("dirs", m.nDirs))
@@ -244,8 +205,16 @@ func (m *Manager) startWatcher() error {
 			})
 		}
 	}
+	failed := 0
 	for dir := range dirs {
-		_ = w.Add(dir)
+		if err := w.Add(dir); err != nil {
+			failed++
+		}
+	}
+	if failed > 0 {
+		// 常见原因是 fs.inotify.max_user_watches 耗尽
+		m.log.Warn("failed to watch some tamper directories, new files may be missed",
+			slog.Int("failed", failed), slog.Int("total", len(dirs)))
 	}
 
 	go m.watchLoop()
@@ -269,7 +238,7 @@ func (m *Manager) watchLoop() {
 			if !ok {
 				return
 			}
-			m.log.Warn("防篡改监控错误", slog.Any("err", err))
+			m.log.Warn("tamper watcher error", slog.Any("err", err))
 		}
 	}
 }
@@ -281,16 +250,21 @@ func (m *Manager) onCreate(path string) {
 		return
 	}
 
-	// 新建目录:纳入监控
+	// 新建目录:纳入监控,并补扫竞态窗口内已落入的条目(mkdir 后立即写入会错过 watch)
 	if info.IsDir() {
 		if m.watcher != nil {
 			_ = m.watcher.Add(path)
+		}
+		if items, err := os.ReadDir(path); err == nil {
+			for _, it := range items {
+				m.onCreate(filepath.Join(path, it.Name()))
+			}
 		}
 		return
 	}
 
 	rule := m.ruleOf(path)
-	if rule == nil || isExcluded(path, rule.Excludes) || !matchExt(path, rule.Exts) {
+	if rule == nil || isExcluded(path, rule.Excludes) || !MatchExt(path, rule.Exts) {
 		return
 	}
 
@@ -305,15 +279,18 @@ func (m *Manager) onCreate(path string) {
 	}
 
 	if m.cfg.BlockNewFiles {
-		// 拦截策略:删除新建的可疑文件
-		_ = os.Remove(path)
+		// 拦截策略:删除新建的可疑文件(chattr 整树模式下父目录带 +a,需临时解除)
+		if err := os.Remove(path); err != nil && len(rule.Exts) == 0 {
+			if _, ok := m.eng.(*chattrEngine); ok {
+				parent := []fileEntry{{path: filepath.Dir(path), isDir: true}}
+				_ = m.eng.remove(parent)
+				_ = os.Remove(path)
+				_ = m.eng.apply(parent)
+			}
+		}
 	} else {
 		// 冻结策略:锁定新文件防止后续修改
-		m.mu.Lock()
-		m.inodePath[fileKey{dev, ino}] = path
-		m.entries = append(m.entries, fileEntry{path: path, dev: dev, inode: ino, isDir: false})
-		m.nFiles++
-		m.mu.Unlock()
+		m.remember([]fileEntry{{path: path, dev: dev, inode: ino}})
 		switch e := m.eng.(type) {
 		case *chattrEngine:
 			e.lockOne(path, false)
@@ -329,7 +306,7 @@ func (m *Manager) onCreate(path string) {
 func (m *Manager) ruleOf(path string) *Rule {
 	for i := range m.cfg.Rules {
 		for _, root := range m.cfg.Rules[i].Paths {
-			if path == root || strings.HasPrefix(path, strings.TrimRight(root, "/")+"/") {
+			if UnderRoot(path, root) {
 				return &m.cfg.Rules[i]
 			}
 		}
@@ -382,8 +359,8 @@ func (m *Manager) Stats() Stats {
 	}
 }
 
-// Unlock 临时解除指定路径保护(供面板合法写入前调用)
-func (m *Manager) Unlock(paths []string) {
+// statEntries 现场 stat 构造条目(移动/替换后 inode 可能已变化)
+func statEntries(paths []string) []fileEntry {
 	entries := make([]fileEntry, 0, len(paths))
 	for _, p := range paths {
 		info, err := os.Lstat(p)
@@ -393,20 +370,63 @@ func (m *Manager) Unlock(paths []string) {
 		dev, ino := statOf(p)
 		entries = append(entries, fileEntry{path: p, dev: dev, inode: ino, isDir: info.IsDir()})
 	}
+	return entries
+}
+
+// remember 登记条目并同步统计与事件回填表(路径已存在则更新)
+func (m *Manager) remember(entries []fileEntry) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, e := range entries {
+		if !e.isDir {
+			m.inodePath[fileKey{e.dev, e.inode}] = e.path
+		}
+	}
+	m.entries = slices.DeleteFunc(m.entries, func(x fileEntry) bool {
+		return slices.ContainsFunc(entries, func(e fileEntry) bool { return e.path == x.path })
+	})
+	m.entries = append(m.entries, entries...)
+	m.recount()
+}
+
+// forget 注销条目,防止移动/替换后残留脏映射
+func (m *Manager) forget(entries []fileEntry) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, e := range entries {
+		if !e.isDir {
+			delete(m.inodePath, fileKey{e.dev, e.inode})
+		}
+	}
+	m.entries = slices.DeleteFunc(m.entries, func(x fileEntry) bool {
+		return slices.ContainsFunc(entries, func(e fileEntry) bool { return e.path == x.path })
+	})
+	m.recount()
+}
+
+// recount 重算统计(调用方持锁)
+func (m *Manager) recount() {
+	m.nFiles, m.nDirs = 0, 0
+	for _, e := range m.entries {
+		if e.isDir {
+			m.nDirs++
+		} else {
+			m.nFiles++
+		}
+	}
+}
+
+// Unlock 临时解除指定路径保护(供面板合法写入前调用)
+func (m *Manager) Unlock(paths []string) {
+	entries := statEntries(paths)
+	m.forget(entries)
 	_ = m.eng.remove(entries)
 }
 
-// Relock 恢复指定路径保护
+// Relock 恢复指定路径保护(移动/替换后重新登记新路径与新 inode)
 func (m *Manager) Relock(paths []string) {
-	entries := make([]fileEntry, 0, len(paths))
-	for _, p := range paths {
-		info, err := os.Lstat(p)
-		if err != nil {
-			continue
-		}
-		dev, ino := statOf(p)
-		entries = append(entries, fileEntry{path: p, dev: dev, inode: ino, isDir: info.IsDir()})
-	}
+	entries := statEntries(paths)
+	m.remember(entries)
 	_ = m.eng.apply(entries)
 }
 

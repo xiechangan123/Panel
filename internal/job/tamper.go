@@ -36,7 +36,7 @@ func (r *Tamper) Run(_ context.Context) error {
 	// 首次运行按持久化设置恢复保护(面板重启后 eBPF 程序需重新挂载)
 	if !r.reconciled {
 		if err := r.tamperRepo.Reconcile(); err != nil {
-			r.log.Warn("防篡改恢复失败", slog.Any("err", err))
+			r.log.Warn("failed to reconcile tamper protection", slog.Any("err", err))
 		}
 		r.reconciled = true
 	}

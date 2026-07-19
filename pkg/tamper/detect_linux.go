@@ -71,7 +71,7 @@ func DetectEBPF() EBPFStatus {
 
 	// bpf LSM 需内核 5.7+
 	if !kernelAtLeast(5, 7) {
-		st.Reason = "内核版本过低,eBPF-LSM 需要 5.7 及以上"
+		st.Reason = "kernel too old, eBPF-LSM requires 5.7+"
 		return st
 	}
 
@@ -83,7 +83,7 @@ func DetectEBPF() EBPFStatus {
 		}
 	}
 	if !st.BPFLSMActive {
-		st.Reason = "内核未激活 bpf LSM,需在启动参数追加 lsm=...,bpf 并重启"
+		st.Reason = "bpf LSM not active, append lsm=...,bpf to kernel cmdline and reboot"
 		return st
 	}
 
@@ -147,18 +147,18 @@ func EnableBPFLSMGrub() error {
 	const grubFile = "/etc/default/grub"
 	data, err := os.ReadFile(grubFile)
 	if err != nil {
-		return fmt.Errorf("读取 %s 失败: %w", grubFile, err)
+		return fmt.Errorf("failed to read %s: %w", grubFile, err)
 	}
 
 	newContent, changed := injectLSMBpf(string(data), activeLSM())
 	if changed {
 		if err = os.WriteFile(grubFile, []byte(newContent), 0644); err != nil {
-			return fmt.Errorf("写入 %s 失败: %w", grubFile, err)
+			return fmt.Errorf("failed to write %s: %w", grubFile, err)
 		}
 	}
 
 	if err = regenerateGrub(); err != nil {
-		return fmt.Errorf("重新生成 grub 配置失败: %w", err)
+		return fmt.Errorf("failed to regenerate grub config: %w", err)
 	}
 	return nil
 }

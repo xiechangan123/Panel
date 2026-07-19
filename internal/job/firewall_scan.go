@@ -21,6 +21,9 @@ import (
 // healthKeyScanDB 扫描事件辅助数据库健康问题上报 key
 const healthKeyScanDB = "database:scan"
 
+// maxScanEntries 聚合缓冲/计数器条目上限,防伪造源 IP 洪水耗尽内存
+const maxScanEntries = 100000
+
 // ipCounter 单个 IP 的扫描计数器
 type ipCounter struct {
 	count     uint
@@ -150,7 +153,7 @@ func (r *FirewallScan) aggregate() {
 		if existing, ok := r.buffer[key]; ok {
 			existing.Count++
 			existing.LastSeen = evt.Timestamp
-		} else {
+		} else if len(r.buffer) < maxScanEntries {
 			r.buffer[key] = &biz.ScanEvent{
 				SourceIP:  evt.SourceIP,
 				Port:      uint(evt.Port),
@@ -165,7 +168,7 @@ func (r *FirewallScan) aggregate() {
 		// per-IP 计数递增
 		if counter, ok := r.ipCounters[evt.SourceIP]; ok {
 			counter.count++
-		} else {
+		} else if len(r.ipCounters) < maxScanEntries {
 			r.ipCounters[evt.SourceIP] = &ipCounter{
 				count:     1,
 				firstSeen: evt.Timestamp,

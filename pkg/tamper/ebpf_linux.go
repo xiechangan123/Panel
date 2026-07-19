@@ -87,7 +87,7 @@ func fieldOffset(spec *btf.Spec, structName, fieldName string) (uint32, error) {
 			return m.Offset.Bytes(), nil
 		}
 	}
-	return 0, fmt.Errorf("btf struct %s 无字段 %s", structName, fieldName)
+	return 0, fmt.Errorf("btf struct %s has no member %s", structName, fieldName)
 }
 
 // paramLayout 查询 bpf_lsm_<hook> 的参数个数与目标参数下标
@@ -99,7 +99,7 @@ func paramLayout(spec *btf.Spec, hook, param string) (paramIdx, nargs int, err e
 	}
 	proto, ok := fn.Type.(*btf.FuncProto)
 	if !ok {
-		return 0, 0, fmt.Errorf("bpf_lsm_%s 非函数原型", hook)
+		return 0, 0, fmt.Errorf("bpf_lsm_%s is not a func proto", hook)
 	}
 	idx := -1
 	for i, p := range proto.Params {
@@ -108,7 +108,7 @@ func paramLayout(spec *btf.Spec, hook, param string) (paramIdx, nargs int, err e
 		}
 	}
 	if idx < 0 {
-		return 0, 0, fmt.Errorf("bpf_lsm_%s 无参数 %s", hook, param)
+		return 0, 0, fmt.Errorf("bpf_lsm_%s has no param %s", hook, param)
 	}
 	return idx, len(proto.Params), nil
 }
@@ -210,12 +210,12 @@ func buildProg(h hookSpec, offs btfOffsets, paramIdx, paramIdx2, nargs int, prot
 // newEBPFEngine 构建并加载 BPF-LSM 引擎
 func newEBPFEngine() (*ebpfEngine, error) {
 	if err := rlimit.RemoveMemlock(); err != nil {
-		return nil, fmt.Errorf("解除内存锁定限制: %w", err)
+		return nil, fmt.Errorf("failed to remove memlock limit: %w", err)
 	}
 
 	spec, err := btf.LoadKernelSpec()
 	if err != nil {
-		return nil, fmt.Errorf("加载内核 BTF: %w", err)
+		return nil, fmt.Errorf("failed to load kernel BTF: %w", err)
 	}
 
 	var offs btfOffsets
@@ -241,12 +241,12 @@ func newEBPFEngine() (*ebpfEngine, error) {
 		Flags: unix.BPF_F_NO_PREALLOC,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("创建 protected map: %w", err)
+		return nil, fmt.Errorf("failed to create protected map: %w", err)
 	}
 	events, err := ebpf.NewMap(&ebpf.MapSpec{Type: ebpf.RingBuf, MaxEntries: 1 << 20})
 	if err != nil {
 		protected.Close()
-		return nil, fmt.Errorf("创建 events ringbuf: %w", err)
+		return nil, fmt.Errorf("failed to create events ringbuf: %w", err)
 	}
 
 	e := &ebpfEngine{
@@ -281,16 +281,16 @@ func newEBPFEngine() (*ebpfEngine, error) {
 		if err != nil {
 			e.Close()
 			if ve, ok := errors.AsType[*ebpf.VerifierError](err); ok {
-				return nil, fmt.Errorf("加载 %s LSM 程序: %+v", h.hook, ve)
+				return nil, fmt.Errorf("failed to load %s LSM program: %+v", h.hook, ve)
 			}
-			return nil, fmt.Errorf("加载 %s LSM 程序: %w", h.hook, err)
+			return nil, fmt.Errorf("failed to load %s LSM program: %w", h.hook, err)
 		}
 		e.progs = append(e.progs, prog)
 
 		l, err := link.AttachLSM(link.LSMOptions{Program: prog})
 		if err != nil {
 			e.Close()
-			return nil, fmt.Errorf("attach %s: %w", h.hook, err)
+			return nil, fmt.Errorf("failed to attach %s: %w", h.hook, err)
 		}
 		e.links = append(e.links, l)
 	}
@@ -298,7 +298,7 @@ func newEBPFEngine() (*ebpfEngine, error) {
 	e.reader, err = ringbuf.NewReader(events)
 	if err != nil {
 		e.Close()
-		return nil, fmt.Errorf("创建 ringbuf reader: %w", err)
+		return nil, fmt.Errorf("failed to create ringbuf reader: %w", err)
 	}
 
 	go e.readLoop()
@@ -316,11 +316,12 @@ func (e *ebpfEngine) readLoop() {
 		if len(b) < eventStructSize {
 			continue
 		}
-		op := Op(binary.LittleEndian.Uint32(b[20:24]))
+		// BPF 按主机字节序写入
+		op := Op(binary.NativeEndian.Uint32(b[20:24]))
 		ev := Event{
-			Inode: binary.LittleEndian.Uint64(b[0:8]),
-			Dev:   binary.LittleEndian.Uint64(b[8:16]),
-			PID:   binary.LittleEndian.Uint32(b[16:20]),
+			Inode: binary.NativeEndian.Uint64(b[0:8]),
+			Dev:   binary.NativeEndian.Uint64(b[8:16]),
+			PID:   binary.NativeEndian.Uint32(b[16:20]),
 			Op:    op,
 			OpStr: op.String(),
 			Comm:  string(bytes.TrimRight(b[24:40], "\x00")),

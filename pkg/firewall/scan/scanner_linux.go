@@ -497,11 +497,16 @@ func New(ifaces []string, log *slog.Logger) (*Scanner, error) {
 		lastPorts: make(map[uint16]bool),
 	}
 
+	// 单网卡失败仅跳过（网卡可能已改名/移除），全部失败才报错
 	for _, ifaceName := range ifaces {
 		if err := s.attach(ifaceName); err != nil {
-			_ = s.Close()
-			return nil, fmt.Errorf("failed to attach to interface %s: %w", ifaceName, err)
+			log.Warn("failed to attach scan detector, skip interface",
+				slog.String("iface", ifaceName), slog.Any("err", err))
 		}
+	}
+	if len(s.handles) == 0 {
+		_ = s.Close()
+		return nil, errors.New("no interface attached")
 	}
 
 	reader, err := ringbuf.NewReader(events)

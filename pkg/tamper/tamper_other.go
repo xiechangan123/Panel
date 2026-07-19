@@ -14,12 +14,12 @@ func Supported() bool {
 
 // DetectEBPF 非 Linux 平台不可用
 func DetectEBPF() EBPFStatus {
-	return EBPFStatus{Reason: "仅支持 Linux"}
+	return EBPFStatus{Reason: "only supported on Linux"}
 }
 
 // EnableBPFLSMGrub 非 Linux 平台不支持
 func EnableBPFLSMGrub() error {
-	return errors.New("仅支持 Linux")
+	return errors.New("only supported on Linux")
 }
 
 // Manager 非 Linux 占位
@@ -27,7 +27,7 @@ type Manager struct{}
 
 // NewManager 非 Linux 平台不支持
 func NewManager(_ Config, _ *slog.Logger) (*Manager, error) {
-	return nil, errors.New("防篡改仅支持 Linux")
+	return nil, errors.New("tamper protection is only supported on Linux")
 }
 
 func (m *Manager) Start() error         { return errors.New("not supported") }
