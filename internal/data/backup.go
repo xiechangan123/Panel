@@ -206,6 +206,7 @@ func (r *backupRepo) CreatePanel() error {
 		"panel/storage/config.yml",
 		"panel/storage/cert.pem",
 		"panel/storage/cert.key",
+		"panel/storage/customize",
 	} {
 		if io.Exists(filepath.Join(app.Root, f)) {
 			files = append(files, f)
@@ -1303,11 +1304,22 @@ func (r *backupRepo) FixPanel() error {
 		fmt.Println(r.t.Get("|-Move backup file..."))
 	}
 	if io.Exists(filepath.Join("/tmp/panel-fix", "panel")) && io.IsDir(filepath.Join("/tmp/panel-fix", "panel")) {
+		// 整体替换 panel 目录前先保住自定义编译参数,现存内容比备份中的更新
+		customize := filepath.Join(app.Root, "panel", "storage", "customize")
+		keep := filepath.Join(app.Root, ".customize-keep")
+		_ = io.Remove(keep)
+		if io.Exists(customize) {
+			_ = io.Mv(customize, keep)
+		}
 		if err = io.Remove(filepath.Join(app.Root, "panel")); err != nil {
 			return errors.New(r.t.Get("Remove panel file failed: %v", err))
 		}
 		if err = io.Mv(filepath.Join("/tmp/panel-fix", "panel"), filepath.Join(app.Root)); err != nil {
 			return errors.New(r.t.Get("Move panel file failed: %v", err))
+		}
+		if io.Exists(keep) {
+			_ = io.Remove(customize)
+			_ = io.Mv(keep, customize)
 		}
 	}
 	if io.Exists(filepath.Join("/tmp/panel-fix", "acepanel")) {

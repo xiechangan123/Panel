@@ -8,6 +8,7 @@ export interface App {
   installed_version: string
   update_exist: boolean
   show: boolean
+  custom_supported: boolean
 }
 
 export interface Channel {

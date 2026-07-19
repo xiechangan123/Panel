@@ -91,6 +91,7 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 			UpdateExist:      updateExist,
 			Show:             show,
 			Status:           status,
+			CustomSupported:  biz.CustomCompileApp(item.Slug),
 		}
 
 		for _, c := range item.Channels {
@@ -217,6 +218,42 @@ func (s *AppService) IsInstalled(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, flag)
+}
+
+// GetCustom 获取自定义编译参数
+func (s *AppService) GetCustom(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.AppSlug](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	custom, err := s.appRepo.GetCustom(req.Slug)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, custom)
+}
+
+// SaveCustom 保存自定义编译参数
+func (s *AppService) SaveCustom(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.AppCustomSave](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.appRepo.SaveCustom(req.Slug, &biz.AppCustom{
+		PreScript: req.PreScript,
+		Args:      req.Args,
+	}); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
 }
 
 func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {

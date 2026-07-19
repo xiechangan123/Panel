@@ -146,6 +146,64 @@ func (_c *AppRepo_ExecScript_Call) RunAndReturn(run func(string) error) *AppRepo
 	return _c
 }
 
+// GetCustom provides a mock function with given fields: slug
+func (_m *AppRepo) GetCustom(slug string) (*biz.AppCustom, error) {
+	ret := _m.Called(slug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCustom")
+	}
+
+	var r0 *biz.AppCustom
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*biz.AppCustom, error)); ok {
+		return rf(slug)
+	}
+	if rf, ok := ret.Get(0).(func(string) *biz.AppCustom); ok {
+		r0 = rf(slug)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*biz.AppCustom)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(slug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AppRepo_GetCustom_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCustom'
+type AppRepo_GetCustom_Call struct {
+	*mock.Call
+}
+
+// GetCustom is a helper method to define mock.On call
+//   - slug string
+func (_e *AppRepo_Expecter) GetCustom(slug interface{}) *AppRepo_GetCustom_Call {
+	return &AppRepo_GetCustom_Call{Call: _e.mock.On("GetCustom", slug)}
+}
+
+func (_c *AppRepo_GetCustom_Call) Run(run func(slug string)) *AppRepo_GetCustom_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *AppRepo_GetCustom_Call) Return(_a0 *biz.AppCustom, _a1 error) *AppRepo_GetCustom_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *AppRepo_GetCustom_Call) RunAndReturn(run func(string) (*biz.AppCustom, error)) *AppRepo_GetCustom_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetInstalled provides a mock function with given fields: slug
 func (_m *AppRepo) GetInstalled(slug string) (*biz.App, error) {
 	ret := _m.Called(slug)
@@ -560,6 +618,53 @@ func (_c *AppRepo_ResolveScript_Call) Return(_a0 string, _a1 error) *AppRepo_Res
 }
 
 func (_c *AppRepo_ResolveScript_Call) RunAndReturn(run func(*api.App, string, string, string) (string, error)) *AppRepo_ResolveScript_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SaveCustom provides a mock function with given fields: slug, custom
+func (_m *AppRepo) SaveCustom(slug string, custom *biz.AppCustom) error {
+	ret := _m.Called(slug, custom)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveCustom")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, *biz.AppCustom) error); ok {
+		r0 = rf(slug, custom)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// AppRepo_SaveCustom_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveCustom'
+type AppRepo_SaveCustom_Call struct {
+	*mock.Call
+}
+
+// SaveCustom is a helper method to define mock.On call
+//   - slug string
+//   - custom *biz.AppCustom
+func (_e *AppRepo_Expecter) SaveCustom(slug interface{}, custom interface{}) *AppRepo_SaveCustom_Call {
+	return &AppRepo_SaveCustom_Call{Call: _e.mock.On("SaveCustom", slug, custom)}
+}
+
+func (_c *AppRepo_SaveCustom_Call) Run(run func(slug string, custom *biz.AppCustom)) *AppRepo_SaveCustom_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(*biz.AppCustom))
+	})
+	return _c
+}
+
+func (_c *AppRepo_SaveCustom_Call) Return(_a0 error) *AppRepo_SaveCustom_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *AppRepo_SaveCustom_Call) RunAndReturn(run func(string, *biz.AppCustom) error) *AppRepo_SaveCustom_Call {
 	_c.Call.Return(run)
 	return _c
 }

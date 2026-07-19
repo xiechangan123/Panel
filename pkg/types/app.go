@@ -56,4 +56,5 @@ type AppDetail struct {
 	UpdateExist      bool   `json:"update_exist"`
 	Show             bool   `json:"show"`
 	Status           string `json:"status"`
+	CustomSupported  bool   `json:"custom_supported"`
 }

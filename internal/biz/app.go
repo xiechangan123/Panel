@@ -26,6 +26,28 @@ type App struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// AppCustom 自定义编译参数(前置脚本在 configure 前执行,参数追加到 configure 末尾)
+type AppCustom struct {
+	PreScript string `json:"pre_script"`
+	Args      string `json:"args"`
+}
+
+// 支持自定义编译参数的应用与环境类型(源码编译类)
+var (
+	customCompileApps     = []string{"apache", "memcached", "nginx", "openresty", "pureftpd", "s3fs"}
+	customCompileEnvTypes = []string{"php", "python"}
+)
+
+// CustomCompileApp 判断应用是否支持自定义编译参数
+func CustomCompileApp(slug string) bool {
+	return slices.Contains(customCompileApps, slug)
+}
+
+// CustomCompileEnv 判断环境类型是否支持自定义编译参数
+func CustomCompileEnv(typ string) bool {
+	return slices.Contains(customCompileEnvTypes, typ)
+}
+
 type AppRepo interface {
 	Installed() ([]*App, error)
 	GetInstalled(slug string) (*App, error)
@@ -39,6 +61,8 @@ type AppRepo interface {
 	ResolveScript(item *api.App, matchChannel, action, execVersion string) (string, error)
 	ExecScript(script string) error
 	PreCheck(item *api.App, catalog api.Apps) error
+	GetCustom(slug string) (*AppCustom, error)
+	SaveCustom(slug string, custom *AppCustom) error
 }
 
 type AppUsecase struct {
@@ -280,6 +304,14 @@ func (uc *AppUsecase) Update(slug string) error {
 
 func (uc *AppUsecase) UpdateShow(slug string, show bool) error {
 	return uc.repo.UpdateShow(slug, show)
+}
+
+func (uc *AppUsecase) GetCustom(slug string) (*AppCustom, error) {
+	return uc.repo.GetCustom(slug)
+}
+
+func (uc *AppUsecase) SaveCustom(slug string, custom *AppCustom) error {
+	return uc.repo.SaveCustom(slug, custom)
 }
 
 func (uc *AppUsecase) UpdateOrder(slugs []string) error {

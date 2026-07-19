@@ -58,6 +58,7 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 			InstalledVersion: s.environmentRepo.InstalledVersion(item.Type, item.Slug),
 			Installed:        installed,
 			HasUpdate:        s.environmentRepo.HasUpdate(item.Type, item.Slug),
+			CustomSupported:  biz.CustomCompileEnv(item.Type),
 		})
 	}
 

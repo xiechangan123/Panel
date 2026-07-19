@@ -24,6 +24,10 @@ export default {
   updateOrder: (slugs: string[]): any => http.Post('/app/update_order', { slugs }),
   // 应用是否已安装
   isInstalled: (slugs: string): any => http.Get('/app/is_installed', { params: { slugs } }),
+  // 获取自定义编译参数
+  getCustom: (slug: string): any => http.Get('/app/custom', { params: { slug } }),
+  // 保存自定义编译参数
+  saveCustom: (slug: string, data: any): any => http.Post('/app/custom', { slug, ...data }),
   // 更新缓存
   updateCache: (): any => http.Get('/app/update_cache'),
 }

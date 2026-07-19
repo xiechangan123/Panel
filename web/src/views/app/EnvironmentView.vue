@@ -6,12 +6,17 @@ import environment from '@/api/panel/environment'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
+import CustomModal from '@/views/app/CustomModal.vue'
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
 
 const selectedType = ref<string>('')
 const searchQuery = ref<string>('')
+
+const customModalShow = ref(false)
+const customModalSlug = ref('')
+const customModalName = ref('')
 
 const { data: types } = useRequest(environment.types, {
   initialData: [],
@@ -54,7 +59,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 240,
+    width: 320,
     hideInExcel: true,
     render(row: any) {
       return h(NFlex, null, {
@@ -132,6 +137,23 @@ const columns: any = [
                   },
                 },
                 { default: () => $gettext('Install') },
+              ),
+            )
+          }
+          if (row.custom_supported) {
+            items.push(
+              h(
+                NButton,
+                {
+                  size: 'small',
+                  onClick: () => {
+                    customModalShow.value = true
+                    // 环境的自定义参数目录名为 type+slug(如 php83),与安装脚本约定一致
+                    customModalSlug.value = row.type + row.slug
+                    customModalName.value = row.name
+                  },
+                },
+                { default: () => $gettext('Compile Params') },
               ),
             )
           }
@@ -233,7 +255,7 @@ onMounted(() => {
       v-model:pageSize="pageSize"
       striped
       remote
-      :scroll-x="1200"
+      :scroll-x="1280"
       :loading="loading"
       :columns="columns"
       :data="data"
@@ -248,6 +270,7 @@ onMounted(() => {
       }"
     />
   </n-flex>
+  <custom-modal v-model:show="customModalShow" :slug="customModalSlug" :name="customModalName" />
 </template>
 
 <style scoped lang="scss"></style>

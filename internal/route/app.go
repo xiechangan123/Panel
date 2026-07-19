@@ -30,6 +30,10 @@ func AppRoutes(i do.Injector) (Endpoints, error) {
 			Summary: "更新应用排序", Tags: []string{"应用"}, Request: request.AppUpdateOrder{}},
 		{Method: http.MethodGet, Path: "/api/app/is_installed", Handler: app.IsInstalled,
 			Summary: "检查应用是否已安装", Tags: []string{"应用"}, Request: request.AppSlugs{}},
+		{Method: http.MethodGet, Path: "/api/app/custom", Handler: app.GetCustom,
+			Summary: "获取自定义编译参数", Tags: []string{"应用"}, Request: request.AppSlug{}},
+		{Method: http.MethodPost, Path: "/api/app/custom", Handler: app.SaveCustom,
+			Summary: "保存自定义编译参数", Tags: []string{"应用"}, Request: request.AppCustomSave{}},
 		{Method: http.MethodGet, Path: "/api/app/update_cache", Handler: app.UpdateCache,
 			Summary: "更新应用缓存", Tags: []string{"应用"}},
 	}, nil

@@ -4,7 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"slices"
+	"strings"
 
 	"github.com/expr-lang/expr"
 	"github.com/hashicorp/go-version"
@@ -17,6 +20,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/api"
 	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
@@ -168,6 +172,57 @@ func (r *appRepo) ResolveScript(item *api.App, matchChannel, action, execVersion
 // ExecScript 执行脚本
 func (r *appRepo) ExecScript(script string) error {
 	return shell.ExecfWithOutput(script)
+}
+
+// customDir 自定义编译参数存放目录,安装脚本在编译时直接读取
+func customDir(slug string) string {
+	return filepath.Join(app.Root, "panel", "storage", "customize", slug)
+}
+
+func (r *appRepo) GetCustom(slug string) (*biz.AppCustom, error) {
+	custom := new(biz.AppCustom)
+	if pre, err := io.Read(filepath.Join(customDir(slug), "pre.sh")); err == nil {
+		custom.PreScript = pre
+	}
+	if args, err := io.Read(filepath.Join(customDir(slug), "args")); err == nil {
+		custom.Args = args
+	}
+
+	return custom, nil
+}
+
+func (r *appRepo) SaveCustom(slug string, custom *biz.AppCustom) error {
+	dir := customDir(slug)
+	// 全部为空时直接清理目录
+	if strings.TrimSpace(custom.PreScript) == "" && strings.TrimSpace(custom.Args) == "" {
+		return io.Remove(dir)
+	}
+
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+	pre := filepath.Join(dir, "pre.sh")
+	if strings.TrimSpace(custom.PreScript) == "" {
+		if err := io.Remove(pre); err != nil {
+			return err
+		}
+	} else {
+		if err := io.Write(pre, custom.PreScript, 0700); err != nil {
+			return err
+		}
+	}
+	args := filepath.Join(dir, "args")
+	if strings.TrimSpace(custom.Args) == "" {
+		if err := io.Remove(args); err != nil {
+			return err
+		}
+	} else {
+		if err := io.Write(args, custom.Args, 0600); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (r *appRepo) PreCheck(app *api.App, catalog api.Apps) error {

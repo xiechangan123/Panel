@@ -10,4 +10,5 @@ type EnvironmentDetail struct {
 	InstalledVersion string `json:"installed_version"`
 	Installed        bool   `json:"installed"`
 	HasUpdate        bool   `json:"has_update"`
+	CustomSupported  bool   `json:"custom_supported"`
 }
