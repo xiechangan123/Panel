@@ -16,7 +16,7 @@ msgid "QQ Group"
 msgstr ""
 
 #: src/components/common/AppFooter.vue:38
-#: src/locales/menu.ts:23
+#: src/locales/menu.ts:25
 #: src/views/apps/fail2ban/IndexView.vue:313
 #: src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:269
@@ -675,7 +675,7 @@ msgid "Cancel"
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:259
-#: src/locales/menu.ts:19
+#: src/locales/menu.ts:21
 #: src/views/container/ContainerView.vue:142
 #: src/views/container/ContainerView.vue:669
 #: src/views/database/ServerList.vue:174
@@ -734,7 +734,7 @@ msgid "No logs available"
 msgstr ""
 
 #: src/components/common/RealtimeLogModal.vue:37
-#: src/locales/menu.ts:15
+#: src/locales/menu.ts:17
 #: src/views/apps/supervisor/IndexView.vue:98
 #: src/views/container/ContainerView.vue:154
 #: src/views/project/ListView.vue:168
@@ -1820,28 +1820,37 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
+#: src/locales/menu.ts:15
+#: src/views/apps/grafana/GrafanaConfigTuneView.vue:223
+msgid "Security"
+msgstr ""
+
 #: src/locales/menu.ts:16
+msgid "Tamper Protection"
+msgstr ""
+
+#: src/locales/menu.ts:18
 msgid "Monitoring"
 msgstr ""
 
-#: src/locales/menu.ts:17
+#: src/locales/menu.ts:19
 #: src/views/home/IndexView.vue:539
 msgid "Project"
 msgstr ""
 
-#: src/locales/menu.ts:18
+#: src/locales/menu.ts:20
 msgid "Setting"
 msgstr ""
 
-#: src/locales/menu.ts:20
+#: src/locales/menu.ts:22
 msgid "Task"
 msgstr ""
 
-#: src/locales/menu.ts:21
+#: src/locales/menu.ts:23
 msgid "Toolbox"
 msgstr ""
 
-#: src/locales/menu.ts:22
+#: src/locales/menu.ts:24
 #: src/views/app/AppView.vue:102
 #: src/views/app/EnvironmentView.vue:86
 #: src/views/app/InstalledView.vue:117
@@ -1852,31 +1861,31 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:26
 msgid "Website Edit"
 msgstr ""
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:28
 msgid "Fail2ban Manager"
 msgstr ""
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:29
 msgid "S3fs Manager"
 msgstr ""
 
-#: src/locales/menu.ts:28
+#: src/locales/menu.ts:30
 msgid "Supervisor Manager"
 msgstr ""
 
-#: src/locales/menu.ts:29
+#: src/locales/menu.ts:31
 msgid "Rsync Manager"
 msgstr ""
 
-#: src/locales/menu.ts:30
+#: src/locales/menu.ts:32
 msgid "Frp Manager"
 msgstr ""
 
-#: src/router/routes/index.ts:18
+#: src/router/routes/index.ts:32
 #: src/views/login/IndexView.vue:309
 msgid "Login"
 msgstr ""
@@ -3226,10 +3235,6 @@ msgstr ""
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:207
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:291
 msgid "Password (password)"
-msgstr ""
-
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:223
-msgid "Security"
 msgstr ""
 
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:226

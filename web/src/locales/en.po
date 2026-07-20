@@ -21,7 +21,7 @@ msgstr "All Rights Reserved."
 msgid "QQ Group"
 msgstr "QQ Group"
 
-#: src/components/common/AppFooter.vue:38 src/locales/menu.ts:23
+#: src/components/common/AppFooter.vue:38 src/locales/menu.ts:25
 #: src/views/apps/fail2ban/IndexView.vue:313 src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:269 src/views/backup/ListView.vue:317
 #: src/views/cert/CertView.vue:467 src/views/cert/CertView.vue:583
@@ -601,7 +601,7 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/components/common/PtyTerminalModal.vue:259 src/locales/menu.ts:19
+#: src/components/common/PtyTerminalModal.vue:259 src/locales/menu.ts:21
 #: src/views/container/ContainerView.vue:142
 #: src/views/container/ContainerView.vue:669
 #: src/views/database/ServerList.vue:174 src/views/file/ListView.vue:392
@@ -660,7 +660,7 @@ msgstr "Size"
 msgid "No logs available"
 msgstr "Inodes Available"
 
-#: src/components/common/RealtimeLogModal.vue:37 src/locales/menu.ts:15
+#: src/components/common/RealtimeLogModal.vue:37 src/locales/menu.ts:17
 #: src/views/apps/supervisor/IndexView.vue:98
 #: src/views/container/ContainerView.vue:154 src/views/project/ListView.vue:168
 #: src/views/project/ListView.vue:334 src/views/task/CronView.vue:146
@@ -1682,30 +1682,40 @@ msgstr "Firewall"
 msgid "Home"
 msgstr ""
 
+#: src/locales/menu.ts:15 src/views/apps/grafana/GrafanaConfigTuneView.vue:223
+#, fuzzy
+msgid "Security"
+msgstr "Port Settings"
+
 #: src/locales/menu.ts:16
+#, fuzzy
+msgid "Tamper Protection"
+msgstr "Network Protocol"
+
+#: src/locales/menu.ts:18
 msgid "Monitoring"
 msgstr "Monitoring"
 
-#: src/locales/menu.ts:17 src/views/home/IndexView.vue:539
+#: src/locales/menu.ts:19 src/views/home/IndexView.vue:539
 #, fuzzy
 msgid "Project"
 msgstr "Reject"
 
-#: src/locales/menu.ts:18
+#: src/locales/menu.ts:20
 #, fuzzy
 msgid "Setting"
 msgstr "Settings"
 
-#: src/locales/menu.ts:20
+#: src/locales/menu.ts:22
 #, fuzzy
 msgid "Task"
 msgstr "Tasks"
 
-#: src/locales/menu.ts:21
+#: src/locales/menu.ts:23
 msgid "Toolbox"
 msgstr "Toolbox"
 
-#: src/locales/menu.ts:22 src/views/app/AppView.vue:102
+#: src/locales/menu.ts:24 src/views/app/AppView.vue:102
 #: src/views/app/EnvironmentView.vue:86 src/views/app/InstalledView.vue:117
 #: src/views/app/InstalledView.vue:228
 #: src/views/app/TemplateDeployModal.vue:652 src/views/home/IndexView.vue:563
@@ -1713,31 +1723,31 @@ msgstr "Toolbox"
 msgid "Update"
 msgstr "Update"
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:26
 msgid "Website Edit"
 msgstr "Website Edit"
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:28
 msgid "Fail2ban Manager"
 msgstr "Fail2ban Manager"
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:29
 msgid "S3fs Manager"
 msgstr "S3fs Manager"
 
-#: src/locales/menu.ts:28
+#: src/locales/menu.ts:30
 msgid "Supervisor Manager"
 msgstr "Supervisor Manager"
 
-#: src/locales/menu.ts:29
+#: src/locales/menu.ts:31
 msgid "Rsync Manager"
 msgstr "Rsync Manager"
 
-#: src/locales/menu.ts:30
+#: src/locales/menu.ts:32
 msgid "Frp Manager"
 msgstr "Frp Manager"
 
-#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:309
+#: src/router/routes/index.ts:32 src/views/login/IndexView.vue:309
 msgid "Login"
 msgstr "Login"
 
@@ -3110,11 +3120,6 @@ msgstr ""
 #, fuzzy
 msgid "Password (password)"
 msgstr "Please enter username and password"
-
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:223
-#, fuzzy
-msgid "Security"
-msgstr "Port Settings"
 
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:226
 #, fuzzy

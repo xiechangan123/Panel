@@ -24,7 +24,7 @@ msgstr "版權所有"
 msgid "QQ Group"
 msgstr "QQ 群"
 
-#: src/components/common/AppFooter.vue:38 src/locales/menu.ts:23
+#: src/components/common/AppFooter.vue:38 src/locales/menu.ts:25
 #: src/views/apps/fail2ban/IndexView.vue:313 src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:269 src/views/backup/ListView.vue:317
 #: src/views/cert/CertView.vue:467 src/views/cert/CertView.vue:583
@@ -587,7 +587,7 @@ msgstr "命令可能仍在運行。關閉窗口將終止命令。您確定嗎？
 msgid "Cancel"
 msgstr "取消"
 
-#: src/components/common/PtyTerminalModal.vue:259 src/locales/menu.ts:19
+#: src/components/common/PtyTerminalModal.vue:259 src/locales/menu.ts:21
 #: src/views/container/ContainerView.vue:142
 #: src/views/container/ContainerView.vue:669
 #: src/views/database/ServerList.vue:174 src/views/file/ListView.vue:392
@@ -641,7 +641,7 @@ msgstr "放大字體"
 msgid "No logs available"
 msgstr "暫無日誌數據"
 
-#: src/components/common/RealtimeLogModal.vue:37 src/locales/menu.ts:15
+#: src/components/common/RealtimeLogModal.vue:37 src/locales/menu.ts:17
 #: src/views/apps/supervisor/IndexView.vue:98
 #: src/views/container/ContainerView.vue:154 src/views/project/ListView.vue:168
 #: src/views/project/ListView.vue:334 src/views/task/CronView.vue:146
@@ -1626,27 +1626,36 @@ msgstr "防火牆"
 msgid "Home"
 msgstr "首頁"
 
+#: src/locales/menu.ts:15 src/views/apps/grafana/GrafanaConfigTuneView.vue:223
+msgid "Security"
+msgstr "安全"
+
 #: src/locales/menu.ts:16
+#, fuzzy
+msgid "Tamper Protection"
+msgstr "連接遠程伺服器"
+
+#: src/locales/menu.ts:18
 msgid "Monitoring"
 msgstr "監控"
 
-#: src/locales/menu.ts:17 src/views/home/IndexView.vue:539
+#: src/locales/menu.ts:19 src/views/home/IndexView.vue:539
 msgid "Project"
 msgstr "項目"
 
-#: src/locales/menu.ts:18
+#: src/locales/menu.ts:20
 msgid "Setting"
 msgstr "設置"
 
-#: src/locales/menu.ts:20
+#: src/locales/menu.ts:22
 msgid "Task"
 msgstr "任務"
 
-#: src/locales/menu.ts:21
+#: src/locales/menu.ts:23
 msgid "Toolbox"
 msgstr "工具箱"
 
-#: src/locales/menu.ts:22 src/views/app/AppView.vue:102
+#: src/locales/menu.ts:24 src/views/app/AppView.vue:102
 #: src/views/app/EnvironmentView.vue:86 src/views/app/InstalledView.vue:117
 #: src/views/app/InstalledView.vue:228
 #: src/views/app/TemplateDeployModal.vue:652 src/views/home/IndexView.vue:563
@@ -1654,31 +1663,31 @@ msgstr "工具箱"
 msgid "Update"
 msgstr "更新"
 
-#: src/locales/menu.ts:24
+#: src/locales/menu.ts:26
 msgid "Website Edit"
 msgstr "網站編輯"
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:28
 msgid "Fail2ban Manager"
 msgstr "Fail2ban 管理器"
 
-#: src/locales/menu.ts:27
+#: src/locales/menu.ts:29
 msgid "S3fs Manager"
 msgstr "S3fs 管理器"
 
-#: src/locales/menu.ts:28
+#: src/locales/menu.ts:30
 msgid "Supervisor Manager"
 msgstr "Supervisor 管理器"
 
-#: src/locales/menu.ts:29
+#: src/locales/menu.ts:31
 msgid "Rsync Manager"
 msgstr "Rsync 管理器"
 
-#: src/locales/menu.ts:30
+#: src/locales/menu.ts:32
 msgid "Frp Manager"
 msgstr "Frp 管理器"
 
-#: src/router/routes/index.ts:18 src/views/login/IndexView.vue:309
+#: src/router/routes/index.ts:32 src/views/login/IndexView.vue:309
 msgid "Login"
 msgstr "登錄"
 
@@ -2961,10 +2970,6 @@ msgstr "用戶（user）"
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:291
 msgid "Password (password)"
 msgstr "密碼（password）"
-
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:223
-msgid "Security"
-msgstr "安全"
 
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:226
 msgid "Grafana security settings."
