@@ -22,6 +22,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
 	"github.com/acepanel/panel/v3/internal/apps/opensearch"
 	"github.com/acepanel/panel/v3/internal/apps/percona"
+	"github.com/acepanel/panel/v3/internal/apps/pgadmin"
 	"github.com/acepanel/panel/v3/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/v3/internal/apps/podman"
 	"github.com/acepanel/panel/v3/internal/apps/postgresql"
@@ -42,7 +43,7 @@ var Package = do.Package(
 	do.Lazy(kafka.NewApp), do.Lazy(mariadb.NewApp), do.Lazy(memcached.NewApp),
 	do.Lazy(minio.NewApp), do.Lazy(mongodb.NewApp), do.Lazy(mysql.NewApp),
 	do.Lazy(nginx.NewApp), do.Lazy(openresty.NewApp), do.Lazy(opensearch.NewApp),
-	do.Lazy(percona.NewApp), do.Lazy(phpmyadmin.NewApp), do.Lazy(podman.NewApp),
+	do.Lazy(percona.NewApp), do.Lazy(pgadmin.NewApp), do.Lazy(phpmyadmin.NewApp), do.Lazy(podman.NewApp),
 	do.Lazy(postgresql.NewApp), do.Lazy(prometheus.NewApp), do.Lazy(pureftpd.NewApp),
 	do.Lazy(redis.NewApp), do.Lazy(rocketmq.NewApp), do.Lazy(rsync.NewApp),
 	do.Lazy(s3fs.NewApp), do.Lazy(supervisor.NewApp), do.Lazy(valkey.NewApp),

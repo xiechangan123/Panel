@@ -22,6 +22,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
 	"github.com/acepanel/panel/v3/internal/apps/opensearch"
 	"github.com/acepanel/panel/v3/internal/apps/percona"
+	"github.com/acepanel/panel/v3/internal/apps/pgadmin"
 	"github.com/acepanel/panel/v3/internal/apps/phpmyadmin"
 	"github.com/acepanel/panel/v3/internal/apps/podman"
 	"github.com/acepanel/panel/v3/internal/apps/postgresql"
@@ -58,6 +59,7 @@ func NewLoader(i do.Injector) (*apploader.Loader, error) {
 		do.MustInvoke[*openresty.App](i),
 		do.MustInvoke[*opensearch.App](i),
 		do.MustInvoke[*percona.App](i),
+		do.MustInvoke[*pgadmin.App](i),
 		do.MustInvoke[*phpmyadmin.App](i),
 		do.MustInvoke[*podman.App](i),
 		do.MustInvoke[*postgresql.App](i),

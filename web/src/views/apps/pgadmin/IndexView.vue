@@ -1,0 +1,123 @@
+<script setup lang="ts">
+defineOptions({
+  name: 'apps-pgadmin-index',
+})
+
+import { useGettext } from 'vue3-gettext'
+
+import pgadmin from '@/api/apps/pgadmin'
+
+const { $gettext } = useGettext()
+const hostname = ref(window.location.hostname)
+const port = ref(0)
+const email = ref('')
+const password = ref('')
+const newPort = ref(0)
+const newPassword = ref('')
+const savePortLoading = ref(false)
+const resetPasswordLoading = ref(false)
+
+const url = computed(() => {
+  return `http://${hostname.value}:${port.value}`
+})
+
+const getInfo = async () => {
+  const data = await pgadmin.info()
+  port.value = data.port
+  newPort.value = data.port
+  email.value = data.email
+  password.value = data.password
+}
+
+const handleSavePort = () => {
+  savePortLoading.value = true
+  useRequest(pgadmin.port(newPort.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+      getInfo()
+    })
+    .onComplete(() => {
+      savePortLoading.value = false
+    })
+}
+
+const handleResetPassword = () => {
+  resetPasswordLoading.value = true
+  useRequest(pgadmin.resetPassword(newPassword.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Password reset successfully'))
+      newPassword.value = ''
+      getInfo()
+    })
+    .onComplete(() => {
+      resetPasswordLoading.value = false
+    })
+}
+
+onMounted(() => {
+  getInfo()
+})
+</script>
+
+<template>
+  <PageContainer :show-footer="true">
+    <n-flex vertical>
+      <n-card :title="$gettext('Access Information')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Access URL:') }} <a :href="url" target="_blank">{{ url }}</a>
+          </n-alert>
+          <n-descriptions label-placement="left" :column="1" bordered>
+            <n-descriptions-item :label="$gettext('Login Email')">
+              {{ email }}
+            </n-descriptions-item>
+            <n-descriptions-item :label="$gettext('Login Password')">
+              {{ password }}
+            </n-descriptions-item>
+          </n-descriptions>
+          <n-text depth="3">
+            {{
+              $gettext(
+                'If the password has been changed in pgAdmin, the actual password shall prevail.',
+              )
+            }}
+          </n-text>
+        </n-flex>
+      </n-card>
+      <n-card :title="$gettext('Modify Port')">
+        <n-flex>
+          <n-input-number v-model:value="newPort" :min="1" :max="65535" />
+          <n-button
+            type="primary"
+            :loading="savePortLoading"
+            :disabled="savePortLoading"
+            @click="handleSavePort"
+          >
+            {{ $gettext('Save') }}
+          </n-button>
+        </n-flex>
+        {{ $gettext('Modify pgAdmin access port') }}
+      </n-card>
+      <n-card :title="$gettext('Reset Password')">
+        <n-flex>
+          <n-input
+            v-model:value="newPassword"
+            type="password"
+            show-password-on="click"
+            class="!w-60"
+            :placeholder="$gettext('New password')"
+          />
+          <n-button
+            type="warning"
+            :loading="resetPasswordLoading"
+            :disabled="resetPasswordLoading || !newPassword"
+            @click="handleResetPassword"
+          >
+            {{ $gettext('Reset') }}
+          </n-button>
+        </n-flex>
+        {{ $gettext('Reset the login password of the pgAdmin administrator account') }}
+      </n-card>
+    </n-flex>
+  </PageContainer>
+</template>

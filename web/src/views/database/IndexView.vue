@@ -6,6 +6,7 @@ defineOptions({
 import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import pgadmin from '@/api/apps/pgadmin'
 import phpmyadmin from '@/api/apps/phpmyadmin'
 import app from '@/api/panel/app'
 import database from '@/api/panel/database'
@@ -29,24 +30,40 @@ const phpMyAdminInstalled = ref(false)
 const phpMyAdminLoading = ref(false)
 const mysqlServers = ref<any[]>([])
 
+const pgAdminInstalled = ref(false)
+const pgAdminLoading = ref(false)
+const postgresqlServers = ref<any[]>([])
+
 useRequest(app.isInstalled('phpmyadmin')).onSuccess(({ data }: any) => {
   phpMyAdminInstalled.value = data
 })
+useRequest(app.isInstalled('pgadmin')).onSuccess(({ data }: any) => {
+  pgAdminInstalled.value = data
+})
 
-// 切换到 MySQL 标签页时刷新可用的 MySQL 服务器列表
+// 切换标签页时刷新对应类型的可用服务器列表
 watch(
   currentTab,
   (tab) => {
-    if (tab !== 'mysql') return
-    useRequest(database.serverList(1, 10000, 'mysql')).onSuccess(({ data }: any) => {
-      mysqlServers.value = data.items || []
-    })
+    if (tab === 'mysql') {
+      useRequest(database.serverList(1, 10000, 'mysql')).onSuccess(({ data }: any) => {
+        mysqlServers.value = data.items || []
+      })
+    } else if (tab === 'postgresql') {
+      useRequest(database.serverList(1, 10000, 'postgresql')).onSuccess(({ data }: any) => {
+        postgresqlServers.value = data.items || []
+      })
+    }
   },
   { immediate: true },
 )
 
 const serverOptions = computed(() =>
   mysqlServers.value.map((item: any) => ({ label: item.name, key: item.id })),
+)
+
+const postgresqlServerOptions = computed(() =>
+  postgresqlServers.value.map((item: any) => ({ label: item.name, key: item.id })),
 )
 
 const handlePhpMyAdmin = (serverID: number) => {
@@ -67,6 +84,27 @@ const handlePhpMyAdmin = (serverID: number) => {
     })
     .onComplete(() => {
       phpMyAdminLoading.value = false
+    })
+}
+
+const handlePgAdmin = (serverID: number) => {
+  // 预先打开空白窗口,避免异步回调中 window.open 被浏览器拦截
+  const win = window.open('about:blank', '_blank')
+  pgAdminLoading.value = true
+  useRequest(pgadmin.login(serverID))
+    .onSuccess(({ data }: any) => {
+      const url = `http://${window.location.hostname}:${data.port}/`
+      if (win) {
+        win.location.href = url
+      } else {
+        window.open(url, '_blank')
+      }
+    })
+    .onError(() => {
+      win?.close()
+    })
+    .onComplete(() => {
+      pgAdminLoading.value = false
     })
 }
 </script>
@@ -113,6 +151,26 @@ const handlePhpMyAdmin = (serverID: number) => {
             @click="handlePhpMyAdmin(mysqlServers[0].id)"
           >
             phpMyAdmin
+          </n-button>
+        </template>
+        <template
+          v-if="currentTab === 'postgresql' && pgAdminInstalled && postgresqlServers.length > 0"
+        >
+          <n-dropdown
+            v-if="postgresqlServers.length > 1"
+            :options="postgresqlServerOptions"
+            trigger="click"
+            @select="handlePgAdmin"
+          >
+            <n-button :loading="pgAdminLoading" :disabled="pgAdminLoading"> pgAdmin </n-button>
+          </n-dropdown>
+          <n-button
+            v-else
+            :loading="pgAdminLoading"
+            :disabled="pgAdminLoading"
+            @click="handlePgAdmin(postgresqlServers[0].id)"
+          >
+            pgAdmin
           </n-button>
         </template>
         <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
