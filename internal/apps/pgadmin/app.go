@@ -45,6 +45,20 @@ func NewApp(i do.Injector) (*App, error) {
 	}, nil
 }
 
+// pgadminLanguage 面板语言映射为 pgAdmin 语言代码
+func (s *App) pgadminLanguage() string {
+	switch s.conf.App.Locale {
+	case "":
+		return ""
+	case "zh_CN":
+		return "zh_Hans_CN"
+	case "zh_TW":
+		return "zh_Hant_TW"
+	default:
+		return s.conf.App.Locale
+	}
+}
+
 // clientIP 获取请求来源 IP,面板位于反代之后时优先取配置的 IP 头
 func (s *App) clientIP(r *http.Request) string {
 	ip := r.RemoteAddr
@@ -346,6 +360,10 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 	form.Set("csrf_token", csrf[1])
 	form.Set("email", email)
 	form.Set("password", password)
+	// 语言跟随面板设置,pgAdmin 会将 language 字段固化进会话
+	if lang := s.pgadminLanguage(); lang != "" {
+		form.Set("language", lang)
+	}
 
 	loginReq, err := http.NewRequestWithContext(r.Context(), http.MethodPost, fmt.Sprintf("http://127.0.0.1:%d/authenticate/login", port), strings.NewReader(form.Encode()))
 	if err != nil {

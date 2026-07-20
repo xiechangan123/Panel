@@ -22,6 +22,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
+	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -31,12 +32,14 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	conf               *config.Config
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
 func NewApp(i do.Injector) (*App, error) {
 	return &App{
 		t:                  do.MustInvoke[*gotext.Locale](i),
+		conf:               do.MustInvoke[*config.Config](i),
 		databaseServerRepo: do.MustInvoke[biz.DatabaseServerRepo](i),
 	}, nil
 }
@@ -151,11 +154,13 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 获取登录页以取得会话 Cookie 与 CSRF token
+	// 转发浏览器语言,避免语言协商落空后回落英文
 	pageReq, err := http.NewRequestWithContext(r.Context(), http.MethodGet, loginURL, nil)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	pageReq.Header.Set("Accept-Language", r.Header.Get("Accept-Language"))
 	pageResp, err := client.Do(pageReq)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to request phpMyAdmin: %v", err))
@@ -177,6 +182,10 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 
 	form := url.Values{}
 	form.Set("route", "/")
+	// 语言跟随面板设置,登录后固化进 phpMyAdmin 会话
+	if s.conf.App.Locale != "" {
+		form.Set("lang", s.conf.App.Locale)
+	}
 	form.Set("token", html.UnescapeString(token[1]))
 	if len(session) >= 2 {
 		form.Set("set_session", html.UnescapeString(session[1]))
@@ -201,6 +210,7 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	loginReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	loginReq.Header.Set("Accept-Language", r.Header.Get("Accept-Language"))
 	for _, cookie := range pageResp.Cookies() {
 		loginReq.AddCookie(cookie)
 	}

@@ -10,6 +10,7 @@ import pgadmin from '@/api/apps/pgadmin'
 import phpmyadmin from '@/api/apps/phpmyadmin'
 import app from '@/api/panel/app'
 import database from '@/api/panel/database'
+import { renderLocalIcon } from '@/utils'
 import CreateDatabaseModal from '@/views/database/CreateDatabaseModal.vue'
 import CreateServerModal from '@/views/database/CreateServerModal.vue'
 import CreateUserModal from '@/views/database/CreateUserModal.vue'
@@ -25,6 +26,9 @@ const currentTab = ref('server')
 const createDatabaseModalShow = ref(false)
 const createUserModalShow = ref(false)
 const createServerModalShow = ref(false)
+
+const phpMyAdminIcon = renderLocalIcon('app', 'phpmyadmin', { size: 16 })
+const pgAdminIcon = renderLocalIcon('app', 'pgadmin', { size: 16 })
 
 const phpMyAdminInstalled = ref(false)
 const phpMyAdminLoading = ref(false)
@@ -153,6 +157,9 @@ const handlePgAdmin = () => {
             @select="handlePhpMyAdmin"
           >
             <n-button :loading="phpMyAdminLoading" :disabled="phpMyAdminLoading">
+              <template #icon>
+                <component :is="phpMyAdminIcon" />
+              </template>
               phpMyAdmin
             </n-button>
           </n-dropdown>
@@ -162,6 +169,9 @@ const handlePgAdmin = () => {
             :disabled="phpMyAdminLoading"
             @click="handlePhpMyAdmin(mysqlServers[0].id)"
           >
+            <template #icon>
+              <component :is="phpMyAdminIcon" />
+            </template>
             phpMyAdmin
           </n-button>
         </template>
@@ -171,6 +181,9 @@ const handlePgAdmin = () => {
           :disabled="pgAdminLoading"
           @click="handlePgAdmin"
         >
+          <template #icon>
+            <component :is="pgAdminIcon" />
+          </template>
           pgAdmin
         </n-button>
         <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
