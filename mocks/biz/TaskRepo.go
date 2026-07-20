@@ -20,6 +20,52 @@ func (_m *TaskRepo) EXPECT() *TaskRepo_Expecter {
 	return &TaskRepo_Expecter{mock: &_m.Mock}
 }
 
+// Cancel provides a mock function with given fields: id
+func (_m *TaskRepo) Cancel(id uint) error {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Cancel")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// TaskRepo_Cancel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Cancel'
+type TaskRepo_Cancel_Call struct {
+	*mock.Call
+}
+
+// Cancel is a helper method to define mock.On call
+//   - id uint
+func (_e *TaskRepo_Expecter) Cancel(id interface{}) *TaskRepo_Cancel_Call {
+	return &TaskRepo_Cancel_Call{Call: _e.mock.On("Cancel", id)}
+}
+
+func (_c *TaskRepo_Cancel_Call) Run(run func(id uint)) *TaskRepo_Cancel_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint))
+	})
+	return _c
+}
+
+func (_c *TaskRepo_Cancel_Call) Return(_a0 error) *TaskRepo_Cancel_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *TaskRepo_Cancel_Call) RunAndReturn(run func(uint) error) *TaskRepo_Cancel_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function with given fields: id
 func (_m *TaskRepo) Delete(id uint) error {
 	ret := _m.Called(id)

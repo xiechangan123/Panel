@@ -213,6 +213,7 @@ func (uc *AppUsecase) Install(channel, slug string) error {
 	}
 
 	task := new(Task)
+	task.Key = "app:" + slug
 	task.Name = uc.t.Get("Install app %s", item.Name)
 	task.Status = TaskStatusWaiting
 	task.Shell = script
@@ -253,6 +254,7 @@ func (uc *AppUsecase) UnInstall(slug string) error {
 	}
 
 	task := new(Task)
+	task.Key = "app:" + slug
 	task.Name = uc.t.Get("Uninstall app %s", item.Name)
 	task.Status = TaskStatusWaiting
 	task.Shell = script
@@ -295,6 +297,7 @@ func (uc *AppUsecase) Update(slug string) error {
 	}
 
 	task := new(Task)
+	task.Key = "app:" + slug
 	task.Name = uc.t.Get("Update app %s", item.Name)
 	task.Status = TaskStatusWaiting
 	task.Shell = script

@@ -9,4 +9,6 @@ export default {
   get: (id: number): any => http.Get(`/task/${id}`),
   // 删除任务
   delete: (id: number): any => http.Delete(`/task/${id}`),
+  // 取消任务
+  cancel: (id: number): any => http.Post(`/task/${id}/cancel`),
 }

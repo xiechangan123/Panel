@@ -6,4 +6,5 @@ import "context"
 type TaskRunner interface {
 	Run(ctx context.Context)
 	Notify()
+	Cancel(id uint) bool
 }

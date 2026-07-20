@@ -263,6 +263,7 @@ func (s *App) InstallExporter(w http.ResponseWriter, r *http.Request) {
 	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/prometheus/exporters/exporter.sh' | bash -s -- 'install' '%s'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
 
 	task := new(biz.Task)
+	task.Key = "prometheus:exporter:" + req.Slug
 	task.Name = s.t.Get("Install Prometheus exporter %s", req.Slug)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
@@ -290,6 +291,7 @@ func (s *App) UninstallExporter(w http.ResponseWriter, r *http.Request) {
 	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/prometheus/exporters/exporter.sh' | bash -s -- 'uninstall' '%s'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
 
 	task := new(biz.Task)
+	task.Key = "prometheus:exporter:" + req.Slug
 	task.Name = s.t.Get("Uninstall Prometheus exporter %s", req.Slug)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd

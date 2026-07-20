@@ -307,6 +307,7 @@ func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Req
 	}
 
 	task := new(biz.Task)
+	task.Key = fmt.Sprintf("php:module:%d:%s", req.Version, req.Slug)
 	task.Name = s.t.Get("Install PHP-%d %s module", req.Version, req.Slug)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
@@ -341,6 +342,7 @@ func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.R
 	}
 
 	task := new(biz.Task)
+	task.Key = fmt.Sprintf("php:module:%d:%s", req.Version, req.Slug)
 	task.Name = s.t.Get("Uninstall PHP-%d %s module", req.Version, req.Slug)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd

@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"gorm.io/gorm"
@@ -19,6 +21,10 @@ type Runner struct {
 	db     *gorm.DB
 	log    *slog.Logger
 	notify chan struct{}
+
+	mu            sync.Mutex
+	currentID     uint               // 当前运行的任务 ID
+	currentCancel context.CancelFunc // 取消当前任务
 }
 
 // NewRunner 创建任务运行器
@@ -36,6 +42,17 @@ func (r *Runner) Notify() {
 	case r.notify <- struct{}{}:
 	default:
 	}
+}
+
+// Cancel 取消正在运行的任务，返回是否命中
+func (r *Runner) Cancel(id uint) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.currentID != id || r.currentCancel == nil {
+		return false
+	}
+	r.currentCancel()
+	return true
 }
 
 // Run 启动运行器
@@ -70,7 +87,7 @@ func (r *Runner) drain(ctx context.Context) {
 			return
 		default:
 		}
-		if !r.processNext() {
+		if !r.processNext(ctx) {
 			return
 		}
 	}
@@ -84,20 +101,25 @@ func (r *Runner) clearZombie() {
 }
 
 // processNext 取一条 waiting 任务执行，返回是否有任务被处理
-func (r *Runner) processNext() bool {
+func (r *Runner) processNext(ctx context.Context) bool {
 	task := new(biz.Task)
 	if err := r.db.Where("status = ?", biz.TaskStatusWaiting).Order("id asc").First(task).Error; err != nil {
 		return false
 	}
 
-	r.execute(task)
+	r.execute(ctx, task)
 	return true
 }
 
 // execute 执行单个任务
-func (r *Runner) execute(task *biz.Task) {
-	if err := r.db.Model(task).Update("status", biz.TaskStatusRunning).Error; err != nil {
-		r.log.Error("failed to update task status to running", slog.Any("task_id", task.ID), slog.Any("err", err))
+func (r *Runner) execute(ctx context.Context, task *biz.Task) {
+	// 原子抢占，任务可能在取出后被取消
+	result := r.db.Model(task).Where("status = ?", biz.TaskStatusWaiting).Update("status", biz.TaskStatusRunning)
+	if result.Error != nil {
+		r.log.Error("failed to update task status to running", slog.Any("task_id", task.ID), slog.Any("err", result.Error))
+		return
+	}
+	if result.RowsAffected == 0 {
 		return
 	}
 
@@ -110,13 +132,55 @@ func (r *Runner) execute(task *biz.Task) {
 		return
 	}
 
-	if err := shell.ExecWithLog(task.Shell, logFile); err != nil {
-		r.log.Warn("failed to execute background task", slog.Any("task_id", task.ID), slog.Any("err", err))
-		_ = r.db.Model(task).Update("status", biz.TaskStatusFailed).Error
+	// 登记当前任务，供 Cancel 定位
+	taskCtx, cancel := context.WithCancel(ctx)
+	r.mu.Lock()
+	r.currentID, r.currentCancel = task.ID, cancel
+	r.mu.Unlock()
+	defer func() {
+		r.mu.Lock()
+		r.currentID, r.currentCancel = 0, nil
+		r.mu.Unlock()
+		cancel()
+	}()
+
+	if err := shell.ExecWithLog(taskCtx, task.Shell, logFile); err != nil {
+		// 用户取消标记为 canceled，面板停机保持 failed 由下次启动清理语义兜底
+		status := biz.TaskStatusFailed
+		if taskCtx.Err() != nil && ctx.Err() == nil {
+			status = biz.TaskStatusCanceled
+			r.runCancelShell(task, logFile)
+		}
+		r.log.Warn("background task did not finish", slog.Any("task_id", task.ID), slog.Any("status", status), slog.Any("err", err))
+		_ = r.db.Model(task).Update("status", status).Error
 		return
 	}
 
 	if err := r.db.Model(task).Update("status", biz.TaskStatusSuccess).Error; err != nil {
 		r.log.Error("failed to update task status to success", slog.Any("task_id", task.ID), slog.Any("err", err))
+	}
+}
+
+// runCancelShell 任务被取消后执行清理命令，输出追加到任务日志
+func (r *Runner) runCancelShell(task *biz.Task, logFile string) {
+	if task.CancelShell == "" {
+		return
+	}
+
+	cleanupCtx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		r.log.Warn("failed to open task log for cancel shell", slog.Any("task_id", task.ID), slog.Any("err", err))
+		return
+	}
+	defer func(f *os.File) { _ = f.Close() }(f)
+
+	cmd := exec.CommandContext(cleanupCtx, "bash", "-c", task.CancelShell)
+	cmd.Stdout = f
+	cmd.Stderr = f
+	if err = cmd.Run(); err != nil {
+		r.log.Warn("failed to run task cancel shell", slog.Any("task_id", task.ID), slog.Any("err", err))
 	}
 }

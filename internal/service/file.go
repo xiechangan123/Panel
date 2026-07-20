@@ -457,9 +457,11 @@ func (s *FileService) RemoteDownload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := new(biz.Task)
+	task.Key = "download:" + req.Path
 	task.Name = s.t.Get("Download remote file %v", filepath.Base(req.Path))
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = fmt.Sprintf(`aria2c -c --file-allocation=falloc --allow-overwrite=true --auto-file-renaming=false --check-certificate=false --retry-wait=5 --max-tries=5 -x 16 -s 16 -k 1M -d '%s' -o '%s' '%s' && chmod 0755 '%s' && chown www:www '%s'`, filepath.Dir(req.Path), filepath.Base(req.Path), req.URL, req.Path, req.Path)
+	task.CancelShell = fmt.Sprintf(`rm -f '%s' '%s.aria2'`, req.Path, req.Path)
 
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -585,9 +587,11 @@ func (s *FileService) Compress(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := new(biz.Task)
+	task.Key = "compress:" + req.File
 	task.Name = s.t.Get("Compress %v", filepath.Base(req.File))
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = fmt.Sprintf(`%s && chmod 0755 '%s' && chown www:www '%s'`, cmd, req.File, req.File)
+	task.CancelShell = fmt.Sprintf(`rm -f '%s'`, req.File)
 
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -611,6 +615,7 @@ func (s *FileService) UnCompress(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := new(biz.Task)
+	task.Key = fmt.Sprintf("uncompress:%s:%s", req.File, req.Path)
 	task.Name = s.t.Get("Uncompress %v", filepath.Base(req.File))
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = fmt.Sprintf(`%s && chmod -R 0755 '%s' && chown -R www:www '%s'`, cmd, req.Path, req.Path)

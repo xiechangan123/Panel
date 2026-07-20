@@ -9,7 +9,7 @@ import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 
 const { $gettext } = useGettext()
-const { confirmDelete } = useConfirm()
+const { confirmDelete, confirmAction } = useConfirm()
 const logModal = ref(false)
 const logPath = ref('')
 const logModalRef = ref<{ clear: () => void } | null>(null)
@@ -42,7 +42,9 @@ const columns: any = [
           ? $gettext('Waiting')
           : row.status === 'failed'
             ? $gettext('Failed')
-            : $gettext('Running')
+            : row.status === 'canceled'
+              ? $gettext('Canceled')
+              : $gettext('Running')
     },
   },
   {
@@ -70,7 +72,7 @@ const columns: any = [
     hideInExcel: true,
     render(row: any) {
       const items: any[] = []
-      if (row.status != 'waiting') {
+      if (row.log) {
         items.push(
           h(
             NButton,
@@ -87,7 +89,28 @@ const columns: any = [
           ),
         )
       }
-      if (row.status != 'waiting' && row.status != 'running') {
+      if (row.status == 'waiting' || row.status == 'running') {
+        items.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'error',
+              secondary: true,
+              onClick: async () => {
+                const ok = await confirmAction({
+                  title: $gettext('Cancel Task'),
+                  content: $gettext('Are you sure you want to cancel task %{ name }?', {
+                    name: row.name,
+                  }),
+                })
+                if (ok) handleCancel(row.id)
+              },
+            },
+            { default: () => $gettext('Cancel') },
+          ),
+        )
+      } else {
         items.push(
           h(
             NButton,
@@ -124,6 +147,13 @@ const handleDelete = (id: number) => {
   useRequest(task.delete(id)).onSuccess(() => {
     refresh()
     window.$message.success($gettext('Deleted successfully'))
+  })
+}
+
+const handleCancel = (id: number) => {
+  useRequest(task.cancel(id)).onSuccess(() => {
+    refresh()
+    window.$message.success($gettext('Canceled successfully'))
   })
 }
 

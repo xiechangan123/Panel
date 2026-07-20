@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"slices"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/creack/pty"
@@ -32,7 +33,8 @@ func Exec(shell string) (string, error) {
 }
 
 // ExecWithLog 执行 shell 命令并将输出写入指定的日志文件
-func ExecWithLog(shell string, logFile string) error {
+// ctx 取消时会杀死整个进程组
+func ExecWithLog(ctx context.Context, shell string, logFile string) error {
 	_ = os.Setenv("LC_ALL", "C")
 
 	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
@@ -41,11 +43,19 @@ func ExecWithLog(shell string, logFile string) error {
 	}
 	defer func(f *os.File) { _ = f.Close() }(f)
 
-	cmd := exec.Command("bash", "-c", shell)
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 	cmd.Stdout = f
 	cmd.Stderr = f
+	// 命令会派生子进程（下载、压缩等），放入独立进程组以便取消时整组杀死
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error {
+		return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+	}
 
 	if err = cmd.Run(); err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
 		return fmt.Errorf("run %s failed, err: %w", shell, err)
 	}
 

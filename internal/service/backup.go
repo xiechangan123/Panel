@@ -10,6 +10,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/libtnb/utils/str"
 	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -61,17 +62,28 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 
 	// 备份可能耗时较长（大库），提交到后台任务队列异步执行
 	pathEnv := "export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH\n"
-	var cmd string
+	var backupCmd string
 	if req.Type == "website" {
-		cmd = fmt.Sprintf("%sacepanel backup website -n '%s' -s '%d'", pathEnv, req.Target, req.Storage)
+		backupCmd = fmt.Sprintf("acepanel backup website -n '%s' -s '%d'", req.Target, req.Storage)
 	} else {
-		cmd = fmt.Sprintf("%sacepanel backup database -t '%s' -n '%s' -s '%d'", pathEnv, req.Type, req.Target, req.Storage)
+		backupCmd = fmt.Sprintf("acepanel backup database -t '%s' -n '%s' -s '%d'", req.Type, req.Target, req.Storage)
 	}
 
+	// 备份进程被杀后无法自清临时目录，包一层独享 TMPDIR 供取消时精确清理，不误伤并发的其他备份
+	tmpDir := fmt.Sprintf(`${TMPDIR:-/tmp}/ace-backup-task-%s`, str.Random(16))
+	cmd := fmt.Sprintf(`%sexport TMPDIR="%s"
+mkdir -p "$TMPDIR"
+%s
+rc=$?
+rm -rf "$TMPDIR"
+exit $rc`, pathEnv, tmpDir, backupCmd)
+
 	task := &biz.Task{
-		Name:   s.t.Get("Backup %s: %s", req.Type, req.Target),
-		Status: biz.TaskStatusWaiting,
-		Shell:  cmd,
+		Key:         fmt.Sprintf("backup:%s:%s", req.Type, req.Target),
+		Name:        s.t.Get("Backup %s: %s", req.Type, req.Target),
+		Status:      biz.TaskStatusWaiting,
+		Shell:       cmd,
+		CancelShell: fmt.Sprintf(`rm -rf "%s"`, tmpDir),
 	}
 	if err = s.taskRepo.Push(task); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)

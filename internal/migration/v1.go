@@ -140,4 +140,13 @@ func init() {
 			return tx.Migrator().DropTable(&biz.FileShare{})
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260720-update-task-fields",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.Task{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return nil
+		},
+	})
 }

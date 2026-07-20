@@ -157,6 +157,7 @@ func (uc *EnvironmentUsecase) do(typ, slug, action string) error {
 	}
 
 	task := new(Task)
+	task.Key = fmt.Sprintf("environment:%s:%s", typ, slug)
 	task.Name = name
 	task.Status = TaskStatusWaiting
 	task.Shell = cmd
