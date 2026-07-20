@@ -21,6 +21,8 @@ type Tamper struct {
 func NewTamper(i do.Injector) (Job, error) {
 	return Job{
 		Spec: "* * * * *",
+		// 启动后立即恢复保护,不给防篡改留一分钟的空窗
+		Immediate: true,
 		Task: &Tamper{
 			log:        do.MustInvoke[*slog.Logger](i),
 			tamperRepo: do.MustInvoke[*biz.TamperUsecase](i),

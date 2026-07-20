@@ -48,12 +48,12 @@ type Manager struct {
 
 	watcher *fsnotify.Watcher
 
-	mu        sync.RWMutex
-	entries   []fileEntry
-	inodePath map[fileKey]string // eBPF 事件回填路径
-	nFiles    int
-	nDirs     int
-	running   bool
+	mu         sync.RWMutex
+	entries    []fileEntry
+	inodePath  map[fileKey]string // eBPF 事件回填路径
+	nFiles     int
+	nWatchDirs int // 受监控的目录数(非整树规则不锁目录,统计按监控口径)
+	running    bool
 
 	out    chan Event
 	closed chan struct{}
@@ -175,10 +175,11 @@ func (m *Manager) Start() error {
 		m.log.Warn("failed to start tamper file watcher, new file interception unavailable", slog.Any("err", err))
 	}
 
+	st := m.Stats()
 	m.log.Info("tamper protection enabled",
 		slog.String("mode", string(m.cfg.Mode)),
-		slog.Int("files", m.nFiles),
-		slog.Int("dirs", m.nDirs))
+		slog.Int("files", st.ProtectedFiles),
+		slog.Int("dirs", st.ProtectedDirs))
 	return nil
 }
 
@@ -217,6 +218,10 @@ func (m *Manager) startWatcher() error {
 			slog.Int("failed", failed), slog.Int("total", len(dirs)))
 	}
 
+	m.mu.Lock()
+	m.nWatchDirs = len(dirs) - failed
+	m.mu.Unlock()
+
 	go m.watchLoop()
 	return nil
 }
@@ -253,7 +258,11 @@ func (m *Manager) onCreate(path string) {
 	// 新建目录:纳入监控,并补扫竞态窗口内已落入的条目(mkdir 后立即写入会错过 watch)
 	if info.IsDir() {
 		if m.watcher != nil {
-			_ = m.watcher.Add(path)
+			if err := m.watcher.Add(path); err == nil {
+				m.mu.Lock()
+				m.nWatchDirs++
+				m.mu.Unlock()
+			}
 		}
 		if items, err := os.ReadDir(path); err == nil {
 			for _, it := range items {
@@ -355,7 +364,7 @@ func (m *Manager) Stats() Stats {
 		Mode:           m.cfg.Mode,
 		Running:        m.running,
 		ProtectedFiles: m.nFiles,
-		ProtectedDirs:  m.nDirs,
+		ProtectedDirs:  m.nWatchDirs,
 	}
 }
 
@@ -404,13 +413,11 @@ func (m *Manager) forget(entries []fileEntry) {
 	m.recount()
 }
 
-// recount 重算统计(调用方持锁)
+// recount 重算锁定文件统计(调用方持锁)
 func (m *Manager) recount() {
-	m.nFiles, m.nDirs = 0, 0
+	m.nFiles = 0
 	for _, e := range m.entries {
-		if e.isDir {
-			m.nDirs++
-		} else {
+		if !e.isDir {
 			m.nFiles++
 		}
 	}

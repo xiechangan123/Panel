@@ -9,8 +9,9 @@ const Prefix = "jobs:"
 
 // Job 声明一个定时任务
 type Job struct {
-	Spec string   // cron 表达式
-	Task cron.Job // 任务体
+	Spec      string   // cron 表达式
+	Task      cron.Job // 任务体
+	Immediate bool     // 调度器启动后立即执行一次,不等首个调度点
 }
 
 var Package = do.Package(

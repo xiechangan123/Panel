@@ -156,6 +156,8 @@ func (uc *TamperUsecase) DeleteRule(id uint) error {
 
 // Logs 日志
 func (uc *TamperUsecase) ListLogs(page, limit uint) ([]*TamperLog, int64, error) {
+	// 先落缓冲,拦截日志即时可见
+	uc.FlushLogs()
 	return uc.repo.ListLogs(page, limit)
 }
 func (uc *TamperUsecase) ClearLogs() error { return uc.repo.ClearLogs() }

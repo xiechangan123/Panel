@@ -1,7 +1,9 @@
 package bootstrap
 
 import (
+	"errors"
 	"log/slog"
+	"time"
 
 	"github.com/libtnb/cron"
 	"github.com/libtnb/cron/wrap"
@@ -24,8 +26,20 @@ func NewCron(i do.Injector) (*cron.Cron, error) {
 		return nil, err
 	}
 	for _, j := range jobs {
-		if _, err := c.Add(j.Spec, j.Task); err != nil {
+		id, err := c.Add(j.Spec, j.Task)
+		if err != nil {
 			return nil, err
+		}
+		if j.Immediate {
+			// 调度器随面板启动(数据库迁移完成)后立即触发一次,未启动前重试等待
+			go func(id cron.EntryID) {
+				for {
+					if err := c.Trigger(id); !errors.Is(err, cron.ErrSchedulerNotRunning) {
+						return
+					}
+					time.Sleep(time.Second)
+				}
+			}(id)
 		}
 	}
 
