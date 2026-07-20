@@ -49,7 +49,7 @@ require (
 	github.com/moby/moby/api v1.55.0
 	github.com/moby/moby/client v0.5.0
 	github.com/orandin/slog-gorm v1.4.0
-	github.com/pkg/sftp v1.13.10
+	github.com/pkg/sftp v1.13.11
 	github.com/pquerna/otp v1.5.0
 	github.com/samber/do/v2 v2.0.0
 	github.com/samber/lo v1.53.0
