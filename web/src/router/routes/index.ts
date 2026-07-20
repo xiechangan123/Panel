@@ -9,6 +9,20 @@ export const basicRoutes: RoutesType = [
     isHidden: true,
   },
 
+  // 防火墙与防篡改已并入安全菜单,重定向兼容旧路径与持久化的标签页
+  {
+    name: 'firewall-redirect',
+    path: '/firewall',
+    redirect: '/safe/firewall',
+    isHidden: true,
+  },
+  {
+    name: 'tamper-redirect',
+    path: '/tamper',
+    redirect: '/safe/tamper',
+    isHidden: true,
+  },
+
   {
     name: 'Login',
     path: '/login',
