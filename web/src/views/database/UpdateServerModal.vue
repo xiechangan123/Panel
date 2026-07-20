@@ -26,6 +26,7 @@ const handleUpdate = () => {
       show.value = false
       window.$message.success($gettext('Modified successfully'))
       window.$bus.emit('database-user:refresh')
+      window.$bus.emit('database-server:refresh')
     })
     .onComplete(() => {
       loading.value = false

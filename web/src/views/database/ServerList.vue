@@ -264,7 +264,8 @@ const { loading, data, page, total, pageSize, pageCount, refresh } = usePaginati
 
 const handleDelete = (id: number) => {
   useRequest(database.serverDelete(id)).onSuccess(() => {
-    refresh()
+    // 广播刷新,数据库页需要同步更新类型标签页
+    window.$bus.emit('database-server:refresh')
     window.$message.success($gettext('Deleted successfully'))
   })
 }
@@ -275,14 +276,15 @@ const handleRemark = (row: any) => {
   })
 }
 
+// 具名监听器,卸载时只解绑自身,避免移除其他组件的监听
+const onServerRefresh = () => refresh()
+
 onMounted(() => {
-  window.$bus.on('database-server:refresh', () => {
-    refresh()
-  })
+  window.$bus.on('database-server:refresh', onServerRefresh)
 })
 
 onUnmounted(() => {
-  window.$bus.off('database-server:refresh')
+  window.$bus.off('database-server:refresh', onServerRefresh)
 })
 </script>
 

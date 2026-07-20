@@ -20,7 +20,7 @@ import ServerList from '@/views/database/ServerList.vue'
 import UserList from '@/views/database/UserList.vue'
 
 const { $gettext } = useGettext()
-const currentTab = ref('mysql')
+const currentTab = ref('server')
 
 const createDatabaseModalShow = ref(false)
 const createUserModalShow = ref(false)
@@ -28,11 +28,9 @@ const createServerModalShow = ref(false)
 
 const phpMyAdminInstalled = ref(false)
 const phpMyAdminLoading = ref(false)
-const mysqlServers = ref<any[]>([])
 
 const pgAdminInstalled = ref(false)
 const pgAdminLoading = ref(false)
-const postgresqlServers = ref<any[]>([])
 
 useRequest(app.isInstalled('phpmyadmin')).onSuccess(({ data }: any) => {
   phpMyAdminInstalled.value = data
@@ -41,29 +39,43 @@ useRequest(app.isInstalled('pgadmin')).onSuccess(({ data }: any) => {
   pgAdminInstalled.value = data
 })
 
-// 切换标签页时刷新对应类型的可用服务器列表
-watch(
-  currentTab,
-  (tab) => {
-    if (tab === 'mysql') {
-      useRequest(database.serverList(1, 10000, 'mysql')).onSuccess(({ data }: any) => {
-        mysqlServers.value = data.items || []
-      })
-    } else if (tab === 'postgresql') {
-      useRequest(database.serverList(1, 10000, 'postgresql')).onSuccess(({ data }: any) => {
-        postgresqlServers.value = data.items || []
-      })
-    }
-  },
-  { immediate: true },
+// 类型标签页仅展示已添加服务器的数据库类型
+const typeTabs = ['mysql', 'postgresql', 'clickhouse', 'mongodb', 'sqlite', 'elasticsearch', 'redis']
+const servers = ref<any[]>([])
+const serversLoaded = ref(false)
+
+const availableTypes = computed(() => new Set(servers.value.map((item: any) => item.type)))
+const mysqlServers = computed(() => servers.value.filter((item: any) => item.type === 'mysql'))
+const postgresqlServers = computed(() =>
+  servers.value.filter((item: any) => item.type === 'postgresql'),
 )
+
+const refreshServers = () => {
+  useRequest(database.serverList(1, 10000)).onSuccess(({ data }: any) => {
+    servers.value = data.items || []
+    const visible = typeTabs.filter((t) => availableTypes.value.has(t))
+    if (typeTabs.includes(currentTab.value) && !availableTypes.value.has(currentTab.value)) {
+      // 当前类型的服务器已被全部删除,回退到可用标签页
+      currentTab.value = visible[0] ?? 'server'
+    } else if (!serversLoaded.value && visible.length > 0) {
+      // 首次加载定位到第一个可用类型
+      currentTab.value = visible[0] ?? 'server'
+    }
+    serversLoaded.value = true
+  })
+}
+
+onMounted(() => {
+  refreshServers()
+  window.$bus.on('database-server:refresh', refreshServers)
+})
+
+onUnmounted(() => {
+  window.$bus.off('database-server:refresh', refreshServers)
+})
 
 const serverOptions = computed(() =>
   mysqlServers.value.map((item: any) => ({ label: item.name, key: item.id })),
-)
-
-const postgresqlServerOptions = computed(() =>
-  postgresqlServers.value.map((item: any) => ({ label: item.name, key: item.id })),
 )
 
 const handlePhpMyAdmin = (serverID: number) => {
@@ -87,11 +99,11 @@ const handlePhpMyAdmin = (serverID: number) => {
     })
 }
 
-const handlePgAdmin = (serverID: number) => {
+const handlePgAdmin = () => {
   // 预先打开空白窗口,避免异步回调中 window.open 被浏览器拦截
   const win = window.open('about:blank', '_blank')
   pgAdminLoading.value = true
-  useRequest(pgadmin.login(serverID))
+  useRequest(pgadmin.login())
     .onSuccess(({ data }: any) => {
       const url = `http://${window.location.hostname}:${data.port}/`
       if (win) {
@@ -113,13 +125,13 @@ const handlePgAdmin = (serverID: number) => {
   <PageContainer :show-footer="true">
     <template #tabs>
       <n-tabs v-model:value="currentTab" animated>
-        <n-tab name="mysql" tab="MySQL" />
-        <n-tab name="postgresql" tab="PostgreSQL" />
-        <n-tab name="clickhouse" tab="ClickHouse" />
-        <n-tab name="mongodb" tab="MongoDB" />
-        <n-tab name="sqlite" tab="SQLite" />
-        <n-tab name="elasticsearch" tab="Elasticsearch" />
-        <n-tab name="redis" tab="Redis" />
+        <n-tab v-if="availableTypes.has('mysql')" name="mysql" tab="MySQL" />
+        <n-tab v-if="availableTypes.has('postgresql')" name="postgresql" tab="PostgreSQL" />
+        <n-tab v-if="availableTypes.has('clickhouse')" name="clickhouse" tab="ClickHouse" />
+        <n-tab v-if="availableTypes.has('mongodb')" name="mongodb" tab="MongoDB" />
+        <n-tab v-if="availableTypes.has('sqlite')" name="sqlite" tab="SQLite" />
+        <n-tab v-if="availableTypes.has('elasticsearch')" name="elasticsearch" tab="Elasticsearch" />
+        <n-tab v-if="availableTypes.has('redis')" name="redis" tab="Redis" />
         <n-tab name="user" :tab="$gettext('User')" />
         <n-tab name="server" :tab="$gettext('Server')" />
       </n-tabs>
@@ -153,26 +165,14 @@ const handlePgAdmin = (serverID: number) => {
             phpMyAdmin
           </n-button>
         </template>
-        <template
+        <n-button
           v-if="currentTab === 'postgresql' && pgAdminInstalled && postgresqlServers.length > 0"
+          :loading="pgAdminLoading"
+          :disabled="pgAdminLoading"
+          @click="handlePgAdmin"
         >
-          <n-dropdown
-            v-if="postgresqlServers.length > 1"
-            :options="postgresqlServerOptions"
-            trigger="click"
-            @select="handlePgAdmin"
-          >
-            <n-button :loading="pgAdminLoading" :disabled="pgAdminLoading"> pgAdmin </n-button>
-          </n-dropdown>
-          <n-button
-            v-else
-            :loading="pgAdminLoading"
-            :disabled="pgAdminLoading"
-            @click="handlePgAdmin(postgresqlServers[0].id)"
-          >
-            pgAdmin
-          </n-button>
-        </template>
+          pgAdmin
+        </n-button>
         <n-button v-if="currentTab === 'user'" type="primary" @click="createUserModalShow = true">
           {{ $gettext('Create User') }}
         </n-button>
