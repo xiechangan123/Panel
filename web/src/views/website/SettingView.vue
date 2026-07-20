@@ -69,7 +69,7 @@ const websiteOptions = ref<{ label: string; value: number }[]>([])
 useRequest(website.defaultSite()).onSuccess(({ data }: any) => {
   defaultSite.value = data.id
 })
-useRequest(website.list('', 1, 10000)).onSuccess(({ data }: any) => {
+useRequest(website.list('all', 1, 10000)).onSuccess(({ data }: any) => {
   websiteOptions.value = (data.items || []).map((item: any) => ({
     label: item.name,
     value: item.id,

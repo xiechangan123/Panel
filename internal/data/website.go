@@ -234,7 +234,7 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 	}
 
 	query := r.db
-	if typ != "all" {
+	if typ != "" && typ != "all" {
 		query = query.Where("type = ?", typ)
 	}
 	if err := query.Order("id DESC").Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&websites).Error; err != nil {

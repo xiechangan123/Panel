@@ -153,7 +153,7 @@ func (s *WebsiteService) setWebsiteDefaultServer(name string, isDefault bool) er
 
 // GetDefaultSite 获取当前默认站点,0 表示面板内置默认页
 func (s *WebsiteService) GetDefaultSite(w http.ResponseWriter, r *http.Request) {
-	websites, _, err := s.websiteRepo.List("", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -182,7 +182,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	websites, _, err := s.websiteRepo.List("", 1, 10000)
+	websites, _, err := s.websiteRepo.List("all", 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
