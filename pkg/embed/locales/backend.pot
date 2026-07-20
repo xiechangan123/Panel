@@ -27,7 +27,7 @@ msgstr ""
 msgid "2FA url: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:385
+#: internal/service/environment_php.go:387
 msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
 msgstr ""
 
@@ -157,7 +157,7 @@ msgstr ""
 msgid "Backing up panel data..."
 msgstr ""
 
-#: internal/service/backup.go:72
+#: internal/service/backup.go:83
 msgid "Backup %s: %s"
 msgstr ""
 
@@ -231,7 +231,7 @@ msgstr ""
 msgid "Bytes/sec"
 msgstr ""
 
-#: internal/service/environment_php.go:430
+#: internal/service/environment_php.go:432
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr ""
 
@@ -248,7 +248,7 @@ msgstr ""
 msgid "COPYRIGHT"
 msgstr ""
 
-#: internal/service/environment_php.go:470
+#: internal/service/environment_php.go:472
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
@@ -317,7 +317,7 @@ msgstr ""
 msgid "Commands Per Second"
 msgstr ""
 
-#: internal/service/file.go:588
+#: internal/service/file.go:591
 msgid "Compress %v"
 msgstr ""
 
@@ -449,7 +449,7 @@ msgstr ""
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:460
+#: internal/service/file.go:461
 msgid "Download remote file %v"
 msgstr ""
 
@@ -457,7 +457,7 @@ msgstr ""
 msgid "Downloading new version..."
 msgstr ""
 
-#: internal/apps/prometheus/app.go:412
+#: internal/apps/prometheus/app.go:414
 msgid "Elasticsearch metrics"
 msgstr ""
 
@@ -469,7 +469,7 @@ msgstr ""
 msgid "Enable access entrance"
 msgstr ""
 
-#: internal/service/environment_php.go:460
+#: internal/service/environment_php.go:462
 msgid "Enchant is a spell-checking library"
 msgstr ""
 
@@ -486,11 +486,11 @@ msgstr ""
 msgid "Entrance: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:440
+#: internal/service/environment_php.go:442
 msgid "Event is a library for handling events"
 msgstr ""
 
-#: internal/service/environment_php.go:395
+#: internal/service/environment_php.go:397
 msgid "Exif is a library for reading and writing image metadata"
 msgstr ""
 
@@ -638,7 +638,7 @@ msgstr ""
 msgid "Failed to update 2FA: %v"
 msgstr ""
 
-#: internal/service/environment_php.go:360
+#: internal/service/environment_php.go:362
 msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
@@ -682,7 +682,7 @@ msgstr ""
 msgid "GLOBAL OPTIONS"
 msgstr ""
 
-#: internal/service/environment_php.go:475
+#: internal/service/environment_php.go:477
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
@@ -698,7 +698,7 @@ msgstr ""
 msgid "Get panel setting (use only under guidance)"
 msgstr ""
 
-#: internal/service/environment_php.go:495
+#: internal/service/environment_php.go:497
 msgid "Gettext is a library for handling multilingual support"
 msgstr ""
 
@@ -724,7 +724,7 @@ msgstr ""
 msgid "HTTPS enabled"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:407
+#: internal/apps/prometheus/app.go:409
 msgid "Hardware and OS metrics"
 msgstr ""
 
@@ -736,7 +736,7 @@ msgstr ""
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:420
+#: internal/service/environment_php.go:422
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr ""
 
@@ -756,11 +756,11 @@ msgstr ""
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr ""
 
-#: internal/service/environment_php.go:370
+#: internal/service/environment_php.go:372
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:390
+#: internal/service/environment_php.go:392
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
@@ -787,15 +787,15 @@ msgstr ""
 msgid "Insert Operations"
 msgstr ""
 
-#: internal/service/environment_php.go:310
+#: internal/service/environment_php.go:311
 msgid "Install PHP-%d %s module"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:266
+#: internal/apps/prometheus/app.go:267
 msgid "Install Prometheus exporter %s"
 msgstr ""
 
-#: internal/biz/app.go:216
+#: internal/biz/app.go:217
 msgid "Install app %s"
 msgstr ""
 
@@ -807,7 +807,7 @@ msgstr ""
 msgid "Install environment %s"
 msgstr ""
 
-#: internal/service/environment_php.go:490
+#: internal/service/environment_php.go:492
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
 
@@ -819,7 +819,7 @@ msgstr ""
 msgid "Journal logs"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:415
+#: internal/apps/prometheus/app.go:417
 msgid "Kafka metrics"
 msgstr ""
 
@@ -833,7 +833,7 @@ msgstr ""
 msgid "Keyspace Misses"
 msgstr ""
 
-#: internal/service/environment_php.go:455
+#: internal/service/environment_php.go:457
 msgid "LDAP is a protocol for accessing directory services"
 msgstr ""
 
@@ -911,11 +911,11 @@ msgstr ""
 msgid "Max Listen Queue"
 msgstr ""
 
-#: internal/service/environment_php.go:380
+#: internal/service/environment_php.go:382
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:414
+#: internal/apps/prometheus/app.go:416
 msgid "Memcached metrics"
 msgstr ""
 
@@ -941,7 +941,7 @@ msgstr ""
 msgid "Migration started"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:411
+#: internal/apps/prometheus/app.go:413
 msgid "MongoDB metrics"
 msgstr ""
 
@@ -953,7 +953,7 @@ msgstr ""
 msgid "Move panel file failed: %v"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:409
+#: internal/apps/prometheus/app.go:411
 msgid "MySQL database metrics"
 msgstr ""
 
@@ -979,7 +979,7 @@ msgstr ""
 msgid "New username cannot be empty"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:408
+#: internal/apps/prometheus/app.go:410
 msgid "Nginx metrics"
 msgstr ""
 
@@ -1032,7 +1032,7 @@ msgstr ""
 msgid "OPTIONS"
 msgstr ""
 
-#: internal/service/environment_php.go:365
+#: internal/service/environment_php.go:367
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr ""
 
@@ -1088,12 +1088,12 @@ msgstr ""
 #: internal/service/environment_php.go:247
 #: internal/service/environment_php.go:261
 #: internal/service/environment_php.go:294
-#: internal/service/environment_php.go:328
+#: internal/service/environment_php.go:329
 #: internal/service/environment_php.go:49
-#: internal/service/environment_php.go:610
-#: internal/service/environment_php.go:669
+#: internal/service/environment_php.go:612
+#: internal/service/environment_php.go:671
 #: internal/service/environment_php.go:69
-#: internal/service/environment_php.go:732
+#: internal/service/environment_php.go:734
 #: internal/service/environment_php.go:90
 msgid "PHP-%d is not installed"
 msgstr ""
@@ -1142,7 +1142,7 @@ msgstr ""
 msgid "Peak Memory Usage"
 msgstr ""
 
-#: internal/service/environment_php.go:375
+#: internal/service/environment_php.go:377
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr ""
 
@@ -1182,7 +1182,7 @@ msgstr ""
 msgid "Port: %d"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:410
+#: internal/apps/prometheus/app.go:412
 msgid "PostgreSQL database metrics"
 msgstr ""
 
@@ -1206,7 +1206,7 @@ msgstr ""
 msgid "Project"
 msgstr ""
 
-#: internal/service/environment_php.go:465
+#: internal/service/environment_php.go:467
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
@@ -1252,11 +1252,11 @@ msgstr ""
 msgid "Reading"
 msgstr ""
 
-#: internal/service/environment_php.go:445
+#: internal/service/environment_php.go:447
 msgid "Readline is a library for processing text"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:413
+#: internal/apps/prometheus/app.go:415
 msgid "Redis metrics"
 msgstr ""
 
@@ -1301,7 +1301,7 @@ msgstr ""
 msgid "Rotation type"
 msgstr ""
 
-#: internal/service/environment_php.go:450
+#: internal/service/environment_php.go:452
 msgid "SNMP is a protocol for network management"
 msgstr ""
 
@@ -1309,7 +1309,7 @@ msgstr ""
 msgid "SSH log file not found"
 msgstr ""
 
-#: internal/service/environment_php.go:435
+#: internal/service/environment_php.go:437
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
 
@@ -1342,7 +1342,7 @@ msgstr ""
 msgid "Server username"
 msgstr ""
 
-#: internal/service/environment_php.go:745
+#: internal/service/environment_php.go:747
 msgid "Session save handler is not files, cannot clean"
 msgstr ""
 
@@ -1406,11 +1406,11 @@ msgstr ""
 msgid "Successfully obtained panel certificate via ACME"
 msgstr ""
 
-#: internal/service/environment_php.go:555
+#: internal/service/environment_php.go:557
 msgid "Swoole is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
-#: internal/service/environment_php.go:564
+#: internal/service/environment_php.go:566
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
@@ -1422,15 +1422,15 @@ msgstr ""
 msgid "Sync server time with NTP"
 msgstr ""
 
-#: internal/service/environment_php.go:535
+#: internal/service/environment_php.go:537
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr ""
 
-#: internal/service/environment_php.go:540
+#: internal/service/environment_php.go:542
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr ""
 
-#: internal/service/environment_php.go:545
+#: internal/service/environment_php.go:547
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
@@ -1552,19 +1552,19 @@ msgstr ""
 msgid "Unassigned Shards"
 msgstr ""
 
-#: internal/service/file.go:614
+#: internal/service/file.go:619
 msgid "Uncompress %v"
 msgstr ""
 
-#: internal/service/environment_php.go:344
+#: internal/service/environment_php.go:346
 msgid "Uninstall PHP-%d %s module"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:293
+#: internal/apps/prometheus/app.go:295
 msgid "Uninstall Prometheus exporter %s"
 msgstr ""
 
-#: internal/biz/app.go:256
+#: internal/biz/app.go:258
 msgid "Uninstall app %s"
 msgstr ""
 
@@ -1604,7 +1604,7 @@ msgstr ""
 msgid "Update Operations"
 msgstr ""
 
-#: internal/biz/app.go:298
+#: internal/biz/app.go:301
 msgid "Update app %s"
 msgstr ""
 
@@ -1738,15 +1738,15 @@ msgstr ""
 msgid "Writing"
 msgstr ""
 
-#: internal/service/environment_php.go:480
+#: internal/service/environment_php.go:482
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr ""
 
-#: internal/service/environment_php.go:485
+#: internal/service/environment_php.go:487
 msgid "XSL is a library for processing XML documents"
 msgstr ""
 
-#: internal/service/environment_php.go:425
+#: internal/service/environment_php.go:427
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
@@ -1758,8 +1758,8 @@ msgstr ""
 msgid "app %s not found"
 msgstr ""
 
-#: internal/biz/app.go:235
-#: internal/biz/app.go:275
+#: internal/biz/app.go:236
+#: internal/biz/app.go:277
 #: internal/middleware/must_install.go:36
 msgid "app %s not installed"
 msgstr ""
@@ -1816,6 +1816,10 @@ msgstr ""
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
+#: internal/service/file_share.go:52
+msgid "can't share a directory"
+msgstr ""
+
 #: internal/service/toolbox_disk.go:554
 msgid "cannot delete root mount point"
 msgstr ""
@@ -1829,7 +1833,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:823
+#: internal/service/file.go:828
 msgid "chunk hash mismatch"
 msgstr ""
 
@@ -1854,11 +1858,11 @@ msgid "could not find .sql backup file"
 msgstr ""
 
 #: internal/service/file.go:317
-#: internal/service/file.go:746
+#: internal/service/file.go:751
 msgid "create directory error: %v"
 msgstr ""
 
-#: internal/service/file.go:866
+#: internal/service/file.go:871
 msgid "create target file error: %v"
 msgstr ""
 
@@ -1933,7 +1937,7 @@ msgstr ""
 msgid "dump.rdb not found in backup file"
 msgstr ""
 
-#: internal/data/task.go:69
+#: internal/data/task.go:109
 msgid "duplicate submission, please wait for the previous task to end"
 msgstr ""
 
@@ -1965,17 +1969,17 @@ msgid "expiration time must be less than 10 years"
 msgstr ""
 
 #: internal/apps/prometheus/app.go:259
-#: internal/apps/prometheus/app.go:286
-#: internal/apps/prometheus/app.go:308
-#: internal/apps/prometheus/app.go:324
-#: internal/apps/prometheus/app.go:340
-#: internal/apps/prometheus/app.go:356
-#: internal/apps/prometheus/app.go:375
+#: internal/apps/prometheus/app.go:287
+#: internal/apps/prometheus/app.go:310
+#: internal/apps/prometheus/app.go:326
+#: internal/apps/prometheus/app.go:342
+#: internal/apps/prometheus/app.go:358
+#: internal/apps/prometheus/app.go:377
 msgid "exporter %s does not exist"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:362
-#: internal/apps/prometheus/app.go:381
+#: internal/apps/prometheus/app.go:364
+#: internal/apps/prometheus/app.go:383
 msgid "exporter %s has no configuration file"
 msgstr ""
 
@@ -2244,7 +2248,7 @@ msgstr ""
 msgid "failed to get elasticsearch status: %v"
 msgstr ""
 
-#: internal/service/file.go:487
+#: internal/service/file.go:489
 msgid "failed to get file system info"
 msgstr ""
 
@@ -2743,7 +2747,7 @@ msgstr ""
 msgid "file is too large, please download it to view"
 msgstr ""
 
-#: internal/service/environment_php.go:500
+#: internal/service/environment_php.go:502
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr ""
 
@@ -2751,7 +2755,7 @@ msgstr ""
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/service/file.go:800
+#: internal/service/file.go:805
 msgid "get upload file error: %v"
 msgstr ""
 
@@ -2830,7 +2834,7 @@ msgstr ""
 msgid "invalid user id, please login again"
 msgstr ""
 
-#: internal/service/environment_php.go:550
+#: internal/service/environment_php.go:552
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
@@ -2866,7 +2870,7 @@ msgstr ""
 #: internal/apps/rsync/app.go:170
 #: internal/apps/rsync/app.go:212
 #: internal/service/environment_php.go:299
-#: internal/service/environment_php.go:333
+#: internal/service/environment_php.go:334
 msgid "module %s does not exist"
 msgstr ""
 
@@ -2931,7 +2935,7 @@ msgstr ""
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:806
+#: internal/service/file.go:811
 msgid "open upload file error: %v"
 msgstr ""
 
@@ -2983,7 +2987,7 @@ msgstr ""
 msgid "path is not a directory: %s"
 msgstr ""
 
-#: internal/service/file.go:793
+#: internal/service/file.go:798
 msgid "path, file_name and file_hash are required"
 msgstr ""
 
@@ -2992,11 +2996,11 @@ msgstr ""
 msgid "path, service or container is required"
 msgstr ""
 
-#: internal/service/environment_php.go:405
+#: internal/service/environment_php.go:407
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
-#: internal/service/environment_php.go:415
+#: internal/service/environment_php.go:417
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr ""
 
@@ -3009,7 +3013,7 @@ msgstr ""
 msgid "pgAdmin port not found"
 msgstr ""
 
-#: internal/service/environment_php.go:400
+#: internal/service/environment_php.go:402
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
@@ -3020,6 +3024,10 @@ msgstr ""
 
 #: internal/apps/phpmyadmin/app.go:81
 msgid "phpMyAdmin port not found"
+msgstr ""
+
+#: internal/data/task.go:57
+msgid "please cancel the task first"
 msgstr ""
 
 #: internal/service/toolbox_migration.go:250
@@ -3057,23 +3065,23 @@ msgstr ""
 msgid "project name already exists"
 msgstr ""
 
-#: internal/service/environment_php.go:505
+#: internal/service/environment_php.go:507
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:510
+#: internal/service/environment_php.go:512
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
-#: internal/service/file.go:883
+#: internal/service/file.go:888
 msgid "read chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:814
+#: internal/service/file.go:819
 msgid "read chunk data error: %v"
 msgstr ""
 
-#: internal/service/file.go:755
+#: internal/service/file.go:760
 msgid "read directory error: %v"
 msgstr ""
 
@@ -3109,7 +3117,7 @@ msgstr ""
 msgid "s3 configuration error: %v"
 msgstr ""
 
-#: internal/service/file.go:833
+#: internal/service/file.go:838
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -3142,6 +3150,20 @@ msgstr ""
 msgid "sftp configuration error: %v"
 msgstr ""
 
+#: internal/data/file_share.go:69
+#: internal/data/file_share.go:82
+msgid "share link download limit reached"
+msgstr ""
+
+#: internal/data/file_share.go:64
+msgid "share link has expired"
+msgstr ""
+
+#: internal/data/file_share.go:61
+#: internal/service/file_share.go:99
+msgid "share link not found"
+msgstr ""
+
 #: internal/data/user_token.go:142
 msgid "signature expired"
 msgstr ""
@@ -3162,7 +3184,7 @@ msgstr ""
 msgid "sqlite does not support dropping tables from here"
 msgstr ""
 
-#: internal/service/environment_php.go:410
+#: internal/service/environment_php.go:412
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
@@ -3219,7 +3241,7 @@ msgstr ""
 msgid "tamper protection is only supported on Linux"
 msgstr ""
 
-#: internal/service/backup.go:106
+#: internal/service/backup.go:118
 msgid "target backup %s already exists"
 msgstr ""
 
@@ -3228,9 +3250,17 @@ msgid "target is a directory"
 msgstr ""
 
 #: internal/service/file.go:305
-#: internal/service/file.go:739
-#: internal/service/file.go:854
+#: internal/service/file.go:744
+#: internal/service/file.go:859
 msgid "target path %s already exists"
+msgstr ""
+
+#: internal/data/task.go:88
+msgid "task has already finished"
+msgstr ""
+
+#: internal/data/task.go:83
+msgid "task is not waiting or running"
 msgstr ""
 
 #: internal/biz/template.go:75
@@ -3311,7 +3341,7 @@ msgstr ""
 msgid "unsupported database type: %s"
 msgstr ""
 
-#: internal/service/backup.go:100
+#: internal/service/backup.go:112
 msgid "unsupported file type"
 msgstr ""
 
@@ -3439,7 +3469,7 @@ msgstr ""
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
-#: internal/service/file.go:889
+#: internal/service/file.go:894
 msgid "write chunk %d error: %v"
 msgstr ""
 
@@ -3451,7 +3481,7 @@ msgstr ""
 msgid "ws not allowed"
 msgstr ""
 
-#: internal/service/environment_php.go:520
+#: internal/service/environment_php.go:522
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr ""
 
@@ -3459,15 +3489,15 @@ msgstr ""
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/environment_php.go:515
+#: internal/service/environment_php.go:517
 msgid "xhprof is a library for performance profiling"
 msgstr ""
 
-#: internal/service/environment_php.go:525
+#: internal/service/environment_php.go:527
 msgid "yaml is a library for handling YAML"
 msgstr ""
 
-#: internal/service/environment_php.go:530
+#: internal/service/environment_php.go:532
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 
