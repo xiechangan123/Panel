@@ -529,8 +529,8 @@ func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEng
 	for _, h := range hooks {
 		paramIdx, nargs, err := paramLayout(spec, h.hook, h.param)
 		if err != nil {
-			if h.optional {
-				log.Debug("skip unavailable optional LSM hook", slog.String("hook", h.hook), slog.Any("err", err))
+			if h.optional && errors.Is(err, btf.ErrNotFound) {
+				log.Debug("skip unavailable optional LSM hook", slog.String("hook", h.hook))
 				continue
 			}
 			_ = e.Close()
@@ -627,9 +627,9 @@ func (e *ebpfEngine) start() error {
 func (e *ebpfEngine) readLoop() {
 	defer e.wg.Done()
 	defer close(e.out)
+	var rec ringbuf.Record
 	for {
-		rec, err := e.reader.Read()
-		if err != nil {
+		if err := e.reader.ReadInto(&rec); err != nil {
 			if !errors.Is(err, ringbuf.ErrClosed) {
 				e.log.Error("tamper ringbuf reader stopped, event reporting disabled", slog.Any("err", err))
 			}
