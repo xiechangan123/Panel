@@ -174,13 +174,11 @@ defineExpose({ selectedFiles, refresh, hostId, path })
           @click="handleRowClick(file)"
         >
           <n-checkbox
-            v-if="!file.is_dir"
             :checked="selected.has(file.name)"
             class="sftp-row-check"
             @click.stop
             @update:checked="() => toggleSelect(file.name)"
           />
-          <span v-else class="sftp-row-check"></span>
           <span class="sftp-row-icon">
             <i-mdi-folder v-if="file.is_dir" class="text-amber-500" />
             <i-mdi-link-variant v-else-if="file.is_link" />

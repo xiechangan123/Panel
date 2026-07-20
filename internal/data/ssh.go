@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -296,7 +298,7 @@ func (r *sshRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, 
 		dstSftp = sftpClient
 	}
 
-	// 源文件信息
+	// 源信息
 	var stat os.FileInfo
 	var err error
 	if srcSftp == nil {
@@ -307,11 +309,99 @@ func (r *sshRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, 
 	if err != nil {
 		return err
 	}
-	if stat.IsDir() {
-		return errors.New(r.t.Get("transferring a directory is not supported"))
+	if !stat.IsDir() {
+		return r.transferOne(ctx, srcSftp, dstSftp, srcPath, dstPath, stat.Mode().Perm(), stat.Size(), 0, stat.Size(), progress)
 	}
 
+	// 目录:遍历源树收集目录与常规文件清单,符号链接等特殊文件跳过
+	type transferEntry struct {
+		rel  string
+		size int64
+		mode os.FileMode
+	}
+	var dirs []string
+	var files []transferEntry
+	var total int64
+	collect := func(rel string, info os.FileInfo) {
+		if rel == "." {
+			return
+		}
+		if info.IsDir() {
+			dirs = append(dirs, rel)
+		} else if info.Mode().IsRegular() {
+			files = append(files, transferEntry{rel: rel, size: info.Size(), mode: info.Mode().Perm()})
+			total += info.Size()
+		}
+	}
+	if srcSftp == nil {
+		err = filepath.WalkDir(srcPath, func(p string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			info, err := d.Info()
+			if err != nil {
+				return err
+			}
+			rel, err := filepath.Rel(srcPath, p)
+			if err != nil {
+				return err
+			}
+			collect(rel, info)
+			return nil
+		})
+	} else {
+		walker := srcSftp.Walk(srcPath)
+		for walker.Step() {
+			if err = walker.Err(); err != nil {
+				break
+			}
+			var rel string
+			if rel, err = filepath.Rel(srcPath, walker.Path()); err != nil {
+				break
+			}
+			collect(rel, walker.Stat())
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	// 目标端重建目录树
+	mkdir := func(p string) error {
+		if dstSftp == nil {
+			return os.MkdirAll(p, 0755)
+		}
+		return dstSftp.MkdirAll(p)
+	}
+	if err = mkdir(dstPath); err != nil {
+		return err
+	}
+	for _, d := range dirs {
+		if err = mkdir(filepath.Join(dstPath, d)); err != nil {
+			return err
+		}
+	}
+
+	// 逐文件传输,进度按全树累计字节汇报
+	var done int64
+	for _, f := range files {
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		if err = r.transferOne(ctx, srcSftp, dstSftp, filepath.Join(srcPath, f.rel), filepath.Join(dstPath, f.rel), f.mode, f.size, done, total, progress); err != nil {
+			return err
+		}
+		done += f.size
+	}
+	progress(total, total)
+
+	return nil
+}
+
+// transferOne 传输单个文件,base 与 grandTotal 用于目录传输的累计进度
+func (r *sshRepo) transferOne(ctx context.Context, srcSftp, dstSftp *sftp.Client, srcPath, dstPath string, mode os.FileMode, size, base, grandTotal int64, progress func(transferred, total int64)) error {
 	var reader io.ReadCloser
+	var err error
 	if srcSftp == nil {
 		reader, err = os.Open(srcPath)
 	} else {
@@ -324,7 +414,7 @@ func (r *sshRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, 
 
 	var writer io.WriteCloser
 	if dstSftp == nil {
-		writer, err = os.OpenFile(dstPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, stat.Mode().Perm())
+		writer, err = os.OpenFile(dstPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, mode)
 	} else {
 		writer, err = dstSftp.Create(dstPath)
 	}
@@ -332,12 +422,16 @@ func (r *sshRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, 
 		return err
 	}
 
+	report := func(transferred, _ int64) {
+		progress(base+transferred, grandTotal)
+	}
+
 	// 探针包在本机一侧,保留 sftp 一侧 WriteTo/ReadFrom 的并发传输优化
 	if srcSftp != nil {
-		probe := &transferProbe{ctx: ctx, w: writer, total: stat.Size(), progress: progress}
+		probe := &transferProbe{ctx: ctx, w: writer, total: size, progress: report}
 		_, err = io.Copy(probe, reader)
 	} else {
-		probe := &transferProbe{ctx: ctx, r: reader, total: stat.Size(), progress: progress}
+		probe := &transferProbe{ctx: ctx, r: reader, total: size, progress: report}
 		_, err = io.Copy(writer, probe)
 	}
 	if err != nil {
@@ -348,7 +442,7 @@ func (r *sshRepo) TransferFile(ctx context.Context, srcID uint, srcPath string, 
 		return err
 	}
 	if dstSftp != nil {
-		_ = dstSftp.Chmod(dstPath, stat.Mode().Perm())
+		_ = dstSftp.Chmod(dstPath, mode)
 	}
 
 	return nil

@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import { darkTheme } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import ws from '@/api/ws'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import { darkThemeOverrides } from '@/design/naive-overrides'
 import { formatBytes } from '@/utils'
 import SftpBrowser from '@/views/ssh/SftpBrowser.vue'
 
 const { $gettext } = useGettext()
+const { confirmAction } = useConfirm()
 
 const props = defineProps<{
   hosts: { label: string; value: number }[]
@@ -45,7 +49,7 @@ const hostLabel = (id: number) => props.hosts.find((h) => h.value === id)?.label
 
 const joinPath = (dir: string, name: string) => (dir === '/' ? `/${name}` : `${dir}/${name}`)
 
-const handleTransfer = (direction: 'ltr' | 'rtl') => {
+const handleTransfer = async (direction: 'ltr' | 'rtl') => {
   const from =
     direction === 'ltr'
       ? { browser: leftRef.value, host: leftHost.value, path: leftPath.value }
@@ -65,6 +69,19 @@ const handleTransfer = (direction: 'ltr' | 'rtl') => {
     return
   }
 
+  // 目录递归传输可能耗时较长,先二次确认
+  const dirs = files.filter((f) => f.is_dir)
+  if (dirs.length) {
+    const ok = await confirmAction({
+      title: $gettext('Transfer Directories'),
+      content: $gettext(
+        'The selection contains %{ count } directory(ies), which will be transferred recursively and may take a long time. For large directories, compressing before transferring is recommended. Continue?',
+        { count: dirs.length },
+      ),
+    })
+    if (!ok) return
+  }
+
   for (const file of files) {
     transfers.value.push({
       id: `transfer-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -75,7 +92,8 @@ const handleTransfer = (direction: 'ltr' | 'rtl') => {
       dstPath: joinPath(to.path, file.name),
       status: 'waiting',
       transferred: 0,
-      total: file.size,
+      // 目录总量未知,由后端进度回报填充
+      total: file.is_dir ? 0 : file.size,
       speed: 0,
       errorMsg: '',
       ws: null,
@@ -169,9 +187,7 @@ const handleCancel = (item: TransferItem) => {
 }
 
 const clearFinished = () => {
-  transfers.value = transfers.value.filter(
-    (t) => t.status === 'waiting' || t.status === 'running',
-  )
+  transfers.value = transfers.value.filter((t) => t.status === 'waiting' || t.status === 'running')
 }
 
 const percent = (item: TransferItem) => {
@@ -191,100 +207,107 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="sftp-panel">
-    <div class="sftp-panes">
-      <SftpBrowser
-        ref="leftRef"
-        v-model:host-id="leftHost"
-        v-model:path="leftPath"
-        :hosts="props.hosts"
-      />
-      <div class="sftp-actions">
-        <n-button
-          secondary
-          circle
-          :title="$gettext('Transfer to right')"
-          @click="handleTransfer('ltr')"
-        >
-          <template #icon>
-            <i-mdi-arrow-right />
-          </template>
-        </n-button>
-        <n-button
-          secondary
-          circle
-          :title="$gettext('Transfer to left')"
-          @click="handleTransfer('rtl')"
-        >
-          <template #icon>
-            <i-mdi-arrow-left />
-          </template>
-        </n-button>
-      </div>
-      <SftpBrowser
-        ref="rightRef"
-        v-model:host-id="rightHost"
-        v-model:path="rightPath"
-        :hosts="props.hosts"
-      />
-    </div>
-
-    <div v-if="transfers.length" class="sftp-queue">
-      <div class="sftp-queue-header">
-        <span>{{ $gettext('Transfer Queue') }} ({{ transfers.length }})</span>
-        <n-button text size="tiny" @click="clearFinished">
-          {{ $gettext('Clear Finished') }}
-        </n-button>
-      </div>
-      <div class="sftp-queue-list">
-        <div v-for="item in transfers" :key="item.id" class="sftp-queue-item">
-          <span class="queue-icon">
-            <i-mdi-check-circle v-if="item.status === 'success'" class="text-green-500" />
-            <i-mdi-close-circle v-else-if="item.status === 'error'" class="text-red-500" />
-            <i-mdi-progress-clock v-else-if="item.status === 'waiting'" />
-            <i-mdi-swap-horizontal v-else />
-          </span>
-          <span class="queue-name" :title="`${item.srcPath} -> ${item.dstPath}`">
-            {{ item.name }}
-          </span>
-          <span class="queue-route">
-            {{ hostLabel(item.srcId) }}
-            <i-mdi-arrow-right class="inline text-xs" />
-            {{ hostLabel(item.dstId) }}
-          </span>
-          <template v-if="item.status === 'running'">
-            <n-progress
-              type="line"
-              :percentage="percent(item)"
-              :show-indicator="false"
-              class="queue-progress"
-            />
-            <span class="queue-meta">
-              {{ percent(item) }}% · {{ formatBytes(item.speed) }}/s
-            </span>
-          </template>
-          <span v-else-if="item.status === 'error'" class="queue-meta error" :title="item.errorMsg">
-            {{ item.errorMsg }}
-          </span>
-          <span v-else-if="item.status === 'success'" class="queue-meta">
-            {{ formatBytes(item.total) }}
-          </span>
-          <span v-else class="queue-meta">{{ $gettext('Waiting') }}</span>
+  <!-- 终端环境固定暗色,不随面板主题切换 -->
+  <n-config-provider :theme="darkTheme" :theme-overrides="darkThemeOverrides" abstract>
+    <div class="sftp-panel">
+      <div class="sftp-panes">
+        <SftpBrowser
+          ref="leftRef"
+          v-model:host-id="leftHost"
+          v-model:path="leftPath"
+          :hosts="props.hosts"
+        />
+        <div class="sftp-actions">
           <n-button
-            v-if="item.status === 'waiting' || item.status === 'running'"
-            text
-            size="tiny"
-            :title="$gettext('Cancel')"
-            @click="handleCancel(item)"
+            secondary
+            circle
+            :title="$gettext('Transfer to right')"
+            @click="handleTransfer('ltr')"
           >
             <template #icon>
-              <i-mdi-close />
+              <i-mdi-arrow-right />
+            </template>
+          </n-button>
+          <n-button
+            secondary
+            circle
+            :title="$gettext('Transfer to left')"
+            @click="handleTransfer('rtl')"
+          >
+            <template #icon>
+              <i-mdi-arrow-left />
             </template>
           </n-button>
         </div>
+        <SftpBrowser
+          ref="rightRef"
+          v-model:host-id="rightHost"
+          v-model:path="rightPath"
+          :hosts="props.hosts"
+        />
+      </div>
+
+      <div v-if="transfers.length" class="sftp-queue">
+        <div class="sftp-queue-header">
+          <span>{{ $gettext('Transfer Queue') }} ({{ transfers.length }})</span>
+          <n-button text size="tiny" @click="clearFinished">
+            {{ $gettext('Clear Finished') }}
+          </n-button>
+        </div>
+        <div class="sftp-queue-list">
+          <div v-for="item in transfers" :key="item.id" class="sftp-queue-item">
+            <span class="queue-icon">
+              <i-mdi-check-circle v-if="item.status === 'success'" class="text-green-500" />
+              <i-mdi-close-circle v-else-if="item.status === 'error'" class="text-red-500" />
+              <i-mdi-progress-clock v-else-if="item.status === 'waiting'" />
+              <i-mdi-swap-horizontal v-else />
+            </span>
+            <span class="queue-name" :title="`${item.srcPath} -> ${item.dstPath}`">
+              {{ item.name }}
+            </span>
+            <span class="queue-route">
+              {{ hostLabel(item.srcId) }}
+              <i-mdi-arrow-right class="inline text-xs" />
+              {{ hostLabel(item.dstId) }}
+            </span>
+            <template v-if="item.status === 'running'">
+              <n-progress
+                type="line"
+                :percentage="percent(item)"
+                :show-indicator="false"
+                class="queue-progress"
+              />
+              <span class="queue-meta">
+                {{ percent(item) }}% · {{ formatBytes(item.speed) }}/s
+              </span>
+            </template>
+            <span
+              v-else-if="item.status === 'error'"
+              class="queue-meta error"
+              :title="item.errorMsg"
+            >
+              {{ item.errorMsg }}
+            </span>
+            <span v-else-if="item.status === 'success'" class="queue-meta">
+              {{ formatBytes(item.total) }}
+            </span>
+            <span v-else class="queue-meta">{{ $gettext('Waiting') }}</span>
+            <n-button
+              v-if="item.status === 'waiting' || item.status === 'running'"
+              text
+              size="tiny"
+              :title="$gettext('Cancel')"
+              @click="handleCancel(item)"
+            >
+              <template #icon>
+                <i-mdi-close />
+              </template>
+            </n-button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </n-config-provider>
 </template>
 
 <style scoped lang="scss">
@@ -294,7 +317,16 @@ onUnmounted(() => {
   height: 100%;
   padding: 12px;
   gap: 10px;
-  background: var(--color-bg-body);
+  background: transparent;
+
+  /* 终端环境固定暗色变量,值取自 variables.scss 的 html.dark */
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-bg-elevated: #151b27;
+  --color-bg-subtle: #1e2533;
+  --color-border-default: #1f2937;
+  --color-brand-subtle: rgba(54, 173, 106, 0.14);
+  --color-error-fg: #f87171;
 }
 
 .sftp-panes {
@@ -393,7 +425,7 @@ onUnmounted(() => {
   text-overflow: ellipsis;
 
   &.error {
-    color: var(--color-error, #ef4444);
+    color: var(--color-error-fg, #ef4444);
   }
 }
 </style>

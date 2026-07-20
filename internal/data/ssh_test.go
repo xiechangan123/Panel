@@ -63,9 +63,35 @@ func TestSSHLocalFileOps(t *testing.T) {
 		t.Fatalf("mode not preserved: %v", stat.Mode())
 	}
 
-	// 目录拒绝传输
-	if err = repo.TransferFile(context.Background(), 0, sub, 0, filepath.Join(dir, "x"), func(int64, int64) {}); err == nil {
-		t.Fatal("expected error for directory transfer")
+	// 目录递归传输:重建目录树、内容一致、进度按全树累计
+	tree := filepath.Join(dir, "tree")
+	if err = os.MkdirAll(filepath.Join(tree, "a/b"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(filepath.Join(tree, "root.txt"), []byte("root"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(filepath.Join(tree, "a/b/deep.txt"), []byte("deep"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	treeDst := filepath.Join(dir, "tree-copy")
+	var treeTransferred, treeTotal int64
+	if err = repo.TransferFile(context.Background(), 0, tree, 0, treeDst, func(transferred, total int64) {
+		treeTransferred, treeTotal = transferred, total
+	}); err != nil {
+		t.Fatalf("transfer directory: %v", err)
+	}
+	if treeTransferred != 8 || treeTotal != 8 {
+		t.Fatalf("directory progress mismatch: transferred=%d total=%d", treeTransferred, treeTotal)
+	}
+	for name, want := range map[string]string{"root.txt": "root", "a/b/deep.txt": "deep"} {
+		got, err := os.ReadFile(filepath.Join(treeDst, name))
+		if err != nil || string(got) != want {
+			t.Fatalf("directory content mismatch for %s: %v", name, err)
+		}
+	}
+	if stat, _ := os.Stat(filepath.Join(treeDst, "a/b/deep.txt")); stat.Mode().Perm() != 0600 {
+		t.Fatalf("directory file mode not preserved: %v", stat.Mode())
 	}
 
 	// 取消传输
