@@ -10,7 +10,6 @@ import app from '@/api/panel/app'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
-import CustomModal from '@/views/app/CustomModal.vue'
 import VersionModal from '@/views/app/VersionModal.vue'
 
 const { $gettext } = useGettext()
@@ -19,10 +18,6 @@ const { confirmDelete, confirmAction } = useConfirm()
 const versionModalShow = ref(false)
 const versionModalOperation = ref($gettext('Install'))
 const versionModalInfo = ref<any>({})
-
-const customModalShow = ref(false)
-const customModalSlug = ref('')
-const customModalName = ref('')
 
 // 当前选中的分类
 const selectedCategory = ref<string>('')
@@ -153,22 +148,6 @@ const columns: any = [
               ),
             )
           }
-          if (row.custom_supported) {
-            items.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  onClick: () => {
-                    customModalShow.value = true
-                    customModalSlug.value = row.slug
-                    customModalName.value = row.name
-                  },
-                },
-                { default: () => $gettext('Compile Params') },
-              ),
-            )
-          }
           return items
         },
       })
@@ -285,5 +264,4 @@ onMounted(() => {
     v-model:operation="versionModalOperation"
     v-model:info="versionModalInfo"
   />
-  <custom-modal v-model:show="customModalShow" :slug="customModalSlug" :name="customModalName" />
 </template>

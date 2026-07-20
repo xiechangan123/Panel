@@ -7,20 +7,9 @@ import environment from '@/api/panel/environment'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
-import CustomModal from '@/views/app/CustomModal.vue'
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
-
-const customModalShow = ref(false)
-const customModalSlug = ref('')
-const customModalName = ref('')
-
-const openCustomModal = (slug: string, name: string) => {
-  customModalShow.value = true
-  customModalSlug.value = slug
-  customModalName.value = name
-}
 
 // 运行状态映射，无运行状态概念的应用（如挂载工具）不在此列，渲染为 -
 const statusMap: Record<
@@ -150,18 +139,6 @@ const appColumns: any = [
               { default: () => $gettext('Uninstall') },
             ),
           )
-          if (row.custom_supported) {
-            items.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  onClick: () => openCustomModal(row.slug, row.name),
-                },
-                { default: () => $gettext('Compile Params') },
-              ),
-            )
-          }
           return items
         },
       })
@@ -259,19 +236,6 @@ const envColumns: any = [
               { default: () => $gettext('Uninstall') },
             ),
           )
-          if (row.custom_supported) {
-            items.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  // 环境的自定义参数目录名为 type+slug(如 php83),与安装脚本约定一致
-                  onClick: () => openCustomModal(row.type + row.slug, row.name),
-                },
-                { default: () => $gettext('Compile Params') },
-              ),
-            )
-          }
           return items
         },
       })
@@ -398,5 +362,4 @@ onMounted(() => {
       />
     </n-flex>
   </n-flex>
-  <custom-modal v-model:show="customModalShow" :slug="customModalSlug" :name="customModalName" />
 </template>

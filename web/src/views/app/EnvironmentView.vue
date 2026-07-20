@@ -6,7 +6,7 @@ import environment from '@/api/panel/environment'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { router } from '@/router'
 import { renderLocalIcon } from '@/utils'
-import CustomModal from '@/views/app/CustomModal.vue'
+import CustomForm from '@/views/app/CustomForm.vue'
 
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
@@ -14,9 +14,11 @@ const { confirmDelete, confirmAction } = useConfirm()
 const selectedType = ref<string>('')
 const searchQuery = ref<string>('')
 
-const customModalShow = ref(false)
-const customModalSlug = ref('')
-const customModalName = ref('')
+// 编译型环境的安装弹窗（含自定义编译参数输入）
+const installModalShow = ref(false)
+const installModalRow = ref<any>(null)
+const installSubmitting = ref(false)
+const customFormRef = ref<{ save: () => Promise<any> } | null>(null)
 
 const { data: types } = useRequest(environment.types, {
   initialData: [],
@@ -126,6 +128,12 @@ const columns: any = [
                   size: 'small',
                   type: 'success',
                   onClick: async () => {
+                    // 编译型环境走带编译参数输入的安装弹窗
+                    if (row.custom_supported) {
+                      installModalRow.value = row
+                      installModalShow.value = true
+                      return
+                    }
                     const ok = await confirmAction({
                       type: 'info',
                       title: $gettext('Confirm Install'),
@@ -137,23 +145,6 @@ const columns: any = [
                   },
                 },
                 { default: () => $gettext('Install') },
-              ),
-            )
-          }
-          if (row.custom_supported) {
-            items.push(
-              h(
-                NButton,
-                {
-                  size: 'small',
-                  onClick: () => {
-                    customModalShow.value = true
-                    // 环境的自定义参数目录名为 type+slug(如 php83),与安装脚本约定一致
-                    customModalSlug.value = row.type + row.slug
-                    customModalName.value = row.name
-                  },
-                },
-                { default: () => $gettext('Compile Params') },
               ),
             )
           }
@@ -193,6 +184,31 @@ const handleInstall = (type: string, slug: string) => {
       $gettext('Task submitted, please check the progress in background tasks'),
     )
   })
+}
+
+// 编译型环境安装：先保存自定义参数再触发安装
+const handleInstallWithCustom = async () => {
+  const row = installModalRow.value
+  if (!row) return
+  installSubmitting.value = true
+  try {
+    if (customFormRef.value) {
+      await customFormRef.value.save()
+    }
+  } catch {
+    installSubmitting.value = false
+    return
+  }
+  useRequest(environment.install(row.type, row.slug))
+    .onSuccess(() => {
+      installModalShow.value = false
+      window.$message.success(
+        $gettext('Task submitted, please check the progress in background tasks'),
+      )
+    })
+    .onComplete(() => {
+      installSubmitting.value = false
+    })
 }
 
 const handleUpdate = (type: string, slug: string) => {
@@ -270,7 +286,33 @@ onMounted(() => {
       }"
     />
   </n-flex>
-  <custom-modal v-model:show="customModalShow" :slug="customModalSlug" :name="customModalName" />
+  <n-modal
+    v-model:show="installModalShow"
+    preset="card"
+    :title="$gettext('Install') + ' ' + (installModalRow?.name ?? '')"
+    style="width: 60vw"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+  >
+    <n-flex vertical>
+      <!-- 环境的自定义参数目录名为 type+slug(如 php83),与安装脚本约定一致 -->
+      <custom-form
+        v-if="installModalRow"
+        ref="customFormRef"
+        :slug="installModalRow.type + installModalRow.slug"
+      />
+      <n-button
+        type="info"
+        block
+        :loading="installSubmitting"
+        :disabled="installSubmitting"
+        @click="handleInstallWithCustom"
+      >
+        {{ $gettext('Install') }}
+      </n-button>
+    </n-flex>
+  </n-modal>
 </template>
 
 <style scoped lang="scss"></style>
