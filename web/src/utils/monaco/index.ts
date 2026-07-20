@@ -7,43 +7,43 @@ let initPromise: Promise<typeof Monaco> | null = null
 async function loadMonacoLocale(locale: string) {
   switch (locale) {
     case 'cs':
-      await import('monaco-editor/esm/nls.messages.cs.js')
+      await import('monaco-editor/nls/lang/cs.js')
       break
     case 'de':
-      await import('monaco-editor/esm/nls.messages.de.js')
+      await import('monaco-editor/nls/lang/de.js')
       break
     case 'es':
-      await import('monaco-editor/esm/nls.messages.es.js')
+      await import('monaco-editor/nls/lang/es.js')
       break
     case 'fr':
-      await import('monaco-editor/esm/nls.messages.fr.js')
+      await import('monaco-editor/nls/lang/fr.js')
       break
     case 'it':
-      await import('monaco-editor/esm/nls.messages.it.js')
+      await import('monaco-editor/nls/lang/it.js')
       break
     case 'ja':
-      await import('monaco-editor/esm/nls.messages.ja.js')
+      await import('monaco-editor/nls/lang/ja.js')
       break
     case 'ko':
-      await import('monaco-editor/esm/nls.messages.ko.js')
+      await import('monaco-editor/nls/lang/ko.js')
       break
     case 'pl':
-      await import('monaco-editor/esm/nls.messages.pl.js')
+      await import('monaco-editor/nls/lang/pl.js')
       break
     case 'pt_BR':
-      await import('monaco-editor/esm/nls.messages.pt-br.js')
+      await import('monaco-editor/nls/lang/pt-br.js')
       break
     case 'ru':
-      await import('monaco-editor/esm/nls.messages.ru.js')
+      await import('monaco-editor/nls/lang/ru.js')
       break
     case 'tr':
-      await import('monaco-editor/esm/nls.messages.tr.js')
+      await import('monaco-editor/nls/lang/tr.js')
       break
     case 'zh_CN':
-      await import('monaco-editor/esm/nls.messages.zh-cn.js')
+      await import('monaco-editor/nls/lang/zh-cn.js')
       break
     case 'zh_TW':
-      await import('monaco-editor/esm/nls.messages.zh-tw.js')
+      await import('monaco-editor/nls/lang/zh-tw.js')
       break
     default:
       break
@@ -54,11 +54,11 @@ async function setupMonacoWorkers() {
   if (self.MonacoEnvironment) return
 
   const [editorWorker, jsonWorker, cssWorker, htmlWorker, tsWorker] = await Promise.all([
-    import('monaco-editor/esm/vs/editor/editor.worker?worker'),
-    import('monaco-editor/esm/vs/language/json/json.worker?worker'),
-    import('monaco-editor/esm/vs/language/css/css.worker?worker'),
-    import('monaco-editor/esm/vs/language/html/html.worker?worker'),
-    import('monaco-editor/esm/vs/language/typescript/ts.worker?worker'),
+    import('monaco-editor/editor/editor.worker.js?worker'),
+    import('monaco-editor/language/json/json.worker.js?worker'),
+    import('monaco-editor/language/css/css.worker.js?worker'),
+    import('monaco-editor/language/html/html.worker.js?worker'),
+    import('monaco-editor/language/typescript/ts.worker.js?worker'),
   ])
 
   self.MonacoEnvironment = {
