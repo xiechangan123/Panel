@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -17,29 +19,27 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// fileEntry 一个受保护条目
 type fileEntry struct {
 	path  string
 	dev   uint64
 	inode uint64
 	isDir bool
+	exts  []string // 目录条目的规则扩展名,空=整树
 }
 
-// fileKey 设备号+inode 唯一标识一个文件,用于事件回填路径
 type fileKey struct {
 	dev   uint64
 	inode uint64
 }
 
-// engine 防篡改底层引擎(chattr / ebpf 各一实现)
 type engine interface {
 	apply(entries []fileEntry) error
 	remove(entries []fileEntry) error
+	start() error
 	events() <-chan Event
 	close() error
 }
 
-// Manager 防篡改运行时管理器,负责规则扫描、保护应用、新建监控与事件汇聚
 type Manager struct {
 	cfg    Config
 	log    *slog.Logger
@@ -52,7 +52,7 @@ type Manager struct {
 	entries    []fileEntry
 	inodePath  map[fileKey]string // eBPF 事件回填路径
 	nFiles     int
-	nWatchDirs int // 受监控的目录数(非整树规则不锁目录,统计按监控口径)
+	nWatchDirs int
 	running    bool
 
 	out    chan Event
@@ -60,7 +60,6 @@ type Manager struct {
 	once   sync.Once
 }
 
-// NewManager 按配置创建管理器(尚未开始保护,需调用 Start)
 func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 	m := &Manager{
 		cfg:       cfg,
@@ -76,7 +75,11 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 		if !st.Available {
 			return nil, fmt.Errorf("eBPF mode unavailable: %s", st.Reason)
 		}
-		eng, err := newEBPFEngine()
+		var exts []string
+		for _, r := range cfg.Rules {
+			exts = append(exts, r.Exts...)
+		}
+		eng, err := newEBPFEngine(log, cfg.BlockNewFiles, exts)
 		if err != nil {
 			return nil, err
 		}
@@ -91,54 +94,124 @@ func NewManager(cfg Config, log *slog.Logger) (*Manager, error) {
 	return m, nil
 }
 
-// statOf 取路径的设备号(内核 dev_t 编码)与 inode 号
-// stat 返回的 st_dev 为 glibc 编码,需转换为内核 s_dev 格式以便与 eBPF 读到的值一致
-func statOf(path string) (dev, ino uint64) {
+type mountDev struct {
+	point string
+	dev   uint64
+}
+
+var mountUnescape = strings.NewReplacer(`\040`, " ", `\011`, "\t", `\012`, "\n", `\134`, `\`)
+
+// loadMountDevs 解析 mountinfo 取超级块设备号
+// btrfs 等文件系统的 st_dev 是每子卷匿名设备,与 eBPF 侧 i_sb->s_dev 不一致会导致保护静默失效
+// mountinfo 第三列即内核 s_dev
+func loadMountDevs() []mountDev {
+	data, err := os.ReadFile("/proc/self/mountinfo")
+	if err != nil {
+		return nil
+	}
+	var mounts []mountDev
+	for line := range strings.Lines(string(data)) {
+		f := strings.Fields(line)
+		if len(f) < 5 {
+			continue
+		}
+		majS, minS, ok := strings.Cut(f[2], ":")
+		if !ok {
+			continue
+		}
+		maj, err1 := strconv.ParseUint(majS, 10, 32)
+		min, err2 := strconv.ParseUint(minS, 10, 32)
+		if err1 != nil || err2 != nil {
+			continue
+		}
+		mounts = append(mounts, mountDev{point: mountUnescape.Replace(f[4]), dev: maj<<20 | min&0xfffff})
+	}
+	return mounts
+}
+
+// devOfPath 按最长挂载点前缀匹配;同点位后挂载遮蔽先挂载,并列取表中靠后者
+func devOfPath(mounts []mountDev, path string, st *syscall.Stat_t) uint64 {
+	best := -1
+	for i, m := range mounts {
+		if UnderRoot(path, m.point) && (best < 0 || len(m.point) >= len(mounts[best].point)) {
+			best = i
+		}
+	}
+	if best >= 0 {
+		return mounts[best].dev
+	}
+	return uint64(unix.Major(uint64(st.Dev)))<<20 | uint64(unix.Minor(uint64(st.Dev)))&0xfffff
+}
+
+func statOf(mounts []mountDev, path string) (dev, ino uint64) {
 	var st syscall.Stat_t
 	if err := syscall.Lstat(path, &st); err != nil {
 		return 0, 0
 	}
-	major := unix.Major(uint64(st.Dev))
-	minor := unix.Minor(uint64(st.Dev))
-	return uint64(major)<<20 | uint64(minor)&0xfffff, st.Ino
+	return devOfPath(mounts, path, &st), st.Ino
 }
 
-// scan 遍历规则计算受保护条目
-// exts 为空时保护整树(文件 +i、目录 +a);exts 非空时仅保护匹配文件
+// walkRule 目录恒产出携带规则扩展名,文件按 rule.Exts 过滤(空=全部)
+func walkRule(mounts []mountDev, root string, rule *Rule, emit func(fileEntry)) {
+	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if isExcluded(path, rule.Excludes) {
+			if d.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if d.IsDir() {
+			dev, ino := statOf(mounts, path)
+			emit(fileEntry{path: path, dev: dev, inode: ino, isDir: true, exts: rule.Exts})
+			return nil
+		}
+		if MatchExt(path, rule.Exts) {
+			dev, ino := statOf(mounts, path)
+			emit(fileEntry{path: path, dev: dev, inode: ino, isDir: false})
+		}
+		return nil
+	})
+}
+
+// scan 多规则覆盖同一目录时合并扩展名(整树优先,否则并集)
 func (m *Manager) scan() []fileEntry {
+	mounts := loadMountDevs()
 	var entries []fileEntry
 	seen := make(map[string]bool)
+	dirIdx := make(map[string]int)
 
 	for _, rule := range m.cfg.Rules {
-		wholeTree := len(rule.Exts) == 0
 		for _, root := range rule.Paths {
-			_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-				if err != nil {
-					return nil
-				}
-				if isExcluded(path, rule.Excludes) {
-					if d.IsDir() {
-						return filepath.SkipDir
+			walkRule(mounts, root, &rule, func(e fileEntry) {
+				if !e.isDir {
+					if seen[e.path] {
+						return
 					}
-					return nil
+					seen[e.path] = true
+					entries = append(entries, e)
+					return
 				}
-				if seen[path] {
-					return nil
+				i, ok := dirIdx[e.path]
+				if !ok {
+					dirIdx[e.path] = len(entries)
+					entries = append(entries, e)
+					return
 				}
-				if d.IsDir() {
-					if wholeTree {
-						seen[path] = true
-						dev, ino := statOf(path)
-						entries = append(entries, fileEntry{path: path, dev: dev, inode: ino, isDir: true})
+				if len(entries[i].exts) == 0 || len(e.exts) == 0 {
+					entries[i].exts = nil
+					return
+				}
+				// Clone 防 append 污染规则自身的扩展名切片
+				merged := slices.Clone(entries[i].exts)
+				for _, x := range e.exts {
+					if !slices.Contains(merged, x) {
+						merged = append(merged, x)
 					}
-					return nil
 				}
-				if MatchExt(path, rule.Exts) {
-					seen[path] = true
-					dev, ino := statOf(path)
-					entries = append(entries, fileEntry{path: path, dev: dev, inode: ino, isDir: false})
-				}
-				return nil
+				entries[i].exts = merged
 			})
 		}
 	}
@@ -146,16 +219,13 @@ func (m *Manager) scan() []fileEntry {
 	return entries
 }
 
-// Start 扫描规则、应用保护、启动监控
 func (m *Manager) Start() error {
 	entries := m.scan()
 
 	m.mu.Lock()
 	m.entries = entries
 	for _, e := range entries {
-		if !e.isDir {
-			m.inodePath[fileKey{e.dev, e.inode}] = e.path
-		}
+		m.inodePath[fileKey{e.dev, e.inode}] = e.path
 	}
 	m.recount()
 	m.running = true
@@ -164,15 +234,20 @@ func (m *Manager) Start() error {
 	if err := m.eng.apply(entries); err != nil {
 		return fmt.Errorf("failed to apply protection: %w", err)
 	}
+	// 先 apply 后 attach 消除激活空窗
+	if err := m.eng.start(); err != nil {
+		return fmt.Errorf("failed to start protection: %w", err)
+	}
 
-	// eBPF 事件转发(回填路径)
 	if ch := m.eng.events(); ch != nil {
 		go m.forwardEvents(ch)
 	}
 
-	// fsnotify 监控受保护目录下的新建
-	if err := m.startWatcher(); err != nil {
-		m.log.Warn("failed to start tamper file watcher, new file interception unavailable", slog.Any("err", err))
+	// chattr 靠 fsnotify 补齐新建监控,eBPF 由创建类 LSM hook 全内核处理
+	if !m.isEBPF {
+		if err := m.startWatcher(); err != nil {
+			m.log.Warn("failed to start tamper file watcher, new file interception unavailable", slog.Any("err", err))
+		}
 	}
 
 	st := m.Stats()
@@ -183,7 +258,6 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// startWatcher 对所有受保护目录(及规则根)建立 fsnotify 监控
 func (m *Manager) startWatcher() error {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -213,7 +287,7 @@ func (m *Manager) startWatcher() error {
 		}
 	}
 	if failed > 0 {
-		// 常见原因是 fs.inotify.max_user_watches 耗尽
+		// 常见原因 fs.inotify.max_user_watches 耗尽
 		m.log.Warn("failed to watch some tamper directories, new files may be missed",
 			slog.Int("failed", failed), slog.Int("total", len(dirs)))
 	}
@@ -226,7 +300,6 @@ func (m *Manager) startWatcher() error {
 	return nil
 }
 
-// watchLoop 处理文件系统事件
 func (m *Manager) watchLoop() {
 	for {
 		select {
@@ -248,14 +321,13 @@ func (m *Manager) watchLoop() {
 	}
 }
 
-// onCreate 处理受保护目录下的新建条目
+// onCreate chattr 模式下的新建响应:新目录补扫竞态窗口内已落入的条目
 func (m *Manager) onCreate(path string) {
 	info, err := os.Lstat(path)
 	if err != nil {
 		return
 	}
 
-	// 新建目录:纳入监控,并补扫竞态窗口内已落入的条目(mkdir 后立即写入会错过 watch)
 	if info.IsDir() {
 		if m.watcher != nil {
 			if err := m.watcher.Add(path); err == nil {
@@ -277,7 +349,7 @@ func (m *Manager) onCreate(path string) {
 		return
 	}
 
-	dev, ino := statOf(path)
+	dev, ino := statOf(loadMountDevs(), path)
 	ev := Event{
 		Path:  path,
 		Dev:   dev,
@@ -288,7 +360,7 @@ func (m *Manager) onCreate(path string) {
 	}
 
 	if m.cfg.BlockNewFiles {
-		// 拦截策略:删除新建的可疑文件(chattr 整树模式下父目录带 +a,需临时解除)
+		// chattr 整树模式下父目录带 +a,删除新文件需临时解除
 		if err := os.Remove(path); err != nil && len(rule.Exts) == 0 {
 			if _, ok := m.eng.(*chattrEngine); ok {
 				parent := []fileEntry{{path: filepath.Dir(path), isDir: true}}
@@ -298,20 +370,15 @@ func (m *Manager) onCreate(path string) {
 			}
 		}
 	} else {
-		// 冻结策略:锁定新文件防止后续修改
 		m.remember([]fileEntry{{path: path, dev: dev, inode: ino}})
-		switch e := m.eng.(type) {
-		case *chattrEngine:
+		if e, ok := m.eng.(*chattrEngine); ok {
 			e.lockOne(path, false)
-		case *ebpfEngine:
-			_ = e.Add([]protKey{{Ino: ino, Dev: dev}})
 		}
 	}
 
 	m.emit(ev)
 }
 
-// ruleOf 找出路径所属规则
 func (m *Manager) ruleOf(path string) *Rule {
 	for i := range m.cfg.Rules {
 		for _, root := range m.cfg.Rules[i].Paths {
@@ -323,7 +390,7 @@ func (m *Manager) ruleOf(path string) *Rule {
 	return nil
 }
 
-// forwardEvents 回填 eBPF 事件路径并转发
+// forwardEvents 内核拒绝的事件直接上报,放行的(观察/软命中)交 handleCreate 异步纳保
 func (m *Manager) forwardEvents(ch <-chan Event) {
 	for {
 		select {
@@ -337,12 +404,52 @@ func (m *Manager) forwardEvents(ch <-chan Event) {
 			ev.Path = m.inodePath[fileKey{ev.Dev, ev.Inode}]
 			m.mu.RUnlock()
 			ev.Time = time.Now()
+			if ev.Op == OpCreate {
+				if ev.Path == "" || ev.Name == "" {
+					continue
+				}
+				ev.Path = filepath.Join(ev.Path, ev.Name)
+				if ev.Denied {
+					m.emit(ev)
+				} else {
+					go m.handleCreate(ev)
+				}
+				continue
+			}
 			m.emit(ev)
 		}
 	}
 }
 
-// emit 向外投递事件(不阻塞)
+// handleCreate hook 早于实际落盘,stat 需重试;新目录整树补扫
+func (m *Manager) handleCreate(ev Event) {
+	var entries []fileEntry
+	for range 5 {
+		if entries = statEntries([]string{ev.Path}); len(entries) > 0 {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if len(entries) == 0 {
+		return
+	}
+
+	// 内核不感知排除规则,被排除路径的新建不纳保不上报
+	rule := m.ruleOf(ev.Path)
+	if rule == nil || isExcluded(ev.Path, rule.Excludes) {
+		return
+	}
+	if entries[0].isDir {
+		entries = entries[:0]
+		walkRule(loadMountDevs(), ev.Path, rule, func(e fileEntry) { entries = append(entries, e) })
+	} else if !MatchExt(ev.Path, rule.Exts) {
+		return
+	}
+	m.remember(entries)
+	_ = m.eng.apply(entries)
+	m.emit(ev)
+}
+
 func (m *Manager) emit(ev Event) {
 	select {
 	case m.out <- ev:
@@ -351,12 +458,8 @@ func (m *Manager) emit(ev Event) {
 	}
 }
 
-// Events 拦截/告警事件通道
-func (m *Manager) Events() <-chan Event {
-	return m.out
-}
+func (m *Manager) Events() <-chan Event { return m.out }
 
-// Stats 运行统计
 func (m *Manager) Stats() Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -370,26 +473,24 @@ func (m *Manager) Stats() Stats {
 
 // statEntries 现场 stat 构造条目(移动/替换后 inode 可能已变化)
 func statEntries(paths []string) []fileEntry {
+	mounts := loadMountDevs()
 	entries := make([]fileEntry, 0, len(paths))
 	for _, p := range paths {
 		info, err := os.Lstat(p)
 		if err != nil {
 			continue
 		}
-		dev, ino := statOf(p)
+		dev, ino := statOf(mounts, p)
 		entries = append(entries, fileEntry{path: p, dev: dev, inode: ino, isDir: info.IsDir()})
 	}
 	return entries
 }
 
-// remember 登记条目并同步统计与事件回填表(路径已存在则更新)
 func (m *Manager) remember(entries []fileEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	for _, e := range entries {
-		if !e.isDir {
-			m.inodePath[fileKey{e.dev, e.inode}] = e.path
-		}
+		m.inodePath[fileKey{e.dev, e.inode}] = e.path
 	}
 	m.entries = slices.DeleteFunc(m.entries, func(x fileEntry) bool {
 		return slices.ContainsFunc(entries, func(e fileEntry) bool { return e.path == x.path })
@@ -398,14 +499,11 @@ func (m *Manager) remember(entries []fileEntry) {
 	m.recount()
 }
 
-// forget 注销条目,防止移动/替换后残留脏映射
 func (m *Manager) forget(entries []fileEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	for _, e := range entries {
-		if !e.isDir {
-			delete(m.inodePath, fileKey{e.dev, e.inode})
-		}
+		delete(m.inodePath, fileKey{e.dev, e.inode})
 	}
 	m.entries = slices.DeleteFunc(m.entries, func(x fileEntry) bool {
 		return slices.ContainsFunc(entries, func(e fileEntry) bool { return e.path == x.path })
@@ -413,31 +511,42 @@ func (m *Manager) forget(entries []fileEntry) {
 	m.recount()
 }
 
-// recount 重算锁定文件统计(调用方持锁)
+// recount eBPF 的目录数即目录集合大小;chattr 由 fsnotify 按监控口径另计(调用方持锁)
 func (m *Manager) recount() {
 	m.nFiles = 0
+	dirs := 0
 	for _, e := range m.entries {
-		if !e.isDir {
+		if e.isDir {
+			dirs++
+		} else {
 			m.nFiles++
 		}
 	}
+	if m.isEBPF {
+		m.nWatchDirs = dirs
+	}
 }
 
-// Unlock 临时解除指定路径保护(供面板合法写入前调用)
 func (m *Manager) Unlock(paths []string) {
 	entries := statEntries(paths)
 	m.forget(entries)
 	_ = m.eng.remove(entries)
 }
 
-// Relock 恢复指定路径保护(移动/替换后重新登记新路径与新 inode)
+// Relock 恢复保护(移动/替换后需重新登记新路径与新 inode)
 func (m *Manager) Relock(paths []string) {
 	entries := statEntries(paths)
+	for i := range entries {
+		if entries[i].isDir {
+			if r := m.ruleOf(entries[i].path); r != nil {
+				entries[i].exts = r.Exts
+			}
+		}
+	}
 	m.remember(entries)
 	_ = m.eng.apply(entries)
 }
 
-// Stop 解除全部保护并停止(cfg.KeepLocked 场景由上层控制)
 func (m *Manager) Stop() error {
 	m.once.Do(func() { close(m.closed) })
 
@@ -448,7 +557,10 @@ func (m *Manager) Stop() error {
 	m.mu.RLock()
 	entries := m.entries
 	m.mu.RUnlock()
-	_ = m.eng.remove(entries)
+	// eBPF 保护随引擎关闭销毁
+	if !m.isEBPF {
+		_ = m.eng.remove(entries)
+	}
 
 	m.mu.Lock()
 	m.running = false

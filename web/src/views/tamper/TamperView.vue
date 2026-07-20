@@ -276,7 +276,7 @@ const handleClearLogs = async () => {
                 <span class="desc">
                   {{
                     $gettext(
-                      'Delete newly created files of protected types in protected directories. When off, new files are frozen and logged instead.',
+                      'Reject newly created files of protected types in protected directories (denied by kernel in eBPF mode, deleted in chattr mode). When off, new files are logged and protected instead.',
                     )
                   }}
                 </span>
@@ -372,7 +372,7 @@ const handleClearLogs = async () => {
             </template>
             {{ $gettext('Clear Logs') }}
           </n-button>
-          <n-button secondary @click="refreshLogs">
+          <n-button secondary @click="() => refreshLogs()">
             <template #icon>
               <i-mdi-refresh />
             </template>

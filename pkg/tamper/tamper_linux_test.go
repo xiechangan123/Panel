@@ -7,11 +7,13 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"syscall"
 	"testing"
 	"time"
 
 	"github.com/acepanel/panel/v3/pkg/chattr"
+	"golang.org/x/sys/unix"
 )
 
 func writeFile(t *testing.T, path, content string) {
@@ -157,6 +159,29 @@ func TestEBPFMode(t *testing.T) {
 	if err := os.Chmod(protected, 0777); err == nil {
 		t.Fatal("受保护 .php 应 chmod 被拒")
 	}
+	// xattr 修改拦截(P1-3:setxattr/removexattr 独立 hook)
+	if err := unix.Setxattr(protected, "user.evil", []byte("x"), 0); err == nil {
+		t.Fatal("受保护 .php 应 setxattr 被拒")
+	}
+	// 硬链接源拦截(P1-2:防止旁路别名)
+	if err := os.Link(protected, filepath.Join(dir, "alias.php")); err == nil {
+		t.Fatal("对受保护 .php 建硬链接应被拒")
+	}
+	// 目录对象保护:rmdir/rename/chmod 目录本身(P1-1)
+	subDir := filepath.Join(dir, "subdir")
+	if err := os.Mkdir(subDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	m.Relock([]string{subDir}) // 显式纳保空目录
+	if err := os.Remove(subDir); err == nil {
+		t.Fatal("受保护空目录应 rmdir 被拒")
+	}
+	if err := os.Rename(subDir, filepath.Join(dir, "renamed")); err == nil {
+		t.Fatal("受保护目录应 rename 被拒")
+	}
+	if err := os.Chmod(subDir, 0700); err == nil {
+		t.Fatal("受保护目录应 chmod 被拒")
+	}
 
 	// 事件回填路径
 	select {
@@ -194,18 +219,50 @@ func TestScanExcludeAndExt(t *testing.T) {
 	}}
 	entries := m.scan()
 
-	var got []string
+	var files, dirs []string
 	for _, e := range entries {
-		got = append(got, filepath.Base(e.path))
+		if e.isDir {
+			dirs = append(dirs, e.path)
+			if len(e.exts) != 1 || e.exts[0] != "php" {
+				t.Fatalf("目录条目应携带规则扩展名,实得 %v", e.exts)
+			}
+			continue
+		}
+		files = append(files, filepath.Base(e.path))
 	}
-	if len(got) != 1 || got[0] != "a.php" {
-		t.Fatalf("期望仅 a.php,实得 %v", got)
+	if len(files) != 1 || files[0] != "a.php" {
+		t.Fatalf("期望仅 a.php,实得 %v", files)
+	}
+	if len(dirs) != 1 || dirs[0] != dir {
+		t.Fatalf("期望仅根目录条目(排除目录不产出),实得 %v", dirs)
 	}
 	// inode 应有效
 	var st syscall.Stat_t
 	_ = syscall.Lstat(filepath.Join(dir, "a.php"), &st)
-	if entries[0].inode != st.Ino {
-		t.Fatalf("inode 不匹配")
+	for _, e := range entries {
+		if !e.isDir && e.inode != st.Ino {
+			t.Fatalf("inode 不匹配")
+		}
 	}
-	t.Log("扫描: 后缀过滤 + 排除目录 + inode 采集 ✓")
+
+	// 多规则覆盖同一目录:扩展名并集,整树优先
+	m2 := &Manager{cfg: Config{Rules: []Rule{
+		{Paths: []string{dir}, Exts: []string{"php"}},
+		{Paths: []string{dir}, Exts: []string{"html"}},
+	}}}
+	for _, e := range m2.scan() {
+		if e.isDir && e.path == dir && (len(e.exts) != 2 || !slices.Contains(e.exts, "html")) {
+			t.Fatalf("重叠规则目录应合并扩展名,实得 %v", e.exts)
+		}
+	}
+	m3 := &Manager{cfg: Config{Rules: []Rule{
+		{Paths: []string{dir}, Exts: []string{"php"}},
+		{Paths: []string{dir}},
+	}}}
+	for _, e := range m3.scan() {
+		if e.isDir && e.path == dir && len(e.exts) != 0 {
+			t.Fatalf("整树规则应覆盖扩展名规则,实得 %v", e.exts)
+		}
+	}
+	t.Log("扫描: 后缀过滤 + 排除目录 + inode 采集 + 重叠规则合并 ✓")
 }
