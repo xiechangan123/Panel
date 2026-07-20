@@ -245,7 +245,7 @@ func newEBPFEngine() (*ebpfEngine, error) {
 	}
 	events, err := ebpf.NewMap(&ebpf.MapSpec{Type: ebpf.RingBuf, MaxEntries: 1 << 20})
 	if err != nil {
-		protected.Close()
+		_ = protected.Close()
 		return nil, fmt.Errorf("failed to create events ringbuf: %w", err)
 	}
 
@@ -260,13 +260,13 @@ func newEBPFEngine() (*ebpfEngine, error) {
 	for _, h := range lsmHooks {
 		paramIdx, nargs, err := paramLayout(spec, h.hook, h.param)
 		if err != nil {
-			e.Close()
+			_ = e.Close()
 			return nil, err
 		}
 		paramIdx2 := -1
 		if h.param2 != "" {
 			if paramIdx2, _, err = paramLayout(spec, h.hook, h.param2); err != nil {
-				e.Close()
+				_ = e.Close()
 				return nil, err
 			}
 		}
@@ -279,7 +279,7 @@ func newEBPFEngine() (*ebpfEngine, error) {
 			Instructions: buildProg(h, offs, paramIdx, paramIdx2, nargs, protected.FD(), events.FD()),
 		})
 		if err != nil {
-			e.Close()
+			_ = e.Close()
 			if ve, ok := errors.AsType[*ebpf.VerifierError](err); ok {
 				return nil, fmt.Errorf("failed to load %s LSM program: %+v", h.hook, ve)
 			}
@@ -289,7 +289,7 @@ func newEBPFEngine() (*ebpfEngine, error) {
 
 		l, err := link.AttachLSM(link.LSMOptions{Program: prog})
 		if err != nil {
-			e.Close()
+			_ = e.Close()
 			return nil, fmt.Errorf("failed to attach %s: %w", h.hook, err)
 		}
 		e.links = append(e.links, l)
@@ -297,7 +297,7 @@ func newEBPFEngine() (*ebpfEngine, error) {
 
 	e.reader, err = ringbuf.NewReader(events)
 	if err != nil {
-		e.Close()
+		_ = e.Close()
 		return nil, fmt.Errorf("failed to create ringbuf reader: %w", err)
 	}
 

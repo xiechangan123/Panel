@@ -425,19 +425,19 @@ func Supported() bool {
 	if err != nil {
 		return false
 	}
-	defer events.Close()
+	defer func() { _ = events.Close() }()
 
 	ports, err := newPortsMap()
 	if err != nil {
 		return false
 	}
-	defer ports.Close()
+	defer func() { _ = ports.Close() }()
 
 	prog, err := buildDetector(events, ports)
 	if err != nil {
 		return false
 	}
-	defer prog.Close()
+	defer func() { _ = prog.Close() }()
 
 	iface, err := net.InterfaceByName("lo")
 	if err != nil {

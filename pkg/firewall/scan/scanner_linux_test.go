@@ -22,7 +22,7 @@ func TestSupportedAndAttach(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer s.Close()
+	defer func() { _ = s.Close() }()
 
 	t.Log("eBPF 扫描检测器: 程序加载 + TCX 挂载 + 端口同步 ✓")
 }

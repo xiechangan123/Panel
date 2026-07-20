@@ -161,7 +161,7 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to request phpMyAdmin: %v", err))
 		return
 	}
-	defer pageResp.Body.Close()
+	defer func() { _ = pageResp.Body.Close() }()
 	page, err := stdio.ReadAll(stdio.LimitReader(pageResp.Body, 4<<20))
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to request phpMyAdmin: %v", err))
@@ -210,7 +210,7 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to request phpMyAdmin: %v", err))
 		return
 	}
-	defer loginResp.Body.Close()
+	defer func() { _ = loginResp.Body.Close() }()
 	_, _ = stdio.Copy(stdio.Discard, stdio.LimitReader(loginResp.Body, 4<<20))
 
 	// 登录成功时 phpMyAdmin 返回 302 并携带会话 Cookie

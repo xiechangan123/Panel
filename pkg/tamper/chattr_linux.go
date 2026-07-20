@@ -22,7 +22,7 @@ func setFlag(path string, flag uint32) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	return chattr.SetAttr(f, flag)
 }
 
@@ -32,7 +32,7 @@ func unsetFlag(path string, flag uint32) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	return chattr.UnsetAttr(f, flag)
 }
 

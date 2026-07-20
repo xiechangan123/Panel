@@ -3,7 +3,7 @@ package request
 // TamperSetting 防篡改全局设置
 type TamperSetting struct {
 	Enabled       bool   `json:"enabled" form:"enabled"`
-	Mode          string `json:"mode" form:"mode" validate:"omitempty && in:chattr,ebpf"`
+	Mode          string `json:"mode" form:"mode" validate:"required && in:chattr,ebpf"`
 	BlockNewFiles bool   `json:"block_new_files" form:"block_new_files"`
 	LogDays       uint   `json:"log_days" form:"log_days"`
 }

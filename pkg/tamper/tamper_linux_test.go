@@ -37,12 +37,12 @@ func chattrSupported(dir string) bool {
 	if err := os.WriteFile(p, []byte("x"), 0644); err != nil {
 		return false
 	}
-	defer os.Remove(p)
+	defer func() { _ = os.Remove(p) }()
 	f, err := os.Open(p)
 	if err != nil {
 		return false
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	if err := chattr.SetAttr(f, chattr.FS_IMMUTABLE_FL); err != nil {
 		return false
 	}
@@ -80,11 +80,11 @@ func TestChattrMode(t *testing.T) {
 	}
 
 	if !tryWrite(protected) {
-		m.Stop()
+		_ = m.Stop()
 		t.Fatal("受保护文件应写入被拒")
 	}
 	if tryWrite(free) {
-		m.Stop()
+		_ = m.Stop()
 		t.Fatal("非保护文件应可写")
 	}
 
@@ -125,7 +125,7 @@ func TestEBPFMode(t *testing.T) {
 	if err := m.Start(); err != nil {
 		t.Fatal(err)
 	}
-	defer m.Stop()
+	defer func() { _ = m.Stop() }()
 
 	// 写拦截
 	if !tryWrite(protected) {
