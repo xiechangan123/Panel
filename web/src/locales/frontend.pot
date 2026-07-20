@@ -16,7 +16,7 @@ msgid "QQ Group"
 msgstr ""
 
 #: src/components/common/AppFooter.vue:38
-#: src/locales/menu.ts:25
+#: src/locales/menu.ts:24
 #: src/views/apps/fail2ban/IndexView.vue:313
 #: src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:269
@@ -266,7 +266,6 @@ msgstr ""
 #: src/components/common/FileEditor.vue:94
 #: src/components/file-editor/EditorPane.vue:190
 #: src/components/file-editor/EditorToolbar.vue:38
-#: src/views/app/CustomModal.vue:44
 #: src/views/apps/apache/IndexView.vue:46
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:58
 #: src/views/apps/clickhouse/IndexView.vue:57
@@ -297,7 +296,8 @@ msgstr ""
 #: src/views/apps/nginx/NginxIndex.vue:478
 #: src/views/apps/opensearch/IndexView.vue:51
 #: src/views/apps/opensearch/OpenSearchConfigTuneView.vue:58
-#: src/views/apps/pgadmin/IndexView.vue:36
+#: src/views/apps/pgadmin/IndexView.vue:38
+#: src/views/apps/pgadmin/IndexView.vue:50
 #: src/views/apps/phpmyadmin/IndexView.vue:40
 #: src/views/apps/phpmyadmin/IndexView.vue:52
 #: src/views/apps/podman/IndexView.vue:29
@@ -331,8 +331,8 @@ msgstr ""
 #: src/views/environment/PythonView.vue:59
 #: src/views/project/EditModal.vue:159
 #: src/views/setting/IndexView.vue:84
-#: src/views/tamper/IndexView.vue:53
 #: src/views/tamper/RuleModal.vue:70
+#: src/views/tamper/TamperView.vue:55
 #: src/views/toolbox/SystemView.vue:72
 #: src/views/toolbox/SystemView.vue:83
 #: src/views/toolbox/SystemView.vue:97
@@ -358,8 +358,8 @@ msgstr ""
 
 #: src/components/common/PathSelector.vue:51
 #: src/components/common/PathSelector.vue:395
-#: src/views/app/EnvironmentView.vue:36
-#: src/views/app/InstalledView.vue:184
+#: src/views/app/EnvironmentView.vue:38
+#: src/views/app/InstalledView.vue:161
 #: src/views/apps/fail2ban/IndexView.vue:41
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:72
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:206
@@ -390,8 +390,8 @@ msgstr ""
 #: src/views/setting/PasskeyModal.vue:26
 #: src/views/ssh/CreateModal.vue:60
 #: src/views/ssh/UpdateModal.vue:66
-#: src/views/tamper/IndexView.vue:115
 #: src/views/tamper/RuleModal.vue:99
+#: src/views/tamper/TamperView.vue:118
 #: src/views/toolbox/LogView.vue:219
 #: src/views/toolbox/MigrationView.vue:726
 #: src/views/toolbox/MigrationView.vue:813
@@ -580,7 +580,7 @@ msgstr ""
 #: src/components/common/PtyTerminalModal.vue:143
 #: src/views/container/ImagePullModal.vue:93
 #: src/views/container/ImageView.vue:227
-#: src/views/ssh/SftpPanel.vue:140
+#: src/views/ssh/SftpPanel.vue:158
 msgid "Failed to connect"
 msgstr ""
 
@@ -652,7 +652,7 @@ msgstr ""
 #: src/views/home/IndexView.vue:1030
 #: src/views/home/UpdateView.vue:110
 #: src/views/project/EditModal.vue:579
-#: src/views/ssh/SftpPanel.vue:277
+#: src/views/ssh/SftpPanel.vue:299
 #: src/views/tamper/RuleModal.vue:124
 #: src/views/task/TaskView.vue:110
 #: src/views/toolbox/DiskView.vue:356
@@ -676,7 +676,7 @@ msgid "Cancel"
 msgstr ""
 
 #: src/components/common/PtyTerminalModal.vue:259
-#: src/locales/menu.ts:21
+#: src/locales/menu.ts:20
 #: src/views/container/ContainerView.vue:142
 #: src/views/container/ContainerView.vue:669
 #: src/views/database/ServerList.vue:174
@@ -710,8 +710,8 @@ msgstr ""
 #: src/components/file-editor/EditorToolbar.vue:190
 #: src/components/file-editor/FileTree.vue:702
 #: src/components/system/SearchToolbar.vue:58
-#: src/views/app/AppView.vue:258
-#: src/views/app/EnvironmentView.vue:248
+#: src/views/app/AppView.vue:237
+#: src/views/app/EnvironmentView.vue:264
 #: src/views/app/TemplateView.vue:102
 #: src/views/database/ElasticsearchDataView.vue:314
 #: src/views/database/RedisDataView.vue:289
@@ -735,7 +735,7 @@ msgid "No logs available"
 msgstr ""
 
 #: src/components/common/RealtimeLogModal.vue:37
-#: src/locales/menu.ts:17
+#: src/locales/menu.ts:16
 #: src/views/apps/supervisor/IndexView.vue:98
 #: src/views/container/ContainerView.vue:154
 #: src/views/project/ListView.vue:168
@@ -772,7 +772,7 @@ msgid "Loading..."
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:30
-#: src/views/app/InstalledView.vue:30
+#: src/views/app/InstalledView.vue:19
 #: src/views/apps/prometheus/PrometheusExportersView.vue:50
 #: src/views/project/ListView.vue:70
 #: src/views/task/TaskView.vue:47
@@ -783,10 +783,10 @@ msgid "Running"
 msgstr ""
 
 #: src/components/common/ServiceStatus.vue:30
-#: src/views/app/InstalledView.vue:31
+#: src/views/app/InstalledView.vue:20
 #: src/views/apps/prometheus/PrometheusExportersView.vue:51
 #: src/views/project/ListView.vue:72
-#: src/views/tamper/IndexView.vue:233
+#: src/views/tamper/TamperView.vue:234
 #: src/views/toolbox/ProcessView.vue:50
 #: src/views/toolbox/ProcessView.vue:83
 msgid "Stopped"
@@ -876,7 +876,7 @@ msgstr ""
 #: src/views/apps/valkey/IndexView.vue:62
 #: src/views/container/ContainerView.vue:106
 #: src/views/environment/PHPView.vue:189
-#: src/views/tamper/IndexView.vue:229
+#: src/views/tamper/TamperView.vue:230
 msgid "Running Status"
 msgstr ""
 
@@ -951,7 +951,6 @@ msgstr ""
 
 #: src/components/file-editor/EditorPane.vue:198
 #: src/components/file-editor/EditorToolbar.vue:153
-#: src/views/app/CustomModal.vue:104
 #: src/views/apps/apache/IndexView.vue:92
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:91
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:116
@@ -1003,7 +1002,8 @@ msgstr ""
 #: src/views/apps/opensearch/IndexView.vue:82
 #: src/views/apps/opensearch/OpenSearchConfigTuneView.vue:97
 #: src/views/apps/opensearch/OpenSearchConfigTuneView.vue:132
-#: src/views/apps/pgadmin/IndexView.vue:96
+#: src/views/apps/pgadmin/IndexView.vue:111
+#: src/views/apps/pgadmin/IndexView.vue:125
 #: src/views/apps/phpmyadmin/IndexView.vue:83
 #: src/views/apps/phpmyadmin/IndexView.vue:107
 #: src/views/apps/podman/IndexView.vue:80
@@ -1150,7 +1150,7 @@ msgstr ""
 #: src/views/log/OperationLog.vue:184
 #: src/views/log/SSHLog.vue:115
 #: src/views/ssh/SftpBrowser.vue:138
-#: src/views/tamper/IndexView.vue:376
+#: src/views/tamper/TamperView.vue:379
 #: src/views/toolbox/MigrationView.vue:610
 #: src/views/toolbox/NetworkView.vue:188
 #: src/views/toolbox/PanelView.vue:100
@@ -1205,9 +1205,9 @@ msgid "Toggle Minimap"
 msgstr ""
 
 #: src/components/file-editor/EditorToolbar.vue:260
-#: src/views/firewall/IndexView.vue:26
+#: src/views/firewall/IndexView.vue:28
 #: src/views/ssh/IndexView.vue:521
-#: src/views/tamper/IndexView.vue:217
+#: src/views/tamper/TamperView.vue:224
 #: src/views/website/IndexView.vue:30
 msgid "Settings"
 msgstr ""
@@ -1318,8 +1318,8 @@ msgid "Trailing"
 msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:229
-#: src/views/app/AppView.vue:243
-#: src/views/app/EnvironmentView.vue:233
+#: src/views/app/AppView.vue:222
+#: src/views/app/EnvironmentView.vue:249
 #: src/views/app/TemplateView.vue:87
 #: src/views/firewall/RuleView.vue:223
 #: src/views/project/IndexView.vue:21
@@ -1497,7 +1497,7 @@ msgstr ""
 #: src/views/setting/SettingUser.vue:142
 #: src/views/setting/TokenModal.vue:87
 #: src/views/ssh/IndexView.vue:614
-#: src/views/tamper/IndexView.vue:148
+#: src/views/tamper/TamperView.vue:156
 #: src/views/task/CronView.vue:169
 #: src/views/task/IndexView.vue:41
 #: src/views/task/TaskView.vue:127
@@ -1568,7 +1568,7 @@ msgstr ""
 #: src/views/setting/PasskeyModal.vue:96
 #: src/views/setting/SettingUser.vue:173
 #: src/views/setting/TokenModal.vue:106
-#: src/views/tamper/IndexView.vue:109
+#: src/views/tamper/TamperView.vue:112
 #: src/views/task/CronView.vue:231
 #: src/views/task/CronView.vue:241
 #: src/views/task/TaskView.vue:149
@@ -1826,89 +1826,87 @@ msgstr ""
 msgid "Security"
 msgstr ""
 
-#: src/locales/menu.ts:16
-msgid "Tamper Protection"
-msgstr ""
-
-#: src/locales/menu.ts:18
+#: src/locales/menu.ts:17
 msgid "Monitoring"
 msgstr ""
 
-#: src/locales/menu.ts:19
+#: src/locales/menu.ts:18
 #: src/views/home/IndexView.vue:539
 msgid "Project"
 msgstr ""
 
-#: src/locales/menu.ts:20
+#: src/locales/menu.ts:19
 msgid "Setting"
 msgstr ""
 
-#: src/locales/menu.ts:22
+#: src/locales/menu.ts:21
 msgid "Task"
 msgstr ""
 
-#: src/locales/menu.ts:23
+#: src/locales/menu.ts:22
 msgid "Toolbox"
 msgstr ""
 
-#: src/locales/menu.ts:24
-#: src/views/app/AppView.vue:102
-#: src/views/app/EnvironmentView.vue:86
-#: src/views/app/InstalledView.vue:117
-#: src/views/app/InstalledView.vue:228
+#: src/locales/menu.ts:23
+#: src/views/app/AppView.vue:97
+#: src/views/app/EnvironmentView.vue:88
+#: src/views/app/InstalledView.vue:106
+#: src/views/app/InstalledView.vue:205
 #: src/views/app/TemplateDeployModal.vue:652
 #: src/views/home/IndexView.vue:563
 #: src/views/setting/TokenModal.vue:308
 msgid "Update"
 msgstr ""
 
-#: src/locales/menu.ts:26
+#: src/locales/menu.ts:25
 msgid "Website Edit"
 msgstr ""
 
-#: src/locales/menu.ts:28
+#: src/locales/menu.ts:27
 msgid "Fail2ban Manager"
 msgstr ""
 
-#: src/locales/menu.ts:29
+#: src/locales/menu.ts:28
 msgid "S3fs Manager"
 msgstr ""
 
-#: src/locales/menu.ts:30
+#: src/locales/menu.ts:29
 msgid "Supervisor Manager"
 msgstr ""
 
-#: src/locales/menu.ts:31
+#: src/locales/menu.ts:30
 msgid "Rsync Manager"
 msgstr ""
 
-#: src/locales/menu.ts:32
+#: src/locales/menu.ts:31
 msgid "Frp Manager"
 msgstr ""
 
-#: src/router/routes/index.ts:32
+#: src/router/routes/index.ts:44
 #: src/views/login/IndexView.vue:309
 msgid "Login"
 msgstr ""
 
-#: src/views/app/AppView.vue:20
-#: src/views/app/AppView.vue:148
-#: src/views/app/AppView.vue:152
-#: src/views/app/EnvironmentView.vue:139
+#: src/views/app/AppView.vue:19
+#: src/views/app/AppView.vue:143
+#: src/views/app/AppView.vue:147
+#: src/views/app/EnvironmentView.vue:147
+#: src/views/app/EnvironmentView.vue:292
+#: src/views/app/EnvironmentView.vue:312
 #: src/views/apps/prometheus/PrometheusExportersView.vue:79
 #: src/views/environment/PHPView.vue:107
 msgid "Install"
 msgstr ""
 
-#: src/views/app/AppView.vue:42
-#: src/views/app/InstalledView.vue:47
+#: src/views/app/AppView.vue:37
+#: src/views/app/InstalledView.vue:36
 msgid "App Name"
 msgstr ""
 
-#: src/views/app/AppView.vue:48
-#: src/views/app/EnvironmentView.vue:42
-#: src/views/app/InstalledView.vue:53
-#: src/views/app/InstalledView.vue:190
+#: src/views/app/AppView.vue:43
+#: src/views/app/EnvironmentView.vue:44
+#: src/views/app/InstalledView.vue:42
+#: src/views/app/InstalledView.vue:167
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
 #: src/views/environment/PHPView.vue:64
 #: src/views/project/EditModal.vue:193
@@ -1916,22 +1914,22 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: src/views/app/AppView.vue:54
-#: src/views/app/EnvironmentView.vue:54
-#: src/views/app/InstalledView.vue:59
-#: src/views/app/InstalledView.vue:196
+#: src/views/app/AppView.vue:49
+#: src/views/app/EnvironmentView.vue:56
+#: src/views/app/InstalledView.vue:48
+#: src/views/app/InstalledView.vue:173
 msgid "Installed Version"
 msgstr ""
 
-#: src/views/app/AppView.vue:60
-#: src/views/app/InstalledView.vue:75
+#: src/views/app/AppView.vue:55
+#: src/views/app/InstalledView.vue:64
 msgid "Show in Home"
 msgstr ""
 
-#: src/views/app/AppView.vue:73
-#: src/views/app/EnvironmentView.vue:60
-#: src/views/app/InstalledView.vue:88
-#: src/views/app/InstalledView.vue:202
+#: src/views/app/AppView.vue:68
+#: src/views/app/EnvironmentView.vue:62
+#: src/views/app/InstalledView.vue:77
+#: src/views/app/InstalledView.vue:179
 #: src/views/apps/fail2ban/IndexView.vue:63
 #: src/views/apps/fail2ban/IndexView.vue:112
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:99
@@ -1970,7 +1968,7 @@ msgstr ""
 #: src/views/setting/PasskeyModal.vue:51
 #: src/views/setting/SettingUser.vue:88
 #: src/views/setting/TokenModal.vue:57
-#: src/views/tamper/IndexView.vue:137
+#: src/views/tamper/TamperView.vue:141
 #: src/views/task/CronView.vue:119
 #: src/views/task/TaskView.vue:69
 #: src/views/toolbox/DiskView.vue:298
@@ -1980,124 +1978,117 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: src/views/app/AppView.vue:93
-#: src/views/app/EnvironmentView.vue:78
-#: src/views/app/InstalledView.vue:108
-#: src/views/app/InstalledView.vue:220
+#: src/views/app/AppView.vue:88
+#: src/views/app/EnvironmentView.vue:80
+#: src/views/app/InstalledView.vue:97
+#: src/views/app/InstalledView.vue:197
 #: src/views/container/ContainerCreate.vue:142
 msgid "Confirm Update"
 msgstr ""
 
-#: src/views/app/AppView.vue:94
-#: src/views/app/InstalledView.vue:109
+#: src/views/app/AppView.vue:89
+#: src/views/app/InstalledView.vue:98
 msgid "Updating app %{ app } to %{ version } may reset related configurations to default state, are you sure to continue?"
 msgstr ""
 
-#: src/views/app/AppView.vue:115
-#: src/views/app/EnvironmentView.vue:99
-#: src/views/app/InstalledView.vue:129
-#: src/views/app/InstalledView.vue:240
+#: src/views/app/AppView.vue:110
+#: src/views/app/EnvironmentView.vue:101
+#: src/views/app/InstalledView.vue:118
+#: src/views/app/InstalledView.vue:217
 msgid "Manage"
 msgstr ""
 
-#: src/views/app/AppView.vue:124
-#: src/views/app/EnvironmentView.vue:108
-#: src/views/app/InstalledView.vue:138
-#: src/views/app/InstalledView.vue:249
+#: src/views/app/AppView.vue:119
+#: src/views/app/EnvironmentView.vue:110
+#: src/views/app/InstalledView.vue:127
+#: src/views/app/InstalledView.vue:226
 #: src/views/apps/prometheus/PrometheusExportersView.vue:124
 #: src/views/environment/PHPView.vue:85
 msgid "Confirm Uninstall"
 msgstr ""
 
-#: src/views/app/AppView.vue:126
-#: src/views/app/InstalledView.vue:140
+#: src/views/app/AppView.vue:121
+#: src/views/app/InstalledView.vue:129
 msgid "Reinstalling/Switching to a different web server will reset the configuration of all websites, are you sure to continue?"
 msgstr ""
 
-#: src/views/app/AppView.vue:129
-#: src/views/app/InstalledView.vue:143
+#: src/views/app/AppView.vue:124
+#: src/views/app/InstalledView.vue:132
 msgid "Are you sure to uninstall app %{ app }?"
 msgstr ""
 
-#: src/views/app/AppView.vue:130
-#: src/views/app/AppView.vue:136
-#: src/views/app/EnvironmentView.vue:112
-#: src/views/app/EnvironmentView.vue:118
-#: src/views/app/InstalledView.vue:144
-#: src/views/app/InstalledView.vue:150
-#: src/views/app/InstalledView.vue:253
-#: src/views/app/InstalledView.vue:259
+#: src/views/app/AppView.vue:125
+#: src/views/app/AppView.vue:131
+#: src/views/app/EnvironmentView.vue:114
+#: src/views/app/EnvironmentView.vue:120
+#: src/views/app/InstalledView.vue:133
+#: src/views/app/InstalledView.vue:139
+#: src/views/app/InstalledView.vue:230
+#: src/views/app/InstalledView.vue:236
 #: src/views/apps/prometheus/PrometheusExportersView.vue:128
 msgid "Uninstall"
 msgstr ""
 
-#: src/views/app/AppView.vue:168
-#: src/views/app/CustomModal.vue:83
-#: src/views/app/EnvironmentView.vue:156
-#: src/views/app/InstalledView.vue:161
-#: src/views/app/InstalledView.vue:271
-msgid "Compile Params"
-msgstr ""
-
-#: src/views/app/AppView.vue:204
-#: src/views/app/InstalledView.vue:311
+#: src/views/app/AppView.vue:183
+#: src/views/app/InstalledView.vue:275
 msgid "Setup successfully"
 msgstr ""
 
-#: src/views/app/AppView.vue:211
-#: src/views/app/AppView.vue:219
-#: src/views/app/EnvironmentView.vue:193
-#: src/views/app/EnvironmentView.vue:201
-#: src/views/app/EnvironmentView.vue:209
-#: src/views/app/InstalledView.vue:318
-#: src/views/app/InstalledView.vue:326
-#: src/views/app/InstalledView.vue:339
-#: src/views/app/InstalledView.vue:347
-#: src/views/app/VersionModal.vue:42
+#: src/views/app/AppView.vue:190
+#: src/views/app/AppView.vue:198
+#: src/views/app/EnvironmentView.vue:184
+#: src/views/app/EnvironmentView.vue:206
+#: src/views/app/EnvironmentView.vue:217
+#: src/views/app/EnvironmentView.vue:225
+#: src/views/app/InstalledView.vue:282
+#: src/views/app/InstalledView.vue:290
+#: src/views/app/InstalledView.vue:303
+#: src/views/app/InstalledView.vue:311
+#: src/views/app/VersionModal.vue:53
 msgid "Task submitted, please check the progress in background tasks"
 msgstr ""
 
-#: src/views/app/CustomModal.vue:56
-msgid "Custom Compile Params"
-msgstr ""
-
-#: src/views/app/CustomModal.vue:65
+#: src/views/app/CustomForm.vue:46
 msgid "Settings are saved persistently and applied automatically on every install and update (recompile), no need to re-enter after reinstalling."
 msgstr ""
 
-#: src/views/app/CustomModal.vue:71
+#: src/views/app/CustomForm.vue:52
 msgid "Pre-script"
 msgstr ""
 
-#: src/views/app/CustomModal.vue:75
+#: src/views/app/CustomForm.vue:56
 msgid "Runs before configure, can be used to download and prepare third-party module sources."
 msgstr ""
 
-#: src/views/app/CustomModal.vue:87
+#: src/views/app/CustomForm.vue:64
+msgid "Compile Params"
+msgstr ""
+
+#: src/views/app/CustomForm.vue:68
 msgid "One param per line, appended to the end of configure. Lines starting with # are ignored."
 msgstr ""
 
-#: src/views/app/EnvironmentView.vue:48
+#: src/views/app/EnvironmentView.vue:50
 msgid "Latest Version"
 msgstr ""
 
-#: src/views/app/EnvironmentView.vue:79
-#: src/views/app/InstalledView.vue:221
+#: src/views/app/EnvironmentView.vue:81
+#: src/views/app/InstalledView.vue:198
 msgid "Are you sure to update environment %{ environment }?"
 msgstr ""
 
-#: src/views/app/EnvironmentView.vue:109
-#: src/views/app/InstalledView.vue:250
+#: src/views/app/EnvironmentView.vue:111
+#: src/views/app/InstalledView.vue:227
 msgid "Are you sure to uninstall environment %{ environment }?"
 msgstr ""
 
-#: src/views/app/EnvironmentView.vue:131
+#: src/views/app/EnvironmentView.vue:139
 #: src/views/apps/prometheus/PrometheusExportersView.vue:71
 #: src/views/environment/PHPView.vue:99
 msgid "Confirm Install"
 msgstr ""
 
-#: src/views/app/EnvironmentView.vue:132
+#: src/views/app/EnvironmentView.vue:140
 msgid "Are you sure to install environment %{ environment }?"
 msgstr ""
 
@@ -2110,12 +2101,12 @@ msgid "Installed"
 msgstr ""
 
 #: src/views/app/IndexView.vue:41
-#: src/views/app/InstalledView.vue:366
+#: src/views/app/InstalledView.vue:330
 msgid "Native App"
 msgstr ""
 
 #: src/views/app/IndexView.vue:42
-#: src/views/app/InstalledView.vue:390
+#: src/views/app/InstalledView.vue:354
 msgid "Operating Environment"
 msgstr ""
 
@@ -2127,11 +2118,11 @@ msgstr ""
 msgid "Update Cache"
 msgstr ""
 
-#: src/views/app/InstalledView.vue:32
+#: src/views/app/InstalledView.vue:21
 msgid "Partial"
 msgstr ""
 
-#: src/views/app/InstalledView.vue:65
+#: src/views/app/InstalledView.vue:54
 #: src/views/apps/fail2ban/IndexView.vue:47
 #: src/views/apps/phpmyadmin/IndexView.vue:67
 #: src/views/apps/prometheus/PrometheusExportersView.vue:38
@@ -2145,8 +2136,8 @@ msgstr ""
 #: src/views/log/HttpLog.vue:95
 #: src/views/log/SSHLog.vue:63
 #: src/views/project/ListView.vue:59
-#: src/views/tamper/IndexView.vue:127
-#: src/views/tamper/IndexView.vue:231
+#: src/views/tamper/TamperView.vue:131
+#: src/views/tamper/TamperView.vue:232
 #: src/views/task/TaskView.vue:34
 #: src/views/toolbox/disk/RaidView.vue:97
 #: src/views/toolbox/disk/SmartView.vue:217
@@ -2199,7 +2190,7 @@ msgid "Deploy Mode"
 msgstr ""
 
 #: src/views/app/TemplateDeployModal.vue:340
-#: src/views/tamper/IndexView.vue:245
+#: src/views/tamper/TamperView.vue:246
 msgid "Configuration"
 msgstr ""
 
@@ -2373,20 +2364,24 @@ msgstr ""
 msgid "Deploy"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:81
+#: src/views/app/VersionModal.vue:92
 msgid "Channel"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:88
+#: src/views/app/VersionModal.vue:99
 msgid "Version"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:91
+#: src/views/app/VersionModal.vue:102
 msgid "Please select a channel"
 msgstr ""
 
-#: src/views/app/VersionModal.vue:96
+#: src/views/app/VersionModal.vue:107
 msgid "Release Log"
+msgstr ""
+
+#: src/views/app/VersionModal.vue:118
+msgid "Custom Compile Params"
 msgstr ""
 
 #: src/views/apps/apache/IndexView.vue:28
@@ -2440,7 +2435,7 @@ msgstr ""
 #: src/views/environment/PHPView.vue:162
 #: src/views/environment/PHPView.vue:169
 #: src/views/firewall/ScanView.vue:336
-#: src/views/tamper/IndexView.vue:207
+#: src/views/tamper/TamperView.vue:216
 #: src/views/task/CronView.vue:23
 #: src/views/task/TaskView.vue:21
 #: src/views/website/EditModal.vue:271
@@ -3029,8 +3024,8 @@ msgstr ""
 #: src/views/apps/fail2ban/IndexView.vue:275
 #: src/views/apps/fail2ban/IndexView.vue:285
 #: src/views/apps/fail2ban/IndexView.vue:289
-#: src/views/tamper/IndexView.vue:340
 #: src/views/tamper/RuleModal.vue:83
+#: src/views/tamper/TamperView.vue:342
 msgid "Add Rule"
 msgstr ""
 
@@ -3076,7 +3071,7 @@ msgid "Select Website"
 msgstr ""
 
 #: src/views/apps/fail2ban/IndexView.vue:326
-#: src/views/tamper/IndexView.vue:250
+#: src/views/tamper/TamperView.vue:251
 msgid "Protection Mode"
 msgstr ""
 
@@ -3089,7 +3084,7 @@ msgstr ""
 #: src/views/backup/StorageView.vue:487
 #: src/views/backup/StorageView.vue:514
 #: src/views/log/HttpLog.vue:85
-#: src/views/tamper/IndexView.vue:195
+#: src/views/tamper/TamperView.vue:204
 msgid "Path"
 msgstr ""
 
@@ -3134,7 +3129,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:57
 #: src/views/apps/rsync/IndexView.vue:279
 #: src/views/apps/rsync/IndexView.vue:340
-#: src/views/database/IndexView.vue:135
+#: src/views/database/IndexView.vue:119
 #: src/views/home/IndexView.vue:661
 #: src/views/home/IndexView.vue:762
 #: src/views/log/SSHLog.vue:73
@@ -3167,7 +3162,7 @@ msgstr ""
 #: src/views/database/CreateDatabaseModal.vue:86
 #: src/views/database/CreateUserModal.vue:104
 #: src/views/database/DatabaseList.vue:28
-#: src/views/database/IndexView.vue:136
+#: src/views/database/IndexView.vue:120
 #: src/views/database/UserList.vue:73
 msgid "Server"
 msgstr ""
@@ -3325,7 +3320,7 @@ msgstr ""
 #: src/views/file/ListView.vue:1656
 #: src/views/project/ListView.vue:177
 #: src/views/ssh/IndexView.vue:602
-#: src/views/tamper/IndexView.vue:143
+#: src/views/tamper/TamperView.vue:148
 #: src/views/task/CronView.vue:155
 #: src/views/toolbox/WebHookView.vue:158
 #: src/views/website/ListView.vue:259
@@ -4015,7 +4010,7 @@ msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:533
 #: src/views/database/CreateServerModal.vue:92
-#: src/views/database/IndexView.vue:184
+#: src/views/database/IndexView.vue:177
 #: src/views/website/EditModal.vue:1051
 msgid "Add Server"
 msgstr ""
@@ -4141,55 +4136,63 @@ msgstr ""
 msgid "OpenSearch cluster and network settings."
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:48
+#: src/views/apps/pgadmin/IndexView.vue:63
 msgid "Password reset successfully"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:65
+#: src/views/apps/pgadmin/IndexView.vue:80
 #: src/views/apps/phpmyadmin/IndexView.vue:69
 msgid "Access Information"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:68
+#: src/views/apps/pgadmin/IndexView.vue:83
 #: src/views/apps/phpmyadmin/IndexView.vue:71
 msgid "Access URL:"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:71
+#: src/views/apps/pgadmin/IndexView.vue:86
 msgid "Login Email"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:74
+#: src/views/apps/pgadmin/IndexView.vue:89
 msgid "Login Password"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:80
+#: src/views/apps/pgadmin/IndexView.vue:95
 msgid "If the password has been changed in pgAdmin, the actual password shall prevail."
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:87
+#: src/views/apps/pgadmin/IndexView.vue:102
 #: src/views/apps/phpmyadmin/IndexView.vue:74
 msgid "Modify Port"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:99
+#: src/views/apps/pgadmin/IndexView.vue:114
 msgid "Modify pgAdmin access port"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:101
+#: src/views/apps/pgadmin/IndexView.vue:116
+msgid "Modify Username"
+msgstr ""
+
+#: src/views/apps/pgadmin/IndexView.vue:129
+msgid "Modify the login email of the pgAdmin administrator account, server configurations will be migrated automatically"
+msgstr ""
+
+#: src/views/apps/pgadmin/IndexView.vue:134
 msgid "Reset Password"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:108
+#: src/views/apps/pgadmin/IndexView.vue:141
 msgid "New password"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:116
+#: src/views/apps/pgadmin/IndexView.vue:149
 #: src/views/toolbox/SshView.vue:314
 msgid "Reset"
 msgstr ""
 
-#: src/views/apps/pgadmin/IndexView.vue:119
+#: src/views/apps/pgadmin/IndexView.vue:152
 msgid "Reset the login password of the pgAdmin administrator account"
 msgstr ""
 
@@ -4550,7 +4553,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:227
 #: src/views/database/CreateDatabaseModal.vue:102
 #: src/views/database/CreateUserModal.vue:90
-#: src/views/database/IndexView.vue:177
+#: src/views/database/IndexView.vue:170
 #: src/views/setting/CreateModal.vue:38
 #: src/views/setting/IndexView.vue:155
 msgid "Create User"
@@ -5778,6 +5781,7 @@ msgstr ""
 #: src/views/file/ListView.vue:311
 #: src/views/file/UploadModal.vue:506
 #: src/views/file/UploadModal.vue:641
+#: src/views/tamper/TamperView.vue:70
 #: src/views/toolbox/MigrationView.vue:207
 msgid "Continue"
 msgstr ""
@@ -6363,7 +6367,7 @@ msgid "Specific"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:78
-#: src/views/database/IndexView.vue:146
+#: src/views/database/IndexView.vue:130
 msgid "Create Database"
 msgstr ""
 
@@ -7685,21 +7689,25 @@ msgstr ""
 msgid "Are you sure you want to delete the selected rules?"
 msgstr ""
 
-#: src/views/firewall/IndexView.vue:22
+#: src/views/firewall/IndexView.vue:23
 msgid "Port Rules"
 msgstr ""
 
-#: src/views/firewall/IndexView.vue:23
+#: src/views/firewall/IndexView.vue:24
 msgid "IP Rules"
 msgstr ""
 
-#: src/views/firewall/IndexView.vue:24
+#: src/views/firewall/IndexView.vue:25
 msgid "Port Forwarding"
 msgstr ""
 
-#: src/views/firewall/IndexView.vue:25
+#: src/views/firewall/IndexView.vue:26
 #: src/views/firewall/SettingView.vue:96
 msgid "Scan Awareness"
+msgstr ""
+
+#: src/views/firewall/IndexView.vue:27
+msgid "Tamper Protection"
 msgstr ""
 
 #: src/views/firewall/IpRuleView.vue:76
@@ -7728,7 +7736,7 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
-#: src/views/firewall/RuleView.vue:342
+#: src/views/firewall/RuleView.vue:348
 msgid "Import"
 msgstr ""
 
@@ -8257,7 +8265,7 @@ msgstr ""
 #: src/views/log/HttpLog.vue:56
 #: src/views/log/OperationLog.vue:51
 #: src/views/log/SSHLog.vue:58
-#: src/views/tamper/IndexView.vue:182
+#: src/views/tamper/TamperView.vue:191
 #: src/views/toolbox/SystemView.vue:250
 #: src/views/website/stats/ErrorsTab.vue:87
 msgid "Time"
@@ -8413,7 +8421,7 @@ msgstr ""
 
 #: src/views/monitor/IndexView.vue:335
 #: src/views/monitor/IndexView.vue:347
-#: src/views/tamper/IndexView.vue:196
+#: src/views/tamper/TamperView.vue:205
 #: src/views/toolbox/IndexView.vue:27
 #: src/views/toolbox/NetworkView.vue:75
 msgid "Process"
@@ -8734,7 +8742,7 @@ msgstr ""
 #: src/views/project/EditModal.vue:72
 #: src/views/setting/SettingBase.vue:187
 #: src/views/setting/SettingSafe.vue:246
-#: src/views/tamper/IndexView.vue:132
+#: src/views/tamper/TamperView.vue:136
 #: src/views/website/EditModal.vue:788
 #: src/views/website/EditModal.vue:792
 #: src/views/website/EditModal.vue:1007
@@ -9476,43 +9484,51 @@ msgstr ""
 msgid "Directory name"
 msgstr ""
 
-#: src/views/ssh/SftpBrowser.vue:195
+#: src/views/ssh/SftpBrowser.vue:193
 msgid "Empty directory"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:60
+#: src/views/ssh/SftpPanel.vue:64
 msgid "Please select files to transfer"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:64
+#: src/views/ssh/SftpPanel.vue:68
 msgid "Source and destination are the same directory"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:134
+#: src/views/ssh/SftpPanel.vue:76
+msgid "Transfer Directories"
+msgstr ""
+
+#: src/views/ssh/SftpPanel.vue:77
+msgid "The selection contains %{ count } directory(ies), which will be transferred recursively and may take a long time. For large directories, compressing before transferring is recommended. Continue?"
+msgstr ""
+
+#: src/views/ssh/SftpPanel.vue:152
 msgid "Connection closed"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:165
+#: src/views/ssh/SftpPanel.vue:183
 msgid "Cancelled"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:206
+#: src/views/ssh/SftpPanel.vue:224
 msgid "Transfer to right"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:216
+#: src/views/ssh/SftpPanel.vue:234
 msgid "Transfer to left"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:234
+#: src/views/ssh/SftpPanel.vue:252
 msgid "Transfer Queue"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:236
+#: src/views/ssh/SftpPanel.vue:254
 msgid "Clear Finished"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:272
+#: src/views/ssh/SftpPanel.vue:294
 #: src/views/task/TaskView.vue:42
 #: src/views/toolbox/ProcessView.vue:53
 #: src/views/toolbox/ProcessView.vue:89
@@ -9521,156 +9537,6 @@ msgstr ""
 
 #: src/views/ssh/UpdateModal.vue:59
 msgid "Update Host"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:47
-msgid "eBPF mode is not available, please activate it first"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:64
-msgid "Activate eBPF LSM"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:65
-msgid "The panel will modify the kernel boot parameters (append bpf to the LSM list) and reboot the server immediately. All services will be interrupted during the reboot. Continue?"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:74
-msgid "The server is rebooting, please reconnect later"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:116
-#: src/views/tamper/RuleModal.vue:102
-msgid "Protected Directory"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:118
-msgid "Extensions"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:122
-msgid "All files"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:132
-#: src/views/tamper/RuleModal.vue:111
-#: src/views/task/CronView.vue:76
-#: src/views/toolbox/WebHookView.vue:91
-#: src/views/toolbox/WebHookView.vue:386
-msgid "Enabled"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:149
-msgid "Are you sure to delete this rule?"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:188
-msgid "Operation"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:202
-#: src/views/tamper/IndexView.vue:370
-#: src/views/website/EditModal.vue:2116
-msgid "Clear Logs"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:203
-msgid "Are you sure to clear all interception logs?"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:218
-msgid "Protection Rules"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:219
-msgid "Interception Logs"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:226
-msgid "Tamper protection is only supported on Linux."
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:233
-msgid "Protecting"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:236
-msgid "Protected Files"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:239
-msgid "Protected Directories"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:247
-msgid "Enable Protection"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:252
-msgid "File Lock (chattr)"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:256
-msgid "Mode Description"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:259
-msgid "Locks files with the immutable attribute, enforced by the kernel at the VFS layer. Works on all distributions with no kernel dependency. Blocks tampering by web processes, but not root."
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:266
-msgid "Intercepts write/delete/rename via eBPF-LSM with per-process tracing. More precise and auditable, but requires the bpf LSM to be active in the kernel."
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:272
-msgid "Block New Files"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:277
-msgid "Delete newly created files of protected types in protected directories. When off, new files are frozen and logged instead."
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:284
-msgid "Log Retention (days)"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:294
-#: src/views/website/SettingView.vue:108
-#: src/views/website/SettingView.vue:123
-#: src/views/website/SettingView.vue:138
-#: src/views/website/SettingView.vue:162
-#: src/views/website/SettingView.vue:202
-#: src/views/website/SettingView.vue:265
-msgid "Save Changes"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:301
-msgid "eBPF Environment"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:304
-msgid "Kernel Version"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:307
-msgid "Active LSM"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:310
-msgid "eBPF Available"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:312
-#: src/views/toolbox/DiskView.vue:250
-msgid "Available"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:312
-msgid "Unavailable"
-msgstr ""
-
-#: src/views/tamper/IndexView.vue:326
-msgid "Activate eBPF and Reboot"
 msgstr ""
 
 #: src/views/tamper/RuleModal.vue:83
@@ -9689,6 +9555,11 @@ msgstr ""
 msgid "Rule identifier, usually the website name"
 msgstr ""
 
+#: src/views/tamper/RuleModal.vue:102
+#: src/views/tamper/TamperView.vue:119
+msgid "Protected Directory"
+msgstr ""
+
 #: src/views/tamper/RuleModal.vue:105
 msgid "Protected Extensions"
 msgstr ""
@@ -9697,8 +9568,153 @@ msgstr ""
 msgid "Exclude Paths"
 msgstr ""
 
+#: src/views/tamper/RuleModal.vue:111
+#: src/views/tamper/TamperView.vue:136
+#: src/views/task/CronView.vue:76
+#: src/views/toolbox/WebHookView.vue:91
+#: src/views/toolbox/WebHookView.vue:386
+msgid "Enabled"
+msgstr ""
+
 #: src/views/tamper/RuleModal.vue:117
 msgid "Leave extensions empty to protect all files (directories become append-only). Excludes accept a path segment name (e.g. cache) or an absolute path."
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:49
+msgid "eBPF mode is not available, please activate it first"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:66
+msgid "Activate eBPF LSM"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:67
+msgid "The panel will modify the kernel boot parameters (append bpf to the LSM list) and reboot the server immediately. All services will be interrupted during the reboot. Continue?"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:77
+msgid "The server is rebooting, please reconnect later"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:121
+msgid "Extensions"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:126
+msgid "All files"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:158
+msgid "Are you sure to delete this rule?"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:197
+msgid "Operation"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:211
+#: src/views/tamper/TamperView.vue:373
+#: src/views/website/EditModal.vue:2116
+msgid "Clear Logs"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:212
+msgid "Are you sure to clear all interception logs?"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:227
+msgid "Tamper protection is only supported on Linux."
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:234
+msgid "Protecting"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:237
+msgid "Protected Files"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:240
+msgid "Protected Directories"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:248
+msgid "Enable Protection"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:253
+msgid "File Lock (chattr)"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:257
+msgid "Mode Description"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:260
+msgid "Locks files with the immutable attribute, enforced by the kernel at the VFS layer. Works on all distributions with no kernel dependency. Blocks tampering by web processes, but not root."
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:267
+msgid "Intercepts write/delete/rename via eBPF-LSM with per-process tracing. More precise and auditable, but requires the bpf LSM to be active in the kernel."
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:273
+msgid "Block New Files"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:278
+msgid "Reject newly created files of protected types in protected directories (denied by kernel in eBPF mode, deleted in chattr mode). When off, new files are logged and protected instead."
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:285
+msgid "Log Retention (days)"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:295
+#: src/views/website/SettingView.vue:108
+#: src/views/website/SettingView.vue:123
+#: src/views/website/SettingView.vue:138
+#: src/views/website/SettingView.vue:162
+#: src/views/website/SettingView.vue:202
+#: src/views/website/SettingView.vue:265
+msgid "Save Changes"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:302
+msgid "eBPF Environment"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:305
+msgid "Kernel Version"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:308
+msgid "Active LSM"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:311
+msgid "eBPF Available"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:313
+#: src/views/toolbox/DiskView.vue:250
+msgid "Available"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:313
+msgid "Unavailable"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:327
+msgid "Activate eBPF and Reboot"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:335
+msgid "Protection Rules"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:366
+msgid "Interception Logs"
 msgstr ""
 
 #: src/views/task/CreateModal.vue:36

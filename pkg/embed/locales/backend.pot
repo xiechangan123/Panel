@@ -2000,8 +2000,8 @@ msgstr ""
 msgid "failed to apply PostgreSQL config: %v"
 msgstr ""
 
-#: internal/data/ssh.go:104
-#: internal/data/ssh.go:74
+#: internal/data/ssh.go:106
+#: internal/data/ssh.go:76
 msgid "failed to check ssh connection: %v"
 msgstr ""
 
@@ -2013,7 +2013,7 @@ msgstr ""
 msgid "failed to connect remote server: %v"
 msgstr ""
 
-#: internal/data/ssh.go:140
+#: internal/data/ssh.go:142
 msgid "failed to connect to %s: %v"
 msgstr ""
 
@@ -2049,6 +2049,10 @@ msgstr ""
 msgid "failed to create mount point: %v"
 msgstr ""
 
+#: internal/apps/pgadmin/app.go:478
+msgid "failed to create new account: %v"
+msgstr ""
+
 #: internal/service/toolbox_disk.go:241
 msgid "failed to create partition: %v"
 msgstr ""
@@ -2075,6 +2079,10 @@ msgstr ""
 
 #: internal/service/toolbox_disk.go:559
 msgid "failed to delete fstab entry: %v"
+msgstr ""
+
+#: internal/apps/pgadmin/app.go:492
+msgid "failed to delete old account: %v"
 msgstr ""
 
 #: internal/apps/nginx/stream.go:120
@@ -2410,11 +2418,11 @@ msgstr ""
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:373
+#: internal/apps/pgadmin/app.go:441
 msgid "failed to login pgAdmin, please check the credential of pgAdmin"
 msgstr ""
 
-#: internal/apps/phpmyadmin/app.go:218
+#: internal/apps/phpmyadmin/app.go:228
 msgid "failed to login phpMyAdmin, please check the credentials and status of server %s"
 msgstr ""
 
@@ -2422,7 +2430,7 @@ msgstr ""
 msgid "failed to mount partition: %v"
 msgstr ""
 
-#: internal/data/ssh.go:145
+#: internal/data/ssh.go:147
 msgid "failed to open sftp session on %s: %v"
 msgstr ""
 
@@ -2442,11 +2450,11 @@ msgstr ""
 msgid "failed to parse disk list: %v"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:341
+#: internal/apps/pgadmin/app.go:405
 msgid "failed to parse pgAdmin login page"
 msgstr ""
 
-#: internal/apps/phpmyadmin/app.go:174
+#: internal/apps/phpmyadmin/app.go:179
 msgid "failed to parse phpMyAdmin login page"
 msgstr ""
 
@@ -2542,8 +2550,8 @@ msgstr ""
 #: internal/apps/nginx/stream.go:236
 #: internal/apps/nginx/stream.go:52
 #: internal/apps/nginx/stream.go:98
-#: internal/apps/phpmyadmin/app.go:268
-#: internal/apps/phpmyadmin/app.go:299
+#: internal/apps/phpmyadmin/app.go:278
+#: internal/apps/phpmyadmin/app.go:309
 #: internal/service/website.go:256
 msgid "failed to reload nginx: %v"
 msgstr ""
@@ -2568,19 +2576,19 @@ msgstr ""
 msgid "failed to rename systemd config"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:325
-#: internal/apps/pgadmin/app.go:331
-#: internal/apps/pgadmin/app.go:364
+#: internal/apps/pgadmin/app.go:389
+#: internal/apps/pgadmin/app.go:395
+#: internal/apps/pgadmin/app.go:432
 msgid "failed to request pgAdmin: %v"
 msgstr ""
 
-#: internal/apps/phpmyadmin/app.go:161
-#: internal/apps/phpmyadmin/app.go:167
-#: internal/apps/phpmyadmin/app.go:210
+#: internal/apps/phpmyadmin/app.go:166
+#: internal/apps/phpmyadmin/app.go:172
+#: internal/apps/phpmyadmin/app.go:220
 msgid "failed to request phpMyAdmin: %v"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:405
+#: internal/apps/pgadmin/app.go:533
 msgid "failed to reset password: %v"
 msgstr ""
 
@@ -2602,7 +2610,7 @@ msgstr ""
 msgid "failed to restart MySQL: %v"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:152
+#: internal/apps/pgadmin/app.go:168
 msgid "failed to restart pgAdmin: %v"
 msgstr ""
 
@@ -2668,7 +2676,7 @@ msgstr ""
 msgid "failed to stop %s service: %v"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:298
+#: internal/apps/pgadmin/app.go:362
 msgid "failed to sync servers to pgAdmin: %v"
 msgstr ""
 
@@ -3004,12 +3012,13 @@ msgstr ""
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:293
-#: internal/apps/pgadmin/app.go:399
+#: internal/apps/pgadmin/app.go:357
+#: internal/apps/pgadmin/app.go:468
+#: internal/apps/pgadmin/app.go:527
 msgid "pgAdmin credential file not found"
 msgstr ""
 
-#: internal/apps/pgadmin/app.go:84
+#: internal/apps/pgadmin/app.go:100
 msgid "pgAdmin port not found"
 msgstr ""
 
@@ -3017,12 +3026,12 @@ msgstr ""
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
-#: internal/apps/phpmyadmin/app.go:62
-#: internal/apps/phpmyadmin/app.go:72
+#: internal/apps/phpmyadmin/app.go:65
+#: internal/apps/phpmyadmin/app.go:75
 msgid "phpMyAdmin directory not found"
 msgstr ""
 
-#: internal/apps/phpmyadmin/app.go:81
+#: internal/apps/phpmyadmin/app.go:84
 msgid "phpMyAdmin port not found"
 msgstr ""
 
@@ -3125,7 +3134,7 @@ msgstr ""
 msgid "sending backup to remote server"
 msgstr ""
 
-#: internal/apps/phpmyadmin/app.go:130
+#: internal/apps/phpmyadmin/app.go:133
 msgid "server %s is not a MySQL server"
 msgstr ""
 
@@ -3290,10 +3299,6 @@ msgstr ""
 
 #: internal/data/user_token.go:117
 msgid "token expired"
-msgstr ""
-
-#: internal/data/ssh.go:311
-msgid "transferring a directory is not supported"
 msgstr ""
 
 #: internal/service/home.go:293
