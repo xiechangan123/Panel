@@ -19,6 +19,12 @@ func newRunnerForTest(t *testing.T) *Runner {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// file::memory: 每连接独立库,限单连接以让 runner goroutine 与主 goroutine 共享数据
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sqlDB.SetMaxOpenConns(1)
 	if err = db.AutoMigrate(&biz.Task{}); err != nil {
 		t.Fatal(err)
 	}
