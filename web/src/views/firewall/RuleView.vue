@@ -337,7 +337,13 @@ onMounted(() => {
       <n-button tag="a" :href="firewall.ruleExportUrl" target="_blank" ghost>
         {{ $gettext('Export') }}
       </n-button>
-      <n-upload accept=".xlsx" :show-file-list="false" :custom-request="handleImport">
+      <!-- n-upload 默认占满整行,收窄避免按钮组换行 -->
+      <n-upload
+        accept=".xlsx"
+        :show-file-list="false"
+        :custom-request="handleImport"
+        style="width: auto"
+      >
         <n-button :loading="importing" :disabled="importing" ghost>
           {{ $gettext('Import') }}
         </n-button>

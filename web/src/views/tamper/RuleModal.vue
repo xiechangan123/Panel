@@ -26,7 +26,7 @@ const model = ref({
 const websites = ref<{ label: string; value: string; path: string }[]>([])
 
 const loadWebsites = () => {
-  useRequest(website.list('', 1, 10000)).onSuccess(({ data }: any) => {
+  useRequest(website.list('all', 1, 10000)).onSuccess(({ data }: any) => {
     websites.value = (data.items || []).map((item: any) => ({
       label: item.name,
       value: item.name,

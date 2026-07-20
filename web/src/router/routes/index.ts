@@ -13,13 +13,25 @@ export const basicRoutes: RoutesType = [
   {
     name: 'firewall-redirect',
     path: '/firewall',
-    redirect: '/safe/firewall',
+    redirect: '/safe',
     isHidden: true,
   },
   {
     name: 'tamper-redirect',
     path: '/tamper',
-    redirect: '/safe/tamper',
+    redirect: '/safe',
+    isHidden: true,
+  },
+  {
+    name: 'safe-firewall-redirect',
+    path: '/safe/firewall',
+    redirect: '/safe',
+    isHidden: true,
+  },
+  {
+    name: 'safe-tamper-redirect',
+    path: '/safe/tamper',
+    redirect: '/safe',
     isHidden: true,
   },
 

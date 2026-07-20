@@ -8,28 +8,15 @@ export default {
   component: Layout,
   meta: {
     order: 40,
-    title: 'Security',
-    icon: 'mdi:security',
   },
   children: [
     {
-      name: 'firewall-index',
-      path: 'firewall',
+      name: 'safe-index',
+      path: '',
       component: () => import('@/views/firewall/IndexView.vue'),
       meta: {
-        title: 'Firewall',
-        icon: 'mdi:firewall',
-        role: ['admin'],
-        requireAuth: true,
-      },
-    },
-    {
-      name: 'tamper-index',
-      path: 'tamper',
-      component: () => import('@/views/tamper/IndexView.vue'),
-      meta: {
-        title: 'Tamper Protection',
-        icon: 'mdi:shield-lock-outline',
+        title: 'Security',
+        icon: 'mdi:security',
         role: ['admin'],
         requireAuth: true,
       },
