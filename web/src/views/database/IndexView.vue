@@ -83,20 +83,10 @@ const serverOptions = computed(() =>
 )
 
 const handlePhpMyAdmin = (serverID: number) => {
-  // 预先打开空白窗口,避免异步回调中 window.open 被浏览器拦截
-  const win = window.open('about:blank', '_blank')
   phpMyAdminLoading.value = true
   useRequest(phpmyadmin.login(serverID))
     .onSuccess(({ data }: any) => {
-      const url = `http://${window.location.hostname}:${data.port}/${data.path}/`
-      if (win) {
-        win.location.href = url
-      } else {
-        window.open(url, '_blank')
-      }
-    })
-    .onError(() => {
-      win?.close()
+      window.open(`http://${window.location.hostname}:${data.port}/${data.path}/`, '_blank')
     })
     .onComplete(() => {
       phpMyAdminLoading.value = false
@@ -104,20 +94,10 @@ const handlePhpMyAdmin = (serverID: number) => {
 }
 
 const handlePgAdmin = () => {
-  // 预先打开空白窗口,避免异步回调中 window.open 被浏览器拦截
-  const win = window.open('about:blank', '_blank')
   pgAdminLoading.value = true
   useRequest(pgadmin.login())
     .onSuccess(({ data }: any) => {
-      const url = `http://${window.location.hostname}:${data.port}/`
-      if (win) {
-        win.location.href = url
-      } else {
-        window.open(url, '_blank')
-      }
-    })
-    .onError(() => {
-      win?.close()
+      window.open(`http://${window.location.hostname}:${data.port}/`, '_blank')
     })
     .onComplete(() => {
       pgAdminLoading.value = false

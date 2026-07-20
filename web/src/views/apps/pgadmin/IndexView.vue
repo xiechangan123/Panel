@@ -13,8 +13,10 @@ const port = ref(0)
 const email = ref('')
 const password = ref('')
 const newPort = ref(0)
+const newUsername = ref('')
 const newPassword = ref('')
 const savePortLoading = ref(false)
+const updateUsernameLoading = ref(false)
 const resetPasswordLoading = ref(false)
 
 const url = computed(() => {
@@ -38,6 +40,19 @@ const handleSavePort = () => {
     })
     .onComplete(() => {
       savePortLoading.value = false
+    })
+}
+
+const handleUpdateUsername = () => {
+  updateUsernameLoading.value = true
+  useRequest(pgadmin.updateUsername(newUsername.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+      newUsername.value = ''
+      getInfo()
+    })
+    .onComplete(() => {
+      updateUsernameLoading.value = false
     })
 }
 
@@ -97,6 +112,24 @@ onMounted(() => {
           </n-button>
         </n-flex>
         {{ $gettext('Modify pgAdmin access port') }}
+      </n-card>
+      <n-card :title="$gettext('Modify Username')">
+        <n-flex>
+          <n-input v-model:value="newUsername" class="!w-60" :placeholder="email" />
+          <n-button
+            type="warning"
+            :loading="updateUsernameLoading"
+            :disabled="updateUsernameLoading || !newUsername"
+            @click="handleUpdateUsername"
+          >
+            {{ $gettext('Save') }}
+          </n-button>
+        </n-flex>
+        {{
+          $gettext(
+            'Modify the login email of the pgAdmin administrator account, server configurations will be migrated automatically',
+          )
+        }}
       </n-card>
       <n-card :title="$gettext('Reset Password')">
         <n-flex>

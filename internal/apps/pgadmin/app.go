@@ -1,6 +1,7 @@
 package pgadmin
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -75,6 +76,7 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/info", s.Info)
 	r.Post("/port", s.UpdatePort)
 	r.Post("/login", s.Login)
+	r.Post("/update_username", s.UpdateUsername)
 	r.Post("/reset_password", s.ResetPassword)
 }
 
@@ -191,6 +193,58 @@ func escapePgpass(s string) string {
 	return strings.NewReplacer(`\`, `\\`, `:`, `\:`).Replace(s)
 }
 
+// existingServers 只读 pgAdmin 配置库查询 Servers 组内已注册的服务器
+// CLI 每次调用都要冷启动整个 pgAdmin 应用,直读库快数个量级
+func (s *App) existingServers(email string) (map[string]struct{}, error) {
+	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s/data/pgadmin.db?mode=ro", s.path()))
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = db.Close() }()
+
+	rows, err := db.Query(`SELECT s.host, s.port, s.username FROM server s
+		JOIN servergroup g ON s.servergroup_id = g.id
+		JOIN "user" u ON s.user_id = u.id
+		WHERE u.email = ? AND g.name = 'Servers'`, email)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	existing := make(map[string]struct{})
+	for rows.Next() {
+		var host, username sql.NullString
+		var port sql.NullInt64
+		if err = rows.Scan(&host, &port, &username); err != nil {
+			return nil, err
+		}
+		existing[fmt.Sprintf("%s:%d:%s", host.String, port.Int64, username.String)] = struct{}{}
+	}
+	return existing, rows.Err()
+}
+
+// dumpExistingServers 通过 CLI 导出查询已注册服务器,直读配置库失败时的回退路径
+func (s *App) dumpExistingServers(email string) map[string]struct{} {
+	dump := filepath.Join(os.TempDir(), "pgadmin-servers.json")
+	defer func() { _ = io.Remove(dump) }()
+	_, _ = shell.Execf("%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
+
+	existing := make(map[string]struct{})
+	if raw, err := io.Read(dump); err == nil {
+		var dumped serversFile
+		if err = json.Unmarshal([]byte(raw), &dumped); err == nil {
+			for _, item := range dumped.Servers {
+				// 只认默认 Servers 组内的条目,历史版本同步进其他分组的会在此组补齐
+				if item.Group != "Servers" {
+					continue
+				}
+				existing[fmt.Sprintf("%s:%d:%s", item.Host, item.Port, item.Username)] = struct{}{}
+			}
+		}
+	}
+	return existing
+}
+
 // syncServers 将面板中全部 PostgreSQL 服务器合并注册到 pgAdmin,凭据写入 pgpass 实现免密
 // 仅追加 pgAdmin 中缺失的服务器,不影响用户在 pgAdmin 中手动添加的内容
 func (s *App) syncServers(email string) error {
@@ -240,18 +294,10 @@ func (s *App) syncServers(email string) error {
 		return err
 	}
 
-	// 导出 pgAdmin 已有服务器用于查缺,dump 为只读操作
-	dump := filepath.Join(os.TempDir(), "pgadmin-servers.json")
-	defer func() { _ = io.Remove(dump) }()
-	_, _ = shell.Execf("%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
-	existing := make(map[string]struct{})
-	if raw, err := io.Read(dump); err == nil {
-		var dumped serversFile
-		if err = json.Unmarshal([]byte(raw), &dumped); err == nil {
-			for _, item := range dumped.Servers {
-				existing[fmt.Sprintf("%s:%d:%s", item.Host, item.Port, item.Username)] = struct{}{}
-			}
-		}
+	// 查询 pgAdmin 已有服务器用于查缺,直读配置库,异常时回退 CLI 导出
+	existing, err := s.existingServers(email)
+	if err != nil {
+		existing = s.dumpExistingServers(email)
 	}
 
 	// 一次性合并导入缺失的服务器
@@ -262,7 +308,7 @@ func (s *App) syncServers(email string) error {
 		}
 		missing[cast.ToString(i+1)] = serverEntry{
 			Name:          server.Name,
-			Group:         "AcePanel",
+			Group:         "Servers",
 			Host:          server.Host,
 			Port:          int(server.Port),
 			MaintenanceDB: "postgres",
@@ -284,14 +330,18 @@ func (s *App) syncServers(email string) error {
 		if out, err := shell.Execf("%s/cli load-servers '%s' --user '%s'", s.path(), load, email); err != nil {
 			return errors.Join(err, errors.New(out))
 		}
+		// CLI 以 root 运行,修正数据目录属主避免服务写入失败
+		if _, err = shell.Execf("chown -R www:www %s/data", s.path()); err != nil {
+			return err
+		}
+		return nil
 	}
 
-	// CLI 以 root 运行,修正数据目录属主避免服务写入失败
-	if _, err = shell.Execf("chown -R www:www %s/data", s.path()); err != nil {
+	// 常态路径仅写入了 pgpass,精确修正属主即可
+	if err = io.Chown(storageDir, "www", "www"); err != nil {
 		return err
 	}
-
-	return nil
+	return io.Chown(pgpass, "www", "www")
 }
 
 // Login 同步面板全部 PostgreSQL 服务器后代理登录 pgAdmin 并将会话 Cookie 转发给浏览器
@@ -405,6 +455,66 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // ResetPassword 通过 CLI 重置管理员密码并同步凭据文件
+// UpdateUsername 修改管理员账号,迁移服务器配置与用户存储目录
+func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[UpdateUsername](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	oldEmail, password := s.credential()
+	if oldEmail == "" || password == "" {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("pgAdmin credential file not found"))
+		return
+	}
+	if req.Username == oldEmail {
+		service.Success(w, nil)
+		return
+	}
+
+	// 以当前密码创建新管理员账号
+	if out, err := shell.Execf("%s/cli add-user '%s' '%s' --admin", s.path(), req.Username, password); err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to create new account: %v", errors.Join(err, errors.New(out))))
+		return
+	}
+
+	// 迁移服务器连接配置到新账号
+	dump := filepath.Join(os.TempDir(), "pgadmin-servers-migrate.json")
+	defer func() { _ = io.Remove(dump) }()
+	_, _ = shell.Execf("%s/cli dump-servers '%s' --user '%s'", s.path(), dump, oldEmail)
+	if io.Exists(dump) {
+		_, _ = shell.Execf("%s/cli load-servers '%s' --user '%s'", s.path(), dump, req.Username)
+	}
+
+	// 删除旧账号
+	if out, err := shell.Execf("%s/cli delete-user '%s' --yes", s.path(), oldEmail); err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete old account: %v", errors.Join(err, errors.New(out))))
+		return
+	}
+
+	// 迁移用户存储目录(pgpass 等),目录名为邮箱 @ 转 _
+	oldDir := fmt.Sprintf("%s/data/storage/%s", s.path(), strings.ReplaceAll(oldEmail, "@", "_"))
+	newDir := fmt.Sprintf("%s/data/storage/%s", s.path(), strings.ReplaceAll(req.Username, "@", "_"))
+	if io.Exists(oldDir) && !io.Exists(newDir) {
+		_ = os.Rename(oldDir, newDir)
+	}
+
+	// CLI 以 root 运行,修正数据目录属主避免服务写入失败
+	if _, err = shell.Execf("chown -R www:www %s/data", s.path()); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// 更新凭据文件,下次登录按新账号重新同步
+	if err = io.Write(fmt.Sprintf("%s/credential", s.path()), req.Username+"\n"+password+"\n", 0600); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
 func (s *App) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[ResetPassword](r)
 	if err != nil {
