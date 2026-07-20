@@ -5,8 +5,8 @@ import "time"
 type Mode string
 
 const (
-	ModeChattr Mode = "chattr" // 文件属性锁定,通用,不防 root
-	ModeEBPF   Mode = "ebpf"   // BPF-LSM 拦截,精准可溯源,需内核激活 bpf LSM
+	ModeChattr Mode = "chattr" // 通用,不防 root
+	ModeEBPF   Mode = "ebpf"   // 需内核激活 bpf LSM
 )
 
 type Op uint32
@@ -52,7 +52,6 @@ type Event struct {
 	Time   time.Time `json:"time"`
 }
 
-// Rule 一条保护规则,通常对应一个网站
 type Rule struct {
 	Name     string   `json:"name"`
 	Paths    []string `json:"paths"`

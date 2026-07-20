@@ -46,7 +46,7 @@ type protKey struct {
 	Dev uint64
 }
 
-// btfOffsets 内核字段偏移;新内核会把字段包进匿名 union(6.15+ 的 dentry.d_name)
+// 6.15+ 会把字段包进匿名 union(如 dentry.d_name)
 type btfOffsets struct {
 	fFlags, fInode                   uint32
 	dInode, dName, qstrLen, qstrName uint32
@@ -76,6 +76,7 @@ var lsmHooks = []hookSpec{
 	{hook: "inode_removexattr", param: "dentry", op: OpSetattr},
 	{hook: "inode_set_acl", param: "dentry", op: OpSetattr, optional: true},
 	{hook: "inode_remove_acl", param: "dentry", op: OpSetattr, optional: true},
+	{hook: "inode_file_setattr", param: "dentry", op: OpSetattr, optional: true}, // FS_IOC_FSSETXATTR 等
 	{hook: "inode_link", param: "old_dentry", op: OpLink},
 }
 
@@ -114,7 +115,6 @@ type ebpfEngine struct {
 	userDrops atomic.Uint64 // 观察模式下 drop=漏纳保,严格模式仅影响审计
 }
 
-// fieldOffset 查字段字节偏移,匿名嵌套按偏移累加
 func fieldOffset(spec *btf.Spec, structName, fieldName string) (uint32, error) {
 	var s *btf.Struct
 	if err := spec.TypeByName(structName, &s); err != nil {
@@ -150,7 +150,7 @@ func findMember(members []btf.Member, name string) (uint32, bool) {
 	return 0, false
 }
 
-// paramLayout LSM BPF ctx 布局为 [arg0..argN, prevRet],prevRet 位于 ctx[nargs]
+// LSM BPF ctx 布局:[arg0..argN, prevRet]
 func paramLayout(spec *btf.Spec, hook, param string) (paramIdx, nargs int, err error) {
 	var fn *btf.Func
 	if err = spec.TypeByName("bpf_lsm_"+hook, &fn); err != nil {
@@ -172,22 +172,21 @@ func paramLayout(spec *btf.Spec, hook, param string) (paramIdx, nargs int, err e
 	return idx, len(proto.Params), nil
 }
 
-// eventInsns 命中后写事件:R9=inode R8=dev(调用前就绪),R6 复用为事件指针
-// namePtrOff=0 表示无新名;verdictInR7 为真时按 R7 是否非零标 denied
+// eventInsns 入口约定:R9=inode R8=dev,R6 复用为事件指针
+// namePtrOff=0 无新名;verdictInR7 时按 R7 标 denied,否则恒 denied
 func eventInsns(op Op, eventsFD int, namePtrOff int16, verdictInR7 bool) asm.Instructions {
 	insns := asm.Instructions{
 		asm.LoadMapPtr(asm.R1, eventsFD).WithSymbol("hit"),
 		asm.Mov.Imm(asm.R2, eventStructSize),
 		asm.Mov.Imm(asm.R3, 0),
 		asm.FnRingbufReserve.Call(),
-		// 预留失败跳 deny:严格模式仍 -EPERM;观察模式 R7=0 会漏纳保(ringbuf 1MB 通常够)
 		asm.JEq.Imm(asm.R0, 0, "deny"),
 		asm.Mov.Reg(asm.R6, asm.R0),
 
 		asm.StoreMem(asm.R6, 0, asm.R9, asm.DWord),
 		asm.StoreMem(asm.R6, 8, asm.R8, asm.DWord),
 		asm.FnGetCurrentPidTgid.Call(),
-		asm.RSh.Imm(asm.R0, 32), // 高 32 位为 tgid,即用户所见 PID
+		asm.RSh.Imm(asm.R0, 32), // 高 32 位 = tgid(用户所见 PID)
 		asm.StoreMem(asm.R6, 16, asm.R0, asm.Word),
 	}
 	if verdictInR7 {
@@ -206,8 +205,11 @@ func eventInsns(op Op, eventsFD int, namePtrOff int16, verdictInR7 bool) asm.Ins
 		asm.Mov.Imm(asm.R2, 16),
 		asm.FnGetCurrentComm.Call(),
 	)
-	// ringbuf 复用旧数据,只清 name[0] 即可让用户态 TrimRight("\x00") 得空串
-	insns = append(insns, asm.StoreImm(asm.R6, eventNameOff, 0, asm.Byte))
+	// ringbuf 复用旧数据须完整清 name
+	insns = append(insns, asm.Mov.Imm(asm.R2, 0))
+	for off := int16(eventNameOff); off < eventStructSize; off += 8 {
+		insns = append(insns, asm.StoreMem(asm.R6, off, asm.R2, asm.DWord))
+	}
 	if namePtrOff == 0 {
 		return insns
 	}
@@ -220,12 +222,10 @@ func eventInsns(op Op, eventsFD int, namePtrOff int16, verdictInR7 bool) asm.Ins
 	)
 }
 
-// buildProg 存量对象拦截程序
 // R6=ctx/事件指针 R7=prev_ret R8=dev R9=ino(R6-R9 跨 helper 保留)
 func buildProg(h hookSpec, offs btfOffsets, paramIdx, paramIdx2, nargs, protectedFD, eventsFD int) asm.Instructions {
 	retOff := int16(nargs * 8)
 
-	// R9=i_ino,R8=i_sb->s_dev,栈上组 {ino,dev} 查 protected
 	lookup := asm.Instructions{
 		asm.LoadMem(asm.R9, asm.R2, int16(offs.iIno), asm.DWord),
 		asm.LoadMem(asm.R8, asm.R2, int16(offs.iSb), asm.DWord),
@@ -293,9 +293,8 @@ func buildProg(h hookSpec, offs btfOffsets, paramIdx, paramIdx2, nargs, protecte
 	return insns
 }
 
-// buildDirProg 创建类拦截程序
-// R7 承载 prev_ret,透传后复用为本程序返回值(观察模式软命中路径改写为 0)
-// 栈布局:FP-16 复合键 / FP-24 dir value 指针 / FP-32 新名 char* / FP-36 新名长度 / FP-64 起 15B 尾部缓冲
+// R7=prev_ret,透传后复用为本程序返回值(软命中路径改 0 放行)
+// 栈:FP-16 复合键 / FP-24 dir value 指针 / FP-32 新名 char* / FP-36 新名长度 / FP-64 起 15B 尾部缓冲
 func buildDirProg(h hookSpec, offs btfOffsets, paramIdx, nameIdx, oldIdx, nargs int, exts []string, dirsFD, eventsFD int, deny bool) asm.Instructions {
 	retOff := int16(nargs * 8)
 	ret := int32(-1)
@@ -328,7 +327,6 @@ func buildDirProg(h hookSpec, offs btfOffsets, paramIdx, nameIdx, oldIdx, nargs 
 		asm.JEq.Imm(asm.R0, 0, "allow"),
 		asm.StoreMem(asm.RFP, -24, asm.R0, asm.DWord),
 
-		// qstr.len 布局随端序变化,按 BTF 取偏移不硬编码 +4
 		asm.LoadMem(asm.R4, asm.R6, int16(nameIdx*8), asm.DWord),
 		asm.LoadMem(asm.R5, asm.R4, int16(offs.dName+offs.qstrLen), asm.Word),
 		asm.StoreMem(asm.RFP, -36, asm.R5, asm.Word),
@@ -336,19 +334,18 @@ func buildDirProg(h hookSpec, offs btfOffsets, paramIdx, nameIdx, oldIdx, nargs 
 		asm.StoreMem(asm.RFP, -32, asm.R4, asm.DWord),
 
 		asm.LoadMem(asm.R3, asm.R0, 0, asm.Byte),
-		asm.JEq.Imm(asm.R3, 0, "hit"), // 整树目录恒命中
+		asm.JEq.Imm(asm.R3, 0, "hit"),
 	}
 
 	switch {
 	case h.hook == "inode_mkdir":
-		// 严格模式内核直拒,观察模式改 R7=0 放行;两种模式都经 hit 上报
 		if !deny {
 			insns = append(insns, asm.Mov.Imm(asm.R7, 0))
 		}
 		insns = append(insns, asm.Ja.Label("hit"))
-		exts = nil // 后面的扩展名槽会成为死代码,清空避免生成
+		exts = nil // 后续扩展名槽会成为死代码
 	case oldIdx >= 0:
-		// rename 移入:源为目录时严格拒/观察软放行,源为文件按扩展名匹配
+		// 源为目录:严格拒/观察软放行;源为文件按扩展名匹配
 		insns = append(insns,
 			asm.LoadMem(asm.R4, asm.R6, int16(oldIdx*8), asm.DWord),
 			asm.LoadMem(asm.R4, asm.R4, int16(offs.dInode), asm.DWord),
@@ -421,7 +418,7 @@ func buildDirProg(h hookSpec, offs btfOffsets, paramIdx, nameIdx, oldIdx, nargs 
 	return insns
 }
 
-// normExts 拒绝无法进内核匹配的扩展名(超 14 字节/非 ASCII/超 64 条位图)
+// normExts 拒绝无法进内核匹配的扩展名:超 14 字节 / 非 ASCII / 超 64 条位图
 func normExts(ruleExts []string) (accepted, rejected []string) {
 	for _, x := range ruleExts {
 		n := NormExt(x)
@@ -448,7 +445,7 @@ func isASCIIExt(s string) bool {
 	return true
 }
 
-// newEBPFEngine 仅加载程序,attach 延后到 start;调用方在 attach 前 apply 消除激活空窗
+// newEBPFEngine 只加载不 attach,attach 由 start 触发;先 apply 后 attach 消除激活空窗
 func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEngine, error) {
 	if log == nil {
 		log = slog.Default()
@@ -566,7 +563,7 @@ func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEng
 			}
 			insns = buildProg(h, offs, paramIdx, paramIdx2, nargs, protected.FD(), events.FD())
 		}
-		// inode_link 挂两个程序(源检查+目标目录创建策略),name 需区分
+		// inode_link 挂两个程序(源检查 + 目标目录策略),name 区分
 		if h.hook == "inode_link" && !h.isDir {
 			name = "tamper_linksrc"
 		}
@@ -599,7 +596,7 @@ func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEng
 	return e, nil
 }
 
-// start attach 全部程序;幂等,失败时回滚已 attach 的
+// start 幂等,失败回滚已 attach 的
 func (e *ebpfEngine) start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -626,7 +623,7 @@ func (e *ebpfEngine) start() error {
 	return nil
 }
 
-// readLoop 唯一发送者,退出时关 out 让消费方感知终止
+// readLoop 唯一发送者,退出时关 out
 func (e *ebpfEngine) readLoop() {
 	defer e.wg.Done()
 	defer close(e.out)
@@ -651,15 +648,15 @@ func (e *ebpfEngine) readLoop() {
 			Op:     op,
 			OpStr:  op.String(),
 			Denied: raw&eventDeniedBit != 0,
-			Comm:   string(bytes.TrimRight(b[24:40], "\x00")),
-			Name:   string(bytes.TrimRight(b[eventNameOff:eventStructSize], "\x00")),
+			Comm:   cString(b[24:40]),
+			Name:   cString(b[eventNameOff:eventStructSize]),
 		}
 		select {
 		case e.out <- ev:
 		case <-e.done:
 			return
 		default:
-			// 观察模式 drop=漏纳保,首次与每 1000 次告警一次
+			// 观察模式 drop=漏纳保
 			if n := e.userDrops.Add(1); !e.blockNew && (n == 1 || n%1000 == 0) {
 				e.log.Warn("tamper event dropped in observe mode, new object may miss protection",
 					slog.Uint64("drops", n))
@@ -668,7 +665,14 @@ func (e *ebpfEngine) readLoop() {
 	}
 }
 
-// keysOf 文件与目录 inode 都进 protected,让存量 hook 同时护住目录本身
+func cString(b []byte) string {
+	if i := bytes.IndexByte(b, 0); i >= 0 {
+		b = b[:i]
+	}
+	return string(b)
+}
+
+// 目录 inode 一起进 protected,让存量 hook 顺带护住目录本身
 func keysOf(entries []fileEntry) []protKey {
 	keys := make([]protKey, 0, len(entries))
 	for _, en := range entries {
@@ -679,7 +683,7 @@ func keysOf(entries []fileEntry) []protKey {
 	return keys
 }
 
-// dirValue 任一扩展名无法进内核表即升级整树(fail-closed,宁多拦不漏)
+// dirValue 任一扩展名无法进内核表即升级整树,fail-closed
 func (e *ebpfEngine) dirValue(exts []string) [dirValueSize]byte {
 	var v [dirValueSize]byte
 	if len(exts) == 0 {
@@ -706,6 +710,9 @@ func (e *ebpfEngine) dirValue(exts []string) [dirValueSize]byte {
 
 // batchUpdateAll 部分成功视为错误,避免静默半生效
 func batchUpdateAll[K, V any](m *ebpf.Map, keys []K, values []V) error {
+	if len(keys) != len(values) {
+		return fmt.Errorf("batch update key/value count mismatch: %d/%d", len(keys), len(values))
+	}
 	if len(keys) == 0 {
 		return nil
 	}
@@ -744,7 +751,7 @@ func (e *ebpfEngine) remove(entries []fileEntry) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.closed {
-		return nil
+		return errors.New("tamper engine closed")
 	}
 	errs := []error{e.removeLocked(keysOf(entries))}
 	for _, en := range entries {
@@ -758,6 +765,8 @@ func (e *ebpfEngine) remove(entries []fileEntry) error {
 }
 
 func (e *ebpfEngine) events() <-chan Event { return e.out }
+
+func (e *ebpfEngine) UserDrops() uint64 { return e.userDrops.Load() }
 
 func (e *ebpfEngine) close() error { return e.Close() }
 

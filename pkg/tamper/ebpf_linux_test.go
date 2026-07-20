@@ -10,6 +10,21 @@ import (
 	"time"
 )
 
+func TestCString(t *testing.T) {
+	buf := make([]byte, 32)
+	copy(buf, "long-old-name.php\x00")
+	copy(buf, "a.php\x00")
+	if got := cString(buf); got != "a.php" {
+		t.Fatalf("cString() = %q, want %q", got, "a.php")
+	}
+	if got := cString([]byte("nozero")); got != "nozero" {
+		t.Fatalf("无 NUL 应原样返回,实得 %q", got)
+	}
+	if got := cString(nil); got != "" {
+		t.Fatalf("空输入应返回空串,实得 %q", got)
+	}
+}
+
 // waitEvent 在超时前等待符合条件的事件
 func waitEvent(ch <-chan Event, want func(Event) bool) *Event {
 	deadline := time.After(3 * time.Second)
