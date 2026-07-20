@@ -69,4 +69,11 @@ export default {
     chunk_count: number
     force?: boolean
   }): any => http.Post('/file/chunk/finish', data),
+  // 分享列表
+  shareList: (): any => http.Get('/file_share'),
+  // 创建分享
+  shareCreate: (path: string, maxDownloads: number, expireHours: number): any =>
+    http.Post('/file_share', { path, max_downloads: maxDownloads, expire_hours: expireHours }),
+  // 取消分享
+  shareDelete: (id: number): any => http.Delete(`/file_share/${id}`),
 }

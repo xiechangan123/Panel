@@ -111,8 +111,8 @@ func Entrance(t *gotext.Locale, conf *config.Config, session *sessions.Manager) 
 				return
 			}
 
-			// 情况四：Webhook 访问，跳过验证
-			if strings.HasPrefix(r.URL.Path, "/webhook/") {
+			// 情况四：Webhook 与文件分享下载访问，跳过验证
+			if strings.HasPrefix(r.URL.Path, "/webhook/") || strings.HasPrefix(r.URL.Path, "/download/") {
 				next.ServeHTTP(w, r)
 				return
 			}

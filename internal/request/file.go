@@ -75,6 +75,16 @@ type FileUnCompress struct {
 	Path string `form:"path" json:"path" validate:"required && unix_path"`
 }
 
+type FileShareCreate struct {
+	Path         string `form:"path" json:"path" validate:"required && unix_path"`
+	MaxDownloads uint   `form:"max_downloads" json:"max_downloads"`                                        // 最大下载次数（0 不限）
+	ExpireHours  uint   `form:"expire_hours" json:"expire_hours" validate:"required && min:1 && max:8760"` // 有效期（小时）
+}
+
+type FileShareToken struct {
+	Token string `json:"token" form:"token" uri:"token" validate:"required"`
+}
+
 // ChunkUploadStart 分块上传开始请求
 type ChunkUploadStart struct {
 	Path       string `json:"path" validate:"required && unix_path"`    // 目标目录

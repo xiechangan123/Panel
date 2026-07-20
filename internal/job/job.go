@@ -17,6 +17,7 @@ var Package = do.Package(
 	do.LazyNamed(Prefix+"monitoring", NewMonitoring),
 	do.LazyNamed(Prefix+"firewall_scan", NewFirewallScan),
 	do.LazyNamed(Prefix+"cert_renew", NewCertRenew),
+	do.LazyNamed(Prefix+"file_share_clean", NewFileShareClean),
 	do.LazyNamed(Prefix+"panel_task", NewPanelTask),
 	do.LazyNamed(Prefix+"website_stat", NewWebsiteStat),
 	do.LazyNamed(Prefix+"website_expire", NewWebsiteExpire),

@@ -131,4 +131,13 @@ func init() {
 			return tx.Migrator().DropTable(&biz.TamperRule{})
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260720-add-file-share",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.FileShare{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.FileShare{})
+		},
+	})
 }

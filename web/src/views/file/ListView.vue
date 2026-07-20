@@ -31,6 +31,7 @@ import { useFileOps } from '@/views/file/composables/useFileOps'
 import { usePaste } from '@/views/file/composables/usePaste'
 import PreviewModal from '@/views/file/PreviewModal.vue'
 import PropertyModal from '@/views/file/PropertyModal.vue'
+import ShareModal from '@/views/file/ShareModal.vue'
 import type { FileInfo } from '@/views/file/types'
 
 const { $gettext } = useGettext()
@@ -72,6 +73,8 @@ const propertyModal = ref(false)
 const propertyFileInfo = ref<FileInfo | null>(null)
 const terminalModal = ref(false)
 const terminalPath = ref('')
+const shareModal = ref(false)
+const shareFile = ref('')
 
 const showDropdown = ref(false)
 const selectedRow = ref<any>()
@@ -274,6 +277,28 @@ const handleProtect = (item: any, protect: boolean) => {
   })
 }
 
+// ==================== 文件分享 ====================
+const sharedPaths = ref<Set<string>>(new Set())
+
+const isShared = (item: any) => sharedPaths.value.has(item.full)
+
+// 拉取有效分享的路径集合，用于列表分享标识
+const refreshShares = () => {
+  useRequest(file.shareList()).onSuccess(({ data }: any) => {
+    const now = Date.now()
+    sharedPaths.value = new Set(
+      (data || [])
+        .filter((item: any) => new Date(item.expired_at).getTime() > now)
+        .map((item: any) => item.path),
+    )
+  })
+}
+
+const openShare = (item: any) => {
+  shareFile.value = item.full
+  shareModal.value = true
+}
+
 // 检查是否有 immutable 属性
 const confirmImmutableOperation = (row: any, callback: () => void) => {
   if (row.immutable) {
@@ -386,6 +411,11 @@ const options = computed<DropdownOption[]>(() => {
     {
       label: selectedRow.value.dir ? $gettext('Compress') : $gettext('Download'),
       key: selectedRow.value.dir ? 'compress' : 'download',
+    },
+    {
+      label: $gettext('Share'),
+      key: 'share',
+      show: !selectedRow.value.dir,
     },
     { label: $gettext('Rename'), key: 'rename' },
     {
@@ -931,6 +961,9 @@ const handleSelect = (key: string) => {
     case 'download':
       window.open('/api/file/download?path=' + encodeURIComponent(selectedRow.value.full))
       break
+    case 'share':
+      openShare(selectedRow.value)
+      break
     case 'rename':
       openRename(selectedRow.value)
       break
@@ -979,6 +1012,11 @@ const getMoreOptions = (item: any): SelectOption[] => {
     options.push({ label: $gettext('Uncompress'), value: 'uncompress' })
   }
 
+  // 文件支持分享
+  if (!item.dir) {
+    options.push({ label: $gettext('Share'), value: 'share' })
+  }
+
   options.push({ label: $gettext('Copy Path'), value: 'copy-path' })
 
   // 如果是文件夹，添加终端选项
@@ -1021,6 +1059,9 @@ const handleMoreSelect = (key: string, item: any) => {
       break
     case 'uncompress':
       openUncompress(item)
+      break
+    case 'share':
+      openShare(item)
       break
     case 'copy-path':
       copyPath(item)
@@ -1281,6 +1322,7 @@ const data = computed(() => {
 // 目录大小缓存同样只保留仍存在的项，避免删除后重建同名目录显示旧值
 watch(data, (list) => {
   refreshProtected(list)
+  refreshShares()
   const dataSet = new Set(list.map((item: any) => item.full))
   if (selected.value.length > 0) {
     const filtered = selected.value.filter((p: any) => dataSet.has(p))
@@ -1482,6 +1524,12 @@ onUnmounted(() => {
                 class="lock-icon text-success"
               />
               <the-icon v-else-if="item.immutable" icon="mdi:lock" :size="16" class="lock-icon" />
+              <the-icon
+                v-if="isShared(item)"
+                icon="mdi:share-variant"
+                :size="16"
+                class="share-icon text-info"
+              />
             </div>
             <!-- 内联重命名输入框 -->
             <input
@@ -1539,6 +1587,12 @@ onUnmounted(() => {
                 icon="mdi:lock"
                 :size="14"
                 class="text-warning ml-1 shrink-0"
+              />
+              <the-icon
+                v-if="isShared(item)"
+                icon="mdi:share-variant"
+                :size="14"
+                class="text-info ml-1 shrink-0"
               />
             </div>
             <div class="list-col col-size">
@@ -1707,6 +1761,8 @@ onUnmounted(() => {
   </n-modal>
   <!-- 属性弹窗 -->
   <property-modal v-model:show="propertyModal" v-model:file-info="propertyFileInfo" />
+  <!-- 分享弹窗 -->
+  <share-modal v-model:show="shareModal" v-model:path="shareFile" @refresh="refreshShares" />
   <!-- 终端弹窗 -->
   <pty-terminal-modal
     v-model:show="terminalModal"
@@ -1873,6 +1929,12 @@ onUnmounted(() => {
   bottom: 0;
   right: 0;
   color: var(--warning-color);
+}
+
+.share-icon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }
 
 // 内联重命名输入框样式

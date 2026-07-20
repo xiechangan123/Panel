@@ -11,7 +11,7 @@ var Package = do.Package(
 	do.Lazy(NewContainerImageRepo), do.Lazy(NewContainerNetworkRepo), do.Lazy(NewContainerVolumeRepo),
 	do.Lazy(NewCronRepo), do.Lazy(NewDatabaseRepo), do.Lazy(NewDatabaseRedisRepo),
 	do.Lazy(NewDatabaseElasticsearchRepo), do.Lazy(NewDatabaseServerRepo), do.Lazy(NewDatabaseUserRepo),
-	do.Lazy(NewEnvironmentRepo), do.Lazy(NewLogRepo), do.Lazy(NewMonitorRepo),
+	do.Lazy(NewEnvironmentRepo), do.Lazy(NewFileShareRepo), do.Lazy(NewLogRepo), do.Lazy(NewMonitorRepo),
 	do.Lazy(NewProjectRepo), do.Lazy(NewSafeRepo), do.Lazy(NewScanEventRepo),
 	do.Lazy(NewSettingRepo), do.Lazy(NewSSHRepo), do.Lazy(NewTamperRepo), do.Lazy(NewTaskRepo),
 	do.Lazy(NewTemplateRepo), do.Lazy(NewUserRepo), do.Lazy(NewUserPasskeyRepo),

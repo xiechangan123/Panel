@@ -13,7 +13,7 @@ var Package = do.Package(
 	do.Lazy(NewDatabaseElasticsearchService), do.Lazy(NewDatabaseServerService), do.Lazy(NewDatabaseUserService),
 	do.Lazy(NewEnvironmentService), do.Lazy(NewEnvironmentGoService), do.Lazy(NewEnvironmentJavaService),
 	do.Lazy(NewEnvironmentNodejsService), do.Lazy(NewEnvironmentPHPService), do.Lazy(NewEnvironmentPythonService),
-	do.Lazy(NewEnvironmentDotnetService), do.Lazy(NewFileService), do.Lazy(NewFirewallService),
+	do.Lazy(NewEnvironmentDotnetService), do.Lazy(NewFileService), do.Lazy(NewFileShareService), do.Lazy(NewFirewallService),
 	do.Lazy(NewFirewallScanService), do.Lazy(NewHomeService), do.Lazy(NewLogService),
 	do.Lazy(NewMonitorService), do.Lazy(NewProcessService), do.Lazy(NewProjectService),
 	do.Lazy(NewSafeService), do.Lazy(NewSettingService), do.Lazy(NewSSHService),
