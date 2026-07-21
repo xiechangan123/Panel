@@ -278,9 +278,11 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 解除防篡改保护后再删除
-	s.tamperRepo.Unlock(req.Path)
-
+	unlocked := s.tamperRepo.Unlock(req.Path)
 	if err = io.Remove(req.Path); err != nil {
+		if unlocked {
+			s.tamperRepo.Relock(req.Path)
+		}
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -308,7 +310,9 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 
 	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
 	if force && io.Exists(path) {
-		s.tamperRepo.Unlock(path)
+		if s.tamperRepo.Unlock(path) {
+			defer s.tamperRepo.Relock(path)
+		}
 		_ = stdos.Remove(path)
 	}
 
