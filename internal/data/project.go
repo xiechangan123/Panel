@@ -264,13 +264,27 @@ func (r *projectRepo) parseServiceSection(detail *types.ProjectDetail, opt *unit
 	}
 }
 
-// parseEnvironment 解析环境变量
+// parseEnvironment 解析环境变量，兼容 "KEY=VALUE" 和 KEY="VALUE" 两种引号格式
 func (r *projectRepo) parseEnvironment(value string) *types.KV {
-	parts := strings.SplitN(value, "=", 2)
+	parts := strings.SplitN(r.unquoteEnvironment(value), "=", 2)
 	if len(parts) != 2 {
 		return nil
 	}
-	return &types.KV{Key: parts[0], Value: parts[1]}
+	return &types.KV{Key: parts[0], Value: r.unquoteEnvironment(parts[1])}
+}
+
+// quoteEnvironment 序列化环境变量，加双引号以支持值中包含空格
+func (r *projectRepo) quoteEnvironment(env types.KV) string {
+	value := strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(env.Value)
+	return fmt.Sprintf(`"%s=%s"`, env.Key, value)
+}
+
+// unquoteEnvironment 去除首尾双引号并反转义
+func (r *projectRepo) unquoteEnvironment(s string) string {
+	if len(s) >= 2 && strings.HasPrefix(s, `"`) && strings.HasSuffix(s, `"`) {
+		s = strings.NewReplacer(`\\`, `\`, `\"`, `"`).Replace(s[1 : len(s)-1])
+	}
+	return s
 }
 
 // parseBytes 解析字节大小 (如 512M, 1G)
@@ -347,7 +361,7 @@ func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
 
 	// 环境变量
 	for _, env := range req.Environments {
-		options = append(options, unit.NewUnitOption("Service", "Environment", fmt.Sprintf("%s=%s", env.Key, env.Value)))
+		options = append(options, unit.NewUnitOption("Service", "Environment", r.quoteEnvironment(env)))
 	}
 
 	// [Install] section
@@ -438,7 +452,7 @@ func (r *projectRepo) UpdateUnitFile(name string, req *request.ProjectUpdate) er
 
 	// 环境变量
 	for _, env := range req.Environments {
-		options = append(options, unit.NewUnitOption("Service", "Environment", fmt.Sprintf("%s=%s", env.Key, env.Value)))
+		options = append(options, unit.NewUnitOption("Service", "Environment", r.quoteEnvironment(env)))
 	}
 
 	// 输出
