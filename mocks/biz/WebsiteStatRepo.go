@@ -403,6 +403,52 @@ func (_c *WebsiteStatRepo_DailySeries_Call) RunAndReturn(run func(string, string
 	return _c
 }
 
+// DeleteBySite provides a mock function with given fields: site
+func (_m *WebsiteStatRepo) DeleteBySite(site string) error {
+	ret := _m.Called(site)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteBySite")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(site)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebsiteStatRepo_DeleteBySite_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteBySite'
+type WebsiteStatRepo_DeleteBySite_Call struct {
+	*mock.Call
+}
+
+// DeleteBySite is a helper method to define mock.On call
+//   - site string
+func (_e *WebsiteStatRepo_Expecter) DeleteBySite(site interface{}) *WebsiteStatRepo_DeleteBySite_Call {
+	return &WebsiteStatRepo_DeleteBySite_Call{Call: _e.mock.On("DeleteBySite", site)}
+}
+
+func (_c *WebsiteStatRepo_DeleteBySite_Call) Run(run func(site string)) *WebsiteStatRepo_DeleteBySite_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WebsiteStatRepo_DeleteBySite_Call) Return(_a0 error) *WebsiteStatRepo_DeleteBySite_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebsiteStatRepo_DeleteBySite_Call) RunAndReturn(run func(string) error) *WebsiteStatRepo_DeleteBySite_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // HourlySeries provides a mock function with given fields: date, sites
 func (_m *WebsiteStatRepo) HourlySeries(date string, sites []string) ([]*biz.WebsiteStatSeries, error) {
 	ret := _m.Called(date, sites)
