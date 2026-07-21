@@ -3129,7 +3129,7 @@ msgstr ""
 #: src/views/apps/rsync/IndexView.vue:57
 #: src/views/apps/rsync/IndexView.vue:279
 #: src/views/apps/rsync/IndexView.vue:340
-#: src/views/database/IndexView.vue:119
+#: src/views/database/IndexView.vue:116
 #: src/views/home/IndexView.vue:661
 #: src/views/home/IndexView.vue:762
 #: src/views/log/SSHLog.vue:73
@@ -3162,7 +3162,7 @@ msgstr ""
 #: src/views/database/CreateDatabaseModal.vue:86
 #: src/views/database/CreateUserModal.vue:104
 #: src/views/database/DatabaseList.vue:28
-#: src/views/database/IndexView.vue:120
+#: src/views/database/IndexView.vue:117
 #: src/views/database/UserList.vue:73
 msgid "Server"
 msgstr ""
@@ -4010,7 +4010,7 @@ msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:533
 #: src/views/database/CreateServerModal.vue:92
-#: src/views/database/IndexView.vue:177
+#: src/views/database/IndexView.vue:174
 #: src/views/website/EditModal.vue:1051
 msgid "Add Server"
 msgstr ""
@@ -4553,7 +4553,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:227
 #: src/views/database/CreateDatabaseModal.vue:102
 #: src/views/database/CreateUserModal.vue:90
-#: src/views/database/IndexView.vue:170
+#: src/views/database/IndexView.vue:167
 #: src/views/setting/CreateModal.vue:38
 #: src/views/setting/IndexView.vue:155
 msgid "Create User"
@@ -6367,7 +6367,7 @@ msgid "Specific"
 msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:78
-#: src/views/database/IndexView.vue:130
+#: src/views/database/IndexView.vue:127
 msgid "Create Database"
 msgstr ""
 
@@ -7422,19 +7422,15 @@ msgstr ""
 msgid "Share - %{ path }"
 msgstr ""
 
-#: src/views/file/ShareModal.vue:152
-msgid "Anyone with the link can download this file without logging in. The link can be used in the remote download of another panel to transfer files."
-msgstr ""
-
-#: src/views/file/ShareModal.vue:158
+#: src/views/file/ShareModal.vue:151
 msgid "Validity Period"
 msgstr ""
 
-#: src/views/file/ShareModal.vue:165
+#: src/views/file/ShareModal.vue:158
 msgid "Download Limit"
 msgstr ""
 
-#: src/views/file/ShareModal.vue:169
+#: src/views/file/ShareModal.vue:162
 #: src/views/website/EditModal.vue:1502
 #: src/views/website/EditModal.vue:1517
 #: src/views/website/EditModal.vue:1893
@@ -7443,7 +7439,7 @@ msgstr ""
 msgid "Unlimited"
 msgstr ""
 
-#: src/views/file/ShareModal.vue:176
+#: src/views/file/ShareModal.vue:169
 msgid "Create Share Link"
 msgstr ""
 

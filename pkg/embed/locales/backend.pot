@@ -1812,7 +1812,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/biz/website.go:135
+#: internal/biz/website.go:140
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -3449,7 +3449,7 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/biz/website.go:171
+#: internal/biz/website.go:176
 msgid "website %s has bound certificates, please delete the certificate first"
 msgstr ""
 
@@ -3470,7 +3470,7 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/biz/website.go:227
+#: internal/biz/website.go:247
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
