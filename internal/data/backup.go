@@ -194,7 +194,7 @@ func (r *backupRepo) CreatePanel() error {
 
 	backup := filepath.Join(r.GetDefaultPath(biz.BackupTypePanel), fmt.Sprintf("panel_%s.tar.xz", time.Now().Format("20060102150405")))
 
-	// 备份前 checkpoint 主库，尽量减少 -wal 中未落盘数据（热备份一致性）
+	// 备份前 checkpoint 主库
 	_ = r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE);").Error
 
 	// 只备份恢复面板运行所必需的核心文件；checkpoint 后 -wal 已并入 panel.db、
@@ -1304,7 +1304,7 @@ func (r *backupRepo) FixPanel() error {
 		fmt.Println(r.t.Get("|-Move backup file..."))
 	}
 	if io.Exists(filepath.Join("/tmp/panel-fix", "panel")) && io.IsDir(filepath.Join("/tmp/panel-fix", "panel")) {
-		// 整体替换 panel 目录前先保住自定义编译参数,现存内容比备份中的更新
+		// 整体替换 panel 目录前先保住自定义编译参数
 		customize := filepath.Join(app.Root, "panel", "storage", "customize")
 		keep := filepath.Join(app.Root, ".customize-keep")
 		_ = io.Remove(keep)

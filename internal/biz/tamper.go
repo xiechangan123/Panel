@@ -18,9 +18,9 @@ import (
 // TamperRule 防篡改保护规则(通常对应一个网站目录)
 type TamperRule struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Name      string    `gorm:"not null;default:'';unique" json:"name"` // 标识,通常为网站名
+	Name      string    `gorm:"not null;default:'';unique" json:"name"` // 标识
 	Path      string    `gorm:"not null;default:''" json:"path"`        // 受保护目录
-	Exts      []string  `gorm:"serializer:json" json:"exts"`            // 受保护后缀,空=全部
+	Exts      []string  `gorm:"serializer:json" json:"exts"`            // 受保护后缀，空=全部
 	Excludes  []string  `gorm:"serializer:json" json:"excludes"`        // 排除子路径
 	Enabled   bool      `gorm:"not null;default:true" json:"enabled"`
 	CreatedAt time.Time `json:"created_at"`
@@ -57,6 +57,7 @@ type TamperRepo interface {
 	ListLogs(page, limit uint) ([]*TamperLog, int64, error)
 	ClearLogs() error
 	ClearLogsBefore(t time.Time) error
+	VacuumDB() error
 }
 
 // TamperUsecase 防篡改业务逻辑,持有运行时 Manager
@@ -438,4 +439,8 @@ func (uc *TamperUsecase) Relock(paths ...string) {
 	if uc.mgr != nil {
 		uc.mgr.Relock(paths)
 	}
+}
+
+func (uc *TamperUsecase) VacuumDB() error {
+	return uc.repo.VacuumDB()
 }

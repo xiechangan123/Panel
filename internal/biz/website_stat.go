@@ -193,6 +193,8 @@ type WebsiteStatRepo interface {
 	ClearErrorsBefore(t time.Time) error
 	// Clear 清空所有统计数据
 	Clear() error
+	// DeleteBySite 清空指定站点在六张统计表中的全部数据
+	DeleteBySite(site string) error
 	VacuumDB() error
 
 	// 蜘蛛统计
@@ -262,6 +264,10 @@ func (uc *WebsiteStatUsecase) ClearErrorsBefore(t time.Time) error {
 
 func (uc *WebsiteStatUsecase) Clear() error {
 	return uc.repo.Clear()
+}
+
+func (uc *WebsiteStatUsecase) DeleteBySite(site string) error {
+	return uc.repo.DeleteBySite(site)
 }
 
 func (uc *WebsiteStatUsecase) VacuumDB() error {

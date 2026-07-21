@@ -36,6 +36,7 @@ type PanelTask struct {
 	settingRepo *biz.SettingUsecase
 	scanRepo    *biz.ScanEventUsecase
 	statRepo    *biz.WebsiteStatUsecase
+	tamperRepo  *biz.TamperUsecase
 }
 
 // NewPanelTask 构造面板每日任务
@@ -53,6 +54,7 @@ func NewPanelTask(i do.Injector) (Job, error) {
 			settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
 			scanRepo:    do.MustInvoke[*biz.ScanEventUsecase](i),
 			statRepo:    do.MustInvoke[*biz.WebsiteStatUsecase](i),
+			tamperRepo:  do.MustInvoke[*biz.TamperUsecase](i),
 		},
 	}, nil
 }
@@ -77,6 +79,9 @@ func (r *PanelTask) Run(_ context.Context) error {
 	}
 	if err := r.statRepo.VacuumDB(); err != nil {
 		r.log.Warn("failed to vacuum website stat database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+	}
+	if err := r.tamperRepo.VacuumDB(); err != nil {
+		r.log.Warn("failed to vacuum tamper database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 备份面板

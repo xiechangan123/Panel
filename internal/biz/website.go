@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -74,6 +75,8 @@ type WebsiteUsecase struct {
 	database       *DatabaseUsecase
 	databaseUser   *DatabaseUserUsecase
 	databaseServer DatabaseServerRepo
+	tamper         *TamperUsecase
+	stat           *WebsiteStatUsecase
 }
 
 func NewWebsiteUsecase(i do.Injector) (*WebsiteUsecase, error) {
@@ -86,6 +89,8 @@ func NewWebsiteUsecase(i do.Injector) (*WebsiteUsecase, error) {
 		database:       do.MustInvoke[*DatabaseUsecase](i),
 		databaseUser:   do.MustInvoke[*DatabaseUserUsecase](i),
 		databaseServer: do.MustInvoke[DatabaseServerRepo](i),
+		tamper:         do.MustInvoke[*TamperUsecase](i),
+		stat:           do.MustInvoke[*WebsiteStatUsecase](i),
 	}, nil
 }
 
@@ -171,6 +176,18 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 		return errors.New(uc.t.Get("website %s has bound certificates, please delete the certificate first", website.Name))
 	}
 
+	// 清理防篡改规则
+	if req.Path && website.Path != "" {
+		if rules, listErr := uc.tamper.ListRules(); listErr == nil {
+			cleaned := filepath.Clean(website.Path)
+			for _, rule := range rules {
+				if rule.Path != "" && filepath.Clean(rule.Path) == cleaned {
+					_ = uc.tamper.DeleteRule(rule.ID)
+				}
+			}
+		}
+	}
+
 	_ = uc.repo.RemoveFiles(website.Name, req.Path)
 	if req.DB {
 		if mysql, err := uc.databaseServer.GetByName("local_mysql"); err == nil {
@@ -186,6 +203,9 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 	if err = uc.repo.Delete(website); err != nil {
 		return err
 	}
+
+	// 清理该站点在统计库中的全部数据
+	_ = uc.stat.DeleteBySite(website.Name)
 
 	// 记录日志
 	uc.log.Info("website deleted", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))

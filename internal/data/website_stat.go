@@ -136,6 +136,25 @@ func (r *websiteStatRepo) Clear() error {
 	return r.db.Where("1 = 1").Delete(&biz.WebsiteStatURI{}).Error
 }
 
+func (r *websiteStatRepo) DeleteBySite(site string) error {
+	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStat{}).Error; err != nil {
+		return err
+	}
+	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteErrorLog{}).Error; err != nil {
+		return err
+	}
+	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStatSpider{}).Error; err != nil {
+		return err
+	}
+	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStatClient{}).Error; err != nil {
+		return err
+	}
+	if err := r.db.Where("site = ?", site).Delete(&biz.WebsiteStatIP{}).Error; err != nil {
+		return err
+	}
+	return r.db.Where("site = ?", site).Delete(&biz.WebsiteStatURI{}).Error
+}
+
 func (r *websiteStatRepo) VacuumDB() error {
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
 		return err

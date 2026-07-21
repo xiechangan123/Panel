@@ -87,3 +87,13 @@ func (r *tamperRepo) ClearLogs() error {
 func (r *tamperRepo) ClearLogsBefore(t time.Time) error {
 	return r.logDB.Where("created_at < ?", t).Delete(&biz.TamperLog{}).Error
 }
+
+func (r *tamperRepo) VacuumDB() error {
+	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
+		return err
+	}
+	if err := r.db.Exec("VACUUM").Error; err != nil {
+		return err
+	}
+	return r.db.Exec("PRAGMA optimize").Error
+}
