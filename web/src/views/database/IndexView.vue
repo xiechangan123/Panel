@@ -21,7 +21,7 @@ import ServerList from '@/views/database/ServerList.vue'
 import UserList from '@/views/database/UserList.vue'
 
 const { $gettext } = useGettext()
-const currentTab = ref('server')
+const currentTab = ref('')
 
 const createDatabaseModalShow = ref(false)
 const createUserModalShow = ref(false)
@@ -46,9 +46,10 @@ useRequest(app.isInstalled('pgadmin')).onSuccess(({ data }: any) => {
 // 类型标签页仅展示已添加服务器的数据库类型
 const typeTabs = ['mysql', 'postgresql', 'clickhouse', 'mongodb', 'sqlite', 'elasticsearch', 'redis']
 const servers = ref<any[]>([])
-const serversLoaded = ref(false)
 
 const availableTypes = computed(() => new Set(servers.value.map((item: any) => item.type)))
+// n-tabs 对 v-if 动态增删子 tab 不会重算指示条位置，用 key 强制重挂
+const tabsKey = computed(() => typeTabs.filter((t) => availableTypes.value.has(t)).join(','))
 const mysqlServers = computed(() => servers.value.filter((item: any) => item.type === 'mysql'))
 const postgresqlServers = computed(() =>
   servers.value.filter((item: any) => item.type === 'postgresql'),
@@ -57,15 +58,11 @@ const postgresqlServers = computed(() =>
 const refreshServers = () => {
   useRequest(database.serverList(1, 10000)).onSuccess(({ data }: any) => {
     servers.value = data.items || []
-    const visible = typeTabs.filter((t) => availableTypes.value.has(t))
-    if (typeTabs.includes(currentTab.value) && !availableTypes.value.has(currentTab.value)) {
-      // 当前类型的服务器已被全部删除,回退到可用标签页
-      currentTab.value = visible[0] ?? 'server'
-    } else if (!serversLoaded.value && visible.length > 0) {
-      // 首次加载定位到第一个可用类型
-      currentTab.value = visible[0] ?? 'server'
+    // 未初始化或停留在已消失的类型标签时定位到第一个可用类型
+    const first = typeTabs.find((t) => availableTypes.value.has(t))
+    if (!currentTab.value || (typeTabs.includes(currentTab.value) && !availableTypes.value.has(currentTab.value))) {
+      currentTab.value = first ?? 'server'
     }
-    serversLoaded.value = true
   })
 }
 
@@ -108,7 +105,7 @@ const handlePgAdmin = () => {
 <template>
   <PageContainer :show-footer="true">
     <template #tabs>
-      <n-tabs v-model:value="currentTab" animated>
+      <n-tabs :key="tabsKey" v-model:value="currentTab" animated>
         <n-tab v-if="availableTypes.has('mysql')" name="mysql" tab="MySQL" />
         <n-tab v-if="availableTypes.has('postgresql')" name="postgresql" tab="PostgreSQL" />
         <n-tab v-if="availableTypes.has('clickhouse')" name="clickhouse" tab="ClickHouse" />

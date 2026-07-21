@@ -147,13 +147,6 @@ watch(
     :segmented="false"
   >
     <n-flex vertical :size="16">
-      <n-alert type="info" :show-icon="false">
-        {{
-          $gettext(
-            'Anyone with the link can download this file without logging in. The link can be used in the remote download of another panel to transfer files.',
-          )
-        }}
-      </n-alert>
       <n-form inline label-placement="left">
         <n-form-item :label="$gettext('Validity Period')">
           <n-select
