@@ -82,8 +82,8 @@ const onCreatePort = () => ({
 
 // 挂载卷操作
 const onCreateVolume = () => ({
-  host: '/www',
-  container: '/www',
+  host: '/opt/ace',
+  container: '/opt/ace',
   mode: 'rw',
 })
 

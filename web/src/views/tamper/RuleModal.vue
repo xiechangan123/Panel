@@ -100,7 +100,7 @@ const handleSubmit = () => {
         <n-input v-model:value="model.name" :disabled="isEdit" :placeholder="$gettext('Rule identifier, usually the website name')" />
       </n-form-item>
       <n-form-item :label="$gettext('Protected Directory')" required>
-        <n-input v-model:value="model.path" placeholder="/www/wwwroot/example.com" />
+        <n-input v-model:value="model.path" placeholder="/opt/ace/sites/example" />
       </n-form-item>
       <n-form-item :label="$gettext('Protected Extensions')">
         <n-dynamic-tags v-model:value="model.exts" />

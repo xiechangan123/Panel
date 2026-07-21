@@ -21,7 +21,7 @@ const config = ref('')
 const addModuleModal = ref(false)
 const addModuleModel = ref({
   name: '',
-  path: '/www',
+  path: '/opt/ace',
   comment: '',
   auth_user: '',
   secret: generateRandomString(16),
@@ -140,7 +140,7 @@ const handleModelAdd = async () => {
       addModuleModal.value = false
       addModuleModel.value = {
         name: '',
-        path: '/www',
+        path: '/opt/ace',
         comment: '',
         auth_user: '',
         secret: generateRandomString(16),
