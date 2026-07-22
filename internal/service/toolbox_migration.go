@@ -124,7 +124,9 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 		_ = pw.Close()
 	}()
 
+	// 命令报错时单行输出可能很长（如数据库导入错误附带语句内容），加大行缓冲
 	scanner := bufio.NewScanner(pr)
+	scanner.Buffer(make([]byte, 64<<10), 1<<20)
 	for scanner.Scan() {
 		_, _ = fmt.Fprintf(w, "data: %s\n\n", scanner.Text())
 		flusher.Flush()
@@ -384,14 +386,14 @@ func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationCon
 		s.migrateWebsite(conn, &site, items.StopOnMig)
 	}
 
-	// 迁移数据库
-	for _, db := range slices.Backward(items.Databases) {
-		s.migrateDatabase(conn, &db, items.StopOnMig)
-	}
-
-	// 迁移数据库用户
+	// 先迁移数据库用户，保证导入数据库时属主角色已存在
 	for _, user := range slices.Backward(items.DatabaseUsers) {
 		s.migrateDatabaseUser(conn, &user)
+	}
+
+	// 迁移数据库
+	for _, db := range slices.Backward(items.Databases) {
+		s.migrateDatabase(conn, &db)
 	}
 
 	// 迁移项目
@@ -482,7 +484,7 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 }
 
 // migrateDatabase 迁移单个数据库
-func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigrationConnection, db *request.ToolboxMigrationDatabase, stopOnMig bool) {
+func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigrationConnection, db *request.ToolboxMigrationDatabase) {
 	displayName := fmt.Sprintf("%s (%s)", db.Name, db.Type)
 	result := types.MigrationItemResult{
 		Type:   "database",
@@ -501,28 +503,36 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 		return
 	}
 
-	backupPath := fmt.Sprintf("/tmp/ace_migration_%s_%s.sql", db.Type, db.Name)
-
-	var dumpCmd string
-	switch db.Type {
-	case "mysql":
-		dumpCmd = fmt.Sprintf("MYSQL_PWD='%s' mysqldump -u root --single-transaction --quick '%s' > %s", dbServer.Password, db.Name, backupPath)
-	case "postgresql":
-		dumpCmd = fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres '%s' > %s", dbServer.Password, db.Name, backupPath)
-	default:
-		s.failResult("database", displayName, s.t.Get("unsupported database type: %s", db.Type))
-		return
-	}
-
-	// 导出数据库
-	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("exporting database")))
-	s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
-	_, err = shell.Exec(dumpCmd)
+	tmpDir, err := s.migrationTmpDir()
 	if err != nil {
 		s.failResult("database", displayName, s.t.Get("database export failed: %v", err))
 		return
 	}
-	defer func() { _ = os.Remove(backupPath) }()
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+	backupPath := filepath.Join(tmpDir, fmt.Sprintf("%s_%s.sql", db.Type, db.Name))
+
+	// 导出数据库
+	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("exporting database")))
+	switch db.Type {
+	case "mysql":
+		dumpCmd := fmt.Sprintf("MYSQL_PWD='%s' mysqldump -u root --single-transaction --quick --routines --events '%s' > %s", dbServer.Password, db.Name, backupPath)
+		s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
+		_, err = shell.Exec(dumpCmd)
+	case "postgresql":
+		// --clean --if-exists 保证重复迁移时覆盖而非追加数据
+		dumpCmd := fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres --clean --if-exists '%s' > %s", dbServer.Password, db.Name, backupPath)
+		s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
+		_, err = shell.Exec(dumpCmd)
+	case "clickhouse":
+		err = s.dumpClickHouse(dbServer.Password, db.Name, backupPath)
+	default:
+		s.failResult("database", displayName, s.t.Get("unsupported database type: %s", db.Type))
+		return
+	}
+	if err != nil {
+		s.failResult("database", displayName, s.t.Get("database export failed: %v", err))
+		return
+	}
 
 	// 在远程创建数据库
 	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("creating database on remote server")))
@@ -581,9 +591,11 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	var remoteImportCmd string
 	switch db.Type {
 	case "mysql":
-		remoteImportCmd = fmt.Sprintf("MYSQL_PWD=$(acepanel setting get mysql_root_password) mysql -u root '%s' < %s && rm -f %s", db.Name, backupPath, backupPath)
+		remoteImportCmd = fmt.Sprintf("MYSQL_PWD=$(acepanel setting get mysql_root_password) mysql -u root '%s' < '%s' && rm -rf '%s'", db.Name, backupPath, tmpDir)
 	case "postgresql":
-		remoteImportCmd = fmt.Sprintf("PGPASSWORD=$(acepanel setting get postgres_password) psql -h 127.0.0.1 -U postgres '%s' < %s && rm -f %s", db.Name, backupPath, backupPath)
+		remoteImportCmd = fmt.Sprintf("PGPASSWORD=$(acepanel setting get postgres_password) psql -h 127.0.0.1 -U postgres '%s' < '%s' && rm -rf '%s'", db.Name, backupPath, tmpDir)
+	case "clickhouse":
+		remoteImportCmd = fmt.Sprintf(`clickhouse-client --host 127.0.0.1 --port 9000 --user default --password "$(acepanel setting get clickhouse_default_password)" --database '%s' --multiquery < '%s' && rm -rf '%s'`, db.Name, backupPath, tmpDir)
 	}
 
 	if err = s.remoteExec(conn, remoteImportCmd); err != nil {
@@ -593,6 +605,75 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 
 	s.succeedResult("database", displayName)
 	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("database migration completed")))
+}
+
+// dumpClickHouse 导出 ClickHouse 数据库为 SQL 文件，结构在前，数据以 SQLInsert 格式在后
+func (s *ToolboxMigrationService) dumpClickHouse(password, database, path string) error {
+	conn := fmt.Sprintf("--host 127.0.0.1 --port 9000 --user default --password '%s'", password)
+
+	// 数据表（含数据）在前，视图（仅结构）在后
+	dataTables, err := s.clickHouseTables(conn, database, false)
+	if err != nil {
+		return err
+	}
+	views, err := s.clickHouseTables(conn, database, true)
+	if err != nil {
+		return err
+	}
+
+	// 导出结构，去掉库名限定（导入时由 --database 指定目标库），先删后建保证重复迁移幂等
+	var schema strings.Builder
+	for _, tbl := range slices.Concat(dataTables, views) {
+		create, err := shell.Execf("clickhouse-client %s --query \"SELECT create_table_query FROM system.tables WHERE database = '%s' AND name = '%s' FORMAT TabSeparatedRaw\"", conn, database, tbl)
+		if err != nil {
+			return err
+		}
+		stmt := strings.TrimSpace(create)
+		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("`%s`.", database), "")
+		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("%s.", database), "")
+		fmt.Fprintf(&schema, "DROP TABLE IF EXISTS `%s`;\n", tbl)
+		schema.WriteString(stmt)
+		schema.WriteString(";\n")
+	}
+	if err = os.WriteFile(path, []byte(schema.String()), 0644); err != nil {
+		return err
+	}
+
+	// 逐表追加数据，空表跳过
+	for _, tbl := range dataTables {
+		count, err := shell.Execf("clickhouse-client %s --query 'SELECT count() FROM `%s`.`%s`'", conn, database, tbl)
+		if err != nil {
+			return err
+		}
+		if strings.TrimSpace(count) == "0" {
+			continue
+		}
+		if _, err = shell.Execf("clickhouse-client %s --output_format_sql_insert_table_name '%s' --query 'SELECT * FROM `%s`.`%s` FORMAT SQLInsert' >> '%s'", conn, tbl, database, tbl, path); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// clickHouseTables 列出库中对象名，onlyView 为 true 时仅返回视图，否则返回非视图数据表
+func (s *ToolboxMigrationService) clickHouseTables(conn, database string, onlyView bool) ([]string, error) {
+	op := "NOT LIKE"
+	if onlyView {
+		op = "LIKE"
+	}
+	out, err := shell.Execf("clickhouse-client %s --query \"SELECT name FROM system.tables WHERE database = '%s' AND NOT is_temporary AND engine %s '%%View%%' ORDER BY name FORMAT TabSeparated\"", conn, database, op)
+	if err != nil {
+		return nil, err
+	}
+
+	var tables []string
+	for line := range strings.SplitSeq(out, "\n") {
+		if l := strings.TrimSpace(line); l != "" {
+			tables = append(tables, l)
+		}
+	}
+	return tables, nil
 }
 
 // migrateDatabaseUser 迁移单个数据库用户
@@ -783,6 +864,7 @@ func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConne
 
 	// 读取 SSE 流
 	scanner := bufio.NewScanner(resp.Body)
+	scanner.Buffer(make([]byte, 64<<10), 1<<20)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if after, ok := strings.CutPrefix(line, "data: "); ok {
@@ -793,13 +875,18 @@ func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConne
 				errData := strings.TrimPrefix(scanner.Text(), "data: ")
 				return fmt.Errorf("remote exec error: %s", errData)
 			}
+			return fmt.Errorf("remote exec error")
 		} else if strings.HasPrefix(line, "event: done") {
 			scanner.Scan()
 			return nil
 		}
 	}
 
-	return scanner.Err()
+	// 未收到 done 事件即流结束，视为连接中断
+	if err = scanner.Err(); err != nil {
+		return err
+	}
+	return fmt.Errorf("remote exec stream ended unexpectedly")
 }
 
 // remoteUploadFile 分片上传文件到远程面板
@@ -847,13 +934,13 @@ func (s *ToolboxMigrationService) remoteUploadFile(conn *request.ToolboxMigratio
 	// 解析已上传分片列表（支持断点续传）
 	uploadedChunks := s.parseUploadedChunks(startResp)
 
-	// 逐分片上传
+	// 逐分片上传，ReadFull 保证除末片外读满分片大小，避免短读导致分片错位
 	buf := make([]byte, migrationChunkSize)
 	uploadStart := time.Now()
 	var uploaded int64
 	for i := 0; i < chunkCount; i++ {
-		n, readErr := f.Read(buf)
-		if readErr != nil && readErr != io.EOF {
+		n, readErr := io.ReadFull(f, buf)
+		if readErr != nil && readErr != io.EOF && readErr != io.ErrUnexpectedEOF {
 			return fmt.Errorf("read chunk %d failed: %w", i, readErr)
 		}
 		chunk := buf[:n]
@@ -931,30 +1018,42 @@ func (s *ToolboxMigrationService) remoteMultipartUpload(
 
 // uploadDirToRemote 上传目录到远程
 func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrationConnection, localDir, remoteDir string) error {
-	tarPath := fmt.Sprintf("/tmp/ace_mig_%d.tar.xz", time.Now().UnixNano())
+	tmpDir, err := s.migrationTmpDir()
+	if err != nil {
+		return err
+	}
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+	tarPath := filepath.Join(tmpDir, "dir.tar.xz")
 
 	// 本地打包
 	s.addLog("  " + s.t.Get("compressing directory: %s", localDir))
-	_, err := shell.Exec(fmt.Sprintf("tar cJf %s --exclude='.user.ini' -C %s .", tarPath, localDir))
-	if err != nil {
+	if _, err = shell.Exec(fmt.Sprintf("tar cJf '%s' --exclude='.user.ini' -C %s .", tarPath, localDir)); err != nil {
 		return fmt.Errorf("compress failed: %w", err)
 	}
-	defer func() { _ = os.Remove(tarPath) }()
 
-	// 分片上传到远程 /tmp/
+	// 分片上传到远程临时目录
 	s.addLog("  " + s.t.Get("uploading to remote server"))
 	if err = s.remoteUploadFile(conn, tarPath, tarPath); err != nil {
 		return fmt.Errorf("upload failed: %w", err)
 	}
 
-	// 远程解压并清理
+	// 远程解压并清理，解压失败时保留退出码以便感知
 	s.addLog("  " + s.t.Get("extracting on remote server"))
-	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf %s --overwrite -C %s; rm -f %s", remoteDir, tarPath, remoteDir, tarPath)
+	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf '%s' --overwrite -C %s && rm -rf '%s'", remoteDir, tarPath, remoteDir, tmpDir)
 	if err = s.remoteExec(conn, extractCmd); err != nil {
 		return fmt.Errorf("remote extract failed: %w", err)
 	}
 
 	return nil
+}
+
+// migrationTmpDir 在面板目录下创建迁移临时目录，避免大文件撑爆 /tmp（常为内存盘）
+func (s *ToolboxMigrationService) migrationTmpDir() (string, error) {
+	base := filepath.Join(app.Root, "tmp")
+	if err := os.MkdirAll(base, 0755); err != nil {
+		return "", err
+	}
+	return os.MkdirTemp(base, "migration-*")
 }
 
 // remoteAPIRequest 向远程面板发送 API 请求
@@ -985,7 +1084,7 @@ func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigratio
 
 // maskPassword 掩盖命令中的密码
 func (s *ToolboxMigrationService) maskPassword(cmd string) string {
-	for _, prefix := range []string{"MYSQL_PWD='", "PGPASSWORD='"} {
+	for _, prefix := range []string{"MYSQL_PWD='", "PGPASSWORD='", "--password '"} {
 		if idx := strings.Index(cmd, prefix); idx != -1 {
 			start := idx + len(prefix)
 			end := strings.Index(cmd[start:], "'")
