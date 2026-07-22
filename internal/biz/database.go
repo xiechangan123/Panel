@@ -123,8 +123,17 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 			return err
 		}
 		if req.Username != "" {
-			if err = operator.PrivilegesGrant(req.Username, req.Name, req.Host); err != nil {
-				return err
+			// 授权已有用户时按其实际 host 授权，MySQL 8 起 GRANT 不再隐式创建用户
+			hosts := []string{req.Host}
+			if !req.CreateUser {
+				if hosts = uc.mysqlUserHosts(operator, req.Username); len(hosts) == 0 {
+					return errors.New(uc.t.Get("database user %s does not exist", req.Username))
+				}
+			}
+			for _, host := range hosts {
+				if err = operator.PrivilegesGrant(req.Username, req.Name, host); err != nil {
+					return err
+				}
 			}
 		}
 	case DatabaseTypePostgresql:
@@ -173,6 +182,24 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 	uc.log.Info("database created", slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
 
 	return nil
+}
+
+// mysqlUserHosts 查询 MySQL 用户实际存在的 host 列表
+func (uc *DatabaseUsecase) mysqlUserHosts(operator db.Operator, user string) []string {
+	rows, err := operator.Query("SELECT host FROM mysql.user WHERE user = ?", user)
+	if err != nil {
+		return nil
+	}
+	defer func() { _ = rows.Close() }()
+
+	var hosts []string
+	for rows.Next() {
+		var host string
+		if rows.Scan(&host) == nil {
+			hosts = append(hosts, host)
+		}
+	}
+	return hosts
 }
 
 func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name string) error {

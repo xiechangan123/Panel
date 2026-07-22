@@ -98,8 +98,8 @@ func (r *MySQL) DatabaseSize(name string) (int64, error) {
 }
 
 func (r *MySQL) UserCreate(user, password string, host ...string) error {
-	if len(host) == 0 {
-		host = append(host, "%")
+	if len(host) == 0 || host[0] == "" {
+		host = []string{"%"}
 	}
 	_, err := r.Exec(fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
 	r.flushPrivileges()
@@ -107,8 +107,8 @@ func (r *MySQL) UserCreate(user, password string, host ...string) error {
 }
 
 func (r *MySQL) UserDrop(user string, host ...string) error {
-	if len(host) == 0 {
-		host = append(host, "%")
+	if len(host) == 0 || host[0] == "" {
+		host = []string{"%"}
 	}
 	_, err := r.Exec(fmt.Sprintf("DROP USER IF EXISTS '%s'@'%s'", user, host[0]))
 	r.flushPrivileges()
@@ -116,8 +116,8 @@ func (r *MySQL) UserDrop(user string, host ...string) error {
 }
 
 func (r *MySQL) UserPassword(user, password string, host ...string) error {
-	if len(host) == 0 {
-		host = append(host, "%")
+	if len(host) == 0 || host[0] == "" {
+		host = []string{"%"}
 	}
 	_, err := r.Exec(fmt.Sprintf("ALTER USER '%s'@'%s' IDENTIFIED BY '%s'", user, host[0], password))
 	r.flushPrivileges()
@@ -125,8 +125,8 @@ func (r *MySQL) UserPassword(user, password string, host ...string) error {
 }
 
 func (r *MySQL) UserPrivileges(user string, host ...string) ([]string, error) {
-	if len(host) == 0 {
-		host = append(host, "%")
+	if len(host) == 0 || host[0] == "" {
+		host = []string{"%"}
 	}
 
 	rows, err := r.Query(fmt.Sprintf("SHOW GRANTS FOR '%s'@'%s'", user, host[0]))
@@ -162,8 +162,8 @@ func (r *MySQL) UserPrivileges(user string, host ...string) ([]string, error) {
 }
 
 func (r *MySQL) PrivilegesGrant(user, database string, host ...string) error {
-	if len(host) == 0 {
-		host = append(host, "%")
+	if len(host) == 0 || host[0] == "" {
+		host = []string{"%"}
 	}
 	_, err := r.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.* TO '%s'@'%s'", database, user, host[0]))
 	r.flushPrivileges()
@@ -171,8 +171,8 @@ func (r *MySQL) PrivilegesGrant(user, database string, host ...string) error {
 }
 
 func (r *MySQL) PrivilegesRevoke(user, database string, host ...string) error {
-	if len(host) == 0 {
-		host = append(host, "%")
+	if len(host) == 0 || host[0] == "" {
+		host = []string{"%"}
 	}
 	_, err := r.Exec(fmt.Sprintf("REVOKE ALL PRIVILEGES ON %s.* FROM '%s'@'%s'", database, user, host[0]))
 	r.flushPrivileges()
