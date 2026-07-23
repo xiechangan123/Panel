@@ -292,6 +292,19 @@ func (r *backupRepo) GetDefaultPath(typ biz.BackupType) string {
 	return path
 }
 
+// tmpDir 创建备份临时目录，优先使用 TMPDIR（任务队列为取消清理设置的独享目录），
+// 未设置时使用面板目录，避免大文件撑爆 /tmp（常为内存盘）
+func (r *backupRepo) tmpDir() (string, error) {
+	base := os.Getenv("TMPDIR")
+	if base == "" {
+		base = filepath.Join(app.Root, "tmp")
+		if err := os.MkdirAll(base, 0755); err != nil {
+			return "", err
+		}
+	}
+	return os.MkdirTemp(base, "ace-backup-*")
+}
+
 // CutoffLog 切割日志
 // path 保存目录绝对路径
 // target 待切割日志文件绝对路径
@@ -498,7 +511,7 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	tmpDir, err := r.tmpDir()
 	if err != nil {
 		return err
 	}
@@ -548,7 +561,7 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	tmpDir, err := r.tmpDir()
 	if err != nil {
 		return err
 	}
@@ -606,7 +619,7 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	tmpDir, err := r.tmpDir()
 	if err != nil {
 		return err
 	}
@@ -667,7 +680,7 @@ func (r *backupRepo) createClickHouse(name string, storage storage.Storage, targ
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	tmpDir, err := r.tmpDir()
 	if err != nil {
 		return err
 	}
@@ -771,7 +784,7 @@ func (r *backupRepo) createPath(name string, storage storage.Storage, target str
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	tmpDir, err := r.tmpDir()
 	if err != nil {
 		return err
 	}
@@ -924,7 +937,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 	}
 
 	// 解压到临时目录
-	tmpDir, err := os.MkdirTemp("", "acepanel-ch-*")
+	tmpDir, err := r.tmpDir()
 	if err != nil {
 		return err
 	}
@@ -1031,7 +1044,7 @@ func (r *backupRepo) createRedisLike(name string, storage storage.Storage, kind 
 	}
 
 	// 创建用于压缩的临时目录
-	tmpDir, err := os.MkdirTemp("", "ace-backup-*")
+	tmpDir, err := r.tmpDir()
 	if err != nil {
 		return err
 	}
@@ -1085,7 +1098,7 @@ func (r *backupRepo) restoreRedisLike(backup, kind string) error {
 	// 准备 dump.rdb：裸 .rdb 直接用，否则解压取包内的 dump.rdb
 	rdb := backup
 	if !strings.HasSuffix(backup, ".rdb") {
-		tmpDir, err := os.MkdirTemp("", "acepanel-rdb-*")
+		tmpDir, err := r.tmpDir()
 		if err != nil {
 			return err
 		}
@@ -1172,7 +1185,7 @@ func (r *backupRepo) disableAppendonly(confPath string) error {
 
 // autoUnCompressSQL 自动处理压缩文件
 func (r *backupRepo) autoUnCompressSQL(backup string) (string, error) {
-	temp, err := os.MkdirTemp("", "acepanel-sql-*")
+	temp, err := r.tmpDir()
 	if err != nil {
 		return "", err
 	}

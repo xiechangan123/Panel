@@ -13,6 +13,7 @@ import (
 	"github.com/libtnb/utils/str"
 	"github.com/samber/do/v2"
 
+	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -70,7 +71,8 @@ func (s *BackupService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 备份进程被杀后无法自清临时目录，包一层独享 TMPDIR 供取消时精确清理，不误伤并发的其他备份
-	tmpDir := fmt.Sprintf(`${TMPDIR:-/tmp}/ace-backup-task-%s`, str.Random(16))
+	// 放在面板目录下，避免大文件撑爆 /tmp（常为内存盘）
+	tmpDir := filepath.Join(app.Root, "tmp", "ace-backup-task-"+str.Random(16))
 	cmd := fmt.Sprintf(`%sexport TMPDIR="%s"
 mkdir -p "$TMPDIR"
 %s
