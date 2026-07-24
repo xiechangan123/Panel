@@ -152,6 +152,29 @@ func (s *BackupService) Delete(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+func (s *BackupService) Download(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.BackupFile](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	file := filepath.Join(s.backupRepo.GetDefaultPath(biz.BackupType(req.Type)), req.File)
+	info, err := os.Stat(file)
+	if err != nil {
+		Error(w, http.StatusNotFound, "%v", err)
+		return
+	}
+	if info.IsDir() {
+		Error(w, http.StatusForbidden, s.t.Get("can't download a directory"))
+		return
+	}
+
+	render := chix.NewRender(w, r)
+	defer render.Release()
+	render.Download(file, info.Name())
+}
+
 func (s *BackupService) Restore(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.BackupRestore](r)
 	if err != nil {

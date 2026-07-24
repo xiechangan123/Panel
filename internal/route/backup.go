@@ -20,6 +20,8 @@ func BackupRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/backup/{type}", Handler: backup.Create, Summary: "创建备份", Tags: []string{"备份"},
 			Request: request.BackupCreate{}},
 		{Method: http.MethodPost, Path: "/api/backup/{type}/upload", Handler: backup.Upload, Summary: "上传备份", Tags: []string{"备份"}},
+		{Method: http.MethodGet, Path: "/api/backup/{type}/download", Handler: backup.Download, Summary: "下载备份", Tags: []string{"备份"},
+			Request: request.BackupFile{}},
 		{Method: http.MethodDelete, Path: "/api/backup/{type}/delete", Handler: backup.Delete, Summary: "删除备份", Tags: []string{"备份"},
 			Request: request.BackupFile{}},
 		{Method: http.MethodPost, Path: "/api/backup/{type}/restore", Handler: backup.Restore, Summary: "恢复备份", Tags: []string{"备份"},

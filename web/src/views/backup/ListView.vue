@@ -65,10 +65,24 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 260,
+    width: 320,
     hideInExcel: true,
     render(row: any) {
       return h(NFlex, { size: 'small', align: 'center' }, () => [
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'primary',
+            secondary: true,
+            onClick: () => {
+              window.open(
+                `/api/backup/${type.value}/download?file=${encodeURIComponent(row.name)}`,
+              )
+            },
+          },
+          { default: () => $gettext('Download') },
+        ),
         h(
           NButton,
           {
