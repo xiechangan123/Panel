@@ -15,6 +15,7 @@ type Job struct {
 }
 
 var Package = do.Package(
+	do.LazyNamed(Prefix+"alert", NewAlert),
 	do.LazyNamed(Prefix+"monitoring", NewMonitoring),
 	do.LazyNamed(Prefix+"firewall_scan", NewFirewallScan),
 	do.LazyNamed(Prefix+"cert_renew", NewCertRenew),

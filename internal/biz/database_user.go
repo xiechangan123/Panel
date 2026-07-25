@@ -68,10 +68,10 @@ func (r *DatabaseUser) AfterFind(tx *gorm.DB) error {
 
 type DatabaseUserRepo interface {
 	Count() (int64, error)
-	List(page, limit uint, typ string) ([]*DatabaseUser, int64, error)
-	Get(id uint) (*DatabaseUser, error)
-	UpdateRemark(req *request.DatabaseUserUpdateRemark) error
-	Operator(server *DatabaseServer) (db.Operator, error)
+	List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseUser, int64, error)
+	Get(ctx context.Context, id uint) (*DatabaseUser, error)
+	UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error
+	Operator(ctx context.Context, server *DatabaseServer) (db.Operator, error)
 	Upsert(user *DatabaseUser) error
 	Save(user *DatabaseUser) error
 	DeleteByID(id uint) error
@@ -98,21 +98,21 @@ func (uc *DatabaseUserUsecase) Count() (int64, error) {
 	return uc.repo.Count()
 }
 
-func (uc *DatabaseUserUsecase) List(page, limit uint, typ string) ([]*DatabaseUser, int64, error) {
-	return uc.repo.List(page, limit, typ)
+func (uc *DatabaseUserUsecase) List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseUser, int64, error) {
+	return uc.repo.List(ctx, page, limit, typ)
 }
 
-func (uc *DatabaseUserUsecase) Get(id uint) (*DatabaseUser, error) {
-	return uc.repo.Get(id)
+func (uc *DatabaseUserUsecase) Get(ctx context.Context, id uint) (*DatabaseUser, error) {
+	return uc.repo.Get(ctx, id)
 }
 
 func (uc *DatabaseUserUsecase) Create(ctx context.Context, req *request.DatabaseUserCreate) error {
-	server, err := uc.server.Get(req.ServerID)
+	server, err := uc.server.Get(ctx, req.ServerID)
 	if err != nil {
 		return err
 	}
 
-	operator, err := uc.repo.Operator(server)
+	operator, err := uc.repo.Operator(ctx, server)
 	if err != nil {
 		return err
 	}
@@ -151,18 +151,18 @@ func (uc *DatabaseUserUsecase) Create(ctx context.Context, req *request.Database
 	return nil
 }
 
-func (uc *DatabaseUserUsecase) Update(req *request.DatabaseUserUpdate) error {
-	user, err := uc.repo.Get(req.ID)
+func (uc *DatabaseUserUsecase) Update(ctx context.Context, req *request.DatabaseUserUpdate) error {
+	user, err := uc.repo.Get(ctx, req.ID)
 	if err != nil {
 		return err
 	}
 
-	server, err := uc.server.Get(user.ServerID)
+	server, err := uc.server.Get(ctx, user.ServerID)
 	if err != nil {
 		return err
 	}
 
-	operator, err := uc.repo.Operator(server)
+	operator, err := uc.repo.Operator(ctx, server)
 	if err != nil {
 		return err
 	}
@@ -199,22 +199,22 @@ func (uc *DatabaseUserUsecase) Update(req *request.DatabaseUserUpdate) error {
 	return uc.repo.Save(user)
 }
 
-func (uc *DatabaseUserUsecase) UpdateRemark(req *request.DatabaseUserUpdateRemark) error {
-	return uc.repo.UpdateRemark(req)
+func (uc *DatabaseUserUsecase) UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
+	return uc.repo.UpdateRemark(ctx, req)
 }
 
 func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
-	user, err := uc.repo.Get(id)
+	user, err := uc.repo.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	server, err := uc.server.Get(user.ServerID)
+	server, err := uc.server.Get(ctx, user.ServerID)
 	if err != nil {
 		return err
 	}
 
-	operator, err := uc.repo.Operator(server)
+	operator, err := uc.repo.Operator(ctx, server)
 	if err != nil {
 		return err
 	}
@@ -232,13 +232,13 @@ func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (uc *DatabaseUserUsecase) DeleteByNames(serverID uint, names []string) error {
-	server, err := uc.server.Get(serverID)
+func (uc *DatabaseUserUsecase) DeleteByNames(ctx context.Context, serverID uint, names []string) error {
+	server, err := uc.server.Get(ctx, serverID)
 	if err != nil {
 		return err
 	}
 
-	operator, err := uc.repo.Operator(server)
+	operator, err := uc.repo.Operator(ctx, server)
 	if err != nil {
 		return err
 	}

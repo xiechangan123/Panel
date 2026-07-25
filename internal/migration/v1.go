@@ -149,4 +149,13 @@ func init() {
 			return nil
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260725-add-notify-and-alert",
+		Migrate: func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&biz.NotifyChannel{}, &biz.AlertRule{}, &biz.Alert{})
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropTable(&biz.NotifyChannel{}, &biz.AlertRule{}, &biz.Alert{})
+		},
+	})
 }

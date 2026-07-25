@@ -4,8 +4,7 @@ export default {
   // 开关
   setting: (): any => http.Get('/monitor/setting'),
   // 保存设置
-  updateSetting: (enabled: boolean, days: number, interval: number): any =>
-    http.Post('/monitor/setting', { enabled, days, interval }),
+  updateSetting: (data: any): any => http.Post('/monitor/setting', data),
   // 清空监控记录
   clear: (): any => http.Post('/monitor/clear'),
   // 监控记录

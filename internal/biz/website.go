@@ -135,7 +135,7 @@ func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate
 	// 创建数据库
 	name := "local_" + req.DBType
 	if req.DB {
-		server, err := uc.databaseServer.GetByName(name)
+		server, err := uc.databaseServer.GetByName(ctx, name)
 		if err != nil {
 			return nil, errors.New(uc.t.Get("can't find %s database server, please add it first", name))
 		}
@@ -190,12 +190,12 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 
 	_ = uc.repo.RemoveFiles(website.Name, req.Path)
 	if req.DB {
-		if mysql, err := uc.databaseServer.GetByName("local_mysql"); err == nil {
-			_ = uc.databaseUser.DeleteByNames(mysql.ID, []string{website.Name})
+		if mysql, err := uc.databaseServer.GetByName(ctx, "local_mysql"); err == nil {
+			_ = uc.databaseUser.DeleteByNames(ctx, mysql.ID, []string{website.Name})
 			_ = uc.database.Delete(ctx, mysql.ID, website.Name)
 		}
-		if postgres, err := uc.databaseServer.GetByName("local_postgresql"); err == nil {
-			_ = uc.databaseUser.DeleteByNames(postgres.ID, []string{website.Name})
+		if postgres, err := uc.databaseServer.GetByName(ctx, "local_postgresql"); err == nil {
+			_ = uc.databaseUser.DeleteByNames(ctx, postgres.ID, []string{website.Name})
 			_ = uc.database.Delete(ctx, postgres.ID, website.Name)
 		}
 	}

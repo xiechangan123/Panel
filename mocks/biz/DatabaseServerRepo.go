@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/v3/internal/biz"
+
 	db "github.com/acepanel/panel/v3/pkg/db"
 
 	mock "github.com/stretchr/testify/mock"
@@ -24,17 +27,17 @@ func (_m *DatabaseServerRepo) EXPECT() *DatabaseServerRepo_Expecter {
 	return &DatabaseServerRepo_Expecter{mock: &_m.Mock}
 }
 
-// CheckServer provides a mock function with given fields: server
-func (_m *DatabaseServerRepo) CheckServer(server *biz.DatabaseServer) bool {
-	ret := _m.Called(server)
+// CheckServer provides a mock function with given fields: ctx, server
+func (_m *DatabaseServerRepo) CheckServer(ctx context.Context, server *biz.DatabaseServer) bool {
+	ret := _m.Called(ctx, server)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckServer")
 	}
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) bool); ok {
-		r0 = rf(server)
+	if rf, ok := ret.Get(0).(func(context.Context, *biz.DatabaseServer) bool); ok {
+		r0 = rf(ctx, server)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -48,14 +51,15 @@ type DatabaseServerRepo_CheckServer_Call struct {
 }
 
 // CheckServer is a helper method to define mock.On call
+//   - ctx context.Context
 //   - server *biz.DatabaseServer
-func (_e *DatabaseServerRepo_Expecter) CheckServer(server interface{}) *DatabaseServerRepo_CheckServer_Call {
-	return &DatabaseServerRepo_CheckServer_Call{Call: _e.mock.On("CheckServer", server)}
+func (_e *DatabaseServerRepo_Expecter) CheckServer(ctx interface{}, server interface{}) *DatabaseServerRepo_CheckServer_Call {
+	return &DatabaseServerRepo_CheckServer_Call{Call: _e.mock.On("CheckServer", ctx, server)}
 }
 
-func (_c *DatabaseServerRepo_CheckServer_Call) Run(run func(server *biz.DatabaseServer)) *DatabaseServerRepo_CheckServer_Call {
+func (_c *DatabaseServerRepo_CheckServer_Call) Run(run func(ctx context.Context, server *biz.DatabaseServer)) *DatabaseServerRepo_CheckServer_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*biz.DatabaseServer))
+		run(args[0].(context.Context), args[1].(*biz.DatabaseServer))
 	})
 	return _c
 }
@@ -65,7 +69,7 @@ func (_c *DatabaseServerRepo_CheckServer_Call) Return(_a0 bool) *DatabaseServerR
 	return _c
 }
 
-func (_c *DatabaseServerRepo_CheckServer_Call) RunAndReturn(run func(*biz.DatabaseServer) bool) *DatabaseServerRepo_CheckServer_Call {
+func (_c *DatabaseServerRepo_CheckServer_Call) RunAndReturn(run func(context.Context, *biz.DatabaseServer) bool) *DatabaseServerRepo_CheckServer_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -309,9 +313,9 @@ func (_c *DatabaseServerRepo_Delete_Call) RunAndReturn(run func(uint) error) *Da
 	return _c
 }
 
-// Get provides a mock function with given fields: id
-func (_m *DatabaseServerRepo) Get(id uint) (*biz.DatabaseServer, error) {
-	ret := _m.Called(id)
+// Get provides a mock function with given fields: ctx, id
+func (_m *DatabaseServerRepo) Get(ctx context.Context, id uint) (*biz.DatabaseServer, error) {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -319,19 +323,19 @@ func (_m *DatabaseServerRepo) Get(id uint) (*biz.DatabaseServer, error) {
 
 	var r0 *biz.DatabaseServer
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) (*biz.DatabaseServer, error)); ok {
-		return rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*biz.DatabaseServer, error)); ok {
+		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(uint) *biz.DatabaseServer); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *biz.DatabaseServer); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.DatabaseServer)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -345,14 +349,15 @@ type DatabaseServerRepo_Get_Call struct {
 }
 
 // Get is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *DatabaseServerRepo_Expecter) Get(id interface{}) *DatabaseServerRepo_Get_Call {
-	return &DatabaseServerRepo_Get_Call{Call: _e.mock.On("Get", id)}
+func (_e *DatabaseServerRepo_Expecter) Get(ctx interface{}, id interface{}) *DatabaseServerRepo_Get_Call {
+	return &DatabaseServerRepo_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *DatabaseServerRepo_Get_Call) Run(run func(id uint)) *DatabaseServerRepo_Get_Call {
+func (_c *DatabaseServerRepo_Get_Call) Run(run func(ctx context.Context, id uint)) *DatabaseServerRepo_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -362,14 +367,14 @@ func (_c *DatabaseServerRepo_Get_Call) Return(_a0 *biz.DatabaseServer, _a1 error
 	return _c
 }
 
-func (_c *DatabaseServerRepo_Get_Call) RunAndReturn(run func(uint) (*biz.DatabaseServer, error)) *DatabaseServerRepo_Get_Call {
+func (_c *DatabaseServerRepo_Get_Call) RunAndReturn(run func(context.Context, uint) (*biz.DatabaseServer, error)) *DatabaseServerRepo_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetByName provides a mock function with given fields: name
-func (_m *DatabaseServerRepo) GetByName(name string) (*biz.DatabaseServer, error) {
-	ret := _m.Called(name)
+// GetByName provides a mock function with given fields: ctx, name
+func (_m *DatabaseServerRepo) GetByName(ctx context.Context, name string) (*biz.DatabaseServer, error) {
+	ret := _m.Called(ctx, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByName")
@@ -377,19 +382,19 @@ func (_m *DatabaseServerRepo) GetByName(name string) (*biz.DatabaseServer, error
 
 	var r0 *biz.DatabaseServer
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*biz.DatabaseServer, error)); ok {
-		return rf(name)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*biz.DatabaseServer, error)); ok {
+		return rf(ctx, name)
 	}
-	if rf, ok := ret.Get(0).(func(string) *biz.DatabaseServer); ok {
-		r0 = rf(name)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *biz.DatabaseServer); ok {
+		r0 = rf(ctx, name)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.DatabaseServer)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(name)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -403,14 +408,15 @@ type DatabaseServerRepo_GetByName_Call struct {
 }
 
 // GetByName is a helper method to define mock.On call
+//   - ctx context.Context
 //   - name string
-func (_e *DatabaseServerRepo_Expecter) GetByName(name interface{}) *DatabaseServerRepo_GetByName_Call {
-	return &DatabaseServerRepo_GetByName_Call{Call: _e.mock.On("GetByName", name)}
+func (_e *DatabaseServerRepo_Expecter) GetByName(ctx interface{}, name interface{}) *DatabaseServerRepo_GetByName_Call {
+	return &DatabaseServerRepo_GetByName_Call{Call: _e.mock.On("GetByName", ctx, name)}
 }
 
-func (_c *DatabaseServerRepo_GetByName_Call) Run(run func(name string)) *DatabaseServerRepo_GetByName_Call {
+func (_c *DatabaseServerRepo_GetByName_Call) Run(run func(ctx context.Context, name string)) *DatabaseServerRepo_GetByName_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -420,14 +426,14 @@ func (_c *DatabaseServerRepo_GetByName_Call) Return(_a0 *biz.DatabaseServer, _a1
 	return _c
 }
 
-func (_c *DatabaseServerRepo_GetByName_Call) RunAndReturn(run func(string) (*biz.DatabaseServer, error)) *DatabaseServerRepo_GetByName_Call {
+func (_c *DatabaseServerRepo_GetByName_Call) RunAndReturn(run func(context.Context, string) (*biz.DatabaseServer, error)) *DatabaseServerRepo_GetByName_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with given fields: page, limit, typ
-func (_m *DatabaseServerRepo) List(page uint, limit uint, typ string) ([]*biz.DatabaseServer, int64, error) {
-	ret := _m.Called(page, limit, typ)
+// List provides a mock function with given fields: ctx, page, limit, typ
+func (_m *DatabaseServerRepo) List(ctx context.Context, page uint, limit uint, typ string) ([]*biz.DatabaseServer, int64, error) {
+	ret := _m.Called(ctx, page, limit, typ)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -436,25 +442,25 @@ func (_m *DatabaseServerRepo) List(page uint, limit uint, typ string) ([]*biz.Da
 	var r0 []*biz.DatabaseServer
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(uint, uint, string) ([]*biz.DatabaseServer, int64, error)); ok {
-		return rf(page, limit, typ)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint, string) ([]*biz.DatabaseServer, int64, error)); ok {
+		return rf(ctx, page, limit, typ)
 	}
-	if rf, ok := ret.Get(0).(func(uint, uint, string) []*biz.DatabaseServer); ok {
-		r0 = rf(page, limit, typ)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint, string) []*biz.DatabaseServer); ok {
+		r0 = rf(ctx, page, limit, typ)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*biz.DatabaseServer)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint, uint, string) int64); ok {
-		r1 = rf(page, limit, typ)
+	if rf, ok := ret.Get(1).(func(context.Context, uint, uint, string) int64); ok {
+		r1 = rf(ctx, page, limit, typ)
 	} else {
 		r1 = ret.Get(1).(int64)
 	}
 
-	if rf, ok := ret.Get(2).(func(uint, uint, string) error); ok {
-		r2 = rf(page, limit, typ)
+	if rf, ok := ret.Get(2).(func(context.Context, uint, uint, string) error); ok {
+		r2 = rf(ctx, page, limit, typ)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -468,16 +474,17 @@ type DatabaseServerRepo_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
+//   - ctx context.Context
 //   - page uint
 //   - limit uint
 //   - typ string
-func (_e *DatabaseServerRepo_Expecter) List(page interface{}, limit interface{}, typ interface{}) *DatabaseServerRepo_List_Call {
-	return &DatabaseServerRepo_List_Call{Call: _e.mock.On("List", page, limit, typ)}
+func (_e *DatabaseServerRepo_Expecter) List(ctx interface{}, page interface{}, limit interface{}, typ interface{}) *DatabaseServerRepo_List_Call {
+	return &DatabaseServerRepo_List_Call{Call: _e.mock.On("List", ctx, page, limit, typ)}
 }
 
-func (_c *DatabaseServerRepo_List_Call) Run(run func(page uint, limit uint, typ string)) *DatabaseServerRepo_List_Call {
+func (_c *DatabaseServerRepo_List_Call) Run(run func(ctx context.Context, page uint, limit uint, typ string)) *DatabaseServerRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(uint), args[2].(string))
+		run(args[0].(context.Context), args[1].(uint), args[2].(uint), args[3].(string))
 	})
 	return _c
 }
@@ -487,7 +494,7 @@ func (_c *DatabaseServerRepo_List_Call) Return(_a0 []*biz.DatabaseServer, _a1 in
 	return _c
 }
 
-func (_c *DatabaseServerRepo_List_Call) RunAndReturn(run func(uint, uint, string) ([]*biz.DatabaseServer, int64, error)) *DatabaseServerRepo_List_Call {
+func (_c *DatabaseServerRepo_List_Call) RunAndReturn(run func(context.Context, uint, uint, string) ([]*biz.DatabaseServer, int64, error)) *DatabaseServerRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -550,9 +557,9 @@ func (_c *DatabaseServerRepo_ListUsers_Call) RunAndReturn(run func(uint) ([]*biz
 	return _c
 }
 
-// Operator provides a mock function with given fields: server
-func (_m *DatabaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
-	ret := _m.Called(server)
+// Operator provides a mock function with given fields: ctx, server
+func (_m *DatabaseServerRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
+	ret := _m.Called(ctx, server)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Operator")
@@ -560,19 +567,19 @@ func (_m *DatabaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator,
 
 	var r0 db.Operator
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) (db.Operator, error)); ok {
-		return rf(server)
+	if rf, ok := ret.Get(0).(func(context.Context, *biz.DatabaseServer) (db.Operator, error)); ok {
+		return rf(ctx, server)
 	}
-	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) db.Operator); ok {
-		r0 = rf(server)
+	if rf, ok := ret.Get(0).(func(context.Context, *biz.DatabaseServer) db.Operator); ok {
+		r0 = rf(ctx, server)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(db.Operator)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*biz.DatabaseServer) error); ok {
-		r1 = rf(server)
+	if rf, ok := ret.Get(1).(func(context.Context, *biz.DatabaseServer) error); ok {
+		r1 = rf(ctx, server)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -586,14 +593,15 @@ type DatabaseServerRepo_Operator_Call struct {
 }
 
 // Operator is a helper method to define mock.On call
+//   - ctx context.Context
 //   - server *biz.DatabaseServer
-func (_e *DatabaseServerRepo_Expecter) Operator(server interface{}) *DatabaseServerRepo_Operator_Call {
-	return &DatabaseServerRepo_Operator_Call{Call: _e.mock.On("Operator", server)}
+func (_e *DatabaseServerRepo_Expecter) Operator(ctx interface{}, server interface{}) *DatabaseServerRepo_Operator_Call {
+	return &DatabaseServerRepo_Operator_Call{Call: _e.mock.On("Operator", ctx, server)}
 }
 
-func (_c *DatabaseServerRepo_Operator_Call) Run(run func(server *biz.DatabaseServer)) *DatabaseServerRepo_Operator_Call {
+func (_c *DatabaseServerRepo_Operator_Call) Run(run func(ctx context.Context, server *biz.DatabaseServer)) *DatabaseServerRepo_Operator_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*biz.DatabaseServer))
+		run(args[0].(context.Context), args[1].(*biz.DatabaseServer))
 	})
 	return _c
 }
@@ -603,7 +611,7 @@ func (_c *DatabaseServerRepo_Operator_Call) Return(_a0 db.Operator, _a1 error) *
 	return _c
 }
 
-func (_c *DatabaseServerRepo_Operator_Call) RunAndReturn(run func(*biz.DatabaseServer) (db.Operator, error)) *DatabaseServerRepo_Operator_Call {
+func (_c *DatabaseServerRepo_Operator_Call) RunAndReturn(run func(context.Context, *biz.DatabaseServer) (db.Operator, error)) *DatabaseServerRepo_Operator_Call {
 	_c.Call.Return(run)
 	return _c
 }

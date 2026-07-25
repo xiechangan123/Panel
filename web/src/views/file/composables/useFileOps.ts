@@ -21,9 +21,7 @@ export function useFileOps() {
     deleted.forEach((p) => editorStore.closePath(p))
     if (fileStore.activeTab) {
       const deletedSet = new Set(deleted)
-      fileStore.activeTab.selected = fileStore.activeTab.selected.filter(
-        (p) => !deletedSet.has(p),
-      )
+      fileStore.activeTab.selected = fileStore.activeTab.selected.filter((p) => !deletedSet.has(p))
     }
 
     window.$bus.emit('file:refresh')

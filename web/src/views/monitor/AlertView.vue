@@ -1,0 +1,267 @@
+<script setup lang="ts">
+import { NButton, NFlex, NPopconfirm, NTag } from 'naive-ui'
+import { useGettext } from 'vue3-gettext'
+
+import alert from '@/api/panel/alert'
+import { useConfirm } from '@/components/system/composables/useConfirm'
+import { formatDateTime } from '@/utils'
+import AlertRuleModal from '@/views/monitor/AlertRuleModal.vue'
+import { useAlertMetrics } from '@/views/monitor/metrics'
+
+const { $gettext } = useGettext()
+const { confirmAction } = useConfirm()
+const { metricOf, conditionText } = useAlertMetrics()
+
+const currentTab = ref('rule')
+
+// 规则
+const ruleModalShow = ref(false)
+const editingRule = ref<any>(null)
+
+const {
+  loading: rulesLoading,
+  data: rules,
+  page: rulePage,
+  total: ruleTotal,
+  pageSize: rulePageSize,
+  refresh: refreshRules,
+} = usePagination((page, pageSize) => alert.rules(page, pageSize), {
+  initialData: { total: 0, items: [] },
+  initialPageSize: 20,
+  total: (res: any) => res.total,
+  data: (res: any) => res.items,
+})
+
+const handleAddRule = () => {
+  editingRule.value = null
+  ruleModalShow.value = true
+}
+
+const handleEditRule = (row: any) => {
+  editingRule.value = row
+  ruleModalShow.value = true
+}
+
+const handleDeleteRule = (row: any) => {
+  useRequest(alert.deleteRule(row.id)).onSuccess(() => {
+    window.$message.success($gettext('Deleted successfully'))
+    refreshRules()
+  })
+}
+
+const ruleColumns: any = [
+  { title: $gettext('Name'), key: 'name', width: 160, ellipsis: { tooltip: true } },
+  {
+    title: $gettext('Metric'),
+    key: 'type',
+    minWidth: 180,
+    render(row: any) {
+      const label = metricOf(row.type).label
+      return row.target ? `${label} (${row.target})` : label
+    },
+  },
+  {
+    title: $gettext('Condition'),
+    key: 'threshold',
+    minWidth: 180,
+    render: (row: any) => conditionText(row),
+  },
+  {
+    title: $gettext('Trigger After'),
+    key: 'duration',
+    width: 110,
+    render: (row: any) => `${row.duration} ${$gettext('times')}`,
+  },
+  {
+    title: $gettext('Silence Period'),
+    key: 'silence',
+    width: 110,
+    render: (row: any) => `${row.silence} ${$gettext('minutes')}`,
+  },
+  {
+    title: $gettext('Notify Channels'),
+    key: 'channels',
+    width: 110,
+    render(row: any) {
+      const count = row.channels?.length || 0
+      return h(NTag, { size: 'small', type: count > 0 ? 'info' : 'default' }, () =>
+        count > 0 ? `${count}` : $gettext('Record only'),
+      )
+    },
+  },
+  {
+    title: $gettext('Status'),
+    key: 'enabled',
+    width: 90,
+    render(row: any) {
+      return h(NTag, { size: 'small', type: row.enabled ? 'success' : 'default' }, () =>
+        row.enabled ? $gettext('Enabled') : $gettext('Disabled'),
+      )
+    },
+  },
+  {
+    title: $gettext('Actions'),
+    key: 'actions',
+    width: 140,
+    align: 'center',
+    render(row: any) {
+      return h(NFlex, { justify: 'center', size: 8 }, () => [
+        h(NButton, { size: 'small', secondary: true, onClick: () => handleEditRule(row) }, () =>
+          $gettext('Edit'),
+        ),
+        h(
+          NPopconfirm,
+          { onPositiveClick: () => handleDeleteRule(row) },
+          {
+            trigger: () =>
+              h(NButton, { size: 'small', type: 'error', secondary: true }, () =>
+                $gettext('Delete'),
+              ),
+            default: () => $gettext('Are you sure to delete this rule?'),
+          },
+        ),
+      ])
+    },
+  },
+]
+
+// 记录
+const {
+  loading: recordsLoading,
+  data: records,
+  page: recordPage,
+  total: recordTotal,
+  pageSize: recordPageSize,
+  refresh: refreshRecords,
+} = usePagination((page, pageSize) => alert.records(page, pageSize), {
+  initialData: { total: 0, items: [] },
+  initialPageSize: 20,
+  total: (res: any) => res.total,
+  data: (res: any) => res.items,
+})
+
+const recordColumns: any = [
+  {
+    title: $gettext('Time'),
+    key: 'created_at',
+    width: 180,
+    render: (row: any) => formatDateTime(row.created_at),
+  },
+  { title: $gettext('Rule'), key: 'rule_name', width: 160, ellipsis: { tooltip: true } },
+  {
+    title: $gettext('Metric'),
+    key: 'type',
+    width: 180,
+    render(row: any) {
+      const label = metricOf(row.type).label
+      return row.target ? `${label} (${row.target})` : label
+    },
+  },
+  { title: $gettext('Detail'), key: 'message', ellipsis: { tooltip: true } },
+  {
+    title: $gettext('Notified'),
+    key: 'notified',
+    width: 100,
+    render(row: any) {
+      return h(NTag, { size: 'small', type: row.notified ? 'success' : 'default' }, () =>
+        row.notified ? $gettext('Sent') : $gettext('Not sent'),
+      )
+    },
+  },
+]
+
+const handleClearRecords = async () => {
+  const ok = await confirmAction({
+    title: $gettext('Clear Records'),
+    content: $gettext('Are you sure to clear all alert records?'),
+  })
+  if (!ok) return
+  useRequest(alert.clearRecords()).onSuccess(() => {
+    window.$message.success($gettext('Cleared successfully'))
+    refreshRecords()
+  })
+}
+</script>
+
+<template>
+  <n-tabs v-model:value="currentTab" type="line" animated>
+    <n-tab-pane name="rule" :tab="$gettext('Alert Rules')">
+      <n-flex vertical :size="16">
+        <n-flex justify="space-between" align="center">
+          <n-alert type="info" :bordered="false" class="flex-1">
+            {{
+              $gettext(
+                'Rules are checked every minute and notifications are sent through the selected channels.',
+              )
+            }}
+          </n-alert>
+          <n-button type="primary" @click="handleAddRule">
+            <template #icon>
+              <i-mdi-plus />
+            </template>
+            {{ $gettext('Add Rule') }}
+          </n-button>
+        </n-flex>
+        <n-data-table
+          remote
+          striped
+          :scroll-x="1200"
+          :loading="rulesLoading"
+          :columns="ruleColumns"
+          :data="rules"
+          :row-key="(row: any) => row.id"
+          :pagination="{
+            page: rulePage,
+            pageSize: rulePageSize,
+            itemCount: ruleTotal,
+            showQuickJumper: true,
+            showSizePicker: true,
+            pageSizes: [20, 50, 100, 200],
+            onUpdatePage: (p: number) => (rulePage = p),
+            onUpdatePageSize: (ps: number) => (rulePageSize = ps),
+          }"
+        />
+      </n-flex>
+    </n-tab-pane>
+
+    <n-tab-pane name="record" :tab="$gettext('Alert Records')">
+      <n-flex vertical :size="16">
+        <n-flex>
+          <n-button type="error" secondary @click="handleClearRecords">
+            <template #icon>
+              <i-mdi-delete-outline />
+            </template>
+            {{ $gettext('Clear Records') }}
+          </n-button>
+          <n-button secondary @click="() => refreshRecords()">
+            <template #icon>
+              <i-mdi-refresh />
+            </template>
+            {{ $gettext('Refresh') }}
+          </n-button>
+        </n-flex>
+        <n-data-table
+          remote
+          striped
+          :scroll-x="1000"
+          :loading="recordsLoading"
+          :columns="recordColumns"
+          :data="records"
+          :row-key="(row: any) => row.id"
+          :pagination="{
+            page: recordPage,
+            pageSize: recordPageSize,
+            itemCount: recordTotal,
+            showQuickJumper: true,
+            showSizePicker: true,
+            pageSizes: [20, 50, 100, 200],
+            onUpdatePage: (p: number) => (recordPage = p),
+            onUpdatePageSize: (ps: number) => (recordPageSize = ps),
+          }"
+        />
+      </n-flex>
+    </n-tab-pane>
+  </n-tabs>
+
+  <alert-rule-modal v-model:show="ruleModalShow" :rule="editingRule" @saved="refreshRules" />
+</template>

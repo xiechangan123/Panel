@@ -31,6 +31,7 @@ type UserPasskeyService struct {
 	session         *sessions.Manager
 	userPasskeyRepo *biz.UserPasskeyUsecase
 	userRepo        *biz.UserUsecase
+	notifyRepo      *biz.NotifyUsecase
 }
 
 func NewUserPasskeyService(i do.Injector) (*UserPasskeyService, error) {
@@ -42,6 +43,7 @@ func NewUserPasskeyService(i do.Injector) (*UserPasskeyService, error) {
 		session:         do.MustInvoke[*sessions.Manager](i),
 		userPasskeyRepo: do.MustInvoke[*biz.UserPasskeyUsecase](i),
 		userRepo:        do.MustInvoke[*biz.UserUsecase](i),
+		notifyRepo:      do.MustInvoke[*biz.NotifyUsecase](i),
 	}, nil
 }
 
@@ -295,6 +297,14 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 	// 通行密钥登录已经过设备验证，无需 safe_login
 	sess.Forget("safe_login")
 	sess.Forget("safe_client")
+
+	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
+		{s.t.Get("Username"), wUser.Inner.Username},
+		{s.t.Get("Method"), s.t.Get("passkey")},
+		{s.t.Get("IP"), clientIP(r, s.conf.HTTP.IPHeader)},
+		{s.t.Get("User Agent"), r.UserAgent()},
+		{s.t.Get("Time"), time.Now().Format(time.DateTime)},
+	}))
 
 	Success(w, nil)
 }

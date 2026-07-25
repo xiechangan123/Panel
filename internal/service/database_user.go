@@ -27,7 +27,7 @@ func (s *DatabaseUserService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users, total, err := s.databaseUserRepo.List(req.Page, req.Limit, req.Type)
+	users, total, err := s.databaseUserRepo.List(r.Context(), req.Page, req.Limit, req.Type)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -61,7 +61,7 @@ func (s *DatabaseUserService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.databaseUserRepo.Get(req.ID)
+	user, err := s.databaseUserRepo.Get(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -77,7 +77,7 @@ func (s *DatabaseUserService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.databaseUserRepo.Update(req); err != nil {
+	if err = s.databaseUserRepo.Update(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -92,7 +92,7 @@ func (s *DatabaseUserService) UpdateRemark(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err = s.databaseUserRepo.UpdateRemark(req); err != nil {
+	if err = s.databaseUserRepo.UpdateRemark(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

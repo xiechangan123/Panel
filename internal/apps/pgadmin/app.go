@@ -1,6 +1,7 @@
 package pgadmin
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -247,8 +248,8 @@ func (s *App) dumpExistingServers(email string) map[string]struct{} {
 
 // syncServers 将面板中全部 PostgreSQL 服务器合并注册到 pgAdmin,凭据写入 pgpass 实现免密
 // 仅追加 pgAdmin 中缺失的服务器,不影响用户在 pgAdmin 中手动添加的内容
-func (s *App) syncServers(email string) error {
-	servers, _, err := s.databaseServerRepo.List(1, 10000, string(biz.DatabaseTypePostgresql))
+func (s *App) syncServers(ctx context.Context, email string) error {
+	servers, _, err := s.databaseServerRepo.List(ctx, 1, 10000, string(biz.DatabaseTypePostgresql))
 	if err != nil {
 		return err
 	}
@@ -358,7 +359,7 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.syncServers(email); err != nil {
+	if err = s.syncServers(r.Context(), email); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to sync servers to pgAdmin: %v", err))
 		return
 	}

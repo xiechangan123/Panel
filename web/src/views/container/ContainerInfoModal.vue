@@ -27,7 +27,9 @@ const ports = computed(() => {
       continue
     }
     for (const binding of bindings as any[]) {
-      result.push(`${binding.HostIp ? binding.HostIp + ':' : ''}${binding.HostPort}->${containerPort}`)
+      result.push(
+        `${binding.HostIp ? binding.HostIp + ':' : ''}${binding.HostPort}->${containerPort}`,
+      )
     }
   }
   return result
@@ -83,7 +85,9 @@ watch(show, (val) => {
 <template>
   <n-modal
     v-model:show="show"
-    :title="$gettext('Container Info') + (info ? ' - ' + String(info.Name || '').replace(/^\//, '') : '')"
+    :title="
+      $gettext('Container Info') + (info ? ' - ' + String(info.Name || '').replace(/^\//, '') : '')
+    "
     preset="card"
     :style="{ width: '70vw', maxWidth: '1080px' }"
     size="huge"
@@ -106,7 +110,10 @@ watch(show, (val) => {
                 {{ info.Config?.Image || '-' }}
               </n-descriptions-item>
               <n-descriptions-item :label="$gettext('Status')">
-                <n-tag :type="info.State?.Status === 'running' ? 'success' : 'default'" size="small">
+                <n-tag
+                  :type="info.State?.Status === 'running' ? 'success' : 'default'"
+                  size="small"
+                >
                   {{ info.State?.Status || '-' }}
                 </n-tag>
               </n-descriptions-item>
@@ -219,8 +226,7 @@ watch(show, (val) => {
               white-space: pre-wrap;
               word-break: break-all;
             "
-            >{{ rawJson }}</pre
-          >
+            >{{ rawJson }}</pre>
         </n-tab-pane>
       </n-tabs>
     </n-spin>

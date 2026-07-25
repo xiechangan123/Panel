@@ -6,8 +6,10 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
@@ -27,6 +29,8 @@ type CertRenew struct {
 	settingRepo     *biz.SettingUsecase
 	certRepo        *biz.CertUsecase
 	certAccountRepo *biz.CertAccountUsecase
+	notifyRepo      *biz.NotifyUsecase
+	t               *gotext.Locale
 }
 
 // NewCertRenew 构造证书续签任务
@@ -40,6 +44,8 @@ func NewCertRenew(i do.Injector) (Job, error) {
 			settingRepo:     do.MustInvoke[*biz.SettingUsecase](i),
 			certRepo:        do.MustInvoke[*biz.CertUsecase](i),
 			certAccountRepo: do.MustInvoke[*biz.CertAccountUsecase](i),
+			notifyRepo:      do.MustInvoke[*biz.NotifyUsecase](i),
+			t:               do.MustInvoke[*gotext.Locale](i),
 		},
 	}, nil
 }
@@ -75,6 +81,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 		if time.Now().After(cert.RenewalInfo.SelectedTime) {
 			if _, err := r.certRepo.Renew(cert.ID); err != nil {
 				r.log.Warn("failed to renew certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+				r.notifyFailed(strings.Join(cert.Domains, ", "), err)
 			}
 		}
 	}
@@ -96,6 +103,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 		newCrt, newKey, err := pkgcert.GenerateSelfSigned(tools.CollectLocalNames())
 		if err != nil {
 			r.log.Warn("failed to generate self-signed certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
 		if err = r.settingRepo.UpdateCert(&request.SettingCert{
@@ -103,6 +111,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 			Key:  string(newKey),
 		}); err != nil {
 			r.log.Warn("failed to update panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
 		r.log.Info("panel self-signed certificate renewed", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0))
@@ -143,11 +152,13 @@ func (r *CertRenew) Run(_ context.Context) error {
 		account, err := r.certAccountRepo.GetDefault(user.ID)
 		if err != nil {
 			r.log.Warn("failed to get panel ACME account", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
 		crt, key, err := r.certRepo.ObtainPanel(account, ips)
 		if err != nil {
 			r.log.Warn("failed to obtain panel certificate via ACME", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
 
@@ -156,6 +167,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 			Key:  string(key),
 		}); err != nil {
 			r.log.Warn("failed to update panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
+			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
 
@@ -163,4 +175,13 @@ func (r *CertRenew) Run(_ context.Context) error {
 	}
 
 	return nil
+}
+
+// notifyFailed 上报证书续签失败
+func (r *CertRenew) notifyFailed(target string, err error) {
+	r.notifyRepo.SendEvent(biz.NotifyEventCertRenew, r.t.Get("[AcePanel] Certificate Renewal Failed"), biz.NotifyBody(r.t.Get("certificate renewal failed"), [][2]string{
+		{r.t.Get("Certificate"), target},
+		{r.t.Get("Error"), err.Error()},
+		{r.t.Get("Time"), time.Now().Format(time.DateTime)},
+	}))
 }

@@ -2,6 +2,7 @@ package biz
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
@@ -64,20 +66,25 @@ type TamperRepo interface {
 type TamperUsecase struct {
 	repo    TamperRepo
 	setting *SettingUsecase
+	notify  *NotifyUsecase
 	log     *slog.Logger
+	t       *gotext.Locale
 
-	mu     sync.Mutex
-	mgr    *tamper.Manager
-	buf    []*TamperLog
-	bufMu  sync.Mutex
-	drainC chan struct{}
+	mu       sync.Mutex
+	mgr      *tamper.Manager
+	buf      []*TamperLog
+	bufMu    sync.Mutex
+	notifyAt time.Time
+	drainC   chan struct{}
 }
 
 func NewTamperUsecase(i do.Injector) (*TamperUsecase, error) {
 	return &TamperUsecase{
 		repo:    do.MustInvoke[TamperRepo](i),
 		setting: do.MustInvoke[*SettingUsecase](i),
+		notify:  do.MustInvoke[*NotifyUsecase](i),
 		log:     do.MustInvoke[*slog.Logger](i),
+		t:       do.MustInvoke[*gotext.Locale](i),
 	}, nil
 }
 
@@ -277,7 +284,30 @@ func (uc *TamperUsecase) FlushLogs() {
 
 	if err := uc.repo.AddLogs(logs); err != nil {
 		uc.log.Warn("failed to persist tamper logs", slog.Any("err", err))
+		return
 	}
+
+	uc.notifyBlocked(logs)
+}
+
+// notifyBlocked 汇总上报拦截事件，5 分钟内不重复通知
+func (uc *TamperUsecase) notifyBlocked(logs []*TamperLog) {
+	uc.bufMu.Lock()
+	if time.Since(uc.notifyAt) < 5*time.Minute {
+		uc.bufMu.Unlock()
+		return
+	}
+	uc.notifyAt = time.Now()
+	uc.bufMu.Unlock()
+
+	latest := logs[len(logs)-1]
+	uc.notify.SendEvent(NotifyEventTamper, uc.t.Get("[AcePanel] Tamper Protection Alert"), NotifyBody(uc.t.Get("tamper protection blocked file operations"), [][2]string{
+		{uc.t.Get("Count"), cast.ToString(len(logs))},
+		{uc.t.Get("Path"), latest.Path},
+		{uc.t.Get("Operation"), latest.Op},
+		{uc.t.Get("Process"), fmt.Sprintf("%s (%d)", latest.Comm, latest.PID)},
+		{uc.t.Get("Time"), latest.CreatedAt.Format(time.DateTime)},
+	}))
 }
 
 // CleanupLogs 清理过期日志

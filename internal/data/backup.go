@@ -571,7 +571,7 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
+	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, "/tmp/mysql.sock", "unix")
 	if err != nil {
 		return err
 	}
@@ -629,7 +629,7 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	if err != nil {
 		return err
 	}
-	postgres, err := db.NewPostgres("postgres", postgresPassword, "127.0.0.1", 5432)
+	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", 5432)
 	if err != nil {
 		return err
 	}
@@ -937,7 +937,7 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
+	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, "/tmp/mysql.sock", "unix")
 	if err != nil {
 		return err
 	}
@@ -980,7 +980,7 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	postgres, err := db.NewPostgres("postgres", postgresPassword, "127.0.0.1", 5432)
+	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", 5432)
 	if err != nil {
 		return err
 	}

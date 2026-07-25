@@ -223,7 +223,7 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldRootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-	mysql, err := db.NewMySQL("root", oldRootPassword, s.getSock(), "unix")
+	mysql, err := db.NewMySQL(r.Context(), "root", oldRootPassword, s.getSock(), "unix")
 	if err != nil {
 		// 尝试安全模式直接改密
 		if err = db.MySQLResetRootPassword(req.Password); err != nil {

@@ -3,6 +3,10 @@ package biz
 import (
 	"context"
 	"log/slog"
+	"time"
+
+	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -37,12 +41,19 @@ type BackupRepo interface {
 }
 
 type BackupUsecase struct {
-	repo BackupRepo
-	log  *slog.Logger
+	repo   BackupRepo
+	log    *slog.Logger
+	notify *NotifyUsecase
+	t      *gotext.Locale
 }
 
-func NewBackupUsecase(repo BackupRepo, log *slog.Logger) *BackupUsecase {
-	return &BackupUsecase{repo: repo, log: log}
+func NewBackupUsecase(i do.Injector) (*BackupUsecase, error) {
+	return &BackupUsecase{
+		repo:   do.MustInvoke[BackupRepo](i),
+		log:    do.MustInvoke[*slog.Logger](i),
+		notify: do.MustInvoke[*NotifyUsecase](i),
+		t:      do.MustInvoke[*gotext.Locale](i),
+	}, nil
 }
 
 func (uc *BackupUsecase) List(typ BackupType) ([]*types.BackupFile, error) {
@@ -50,8 +61,22 @@ func (uc *BackupUsecase) List(typ BackupType) ([]*types.BackupFile, error) {
 }
 
 func (uc *BackupUsecase) Create(ctx context.Context, typ BackupType, target string, account uint) error {
-	// 审计留 repo：需区分预检早返回（不记）与备份执行失败（记 Warn），无法在此上移
-	return uc.repo.Create(ctx, typ, target, account)
+	err := uc.repo.Create(ctx, typ, target, account)
+	if err == nil {
+		return nil
+	}
+
+	// 定时备份由 CLI 执行，命令返回即退出，异步通知来不及发出，必须同步发送
+	if sendErr := uc.notify.SendEventSync(ctx, NotifyEventBackup, uc.t.Get("[AcePanel] Backup Failed"), NotifyBody(uc.t.Get("backup task failed"), [][2]string{
+		{uc.t.Get("Type"), string(typ)},
+		{uc.t.Get("Target"), target},
+		{uc.t.Get("Error"), err.Error()},
+		{uc.t.Get("Time"), time.Now().Format(time.DateTime)},
+	})); sendErr != nil {
+		uc.log.Warn("failed to send backup failure notification", slog.Any("err", sendErr))
+	}
+
+	return err
 }
 
 func (uc *BackupUsecase) CreatePanel() error {

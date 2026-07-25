@@ -165,7 +165,9 @@ const handlePrune = () => {
 const handleBulkDelete = async () => {
   // 排除受保护的 acepanel-network，避免触发后端拦截
   const protectedIds = new Set(
-    data.value?.filter((item: any) => item.name === 'acepanel-network').map((item: any) => item.id) ?? [],
+    data.value
+      ?.filter((item: any) => item.name === 'acepanel-network')
+      .map((item: any) => item.id) ?? [],
   )
   const ids = selectedRowKeys.value.filter((id: any) => !protectedIds.has(id))
   const promises = ids.map((id: any) => container.networkRemove(id))

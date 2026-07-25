@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useGettext } from 'vue3-gettext'
 
+import CustomForm from '@/views/app/CustomForm.vue'
 import type { App } from '@/views/app/types'
 
 import app from '../../api/panel/app'
-import CustomForm from '@/views/app/CustomForm.vue'
 
 const { $gettext } = useGettext()
 

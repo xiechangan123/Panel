@@ -3,7 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"net/netip"
 	"slices"
 	"strings"
 
@@ -12,6 +14,25 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/request"
 )
+
+// clientIP 提取客户端 IP，优先取配置的真实 IP 头
+// 代理头通常给的是裸 IP，只有 RemoteAddr 带端口，两种形态都要能解析
+func clientIP(r *http.Request, ipHeader string) string {
+	ip := r.RemoteAddr
+	if ipHeader != "" && r.Header.Get(ipHeader) != "" {
+		ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
+	}
+	ip = strings.TrimSpace(ip)
+
+	if addr, err := netip.ParseAddr(ip); err == nil {
+		return addr.String()
+	}
+	if host, _, err := net.SplitHostPort(ip); err == nil {
+		return host
+	}
+
+	return r.RemoteAddr
+}
 
 // SuccessResponse 通用成功响应
 type SuccessResponse struct {

@@ -199,7 +199,7 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 	}
 
 	// 数据库列表
-	databases, _, err := s.databaseRepo.List(1, 10000, "")
+	databases, _, err := s.databaseRepo.List(r.Context(), 1, 10000, "")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get database list: %v", err))
 		return
@@ -213,7 +213,7 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 	}
 
 	// 数据库用户列表
-	databaseUsers, _, err := s.databaseUserRepo.List(1, 10000, "")
+	databaseUsers, _, err := s.databaseUserRepo.List(r.Context(), 1, 10000, "")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get database user list: %v", err))
 		return
@@ -485,6 +485,8 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 // migrateDatabase 迁移单个数据库
 func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigrationConnection, db *request.ToolboxMigrationDatabase) {
+	// 迁移脱离请求生命周期，在独立 goroutine 中运行
+	ctx := context.Background()
 	displayName := fmt.Sprintf("%s (%s)", db.Name, db.Type)
 	result := types.MigrationItemResult{
 		Type:   "database",
@@ -497,7 +499,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database"), s.t.Get("start migrating"), displayName))
 
 	// 取本地数据库服务器信息
-	dbServer, err := s.databaseServerRepo.Get(db.ServerID)
+	dbServer, err := s.databaseServerRepo.Get(ctx, db.ServerID)
 	if err != nil {
 		s.failResult("database", displayName, s.t.Get("failed to get database server: %v", err))
 		return
@@ -678,6 +680,8 @@ func (s *ToolboxMigrationService) clickHouseTables(conn, database string, onlyVi
 
 // migrateDatabaseUser 迁移单个数据库用户
 func (s *ToolboxMigrationService) migrateDatabaseUser(conn *request.ToolboxMigrationConnection, user *request.ToolboxMigrationDatabaseUser) {
+	// 迁移脱离请求生命周期，在独立 goroutine 中运行
+	ctx := context.Background()
 	displayName := fmt.Sprintf("%s@%s (%s)", user.Username, user.Host, user.Type)
 	result := types.MigrationItemResult{
 		Type:   "database_user",
@@ -690,14 +694,14 @@ func (s *ToolboxMigrationService) migrateDatabaseUser(conn *request.ToolboxMigra
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database User"), s.t.Get("start migrating"), displayName))
 
 	// 获取本地用户详情（含权限）
-	userDetail, err := s.databaseUserRepo.Get(user.ID)
+	userDetail, err := s.databaseUserRepo.Get(ctx, user.ID)
 	if err != nil {
 		s.failResult("database_user", displayName, s.t.Get("failed to get database user detail: %v", err))
 		return
 	}
 
 	// 获取本地数据库服务器信息
-	dbServer, err := s.databaseServerRepo.Get(user.ServerID)
+	dbServer, err := s.databaseServerRepo.Get(ctx, user.ServerID)
 	if err != nil {
 		s.failResult("database_user", displayName, s.t.Get("failed to get database server: %v", err))
 		return

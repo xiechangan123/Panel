@@ -52,6 +52,8 @@ type CliService struct {
 	databaseServerRepo *biz.DatabaseServerUsecase
 	certRepo           *biz.CertUsecase
 	certAccountRepo    *biz.CertAccountUsecase
+	cronRepo           *biz.CronUsecase
+	notifyRepo         *biz.NotifyUsecase
 	hash               hash.Hasher
 }
 
@@ -72,6 +74,8 @@ func NewCliService(i do.Injector) (*CliService, error) {
 		databaseServerRepo: do.MustInvoke[*biz.DatabaseServerUsecase](i),
 		certRepo:           do.MustInvoke[*biz.CertUsecase](i),
 		certAccountRepo:    do.MustInvoke[*biz.CertAccountUsecase](i),
+		cronRepo:           do.MustInvoke[*biz.CronUsecase](i),
+		notifyRepo:         do.MustInvoke[*biz.NotifyUsecase](i),
 		hash:               hash.NewArgon2id(),
 	}, nil
 }
@@ -671,7 +675,7 @@ func (s *CliService) DatabaseAddServer(ctx context.Context, cmd *cli.Command) er
 		Remark:   cmd.String("remark"),
 	}
 
-	if err := s.databaseServerRepo.Create(req); err != nil {
+	if err := s.databaseServerRepo.Create(ctx, req); err != nil {
 		return err
 	}
 
@@ -680,7 +684,7 @@ func (s *CliService) DatabaseAddServer(ctx context.Context, cmd *cli.Command) er
 }
 
 func (s *CliService) DatabaseDeleteServer(ctx context.Context, cmd *cli.Command) error {
-	server, err := s.databaseServerRepo.GetByName(cmd.String("name"))
+	server, err := s.databaseServerRepo.GetByName(ctx, cmd.String("name"))
 	if err != nil {
 		return err
 	}
@@ -1143,4 +1147,25 @@ checkPort:
 	}
 
 	return nil
+}
+
+// CronFailed 上报计划任务执行失败，由任务 wrapper 脚本调用
+func (s *CliService) CronFailed(ctx context.Context, cmd *cli.Command) error {
+	cron, err := s.cronRepo.Get(cmd.Uint("id"))
+	if err != nil {
+		return err
+	}
+
+	// 附带日志尾部，便于直接定位问题
+	tail, _ := shell.Execf("tail -n 20 %s", cron.Log)
+
+	return s.notifyRepo.SendEventSync(ctx, biz.NotifyEventCronFailed, s.t.Get("[AcePanel] Cron Task Failed"),
+		biz.NotifyBody(s.t.Get("cron task exited abnormally"), [][2]string{
+			{s.t.Get("Task"), cron.Name},
+			{s.t.Get("Schedule"), cron.Time},
+			{s.t.Get("Exit Code"), cast.ToString(cmd.Int("code"))},
+			{s.t.Get("Log"), cron.Log},
+			{s.t.Get("Output"), tail},
+			{s.t.Get("Time"), time.Now().Format(time.DateTime)},
+		}))
 }

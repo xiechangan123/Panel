@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -28,8 +29,8 @@ func NewDatabaseElasticsearchRepo(i do.Injector) (biz.DatabaseElasticsearchRepo,
 	}, nil
 }
 
-func (r *databaseElasticsearchRepo) Indices(req *request.DatabaseESIndices) ([]db.ESIndex, error) {
-	client, err := r.getClient(req.ServerID)
+func (r *databaseElasticsearchRepo) Indices(ctx context.Context, req *request.DatabaseESIndices) ([]db.ESIndex, error) {
+	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +39,8 @@ func (r *databaseElasticsearchRepo) Indices(req *request.DatabaseESIndices) ([]d
 	return client.Indices()
 }
 
-func (r *databaseElasticsearchRepo) IndexCreate(req *request.DatabaseESIndexCreate) error {
-	client, err := r.getClient(req.ServerID)
+func (r *databaseElasticsearchRepo) IndexCreate(ctx context.Context, req *request.DatabaseESIndexCreate) error {
+	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -48,8 +49,8 @@ func (r *databaseElasticsearchRepo) IndexCreate(req *request.DatabaseESIndexCrea
 	return client.IndexCreate(req.Name)
 }
 
-func (r *databaseElasticsearchRepo) IndexDelete(req *request.DatabaseESIndexDelete) error {
-	client, err := r.getClient(req.ServerID)
+func (r *databaseElasticsearchRepo) IndexDelete(ctx context.Context, req *request.DatabaseESIndexDelete) error {
+	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -58,8 +59,8 @@ func (r *databaseElasticsearchRepo) IndexDelete(req *request.DatabaseESIndexDele
 	return client.IndexDelete(req.Name)
 }
 
-func (r *databaseElasticsearchRepo) Data(req *request.DatabaseESData) ([]db.ESDocument, int64, error) {
-	client, err := r.getClient(req.ServerID)
+func (r *databaseElasticsearchRepo) Data(ctx context.Context, req *request.DatabaseESData) ([]db.ESDocument, int64, error) {
+	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -68,8 +69,8 @@ func (r *databaseElasticsearchRepo) Data(req *request.DatabaseESData) ([]db.ESDo
 	return client.Search(req.Index, req.Search, int(req.Page), int(req.Limit))
 }
 
-func (r *databaseElasticsearchRepo) DocumentGet(req *request.DatabaseESDocumentGet) (*db.ESDocument, error) {
-	client, err := r.getClient(req.ServerID)
+func (r *databaseElasticsearchRepo) DocumentGet(ctx context.Context, req *request.DatabaseESDocumentGet) (*db.ESDocument, error) {
+	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +79,8 @@ func (r *databaseElasticsearchRepo) DocumentGet(req *request.DatabaseESDocumentG
 	return client.DocumentGet(req.Index, req.ID)
 }
 
-func (r *databaseElasticsearchRepo) DocumentSet(req *request.DatabaseESDocumentSet) error {
-	client, err := r.getClient(req.ServerID)
+func (r *databaseElasticsearchRepo) DocumentSet(ctx context.Context, req *request.DatabaseESDocumentSet) error {
+	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -91,8 +92,8 @@ func (r *databaseElasticsearchRepo) DocumentSet(req *request.DatabaseESDocumentS
 	return client.DocumentUpdate(req.Index, req.ID, req.Body)
 }
 
-func (r *databaseElasticsearchRepo) DocumentDelete(req *request.DatabaseESDocumentDelete) error {
-	client, err := r.getClient(req.ServerID)
+func (r *databaseElasticsearchRepo) DocumentDelete(ctx context.Context, req *request.DatabaseESDocumentDelete) error {
+	client, err := r.getClient(ctx, req.ServerID)
 	if err != nil {
 		return err
 	}
@@ -102,7 +103,7 @@ func (r *databaseElasticsearchRepo) DocumentDelete(req *request.DatabaseESDocume
 }
 
 // getClient 根据服务器 ID 创建 Elasticsearch 客户端
-func (r *databaseElasticsearchRepo) getClient(serverID uint) (*db.Elasticsearch, error) {
+func (r *databaseElasticsearchRepo) getClient(ctx context.Context, serverID uint) (*db.Elasticsearch, error) {
 	server := new(biz.DatabaseServer)
 	if err := r.orm.Where("id = ?", serverID).First(server).Error; err != nil {
 		return nil, errors.New(r.t.Get("server not found"))
@@ -111,7 +112,7 @@ func (r *databaseElasticsearchRepo) getClient(serverID uint) (*db.Elasticsearch,
 		return nil, errors.New(r.t.Get("server is not Elasticsearch type"))
 	}
 
-	client, err := db.NewElasticsearch(fmt.Sprintf("%s:%d", server.Host, server.Port), server.Username, server.Password)
+	client, err := db.NewElasticsearch(ctx, fmt.Sprintf("%s:%d", server.Host, server.Port), server.Username, server.Password)
 	if err != nil {
 		return nil, errors.New(r.t.Get("failed to connect to Elasticsearch: %v", err))
 	}

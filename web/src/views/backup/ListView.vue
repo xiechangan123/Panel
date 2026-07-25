@@ -73,9 +73,7 @@ const columns: any = [
             type: 'primary',
             secondary: true,
             onClick: () => {
-              window.open(
-                `/api/backup/${type.value}/download?file=${encodeURIComponent(row.name)}`,
-              )
+              window.open(`/api/backup/${type.value}/download?file=${encodeURIComponent(row.name)}`)
             },
           },
           { default: () => $gettext('Download') },

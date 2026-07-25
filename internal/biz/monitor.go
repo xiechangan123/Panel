@@ -43,11 +43,16 @@ func (uc *MonitorUsecase) GetSetting() (*request.MonitorSetting, error) {
 	if err != nil {
 		return nil, err
 	}
+	alertDays, err := uc.setting.GetInt(SettingKeyAlertLogDays, 30)
+	if err != nil {
+		return nil, err
+	}
 
 	setting := new(request.MonitorSetting)
 	setting.Enabled = cast.ToBool(monitor)
 	setting.Days = cast.ToUint(monitorDays)
 	setting.Interval = uint(monitorInterval)
+	setting.AlertDays = uint(alertDays)
 
 	return setting, nil
 }
@@ -63,7 +68,7 @@ func (uc *MonitorUsecase) UpdateSetting(setting *request.MonitorSetting) error {
 		return err
 	}
 
-	return nil
+	return uc.setting.Set(SettingKeyAlertLogDays, cast.ToString(setting.AlertDays))
 }
 
 func (uc *MonitorUsecase) Clear() error {

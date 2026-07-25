@@ -85,6 +85,29 @@ func Execf(shell string, args ...any) (string, error) {
 	return strings.TrimSpace(stdout.String()), nil
 }
 
+// ExecfWithContext 安全执行 shell 命令，ctx 取消时终止进程
+func ExecfWithContext(ctx context.Context, shell string, args ...any) (string, error) {
+	if !preCheckArg(args) {
+		return "", errors.New("command contains illegal characters")
+	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
+
+	_ = os.Setenv("LC_ALL", "C")
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
+
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
+	}
+
+	return strings.TrimSpace(stdout.String()), nil
+}
+
 // ExecfAsync 异步执行 shell 命令
 func ExecfAsync(shell string, args ...any) error {
 	if !preCheckArg(args) {

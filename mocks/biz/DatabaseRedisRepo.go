@@ -3,6 +3,8 @@
 package biz
 
 import (
+	context "context"
+
 	db "github.com/acepanel/panel/v3/pkg/db"
 	mock "github.com/stretchr/testify/mock"
 
@@ -22,17 +24,17 @@ func (_m *DatabaseRedisRepo) EXPECT() *DatabaseRedisRepo_Expecter {
 	return &DatabaseRedisRepo_Expecter{mock: &_m.Mock}
 }
 
-// Clear provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) Clear(req *request.DatabaseRedisClear) error {
-	ret := _m.Called(req)
+// Clear provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) Clear(ctx context.Context, req *request.DatabaseRedisClear) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Clear")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisClear) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisClear) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,14 +48,15 @@ type DatabaseRedisRepo_Clear_Call struct {
 }
 
 // Clear is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisClear
-func (_e *DatabaseRedisRepo_Expecter) Clear(req interface{}) *DatabaseRedisRepo_Clear_Call {
-	return &DatabaseRedisRepo_Clear_Call{Call: _e.mock.On("Clear", req)}
+func (_e *DatabaseRedisRepo_Expecter) Clear(ctx interface{}, req interface{}) *DatabaseRedisRepo_Clear_Call {
+	return &DatabaseRedisRepo_Clear_Call{Call: _e.mock.On("Clear", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_Clear_Call) Run(run func(req *request.DatabaseRedisClear)) *DatabaseRedisRepo_Clear_Call {
+func (_c *DatabaseRedisRepo_Clear_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisClear)) *DatabaseRedisRepo_Clear_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisClear))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisClear))
 	})
 	return _c
 }
@@ -63,14 +66,14 @@ func (_c *DatabaseRedisRepo_Clear_Call) Return(_a0 error) *DatabaseRedisRepo_Cle
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_Clear_Call) RunAndReturn(run func(*request.DatabaseRedisClear) error) *DatabaseRedisRepo_Clear_Call {
+func (_c *DatabaseRedisRepo_Clear_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisClear) error) *DatabaseRedisRepo_Clear_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Data provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) Data(req *request.DatabaseRedisData) ([]db.RedisKV, int, error) {
-	ret := _m.Called(req)
+// Data provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) Data(ctx context.Context, req *request.DatabaseRedisData) ([]db.RedisKV, int, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Data")
@@ -79,25 +82,25 @@ func (_m *DatabaseRedisRepo) Data(req *request.DatabaseRedisData) ([]db.RedisKV,
 	var r0 []db.RedisKV
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisData) ([]db.RedisKV, int, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisData) ([]db.RedisKV, int, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisData) []db.RedisKV); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisData) []db.RedisKV); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]db.RedisKV)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.DatabaseRedisData) int); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.DatabaseRedisData) int); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(*request.DatabaseRedisData) error); ok {
-		r2 = rf(req)
+	if rf, ok := ret.Get(2).(func(context.Context, *request.DatabaseRedisData) error); ok {
+		r2 = rf(ctx, req)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -111,14 +114,15 @@ type DatabaseRedisRepo_Data_Call struct {
 }
 
 // Data is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisData
-func (_e *DatabaseRedisRepo_Expecter) Data(req interface{}) *DatabaseRedisRepo_Data_Call {
-	return &DatabaseRedisRepo_Data_Call{Call: _e.mock.On("Data", req)}
+func (_e *DatabaseRedisRepo_Expecter) Data(ctx interface{}, req interface{}) *DatabaseRedisRepo_Data_Call {
+	return &DatabaseRedisRepo_Data_Call{Call: _e.mock.On("Data", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_Data_Call) Run(run func(req *request.DatabaseRedisData)) *DatabaseRedisRepo_Data_Call {
+func (_c *DatabaseRedisRepo_Data_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisData)) *DatabaseRedisRepo_Data_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisData))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisData))
 	})
 	return _c
 }
@@ -128,14 +132,14 @@ func (_c *DatabaseRedisRepo_Data_Call) Return(_a0 []db.RedisKV, _a1 int, _a2 err
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_Data_Call) RunAndReturn(run func(*request.DatabaseRedisData) ([]db.RedisKV, int, error)) *DatabaseRedisRepo_Data_Call {
+func (_c *DatabaseRedisRepo_Data_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisData) ([]db.RedisKV, int, error)) *DatabaseRedisRepo_Data_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Databases provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) Databases(req *request.DatabaseRedisDatabases) (int, error) {
-	ret := _m.Called(req)
+// Databases provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) Databases(ctx context.Context, req *request.DatabaseRedisDatabases) (int, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Databases")
@@ -143,17 +147,17 @@ func (_m *DatabaseRedisRepo) Databases(req *request.DatabaseRedisDatabases) (int
 
 	var r0 int
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisDatabases) (int, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisDatabases) (int, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisDatabases) int); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisDatabases) int); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.DatabaseRedisDatabases) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.DatabaseRedisDatabases) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -167,14 +171,15 @@ type DatabaseRedisRepo_Databases_Call struct {
 }
 
 // Databases is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisDatabases
-func (_e *DatabaseRedisRepo_Expecter) Databases(req interface{}) *DatabaseRedisRepo_Databases_Call {
-	return &DatabaseRedisRepo_Databases_Call{Call: _e.mock.On("Databases", req)}
+func (_e *DatabaseRedisRepo_Expecter) Databases(ctx interface{}, req interface{}) *DatabaseRedisRepo_Databases_Call {
+	return &DatabaseRedisRepo_Databases_Call{Call: _e.mock.On("Databases", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_Databases_Call) Run(run func(req *request.DatabaseRedisDatabases)) *DatabaseRedisRepo_Databases_Call {
+func (_c *DatabaseRedisRepo_Databases_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisDatabases)) *DatabaseRedisRepo_Databases_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisDatabases))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisDatabases))
 	})
 	return _c
 }
@@ -184,22 +189,22 @@ func (_c *DatabaseRedisRepo_Databases_Call) Return(_a0 int, _a1 error) *Database
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_Databases_Call) RunAndReturn(run func(*request.DatabaseRedisDatabases) (int, error)) *DatabaseRedisRepo_Databases_Call {
+func (_c *DatabaseRedisRepo_Databases_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisDatabases) (int, error)) *DatabaseRedisRepo_Databases_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// KeyDelete provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) KeyDelete(req *request.DatabaseRedisKeyDelete) error {
-	ret := _m.Called(req)
+// KeyDelete provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) KeyDelete(ctx context.Context, req *request.DatabaseRedisKeyDelete) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for KeyDelete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisKeyDelete) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisKeyDelete) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -213,14 +218,15 @@ type DatabaseRedisRepo_KeyDelete_Call struct {
 }
 
 // KeyDelete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisKeyDelete
-func (_e *DatabaseRedisRepo_Expecter) KeyDelete(req interface{}) *DatabaseRedisRepo_KeyDelete_Call {
-	return &DatabaseRedisRepo_KeyDelete_Call{Call: _e.mock.On("KeyDelete", req)}
+func (_e *DatabaseRedisRepo_Expecter) KeyDelete(ctx interface{}, req interface{}) *DatabaseRedisRepo_KeyDelete_Call {
+	return &DatabaseRedisRepo_KeyDelete_Call{Call: _e.mock.On("KeyDelete", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_KeyDelete_Call) Run(run func(req *request.DatabaseRedisKeyDelete)) *DatabaseRedisRepo_KeyDelete_Call {
+func (_c *DatabaseRedisRepo_KeyDelete_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisKeyDelete)) *DatabaseRedisRepo_KeyDelete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisKeyDelete))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisKeyDelete))
 	})
 	return _c
 }
@@ -230,14 +236,14 @@ func (_c *DatabaseRedisRepo_KeyDelete_Call) Return(_a0 error) *DatabaseRedisRepo
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_KeyDelete_Call) RunAndReturn(run func(*request.DatabaseRedisKeyDelete) error) *DatabaseRedisRepo_KeyDelete_Call {
+func (_c *DatabaseRedisRepo_KeyDelete_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisKeyDelete) error) *DatabaseRedisRepo_KeyDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// KeyGet provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) KeyGet(req *request.DatabaseRedisKeyGet) (*db.RedisKV, error) {
-	ret := _m.Called(req)
+// KeyGet provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) KeyGet(ctx context.Context, req *request.DatabaseRedisKeyGet) (*db.RedisKV, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for KeyGet")
@@ -245,19 +251,19 @@ func (_m *DatabaseRedisRepo) KeyGet(req *request.DatabaseRedisKeyGet) (*db.Redis
 
 	var r0 *db.RedisKV
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisKeyGet) (*db.RedisKV, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisKeyGet) (*db.RedisKV, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisKeyGet) *db.RedisKV); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisKeyGet) *db.RedisKV); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*db.RedisKV)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.DatabaseRedisKeyGet) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.DatabaseRedisKeyGet) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -271,14 +277,15 @@ type DatabaseRedisRepo_KeyGet_Call struct {
 }
 
 // KeyGet is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisKeyGet
-func (_e *DatabaseRedisRepo_Expecter) KeyGet(req interface{}) *DatabaseRedisRepo_KeyGet_Call {
-	return &DatabaseRedisRepo_KeyGet_Call{Call: _e.mock.On("KeyGet", req)}
+func (_e *DatabaseRedisRepo_Expecter) KeyGet(ctx interface{}, req interface{}) *DatabaseRedisRepo_KeyGet_Call {
+	return &DatabaseRedisRepo_KeyGet_Call{Call: _e.mock.On("KeyGet", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_KeyGet_Call) Run(run func(req *request.DatabaseRedisKeyGet)) *DatabaseRedisRepo_KeyGet_Call {
+func (_c *DatabaseRedisRepo_KeyGet_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisKeyGet)) *DatabaseRedisRepo_KeyGet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisKeyGet))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisKeyGet))
 	})
 	return _c
 }
@@ -288,22 +295,22 @@ func (_c *DatabaseRedisRepo_KeyGet_Call) Return(_a0 *db.RedisKV, _a1 error) *Dat
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_KeyGet_Call) RunAndReturn(run func(*request.DatabaseRedisKeyGet) (*db.RedisKV, error)) *DatabaseRedisRepo_KeyGet_Call {
+func (_c *DatabaseRedisRepo_KeyGet_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisKeyGet) (*db.RedisKV, error)) *DatabaseRedisRepo_KeyGet_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// KeyRename provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) KeyRename(req *request.DatabaseRedisKeyRename) error {
-	ret := _m.Called(req)
+// KeyRename provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) KeyRename(ctx context.Context, req *request.DatabaseRedisKeyRename) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for KeyRename")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisKeyRename) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisKeyRename) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -317,14 +324,15 @@ type DatabaseRedisRepo_KeyRename_Call struct {
 }
 
 // KeyRename is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisKeyRename
-func (_e *DatabaseRedisRepo_Expecter) KeyRename(req interface{}) *DatabaseRedisRepo_KeyRename_Call {
-	return &DatabaseRedisRepo_KeyRename_Call{Call: _e.mock.On("KeyRename", req)}
+func (_e *DatabaseRedisRepo_Expecter) KeyRename(ctx interface{}, req interface{}) *DatabaseRedisRepo_KeyRename_Call {
+	return &DatabaseRedisRepo_KeyRename_Call{Call: _e.mock.On("KeyRename", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_KeyRename_Call) Run(run func(req *request.DatabaseRedisKeyRename)) *DatabaseRedisRepo_KeyRename_Call {
+func (_c *DatabaseRedisRepo_KeyRename_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisKeyRename)) *DatabaseRedisRepo_KeyRename_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisKeyRename))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisKeyRename))
 	})
 	return _c
 }
@@ -334,22 +342,22 @@ func (_c *DatabaseRedisRepo_KeyRename_Call) Return(_a0 error) *DatabaseRedisRepo
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_KeyRename_Call) RunAndReturn(run func(*request.DatabaseRedisKeyRename) error) *DatabaseRedisRepo_KeyRename_Call {
+func (_c *DatabaseRedisRepo_KeyRename_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisKeyRename) error) *DatabaseRedisRepo_KeyRename_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// KeySet provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) KeySet(req *request.DatabaseRedisKeySet) error {
-	ret := _m.Called(req)
+// KeySet provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) KeySet(ctx context.Context, req *request.DatabaseRedisKeySet) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for KeySet")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisKeySet) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisKeySet) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -363,14 +371,15 @@ type DatabaseRedisRepo_KeySet_Call struct {
 }
 
 // KeySet is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisKeySet
-func (_e *DatabaseRedisRepo_Expecter) KeySet(req interface{}) *DatabaseRedisRepo_KeySet_Call {
-	return &DatabaseRedisRepo_KeySet_Call{Call: _e.mock.On("KeySet", req)}
+func (_e *DatabaseRedisRepo_Expecter) KeySet(ctx interface{}, req interface{}) *DatabaseRedisRepo_KeySet_Call {
+	return &DatabaseRedisRepo_KeySet_Call{Call: _e.mock.On("KeySet", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_KeySet_Call) Run(run func(req *request.DatabaseRedisKeySet)) *DatabaseRedisRepo_KeySet_Call {
+func (_c *DatabaseRedisRepo_KeySet_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisKeySet)) *DatabaseRedisRepo_KeySet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisKeySet))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisKeySet))
 	})
 	return _c
 }
@@ -380,22 +389,22 @@ func (_c *DatabaseRedisRepo_KeySet_Call) Return(_a0 error) *DatabaseRedisRepo_Ke
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_KeySet_Call) RunAndReturn(run func(*request.DatabaseRedisKeySet) error) *DatabaseRedisRepo_KeySet_Call {
+func (_c *DatabaseRedisRepo_KeySet_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisKeySet) error) *DatabaseRedisRepo_KeySet_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// KeyTTL provides a mock function with given fields: req
-func (_m *DatabaseRedisRepo) KeyTTL(req *request.DatabaseRedisKeyTTL) error {
-	ret := _m.Called(req)
+// KeyTTL provides a mock function with given fields: ctx, req
+func (_m *DatabaseRedisRepo) KeyTTL(ctx context.Context, req *request.DatabaseRedisKeyTTL) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for KeyTTL")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseRedisKeyTTL) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseRedisKeyTTL) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -409,14 +418,15 @@ type DatabaseRedisRepo_KeyTTL_Call struct {
 }
 
 // KeyTTL is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseRedisKeyTTL
-func (_e *DatabaseRedisRepo_Expecter) KeyTTL(req interface{}) *DatabaseRedisRepo_KeyTTL_Call {
-	return &DatabaseRedisRepo_KeyTTL_Call{Call: _e.mock.On("KeyTTL", req)}
+func (_e *DatabaseRedisRepo_Expecter) KeyTTL(ctx interface{}, req interface{}) *DatabaseRedisRepo_KeyTTL_Call {
+	return &DatabaseRedisRepo_KeyTTL_Call{Call: _e.mock.On("KeyTTL", ctx, req)}
 }
 
-func (_c *DatabaseRedisRepo_KeyTTL_Call) Run(run func(req *request.DatabaseRedisKeyTTL)) *DatabaseRedisRepo_KeyTTL_Call {
+func (_c *DatabaseRedisRepo_KeyTTL_Call) Run(run func(ctx context.Context, req *request.DatabaseRedisKeyTTL)) *DatabaseRedisRepo_KeyTTL_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseRedisKeyTTL))
+		run(args[0].(context.Context), args[1].(*request.DatabaseRedisKeyTTL))
 	})
 	return _c
 }
@@ -426,7 +436,7 @@ func (_c *DatabaseRedisRepo_KeyTTL_Call) Return(_a0 error) *DatabaseRedisRepo_Ke
 	return _c
 }
 
-func (_c *DatabaseRedisRepo_KeyTTL_Call) RunAndReturn(run func(*request.DatabaseRedisKeyTTL) error) *DatabaseRedisRepo_KeyTTL_Call {
+func (_c *DatabaseRedisRepo_KeyTTL_Call) RunAndReturn(run func(context.Context, *request.DatabaseRedisKeyTTL) error) *DatabaseRedisRepo_KeyTTL_Call {
 	_c.Call.Return(run)
 	return _c
 }

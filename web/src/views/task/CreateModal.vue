@@ -271,10 +271,7 @@ watch(
     if (formModel.value.type === 'cutoff' && val === 'container') {
       loadContainers()
     }
-    if (
-      formModel.value.type === 'backup' &&
-      ['mysql', 'postgresql', 'clickhouse'].includes(val)
-    ) {
+    if (formModel.value.type === 'backup' && ['mysql', 'postgresql', 'clickhouse'].includes(val)) {
       loadDatabases(val)
     }
     // Redis/Valkey 整实例备份，无库名，target 固定为实例类型

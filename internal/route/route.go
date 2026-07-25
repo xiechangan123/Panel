@@ -33,6 +33,7 @@ var Package = do.Package(
 	do.LazyNamed(RoutePrefix+"ssh", SSHRoutes), do.LazyNamed(RoutePrefix+"systemctl", SystemctlRoutes),
 	do.LazyNamed(RoutePrefix+"setting", SettingRoutes), do.LazyNamed(RoutePrefix+"log", LogRoutes),
 	do.LazyNamed(RoutePrefix+"monitor", MonitorRoutes), do.LazyNamed(RoutePrefix+"webhook", WebHookRoutes),
+	do.LazyNamed(RoutePrefix+"notify", NotifyRoutes), do.LazyNamed(RoutePrefix+"alert", AlertRoutes),
 	do.LazyNamed(RoutePrefix+"template", TemplateRoutes), do.LazyNamed(RoutePrefix+"toolbox_network", ToolboxNetworkRoutes),
 	do.LazyNamed(RoutePrefix+"toolbox_system", ToolboxSystemRoutes), do.LazyNamed(RoutePrefix+"toolbox_benchmark", ToolboxBenchmarkRoutes),
 	do.LazyNamed(RoutePrefix+"toolbox_ssh", ToolboxSSHRoutes), do.LazyNamed(RoutePrefix+"toolbox_disk", ToolboxDiskRoutes),

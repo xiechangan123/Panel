@@ -149,7 +149,7 @@ const handleSave = () => {
         item.address !== '443' &&
         !item.address?.endsWith(':443') &&
         !item.args?.includes('ssl') &&
-        !item.args?.includes('quic')
+        !item.args?.includes('quic'),
     )
   }
 

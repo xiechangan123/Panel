@@ -25,7 +25,7 @@ func (s *DatabaseRedisService) Databases(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	count, err := s.repo.Databases(req)
+	count, err := s.repo.Databases(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -41,7 +41,7 @@ func (s *DatabaseRedisService) Data(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items, total, err := s.repo.Data(req)
+	items, total, err := s.repo.Data(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -60,7 +60,7 @@ func (s *DatabaseRedisService) KeyGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	kv, err := s.repo.KeyGet(req)
+	kv, err := s.repo.KeyGet(r.Context(), req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -76,7 +76,7 @@ func (s *DatabaseRedisService) KeySet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.repo.KeySet(req); err != nil {
+	if err = s.repo.KeySet(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -91,7 +91,7 @@ func (s *DatabaseRedisService) KeyDelete(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = s.repo.KeyDelete(req); err != nil {
+	if err = s.repo.KeyDelete(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -106,7 +106,7 @@ func (s *DatabaseRedisService) KeyTTL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.repo.KeyTTL(req); err != nil {
+	if err = s.repo.KeyTTL(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -121,7 +121,7 @@ func (s *DatabaseRedisService) KeyRename(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = s.repo.KeyRename(req); err != nil {
+	if err = s.repo.KeyRename(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -136,7 +136,7 @@ func (s *DatabaseRedisService) Clear(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.repo.Clear(req); err != nil {
+	if err = s.repo.Clear(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

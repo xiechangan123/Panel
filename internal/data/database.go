@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"slices"
 
@@ -35,11 +36,11 @@ func (r *databaseRepo) ListServers(typ string) ([]*biz.DatabaseServer, error) {
 }
 
 // DatabasesOf 列出单个服务器上的数据库
-func (r *databaseRepo) DatabasesOf(server *biz.DatabaseServer) ([]*biz.Database, error) {
+func (r *databaseRepo) DatabasesOf(ctx context.Context, server *biz.DatabaseServer) ([]*biz.Database, error) {
 	database := make([]*biz.Database, 0)
 	switch server.Type {
 	case biz.DatabaseTypeMongoDB:
-		mongo, err := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		mongo, err := db.NewMongoDB(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +72,7 @@ func (r *databaseRepo) DatabasesOf(server *biz.DatabaseServer) ([]*biz.Database,
 		}
 		sqlite.Close()
 	default:
-		operator, err := r.Operator(server)
+		operator, err := r.Operator(ctx, server)
 		if err != nil {
 			return nil, err
 		}
@@ -93,22 +94,22 @@ func (r *databaseRepo) DatabasesOf(server *biz.DatabaseServer) ([]*biz.Database,
 }
 
 // Mongo 构建 MongoDB 客户端
-func (r *databaseRepo) Mongo(server *biz.DatabaseServer) (*db.MongoDB, error) {
-	return db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+func (r *databaseRepo) Mongo(ctx context.Context, server *biz.DatabaseServer) (*db.MongoDB, error) {
+	return db.NewMongoDB(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 }
 
-func (r *databaseRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
+func (r *databaseRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		return newMySQLOperator(server.Username, server.Password, server.Host, server.Port)
+		return newMySQLOperator(ctx, server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
+		postgres, err := db.NewPostgres(ctx, server.Username, server.Password, server.Host, server.Port)
 		if err != nil {
 			return nil, err
 		}
 		return postgres, nil
 	case biz.DatabaseTypeClickHouse:
-		clickhouse, err := db.NewClickHouse(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		clickhouse, err := db.NewClickHouse(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err != nil {
 			return nil, err
 		}

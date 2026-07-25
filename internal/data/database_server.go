@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"slices"
@@ -33,7 +34,7 @@ func (r *databaseServerRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *databaseServerRepo) List(page, limit uint, typ string) ([]*biz.DatabaseServer, int64, error) {
+func (r *databaseServerRepo) List(ctx context.Context, page, limit uint, typ string) ([]*biz.DatabaseServer, int64, error) {
 	databaseServer := make([]*biz.DatabaseServer, 0)
 	var total int64
 	query := r.db.Model(&biz.DatabaseServer{}).Order("id desc")
@@ -43,30 +44,30 @@ func (r *databaseServerRepo) List(page, limit uint, typ string) ([]*biz.Database
 	err := query.Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&databaseServer).Error
 
 	for server := range slices.Values(databaseServer) {
-		r.CheckServer(server)
+		r.CheckServer(ctx, server)
 	}
 
 	return databaseServer, total, err
 }
 
-func (r *databaseServerRepo) Get(id uint) (*biz.DatabaseServer, error) {
+func (r *databaseServerRepo) Get(ctx context.Context, id uint) (*biz.DatabaseServer, error) {
 	databaseServer := new(biz.DatabaseServer)
 	if err := r.db.Where("id = ?", id).First(databaseServer).Error; err != nil {
 		return nil, err
 	}
 
-	r.CheckServer(databaseServer)
+	r.CheckServer(ctx, databaseServer)
 
 	return databaseServer, nil
 }
 
-func (r *databaseServerRepo) GetByName(name string) (*biz.DatabaseServer, error) {
+func (r *databaseServerRepo) GetByName(ctx context.Context, name string) (*biz.DatabaseServer, error) {
 	databaseServer := new(biz.DatabaseServer)
 	if err := r.db.Where("name = ?", name).First(databaseServer).Error; err != nil {
 		return nil, err
 	}
 
-	r.CheckServer(databaseServer)
+	r.CheckServer(ctx, databaseServer)
 
 	return databaseServer, nil
 }
@@ -121,25 +122,25 @@ func (r *databaseServerRepo) CreateUser(user *biz.DatabaseUser) error {
 	return r.db.Create(user).Error
 }
 
-// CheckServer 检查服务器连接
-func (r *databaseServerRepo) CheckServer(server *biz.DatabaseServer) bool {
+// CheckServer 检查服务器连接，ctx 取消时立即放弃探测
+func (r *databaseServerRepo) CheckServer(ctx context.Context, server *biz.DatabaseServer) bool {
 	switch server.Type {
 	case biz.DatabaseTypeMysql, biz.DatabaseTypePostgresql, biz.DatabaseTypeClickHouse:
-		operator, err := r.Operator(server)
+		operator, err := r.Operator(ctx, server)
 		if err == nil {
 			operator.Close()
 			server.Status = biz.DatabaseServerStatusValid
 			return true
 		}
 	case biz.DatabaseTypeRedis:
-		redis, err := db.NewRedis(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		redis, err := db.NewRedis(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err == nil {
 			redis.Close()
 			server.Status = biz.DatabaseServerStatusValid
 			return true
 		}
 	case biz.DatabaseTypeMongoDB:
-		mongo, err := db.NewMongoDB(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		mongo, err := db.NewMongoDB(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err == nil {
 			mongo.Close()
 			server.Status = biz.DatabaseServerStatusValid
@@ -153,7 +154,7 @@ func (r *databaseServerRepo) CheckServer(server *biz.DatabaseServer) bool {
 			return true
 		}
 	case biz.DatabaseTypeElasticsearch:
-		es, err := db.NewElasticsearch(fmt.Sprintf("%s:%d", server.Host, server.Port), server.Username, server.Password)
+		es, err := db.NewElasticsearch(ctx, fmt.Sprintf("%s:%d", server.Host, server.Port), server.Username, server.Password)
 		if err == nil {
 			es.Close()
 			server.Status = biz.DatabaseServerStatusValid
@@ -166,18 +167,18 @@ func (r *databaseServerRepo) CheckServer(server *biz.DatabaseServer) bool {
 }
 
 // Operator 获取数据库操作句柄
-func (r *databaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
+func (r *databaseServerRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		return newMySQLOperator(server.Username, server.Password, server.Host, server.Port)
+		return newMySQLOperator(ctx, server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
+		postgres, err := db.NewPostgres(ctx, server.Username, server.Password, server.Host, server.Port)
 		if err != nil {
 			return nil, err
 		}
 		return postgres, nil
 	case biz.DatabaseTypeClickHouse:
-		clickhouse, err := db.NewClickHouse(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		clickhouse, err := db.NewClickHouse(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err != nil {
 			return nil, err
 		}
@@ -189,13 +190,14 @@ func (r *databaseServerRepo) Operator(server *biz.DatabaseServer) (db.Operator, 
 
 // newMySQLOperator 构建 MySQL 操作句柄
 // 本地 MySQL 优先使用 unix socket 连接：开启 skip-name-resolve 后 TCP 127.0.0.1 无法反解为 localhost，默认的 root@localhost 账户会匹配失败
-func newMySQLOperator(username, password, host string, port uint) (db.Operator, error) {
+func newMySQLOperator(ctx context.Context, username, password, host string, port uint) (db.Operator, error) {
 	if sock := localMySQLSocket(host); sock != "" {
-		if mysql, err := db.NewMySQL(username, password, sock, "unix"); err == nil {
+		if mysql, err := db.NewMySQL(ctx, username, password, sock, "unix"); err == nil {
 			return mysql, nil
 		}
 	}
-	return db.NewMySQL(username, password, fmt.Sprintf("%s:%d", host, port))
+
+	return db.NewMySQL(ctx, username, password, fmt.Sprintf("%s:%d", host, port))
 }
 
 // localMySQLSocket 返回本地 MySQL 的 unix socket 路径，非本地或未探测到返回空

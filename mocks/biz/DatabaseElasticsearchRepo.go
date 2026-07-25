@@ -3,6 +3,8 @@
 package biz
 
 import (
+	context "context"
+
 	db "github.com/acepanel/panel/v3/pkg/db"
 	mock "github.com/stretchr/testify/mock"
 
@@ -22,9 +24,9 @@ func (_m *DatabaseElasticsearchRepo) EXPECT() *DatabaseElasticsearchRepo_Expecte
 	return &DatabaseElasticsearchRepo_Expecter{mock: &_m.Mock}
 }
 
-// Data provides a mock function with given fields: req
-func (_m *DatabaseElasticsearchRepo) Data(req *request.DatabaseESData) ([]db.ESDocument, int64, error) {
-	ret := _m.Called(req)
+// Data provides a mock function with given fields: ctx, req
+func (_m *DatabaseElasticsearchRepo) Data(ctx context.Context, req *request.DatabaseESData) ([]db.ESDocument, int64, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Data")
@@ -33,25 +35,25 @@ func (_m *DatabaseElasticsearchRepo) Data(req *request.DatabaseESData) ([]db.ESD
 	var r0 []db.ESDocument
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESData) ([]db.ESDocument, int64, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESData) ([]db.ESDocument, int64, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESData) []db.ESDocument); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESData) []db.ESDocument); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]db.ESDocument)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.DatabaseESData) int64); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.DatabaseESData) int64); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Get(1).(int64)
 	}
 
-	if rf, ok := ret.Get(2).(func(*request.DatabaseESData) error); ok {
-		r2 = rf(req)
+	if rf, ok := ret.Get(2).(func(context.Context, *request.DatabaseESData) error); ok {
+		r2 = rf(ctx, req)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -65,14 +67,15 @@ type DatabaseElasticsearchRepo_Data_Call struct {
 }
 
 // Data is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseESData
-func (_e *DatabaseElasticsearchRepo_Expecter) Data(req interface{}) *DatabaseElasticsearchRepo_Data_Call {
-	return &DatabaseElasticsearchRepo_Data_Call{Call: _e.mock.On("Data", req)}
+func (_e *DatabaseElasticsearchRepo_Expecter) Data(ctx interface{}, req interface{}) *DatabaseElasticsearchRepo_Data_Call {
+	return &DatabaseElasticsearchRepo_Data_Call{Call: _e.mock.On("Data", ctx, req)}
 }
 
-func (_c *DatabaseElasticsearchRepo_Data_Call) Run(run func(req *request.DatabaseESData)) *DatabaseElasticsearchRepo_Data_Call {
+func (_c *DatabaseElasticsearchRepo_Data_Call) Run(run func(ctx context.Context, req *request.DatabaseESData)) *DatabaseElasticsearchRepo_Data_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseESData))
+		run(args[0].(context.Context), args[1].(*request.DatabaseESData))
 	})
 	return _c
 }
@@ -82,22 +85,22 @@ func (_c *DatabaseElasticsearchRepo_Data_Call) Return(_a0 []db.ESDocument, _a1 i
 	return _c
 }
 
-func (_c *DatabaseElasticsearchRepo_Data_Call) RunAndReturn(run func(*request.DatabaseESData) ([]db.ESDocument, int64, error)) *DatabaseElasticsearchRepo_Data_Call {
+func (_c *DatabaseElasticsearchRepo_Data_Call) RunAndReturn(run func(context.Context, *request.DatabaseESData) ([]db.ESDocument, int64, error)) *DatabaseElasticsearchRepo_Data_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DocumentDelete provides a mock function with given fields: req
-func (_m *DatabaseElasticsearchRepo) DocumentDelete(req *request.DatabaseESDocumentDelete) error {
-	ret := _m.Called(req)
+// DocumentDelete provides a mock function with given fields: ctx, req
+func (_m *DatabaseElasticsearchRepo) DocumentDelete(ctx context.Context, req *request.DatabaseESDocumentDelete) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DocumentDelete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESDocumentDelete) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESDocumentDelete) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -111,14 +114,15 @@ type DatabaseElasticsearchRepo_DocumentDelete_Call struct {
 }
 
 // DocumentDelete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseESDocumentDelete
-func (_e *DatabaseElasticsearchRepo_Expecter) DocumentDelete(req interface{}) *DatabaseElasticsearchRepo_DocumentDelete_Call {
-	return &DatabaseElasticsearchRepo_DocumentDelete_Call{Call: _e.mock.On("DocumentDelete", req)}
+func (_e *DatabaseElasticsearchRepo_Expecter) DocumentDelete(ctx interface{}, req interface{}) *DatabaseElasticsearchRepo_DocumentDelete_Call {
+	return &DatabaseElasticsearchRepo_DocumentDelete_Call{Call: _e.mock.On("DocumentDelete", ctx, req)}
 }
 
-func (_c *DatabaseElasticsearchRepo_DocumentDelete_Call) Run(run func(req *request.DatabaseESDocumentDelete)) *DatabaseElasticsearchRepo_DocumentDelete_Call {
+func (_c *DatabaseElasticsearchRepo_DocumentDelete_Call) Run(run func(ctx context.Context, req *request.DatabaseESDocumentDelete)) *DatabaseElasticsearchRepo_DocumentDelete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseESDocumentDelete))
+		run(args[0].(context.Context), args[1].(*request.DatabaseESDocumentDelete))
 	})
 	return _c
 }
@@ -128,14 +132,14 @@ func (_c *DatabaseElasticsearchRepo_DocumentDelete_Call) Return(_a0 error) *Data
 	return _c
 }
 
-func (_c *DatabaseElasticsearchRepo_DocumentDelete_Call) RunAndReturn(run func(*request.DatabaseESDocumentDelete) error) *DatabaseElasticsearchRepo_DocumentDelete_Call {
+func (_c *DatabaseElasticsearchRepo_DocumentDelete_Call) RunAndReturn(run func(context.Context, *request.DatabaseESDocumentDelete) error) *DatabaseElasticsearchRepo_DocumentDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DocumentGet provides a mock function with given fields: req
-func (_m *DatabaseElasticsearchRepo) DocumentGet(req *request.DatabaseESDocumentGet) (*db.ESDocument, error) {
-	ret := _m.Called(req)
+// DocumentGet provides a mock function with given fields: ctx, req
+func (_m *DatabaseElasticsearchRepo) DocumentGet(ctx context.Context, req *request.DatabaseESDocumentGet) (*db.ESDocument, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DocumentGet")
@@ -143,19 +147,19 @@ func (_m *DatabaseElasticsearchRepo) DocumentGet(req *request.DatabaseESDocument
 
 	var r0 *db.ESDocument
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESDocumentGet) (*db.ESDocument, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESDocumentGet) (*db.ESDocument, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESDocumentGet) *db.ESDocument); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESDocumentGet) *db.ESDocument); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*db.ESDocument)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.DatabaseESDocumentGet) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.DatabaseESDocumentGet) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -169,14 +173,15 @@ type DatabaseElasticsearchRepo_DocumentGet_Call struct {
 }
 
 // DocumentGet is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseESDocumentGet
-func (_e *DatabaseElasticsearchRepo_Expecter) DocumentGet(req interface{}) *DatabaseElasticsearchRepo_DocumentGet_Call {
-	return &DatabaseElasticsearchRepo_DocumentGet_Call{Call: _e.mock.On("DocumentGet", req)}
+func (_e *DatabaseElasticsearchRepo_Expecter) DocumentGet(ctx interface{}, req interface{}) *DatabaseElasticsearchRepo_DocumentGet_Call {
+	return &DatabaseElasticsearchRepo_DocumentGet_Call{Call: _e.mock.On("DocumentGet", ctx, req)}
 }
 
-func (_c *DatabaseElasticsearchRepo_DocumentGet_Call) Run(run func(req *request.DatabaseESDocumentGet)) *DatabaseElasticsearchRepo_DocumentGet_Call {
+func (_c *DatabaseElasticsearchRepo_DocumentGet_Call) Run(run func(ctx context.Context, req *request.DatabaseESDocumentGet)) *DatabaseElasticsearchRepo_DocumentGet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseESDocumentGet))
+		run(args[0].(context.Context), args[1].(*request.DatabaseESDocumentGet))
 	})
 	return _c
 }
@@ -186,22 +191,22 @@ func (_c *DatabaseElasticsearchRepo_DocumentGet_Call) Return(_a0 *db.ESDocument,
 	return _c
 }
 
-func (_c *DatabaseElasticsearchRepo_DocumentGet_Call) RunAndReturn(run func(*request.DatabaseESDocumentGet) (*db.ESDocument, error)) *DatabaseElasticsearchRepo_DocumentGet_Call {
+func (_c *DatabaseElasticsearchRepo_DocumentGet_Call) RunAndReturn(run func(context.Context, *request.DatabaseESDocumentGet) (*db.ESDocument, error)) *DatabaseElasticsearchRepo_DocumentGet_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DocumentSet provides a mock function with given fields: req
-func (_m *DatabaseElasticsearchRepo) DocumentSet(req *request.DatabaseESDocumentSet) error {
-	ret := _m.Called(req)
+// DocumentSet provides a mock function with given fields: ctx, req
+func (_m *DatabaseElasticsearchRepo) DocumentSet(ctx context.Context, req *request.DatabaseESDocumentSet) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DocumentSet")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESDocumentSet) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESDocumentSet) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -215,14 +220,15 @@ type DatabaseElasticsearchRepo_DocumentSet_Call struct {
 }
 
 // DocumentSet is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseESDocumentSet
-func (_e *DatabaseElasticsearchRepo_Expecter) DocumentSet(req interface{}) *DatabaseElasticsearchRepo_DocumentSet_Call {
-	return &DatabaseElasticsearchRepo_DocumentSet_Call{Call: _e.mock.On("DocumentSet", req)}
+func (_e *DatabaseElasticsearchRepo_Expecter) DocumentSet(ctx interface{}, req interface{}) *DatabaseElasticsearchRepo_DocumentSet_Call {
+	return &DatabaseElasticsearchRepo_DocumentSet_Call{Call: _e.mock.On("DocumentSet", ctx, req)}
 }
 
-func (_c *DatabaseElasticsearchRepo_DocumentSet_Call) Run(run func(req *request.DatabaseESDocumentSet)) *DatabaseElasticsearchRepo_DocumentSet_Call {
+func (_c *DatabaseElasticsearchRepo_DocumentSet_Call) Run(run func(ctx context.Context, req *request.DatabaseESDocumentSet)) *DatabaseElasticsearchRepo_DocumentSet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseESDocumentSet))
+		run(args[0].(context.Context), args[1].(*request.DatabaseESDocumentSet))
 	})
 	return _c
 }
@@ -232,22 +238,22 @@ func (_c *DatabaseElasticsearchRepo_DocumentSet_Call) Return(_a0 error) *Databas
 	return _c
 }
 
-func (_c *DatabaseElasticsearchRepo_DocumentSet_Call) RunAndReturn(run func(*request.DatabaseESDocumentSet) error) *DatabaseElasticsearchRepo_DocumentSet_Call {
+func (_c *DatabaseElasticsearchRepo_DocumentSet_Call) RunAndReturn(run func(context.Context, *request.DatabaseESDocumentSet) error) *DatabaseElasticsearchRepo_DocumentSet_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// IndexCreate provides a mock function with given fields: req
-func (_m *DatabaseElasticsearchRepo) IndexCreate(req *request.DatabaseESIndexCreate) error {
-	ret := _m.Called(req)
+// IndexCreate provides a mock function with given fields: ctx, req
+func (_m *DatabaseElasticsearchRepo) IndexCreate(ctx context.Context, req *request.DatabaseESIndexCreate) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for IndexCreate")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESIndexCreate) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESIndexCreate) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -261,14 +267,15 @@ type DatabaseElasticsearchRepo_IndexCreate_Call struct {
 }
 
 // IndexCreate is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseESIndexCreate
-func (_e *DatabaseElasticsearchRepo_Expecter) IndexCreate(req interface{}) *DatabaseElasticsearchRepo_IndexCreate_Call {
-	return &DatabaseElasticsearchRepo_IndexCreate_Call{Call: _e.mock.On("IndexCreate", req)}
+func (_e *DatabaseElasticsearchRepo_Expecter) IndexCreate(ctx interface{}, req interface{}) *DatabaseElasticsearchRepo_IndexCreate_Call {
+	return &DatabaseElasticsearchRepo_IndexCreate_Call{Call: _e.mock.On("IndexCreate", ctx, req)}
 }
 
-func (_c *DatabaseElasticsearchRepo_IndexCreate_Call) Run(run func(req *request.DatabaseESIndexCreate)) *DatabaseElasticsearchRepo_IndexCreate_Call {
+func (_c *DatabaseElasticsearchRepo_IndexCreate_Call) Run(run func(ctx context.Context, req *request.DatabaseESIndexCreate)) *DatabaseElasticsearchRepo_IndexCreate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseESIndexCreate))
+		run(args[0].(context.Context), args[1].(*request.DatabaseESIndexCreate))
 	})
 	return _c
 }
@@ -278,22 +285,22 @@ func (_c *DatabaseElasticsearchRepo_IndexCreate_Call) Return(_a0 error) *Databas
 	return _c
 }
 
-func (_c *DatabaseElasticsearchRepo_IndexCreate_Call) RunAndReturn(run func(*request.DatabaseESIndexCreate) error) *DatabaseElasticsearchRepo_IndexCreate_Call {
+func (_c *DatabaseElasticsearchRepo_IndexCreate_Call) RunAndReturn(run func(context.Context, *request.DatabaseESIndexCreate) error) *DatabaseElasticsearchRepo_IndexCreate_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// IndexDelete provides a mock function with given fields: req
-func (_m *DatabaseElasticsearchRepo) IndexDelete(req *request.DatabaseESIndexDelete) error {
-	ret := _m.Called(req)
+// IndexDelete provides a mock function with given fields: ctx, req
+func (_m *DatabaseElasticsearchRepo) IndexDelete(ctx context.Context, req *request.DatabaseESIndexDelete) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for IndexDelete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESIndexDelete) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESIndexDelete) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -307,14 +314,15 @@ type DatabaseElasticsearchRepo_IndexDelete_Call struct {
 }
 
 // IndexDelete is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseESIndexDelete
-func (_e *DatabaseElasticsearchRepo_Expecter) IndexDelete(req interface{}) *DatabaseElasticsearchRepo_IndexDelete_Call {
-	return &DatabaseElasticsearchRepo_IndexDelete_Call{Call: _e.mock.On("IndexDelete", req)}
+func (_e *DatabaseElasticsearchRepo_Expecter) IndexDelete(ctx interface{}, req interface{}) *DatabaseElasticsearchRepo_IndexDelete_Call {
+	return &DatabaseElasticsearchRepo_IndexDelete_Call{Call: _e.mock.On("IndexDelete", ctx, req)}
 }
 
-func (_c *DatabaseElasticsearchRepo_IndexDelete_Call) Run(run func(req *request.DatabaseESIndexDelete)) *DatabaseElasticsearchRepo_IndexDelete_Call {
+func (_c *DatabaseElasticsearchRepo_IndexDelete_Call) Run(run func(ctx context.Context, req *request.DatabaseESIndexDelete)) *DatabaseElasticsearchRepo_IndexDelete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseESIndexDelete))
+		run(args[0].(context.Context), args[1].(*request.DatabaseESIndexDelete))
 	})
 	return _c
 }
@@ -324,14 +332,14 @@ func (_c *DatabaseElasticsearchRepo_IndexDelete_Call) Return(_a0 error) *Databas
 	return _c
 }
 
-func (_c *DatabaseElasticsearchRepo_IndexDelete_Call) RunAndReturn(run func(*request.DatabaseESIndexDelete) error) *DatabaseElasticsearchRepo_IndexDelete_Call {
+func (_c *DatabaseElasticsearchRepo_IndexDelete_Call) RunAndReturn(run func(context.Context, *request.DatabaseESIndexDelete) error) *DatabaseElasticsearchRepo_IndexDelete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Indices provides a mock function with given fields: req
-func (_m *DatabaseElasticsearchRepo) Indices(req *request.DatabaseESIndices) ([]db.ESIndex, error) {
-	ret := _m.Called(req)
+// Indices provides a mock function with given fields: ctx, req
+func (_m *DatabaseElasticsearchRepo) Indices(ctx context.Context, req *request.DatabaseESIndices) ([]db.ESIndex, error) {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Indices")
@@ -339,19 +347,19 @@ func (_m *DatabaseElasticsearchRepo) Indices(req *request.DatabaseESIndices) ([]
 
 	var r0 []db.ESIndex
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESIndices) ([]db.ESIndex, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESIndices) ([]db.ESIndex, error)); ok {
+		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(*request.DatabaseESIndices) []db.ESIndex); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseESIndices) []db.ESIndex); ok {
+		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]db.ESIndex)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*request.DatabaseESIndices) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(context.Context, *request.DatabaseESIndices) error); ok {
+		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -365,14 +373,15 @@ type DatabaseElasticsearchRepo_Indices_Call struct {
 }
 
 // Indices is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseESIndices
-func (_e *DatabaseElasticsearchRepo_Expecter) Indices(req interface{}) *DatabaseElasticsearchRepo_Indices_Call {
-	return &DatabaseElasticsearchRepo_Indices_Call{Call: _e.mock.On("Indices", req)}
+func (_e *DatabaseElasticsearchRepo_Expecter) Indices(ctx interface{}, req interface{}) *DatabaseElasticsearchRepo_Indices_Call {
+	return &DatabaseElasticsearchRepo_Indices_Call{Call: _e.mock.On("Indices", ctx, req)}
 }
 
-func (_c *DatabaseElasticsearchRepo_Indices_Call) Run(run func(req *request.DatabaseESIndices)) *DatabaseElasticsearchRepo_Indices_Call {
+func (_c *DatabaseElasticsearchRepo_Indices_Call) Run(run func(ctx context.Context, req *request.DatabaseESIndices)) *DatabaseElasticsearchRepo_Indices_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseESIndices))
+		run(args[0].(context.Context), args[1].(*request.DatabaseESIndices))
 	})
 	return _c
 }
@@ -382,7 +391,7 @@ func (_c *DatabaseElasticsearchRepo_Indices_Call) Return(_a0 []db.ESIndex, _a1 e
 	return _c
 }
 
-func (_c *DatabaseElasticsearchRepo_Indices_Call) RunAndReturn(run func(*request.DatabaseESIndices) ([]db.ESIndex, error)) *DatabaseElasticsearchRepo_Indices_Call {
+func (_c *DatabaseElasticsearchRepo_Indices_Call) RunAndReturn(run func(context.Context, *request.DatabaseESIndices) ([]db.ESIndex, error)) *DatabaseElasticsearchRepo_Indices_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -180,7 +180,7 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	var databaseCount int
 	if mysqlInstalled {
 		rootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-		mysql, err := db.NewMySQL("root", rootPassword, "/tmp/mysql.sock", "unix")
+		mysql, err := db.NewMySQL(r.Context(), "root", rootPassword, "/tmp/mysql.sock", "unix")
 		if err == nil {
 			defer mysql.Close()
 			databases, err := mysql.Databases()
@@ -190,8 +190,8 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if postgresqlInstalled {
-		if server, err := s.databaseServerRepo.GetByName("local_postgresql"); err == nil {
-			if postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port); err == nil {
+		if server, err := s.databaseServerRepo.GetByName(r.Context(), "local_postgresql"); err == nil {
+			if postgres, err := db.NewPostgres(r.Context(), server.Username, server.Password, server.Host, server.Port); err == nil {
 				defer postgres.Close()
 				if databases, err := postgres.Databases(); err == nil {
 					databaseCount += len(databases)

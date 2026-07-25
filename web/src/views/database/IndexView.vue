@@ -44,7 +44,15 @@ useRequest(app.isInstalled('pgadmin')).onSuccess(({ data }: any) => {
 })
 
 // 类型标签页仅展示已添加服务器的数据库类型
-const typeTabs = ['mysql', 'postgresql', 'clickhouse', 'mongodb', 'sqlite', 'elasticsearch', 'redis']
+const typeTabs = [
+  'mysql',
+  'postgresql',
+  'clickhouse',
+  'mongodb',
+  'sqlite',
+  'elasticsearch',
+  'redis',
+]
 const servers = ref<any[]>([])
 
 const availableTypes = computed(() => new Set(servers.value.map((item: any) => item.type)))
@@ -60,7 +68,10 @@ const refreshServers = () => {
     servers.value = data.items || []
     // 未初始化或停留在已消失的类型标签时定位到第一个可用类型
     const first = typeTabs.find((t) => availableTypes.value.has(t))
-    if (!currentTab.value || (typeTabs.includes(currentTab.value) && !availableTypes.value.has(currentTab.value))) {
+    if (
+      !currentTab.value ||
+      (typeTabs.includes(currentTab.value) && !availableTypes.value.has(currentTab.value))
+    ) {
       currentTab.value = first ?? 'server'
     }
   })
@@ -111,7 +122,11 @@ const handlePgAdmin = () => {
         <n-tab v-if="availableTypes.has('clickhouse')" name="clickhouse" tab="ClickHouse" />
         <n-tab v-if="availableTypes.has('mongodb')" name="mongodb" tab="MongoDB" />
         <n-tab v-if="availableTypes.has('sqlite')" name="sqlite" tab="SQLite" />
-        <n-tab v-if="availableTypes.has('elasticsearch')" name="elasticsearch" tab="Elasticsearch" />
+        <n-tab
+          v-if="availableTypes.has('elasticsearch')"
+          name="elasticsearch"
+          tab="Elasticsearch"
+        />
         <n-tab v-if="availableTypes.has('redis')" name="redis" tab="Redis" />
         <n-tab name="user" :tab="$gettext('User')" />
         <n-tab name="server" :tab="$gettext('Server')" />

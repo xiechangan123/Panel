@@ -113,27 +113,27 @@ func (r *cronRepo) RemoveScriptFiles(shellPath string) error {
 }
 
 // AddToSystem 添加到系统
+// 统一经 wrapper 脚本执行，以便捕获退出码并上报失败
 func (r *cronRepo) AddToSystem(cron *biz.Cron) error {
 	cmd := cron.Shell
 	if cron.Config.Flock {
 		lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
-		cmd = fmt.Sprintf("flock -xn %s %s", lockFile, cron.Shell)
+		// -E 指定未抢到锁时的退出码，与脚本自身失败区分，避免正常跳过被误报
+		cmd = fmt.Sprintf("flock -xn -E %d %s %s", cronLockSkipCode, lockFile, cron.Shell)
 	}
 
-	// 秒级任务：生成 wrapper 脚本，用每分钟触发模拟秒级执行
-	if seconds := r.parseSeconds(cron.Time); seconds > 0 {
-		wrapperPath := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
-		wrapperScript := r.generateWrapper(cmd, cron.Log, seconds)
-		if err := io.Write(wrapperPath, wrapperScript, 0700); err != nil {
-			return err
-		}
-		if _, err := shell.Execf(`( crontab -l; echo "* * * * * %s" ) | sort - | uniq - | crontab -`, wrapperPath); err != nil {
-			return err
-		}
-		return r.restartCron()
+	// 秒级任务由每分钟触发的 wrapper 内部循环模拟
+	spec := cron.Time
+	seconds := r.parseSeconds(cron.Time)
+	if seconds > 0 {
+		spec = "* * * * *"
 	}
 
-	if _, err := shell.Execf(`( crontab -l; echo "%s %s >> %s 2>&1" ) | sort - | uniq - | crontab -`, cron.Time, cmd, cron.Log); err != nil {
+	wrapperPath := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
+	if err := io.Write(wrapperPath, r.generateWrapper(cron.ID, cmd, cron.Log, seconds), 0700); err != nil {
+		return err
+	}
+	if _, err := shell.Execf(`( crontab -l; echo "%s %s" ) | sort - | uniq - | crontab -`, spec, wrapperPath); err != nil {
 		return err
 	}
 
@@ -277,17 +277,45 @@ func (r *cronRepo) parseSeconds(time string) int {
 	return 0
 }
 
-// generateWrapper 生成秒级任务的 wrapper 脚本
-// 通过每分钟触发 + 循环 sleep 模拟秒级执行
-func (r *cronRepo) generateWrapper(cmd, logFile string, seconds int) string {
+const (
+	// wrapperPathEnv crontab 环境的 PATH 极简，需补全以便调用 acepanel
+	wrapperPathEnv = "export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH"
+	// cronLockSkipCode flock 未抢到锁时的退出码，属正常跳过而非失败
+	cronLockSkipCode = 200
+)
+
+// generateWrapper 生成任务的 wrapper 脚本，捕获退出码并上报失败
+// seconds 大于 0 时为秒级任务，用每分钟触发 + 循环 sleep 模拟
+func (r *cronRepo) generateWrapper(id uint, cmd, logFile string, seconds int) string {
+	if seconds <= 0 {
+		return fmt.Sprintf(`#!/bin/bash
+%s
+
+%s >> %s 2>&1
+code=$?
+if [ $code -ne 0 ] && [ $code -ne %d ]; then
+    acepanel cron failed -i %d -c $code >/dev/null 2>&1
+fi
+exit $code
+`, wrapperPathEnv, cmd, logFile, cronLockSkipCode, id)
+	}
+
+	// 并发执行拿不到子进程退出码，用标记文件汇总本分钟是否出错
 	count := 60 / seconds
 	return fmt.Sprintf(`#!/bin/bash
+%s
+
 INTERVAL=%d
 COUNT=%d
+FLAG=$(mktemp)
 for i in $(seq 1 $COUNT); do
-    %s >> %s 2>&1 &
+    ( %s >> %s 2>&1; c=$?; [ $c -ne 0 ] && [ $c -ne %d ] && echo $c >> "$FLAG" ) &
     [ $i -lt $COUNT ] && sleep $INTERVAL
 done
 wait
-`, seconds, count, cmd, logFile)
+if [ -s "$FLAG" ]; then
+    acepanel cron failed -i %d -c "$(tail -n 1 "$FLAG")" >/dev/null 2>&1
+fi
+rm -f "$FLAG"
+`, wrapperPathEnv, seconds, count, cmd, logFile, cronLockSkipCode, id)
 }

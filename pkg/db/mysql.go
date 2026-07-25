@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
@@ -16,16 +17,18 @@ type MySQL struct {
 	address  string
 }
 
-func NewMySQL(username, password, address string, typ ...string) (Operator, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/", username, password, address)
+func NewMySQL(ctx context.Context, username, password, address string, typ ...string) (Operator, error) {
+	// 限制建连与读写超时，避免不可达地址阻塞调用方
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/?timeout=5s&readTimeout=10s&writeTimeout=10s", username, password, address)
 	if len(typ) > 0 && typ[0] == "unix" {
-		dsn = fmt.Sprintf("%s:%s@unix(%s)/", username, password, address)
+		dsn = fmt.Sprintf("%s:%s@unix(%s)/?timeout=5s&readTimeout=10s&writeTimeout=10s", username, password, address)
 	}
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("init mysql connection failed: %w", err)
 	}
-	if err = db.Ping(); err != nil {
+	if err = db.PingContext(ctx); err != nil {
+		_ = db.Close()
 		return nil, fmt.Errorf("connect to mysql failed: %w", err)
 	}
 	return &MySQL{

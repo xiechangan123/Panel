@@ -131,7 +131,11 @@ watch(
             </n-button>
           </n-input-group>
         </n-form-item>
-        <n-form-item v-if="selectedServerType === 'mysql'" path="host-select" :label="$gettext('Host')">
+        <n-form-item
+          v-if="selectedServerType === 'mysql'"
+          path="host-select"
+          :label="$gettext('Host')"
+        >
           <n-select
             v-model:value="hostType"
             @keydown.enter.prevent

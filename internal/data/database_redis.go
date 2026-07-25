@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -28,8 +29,8 @@ func NewDatabaseRedisRepo(i do.Injector) (biz.DatabaseRedisRepo, error) {
 	}, nil
 }
 
-func (r *databaseRedisRepo) Databases(req *request.DatabaseRedisDatabases) (int, error) {
-	client, err := r.getClient(req.ServerID, 0)
+func (r *databaseRedisRepo) Databases(ctx context.Context, req *request.DatabaseRedisDatabases) (int, error) {
+	client, err := r.getClient(ctx, req.ServerID, 0)
 	if err != nil {
 		return 0, err
 	}
@@ -38,8 +39,8 @@ func (r *databaseRedisRepo) Databases(req *request.DatabaseRedisDatabases) (int,
 	return client.Database()
 }
 
-func (r *databaseRedisRepo) Data(req *request.DatabaseRedisData) ([]db.RedisKV, int, error) {
-	client, err := r.getClient(req.ServerID, req.DB)
+func (r *databaseRedisRepo) Data(ctx context.Context, req *request.DatabaseRedisData) ([]db.RedisKV, int, error) {
+	client, err := r.getClient(ctx, req.ServerID, req.DB)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -53,8 +54,8 @@ func (r *databaseRedisRepo) Data(req *request.DatabaseRedisData) ([]db.RedisKV, 
 	return client.Search(pattern, int(req.Page), int(req.Limit))
 }
 
-func (r *databaseRedisRepo) KeyGet(req *request.DatabaseRedisKeyGet) (*db.RedisKV, error) {
-	client, err := r.getClient(req.ServerID, req.DB)
+func (r *databaseRedisRepo) KeyGet(ctx context.Context, req *request.DatabaseRedisKeyGet) (*db.RedisKV, error) {
+	client, err := r.getClient(ctx, req.ServerID, req.DB)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +64,8 @@ func (r *databaseRedisRepo) KeyGet(req *request.DatabaseRedisKeyGet) (*db.RedisK
 	return client.Get(req.Key)
 }
 
-func (r *databaseRedisRepo) KeySet(req *request.DatabaseRedisKeySet) error {
-	client, err := r.getClient(req.ServerID, req.DB)
+func (r *databaseRedisRepo) KeySet(ctx context.Context, req *request.DatabaseRedisKeySet) error {
+	client, err := r.getClient(ctx, req.ServerID, req.DB)
 	if err != nil {
 		return err
 	}
@@ -73,8 +74,8 @@ func (r *databaseRedisRepo) KeySet(req *request.DatabaseRedisKeySet) error {
 	return client.SetKey(req.Key, req.Value, req.Type, req.TTL)
 }
 
-func (r *databaseRedisRepo) KeyDelete(req *request.DatabaseRedisKeyDelete) error {
-	client, err := r.getClient(req.ServerID, req.DB)
+func (r *databaseRedisRepo) KeyDelete(ctx context.Context, req *request.DatabaseRedisKeyDelete) error {
+	client, err := r.getClient(ctx, req.ServerID, req.DB)
 	if err != nil {
 		return err
 	}
@@ -83,8 +84,8 @@ func (r *databaseRedisRepo) KeyDelete(req *request.DatabaseRedisKeyDelete) error
 	return client.Del(req.Key)
 }
 
-func (r *databaseRedisRepo) KeyTTL(req *request.DatabaseRedisKeyTTL) error {
-	client, err := r.getClient(req.ServerID, req.DB)
+func (r *databaseRedisRepo) KeyTTL(ctx context.Context, req *request.DatabaseRedisKeyTTL) error {
+	client, err := r.getClient(ctx, req.ServerID, req.DB)
 	if err != nil {
 		return err
 	}
@@ -93,8 +94,8 @@ func (r *databaseRedisRepo) KeyTTL(req *request.DatabaseRedisKeyTTL) error {
 	return client.Expire(req.Key, req.TTL)
 }
 
-func (r *databaseRedisRepo) KeyRename(req *request.DatabaseRedisKeyRename) error {
-	client, err := r.getClient(req.ServerID, req.DB)
+func (r *databaseRedisRepo) KeyRename(ctx context.Context, req *request.DatabaseRedisKeyRename) error {
+	client, err := r.getClient(ctx, req.ServerID, req.DB)
 	if err != nil {
 		return err
 	}
@@ -103,8 +104,8 @@ func (r *databaseRedisRepo) KeyRename(req *request.DatabaseRedisKeyRename) error
 	return client.Rename(req.OldKey, req.NewKey)
 }
 
-func (r *databaseRedisRepo) Clear(req *request.DatabaseRedisClear) error {
-	client, err := r.getClient(req.ServerID, req.DB)
+func (r *databaseRedisRepo) Clear(ctx context.Context, req *request.DatabaseRedisClear) error {
+	client, err := r.getClient(ctx, req.ServerID, req.DB)
 	if err != nil {
 		return err
 	}
@@ -114,7 +115,7 @@ func (r *databaseRedisRepo) Clear(req *request.DatabaseRedisClear) error {
 }
 
 // getClient 根据服务器 ID 创建 Redis 客户端并选择指定数据库
-func (r *databaseRedisRepo) getClient(serverID uint, dbIndex int) (*db.Redis, error) {
+func (r *databaseRedisRepo) getClient(ctx context.Context, serverID uint, dbIndex int) (*db.Redis, error) {
 	server := new(biz.DatabaseServer)
 	if err := r.orm.Where("id = ?", serverID).First(server).Error; err != nil {
 		return nil, errors.New(r.t.Get("server not found"))
@@ -123,7 +124,7 @@ func (r *databaseRedisRepo) getClient(serverID uint, dbIndex int) (*db.Redis, er
 		return nil, errors.New(r.t.Get("server is not Redis type"))
 	}
 
-	client, err := db.NewRedis(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+	client, err := db.NewRedis(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 	if err != nil {
 		return nil, errors.New(r.t.Get("failed to connect to Redis: %v", err))
 	}

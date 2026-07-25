@@ -109,7 +109,11 @@ watch(show, (val) => {
           <n-input v-model:value="file" />
         </n-form-item>
         <n-form-item :label="$gettext('Format')">
-          <n-select v-model:value="format" :options="formatOptions" @update:value="ensureExtension" />
+          <n-select
+            v-model:value="format"
+            :options="formatOptions"
+            @update:value="ensureExtension"
+          />
         </n-form-item>
       </n-form>
       <n-button :loading="loading" :disabled="loading" type="primary" @click="handleArchive">

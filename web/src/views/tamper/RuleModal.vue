@@ -56,7 +56,13 @@ watch(show, (val) => {
       enabled: props.rule.enabled,
     }
   } else {
-    model.value = { name: '', path: '', exts: ['php', 'html', 'htm', 'js'], excludes: [], enabled: true }
+    model.value = {
+      name: '',
+      path: '',
+      exts: ['php', 'html', 'htm', 'js'],
+      excludes: [],
+      enabled: true,
+    }
   }
 })
 
@@ -97,7 +103,11 @@ const handleSubmit = () => {
         />
       </n-form-item>
       <n-form-item :label="$gettext('Name')" required>
-        <n-input v-model:value="model.name" :disabled="isEdit" :placeholder="$gettext('Rule identifier, usually the website name')" />
+        <n-input
+          v-model:value="model.name"
+          :disabled="isEdit"
+          :placeholder="$gettext('Rule identifier, usually the website name')"
+        />
       </n-form-item>
       <n-form-item :label="$gettext('Protected Directory')" required>
         <n-input v-model:value="model.path" placeholder="/opt/ace/sites/example" />

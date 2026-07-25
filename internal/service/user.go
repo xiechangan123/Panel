@@ -8,9 +8,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"image/png"
-	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/dchest/captcha"
@@ -31,19 +29,23 @@ import (
 const loginFailThreshold = 3
 
 type UserService struct {
-	t        *gotext.Locale
-	conf     *config.Config
-	session  *sessions.Manager
-	userRepo *biz.UserUsecase
+	t          *gotext.Locale
+	conf       *config.Config
+	session    *sessions.Manager
+	userRepo   *biz.UserUsecase
+	notifyRepo *biz.NotifyUsecase
+	guard      *loginGuard
 }
 
 func NewUserService(i do.Injector) (*UserService, error) {
 	gob.Register(rsa.PrivateKey{}) // 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	return &UserService{
-		t:        do.MustInvoke[*gotext.Locale](i),
-		conf:     do.MustInvoke[*config.Config](i),
-		session:  do.MustInvoke[*sessions.Manager](i),
-		userRepo: do.MustInvoke[*biz.UserUsecase](i),
+		t:          do.MustInvoke[*gotext.Locale](i),
+		conf:       do.MustInvoke[*config.Config](i),
+		session:    do.MustInvoke[*sessions.Manager](i),
+		userRepo:   do.MustInvoke[*biz.UserUsecase](i),
+		notifyRepo: do.MustInvoke[*biz.NotifyUsecase](i),
+		guard:      newLoginGuard(),
 	}, nil
 }
 
@@ -130,21 +132,27 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ip := clientIP(r, s.conf.HTTP.IPHeader)
+
 	decryptedUsername, _ := rsacrypto.DecryptData(&key, req.Username)
 	decryptedPassword, _ := rsacrypto.DecryptData(&key, req.Password)
 	user, err := s.userRepo.CheckPassword(string(decryptedUsername), string(decryptedPassword))
 	if err != nil {
-		sess.Put("login_fail_count", failCount+1)
+		s.loginFailed(r, sess, ip, string(decryptedUsername), failCount)
 		Error(w, http.StatusForbidden, "%v", err)
 		return
 	}
 
+	// 2FA 失败同样计入，否则已知密码者可无限尝试验证码而不触发告警
 	if user.TwoFA != "" {
 		if valid := totp.Validate(req.PassCode, user.TwoFA); !valid {
+			s.loginFailed(r, sess, ip, string(decryptedUsername), failCount)
 			Error(w, http.StatusForbidden, s.t.Get("invalid 2FA code"))
 			return
 		}
 	}
+
+	s.guard.Reset(ip)
 
 	// 重新生成会话 ID
 	if err = sess.Regenerate(true); err != nil {
@@ -154,16 +162,6 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 
 	// 安全登录下，将当前客户端与会话绑定
 	// 安全登录只在未启用面板 HTTPS 时生效
-	ip := r.RemoteAddr
-	ipHeader := s.conf.HTTP.IPHeader
-	if ipHeader != "" && r.Header.Get(ipHeader) != "" {
-		ip = strings.Split(r.Header.Get(ipHeader), ",")[0]
-	}
-	ip, _, err = net.SplitHostPort(strings.TrimSpace(ip))
-	if err != nil {
-		ip = r.RemoteAddr
-	}
-
 	if req.SafeLogin && !s.conf.HTTP.IsHTTPS() {
 		sess.Put("safe_login", true)
 		sess.Put("safe_client", fmt.Sprintf("%x", sha256.Sum256([]byte(ip))))
@@ -177,7 +175,32 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	sess.Forget("key")
 	sess.Forget("login_fail_count")
 
+	s.notifyRepo.SendEvent(biz.NotifyEventLogin, s.t.Get("[AcePanel] Panel Login"), biz.NotifyBody(s.t.Get("panel login detected"), [][2]string{
+		{s.t.Get("Username"), user.Username},
+		{s.t.Get("IP"), ip},
+		{s.t.Get("User Agent"), r.UserAgent()},
+		{s.t.Get("Time"), time.Now().Format(time.DateTime)},
+	}))
+
 	Success(w, nil)
+}
+
+// loginFailed 记录一次登录失败，同来源短时间内失败过多时告警
+func (s *UserService) loginFailed(r *http.Request, sess *sessions.Session, ip, username string, failCount int) {
+	sess.Put("login_fail_count", failCount+1)
+
+	count, exceeded := s.guard.Fail(ip)
+	if !exceeded {
+		return
+	}
+
+	s.notifyRepo.SendEvent(biz.NotifyEventLoginFailed, s.t.Get("[AcePanel] Suspicious Login Attempts"), biz.NotifyBody(s.t.Get("too many failed panel login attempts"), [][2]string{
+		{s.t.Get("IP"), ip},
+		{s.t.Get("Username"), username},
+		{s.t.Get("Failed Attempts"), cast.ToString(count)},
+		{s.t.Get("User Agent"), r.UserAgent()},
+		{s.t.Get("Time"), time.Now().Format(time.DateTime)},
+	}))
 }
 
 func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {

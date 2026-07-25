@@ -35,9 +35,9 @@ type Database struct {
 
 type DatabaseRepo interface {
 	ListServers(typ string) ([]*DatabaseServer, error)
-	DatabasesOf(server *DatabaseServer) ([]*Database, error)
-	Operator(server *DatabaseServer) (db.Operator, error)
-	Mongo(server *DatabaseServer) (*db.MongoDB, error)
+	DatabasesOf(ctx context.Context, server *DatabaseServer) ([]*Database, error)
+	Operator(ctx context.Context, server *DatabaseServer) (db.Operator, error)
+	Mongo(ctx context.Context, server *DatabaseServer) (*db.MongoDB, error)
 }
 
 // DatabaseUsecase 数据库业务用例
@@ -59,7 +59,7 @@ func NewDatabaseUsecase(i do.Injector) (*DatabaseUsecase, error) {
 	}, nil
 }
 
-func (uc *DatabaseUsecase) List(page, limit uint, typ string) ([]*Database, int64, error) {
+func (uc *DatabaseUsecase) List(ctx context.Context, page, limit uint, typ string) ([]*Database, int64, error) {
 	servers, err := uc.repo.ListServers(typ)
 	if err != nil {
 		return nil, 0, err
@@ -67,7 +67,7 @@ func (uc *DatabaseUsecase) List(page, limit uint, typ string) ([]*Database, int6
 
 	database := make([]*Database, 0)
 	for _, server := range servers {
-		databases, err := uc.repo.DatabasesOf(server)
+		databases, err := uc.repo.DatabasesOf(ctx, server)
 		if err != nil {
 			continue
 		}
@@ -82,14 +82,14 @@ func (uc *DatabaseUsecase) List(page, limit uint, typ string) ([]*Database, int6
 }
 
 func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCreate) error {
-	server, err := uc.server.Get(req.ServerID)
+	server, err := uc.server.Get(ctx, req.ServerID)
 	if err != nil {
 		return err
 	}
 
 	// MongoDB 独立处理，不走 Operator 接口
 	if server.Type == DatabaseTypeMongoDB {
-		mongo, mongoErr := uc.repo.Mongo(server)
+		mongo, mongoErr := uc.repo.Mongo(ctx, server)
 		if mongoErr != nil {
 			return mongoErr
 		}
@@ -101,7 +101,7 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 		return nil
 	}
 
-	operator, err := uc.repo.Operator(server)
+	operator, err := uc.repo.Operator(ctx, server)
 	if err != nil {
 		return err
 	}
@@ -203,14 +203,14 @@ func (uc *DatabaseUsecase) mysqlUserHosts(operator db.Operator, user string) []s
 }
 
 func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name string) error {
-	server, err := uc.server.Get(serverID)
+	server, err := uc.server.Get(ctx, serverID)
 	if err != nil {
 		return err
 	}
 
 	switch server.Type {
 	case DatabaseTypeMongoDB:
-		mongo, mongoErr := uc.repo.Mongo(server)
+		mongo, mongoErr := uc.repo.Mongo(ctx, server)
 		if mongoErr != nil {
 			return mongoErr
 		}
@@ -221,7 +221,7 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 	case DatabaseTypeSQLite:
 		return errors.New(uc.t.Get("sqlite does not support dropping tables from here"))
 	default:
-		operator, opErr := uc.repo.Operator(server)
+		operator, opErr := uc.repo.Operator(ctx, server)
 		if opErr != nil {
 			return opErr
 		}
@@ -237,15 +237,15 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 	return nil
 }
 
-func (uc *DatabaseUsecase) Comment(req *request.DatabaseComment) error {
-	server, err := uc.server.Get(req.ServerID)
+func (uc *DatabaseUsecase) Comment(ctx context.Context, req *request.DatabaseComment) error {
+	server, err := uc.server.Get(ctx, req.ServerID)
 	if err != nil {
 		return err
 	}
 
 	switch server.Type {
 	case DatabaseTypePostgresql:
-		operator, opErr := uc.repo.Operator(server)
+		operator, opErr := uc.repo.Operator(ctx, server)
 		if opErr != nil {
 			return opErr
 		}

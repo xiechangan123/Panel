@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -19,6 +18,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/shell"
+	"github.com/acepanel/panel/v3/pkg/sshlog"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -26,14 +26,6 @@ import (
 const (
 	sshLogChunkInitial int64 = 512 * 1024
 	sshLogChunkMax     int64 = 64 * 1024 * 1024
-)
-
-// SSH 日志正则
-var (
-	sshAccepted    = regexp.MustCompile(`Accepted\s+(\S+)\s+for\s+(\S+)\s+from\s+(\S+)\s+port\s+(\d+)`)
-	sshFailed      = regexp.MustCompile(`Failed\s+(\S+)\s+for\s+(?:invalid user\s+)?(\S+)\s+from\s+(\S+)\s+port\s+(\d+)`)
-	sshInvalidUser = regexp.MustCompile(`Invalid user\s+(\S+)\s+from\s+(\S+)\s+port\s+(\d+)`)
-	sshDisconnect  = regexp.MustCompile(`Disconnected from\s+(?:authenticating\s+)?user\s+(\S+)\s+(\S+)\s+port\s+(\d+)`)
 )
 
 type LogService struct {
@@ -126,7 +118,7 @@ func (s *LogService) sshFromJournalctl(limit int) ([]types.SSHLoginLog, error) {
 			continue
 		}
 
-		record := parseSSHMessage(entry.Message)
+		record := sshlog.ParseMessage(entry.Message)
 		if record == nil {
 			continue
 		}
@@ -198,7 +190,7 @@ func (s *LogService) sshFromLogFile(limit int) ([]types.SSHLoginLog, error) {
 		}
 
 		// 新读的块时间上更早，前置到已收集 logs 之前
-		logs = append(parseSSHChunk(buf), logs...)
+		logs = append(sshlog.ParseChunk(buf), logs...)
 		window *= 2
 	}
 
@@ -207,88 +199,4 @@ func (s *LogService) sshFromLogFile(limit int) ([]types.SSHLoginLog, error) {
 	}
 
 	return logs, nil
-}
-
-// parseSSHChunk 从连续日志字节中解析 SSH 登录记录
-func parseSSHChunk(data []byte) []types.SSHLoginLog {
-	if len(data) == 0 {
-		return nil
-	}
-	var logs []types.SSHLoginLog
-	scanner := bufio.NewScanner(bytes.NewReader(data))
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !strings.Contains(line, "sshd[") {
-			continue
-		}
-		record := parseSSHMessage(line)
-		if record == nil {
-			continue
-		}
-		// 从行首解析 syslog 时间戳（如 "Feb 11 08:30:01"）
-		record.Time = parseSSHLogTime(line)
-		logs = append(logs, *record)
-	}
-	return logs
-}
-
-// parseSSHMessage 从日志消息中提取 SSH 登录信息
-func parseSSHMessage(msg string) *types.SSHLoginLog {
-	if m := sshAccepted.FindStringSubmatch(msg); m != nil {
-		return &types.SSHLoginLog{
-			Method: m[1],
-			User:   m[2],
-			IP:     m[3],
-			Port:   m[4],
-			Status: "accepted",
-		}
-	}
-	if m := sshFailed.FindStringSubmatch(msg); m != nil {
-		return &types.SSHLoginLog{
-			Method: m[1],
-			User:   m[2],
-			IP:     m[3],
-			Port:   m[4],
-			Status: "failed",
-		}
-	}
-	if m := sshInvalidUser.FindStringSubmatch(msg); m != nil {
-		return &types.SSHLoginLog{
-			User:   m[1],
-			IP:     m[2],
-			Port:   m[3],
-			Method: "-",
-			Status: "invalid_user",
-		}
-	}
-	if m := sshDisconnect.FindStringSubmatch(msg); m != nil {
-		return &types.SSHLoginLog{
-			User:   m[1],
-			IP:     m[2],
-			Port:   m[3],
-			Method: "-",
-			Status: "disconnected",
-		}
-	}
-	return nil
-}
-
-// parseSSHLogTime 从 syslog 格式行中解析时间
-func parseSSHLogTime(line string) string {
-	// syslog 格式：Mon DD HH:MM:SS（前 15 个字符）
-	if len(line) < 15 {
-		return "-"
-	}
-	ts := line[:15]
-	// 使用当前年份补全
-	t, err := time.Parse("Jan  2 15:04:05", ts)
-	if err != nil {
-		t, err = time.Parse("Jan 2 15:04:05", ts)
-		if err != nil {
-			return "-"
-		}
-	}
-	t = t.AddDate(time.Now().Year(), 0, 0)
-	return t.Format("2006-01-02 15:04:05")
 }

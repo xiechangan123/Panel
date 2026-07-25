@@ -267,7 +267,7 @@ onUnmounted(() => {
             </span>
             <span class="queue-route">
               {{ hostLabel(item.srcId) }}
-              <i-mdi-arrow-right class="inline text-xs" />
+              <i-mdi-arrow-right class="text-xs inline" />
               {{ hostLabel(item.dstId) }}
             </span>
             <template v-if="item.status === 'running'">

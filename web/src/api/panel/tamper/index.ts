@@ -23,8 +23,7 @@ export default {
   // 删除规则
   deleteRule: (id: number): any => http.Delete(`/tamper/rule/${id}`),
   // 拦截日志
-  logs: (page: number, limit: number): any =>
-    http.Get('/tamper/log', { params: { page, limit } }),
+  logs: (page: number, limit: number): any => http.Get('/tamper/log', { params: { page, limit } }),
   // 清空日志
   clearLogs: (): any => http.Delete('/tamper/log'),
 }

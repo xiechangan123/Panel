@@ -5,7 +5,7 @@ import (
 )
 
 var Package = do.Package(
-	do.Lazy(NewAppService), do.Lazy(NewBackupService), do.Lazy(NewBackupStorageService),
+	do.Lazy(NewAlertService), do.Lazy(NewAppService), do.Lazy(NewBackupService), do.Lazy(NewBackupStorageService),
 	do.Lazy(NewCertService), do.Lazy(NewCertAccountService), do.Lazy(NewCertDNSService),
 	do.Lazy(NewCliService), do.Lazy(NewContainerService), do.Lazy(NewContainerComposeService),
 	do.Lazy(NewContainerImageService), do.Lazy(NewContainerNetworkService), do.Lazy(NewContainerVolumeService),
@@ -15,7 +15,7 @@ var Package = do.Package(
 	do.Lazy(NewEnvironmentNodejsService), do.Lazy(NewEnvironmentPHPService), do.Lazy(NewEnvironmentPythonService),
 	do.Lazy(NewEnvironmentDotnetService), do.Lazy(NewFileService), do.Lazy(NewFileShareService), do.Lazy(NewFirewallService),
 	do.Lazy(NewFirewallScanService), do.Lazy(NewHomeService), do.Lazy(NewLogService),
-	do.Lazy(NewMonitorService), do.Lazy(NewProcessService), do.Lazy(NewProjectService),
+	do.Lazy(NewMonitorService), do.Lazy(NewNotifyService), do.Lazy(NewProcessService), do.Lazy(NewProjectService),
 	do.Lazy(NewSafeService), do.Lazy(NewSettingService), do.Lazy(NewSSHService),
 	do.Lazy(NewSystemctlService), do.Lazy(NewTamperService), do.Lazy(NewTaskService), do.Lazy(NewTemplateService),
 	do.Lazy(NewUserService), do.Lazy(NewUserPasskeyService), do.Lazy(NewUserTokenService),

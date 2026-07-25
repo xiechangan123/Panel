@@ -1,4 +1,3 @@
-
 <script lang="ts" setup>
 import { useGettext } from 'vue3-gettext'
 
@@ -35,7 +34,7 @@ const hintFor = (issue: HealthIssue): string => {
     case 'database:stat':
     case 'database:scan':
       return $gettext(
-        'Try running "acepanel fix" on the server to detect and rebuild the broken database file.'
+        'Try running "acepanel fix" on the server to detect and rebuild the broken database file.',
       )
     default:
       return ''
@@ -51,7 +50,7 @@ const sorted = computed<HealthIssue[]>(() => {
 </script>
 
 <template>
-  <div v-if="sorted.length" class="flex flex-col gap-1 border-b border-border-default">
+  <div v-if="sorted.length" class="border-b border-border-default flex flex-col gap-1">
     <n-alert
       v-for="issue in sorted"
       :key="issue.key"
@@ -63,7 +62,7 @@ const sorted = computed<HealthIssue[]>(() => {
       <div class="flex flex-col">
         <span class="font-medium">{{ titleFor(issue) }}</span>
         <span v-if="hintFor(issue)" class="text-xs opacity-80">{{ hintFor(issue) }}</span>
-        <span v-if="issue.message" class="text-xs opacity-60 font-mono">
+        <span v-if="issue.message" class="text-xs font-mono opacity-60">
           {{ issue.message }}
         </span>
       </div>

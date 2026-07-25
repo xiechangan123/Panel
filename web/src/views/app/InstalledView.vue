@@ -12,10 +12,7 @@ const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
 
 // 运行状态映射，无运行状态概念的应用（如挂载工具）不在此列，渲染为 -
-const statusMap: Record<
-  string,
-  { type: 'success' | 'error' | 'warning'; label: string }
-> = {
+const statusMap: Record<string, { type: 'success' | 'error' | 'warning'; label: string }> = {
   running: { type: 'success', label: $gettext('Running') },
   stopped: { type: 'error', label: $gettext('Stopped') },
   partial: { type: 'warning', label: $gettext('Partial') },

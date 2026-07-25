@@ -3,7 +3,10 @@
 package biz
 
 import (
+	context "context"
+
 	biz "github.com/acepanel/panel/v3/internal/biz"
+
 	db "github.com/acepanel/panel/v3/pkg/db"
 
 	mock "github.com/stretchr/testify/mock"
@@ -172,9 +175,9 @@ func (_c *DatabaseUserRepo_DeleteByServerNames_Call) RunAndReturn(run func(uint,
 	return _c
 }
 
-// Get provides a mock function with given fields: id
-func (_m *DatabaseUserRepo) Get(id uint) (*biz.DatabaseUser, error) {
-	ret := _m.Called(id)
+// Get provides a mock function with given fields: ctx, id
+func (_m *DatabaseUserRepo) Get(ctx context.Context, id uint) (*biz.DatabaseUser, error) {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -182,19 +185,19 @@ func (_m *DatabaseUserRepo) Get(id uint) (*biz.DatabaseUser, error) {
 
 	var r0 *biz.DatabaseUser
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) (*biz.DatabaseUser, error)); ok {
-		return rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*biz.DatabaseUser, error)); ok {
+		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(uint) *biz.DatabaseUser); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *biz.DatabaseUser); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*biz.DatabaseUser)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -208,14 +211,15 @@ type DatabaseUserRepo_Get_Call struct {
 }
 
 // Get is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id uint
-func (_e *DatabaseUserRepo_Expecter) Get(id interface{}) *DatabaseUserRepo_Get_Call {
-	return &DatabaseUserRepo_Get_Call{Call: _e.mock.On("Get", id)}
+func (_e *DatabaseUserRepo_Expecter) Get(ctx interface{}, id interface{}) *DatabaseUserRepo_Get_Call {
+	return &DatabaseUserRepo_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *DatabaseUserRepo_Get_Call) Run(run func(id uint)) *DatabaseUserRepo_Get_Call {
+func (_c *DatabaseUserRepo_Get_Call) Run(run func(ctx context.Context, id uint)) *DatabaseUserRepo_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].(context.Context), args[1].(uint))
 	})
 	return _c
 }
@@ -225,14 +229,14 @@ func (_c *DatabaseUserRepo_Get_Call) Return(_a0 *biz.DatabaseUser, _a1 error) *D
 	return _c
 }
 
-func (_c *DatabaseUserRepo_Get_Call) RunAndReturn(run func(uint) (*biz.DatabaseUser, error)) *DatabaseUserRepo_Get_Call {
+func (_c *DatabaseUserRepo_Get_Call) RunAndReturn(run func(context.Context, uint) (*biz.DatabaseUser, error)) *DatabaseUserRepo_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with given fields: page, limit, typ
-func (_m *DatabaseUserRepo) List(page uint, limit uint, typ string) ([]*biz.DatabaseUser, int64, error) {
-	ret := _m.Called(page, limit, typ)
+// List provides a mock function with given fields: ctx, page, limit, typ
+func (_m *DatabaseUserRepo) List(ctx context.Context, page uint, limit uint, typ string) ([]*biz.DatabaseUser, int64, error) {
+	ret := _m.Called(ctx, page, limit, typ)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -241,25 +245,25 @@ func (_m *DatabaseUserRepo) List(page uint, limit uint, typ string) ([]*biz.Data
 	var r0 []*biz.DatabaseUser
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(uint, uint, string) ([]*biz.DatabaseUser, int64, error)); ok {
-		return rf(page, limit, typ)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint, string) ([]*biz.DatabaseUser, int64, error)); ok {
+		return rf(ctx, page, limit, typ)
 	}
-	if rf, ok := ret.Get(0).(func(uint, uint, string) []*biz.DatabaseUser); ok {
-		r0 = rf(page, limit, typ)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, uint, string) []*biz.DatabaseUser); ok {
+		r0 = rf(ctx, page, limit, typ)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*biz.DatabaseUser)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint, uint, string) int64); ok {
-		r1 = rf(page, limit, typ)
+	if rf, ok := ret.Get(1).(func(context.Context, uint, uint, string) int64); ok {
+		r1 = rf(ctx, page, limit, typ)
 	} else {
 		r1 = ret.Get(1).(int64)
 	}
 
-	if rf, ok := ret.Get(2).(func(uint, uint, string) error); ok {
-		r2 = rf(page, limit, typ)
+	if rf, ok := ret.Get(2).(func(context.Context, uint, uint, string) error); ok {
+		r2 = rf(ctx, page, limit, typ)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -273,16 +277,17 @@ type DatabaseUserRepo_List_Call struct {
 }
 
 // List is a helper method to define mock.On call
+//   - ctx context.Context
 //   - page uint
 //   - limit uint
 //   - typ string
-func (_e *DatabaseUserRepo_Expecter) List(page interface{}, limit interface{}, typ interface{}) *DatabaseUserRepo_List_Call {
-	return &DatabaseUserRepo_List_Call{Call: _e.mock.On("List", page, limit, typ)}
+func (_e *DatabaseUserRepo_Expecter) List(ctx interface{}, page interface{}, limit interface{}, typ interface{}) *DatabaseUserRepo_List_Call {
+	return &DatabaseUserRepo_List_Call{Call: _e.mock.On("List", ctx, page, limit, typ)}
 }
 
-func (_c *DatabaseUserRepo_List_Call) Run(run func(page uint, limit uint, typ string)) *DatabaseUserRepo_List_Call {
+func (_c *DatabaseUserRepo_List_Call) Run(run func(ctx context.Context, page uint, limit uint, typ string)) *DatabaseUserRepo_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint), args[1].(uint), args[2].(string))
+		run(args[0].(context.Context), args[1].(uint), args[2].(uint), args[3].(string))
 	})
 	return _c
 }
@@ -292,7 +297,7 @@ func (_c *DatabaseUserRepo_List_Call) Return(_a0 []*biz.DatabaseUser, _a1 int64,
 	return _c
 }
 
-func (_c *DatabaseUserRepo_List_Call) RunAndReturn(run func(uint, uint, string) ([]*biz.DatabaseUser, int64, error)) *DatabaseUserRepo_List_Call {
+func (_c *DatabaseUserRepo_List_Call) RunAndReturn(run func(context.Context, uint, uint, string) ([]*biz.DatabaseUser, int64, error)) *DatabaseUserRepo_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -356,9 +361,9 @@ func (_c *DatabaseUserRepo_ListByNames_Call) RunAndReturn(run func(uint, []strin
 	return _c
 }
 
-// Operator provides a mock function with given fields: server
-func (_m *DatabaseUserRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
-	ret := _m.Called(server)
+// Operator provides a mock function with given fields: ctx, server
+func (_m *DatabaseUserRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
+	ret := _m.Called(ctx, server)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Operator")
@@ -366,19 +371,19 @@ func (_m *DatabaseUserRepo) Operator(server *biz.DatabaseServer) (db.Operator, e
 
 	var r0 db.Operator
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) (db.Operator, error)); ok {
-		return rf(server)
+	if rf, ok := ret.Get(0).(func(context.Context, *biz.DatabaseServer) (db.Operator, error)); ok {
+		return rf(ctx, server)
 	}
-	if rf, ok := ret.Get(0).(func(*biz.DatabaseServer) db.Operator); ok {
-		r0 = rf(server)
+	if rf, ok := ret.Get(0).(func(context.Context, *biz.DatabaseServer) db.Operator); ok {
+		r0 = rf(ctx, server)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(db.Operator)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*biz.DatabaseServer) error); ok {
-		r1 = rf(server)
+	if rf, ok := ret.Get(1).(func(context.Context, *biz.DatabaseServer) error); ok {
+		r1 = rf(ctx, server)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -392,14 +397,15 @@ type DatabaseUserRepo_Operator_Call struct {
 }
 
 // Operator is a helper method to define mock.On call
+//   - ctx context.Context
 //   - server *biz.DatabaseServer
-func (_e *DatabaseUserRepo_Expecter) Operator(server interface{}) *DatabaseUserRepo_Operator_Call {
-	return &DatabaseUserRepo_Operator_Call{Call: _e.mock.On("Operator", server)}
+func (_e *DatabaseUserRepo_Expecter) Operator(ctx interface{}, server interface{}) *DatabaseUserRepo_Operator_Call {
+	return &DatabaseUserRepo_Operator_Call{Call: _e.mock.On("Operator", ctx, server)}
 }
 
-func (_c *DatabaseUserRepo_Operator_Call) Run(run func(server *biz.DatabaseServer)) *DatabaseUserRepo_Operator_Call {
+func (_c *DatabaseUserRepo_Operator_Call) Run(run func(ctx context.Context, server *biz.DatabaseServer)) *DatabaseUserRepo_Operator_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*biz.DatabaseServer))
+		run(args[0].(context.Context), args[1].(*biz.DatabaseServer))
 	})
 	return _c
 }
@@ -409,7 +415,7 @@ func (_c *DatabaseUserRepo_Operator_Call) Return(_a0 db.Operator, _a1 error) *Da
 	return _c
 }
 
-func (_c *DatabaseUserRepo_Operator_Call) RunAndReturn(run func(*biz.DatabaseServer) (db.Operator, error)) *DatabaseUserRepo_Operator_Call {
+func (_c *DatabaseUserRepo_Operator_Call) RunAndReturn(run func(context.Context, *biz.DatabaseServer) (db.Operator, error)) *DatabaseUserRepo_Operator_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -460,17 +466,17 @@ func (_c *DatabaseUserRepo_Save_Call) RunAndReturn(run func(*biz.DatabaseUser) e
 	return _c
 }
 
-// UpdateRemark provides a mock function with given fields: req
-func (_m *DatabaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) error {
-	ret := _m.Called(req)
+// UpdateRemark provides a mock function with given fields: ctx, req
+func (_m *DatabaseUserRepo) UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
+	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateRemark")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*request.DatabaseUserUpdateRemark) error); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.DatabaseUserUpdateRemark) error); ok {
+		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -484,14 +490,15 @@ type DatabaseUserRepo_UpdateRemark_Call struct {
 }
 
 // UpdateRemark is a helper method to define mock.On call
+//   - ctx context.Context
 //   - req *request.DatabaseUserUpdateRemark
-func (_e *DatabaseUserRepo_Expecter) UpdateRemark(req interface{}) *DatabaseUserRepo_UpdateRemark_Call {
-	return &DatabaseUserRepo_UpdateRemark_Call{Call: _e.mock.On("UpdateRemark", req)}
+func (_e *DatabaseUserRepo_Expecter) UpdateRemark(ctx interface{}, req interface{}) *DatabaseUserRepo_UpdateRemark_Call {
+	return &DatabaseUserRepo_UpdateRemark_Call{Call: _e.mock.On("UpdateRemark", ctx, req)}
 }
 
-func (_c *DatabaseUserRepo_UpdateRemark_Call) Run(run func(req *request.DatabaseUserUpdateRemark)) *DatabaseUserRepo_UpdateRemark_Call {
+func (_c *DatabaseUserRepo_UpdateRemark_Call) Run(run func(ctx context.Context, req *request.DatabaseUserUpdateRemark)) *DatabaseUserRepo_UpdateRemark_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*request.DatabaseUserUpdateRemark))
+		run(args[0].(context.Context), args[1].(*request.DatabaseUserUpdateRemark))
 	})
 	return _c
 }
@@ -501,7 +508,7 @@ func (_c *DatabaseUserRepo_UpdateRemark_Call) Return(_a0 error) *DatabaseUserRep
 	return _c
 }
 
-func (_c *DatabaseUserRepo_UpdateRemark_Call) RunAndReturn(run func(*request.DatabaseUserUpdateRemark) error) *DatabaseUserRepo_UpdateRemark_Call {
+func (_c *DatabaseUserRepo_UpdateRemark_Call) RunAndReturn(run func(context.Context, *request.DatabaseUserUpdateRemark) error) *DatabaseUserRepo_UpdateRemark_Call {
 	_c.Call.Return(run)
 	return _c
 }

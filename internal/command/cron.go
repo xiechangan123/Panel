@@ -1,0 +1,42 @@
+package command
+
+import (
+	"context"
+
+	"github.com/leonelquinteros/gotext"
+	"github.com/samber/do/v2"
+	"github.com/urfave/cli/v3"
+
+	"github.com/acepanel/panel/v3/internal/service"
+)
+
+// CronCommand 计划任务命令组
+func CronCommand(i do.Injector) (*cli.Command, error) {
+	t := do.MustInvoke[*gotext.Locale](i)
+	return &cli.Command{
+		Name:  "cron",
+		Usage: t.Get("Cron task"),
+		Commands: []*cli.Command{
+			{
+				Name:  "failed",
+				Usage: t.Get("Report a failed cron task, called by the task wrapper script"),
+				Flags: []cli.Flag{
+					&cli.UintFlag{
+						Name:     "id",
+						Aliases:  []string{"i"},
+						Usage:    t.Get("Cron task ID"),
+						Required: true,
+					},
+					&cli.IntFlag{
+						Name:    "code",
+						Aliases: []string{"c"},
+						Usage:   t.Get("Exit code"),
+					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return do.MustInvoke[*service.CliService](i).CronFailed(ctx, cmd)
+				},
+			},
+		},
+	}, nil
+}

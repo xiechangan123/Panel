@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"slices"
 
@@ -31,7 +32,7 @@ func (r *databaseUserRepo) Count() (int64, error) {
 	return count, nil
 }
 
-func (r *databaseUserRepo) List(page, limit uint, typ string) ([]*biz.DatabaseUser, int64, error) {
+func (r *databaseUserRepo) List(ctx context.Context, page, limit uint, typ string) ([]*biz.DatabaseUser, int64, error) {
 	user := make([]*biz.DatabaseUser, 0)
 	var total int64
 	query := r.db.Model(&biz.DatabaseUser{}).Preload("Server").Order("id desc")
@@ -41,25 +42,25 @@ func (r *databaseUserRepo) List(page, limit uint, typ string) ([]*biz.DatabaseUs
 	err := query.Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&user).Error
 
 	for u := range slices.Values(user) {
-		r.fillUser(u)
+		r.fillUser(ctx, u)
 	}
 
 	return user, total, err
 }
 
-func (r *databaseUserRepo) Get(id uint) (*biz.DatabaseUser, error) {
+func (r *databaseUserRepo) Get(ctx context.Context, id uint) (*biz.DatabaseUser, error) {
 	user := new(biz.DatabaseUser)
 	if err := r.db.Preload("Server").Where("id = ?", id).First(user).Error; err != nil {
 		return nil, err
 	}
 
-	r.fillUser(user)
+	r.fillUser(ctx, user)
 
 	return user, nil
 }
 
-func (r *databaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) error {
-	user, err := r.Get(req.ID)
+func (r *databaseUserRepo) UpdateRemark(ctx context.Context, req *request.DatabaseUserUpdateRemark) error {
+	user, err := r.Get(ctx, req.ID)
 	if err != nil {
 		return err
 	}
@@ -70,18 +71,18 @@ func (r *databaseUserRepo) UpdateRemark(req *request.DatabaseUserUpdateRemark) e
 }
 
 // Operator 获取数据库操作句柄
-func (r *databaseUserRepo) Operator(server *biz.DatabaseServer) (db.Operator, error) {
+func (r *databaseUserRepo) Operator(ctx context.Context, server *biz.DatabaseServer) (db.Operator, error) {
 	switch server.Type {
 	case biz.DatabaseTypeMysql:
-		return newMySQLOperator(server.Username, server.Password, server.Host, server.Port)
+		return newMySQLOperator(ctx, server.Username, server.Password, server.Host, server.Port)
 	case biz.DatabaseTypePostgresql:
-		postgres, err := db.NewPostgres(server.Username, server.Password, server.Host, server.Port)
+		postgres, err := db.NewPostgres(ctx, server.Username, server.Password, server.Host, server.Port)
 		if err != nil {
 			return nil, err
 		}
 		return postgres, nil
 	case biz.DatabaseTypeClickHouse:
-		clickhouse, err := db.NewClickHouse(server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
+		clickhouse, err := db.NewClickHouse(ctx, server.Username, server.Password, fmt.Sprintf("%s:%d", server.Host, server.Port))
 		if err != nil {
 			return nil, err
 		}
@@ -125,17 +126,17 @@ func (r *databaseUserRepo) DeleteByServerNames(serverID uint, names []string) er
 	return r.db.Where("server_id = ? AND username IN ?", serverID, names).Delete(&biz.DatabaseUser{}).Error
 }
 
-func (r *databaseUserRepo) fillUser(user *biz.DatabaseUser) {
+func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser) {
 	server, err := r.loadServer(user.ServerID)
 	if err == nil {
-		operator, err := r.Operator(server)
+		operator, err := r.Operator(ctx, server)
 		if err == nil {
 			defer operator.Close()
 			switch server.Type {
 			case biz.DatabaseTypeMysql:
 				privileges, _ := operator.UserPrivileges(user.Username, user.Host)
 				user.Privileges = privileges
-				if mysql2, err := newMySQLOperator(user.Username, user.Password, server.Host, server.Port); err == nil {
+				if mysql2, err := newMySQLOperator(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
 					mysql2.Close()
 					user.Status = biz.DatabaseUserStatusValid
 				} else {
@@ -144,7 +145,7 @@ func (r *databaseUserRepo) fillUser(user *biz.DatabaseUser) {
 			case biz.DatabaseTypePostgresql:
 				privileges, _ := operator.UserPrivileges(user.Username)
 				user.Privileges = privileges
-				if postgres2, err := db.NewPostgres(user.Username, user.Password, server.Host, server.Port); err == nil {
+				if postgres2, err := db.NewPostgres(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
 					postgres2.Close()
 					user.Status = biz.DatabaseUserStatusValid
 				} else {
@@ -153,7 +154,7 @@ func (r *databaseUserRepo) fillUser(user *biz.DatabaseUser) {
 			case biz.DatabaseTypeClickHouse:
 				privileges, _ := operator.UserPrivileges(user.Username)
 				user.Privileges = privileges
-				if ch2, err := db.NewClickHouse(user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
+				if ch2, err := db.NewClickHouse(ctx, user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
 					ch2.Close()
 					user.Status = biz.DatabaseUserStatusValid
 				} else {

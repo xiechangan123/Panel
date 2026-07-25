@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -17,7 +18,7 @@ type ClickHouse struct {
 }
 
 // NewClickHouse 创建 ClickHouse 连接（HTTP API）
-func NewClickHouse(username, password, address string) (*ClickHouse, error) {
+func NewClickHouse(ctx context.Context, username, password, address string) (*ClickHouse, error) {
 	client := resty.New()
 	client.SetBaseURL(fmt.Sprintf("http://%s", address))
 	client.SetTimeout(10 * 1000 * 1000 * 1000) // 10s
@@ -30,7 +31,7 @@ func NewClickHouse(username, password, address string) (*ClickHouse, error) {
 	}
 
 	// 测试连接
-	if err := ch.Ping(); err != nil {
+	if err := ch.ping(ctx); err != nil {
 		_ = client.Close()
 		return nil, fmt.Errorf("connect to clickhouse failed: %w", err)
 	}
@@ -43,8 +44,25 @@ func (r *ClickHouse) Close() {
 }
 
 func (r *ClickHouse) Ping() error {
-	_, err := r.exec("SELECT 1")
-	return err
+	return r.ping(context.Background())
+}
+
+// ping 带 context 的连通性检查，供构造时使用
+func (r *ClickHouse) ping(ctx context.Context) error {
+	resp, err := r.client.R().
+		SetContext(ctx).
+		SetQueryParam("user", r.username).
+		SetQueryParam("password", r.password).
+		SetBody("SELECT 1").
+		Post("/")
+	if err != nil {
+		return fmt.Errorf("clickhouse query failed: %w", err)
+	}
+	if resp.StatusCode() != 200 {
+		return fmt.Errorf("clickhouse query error: %s", strings.TrimSpace(resp.String()))
+	}
+
+	return nil
 }
 
 func (r *ClickHouse) Query(query string, args ...any) (*sql.Rows, error) {

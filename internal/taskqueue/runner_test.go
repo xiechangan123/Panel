@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/sqlite"
 	"gorm.io/gorm"
 
@@ -28,8 +29,12 @@ func newRunnerForTest(t *testing.T) *Runner {
 	if err = db.AutoMigrate(&biz.Task{}); err != nil {
 		t.Fatal(err)
 	}
-	return NewRunner(db, slog.New(slog.NewTextHandler(os.Stderr, nil)))
+	return NewRunner(db, slog.New(slog.NewTextHandler(os.Stderr, nil)), stubNotifier{}, gotext.NewLocale("", "en"))
 }
+
+type stubNotifier struct{}
+
+func (stubNotifier) SendEvent(biz.NotifyEvent, string, string) {}
 
 // 等待任务进入指定状态
 func waitStatus(t *testing.T, db *gorm.DB, id uint, status biz.TaskStatus, timeout time.Duration) *biz.Task {

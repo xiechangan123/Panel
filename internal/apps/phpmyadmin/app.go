@@ -124,7 +124,7 @@ func (s *App) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	server, err := s.databaseServerRepo.Get(req.ServerID)
+	server, err := s.databaseServerRepo.Get(r.Context(), req.ServerID)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return

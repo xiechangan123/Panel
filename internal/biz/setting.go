@@ -66,9 +66,12 @@ const (
 	SettingKeyIPDBPath                  SettingKey = "ipdb_path"
 	SettingKeyInfoRan                   SettingKey = "info_ran" // info 命令是否已运行过
 	SettingKeyTamperEnabled             SettingKey = "tamper_enabled"
-	SettingKeyTamperMode                SettingKey = "tamper_mode"      // chattr / ebpf
-	SettingKeyTamperBlockNew            SettingKey = "tamper_block_new" // 新建受保护类型文件时删除拦截
-	SettingKeyTamperLogDays             SettingKey = "tamper_log_days"  // 拦截日志保留天数
+	SettingKeyTamperMode                SettingKey = "tamper_mode"           // chattr / ebpf
+	SettingKeyTamperBlockNew            SettingKey = "tamper_block_new"      // 新建受保护类型文件时删除拦截
+	SettingKeyTamperLogDays             SettingKey = "tamper_log_days"       // 拦截日志保留天数
+	SettingKeyNotifyEvents              SettingKey = "notify_event_types"    // 订阅的系统事件类型，JSON 数组
+	SettingKeyNotifyEventChannels       SettingKey = "notify_event_channels" // 接收系统事件的渠道 ID，JSON 数组
+	SettingKeyAlertLogDays              SettingKey = "alert_log_days"        // 告警记录保留天数
 )
 
 type Setting struct {

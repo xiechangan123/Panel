@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { useThemeStore } from '@/stores'
-
 import HealthBanner from '@/components/system/HealthBanner.vue'
+import { useThemeStore } from '@/stores'
 
 import AppMain from './AppMain.vue'
 import AppHeader from './header/IndexView.vue'

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -30,7 +31,7 @@ type ESDocument struct {
 }
 
 // NewElasticsearch 创建 Elasticsearch 连接
-func NewElasticsearch(address, username, password string) (*Elasticsearch, error) {
+func NewElasticsearch(ctx context.Context, address, username, password string) (*Elasticsearch, error) {
 	client := resty.New()
 	client.SetBaseURL(fmt.Sprintf("http://%s", address))
 	client.SetTimeout(10 * 1000 * 1000 * 1000) // 10s
@@ -39,7 +40,7 @@ func NewElasticsearch(address, username, password string) (*Elasticsearch, error
 	}
 
 	es := &Elasticsearch{client: client}
-	if err := es.Ping(); err != nil {
+	if err := es.ping(ctx); err != nil {
 		_ = client.Close()
 		return nil, fmt.Errorf("connect to elasticsearch failed: %w", err)
 	}
@@ -52,13 +53,19 @@ func (r *Elasticsearch) Close() {
 }
 
 func (r *Elasticsearch) Ping() error {
-	resp, err := r.client.R().Get("/")
+	return r.ping(context.Background())
+}
+
+// ping 带 context 的连通性检查，供构造时使用
+func (r *Elasticsearch) ping(ctx context.Context) error {
+	resp, err := r.client.R().SetContext(ctx).Get("/")
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode() != 200 {
 		return fmt.Errorf("elasticsearch ping failed: %s", resp.String())
 	}
+
 	return nil
 }
 

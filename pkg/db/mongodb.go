@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -16,14 +17,14 @@ type MongoDB struct {
 }
 
 // NewMongoDB 创建 MongoDB 连接
-func NewMongoDB(username, password, address string) (*MongoDB, error) {
+func NewMongoDB(ctx context.Context, username, password, address string) (*MongoDB, error) {
 	m := &MongoDB{
 		username: username,
 		password: password,
 		address:  address,
 	}
 
-	if err := m.Ping(); err != nil {
+	if err := m.ping(ctx); err != nil {
 		return nil, fmt.Errorf("connect to mongodb failed: %w", err)
 	}
 
@@ -33,7 +34,12 @@ func NewMongoDB(username, password, address string) (*MongoDB, error) {
 func (r *MongoDB) Close() {}
 
 func (r *MongoDB) Ping() error {
-	_, err := r.mongosh(`db.runCommand({ping:1})`)
+	return r.ping(context.Background())
+}
+
+// ping 带 context 的连通性检查，供构造时使用
+func (r *MongoDB) ping(ctx context.Context) error {
+	_, err := r.mongoshContext(ctx, `db.runCommand({ping:1})`)
 	return err
 }
 
@@ -149,14 +155,21 @@ func (r *MongoDB) Users() ([]MongoUser, error) {
 
 // mongosh 执行 mongosh 命令
 func (r *MongoDB) mongosh(eval string) (string, error) {
-	cmd := fmt.Sprintf(`mongosh --quiet --eval "%s" mongodb://%s:%s@%s/admin 2>/dev/null`,
+	return r.mongoshContext(context.Background(), eval)
+}
+
+// mongoshContext 执行 mongosh 命令，ctx 取消时终止进程
+func (r *MongoDB) mongoshContext(ctx context.Context, eval string) (string, error) {
+	// serverSelectionTimeoutMS 限制建连耗时，避免不可达地址长时间挂起
+	cmd := fmt.Sprintf(`mongosh --quiet --eval "%s" "mongodb://%s:%s@%s/admin?serverSelectionTimeoutMS=10000" 2>/dev/null`,
 		strings.ReplaceAll(eval, `"`, `\"`),
 		r.username, r.password, r.address,
 	)
-	raw, err := shell.Execf(cmd)
+	raw, err := shell.ExecfWithContext(ctx, cmd)
 	if err != nil {
 		return "", fmt.Errorf("mongosh error: %w", err)
 	}
+
 	return strings.TrimSpace(raw), nil
 }
 

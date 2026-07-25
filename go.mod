@@ -60,6 +60,7 @@ require (
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20260220081509-8e17ce617db3
 	github.com/urfave/cli/v3 v3.10.1
 	github.com/valyala/fastjson v1.6.10
+	github.com/wneessen/go-mail v0.8.1
 	github.com/xuri/excelize/v2 v2.11.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.6
 	golang.org/x/crypto v0.54.0

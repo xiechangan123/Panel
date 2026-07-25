@@ -138,9 +138,7 @@ const onConflictConfirm = () => {
   const seen = new Set<string>()
   for (const item of renameItems) {
     if (seen.has(item.suggestedName)) {
-      window.$message.error(
-        $gettext('Duplicate new name "%{name}"', { name: item.suggestedName }),
-      )
+      window.$message.error($gettext('Duplicate new name "%{name}"', { name: item.suggestedName }))
       return
     }
     seen.add(item.suggestedName)
@@ -763,12 +761,7 @@ const handleChange = async (data: { fileList: UploadFileInfo[] }) => {
           >
             <n-flex vertical :size="4" style="min-width: 0; flex: 1">
               <NText style="word-break: break-all">{{ item.file.name }}</NText>
-              <n-flex
-                v-if="item.action === 'rename'"
-                align="center"
-                :size="6"
-                style="min-width: 0"
-              >
+              <n-flex v-if="item.action === 'rename'" align="center" :size="6" style="min-width: 0">
                 <NText depth="3" style="font-size: 12px">→</NText>
                 <n-input
                   v-model:value="item.suggestedName"

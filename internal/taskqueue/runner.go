@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -17,10 +18,17 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
+// Notifier 事件通知，由 biz.NotifyUsecase 实现
+type Notifier interface {
+	SendEvent(event biz.NotifyEvent, subject, body string)
+}
+
 type Runner struct {
-	db     *gorm.DB
-	log    *slog.Logger
-	notify chan struct{}
+	db       *gorm.DB
+	log      *slog.Logger
+	notifier Notifier
+	t        *gotext.Locale
+	notify   chan struct{}
 
 	mu            sync.Mutex
 	currentID     uint               // 当前运行的任务 ID
@@ -28,11 +36,13 @@ type Runner struct {
 }
 
 // NewRunner 创建任务运行器
-func NewRunner(db *gorm.DB, log *slog.Logger) *Runner {
+func NewRunner(db *gorm.DB, log *slog.Logger, notifier Notifier, t *gotext.Locale) *Runner {
 	return &Runner{
-		db:     db,
-		log:    log,
-		notify: make(chan struct{}, 1),
+		db:       db,
+		log:      log,
+		notifier: notifier,
+		t:        t,
+		notify:   make(chan struct{}, 1),
 	}
 }
 
@@ -153,6 +163,16 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 		}
 		r.log.Warn("background task did not finish", slog.Any("task_id", task.ID), slog.Any("status", status), slog.Any("err", err))
 		_ = r.db.Model(task).Update("status", status).Error
+
+		// 用户主动取消不算故障
+		if status == biz.TaskStatusFailed {
+			r.notifier.SendEvent(biz.NotifyEventTaskFailed, r.t.Get("[AcePanel] Background Task Failed"), biz.NotifyBody(r.t.Get("background task failed"), [][2]string{
+				{r.t.Get("Task"), task.Name},
+				{r.t.Get("Log"), logFile},
+				{r.t.Get("Error"), err.Error()},
+				{r.t.Get("Time"), time.Now().Format(time.DateTime)},
+			}))
+		}
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
@@ -17,6 +18,8 @@ type WebsiteExpire struct {
 	db          *gorm.DB
 	log         *slog.Logger
 	websiteRepo *biz.WebsiteUsecase
+	notifyRepo  *biz.NotifyUsecase
+	t           *gotext.Locale
 }
 
 // NewWebsiteExpire 构造网站到期检查任务
@@ -27,6 +30,8 @@ func NewWebsiteExpire(i do.Injector) (Job, error) {
 			db:          do.MustInvoke[*gorm.DB](i),
 			log:         do.MustInvoke[*slog.Logger](i),
 			websiteRepo: do.MustInvoke[*biz.WebsiteUsecase](i),
+			notifyRepo:  do.MustInvoke[*biz.NotifyUsecase](i),
+			t:           do.MustInvoke[*gotext.Locale](i),
 		},
 	}, nil
 }
@@ -50,6 +55,10 @@ func (r *WebsiteExpire) Run(_ context.Context) error {
 			continue
 		}
 		r.log.Info("website expired and disabled", slog.String("name", website.Name), slog.Time("expire_at", *website.ExpireAt))
+		r.notifyRepo.SendEvent(biz.NotifyEventWebsiteExpire, r.t.Get("[AcePanel] Website Expired"), biz.NotifyBody(r.t.Get("website expired and has been disabled"), [][2]string{
+			{r.t.Get("Website"), website.Name},
+			{r.t.Get("Expire Time"), website.ExpireAt.Format(time.DateTime)},
+		}))
 	}
 	return nil
 }

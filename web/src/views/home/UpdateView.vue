@@ -26,8 +26,7 @@ const latestVersion = computed(() => versions.value?.[0]?.version || '')
 // 更新开始后仅展示进度，隐藏版本对比与更新日志
 const showProgress = computed(() => updating.value || !!errorMsg.value)
 
-const parseDescription = (text: string): string[] =>
-  text.split('\n').filter((line) => line.trim())
+const parseDescription = (text: string): string[] => text.split('\n').filter((line) => line.trim())
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -129,7 +128,9 @@ const handleUpdate = () => {
           <n-text class="text-lg font-medium">
             <template v-if="errorMsg">{{ $gettext('Update failed') }}</template>
             <template v-else-if="restartTimedOut">{{ $gettext('Update timed out') }}</template>
-            <template v-else>{{ $gettext('Updating to v%{ v }...', { v: latestVersion }) }}</template>
+            <template v-else>{{
+              $gettext('Updating to v%{ v }...', { v: latestVersion })
+            }}</template>
           </n-text>
         </n-flex>
 
@@ -187,7 +188,9 @@ const handleUpdate = () => {
             </n-text>
             <n-flex vertical align="center" :size="6">
               <n-text depth="3" class="text-xs">{{ $gettext('Latest') }}</n-text>
-              <n-tag type="success" round :bordered="false" size="large">v{{ latestVersion }}</n-tag>
+              <n-tag type="success" round :bordered="false" size="large"
+                >v{{ latestVersion }}</n-tag
+              >
             </n-flex>
           </n-flex>
           <n-button type="primary" size="large" @click="handleUpdate">

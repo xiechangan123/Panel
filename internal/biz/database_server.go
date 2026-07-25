@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -69,9 +70,9 @@ func (r *DatabaseServer) AfterFind(tx *gorm.DB) error {
 
 type DatabaseServerRepo interface {
 	Count() (int64, error)
-	List(page, limit uint, typ string) ([]*DatabaseServer, int64, error)
-	Get(id uint) (*DatabaseServer, error)
-	GetByName(name string) (*DatabaseServer, error)
+	List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseServer, int64, error)
+	Get(ctx context.Context, id uint) (*DatabaseServer, error)
+	GetByName(ctx context.Context, name string) (*DatabaseServer, error)
 	Create(server *DatabaseServer) error
 	Save(server *DatabaseServer) error
 	UpdateRemark(req *request.DatabaseServerUpdateRemark) error
@@ -81,8 +82,8 @@ type DatabaseServerRepo interface {
 	ClearUsers(id uint) error
 	ListUsers(serverID uint) ([]*DatabaseUser, error)
 	CreateUser(user *DatabaseUser) error
-	Operator(server *DatabaseServer) (db.Operator, error)
-	CheckServer(server *DatabaseServer) bool
+	Operator(ctx context.Context, server *DatabaseServer) (db.Operator, error)
+	CheckServer(ctx context.Context, server *DatabaseServer) bool
 }
 
 // DatabaseServerUsecase 数据库服务器业务用例
@@ -104,19 +105,19 @@ func (uc *DatabaseServerUsecase) Count() (int64, error) {
 	return uc.repo.Count()
 }
 
-func (uc *DatabaseServerUsecase) List(page, limit uint, typ string) ([]*DatabaseServer, int64, error) {
-	return uc.repo.List(page, limit, typ)
+func (uc *DatabaseServerUsecase) List(ctx context.Context, page, limit uint, typ string) ([]*DatabaseServer, int64, error) {
+	return uc.repo.List(ctx, page, limit, typ)
 }
 
-func (uc *DatabaseServerUsecase) Get(id uint) (*DatabaseServer, error) {
-	return uc.repo.Get(id)
+func (uc *DatabaseServerUsecase) Get(ctx context.Context, id uint) (*DatabaseServer, error) {
+	return uc.repo.Get(ctx, id)
 }
 
-func (uc *DatabaseServerUsecase) GetByName(name string) (*DatabaseServer, error) {
-	return uc.repo.GetByName(name)
+func (uc *DatabaseServerUsecase) GetByName(ctx context.Context, name string) (*DatabaseServer, error) {
+	return uc.repo.GetByName(ctx, name)
 }
 
-func (uc *DatabaseServerUsecase) Create(req *request.DatabaseServerCreate) error {
+func (uc *DatabaseServerUsecase) Create(ctx context.Context, req *request.DatabaseServerCreate) error {
 	databaseServer := &DatabaseServer{
 		Name:     req.Name,
 		Type:     DatabaseType(req.Type),
@@ -127,15 +128,15 @@ func (uc *DatabaseServerUsecase) Create(req *request.DatabaseServerCreate) error
 		Remark:   req.Remark,
 	}
 
-	if !uc.repo.CheckServer(databaseServer) {
+	if !uc.repo.CheckServer(ctx, databaseServer) {
 		return errors.New(uc.t.Get("check server connection failed"))
 	}
 
 	return uc.repo.Create(databaseServer)
 }
 
-func (uc *DatabaseServerUsecase) Update(req *request.DatabaseServerUpdate) error {
-	server, err := uc.repo.Get(req.ID)
+func (uc *DatabaseServerUsecase) Update(ctx context.Context, req *request.DatabaseServerUpdate) error {
+	server, err := uc.repo.Get(ctx, req.ID)
 	if err != nil {
 		return err
 	}
@@ -147,7 +148,7 @@ func (uc *DatabaseServerUsecase) Update(req *request.DatabaseServerUpdate) error
 	server.Password = req.Password
 	server.Remark = req.Remark
 
-	if !uc.repo.CheckServer(server) {
+	if !uc.repo.CheckServer(ctx, server) {
 		return errors.New(uc.t.Get("check server connection failed"))
 	}
 
@@ -174,8 +175,8 @@ func (uc *DatabaseServerUsecase) ClearUsers(id uint) error {
 	return uc.repo.ClearUsers(id)
 }
 
-func (uc *DatabaseServerUsecase) Sync(id uint) error {
-	server, err := uc.repo.Get(id)
+func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
+	server, err := uc.repo.Get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -191,7 +192,7 @@ func (uc *DatabaseServerUsecase) Sync(id uint) error {
 		return err
 	}
 
-	operator, err := uc.repo.Operator(server)
+	operator, err := uc.repo.Operator(ctx, server)
 	if err != nil {
 		return err
 	}
