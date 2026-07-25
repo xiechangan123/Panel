@@ -39,6 +39,12 @@ const fontSize = ref(13)
 const status = ref<ConnStatus>('connecting')
 const searchKeyword = ref('')
 const scrollEl = ref<HTMLElement | null>(null)
+const shellEl = ref<HTMLElement | null>(null)
+
+const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(shellEl)
+
+// 全屏时弹出层需挂载到全屏元素内部,否则不可见
+const popoverTo = computed(() => (isFullscreen.value ? (shellEl.value ?? 'body') : 'body'))
 
 let nextId = 0
 let pendingTail = ''
@@ -258,6 +264,11 @@ watch(searchKeyword, () => {
   lastSearchIndex = -1
 })
 
+// 全屏切换后容器高度变化重新贴底
+watch(isFullscreen, () => {
+  if (followMode.value) nextTick(() => scrollToBottom())
+})
+
 const cleanup = () => {
   isManuallyClosed = true
   if (reconnectTimer) {
@@ -300,7 +311,7 @@ defineExpose({ clear })
 </script>
 
 <template>
-  <div v-if="supported" class="log-shell">
+  <div v-if="supported" ref="shellEl" class="log-shell">
     <header class="log-titlebar">
       <div class="log-title">
         <span class="status-dot" :class="status"></span>
@@ -322,7 +333,7 @@ defineExpose({ clear })
         <button class="action-btn" :title="$gettext('Jump to Bottom')" @click="scrollToBottom">
           <i-mdi-arrow-collapse-down class="text-base" />
         </button>
-        <n-popover trigger="click" placement="bottom-end">
+        <n-popover trigger="click" placement="bottom-end" :to="popoverTo">
           <template #trigger>
             <button class="action-btn" :title="$gettext('Search')">
               <i-mdi-magnify class="text-base" />
@@ -342,6 +353,15 @@ defineExpose({ clear })
         </button>
         <button class="action-btn" :title="$gettext('Increase Font Size')" @click="increaseFont">
           <i-mdi-format-font-size-increase class="text-base" />
+        </button>
+        <div class="action-divider"></div>
+        <button
+          class="action-btn"
+          :title="isFullscreen ? $gettext('Exit Fullscreen') : $gettext('Fullscreen')"
+          @click="toggleFullscreen"
+        >
+          <i-mdi-fullscreen-exit v-if="isFullscreen" class="text-base" />
+          <i-mdi-fullscreen v-else class="text-base" />
         </button>
       </div>
     </header>
@@ -466,6 +486,13 @@ defineExpose({ clear })
   overflow: hidden;
   box-shadow: var(--shadow-md);
   color: #e6edf3;
+
+  &:fullscreen {
+    height: 100vh;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+  }
 }
 
 .log-titlebar {

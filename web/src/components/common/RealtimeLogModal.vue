@@ -27,6 +27,11 @@ const clear = async () => {
   logRef.value?.clear()
 }
 
+const handleDownload = () => {
+  if (!props.path) return
+  window.open('/api/file/download?path=' + encodeURIComponent(props.path))
+}
+
 defineExpose({ clear })
 </script>
 
@@ -40,18 +45,24 @@ defineExpose({ clear })
     :bordered="false"
     :segmented="false"
   >
-    <template v-if="clearable" #header-extra>
-      <ConfirmDialog
-        type="danger"
-        :content="$gettext('Are you sure you want to clear the log?')"
-        @confirm="emit('clear')"
-      >
-        <template #trigger>
-          <n-button size="small" type="warning">
-            {{ $gettext('Clear Log') }}
-          </n-button>
-        </template>
-      </ConfirmDialog>
+    <template v-if="clearable || props.path" #header-extra>
+      <n-flex size="small" align="center" :wrap="false">
+        <n-button v-if="props.path" size="small" type="primary" @click="handleDownload">
+          {{ $gettext('Download Log') }}
+        </n-button>
+        <ConfirmDialog
+          v-if="clearable"
+          type="danger"
+          :content="$gettext('Are you sure you want to clear the log?')"
+          @confirm="emit('clear')"
+        >
+          <template #trigger>
+            <n-button size="small" type="warning">
+              {{ $gettext('Clear Log') }}
+            </n-button>
+          </template>
+        </ConfirmDialog>
+      </n-flex>
     </template>
     <realtime-log v-if="show" ref="logRef" :path="props.path" :container="props.container" />
   </n-modal>
