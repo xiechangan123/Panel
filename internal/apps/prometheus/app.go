@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
@@ -30,10 +29,8 @@ type App struct {
 	taskRepo biz.TaskRepo
 }
 
-func NewApp(i do.Injector) (*App, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
-	conf := do.MustInvoke[*config.Config](i)
-	taskRepo := do.MustInvoke[biz.TaskRepo](i)
+func NewApp(conf *config.Config, t *gotext.Locale, taskRepo biz.TaskRepo) (*App, error) {
+
 	return &App{t: t, conf: conf, taskRepo: taskRepo}, nil
 }
 

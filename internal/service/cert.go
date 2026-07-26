@@ -5,7 +5,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -18,10 +17,10 @@ type CertService struct {
 	certRepo *biz.CertUsecase
 }
 
-func NewCertService(i do.Injector) (*CertService, error) {
+func NewCertService(certUsecase *biz.CertUsecase, t *gotext.Locale) (*CertService, error) {
 	return &CertService{
-		t:        do.MustInvoke[*gotext.Locale](i),
-		certRepo: do.MustInvoke[*biz.CertUsecase](i),
+		t:        t,
+		certRepo: certUsecase,
 	}, nil
 }
 

@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // DatabaseRoutes 数据库路由
-func DatabaseRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.DatabaseService](i)
+func DatabaseRoutes(databaseService *service.DatabaseService) Endpoints {
+	svc := databaseService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/database", Handler: svc.List,
@@ -27,5 +25,5 @@ func DatabaseRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/database/comment", Handler: svc.Comment,
 			Summary: "设置数据库注释", Tags: []string{"数据库"},
 			Request: request.DatabaseComment{}},
-	}, nil
+	}
 }

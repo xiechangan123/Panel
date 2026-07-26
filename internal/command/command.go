@@ -1,31 +1,43 @@
 package command
 
 import (
-	"github.com/samber/do/v2"
+	"github.com/google/wire"
+	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
-	"github.com/acepanel/panel/v3/internal/registry"
+	"github.com/acepanel/panel/v3/internal/service"
 )
 
-const Prefix = "commands:"
+var ProviderSet = wire.NewSet(Commands)
 
-var Package = do.Package(
-	do.LazyNamed(Prefix+"status", StatusCommand), do.LazyNamed(Prefix+"restart", RestartCommand),
-	do.LazyNamed(Prefix+"stop", StopCommand), do.LazyNamed(Prefix+"start", StartCommand),
-	do.LazyNamed(Prefix+"update", UpdateCommand), do.LazyNamed(Prefix+"sync", SyncCommand),
-	do.LazyNamed(Prefix+"fix", FixCommand), do.LazyNamed(Prefix+"info", InfoCommand),
-	do.LazyNamed(Prefix+"port", PortCommand), do.LazyNamed(Prefix+"sync-time", SyncTimeCommand),
-	do.LazyNamed(Prefix+"clear-task", ClearTaskCommand), do.LazyNamed(Prefix+"init", InitCommand),
-	do.LazyNamed(Prefix+"user", UserCommand), do.LazyNamed(Prefix+"https", HttpsCommand),
-	do.LazyNamed(Prefix+"entrance", EntranceCommand), do.LazyNamed(Prefix+"bind-domain", BindDomainCommand),
-	do.LazyNamed(Prefix+"bind-ip", BindIPCommand), do.LazyNamed(Prefix+"bind-ua", BindUACommand),
-	do.LazyNamed(Prefix+"website", WebsiteCommand), do.LazyNamed(Prefix+"database", DatabaseCommand),
-	do.LazyNamed(Prefix+"backup", BackupCommand), do.LazyNamed(Prefix+"restore", RestoreCommand),
-	do.LazyNamed(Prefix+"cutoff", CutoffCommand), do.LazyNamed(Prefix+"cron", CronCommand),
-	do.LazyNamed(Prefix+"app", AppCommand), do.LazyNamed(Prefix+"setting", SettingCommand),
-)
-
-// Commands 收集全部命令贡献。
-func Commands(i do.Injector) ([]*cli.Command, error) {
-	return registry.Collect[*cli.Command](i, Prefix)
+// Commands 组装全部 CLI 命令。
+func Commands(t *gotext.Locale, cliService *service.CliService) []*cli.Command {
+	return []*cli.Command{
+		StatusCommand(t, cliService),
+		RestartCommand(t, cliService),
+		StopCommand(t, cliService),
+		StartCommand(t, cliService),
+		UpdateCommand(t, cliService),
+		SyncCommand(t, cliService),
+		FixCommand(t, cliService),
+		InfoCommand(t, cliService),
+		PortCommand(t, cliService),
+		SyncTimeCommand(t, cliService),
+		ClearTaskCommand(t, cliService),
+		InitCommand(t, cliService),
+		UserCommand(t, cliService),
+		HttpsCommand(t, cliService),
+		EntranceCommand(t, cliService),
+		BindDomainCommand(t, cliService),
+		BindIPCommand(t, cliService),
+		BindUACommand(t, cliService),
+		WebsiteCommand(t, cliService),
+		DatabaseCommand(t, cliService),
+		BackupCommand(t, cliService),
+		RestoreCommand(t, cliService),
+		CutoffCommand(t, cliService),
+		CronCommand(t, cliService),
+		AppCommand(t, cliService),
+		SettingCommand(t, cliService),
+	}
 }

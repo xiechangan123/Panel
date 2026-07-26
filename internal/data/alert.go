@@ -4,7 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -17,14 +16,14 @@ type alertRepo struct {
 	statDB *gorm.DB // 网站统计独立库
 }
 
-func NewAlertRepo(i do.Injector) (biz.AlertRepo, error) {
+func NewAlertRepo(db *gorm.DB) (biz.AlertRepo, error) {
 	statDB, err := openDB("stat")
 	if err != nil {
 		return nil, err
 	}
 
 	return &alertRepo{
-		db:     do.MustInvoke[*gorm.DB](i),
+		db:     db,
 		statDB: statDB,
 	}, nil
 }

@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -16,9 +15,9 @@ type FirewallScanService struct {
 	scanRepo *biz.ScanEventUsecase
 }
 
-func NewFirewallScanService(i do.Injector) (*FirewallScanService, error) {
+func NewFirewallScanService(scanEventUsecase *biz.ScanEventUsecase) (*FirewallScanService, error) {
 	return &FirewallScanService{
-		scanRepo: do.MustInvoke[*biz.ScanEventUsecase](i),
+		scanRepo: scanEventUsecase,
 	}, nil
 }
 

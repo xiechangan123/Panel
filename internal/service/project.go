@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -17,10 +16,10 @@ type ProjectService struct {
 	settingRepo *biz.SettingUsecase
 }
 
-func NewProjectService(i do.Injector) (*ProjectService, error) {
+func NewProjectService(projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase) (*ProjectService, error) {
 	return &ProjectService{
-		projectRepo: do.MustInvoke[*biz.ProjectUsecase](i),
-		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+		projectRepo: projectUsecase,
+		settingRepo: settingUsecase,
 	}, nil
 }
 

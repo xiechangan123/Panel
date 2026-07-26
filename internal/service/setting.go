@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -24,13 +23,13 @@ type SettingService struct {
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewSettingService(i do.Injector) (*SettingService, error) {
+func NewSettingService(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) (*SettingService, error) {
 	return &SettingService{
-		t:               do.MustInvoke[*gotext.Locale](i),
-		db:              do.MustInvoke[*gorm.DB](i),
-		settingRepo:     do.MustInvoke[*biz.SettingUsecase](i),
-		certRepo:        do.MustInvoke[*biz.CertUsecase](i),
-		certAccountRepo: do.MustInvoke[*biz.CertAccountUsecase](i),
+		t:               t,
+		db:              db,
+		settingRepo:     settingUsecase,
+		certRepo:        certUsecase,
+		certAccountRepo: certAccountUsecase,
 	}, nil
 }
 

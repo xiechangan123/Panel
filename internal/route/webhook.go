@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // WebHookRoutes WebHook 管理与回调路由
-func WebHookRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.WebHookService](i)
+func WebHookRoutes(webHookService *service.WebHookService) Endpoints {
+	svc := webHookService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/webhook", Handler: svc.List, Summary: "WebHook 列表", Tags: []string{"WebHook"}, Request: request.Paginate{}, Response: service.Envelope[service.Page[*biz.WebHook]]{}},
@@ -23,5 +21,5 @@ func WebHookRoutes(i do.Injector) (Endpoints, error) {
 		// 顶层回调
 		{Method: http.MethodGet, Path: "/webhook/{key}", Handler: svc.Call},
 		{Method: http.MethodPost, Path: "/webhook/{key}", Handler: svc.Call},
-	}, nil
+	}
 }

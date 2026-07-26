@@ -7,7 +7,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -22,14 +21,14 @@ type ToolboxSSHService struct {
 	service string
 }
 
-func NewToolboxSSHService(i do.Injector) (*ToolboxSSHService, error) {
+func NewToolboxSSHService(t *gotext.Locale) (*ToolboxSSHService, error) {
 	// 沟槽的大便和乌班图喜欢搞特殊
 	service := "sshd"
 	if os.IsDebian() || os.IsUbuntu() {
 		service = "ssh"
 	}
 	return &ToolboxSSHService{
-		t:       do.MustInvoke[*gotext.Locale](i),
+		t:       t,
 		service: service,
 	}, nil
 }

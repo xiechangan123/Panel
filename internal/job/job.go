@@ -1,11 +1,17 @@
 package job
 
 import (
-	"github.com/libtnb/cron"
-	"github.com/samber/do/v2"
-)
+	"log/slog"
 
-const Prefix = "jobs:"
+	"github.com/google/wire"
+	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/cron"
+	"gorm.io/gorm"
+
+	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/websitestat"
+)
 
 // Job 声明一个定时任务
 type Job struct {
@@ -14,14 +20,40 @@ type Job struct {
 	Immediate bool     // 调度器启动后立即执行一次,不等首个调度点
 }
 
-var Package = do.Package(
-	do.LazyNamed(Prefix+"alert", NewAlert),
-	do.LazyNamed(Prefix+"monitoring", NewMonitoring),
-	do.LazyNamed(Prefix+"firewall_scan", NewFirewallScan),
-	do.LazyNamed(Prefix+"cert_renew", NewCertRenew),
-	do.LazyNamed(Prefix+"file_share_clean", NewFileShareClean),
-	do.LazyNamed(Prefix+"panel_task", NewPanelTask),
-	do.LazyNamed(Prefix+"website_stat", NewWebsiteStat),
-	do.LazyNamed(Prefix+"website_expire", NewWebsiteExpire),
-	do.LazyNamed(Prefix+"tamper", NewTamper),
-)
+var ProviderSet = wire.NewSet(wire.Struct(new(Dependencies), "*"), NewJobs)
+
+// Dependencies 汇总定时任务依赖，Wire 会在生成期校验完整性。
+type Dependencies struct {
+	Alert       *biz.AlertUsecase
+	Backup      *biz.BackupUsecase
+	Cache       *biz.CacheUsecase
+	Cert        *biz.CertUsecase
+	CertAccount *biz.CertAccountUsecase
+	FileShare   *biz.FileShareUsecase
+	Notify      *biz.NotifyUsecase
+	ScanEvent   *biz.ScanEventUsecase
+	Setting     *biz.SettingUsecase
+	Tamper      *biz.TamperUsecase
+	Task        *biz.TaskUsecase
+	Website     *biz.WebsiteUsecase
+	WebsiteStat *biz.WebsiteStatUsecase
+	Conf        *config.Config
+	DB          *gorm.DB
+	T           *gotext.Locale
+	Log         *slog.Logger
+	Aggregator  *websitestat.Aggregator
+}
+
+func NewJobs(d *Dependencies) []Job {
+	return []Job{
+		NewAlert(d.Alert, d.Log),
+		NewMonitoring(d.Setting, d.DB, d.Log),
+		NewFirewallScan(d.ScanEvent, d.Setting, d.Log),
+		NewCertRenew(d.CertAccount, d.Cert, d.Notify, d.Setting, d.Conf, d.DB, d.T, d.Log),
+		NewFileShareClean(d.FileShare, d.Log),
+		NewPanelTask(d.Backup, d.Cache, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.Conf, d.DB, d.Log),
+		NewWebsiteStat(d.Setting, d.WebsiteStat, d.Log, d.Aggregator),
+		NewWebsiteExpire(d.Notify, d.Website, d.DB, d.T, d.Log),
+		NewTamper(d.Tamper, d.Log),
+	}
+}

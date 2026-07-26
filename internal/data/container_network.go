@@ -10,7 +10,6 @@ import (
 
 	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/client"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -19,7 +18,7 @@ import (
 
 type containerNetworkRepo struct{}
 
-func NewContainerNetworkRepo(i do.Injector) (biz.ContainerNetworkRepo, error) {
+func NewContainerNetworkRepo() (biz.ContainerNetworkRepo, error) {
 	return &containerNetworkRepo{}, nil
 }
 

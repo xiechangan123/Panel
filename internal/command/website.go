@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/urfave/cli/v3"
 
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // WebsiteCommand 网站管理命令组
-func WebsiteCommand(i do.Injector) (*cli.Command, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
+
 	return &cli.Command{
 		Name:  "website",
 		Usage: t.Get("Website management"),
@@ -49,7 +48,7 @@ func WebsiteCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).WebsiteCreate(ctx, cmd)
+					return cliService.WebsiteCreate(ctx, cmd)
 				},
 			},
 			{
@@ -64,7 +63,7 @@ func WebsiteCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).WebsiteRemove(ctx, cmd)
+					return cliService.WebsiteRemove(ctx, cmd)
 				},
 			},
 			{
@@ -79,7 +78,7 @@ func WebsiteCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).WebsiteDelete(ctx, cmd)
+					return cliService.WebsiteDelete(ctx, cmd)
 				},
 			},
 			{
@@ -87,9 +86,9 @@ func WebsiteCommand(i do.Injector) (*cli.Command, error) {
 				Usage:  t.Get("Write website data (use only under guidance)"),
 				Hidden: true,
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).WebsiteWrite(ctx, cmd)
+					return cliService.WebsiteWrite(ctx, cmd)
 				},
 			},
 		},
-	}, nil
+	}
 }

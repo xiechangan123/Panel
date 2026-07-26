@@ -5,7 +5,6 @@ import (
 	"errors"
 	"path/filepath"
 
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -22,10 +21,10 @@ type settingRepo struct {
 	conf *config.Config
 }
 
-func NewSettingRepo(i do.Injector) (biz.SettingRepo, error) {
+func NewSettingRepo(conf *config.Config, db *gorm.DB) (biz.SettingRepo, error) {
 	return &settingRepo{
-		db:   do.MustInvoke[*gorm.DB](i),
-		conf: do.MustInvoke[*config.Config](i),
+		db:   db,
+		conf: conf,
 	}, nil
 }
 

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -79,18 +78,18 @@ type WebsiteUsecase struct {
 	stat           *WebsiteStatUsecase
 }
 
-func NewWebsiteUsecase(i do.Injector) (*WebsiteUsecase, error) {
+func NewWebsiteUsecase(certAccountUsecase *CertAccountUsecase, certUsecase *CertUsecase, databaseUsecase *DatabaseUsecase, databaseUserUsecase *DatabaseUserUsecase, tamperUsecase *TamperUsecase, websiteStatUsecase *WebsiteStatUsecase, t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo, websiteRepo WebsiteRepo) (*WebsiteUsecase, error) {
 	return &WebsiteUsecase{
-		repo:           do.MustInvoke[WebsiteRepo](i),
-		log:            do.MustInvoke[*slog.Logger](i),
-		t:              do.MustInvoke[*gotext.Locale](i),
-		cert:           do.MustInvoke[*CertUsecase](i),
-		certAccount:    do.MustInvoke[*CertAccountUsecase](i),
-		database:       do.MustInvoke[*DatabaseUsecase](i),
-		databaseUser:   do.MustInvoke[*DatabaseUserUsecase](i),
-		databaseServer: do.MustInvoke[DatabaseServerRepo](i),
-		tamper:         do.MustInvoke[*TamperUsecase](i),
-		stat:           do.MustInvoke[*WebsiteStatUsecase](i),
+		repo:           websiteRepo,
+		log:            log,
+		t:              t,
+		cert:           certUsecase,
+		certAccount:    certAccountUsecase,
+		database:       databaseUsecase,
+		databaseUser:   databaseUserUsecase,
+		databaseServer: databaseServerRepo,
+		tamper:         tamperUsecase,
+		stat:           websiteStatUsecase,
 	}, nil
 }
 

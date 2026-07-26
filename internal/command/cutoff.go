@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/urfave/cli/v3"
 
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // CutoffCommand 日志切割命令组
-func CutoffCommand(i do.Injector) (*cli.Command, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func CutoffCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
+
 	return &cli.Command{
 		Name:  "cutoff",
 		Usage: t.Get("Log rotation"),
@@ -34,7 +33,7 @@ func CutoffCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).CutoffWebsite(ctx, cmd)
+					return cliService.CutoffWebsite(ctx, cmd)
 				},
 			},
 			{
@@ -54,7 +53,7 @@ func CutoffCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).CutoffContainer(ctx, cmd)
+					return cliService.CutoffContainer(ctx, cmd)
 				},
 			},
 			{
@@ -86,9 +85,9 @@ func CutoffCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).CutoffClear(ctx, cmd)
+					return cliService.CutoffClear(ctx, cmd)
 				},
 			},
 		},
-	}, nil
+	}
 }

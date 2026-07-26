@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -15,9 +14,9 @@ type ContainerService struct {
 	containerRepo *biz.ContainerUsecase
 }
 
-func NewContainerService(i do.Injector) (*ContainerService, error) {
+func NewContainerService(containerUsecase *biz.ContainerUsecase) (*ContainerService, error) {
 	return &ContainerService{
-		containerRepo: do.MustInvoke[*biz.ContainerUsecase](i),
+		containerRepo: containerUsecase,
 	}, nil
 }
 

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -18,10 +17,10 @@ type EnvironmentJavaService struct {
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentJavaService(i do.Injector) (*EnvironmentJavaService, error) {
+func NewEnvironmentJavaService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) (*EnvironmentJavaService, error) {
 	return &EnvironmentJavaService{
-		t:               do.MustInvoke[*gotext.Locale](i),
-		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
+		t:               t,
+		environmentRepo: environmentUsecase,
 	}, nil
 }
 

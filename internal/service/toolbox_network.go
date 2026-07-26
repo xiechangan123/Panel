@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/process"
 
@@ -18,7 +17,7 @@ import (
 
 type ToolboxNetworkService struct{}
 
-func NewToolboxNetworkService(i do.Injector) (*ToolboxNetworkService, error) {
+func NewToolboxNetworkService() (*ToolboxNetworkService, error) {
 	return &ToolboxNetworkService{}, nil
 }
 

@@ -6,10 +6,6 @@ import (
 	_ "time/tzdata"
 
 	"github.com/gookit/color"
-	"github.com/samber/do/v2"
-
-	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/injector"
 )
 
 func main() {
@@ -24,12 +20,12 @@ func run() error {
 		return errors.New("panel must run as root")
 	}
 
-	inj := injector.New()
-	defer func() { _ = inj.Shutdown() }()
-
-	cli, err := do.Invoke[*app.Cli](inj)
+	cli, cleanup, err := initCli()
 	if err != nil {
 		return err
+	}
+	if cleanup != nil {
+		defer cleanup()
 	}
 
 	return cli.Run()

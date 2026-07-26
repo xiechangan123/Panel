@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // AppRoutes 应用商店路由
-func AppRoutes(i do.Injector) (Endpoints, error) {
-	app := do.MustInvoke[*service.AppService](i)
+func AppRoutes(appService *service.AppService) Endpoints {
+	app := appService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/app/categories", Handler: app.Categories,
@@ -36,5 +34,5 @@ func AppRoutes(i do.Injector) (Endpoints, error) {
 			Summary: "保存自定义编译参数", Tags: []string{"应用"}, Request: request.AppCustomSave{}},
 		{Method: http.MethodGet, Path: "/api/app/update_cache", Handler: app.UpdateCache,
 			Summary: "更新应用缓存", Tags: []string{"应用"}},
-	}, nil
+	}
 }

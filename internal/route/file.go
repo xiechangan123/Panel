@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // FileRoutes 文件管理路由
-func FileRoutes(i do.Injector) (Endpoints, error) {
-	file := do.MustInvoke[*service.FileService](i)
+func FileRoutes(fileService *service.FileService) Endpoints {
+	file := fileService
 
 	return Endpoints{
 		{Method: http.MethodPost, Path: "/api/file/create", Handler: file.Create,
@@ -72,5 +70,5 @@ func FileRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/file/chunk/finish", Handler: file.ChunkUploadFinish,
 			Summary: "完成分块上传", Tags: []string{"文件"},
 			Request: request.ChunkUploadFinish{}},
-	}, nil
+	}
 }

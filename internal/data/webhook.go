@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -23,10 +22,10 @@ type webhookRepo struct {
 	db *gorm.DB
 }
 
-func NewWebHookRepo(i do.Injector) (biz.WebHookRepo, error) {
+func NewWebHookRepo(db *gorm.DB, t *gotext.Locale) (biz.WebHookRepo, error) {
 	return &webhookRepo{
-		t:  do.MustInvoke[*gotext.Locale](i),
-		db: do.MustInvoke[*gorm.DB](i),
+		t:  t,
+		db: db,
 	}, nil
 }
 

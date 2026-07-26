@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -17,10 +16,10 @@ type UserTokenService struct {
 	userTokenRepo *biz.UserTokenUsecase
 }
 
-func NewUserTokenService(i do.Injector) (*UserTokenService, error) {
+func NewUserTokenService(userTokenUsecase *biz.UserTokenUsecase, t *gotext.Locale) (*UserTokenService, error) {
 	return &UserTokenService{
-		t:             do.MustInvoke[*gotext.Locale](i),
-		userTokenRepo: do.MustInvoke[*biz.UserTokenUsecase](i),
+		t:             t,
+		userTokenRepo: userTokenUsecase,
 	}, nil
 }
 

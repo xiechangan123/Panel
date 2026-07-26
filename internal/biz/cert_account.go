@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
@@ -47,12 +46,12 @@ type CertAccountUsecase struct {
 	log      *slog.Logger
 }
 
-func NewCertAccountUsecase(i do.Injector) (*CertAccountUsecase, error) {
+func NewCertAccountUsecase(t *gotext.Locale, log *slog.Logger, certAccountRepo CertAccountRepo, userRepo UserRepo) (*CertAccountUsecase, error) {
 	return &CertAccountUsecase{
-		repo:     do.MustInvoke[CertAccountRepo](i),
-		userRepo: do.MustInvoke[UserRepo](i),
-		t:        do.MustInvoke[*gotext.Locale](i),
-		log:      do.MustInvoke[*slog.Logger](i),
+		repo:     certAccountRepo,
+		userRepo: userRepo,
+		t:        t,
+		log:      log,
 	}, nil
 }
 

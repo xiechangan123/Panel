@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -20,12 +19,12 @@ type taskRepo struct {
 	runner types.TaskRunner
 }
 
-func NewTaskRepo(i do.Injector) (biz.TaskRepo, error) {
+func NewTaskRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger, runner types.TaskRunner) (biz.TaskRepo, error) {
 	return &taskRepo{
-		t:      do.MustInvoke[*gotext.Locale](i),
-		db:     do.MustInvoke[*gorm.DB](i),
-		log:    do.MustInvoke[*slog.Logger](i),
-		runner: do.MustInvoke[types.TaskRunner](i),
+		t:      t,
+		db:     db,
+		log:    log,
+		runner: runner,
 	}, nil
 }
 

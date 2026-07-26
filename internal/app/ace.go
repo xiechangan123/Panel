@@ -14,7 +14,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-gormigrate/gormigrate/v2"
 	"github.com/libtnb/cron"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/tlscert"
@@ -31,15 +30,15 @@ type Ace struct {
 	runner   types.TaskRunner
 }
 
-func NewAce(i do.Injector) (*Ace, error) {
+func NewAce(router *chi.Mux, conf *config.Config, cron *cron.Cron, migrator *gormigrate.Gormigrate, server *hlfhr.Server, reloader *tlscert.Reloader, runner types.TaskRunner) (*Ace, error) {
 	return &Ace{
-		conf:     do.MustInvoke[*config.Config](i),
-		router:   do.MustInvoke[*chi.Mux](i),
-		server:   do.MustInvoke[*hlfhr.Server](i),
-		reloader: do.MustInvoke[*tlscert.Reloader](i),
-		migrator: do.MustInvoke[*gormigrate.Gormigrate](i),
-		cron:     do.MustInvoke[*cron.Cron](i),
-		runner:   do.MustInvoke[types.TaskRunner](i),
+		conf:     conf,
+		router:   router,
+		server:   server,
+		reloader: reloader,
+		migrator: migrator,
+		cron:     cron,
+		runner:   runner,
 	}, nil
 }
 

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/api"
@@ -27,11 +26,11 @@ type TemplateUsecase struct {
 	t     *gotext.Locale
 }
 
-func NewTemplateUsecase(i do.Injector) (*TemplateUsecase, error) {
+func NewTemplateUsecase(t *gotext.Locale, cacheRepo CacheRepo, templateRepo TemplateRepo) (*TemplateUsecase, error) {
 	return &TemplateUsecase{
-		repo:  do.MustInvoke[TemplateRepo](i),
-		cache: do.MustInvoke[CacheRepo](i),
-		t:     do.MustInvoke[*gotext.Locale](i),
+		repo:  templateRepo,
+		cache: cacheRepo,
+		t:     t,
 	}, nil
 }
 

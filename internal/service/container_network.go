@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type ContainerNetworkService struct {
 	containerNetworkRepo *biz.ContainerNetworkUsecase
 }
 
-func NewContainerNetworkService(i do.Injector) (*ContainerNetworkService, error) {
+func NewContainerNetworkService(containerNetworkUsecase *biz.ContainerNetworkUsecase) (*ContainerNetworkService, error) {
 	return &ContainerNetworkService{
-		containerNetworkRepo: do.MustInvoke[*biz.ContainerNetworkUsecase](i),
+		containerNetworkRepo: containerNetworkUsecase,
 	}, nil
 }
 

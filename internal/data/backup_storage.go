@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -11,9 +10,9 @@ type backupAccountRepo struct {
 	db *gorm.DB
 }
 
-func NewBackupAccountRepo(i do.Injector) (biz.BackupAccountRepo, error) {
+func NewBackupAccountRepo(db *gorm.DB) (biz.BackupAccountRepo, error) {
 	return &backupAccountRepo{
-		db: do.MustInvoke[*gorm.DB](i),
+		db: db,
 	}, nil
 }
 

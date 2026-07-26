@@ -25,7 +25,6 @@ import (
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
 
@@ -69,19 +68,19 @@ type ToolboxMigrationService struct {
 }
 
 // NewToolboxMigrationService 创建迁移服务
-func NewToolboxMigrationService(i do.Injector) (*ToolboxMigrationService, error) {
+func NewToolboxMigrationService(appUsecase *biz.AppUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, databaseUsecase *biz.DatabaseUsecase, databaseUserUsecase *biz.DatabaseUserUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) (*ToolboxMigrationService, error) {
 	return &ToolboxMigrationService{
-		t:                  do.MustInvoke[*gotext.Locale](i),
-		conf:               do.MustInvoke[*config.Config](i),
-		log:                do.MustInvoke[*slog.Logger](i),
-		settingRepo:        do.MustInvoke[*biz.SettingUsecase](i),
-		websiteRepo:        do.MustInvoke[*biz.WebsiteUsecase](i),
-		databaseRepo:       do.MustInvoke[*biz.DatabaseUsecase](i),
-		databaseServerRepo: do.MustInvoke[*biz.DatabaseServerUsecase](i),
-		databaseUserRepo:   do.MustInvoke[*biz.DatabaseUserUsecase](i),
-		projectRepo:        do.MustInvoke[*biz.ProjectUsecase](i),
-		appRepo:            do.MustInvoke[*biz.AppUsecase](i),
-		environmentRepo:    do.MustInvoke[*biz.EnvironmentUsecase](i),
+		t:                  t,
+		conf:               conf,
+		log:                log,
+		settingRepo:        settingUsecase,
+		websiteRepo:        websiteUsecase,
+		databaseRepo:       databaseUsecase,
+		databaseServerRepo: databaseServerUsecase,
+		databaseUserRepo:   databaseUserUsecase,
+		projectRepo:        projectUsecase,
+		appRepo:            appUsecase,
+		environmentRepo:    environmentUsecase,
 		state: migrationState{
 			Step: types.MigrationStepIdle,
 		},

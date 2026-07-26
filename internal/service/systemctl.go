@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -14,9 +13,9 @@ type SystemctlService struct {
 	t *gotext.Locale
 }
 
-func NewSystemctlService(i do.Injector) (*SystemctlService, error) {
+func NewSystemctlService(t *gotext.Locale) (*SystemctlService, error) {
 	return &SystemctlService{
-		t: do.MustInvoke[*gotext.Locale](i),
+		t: t,
 	}, nil
 }
 

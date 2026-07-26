@@ -13,7 +13,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -98,12 +97,12 @@ type NotifyUsecase struct {
 	pending chan struct{}
 }
 
-func NewNotifyUsecase(i do.Injector) (*NotifyUsecase, error) {
+func NewNotifyUsecase(t *gotext.Locale, log *slog.Logger, notifyChannelRepo NotifyChannelRepo, settingRepo SettingRepo) (*NotifyUsecase, error) {
 	return &NotifyUsecase{
-		repo:    do.MustInvoke[NotifyChannelRepo](i),
-		setting: do.MustInvoke[SettingRepo](i),
-		log:     do.MustInvoke[*slog.Logger](i),
-		t:       do.MustInvoke[*gotext.Locale](i),
+		repo:    notifyChannelRepo,
+		setting: settingRepo,
+		log:     log,
+		t:       t,
 		pending: make(chan struct{}, notifyMaxPending),
 	}, nil
 }

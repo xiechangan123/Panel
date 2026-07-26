@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -33,10 +32,10 @@ type LogService struct {
 	logRepo *biz.LogUsecase
 }
 
-func NewLogService(i do.Injector) (*LogService, error) {
+func NewLogService(logUsecase *biz.LogUsecase, t *gotext.Locale) (*LogService, error) {
 	return &LogService{
-		t:       do.MustInvoke[*gotext.Locale](i),
-		logRepo: do.MustInvoke[*biz.LogUsecase](i),
+		t:       t,
+		logRepo: logUsecase,
 	}, nil
 }
 

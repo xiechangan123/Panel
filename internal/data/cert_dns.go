@@ -1,7 +1,6 @@
 package data
 
 import (
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -12,9 +11,9 @@ type certDNSRepo struct {
 	db *gorm.DB
 }
 
-func NewCertDNSRepo(i do.Injector) (biz.CertDNSRepo, error) {
+func NewCertDNSRepo(db *gorm.DB) (biz.CertDNSRepo, error) {
 	return &certDNSRepo{
-		db: do.MustInvoke[*gorm.DB](i),
+		db: db,
 	}, nil
 }
 

@@ -3,7 +3,6 @@ package data
 import (
 	"encoding/json"
 
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -14,9 +13,9 @@ type notifyChannelRepo struct {
 	db *gorm.DB
 }
 
-func NewNotifyChannelRepo(i do.Injector) (biz.NotifyChannelRepo, error) {
+func NewNotifyChannelRepo(db *gorm.DB) (biz.NotifyChannelRepo, error) {
 	return &notifyChannelRepo{
-		db: do.MustInvoke[*gorm.DB](i),
+		db: db,
 	}, nil
 }
 

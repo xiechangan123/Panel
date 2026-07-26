@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // CronRoutes 计划任务路由
-func CronRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.CronService](i)
+func CronRoutes(cronService *service.CronService) Endpoints {
+	svc := cronService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/cron", Handler: svc.List,
@@ -33,5 +31,5 @@ func CronRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/cron/{id}/status", Handler: svc.Status,
 			Summary: "设置计划任务状态", Tags: []string{"计划任务"},
 			Request: request.CronStatus{}},
-	}, nil
+	}
 }

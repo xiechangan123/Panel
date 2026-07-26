@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type NotifyService struct {
 	notifyRepo *biz.NotifyUsecase
 }
 
-func NewNotifyService(i do.Injector) (*NotifyService, error) {
+func NewNotifyService(notifyUsecase *biz.NotifyUsecase) (*NotifyService, error) {
 	return &NotifyService{
-		notifyRepo: do.MustInvoke[*biz.NotifyUsecase](i),
+		notifyRepo: notifyUsecase,
 	}, nil
 }
 

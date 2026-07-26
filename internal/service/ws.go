@@ -17,7 +17,6 @@ import (
 	"github.com/libtnb/utils/collect"
 	"github.com/moby/moby/api/types/registry"
 	"github.com/moby/moby/client"
-	"github.com/samber/do/v2"
 	stdssh "golang.org/x/crypto/ssh"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -43,17 +42,17 @@ type WsService struct {
 	taskRepo    *biz.TaskUsecase
 }
 
-func NewWsService(i do.Injector) (*WsService, error) {
+func NewWsService(backupUsecase *biz.BackupUsecase, certUsecase *biz.CertUsecase, sshUsecase *biz.SSHUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) (*WsService, error) {
 	return &WsService{
-		t:           do.MustInvoke[*gotext.Locale](i),
-		conf:        do.MustInvoke[*config.Config](i),
-		log:         do.MustInvoke[*slog.Logger](i),
+		t:           t,
+		conf:        conf,
+		log:         log,
 		api:         api.NewAPI(app.Version, app.Locale),
-		sshRepo:     do.MustInvoke[*biz.SSHUsecase](i),
-		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
-		certRepo:    do.MustInvoke[*biz.CertUsecase](i),
-		backupRepo:  do.MustInvoke[*biz.BackupUsecase](i),
-		taskRepo:    do.MustInvoke[*biz.TaskUsecase](i),
+		sshRepo:     sshUsecase,
+		settingRepo: settingUsecase,
+		certRepo:    certUsecase,
+		backupRepo:  backupUsecase,
+		taskRepo:    taskUsecase,
 	}, nil
 }
 

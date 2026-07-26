@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -21,11 +20,11 @@ type databaseElasticsearchRepo struct {
 	log *slog.Logger
 }
 
-func NewDatabaseElasticsearchRepo(i do.Injector) (biz.DatabaseElasticsearchRepo, error) {
+func NewDatabaseElasticsearchRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) (biz.DatabaseElasticsearchRepo, error) {
 	return &databaseElasticsearchRepo{
-		t:   do.MustInvoke[*gotext.Locale](i),
-		orm: do.MustInvoke[*gorm.DB](i),
-		log: do.MustInvoke[*slog.Logger](i),
+		t:   t,
+		orm: db,
+		log: log,
 	}, nil
 }
 

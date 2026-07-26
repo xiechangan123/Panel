@@ -3,7 +3,6 @@ package data
 import (
 	"time"
 
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -13,8 +12,8 @@ type userPasskeyRepo struct {
 	db *gorm.DB
 }
 
-func NewUserPasskeyRepo(i do.Injector) (biz.UserPasskeyRepo, error) {
-	return &userPasskeyRepo{db: do.MustInvoke[*gorm.DB](i)}, nil
+func NewUserPasskeyRepo(db *gorm.DB) (biz.UserPasskeyRepo, error) {
+	return &userPasskeyRepo{db: db}, nil
 }
 
 func (r userPasskeyRepo) List(userID uint) ([]*biz.UserPasskey, error) {

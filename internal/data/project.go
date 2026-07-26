@@ -13,7 +13,6 @@ import (
 
 	"github.com/coreos/go-systemd/v22/unit"
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -29,10 +28,10 @@ type projectRepo struct {
 	db *gorm.DB
 }
 
-func NewProjectRepo(i do.Injector) (biz.ProjectRepo, error) {
+func NewProjectRepo(db *gorm.DB, t *gotext.Locale) (biz.ProjectRepo, error) {
 	return &projectRepo{
-		t:  do.MustInvoke[*gotext.Locale](i),
-		db: do.MustInvoke[*gorm.DB](i),
+		t:  t,
+		db: db,
 	}, nil
 }
 

@@ -7,7 +7,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/request"
 )
@@ -43,11 +42,11 @@ type WebHookUsecase struct {
 	t    *gotext.Locale
 }
 
-func NewWebHookUsecase(i do.Injector) (*WebHookUsecase, error) {
+func NewWebHookUsecase(t *gotext.Locale, log *slog.Logger, webHookRepo WebHookRepo) (*WebHookUsecase, error) {
 	return &WebHookUsecase{
-		repo: do.MustInvoke[WebHookRepo](i),
-		log:  do.MustInvoke[*slog.Logger](i),
-		t:    do.MustInvoke[*gotext.Locale](i),
+		repo: webHookRepo,
+		log:  log,
+		t:    t,
 	}, nil
 }
 

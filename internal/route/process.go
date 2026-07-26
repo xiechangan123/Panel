@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // ProcessRoutes 进程路由
-func ProcessRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.ProcessService](i)
+func ProcessRoutes(processService *service.ProcessService) Endpoints {
+	svc := processService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/process", Handler: svc.List,
@@ -26,5 +24,5 @@ func ProcessRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/process/signal", Handler: svc.Signal,
 			Summary: "向进程发送信号", Tags: []string{"进程"},
 			Request: request.ProcessSignal{}},
-	}, nil
+	}
 }

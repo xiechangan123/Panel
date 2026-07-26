@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/moby/moby/client"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -17,7 +16,7 @@ import (
 
 type containerVolumeRepo struct{}
 
-func NewContainerVolumeRepo(i do.Injector) (biz.ContainerVolumeRepo, error) {
+func NewContainerVolumeRepo() (biz.ContainerVolumeRepo, error) {
 	return &containerVolumeRepo{}, nil
 }
 

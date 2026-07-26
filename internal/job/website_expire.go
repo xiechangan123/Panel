@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -23,17 +22,17 @@ type WebsiteExpire struct {
 }
 
 // NewWebsiteExpire 构造网站到期检查任务
-func NewWebsiteExpire(i do.Injector) (Job, error) {
+func NewWebsiteExpire(notifyUsecase *biz.NotifyUsecase, websiteUsecase *biz.WebsiteUsecase, db *gorm.DB, t *gotext.Locale, log *slog.Logger) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &WebsiteExpire{
-			db:          do.MustInvoke[*gorm.DB](i),
-			log:         do.MustInvoke[*slog.Logger](i),
-			websiteRepo: do.MustInvoke[*biz.WebsiteUsecase](i),
-			notifyRepo:  do.MustInvoke[*biz.NotifyUsecase](i),
-			t:           do.MustInvoke[*gotext.Locale](i),
+			db:          db,
+			log:         log,
+			websiteRepo: websiteUsecase,
+			notifyRepo:  notifyUsecase,
+			t:           t,
 		},
-	}, nil
+	}
 }
 
 func (r *WebsiteExpire) Run(_ context.Context) error {

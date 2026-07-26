@@ -17,7 +17,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/validator"
 	"github.com/libtnb/validator/contrib/openapi"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/middleware"
@@ -28,27 +27,20 @@ import (
 	"github.com/acepanel/panel/v3/pkg/tlscert"
 )
 
-func NewRouter(i do.Injector) (*chi.Mux, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
-	mws := do.MustInvoke[*middleware.Middlewares](i)
-	conf := do.MustInvoke[*config.Config](i)
-	loader := do.MustInvoke[*apploader.Loader](i)
+func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, middlewares *middleware.Middlewares, v *validator.Validator, endpoints []route.Endpoints) (*chi.Mux, error) {
+	mws := middlewares
+
 	// 供 service.Bind / route.SpecJSON 使用
-	validator.SetDefault(do.MustInvoke[*validator.Validator](i))
+	validator.SetDefault(v)
 
 	// 数据驱动的登录白名单
-	public, err := route.PublicPaths(i)
-	if err != nil {
-		return nil, err
-	}
+	public := route.PublicPaths(endpoints)
 
 	r := chi.NewRouter()
 	r.Use(mws.Globals(t, r, public)...)
 
 	// 注册各域路由
-	if err := route.HTTP(i, r); err != nil {
-		return nil, err
-	}
+	route.HTTP(conf, endpoints, r)
 
 	// 动态应用子路由
 	r.Route("/api/apps", func(r chi.Router) {
@@ -57,7 +49,7 @@ func NewRouter(i do.Injector) (*chi.Mux, error) {
 
 	// 仅调试模式挂载 OpenAPI 文档
 	if conf.App.Debug {
-		spec, err := route.SpecJSON(i, "AcePanel")
+		spec, err := route.SpecJSON(endpoints, "AcePanel")
 		if err != nil {
 			return nil, err
 		}
@@ -86,8 +78,8 @@ func NewRouter(i do.Injector) (*chi.Mux, error) {
 	return r, nil
 }
 
-func NewTLSReloader(i do.Injector) (*tlscert.Reloader, error) {
-	conf := do.MustInvoke[*config.Config](i)
+func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
+
 	if !conf.HTTP.IsHTTPS() {
 		return nil, nil
 	}
@@ -101,10 +93,9 @@ func NewTLSReloader(i do.Injector) (*tlscert.Reloader, error) {
 	return reloader, nil
 }
 
-func NewHttp(i do.Injector) (*hlfhr.Server, error) {
-	conf := do.MustInvoke[*config.Config](i)
-	mux := do.MustInvoke[*chi.Mux](i)
-	reloader := do.MustInvoke[*tlscert.Reloader](i)
+func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader) (*hlfhr.Server, error) {
+
+	mux := router
 
 	srv := hlfhr.New(&http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.HTTP.Port),

@@ -13,7 +13,6 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/libtnb/utils/collect"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -40,23 +39,23 @@ type PanelTask struct {
 }
 
 // NewPanelTask 构造面板每日任务
-func NewPanelTask(i do.Injector) (Job, error) {
+func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, conf *config.Config, db *gorm.DB, log *slog.Logger) Job {
 	return Job{
 		Spec: "0 2 * * *",
 		Task: &PanelTask{
 			api:         api.NewAPI(app.Version, app.Locale),
-			conf:        do.MustInvoke[*config.Config](i),
-			db:          do.MustInvoke[*gorm.DB](i),
-			log:         do.MustInvoke[*slog.Logger](i),
-			backupRepo:  do.MustInvoke[*biz.BackupUsecase](i),
-			cacheRepo:   do.MustInvoke[*biz.CacheUsecase](i),
-			taskRepo:    do.MustInvoke[*biz.TaskUsecase](i),
-			settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
-			scanRepo:    do.MustInvoke[*biz.ScanEventUsecase](i),
-			statRepo:    do.MustInvoke[*biz.WebsiteStatUsecase](i),
-			tamperRepo:  do.MustInvoke[*biz.TamperUsecase](i),
+			conf:        conf,
+			db:          db,
+			log:         log,
+			backupRepo:  backupUsecase,
+			cacheRepo:   cacheUsecase,
+			taskRepo:    taskUsecase,
+			settingRepo: settingUsecase,
+			scanRepo:    scanEventUsecase,
+			statRepo:    websiteStatUsecase,
+			tamperRepo:  tamperUsecase,
 		},
-	}, nil
+	}
 }
 
 func (r *PanelTask) Run(_ context.Context) error {

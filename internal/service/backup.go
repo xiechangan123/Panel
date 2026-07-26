@@ -11,7 +11,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/utils/str"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -25,11 +24,11 @@ type BackupService struct {
 	taskRepo   *biz.TaskUsecase
 }
 
-func NewBackupService(i do.Injector) (*BackupService, error) {
+func NewBackupService(backupUsecase *biz.BackupUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*BackupService, error) {
 	return &BackupService{
-		t:          do.MustInvoke[*gotext.Locale](i),
-		backupRepo: do.MustInvoke[*biz.BackupUsecase](i),
-		taskRepo:   do.MustInvoke[*biz.TaskUsecase](i),
+		t:          t,
+		backupRepo: backupUsecase,
+		taskRepo:   taskUsecase,
 	}, nil
 }
 

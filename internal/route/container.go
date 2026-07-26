@@ -3,20 +3,18 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 // ContainerRoutes 容器路由
-func ContainerRoutes(i do.Injector) (Endpoints, error) {
-	container := do.MustInvoke[*service.ContainerService](i)
-	compose := do.MustInvoke[*service.ContainerComposeService](i)
-	network := do.MustInvoke[*service.ContainerNetworkService](i)
-	image := do.MustInvoke[*service.ContainerImageService](i)
-	volume := do.MustInvoke[*service.ContainerVolumeService](i)
+func ContainerRoutes(containerComposeService *service.ContainerComposeService, containerImageService *service.ContainerImageService, containerNetworkService *service.ContainerNetworkService, containerService *service.ContainerService, containerVolumeService *service.ContainerVolumeService) Endpoints {
+	container := containerService
+	compose := containerComposeService
+	network := containerNetworkService
+	image := containerImageService
+	volume := containerVolumeService
 
 	return Endpoints{
 		// 容器
@@ -126,5 +124,5 @@ func ContainerRoutes(i do.Injector) (Endpoints, error) {
 			Request: request.ContainerVolumeID{}},
 		{Method: http.MethodPost, Path: "/api/container/volume/prune", Handler: volume.Prune,
 			Summary: "清理存储卷", Tags: []string{"容器存储卷"}},
-	}, nil
+	}
 }

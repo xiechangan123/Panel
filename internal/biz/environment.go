@@ -7,7 +7,6 @@ import (
 	"slices"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/api"
@@ -28,12 +27,12 @@ type EnvironmentUsecase struct {
 	t     *gotext.Locale
 }
 
-func NewEnvironmentUsecase(i do.Injector) (*EnvironmentUsecase, error) {
+func NewEnvironmentUsecase(t *gotext.Locale, cacheRepo CacheRepo, environmentRepo EnvironmentRepo, taskRepo TaskRepo) (*EnvironmentUsecase, error) {
 	return &EnvironmentUsecase{
-		repo:  do.MustInvoke[EnvironmentRepo](i),
-		cache: do.MustInvoke[CacheRepo](i),
-		task:  do.MustInvoke[TaskRepo](i),
-		t:     do.MustInvoke[*gotext.Locale](i),
+		repo:  environmentRepo,
+		cache: cacheRepo,
+		task:  taskRepo,
+		t:     t,
 	}, nil
 }
 

@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 
@@ -24,13 +23,13 @@ type AppService struct {
 	loader      *apploader.Loader
 }
 
-func NewAppService(i do.Injector) (*AppService, error) {
+func NewAppService(loader *apploader.Loader, appUsecase *biz.AppUsecase, cacheUsecase *biz.CacheUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale) (*AppService, error) {
 	return &AppService{
-		t:           do.MustInvoke[*gotext.Locale](i),
-		appRepo:     do.MustInvoke[*biz.AppUsecase](i),
-		cacheRepo:   do.MustInvoke[*biz.CacheUsecase](i),
-		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
-		loader:      do.MustInvoke[*apploader.Loader](i),
+		t:           t,
+		appRepo:     appUsecase,
+		cacheRepo:   cacheUsecase,
+		settingRepo: settingUsecase,
+		loader:      loader,
 	}, nil
 }
 

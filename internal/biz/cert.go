@@ -12,7 +12,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	mholtacme "github.com/mholt/acmez/v3/acme"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -69,12 +68,12 @@ type CertUsecase struct {
 	log     *slog.Logger
 }
 
-func NewCertUsecase(i do.Injector) (*CertUsecase, error) {
+func NewCertUsecase(t *gotext.Locale, log *slog.Logger, certRepo CertRepo, settingRepo SettingRepo) (*CertUsecase, error) {
 	return &CertUsecase{
-		repo:    do.MustInvoke[CertRepo](i),
-		setting: do.MustInvoke[SettingRepo](i),
-		t:       do.MustInvoke[*gotext.Locale](i),
-		log:     do.MustInvoke[*slog.Logger](i),
+		repo:    certRepo,
+		setting: settingRepo,
+		t:       t,
+		log:     log,
 	}, nil
 }
 

@@ -72,7 +72,7 @@ func (uc *CacheUsecase) UpdateApps() error {
 
 	// 去除本地不存在的应用
 	*remote = slices.Clip(slices.DeleteFunc(*remote, func(item *api.App) bool {
-		return !slices.Contains(apploader.Slugs(), item.Slug)
+		return !slices.Contains(apploader.SupportedSlugs(), item.Slug)
 	}))
 
 	encoded, err := json.Marshal(remote)

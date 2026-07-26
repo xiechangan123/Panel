@@ -4,8 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
@@ -17,14 +15,14 @@ type FileShareClean struct {
 }
 
 // NewFileShareClean 构造过期文件分享清理任务
-func NewFileShareClean(i do.Injector) (Job, error) {
+func NewFileShareClean(fileShareUsecase *biz.FileShareUsecase, log *slog.Logger) Job {
 	return Job{
 		Spec: "0 * * * *",
 		Task: &FileShareClean{
-			log:           do.MustInvoke[*slog.Logger](i),
-			fileShareRepo: do.MustInvoke[*biz.FileShareUsecase](i),
+			log:           log,
+			fileShareRepo: fileShareUsecase,
 		},
-	}, nil
+	}
 }
 
 func (r *FileShareClean) Run(_ context.Context) error {

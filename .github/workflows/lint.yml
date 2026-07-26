@@ -18,6 +18,10 @@ jobs:
         with:
           cache: true
           go-version: 'stable'
+      - name: Check Wire generated code
+        run: |
+          go generate ./cmd/ace ./cmd/cli
+          git diff --exit-code -- cmd/ace/wire_gen.go cmd/cli/wire_gen.go
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:

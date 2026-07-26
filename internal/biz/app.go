@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -72,12 +71,12 @@ type AppUsecase struct {
 	t     *gotext.Locale
 }
 
-func NewAppUsecase(i do.Injector) (*AppUsecase, error) {
+func NewAppUsecase(t *gotext.Locale, appRepo AppRepo, cacheRepo CacheRepo, taskRepo TaskRepo) (*AppUsecase, error) {
 	return &AppUsecase{
-		repo:  do.MustInvoke[AppRepo](i),
-		cache: do.MustInvoke[CacheRepo](i),
-		task:  do.MustInvoke[TaskRepo](i),
-		t:     do.MustInvoke[*gotext.Locale](i),
+		repo:  appRepo,
+		cache: cacheRepo,
+		task:  taskRepo,
+		t:     t,
 	}, nil
 }
 

@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -49,18 +48,18 @@ type FirewallScan struct {
 }
 
 // NewFirewallScan 构造防火墙扫描感知任务
-func NewFirewallScan(i do.Injector) (Job, error) {
+func NewFirewallScan(scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, log *slog.Logger) Job {
 	return Job{
 		Spec: "*/2 * * * *",
 		Task: &FirewallScan{
-			log:        do.MustInvoke[*slog.Logger](i),
-			setting:    do.MustInvoke[*biz.SettingUsecase](i),
-			scanRepo:   do.MustInvoke[*biz.ScanEventUsecase](i),
+			log:        log,
+			setting:    settingUsecase,
+			scanRepo:   scanEventUsecase,
 			buffer:     make(map[string]*biz.ScanEvent),
 			ipCounters: make(map[string]*ipCounter),
 			blockedIPs: make(map[string]time.Time),
 		},
-	}, nil
+	}
 }
 
 func (r *FirewallScan) Run(_ context.Context) error {

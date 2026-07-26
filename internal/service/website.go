@@ -9,7 +9,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -26,11 +25,11 @@ type WebsiteService struct {
 	settingRepo *biz.SettingUsecase
 }
 
-func NewWebsiteService(i do.Injector) (*WebsiteService, error) {
+func NewWebsiteService(settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, t *gotext.Locale) (*WebsiteService, error) {
 	return &WebsiteService{
-		t:           do.MustInvoke[*gotext.Locale](i),
-		websiteRepo: do.MustInvoke[*biz.WebsiteUsecase](i),
-		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
+		t:           t,
+		websiteRepo: websiteUsecase,
+		settingRepo: settingUsecase,
 	}, nil
 }
 

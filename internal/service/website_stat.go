@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -24,12 +23,12 @@ type WebsiteStatService struct {
 	aggregator  *websitestat.Aggregator
 }
 
-func NewWebsiteStatService(i do.Injector) (*WebsiteStatService, error) {
+func NewWebsiteStatService(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, websiteUsecase *biz.WebsiteUsecase, aggregator *websitestat.Aggregator) (*WebsiteStatService, error) {
 	return &WebsiteStatService{
-		setting:     do.MustInvoke[*biz.SettingUsecase](i),
-		statRepo:    do.MustInvoke[*biz.WebsiteStatUsecase](i),
-		websiteRepo: do.MustInvoke[*biz.WebsiteUsecase](i),
-		aggregator:  do.MustInvoke[*websitestat.Aggregator](i),
+		setting:     settingUsecase,
+		statRepo:    websiteStatUsecase,
+		websiteRepo: websiteUsecase,
+		aggregator:  aggregator,
 	}, nil
 }
 

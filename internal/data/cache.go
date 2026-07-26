@@ -3,7 +3,6 @@ package data
 import (
 	"errors"
 
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -17,10 +16,10 @@ type cacheRepo struct {
 	db  *gorm.DB
 }
 
-func NewCacheRepo(i do.Injector) (biz.CacheRepo, error) {
+func NewCacheRepo(db *gorm.DB) (biz.CacheRepo, error) {
 	return &cacheRepo{
 		api: api.NewAPI(app.Version, app.Locale),
-		db:  do.MustInvoke[*gorm.DB](i),
+		db:  db,
 	}, nil
 }
 

@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/db"
 )
 
 // DatabaseRedisRoutes Redis 路由
-func DatabaseRedisRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.DatabaseRedisService](i)
+func DatabaseRedisRoutes(databaseRedisService *service.DatabaseRedisService) Endpoints {
+	svc := databaseRedisService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/database_redis/databases", Handler: svc.Databases,
@@ -39,5 +37,5 @@ func DatabaseRedisRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/database_redis/clear", Handler: svc.Clear,
 			Summary: "清空数据库", Tags: []string{"Redis"},
 			Request: request.DatabaseRedisClear{}},
-	}, nil
+	}
 }

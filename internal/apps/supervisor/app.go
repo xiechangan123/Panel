@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/service"
@@ -23,8 +22,8 @@ type App struct {
 	name string
 }
 
-func NewApp(i do.Injector) (*App, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func NewApp(t *gotext.Locale) (*App, error) {
+
 	var name string
 	if os.IsRHEL() {
 		name = "supervisord"

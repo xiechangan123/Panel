@@ -5,8 +5,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 )
 
@@ -35,10 +33,10 @@ type FileShareUsecase struct {
 	log  *slog.Logger
 }
 
-func NewFileShareUsecase(i do.Injector) (*FileShareUsecase, error) {
+func NewFileShareUsecase(log *slog.Logger, fileShareRepo FileShareRepo) (*FileShareUsecase, error) {
 	return &FileShareUsecase{
-		repo: do.MustInvoke[FileShareRepo](i),
-		log:  do.MustInvoke[*slog.Logger](i),
+		repo: fileShareRepo,
+		log:  log,
 	}, nil
 }
 

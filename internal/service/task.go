@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type TaskService struct {
 	taskRepo *biz.TaskUsecase
 }
 
-func NewTaskService(i do.Injector) (*TaskService, error) {
+func NewTaskService(taskUsecase *biz.TaskUsecase) (*TaskService, error) {
 	return &TaskService{
-		taskRepo: do.MustInvoke[*biz.TaskUsecase](i),
+		taskRepo: taskUsecase,
 	}, nil
 }
 

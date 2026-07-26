@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -17,10 +16,10 @@ type fileShareRepo struct {
 	db *gorm.DB
 }
 
-func NewFileShareRepo(i do.Injector) (biz.FileShareRepo, error) {
+func NewFileShareRepo(db *gorm.DB, t *gotext.Locale) (biz.FileShareRepo, error) {
 	return &fileShareRepo{
-		t:  do.MustInvoke[*gotext.Locale](i),
-		db: do.MustInvoke[*gorm.DB](i),
+		t:  t,
+		db: db,
 	}, nil
 }
 

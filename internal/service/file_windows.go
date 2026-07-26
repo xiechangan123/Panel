@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 )
@@ -19,11 +18,11 @@ type FileService struct {
 	containerRepo *biz.ContainerUsecase
 }
 
-func NewFileService(i do.Injector) (*FileService, error) {
+func NewFileService(containerUsecase *biz.ContainerUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*FileService, error) {
 	return &FileService{
-		t:             do.MustInvoke[*gotext.Locale](i),
-		taskRepo:      do.MustInvoke[*biz.TaskUsecase](i),
-		containerRepo: do.MustInvoke[*biz.ContainerUsecase](i),
+		t:             t,
+		taskRepo:      taskUsecase,
+		containerRepo: containerUsecase,
 	}, nil
 }
 

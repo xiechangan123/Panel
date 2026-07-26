@@ -15,7 +15,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/sessions"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -34,16 +33,16 @@ type UserPasskeyService struct {
 	notifyRepo      *biz.NotifyUsecase
 }
 
-func NewUserPasskeyService(i do.Injector) (*UserPasskeyService, error) {
+func NewUserPasskeyService(notifyUsecase *biz.NotifyUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) (*UserPasskeyService, error) {
 	// 注册 webauthn.SessionData 类型，否则 gob 无法序列化
 	gob.Register(webauthn.SessionData{})
 	return &UserPasskeyService{
-		t:               do.MustInvoke[*gotext.Locale](i),
-		conf:            do.MustInvoke[*config.Config](i),
-		session:         do.MustInvoke[*sessions.Manager](i),
-		userPasskeyRepo: do.MustInvoke[*biz.UserPasskeyUsecase](i),
-		userRepo:        do.MustInvoke[*biz.UserUsecase](i),
-		notifyRepo:      do.MustInvoke[*biz.NotifyUsecase](i),
+		t:               t,
+		conf:            conf,
+		session:         session,
+		userPasskeyRepo: userPasskeyUsecase,
+		userRepo:        userUsecase,
+		notifyRepo:      notifyUsecase,
 	}, nil
 }
 

@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // TamperRoutes 防篡改路由
-func TamperRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.TamperService](i)
+func TamperRoutes(tamperService *service.TamperService) Endpoints {
+	svc := tamperService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/tamper/status", Handler: svc.Status,
@@ -38,5 +36,5 @@ func TamperRoutes(i do.Injector) (Endpoints, error) {
 			Summary: "拦截日志", Tags: []string{"防篡改"}, Request: request.Paginate{}},
 		{Method: http.MethodDelete, Path: "/api/tamper/log", Handler: svc.ClearLogs,
 			Summary: "清空日志", Tags: []string{"防篡改"}},
-	}, nil
+	}
 }

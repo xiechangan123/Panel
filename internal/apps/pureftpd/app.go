@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
@@ -26,8 +25,8 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(i do.Injector) (*App, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func NewApp(t *gotext.Locale) (*App, error) {
+
 	return &App{
 		t: t,
 	}, nil

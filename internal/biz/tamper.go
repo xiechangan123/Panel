@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/pkg/tamper"
@@ -78,13 +77,13 @@ type TamperUsecase struct {
 	drainC   chan struct{}
 }
 
-func NewTamperUsecase(i do.Injector) (*TamperUsecase, error) {
+func NewTamperUsecase(notifyUsecase *NotifyUsecase, settingUsecase *SettingUsecase, t *gotext.Locale, log *slog.Logger, tamperRepo TamperRepo) (*TamperUsecase, error) {
 	return &TamperUsecase{
-		repo:    do.MustInvoke[TamperRepo](i),
-		setting: do.MustInvoke[*SettingUsecase](i),
-		notify:  do.MustInvoke[*NotifyUsecase](i),
-		log:     do.MustInvoke[*slog.Logger](i),
-		t:       do.MustInvoke[*gotext.Locale](i),
+		repo:    tamperRepo,
+		setting: settingUsecase,
+		notify:  notifyUsecase,
+		log:     log,
+		t:       t,
 	}, nil
 }
 
@@ -138,7 +137,8 @@ func (uc *TamperUsecase) SaveSetting(s *TamperSetting) error {
 }
 
 // Rules 规则管理
-func (uc *TamperUsecase) ListRules() ([]*TamperRule, error)    { return uc.repo.ListRules() }
+func (uc *TamperUsecase) ListRules() ([]*TamperRule, error) { return uc.repo.ListRules() }
+
 func (uc *TamperUsecase) GetRule(id uint) (*TamperRule, error) { return uc.repo.GetRule(id) }
 
 func (uc *TamperUsecase) CreateRule(rule *TamperRule) error {
@@ -168,6 +168,7 @@ func (uc *TamperUsecase) ListLogs(page, limit uint) ([]*TamperLog, int64, error)
 	uc.FlushLogs()
 	return uc.repo.ListLogs(page, limit)
 }
+
 func (uc *TamperUsecase) ClearLogs() error { return uc.repo.ClearLogs() }
 
 // buildConfig 从设置与规则构造运行配置

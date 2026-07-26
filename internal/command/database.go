@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/urfave/cli/v3"
 
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // DatabaseCommand 数据库管理命令组
-func DatabaseCommand(i do.Injector) (*cli.Command, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func DatabaseCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
+
 	return &cli.Command{
 		Name:  "database",
 		Usage: t.Get("Database management"),
@@ -55,7 +54,7 @@ func DatabaseCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).DatabaseAddServer(ctx, cmd)
+					return cliService.DatabaseAddServer(ctx, cmd)
 				},
 			},
 			{
@@ -70,9 +69,9 @@ func DatabaseCommand(i do.Injector) (*cli.Command, error) {
 					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).DatabaseDeleteServer(ctx, cmd)
+					return cliService.DatabaseDeleteServer(ctx, cmd)
 				},
 			},
 		},
-	}, nil
+	}
 }

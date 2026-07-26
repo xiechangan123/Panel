@@ -4,7 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -16,7 +15,7 @@ type scanEventRepo struct {
 }
 
 // NewScanEventRepo 创建扫描事件数据访问实例
-func NewScanEventRepo(i do.Injector) (biz.ScanEventRepo, error) {
+func NewScanEventRepo() (biz.ScanEventRepo, error) {
 	scanDB, err := openDB("scan")
 	if err != nil {
 		return nil, err

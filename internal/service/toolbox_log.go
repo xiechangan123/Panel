@@ -10,7 +10,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -29,12 +28,12 @@ type ToolboxLogService struct {
 	settingRepo        *biz.SettingUsecase
 }
 
-func NewToolboxLogService(i do.Injector) (*ToolboxLogService, error) {
+func NewToolboxLogService(containerImageUsecase *biz.ContainerImageUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) (*ToolboxLogService, error) {
 	return &ToolboxLogService{
-		t:                  do.MustInvoke[*gotext.Locale](i),
-		db:                 do.MustInvoke[*gorm.DB](i),
-		containerImageRepo: do.MustInvoke[*biz.ContainerImageUsecase](i),
-		settingRepo:        do.MustInvoke[*biz.SettingUsecase](i),
+		t:                  t,
+		db:                 db,
+		containerImageRepo: containerImageUsecase,
+		settingRepo:        settingUsecase,
 	}, nil
 }
 

@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // FileShareRoutes 文件分享路由
-func FileShareRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.FileShareService](i)
+func FileShareRoutes(fileShareService *service.FileShareService) Endpoints {
+	svc := fileShareService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/file_share", Handler: svc.List,
@@ -26,5 +24,5 @@ func FileShareRoutes(i do.Injector) (Endpoints, error) {
 			Request: request.ID{}},
 		// 顶层免登录下载
 		{Method: http.MethodGet, Path: "/download/{token}", Handler: svc.Download},
-	}, nil
+	}
 }

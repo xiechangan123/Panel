@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type ContainerImageService struct {
 	containerImageRepo *biz.ContainerImageUsecase
 }
 
-func NewContainerImageService(i do.Injector) (*ContainerImageService, error) {
+func NewContainerImageService(containerImageUsecase *biz.ContainerImageUsecase) (*ContainerImageService, error) {
 	return &ContainerImageService{
-		containerImageRepo: do.MustInvoke[*biz.ContainerImageUsecase](i),
+		containerImageRepo: containerImageUsecase,
 	}, nil
 }
 

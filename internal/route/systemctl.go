@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // SystemctlRoutes 系统服务路由
-func SystemctlRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.SystemctlService](i)
+func SystemctlRoutes(systemctlService *service.SystemctlService) Endpoints {
+	svc := systemctlService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/systemctl/status", Handler: svc.Status,
@@ -41,5 +39,5 @@ func SystemctlRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/systemctl/clear_log", Handler: svc.ClearLog,
 			Summary: "清空服务日志", Tags: []string{"系统服务"},
 			Request: request.SystemctlService{}},
-	}, nil
+	}
 }

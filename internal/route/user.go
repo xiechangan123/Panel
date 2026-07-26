@@ -4,17 +4,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // UserRoutes 用户与通行密钥认证、用户管理路由
-func UserRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.UserService](i)
-	passkey := do.MustInvoke[*service.UserPasskeyService](i)
+func UserRoutes(userPasskeyService *service.UserPasskeyService, userService *service.UserService) Endpoints {
+	svc := userService
+	passkey := userPasskeyService
 
 	return Endpoints{
 		// 认证
@@ -40,5 +38,5 @@ func UserRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodGet, Path: "/api/users/{id}/2fa", Handler: svc.GenerateTwoFA, Summary: "生成两步验证密钥", Tags: []string{"用户"}, Request: request.UserID{}},
 		{Method: http.MethodPost, Path: "/api/users/{id}/2fa", Handler: svc.UpdateTwoFA, Summary: "更新两步验证", Tags: []string{"用户"}, Request: request.UserUpdateTwoFA{}},
 		{Method: http.MethodDelete, Path: "/api/users/{id}", Handler: svc.Delete, Summary: "删除用户", Tags: []string{"用户"}, Request: request.UserID{}},
-	}, nil
+	}
 }

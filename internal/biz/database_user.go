@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/libtnb/utils/crypt"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -86,11 +85,11 @@ type DatabaseUserUsecase struct {
 	log    *slog.Logger
 }
 
-func NewDatabaseUserUsecase(i do.Injector) (*DatabaseUserUsecase, error) {
+func NewDatabaseUserUsecase(log *slog.Logger, databaseServerRepo DatabaseServerRepo, databaseUserRepo DatabaseUserRepo) (*DatabaseUserUsecase, error) {
 	return &DatabaseUserUsecase{
-		repo:   do.MustInvoke[DatabaseUserRepo](i),
-		server: do.MustInvoke[DatabaseServerRepo](i),
-		log:    do.MustInvoke[*slog.Logger](i),
+		repo:   databaseUserRepo,
+		server: databaseServerRepo,
+		log:    log,
 	}, nil
 }
 

@@ -2,7 +2,6 @@ package openresty
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -13,9 +12,9 @@ type App struct {
 	nginx *nginx.App
 }
 
-func NewApp(i do.Injector) (*App, error) {
+func NewApp(nginxApp *nginx.App) (*App, error) {
 	return &App{
-		nginx: do.MustInvoke[*nginx.App](i),
+		nginx: nginxApp,
 	}, nil
 }
 

@@ -3,8 +3,6 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -12,10 +10,10 @@ import (
 )
 
 // CertRoutes 证书、DNS、账户路由
-func CertRoutes(i do.Injector) (Endpoints, error) {
-	cert := do.MustInvoke[*service.CertService](i)
-	certDNS := do.MustInvoke[*service.CertDNSService](i)
-	certAccount := do.MustInvoke[*service.CertAccountService](i)
+func CertRoutes(certAccountService *service.CertAccountService, certDNSService *service.CertDNSService, certService *service.CertService) Endpoints {
+	cert := certService
+	certDNS := certDNSService
+	certAccount := certAccountService
 
 	return Endpoints{
 		// 顶层选项
@@ -65,5 +63,5 @@ func CertRoutes(i do.Injector) (Endpoints, error) {
 			Request: request.ID{}, Response: service.Envelope[biz.CertAccount]{}},
 		{Method: http.MethodDelete, Path: "/api/cert/account/{id}", Handler: certAccount.Delete, Summary: "删除账户", Tags: []string{"证书"},
 			Request: request.ID{}},
-	}, nil
+	}
 }

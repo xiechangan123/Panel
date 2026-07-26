@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type DatabaseService struct {
 	databaseRepo *biz.DatabaseUsecase
 }
 
-func NewDatabaseService(i do.Injector) (*DatabaseService, error) {
+func NewDatabaseService(databaseUsecase *biz.DatabaseUsecase) (*DatabaseService, error) {
 	return &DatabaseService{
-		databaseRepo: do.MustInvoke[*biz.DatabaseUsecase](i),
+		databaseRepo: databaseUsecase,
 	}, nil
 }
 

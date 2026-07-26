@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -18,11 +17,11 @@ type EnvironmentService struct {
 	taskRepo        *biz.TaskUsecase
 }
 
-func NewEnvironmentService(i do.Injector) (*EnvironmentService, error) {
+func NewEnvironmentService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*EnvironmentService, error) {
 	return &EnvironmentService{
-		t:               do.MustInvoke[*gotext.Locale](i),
-		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
-		taskRepo:        do.MustInvoke[*biz.TaskUsecase](i),
+		t:               t,
+		environmentRepo: environmentUsecase,
+		taskRepo:        taskUsecase,
 	}, nil
 }
 

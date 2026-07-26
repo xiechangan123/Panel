@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -45,11 +44,11 @@ type ProjectUsecase struct {
 	t    *gotext.Locale
 }
 
-func NewProjectUsecase(i do.Injector) (*ProjectUsecase, error) {
+func NewProjectUsecase(t *gotext.Locale, log *slog.Logger, projectRepo ProjectRepo) (*ProjectUsecase, error) {
 	return &ProjectUsecase{
-		repo: do.MustInvoke[ProjectRepo](i),
-		log:  do.MustInvoke[*slog.Logger](i),
-		t:    do.MustInvoke[*gotext.Locale](i),
+		repo: projectRepo,
+		log:  log,
+		t:    t,
 	}, nil
 }
 

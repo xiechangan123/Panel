@@ -23,7 +23,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/utils/file"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
@@ -44,12 +43,12 @@ type FileService struct {
 	tamperRepo    *biz.TamperUsecase
 }
 
-func NewFileService(i do.Injector) (*FileService, error) {
+func NewFileService(containerUsecase *biz.ContainerUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*FileService, error) {
 	return &FileService{
-		t:             do.MustInvoke[*gotext.Locale](i),
-		taskRepo:      do.MustInvoke[*biz.TaskUsecase](i),
-		containerRepo: do.MustInvoke[*biz.ContainerUsecase](i),
-		tamperRepo:    do.MustInvoke[*biz.TamperUsecase](i),
+		t:             t,
+		taskRepo:      taskUsecase,
+		containerRepo: containerUsecase,
+		tamperRepo:    tamperUsecase,
 	}, nil
 }
 

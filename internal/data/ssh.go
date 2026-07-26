@@ -15,7 +15,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/pkg/sftp"
-	"github.com/samber/do/v2"
 	cryptossh "golang.org/x/crypto/ssh"
 	"gorm.io/gorm"
 
@@ -38,10 +37,10 @@ type sshRepo struct {
 	conns map[uint]*sftpConn
 }
 
-func NewSSHRepo(i do.Injector) (biz.SSHRepo, error) {
+func NewSSHRepo(db *gorm.DB, t *gotext.Locale) (biz.SSHRepo, error) {
 	return &sshRepo{
-		t:     do.MustInvoke[*gotext.Locale](i),
-		db:    do.MustInvoke[*gorm.DB](i),
+		t:     t,
+		db:    db,
 		conns: make(map[uint]*sftpConn),
 	}, nil
 }

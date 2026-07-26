@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // NotifyRoutes 通知渠道路由
-func NotifyRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.NotifyService](i)
+func NotifyRoutes(notifyService *service.NotifyService) Endpoints {
+	svc := notifyService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/notify/channel", Handler: svc.List, Summary: "通知渠道列表", Tags: []string{"通知"}, Request: request.Paginate{}, Response: service.Envelope[service.Page[*biz.NotifyChannel]]{}},
@@ -24,5 +22,5 @@ func NotifyRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/notify/channel/{id}/test", Handler: svc.Test, Summary: "测试通知渠道", Tags: []string{"通知"}, Request: request.ID{}},
 		{Method: http.MethodGet, Path: "/api/notify/setting", Handler: svc.GetSetting, Summary: "获取事件通知设置", Tags: []string{"通知"}, Response: service.Envelope[request.NotifySetting]{}},
 		{Method: http.MethodPost, Path: "/api/notify/setting", Handler: svc.UpdateSetting, Summary: "更新事件通知设置", Tags: []string{"通知"}, Request: request.NotifySetting{}},
-	}, nil
+	}
 }

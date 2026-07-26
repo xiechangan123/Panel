@@ -7,7 +7,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -146,12 +145,12 @@ type BackupAccountUsecase struct {
 	log     *slog.Logger
 }
 
-func NewBackupAccountUsecase(i do.Injector) (*BackupAccountUsecase, error) {
+func NewBackupAccountUsecase(t *gotext.Locale, log *slog.Logger, backupAccountRepo BackupAccountRepo, settingRepo SettingRepo) (*BackupAccountUsecase, error) {
 	return &BackupAccountUsecase{
-		repo:    do.MustInvoke[BackupAccountRepo](i),
-		setting: do.MustInvoke[SettingRepo](i),
-		t:       do.MustInvoke[*gotext.Locale](i),
-		log:     do.MustInvoke[*slog.Logger](i),
+		repo:    backupAccountRepo,
+		setting: settingRepo,
+		t:       t,
+		log:     log,
 	}, nil
 }
 

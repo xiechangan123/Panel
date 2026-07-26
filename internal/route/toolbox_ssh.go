@@ -3,14 +3,12 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // ToolboxSSHRoutes 工具箱-SSH 路由
-func ToolboxSSHRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.ToolboxSSHService](i)
+func ToolboxSSHRoutes(toolboxSSHService *service.ToolboxSSHService) Endpoints {
+	svc := toolboxSSHService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/toolbox_ssh/info", Handler: svc.GetInfo},
@@ -21,5 +19,5 @@ func ToolboxSSHRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/toolbox_ssh/root_password", Handler: svc.UpdateRootPassword},
 		{Method: http.MethodGet, Path: "/api/toolbox_ssh/root_key", Handler: svc.GetRootKey},
 		{Method: http.MethodPost, Path: "/api/toolbox_ssh/root_key", Handler: svc.GenerateRootKey},
-	}, nil
+	}
 }

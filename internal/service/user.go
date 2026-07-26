@@ -16,7 +16,6 @@ import (
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/sessions"
 	"github.com/pquerna/otp/totp"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -37,14 +36,15 @@ type UserService struct {
 	guard      *loginGuard
 }
 
-func NewUserService(i do.Injector) (*UserService, error) {
-	gob.Register(rsa.PrivateKey{}) // 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
+func NewUserService(notifyUsecase *biz.NotifyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) (*UserService, error) {
+	// 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
+	gob.Register(rsa.PrivateKey{})
 	return &UserService{
-		t:          do.MustInvoke[*gotext.Locale](i),
-		conf:       do.MustInvoke[*config.Config](i),
-		session:    do.MustInvoke[*sessions.Manager](i),
-		userRepo:   do.MustInvoke[*biz.UserUsecase](i),
-		notifyRepo: do.MustInvoke[*biz.NotifyUsecase](i),
+		t:          t,
+		conf:       conf,
+		session:    session,
+		userRepo:   userUsecase,
+		notifyRepo: notifyUsecase,
 		guard:      newLoginGuard(),
 	}, nil
 }

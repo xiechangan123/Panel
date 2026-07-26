@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -34,20 +33,20 @@ type CertRenew struct {
 }
 
 // NewCertRenew 构造证书续签任务
-func NewCertRenew(i do.Injector) (Job, error) {
+func NewCertRenew(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) Job {
 	return Job{
 		Spec: "0 4 * * *",
 		Task: &CertRenew{
-			conf:            do.MustInvoke[*config.Config](i),
-			db:              do.MustInvoke[*gorm.DB](i),
-			log:             do.MustInvoke[*slog.Logger](i),
-			settingRepo:     do.MustInvoke[*biz.SettingUsecase](i),
-			certRepo:        do.MustInvoke[*biz.CertUsecase](i),
-			certAccountRepo: do.MustInvoke[*biz.CertAccountUsecase](i),
-			notifyRepo:      do.MustInvoke[*biz.NotifyUsecase](i),
-			t:               do.MustInvoke[*gotext.Locale](i),
+			conf:            conf,
+			db:              db,
+			log:             log,
+			settingRepo:     settingUsecase,
+			certRepo:        certUsecase,
+			certAccountRepo: certAccountUsecase,
+			notifyRepo:      notifyUsecase,
+			t:               t,
 		},
-	}, nil
+	}
 }
 
 func (r *CertRenew) Run(_ context.Context) error {

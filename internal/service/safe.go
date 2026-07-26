@@ -3,8 +3,6 @@ package service
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 )
@@ -13,9 +11,9 @@ type SafeService struct {
 	safeRepo *biz.SafeUsecase
 }
 
-func NewSafeService(i do.Injector) (*SafeService, error) {
+func NewSafeService(safeUsecase *biz.SafeUsecase) (*SafeService, error) {
 	return &SafeService{
-		safeRepo: do.MustInvoke[*biz.SafeUsecase](i),
+		safeRepo: safeUsecase,
 	}, nil
 }
 

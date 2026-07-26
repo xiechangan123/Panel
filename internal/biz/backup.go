@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -47,12 +46,12 @@ type BackupUsecase struct {
 	t      *gotext.Locale
 }
 
-func NewBackupUsecase(i do.Injector) (*BackupUsecase, error) {
+func NewBackupUsecase(notifyUsecase *NotifyUsecase, t *gotext.Locale, log *slog.Logger, backupRepo BackupRepo) (*BackupUsecase, error) {
 	return &BackupUsecase{
-		repo:   do.MustInvoke[BackupRepo](i),
-		log:    do.MustInvoke[*slog.Logger](i),
-		notify: do.MustInvoke[*NotifyUsecase](i),
-		t:      do.MustInvoke[*gotext.Locale](i),
+		repo:   backupRepo,
+		log:    log,
+		notify: notifyUsecase,
+		t:      t,
 	}, nil
 }
 

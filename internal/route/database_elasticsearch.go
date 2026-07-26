@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/db"
 )
 
 // DatabaseElasticsearchRoutes Elasticsearch 路由
-func DatabaseElasticsearchRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.DatabaseElasticsearchService](i)
+func DatabaseElasticsearchRoutes(databaseElasticsearchService *service.DatabaseElasticsearchService) Endpoints {
+	svc := databaseElasticsearchService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/database_elasticsearch/indices", Handler: svc.Indices,
@@ -36,5 +34,5 @@ func DatabaseElasticsearchRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodDelete, Path: "/api/database_elasticsearch/document", Handler: svc.DocumentDelete,
 			Summary: "删除文档", Tags: []string{"Elasticsearch"},
 			Request: request.DatabaseESDocumentDelete{}},
-	}, nil
+	}
 }

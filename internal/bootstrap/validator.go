@@ -3,7 +3,6 @@ package bootstrap
 import (
 	"github.com/libtnb/validator"
 	"github.com/libtnb/validator/translations"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/rule"
@@ -11,8 +10,7 @@ import (
 )
 
 // NewValidator 构建校验器
-func NewValidator(i do.Injector) (*validator.Validator, error) {
-	conf := do.MustInvoke[*config.Config](i)
+func NewValidator(conf *config.Config, db *gorm.DB) (*validator.Validator, error) {
 
 	opts := []validator.Option{validator.WithStrictRequired()}
 	switch conf.App.Locale {
@@ -23,7 +21,7 @@ func NewValidator(i do.Injector) (*validator.Validator, error) {
 	}
 
 	v := validator.NewValidator(opts...)
-	rule.RegisterRules(v, do.MustInvoke[*gorm.DB](i))
+	rule.RegisterRules(v, db)
 
 	return v, nil
 }

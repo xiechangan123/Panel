@@ -6,7 +6,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -19,10 +18,10 @@ type BackupStorageService struct {
 	backupAccountRepo *biz.BackupAccountUsecase
 }
 
-func NewBackupStorageService(i do.Injector) (*BackupStorageService, error) {
+func NewBackupStorageService(backupAccountUsecase *biz.BackupAccountUsecase, t *gotext.Locale) (*BackupStorageService, error) {
 	return &BackupStorageService{
-		t:                 do.MustInvoke[*gotext.Locale](i),
-		backupAccountRepo: do.MustInvoke[*biz.BackupAccountUsecase](i),
+		t:                 t,
+		backupAccountRepo: backupAccountUsecase,
 	}, nil
 }
 

@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -32,16 +31,16 @@ type WebsiteStat struct {
 }
 
 // NewWebsiteStat 构造网站统计任务
-func NewWebsiteStat(i do.Injector) (Job, error) {
+func NewWebsiteStat(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, log *slog.Logger, aggregator *websitestat.Aggregator) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &WebsiteStat{
-			log:        do.MustInvoke[*slog.Logger](i),
-			setting:    do.MustInvoke[*biz.SettingUsecase](i),
-			statRepo:   do.MustInvoke[*biz.WebsiteStatUsecase](i),
-			aggregator: do.MustInvoke[*websitestat.Aggregator](i),
+			log:        log,
+			setting:    settingUsecase,
+			statRepo:   websiteStatUsecase,
+			aggregator: aggregator,
 		},
-	}, nil
+	}
 }
 
 func (r *WebsiteStat) Run(_ context.Context) error {

@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
-func NewConf(i do.Injector) (*config.Config, error) {
+func NewConf() (*config.Config, error) {
 	conf, err := config.Load()
 	if err != nil {
 		return nil, err

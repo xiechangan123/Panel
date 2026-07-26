@@ -14,7 +14,6 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/utils/collect"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -47,21 +46,21 @@ type HomeService struct {
 	containerRepo      *biz.ContainerUsecase
 }
 
-func NewHomeService(i do.Injector) (*HomeService, error) {
+func NewHomeService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, containerUsecase *biz.ContainerUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale) (*HomeService, error) {
 	return &HomeService{
-		t:                  do.MustInvoke[*gotext.Locale](i),
+		t:                  t,
 		api:                api.NewAPI(app.Version, app.Locale),
-		conf:               do.MustInvoke[*config.Config](i),
-		taskRepo:           do.MustInvoke[*biz.TaskUsecase](i),
-		websiteRepo:        do.MustInvoke[*biz.WebsiteUsecase](i),
-		projectRepo:        do.MustInvoke[*biz.ProjectUsecase](i),
-		appRepo:            do.MustInvoke[*biz.AppUsecase](i),
-		environmentRepo:    do.MustInvoke[*biz.EnvironmentUsecase](i),
-		settingRepo:        do.MustInvoke[*biz.SettingUsecase](i),
-		databaseServerRepo: do.MustInvoke[*biz.DatabaseServerUsecase](i),
-		cronRepo:           do.MustInvoke[*biz.CronUsecase](i),
-		backupRepo:         do.MustInvoke[*biz.BackupUsecase](i),
-		containerRepo:      do.MustInvoke[*biz.ContainerUsecase](i),
+		conf:               conf,
+		taskRepo:           taskUsecase,
+		websiteRepo:        websiteUsecase,
+		projectRepo:        projectUsecase,
+		appRepo:            appUsecase,
+		environmentRepo:    environmentUsecase,
+		settingRepo:        settingUsecase,
+		databaseServerRepo: databaseServerUsecase,
+		cronRepo:           cronUsecase,
+		backupRepo:         backupUsecase,
+		containerRepo:      containerUsecase,
 	}, nil
 }
 

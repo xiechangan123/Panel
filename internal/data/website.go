@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -37,11 +36,11 @@ type websiteRepo struct {
 	setting biz.SettingRepo
 }
 
-func NewWebsiteRepo(i do.Injector) (biz.WebsiteRepo, error) {
+func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) (biz.WebsiteRepo, error) {
 	return &websiteRepo{
-		t:       do.MustInvoke[*gotext.Locale](i),
-		db:      do.MustInvoke[*gorm.DB](i),
-		setting: do.MustInvoke[biz.SettingRepo](i),
+		t:       t,
+		db:      db,
+		setting: settingRepo,
 	}, nil
 }
 

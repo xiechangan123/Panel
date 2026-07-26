@@ -6,7 +6,6 @@ import (
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/db"
@@ -49,13 +48,13 @@ type DatabaseUsecase struct {
 	log    *slog.Logger
 }
 
-func NewDatabaseUsecase(i do.Injector) (*DatabaseUsecase, error) {
+func NewDatabaseUsecase(databaseUserUsecase *DatabaseUserUsecase, t *gotext.Locale, log *slog.Logger, databaseRepo DatabaseRepo, databaseServerRepo DatabaseServerRepo) (*DatabaseUsecase, error) {
 	return &DatabaseUsecase{
-		repo:   do.MustInvoke[DatabaseRepo](i),
-		server: do.MustInvoke[DatabaseServerRepo](i),
-		user:   do.MustInvoke[*DatabaseUserUsecase](i),
-		t:      do.MustInvoke[*gotext.Locale](i),
-		log:    do.MustInvoke[*slog.Logger](i),
+		repo:   databaseRepo,
+		server: databaseServerRepo,
+		user:   databaseUserUsecase,
+		t:      t,
+		log:    log,
 	}, nil
 }
 

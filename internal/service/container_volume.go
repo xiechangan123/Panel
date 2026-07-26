@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type ContainerVolumeService struct {
 	containerVolumeRepo *biz.ContainerVolumeUsecase
 }
 
-func NewContainerVolumeService(i do.Injector) (*ContainerVolumeService, error) {
+func NewContainerVolumeService(containerVolumeUsecase *biz.ContainerVolumeUsecase) (*ContainerVolumeService, error) {
 	return &ContainerVolumeService{
-		containerVolumeRepo: do.MustInvoke[*biz.ContainerVolumeUsecase](i),
+		containerVolumeRepo: containerVolumeUsecase,
 	}, nil
 }
 

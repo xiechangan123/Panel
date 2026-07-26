@@ -14,8 +14,10 @@ import (
 type stubRunner struct{}
 
 func (stubRunner) Run(context.Context) {}
-func (stubRunner) Notify()             {}
-func (stubRunner) Cancel(uint) bool    { return false }
+
+func (stubRunner) Notify() {}
+
+func (stubRunner) Cancel(uint) bool { return false }
 
 func newTaskRepoForTest(t *testing.T) *taskRepo {
 	t.Helper()

@@ -10,7 +10,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -93,11 +92,11 @@ type DatabaseServerUsecase struct {
 	log  *slog.Logger
 }
 
-func NewDatabaseServerUsecase(i do.Injector) (*DatabaseServerUsecase, error) {
+func NewDatabaseServerUsecase(t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo) (*DatabaseServerUsecase, error) {
 	return &DatabaseServerUsecase{
-		repo: do.MustInvoke[DatabaseServerRepo](i),
-		t:    do.MustInvoke[*gotext.Locale](i),
-		log:  do.MustInvoke[*slog.Logger](i),
+		repo: databaseServerRepo,
+		t:    t,
+		log:  log,
 	}, nil
 }
 

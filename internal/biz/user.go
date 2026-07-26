@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 )
 
@@ -46,11 +45,11 @@ type UserUsecase struct {
 	t    *gotext.Locale
 }
 
-func NewUserUsecase(i do.Injector) (*UserUsecase, error) {
+func NewUserUsecase(t *gotext.Locale, log *slog.Logger, userRepo UserRepo) (*UserUsecase, error) {
 	return &UserUsecase{
-		repo: do.MustInvoke[UserRepo](i),
-		log:  do.MustInvoke[*slog.Logger](i),
-		t:    do.MustInvoke[*gotext.Locale](i),
+		repo: userRepo,
+		log:  log,
+		t:    t,
 	}, nil
 }
 

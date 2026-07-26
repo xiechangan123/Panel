@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // WebsiteStatRoutes 网站统计相关路由
-func WebsiteStatRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.WebsiteStatService](i)
+func WebsiteStatRoutes(websiteStatService *service.WebsiteStatService) Endpoints {
+	svc := websiteStatService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/website/stat/overview", Handler: svc.Overview,
@@ -40,5 +38,5 @@ func WebsiteStatRoutes(i do.Injector) (Endpoints, error) {
 			Summary: "保存统计设置", Tags: []string{"网站统计"}, Request: request.WebsiteStatSetting{}},
 		{Method: http.MethodPost, Path: "/api/website/stat/clear", Handler: svc.Clear,
 			Summary: "清空统计", Tags: []string{"网站统计"}},
-	}, nil
+	}
 }

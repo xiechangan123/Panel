@@ -3,21 +3,19 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // EnvironmentRoutes 运行环境路由
-func EnvironmentRoutes(i do.Injector) (Endpoints, error) {
-	environment := do.MustInvoke[*service.EnvironmentService](i)
-	environmentGo := do.MustInvoke[*service.EnvironmentGoService](i)
-	environmentJava := do.MustInvoke[*service.EnvironmentJavaService](i)
-	environmentNodejs := do.MustInvoke[*service.EnvironmentNodejsService](i)
-	environmentPHP := do.MustInvoke[*service.EnvironmentPHPService](i)
-	environmentPython := do.MustInvoke[*service.EnvironmentPythonService](i)
-	environmentDotnet := do.MustInvoke[*service.EnvironmentDotnetService](i)
+func EnvironmentRoutes(environmentDotnetService *service.EnvironmentDotnetService, environmentGoService *service.EnvironmentGoService, environmentJavaService *service.EnvironmentJavaService, environmentNodejsService *service.EnvironmentNodejsService, environmentPHPService *service.EnvironmentPHPService, environmentPythonService *service.EnvironmentPythonService, environmentService *service.EnvironmentService) Endpoints {
+	environment := environmentService
+	environmentGo := environmentGoService
+	environmentJava := environmentJavaService
+	environmentNodejs := environmentNodejsService
+	environmentPHP := environmentPHPService
+	environmentPython := environmentPythonService
+	environmentDotnet := environmentDotnetService
 
 	tags := []string{"运行环境"}
 
@@ -99,5 +97,5 @@ func EnvironmentRoutes(i do.Injector) (Endpoints, error) {
 		// .NET
 		{Method: http.MethodPost, Path: "/api/environment/dotnet/{slug}/set_cli", Handler: environmentDotnet.SetCli,
 			Summary: "设置 .NET 命令行", Tags: tags, Request: request.EnvironmentSlug{}},
-	}, nil
+	}
 }

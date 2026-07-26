@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -20,10 +19,10 @@ type EnvironmentNodejsService struct {
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentNodejsService(i do.Injector) (*EnvironmentNodejsService, error) {
+func NewEnvironmentNodejsService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) (*EnvironmentNodejsService, error) {
 	return &EnvironmentNodejsService{
-		t:               do.MustInvoke[*gotext.Locale](i),
-		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
+		t:               t,
+		environmentRepo: environmentUsecase,
 	}, nil
 }
 

@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type CronService struct {
 	cronRepo *biz.CronUsecase
 }
 
-func NewCronService(i do.Injector) (*CronService, error) {
+func NewCronService(cronUsecase *biz.CronUsecase) (*CronService, error) {
 	return &CronService{
-		cronRepo: do.MustInvoke[*biz.CronUsecase](i),
+		cronRepo: cronUsecase,
 	}, nil
 }
 

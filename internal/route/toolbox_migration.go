@@ -3,14 +3,12 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // ToolboxMigrationRoutes 工具箱-迁移 路由
-func ToolboxMigrationRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.ToolboxMigrationService](i)
+func ToolboxMigrationRoutes(toolboxMigrationService *service.ToolboxMigrationService) Endpoints {
+	svc := toolboxMigrationService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/toolbox_migration/status", Handler: svc.GetStatus},
@@ -21,5 +19,5 @@ func ToolboxMigrationRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodGet, Path: "/api/toolbox_migration/results", Handler: svc.GetResults},
 		{Method: http.MethodGet, Path: "/api/toolbox_migration/log", Handler: svc.DownloadLog},
 		{Method: http.MethodPost, Path: "/api/toolbox_migration/exec", Handler: svc.Exec},
-	}, nil
+	}
 }

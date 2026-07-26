@@ -6,11 +6,6 @@ import (
 	"os"
 	"runtime/debug"
 	_ "time/tzdata"
-
-	"github.com/samber/do/v2"
-
-	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/injector"
 )
 
 func main() {
@@ -27,12 +22,12 @@ func run() error {
 
 	debug.SetGCPercent(10)
 
-	inj := injector.New()
-	defer func() { _ = inj.Shutdown() }()
-
-	ace, err := do.Invoke[*app.Ace](inj)
+	ace, cleanup, err := initAce()
 	if err != nil {
 		return err
+	}
+	if cleanup != nil {
+		defer cleanup()
 	}
 
 	return ace.Run()

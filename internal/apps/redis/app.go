@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -25,9 +24,9 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(i do.Injector) (*App, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
-	databaseServer := do.MustInvoke[biz.DatabaseServerRepo](i)
+func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) (*App, error) {
+
+	databaseServer := databaseServerRepo
 	return &App{
 		t:                  t,
 		databaseServerRepo: databaseServer,

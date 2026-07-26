@@ -19,7 +19,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -39,11 +38,11 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(i do.Injector) (*App, error) {
+func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) (*App, error) {
 	return &App{
-		t:                  do.MustInvoke[*gotext.Locale](i),
-		conf:               do.MustInvoke[*config.Config](i),
-		databaseServerRepo: do.MustInvoke[biz.DatabaseServerRepo](i),
+		t:                  t,
+		conf:               conf,
+		databaseServerRepo: databaseServerRepo,
 	}, nil
 }
 

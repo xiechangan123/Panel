@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -18,10 +17,10 @@ type MonitorService struct {
 	monitorRepo *biz.MonitorUsecase
 }
 
-func NewMonitorService(i do.Injector) (*MonitorService, error) {
+func NewMonitorService(monitorUsecase *biz.MonitorUsecase, settingUsecase *biz.SettingUsecase) (*MonitorService, error) {
 	return &MonitorService{
-		settingRepo: do.MustInvoke[*biz.SettingUsecase](i),
-		monitorRepo: do.MustInvoke[*biz.MonitorUsecase](i),
+		settingRepo: settingUsecase,
+		monitorRepo: monitorUsecase,
 	}, nil
 }
 

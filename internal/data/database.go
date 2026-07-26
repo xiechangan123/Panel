@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -16,9 +15,9 @@ type databaseRepo struct {
 	db *gorm.DB
 }
 
-func NewDatabaseRepo(i do.Injector) (biz.DatabaseRepo, error) {
+func NewDatabaseRepo(db *gorm.DB) (biz.DatabaseRepo, error) {
 	return &databaseRepo{
-		db: do.MustInvoke[*gorm.DB](i),
+		db: db,
 	}, nil
 }
 

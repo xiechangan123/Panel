@@ -6,41 +6,123 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/wire"
 	"github.com/libtnb/validator/contrib/openapi"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/middleware"
-	"github.com/acepanel/panel/v3/internal/registry"
+	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
-const RoutePrefix = "routes:"
+var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"), NewEndpoints)
 
-var Package = do.Package(
-	do.LazyNamed(RoutePrefix+"user", UserRoutes), do.LazyNamed(RoutePrefix+"user_passkey", UserPasskeyRoutes),
-	do.LazyNamed(RoutePrefix+"user_token", UserTokenRoutes), do.LazyNamed(RoutePrefix+"safe", SafeRoutes),
-	do.LazyNamed(RoutePrefix+"task", TaskRoutes), do.LazyNamed(RoutePrefix+"home", HomeRoutes),
-	do.LazyNamed(RoutePrefix+"website", WebsiteRoutes), do.LazyNamed(RoutePrefix+"website_stat", WebsiteStatRoutes),
-	do.LazyNamed(RoutePrefix+"project", ProjectRoutes), do.LazyNamed(RoutePrefix+"database", DatabaseRoutes),
-	do.LazyNamed(RoutePrefix+"database_server", DatabaseServerRoutes), do.LazyNamed(RoutePrefix+"database_user", DatabaseUserRoutes),
-	do.LazyNamed(RoutePrefix+"database_redis", DatabaseRedisRoutes), do.LazyNamed(RoutePrefix+"database_elasticsearch", DatabaseElasticsearchRoutes),
-	do.LazyNamed(RoutePrefix+"cert", CertRoutes), do.LazyNamed(RoutePrefix+"backup", BackupRoutes),
-	do.LazyNamed(RoutePrefix+"backup_storage", BackupStorageRoutes), do.LazyNamed(RoutePrefix+"app", AppRoutes),
-	do.LazyNamed(RoutePrefix+"environment", EnvironmentRoutes), do.LazyNamed(RoutePrefix+"container", ContainerRoutes),
-	do.LazyNamed(RoutePrefix+"file", FileRoutes), do.LazyNamed(RoutePrefix+"file_share", FileShareRoutes),
-	do.LazyNamed(RoutePrefix+"cron", CronRoutes),
-	do.LazyNamed(RoutePrefix+"process", ProcessRoutes), do.LazyNamed(RoutePrefix+"firewall", FirewallRoutes),
-	do.LazyNamed(RoutePrefix+"ssh", SSHRoutes), do.LazyNamed(RoutePrefix+"systemctl", SystemctlRoutes),
-	do.LazyNamed(RoutePrefix+"setting", SettingRoutes), do.LazyNamed(RoutePrefix+"log", LogRoutes),
-	do.LazyNamed(RoutePrefix+"monitor", MonitorRoutes), do.LazyNamed(RoutePrefix+"webhook", WebHookRoutes),
-	do.LazyNamed(RoutePrefix+"notify", NotifyRoutes), do.LazyNamed(RoutePrefix+"alert", AlertRoutes),
-	do.LazyNamed(RoutePrefix+"template", TemplateRoutes), do.LazyNamed(RoutePrefix+"toolbox_network", ToolboxNetworkRoutes),
-	do.LazyNamed(RoutePrefix+"toolbox_system", ToolboxSystemRoutes), do.LazyNamed(RoutePrefix+"toolbox_benchmark", ToolboxBenchmarkRoutes),
-	do.LazyNamed(RoutePrefix+"toolbox_ssh", ToolboxSSHRoutes), do.LazyNamed(RoutePrefix+"toolbox_disk", ToolboxDiskRoutes),
-	do.LazyNamed(RoutePrefix+"toolbox_log", ToolboxLogRoutes), do.LazyNamed(RoutePrefix+"toolbox_migration", ToolboxMigrationRoutes),
-	do.LazyNamed(RoutePrefix+"tamper", TamperRoutes),
-	do.LazyNamed(RoutePrefix+"ws", WsRoutes),
-)
+// Services 汇总所有路由所需的服务，Wire 会在生成期校验依赖完整性。
+type Services struct {
+	Alert                 *service.AlertService
+	App                   *service.AppService
+	Backup                *service.BackupService
+	BackupStorage         *service.BackupStorageService
+	Cert                  *service.CertService
+	CertAccount           *service.CertAccountService
+	CertDNS               *service.CertDNSService
+	Container             *service.ContainerService
+	ContainerCompose      *service.ContainerComposeService
+	ContainerImage        *service.ContainerImageService
+	ContainerNetwork      *service.ContainerNetworkService
+	ContainerVolume       *service.ContainerVolumeService
+	Cron                  *service.CronService
+	Database              *service.DatabaseService
+	DatabaseElasticsearch *service.DatabaseElasticsearchService
+	DatabaseRedis         *service.DatabaseRedisService
+	DatabaseServer        *service.DatabaseServerService
+	DatabaseUser          *service.DatabaseUserService
+	Environment           *service.EnvironmentService
+	EnvironmentDotnet     *service.EnvironmentDotnetService
+	EnvironmentGo         *service.EnvironmentGoService
+	EnvironmentJava       *service.EnvironmentJavaService
+	EnvironmentNodejs     *service.EnvironmentNodejsService
+	EnvironmentPHP        *service.EnvironmentPHPService
+	EnvironmentPython     *service.EnvironmentPythonService
+	File                  *service.FileService
+	FileShare             *service.FileShareService
+	Firewall              *service.FirewallService
+	FirewallScan          *service.FirewallScanService
+	Home                  *service.HomeService
+	Log                   *service.LogService
+	Monitor               *service.MonitorService
+	Notify                *service.NotifyService
+	Process               *service.ProcessService
+	Project               *service.ProjectService
+	Safe                  *service.SafeService
+	Setting               *service.SettingService
+	SSH                   *service.SSHService
+	Systemctl             *service.SystemctlService
+	Tamper                *service.TamperService
+	Task                  *service.TaskService
+	Template              *service.TemplateService
+	ToolboxBenchmark      *service.ToolboxBenchmarkService
+	ToolboxDisk           *service.ToolboxDiskService
+	ToolboxLog            *service.ToolboxLogService
+	ToolboxMigration      *service.ToolboxMigrationService
+	ToolboxNetwork        *service.ToolboxNetworkService
+	ToolboxSSH            *service.ToolboxSSHService
+	ToolboxSystem         *service.ToolboxSystemService
+	User                  *service.UserService
+	UserPasskey           *service.UserPasskeyService
+	UserToken             *service.UserTokenService
+	WebHook               *service.WebHookService
+	Website               *service.WebsiteService
+	WebsiteStat           *service.WebsiteStatService
+	Ws                    *service.WsService
+}
+
+func NewEndpoints(s *Services) []Endpoints {
+	return []Endpoints{
+		UserRoutes(s.UserPasskey, s.User),
+		UserPasskeyRoutes(s.UserPasskey),
+		UserTokenRoutes(s.UserToken),
+		SafeRoutes(s.Safe),
+		TaskRoutes(s.Task),
+		HomeRoutes(s.Home),
+		WebsiteRoutes(s.Website),
+		WebsiteStatRoutes(s.WebsiteStat),
+		ProjectRoutes(s.Project),
+		DatabaseRoutes(s.Database),
+		DatabaseServerRoutes(s.DatabaseServer),
+		DatabaseUserRoutes(s.DatabaseUser),
+		DatabaseRedisRoutes(s.DatabaseRedis),
+		DatabaseElasticsearchRoutes(s.DatabaseElasticsearch),
+		CertRoutes(s.CertAccount, s.CertDNS, s.Cert),
+		BackupRoutes(s.Backup),
+		BackupStorageRoutes(s.BackupStorage),
+		AppRoutes(s.App),
+		EnvironmentRoutes(s.EnvironmentDotnet, s.EnvironmentGo, s.EnvironmentJava, s.EnvironmentNodejs, s.EnvironmentPHP, s.EnvironmentPython, s.Environment),
+		ContainerRoutes(s.ContainerCompose, s.ContainerImage, s.ContainerNetwork, s.Container, s.ContainerVolume),
+		FileRoutes(s.File),
+		FileShareRoutes(s.FileShare),
+		CronRoutes(s.Cron),
+		ProcessRoutes(s.Process),
+		FirewallRoutes(s.FirewallScan, s.Firewall),
+		SSHRoutes(s.SSH),
+		SystemctlRoutes(s.Systemctl),
+		SettingRoutes(s.Setting),
+		LogRoutes(s.Log),
+		MonitorRoutes(s.Monitor),
+		WebHookRoutes(s.WebHook),
+		NotifyRoutes(s.Notify),
+		AlertRoutes(s.Alert),
+		TemplateRoutes(s.Template),
+		ToolboxNetworkRoutes(s.ToolboxNetwork),
+		ToolboxSystemRoutes(s.ToolboxSystem),
+		ToolboxBenchmarkRoutes(s.ToolboxBenchmark),
+		ToolboxSSHRoutes(s.ToolboxSSH),
+		ToolboxDiskRoutes(s.ToolboxDisk),
+		ToolboxLogRoutes(s.ToolboxLog),
+		ToolboxMigrationRoutes(s.ToolboxMigration),
+		TamperRoutes(s.Tamper),
+		WsRoutes(s.ToolboxMigration, s.Ws),
+	}
+}
 
 // ThrottleRule 端点级限流规则。
 type ThrottleRule struct {
@@ -66,14 +148,8 @@ type Endpoint struct {
 // Endpoints 是一个模块对 HTTP 路由的贡献。
 type Endpoints []Endpoint
 
-// HTTP 将全部 "routes:*" 贡献注册到 r。
-func HTTP(i do.Injector, r chi.Router) error {
-	conf := do.MustInvoke[*config.Config](i)
-
-	groups, err := registry.Collect[Endpoints](i, RoutePrefix)
-	if err != nil {
-		return err
-	}
+// HTTP 将全部路由贡献注册到 r。
+func HTTP(conf *config.Config, groups []Endpoints, r chi.Router) {
 	for _, endpoints := range groups {
 		for _, e := range endpoints {
 			if e.Throttle != nil {
@@ -83,17 +159,10 @@ func HTTP(i do.Injector, r chi.Router) error {
 			}
 		}
 	}
-
-	return nil
 }
 
 // PublicPaths 收集去重后的登录白名单路径，供 MustLogin 中间件放行。
-func PublicPaths(i do.Injector) ([]string, error) {
-	groups, err := registry.Collect[Endpoints](i, RoutePrefix)
-	if err != nil {
-		return nil, err
-	}
-
+func PublicPaths(groups []Endpoints) []string {
 	seen := make(map[string]struct{})
 	paths := make([]string, 0)
 	for _, endpoints := range groups {
@@ -109,19 +178,15 @@ func PublicPaths(i do.Injector) ([]string, error) {
 		}
 	}
 
-	return paths, nil
+	return paths
 }
 
 // SpecJSON 从每个带文档样本的端点组装 OpenAPI 3 文档。
-func SpecJSON(i do.Injector, title string) ([]byte, error) {
+func SpecJSON(groups []Endpoints, title string) ([]byte, error) {
 	g := openapi.New(title, buildVersion(),
 		openapi.WithType(time.Time{}, &openapi.Schema{Type: "string", Format: "date-time"}),
 	)
 
-	groups, err := registry.Collect[Endpoints](i, RoutePrefix)
-	if err != nil {
-		return nil, err
-	}
 	for _, endpoints := range groups {
 		for _, e := range endpoints {
 			if e.Request == nil && e.Response == nil {

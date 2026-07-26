@@ -3,14 +3,12 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // ToolboxDiskRoutes 工具箱-磁盘 路由
-func ToolboxDiskRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.ToolboxDiskService](i)
+func ToolboxDiskRoutes(toolboxDiskService *service.ToolboxDiskService) Endpoints {
+	svc := toolboxDiskService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/toolbox_disk/list", Handler: svc.List},
@@ -32,5 +30,5 @@ func ToolboxDiskRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodGet, Path: "/api/toolbox_disk/smart/disks", Handler: svc.GetSmartDisks},
 		{Method: http.MethodGet, Path: "/api/toolbox_disk/smart/info", Handler: svc.GetSmartInfo},
 		{Method: http.MethodGet, Path: "/api/toolbox_disk/raid/info", Handler: svc.GetRaidInfo},
-	}, nil
+	}
 }

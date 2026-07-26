@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // DatabaseServerRoutes 数据库服务器路由
-func DatabaseServerRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.DatabaseServerService](i)
+func DatabaseServerRoutes(databaseServerService *service.DatabaseServerService) Endpoints {
+	svc := databaseServerService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/database_server", Handler: svc.List,
@@ -36,5 +34,5 @@ func DatabaseServerRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/database_server/{id}/sync", Handler: svc.Sync,
 			Summary: "同步服务器用户", Tags: []string{"数据库服务器"},
 			Request: request.ID{}},
-	}, nil
+	}
 }

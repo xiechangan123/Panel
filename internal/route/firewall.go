@@ -3,17 +3,15 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // FirewallRoutes 防火墙路由
-func FirewallRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.FirewallService](i)
-	scan := do.MustInvoke[*service.FirewallScanService](i)
+func FirewallRoutes(firewallScanService *service.FirewallScanService, firewallService *service.FirewallService) Endpoints {
+	svc := firewallService
+	scan := firewallScanService
 
 	return Endpoints{
 		// /api/firewall
@@ -78,5 +76,5 @@ func FirewallRoutes(i do.Injector) (Endpoints, error) {
 			Response: service.Envelope[service.Page[*biz.ScanEvent]]{}},
 		{Method: http.MethodPost, Path: "/api/firewall/scan/clear", Handler: scan.Clear,
 			Summary: "清空扫描数据", Tags: []string{"防火墙"}},
-	}, nil
+	}
 }

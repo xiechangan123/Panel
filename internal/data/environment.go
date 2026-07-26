@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -19,10 +18,10 @@ type environmentRepo struct {
 	conf *config.Config
 }
 
-func NewEnvironmentRepo(i do.Injector) (biz.EnvironmentRepo, error) {
+func NewEnvironmentRepo(conf *config.Config, t *gotext.Locale) (biz.EnvironmentRepo, error) {
 	return &environmentRepo{
-		t:    do.MustInvoke[*gotext.Locale](i),
-		conf: do.MustInvoke[*config.Config](i),
+		t:    t,
+		conf: conf,
 	}, nil
 }
 

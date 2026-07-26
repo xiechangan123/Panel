@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // HomeRoutes 首页路由
-func HomeRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.HomeService](i)
+func HomeRoutes(homeService *service.HomeService) Endpoints {
+	svc := homeService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/home/panel", Handler: svc.Panel, Summary: "获取面板基础信息", Tags: []string{"首页"}, Public: true},
@@ -29,5 +27,5 @@ func HomeRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodGet, Path: "/api/home/runtime_info", Handler: svc.RuntimeInfo, Summary: "获取运行时信息", Tags: []string{"首页"}},
 		{Method: http.MethodGet, Path: "/api/home/goroutines", Handler: svc.Goroutines, Summary: "获取协程堆栈", Tags: []string{"首页"}},
 		{Method: http.MethodGet, Path: "/api/home/health", Handler: svc.Health, Summary: "获取健康问题", Tags: []string{"首页"}},
-	}, nil
+	}
 }

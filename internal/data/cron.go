@@ -9,7 +9,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/str"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -26,10 +25,10 @@ type cronRepo struct {
 	db *gorm.DB
 }
 
-func NewCronRepo(i do.Injector) (biz.CronRepo, error) {
+func NewCronRepo(db *gorm.DB, t *gotext.Locale) (biz.CronRepo, error) {
 	return &cronRepo{
-		t:  do.MustInvoke[*gotext.Locale](i),
-		db: do.MustInvoke[*gorm.DB](i),
+		t:  t,
+		db: db,
 	}, nil
 }
 

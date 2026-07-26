@@ -16,7 +16,6 @@ import (
 	"github.com/libtnb/utils/collect"
 	"github.com/libtnb/utils/hash"
 	"github.com/libtnb/utils/str"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
 	"gorm.io/gorm"
@@ -57,25 +56,25 @@ type CliService struct {
 	hash               hash.Hasher
 }
 
-func NewCliService(i do.Injector) (*CliService, error) {
+func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale) (*CliService, error) {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version, app.Locale),
-		t:                  do.MustInvoke[*gotext.Locale](i),
-		conf:               do.MustInvoke[*config.Config](i),
-		db:                 do.MustInvoke[*gorm.DB](i),
-		appRepo:            do.MustInvoke[*biz.AppUsecase](i),
-		cacheRepo:          do.MustInvoke[*biz.CacheUsecase](i),
-		userRepo:           do.MustInvoke[*biz.UserUsecase](i),
-		userPasskeyRepo:    do.MustInvoke[*biz.UserPasskeyUsecase](i),
-		settingRepo:        do.MustInvoke[*biz.SettingUsecase](i),
-		backupRepo:         do.MustInvoke[*biz.BackupUsecase](i),
-		websiteRepo:        do.MustInvoke[*biz.WebsiteUsecase](i),
-		databaseServerRepo: do.MustInvoke[*biz.DatabaseServerUsecase](i),
-		certRepo:           do.MustInvoke[*biz.CertUsecase](i),
-		certAccountRepo:    do.MustInvoke[*biz.CertAccountUsecase](i),
-		cronRepo:           do.MustInvoke[*biz.CronUsecase](i),
-		notifyRepo:         do.MustInvoke[*biz.NotifyUsecase](i),
+		t:                  t,
+		conf:               conf,
+		db:                 db,
+		appRepo:            appUsecase,
+		cacheRepo:          cacheUsecase,
+		userRepo:           userUsecase,
+		userPasskeyRepo:    userPasskeyUsecase,
+		settingRepo:        settingUsecase,
+		backupRepo:         backupUsecase,
+		websiteRepo:        websiteUsecase,
+		databaseServerRepo: databaseServerUsecase,
+		certRepo:           certUsecase,
+		certAccountRepo:    certAccountUsecase,
+		cronRepo:           cronUsecase,
+		notifyRepo:         notifyUsecase,
 		hash:               hash.NewArgon2id(),
 	}, nil
 }

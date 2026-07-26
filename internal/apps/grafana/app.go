@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"go.yaml.in/yaml/v4"
 	"resty.dev/v3"
@@ -25,8 +24,8 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(i do.Injector) (*App, error) {
-	return &App{t: do.MustInvoke[*gotext.Locale](i)}, nil
+func NewApp(t *gotext.Locale) (*App, error) {
+	return &App{t: t}, nil
 }
 
 func (s *App) Route(r chi.Router) {

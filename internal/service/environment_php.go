@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
@@ -30,12 +29,12 @@ type EnvironmentPHPService struct {
 	taskRepo        *biz.TaskUsecase
 }
 
-func NewEnvironmentPHPService(i do.Injector) (*EnvironmentPHPService, error) {
+func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale) (*EnvironmentPHPService, error) {
 	return &EnvironmentPHPService{
-		t:               do.MustInvoke[*gotext.Locale](i),
-		conf:            do.MustInvoke[*config.Config](i),
-		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
-		taskRepo:        do.MustInvoke[*biz.TaskUsecase](i),
+		t:               t,
+		conf:            conf,
+		environmentRepo: environmentUsecase,
+		taskRepo:        taskUsecase,
 	}, nil
 }
 

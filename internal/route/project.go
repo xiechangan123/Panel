@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 // ProjectRoutes 项目相关路由
-func ProjectRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.ProjectService](i)
+func ProjectRoutes(projectService *service.ProjectService) Endpoints {
+	svc := projectService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/project", Handler: svc.List,
@@ -28,5 +26,5 @@ func ProjectRoutes(i do.Injector) (Endpoints, error) {
 			Summary: "更新项目", Tags: []string{"项目"}, Request: request.ProjectUpdate{}},
 		{Method: http.MethodDelete, Path: "/api/project/{id}", Handler: svc.Delete,
 			Summary: "删除项目", Tags: []string{"项目"}, Request: request.ID{}},
-	}, nil
+	}
 }

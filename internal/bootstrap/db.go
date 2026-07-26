@@ -9,7 +9,6 @@ import (
 	"github.com/libtnb/logrotate"
 	"github.com/libtnb/sqlite"
 	sloggorm "github.com/orandin/slog-gorm"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -17,8 +16,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
-func NewDB(i do.Injector) (*gorm.DB, error) {
-	conf := do.MustInvoke[*config.Config](i)
+func NewDB(conf *config.Config) (*gorm.DB, error) {
 
 	// db 日志写入轮转文件
 	w, err := logrotate.New(filepath.Join(app.Root, "panel/storage/logs/db.log"),
@@ -58,8 +56,8 @@ func NewDB(i do.Injector) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewMigrate(i do.Injector) (*gormigrate.Gormigrate, error) {
-	db := do.MustInvoke[*gorm.DB](i)
+func NewMigrate(db *gorm.DB) (*gormigrate.Gormigrate, error) {
+
 	return gormigrate.New(db, &gormigrate.Options{
 		UseTransaction: true, // Note: MySQL not support DDL transaction
 	}, migration.Migrations), nil

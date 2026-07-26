@@ -5,10 +5,7 @@ import (
 	"os"
 
 	"github.com/go-gormigrate/gormigrate/v2"
-	"github.com/samber/do/v2"
 	"github.com/urfave/cli/v3"
-
-	"github.com/acepanel/panel/v3/pkg/apploader"
 )
 
 type Cli struct {
@@ -16,12 +13,11 @@ type Cli struct {
 	migrator *gormigrate.Gormigrate
 }
 
-func NewCli(i do.Injector) (*Cli, error) {
+func NewCli(cmd *cli.Command, migrator *gormigrate.Gormigrate) (*Cli, error) {
 	IsCli = true
-	_ = do.MustInvoke[*apploader.Loader](i) // 强制构造 loader，触发全局应用注册
 	return &Cli{
-		cmd:      do.MustInvoke[*cli.Command](i),
-		migrator: do.MustInvoke[*gormigrate.Gormigrate](i),
+		cmd:      cmd,
+		migrator: migrator,
 	}, nil
 }
 

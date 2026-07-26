@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type AlertService struct {
 	alertRepo *biz.AlertUsecase
 }
 
-func NewAlertService(i do.Injector) (*AlertService, error) {
+func NewAlertService(alertUsecase *biz.AlertUsecase) (*AlertService, error) {
 	return &AlertService{
-		alertRepo: do.MustInvoke[*biz.AlertUsecase](i),
+		alertRepo: alertUsecase,
 	}, nil
 }
 

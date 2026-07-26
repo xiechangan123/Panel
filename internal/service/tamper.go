@@ -6,7 +6,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -19,10 +18,10 @@ type TamperService struct {
 	tamperRepo *biz.TamperUsecase
 }
 
-func NewTamperService(i do.Injector) (*TamperService, error) {
+func NewTamperService(tamperUsecase *biz.TamperUsecase, t *gotext.Locale) (*TamperService, error) {
 	return &TamperService{
-		t:          do.MustInvoke[*gotext.Locale](i),
-		tamperRepo: do.MustInvoke[*biz.TamperUsecase](i),
+		t:          t,
+		tamperRepo: tamperUsecase,
 	}, nil
 }
 

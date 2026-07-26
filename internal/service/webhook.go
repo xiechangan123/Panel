@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type WebHookService struct {
 	webhookRepo *biz.WebHookUsecase
 }
 
-func NewWebHookService(i do.Injector) (*WebHookService, error) {
+func NewWebHookService(webHookUsecase *biz.WebHookUsecase) (*WebHookService, error) {
 	return &WebHookService{
-		webhookRepo: do.MustInvoke[*biz.WebHookUsecase](i),
+		webhookRepo: webHookUsecase,
 	}, nil
 }
 

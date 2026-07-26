@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/urfave/cli/v3"
 
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // EntranceCommand 访问入口管理命令组
-func EntranceCommand(i do.Injector) (*cli.Command, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func EntranceCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
+
 	return &cli.Command{
 		Name:  "entrance",
 		Usage: t.Get("Operate AcePanel access entrance"),
@@ -21,23 +20,23 @@ func EntranceCommand(i do.Injector) (*cli.Command, error) {
 				Name:  "on",
 				Usage: t.Get("Enable access entrance"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).EntranceOn(ctx, cmd)
+					return cliService.EntranceOn(ctx, cmd)
 				},
 			},
 			{
 				Name:  "off",
 				Usage: t.Get("Disable access entrance"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).EntranceOff(ctx, cmd)
+					return cliService.EntranceOff(ctx, cmd)
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 // BindDomainCommand 域名绑定管理命令组
-func BindDomainCommand(i do.Injector) (*cli.Command, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func BindDomainCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
+
 	return &cli.Command{
 		Name:  "bind-domain",
 		Usage: t.Get("Operate AcePanel domain binding"),
@@ -46,16 +45,16 @@ func BindDomainCommand(i do.Injector) (*cli.Command, error) {
 				Name:  "off",
 				Usage: t.Get("Disable domain binding"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).BindDomainOff(ctx, cmd)
+					return cliService.BindDomainOff(ctx, cmd)
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 // BindIPCommand IP 绑定管理命令组
-func BindIPCommand(i do.Injector) (*cli.Command, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func BindIPCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
+
 	return &cli.Command{
 		Name:  "bind-ip",
 		Usage: t.Get("Operate AcePanel IP binding"),
@@ -64,16 +63,16 @@ func BindIPCommand(i do.Injector) (*cli.Command, error) {
 				Name:  "off",
 				Usage: t.Get("Disable IP binding"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).BindIPOff(ctx, cmd)
+					return cliService.BindIPOff(ctx, cmd)
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 // BindUACommand UA 绑定管理命令组
-func BindUACommand(i do.Injector) (*cli.Command, error) {
-	t := do.MustInvoke[*gotext.Locale](i)
+func BindUACommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
+
 	return &cli.Command{
 		Name:  "bind-ua",
 		Usage: t.Get("Operate AcePanel UA binding"),
@@ -82,9 +81,9 @@ func BindUACommand(i do.Injector) (*cli.Command, error) {
 				Name:  "off",
 				Usage: t.Get("Disable UA binding"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					return do.MustInvoke[*service.CliService](i).BindUAOff(ctx, cmd)
+					return cliService.BindUAOff(ctx, cmd)
 				},
 			},
 		},
-	}, nil
+	}
 }

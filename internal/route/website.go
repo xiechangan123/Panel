@@ -3,8 +3,6 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -12,8 +10,8 @@ import (
 )
 
 // WebsiteRoutes 网站相关路由
-func WebsiteRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.WebsiteService](i)
+func WebsiteRoutes(websiteService *service.WebsiteService) Endpoints {
+	svc := websiteService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/website/rewrites", Handler: svc.GetRewrites,
@@ -50,5 +48,5 @@ func WebsiteRoutes(i do.Injector) (Endpoints, error) {
 			Summary: "修改到期时间", Tags: []string{"网站"}, Request: request.WebsiteUpdateExpireAt{}},
 		{Method: http.MethodPost, Path: "/api/website/{id}/obtain_cert", Handler: svc.ObtainCert,
 			Summary: "签发证书", Tags: []string{"网站"}, Request: request.WebsiteObtainCert{}},
-	}, nil
+	}
 }

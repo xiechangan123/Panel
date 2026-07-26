@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -36,11 +35,11 @@ type certRepo struct {
 	log *slog.Logger
 }
 
-func NewCertRepo(i do.Injector) (biz.CertRepo, error) {
+func NewCertRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) (biz.CertRepo, error) {
 	return &certRepo{
-		t:   do.MustInvoke[*gotext.Locale](i),
-		db:  do.MustInvoke[*gorm.DB](i),
-		log: do.MustInvoke[*slog.Logger](i),
+		t:   t,
+		db:  db,
+		log: log,
 	}, nil
 }
 

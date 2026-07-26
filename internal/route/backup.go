@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 // BackupRoutes 备份路由
-func BackupRoutes(i do.Injector) (Endpoints, error) {
-	backup := do.MustInvoke[*service.BackupService](i)
+func BackupRoutes(backupService *service.BackupService) Endpoints {
+	backup := backupService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/backup/{type}", Handler: backup.List, Summary: "备份列表", Tags: []string{"备份"},
@@ -26,5 +24,5 @@ func BackupRoutes(i do.Injector) (Endpoints, error) {
 			Request: request.BackupFile{}},
 		{Method: http.MethodPost, Path: "/api/backup/{type}/restore", Handler: backup.Restore, Summary: "恢复备份", Tags: []string{"备份"},
 			Request: request.BackupRestore{}},
-	}, nil
+	}
 }

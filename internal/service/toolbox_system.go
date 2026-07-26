@@ -10,7 +10,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
@@ -28,9 +27,9 @@ type ToolboxSystemService struct {
 	t *gotext.Locale
 }
 
-func NewToolboxSystemService(i do.Injector) (*ToolboxSystemService, error) {
+func NewToolboxSystemService(t *gotext.Locale) (*ToolboxSystemService, error) {
 	return &ToolboxSystemService{
-		t: do.MustInvoke[*gotext.Locale](i),
+		t: t,
 	}, nil
 }
 

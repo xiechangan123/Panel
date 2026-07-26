@@ -3,7 +3,6 @@ package data
 import (
 	"time"
 
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -13,9 +12,9 @@ type monitorRepo struct {
 	db *gorm.DB
 }
 
-func NewMonitorRepo(i do.Injector) (biz.MonitorRepo, error) {
+func NewMonitorRepo(db *gorm.DB) (biz.MonitorRepo, error) {
 	return &monitorRepo{
-		db: do.MustInvoke[*gorm.DB](i),
+		db: db,
 	}, nil
 }
 

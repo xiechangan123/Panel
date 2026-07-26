@@ -10,7 +10,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"github.com/xuri/excelize/v2"
@@ -25,9 +24,9 @@ type FirewallService struct {
 	firewall firewall.Firewall
 }
 
-func NewFirewallService(i do.Injector) (*FirewallService, error) {
+func NewFirewallService(t *gotext.Locale) (*FirewallService, error) {
 	return &FirewallService{
-		t:        do.MustInvoke[*gotext.Locale](i),
+		t:        t,
 		firewall: firewall.NewFirewall(),
 	}, nil
 }

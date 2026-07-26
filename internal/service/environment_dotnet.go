@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -18,10 +17,10 @@ type EnvironmentDotnetService struct {
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentDotnetService(i do.Injector) (*EnvironmentDotnetService, error) {
+func NewEnvironmentDotnetService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) (*EnvironmentDotnetService, error) {
 	return &EnvironmentDotnetService{
-		t:               do.MustInvoke[*gotext.Locale](i),
-		environmentRepo: do.MustInvoke[*biz.EnvironmentUsecase](i),
+		t:               t,
+		environmentRepo: environmentUsecase,
 	}, nil
 }
 

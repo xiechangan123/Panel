@@ -3,7 +3,6 @@ package data
 import (
 	"time"
 
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -15,8 +14,7 @@ type tamperRepo struct {
 }
 
 // NewTamperRepo 创建防篡改数据访问实例
-func NewTamperRepo(i do.Injector) (biz.TamperRepo, error) {
-	db := do.MustInvoke[*gorm.DB](i)
+func NewTamperRepo(db *gorm.DB) (biz.TamperRepo, error) {
 
 	logDB, err := openDB("tamper")
 	if err != nil {

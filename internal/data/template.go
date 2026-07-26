@@ -10,7 +10,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
 
@@ -27,9 +26,9 @@ type templateRepo struct {
 	firewall firewall.Firewall
 }
 
-func NewTemplateRepo(i do.Injector) (biz.TemplateRepo, error) {
+func NewTemplateRepo(log *slog.Logger) (biz.TemplateRepo, error) {
 	return &templateRepo{
-		log:      do.MustInvoke[*slog.Logger](i),
+		log:      log,
 		api:      api.NewAPI(app.Version, app.Locale),
 		firewall: firewall.NewFirewall(),
 	}, nil

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -100,12 +99,12 @@ type SettingUsecase struct {
 	log  *slog.Logger
 }
 
-func NewSettingUsecase(i do.Injector) (*SettingUsecase, error) {
+func NewSettingUsecase(t *gotext.Locale, log *slog.Logger, settingRepo SettingRepo, taskRepo TaskRepo) (*SettingUsecase, error) {
 	return &SettingUsecase{
-		repo: do.MustInvoke[SettingRepo](i),
-		task: do.MustInvoke[TaskRepo](i),
-		t:    do.MustInvoke[*gotext.Locale](i),
-		log:  do.MustInvoke[*slog.Logger](i),
+		repo: settingRepo,
+		task: taskRepo,
+		t:    t,
+		log:  log,
 	}, nil
 }
 

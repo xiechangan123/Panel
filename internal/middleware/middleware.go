@@ -13,7 +13,6 @@ import (
 	"github.com/libtnb/logrotate"
 	"github.com/libtnb/sessions"
 	sessionmiddleware "github.com/libtnb/sessions/middleware"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -29,7 +28,7 @@ type Middlewares struct {
 	userToken biz.UserTokenRepo
 }
 
-func NewMiddlewares(i do.Injector) (*Middlewares, error) {
+func NewMiddlewares(conf *config.Config, t *gotext.Locale, session *sessions.Manager, appRepo biz.AppRepo, userTokenRepo biz.UserTokenRepo) (*Middlewares, error) {
 	// http 访问日志写入轮转文件
 	w, err := logrotate.New(filepath.Join(app.Root, "panel/storage/logs/http.log"),
 		logrotate.WithMaxSize(10*logrotate.MB),
@@ -43,12 +42,12 @@ func NewMiddlewares(i do.Injector) (*Middlewares, error) {
 	}
 
 	return &Middlewares{
-		t:         do.MustInvoke[*gotext.Locale](i),
-		conf:      do.MustInvoke[*config.Config](i),
+		t:         t,
+		conf:      conf,
 		log:       slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{Level: slog.LevelInfo})),
-		session:   do.MustInvoke[*sessions.Manager](i),
-		appRepo:   do.MustInvoke[biz.AppRepo](i),
-		userToken: do.MustInvoke[biz.UserTokenRepo](i),
+		session:   session,
+		appRepo:   appRepo,
+		userToken: userTokenRepo,
 	}, nil
 }
 

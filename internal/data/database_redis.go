@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -21,11 +20,11 @@ type databaseRedisRepo struct {
 	log *slog.Logger
 }
 
-func NewDatabaseRedisRepo(i do.Injector) (biz.DatabaseRedisRepo, error) {
+func NewDatabaseRedisRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) (biz.DatabaseRedisRepo, error) {
 	return &databaseRedisRepo{
-		t:   do.MustInvoke[*gotext.Locale](i),
-		orm: do.MustInvoke[*gorm.DB](i),
-		log: do.MustInvoke[*slog.Logger](i),
+		t:   t,
+		orm: db,
+		log: log,
 	}, nil
 }
 

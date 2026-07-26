@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -14,9 +13,9 @@ type CertDNSService struct {
 	certDNSRepo *biz.CertDNSUsecase
 }
 
-func NewCertDNSService(i do.Injector) (*CertDNSService, error) {
+func NewCertDNSService(certDNSUsecase *biz.CertDNSUsecase) (*CertDNSService, error) {
 	return &CertDNSService{
-		certDNSRepo: do.MustInvoke[*biz.CertDNSUsecase](i),
+		certDNSRepo: certDNSUsecase,
 	}, nil
 }
 

@@ -3,15 +3,13 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // WsRoutes WebSocket 路由
-func WsRoutes(i do.Injector) (Endpoints, error) {
-	ws := do.MustInvoke[*service.WsService](i)
-	toolboxMigration := do.MustInvoke[*service.ToolboxMigrationService](i)
+func WsRoutes(toolboxMigrationService *service.ToolboxMigrationService, wsService *service.WsService) Endpoints {
+	ws := wsService
+	toolboxMigration := toolboxMigrationService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/ws/exec", Handler: ws.Exec},
@@ -25,5 +23,5 @@ func WsRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodGet, Path: "/api/ws/cert/obtain", Handler: ws.CertObtain},
 		{Method: http.MethodGet, Path: "/api/ws/cert/renew", Handler: ws.CertRenew},
 		{Method: http.MethodGet, Path: "/api/ws/panel/update", Handler: ws.PanelUpdate},
-	}, nil
+	}
 }

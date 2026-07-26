@@ -10,7 +10,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -20,9 +19,9 @@ type ToolboxDiskService struct {
 	t *gotext.Locale
 }
 
-func NewToolboxDiskService(i do.Injector) (*ToolboxDiskService, error) {
+func NewToolboxDiskService(t *gotext.Locale) (*ToolboxDiskService, error) {
 	return &ToolboxDiskService{
-		t: do.MustInvoke[*gotext.Locale](i),
+		t: t,
 	}, nil
 }
 

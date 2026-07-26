@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/leonelquinteros/gotext"
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/spf13/cast"
@@ -170,17 +169,17 @@ type AlertUsecase struct {
 	cleanedAt  time.Time
 }
 
-func NewAlertUsecase(i do.Injector) (*AlertUsecase, error) {
+func NewAlertUsecase(notifyUsecase *NotifyUsecase, loader *apploader.Loader, t *gotext.Locale, log *slog.Logger, alertRepo AlertRepo, appRepo AppRepo, containerRepo ContainerRepo, databaseServerRepo DatabaseServerRepo, settingRepo SettingRepo) (*AlertUsecase, error) {
 	return &AlertUsecase{
-		repo:       do.MustInvoke[AlertRepo](i),
-		notify:     do.MustInvoke[*NotifyUsecase](i),
-		setting:    do.MustInvoke[SettingRepo](i),
-		container:  do.MustInvoke[ContainerRepo](i),
-		app:        do.MustInvoke[AppRepo](i),
-		database:   do.MustInvoke[DatabaseServerRepo](i),
-		loader:     do.MustInvoke[*apploader.Loader](i),
-		log:        do.MustInvoke[*slog.Logger](i),
-		t:          do.MustInvoke[*gotext.Locale](i),
+		repo:       alertRepo,
+		notify:     notifyUsecase,
+		setting:    settingRepo,
+		container:  containerRepo,
+		app:        appRepo,
+		database:   databaseServerRepo,
+		loader:     loader,
+		log:        log,
+		t:          t,
 		hits:       make(map[string]uint),
 		fired:      make(map[string]time.Time),
 		netSnaps:   make(map[string]ioSnapshot),

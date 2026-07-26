@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // DatabaseUserRoutes 数据库用户路由
-func DatabaseUserRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.DatabaseUserService](i)
+func DatabaseUserRoutes(databaseUserService *service.DatabaseUserService) Endpoints {
+	svc := databaseUserService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/database_user", Handler: svc.List,
@@ -33,5 +31,5 @@ func DatabaseUserRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodDelete, Path: "/api/database_user/{id}", Handler: svc.Delete,
 			Summary: "删除用户", Tags: []string{"数据库用户"},
 			Request: request.ID{}},
-	}, nil
+	}
 }

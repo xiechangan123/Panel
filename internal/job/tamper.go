@@ -4,8 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 )
@@ -18,16 +16,16 @@ type Tamper struct {
 }
 
 // NewTamper 构造防篡改任务
-func NewTamper(i do.Injector) (Job, error) {
+func NewTamper(tamperUsecase *biz.TamperUsecase, log *slog.Logger) Job {
 	return Job{
 		Spec: "* * * * *",
 		// 启动后立即恢复保护,不给防篡改留一分钟的空窗
 		Immediate: true,
 		Task: &Tamper{
-			log:        do.MustInvoke[*slog.Logger](i),
-			tamperRepo: do.MustInvoke[*biz.TamperUsecase](i),
+			log:        log,
+			tamperRepo: tamperUsecase,
 		},
-	}, nil
+	}
 }
 
 func (r *Tamper) Run(_ context.Context) error {

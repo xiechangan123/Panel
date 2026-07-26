@@ -8,7 +8,6 @@ import (
 	"github.com/libtnb/utils/hash"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
-	"github.com/samber/do/v2"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
@@ -21,10 +20,10 @@ type userRepo struct {
 	hasher hash.Hasher
 }
 
-func NewUserRepo(i do.Injector) (biz.UserRepo, error) {
+func NewUserRepo(db *gorm.DB, t *gotext.Locale) (biz.UserRepo, error) {
 	return &userRepo{
-		t:      do.MustInvoke[*gotext.Locale](i),
-		db:     do.MustInvoke[*gorm.DB](i),
+		t:      t,
+		db:     db,
 		hasher: hash.NewArgon2id(),
 	}, nil
 }

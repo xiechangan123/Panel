@@ -3,16 +3,14 @@ package route
 import (
 	"net/http"
 
-	"github.com/samber/do/v2"
-
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
 // SSHRoutes SSH 路由
-func SSHRoutes(i do.Injector) (Endpoints, error) {
-	svc := do.MustInvoke[*service.SSHService](i)
+func SSHRoutes(sshService *service.SSHService) Endpoints {
+	svc := sshService
 
 	return Endpoints{
 		{Method: http.MethodGet, Path: "/api/ssh", Handler: svc.List,
@@ -36,5 +34,5 @@ func SSHRoutes(i do.Injector) (Endpoints, error) {
 		{Method: http.MethodPost, Path: "/api/ssh/{id}/mkdir", Handler: svc.Mkdir,
 			Summary: "创建主机目录", Tags: []string{"SSH"},
 			Request: request.SSHFile{}},
-	}, nil
+	}
 }

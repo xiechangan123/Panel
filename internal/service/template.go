@@ -5,7 +5,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -17,11 +16,11 @@ type TemplateService struct {
 	settingRepo  *biz.SettingUsecase
 }
 
-func NewTemplateService(i do.Injector) (*TemplateService, error) {
+func NewTemplateService(settingUsecase *biz.SettingUsecase, templateUsecase *biz.TemplateUsecase, t *gotext.Locale) (*TemplateService, error) {
 	return &TemplateService{
-		t:            do.MustInvoke[*gotext.Locale](i),
-		templateRepo: do.MustInvoke[*biz.TemplateUsecase](i),
-		settingRepo:  do.MustInvoke[*biz.SettingUsecase](i),
+		t:            t,
+		templateRepo: templateUsecase,
+		settingRepo:  settingUsecase,
 	}, nil
 }
 

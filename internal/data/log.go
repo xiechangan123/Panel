@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samber/do/v2"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -28,9 +27,9 @@ type logRepo struct {
 	db *gorm.DB
 }
 
-func NewLogRepo(i do.Injector) (biz.LogRepo, error) {
+func NewLogRepo(db *gorm.DB) (biz.LogRepo, error) {
 	return &logRepo{
-		db: do.MustInvoke[*gorm.DB](i),
+		db: db,
 	}, nil
 }
 

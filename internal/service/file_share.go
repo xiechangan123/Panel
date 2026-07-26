@@ -8,7 +8,6 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/do/v2"
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -19,10 +18,10 @@ type FileShareService struct {
 	fileShareRepo *biz.FileShareUsecase
 }
 
-func NewFileShareService(i do.Injector) (*FileShareService, error) {
+func NewFileShareService(fileShareUsecase *biz.FileShareUsecase, t *gotext.Locale) (*FileShareService, error) {
 	return &FileShareService{
-		t:             do.MustInvoke[*gotext.Locale](i),
-		fileShareRepo: do.MustInvoke[*biz.FileShareUsecase](i),
+		t:             t,
+		fileShareRepo: fileShareUsecase,
 	}, nil
 }
 
