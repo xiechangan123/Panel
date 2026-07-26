@@ -30,9 +30,14 @@ func NewManager(_ Config, _ *slog.Logger) (*Manager, error) {
 	return nil, errors.New("tamper protection is only supported on Linux")
 }
 
-func (m *Manager) Start() error         { return errors.New("not supported") }
-func (m *Manager) Stop() error          { return nil }
+func (m *Manager) Start() error { return errors.New("not supported") }
+
+func (m *Manager) Stop() error { return nil }
+
 func (m *Manager) Events() <-chan Event { return nil }
-func (m *Manager) Stats() Stats         { return Stats{} }
-func (m *Manager) Unlock(_ []string)    {}
-func (m *Manager) Relock(_ []string)    {}
+
+func (m *Manager) Stats() Stats { return Stats{} }
+
+func (m *Manager) Unlock(_ []string) {}
+
+func (m *Manager) Relock(_ []string) {}

@@ -26,8 +26,10 @@ func (u *User) WebAuthnID() []byte {
 	return buf
 }
 
-func (u *User) WebAuthnName() string        { return u.Inner.Username }
+func (u *User) WebAuthnName() string { return u.Inner.Username }
+
 func (u *User) WebAuthnDisplayName() string { return u.Inner.Username }
+
 func (u *User) WebAuthnCredentials() []webauthn.Credential {
 	return lo.Map(u.Passkeys, func(p *biz.UserPasskey, _ int) webauthn.Credential {
 		var transports []protocol.AuthenticatorTransport

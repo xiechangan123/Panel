@@ -12,8 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/acepanel/panel/v3/pkg/chattr"
 	"golang.org/x/sys/unix"
+
+	"github.com/acepanel/panel/v3/pkg/chattr"
 )
 
 func writeFile(t *testing.T, path, content string) {

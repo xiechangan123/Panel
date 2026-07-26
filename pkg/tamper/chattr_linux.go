@@ -72,6 +72,8 @@ func (c *chattrEngine) lockOne(path string, isDir bool) {
 	}
 }
 
-func (c *chattrEngine) start() error         { return nil }
+func (c *chattrEngine) start() error { return nil }
+
 func (c *chattrEngine) events() <-chan Event { return nil }
-func (c *chattrEngine) close() error         { return nil }
+
+func (c *chattrEngine) close() error { return nil }

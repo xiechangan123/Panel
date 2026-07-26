@@ -390,6 +390,7 @@ func (r *ufw) strategyToUFW(strategy Strategy) string {
 }
 
 const beforeRulesPath = "/etc/ufw/before.rules"
+
 const natMarker = "# acepanel-forward"
 
 func (r *ufw) ListForward() ([]FireForwardInfo, error) {

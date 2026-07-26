@@ -112,8 +112,10 @@ type Comment struct {
 }
 
 func (*Directive) node() {}
-func (*Block) node()     {}
-func (*Comment) node()   {}
+
+func (*Block) node() {}
+
+func (*Comment) node() {}
 
 // Dir 构造一条指令，参数自动判断引号
 func Dir(name string, args ...string) *Directive {
