@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
+import copy2clipboard from '@vavt/copy2clipboard'
 import Anser from 'anser'
 import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import ws from '@/api/ws'
 
-const { $gettext } = useGettext()
+const { $gettext, $ngettext } = useGettext()
 const props = defineProps({
   path: {
     type: String,
@@ -26,24 +27,40 @@ const props = defineProps({
 interface LogLine {
   id: number
   html: string
-  raw: string
+  text: string
+  lower: string
 }
 
 type ConnStatus = 'connecting' | 'connected' | 'error'
 
+// 实时追加的最大保留行数
+const MAX_LINES = 5000
+
 const lines = ref<LogLine[]>([])
 const followMode = ref(true)
+const initialLoading = ref(true)
 const isLoadingMore = ref(false)
 const hasMore = ref(false)
-const fontSize = ref(13)
+const fontSize = useStorage('log-font-size', 13)
+const wrapLines = useStorage('log-wrap-lines', false)
 const status = ref<ConnStatus>('connecting')
 const searchKeyword = ref('')
+const matchedLineId = ref<number | null>(null)
+const pendingNew = ref(0)
 const scrollEl = ref<HTMLElement | null>(null)
 const shellEl = ref<HTMLElement | null>(null)
 
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(shellEl)
 
-// 全屏时弹出层需挂载到全屏元素内部,否则不可见
+const statusText = computed(() =>
+  status.value === 'connected'
+    ? $gettext('Connected')
+    : status.value === 'connecting'
+      ? $gettext('Connecting...')
+      : $gettext('Connection failed, retrying...'),
+)
+
+// 全屏时弹出层需挂载到全屏元素内部否则不可见
 const popoverTo = computed(() => (isFullscreen.value ? (shellEl.value ?? 'body') : 'body'))
 
 let nextId = 0
@@ -54,7 +71,6 @@ let followWs: WebSocket | null = null
 let suppressScrollHandler = false
 let isManuallyClosed = false
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
-let lastSearchIndex = -1
 
 const sourceParams = computed(() =>
   props.path
@@ -70,11 +86,26 @@ const titleLabel = computed(() => props.path || props.service || props.container
 
 const supported = computed(() => !!sourceParams.value)
 
-const parseLine = (raw: string): LogLine => ({
-  id: nextId++,
-  raw,
-  html: Anser.ansiToHtml(Anser.escapeForHtml(raw), { use_classes: true }),
-})
+// text 为剥离 ANSI 后的纯文本供搜索/复制/关键词标注使用
+const parseLine = (raw: string): LogLine => {
+  const text = Anser.ansiToText(raw)
+  return {
+    id: nextId++,
+    text,
+    lower: text.toLowerCase(),
+    html: Anser.ansiToHtml(Anser.escapeForHtml(raw), { use_classes: true }),
+  }
+}
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+// 命中行额外标出关键词舍弃该行 ANSI 着色换取定位清晰
+const renderLine = (line: LogLine) => {
+  const kw = searchKeyword.value
+  if (!kw || line.id !== matchedLineId.value) return line.html
+  const re = new RegExp(escapeRegExp(Anser.escapeForHtml(kw)), 'gi')
+  return Anser.escapeForHtml(line.text).replace(re, (m) => `<mark class="log-mark">${m}</mark>`)
+}
 
 const scrollToBottom = () => {
   const el = scrollEl.value
@@ -119,7 +150,13 @@ const startFollow = () => {
         if (parts.length > 0) {
           lines.value.push(...parts.map(parseLine))
           if (followMode.value) {
+            // 跟随中贴底显示,裁剪顶部无感;暂停时跳过,避免阅读位置跳动
+            if (lines.value.length > MAX_LINES) {
+              lines.value.splice(0, lines.value.length - MAX_LINES)
+            }
             nextTick(() => scrollToBottom())
+          } else {
+            pendingNew.value += parts.length
           }
         }
       }
@@ -156,18 +193,23 @@ const buildTailParams = (initial: boolean) => {
 
 const loadInitial = () => {
   if (!sourceParams.value) return
-  useRequest(file.tail(buildTailParams(true))).onSuccess(({ data }: any) => {
-    const newLines: string[] = data?.lines ?? []
-    lines.value = newLines.map(parseLine)
-    loadedFromEnd = newLines.length
-    nextCursor = data?.next_cursor ?? ''
-    hasMore.value = data?.has_more ?? false
-    nextTick(() => {
-      scrollToBottom()
-      followMode.value = true
-      startFollow()
+  initialLoading.value = true
+  useRequest(file.tail(buildTailParams(true)))
+    .onSuccess(({ data }: any) => {
+      const newLines: string[] = data?.lines ?? []
+      lines.value = newLines.map(parseLine)
+      loadedFromEnd = newLines.length
+      nextCursor = data?.next_cursor ?? ''
+      hasMore.value = data?.has_more ?? false
+      nextTick(() => {
+        scrollToBottom()
+        followMode.value = true
+        startFollow()
+      })
     })
-  })
+    .onComplete(() => {
+      initialLoading.value = false
+    })
 }
 
 const loadOlder = () => {
@@ -220,13 +262,29 @@ const onScroll = () => {
   }
 }
 
+const resumeFollow = () => {
+  scrollToBottom()
+  followMode.value = true
+}
+
 const toggleFollow = () => {
   if (followMode.value) {
     followMode.value = false
   } else {
-    scrollToBottom()
-    followMode.value = true
+    resumeFollow()
   }
+}
+
+const toggleWrap = () => {
+  wrapLines.value = !wrapLines.value
+  if (followMode.value) nextTick(() => scrollToBottom())
+}
+
+const copyAll = () => {
+  if (lines.value.length === 0) return
+  copy2clipboard(lines.value.map((l) => l.text).join('\n')).then(() => {
+    window.$message.success($gettext('Copied successfully'))
+  })
 }
 
 const increaseFont = () => {
@@ -237,31 +295,43 @@ const decreaseFont = () => {
   if (fontSize.value > 10) fontSize.value--
 }
 
-const handleSearch = () => {
-  if (!searchKeyword.value || !scrollEl.value) return
+const matches = computed(() => {
   const kw = searchKeyword.value.toLowerCase()
-  const startIdx = lastSearchIndex + 1
-  // 从上次匹配位置之后查找,找不到再从头查(回环)
-  let idx = lines.value.findIndex((l, i) => i >= startIdx && l.raw.toLowerCase().includes(kw))
-  if (idx < 0) {
-    idx = lines.value.findIndex((l) => l.raw.toLowerCase().includes(kw))
-  }
-  if (idx >= 0) {
-    lastSearchIndex = idx
-    const lineEls = scrollEl.value.querySelectorAll('.log-line')
-    const target = lineEls[idx] as HTMLElement | undefined
-    if (target) {
-      target.scrollIntoView({ block: 'center' })
-      followMode.value = false
-    }
-  } else {
+  if (!kw) return []
+  return lines.value.filter((l) => l.lower.includes(kw))
+})
+
+const matchPos = computed(() => matches.value.findIndex((m) => m.id === matchedLineId.value))
+
+// step 为 1 下一个、-1 上一个,游标基于行 id,翻页/裁剪导致的下标漂移不影响定位
+const goToMatch = (step: 1 | -1) => {
+  if (!searchKeyword.value || !scrollEl.value) return
+  const ms = matches.value
+  if (ms.length === 0) {
+    matchedLineId.value = null
     window.$message.warning($gettext('Not found'))
+    return
+  }
+  const cur = matchPos.value
+  const next = cur < 0 ? (step === 1 ? 0 : ms.length - 1) : (cur + step + ms.length) % ms.length
+  const target = ms[next]
+  if (!target) return
+  matchedLineId.value = target.id
+  const el = scrollEl.value.querySelector(`.log-line[data-id="${target.id}"]`)
+  if (el) {
+    el.scrollIntoView({ block: 'center' })
+    followMode.value = false
   }
 }
 
-// 关键字变化时重置搜索游标
+// 关键字变化时重置搜索游标与高亮
 watch(searchKeyword, () => {
-  lastSearchIndex = -1
+  matchedLineId.value = null
+})
+
+// 恢复跟随即视为已读到最新,积压计数统一在此清零
+watch(followMode, (on) => {
+  if (on) pendingNew.value = 0
 })
 
 // 全屏切换后容器高度变化重新贴底
@@ -283,7 +353,8 @@ const cleanup = () => {
   pendingTail = ''
   hasMore.value = false
   status.value = 'connecting'
-  lastSearchIndex = -1
+  matchedLineId.value = null
+  pendingNew.value = 0
 }
 
 watch(
@@ -314,7 +385,7 @@ defineExpose({ clear })
   <div v-if="supported" ref="shellEl" class="log-shell">
     <header class="log-titlebar">
       <div class="log-title">
-        <span class="status-dot" :class="status"></span>
+        <span class="status-dot" :class="status" :title="statusText"></span>
         <span class="log-title-text">{{ titleLabel }}</span>
       </div>
       <div class="titlebar-actions">
@@ -339,14 +410,39 @@ defineExpose({ clear })
               <i-mdi-magnify class="text-base" />
             </button>
           </template>
-          <n-input
-            v-model:value="searchKeyword"
-            size="small"
-            :placeholder="$gettext('Enter keyword and press Enter')"
-            class="!w-60"
-            @keyup.enter="handleSearch"
-          />
+          <n-flex vertical size="small" class="w-70">
+            <n-input-group>
+              <n-input
+                v-model:value="searchKeyword"
+                size="small"
+                :placeholder="$gettext('Enter keyword and press Enter')"
+                @keyup.enter="goToMatch(1)"
+              />
+              <n-button size="small" :title="$gettext('Previous')" @click="goToMatch(-1)">
+                <i-mdi-chevron-up />
+              </n-button>
+              <n-button size="small" :title="$gettext('Next')" @click="goToMatch(1)">
+                <i-mdi-chevron-down />
+              </n-button>
+            </n-input-group>
+            <n-flex justify="space-between" align="center" class="text-xs opacity-60">
+              <span>{{ $gettext('Only loaded logs are searched') }}</span>
+              <span v-if="searchKeyword">{{ matchPos + 1 }}/{{ matches.length }}</span>
+            </n-flex>
+          </n-flex>
         </n-popover>
+        <div class="action-divider"></div>
+        <button
+          class="action-btn"
+          :class="{ active: wrapLines }"
+          :title="wrapLines ? $gettext('Disable Line Wrap') : $gettext('Enable Line Wrap')"
+          @click="toggleWrap"
+        >
+          <i-mdi-wrap class="text-base" />
+        </button>
+        <button class="action-btn" :title="$gettext('Copy All')" @click="copyAll">
+          <i-mdi-content-copy class="text-base" />
+        </button>
         <div class="action-divider"></div>
         <button class="action-btn" :title="$gettext('Decrease Font Size')" @click="decreaseFont">
           <i-mdi-format-font-size-decrease class="text-base" />
@@ -369,11 +465,37 @@ defineExpose({ clear })
     <div
       ref="scrollEl"
       class="log-content"
+      :class="{ wrap: wrapLines }"
       :style="{ fontSize: `${fontSize}px` }"
       @scroll="onScroll"
     >
-      <div v-for="line in lines" :key="line.id" class="log-line" v-html="line.html"></div>
+      <div v-if="initialLoading" class="log-loading"><n-spin :size="18" /></div>
+      <template v-else>
+        <div v-if="isLoadingMore || (!hasMore && lines.length > 0)" class="log-boundary">
+          <n-spin v-if="isLoadingMore" :size="12" />
+          <span v-else>{{ $gettext('No more logs') }}</span>
+        </div>
+        <div
+          v-for="line in lines"
+          :key="line.id"
+          class="log-line"
+          :class="{ matched: line.id === matchedLineId }"
+          :data-id="line.id"
+          v-html="renderLine(line)"
+        ></div>
+      </template>
     </div>
+
+    <transition name="pill">
+      <button v-if="pendingNew > 0" class="new-logs-pill" @click="resumeFollow">
+        <i-mdi-arrow-down class="text-sm" />
+        {{
+          $ngettext('%{ count } new line', '%{ count } new lines', pendingNew, {
+            count: String(pendingNew),
+          })
+        }}
+      </button>
+    </transition>
   </div>
   <n-empty v-else :description="$gettext('No logs available')" />
 </template>
@@ -469,6 +591,13 @@ defineExpose({ clear })
   }
   .ansi-dim {
     opacity: 0.6;
+  }
+
+  // 搜索命中的关键词,由 v-html 注入,须置于全局样式
+  .log-mark {
+    background: #facc15;
+    color: #1f1f1f;
+    border-radius: 2px;
   }
 }
 </style>
@@ -630,5 +759,70 @@ defineExpose({ clear })
   &:hover {
     background: rgba(255, 255, 255, 0.03);
   }
+
+  // 搜索命中行,需在 hover 之后声明以覆盖其背景
+  &.matched,
+  &.matched:hover {
+    background: rgba(250, 204, 21, 0.22);
+    box-shadow: inset 3px 0 0 #facc15;
+  }
+}
+
+.log-content.wrap .log-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.log-boundary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  user-select: none;
+}
+
+.new-logs-pill {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(30, 30, 30, 0.9);
+  color: rgb(74, 222, 128);
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: rgba(50, 50, 50, 0.95);
+  }
+}
+
+.pill-enter-active,
+.pill-leave-active {
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.pill-enter-from,
+.pill-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px);
 }
 </style>
