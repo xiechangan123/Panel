@@ -82,10 +82,10 @@ bash <(curl -sSLm 10 https://dl.acepanel.net/helper.sh)
 
 ## Star 历史
 
-<a href="https://star-history.com/#acepanel/panel&Date">
+<a href="https://www.star-history.com/?repos=acepanel%2Fpanel&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=acepanel/panel&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=acepanel/panel&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=acepanel/panel&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=acepanel/panel&type=date&theme=dark&legend=top-left&sealed_token=A7PSvKwCQys65o30bBWFVq0j-xWQ7q0kkPMbHsRTelnAZTLIVnCIIS18tyeO0LeMqQ4fsyoN1oPeM9dPIHpa1x03AV47vz7Q880xdcO7CH-y6qzXLCMO6g" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=acepanel/panel&type=date&legend=top-left&sealed_token=A7PSvKwCQys65o30bBWFVq0j-xWQ7q0kkPMbHsRTelnAZTLIVnCIIS18tyeO0LeMqQ4fsyoN1oPeM9dPIHpa1x03AV47vz7Q880xdcO7CH-y6qzXLCMO6g" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=acepanel/panel&type=date&legend=top-left&sealed_token=A7PSvKwCQys65o30bBWFVq0j-xWQ7q0kkPMbHsRTelnAZTLIVnCIIS18tyeO0LeMqQ4fsyoN1oPeM9dPIHpa1x03AV47vz7Q880xdcO7CH-y6qzXLCMO6g" />
  </picture>
 </a>
