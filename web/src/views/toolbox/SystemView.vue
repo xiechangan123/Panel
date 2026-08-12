@@ -9,9 +9,7 @@ import { useGettext } from 'vue3-gettext'
 import system from '@/api/panel/toolbox-system'
 
 const { $gettext } = useGettext()
-const currentTab = ref('dns')
-const dns1 = ref('')
-const dns2 = ref('')
+const currentTab = ref('swap')
 const swap = ref(0)
 const swapFree = ref('')
 const swapUsed = ref('')
@@ -28,21 +26,13 @@ const ntpServiceType = ref('')
 const showNtpModal = ref(false)
 const editingNtpServers = ref<string[]>([])
 
-const dnsManager = ref('')
-
 // loading 状态
-const dnsLoading = ref(false)
 const swapLoading = ref(false)
 const hostLoading = ref(false)
 const timeLoading = ref(false)
 const syncTimeLoading = ref(false)
 const ntpLoading = ref(false)
 
-useRequest(system.dns()).onSuccess(({ data }) => {
-  dns1.value = data.dns?.[0] ?? ''
-  dns2.value = data.dns?.[1] ?? ''
-  dnsManager.value = data.manager
-})
 useRequest(system.swap()).onSuccess(({ data }) => {
   swap.value = data.size
   swapFree.value = data.free
@@ -64,17 +54,6 @@ useRequest(system.ntpServers()).onSuccess(({ data }) => {
   builtinNtpServers.value = data.builtins || []
   ntpServiceType.value = data.service_type || ''
 })
-
-const handleUpdateDNS = () => {
-  dnsLoading.value = true
-  useRequest(system.updateDns(dns1.value, dns2.value))
-    .onSuccess(() => {
-      window.$message.success($gettext('Saved successfully'))
-    })
-    .onComplete(() => {
-      dnsLoading.value = false
-    })
-}
 
 const handleUpdateSwap = () => {
   swapLoading.value = true
@@ -165,38 +144,6 @@ const handleSaveNtpServers = () => {
 
 <template>
   <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
-    <n-tab-pane name="dns" tab="DNS">
-      <n-flex vertical>
-        <n-alert type="info">
-          {{
-            $gettext('Current DNS manager: %{ manager }', {
-              manager: dnsManager,
-            })
-          }}
-        </n-alert>
-        <n-alert v-if="dnsManager === 'resolv.conf'" type="warning">
-          {{ $gettext('DNS modifications will revert to default after system restart.') }}
-        </n-alert>
-        <n-form>
-          <n-form-item label="DNS1">
-            <n-input v-model:value="dns1" :placeholder="$gettext('Enter primary DNS server')" />
-          </n-form-item>
-          <n-form-item label="DNS2">
-            <n-input v-model:value="dns2" :placeholder="$gettext('Enter secondary DNS server')" />
-          </n-form-item>
-        </n-form>
-        <n-flex>
-          <n-button
-            type="primary"
-            :loading="dnsLoading"
-            :disabled="dnsLoading"
-            @click="handleUpdateDNS"
-          >
-            {{ $gettext('Save') }}
-          </n-button>
-        </n-flex>
-      </n-flex>
-    </n-tab-pane>
     <n-tab-pane name="swap" tab="SWAP">
       <n-flex vertical>
         <n-alert type="info">

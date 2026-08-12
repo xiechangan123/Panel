@@ -8,17 +8,25 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/process"
 
 	"github.com/acepanel/panel/v3/internal/request"
+	panelnetwork "github.com/acepanel/panel/v3/pkg/network"
 )
 
-type ToolboxNetworkService struct{}
+type ToolboxNetworkService struct {
+	t       *gotext.Locale
+	network *panelnetwork.Service
+}
 
-func NewToolboxNetworkService() (*ToolboxNetworkService, error) {
-	return &ToolboxNetworkService{}, nil
+func NewToolboxNetworkService(t *gotext.Locale) (*ToolboxNetworkService, error) {
+	return &ToolboxNetworkService{
+		t:       t,
+		network: panelnetwork.New(),
+	}, nil
 }
 
 type networkConnection struct {
@@ -28,6 +36,36 @@ type networkConnection struct {
 	Local   string `json:"local"`   // 本地地址:端口
 	Remote  string `json:"remote"`  // 远程地址:端口
 	State   string `json:"state"`   // LISTEN, ESTABLISHED 等
+}
+
+// Interfaces 获取可管理网卡列表
+func (s *ToolboxNetworkService) Interfaces(w http.ResponseWriter, r *http.Request) {
+	result, err := s.network.Interfaces(r.Context())
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to get network interfaces: %v", err))
+		return
+	}
+
+	Success(w, result)
+}
+
+// UpdateInterface 更新网卡配置
+func (s *ToolboxNetworkService) UpdateInterface(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[panelnetwork.Config](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+	if err = s.network.Update(r.Context(), *req); err != nil {
+		if panelnetwork.IsValidationError(err) {
+			Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid network configuration: %v", err))
+			return
+		}
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to update network interface: %v", err))
+		return
+	}
+
+	Success(w, nil)
 }
 
 // List 获取网络连接列表

@@ -15,7 +15,6 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/dns"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/ntp"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -31,36 +30,6 @@ func NewToolboxSystemService(t *gotext.Locale) (*ToolboxSystemService, error) {
 	return &ToolboxSystemService{
 		t: t,
 	}, nil
-}
-
-// GetDNS 获取 DNS 信息
-func (s *ToolboxSystemService) GetDNS(w http.ResponseWriter, r *http.Request) {
-	dnsServers, manager, err := dns.GetDNS()
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, chix.M{
-		"dns":     dnsServers,
-		"manager": manager.String(),
-	})
-}
-
-// UpdateDNS 设置 DNS 信息
-func (s *ToolboxSystemService) UpdateDNS(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxSystemDNS](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err := dns.SetDNS(req.DNS1, req.DNS2); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to update DNS: %v", err))
-		return
-	}
-
-	Success(w, nil)
 }
 
 // GetSWAP 获取 SWAP 信息

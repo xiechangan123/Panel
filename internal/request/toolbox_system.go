@@ -2,11 +2,6 @@ package request
 
 import "time"
 
-type ToolboxSystemDNS struct {
-	DNS1 string `form:"dns1" json:"dns1" validate:"required && ip"`
-	DNS2 string `form:"dns2" json:"dns2" validate:"required && ip"`
-}
-
 type ToolboxSystemSWAP struct {
 	Size int64 `form:"size" json:"size" validate:"min:0"`
 }

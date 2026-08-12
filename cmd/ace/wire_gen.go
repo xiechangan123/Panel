@@ -739,7 +739,7 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	toolboxNetworkService, err := service.NewToolboxNetworkService()
+	toolboxNetworkService, err := service.NewToolboxNetworkService(locale)
 	if err != nil {
 		cleanup()
 		return nil, nil, err

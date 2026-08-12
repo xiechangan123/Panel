@@ -5,7 +5,10 @@ import { useGettext } from 'vue3-gettext'
 
 import toolboxNetwork, { type NetworkListParams } from '@/api/panel/toolbox-network'
 
+import InterfaceView from './network/InterfaceView.vue'
+
 const { $gettext } = useGettext()
+const currentTab = ref('connections')
 
 // 排序状态
 const sortState = ref<DataTableSortState | null>(null)
@@ -143,73 +146,80 @@ const { loading, data, page, total, pageSize, pageCount, reload } = usePaginatio
 </script>
 
 <template>
-  <n-flex vertical :size="16">
-    <!-- 工具栏 -->
-    <n-flex :size="12" :wrap="true">
-      <n-select
-        v-model:value="stateFilter"
-        multiple
-        :options="stateOptions"
-        :placeholder="$gettext('Filter by status')"
-        clearable
-        class="w-70"
-        @update:value="page = 1"
-      />
-      <n-input
-        v-model:value="pidSearch"
-        :placeholder="$gettext('Search PID')"
-        clearable
-        class="!w-35"
-      >
-        <template #prefix>
-          <the-icon :size="16" icon="mdi:magnify" />
-        </template>
-      </n-input>
-      <n-input
-        v-model:value="processSearch"
-        :placeholder="$gettext('Search process')"
-        clearable
-        class="!w-45"
-      >
-        <template #prefix>
-          <the-icon :size="16" icon="mdi:magnify" />
-        </template>
-      </n-input>
-      <n-input
-        v-model:value="portSearch"
-        :placeholder="$gettext('Search port')"
-        clearable
-        class="!w-35"
-      >
-        <template #prefix>
-          <the-icon :size="16" icon="mdi:magnify" />
-        </template>
-      </n-input>
-      <n-button @click="reload" type="primary" ghost>{{ $gettext('Refresh') }}</n-button>
-    </n-flex>
+  <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+    <n-tab-pane name="connections" :tab="$gettext('Network Connections')">
+      <n-flex vertical :size="16">
+        <!-- 工具栏 -->
+        <n-flex :size="12" :wrap="true">
+          <n-select
+            v-model:value="stateFilter"
+            multiple
+            :options="stateOptions"
+            :placeholder="$gettext('Filter by status')"
+            clearable
+            class="w-70"
+            @update:value="page = 1"
+          />
+          <n-input
+            v-model:value="pidSearch"
+            :placeholder="$gettext('Search PID')"
+            clearable
+            class="!w-35"
+          >
+            <template #prefix>
+              <the-icon :size="16" icon="mdi:magnify" />
+            </template>
+          </n-input>
+          <n-input
+            v-model:value="processSearch"
+            :placeholder="$gettext('Search process')"
+            clearable
+            class="!w-45"
+          >
+            <template #prefix>
+              <the-icon :size="16" icon="mdi:magnify" />
+            </template>
+          </n-input>
+          <n-input
+            v-model:value="portSearch"
+            :placeholder="$gettext('Search port')"
+            clearable
+            class="!w-35"
+          >
+            <template #prefix>
+              <the-icon :size="16" icon="mdi:magnify" />
+            </template>
+          </n-input>
+          <n-button @click="reload" type="primary" ghost>{{ $gettext('Refresh') }}</n-button>
+        </n-flex>
 
-    <!-- 网络连接列表 -->
-    <n-data-table
-      striped
-      remote
-      virtual-scroll
-      :scroll-x="1300"
-      :loading="loading"
-      :columns="columns"
-      :data="data"
-      :row-key="(row: any) => `${row.type}-${row.pid}-${row.local}-${row.remote}`"
-      max-height="60vh"
-      @update:sorter="handleSorterChange"
-      v-model:page="page"
-      v-model:pageSize="pageSize"
-      :pagination="{
-        page: page,
-        pageSize: pageSize,
-        itemCount: total,
-        showQuickJumper: true,
-        showSizePicker: true,
-        pageSizes: [50, 100, 200, 500],
-      }"
-    />
-  </n-flex>
+        <!-- 网络连接列表 -->
+        <n-data-table
+          striped
+          remote
+          virtual-scroll
+          :scroll-x="1300"
+          :loading="loading"
+          :columns="columns"
+          :data="data"
+          :row-key="(row: any) => `${row.type}-${row.pid}-${row.local}-${row.remote}`"
+          max-height="60vh"
+          @update:sorter="handleSorterChange"
+          v-model:page="page"
+          v-model:pageSize="pageSize"
+          :pagination="{
+            page: page,
+            pageSize: pageSize,
+            itemCount: total,
+            showQuickJumper: true,
+            showSizePicker: true,
+            pageSizes: [50, 100, 200, 500],
+          }"
+        />
+      </n-flex>
+    </n-tab-pane>
+    <n-tab-pane name="interfaces" :tab="$gettext('Network Interface Configuration')">
+      <InterfaceView />
+    </n-tab-pane>
+  </n-tabs>
 </template>

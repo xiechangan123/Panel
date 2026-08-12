@@ -1,10 +1,6 @@
 import { http } from '@/utils'
 
 export default {
-  // DNS
-  dns: (): any => http.Get('/toolbox_system/dns'),
-  // 设置 DNS
-  updateDns: (dns1: string, dns2: string): any => http.Post('/toolbox_system/dns', { dns1, dns2 }),
   // SWAP
   swap: (): any => http.Get('/toolbox_system/swap'),
   // 设置 SWAP

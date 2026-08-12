@@ -11,8 +11,6 @@ func ToolboxSystemRoutes(toolboxSystemService *service.ToolboxSystemService) End
 	svc := toolboxSystemService
 
 	return Endpoints{
-		{Method: http.MethodGet, Path: "/api/toolbox_system/dns", Handler: svc.GetDNS},
-		{Method: http.MethodPost, Path: "/api/toolbox_system/dns", Handler: svc.UpdateDNS},
 		{Method: http.MethodGet, Path: "/api/toolbox_system/swap", Handler: svc.GetSWAP},
 		{Method: http.MethodPost, Path: "/api/toolbox_system/swap", Handler: svc.UpdateSWAP},
 		{Method: http.MethodGet, Path: "/api/toolbox_system/timezone", Handler: svc.GetTimezone},

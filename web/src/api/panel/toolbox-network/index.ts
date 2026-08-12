@@ -11,6 +11,41 @@ export interface NetworkListParams {
   port?: string
 }
 
+export interface NetworkFamilyConfig {
+  mode: 'auto' | 'manual' | 'disabled'
+  addresses: string[]
+  gateway: string
+  auto_dns: boolean
+  dns: string[]
+}
+
+export interface NetworkInterfaceConfig {
+  name: string
+  mtu: number
+  ipv4: NetworkFamilyConfig
+  ipv6: NetworkFamilyConfig
+}
+
+export interface NetworkInterface extends Omit<NetworkInterfaceConfig, 'mtu'> {
+  type: string
+  state: string
+  mac: string
+  current_mtu: number
+  configured_mtu: number
+  current_ipv4: string[]
+  current_ipv6: string[]
+  editable: boolean
+  reason: string
+}
+
+export interface NetworkInterfaces {
+  manager: string
+  items: NetworkInterface[]
+}
+
 export default {
   list: (params: NetworkListParams) => http.Get('/toolbox_network/list', { params }),
+  interfaces: (): any => http.Get('/toolbox_network/interfaces'),
+  updateInterface: (config: NetworkInterfaceConfig): any =>
+    http.Post('/toolbox_network/interfaces', config),
 }
