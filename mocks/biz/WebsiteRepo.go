@@ -621,6 +621,64 @@ func (_c *WebsiteRepo_ResetConfig_Call) RunAndReturn(run func(uint) error) *Webs
 	return _c
 }
 
+// SwitchType provides a mock function with given fields: req
+func (_m *WebsiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, error) {
+	ret := _m.Called(req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SwitchType")
+	}
+
+	var r0 *biz.Website
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*request.WebsiteSwitchType) (*biz.Website, error)); ok {
+		return rf(req)
+	}
+	if rf, ok := ret.Get(0).(func(*request.WebsiteSwitchType) *biz.Website); ok {
+		r0 = rf(req)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*biz.Website)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*request.WebsiteSwitchType) error); ok {
+		r1 = rf(req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebsiteRepo_SwitchType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SwitchType'
+type WebsiteRepo_SwitchType_Call struct {
+	*mock.Call
+}
+
+// SwitchType is a helper method to define mock.On call
+//   - req *request.WebsiteSwitchType
+func (_e *WebsiteRepo_Expecter) SwitchType(req interface{}) *WebsiteRepo_SwitchType_Call {
+	return &WebsiteRepo_SwitchType_Call{Call: _e.mock.On("SwitchType", req)}
+}
+
+func (_c *WebsiteRepo_SwitchType_Call) Run(run func(req *request.WebsiteSwitchType)) *WebsiteRepo_SwitchType_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*request.WebsiteSwitchType))
+	})
+	return _c
+}
+
+func (_c *WebsiteRepo_SwitchType_Call) Return(_a0 *biz.Website, _a1 error) *WebsiteRepo_SwitchType_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebsiteRepo_SwitchType_Call) RunAndReturn(run func(*request.WebsiteSwitchType) (*biz.Website, error)) *WebsiteRepo_SwitchType_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function with given fields: req
 func (_m *WebsiteRepo) Update(req *request.WebsiteUpdate) (*biz.Website, error) {
 	ret := _m.Called(req)
