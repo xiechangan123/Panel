@@ -2,6 +2,7 @@ package data
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -42,17 +43,49 @@ func (r *containerRepo) ListAll(sock string) ([]types.Container, error) {
 
 	var containers []types.Container
 	for _, item := range resp.Items {
-		ports := make([]types.ContainerPort, 0)
-		for _, port := range item.Ports {
-			ports = append(ports, types.ContainerPort{
+		ports := make([]types.ContainerPort, len(item.Ports))
+		for i, port := range item.Ports {
+			ports[i] = types.ContainerPort{
 				ContainerStart: uint(port.PrivatePort),
 				ContainerEnd:   uint(port.PrivatePort),
 				HostStart:      uint(port.PublicPort),
 				HostEnd:        uint(port.PublicPort),
 				Protocol:       port.Type,
 				Host:           port.IP,
-			})
+			}
 		}
+		slices.SortFunc(ports, func(a, b types.ContainerPort) int {
+			aOffset := int64(a.HostStart) - int64(a.ContainerStart)
+			if a.HostStart == 0 {
+				aOffset = 0
+			}
+			bOffset := int64(b.HostStart) - int64(b.ContainerStart)
+			if b.HostStart == 0 {
+				bOffset = 0
+			}
+			return cmp.Or(
+				a.Host.Compare(b.Host),
+				strings.Compare(a.Protocol, b.Protocol),
+				cmp.Compare(aOffset, bOffset),
+				cmp.Compare(a.ContainerStart, b.ContainerStart),
+				cmp.Compare(a.HostStart, b.HostStart),
+			)
+		})
+
+		merged := ports[:0]
+		for _, port := range ports {
+			if len(merged) > 0 {
+				last := &merged[len(merged)-1]
+				if last.Host == port.Host && last.Protocol == port.Protocol &&
+					last.ContainerEnd+1 == port.ContainerStart && last.HostEnd+1 == port.HostStart {
+					last.ContainerEnd = port.ContainerEnd
+					last.HostEnd = port.HostEnd
+					continue
+				}
+			}
+			merged = append(merged, port)
+		}
+
 		if len(item.Names) == 0 {
 			item.Names = append(item.Names, "")
 		}
@@ -65,7 +98,7 @@ func (r *containerRepo) ListAll(sock string) ([]types.Container, error) {
 			CreatedAt: time.Unix(item.Created, 0),
 			State:     string(item.State),
 			Status:    item.Status,
-			Ports:     ports,
+			Ports:     merged,
 			Labels:    types.MapToKV(item.Labels),
 		})
 	}
