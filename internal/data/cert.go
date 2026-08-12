@@ -8,7 +8,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -186,26 +185,16 @@ func (r *certRepo) WriteCertFiles(cert *biz.Cert, certPath, keyPath string) erro
 }
 
 // EnableWebsiteSSL 为网站开启 HTTPS
-func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, webServer string, tlsVersions []string) error {
+func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, webServer string, tlsVersions []string, listenIPv6 bool) error {
 	vhost, err := r.getVhost(website, webServer)
 	if err != nil {
 		return err
 	}
 
 	// 添加 443 监听
-	listens := vhost.Listen()
-	hasSSL := slices.ContainsFunc(listens, func(l webservertypes.Listen) bool {
-		return slices.Contains(l.Args, "ssl")
-	})
-	if !hasSSL {
-		args := []string{"ssl"}
-		if webServer != "apache" {
-			args = append(args, "quic")
-		}
-		listens = append(listens, webservertypes.Listen{Address: "443", Args: args})
-		if err = vhost.SetListen(listens); err != nil {
-			return err
-		}
+	listens := addHTTPSListens(vhost.Listen(), webServer, listenIPv6)
+	if err = vhost.SetListen(listens); err != nil {
+		return err
 	}
 
 	// 配置 SSL

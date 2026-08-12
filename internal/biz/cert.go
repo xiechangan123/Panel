@@ -57,7 +57,7 @@ type CertRepo interface {
 	ObtainPanel(account *CertAccount, names []string, webServer string) ([]byte, []byte, error)
 	LoadWebsite(WebsiteID uint) (*Website, error)
 	WriteCertFiles(cert *Cert, certPath, keyPath string) error
-	EnableWebsiteSSL(website *Website, certPath, keyPath, webServer string, tlsVersions []string) error
+	EnableWebsiteSSL(website *Website, certPath, keyPath, webServer string, tlsVersions []string, listenIPv6 bool) error
 	ReloadWebserver(webServer string) error
 }
 
@@ -423,7 +423,11 @@ func (uc *CertUsecase) Deploy(ID, WebsiteID uint, enableHTTPS bool) error {
 			return err
 		}
 		tlsVersions, _ := uc.setting.GetSlice(SettingKeyWebsiteTLSVersions)
-		if err = uc.repo.EnableWebsiteSSL(website, certPath, keyPath, webServer, tlsVersions); err != nil {
+		listenIPv6, err := uc.setting.GetBool(SettingKeyWebsiteListenIPv6, false)
+		if err != nil {
+			return err
+		}
+		if err = uc.repo.EnableWebsiteSSL(website, certPath, keyPath, webServer, tlsVersions, listenIPv6); err != nil {
 			return err
 		}
 	}

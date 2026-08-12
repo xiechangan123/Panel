@@ -35,6 +35,7 @@ const (
 	SettingKeyProjectPath               SettingKey = "project_path"
 	SettingKeyContainerSock             SettingKey = "container_sock"
 	SettingKeyWebsiteTLSVersions        SettingKey = "website_tls_versions"
+	SettingKeyWebsiteListenIPv6         SettingKey = "website_listen_ipv6"
 	SettingKeyMySQLRootPassword         SettingKey = "mysql_root_password"
 	SettingKeyPostgresPassword          SettingKey = "postgres_password"
 	SettingKeyMongoDBAdminPassword      SettingKey = "mongodb_admin_password"

@@ -1068,6 +1068,7 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 		{Key: biz.SettingKeyProjectPath, Value: filepath.Join(app.Root, "projects")},
 		{Key: biz.SettingKeyContainerSock, Value: "/var/run/docker.sock"},
 		{Key: biz.SettingKeyWebsiteTLSVersions, Value: `["TLSv1.2","TLSv1.3"]`},
+		{Key: biz.SettingKeyWebsiteListenIPv6, Value: "false"},
 		{Key: biz.SettingKeyOfflineMode, Value: "false"},
 		{Key: biz.SettingKeyAutoUpdate, Value: "true"},
 		{Key: biz.SettingHiddenMenu, Value: "[]"},

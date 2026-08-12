@@ -59,12 +59,14 @@ func (s *WebsiteService) GetDefaultConfig(w http.ResponseWriter, r *http.Request
 	stop, _ := io.Read(filepath.Join(htmlPath, "stop.html"))
 	notFound, _ := io.Read(filepath.Join(htmlPath, "404.html"))
 	tlsVersions, _ := s.settingRepo.GetSlice(biz.SettingKeyWebsiteTLSVersions)
+	listenIPv6, _ := s.settingRepo.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
 
 	Success(w, chix.M{
 		"index":        index,
 		"stop":         stop,
 		"not_found":    notFound,
 		"tls_versions": tlsVersions,
+		"listen_ipv6":  listenIPv6,
 	})
 }
 

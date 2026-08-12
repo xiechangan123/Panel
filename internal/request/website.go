@@ -9,6 +9,7 @@ type WebsiteDefaultConfig struct {
 	Stop        string   `json:"stop" form:"stop" validate:"required"`
 	NotFound    string   `json:"not_found" form:"not_found"`
 	TLSVersions []string `json:"tls_versions" form:"tls_versions" validate:"required && unique && dive && required"`
+	ListenIPv6  bool     `json:"listen_ipv6" form:"listen_ipv6"`
 }
 
 type WebsiteList struct {

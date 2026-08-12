@@ -176,17 +176,17 @@ func (_c *CertRepo_Delete_Call) RunAndReturn(run func(uint) error) *CertRepo_Del
 	return _c
 }
 
-// EnableWebsiteSSL provides a mock function with given fields: website, certPath, keyPath, webServer, tlsVersions
-func (_m *CertRepo) EnableWebsiteSSL(website *biz.Website, certPath string, keyPath string, webServer string, tlsVersions []string) error {
-	ret := _m.Called(website, certPath, keyPath, webServer, tlsVersions)
+// EnableWebsiteSSL provides a mock function with given fields: website, certPath, keyPath, webServer, tlsVersions, listenIPv6
+func (_m *CertRepo) EnableWebsiteSSL(website *biz.Website, certPath string, keyPath string, webServer string, tlsVersions []string, listenIPv6 bool) error {
+	ret := _m.Called(website, certPath, keyPath, webServer, tlsVersions, listenIPv6)
 
 	if len(ret) == 0 {
 		panic("no return value specified for EnableWebsiteSSL")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*biz.Website, string, string, string, []string) error); ok {
-		r0 = rf(website, certPath, keyPath, webServer, tlsVersions)
+	if rf, ok := ret.Get(0).(func(*biz.Website, string, string, string, []string, bool) error); ok {
+		r0 = rf(website, certPath, keyPath, webServer, tlsVersions, listenIPv6)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -205,13 +205,14 @@ type CertRepo_EnableWebsiteSSL_Call struct {
 //   - keyPath string
 //   - webServer string
 //   - tlsVersions []string
-func (_e *CertRepo_Expecter) EnableWebsiteSSL(website interface{}, certPath interface{}, keyPath interface{}, webServer interface{}, tlsVersions interface{}) *CertRepo_EnableWebsiteSSL_Call {
-	return &CertRepo_EnableWebsiteSSL_Call{Call: _e.mock.On("EnableWebsiteSSL", website, certPath, keyPath, webServer, tlsVersions)}
+//   - listenIPv6 bool
+func (_e *CertRepo_Expecter) EnableWebsiteSSL(website interface{}, certPath interface{}, keyPath interface{}, webServer interface{}, tlsVersions interface{}, listenIPv6 interface{}) *CertRepo_EnableWebsiteSSL_Call {
+	return &CertRepo_EnableWebsiteSSL_Call{Call: _e.mock.On("EnableWebsiteSSL", website, certPath, keyPath, webServer, tlsVersions, listenIPv6)}
 }
 
-func (_c *CertRepo_EnableWebsiteSSL_Call) Run(run func(website *biz.Website, certPath string, keyPath string, webServer string, tlsVersions []string)) *CertRepo_EnableWebsiteSSL_Call {
+func (_c *CertRepo_EnableWebsiteSSL_Call) Run(run func(website *biz.Website, certPath string, keyPath string, webServer string, tlsVersions []string, listenIPv6 bool)) *CertRepo_EnableWebsiteSSL_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*biz.Website), args[1].(string), args[2].(string), args[3].(string), args[4].([]string))
+		run(args[0].(*biz.Website), args[1].(string), args[2].(string), args[3].(string), args[4].([]string), args[5].(bool))
 	})
 	return _c
 }
@@ -221,7 +222,7 @@ func (_c *CertRepo_EnableWebsiteSSL_Call) Return(_a0 error) *CertRepo_EnableWebs
 	return _c
 }
 
-func (_c *CertRepo_EnableWebsiteSSL_Call) RunAndReturn(run func(*biz.Website, string, string, string, []string) error) *CertRepo_EnableWebsiteSSL_Call {
+func (_c *CertRepo_EnableWebsiteSSL_Call) RunAndReturn(run func(*biz.Website, string, string, string, []string, bool) error) *CertRepo_EnableWebsiteSSL_Call {
 	_c.Call.Return(run)
 	return _c
 }

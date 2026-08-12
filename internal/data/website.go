@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"slices"
@@ -42,6 +43,89 @@ func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) 
 		db:      db,
 		setting: settingRepo,
 	}, nil
+}
+
+func listenPort(address string) (string, bool) {
+	port := address
+	if strings.Contains(address, ":") {
+		var err error
+		_, port, err = net.SplitHostPort(address)
+		if err != nil {
+			return "", false
+		}
+	}
+
+	value, err := strconv.ParseUint(port, 10, 16)
+	if err != nil || value == 0 {
+		return "", false
+	}
+
+	return strconv.FormatUint(value, 10), true
+}
+
+func addIPv6Listens(listens []webservertypes.Listen) []webservertypes.Listen {
+	ipv6Ports := make(map[string]struct{}, len(listens))
+	for _, listen := range listens {
+		host, _, err := net.SplitHostPort(listen.Address)
+		if err != nil || host != "::" {
+			continue
+		}
+		if port, ok := listenPort(listen.Address); ok {
+			ipv6Ports[port] = struct{}{}
+		}
+	}
+
+	result := make([]webservertypes.Listen, 0, len(listens)*2)
+	for _, listen := range listens {
+		result = append(result, listen)
+		port, ok := listenPort(listen.Address)
+		if !ok {
+			continue
+		}
+		if _, exists := ipv6Ports[port]; exists {
+			continue
+		}
+		result = append(result, webservertypes.Listen{
+			Address: "[::]:" + port,
+			Args:    slices.Clone(listen.Args),
+		})
+		ipv6Ports[port] = struct{}{}
+	}
+
+	return result
+}
+
+func ensureListen(listens []webservertypes.Listen, address string, args []string) []webservertypes.Listen {
+	for i := range listens {
+		if listens[i].Address != address {
+			continue
+		}
+		for _, arg := range args {
+			if !slices.Contains(listens[i].Args, arg) {
+				listens[i].Args = append(listens[i].Args, arg)
+			}
+		}
+		return listens
+	}
+
+	return append(listens, webservertypes.Listen{
+		Address: address,
+		Args:    slices.Clone(args),
+	})
+}
+
+func addHTTPSListens(listens []webservertypes.Listen, webServer string, listenIPv6 bool) []webservertypes.Listen {
+	args := []string{"ssl"}
+	if webServer == "nginx" {
+		args = append(args, "quic")
+	}
+
+	listens = ensureListen(listens, "443", args)
+	if webServer == "nginx" && listenIPv6 {
+		listens = ensureListen(listens, "[::]:443", args)
+	}
+
+	return listens
 }
 
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {
@@ -95,6 +179,9 @@ func (r *websiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) err
 		}
 	}
 	if err = r.setting.SetSlice(biz.SettingKeyWebsiteTLSVersions, req.TLSVersions); err != nil {
+		return err
+	}
+	if err = r.setting.Set(biz.SettingKeyWebsiteListenIPv6, strconv.FormatBool(req.ListenIPv6)); err != nil {
 		return err
 	}
 
@@ -297,6 +384,15 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	var listens []webservertypes.Listen
 	for _, listen := range req.Listens {
 		listens = append(listens, webservertypes.Listen{Address: listen})
+	}
+	if webServer == "nginx" {
+		listenIPv6, getErr := r.setting.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
+		if getErr != nil {
+			return nil, getErr
+		}
+		if listenIPv6 {
+			listens = addIPv6Listens(listens)
+		}
 	}
 	if err = vhost.SetListen(listens); err != nil {
 		return nil, err
@@ -562,6 +658,20 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 	}
 
 	// 监听地址
+	if req.SSL && !website.SSL {
+		webServer, getErr := r.setting.Get(biz.SettingKeyWebserver)
+		if getErr != nil {
+			return getErr
+		}
+		listenIPv6 := false
+		if webServer == "nginx" {
+			listenIPv6, getErr = r.setting.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
+			if getErr != nil {
+				return getErr
+			}
+		}
+		req.Listens = addHTTPSListens(req.Listens, webServer, listenIPv6)
+	}
 	// 关闭 HTTPS 时移除 SSL 专用监听（含 IPv6），避免残留 ssl/quic 参数导致 nginx 无法启动
 	if !req.SSL {
 		req.Listens = lo.Filter(req.Listens, func(l webservertypes.Listen, _ int) bool {

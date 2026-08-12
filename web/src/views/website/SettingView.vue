@@ -15,6 +15,7 @@ const { data: model } = useRequest(website.defaultConfig, {
     stop: '',
     not_found: '',
     tls_versions: ['TLSv1.2', 'TLSv1.3'],
+    listen_ipv6: false,
   },
 })
 
@@ -192,6 +193,18 @@ const handleSaveDefaultSite = () => {
               ]"
               multiple
             />
+          </n-form-item>
+          <n-form-item v-if="isNginx" :label="$gettext('Listen IPv6')">
+            <n-flex align="center">
+              <n-switch v-model:value="model.listen_ipv6" />
+              <n-text depth="3">
+                {{
+                  $gettext(
+                    'When enabled, new websites will listen on IPv6 for all configured ports. Existing websites will only add IPv6 port 443 when HTTPS is enabled.',
+                  )
+                }}
+              </n-text>
+            </n-flex>
           </n-form-item>
           <n-button
             type="primary"
