@@ -10,6 +10,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/samber/lo"
 )
 
 var ifacePattern = regexp.MustCompile(`^\s*iface\s+(\S+)\s+(inet6?)\s+(\S+)`)
@@ -212,15 +214,10 @@ func renderIfupdown(config Config, unknown4, unknown6 []string) []string {
 }
 
 func renderIfupdownFamily(name, family string, config FamilyConfig, mtu int, unknown []string) []string {
-	method := "manual"
-	if config.Mode == ModeAuto {
-		method = "auto"
-		if family == "inet" {
-			method = "dhcp"
-		}
-	} else if config.Mode == ModeManual {
-		method = "static"
-	}
+	method := lo.Switch[string, string](config.Mode).
+		Case(ModeAuto, lo.If(family == "inet", "dhcp").Else("auto")).
+		Case(ModeManual, "static").
+		Default("manual")
 	lines := []string{fmt.Sprintf("iface %s %s %s\n", name, family, method)}
 	addresses := config.Addresses
 	if config.Mode == ModeManual && len(addresses) > 0 {
