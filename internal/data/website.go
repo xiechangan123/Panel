@@ -784,7 +784,7 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 
 func (r *websiteRepo) GetForDelete(id uint) (*biz.Website, error) {
 	website := new(biz.Website)
-	if err := r.db.Preload("Cert").Where("id", id).First(website).Error; err != nil {
+	if err := r.db.Where("id", id).First(website).Error; err != nil {
 		return nil, err
 	}
 	return website, nil
@@ -803,7 +803,21 @@ func (r *websiteRepo) RemoveFiles(name string, removePath bool) error {
 }
 
 func (r *websiteRepo) Delete(website *biz.Website) error {
-	return r.db.Delete(website).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		// HTTP 验证依赖网站，解绑后无法继续自动续签
+		if err := tx.Model(&biz.Cert{}).
+			Where("website_id = ? AND dns_id = 0", website.ID).
+			Update("auto_renewal", false).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&biz.Cert{}).
+			Where("website_id = ?", website.ID).
+			Update("website_id", 0).Error; err != nil {
+			return err
+		}
+
+		return tx.Delete(website).Error
+	})
 }
 
 func (r *websiteRepo) UpdateRemark(id uint, remark string) error {

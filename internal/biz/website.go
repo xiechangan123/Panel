@@ -171,9 +171,6 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 	if err != nil {
 		return err
 	}
-	if website.Cert != nil {
-		return errors.New(uc.t.Get("website %s has bound certificates, please delete the certificate first", website.Name))
-	}
 
 	// 清理防篡改规则
 	if req.Path && website.Path != "" {
