@@ -80,6 +80,28 @@ async function setupMonacoWorkers() {
   }
 }
 
+function setupConfigLanguages(monaco: typeof Monaco) {
+  const configuration: Monaco.languages.LanguageConfiguration = {
+    comments: { lineComment: '#' },
+    brackets: [['{', '}']],
+    autoClosingPairs: [
+      { open: '{', close: '}' },
+      { open: '"', close: '"' },
+    ],
+    surroundingPairs: [
+      { open: '{', close: '}' },
+      { open: '"', close: '"' },
+    ],
+  }
+
+  monaco.languages.setLanguageConfiguration('nginx', configuration)
+
+  for (const id of ['apache', 'apacheconf']) {
+    monaco.languages.register({ id })
+    monaco.languages.setLanguageConfiguration(id, configuration)
+  }
+}
+
 /**
  * 获取 Monaco 实例
  * @param locale 可选的语言设置
@@ -103,6 +125,7 @@ export async function getMonaco(locale?: string): Promise<typeof Monaco> {
 
     const monaco = await import('monaco-editor')
     await import('monaco-editor-nginx')
+    setupConfigLanguages(monaco)
     monacoInstance = monaco
     isInitialized = true
 
