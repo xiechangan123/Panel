@@ -9,7 +9,6 @@ export interface Tab {
 }
 
 export interface TabItem {
-  name: string
   path: string
   title: string
   keepAlive: boolean
@@ -24,8 +23,7 @@ export const useTabStore = defineStore('tab', {
     }
   },
   actions: {
-    async setActiveTab(path: string) {
-      await nextTick()
+    setActiveTab(path: string) {
       this.active = path
     },
     setTabs(tabs: Array<TabItem>) {
@@ -94,5 +92,6 @@ export const useTabStore = defineStore('tab', {
   },
   persist: {
     storage: sessionStorage,
+    pick: ['active', 'tabs'],
   },
 })

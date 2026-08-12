@@ -1348,6 +1348,21 @@ const handleFileSearch = () => {
   fileStore.pushHistory(props.tabId, path.value)
 }
 
+const addDocumentListeners = () => {
+  document.addEventListener('mousemove', onSelectionMove)
+  document.addEventListener('mouseup', onSelectionEnd)
+  document.addEventListener('keydown', handleKeyDown)
+}
+
+const removeDocumentListeners = () => {
+  document.removeEventListener('mousemove', onSelectionMove)
+  document.removeEventListener('mouseup', onSelectionEnd)
+  document.removeEventListener('keydown', handleKeyDown)
+}
+
+onActivated(addDocumentListeners)
+onDeactivated(removeDocumentListeners)
+
 onMounted(() => {
   watch(
     path,
@@ -1375,12 +1390,7 @@ onMounted(() => {
   window.$bus.on('file:keyboard-resume', resumeKeyboard)
   window.$bus.on('file:inline-create', startInlineCreate)
 
-  // 添加全局鼠标事件监听
-  document.addEventListener('mousemove', onSelectionMove)
-  document.addEventListener('mouseup', onSelectionEnd)
-
-  // 添加键盘快捷键监听
-  document.addEventListener('keydown', handleKeyDown)
+  addDocumentListeners()
 })
 
 onUnmounted(() => {
@@ -1396,9 +1406,7 @@ onUnmounted(() => {
   window.$bus.off('file:keyboard-pause', pauseKeyboard)
   window.$bus.off('file:keyboard-resume', resumeKeyboard)
   window.$bus.off('file:inline-create', startInlineCreate)
-  document.removeEventListener('mousemove', onSelectionMove)
-  document.removeEventListener('mouseup', onSelectionEnd)
-  document.removeEventListener('keydown', handleKeyDown)
+  removeDocumentListeners()
 })
 </script>
 

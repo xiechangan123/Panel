@@ -345,6 +345,7 @@ const disposeTab = (tab: TerminalTab) => {
 }
 
 const onResize = () => {
+  if (!terminalContainer.value?.isConnected) return
   const tab = tabs.value.find((t) => t.id === activeTabId.value)
   if (tab?.fitAddon && tab.terminal) tab.fitAddon.fit()
 }
@@ -457,13 +458,17 @@ const onFullscreenChange = () => {
 
 watch(fontSize, () => applyFontSettings())
 
+onActivated(async () => {
+  await nextTick()
+  onResize()
+})
+
 onMounted(() => {
   document.fonts.ready.then((fontFaceSet: any) =>
     Promise.all(Array.from(fontFaceSet).map((el: any) => el.load())).then(fetchData),
   )
   window.$bus.on('ssh:refresh', fetchData)
   window.addEventListener('resize', onResize)
-  window.addEventListener('keydown', onKeyDown)
   document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
@@ -471,7 +476,6 @@ onUnmounted(() => {
   tabs.value.forEach(disposeTab)
   window.$bus.off('ssh:refresh')
   window.removeEventListener('resize', onResize)
-  window.removeEventListener('keydown', onKeyDown)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 </script>
@@ -549,7 +553,12 @@ onUnmounted(() => {
         </div>
       </header>
 
-      <main class="terminals-content" @wheel="onTermWheel" @contextmenu="onContextMenu">
+      <main
+        class="terminals-content"
+        @keydown="onKeyDown"
+        @wheel="onTermWheel"
+        @contextmenu="onContextMenu"
+      >
         <template v-for="tab in tabs" :key="tab.id">
           <div
             v-if="tab.type === 'terminal'"

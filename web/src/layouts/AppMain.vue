@@ -2,17 +2,21 @@
 import { useTabStore } from '@/stores'
 
 const tabStore = useTabStore()
-
-const keepAliveNames = computed(() => {
-  return tabStore.tabs.filter((item) => item.keepAlive).map((item) => item.name)
-})
 </script>
 
 <template>
   <div class="flex flex-col wh-full">
     <router-view v-slot="{ Component, route }">
-      <keep-alive :include="keepAliveNames">
-        <component :is="Component" v-if="!tabStore.reloading" :key="route.path" />
+      <keep-alive
+        v-for="tab in tabStore.tabs"
+        :key="tab.path"
+        :include="tab.keepAlive ? undefined : []"
+      >
+        <component
+          :is="Component"
+          v-if="route.path === tab.path && !tabStore.reloading"
+          :key="route.path"
+        />
       </keep-alive>
     </router-view>
   </div>

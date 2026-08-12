@@ -19,6 +19,7 @@ export default {
         icon: 'mdi:console',
         role: ['admin'],
         requireAuth: true,
+        keepAlive: true,
       },
     },
   ],
