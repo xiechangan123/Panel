@@ -19,14 +19,14 @@ type WebsiteList struct {
 
 type WebsiteCreate struct {
 	Type       string   `json:"type" form:"type" validate:"required && in:proxy,static,php"`
-	Name       string   `form:"name" json:"name" validate:"required && not_exists:websites,name && not_in:phpmyadmin,default && regex:\"^[a-zA-Z0-9_-]+$\""`
+	Name       string   `form:"name" json:"name" validate:"required && not_exists:websites,name && not_in:phpmyadmin,default && regex:\"^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]{0,126}[A-Za-z0-9_-])$\""`
 	Listens    []string `form:"listens" json:"listens" validate:"required && unique && dive && required"`
 	Domains    []string `form:"domains" json:"domains" validate:"required && unique && dive && required"`
 	Path       string   `form:"path" json:"path"`
 	DB         bool     `form:"db" json:"db"`
 	DBType     string   `form:"db_type" json:"db_type" validate:"required_if:DB,true"`
-	DBName     string   `form:"db_name" json:"db_name" validate:"required_if:DB,true && regex:\"^[a-zA-Z_-][a-zA-Z0-9_-]*$\""`
-	DBUser     string   `form:"db_user" json:"db_user" validate:"required_if:DB,true && regex:\"^[a-zA-Z_-][a-zA-Z0-9_-]*$\""`
+	DBName     string   `form:"db_name" json:"db_name" validate:"required_if:DB,true && regex:\"^[A-Za-z0-9_.-]{1,64}$\""`
+	DBUser     string   `form:"db_user" json:"db_user" validate:"required_if:DB,true && regex:\"^[A-Za-z0-9_.-]{1,63}$\""`
 	DBPassword string   `form:"db_password" json:"db_password" validate:"required_if:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
 
@@ -104,7 +104,7 @@ type WebsiteUpdateExpireAt struct {
 }
 
 type WebsiteUpdateCert struct {
-	Name string `json:"name" validate:"required && exists:websites,name && regex:\"^[a-zA-Z0-9_-]+$\""`
+	Name string `json:"name" validate:"required && exists:websites,name && regex:\"^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]{0,126}[A-Za-z0-9_-])$\""`
 	Cert string `json:"cert" validate:"required"`
 	Key  string `json:"key" validate:"required"`
 }

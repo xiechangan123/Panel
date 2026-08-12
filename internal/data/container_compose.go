@@ -91,7 +91,7 @@ func (r *containerComposeRepo) Get(name string) (string, []types.KV, error) {
 // Create 创建编排文件
 func (r *containerComposeRepo) Create(name, compose string, envs []types.KV) error {
 	dir := filepath.Join(app.Root, "compose", name)
-	if err := os.MkdirAll(dir, 0644); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 	if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0644); err != nil {

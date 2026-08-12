@@ -82,43 +82,49 @@ func (r *containerNetworkRepo) Create(sock string, req *request.ContainerNetwork
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
 	var ipamConfigs []network.IPAMConfig
-	if req.Ipv4.Enabled {
-		v4Subnet, err := netip.ParsePrefix(req.Ipv4.Subnet)
-		if err != nil {
-			return "", fmt.Errorf("invalid ipv4 subnet: %w", err)
+	if req.Ipv4.Enabled && (req.Ipv4.Subnet != "" || req.Ipv4.Gateway != "" || req.Ipv4.IPRange != "") {
+		var config network.IPAMConfig
+		if req.Ipv4.Subnet != "" {
+			config.Subnet, err = netip.ParsePrefix(req.Ipv4.Subnet)
+			if err != nil {
+				return "", fmt.Errorf("invalid ipv4 subnet: %w", err)
+			}
 		}
-		v4Gateway, err := netip.ParseAddr(req.Ipv4.Gateway)
-		if err != nil {
-			return "", fmt.Errorf("invalid ipv4 gateway: %w", err)
+		if req.Ipv4.Gateway != "" {
+			config.Gateway, err = netip.ParseAddr(req.Ipv4.Gateway)
+			if err != nil {
+				return "", fmt.Errorf("invalid ipv4 gateway: %w", err)
+			}
 		}
-		v4IPRange, err := netip.ParsePrefix(req.Ipv4.IPRange)
-		if err != nil {
-			return "", fmt.Errorf("invalid ipv4 ip range: %w", err)
+		if req.Ipv4.IPRange != "" {
+			config.IPRange, err = netip.ParsePrefix(req.Ipv4.IPRange)
+			if err != nil {
+				return "", fmt.Errorf("invalid ipv4 ip range: %w", err)
+			}
 		}
-		ipamConfigs = append(ipamConfigs, network.IPAMConfig{
-			Subnet:  v4Subnet,
-			Gateway: v4Gateway,
-			IPRange: v4IPRange,
-		})
+		ipamConfigs = append(ipamConfigs, config)
 	}
-	if req.Ipv6.Enabled {
-		v6Subnet, err := netip.ParsePrefix(req.Ipv6.Subnet)
-		if err != nil {
-			return "", fmt.Errorf("invalid ipv6 subnet: %w", err)
+	if req.Ipv6.Enabled && (req.Ipv6.Subnet != "" || req.Ipv6.Gateway != "" || req.Ipv6.IPRange != "") {
+		var config network.IPAMConfig
+		if req.Ipv6.Subnet != "" {
+			config.Subnet, err = netip.ParsePrefix(req.Ipv6.Subnet)
+			if err != nil {
+				return "", fmt.Errorf("invalid ipv6 subnet: %w", err)
+			}
 		}
-		v6Gateway, err := netip.ParseAddr(req.Ipv6.Gateway)
-		if err != nil {
-			return "", fmt.Errorf("invalid ipv6 gateway: %w", err)
+		if req.Ipv6.Gateway != "" {
+			config.Gateway, err = netip.ParseAddr(req.Ipv6.Gateway)
+			if err != nil {
+				return "", fmt.Errorf("invalid ipv6 gateway: %w", err)
+			}
 		}
-		v6IPRange, err := netip.ParsePrefix(req.Ipv6.IPRange)
-		if err != nil {
-			return "", fmt.Errorf("invalid ipv6 ip range: %w", err)
+		if req.Ipv6.IPRange != "" {
+			config.IPRange, err = netip.ParsePrefix(req.Ipv6.IPRange)
+			if err != nil {
+				return "", fmt.Errorf("invalid ipv6 ip range: %w", err)
+			}
 		}
-		ipamConfigs = append(ipamConfigs, network.IPAMConfig{
-			Subnet:  v6Subnet,
-			Gateway: v6Gateway,
-			IPRange: v6IPRange,
-		})
+		ipamConfigs = append(ipamConfigs, config)
 	}
 
 	options := client.NetworkCreateOptions{

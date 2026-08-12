@@ -3,7 +3,7 @@ package request
 import "github.com/acepanel/panel/v3/pkg/types"
 
 type ProjectCreate struct {
-	Name         string            `form:"name" json:"name" validate:"required && regex:\"^[a-zA-Z0-9_-]+$\""`
+	Name         string            `form:"name" json:"name" validate:"required && regex:\"^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]{0,126}[A-Za-z0-9_-])$\""`
 	Type         types.ProjectType `form:"type" json:"type" validate:"required && in:general,php,java,go,python,nodejs,dotnet"`
 	Description  string            `form:"description" json:"description"`
 	RootDir      string            `form:"root_dir" json:"root_dir"`
@@ -16,7 +16,7 @@ type ProjectCreate struct {
 
 type ProjectUpdate struct {
 	ID              uint       `form:"id" json:"id" validate:"required && exists:projects,id"`
-	Name            string     `form:"name" json:"name" validate:"required && regex:\"^[a-zA-Z0-9_-]+$\""`
+	Name            string     `form:"name" json:"name" validate:"required && regex:\"^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]{0,126}[A-Za-z0-9_-])$\""`
 	Description     string     `form:"description" json:"description"`
 	RootDir         string     `form:"root_dir" json:"root_dir" validate:"required"`
 	WorkingDir      string     `form:"working_dir" json:"working_dir"`

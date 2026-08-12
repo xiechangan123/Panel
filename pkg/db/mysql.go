@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -64,13 +65,15 @@ func (r *MySQL) Prepare(query string) (*sql.Stmt, error) {
 }
 
 func (r *MySQL) DatabaseCreate(name string) error {
-	_, err := r.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", name))
+	name = strings.ReplaceAll(name, "`", "``")
+	_, err := r.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", name))
 	r.flushPrivileges()
 	return err
 }
 
 func (r *MySQL) DatabaseDrop(name string) error {
-	_, err := r.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", name))
+	name = strings.ReplaceAll(name, "`", "``")
+	_, err := r.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS `%s`", name))
 	r.flushPrivileges()
 	return err
 }
@@ -96,7 +99,7 @@ func (r *MySQL) DatabaseExists(name string) (bool, error) {
 
 func (r *MySQL) DatabaseSize(name string) (int64, error) {
 	var size int64
-	err := r.QueryRow(fmt.Sprintf("SELECT COALESCE(SUM(data_length) + SUM(index_length), 0) FROM information_schema.tables WHERE table_schema = '%s'", name)).Scan(&size)
+	err := r.QueryRow("SELECT COALESCE(SUM(data_length) + SUM(index_length), 0) FROM information_schema.tables WHERE table_schema = ?", name).Scan(&size)
 	return size, err
 }
 
@@ -168,7 +171,8 @@ func (r *MySQL) PrivilegesGrant(user, database string, host ...string) error {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
-	_, err := r.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.* TO '%s'@'%s'", database, user, host[0]))
+	database = strings.ReplaceAll(database, "`", "``")
+	_, err := r.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%s'", database, user, host[0]))
 	r.flushPrivileges()
 	return err
 }
@@ -177,7 +181,8 @@ func (r *MySQL) PrivilegesRevoke(user, database string, host ...string) error {
 	if len(host) == 0 || host[0] == "" {
 		host = []string{"%"}
 	}
-	_, err := r.Exec(fmt.Sprintf("REVOKE ALL PRIVILEGES ON %s.* FROM '%s'@'%s'", database, user, host[0]))
+	database = strings.ReplaceAll(database, "`", "``")
+	_, err := r.Exec(fmt.Sprintf("REVOKE ALL PRIVILEGES ON `%s`.* FROM '%s'@'%s'", database, user, host[0]))
 	r.flushPrivileges()
 	return err
 }

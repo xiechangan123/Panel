@@ -1,11 +1,14 @@
 package data
 
 import (
+	"archive/tar"
 	"context"
 	"errors"
 	"fmt"
+	stdio "io"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -945,32 +948,24 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
 
-	clean := false
-	if !strings.HasSuffix(backup, ".sql") {
+	backup, cleanDir, err := r.prepareDatabaseBackup(backup, target)
+	if err != nil {
+		return err
+	}
+	if cleanDir != "" {
+		defer func() { _ = os.RemoveAll(cleanDir) }()
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Uncompressing backup..."))
 		}
-		backup, err = r.autoUnCompressSQL(backup)
-		if err != nil {
-			return err
-		}
-		clean = true
 	}
 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Importing SQL into database..."))
 	}
 	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	err = r.importFile(backup, "mysql", []string{"-u", "root", target})
+	err = r.importFile(backup, "mysql", []string{"-u", "root", "--database=" + target})
 	_ = os.Unsetenv("MYSQL_PWD")
-	if err != nil {
-		return err
-	}
-	if clean {
-		_ = io.Remove(filepath.Dir(backup))
-	}
-
-	return nil
+	return err
 }
 
 // restorePostgres 恢复 PostgreSQL 备份
@@ -988,32 +983,36 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 		return errors.New(r.t.Get("database does not exist: %s", target))
 	}
 
-	clean := false
-	if !strings.HasSuffix(backup, ".sql") {
-		if app.IsCli {
-			fmt.Println(r.t.Get("|-Uncompressing backup..."))
-		}
-		backup, err = r.autoUnCompressSQL(backup)
+	archive := r.postgresArchive(backup)
+	cleanDir := ""
+	if !archive {
+		backup, cleanDir, err = r.prepareDatabaseBackup(backup, target)
 		if err != nil {
 			return err
 		}
-		clean = true
+		archive = r.postgresArchive(backup)
+	}
+	if cleanDir != "" {
+		defer func() { _ = os.RemoveAll(cleanDir) }()
+		if app.IsCli {
+			fmt.Println(r.t.Get("|-Uncompressing backup..."))
+		}
 	}
 
 	if app.IsCli {
-		fmt.Println(r.t.Get("|-Importing SQL into database..."))
+		fmt.Println(r.t.Get("|-Importing PostgreSQL backup..."))
 	}
 	_ = os.Setenv("PGPASSWORD", postgresPassword)
-	err = r.importFile(backup, "psql", []string{"-h", "127.0.0.1", "-U", "postgres", target})
-	_ = os.Unsetenv("PGPASSWORD")
-	if err != nil {
-		return err
+	defer func() { _ = os.Unsetenv("PGPASSWORD") }()
+	if archive {
+		command := exec.Command("pg_restore", "--no-owner", "--no-privileges", "-h", "127.0.0.1", "-U", "postgres", "--dbname="+target, backup)
+		command.Env = os.Environ()
+		if output, restoreErr := command.CombinedOutput(); restoreErr != nil {
+			return fmt.Errorf("%w: %s", restoreErr, strings.TrimSpace(string(output)))
+		}
+		return nil
 	}
-	if clean {
-		_ = io.Remove(filepath.Dir(backup))
-	}
-
-	return nil
+	return r.importFile(backup, "psql", []string{"-h", "127.0.0.1", "-U", "postgres", "--dbname=" + target})
 }
 
 // restoreClickHouse 恢复 ClickHouse 备份
@@ -1315,32 +1314,212 @@ func (r *backupRepo) disableAppendonly(confPath string) error {
 	return io.Write(confPath, strings.Join(lines, "\n"), 0644)
 }
 
-// autoUnCompressSQL 自动处理压缩文件
-func (r *backupRepo) autoUnCompressSQL(backup string) (string, error) {
+// prepareDatabaseBackup 自动展开常见压缩格式，并从不同软件生成的目录结构中定位数据库备份。
+func (r *backupRepo) prepareDatabaseBackup(backup, target string) (string, string, error) {
+	if r.databaseArchiveExt(backup) == "" {
+		return backup, "", nil
+	}
+
 	temp, err := r.tmpDir()
+	if err != nil {
+		return "", "", err
+	}
+	fail := func(err error) (string, string, error) {
+		_ = os.RemoveAll(temp)
+		return "", "", err
+	}
+
+	current := backup
+	for depth := range 4 {
+		ext := r.databaseArchiveExt(current)
+		if ext == "" {
+			return current, temp, nil
+		}
+
+		stage := filepath.Join(temp, fmt.Sprintf("stage-%d", depth))
+		if err = os.MkdirAll(stage, 0755); err != nil {
+			return fail(err)
+		}
+		source := filepath.Join(temp, fmt.Sprintf("archive-%d%s", depth, ext))
+		if err = os.Symlink(current, source); err != nil {
+			return fail(err)
+		}
+		if err = io.UnCompress(source, stage); err != nil {
+			return fail(err)
+		}
+		current, err = r.selectDatabaseBackup(stage, target)
+		if err != nil {
+			return fail(err)
+		}
+	}
+
+	return fail(errors.New(r.t.Get("database backup contains too many nested archives")))
+}
+
+func (r *backupRepo) selectDatabaseBackup(root, target string) (string, error) {
+	files := make([]string, 0)
+	var directoryDump string
+	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() {
+			if entry.Name() == "__MACOSX" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.Name() == "toc.dat" {
+			directoryDump = filepath.Dir(path)
+		}
+		if entry.Type().IsRegular() && entry.Name() != ".DS_Store" {
+			files = append(files, path)
+		}
+		return nil
+	})
 	if err != nil {
 		return "", err
 	}
+	if directoryDump != "" {
+		return directoryDump, nil
+	}
+	if len(files) == 1 {
+		return files[0], nil
+	}
 
-	if err = io.UnCompress(backup, temp); err != nil {
+	candidates := make([]string, 0, len(files))
+	for _, file := range files {
+		lower := strings.ToLower(file)
+		if strings.HasSuffix(lower, ".sql") || strings.HasSuffix(lower, ".dump") || strings.HasSuffix(lower, ".backup") || strings.HasSuffix(lower, ".bak") || r.databaseArchiveExt(file) != "" || r.postgresArchive(file) {
+			candidates = append(candidates, file)
+		}
+	}
+	if len(candidates) == 0 {
+		return "", errors.New(r.t.Get("could not find database backup file"))
+	}
+	if len(candidates) == 1 {
+		return candidates[0], nil
+	}
+
+	lowerTarget := strings.ToLower(target)
+	matches := make([]string, 0, len(candidates))
+	for _, candidate := range candidates {
+		name := strings.ToLower(filepath.Base(candidate))
+		if name == lowerTarget || strings.HasPrefix(name, lowerTarget+".") || strings.HasPrefix(name, lowerTarget+"_") || strings.HasPrefix(name, lowerTarget+"-") {
+			matches = append(matches, candidate)
+		}
+	}
+	if len(matches) == 1 {
+		return matches[0], nil
+	}
+	if len(matches) > 1 {
+		candidates = matches
+	}
+	for _, candidate := range candidates {
+		if r.databaseArchiveExt(candidate) != "" || r.postgresArchive(candidate) {
+			return "", errors.New(r.t.Get("database backup archive contains multiple dump files"))
+		}
+	}
+
+	slices.Sort(candidates)
+	combined := filepath.Join(root, "combined.sql")
+	output, err := os.Create(combined)
+	if err != nil {
 		return "", err
 	}
-
-	backup = "" // 置空，防止干扰后续判断
-	if files, err := os.ReadDir(temp); err == nil {
-		if len(files) != 1 {
-			return "", errors.New(r.t.Get("The number of files contained in the compressed file is not 1, actual %d", len(files)))
+	for _, candidate := range candidates {
+		input, openErr := os.Open(candidate)
+		if openErr != nil {
+			_ = output.Close()
+			return "", openErr
 		}
-		if strings.HasSuffix(files[0].Name(), ".sql") {
-			backup = filepath.Join(temp, files[0].Name())
+		_, copyErr := stdio.Copy(output, input)
+		_ = input.Close()
+		if copyErr != nil {
+			_ = output.Close()
+			return "", copyErr
+		}
+		if _, err = output.WriteString("\n"); err != nil {
+			_ = output.Close()
+			return "", err
 		}
 	}
+	if err = output.Close(); err != nil {
+		return "", err
+	}
+	return combined, nil
+}
 
-	if backup == "" {
-		return "", errors.New(r.t.Get("could not find .sql backup file"))
+func (r *backupRepo) databaseArchiveExt(path string) string {
+	file, err := os.Open(path)
+	if err == nil {
+		defer func() { _ = file.Close() }()
+		header := make([]byte, 512)
+		n, _ := file.Read(header)
+		header = header[:n]
+		switch {
+		case len(header) >= 2 && header[0] == 0x1f && header[1] == 0x8b:
+			return ".gz"
+		case len(header) >= 4 && string(header[:4]) == "PK\x03\x04":
+			return ".zip"
+		case len(header) >= 6 && string(header[:6]) == "7z\xbc\xaf'\x1c":
+			return ".7z"
+		case len(header) >= 7 && string(header[:7]) == "Rar!\x1a\x07":
+			return ".7z"
+		case len(header) >= 3 && string(header[:3]) == "BZh":
+			return ".bz2"
+		case len(header) >= 6 && string(header[:6]) == "\xfd7zXZ\x00":
+			return ".xz"
+		case len(header) >= 4 && header[0] == 0x28 && header[1] == 0xb5 && header[2] == 0x2f && header[3] == 0xfd:
+			return ".zst"
+		case len(header) >= 262 && string(header[257:262]) == "ustar":
+			return ".tar"
+		}
+	}
+	for _, suffix := range []string{".tar.gz", ".tar.bz2", ".tar.xz", ".tar.zst", ".tgz", ".tbz2", ".txz", ".zip", ".7z", ".tar", ".gz", ".bz2", ".xz", ".zst"} {
+		if strings.HasSuffix(strings.ToLower(path), suffix) {
+			return filepath.Ext(path)
+		}
+	}
+	return ""
+}
+
+func (r *backupRepo) postgresArchive(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	if info.IsDir() {
+		_, err = os.Stat(filepath.Join(path, "toc.dat"))
+		return err == nil
 	}
 
-	return backup, nil
+	file, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer func() { _ = file.Close() }()
+	header := make([]byte, 5)
+	if n, _ := file.Read(header); n == len(header) && string(header) == "PGDMP" {
+		return true
+	}
+	if _, err = file.Seek(0, 0); err != nil {
+		return false
+	}
+	reader := tar.NewReader(file)
+	for range 8 {
+		entry, readErr := reader.Next()
+		if readErr != nil {
+			return false
+		}
+		if filepath.Base(entry.Name) == "toc.dat" {
+			return true
+		}
+		if entry.Size > 0 {
+			return false
+		}
+	}
+	return false
 }
 
 func (r *backupRepo) FixPanel() error {

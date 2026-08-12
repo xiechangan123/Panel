@@ -39,3 +39,23 @@ type ContainerContainerNetwork struct {
 	IPRange string `form:"ip_range" json:"ip_range"`
 	Subnet  string `form:"subnet" json:"subnet"`
 }
+
+type ContainerDevice struct {
+	Host        string `form:"host" json:"host"`
+	Container   string `form:"container" json:"container"`
+	Permissions string `form:"permissions" json:"permissions"`
+}
+
+type ContainerUlimit struct {
+	Name string `form:"name" json:"name"`
+	Soft int64  `form:"soft" json:"soft"`
+	Hard int64  `form:"hard" json:"hard"`
+}
+
+type ContainerHealthcheck struct {
+	Test        []string      `form:"test" json:"test"`
+	Interval    time.Duration `form:"interval" json:"interval"`
+	Timeout     time.Duration `form:"timeout" json:"timeout"`
+	StartPeriod time.Duration `form:"start_period" json:"start_period"`
+	Retries     int           `form:"retries" json:"retries"`
+}

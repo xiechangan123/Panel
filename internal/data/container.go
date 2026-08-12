@@ -5,6 +5,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"net/netip"
 	"slices"
 	"strconv"
 	"strings"
@@ -154,6 +155,9 @@ func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (strin
 	// 构建容器配置
 	config := &container.Config{
 		Image:        req.Image,
+		Hostname:     req.Hostname,
+		WorkingDir:   req.WorkingDir,
+		User:         req.User,
 		Tty:          req.Tty,
 		OpenStdin:    req.OpenStdin,
 		AttachStdin:  req.OpenStdin,
@@ -163,6 +167,16 @@ func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (strin
 		Labels:       types.KVToMap(req.Labels),
 		Entrypoint:   req.Entrypoint,
 		Cmd:          req.Command,
+		StopSignal:   req.StopSignal,
+	}
+	if req.StopTimeout > 0 {
+		config.StopTimeout = &req.StopTimeout
+	}
+	if req.Healthcheck != nil {
+		config.Healthcheck = &container.HealthConfig{
+			Test: req.Healthcheck.Test, Interval: req.Healthcheck.Interval, Timeout: req.Healthcheck.Timeout,
+			StartPeriod: req.Healthcheck.StartPeriod, Retries: req.Healthcheck.Retries,
+		}
 	}
 
 	// 构建主机配置
@@ -170,16 +184,51 @@ func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (strin
 		AutoRemove:      req.AutoRemove,
 		Privileged:      req.Privileged,
 		PublishAllPorts: req.PublishAllPorts,
+		ReadonlyRootfs:  req.ReadonlyRootfs,
+		ExtraHosts:      req.ExtraHosts,
+		CapAdd:          req.CapAdd,
+		CapDrop:         req.CapDrop,
+		SecurityOpt:     req.SecurityOpt,
+		Sysctls:         types.KVToMap(req.Sysctls),
+		Tmpfs:           types.KVToMap(req.Tmpfs),
+		ShmSize:         req.ShmSize,
+	}
+	if req.Init {
+		hostConfig.Init = &req.Init
+	}
+	for _, dns := range req.DNS {
+		if address, parseErr := netip.ParseAddr(dns); parseErr == nil {
+			hostConfig.DNS = append(hostConfig.DNS, address)
+		}
+	}
+	for _, device := range req.Devices {
+		hostConfig.Devices = append(hostConfig.Devices, container.DeviceMapping{
+			PathOnHost: device.Host, PathInContainer: device.Container, CgroupPermissions: device.Permissions,
+		})
+	}
+	for _, ulimit := range req.Ulimits {
+		hostConfig.Ulimits = append(hostConfig.Ulimits, &container.Ulimit{Name: ulimit.Name, Soft: ulimit.Soft, Hard: ulimit.Hard})
 	}
 
 	// 构建网络配置
 	networkConfig := &network.NetworkingConfig{}
 	if req.Network != "" {
 		switch req.Network {
-		case "host", "none", "bridge":
+		case "host", "none":
 			hostConfig.NetworkMode = container.NetworkMode(req.Network)
+		case "bridge":
+			hostConfig.NetworkMode = container.NetworkMode(req.Network)
+		default:
+			endpoint := &network.EndpointSettings{Aliases: req.NetworkAliases}
+			if req.StaticIP != "" {
+				address, parseErr := netip.ParseAddr(req.StaticIP)
+				if parseErr != nil {
+					return "", fmt.Errorf("invalid static IP address: %w", parseErr)
+				}
+				endpoint.IPAddress = address
+			}
+			networkConfig.EndpointsConfig = map[string]*network.EndpointSettings{req.Network: endpoint}
 		}
-		networkConfig.EndpointsConfig = map[string]*network.EndpointSettings{req.Network: {}}
 	}
 
 	// 设置端口映射

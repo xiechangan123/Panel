@@ -7,8 +7,10 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -16,6 +18,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -25,6 +28,7 @@ import (
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"resty.dev/v3"
 
@@ -52,39 +56,186 @@ type migrationState struct {
 
 // ToolboxMigrationService 迁移服务
 type ToolboxMigrationService struct {
-	t                  *gotext.Locale
-	conf               *config.Config
-	log                *slog.Logger
-	settingRepo        *biz.SettingUsecase
-	websiteRepo        *biz.WebsiteUsecase
-	databaseRepo       *biz.DatabaseUsecase
-	databaseServerRepo *biz.DatabaseServerUsecase
-	databaseUserRepo   *biz.DatabaseUserUsecase
-	projectRepo        *biz.ProjectUsecase
-	appRepo            *biz.AppUsecase
-	environmentRepo    *biz.EnvironmentUsecase
+	t                    *gotext.Locale
+	conf                 *config.Config
+	log                  *slog.Logger
+	settingRepo          *biz.SettingUsecase
+	websiteRepo          *biz.WebsiteUsecase
+	databaseRepo         *biz.DatabaseUsecase
+	databaseServerRepo   *biz.DatabaseServerUsecase
+	databaseUserRepo     *biz.DatabaseUserUsecase
+	backupRepo           *biz.BackupUsecase
+	projectRepo          *biz.ProjectUsecase
+	containerRepo        *biz.ContainerUsecase
+	containerNetworkRepo *biz.ContainerNetworkUsecase
+	composeRepo          *biz.ContainerComposeUsecase
+	appRepo              *biz.AppUsecase
+	environmentRepo      *biz.EnvironmentUsecase
+	sourceRepo           biz.ToolboxMigrationSourceRepo
 
 	state migrationState
 }
 
 // NewToolboxMigrationService 创建迁移服务
-func NewToolboxMigrationService(appUsecase *biz.AppUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, databaseUsecase *biz.DatabaseUsecase, databaseUserUsecase *biz.DatabaseUserUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) (*ToolboxMigrationService, error) {
+func NewToolboxMigrationService(
+	appUsecase *biz.AppUsecase,
+	backupUsecase *biz.BackupUsecase,
+	containerComposeUsecase *biz.ContainerComposeUsecase,
+	containerNetworkUsecase *biz.ContainerNetworkUsecase,
+	containerUsecase *biz.ContainerUsecase,
+	databaseServerUsecase *biz.DatabaseServerUsecase,
+	databaseUsecase *biz.DatabaseUsecase,
+	databaseUserUsecase *biz.DatabaseUserUsecase,
+	environmentUsecase *biz.EnvironmentUsecase,
+	projectUsecase *biz.ProjectUsecase,
+	settingUsecase *biz.SettingUsecase,
+	websiteUsecase *biz.WebsiteUsecase,
+	sourceRepo biz.ToolboxMigrationSourceRepo,
+	conf *config.Config,
+	t *gotext.Locale,
+	log *slog.Logger,
+) (*ToolboxMigrationService, error) {
 	return &ToolboxMigrationService{
-		t:                  t,
-		conf:               conf,
-		log:                log,
-		settingRepo:        settingUsecase,
-		websiteRepo:        websiteUsecase,
-		databaseRepo:       databaseUsecase,
-		databaseServerRepo: databaseServerUsecase,
-		databaseUserRepo:   databaseUserUsecase,
-		projectRepo:        projectUsecase,
-		appRepo:            appUsecase,
-		environmentRepo:    environmentUsecase,
+		t:                    t,
+		conf:                 conf,
+		log:                  log,
+		settingRepo:          settingUsecase,
+		websiteRepo:          websiteUsecase,
+		databaseRepo:         databaseUsecase,
+		databaseServerRepo:   databaseServerUsecase,
+		databaseUserRepo:     databaseUserUsecase,
+		backupRepo:           backupUsecase,
+		projectRepo:          projectUsecase,
+		containerRepo:        containerUsecase,
+		containerNetworkRepo: containerNetworkUsecase,
+		composeRepo:          containerComposeUsecase,
+		appRepo:              appUsecase,
+		environmentRepo:      environmentUsecase,
+		sourceRepo:           sourceRepo,
 		state: migrationState{
 			Step: types.MigrationStepIdle,
 		},
 	}, nil
+}
+
+func (s *ToolboxMigrationService) acePanelMigrationCatalog(
+	websites []*biz.Website,
+	databases []*biz.Database,
+	users []*biz.DatabaseUser,
+	projects []*types.ProjectDetail,
+) []types.MigrationSourceItem {
+	items := make([]types.MigrationSourceItem, 0, len(websites)+len(databases)+len(users)+len(projects))
+	for _, website := range websites {
+		status := "stopped"
+		if website.Status {
+			status = "running"
+		}
+		items = append(items, types.MigrationSourceItem{
+			Key:  "website:" + base64.RawURLEncoding.EncodeToString([]byte(strconv.FormatUint(uint64(website.ID), 10))),
+			Type: "website", Subtype: string(website.Type),
+			Name: website.Name, Status: status, Supported: true, Features: []string{"files", "structured-config", "https"},
+			TargetName: website.Name, SourceID: strconv.FormatUint(uint64(website.ID), 10), SourcePath: website.Path,
+		})
+	}
+	for _, database := range databases {
+		id := fmt.Sprintf("%d:%s", database.ServerID, database.Name)
+		items = append(items, types.MigrationSourceItem{
+			Key:  "database:" + base64.RawURLEncoding.EncodeToString([]byte(id)),
+			Type: "database", Subtype: string(database.Type), Name: database.Name,
+			Status: "running", Supported: true, Features: []string{"schema", "data"}, TargetName: database.Name,
+			SourceID: id, SourceGroup: database.Server,
+		})
+	}
+	for _, databaseUser := range users {
+		serverName := ""
+		typ := ""
+		if databaseUser.Server != nil {
+			serverName = databaseUser.Server.Name
+			typ = string(databaseUser.Server.Type)
+		}
+		items = append(items, types.MigrationSourceItem{
+			Key:  "database_user:" + base64.RawURLEncoding.EncodeToString([]byte(strconv.FormatUint(uint64(databaseUser.ID), 10))),
+			Type: "database_user", Subtype: typ,
+			Name: databaseUser.Username, Status: string(databaseUser.Status), Supported: true, Features: []string{"credentials", "privileges"},
+			TargetName: databaseUser.Username, SourceID: strconv.FormatUint(uint64(databaseUser.ID), 10), SourceGroup: serverName,
+		})
+	}
+	for _, project := range projects {
+		items = append(items, types.MigrationSourceItem{
+			Key:  "project:" + base64.RawURLEncoding.EncodeToString([]byte(strconv.FormatUint(uint64(project.ID), 10))),
+			Type: "project", Subtype: string(project.Type),
+			Name: project.Name, Status: project.Status, Supported: true, Features: []string{"files", "structured-config", "environment"},
+			TargetName: project.Name, TargetPath: project.RootDir, SourceID: strconv.FormatUint(uint64(project.ID), 10), SourcePath: project.RootDir,
+		})
+	}
+	return items
+}
+
+func (s *ToolboxMigrationService) resolveAcePanelSelections(req *request.ToolboxMigrationItems) error {
+	websites, _, err := s.websiteRepo.List("all", 1, 10000)
+	if err != nil {
+		return err
+	}
+	databases, _, err := s.databaseRepo.List(context.Background(), 1, 10000, "")
+	if err != nil {
+		return err
+	}
+	users, _, err := s.databaseUserRepo.List(context.Background(), 1, 10000, "")
+	if err != nil {
+		return err
+	}
+	projects, _, err := s.projectRepo.List("", 1, 10000)
+	if err != nil {
+		return err
+	}
+
+	byKey := lo.SliceToMap(
+		s.acePanelMigrationCatalog(websites, databases, users, projects),
+		func(item types.MigrationSourceItem) (string, types.MigrationSourceItem) {
+			return item.Key, item
+		},
+	)
+	for _, selected := range req.Items {
+		item, ok := byKey[selected.Key]
+		if !ok {
+			return errors.New(s.t.Get("selected migration resource no longer exists"))
+		}
+		switch item.Type {
+		case "website":
+			id, _ := strconv.ParseUint(item.SourceID, 10, 64)
+			req.Websites = append(req.Websites, request.ToolboxMigrationWebsite{
+				ID: uint(id), Name: item.Name, Path: item.SourcePath, Status: item.Status == "running",
+			})
+		case "database":
+			serverID, name, ok := strings.Cut(item.SourceID, ":")
+			if !ok {
+				return errors.New(s.t.Get("invalid database migration resource"))
+			}
+			id, _ := strconv.ParseUint(serverID, 10, 64)
+			req.Databases = append(req.Databases, request.ToolboxMigrationDatabase{
+				Type: item.Subtype, Name: name, ServerID: uint(id), Server: item.SourceGroup,
+			})
+		case "database_user":
+			id, _ := strconv.ParseUint(item.SourceID, 10, 64)
+			userIndex := slices.IndexFunc(users, func(user *biz.DatabaseUser) bool { return user.ID == uint(id) })
+			if userIndex < 0 || users[userIndex].Server == nil {
+				return errors.New(s.t.Get("database user no longer exists"))
+			}
+			databaseUser := users[userIndex]
+			req.DatabaseUsers = append(req.DatabaseUsers, request.ToolboxMigrationDatabaseUser{
+				ID: databaseUser.ID, Username: databaseUser.Username, Password: databaseUser.Password, Host: databaseUser.Host,
+				ServerID: databaseUser.ServerID, Server: databaseUser.Server.Name, Type: string(databaseUser.Server.Type),
+			})
+		case "project":
+			id, _ := strconv.ParseUint(item.SourceID, 10, 64)
+			req.Projects = append(req.Projects, request.ToolboxMigrationProject{
+				ID: uint(id), Name: item.Name, Path: item.SourcePath,
+				TargetPath: selected.TargetPath, TargetUser: selected.TargetUser,
+			})
+		}
+	}
+	req.StopOnMig = req.StopSourceDuringBackup
+	return nil
 }
 
 // Exec SSE 实时执行命令（供远程面板调用）
@@ -160,6 +311,17 @@ func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Reques
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
+	if req.SourcePanel == "" {
+		req.SourcePanel = "acepanel"
+	}
+	if req.SourcePanel == "acepanel" && (req.TokenID == 0 || req.Token == "") {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("please fill in the AcePanel API credentials"))
+		return
+	}
+	if req.SourcePanel != "acepanel" && req.APIKey == "" {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("please fill in the source panel API key"))
+		return
+	}
 
 	// 检查是否有正在进行的迁移
 	s.state.mu.RLock()
@@ -170,11 +332,43 @@ func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Reques
 	}
 	s.state.mu.RUnlock()
 
-	// 请求远程面板 InstalledEnvironment 接口
-	remoteEnv, err := s.fetchRemoteEnvironment(req)
-	if err != nil {
-		Error(w, http.StatusBadGateway, s.t.Get("failed to connect remote server: %v", err))
-		return
+	var response chix.M
+	if req.SourcePanel == "acepanel" {
+		remoteEnv, fetchErr := s.fetchRemoteEnvironment(req)
+		if fetchErr != nil {
+			Error(w, http.StatusBadGateway, s.t.Get("failed to connect remote server: %v", fetchErr))
+			return
+		}
+		response = chix.M{"remote": remoteEnv, "source": chix.M{"panel": "acepanel"}, "target": remoteEnv}
+	} else {
+		sourceInfo, probeErr := s.sourceRepo.Probe(r.Context(), req)
+		if probeErr != nil {
+			Error(w, http.StatusBadGateway, s.t.Get("failed to connect source server: %v", probeErr))
+			return
+		}
+		webserver, _ := s.settingRepo.Get(biz.SettingKeyWebserver)
+		websitePath, _ := s.settingRepo.Get(biz.SettingKeyWebsitePath, filepath.Join(app.Root, "sites"))
+		projectPath, _ := s.settingRepo.Get(biz.SettingKeyProjectPath, filepath.Join(app.Root, "projects"))
+		servers, _, _ := s.databaseServerRepo.List(r.Context(), 1, 10000, "")
+		databaseTypes := make([]string, 0, len(servers))
+		for _, server := range servers {
+			if server.Name == "local_"+string(server.Type) && !slices.Contains(databaseTypes, string(server.Type)) {
+				databaseTypes = append(databaseTypes, string(server.Type))
+			}
+		}
+		environments := make(map[string][]string)
+		for _, typ := range []string{"go", "java", "nodejs", "php", "python", "dotnet"} {
+			environments[typ] = s.environmentRepo.InstalledSlugs(typ)
+		}
+		_, dockerErr := s.containerRepo.ListAll()
+		response = chix.M{
+			"source": sourceInfo,
+			"target": chix.M{
+				"panel": "acepanel", "architecture": runtime.GOARCH, "webserver": webserver,
+				"website_path": websitePath, "project_path": projectPath, "docker": dockerErr == nil,
+				"databases": databaseTypes, "environments": environments,
+			},
+		}
 	}
 
 	// 保存连接信息
@@ -183,13 +377,34 @@ func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Reques
 	s.state.Step = types.MigrationStepPreCheck
 	s.state.mu.Unlock()
 
-	Success(w, chix.M{
-		"remote": remoteEnv,
-	})
+	Success(w, response)
 }
 
 // GetItems 获取本地可迁移项
 func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Request) {
+	s.state.mu.RLock()
+	connection := s.state.Connection
+	s.state.mu.RUnlock()
+	if connection == nil {
+		Error(w, http.StatusBadRequest, s.t.Get("please complete pre-check first"))
+		return
+	}
+	if connection.SourcePanel != "acepanel" {
+		items, err := s.sourceRepo.Items(r.Context(), connection)
+		if err != nil {
+			Error(w, http.StatusBadGateway, s.t.Get("failed to get source resource list: %v", err))
+			return
+		}
+		s.prepareMigrationCatalog(items)
+		s.state.mu.Lock()
+		if s.state.Step == types.MigrationStepPreCheck {
+			s.state.Step = types.MigrationStepSelect
+		}
+		s.state.mu.Unlock()
+		Success(w, chix.M{"items": items})
+		return
+	}
+
 	// 网站列表
 	websites, _, err := s.websiteRepo.List("all", 1, 10000)
 	if err != nil {
@@ -225,6 +440,7 @@ func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Reques
 	s.state.mu.Unlock()
 
 	Success(w, chix.M{
+		"items":          s.acePanelMigrationCatalog(websites, databases, databaseUsers, projects),
 		"websites":       websites,
 		"databases":      databases,
 		"database_users": databaseUsers,
@@ -240,18 +456,35 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	s.state.mu.RLock()
+	connection := s.state.Connection
+	running := s.state.Step == types.MigrationStepRunning
+	s.state.mu.RUnlock()
+	if running {
+		Error(w, http.StatusConflict, s.t.Get("migration is already running"))
+		return
+	}
+	if connection == nil {
+		Error(w, http.StatusBadRequest, s.t.Get("please complete pre-check first"))
+		return
+	}
+	if len(req.Items) == 0 && len(req.Websites) == 0 && len(req.Databases) == 0 && len(req.DatabaseUsers) == 0 && len(req.Projects) == 0 {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("please select at least one migration resource"))
+		return
+	}
+	if connection.SourcePanel == "acepanel" && len(req.Items) > 0 {
+		if err = s.resolveAcePanelSelections(req); err != nil {
+			Error(w, http.StatusUnprocessableEntity, "%v", err)
+			return
+		}
+	}
+
 	s.state.mu.Lock()
 	if s.state.Step == types.MigrationStepRunning {
 		s.state.mu.Unlock()
 		Error(w, http.StatusConflict, s.t.Get("migration is already running"))
 		return
 	}
-	if s.state.Connection == nil {
-		s.state.mu.Unlock()
-		Error(w, http.StatusBadRequest, s.t.Get("please complete pre-check first"))
-		return
-	}
-
 	s.state.Step = types.MigrationStepRunning
 	s.state.Items = req
 	s.state.Results = nil
@@ -261,7 +494,12 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 	s.state.mu.Unlock()
 
 	// 异步执行迁移
-	go s.runMigration(new(*s.state.Connection), req)
+	connectionCopy := *connection
+	if connectionCopy.SourcePanel == "acepanel" {
+		go s.runMigration(&connectionCopy, req)
+	} else {
+		go s.runExternalMigration(&connectionCopy, req)
+	}
 
 	Success(w, nil)
 }
@@ -380,24 +618,22 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationConnection, items *request.ToolboxMigrationItems) {
 	s.addLog("===== " + s.t.Get("Migration started") + " =====")
 
-	// 迁移网站
-	for _, site := range slices.Backward(items.Websites) {
-		s.migrateWebsite(conn, &site, items.StopOnMig)
-	}
-
-	// 先迁移数据库用户，保证导入数据库时属主角色已存在
-	for _, user := range slices.Backward(items.DatabaseUsers) {
-		s.migrateDatabaseUser(conn, &user)
-	}
-
-	// 迁移数据库
+	// 先迁移数据库，再创建用户并恢复授权
 	for _, db := range slices.Backward(items.Databases) {
 		s.migrateDatabase(conn, &db)
+	}
+	for _, user := range slices.Backward(items.DatabaseUsers) {
+		s.migrateDatabaseUser(conn, &user)
 	}
 
 	// 迁移项目
 	for _, proj := range slices.Backward(items.Projects) {
 		s.migrateProject(conn, &proj, items.StopOnMig)
+	}
+
+	// 数据库和项目完成后再创建网站
+	for _, site := range slices.Backward(items.Websites) {
+		s.migrateWebsite(conn, &site, items.StopOnMig)
 	}
 
 	s.state.mu.Lock()
@@ -420,19 +656,25 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Website"), s.t.Get("start migrating"), site.Name))
 
-	// 迁移前停止网站
-	if stopOnMig {
-		s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("stopping website")))
-		if err := s.websiteRepo.UpdateStatus(site.ID, false); err != nil {
-			s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to stop website"), err))
-		}
-	}
-
 	// 获取网站详情
 	websiteDetail, err := s.websiteRepo.Get(site.ID)
 	if err != nil {
 		s.failResult("website", site.Name, s.t.Get("failed to get website detail: %v", err))
 		return
+	}
+
+	// 仅暂停原本运行中的网站，并在备份完成后恢复
+	if stopOnMig && site.Status {
+		s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("stopping website")))
+		if err = s.websiteRepo.UpdateStatus(site.ID, false); err != nil {
+			s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to stop website"), err))
+		} else {
+			defer func() {
+				if restoreErr := s.websiteRepo.UpdateStatus(site.ID, true); restoreErr != nil {
+					s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to restore source website"), restoreErr))
+				}
+			}()
+		}
 	}
 
 	// 在远程面板创建网站
@@ -446,12 +688,23 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	if len(listens) == 0 {
 		listens = []string{"80"}
 	}
+	targetPath := filepath.Join(app.Root, "sites", site.Name, "public")
+	if settingBody, settingErr := s.remoteAPIRequest(conn, http.MethodGet, "/api/setting", nil); settingErr == nil {
+		var settingResponse struct {
+			Data struct {
+				WebsitePath string `json:"website_path"`
+			} `json:"data"`
+		}
+		if json.Unmarshal(settingBody, &settingResponse) == nil && settingResponse.Data.WebsitePath != "" {
+			targetPath = filepath.Join(settingResponse.Data.WebsitePath, site.Name, "public")
+		}
+	}
 	websiteCreateReq := &request.WebsiteCreate{
 		Type:    websiteDetail.Type,
 		Name:    websiteDetail.Name,
 		Listens: listens,
 		Domains: websiteDetail.Domains,
-		Path:    websiteDetail.Path,
+		Path:    targetPath,
 		PHP:     websiteDetail.PHP,
 	}
 	if websiteDetail.Type == "proxy" && len(websiteDetail.Proxies) > 0 {
@@ -459,23 +712,60 @@ func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationC
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/website", websiteCreateReq)
 	if err != nil {
-		s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to create remote website, trying to upload directly"), err))
+		s.failResult("website", site.Name, s.t.Get("failed to create remote website: %v", err))
+		return
 	}
 
-	// 上传网站目录到远程
-	siteDir := filepath.Join(app.Root, "sites", site.Name)
-	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("uploading directory:"), siteDir))
-	if err = s.uploadDirToRemote(conn, siteDir, siteDir); err != nil {
+	// 只上传网站文件，配置由目标 AcePanel 根据结构化数据重新生成
+	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("uploading directory:"), websiteDetail.Path))
+	if err = s.uploadDirToRemote(conn, websiteDetail.Path, targetPath); err != nil {
 		s.failResult("website", site.Name, s.t.Get("upload failed: %v", err))
 		return
 	}
 
-	// 如果有自定义路径，也需要上传
-	if site.Path != "" && site.Path != filepath.Join(siteDir, "public") && site.Path != siteDir {
-		s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("uploading website directory:"), site.Path))
-		if err = s.uploadDirToRemote(conn, site.Path, site.Path); err != nil {
-			s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: website directory upload failed"), err))
+	listBody, err := s.remoteAPIRequest(conn, http.MethodGet, "/api/website", map[string]any{"type": "all", "page": 1, "limit": 10000})
+	if err != nil {
+		s.failResult("website", site.Name, s.t.Get("failed to read the created remote website: %v", err))
+		return
+	}
+	var listResponse struct {
+		Data struct {
+			Items []struct {
+				ID   uint   `json:"id"`
+				Name string `json:"name"`
+			} `json:"items"`
+		} `json:"data"`
+	}
+	if err = json.Unmarshal(listBody, &listResponse); err != nil {
+		s.failResult("website", site.Name, s.t.Get("invalid response when reading the created remote website: %v", err))
+		return
+	}
+	var remoteID uint
+	for _, item := range listResponse.Data.Items {
+		if item.Name == site.Name {
+			remoteID = item.ID
+			break
 		}
+	}
+	if remoteID == 0 {
+		s.failResult("website", site.Name, s.t.Get("the created remote website could not be found"))
+		return
+	}
+	updateReq := &request.WebsiteUpdate{
+		ID: remoteID, Listens: websiteDetail.Listens, Domains: websiteDetail.Domains,
+		Path: targetPath, Root: s.relocateMigrationPath(websiteDetail.Root, websiteDetail.Path, targetPath), Index: websiteDetail.Index,
+		SSL: websiteDetail.SSL, SSLCert: websiteDetail.SSLCert, SSLKey: websiteDetail.SSLKey,
+		HSTS: websiteDetail.HSTS, OCSP: websiteDetail.OCSP, HTTPRedirect: websiteDetail.HTTPRedirect, SSLProtocols: websiteDetail.SSLProtocols,
+		PHP: websiteDetail.PHP, Rewrite: websiteDetail.Rewrite, OpenBasedir: websiteDetail.OpenBasedir,
+		Upstreams: websiteDetail.Upstreams, Proxies: websiteDetail.Proxies, Redirects: websiteDetail.Redirects,
+		StatEnabled: websiteDetail.StatEnabled, RateLimit: websiteDetail.RateLimit, RealIP: websiteDetail.RealIP, BasicAuth: websiteDetail.BasicAuth,
+	}
+	if _, err = s.remoteAPIRequest(conn, http.MethodPut, fmt.Sprintf("/api/website/%d", remoteID), updateReq); err != nil {
+		s.failResult("website", site.Name, s.t.Get("failed to rebuild remote website configuration: %v", err))
+		return
+	}
+	if !site.Status {
+		_, _ = s.remoteAPIRequest(conn, http.MethodPost, fmt.Sprintf("/api/website/%d/status", remoteID), &request.WebsiteUpdateStatus{ID: remoteID, Status: false})
 	}
 
 	s.succeedResult("website", site.Name)
@@ -520,8 +810,7 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 		s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
 		_, err = shell.Exec(dumpCmd)
 	case "postgresql":
-		// --clean --if-exists 保证重复迁移时覆盖而非追加数据
-		dumpCmd := fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres --clean --if-exists '%s' > %s", dbServer.Password, db.Name, backupPath)
+		dumpCmd := fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres --no-owner --no-privileges '%s' > %s", dbServer.Password, db.Name, backupPath)
 		s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
 		_, err = shell.Exec(dumpCmd)
 	case "clickhouse":
@@ -578,7 +867,10 @@ func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigration
 		ServerID: remoteServerID,
 		Name:     db.Name,
 	}
-	_, _ = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq)
+	if _, err = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq); err != nil {
+		s.failResult("database", displayName, s.t.Get("failed to create remote database: %v", err))
+		return
+	}
 
 	// 分片上传备份文件到远程
 	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("sending backup to remote server")))
@@ -772,55 +1064,75 @@ func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationC
 
 	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Project"), s.t.Get("start migrating"), proj.Name))
 
-	// 迁移前停止项目服务
-	if stopOnMig {
-		s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("stopping project service")))
-		if _, err := shell.Exec(fmt.Sprintf("systemctl stop %s", proj.Name)); err != nil {
-			s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to stop service"), err))
-		}
-	}
-
 	// 获取项目详情
 	projectDetail, err := s.projectRepo.Get(proj.ID)
 	if err != nil {
 		s.failResult("project", proj.Name, s.t.Get("failed to get project detail: %v", err))
 		return
 	}
+	if stopOnMig && projectDetail.Status == "active" {
+		s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("stopping project service")))
+		if _, err = shell.Exec(fmt.Sprintf("systemctl stop %s", proj.Name)); err != nil {
+			s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to stop service"), err))
+		} else {
+			defer func() {
+				if _, restoreErr := shell.Exec(fmt.Sprintf("systemctl start %s", proj.Name)); restoreErr != nil {
+					s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to restore source project"), restoreErr))
+				}
+			}()
+		}
+	}
+
+	targetPath := proj.TargetPath
+	if targetPath == "" {
+		targetPath = filepath.Join(app.Root, "projects", proj.Name)
+		if settingBody, settingErr := s.remoteAPIRequest(conn, http.MethodGet, "/api/setting", nil); settingErr == nil {
+			var settingResponse struct {
+				Data struct {
+					ProjectPath string `json:"project_path"`
+				} `json:"data"`
+			}
+			if json.Unmarshal(settingBody, &settingResponse) == nil && settingResponse.Data.ProjectPath != "" {
+				targetPath = filepath.Join(settingResponse.Data.ProjectPath, proj.Name)
+			}
+		}
+	}
+	sourcePath := projectDetail.RootDir
+	if sourcePath == "" {
+		sourcePath = proj.Path
+	}
+	workingDir := s.relocateMigrationPath(projectDetail.WorkingDir, sourcePath, targetPath)
+	execStart := strings.ReplaceAll(projectDetail.ExecStart, sourcePath, targetPath)
+	projectUser := projectDetail.User
+	if proj.TargetUser != "" {
+		projectUser = proj.TargetUser
+	}
 
 	// 在远程面板创建项目
 	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("creating project on remote server")))
 	projectCreateReq := &request.ProjectCreate{
-		Name:        projectDetail.Name,
-		Type:        projectDetail.Type,
-		Description: projectDetail.Description,
-		RootDir:     projectDetail.RootDir,
-		WorkingDir:  projectDetail.WorkingDir,
-		ExecStart:   projectDetail.ExecStart,
-		User:        projectDetail.User,
+		Name:         projectDetail.Name,
+		Type:         projectDetail.Type,
+		Description:  projectDetail.Description,
+		RootDir:      targetPath,
+		WorkingDir:   workingDir,
+		ExecStart:    execStart,
+		User:         projectUser,
+		Restart:      projectDetail.Restart,
+		Environments: projectDetail.Environments,
 	}
 	_, err = s.remoteAPIRequest(conn, "POST", "/api/project", projectCreateReq)
 	if err != nil {
-		s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to create remote project, trying to upload directly"), err))
+		s.failResult("project", proj.Name, s.t.Get("failed to create remote project: %v", err))
+		return
 	}
 
 	// 上传项目目录
 	if proj.Path != "" {
 		s.addLog(fmt.Sprintf("[%s] %s %s", proj.Name, s.t.Get("uploading directory:"), proj.Path))
-		if err = s.uploadDirToRemote(conn, proj.Path, proj.Path); err != nil {
+		if err = s.uploadDirToRemote(conn, proj.Path, targetPath); err != nil {
 			s.failResult("project", proj.Name, s.t.Get("upload failed: %v", err))
 			return
-		}
-	}
-
-	// 上传 systemd 服务文件
-	serviceFile := fmt.Sprintf("/etc/systemd/system/%s.service", proj.Name)
-	if _, statErr := os.Stat(serviceFile); statErr == nil {
-		s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("uploading systemd service file")))
-		if err = s.remoteUploadFile(conn, serviceFile, serviceFile); err != nil {
-			s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: service file upload failed"), err))
-		} else {
-			// 远程重新加载 systemd
-			_ = s.remoteExec(conn, "systemctl daemon-reload")
 		}
 	}
 

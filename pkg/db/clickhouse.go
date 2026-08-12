@@ -83,11 +83,13 @@ func (r *ClickHouse) Prepare(query string) (*sql.Stmt, error) {
 }
 
 func (r *ClickHouse) DatabaseCreate(name string) error {
+	name = strings.ReplaceAll(name, "`", "``")
 	_, err := r.exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", name))
 	return err
 }
 
 func (r *ClickHouse) DatabaseDrop(name string) error {
+	name = strings.ReplaceAll(name, "`", "``")
 	_, err := r.exec(fmt.Sprintf("DROP DATABASE IF EXISTS `%s`", name))
 	return err
 }
@@ -113,21 +115,25 @@ func (r *ClickHouse) DatabaseSize(name string) (int64, error) {
 }
 
 func (r *ClickHouse) UserCreate(user, password string, host ...string) error {
+	user = strings.ReplaceAll(user, "`", "``")
 	_, err := r.exec(fmt.Sprintf("CREATE USER IF NOT EXISTS `%s` IDENTIFIED BY '%s'", user, password))
 	return err
 }
 
 func (r *ClickHouse) UserDrop(user string, host ...string) error {
+	user = strings.ReplaceAll(user, "`", "``")
 	_, err := r.exec(fmt.Sprintf("DROP USER IF EXISTS `%s`", user))
 	return err
 }
 
 func (r *ClickHouse) UserPassword(user, password string, host ...string) error {
+	user = strings.ReplaceAll(user, "`", "``")
 	_, err := r.exec(fmt.Sprintf("ALTER USER `%s` IDENTIFIED BY '%s'", user, password))
 	return err
 }
 
 func (r *ClickHouse) UserPrivileges(user string, host ...string) ([]string, error) {
+	user = strings.ReplaceAll(user, "`", "``")
 	result, err := r.exec(fmt.Sprintf("SHOW GRANTS FOR `%s`", user))
 	if err != nil {
 		return nil, err
@@ -155,11 +161,15 @@ func (r *ClickHouse) UserPrivileges(user string, host ...string) ([]string, erro
 }
 
 func (r *ClickHouse) PrivilegesGrant(user, database string, host ...string) error {
+	user = strings.ReplaceAll(user, "`", "``")
+	database = strings.ReplaceAll(database, "`", "``")
 	_, err := r.exec(fmt.Sprintf("GRANT ALL ON `%s`.* TO `%s`", database, user))
 	return err
 }
 
 func (r *ClickHouse) PrivilegesRevoke(user, database string, host ...string) error {
+	user = strings.ReplaceAll(user, "`", "``")
+	database = strings.ReplaceAll(database, "`", "``")
 	_, err := r.exec(fmt.Sprintf("REVOKE ALL ON `%s`.* FROM `%s`", database, user))
 	return err
 }
