@@ -14,6 +14,7 @@ type ContainerRename struct {
 type ContainerCreate struct {
 	Name            string                           `form:"name" json:"name"`
 	Image           string                           `form:"image" json:"image" validate:"required"`
+	Background      bool                             `form:"background" json:"background"`
 	Ports           []types.ContainerPort            `form:"ports" json:"ports"`
 	Network         string                           `form:"network" json:"network"`
 	Volumes         []types.ContainerContainerVolume `form:"volumes" json:"volumes"`
@@ -28,6 +29,6 @@ type ContainerCreate struct {
 	PublishAllPorts bool                             `form:"publish_all_ports" json:"publish_all_ports"`
 	Tty             bool                             `form:"tty" json:"tty"`
 	CPUShares       int64                            `form:"cpu_shares" json:"cpu_shares"`
-	CPUs            int64                            `form:"cpus" json:"cpus"`
+	CPUs            float64                          `form:"cpus" json:"cpus"`
 	Memory          int64                            `form:"memory" json:"memory"`
 }

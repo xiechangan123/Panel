@@ -13,14 +13,25 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   success: []
+  background: []
   cancel: []
 }>()
 
+const background = ref(false)
 const isPulling = ref(false)
 const pullProgress = ref<Map<string, any>>(new Map())
 const pullStatus = ref('')
 const pullError = ref('')
 let pullWs: WebSocket | null = null
+
+const closePullSocket = () => {
+  if (!pullWs) return
+  pullWs.onmessage = null
+  pullWs.onclose = null
+  pullWs.onerror = null
+  pullWs.close()
+  pullWs = null
+}
 
 // 计算总体拉取进度
 const totalProgress = computed(() => {
@@ -38,6 +49,8 @@ const totalProgress = computed(() => {
 
 // 拉取镜像
 const pullImage = () => {
+  closePullSocket()
+
   isPulling.value = true
   pullProgress.value = new Map()
   pullStatus.value = $gettext('Connecting...')
@@ -95,12 +108,19 @@ const pullImage = () => {
     })
 }
 
+const handleSubmit = () => {
+  if (background.value) {
+    show.value = false
+    emit('background')
+    return
+  }
+
+  pullImage()
+}
+
 // 取消拉取
 const cancelPull = () => {
-  if (pullWs) {
-    pullWs.close()
-    pullWs = null
-  }
+  closePullSocket()
   resetState()
   show.value = false
   emit('cancel')
@@ -117,27 +137,21 @@ const resetState = () => {
 watch(show, (val) => {
   if (val) {
     resetState()
-    pullImage()
+    background.value = false
   } else {
-    if (pullWs) {
-      pullWs.close()
-      pullWs = null
-    }
+    closePullSocket()
   }
 })
 
 onUnmounted(() => {
-  if (pullWs) {
-    pullWs.close()
-    pullWs = null
-  }
+  closePullSocket()
 })
 </script>
 
 <template>
   <n-modal
     v-model:show="show"
-    :title="$gettext('Pulling Image')"
+    :title="$gettext('Pull Image')"
     preset="card"
     style="width: 60vw"
     size="medium"
@@ -201,5 +215,21 @@ onUnmounted(() => {
         </n-flex>
       </template>
     </n-result>
+
+    <n-form v-else>
+      <n-form-item :label="$gettext('Image Name')">
+        <n-input :value="props.image" readonly />
+      </n-form-item>
+      <n-form-item :label="$gettext('Execution Mode')">
+        <n-radio-group v-model:value="background">
+          <n-radio-button :value="false">{{ $gettext('Foreground') }}</n-radio-button>
+          <n-radio-button :value="true">{{ $gettext('Background') }}</n-radio-button>
+        </n-radio-group>
+      </n-form-item>
+      <n-flex justify="end">
+        <n-button @click="cancelPull">{{ $gettext('Cancel') }}</n-button>
+        <n-button type="primary" @click="handleSubmit">{{ $gettext('Submit') }}</n-button>
+      </n-flex>
+    </n-form>
   </n-modal>
 </template>

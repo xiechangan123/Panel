@@ -4,6 +4,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -27,10 +29,17 @@ type ContainerRepo interface {
 type ContainerUsecase struct {
 	repo    ContainerRepo
 	setting SettingRepo
+	task    TaskRepo
+	t       *gotext.Locale
 }
 
-func NewContainerUsecase(repo ContainerRepo, setting SettingRepo) *ContainerUsecase {
-	return &ContainerUsecase{repo: repo, setting: setting}
+func NewContainerUsecase(t *gotext.Locale, containerRepo ContainerRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerUsecase {
+	return &ContainerUsecase{
+		repo:    containerRepo,
+		setting: settingRepo,
+		task:    taskRepo,
+		t:       t,
+	}
 }
 
 func (uc *ContainerUsecase) ListAll() ([]types.Container, error) {
@@ -62,6 +71,29 @@ func (uc *ContainerUsecase) Create(req *request.ContainerCreate) (string, error)
 	return uc.repo.Create(sock, req)
 }
 
+func (uc *ContainerUsecase) CreateBackground(req *request.ContainerCreate) error {
+	shell, err := containerRunShell(containerSock(uc.setting), req)
+	if err != nil {
+		return err
+	}
+
+	task := new(Task)
+	key := ""
+	if req.Name != "" {
+		key = "container:create:" + req.Name
+	}
+	task.Key = key
+	target := req.Name
+	if target == "" {
+		target = req.Image
+	}
+	task.Name = uc.t.Get("Create container %s", target)
+	task.Status = TaskStatusWaiting
+	task.Shell = shell
+
+	return uc.task.Push(task)
+}
+
 // Update 删除旧容器后按新配置重建同名容器
 func (uc *ContainerUsecase) Update(id string, req *request.ContainerCreate) (string, error) {
 	sock := containerSock(uc.setting)
@@ -69,6 +101,33 @@ func (uc *ContainerUsecase) Update(id string, req *request.ContainerCreate) (str
 		return "", err
 	}
 	return uc.repo.Create(sock, req)
+}
+
+func (uc *ContainerUsecase) UpdateBackground(id string, req *request.ContainerCreate) error {
+	sock := containerSock(uc.setting)
+	runShell, err := containerRunShell(sock, req)
+	if err != nil {
+		return err
+	}
+
+	shell := strings.Join([]string{
+		"set -e",
+		dockerCommand(sock, "image", "inspect", req.Image) + " >/dev/null 2>&1 || " + dockerCommand(sock, "pull", req.Image),
+		dockerCommand(sock, "rm", "--force", id),
+		runShell,
+	}, "\n")
+	target := req.Name
+	if target == "" {
+		target = req.Image
+	}
+
+	task := new(Task)
+	task.Key = "container:update:" + id
+	task.Name = uc.t.Get("Update container %s", target)
+	task.Status = TaskStatusWaiting
+	task.Shell = shell
+
+	return uc.task.Push(task)
 }
 
 func (uc *ContainerUsecase) Remove(id string) error {

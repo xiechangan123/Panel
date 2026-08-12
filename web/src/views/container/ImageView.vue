@@ -12,11 +12,13 @@ const { confirmDelete } = useConfirm()
 
 const pullModel = ref({
   name: '',
+  background: false,
   auth: false,
   username: '',
   password: '',
 })
 const pullModal = ref(false)
+const pullSubmitting = ref(false)
 const pruneLoading = ref(false)
 const selectedRowKeys = ref<any>([])
 
@@ -26,6 +28,15 @@ const pullProgress = ref<Map<string, any>>(new Map())
 const pullStatus = ref('')
 const pullError = ref('')
 let pullWs: WebSocket | null = null
+
+const closePullSocket = () => {
+  if (!pullWs) return
+  pullWs.onmessage = null
+  pullWs.onclose = null
+  pullWs.onerror = null
+  pullWs.close()
+  pullWs = null
+}
 
 // 计算总体拉取进度
 const totalProgress = computed(() => {
@@ -146,11 +157,9 @@ const handleBulkDelete = async () => {
 
 // 取消拉取
 const cancelPull = () => {
-  if (pullWs) {
-    pullWs.close()
-    pullWs = null
-  }
+  closePullSocket()
   resetState()
+  pullModal.value = false
 }
 
 // 重置拉取状态
@@ -167,6 +176,23 @@ const handlePull = () => {
     window.$message.warning($gettext('Please enter image name'))
     return
   }
+
+  if (pullModel.value.background) {
+    pullSubmitting.value = true
+    useRequest(container.imagePull({ ...pullModel.value, background: true }))
+      .onSuccess(() => {
+        pullModal.value = false
+        window.$message.success(
+          $gettext('Task submitted, please check progress in background tasks'),
+        )
+      })
+      .onComplete(() => {
+        pullSubmitting.value = false
+      })
+    return
+  }
+
+  closePullSocket()
 
   isPulling.value = true
   pullProgress.value = new Map()
@@ -233,11 +259,9 @@ const handlePull = () => {
 watch(pullModal, (val) => {
   if (val) {
     resetState()
+    pullModel.value.background = false
   } else {
-    if (pullWs) {
-      pullWs.close()
-      pullWs = null
-    }
+    closePullSocket()
   }
 })
 
@@ -246,7 +270,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  cancelPull()
+  closePullSocket()
 })
 </script>
 
@@ -304,8 +328,8 @@ onUnmounted(() => {
     size="huge"
     :bordered="false"
     :segmented="false"
-    :mask-closable="!isPulling"
-    :closable="!isPulling"
+    :mask-closable="!isPulling && !pullSubmitting"
+    :closable="!isPulling && !pullSubmitting"
   >
     <!-- 拉取进度 -->
     <template v-if="isPulling || pullProgress.size > 0">
@@ -379,6 +403,12 @@ onUnmounted(() => {
         <n-form-item path="auth" :label="$gettext('Authentication')">
           <n-switch v-model:value="pullModel.auth" />
         </n-form-item>
+        <n-form-item path="background" :label="$gettext('Execution Mode')">
+          <n-radio-group v-model:value="pullModel.background">
+            <n-radio-button :value="false">{{ $gettext('Foreground') }}</n-radio-button>
+            <n-radio-button :value="true">{{ $gettext('Background') }}</n-radio-button>
+          </n-radio-group>
+        </n-form-item>
         <n-form-item v-if="pullModel.auth" path="username" :label="$gettext('Username')">
           <n-input
             v-model:value="pullModel.username"
@@ -397,7 +427,13 @@ onUnmounted(() => {
           />
         </n-form-item>
       </n-form>
-      <n-button type="info" block :loading="loading" :disabled="loading" @click="handlePull">
+      <n-button
+        type="info"
+        block
+        :loading="pullSubmitting"
+        :disabled="pullSubmitting"
+        @click="handlePull"
+      >
         {{ $gettext('Submit') }}
       </n-button>
     </template>

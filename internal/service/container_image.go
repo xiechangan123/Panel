@@ -57,6 +57,15 @@ func (s *ContainerImageService) Pull(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Background {
+		if err = s.containerImageRepo.PullBackground(req); err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		Success(w, nil)
+		return
+	}
+
 	if err = s.containerImageRepo.Pull(req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

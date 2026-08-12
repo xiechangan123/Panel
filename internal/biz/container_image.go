@@ -1,6 +1,8 @@
 package biz
 
 import (
+	"github.com/leonelquinteros/gotext"
+
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
@@ -16,10 +18,17 @@ type ContainerImageRepo interface {
 type ContainerImageUsecase struct {
 	repo    ContainerImageRepo
 	setting SettingRepo
+	task    TaskRepo
+	t       *gotext.Locale
 }
 
-func NewContainerImageUsecase(repo ContainerImageRepo, setting SettingRepo) *ContainerImageUsecase {
-	return &ContainerImageUsecase{repo: repo, setting: setting}
+func NewContainerImageUsecase(t *gotext.Locale, containerImageRepo ContainerImageRepo, settingRepo SettingRepo, taskRepo TaskRepo) *ContainerImageUsecase {
+	return &ContainerImageUsecase{
+		repo:    containerImageRepo,
+		setting: settingRepo,
+		task:    taskRepo,
+		t:       t,
+	}
 }
 
 func (uc *ContainerImageUsecase) List() ([]types.ContainerImage, error) {
@@ -35,6 +44,22 @@ func (uc *ContainerImageUsecase) Exist(name string) (bool, error) {
 func (uc *ContainerImageUsecase) Pull(req *request.ContainerImagePull) error {
 	sock := containerSock(uc.setting)
 	return uc.repo.Pull(sock, req)
+}
+
+func (uc *ContainerImageUsecase) PullBackground(req *request.ContainerImagePull) error {
+	shell, cancelShell, err := containerImagePullShell(containerSock(uc.setting), req)
+	if err != nil {
+		return err
+	}
+
+	task := new(Task)
+	task.Key = "container:image:pull:" + req.Name
+	task.Name = uc.t.Get("Pull image %s", req.Name)
+	task.Status = TaskStatusWaiting
+	task.Shell = shell
+	task.CancelShell = cancelShell
+
+	return uc.task.Push(task)
 }
 
 func (uc *ContainerImageUsecase) Remove(id string) error {

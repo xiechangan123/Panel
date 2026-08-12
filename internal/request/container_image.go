@@ -5,8 +5,9 @@ type ContainerImageID struct {
 }
 
 type ContainerImagePull struct {
-	Name     string `form:"name" json:"name" validate:"required"`
-	Auth     bool   `form:"auth" json:"auth"`
-	Username string `form:"username" json:"username" validate:"required_if:Auth,true"`
-	Password string `form:"password" json:"password" validate:"required_if:Auth,true"`
+	Name       string `form:"name" json:"name" validate:"required"`
+	Background bool   `form:"background" json:"background"`
+	Auth       bool   `form:"auth" json:"auth"`
+	Username   string `form:"username" json:"username" validate:"required_if:Auth,true"`
+	Password   string `form:"password" json:"password" validate:"required_if:Auth,true"`
 }

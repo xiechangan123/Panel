@@ -385,7 +385,7 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	containerUsecase := biz.NewContainerUsecase(containerRepo, settingRepo)
+	containerUsecase := biz.NewContainerUsecase(locale, containerRepo, settingRepo, taskRepo)
 	containerService, err := service.NewContainerService(containerUsecase)
 	if err != nil {
 		cleanup()
@@ -407,7 +407,7 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	containerImageUsecase := biz.NewContainerImageUsecase(containerImageRepo, settingRepo)
+	containerImageUsecase := biz.NewContainerImageUsecase(locale, containerImageRepo, settingRepo, taskRepo)
 	containerImageService, err := service.NewContainerImageService(containerImageUsecase)
 	if err != nil {
 		cleanup()

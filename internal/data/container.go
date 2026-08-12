@@ -190,7 +190,7 @@ func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (strin
 	}
 	// 设置资源限制
 	hostConfig.CPUShares = req.CPUShares
-	hostConfig.NanoCPUs = req.CPUs * 1e9
+	hostConfig.NanoCPUs = int64(req.CPUs * 1e9)
 	hostConfig.Memory = req.Memory * 1024 * 1024
 	hostConfig.MemorySwap = 0
 

@@ -56,7 +56,7 @@ func ExecWithLog(ctx context.Context, shell string, logFile string) error {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
-		return fmt.Errorf("run %s failed, err: %w", shell, err)
+		return fmt.Errorf("run shell failed: %w", err)
 	}
 
 	return nil

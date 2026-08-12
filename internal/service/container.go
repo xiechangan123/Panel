@@ -64,7 +64,17 @@ func (s *ContainerService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.containerRepo.Update(chi.URLParam(r, "id"), req)
+	idParam := chi.URLParam(r, "id")
+	if req.Background {
+		if err = s.containerRepo.UpdateBackground(idParam, req); err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		Success(w, nil)
+		return
+	}
+
+	id, err := s.containerRepo.Update(idParam, req)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -77,6 +87,15 @@ func (s *ContainerService) Create(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ContainerCreate](r)
 	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if req.Background {
+		if err = s.containerRepo.CreateBackground(req); err != nil {
+			Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		Success(w, nil)
 		return
 	}
 

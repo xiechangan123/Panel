@@ -107,16 +107,23 @@ const getNetworks = () => {
 }
 
 // 创建/更新容器
-const createContainer = () => {
+const createContainer = (background = false) => {
   doSubmit.value = true
+  const config = { ...createModel, background }
   const req = isEdit.value
-    ? container.containerUpdate(props.editId!, createModel)
-    : container.containerCreate(createModel)
+    ? container.containerUpdate(props.editId!, config)
+    : container.containerCreate(config)
   useRequest(req)
     .onSuccess(() => {
-      window.$message.success(
-        isEdit.value ? $gettext('Updated successfully') : $gettext('Created successfully'),
-      )
+      if (background) {
+        window.$message.success(
+          $gettext('Task submitted, please check progress in background tasks'),
+        )
+      } else {
+        window.$message.success(
+          isEdit.value ? $gettext('Updated successfully') : $gettext('Created successfully'),
+        )
+      }
       show.value = false
     })
     .onComplete(() => {
@@ -127,6 +134,14 @@ const createContainer = () => {
 // 镜像拉取成功后创建容器
 const onPullSuccess = () => {
   createContainer()
+}
+
+const onPullBackground = () => {
+  createContainer(true)
+}
+
+const onPullCancel = () => {
+  doSubmit.value = false
 }
 
 // 提交处理
@@ -646,5 +661,7 @@ watch(show, (val) => {
     v-model:show="showPullModal"
     :image="createModel.image"
     @success="onPullSuccess"
+    @background="onPullBackground"
+    @cancel="onPullCancel"
   />
 </template>
