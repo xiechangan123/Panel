@@ -591,9 +591,9 @@ func (_c *CertRepo_LoadWebsite_Call) RunAndReturn(run func(uint) (*biz.Website, 
 	return _c
 }
 
-// ObtainPanel provides a mock function with given fields: account, ips, webServer
-func (_m *CertRepo) ObtainPanel(account *biz.CertAccount, ips []string, webServer string) ([]byte, []byte, error) {
-	ret := _m.Called(account, ips, webServer)
+// ObtainPanel provides a mock function with given fields: account, names, webServer
+func (_m *CertRepo) ObtainPanel(account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
+	ret := _m.Called(account, names, webServer)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ObtainPanel")
@@ -603,10 +603,10 @@ func (_m *CertRepo) ObtainPanel(account *biz.CertAccount, ips []string, webServe
 	var r1 []byte
 	var r2 error
 	if rf, ok := ret.Get(0).(func(*biz.CertAccount, []string, string) ([]byte, []byte, error)); ok {
-		return rf(account, ips, webServer)
+		return rf(account, names, webServer)
 	}
 	if rf, ok := ret.Get(0).(func(*biz.CertAccount, []string, string) []byte); ok {
-		r0 = rf(account, ips, webServer)
+		r0 = rf(account, names, webServer)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]byte)
@@ -614,7 +614,7 @@ func (_m *CertRepo) ObtainPanel(account *biz.CertAccount, ips []string, webServe
 	}
 
 	if rf, ok := ret.Get(1).(func(*biz.CertAccount, []string, string) []byte); ok {
-		r1 = rf(account, ips, webServer)
+		r1 = rf(account, names, webServer)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]byte)
@@ -622,7 +622,7 @@ func (_m *CertRepo) ObtainPanel(account *biz.CertAccount, ips []string, webServe
 	}
 
 	if rf, ok := ret.Get(2).(func(*biz.CertAccount, []string, string) error); ok {
-		r2 = rf(account, ips, webServer)
+		r2 = rf(account, names, webServer)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -637,13 +637,13 @@ type CertRepo_ObtainPanel_Call struct {
 
 // ObtainPanel is a helper method to define mock.On call
 //   - account *biz.CertAccount
-//   - ips []string
+//   - names []string
 //   - webServer string
-func (_e *CertRepo_Expecter) ObtainPanel(account interface{}, ips interface{}, webServer interface{}) *CertRepo_ObtainPanel_Call {
-	return &CertRepo_ObtainPanel_Call{Call: _e.mock.On("ObtainPanel", account, ips, webServer)}
+func (_e *CertRepo_Expecter) ObtainPanel(account interface{}, names interface{}, webServer interface{}) *CertRepo_ObtainPanel_Call {
+	return &CertRepo_ObtainPanel_Call{Call: _e.mock.On("ObtainPanel", account, names, webServer)}
 }
 
-func (_c *CertRepo_ObtainPanel_Call) Run(run func(account *biz.CertAccount, ips []string, webServer string)) *CertRepo_ObtainPanel_Call {
+func (_c *CertRepo_ObtainPanel_Call) Run(run func(account *biz.CertAccount, names []string, webServer string)) *CertRepo_ObtainPanel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(*biz.CertAccount), args[1].([]string), args[2].(string))
 	})
