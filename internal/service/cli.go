@@ -435,15 +435,6 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		}
 	default:
 		// ACME 模式
-		ip, err := s.settingRepo.Get(biz.SettingKeyPublicIPs)
-		if err != nil {
-			return err
-		}
-		var ips []string
-		if err = json.Unmarshal([]byte(ip), &ips); err != nil || len(ips) == 0 {
-			return errors.New(s.t.Get("Please set the panel IP in settings first for ACME certificate generation"))
-		}
-
 		var user biz.User
 		if err = s.db.First(&user).Error; err != nil {
 			return errors.New(s.t.Get("Failed to get a panel user: %v", err))
@@ -452,7 +443,7 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		if err != nil {
 			return errors.New(s.t.Get("Failed to get ACME account: %v", err))
 		}
-		crt, key, err = s.certRepo.ObtainPanel(account, ips)
+		crt, key, err = s.certRepo.ObtainPanel(account, s.conf.HTTP.BindDomain)
 		if err == nil {
 			fmt.Println(s.t.Get("Successfully obtained panel certificate via ACME"))
 		} else {

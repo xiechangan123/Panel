@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -90,21 +89,6 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ACME 模式
-	ip, err := s.settingRepo.Get(biz.SettingKeyPublicIPs)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	var ips []string
-	if err = json.Unmarshal([]byte(ip), &ips); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-	if len(ips) == 0 {
-		Error(w, http.StatusBadRequest, s.t.Get("please set public ips first"))
-		return
-	}
-
 	var user biz.User
 	if err = s.db.First(&user).Error; err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -116,7 +100,7 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	crt, key, err := s.certRepo.ObtainPanel(account, ips)
+	crt, key, err := s.certRepo.ObtainPanel(account, conf.HTTP.BindDomain)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

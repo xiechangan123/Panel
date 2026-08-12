@@ -35,7 +35,7 @@ import (
 var panelSolverGlobal sync.Mutex
 
 type panelSolver struct {
-	ip        []string
+	names     []string
 	conf      string
 	webServer string // "nginx" or "apache"
 	server    *http.Server
@@ -64,8 +64,11 @@ func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error
 
 	// 收集所有域名的 token
 	s.tokens[path] = token
+	s.names = append(s.names, challenge.Identifier.Value)
 	s.presentCount++
-	if s.presentCount < len(s.ip) {
+
+	// 内置服务器启动后只需继续追加 token
+	if s.server != nil {
 		return nil
 	}
 
@@ -116,7 +119,7 @@ func (s *panelSolver) startServer() error {
 }
 
 func (s *panelSolver) writeNginxConfig() error {
-	hasIPv6 := lo.SomeBy(s.ip, tools.IsIPv6)
+	hasIPv6 := lo.SomeBy(s.names, tools.IsIPv6)
 
 	var conf strings.Builder
 	conf.WriteString("server {\n    listen 80;\n")
@@ -124,8 +127,8 @@ func (s *panelSolver) writeNginxConfig() error {
 	if hasIPv6 {
 		conf.WriteString("    listen [::]:80;\n")
 	}
-	names := lo.Map(s.ip, func(ip string, _ int) string {
-		return tools.WrapIPv6(ip)
+	names := lo.Map(s.names, func(name string, _ int) string {
+		return tools.WrapIPv6(name)
 	})
 	_, _ = fmt.Fprintf(&conf, "    server_name %s;\n", strings.Join(names, " "))
 	for path, token := range s.tokens {
@@ -162,11 +165,14 @@ func (s *panelSolver) writeApacheConfig() error {
 	}
 
 	var conf strings.Builder
-	addrs := lo.Map(s.ip, func(ip string, _ int) string {
-		return tools.WrapIPv6(ip) + ":80"
+	names := lo.Map(s.names, func(name string, _ int) string {
+		return tools.WrapIPv6(name)
 	})
-	_, _ = fmt.Fprintf(&conf, "<VirtualHost %s>\n", strings.Join(addrs, " "))
-	conf.WriteString("    ServerName acme-ip-validation\n")
+	conf.WriteString("<VirtualHost *:80>\n")
+	_, _ = fmt.Fprintf(&conf, "    ServerName %s\n", names[0])
+	if len(names) > 1 {
+		_, _ = fmt.Fprintf(&conf, "    ServerAlias %s\n", strings.Join(names[1:], " "))
+	}
 	_, _ = fmt.Fprintf(&conf, "    Alias /.well-known/acme-challenge %s\n", tokenDir)
 	_, _ = fmt.Fprintf(&conf, "    <Directory %s>\n", tokenDir)
 	conf.WriteString("        Require all granted\n")
@@ -190,8 +196,8 @@ func (s *panelSolver) writeApacheConfig() error {
 func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 	s.cleanupCount++
 
-	// 等待最后一次 CleanUp
-	if s.cleanupCount < len(s.ip) {
+	// 等待所有实际执行过 Present 的验证完成
+	if s.cleanupCount < s.presentCount {
 		return nil
 	}
 

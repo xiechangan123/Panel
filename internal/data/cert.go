@@ -143,7 +143,7 @@ func (r *certRepo) GenerateSelfSigned(domains []string) ([]byte, []byte, error) 
 	return pkgcert.GenerateSelfSigned(domains)
 }
 
-func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string, webServer string) ([]byte, []byte, error) {
+func (r *certRepo) ObtainPanel(account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
 	client, err := acme.NewPrivateKeyAccount(account.Email, account.PrivateKey, acme.CALetsEncrypt, nil, r.log)
 	if err != nil {
 		return nil, nil, err
@@ -153,11 +153,11 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, ips []string, webServer
 	if webServer == "apache" {
 		confPath = filepath.Join(app.Root, "server/apache/conf/extra/acme.conf")
 	}
-	client.UsePanel(ips, confPath, webServer)
+	client.UsePanel(confPath, webServer)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
-	ssl, err := client.ObtainIPCertificate(ctx, ips, acme.KeyEC256)
+	ssl, err := client.ObtainCertificate(ctx, names, acme.KeyEC256)
 	if err != nil {
 		return nil, nil, err
 	}

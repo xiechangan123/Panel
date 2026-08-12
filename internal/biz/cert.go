@@ -54,7 +54,7 @@ type CertRepo interface {
 	GetClient(cert *Cert) (*acme.Client, error)
 	GenerateSelfSigned(domains []string) ([]byte, []byte, error)
 	RunScript(cert *Cert) error
-	ObtainPanel(account *CertAccount, ips []string, webServer string) ([]byte, []byte, error)
+	ObtainPanel(account *CertAccount, names []string, webServer string) ([]byte, []byte, error)
 	LoadWebsite(WebsiteID uint) (*Website, error)
 	WriteCertFiles(cert *Cert, certPath, keyPath string) error
 	EnableWebsiteSSL(website *Website, certPath, keyPath, webServer string, tlsVersions []string) error
@@ -240,9 +240,21 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 	return &ssl, nil
 }
 
-func (uc *CertUsecase) ObtainPanel(account *CertAccount, ips []string) ([]byte, []byte, error) {
+func (uc *CertUsecase) ObtainPanel(account *CertAccount, domains []string) ([]byte, []byte, error) {
+	names := domains
+	if len(names) == 0 {
+		var err error
+		names, err = uc.setting.GetSlice(SettingKeyPublicIPs)
+		if err != nil {
+			return nil, nil, err
+		}
+		if len(names) == 0 {
+			return nil, nil, errors.New(uc.t.Get("Please set the panel IP in settings first for ACME certificate generation"))
+		}
+	}
+
 	webServer, _ := uc.setting.Get(SettingKeyWebserver)
-	return uc.repo.ObtainPanel(account, ips, webServer)
+	return uc.repo.ObtainPanel(account, names, webServer)
 }
 
 func (uc *CertUsecase) ObtainSelfSigned(id uint) error {
