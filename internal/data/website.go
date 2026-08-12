@@ -45,93 +45,7 @@ func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) 
 	}, nil
 }
 
-func listenPort(address string) (string, bool) {
-	port := address
-	if strings.Contains(address, ":") {
-		var err error
-		_, port, err = net.SplitHostPort(address)
-		if err != nil {
-			return "", false
-		}
-	}
-
-	value, err := strconv.ParseUint(port, 10, 16)
-	if err != nil || value == 0 {
-		return "", false
-	}
-
-	return strconv.FormatUint(value, 10), true
-}
-
-func addIPv6Listens(listens []webservertypes.Listen) []webservertypes.Listen {
-	ipv6Ports := make(map[string]struct{}, len(listens))
-	for _, listen := range listens {
-		host, _, err := net.SplitHostPort(listen.Address)
-		if err != nil || host != "::" {
-			continue
-		}
-		if port, ok := listenPort(listen.Address); ok {
-			ipv6Ports[port] = struct{}{}
-		}
-	}
-
-	result := make([]webservertypes.Listen, 0, len(listens)*2)
-	for _, listen := range listens {
-		result = append(result, listen)
-		port, ok := listenPort(listen.Address)
-		if !ok {
-			continue
-		}
-		if _, exists := ipv6Ports[port]; exists {
-			continue
-		}
-		result = append(result, webservertypes.Listen{
-			Address: "[::]:" + port,
-			Args:    slices.Clone(listen.Args),
-		})
-		ipv6Ports[port] = struct{}{}
-	}
-
-	return result
-}
-
-func ensureListen(listens []webservertypes.Listen, address string, args []string) []webservertypes.Listen {
-	for i := range listens {
-		if listens[i].Address != address {
-			continue
-		}
-		for _, arg := range args {
-			if !slices.Contains(listens[i].Args, arg) {
-				listens[i].Args = append(listens[i].Args, arg)
-			}
-		}
-		return listens
-	}
-
-	return append(listens, webservertypes.Listen{
-		Address: address,
-		Args:    slices.Clone(args),
-	})
-}
-
-func addHTTPSListens(listens []webservertypes.Listen, webServer string, listenIPv6 bool) []webservertypes.Listen {
-	args := []string{"ssl"}
-	if webServer == "nginx" {
-		args = append(args, "quic")
-	}
-
-	listens = ensureListen(listens, "443", args)
-	if webServer == "nginx" && listenIPv6 {
-		listens = ensureListen(listens, "[::]:443", args)
-	}
-
-	return listens
-}
-
-func websitePHPCacheConfig(webServer string) string {
-	switch webServer {
-	case "nginx":
-		return `# browser cache
+const nginxPHPCacheConfig = `# browser cache
 location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
     expires 30d;
     access_log /dev/null;
@@ -147,8 +61,8 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
     return 404;
 }
 `
-	case "apache":
-		return `# browser cache
+
+const apachePHPCacheConfig = `# browser cache
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/bmp "access plus 30 days"
@@ -176,27 +90,16 @@ location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
     Require all denied
 </FilesMatch>
 `
-	default:
-		return ""
-	}
-}
 
-func websiteSPAConfig(webServer string) string {
-	switch webServer {
-	case "nginx":
-		return `# single-page application route fallback, remove if not needed
+const nginxSPAConfig = `# single-page application route fallback, remove if not needed
 location / {
     try_files $uri $uri/ /index.html;
 }
 `
-	case "apache":
-		return `# single-page application route fallback, remove if not needed
+
+const apacheSPAConfig = `# single-page application route fallback, remove if not needed
 FallbackResource /index.html
 `
-	default:
-		return ""
-	}
-}
 
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
@@ -451,17 +354,36 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	}
 
 	// 监听地址
-	var listens []webservertypes.Listen
-	for _, listen := range req.Listens {
-		listens = append(listens, webservertypes.Listen{Address: listen})
-	}
+	listens := lo.Map(req.Listens, func(listen string, _ int) webservertypes.Listen {
+		return webservertypes.Listen{Address: listen}
+	})
 	if webServer == "nginx" {
 		listenIPv6, getErr := r.setting.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
 		if getErr != nil {
 			return nil, getErr
 		}
 		if listenIPv6 {
-			listens = addIPv6Listens(listens)
+			ipv6Listens := lo.FilterMap(listens, func(listen webservertypes.Listen, _ int) (webservertypes.Listen, bool) {
+				port := listen.Address
+				if strings.Contains(listen.Address, ":") {
+					_, parsedPort, splitErr := net.SplitHostPort(listen.Address)
+					if splitErr != nil {
+						return webservertypes.Listen{}, false
+					}
+					port = parsedPort
+				}
+				value, parseErr := strconv.ParseUint(port, 10, 16)
+				if parseErr != nil || value == 0 {
+					return webservertypes.Listen{}, false
+				}
+				return webservertypes.Listen{
+					Address: "[::]:" + port,
+					Args:    slices.Clone(listen.Args),
+				}, true
+			})
+			listens = lo.UniqBy(slices.Concat(listens, ipv6Listens), func(listen webservertypes.Listen) string {
+				return listen.Address
+			})
 		}
 	}
 	if err = vhost.SetListen(listens); err != nil {
@@ -522,14 +444,21 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		if err = phpVhost.SetRawConfig("010-rewrite.conf", webservertypes.ScopeSite, ""); err != nil {
 			return nil, err
 		}
-		if err = phpVhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, websitePHPCacheConfig(webServer)); err != nil {
+		cacheConfig := nginxPHPCacheConfig
+		if webServer == "apache" {
+			cacheConfig = apachePHPCacheConfig
+		}
+		if err = phpVhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig); err != nil {
 			return nil, err
 		}
 	}
 
 	// 纯静态网站默认写入单页应用（SPA）前端路由回退配置
 	if w.Type == biz.WebsiteTypeStatic {
-		spaConfig := websiteSPAConfig(webServer)
+		spaConfig := nginxSPAConfig
+		if webServer == "apache" {
+			spaConfig = apacheSPAConfig
+		}
 		if spaConfig != "" {
 			if err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, spaConfig); err != nil {
 				return nil, err
@@ -679,17 +608,16 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 		return nil, err
 	}
 
-	customConfigs := make([]request.WebsiteCustomConfig, 0, len(setting.CustomConfigs))
-	for _, config := range setting.CustomConfigs {
+	customConfigs := lo.FilterMap(setting.CustomConfigs, func(config types.WebsiteCustomConfig, _ int) (request.WebsiteCustomConfig, bool) {
 		if website.Type == biz.WebsiteTypeStatic && config.Scope == "site" && config.Name == "spa" {
-			continue
+			return request.WebsiteCustomConfig{}, false
 		}
-		customConfigs = append(customConfigs, request.WebsiteCustomConfig{
+		return request.WebsiteCustomConfig{
 			Name:    config.Name,
 			Scope:   config.Scope,
 			Content: config.Content,
-		})
-	}
+		}, true
+	})
 
 	update := &request.WebsiteUpdate{
 		ID:            website.ID,
@@ -806,9 +734,17 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 	}
 	switch targetType {
 	case biz.WebsiteTypePHP:
-		err = vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, websitePHPCacheConfig(webServer))
+		cacheConfig := nginxPHPCacheConfig
+		if webServer == "apache" {
+			cacheConfig = apachePHPCacheConfig
+		}
+		err = vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig)
 	case biz.WebsiteTypeStatic:
-		err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, websiteSPAConfig(webServer))
+		spaConfig := nginxSPAConfig
+		if webServer == "apache" {
+			spaConfig = apacheSPAConfig
+		}
+		err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, spaConfig)
 	}
 	if err != nil {
 		return restore(err)
@@ -854,7 +790,25 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 				return getErr
 			}
 		}
-		req.Listens = addHTTPSListens(req.Listens, webServer, listenIPv6)
+		args := []string{"ssl"}
+		if webServer == "nginx" {
+			args = append(args, "quic")
+		}
+		addresses := []string{"443"}
+		if webServer == "nginx" && listenIPv6 {
+			addresses = append(addresses, "[::]:443")
+		}
+		httpsListens := lo.Map(addresses, func(address string, _ int) webservertypes.Listen {
+			return webservertypes.Listen{Address: address, Args: slices.Clone(args)}
+		})
+		req.Listens = lo.UniqBy(lo.Map(slices.Concat(req.Listens, httpsListens), func(listen webservertypes.Listen, _ int) webservertypes.Listen {
+			if slices.Contains(addresses, listen.Address) {
+				listen.Args = lo.Uniq(slices.Concat(listen.Args, args))
+			}
+			return listen
+		}), func(listen webservertypes.Listen) string {
+			return listen.Address
+		})
 	}
 	// 关闭 HTTPS 时移除 SSL 专用监听（含 IPv6），避免残留 ssl/quic 参数导致 nginx 无法启动
 	if !req.SSL {
@@ -1130,78 +1084,124 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 
-	// 清空配置
-	_, err := shell.Execf(`rm -rf '%s'`, fmt.Sprintf("%s/sites/%s/config/*", app.Root, website.Name))
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
 	if err != nil {
 		return err
 	}
-	// 初始化配置
+
+	setting, err := r.Get(id)
+	if err != nil {
+		return err
+	}
+	listens := lo.Filter(setting.Listens, func(listen webservertypes.Listen, _ int) bool {
+		if slices.Contains(listen.Args, "ssl") || slices.Contains(listen.Args, "quic") {
+			return false
+		}
+		port := listen.Address
+		if strings.Contains(listen.Address, ":") {
+			if _, parsedPort, splitErr := net.SplitHostPort(listen.Address); splitErr == nil {
+				port = parsedPort
+			}
+		}
+		return !website.SSL || port != "443"
+	})
+	if len(listens) == 0 {
+		listens = []webservertypes.Listen{{Address: "80"}}
+	}
+
+	update := &request.WebsiteUpdate{
+		ID:          website.ID,
+		Listens:     listens,
+		Domains:     setting.Domains,
+		Path:        website.Path,
+		Root:        setting.Root,
+		Index:       []string{"index.html"},
+		SSL:         false,
+		StatEnabled: webServer == "nginx",
+		AccessLog:   filepath.Join(app.Root, "sites", website.Name, "log", "access.log"),
+		ErrorLog:    filepath.Join(app.Root, "sites", website.Name, "log", "error.log"),
+	}
+	switch website.Type {
+	case biz.WebsiteTypePHP:
+		update.Index = []string{"index.php", "index.html"}
+		update.PHP = setting.PHP
+		update.OpenBasedir = true
+	case biz.WebsiteTypeProxy:
+		update.Upstreams = setting.Upstreams
+		if len(setting.Proxies) > 0 && setting.Proxies[0].Pass != "" {
+			update.Proxies = []webservertypes.Proxy{{
+				Location: "^~ /",
+				Pass:     setting.Proxies[0].Pass,
+			}}
+		}
+	}
+
+	if website.Type == biz.WebsiteTypePHP {
+		if err = io.Remove(filepath.Join(setting.Root, ".user.ini")); err != nil {
+			return err
+		}
+	}
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	if err = io.Remove(configDir); err != nil {
+		return err
+	}
+	if err = os.MkdirAll(filepath.Join(configDir, "site"), 0600); err != nil {
+		return err
+	}
+	if err = os.MkdirAll(filepath.Join(configDir, "shared"), 0600); err != nil {
+		return err
+	}
+
+	website.Status = true
+	if err = r.applyUpdate(update, website); err != nil {
+		return err
+	}
+
 	vhost, err := r.getVhost(website)
 	if err != nil {
 		return err
 	}
-	// 重置配置
-	if err = vhost.Reset(); err != nil {
-		return err
-	}
-	// 运行目录
-	if err = vhost.SetRoot(website.Path); err != nil {
-		return err
-	}
-	// 日志
-	if err = vhost.SetAccessLog(filepath.Join(app.Root, "sites", website.Name, "log", "access.log")); err != nil {
-		return err
-	}
-	if err = vhost.SetErrorLog(filepath.Join(app.Root, "sites", website.Name, "log", "error.log")); err != nil {
-		return err
-	}
-	// 保存配置
 	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
+		return err
+	}
+	var errorPageConfig string
+	switch webServer {
+	case "nginx":
+		errorPageConfig = `error_page 404 /404.html;`
+	case "apache":
+		errorPageConfig = `ErrorDocument 404 /404.html`
+	}
+	if err = vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, errorPageConfig); err != nil {
+		return err
+	}
+	switch website.Type {
+	case biz.WebsiteTypePHP:
+		cacheConfig := nginxPHPCacheConfig
+		if webServer == "apache" {
+			cacheConfig = apachePHPCacheConfig
+		}
+		err = vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig)
+	case biz.WebsiteTypeStatic:
+		spaConfig := nginxSPAConfig
+		if webServer == "apache" {
+			spaConfig = apacheSPAConfig
+		}
+		err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, spaConfig)
+	}
+	if err != nil {
 		return err
 	}
 	if err = vhost.Save(); err != nil {
 		return err
 	}
-	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"), "", 0600); err != nil {
-		return err
-	}
-	if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "private.key"), "", 0600); err != nil {
-		return err
-	}
-	// PHP 网站默认伪静态
-	if website.Type == biz.WebsiteTypePHP {
-		if err = io.Write(filepath.Join(app.Root, "sites", website.Name, "config", "site", "010-rewrite.conf"), "", 0600); err != nil {
-			return err
-		}
-	}
-
-	// 设置目录权限
-	if err = io.Chown(website.Path, "root", "root"); err != nil {
-		return err
-	}
-	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name), 0755); err != nil {
-		return err
-	}
-	if err = io.Chmod(website.Path, 0755); err != nil {
-		return err
-	}
-	if err = io.Chown(website.Path, "www", "www"); err != nil {
-		return err
-	}
-	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name, "log"), 0701); err != nil {
-		return err
-	}
 	if err = io.Chmod(filepath.Join(app.Root, "sites", website.Name, "config"), 0600); err != nil {
 		return err
 	}
-
-	website.Status = true
-	website.SSL = false
-	if err = r.db.Save(website).Error; err != nil {
+	if err = r.ReloadWebServer(); err != nil {
 		return err
 	}
 
-	return r.ReloadWebServer()
+	return nil
 }
 
 func (r *websiteRepo) UpdateStatus(id uint, status bool) error {

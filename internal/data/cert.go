@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -192,7 +193,26 @@ func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, web
 	}
 
 	// 添加 443 监听
-	listens := addHTTPSListens(vhost.Listen(), webServer, listenIPv6)
+	listens := vhost.Listen()
+	args := []string{"ssl"}
+	if webServer == "nginx" {
+		args = append(args, "quic")
+	}
+	addresses := []string{"443"}
+	if webServer == "nginx" && listenIPv6 {
+		addresses = append(addresses, "[::]:443")
+	}
+	httpsListens := lo.Map(addresses, func(address string, _ int) webservertypes.Listen {
+		return webservertypes.Listen{Address: address, Args: slices.Clone(args)}
+	})
+	listens = lo.UniqBy(lo.Map(slices.Concat(listens, httpsListens), func(listen webservertypes.Listen, _ int) webservertypes.Listen {
+		if slices.Contains(addresses, listen.Address) {
+			listen.Args = lo.Uniq(slices.Concat(listen.Args, args))
+		}
+		return listen
+	}), func(listen webservertypes.Listen) string {
+		return listen.Address
+	})
 	if err = vhost.SetListen(listens); err != nil {
 		return err
 	}

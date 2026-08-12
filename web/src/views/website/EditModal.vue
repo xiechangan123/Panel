@@ -239,6 +239,7 @@ const handleReset = () => {
   useRequest(website.resetConfig(id.value))
     .onSuccess(() => {
       fetchSetting()
+      window.$bus.emit('website:refresh')
       window.$message.success($gettext('Reset successfully'))
     })
     .onComplete(() => {
