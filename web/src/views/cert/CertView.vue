@@ -73,9 +73,73 @@ const deployModel = ref<any>({
   websites: [],
   enable_https: true,
 })
+const deployDomains = ref<string[]>([])
+const deployWebsiteOptions = computed(() =>
+  websites.value.map((website: any) => ({
+    label: website.domains?.length
+      ? `${website.label} (${website.domains.join(', ')})`
+      : website.label,
+    value: website.value,
+  })),
+)
 const obtain = ref(false)
 const obtainCert = ref(0)
 const obtainMode = ref<'obtain' | 'renew'>('obtain')
+
+const normalizeDomain = (domain: string) => {
+  const value = domain.trim().toLowerCase().replace(/\.$/, '')
+  const wildcard = value.startsWith('*.')
+  const hostname = wildcard ? value.slice(2) : value
+
+  try {
+    const normalized = new URL(`http://${hostname}`).hostname
+    return wildcard ? `*.${normalized}` : normalized
+  } catch {
+    return value
+  }
+}
+
+const isDomainCovered = (certDomain: string, websiteDomain: string) => {
+  const cert = normalizeDomain(certDomain)
+  const domain = normalizeDomain(websiteDomain)
+  if (cert === domain) return true
+  if (!cert.startsWith('*.')) return false
+
+  const suffix = cert.slice(2)
+  if (!domain.endsWith(`.${suffix}`)) return false
+
+  const prefix = domain.slice(0, -(suffix.length + 1))
+  return prefix !== '' && !prefix.includes('.')
+}
+
+const handleOpenDeploy = (row: any) => {
+  deployModel.value.id = row.id
+  deployModel.value.websites = row.website_id == 0 ? [] : [row.website_id]
+  deployModel.value.enable_https = true
+  deployDomains.value = row.domains || []
+  deployModal.value = true
+}
+
+const handleMatchWebsites = () => {
+  const matched = websites.value
+    .filter((website: any) => {
+      const domains = website.domains?.filter(Boolean) || []
+      return (
+        domains.length > 0 &&
+        domains.every((domain: string) =>
+          deployDomains.value.some((certDomain) => isDomainCovered(certDomain, domain)),
+        )
+      )
+    })
+    .map((website: any) => website.value)
+
+  if (matched.length === 0) {
+    window.$message.warning($gettext('No matching websites found'))
+    return
+  }
+
+  deployModel.value.websites = [...new Set([...deployModel.value.websites, ...matched])]
+}
 
 const columns: any = [
   {
@@ -216,13 +280,7 @@ const columns: any = [
             {
               size: 'small',
               type: 'info',
-              onClick: () => {
-                deployModel.value.id = row.id
-                if (row.website_id != 0) {
-                  deployModel.value.websites = [row.website_id]
-                }
-                deployModal.value = true
-              },
+              onClick: () => handleOpenDeploy(row),
             },
             { default: () => $gettext('Deploy') },
           ),
@@ -388,6 +446,7 @@ const handleDeployCert = async () => {
   deployModel.value.id = null
   deployModel.value.websites = []
   deployModel.value.enable_https = true
+  deployDomains.value = []
   window.$message.success($gettext('Deployment successful'))
 }
 
@@ -580,20 +639,41 @@ onUnmounted(() => {
   >
     <n-flex vertical>
       <n-form :model="deployModel">
-        <n-form-item path="website_id" :label="$gettext('Website')">
-          <n-select
-            v-model:value="deployModel.websites"
-            :placeholder="$gettext('Select websites to deploy the certificate')"
-            clearable
-            multiple
-            :options="websites"
-          />
+        <n-form-item path="websites" :label="$gettext('Website')">
+          <n-flex vertical class="w-full">
+            <n-flex justify="end">
+              <n-button
+                type="primary"
+                secondary
+                :disabled="deployDomains.length === 0 || websites.length === 0"
+                @click="handleMatchWebsites"
+              >
+                {{ $gettext('Match Websites') }}
+              </n-button>
+            </n-flex>
+            <n-transfer
+              v-model:value="deployModel.websites"
+              :options="deployWebsiteOptions"
+              :source-title="$gettext('Available')"
+              :target-title="$gettext('Selected')"
+              source-filterable
+              target-filterable
+              virtual-scroll
+            />
+          </n-flex>
         </n-form-item>
         <n-form-item path="enable_https" :label="$gettext('Enable HTTPS')">
           <n-switch v-model:value="deployModel.enable_https" />
         </n-form-item>
       </n-form>
-      <n-button type="info" block @click="handleDeployCert">{{ $gettext('Submit') }}</n-button>
+      <n-button
+        type="info"
+        block
+        :disabled="deployModel.websites.length === 0"
+        @click="handleDeployCert"
+      >
+        {{ $gettext('Submit') }}
+      </n-button>
     </n-flex>
   </n-modal>
   <n-modal

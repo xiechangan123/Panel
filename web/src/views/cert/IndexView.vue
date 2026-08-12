@@ -45,6 +45,7 @@ const getAsyncData = () => {
           websites.value.push({
             label: item.name,
             value: item.id,
+            domains: item.domains,
           })
         }
       })
