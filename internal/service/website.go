@@ -348,6 +348,21 @@ func (s *WebsiteService) Update(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+func (s *WebsiteService) SwitchType(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.WebsiteSwitchType](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.websiteRepo.SwitchType(r.Context(), req); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
 func (s *WebsiteService) Delete(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.WebsiteDelete](r)
 	if err != nil {

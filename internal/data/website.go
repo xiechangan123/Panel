@@ -128,6 +128,76 @@ func addHTTPSListens(listens []webservertypes.Listen, webServer string, listenIP
 	return listens
 }
 
+func websitePHPCacheConfig(webServer string) string {
+	switch webServer {
+	case "nginx":
+		return `# browser cache
+location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
+    expires 30d;
+    access_log /dev/null;
+    error_log /dev/null;
+}
+location ~ .*\.(js|css|ttf|otf|woff|woff2|eot)$ {
+    expires 6h;
+    access_log /dev/null;
+    error_log /dev/null;
+}
+# deny sensitive files
+location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
+    return 404;
+}
+`
+	case "apache":
+		return `# browser cache
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/bmp "access plus 30 days"
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/gif "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 30 days"
+    ExpiresByType image/x-icon "access plus 30 days"
+    ExpiresByType image/tiff "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType image/avif "access plus 30 days"
+    ExpiresByType image/heif "access plus 30 days"
+    ExpiresByType image/heic "access plus 30 days"
+    ExpiresByType image/jxl "access plus 30 days"
+    ExpiresByType text/css "access plus 6 hours"
+    ExpiresByType application/javascript "access plus 6 hours"
+    ExpiresByType font/ttf "access plus 6 hours"
+    ExpiresByType font/otf "access plus 6 hours"
+    ExpiresByType font/woff "access plus 6 hours"
+    ExpiresByType font/woff2 "access plus 6 hours"
+    ExpiresByType application/vnd.ms-fontobject "access plus 6 hours"
+</IfModule>
+# deny sensitive files
+<FilesMatch "^(\.user\.ini|\.htaccess|\.git|\.svn|\.env)">
+    Require all denied
+</FilesMatch>
+`
+	default:
+		return ""
+	}
+}
+
+func websiteSPAConfig(webServer string) string {
+	switch webServer {
+	case "nginx":
+		return `# single-page application route fallback, remove if not needed
+location / {
+    try_files $uri $uri/ /index.html;
+}
+`
+	case "apache":
+		return `# single-page application route fallback, remove if not needed
+FallbackResource /index.html
+`
+	default:
+		return ""
+	}
+}
+
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
 	if err != nil {
@@ -452,77 +522,16 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		if err = phpVhost.SetRawConfig("010-rewrite.conf", webservertypes.ScopeSite, ""); err != nil {
 			return nil, err
 		}
-		var cacheConfig string
-		switch webServer {
-		case "nginx":
-			cacheConfig = `# browser cache
-location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
-    expires 30d;
-    access_log /dev/null;
-    error_log /dev/null;
-}
-location ~ .*\.(js|css|ttf|otf|woff|woff2|eot)$ {
-    expires 6h;
-    access_log /dev/null;
-    error_log /dev/null;
-}
-# deny sensitive files
-location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
-    return 404;
-}
-`
-		case "apache":
-			cacheConfig = `# browser cache
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType image/bmp "access plus 30 days"
-    ExpiresByType image/jpeg "access plus 30 days"
-    ExpiresByType image/png "access plus 30 days"
-    ExpiresByType image/gif "access plus 30 days"
-    ExpiresByType image/svg+xml "access plus 30 days"
-    ExpiresByType image/x-icon "access plus 30 days"
-    ExpiresByType image/tiff "access plus 30 days"
-    ExpiresByType image/webp "access plus 30 days"
-    ExpiresByType image/avif "access plus 30 days"
-    ExpiresByType image/heif "access plus 30 days"
-    ExpiresByType image/heic "access plus 30 days"
-    ExpiresByType image/jxl "access plus 30 days"
-    ExpiresByType text/css "access plus 6 hours"
-    ExpiresByType application/javascript "access plus 6 hours"
-    ExpiresByType font/ttf "access plus 6 hours"
-    ExpiresByType font/otf "access plus 6 hours"
-    ExpiresByType font/woff "access plus 6 hours"
-    ExpiresByType font/woff2 "access plus 6 hours"
-    ExpiresByType application/vnd.ms-fontobject "access plus 6 hours"
-</IfModule>
-# deny sensitive files
-<FilesMatch "^(\.user\.ini|\.htaccess|\.git|\.svn|\.env)">
-    Require all denied
-</FilesMatch>
-`
-		}
-		if err = phpVhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig); err != nil {
+		if err = phpVhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, websitePHPCacheConfig(webServer)); err != nil {
 			return nil, err
 		}
 	}
 
 	// 纯静态网站默认写入单页应用（SPA）前端路由回退配置
 	if w.Type == biz.WebsiteTypeStatic {
-		var spaConfig string
-		switch webServer {
-		case "nginx":
-			spaConfig = `# single-page application route fallback, remove if not needed
-location / {
-    try_files $uri $uri/ /index.html;
-}
-`
-		case "apache":
-			spaConfig = `# single-page application route fallback, remove if not needed
-FallbackResource /index.html
-`
-		}
+		spaConfig := websiteSPAConfig(webServer)
 		if spaConfig != "" {
-			if err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig); err != nil {
+			if err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, spaConfig); err != nil {
 				return nil, err
 			}
 		}
@@ -647,6 +656,181 @@ func (r *websiteRepo) Update(req *request.WebsiteUpdate) (*biz.Website, error) {
 		return nil, err
 	}
 
+	return website, nil
+}
+
+func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, error) {
+	website := new(biz.Website)
+	if err := r.db.Where("id", req.ID).First(website).Error; err != nil {
+		return nil, err
+	}
+
+	targetType := biz.WebsiteType(req.Type)
+	if targetType == website.Type {
+		return nil, errors.New(r.t.Get("website type is unchanged"))
+	}
+
+	setting, err := r.Get(req.ID)
+	if err != nil {
+		return nil, err
+	}
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return nil, err
+	}
+
+	customConfigs := make([]request.WebsiteCustomConfig, 0, len(setting.CustomConfigs))
+	for _, config := range setting.CustomConfigs {
+		if website.Type == biz.WebsiteTypeStatic && config.Scope == "site" && config.Name == "spa" {
+			continue
+		}
+		customConfigs = append(customConfigs, request.WebsiteCustomConfig{
+			Name:    config.Name,
+			Scope:   config.Scope,
+			Content: config.Content,
+		})
+	}
+
+	update := &request.WebsiteUpdate{
+		ID:            website.ID,
+		Listens:       setting.Listens,
+		Domains:       setting.Domains,
+		Path:          setting.Path,
+		Root:          setting.Root,
+		Index:         []string{"index.html"},
+		SSL:           setting.SSL,
+		SSLCert:       setting.SSLCert,
+		SSLKey:        setting.SSLKey,
+		HSTS:          setting.HSTS,
+		OCSP:          setting.OCSP,
+		HTTPRedirect:  setting.HTTPRedirect,
+		SSLProtocols:  setting.SSLProtocols,
+		Redirects:     setting.Redirects,
+		StatEnabled:   setting.StatEnabled,
+		AccessLog:     setting.AccessLog,
+		ErrorLog:      setting.ErrorLog,
+		RateLimit:     setting.RateLimit,
+		RealIP:        setting.RealIP,
+		BasicAuth:     setting.BasicAuth,
+		CustomConfigs: customConfigs,
+	}
+	switch targetType {
+	case biz.WebsiteTypePHP:
+		update.Index = []string{"index.php", "index.html"}
+		update.PHP = req.PHP
+		update.OpenBasedir = true
+	case biz.WebsiteTypeProxy:
+		update.Proxies = []webservertypes.Proxy{{
+			Location: "^~ /",
+			Pass:     req.Proxy,
+		}}
+	}
+
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	backupDir := fmt.Sprintf("%s.switch-backup-%d", configDir, time.Now().UnixNano())
+	if err = os.Rename(configDir, backupDir); err != nil {
+		return nil, err
+	}
+	if err = os.MkdirAll(filepath.Join(configDir, "site"), 0600); err != nil {
+		_ = io.Remove(configDir)
+		_ = os.Rename(backupDir, configDir)
+		return nil, err
+	}
+	if err = os.MkdirAll(filepath.Join(configDir, "shared"), 0600); err != nil {
+		_ = io.Remove(configDir)
+		_ = os.Rename(backupDir, configDir)
+		return nil, err
+	}
+
+	oldType := website.Type
+	oldPath := website.Path
+	oldSSL := website.SSL
+	oldUpdatedAt := website.UpdatedAt
+	userIniPath := filepath.Join(setting.Root, ".user.ini")
+	oldUserIni, userIniErr := os.ReadFile(userIniPath)
+	if userIniErr != nil && !os.IsNotExist(userIniErr) {
+		_ = io.Remove(configDir)
+		_ = os.Rename(backupDir, configDir)
+		return nil, userIniErr
+	}
+	oldUserIniExists := userIniErr == nil
+	databaseUpdated := false
+	restore := func(switchErr error) (*biz.Website, error) {
+		var restoreErr error
+		restoreErr = errors.Join(restoreErr, io.Remove(configDir))
+		restoreErr = errors.Join(restoreErr, os.Rename(backupDir, configDir))
+		if databaseUpdated {
+			restoreErr = errors.Join(restoreErr, r.db.Model(&biz.Website{}).Where("id = ?", website.ID).UpdateColumns(map[string]any{
+				"type":       oldType,
+				"path":       oldPath,
+				"ssl":        oldSSL,
+				"updated_at": oldUpdatedAt,
+			}).Error)
+		}
+		restoreErr = errors.Join(restoreErr, io.Remove(userIniPath))
+		if oldUserIniExists {
+			restoreErr = errors.Join(restoreErr, io.Write(userIniPath, string(oldUserIni), 0644))
+			if setting.OpenBasedir {
+				_, attrErr := shell.Execf(`chattr +i '%s'`, userIniPath)
+				restoreErr = errors.Join(restoreErr, attrErr)
+			}
+		}
+		return nil, errors.Join(switchErr, restoreErr)
+	}
+
+	website.Type = targetType
+	if err = r.applyUpdate(update, website); err != nil {
+		return restore(err)
+	}
+	databaseUpdated = true
+
+	vhost, err := r.getVhost(website)
+	if err != nil {
+		return restore(err)
+	}
+	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
+		return restore(err)
+	}
+	var errorPageConfig string
+	switch webServer {
+	case "nginx":
+		errorPageConfig = `error_page 404 /404.html;`
+	case "apache":
+		errorPageConfig = `ErrorDocument 404 /404.html`
+	}
+	if err = vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, errorPageConfig); err != nil {
+		return restore(err)
+	}
+	if err = vhost.SetEnable(website.Status); err != nil {
+		return restore(err)
+	}
+	switch targetType {
+	case biz.WebsiteTypePHP:
+		err = vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, websitePHPCacheConfig(webServer))
+	case biz.WebsiteTypeStatic:
+		err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, websiteSPAConfig(webServer))
+	}
+	if err != nil {
+		return restore(err)
+	}
+	if err = vhost.Save(); err != nil {
+		return restore(err)
+	}
+
+	if oldType == biz.WebsiteTypePHP && targetType != biz.WebsiteTypePHP && setting.OpenBasedir {
+		if err = io.Remove(userIniPath); err != nil {
+			return restore(err)
+		}
+	}
+	if err = r.ReloadWebServer(); err != nil {
+		_, switchErr := restore(err)
+		if reloadErr := r.ReloadWebServer(); reloadErr != nil {
+			switchErr = errors.Join(switchErr, reloadErr)
+		}
+		return nil, switchErr
+	}
+
+	_ = io.Remove(backupDir)
 	return website, nil
 }
 

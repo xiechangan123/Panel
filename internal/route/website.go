@@ -36,6 +36,8 @@ func WebsiteRoutes(websiteService *service.WebsiteService) Endpoints {
 			Request: request.ID{}, Response: service.Envelope[types.WebsiteSetting]{}},
 		{Method: http.MethodPut, Path: "/api/website/{id}", Handler: svc.Update,
 			Summary: "保存网站配置", Tags: []string{"网站"}, Request: request.WebsiteUpdate{}},
+		{Method: http.MethodPost, Path: "/api/website/{id}/switch_type", Handler: svc.SwitchType,
+			Summary: "切换网站类型", Tags: []string{"网站"}, Request: request.WebsiteSwitchType{}},
 		{Method: http.MethodDelete, Path: "/api/website/{id}", Handler: svc.Delete,
 			Summary: "删除网站", Tags: []string{"网站"}, Request: request.WebsiteDelete{}},
 		{Method: http.MethodPost, Path: "/api/website/{id}/update_remark", Handler: svc.UpdateRemark,

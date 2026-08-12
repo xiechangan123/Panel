@@ -20,8 +20,12 @@ const current = ref('listen')
 const loading = ref(false)
 const saveLoading = ref(false)
 const resetLoading = ref(false)
+const switchTypeLoading = ref(false)
 const clearLogLoading = ref(false)
 const id = ref(0)
+const targetType = ref('')
+const targetPHP = ref<number | null>(null)
+const targetProxy = ref('')
 const initialSetting = {
   id: 0,
   name: '',
@@ -62,6 +66,9 @@ const fetchSetting = () => {
   useRequest(website.config(id.value))
     .onSuccess(({ data }: any) => {
       setting.value = data
+      targetType.value = ''
+      targetPHP.value = null
+      targetProxy.value = ''
     })
     .onComplete(() => {
       loading.value = false
@@ -95,6 +102,28 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
 
 // 是否为 Nginx
 const isNginx = computed(() => installedEnvironment.value.webserver === 'nginx')
+const websiteTypeOptions = computed(() => [
+  { label: $gettext('Reverse Proxy'), value: 'proxy', disabled: setting.value.type === 'proxy' },
+  { label: $gettext('PHP'), value: 'php', disabled: setting.value.type === 'php' },
+  { label: $gettext('Pure Static'), value: 'static', disabled: setting.value.type === 'static' },
+])
+const switchPHPOptions = computed(() =>
+  installedEnvironment.value.php.filter((item: any) => item.value !== 0),
+)
+const websiteTypeLabel = (type: string) =>
+  websiteTypeOptions.value.find((item) => item.value === type)?.label ?? type
+const canSwitchType = computed(() => {
+  if (!targetType.value || targetType.value === setting.value.type) {
+    return false
+  }
+  if (targetType.value === 'php') {
+    return Boolean(targetPHP.value)
+  }
+  if (targetType.value === 'proxy') {
+    return targetProxy.value.trim() !== ''
+  }
+  return true
+})
 const certs = ref<any>([])
 useRequest(cert.certs(1, 10000)).onSuccess(({ data }) => {
   certs.value = data.items
@@ -171,6 +200,38 @@ const handleSave = () => {
     .onComplete(() => {
       saveLoading.value = false
     })
+}
+
+const handleSwitchType = () => {
+  const from = websiteTypeLabel(setting.value.type)
+  const to = websiteTypeLabel(targetType.value)
+  window.$dialog.warning({
+    title: $gettext('Confirm Website Type Switch'),
+    content: $gettext(
+      'Switch the website type from %{ from } to %{ to }? Common settings and website files will be preserved. The original type-specific configuration will be deleted and rebuilt for the new type.',
+      { from, to },
+    ),
+    positiveText: $gettext('Confirm Switch'),
+    negativeText: $gettext('Cancel'),
+    onPositiveClick: () => {
+      switchTypeLoading.value = true
+      useRequest(
+        website.switchType(id.value, {
+          type: targetType.value,
+          php: targetType.value === 'php' ? targetPHP.value : 0,
+          proxy: targetType.value === 'proxy' ? targetProxy.value.trim() : '',
+        }),
+      )
+        .onSuccess(() => {
+          fetchSetting()
+          window.$bus.emit('website:refresh')
+          window.$message.success($gettext('Website type switched successfully'))
+        })
+        .onComplete(() => {
+          switchTypeLoading.value = false
+        })
+    },
+  })
 }
 
 const handleReset = () => {
@@ -1840,6 +1901,52 @@ const removeCustomConfig = (index: number) => {
         </n-tab-pane>
         <n-tab-pane name="advanced" :tab="$gettext('Advanced Settings')">
           <n-collapse accordion>
+            <n-collapse-item :title="$gettext('Website Type')" name="website_type">
+              <n-form label-placement="left" label-width="140px">
+                <n-form-item :label="$gettext('Current Website Type')">
+                  <n-tag>{{ websiteTypeLabel(setting.type) }}</n-tag>
+                </n-form-item>
+                <n-form-item :label="$gettext('Target Website Type')">
+                  <n-select
+                    v-model:value="targetType"
+                    :options="websiteTypeOptions"
+                    :placeholder="$gettext('Select Website Type')"
+                  />
+                </n-form-item>
+                <n-form-item v-if="targetType === 'php'" :label="$gettext('PHP Version')">
+                  <n-select
+                    v-model:value="targetPHP"
+                    :options="switchPHPOptions"
+                    :placeholder="$gettext('Select PHP Version')"
+                  />
+                </n-form-item>
+                <n-form-item
+                  v-if="targetType === 'proxy'"
+                  :label="$gettext('Proxy Target')"
+                >
+                  <n-input
+                    v-model:value="targetProxy"
+                    :placeholder="$gettext('For example: http://127.0.0.1:3000')"
+                  />
+                </n-form-item>
+                <n-alert type="warning" mb-4>
+                  {{
+                    $gettext(
+                      'After switching, common settings and website files will be preserved. The original type-specific configuration will be deleted and rebuilt for the new type.',
+                    )
+                  }}
+                </n-alert>
+                <n-button
+                  type="warning"
+                  :loading="switchTypeLoading"
+                  :disabled="!canSwitchType || switchTypeLoading || loading"
+                  @click="handleSwitchType"
+                >
+                  {{ $gettext('Switch Website Type') }}
+                </n-button>
+              </n-form>
+            </n-collapse-item>
+
             <!-- 访问统计（仅 nginx） -->
             <n-collapse-item
               v-if="isNginx"

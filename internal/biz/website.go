@@ -54,6 +54,7 @@ type WebsiteRepo interface {
 	List(typ string, page, limit uint) ([]*Website, int64, error)
 	Create(req *request.WebsiteCreate) (*Website, error)
 	Update(req *request.WebsiteUpdate) (*Website, error)
+	SwitchType(req *request.WebsiteSwitchType) (*Website, error)
 	GetForDelete(id uint) (*Website, error)
 	RemoveFiles(name string, removePath bool) error
 	Delete(website *Website) error
@@ -164,6 +165,17 @@ func (uc *WebsiteUsecase) Update(ctx context.Context, req *request.WebsiteUpdate
 	uc.log.Info("website updated", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
 
 	return uc.repo.ReloadWebServer()
+}
+
+func (uc *WebsiteUsecase) SwitchType(ctx context.Context, req *request.WebsiteSwitchType) error {
+	website, err := uc.repo.SwitchType(req)
+	if err != nil {
+		return err
+	}
+
+	uc.log.Info("website type switched", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name), slog.String("website_type", req.Type))
+
+	return nil
 }
 
 func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete) error {

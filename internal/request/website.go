@@ -81,6 +81,13 @@ type WebsiteUpdate struct {
 	CustomConfigs []WebsiteCustomConfig `json:"custom_configs"`
 }
 
+type WebsiteSwitchType struct {
+	ID    uint   `form:"id" json:"id" uri:"id" validate:"required && exists:websites,id"`
+	Type  string `form:"type" json:"type" validate:"required && in:proxy,static,php"`
+	PHP   uint   `form:"php" json:"php" validate:"required_if:Type,php"`
+	Proxy string `form:"proxy" json:"proxy" validate:"required_if:Type,proxy"`
+}
+
 // WebsiteCustomConfig 网站自定义配置请求
 type WebsiteCustomConfig struct {
 	Name    string `json:"name" validate:"required && regex:\"^[a-zA-Z0-9_-]+$\""` // 配置名称

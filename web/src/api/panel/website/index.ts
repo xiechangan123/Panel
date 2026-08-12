@@ -23,6 +23,8 @@ export default {
   config: (id: number): any => http.Get('/website/' + id),
   // 保存网站配置
   saveConfig: (id: number, data: any): any => http.Put(`/website/${id}`, data),
+  // 切换网站类型
+  switchType: (id: number, data: any): any => http.Post(`/website/${id}/switch_type`, data),
   // 更新备注
   updateRemark: (id: number, remark: string): any =>
     http.Post(`/website/${id}` + '/update_remark', { remark }),
