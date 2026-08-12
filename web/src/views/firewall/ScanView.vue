@@ -484,6 +484,13 @@ const handleClear = () => {
 
     <!-- 扫描记录 -->
     <template v-if="currentTab === 'events'">
+      <n-alert type="info" :bordered="false">
+        {{
+          $gettext(
+            'Scan awareness runs before the system firewall, so it is normal for blocked IPs to continue generating scan records.',
+          )
+        }}
+      </n-alert>
       <n-card :bordered="false">
         <n-data-table
           v-model:page="eventsPage"
