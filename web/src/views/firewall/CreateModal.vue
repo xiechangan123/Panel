@@ -6,7 +6,10 @@ import firewall from '@/api/panel/firewall'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
+const emit = defineEmits<{ created: [] }>()
 const loading = ref(false)
+
+type PortMode = 'single' | 'range'
 
 const protocols = [
   {
@@ -60,7 +63,8 @@ const directions = [
   },
 ]
 
-const createModel = ref({
+const newCreateModel = () => ({
+  portMode: 'single' as PortMode,
   family: 'ipv4',
   protocol: 'tcp',
   port_start: 80,
@@ -70,11 +74,25 @@ const createModel = ref({
   direction: 'in',
 })
 
-// 当起始端口改变时，同步更新结束端口（如果结束端口小于起始端口）
+const createModel = ref(newCreateModel())
+
+watch(show, (value) => {
+  if (!value) return
+  createModel.value = newCreateModel()
+  loading.value = false
+})
+
+watch(
+  () => createModel.value.portMode,
+  () => {
+    createModel.value.port_end = createModel.value.port_start
+  },
+)
+
 watch(
   () => createModel.value.port_start,
   (newStart) => {
-    if (createModel.value.port_end < newStart) {
+    if (createModel.value.portMode === 'range' && createModel.value.port_end < newStart) {
       createModel.value.port_end = newStart
     }
   },
@@ -82,22 +100,32 @@ watch(
 
 const handleCreate = async () => {
   loading.value = true
-  if (!createModel.value.address.length) {
-    createModel.value.address.push('')
-  }
-  const promises = createModel.value.address.map((address) =>
-    useRequest(
-      firewall.createRule({
-        ...createModel.value,
-        address,
+  try {
+    const addresses = createModel.value.address.length ? createModel.value.address : ['']
+    const promises = addresses.map((address) =>
+      useRequest(
+        firewall.createRule({
+          family: createModel.value.family,
+          protocol: createModel.value.protocol,
+          port_start: createModel.value.port_start,
+          port_end:
+            createModel.value.portMode === 'single'
+              ? createModel.value.port_start
+              : createModel.value.port_end,
+          address,
+          strategy: createModel.value.strategy,
+          direction: createModel.value.direction,
+        }),
+      ).onSuccess(() => {
+        window.$message.success($gettext('%{ address } created successfully', { address }))
       }),
-    ).onSuccess(() => {
-      window.$message.success($gettext('%{ address } created successfully', { address: address }))
-    }),
-  )
-  await Promise.all(promises)
-  show.value = false
-  loading.value = false
+    )
+    await Promise.all(promises)
+    emit('created')
+    show.value = false
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -119,7 +147,25 @@ const handleCreate = async () => {
       <n-form-item path="family" :label="$gettext('Network Protocol')">
         <n-select v-model:value="createModel.family" :options="families" />
       </n-form-item>
-      <n-row :gutter="[0, 24]">
+      <n-form-item path="portMode" :label="$gettext('Port Type')">
+        <n-radio-group v-model:value="createModel.portMode" size="small">
+          <n-radio-button value="single">{{ $gettext('Single Port') }}</n-radio-button>
+          <n-radio-button value="range">{{ $gettext('Port Range') }}</n-radio-button>
+        </n-radio-group>
+      </n-form-item>
+      <n-form-item
+        v-if="createModel.portMode === 'single'"
+        path="port_start"
+        :label="$gettext('Port')"
+      >
+        <n-input-number
+          v-model:value="createModel.port_start"
+          :min="1"
+          :max="65535"
+          placeholder="80"
+        />
+      </n-form-item>
+      <n-row v-else :gutter="[0, 24]">
         <n-col :span="12">
           <n-form-item path="port_start" :label="$gettext('Start Port')">
             <n-input-number

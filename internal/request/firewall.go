@@ -15,6 +15,11 @@ type FirewallRule struct {
 	Direction string `json:"direction" validate:"required && in:in,out"`
 }
 
+type FirewallRuleUpdate struct {
+	FirewallRule
+	NewStrategy string `json:"new_strategy" validate:"required && in:accept,drop,reject"`
+}
+
 type FirewallIPRule struct {
 	Family    string `json:"family" validate:"required && in:ipv4,ipv6"`
 	Protocol  string `json:"protocol" validate:"required && in:tcp,udp,tcp/udp"`

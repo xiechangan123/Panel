@@ -10,6 +10,9 @@ export default {
     http.Get('/firewall/rule', { params: { page, limit } }),
   // 创建防火墙规则
   createRule: (rule: any): any => http.Post('/firewall/rule', rule),
+  // 更新防火墙规则策略
+  updateRuleStrategy: (rule: any, strategy: string): any =>
+    http.Put('/firewall/rule', { ...rule, new_strategy: strategy }),
   // 删除防火墙规则
   deleteRule: (rule: any): any => http.Delete('/firewall/rule', rule),
   // 获取防火墙IP规则

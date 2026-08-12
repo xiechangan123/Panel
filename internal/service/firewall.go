@@ -2,6 +2,7 @@ package service
 
 import (
 	"cmp"
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
@@ -22,6 +23,10 @@ import (
 type FirewallService struct {
 	t        *gotext.Locale
 	firewall firewall.Firewall
+}
+
+type firewallRuleOperator interface {
+	Port(rule firewall.FireInfo, operation firewall.Operation) error
 }
 
 func NewFirewallService(t *gotext.Locale) (*FirewallService, error) {
@@ -127,6 +132,38 @@ func (s *FirewallService) CreateRule(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
+func (s *FirewallService) UpdateRule(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.FirewallRuleUpdate](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	oldRule := firewall.FireInfo{
+		Type:      firewall.Type(req.Type),
+		Family:    req.Family,
+		PortStart: req.PortStart,
+		PortEnd:   req.PortEnd,
+		Protocol:  firewall.Protocol(req.Protocol),
+		Address:   req.Address,
+		Strategy:  firewall.Strategy(req.Strategy),
+		Direction: firewall.Direction(req.Direction),
+	}
+	newRule := oldRule
+	newRule.Strategy = firewall.Strategy(req.NewStrategy)
+	if oldRule.Strategy == newRule.Strategy {
+		Success(w, nil)
+		return
+	}
+
+	if err = replaceFirewallRule(s.firewall, oldRule, newRule); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to update firewall rule: %v", err))
+		return
+	}
+
+	Success(w, nil)
+}
+
 func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.FirewallRule](r)
 	if err != nil {
@@ -142,6 +179,25 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
+}
+
+func replaceFirewallRule(operator firewallRuleOperator, oldRule, newRule firewall.FireInfo) error {
+	if err := operator.Port(newRule, firewall.OperationAdd); err != nil {
+		return fmt.Errorf("adding replacement firewall rule: %w", err)
+	}
+
+	if err := operator.Port(oldRule, firewall.OperationRemove); err != nil {
+		removeErr := fmt.Errorf("removing original firewall rule: %w", err)
+		if rollbackErr := operator.Port(newRule, firewall.OperationRemove); rollbackErr != nil {
+			return errors.Join(
+				removeErr,
+				fmt.Errorf("rolling back replacement firewall rule: %w", rollbackErr),
+			)
+		}
+		return removeErr
+	}
+
+	return nil
 }
 
 // ExportRules 导出端口规则为 xlsx
