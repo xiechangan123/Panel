@@ -142,17 +142,17 @@ func (_c *MigrationSourceRepo_Detail_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// Download provides a mock function with given fields: ctx, conn, remote, local
-func (_m *MigrationSourceRepo) Download(ctx context.Context, conn *request.ToolboxMigrationConnection, remote string, local string) error {
-	ret := _m.Called(ctx, conn, remote, local)
+// Download provides a mock function with given fields: ctx, conn, remote, local, progress
+func (_m *MigrationSourceRepo) Download(ctx context.Context, conn *request.ToolboxMigrationConnection, remote string, local string, progress types.MigrationProgress) error {
+	ret := _m.Called(ctx, conn, remote, local, progress)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Download")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *request.ToolboxMigrationConnection, string, string) error); ok {
-		r0 = rf(ctx, conn, remote, local)
+	if rf, ok := ret.Get(0).(func(context.Context, *request.ToolboxMigrationConnection, string, string, types.MigrationProgress) error); ok {
+		r0 = rf(ctx, conn, remote, local, progress)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -170,13 +170,14 @@ type MigrationSourceRepo_Download_Call struct {
 //   - conn *request.ToolboxMigrationConnection
 //   - remote string
 //   - local string
-func (_e *MigrationSourceRepo_Expecter) Download(ctx interface{}, conn interface{}, remote interface{}, local interface{}) *MigrationSourceRepo_Download_Call {
-	return &MigrationSourceRepo_Download_Call{Call: _e.mock.On("Download", ctx, conn, remote, local)}
+//   - progress types.MigrationProgress
+func (_e *MigrationSourceRepo_Expecter) Download(ctx interface{}, conn interface{}, remote interface{}, local interface{}, progress interface{}) *MigrationSourceRepo_Download_Call {
+	return &MigrationSourceRepo_Download_Call{Call: _e.mock.On("Download", ctx, conn, remote, local, progress)}
 }
 
-func (_c *MigrationSourceRepo_Download_Call) Run(run func(ctx context.Context, conn *request.ToolboxMigrationConnection, remote string, local string)) *MigrationSourceRepo_Download_Call {
+func (_c *MigrationSourceRepo_Download_Call) Run(run func(ctx context.Context, conn *request.ToolboxMigrationConnection, remote string, local string, progress types.MigrationProgress)) *MigrationSourceRepo_Download_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*request.ToolboxMigrationConnection), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(*request.ToolboxMigrationConnection), args[2].(string), args[3].(string), args[4].(types.MigrationProgress))
 	})
 	return _c
 }
@@ -186,7 +187,7 @@ func (_c *MigrationSourceRepo_Download_Call) Return(_a0 error) *MigrationSourceR
 	return _c
 }
 
-func (_c *MigrationSourceRepo_Download_Call) RunAndReturn(run func(context.Context, *request.ToolboxMigrationConnection, string, string) error) *MigrationSourceRepo_Download_Call {
+func (_c *MigrationSourceRepo_Download_Call) RunAndReturn(run func(context.Context, *request.ToolboxMigrationConnection, string, string, types.MigrationProgress) error) *MigrationSourceRepo_Download_Call {
 	_c.Call.Return(run)
 	return _c
 }
