@@ -325,11 +325,9 @@ msgstr "当前状态无法保存"
 #: src/views/monitor/ChannelModal.vue:70 src/views/monitor/SettingView.vue:35
 #: src/views/monitor/SettingView.vue:183 src/views/project/EditModal.vue:159
 #: src/views/setting/IndexView.vue:84 src/views/tamper/RuleModal.vue:76
-#: src/views/tamper/TamperView.vue:55
-#: src/views/toolbox/network/InterfaceView.vue:256
-#: src/views/toolbox/SystemView.vue:62 src/views/toolbox/SystemView.vue:76
-#: src/views/toolbox/SystemView.vue:90 src/views/toolbox/SystemView.vue:137
-#: src/views/website/EditModal.vue:197
+#: src/views/tamper/TamperView.vue:55 src/views/toolbox/SystemView.vue:62
+#: src/views/toolbox/SystemView.vue:76 src/views/toolbox/SystemView.vue:90
+#: src/views/toolbox/SystemView.vue:137 src/views/website/EditModal.vue:197
 msgid "Saved successfully"
 msgstr "保存成功"
 
@@ -549,7 +547,7 @@ msgstr "连接失败"
 #: src/views/toolbox/DiskView.vue:521 src/views/toolbox/DiskView.vue:526
 #: src/views/toolbox/DiskView.vue:547 src/views/toolbox/DiskView.vue:564
 #: src/views/toolbox/DiskView.vue:569 src/views/toolbox/DiskView.vue:591
-#: src/views/toolbox/network/InterfaceView.vue:249
+#: src/views/toolbox/network/InterfaceView.vue:292
 #: src/views/toolbox/ProcessView.vue:242 src/views/toolbox/ProcessView.vue:247
 msgid "Confirm"
 msgstr "确认"
@@ -593,8 +591,8 @@ msgstr "命令可能仍在运行。关闭窗口将终止命令。您确定吗？
 #: src/views/toolbox/DiskView.vue:548 src/views/toolbox/DiskView.vue:570
 #: src/views/toolbox/DiskView.vue:592 src/views/toolbox/MigrationView.vue:326
 #: src/views/toolbox/MigrationView.vue:396
-#: src/views/toolbox/network/InterfaceView.vue:250
-#: src/views/toolbox/network/InterfaceView.vue:359
+#: src/views/toolbox/network/InterfaceView.vue:293
+#: src/views/toolbox/network/InterfaceView.vue:425
 #: src/views/toolbox/ProcessView.vue:248 src/views/website/EditModal.vue:215
 #: src/views/website/EditModal.vue:2249
 msgid "Cancel"
@@ -1122,7 +1120,7 @@ msgstr "此文件有未保存的更改。刷新将丢弃它们。是否继续？
 #: src/views/log/SSHLog.vue:115 src/views/monitor/AlertView.vue:240
 #: src/views/ssh/SftpBrowser.vue:138 src/views/tamper/TamperView.vue:379
 #: src/views/toolbox/MigrationView.vue:539
-#: src/views/toolbox/network/InterfaceView.vue:280
+#: src/views/toolbox/network/InterfaceView.vue:346
 #: src/views/toolbox/NetworkView.vue:193 src/views/toolbox/PanelView.vue:100
 #: src/views/toolbox/PanelView.vue:233 src/views/toolbox/ProcessView.vue:335
 #: src/views/website/StatsView.vue:176
@@ -1843,7 +1841,7 @@ msgstr "在主页显示"
 #: src/views/setting/TokenModal.vue:57 src/views/tamper/TamperView.vue:141
 #: src/views/task/CronView.vue:119 src/views/task/TaskView.vue:69
 #: src/views/toolbox/DiskView.vue:298 src/views/toolbox/DiskView.vue:608
-#: src/views/toolbox/network/InterfaceView.vue:153
+#: src/views/toolbox/network/InterfaceView.vue:196
 #: src/views/toolbox/WebHookView.vue:135 src/views/website/ListView.vue:246
 msgid "Actions"
 msgstr "操作"
@@ -1998,7 +1996,7 @@ msgstr "部分运行"
 #: src/views/toolbox/disk/SmartView.vue:217
 #: src/views/toolbox/MigrationView.vue:140
 #: src/views/toolbox/MigrationView.vue:207
-#: src/views/toolbox/network/InterfaceView.vue:116
+#: src/views/toolbox/network/InterfaceView.vue:159
 #: src/views/toolbox/NetworkView.vue:99 src/views/toolbox/ProcessView.vue:134
 #: src/views/toolbox/ProcessView.vue:399
 #: src/views/website/stats/ErrorsTab.vue:95
@@ -2592,8 +2590,8 @@ msgid "Select cgroup driver"
 msgstr "选择 cgroup 驱动"
 
 #: src/views/apps/docker/IndexView.vue:314
-#: src/views/toolbox/network/InterfaceView.vue:37
-#: src/views/toolbox/network/InterfaceView.vue:141
+#: src/views/toolbox/network/InterfaceView.vue:80
+#: src/views/toolbox/network/InterfaceView.vue:184
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -2888,7 +2886,7 @@ msgstr ""
 #: src/views/monitor/SettingView.vue:104 src/views/project/ListView.vue:51
 #: src/views/toolbox/MigrationView.vue:124
 #: src/views/toolbox/MigrationView.vue:200
-#: src/views/toolbox/network/InterfaceView.vue:110
+#: src/views/toolbox/network/InterfaceView.vue:153
 #: src/views/toolbox/NetworkView.vue:64
 msgid "Type"
 msgstr "类型"
@@ -4657,7 +4655,7 @@ msgstr "注释"
 
 #: src/views/apps/rsync/IndexView.vue:85
 #: src/views/apps/supervisor/IndexView.vue:107
-#: src/views/toolbox/network/InterfaceView.vue:168
+#: src/views/toolbox/network/InterfaceView.vue:211
 msgid "Configure"
 msgstr "配置"
 
@@ -5425,7 +5423,7 @@ msgid "Upload Certificate"
 msgstr "上传证书"
 
 #: src/views/cert/ObtainModal.vue:31
-#: src/views/toolbox/network/InterfaceView.vue:21
+#: src/views/toolbox/network/InterfaceView.vue:64
 msgid "Automatic"
 msgstr "自动"
 
@@ -7068,7 +7066,7 @@ msgid "Forward"
 msgstr "前进"
 
 #: src/views/file/PathInput.vue:125
-#: src/views/toolbox/network/InterfaceView.vue:123
+#: src/views/toolbox/network/InterfaceView.vue:166
 msgid "Up"
 msgstr "上一级"
 
@@ -8250,7 +8248,7 @@ msgstr "仅记录"
 #: src/views/monitor/AlertView.vue:98 src/views/monitor/SettingView.vue:121
 #: src/views/project/EditModal.vue:72 src/views/setting/SettingBase.vue:187
 #: src/views/setting/SettingSafe.vue:246 src/views/tamper/TamperView.vue:136
-#: src/views/toolbox/network/InterfaceView.vue:23
+#: src/views/toolbox/network/InterfaceView.vue:66
 #: src/views/website/EditModal.vue:850 src/views/website/EditModal.vue:854
 #: src/views/website/EditModal.vue:1069
 msgid "Disabled"
@@ -10276,7 +10274,7 @@ msgid "Capacity"
 msgstr "容量"
 
 #: src/views/toolbox/disk/SmartView.vue:114
-#: src/views/toolbox/network/InterfaceView.vue:105
+#: src/views/toolbox/network/InterfaceView.vue:148
 msgid "Interface"
 msgstr "接口"
 
@@ -10869,7 +10867,7 @@ msgid "BaoTa → AcePanel"
 msgstr "AcePanel"
 
 #: src/views/toolbox/MigrationView.vue:60
-msgid "Pull websites, databases and projects from BaoTa 11.x."
+msgid "Pull websites, databases and projects from BT Panel."
 msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:65
@@ -10877,7 +10875,7 @@ msgid "1Panel → AcePanel"
 msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:66
-msgid "Pull websites and databases from 1Panel v2."
+msgid "Pull websites and databases from 1Panel."
 msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:75 src/views/website/CreateModal.vue:280
@@ -11116,186 +11114,219 @@ msgstr "总计：%{ count }"
 msgid "Skipped: %{ count }"
 msgstr "总计：%{ count }"
 
-#: src/views/toolbox/network/InterfaceView.vue:22
+#: src/views/toolbox/network/InterfaceView.vue:31
+msgid "Change was not confirmed in time and has been rolled back"
+msgstr ""
+
+#: src/views/toolbox/network/InterfaceView.vue:48
+#, fuzzy
+msgid "Change confirmed"
+msgstr "更改密码"
+
+#: src/views/toolbox/network/InterfaceView.vue:56
+msgid "Change rolled back"
+msgstr ""
+
+#: src/views/toolbox/network/InterfaceView.vue:65
 msgid "Manual"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:28
-#: src/views/toolbox/network/InterfaceView.vue:134
+#: src/views/toolbox/network/InterfaceView.vue:71
+#: src/views/toolbox/network/InterfaceView.vue:177
 msgid "IPv4"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:29
+#: src/views/toolbox/network/InterfaceView.vue:72
 #, fuzzy
 msgid "IPv4 Addresses"
 msgstr "IP 地址"
 
-#: src/views/toolbox/network/InterfaceView.vue:30
+#: src/views/toolbox/network/InterfaceView.vue:73
 #, fuzzy
 msgid "CIDR, e.g. 192.168.1.10/24"
 msgstr "IP 或 CIDR，例如 192.168.1.0/24"
 
-#: src/views/toolbox/network/InterfaceView.vue:31
+#: src/views/toolbox/network/InterfaceView.vue:74
 #, fuzzy
 msgid "e.g. 192.168.1.1"
 msgstr "例如 192.168.1.100:5000"
 
-#: src/views/toolbox/network/InterfaceView.vue:32
+#: src/views/toolbox/network/InterfaceView.vue:75
 #, fuzzy
 msgid "IPv4 DNS Servers"
 msgstr "DNS 服务器"
 
-#: src/views/toolbox/network/InterfaceView.vue:33
+#: src/views/toolbox/network/InterfaceView.vue:76
 #, fuzzy
 msgid "e.g. 1.1.1.1"
 msgstr "例如 11211"
 
-#: src/views/toolbox/network/InterfaceView.vue:38
+#: src/views/toolbox/network/InterfaceView.vue:81
 #, fuzzy
 msgid "IPv6 Addresses"
 msgstr "IP 地址"
 
-#: src/views/toolbox/network/InterfaceView.vue:39
+#: src/views/toolbox/network/InterfaceView.vue:82
 #, fuzzy
 msgid "CIDR, e.g. 2001:db8::10/64"
 msgstr "IP 或 CIDR，例如 192.168.1.0/24"
 
-#: src/views/toolbox/network/InterfaceView.vue:40
+#: src/views/toolbox/network/InterfaceView.vue:83
 #, fuzzy
 msgid "e.g. 2001:db8::1"
 msgstr "例如 200"
 
-#: src/views/toolbox/network/InterfaceView.vue:41
+#: src/views/toolbox/network/InterfaceView.vue:84
 #, fuzzy
 msgid "IPv6 DNS Servers"
 msgstr "DNS 服务器"
 
-#: src/views/toolbox/network/InterfaceView.vue:42
+#: src/views/toolbox/network/InterfaceView.vue:85
 msgid "e.g. 2606:4700:4700::1111"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:55
+#: src/views/toolbox/network/InterfaceView.vue:98
 #, fuzzy
 msgid "Unsupported"
 msgstr "赞助支持"
 
-#: src/views/toolbox/network/InterfaceView.vue:62
+#: src/views/toolbox/network/InterfaceView.vue:105
 #, fuzzy
 msgid "Ethernet"
 msgstr "其他"
 
-#: src/views/toolbox/network/InterfaceView.vue:64
+#: src/views/toolbox/network/InterfaceView.vue:107
 msgid "Wi-Fi"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:66
+#: src/views/toolbox/network/InterfaceView.vue:109
 msgid "Bond"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:68
+#: src/views/toolbox/network/InterfaceView.vue:111
 #, fuzzy
 msgid "Bridge"
 msgstr "桥接 IP"
 
-#: src/views/toolbox/network/InterfaceView.vue:70
+#: src/views/toolbox/network/InterfaceView.vue:113
 msgid "VLAN"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:79
+#: src/views/toolbox/network/InterfaceView.vue:122
 #, fuzzy
 msgid "Unsupported network manager"
 msgstr "不支持的数据库类型"
 
-#: src/views/toolbox/network/InterfaceView.vue:81
+#: src/views/toolbox/network/InterfaceView.vue:124
 #, fuzzy
 msgid "No active NetworkManager connection profile"
 msgstr "无网络连接"
 
-#: src/views/toolbox/network/InterfaceView.vue:83
+#: src/views/toolbox/network/InterfaceView.vue:126
 msgid "Failed to read NetworkManager connection profile"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:85
+#: src/views/toolbox/network/InterfaceView.vue:128
 msgid "No matching netplan interface definition"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:87
+#: src/views/toolbox/network/InterfaceView.vue:130
 msgid "Multiple netplan interface definitions match this interface"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:89
+#: src/views/toolbox/network/InterfaceView.vue:132
 msgid "No matching ifupdown interface definition"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:91
+#: src/views/toolbox/network/InterfaceView.vue:134
 msgid "The ifupdown mapping configuration cannot be edited safely"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:93
+#: src/views/toolbox/network/InterfaceView.vue:136
 msgid "The ifupdown interface is defined in multiple files"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:95
+#: src/views/toolbox/network/InterfaceView.vue:138
 msgid "The ifupdown inheritance configuration cannot be edited safely"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:97
+#: src/views/toolbox/network/InterfaceView.vue:140
 msgid "The ifupdown interface has interleaved definitions"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:123
+#: src/views/toolbox/network/InterfaceView.vue:166
 #, fuzzy
 msgid "Down"
 msgstr "下载"
 
-#: src/views/toolbox/network/InterfaceView.vue:128
+#: src/views/toolbox/network/InterfaceView.vue:171
 msgid "MAC"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:148
-#: src/views/toolbox/network/InterfaceView.vue:304
+#: src/views/toolbox/network/InterfaceView.vue:191
+#: src/views/toolbox/network/InterfaceView.vue:370
 msgid "MTU"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:245
+#: src/views/toolbox/network/InterfaceView.vue:288
 #, fuzzy
 msgid "Confirm Network Configuration Change"
 msgstr "网络配置"
 
-#: src/views/toolbox/network/InterfaceView.vue:246
+#: src/views/toolbox/network/InterfaceView.vue:289
 msgid ""
 "Changing the primary IP address, gateway, or automatic address assignment "
-"may interrupt the panel connection. Continue?"
+"may interrupt the panel connection. The change will be rolled back "
+"automatically unless you confirm it afterwards. Continue?"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:274
+#: src/views/toolbox/network/InterfaceView.vue:319
+msgid ""
+"Network configuration changed. Confirm within %{ seconds }s to keep it, "
+"otherwise it will be rolled back automatically."
+msgstr ""
+
+#: src/views/toolbox/network/InterfaceView.vue:323
+msgid "A network configuration change is waiting for confirmation."
+msgstr ""
+
+#: src/views/toolbox/network/InterfaceView.vue:328
+#, fuzzy
+msgid "Keep change"
+msgstr "保存更改"
+
+#: src/views/toolbox/network/InterfaceView.vue:331
+msgid "Roll back now"
+msgstr ""
+
+#: src/views/toolbox/network/InterfaceView.vue:340
 #, fuzzy
 msgid "Current network manager: %{ manager }"
 msgstr "当前 DNS 管理器：%{ manager }"
 
-#: src/views/toolbox/network/InterfaceView.vue:297
+#: src/views/toolbox/network/InterfaceView.vue:363
 #, fuzzy
 msgid "Configure Network Interface: %{ name }"
 msgstr "网络接口"
 
-#: src/views/toolbox/network/InterfaceView.vue:309
+#: src/views/toolbox/network/InterfaceView.vue:375
 msgid "0 follows the system default"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:318
+#: src/views/toolbox/network/InterfaceView.vue:384
 msgid "Address Assignment"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:323
+#: src/views/toolbox/network/InterfaceView.vue:389
 #, fuzzy
 msgid "Default Gateway"
 msgstr "默认路径"
 
-#: src/views/toolbox/network/InterfaceView.vue:341
+#: src/views/toolbox/network/InterfaceView.vue:407
 msgid "Accept Automatically Assigned DNS"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:361
+#: src/views/toolbox/network/InterfaceView.vue:427
 #, fuzzy
 msgid "Save and Apply"
 msgstr "保存所有"

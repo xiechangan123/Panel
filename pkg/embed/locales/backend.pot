@@ -2260,7 +2260,7 @@ msgstr ""
 msgid "failed to get log path for process %s: %v"
 msgstr ""
 
-#: internal/service/toolbox_network.go:45
+#: internal/service/toolbox_network.go:46
 msgid "failed to get network interfaces: %v"
 msgstr ""
 
@@ -2399,8 +2399,8 @@ msgstr ""
 #: internal/biz/cert.go:95
 #: internal/biz/setting.go:241
 #: internal/biz/setting.go:315
-#: internal/data/website.go:1243
-#: internal/data/website.go:859
+#: internal/data/website.go:1240
+#: internal/data/website.go:856
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -2419,8 +2419,8 @@ msgstr ""
 #: internal/biz/cert.go:98
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:318
-#: internal/data/website.go:1246
-#: internal/data/website.go:862
+#: internal/data/website.go:1243
+#: internal/data/website.go:859
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -2611,6 +2611,10 @@ msgstr ""
 msgid "failed to restart pgAdmin: %v"
 msgstr ""
 
+#: internal/service/toolbox_network.go:89
+msgid "failed to roll back network interface: %v"
+msgstr ""
+
 #: internal/service/ws.go:79
 msgid "failed to run command: %v"
 msgstr ""
@@ -2701,7 +2705,7 @@ msgstr ""
 msgid "failed to update firewall rule: %v"
 msgstr ""
 
-#: internal/service/toolbox_network.go:64
+#: internal/service/toolbox_network.go:65
 msgid "failed to update network interface: %v"
 msgstr ""
 
@@ -2811,10 +2815,6 @@ msgstr ""
 msgid "invalid logical volume size"
 msgstr ""
 
-#: internal/service/toolbox_network.go:61
-msgid "invalid network configuration: %v"
-msgstr ""
-
 #: internal/service/ws.go:281
 #: internal/service/ws.go:387
 #: internal/service/ws.go:554
@@ -2872,7 +2872,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1347
+#: internal/data/website.go:1344
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -3195,7 +3195,7 @@ msgstr ""
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:837
+#: internal/data/website.go:834
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -3564,13 +3564,13 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1444
-#: internal/data/website.go:1508
+#: internal/data/website.go:1441
+#: internal/data/website.go:1505
 msgid "unsupported web server: %s"
 msgstr ""
 
 #: internal/data/cert.go:276
-#: internal/data/website.go:1415
+#: internal/data/website.go:1412
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -3620,7 +3620,7 @@ msgstr ""
 msgid "website configuration import failed: %v"
 msgstr ""
 
-#: internal/data/website.go:844
+#: internal/data/website.go:841
 msgid "website directory does not exist"
 msgstr ""
 
