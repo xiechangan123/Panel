@@ -25,6 +25,54 @@ import (
 type onePanelAdapter struct {
 	t *gotext.Locale
 	*migrationClient
+
+	v1    bool // 来源面板为 1Panel v1
+	known bool // 大版本已确定，不再回落重试
+}
+
+// resolve 拼接接口路径，v1 与 v2 的前缀不同，备份接口在 v1 挂在 /settings 下
+func (a *onePanelAdapter) resolve(path string) string {
+	if !a.v1 {
+		return "/api/v2" + path
+	}
+	if rest, ok := strings.CutPrefix(path, "/backups"); ok {
+		return "/api/v1/settings/backup" + rest
+	}
+	return "/api/v1" + path
+}
+
+// tryVersions 执行请求，大版本未确定时先按 v2 再按 v1 尝试
+// 两版都失败则上报 v2 的错误，避免把 v1 的路由缺失当成真正的失败原因
+func (a *onePanelAdapter) tryVersions(run func() error) error {
+	err := run()
+	if err == nil {
+		a.known = true
+		return nil
+	}
+	if a.known {
+		return err
+	}
+
+	a.v1 = true
+	if retry := run(); retry == nil {
+		a.known = true
+		return nil
+	}
+	a.v1 = false
+
+	return err
+}
+
+// api 调用 1Panel 接口
+func (a *onePanelAdapter) api(ctx context.Context, method, path string, body map[string]any) (any, error) {
+	var data any
+	err := a.tryVersions(func() error {
+		var err error
+		data, err = a.call(ctx, method, a.resolve(path), body)
+		return err
+	})
+
+	return data, err
 }
 
 // newOnePanelClient 1Panel 以 JSON 提交，认证为请求头中的 md5("1panel" + 接口密钥 + 时间戳)
@@ -50,13 +98,12 @@ func newOnePanelClient(conn *request.ToolboxMigrationConnection) *migrationClien
 			}
 			return result.Data, nil
 		},
-		downloadPath:  "/api/v2/files/download",
 		downloadParam: "path",
 	}
 }
 
 func (a *onePanelAdapter) Probe(ctx context.Context) (*types.MigrationSource, error) {
-	data, err := a.call(ctx, http.MethodPost, "/api/v2/settings/search", nil)
+	data, err := a.api(ctx, http.MethodPost, "/settings/search", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +120,7 @@ func (a *onePanelAdapter) Items(ctx context.Context) ([]types.MigrationItem, err
 
 // websiteItems 列出静态、反代与 PHP 运行环境网站
 func (a *onePanelAdapter) websiteItems(ctx context.Context) ([]types.MigrationItem, error) {
-	data, err := a.call(ctx, http.MethodPost, "/api/v2/websites/search", map[string]any{
+	data, err := a.api(ctx, http.MethodPost, "/websites/search", map[string]any{
 		"page": 1, "pageSize": 10000, "name": "", "orderBy": "createdAt", "order": "descending",
 	})
 	if err != nil {
@@ -116,7 +163,7 @@ func (a *onePanelAdapter) websiteItems(ctx context.Context) ([]types.MigrationIt
 func (a *onePanelAdapter) databaseItems(ctx context.Context) []types.MigrationItem {
 	items := make([]types.MigrationItem, 0)
 	for _, subtype := range []string{"mysql", "mariadb", "postgresql"} {
-		data, err := a.call(ctx, http.MethodGet, "/api/v2/databases/db/list/"+subtype, nil)
+		data, err := a.api(ctx, http.MethodGet, "/databases/db/list/"+subtype, nil)
 		if err != nil {
 			continue
 		}
@@ -134,11 +181,11 @@ func (a *onePanelAdapter) databaseItems(ctx context.Context) []types.MigrationIt
 
 // databasesOf 列出指定数据库服务下的库
 func (a *onePanelAdapter) databasesOf(ctx context.Context, subtype, server, version string) []types.MigrationItem {
-	path := "/api/v2/databases/search"
+	path := "/databases/search"
 	if subtype == "postgresql" {
-		path = "/api/v2/databases/pg/search"
+		path = "/databases/pg/search"
 	}
-	data, err := a.call(ctx, http.MethodPost, path, map[string]any{
+	data, err := a.api(ctx, http.MethodPost, path, map[string]any{
 		"page": 1, "pageSize": 10000, "info": "", "database": server, "orderBy": "createdAt", "order": "descending",
 	})
 	if err != nil {
@@ -174,7 +221,7 @@ func (a *onePanelAdapter) Detail(ctx context.Context, item types.MigrationItem) 
 }
 
 func (a *onePanelAdapter) websiteDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationWebsite, error) {
-	data, err := a.call(ctx, http.MethodGet, "/api/v2/websites/"+item.SourceID, nil)
+	data, err := a.api(ctx, http.MethodGet, "/websites/"+item.SourceID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +256,7 @@ func (a *onePanelAdapter) websiteDetail(ctx context.Context, item types.Migratio
 
 // domains 读取站点域名与监听端口
 func (a *onePanelAdapter) domains(ctx context.Context, websiteID string) ([]string, []string) {
-	data, err := a.call(ctx, http.MethodGet, "/api/v2/websites/domains/"+websiteID, nil)
+	data, err := a.api(ctx, http.MethodGet, "/websites/domains/"+websiteID, nil)
 	if err != nil {
 		return nil, nil
 	}
@@ -228,7 +275,7 @@ func (a *onePanelAdapter) domains(ctx context.Context, websiteID string) ([]stri
 
 // proxies 读取站点反向代理规则
 func (a *onePanelAdapter) proxies(ctx context.Context, websiteID string) []types.MigrationProxy {
-	data, err := a.call(ctx, http.MethodPost, "/api/v2/websites/proxies", map[string]any{"id": cast.ToUint(websiteID)})
+	data, err := a.api(ctx, http.MethodPost, "/websites/proxies", map[string]any{"id": cast.ToUint(websiteID)})
 	if err != nil {
 		return nil
 	}
@@ -238,13 +285,9 @@ func (a *onePanelAdapter) proxies(ctx context.Context, websiteID string) []types
 		if pass == "" || !cast.ToBool(row["enable"]) {
 			continue
 		}
-		replaces := make(map[string]string)
-		for key, value := range cast.ToStringMapString(row["replaces"]) {
-			replaces[key] = value
-		}
 		proxies = append(proxies, types.MigrationProxy{
 			Location: lo.CoalesceOrEmpty(cast.ToString(row["match"]), "/"), Pass: pass,
-			Host: cast.ToString(row["proxyHost"]), Replaces: replaces,
+			Host: cast.ToString(row["proxyHost"]), Replaces: cast.ToStringMapString(row["replaces"]),
 		})
 	}
 	return proxies
@@ -252,7 +295,7 @@ func (a *onePanelAdapter) proxies(ctx context.Context, websiteID string) []types
 
 // redirects 读取站点重定向规则
 func (a *onePanelAdapter) redirects(ctx context.Context, name string) []types.MigrationRedirect {
-	data, err := a.call(ctx, http.MethodPost, "/api/v2/websites/redirect", map[string]any{"websiteName": name})
+	data, err := a.api(ctx, http.MethodPost, "/websites/redirect", map[string]any{"websiteName": name})
 	if err != nil {
 		return nil
 	}
@@ -283,7 +326,7 @@ func (a *onePanelAdapter) redirects(ctx context.Context, name string) []types.Mi
 
 // applySSL 读取证书与 HTTPS 配置
 func (a *onePanelAdapter) applySSL(ctx context.Context, websiteID string, website *types.MigrationWebsite) {
-	data, err := a.call(ctx, http.MethodGet, "/api/v2/websites/"+websiteID+"/https", nil)
+	data, err := a.api(ctx, http.MethodGet, "/websites/"+websiteID+"/https", nil)
 	if err != nil {
 		return
 	}
@@ -309,7 +352,7 @@ func (a *onePanelAdapter) runtimePHP(ctx context.Context, runtimeID string) uint
 	if runtimeID == "" || runtimeID == "0" {
 		return 0
 	}
-	data, err := a.call(ctx, http.MethodGet, "/api/v2/runtimes/"+runtimeID, nil)
+	data, err := a.api(ctx, http.MethodGet, "/runtimes/"+runtimeID, nil)
 	if err != nil {
 		return 0
 	}
@@ -317,11 +360,11 @@ func (a *onePanelAdapter) runtimePHP(ctx context.Context, runtimeID string) uint
 }
 
 func (a *onePanelAdapter) databaseDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationDatabase, error) {
-	path := "/api/v2/databases/search"
+	path := "/databases/search"
 	if item.Subtype == "postgresql" {
-		path = "/api/v2/databases/pg/search"
+		path = "/databases/pg/search"
 	}
-	data, err := a.call(ctx, http.MethodPost, path, map[string]any{
+	data, err := a.api(ctx, http.MethodPost, path, map[string]any{
 		"page": 1, "pageSize": 10000, "info": item.Name, "database": item.SourceGroup,
 		"orderBy": "createdAt", "order": "descending",
 	})
@@ -344,7 +387,7 @@ func (a *onePanelAdapter) SetRunning(ctx context.Context, item types.MigrationIt
 	if item.Type != "website" {
 		return nil
 	}
-	_, err := a.call(ctx, http.MethodPost, "/api/v2/websites/operate", map[string]any{
+	_, err := a.api(ctx, http.MethodPost, "/websites/operate", map[string]any{
 		"id": cast.ToUint(item.SourceID), "operate": lo.Ternary(running, "start", "stop"),
 	})
 	return err
@@ -363,10 +406,10 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 	}
 
 	// 备份接口同步执行，返回后最新的一条记录即本次备份
-	if _, err := a.call(ctx, http.MethodPost, "/api/v2/backups/backup", backup); err != nil {
+	if _, err := a.api(ctx, http.MethodPost, "/backups/backup", backup); err != nil {
 		return "", err
 	}
-	data, err := a.call(ctx, http.MethodPost, "/api/v2/backups/record/search", map[string]any{
+	data, err := a.api(ctx, http.MethodPost, "/backups/record/search", map[string]any{
 		"page": 1, "pageSize": 1, "type": backup["type"], "name": backup["name"], "detailName": backup["detailName"],
 	})
 	if err != nil {
@@ -378,8 +421,10 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 	}
 
 	// 备份记录只有目录与文件名，需换取来源服务器上的绝对路径
-	path, err := a.call(ctx, http.MethodPost, "/api/v2/backups/record/download", map[string]any{
-		"downloadAccountID": 1, "fileDir": records[0]["fileDir"], "fileName": records[0]["fileName"],
+	// v1 用 source 指定备份账号，v2 改为 downloadAccountID，两者都带上即可兼容
+	path, err := a.api(ctx, http.MethodPost, "/backups/record/download", map[string]any{
+		"source": "LOCAL", "downloadAccountID": 1,
+		"fileDir": records[0]["fileDir"], "fileName": records[0]["fileName"],
 	})
 	if err != nil {
 		return "", err
@@ -388,5 +433,8 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 }
 
 func (a *onePanelAdapter) Download(ctx context.Context, remote, local string) error {
-	return a.download(ctx, remote, local)
+	return a.tryVersions(func() error {
+		a.downloadPath = a.resolve("/files/download")
+		return a.download(ctx, remote, local)
+	})
 }

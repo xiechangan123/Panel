@@ -319,9 +319,7 @@ const handleStart = () => {
 
   window.$dialog.warning({
     title: $gettext('Start migration'),
-    content: $gettext(
-      'AcePanel only creates new resources on the target and never overwrites, merges or rolls back existing ones.'
-    ),
+    content: $gettext('Are you sure you want to start migrating the selected resources?'),
     positiveText: $gettext('Start migration'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
@@ -502,11 +500,9 @@ watch(
           {{
             isPush
               ? $gettext(
-                  'The target AcePanel must have the same database servers and runtimes installed, and its API must allow this server address.'
+                  'The target API must allow this server address. Missing database servers and runtimes are reported in the next step.'
                 )
-              : $gettext(
-                  'The source panel API must be enabled and this server address must be allowed. Websites, databases and projects are migrated.'
-                )
+              : $gettext('The source panel API must be enabled and allow this server address.')
           }}
         </n-alert>
 
@@ -542,7 +538,7 @@ watch(
         />
         <n-flex align="center" :size="24">
           <n-checkbox v-model:checked="skipBlocked">
-            {{ $gettext('Skip blocked resources instead of failing') }}
+            {{ $gettext('Skip blocked resources during migration') }}
           </n-checkbox>
           <n-checkbox v-model:checked="stopSource">
             {{ $gettext('Stop running services while backups are created') }}

@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"os"
@@ -33,8 +34,10 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 		switch item.Type {
 		case "website":
 			item.TargetPath = filepath.Join(websitePath, item.TargetName, "public")
-			if !uc.resourceName.MatchString(item.TargetName) || item.TargetName == "default" || item.TargetName == "phpmyadmin" {
-				item.Blockers = append(item.Blockers, uc.t.Get("the resource name is not supported by AcePanel"))
+			if item.TargetName == "default" || item.TargetName == "phpmyadmin" {
+				item.Blockers = append(item.Blockers, uc.t.Get("the name is reserved by AcePanel"))
+			} else if !uc.resourceName.MatchString(item.TargetName) {
+				item.Blockers = append(item.Blockers, uc.t.Get("the name contains characters not allowed by AcePanel"))
 			}
 			if _, err := uc.website.GetByName(item.TargetName); err == nil {
 				item.Blockers = append(item.Blockers, uc.t.Get("a website with the same name already exists on the target server"))
@@ -49,7 +52,7 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 				nameRegex = uc.mysqlName
 			}
 			if !nameRegex.MatchString(item.TargetName) {
-				item.Blockers = append(item.Blockers, uc.t.Get("the resource name is not supported by AcePanel"))
+				item.Blockers = append(item.Blockers, uc.t.Get("the name contains characters not allowed by AcePanel"))
 			}
 			index := slices.IndexFunc(servers, func(candidate *DatabaseServer) bool { return candidate.Name == server })
 			if index < 0 {
@@ -64,7 +67,7 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 		case "project":
 			item.TargetPath = filepath.Join(projectPath, item.TargetName)
 			if !uc.resourceName.MatchString(item.TargetName) {
-				item.Blockers = append(item.Blockers, uc.t.Get("the resource name is not supported by AcePanel"))
+				item.Blockers = append(item.Blockers, uc.t.Get("the name contains characters not allowed by AcePanel"))
 			}
 			if slices.ContainsFunc(projects, func(project *types.ProjectDetail) bool { return project.Name == item.TargetName }) {
 				item.Blockers = append(item.Blockers, uc.t.Get("a project with the same name already exists on the target server"))
@@ -114,7 +117,7 @@ func (uc *ToolboxMigrationUsecase) importDatabase(ctx context.Context, detail *t
 		))
 	}
 	if database.Type == "mariadb" {
-		warnings = append(warnings, uc.t.Get("the database is imported across MariaDB and MySQL; verify application compatibility after migration"))
+		warnings = append(warnings, uc.t.Get("the source is MariaDB and the target is MySQL"))
 	}
 	if err = uc.database.Create(ctx, create); err != nil {
 		return warnings, err
@@ -154,11 +157,15 @@ func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *ty
 		Type: website.Type, Name: detail.Item.TargetName, Listens: listens,
 		Domains: domains, Path: targetPath, PHP: website.PHP,
 	}
+	var warnings []string
 	switch website.Type {
 	case "php":
-		if !slices.Contains(uc.environment.InstalledSlugs("php"), strconv.FormatUint(uint64(website.PHP), 10)) {
-			return nil, errors.New(uc.t.Get("the target server does not have PHP %d installed", website.PHP))
+		// 目标缺少来源版本时降级，一个都没装则建成不使用 PHP 的网站
+		php, warning := uc.resolvePHP(website.PHP)
+		if warning != "" {
+			warnings = append(warnings, warning)
 		}
+		website.PHP, create.PHP = php, php
 	case "proxy":
 		if len(website.Proxies) == 0 || website.Proxies[0].Pass == "" {
 			return nil, errors.New(uc.t.Get("the source reverse proxy target could not be determined"))
@@ -205,7 +212,38 @@ func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *ty
 	if !website.Enabled {
 		_ = uc.website.UpdateStatus(created.ID, false)
 	}
-	return nil, nil
+	return warnings, nil
+}
+
+// resolvePHP 目标缺少来源所用的 PHP 版本时退到最接近的已装版本，一个都没装则不启用 PHP
+func (uc *ToolboxMigrationUsecase) resolvePHP(version uint) (uint, string) {
+	installed := lo.FilterMap(uc.environment.InstalledSlugs("php"), func(slug string, _ int) (uint, bool) {
+		return cast.ToUint(slug), cast.ToUint(slug) > 0
+	})
+	switch {
+	case len(installed) == 0:
+		return 0, uc.t.Get("the target server has no PHP installed, the website was created without PHP")
+	case slices.Contains(installed, version):
+		return version, ""
+	}
+
+	// 版本号相差最小的优先，相差一样时取更高的版本
+	closest := slices.MinFunc(installed, func(a, b uint) int {
+		if diff := cmp.Compare(uc.phpDistance(a, version), uc.phpDistance(b, version)); diff != 0 {
+			return diff
+		}
+		return cmp.Compare(b, a)
+	})
+
+	return closest, uc.t.Get("the source uses PHP %d, the target does not have it installed, PHP %d was used instead", version, closest)
+}
+
+func (uc *ToolboxMigrationUsecase) phpDistance(a, b uint) uint {
+	if a > b {
+		return a - b
+	}
+
+	return b - a
 }
 
 // websiteListens 还原监听端口，SSL 端口带 ssl 参数
@@ -274,7 +312,7 @@ func (uc *ToolboxMigrationUsecase) importProject(ctx context.Context, detail *ty
 			"the source Python virtual environment was not migrated; create an environment, install dependencies, and start the project manually",
 		)), nil
 	case types.ProjectTypeGeneral:
-		return append(warnings, uc.t.Get("the general project was restored but left stopped for manual verification")), nil
+		return append(warnings, uc.t.Get("the project was not started; start it manually")), nil
 	}
 	if project.Enabled {
 		_, _ = shell.Exec("systemctl enable " + strconv.Quote(detail.Item.TargetName))

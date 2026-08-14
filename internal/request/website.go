@@ -30,7 +30,7 @@ type WebsiteCreate struct {
 	DBPassword string   `form:"db_password" json:"db_password" validate:"required_if:DB,true"`
 	Remark     string   `form:"remark" json:"remark"`
 
-	PHP   uint   `form:"php" json:"php" validate:"required_if:Type,php"`       // 仅 PHP 网站需要
+	PHP   uint   `form:"php" json:"php"`                                       // 仅 PHP 网站需要，0 为不使用 PHP
 	Proxy string `form:"proxy" json:"proxy" validate:"required_if:Type,proxy"` // 仅反向代理网站需要
 }
 
@@ -84,7 +84,7 @@ type WebsiteUpdate struct {
 type WebsiteSwitchType struct {
 	ID    uint   `form:"id" json:"id" uri:"id" validate:"required && exists:websites,id"`
 	Type  string `form:"type" json:"type" validate:"required && in:proxy,static,php"`
-	PHP   uint   `form:"php" json:"php" validate:"required_if:Type,php"`
+	PHP   uint   `form:"php" json:"php"` // 0 为不使用 PHP
 	Proxy string `form:"proxy" json:"proxy" validate:"required_if:Type,proxy"`
 }
 

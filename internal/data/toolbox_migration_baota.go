@@ -44,16 +44,12 @@ func newBaotaClient(conn *request.ToolboxMigrationConnection) *migrationClient {
 	return &migrationClient{
 		url:  conn.URL,
 		form: true,
+		// 认证一律走 query，宝塔 GET/POST 都从 query 取参，而 resty 此时尚未确定请求方法
 		sign: func(req *resty.Request) {
 			timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 			secret := md5.Sum([]byte(conn.APIKey))
 			token := md5.Sum([]byte(timestamp + hex.EncodeToString(secret[:])))
-			values := map[string]string{"request_time": timestamp, "request_token": hex.EncodeToString(token[:])}
-			if req.Method == http.MethodGet {
-				req.SetQueryParams(values)
-			} else {
-				req.SetFormData(values)
-			}
+			req.SetQueryParams(map[string]string{"request_time": timestamp, "request_token": hex.EncodeToString(token[:])})
 		},
 		// 宝塔失败响应为 {status: false, msg: "..."}，部分接口的业务数据也含 status 字段，需同时判断 msg
 		unwrap: func(body []byte) (any, error) {
@@ -216,7 +212,11 @@ func (a *baotaAdapter) projectVersion(config map[string]any, module string) stri
 	case "python":
 		return lo.CoalesceOrEmpty(cast.ToString(config["version"]), cast.ToString(config["python_bin"]))
 	case "java":
-		return lo.CoalesceOrEmpty(cast.ToString(config["project_jdk"]), cast.ToString(config["jdk_path"]))
+		// 取 JDK 目录名而非完整路径，避免路径中的其他数字被当成版本号
+		if home := cast.ToString(config["jdk_path"]); home != "" {
+			return filepath.Base(home)
+		}
+		return filepath.Base(filepath.Dir(filepath.Dir(cast.ToString(config["project_jdk"]))))
 	case "net":
 		return cast.ToString(config["dotnet_version"])
 	default:
@@ -247,13 +247,20 @@ func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationIt
 		Index: []string{"index.php", "index.html", "index.htm"}, Enabled: item.Status == "running",
 	}
 
-	// 备注与到期时间来自站点表
+	// 备注与到期时间来自站点表，停止的站点还会把原运行目录存进 project_config
+	var stoppedRunPath string
 	if data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
 		"table": "sites", "p": 1, "limit": 10000, "search": item.Name,
 	}); err == nil {
 		if row, ok := lo.Find(a.rows(data), func(row map[string]any) bool { return cast.ToString(row["id"]) == item.SourceID }); ok {
 			website.Remark = cast.ToString(row["ps"])
 			website.ExpireAt = a.parseDate(cast.ToString(row["edate"]))
+			var config struct {
+				PHPRunPath string `json:"php_run_path"`
+			}
+			if json.Unmarshal([]byte(cast.ToString(row["project_config"])), &config) == nil {
+				stoppedRunPath = config.PHPRunPath
+			}
 		}
 	}
 
@@ -274,7 +281,15 @@ func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationIt
 	}); err == nil {
 		info := cast.ToStringMap(data)
 		website.OpenBasedir = cast.ToBool(info["userini"])
-		if runPath := cast.ToString(cast.ToStringMap(info["runPath"])["runPath"]); runPath != "" && runPath != "/" {
+		// 站点停止时宝塔把根目录改指向 /www/server/stop，此时以 project_config 中保存的原运行目录为准
+		run := cast.ToStringMap(info["runPath"])
+		runPath := cast.ToString(run["runPath"])
+		if stoppedRunPath != "" {
+			runPath = stoppedRunPath
+		} else if !slices.Contains(cast.ToStringSlice(run["dirs"]), runPath) {
+			runPath = "/"
+		}
+		if runPath != "" && runPath != "/" {
 			website.Root = filepath.Join(website.Path, strings.TrimPrefix(runPath, "/"))
 		}
 	}
@@ -286,7 +301,7 @@ func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationIt
 		}
 	}
 	website.Rewrite = a.rewrite(ctx, item)
-	website.Proxies = a.proxies(ctx, item.Name)
+	website.Proxies = a.proxies(ctx, item)
 	if website.Type == "static" && slices.ContainsFunc(website.Proxies, func(proxy types.MigrationProxy) bool { return proxy.Location == "/" }) {
 		website.Type = "proxy"
 	}
@@ -341,8 +356,13 @@ func (a *baotaAdapter) rewrite(ctx context.Context, item types.MigrationItem) st
 }
 
 // proxies 读取站点反向代理规则
-func (a *baotaAdapter) proxies(ctx context.Context, name string) []types.MigrationProxy {
-	data, err := a.call(ctx, http.MethodPost, "/site?action=GetProxyList", map[string]any{"sitename": name})
+// 反代站点的规则由独立的代理模块管理，站点接口读不到，PHP 与静态站点仍走站点接口
+func (a *baotaAdapter) proxies(ctx context.Context, item types.MigrationItem) []types.MigrationProxy {
+	if item.Subtype == "proxy" {
+		return a.moduleProxies(ctx, item.Name)
+	}
+
+	data, err := a.call(ctx, http.MethodPost, "/site?action=GetProxyList", map[string]any{"sitename": item.Name})
 	if err != nil {
 		return nil
 	}
@@ -360,6 +380,31 @@ func (a *baotaAdapter) proxies(ctx context.Context, name string) []types.Migrati
 		proxies = append(proxies, types.MigrationProxy{
 			Location: lo.CoalesceOrEmpty(cast.ToString(row["proxydir"]), "/"),
 			Pass:     pass, Host: cast.ToString(row["todomain"]), Replaces: replaces,
+		})
+	}
+	return proxies
+}
+
+// moduleProxies 读取反代站点在代理模块中的规则
+func (a *baotaAdapter) moduleProxies(ctx context.Context, name string) []types.MigrationProxy {
+	data, err := a.call(ctx, http.MethodPost, "/mod/proxy/com/get_proxy_list", map[string]any{"site_name": name})
+	if err != nil {
+		return nil
+	}
+	proxies := make([]types.MigrationProxy, 0)
+	for _, row := range a.rows(data) {
+		// unix 套接字形态的代理目标 AcePanel 不支持
+		pass := cast.ToString(row["proxy_pass"])
+		if pass == "" || strings.HasPrefix(pass, "http://unix:") {
+			continue
+		}
+		replaces := lo.SliceToMap(a.rows(cast.ToStringMap(row["sub_filter"])["sub_filter_str"]), func(filter map[string]any) (string, string) {
+			return cast.ToString(filter["oldstr"]), cast.ToString(filter["newstr"])
+		})
+		delete(replaces, "")
+		proxies = append(proxies, types.MigrationProxy{
+			Location: lo.CoalesceOrEmpty(cast.ToString(row["proxy_path"]), "/"),
+			Pass:     pass, Host: cast.ToString(row["proxy_host"]), Replaces: replaces,
 		})
 	}
 	return proxies
@@ -461,9 +506,11 @@ func (a *baotaAdapter) projectDetail(ctx context.Context, item types.MigrationIt
 	project := &types.MigrationProject{
 		Type: types.ProjectType(item.Subtype), Version: item.Version, Path: path, WorkingDir: path,
 		ExecStart: a.projectExecStart(ctx, config, item.SourceGroup, path),
-		User:      lo.CoalesceOrEmpty(cast.ToString(config["run_user"]), "www"),
-		Port:      cast.ToUint(config["port"]), Running: item.Status == "running",
-		Enabled: cast.ToBool(config[lo.Ternary(item.SourceGroup == "python", "auto_run", "is_power_on")]),
+		// 运行用户与开机自启的字段名逐个模块不同：Python 用 user/auto_run，Java 用 auth，其余用 run_user/is_power_on
+		User:    lo.CoalesceOrEmpty(cast.ToString(config["run_user"]), cast.ToString(config["user"]), "www"),
+		Port:    cast.ToUint(config["port"]),
+		Running: item.Status == "running",
+		Enabled: cast.ToBool(lo.CoalesceOrEmpty(config["is_power_on"], config["auto_run"], config["auth"])),
 	}
 	project.Domains, project.Listens = a.domains(ctx, item.SourceID)
 	project.Environments = a.projectEnvironments(ctx, config)
@@ -485,9 +532,8 @@ func (a *baotaAdapter) projectRoot(row, config map[string]any, module string) st
 		return lo.CoalesceOrEmpty(cast.ToString(config["project_path"]), path)
 	case "java":
 		return lo.CoalesceOrEmpty(cast.ToString(config["jar_path"]), filepath.Dir(cast.ToString(config["project_jar"])), path)
-	case "other":
-		return lo.CoalesceOrEmpty(filepath.Dir(cast.ToString(config["project_exe"])), path)
 	default:
+		// 其他项目的 project_exe 就是项目目录，与 path 同值
 		return path
 	}
 }
@@ -499,7 +545,7 @@ func (a *baotaAdapter) projectExecStart(ctx context.Context, config map[string]a
 	}
 	switch module {
 	case "nodejs":
-		return a.nodejsExecStart(ctx, cast.ToString(config["project_script"]), path)
+		return a.nodejsExecStart(ctx, config, path)
 	case "python":
 		return a.pythonExecStart(config, path)
 	default:
@@ -507,8 +553,19 @@ func (a *baotaAdapter) projectExecStart(ctx context.Context, config map[string]a
 	}
 }
 
-// nodejsExecStart Node.js 项目的启动脚本可能是 package.json 中的 script 名或入口文件
-func (a *baotaAdapter) nodejsExecStart(ctx context.Context, script, path string) string {
+// nodejsExecStart 还原 Node.js 项目启动命令
+// 传统与 PM2 模式下 project_script 存的是宝塔生成的整段 shell 脚本，只有入口文件字段可用
+// NodeJS 模式下 project_script 才是 package.json 里的 script 名或入口文件路径
+func (a *baotaAdapter) nodejsExecStart(ctx context.Context, config map[string]any, path string) string {
+	if file := cast.ToString(config["project_file"]); file != "" {
+		return strings.TrimSpace("node " + file + " " + cast.ToString(config["project_args"]))
+	}
+
+	script := cast.ToString(config["project_script"])
+	// AcePanel 用 systemd 托管项目，pm2 的进程管理由 systemd 承担，只保留入口
+	if fields := strings.Fields(script); len(fields) > 2 && fields[0] == "pm2" && fields[1] == "start" {
+		script = strings.Join(fields[2:], " ")
+	}
 	if script == "" {
 		return ""
 	}
@@ -530,24 +587,43 @@ func (a *baotaAdapter) nodejsExecStart(ctx context.Context, script, path string)
 }
 
 // pythonExecStart Python 项目按部署方式生成启动命令
+// 不复用宝塔生成的 gunicorn_conf.py 与 uwsgi.ini：两者都写死了宝塔的日志目录，
+// uwsgi.ini 还带 daemonize，进程转后台会被 systemd 判定为启动失败，故按配置直接拼出完整命令
 func (a *baotaAdapter) pythonExecStart(config map[string]any, path string) string {
 	entry := cast.ToString(config["rfile"])
+	listen := "0.0.0.0:" + cast.ToString(config["port"])
+	processes := cast.ToString(lo.CoalesceOrEmpty(config["processes"], 4))
+	threads := cast.ToString(lo.CoalesceOrEmpty(config["threads"], 2))
+
 	switch strings.ToLower(cast.ToString(config["stype"])) {
 	case "python":
 		return strings.TrimSpace("python -u " + entry + " " + cast.ToString(config["parm"]))
 	case "uwsgi":
-		return "uwsgi --ini " + filepath.Join(path, "uwsgi.ini")
+		return strings.Join([]string{
+			"uwsgi --master --http", listen, "--chdir", path, "--wsgi-file", entry,
+			"--callable", cast.ToString(config["call_app"]), "--processes", processes, "--threads", threads,
+		}, " ")
 	case "gunicorn":
 		module := strings.ReplaceAll(strings.TrimSuffix(strings.TrimPrefix(entry, path+"/"), ".py"), "/", ".")
-		return "gunicorn -c " + filepath.Join(path, "gunicorn_conf.py") + " " + module + ":" + cast.ToString(config["call_app"])
+		return strings.Join([]string{
+			"python -m gunicorn -b", listen, "-w", processes, "--threads", threads,
+			module + ":" + cast.ToString(config["call_app"]),
+		}, " ")
 	default:
 		return ""
 	}
 }
 
 // projectEnvironments 合并项目配置与环境变量文件中的变量
+// 字段名逐个模块不同：Python 与 Go 是 {key,value} 列表 env_list，Node.js 是 env，其他项目是 environment
 func (a *baotaAdapter) projectEnvironments(ctx context.Context, config map[string]any) []types.KV {
-	values := a.environments(cast.ToString(config["env_list"]))
+	values := lo.FilterMap(a.rows(config["env_list"]), func(row map[string]any, _ int) (types.KV, bool) {
+		key := cast.ToString(row["key"])
+		return types.KV{Key: key, Value: cast.ToString(row["value"])}, key != ""
+	})
+	for _, key := range []string{"env", "environment"} {
+		values = append(values, a.environments(cast.ToString(config[key]))...)
+	}
 	if envFile := cast.ToString(config["env_file"]); envFile != "" {
 		if content, err := a.fileContent(ctx, envFile); err == nil {
 			values = append(values, a.environments(content)...)

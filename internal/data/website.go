@@ -1515,8 +1515,13 @@ func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]
 
 // enableStat 写入 nginx 访问统计配置（log_format + syslog access_log）
 func (r *websiteRepo) enableStat(vhost webservertypes.Vhost, name string) error {
-	// nginx syslog tag 和 log_format 名只允许字母数字和下划线
-	safeName := strings.ReplaceAll(name, "-", "_")
+	// nginx syslog tag 和 log_format 名只允许字母数字和下划线，网站名允许点号与连字符
+	safeName := strings.Map(func(char rune) rune {
+		if char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' || char >= '0' && char <= '9' {
+			return char
+		}
+		return '_'
+	}, name)
 	formatConf := fmt.Sprintf(`log_format ace_stat_%s escape=json
   '{"site":"%s",'
   '"uri":"$request_uri",'

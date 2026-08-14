@@ -200,17 +200,18 @@ func (c *migrationClient) rows(value any) []map[string]any {
 	})
 }
 
-// phpVersion 把 8.3 之类的版本号转为面板使用的 83
+// phpVersion 把 8.3、php-8.3.2、83 之类的版本号统一转为面板使用的 83
+// 宝塔多数接口直接返回 83 这种连写形式，1Panel 则是带点的完整版本号
 func (c *migrationClient) phpVersion(version string) uint {
-	parts := strings.FieldsFunc(strings.TrimPrefix(strings.ToLower(strings.TrimSpace(version)), "php"), func(char rune) bool {
-		return char == '.' || char == '-' || char == '_'
-	})
-	if len(parts) < 2 {
+	digits := strings.Map(func(char rune) rune {
+		if char >= '0' && char <= '9' {
+			return char
+		}
+		return -1
+	}, version)
+	if len(digits) < 2 {
 		return 0
 	}
-	major, minor := cast.ToUint(parts[0]), cast.ToUint(parts[1])
-	if major == 0 {
-		return 0
-	}
-	return major*10 + minor
+	// 主次版本各占一位，多余的修订号丢弃
+	return cast.ToUint(digits[:2])
 }
