@@ -623,7 +623,7 @@ msgstr ""
 #: src/views/toolbox/DiskView.vue:564
 #: src/views/toolbox/DiskView.vue:569
 #: src/views/toolbox/DiskView.vue:591
-#: src/views/toolbox/network/InterfaceView.vue:292
+#: src/views/toolbox/network/InterfaceView.vue:296
 #: src/views/toolbox/ProcessView.vue:242
 #: src/views/toolbox/ProcessView.vue:247
 msgid "Confirm"
@@ -681,8 +681,8 @@ msgstr ""
 #: src/views/toolbox/DiskView.vue:592
 #: src/views/toolbox/MigrationView.vue:326
 #: src/views/toolbox/MigrationView.vue:396
-#: src/views/toolbox/network/InterfaceView.vue:293
-#: src/views/toolbox/network/InterfaceView.vue:425
+#: src/views/toolbox/network/InterfaceView.vue:297
+#: src/views/toolbox/network/InterfaceView.vue:429
 #: src/views/toolbox/ProcessView.vue:248
 #: src/views/website/EditModal.vue:215
 #: src/views/website/EditModal.vue:2249
@@ -1248,8 +1248,8 @@ msgstr ""
 #: src/views/monitor/AlertView.vue:240
 #: src/views/ssh/SftpBrowser.vue:138
 #: src/views/tamper/TamperView.vue:379
-#: src/views/toolbox/MigrationView.vue:539
-#: src/views/toolbox/network/InterfaceView.vue:346
+#: src/views/toolbox/MigrationView.vue:529
+#: src/views/toolbox/network/InterfaceView.vue:350
 #: src/views/toolbox/NetworkView.vue:193
 #: src/views/toolbox/PanelView.vue:100
 #: src/views/toolbox/PanelView.vue:233
@@ -2077,7 +2077,7 @@ msgstr ""
 #: src/views/task/TaskView.vue:69
 #: src/views/toolbox/DiskView.vue:298
 #: src/views/toolbox/DiskView.vue:608
-#: src/views/toolbox/network/InterfaceView.vue:196
+#: src/views/toolbox/network/InterfaceView.vue:197
 #: src/views/toolbox/WebHookView.vue:135
 #: src/views/website/ListView.vue:246
 msgid "Actions"
@@ -2250,7 +2250,7 @@ msgstr ""
 #: src/views/toolbox/disk/SmartView.vue:217
 #: src/views/toolbox/MigrationView.vue:140
 #: src/views/toolbox/MigrationView.vue:207
-#: src/views/toolbox/network/InterfaceView.vue:159
+#: src/views/toolbox/network/InterfaceView.vue:160
 #: src/views/toolbox/NetworkView.vue:99
 #: src/views/toolbox/ProcessView.vue:134
 #: src/views/toolbox/ProcessView.vue:399
@@ -2860,8 +2860,8 @@ msgid "Select cgroup driver"
 msgstr ""
 
 #: src/views/apps/docker/IndexView.vue:314
-#: src/views/toolbox/network/InterfaceView.vue:80
-#: src/views/toolbox/network/InterfaceView.vue:184
+#: src/views/toolbox/network/InterfaceView.vue:81
+#: src/views/toolbox/network/InterfaceView.vue:185
 msgid "IPv6"
 msgstr ""
 
@@ -3145,7 +3145,7 @@ msgstr ""
 #: src/views/project/ListView.vue:51
 #: src/views/toolbox/MigrationView.vue:124
 #: src/views/toolbox/MigrationView.vue:200
-#: src/views/toolbox/network/InterfaceView.vue:153
+#: src/views/toolbox/network/InterfaceView.vue:154
 #: src/views/toolbox/NetworkView.vue:64
 msgid "Type"
 msgstr ""
@@ -4908,7 +4908,7 @@ msgstr ""
 
 #: src/views/apps/rsync/IndexView.vue:85
 #: src/views/apps/supervisor/IndexView.vue:107
-#: src/views/toolbox/network/InterfaceView.vue:211
+#: src/views/toolbox/network/InterfaceView.vue:212
 msgid "Configure"
 msgstr ""
 
@@ -5755,7 +5755,7 @@ msgid "Upload Certificate"
 msgstr ""
 
 #: src/views/cert/ObtainModal.vue:31
-#: src/views/toolbox/network/InterfaceView.vue:64
+#: src/views/toolbox/network/InterfaceView.vue:65
 msgid "Automatic"
 msgstr ""
 
@@ -7381,7 +7381,7 @@ msgstr ""
 
 #: src/views/file/PathInput.vue:109
 #: src/views/home/UpdateView.vue:165
-#: src/views/toolbox/MigrationView.vue:562
+#: src/views/toolbox/MigrationView.vue:552
 msgid "Back"
 msgstr ""
 
@@ -7390,7 +7390,7 @@ msgid "Forward"
 msgstr ""
 
 #: src/views/file/PathInput.vue:125
-#: src/views/toolbox/network/InterfaceView.vue:166
+#: src/views/toolbox/network/InterfaceView.vue:167
 msgid "Up"
 msgstr ""
 
@@ -8638,7 +8638,7 @@ msgstr ""
 #: src/views/setting/SettingBase.vue:187
 #: src/views/setting/SettingSafe.vue:246
 #: src/views/tamper/TamperView.vue:136
-#: src/views/toolbox/network/InterfaceView.vue:66
+#: src/views/toolbox/network/InterfaceView.vue:67
 #: src/views/website/EditModal.vue:850
 #: src/views/website/EditModal.vue:854
 #: src/views/website/EditModal.vue:1069
@@ -10658,7 +10658,7 @@ msgid "Capacity"
 msgstr ""
 
 #: src/views/toolbox/disk/SmartView.vue:114
-#: src/views/toolbox/network/InterfaceView.vue:148
+#: src/views/toolbox/network/InterfaceView.vue:149
 msgid "Interface"
 msgstr ""
 
@@ -11234,27 +11234,27 @@ msgstr ""
 msgid "Clean"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:53
+#: src/views/toolbox/MigrationView.vue:51
 msgid "AcePanel → AcePanel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:54
+#: src/views/toolbox/MigrationView.vue:52
 msgid "Push websites, databases, users and projects to another AcePanel."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:59
+#: src/views/toolbox/MigrationView.vue:56
 msgid "BaoTa → AcePanel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:60
+#: src/views/toolbox/MigrationView.vue:57
 msgid "Pull websites, databases and projects from BT Panel."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:65
+#: src/views/toolbox/MigrationView.vue:61
 msgid "1Panel → AcePanel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:66
+#: src/views/toolbox/MigrationView.vue:62
 msgid "Pull websites and databases from 1Panel."
 msgstr ""
 
@@ -11351,7 +11351,7 @@ msgid "Failed to subscribe to migration progress."
 msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:393
-#: src/views/toolbox/MigrationView.vue:578
+#: src/views/toolbox/MigrationView.vue:568
 msgid "Start a new migration"
 msgstr ""
 
@@ -11364,12 +11364,12 @@ msgid "Connect"
 msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:451
-#: src/views/toolbox/MigrationView.vue:531
+#: src/views/toolbox/MigrationView.vue:521
 msgid "Select resources"
 msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:452
-#: src/views/toolbox/MigrationView.vue:570
+#: src/views/toolbox/MigrationView.vue:560
 msgid "Migrating"
 msgstr ""
 
@@ -11377,273 +11377,273 @@ msgstr ""
 msgid "Migration source"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:479
+#: src/views/toolbox/MigrationView.vue:469
 msgid "Target address"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:479
+#: src/views/toolbox/MigrationView.vue:469
 msgid "Source address"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:489
+#: src/views/toolbox/MigrationView.vue:479
 msgid "Token ID"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:492
+#: src/views/toolbox/MigrationView.vue:482
 msgid "Access token"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:497
+#: src/views/toolbox/MigrationView.vue:487
 msgid "Access token of the target AcePanel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:501
+#: src/views/toolbox/MigrationView.vue:491
 msgid "API key"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:506
+#: src/views/toolbox/MigrationView.vue:496
 msgid "API key of the source panel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:514
+#: src/views/toolbox/MigrationView.vue:504
 msgid "The target AcePanel must have the same database servers and runtimes installed, and its API must allow this server address."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:517
-msgid "The source panel API must be enabled and this server address must be allowed. Websites, databases and projects are migrated; container workloads are not."
+#: src/views/toolbox/MigrationView.vue:507
+msgid "The source panel API must be enabled and this server address must be allowed. Websites, databases and projects are migrated."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:525
+#: src/views/toolbox/MigrationView.vue:515
 msgid "Connect and read resources"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:535
+#: src/views/toolbox/MigrationView.vue:525
 msgid "Source: %{ panel }"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:555
+#: src/views/toolbox/MigrationView.vue:545
 msgid "Skip blocked resources instead of failing"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:558
+#: src/views/toolbox/MigrationView.vue:548
 msgid "Stop running services while backups are created"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:564
+#: src/views/toolbox/MigrationView.vue:554
 msgid "Start migration (%{ count })"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:570
+#: src/views/toolbox/MigrationView.vue:560
 msgid "Migration done"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:575
+#: src/views/toolbox/MigrationView.vue:565
 msgid "Download log"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:590
+#: src/views/toolbox/MigrationView.vue:580
 msgid "Success: %{ count }"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:593
+#: src/views/toolbox/MigrationView.vue:583
 msgid "With warnings: %{ count }"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:596
+#: src/views/toolbox/MigrationView.vue:586
 msgid "Failed: %{ count }"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:599
+#: src/views/toolbox/MigrationView.vue:589
 msgid "Skipped: %{ count }"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:31
+#: src/views/toolbox/network/InterfaceView.vue:32
 msgid "Change was not confirmed in time and has been rolled back"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:48
+#: src/views/toolbox/network/InterfaceView.vue:49
 msgid "Change confirmed"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:56
+#: src/views/toolbox/network/InterfaceView.vue:57
 msgid "Change rolled back"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:65
+#: src/views/toolbox/network/InterfaceView.vue:66
 msgid "Manual"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:71
-#: src/views/toolbox/network/InterfaceView.vue:177
+#: src/views/toolbox/network/InterfaceView.vue:72
+#: src/views/toolbox/network/InterfaceView.vue:178
 msgid "IPv4"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:72
+#: src/views/toolbox/network/InterfaceView.vue:73
 msgid "IPv4 Addresses"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:73
+#: src/views/toolbox/network/InterfaceView.vue:74
 msgid "CIDR, e.g. 192.168.1.10/24"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:74
+#: src/views/toolbox/network/InterfaceView.vue:75
 msgid "e.g. 192.168.1.1"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:75
+#: src/views/toolbox/network/InterfaceView.vue:76
 msgid "IPv4 DNS Servers"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:76
+#: src/views/toolbox/network/InterfaceView.vue:77
 msgid "e.g. 1.1.1.1"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:81
+#: src/views/toolbox/network/InterfaceView.vue:82
 msgid "IPv6 Addresses"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:82
+#: src/views/toolbox/network/InterfaceView.vue:83
 msgid "CIDR, e.g. 2001:db8::10/64"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:83
+#: src/views/toolbox/network/InterfaceView.vue:84
 msgid "e.g. 2001:db8::1"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:84
+#: src/views/toolbox/network/InterfaceView.vue:85
 msgid "IPv6 DNS Servers"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:85
+#: src/views/toolbox/network/InterfaceView.vue:86
 msgid "e.g. 2606:4700:4700::1111"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:98
+#: src/views/toolbox/network/InterfaceView.vue:99
 msgid "Unsupported"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:105
+#: src/views/toolbox/network/InterfaceView.vue:106
 msgid "Ethernet"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:107
+#: src/views/toolbox/network/InterfaceView.vue:108
 msgid "Wi-Fi"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:109
+#: src/views/toolbox/network/InterfaceView.vue:110
 msgid "Bond"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:111
+#: src/views/toolbox/network/InterfaceView.vue:112
 msgid "Bridge"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:113
+#: src/views/toolbox/network/InterfaceView.vue:114
 msgid "VLAN"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:122
+#: src/views/toolbox/network/InterfaceView.vue:123
 msgid "Unsupported network manager"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:124
+#: src/views/toolbox/network/InterfaceView.vue:125
 msgid "No active NetworkManager connection profile"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:126
+#: src/views/toolbox/network/InterfaceView.vue:127
 msgid "Failed to read NetworkManager connection profile"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:128
+#: src/views/toolbox/network/InterfaceView.vue:129
 msgid "No matching netplan interface definition"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:130
+#: src/views/toolbox/network/InterfaceView.vue:131
 msgid "Multiple netplan interface definitions match this interface"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:132
+#: src/views/toolbox/network/InterfaceView.vue:133
 msgid "No matching ifupdown interface definition"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:134
+#: src/views/toolbox/network/InterfaceView.vue:135
 msgid "The ifupdown mapping configuration cannot be edited safely"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:136
+#: src/views/toolbox/network/InterfaceView.vue:137
 msgid "The ifupdown interface is defined in multiple files"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:138
+#: src/views/toolbox/network/InterfaceView.vue:139
 msgid "The ifupdown inheritance configuration cannot be edited safely"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:140
+#: src/views/toolbox/network/InterfaceView.vue:141
 msgid "The ifupdown interface has interleaved definitions"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:166
+#: src/views/toolbox/network/InterfaceView.vue:167
 msgid "Down"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:171
+#: src/views/toolbox/network/InterfaceView.vue:172
 msgid "MAC"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:191
-#: src/views/toolbox/network/InterfaceView.vue:370
+#: src/views/toolbox/network/InterfaceView.vue:192
+#: src/views/toolbox/network/InterfaceView.vue:374
 msgid "MTU"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:288
+#: src/views/toolbox/network/InterfaceView.vue:292
 msgid "Confirm Network Configuration Change"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:289
+#: src/views/toolbox/network/InterfaceView.vue:293
 msgid "Changing the primary IP address, gateway, or automatic address assignment may interrupt the panel connection. The change will be rolled back automatically unless you confirm it afterwards. Continue?"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:319
+#: src/views/toolbox/network/InterfaceView.vue:323
 msgid "Network configuration changed. Confirm within %{ seconds }s to keep it, otherwise it will be rolled back automatically."
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:323
+#: src/views/toolbox/network/InterfaceView.vue:327
 msgid "A network configuration change is waiting for confirmation."
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:328
+#: src/views/toolbox/network/InterfaceView.vue:332
 msgid "Keep change"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:331
+#: src/views/toolbox/network/InterfaceView.vue:335
 msgid "Roll back now"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:340
+#: src/views/toolbox/network/InterfaceView.vue:344
 msgid "Current network manager: %{ manager }"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:363
+#: src/views/toolbox/network/InterfaceView.vue:367
 msgid "Configure Network Interface: %{ name }"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:375
+#: src/views/toolbox/network/InterfaceView.vue:379
 msgid "0 follows the system default"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:384
+#: src/views/toolbox/network/InterfaceView.vue:388
 msgid "Address Assignment"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:389
+#: src/views/toolbox/network/InterfaceView.vue:393
 msgid "Default Gateway"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:407
+#: src/views/toolbox/network/InterfaceView.vue:411
 msgid "Accept Automatically Assigned DNS"
 msgstr ""
 
-#: src/views/toolbox/network/InterfaceView.vue:427
+#: src/views/toolbox/network/InterfaceView.vue:431
 msgid "Save and Apply"
 msgstr ""
 
@@ -13118,7 +13118,7 @@ msgid "Listen IPv6"
 msgstr ""
 
 #: src/views/website/SettingView.vue:202
-msgid "When enabled, new websites will listen on IPv6 for all configured ports. Existing websites will only add IPv6 port 443 when HTTPS is enabled."
+msgid "When enabled, new websites will listen on IPv6 for all configured ports."
 msgstr ""
 
 #: src/views/website/SettingView.vue:220

@@ -15,7 +15,7 @@ msgstr ""
 msgid "%s does not support database comment"
 msgstr ""
 
-#: internal/biz/alert.go:848
+#: internal/biz/alert.go:774
 msgid "%s is %s, %s threshold %s"
 msgstr ""
 
@@ -23,11 +23,11 @@ msgstr ""
 msgid ".NET-%s is not installed"
 msgstr ""
 
-#: internal/biz/alert.go:861
+#: internal/biz/alert.go:787
 msgid "1 minute load"
 msgstr ""
 
-#: internal/biz/alert.go:865
+#: internal/biz/alert.go:791
 msgid "15 minutes load"
 msgstr ""
 
@@ -39,7 +39,7 @@ msgstr ""
 msgid "2FA url: %s"
 msgstr ""
 
-#: internal/biz/alert.go:863
+#: internal/biz/alert.go:789
 msgid "5 minutes load"
 msgstr ""
 
@@ -228,7 +228,7 @@ msgstr ""
 msgid "COPYRIGHT"
 msgstr ""
 
-#: internal/biz/alert.go:855
+#: internal/biz/alert.go:781
 msgid "CPU usage"
 msgstr ""
 
@@ -302,7 +302,7 @@ msgstr ""
 msgid "Count"
 msgstr ""
 
-#: internal/biz/container.go:90
+#: internal/biz/container.go:91
 msgid "Create container %s"
 msgstr ""
 
@@ -310,7 +310,7 @@ msgstr ""
 msgid "Current Connections"
 msgstr ""
 
-#: internal/biz/alert.go:377
+#: internal/biz/alert.go:367
 msgid "Current Value"
 msgstr ""
 
@@ -343,7 +343,7 @@ msgstr ""
 msgid "Delete Operations"
 msgstr ""
 
-#: internal/biz/alert.go:695
+#: internal/biz/alert.go:623
 msgid "Detail"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "Extracting new version..."
 msgstr ""
 
-#: internal/biz/alert.go:769
+#: internal/biz/alert.go:697
 #: internal/service/user.go:200
 msgid "Failed Attempts"
 msgstr ""
@@ -650,8 +650,8 @@ msgstr ""
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr ""
 
-#: internal/biz/alert.go:754
-#: internal/biz/alert.go:768
+#: internal/biz/alert.go:682
+#: internal/biz/alert.go:696
 #: internal/service/user.go:180
 #: internal/service/user.go:198
 #: internal/service/user_passkey.go:303
@@ -721,7 +721,7 @@ msgstr ""
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
 
-#: internal/biz/alert.go:693
+#: internal/biz/alert.go:621
 msgid "Item"
 msgstr ""
 
@@ -756,7 +756,7 @@ msgstr ""
 msgid "Latest Fork Time (ms)"
 msgstr ""
 
-#: internal/biz/alert.go:694
+#: internal/biz/alert.go:622
 msgid "Level"
 msgstr ""
 
@@ -840,12 +840,12 @@ msgstr ""
 msgid "Memory Usage (bytes)"
 msgstr ""
 
-#: internal/biz/alert.go:755
+#: internal/biz/alert.go:683
 #: internal/service/user_passkey.go:302
 msgid "Method"
 msgstr ""
 
-#: internal/biz/alert.go:376
+#: internal/biz/alert.go:366
 msgid "Metric"
 msgstr ""
 
@@ -853,11 +853,11 @@ msgstr ""
 msgid "Migrated from %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:263
+#: internal/biz/toolbox_migration.go:269
 msgid "Migration completed"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:257
+#: internal/biz/toolbox_migration.go:263
 msgid "Migration started"
 msgstr ""
 
@@ -1106,7 +1106,7 @@ msgstr ""
 msgid "Public IPv6: %s://[%s]:%d%s"
 msgstr ""
 
-#: internal/biz/container_image.go:57
+#: internal/biz/container_image.go:58
 msgid "Pull image %s"
 msgstr ""
 
@@ -1177,7 +1177,7 @@ msgstr ""
 msgid "Rollbacks per Second"
 msgstr ""
 
-#: internal/biz/alert.go:375
+#: internal/biz/alert.go:365
 msgid "Rule"
 msgstr ""
 
@@ -1189,7 +1189,7 @@ msgstr ""
 msgid "SSH log file not found"
 msgstr ""
 
-#: internal/biz/alert.go:752
+#: internal/biz/alert.go:680
 msgid "SSH login succeeded"
 msgstr ""
 
@@ -1301,14 +1301,14 @@ msgstr ""
 msgid "This is a test notification from AcePanel, receiving it means the channel is configured correctly."
 msgstr ""
 
-#: internal/biz/alert.go:378
+#: internal/biz/alert.go:368
 msgid "Threshold"
 msgstr ""
 
-#: internal/biz/alert.go:379
-#: internal/biz/alert.go:696
-#: internal/biz/alert.go:756
-#: internal/biz/alert.go:770
+#: internal/biz/alert.go:369
+#: internal/biz/alert.go:624
+#: internal/biz/alert.go:684
+#: internal/biz/alert.go:698
 #: internal/biz/backup.go:73
 #: internal/biz/notify.go:190
 #: internal/biz/tamper.go:310
@@ -1462,7 +1462,7 @@ msgstr ""
 msgid "Update completed"
 msgstr ""
 
-#: internal/biz/container.go:126
+#: internal/biz/container.go:127
 msgid "Update container %s"
 msgstr ""
 
@@ -1497,7 +1497,7 @@ msgstr ""
 msgid "User not exists"
 msgstr ""
 
-#: internal/biz/alert.go:753
+#: internal/biz/alert.go:681
 #: internal/service/user.go:179
 #: internal/service/user.go:199
 #: internal/service/user_passkey.go:301
@@ -1592,23 +1592,23 @@ msgstr ""
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:349
+#: internal/biz/toolbox_migration.go:355
 msgid "[%s] migration completed"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:346
+#: internal/biz/toolbox_migration.go:352
 msgid "[%s] migration completed with warnings"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:343
+#: internal/biz/toolbox_migration.go:349
 msgid "[%s] migration failed: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:330
+#: internal/biz/toolbox_migration.go:336
 msgid "[%s] start migrating"
 msgstr ""
 
-#: internal/biz/alert.go:374
+#: internal/biz/alert.go:364
 msgid "[AcePanel] Alert: %s"
 msgstr ""
 
@@ -1628,7 +1628,7 @@ msgstr ""
 msgid "[AcePanel] Cron Task Failed"
 msgstr ""
 
-#: internal/biz/alert.go:692
+#: internal/biz/alert.go:620
 msgid "[AcePanel] Panel Health Issue"
 msgstr ""
 
@@ -1637,11 +1637,11 @@ msgstr ""
 msgid "[AcePanel] Panel Login"
 msgstr ""
 
-#: internal/biz/alert.go:767
+#: internal/biz/alert.go:695
 msgid "[AcePanel] SSH Brute-force Attempts"
 msgstr ""
 
-#: internal/biz/alert.go:752
+#: internal/biz/alert.go:680
 msgid "[AcePanel] SSH Login"
 msgstr ""
 
@@ -1669,11 +1669,11 @@ msgstr ""
 msgid "a project with the same name already exists on the target server"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:306
+#: internal/biz/toolbox_migration.go:312
 msgid "a required dependency did not migrate successfully"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:299
+#: internal/biz/toolbox_migration.go:305
 msgid "a required dependency was not selected"
 msgstr ""
 
@@ -1685,7 +1685,7 @@ msgstr ""
 msgid "app %s already installed"
 msgstr ""
 
-#: internal/biz/alert.go:839
+#: internal/biz/alert.go:765
 msgid "app %s is not running"
 msgstr ""
 
@@ -1711,7 +1711,7 @@ msgstr ""
 msgid "app not found"
 msgstr ""
 
-#: internal/biz/alert.go:889
+#: internal/biz/alert.go:815
 msgid "app status"
 msgstr ""
 
@@ -1735,7 +1735,7 @@ msgstr ""
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:334
+#: internal/biz/toolbox_migration_push.go:343
 #: internal/data/backup.go:258
 msgid "backup file not exists"
 msgstr ""
@@ -1748,9 +1748,9 @@ msgstr ""
 msgid "backup task failed"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:145
-#: internal/biz/toolbox_migration_push.go:229
-#: internal/biz/toolbox_migration_push.go:310
+#: internal/biz/toolbox_migration_push.go:154
+#: internal/biz/toolbox_migration_push.go:238
+#: internal/biz/toolbox_migration_push.go:319
 msgid "backup transfer failed: %v"
 msgstr ""
 
@@ -1763,7 +1763,7 @@ msgstr ""
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/biz/website.go:140
+#: internal/biz/website.go:141
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1779,11 +1779,11 @@ msgstr ""
 msgid "cannot initialize system disk"
 msgstr ""
 
-#: internal/biz/alert.go:843
+#: internal/biz/alert.go:769
 msgid "certificate %s expires in %s days"
 msgstr ""
 
-#: internal/biz/alert.go:893
+#: internal/biz/alert.go:819
 msgid "certificate expiry"
 msgstr ""
 
@@ -1812,11 +1812,11 @@ msgstr ""
 msgid "compose %s already exists"
 msgstr ""
 
-#: internal/biz/alert.go:837
+#: internal/biz/alert.go:763
 msgid "container %s is not running"
 msgstr ""
 
-#: internal/biz/alert.go:887
+#: internal/biz/alert.go:813
 msgid "container status"
 msgstr ""
 
@@ -1854,7 +1854,7 @@ msgstr ""
 msgid "database does not exist: %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:135
+#: internal/biz/toolbox_migration_push.go:144
 msgid "database export failed: %v"
 msgstr ""
 
@@ -1862,11 +1862,11 @@ msgstr ""
 msgid "database import failed: %v"
 msgstr ""
 
-#: internal/biz/alert.go:841
+#: internal/biz/alert.go:767
 msgid "database server %s is unreachable"
 msgstr ""
 
-#: internal/biz/alert.go:891
+#: internal/biz/alert.go:817
 msgid "database server status"
 msgstr ""
 
@@ -1900,11 +1900,11 @@ msgstr ""
 msgid "directory %s does not exist"
 msgstr ""
 
-#: internal/biz/alert.go:869
+#: internal/biz/alert.go:795
 msgid "disk inode usage"
 msgstr ""
 
-#: internal/biz/alert.go:871
+#: internal/biz/alert.go:797
 msgid "disk read speed"
 msgstr ""
 
@@ -1912,11 +1912,11 @@ msgstr ""
 msgid "disk space is insufficient, current free %s"
 msgstr ""
 
-#: internal/biz/alert.go:867
+#: internal/biz/alert.go:793
 msgid "disk usage"
 msgstr ""
 
-#: internal/biz/alert.go:873
+#: internal/biz/alert.go:799
 msgid "disk write speed"
 msgstr ""
 
@@ -1984,7 +1984,8 @@ msgstr ""
 msgid "failed to clear log for %s service: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:34
+#: internal/biz/toolbox_migration_push.go:35
+#: internal/biz/toolbox_migration_push.go:43
 msgid "failed to connect target server: %v"
 msgstr ""
 
@@ -2004,11 +2005,11 @@ msgstr ""
 msgid "failed to create .ssh directory: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:141
+#: internal/biz/toolbox_migration_push.go:150
 msgid "failed to create database on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:177
+#: internal/biz/toolbox_migration_push.go:186
 msgid "failed to create database user on target: %v"
 msgstr ""
 
@@ -2048,11 +2049,11 @@ msgstr ""
 msgid "failed to create project directory"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:306
+#: internal/biz/toolbox_migration_push.go:315
 msgid "failed to create project on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:376
+#: internal/biz/toolbox_migration.go:382
 msgid "failed to create source backup: %v"
 msgstr ""
 
@@ -2064,7 +2065,7 @@ msgstr ""
 msgid "failed to create webhook directory: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:225
+#: internal/biz/toolbox_migration_push.go:234
 msgid "failed to create website on target: %v"
 msgstr ""
 
@@ -2092,7 +2093,7 @@ msgstr ""
 msgid "failed to disable %s service: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:388
+#: internal/biz/toolbox_migration.go:394
 msgid "failed to download source backup: %v"
 msgstr ""
 
@@ -2461,7 +2462,7 @@ msgstr ""
 msgid "failed to read command: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:165
+#: internal/biz/toolbox_migration_push.go:174
 msgid "failed to read database user detail: %v"
 msgstr ""
 
@@ -2483,11 +2484,11 @@ msgstr ""
 msgid "failed to read params: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:270
+#: internal/biz/toolbox_migration_push.go:279
 msgid "failed to read project detail: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:362
+#: internal/biz/toolbox_migration.go:368
 msgid "failed to read source resource detail: %v"
 msgstr ""
 
@@ -2495,30 +2496,30 @@ msgstr ""
 msgid "failed to read sshd_config: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:370
-#: internal/biz/toolbox_migration_push.go:382
+#: internal/biz/toolbox_migration_push.go:379
+#: internal/biz/toolbox_migration_push.go:391
 msgid "failed to read target database servers: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:344
-#: internal/biz/toolbox_migration_push.go:350
+#: internal/biz/toolbox_migration_push.go:353
+#: internal/biz/toolbox_migration_push.go:359
 msgid "failed to read target settings: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:401
-#: internal/biz/toolbox_migration_push.go:412
+#: internal/biz/toolbox_migration_push.go:410
+#: internal/biz/toolbox_migration_push.go:421
 msgid "failed to read the created website on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:192
+#: internal/biz/toolbox_migration_push.go:201
 msgid "failed to read website detail: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:252
+#: internal/biz/toolbox_migration_push.go:261
 msgid "failed to rebuild website configuration on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:268
+#: internal/biz/toolbox_migration.go:274
 msgid "failed to refresh source resource list: %v"
 msgstr ""
 
@@ -2772,11 +2773,11 @@ msgstr ""
 msgid "get upload file error: %v"
 msgstr ""
 
-#: internal/biz/alert.go:916
+#: internal/biz/alert.go:842
 msgid "greater than"
 msgstr ""
 
-#: internal/biz/alert.go:910
+#: internal/biz/alert.go:836
 msgid "greater than or equal to"
 msgstr ""
 
@@ -2860,11 +2861,11 @@ msgstr ""
 msgid "journalctl is not available"
 msgstr ""
 
-#: internal/biz/alert.go:912
+#: internal/biz/alert.go:838
 msgid "less than"
 msgstr ""
 
-#: internal/biz/alert.go:914
+#: internal/biz/alert.go:840
 msgid "less than or equal to"
 msgstr ""
 
@@ -2876,7 +2877,7 @@ msgstr ""
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
-#: internal/biz/alert.go:857
+#: internal/biz/alert.go:783
 msgid "memory usage"
 msgstr ""
 
@@ -2927,11 +2928,11 @@ msgstr ""
 msgid "name is required"
 msgstr ""
 
-#: internal/biz/alert.go:875
+#: internal/biz/alert.go:801
 msgid "network download speed"
 msgstr ""
 
-#: internal/biz/alert.go:877
+#: internal/biz/alert.go:803
 msgid "network upload speed"
 msgstr ""
 
@@ -2951,7 +2952,7 @@ msgstr ""
 msgid "no compatible database server is installed on the target"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:392
+#: internal/biz/toolbox_migration_push.go:401
 msgid "no matching database server found on target"
 msgstr ""
 
@@ -2963,7 +2964,7 @@ msgstr ""
 msgid "no rules found in file"
 msgstr ""
 
-#: internal/biz/alert.go:931
+#: internal/biz/alert.go:857
 msgid "not running"
 msgstr ""
 
@@ -3017,7 +3018,7 @@ msgstr ""
 msgid "panel login detected"
 msgstr ""
 
-#: internal/biz/alert.go:692
+#: internal/biz/alert.go:620
 msgid "panel reported a health issue"
 msgstr ""
 
@@ -3097,7 +3098,7 @@ msgstr ""
 msgid "please cancel the task first"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:448
+#: internal/biz/toolbox_migration.go:454
 msgid "please connect to the source server first"
 msgstr ""
 
@@ -3132,11 +3133,11 @@ msgstr ""
 msgid "process %s already exists"
 msgstr ""
 
-#: internal/biz/alert.go:835
+#: internal/biz/alert.go:761
 msgid "project %s is not running"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:295
+#: internal/biz/toolbox_migration_push.go:304
 msgid "project backup failed: %v"
 msgstr ""
 
@@ -3144,7 +3145,7 @@ msgstr ""
 msgid "project name already exists"
 msgstr ""
 
-#: internal/biz/alert.go:885
+#: internal/biz/alert.go:811
 msgid "project status"
 msgstr ""
 
@@ -3176,7 +3177,7 @@ msgstr ""
 msgid "renewing certificate, domains: %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:431
+#: internal/biz/toolbox_migration.go:437
 #: internal/data/toolbox_migration_baota.go:438
 #: internal/data/toolbox_migration_baota.go:456
 #: internal/data/toolbox_migration_onepanel.go:335
@@ -3224,11 +3225,11 @@ msgstr ""
 msgid "server not found"
 msgstr ""
 
-#: internal/biz/alert.go:833
+#: internal/biz/alert.go:759
 msgid "service %s is not running"
 msgstr ""
 
-#: internal/biz/alert.go:883
+#: internal/biz/alert.go:809
 msgid "service status"
 msgstr ""
 
@@ -3306,7 +3307,7 @@ msgstr ""
 msgid "stream upstream not found: %s"
 msgstr ""
 
-#: internal/biz/alert.go:859
+#: internal/biz/alert.go:785
 msgid "swap usage"
 msgstr ""
 
@@ -3332,9 +3333,9 @@ msgstr ""
 msgid "target command failed"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:152
-#: internal/biz/toolbox_migration_push.go:235
-#: internal/biz/toolbox_migration_push.go:317
+#: internal/biz/toolbox_migration_push.go:161
+#: internal/biz/toolbox_migration_push.go:244
+#: internal/biz/toolbox_migration_push.go:326
 msgid "target import failed: %v"
 msgstr ""
 
@@ -3364,7 +3365,7 @@ msgstr ""
 msgid "the connection to the target server was interrupted"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:419
+#: internal/biz/toolbox_migration_push.go:428
 msgid "the created website could not be found on target"
 msgstr ""
 
@@ -3479,7 +3480,7 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/biz/alert.go:767
+#: internal/biz/alert.go:695
 msgid "too many failed SSH login attempts"
 msgstr ""
 
@@ -3534,7 +3535,7 @@ msgstr ""
 msgid "unsupported CA"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:122
+#: internal/biz/toolbox_migration_push.go:131
 msgid "unsupported database type: %s"
 msgstr ""
 
@@ -3547,8 +3548,8 @@ msgstr ""
 msgid "unsupported filesystem type: %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:400
-#: internal/biz/toolbox_migration_push.go:110
+#: internal/biz/toolbox_migration.go:406
+#: internal/biz/toolbox_migration_push.go:119
 #: internal/data/toolbox_migration_baota.go:238
 #: internal/data/toolbox_migration_baota.go:584
 #: internal/data/toolbox_migration_onepanel.go:171
@@ -3604,15 +3605,15 @@ msgstr ""
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/biz/alert.go:845
+#: internal/biz/alert.go:771
 msgid "website %s expires in %s days"
 msgstr ""
 
-#: internal/biz/alert.go:879
+#: internal/biz/alert.go:805
 msgid "website 5xx responses this hour"
 msgstr ""
 
-#: internal/biz/toolbox_migration_push.go:204
+#: internal/biz/toolbox_migration_push.go:213
 msgid "website backup failed: %v"
 msgstr ""
 
@@ -3624,7 +3625,7 @@ msgstr ""
 msgid "website directory does not exist"
 msgstr ""
 
-#: internal/biz/alert.go:881
+#: internal/biz/alert.go:807
 msgid "website error rate this hour"
 msgstr ""
 
@@ -3632,7 +3633,7 @@ msgstr ""
 msgid "website expired and has been disabled"
 msgstr ""
 
-#: internal/biz/alert.go:895
+#: internal/biz/alert.go:821
 msgid "website expiry"
 msgstr ""
 
@@ -3653,7 +3654,7 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/biz/website.go:255
+#: internal/biz/website.go:256
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
