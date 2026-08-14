@@ -57,13 +57,13 @@ const panels = computed(() => [
     value: 'baota' as MigrationPanel,
     icon: 'mdi:shield-crown-outline',
     title: $gettext('BaoTa → AcePanel'),
-    description: $gettext('Pull websites, databases and projects from BaoTa 11.x.')
+    description: $gettext('Pull websites, databases and projects from BT Panel.')
   },
   {
     value: 'onepanel' as MigrationPanel,
     icon: 'mdi:view-dashboard-variant-outline',
     title: $gettext('1Panel → AcePanel'),
-    description: $gettext('Pull websites and databases from 1Panel v2.')
+    description: $gettext('Pull websites and databases from 1Panel.')
   }
 ])
 
