@@ -13,6 +13,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/utils/crypt"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -237,6 +238,19 @@ func (uc *NotifyUsecase) SendEvent(event NotifyEvent, subject, body string) {
 			uc.log.Warn("failed to send event notification", slog.String("event", string(event)), slog.Any("err", err))
 		}
 	}()
+}
+
+// EventEnabled 判断给定事件中是否有已订阅且配好渠道的
+// 供调用方在采集前提前跳过，避免为没人接收的通知付出采集开销
+func (uc *NotifyUsecase) EventEnabled(events ...NotifyEvent) bool {
+	setting, err := uc.GetSetting()
+	if err != nil || len(setting.Channels) == 0 {
+		return false
+	}
+
+	return lo.SomeBy(events, func(event NotifyEvent) bool {
+		return slices.Contains(setting.Events, string(event))
+	})
 }
 
 // SendEventSync 同步发送系统事件通知，未订阅该事件或未配置渠道时静默跳过

@@ -64,7 +64,11 @@ func CurrentInfo(nets, disks []string) types.CurrentInfo {
 	})
 	// 分区使用
 	for _, partition := range res.Disk {
-		usage, _ := disk.Usage(partition.Mountpoint)
+		// 挂载点在两次调用之间消失或不可读时返回 nil，直接解引用会 panic
+		usage, err := disk.Usage(partition.Mountpoint)
+		if err != nil || usage == nil {
+			continue
+		}
 		res.DiskUsage = append(res.DiskUsage, *usage)
 	}
 	// 网络

@@ -3,8 +3,12 @@ package biz
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"log/slog"
+	"maps"
+	"os"
 	"slices"
 	"strings"
 	"sync"
@@ -63,6 +67,8 @@ const (
 	sshScanLimit = 5000
 	// sshCursorPrefix journalctl --show-cursor 在输出末尾打印的游标行前缀
 	sshCursorPrefix = "-- cursor: "
+	// sshScanBytes 单轮最多读取的文本日志字节数，防止停机过久后一次读入过多
+	sshScanBytes int64 = 8 << 20
 )
 
 // 告警比较运算符
@@ -161,8 +167,10 @@ type AlertUsecase struct {
 	diskSnaps  map[string]ioSnapshot // 磁盘累计 IO 快照
 	healthKeys map[string]struct{}   // 已通知的健康问题
 	sshFired   map[string]time.Time  // SSH 爆破上次通知时间
-	sshAt      time.Time             // SSH 日志上次检查时间
+	sshAt      time.Time             // SSH 日志上次检查时间（journald 回退路径）
 	sshCursor  string                // SSH 日志上次读取到的 journal 游标
+	sshLog     string                // 正在跟踪的 sshd 文本日志路径
+	sshOffset  int64                 // 文本日志上次读到的字节偏移
 	cleanedAt  time.Time             // 上次清理历史告警的时间
 }
 
@@ -294,11 +302,14 @@ func (uc *AlertUsecase) Evaluate(ctx context.Context) error {
 		return nil
 	}
 
-	info := tools.CurrentInfo(nil, nil)
 	now := time.Now()
-	uc.updateSnapshots(info, now)
+	var info types.CurrentInfo
+	if lo.SomeBy(enabled, func(rule *AlertRule) bool { return uc.needsSystemInfo(rule.Type) }) {
+		info = tools.CurrentInfo(nil, nil)
+		uc.updateSnapshots(info, now)
+	}
 
-	// 同类型规则共用一次采集结果，仅服务状态依赖具体目标需按目标探测
+	// 同类型规则共用一次采集结果
 	collected := make(map[string][]*AlertMetric)
 	alive := make(map[string]struct{})
 	for _, rule := range enabled {
@@ -323,13 +334,16 @@ func (uc *AlertUsecase) Evaluate(ctx context.Context) error {
 		}
 	}
 
-	// 清理已消失的目标状态
+	// 清理已消失的目标状态；静默记录额外要求已过期，避免某轮采集失败误清后重复告警
 	uc.mu.Lock()
-	for key := range uc.hits {
-		if _, ok := alive[key]; !ok {
-			delete(uc.hits, key)
-		}
-	}
+	maps.DeleteFunc(uc.hits, func(key string, _ uint) bool {
+		_, ok := alive[key]
+		return !ok
+	})
+	maps.DeleteFunc(uc.silenced, func(key string, until time.Time) bool {
+		_, ok := alive[key]
+		return !ok && now.After(until)
+	})
 	uc.mu.Unlock()
 
 	return nil
@@ -606,6 +620,10 @@ func (uc *AlertUsecase) rateOf(prev ioSnapshot, in, out uint64, now time.Time) i
 // checkHealth 上报新出现的面板健康问题，问题恢复后重新出现会再次通知
 // 同步发送并只在送达后记入去重集合，否则一次发送失败就会让持续存在的问题再也不告警
 func (uc *AlertUsecase) checkHealth(ctx context.Context) {
+	if !uc.notify.EventEnabled(NotifyEventHealth) {
+		return
+	}
+
 	issues := app.Health.Snapshot()
 
 	uc.mu.Lock()
@@ -641,37 +659,14 @@ func (uc *AlertUsecase) checkHealth(ctx context.Context) {
 
 // checkSSH 增量检查 sshd 日志，上报登录成功与爆破尝试
 func (uc *AlertUsecase) checkSSH(ctx context.Context) {
-	now := time.Now()
-
-	uc.mu.Lock()
-	since, cursor := uc.sshAt, uc.sshCursor
-	uc.sshAt = now
-	uc.mu.Unlock()
-
-	// 常态按游标增量读取：journald 对游标是直接定位，而带 -u 过滤的 --since 需沿匹配链回溯，
-	// sshd 日志量大时会非常慢。首次用 -n 0 只定位当前游标不输出日志，既避免面板启动时把历史
-	// 日志全推一遍，也让后续各轮都能走游标快路径；仅在游标失效后回退一轮 --since
-	limit, position := sshScanLimit, fmt.Sprintf("--after-cursor %q", cursor)
-	switch {
-	case since.IsZero():
-		limit, position = 0, ""
-	case cursor == "":
-		position = fmt.Sprintf(`--since "@%d"`, since.Unix())
-	}
-
-	// 只用到 MESSAGE，-o cat 免去 journald 侧序列化几十个无关字段和这边的逐行反序列化
-	scanCtx, cancel := context.WithTimeout(ctx, sshScanTimeout)
-	defer cancel()
-	raw, err := shell.ExecfWithContext(scanCtx, `journalctl -u sshd -u ssh --no-pager -q -o cat --show-cursor -n %d %s 2>/dev/null`, limit, position)
-	if err != nil {
-		// 读取失败（含游标因日志轮转失效）则回退检查点并丢弃游标，下一轮按时间窗口重扫
-		uc.mu.Lock()
-		uc.sshAt = since
-		uc.sshCursor = ""
-		uc.mu.Unlock()
+	// 没人接收就不必读
+	if !uc.notify.EventEnabled(NotifyEventSSHLogin, NotifyEventSSHBruteforce) {
 		return
 	}
-	if raw == "" {
+
+	now := time.Now()
+	raw, err := uc.readSSHLog(ctx)
+	if err != nil || raw == "" {
 		return
 	}
 
@@ -681,7 +676,7 @@ func (uc *AlertUsecase) checkSSH(ctx context.Context) {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		// 游标行由 --show-cursor 在末尾单独打印，无新日志时不打印
+		// 游标行由 journalctl 的 --show-cursor 在末尾单独打印
 		if next, ok := strings.CutPrefix(line, sshCursorPrefix); ok {
 			uc.mu.Lock()
 			uc.sshCursor = next
@@ -717,6 +712,87 @@ func (uc *AlertUsecase) checkSSH(ctx context.Context) {
 			{uc.t.Get("Time"), now.Format(time.DateTime)},
 		}))
 	}
+}
+
+// readSSHLog 增量读取 sshd 日志
+// 优先读文本日志：journald 按单位过滤要沿匹配链遍历，日志量大时取最后一条都要几十秒
+func (uc *AlertUsecase) readSSHLog(ctx context.Context) (string, error) {
+	for _, path := range []string{"/var/log/auth.log", "/var/log/secure"} {
+		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			return uc.readSSHFile(path, info.Size())
+		}
+	}
+
+	return uc.readSSHJournal(ctx)
+}
+
+// readSSHFile 按字节偏移读取文本日志新增的部分
+func (uc *AlertUsecase) readSSHFile(path string, size int64) (string, error) {
+	uc.mu.Lock()
+	offset, known := uc.sshOffset, uc.sshLog == path
+	uc.sshLog, uc.sshOffset = path, size
+	uc.mu.Unlock()
+
+	// 首轮只记录位置，避免面板启动时把历史日志全推一遍
+	if !known {
+		return "", nil
+	}
+
+	switch {
+	case offset > size:
+		offset = 0 // 日志已轮转，从新文件开头读
+	case size-offset > sshScanBytes:
+		offset = size - sshScanBytes // 停机过久时只补最近一段，首行可能被截断解析不出
+	case offset == size:
+		return "", nil
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = file.Close() }()
+
+	buffer := make([]byte, size-offset)
+	n, err := file.ReadAt(buffer, offset)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", err
+	}
+
+	return string(buffer[:n]), nil
+}
+
+// readSSHJournal 无文本日志时回退到 journald，按游标增量读取
+func (uc *AlertUsecase) readSSHJournal(ctx context.Context) (string, error) {
+	now := time.Now()
+
+	uc.mu.Lock()
+	since, cursor := uc.sshAt, uc.sshCursor
+	uc.sshAt = now
+	uc.mu.Unlock()
+
+	limit, position := sshScanLimit, fmt.Sprintf("--after-cursor %q", cursor)
+	switch {
+	case since.IsZero():
+		limit, position = 0, ""
+	case cursor == "":
+		position = fmt.Sprintf(`--since "@%d"`, since.Unix())
+	}
+
+	// 只用到 MESSAGE，-o cat 免去 journald 侧序列化几十个无关字段和这边的逐行反序列化
+	scanCtx, cancel := context.WithTimeout(ctx, sshScanTimeout)
+	defer cancel()
+	raw, err := shell.ExecfWithContext(scanCtx, `journalctl -u sshd -u ssh --no-pager -q -o cat --show-cursor -n %d %s 2>/dev/null`, limit, position)
+	if err != nil {
+		// 读取失败（含游标因日志轮转失效）则回退检查点并丢弃游标，下一轮按时间窗口重扫
+		uc.mu.Lock()
+		uc.sshAt = since
+		uc.sshCursor = ""
+		uc.mu.Unlock()
+		return "", err
+	}
+
+	return raw, nil
 }
 
 // sshShouldFire 判断某来源是否已过静默期，并顺带清理过期记录
@@ -877,6 +953,19 @@ func (uc *AlertUsecase) formatValue(typ string, value float64) string {
 	}
 
 	return fmt.Sprintf("%.2f", value)
+}
+
+// needsSystemInfo 该规则类型是否依赖 CurrentInfo 采集的系统指标
+func (uc *AlertUsecase) needsSystemInfo(typ string) bool {
+	switch typ {
+	case AlertTypeCPU, AlertTypeMemory, AlertTypeSwap,
+		AlertTypeLoad1, AlertTypeLoad5, AlertTypeLoad15,
+		AlertTypeDisk, AlertTypeDiskInode,
+		AlertTypeNetIn, AlertTypeNetOut, AlertTypeDiskRead, AlertTypeDiskWrite:
+		return true
+	}
+
+	return false
 }
 
 // isStatusType 状态类指标只有「运行/未运行」两种取值
