@@ -109,6 +109,8 @@ func (a *onePanelAdapter) websiteItems(ctx context.Context) ([]types.MigrationIt
 			}
 			// 网站列表只给运行环境名，版本得从运行环境列表里取
 			item.Version = runtimes[cast.ToString(row["runtimeName"])]
+			// 1Panel 的数据库跑在容器里，提醒修改
+			item.Warnings = []string{a.t.Get("if the site connects to a database, change the host in its config from the 1Panel container name to localhost")}
 		default:
 			item.Subtype = typ
 			item.Blockers = []string{a.t.Get("this 1Panel website type is not supported for automatic migration: %s", typ)}
