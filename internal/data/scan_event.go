@@ -37,46 +37,71 @@ func (r *scanEventRepo) Upsert(events []*biz.ScanEvent) error {
 		return nil
 	}
 
-	const batchSize = 100
-	for i := 0; i < len(events); i += batchSize {
-		end := min(i+batchSize, len(events))
-		if err := r.db.Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "source_ip"}, {Name: "port"}, {Name: "protocol"}, {Name: "date"}},
-			DoUpdates: clause.Assignments(map[string]any{
-				"count":     gorm.Expr("count + ?", gorm.Expr("excluded.count")),
-				"last_seen": gorm.Expr("excluded.last_seen"),
-				"country":   gorm.Expr("excluded.country"),
-				"region":    gorm.Expr("excluded.region"),
-				"city":      gorm.Expr("excluded.city"),
-				"isp":       gorm.Expr("excluded.isp"),
-			}),
-		}).Create(events[i:end]).Error; err != nil {
-			return err
+	sourceMap := make(map[string]*biz.ScanSource, len(events))
+	for _, event := range events {
+		sourceMap[event.SourceIP] = &biz.ScanSource{
+			SourceIP: event.SourceIP,
+			Country:  event.Country,
+			Region:   event.Region,
+			City:     event.City,
+			ISP:      event.ISP,
 		}
 	}
-	return nil
+
+	sources := make([]*biz.ScanSource, 0, len(sourceMap))
+	for _, source := range sourceMap {
+		sources = append(sources, source)
+	}
+	if err := r.db.Clauses(
+		clause.OnConflict{
+			Columns:   []clause.Column{{Name: "source_ip"}},
+			DoUpdates: clause.AssignmentColumns([]string{"country", "region", "city", "isp"}),
+		},
+		clause.Returning{Columns: []clause.Column{{Name: "id"}, {Name: "source_ip"}}},
+	).CreateInBatches(&sources, upsertBatchSize).Error; err != nil {
+		return err
+	}
+
+	sourceMap = make(map[string]*biz.ScanSource, len(sources))
+	for _, source := range sources {
+		sourceMap[source.SourceIP] = source
+	}
+	for _, event := range events {
+		event.SourceID = sourceMap[event.SourceIP].ID
+	}
+
+	return batchUpsert(r.db, events, clause.OnConflict{
+		Columns: []clause.Column{{Name: "date"}, {Name: "source_id"}, {Name: "port"}, {Name: "protocol"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"count":     gorm.Expr("count + ?", gorm.Expr("excluded.count")),
+			"last_seen": gorm.Expr("excluded.last_seen"),
+		}),
+	})
 }
 
 func (r *scanEventRepo) List(start, end, sourceIP string, port uint, location string, page, limit uint) ([]*biz.ScanEvent, uint, error) {
 	var total int64
 	var items []*biz.ScanEvent
 
-	tx := r.db.Model(&biz.ScanEvent{}).Where("date BETWEEN ? AND ?", start, end)
+	tx := r.db.Table("scan_events").
+		Joins("JOIN scan_sources ON scan_sources.id = scan_events.source_id").
+		Where("scan_events.date BETWEEN ? AND ?", start, end)
 	if sourceIP != "" {
-		tx = tx.Where("source_ip LIKE ?", "%"+sourceIP+"%")
+		tx = tx.Where("scan_sources.source_ip LIKE ?", "%"+sourceIP+"%")
 	}
 	if port > 0 {
-		tx = tx.Where("port = ?", port)
+		tx = tx.Where("scan_events.port = ?", port)
 	}
 	if location != "" {
 		like := "%" + location + "%"
-		tx = tx.Where("country LIKE ? OR region LIKE ? OR city LIKE ? OR isp LIKE ?", like, like, like, like)
+		tx = tx.Where("scan_sources.country LIKE ? OR scan_sources.region LIKE ? OR scan_sources.city LIKE ? OR scan_sources.isp LIKE ?", like, like, like, like)
 	}
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := tx.Order("last_seen DESC").Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&items).Error; err != nil {
+	if err := tx.Select("scan_events.*, scan_sources.source_ip, scan_sources.country, scan_sources.region, scan_sources.city, scan_sources.isp").
+		Order("scan_events.last_seen DESC").Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -87,7 +112,7 @@ func (r *scanEventRepo) Summary(start, end string) (*biz.ScanSummary, error) {
 	var summary biz.ScanSummary
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
-		Select("COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT source_ip) as unique_ips, COUNT(DISTINCT port || '-' || protocol) as unique_ports").
+		Select("COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT source_id) as unique_ips, COUNT(DISTINCT port || '-' || protocol) as unique_ports").
 		Scan(&summary).Error
 	return &summary, err
 }
@@ -96,7 +121,7 @@ func (r *scanEventRepo) Trend(start, end string) ([]*biz.ScanDayTrend, error) {
 	var trends []*biz.ScanDayTrend
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
-		Select("date, COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT source_ip) as unique_ips").
+		Select("date, COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT source_id) as unique_ips").
 		Group("date").
 		Order("date ASC").
 		Scan(&trends).Error
@@ -105,10 +130,11 @@ func (r *scanEventRepo) Trend(start, end string) ([]*biz.ScanDayTrend, error) {
 
 func (r *scanEventRepo) TopSourceIPs(start, end string, limit uint) ([]*biz.ScanSourceRank, error) {
 	var ranks []*biz.ScanSourceRank
-	err := r.db.Model(&biz.ScanEvent{}).
-		Where("date BETWEEN ? AND ?", start, end).
-		Select("source_ip, COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT port || '-' || protocol) as port_count, MAX(last_seen) as last_seen, MAX(country) as country, MAX(region) as region, MAX(city) as city, MAX(isp) as isp").
-		Group("source_ip").
+	err := r.db.Table("scan_events").
+		Joins("JOIN scan_sources ON scan_sources.id = scan_events.source_id").
+		Where("scan_events.date BETWEEN ? AND ?", start, end).
+		Select("MAX(scan_sources.source_ip) as source_ip, COALESCE(SUM(scan_events.count), 0) as total_count, COUNT(DISTINCT scan_events.port || '-' || scan_events.protocol) as port_count, MAX(scan_events.last_seen) as last_seen, MAX(scan_sources.country) as country, MAX(scan_sources.region) as region, MAX(scan_sources.city) as city, MAX(scan_sources.isp) as isp").
+		Group("scan_events.source_id").
 		Order("total_count DESC").
 		Limit(int(limit)).
 		Scan(&ranks).Error
@@ -122,7 +148,7 @@ func (r *scanEventRepo) TopPorts(start, end string, limit uint) ([]*biz.ScanPort
 	var ranks []*biz.ScanPortRank
 	err := r.db.Model(&biz.ScanEvent{}).
 		Where("date BETWEEN ? AND ?", start, end).
-		Select("port, protocol, COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT source_ip) as ip_count").
+		Select("port, protocol, COALESCE(SUM(count), 0) as total_count, COUNT(DISTINCT source_id) as ip_count").
 		Group("port, protocol").
 		Order("total_count DESC").
 		Limit(int(limit)).
@@ -135,10 +161,18 @@ func (r *scanEventRepo) ClearBefore(date string) error {
 }
 
 func (r *scanEventRepo) Clear() error {
-	return r.db.Where("1 = 1").Delete(&biz.ScanEvent{}).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("1 = 1").Delete(&biz.ScanEvent{}).Error; err != nil {
+			return err
+		}
+		return tx.Where("1 = 1").Delete(&biz.ScanSource{}).Error
+	})
 }
 
 func (r *scanEventRepo) VacuumDB() error {
+	if err := r.db.Exec("DELETE FROM scan_sources WHERE id NOT IN (SELECT source_id FROM scan_events)").Error; err != nil {
+		return err
+	}
 	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
 		return err
 	}

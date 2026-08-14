@@ -565,7 +565,7 @@ func (s *ToolboxMigrationService) importExternalWebsite(
 		}
 		return nil
 	})
-	contentRoot := staging
+	var contentRoot string
 	if inner != "" {
 		payload, payloadErr := os.MkdirTemp(staging, "payload-*")
 		if payloadErr != nil {
@@ -748,9 +748,10 @@ func (s *ToolboxMigrationService) importExternalProject(
 				executable = "java" + runtimeSlug
 			}
 		case types.ProjectTypeNodejs:
-			if base == "node" {
+			switch base {
+			case "node":
 				executable = "node" + runtimeSlug
-			} else if base == "npm" || base == "npx" || base == "corepack" {
+			case "npm", "npx", "corepack":
 				executable = filepath.Join(app.Root, "server", "nodejs", runtimeSlug, "bin", base)
 			}
 		case types.ProjectTypePython:
@@ -1337,7 +1338,7 @@ func (s *ToolboxMigrationService) importExternalCompose(
 	}
 	services, ok := document["services"].(map[string]any)
 	if !ok || len(services) == 0 {
-		return created, warnings, errors.New("Compose YAML does not contain services")
+		return created, warnings, errors.New("compose YAML does not contain services")
 	}
 	relocateBind := func(source, destination string) string {
 		if !filepath.IsAbs(source) {

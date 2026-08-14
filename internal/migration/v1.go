@@ -165,4 +165,13 @@ func init() {
 			return tx.Migrator().DropTable("monitors")
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260814-remove-main-scan-events",
+		Migrate: func(tx *gorm.DB) error {
+			if !tx.Migrator().HasTable("scan_events") {
+				return nil
+			}
+			return tx.Migrator().DropTable("scan_events")
+		},
+	})
 }

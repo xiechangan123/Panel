@@ -10,19 +10,28 @@ import (
 // ScanEvent 扫描事件模型
 type ScanEvent struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	SourceIP  string    `gorm:"not null;uniqueIndex:idx_scan_unique" json:"source_ip"`
-	Port      uint      `gorm:"not null;uniqueIndex:idx_scan_unique" json:"port"`
-	Protocol  string    `gorm:"not null;default:'tcp';uniqueIndex:idx_scan_unique" json:"protocol"`
-	Date      string    `gorm:"not null;uniqueIndex:idx_scan_unique;index:idx_scan_date" json:"date"` // YYYY-MM-DD
+	SourceID  uint      `gorm:"not null;uniqueIndex:idx_scan_unique,priority:2" json:"-"`
+	Port      uint      `gorm:"not null;uniqueIndex:idx_scan_unique,priority:3" json:"port"`
+	Protocol  string    `gorm:"not null;default:'tcp';uniqueIndex:idx_scan_unique,priority:4" json:"protocol"`
+	Date      string    `gorm:"not null;uniqueIndex:idx_scan_unique,priority:1" json:"date"` // YYYY-MM-DD
 	Count     uint      `gorm:"not null;default:1" json:"count"`
-	Country   string    `gorm:"not null;default:''" json:"country"`
-	Region    string    `gorm:"not null;default:''" json:"region"`
-	City      string    `gorm:"not null;default:''" json:"city"`
-	ISP       string    `gorm:"not null;default:''" json:"isp"`
 	FirstSeen time.Time `gorm:"not null" json:"first_seen"`
 	LastSeen  time.Time `gorm:"not null" json:"last_seen"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	SourceIP  string    `gorm:"->;-:migration" json:"source_ip"`
+	Country   string    `gorm:"->;-:migration" json:"country"`
+	Region    string    `gorm:"->;-:migration" json:"region"`
+	City      string    `gorm:"->;-:migration" json:"city"`
+	ISP       string    `gorm:"->;-:migration" json:"isp"`
+}
+
+// ScanSource 扫描来源模型
+type ScanSource struct {
+	ID       uint   `gorm:"primaryKey"`
+	SourceIP string `gorm:"not null;uniqueIndex:idx_scan_sources_ip"`
+	Country  string `gorm:"not null;default:''"`
+	Region   string `gorm:"not null;default:''"`
+	City     string `gorm:"not null;default:''"`
+	ISP      string `gorm:"not null;default:''"`
 }
 
 // ScanSummary 扫描汇总
