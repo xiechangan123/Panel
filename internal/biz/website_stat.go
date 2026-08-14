@@ -30,12 +30,12 @@ type WebsiteStat struct {
 type WebsiteErrorLog struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	Site      string    `gorm:"not null;index:idx_werr_site_time" json:"site"`
-	URI       string    `gorm:"not null" json:"uri"`
+	URI       string    `gorm:"not null;serializer:zstd" json:"uri"`
 	Method    string    `gorm:"not null" json:"method"`
 	Status    int       `gorm:"not null;index" json:"status"`
 	IP        string    `gorm:"not null" json:"ip"`
-	UA        string    `gorm:"not null" json:"ua"`
-	Body      string    `gorm:"type:text" json:"body"`
+	UA        string    `gorm:"not null;serializer:zstd" json:"ua"`
+	Body      string    `gorm:"type:text;serializer:zstd" json:"body"`
 	CreatedAt time.Time `gorm:"index:idx_werr_site_time" json:"created_at"`
 }
 

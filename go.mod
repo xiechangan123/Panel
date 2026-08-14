@@ -24,6 +24,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/gookit/color v1.6.1
 	github.com/hashicorp/go-version v1.9.0
+	github.com/klauspost/compress v1.19.2
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/lib/pq v1.12.3
 	github.com/libdns/alidns v1.0.7

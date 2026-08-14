@@ -33,13 +33,14 @@ type PanelTask struct {
 	cacheRepo   *biz.CacheUsecase
 	taskRepo    *biz.TaskUsecase
 	settingRepo *biz.SettingUsecase
+	monitorRepo *biz.MonitorUsecase
 	scanRepo    *biz.ScanEventUsecase
 	statRepo    *biz.WebsiteStatUsecase
 	tamperRepo  *biz.TamperUsecase
 }
 
 // NewPanelTask 构造面板每日任务
-func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, conf *config.Config, db *gorm.DB, log *slog.Logger) Job {
+func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, monitorUsecase *biz.MonitorUsecase, scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz.SettingUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, conf *config.Config, db *gorm.DB, log *slog.Logger) Job {
 	return Job{
 		Spec: "0 2 * * *",
 		Task: &PanelTask{
@@ -51,6 +52,7 @@ func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUseca
 			cacheRepo:   cacheUsecase,
 			taskRepo:    taskUsecase,
 			settingRepo: settingUsecase,
+			monitorRepo: monitorUsecase,
 			scanRepo:    scanEventUsecase,
 			statRepo:    websiteStatUsecase,
 			tamperRepo:  tamperUsecase,
@@ -81,6 +83,9 @@ func (r *PanelTask) Run(_ context.Context) error {
 	}
 	if err := r.tamperRepo.VacuumDB(); err != nil {
 		r.log.Warn("failed to vacuum tamper database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
+	}
+	if err := r.monitorRepo.VacuumDB(); err != nil {
+		r.log.Warn("failed to vacuum monitor database", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
 	// 备份面板

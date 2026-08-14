@@ -31,7 +31,7 @@ type TamperRule struct {
 // TamperLog 篡改拦截/告警日志
 type TamperLog struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Path      string    `gorm:"not null;default:'';index" json:"path"`
+	Path      string    `gorm:"not null;default:'';serializer:zstd" json:"path"`
 	Op        string    `gorm:"not null;default:''" json:"op"` // write/unlink/rename/setattr/create
 	PID       uint      `gorm:"not null;default:0" json:"pid"`
 	Comm      string    `gorm:"not null;default:''" json:"comm"`

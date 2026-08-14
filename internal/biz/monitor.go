@@ -11,14 +11,17 @@ import (
 
 type Monitor struct {
 	ID        uint              `gorm:"primaryKey" json:"id"`
-	Info      types.CurrentInfo `gorm:"not null;default:'{}';serializer:json" json:"info"`
-	CreatedAt time.Time         `json:"created_at"`
+	Info      types.CurrentInfo `gorm:"not null;default:'{}';serializer:zstd" json:"info"`
+	CreatedAt time.Time         `gorm:"index:idx_monitors_created_at" json:"created_at"`
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
 type MonitorRepo interface {
+	Create(monitor *Monitor) error
+	ClearBefore(t time.Time) error
 	Clear() error
 	List(start, end time.Time) ([]*Monitor, error)
+	VacuumDB() error
 }
 
 type MonitorUsecase struct {
@@ -75,6 +78,18 @@ func (uc *MonitorUsecase) Clear() error {
 	return uc.repo.Clear()
 }
 
+func (uc *MonitorUsecase) Create(monitor *Monitor) error {
+	return uc.repo.Create(monitor)
+}
+
+func (uc *MonitorUsecase) ClearBefore(t time.Time) error {
+	return uc.repo.ClearBefore(t)
+}
+
 func (uc *MonitorUsecase) List(start, end time.Time) ([]*Monitor, error) {
 	return uc.repo.List(start, end)
+}
+
+func (uc *MonitorUsecase) VacuumDB() error {
+	return uc.repo.VacuumDB()
 }

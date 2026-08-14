@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/spf13/cast"
-	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -15,19 +14,19 @@ import (
 
 // Monitoring 系统监控
 type Monitoring struct {
-	db          *gorm.DB
 	log         *slog.Logger
+	monitorRepo *biz.MonitorUsecase
 	settingRepo *biz.SettingUsecase
 	lastRun     time.Time
 }
 
 // NewMonitoring 构造系统监控任务
-func NewMonitoring(settingUsecase *biz.SettingUsecase, db *gorm.DB, log *slog.Logger) Job {
+func NewMonitoring(settingUsecase *biz.SettingUsecase, monitorUsecase *biz.MonitorUsecase, log *slog.Logger) Job {
 	return Job{
 		Spec: "* * * * *",
 		Task: &Monitoring{
-			db:          db,
 			log:         log,
+			monitorRepo: monitorUsecase,
 			settingRepo: settingUsecase,
 		},
 	}
@@ -64,7 +63,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 		return nil
 	}
 
-	if err = r.db.Create(&biz.Monitor{Info: info}).Error; err != nil {
+	if err = r.monitorRepo.Create(&biz.Monitor{Info: info}); err != nil {
 		r.log.Warn("failed to create monitor record", slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}
@@ -78,7 +77,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 	if day <= 0 || app.Status != app.StatusNormal {
 		return nil
 	}
-	if err = r.db.Where("created_at < ?", time.Now().AddDate(0, 0, -day).Format(time.DateTime)).Delete(&biz.Monitor{}).Error; err != nil {
+	if err = r.monitorRepo.ClearBefore(time.Now().AddDate(0, 0, -day)); err != nil {
 		r.log.Warn("failed to delete monitor record", slog.String("type", biz.OperationTypeMonitor), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}

@@ -4,10 +4,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/internal/migration"
 )
 
 type scanEventRepo struct {
@@ -21,7 +23,7 @@ func NewScanEventRepo() (biz.ScanEventRepo, error) {
 		return nil, err
 	}
 
-	if err = scanDB.AutoMigrate(&biz.ScanEvent{}); err != nil {
+	if err = gormigrate.New(scanDB, nil, migration.ScanMigrations).Migrate(); err != nil {
 		return nil, err
 	}
 

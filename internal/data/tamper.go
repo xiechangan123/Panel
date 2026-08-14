@@ -3,9 +3,11 @@ package data
 import (
 	"time"
 
+	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/internal/migration"
 )
 
 type tamperRepo struct {
@@ -20,7 +22,7 @@ func NewTamperRepo(db *gorm.DB) (biz.TamperRepo, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = logDB.AutoMigrate(&biz.TamperLog{}); err != nil {
+	if err = gormigrate.New(logDB, nil, migration.TamperMigrations).Migrate(); err != nil {
 		return nil, err
 	}
 
@@ -87,11 +89,11 @@ func (r *tamperRepo) ClearLogsBefore(t time.Time) error {
 }
 
 func (r *tamperRepo) VacuumDB() error {
-	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
+	if err := r.logDB.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
 		return err
 	}
-	if err := r.db.Exec("VACUUM").Error; err != nil {
+	if err := r.logDB.Exec("VACUUM").Error; err != nil {
 		return err
 	}
-	return r.db.Exec("PRAGMA optimize").Error
+	return r.logDB.Exec("PRAGMA optimize").Error
 }

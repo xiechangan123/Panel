@@ -20,7 +20,6 @@ func init() {
 				&biz.Cron{},
 				&biz.DatabaseServer{},
 				&biz.DatabaseUser{},
-				&biz.Monitor{},
 				&biz.Setting{},
 				&biz.SSH{},
 				&biz.Task{},
@@ -39,7 +38,6 @@ func init() {
 				&biz.Cron{},
 				&biz.DatabaseServer{},
 				&biz.DatabaseUser{},
-				&biz.Monitor{},
 				&biz.Setting{},
 				&biz.SSH{},
 				&biz.Task{},
@@ -156,6 +154,15 @@ func init() {
 		},
 		Rollback: func(tx *gorm.DB) error {
 			return tx.Migrator().DropTable(&biz.NotifyChannel{}, &biz.AlertRule{}, &biz.Alert{})
+		},
+	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260814-move-monitor",
+		Migrate: func(tx *gorm.DB) error {
+			if !tx.Migrator().HasTable("monitors") {
+				return nil
+			}
+			return tx.Migrator().DropTable("monitors")
 		},
 	})
 }

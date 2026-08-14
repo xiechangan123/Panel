@@ -186,8 +186,8 @@ func (s *ProcessService) processProcessFull(proc *process.Process) types.Process
 	data := s.processProcessBasic(proc)
 
 	if ioStat, err := proc.IOCounters(); err == nil {
-		data.DiskWrite = ioStat.WriteBytes
-		data.DiskRead = ioStat.ReadBytes
+		data.DiskWrite = ioStat.DiskWriteBytes
+		data.DiskRead = ioStat.DiskReadBytes
 	}
 
 	data.Connections, _ = proc.Connections()

@@ -3,10 +3,12 @@ package data
 import (
 	"time"
 
+	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/internal/migration"
 )
 
 type websiteStatRepo struct {
@@ -20,11 +22,7 @@ func NewWebsiteStatRepo() (biz.WebsiteStatRepo, error) {
 		return nil, err
 	}
 
-	if err = statDB.AutoMigrate(
-		&biz.WebsiteStat{}, &biz.WebsiteErrorLog{},
-		&biz.WebsiteStatSpider{}, &biz.WebsiteStatClient{},
-		&biz.WebsiteStatIP{}, &biz.WebsiteStatURI{},
-	); err != nil {
+	if err = gormigrate.New(statDB, nil, migration.WebsiteStatMigrations).Migrate(); err != nil {
 		return nil, err
 	}
 

@@ -636,7 +636,7 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	monitorRepo, err := data.NewMonitorRepo(db)
+	monitorRepo, err := data.NewMonitorRepo()
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -888,6 +888,7 @@ func initAce() (*app.Ace, func(), error) {
 		Cert:        certUsecase,
 		CertAccount: certAccountUsecase,
 		FileShare:   fileShareUsecase,
+		Monitor:     monitorUsecase,
 		Notify:      notifyUsecase,
 		ScanEvent:   scanEventUsecase,
 		Setting:     settingUsecase,

@@ -30,6 +30,7 @@ type Dependencies struct {
 	Cert        *biz.CertUsecase
 	CertAccount *biz.CertAccountUsecase
 	FileShare   *biz.FileShareUsecase
+	Monitor     *biz.MonitorUsecase
 	Notify      *biz.NotifyUsecase
 	ScanEvent   *biz.ScanEventUsecase
 	Setting     *biz.SettingUsecase
@@ -47,11 +48,11 @@ type Dependencies struct {
 func NewJobs(d *Dependencies) []Job {
 	return []Job{
 		NewAlert(d.Alert, d.Log),
-		NewMonitoring(d.Setting, d.DB, d.Log),
+		NewMonitoring(d.Setting, d.Monitor, d.Log),
 		NewFirewallScan(d.ScanEvent, d.Setting, d.Log),
 		NewCertRenew(d.CertAccount, d.Cert, d.Notify, d.Setting, d.Conf, d.DB, d.T, d.Log),
 		NewFileShareClean(d.FileShare, d.Log),
-		NewPanelTask(d.Backup, d.Cache, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.Conf, d.DB, d.Log),
+		NewPanelTask(d.Backup, d.Cache, d.Monitor, d.ScanEvent, d.Setting, d.Tamper, d.Task, d.WebsiteStat, d.Conf, d.DB, d.Log),
 		NewWebsiteStat(d.Setting, d.WebsiteStat, d.Log, d.Aggregator),
 		NewWebsiteExpire(d.Notify, d.Website, d.DB, d.T, d.Log),
 		NewTamper(d.Tamper, d.Log),
