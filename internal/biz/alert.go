@@ -51,13 +51,8 @@ const (
 	AlertTypeWebsiteExpire = "website_expire" // 网站剩余天数，目标为网站名
 )
 
-// statusAlertTypes 状态类指标，语义固定为「不在运行」，不需要运算符与阈值
+// statusAlertTypes 状态类指标
 var statusAlertTypes = []string{AlertTypeService, AlertTypeProject, AlertTypeContainer, AlertTypeApp, AlertTypeDatabase}
-
-// IsStatusAlert 是否为状态类指标
-func IsStatusAlert(typ string) bool {
-	return slices.Contains(statusAlertTypes, typ)
-}
 
 const (
 	// alertRetryDelay 通知发送失败后的重试间隔
@@ -927,7 +922,7 @@ func (uc *AlertUsecase) formatValue(typ string, value float64) string {
 		return fmt.Sprintf("%.0f", value)
 	}
 
-	if IsStatusAlert(typ) {
+	if slices.Contains(statusAlertTypes, typ) {
 		return uc.t.Get("not running")
 	}
 
@@ -936,7 +931,7 @@ func (uc *AlertUsecase) formatValue(typ string, value float64) string {
 
 // normalizeRule 补齐规则的默认值，状态类规则固定为「不在运行」
 func normalizeRule(rule *AlertRule) {
-	if IsStatusAlert(rule.Type) {
+	if slices.Contains(statusAlertTypes, rule.Type) {
 		rule.Operator = AlertOperatorGTE
 		rule.Threshold = 1
 	}

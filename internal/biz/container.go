@@ -7,6 +7,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -72,7 +73,7 @@ func (uc *ContainerUsecase) Create(req *request.ContainerCreate) (string, error)
 }
 
 func (uc *ContainerUsecase) CreateBackground(req *request.ContainerCreate) error {
-	shell, err := containerRunShell(containerSock(uc.setting), req)
+	shell, err := docker.RunShell(containerSock(uc.setting), req)
 	if err != nil {
 		return err
 	}
@@ -105,15 +106,15 @@ func (uc *ContainerUsecase) Update(id string, req *request.ContainerCreate) (str
 
 func (uc *ContainerUsecase) UpdateBackground(id string, req *request.ContainerCreate) error {
 	sock := containerSock(uc.setting)
-	runShell, err := containerRunShell(sock, req)
+	runShell, err := docker.RunShell(sock, req)
 	if err != nil {
 		return err
 	}
 
 	shell := strings.Join([]string{
 		"set -e",
-		dockerCommand(sock, "image", "inspect", req.Image) + " >/dev/null 2>&1 || " + dockerCommand(sock, "pull", req.Image),
-		dockerCommand(sock, "rm", "--force", id),
+		docker.Command(sock, "image", "inspect", req.Image) + " >/dev/null 2>&1 || " + docker.Command(sock, "pull", req.Image),
+		docker.Command(sock, "rm", "--force", id),
 		runShell,
 	}, "\n")
 	target := req.Name

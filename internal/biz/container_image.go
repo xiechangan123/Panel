@@ -4,6 +4,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/docker"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -47,7 +48,7 @@ func (uc *ContainerImageUsecase) Pull(req *request.ContainerImagePull) error {
 }
 
 func (uc *ContainerImageUsecase) PullBackground(req *request.ContainerImagePull) error {
-	shell, cancelShell, err := containerImagePullShell(containerSock(uc.setting), req)
+	shell, cancelShell, err := docker.ImagePullShell(containerSock(uc.setting), req)
 	if err != nil {
 		return err
 	}

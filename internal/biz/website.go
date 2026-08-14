@@ -12,6 +12,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
+	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/acme"
@@ -262,7 +263,7 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 
 	newCert, err := uc.cert.GetByWebsite(website.ID)
 	if err != nil {
-		if IsNotFound(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			newCert, err = uc.cert.Create(ctx, &request.CertCreate{
 				Type:        string(acme.KeyEC256),
 				Domains:     website.Domains,

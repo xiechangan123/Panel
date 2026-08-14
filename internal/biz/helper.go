@@ -2,12 +2,10 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/spf13/cast"
-	"gorm.io/gorm"
 )
 
 // operatorID 从 context 获取操作员 ID，无法获取时返回 0（系统操作）
@@ -20,11 +18,6 @@ func operatorID(ctx context.Context) uint64 {
 		return 0
 	}
 	return cast.ToUint64(userID)
-}
-
-// IsNotFound 判断错误是否为记录不存在
-func IsNotFound(err error) bool {
-	return errors.Is(err, gorm.ErrRecordNotFound)
 }
 
 // containerSock 从设置读取容器 socket 路径，未配置或失败时返回默认值

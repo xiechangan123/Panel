@@ -1,4 +1,4 @@
-package biz
+package docker
 
 import (
 	"errors"
@@ -14,9 +14,10 @@ import (
 	"github.com/acepanel/panel/v3/internal/request"
 )
 
-func containerImagePullShell(sock string, req *request.ContainerImagePull) (string, string, error) {
+// ImagePullShell 生成拉取镜像的命令，需要认证时返回配套的清理命令
+func ImagePullShell(sock string, req *request.ContainerImagePull) (string, string, error) {
 	if !req.Auth {
-		return dockerCommand(sock, "pull", req.Name), "", nil
+		return Command(sock, "pull", req.Name), "", nil
 	}
 
 	named, err := reference.ParseNormalizedNamed(req.Name)
@@ -30,14 +31,15 @@ func containerImagePullShell(sock string, req *request.ContainerImagePull) (stri
 		"set -e",
 		"mkdir -p " + shellQuote(configDir),
 		"trap " + shellQuote(cleanup) + " EXIT",
-		"printf %s " + shellQuote(req.Password) + " | " + dockerCommand(sock, "--config", configDir, "login", "--username", req.Username, "--password-stdin", reference.Domain(named)),
-		dockerCommand(sock, "--config", configDir, "pull", req.Name),
+		"printf %s " + shellQuote(req.Password) + " | " + Command(sock, "--config", configDir, "login", "--username", req.Username, "--password-stdin", reference.Domain(named)),
+		Command(sock, "--config", configDir, "pull", req.Name),
 	}, "\n")
 
 	return shell, cleanup, nil
 }
 
-func containerRunShell(sock string, req *request.ContainerCreate) (string, error) {
+// RunShell 生成后台创建容器的命令
+func RunShell(sock string, req *request.ContainerCreate) (string, error) {
 	args := []string{"run", "--detach"}
 
 	if req.Name != "" {
@@ -74,8 +76,7 @@ func containerRunShell(sock string, req *request.ContainerCreate) (string, error
 		args = append(args, "--cap-drop", capability)
 	}
 	for _, device := range req.Devices {
-		value := strings.Join([]string{device.Host, device.Container, device.Permissions}, ":")
-		args = append(args, "--device", value)
+		args = append(args, "--device", mountSpec(device.Host, device.Container, device.Permissions))
 	}
 	for _, option := range req.SecurityOpt {
 		args = append(args, "--security-opt", option)
@@ -154,7 +155,7 @@ func containerRunShell(sock string, req *request.ContainerCreate) (string, error
 	}
 
 	for _, volume := range req.Volumes {
-		args = append(args, "--volume", strings.Join([]string{volume.Host, volume.Container, volume.Mode}, ":"))
+		args = append(args, "--volume", mountSpec(volume.Host, volume.Container, volume.Mode))
 	}
 	for _, env := range req.Env {
 		args = append(args, "--env", env.Key+"="+env.Value)
@@ -201,10 +202,21 @@ func containerRunShell(sock string, req *request.ContainerCreate) (string, error
 	}
 	args = append(args, req.Command...)
 
-	return dockerCommand(sock, args...), nil
+	return Command(sock, args...), nil
 }
 
-func dockerCommand(sock string, args ...string) string {
+// mountSpec 拼接 docker 的 源:目标[:选项] 形式，
+// 选项为空时不能留下尾随冒号，否则 docker 报 empty section between colons
+func mountSpec(source, target, option string) string {
+	spec := source + ":" + target
+	if option != "" {
+		spec += ":" + option
+	}
+	return spec
+}
+
+// Command 拼接指向指定套接字的 docker 命令，各参数均做转义
+func Command(sock string, args ...string) string {
 	args = append([]string{"docker", "--host", sock}, args...)
 	for i := range args {
 		args[i] = shellQuote(args[i])
