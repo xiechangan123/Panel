@@ -67,6 +67,98 @@ func (_c *MonitorRepo_Clear_Call) RunAndReturn(run func() error) *MonitorRepo_Cl
 	return _c
 }
 
+// ClearBefore provides a mock function with given fields: t
+func (_m *MonitorRepo) ClearBefore(t time.Time) error {
+	ret := _m.Called(t)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ClearBefore")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(time.Time) error); ok {
+		r0 = rf(t)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MonitorRepo_ClearBefore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ClearBefore'
+type MonitorRepo_ClearBefore_Call struct {
+	*mock.Call
+}
+
+// ClearBefore is a helper method to define mock.On call
+//   - t time.Time
+func (_e *MonitorRepo_Expecter) ClearBefore(t interface{}) *MonitorRepo_ClearBefore_Call {
+	return &MonitorRepo_ClearBefore_Call{Call: _e.mock.On("ClearBefore", t)}
+}
+
+func (_c *MonitorRepo_ClearBefore_Call) Run(run func(t time.Time)) *MonitorRepo_ClearBefore_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(time.Time))
+	})
+	return _c
+}
+
+func (_c *MonitorRepo_ClearBefore_Call) Return(_a0 error) *MonitorRepo_ClearBefore_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MonitorRepo_ClearBefore_Call) RunAndReturn(run func(time.Time) error) *MonitorRepo_ClearBefore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Create provides a mock function with given fields: monitor
+func (_m *MonitorRepo) Create(monitor *biz.Monitor) error {
+	ret := _m.Called(monitor)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*biz.Monitor) error); ok {
+		r0 = rf(monitor)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MonitorRepo_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type MonitorRepo_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - monitor *biz.Monitor
+func (_e *MonitorRepo_Expecter) Create(monitor interface{}) *MonitorRepo_Create_Call {
+	return &MonitorRepo_Create_Call{Call: _e.mock.On("Create", monitor)}
+}
+
+func (_c *MonitorRepo_Create_Call) Run(run func(monitor *biz.Monitor)) *MonitorRepo_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.Monitor))
+	})
+	return _c
+}
+
+func (_c *MonitorRepo_Create_Call) Return(_a0 error) *MonitorRepo_Create_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MonitorRepo_Create_Call) RunAndReturn(run func(*biz.Monitor) error) *MonitorRepo_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // List provides a mock function with given fields: start, end
 func (_m *MonitorRepo) List(start time.Time, end time.Time) ([]*biz.Monitor, error) {
 	ret := _m.Called(start, end)
@@ -122,6 +214,51 @@ func (_c *MonitorRepo_List_Call) Return(_a0 []*biz.Monitor, _a1 error) *MonitorR
 }
 
 func (_c *MonitorRepo_List_Call) RunAndReturn(run func(time.Time, time.Time) ([]*biz.Monitor, error)) *MonitorRepo_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// VacuumDB provides a mock function with no fields
+func (_m *MonitorRepo) VacuumDB() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for VacuumDB")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MonitorRepo_VacuumDB_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VacuumDB'
+type MonitorRepo_VacuumDB_Call struct {
+	*mock.Call
+}
+
+// VacuumDB is a helper method to define mock.On call
+func (_e *MonitorRepo_Expecter) VacuumDB() *MonitorRepo_VacuumDB_Call {
+	return &MonitorRepo_VacuumDB_Call{Call: _e.mock.On("VacuumDB")}
+}
+
+func (_c *MonitorRepo_VacuumDB_Call) Run(run func()) *MonitorRepo_VacuumDB_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MonitorRepo_VacuumDB_Call) Return(_a0 error) *MonitorRepo_VacuumDB_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MonitorRepo_VacuumDB_Call) RunAndReturn(run func() error) *MonitorRepo_VacuumDB_Call {
 	_c.Call.Return(run)
 	return _c
 }
