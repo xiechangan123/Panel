@@ -48,11 +48,5 @@ func (r *monitorRepo) List(start, end time.Time) ([]*biz.Monitor, error) {
 }
 
 func (r *monitorRepo) VacuumDB() error {
-	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
-		return err
-	}
-	if err := r.db.Exec("VACUUM").Error; err != nil {
-		return err
-	}
-	return r.db.Exec("PRAGMA optimize").Error
+	return vacuumDB(r.db)
 }

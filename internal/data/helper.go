@@ -79,3 +79,18 @@ func batchUpsert[T any](db *gorm.DB, items []T, conflict clause.OnConflict) erro
 	}
 	return nil
 }
+
+// vacuumDB 清理数据后回收文件空间
+func vacuumDB(db *gorm.DB) error {
+	if err := db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
+		return err
+	}
+	if err := db.Exec("VACUUM").Error; err != nil {
+		return err
+	}
+	// 写回 VACUUM 结果并截断文件
+	if err := db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
+		return err
+	}
+	return db.Exec("PRAGMA optimize").Error
+}

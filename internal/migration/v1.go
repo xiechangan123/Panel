@@ -162,7 +162,10 @@ func init() {
 			if !tx.Migrator().HasTable("monitors") {
 				return nil
 			}
-			return tx.Migrator().DropTable("monitors")
+			if err := tx.Migrator().DropTable("monitors"); err != nil {
+				return err
+			}
+			return vacuumDB(tx)
 		},
 	})
 	Migrations = append(Migrations, &gormigrate.Migration{

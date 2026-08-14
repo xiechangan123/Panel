@@ -153,13 +153,7 @@ func (r *websiteStatRepo) DeleteBySite(site string) error {
 }
 
 func (r *websiteStatRepo) VacuumDB() error {
-	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
-		return err
-	}
-	if err := r.db.Exec("VACUUM").Error; err != nil {
-		return err
-	}
-	return r.db.Exec("PRAGMA optimize").Error
+	return vacuumDB(r.db)
 }
 
 // ========== 蜘蛛统计 ==========

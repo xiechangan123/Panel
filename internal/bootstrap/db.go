@@ -57,8 +57,5 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 }
 
 func NewMigrate(db *gorm.DB) (*gormigrate.Gormigrate, error) {
-
-	return gormigrate.New(db, &gormigrate.Options{
-		UseTransaction: true, // Note: MySQL not support DDL transaction
-	}, migration.Migrations), nil
+	return gormigrate.New(db, nil, migration.Migrations), nil
 }

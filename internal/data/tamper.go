@@ -89,11 +89,5 @@ func (r *tamperRepo) ClearLogsBefore(t time.Time) error {
 }
 
 func (r *tamperRepo) VacuumDB() error {
-	if err := r.logDB.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
-		return err
-	}
-	if err := r.logDB.Exec("VACUUM").Error; err != nil {
-		return err
-	}
-	return r.logDB.Exec("PRAGMA optimize").Error
+	return vacuumDB(r.logDB)
 }

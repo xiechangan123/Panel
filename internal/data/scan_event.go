@@ -173,13 +173,7 @@ func (r *scanEventRepo) VacuumDB() error {
 	if err := r.db.Exec("DELETE FROM scan_sources WHERE id NOT IN (SELECT source_id FROM scan_events)").Error; err != nil {
 		return err
 	}
-	if err := r.db.Exec("PRAGMA wal_checkpoint(TRUNCATE)").Error; err != nil {
-		return err
-	}
-	if err := r.db.Exec("VACUUM").Error; err != nil {
-		return err
-	}
-	return r.db.Exec("PRAGMA optimize").Error
+	return vacuumDB(r.db)
 }
 
 // parseTimeStr 解析 Go time.String() 格式并转为 RFC3339

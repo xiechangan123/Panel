@@ -24,14 +24,17 @@ var TamperMigrations = []*gormigrate.Migration{
 				}
 			}
 
+			var cursor uint
 			for {
 				var items []*biz.TamperLog
-				if err := tx.Where("typeof(path) = 'text'").Order("id").Limit(batchSize).Find(&items).Error; err != nil {
+				if err := tx.Where("id > ? AND typeof(path) = 'text'", cursor).
+					Order("id").Limit(batchSize).Find(&items).Error; err != nil {
 					return err
 				}
 				if len(items) == 0 {
 					break
 				}
+				cursor = items[len(items)-1].ID
 				if err := tx.Clauses(clause.OnConflict{
 					Columns:   []clause.Column{{Name: "id"}},
 					DoUpdates: clause.AssignmentColumns([]string{"path"}),

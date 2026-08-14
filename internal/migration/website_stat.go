@@ -22,15 +22,18 @@ var WebsiteStatMigrations = []*gormigrate.Migration{
 	{
 		ID: "20260814-compress-website-error-logs",
 		Migrate: func(tx *gorm.DB) error {
+			var cursor uint
 			for {
 				var items []*biz.WebsiteErrorLog
-				if err := tx.Where("typeof(uri) = 'text' OR typeof(ua) = 'text' OR typeof(body) = 'text'").
-					Order("id").Limit(batchSize).Find(&items).Error; err != nil {
+				if err := tx.Where(
+					"id > ? AND (typeof(uri) = 'text' OR typeof(ua) = 'text' OR typeof(body) = 'text')", cursor,
+				).Order("id").Limit(batchSize).Find(&items).Error; err != nil {
 					return err
 				}
 				if len(items) == 0 {
 					break
 				}
+				cursor = items[len(items)-1].ID
 				if err := tx.Clauses(clause.OnConflict{
 					Columns:   []clause.Column{{Name: "id"}},
 					DoUpdates: clause.AssignmentColumns([]string{"uri", "ua", "body"}),
