@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
+	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -159,8 +160,7 @@ func (uc *ToolboxMigrationUsecase) pushDatabaseUser(
 	conn *request.ToolboxMigrationConnection,
 	item types.MigrationItem,
 ) ([]string, error) {
-	id, _ := strconv.ParseUint(item.SourceID, 10, 64)
-	user, err := uc.databaseUser.Get(ctx, uint(id))
+	user, err := uc.databaseUser.Get(ctx, cast.ToUint(item.SourceID))
 	if err != nil || user.Server == nil {
 		return nil, errors.New(uc.t.Get("failed to read database user detail: %v", err))
 	}
@@ -186,19 +186,19 @@ func (uc *ToolboxMigrationUsecase) pushWebsite(
 	item types.MigrationItem,
 	stopSource bool,
 ) ([]string, error) {
-	id, _ := strconv.ParseUint(item.SourceID, 10, 64)
-	website, err := uc.website.Get(uint(id))
+	id := cast.ToUint(item.SourceID)
+	website, err := uc.website.Get(id)
 	if err != nil {
 		return nil, errors.New(uc.t.Get("failed to read website detail: %v", err))
 	}
 	// 备份期间停站避免文件不一致，备份落盘后立即恢复
 	stopped := stopSource && item.Status == "running"
 	if stopped {
-		_ = uc.website.UpdateStatus(uint(id), false)
+		_ = uc.website.UpdateStatus(id, false)
 	}
 	backup, err := uc.createBackup(ctx, BackupTypeWebsite, item.Name)
 	if stopped {
-		_ = uc.website.UpdateStatus(uint(id), true)
+		_ = uc.website.UpdateStatus(id, true)
 	}
 	if err != nil {
 		return nil, errors.New(uc.t.Get("website backup failed: %v", err))
@@ -265,8 +265,7 @@ func (uc *ToolboxMigrationUsecase) pushProject(
 	item types.MigrationItem,
 	stopSource bool,
 ) ([]string, error) {
-	id, _ := strconv.ParseUint(item.SourceID, 10, 64)
-	project, err := uc.project.Get(uint(id))
+	project, err := uc.project.Get(cast.ToUint(item.SourceID))
 	if err != nil {
 		return nil, errors.New(uc.t.Get("failed to read project detail: %v", err))
 	}
