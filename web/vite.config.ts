@@ -1,9 +1,9 @@
 import { defineConfig, loadEnv } from 'vite'
 
-import { viteDefine } from './config/define'
-import { setupVitePlugins } from './config/plugins'
-import { createViteProxy } from './config/proxy'
-import { convertEnv, getRootPath, getSrcPath } from './config/utils'
+import { viteDefine } from './config/define.ts'
+import { setupVitePlugins } from './config/plugins.ts'
+import { createViteProxy } from './config/proxy.ts'
+import { convertEnv, getRootPath, getSrcPath } from './config/utils.ts'
 
 export default defineConfig(({ mode }) => {
   const srcPath = getSrcPath()
@@ -17,7 +17,9 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '~': rootPath,
-        '@': srcPath
+        '@': srcPath,
+        // 剔除 vue3-gettext 附带的 pofile
+        pofile: `${rootPath}/config/pofile-stub.ts`
       }
     },
     define: viteDefine,

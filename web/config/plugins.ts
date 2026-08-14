@@ -4,8 +4,8 @@ import unocss from 'unocss/vite'
 import { compression } from 'vite-plugin-compression2'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-import { setupHtmlPlugin } from './html'
-import unplugins from './unplugin'
+import { setupHtmlPlugin } from './html.ts'
+import unplugins from './unplugin.ts'
 
 export function setupVitePlugins(viteEnv: ViteEnv): PluginOption[] {
   return [

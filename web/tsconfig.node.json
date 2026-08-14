@@ -14,6 +14,9 @@
     "module": "preserve",
     "moduleResolution": "bundler",
 
+    // Vite 的原生配置加载器要求相对导入带上显式扩展名。
+    "allowImportingTsExtensions": true,
+
     // Include Node.js types and avoid accidentally including other `@types/*` packages.
     "types": ["node"],
 
