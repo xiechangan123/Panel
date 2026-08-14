@@ -3,7 +3,6 @@ package biz
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -58,6 +57,12 @@ const (
 	sshFailThreshold uint = 5
 	// sshFailSilence 同一来源两次爆破告警的最小间隔
 	sshFailSilence = 30 * time.Minute
+	// sshScanTimeout 单轮 sshd 日志扫描超时，避免 journalctl 卡死拖垮整个告警评估
+	sshScanTimeout = 30 * time.Second
+	// sshScanLimit 单轮最多读取的日志条数，防止爆破期间读入过多日志
+	sshScanLimit = 5000
+	// sshCursorPrefix journalctl --show-cursor 在输出末尾打印的游标行前缀
+	sshCursorPrefix = "-- cursor: "
 )
 
 // 告警比较运算符
@@ -157,6 +162,7 @@ type AlertUsecase struct {
 	healthKeys map[string]struct{}   // 已通知的健康问题
 	sshFired   map[string]time.Time  // SSH 爆破上次通知时间
 	sshAt      time.Time             // SSH 日志上次检查时间
+	sshCursor  string                // SSH 日志上次读取到的 journal 游标
 	cleanedAt  time.Time             // 上次清理历史告警的时间
 }
 
@@ -638,20 +644,30 @@ func (uc *AlertUsecase) checkSSH(ctx context.Context) {
 	now := time.Now()
 
 	uc.mu.Lock()
-	since := uc.sshAt
+	since, cursor := uc.sshAt, uc.sshCursor
 	uc.sshAt = now
 	uc.mu.Unlock()
 
-	// 首次仅记录时间，避免面板启动时把历史日志全推一遍
-	if since.IsZero() {
-		return
+	// 常态按游标增量读取：journald 对游标是直接定位，而带 -u 过滤的 --since 需沿匹配链回溯，
+	// sshd 日志量大时会非常慢。首次用 -n 0 只定位当前游标不输出日志，既避免面板启动时把历史
+	// 日志全推一遍，也让后续各轮都能走游标快路径；仅在游标失效后回退一轮 --since
+	limit, position := sshScanLimit, fmt.Sprintf("--after-cursor %q", cursor)
+	switch {
+	case since.IsZero():
+		limit, position = 0, ""
+	case cursor == "":
+		position = fmt.Sprintf(`--since "@%d"`, since.Unix())
 	}
 
-	raw, err := shell.ExecfWithContext(ctx, `journalctl -u sshd -u ssh --no-pager -o json --since "@%d" 2>/dev/null`, since.Unix())
+	// 只用到 MESSAGE，-o cat 免去 journald 侧序列化几十个无关字段和这边的逐行反序列化
+	scanCtx, cancel := context.WithTimeout(ctx, sshScanTimeout)
+	defer cancel()
+	raw, err := shell.ExecfWithContext(scanCtx, `journalctl -u sshd -u ssh --no-pager -q -o cat --show-cursor -n %d %s 2>/dev/null`, limit, position)
 	if err != nil {
-		// 读取失败则回退检查点，下一轮重扫该窗口，避免丢掉这段时间的登录记录
+		// 读取失败（含游标因日志轮转失效）则回退检查点并丢弃游标，下一轮按时间窗口重扫
 		uc.mu.Lock()
 		uc.sshAt = since
+		uc.sshCursor = ""
 		uc.mu.Unlock()
 		return
 	}
@@ -663,14 +679,17 @@ func (uc *AlertUsecase) checkSSH(ctx context.Context) {
 	scanner := bufio.NewScanner(strings.NewReader(raw))
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
-		var entry struct {
-			Message string `json:"MESSAGE"`
-		}
-		if json.Unmarshal(scanner.Bytes(), &entry) != nil {
+		line := scanner.Text()
+
+		// 游标行由 --show-cursor 在末尾单独打印，无新日志时不打印
+		if next, ok := strings.CutPrefix(line, sshCursorPrefix); ok {
+			uc.mu.Lock()
+			uc.sshCursor = next
+			uc.mu.Unlock()
 			continue
 		}
 
-		record := sshlog.ParseMessage(entry.Message)
+		record := sshlog.ParseMessage(line)
 		if record == nil {
 			continue
 		}
