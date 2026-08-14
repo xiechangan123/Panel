@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -16,6 +17,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -31,16 +33,16 @@ type MigrationSourceRepo interface {
 	SetRunning(ctx context.Context, conn *request.ToolboxMigrationConnection, item types.MigrationItem, running bool) error
 	// Backup 在来源侧生成备份，返回来源上的文件路径
 	Backup(ctx context.Context, conn *request.ToolboxMigrationConnection, detail *types.MigrationDetail) (string, error)
-	// Download 下载来源备份到本地
-	Download(ctx context.Context, conn *request.ToolboxMigrationConnection, remote, local string) error
+	// Download 下载来源备份到本地，progress 可为 nil
+	Download(ctx context.Context, conn *request.ToolboxMigrationConnection, remote, local string, progress types.MigrationProgress) error
 }
 
 // MigrationRemoteRepo 访问目标 AcePanel 面板（AcePanel 之间迁移使用）
 type MigrationRemoteRepo interface {
 	// Request 调用目标面板 API
 	Request(ctx context.Context, conn *request.ToolboxMigrationConnection, method, path string, body any) ([]byte, error)
-	// Upload 分片上传文件到目标面板
-	Upload(ctx context.Context, conn *request.ToolboxMigrationConnection, local, remote string) error
+	// Upload 分片上传文件到目标面板，progress 可为 nil
+	Upload(ctx context.Context, conn *request.ToolboxMigrationConnection, local, remote string, progress types.MigrationProgress) error
 	// Exec 在目标面板执行命令
 	Exec(ctx context.Context, conn *request.ToolboxMigrationConnection, command string) error
 }
@@ -390,7 +392,7 @@ func (uc *ToolboxMigrationUsecase) pull(
 
 	uc.setStage(item.Key, types.MigrationStageTransfer)
 	local := filepath.Join(tmpDir, filepath.Base(remote))
-	if err = uc.source.Download(ctx, conn, remote, local); err != nil {
+	if err = uc.source.Download(ctx, conn, remote, local, uc.transferProgress(item.Name, uc.t.Get("downloading"))); err != nil {
 		return nil, errors.New(uc.t.Get("failed to download source backup: %v", err))
 	}
 
@@ -454,6 +456,27 @@ func (uc *ToolboxMigrationUsecase) connection() (*request.ToolboxMigrationConnec
 		return nil, errors.New(uc.t.Get("please connect to the source server first"))
 	}
 	return uc.state.connection, nil
+}
+
+// transferProgress 生成传输进度回调
+func (uc *ToolboxMigrationUsecase) transferProgress(name, action string) types.MigrationProgress {
+	start := time.Now()
+	last, logged := start, false
+	return func(transferred, total int64) {
+		now := time.Now()
+		done := logged && total > 0 && transferred >= total
+		if now.Sub(last) < time.Second && !done {
+			return
+		}
+		last, logged = now, true
+
+		speed := float64(transferred) / now.Sub(start).Seconds()
+		progress := tools.FormatBytes(float64(transferred))
+		if total > 0 {
+			progress = fmt.Sprintf("%s/%s %.1f%%", progress, tools.FormatBytes(float64(total)), float64(transferred)/float64(total)*100)
+		}
+		uc.addLog(fmt.Sprintf("[%s] %s %s %s/s", name, action, progress, tools.FormatBytes(speed)))
+	}
 }
 
 func (uc *ToolboxMigrationUsecase) addLog(message string) {

@@ -83,6 +83,7 @@ func (a *onePanelAdapter) websiteItems(ctx context.Context) ([]types.MigrationIt
 		return nil, fmt.Errorf("load websites: %w", err)
 	}
 
+	runtimes := a.phpRuntimes(ctx)
 	items := make([]types.MigrationItem, 0)
 	for _, row := range a.rows(cast.ToStringMap(data)["items"]) {
 		id := cast.ToString(row["id"])
@@ -106,6 +107,8 @@ func (a *onePanelAdapter) websiteItems(ctx context.Context) ([]types.MigrationIt
 			if !strings.EqualFold(cast.ToString(row["runtimeType"]), "php") {
 				item.Blockers = []string{a.t.Get("only PHP runtime websites can be migrated: %s", cast.ToString(row["runtimeType"]))}
 			}
+			// 网站列表只给运行环境名，版本得从运行环境列表里取
+			item.Version = runtimes[cast.ToString(row["runtimeName"])]
 		default:
 			item.Subtype = typ
 			item.Blockers = []string{a.t.Get("this 1Panel website type is not supported for automatic migration: %s", typ)}
@@ -113,6 +116,19 @@ func (a *onePanelAdapter) websiteItems(ctx context.Context) ([]types.MigrationIt
 		items = append(items, item)
 	}
 	return items, nil
+}
+
+// phpRuntimes 返回 PHP 运行环境名到版本号的映射
+func (a *onePanelAdapter) phpRuntimes(ctx context.Context) map[string]string {
+	data, err := a.api(ctx, http.MethodPost, "/runtimes/search", map[string]any{
+		"page": 1, "pageSize": 10000, "type": "php",
+	})
+	if err != nil {
+		return nil
+	}
+	return lo.SliceToMap(a.rows(cast.ToStringMap(data)["items"]), func(row map[string]any) (string, string) {
+		return cast.ToString(row["name"]), cast.ToString(cast.ToStringMap(row["params"])["PHP_VERSION"])
+	})
 }
 
 // databaseItems 列出本机 MySQL / MariaDB / PostgreSQL 数据库
@@ -427,10 +443,10 @@ func (a *onePanelAdapter) waitBackup(ctx context.Context, backup map[string]any)
 	return nil, errors.New(a.t.Get("the source backup did not finish in time"))
 }
 
-func (a *onePanelAdapter) Download(ctx context.Context, remote, local string) error {
+func (a *onePanelAdapter) Download(ctx context.Context, remote, local string, progress types.MigrationProgress) error {
 	return a.tryVersions(func() error {
 		a.downloadPath = a.resolve("/files/download")
-		return a.download(ctx, remote, local)
+		return a.download(ctx, remote, local, progress)
 	})
 }
 

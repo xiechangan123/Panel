@@ -26,6 +26,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 // migrationChunkSize 分片上传的单片大小
@@ -103,7 +104,12 @@ func (r *migrationRemoteRepo) Request(
 }
 
 // Upload 分片上传文件到目标面板，支持断点续传
-func (r *migrationRemoteRepo) Upload(ctx context.Context, conn *request.ToolboxMigrationConnection, local, remote string) error {
+func (r *migrationRemoteRepo) Upload(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+	local, remote string,
+	progress types.MigrationProgress,
+) error {
 	file, err := os.Open(local)
 	if err != nil {
 		return err
@@ -135,12 +141,15 @@ func (r *migrationRemoteRepo) Upload(ctx context.Context, conn *request.ToolboxM
 	uploaded := r.uploadedChunks(body)
 
 	// ReadFull 保证除末片外读满分片大小，避免短读导致分片错位
+	var transferred int64
 	buffer := make([]byte, migrationChunkSize)
 	for index := range chunks {
 		n, readErr := io.ReadFull(file, buffer)
 		if readErr != nil && !errors.Is(readErr, io.EOF) && !errors.Is(readErr, io.ErrUnexpectedEOF) {
 			return fmt.Errorf("read chunk %d: %w", index, readErr)
 		}
+		// 断点续传时已传分片同样计入进度，否则进度会从中途重新爬
+		transferred += int64(n)
 		if slices.Contains(uploaded, index) {
 			continue
 		}
@@ -148,6 +157,9 @@ func (r *migrationRemoteRepo) Upload(ctx context.Context, conn *request.ToolboxM
 		sum := sha256.Sum256(chunk)
 		if err = r.uploadChunk(ctx, conn, meta, index, hex.EncodeToString(sum[:]), chunk); err != nil {
 			return fmt.Errorf("upload chunk %d: %w", index, err)
+		}
+		if progress != nil {
+			progress(transferred, info.Size())
 		}
 	}
 

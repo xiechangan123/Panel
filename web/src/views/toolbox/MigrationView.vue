@@ -41,9 +41,11 @@ const results = ref<MigrationResult[]>([])
 const running = ref(false)
 const startedAt = ref<string | null>(null)
 const endedAt = ref<string | null>(null)
+const now = ref(Date.now())
 
 let progressWs: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let clock: ReturnType<typeof setInterval> | null = null
 
 const panels = computed(() => [
   {
@@ -262,6 +264,26 @@ const formatSize = (bytes: number) => {
 
 const formatDate = (value: string | null) => (value ? new Date(value).toLocaleString() : '—')
 
+const formatDuration = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = String(Math.floor(seconds / 60) % 60)
+  const rest = String(seconds % 60).padStart(2, '0')
+  return hours > 0 ? `${hours}:${minutes.padStart(2, '0')}:${rest}` : `${minutes}:${rest}`
+}
+
+// 运行中显示实时累计耗时，结束后显示时间区间与总耗时
+const timeLabel = computed(() => {
+  if (!startedAt.value) return ''
+  const started = formatDate(startedAt.value)
+  const end = endedAt.value ? new Date(endedAt.value).getTime() : now.value
+  const elapsed = formatDuration(
+    Math.max(0, Math.round((end - new Date(startedAt.value).getTime()) / 1000))
+  )
+  return endedAt.value
+    ? `${started} — ${formatDate(endedAt.value)} (${elapsed})`
+    : $gettext('%{ started }, running for %{ elapsed }', { started, elapsed })
+})
+
 const handleConnect = () => {
   if (!connection.value.url) {
     window.$message.error($gettext('Please enter the panel address.'))
@@ -430,7 +452,26 @@ onMounted(() => {
   })
 })
 
-onUnmounted(closeProgress)
+// 迁移进行中才需要走时，结束后停掉避免空转
+watch(
+  running,
+  (value) => {
+    if (clock) {
+      clearInterval(clock)
+      clock = null
+    }
+    if (value) {
+      now.value = Date.now()
+      clock = setInterval(() => (now.value = Date.now()), 1000)
+    }
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  closeProgress()
+  if (clock) clearInterval(clock)
+})
 
 watch(
   () => connection.value.source_panel,
@@ -556,7 +597,7 @@ watch(
     <n-card v-if="step >= 2" :title="running ? $gettext('Migrating') : $gettext('Migration done')">
       <template #header-extra>
         <n-flex align="center" :size="12">
-          <n-text depth="3">{{ formatDate(startedAt) }} — {{ formatDate(endedAt) }}</n-text>
+          <n-text depth="3">{{ timeLabel }}</n-text>
           <n-button v-if="!running" tag="a" :href="migration.logUrl" size="small">
             {{ $gettext('Download log') }}
           </n-button>
@@ -597,3 +638,10 @@ watch(
     </n-card>
   </n-flex>
 </template>
+
+<style scoped>
+/* 末步去除空白 */
+:deep(.n-step:last-child) {
+  flex: 0 0 auto;
+}
+</style>

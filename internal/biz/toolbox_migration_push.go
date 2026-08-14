@@ -150,7 +150,7 @@ func (uc *ToolboxMigrationUsecase) pushDatabase(
 		return nil, errors.New(uc.t.Get("failed to create database on target: %v", err))
 	}
 	uc.setStage(item.Key, types.MigrationStageTransfer)
-	if err = uc.remote.Upload(ctx, conn, backup, backup); err != nil {
+	if err = uc.remote.Upload(ctx, conn, backup, backup, uc.transferProgress(item.Name, uc.t.Get("uploading"))); err != nil {
 		return nil, errors.New(uc.t.Get("backup transfer failed: %v", err))
 	}
 
@@ -234,7 +234,7 @@ func (uc *ToolboxMigrationUsecase) pushWebsite(
 		return nil, errors.New(uc.t.Get("failed to create website on target: %v", err))
 	}
 	uc.setStage(item.Key, types.MigrationStageTransfer)
-	if err = uc.remote.Upload(ctx, conn, backup, backup); err != nil {
+	if err = uc.remote.Upload(ctx, conn, backup, backup, uc.transferProgress(item.Name, uc.t.Get("uploading"))); err != nil {
 		return nil, errors.New(uc.t.Get("backup transfer failed: %v", err))
 	}
 
@@ -315,7 +315,7 @@ func (uc *ToolboxMigrationUsecase) pushProject(
 		return nil, errors.New(uc.t.Get("failed to create project on target: %v", err))
 	}
 	uc.setStage(item.Key, types.MigrationStageTransfer)
-	if err = uc.remote.Upload(ctx, conn, archive, archive); err != nil {
+	if err = uc.remote.Upload(ctx, conn, archive, archive, uc.transferProgress(item.Name, uc.t.Get("uploading"))); err != nil {
 		return nil, errors.New(uc.t.Get("backup transfer failed: %v", err))
 	}
 

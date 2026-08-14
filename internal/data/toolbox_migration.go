@@ -30,7 +30,7 @@ type migrationAdapter interface {
 	Detail(ctx context.Context, item types.MigrationItem) (*types.MigrationDetail, error)
 	SetRunning(ctx context.Context, item types.MigrationItem, running bool) error
 	Backup(ctx context.Context, detail *types.MigrationDetail) (string, error)
-	Download(ctx context.Context, remote, local string) error
+	Download(ctx context.Context, remote, local string, progress types.MigrationProgress) error
 }
 
 type migrationSourceRepo struct {
@@ -105,12 +105,17 @@ func (r *migrationSourceRepo) Backup(
 	return adapter.Backup(ctx, detail)
 }
 
-func (r *migrationSourceRepo) Download(ctx context.Context, conn *request.ToolboxMigrationConnection, remote, local string) error {
+func (r *migrationSourceRepo) Download(
+	ctx context.Context,
+	conn *request.ToolboxMigrationConnection,
+	remote, local string,
+	progress types.MigrationProgress,
+) error {
 	adapter, err := r.adapter(conn)
 	if err != nil {
 		return err
 	}
-	return adapter.Download(ctx, remote, local)
+	return adapter.Download(ctx, remote, local, progress)
 }
 
 // migrationClient 来源面板 HTTP 客户端，屏蔽两家面板的认证与响应格式差异
@@ -154,7 +159,7 @@ func (c *migrationClient) call(ctx context.Context, method, path string, body ma
 }
 
 // download 下载来源面板上的文件
-func (c *migrationClient) download(ctx context.Context, remote, local string) error {
+func (c *migrationClient) download(ctx context.Context, remote, local string, progress types.MigrationProgress) error {
 	client := c.client(6 * time.Hour)
 	defer func() { _ = client.Close() }()
 
@@ -178,7 +183,13 @@ func (c *migrationClient) download(ctx context.Context, remote, local string) er
 		return err
 	}
 	defer func() { _ = file.Close() }()
-	_, err = io.Copy(file, resp.Body)
+
+	var body io.Reader = resp.Body
+	if progress != nil {
+		body = &progressReader{reader: resp.Body, total: cast.ToInt64(resp.Header().Get("Content-Length")), progress: progress}
+	}
+	_, err = io.Copy(file, body)
+
 	return err
 }
 
@@ -225,4 +236,20 @@ func (c *migrationClient) phpVersion(version string) uint {
 	}
 
 	return cast.ToUint(digits[:2])
+}
+
+// progressReader 在读取过程中回报累计字节数
+type progressReader struct {
+	reader      io.Reader
+	total       int64
+	transferred int64
+	progress    types.MigrationProgress
+}
+
+func (r *progressReader) Read(p []byte) (int, error) {
+	n, err := r.reader.Read(p)
+	r.transferred += int64(n)
+	r.progress(r.transferred, r.total)
+
+	return n, err
 }

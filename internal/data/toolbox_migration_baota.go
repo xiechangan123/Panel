@@ -128,6 +128,8 @@ func (a *baotaAdapter) websiteItems(ctx context.Context) ([]types.MigrationItem,
 			Status:     lo.Ternary(cast.ToString(row["status"]) == "1", "running", "stopped"),
 			Size:       cast.ToInt64(cast.ToStringMap(row["quota"])["used"]),
 			TargetName: name, SourceID: id, SourcePath: cast.ToString(row["path"]),
+			// 预检阶段据此提示目标是否缺少对应 PHP 版本
+			Version: lo.Ternary(subtype == "php", cast.ToString(row["php_version"]), ""),
 		})
 	}
 	return items, nil
@@ -758,8 +760,8 @@ func (a *baotaAdapter) waitTask(ctx context.Context, taskID string) error {
 	return errors.New(a.t.Get("the source backup did not finish in time"))
 }
 
-func (a *baotaAdapter) Download(ctx context.Context, remote, local string) error {
-	return a.download(ctx, remote, local)
+func (a *baotaAdapter) Download(ctx context.Context, remote, local string, progress types.MigrationProgress) error {
+	return a.download(ctx, remote, local, progress)
 }
 
 // fileContent 读取来源服务器上的文件内容

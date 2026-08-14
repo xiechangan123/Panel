@@ -37,6 +37,9 @@ const (
 	MigrationStageDone     MigrationStage = "done"
 )
 
+// MigrationProgress 传输进度回调
+type MigrationProgress func(transferred, total int64)
+
 // MigrationSource 来源面板信息
 type MigrationSource struct {
 	Panel   string `json:"panel"`
@@ -45,14 +48,14 @@ type MigrationSource struct {
 
 // MigrationItem 来源面板上的一个可迁移资源
 type MigrationItem struct {
-	Key       string   `json:"key"`       // 前端选择用的唯一标识
-	Type      string   `json:"type"`      // website / database / database_user / project
-	Subtype   string   `json:"subtype"`   // 网站为 static/php/proxy，数据库为 mysql/postgresql 等
-	Name      string   `json:"name"`      // 来源名称
-	Status    string   `json:"status"`    // running / stopped
-	Size      int64    `json:"size"`      // 占用空间，0 为未知
-	Blockers  []string `json:"blockers"`  // 非空则该项无法迁移
-	Warnings  []string `json:"warnings"`  // 迁移前提示
+	Key       string   `json:"key"`      // 前端选择用的唯一标识
+	Type      string   `json:"type"`     // website / database / database_user / project
+	Subtype   string   `json:"subtype"`  // 网站为 static/php/proxy，数据库为 mysql/postgresql 等
+	Name      string   `json:"name"`     // 来源名称
+	Status    string   `json:"status"`   // running / stopped
+	Size      int64    `json:"size"`     // 占用空间，0 为未知
+	Blockers  []string `json:"blockers"` // 非空则该项无法迁移
+	Warnings  []string `json:"warnings"` // 迁移前提示
 	DependsOn []string `json:"depends_on"`
 
 	TargetName string `json:"target_name"`

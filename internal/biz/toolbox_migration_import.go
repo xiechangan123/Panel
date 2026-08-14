@@ -42,6 +42,13 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 			if _, err := uc.website.GetByName(item.TargetName); err == nil {
 				item.Blockers = append(item.Blockers, uc.t.Get("a website with the same name already exists on the target server"))
 			}
+			// 版本不一致不阻断迁移，导入时会退到最接近的已装版本，这里提前告知
+			parts := uc.versionParts(item.Version)
+			if item.Subtype == "php" && len(parts) >= 2 {
+				if _, warning := uc.resolvePHP(uint(parts[0]*10 + parts[1])); warning != "" {
+					item.Warnings = append(item.Warnings, warning)
+				}
+			}
 		case "database":
 			server := "local_" + item.Subtype
 			if item.Subtype == "mariadb" {
