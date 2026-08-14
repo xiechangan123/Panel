@@ -734,12 +734,27 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	toolboxMigrationSourceRepo, err := data.NewToolboxMigrationSourceRepo(locale)
+	migrationSourceRepo, err := data.NewMigrationSourceRepo(locale)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	toolboxMigrationService, err := service.NewToolboxMigrationService(appUsecase, backupUsecase, containerComposeUsecase, containerNetworkUsecase, containerUsecase, databaseServerUsecase, databaseUsecase, databaseUserUsecase, environmentUsecase, projectUsecase, settingUsecase, websiteUsecase, toolboxMigrationSourceRepo, config, locale, slogLogger)
+	migrationRemoteRepo, err := data.NewMigrationRemoteRepo(locale)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	migrationArchiveRepo, err := data.NewMigrationArchiveRepo()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	toolboxMigrationUsecase, err := biz.NewToolboxMigrationUsecase(locale, slogLogger, migrationSourceRepo, migrationRemoteRepo, migrationArchiveRepo, settingUsecase, websiteUsecase, databaseUsecase, databaseServerUsecase, databaseUserUsecase, backupUsecase, projectUsecase, appUsecase, environmentUsecase)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	toolboxMigrationService, err := service.NewToolboxMigrationService(toolboxMigrationUsecase, config, locale, slogLogger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err

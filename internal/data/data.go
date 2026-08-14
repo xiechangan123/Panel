@@ -15,5 +15,6 @@ var ProviderSet = wire.NewSet(
 	NewSettingRepo, NewSSHRepo, NewTamperRepo, NewTaskRepo,
 	NewTemplateRepo, NewUserRepo, NewUserPasskeyRepo,
 	NewUserTokenRepo, NewWebHookRepo, NewWebsiteRepo,
-	NewWebsiteStatRepo, NewToolboxMigrationSourceRepo,
+	NewWebsiteStatRepo,
+	NewMigrationSourceRepo, NewMigrationRemoteRepo, NewMigrationArchiveRepo,
 )

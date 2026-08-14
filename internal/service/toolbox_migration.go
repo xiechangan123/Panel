@@ -2,243 +2,166 @@ package service
 
 import (
 	"bufio"
-	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"crypto/tls"
-	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
-	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
-	"slices"
-	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/coder/websocket"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/lo"
-	"github.com/spf13/cast"
-	"resty.dev/v3"
 
-	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
-	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
-const migrationChunkSize = 10 << 20 // 10MB
-
-// migrationState 全局迁移状态（内部实现）
-type migrationState struct {
-	mu         sync.RWMutex
-	Step       types.MigrationStep                 `json:"step"`
-	Connection *request.ToolboxMigrationConnection `json:"connection,omitempty"`
-	Items      *request.ToolboxMigrationItems      `json:"items,omitempty"`
-	Results    []types.MigrationItemResult         `json:"results"`
-	Logs       []string                            `json:"logs"`
-	StartedAt  *time.Time                          `json:"started_at"`
-	EndedAt    *time.Time                          `json:"ended_at"`
-}
-
-// ToolboxMigrationService 迁移服务
+// ToolboxMigrationService 面板迁移服务
 type ToolboxMigrationService struct {
-	t                    *gotext.Locale
-	conf                 *config.Config
-	log                  *slog.Logger
-	settingRepo          *biz.SettingUsecase
-	websiteRepo          *biz.WebsiteUsecase
-	databaseRepo         *biz.DatabaseUsecase
-	databaseServerRepo   *biz.DatabaseServerUsecase
-	databaseUserRepo     *biz.DatabaseUserUsecase
-	backupRepo           *biz.BackupUsecase
-	projectRepo          *biz.ProjectUsecase
-	containerRepo        *biz.ContainerUsecase
-	containerNetworkRepo *biz.ContainerNetworkUsecase
-	composeRepo          *biz.ContainerComposeUsecase
-	appRepo              *biz.AppUsecase
-	environmentRepo      *biz.EnvironmentUsecase
-	sourceRepo           biz.ToolboxMigrationSourceRepo
-
-	state migrationState
+	t             *gotext.Locale
+	conf          *config.Config
+	log           *slog.Logger
+	migrationRepo *biz.ToolboxMigrationUsecase
 }
 
-// NewToolboxMigrationService 创建迁移服务
 func NewToolboxMigrationService(
-	appUsecase *biz.AppUsecase,
-	backupUsecase *biz.BackupUsecase,
-	containerComposeUsecase *biz.ContainerComposeUsecase,
-	containerNetworkUsecase *biz.ContainerNetworkUsecase,
-	containerUsecase *biz.ContainerUsecase,
-	databaseServerUsecase *biz.DatabaseServerUsecase,
-	databaseUsecase *biz.DatabaseUsecase,
-	databaseUserUsecase *biz.DatabaseUserUsecase,
-	environmentUsecase *biz.EnvironmentUsecase,
-	projectUsecase *biz.ProjectUsecase,
-	settingUsecase *biz.SettingUsecase,
-	websiteUsecase *biz.WebsiteUsecase,
-	sourceRepo biz.ToolboxMigrationSourceRepo,
+	migrationUsecase *biz.ToolboxMigrationUsecase,
 	conf *config.Config,
 	t *gotext.Locale,
 	log *slog.Logger,
 ) (*ToolboxMigrationService, error) {
 	return &ToolboxMigrationService{
-		t:                    t,
-		conf:                 conf,
-		log:                  log,
-		settingRepo:          settingUsecase,
-		websiteRepo:          websiteUsecase,
-		databaseRepo:         databaseUsecase,
-		databaseServerRepo:   databaseServerUsecase,
-		databaseUserRepo:     databaseUserUsecase,
-		backupRepo:           backupUsecase,
-		projectRepo:          projectUsecase,
-		containerRepo:        containerUsecase,
-		containerNetworkRepo: containerNetworkUsecase,
-		composeRepo:          containerComposeUsecase,
-		appRepo:              appUsecase,
-		environmentRepo:      environmentUsecase,
-		sourceRepo:           sourceRepo,
-		state: migrationState{
-			Step: types.MigrationStepIdle,
-		},
+		t: t, conf: conf, log: log, migrationRepo: migrationUsecase,
 	}, nil
 }
 
-func (s *ToolboxMigrationService) acePanelMigrationCatalog(
-	websites []*biz.Website,
-	databases []*biz.Database,
-	users []*biz.DatabaseUser,
-	projects []*types.ProjectDetail,
-) []types.MigrationSourceItem {
-	items := make([]types.MigrationSourceItem, 0, len(websites)+len(databases)+len(users)+len(projects))
-	for _, website := range websites {
-		status := "stopped"
-		if website.Status {
-			status = "running"
-		}
-		items = append(items, types.MigrationSourceItem{
-			Key:  "website:" + base64.RawURLEncoding.EncodeToString([]byte(strconv.FormatUint(uint64(website.ID), 10))),
-			Type: "website", Subtype: string(website.Type),
-			Name: website.Name, Status: status, Supported: true, Features: []string{"files", "structured-config", "https"},
-			TargetName: website.Name, SourceID: strconv.FormatUint(uint64(website.ID), 10), SourcePath: website.Path,
-		})
+// PreCheck 连接来源面板并返回来源信息
+func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxMigrationConnection](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
 	}
-	for _, database := range databases {
-		id := fmt.Sprintf("%d:%s", database.ServerID, database.Name)
-		items = append(items, types.MigrationSourceItem{
-			Key:  "database:" + base64.RawURLEncoding.EncodeToString([]byte(id)),
-			Type: "database", Subtype: string(database.Type), Name: database.Name,
-			Status: "running", Supported: true, Features: []string{"schema", "data"}, TargetName: database.Name,
-			SourceID: id, SourceGroup: database.Server,
-		})
+
+	source, err := s.migrationRepo.Connect(r.Context(), req)
+	if err != nil {
+		Error(w, http.StatusBadGateway, "%v", err)
+		return
 	}
-	for _, databaseUser := range users {
-		serverName := ""
-		typ := ""
-		if databaseUser.Server != nil {
-			serverName = databaseUser.Server.Name
-			typ = string(databaseUser.Server.Type)
-		}
-		items = append(items, types.MigrationSourceItem{
-			Key:  "database_user:" + base64.RawURLEncoding.EncodeToString([]byte(strconv.FormatUint(uint64(databaseUser.ID), 10))),
-			Type: "database_user", Subtype: typ,
-			Name: databaseUser.Username, Status: string(databaseUser.Status), Supported: true, Features: []string{"credentials", "privileges"},
-			TargetName: databaseUser.Username, SourceID: strconv.FormatUint(uint64(databaseUser.ID), 10), SourceGroup: serverName,
-		})
-	}
-	for _, project := range projects {
-		items = append(items, types.MigrationSourceItem{
-			Key:  "project:" + base64.RawURLEncoding.EncodeToString([]byte(strconv.FormatUint(uint64(project.ID), 10))),
-			Type: "project", Subtype: string(project.Type),
-			Name: project.Name, Status: project.Status, Supported: true, Features: []string{"files", "structured-config", "environment"},
-			TargetName: project.Name, TargetPath: project.RootDir, SourceID: strconv.FormatUint(uint64(project.ID), 10), SourcePath: project.RootDir,
-		})
-	}
-	return items
+
+	Success(w, chix.M{"source": source})
 }
 
-func (s *ToolboxMigrationService) resolveAcePanelSelections(req *request.ToolboxMigrationItems) error {
-	websites, _, err := s.websiteRepo.List("all", 1, 10000)
+// GetItems 获取可迁移资源列表
+func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Request) {
+	items, err := s.migrationRepo.Items(r.Context())
 	if err != nil {
-		return err
-	}
-	databases, _, err := s.databaseRepo.List(context.Background(), 1, 10000, "")
-	if err != nil {
-		return err
-	}
-	users, _, err := s.databaseUserRepo.List(context.Background(), 1, 10000, "")
-	if err != nil {
-		return err
-	}
-	projects, _, err := s.projectRepo.List("", 1, 10000)
-	if err != nil {
-		return err
+		Error(w, http.StatusBadGateway, "%v", err)
+		return
 	}
 
-	byKey := lo.SliceToMap(
-		s.acePanelMigrationCatalog(websites, databases, users, projects),
-		func(item types.MigrationSourceItem) (string, types.MigrationSourceItem) {
-			return item.Key, item
-		},
-	)
-	for _, selected := range req.Items {
-		item, ok := byKey[selected.Key]
-		if !ok {
-			return errors.New(s.t.Get("selected migration resource no longer exists"))
-		}
-		switch item.Type {
-		case "website":
-			id, _ := strconv.ParseUint(item.SourceID, 10, 64)
-			req.Websites = append(req.Websites, request.ToolboxMigrationWebsite{
-				ID: uint(id), Name: item.Name, Path: item.SourcePath, Status: item.Status == "running",
-			})
-		case "database":
-			serverID, name, ok := strings.Cut(item.SourceID, ":")
-			if !ok {
-				return errors.New(s.t.Get("invalid database migration resource"))
-			}
-			id, _ := strconv.ParseUint(serverID, 10, 64)
-			req.Databases = append(req.Databases, request.ToolboxMigrationDatabase{
-				Type: item.Subtype, Name: name, ServerID: uint(id), Server: item.SourceGroup,
-			})
-		case "database_user":
-			id, _ := strconv.ParseUint(item.SourceID, 10, 64)
-			userIndex := slices.IndexFunc(users, func(user *biz.DatabaseUser) bool { return user.ID == uint(id) })
-			if userIndex < 0 || users[userIndex].Server == nil {
-				return errors.New(s.t.Get("database user no longer exists"))
-			}
-			databaseUser := users[userIndex]
-			req.DatabaseUsers = append(req.DatabaseUsers, request.ToolboxMigrationDatabaseUser{
-				ID: databaseUser.ID, Username: databaseUser.Username, Password: databaseUser.Password, Host: databaseUser.Host,
-				ServerID: databaseUser.ServerID, Server: databaseUser.Server.Name, Type: string(databaseUser.Server.Type),
-			})
-		case "project":
-			id, _ := strconv.ParseUint(item.SourceID, 10, 64)
-			req.Projects = append(req.Projects, request.ToolboxMigrationProject{
-				ID: uint(id), Name: item.Name, Path: item.SourcePath,
-				TargetPath: selected.TargetPath, TargetUser: selected.TargetUser,
-			})
-		}
-	}
-	req.StopOnMig = req.StopSourceDuringBackup
-	return nil
+	Success(w, chix.M{"items": items})
 }
 
-// Exec SSE 实时执行命令（供远程面板调用）
+// Start 开始迁移
+func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ToolboxMigrationStart](r)
+	if err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = s.migrationRepo.Start(req); err != nil {
+		Error(w, http.StatusConflict, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+// GetStatus 获取迁移状态与结果
+func (s *ToolboxMigrationService) GetStatus(w http.ResponseWriter, r *http.Request) {
+	step, results, logs, startedAt, endedAt := s.migrationRepo.Status(0)
+
+	Success(w, chix.M{
+		"step": step, "results": results, "logs": logs,
+		"started_at": startedAt, "ended_at": endedAt,
+	})
+}
+
+// Reset 重置迁移状态
+func (s *ToolboxMigrationService) Reset(w http.ResponseWriter, r *http.Request) {
+	if err := s.migrationRepo.Reset(); err != nil {
+		Error(w, http.StatusConflict, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+// DownloadLog 下载迁移日志
+func (s *ToolboxMigrationService) DownloadLog(w http.ResponseWriter, r *http.Request) {
+	logs := s.migrationRepo.Logs()
+	if len(logs) == 0 {
+		Error(w, http.StatusNotFound, s.t.Get("no migration logs available"))
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Disposition", "attachment; filename=migration.log")
+	_, _ = w.Write([]byte(strings.Join(logs, "\n")))
+}
+
+// Progress 通过 WebSocket 推送迁移进度
+func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Request) {
+	opts := &websocket.AcceptOptions{CompressionMode: websocket.CompressionContextTakeover}
+	if s.conf.App.Debug {
+		opts.InsecureSkipVerify = true
+	}
+
+	ws, err := websocket.Accept(w, r, opts)
+	if err != nil {
+		s.log.Warn("websocket upgrade error", slog.Any("err", err))
+		return
+	}
+	defer func() { _ = ws.CloseNow() }()
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	sent := 0
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			step, results, logs, startedAt, endedAt := s.migrationRepo.Status(sent)
+			sent += len(logs)
+			data, _ := json.Marshal(chix.M{
+				"step": step, "results": results, "new_logs": logs,
+				"started_at": startedAt, "ended_at": endedAt,
+			})
+			if err = ws.Write(ctx, websocket.MessageText, data); err != nil {
+				return
+			}
+			if step == types.MigrationStepDone || step == types.MigrationStepIdle {
+				_ = ws.Close(websocket.StatusNormalClosure, "")
+				return
+			}
+		}
+	}
+}
+
+// Exec SSE 实时执行命令，供来源面板推送迁移时调用
 func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ToolboxMigrationExec](r)
 	if err != nil {
@@ -282,1284 +205,10 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
-	// 发送完成/错误事件
 	if waitErr := <-waitCh; waitErr != nil {
 		_, _ = fmt.Fprintf(w, "event: error\ndata: %s\n\n", waitErr.Error())
 	} else {
 		_, _ = fmt.Fprintf(w, "event: done\ndata: ok\n\n")
 	}
 	flusher.Flush()
-}
-
-// GetStatus 获取当前迁移状态
-func (s *ToolboxMigrationService) GetStatus(w http.ResponseWriter, r *http.Request) {
-	s.state.mu.RLock()
-	defer s.state.mu.RUnlock()
-
-	Success(w, chix.M{
-		"step":       s.state.Step,
-		"results":    s.state.Results,
-		"started_at": s.state.StartedAt,
-		"ended_at":   s.state.EndedAt,
-	})
-}
-
-// PreCheck 连接远程服务器并获取环境信息
-func (s *ToolboxMigrationService) PreCheck(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxMigrationConnection](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-	if req.SourcePanel == "" {
-		req.SourcePanel = "acepanel"
-	}
-	if req.SourcePanel == "acepanel" && (req.TokenID == 0 || req.Token == "") {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("please fill in the AcePanel API credentials"))
-		return
-	}
-	if req.SourcePanel != "acepanel" && req.APIKey == "" {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("please fill in the source panel API key"))
-		return
-	}
-
-	// 检查是否有正在进行的迁移
-	s.state.mu.RLock()
-	if s.state.Step == types.MigrationStepRunning {
-		s.state.mu.RUnlock()
-		Error(w, http.StatusConflict, s.t.Get("migration is already running"))
-		return
-	}
-	s.state.mu.RUnlock()
-
-	var response chix.M
-	if req.SourcePanel == "acepanel" {
-		remoteEnv, fetchErr := s.fetchRemoteEnvironment(req)
-		if fetchErr != nil {
-			Error(w, http.StatusBadGateway, s.t.Get("failed to connect remote server: %v", fetchErr))
-			return
-		}
-		response = chix.M{"remote": remoteEnv, "source": chix.M{"panel": "acepanel"}, "target": remoteEnv}
-	} else {
-		sourceInfo, probeErr := s.sourceRepo.Probe(r.Context(), req)
-		if probeErr != nil {
-			Error(w, http.StatusBadGateway, s.t.Get("failed to connect source server: %v", probeErr))
-			return
-		}
-		webserver, _ := s.settingRepo.Get(biz.SettingKeyWebserver)
-		websitePath, _ := s.settingRepo.Get(biz.SettingKeyWebsitePath, filepath.Join(app.Root, "sites"))
-		projectPath, _ := s.settingRepo.Get(biz.SettingKeyProjectPath, filepath.Join(app.Root, "projects"))
-		servers, _, _ := s.databaseServerRepo.List(r.Context(), 1, 10000, "")
-		databaseTypes := make([]string, 0, len(servers))
-		for _, server := range servers {
-			if server.Name == "local_"+string(server.Type) && !slices.Contains(databaseTypes, string(server.Type)) {
-				databaseTypes = append(databaseTypes, string(server.Type))
-			}
-		}
-		environments := make(map[string][]string)
-		for _, typ := range []string{"go", "java", "nodejs", "php", "python", "dotnet"} {
-			environments[typ] = s.environmentRepo.InstalledSlugs(typ)
-		}
-		_, dockerErr := s.containerRepo.ListAll()
-		response = chix.M{
-			"source": sourceInfo,
-			"target": chix.M{
-				"panel": "acepanel", "architecture": runtime.GOARCH, "webserver": webserver,
-				"website_path": websitePath, "project_path": projectPath, "docker": dockerErr == nil,
-				"databases": databaseTypes, "environments": environments,
-			},
-		}
-	}
-
-	// 保存连接信息
-	s.state.mu.Lock()
-	s.state.Connection = req
-	s.state.Step = types.MigrationStepPreCheck
-	s.state.mu.Unlock()
-
-	Success(w, response)
-}
-
-// GetItems 获取本地可迁移项
-func (s *ToolboxMigrationService) GetItems(w http.ResponseWriter, r *http.Request) {
-	s.state.mu.RLock()
-	connection := s.state.Connection
-	s.state.mu.RUnlock()
-	if connection == nil {
-		Error(w, http.StatusBadRequest, s.t.Get("please complete pre-check first"))
-		return
-	}
-	if connection.SourcePanel != "acepanel" {
-		items, err := s.sourceRepo.Items(r.Context(), connection)
-		if err != nil {
-			Error(w, http.StatusBadGateway, s.t.Get("failed to get source resource list: %v", err))
-			return
-		}
-		s.prepareMigrationCatalog(items)
-		s.state.mu.Lock()
-		if s.state.Step == types.MigrationStepPreCheck {
-			s.state.Step = types.MigrationStepSelect
-		}
-		s.state.mu.Unlock()
-		Success(w, chix.M{"items": items})
-		return
-	}
-
-	// 网站列表
-	websites, _, err := s.websiteRepo.List("all", 1, 10000)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get website list: %v", err))
-		return
-	}
-
-	// 数据库列表
-	databases, _, err := s.databaseRepo.List(r.Context(), 1, 10000, "")
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get database list: %v", err))
-		return
-	}
-
-	// 项目列表
-	projects, _, err := s.projectRepo.List("", 1, 10000)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get project list: %v", err))
-		return
-	}
-
-	// 数据库用户列表
-	databaseUsers, _, err := s.databaseUserRepo.List(r.Context(), 1, 10000, "")
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to get database user list: %v", err))
-		return
-	}
-
-	s.state.mu.Lock()
-	if s.state.Step == types.MigrationStepPreCheck {
-		s.state.Step = types.MigrationStepSelect
-	}
-	s.state.mu.Unlock()
-
-	Success(w, chix.M{
-		"items":          s.acePanelMigrationCatalog(websites, databases, databaseUsers, projects),
-		"websites":       websites,
-		"databases":      databases,
-		"database_users": databaseUsers,
-		"projects":       projects,
-	})
-}
-
-// Start 开始迁移
-func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ToolboxMigrationItems](r)
-	if err != nil {
-		Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	s.state.mu.RLock()
-	connection := s.state.Connection
-	running := s.state.Step == types.MigrationStepRunning
-	s.state.mu.RUnlock()
-	if running {
-		Error(w, http.StatusConflict, s.t.Get("migration is already running"))
-		return
-	}
-	if connection == nil {
-		Error(w, http.StatusBadRequest, s.t.Get("please complete pre-check first"))
-		return
-	}
-	if len(req.Items) == 0 && len(req.Websites) == 0 && len(req.Databases) == 0 && len(req.DatabaseUsers) == 0 && len(req.Projects) == 0 {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("please select at least one migration resource"))
-		return
-	}
-	if connection.SourcePanel == "acepanel" && len(req.Items) > 0 {
-		if err = s.resolveAcePanelSelections(req); err != nil {
-			Error(w, http.StatusUnprocessableEntity, "%v", err)
-			return
-		}
-	}
-
-	s.state.mu.Lock()
-	if s.state.Step == types.MigrationStepRunning {
-		s.state.mu.Unlock()
-		Error(w, http.StatusConflict, s.t.Get("migration is already running"))
-		return
-	}
-	s.state.Step = types.MigrationStepRunning
-	s.state.Items = req
-	s.state.Results = nil
-	s.state.Logs = nil
-	s.state.StartedAt = new(time.Now())
-	s.state.EndedAt = nil
-	s.state.mu.Unlock()
-
-	// 异步执行迁移
-	connectionCopy := *connection
-	if connectionCopy.SourcePanel == "acepanel" {
-		go s.runMigration(&connectionCopy, req)
-	} else {
-		go s.runExternalMigration(&connectionCopy, req)
-	}
-
-	Success(w, nil)
-}
-
-// Reset 重置迁移状态
-func (s *ToolboxMigrationService) Reset(w http.ResponseWriter, r *http.Request) {
-	s.state.mu.Lock()
-	if s.state.Step == types.MigrationStepRunning {
-		s.state.mu.Unlock()
-		Error(w, http.StatusConflict, s.t.Get("migration is running, cannot reset"))
-		return
-	}
-	s.state.Step = types.MigrationStepIdle
-	s.state.Connection = nil
-	s.state.Items = nil
-	s.state.Results = nil
-	s.state.Logs = nil
-	s.state.StartedAt = nil
-	s.state.EndedAt = nil
-	s.state.mu.Unlock()
-
-	Success(w, nil)
-}
-
-// GetResults 获取迁移结果
-func (s *ToolboxMigrationService) GetResults(w http.ResponseWriter, r *http.Request) {
-	s.state.mu.RLock()
-	defer s.state.mu.RUnlock()
-
-	Success(w, chix.M{
-		"step":       s.state.Step,
-		"results":    s.state.Results,
-		"logs":       s.state.Logs,
-		"started_at": s.state.StartedAt,
-		"ended_at":   s.state.EndedAt,
-	})
-}
-
-// DownloadLog 下载迁移日志
-func (s *ToolboxMigrationService) DownloadLog(w http.ResponseWriter, r *http.Request) {
-	s.state.mu.RLock()
-	logs := make([]string, len(s.state.Logs))
-	copy(logs, s.state.Logs)
-	s.state.mu.RUnlock()
-
-	if len(logs) == 0 {
-		Error(w, http.StatusNotFound, s.t.Get("no migration logs available"))
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment; filename=migration.log")
-	_, _ = w.Write([]byte(strings.Join(logs, "\n")))
-}
-
-// Progress 通过 WebSocket 推送迁移进度
-func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Request) {
-	opts := &websocket.AcceptOptions{
-		CompressionMode: websocket.CompressionContextTakeover,
-	}
-	if s.conf.App.Debug {
-		opts.InsecureSkipVerify = true
-	}
-
-	ws, err := websocket.Accept(w, r, opts)
-	if err != nil {
-		s.log.Warn("websocket upgrade error", slog.Any("err", err))
-		return
-	}
-	defer func() { _ = ws.CloseNow() }()
-
-	ctx, cancel := context.WithCancel(r.Context())
-	defer cancel()
-
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-
-	lastLogIdx := 0
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			s.state.mu.RLock()
-			msg := chix.M{
-				"step":       s.state.Step,
-				"results":    s.state.Results,
-				"started_at": s.state.StartedAt,
-				"ended_at":   s.state.EndedAt,
-			}
-			// 增量发送日志
-			if len(s.state.Logs) > lastLogIdx {
-				msg["new_logs"] = s.state.Logs[lastLogIdx:]
-				lastLogIdx = len(s.state.Logs)
-			}
-			s.state.mu.RUnlock()
-
-			data, _ := json.Marshal(msg)
-			if err = ws.Write(ctx, websocket.MessageText, data); err != nil {
-				return
-			}
-
-			// 迁移完成后发送最终状态并关闭
-			s.state.mu.RLock()
-			done := s.state.Step == types.MigrationStepDone || s.state.Step == types.MigrationStepIdle
-			s.state.mu.RUnlock()
-			if done {
-				_ = ws.Close(websocket.StatusNormalClosure, "")
-				return
-			}
-		}
-	}
-}
-
-// runMigration 执行迁移流程
-func (s *ToolboxMigrationService) runMigration(conn *request.ToolboxMigrationConnection, items *request.ToolboxMigrationItems) {
-	s.addLog("===== " + s.t.Get("Migration started") + " =====")
-
-	// 先迁移数据库，再创建用户并恢复授权
-	for _, db := range slices.Backward(items.Databases) {
-		s.migrateDatabase(conn, &db)
-	}
-	for _, user := range slices.Backward(items.DatabaseUsers) {
-		s.migrateDatabaseUser(conn, &user)
-	}
-
-	// 迁移项目
-	for _, proj := range slices.Backward(items.Projects) {
-		s.migrateProject(conn, &proj, items.StopOnMig)
-	}
-
-	// 数据库和项目完成后再创建网站
-	for _, site := range slices.Backward(items.Websites) {
-		s.migrateWebsite(conn, &site, items.StopOnMig)
-	}
-
-	s.state.mu.Lock()
-	s.state.Step = types.MigrationStepDone
-	s.state.EndedAt = new(time.Now())
-	s.state.mu.Unlock()
-
-	s.addLog("===== " + s.t.Get("Migration completed") + " =====")
-}
-
-// migrateWebsite 迁移单个网站
-func (s *ToolboxMigrationService) migrateWebsite(conn *request.ToolboxMigrationConnection, site *request.ToolboxMigrationWebsite, stopOnMig bool) {
-	result := types.MigrationItemResult{
-		Type:   "website",
-		Name:   site.Name,
-		Status: types.MigrationItemRunning,
-	}
-	result.StartedAt = new(time.Now())
-	s.addResult(result)
-
-	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Website"), s.t.Get("start migrating"), site.Name))
-
-	// 获取网站详情
-	websiteDetail, err := s.websiteRepo.Get(site.ID)
-	if err != nil {
-		s.failResult("website", site.Name, s.t.Get("failed to get website detail: %v", err))
-		return
-	}
-
-	// 仅暂停原本运行中的网站，并在备份完成后恢复
-	if stopOnMig && site.Status {
-		s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("stopping website")))
-		if err = s.websiteRepo.UpdateStatus(site.ID, false); err != nil {
-			s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to stop website"), err))
-		} else {
-			defer func() {
-				if restoreErr := s.websiteRepo.UpdateStatus(site.ID, true); restoreErr != nil {
-					s.addLog(fmt.Sprintf("[%s] %s: %v", site.Name, s.t.Get("warning: failed to restore source website"), restoreErr))
-				}
-			}()
-		}
-	}
-
-	// 在远程面板创建网站
-	s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("creating website on remote server")))
-	var listens []string
-	for _, l := range websiteDetail.Listens {
-		if l.Address != "443" && !slices.Contains(l.Args, "ssl") { // 此阶段远程面板没有证书，添加 443 端口会报错
-			listens = append(listens, l.Address)
-		}
-	}
-	if len(listens) == 0 {
-		listens = []string{"80"}
-	}
-	targetPath := filepath.Join(app.Root, "sites", site.Name, "public")
-	if settingBody, settingErr := s.remoteAPIRequest(conn, http.MethodGet, "/api/setting", nil); settingErr == nil {
-		var settingResponse struct {
-			Data struct {
-				WebsitePath string `json:"website_path"`
-			} `json:"data"`
-		}
-		if json.Unmarshal(settingBody, &settingResponse) == nil && settingResponse.Data.WebsitePath != "" {
-			targetPath = filepath.Join(settingResponse.Data.WebsitePath, site.Name, "public")
-		}
-	}
-	websiteCreateReq := &request.WebsiteCreate{
-		Type:    websiteDetail.Type,
-		Name:    websiteDetail.Name,
-		Listens: listens,
-		Domains: websiteDetail.Domains,
-		Path:    targetPath,
-		PHP:     websiteDetail.PHP,
-	}
-	if websiteDetail.Type == "proxy" && len(websiteDetail.Proxies) > 0 {
-		websiteCreateReq.Proxy = websiteDetail.Proxies[0].Pass
-	}
-	_, err = s.remoteAPIRequest(conn, "POST", "/api/website", websiteCreateReq)
-	if err != nil {
-		s.failResult("website", site.Name, s.t.Get("failed to create remote website: %v", err))
-		return
-	}
-
-	// 只上传网站文件，配置由目标 AcePanel 根据结构化数据重新生成
-	s.addLog(fmt.Sprintf("[%s] %s %s", site.Name, s.t.Get("uploading directory:"), websiteDetail.Path))
-	if err = s.uploadDirToRemote(conn, websiteDetail.Path, targetPath); err != nil {
-		s.failResult("website", site.Name, s.t.Get("upload failed: %v", err))
-		return
-	}
-
-	listBody, err := s.remoteAPIRequest(conn, http.MethodGet, "/api/website", map[string]any{"type": "all", "page": 1, "limit": 10000})
-	if err != nil {
-		s.failResult("website", site.Name, s.t.Get("failed to read the created remote website: %v", err))
-		return
-	}
-	var listResponse struct {
-		Data struct {
-			Items []struct {
-				ID   uint   `json:"id"`
-				Name string `json:"name"`
-			} `json:"items"`
-		} `json:"data"`
-	}
-	if err = json.Unmarshal(listBody, &listResponse); err != nil {
-		s.failResult("website", site.Name, s.t.Get("invalid response when reading the created remote website: %v", err))
-		return
-	}
-	var remoteID uint
-	for _, item := range listResponse.Data.Items {
-		if item.Name == site.Name {
-			remoteID = item.ID
-			break
-		}
-	}
-	if remoteID == 0 {
-		s.failResult("website", site.Name, s.t.Get("the created remote website could not be found"))
-		return
-	}
-	updateReq := &request.WebsiteUpdate{
-		ID: remoteID, Listens: websiteDetail.Listens, Domains: websiteDetail.Domains,
-		Path: targetPath, Root: s.relocateMigrationPath(websiteDetail.Root, websiteDetail.Path, targetPath), Index: websiteDetail.Index,
-		SSL: websiteDetail.SSL, SSLCert: websiteDetail.SSLCert, SSLKey: websiteDetail.SSLKey,
-		HSTS: websiteDetail.HSTS, OCSP: websiteDetail.OCSP, HTTPRedirect: websiteDetail.HTTPRedirect, SSLProtocols: websiteDetail.SSLProtocols,
-		PHP: websiteDetail.PHP, Rewrite: websiteDetail.Rewrite, OpenBasedir: websiteDetail.OpenBasedir,
-		Upstreams: websiteDetail.Upstreams, Proxies: websiteDetail.Proxies, Redirects: websiteDetail.Redirects,
-		StatEnabled: websiteDetail.StatEnabled, RateLimit: websiteDetail.RateLimit, RealIP: websiteDetail.RealIP, BasicAuth: websiteDetail.BasicAuth,
-	}
-	if _, err = s.remoteAPIRequest(conn, http.MethodPut, fmt.Sprintf("/api/website/%d", remoteID), updateReq); err != nil {
-		s.failResult("website", site.Name, s.t.Get("failed to rebuild remote website configuration: %v", err))
-		return
-	}
-	if !site.Status {
-		_, _ = s.remoteAPIRequest(conn, http.MethodPost, fmt.Sprintf("/api/website/%d/status", remoteID), &request.WebsiteUpdateStatus{ID: remoteID, Status: false})
-	}
-
-	s.succeedResult("website", site.Name)
-	s.addLog(fmt.Sprintf("[%s] %s", site.Name, s.t.Get("website migration completed")))
-}
-
-// migrateDatabase 迁移单个数据库
-func (s *ToolboxMigrationService) migrateDatabase(conn *request.ToolboxMigrationConnection, db *request.ToolboxMigrationDatabase) {
-	// 迁移脱离请求生命周期，在独立 goroutine 中运行
-	ctx := context.Background()
-	displayName := fmt.Sprintf("%s (%s)", db.Name, db.Type)
-	result := types.MigrationItemResult{
-		Type:   "database",
-		Name:   displayName,
-		Status: types.MigrationItemRunning,
-	}
-	result.StartedAt = new(time.Now())
-	s.addResult(result)
-
-	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database"), s.t.Get("start migrating"), displayName))
-
-	// 取本地数据库服务器信息
-	dbServer, err := s.databaseServerRepo.Get(ctx, db.ServerID)
-	if err != nil {
-		s.failResult("database", displayName, s.t.Get("failed to get database server: %v", err))
-		return
-	}
-
-	tmpDir, err := s.migrationTmpDir()
-	if err != nil {
-		s.failResult("database", displayName, s.t.Get("database export failed: %v", err))
-		return
-	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
-	backupPath := filepath.Join(tmpDir, fmt.Sprintf("%s_%s.sql", db.Type, db.Name))
-
-	// 导出数据库
-	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("exporting database")))
-	switch db.Type {
-	case "mysql":
-		dumpCmd := fmt.Sprintf("MYSQL_PWD='%s' mysqldump -u root --single-transaction --quick --routines --events '%s' > %s", dbServer.Password, db.Name, backupPath)
-		s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
-		_, err = shell.Exec(dumpCmd)
-	case "postgresql":
-		dumpCmd := fmt.Sprintf("PGPASSWORD='%s' pg_dump -h 127.0.0.1 -U postgres --no-owner --no-privileges '%s' > %s", dbServer.Password, db.Name, backupPath)
-		s.addLog(fmt.Sprintf("$ %s", s.maskPassword(dumpCmd)))
-		_, err = shell.Exec(dumpCmd)
-	case "clickhouse":
-		err = s.dumpClickHouse(dbServer.Password, db.Name, backupPath)
-	default:
-		s.failResult("database", displayName, s.t.Get("unsupported database type: %s", db.Type))
-		return
-	}
-	if err != nil {
-		s.failResult("database", displayName, s.t.Get("database export failed: %v", err))
-		return
-	}
-
-	// 在远程创建数据库
-	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("creating database on remote server")))
-
-	// 找到数据库服务器对应的服务器 ID
-	remoteDBServersBody, err := s.remoteAPIRequest(conn, "GET", "/api/database_server", map[string]any{
-		"page":  1,
-		"limit": 10000,
-	})
-	if err != nil {
-		s.failResult("database", displayName, s.t.Get("failed to get database servers: %v", err))
-		return
-	}
-	var remoteDBServersResp struct {
-		Msg  string `json:"msg"`
-		Data struct {
-			Items []struct {
-				ID   uint             `json:"id"`
-				Name string           `json:"name"`
-				Type biz.DatabaseType `json:"type"`
-			}
-		}
-	}
-	if err = json.Unmarshal(remoteDBServersBody, &remoteDBServersResp); err != nil {
-		s.failResult("database", displayName, s.t.Get("invalid response when getting database servers: %v", err))
-		return
-	}
-
-	var remoteServerID uint
-	for _, srv := range remoteDBServersResp.Data.Items {
-		if srv.Name == dbServer.Name && srv.Type == dbServer.Type {
-			remoteServerID = srv.ID
-			break
-		}
-	}
-	if remoteServerID == 0 {
-		s.failResult("database", displayName, s.t.Get("no matching database server found on remote"))
-		return
-	}
-
-	dbCreateReq := &request.DatabaseCreate{
-		ServerID: remoteServerID,
-		Name:     db.Name,
-	}
-	if _, err = s.remoteAPIRequest(conn, "POST", "/api/database", dbCreateReq); err != nil {
-		s.failResult("database", displayName, s.t.Get("failed to create remote database: %v", err))
-		return
-	}
-
-	// 分片上传备份文件到远程
-	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("sending backup to remote server")))
-	if err = s.remoteUploadFile(conn, backupPath, backupPath); err != nil {
-		s.failResult("database", displayName, s.t.Get("backup transfer failed: %v", err))
-		return
-	}
-
-	// 在远程执行导入命令
-	s.addLog(fmt.Sprintf("[%s] %s", db.Name, s.t.Get("importing database on remote server")))
-	var remoteImportCmd string
-	switch db.Type {
-	case "mysql":
-		remoteImportCmd = fmt.Sprintf("MYSQL_PWD=$(acepanel setting get mysql_root_password) mysql -u root '%s' < '%s' && rm -rf '%s'", db.Name, backupPath, tmpDir)
-	case "postgresql":
-		remoteImportCmd = fmt.Sprintf("PGPASSWORD=$(acepanel setting get postgres_password) psql -h 127.0.0.1 -U postgres '%s' < '%s' && rm -rf '%s'", db.Name, backupPath, tmpDir)
-	case "clickhouse":
-		remoteImportCmd = fmt.Sprintf(`clickhouse-client --host 127.0.0.1 --port 9000 --user default --password "$(acepanel setting get clickhouse_default_password)" --database '%s' --multiquery < '%s' && rm -rf '%s'`, db.Name, backupPath, tmpDir)
-	}
-
-	if err = s.remoteExec(conn, remoteImportCmd); err != nil {
-		s.failResult("database", displayName, s.t.Get("remote import failed: %v", err))
-		return
-	}
-
-	s.succeedResult("database", displayName)
-	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("database migration completed")))
-}
-
-// dumpClickHouse 导出 ClickHouse 数据库为 SQL 文件，结构在前，数据以 SQLInsert 格式在后
-func (s *ToolboxMigrationService) dumpClickHouse(password, database, path string) error {
-	conn := fmt.Sprintf("--host 127.0.0.1 --port 9000 --user default --password '%s'", password)
-
-	// 数据表（含数据）在前，视图（仅结构）在后
-	dataTables, err := s.clickHouseTables(conn, database, false)
-	if err != nil {
-		return err
-	}
-	views, err := s.clickHouseTables(conn, database, true)
-	if err != nil {
-		return err
-	}
-
-	// 导出结构，去掉库名限定（导入时由 --database 指定目标库），先删后建保证重复迁移幂等
-	var schema strings.Builder
-	for _, tbl := range slices.Concat(dataTables, views) {
-		create, err := shell.Execf("clickhouse-client %s --query \"SELECT create_table_query FROM system.tables WHERE database = '%s' AND name = '%s' FORMAT TabSeparatedRaw\"", conn, database, tbl)
-		if err != nil {
-			return err
-		}
-		stmt := strings.TrimSpace(create)
-		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("`%s`.", database), "")
-		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("%s.", database), "")
-		fmt.Fprintf(&schema, "DROP TABLE IF EXISTS `%s`;\n", tbl)
-		schema.WriteString(stmt)
-		schema.WriteString(";\n")
-	}
-	if err = os.WriteFile(path, []byte(schema.String()), 0644); err != nil {
-		return err
-	}
-
-	// 逐表追加数据，空表跳过
-	for _, tbl := range dataTables {
-		count, err := shell.Execf("clickhouse-client %s --query 'SELECT count() FROM `%s`.`%s`'", conn, database, tbl)
-		if err != nil {
-			return err
-		}
-		if strings.TrimSpace(count) == "0" {
-			continue
-		}
-		if _, err = shell.Execf("clickhouse-client %s --output_format_sql_insert_table_name '%s' --query 'SELECT * FROM `%s`.`%s` FORMAT SQLInsert' >> '%s'", conn, tbl, database, tbl, path); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// clickHouseTables 列出库中对象名，onlyView 为 true 时仅返回视图，否则返回非视图数据表
-func (s *ToolboxMigrationService) clickHouseTables(conn, database string, onlyView bool) ([]string, error) {
-	op := "NOT LIKE"
-	if onlyView {
-		op = "LIKE"
-	}
-	out, err := shell.Execf("clickhouse-client %s --query \"SELECT name FROM system.tables WHERE database = '%s' AND NOT is_temporary AND engine %s '%%View%%' ORDER BY name FORMAT TabSeparated\"", conn, database, op)
-	if err != nil {
-		return nil, err
-	}
-
-	var tables []string
-	for line := range strings.SplitSeq(out, "\n") {
-		if l := strings.TrimSpace(line); l != "" {
-			tables = append(tables, l)
-		}
-	}
-	return tables, nil
-}
-
-// migrateDatabaseUser 迁移单个数据库用户
-func (s *ToolboxMigrationService) migrateDatabaseUser(conn *request.ToolboxMigrationConnection, user *request.ToolboxMigrationDatabaseUser) {
-	// 迁移脱离请求生命周期，在独立 goroutine 中运行
-	ctx := context.Background()
-	displayName := fmt.Sprintf("%s@%s (%s)", user.Username, user.Host, user.Type)
-	result := types.MigrationItemResult{
-		Type:   "database_user",
-		Name:   displayName,
-		Status: types.MigrationItemRunning,
-	}
-	result.StartedAt = new(time.Now())
-	s.addResult(result)
-
-	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Database User"), s.t.Get("start migrating"), displayName))
-
-	// 获取本地用户详情（含权限）
-	userDetail, err := s.databaseUserRepo.Get(ctx, user.ID)
-	if err != nil {
-		s.failResult("database_user", displayName, s.t.Get("failed to get database user detail: %v", err))
-		return
-	}
-
-	// 获取本地数据库服务器信息
-	dbServer, err := s.databaseServerRepo.Get(ctx, user.ServerID)
-	if err != nil {
-		s.failResult("database_user", displayName, s.t.Get("failed to get database server: %v", err))
-		return
-	}
-
-	// 查找远程对应的数据库服务器
-	remoteDBServersBody, err := s.remoteAPIRequest(conn, "GET", "/api/database_server", map[string]any{
-		"page":  1,
-		"limit": 10000,
-	})
-	if err != nil {
-		s.failResult("database_user", displayName, s.t.Get("failed to get remote database servers: %v", err))
-		return
-	}
-	var remoteDBServersResp struct {
-		Data struct {
-			Items []struct {
-				ID   uint             `json:"id"`
-				Name string           `json:"name"`
-				Type biz.DatabaseType `json:"type"`
-			}
-		}
-	}
-	if err = json.Unmarshal(remoteDBServersBody, &remoteDBServersResp); err != nil {
-		s.failResult("database_user", displayName, s.t.Get("invalid response: %v", err))
-		return
-	}
-
-	var remoteServerID uint
-	for _, srv := range remoteDBServersResp.Data.Items {
-		if srv.Name == dbServer.Name && srv.Type == dbServer.Type {
-			remoteServerID = srv.ID
-			break
-		}
-	}
-	if remoteServerID == 0 {
-		s.failResult("database_user", displayName, s.t.Get("no matching database server found on remote"))
-		return
-	}
-
-	// 在远程创建数据库用户
-	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("creating database user on remote server")))
-	createReq := &request.DatabaseUserCreate{
-		ServerID:   remoteServerID,
-		Username:   user.Username,
-		Password:   user.Password,
-		Host:       user.Host,
-		Privileges: userDetail.Privileges,
-	}
-	_, err = s.remoteAPIRequest(conn, "POST", "/api/database_user", createReq)
-	if err != nil {
-		s.failResult("database_user", displayName, s.t.Get("failed to create database user on remote: %v", err))
-		return
-	}
-
-	s.succeedResult("database_user", displayName)
-	s.addLog(fmt.Sprintf("[%s] %s", displayName, s.t.Get("database user migration completed")))
-}
-
-// migrateProject 迁移单个项目
-func (s *ToolboxMigrationService) migrateProject(conn *request.ToolboxMigrationConnection, proj *request.ToolboxMigrationProject, stopOnMig bool) {
-	result := types.MigrationItemResult{
-		Type:   "project",
-		Name:   proj.Name,
-		Status: types.MigrationItemRunning,
-	}
-	result.StartedAt = new(time.Now())
-	s.addResult(result)
-
-	s.addLog(fmt.Sprintf("[%s] %s: %s", s.t.Get("Project"), s.t.Get("start migrating"), proj.Name))
-
-	// 获取项目详情
-	projectDetail, err := s.projectRepo.Get(proj.ID)
-	if err != nil {
-		s.failResult("project", proj.Name, s.t.Get("failed to get project detail: %v", err))
-		return
-	}
-	if stopOnMig && projectDetail.Status == "active" {
-		s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("stopping project service")))
-		if _, err = shell.Exec(fmt.Sprintf("systemctl stop %s", proj.Name)); err != nil {
-			s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to stop service"), err))
-		} else {
-			defer func() {
-				if _, restoreErr := shell.Exec(fmt.Sprintf("systemctl start %s", proj.Name)); restoreErr != nil {
-					s.addLog(fmt.Sprintf("[%s] %s: %v", proj.Name, s.t.Get("warning: failed to restore source project"), restoreErr))
-				}
-			}()
-		}
-	}
-
-	targetPath := proj.TargetPath
-	if targetPath == "" {
-		targetPath = filepath.Join(app.Root, "projects", proj.Name)
-		if settingBody, settingErr := s.remoteAPIRequest(conn, http.MethodGet, "/api/setting", nil); settingErr == nil {
-			var settingResponse struct {
-				Data struct {
-					ProjectPath string `json:"project_path"`
-				} `json:"data"`
-			}
-			if json.Unmarshal(settingBody, &settingResponse) == nil && settingResponse.Data.ProjectPath != "" {
-				targetPath = filepath.Join(settingResponse.Data.ProjectPath, proj.Name)
-			}
-		}
-	}
-	sourcePath := projectDetail.RootDir
-	if sourcePath == "" {
-		sourcePath = proj.Path
-	}
-	workingDir := s.relocateMigrationPath(projectDetail.WorkingDir, sourcePath, targetPath)
-	execStart := strings.ReplaceAll(projectDetail.ExecStart, sourcePath, targetPath)
-	projectUser := projectDetail.User
-	if proj.TargetUser != "" {
-		projectUser = proj.TargetUser
-	}
-
-	// 在远程面板创建项目
-	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("creating project on remote server")))
-	projectCreateReq := &request.ProjectCreate{
-		Name:         projectDetail.Name,
-		Type:         projectDetail.Type,
-		Description:  projectDetail.Description,
-		RootDir:      targetPath,
-		WorkingDir:   workingDir,
-		ExecStart:    execStart,
-		User:         projectUser,
-		Restart:      projectDetail.Restart,
-		Environments: projectDetail.Environments,
-	}
-	_, err = s.remoteAPIRequest(conn, "POST", "/api/project", projectCreateReq)
-	if err != nil {
-		s.failResult("project", proj.Name, s.t.Get("failed to create remote project: %v", err))
-		return
-	}
-
-	// 上传项目目录
-	if proj.Path != "" {
-		s.addLog(fmt.Sprintf("[%s] %s %s", proj.Name, s.t.Get("uploading directory:"), proj.Path))
-		if err = s.uploadDirToRemote(conn, proj.Path, targetPath); err != nil {
-			s.failResult("project", proj.Name, s.t.Get("upload failed: %v", err))
-			return
-		}
-	}
-
-	s.succeedResult("project", proj.Name)
-	s.addLog(fmt.Sprintf("[%s] %s", proj.Name, s.t.Get("project migration completed")))
-}
-
-// fetchRemoteEnvironment 获取远程面板的环境信息
-func (s *ToolboxMigrationService) fetchRemoteEnvironment(conn *request.ToolboxMigrationConnection) (map[string]any, error) {
-	body, err := s.remoteAPIRequest(conn, "GET", "/api/home/installed_environment", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var resp struct {
-		Msg  string         `json:"msg"`
-		Data map[string]any `json:"data"`
-	}
-	if err = json.Unmarshal(body, &resp); err != nil {
-		return nil, fmt.Errorf("invalid response: %w", err)
-	}
-
-	return resp.Data, nil
-}
-
-// remoteExec 调用远程面板 SSE exec 接口执行命令
-func (s *ToolboxMigrationService) remoteExec(conn *request.ToolboxMigrationConnection, command string) error {
-	client := s.newRestyClient(conn, 0)
-	defer func(client *resty.Client) { _ = client.Close() }(client)
-
-	resp, err := client.R().
-		SetResponseDoNotParse(true).
-		SetBody(map[string]string{"command": command}).
-		Post("/api/toolbox_migration/exec")
-	if err != nil {
-		return err
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode() != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("remote exec returned status %d: %s", resp.StatusCode(), string(body))
-	}
-
-	// 读取 SSE 流
-	scanner := bufio.NewScanner(resp.Body)
-	scanner.Buffer(make([]byte, 64<<10), 1<<20)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if after, ok := strings.CutPrefix(line, "data: "); ok {
-			data := after
-			s.addLog("  " + data)
-		} else if strings.HasPrefix(line, "event: error") {
-			if scanner.Scan() {
-				errData := strings.TrimPrefix(scanner.Text(), "data: ")
-				return fmt.Errorf("remote exec error: %s", errData)
-			}
-			return fmt.Errorf("remote exec error")
-		} else if strings.HasPrefix(line, "event: done") {
-			scanner.Scan()
-			return nil
-		}
-	}
-
-	// 未收到 done 事件即流结束，视为连接中断
-	if err = scanner.Err(); err != nil {
-		return err
-	}
-	return fmt.Errorf("remote exec stream ended unexpectedly")
-}
-
-// remoteUploadFile 分片上传文件到远程面板
-func (s *ToolboxMigrationService) remoteUploadFile(conn *request.ToolboxMigrationConnection, localPath, remotePath string) error {
-	f, err := os.Open(localPath)
-	if err != nil {
-		return fmt.Errorf("open file failed: %w", err)
-	}
-	defer func() { _ = f.Close() }()
-
-	// 流式计算文件 SHA256
-	hasher := sha256.New()
-	if _, err = io.Copy(hasher, f); err != nil {
-		return fmt.Errorf("hash file failed: %w", err)
-	}
-	fileHash := hex.EncodeToString(hasher.Sum(nil))
-	if _, err = f.Seek(0, 0); err != nil {
-		return err
-	}
-
-	info, err := f.Stat()
-	if err != nil {
-		return err
-	}
-	chunkCount := int((info.Size() + migrationChunkSize - 1) / migrationChunkSize)
-	if chunkCount == 0 {
-		chunkCount = 1
-	}
-	dir := filepath.Dir(remotePath)
-	fileName := filepath.Base(remotePath)
-
-	// 调用远程 chunk/start
-	startReq := map[string]any{
-		"path":        dir,
-		"file_name":   fileName,
-		"file_hash":   fileHash,
-		"chunk_count": chunkCount,
-		"force":       true,
-	}
-	startResp, err := s.remoteAPIRequest(conn, "POST", "/api/file/chunk/start", startReq)
-	if err != nil {
-		return fmt.Errorf("chunk start failed: %w", err)
-	}
-
-	// 解析已上传分片列表（支持断点续传）
-	uploadedChunks := s.parseUploadedChunks(startResp)
-
-	// 逐分片上传，ReadFull 保证除末片外读满分片大小，避免短读导致分片错位
-	buf := make([]byte, migrationChunkSize)
-	uploadStart := time.Now()
-	var uploaded int64
-	for i := 0; i < chunkCount; i++ {
-		n, readErr := io.ReadFull(f, buf)
-		if readErr != nil && readErr != io.EOF && readErr != io.ErrUnexpectedEOF {
-			return fmt.Errorf("read chunk %d failed: %w", i, readErr)
-		}
-		chunk := buf[:n]
-
-		// 跳过已上传分片
-		if slices.Contains(uploadedChunks, i) {
-			uploaded += int64(n)
-			continue
-		}
-
-		// 计算分片 hash
-		h := sha256.Sum256(chunk)
-		chunkHash := hex.EncodeToString(h[:])
-
-		// multipart 上传
-		_, err = s.remoteMultipartUpload(conn, "/api/file/chunk/upload", map[string]string{
-			"path":        dir,
-			"file_name":   fileName,
-			"file_hash":   fileHash,
-			"chunk_index": strconv.Itoa(i),
-			"chunk_hash":  chunkHash,
-		}, "file", fileName, chunk)
-		if err != nil {
-			return fmt.Errorf("upload chunk %d failed: %w", i, err)
-		}
-
-		uploaded += int64(n)
-		elapsed := time.Since(uploadStart).Seconds()
-		speed := float64(uploaded) / elapsed
-		remaining := float64(info.Size()-uploaded) / speed
-
-		s.addLog(fmt.Sprintf("  %s: %d/%d (%.1f%%) %s/s ETA %s",
-			s.t.Get("uploading"), i+1, chunkCount, float64(i+1)/float64(chunkCount)*100,
-			s.formatBytes(speed), s.formatETA(remaining)))
-	}
-
-	// 调用远程 chunk/finish
-	finishReq := map[string]any{
-		"path":        dir,
-		"file_name":   fileName,
-		"file_hash":   fileHash,
-		"chunk_count": chunkCount,
-		"force":       true,
-	}
-	_, err = s.remoteAPIRequest(conn, "POST", "/api/file/chunk/finish", finishReq)
-	if err != nil {
-		return fmt.Errorf("chunk finish failed: %w", err)
-	}
-
-	return nil
-}
-
-// remoteMultipartUpload 带签名的 multipart 上传
-func (s *ToolboxMigrationService) remoteMultipartUpload(
-	conn *request.ToolboxMigrationConnection, path string, fields map[string]string,
-	fileField, fileName string, fileData []byte,
-) ([]byte, error) {
-	client := s.newRestyClient(conn, 5*time.Minute)
-	defer func(client *resty.Client) { _ = client.Close() }(client)
-
-	resp, err := client.R().
-		SetFormData(fields).
-		SetFileReader(fileField, fileName, bytes.NewReader(fileData)).
-		Post(path)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode() != http.StatusOK {
-		return resp.Bytes(), fmt.Errorf("multipart upload returned status %d: %s", resp.StatusCode(), resp.String())
-	}
-
-	return resp.Bytes(), nil
-}
-
-// uploadDirToRemote 上传目录到远程
-func (s *ToolboxMigrationService) uploadDirToRemote(conn *request.ToolboxMigrationConnection, localDir, remoteDir string) error {
-	tmpDir, err := s.migrationTmpDir()
-	if err != nil {
-		return err
-	}
-	defer func() { _ = os.RemoveAll(tmpDir) }()
-	tarPath := filepath.Join(tmpDir, "dir.tar.xz")
-
-	// 本地打包
-	s.addLog("  " + s.t.Get("compressing directory: %s", localDir))
-	if _, err = shell.Exec(fmt.Sprintf("tar cJf '%s' --exclude='.user.ini' -C %s .", tarPath, localDir)); err != nil {
-		return fmt.Errorf("compress failed: %w", err)
-	}
-
-	// 分片上传到远程临时目录
-	s.addLog("  " + s.t.Get("uploading to remote server"))
-	if err = s.remoteUploadFile(conn, tarPath, tarPath); err != nil {
-		return fmt.Errorf("upload failed: %w", err)
-	}
-
-	// 远程解压并清理，解压失败时保留退出码以便感知
-	s.addLog("  " + s.t.Get("extracting on remote server"))
-	extractCmd := fmt.Sprintf("mkdir -p %s && tar xJf '%s' --overwrite -C %s && rm -rf '%s'", remoteDir, tarPath, remoteDir, tmpDir)
-	if err = s.remoteExec(conn, extractCmd); err != nil {
-		return fmt.Errorf("remote extract failed: %w", err)
-	}
-
-	return nil
-}
-
-// migrationTmpDir 在面板目录下创建迁移临时目录，避免大文件撑爆 /tmp（常为内存盘）
-func (s *ToolboxMigrationService) migrationTmpDir() (string, error) {
-	base := filepath.Join(app.Root, "tmp")
-	if err := os.MkdirAll(base, 0755); err != nil {
-		return "", err
-	}
-	return os.MkdirTemp(base, "migration-*")
-}
-
-// remoteAPIRequest 向远程面板发送 API 请求
-func (s *ToolboxMigrationService) remoteAPIRequest(conn *request.ToolboxMigrationConnection, method, path string, body any) ([]byte, error) {
-	client := s.newRestyClient(conn, 30*time.Second)
-	defer func(client *resty.Client) { _ = client.Close() }(client)
-
-	req := client.R()
-	if body != nil {
-		if method == "GET" {
-			req.SetQueryParams(cast.ToStringMapString(body))
-		} else {
-			req.SetBody(body)
-		}
-	}
-
-	resp, err := req.Execute(method, path)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode() != http.StatusOK {
-		return resp.Bytes(), fmt.Errorf("status %d: %s", resp.StatusCode(), resp.String())
-	}
-
-	return resp.Bytes(), nil
-}
-
-// maskPassword 掩盖命令中的密码
-func (s *ToolboxMigrationService) maskPassword(cmd string) string {
-	for _, prefix := range []string{"MYSQL_PWD='", "PGPASSWORD='", "--password '"} {
-		if idx := strings.Index(cmd, prefix); idx != -1 {
-			start := idx + len(prefix)
-			end := strings.Index(cmd[start:], "'")
-			if end != -1 {
-				return cmd[:idx] + prefix + "***" + cmd[start+end:]
-			}
-		}
-	}
-	return cmd
-}
-
-// formatBytes 格式化字节数为人类可读格式
-func (s *ToolboxMigrationService) formatBytes(b float64) string {
-	switch {
-	case b >= 1<<30:
-		return fmt.Sprintf("%.2f GB", b/(1<<30))
-	case b >= 1<<20:
-		return fmt.Sprintf("%.2f MB", b/(1<<20))
-	case b >= 1<<10:
-		return fmt.Sprintf("%.2f KB", b/(1<<10))
-	default:
-		return fmt.Sprintf("%.0f B", b)
-	}
-}
-
-// formatETA 格式化剩余时间
-func (s *ToolboxMigrationService) formatETA(seconds float64) string {
-	if seconds < 0 || seconds > 86400 {
-		return "--:--"
-	}
-	sec := int(seconds)
-	if sec < 60 {
-		return fmt.Sprintf("%ds", sec)
-	}
-	if sec < 3600 {
-		return fmt.Sprintf("%dm%ds", sec/60, sec%60)
-	}
-	return fmt.Sprintf("%dh%dm", sec/3600, (sec%3600)/60)
-}
-
-// parseUploadedChunks 从 chunk/start 响应中解析已上传分片索引
-func (s *ToolboxMigrationService) parseUploadedChunks(respBody []byte) []int {
-	var resp struct {
-		Data struct {
-			UploadedChunks []int `json:"uploaded_chunks"`
-		} `json:"data"`
-	}
-	if json.Unmarshal(respBody, &resp) == nil {
-		return resp.Data.UploadedChunks
-	}
-	return nil
-}
-
-// addLog 添加日志
-func (s *ToolboxMigrationService) addLog(msg string) {
-	s.state.mu.Lock()
-	s.state.Logs = append(s.state.Logs, fmt.Sprintf("[%s] %s", time.Now().Format("15:04:05"), msg))
-	s.state.mu.Unlock()
-	s.log.Info(msg)
-}
-
-// addResult 添加迁移结果
-func (s *ToolboxMigrationService) addResult(result types.MigrationItemResult) {
-	s.state.mu.Lock()
-	s.state.Results = append(s.state.Results, result)
-	s.state.mu.Unlock()
-}
-
-// failResult 标记迁移项失败
-func (s *ToolboxMigrationService) failResult(typ, name, errMsg string) {
-	s.state.mu.Lock()
-	for i := range s.state.Results {
-		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
-			s.state.Results[i].Status = types.MigrationItemFailed
-			s.state.Results[i].Error = errMsg
-			now := time.Now()
-			s.state.Results[i].EndedAt = &now
-			if s.state.Results[i].StartedAt != nil {
-				s.state.Results[i].Duration = now.Sub(*s.state.Results[i].StartedAt).Seconds()
-			}
-			break
-		}
-	}
-	s.state.mu.Unlock()
-	s.addLog(fmt.Sprintf("%s [%s]: %s", s.t.Get("failed"), name, errMsg))
-}
-
-// succeedResult 标记迁移项成功
-func (s *ToolboxMigrationService) succeedResult(typ, name string) {
-	s.state.mu.Lock()
-	for i := range s.state.Results {
-		if s.state.Results[i].Type == typ && s.state.Results[i].Name == name {
-			s.state.Results[i].Status = types.MigrationItemSuccess
-			now := time.Now()
-			s.state.Results[i].EndedAt = &now
-			if s.state.Results[i].StartedAt != nil {
-				s.state.Results[i].Duration = now.Sub(*s.state.Results[i].StartedAt).Seconds()
-			}
-			break
-		}
-	}
-	s.state.mu.Unlock()
-}
-
-func (s *ToolboxMigrationService) newRestyClient(conn *request.ToolboxMigrationConnection, timeout time.Duration) *resty.Client {
-	client := resty.New().
-		SetBaseURL(strings.TrimRight(conn.URL, "/")).
-		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
-		SetHeader("Content-Type", "application/json")
-	if timeout > 0 {
-		client.SetTimeout(timeout)
-	}
-
-	// 签名中间件放在 MiddlewareRequestCreate 之后，此时 RawRequest 已构建完毕
-	signMiddleware := resty.RequestMiddleware(func(_ *resty.Client, req *resty.Request) error {
-		rawReq := req.RawRequest
-
-		// 读取已序列化的真实 body
-		var body []byte
-		if rawReq.Body != nil {
-			body, _ = io.ReadAll(rawReq.Body)
-			rawReq.Body = io.NopCloser(bytes.NewReader(body))
-		}
-
-		// 签名路径必须是 /api/... 部分（服务端验签时入口前缀已被 strip）
-		canonicalPath := rawReq.URL.Path
-		if idx := strings.Index(canonicalPath, "/api/"); idx > 0 {
-			canonicalPath = canonicalPath[idx:]
-		}
-		queryString := rawReq.URL.Query().Encode()
-
-		canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s",
-			rawReq.Method, canonicalPath, queryString, sha256Hex(string(body)))
-
-		timestamp := time.Now().Unix()
-		stringToSign := fmt.Sprintf("HMAC-SHA256\n%d\n%s",
-			timestamp, sha256Hex(canonicalRequest))
-
-		signature := hmacSHA256(stringToSign, conn.Token)
-
-		rawReq.Header.Set("X-Timestamp", fmt.Sprintf("%d", timestamp))
-		rawReq.Header.Set("Authorization", fmt.Sprintf("HMAC-SHA256 Credential=%d, Signature=%s", conn.TokenID, signature))
-		return nil
-	})
-
-	client.SetRequestMiddlewares(
-		resty.MiddlewareRequestCreate,
-		signMiddleware,
-	)
-
-	return client
-}
-
-func sha256Hex(str string) string {
-	sum := sha256.Sum256([]byte(str))
-	return hex.EncodeToString(sum[:])
-}
-
-func hmacSHA256(data, secret string) string {
-	h := hmac.New(sha256.New, []byte(secret))
-	h.Write([]byte(data))
-	return hex.EncodeToString(h.Sum(nil))
 }

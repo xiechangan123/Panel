@@ -1,13 +1,10 @@
 import { http } from '@/utils'
 
 export type MigrationPanel = 'acepanel' | 'baota' | 'onepanel'
-export type MigrationResourceType =
-  | 'website'
-  | 'database'
-  | 'database_user'
-  | 'project'
-  | 'container'
-  | 'compose'
+export type MigrationResourceType = 'website' | 'database' | 'database_user' | 'project'
+export type MigrationStep = 'idle' | 'precheck' | 'select' | 'running' | 'done'
+export type MigrationStatus = 'pending' | 'running' | 'success' | 'partial' | 'failed' | 'skipped'
+export type MigrationStage = 'backup' | 'transfer' | 'import' | 'done'
 
 export interface MigrationConnection {
   source_panel: MigrationPanel
@@ -17,6 +14,11 @@ export interface MigrationConnection {
   api_key?: string
 }
 
+export interface MigrationSource {
+  panel: string
+  version: string
+}
+
 export interface MigrationResource {
   key: string
   type: MigrationResourceType
@@ -24,14 +26,11 @@ export interface MigrationResource {
   name: string
   status: string
   size: number
-  supported: boolean
   blockers: string[]
   warnings: string[]
-  features: string[]
   depends_on: string[]
   target_name: string
   target_path: string
-  runtime_version: string
 }
 
 export interface MigrationSelection {
@@ -44,19 +43,10 @@ export interface MigrationResult {
   key: string
   type: MigrationResourceType | string
   name: string
-  status: 'pending' | 'running' | 'success' | 'partial' | 'failed' | 'skipped'
-  stage:
-    | 'preparing'
-    | 'downloading'
-    | 'validating'
-    | 'importing'
-    | 'configuring'
-    | 'starting'
-    | 'done'
+  status: MigrationStatus
+  stage: MigrationStage
   error: string
   warnings: string[]
-  created_resources: string[]
-  residual_resources: string[]
   started_at: string | null
   ended_at: string | null
   duration: number
@@ -68,10 +58,9 @@ export default {
   items: (): any => http.Get('/toolbox_migration/items'),
   start: (data: {
     items: MigrationSelection[]
-    skip_incompatible_items: boolean
-    stop_source_during_backup: boolean
+    skip_blocked: boolean
+    stop_source: boolean
   }): any => http.Post('/toolbox_migration/start', data),
   reset: (): any => http.Post('/toolbox_migration/reset'),
-  results: (): any => http.Get('/toolbox_migration/results'),
-  logUrl: '/api/toolbox_migration/log',
+  logUrl: '/api/toolbox_migration/log'
 }
