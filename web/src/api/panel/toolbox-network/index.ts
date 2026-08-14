@@ -41,6 +41,7 @@ export interface NetworkInterface extends Omit<NetworkInterfaceConfig, 'mtu'> {
 export interface NetworkInterfaces {
   manager: string
   items: NetworkInterface[]
+  pending: boolean // 是否有变更等待确认
 }
 
 export default {
@@ -48,4 +49,6 @@ export default {
   interfaces: (): any => http.Get('/toolbox_network/interfaces'),
   updateInterface: (config: NetworkInterfaceConfig): any =>
     http.Post('/toolbox_network/interfaces', config),
+  confirmInterface: (): any => http.Post('/toolbox_network/interfaces/confirm'),
+  rollbackInterface: (): any => http.Post('/toolbox_network/interfaces/rollback')
 }

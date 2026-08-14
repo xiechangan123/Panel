@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -10,11 +11,15 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-
-	"github.com/samber/lo"
 )
 
-var ifacePattern = regexp.MustCompile(`^\s*iface\s+(\S+)\s+(inet6?)\s+(\S+)`)
+// ifaceStanzaPattern 匹配 iface <name> <inet|inet6> <method> 声明
+var ifaceStanzaPattern = regexp.MustCompile(`^\s*iface\s+(\S+)\s+(inet6?)\s+(\S+)`)
+
+// ifupdownManaged 由面板生成的选项，其余选项原样保留
+var ifupdownManaged = []string{"address", "netmask", "gateway", "dns-nameservers", "mtu", "accept_ra", "autoconf", "dhcp"}
+
+type ifupdownBackend struct{}
 
 type interfacesFile struct {
 	path    string
@@ -28,19 +33,25 @@ type interfacesStanza struct {
 	options              []string
 }
 
-func loadIfupdown(items []Interface) error {
-	files, err := readInterfacesFiles()
+func (b *ifupdownBackend) Name() string { return "ifupdown" }
+
+func (b *ifupdownBackend) available(_ context.Context) bool {
+	return hasCommand("ifquery") && exists("/etc/network/interfaces")
+}
+
+func (b *ifupdownBackend) Load(_ context.Context, items []Interface) error {
+	files, err := b.read()
 	if err != nil {
 		return err
 	}
 	for i := range items {
-		file, stanzas, reason := findIfupdown(files, items[i].Name)
+		file, stanzas, reason := b.find(files, items[i].Name)
 		if reason != "" {
 			items[i].Reason = reason
 			continue
 		}
-		items[i].IPv4 = ifupdownFamily(stanzas, "inet")
-		items[i].IPv6 = ifupdownFamily(stanzas, "inet6")
+		items[i].IPv4 = b.family(stanzas, "inet")
+		items[i].IPv6 = b.family(stanzas, "inet6")
 		for _, stanza := range stanzas {
 			if mtu := stanzaValue(stanza, "mtu"); mtu != "" {
 				items[i].ConfiguredMTU, _ = strconv.Atoi(mtu)
@@ -52,27 +63,49 @@ func loadIfupdown(items []Interface) error {
 	return nil
 }
 
-func updateIfupdown(ctx context.Context, config Config) error {
-	files, err := readInterfacesFiles()
+func (b *ifupdownBackend) Apply(ctx context.Context, item Interface, config Config) (func(context.Context) error, error) {
+	files, err := b.read()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	file, stanzas, reason := findIfupdown(files, config.Name)
+	file, stanzas, reason := b.find(files, config.Name)
 	if reason != "" || file == nil {
-		return &ValidationError{Message: reason}
+		return nil, fmt.Errorf("%w: %s", ErrValidation, reason)
 	}
-	start, end := stanzas[0].start, stanzas[len(stanzas)-1].end
-	unknown4, unknown6 := unknownOptions(stanzas, "inet"), unknownOptions(stanzas, "inet6")
-	lines := append([]string{}, file.lines[:start]...)
-	lines = append(lines, renderIfupdown(config, unknown4, unknown6)...)
-	lines = append(lines, file.lines[end:]...)
 
-	tmp, err := os.CreateTemp(filepath.Dir(file.path), ".acepanel-interfaces-*")
+	// 原文件内容即快照，写回并重载即可撤销
+	original := strings.Join(file.lines, "")
+	rollback := func(ctx context.Context) error {
+		if err := os.WriteFile(file.path, []byte(original), 0644); err != nil {
+			return err
+		}
+		return b.reload(ctx, config.Name)
+	}
+
+	start, end := stanzas[0].start, stanzas[len(stanzas)-1].end
+	lines := slices.Concat(
+		file.lines[:start],
+		b.render(config, b.unmanaged(stanzas, "inet"), b.unmanaged(stanzas, "inet6")),
+		file.lines[end:],
+	)
+	if err = b.write(ctx, file.path, config.Name, strings.Join(lines, "")); err != nil {
+		return nil, err
+	}
+	if err = b.reload(ctx, config.Name); err != nil {
+		return nil, errors.Join(err, rollback(context.WithoutCancel(ctx)))
+	}
+	return rollback, nil
+}
+
+// write 先在同目录落临时文件并用 ifquery 校验语法，通过后原子替换
+func (b *ifupdownBackend) write(ctx context.Context, path, name, content string) error {
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".acepanel-interfaces-*")
 	if err != nil {
 		return err
 	}
 	defer func() { _ = os.Remove(tmp.Name()) }()
-	if _, err = tmp.WriteString(strings.Join(lines, "")); err == nil {
+
+	if _, err = tmp.WriteString(content); err == nil {
 		err = tmp.Chmod(0644)
 	}
 	if closeErr := tmp.Close(); err == nil {
@@ -81,27 +114,29 @@ func updateIfupdown(ctx context.Context, config Config) error {
 	if err != nil {
 		return err
 	}
-	if _, err = run(ctx, "ifquery", "--interfaces", tmp.Name(), config.Name); err != nil {
+	if _, err = run(ctx, "ifquery", "--interfaces", tmp.Name(), name); err != nil {
 		return err
 	}
-	if err = os.Rename(tmp.Name(), file.path); err != nil {
-		return err
-	}
+	return os.Rename(tmp.Name(), path)
+}
+
+func (b *ifupdownBackend) reload(ctx context.Context, name string) error {
 	if hasCommand("ifreload") {
-		_, err = run(ctx, "ifreload", "-c")
+		_, err := run(ctx, "ifreload", "-c")
 		return err
 	}
-	if _, err = run(ctx, "ifdown", "--force", config.Name); err != nil {
+	if _, err := run(ctx, "ifdown", "--force", name); err != nil {
 		return err
 	}
-	_, err = run(ctx, "ifup", config.Name)
+	_, err := run(ctx, "ifup", name)
 	return err
 }
 
-func readInterfacesFiles() ([]interfacesFile, error) {
+func (b *ifupdownBackend) read() ([]interfacesFile, error) {
 	paths := []string{"/etc/network/interfaces"}
 	included, _ := filepath.Glob("/etc/network/interfaces.d/*")
 	paths = append(paths, included...)
+
 	files := make([]interfacesFile, 0, len(paths))
 	for _, path := range paths {
 		info, err := os.Stat(path)
@@ -112,23 +147,26 @@ func readInterfacesFiles() ([]interfacesFile, error) {
 		if err != nil {
 			return nil, err
 		}
-		files = append(files, parseInterfaces(path, string(data)))
+		files = append(files, b.parse(path, string(data)))
 	}
 	return files, nil
 }
 
-func parseInterfaces(path, content string) interfacesFile {
+// parse 按 iface 声明切分出各段落，保留原始行以便原样回写未改动的部分
+func (b *ifupdownBackend) parse(path, content string) interfacesFile {
 	lines := strings.SplitAfter(content, "\n")
 	if len(lines) > 0 && lines[len(lines)-1] == "" {
 		lines = lines[:len(lines)-1]
 	}
+
 	file := interfacesFile{path: path, lines: lines}
 	for i := 0; i < len(lines); {
-		match := ifacePattern.FindStringSubmatch(lines[i])
+		match := ifaceStanzaPattern.FindStringSubmatch(lines[i])
 		if len(match) == 0 {
 			i++
 			continue
 		}
+		// 段落延伸到下一个顶格的非注释行为止
 		end := i + 1
 		for end < len(lines) {
 			trimmed := strings.TrimSpace(lines[end])
@@ -139,20 +177,20 @@ func parseInterfaces(path, content string) interfacesFile {
 		}
 		file.stanzas = append(file.stanzas, interfacesStanza{
 			name: match[1], family: match[2], method: match[3], start: i, end: end,
-			options: append([]string{}, lines[i+1:end]...),
+			options: slices.Clone(lines[i+1 : end]),
 		})
 		i = end
 	}
 	return file
 }
 
-func findIfupdown(files []interfacesFile, name string) (*interfacesFile, []interfacesStanza, string) {
+// find 定位接口的所有段落，无法安全改写时返回原因
+func (b *ifupdownBackend) find(files []interfacesFile, name string) (*interfacesFile, []interfacesStanza, string) {
 	var file *interfacesFile
 	var stanzas []interfacesStanza
 	for i := range files {
 		for _, line := range files[i].lines {
-			fields := strings.Fields(line)
-			if len(fields) > 1 && fields[0] == "mapping" {
+			if fields := strings.Fields(line); len(fields) > 1 && fields[0] == "mapping" {
 				return nil, nil, "ifupdown mapping configuration cannot be edited safely"
 			}
 		}
@@ -173,23 +211,25 @@ func findIfupdown(files []interfacesFile, name string) (*interfacesFile, []inter
 	if len(stanzas) == 0 {
 		return nil, nil, "no matching ifupdown interface definition"
 	}
+	// 段落之间夹着其他接口时无法整段替换
 	for _, stanza := range file.stanzas {
-		if stanza.start > stanzas[0].start && stanza.start < stanzas[len(stanzas)-1].end && stanza.name != name {
+		if stanza.name != name && stanza.start > stanzas[0].start && stanza.start < stanzas[len(stanzas)-1].end {
 			return nil, nil, "ifupdown interface has interleaved definitions"
 		}
 	}
 	return file, stanzas, ""
 }
 
-func ifupdownFamily(stanzas []interfacesStanza, family string) FamilyConfig {
+func (b *ifupdownBackend) family(stanzas []interfacesStanza, family string) FamilyConfig {
 	config := emptyFamily()
 	for _, stanza := range stanzas {
 		if stanza.family != family {
 			continue
 		}
-		if stanza.method == "dhcp" || stanza.method == "auto" {
+		switch {
+		case stanza.method == "dhcp" || stanza.method == "auto":
 			config.Mode = ModeAuto
-		} else if stanza.method == "static" && config.Mode != ModeAuto {
+		case stanza.method == "static" && config.Mode != ModeAuto:
 			config.Mode = ModeManual
 		}
 		if address := stanzaAddress(stanza); address != "" {
@@ -207,19 +247,27 @@ func ifupdownFamily(stanzas []interfacesStanza, family string) FamilyConfig {
 	return config
 }
 
-func renderIfupdown(config Config, unknown4, unknown6 []string) []string {
-	lines := renderIfupdownFamily(config.Name, "inet", config.IPv4, config.MTU, unknown4)
+func (b *ifupdownBackend) render(config Config, unmanaged4, unmanaged6 []string) []string {
+	lines := b.renderFamily(config.Name, "inet", config.IPv4, config.MTU, unmanaged4)
 	lines = append(lines, "\n")
-	return append(lines, renderIfupdownFamily(config.Name, "inet6", config.IPv6, config.MTU, unknown6)...)
+	return append(lines, b.renderFamily(config.Name, "inet6", config.IPv6, config.MTU, unmanaged6)...)
 }
 
-func renderIfupdownFamily(name, family string, config FamilyConfig, mtu int, unknown []string) []string {
-	method := lo.Switch[string, string](config.Mode).
-		Case(ModeAuto, lo.If(family == "inet", "dhcp").Else("auto")).
-		Case(ModeManual, "static").
-		Default("manual")
+func (b *ifupdownBackend) renderFamily(name, family string, config FamilyConfig, mtu int, unmanaged []string) []string {
+	method := "manual"
+	switch config.Mode {
+	case ModeAuto:
+		method = "dhcp"
+		if family == "inet6" {
+			method = "auto"
+		}
+	case ModeManual:
+		method = "static"
+	}
+
 	lines := []string{fmt.Sprintf("iface %s %s %s\n", name, family, method)}
 	addresses := config.Addresses
+	// 一个段落只能声明一个地址，多余的地址各起一个 static 段落
 	if config.Mode == ModeManual && len(addresses) > 0 {
 		lines = append(lines, "    address "+addresses[0]+"\n")
 		addresses = addresses[1:]
@@ -230,35 +278,38 @@ func renderIfupdownFamily(name, family string, config FamilyConfig, mtu int, unk
 	if len(config.DNS) > 0 {
 		lines = append(lines, "    dns-nameservers "+strings.Join(config.DNS, " ")+"\n")
 	}
-	if family == "inet6" && config.Mode == ModeAuto {
-		dhcp := 0
-		if config.AutoDNS {
-			dhcp = 1
+	if family == "inet6" {
+		switch config.Mode {
+		case ModeAuto:
+			dhcp := "0"
+			if config.AutoDNS {
+				dhcp = "1"
+			}
+			lines = append(lines, "    accept_ra 2\n", "    dhcp "+dhcp+"\n")
+		case ModeDisabled:
+			lines = append(lines, "    accept_ra 0\n", "    autoconf 0\n")
 		}
-		lines = append(lines, "    accept_ra 2\n", fmt.Sprintf("    dhcp %d\n", dhcp))
-	} else if family == "inet6" && config.Mode == ModeDisabled {
-		lines = append(lines, "    accept_ra 0\n", "    autoconf 0\n")
 	}
 	if mtu > 0 {
 		lines = append(lines, fmt.Sprintf("    mtu %d\n", mtu))
 	}
-	lines = append(lines, unknown...)
+	lines = append(lines, unmanaged...)
+
 	for _, address := range addresses {
 		lines = append(lines, "\n", fmt.Sprintf("iface %s %s static\n", name, family), "    address "+address+"\n")
 	}
 	return lines
 }
 
-func unknownOptions(stanzas []interfacesStanza, family string) []string {
-	managed := []string{"address", "netmask", "gateway", "dns-nameservers", "mtu", "accept_ra", "autoconf", "dhcp"}
+// unmanaged 提取面板不生成的选项，改写时原样保留
+func (b *ifupdownBackend) unmanaged(stanzas []interfacesStanza, family string) []string {
 	var result []string
 	for _, stanza := range stanzas {
 		if stanza.family != family {
 			continue
 		}
 		for _, line := range stanza.options {
-			fields := strings.Fields(line)
-			if len(fields) > 0 && !slices.Contains(managed, fields[0]) {
+			if fields := strings.Fields(line); len(fields) > 0 && !slices.Contains(ifupdownManaged, fields[0]) {
 				result = append(result, line)
 			}
 		}
@@ -268,14 +319,14 @@ func unknownOptions(stanzas []interfacesStanza, family string) []string {
 
 func stanzaValue(stanza interfacesStanza, key string) string {
 	for _, line := range stanza.options {
-		fields := strings.Fields(line)
-		if len(fields) > 1 && fields[0] == key {
+		if fields := strings.Fields(line); len(fields) > 1 && fields[0] == key {
 			return strings.Join(fields[1:], " ")
 		}
 	}
 	return ""
 }
 
+// stanzaAddress 把 address 与 netmask 合并为 CIDR
 func stanzaAddress(stanza interfacesStanza) string {
 	address, mask := stanzaValue(stanza, "address"), stanzaValue(stanza, "netmask")
 	if address == "" || mask == "" || strings.Contains(address, "/") {

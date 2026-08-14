@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
@@ -49,7 +50,7 @@ func (s *ToolboxNetworkService) Interfaces(w http.ResponseWriter, r *http.Reques
 	Success(w, result)
 }
 
-// UpdateInterface 更新网卡配置
+// UpdateInterface 更新网卡配置，变更后需在超时前确认，否则自动回滚
 func (s *ToolboxNetworkService) UpdateInterface(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[panelnetwork.Config](r)
 	if err != nil {
@@ -57,11 +58,35 @@ func (s *ToolboxNetworkService) UpdateInterface(w http.ResponseWriter, r *http.R
 		return
 	}
 	if err = s.network.Update(r.Context(), *req); err != nil {
-		if panelnetwork.IsValidationError(err) {
-			Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid network configuration: %v", err))
+		if errors.Is(err, panelnetwork.ErrValidation) {
+			Error(w, http.StatusUnprocessableEntity, "%v", err)
 			return
 		}
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update network interface: %v", err))
+		return
+	}
+
+	Success(w, chix.M{"confirm_timeout": int(panelnetwork.ConfirmTimeout.Seconds())})
+}
+
+// ConfirmInterface 确认保留网卡变更
+func (s *ToolboxNetworkService) ConfirmInterface(w http.ResponseWriter, r *http.Request) {
+	if err := s.network.Confirm(); err != nil {
+		Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	Success(w, nil)
+}
+
+// RollbackInterface 立即撤销网卡变更
+func (s *ToolboxNetworkService) RollbackInterface(w http.ResponseWriter, r *http.Request) {
+	if err := s.network.Rollback(r.Context()); err != nil {
+		if errors.Is(err, panelnetwork.ErrValidation) {
+			Error(w, http.StatusUnprocessableEntity, "%v", err)
+			return
+		}
+		Error(w, http.StatusInternalServerError, s.t.Get("failed to roll back network interface: %v", err))
 		return
 	}
 

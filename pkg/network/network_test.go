@@ -36,8 +36,9 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func TestParseInterfaces(t *testing.T) {
-	file := parseInterfaces("/etc/network/interfaces", `auto eth0
+func TestIfupdownParse(t *testing.T) {
+	backend := &ifupdownBackend{}
+	file := backend.parse("/etc/network/interfaces", `auto eth0
 iface eth0 inet dhcp
     dns-nameservers 1.1.1.1
     mtu 1500
@@ -46,6 +47,6 @@ iface eth0 inet6 static
     address 2001:db8::10/64
 `)
 	require.Len(t, file.stanzas, 2)
-	assert.Equal(t, ModeAuto, ifupdownFamily(file.stanzas, "inet").Mode)
-	assert.Equal(t, []string{"2001:db8::10/64"}, ifupdownFamily(file.stanzas, "inet6").Addresses)
+	assert.Equal(t, ModeAuto, backend.family(file.stanzas, "inet").Mode)
+	assert.Equal(t, []string{"2001:db8::10/64"}, backend.family(file.stanzas, "inet6").Addresses)
 }

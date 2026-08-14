@@ -11,11 +11,54 @@ import toolboxNetwork, {
 } from '@/api/panel/toolbox-network'
 
 const { $gettext } = useGettext()
-const result = ref<NetworkInterfaces>({ manager: 'unsupported', items: [] })
+const result = ref<NetworkInterfaces>({ manager: 'unsupported', items: [], pending: false })
 const loading = ref(false)
 const saving = ref(false)
 const showModal = ref(false)
 const editing = ref<NetworkInterfaceConfig>(createEmptyConfig())
+
+// 变更后进入待确认状态，倒计时归零前未确认则由服务端自动回滚
+const countdown = ref(0)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+const startCountdown = (seconds: number) => {
+  stopCountdown()
+  countdown.value = seconds
+  countdownTimer = setInterval(() => {
+    countdown.value--
+    if (countdown.value <= 0) {
+      stopCountdown()
+      window.$message.warning($gettext('Change was not confirmed in time and has been rolled back'))
+      loadInterfaces()
+    }
+  }, 1000)
+}
+
+const stopCountdown = () => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer)
+    countdownTimer = null
+  }
+  countdown.value = 0
+}
+
+const confirmChange = () => {
+  useRequest(toolboxNetwork.confirmInterface()).onSuccess(() => {
+    stopCountdown()
+    window.$message.success($gettext('Change confirmed'))
+    loadInterfaces()
+  })
+}
+
+const rollbackChange = () => {
+  useRequest(toolboxNetwork.rollbackInterface()).onSuccess(() => {
+    stopCountdown()
+    window.$message.success($gettext('Change rolled back'))
+    loadInterfaces()
+  })
+}
+
+onUnmounted(stopCountdown)
 
 const modeOptions = computed(() => [
   { label: $gettext('Automatic'), value: 'auto' },
@@ -244,22 +287,22 @@ const saveConfig = () => {
   window.$dialog.warning({
     title: $gettext('Confirm Network Configuration Change'),
     content: $gettext(
-      'Changing the primary IP address, gateway, or automatic address assignment may interrupt the panel connection. Continue?',
+      'Changing the primary IP address, gateway, or automatic address assignment may interrupt the panel connection. The change will be rolled back automatically unless you confirm it afterwards. Continue?'
     ),
     positiveText: $gettext('Confirm'),
     negativeText: $gettext('Cancel'),
     onPositiveClick: () => {
       saving.value = true
       return useRequest(toolboxNetwork.updateInterface(cleanConfig()))
-        .onSuccess(() => {
+        .onSuccess(({ data }: any) => {
           showModal.value = false
-          window.$message.success($gettext('Saved successfully'))
+          startCountdown(data?.confirm_timeout ?? 30)
           loadInterfaces()
         })
         .onComplete(() => {
           saving.value = false
         })
-    },
+    }
   })
 }
 
@@ -268,6 +311,29 @@ loadInterfaces()
 
 <template>
   <n-flex vertical :size="16">
+    <n-alert v-if="countdown > 0 || result.pending" type="warning" :show-icon="false">
+      <n-flex justify="space-between" align="center">
+        <span>
+          {{
+            countdown > 0
+              ? $gettext(
+                  'Network configuration changed. Confirm within %{ seconds }s to keep it, otherwise it will be rolled back automatically.',
+                  { seconds: String(countdown) }
+                )
+              : $gettext('A network configuration change is waiting for confirmation.')
+          }}
+        </span>
+        <n-flex :size="8">
+          <n-button size="small" type="primary" @click="confirmChange">
+            {{ $gettext('Keep change') }}
+          </n-button>
+          <n-button size="small" @click="rollbackChange">
+            {{ $gettext('Roll back now') }}
+          </n-button>
+        </n-flex>
+      </n-flex>
+    </n-alert>
+
     <n-flex justify="space-between" align="center">
       <n-alert :type="result.manager === 'unsupported' ? 'warning' : 'info'" class="flex-1">
         {{

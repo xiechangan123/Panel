@@ -608,15 +608,12 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 		return nil, err
 	}
 
-	customConfigs := lo.FilterMap(setting.CustomConfigs, func(config types.WebsiteCustomConfig, _ int) (request.WebsiteCustomConfig, bool) {
-		if website.Type == biz.WebsiteTypeStatic && config.Scope == "site" && config.Name == "spa" {
-			return request.WebsiteCustomConfig{}, false
-		}
+	customConfigs := lo.Map(setting.CustomConfigs, func(config types.WebsiteCustomConfig, _ int) request.WebsiteCustomConfig {
 		return request.WebsiteCustomConfig{
 			Name:    config.Name,
 			Scope:   config.Scope,
 			Content: config.Content,
-		}, true
+		}
 	})
 
 	update := &request.WebsiteUpdate{

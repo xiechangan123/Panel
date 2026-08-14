@@ -14,5 +14,7 @@ func ToolboxNetworkRoutes(toolboxNetworkService *service.ToolboxNetworkService) 
 		{Method: http.MethodGet, Path: "/api/toolbox_network/list", Handler: svc.List},
 		{Method: http.MethodGet, Path: "/api/toolbox_network/interfaces", Handler: svc.Interfaces},
 		{Method: http.MethodPost, Path: "/api/toolbox_network/interfaces", Handler: svc.UpdateInterface},
+		{Method: http.MethodPost, Path: "/api/toolbox_network/interfaces/confirm", Handler: svc.ConfirmInterface},
+		{Method: http.MethodPost, Path: "/api/toolbox_network/interfaces/rollback", Handler: svc.RollbackInterface},
 	}
 }

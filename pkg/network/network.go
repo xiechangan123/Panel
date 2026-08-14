@@ -10,20 +10,23 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 const (
-	ManagerUnsupported    = "unsupported"
-	ManagerNetworkManager = "networkmanager"
-	ManagerNetplan        = "netplan"
-	ManagerIfupdown       = "ifupdown"
-	ModeAuto              = "auto"
-	ModeManual            = "manual"
-	ModeDisabled          = "disabled"
+	ModeAuto     = "auto"
+	ModeManual   = "manual"
+	ModeDisabled = "disabled"
+
+	// ConfirmTimeout 变更后等待确认的时长，超时未确认自动回滚，
+	// 避免配错导致远程失联后无法恢复
+	ConfirmTimeout = 30 * time.Second
 )
+
+// ErrValidation 配置不合法，服务层据此返回 422
+var ErrValidation = errors.New("invalid network configuration")
 
 type FamilyConfig struct {
 	Mode      string   `json:"mode"`
@@ -58,18 +61,26 @@ type Interface struct {
 type Result struct {
 	Manager string      `json:"manager"`
 	Items   []Interface `json:"items"`
+	// Pending 为真表示有变更等待确认
+	Pending bool `json:"pending"`
 }
 
-type ValidationError struct {
-	Message string
+// backend 封装不同网络管理器的配置读写
+type backend interface {
+	Name() string
+	available(ctx context.Context) bool
+	// Load 填充网卡的持久化配置，不可编辑时写入 Reason
+	Load(ctx context.Context, items []Interface) error
+	// Apply 应用配置，返回撤销本次变更的回滚函数
+	Apply(ctx context.Context, item Interface, config Config) (func(context.Context) error, error)
 }
 
-func (e *ValidationError) Error() string {
-	return e.Message
-}
-
+// Service 网卡配置管理，同一时间只允许一个变更处于待确认状态
 type Service struct {
-	mu sync.Mutex
+	mu       sync.Mutex
+	backend  backend
+	rollback func(context.Context) error
+	timer    *time.Timer
 }
 
 func New() *Service {
@@ -81,70 +92,160 @@ func (s *Service) Interfaces(ctx context.Context) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	manager := detectManager(ctx)
-	switch manager {
-	case ManagerNetworkManager:
-		err = loadNetworkManager(ctx, items)
-	case ManagerNetplan:
-		err = loadNetplan(ctx, items)
-	case ManagerIfupdown:
-		err = loadIfupdown(items)
-	default:
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	current := s.detect(ctx)
+	if current == nil {
 		for i := range items {
 			items[i].Reason = "unsupported network manager"
 		}
+		return &Result{Manager: "unsupported", Items: items}, nil
 	}
-	if err != nil {
+	if err = current.Load(ctx, items); err != nil {
 		return nil, err
 	}
-	return &Result{Manager: manager, Items: items}, nil
+	return &Result{Manager: current.Name(), Items: items, Pending: s.rollback != nil}, nil
 }
 
+// Update 应用网卡配置，成功后进入待确认状态，超时未确认自动回滚
 func (s *Service) Update(ctx context.Context, config Config) error {
 	if err := Validate(config); err != nil {
 		return err
 	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.rollback != nil {
+		return fmt.Errorf("%w: a previous change is still waiting for confirmation", ErrValidation)
+	}
+	current := s.detect(ctx)
+	if current == nil {
+		return fmt.Errorf("%w: unsupported network manager", ErrValidation)
+	}
 
-	result, err := s.Interfaces(ctx)
+	items, err := runtimeInterfaces()
 	if err != nil {
 		return err
 	}
-	index := slices.IndexFunc(result.Items, func(item Interface) bool {
-		return item.Name == config.Name
-	})
+	index := slices.IndexFunc(items, func(item Interface) bool { return item.Name == config.Name })
 	if index < 0 {
-		return &ValidationError{Message: "network interface does not exist or is not manageable"}
+		return fmt.Errorf("%w: network interface does not exist", ErrValidation)
 	}
-	if !result.Items[index].Editable {
-		return &ValidationError{Message: result.Items[index].Reason}
+	// 只加载目标网卡，避免为改一张网卡读遍全部配置
+	target := items[index : index+1]
+	if err = current.Load(ctx, target); err != nil {
+		return err
+	}
+	if !target[0].Editable {
+		return fmt.Errorf("%w: %s", ErrValidation, target[0].Reason)
 	}
 
-	switch result.Manager {
-	case ManagerNetworkManager:
-		return updateNetworkManager(ctx, config)
-	case ManagerNetplan:
-		return updateNetplan(ctx, result.Items[index], config)
-	case ManagerIfupdown:
-		return updateIfupdown(ctx, config)
-	default:
-		return &ValidationError{Message: "unsupported network manager"}
+	rollback, err := current.Apply(ctx, target[0], config)
+	if err != nil {
+		return err
 	}
+	if err = verify(config); err != nil {
+		return errors.Join(err, rollback(context.WithoutCancel(ctx)))
+	}
+
+	s.rollback = rollback
+	s.timer = time.AfterFunc(ConfirmTimeout, s.expire)
+	return nil
+}
+
+func (s *Service) Confirm() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.rollback == nil {
+		return fmt.Errorf("%w: no change is waiting for confirmation", ErrValidation)
+	}
+	s.timer.Stop()
+	s.timer, s.rollback = nil, nil
+	return nil
+}
+
+func (s *Service) Rollback(ctx context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.rollback == nil {
+		return fmt.Errorf("%w: no change is waiting for confirmation", ErrValidation)
+	}
+	s.timer.Stop()
+	rollback := s.rollback
+	s.timer, s.rollback = nil, nil
+	return rollback(ctx)
+}
+
+// expire 等待确认超时，自动回滚
+func (s *Service) expire() {
+	s.mu.Lock()
+	rollback := s.rollback
+	s.timer, s.rollback = nil, nil
+	s.mu.Unlock()
+	if rollback == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	_ = rollback(ctx)
+}
+
+// detect 探测网络管理器，结果在进程生命周期内缓存
+func (s *Service) detect(ctx context.Context) backend {
+	if s.backend != nil {
+		return s.backend
+	}
+	for _, candidate := range []backend{&netplanBackend{}, &networkManagerBackend{}, &ifupdownBackend{}} {
+		if candidate.available(ctx) {
+			s.backend = candidate
+			return candidate
+		}
+	}
+	return nil
+}
+
+// verify 确认配置已在网卡上生效，挡住应用命令返回成功但实际未生效的情况
+func verify(config Config) error {
+	current, err := net.InterfaceByName(config.Name)
+	if err != nil {
+		return fmt.Errorf("network interface %s disappeared after applying: %w", config.Name, err)
+	}
+	if current.Flags&net.FlagUp == 0 {
+		return fmt.Errorf("network interface %s is down after applying", config.Name)
+	}
+
+	ipv4, ipv6 := currentAddresses(*current)
+	if err = verifyAddresses(config.Name, config.IPv4, ipv4); err != nil {
+		return err
+	}
+	return verifyAddresses(config.Name, config.IPv6, ipv6)
+}
+
+func verifyAddresses(name string, config FamilyConfig, applied []string) error {
+	if config.Mode != ModeManual {
+		return nil
+	}
+	for _, address := range config.Addresses {
+		if !slices.Contains(applied, address) {
+			return fmt.Errorf("address %s was not applied to %s", address, name)
+		}
+	}
+	return nil
 }
 
 func Validate(config Config) error {
 	if config.Name == "" || filepath.Base(config.Name) != config.Name || strings.ContainsAny(config.Name, " \t\r\n/") {
-		return &ValidationError{Message: "invalid network interface name"}
+		return fmt.Errorf("%w: invalid network interface name", ErrValidation)
 	}
 	if config.MTU != 0 && (config.MTU < 68 || config.MTU > 65535) {
-		return &ValidationError{Message: "MTU must be 0 or between 68 and 65535"}
+		return fmt.Errorf("%w: MTU must be 0 or between 68 and 65535", ErrValidation)
 	}
 	if config.IPv4.Mode == ModeDisabled && config.IPv6.Mode == ModeDisabled {
-		return &ValidationError{Message: "IPv4 and IPv6 cannot both be disabled"}
+		return fmt.Errorf("%w: IPv4 and IPv6 cannot both be disabled", ErrValidation)
 	}
 	if config.IPv6.Mode != ModeDisabled && config.MTU != 0 && config.MTU < 1280 {
-		return &ValidationError{Message: "MTU must not be lower than 1280 when IPv6 is enabled"}
+		return fmt.Errorf("%w: MTU must not be lower than 1280 when IPv6 is enabled", ErrValidation)
 	}
 	if err := validateFamily("IPv4", config.IPv4, true); err != nil {
 		return err
@@ -154,77 +255,50 @@ func Validate(config Config) error {
 
 func validateFamily(name string, config FamilyConfig, ipv4 bool) error {
 	if !slices.Contains([]string{ModeAuto, ModeManual, ModeDisabled}, config.Mode) {
-		return &ValidationError{Message: fmt.Sprintf("invalid %s mode", name)}
+		return fmt.Errorf("%w: invalid %s mode", ErrValidation, name)
 	}
 	if config.Mode == ModeDisabled {
 		if len(config.Addresses) > 0 || config.Gateway != "" || len(config.DNS) > 0 {
-			return &ValidationError{Message: fmt.Sprintf("disabled %s configuration must be empty", name)}
+			return fmt.Errorf("%w: disabled %s configuration must be empty", ErrValidation, name)
 		}
 		return nil
 	}
 	if config.Mode == ModeManual && len(config.Addresses) == 0 {
-		return &ValidationError{Message: fmt.Sprintf("manual %s configuration requires an address", name)}
+		return fmt.Errorf("%w: manual %s configuration requires an address", ErrValidation, name)
 	}
 
 	addresses := make(map[netip.Prefix]struct{}, len(config.Addresses))
 	for _, value := range config.Addresses {
 		prefix, err := netip.ParsePrefix(value)
 		if err != nil || prefix.Addr().Is4() != ipv4 {
-			return &ValidationError{Message: fmt.Sprintf("invalid %s CIDR: %s", name, value)}
+			return fmt.Errorf("%w: invalid %s CIDR: %s", ErrValidation, name, value)
 		}
 		if _, exists := addresses[prefix]; exists {
-			return &ValidationError{Message: fmt.Sprintf("duplicate %s address: %s", name, value)}
+			return fmt.Errorf("%w: duplicate %s address: %s", ErrValidation, name, value)
 		}
 		addresses[prefix] = struct{}{}
 	}
 	if config.Gateway != "" {
 		gateway, err := netip.ParseAddr(config.Gateway)
 		if err != nil || gateway.Is4() != ipv4 {
-			return &ValidationError{Message: fmt.Sprintf("invalid %s gateway", name)}
+			return fmt.Errorf("%w: invalid %s gateway", ErrValidation, name)
 		}
 	}
 	dns := make(map[netip.Addr]struct{}, len(config.DNS))
 	for _, value := range config.DNS {
 		server, err := netip.ParseAddr(value)
 		if err != nil || server.Is4() != ipv4 {
-			return &ValidationError{Message: fmt.Sprintf("invalid %s DNS: %s", name, value)}
+			return fmt.Errorf("%w: invalid %s DNS: %s", ErrValidation, name, value)
 		}
 		if _, exists := dns[server]; exists {
-			return &ValidationError{Message: fmt.Sprintf("duplicate %s DNS: %s", name, value)}
+			return fmt.Errorf("%w: duplicate %s DNS: %s", ErrValidation, name, value)
 		}
 		dns[server] = struct{}{}
 	}
 	return nil
 }
 
-func IsValidationError(err error) bool {
-	var target *ValidationError
-	return errors.As(err, &target)
-}
-
-func detectManager(ctx context.Context) string {
-	if hasCommand("netplan") {
-		files, _ := filepath.Glob("/etc/netplan/*.yaml")
-		yml, _ := filepath.Glob("/etc/netplan/*.yml")
-		if len(files)+len(yml) > 0 {
-			if _, err := run(ctx, "netplan", "get"); err == nil {
-				return ManagerNetplan
-			}
-		}
-	}
-	if hasCommand("nmcli") {
-		if output, err := run(ctx, "nmcli", "-t", "-f", "RUNNING", "general", "status"); err == nil && strings.EqualFold(output, "running") {
-			return ManagerNetworkManager
-		}
-	}
-	if hasCommand("ifquery") {
-		if _, err := os.Stat("/etc/network/interfaces"); err == nil {
-			return ManagerIfupdown
-		}
-	}
-	return ManagerUnsupported
-}
-
+// runtimeInterfaces 列出内核中可管理的物理网卡
 func runtimeInterfaces() ([]Interface, error) {
 	interfaces, err := net.Interfaces()
 	if err != nil {
@@ -247,48 +321,43 @@ func runtimeInterfaces() ([]Interface, error) {
 			IPv4: emptyFamily(), IPv6: emptyFamily(),
 		})
 	}
-	sort.Slice(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	slices.SortFunc(items, func(a, b Interface) int { return strings.Compare(a.Name, b.Name) })
 	return items, nil
 }
 
+// interfaceType 识别网卡类型，容器与隧道等虚拟设备不纳入管理
 func interfaceType(name string) string {
-	if name == "lo" {
-		return ""
-	}
-	for _, prefix := range []string{"docker", "veth", "cni", "flannel", "cali", "virbr", "br-", "vnet", "macvlan", "macvtap", "podman", "lxc", "kube", "tun", "tap", "tailscale", "wg", "sit", "gre", "gretap", "ip6tnl", "dummy"} {
-		if strings.HasPrefix(name, prefix) {
-			return ""
-		}
-	}
 	base := filepath.Join("/sys/class/net", name)
 	switch {
+	case name == "lo":
+		return ""
 	case exists(filepath.Join(base, "bonding")):
 		return "bond"
 	case exists(filepath.Join(base, "bridge")):
 		return "bridge"
-	case exists(filepath.Join("/proc/net/vlan", name)):
+	case hasVLANParent(base):
 		return "vlan"
-	case exists(filepath.Join(base, "device")):
-		if exists(filepath.Join(base, "wireless")) {
-			return "wifi"
-		}
-		return "ethernet"
-	default:
+	case !exists(filepath.Join(base, "device")):
+		// 无对应硬件设备即为虚拟网卡（docker0、veth、tun 等）
 		return ""
+	case exists(filepath.Join(base, "wireless")), exists(filepath.Join(base, "phy80211")):
+		return "wifi"
+	default:
+		return "ethernet"
 	}
 }
 
 func currentAddresses(current net.Interface) ([]string, []string) {
 	addresses, _ := current.Addrs()
-	var ipv4, ipv6 []string
+	ipv4, ipv6 := make([]string, 0), make([]string, 0)
 	for _, address := range addresses {
-		ip, _, err := net.ParseCIDR(address.String())
-		if err != nil || ip.IsUnspecified() {
+		prefix, err := netip.ParsePrefix(address.String())
+		if err != nil || prefix.Addr().IsUnspecified() {
 			continue
 		}
-		if ip.To4() != nil {
+		if prefix.Addr().Is4() {
 			ipv4 = append(ipv4, address.String())
-		} else if !ip.IsLinkLocalUnicast() {
+		} else if !prefix.Addr().IsLinkLocalUnicast() {
 			ipv6 = append(ipv6, address.String())
 		}
 	}
@@ -302,12 +371,11 @@ func emptyFamily() FamilyConfig {
 func unique(values []string) []string {
 	result := make([]string, 0, len(values))
 	for _, value := range values {
-		value = strings.TrimSpace(value)
-		if value != "" && !slices.Contains(result, value) {
+		if value = strings.TrimSpace(value); value != "" && !slices.Contains(result, value) {
 			result = append(result, value)
 		}
 	}
-	sort.Strings(result)
+	slices.Sort(result)
 	return result
 }
 
@@ -327,4 +395,11 @@ func run(ctx context.Context, name string, args ...string) (string, error) {
 func exists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+// hasVLANParent VLAN 在 sysfs 下有指向父设备的 lower_* 链接，
+// 而 bond 与 bridge 已在前面按各自目录识别
+func hasVLANParent(base string) bool {
+	matches, _ := filepath.Glob(filepath.Join(base, "lower_*"))
+	return len(matches) > 0
 }
