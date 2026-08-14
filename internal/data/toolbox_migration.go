@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -126,13 +127,6 @@ type migrationClient struct {
 	downloadParam string
 }
 
-func (c *migrationClient) client(timeout time.Duration) *resty.Client {
-	return resty.New().
-		SetBaseURL(strings.TrimRight(c.url, "/")).
-		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
-		SetTimeout(timeout)
-}
-
 // call 调用来源面板 API 并返回业务数据
 func (c *migrationClient) call(ctx context.Context, method, path string, body map[string]any) (any, error) {
 	client := c.client(45 * time.Second)
@@ -188,6 +182,24 @@ func (c *migrationClient) download(ctx context.Context, remote, local string) er
 	return err
 }
 
+func (c *migrationClient) client(timeout time.Duration) *resty.Client {
+	return resty.New().
+		SetBaseURL(c.origin()).
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+		SetTimeout(timeout)
+}
+
+// origin 去掉地址中的路径，两家面板的安全入口只拦登录页，接口都挂在根路径上
+func (c *migrationClient) origin() string {
+	address := strings.TrimRight(c.url, "/")
+	parsed, err := url.Parse(address)
+	if err != nil || parsed.Host == "" {
+		return address
+	}
+
+	return parsed.Scheme + "://" + parsed.Host
+}
+
 // rows 把列表响应转换为若干行
 func (c *migrationClient) rows(value any) []map[string]any {
 	values, ok := value.([]any)
@@ -200,8 +212,7 @@ func (c *migrationClient) rows(value any) []map[string]any {
 	})
 }
 
-// phpVersion 把 8.3、php-8.3.2、83 之类的版本号统一转为面板使用的 83
-// 宝塔多数接口直接返回 83 这种连写形式，1Panel 则是带点的完整版本号
+// phpVersion 把 8.3、php-8.3.2、83 等写法统一转为面板使用的 83
 func (c *migrationClient) phpVersion(version string) uint {
 	digits := strings.Map(func(char rune) rune {
 		if char >= '0' && char <= '9' {
@@ -212,6 +223,6 @@ func (c *migrationClient) phpVersion(version string) uint {
 	if len(digits) < 2 {
 		return 0
 	}
-	// 主次版本各占一位，多余的修订号丢弃
+
 	return cast.ToUint(digits[:2])
 }

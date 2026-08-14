@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -28,51 +29,6 @@ type onePanelAdapter struct {
 
 	v1    bool // 来源面板为 1Panel v1
 	known bool // 大版本已确定，不再回落重试
-}
-
-// resolve 拼接接口路径，v1 与 v2 的前缀不同，备份接口在 v1 挂在 /settings 下
-func (a *onePanelAdapter) resolve(path string) string {
-	if !a.v1 {
-		return "/api/v2" + path
-	}
-	if rest, ok := strings.CutPrefix(path, "/backups"); ok {
-		return "/api/v1/settings/backup" + rest
-	}
-	return "/api/v1" + path
-}
-
-// tryVersions 执行请求，大版本未确定时先按 v2 再按 v1 尝试
-// 两版都失败则上报 v2 的错误，避免把 v1 的路由缺失当成真正的失败原因
-func (a *onePanelAdapter) tryVersions(run func() error) error {
-	err := run()
-	if err == nil {
-		a.known = true
-		return nil
-	}
-	if a.known {
-		return err
-	}
-
-	a.v1 = true
-	if retry := run(); retry == nil {
-		a.known = true
-		return nil
-	}
-	a.v1 = false
-
-	return err
-}
-
-// api 调用 1Panel 接口
-func (a *onePanelAdapter) api(ctx context.Context, method, path string, body map[string]any) (any, error) {
-	var data any
-	err := a.tryVersions(func() error {
-		var err error
-		data, err = a.call(ctx, method, a.resolve(path), body)
-		return err
-	})
-
-	return data, err
 }
 
 // newOnePanelClient 1Panel 以 JSON 提交，认证为请求头中的 md5("1panel" + 接口密钥 + 时间戳)
@@ -227,15 +183,15 @@ func (a *onePanelAdapter) websiteDetail(ctx context.Context, item types.Migratio
 	}
 	row := cast.ToStringMap(data)
 
-	path := cast.ToString(row["sitePath"])
+	// 站点目录下的 index 才是网站文件根，siteDir 则是相对它的运行目录
+	path := strings.TrimRight(cast.ToString(row["sitePath"]), "/") + "/index"
 	website := &types.MigrationWebsite{
 		Type: item.Subtype, Path: path, Root: path, Remark: cast.ToString(row["remark"]),
 		Index: []string{"index.php", "index.html", "index.htm"}, Enabled: item.Status == "running",
 		OpenBasedir: cast.ToBool(row["openBaseDir"]), Rewrite: cast.ToString(row["rewrite"]),
 	}
-	// 1Panel 的站点目录下 index 才是网站根目录
 	if dir := cast.ToString(row["siteDir"]); dir != "" && dir != "/" {
-		website.Root = strings.TrimRight(path, "/") + "/" + strings.TrimLeft(dir, "/")
+		website.Root = path + "/" + strings.TrimLeft(dir, "/")
 	}
 	if expire := cast.ToTime(row["expireDate"]); !expire.IsZero() && expire.Year() > 1970 {
 		website.ExpireAt = &expire
@@ -243,12 +199,16 @@ func (a *onePanelAdapter) websiteDetail(ctx context.Context, item types.Migratio
 	if item.Subtype == "php" {
 		website.PHP = a.runtimePHP(ctx, cast.ToString(row["runtimeID"]))
 	}
-	if item.Subtype == "proxy" {
-		website.Proxies = []types.MigrationProxy{{Location: "/", Pass: cast.ToString(row["proxy"])}}
-	}
-
 	website.Domains, website.Listens = a.domains(ctx, item.SourceID)
-	website.Proxies = append(website.Proxies, a.proxies(ctx, item.SourceID)...)
+	website.Proxies = a.proxies(ctx, item.SourceID)
+	// 反代站点的根代理写在 proxy 字段，与代理列表重复时以列表为准
+	if item.Subtype == "proxy" && !slices.ContainsFunc(website.Proxies, func(proxy types.MigrationProxy) bool {
+		return proxy.Location == "/"
+	}) {
+		if pass := cast.ToString(row["proxy"]); pass != "" {
+			website.Proxies = append(website.Proxies, types.MigrationProxy{Location: "/", Pass: a.proxyPass(pass)})
+		}
+	}
 	website.Redirects = a.redirects(ctx, item.Name)
 	a.applySSL(ctx, item.SourceID, website)
 	return website, nil
@@ -286,11 +246,20 @@ func (a *onePanelAdapter) proxies(ctx context.Context, websiteID string) []types
 			continue
 		}
 		proxies = append(proxies, types.MigrationProxy{
-			Location: lo.CoalesceOrEmpty(cast.ToString(row["match"]), "/"), Pass: pass,
+			Location: lo.CoalesceOrEmpty(cast.ToString(row["match"]), "/"), Pass: a.proxyPass(pass),
 			Host: cast.ToString(row["proxyHost"]), Replaces: cast.ToStringMapString(row["replaces"]),
 		})
 	}
 	return proxies
+}
+
+// proxyPass 补全代理目标的协议，1Panel 的 proxy 字段可能只有 host:port
+func (a *onePanelAdapter) proxyPass(pass string) string {
+	if strings.Contains(pass, "://") {
+		return pass
+	}
+
+	return "http://" + pass
 }
 
 // redirects 读取站点重定向规则
@@ -347,7 +316,7 @@ func (a *onePanelAdapter) applySSL(ctx context.Context, websiteID string, websit
 	website.SSLListens = append(website.SSLListens, "443")
 }
 
-// phpVersion 从运行环境详情读取 PHP 版本
+// runtimePHP 读取运行环境的 PHP 版本，version 可能只有主版本号，params 中的才完整
 func (a *onePanelAdapter) runtimePHP(ctx context.Context, runtimeID string) uint {
 	if runtimeID == "" || runtimeID == "0" {
 		return 0
@@ -356,7 +325,13 @@ func (a *onePanelAdapter) runtimePHP(ctx context.Context, runtimeID string) uint
 	if err != nil {
 		return 0
 	}
-	return a.phpVersion(cast.ToString(cast.ToStringMap(data)["version"]))
+	row := cast.ToStringMap(data)
+
+	if version := a.phpVersion(cast.ToString(cast.ToStringMap(row["params"])["PHP_VERSION"])); version > 0 {
+		return version
+	}
+
+	return a.phpVersion(cast.ToString(row["version"]))
 }
 
 func (a *onePanelAdapter) databaseDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationDatabase, error) {
@@ -405,26 +380,18 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 		return "", errors.New(a.t.Get("unsupported migration resource type: %s", item.Type))
 	}
 
-	// 备份接口同步执行，返回后最新的一条记录即本次备份
 	if _, err := a.api(ctx, http.MethodPost, "/backups/backup", backup); err != nil {
 		return "", err
 	}
-	data, err := a.api(ctx, http.MethodPost, "/backups/record/search", map[string]any{
-		"page": 1, "pageSize": 1, "type": backup["type"], "name": backup["name"], "detailName": backup["detailName"],
-	})
+	record, err := a.waitBackup(ctx, backup)
 	if err != nil {
 		return "", err
 	}
-	records := a.rows(cast.ToStringMap(data)["items"])
-	if len(records) == 0 {
-		return "", errors.New(a.t.Get("the source backup did not finish in time"))
-	}
 
-	// 备份记录只有目录与文件名，需换取来源服务器上的绝对路径
-	// v1 用 source 指定备份账号，v2 改为 downloadAccountID，两者都带上即可兼容
+	// 记录里只有目录与文件名，需换取绝对路径；备份账号 v1 用 source、v2 用 downloadAccountID
 	path, err := a.api(ctx, http.MethodPost, "/backups/record/download", map[string]any{
 		"source": "LOCAL", "downloadAccountID": 1,
-		"fileDir": records[0]["fileDir"], "fileName": records[0]["fileName"],
+		"fileDir": record["fileDir"], "fileName": record["fileName"],
 	})
 	if err != nil {
 		return "", err
@@ -432,9 +399,82 @@ func (a *onePanelAdapter) Backup(ctx context.Context, detail *types.MigrationDet
 	return cast.ToString(path), nil
 }
 
+// waitBackup 轮询最新一条备份记录直到写盘完成，备份接口只是把任务丢进后台就返回
+func (a *onePanelAdapter) waitBackup(ctx context.Context, backup map[string]any) (map[string]any, error) {
+	for range 3600 {
+		data, err := a.api(ctx, http.MethodPost, "/backups/record/search", map[string]any{
+			"page": 1, "pageSize": 1, "type": backup["type"], "name": backup["name"], "detailName": backup["detailName"],
+		})
+		if err != nil {
+			return nil, err
+		}
+		if records := a.rows(cast.ToStringMap(data)["items"]); len(records) > 0 {
+			switch cast.ToString(records[0]["status"]) {
+			case "Success":
+				return records[0], nil
+			case "Failed":
+				return nil, errors.New(a.t.Get("the source task failed"))
+			}
+		}
+
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(time.Second):
+		}
+	}
+
+	return nil, errors.New(a.t.Get("the source backup did not finish in time"))
+}
+
 func (a *onePanelAdapter) Download(ctx context.Context, remote, local string) error {
 	return a.tryVersions(func() error {
 		a.downloadPath = a.resolve("/files/download")
 		return a.download(ctx, remote, local)
 	})
+}
+
+// api 调用 1Panel 接口
+func (a *onePanelAdapter) api(ctx context.Context, method, path string, body map[string]any) (any, error) {
+	var data any
+	err := a.tryVersions(func() error {
+		var err error
+		data, err = a.call(ctx, method, a.resolve(path), body)
+		return err
+	})
+
+	return data, err
+}
+
+// resolve 拼接接口路径，v1 与 v2 的前缀不同，且备份接口在 v1 挂在 /settings 下
+func (a *onePanelAdapter) resolve(path string) string {
+	if !a.v1 {
+		return "/api/v2" + path
+	}
+	if rest, ok := strings.CutPrefix(path, "/backups"); ok {
+		return "/api/v1/settings/backup" + rest
+	}
+
+	return "/api/v1" + path
+}
+
+// tryVersions 大版本未确定时先按 v2 再按 v1 尝试，两版都失败则上报 v2 的错误
+func (a *onePanelAdapter) tryVersions(run func() error) error {
+	err := run()
+	if err == nil {
+		a.known = true
+		return nil
+	}
+	if a.known {
+		return err
+	}
+
+	a.v1 = true
+	if retry := run(); retry == nil {
+		a.known = true
+		return nil
+	}
+	a.v1 = false
+
+	return err
 }

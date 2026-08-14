@@ -44,7 +44,7 @@ func newBaotaClient(conn *request.ToolboxMigrationConnection) *migrationClient {
 	return &migrationClient{
 		url:  conn.URL,
 		form: true,
-		// 认证一律走 query，宝塔 GET/POST 都从 query 取参，而 resty 此时尚未确定请求方法
+		// 认证一律走 query，resty 在签名时还未确定请求方法，无法按方法分流
 		sign: func(req *resty.Request) {
 			timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 			secret := md5.Sum([]byte(conn.APIKey))
@@ -281,7 +281,7 @@ func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationIt
 	}); err == nil {
 		info := cast.ToStringMap(data)
 		website.OpenBasedir = cast.ToBool(info["userini"])
-		// 站点停止时宝塔把根目录改指向 /www/server/stop，此时以 project_config 中保存的原运行目录为准
+		// 站点停止时根目录被指向 /www/server/stop，改用 project_config 中保存的原值
 		run := cast.ToStringMap(info["runPath"])
 		runPath := cast.ToString(run["runPath"])
 		if stoppedRunPath != "" {
@@ -356,7 +356,7 @@ func (a *baotaAdapter) rewrite(ctx context.Context, item types.MigrationItem) st
 }
 
 // proxies 读取站点反向代理规则
-// 反代站点的规则由独立的代理模块管理，站点接口读不到，PHP 与静态站点仍走站点接口
+// 反代站点的规则归代理模块管，站点接口读不到
 func (a *baotaAdapter) proxies(ctx context.Context, item types.MigrationItem) []types.MigrationProxy {
 	if item.Subtype == "proxy" {
 		return a.moduleProxies(ctx, item.Name)
@@ -393,7 +393,7 @@ func (a *baotaAdapter) moduleProxies(ctx context.Context, name string) []types.M
 	}
 	proxies := make([]types.MigrationProxy, 0)
 	for _, row := range a.rows(data) {
-		// unix 套接字形态的代理目标 AcePanel 不支持
+		// AcePanel 不支持 unix 套接字形态的代理目标
 		pass := cast.ToString(row["proxy_pass"])
 		if pass == "" || strings.HasPrefix(pass, "http://unix:") {
 			continue
@@ -506,7 +506,7 @@ func (a *baotaAdapter) projectDetail(ctx context.Context, item types.MigrationIt
 	project := &types.MigrationProject{
 		Type: types.ProjectType(item.Subtype), Version: item.Version, Path: path, WorkingDir: path,
 		ExecStart: a.projectExecStart(ctx, config, item.SourceGroup, path),
-		// 运行用户与开机自启的字段名逐个模块不同：Python 用 user/auto_run，Java 用 auth，其余用 run_user/is_power_on
+		// 运行用户与开机自启的字段名逐模块不同
 		User:    lo.CoalesceOrEmpty(cast.ToString(config["run_user"]), cast.ToString(config["user"]), "www"),
 		Port:    cast.ToUint(config["port"]),
 		Running: item.Status == "running",
@@ -533,7 +533,7 @@ func (a *baotaAdapter) projectRoot(row, config map[string]any, module string) st
 	case "java":
 		return lo.CoalesceOrEmpty(cast.ToString(config["jar_path"]), filepath.Dir(cast.ToString(config["project_jar"])), path)
 	default:
-		// 其他项目的 project_exe 就是项目目录，与 path 同值
+		// 其他项目的 project_exe 即项目目录，与 path 同值
 		return path
 	}
 }
@@ -554,15 +554,14 @@ func (a *baotaAdapter) projectExecStart(ctx context.Context, config map[string]a
 }
 
 // nodejsExecStart 还原 Node.js 项目启动命令
-// 传统与 PM2 模式下 project_script 存的是宝塔生成的整段 shell 脚本，只有入口文件字段可用
-// NodeJS 模式下 project_script 才是 package.json 里的 script 名或入口文件路径
+// 传统与 PM2 模式的 project_script 存的是整段启动脚本，只有入口文件字段可用
 func (a *baotaAdapter) nodejsExecStart(ctx context.Context, config map[string]any, path string) string {
 	if file := cast.ToString(config["project_file"]); file != "" {
 		return strings.TrimSpace("node " + file + " " + cast.ToString(config["project_args"]))
 	}
 
 	script := cast.ToString(config["project_script"])
-	// AcePanel 用 systemd 托管项目，pm2 的进程管理由 systemd 承担，只保留入口
+	// 进程管理交给 systemd，剥掉 pm2 只留入口
 	if fields := strings.Fields(script); len(fields) > 2 && fields[0] == "pm2" && fields[1] == "start" {
 		script = strings.Join(fields[2:], " ")
 	}
@@ -587,8 +586,7 @@ func (a *baotaAdapter) nodejsExecStart(ctx context.Context, config map[string]an
 }
 
 // pythonExecStart Python 项目按部署方式生成启动命令
-// 不复用宝塔生成的 gunicorn_conf.py 与 uwsgi.ini：两者都写死了宝塔的日志目录，
-// uwsgi.ini 还带 daemonize，进程转后台会被 systemd 判定为启动失败，故按配置直接拼出完整命令
+// 不复用宝塔生成的配置文件：日志目录是写死的，uwsgi.ini 还带 daemonize 会让 systemd 判定启动失败
 func (a *baotaAdapter) pythonExecStart(config map[string]any, path string) string {
 	entry := cast.ToString(config["rfile"])
 	listen := "0.0.0.0:" + cast.ToString(config["port"])
@@ -615,7 +613,7 @@ func (a *baotaAdapter) pythonExecStart(config map[string]any, path string) strin
 }
 
 // projectEnvironments 合并项目配置与环境变量文件中的变量
-// 字段名逐个模块不同：Python 与 Go 是 {key,value} 列表 env_list，Node.js 是 env，其他项目是 environment
+// Python 与 Go 用 {key,value} 列表 env_list，Node.js 用 env，其他项目用 environment
 func (a *baotaAdapter) projectEnvironments(ctx context.Context, config map[string]any) []types.KV {
 	values := lo.FilterMap(a.rows(config["env_list"]), func(row map[string]any, _ int) (types.KV, bool) {
 		key := cast.ToString(row["key"])

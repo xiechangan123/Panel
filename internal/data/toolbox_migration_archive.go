@@ -59,7 +59,7 @@ func (r *migrationArchiveRepo) CopyTree(ctx context.Context, source, target stri
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return err
 	}
-	// 必须以 /. 结尾才是复制目录内容，filepath.Join 会把尾部的 . 清理掉，导致源目录被整个拷进目标
+	// 必须以 /. 结尾才是复制目录内容，filepath.Join 会把尾部的点清理掉
 	output, err := exec.CommandContext(ctx, "cp", "-a", source+"/.", target).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("copy directory: %s", strings.TrimSpace(string(output)))

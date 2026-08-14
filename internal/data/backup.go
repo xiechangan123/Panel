@@ -877,13 +877,18 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 		return errors.New(r.t.Get("uncompressed backup is empty, restore aborted"))
 	}
 
+	content, err := r.selectWebsiteBackup(stage)
+	if err != nil {
+		return err
+	}
+
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Replacing website files..."))
 	}
 	if err = io.Remove(website.Path); err != nil {
 		return err
 	}
-	if err = os.Rename(stage, website.Path); err != nil {
+	if err = os.Rename(content, website.Path); err != nil {
 		return err
 	}
 
@@ -1312,6 +1317,60 @@ func (r *backupRepo) disableAppendonly(confPath string) error {
 	}
 
 	return io.Write(confPath, strings.Join(lines, "\n"), 0644)
+}
+
+// selectWebsiteBackup 逐层展开归档，从不同面板导出的目录结构中定位网站文件根目录。
+func (r *backupRepo) selectWebsiteBackup(root string) (string, error) {
+	current, onePanel := root, false
+	for range 4 {
+		entries, err := os.ReadDir(current)
+		if err != nil {
+			return "", err
+		}
+		// 1Panel 的备份是「元数据 + 内层归档」，website.json 是它的标记
+		if lo.SomeBy(entries, func(entry os.DirEntry) bool { return entry.Name() == "website.json" }) {
+			onePanel = true
+		}
+
+		archives := lo.Filter(entries, func(entry os.DirEntry, _ int) bool {
+			return !entry.IsDir() && r.databaseArchiveExt(filepath.Join(current, entry.Name())) != ""
+		})
+		// PHP 站点的包里还有一份运行环境归档，网站文件在 .web 那个里面
+		if onePanel && len(archives) > 1 {
+			archives = lo.Filter(archives, func(entry os.DirEntry, _ int) bool {
+				return strings.Contains(entry.Name(), ".web.")
+			})
+		}
+
+		// 仅元数据旁或目录中只此一个文件时才当外层包装，否则可能是网站自带的压缩包
+		wrapped := len(archives) == 1 && (onePanel || len(entries) == 1)
+		if wrapped {
+			stage, err := os.MkdirTemp(root, ".ace-nested-*")
+			if err != nil {
+				return "", err
+			}
+			if err = io.UnCompress(filepath.Join(current, archives[0].Name()), stage); err != nil {
+				return "", err
+			}
+			current = stage
+			continue
+		}
+
+		// 归档常带一层同名目录
+		if len(entries) == 1 && entries[0].IsDir() {
+			current = filepath.Join(current, entries[0].Name())
+			continue
+		}
+
+		// 1Panel 站点目录下的 index 才是文件根，同级的 log、ssl 属于面板附属目录
+		if index := filepath.Join(current, "index"); onePanel && io.IsDir(index) {
+			return index, nil
+		}
+
+		return current, nil
+	}
+
+	return current, nil
 }
 
 // prepareDatabaseBackup 自动展开常见压缩格式，并从不同软件生成的目录结构中定位数据库备份。

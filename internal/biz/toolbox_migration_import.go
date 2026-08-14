@@ -160,7 +160,6 @@ func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *ty
 	var warnings []string
 	switch website.Type {
 	case "php":
-		// 目标缺少来源版本时降级，一个都没装则建成不使用 PHP 的网站
 		php, warning := uc.resolvePHP(website.PHP)
 		if warning != "" {
 			warnings = append(warnings, warning)
@@ -176,7 +175,8 @@ func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *ty
 	if err != nil {
 		return nil, err
 	}
-	if err = uc.restoreFiles(ctx, archive, targetPath); err != nil {
+	// 走备份还原而非直接解包，那里已兼容各家面板导出的归档结构
+	if err = uc.backup.Restore(ctx, BackupTypeWebsite, archive, detail.Item.TargetName); err != nil {
 		return nil, errors.New(uc.t.Get("website file import failed: %v", err))
 	}
 
@@ -227,23 +227,21 @@ func (uc *ToolboxMigrationUsecase) resolvePHP(version uint) (uint, string) {
 		return version, ""
 	}
 
+	distance := func(installed uint) uint {
+		if installed > version {
+			return installed - version
+		}
+		return version - installed
+	}
 	// 版本号相差最小的优先，相差一样时取更高的版本
 	closest := slices.MinFunc(installed, func(a, b uint) int {
-		if diff := cmp.Compare(uc.phpDistance(a, version), uc.phpDistance(b, version)); diff != 0 {
+		if diff := cmp.Compare(distance(a), distance(b)); diff != 0 {
 			return diff
 		}
 		return cmp.Compare(b, a)
 	})
 
 	return closest, uc.t.Get("the source uses PHP %d, the target does not have it installed, PHP %d was used instead", version, closest)
-}
-
-func (uc *ToolboxMigrationUsecase) phpDistance(a, b uint) uint {
-	if a > b {
-		return a - b
-	}
-
-	return b - a
 }
 
 // websiteListens 还原监听端口，SSL 端口带 ssl 参数
