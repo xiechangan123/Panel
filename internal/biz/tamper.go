@@ -69,12 +69,13 @@ type TamperUsecase struct {
 	log     *slog.Logger
 	t       *gotext.Locale
 
-	mu       sync.Mutex
-	mgr      *tamper.Manager
-	buf      []*TamperLog
-	bufMu    sync.Mutex
-	notifyAt time.Time
-	drainC   chan struct{}
+	mu        sync.Mutex
+	mgr       *tamper.Manager
+	cleanedAt time.Time
+	buf       []*TamperLog
+	bufMu     sync.Mutex
+	notifyAt  time.Time
+	drainC    chan struct{}
 }
 
 func NewTamperUsecase(notifyUsecase *NotifyUsecase, settingUsecase *SettingUsecase, t *gotext.Locale, log *slog.Logger, tamperRepo TamperRepo) (*TamperUsecase, error) {
@@ -312,7 +313,16 @@ func (uc *TamperUsecase) notifyBlocked(logs []*TamperLog) {
 }
 
 // CleanupLogs 清理过期日志
+// 调用方每分钟触发，但日志按天过期，故限流到 6 小时一次
 func (uc *TamperUsecase) CleanupLogs() {
+	uc.mu.Lock()
+	if time.Since(uc.cleanedAt) < 6*time.Hour {
+		uc.mu.Unlock()
+		return
+	}
+	uc.cleanedAt = time.Now()
+	uc.mu.Unlock()
+
 	s, err := uc.GetSetting()
 	if err != nil || s.LogDays == 0 {
 		return

@@ -6,27 +6,43 @@ import (
 
 var uaParser = ua.NewParser()
 
-// ParseUA 解析 User-Agent，返回浏览器和操作系统名称
+// ClassifyUA 单次解析 UA
+func ClassifyUA(rawUA string) (spider, browser, os string) {
+	if spider = spiderByKeyword(rawUA); spider != "" {
+		return spider, "", ""
+	}
+
+	agent := uaParser.Parse(rawUA)
+	if agent.IsBot() {
+		return "Other", "", ""
+	}
+
+	return "", browserOf(agent), osOf(agent)
+}
+
+// ParseUA 解析 User-Agent
 func ParseUA(rawUA string) (browser, os string) {
 	agent := uaParser.Parse(rawUA)
+	return browserOf(agent), osOf(agent)
+}
 
-	// 浏览器：名称 + 主版本号
-	bName := string(agent.Browser())
-	bMajor := agent.BrowserVersionMajor()
+// browserOf 浏览器名称 + 主版本号
+func browserOf(agent ua.UserAgent) string {
+	name := string(agent.Browser())
+	major := agent.BrowserVersionMajor()
 	switch {
-	case bName == "":
-		browser = "Other"
-	case bMajor == "":
-		browser = bName
+	case name == "":
+		return "Other"
+	case major == "":
+		return name
 	default:
-		browser = bName + " " + bMajor
+		return name + " " + major
 	}
+}
 
-	// 操作系统
-	os = "Other"
-	if osName := string(agent.OS()); osName != "" {
-		os = osName
+func osOf(agent ua.UserAgent) string {
+	if name := string(agent.OS()); name != "" {
+		return name
 	}
-
-	return
+	return "Other"
 }

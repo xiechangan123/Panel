@@ -18,7 +18,7 @@ type tamperRepo struct {
 // NewTamperRepo 创建防篡改数据访问实例
 func NewTamperRepo(db *gorm.DB) (biz.TamperRepo, error) {
 
-	logDB, err := openDB("tamper")
+	logDB, err := openSharedDB("tamper")
 	if err != nil {
 		return nil, err
 	}

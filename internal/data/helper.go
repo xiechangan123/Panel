@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"sync"
 
 	"github.com/libtnb/sqlite"
 	"github.com/moby/moby/client"
@@ -34,6 +35,29 @@ func getOperatorID(ctx context.Context) uint64 {
 		return 0
 	}
 	return cast.ToUint64(userID)
+}
+
+var (
+	sharedDBMu sync.Mutex
+	sharedDBs  = make(map[string]*gorm.DB)
+)
+
+// openSharedDB 打开长期持有的辅助数据库
+func openSharedDB(name string) (*gorm.DB, error) {
+	sharedDBMu.Lock()
+	defer sharedDBMu.Unlock()
+
+	if db, ok := sharedDBs[name]; ok {
+		return db, nil
+	}
+
+	db, err := openDB(name)
+	if err != nil {
+		return nil, err
+	}
+	sharedDBs[name] = db
+
+	return db, nil
 }
 
 // openDB 打开数据库

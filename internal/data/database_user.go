@@ -3,8 +3,8 @@ package data
 import (
 	"context"
 	"fmt"
-	"slices"
 
+	lop "github.com/samber/lo/parallel"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -40,9 +40,10 @@ func (r *databaseUserRepo) List(ctx context.Context, page, limit uint, typ strin
 	}
 	err := query.Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&user).Error
 
-	for u := range slices.Values(user) {
+	// 并发填充
+	lop.ForEach(user, func(u *biz.DatabaseUser, _ int) {
 		r.fillUser(ctx, u)
-	}
+	})
 
 	return user, total, err
 }
@@ -126,47 +127,57 @@ func (r *databaseUserRepo) DeleteByServerNames(serverID uint, names []string) er
 }
 
 func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser) {
-	server, err := r.loadServer(user.ServerID)
-	if err == nil {
-		operator, err := r.Operator(ctx, server)
-		if err == nil {
-			defer operator.Close()
-			switch server.Type {
-			case biz.DatabaseTypeMysql:
-				privileges, _ := operator.UserPrivileges(user.Username, user.Host)
-				user.Privileges = privileges
-				if mysql2, err := newMySQLOperator(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
-					mysql2.Close()
-					user.Status = biz.DatabaseUserStatusValid
-				} else {
-					user.Status = biz.DatabaseUserStatusInvalid
-				}
-			case biz.DatabaseTypePostgresql:
-				privileges, _ := operator.UserPrivileges(user.Username)
-				user.Privileges = privileges
-				if postgres2, err := db.NewPostgres(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
-					postgres2.Close()
-					user.Status = biz.DatabaseUserStatusValid
-				} else {
-					user.Status = biz.DatabaseUserStatusInvalid
-				}
-			case biz.DatabaseTypeClickHouse:
-				privileges, _ := operator.UserPrivileges(user.Username)
-				user.Privileges = privileges
-				if ch2, err := db.NewClickHouse(ctx, user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
-					ch2.Close()
-					user.Status = biz.DatabaseUserStatusValid
-				} else {
-					user.Status = biz.DatabaseUserStatusInvalid
-				}
-			}
+	// 初始化，防止 nil
+	defer func() {
+		if user.Privileges == nil {
+			user.Privileges = make([]string, 0)
+		}
+	}()
+
+	// 避免每行再查一次服务器记录
+	server := user.Server
+	if server == nil {
+		var err error
+		if server, err = r.loadServer(user.ServerID); err != nil {
+			return
+		}
+	}
+
+	operator, err := r.Operator(ctx, server)
+	if err != nil {
+		user.Status = biz.DatabaseUserStatusInvalid
+		return
+	}
+	defer operator.Close()
+
+	switch server.Type {
+	case biz.DatabaseTypeMysql:
+		privileges, _ := operator.UserPrivileges(user.Username, user.Host)
+		user.Privileges = privileges
+		if mysql2, err := newMySQLOperator(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
+			mysql2.Close()
+			user.Status = biz.DatabaseUserStatusValid
 		} else {
 			user.Status = biz.DatabaseUserStatusInvalid
 		}
-	}
-	// 初始化，防止 nil
-	if user.Privileges == nil {
-		user.Privileges = make([]string, 0)
+	case biz.DatabaseTypePostgresql:
+		privileges, _ := operator.UserPrivileges(user.Username)
+		user.Privileges = privileges
+		if postgres2, err := db.NewPostgres(ctx, user.Username, user.Password, server.Host, server.Port); err == nil {
+			postgres2.Close()
+			user.Status = biz.DatabaseUserStatusValid
+		} else {
+			user.Status = biz.DatabaseUserStatusInvalid
+		}
+	case biz.DatabaseTypeClickHouse:
+		privileges, _ := operator.UserPrivileges(user.Username)
+		user.Privileges = privileges
+		if ch2, err := db.NewClickHouse(ctx, user.Username, user.Password, fmt.Sprintf("%s:%d", server.Host, server.Port)); err == nil {
+			ch2.Close()
+			user.Status = biz.DatabaseUserStatusValid
+		} else {
+			user.Status = biz.DatabaseUserStatusInvalid
+		}
 	}
 }
 

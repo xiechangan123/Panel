@@ -116,69 +116,70 @@ func (r *settingRepo) Delete(key biz.SettingKey) error {
 	return r.db.Where("key = ?", key).Delete(new(biz.Setting)).Error
 }
 
+// getMany 一次取出多个设置项
+func (r *settingRepo) getMany(keys ...biz.SettingKey) (map[biz.SettingKey]string, error) {
+	settings := make([]*biz.Setting, 0, len(keys))
+	if err := r.db.Where("key IN ?", keys).Find(&settings).Error; err != nil {
+		return nil, err
+	}
+
+	values := make(map[biz.SettingKey]string, len(keys))
+	for _, setting := range settings {
+		values[setting.Key] = setting.Value
+	}
+
+	return values, nil
+}
+
 func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
-	name, err := r.Get(biz.SettingKeyName)
+	values, err := r.getMany(
+		biz.SettingKeyName,
+		biz.SettingKeyChannel,
+		biz.SettingKeyOfflineMode,
+		biz.SettingKeyAutoUpdate,
+		biz.SettingKeyWebsitePath,
+		biz.SettingKeyBackupPath,
+		biz.SettingKeyBackupFormat,
+		biz.SettingKeyProjectPath,
+		biz.SettingKeyContainerSock,
+		biz.SettingHiddenMenu,
+		biz.SettingKeyCustomLogo,
+		biz.SettingKeyIPDBType,
+		biz.SettingKeyIPDBURL,
+		biz.SettingKeyIPDBPath,
+		biz.SettingKeyPublicIPs,
+	)
 	if err != nil {
 		return nil, err
 	}
-	channel, err := r.Get(biz.SettingKeyChannel)
-	if err != nil {
-		return nil, err
+
+	name := values[biz.SettingKeyName]
+	channel := values[biz.SettingKeyChannel]
+	offlineMode := cast.ToBool(values[biz.SettingKeyOfflineMode])
+	autoUpdate := cast.ToBool(values[biz.SettingKeyAutoUpdate])
+	websitePath := values[biz.SettingKeyWebsitePath]
+	backupPath := values[biz.SettingKeyBackupPath]
+	projectPath := values[biz.SettingKeyProjectPath]
+	containerSock := values[biz.SettingKeyContainerSock]
+	customLogo := values[biz.SettingKeyCustomLogo]
+	ipdbType := values[biz.SettingKeyIPDBType]
+	ipdbURL := values[biz.SettingKeyIPDBURL]
+	ipdbPath := values[biz.SettingKeyIPDBPath]
+
+	backupFormat := values[biz.SettingKeyBackupFormat]
+	if backupFormat == "" {
+		backupFormat = "tar.xz"
 	}
-	offlineMode, err := r.GetBool(biz.SettingKeyOfflineMode)
-	if err != nil {
-		return nil, err
+
+	hiddenMenu := make([]string, 0)
+	if raw := values[biz.SettingHiddenMenu]; raw != "" {
+		if err = json.Unmarshal([]byte(raw), &hiddenMenu); err != nil {
+			return nil, err
+		}
 	}
-	autoUpdate, err := r.GetBool(biz.SettingKeyAutoUpdate)
-	if err != nil {
-		return nil, err
-	}
-	websitePath, err := r.Get(biz.SettingKeyWebsitePath)
-	if err != nil {
-		return nil, err
-	}
-	backupPath, err := r.Get(biz.SettingKeyBackupPath)
-	if err != nil {
-		return nil, err
-	}
-	backupFormat, err := r.Get(biz.SettingKeyBackupFormat, "tar.xz")
-	if err != nil {
-		return nil, err
-	}
-	projectPath, err := r.Get(biz.SettingKeyProjectPath)
-	if err != nil {
-		return nil, err
-	}
-	containerSock, err := r.Get(biz.SettingKeyContainerSock)
-	if err != nil {
-		return nil, err
-	}
-	hiddenMenu, err := r.GetSlice(biz.SettingHiddenMenu)
-	if err != nil {
-		return nil, err
-	}
-	customLogo, err := r.Get(biz.SettingKeyCustomLogo)
-	if err != nil {
-		return nil, err
-	}
-	ipdbType, err := r.Get(biz.SettingKeyIPDBType)
-	if err != nil {
-		return nil, err
-	}
-	ipdbURL, err := r.Get(biz.SettingKeyIPDBURL)
-	if err != nil {
-		return nil, err
-	}
-	ipdbPath, err := r.Get(biz.SettingKeyIPDBPath)
-	if err != nil {
-		return nil, err
-	}
-	ip, err := r.Get(biz.SettingKeyPublicIPs)
-	if err != nil {
-		return nil, err
-	}
+
 	publicIP := make([]string, 0)
-	if err = json.Unmarshal([]byte(ip), &publicIP); err != nil {
+	if err = json.Unmarshal([]byte(values[biz.SettingKeyPublicIPs]), &publicIP); err != nil {
 		return nil, err
 	}
 

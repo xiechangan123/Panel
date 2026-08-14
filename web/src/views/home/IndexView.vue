@@ -472,9 +472,21 @@ const quantifier = computed(() => {
 
 let homeInterval: any = null
 
+// 该接口在服务端有 100ms CPU 采样阻塞，后台标签页不应继续轮询
+const homeVisibility = useDocumentVisibility()
+
+watch(homeVisibility, (state) => {
+  if (state === 'visible') {
+    fetchCurrent()
+  }
+})
+
 onMounted(() => {
   fetchCurrent()
   homeInterval = setInterval(() => {
+    if (homeVisibility.value === 'hidden') {
+      return
+    }
     fetchCurrent()
   }, 3000)
 })

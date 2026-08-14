@@ -110,11 +110,7 @@ func (a *Aggregator) Record(entry *LogEntry) {
 	hour := now.Hour()
 
 	// 锁外预计算 CPU 密集操作
-	spiderName := SpiderName(entry.UA)
-	var browser, os string
-	if spiderName == "" {
-		browser, os = ParseUA(entry.UA)
-	}
+	spiderName, browser, os := ClassifyUA(entry.UA)
 	uvKey := entry.IP + "|" + entry.UA
 	isErr := entry.Status >= 400 && entry.Status < 600
 	isPV := IsPageView(entry)

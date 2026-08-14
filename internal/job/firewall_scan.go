@@ -42,6 +42,7 @@ type FirewallScan struct {
 	ipCounters   map[string]*ipCounter     // per-IP 扫描计数
 	blockedIPs   map[string]time.Time      // 已屏蔽 IP → 屏蔽时间
 	fw           firewall.Firewall         // 懒加载
+	cleanedAt    time.Time
 	mu           sync.Mutex
 
 	unsupportedLogged bool // 内核不支持仅告警一次
@@ -375,7 +376,13 @@ func isWhitelisted(ip string, whitelist []net.IPNet) bool {
 }
 
 // cleanup 清理过期数据
+// 任务每 2 分钟触发，但数据按天过期，故限流到 6 小时一次
 func (r *FirewallScan) cleanup() {
+	if time.Since(r.cleanedAt) < 6*time.Hour {
+		return
+	}
+	r.cleanedAt = time.Now()
+
 	day, err := r.setting.GetInt(biz.SettingKeyScanAwareDays, 30)
 	if err != nil {
 		return

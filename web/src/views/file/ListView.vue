@@ -1323,7 +1323,6 @@ const data = computed(() => {
 // 目录大小缓存同样只保留仍存在的项，避免删除后重建同名目录显示旧值
 watch(data, (list) => {
   refreshProtected(list)
-  refreshShares()
   const dataSet = new Set(list.map((item: any) => item.full))
   if (selected.value.length > 0) {
     const filtered = selected.value.filter((p: any) => dataSet.has(p))
@@ -1364,6 +1363,8 @@ onActivated(addDocumentListeners)
 onDeactivated(removeDocumentListeners)
 
 onMounted(() => {
+  refreshShares()
+
   watch(
     path,
     () => {

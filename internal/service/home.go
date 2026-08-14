@@ -15,6 +15,7 @@ import (
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/utils/collect"
 	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/spf13/cast"
@@ -224,39 +225,52 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// installedSlugs 从已加载的环境目录中筛出指定类型且已安装的 slug
+func (s *HomeService) installedSlugs(all api.Environments, typ string) []string {
+	slugs := make([]string, 0)
+	for _, env := range all {
+		if env.Type == typ && s.environmentRepo.IsInstalled(typ, env.Slug) {
+			slugs = append(slugs, env.Slug)
+		}
+	}
+
+	return slugs
+}
+
 func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Request) {
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug IN ?", []string{"mysql", "mariadb", "percona"})
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
 	clickhouseInstalled, _ := s.appRepo.IsInstalled("slug = ?", "clickhouse")
 	rsyncInstalled, _ := s.appRepo.IsInstalled("slug = ?", "rsync")
+	allEnvs := s.environmentRepo.All()
 
 	// Go 版本
-	goData := lo.Map(s.environmentRepo.InstalledSlugs("go"), func(slug string, _ int) types.LV {
+	goData := lop.Map(s.installedSlugs(allEnvs, "go"), func(slug string, _ int) types.LV {
 		return types.LV{Value: slug, Label: "Go " + s.environmentRepo.InstalledVersion("go", slug)}
 	})
 
 	// Java 版本
-	javaData := lo.Map(s.environmentRepo.InstalledSlugs("java"), func(slug string, _ int) types.LV {
+	javaData := lop.Map(s.installedSlugs(allEnvs, "java"), func(slug string, _ int) types.LV {
 		return types.LV{Value: slug, Label: "Java " + s.environmentRepo.InstalledVersion("java", slug)}
 	})
 
 	// Node.js 版本
-	nodejsData := lo.Map(s.environmentRepo.InstalledSlugs("nodejs"), func(slug string, _ int) types.LV {
+	nodejsData := lop.Map(s.installedSlugs(allEnvs, "nodejs"), func(slug string, _ int) types.LV {
 		return types.LV{Value: slug, Label: "Node.js " + s.environmentRepo.InstalledVersion("nodejs", slug)}
 	})
 
 	// PHP 版本
-	phpData := lo.Map(s.environmentRepo.InstalledSlugs("php"), func(slug string, _ int) types.LVInt {
+	phpData := lop.Map(s.installedSlugs(allEnvs, "php"), func(slug string, _ int) types.LVInt {
 		return types.LVInt{Value: cast.ToInt(slug), Label: "PHP " + s.environmentRepo.InstalledVersion("php", slug)}
 	})
 
 	// Python 版本
-	pythonData := lo.Map(s.environmentRepo.InstalledSlugs("python"), func(slug string, _ int) types.LV {
+	pythonData := lop.Map(s.installedSlugs(allEnvs, "python"), func(slug string, _ int) types.LV {
 		return types.LV{Value: slug, Label: "Python " + s.environmentRepo.InstalledVersion("python", slug)}
 	})
 
 	// .NET 版本
-	dotnetData := lo.Map(s.environmentRepo.InstalledSlugs("dotnet"), func(slug string, _ int) types.LV {
+	dotnetData := lop.Map(s.installedSlugs(allEnvs, "dotnet"), func(slug string, _ int) types.LV {
 		return types.LV{Value: slug, Label: ".NET " + s.environmentRepo.InstalledVersion("dotnet", slug)}
 	})
 

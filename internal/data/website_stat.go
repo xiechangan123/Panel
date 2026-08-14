@@ -17,7 +17,7 @@ type websiteStatRepo struct {
 
 // NewWebsiteStatRepo 创建网站统计数据访问实例
 func NewWebsiteStatRepo() (biz.WebsiteStatRepo, error) {
-	statDB, err := openDB("stat")
+	statDB, err := openSharedDB("stat")
 	if err != nil {
 		return nil, err
 	}

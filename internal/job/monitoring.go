@@ -18,6 +18,7 @@ type Monitoring struct {
 	monitorRepo *biz.MonitorUsecase
 	settingRepo *biz.SettingUsecase
 	lastRun     time.Time
+	cleanedAt   time.Time
 }
 
 // NewMonitoring 构造系统监控任务
@@ -68,7 +69,12 @@ func (r *Monitoring) Run(_ context.Context) error {
 		return nil
 	}
 
-	// 删除过期数据
+	// 删除过期数据，按天过期故限流到 6 小时一次，避免每分钟一次 DELETE
+	if time.Since(r.cleanedAt) < 6*time.Hour {
+		return nil
+	}
+	r.cleanedAt = time.Now()
+
 	dayStr, err := r.settingRepo.Get(biz.SettingKeyMonitorDays)
 	if err != nil {
 		return nil

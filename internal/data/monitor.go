@@ -15,7 +15,7 @@ type monitorRepo struct {
 }
 
 func NewMonitorRepo() (biz.MonitorRepo, error) {
-	monitorDB, err := openDB("monitor")
+	monitorDB, err := openSharedDB("monitor")
 	if err != nil {
 		return nil, err
 	}

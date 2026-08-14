@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"slices"
 
+	lop "github.com/samber/lo/parallel"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -42,9 +42,10 @@ func (r *databaseServerRepo) List(ctx context.Context, page, limit uint, typ str
 	}
 	err := query.Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&databaseServer).Error
 
-	for server := range slices.Values(databaseServer) {
+	// 并发探测
+	lop.ForEach(databaseServer, func(server *biz.DatabaseServer, _ int) {
 		r.CheckServer(ctx, server)
-	}
+	})
 
 	return databaseServer, total, err
 }

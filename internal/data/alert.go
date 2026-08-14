@@ -2,6 +2,7 @@ package data
 
 import (
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/samber/lo"
@@ -14,10 +15,19 @@ import (
 type alertRepo struct {
 	db     *gorm.DB
 	statDB *gorm.DB // 网站统计独立库
+
+	certMu    sync.Mutex
+	certCache map[uint]certExpiry // 证书 ID → 解析结果
+}
+
+// certExpiry 缓存的证书到期信息，updatedAt 变化时失效
+type certExpiry struct {
+	updatedAt time.Time
+	notAfter  time.Time
 }
 
 func NewAlertRepo(db *gorm.DB) (biz.AlertRepo, error) {
-	statDB, err := openDB("stat")
+	statDB, err := openSharedDB("stat")
 	if err != nil {
 		return nil, err
 	}
@@ -86,21 +96,34 @@ func (r *alertRepo) CertExpiry() ([]*biz.AlertMetric, error) {
 		return nil, err
 	}
 
+	// PEM 解析缓存
+	r.certMu.Lock()
+	defer r.certMu.Unlock()
+
 	metrics := make([]*biz.AlertMetric, 0, len(certs))
+	live := make(map[uint]certExpiry, len(certs))
 	for _, item := range certs {
 		if item.Cert == "" {
 			continue
 		}
-		decode, err := cert.ParseCert([]byte(item.Cert))
-		if err != nil {
-			continue
+		cached, ok := r.certCache[item.ID]
+		if !ok || !cached.updatedAt.Equal(item.UpdatedAt) {
+			decode, err := cert.ParseCert([]byte(item.Cert))
+			if err != nil {
+				continue
+			}
+			cached = certExpiry{updatedAt: item.UpdatedAt, notAfter: decode.NotAfter}
 		}
+		live[item.ID] = cached
+
 		// 一张证书一条指标，目标是逗号分隔的全部域名，规则可用其中任一域名匹配
 		metrics = append(metrics, &biz.AlertMetric{
 			Target: strings.Join(item.Domains, ","),
-			Value:  time.Until(decode.NotAfter).Hours() / 24,
+			Value:  time.Until(cached.notAfter).Hours() / 24,
 		})
 	}
+	// 用本轮结果整体替换，顺带淘汰已删除的证书
+	r.certCache = live
 
 	return metrics, nil
 }

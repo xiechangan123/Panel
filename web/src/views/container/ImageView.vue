@@ -230,7 +230,6 @@ const handlePull = () => {
           // 更新进度
           if (data.id) {
             pullProgress.value.set(data.id, data)
-            pullProgress.value = new Map(pullProgress.value)
           }
           pullStatus.value = data.status
         } catch {

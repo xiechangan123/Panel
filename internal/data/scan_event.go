@@ -18,7 +18,7 @@ type scanEventRepo struct {
 
 // NewScanEventRepo 创建扫描事件数据访问实例
 func NewScanEventRepo() (biz.ScanEventRepo, error) {
-	scanDB, err := openDB("scan")
+	scanDB, err := openSharedDB("scan")
 	if err != nil {
 		return nil, err
 	}

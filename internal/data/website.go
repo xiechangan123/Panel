@@ -301,20 +301,26 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 	}
 
 	// 取证书剩余有效时间和PHP版本
+	webServer, wsErr := r.setting.Get(biz.SettingKeyWebserver)
 	for _, website := range websites {
 		crt, _ := os.ReadFile(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
 		if decode, err := cert.ParseCert(crt); err == nil {
 			hours := time.Until(decode.NotAfter).Hours()
 			website.CertExpire = fmt.Sprintf("%.2f", hours/24)
 		}
-		if website.Type == biz.WebsiteTypePHP {
-			website.PHP = r.getPHPVersion(website.Name)
+		if wsErr != nil {
+			continue
+		}
+		vhost, err := r.newVhost(webServer, website)
+		if err != nil {
+			continue
+		}
+		if php, ok := vhost.(webservertypes.PHPVhost); ok {
+			website.PHP = php.PHP()
 		}
 		// 获取域名
-		if vhost, err := r.getVhost(website); err == nil {
-			if domains, err := punycode.DecodeDomains(vhost.ServerName()); err == nil {
-				website.Domains = domains
-			}
+		if domains, err := punycode.DecodeDomains(vhost.ServerName()); err == nil {
+			website.Domains = domains
 		}
 	}
 
@@ -1392,36 +1398,28 @@ func (r *websiteRepo) clearCustomConfigs(configDir string) error {
 	return nil
 }
 
+// newVhost 按给定网页服务器类型构造站点 vhost
+func (r *websiteRepo) newVhost(webServer string, website *biz.Website) (webservertypes.Vhost, error) {
+	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+	switch website.Type {
+	case biz.WebsiteTypeProxy:
+		return webserver.NewProxyVhost(webserver.Type(webServer), configDir)
+	case biz.WebsiteTypePHP:
+		return webserver.NewPHPVhost(webserver.Type(webServer), configDir)
+	case biz.WebsiteTypeStatic:
+		return webserver.NewStaticVhost(webserver.Type(webServer), configDir)
+	default:
+		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
+	}
+}
+
 func (r *websiteRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
 	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
 	if err != nil {
 		return nil, err
 	}
 
-	var vhost webservertypes.Vhost
-	switch website.Type {
-	case biz.WebsiteTypeProxy:
-		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypePHP:
-		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	case biz.WebsiteTypeStatic:
-		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), filepath.Join(app.Root, "sites", website.Name, "config"))
-	default:
-		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return vhost, nil
-}
-
-func (r *websiteRepo) getPHPVersion(name string) uint {
-	vhost, err := webserver.NewPHPVhost(webserver.TypeNginx, filepath.Join(app.Root, "sites", name, "config"))
-	if err != nil {
-		return 0
-	}
-	return vhost.PHP()
+	return r.newVhost(webServer, website)
 }
 
 func (r *websiteRepo) ReloadWebServer() error {

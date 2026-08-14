@@ -82,8 +82,6 @@ const pullImage = () => {
           // 更新进度
           if (data.id) {
             pullProgress.value.set(data.id, data)
-            // 触发响应式更新
-            pullProgress.value = new Map(pullProgress.value)
           }
           pullStatus.value = data.status
         } catch {

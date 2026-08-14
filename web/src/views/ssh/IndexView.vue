@@ -232,25 +232,27 @@ const initTerminal = async (tabId: string) => {
     tab.ws = tab.hostId === LOCAL_SERVER_ID ? await ws.pty('bash') : await ws.ssh(tab.hostId)
     tab.ws.binaryType = 'arraybuffer'
 
-    tab.terminal = new Terminal({
-      allowProposedApi: true,
-      lineHeight: 1.2,
-      fontSize: fontSize.value,
-      fontFamily: `'JetBrains Mono Variable', monospace`,
-      cursorBlink: true,
-      cursorStyle: 'underline',
-      tabStopWidth: 4,
-      theme: {
-        background:
-          getComputedStyle(document.documentElement)
-            .getPropertyValue('--color-bg-terminal')
-            .trim() || '#0a0e1a',
-        foreground: '#e6edf3',
-      },
-    })
+    tab.terminal = markRaw(
+      new Terminal({
+        allowProposedApi: true,
+        lineHeight: 1.2,
+        fontSize: fontSize.value,
+        fontFamily: `'JetBrains Mono Variable', monospace`,
+        cursorBlink: true,
+        cursorStyle: 'underline',
+        tabStopWidth: 4,
+        theme: {
+          background:
+            getComputedStyle(document.documentElement)
+              .getPropertyValue('--color-bg-terminal')
+              .trim() || '#0a0e1a',
+          foreground: '#e6edf3',
+        },
+      }),
+    )
 
-    tab.fitAddon = new FitAddon()
-    tab.webglAddon = new WebglAddon()
+    tab.fitAddon = markRaw(new FitAddon())
+    tab.webglAddon = markRaw(new WebglAddon())
 
     tab.terminal.loadAddon(tab.fitAddon)
     tab.terminal.loadAddon(new ClipboardAddon())

@@ -160,10 +160,13 @@ func (uc *AppUsecase) GetHomeShow() ([]map[string]string, error) {
 		return nil, err
 	}
 
+	// 目录只加载一次
+	catalog := lo.KeyBy(uc.All(), func(item *api.App) string { return item.Slug })
+
 	filtered := make([]map[string]string, 0)
 	for item := range slices.Values(apps) {
-		loaded, err := uc.Get(item.Slug)
-		if err != nil {
+		loaded, ok := catalog[item.Slug]
+		if !ok {
 			continue
 		}
 		filtered = append(filtered, map[string]string{

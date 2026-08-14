@@ -59,13 +59,19 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 	var apps []types.AppDetail
 	for _, item := range all {
 		installed, installedChannel, installedVersion, updateExist, show, status := false, "", "", false, false, ""
-		if _, ok := installedAppMap[item.Slug]; ok {
+		if inst, ok := installedAppMap[item.Slug]; ok {
 			installed = true
-			installedChannel = installedAppMap[item.Slug].Channel
-			installedVersion = installedAppMap[item.Slug].Version
-			updateExist = s.appRepo.UpdateExist(item.Slug)
-			show = installedAppMap[item.Slug].Show
+			installedChannel = inst.Channel
+			installedVersion = inst.Version
+			show = inst.Show
 			status = statusMap[item.Slug]
+			// 直接用已加载的目录与安装记录比对，避免每个应用都重新查库并反序列化整个应用目录
+			for _, channel := range item.Channels {
+				if channel.Slug == inst.Channel && channel.Version != inst.Version {
+					updateExist = true
+					break
+				}
+			}
 		}
 		if onlyInstalled && !installed {
 			continue

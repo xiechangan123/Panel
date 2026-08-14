@@ -28,6 +28,7 @@ type WebsiteStat struct {
 	geoIPPath    string
 	geoIPModTime time.Time
 	started      atomic.Bool
+	cleanedAt    time.Time
 }
 
 // NewWebsiteStat 构造网站统计任务
@@ -327,7 +328,13 @@ func (r *WebsiteStat) flushDetails() {
 }
 
 // cleanup 清理过期数据
+// 任务每分钟触发，但数据按天过期，故限流到 6 小时一次，避免高频 DELETE 抢占单连接写锁
 func (r *WebsiteStat) cleanup() {
+	if time.Since(r.cleanedAt) < 6*time.Hour {
+		return
+	}
+	r.cleanedAt = time.Now()
+
 	days, err := r.setting.GetInt(biz.SettingKeyWebsiteStatDays, 30)
 	if err != nil {
 		return

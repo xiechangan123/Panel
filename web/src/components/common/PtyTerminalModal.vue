@@ -34,7 +34,7 @@ const emit = defineEmits<{
 
 const isRunning = ref(false)
 const terminalRef = ref<HTMLElement | null>(null)
-const term = ref<Terminal | null>(null)
+const term = shallowRef<Terminal | null>(null)
 let ptyWs: WebSocket | null = null
 let fitAddon: FitAddon | null = null
 let webglAddon: WebglAddon | null = null

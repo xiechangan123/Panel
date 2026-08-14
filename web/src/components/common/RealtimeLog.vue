@@ -149,11 +149,11 @@ const startFollow = () => {
         pendingTail = parts.pop() ?? ''
         if (parts.length > 0) {
           lines.value.push(...parts.map(parseLine))
+          // 跟随与暂停都要裁剪
+          if (lines.value.length > MAX_LINES) {
+            lines.value.splice(0, lines.value.length - MAX_LINES)
+          }
           if (followMode.value) {
-            // 跟随中贴底显示,裁剪顶部无感;暂停时跳过,避免阅读位置跳动
-            if (lines.value.length > MAX_LINES) {
-              lines.value.splice(0, lines.value.length - MAX_LINES)
-            }
             nextTick(() => scrollToBottom())
           } else {
             pendingNew.value += parts.length
