@@ -2,10 +2,12 @@ package nginx
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
@@ -39,7 +41,7 @@ type baseVhost struct {
 // newBaseVhost 创建基础虚拟主机实例
 func newBaseVhost(configDir string) (*baseVhost, error) {
 	if configDir == "" {
-		return nil, fmt.Errorf("config directory is required")
+		return nil, errors.New("config directory is required")
 	}
 
 	v := &baseVhost{
@@ -485,7 +487,7 @@ func (v *baseVhost) SSLConfig() *types.SSLConfig {
 
 func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	if cfg == nil {
-		return fmt.Errorf("SSL config cannot be nil")
+		return errors.New("SSL config cannot be nil")
 	}
 
 	if err := v.ClearSSL(); err != nil {
@@ -628,13 +630,13 @@ func (v *baseVhost) SetRateLimit(limit *types.RateLimit) error {
 	if limit.PerServer > 0 {
 		directives = append(directives, &config.Directive{
 			Name:       "limit_conn",
-			Parameters: []config.Parameter{{Value: "perserver"}, {Value: fmt.Sprintf("%d", limit.PerServer)}},
+			Parameters: []config.Parameter{{Value: "perserver"}, {Value: strconv.Itoa(limit.PerServer)}},
 		})
 	}
 	if limit.PerIP > 0 {
 		directives = append(directives, &config.Directive{
 			Name:       "limit_conn",
-			Parameters: []config.Parameter{{Value: "perip"}, {Value: fmt.Sprintf("%d", limit.PerIP)}},
+			Parameters: []config.Parameter{{Value: "perip"}, {Value: strconv.Itoa(limit.PerIP)}},
 		})
 	}
 	if len(directives) > 0 {

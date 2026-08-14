@@ -150,12 +150,12 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 // configPath 返回配置文件路径
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/kafka/config/server.properties", app.Root)
+	return app.Root + "/server/kafka/config/server.properties"
 }
 
 // heapEnvPath 返回 JVM 堆内存配置文件路径
 func (s *App) heapEnvPath() string {
-	return fmt.Sprintf("%s/server/kafka/config/heap.env", app.Root)
+	return app.Root + "/server/kafka/config/heap.env"
 }
 
 // getPropertiesValue 从 properties 内容中获取指定键的值

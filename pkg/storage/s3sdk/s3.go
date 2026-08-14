@@ -199,5 +199,5 @@ func (e *apiError) Error() string {
 	if trimmed := bytes.TrimSpace(e.body); len(trimmed) > 0 {
 		return fmt.Sprintf("s3: unexpected status %s: %s", e.statusText, trimmed)
 	}
-	return fmt.Sprintf("s3: unexpected status %s", e.statusText)
+	return "s3: unexpected status " + e.statusText
 }

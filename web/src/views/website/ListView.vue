@@ -315,7 +315,7 @@ const deleteModel = ref({
   db: false,
 })
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => website.list(type.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },

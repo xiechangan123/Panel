@@ -27,7 +27,7 @@ const searchQuery = ref<string>('')
 const deployModalShow = ref(false)
 const selectedTemplate = ref<Template | null>(null)
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) =>
     template.list(
       page,

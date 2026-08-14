@@ -105,7 +105,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root))
+	conf, _ := io.Read(app.Root + "/server/prometheus/prometheus.yml")
 	service.Success(w, conf)
 }
 
@@ -116,7 +116,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(app.Root+"/server/prometheus/prometheus.yml", req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -131,7 +131,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Prometheus 全局配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root))
+	conf, _ := io.Read(app.Root + "/server/prometheus/prometheus.yml")
 
 	var cfg struct {
 		Global struct {
@@ -159,7 +159,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/prometheus/prometheus.yml", app.Root)
+	confPath := app.Root + "/server/prometheus/prometheus.yml"
 	raw, _ := io.Read(confPath)
 
 	var cfg map[string]any
@@ -205,7 +205,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 // GetAlertmanagerConfig 获取 Alertmanager 配置
 func (s *App) GetAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(fmt.Sprintf("%s/server/prometheus/alertmanager/alertmanager.yml", app.Root))
+	conf, _ := io.Read(app.Root + "/server/prometheus/alertmanager/alertmanager.yml")
 	service.Success(w, conf)
 }
 
@@ -217,7 +217,7 @@ func (s *App) UpdateAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/prometheus/alertmanager/alertmanager.yml", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(app.Root+"/server/prometheus/alertmanager/alertmanager.yml", req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

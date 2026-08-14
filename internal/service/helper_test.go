@@ -1,6 +1,7 @@
 package service
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 )
@@ -25,7 +26,7 @@ func TestClientIP(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			r := httptest.NewRequest("POST", "/api/user/login", nil)
+			r := httptest.NewRequest(http.MethodPost, "/api/user/login", nil)
 			r.RemoteAddr = c.remoteAddr
 			if c.value != "" {
 				r.Header.Set(c.header, c.value)

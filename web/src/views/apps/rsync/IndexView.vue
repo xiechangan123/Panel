@@ -105,7 +105,7 @@ const processColumns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => rsync.modules(page, pageSize),
   {
     initialData: { total: 0, list: [] },

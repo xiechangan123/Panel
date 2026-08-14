@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -37,7 +38,7 @@ func NewSFTP(config SFTPConfig) (Storage, error) {
 	config.BasePath = strings.TrimSuffix(config.BasePath, "/")
 
 	if config.Username == "" || (config.Password == "" && config.PrivateKey == "") {
-		return nil, fmt.Errorf("username and either password or private key must be provided")
+		return nil, errors.New("username and either password or private key must be provided")
 	}
 
 	return &SFTP{config: config}, nil

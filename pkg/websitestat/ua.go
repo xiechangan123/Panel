@@ -13,19 +13,18 @@ func ParseUA(rawUA string) (browser, os string) {
 	// 浏览器：名称 + 主版本号
 	bName := string(agent.Browser())
 	bMajor := agent.BrowserVersionMajor()
-	if bName == "" {
+	switch {
+	case bName == "":
 		browser = "Other"
-	} else if bMajor == "" {
+	case bMajor == "":
 		browser = bName
-	} else {
+	default:
 		browser = bName + " " + bMajor
 	}
 
 	// 操作系统
-	osName := string(agent.OS())
-	if osName == "" {
-		os = "Other"
-	} else {
+	os = "Other"
+	if osName := string(agent.OS()); osName != "" {
 		os = osName
 	}
 

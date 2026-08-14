@@ -2,7 +2,7 @@ package biz
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log/slog"
 )
 
@@ -31,7 +31,7 @@ func (uc *SafeUsecase) UpdatePingStatus(ctx context.Context, status bool) error 
 		return err
 	}
 	if !running {
-		return fmt.Errorf("failed to update ping status: firewall is not running")
+		return errors.New("failed to update ping status: firewall is not running")
 	}
 
 	if err = uc.repo.SetPingStatus(status); err != nil {

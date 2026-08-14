@@ -71,8 +71,8 @@ func (r *cronRepo) Delete(cron *biz.Cron) error {
 
 // WriteNewScript 生成随机脚本文件并返回脚本与日志路径
 func (r *cronRepo) WriteNewScript(script string) (string, string, error) {
-	shellDir := fmt.Sprintf("%s/server/cron/", app.Root)
-	shellLogDir := fmt.Sprintf("%s/server/cron/logs/", app.Root)
+	shellDir := app.Root + "/server/cron/"
+	shellLogDir := app.Root + "/server/cron/logs/"
 	shellFile := str.Random(16)
 	if err := io.Write(filepath.Join(shellDir, shellFile+".sh"), script, 0700); err != nil {
 		return "", "", errors.New(err.Error())

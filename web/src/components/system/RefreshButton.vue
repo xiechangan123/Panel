@@ -8,7 +8,7 @@ interface Props {
   tooltip?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   loading: false,
   size: 'small',
   variant: 'icon',

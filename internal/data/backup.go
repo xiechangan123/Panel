@@ -544,7 +544,7 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 	}
 
 	// 压缩网站
-	name = name + r.backupExt()
+	name += r.backupExt()
 	if err = io.Compress(website.Path, nil, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
@@ -594,7 +594,7 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	}
 
 	// 导出数据库
-	name = name + ".sql"
+	name += ".sql"
 	_ = os.Setenv("MYSQL_PWD", rootPassword)
 	if _, err = shell.Execf(`mysqldump -u root --single-transaction --quick '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
 		return err
@@ -607,7 +607,7 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	}
 
 	// 上传备份文件到存储器
-	name = name + r.backupExt()
+	name += r.backupExt()
 	file, err := os.Open(filepath.Join(tmpDir, name))
 	if err != nil {
 		return err
@@ -652,7 +652,7 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	}
 
 	// 导出数据库
-	name = name + ".sql"
+	name += ".sql"
 	_ = os.Setenv("PGPASSWORD", postgresPassword)
 	if _, err = shell.Execf(`pg_dump -h 127.0.0.1 -U postgres '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
 		return err
@@ -665,7 +665,7 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 	}
 
 	// 上传备份文件到存储器
-	name = name + r.backupExt()
+	name += r.backupExt()
 	file, err := os.Open(filepath.Join(tmpDir, name))
 	if err != nil {
 		return err
@@ -734,7 +734,7 @@ func (r *backupRepo) createClickHouse(name string, storage storage.Storage, targ
 		}
 		stmt := strings.TrimSpace(create)
 		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("`%s`.", target), "")
-		stmt = strings.ReplaceAll(stmt, fmt.Sprintf("%s.", target), "")
+		stmt = strings.ReplaceAll(stmt, target+".", "")
 		schema.WriteString(stmt)
 		schema.WriteString(";\n")
 	}
@@ -753,7 +753,7 @@ func (r *backupRepo) createClickHouse(name string, storage storage.Storage, targ
 	}
 
 	// 压缩备份文件
-	name = name + r.backupExt()
+	name += r.backupExt()
 	if err = io.Compress(tmpDir, files, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
@@ -817,7 +817,7 @@ func (r *backupRepo) createPath(name string, storage storage.Storage, target str
 	}
 
 	// 压缩目录
-	name = name + r.backupExt()
+	name += r.backupExt()
 	if err = io.Compress(target, nil, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
@@ -1185,7 +1185,7 @@ func (r *backupRepo) createRedisLike(name string, storage storage.Storage, kind 
 	}
 
 	// 压缩备份文件
-	name = name + r.backupExt()
+	name += r.backupExt()
 	if err = io.Compress(tmpDir, []string{"dump.rdb"}, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
@@ -1697,7 +1697,7 @@ func (r *backupRepo) FixPanel() error {
 		if err = io.Remove(filepath.Join(app.Root, "panel")); err != nil {
 			return errors.New(r.t.Get("Remove panel file failed: %v", err))
 		}
-		if err = io.Mv(filepath.Join("/tmp/panel-fix", "panel"), filepath.Join(app.Root)); err != nil {
+		if err = io.Mv(filepath.Join("/tmp/panel-fix", "panel"), filepath.Clean(app.Root)); err != nil {
 			return errors.New(r.t.Get("Move panel file failed: %v", err))
 		}
 		if io.Exists(keep) {

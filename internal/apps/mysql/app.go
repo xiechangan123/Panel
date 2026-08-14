@@ -199,7 +199,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // SlowLog 获取慢查询日志
 func (s *App) SlowLog(w http.ResponseWriter, r *http.Request) {
-	service.Success(w, fmt.Sprintf("%s/server/mysql/mysql-slow.log", app.Root))
+	service.Success(w, app.Root+"/server/mysql/mysql-slow.log")
 }
 
 // GetRootPassword 获取root密码

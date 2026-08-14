@@ -86,12 +86,12 @@ func (s *App) Status() string {
 }
 
 func (s *App) path() string {
-	return fmt.Sprintf("%s/server/pgadmin", app.Root)
+	return app.Root + "/server/pgadmin"
 }
 
 // port 从 systemd 环境文件中解析监听端口
 func (s *App) port() (uint, error) {
-	conf, err := io.Read(fmt.Sprintf("%s/pgadmin.conf", s.path()))
+	conf, err := io.Read(s.path() + "/pgadmin.conf")
 	if err != nil {
 		return 0, err
 	}
@@ -105,7 +105,7 @@ func (s *App) port() (uint, error) {
 
 // credential 读取安装时生成的初始凭据(邮箱与密码)
 func (s *App) credential() (string, string) {
-	raw, err := io.Read(fmt.Sprintf("%s/credential", s.path()))
+	raw, err := io.Read(s.path() + "/credential")
 	if err != nil {
 		return "", ""
 	}
@@ -139,7 +139,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conf := fmt.Sprintf("%s/pgadmin.conf", s.path())
+	conf := s.path() + "/pgadmin.conf"
 	content, err := io.Read(conf)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -507,7 +507,7 @@ func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 更新凭据文件,下次登录按新账号重新同步
-	if err = io.Write(fmt.Sprintf("%s/credential", s.path()), req.Username+"\n"+password+"\n", 0600); err != nil {
+	if err = io.Write(s.path()+"/credential", req.Username+"\n"+password+"\n", 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -539,7 +539,7 @@ func (s *App) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/credential", s.path()), email+"\n"+req.Password+"\n", 0600); err != nil {
+	if err = io.Write(s.path()+"/credential", email+"\n"+req.Password+"\n", 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

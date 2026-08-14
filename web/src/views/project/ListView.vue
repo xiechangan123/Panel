@@ -200,7 +200,7 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => project.list(type.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },

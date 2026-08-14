@@ -47,7 +47,6 @@ const onSelectMore = (key: string) => {
   if (!action) return
   if (action.confirm) {
     // 通过命令式确认替代下拉里的内联弹窗
-    const { useConfirm } = (window as any).__useConfirm || {}
     void invokeWithConfirm(action)
   } else {
     void action.onClick(props.row)

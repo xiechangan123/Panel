@@ -129,7 +129,7 @@ func (r *projectRepo) Delete(project *biz.Project) error {
 
 // unitFilePath 返回 systemd unit 文件路径
 func (r *projectRepo) unitFilePath(name string) string {
-	return filepath.Join("/etc/systemd/system", fmt.Sprintf("%s.service", name))
+	return filepath.Join("/etc/systemd/system", name+".service")
 }
 
 // ParseDetail 从数据库记录和 systemd unit 文件解析项目详情

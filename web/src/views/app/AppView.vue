@@ -159,7 +159,7 @@ const { data: categories } = useRequest(app.categories, {
   initialData: [],
 })
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) =>
     app.list(page, pageSize, selectedCategory.value || undefined, searchQuery.value || undefined),
   {

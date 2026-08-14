@@ -133,7 +133,7 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => container.networkList(page, pageSize),
   {
     initialData: { total: 0, list: [] },

@@ -434,7 +434,7 @@ func (s *dnsSolver) Present(ctx context.Context, challenge acme.Challenge) error
 		return fmt.Errorf("failed to get DNS provider: %w", err)
 	}
 
-	s.report(fmt.Sprintf("setting DNS TXT record %s", dnsName))
+	s.report("setting DNS TXT record " + dnsName)
 
 	// 同时签主域 + 通配符（如 example.com 与 *.example.com）会产生两个 challenge，
 	// 它们落在同一个 _acme-challenge.example.com TXT 名下，但 keyAuth 不同

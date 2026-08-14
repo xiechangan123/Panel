@@ -57,7 +57,7 @@ func (s *App) Status() string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/nginx/conf/nginx.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/nginx/conf/nginx.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -73,7 +73,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/nginx/conf/nginx.conf", app.Root), req.Config, 0600); err != nil {
+	if err = io.Write(app.Root+"/server/nginx/conf/nginx.conf", req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -178,7 +178,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Nginx 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/nginx/conf/nginx.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/nginx/conf/nginx.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -226,7 +226,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/nginx/conf/nginx.conf", app.Root)
+	confPath := app.Root + "/server/nginx/conf/nginx.conf"
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)

@@ -114,18 +114,19 @@ func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	hasGroup := groupRegex.MatchString(content)
 
 	// 替换或添加 User 和 Group 配置
-	if hasUser && hasGroup {
+	switch {
+	case hasUser && hasGroup:
 		// 两者都存在，分别替换
-		content = userRegex.ReplaceAllString(content, fmt.Sprintf("User=%s", req.User))
-		content = groupRegex.ReplaceAllString(content, fmt.Sprintf("Group=%s", req.Group))
-	} else if hasUser && !hasGroup {
+		content = userRegex.ReplaceAllString(content, "User="+req.User)
+		content = groupRegex.ReplaceAllString(content, "Group="+req.Group)
+	case hasUser:
 		// 只有 User，替换 User 并添加 Group
 		content = userRegex.ReplaceAllString(content, fmt.Sprintf("User=%s\nGroup=%s", req.User, req.Group))
-	} else if !hasUser && hasGroup {
+	case hasGroup:
 		// 只有 Group，添加 User 并替换 Group
-		content = serviceRegex.ReplaceAllString(content, fmt.Sprintf("[Service]\nUser=%s", req.User))
-		content = groupRegex.ReplaceAllString(content, fmt.Sprintf("Group=%s", req.Group))
-	} else {
+		content = serviceRegex.ReplaceAllString(content, "[Service]\nUser="+req.User)
+		content = groupRegex.ReplaceAllString(content, "Group="+req.Group)
+	default:
 		// 两者都不存在，在 [Service] 后添加两者
 		content = serviceRegex.ReplaceAllString(content, fmt.Sprintf("[Service]\nUser=%s\nGroup=%s", req.User, req.Group))
 	}

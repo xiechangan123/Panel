@@ -594,7 +594,7 @@ func (s *WsService) getContainerSock() string {
 		sock = "/var/run/docker.sock"
 	}
 	if !strings.Contains(sock, "://") {
-		sock = fmt.Sprintf("unix://%s", sock)
+		sock = "unix://" + sock
 	}
 	return sock
 }

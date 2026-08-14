@@ -112,7 +112,7 @@ func (a *baotaAdapter) websiteItems(ctx context.Context) ([]types.MigrationItem,
 			continue
 		}
 		// PHP / WP2 为 PHP 站点，HTML 为静态站点，Proxy 为反代站点，其余是项目
-		subtype := ""
+		var subtype string
 		switch strings.ToLower(cast.ToString(row["project_type"])) {
 		case "php", "wp2":
 			subtype = lo.Ternary(cast.ToString(row["php_version"]) == "静态", "static", "php")

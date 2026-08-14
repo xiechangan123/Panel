@@ -75,7 +75,7 @@ func (r *API) Templates() (*Templates, error) {
 
 // TemplateBySlug 根据slug返回模版
 func (r *API) TemplateBySlug(slug string) (*Template, error) {
-	resp, err := r.client.R().SetResult(&Response{}).Get(fmt.Sprintf("/templates/%s", slug))
+	resp, err := r.client.R().SetResult(&Response{}).Get("/templates/" + slug)
 	if err != nil {
 		return nil, err
 	}

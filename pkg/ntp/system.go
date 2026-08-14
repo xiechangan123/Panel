@@ -2,6 +2,7 @@ package ntp
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"regexp"
 	"slices"
@@ -99,7 +100,7 @@ func SetSystemNTPServers(servers []string) error {
 	case NTPServiceChrony:
 		return setChronyServers(servers)
 	default:
-		return fmt.Errorf("unsupported NTP service type")
+		return errors.New("unsupported NTP service type")
 	}
 }
 
@@ -155,13 +156,14 @@ func setTimesyncdServers(servers []string) error {
 	hasTimeSection := strings.Contains(content, "[Time]")
 	ntpRegex := regexp.MustCompile(`(?m)^\s*#?\s*NTP\s*=.*$`)
 
-	if ntpRegex.MatchString(content) {
+	switch {
+	case ntpRegex.MatchString(content):
 		// 替换现有的 NTP= 行
 		content = ntpRegex.ReplaceAllString(content, ntpLine)
-	} else if hasTimeSection {
+	case hasTimeSection:
 		// 在 [Time] 段后添加 NTP= 行
 		content = strings.Replace(content, "[Time]", "[Time]\n"+ntpLine, 1)
-	} else {
+	default:
 		// 添加 [Time] 段和 NTP= 行
 		if content != "" && !strings.HasSuffix(content, "\n") {
 			content += "\n"
@@ -294,6 +296,6 @@ func RestartNTPService() error {
 		}
 		return nil
 	default:
-		return fmt.Errorf("unsupported NTP service type")
+		return errors.New("unsupported NTP service type")
 	}
 }

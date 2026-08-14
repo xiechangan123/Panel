@@ -42,7 +42,7 @@ func (s *App) Status() string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/apache/conf/httpd.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/apache/conf/httpd.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -58,7 +58,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/apache/conf/httpd.conf", app.Root), req.Config, 0600); err != nil {
+	if err = io.Write(app.Root+"/server/apache/conf/httpd.conf", req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

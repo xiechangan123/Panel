@@ -115,7 +115,7 @@ const handleSorterChange = (sorter: DataTableSortState | DataTableSortState[] | 
 }
 
 // 分页获取列表
-const { loading, data, page, total, pageSize, pageCount, reload } = usePagination(
+const { loading, data, page, total, pageSize, reload } = usePagination(
   (page, pageSize) => {
     const sort = sortState.value?.columnKey as string | undefined
     const order = sortState.value?.order

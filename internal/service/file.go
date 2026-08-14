@@ -4,6 +4,7 @@ package service
 
 import (
 	"bufio"
+	"cmp"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
@@ -682,38 +683,23 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		var cmp int
+		var order int
 		switch sortKey {
 		case "size":
 			// 按大小排序
-			if a.info.Size() < b.info.Size() {
-				cmp = -1
-			} else if a.info.Size() > b.info.Size() {
-				cmp = 1
-			} else {
-				cmp = 0
-			}
+			order = cmp.Compare(a.info.Size(), b.info.Size())
 		case "modify":
 			// 按修改时间排序
-			if a.info.ModTime().Before(b.info.ModTime()) {
-				cmp = -1
-			} else if a.info.ModTime().After(b.info.ModTime()) {
-				cmp = 1
-			} else {
-				cmp = 0
-			}
-		case "name":
-			// 按名称排序
-			cmp = strings.Compare(strings.ToLower(a.info.Name()), strings.ToLower(b.info.Name()))
+			order = a.info.ModTime().Compare(b.info.ModTime())
 		default:
 			// 默认按名称排序
-			cmp = strings.Compare(strings.ToLower(a.info.Name()), strings.ToLower(b.info.Name()))
+			order = strings.Compare(strings.ToLower(a.info.Name()), strings.ToLower(b.info.Name()))
 		}
 
 		if sortDesc {
-			cmp = -cmp
+			order = -order
 		}
-		return cmp
+		return order
 	})
 
 	// 转换回 DirEntry 列表

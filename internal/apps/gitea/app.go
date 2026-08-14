@@ -1,7 +1,6 @@
 package gitea
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -30,7 +29,7 @@ func (s *App) Status() string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, _ := io.Read(fmt.Sprintf("%s/server/gitea/app.ini", app.Root))
+	config, _ := io.Read(app.Root + "/server/gitea/app.ini")
 	service.Success(w, config)
 }
 
@@ -41,7 +40,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/gitea/app.ini", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(app.Root+"/server/gitea/app.ini", req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -161,7 +161,7 @@ const getWebsiteList = async (page: number, limit: number) => {
   addJailModel.value.website_name = websites.value[0]?.value
 }
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => fail2ban.jails(page, pageSize),
   {
     initialData: { total: 0, list: [] },

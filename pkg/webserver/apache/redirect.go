@@ -248,7 +248,7 @@ func generateRedirectConfig(redirect types.Redirect) string {
 		cfg.Append(Dir("RewriteRule", "^(.*)$", to, fmt.Sprintf("[R=%d,L]", statusCode)))
 
 	case types.RedirectType404:
-		cfg.Append(Cmt(fmt.Sprintf("404 redirect -> %s", redirect.To)))
+		cfg.Append(Cmt("404 redirect -> " + redirect.To))
 		cfg.Append(Dir("ErrorDocument", "404", redirect.To))
 	}
 

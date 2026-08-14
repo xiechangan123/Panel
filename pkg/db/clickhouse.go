@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -20,7 +21,7 @@ type ClickHouse struct {
 // NewClickHouse 创建 ClickHouse 连接（HTTP API）
 func NewClickHouse(ctx context.Context, username, password, address string) (*ClickHouse, error) {
 	client := resty.New()
-	client.SetBaseURL(fmt.Sprintf("http://%s", address))
+	client.SetBaseURL("http://" + address)
 	client.SetTimeout(10 * 1000 * 1000 * 1000) // 10s
 
 	ch := &ClickHouse{
@@ -66,7 +67,7 @@ func (r *ClickHouse) ping(ctx context.Context) error {
 }
 
 func (r *ClickHouse) Query(query string, args ...any) (*sql.Rows, error) {
-	return nil, fmt.Errorf("clickhouse HTTP API does not support sql.Rows")
+	return nil, errors.New("clickhouse HTTP API does not support sql.Rows")
 }
 
 func (r *ClickHouse) QueryRow(query string, args ...any) *sql.Row {
@@ -79,7 +80,7 @@ func (r *ClickHouse) Exec(query string, args ...any) (sql.Result, error) {
 }
 
 func (r *ClickHouse) Prepare(query string) (*sql.Stmt, error) {
-	return nil, fmt.Errorf("clickhouse HTTP API does not support Prepare")
+	return nil, errors.New("clickhouse HTTP API does not support Prepare")
 }
 
 func (r *ClickHouse) DatabaseCreate(name string) error {

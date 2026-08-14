@@ -6,7 +6,7 @@ interface Props {
   fallbackDescription?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   fallbackTitle: undefined,
   fallbackDescription: undefined,
 })

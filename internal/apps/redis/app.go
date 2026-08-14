@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -59,7 +58,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	// 检查 Redis 密码
 	withPassword := ""
-	config, err := io.Read(fmt.Sprintf("%s/server/redis/redis.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/redis/redis.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -104,7 +103,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/redis/redis.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/redis/redis.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -120,7 +119,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/redis/redis.conf", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(app.Root+"/server/redis/redis.conf", req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -135,7 +134,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Redis 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/redis/redis.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/redis/redis.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -165,7 +164,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/redis/redis.conf", app.Root)
+	confPath := app.Root + "/server/redis/redis.conf"
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)

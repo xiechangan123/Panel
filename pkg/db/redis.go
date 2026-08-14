@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -125,7 +126,7 @@ func (r *Redis) Get(key string) (*RedisKV, error) {
 		return nil, fmt.Errorf("key not found: %v", err)
 	}
 	if keyType == "none" {
-		return nil, fmt.Errorf("key not found")
+		return nil, errors.New("key not found")
 	}
 
 	kv := &RedisKV{Key: key, Type: keyType}

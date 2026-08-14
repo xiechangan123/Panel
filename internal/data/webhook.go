@@ -119,7 +119,7 @@ func (r *webhookRepo) Call(key string) (string, error) {
 	if webhook.User == "" || webhook.User == "root" {
 		cmd = exec.Command("bash", scriptFile)
 	} else {
-		cmd = exec.Command("su", "-s", "/bin/bash", "-c", fmt.Sprintf("bash %s", scriptFile), webhook.User)
+		cmd = exec.Command("su", "-s", "/bin/bash", "-c", "bash "+scriptFile, webhook.User)
 	}
 
 	output, err := cmd.CombinedOutput()

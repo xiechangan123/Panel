@@ -1,9 +1,9 @@
 package fail2ban
 
 import (
-	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -126,11 +126,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var ports string
+		var portsSb strings.Builder
 		for _, listen := range website.Listens {
 			if port, err := cast.ToIntE(listen.Address); err == nil {
-				ports += fmt.Sprintf("%d", port) + ","
+				portsSb.WriteString(strconv.Itoa(port) + ",")
 			}
 		}
+		ports += portsSb.String()
 		ports = strings.TrimSuffix(ports, ",")
 
 		rule := `

@@ -1,8 +1,6 @@
 package rule
 
 import (
-	"fmt"
-
 	"github.com/libtnb/validator"
 	"gorm.io/gorm"
 )
@@ -36,9 +34,9 @@ func (r *Exists) Passes(f validator.Field) bool {
 	tableName := args[0]
 	fieldNames := args[1:]
 
-	query := r.db.Table(tableName).Where(fmt.Sprintf("%s = ?", fieldNames[0]), val)
+	query := r.db.Table(tableName).Where(fieldNames[0]+" = ?", val)
 	for _, fieldName := range fieldNames[1:] {
-		query = query.Or(fmt.Sprintf("%s = ?", fieldName), val)
+		query = query.Or(fieldName+" = ?", val)
 	}
 
 	var count int64

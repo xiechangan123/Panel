@@ -109,7 +109,7 @@ func GenerateSelfSigned(names []string) (cert []byte, key []byte, err error) {
 		}
 	}
 	if len(dnsNames) == 0 && len(ipAddrs) == 0 {
-		return nil, nil, fmt.Errorf("names is empty: SAN must not be empty")
+		return nil, nil, errors.New("names is empty: SAN must not be empty")
 	}
 
 	// 3) 随机 128 位序列号
@@ -172,7 +172,7 @@ func GenerateSelfSignedRSA(hosts []string) (certPEM []byte, keyPEM []byte, err e
 		}
 	}
 	if len(dnsNames) == 0 && len(ipAddrs) == 0 {
-		return nil, nil, fmt.Errorf("hosts is empty: SAN must not be empty")
+		return nil, nil, errors.New("hosts is empty: SAN must not be empty")
 	}
 
 	// 3) 随机 128 位序列号

@@ -20,7 +20,7 @@ type Parser struct {
 
 // NewParser 使用网站名创建解析器，将默认配置中的 default 替换为实际网站名
 func NewParser(siteName string) (*Parser, error) {
-	str := strings.ReplaceAll(DefaultConf, "/opt/ace/sites/default", fmt.Sprintf("/opt/ace/sites/%s", siteName))
+	str := strings.ReplaceAll(DefaultConf, "/opt/ace/sites/default", "/opt/ace/sites/"+siteName)
 
 	p := parser.NewStringParser(str, parser.WithSkipIncludeParsingErr(), parser.WithSkipValidDirectivesErr())
 	cfg, err := p.Parse()

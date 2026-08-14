@@ -34,7 +34,7 @@ func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager,
 				return
 			}
 
-			userID := uint(0)
+			var userID uint
 			if r.Header.Get("Authorization") != "" {
 				// 禁止访问 ws 相关的接口
 				if strings.HasPrefix(r.URL.Path, "/api/ws") {

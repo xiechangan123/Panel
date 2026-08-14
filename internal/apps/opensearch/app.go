@@ -194,11 +194,11 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/opensearch/config/opensearch.yml", app.Root)
+	return app.Root + "/server/opensearch/config/opensearch.yml"
 }
 
 func (s *App) jvmOptionsPath() string {
-	return fmt.Sprintf("%s/server/opensearch/config/jvm.options", app.Root)
+	return app.Root + "/server/opensearch/config/jvm.options"
 }
 
 func (s *App) getPort() string {

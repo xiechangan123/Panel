@@ -921,11 +921,9 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 				}
 			}
 			_, _ = shell.Execf(`chattr +i '%s'`, userIni)
-		} else {
-			if io.Exists(userIni) {
-				if err = io.Remove(userIni); err != nil {
-					return err
-				}
+		} else if io.Exists(userIni) {
+			if err = io.Remove(userIni); err != nil {
+				return err
 			}
 		}
 	}

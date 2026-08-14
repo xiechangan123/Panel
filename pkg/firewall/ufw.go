@@ -2,10 +2,12 @@ package firewall
 
 import (
 	"cmp"
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -123,8 +125,7 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 	// target 的 /tcp 是端口协议规格（如 80/tcp），不能剥离
 	source = strings.TrimSpace(source)
 	target = strings.TrimSpace(target)
-	sourceProto := ""
-	source, sourceProto = stripProtocolSuffix(source)
+	source, sourceProto := stripProtocolSuffix(source)
 
 	// target 仅在 "Anywhere/tcp" 形式下才需要剥离协议后缀
 	targetProto := ""
@@ -273,7 +274,7 @@ func (r *ufw) deletePort(rule FireInfo) error {
 // formatPort 格式化端口（单端口或范围）
 func (r *ufw) formatPort(rule FireInfo) string {
 	if rule.PortStart == rule.PortEnd {
-		return fmt.Sprintf("%d", rule.PortStart)
+		return strconv.FormatUint(uint64(rule.PortStart), 10)
 	}
 	return fmt.Sprintf("%d:%d", rule.PortStart, rule.PortEnd)
 }
@@ -312,7 +313,7 @@ func (r *ufw) buildPortCmd(rule FireInfo, protocol string, operation Operation) 
 func (r *ufw) RichRules(rule FireInfo, operation Operation) error {
 	// 出站规则下，必须指定具体的地址
 	if rule.Direction == "out" && rule.Address == "" {
-		return fmt.Errorf("outbound rules must specify an address")
+		return errors.New("outbound rules must specify an address")
 	}
 
 	if rule.Protocol == "" {

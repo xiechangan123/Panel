@@ -1,6 +1,7 @@
 package nginx
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -36,7 +37,7 @@ func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", req.Name))
+	configPath := filepath.Join(s.streamDir(), req.Name+".conf")
 	if _, statErr := os.Stat(configPath); statErr == nil {
 		service.Error(w, http.StatusConflict, s.t.Get("stream server config already exists: %s", req.Name))
 		return
@@ -70,7 +71,7 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", name))
+	configPath := filepath.Join(s.streamDir(), name+".conf")
 	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
 		service.Error(w, http.StatusNotFound, s.t.Get("stream server not found: %s", name))
 		return
@@ -78,7 +79,7 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 
 	newConfigPath := configPath
 	if req.Name != name {
-		newConfigPath = filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", req.Name))
+		newConfigPath = filepath.Join(s.streamDir(), req.Name+".conf")
 		if _, statErr := os.Stat(newConfigPath); statErr == nil {
 			service.Error(w, http.StatusConflict, s.t.Get("stream server config already exists: %s", req.Name))
 			return
@@ -110,7 +111,7 @@ func (s *App) DeleteStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	configPath := filepath.Join(s.streamDir(), fmt.Sprintf("%s.conf", name))
+	configPath := filepath.Join(s.streamDir(), name+".conf")
 	if _, statErr := os.Stat(configPath); os.IsNotExist(statErr) {
 		service.Error(w, http.StatusNotFound, s.t.Get("stream server not found: %s", name))
 		return
@@ -411,24 +412,24 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 
 	cfg := p.Config()
 	if cfg == nil || cfg.Block == nil {
-		return nil, fmt.Errorf("invalid config")
+		return nil, errors.New("invalid config")
 	}
 
 	// 查找 upstream 块
 	upstreamDirectives := cfg.Block.FindDirectives("upstream")
 	if len(upstreamDirectives) == 0 {
-		return nil, fmt.Errorf("no upstream block found")
+		return nil, errors.New("no upstream block found")
 	}
 
 	upstreamDir := upstreamDirectives[0]
 	params := upstreamDir.GetParameters()
 	if len(params) == 0 {
-		return nil, fmt.Errorf("upstream name not found")
+		return nil, errors.New("upstream name not found")
 	}
 
 	name := params[0].Value
 	if expectedName != "" && name != expectedName {
-		return nil, fmt.Errorf("upstream name mismatch")
+		return nil, errors.New("upstream name mismatch")
 	}
 
 	upstream := &StreamUpstream{
@@ -439,7 +440,7 @@ func (s *App) parseStreamUpstreamFile(filePath string, expectedName string) (*St
 
 	upstreamBlock := upstreamDir.GetBlock()
 	if upstreamBlock == nil {
-		return nil, fmt.Errorf("upstream block is empty")
+		return nil, errors.New("upstream block is empty")
 	}
 
 	// 解析 upstream 块中的指令

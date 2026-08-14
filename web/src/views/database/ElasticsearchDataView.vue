@@ -205,7 +205,7 @@ const docColumns: any = [
 ]
 
 // 文档分页
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) =>
     database.esData(selectedServer.value || 0, selectedIndex.value, page, pageSize, search.value),
   {

@@ -24,27 +24,6 @@ type ClientConfig struct {
 	Timeout    time.Duration `json:"timeout"`
 }
 
-func ClientConfigPassword(host, user, password string) *ClientConfig {
-	return &ClientConfig{
-		Timeout:    10 * time.Second,
-		AuthMethod: PASSWORD,
-		Host:       host,
-		User:       user,
-		Password:   password,
-	}
-}
-
-func ClientConfigPublicKey(host, user, key, passphrase string) *ClientConfig {
-	return &ClientConfig{
-		Timeout:    10 * time.Second,
-		AuthMethod: PUBLICKEY,
-		Host:       host,
-		User:       user,
-		Key:        key,
-		Passphrase: passphrase,
-	}
-}
-
 func NewSSHClient(conf ClientConfig) (*ssh.Client, error) {
 	if conf.Timeout == 0 {
 		conf.Timeout = 10 * time.Second

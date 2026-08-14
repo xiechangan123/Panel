@@ -202,17 +202,17 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 // configPath 返回配置文件路径
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/elasticsearch/config/elasticsearch.yml", app.Root)
+	return app.Root + "/server/elasticsearch/config/elasticsearch.yml"
 }
 
 // jvmOptionsPath 返回 JVM 选项文件路径
 func (s *App) jvmOptionsPath() string {
-	return fmt.Sprintf("%s/server/elasticsearch/config/jvm.options", app.Root)
+	return app.Root + "/server/elasticsearch/config/jvm.options"
 }
 
 // jvmHeapOptionsPath 返回 JVM 堆内存配置文件路径（ES 9.x 推荐方式）
 func (s *App) jvmHeapOptionsPath() string {
-	return fmt.Sprintf("%s/server/elasticsearch/config/jvm.options.d/heap.options", app.Root)
+	return app.Root + "/server/elasticsearch/config/jvm.options.d/heap.options"
 }
 
 // getPort 从配置中获取 HTTP 端口

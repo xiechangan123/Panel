@@ -72,9 +72,9 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 			item.Issuer = decode.Issuer.CommonName
 			item.OCSPServer = decode.OCSPServer
 			// 合并 DNSNames 和 IPAddresses
-			item.DNSNames = append(decode.DNSNames, lo.Map(decode.IPAddresses, func(ip net.IP, _ int) string {
+			item.DNSNames = slices.Concat(decode.DNSNames, lo.Map(decode.IPAddresses, func(ip net.IP, _ int) string {
 				return ip.String()
-			})...)
+			}))
 		}
 		return item
 	})
@@ -88,9 +88,9 @@ func (r *certRepo) Get(id uint) (*biz.Cert, error) {
 	return cert, err
 }
 
-func (r *certRepo) GetByWebsite(WebsiteID uint) (*biz.Cert, error) {
+func (r *certRepo) GetByWebsite(websiteID uint) (*biz.Cert, error) {
 	cert := new(biz.Cert)
-	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("website_id = ?", WebsiteID).First(cert).Error
+	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("website_id = ?", websiteID).First(cert).Error
 	return cert, err
 }
 
@@ -166,9 +166,9 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, names []string, webServ
 }
 
 // LoadWebsite 根据 ID 加载网站
-func (r *certRepo) LoadWebsite(WebsiteID uint) (*biz.Website, error) {
+func (r *certRepo) LoadWebsite(websiteID uint) (*biz.Website, error) {
 	website := new(biz.Website)
-	if err := r.db.Where("id", WebsiteID).First(website).Error; err != nil {
+	if err := r.db.Where("id", websiteID).First(website).Error; err != nil {
 		return nil, err
 	}
 	return website, nil

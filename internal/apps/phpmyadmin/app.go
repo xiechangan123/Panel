@@ -59,7 +59,7 @@ func (s *App) Status() string {
 
 // info 获取 phpMyAdmin 的访问目录与端口
 func (s *App) info() (string, int, error) {
-	files, err := os.ReadDir(fmt.Sprintf("%s/server/phpmyadmin", app.Root))
+	files, err := os.ReadDir(app.Root + "/server/phpmyadmin")
 	if err != nil {
 		return "", 0, errors.New(s.t.Get("phpMyAdmin directory not found"))
 	}
@@ -74,7 +74,7 @@ func (s *App) info() (string, int, error) {
 		return "", 0, errors.New(s.t.Get("phpMyAdmin directory not found"))
 	}
 
-	conf, err := io.Read(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root))
+	conf, err := io.Read(app.Root + "/sites/phpmyadmin/config/nginx.conf")
 	if err != nil {
 		return "", 0, err
 	}
@@ -248,13 +248,13 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conf, err := io.Read(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root))
+	conf, err := io.Read(app.Root + "/sites/phpmyadmin/config/nginx.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	conf = regexp.MustCompile(`listen\s+(\d+);`).ReplaceAllString(conf, "listen "+cast.ToString(req.Port)+";")
-	if err = io.Write(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root), conf, 0600); err != nil {
+	if err = io.Write(app.Root+"/sites/phpmyadmin/config/nginx.conf", conf, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -282,7 +282,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root))
+	config, err := io.Read(app.Root + "/sites/phpmyadmin/config/nginx.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -298,7 +298,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/sites/phpmyadmin/config/nginx.conf", app.Root), req.Config, 0600); err != nil {
+	if err = io.Write(app.Root+"/sites/phpmyadmin/config/nginx.conf", req.Config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -48,7 +48,7 @@ func (r *API) Apps() (*Apps, error) {
 
 // AppBySlug 根据slug返回应用
 func (r *API) AppBySlug(slug string) (*App, error) {
-	resp, err := r.client.R().SetResult(&Response{}).Get(fmt.Sprintf("/apps/%s", slug))
+	resp, err := r.client.R().SetResult(&Response{}).Get("/apps/" + slug)
 	if err != nil {
 		return nil, err
 	}

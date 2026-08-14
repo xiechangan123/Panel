@@ -1,7 +1,6 @@
 package postgresql
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -93,7 +92,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 // GetUserConfig 获取用户配置
 func (s *App) GetUserConfig(w http.ResponseWriter, r *http.Request) {
 	// 获取配置
-	config, err := io.Read(fmt.Sprintf("%s/server/postgresql/data/pg_hba.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/postgresql/data/pg_hba.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -110,7 +109,7 @@ func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(fmt.Sprintf("%s/server/postgresql/data/pg_hba.conf", app.Root), req.Config, 0644); err != nil {
+	if err = io.Write(app.Root+"/server/postgresql/data/pg_hba.conf", req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -183,7 +182,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // Log 获取应用日志路径列表
 func (s *App) Log(w http.ResponseWriter, r *http.Request) {
-	paths, err := filepath.Glob(fmt.Sprintf("%s/server/postgresql/logs/postgresql-*.log", app.Root))
+	paths, err := filepath.Glob(app.Root + "/server/postgresql/logs/postgresql-*.log")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -337,7 +336,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/postgresql/data/postgresql.conf", app.Root)
+	return app.Root + "/server/postgresql/data/postgresql.conf"
 }
 
 // getPort 读取 PostgreSQL 端口

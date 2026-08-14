@@ -85,8 +85,8 @@ func (uc *CertUsecase) Get(id uint) (*Cert, error) {
 	return uc.repo.Get(id)
 }
 
-func (uc *CertUsecase) GetByWebsite(WebsiteID uint) (*Cert, error) {
-	return uc.repo.GetByWebsite(WebsiteID)
+func (uc *CertUsecase) GetByWebsite(websiteID uint) (*Cert, error) {
+	return uc.repo.GetByWebsite(websiteID)
 }
 
 func (uc *CertUsecase) Upload(ctx context.Context, req *request.CertUpload) (*Cert, error) {
@@ -394,8 +394,8 @@ func (uc *CertUsecase) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error
 	return renewInfo, nil
 }
 
-func (uc *CertUsecase) Deploy(ID, WebsiteID uint, enableHTTPS bool) error {
-	cert, err := uc.repo.Get(ID)
+func (uc *CertUsecase) Deploy(id, websiteID uint, enableHTTPS bool) error {
+	cert, err := uc.repo.Get(id)
 	if err != nil {
 		return err
 	}
@@ -404,7 +404,7 @@ func (uc *CertUsecase) Deploy(ID, WebsiteID uint, enableHTTPS bool) error {
 		return errors.New(uc.t.Get("this certificate has not been obtained successfully and cannot be deployed"))
 	}
 
-	website, err := uc.repo.LoadWebsite(WebsiteID)
+	website, err := uc.repo.LoadWebsite(websiteID)
 	if err != nil {
 		return err
 	}

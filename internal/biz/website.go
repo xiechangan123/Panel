@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"path/filepath"
 	"slices"
@@ -147,7 +146,7 @@ func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate
 			Username:   req.DBUser,
 			Password:   req.DBPassword,
 			Host:       "localhost",
-			Comment:    fmt.Sprintf("website %s", req.Name),
+			Comment:    "website " + req.Name,
 		}); err != nil {
 			return nil, err
 		}

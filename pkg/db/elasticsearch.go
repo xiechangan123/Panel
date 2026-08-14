@@ -33,7 +33,7 @@ type ESDocument struct {
 // NewElasticsearch 创建 Elasticsearch 连接
 func NewElasticsearch(ctx context.Context, address, username, password string) (*Elasticsearch, error) {
 	client := resty.New()
-	client.SetBaseURL(fmt.Sprintf("http://%s", address))
+	client.SetBaseURL("http://" + address)
 	client.SetTimeout(10 * 1000 * 1000 * 1000) // 10s
 	if username != "" && password != "" {
 		client.SetBasicAuth(username, password)

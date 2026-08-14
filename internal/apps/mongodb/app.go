@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -240,7 +239,7 @@ func (s *App) SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 
 // configPath 返回配置文件路径
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/mongodb/mongod.conf", app.Root)
+	return app.Root + "/server/mongodb/mongod.conf"
 }
 
 // getYAMLValue 获取嵌套 YAML 值，支持 dot notation

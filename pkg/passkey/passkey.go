@@ -3,6 +3,7 @@ package passkey
 import (
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -60,7 +61,7 @@ func (u *User) WebAuthnCredentials() []webauthn.Credential {
 // ParseUserID 从 WebAuthnID 字节还原 user ID
 func ParseUserID(userHandle []byte) (uint, error) {
 	if len(userHandle) != 8 {
-		return 0, fmt.Errorf("invalid user handle")
+		return 0, errors.New("invalid user handle")
 	}
 	return uint(binary.BigEndian.Uint64(userHandle)), nil
 }

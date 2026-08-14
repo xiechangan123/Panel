@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -44,7 +45,7 @@ func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -64,7 +65,7 @@ func (s *EnvironmentPHPService) PHPInfo(w http.ResponseWriter, r *http.Request) 
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -85,7 +86,7 @@ func (s *EnvironmentPHPService) GetConfig(w http.ResponseWriter, r *http.Request
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -105,7 +106,7 @@ func (s *EnvironmentPHPService) UpdateConfig(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -124,7 +125,7 @@ func (s *EnvironmentPHPService) GetFPMConfig(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -144,7 +145,7 @@ func (s *EnvironmentPHPService) UpdateFPMConfig(w http.ResponseWriter, r *http.R
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -163,7 +164,7 @@ func (s *EnvironmentPHPService) Load(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -228,7 +229,7 @@ func (s *EnvironmentPHPService) Log(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -242,7 +243,7 @@ func (s *EnvironmentPHPService) SlowLog(w http.ResponseWriter, r *http.Request) 
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -256,7 +257,7 @@ func (s *EnvironmentPHPService) ModuleList(w http.ResponseWriter, r *http.Reques
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -289,7 +290,7 @@ func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Req
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -324,7 +325,7 @@ func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.R
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -607,7 +608,7 @@ func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Req
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -666,7 +667,7 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}
@@ -729,7 +730,7 @@ func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Requ
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-	if !s.environmentRepo.IsInstalled("php", fmt.Sprintf("%d", req.Version)) {
+	if !s.environmentRepo.IsInstalled("php", strconv.FormatUint(uint64(req.Version), 10)) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("PHP-%d is not installed", req.Version))
 		return
 	}

@@ -1,6 +1,7 @@
 package apache
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -37,7 +38,7 @@ type baseVhost struct {
 // newBaseVhost 创建基础虚拟主机实例
 func newBaseVhost(configDir string) (*baseVhost, error) {
 	if configDir == "" {
-		return nil, fmt.Errorf("config directory is required")
+		return nil, errors.New("config directory is required")
 	}
 
 	v := &baseVhost{
@@ -76,7 +77,7 @@ func newBaseVhost(configDir string) (*baseVhost, error) {
 
 // defaultConf 返回替换好站点名的默认配置模板
 func (v *baseVhost) defaultConf() string {
-	return strings.ReplaceAll(DefaultVhostConf, "/opt/ace/sites/default", fmt.Sprintf("/opt/ace/sites/%s", v.siteName))
+	return strings.ReplaceAll(DefaultVhostConf, "/opt/ace/sites/default", "/opt/ace/sites/"+v.siteName)
 }
 
 // NewStaticVhost 创建纯静态虚拟主机实例
@@ -359,7 +360,7 @@ func (v *baseVhost) SSLConfig() *types.SSLConfig {
 
 func (v *baseVhost) SetSSLConfig(cfg *types.SSLConfig) error {
 	if cfg == nil {
-		return fmt.Errorf("SSL config cannot be nil")
+		return errors.New("SSL config cannot be nil")
 	}
 
 	v.vhost.Set("SSLEngine", "on")

@@ -175,12 +175,12 @@ func (s *App) restartServices() error {
 
 // configPath 返回 broker 配置文件路径
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/rocketmq/conf/broker.conf", app.Root)
+	return app.Root + "/server/rocketmq/conf/broker.conf"
 }
 
 // heapEnvPath 返回 JVM 堆内存配置文件路径
 func (s *App) heapEnvPath() string {
-	return fmt.Sprintf("%s/server/rocketmq/conf/heap.env", app.Root)
+	return app.Root + "/server/rocketmq/conf/heap.env"
 }
 
 // getPropertiesValue 从 properties 内容中获取指定键的值

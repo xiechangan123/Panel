@@ -328,7 +328,7 @@ func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
 
 // configPath 返回 Grafana 主配置文件路径
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/grafana/conf/defaults.ini", app.Root)
+	return app.Root + "/server/grafana/conf/defaults.ini"
 }
 
 // getINIValue 从 INI 配置中获取指定 section 下的 key 值
@@ -436,7 +436,7 @@ func (s *App) setINIValue(content string, section string, key string, value stri
 
 // datasourcePath 返回 provisioning 数据源文件路径
 func (s *App) datasourcePath() string {
-	return fmt.Sprintf("%s/server/grafana/conf/provisioning/datasources/panel.yml", app.Root)
+	return app.Root + "/server/grafana/conf/provisioning/datasources/panel.yml"
 }
 
 // readDatasources 读取 provisioning 文件

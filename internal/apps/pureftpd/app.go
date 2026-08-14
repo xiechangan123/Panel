@@ -148,7 +148,7 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 // GetPort 获取端口
 func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/pure-ftpd/etc/pure-ftpd.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get port: %v", err))
 		return
@@ -171,7 +171,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/pure-ftpd/etc/pure-ftpd.conf", app.Root)
+	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -206,7 +206,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 // GetConfigTune 获取 Pure-FTPd 配置调整参数
 func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(fmt.Sprintf("%s/server/pure-ftpd/etc/pure-ftpd.conf", app.Root))
+	config, err := io.Read(app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -234,7 +234,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	confPath := fmt.Sprintf("%s/server/pure-ftpd/etc/pure-ftpd.conf", app.Root)
+	confPath := app.Root + "/server/pure-ftpd/etc/pure-ftpd.conf"
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)

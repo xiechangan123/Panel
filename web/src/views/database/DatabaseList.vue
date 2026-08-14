@@ -91,7 +91,7 @@ const columns: any = computed(() => {
   return cols
 })
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => database.list(page, pageSize, props.type),
   {
     initialData: { total: 0, list: [] },

@@ -186,7 +186,7 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) =>
     database.redisData(selectedServer.value || 0, selectedDB.value, page, pageSize, search.value),
   {

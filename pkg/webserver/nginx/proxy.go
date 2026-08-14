@@ -93,7 +93,7 @@ func formatBytesToNginx(bytes int64) string {
 	if bytes%1024 == 0 {
 		return fmt.Sprintf("%dk", bytes/1024)
 	}
-	return fmt.Sprintf("%d", bytes)
+	return strconv.FormatInt(bytes, 10)
 }
 
 // formatDurationToNginx 格式化 time.Duration 为 Nginx 时间格式

@@ -225,7 +225,7 @@ func (r *firewalld) Port(rule FireInfo, operation Operation) error {
 func (r *firewalld) RichRules(rule FireInfo, operation Operation) error {
 	// 出站规则下，必须指定具体的地址，否则会添加成入站规则
 	if rule.Direction == "out" && rule.Address == "" {
-		return fmt.Errorf("outbound rules must specify an address")
+		return errors.New("outbound rules must specify an address")
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
@@ -351,14 +351,15 @@ func (r *firewalld) parseRichRule(line string) (FireInfo, error) {
 	}
 
 	ports := strings.Split(match[4], "-")
-	if len(ports) == 2 { // 添加端口范围
+	switch {
+	case len(ports) == 2: // 添加端口范围
 		fireInfo.PortStart = cast.ToUint(ports[0])
 		fireInfo.PortEnd = cast.ToUint(ports[1])
-	} else if len(ports) == 1 && ports[0] != "" { // 添加单个端口
+	case len(ports) == 1 && ports[0] != "": // 添加单个端口
 		port := cast.ToUint(ports[0])
 		fireInfo.PortStart = port
 		fireInfo.PortEnd = port
-	} else if len(ports) == 1 && ports[0] == "" { // 未添加端口规则，表示所有端口
+	case len(ports) == 1 && ports[0] == "": // 未添加端口规则，表示所有端口
 		fireInfo.PortStart = 1
 		fireInfo.PortEnd = 65535
 	}

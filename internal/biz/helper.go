@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cast"
@@ -28,7 +27,7 @@ func containerSock(setting SettingRepo) string {
 	}
 	// 自动补全 scheme
 	if !strings.Contains(sock, "://") {
-		sock = fmt.Sprintf("unix://%s", sock)
+		sock = "unix://" + sock
 	}
 	return sock
 }

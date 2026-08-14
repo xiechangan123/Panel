@@ -15,11 +15,12 @@ func MustInstall(t *gotext.Locale, app biz.AppRepo) func(next http.Handler) http
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var slugs []string
-			if strings.HasPrefix(r.URL.Path, "/api/website") {
+			switch {
+			case strings.HasPrefix(r.URL.Path, "/api/website"):
 				slugs = append(slugs, "nginx", "openresty", "apache", "openlitespeed", "caddy")
-			} else if strings.HasPrefix(r.URL.Path, "/api/container") {
+			case strings.HasPrefix(r.URL.Path, "/api/container"):
 				slugs = append(slugs, "podman", "docker")
-			} else if strings.HasPrefix(r.URL.Path, "/api/apps/") {
+			case strings.HasPrefix(r.URL.Path, "/api/apps/"):
 				pathArr := strings.Split(r.URL.Path, "/")
 				if len(pathArr) < 4 {
 					Abort(w, http.StatusForbidden, t.Get("app not found"))

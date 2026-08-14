@@ -2,6 +2,7 @@ package clickhouse
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strings"
@@ -218,7 +219,7 @@ func (s *App) SetDefaultPassword(w http.ResponseWriter, r *http.Request) {
 
 	// 计算 SHA256 哈希
 	hash := sha256.Sum256([]byte(req.Password))
-	hexHash := fmt.Sprintf("%x", hash)
+	hexHash := hex.EncodeToString(hash[:])
 
 	// 读取 users.d/default.yaml 并更新密码
 	raw, _ := io.Read(s.usersConfigPath())
@@ -262,12 +263,12 @@ func (s *App) SetDefaultPassword(w http.ResponseWriter, r *http.Request) {
 
 // configPath 返回主配置文件路径
 func (s *App) configPath() string {
-	return fmt.Sprintf("%s/server/clickhouse/config/config.yaml", app.Root)
+	return app.Root + "/server/clickhouse/config/config.yaml"
 }
 
 // usersConfigPath 返回用户密码配置文件路径（users.d/ 由 ConfigProcessor 自动合并到 users.yaml）
 func (s *App) usersConfigPath() string {
-	return fmt.Sprintf("%s/server/clickhouse/config/users.d/default.yaml", app.Root)
+	return app.Root + "/server/clickhouse/config/users.d/default.yaml"
 }
 
 // getPort 从配置中获取 HTTP 端口

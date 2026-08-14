@@ -224,10 +224,10 @@ func (uc *ToolboxMigrationUsecase) pushWebsite(
 		return listen.Address, !slices.Contains(listen.Args, "ssl")
 	})
 	create := &request.WebsiteCreate{
-		Type: string(website.Type), Name: item.TargetName, Domains: website.Domains, Path: targetPath, PHP: website.PHP,
+		Type: website.Type, Name: item.TargetName, Domains: website.Domains, Path: targetPath, PHP: website.PHP,
 		Listens: lo.Ternary(len(listens) > 0, listens, []string{"80"}),
 	}
-	if string(website.Type) == "proxy" && len(website.Proxies) > 0 {
+	if website.Type == "proxy" && len(website.Proxies) > 0 {
 		create.Proxy = website.Proxies[0].Pass
 	}
 	if _, err = uc.remote.Request(ctx, conn, "POST", "/api/website", create); err != nil {

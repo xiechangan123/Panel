@@ -2,7 +2,6 @@ package service
 
 import (
 	"cmp"
-	"fmt"
 	"net/http"
 	"slices"
 	"strconv"
@@ -410,23 +409,23 @@ func (s *WebsiteStatService) UpdateSetting(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err = s.setting.Set(biz.SettingKeyWebsiteStatDays, fmt.Sprintf("%d", req.Days)); err != nil {
+	if err = s.setting.Set(biz.SettingKeyWebsiteStatDays, strconv.FormatUint(uint64(req.Days), 10)); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	if req.ErrBufMax > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatErrBufMax, fmt.Sprintf("%d", req.ErrBufMax))
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatErrBufMax, strconv.Itoa(req.ErrBufMax))
 	}
 	if req.UVMaxKeys > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatUVMaxKeys, fmt.Sprintf("%d", req.UVMaxKeys))
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatUVMaxKeys, strconv.Itoa(req.UVMaxKeys))
 	}
 	if req.IPMaxKeys > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatIPMaxKeys, fmt.Sprintf("%d", req.IPMaxKeys))
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatIPMaxKeys, strconv.Itoa(req.IPMaxKeys))
 	}
 	if req.DetailMaxKeys > 0 {
-		_ = s.setting.Set(biz.SettingKeyWebsiteStatDetailMaxKeys, fmt.Sprintf("%d", req.DetailMaxKeys))
+		_ = s.setting.Set(biz.SettingKeyWebsiteStatDetailMaxKeys, strconv.Itoa(req.DetailMaxKeys))
 	}
-	_ = s.setting.Set(biz.SettingKeyWebsiteStatBodyEnabled, fmt.Sprintf("%t", req.BodyEnabled))
+	_ = s.setting.Set(biz.SettingKeyWebsiteStatBodyEnabled, strconv.FormatBool(req.BodyEnabled))
 
 	Success(w, nil)
 }

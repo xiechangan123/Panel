@@ -283,7 +283,7 @@ const handleSorterChange = (sorter: DataTableSortState | DataTableSortState[] | 
 }
 
 // 分页获取进程列表
-const { loading, data, page, total, pageSize, pageCount, reload } = usePagination(
+const { loading, data, page, total, pageSize, reload } = usePagination(
   (page, pageSize) => {
     const sort = sortState.value?.columnKey as string | undefined
     // descend(箭头向下) -> desc(大到小), ascend(箭头向上) -> asc(小到大)

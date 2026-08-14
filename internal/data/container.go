@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"net/netip"
 	"slices"
@@ -239,7 +240,7 @@ func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (strin
 				return "", fmt.Errorf("container port and host port count do not match (container: %d host: %d)", port.ContainerStart-port.ContainerEnd, port.HostStart-port.HostEnd)
 			}
 			if port.ContainerStart > port.ContainerEnd || port.HostStart > port.HostEnd || port.ContainerStart < 1 || port.HostStart < 1 {
-				return "", fmt.Errorf("port range is invalid")
+				return "", errors.New("port range is invalid")
 			}
 
 			count := uint(0)

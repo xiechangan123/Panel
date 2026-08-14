@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -430,7 +431,7 @@ func (s *ToolboxBenchmarkService) diskTestTask() map[string]any {
 	for _, blockSize := range blockSizes {
 		blockSizeKB := blockSize / 1024
 		result := s.diskIOTest(testFile, blockSize)
-		results[fmt.Sprintf("%d", blockSizeKB)] = result
+		results[strconv.FormatInt(blockSizeKB, 10)] = result
 	}
 	duration := time.Since(start)
 	results["score"] = s.calculateScore(duration)

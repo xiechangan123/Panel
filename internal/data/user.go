@@ -201,20 +201,3 @@ func (r *userRepo) UpdateTwoFA(id uint, code, secret string) error {
 	user.TwoFA = secret
 	return r.db.Save(user).Error
 }
-
-func (r *userRepo) CheckTwoFA(id uint, code string) (bool, error) {
-	user, err := r.Get(id)
-	if err != nil {
-		return false, err
-	}
-
-	if user.TwoFA == "" {
-		return true, nil // 未开启2FA，无需验证
-	}
-
-	if valid := totp.Validate(code, user.TwoFA); !valid {
-		return false, errors.New(r.t.Get("invalid 2FA code"))
-	}
-
-	return true, nil
-}

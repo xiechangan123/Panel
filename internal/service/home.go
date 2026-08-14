@@ -232,32 +232,32 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 
 	// Go 版本
 	goData := lo.Map(s.environmentRepo.InstalledSlugs("go"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: fmt.Sprintf("Go %s", s.environmentRepo.InstalledVersion("go", slug))}
+		return types.LV{Value: slug, Label: "Go " + s.environmentRepo.InstalledVersion("go", slug)}
 	})
 
 	// Java 版本
 	javaData := lo.Map(s.environmentRepo.InstalledSlugs("java"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: fmt.Sprintf("Java %s", s.environmentRepo.InstalledVersion("java", slug))}
+		return types.LV{Value: slug, Label: "Java " + s.environmentRepo.InstalledVersion("java", slug)}
 	})
 
 	// Node.js 版本
 	nodejsData := lo.Map(s.environmentRepo.InstalledSlugs("nodejs"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: fmt.Sprintf("Node.js %s", s.environmentRepo.InstalledVersion("nodejs", slug))}
+		return types.LV{Value: slug, Label: "Node.js " + s.environmentRepo.InstalledVersion("nodejs", slug)}
 	})
 
 	// PHP 版本
 	phpData := lo.Map(s.environmentRepo.InstalledSlugs("php"), func(slug string, _ int) types.LVInt {
-		return types.LVInt{Value: cast.ToInt(slug), Label: fmt.Sprintf("PHP %s", s.environmentRepo.InstalledVersion("php", slug))}
+		return types.LVInt{Value: cast.ToInt(slug), Label: "PHP " + s.environmentRepo.InstalledVersion("php", slug)}
 	})
 
 	// Python 版本
 	pythonData := lo.Map(s.environmentRepo.InstalledSlugs("python"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: fmt.Sprintf("Python %s", s.environmentRepo.InstalledVersion("python", slug))}
+		return types.LV{Value: slug, Label: "Python " + s.environmentRepo.InstalledVersion("python", slug)}
 	})
 
 	// .NET 版本
 	dotnetData := lo.Map(s.environmentRepo.InstalledSlugs("dotnet"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: fmt.Sprintf(".NET %s", s.environmentRepo.InstalledVersion("dotnet", slug))}
+		return types.LV{Value: slug, Label: ".NET " + s.environmentRepo.InstalledVersion("dotnet", slug)}
 	})
 
 	// 数据库

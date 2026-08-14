@@ -18,7 +18,6 @@ const progressLogs = ref<string[]>([])
 const errorMsg = ref('')
 const waitingRestart = ref(false)
 const restartTimedOut = ref(false)
-let currentWs: WebSocket | null = null
 
 const currentVersion = computed(() => systemInfo.value?.panel_version || '')
 const latestVersion = computed(() => versions.value?.[0]?.version || '')
@@ -66,7 +65,6 @@ const startUpdate = () => {
 
   ws.panelUpdate()
     .then((socket) => {
-      currentWs = socket
       socket.onmessage = (event) => {
         let data
         try {
@@ -83,14 +81,12 @@ const startUpdate = () => {
         }
       }
       socket.onclose = () => {
-        currentWs = null
         // 连接断开且未报错/未进入等待，可能面板已重启，转入等待重启轮询
         if (updating.value && !waitingRestart.value && !errorMsg.value) {
           waitForRestart(targetVersion)
         }
       }
       socket.onerror = () => {
-        currentWs = null
         if (updating.value && !waitingRestart.value && !errorMsg.value) {
           errorMsg.value = $gettext('WebSocket connection failed')
         }

@@ -1111,13 +1111,14 @@ func (s *ToolboxDiskService) parseAdaptec(output string) ([]raidController, []ra
 		}
 
 		if inLogicalDev && currentArray != nil {
-			if strings.HasPrefix(trimmed, "RAID level") {
+			switch {
+			case strings.HasPrefix(trimmed, "RAID level"):
 				currentArray.RaidLevel = s.extractAdaptecValue(trimmed)
-			} else if strings.HasPrefix(trimmed, "Size") {
+			case strings.HasPrefix(trimmed, "Size"):
 				currentArray.Size = s.extractAdaptecValue(trimmed)
-			} else if strings.HasPrefix(trimmed, "Status of Logical Device") || strings.HasPrefix(trimmed, "Status of logical device") {
+			case strings.HasPrefix(trimmed, "Status of Logical Device"), strings.HasPrefix(trimmed, "Status of logical device"):
 				currentArray.State = s.extractAdaptecValue(trimmed)
-			} else if strings.HasPrefix(trimmed, "Stripe-size") || strings.HasPrefix(trimmed, "Strip Size") {
+			case strings.HasPrefix(trimmed, "Stripe-size"), strings.HasPrefix(trimmed, "Strip Size"):
 				currentArray.StripSize = s.extractAdaptecValue(trimmed)
 			}
 		}
@@ -1132,15 +1133,16 @@ func (s *ToolboxDiskService) parseAdaptec(output string) ([]raidController, []ra
 		}
 
 		if inPhysicalDev && currentDev != nil {
-			if strings.HasPrefix(trimmed, "State") {
+			switch {
+			case strings.HasPrefix(trimmed, "State"):
 				currentDev.State = s.extractAdaptecValue(trimmed)
-			} else if strings.HasPrefix(trimmed, "Size") {
+			case strings.HasPrefix(trimmed, "Size"):
 				currentDev.Size = s.extractAdaptecValue(trimmed)
-			} else if strings.HasPrefix(trimmed, "Model") {
+			case strings.HasPrefix(trimmed, "Model"):
 				currentDev.Model = s.extractAdaptecValue(trimmed)
-			} else if strings.HasPrefix(trimmed, "Serial number") || strings.HasPrefix(trimmed, "Serial Number") {
+			case strings.HasPrefix(trimmed, "Serial number"), strings.HasPrefix(trimmed, "Serial Number"):
 				currentDev.Serial = s.extractAdaptecValue(trimmed)
-			} else if strings.HasPrefix(trimmed, "Reported Channel,Device") {
+			case strings.HasPrefix(trimmed, "Reported Channel,Device"):
 				currentDev.Slot = s.extractAdaptecValue(trimmed)
 			}
 		}

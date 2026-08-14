@@ -110,7 +110,7 @@ const columns: any = [
   },
 ]
 
-const { loading, data, page, total, pageSize, pageCount, refresh } = usePagination(
+const { loading, data, page, total, pageSize, refresh } = usePagination(
   (page, pageSize) => backup.list(type.value, page, pageSize),
   {
     initialData: { total: 0, list: [] },
