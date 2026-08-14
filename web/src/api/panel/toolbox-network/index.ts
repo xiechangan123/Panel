@@ -26,14 +26,21 @@ export interface NetworkInterfaceConfig {
   ipv6: NetworkFamilyConfig
 }
 
+// NetworkInterfaceState 网卡当前生效的状态，用于自动获取时回填表单
+export interface NetworkInterfaceState {
+  addresses: string[]
+  gateway: string
+  dns: string[]
+}
+
 export interface NetworkInterface extends Omit<NetworkInterfaceConfig, 'mtu'> {
   type: string
   state: string
   mac: string
   current_mtu: number
   configured_mtu: number
-  current_ipv4: string[]
-  current_ipv6: string[]
+  current_ipv4: NetworkInterfaceState
+  current_ipv6: NetworkInterfaceState
   editable: boolean
   reason: string
 }

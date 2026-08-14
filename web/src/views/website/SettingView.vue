@@ -200,7 +200,7 @@ const handleSaveDefaultSite = () => {
               <n-text depth="3">
                 {{
                   $gettext(
-                    'When enabled, new websites will listen on IPv6 for all configured ports. Existing websites will only add IPv6 port 443 when HTTPS is enabled.',
+                    'When enabled, new websites will listen on IPv6 for all configured ports.',
                   )
                 }}
               </n-text>

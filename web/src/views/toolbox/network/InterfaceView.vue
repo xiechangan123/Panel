@@ -7,6 +7,7 @@ import toolboxNetwork, {
   type NetworkFamilyConfig,
   type NetworkInterface,
   type NetworkInterfaceConfig,
+  type NetworkInterfaceState,
   type NetworkInterfaces,
 } from '@/api/panel/toolbox-network'
 
@@ -177,14 +178,14 @@ const columns = computed<DataTableColumns<NetworkInterface>>(() => [
     title: $gettext('IPv4'),
     key: 'current_ipv4',
     minWidth: 210,
-    render: (row) => row.current_ipv4.join('\n') || '-',
+    render: (row) => row.current_ipv4.addresses.join('\n') || '-',
     className: 'network-addresses',
   },
   {
     title: $gettext('IPv6'),
     key: 'current_ipv6',
     minWidth: 260,
-    render: (row) => row.current_ipv6.join('\n') || '-',
+    render: (row) => row.current_ipv6.addresses.join('\n') || '-',
     className: 'network-addresses',
   },
   {
@@ -245,20 +246,23 @@ const loadInterfaces = () => {
     })
 }
 
+// 自动获取时配置文件里没有这些值，回填当前生效状态，切换为手动时无需另行查询
+const fillFamily = (
+  config: NetworkFamilyConfig,
+  current: NetworkInterfaceState
+): NetworkFamilyConfig => ({
+  ...config,
+  addresses: config.addresses.length ? [...config.addresses] : [...current.addresses],
+  gateway: config.gateway || current.gateway,
+  dns: config.dns.length ? [...config.dns] : [...current.dns]
+})
+
 const openConfig = (item: NetworkInterface) => {
   editing.value = {
     name: item.name,
-    mtu: item.configured_mtu,
-    ipv4: {
-      ...item.ipv4,
-      addresses: [...item.ipv4.addresses],
-      dns: [...item.ipv4.dns],
-    },
-    ipv6: {
-      ...item.ipv6,
-      addresses: [...item.ipv6.addresses],
-      dns: [...item.ipv6.dns],
-    },
+    mtu: item.configured_mtu || item.current_mtu,
+    ipv4: fillFamily(item.ipv4, item.current_ipv4),
+    ipv6: fillFamily(item.ipv6, item.current_ipv6)
   }
   showModal.value = true
 }

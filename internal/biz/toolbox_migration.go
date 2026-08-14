@@ -245,7 +245,13 @@ func (uc *ToolboxMigrationUsecase) Reset() error {
 	if uc.state.step == types.MigrationStepRunning {
 		return errors.New(uc.t.Get("migration is running, cannot reset"))
 	}
-	uc.state = migrationState{step: types.MigrationStepIdle}
+	// 逐字段重置，整体赋值会把持有的锁一并换成零值
+	uc.state.step = types.MigrationStepIdle
+	uc.state.connection = nil
+	uc.state.results = nil
+	uc.state.logs = nil
+	uc.state.startedAt = nil
+	uc.state.endedAt = nil
 	return nil
 }
 

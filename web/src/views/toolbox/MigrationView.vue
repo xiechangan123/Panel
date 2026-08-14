@@ -15,7 +15,6 @@ import migration, {
   type MigrationResult
 } from '@/api/panel/toolbox-migration'
 import ws from '@/api/ws'
-import TheIcon from '@/components/custom/TheIcon.vue'
 
 const { $gettext } = useGettext()
 
@@ -49,23 +48,24 @@ let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 const panels = computed(() => [
   {
     value: 'acepanel' as MigrationPanel,
-    icon: 'solar:server-square-cloud-bold-duotone',
     title: $gettext('AcePanel → AcePanel'),
     description: $gettext('Push websites, databases, users and projects to another AcePanel.')
   },
   {
     value: 'baota' as MigrationPanel,
-    icon: 'mdi:shield-crown-outline',
     title: $gettext('BaoTa → AcePanel'),
     description: $gettext('Pull websites, databases and projects from BT Panel.')
   },
   {
     value: 'onepanel' as MigrationPanel,
-    icon: 'mdi:view-dashboard-variant-outline',
     title: $gettext('1Panel → AcePanel'),
     description: $gettext('Pull websites and databases from 1Panel.')
   }
 ])
+
+const currentDescription = computed(
+  () => panels.value.find((panel) => panel.value === connection.value.source_panel)?.description ?? ''
+)
 
 const isPush = computed(() => connection.value.source_panel === 'acepanel')
 
@@ -455,24 +455,14 @@ watch(
 
     <n-card v-if="step === 0" :title="$gettext('Migration source')">
       <n-flex vertical :size="16">
-        <n-grid :cols="3" :x-gap="12" :y-gap="12" item-responsive responsive="screen">
-          <n-gi v-for="panel in panels" :key="panel.value" span="3 m:1">
-            <n-card
-              hoverable
-              :bordered="connection.source_panel !== panel.value"
-              :class="{ 'border-primary': connection.source_panel === panel.value }"
-              @click="connection.source_panel = panel.value"
-            >
-              <n-flex align="center" :size="12">
-                <the-icon :icon="panel.icon" :size="28" />
-                <n-flex vertical :size="4">
-                  <n-text strong>{{ panel.title }}</n-text>
-                  <n-text depth="3" style="font-size: 12px">{{ panel.description }}</n-text>
-                </n-flex>
-              </n-flex>
-            </n-card>
-          </n-gi>
-        </n-grid>
+        <n-flex vertical :size="8">
+          <n-radio-group v-model:value="connection.source_panel" size="large">
+            <n-radio-button v-for="panel in panels" :key="panel.value" :value="panel.value">
+              {{ panel.title }}
+            </n-radio-button>
+          </n-radio-group>
+          <n-text depth="3">{{ currentDescription }}</n-text>
+        </n-flex>
 
         <n-form label-placement="left" :label-width="120">
           <n-form-item
@@ -515,7 +505,7 @@ watch(
                   'The target AcePanel must have the same database servers and runtimes installed, and its API must allow this server address.'
                 )
               : $gettext(
-                  'The source panel API must be enabled and this server address must be allowed. Websites, databases and projects are migrated; container workloads are not.'
+                  'The source panel API must be enabled and this server address must be allowed. Websites, databases and projects are migrated.'
                 )
           }}
         </n-alert>
@@ -611,9 +601,3 @@ watch(
     </n-card>
   </n-flex>
 </template>
-
-<style scoped lang="scss">
-.border-primary {
-  border: 1px solid var(--primary-color);
-}
-</style>

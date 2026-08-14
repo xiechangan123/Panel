@@ -43,6 +43,13 @@ type Config struct {
 	IPv6 FamilyConfig `json:"ipv6"`
 }
 
+// FamilyState 网卡当前生效的网络状态，自动获取时配置里没有这些值，用于回填表单
+type FamilyState struct {
+	Addresses []string `json:"addresses"`
+	Gateway   string   `json:"gateway"`
+	DNS       []string `json:"dns"`
+}
+
 type Interface struct {
 	Name          string       `json:"name"`
 	Type          string       `json:"type"`
@@ -50,8 +57,8 @@ type Interface struct {
 	MAC           string       `json:"mac"`
 	CurrentMTU    int          `json:"current_mtu"`
 	ConfiguredMTU int          `json:"configured_mtu"`
-	CurrentIPv4   []string     `json:"current_ipv4"`
-	CurrentIPv6   []string     `json:"current_ipv6"`
+	CurrentIPv4   FamilyState  `json:"current_ipv4"`
+	CurrentIPv6   FamilyState  `json:"current_ipv6"`
 	Editable      bool         `json:"editable"`
 	Reason        string       `json:"reason"`
 	IPv4          FamilyConfig `json:"ipv4"`
@@ -77,7 +84,8 @@ type backend interface {
 
 // Service 网卡配置管理，同一时间只允许一个变更处于待确认状态
 type Service struct {
-	mu       sync.Mutex
+	apply    sync.Mutex
+	mu       sync.RWMutex
 	backend  backend
 	rollback func(context.Context) error
 	timer    *time.Timer
@@ -92,9 +100,13 @@ func (s *Service) Interfaces(ctx context.Context) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
+	ipv4Gateways, ipv6Gateways := defaultGateways(ctx, true), defaultGateways(ctx, false)
+	for i := range items {
+		ipv4, ipv6 := currentDNS(ctx, items[i].Name)
+		items[i].CurrentIPv4.Gateway, items[i].CurrentIPv4.DNS = ipv4Gateways[items[i].Name], ipv4
+		items[i].CurrentIPv6.Gateway, items[i].CurrentIPv6.DNS = ipv6Gateways[items[i].Name], ipv6
+	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	current := s.detect(ctx)
 	if current == nil {
 		for i := range items {
@@ -105,7 +117,7 @@ func (s *Service) Interfaces(ctx context.Context) (*Result, error) {
 	if err = current.Load(ctx, items); err != nil {
 		return nil, err
 	}
-	return &Result{Manager: current.Name(), Items: items, Pending: s.rollback != nil}, nil
+	return &Result{Manager: current.Name(), Items: items, Pending: s.pending()}, nil
 }
 
 // Update 应用网卡配置，成功后进入待确认状态，超时未确认自动回滚
@@ -114,9 +126,9 @@ func (s *Service) Update(ctx context.Context, config Config) error {
 		return err
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.rollback != nil {
+	s.apply.Lock()
+	defer s.apply.Unlock()
+	if s.pending() {
 		return fmt.Errorf("%w: a previous change is still waiting for confirmation", ErrValidation)
 	}
 	current := s.detect(ctx)
@@ -149,40 +161,35 @@ func (s *Service) Update(ctx context.Context, config Config) error {
 		return errors.Join(err, rollback(context.WithoutCancel(ctx)))
 	}
 
+	s.mu.Lock()
 	s.rollback = rollback
 	s.timer = time.AfterFunc(ConfirmTimeout, s.expire)
+	s.mu.Unlock()
 	return nil
 }
 
 func (s *Service) Confirm() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.rollback == nil {
+	if s.take() == nil {
 		return fmt.Errorf("%w: no change is waiting for confirmation", ErrValidation)
 	}
-	s.timer.Stop()
-	s.timer, s.rollback = nil, nil
 	return nil
 }
 
 func (s *Service) Rollback(ctx context.Context) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.rollback == nil {
+	s.apply.Lock()
+	defer s.apply.Unlock()
+	rollback := s.take()
+	if rollback == nil {
 		return fmt.Errorf("%w: no change is waiting for confirmation", ErrValidation)
 	}
-	s.timer.Stop()
-	rollback := s.rollback
-	s.timer, s.rollback = nil, nil
 	return rollback(ctx)
 }
 
 // expire 等待确认超时，自动回滚
 func (s *Service) expire() {
-	s.mu.Lock()
-	rollback := s.rollback
-	s.timer, s.rollback = nil, nil
-	s.mu.Unlock()
+	s.apply.Lock()
+	defer s.apply.Unlock()
+	rollback := s.take()
 	if rollback == nil {
 		return
 	}
@@ -191,18 +198,51 @@ func (s *Service) expire() {
 	_ = rollback(ctx)
 }
 
+// pending 是否有变更等待确认
+func (s *Service) pending() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.rollback != nil
+}
+
+// take 取出待确认的回滚函数并清空状态，返回 nil 表示没有待确认变更
+func (s *Service) take() func(context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	rollback := s.rollback
+	if rollback != nil {
+		s.timer.Stop()
+		s.timer, s.rollback = nil, nil
+	}
+	return rollback
+}
+
 // detect 探测网络管理器，结果在进程生命周期内缓存
 func (s *Service) detect(ctx context.Context) backend {
-	if s.backend != nil {
-		return s.backend
+	s.mu.RLock()
+	cached := s.backend
+	s.mu.RUnlock()
+	if cached != nil {
+		return cached
 	}
+
+	var found backend
 	for _, candidate := range []backend{&netplanBackend{}, &networkManagerBackend{}, &ifupdownBackend{}} {
 		if candidate.available(ctx) {
-			s.backend = candidate
-			return candidate
+			found = candidate
+			break
 		}
 	}
-	return nil
+	if found == nil {
+		return nil
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.backend == nil {
+		s.backend = found
+	}
+	return s.backend
 }
 
 // verify 确认配置已在网卡上生效，挡住应用命令返回成功但实际未生效的情况
@@ -317,8 +357,10 @@ func runtimeInterfaces() ([]Interface, error) {
 		ipv4, ipv6 := currentAddresses(current)
 		items = append(items, Interface{
 			Name: current.Name, Type: kind, State: state, MAC: current.HardwareAddr.String(),
-			CurrentMTU: current.MTU, CurrentIPv4: ipv4, CurrentIPv6: ipv6,
-			IPv4: emptyFamily(), IPv6: emptyFamily(),
+			CurrentMTU:  current.MTU,
+			CurrentIPv4: FamilyState{Addresses: ipv4},
+			CurrentIPv6: FamilyState{Addresses: ipv6},
+			IPv4:        emptyFamily(), IPv6: emptyFamily(),
 		})
 	}
 	slices.SortFunc(items, func(a, b Interface) int { return strings.Compare(a.Name, b.Name) })
@@ -377,6 +419,70 @@ func unique(values []string) []string {
 	}
 	slices.Sort(result)
 	return result
+}
+
+// currentDNS 读取网卡当前生效的 DNS，按地址族分开返回。
+// systemd-resolved 按网卡维护 DNS，此时 resolv.conf 内只有本机 stub 地址
+func currentDNS(ctx context.Context, name string) ([]string, []string) {
+	var servers []string
+	if output, err := run(ctx, "resolvectl", "dns", name); err == nil {
+		// 输出形如 Link 2 (ens5): 183.60.83.19 183.60.82.98
+		if _, values, ok := strings.Cut(output, ":"); ok {
+			servers = strings.Fields(values)
+		}
+	} else if content, readErr := os.ReadFile("/etc/resolv.conf"); readErr == nil {
+		for line := range strings.SplitSeq(string(content), "\n") {
+			if fields := strings.Fields(line); len(fields) == 2 && fields[0] == "nameserver" {
+				servers = append(servers, fields[1])
+			}
+		}
+	}
+
+	ipv4, ipv6 := make([]string, 0), make([]string, 0)
+	for _, server := range servers {
+		address, err := netip.ParseAddr(server)
+		// 本机 stub 解析器不是真实上游，回填无意义
+		if err != nil || address.IsLoopback() {
+			continue
+		}
+		if address.Is4() {
+			ipv4 = append(ipv4, server)
+		} else {
+			ipv6 = append(ipv6, server)
+		}
+	}
+	return ipv4, ipv6
+}
+
+// defaultGateways 读取各网卡当前生效的默认网关
+func defaultGateways(ctx context.Context, ipv4 bool) map[string]string {
+	family := "-6"
+	if ipv4 {
+		family = "-4"
+	}
+	output, err := run(ctx, "ip", family, "route", "show", "default")
+	if err != nil {
+		return nil
+	}
+
+	gateways := make(map[string]string)
+	for line := range strings.SplitSeq(output, "\n") {
+		fields := strings.Fields(line)
+		var gateway, device string
+		for i := 0; i+1 < len(fields); i++ {
+			switch fields[i] {
+			case "via":
+				gateway = fields[i+1]
+			case "dev":
+				device = fields[i+1]
+			}
+		}
+		// 同一网卡可能有多条默认路由，取指标最优的第一条
+		if gateway != "" && device != "" && gateways[device] == "" {
+			gateways[device] = gateway
+		}
+	}
+	return gateways
 }
 
 func hasCommand(name string) bool {

@@ -28,12 +28,21 @@ type remoteSetting struct {
 	ProjectPath string `json:"project_path"`
 }
 
-// probeRemote 校验目标面板连通性
+// probeRemote 校验目标面板连通性并读取其版本
 func (uc *ToolboxMigrationUsecase) probeRemote(ctx context.Context, conn *request.ToolboxMigrationConnection) (*types.MigrationSource, error) {
-	if _, err := uc.remote.Request(ctx, conn, "GET", "/api/home/installed_environment", nil); err != nil {
+	body, err := uc.remote.Request(ctx, conn, "GET", "/api/home/system_info", nil)
+	if err != nil {
 		return nil, errors.New(uc.t.Get("failed to connect target server: %v", err))
 	}
-	return &types.MigrationSource{Panel: "acepanel"}, nil
+	var response struct {
+		Data struct {
+			PanelVersion string `json:"panel_version"`
+		} `json:"data"`
+	}
+	if err = json.Unmarshal(body, &response); err != nil {
+		return nil, errors.New(uc.t.Get("failed to connect target server: %v", err))
+	}
+	return &types.MigrationSource{Panel: "acepanel", Version: response.Data.PanelVersion}, nil
 }
 
 // localItems 列出本地可推送到目标面板的资源

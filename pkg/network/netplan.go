@@ -54,8 +54,8 @@ func (b *netplanBackend) Load(ctx context.Context, items []Interface) error {
 		case len(matches) > 1:
 			items[i].Reason = "multiple netplan interface definitions match this interface"
 		default:
-			items[i].IPv4 = b.family(matches[0].definition, true, items[i].CurrentIPv4)
-			items[i].IPv6 = b.family(matches[0].definition, false, items[i].CurrentIPv6)
+			items[i].IPv4 = b.family(matches[0].definition, true, items[i].CurrentIPv4.Addresses)
+			items[i].IPv6 = b.family(matches[0].definition, false, items[i].CurrentIPv6.Addresses)
 			items[i].ConfiguredMTU = valueInt(matches[0].definition["mtu"])
 			items[i].Editable = true
 		}
