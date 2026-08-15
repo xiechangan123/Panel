@@ -42,6 +42,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           ~/go/bin/xgotext -default backend -pkg-tree ./cmd/ace -out ./pkg/embed/locales
           (cd web && pnpm run gettext:extract)
+          # extract 会连带重写译文 po，但它们由 Crowdin 托管且折行格式不同，还原以免格式差异淹没真实翻译
+          find web/src/locales -name '*.po' ! -name 'en.po' -exec git checkout -- {} +
           if [ -z "$(git status --porcelain)" ]; then
             echo "pot 文件无变更，跳过提交"
             exit 0
