@@ -843,7 +843,7 @@ msgstr ""
 msgid "Metric"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:301
+#: internal/biz/toolbox_migration_import.go:338
 msgid "Migrated from %s"
 msgstr ""
 
@@ -905,7 +905,7 @@ msgstr ""
 msgid "Node ID"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:314
+#: internal/biz/toolbox_migration_import.go:351
 msgid "Node.js dependencies were not installed; install dependencies and start the project manually"
 msgstr ""
 
@@ -1317,7 +1317,7 @@ msgstr ""
 msgid "Time synchronized successfully"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:192
+#: internal/data/toolbox_migration_baota.go:248
 msgid "Tomcat projects are not supported for automatic migration"
 msgstr ""
 
@@ -1652,7 +1652,7 @@ msgstr ""
 msgid "a database with the same name already exists on the target server"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:80
+#: internal/biz/toolbox_migration_import.go:84
 msgid "a project with the same name already exists on the target server"
 msgstr ""
 
@@ -1845,7 +1845,7 @@ msgstr ""
 msgid "database export failed: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:138
+#: internal/biz/toolbox_migration_import.go:142
 msgid "database import failed: %v"
 msgstr ""
 
@@ -1907,7 +1907,7 @@ msgstr ""
 msgid "disk write speed"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:395
+#: internal/biz/toolbox_migration.go:401
 msgid "downloading"
 msgstr ""
 
@@ -2000,6 +2000,7 @@ msgstr ""
 msgid "failed to create database on target: %v"
 msgstr ""
 
+#: internal/biz/toolbox_migration_import.go:163
 #: internal/biz/toolbox_migration_push.go:186
 msgid "failed to create database user on target: %v"
 msgstr ""
@@ -2044,7 +2045,7 @@ msgstr ""
 msgid "failed to create project on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:384
+#: internal/biz/toolbox_migration.go:390
 msgid "failed to create source backup: %v"
 msgstr ""
 
@@ -2084,7 +2085,7 @@ msgstr ""
 msgid "failed to disable %s service: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:396
+#: internal/biz/toolbox_migration.go:402
 msgid "failed to download source backup: %v"
 msgstr ""
 
@@ -2922,7 +2923,8 @@ msgstr ""
 msgid "no SSH log entries found"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:101
+#: internal/biz/toolbox_migration_import.go:105
+#: internal/biz/toolbox_migration_import.go:156
 msgid "no compatible database server is installed on the target"
 msgstr ""
 
@@ -3072,7 +3074,7 @@ msgstr ""
 msgid "please cancel the task first"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:456
+#: internal/biz/toolbox_migration.go:462
 msgid "please connect to the source server first"
 msgstr ""
 
@@ -3151,10 +3153,12 @@ msgstr ""
 msgid "renewing certificate, domains: %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:439
-#: internal/data/toolbox_migration_baota.go:485
-#: internal/data/toolbox_migration_baota.go:503
-#: internal/data/toolbox_migration_onepanel.go:371
+#: internal/biz/toolbox_migration.go:445
+#: internal/data/toolbox_migration_baota.go:190
+#: internal/data/toolbox_migration_baota.go:543
+#: internal/data/toolbox_migration_baota.go:561
+#: internal/data/toolbox_migration_onepanel.go:166
+#: internal/data/toolbox_migration_onepanel.go:435
 msgid "resource no longer exists on the source server"
 msgstr ""
 
@@ -3343,13 +3347,14 @@ msgstr ""
 msgid "the current version is the latest version"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:122
+#: internal/biz/toolbox_migration_import.go:126
 msgid "the database was imported but the source password was unavailable; reset the database user password and update the website configuration manually"
 msgstr ""
 
 #: internal/biz/toolbox_migration_import.go:40
 #: internal/biz/toolbox_migration_import.go:62
-#: internal/biz/toolbox_migration_import.go:77
+#: internal/biz/toolbox_migration_import.go:76
+#: internal/biz/toolbox_migration_import.go:81
 msgid "the name contains characters not allowed by AcePanel"
 msgstr ""
 
@@ -3357,59 +3362,59 @@ msgstr ""
 msgid "the name is reserved by AcePanel"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:337
+#: internal/biz/toolbox_migration_import.go:374
 msgid "the project was migrated, but its reverse proxy website already exists on the target"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:347
+#: internal/biz/toolbox_migration_import.go:384
 msgid "the project was migrated, but its reverse proxy website could not be created: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:320
+#: internal/biz/toolbox_migration_import.go:357
 msgid "the project was not started; start it manually"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:108
+#: internal/biz/toolbox_migration_import.go:112
 msgid "the source PostgreSQL major version is newer than the target version"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:316
+#: internal/biz/toolbox_migration_import.go:353
 msgid "the source Python virtual environment was not migrated; create an environment, install dependencies, and start the project manually"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:693
-#: internal/data/toolbox_migration_baota.go:760
-#: internal/data/toolbox_migration_onepanel.go:445
+#: internal/data/toolbox_migration_baota.go:751
+#: internal/data/toolbox_migration_baota.go:818
+#: internal/data/toolbox_migration_onepanel.go:509
 msgid "the source backup did not finish in time"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:127
+#: internal/biz/toolbox_migration_import.go:131
 msgid "the source is MariaDB and the target is MySQL"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:722
+#: internal/data/toolbox_migration_baota.go:780
 msgid "the source path is empty"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:277
-#: internal/data/toolbox_migration_baota.go:520
+#: internal/biz/toolbox_migration_import.go:314
+#: internal/data/toolbox_migration_baota.go:578
 msgid "the source project start command is missing"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:177
+#: internal/biz/toolbox_migration_import.go:214
 msgid "the source reverse proxy target could not be determined"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:750
-#: internal/data/toolbox_migration_onepanel.go:434
+#: internal/data/toolbox_migration_baota.go:808
+#: internal/data/toolbox_migration_onepanel.go:498
 msgid "the source task failed"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:251
+#: internal/biz/toolbox_migration_import.go:288
 msgid "the source uses PHP %d, the target does not have it installed, PHP %d was used instead"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:292
+#: internal/biz/toolbox_migration_import.go:329
 msgid "the target project directory is not empty"
 msgstr ""
 
@@ -3417,20 +3422,20 @@ msgstr ""
 msgid "the target server does not have a compatible %s database server"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:281
-#: internal/biz/toolbox_migration_import.go:83
+#: internal/biz/toolbox_migration_import.go:318
+#: internal/biz/toolbox_migration_import.go:87
 msgid "the target server does not have a compatible %s runtime for version %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:426
+#: internal/biz/toolbox_migration_import.go:463
 msgid "the target server does not have user %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:232
+#: internal/biz/toolbox_migration_import.go:269
 msgid "the target server has no PHP installed, the website was created without PHP"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:148
+#: internal/biz/toolbox_migration_import.go:185
 msgid "the target website directory is not empty"
 msgstr ""
 
@@ -3481,8 +3486,8 @@ msgstr ""
 msgid "uncompressed backup is empty, restore aborted"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:283
-#: internal/biz/toolbox_migration_import.go:85
+#: internal/biz/toolbox_migration_import.go:320
+#: internal/biz/toolbox_migration_import.go:89
 #: internal/service/cli.go:88
 msgid "unknown"
 msgstr ""
@@ -3527,12 +3532,12 @@ msgstr ""
 msgid "unsupported filesystem type: %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:408
+#: internal/biz/toolbox_migration.go:414
 #: internal/biz/toolbox_migration_push.go:119
-#: internal/data/toolbox_migration_baota.go:240
-#: internal/data/toolbox_migration_baota.go:660
-#: internal/data/toolbox_migration_onepanel.go:192
-#: internal/data/toolbox_migration_onepanel.go:398
+#: internal/data/toolbox_migration_baota.go:298
+#: internal/data/toolbox_migration_baota.go:718
+#: internal/data/toolbox_migration_onepanel.go:256
+#: internal/data/toolbox_migration_onepanel.go:462
 msgid "unsupported migration resource type: %s"
 msgstr ""
 
@@ -3602,7 +3607,7 @@ msgstr ""
 msgid "website backup failed: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:211
+#: internal/biz/toolbox_migration_import.go:248
 msgid "website configuration import failed: %v"
 msgstr ""
 
@@ -3622,7 +3627,7 @@ msgstr ""
 msgid "website expiry"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:187
+#: internal/biz/toolbox_migration_import.go:224
 msgid "website file import failed: %v"
 msgstr ""
 
