@@ -26,6 +26,53 @@ func (_m *CertRepo) EXPECT() *CertRepo_Expecter {
 	return &CertRepo_Expecter{mock: &_m.Mock}
 }
 
+// BindWebsites provides a mock function with given fields: certID, websiteIDs
+func (_m *CertRepo) BindWebsites(certID uint, websiteIDs []uint) error {
+	ret := _m.Called(certID, websiteIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for BindWebsites")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, []uint) error); ok {
+		r0 = rf(certID, websiteIDs)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CertRepo_BindWebsites_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'BindWebsites'
+type CertRepo_BindWebsites_Call struct {
+	*mock.Call
+}
+
+// BindWebsites is a helper method to define mock.On call
+//   - certID uint
+//   - websiteIDs []uint
+func (_e *CertRepo_Expecter) BindWebsites(certID interface{}, websiteIDs interface{}) *CertRepo_BindWebsites_Call {
+	return &CertRepo_BindWebsites_Call{Call: _e.mock.On("BindWebsites", certID, websiteIDs)}
+}
+
+func (_c *CertRepo_BindWebsites_Call) Run(run func(certID uint, websiteIDs []uint)) *CertRepo_BindWebsites_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(uint), args[1].([]uint))
+	})
+	return _c
+}
+
+func (_c *CertRepo_BindWebsites_Call) Return(_a0 error) *CertRepo_BindWebsites_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CertRepo_BindWebsites_Call) RunAndReturn(run func(uint, []uint) error) *CertRepo_BindWebsites_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Create provides a mock function with given fields: req
 func (_m *CertRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 	ret := _m.Called(req)
@@ -468,6 +515,67 @@ func (_c *CertRepo_GetClient_Call) RunAndReturn(run func(*biz.Cert) (*acme.Clien
 	return _c
 }
 
+// HTTPConfs provides a mock function with given fields: cert, webServer
+func (_m *CertRepo) HTTPConfs(cert *biz.Cert, webServer string) (map[string]string, []string) {
+	ret := _m.Called(cert, webServer)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HTTPConfs")
+	}
+
+	var r0 map[string]string
+	var r1 []string
+	if rf, ok := ret.Get(0).(func(*biz.Cert, string) (map[string]string, []string)); ok {
+		return rf(cert, webServer)
+	}
+	if rf, ok := ret.Get(0).(func(*biz.Cert, string) map[string]string); ok {
+		r0 = rf(cert, webServer)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*biz.Cert, string) []string); ok {
+		r1 = rf(cert, webServer)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]string)
+		}
+	}
+
+	return r0, r1
+}
+
+// CertRepo_HTTPConfs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HTTPConfs'
+type CertRepo_HTTPConfs_Call struct {
+	*mock.Call
+}
+
+// HTTPConfs is a helper method to define mock.On call
+//   - cert *biz.Cert
+//   - webServer string
+func (_e *CertRepo_Expecter) HTTPConfs(cert interface{}, webServer interface{}) *CertRepo_HTTPConfs_Call {
+	return &CertRepo_HTTPConfs_Call{Call: _e.mock.On("HTTPConfs", cert, webServer)}
+}
+
+func (_c *CertRepo_HTTPConfs_Call) Run(run func(cert *biz.Cert, webServer string)) *CertRepo_HTTPConfs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*biz.Cert), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *CertRepo_HTTPConfs_Call) Return(_a0 map[string]string, _a1 []string) *CertRepo_HTTPConfs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *CertRepo_HTTPConfs_Call) RunAndReturn(run func(*biz.Cert, string) (map[string]string, []string)) *CertRepo_HTTPConfs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // List provides a mock function with given fields: page, limit
 func (_m *CertRepo) List(page uint, limit uint) ([]*types.CertList, int64, error) {
 	ret := _m.Called(page, limit)
@@ -534,29 +642,29 @@ func (_c *CertRepo_List_Call) RunAndReturn(run func(uint, uint) ([]*types.CertLi
 	return _c
 }
 
-// LoadWebsite provides a mock function with given fields: WebsiteID
-func (_m *CertRepo) LoadWebsite(WebsiteID uint) (*biz.Website, error) {
-	ret := _m.Called(WebsiteID)
+// LoadWebsites provides a mock function with given fields: websiteIDs
+func (_m *CertRepo) LoadWebsites(websiteIDs []uint) ([]*biz.Website, error) {
+	ret := _m.Called(websiteIDs)
 
 	if len(ret) == 0 {
-		panic("no return value specified for LoadWebsite")
+		panic("no return value specified for LoadWebsites")
 	}
 
-	var r0 *biz.Website
+	var r0 []*biz.Website
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) (*biz.Website, error)); ok {
-		return rf(WebsiteID)
+	if rf, ok := ret.Get(0).(func([]uint) ([]*biz.Website, error)); ok {
+		return rf(websiteIDs)
 	}
-	if rf, ok := ret.Get(0).(func(uint) *biz.Website); ok {
-		r0 = rf(WebsiteID)
+	if rf, ok := ret.Get(0).(func([]uint) []*biz.Website); ok {
+		r0 = rf(websiteIDs)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*biz.Website)
+			r0 = ret.Get(0).([]*biz.Website)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(WebsiteID)
+	if rf, ok := ret.Get(1).(func([]uint) error); ok {
+		r1 = rf(websiteIDs)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -564,30 +672,30 @@ func (_m *CertRepo) LoadWebsite(WebsiteID uint) (*biz.Website, error) {
 	return r0, r1
 }
 
-// CertRepo_LoadWebsite_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LoadWebsite'
-type CertRepo_LoadWebsite_Call struct {
+// CertRepo_LoadWebsites_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LoadWebsites'
+type CertRepo_LoadWebsites_Call struct {
 	*mock.Call
 }
 
-// LoadWebsite is a helper method to define mock.On call
-//   - WebsiteID uint
-func (_e *CertRepo_Expecter) LoadWebsite(WebsiteID interface{}) *CertRepo_LoadWebsite_Call {
-	return &CertRepo_LoadWebsite_Call{Call: _e.mock.On("LoadWebsite", WebsiteID)}
+// LoadWebsites is a helper method to define mock.On call
+//   - websiteIDs []uint
+func (_e *CertRepo_Expecter) LoadWebsites(websiteIDs interface{}) *CertRepo_LoadWebsites_Call {
+	return &CertRepo_LoadWebsites_Call{Call: _e.mock.On("LoadWebsites", websiteIDs)}
 }
 
-func (_c *CertRepo_LoadWebsite_Call) Run(run func(WebsiteID uint)) *CertRepo_LoadWebsite_Call {
+func (_c *CertRepo_LoadWebsites_Call) Run(run func(websiteIDs []uint)) *CertRepo_LoadWebsites_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint))
+		run(args[0].([]uint))
 	})
 	return _c
 }
 
-func (_c *CertRepo_LoadWebsite_Call) Return(_a0 *biz.Website, _a1 error) *CertRepo_LoadWebsite_Call {
+func (_c *CertRepo_LoadWebsites_Call) Return(_a0 []*biz.Website, _a1 error) *CertRepo_LoadWebsites_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *CertRepo_LoadWebsite_Call) RunAndReturn(run func(uint) (*biz.Website, error)) *CertRepo_LoadWebsite_Call {
+func (_c *CertRepo_LoadWebsites_Call) RunAndReturn(run func([]uint) ([]*biz.Website, error)) *CertRepo_LoadWebsites_Call {
 	_c.Call.Return(run)
 	return _c
 }
