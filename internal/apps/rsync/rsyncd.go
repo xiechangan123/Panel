@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 
 	"github.com/samber/lo"
@@ -15,10 +14,7 @@ import (
 
 const (
 	rsyncdConf = "/etc/rsyncd.conf"
-	// rsyncdDir rsyncd 原生的 include 目录，只会读取其中的 *.conf
-	rsyncdDir = "/etc/rsyncd.d"
-	// includeDirective 指令必须落在全局段内，即首个 [module] 之前
-	includeDirective = "&include " + rsyncdDir
+	rsyncdDir  = "/etc/rsyncd.d"
 )
 
 func modulePath(name string) string {
@@ -28,31 +24,6 @@ func modulePath(name string) string {
 // secretsPath 一个模块独立的密钥文件，.secrets 后缀不会被 rsyncd 当作模块读入
 func secretsPath(name string) string {
 	return filepath.Join(rsyncdDir, name+".secrets")
-}
-
-// ensureInclude 保证 rsyncd.d 目录存在且被 rsyncd.conf 的全局段引用
-func ensureInclude() error {
-	// io.Write 拿文件权限当目录权限，这里要显式建目录才有 x 位
-	if err := os.MkdirAll(rsyncdDir, 0755); err != nil {
-		return err
-	}
-
-	config, err := io.Read(rsyncdConf)
-	if err != nil {
-		return err
-	}
-	if strings.Contains(config, includeDirective) {
-		return nil
-	}
-
-	// 插到首个 [module] 之前，否则会继承上一个模块的参数而非全局默认值
-	raws := strings.Split(config, "\n")
-	idx := slices.IndexFunc(raws, func(raw string) bool { return strings.HasPrefix(strings.TrimSpace(raw), "[") })
-	if idx < 0 {
-		idx = len(raws)
-	}
-
-	return io.Write(rsyncdConf, strings.Join(slices.Insert(raws, idx, includeDirective), "\n"), 0644)
 }
 
 func readModule(name string) (Module, error) {
@@ -96,7 +67,7 @@ func listModules() ([]Module, error) {
 }
 
 func writeModule(module Module) error {
-	if err := ensureInclude(); err != nil {
+	if err := os.MkdirAll(rsyncdDir, 0755); err != nil {
 		return err
 	}
 

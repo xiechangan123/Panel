@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/samber/lo"
 	"github.com/spf13/cast"
 )
 
@@ -102,12 +101,6 @@ func formatTOML(value any) string {
 		return strconv.Quote(v)
 	case bool:
 		return strconv.FormatBool(v)
-	case []string:
-		if len(v) == 0 {
-			return ""
-		}
-		quoted := lo.Map(v, func(item string, _ int) string { return strconv.Quote(item) })
-		return "[" + strings.Join(quoted, ", ") + "]"
 	default:
 		return cast.ToString(v)
 	}

@@ -71,9 +71,8 @@ func (s *TOMLTestSuite) TestSetReenablesCommented() {
 	s.Equal("maxPortsPerClient = 5", SetTOML("# maxPortsPerClient = 0", "maxPortsPerClient", 5))
 }
 
-func (s *TOMLTestSuite) TestSetBoolAndArray() {
+func (s *TOMLTestSuite) TestSetBool() {
 	s.Equal("bindPort = 7000\ntransport.tls.force = true", SetTOML("bindPort = 7000", "transport.tls.force", true))
-	s.Equal("bindPort = 7000\nincludes = [\"/opt/ace/server/frp/conf.d/*.toml\"]", SetTOML("bindPort = 7000", "includes", []string{"/opt/ace/server/frp/conf.d/*.toml"}))
 }
 
 func (s *TOMLTestSuite) TestSetDoesNotTouchProxyBlock() {
