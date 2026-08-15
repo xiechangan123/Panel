@@ -15,7 +15,7 @@ msgstr ""
 msgid "%s does not support database comment"
 msgstr ""
 
-#: internal/biz/alert.go:774
+#: internal/biz/alert.go:869
 msgid "%s is %s, %s threshold %s"
 msgstr ""
 
@@ -23,11 +23,11 @@ msgstr ""
 msgid ".NET-%s is not installed"
 msgstr ""
 
-#: internal/biz/alert.go:787
+#: internal/biz/alert.go:882
 msgid "1 minute load"
 msgstr ""
 
-#: internal/biz/alert.go:791
+#: internal/biz/alert.go:886
 msgid "15 minutes load"
 msgstr ""
 
@@ -39,11 +39,11 @@ msgstr ""
 msgid "2FA url: %s"
 msgstr ""
 
-#: internal/biz/alert.go:789
+#: internal/biz/alert.go:884
 msgid "5 minutes load"
 msgstr ""
 
-#: internal/service/environment_php.go:386
+#: internal/service/environment_php.go:388
 msgid "APCu is a user-level cache for PHP, providing fast in-memory key-value storage"
 msgstr ""
 
@@ -51,11 +51,11 @@ msgstr ""
 msgid "AUTHOR"
 msgstr ""
 
-#: internal/service/environment_php.go:184
+#: internal/service/environment_php.go:186
 msgid "Accepted Connections"
 msgstr ""
 
-#: internal/service/home.go:70
+#: internal/service/home.go:71
 msgid "AcePanel"
 msgstr ""
 
@@ -79,25 +79,25 @@ msgstr ""
 msgid "AcePanel service stopped"
 msgstr ""
 
-#: internal/apps/mysql/app.go:127
+#: internal/apps/mysql/app.go:118
 msgid "Active Connections"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:87
+#: internal/apps/opensearch/app.go:88
+msgid "Active Primary Shards"
+msgstr ""
+
+#: internal/service/environment_php.go:191
+msgid "Active Processes"
+msgstr ""
+
+#: internal/apps/clickhouse/app.go:100
+msgid "Active Queries"
 msgstr ""
 
 #: internal/apps/elasticsearch/app.go:86
 #: internal/apps/opensearch/app.go:87
-msgid "Active Primary Shards"
-msgstr ""
-
-#: internal/service/environment_php.go:189
-msgid "Active Processes"
-msgstr ""
-
-#: internal/apps/clickhouse/app.go:98
-msgid "Active Queries"
-msgstr ""
-
-#: internal/apps/elasticsearch/app.go:85
-#: internal/apps/opensearch/app.go:86
 msgid "Active Shards"
 msgstr ""
 
@@ -145,19 +145,19 @@ msgstr ""
 msgid "App update failed: %v"
 msgstr ""
 
-#: internal/service/environment_php.go:181
+#: internal/service/environment_php.go:183
 msgid "Application Pool"
 msgstr ""
 
-#: internal/data/backup.go:1767
+#: internal/data/backup.go:1838
 msgid "Applying update failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:1765
+#: internal/data/backup.go:1836
 msgid "Applying update..."
 msgstr ""
 
-#: internal/data/backup.go:1729
+#: internal/data/backup.go:1800
 msgid "Backing up panel data..."
 msgstr ""
 
@@ -197,13 +197,13 @@ msgstr ""
 msgid "Busy Workers"
 msgstr ""
 
-#: internal/apps/mysql/app.go:126
-#: internal/apps/mysql/app.go:145
+#: internal/apps/mysql/app.go:117
+#: internal/apps/mysql/app.go:136
 msgid "Bytes Received"
 msgstr ""
 
-#: internal/apps/mysql/app.go:125
-#: internal/apps/mysql/app.go:145
+#: internal/apps/mysql/app.go:116
+#: internal/apps/mysql/app.go:136
 msgid "Bytes Sent"
 msgstr ""
 
@@ -211,7 +211,7 @@ msgstr ""
 msgid "Bytes/sec"
 msgstr ""
 
-#: internal/service/environment_php.go:431
+#: internal/service/environment_php.go:433
 msgid "Bzip2 is a library for compressing and decompressing files"
 msgstr ""
 
@@ -228,11 +228,11 @@ msgstr ""
 msgid "COPYRIGHT"
 msgstr ""
 
-#: internal/biz/alert.go:781
+#: internal/biz/alert.go:876
 msgid "CPU usage"
 msgstr ""
 
-#: internal/service/environment_php.go:471
+#: internal/service/environment_php.go:473
 msgid "Calendar is a library for handling dates"
 msgstr ""
 
@@ -240,7 +240,7 @@ msgstr ""
 msgid "Certificate"
 msgstr ""
 
-#: internal/biz/notify.go:189
+#: internal/biz/notify.go:190
 msgid "Channel"
 msgstr ""
 
@@ -249,12 +249,12 @@ msgstr ""
 msgid "Cleaning failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:1620
+#: internal/data/backup.go:1691
 msgid "Cleaning temporary directory failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:423
-#: internal/data/backup.go:484
+#: internal/data/backup.go:424
+#: internal/data/backup.go:485
 msgid "Cleanup failed: %v"
 msgstr ""
 
@@ -266,31 +266,29 @@ msgstr ""
 msgid "CloudFlare"
 msgstr ""
 
-#: internal/apps/elasticsearch/app.go:81
-#: internal/apps/opensearch/app.go:82
+#: internal/apps/elasticsearch/app.go:82
+#: internal/apps/opensearch/app.go:83
 msgid "Cluster Name"
 msgstr ""
 
-#: internal/apps/elasticsearch/app.go:82
-#: internal/apps/opensearch/app.go:83
+#: internal/apps/elasticsearch/app.go:83
+#: internal/apps/opensearch/app.go:84
 msgid "Cluster Status"
 msgstr ""
 
-#: internal/apps/redis/app.go:97
-#: internal/apps/valkey/app.go:97
+#: internal/apps/redis/app.go:105
 msgid "Commands Per Second"
 msgstr ""
 
-#: internal/service/file.go:590
+#: internal/service/file.go:591
 msgid "Compress %v"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:101
+#: internal/apps/prometheus/app.go:102
 msgid "Config Reload Success"
 msgstr ""
 
-#: internal/apps/redis/app.go:90
-#: internal/apps/valkey/app.go:90
+#: internal/apps/redis/app.go:98
 msgid "Connected Clients"
 msgstr ""
 
@@ -298,7 +296,7 @@ msgstr ""
 msgid "Container %s has no log file"
 msgstr ""
 
-#: internal/biz/tamper.go:306
+#: internal/biz/tamper.go:307
 msgid "Count"
 msgstr ""
 
@@ -310,7 +308,7 @@ msgstr ""
 msgid "Current Connections"
 msgstr ""
 
-#: internal/biz/alert.go:367
+#: internal/biz/alert.go:387
 msgid "Current Value"
 msgstr ""
 
@@ -323,7 +321,7 @@ msgstr ""
 msgid "Data synchronized successfully"
 msgstr ""
 
-#: internal/apps/grafana/app.go:88
+#: internal/apps/grafana/app.go:89
 msgid "Database"
 msgstr ""
 
@@ -335,7 +333,7 @@ msgstr ""
 msgid "Database server %s deleted successfully"
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:100
+#: internal/apps/clickhouse/app.go:102
 msgid "Databases"
 msgstr ""
 
@@ -343,7 +341,7 @@ msgstr ""
 msgid "Delete Operations"
 msgstr ""
 
-#: internal/biz/alert.go:623
+#: internal/biz/alert.go:647
 msgid "Detail"
 msgstr ""
 
@@ -355,28 +353,28 @@ msgstr ""
 msgid "Download URL is empty"
 msgstr ""
 
-#: internal/data/backup.go:1740
-#: internal/data/backup.go:1743
+#: internal/data/backup.go:1811
+#: internal/data/backup.go:1814
 msgid "Download failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:1746
+#: internal/data/backup.go:1817
 msgid "Download file check failed"
 msgstr ""
 
-#: internal/service/file.go:460
+#: internal/service/file.go:461
 msgid "Download remote file %v"
 msgstr ""
 
-#: internal/data/backup.go:1738
+#: internal/data/backup.go:1809
 msgid "Downloading new version..."
 msgstr ""
 
-#: internal/apps/prometheus/app.go:411
+#: internal/apps/prometheus/app.go:395
 msgid "Elasticsearch metrics"
 msgstr ""
 
-#: internal/service/environment_php.go:461
+#: internal/service/environment_php.go:463
 msgid "Enchant is a spell-checking library"
 msgstr ""
 
@@ -399,11 +397,11 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: internal/service/environment_php.go:441
+#: internal/service/environment_php.go:443
 msgid "Event is a library for handling events"
 msgstr ""
 
-#: internal/service/environment_php.go:396
+#: internal/service/environment_php.go:398
 msgid "Exif is a library for reading and writing image metadata"
 msgstr ""
 
@@ -415,11 +413,11 @@ msgstr ""
 msgid "Expire Time"
 msgstr ""
 
-#: internal/data/backup.go:1756
+#: internal/data/backup.go:1827
 msgid "Extracting new version..."
 msgstr ""
 
-#: internal/biz/alert.go:697
+#: internal/biz/alert.go:711
 #: internal/service/user.go:200
 msgid "Failed Attempts"
 msgstr ""
@@ -436,7 +434,7 @@ msgstr ""
 msgid "Failed to change username: %v"
 msgstr ""
 
-#: internal/data/backup.go:1722
+#: internal/data/backup.go:1793
 msgid "Failed to clean up temporary directory: %v"
 msgstr ""
 
@@ -448,7 +446,7 @@ msgstr ""
 msgid "Failed to clear tasks: %v"
 msgstr ""
 
-#: internal/data/backup.go:1736
+#: internal/data/backup.go:1807
 msgid "Failed to create temporary directory: %v"
 msgstr ""
 
@@ -521,7 +519,7 @@ msgstr ""
 msgid "Failed to obtain panel certificate via ACME, using self-signed certificate"
 msgstr ""
 
-#: internal/data/backup.go:1725
+#: internal/data/backup.go:1796
 msgid "Failed to optimize database: %v"
 msgstr ""
 
@@ -529,7 +527,7 @@ msgstr ""
 msgid "Failed to read input: %v"
 msgstr ""
 
-#: internal/data/backup.go:1571
+#: internal/data/backup.go:1642
 msgid "Failed to remove %s.db: %v"
 msgstr ""
 
@@ -546,7 +544,7 @@ msgstr ""
 msgid "Failed to save user info: %v"
 msgstr ""
 
-#: internal/service/ws.go:202
+#: internal/service/ws.go:203
 msgid "Failed to start command: %v"
 msgstr ""
 
@@ -564,19 +562,19 @@ msgstr ""
 msgid "Failed to update 2FA: %v"
 msgstr ""
 
-#: internal/service/environment_php.go:361
+#: internal/service/environment_php.go:363
 msgid "Fileinfo is a library used to identify file types"
 msgstr ""
 
-#: internal/data/backup.go:1561
+#: internal/data/backup.go:1632
 msgid "Files are normal and do not need to be repaired, please run acepanel update to update the panel"
 msgstr ""
 
-#: internal/data/backup.go:1771
+#: internal/data/backup.go:1842
 msgid "Finishing up..."
 msgstr ""
 
-#: internal/data/backup.go:1773
+#: internal/data/backup.go:1844
 msgid "Finishing update failed: %v"
 msgstr ""
 
@@ -588,11 +586,11 @@ msgstr ""
 msgid "Forum：https://tom.moe"
 msgstr ""
 
-#: internal/apps/mysql/app.go:133
+#: internal/apps/mysql/app.go:124
 msgid "Full Joins without Index"
 msgstr ""
 
-#: internal/apps/mysql/app.go:134
+#: internal/apps/mysql/app.go:125
 msgid "Full Range Joins without Index"
 msgstr ""
 
@@ -600,7 +598,7 @@ msgstr ""
 msgid "GLOBAL OPTIONS"
 msgstr ""
 
-#: internal/service/environment_php.go:476
+#: internal/service/environment_php.go:478
 msgid "GMP is a library for handling large integers"
 msgstr ""
 
@@ -608,7 +606,7 @@ msgstr ""
 msgid "Gcore"
 msgstr ""
 
-#: internal/service/environment_php.go:496
+#: internal/service/environment_php.go:498
 msgid "Gettext is a library for handling multilingual support"
 msgstr ""
 
@@ -618,7 +616,7 @@ msgstr ""
 msgid "Go-%s is not installed"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:99
+#: internal/apps/prometheus/app.go:100
 msgid "Goroutine Count"
 msgstr ""
 
@@ -634,7 +632,7 @@ msgstr ""
 msgid "HTTPS enabled"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:406
+#: internal/apps/prometheus/app.go:390
 msgid "Hardware and OS metrics"
 msgstr ""
 
@@ -646,19 +644,19 @@ msgstr ""
 msgid "ID: %d, Username: %s, Email: %s, Created At: %s"
 msgstr ""
 
-#: internal/service/environment_php.go:421
+#: internal/service/environment_php.go:423
 msgid "IMAP module allows PHP to read, search, delete, download, and manage emails"
 msgstr ""
 
-#: internal/biz/alert.go:682
 #: internal/biz/alert.go:696
+#: internal/biz/alert.go:710
 #: internal/service/user.go:180
 #: internal/service/user.go:198
 #: internal/service/user_passkey.go:303
 msgid "IP"
 msgstr ""
 
-#: internal/service/environment_php.go:188
+#: internal/service/environment_php.go:190
 msgid "Idle Processes"
 msgstr ""
 
@@ -674,15 +672,15 @@ msgstr ""
 msgid "If you still cannot access, try running `acepanel https off` to turn off panel HTTPS"
 msgstr ""
 
-#: internal/service/environment_php.go:371
+#: internal/service/environment_php.go:373
 msgid "Igbinary is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:391
+#: internal/service/environment_php.go:393
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
-#: internal/apps/mysql/app.go:129
+#: internal/apps/mysql/app.go:120
 msgid "Index Hit Rate"
 msgstr ""
 
@@ -693,7 +691,7 @@ msgstr ""
 msgid "Initialization failed: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:130
+#: internal/apps/mysql/app.go:121
 msgid "Innodb Index Hit Rate"
 msgstr ""
 
@@ -701,15 +699,15 @@ msgstr ""
 msgid "Insert Operations"
 msgstr ""
 
-#: internal/service/environment_php.go:310
+#: internal/service/environment_php.go:312
 msgid "Install PHP-%d %s module"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:264
+#: internal/apps/prometheus/app.go:248
 msgid "Install Prometheus exporter %s"
 msgstr ""
 
-#: internal/biz/app.go:216
+#: internal/biz/app.go:219
 msgid "Install app %s"
 msgstr ""
 
@@ -717,11 +715,11 @@ msgstr ""
 msgid "Install environment %s"
 msgstr ""
 
-#: internal/service/environment_php.go:491
+#: internal/service/environment_php.go:493
 msgid "Intl is a library for handling internationalization and localization"
 msgstr ""
 
-#: internal/biz/alert.go:621
+#: internal/biz/alert.go:645
 msgid "Item"
 msgstr ""
 
@@ -733,30 +731,27 @@ msgstr ""
 msgid "Journal logs"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:414
+#: internal/apps/prometheus/app.go:398
 msgid "Kafka metrics"
 msgstr ""
 
-#: internal/apps/redis/app.go:98
-#: internal/apps/valkey/app.go:98
+#: internal/apps/redis/app.go:106
 msgid "Keyspace Hits"
 msgstr ""
 
-#: internal/apps/redis/app.go:99
-#: internal/apps/valkey/app.go:99
+#: internal/apps/redis/app.go:107
 msgid "Keyspace Misses"
 msgstr ""
 
-#: internal/service/environment_php.go:456
+#: internal/service/environment_php.go:458
 msgid "LDAP is a protocol for accessing directory services"
 msgstr ""
 
-#: internal/apps/redis/app.go:100
-#: internal/apps/valkey/app.go:100
+#: internal/apps/redis/app.go:108
 msgid "Latest Fork Time (ms)"
 msgstr ""
 
-#: internal/biz/alert.go:622
+#: internal/biz/alert.go:646
 msgid "Level"
 msgstr ""
 
@@ -764,15 +759,15 @@ msgstr ""
 msgid "Listen Port"
 msgstr ""
 
-#: internal/service/environment_php.go:185
+#: internal/service/environment_php.go:187
 msgid "Listen Queue"
 msgstr ""
 
-#: internal/service/environment_php.go:187
+#: internal/service/environment_php.go:189
 msgid "Listen Queue Length"
 msgstr ""
 
-#: internal/apps/kafka/app.go:55
+#: internal/apps/kafka/app.go:56
 msgid "Listeners"
 msgstr ""
 
@@ -785,7 +780,7 @@ msgid "Local IPv6: %s://[%s]:%d%s"
 msgstr ""
 
 #: internal/biz/backup_storage.go:187
-#: internal/data/backup.go:112
+#: internal/data/backup.go:113
 msgid "Local Storage"
 msgstr ""
 
@@ -794,35 +789,35 @@ msgstr ""
 msgid "Log"
 msgstr ""
 
-#: internal/apps/kafka/app.go:56
+#: internal/apps/kafka/app.go:57
 msgid "Log Dirs"
 msgstr ""
 
-#: internal/apps/kafka/app.go:58
+#: internal/apps/kafka/app.go:59
 msgid "Log Retention Hours"
 msgstr ""
 
-#: internal/apps/kafka/app.go:59
+#: internal/apps/kafka/app.go:60
 msgid "Log Segment Bytes"
 msgstr ""
 
-#: internal/service/environment_php.go:191
+#: internal/service/environment_php.go:193
 msgid "Max Active Processes"
 msgstr ""
 
-#: internal/service/environment_php.go:192
+#: internal/service/environment_php.go:194
 msgid "Max Children Reached"
 msgstr ""
 
-#: internal/service/environment_php.go:186
+#: internal/service/environment_php.go:188
 msgid "Max Listen Queue"
 msgstr ""
 
-#: internal/service/environment_php.go:381
+#: internal/service/environment_php.go:383
 msgid "Memcached is a driver for connecting to Memcached servers"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:413
+#: internal/apps/prometheus/app.go:397
 msgid "Memcached metrics"
 msgstr ""
 
@@ -831,49 +826,48 @@ msgstr ""
 msgid "Memory"
 msgstr ""
 
-#: internal/apps/redis/app.go:94
-#: internal/apps/valkey/app.go:94
+#: internal/apps/redis/app.go:102
 msgid "Memory Fragmentation Ratio"
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:99
+#: internal/apps/clickhouse/app.go:101
 msgid "Memory Usage (bytes)"
 msgstr ""
 
-#: internal/biz/alert.go:683
+#: internal/biz/alert.go:697
 #: internal/service/user_passkey.go:302
 msgid "Method"
 msgstr ""
 
-#: internal/biz/alert.go:366
+#: internal/biz/alert.go:386
 msgid "Metric"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:258
+#: internal/biz/toolbox_migration_import.go:301
 msgid "Migrated from %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:269
+#: internal/biz/toolbox_migration.go:271
 msgid "Migration completed"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:263
+#: internal/biz/toolbox_migration.go:265
 msgid "Migration started"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:410
+#: internal/apps/prometheus/app.go:394
 msgid "MongoDB metrics"
 msgstr ""
 
-#: internal/data/backup.go:1651
+#: internal/data/backup.go:1722
 msgid "Move acepanel file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:1642
+#: internal/data/backup.go:1713
 msgid "Move panel file failed: %v"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:408
+#: internal/apps/prometheus/app.go:392
 msgid "MySQL database metrics"
 msgstr ""
 
@@ -899,19 +893,19 @@ msgstr ""
 msgid "New username cannot be empty"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:407
+#: internal/apps/prometheus/app.go:391
 msgid "Nginx metrics"
 msgstr ""
 
-#: internal/data/backup.go:1607
+#: internal/data/backup.go:1678
 msgid "No backup file found, unable to automatically repair"
 msgstr ""
 
-#: internal/apps/kafka/app.go:54
+#: internal/apps/kafka/app.go:55
 msgid "Node ID"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:271
+#: internal/biz/toolbox_migration_import.go:314
 msgid "Node.js dependencies were not installed; install dependencies and start the project manually"
 msgstr ""
 
@@ -925,21 +919,21 @@ msgstr ""
 msgid "Not supported"
 msgstr ""
 
-#: internal/service/home.go:265
+#: internal/service/home.go:267
 msgid "Not used"
 msgstr ""
 
-#: internal/apps/kafka/app.go:57
+#: internal/apps/kafka/app.go:58
 msgid "Num Partitions"
+msgstr ""
+
+#: internal/apps/elasticsearch/app.go:85
+#: internal/apps/opensearch/app.go:86
+msgid "Number of Data Nodes"
 msgstr ""
 
 #: internal/apps/elasticsearch/app.go:84
 #: internal/apps/opensearch/app.go:85
-msgid "Number of Data Nodes"
-msgstr ""
-
-#: internal/apps/elasticsearch/app.go:83
-#: internal/apps/opensearch/app.go:84
 msgid "Number of Nodes"
 msgstr ""
 
@@ -948,7 +942,7 @@ msgstr ""
 msgid "OPTIONS"
 msgstr ""
 
-#: internal/service/environment_php.go:366
+#: internal/service/environment_php.go:368
 msgid "OPcache stores precompiled PHP script bytecode in shared memory to improve PHP performance"
 msgstr ""
 
@@ -956,11 +950,11 @@ msgstr ""
 msgid "Old username cannot be empty"
 msgstr ""
 
-#: internal/apps/mysql/app.go:132
+#: internal/apps/mysql/app.go:123
 msgid "Open Tables"
 msgstr ""
 
-#: internal/biz/tamper.go:308
+#: internal/biz/tamper.go:309
 msgid "Operation"
 msgstr ""
 
@@ -968,21 +962,21 @@ msgstr ""
 msgid "Output"
 msgstr ""
 
-#: internal/service/environment_php.go:109
-#: internal/service/environment_php.go:128
-#: internal/service/environment_php.go:148
-#: internal/service/environment_php.go:167
-#: internal/service/environment_php.go:232
-#: internal/service/environment_php.go:246
-#: internal/service/environment_php.go:260
-#: internal/service/environment_php.go:293
-#: internal/service/environment_php.go:328
-#: internal/service/environment_php.go:48
-#: internal/service/environment_php.go:611
-#: internal/service/environment_php.go:670
-#: internal/service/environment_php.go:68
-#: internal/service/environment_php.go:733
-#: internal/service/environment_php.go:89
+#: internal/service/environment_php.go:111
+#: internal/service/environment_php.go:130
+#: internal/service/environment_php.go:150
+#: internal/service/environment_php.go:169
+#: internal/service/environment_php.go:234
+#: internal/service/environment_php.go:248
+#: internal/service/environment_php.go:262
+#: internal/service/environment_php.go:295
+#: internal/service/environment_php.go:330
+#: internal/service/environment_php.go:50
+#: internal/service/environment_php.go:613
+#: internal/service/environment_php.go:672
+#: internal/service/environment_php.go:70
+#: internal/service/environment_php.go:735
+#: internal/service/environment_php.go:91
 msgid "PHP-%d is not installed"
 msgstr ""
 
@@ -1017,20 +1011,19 @@ msgstr ""
 msgid "Password: ******* (use -f to force reset)"
 msgstr ""
 
-#: internal/biz/tamper.go:307
+#: internal/biz/tamper.go:308
 msgid "Path"
 msgstr ""
 
-#: internal/apps/mysql/app.go:128
+#: internal/apps/mysql/app.go:119
 msgid "Peak Connections"
 msgstr ""
 
-#: internal/apps/redis/app.go:93
-#: internal/apps/valkey/app.go:93
+#: internal/apps/redis/app.go:101
 msgid "Peak Memory Usage"
 msgstr ""
 
-#: internal/service/environment_php.go:376
+#: internal/service/environment_php.go:378
 msgid "PhpRedis connects to and operates on data in Redis databases (requires the igbinary module installed above)"
 msgstr ""
 
@@ -1070,31 +1063,31 @@ msgstr ""
 msgid "Port: %d"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:409
+#: internal/apps/prometheus/app.go:393
 msgid "PostgreSQL database metrics"
 msgstr ""
 
-#: internal/data/backup.go:1720
+#: internal/data/backup.go:1791
 msgid "Preparing to update to %s..."
 msgstr ""
 
-#: internal/biz/tamper.go:309
+#: internal/biz/tamper.go:310
 msgid "Process"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:176
+#: internal/apps/postgresql/app.go:169
 msgid "Process Count"
 msgstr ""
 
-#: internal/service/environment_php.go:182
+#: internal/service/environment_php.go:184
 msgid "Process Manager"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:175
+#: internal/apps/postgresql/app.go:168
 msgid "Process PID"
 msgstr ""
 
-#: internal/service/environment_php.go:466
+#: internal/service/environment_php.go:468
 msgid "Pspell is a spell-checking library"
 msgstr ""
 
@@ -1120,19 +1113,19 @@ msgstr ""
 msgid "QQ Group：12370907"
 msgstr ""
 
-#: internal/apps/mysql/app.go:192
+#: internal/apps/mysql/app.go:183
 msgid "Query Cache Hit Rate"
 msgstr ""
 
-#: internal/apps/mysql/app.go:180
+#: internal/apps/mysql/app.go:171
 msgid "Query Cache Hits"
 msgstr ""
 
-#: internal/apps/mysql/app.go:184
+#: internal/apps/mysql/app.go:175
 msgid "Query Cache Inserts"
 msgstr ""
 
-#: internal/apps/mysql/app.go:188
+#: internal/apps/mysql/app.go:179
 msgid "Query Cache Not Cached"
 msgstr ""
 
@@ -1144,20 +1137,20 @@ msgstr ""
 msgid "Reading"
 msgstr ""
 
-#: internal/service/environment_php.go:446
+#: internal/service/environment_php.go:448
 msgid "Readline is a library for processing text"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:412
+#: internal/apps/prometheus/app.go:396
 msgid "Redis metrics"
 msgstr ""
 
-#: internal/apps/elasticsearch/app.go:87
-#: internal/apps/opensearch/app.go:88
+#: internal/apps/elasticsearch/app.go:88
+#: internal/apps/opensearch/app.go:89
 msgid "Relocating Shards"
 msgstr ""
 
-#: internal/data/backup.go:1639
+#: internal/data/backup.go:1710
 msgid "Remove panel file failed: %v"
 msgstr ""
 
@@ -1173,15 +1166,15 @@ msgstr ""
 msgid "Restore %s: %s"
 msgstr ""
 
-#: internal/apps/mysql/app.go:124
+#: internal/apps/mysql/app.go:115
 msgid "Rollbacks per Second"
 msgstr ""
 
-#: internal/biz/alert.go:365
+#: internal/biz/alert.go:385
 msgid "Rule"
 msgstr ""
 
-#: internal/service/environment_php.go:451
+#: internal/service/environment_php.go:453
 msgid "SNMP is a protocol for network management"
 msgstr ""
 
@@ -1189,11 +1182,11 @@ msgstr ""
 msgid "SSH log file not found"
 msgstr ""
 
-#: internal/biz/alert.go:680
+#: internal/biz/alert.go:694
 msgid "SSH login succeeded"
 msgstr ""
 
-#: internal/service/environment_php.go:436
+#: internal/service/environment_php.go:438
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
 
@@ -1201,7 +1194,7 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: internal/service/environment_php.go:746
+#: internal/service/environment_php.go:748
 msgid "Session save handler is not files, cannot clean"
 msgstr ""
 
@@ -1209,17 +1202,17 @@ msgstr ""
 msgid "Setting not exists"
 msgstr ""
 
-#: internal/service/environment_php.go:193
+#: internal/service/environment_php.go:195
 msgid "Slow Requests"
 msgstr ""
 
-#: internal/apps/mysql/app.go:136
+#: internal/apps/mysql/app.go:127
 msgid "Sort Merge Passes"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:174
-#: internal/apps/prometheus/app.go:97
-#: internal/service/environment_php.go:183
+#: internal/apps/postgresql/app.go:167
+#: internal/apps/prometheus/app.go:98
+#: internal/service/environment_php.go:185
 msgid "Start Time"
 msgstr ""
 
@@ -1227,15 +1220,15 @@ msgstr ""
 msgid "Storage Engine"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:98
+#: internal/apps/prometheus/app.go:99
 msgid "Storage Retention"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:178
+#: internal/apps/postgresql/app.go:171
 msgid "Storage Usage"
 msgstr ""
 
-#: internal/apps/mysql/app.go:135
+#: internal/apps/mysql/app.go:126
 msgid "Subqueries without Index"
 msgstr ""
 
@@ -1243,36 +1236,35 @@ msgstr ""
 msgid "Successfully obtained panel certificate via ACME"
 msgstr ""
 
-#: internal/service/environment_php.go:556
+#: internal/service/environment_php.go:558
 msgid "Swoole is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
-#: internal/service/environment_php.go:565
+#: internal/service/environment_php.go:567
 msgid "Swow is a PHP module for building high-performance asynchronous concurrent servers"
 msgstr ""
 
-#: internal/service/environment_php.go:536
+#: internal/service/environment_php.go:538
 msgid "Sysvmsg is a library for handling System V message queues"
 msgstr ""
 
-#: internal/service/environment_php.go:541
+#: internal/service/environment_php.go:543
 msgid "Sysvsem is a library for handling System V semaphores"
 msgstr ""
 
-#: internal/service/environment_php.go:546
+#: internal/service/environment_php.go:548
 msgid "Sysvshm is a library for handling System V shared memory"
 msgstr ""
 
-#: internal/apps/redis/app.go:88
-#: internal/apps/valkey/app.go:88
+#: internal/apps/redis/app.go:96
 msgid "TCP Port"
 msgstr ""
 
-#: internal/apps/mysql/app.go:137
+#: internal/apps/mysql/app.go:128
 msgid "Table Locks Waited"
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:101
+#: internal/apps/clickhouse/app.go:103
 msgid "Tables"
 msgstr ""
 
@@ -1289,7 +1281,7 @@ msgstr ""
 msgid "Tasks cleared successfully"
 msgstr ""
 
-#: internal/apps/mysql/app.go:131
+#: internal/apps/mysql/app.go:122
 msgid "Temporary Tables Created on Disk"
 msgstr ""
 
@@ -1297,21 +1289,21 @@ msgstr ""
 msgid "Tencent Cloud"
 msgstr ""
 
-#: internal/biz/notify.go:188
+#: internal/biz/notify.go:189
 msgid "This is a test notification from AcePanel, receiving it means the channel is configured correctly."
 msgstr ""
 
-#: internal/biz/alert.go:368
+#: internal/biz/alert.go:388
 msgid "Threshold"
 msgstr ""
 
-#: internal/biz/alert.go:369
-#: internal/biz/alert.go:624
-#: internal/biz/alert.go:684
+#: internal/biz/alert.go:389
+#: internal/biz/alert.go:648
 #: internal/biz/alert.go:698
+#: internal/biz/alert.go:712
 #: internal/biz/backup.go:73
-#: internal/biz/notify.go:190
-#: internal/biz/tamper.go:310
+#: internal/biz/notify.go:191
+#: internal/biz/tamper.go:311
 #: internal/job/cert_renew.go:175
 #: internal/service/cli.go:1160
 #: internal/service/user.go:182
@@ -1325,7 +1317,7 @@ msgstr ""
 msgid "Time synchronized successfully"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:194
+#: internal/data/toolbox_migration_baota.go:192
 msgid "Tomcat projects are not supported for automatic migration"
 msgstr ""
 
@@ -1333,18 +1325,16 @@ msgstr ""
 msgid "Total Accesses"
 msgstr ""
 
-#: internal/apps/redis/app.go:91
-#: internal/apps/valkey/app.go:91
+#: internal/apps/redis/app.go:99
 msgid "Total Allocated Memory"
 msgstr ""
 
-#: internal/apps/redis/app.go:96
-#: internal/apps/valkey/app.go:96
+#: internal/apps/redis/app.go:104
 msgid "Total Commands Processed"
 msgstr ""
 
-#: internal/apps/mysql/app.go:122
-#: internal/apps/postgresql/app.go:177
+#: internal/apps/mysql/app.go:113
+#: internal/apps/postgresql/app.go:170
 msgid "Total Connections"
 msgstr ""
 
@@ -1352,21 +1342,19 @@ msgstr ""
 msgid "Total Connections Created"
 msgstr ""
 
-#: internal/apps/redis/app.go:95
-#: internal/apps/valkey/app.go:95
+#: internal/apps/redis/app.go:103
 msgid "Total Connections Received"
 msgstr ""
 
-#: internal/apps/redis/app.go:92
-#: internal/apps/valkey/app.go:92
+#: internal/apps/redis/app.go:100
 msgid "Total Memory Usage"
 msgstr ""
 
-#: internal/service/environment_php.go:190
+#: internal/service/environment_php.go:192
 msgid "Total Processes"
 msgstr ""
 
-#: internal/apps/mysql/app.go:121
+#: internal/apps/mysql/app.go:112
 msgid "Total Queries"
 msgstr ""
 
@@ -1386,7 +1374,7 @@ msgstr ""
 msgid "Total requests"
 msgstr ""
 
-#: internal/apps/mysql/app.go:123
+#: internal/apps/mysql/app.go:114
 msgid "Transactions per Second"
 msgstr ""
 
@@ -1401,28 +1389,28 @@ msgstr ""
 msgid "USAGE"
 msgstr ""
 
-#: internal/service/app.go:260
+#: internal/service/app.go:266
 msgid "Unable to update app list cache in offline mode"
 msgstr ""
 
-#: internal/apps/elasticsearch/app.go:88
-#: internal/apps/opensearch/app.go:89
+#: internal/apps/elasticsearch/app.go:89
+#: internal/apps/opensearch/app.go:90
 msgid "Unassigned Shards"
 msgstr ""
 
-#: internal/service/file.go:618
+#: internal/service/file.go:619
 msgid "Uncompress %v"
 msgstr ""
 
-#: internal/service/environment_php.go:345
+#: internal/service/environment_php.go:347
 msgid "Uninstall PHP-%d %s module"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:292
+#: internal/apps/prometheus/app.go:276
 msgid "Uninstall Prometheus exporter %s"
 msgstr ""
 
-#: internal/biz/app.go:257
+#: internal/biz/app.go:260
 msgid "Uninstall app %s"
 msgstr ""
 
@@ -1438,15 +1426,15 @@ msgstr ""
 msgid "Unused container images: %d"
 msgstr ""
 
-#: internal/data/backup.go:1623
+#: internal/data/backup.go:1694
 msgid "Unzip backup file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:1761
+#: internal/data/backup.go:1832
 msgid "Unzip new version failed, missing file"
 msgstr ""
 
-#: internal/data/backup.go:1758
+#: internal/data/backup.go:1829
 msgid "Unzip new version failed: %v"
 msgstr ""
 
@@ -1454,11 +1442,11 @@ msgstr ""
 msgid "Update Operations"
 msgstr ""
 
-#: internal/biz/app.go:300
+#: internal/biz/app.go:303
 msgid "Update app %s"
 msgstr ""
 
-#: internal/data/backup.go:1778
+#: internal/data/backup.go:1849
 msgid "Update completed"
 msgstr ""
 
@@ -1470,17 +1458,16 @@ msgstr ""
 msgid "Update environment %s"
 msgstr ""
 
-#: internal/apps/mysql/app.go:120
+#: internal/apps/mysql/app.go:111
 msgid "Uptime"
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:97
+#: internal/apps/clickhouse/app.go:99
 #: internal/apps/mongodb/app.go:94
 msgid "Uptime (seconds)"
 msgstr ""
 
-#: internal/apps/redis/app.go:89
-#: internal/apps/valkey/app.go:89
+#: internal/apps/redis/app.go:97
 msgid "Uptime in Days"
 msgstr ""
 
@@ -1497,7 +1484,7 @@ msgstr ""
 msgid "User not exists"
 msgstr ""
 
-#: internal/biz/alert.go:681
+#: internal/biz/alert.go:695
 #: internal/service/user.go:179
 #: internal/service/user.go:199
 #: internal/service/user_passkey.go:301
@@ -1525,16 +1512,16 @@ msgstr ""
 msgid "VERSION"
 msgstr ""
 
-#: internal/data/backup.go:1752
+#: internal/data/backup.go:1823
 msgid "Verify download file failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:1750
+#: internal/data/backup.go:1821
 msgid "Verifying download file..."
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:96
-#: internal/apps/grafana/app.go:86
+#: internal/apps/clickhouse/app.go:98
+#: internal/apps/grafana/app.go:87
 #: internal/apps/mongodb/app.go:93
 msgid "Version"
 msgstr ""
@@ -1580,35 +1567,35 @@ msgstr ""
 msgid "Writing"
 msgstr ""
 
-#: internal/service/environment_php.go:481
+#: internal/service/environment_php.go:483
 msgid "XLSWriter is a high-performance library for reading and writing Excel files"
 msgstr ""
 
-#: internal/service/environment_php.go:486
+#: internal/service/environment_php.go:488
 msgid "XSL is a library for processing XML documents"
 msgstr ""
 
-#: internal/service/environment_php.go:426
+#: internal/service/environment_php.go:428
 msgid "Zip is a library for handling ZIP files"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:355
+#: internal/biz/toolbox_migration.go:357
 msgid "[%s] migration completed"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:352
+#: internal/biz/toolbox_migration.go:354
 msgid "[%s] migration completed with warnings"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:349
+#: internal/biz/toolbox_migration.go:351
 msgid "[%s] migration failed: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:336
+#: internal/biz/toolbox_migration.go:338
 msgid "[%s] start migrating"
 msgstr ""
 
-#: internal/biz/alert.go:364
+#: internal/biz/alert.go:384
 msgid "[AcePanel] Alert: %s"
 msgstr ""
 
@@ -1628,7 +1615,7 @@ msgstr ""
 msgid "[AcePanel] Cron Task Failed"
 msgstr ""
 
-#: internal/biz/alert.go:620
+#: internal/biz/alert.go:644
 msgid "[AcePanel] Panel Health Issue"
 msgstr ""
 
@@ -1637,11 +1624,11 @@ msgstr ""
 msgid "[AcePanel] Panel Login"
 msgstr ""
 
-#: internal/biz/alert.go:695
+#: internal/biz/alert.go:709
 msgid "[AcePanel] SSH Brute-force Attempts"
 msgstr ""
 
-#: internal/biz/alert.go:680
+#: internal/biz/alert.go:694
 msgid "[AcePanel] SSH Login"
 msgstr ""
 
@@ -1649,11 +1636,11 @@ msgstr ""
 msgid "[AcePanel] Suspicious Login Attempts"
 msgstr ""
 
-#: internal/biz/tamper.go:305
+#: internal/biz/tamper.go:306
 msgid "[AcePanel] Tamper Protection Alert"
 msgstr ""
 
-#: internal/biz/notify.go:187
+#: internal/biz/notify.go:188
 msgid "[AcePanel] Test Notification"
 msgstr ""
 
@@ -1661,31 +1648,31 @@ msgstr ""
 msgid "[AcePanel] Website Expired"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:62
+#: internal/biz/toolbox_migration_import.go:72
 msgid "a database with the same name already exists on the target server"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:70
+#: internal/biz/toolbox_migration_import.go:80
 msgid "a project with the same name already exists on the target server"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:312
+#: internal/biz/toolbox_migration.go:314
 msgid "a required dependency did not migrate successfully"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:305
+#: internal/biz/toolbox_migration.go:307
 msgid "a required dependency was not selected"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:40
+#: internal/biz/toolbox_migration_import.go:43
 msgid "a website with the same name already exists on the target server"
 msgstr ""
 
-#: internal/biz/app.go:196
+#: internal/biz/app.go:199
 msgid "app %s already installed"
 msgstr ""
 
-#: internal/biz/alert.go:765
+#: internal/biz/alert.go:860
 msgid "app %s is not running"
 msgstr ""
 
@@ -1693,9 +1680,9 @@ msgstr ""
 msgid "app %s not found"
 msgstr ""
 
-#: internal/biz/app.go:235
-#: internal/biz/app.go:276
-#: internal/middleware/must_install.go:36
+#: internal/biz/app.go:238
+#: internal/biz/app.go:279
+#: internal/middleware/must_install.go:37
 msgid "app %s not installed"
 msgstr ""
 
@@ -1707,11 +1694,11 @@ msgstr ""
 msgid "app %s requires panel version %s, current version %s"
 msgstr ""
 
-#: internal/middleware/must_install.go:25
+#: internal/middleware/must_install.go:26
 msgid "app not found"
 msgstr ""
 
-#: internal/biz/alert.go:815
+#: internal/biz/alert.go:910
 msgid "app status"
 msgstr ""
 
@@ -1725,22 +1712,22 @@ msgstr ""
 msgid "background task is running, modifying some settings is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:403
-#: internal/service/home.go:413
+#: internal/service/home.go:405
+#: internal/service/home.go:415
 msgid "background task is running, restart is prohibited, please try again later"
 msgstr ""
 
-#: internal/service/home.go:371
-#: internal/service/ws.go:484
+#: internal/service/home.go:373
+#: internal/service/ws.go:485
 msgid "background task is running, updating is prohibited, please try again later"
 msgstr ""
 
 #: internal/biz/toolbox_migration_push.go:343
-#: internal/data/backup.go:258
+#: internal/data/backup.go:259
 msgid "backup file not exists"
 msgstr ""
 
-#: internal/data/backup.go:62
+#: internal/data/backup.go:63
 msgid "backup storage not found"
 msgstr ""
 
@@ -1759,11 +1746,11 @@ msgid "btrfs filesystem is not mounted, logical volume has been extended but fil
 msgstr ""
 
 #: internal/service/backup.go:168
-#: internal/service/file.go:442
+#: internal/service/file.go:443
 msgid "can't download a directory"
 msgstr ""
 
-#: internal/biz/website.go:141
+#: internal/biz/website.go:140
 msgid "can't find %s database server, please add it first"
 msgstr ""
 
@@ -1779,11 +1766,11 @@ msgstr ""
 msgid "cannot initialize system disk"
 msgstr ""
 
-#: internal/biz/alert.go:769
+#: internal/biz/alert.go:864
 msgid "certificate %s expires in %s days"
 msgstr ""
 
-#: internal/biz/alert.go:819
+#: internal/biz/alert.go:914
 msgid "certificate expiry"
 msgstr ""
 
@@ -1796,7 +1783,7 @@ msgstr ""
 msgid "check server connection failed"
 msgstr ""
 
-#: internal/service/file.go:827
+#: internal/service/file.go:813
 msgid "chunk hash mismatch"
 msgstr ""
 
@@ -1804,7 +1791,7 @@ msgstr ""
 msgid "client ip changed, please login again"
 msgstr ""
 
-#: internal/service/ws.go:195
+#: internal/service/ws.go:196
 msgid "command is empty"
 msgstr ""
 
@@ -1812,24 +1799,24 @@ msgstr ""
 msgid "compose %s already exists"
 msgstr ""
 
-#: internal/biz/alert.go:763
+#: internal/biz/alert.go:858
 msgid "container %s is not running"
 msgstr ""
 
-#: internal/biz/alert.go:813
+#: internal/biz/alert.go:908
 msgid "container status"
 msgstr ""
 
-#: internal/data/backup.go:1398
+#: internal/data/backup.go:1469
 msgid "could not find database backup file"
 msgstr ""
 
-#: internal/service/file.go:316
-#: internal/service/file.go:750
+#: internal/service/file.go:317
+#: internal/service/file.go:736
 msgid "create directory error: %v"
 msgstr ""
 
-#: internal/service/file.go:870
+#: internal/service/file.go:856
 msgid "create target file error: %v"
 msgstr ""
 
@@ -1837,20 +1824,20 @@ msgstr ""
 msgid "cron task exited abnormally"
 msgstr ""
 
-#: internal/data/backup.go:1420
+#: internal/data/backup.go:1491
 msgid "database backup archive contains multiple dump files"
 msgstr ""
 
-#: internal/data/backup.go:1356
+#: internal/data/backup.go:1427
 msgid "database backup contains too many nested archives"
 msgstr ""
 
-#: internal/data/backup.go:1033
-#: internal/data/backup.go:582
-#: internal/data/backup.go:640
-#: internal/data/backup.go:701
-#: internal/data/backup.go:948
-#: internal/data/backup.go:983
+#: internal/data/backup.go:1001
+#: internal/data/backup.go:1050
+#: internal/data/backup.go:583
+#: internal/data/backup.go:651
+#: internal/data/backup.go:716
+#: internal/data/backup.go:968
 msgid "database does not exist: %s"
 msgstr ""
 
@@ -1858,15 +1845,15 @@ msgstr ""
 msgid "database export failed: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:128
+#: internal/biz/toolbox_migration_import.go:138
 msgid "database import failed: %v"
 msgstr ""
 
-#: internal/biz/alert.go:767
+#: internal/biz/alert.go:862
 msgid "database server %s is unreachable"
 msgstr ""
 
-#: internal/biz/alert.go:817
+#: internal/biz/alert.go:912
 msgid "database server status"
 msgstr ""
 
@@ -1874,12 +1861,12 @@ msgstr ""
 msgid "database user %s does not exist"
 msgstr ""
 
-#: internal/apps/grafana/app.go:229
+#: internal/apps/grafana/app.go:212
 msgid "datasource %s already exists"
 msgstr ""
 
-#: internal/apps/grafana/app.go:266
-#: internal/apps/grafana/app.go:314
+#: internal/apps/grafana/app.go:249
+#: internal/apps/grafana/app.go:297
 msgid "datasource %s not found"
 msgstr ""
 
@@ -1896,15 +1883,15 @@ msgstr ""
 msgid "device not found: %s"
 msgstr ""
 
-#: internal/apps/pureftpd/app.go:93
+#: internal/apps/pureftpd/app.go:94
 msgid "directory %s does not exist"
 msgstr ""
 
-#: internal/biz/alert.go:795
+#: internal/biz/alert.go:890
 msgid "disk inode usage"
 msgstr ""
 
-#: internal/biz/alert.go:797
+#: internal/biz/alert.go:892
 msgid "disk read speed"
 msgstr ""
 
@@ -1912,15 +1899,19 @@ msgstr ""
 msgid "disk space is insufficient, current free %s"
 msgstr ""
 
-#: internal/biz/alert.go:793
+#: internal/biz/alert.go:888
 msgid "disk usage"
 msgstr ""
 
-#: internal/biz/alert.go:799
+#: internal/biz/alert.go:894
 msgid "disk write speed"
 msgstr ""
 
-#: internal/data/backup.go:1231
+#: internal/biz/toolbox_migration.go:395
+msgid "downloading"
+msgstr ""
+
+#: internal/data/backup.go:1248
 msgid "dump.rdb not found in backup file"
 msgstr ""
 
@@ -1955,23 +1946,23 @@ msgstr ""
 msgid "expiration time must be less than 10 years"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:256
-#: internal/apps/prometheus/app.go:284
+#: internal/apps/prometheus/app.go:240
+#: internal/apps/prometheus/app.go:268
+#: internal/apps/prometheus/app.go:291
 #: internal/apps/prometheus/app.go:307
 #: internal/apps/prometheus/app.go:323
 #: internal/apps/prometheus/app.go:339
-#: internal/apps/prometheus/app.go:355
-#: internal/apps/prometheus/app.go:374
+#: internal/apps/prometheus/app.go:358
 msgid "exporter %s does not exist"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:361
-#: internal/apps/prometheus/app.go:380
+#: internal/apps/prometheus/app.go:345
+#: internal/apps/prometheus/app.go:364
 msgid "exporter %s has no configuration file"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:332
-#: internal/apps/postgresql/app.go:86
+#: internal/apps/postgresql/app.go:325
+#: internal/apps/postgresql/app.go:84
 msgid "failed to apply PostgreSQL config: %v"
 msgstr ""
 
@@ -2013,7 +2004,7 @@ msgstr ""
 msgid "failed to create database user on target: %v"
 msgstr ""
 
-#: internal/service/ws.go:394
+#: internal/service/ws.go:395
 msgid "failed to create docker client: %v"
 msgstr ""
 
@@ -2053,7 +2044,7 @@ msgstr ""
 msgid "failed to create project on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:382
+#: internal/biz/toolbox_migration.go:384
 msgid "failed to create source backup: %v"
 msgstr ""
 
@@ -2061,7 +2052,7 @@ msgstr ""
 msgid "failed to create volume group: %v"
 msgstr ""
 
-#: internal/data/webhook.go:57
+#: internal/data/webhook.go:58
 msgid "failed to create webhook directory: %v"
 msgstr ""
 
@@ -2077,11 +2068,11 @@ msgstr ""
 msgid "failed to delete old account: %v"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:120
+#: internal/apps/nginx/stream.go:121
 msgid "failed to delete stream server config: %v"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:231
+#: internal/apps/nginx/stream.go:232
 msgid "failed to delete stream upstream config: %v"
 msgstr ""
 
@@ -2093,7 +2084,7 @@ msgstr ""
 msgid "failed to disable %s service: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:394
+#: internal/biz/toolbox_migration.go:396
 msgid "failed to download source backup: %v"
 msgstr ""
 
@@ -2101,11 +2092,11 @@ msgstr ""
 msgid "failed to enable %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:408
+#: internal/service/ws.go:409
 msgid "failed to encode auth: %v"
 msgstr ""
 
-#: internal/data/backup.go:1179
+#: internal/data/backup.go:1196
 msgid "failed to export RDB snapshot"
 msgstr ""
 
@@ -2130,6 +2121,10 @@ msgstr ""
 msgid "failed to generate systemd config"
 msgstr ""
 
+#: internal/apps/redis/app.go:83
+msgid "failed to get %s info: %v"
+msgstr ""
+
 #: internal/service/systemctl.go:47
 msgid "failed to get %s service enable status: %v"
 msgstr ""
@@ -2138,7 +2133,11 @@ msgstr ""
 msgid "failed to get %s service running status: %v"
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:204
+#: internal/apps/redis/app.go:60
+msgid "failed to get %s status: %v"
+msgstr ""
+
+#: internal/apps/clickhouse/app.go:189
 msgid "failed to get ClickHouse default password: %v"
 msgstr ""
 
@@ -2150,15 +2149,15 @@ msgstr ""
 msgid "failed to get Google EAB: %v"
 msgstr ""
 
-#: internal/apps/memcached/app.go:45
+#: internal/apps/memcached/app.go:46
 msgid "failed to get Memcached status: %v"
 msgstr ""
 
-#: internal/apps/mongodb/app.go:199
+#: internal/apps/mongodb/app.go:182
 msgid "failed to get MongoDB admin password: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:107
+#: internal/apps/mysql/app.go:102
 msgid "failed to get MySQL status: %v"
 msgstr ""
 
@@ -2166,23 +2165,23 @@ msgstr ""
 msgid "failed to get NTP configuration: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:154
+#: internal/apps/postgresql/app.go:147
 msgid "failed to get PostgreSQL backend pid: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:164
+#: internal/apps/postgresql/app.go:157
 msgid "failed to get PostgreSQL connections: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:169
+#: internal/apps/postgresql/app.go:162
 msgid "failed to get PostgreSQL database size: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:159
+#: internal/apps/postgresql/app.go:152
 msgid "failed to get PostgreSQL process: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:149
+#: internal/apps/postgresql/app.go:142
 msgid "failed to get PostgreSQL start time: %v"
 msgstr ""
 
@@ -2211,11 +2210,11 @@ msgstr ""
 msgid "failed to get available timezones: %v"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:276
+#: internal/apps/fail2ban/app.go:278
 msgid "failed to get banned ip list"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:266
+#: internal/apps/fail2ban/app.go:268
 msgid "failed to get current banned list"
 msgstr ""
 
@@ -2227,11 +2226,11 @@ msgstr ""
 msgid "failed to get disk space: %v"
 msgstr ""
 
-#: internal/apps/elasticsearch/app.go:48
+#: internal/apps/elasticsearch/app.go:49
 msgid "failed to get elasticsearch status: %v"
 msgstr ""
 
-#: internal/service/file.go:488
+#: internal/service/file.go:489
 msgid "failed to get file system info"
 msgstr ""
 
@@ -2239,19 +2238,19 @@ msgstr ""
 msgid "failed to get filesystem type: %v"
 msgstr ""
 
-#: internal/apps/grafana/app.go:52
+#: internal/apps/grafana/app.go:53
 msgid "failed to get grafana status: %v"
 msgstr ""
 
-#: internal/service/home.go:86
+#: internal/service/home.go:87
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:483
+#: internal/data/website.go:489
 msgid "failed to get index template file: %v"
 msgstr ""
 
-#: internal/apps/kafka/app.go:43
+#: internal/apps/kafka/app.go:44
 msgid "failed to get kafka status: %v"
 msgstr ""
 
@@ -2270,7 +2269,7 @@ msgstr ""
 msgid "failed to get nginx workers: %v"
 msgstr ""
 
-#: internal/apps/opensearch/app.go:49
+#: internal/apps/opensearch/app.go:50
 msgid "failed to get opensearch status: %v"
 msgstr ""
 
@@ -2282,11 +2281,11 @@ msgstr ""
 msgid "failed to get partitions: %v"
 msgstr ""
 
-#: internal/apps/pureftpd/app.go:153
+#: internal/apps/pureftpd/app.go:154
 msgid "failed to get port: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:199
+#: internal/apps/postgresql/app.go:192
 msgid "failed to get postgres password: %v"
 msgstr ""
 
@@ -2298,16 +2297,8 @@ msgstr ""
 msgid "failed to get private key: %v"
 msgstr ""
 
-#: internal/apps/prometheus/app.go:66
+#: internal/apps/prometheus/app.go:67
 msgid "failed to get prometheus status: %v"
-msgstr ""
-
-#: internal/apps/redis/app.go:75
-msgid "failed to get redis info: %v"
-msgstr ""
-
-#: internal/apps/redis/app.go:52
-msgid "failed to get redis status: %v"
 msgstr ""
 
 #: internal/apps/s3fs/app.go:132
@@ -2316,27 +2307,27 @@ msgstr ""
 msgid "failed to get s3fs list: %v"
 msgstr ""
 
-#: internal/service/home.go:106
+#: internal/service/home.go:107
 msgid "failed to get system info: %v"
 msgstr ""
 
-#: internal/service/home.go:384
-#: internal/service/ws.go:495
+#: internal/service/home.go:386
+#: internal/service/ws.go:496
 msgid "failed to get the latest version download link"
 msgstr ""
 
-#: internal/service/home.go:300
-#: internal/service/home.go:336
-#: internal/service/home.go:378
-#: internal/service/ws.go:490
+#: internal/service/home.go:302
+#: internal/service/home.go:338
+#: internal/service/home.go:380
+#: internal/service/ws.go:491
 msgid "failed to get the latest version: %v"
 msgstr ""
 
-#: internal/apps/rsync/app.go:89
+#: internal/apps/rsync/app.go:90
 msgid "failed to get the secret key for module %s"
 msgstr ""
 
-#: internal/service/home.go:357
+#: internal/service/home.go:359
 msgid "failed to get the update information: %v"
 msgstr ""
 
@@ -2344,7 +2335,7 @@ msgstr ""
 msgid "failed to get timezone: %v"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:271
+#: internal/apps/fail2ban/app.go:273
 msgid "failed to get total banned list"
 msgstr ""
 
@@ -2352,28 +2343,20 @@ msgstr ""
 msgid "failed to get uninstall script for app %s"
 msgstr ""
 
-#: internal/apps/valkey/app.go:75
-msgid "failed to get valkey info: %v"
-msgstr ""
-
-#: internal/apps/valkey/app.go:52
-msgid "failed to get valkey status: %v"
-msgstr ""
-
-#: internal/apps/nginx/stream.go:25
+#: internal/apps/nginx/stream.go:26
 msgid "failed to list stream servers: %v"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:136
+#: internal/apps/nginx/stream.go:137
 msgid "failed to list stream upstreams: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:209
-#: internal/apps/mysql/app.go:97
+#: internal/apps/mysql/app.go:200
+#: internal/apps/mysql/app.go:96
 msgid "failed to load MySQL root password: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:136
+#: internal/apps/postgresql/app.go:134
 msgid "failed to load PostgreSQL postgres password: %v"
 msgstr ""
 
@@ -2400,8 +2383,8 @@ msgstr ""
 #: internal/biz/cert.go:95
 #: internal/biz/setting.go:241
 #: internal/biz/setting.go:315
-#: internal/data/website.go:1240
-#: internal/data/website.go:856
+#: internal/data/website.go:1244
+#: internal/data/website.go:862
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -2420,8 +2403,8 @@ msgstr ""
 #: internal/biz/cert.go:98
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:318
-#: internal/data/website.go:1243
-#: internal/data/website.go:859
+#: internal/data/website.go:1247
+#: internal/data/website.go:865
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -2433,15 +2416,15 @@ msgstr ""
 msgid "failed to parse systemd config"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:332
-#: internal/apps/fail2ban/app.go:360
+#: internal/apps/fail2ban/app.go:334
+#: internal/apps/fail2ban/app.go:362
 msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
-#: internal/service/home.go:306
-#: internal/service/home.go:311
-#: internal/service/home.go:342
-#: internal/service/home.go:347
+#: internal/service/home.go:308
+#: internal/service/home.go:313
+#: internal/service/home.go:344
+#: internal/service/home.go:349
 msgid "failed to parse version: %v"
 msgstr ""
 
@@ -2449,7 +2432,7 @@ msgstr ""
 msgid "failed to parse xlsx: %v"
 msgstr ""
 
-#: internal/service/ws.go:417
+#: internal/service/ws.go:418
 msgid "failed to pull image: %v"
 msgstr ""
 
@@ -2457,7 +2440,7 @@ msgstr ""
 msgid "failed to read command output: %v"
 msgstr ""
 
-#: internal/service/ws.go:190
+#: internal/service/ws.go:191
 #: internal/service/ws.go:73
 msgid "failed to read command: %v"
 msgstr ""
@@ -2466,7 +2449,7 @@ msgstr ""
 msgid "failed to read database user detail: %v"
 msgstr ""
 
-#: internal/apps/memcached/app.go:85
+#: internal/apps/memcached/app.go:86
 msgid "failed to read from Memcached: %v"
 msgstr ""
 
@@ -2478,9 +2461,9 @@ msgstr ""
 msgid "failed to read generated key: %v"
 msgstr ""
 
-#: internal/service/ws.go:276
-#: internal/service/ws.go:382
-#: internal/service/ws.go:547
+#: internal/service/ws.go:277
+#: internal/service/ws.go:383
+#: internal/service/ws.go:548
 msgid "failed to read params: %v"
 msgstr ""
 
@@ -2488,7 +2471,7 @@ msgstr ""
 msgid "failed to read project detail: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:368
+#: internal/biz/toolbox_migration.go:370
 msgid "failed to read source resource detail: %v"
 msgstr ""
 
@@ -2519,7 +2502,7 @@ msgstr ""
 msgid "failed to rebuild website configuration on target: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:274
+#: internal/biz/toolbox_migration.go:276
 msgid "failed to refresh source resource list: %v"
 msgstr ""
 
@@ -2532,7 +2515,7 @@ msgstr ""
 msgid "failed to reload %s service: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:119
+#: internal/apps/postgresql/app.go:117
 msgid "failed to reload PostgreSQL: %v"
 msgstr ""
 
@@ -2542,12 +2525,12 @@ msgstr ""
 
 #: internal/apps/nginx/app.go:272
 #: internal/apps/nginx/app.go:83
-#: internal/apps/nginx/stream.go:125
-#: internal/apps/nginx/stream.go:163
-#: internal/apps/nginx/stream.go:209
-#: internal/apps/nginx/stream.go:236
-#: internal/apps/nginx/stream.go:52
-#: internal/apps/nginx/stream.go:98
+#: internal/apps/nginx/stream.go:126
+#: internal/apps/nginx/stream.go:164
+#: internal/apps/nginx/stream.go:210
+#: internal/apps/nginx/stream.go:237
+#: internal/apps/nginx/stream.go:53
+#: internal/apps/nginx/stream.go:99
 #: internal/apps/phpmyadmin/app.go:277
 #: internal/apps/phpmyadmin/app.go:308
 #: internal/service/website.go:257
@@ -2604,7 +2587,7 @@ msgstr ""
 msgid "failed to restart %s: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:80
+#: internal/apps/mysql/app.go:79
 msgid "failed to restart MySQL: %v"
 msgstr ""
 
@@ -2620,11 +2603,11 @@ msgstr ""
 msgid "failed to run command: %v"
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:254
+#: internal/apps/clickhouse/app.go:239
 msgid "failed to save ClickHouse default password: %v"
 msgstr ""
 
-#: internal/apps/mongodb/app.go:232
+#: internal/apps/mongodb/app.go:215
 msgid "failed to save MongoDB admin password: %v"
 msgstr ""
 
@@ -2632,20 +2615,12 @@ msgstr ""
 msgid "failed to select database: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:102
-msgid "failed to set MYSQL_PWD env: %v"
-msgstr ""
-
-#: internal/apps/mongodb/app.go:226
+#: internal/apps/mongodb/app.go:209
 msgid "failed to set MongoDB admin password: %v"
 msgstr ""
 
 #: internal/service/toolbox_system.go:249
 msgid "failed to set NTP servers: %v"
-msgstr ""
-
-#: internal/apps/postgresql/app.go:141
-msgid "failed to set PGPASSWORD env: %v"
 msgstr ""
 
 #: internal/service/toolbox_system.go:119
@@ -2660,9 +2635,9 @@ msgstr ""
 msgid "failed to set hosts: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:220
-#: internal/apps/postgresql/app.go:226
-#: internal/apps/postgresql/app.go:232
+#: internal/apps/postgresql/app.go:213
+#: internal/apps/postgresql/app.go:219
+#: internal/apps/postgresql/app.go:225
 msgid "failed to set postgres password: %v"
 msgstr ""
 
@@ -2670,7 +2645,7 @@ msgstr ""
 msgid "failed to start %s service: %v"
 msgstr ""
 
-#: internal/service/ws.go:356
+#: internal/service/ws.go:357
 msgid "failed to start container terminal: %v"
 msgstr ""
 
@@ -2688,10 +2663,6 @@ msgstr ""
 
 #: internal/apps/s3fs/app.go:146
 msgid "failed to unmount: %v"
-msgstr ""
-
-#: internal/apps/mysql/app.go:111
-msgid "failed to unset MYSQL_PWD env: %v"
 msgstr ""
 
 #: internal/service/toolbox_ssh.go:91
@@ -2730,7 +2701,7 @@ msgstr ""
 msgid "failed to wipe disk: %v"
 msgstr ""
 
-#: internal/apps/clickhouse/app.go:242
+#: internal/apps/clickhouse/app.go:227
 msgid "failed to write ClickHouse user config: %v"
 msgstr ""
 
@@ -2738,47 +2709,51 @@ msgstr ""
 msgid "failed to write fstab: %v"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:46
-#: internal/apps/nginx/stream.go:89
+#: internal/apps/nginx/stream.go:47
+#: internal/apps/nginx/stream.go:90
 msgid "failed to write stream server config: %v"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:157
-#: internal/apps/nginx/stream.go:200
+#: internal/apps/nginx/stream.go:158
+#: internal/apps/nginx/stream.go:201
 msgid "failed to write stream upstream config: %v"
 msgstr ""
 
-#: internal/apps/memcached/app.go:64
+#: internal/apps/memcached/app.go:65
 msgid "failed to write to Memcached: %v"
 msgstr ""
 
-#: internal/data/webhook.go:62
-#: internal/data/webhook.go:76
+#: internal/data/webhook.go:63
+#: internal/data/webhook.go:77
 msgid "failed to write webhook script: %v"
 msgstr ""
 
-#: internal/service/file.go:95
+#: internal/service/file.go:96
 msgid "file is too large, please download it to view"
 msgstr ""
 
-#: internal/service/environment_php.go:501
+#: internal/service/environment_php.go:503
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:192
+#: internal/apps/fail2ban/app.go:194
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
-#: internal/service/file.go:804
+#: internal/service/file.go:790
 msgid "get upload file error: %v"
 msgstr ""
 
-#: internal/biz/alert.go:842
+#: internal/biz/alert.go:937
 msgid "greater than"
 msgstr ""
 
-#: internal/biz/alert.go:836
+#: internal/biz/alert.go:931
 msgid "greater than or equal to"
+msgstr ""
+
+#: internal/data/toolbox_migration_onepanel.go:113
+msgid "if the site connects to a database, change the host in its config from the 1Panel container name to localhost"
 msgstr ""
 
 #: internal/biz/cert.go:180
@@ -2786,7 +2761,6 @@ msgid "initializing ACME client"
 msgstr ""
 
 #: internal/data/user.go:197
-#: internal/data/user.go:216
 #: internal/service/user.go:150
 msgid "invalid 2FA code"
 msgstr ""
@@ -2795,8 +2769,8 @@ msgstr ""
 msgid "invalid captcha code"
 msgstr ""
 
-#: internal/biz/notify.go:125
-#: internal/biz/notify.go:150
+#: internal/biz/notify.go:126
+#: internal/biz/notify.go:151
 msgid "invalid channel config: %v"
 msgstr ""
 
@@ -2816,9 +2790,9 @@ msgstr ""
 msgid "invalid logical volume size"
 msgstr ""
 
-#: internal/service/ws.go:281
-#: internal/service/ws.go:387
-#: internal/service/ws.go:554
+#: internal/service/ws.go:282
+#: internal/service/ws.go:388
+#: internal/service/ws.go:555
 msgid "invalid params: %v"
 msgstr ""
 
@@ -2841,7 +2815,7 @@ msgstr ""
 msgid "invalid size"
 msgstr ""
 
-#: internal/service/home.go:437
+#: internal/service/home.go:439
 msgid "invalid type"
 msgstr ""
 
@@ -2849,7 +2823,7 @@ msgstr ""
 msgid "invalid user id, please login again"
 msgstr ""
 
-#: internal/service/environment_php.go:551
+#: internal/service/environment_php.go:553
 msgid "ionCube is a professional-grade PHP encryption and decryption tool (must be installed after OPcache)"
 msgstr ""
 
@@ -2861,43 +2835,43 @@ msgstr ""
 msgid "journalctl is not available"
 msgstr ""
 
-#: internal/biz/alert.go:838
+#: internal/biz/alert.go:933
 msgid "less than"
 msgstr ""
 
-#: internal/biz/alert.go:840
+#: internal/biz/alert.go:935
 msgid "less than or equal to"
 msgstr ""
 
-#: internal/data/backup.go:335
+#: internal/data/backup.go:336
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1344
+#: internal/data/website.go:1348
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
-#: internal/biz/alert.go:783
+#: internal/biz/alert.go:878
 msgid "memory usage"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:145
-#: internal/biz/toolbox_migration.go:207
+#: internal/biz/toolbox_migration.go:147
+#: internal/biz/toolbox_migration.go:209
 msgid "migration is already running"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:246
+#: internal/biz/toolbox_migration.go:248
 msgid "migration is running, cannot reset"
 msgstr ""
 
-#: internal/apps/rsync/app.go:124
+#: internal/apps/rsync/app.go:125
 msgid "module %s already exists"
 msgstr ""
 
-#: internal/apps/rsync/app.go:169
-#: internal/apps/rsync/app.go:211
-#: internal/service/environment_php.go:298
-#: internal/service/environment_php.go:333
+#: internal/apps/rsync/app.go:170
+#: internal/apps/rsync/app.go:212
+#: internal/service/environment_php.go:300
+#: internal/service/environment_php.go:335
 msgid "module %s does not exist"
 msgstr ""
 
@@ -2921,18 +2895,18 @@ msgstr ""
 msgid "mount point %s already exists in fstab"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:109
-#: internal/apps/nginx/stream.go:174
-#: internal/apps/nginx/stream.go:220
-#: internal/apps/nginx/stream.go:63
+#: internal/apps/nginx/stream.go:110
+#: internal/apps/nginx/stream.go:175
+#: internal/apps/nginx/stream.go:221
+#: internal/apps/nginx/stream.go:64
 msgid "name is required"
 msgstr ""
 
-#: internal/biz/alert.go:801
+#: internal/biz/alert.go:896
 msgid "network download speed"
 msgstr ""
 
-#: internal/biz/alert.go:803
+#: internal/biz/alert.go:898
 msgid "network upload speed"
 msgstr ""
 
@@ -2948,7 +2922,7 @@ msgstr ""
 msgid "no SSH log entries found"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:91
+#: internal/biz/toolbox_migration_import.go:101
 msgid "no compatible database server is installed on the target"
 msgstr ""
 
@@ -2956,7 +2930,7 @@ msgstr ""
 msgid "no matching database server found on target"
 msgstr ""
 
-#: internal/service/toolbox_migration.go:112
+#: internal/service/toolbox_migration.go:113
 msgid "no migration logs available"
 msgstr ""
 
@@ -2964,7 +2938,7 @@ msgstr ""
 msgid "no rules found in file"
 msgstr ""
 
-#: internal/biz/alert.go:857
+#: internal/biz/alert.go:952
 msgid "not running"
 msgstr ""
 
@@ -2973,19 +2947,19 @@ msgstr ""
 msgid "obtaining and saving certificate"
 msgstr ""
 
-#: internal/data/toolbox_migration_onepanel.go:104
+#: internal/data/toolbox_migration_onepanel.go:108
 msgid "only PHP runtime websites can be migrated: %s"
 msgstr ""
 
-#: internal/service/file.go:324
+#: internal/service/file.go:325
 msgid "open file error: %v"
 msgstr ""
 
-#: internal/service/file.go:810
+#: internal/service/file.go:796
 msgid "open upload file error: %v"
 msgstr ""
 
-#: internal/data/backup.go:1838
+#: internal/data/backup.go:1909
 msgid "panel binary is missing after update"
 msgstr ""
 
@@ -2997,7 +2971,7 @@ msgstr ""
 msgid "panel certificate"
 msgstr ""
 
-#: internal/data/backup.go:1702
+#: internal/data/backup.go:1773
 msgid "panel is already updating, please try again later"
 msgstr ""
 
@@ -3018,7 +2992,7 @@ msgstr ""
 msgid "panel login detected"
 msgstr ""
 
-#: internal/biz/alert.go:620
+#: internal/biz/alert.go:644
 msgid "panel reported a health issue"
 msgstr ""
 
@@ -3026,7 +3000,7 @@ msgstr ""
 msgid "panel run error, please check or contact support"
 msgstr ""
 
-#: internal/data/backup.go:1834
+#: internal/data/backup.go:1905
 msgid "panel service file is missing"
 msgstr ""
 
@@ -3046,28 +3020,28 @@ msgstr ""
 msgid "passkey registration failed: %v"
 msgstr ""
 
-#: internal/data/backup.go:802
+#: internal/data/backup.go:817
 msgid "path does not exist: %s"
 msgstr ""
 
-#: internal/data/backup.go:805
+#: internal/data/backup.go:820
 msgid "path is not a directory: %s"
 msgstr ""
 
-#: internal/service/file.go:797
+#: internal/service/file.go:783
 msgid "path, file_name and file_hash are required"
 msgstr ""
 
-#: internal/service/file.go:137
+#: internal/service/file.go:138
 #: internal/service/ws.go:106
 msgid "path, service or container is required"
 msgstr ""
 
-#: internal/service/environment_php.go:406
+#: internal/service/environment_php.go:408
 msgid "pdo_pgsql is a PDO driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
-#: internal/service/environment_php.go:416
+#: internal/service/environment_php.go:418
 msgid "pdo_sqlsrv is a PDO driver for connecting to SQL Server"
 msgstr ""
 
@@ -3081,7 +3055,7 @@ msgstr ""
 msgid "pgAdmin port not found"
 msgstr ""
 
-#: internal/service/environment_php.go:401
+#: internal/service/environment_php.go:403
 msgid "pgsql is a driver for connecting to PostgreSQL (requires PostgreSQL installed)"
 msgstr ""
 
@@ -3098,26 +3072,26 @@ msgstr ""
 msgid "please cancel the task first"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:454
+#: internal/biz/toolbox_migration.go:456
 msgid "please connect to the source server first"
 msgstr ""
 
 #: internal/biz/user.go:115
-#: internal/service/file.go:271
-#: internal/service/file.go:377
-#: internal/service/file.go:416
+#: internal/service/file.go:272
+#: internal/service/file.go:378
+#: internal/service/file.go:417
 msgid "please don't do this"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:135
+#: internal/biz/toolbox_migration.go:137
 msgid "please fill in the AcePanel API credentials"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:138
+#: internal/biz/toolbox_migration.go:140
 msgid "please fill in the source panel API key"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:201
+#: internal/biz/toolbox_migration.go:203
 msgid "please select at least one migration resource"
 msgstr ""
 
@@ -3133,7 +3107,7 @@ msgstr ""
 msgid "process %s already exists"
 msgstr ""
 
-#: internal/biz/alert.go:761
+#: internal/biz/alert.go:856
 msgid "project %s is not running"
 msgstr ""
 
@@ -3145,27 +3119,27 @@ msgstr ""
 msgid "project name already exists"
 msgstr ""
 
-#: internal/biz/alert.go:811
+#: internal/biz/alert.go:906
 msgid "project status"
 msgstr ""
 
-#: internal/service/environment_php.go:506
+#: internal/service/environment_php.go:508
 msgid "protobuf is a library for serializing and deserializing data"
 msgstr ""
 
-#: internal/service/environment_php.go:511
+#: internal/service/environment_php.go:513
 msgid "rdkafka is a library for connecting to Apache Kafka"
 msgstr ""
 
-#: internal/service/file.go:887
+#: internal/service/file.go:873
 msgid "read chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:818
+#: internal/service/file.go:804
 msgid "read chunk data error: %v"
 msgstr ""
 
-#: internal/service/file.go:759
+#: internal/service/file.go:745
 msgid "read directory error: %v"
 msgstr ""
 
@@ -3177,10 +3151,10 @@ msgstr ""
 msgid "renewing certificate, domains: %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:437
-#: internal/data/toolbox_migration_baota.go:438
-#: internal/data/toolbox_migration_baota.go:456
-#: internal/data/toolbox_migration_onepanel.go:335
+#: internal/biz/toolbox_migration.go:439
+#: internal/data/toolbox_migration_baota.go:485
+#: internal/data/toolbox_migration_baota.go:503
+#: internal/data/toolbox_migration_onepanel.go:371
 msgid "resource no longer exists on the source server"
 msgstr ""
 
@@ -3188,7 +3162,7 @@ msgstr ""
 msgid "rule already exists"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:236
+#: internal/apps/fail2ban/app.go:238
 msgid "rule not found"
 msgstr ""
 
@@ -3196,15 +3170,11 @@ msgstr ""
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:834
+#: internal/data/website.go:840
 msgid "runtime directory does not exist"
 msgstr ""
 
-#: internal/service/backup_storage.go:137
-msgid "s3 configuration error: %v"
-msgstr ""
-
-#: internal/service/file.go:837
+#: internal/service/file.go:823
 msgid "save chunk error: %v"
 msgstr ""
 
@@ -3225,11 +3195,11 @@ msgstr ""
 msgid "server not found"
 msgstr ""
 
-#: internal/biz/alert.go:759
+#: internal/biz/alert.go:854
 msgid "service %s is not running"
 msgstr ""
 
-#: internal/biz/alert.go:809
+#: internal/biz/alert.go:904
 msgid "service status"
 msgstr ""
 
@@ -3237,7 +3207,7 @@ msgstr ""
 msgid "session expired, please login again"
 msgstr ""
 
-#: internal/service/backup_storage.go:149
+#: internal/service/backup_storage.go:146
 msgid "sftp configuration error: %v"
 msgstr ""
 
@@ -3263,11 +3233,11 @@ msgstr ""
 msgid "smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"
 msgstr ""
 
-#: internal/service/ws.go:289
+#: internal/service/ws.go:290
 msgid "source and destination are the same file"
 msgstr ""
 
-#: internal/service/ws.go:285
+#: internal/service/ws.go:286
 msgid "source and destination path are required"
 msgstr ""
 
@@ -3275,7 +3245,7 @@ msgstr ""
 msgid "sqlite does not support dropping tables from here"
 msgstr ""
 
-#: internal/service/environment_php.go:411
+#: internal/service/environment_php.go:413
 msgid "sqlsrv is a driver for connecting to SQL Server"
 msgstr ""
 
@@ -3283,31 +3253,31 @@ msgstr ""
 msgid "stopped"
 msgstr ""
 
-#: internal/service/backup_storage.go:166
+#: internal/service/backup_storage.go:163
 msgid "storage connection error: %v"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:41
-#: internal/apps/nginx/stream.go:83
+#: internal/apps/nginx/stream.go:42
+#: internal/apps/nginx/stream.go:84
 msgid "stream server config already exists: %s"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:115
-#: internal/apps/nginx/stream.go:75
+#: internal/apps/nginx/stream.go:116
+#: internal/apps/nginx/stream.go:76
 msgid "stream server not found: %s"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:152
-#: internal/apps/nginx/stream.go:194
+#: internal/apps/nginx/stream.go:153
+#: internal/apps/nginx/stream.go:195
 msgid "stream upstream config already exists: %s"
 msgstr ""
 
-#: internal/apps/nginx/stream.go:186
-#: internal/apps/nginx/stream.go:226
+#: internal/apps/nginx/stream.go:187
+#: internal/apps/nginx/stream.go:227
 msgid "stream upstream not found: %s"
 msgstr ""
 
-#: internal/biz/alert.go:785
+#: internal/biz/alert.go:880
 msgid "swap usage"
 msgstr ""
 
@@ -3317,7 +3287,7 @@ msgstr ""
 msgid "sync from server %s"
 msgstr ""
 
-#: internal/biz/tamper.go:305
+#: internal/biz/tamper.go:306
 msgid "tamper protection blocked file operations"
 msgstr ""
 
@@ -3329,7 +3299,7 @@ msgstr ""
 msgid "target backup %s already exists"
 msgstr ""
 
-#: internal/data/toolbox_migration_remote.go:220
+#: internal/data/toolbox_migration_remote.go:232
 msgid "target command failed"
 msgstr ""
 
@@ -3339,13 +3309,13 @@ msgstr ""
 msgid "target import failed: %v"
 msgstr ""
 
-#: internal/service/file.go:91
+#: internal/service/file.go:92
 msgid "target is a directory"
 msgstr ""
 
-#: internal/service/file.go:302
-#: internal/service/file.go:743
-#: internal/service/file.go:858
+#: internal/service/file.go:303
+#: internal/service/file.go:729
+#: internal/service/file.go:844
 msgid "target path %s already exists"
 msgstr ""
 
@@ -3361,7 +3331,7 @@ msgstr ""
 msgid "template %s not found"
 msgstr ""
 
-#: internal/data/toolbox_migration_remote.go:226
+#: internal/data/toolbox_migration_remote.go:238
 msgid "the connection to the target server was interrupted"
 msgstr ""
 
@@ -3369,93 +3339,102 @@ msgstr ""
 msgid "the created website could not be found on target"
 msgstr ""
 
-#: internal/service/home.go:351
+#: internal/service/home.go:353
 msgid "the current version is the latest version"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:117
-msgid "the database is imported across MariaDB and MySQL; verify application compatibility after migration"
-msgstr ""
-
-#: internal/biz/toolbox_migration_import.go:112
+#: internal/biz/toolbox_migration_import.go:122
 msgid "the database was imported but the source password was unavailable; reset the database user password and update the website configuration manually"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:277
-msgid "the general project was restored but left stopped for manual verification"
+#: internal/biz/toolbox_migration_import.go:40
+#: internal/biz/toolbox_migration_import.go:62
+#: internal/biz/toolbox_migration_import.go:77
+msgid "the name contains characters not allowed by AcePanel"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:294
+#: internal/biz/toolbox_migration_import.go:38
+msgid "the name is reserved by AcePanel"
+msgstr ""
+
+#: internal/biz/toolbox_migration_import.go:337
 msgid "the project was migrated, but its reverse proxy website already exists on the target"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:304
+#: internal/biz/toolbox_migration_import.go:347
 msgid "the project was migrated, but its reverse proxy website could not be created: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:37
-#: internal/biz/toolbox_migration_import.go:52
-#: internal/biz/toolbox_migration_import.go:67
-msgid "the resource name is not supported by AcePanel"
+#: internal/biz/toolbox_migration_import.go:320
+msgid "the project was not started; start it manually"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:98
+#: internal/biz/toolbox_migration_import.go:108
 msgid "the source PostgreSQL major version is newer than the target version"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:273
+#: internal/biz/toolbox_migration_import.go:316
 msgid "the source Python virtual environment was not migrated; create an environment, install dependencies, and start the project manually"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:617
-#: internal/data/toolbox_migration_baota.go:684
-#: internal/data/toolbox_migration_onepanel.go:377
+#: internal/data/toolbox_migration_baota.go:693
+#: internal/data/toolbox_migration_baota.go:760
+#: internal/data/toolbox_migration_onepanel.go:445
 msgid "the source backup did not finish in time"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:646
+#: internal/biz/toolbox_migration_import.go:127
+msgid "the source is MariaDB and the target is MySQL"
+msgstr ""
+
+#: internal/data/toolbox_migration_baota.go:722
 msgid "the source path is empty"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:234
-#: internal/data/toolbox_migration_baota.go:471
+#: internal/biz/toolbox_migration_import.go:277
+#: internal/data/toolbox_migration_baota.go:520
 msgid "the source project start command is missing"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:164
+#: internal/biz/toolbox_migration_import.go:177
 msgid "the source reverse proxy target could not be determined"
 msgstr ""
 
-#: internal/data/toolbox_migration_baota.go:674
+#: internal/data/toolbox_migration_baota.go:750
+#: internal/data/toolbox_migration_onepanel.go:434
 msgid "the source task failed"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:249
+#: internal/biz/toolbox_migration_import.go:251
+msgid "the source uses PHP %d, the target does not have it installed, PHP %d was used instead"
+msgstr ""
+
+#: internal/biz/toolbox_migration_import.go:292
 msgid "the target project directory is not empty"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:160
-msgid "the target server does not have PHP %d installed"
-msgstr ""
-
-#: internal/biz/toolbox_migration_import.go:56
+#: internal/biz/toolbox_migration_import.go:66
 msgid "the target server does not have a compatible %s database server"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:238
-#: internal/biz/toolbox_migration_import.go:73
+#: internal/biz/toolbox_migration_import.go:281
+#: internal/biz/toolbox_migration_import.go:83
 msgid "the target server does not have a compatible %s runtime for version %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:383
+#: internal/biz/toolbox_migration_import.go:426
 msgid "the target server does not have user %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:138
+#: internal/biz/toolbox_migration_import.go:232
+msgid "the target server has no PHP installed, the website was created without PHP"
+msgstr ""
+
+#: internal/biz/toolbox_migration_import.go:148
 msgid "the target website directory is not empty"
 msgstr ""
 
-#: internal/data/toolbox_migration_onepanel.go:108
+#: internal/data/toolbox_migration_onepanel.go:116
 msgid "this 1Panel website type is not supported for automatic migration: %s"
 msgstr ""
 
@@ -3480,7 +3459,7 @@ msgstr ""
 msgid "token expired"
 msgstr ""
 
-#: internal/biz/alert.go:695
+#: internal/biz/alert.go:709
 msgid "too many failed SSH login attempts"
 msgstr ""
 
@@ -3488,28 +3467,28 @@ msgstr ""
 msgid "too many failed panel login attempts"
 msgstr ""
 
-#: internal/service/home.go:292
-#: internal/service/home.go:328
+#: internal/service/home.go:294
+#: internal/service/home.go:330
 msgid "unable to check for updates in offline mode"
 msgstr ""
 
-#: internal/service/home.go:366
-#: internal/service/ws.go:480
+#: internal/service/home.go:368
+#: internal/service/ws.go:481
 msgid "unable to update in offline mode"
 msgstr ""
 
-#: internal/data/backup.go:877
+#: internal/data/backup.go:892
 msgid "uncompressed backup is empty, restore aborted"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:240
-#: internal/biz/toolbox_migration_import.go:75
+#: internal/biz/toolbox_migration_import.go:283
+#: internal/biz/toolbox_migration_import.go:85
 #: internal/service/cli.go:88
 msgid "unknown"
 msgstr ""
 
-#: internal/data/backup.go:156
-#: internal/data/backup.go:289
+#: internal/data/backup.go:157
+#: internal/data/backup.go:290
 msgid "unknown backup type"
 msgstr ""
 
@@ -3518,15 +3497,15 @@ msgstr ""
 msgid "unknown log type"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:188
+#: internal/apps/fail2ban/app.go:190
 msgid "unknown service"
 msgstr ""
 
-#: internal/data/backup.go:524
+#: internal/data/backup.go:525
 msgid "unknown storage type"
 msgstr ""
 
-#: internal/service/toolbox_benchmark.go:77
+#: internal/service/toolbox_benchmark.go:78
 msgid "unknown test type"
 msgstr ""
 
@@ -3548,16 +3527,16 @@ msgstr ""
 msgid "unsupported filesystem type: %s"
 msgstr ""
 
-#: internal/biz/toolbox_migration.go:406
+#: internal/biz/toolbox_migration.go:408
 #: internal/biz/toolbox_migration_push.go:119
-#: internal/data/toolbox_migration_baota.go:238
-#: internal/data/toolbox_migration_baota.go:584
-#: internal/data/toolbox_migration_onepanel.go:171
-#: internal/data/toolbox_migration_onepanel.go:362
+#: internal/data/toolbox_migration_baota.go:240
+#: internal/data/toolbox_migration_baota.go:660
+#: internal/data/toolbox_migration_onepanel.go:192
+#: internal/data/toolbox_migration_onepanel.go:398
 msgid "unsupported migration resource type: %s"
 msgstr ""
 
-#: internal/data/toolbox_migration.go:50
+#: internal/data/toolbox_migration.go:51
 msgid "unsupported source panel: %s"
 msgstr ""
 
@@ -3565,8 +3544,8 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1441
-#: internal/data/website.go:1505
+#: internal/data/website.go:1437
+#: internal/data/website.go:1501
 msgid "unsupported web server: %s"
 msgstr ""
 
@@ -3579,8 +3558,14 @@ msgstr ""
 msgid "upload certificate cannot be set to auto renewal"
 msgstr ""
 
-#: internal/service/file.go:298
+#: internal/service/file.go:299
 msgid "upload file error: %v"
+msgstr ""
+
+#: internal/biz/toolbox_migration_push.go:153
+#: internal/biz/toolbox_migration_push.go:237
+#: internal/biz/toolbox_migration_push.go:318
+msgid "uploading"
 msgstr ""
 
 #: internal/data/user.go:143
@@ -3589,27 +3574,27 @@ msgstr ""
 msgid "username or password error"
 msgstr ""
 
-#: internal/service/backup_storage.go:159
+#: internal/service/backup_storage.go:156
 msgid "webdav configuration error: %v"
 msgstr ""
 
-#: internal/data/webhook.go:109
+#: internal/data/webhook.go:110
 msgid "webhook is disabled"
 msgstr ""
 
-#: internal/data/webhook.go:105
+#: internal/data/webhook.go:106
 msgid "webhook not found"
 msgstr ""
 
-#: internal/data/webhook.go:114
+#: internal/data/webhook.go:115
 msgid "webhook script not found"
 msgstr ""
 
-#: internal/biz/alert.go:771
+#: internal/biz/alert.go:866
 msgid "website %s expires in %s days"
 msgstr ""
 
-#: internal/biz/alert.go:805
+#: internal/biz/alert.go:900
 msgid "website 5xx responses this hour"
 msgstr ""
 
@@ -3617,15 +3602,15 @@ msgstr ""
 msgid "website backup failed: %v"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:197
+#: internal/biz/toolbox_migration_import.go:211
 msgid "website configuration import failed: %v"
 msgstr ""
 
-#: internal/data/website.go:841
+#: internal/data/website.go:847
 msgid "website directory does not exist"
 msgstr ""
 
-#: internal/biz/alert.go:807
+#: internal/biz/alert.go:902
 msgid "website error rate this hour"
 msgstr ""
 
@@ -3633,11 +3618,11 @@ msgstr ""
 msgid "website expired and has been disabled"
 msgstr ""
 
-#: internal/biz/alert.go:821
+#: internal/biz/alert.go:916
 msgid "website expiry"
 msgstr ""
 
-#: internal/biz/toolbox_migration_import.go:173
+#: internal/biz/toolbox_migration_import.go:187
 msgid "website file import failed: %v"
 msgstr ""
 
@@ -3645,7 +3630,7 @@ msgstr ""
 msgid "website not found"
 msgstr ""
 
-#: internal/data/website.go:599
+#: internal/data/website.go:605
 msgid "website type is unchanged"
 msgstr ""
 
@@ -3654,15 +3639,15 @@ msgstr ""
 msgid "wildcard domains cannot use HTTP verification"
 msgstr ""
 
-#: internal/biz/website.go:256
+#: internal/biz/website.go:255
 msgid "wildcard domains require DNS verification, please select a DNS provider"
 msgstr ""
 
-#: internal/service/file.go:893
+#: internal/service/file.go:879
 msgid "write chunk %d error: %v"
 msgstr ""
 
-#: internal/service/file.go:329
+#: internal/service/file.go:330
 msgid "write file error: %v"
 msgstr ""
 
@@ -3670,7 +3655,7 @@ msgstr ""
 msgid "ws not allowed"
 msgstr ""
 
-#: internal/service/environment_php.go:521
+#: internal/service/environment_php.go:523
 msgid "xdebug is a library for debugging and profiling PHP code"
 msgstr ""
 
@@ -3678,47 +3663,47 @@ msgstr ""
 msgid "xfs filesystem is not mounted, logical volume has been extended but filesystem was not resized"
 msgstr ""
 
-#: internal/service/environment_php.go:516
+#: internal/service/environment_php.go:518
 msgid "xhprof is a library for performance profiling"
 msgstr ""
 
-#: internal/service/environment_php.go:526
+#: internal/service/environment_php.go:528
 msgid "yaml is a library for handling YAML"
 msgstr ""
 
-#: internal/service/environment_php.go:531
+#: internal/service/environment_php.go:533
 msgid "zstd is a library for compressing and decompressing files"
 msgstr ""
 
-#: internal/data/backup.go:1612
+#: internal/data/backup.go:1683
 msgid "|-Backup file used: %s"
 msgstr ""
 
-#: internal/data/backup.go:1200
-#: internal/data/backup.go:231
-#: internal/data/backup.go:268
-#: internal/data/backup.go:564
-#: internal/data/backup.go:622
-#: internal/data/backup.go:680
-#: internal/data/backup.go:773
-#: internal/data/backup.go:837
+#: internal/data/backup.go:1217
+#: internal/data/backup.go:232
+#: internal/data/backup.go:269
+#: internal/data/backup.go:565
+#: internal/data/backup.go:632
+#: internal/data/backup.go:695
+#: internal/data/backup.go:788
+#: internal/data/backup.go:852
 msgid "|-Backup file: %s"
 msgstr ""
 
-#: internal/data/backup.go:136
+#: internal/data/backup.go:137
 msgid "|-Backup storage: %s"
 msgstr ""
 
-#: internal/data/backup.go:137
+#: internal/data/backup.go:138
 msgid "|-Backup target: %s"
 msgstr ""
 
-#: internal/data/backup.go:160
-#: internal/data/backup.go:230
+#: internal/data/backup.go:161
+#: internal/data/backup.go:231
 msgid "|-Backup time: %s"
 msgstr ""
 
-#: internal/data/backup.go:135
+#: internal/data/backup.go:136
 msgid "|-Backup type: %s"
 msgstr ""
 
@@ -3726,8 +3711,8 @@ msgstr ""
 msgid "|-Backup type: panel"
 msgstr ""
 
-#: internal/data/backup.go:420
-#: internal/data/backup.go:481
+#: internal/data/backup.go:421
+#: internal/data/backup.go:482
 msgid "|-Cleaning expired file: %s"
 msgstr ""
 
@@ -3741,41 +3726,41 @@ msgstr ""
 msgid "|-Cleaning type: %s"
 msgstr ""
 
-#: internal/data/backup.go:919
+#: internal/data/backup.go:939
 msgid "|-File size: %s"
 msgstr ""
 
-#: internal/data/backup.go:1581
-#: internal/data/backup.go:1687
+#: internal/data/backup.go:1652
+#: internal/data/backup.go:1758
 msgid "|-Fix completed"
 msgstr ""
 
-#: internal/data/backup.go:891
+#: internal/data/backup.go:911
 msgid "|-Fixing file permissions..."
 msgstr ""
 
-#: internal/data/backup.go:1574
+#: internal/data/backup.go:1645
 msgid "|-Found %s.db is abnormal, removed it"
 msgstr ""
 
-#: internal/data/backup.go:1003
+#: internal/data/backup.go:1021
 msgid "|-Importing PostgreSQL backup..."
 msgstr ""
 
-#: internal/data/backup.go:1039
-#: internal/data/backup.go:963
+#: internal/data/backup.go:1056
+#: internal/data/backup.go:983
 msgid "|-Importing SQL into database..."
 msgstr ""
 
-#: internal/data/backup.go:1081
+#: internal/data/backup.go:1098
 msgid "|-Importing table: %s"
 msgstr ""
 
-#: internal/data/backup.go:926
+#: internal/data/backup.go:946
 msgid "|-Importing: %s (%s/s)"
 msgstr ""
 
-#: internal/data/backup.go:922
+#: internal/data/backup.go:942
 msgid "|-Importing: %s / %s (%.1f%%, %s/s)"
 msgstr ""
 
@@ -3784,35 +3769,35 @@ msgstr ""
 msgid "|-Keep count: %d"
 msgstr ""
 
-#: internal/data/backup.go:1628
+#: internal/data/backup.go:1699
 msgid "|-Move backup file..."
 msgstr ""
 
-#: internal/data/backup.go:1277
+#: internal/data/backup.go:1294
 msgid "|-Re-enabling AOF..."
 msgstr ""
 
-#: internal/data/backup.go:1247
+#: internal/data/backup.go:1264
 msgid "|-Replacing dump.rdb..."
 msgstr ""
 
-#: internal/data/backup.go:881
+#: internal/data/backup.go:901
 msgid "|-Replacing website files..."
 msgstr ""
 
-#: internal/data/backup.go:267
+#: internal/data/backup.go:268
 msgid "|-Restore target: %s"
 msgstr ""
 
-#: internal/data/backup.go:293
+#: internal/data/backup.go:294
 msgid "|-Restore time: %s"
 msgstr ""
 
-#: internal/data/backup.go:266
+#: internal/data/backup.go:267
 msgid "|-Restore type: %s"
 msgstr ""
 
-#: internal/data/backup.go:1063
+#: internal/data/backup.go:1080
 msgid "|-Restoring schema..."
 msgstr ""
 
@@ -3829,50 +3814,50 @@ msgstr ""
 msgid "|-Rotation type: website"
 msgstr ""
 
-#: internal/data/backup.go:1664
+#: internal/data/backup.go:1735
 msgid "|-Set key file permissions..."
 msgstr ""
 
-#: internal/data/backup.go:1527
+#: internal/data/backup.go:1598
 msgid "|-Start fixing the panel..."
 msgstr ""
 
-#: internal/data/backup.go:1267
+#: internal/data/backup.go:1284
 msgid "|-Starting %s service (loading RDB)..."
 msgstr ""
 
-#: internal/data/backup.go:1236
+#: internal/data/backup.go:1253
 msgid "|-Stopping %s service..."
 msgstr ""
 
-#: internal/data/backup.go:1052
-#: internal/data/backup.go:1170
-#: internal/data/backup.go:1223
-#: internal/data/backup.go:543
-#: internal/data/backup.go:593
-#: internal/data/backup.go:651
-#: internal/data/backup.go:712
-#: internal/data/backup.go:816
+#: internal/data/backup.go:1069
+#: internal/data/backup.go:1187
+#: internal/data/backup.go:1240
+#: internal/data/backup.go:544
+#: internal/data/backup.go:594
+#: internal/data/backup.go:662
+#: internal/data/backup.go:727
+#: internal/data/backup.go:831
 msgid "|-Temporary directory: %s"
 msgstr ""
 
-#: internal/data/backup.go:1053
-#: internal/data/backup.go:1224
-#: internal/data/backup.go:860
-#: internal/data/backup.go:958
-#: internal/data/backup.go:998
+#: internal/data/backup.go:1016
+#: internal/data/backup.go:1070
+#: internal/data/backup.go:1241
+#: internal/data/backup.go:875
+#: internal/data/backup.go:978
 msgid "|-Uncompressing backup..."
 msgstr ""
 
-#: internal/data/backup.go:1617
+#: internal/data/backup.go:1688
 msgid "|-Unzip backup file..."
 msgstr ""
 
-#: internal/data/backup.go:859
+#: internal/data/backup.go:874
 msgid "|-Website path: %s"
 msgstr ""
 
-#: internal/data/backup.go:133
+#: internal/data/backup.go:134
 #: internal/service/cli.go:712
 msgid "★ Start backup [%s]"
 msgstr ""
@@ -3890,15 +3875,15 @@ msgstr ""
 msgid "★ Start log rotation [%s]"
 msgstr ""
 
-#: internal/data/backup.go:264
+#: internal/data/backup.go:265
 msgid "★ Start restore [%s]"
 msgstr ""
 
-#: internal/data/backup.go:175
+#: internal/data/backup.go:176
 msgid "☆ Backup completed [%s]"
 msgstr ""
 
-#: internal/data/backup.go:165
+#: internal/data/backup.go:166
 msgid "☆ Backup failed: %v [%s]"
 msgstr ""
 
@@ -3911,11 +3896,11 @@ msgstr ""
 msgid "☆ Cleaning successful [%s]"
 msgstr ""
 
-#: internal/data/backup.go:298
+#: internal/data/backup.go:299
 msgid "☆ Restore completed [%s]"
 msgstr ""
 
-#: internal/data/backup.go:296
+#: internal/data/backup.go:297
 msgid "☆ Restore failed: %v [%s]"
 msgstr ""
 

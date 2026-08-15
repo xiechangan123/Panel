@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/components/common/AppFooter.vue:18 src/views/home/IndexView.vue:548
+#: src/components/common/AppFooter.vue:18 src/views/home/IndexView.vue:560
 msgid "AcePanel"
 msgstr "AcePanel"
 
@@ -25,9 +25,9 @@ msgstr "QQ Group"
 #: src/views/apps/fail2ban/IndexView.vue:313 src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:276 src/views/backup/ListView.vue:324
 #: src/views/cert/CertView.vue:526 src/views/cert/CertView.vue:642
-#: src/views/cert/CreateCertModal.vue:118 src/views/home/IndexView.vue:530
+#: src/views/cert/CreateCertModal.vue:118 src/views/home/IndexView.vue:542
 #: src/views/task/CreateModal.vue:445 src/views/task/CreateModal.vue:467
-#: src/views/toolbox/MigrationView.vue:73
+#: src/views/toolbox/MigrationView.vue:75
 msgid "Website"
 msgstr "Website"
 
@@ -255,7 +255,7 @@ msgstr "Maximum"
 #: src/components/common/DraggableWindow.vue:289
 #: src/components/file-editor/EditorPane.vue:282
 #: src/layouts/tab/components/ContextMenu.vue:29
-#: src/views/cert/ObtainModal.vue:183 src/views/ssh/IndexView.vue:510
+#: src/views/cert/ObtainModal.vue:183 src/views/ssh/IndexView.vue:512
 msgid "Close"
 msgstr "Close"
 
@@ -373,16 +373,16 @@ msgstr "Select File"
 #: src/views/container/NetworkView.vue:48 src/views/container/VolumeView.vue:29
 #: src/views/database/CreateServerModal.vue:108
 #: src/views/database/ServerList.vue:66
-#: src/views/database/UpdateServerModal.vue:66 src/views/file/ListView.vue:1443
+#: src/views/database/UpdateServerModal.vue:66 src/views/file/ListView.vue:1444
 #: src/views/file/PropertyModal.vue:27 src/views/file/ToolBar.vue:123
-#: src/views/home/IndexView.vue:659 src/views/home/IndexView.vue:760
+#: src/views/home/IndexView.vue:671 src/views/home/IndexView.vue:772
 #: src/views/monitor/AlertRuleModal.vue:136 src/views/monitor/AlertView.vue:53
 #: src/views/monitor/ChannelModal.vue:90 src/views/monitor/SettingView.vue:102
 #: src/views/project/ListView.vue:37 src/views/setting/PasskeyModal.vue:26
 #: src/views/ssh/CreateModal.vue:60 src/views/ssh/UpdateModal.vue:66
 #: src/views/tamper/RuleModal.vue:105 src/views/tamper/TamperView.vue:118
-#: src/views/toolbox/LogView.vue:219 src/views/toolbox/MigrationView.vue:130
-#: src/views/toolbox/MigrationView.vue:205
+#: src/views/toolbox/LogView.vue:219 src/views/toolbox/MigrationView.vue:132
+#: src/views/toolbox/MigrationView.vue:207
 #: src/views/toolbox/ProcessView.vue:106 src/views/toolbox/ProcessView.vue:393
 #: src/views/toolbox/WebHookView.vue:37 src/views/toolbox/WebHookView.vue:330
 #: src/views/toolbox/WebHookView.vue:371 src/views/website/CreateModal.vue:187
@@ -394,26 +394,26 @@ msgstr "Name"
 msgid "Permissions"
 msgstr "Permissions"
 
-#: src/components/common/PathSelector.vue:102 src/views/file/ListView.vue:1454
+#: src/components/common/PathSelector.vue:102 src/views/file/ListView.vue:1455
 msgid "Owner / Group"
 msgstr "Owner / Group"
 
 #: src/components/common/PathSelector.vue:114 src/views/backup/ListView.vue:48
 #: src/views/container/ImageView.vue:81
 #: src/views/database/ElasticsearchDataView.vue:112
-#: src/views/database/RedisDataView.vue:116 src/views/file/ListView.vue:1450
+#: src/views/database/RedisDataView.vue:116 src/views/file/ListView.vue:1451
 #: src/views/file/PropertyModal.vue:39 src/views/file/ToolBar.vue:124
 #: src/views/toolbox/disk/RaidView.vue:95
 #: src/views/toolbox/disk/RaidView.vue:177 src/views/toolbox/DiskView.vue:233
-#: src/views/toolbox/LogView.vue:220 src/views/toolbox/MigrationView.vue:151
+#: src/views/toolbox/LogView.vue:220 src/views/toolbox/MigrationView.vue:153
 msgid "Size"
 msgstr "Size"
 
-#: src/components/common/PathSelector.vue:149 src/views/file/ListView.vue:1617
+#: src/components/common/PathSelector.vue:149 src/views/file/ListView.vue:1618
 msgid "Calculate"
 msgstr "Calculate"
 
-#: src/components/common/PathSelector.vue:154 src/views/file/ListView.vue:1459
+#: src/components/common/PathSelector.vue:154 src/views/file/ListView.vue:1460
 #: src/views/file/PropertyModal.vue:51 src/views/file/ToolBar.vue:125
 msgid "Modification Time"
 msgstr "Modification Time"
@@ -474,8 +474,6 @@ msgid "Root Directory"
 msgstr "Root Directory"
 
 #: src/components/common/PathSelector.vue:406
-#: src/components/system/FormDrawer.vue:108
-#: src/components/system/FormModal.vue:106
 #: src/views/apps/fail2ban/IndexView.vue:373
 #: src/views/apps/nginx/NginxIndex.vue:690
 #: src/views/apps/nginx/NginxIndex.vue:816
@@ -493,8 +491,8 @@ msgstr "Root Directory"
 #: src/views/container/ComposeView.vue:341
 #: src/views/container/ComposeView.vue:367
 #: src/views/container/ContainerView.vue:663
-#: src/views/container/ImagePullModal.vue:231
-#: src/views/container/ImageView.vue:437
+#: src/views/container/ImagePullModal.vue:229
+#: src/views/container/ImageView.vue:436
 #: src/views/container/NetworkView.vue:341
 #: src/views/container/VolumeView.vue:233
 #: src/views/database/CreateDatabaseModal.vue:165
@@ -529,15 +527,15 @@ msgid "Connection error."
 msgstr "Connection error. Please refresh."
 
 #: src/components/common/PtyTerminalModal.vue:138
-#: src/views/container/ImagePullModal.vue:101
-#: src/views/container/ImageView.vue:248
+#: src/views/container/ImagePullModal.vue:99
+#: src/views/container/ImageView.vue:247
 #, fuzzy
 msgid "Connection error"
 msgstr "Connection error. Please refresh."
 
 #: src/components/common/PtyTerminalModal.vue:143
-#: src/views/container/ImagePullModal.vue:106
-#: src/views/container/ImageView.vue:253 src/views/ssh/SftpPanel.vue:158
+#: src/views/container/ImagePullModal.vue:104
+#: src/views/container/ImageView.vue:252 src/views/ssh/SftpPanel.vue:158
 #, fuzzy
 msgid "Failed to connect"
 msgstr "Files to compress"
@@ -552,7 +550,7 @@ msgstr "Files to compress"
 #: src/views/apps/supervisor/IndexView.vue:151
 #: src/views/container/ComposeView.vue:171
 #: src/views/file/composables/usePaste.ts:72 src/views/file/UploadModal.vue:784
-#: src/views/home/IndexView.vue:1029 src/views/home/UpdateView.vue:108
+#: src/views/home/IndexView.vue:1041 src/views/home/UpdateView.vue:104
 #: src/views/toolbox/DiskView.vue:353 src/views/toolbox/DiskView.vue:355
 #: src/views/toolbox/DiskView.vue:375 src/views/toolbox/DiskView.vue:377
 #: src/views/toolbox/DiskView.vue:441 src/views/toolbox/DiskView.vue:445
@@ -578,23 +576,21 @@ msgstr ""
 #: src/components/system/composables/useConfirm.ts:37
 #: src/components/system/composables/useConfirm.ts:83
 #: src/components/system/ConfirmDialog.vue:58
-#: src/components/system/FormDrawer.vue:105
-#: src/components/system/FormModal.vue:103
 #: src/layouts/header/components/UserAvatar.vue:31
 #: src/views/app/TemplateDeployModal.vue:637
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:239
 #: src/views/container/ContainerCreate.vue:162
 #: src/views/container/ContainerCreate.vue:650
-#: src/views/container/ImagePullModal.vue:199
-#: src/views/container/ImagePullModal.vue:213
-#: src/views/container/ImagePullModal.vue:230
-#: src/views/container/ImageView.vue:371 src/views/container/ImageView.vue:386
+#: src/views/container/ImagePullModal.vue:197
+#: src/views/container/ImagePullModal.vue:211
+#: src/views/container/ImagePullModal.vue:228
+#: src/views/container/ImageView.vue:370 src/views/container/ImageView.vue:385
 #: src/views/file/composables/usePaste.ts:73
 #: src/views/file/composables/usePaste.ts:153 src/views/file/ListView.vue:312
 #: src/views/file/ListView.vue:851 src/views/file/ToolBar.vue:181
 #: src/views/file/UploadModal.vue:505 src/views/file/UploadModal.vue:640
-#: src/views/file/UploadModal.vue:783 src/views/home/IndexView.vue:1030
-#: src/views/home/UpdateView.vue:109 src/views/monitor/AlertRuleModal.vue:193
+#: src/views/file/UploadModal.vue:783 src/views/home/IndexView.vue:1042
+#: src/views/home/UpdateView.vue:105 src/views/monitor/AlertRuleModal.vue:193
 #: src/views/monitor/ChannelModal.vue:148 src/views/project/EditModal.vue:579
 #: src/views/ssh/SftpPanel.vue:299 src/views/tamper/RuleModal.vue:134
 #: src/views/task/TaskView.vue:110 src/views/toolbox/DiskView.vue:356
@@ -603,8 +599,8 @@ msgstr ""
 #: src/views/toolbox/DiskView.vue:464 src/views/toolbox/DiskView.vue:485
 #: src/views/toolbox/DiskView.vue:505 src/views/toolbox/DiskView.vue:527
 #: src/views/toolbox/DiskView.vue:548 src/views/toolbox/DiskView.vue:570
-#: src/views/toolbox/DiskView.vue:592 src/views/toolbox/MigrationView.vue:326
-#: src/views/toolbox/MigrationView.vue:396
+#: src/views/toolbox/DiskView.vue:592 src/views/toolbox/MigrationView.vue:346
+#: src/views/toolbox/MigrationView.vue:416
 #: src/views/toolbox/network/InterfaceView.vue:297
 #: src/views/toolbox/network/InterfaceView.vue:429
 #: src/views/toolbox/ProcessView.vue:248 src/views/website/EditModal.vue:215
@@ -671,8 +667,7 @@ msgstr ""
 
 #: src/components/common/RealtimeLog.vue:409
 #: src/components/file-editor/EditorToolbar.vue:190
-#: src/components/file-editor/FileTree.vue:702
-#: src/components/system/SearchToolbar.vue:58 src/views/app/AppView.vue:237
+#: src/components/file-editor/FileTree.vue:702 src/views/app/AppView.vue:237
 #: src/views/app/EnvironmentView.vue:264 src/views/app/TemplateView.vue:102
 #: src/views/database/ElasticsearchDataView.vue:314
 #: src/views/database/RedisDataView.vue:289
@@ -725,12 +720,12 @@ msgstr "Size"
 msgid "Increase Font Size"
 msgstr "Size"
 
-#: src/components/common/RealtimeLog.vue:456 src/views/ssh/IndexView.vue:547
+#: src/components/common/RealtimeLog.vue:456 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Exit Fullscreen"
 msgstr "Fullscreen Display"
 
-#: src/components/common/RealtimeLog.vue:456 src/views/ssh/IndexView.vue:547
+#: src/components/common/RealtimeLog.vue:456 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Fullscreen"
 msgstr "Fullscreen Display"
@@ -781,10 +776,10 @@ msgstr "Are you sure you want to clear?"
 msgid "Clear Log"
 msgstr "Clear Log"
 
-#: src/components/common/ServiceStatus.vue:29 src/views/home/IndexView.vue:891
-#: src/views/home/IndexView.vue:899 src/views/home/IndexView.vue:906
-#: src/views/home/IndexView.vue:912 src/views/home/IndexView.vue:923
-#: src/views/home/IndexView.vue:935
+#: src/components/common/ServiceStatus.vue:29 src/views/home/IndexView.vue:903
+#: src/views/home/IndexView.vue:911 src/views/home/IndexView.vue:918
+#: src/views/home/IndexView.vue:924 src/views/home/IndexView.vue:935
+#: src/views/home/IndexView.vue:947
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -792,8 +787,8 @@ msgstr "Loading..."
 #: src/views/app/InstalledView.vue:16
 #: src/views/apps/prometheus/PrometheusExportersView.vue:50
 #: src/views/project/ListView.vue:70 src/views/task/TaskView.vue:47
-#: src/views/toolbox/MigrationView.vue:81
-#: src/views/toolbox/MigrationView.vue:147 src/views/toolbox/ProcessView.vue:48
+#: src/views/toolbox/MigrationView.vue:83
+#: src/views/toolbox/MigrationView.vue:149 src/views/toolbox/ProcessView.vue:48
 #: src/views/toolbox/ProcessView.vue:77 src/views/website/ListView.vue:135
 msgid "Running"
 msgstr "Running"
@@ -802,7 +797,7 @@ msgstr "Running"
 #: src/views/app/InstalledView.vue:17
 #: src/views/apps/prometheus/PrometheusExportersView.vue:51
 #: src/views/project/ListView.vue:72 src/views/tamper/TamperView.vue:234
-#: src/views/toolbox/MigrationView.vue:147 src/views/toolbox/ProcessView.vue:50
+#: src/views/toolbox/MigrationView.vue:149 src/views/toolbox/ProcessView.vue:50
 #: src/views/toolbox/ProcessView.vue:83
 msgid "Stopped"
 msgstr "Stopped"
@@ -926,7 +921,7 @@ msgstr "Stop"
 #: src/views/apps/prometheus/PrometheusExportersView.vue:103
 #: src/views/apps/supervisor/IndexView.vue:159
 #: src/views/container/ContainerView.vue:191
-#: src/views/container/ContainerView.vue:599 src/views/home/IndexView.vue:555
+#: src/views/container/ContainerView.vue:599 src/views/home/IndexView.vue:567
 #: src/views/project/ListView.vue:145
 msgid "Restart"
 msgstr "Restart"
@@ -1148,14 +1143,12 @@ msgstr ""
 #: src/components/file-editor/EditorToolbar.vue:76
 #: src/components/file-editor/EditorToolbar.vue:169
 #: src/components/file-editor/EditorToolbar.vue:174
-#: src/components/file-editor/FileTree.vue:680
-#: src/components/system/RefreshButton.vue:31
-#: src/components/system/RefreshButton.vue:37 src/views/file/PathInput.vue:133
-#: src/views/home/UpdateView.vue:167 src/views/log/DatabaseLog.vue:132
+#: src/components/file-editor/FileTree.vue:680 src/views/file/PathInput.vue:133
+#: src/views/home/UpdateView.vue:163 src/views/log/DatabaseLog.vue:132
 #: src/views/log/HttpLog.vue:161 src/views/log/OperationLog.vue:184
 #: src/views/log/SSHLog.vue:115 src/views/monitor/AlertView.vue:240
 #: src/views/ssh/SftpBrowser.vue:138 src/views/tamper/TamperView.vue:379
-#: src/views/toolbox/MigrationView.vue:529
+#: src/views/toolbox/MigrationView.vue:566
 #: src/views/toolbox/network/InterfaceView.vue:350
 #: src/views/toolbox/NetworkView.vue:193 src/views/toolbox/PanelView.vue:100
 #: src/views/toolbox/PanelView.vue:233 src/views/toolbox/ProcessView.vue:335
@@ -1211,7 +1204,7 @@ msgstr ""
 
 #: src/components/file-editor/EditorToolbar.vue:260
 #: src/views/firewall/IndexView.vue:28 src/views/monitor/IndexView.vue:22
-#: src/views/ssh/IndexView.vue:525 src/views/tamper/TamperView.vue:224
+#: src/views/ssh/IndexView.vue:527 src/views/tamper/TamperView.vue:224
 #: src/views/website/IndexView.vue:30
 msgid "Settings"
 msgstr "Settings"
@@ -1236,7 +1229,7 @@ msgid "Use Spaces"
 msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:171
-#: src/views/ssh/IndexView.vue:531
+#: src/views/ssh/IndexView.vue:533
 #, fuzzy
 msgid "Font Size"
 msgstr "Size"
@@ -1421,14 +1414,14 @@ msgstr "Format"
 msgid "Failed to create"
 msgstr "Files to compress"
 
-#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1480
-#: src/views/file/ListView.vue:1501
+#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1481
+#: src/views/file/ListView.vue:1502
 #, fuzzy
 msgid "Folder name"
 msgstr "Filename"
 
-#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1480
-#: src/views/file/ListView.vue:1501
+#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1481
+#: src/views/file/ListView.vue:1502
 #, fuzzy
 msgid "File name"
 msgstr "Filename"
@@ -1439,7 +1432,7 @@ msgstr "Filename"
 #: src/views/database/RedisDataView.vue:168
 #: src/views/file/composables/usePaste.ts:48
 #: src/views/file/composables/usePaste.ts:164 src/views/file/ListView.vue:420
-#: src/views/file/ListView.vue:1673 src/views/file/UploadModal.vue:747
+#: src/views/file/ListView.vue:1674 src/views/file/UploadModal.vue:747
 #: src/views/file/UploadModal.vue:776
 msgid "Rename"
 msgstr "Rename"
@@ -1464,7 +1457,7 @@ msgstr "Rename"
 #: src/views/container/ComposeView.vue:289
 #: src/views/container/ContainerView.vue:211
 #: src/views/container/ContainerView.vue:611
-#: src/views/container/ImageView.vue:114 src/views/container/ImageView.vue:297
+#: src/views/container/ImageView.vue:114 src/views/container/ImageView.vue:296
 #: src/views/container/NetworkView.vue:130
 #: src/views/container/NetworkView.vue:221
 #: src/views/container/VolumeView.vue:83 src/views/container/VolumeView.vue:167
@@ -1474,7 +1467,7 @@ msgstr "Rename"
 #: src/views/database/RedisDataView.vue:182
 #: src/views/database/ServerList.vue:247 src/views/database/UserList.vue:165
 #: src/views/environment/PHPView.vue:107 src/views/file/ListView.vue:378
-#: src/views/file/ListView.vue:434 src/views/file/ListView.vue:1684
+#: src/views/file/ListView.vue:434 src/views/file/ListView.vue:1685
 #: src/views/file/ToolBar.vue:198 src/views/firewall/ForwardView.vue:98
 #: src/views/firewall/ForwardView.vue:162 src/views/firewall/IpRuleView.vue:140
 #: src/views/firewall/IpRuleView.vue:204 src/views/firewall/RuleView.vue:280
@@ -1482,7 +1475,7 @@ msgstr "Rename"
 #: src/views/monitor/SettingView.vue:151 src/views/project/ListView.vue:194
 #: src/views/project/ListView.vue:305 src/views/setting/PasskeyModal.vue:68
 #: src/views/setting/SettingUser.vue:142 src/views/setting/TokenModal.vue:87
-#: src/views/ssh/IndexView.vue:623 src/views/tamper/TamperView.vue:156
+#: src/views/ssh/IndexView.vue:625 src/views/tamper/TamperView.vue:156
 #: src/views/task/CronView.vue:169 src/views/task/IndexView.vue:41
 #: src/views/task/TaskView.vue:127 src/views/toolbox/WebHookView.vue:172
 #: src/views/website/ListView.vue:305 src/views/website/ListView.vue:423
@@ -1490,7 +1483,7 @@ msgid "Delete"
 msgstr "Delete"
 
 #: src/components/file-editor/FileTree.vue:463 src/views/backup/ListView.vue:79
-#: src/views/file/ListView.vue:412 src/views/file/ListView.vue:1668
+#: src/views/file/ListView.vue:412 src/views/file/ListView.vue:1669
 #: src/views/monitor/SystemView.vue:590 src/views/toolbox/SshView.vue:345
 msgid "Download"
 msgstr "Download"
@@ -1513,7 +1506,7 @@ msgstr "Files to compress"
 #: src/components/file-editor/FileTree.vue:588
 #: src/views/apps/nginx/NginxIndex.vue:211
 #: src/views/apps/nginx/NginxIndex.vue:275 src/views/file/ListView.vue:894
-#: src/views/file/ListView.vue:1678
+#: src/views/file/ListView.vue:1679
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "Are you sure you want to delete %{ name }?"
 
@@ -1582,52 +1575,14 @@ msgid "No results found"
 msgstr ""
 
 #: src/components/file-editor/FileTree.vue:780
-#: src/components/system/EmptyState.vue:34
 #: src/views/website/stats/GeoTab.vue:163
 msgid "No data"
 msgstr ""
-
-#: src/components/system/BatchActions.vue:36
-#, fuzzy
-msgid "selected"
-msgstr "Time Selection"
-
-#: src/components/system/BatchActions.vue:70 src/views/file/ListView.vue:1718
-#, fuzzy
-msgid "Clear"
-msgstr "Clear Log"
 
 #: src/components/system/composables/useConfirm.ts:34
 #, fuzzy
 msgid "Confirm Deletion"
 msgstr "Configuration"
-
-#: src/components/system/CopyButton.vue:26 src/views/website/ListView.vue:100
-msgid "Copied"
-msgstr ""
-
-#: src/components/system/CopyButton.vue:39
-#: src/components/system/CopyButton.vue:45
-#: src/components/system/CopyButton.vue:51
-#: src/views/apps/clickhouse/IndexView.vue:105
-#: src/views/apps/mongodb/IndexView.vue:101
-#: src/views/apps/mysql/MysqlIndex.vue:134
-#: src/views/apps/postgresql/IndexView.vue:172
-#: src/views/database/ServerList.vue:106 src/views/database/UserList.vue:56
-#: src/views/file/ListView.vue:374 src/views/file/ListView.vue:408
-#: src/views/file/ListView.vue:1004 src/views/file/ToolBar.vue:187
-msgid "Copy"
-msgstr "Copy"
-
-#: src/components/system/ErrorBoundary.vue:35
-msgid "Something went wrong"
-msgstr ""
-
-#: src/components/system/ErrorBoundary.vue:39
-#: src/views/container/ImagePullModal.vue:214
-#: src/views/container/ImageView.vue:387
-msgid "Retry"
-msgstr ""
 
 #: src/components/system/HealthBanner.vue:21
 msgid "Main database write failed, panel may not work properly"
@@ -1650,11 +1605,6 @@ msgid ""
 "Try running \"acepanel fix\" on the server to detect and rebuild the broken "
 "database file."
 msgstr ""
-
-#: src/components/system/TableLayout.vue:86
-#, fuzzy
-msgid "Total: %{n}"
-msgstr "Total In"
 
 #: src/layouts/header/components/FullScreen.vue:16
 msgid "Fullscreen Display"
@@ -1760,15 +1710,15 @@ msgstr "Backup"
 msgid "Certificate"
 msgstr "Certificate"
 
-#: src/locales/menu.ts:10 src/views/home/IndexView.vue:525
+#: src/locales/menu.ts:10 src/views/home/IndexView.vue:537
 #: src/views/task/CreateModal.vue:469
 msgid "Container"
 msgstr "Container"
 
 #: src/locales/menu.ts:11 src/views/apps/grafana/GrafanaConfigTuneView.vue:189
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:222
-#: src/views/backup/ListView.vue:334 src/views/home/IndexView.vue:534
-#: src/views/toolbox/MigrationView.vue:74 src/views/website/CreateModal.vue:248
+#: src/views/backup/ListView.vue:334 src/views/home/IndexView.vue:546
+#: src/views/toolbox/MigrationView.vue:76 src/views/website/CreateModal.vue:248
 msgid "Database"
 msgstr "Database"
 
@@ -1793,8 +1743,8 @@ msgstr "Port Settings"
 msgid "Monitoring"
 msgstr "Monitoring"
 
-#: src/locales/menu.ts:18 src/views/home/IndexView.vue:539
-#: src/views/toolbox/MigrationView.vue:76
+#: src/locales/menu.ts:18 src/views/home/IndexView.vue:551
+#: src/views/toolbox/MigrationView.vue:78
 #, fuzzy
 msgid "Project"
 msgstr "Reject"
@@ -1816,7 +1766,7 @@ msgstr "Toolbox"
 #: src/locales/menu.ts:23 src/views/app/AppView.vue:97
 #: src/views/app/EnvironmentView.vue:88 src/views/app/InstalledView.vue:103
 #: src/views/app/InstalledView.vue:202
-#: src/views/app/TemplateDeployModal.vue:652 src/views/home/IndexView.vue:563
+#: src/views/app/TemplateDeployModal.vue:652 src/views/home/IndexView.vue:575
 #: src/views/setting/TokenModal.vue:308
 msgid "Update"
 msgstr "Update"
@@ -1900,7 +1850,7 @@ msgstr "Show in Home"
 #: src/views/database/ElasticsearchDataView.vue:169
 #: src/views/database/RedisDataView.vue:124
 #: src/views/database/ServerList.vue:161 src/views/database/UserList.vue:134
-#: src/views/environment/PHPView.vue:71 src/views/file/ListView.vue:1462
+#: src/views/environment/PHPView.vue:71 src/views/file/ListView.vue:1463
 #: src/views/file/ShareModal.vue:102 src/views/firewall/ForwardView.vue:81
 #: src/views/firewall/IpRuleView.vue:123 src/views/firewall/RuleView.vue:263
 #: src/views/firewall/ScanView.vue:256 src/views/monitor/AlertView.vue:103
@@ -2077,8 +2027,8 @@ msgstr "Description"
 #: src/views/tamper/TamperView.vue:131 src/views/tamper/TamperView.vue:232
 #: src/views/task/TaskView.vue:34 src/views/toolbox/disk/RaidView.vue:97
 #: src/views/toolbox/disk/SmartView.vue:217
-#: src/views/toolbox/MigrationView.vue:140
-#: src/views/toolbox/MigrationView.vue:207
+#: src/views/toolbox/MigrationView.vue:142
+#: src/views/toolbox/MigrationView.vue:209
 #: src/views/toolbox/network/InterfaceView.vue:160
 #: src/views/toolbox/NetworkView.vue:99 src/views/toolbox/ProcessView.vue:134
 #: src/views/toolbox/ProcessView.vue:399
@@ -2410,7 +2360,7 @@ msgstr ""
 #: src/views/apps/redis/IndexView.vue:90
 #: src/views/apps/rocketmq/IndexView.vue:93
 #: src/views/apps/valkey/IndexView.vue:90 src/views/environment/PHPView.vue:259
-#: src/views/home/IndexView.vue:575
+#: src/views/home/IndexView.vue:587
 msgid "Load Status"
 msgstr "Load Status"
 
@@ -2451,7 +2401,7 @@ msgstr "Error Logs"
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:88
 #: src/views/container/ContainerCreate.vue:329
 #: src/views/container/ContainerInfoModal.vue:132
-#: src/views/home/IndexView.vue:188 src/views/home/IndexView.vue:955
+#: src/views/home/IndexView.vue:188 src/views/home/IndexView.vue:967
 #: src/views/monitor/SystemView.vue:914 src/views/toolbox/IndexView.vue:28
 msgid "Network"
 msgstr "Network"
@@ -2553,6 +2503,16 @@ msgid ""
 "The ClickHouse default user password is used to access the database. Keep it "
 "safe!"
 msgstr ""
+
+#: src/views/apps/clickhouse/IndexView.vue:105
+#: src/views/apps/mongodb/IndexView.vue:101
+#: src/views/apps/mysql/MysqlIndex.vue:134
+#: src/views/apps/postgresql/IndexView.vue:172
+#: src/views/database/ServerList.vue:106 src/views/database/UserList.vue:56
+#: src/views/file/ListView.vue:374 src/views/file/ListView.vue:408
+#: src/views/file/ListView.vue:1004 src/views/file/ToolBar.vue:187
+msgid "Copy"
+msgstr "Copy"
 
 #: src/views/apps/clickhouse/IndexView.vue:121
 #: src/views/apps/elasticsearch/IndexView.vue:65
@@ -3031,8 +2991,8 @@ msgstr ""
 #: src/views/database/RedisKeyModal.vue:99 src/views/file/PropertyModal.vue:33
 #: src/views/log/OperationLog.vue:74 src/views/monitor/ChannelModal.vue:93
 #: src/views/monitor/SettingView.vue:104 src/views/project/ListView.vue:51
-#: src/views/toolbox/MigrationView.vue:124
-#: src/views/toolbox/MigrationView.vue:200
+#: src/views/toolbox/MigrationView.vue:126
+#: src/views/toolbox/MigrationView.vue:202
 #: src/views/toolbox/network/InterfaceView.vue:154
 #: src/views/toolbox/NetworkView.vue:64
 msgid "Type"
@@ -3100,7 +3060,7 @@ msgstr "Run As User"
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:225
 #: src/views/apps/rsync/IndexView.vue:57 src/views/apps/rsync/IndexView.vue:279
 #: src/views/apps/rsync/IndexView.vue:340 src/views/database/IndexView.vue:131
-#: src/views/home/IndexView.vue:661 src/views/home/IndexView.vue:762
+#: src/views/home/IndexView.vue:673 src/views/home/IndexView.vue:774
 #: src/views/log/SSHLog.vue:73 src/views/monitor/SystemView.vue:323
 #: src/views/monitor/SystemView.vue:335 src/views/setting/IndexView.vue:149
 #: src/views/toolbox/ProcessView.vue:128 src/views/toolbox/ProcessView.vue:396
@@ -3298,9 +3258,9 @@ msgstr "Select Directory"
 #: src/views/apps/nginx/NginxIndex.vue:266 src/views/backup/StorageView.vue:111
 #: src/views/container/ComposeView.vue:123
 #: src/views/container/ContainerView.vue:177 src/views/file/ListView.vue:399
-#: src/views/file/ListView.vue:1665 src/views/monitor/AlertView.vue:110
+#: src/views/file/ListView.vue:1666 src/views/monitor/AlertView.vue:110
 #: src/views/monitor/SettingView.vue:143 src/views/project/ListView.vue:177
-#: src/views/ssh/IndexView.vue:611 src/views/tamper/TamperView.vue:148
+#: src/views/ssh/IndexView.vue:613 src/views/tamper/TamperView.vue:148
 #: src/views/task/CronView.vue:155 src/views/toolbox/WebHookView.vue:158
 #: src/views/website/ListView.vue:259
 msgid "Edit"
@@ -3338,7 +3298,7 @@ msgstr "Access Log"
 #: src/views/apps/rsync/IndexView.vue:348 src/views/backup/StorageView.vue:35
 #: src/views/backup/StorageView.vue:309 src/views/backup/StorageView.vue:353
 #: src/views/backup/StorageView.vue:465 src/views/backup/StorageView.vue:506
-#: src/views/container/ImageView.vue:420
+#: src/views/container/ImageView.vue:419
 #: src/views/database/CreateDatabaseModal.vue:125
 #: src/views/database/CreateServerModal.vue:179
 #: src/views/database/CreateUserModal.vue:120
@@ -4241,7 +4201,7 @@ msgid "New password"
 msgstr "Enter password"
 
 #: src/views/apps/pgadmin/IndexView.vue:149
-#: src/views/toolbox/MigrationView.vue:395 src/views/toolbox/SshView.vue:314
+#: src/views/toolbox/MigrationView.vue:415 src/views/toolbox/SshView.vue:314
 #, fuzzy
 msgid "Reset"
 msgstr "Presets"
@@ -4364,8 +4324,8 @@ msgstr ""
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:226
 #: src/views/apps/redis/RedisConfigTuneView.vue:182
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:176
-#: src/views/container/ContainerCreate.vue:542 src/views/home/IndexView.vue:688
-#: src/views/home/IndexView.vue:761 src/views/monitor/SystemView.vue:520
+#: src/views/container/ContainerCreate.vue:542 src/views/home/IndexView.vue:700
+#: src/views/home/IndexView.vue:773 src/views/monitor/SystemView.vue:520
 #: src/views/monitor/SystemView.vue:527 src/views/monitor/SystemView.vue:543
 #: src/views/monitor/SystemView.vue:791 src/views/toolbox/BenchmarkView.vue:178
 #: src/views/toolbox/PanelView.vue:122 src/views/toolbox/ProcessView.vue:152
@@ -4603,7 +4563,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:231
 #: src/views/backup/StorageView.vue:298 src/views/backup/StorageView.vue:347
 #: src/views/backup/StorageView.vue:454 src/views/backup/StorageView.vue:500
-#: src/views/container/ImageView.vue:412
+#: src/views/container/ImageView.vue:411
 #: src/views/database/CreateDatabaseModal.vue:117
 #: src/views/database/CreateServerModal.vue:167
 #: src/views/database/CreateUserModal.vue:112
@@ -4653,7 +4613,7 @@ msgstr "Create User"
 #: src/views/apps/pureftpd/IndexView.vue:236
 #: src/views/backup/StorageView.vue:301 src/views/backup/StorageView.vue:350
 #: src/views/backup/StorageView.vue:457 src/views/backup/StorageView.vue:503
-#: src/views/container/ImageView.vue:417
+#: src/views/container/ImageView.vue:416
 #: src/views/database/CreateDatabaseModal.vue:122
 #: src/views/database/CreateUserModal.vue:117
 msgid "Enter username"
@@ -5306,7 +5266,7 @@ msgstr "Match Type"
 
 #: src/views/backup/StorageView.vue:316 src/views/backup/StorageView.vue:358
 #: src/views/backup/StorageView.vue:472 src/views/backup/StorageView.vue:511
-#: src/views/container/ImageView.vue:426
+#: src/views/container/ImageView.vue:425
 #: src/views/database/CreateDatabaseModal.vue:132
 #: src/views/database/CreateUserModal.vue:127
 #: src/views/database/UpdateUserModal.vue:69
@@ -5739,7 +5699,7 @@ msgid "Issuance successful"
 msgstr "Issuance successful"
 
 #: src/views/cert/ObtainModal.vue:84 src/views/cert/ObtainModal.vue:90
-#: src/views/home/UpdateView.vue:95 src/views/home/UpdateView.vue:100
+#: src/views/home/UpdateView.vue:91 src/views/home/UpdateView.vue:96
 msgid "WebSocket connection failed"
 msgstr ""
 
@@ -6080,7 +6040,7 @@ msgstr "Start Command"
 
 #: src/views/container/ContainerCreate.vue:594
 #: src/views/container/ContainerInfoModal.vue:146
-#: src/views/home/IndexView.vue:662 src/views/home/IndexView.vue:763
+#: src/views/home/IndexView.vue:674 src/views/home/IndexView.vue:775
 #: src/views/monitor/SystemView.vue:323 src/views/monitor/SystemView.vue:335
 msgid "Command"
 msgstr "Command"
@@ -6211,7 +6171,7 @@ msgstr "Pause"
 msgid "Resume"
 msgstr "Resume"
 
-#: src/views/container/ContainerView.vue:254 src/views/file/ListView.vue:1694
+#: src/views/container/ContainerView.vue:254 src/views/file/ListView.vue:1695
 msgid "More"
 msgstr "More"
 
@@ -6284,36 +6244,41 @@ msgstr "Pull Image"
 msgid "Pull completed"
 msgstr "Completed"
 
-#: src/views/container/ImagePullModal.vue:154
-#: src/views/container/ImageView.vue:280 src/views/container/ImageView.vue:326
+#: src/views/container/ImagePullModal.vue:152
+#: src/views/container/ImageView.vue:279 src/views/container/ImageView.vue:325
 msgid "Pull Image"
 msgstr "Pull Image"
 
-#: src/views/container/ImagePullModal.vue:208
-#: src/views/container/ImageView.vue:381
+#: src/views/container/ImagePullModal.vue:206
+#: src/views/container/ImageView.vue:380
 #, fuzzy
 msgid "Pull Failed"
 msgstr "Failed"
 
-#: src/views/container/ImagePullModal.vue:220
-#: src/views/container/ImageView.vue:395
+#: src/views/container/ImagePullModal.vue:212
+#: src/views/container/ImageView.vue:386
+msgid "Retry"
+msgstr ""
+
+#: src/views/container/ImagePullModal.vue:218
+#: src/views/container/ImageView.vue:394
 msgid "Image Name"
 msgstr "Image Name"
 
-#: src/views/container/ImagePullModal.vue:223
-#: src/views/container/ImageView.vue:406
+#: src/views/container/ImagePullModal.vue:221
+#: src/views/container/ImageView.vue:405
 #, fuzzy
 msgid "Execution Mode"
 msgstr "Protection Mode"
 
-#: src/views/container/ImagePullModal.vue:225
-#: src/views/container/ImageView.vue:408
+#: src/views/container/ImagePullModal.vue:223
+#: src/views/container/ImageView.vue:407
 #, fuzzy
 msgid "Foreground"
 msgstr "Inbound"
 
-#: src/views/container/ImagePullModal.vue:226
-#: src/views/container/ImageView.vue:409
+#: src/views/container/ImagePullModal.vue:224
+#: src/views/container/ImageView.vue:408
 #, fuzzy
 msgid "Background"
 msgstr "Backup"
@@ -6334,20 +6299,20 @@ msgstr "Are you sure you want to delete?"
 msgid "Pull successful"
 msgstr "Pull successful"
 
-#: src/views/container/ImageView.vue:288
+#: src/views/container/ImageView.vue:287
 msgid "Cleanup Images"
 msgstr "Cleanup Images"
 
-#: src/views/container/ImageView.vue:292
+#: src/views/container/ImageView.vue:291
 #, fuzzy
 msgid "Are you sure you want to delete the selected images?"
 msgstr "Are you sure you want to delete the server?"
 
-#: src/views/container/ImageView.vue:400
+#: src/views/container/ImageView.vue:399
 msgid "docker.io/php:8.3-fpm"
 msgstr "docker.io/php:8.3-fpm"
 
-#: src/views/container/ImageView.vue:403
+#: src/views/container/ImageView.vue:402
 msgid "Authentication"
 msgstr "Authentication"
 
@@ -6450,7 +6415,7 @@ msgstr "Option Name"
 msgid "Option Value"
 msgstr "Option Value"
 
-#: src/views/container/VolumeView.vue:50 src/views/home/IndexView.vue:806
+#: src/views/container/VolumeView.vue:50 src/views/home/IndexView.vue:818
 #: src/views/toolbox/DiskView.vue:282 src/views/toolbox/DiskView.vue:604
 msgid "Mount Point"
 msgstr "Mount Point"
@@ -7294,7 +7259,7 @@ msgstr "Download task created successfully"
 
 #: src/views/file/CompressModal.vue:97 src/views/file/CompressModal.vue:120
 #: src/views/file/ListView.vue:376 src/views/file/ListView.vue:412
-#: src/views/file/ListView.vue:1007 src/views/file/ListView.vue:1659
+#: src/views/file/ListView.vue:1007 src/views/file/ListView.vue:1660
 #: src/views/file/ToolBar.vue:189
 msgid "Compress"
 msgstr "Compress"
@@ -7376,22 +7341,22 @@ msgid "Move"
 msgstr "Move"
 
 #: src/views/file/ListView.vue:377 src/views/file/ListView.vue:410
-#: src/views/file/ListView.vue:1006 src/views/file/ListView.vue:1453
+#: src/views/file/ListView.vue:1006 src/views/file/ListView.vue:1454
 #: src/views/file/PermissionModal.vue:146 src/views/file/PropertyModal.vue:42
 #: src/views/file/ToolBar.vue:190
 msgid "Permission"
 msgstr "Permission"
 
-#: src/views/file/ListView.vue:394 src/views/file/ListView.vue:1646
+#: src/views/file/ListView.vue:394 src/views/file/ListView.vue:1647
 msgid "Open"
 msgstr "Open"
 
-#: src/views/file/ListView.vue:396 src/views/file/ListView.vue:1665
+#: src/views/file/ListView.vue:396 src/views/file/ListView.vue:1666
 msgid "Preview"
 msgstr "Preview"
 
 #: src/views/file/ListView.vue:398 src/views/file/ListView.vue:1012
-#: src/views/file/ListView.vue:1768
+#: src/views/file/ListView.vue:1769
 msgid "Uncompress"
 msgstr "Uncompress"
 
@@ -7437,28 +7402,33 @@ msgid ""
 "Uncompress task created successfully, please check the task list for progress"
 msgstr "Download task created successfully"
 
-#: src/views/file/ListView.vue:1705
+#: src/views/file/ListView.vue:1706
 #, fuzzy
 msgid "No files"
 msgstr "Files"
 
-#: src/views/file/ListView.vue:1715
+#: src/views/file/ListView.vue:1716
 msgid "%{count} item(s) selected"
 msgstr ""
 
-#: src/views/file/ListView.vue:1723
+#: src/views/file/ListView.vue:1719
+#, fuzzy
+msgid "Clear"
+msgstr "Clear Log"
+
+#: src/views/file/ListView.vue:1724
 msgid "%{count} item(s)"
 msgstr ""
 
-#: src/views/file/ListView.vue:1756
+#: src/views/file/ListView.vue:1757
 msgid "Uncompress - %{ file }"
 msgstr "Uncompress - %{ file }"
 
-#: src/views/file/ListView.vue:1764
+#: src/views/file/ListView.vue:1765
 msgid "Uncompress to"
 msgstr "Uncompress to"
 
-#: src/views/file/ListView.vue:1778 src/views/file/ToolBar.vue:237
+#: src/views/file/ListView.vue:1779 src/views/file/ToolBar.vue:237
 #, fuzzy
 msgid "Terminal - %{ path }"
 msgstr "Modify permissions - %{ path }"
@@ -7468,8 +7438,8 @@ msgstr "Modify permissions - %{ path }"
 msgid "Failed to copy path"
 msgstr "Files to compress"
 
-#: src/views/file/PathInput.vue:109 src/views/home/UpdateView.vue:165
-#: src/views/toolbox/MigrationView.vue:552
+#: src/views/file/PathInput.vue:109 src/views/home/UpdateView.vue:161
+#: src/views/toolbox/MigrationView.vue:589
 #, fuzzy
 msgid "Back"
 msgstr "Backup"
@@ -7522,7 +7492,7 @@ msgstr "Owner"
 #: src/views/file/PermissionModal.vue:121
 #: src/views/file/PermissionModal.vue:130
 #: src/views/file/PermissionModal.vue:139 src/views/home/IndexView.vue:212
-#: src/views/home/IndexView.vue:228 src/views/home/IndexView.vue:1000
+#: src/views/home/IndexView.vue:228 src/views/home/IndexView.vue:1012
 #: src/views/monitor/SystemView.vue:627
 msgid "Read"
 msgstr "Read"
@@ -7530,7 +7500,7 @@ msgstr "Read"
 #: src/views/file/PermissionModal.vue:122
 #: src/views/file/PermissionModal.vue:131
 #: src/views/file/PermissionModal.vue:140 src/views/home/IndexView.vue:212
-#: src/views/home/IndexView.vue:252 src/views/home/IndexView.vue:1001
+#: src/views/home/IndexView.vue:252 src/views/home/IndexView.vue:1013
 #: src/views/monitor/SystemView.vue:636
 msgid "Write"
 msgstr "Write"
@@ -7895,7 +7865,7 @@ msgstr "End Port"
 
 #: src/views/firewall/CreateModal.vue:190 src/views/firewall/IpRuleView.vue:111
 #: src/views/firewall/RuleView.vue:248 src/views/monitor/AlertRuleModal.vue:148
-#: src/views/toolbox/MigrationView.vue:157 src/views/website/EditModal.vue:1869
+#: src/views/toolbox/MigrationView.vue:159 src/views/website/EditModal.vue:1869
 msgid "Target"
 msgstr "Target"
 
@@ -8156,8 +8126,8 @@ msgstr "Running normally"
 msgid "Running smoothly"
 msgstr "Running smoothly"
 
-#: src/views/home/IndexView.vue:188 src/views/home/IndexView.vue:956
-#: src/views/home/IndexView.vue:976 src/views/toolbox/BenchmarkView.vue:204
+#: src/views/home/IndexView.vue:188 src/views/home/IndexView.vue:968
+#: src/views/home/IndexView.vue:988 src/views/toolbox/BenchmarkView.vue:204
 #: src/views/toolbox/DiskView.vue:758 src/views/toolbox/IndexView.vue:31
 msgid "Disk"
 msgstr "Disk"
@@ -8208,7 +8178,7 @@ msgstr "Server restarting..."
 msgid "Restart Panel"
 msgstr "Restart Panel"
 
-#: src/views/home/IndexView.vue:394 src/views/home/IndexView.vue:1025
+#: src/views/home/IndexView.vue:394 src/views/home/IndexView.vue:1037
 msgid "Restart Server"
 msgstr "Restart Server"
 
@@ -8216,216 +8186,216 @@ msgstr "Restart Server"
 msgid "Current version is the latest"
 msgstr "Current version is the latest"
 
-#: src/views/home/IndexView.vue:501
+#: src/views/home/IndexView.vue:513
 msgid ""
 "Your operating system %{ os_name } has reached its end-of-life. Please "
 "consider upgrading to a supported version to ensure optimal performance and "
 "security."
 msgstr ""
 
-#: src/views/home/IndexView.vue:512
+#: src/views/home/IndexView.vue:524
 msgid ""
 "Your operating system %{ os_name } is not officially supported. Some "
 "features may not work as expected. Please consider using a supported "
 "operating system for the best experience."
 msgstr ""
 
-#: src/views/home/IndexView.vue:543 src/views/task/IndexView.vue:25
+#: src/views/home/IndexView.vue:555 src/views/task/IndexView.vue:25
 msgid "Scheduled Tasks"
 msgstr "Scheduled Tasks"
 
-#: src/views/home/IndexView.vue:552
+#: src/views/home/IndexView.vue:564
 msgid "Sponsor Support"
 msgstr "Sponsor Support"
 
-#: src/views/home/IndexView.vue:570
+#: src/views/home/IndexView.vue:582
 msgid "Resource Overview"
 msgstr "Resource Overview"
 
-#: src/views/home/IndexView.vue:587
+#: src/views/home/IndexView.vue:599
 msgid "Last 1 minute"
 msgstr "Last 1 minute"
 
-#: src/views/home/IndexView.vue:591
+#: src/views/home/IndexView.vue:603
 msgid "Last 5 minutes"
 msgstr "Last 5 minutes"
 
-#: src/views/home/IndexView.vue:595
+#: src/views/home/IndexView.vue:607
 msgid "Last 15 minutes"
 msgstr "Last 15 minutes"
 
-#: src/views/home/IndexView.vue:612
+#: src/views/home/IndexView.vue:624
 msgid "cores"
 msgstr "cores"
 
-#: src/views/home/IndexView.vue:617 src/views/toolbox/disk/RaidView.vue:111
+#: src/views/home/IndexView.vue:629 src/views/toolbox/disk/RaidView.vue:111
 #: src/views/toolbox/disk/RaidView.vue:142
 #: src/views/toolbox/disk/SmartView.vue:104
 msgid "Model"
 msgstr "Model"
 
-#: src/views/home/IndexView.vue:620
+#: src/views/home/IndexView.vue:632
 #, fuzzy
 msgid "CPU Count"
 msgstr "Container Count"
 
-#: src/views/home/IndexView.vue:623
+#: src/views/home/IndexView.vue:635
 #, fuzzy
 msgid "Cores"
 msgstr "cores"
 
-#: src/views/home/IndexView.vue:626
+#: src/views/home/IndexView.vue:638
 #, fuzzy
 msgid "Cache"
 msgstr "cache"
 
-#: src/views/home/IndexView.vue:646
+#: src/views/home/IndexView.vue:658
 #, fuzzy
 msgid "CPU Top5 Processes"
 msgstr "Number of Processes"
 
-#: src/views/home/IndexView.vue:700
+#: src/views/home/IndexView.vue:712
 msgid "Physical Memory Size"
 msgstr "Physical Memory Size"
 
-#: src/views/home/IndexView.vue:703
+#: src/views/home/IndexView.vue:715
 msgid "Physical Memory Used"
 msgstr "Physical Memory Used"
 
-#: src/views/home/IndexView.vue:706
+#: src/views/home/IndexView.vue:718
 msgid "Physical Memory Available"
 msgstr "Physical Memory Available"
 
-#: src/views/home/IndexView.vue:709 src/views/toolbox/DiskView.vue:218
+#: src/views/home/IndexView.vue:721 src/views/toolbox/DiskView.vue:218
 msgid "Free"
 msgstr "Free"
 
-#: src/views/home/IndexView.vue:712
+#: src/views/home/IndexView.vue:724
 msgid "Active"
 msgstr "Active"
 
-#: src/views/home/IndexView.vue:715 src/views/project/ListView.vue:76
+#: src/views/home/IndexView.vue:727 src/views/project/ListView.vue:76
 msgid "Inactive"
 msgstr "Inactive"
 
-#: src/views/home/IndexView.vue:718
+#: src/views/home/IndexView.vue:730
 msgid "Shared"
 msgstr "Shared"
 
-#: src/views/home/IndexView.vue:725
+#: src/views/home/IndexView.vue:737
 msgid "Committed"
 msgstr "Committed"
 
-#: src/views/home/IndexView.vue:728
+#: src/views/home/IndexView.vue:740
 msgid "Commit Limit"
 msgstr "Commit Limit"
 
-#: src/views/home/IndexView.vue:731
+#: src/views/home/IndexView.vue:743
 msgid "SWAP Size"
 msgstr "SWAP Size"
 
-#: src/views/home/IndexView.vue:734
+#: src/views/home/IndexView.vue:746
 msgid "SWAP Used"
 msgstr "SWAP Used"
 
-#: src/views/home/IndexView.vue:747
+#: src/views/home/IndexView.vue:759
 #, fuzzy
 msgid "Memory Top5 Processes"
 msgstr "Number of Processes"
 
-#: src/views/home/IndexView.vue:809
+#: src/views/home/IndexView.vue:821
 msgid "File System"
 msgstr "File System"
 
-#: src/views/home/IndexView.vue:812
+#: src/views/home/IndexView.vue:824
 msgid "Inodes Usage"
 msgstr "Inodes Usage"
 
-#: src/views/home/IndexView.vue:815
+#: src/views/home/IndexView.vue:827
 msgid "Inodes Total"
 msgstr "Inodes Total"
 
-#: src/views/home/IndexView.vue:818
+#: src/views/home/IndexView.vue:830
 msgid "Inodes Used"
 msgstr "Inodes Used"
 
-#: src/views/home/IndexView.vue:821
+#: src/views/home/IndexView.vue:833
 msgid "Inodes Available"
 msgstr "Inodes Available"
 
-#: src/views/home/IndexView.vue:839
+#: src/views/home/IndexView.vue:851
 msgid "Quick Apps"
 msgstr "Quick Apps"
 
-#: src/views/home/IndexView.vue:882
+#: src/views/home/IndexView.vue:894
 msgid "You have not set any apps to display here!"
 msgstr "You have not set any apps to display here!"
 
-#: src/views/home/IndexView.vue:886
+#: src/views/home/IndexView.vue:898
 msgid "Environment Information"
 msgstr "Environment Information"
 
-#: src/views/home/IndexView.vue:889 src/views/toolbox/SystemView.vue:178
+#: src/views/home/IndexView.vue:901 src/views/toolbox/SystemView.vue:178
 msgid "System Hostname"
 msgstr "System Hostname"
 
-#: src/views/home/IndexView.vue:895
+#: src/views/home/IndexView.vue:907
 msgid "System Version"
 msgstr "System Version"
 
-#: src/views/home/IndexView.vue:904
+#: src/views/home/IndexView.vue:916
 msgid "System Kernel Version"
 msgstr "System Kernel Version"
 
-#: src/views/home/IndexView.vue:910
+#: src/views/home/IndexView.vue:922
 msgid "System Uptime"
 msgstr "System Uptime"
 
-#: src/views/home/IndexView.vue:916
+#: src/views/home/IndexView.vue:928
 msgid "Panel Internal Version"
 msgstr "Panel Internal Version"
 
-#: src/views/home/IndexView.vue:928
+#: src/views/home/IndexView.vue:940
 msgid "Panel Compile Information"
 msgstr "Panel Compile Information"
 
-#: src/views/home/IndexView.vue:945
+#: src/views/home/IndexView.vue:957
 msgid "Real-time Monitoring"
 msgstr "Real-time Monitoring"
 
-#: src/views/home/IndexView.vue:959
+#: src/views/home/IndexView.vue:971
 msgid "Unit"
 msgstr "Unit"
 
-#: src/views/home/IndexView.vue:967
+#: src/views/home/IndexView.vue:979
 msgid "Network Card"
 msgstr "Network Card"
 
-#: src/views/home/IndexView.vue:987
+#: src/views/home/IndexView.vue:999
 msgid "Total Sent"
 msgstr "Total Sent"
 
-#: src/views/home/IndexView.vue:989
+#: src/views/home/IndexView.vue:1001
 msgid "Total Received"
 msgstr "Total Received"
 
-#: src/views/home/IndexView.vue:992
+#: src/views/home/IndexView.vue:1004
 msgid "Real-time Sent"
 msgstr "Real-time Sent"
 
-#: src/views/home/IndexView.vue:996
+#: src/views/home/IndexView.vue:1008
 msgid "Real-time Received"
 msgstr "Real-time Received"
 
-#: src/views/home/IndexView.vue:1003
+#: src/views/home/IndexView.vue:1015
 msgid "Real-time Read/Write"
 msgstr "Real-time Read/Write"
 
-#: src/views/home/IndexView.vue:1006
+#: src/views/home/IndexView.vue:1018
 msgid "Read/Write Latency"
 msgstr "Read/Write Latency"
 
-#: src/views/home/IndexView.vue:1027
+#: src/views/home/IndexView.vue:1039
 msgid ""
 "Are you sure you want to restart the server? This will disconnect all "
 "connections."
@@ -8433,63 +8403,63 @@ msgstr ""
 "Are you sure you want to restart the server? This will disconnect all "
 "connections."
 
-#: src/views/home/UpdateView.vue:106
+#: src/views/home/UpdateView.vue:102
 msgid "Update Panel"
 msgstr "Update Panel"
 
-#: src/views/home/UpdateView.vue:107
+#: src/views/home/UpdateView.vue:103
 msgid "Are you sure you want to update the panel?"
 msgstr "Are you sure you want to update the panel?"
 
-#: src/views/home/UpdateView.vue:129
+#: src/views/home/UpdateView.vue:125
 #, fuzzy
 msgid "Update failed"
 msgstr "Update canceled"
 
-#: src/views/home/UpdateView.vue:130
+#: src/views/home/UpdateView.vue:126
 #, fuzzy
 msgid "Update timed out"
 msgstr "Update Date"
 
-#: src/views/home/UpdateView.vue:132
+#: src/views/home/UpdateView.vue:128
 msgid "Updating to v%{ v }..."
 msgstr ""
 
-#: src/views/home/UpdateView.vue:147
+#: src/views/home/UpdateView.vue:143
 #, fuzzy
 msgid "Panel is restarting, please wait..."
 msgstr "Panel restarting..."
 
-#: src/views/home/UpdateView.vue:153
+#: src/views/home/UpdateView.vue:149
 msgid ""
 "Update may have failed, please check the panel logs and refresh manually."
 msgstr ""
 
-#: src/views/home/UpdateView.vue:159
+#: src/views/home/UpdateView.vue:155
 #, fuzzy
 msgid "Error"
 msgstr "Error Logs"
 
-#: src/views/home/UpdateView.vue:180
+#: src/views/home/UpdateView.vue:176
 #, fuzzy
 msgid "A new version is available"
 msgstr "Inodes Available"
 
-#: src/views/home/UpdateView.vue:183
+#: src/views/home/UpdateView.vue:179
 #, fuzzy
 msgid "Current"
 msgstr "Current Value"
 
-#: src/views/home/UpdateView.vue:190 src/views/home/UpdateView.vue:212
+#: src/views/home/UpdateView.vue:186 src/views/home/UpdateView.vue:208
 #, fuzzy
 msgid "Latest"
 msgstr "System Version"
 
-#: src/views/home/UpdateView.vue:200
+#: src/views/home/UpdateView.vue:196
 msgid "Update Now"
 msgstr "Update Now"
 
-#: src/views/home/UpdateView.vue:206
+#: src/views/home/UpdateView.vue:202
 #, fuzzy
 msgid "Changelog"
 msgstr "Channel"
@@ -8519,7 +8489,7 @@ msgid "Query"
 msgstr ""
 
 #: src/views/log/DatabaseLog.vue:81 src/views/log/HttpLog.vue:107
-#: src/views/toolbox/MigrationView.vue:220
+#: src/views/toolbox/MigrationView.vue:222
 #, fuzzy
 msgid "Duration"
 msgstr "Direction"
@@ -8596,7 +8566,7 @@ msgid "Accepted"
 msgstr "Accept"
 
 #: src/views/log/SSHLog.vue:46 src/views/project/ListView.vue:74
-#: src/views/task/TaskView.vue:44 src/views/toolbox/MigrationView.vue:84
+#: src/views/task/TaskView.vue:44 src/views/toolbox/MigrationView.vue:86
 msgid "Failed"
 msgstr "Failed"
 
@@ -8762,7 +8732,7 @@ msgstr "Are you sure you want to delete this user?"
 msgid "Rule"
 msgstr "Add Rule"
 
-#: src/views/monitor/AlertView.vue:160 src/views/toolbox/MigrationView.vue:226
+#: src/views/monitor/AlertView.vue:160 src/views/toolbox/MigrationView.vue:228
 #, fuzzy
 msgid "Detail"
 msgstr "Add Process"
@@ -10209,7 +10179,7 @@ msgstr "Code"
 msgid "Enter the code"
 msgstr "Enter the code"
 
-#: src/views/ssh/CreateModal.vue:53 src/views/ssh/IndexView.vue:584
+#: src/views/ssh/CreateModal.vue:53 src/views/ssh/IndexView.vue:586
 msgid "Create Host"
 msgstr "Create Host"
 
@@ -10243,30 +10213,30 @@ msgstr "Filename"
 msgid "Are you sure you want to delete this host?"
 msgstr "Are you sure you want to delete this host?"
 
-#: src/views/ssh/IndexView.vue:316
+#: src/views/ssh/IndexView.vue:318
 msgid "Connection closed. Please refresh."
 msgstr "Connection closed. Please refresh."
 
-#: src/views/ssh/IndexView.vue:321
+#: src/views/ssh/IndexView.vue:323
 msgid "Connection error. Please refresh."
 msgstr "Connection error. Please refresh."
 
-#: src/views/ssh/IndexView.vue:515
+#: src/views/ssh/IndexView.vue:517
 #, fuzzy
 msgid "New Session"
 msgstr "System Version"
 
-#: src/views/ssh/IndexView.vue:542
+#: src/views/ssh/IndexView.vue:544
 #, fuzzy
 msgid "Manage Hosts"
 msgstr "Manage"
 
-#: src/views/ssh/IndexView.vue:578 src/views/toolbox/SystemView.vue:184
+#: src/views/ssh/IndexView.vue:580 src/views/toolbox/SystemView.vue:184
 #, fuzzy
 msgid "Hosts"
 msgstr "Host"
 
-#: src/views/ssh/IndexView.vue:603
+#: src/views/ssh/IndexView.vue:605
 msgid "Bash session on this server"
 msgstr ""
 
@@ -11633,259 +11603,260 @@ msgstr ""
 msgid "Clean"
 msgstr "Clear Log"
 
-#: src/views/toolbox/MigrationView.vue:51
+#: src/views/toolbox/MigrationView.vue:53
 msgid "AcePanel → AcePanel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:52
+#: src/views/toolbox/MigrationView.vue:54
 msgid "Push websites, databases, users and projects to another AcePanel."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:56
+#: src/views/toolbox/MigrationView.vue:58
 #, fuzzy
 msgid "BaoTa → AcePanel"
 msgstr "AcePanel"
 
-#: src/views/toolbox/MigrationView.vue:57
+#: src/views/toolbox/MigrationView.vue:59
 msgid "Pull websites, databases and projects from BT Panel."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:61
+#: src/views/toolbox/MigrationView.vue:63
 msgid "1Panel → AcePanel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:62
+#: src/views/toolbox/MigrationView.vue:64
 msgid "Pull websites and databases from 1Panel."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:75 src/views/website/CreateModal.vue:280
+#: src/views/toolbox/MigrationView.vue:77 src/views/website/CreateModal.vue:280
 #: src/views/website/CreateModal.vue:285
 msgid "Database User"
 msgstr "Database User"
 
-#: src/views/toolbox/MigrationView.vue:80
+#: src/views/toolbox/MigrationView.vue:82
 #, fuzzy
 msgid "Pending"
 msgstr "Encoding"
 
-#: src/views/toolbox/MigrationView.vue:82
+#: src/views/toolbox/MigrationView.vue:84
 #, fuzzy
 msgid "Success"
 msgstr "Access Log"
 
-#: src/views/toolbox/MigrationView.vue:83
+#: src/views/toolbox/MigrationView.vue:85
 msgid "Completed with warnings"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:85
+#: src/views/toolbox/MigrationView.vue:87
 #, fuzzy
 msgid "Skipped"
 msgstr "Stopped"
 
-#: src/views/toolbox/MigrationView.vue:89
+#: src/views/toolbox/MigrationView.vue:91
 #, fuzzy
 msgid "Creating backup"
 msgstr "Create Backup"
 
-#: src/views/toolbox/MigrationView.vue:90
+#: src/views/toolbox/MigrationView.vue:92
 #, fuzzy
 msgid "Transferring"
 msgstr "Filename"
 
-#: src/views/toolbox/MigrationView.vue:91
+#: src/views/toolbox/MigrationView.vue:93
 msgid "Importing"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:92
-#: src/views/toolbox/MigrationView.vue:453
+#: src/views/toolbox/MigrationView.vue:94
+#: src/views/toolbox/MigrationView.vue:492
 msgid "Done"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:99
+#: src/views/toolbox/MigrationView.vue:101
 msgid "a required dependency was not selected"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:166
+#: src/views/toolbox/MigrationView.vue:168
 #, fuzzy
 msgid "Target directory"
 msgstr "Select Directory"
 
-#: src/views/toolbox/MigrationView.vue:173
+#: src/views/toolbox/MigrationView.vue:175
 #, fuzzy
 msgid "Run as"
 msgstr "Run As User"
 
-#: src/views/toolbox/MigrationView.vue:180
+#: src/views/toolbox/MigrationView.vue:182
 msgid "Notes"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:214
+#: src/views/toolbox/MigrationView.vue:216
 msgid "Stage"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:267
+#: src/views/toolbox/MigrationView.vue:284
+msgid "%{ started }, running for %{ elapsed }"
+msgstr ""
+
+#: src/views/toolbox/MigrationView.vue:289
 #, fuzzy
 msgid "Please enter the panel address."
 msgstr "Please enter username and password"
 
-#: src/views/toolbox/MigrationView.vue:271
+#: src/views/toolbox/MigrationView.vue:293
 msgid "Please enter the AcePanel Token ID and access token."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:275
+#: src/views/toolbox/MigrationView.vue:297
 #, fuzzy
 msgid "Please enter the source panel API key."
 msgstr "Please enter absolute path"
 
-#: src/views/toolbox/MigrationView.vue:310
+#: src/views/toolbox/MigrationView.vue:332
 #, fuzzy
 msgid "Please select at least one resource to migrate."
 msgstr "Please enter username and password"
 
-#: src/views/toolbox/MigrationView.vue:315
+#: src/views/toolbox/MigrationView.vue:337
 msgid ""
 "The selection contains blocked resources. Resolve them or enable skipping "
 "first."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:321
-#: src/views/toolbox/MigrationView.vue:325
+#: src/views/toolbox/MigrationView.vue:343
+#: src/views/toolbox/MigrationView.vue:345
 #, fuzzy
 msgid "Start migration"
 msgstr "Storage Configuration"
 
-#: src/views/toolbox/MigrationView.vue:322
-msgid ""
-"AcePanel only creates new resources on the target and never overwrites, "
-"merges or rolls back existing ones."
-msgstr ""
+#: src/views/toolbox/MigrationView.vue:344
+#, fuzzy
+msgid "Are you sure you want to start migrating the selected resources?"
+msgstr "Are you sure you want to delete the server?"
 
-#: src/views/toolbox/MigrationView.vue:375
+#: src/views/toolbox/MigrationView.vue:395
 msgid "Failed to subscribe to migration progress."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:393
-#: src/views/toolbox/MigrationView.vue:568
+#: src/views/toolbox/MigrationView.vue:413
+#: src/views/toolbox/MigrationView.vue:605
 #, fuzzy
 msgid "Start a new migration"
 msgstr "Storage Configuration"
 
-#: src/views/toolbox/MigrationView.vue:394
+#: src/views/toolbox/MigrationView.vue:414
 msgid "The current migration results and logs will be cleared."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:450
+#: src/views/toolbox/MigrationView.vue:489
 #, fuzzy
 msgid "Connect"
 msgstr "Compressing..."
 
-#: src/views/toolbox/MigrationView.vue:451
-#: src/views/toolbox/MigrationView.vue:521
+#: src/views/toolbox/MigrationView.vue:490
+#: src/views/toolbox/MigrationView.vue:558
 #, fuzzy
 msgid "Select resources"
 msgstr "Select server"
 
-#: src/views/toolbox/MigrationView.vue:452
-#: src/views/toolbox/MigrationView.vue:560
+#: src/views/toolbox/MigrationView.vue:491
+#: src/views/toolbox/MigrationView.vue:597
 #, fuzzy
 msgid "Migrating"
 msgstr "Configuration"
 
-#: src/views/toolbox/MigrationView.vue:456
+#: src/views/toolbox/MigrationView.vue:495
 #, fuzzy
 msgid "Migration source"
 msgstr "Operation successful"
 
-#: src/views/toolbox/MigrationView.vue:469
+#: src/views/toolbox/MigrationView.vue:508
 #, fuzzy
 msgid "Target address"
 msgstr "Listening Address"
 
-#: src/views/toolbox/MigrationView.vue:469
+#: src/views/toolbox/MigrationView.vue:508
 #, fuzzy
 msgid "Source address"
 msgstr "Source Port"
 
-#: src/views/toolbox/MigrationView.vue:479
+#: src/views/toolbox/MigrationView.vue:518
 msgid "Token ID"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:482
+#: src/views/toolbox/MigrationView.vue:521
 #, fuzzy
 msgid "Access token"
 msgstr "Access Tokens"
 
-#: src/views/toolbox/MigrationView.vue:487
+#: src/views/toolbox/MigrationView.vue:526
 msgid "Access token of the target AcePanel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:491
+#: src/views/toolbox/MigrationView.vue:530
 msgid "API key"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:496
+#: src/views/toolbox/MigrationView.vue:535
 msgid "API key of the source panel"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:504
+#: src/views/toolbox/MigrationView.vue:543
 msgid ""
-"The target AcePanel must have the same database servers and runtimes "
-"installed, and its API must allow this server address."
+"The target API must allow this server address. Missing database servers and "
+"runtimes are reported in the next step."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:507
-msgid ""
-"The source panel API must be enabled and this server address must be "
-"allowed. Websites, databases and projects are migrated."
+#: src/views/toolbox/MigrationView.vue:546
+msgid "The source panel API must be enabled and allow this server address."
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:515
+#: src/views/toolbox/MigrationView.vue:552
 #, fuzzy
 msgid "Connect and read resources"
 msgstr "Connection error. Please refresh."
 
-#: src/views/toolbox/MigrationView.vue:525
+#: src/views/toolbox/MigrationView.vue:562
 #, fuzzy
 msgid "Source: %{ panel }"
 msgstr "Modify permissions - %{ path }"
 
-#: src/views/toolbox/MigrationView.vue:545
-msgid "Skip blocked resources instead of failing"
+#: src/views/toolbox/MigrationView.vue:582
+msgid "Skip blocked resources during migration"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:548
+#: src/views/toolbox/MigrationView.vue:585
 msgid "Stop running services while backups are created"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:554
+#: src/views/toolbox/MigrationView.vue:591
 #, fuzzy
 msgid "Start migration (%{ count })"
 msgstr "Storage Configuration"
 
-#: src/views/toolbox/MigrationView.vue:560
+#: src/views/toolbox/MigrationView.vue:597
 #, fuzzy
 msgid "Migration done"
 msgstr "Operation successful"
 
-#: src/views/toolbox/MigrationView.vue:565
+#: src/views/toolbox/MigrationView.vue:602
 #, fuzzy
 msgid "Download log"
 msgstr "Download URL"
 
-#: src/views/toolbox/MigrationView.vue:580
+#: src/views/toolbox/MigrationView.vue:617
 msgid "Success: %{ count }"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:583
+#: src/views/toolbox/MigrationView.vue:620
 msgid "With warnings: %{ count }"
 msgstr ""
 
-#: src/views/toolbox/MigrationView.vue:586
+#: src/views/toolbox/MigrationView.vue:623
 #, fuzzy
 msgid "Failed: %{ count }"
 msgstr "Files to compress"
 
-#: src/views/toolbox/MigrationView.vue:589
+#: src/views/toolbox/MigrationView.vue:626
 msgid "Skipped: %{ count }"
 msgstr ""
 
@@ -13667,6 +13638,10 @@ msgstr "Website Name"
 msgid "Click to edit"
 msgstr ""
 
+#: src/views/website/ListView.vue:100
+msgid "Copied"
+msgstr ""
+
 #: src/views/website/ListView.vue:181
 msgid "Certificate expiration"
 msgstr "Certificate expiration"
@@ -13973,6 +13948,14 @@ msgstr ""
 #, fuzzy
 msgid "Slow Requests"
 msgstr "Add Server"
+
+#, fuzzy
+#~ msgid "selected"
+#~ msgstr "Time Selection"
+
+#, fuzzy
+#~ msgid "Total: %{n}"
+#~ msgstr "Total In"
 
 #~ msgid "Select websites to deploy the certificate"
 #~ msgstr "Select websites to deploy the certificate"
