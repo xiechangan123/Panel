@@ -74,7 +74,7 @@ func initAce() (*app.Ace, func(), error) {
 	elasticsearchApp := elasticsearch.NewApp(locale)
 	websiteRepo := data.NewWebsiteRepo(db, locale, settingRepo)
 	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
-	frpApp := frp.NewApp()
+	frpApp := frp.NewApp(locale)
 	giteaApp := gitea.NewApp()
 	grafanaApp := grafana.NewApp(locale)
 	kafkaApp := kafka.NewApp(locale)
