@@ -49,12 +49,14 @@ func (c *Client) UseDns(dnsType DnsType, param DNSParam, opt ...DnsOption) {
 }
 
 // UseHTTP 使用 HTTP 验证
-// conf 配置文件路径
+// confs 域名到配置文件路径的映射，token 会按域名投放到对应网站
+// fallback 域名未命中 confs 时写入的配置文件列表
 // webServer web 服务器类型 ("nginx" 或 "apache")
-func (c *Client) UseHTTP(conf string, webServer string) {
+func (c *Client) UseHTTP(confs map[string]string, fallback []string, webServer string) {
 	c.zClient.ChallengeSolvers = map[string]acmez.Solver{
 		acme.ChallengeTypeHTTP01: httpSolver{
-			conf:      conf,
+			confs:     confs,
+			fallback:  fallback,
 			webServer: webServer,
 		},
 	}

@@ -67,7 +67,7 @@ func (r *databaseUserRepo) UpdateRemark(ctx context.Context, req *request.Databa
 
 	user.Remark = req.Remark
 
-	return r.db.Save(user).Error
+	return r.db.Omit("Server").Save(user).Error
 }
 
 // Operator 获取数据库操作句柄
@@ -98,12 +98,12 @@ func (r *databaseUserRepo) Upsert(user *biz.DatabaseUser) error {
 		return err
 	}
 
-	return r.db.Save(user).Error
+	return r.db.Omit("Server").Save(user).Error
 }
 
 // Save 保存用户记录
 func (r *databaseUserRepo) Save(user *biz.DatabaseUser) error {
-	return r.db.Save(user).Error
+	return r.db.Omit("Server").Save(user).Error
 }
 
 // DeleteByID 按 ID 删除用户记录

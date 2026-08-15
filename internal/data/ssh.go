@@ -115,7 +115,7 @@ func (r *sshRepo) Update(req *request.SSHUpdate) error {
 		Remark: req.Remark,
 	}
 
-	if err = r.db.Model(ssh).Where("id = ?", req.ID).Select("*").Updates(ssh).Error; err != nil {
+	if err = r.db.Model(ssh).Where("id = ?", req.ID).Select("*").Omit("CreatedAt").Updates(ssh).Error; err != nil {
 		return err
 	}
 

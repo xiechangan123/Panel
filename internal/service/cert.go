@@ -268,7 +268,7 @@ func (s *CertService) Deploy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.certRepo.Deploy(req.ID, req.WebsiteID, req.EnableHTTPS)
+	err = s.certRepo.Deploy(req.ID, req.WebsiteIDs, req.EnableHTTPS)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

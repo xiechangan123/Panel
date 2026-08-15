@@ -5,7 +5,7 @@ import "time"
 type CertList struct {
 	ID          uint              `json:"id"`
 	AccountID   uint              `json:"account_id"`
-	WebsiteID   uint              `json:"website_id"`
+	WebsiteIDs  []uint            `json:"website_ids"`
 	DNSID       uint              `json:"dns_id"`
 	Type        string            `json:"type"`
 	Domains     []string          `json:"domains"`

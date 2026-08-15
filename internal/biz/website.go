@@ -33,6 +33,7 @@ type Website struct {
 	Status    bool        `gorm:"not null;default:true" json:"status"`
 	Path      string      `gorm:"not null;default:''" json:"path"`
 	SSL       bool        `gorm:"not null;default:false" json:"ssl"`
+	CertID    uint        `gorm:"not null;index;default:0" json:"cert_id"` // 部署的证书 ID
 	Remark    string      `gorm:"not null;default:''" json:"remark"`
 	ExpireAt  *time.Time  `json:"expire_at"` // 到期时间，nil 表示不限时
 	CreatedAt time.Time   `json:"created_at"`
@@ -42,7 +43,7 @@ type Website struct {
 	PHP        uint     `gorm:"-:all" json:"php"`         // 仅显示
 	Domains    []string `gorm:"-:all" json:"domains"`     // 仅显示
 
-	Cert *Cert `gorm:"foreignKey:WebsiteID" json:"cert"`
+	Cert *Cert `gorm:"foreignKey:CertID" json:"cert"`
 }
 
 type WebsiteRepo interface {
@@ -269,7 +270,7 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 				AutoRenewal: true,
 				AccountID:   account.ID,
 				DNSID:       dnsID,
-				WebsiteID:   website.ID,
+				WebsiteIDs:  []uint{website.ID},
 			})
 			if err != nil {
 				return err
@@ -289,5 +290,5 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 		return err
 	}
 
-	return uc.cert.Deploy(newCert.ID, website.ID, false)
+	return uc.cert.Deploy(newCert.ID, []uint{website.ID}, false)
 }

@@ -34,7 +34,7 @@ const model = ref<any>({
   dns_id: null,
   type: 'P256',
   account_id: null,
-  website_id: null,
+  website_ids: [],
   auto_renewal: true,
 })
 
@@ -69,7 +69,7 @@ const handleCreateCert = () => {
       model.value.dns_id = null
       model.value.type = 'P256'
       model.value.account_id = null
-      model.value.website_id = null
+      model.value.website_ids = []
       model.value.auto_renewal = true
       aliasList.value = []
       window.$message.success($gettext('Created successfully'))
@@ -115,10 +115,11 @@ const handleCreateCert = () => {
             :options="algorithms"
           />
         </n-form-item>
-        <n-form-item path="website_id" :label="$gettext('Website')">
+        <n-form-item path="website_ids" :label="$gettext('Website')">
           <n-select
-            v-model:value="model.website_id"
-            :placeholder="$gettext('Select website for certificate deployment')"
+            v-model:value="model.website_ids"
+            :placeholder="$gettext('Select websites for certificate deployment')"
+            multiple
             clearable
             :options="websites"
           />

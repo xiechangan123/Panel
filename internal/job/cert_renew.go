@@ -54,7 +54,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 	}
 
 	var certs []biz.Cert
-	if err := r.db.Preload("Website").Preload("Account").Preload("DNS").Find(&certs).Error; err != nil {
+	if err := r.db.Preload("Websites").Preload("Account").Preload("DNS").Find(&certs).Error; err != nil {
 		r.log.Warn("failed to get certs", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		return nil
 	}

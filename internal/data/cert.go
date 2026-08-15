@@ -24,6 +24,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
+	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
 	webservertypes "github.com/acepanel/panel/v3/pkg/webserver/types"
@@ -46,13 +47,13 @@ func NewCertRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.CertRepo {
 func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 	var certs []*biz.Cert
 	var total int64
-	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&certs).Error
+	err := r.db.Model(&biz.Cert{}).Preload("Websites").Preload("Account").Preload("DNS").Order("id desc").Count(&total).Offset(int((page - 1) * limit)).Limit(int(limit)).Find(&certs).Error
 
 	list := lo.Map(certs, func(cert *biz.Cert, _ int) *types.CertList {
 		item := &types.CertList{
 			ID:          cert.ID,
 			AccountID:   cert.AccountID,
-			WebsiteID:   cert.WebsiteID,
+			WebsiteIDs:  cert.WebsiteIDs(),
 			DNSID:       cert.DNSID,
 			Type:        cert.Type,
 			Domains:     cert.Domains,
@@ -84,20 +85,21 @@ func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {
 
 func (r *certRepo) Get(id uint) (*biz.Cert, error) {
 	cert := new(biz.Cert)
-	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("id = ?", id).First(cert).Error
+	err := r.db.Model(&biz.Cert{}).Preload("Websites").Preload("Account").Preload("DNS").Where("id = ?", id).First(cert).Error
 	return cert, err
 }
 
 func (r *certRepo) GetByWebsite(websiteID uint) (*biz.Cert, error) {
 	cert := new(biz.Cert)
-	err := r.db.Model(&biz.Cert{}).Preload("Website").Preload("Account").Preload("DNS").Where("website_id = ?", websiteID).First(cert).Error
+	err := r.db.Model(&biz.Cert{}).Preload("Websites").Preload("Account").Preload("DNS").
+		Joins("JOIN websites ON websites.cert_id = certs.id").
+		Where("websites.id = ?", websiteID).First(cert).Error
 	return cert, err
 }
 
 func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 	cert := &biz.Cert{
 		AccountID:   req.AccountID,
-		WebsiteID:   req.WebsiteID,
 		DNSID:       req.DNSID,
 		Type:        req.Type,
 		Domains:     req.Domains,
@@ -105,6 +107,9 @@ func (r *certRepo) Create(req *request.CertCreate) (*biz.Cert, error) {
 		AutoRenewal: req.AutoRenewal,
 	}
 	if err := r.db.Create(cert).Error; err != nil {
+		return nil, err
+	}
+	if err := r.BindWebsites(cert.ID, req.WebsiteIDs); err != nil {
 		return nil, err
 	}
 
@@ -116,10 +121,10 @@ func (r *certRepo) CreateUploaded(cert *biz.Cert) error {
 }
 
 func (r *certRepo) Update(req *request.CertUpdate) error {
-	return r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).Select("*").Updates(&biz.Cert{
+	if err := r.db.Model(&biz.Cert{}).Where("id = ?", req.ID).
+		Select("*").Omit("Websites", "RenewalInfo", "CertURL", "CreatedAt").Updates(&biz.Cert{
 		ID:          req.ID,
 		AccountID:   req.AccountID,
-		WebsiteID:   req.WebsiteID,
 		DNSID:       req.DNSID,
 		Type:        req.Type,
 		Cert:        req.Cert,
@@ -128,15 +133,25 @@ func (r *certRepo) Update(req *request.CertUpdate) error {
 		Domains:     req.Domains,
 		Alias:       req.Alias,
 		AutoRenewal: req.AutoRenewal,
-	}).Error
+	}).Error; err != nil {
+		return err
+	}
+
+	return r.BindWebsites(req.ID, req.WebsiteIDs)
 }
 
 func (r *certRepo) Delete(id uint) error {
-	return r.db.Model(&biz.Cert{}).Where("id = ?", id).Delete(&biz.Cert{}).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&biz.Website{}).Where("cert_id = ?", id).Update("cert_id", 0).Error; err != nil {
+			return err
+		}
+		return tx.Delete(&biz.Cert{ID: id}).Error
+	})
 }
 
 func (r *certRepo) Save(cert *biz.Cert) error {
-	return r.db.Save(cert).Error
+	// 跳过关联，避免连带回写网站表
+	return r.db.Omit("Websites").Save(cert).Error
 }
 
 func (r *certRepo) GenerateSelfSigned(domains []string) ([]byte, []byte, error) {
@@ -165,13 +180,53 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, names []string, webServ
 	return ssl.ChainPEM, ssl.PrivateKey, nil
 }
 
-// LoadWebsite 根据 ID 加载网站
-func (r *certRepo) LoadWebsite(websiteID uint) (*biz.Website, error) {
-	website := new(biz.Website)
-	if err := r.db.Where("id", websiteID).First(website).Error; err != nil {
+// BindWebsites 绑定证书的部署网站
+func (r *certRepo) BindWebsites(certID uint, websiteIDs []uint) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&biz.Website{}).Where("cert_id = ?", certID).Update("cert_id", 0).Error; err != nil {
+			return err
+		}
+		return tx.Model(&biz.Website{}).Where("id IN ?", websiteIDs).Update("cert_id", certID).Error
+	})
+}
+
+// LoadWebsites 根据 ID 列表加载网站
+func (r *certRepo) LoadWebsites(websiteIDs []uint) ([]*biz.Website, error) {
+	websiteIDs = lo.Uniq(websiteIDs)
+	if len(websiteIDs) == 0 {
+		return nil, nil
+	}
+
+	var websites []*biz.Website
+	if err := r.db.Where("id IN ?", websiteIDs).Find(&websites).Error; err != nil {
 		return nil, err
 	}
-	return website, nil
+	if len(websites) != len(websiteIDs) {
+		return nil, errors.New(r.t.Get("some of the selected websites do not exist"))
+	}
+
+	return websites, nil
+}
+
+// HTTPConfs 构建证书关联网站的「域名 → acme 配置文件」映射以及全部配置文件列表
+func (r *certRepo) HTTPConfs(cert *biz.Cert, webServer string) (map[string]string, []string) {
+	confs := make(map[string]string)
+	fallback := make([]string, 0, len(cert.Websites))
+
+	for _, website := range cert.Websites {
+		conf := filepath.Join(app.Root, "sites", website.Name, "config", "site", "001-acme.conf")
+		fallback = append(fallback, conf)
+
+		vhost, err := r.getVhost(website, webServer)
+		if err != nil {
+			continue
+		}
+		for _, name := range vhost.ServerName() {
+			confs[strings.ToLower(tools.UnwrapIPv6(name))] = conf
+		}
+	}
+
+	return confs, fallback
 }
 
 // WriteCertFiles 写入证书与私钥文件
@@ -231,7 +286,7 @@ func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, web
 	}
 
 	website.SSL = true
-	if err = r.db.Save(website).Error; err != nil {
+	if err = r.db.Model(website).Update("ssl", true).Error; err != nil {
 		return err
 	}
 

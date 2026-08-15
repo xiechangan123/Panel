@@ -177,4 +177,29 @@ func init() {
 			return tx.Migrator().DropTable("scan_events")
 		},
 	})
+	Migrations = append(Migrations, &gormigrate.Migration{
+		ID: "20260815-cert-multi-websites",
+		Migrate: func(tx *gorm.DB) error {
+			if err := tx.AutoMigrate(&biz.Cert{}, &biz.Website{}); err != nil {
+				return err
+			}
+
+			// 证书与网站的关系反转到网站表，取最早的一张
+			if tx.Migrator().HasColumn(&biz.Cert{}, "website_id") {
+				if err := tx.Exec(`UPDATE websites SET cert_id = (
+					SELECT MIN(certs.id) FROM certs WHERE certs.website_id = websites.id
+				) WHERE EXISTS (SELECT 1 FROM certs WHERE certs.website_id = websites.id)`).Error; err != nil {
+					return err
+				}
+				if err := tx.Migrator().DropColumn(&biz.Cert{}, "website_id"); err != nil {
+					return err
+				}
+			}
+
+			return nil
+		},
+		Rollback: func(tx *gorm.DB) error {
+			return tx.Migrator().DropColumn(&biz.Website{}, "cert_id")
+		},
+	})
 }

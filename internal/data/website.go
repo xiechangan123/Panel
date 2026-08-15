@@ -865,21 +865,29 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 			return errors.New(r.t.Get("failed to parse private key: %v", err))
 		}
 		// 检查证书是否已存在于面板的证书管理中，如果不存在则作为本地证书上传
-		var certCount int64
-		r.db.Model(&biz.Cert{}).Where("TRIM(cert, char(9) || char(10) || char(13) || ' ') = ?", strings.TrimSpace(req.SSLCert)).Count(&certCount)
-		if certCount == 0 {
+		existing := new(biz.Cert)
+		err = r.db.Where("TRIM(cert, char(9) || char(10) || char(13) || ' ') = ?", strings.TrimSpace(req.SSLCert)).First(existing).Error
+		if err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
 			certInfo, _ := cert.ParseCert([]byte(req.SSLCert))
 			sans := certInfo.DNSNames
 			for _, ip := range certInfo.IPAddresses {
 				sans = append(sans, ip.String())
 			}
-			r.db.Create(&biz.Cert{
+			existing = &biz.Cert{
 				Type:    "upload",
 				Domains: sans,
 				Cert:    strings.TrimSpace(req.SSLCert),
 				Key:     strings.TrimSpace(req.SSLKey),
-			})
+			}
+			if err = r.db.Create(existing).Error; err != nil {
+				return err
+			}
 		}
+		// 绑定证书，使续签后能自动部署
+		website.CertID = existing.ID
 		quic := false
 		for _, listen := range req.Listens {
 			if slices.Contains(listen.Args, "quic") {
@@ -903,6 +911,8 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 		if err = vhost.ClearSSL(); err != nil {
 			return err
 		}
+		// 关闭 HTTPS 后不应再被证书续签覆盖
+		website.CertID = 0
 	}
 
 	// PHP
@@ -1053,19 +1063,15 @@ func (r *websiteRepo) RemoveFiles(name string, removePath bool) error {
 
 func (r *websiteRepo) Delete(website *biz.Website) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// HTTP 验证依赖网站，解绑后无法继续自动续签
-		if err := tx.Model(&biz.Cert{}).
-			Where("website_id = ? AND dns_id = 0", website.ID).
-			Update("auto_renewal", false).Error; err != nil {
-			return err
-		}
-		if err := tx.Model(&biz.Cert{}).
-			Where("website_id = ?", website.ID).
-			Update("website_id", 0).Error; err != nil {
+		if err := tx.Delete(website).Error; err != nil {
 			return err
 		}
 
-		return tx.Delete(website).Error
+		// HTTP 验证依赖网站，证书失去全部网站后无法继续自动续签
+		return tx.Model(&biz.Cert{}).
+			Where("id = ? AND dns_id = 0", website.CertID).
+			Where("NOT EXISTS (SELECT 1 FROM websites WHERE cert_id = ?)", website.CertID).
+			Update("auto_renewal", false).Error
 	})
 }
 

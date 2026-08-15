@@ -12,7 +12,7 @@ type CertCreate struct {
 	AutoRenewal bool              `form:"auto_renewal" json:"auto_renewal"`
 	AccountID   uint              `form:"account_id" json:"account_id"`
 	DNSID       uint              `form:"dns_id" json:"dns_id"`
-	WebsiteID   uint              `form:"website_id" json:"website_id"`
+	WebsiteIDs  []uint            `form:"website_ids" json:"website_ids" validate:"unique"`
 }
 
 type CertUpdate struct {
@@ -26,11 +26,11 @@ type CertUpdate struct {
 	AutoRenewal bool              `form:"auto_renewal" json:"auto_renewal"`
 	AccountID   uint              `form:"account_id" json:"account_id"`
 	DNSID       uint              `form:"dns_id" json:"dns_id"`
-	WebsiteID   uint              `form:"website_id" json:"website_id"`
+	WebsiteIDs  []uint            `form:"website_ids" json:"website_ids" validate:"unique"`
 }
 
 type CertDeploy struct {
-	ID          uint `form:"id" json:"id" validate:"required && exists:certs,id"`
-	WebsiteID   uint `form:"website_id" json:"website_id" validate:"required && exists:websites,id"`
-	EnableHTTPS bool `form:"enable_https" json:"enable_https"`
+	ID          uint   `form:"id" json:"id" validate:"required && exists:certs,id"`
+	WebsiteIDs  []uint `form:"website_ids" json:"website_ids" validate:"required && unique"`
+	EnableHTTPS bool   `form:"enable_https" json:"enable_https"`
 }

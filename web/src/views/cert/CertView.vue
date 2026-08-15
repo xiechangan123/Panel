@@ -37,7 +37,7 @@ const updateModel = ref<any>({
   type: 'P256',
   dns_id: null,
   account_id: null,
-  website_id: null,
+  website_ids: [],
   auto_renewal: true,
   cert: '',
   key: '',
@@ -114,7 +114,7 @@ const isDomainCovered = (certDomain: string, websiteDomain: string) => {
 
 const handleOpenDeploy = (row: any) => {
   deployModel.value.id = row.id
-  deployModel.value.websites = row.website_id == 0 ? [] : [row.website_id]
+  deployModel.value.websites = row.website_ids || []
   deployModel.value.enable_https = true
   deployDomains.value = row.domains || []
   deployModal.value = true
@@ -206,6 +206,30 @@ const columns: any = [
         return $gettext('None')
       }
       return accounts.value?.find((item: any) => item.value === row.account_id)?.label
+    },
+  },
+  {
+    title: $gettext('Associated Website'),
+    key: 'website_ids',
+    minWidth: 200,
+    resizable: true,
+    render(row: any) {
+      if (!row.website_ids?.length) {
+        return h(NTag, null, { default: () => $gettext('None') })
+      }
+      return h(NFlex, null, {
+        default: () =>
+          row.website_ids.map((id: number) =>
+            h(
+              NTag,
+              { type: 'success' },
+              {
+                default: () =>
+                  websites.value?.find((item: any) => item.value === id)?.label ?? String(id),
+              },
+            ),
+          ),
+      })
     },
   },
   {
@@ -333,7 +357,7 @@ const columns: any = [
               updateModel.value.type = row.type
               updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
               updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
-              updateModel.value.website_id = row.website_id == 0 ? null : row.website_id
+              updateModel.value.website_ids = row.website_ids || []
               updateModel.value.auto_renewal = row.auto_renewal
               updateModel.value.cert = row.cert
               updateModel.value.key = row.key
@@ -392,7 +416,7 @@ const handleUpdateCert = () => {
       updateModel.value.type = 'P256'
       updateModel.value.dns_id = null
       updateModel.value.account_id = null
-      updateModel.value.website_id = null
+      updateModel.value.website_ids = []
       updateModel.value.auto_renewal = true
       updateModel.value.cert = ''
       updateModel.value.key = ''
@@ -411,7 +435,7 @@ const handleAutoRenewalUpdate = (row: any) => {
   updateModel.value.type = row.type
   updateModel.value.dns_id = row.dns_id == 0 ? null : row.dns_id
   updateModel.value.account_id = row.account_id == 0 ? null : row.account_id
-  updateModel.value.website_id = row.website_id == 0 ? null : row.website_id
+  updateModel.value.website_ids = row.website_ids || []
   updateModel.value.auto_renewal = !row.auto_renewal
   updateModel.value.cert = row.cert
   updateModel.value.key = row.key
@@ -427,7 +451,7 @@ const handleAutoRenewalUpdate = (row: any) => {
       updateModel.value.type = 'P256'
       updateModel.value.dns_id = null
       updateModel.value.account_id = null
-      updateModel.value.website_id = null
+      updateModel.value.website_ids = []
       updateModel.value.auto_renewal = true
       updateModel.value.cert = ''
       updateModel.value.key = ''
@@ -436,18 +460,18 @@ const handleAutoRenewalUpdate = (row: any) => {
     })
 }
 
-const handleDeployCert = async () => {
-  const promises = deployModel.value.websites.map((website: any) =>
-    cert.deploy(deployModel.value.id, website, deployModel.value.enable_https),
-  )
-  await Promise.all(promises)
-
-  deployModal.value = false
-  deployModel.value.id = null
-  deployModel.value.websites = []
-  deployModel.value.enable_https = true
-  deployDomains.value = []
-  window.$message.success($gettext('Deployment successful'))
+const handleDeployCert = () => {
+  useRequest(
+    cert.deploy(deployModel.value.id, deployModel.value.websites, deployModel.value.enable_https),
+  ).onSuccess(() => {
+    refresh()
+    deployModal.value = false
+    deployModel.value.id = null
+    deployModel.value.websites = []
+    deployModel.value.enable_https = true
+    deployDomains.value = []
+    window.$message.success($gettext('Deployment successful'))
+  })
 }
 
 const handleShowModalClose = () => {
@@ -474,7 +498,7 @@ onUnmounted(() => {
       v-model:pageSize="pageSize"
       striped
       remote
-      :scroll-x="1800"
+      :scroll-x="2000"
       :loading="loading"
       :columns="columns"
       :data="data"
@@ -523,10 +547,11 @@ onUnmounted(() => {
             :options="algorithms"
           />
         </n-form-item>
-        <n-form-item path="website_id" :label="$gettext('Website')">
+        <n-form-item path="website_ids" :label="$gettext('Website')">
           <n-select
-            v-model:value="updateModel.website_id"
-            :placeholder="$gettext('Select website for certificate deployment')"
+            v-model:value="updateModel.website_ids"
+            :placeholder="$gettext('Select websites for certificate deployment')"
+            multiple
             clearable
             :options="websites"
           />

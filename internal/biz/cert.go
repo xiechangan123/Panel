@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"path/filepath"
 	"slices"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	mholtacme "github.com/mholt/acmez/v3/acme"
+	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
@@ -23,7 +23,6 @@ import (
 type Cert struct {
 	ID          uint                  `gorm:"primaryKey" json:"id"`
 	AccountID   uint                  `gorm:"not null;default:0" json:"account_id"`                      // 关联的 ACME 账户 ID
-	WebsiteID   uint                  `gorm:"not null;default:0" json:"website_id"`                      // 关联的网站 ID
 	DNSID       uint                  `gorm:"not null;default:0" json:"dns_id"`                          // 关联的 DNS ID
 	Type        string                `gorm:"not null;default:''" json:"type"`                           // 证书类型 (P256, P384, 2048, 3072, 4096)
 	Domains     []string              `gorm:"not null;default:'[]';serializer:json" json:"domains"`      // 域名
@@ -37,9 +36,16 @@ type Cert struct {
 	CreatedAt   time.Time             `json:"created_at"`
 	UpdatedAt   time.Time             `json:"updated_at"`
 
-	Website *Website     `gorm:"foreignKey:WebsiteID" json:"website"`
-	Account *CertAccount `gorm:"foreignKey:AccountID" json:"account"`
-	DNS     *CertDNS     `gorm:"foreignKey:DNSID" json:"dns"`
+	Websites []*Website   `gorm:"foreignKey:CertID" json:"websites"` // 部署的网站
+	Account  *CertAccount `gorm:"foreignKey:AccountID" json:"account"`
+	DNS      *CertDNS     `gorm:"foreignKey:DNSID" json:"dns"`
+}
+
+// WebsiteIDs 取证书关联的网站 ID 列表
+func (r *Cert) WebsiteIDs() []uint {
+	return lo.Map(r.Websites, func(website *Website, _ int) uint {
+		return website.ID
+	})
 }
 
 type CertRepo interface {
@@ -55,7 +61,9 @@ type CertRepo interface {
 	GenerateSelfSigned(domains []string) ([]byte, []byte, error)
 	RunScript(cert *Cert) error
 	ObtainPanel(account *CertAccount, names []string, webServer string) ([]byte, []byte, error)
-	LoadWebsite(WebsiteID uint) (*Website, error)
+	LoadWebsites(websiteIDs []uint) ([]*Website, error)
+	BindWebsites(certID uint, websiteIDs []uint) error
+	HTTPConfs(cert *Cert, webServer string) (map[string]string, []string)
 	WriteCertFiles(cert *Cert, certPath, keyPath string) error
 	EnableWebsiteSSL(website *Website, certPath, keyPath, webServer string, tlsVersions []string, listenIPv6 bool) error
 	ReloadWebserver(webServer string) error
@@ -198,7 +206,7 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 			ProgressCallback: progressCallback,
 		})
 	} else {
-		if cert.Website == nil {
+		if len(cert.Websites) == 0 {
 			return nil, errors.New(uc.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
 		}
 		hasWildcard := slices.ContainsFunc(cert.Domains, func(d string) bool {
@@ -207,8 +215,8 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 		if hasWildcard {
 			return nil, errors.New(uc.t.Get("wildcard domains cannot use HTTP verification"))
 		}
-		conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
-		client.UseHTTP(conf, webServer)
+		confs, fallback := uc.repo.HTTPConfs(cert, webServer)
+		client.UseHTTP(confs, fallback, webServer)
 	}
 
 	report(uc.t.Get("issuing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
@@ -228,9 +236,9 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 		return nil, err
 	}
 
-	if cert.Website != nil {
+	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		return &ssl, uc.Deploy(cert.ID, cert.WebsiteID, false)
+		return &ssl, uc.Deploy(cert.ID, cert.WebsiteIDs(), false)
 	}
 
 	if err = uc.repo.RunScript(cert); err != nil {
@@ -274,8 +282,8 @@ func (uc *CertUsecase) ObtainSelfSigned(id uint) error {
 		return err
 	}
 
-	if cert.Website != nil {
-		return uc.Deploy(cert.ID, cert.WebsiteID, false)
+	if len(cert.Websites) > 0 {
+		return uc.Deploy(cert.ID, cert.WebsiteIDs(), false)
 	}
 
 	if err = uc.repo.RunScript(cert); err != nil {
@@ -321,17 +329,16 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 			ProgressCallback: progressCallback,
 		})
 	} else {
-		if cert.Website == nil {
+		if len(cert.Websites) == 0 {
 			return nil, errors.New(uc.t.Get("this certificate is not associated with a website and cannot be obtained. You can try to obtain it manually"))
-		} else {
-			for _, domain := range cert.Domains {
-				if strings.Contains(domain, "*") {
-					return nil, errors.New(uc.t.Get("wildcard domains cannot use HTTP verification"))
-				}
-			}
-			conf := fmt.Sprintf("%s/sites/%s/config/site/001-acme.conf", app.Root, cert.Website.Name)
-			client.UseHTTP(conf, webServer)
 		}
+		for _, domain := range cert.Domains {
+			if strings.Contains(domain, "*") {
+				return nil, errors.New(uc.t.Get("wildcard domains cannot use HTTP verification"))
+			}
+		}
+		confs, fallback := uc.repo.HTTPConfs(cert, webServer)
+		client.UseHTTP(confs, fallback, webServer)
 	}
 
 	report(uc.t.Get("renewing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
@@ -356,9 +363,9 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 		return nil, err
 	}
 
-	if cert.Website != nil {
+	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		return &ssl, uc.Deploy(cert.ID, cert.WebsiteID, false)
+		return &ssl, uc.Deploy(cert.ID, cert.WebsiteIDs(), false)
 	}
 
 	return &ssl, nil
@@ -394,7 +401,7 @@ func (uc *CertUsecase) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error
 	return renewInfo, nil
 }
 
-func (uc *CertUsecase) Deploy(id, websiteID uint, enableHTTPS bool) error {
+func (uc *CertUsecase) Deploy(id uint, websiteIDs []uint, enableHTTPS bool) error {
 	cert, err := uc.repo.Get(id)
 	if err != nil {
 		return err
@@ -404,35 +411,42 @@ func (uc *CertUsecase) Deploy(id, websiteID uint, enableHTTPS bool) error {
 		return errors.New(uc.t.Get("this certificate has not been obtained successfully and cannot be deployed"))
 	}
 
-	website, err := uc.repo.LoadWebsite(websiteID)
+	websites, err := uc.repo.LoadWebsites(websiteIDs)
 	if err != nil {
 		return err
 	}
-	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	certPath := filepath.Join(configDir, "fullchain.pem")
-	keyPath := filepath.Join(configDir, "private.key")
-	if err = uc.repo.WriteCertFiles(cert, certPath, keyPath); err != nil {
+
+	// 建立关联，使续签后能自动部署到这些网站
+	if err = uc.repo.BindWebsites(cert.ID, websiteIDs); err != nil {
 		return err
 	}
 
-	// 开启 HTTPS
-	if enableHTTPS && !website.SSL {
-		// 原 getVhost 首步读 webserver 设置并传播错误，保持该语义
-		webServer, err := uc.setting.Get(SettingKeyWebserver)
-		if err != nil {
+	webServer, webServerErr := uc.setting.Get(SettingKeyWebserver)
+	tlsVersions, _ := uc.setting.GetSlice(SettingKeyWebsiteTLSVersions)
+	listenIPv6, err := uc.setting.GetBool(SettingKeyWebsiteListenIPv6, false)
+	if err != nil {
+		return err
+	}
+
+	for _, website := range websites {
+		configDir := filepath.Join(app.Root, "sites", website.Name, "config")
+		certPath := filepath.Join(configDir, "fullchain.pem")
+		keyPath := filepath.Join(configDir, "private.key")
+		if err = uc.repo.WriteCertFiles(cert, certPath, keyPath); err != nil {
 			return err
 		}
-		tlsVersions, _ := uc.setting.GetSlice(SettingKeyWebsiteTLSVersions)
-		listenIPv6, err := uc.setting.GetBool(SettingKeyWebsiteListenIPv6, false)
-		if err != nil {
-			return err
-		}
-		if err = uc.repo.EnableWebsiteSSL(website, certPath, keyPath, webServer, tlsVersions, listenIPv6); err != nil {
-			return err
+
+		// 开启 HTTPS
+		if enableHTTPS && !website.SSL {
+			if webServerErr != nil {
+				return webServerErr
+			}
+			if err = uc.repo.EnableWebsiteSSL(website, certPath, keyPath, webServer, tlsVersions, listenIPv6); err != nil {
+				return err
+			}
 		}
 	}
 
-	webServer, _ := uc.setting.Get(SettingKeyWebserver)
 	return uc.repo.ReloadWebserver(webServer)
 }
 
