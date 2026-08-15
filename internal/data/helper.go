@@ -15,6 +15,14 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 )
 
+// upsert 分批大小
+const upsertBatchSize = 100
+
+var (
+	sharedDBMu sync.Mutex
+	sharedDBs  = make(map[string]*gorm.DB)
+)
+
 func getDockerClient(sock string) (*client.Client, error) {
 	apiClient, err := client.New(client.WithHost(sock))
 	if err != nil {
@@ -36,11 +44,6 @@ func getOperatorID(ctx context.Context) uint64 {
 	}
 	return cast.ToUint64(userID)
 }
-
-var (
-	sharedDBMu sync.Mutex
-	sharedDBs  = make(map[string]*gorm.DB)
-)
 
 // openSharedDB 打开长期持有的辅助数据库
 func openSharedDB(name string) (*gorm.DB, error) {
@@ -89,9 +92,6 @@ func quickCheck(db *gorm.DB) bool {
 	}
 	return result == "ok"
 }
-
-// upsert 分批大小，避免超出 SQLite 变量数限制
-const upsertBatchSize = 100
 
 // batchUpsert 通用分批 upsert 辅助函数
 func batchUpsert[T any](db *gorm.DB, items []T, conflict clause.OnConflict) error {

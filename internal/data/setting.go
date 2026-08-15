@@ -116,21 +116,6 @@ func (r *settingRepo) Delete(key biz.SettingKey) error {
 	return r.db.Where("key = ?", key).Delete(new(biz.Setting)).Error
 }
 
-// getMany 一次取出多个设置项
-func (r *settingRepo) getMany(keys ...biz.SettingKey) (map[biz.SettingKey]string, error) {
-	settings := make([]*biz.Setting, 0, len(keys))
-	if err := r.db.Where("key IN ?", keys).Find(&settings).Error; err != nil {
-		return nil, err
-	}
-
-	values := make(map[biz.SettingKey]string, len(keys))
-	for _, setting := range settings {
-		values[setting.Key] = setting.Value
-	}
-
-	return values, nil
-}
-
 func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 	values, err := r.getMany(
 		biz.SettingKeyName,
@@ -216,6 +201,21 @@ func (r *settingRepo) GetPanel() (*request.SettingPanel, error) {
 		Cert:          crt,
 		Key:           key,
 	}, nil
+}
+
+// getMany 一次取出多个设置项
+func (r *settingRepo) getMany(keys ...biz.SettingKey) (map[biz.SettingKey]string, error) {
+	settings := make([]*biz.Setting, 0, len(keys))
+	if err := r.db.Where("key IN ?", keys).Find(&settings).Error; err != nil {
+		return nil, err
+	}
+
+	values := make(map[biz.SettingKey]string, len(keys))
+	for _, setting := range settings {
+		values[setting.Key] = setting.Value
+	}
+
+	return values, nil
 }
 
 // getRaw 从数据库获取设置项的原始字符串值

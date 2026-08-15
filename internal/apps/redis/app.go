@@ -41,10 +41,6 @@ func New(slug, name string, t *gotext.Locale, databaseServerRepo biz.DatabaseSer
 	}
 }
 
-func (s *App) confPath() string {
-	return filepath.Join(app.Root, "server", s.slug, s.slug+".conf")
-}
-
 func (s *App) Route(r chi.Router) {
 	r.Get("/load", s.Load)
 	r.Get("/config", s.GetConfig)
@@ -187,4 +183,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	_ = s.databaseServerRepo.UpdatePassword("local_"+s.slug, req.Requirepass)
 
 	service.Success(w, nil)
+}
+
+func (s *App) confPath() string {
+	return filepath.Join(app.Root, "server", s.slug, s.slug+".conf")
 }

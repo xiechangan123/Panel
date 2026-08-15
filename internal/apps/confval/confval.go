@@ -27,6 +27,16 @@ type Codec struct {
 	AppendIndent string
 }
 
+// line 为一行配置解析后的各组成部分
+type line struct {
+	indent    string // 行首缩进
+	commented string // 命中的注释前缀，非注释行为空
+	key       string
+	value     string // 已去引号
+	comment   string // 行尾注释（含前缀），无则为空
+	ok        bool   // 是否为可识别的键值行
+}
+
 // 各应用配置文件的书写约定
 var (
 	// Directive 「键 值」，用于 redis、valkey
@@ -46,16 +56,6 @@ var (
 	// PHPINI PHP 的 ini，注释优先使用 ";"
 	PHPINI = Codec{Delim: "=", Assign: " = ", Comments: []string{";", "#"}}
 )
-
-// line 为一行配置解析后的各组成部分
-type line struct {
-	indent    string // 行首缩进
-	commented string // 命中的注释前缀，非注释行为空
-	key       string
-	value     string // 已去引号
-	comment   string // 行尾注释（含前缀），无则为空
-	ok        bool   // 是否为可识别的键值行
-}
 
 // Get 读取配置项，未命中返回空串
 func (c Codec) Get(content, key string) string {

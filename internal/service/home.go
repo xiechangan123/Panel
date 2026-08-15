@@ -225,18 +225,6 @@ func (s *HomeService) CountInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// installedSlugs 从已加载的环境目录中筛出指定类型且已安装的 slug
-func (s *HomeService) installedSlugs(all api.Environments, typ string) []string {
-	slugs := make([]string, 0)
-	for _, env := range all {
-		if env.Type == typ && s.environmentRepo.IsInstalled(typ, env.Slug) {
-			slugs = append(slugs, env.Slug)
-		}
-	}
-
-	return slugs
-}
-
 func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Request) {
 	mysqlInstalled, _ := s.appRepo.IsInstalled("slug IN ?", []string{"mysql", "mariadb", "percona"})
 	postgresqlInstalled, _ := s.appRepo.IsInstalled("slug = ?", "postgresql")
@@ -540,4 +528,16 @@ func (s *HomeService) Goroutines(w http.ResponseWriter, r *http.Request) {
 // Health 返回当前所有健康问题，供前端全局横幅展示
 func (s *HomeService) Health(w http.ResponseWriter, r *http.Request) {
 	Success(w, app.Health.Snapshot())
+}
+
+// installedSlugs 从已加载的环境目录中筛出指定类型且已安装的 slug
+func (s *HomeService) installedSlugs(all api.Environments, typ string) []string {
+	slugs := make([]string, 0)
+	for _, env := range all {
+		if env.Type == typ && s.environmentRepo.IsInstalled(typ, env.Slug) {
+			slugs = append(slugs, env.Slug)
+		}
+	}
+
+	return slugs
 }
