@@ -283,6 +283,8 @@ func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 		err = r.restoreRedisLike(backup, "redis")
 	case biz.BackupTypeValkey:
 		err = r.restoreRedisLike(backup, "valkey")
+	case biz.BackupTypePanel:
+		err = r.restorePanel(backup)
 	default:
 		if app.IsCli {
 			fmt.Println(r.hr)
@@ -429,7 +431,10 @@ func (r *backupRepo) ClearExpired(path, prefix string, save uint) error {
 }
 
 // ClearStorageExpired 清理备份账号过期备份
-func (r *backupRepo) ClearStorageExpired(storage uint, typ biz.BackupType, prefix string, save uint) error {
+// dir 存储器内的目标目录，备份为 <类型>，切割日志为 cutoff/<类型>/<目标>
+// prefix 目标文件前缀
+// save 保存份数
+func (r *backupRepo) ClearStorageExpired(storage uint, dir, prefix string, save uint) error {
 	backupStorage, err := r.GetStorage(storage)
 	if err != nil {
 		return err
@@ -440,7 +445,7 @@ func (r *backupRepo) ClearStorageExpired(storage uint, typ biz.BackupType, prefi
 		return err
 	}
 
-	files, err := client.List(string(typ))
+	files, err := client.List(dir)
 	if err != nil {
 		return err
 	}
@@ -452,7 +457,7 @@ func (r *backupRepo) ClearStorageExpired(storage uint, typ biz.BackupType, prefi
 	var filtered []fileInfo
 	for _, file := range files {
 		if strings.HasPrefix(file, prefix) && r.isBackupArchive(file) {
-			lastModified, modErr := client.LastModified(filepath.Join(string(typ), file))
+			lastModified, modErr := client.LastModified(filepath.Join(dir, file))
 			if modErr != nil {
 				continue
 			}
@@ -477,7 +482,7 @@ func (r *backupRepo) ClearStorageExpired(storage uint, typ biz.BackupType, prefi
 	// 切片保留 save 份，删除剩余
 	toDelete := filtered[save:]
 	for _, file := range toDelete {
-		filePath := filepath.Join(string(typ), file.name)
+		filePath := filepath.Join(dir, file.name)
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Cleaning expired file: %s", filePath))
 		}
@@ -1683,14 +1688,19 @@ func (r *backupRepo) FixPanel() error {
 		fmt.Println(r.t.Get("|-Backup file used: %s", latest.Name()))
 	}
 
+	return r.restorePanel(latestPath)
+}
+
+// restorePanel 用指定的面板备份覆盖当前面板，完成后重启面板
+func (r *backupRepo) restorePanel(backup string) error {
 	// 解压备份文件
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Unzip backup file..."))
 	}
-	if err = io.Remove("/tmp/panel-fix"); err != nil {
+	if err := io.Remove("/tmp/panel-fix"); err != nil {
 		return errors.New(r.t.Get("Cleaning temporary directory failed: %v", err))
 	}
-	if err = io.UnCompress(latestPath, "/tmp/panel-fix"); err != nil {
+	if err := io.UnCompress(backup, "/tmp/panel-fix"); err != nil {
 		return errors.New(r.t.Get("Unzip backup file failed: %v", err))
 	}
 
@@ -1706,10 +1716,10 @@ func (r *backupRepo) FixPanel() error {
 		if io.Exists(customize) {
 			_ = io.Mv(customize, keep)
 		}
-		if err = io.Remove(filepath.Join(app.Root, "panel")); err != nil {
+		if err := io.Remove(filepath.Join(app.Root, "panel")); err != nil {
 			return errors.New(r.t.Get("Remove panel file failed: %v", err))
 		}
-		if err = io.Mv(filepath.Join("/tmp/panel-fix", "panel"), filepath.Clean(app.Root)); err != nil {
+		if err := io.Mv(filepath.Join("/tmp/panel-fix", "panel"), filepath.Clean(app.Root)); err != nil {
 			return errors.New(r.t.Get("Move panel file failed: %v", err))
 		}
 		if io.Exists(keep) {
@@ -1718,14 +1728,14 @@ func (r *backupRepo) FixPanel() error {
 		}
 	}
 	if io.Exists(filepath.Join("/tmp/panel-fix", "acepanel")) {
-		if err = io.Mv(filepath.Join("/tmp/panel-fix", "acepanel"), "/usr/local/sbin/acepanel"); err != nil {
+		if err := io.Mv(filepath.Join("/tmp/panel-fix", "acepanel"), "/usr/local/sbin/acepanel"); err != nil {
 			return errors.New(r.t.Get("Move acepanel file failed: %v", err))
 		}
 	}
 
 	// 下载服务文件
 	if !io.Exists("/etc/systemd/system/acepanel.service") {
-		if _, err = shell.Execf(`wget -O /etc/systemd/system/acepanel.service https://%s/acepanel.service && sed -i "s|/opt/ace|%s|g" /etc/systemd/system/acepanel.service`, r.conf.App.DownloadEndpoint, app.Root); err != nil {
+		if _, err := shell.Execf(`wget -O /etc/systemd/system/acepanel.service https://%s/acepanel.service && sed -i "s|/opt/ace|%s|g" /etc/systemd/system/acepanel.service`, r.conf.App.DownloadEndpoint, app.Root); err != nil {
 			return err
 		}
 	}
@@ -1734,23 +1744,23 @@ func (r *backupRepo) FixPanel() error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Set key file permissions..."))
 	}
-	if err = io.Chmod(filepath.Join(app.Root, "panel", "storage", "config.yml"), 0600); err != nil {
+	if err := io.Chmod(filepath.Join(app.Root, "panel", "storage", "config.yml"), 0600); err != nil {
 		return err
 	}
-	if err = io.Chmod(filepath.Join(app.Root, "panel", "storage", "panel.db"), 0600); err != nil {
+	if err := io.Chmod(filepath.Join(app.Root, "panel", "storage", "panel.db"), 0600); err != nil {
 		return err
 	}
-	if err = io.Chmod("/etc/systemd/system/acepanel.service", 0644); err != nil {
+	if err := io.Chmod("/etc/systemd/system/acepanel.service", 0644); err != nil {
 		return err
 	}
-	if err = io.Chmod("/usr/local/sbin/acepanel", 0700); err != nil {
+	if err := io.Chmod("/usr/local/sbin/acepanel", 0700); err != nil {
 		return err
 	}
-	if err = io.Chmod(filepath.Join(app.Root, "panel"), 0700); err != nil {
+	if err := io.Chmod(filepath.Join(app.Root, "panel"), 0700); err != nil {
 		return err
 	}
 
-	if err = io.Remove("/tmp/panel-fix"); err != nil {
+	if err := io.Remove("/tmp/panel-fix"); err != nil {
 		return err
 	}
 

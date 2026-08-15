@@ -42,6 +42,14 @@ func BindDomainCommand(t *gotext.Locale, cliService *service.CliService) *cli.Co
 		Usage: t.Get("Operate AcePanel domain binding"),
 		Commands: []*cli.Command{
 			{
+				Name:      "on",
+				Usage:     t.Get("Enable domain binding"),
+				ArgsUsage: t.Get("<domain> [domain...]"),
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return cliService.BindDomainOn(ctx, cmd)
+				},
+			},
+			{
 				Name:  "off",
 				Usage: t.Get("Disable domain binding"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
@@ -60,6 +68,14 @@ func BindIPCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 		Usage: t.Get("Operate AcePanel IP binding"),
 		Commands: []*cli.Command{
 			{
+				Name:      "on",
+				Usage:     t.Get("Enable IP binding"),
+				ArgsUsage: t.Get("<ip> [ip...]"),
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return cliService.BindIPOn(ctx, cmd)
+				},
+			},
+			{
 				Name:  "off",
 				Usage: t.Get("Disable IP binding"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
@@ -77,6 +93,14 @@ func BindUACommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 		Name:  "bind-ua",
 		Usage: t.Get("Operate AcePanel UA binding"),
 		Commands: []*cli.Command{
+			{
+				Name:      "on",
+				Usage:     t.Get("Enable UA binding"),
+				ArgsUsage: t.Get("<user-agent> [user-agent...]"),
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return cliService.BindUAOn(ctx, cmd)
+				},
+			},
 			{
 				Name:  "off",
 				Usage: t.Get("Disable UA binding"),

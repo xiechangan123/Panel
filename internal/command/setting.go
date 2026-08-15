@@ -18,25 +18,28 @@ func SettingCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 		Hidden: true,
 		Commands: []*cli.Command{
 			{
-				Name:   "get",
-				Usage:  t.Get("Get panel setting (use only under guidance)"),
-				Hidden: true,
+				Name:      "get",
+				Usage:     t.Get("Get panel setting (use only under guidance)"),
+				ArgsUsage: t.Get("<key>"),
+				Hidden:    true,
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.GetSetting(ctx, cmd)
 				},
 			},
 			{
-				Name:   "write",
-				Usage:  t.Get("Write panel setting (use only under guidance)"),
-				Hidden: true,
+				Name:      "write",
+				Usage:     t.Get("Write panel setting (use only under guidance)"),
+				ArgsUsage: t.Get("<key> <value>"),
+				Hidden:    true,
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.WriteSetting(ctx, cmd)
 				},
 			},
 			{
-				Name:   "remove",
-				Usage:  t.Get("Remove panel setting (use only under guidance)"),
-				Hidden: true,
+				Name:      "remove",
+				Usage:     t.Get("Remove panel setting (use only under guidance)"),
+				ArgsUsage: t.Get("<key>"),
+				Hidden:    true,
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.RemoveSetting(ctx, cmd)
 				},

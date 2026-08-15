@@ -57,6 +57,11 @@ func InfoCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 				Aliases: []string{"f"},
 				Usage:   t.Get("Force reset password"),
 			},
+			&cli.StringFlag{
+				Name:    "username",
+				Aliases: []string{"u"},
+				Usage:   t.Get("Target username (the first user if not filled)"),
+			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return cliService.Info(ctx, cmd)
@@ -68,8 +73,16 @@ func InfoCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 func PortCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 
 	return &cli.Command{
-		Name:  "port",
-		Usage: t.Get("Change the AcePanel listening port"),
+		Name:      "port",
+		Usage:     t.Get("Change the AcePanel listening port"),
+		ArgsUsage: t.Get("<port>"),
+		Flags: []cli.Flag{
+			&cli.UintFlag{
+				Name:    "port",
+				Aliases: []string{"p"},
+				Usage:   t.Get("Listening port"),
+			},
+		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return cliService.Port(ctx, cmd)
 		},

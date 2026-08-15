@@ -44,7 +44,7 @@ func RestoreCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 					&cli.StringFlag{
 						Name:     "type",
 						Aliases:  []string{"t"},
-						Usage:    t.Get("Database type"),
+						Usage:    t.Get("Database type (mysql, postgresql, clickhouse, redis, valkey)"),
 						Required: true,
 					},
 					&cli.StringFlag{
@@ -62,6 +62,21 @@ func RestoreCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.RestoreDatabase(ctx, cmd)
+				},
+			},
+			{
+				Name:  "panel",
+				Usage: t.Get("Restore panel backup (the panel restarts automatically after restoring)"),
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "file",
+						Aliases:  []string{"f"},
+						Usage:    t.Get("Backup file (absolute path or filename under default backup path)"),
+						Required: true,
+					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return cliService.RestorePanel(ctx, cmd)
 				},
 			},
 		},

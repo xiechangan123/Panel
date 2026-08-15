@@ -2,13 +2,16 @@ package service
 
 import (
 	"bufio"
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"math/rand/v2"
 	stdos "os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -16,8 +19,11 @@ import (
 	"github.com/libtnb/utils/collect"
 	"github.com/libtnb/utils/hash"
 	"github.com/libtnb/utils/str"
+	"github.com/libtnb/validator"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/term"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
@@ -33,7 +39,11 @@ import (
 	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/tools"
+	"github.com/acepanel/panel/v3/pkg/types"
 )
+
+// passwordEnv 交互输入前回退读取的密码环境变量
+const passwordEnv = "ACEPANEL_PASSWORD"
 
 type CliService struct {
 	hr                 string
@@ -54,15 +64,17 @@ type CliService struct {
 	cronRepo           *biz.CronUsecase
 	notifyRepo         *biz.NotifyUsecase
 	hash               hash.Hasher
+	validator          *validator.Validator
 }
 
-func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale) *CliService {
+func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale, v *validator.Validator) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version, app.Locale),
 		t:                  t,
 		conf:               conf,
 		db:                 db,
+		validator:          v,
 		appRepo:            appUsecase,
 		cacheRepo:          cacheUsecase,
 		userRepo:           userUsecase,
@@ -169,8 +181,16 @@ func (s *CliService) Fix(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
+	// 未指定用户名时取第一个用户，兼容单用户场景
 	user := new(biz.User)
-	if err := s.db.First(user).Error; err != nil {
+	query := s.db
+	if username := cmd.String("username"); username != "" {
+		query = query.Where("username", username)
+	}
+	if err := query.First(user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(s.t.Get("User not exists"))
+		}
 		return errors.New(s.t.Get("Failed to get user info: %v", err))
 	}
 
@@ -253,10 +273,61 @@ func (s *CliService) UserList(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Failed to get user list: %v", err))
 	}
 
-	for _, user := range users {
-		fmt.Println(s.t.Get("ID: %d, Username: %s, Email: %s, Created At: %s", user.ID, user.Username, user.Email, user.CreatedAt.Format(time.DateTime)))
+	return s.printList(cmd, users, func() {
+		for _, user := range users {
+			fmt.Println(s.t.Get("ID: %d, Username: %s, Email: %s, Created At: %s", user.ID, user.Username, user.Email, user.CreatedAt.Format(time.DateTime)))
+		}
+	})
+}
+
+func (s *CliService) UserCreate(ctx context.Context, cmd *cli.Command) error {
+	username := cmd.Args().Get(0)
+	if username == "" {
+		return errors.New(s.t.Get("Username cannot be empty"))
 	}
 
+	password, err := s.readSecret(cmd.Args().Get(1), passwordEnv, s.t.Get("Please enter the password: "))
+	if err != nil {
+		return err
+	}
+	if len(password) < 6 {
+		return errors.New(s.t.Get("Password length cannot be less than 6"))
+	}
+
+	// 邮箱仅用于占位，面板不强制校验可达性
+	email := cmd.String("email")
+	if email == "" {
+		email = username + "@example.com"
+	}
+
+	user, err := s.userRepo.Create(ctx, username, password, email)
+	if err != nil {
+		return errors.New(s.t.Get("Failed to create user: %v", err))
+	}
+
+	fmt.Println(s.t.Get("User %s created successfully", user.Username))
+	return nil
+}
+
+func (s *CliService) UserDelete(ctx context.Context, cmd *cli.Command) error {
+	username := cmd.Args().First()
+	if username == "" {
+		return errors.New(s.t.Get("Username cannot be empty"))
+	}
+
+	user := new(biz.User)
+	if err := s.db.Where("username", username).First(user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(s.t.Get("User not exists"))
+		}
+		return errors.New(s.t.Get("Failed to get user: %v", err))
+	}
+
+	if err := s.userRepo.Delete(ctx, user.ID); err != nil {
+		return errors.New(s.t.Get("Failed to delete user: %v", err))
+	}
+
+	fmt.Println(s.t.Get("User %s deleted successfully", username))
 	return nil
 }
 
@@ -290,9 +361,13 @@ func (s *CliService) UserName(ctx context.Context, cmd *cli.Command) error {
 func (s *CliService) UserPassword(ctx context.Context, cmd *cli.Command) error {
 	user := new(biz.User)
 	username := cmd.Args().Get(0)
-	password := cmd.Args().Get(1)
-	if username == "" || password == "" {
-		return errors.New(s.t.Get("Username and password cannot be empty"))
+	if username == "" {
+		return errors.New(s.t.Get("Username cannot be empty"))
+	}
+
+	password, err := s.readSecret(cmd.Args().Get(1), passwordEnv, s.t.Get("Please enter the new password: "))
+	if err != nil {
+		return err
 	}
 	if len(password) < 6 {
 		return errors.New(s.t.Get("Password length cannot be less than 6"))
@@ -503,6 +578,27 @@ func (s *CliService) EntranceOff(ctx context.Context, cmd *cli.Command) error {
 	return s.Restart(ctx, cmd)
 }
 
+func (s *CliService) BindDomainOn(ctx context.Context, cmd *cli.Command) error {
+	domains := cmd.Args().Slice()
+	if len(domains) == 0 {
+		return errors.New(s.t.Get("Please specify at least one domain"))
+	}
+
+	conf, err := config.Load()
+	if err != nil {
+		return err
+	}
+
+	conf.HTTP.BindDomain = domains
+
+	if err = config.Save(conf); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Bind domain enabled: %s", strings.Join(domains, ", ")))
+	return s.Restart(ctx, cmd)
+}
+
 func (s *CliService) BindDomainOff(ctx context.Context, cmd *cli.Command) error {
 	conf, err := config.Load()
 	if err != nil {
@@ -519,6 +615,27 @@ func (s *CliService) BindDomainOff(ctx context.Context, cmd *cli.Command) error 
 	return s.Restart(ctx, cmd)
 }
 
+func (s *CliService) BindIPOn(ctx context.Context, cmd *cli.Command) error {
+	ips := cmd.Args().Slice()
+	if len(ips) == 0 {
+		return errors.New(s.t.Get("Please specify at least one IP"))
+	}
+
+	conf, err := config.Load()
+	if err != nil {
+		return err
+	}
+
+	conf.HTTP.BindIP = ips
+
+	if err = config.Save(conf); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Bind IP enabled: %s", strings.Join(ips, ", ")))
+	return s.Restart(ctx, cmd)
+}
+
 func (s *CliService) BindIPOff(ctx context.Context, cmd *cli.Command) error {
 	conf, err := config.Load()
 	if err != nil {
@@ -532,6 +649,27 @@ func (s *CliService) BindIPOff(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(s.t.Get("Bind IP disabled"))
+	return s.Restart(ctx, cmd)
+}
+
+func (s *CliService) BindUAOn(ctx context.Context, cmd *cli.Command) error {
+	uas := cmd.Args().Slice()
+	if len(uas) == 0 {
+		return errors.New(s.t.Get("Please specify at least one User-Agent"))
+	}
+
+	conf, err := config.Load()
+	if err != nil {
+		return err
+	}
+
+	conf.HTTP.BindUA = uas
+
+	if err = config.Save(conf); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Bind UA enabled: %s", strings.Join(uas, ", ")))
 	return s.Restart(ctx, cmd)
 }
 
@@ -552,8 +690,12 @@ func (s *CliService) BindUAOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
-	port := cast.ToUint(cmd.Args().First())
-	if port < 1 || port > 65535 {
+	// 兼容旧的位置参数写法
+	port := cmp.Or(cmd.Uint("port"), cast.ToUint(cmd.Args().First()))
+	if port == 0 {
+		return errors.New(s.t.Get("Please specify the port"))
+	}
+	if port > 65535 {
 		return errors.New(s.t.Get("Port range error"))
 	}
 
@@ -594,14 +736,158 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 	return s.Restart(ctx, cmd)
 }
 
+func (s *CliService) FirewallStatus(ctx context.Context, cmd *cli.Command) error {
+	fw := firewall.NewFirewall()
+	running, err := fw.Status()
+	if err != nil {
+		return err
+	}
+
+	statusStr := s.t.Get("stopped")
+	if running {
+		statusStr = s.t.Get("running")
+	}
+	fmt.Println(s.t.Get("Firewall status: %s", statusStr))
+
+	if ping, pingErr := fw.PingStatus(); pingErr == nil {
+		fmt.Println(s.t.Get("Ping allowed: %t", ping))
+	}
+
+	return nil
+}
+
+func (s *CliService) FirewallOn(ctx context.Context, cmd *cli.Command) error {
+	if err := firewall.NewFirewall().Enable(); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Firewall enabled"))
+	return nil
+}
+
+func (s *CliService) FirewallOff(ctx context.Context, cmd *cli.Command) error {
+	if err := firewall.NewFirewall().Disable(); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Firewall disabled"))
+	return nil
+}
+
+func (s *CliService) FirewallList(ctx context.Context, cmd *cli.Command) error {
+	rules, err := firewall.NewFirewall().ListRule()
+	if err != nil {
+		return err
+	}
+
+	return s.printList(cmd, rules, func() {
+		for _, rule := range rules {
+			fmt.Println(s.t.Get("Port: %d-%d, Protocol: %s, Strategy: %s, Direction: %s, Address: %s", rule.PortStart, rule.PortEnd, string(rule.Protocol), string(rule.Strategy), string(rule.Direction), rule.Address))
+		}
+	})
+}
+
+// FirewallPort 放行或移除端口，端口支持 8888 与 8000-9000 两种写法
+func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
+	value := cmd.Args().First()
+	start, end, found := strings.Cut(value, "-")
+	if !found {
+		end = start
+	}
+
+	portStart, portEnd := cast.ToUint(start), cast.ToUint(end)
+	startValid := portStart >= 1 && portStart <= 65535
+	endValid := portEnd >= 1 && portEnd <= 65535
+	if !startValid || !endValid || portStart > portEnd {
+		return errors.New(s.t.Get("Port range error"))
+	}
+
+	protocol := firewall.Protocol(cmd.String("protocol"))
+	if !slices.Contains([]firewall.Protocol{firewall.ProtocolTCP, firewall.ProtocolUDP, firewall.ProtocolTCPUDP}, protocol) {
+		return errors.New(s.t.Get("Unsupported protocol: %s", cmd.String("protocol")))
+	}
+
+	fw := firewall.NewFirewall()
+	if running, _ := fw.Status(); !running {
+		return errors.New(s.t.Get("Firewall is not running"))
+	}
+
+	operation := firewall.OperationAdd
+	if cmd.Bool("remove") {
+		operation = firewall.OperationRemove
+	}
+
+	if err := fw.Port(firewall.FireInfo{
+		Type:      firewall.TypeNormal,
+		PortStart: portStart,
+		PortEnd:   portEnd,
+		Protocol:  protocol,
+		Strategy:  firewall.StrategyAccept,
+		Direction: firewall.DirectionIn,
+	}, operation); err != nil {
+		return err
+	}
+
+	msg := s.t.Get("Port %s allowed successfully", value)
+	if cmd.Bool("remove") {
+		msg = s.t.Get("Port %s removed successfully", value)
+	}
+
+	fmt.Println(msg)
+	return nil
+}
+
+func (s *CliService) WebsiteList(ctx context.Context, cmd *cli.Command) error {
+	websites, _, err := s.websiteRepo.List("all", 1, math.MaxUint32)
+	if err != nil {
+		return err
+	}
+
+	return s.printList(cmd, websites, func() {
+		for _, website := range websites {
+			status := s.t.Get("stopped")
+			if website.Status {
+				status = s.t.Get("running")
+			}
+			fmt.Println(s.t.Get("ID: %d, Name: %s, Type: %s, Status: %s, Path: %s", website.ID, website.Name, string(website.Type), status, website.Path))
+		}
+	})
+}
+
 func (s *CliService) WebsiteCreate(ctx context.Context, cmd *cli.Command) error {
 	req := &request.WebsiteCreate{
-		Name:    cmd.String("name"),
-		Domains: cmd.StringSlice("domains"),
-		Listens: cmd.StringSlice("listens"),
-		Path:    cmd.String("path"),
-		PHP:     cmd.Uint("php"),
-		DB:      false,
+		Type:       cmd.String("type"),
+		Name:       cmd.String("name"),
+		Domains:    cmd.StringSlice("domains"),
+		Listens:    cmd.StringSlice("listens"),
+		Path:       cmd.String("path"),
+		Remark:     cmd.String("remark"),
+		PHP:        cmd.Uint("php"),
+		Proxy:      cmd.String("proxy"),
+		DB:         cmd.String("db") != "",
+		DBType:     cmd.String("db"),
+		DBName:     cmd.String("db-name"),
+		DBUser:     cmd.String("db-user"),
+		DBPassword: cmd.String("db-password"),
+	}
+
+	// 未指定目录时使用默认目录，与面板端行为保持一致
+	if req.Path == "" {
+		root, err := s.settingRepo.Get(biz.SettingKeyWebsitePath)
+		if err != nil {
+			return err
+		}
+		req.Path = filepath.Join(root, req.Name, "public")
+	}
+	// 数据库参数缺省时按网站名生成，密码随机
+	if req.DB {
+		req.DBName = cmp.Or(req.DBName, req.Name)
+		req.DBUser = cmp.Or(req.DBUser, req.Name)
+		req.DBPassword = cmp.Or(req.DBPassword, str.Random(16))
+	}
+
+	if err := s.validate(ctx, req); err != nil {
+		return err
 	}
 
 	website, err := s.websiteRepo.Create(ctx, req)
@@ -610,6 +896,38 @@ func (s *CliService) WebsiteCreate(ctx context.Context, cmd *cli.Command) error 
 	}
 
 	fmt.Println(s.t.Get("Website %s created successfully", website.Name))
+	fmt.Println(s.t.Get("Path: %s", req.Path))
+	if req.DB {
+		fmt.Println(s.t.Get("Database: %s, username: %s, password: %s", req.DBName, req.DBUser, req.DBPassword))
+	}
+	return nil
+}
+
+// WebsiteCert 从文件写入网站证书，供外部签发工具对接
+func (s *CliService) WebsiteCert(ctx context.Context, cmd *cli.Command) error {
+	certPEM, err := stdos.ReadFile(cmd.String("cert"))
+	if err != nil {
+		return errors.New(s.t.Get("Failed to read certificate file: %v", err))
+	}
+	keyPEM, err := stdos.ReadFile(cmd.String("key"))
+	if err != nil {
+		return errors.New(s.t.Get("Failed to read private key file: %v", err))
+	}
+
+	req := &request.WebsiteUpdateCert{
+		Name: cmd.String("name"),
+		Cert: string(certPEM),
+		Key:  string(keyPEM),
+	}
+	if err = s.validate(ctx, req); err != nil {
+		return err
+	}
+
+	if err = s.websiteRepo.UpdateCert(req); err != nil {
+		return err
+	}
+
+	fmt.Println(s.t.Get("Certificate for website %s updated successfully", req.Name))
 	return nil
 }
 
@@ -649,9 +967,58 @@ func (s *CliService) WebsiteDelete(ctx context.Context, cmd *cli.Command) error 
 	return nil
 }
 
+// WebsiteWrite 仅写入网站数据到面板数据库，不创建网站目录和配置文件
 func (s *CliService) WebsiteWrite(ctx context.Context, cmd *cli.Command) error {
-	fmt.Println(s.t.Get("Not supported"))
+	name := cmd.String("name")
+	typ := biz.WebsiteType(cmd.String("type"))
+	if !slices.Contains([]biz.WebsiteType{biz.WebsiteTypeProxy, biz.WebsiteTypeStatic, biz.WebsiteTypePHP}, typ) {
+		return errors.New(s.t.Get("Unsupported website type: %s", cmd.String("type")))
+	}
+
+	path := cmd.String("path")
+	if path == "" {
+		root, err := s.settingRepo.Get(biz.SettingKeyWebsitePath)
+		if err != nil {
+			return err
+		}
+		path = filepath.Join(root, name, "public")
+	}
+	if !filepath.IsAbs(path) {
+		return errors.New(s.t.Get("Website path must be an absolute path"))
+	}
+
+	// 已存在则覆盖，用于修复错误的网站数据
+	website := new(biz.Website)
+	if err := s.db.Where("name", name).First(website).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New(s.t.Get("Failed to get website: %v", err))
+		}
+	}
+	website.Name = name
+	website.Type = typ
+	website.Path = path
+	website.Status = cmd.Bool("status")
+	website.SSL = cmd.Bool("ssl")
+	website.Remark = cmd.String("remark")
+	if err := s.db.Save(website).Error; err != nil {
+		return errors.New(s.t.Get("Failed to save website: %v", err))
+	}
+
+	fmt.Println(s.t.Get("Website %s written successfully", name))
 	return nil
+}
+
+func (s *CliService) DatabaseListServer(ctx context.Context, cmd *cli.Command) error {
+	servers, _, err := s.databaseServerRepo.List(ctx, 1, math.MaxUint32, "")
+	if err != nil {
+		return err
+	}
+
+	return s.printList(cmd, servers, func() {
+		for _, server := range servers {
+			fmt.Println(s.t.Get("ID: %d, Name: %s, Type: %s, Address: %s:%d, Username: %s", server.ID, server.Name, string(server.Type), server.Host, server.Port, server.Username))
+		}
+	})
 }
 
 func (s *CliService) DatabaseAddServer(ctx context.Context, cmd *cli.Command) error {
@@ -663,6 +1030,10 @@ func (s *CliService) DatabaseAddServer(ctx context.Context, cmd *cli.Command) er
 		Username: cmd.String("username"),
 		Password: cmd.String("password"),
 		Remark:   cmd.String("remark"),
+	}
+
+	if err := s.validate(ctx, req); err != nil {
+		return err
 	}
 
 	if err := s.databaseServerRepo.Create(ctx, req); err != nil {
@@ -687,6 +1058,71 @@ func (s *CliService) DatabaseDeleteServer(ctx context.Context, cmd *cli.Command)
 	return nil
 }
 
+func (s *CliService) CertList(ctx context.Context, cmd *cli.Command) error {
+	certs, _, err := s.certRepo.List(1, math.MaxUint32)
+	if err != nil {
+		return err
+	}
+
+	return s.printList(cmd, certs, func() {
+		for _, item := range certs {
+			fmt.Println(s.t.Get("ID: %d, Domains: %s, Auto Renewal: %t, Expires At: %s", item.ID, strings.Join(item.Domains, ","), item.AutoRenewal, item.NotAfter.Format(time.DateTime)))
+		}
+	})
+}
+
+// CertRenew 续签证书，--all 时续签全部开启自动续签的证书
+func (s *CliService) CertRenew(ctx context.Context, cmd *cli.Command) error {
+	ids := []uint{}
+	switch {
+	case cmd.Bool("all"):
+		certs, _, err := s.certRepo.List(1, math.MaxUint32)
+		if err != nil {
+			return err
+		}
+		ids = lo.FilterMap(certs, func(item *types.CertList, _ int) (uint, bool) {
+			return item.ID, item.AutoRenewal
+		})
+	case cmd.Uint("id") != 0:
+		ids = []uint{cmd.Uint("id")}
+	}
+	if len(ids) == 0 {
+		return errors.New(s.t.Get("Please specify the certificate ID or use --all"))
+	}
+
+	var failed int
+	for _, id := range ids {
+		fmt.Println(s.t.Get("|-Renewing certificate %d...", id))
+		if _, err := s.certRepo.RenewWithProgressCallback(ctx, id, func(msg string) {
+			fmt.Println("  " + msg)
+		}); err != nil {
+			failed++
+			fmt.Println(s.t.Get("|-Certificate %d renewal failed: %v", id, err))
+			continue
+		}
+		fmt.Println(s.t.Get("|-Certificate %d renewed successfully", id))
+	}
+
+	if failed > 0 {
+		return errors.New(s.t.Get("%d certificate(s) failed to renew", failed))
+	}
+
+	return nil
+}
+
+func (s *CliService) BackupList(ctx context.Context, cmd *cli.Command) error {
+	files, err := s.backupRepo.List(biz.BackupType(cmd.String("type")))
+	if err != nil {
+		return err
+	}
+
+	return s.printList(cmd, files, func() {
+		for _, file := range files {
+			fmt.Println(s.t.Get("Name: %s, Size: %s, Time: %s", file.Name, file.Size, file.Time.Format(time.DateTime)))
+		}
+	})
+}
+
 func (s *CliService) BackupWebsite(ctx context.Context, cmd *cli.Command) error {
 	return s.backupRepo.Create(ctx, biz.BackupTypeWebsite, cmd.String("name"), cmd.Uint("storage"))
 }
@@ -697,14 +1133,6 @@ func (s *CliService) BackupDatabase(ctx context.Context, cmd *cli.Command) error
 
 func (s *CliService) BackupPath(ctx context.Context, cmd *cli.Command) error {
 	return s.backupRepo.Create(ctx, biz.BackupTypePath, cmd.String("path"), cmd.Uint("storage"))
-}
-
-func (s *CliService) RestoreWebsite(ctx context.Context, cmd *cli.Command) error {
-	return s.backupRepo.Restore(ctx, biz.BackupTypeWebsite, cmd.String("file"), cmd.String("name"))
-}
-
-func (s *CliService) RestoreDatabase(ctx context.Context, cmd *cli.Command) error {
-	return s.backupRepo.Restore(ctx, biz.BackupType(cmd.String("type")), cmd.String("file"), cmd.String("name"))
 }
 
 func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {
@@ -722,7 +1150,6 @@ func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
-
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("★ Start cleaning [%s]", time.Now().Format(time.DateTime)))
 	fmt.Println(s.hr)
@@ -731,7 +1158,7 @@ func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("|-Keep count: %d", cmd.Uint("keep")))
 
 	if cmd.Uint("storage") != 0 {
-		if err := s.backupRepo.ClearStorageExpired(cmd.Uint("storage"), biz.BackupType(cmd.String("type")), cmd.String("file"), cmd.Uint("keep")); err != nil {
+		if err := s.backupRepo.ClearStorageExpired(cmd.Uint("storage"), cmd.String("type"), cmd.String("file"), cmd.Uint("keep")); err != nil {
 			return errors.New(s.t.Get("Cleaning failed: %v", err))
 		}
 	} else {
@@ -745,6 +1172,19 @@ func (s *CliService) BackupClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("☆ Cleaning successful [%s]", time.Now().Format(time.DateTime)))
 	fmt.Println(s.hr)
 	return nil
+}
+
+func (s *CliService) RestoreWebsite(ctx context.Context, cmd *cli.Command) error {
+	return s.backupRepo.Restore(ctx, biz.BackupTypeWebsite, cmd.String("file"), cmd.String("name"))
+}
+
+func (s *CliService) RestoreDatabase(ctx context.Context, cmd *cli.Command) error {
+	return s.backupRepo.Restore(ctx, biz.BackupType(cmd.String("type")), cmd.String("file"), cmd.String("name"))
+}
+
+// RestorePanel 从面板备份恢复，恢复完成后面板会自行重启
+func (s *CliService) RestorePanel(ctx context.Context, cmd *cli.Command) error {
+	return s.backupRepo.Restore(ctx, biz.BackupTypePanel, cmd.String("file"), "")
 }
 
 func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error {
@@ -837,32 +1277,33 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("|-Cleaning target: %s", name))
 	fmt.Println(s.t.Get("|-Keep count: %d", keep))
 
+	// 本地切割目录与各自的文件前缀，访问日志和错误日志分别计份
+	var path string
+	var prefixes []string
 	switch typ {
 	case "website":
 		website, err := s.websiteRepo.GetByName(name)
 		if err != nil {
 			return err
 		}
-		path := filepath.Join(app.Root, "sites", website.Name, "log")
-		if err = s.backupRepo.ClearExpired(path, "access_", keep); err != nil {
-			return err
-		}
-		if err = s.backupRepo.ClearExpired(path, "error_", keep); err != nil {
-			return err
-		}
+		path = filepath.Join(app.Root, "sites", website.Name, "log")
+		prefixes = []string{"access_", "error_"}
 	case "container":
-		path := filepath.Join(app.Root, "server/cutoff/container", name)
-		if err := s.backupRepo.ClearExpired(path, "", keep); err != nil {
-			return err
-		}
+		path = filepath.Join(app.Root, "server/cutoff/container", name)
+		prefixes = []string{""}
 	default:
 		return errors.New(s.t.Get("Unsupported rotation type: %s", typ))
 	}
 
-	// 清理远程存储过期日志
-	if storageID != 0 {
-		if err := s.backupRepo.ClearStorageExpired(storageID, biz.BackupType(typ), name, keep); err != nil {
+	for _, prefix := range prefixes {
+		if err := s.backupRepo.ClearExpired(path, prefix, keep); err != nil {
 			return err
+		}
+		// 清理远程存储过期日志，切割日志上传在 cutoff/<类型>/<目标> 下
+		if storageID != 0 {
+			if err := s.backupRepo.ClearStorageExpired(storageID, filepath.Join("cutoff", typ, name), prefix, keep); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -872,11 +1313,29 @@ func (s *CliService) CutoffClear(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
+func (s *CliService) AppList(ctx context.Context, cmd *cli.Command) error {
+	apps, err := s.appRepo.Installed()
+	if err != nil {
+		return errors.New(s.t.Get("Failed to get app list: %v", err))
+	}
+
+	return s.printList(cmd, apps, func() {
+		for _, item := range apps {
+			fmt.Println(s.t.Get("Slug: %s, Channel: %s, Version: %s", item.Slug, item.Channel, item.Version))
+		}
+	})
+}
+
 func (s *CliService) AppInstall(ctx context.Context, cmd *cli.Command) error {
 	slug := cmd.Args().First()
-	channel := cmd.Args().Get(1)
-	if channel == "" || slug == "" {
+	if slug == "" {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
+	}
+	// 未指定通道时跟随面板通道
+	channel := cmd.Args().Get(1)
+	if channel == "" {
+		channel, _ = s.settingRepo.Get(biz.SettingKeyChannel)
+		channel = cmp.Or(channel, "stable")
 	}
 
 	if err := s.appRepo.Install(channel, slug); err != nil {
@@ -1140,6 +1599,61 @@ checkPort:
 	return nil
 }
 
+func (s *CliService) CronList(ctx context.Context, cmd *cli.Command) error {
+	crons, _, err := s.cronRepo.List(1, math.MaxUint32)
+	if err != nil {
+		return err
+	}
+
+	return s.printList(cmd, crons, func() {
+		for _, cron := range crons {
+			status := s.t.Get("stopped")
+			if cron.Status {
+				status = s.t.Get("running")
+			}
+			fmt.Println(s.t.Get("ID: %d, Name: %s, Type: %s, Schedule: %s, Status: %s", cron.ID, cron.Name, cron.Type, cron.Time, status))
+		}
+	})
+}
+
+// CronRun 立即执行一次计划任务，直接跑任务脚本，不经 wrapper 上报失败
+func (s *CliService) CronRun(ctx context.Context, cmd *cli.Command) error {
+	cron, err := s.cronRepo.Get(cmd.Uint("id"))
+	if err != nil {
+		return err
+	}
+	if !io.Exists(cron.Shell) {
+		return errors.New(s.t.Get("Cron task script %s not exists", cron.Shell))
+	}
+
+	fmt.Println(s.t.Get("|-Running cron task: %s", cron.Name))
+	out, err := shell.Execf("bash %s", cron.Shell)
+	if out != "" {
+		fmt.Println(out)
+	}
+	if err != nil {
+		return errors.New(s.t.Get("Cron task %s failed: %v", cron.Name, err))
+	}
+
+	fmt.Println(s.t.Get("Cron task %s executed successfully", cron.Name))
+	return nil
+}
+
+func (s *CliService) CronStatus(ctx context.Context, cmd *cli.Command) error {
+	status := !cmd.Bool("off")
+	if err := s.cronRepo.Status(cmd.Uint("id"), status); err != nil {
+		return err
+	}
+
+	msg := s.t.Get("Cron task %d disabled", cmd.Uint("id"))
+	if status {
+		msg = s.t.Get("Cron task %d enabled", cmd.Uint("id"))
+	}
+
+	fmt.Println(msg)
+	return nil
+}
+
 // CronFailed 上报计划任务执行失败，由任务 wrapper 脚本调用
 func (s *CliService) CronFailed(ctx context.Context, cmd *cli.Command) error {
 	cron, err := s.cronRepo.Get(cmd.Uint("id"))
@@ -1159,4 +1673,56 @@ func (s *CliService) CronFailed(ctx context.Context, cmd *cli.Command) error {
 			{s.t.Get("Output"), tail},
 			{s.t.Get("Time"), time.Now().Format(time.DateTime)},
 		}))
+}
+
+// validate 校验请求结构体，CLI 不走 HTTP 绑定，需要单独调用
+func (s *CliService) validate(ctx context.Context, req any) error {
+	vd := s.validator.Struct(req)
+	vd.Validate(ctx)
+	if vd.Fails() {
+		return errors.New(vd.Errors().One())
+	}
+
+	return nil
+}
+
+// printList 输出列表，--json 时输出原始数据，否则交给 plain 打印
+func (s *CliService) printList(cmd *cli.Command, data any, plain func()) error {
+	if !cmd.Bool("json") {
+		plain()
+		return nil
+	}
+
+	encoded, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(encoded))
+
+	return nil
+}
+
+// readSecret 按参数 > 环境变量 > 交互输入的优先级取密码，交互输入不回显
+func (s *CliService) readSecret(value, env, prompt string) (string, error) {
+	if value != "" {
+		return value, nil
+	}
+	if fromEnv := stdos.Getenv(env); fromEnv != "" {
+		return fromEnv, nil
+	}
+
+	// 非终端环境无法交互输入，直接提示改用参数或环境变量
+	fd := int(stdos.Stdin.Fd())
+	if !term.IsTerminal(fd) {
+		return "", errors.New(s.t.Get("Password not provided, pass it as an argument or set the %s environment variable", env))
+	}
+
+	fmt.Print(prompt)
+	secret, err := term.ReadPassword(fd)
+	fmt.Println()
+	if err != nil {
+		return "", errors.New(s.t.Get("Failed to read input: %v", err))
+	}
+
+	return strings.TrimSpace(string(secret)), nil
 }

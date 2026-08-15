@@ -63,7 +63,7 @@ func CutoffCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 					&cli.StringFlag{
 						Name:     "type",
 						Aliases:  []string{"t"},
-						Usage:    t.Get("Rotation type"),
+						Usage:    t.Get("Rotation type (website, container)"),
 						Required: true,
 					},
 					&cli.StringFlag{

@@ -17,6 +17,21 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 		Usage: t.Get("Data backup"),
 		Commands: []*cli.Command{
 			{
+				Name:  "list",
+				Usage: t.Get("List backup files"),
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "type",
+						Aliases:  []string{"t"},
+						Usage:    t.Get("Backup type (website, path, panel, mysql, postgresql, clickhouse, redis, valkey)"),
+						Required: true,
+					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return cliService.BackupList(ctx, cmd)
+				},
+			},
+			{
 				Name:  "website",
 				Usage: t.Get("Backup website"),
 				Flags: []cli.Flag{
@@ -43,7 +58,7 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 					&cli.StringFlag{
 						Name:     "type",
 						Aliases:  []string{"t"},
-						Usage:    t.Get("Database type"),
+						Usage:    t.Get("Database type (mysql, postgresql, clickhouse, redis, valkey)"),
 						Required: true,
 					},
 					&cli.StringFlag{
@@ -97,13 +112,13 @@ func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 					&cli.StringFlag{
 						Name:     "type",
 						Aliases:  []string{"t"},
-						Usage:    t.Get("Backup type"),
+						Usage:    t.Get("Backup type (website, path, mysql, postgresql, clickhouse, redis, valkey)"),
 						Required: true,
 					},
 					&cli.StringFlag{
 						Name:     "file",
 						Aliases:  []string{"f"},
-						Usage:    t.Get("Backup file"),
+						Usage:    t.Get("Backup file prefix"),
 						Required: true,
 					},
 					&cli.UintFlag{

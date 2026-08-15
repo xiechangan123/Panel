@@ -22,11 +22,13 @@ func DatabaseCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "type",
-						Usage:    t.Get("Server type"),
+						Aliases:  []string{"t"},
+						Usage:    t.Get("Server type (mysql, postgresql, mongodb, clickhouse, redis, elasticsearch)"),
 						Required: true,
 					},
 					&cli.StringFlag{
 						Name:     "name",
+						Aliases:  []string{"n"},
 						Usage:    t.Get("Server name"),
 						Required: true,
 					},
@@ -70,6 +72,13 @@ func DatabaseCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.DatabaseDeleteServer(ctx, cmd)
+				},
+			},
+			{
+				Name:  "list-server",
+				Usage: t.Get("List all database servers"),
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return cliService.DatabaseListServer(ctx, cmd)
 				},
 			},
 		},
