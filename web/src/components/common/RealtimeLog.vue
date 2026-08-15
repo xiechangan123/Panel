@@ -41,6 +41,8 @@ const followMode = ref(true)
 const initialLoading = ref(true)
 const isLoadingMore = ref(false)
 const hasMore = ref(false)
+// 仅在用户翻过历史后才提示到顶，避免首屏日志不足一页时凭空出现边界行
+const loadedOlder = ref(false)
 const fontSize = useStorage('log-font-size', 13)
 const wrapLines = useStorage('log-wrap-lines', false)
 const status = ref<ConnStatus>('connecting')
@@ -219,6 +221,7 @@ const loadOlder = () => {
     return
   }
   isLoadingMore.value = true
+  loadedOlder.value = true
   const el = scrollEl.value
   const oldScrollTop = el?.scrollTop ?? 0
   const oldScrollHeight = el?.scrollHeight ?? 0
@@ -352,6 +355,7 @@ const cleanup = () => {
   nextCursor = ''
   pendingTail = ''
   hasMore.value = false
+  loadedOlder.value = false
   status.value = 'connecting'
   matchedLineId.value = null
   pendingNew.value = 0
@@ -471,7 +475,7 @@ defineExpose({ clear })
     >
       <div v-if="initialLoading" class="log-loading"><n-spin :size="18" /></div>
       <template v-else>
-        <div v-if="isLoadingMore || (!hasMore && lines.length > 0)" class="log-boundary">
+        <div v-if="isLoadingMore || (loadedOlder && !hasMore)" class="log-boundary">
           <n-spin v-if="isLoadingMore" :size="12" />
           <span v-else>{{ $gettext('No more logs') }}</span>
         </div>
