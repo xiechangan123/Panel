@@ -7,10 +7,20 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import ws from '@/api/ws'
+import { useTabStore } from '@/stores'
 import { formatDateTime, http } from '@/utils'
 
 const { $gettext } = useGettext()
-const { data: versions } = useRequest(home.updateInfo, { initialData: [] })
+const route = useRoute()
+const tabStore = useTabStore()
+
+const closeSelf = () => tabStore.removeTab(route.path)
+
+// 无可用更新（如更新完成后刷新页面）或离线模式时接口会报错，提示后关闭本页
+const { data: versions } = useRequest(home.updateInfo, { initialData: [] }).onError(({ error }) => {
+  window.$message.info(error.message)
+  closeSelf()
+})
 const { data: systemInfo } = useRequest(home.systemInfo)
 
 const updating = ref(false)
@@ -29,7 +39,12 @@ const parseDescription = (text: string): string[] => text.split('\n').filter((li
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const reload = () => window.location.reload()
+// 关闭更新页再整页跳转，避免刷新后仍停留在此页导致重复请求更新信息
+const finish = async () => {
+  closeSelf()
+  await nextTick()
+  window.location.href = '/'
+}
 
 // 升级会重启面板，重启期间请求失败（连接拒绝或 503）；静默轮询直到新版本就绪后刷新
 const waitForRestart = async (targetVersion: string) => {
@@ -40,7 +55,7 @@ const waitForRestart = async (targetVersion: string) => {
     try {
       const data: any = await http.Get('/home/system_info', { meta: { noAlert: true } })
       if (data && (!targetVersion || data.panel_version === targetVersion)) {
-        reload()
+        await finish()
         return
       }
     } catch {
@@ -159,7 +174,7 @@ const handleUpdate = () => {
 
         <n-flex v-if="errorMsg || restartTimedOut" justify="center">
           <n-button v-if="errorMsg" @click="resetUpdate">{{ $gettext('Back') }}</n-button>
-          <n-button v-if="restartTimedOut" type="primary" @click="reload">
+          <n-button v-if="restartTimedOut" type="primary" @click="finish">
             {{ $gettext('Refresh') }}
           </n-button>
         </n-flex>
