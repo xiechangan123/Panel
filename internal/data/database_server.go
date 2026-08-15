@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	lop "github.com/samber/lo/parallel"
 	"gorm.io/gorm"
@@ -205,5 +204,5 @@ func localMySQLSocket(host string) string {
 	if host != "127.0.0.1" && host != "localhost" && host != "::1" {
 		return ""
 	}
-	return db.MySQLSocket(filepath.Join(app.Root, "server/mysql/config/my.cnf"), "/etc/my.cnf")
+	return db.MySQLSocket(app.Root)
 }

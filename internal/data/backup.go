@@ -21,7 +21,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/db"
@@ -575,7 +574,7 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, "/tmp/mysql.sock", "unix")
+	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, db.MySQLSocket(app.Root), "unix")
 	if err != nil {
 		return err
 	}
@@ -636,25 +635,13 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	return nil
 }
 
-// postgresPort 读取 PostgreSQL 端口，面板允许改端口，不能写死
-func (r *backupRepo) postgresPort() uint {
-	config, err := io.Read(filepath.Join(app.Root, "server", "postgresql", "data", "postgresql.conf"))
-	if err != nil {
-		return 5432
-	}
-	if port := cast.ToUint(confval.Postgres.Get(config, "port")); port != 0 {
-		return port
-	}
-	return 5432
-}
-
 // createPostgres 创建 PostgreSQL 备份
 func (r *backupRepo) createPostgres(name string, storage storage.Storage, target string) error {
 	postgresPassword, err := r.setting.Get(biz.SettingKeyPostgresPassword)
 	if err != nil {
 		return err
 	}
-	port := r.postgresPort()
+	port := db.PostgresPort(app.Root)
 	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", port)
 	if err != nil {
 		return err
@@ -972,7 +959,7 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, "/tmp/mysql.sock", "unix")
+	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, db.MySQLSocket(app.Root), "unix")
 	if err != nil {
 		return err
 	}
@@ -1004,7 +991,7 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	port := r.postgresPort()
+	port := db.PostgresPort(app.Root)
 	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", port)
 	if err != nil {
 		return err

@@ -213,10 +213,10 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldRootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
-	mysql, err := db.NewMySQL(r.Context(), "root", oldRootPassword, s.getSock(), "unix")
+	mysql, err := db.NewMySQL(r.Context(), "root", oldRootPassword, db.MySQLSocket(app.Root), "unix")
 	if err != nil {
 		// 尝试安全模式直接改密
-		if err = db.MySQLResetRootPassword(req.Password); err != nil {
+		if err = db.MySQLResetRootPassword(req.Password, app.Root); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -334,11 +334,4 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
-}
-
-func (s *App) getSock() string {
-	if sock := db.MySQLSocket(app.Root+"/server/mysql/config/my.cnf", "/etc/my.cnf"); sock != "" {
-		return sock
-	}
-	return "/tmp/mysql.sock"
 }

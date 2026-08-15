@@ -74,7 +74,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oldPort := s.getPort()
+	oldPort := db.PostgresPort(app.Root)
 	if err = io.Write(s.configPath(), req.Config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -136,7 +136,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	env := []string{"PGPASSWORD=" + postgresPassword}
-	port := s.getPort()
+	port := db.PostgresPort(app.Root)
 	start, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL start time: %v", err))
@@ -205,7 +205,7 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldPassword, _ := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
-	port := s.getPort()
+	port := db.PostgresPort(app.Root)
 	postgres, err := db.NewPostgres(r.Context(), "postgres", oldPassword, "127.0.0.1", port)
 	if err != nil {
 		// 直接修改密码
@@ -281,7 +281,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	confPath := s.configPath()
-	oldPort := s.getPort()
+	oldPort := db.PostgresPort(app.Root)
 	config, err := io.Read(confPath)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -331,15 +331,6 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 func (s *App) configPath() string {
 	return app.Root + "/server/postgresql/data/postgresql.conf"
-}
-
-// getPort 读取 PostgreSQL 端口
-func (s *App) getPort() uint {
-	config, err := io.Read(s.configPath())
-	if err != nil {
-		return 5432
-	}
-	return s.parsePort(config)
 }
 
 // parsePort 从 config 内容解析端口，未配置时返回默认值
