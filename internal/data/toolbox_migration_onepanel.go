@@ -71,7 +71,7 @@ func (a *onePanelAdapter) Items(ctx context.Context) ([]types.MigrationItem, err
 	if err != nil {
 		return nil, err
 	}
-	return append(websites, a.databaseItems(ctx)...), nil
+	return slices.Concat(websites, a.databaseItems(ctx), a.databaseUserItems(ctx)), nil
 }
 
 // websiteItems 列出静态、反代与 PHP 运行环境网站
@@ -153,6 +153,68 @@ func (a *onePanelAdapter) databaseItems(ctx context.Context) []types.MigrationIt
 	return items
 }
 
+// databaseUserDetail 重新读取用户密码，迁移执行时密码可能已被改过
+func (a *onePanelAdapter) databaseUserDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationDatabaseUser, error) {
+	data, err := a.api(ctx, http.MethodPost, "/databases/users/search", map[string]any{"database": item.SourceGroup})
+	if err != nil {
+		return nil, err
+	}
+	row, ok := lo.Find(a.rows(data), func(row map[string]any) bool {
+		return cast.ToString(row["username"]) == item.SourceID && cast.ToString(row["host"]) == item.Version
+	})
+	if !ok {
+		return nil, errors.New(a.t.Get("resource no longer exists on the source server"))
+	}
+
+	return &types.MigrationDatabaseUser{
+		Type: item.Subtype, Username: item.SourceID,
+		Password: cast.ToString(row["password"]), Host: item.Version,
+	}, nil
+}
+
+// databaseUserItems 列出各数据库服务下的用户，1Panel 的用户接口直接返回明文密码
+func (a *onePanelAdapter) databaseUserItems(ctx context.Context) []types.MigrationItem {
+	items := make([]types.MigrationItem, 0)
+	for _, subtype := range []string{"mysql", "mariadb", "postgresql"} {
+		data, err := a.api(ctx, http.MethodGet, "/databases/db/list/"+subtype, nil)
+		if err != nil {
+			continue
+		}
+		for _, server := range a.rows(data) {
+			name := cast.ToString(server["database"])
+			if name == "" || strings.EqualFold(cast.ToString(server["from"]), "remote") {
+				continue
+			}
+			items = append(items, a.usersOf(ctx, subtype, name)...)
+		}
+	}
+	return items
+}
+
+// usersOf 列出指定数据库服务下的用户
+func (a *onePanelAdapter) usersOf(ctx context.Context, subtype, server string) []types.MigrationItem {
+	data, err := a.api(ctx, http.MethodPost, "/databases/users/search", map[string]any{"database": server})
+	if err != nil {
+		return nil
+	}
+
+	items := make([]types.MigrationItem, 0)
+	for _, row := range a.rows(data) {
+		username, password := cast.ToString(row["username"]), cast.ToString(row["password"])
+		// 密码不可见的用户迁过去也连不上，不如不迁
+		if username == "" || password == "" {
+			continue
+		}
+		host := lo.CoalesceOrEmpty(cast.ToString(row["host"]), "%")
+		items = append(items, types.MigrationItem{
+			Key:  biz.MigrationItemKey("database_user", subtype+":"+server+":"+username+"@"+host),
+			Type: "database_user", Subtype: subtype, Name: username + "@" + host, Status: "running",
+			TargetName: username, SourceID: username, SourceGroup: server, Version: host,
+		})
+	}
+	return items
+}
+
 // databasesOf 列出指定数据库服务下的库
 func (a *onePanelAdapter) databasesOf(ctx context.Context, subtype, server, version string) []types.MigrationItem {
 	path := "/databases/search"
@@ -188,6 +250,8 @@ func (a *onePanelAdapter) Detail(ctx context.Context, item types.MigrationItem) 
 		detail.Website, err = a.websiteDetail(ctx, item)
 	case "database":
 		detail.Database, err = a.databaseDetail(ctx, item)
+	case "database_user":
+		detail.DatabaseUser, err = a.databaseUserDetail(ctx, item)
 	default:
 		err = errors.New(a.t.Get("unsupported migration resource type: %s", item.Type))
 	}

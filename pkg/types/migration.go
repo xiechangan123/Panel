@@ -71,10 +71,11 @@ type MigrationItem struct {
 
 // MigrationDetail 迁移执行前重新读取的资源详情
 type MigrationDetail struct {
-	Item     MigrationItem
-	Website  *MigrationWebsite
-	Database *MigrationDatabase
-	Project  *MigrationProject
+	Item         MigrationItem
+	Website      *MigrationWebsite
+	Database     *MigrationDatabase
+	DatabaseUser *MigrationDatabaseUser
+	Project      *MigrationProject
 }
 
 // MigrationWebsite 网站详情
@@ -125,6 +126,14 @@ type MigrationDatabase struct {
 	Type     string // mysql / postgresql
 	Version  string
 	Name     string
+	Username string
+	Password string
+	Host     string
+}
+
+// MigrationDatabaseUser 数据库用户详情
+type MigrationDatabaseUser struct {
+	Type     string // mysql / postgresql
 	Username string
 	Password string
 	Host     string

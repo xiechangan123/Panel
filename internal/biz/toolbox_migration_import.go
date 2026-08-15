@@ -71,6 +71,10 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 			}) {
 				item.Blockers = append(item.Blockers, uc.t.Get("a database with the same name already exists on the target server"))
 			}
+		case "database_user":
+			if !uc.mysqlName.MatchString(item.TargetName) {
+				item.Blockers = append(item.Blockers, uc.t.Get("the name contains characters not allowed by AcePanel"))
+			}
 		case "project":
 			item.TargetPath = filepath.Join(projectPath, item.TargetName)
 			if !uc.resourceName.MatchString(item.TargetName) {
@@ -114,7 +118,7 @@ func (uc *ToolboxMigrationUsecase) importDatabase(ctx context.Context, detail *t
 	warnings := make([]string, 0)
 	switch {
 	case database.Username != "" && database.Password != "":
-		create.CreateUser = true
+		create.CreateUser = !uc.databaseUserExists(ctx, server.ID, database.Username)
 		create.Username = database.Username
 		create.Password = database.Password
 		create.Host = lo.CoalesceOrEmpty(database.Host, "localhost")
@@ -138,6 +142,39 @@ func (uc *ToolboxMigrationUsecase) importDatabase(ctx context.Context, detail *t
 		return warnings, errors.New(uc.t.Get("database import failed: %v", err))
 	}
 	return warnings, nil
+}
+
+// importDatabaseUser 在目标创建数据库用户
+func (uc *ToolboxMigrationUsecase) importDatabaseUser(ctx context.Context, detail *types.MigrationDetail) ([]string, error) {
+	user := detail.DatabaseUser
+	targetType := user.Type
+	if targetType == "mariadb" {
+		targetType = "mysql"
+	}
+	server, err := uc.databaseServer.GetByName(ctx, "local_"+targetType)
+	if err != nil {
+		return nil, errors.New(uc.t.Get("no compatible database server is installed on the target"))
+	}
+
+	if err = uc.databaseUser.Create(ctx, &request.DatabaseUserCreate{
+		ServerID: server.ID, Username: detail.Item.TargetName,
+		Password: user.Password, Host: user.Host,
+	}); err != nil {
+		return nil, errors.New(uc.t.Get("failed to create database user on target: %v", err))
+	}
+	return nil, nil
+}
+
+// databaseUserExists 目标该数据库服务上是否已有同名用户
+func (uc *ToolboxMigrationUsecase) databaseUserExists(ctx context.Context, serverID uint, username string) bool {
+	users, _, err := uc.databaseUser.List(ctx, 1, 10000, "")
+	if err != nil {
+		return false
+	}
+
+	return slices.ContainsFunc(users, func(user *DatabaseUser) bool {
+		return user.ServerID == serverID && user.Username == username
+	})
 }
 
 // importWebsite 创建目标网站、导入文件并还原配置

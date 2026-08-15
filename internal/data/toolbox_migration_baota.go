@@ -93,7 +93,7 @@ func (a *baotaAdapter) Items(ctx context.Context) ([]types.MigrationItem, error)
 			websites[i].DependsOn = append(websites[i].DependsOn, databases[index].Key)
 		}
 	}
-	return slices.Concat(websites, databases, a.projectItems(ctx)), nil
+	return slices.Concat(websites, databases, a.databaseUserItems(ctx), a.projectItems(ctx)), nil
 }
 
 // websiteItems 列出静态、PHP 与反代网站
@@ -135,6 +135,67 @@ func (a *baotaAdapter) websiteItems(ctx context.Context) ([]types.MigrationItem,
 	return items, nil
 }
 
+// mysqlSubtype 宝塔的 MySQL 可能实际是 MariaDB，版本文件里能区分
+func (a *baotaAdapter) mysqlSubtype(ctx context.Context) string {
+	version, err := a.fileContent(ctx, "/www/server/mysql/version.pl")
+	if err == nil && strings.Contains(strings.ToLower(version), "mariadb") {
+		return "mariadb"
+	}
+
+	return "mysql"
+}
+
+// databaseUserItems 列出数据库用户
+func (a *baotaAdapter) databaseUserItems(ctx context.Context) []types.MigrationItem {
+	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
+		"table": "databases", "p": 1, "limit": 10000,
+	})
+	if err != nil {
+		return nil
+	}
+	subtype := a.mysqlSubtype(ctx)
+
+	items := make([]types.MigrationItem, 0)
+	for _, row := range a.rows(data) {
+		username, password := cast.ToString(row["username"]), cast.ToString(row["password"])
+		if username == "" || password == "" || cast.ToInt(row["db_type"]) != 0 || cast.ToInt(row["sid"]) != 0 {
+			continue
+		}
+		host := lo.CoalesceOrEmpty(cast.ToString(row["accept"]), "localhost")
+		key := biz.MigrationItemKey("database_user", username+"@"+host)
+		// 多个库共用同一用户时只保留一项
+		if slices.ContainsFunc(items, func(item types.MigrationItem) bool { return item.Key == key }) {
+			continue
+		}
+		items = append(items, types.MigrationItem{
+			Key: key, Type: "database_user", Subtype: subtype, Name: username + "@" + host, Status: "running",
+			TargetName: username, SourceID: username, Version: host,
+		})
+	}
+	return items
+}
+
+// databaseUserDetail 重新读取用户密码，迁移执行时密码可能已被改过
+func (a *baotaAdapter) databaseUserDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationDatabaseUser, error) {
+	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
+		"table": "databases", "p": 1, "limit": 10000, "search": item.SourceID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	row, ok := lo.Find(a.rows(data), func(row map[string]any) bool {
+		return cast.ToString(row["username"]) == item.SourceID
+	})
+	if !ok {
+		return nil, errors.New(a.t.Get("resource no longer exists on the source server"))
+	}
+
+	return &types.MigrationDatabaseUser{
+		Type: item.Subtype, Username: item.SourceID,
+		Password: cast.ToString(row["password"]), Host: item.Version,
+	}, nil
+}
+
 // databaseItems 列出本机 MySQL 数据库
 func (a *baotaAdapter) databaseItems(ctx context.Context) []types.MigrationItem {
 	data, err := a.call(ctx, http.MethodPost, "/data?action=getData", map[string]any{
@@ -143,12 +204,7 @@ func (a *baotaAdapter) databaseItems(ctx context.Context) []types.MigrationItem 
 	if err != nil {
 		return nil
 	}
-	// 宝塔的 MySQL 可能实际是 MariaDB，版本文件里能区分
-	subtype := "mysql"
-	if version, versionErr := a.fileContent(ctx, "/www/server/mysql/version.pl"); versionErr == nil &&
-		strings.Contains(strings.ToLower(version), "mariadb") {
-		subtype = "mariadb"
-	}
+	subtype := a.mysqlSubtype(ctx)
 
 	items := make([]types.MigrationItem, 0)
 	for _, row := range a.rows(data) {
@@ -234,6 +290,8 @@ func (a *baotaAdapter) Detail(ctx context.Context, item types.MigrationItem) (*t
 		detail.Website, err = a.websiteDetail(ctx, item)
 	case "database":
 		detail.Database, err = a.databaseDetail(ctx, item)
+	case "database_user":
+		detail.DatabaseUser, err = a.databaseUserDetail(ctx, item)
 	case "project":
 		detail.Project, err = a.projectDetail(ctx, item)
 	default:

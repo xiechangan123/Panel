@@ -277,8 +277,8 @@ func (uc *ToolboxMigrationUsecase) run(conn *request.ToolboxMigrationConnection,
 		return
 	}
 
-	// 数据库先于依赖它的项目和网站建立
-	priority := map[string]int{"database": 0, "database_user": 1, "project": 2, "website": 3}
+	// 用户最先建，PG 的 dump 带 OWNER TO，角色不存在会让整个导入失败
+	priority := map[string]int{"database_user": 0, "database": 1, "project": 2, "website": 3}
 	slices.SortStableFunc(items, func(a, b types.MigrationItem) int {
 		return priority[a.Type] - priority[b.Type]
 	})
@@ -370,6 +370,12 @@ func (uc *ToolboxMigrationUsecase) pull(
 		return nil, errors.New(uc.t.Get("failed to read source resource detail: %v", err))
 	}
 	detail.Item = item
+
+	// 用户没有可备份的内容，直接建到目标
+	if item.Type == "database_user" {
+		uc.setStage(item.Key, types.MigrationStageImport)
+		return uc.importDatabaseUser(ctx, detail)
+	}
 
 	// 备份期间停止来源避免文件不一致，备份落盘后立即恢复；数据库为在线导出无需停止
 	stopped := req.StopSource && item.Status == "running" && item.Type != "database"
