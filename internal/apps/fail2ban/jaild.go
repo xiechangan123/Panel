@@ -73,7 +73,7 @@ func writeJail(jail Jail) error {
 		jail.Name, jail.Enabled, jail.Filter, jail.Port, jail.MaxRetry, jail.FindTime, jail.BanTime,
 	)
 	if jail.LogPath != "" {
-		config += "logpath = " + jail.LogPath + "\n"
+		config += "backend = auto\nlogpath = " + jail.LogPath + "\n"
 	}
 
 	return io.Write(jailPath(jail.Name), config, 0644)
