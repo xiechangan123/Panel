@@ -520,11 +520,7 @@ func (s *ToolboxLogService) cleanMySQLLogs() (int64, error) {
 	// 从面板设置获取 root 密码
 	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 	if err == nil && rootPassword != "" {
-		// 设置环境变量
-		if err = os.Setenv("MYSQL_PWD", rootPassword); err == nil {
-			_, _ = shell.Execf("mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
-			_ = os.Unsetenv("MYSQL_PWD")
-		}
+		_, _ = shell.ExecfWithEnv([]string{"MYSQL_PWD=" + rootPassword}, "mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
 	}
 
 	return cleaned, nil

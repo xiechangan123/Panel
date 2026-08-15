@@ -3,7 +3,6 @@ package mysql
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"regexp"
 
 	"github.com/go-chi/chi/v5"
@@ -98,17 +97,9 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = os.Setenv("MYSQL_PWD", rootPassword); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set MYSQL_PWD env: %v", err))
-		return
-	}
-	raw, err := shell.Execf(`mysqladmin -u root extended-status`)
+	raw, err := shell.ExecfWithEnv([]string{"MYSQL_PWD=" + rootPassword}, `mysqladmin -u root extended-status`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get MySQL status: %v", err))
-		return
-	}
-	if err = os.Unsetenv("MYSQL_PWD"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to unset MYSQL_PWD env: %v", err))
 		return
 	}
 

@@ -13,6 +13,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 const (
@@ -491,7 +493,9 @@ func hasCommand(name string) bool {
 }
 
 func run(ctx context.Context, name string, args ...string) (string, error) {
-	output, err := exec.CommandContext(ctx, name, args...).CombinedOutput()
+	cmd := exec.CommandContext(ctx, name, args...)
+	shell.ApplyEnv(cmd)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("%s: %w: %s", name, err, strings.TrimSpace(string(output)))
 	}

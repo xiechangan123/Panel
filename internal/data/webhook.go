@@ -15,6 +15,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
+	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 type webhookRepo struct {
@@ -121,6 +122,7 @@ func (r *webhookRepo) Call(key string) (string, error) {
 	} else {
 		cmd = exec.Command("su", "-s", "/bin/bash", "-c", "bash "+scriptFile, webhook.User)
 	}
+	shell.ApplyEnv(cmd)
 
 	output, err := cmd.CombinedOutput()
 

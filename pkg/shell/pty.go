@@ -45,8 +45,8 @@ func NewPTYTurn(ctx context.Context, ws *websocket.Conn, shell string, args ...a
 		shell = fmt.Sprintf(shell, args...)
 	}
 
-	_ = os.Setenv("LC_ALL", "C")
 	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
+	ApplyEnv(cmd)
 
 	ptmx, err := pty.Start(cmd)
 	if err != nil {

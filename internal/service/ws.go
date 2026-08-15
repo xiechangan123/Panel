@@ -128,6 +128,7 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 	} else {
 		cmd = exec.CommandContext(ctx, "tail", "-n", "0", "-F", req.Path)
 	}
+	shell.ApplyEnv(cmd)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		_ = ws.Close(websocket.StatusNormalClosure, err.Error())

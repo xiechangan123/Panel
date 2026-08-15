@@ -13,6 +13,9 @@ import (
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
+// composeEnv 禁用 Podman Compose 的警告日志
+var composeEnv = []string{"PODMAN_COMPOSE_WARNING_LOGS=false"}
+
 type containerComposeRepo struct{}
 
 func NewContainerComposeRepo() biz.ContainerComposeRepo {
@@ -21,9 +24,8 @@ func NewContainerComposeRepo() biz.ContainerComposeRepo {
 
 // List 列出所有编排
 func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
-	_ = os.Setenv("PODMAN_COMPOSE_WARNING_LOGS", "false") // 禁用 Podman Compose 的警告日志
-	raw, err := shell.Execf("docker compose ls -a --format json")
-	_ = os.Unsetenv("PODMAN_COMPOSE_WARNING_LOGS")
+	// PODMAN_COMPOSE_WARNING_LOGS 禁用 Podman Compose 的警告日志
+	raw, err := shell.ExecfWithEnv(composeEnv, "docker compose ls -a --format json")
 	if err != nil {
 		return nil, err
 	}
@@ -140,18 +142,14 @@ func (r *containerComposeRepo) Up(name string, force bool) error {
 	if force {
 		cmd += " --pull always" // 强制拉取镜像
 	}
-	_ = os.Setenv("PODMAN_COMPOSE_WARNING_LOGS", "false") // 禁用 Podman Compose 的警告日志
-	_, err := shell.Execf(cmd, file)
-	_ = os.Unsetenv("PODMAN_COMPOSE_WARNING_LOGS")
+	_, err := shell.ExecfWithEnv(composeEnv, cmd, file)
 	return err
 }
 
 // Down 停止编排
 func (r *containerComposeRepo) Down(name string) error {
 	file := filepath.Join(app.Root, "compose", name, "docker-compose.yml")
-	_ = os.Setenv("PODMAN_COMPOSE_WARNING_LOGS", "false") // 禁用 Podman Compose 的警告日志
-	_, err := shell.Execf("docker compose -f %s down", file)
-	_ = os.Unsetenv("PODMAN_COMPOSE_WARNING_LOGS")
+	_, err := shell.ExecfWithEnv(composeEnv, "docker compose -f %s down", file)
 	return err
 }
 

@@ -17,9 +17,11 @@ import (
 
 	"github.com/leonelquinteros/gotext"
 	"github.com/samber/lo"
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/db"
@@ -595,16 +597,20 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 
 	// 导出数据库
 	var gtidMode string
-	dumpArgs := "--single-transaction --quick"
+	dumpArgs := "--single-transaction --quick --routines --events --max-allowed-packet=1G"
 	if mysql.QueryRow(`SELECT @@gtid_mode`).Scan(&gtidMode) == nil {
 		dumpArgs += " --set-gtid-purged=OFF"
 	}
 	name += ".sql"
-	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	if _, err = shell.Execf(`mysqldump -u root %s '%s' > '%s'`, dumpArgs, target, filepath.Join(tmpDir, name)); err != nil {
+	if _, err = shell.ExecfWithEnv(
+		[]string{"MYSQL_PWD=" + rootPassword},
+		`mysqldump -u root %s '%s' > '%s'`,
+		dumpArgs,
+		target,
+		filepath.Join(tmpDir, name),
+	); err != nil {
 		return err
 	}
-	_ = os.Unsetenv("MYSQL_PWD")
 
 	// 压缩备份文件
 	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+r.backupExt())); err != nil {
@@ -630,13 +636,26 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	return nil
 }
 
+// postgresPort 读取 PostgreSQL 端口，面板允许改端口，不能写死
+func (r *backupRepo) postgresPort() uint {
+	config, err := io.Read(filepath.Join(app.Root, "server", "postgresql", "data", "postgresql.conf"))
+	if err != nil {
+		return 5432
+	}
+	if port := cast.ToUint(confval.Postgres.Get(config, "port")); port != 0 {
+		return port
+	}
+	return 5432
+}
+
 // createPostgres 创建 PostgreSQL 备份
 func (r *backupRepo) createPostgres(name string, storage storage.Storage, target string) error {
 	postgresPassword, err := r.setting.Get(biz.SettingKeyPostgresPassword)
 	if err != nil {
 		return err
 	}
-	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", 5432)
+	port := r.postgresPort()
+	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", port)
 	if err != nil {
 		return err
 	}
@@ -658,11 +677,15 @@ func (r *backupRepo) createPostgres(name string, storage storage.Storage, target
 
 	// 导出数据库
 	name += ".sql"
-	_ = os.Setenv("PGPASSWORD", postgresPassword)
-	if _, err = shell.Execf(`pg_dump -h 127.0.0.1 -U postgres '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
+	if _, err = shell.ExecfWithEnv(
+		[]string{"PGPASSWORD=" + postgresPassword},
+		`pg_dump -h 127.0.0.1 -p %d -U postgres --clean --if-exists '%s' > '%s'`,
+		port,
+		target,
+		filepath.Join(tmpDir, name),
+	); err != nil {
 		return err
 	}
-	_ = os.Unsetenv("PGPASSWORD")
 
 	// 压缩备份文件
 	if err = io.Compress(tmpDir, []string{name}, filepath.Join(tmpDir, name+r.backupExt())); err != nil {
@@ -912,7 +935,7 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 
 // importFile 把备份文件喂给数据库客户端 stdin，并按秒级周期打印大致进度
 // pipe 有背压，已写入字节数 ≈ 客户端已消费字节数，足以作为进度参考
-func (r *backupRepo) importFile(path, name string, args []string) error {
+func (r *backupRepo) importFile(path, name string, env, args []string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -939,7 +962,7 @@ func (r *backupRepo) importFile(path, name string, args []string) error {
 		}
 	}
 
-	_, err = shell.ExecWithStdinProgress(context.Background(), name, args, f, total, 5*time.Second, progress)
+	_, err = shell.ExecWithStdinProgress(context.Background(), name, args, env, f, total, 5*time.Second, progress)
 	return err
 }
 
@@ -972,10 +995,7 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Importing SQL into database..."))
 	}
-	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	err = r.importFile(backup, "mysql", []string{"-u", "root", "--database=" + target})
-	_ = os.Unsetenv("MYSQL_PWD")
-	return err
+	return r.importFile(backup, "mysql", []string{"MYSQL_PWD=" + rootPassword}, []string{"-u", "root", "--max-allowed-packet=1G", "--database=" + target})
 }
 
 // restorePostgres 恢复 PostgreSQL 备份
@@ -984,7 +1004,8 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	if err != nil {
 		return err
 	}
-	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", 5432)
+	port := r.postgresPort()
+	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", port)
 	if err != nil {
 		return err
 	}
@@ -1012,17 +1033,16 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Importing PostgreSQL backup..."))
 	}
-	_ = os.Setenv("PGPASSWORD", postgresPassword)
-	defer func() { _ = os.Unsetenv("PGPASSWORD") }()
 	if archive {
-		command := exec.Command("pg_restore", "--no-owner", "--no-privileges", "-h", "127.0.0.1", "-U", "postgres", "--dbname="+target, backup)
-		command.Env = os.Environ()
+		command := exec.Command("pg_restore", "--exit-on-error", "-h", "127.0.0.1", "-p", cast.ToString(port), "-U", "postgres", "--dbname="+target, backup)
+		shell.ApplyEnv(command, "PGPASSWORD="+postgresPassword)
 		if output, restoreErr := command.CombinedOutput(); restoreErr != nil {
 			return fmt.Errorf("%w: %s", restoreErr, strings.TrimSpace(string(output)))
 		}
 		return nil
 	}
-	return r.importFile(backup, "psql", []string{"-h", "127.0.0.1", "-U", "postgres", "--dbname=" + target})
+	return r.importFile(backup, "psql", []string{"PGPASSWORD=" + postgresPassword},
+		[]string{"-h", "127.0.0.1", "-p", cast.ToString(port), "-U", "postgres", "-v", "ON_ERROR_STOP=1", "--single-transaction", "--dbname=" + target})
 }
 
 // restoreClickHouse 恢复 ClickHouse 备份
@@ -1048,7 +1068,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Importing SQL into database..."))
 		}
-		return r.importFile(backup, "clickhouse-client", append(slices.Clone(connArgs), "--database", target, "--multiquery"))
+		return r.importFile(backup, "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--multiquery"))
 	}
 
 	// 解压到临时目录
@@ -1072,7 +1092,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Restoring schema..."))
 		}
-		if err = r.importFile(schemaPath, "clickhouse-client", append(slices.Clone(connArgs), "--database", target, "--multiquery")); err != nil {
+		if err = r.importFile(schemaPath, "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--multiquery")); err != nil {
 			return err
 		}
 	}
@@ -1091,7 +1111,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 			fmt.Println(r.t.Get("|-Importing table: %s", tbl))
 		}
 		query := fmt.Sprintf("INSERT INTO `%s` FORMAT Native", tbl)
-		if err = r.importFile(filepath.Join(tmpDir, entry.Name()), "clickhouse-client", append(slices.Clone(connArgs), "--database", target, "--query", query)); err != nil {
+		if err = r.importFile(filepath.Join(tmpDir, entry.Name()), "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--query", query)); err != nil {
 			return err
 		}
 	}
@@ -1163,10 +1183,10 @@ func (r *backupRepo) createRedisLike(name string, storage storage.Storage, kind 
 	if err != nil {
 		return err
 	}
-	// 用环境变量传密码，避免密码出现在命令行/进程列表
+
+	var env []string
 	if conf.password != "" {
-		_ = os.Setenv(conf.authEnv, conf.password)
-		defer func() { _ = os.Unsetenv(conf.authEnv) }()
+		env = append(env, conf.authEnv+"="+conf.password)
 	}
 
 	// 创建用于压缩的临时目录
@@ -1182,7 +1202,7 @@ func (r *backupRepo) createRedisLike(name string, storage storage.Storage, kind 
 
 	// 通过复制协议拉取整实例 RDB 快照到本地文件
 	rdb := filepath.Join(tmpDir, "dump.rdb")
-	if _, err = shell.Execf("%s -h 127.0.0.1 -p %s --rdb '%s'", conf.cli, conf.port, rdb); err != nil {
+	if _, err = shell.ExecfWithEnv(env, "%s -h 127.0.0.1 -p %s --rdb '%s'", conf.cli, conf.port, rdb); err != nil {
 		return err
 	}
 	if !io.Exists(rdb) {
@@ -1286,12 +1306,12 @@ func (r *backupRepo) restoreRedisLike(backup, kind string) error {
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Re-enabling AOF..."))
 		}
+		var env []string
 		if conf.password != "" {
-			_ = os.Setenv(conf.authEnv, conf.password)
-			defer func() { _ = os.Unsetenv(conf.authEnv) }()
+			env = append(env, conf.authEnv+"="+conf.password)
 		}
-		_, _ = shell.Execf("%s -h 127.0.0.1 -p %s config set appendonly yes", conf.cli, conf.port)
-		_, _ = shell.Execf("%s -h 127.0.0.1 -p %s config rewrite", conf.cli, conf.port)
+		_, _ = shell.ExecfWithEnv(env, "%s -h 127.0.0.1 -p %s config set appendonly yes", conf.cli, conf.port)
+		_, _ = shell.ExecfWithEnv(env, "%s -h 127.0.0.1 -p %s config rewrite", conf.cli, conf.port)
 	}
 
 	return nil

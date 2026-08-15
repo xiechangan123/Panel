@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
@@ -136,19 +135,14 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = os.Setenv("PGPASSWORD", postgresPassword); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set PGPASSWORD env: %v", err))
-		return
-	}
-	defer func() { _ = os.Unsetenv("PGPASSWORD") }()
-
+	env := []string{"PGPASSWORD=" + postgresPassword}
 	port := s.getPort()
-	start, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
+	start, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL start time: %v", err))
 		return
 	}
-	pid, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_backend_pid();"`, port)
+	pid, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_backend_pid();"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL backend pid: %v", err))
 		return
@@ -158,12 +152,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL process: %v", err))
 		return
 	}
-	connections, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();"`, port)
+	connections, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL connections: %v", err))
 		return
 	}
-	storage, err := shell.Execf(`psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_size_pretty(pg_database_size('postgres'));"`, port)
+	storage, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_size_pretty(pg_database_size('postgres'));"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL database size: %v", err))
 		return

@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"golang.org/x/sys/unix"
+
+	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 // Supported 当前平台是否支持防篡改(Linux 即支持 chattr 模式)
@@ -131,15 +133,21 @@ func injectLSMBpf(content, active string) (string, bool) {
 // regenerateGrub 重新生成 grub 配置(兼容各发行版路径)
 func regenerateGrub() error {
 	if _, err := exec.LookPath("update-grub"); err == nil {
-		return exec.Command("update-grub").Run()
+		update := exec.Command("update-grub")
+		shell.ApplyEnv(update)
+		return update.Run()
 	}
 	candidates := []string{"/boot/grub2/grub.cfg", "/boot/grub/grub.cfg", "/boot/efi/EFI/centos/grub.cfg", "/boot/efi/EFI/redhat/grub.cfg"}
 	for _, out := range candidates {
 		if _, err := os.Stat(out); err == nil {
-			return exec.Command("grub2-mkconfig", "-o", out).Run()
+			mkconfig := exec.Command("grub2-mkconfig", "-o", out)
+			shell.ApplyEnv(mkconfig)
+			return mkconfig.Run()
 		}
 	}
-	return exec.Command("grub2-mkconfig", "-o", "/boot/grub2/grub.cfg").Run()
+	mkconfig := exec.Command("grub2-mkconfig", "-o", "/boot/grub2/grub.cfg")
+	shell.ApplyEnv(mkconfig)
+	return mkconfig.Run()
 }
 
 // EnableBPFLSMGrub 修改 grub 激活 bpf LSM,需重启系统生效

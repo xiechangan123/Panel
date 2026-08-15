@@ -19,6 +19,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
@@ -180,6 +181,7 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd := exec.CommandContext(r.Context(), "bash", "-c", req.Command)
+	shell.ApplyEnv(cmd)
 	pr, pw := io.Pipe()
 	cmd.Stdout = pw
 	cmd.Stderr = pw

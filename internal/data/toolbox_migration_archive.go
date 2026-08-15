@@ -10,6 +10,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
+	"github.com/acepanel/panel/v3/pkg/shell"
 )
 
 type migrationArchiveRepo struct{}
@@ -32,7 +33,9 @@ func (r *migrationArchiveRepo) Extract(ctx context.Context, archive, target stri
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return "", err
 	}
-	if output, err := exec.CommandContext(ctx, "tar", "-xf", archive, "-C", target).CombinedOutput(); err != nil {
+	untar := exec.CommandContext(ctx, "tar", "-xf", archive, "-C", target)
+	shell.ApplyEnv(untar)
+	if output, err := untar.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("extract archive: %s", strings.TrimSpace(string(output)))
 	}
 	entries, err := os.ReadDir(target)
@@ -47,7 +50,9 @@ func (r *migrationArchiveRepo) Compress(ctx context.Context, source, archive str
 	if err := os.MkdirAll(filepath.Dir(archive), 0755); err != nil {
 		return err
 	}
-	output, err := exec.CommandContext(ctx, "tar", "-czf", archive, "-C", source, ".").CombinedOutput()
+	tar := exec.CommandContext(ctx, "tar", "-czf", archive, "-C", source, ".")
+	shell.ApplyEnv(tar)
+	output, err := tar.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("compress directory: %s", strings.TrimSpace(string(output)))
 	}
@@ -60,7 +65,9 @@ func (r *migrationArchiveRepo) CopyTree(ctx context.Context, source, target stri
 		return err
 	}
 	// 必须以 /. 结尾才是复制目录内容，filepath.Join 会把尾部的点清理掉
-	output, err := exec.CommandContext(ctx, "cp", "-a", source+"/.", target).CombinedOutput()
+	cp := exec.CommandContext(ctx, "cp", "-a", source+"/.", target)
+	shell.ApplyEnv(cp)
+	output, err := cp.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("copy directory: %s", strings.TrimSpace(string(output)))
 	}

@@ -198,6 +198,7 @@ func (r *Runner) runCancelShell(task *biz.Task, logFile string) {
 	defer func(f *os.File) { _ = f.Close() }(f)
 
 	cmd := exec.CommandContext(cleanupCtx, "bash", "-c", task.CancelShell)
+	shell.ApplyEnv(cmd)
 	cmd.Stdout = f
 	cmd.Stderr = f
 	if err = cmd.Run(); err != nil {
