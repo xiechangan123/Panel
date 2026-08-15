@@ -541,7 +541,7 @@ watch(
           {{
             isPush
               ? $gettext(
-                  'The target API must allow this server address. Missing database servers and runtimes are reported in the next step.'
+                  'The target address must include the access entrance and allow this server address.'
                 )
               : $gettext('The source panel API must be enabled and allow this server address.')
           }}
