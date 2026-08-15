@@ -2404,14 +2404,6 @@ msgstr ""
 msgid "failed to get available timezones: %v"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:278
-msgid "failed to get banned ip list"
-msgstr ""
-
-#: internal/apps/fail2ban/app.go:268
-msgid "failed to get current banned list"
-msgstr ""
-
 #: internal/service/toolbox_disk.go:33
 msgid "failed to get disk list: %v"
 msgstr ""
@@ -2448,9 +2440,8 @@ msgstr ""
 msgid "failed to get kafka status: %v"
 msgstr ""
 
-#: internal/apps/supervisor/app.go:218
-#: internal/apps/supervisor/app.go:344
-#: internal/apps/supervisor/app.go:354
+#: internal/apps/supervisor/app.go:173
+#: internal/apps/supervisor/app.go:314
 msgid "failed to get log path for process %s: %v"
 msgstr ""
 
@@ -2517,8 +2508,8 @@ msgstr ""
 msgid "failed to get the latest version: %v"
 msgstr ""
 
-#: internal/apps/rsync/app.go:90
-msgid "failed to get the secret key for module %s"
+#: internal/apps/fail2ban/app.go:221
+msgid "failed to get the status of rule %s: %v"
 msgstr ""
 
 #: internal/service/home.go:359
@@ -2527,10 +2518,6 @@ msgstr ""
 
 #: internal/service/toolbox_system.go:140
 msgid "failed to get timezone: %v"
-msgstr ""
-
-#: internal/apps/fail2ban/app.go:273
-msgid "failed to get total banned list"
 msgstr ""
 
 #: internal/data/app.go:163
@@ -2608,11 +2595,6 @@ msgstr ""
 
 #: internal/data/project.go:157
 msgid "failed to parse systemd config"
-msgstr ""
-
-#: internal/apps/fail2ban/app.go:334
-#: internal/apps/fail2ban/app.go:362
-msgid "failed to parse the ignoreip of fail2ban"
 msgstr ""
 
 #: internal/service/home.go:308
@@ -2777,10 +2759,6 @@ msgstr ""
 msgid "failed to restart %s service: %v"
 msgstr ""
 
-#: internal/apps/supervisor/app.go:103
-msgid "failed to restart %s: %v"
-msgstr ""
-
 #: internal/apps/mysql/app.go:79
 msgid "failed to restart MySQL: %v"
 msgstr ""
@@ -2930,7 +2908,7 @@ msgstr ""
 msgid "gRPC is a high-performance, open-source, and general-purpose RPC framework"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:194
+#: internal/apps/fail2ban/app.go:120
 msgid "get service port failed, please check if it is installed"
 msgstr ""
 
@@ -3058,12 +3036,11 @@ msgstr ""
 msgid "migration is running, cannot reset"
 msgstr ""
 
-#: internal/apps/rsync/app.go:125
+#: internal/apps/rsync/app.go:65
 msgid "module %s already exists"
 msgstr ""
 
-#: internal/apps/rsync/app.go:170
-#: internal/apps/rsync/app.go:212
+#: internal/apps/rsync/app.go:80
 #: internal/service/environment_php.go:300
 #: internal/service/environment_php.go:335
 msgid "module %s does not exist"
@@ -3298,7 +3275,7 @@ msgstr ""
 msgid "preparing renewal"
 msgstr ""
 
-#: internal/apps/supervisor/app.go:310
+#: internal/apps/supervisor/app.go:268
 msgid "process %s already exists"
 msgstr ""
 
@@ -3320,6 +3297,15 @@ msgstr ""
 
 #: internal/service/environment_php.go:508
 msgid "protobuf is a library for serializing and deserializing data"
+msgstr ""
+
+#: internal/apps/frp/app.go:279
+msgid "proxy %s already exists"
+msgstr ""
+
+#: internal/apps/frp/app.go:296
+#: internal/apps/frp/app.go:312
+msgid "proxy %s does not exist"
 msgstr ""
 
 #: internal/service/environment_php.go:513
@@ -3355,11 +3341,12 @@ msgstr ""
 msgid "resource no longer exists on the source server"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:117
+#: internal/apps/fail2ban/app.go:130
 msgid "rule already exists"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:238
+#: internal/apps/fail2ban/app.go:165
+#: internal/apps/fail2ban/app.go:192
 msgid "rule not found"
 msgstr ""
 
@@ -3705,7 +3692,7 @@ msgstr ""
 msgid "unknown log type"
 msgstr ""
 
-#: internal/apps/fail2ban/app.go:190
+#: internal/apps/fail2ban/app.go:116
 msgid "unknown service"
 msgstr ""
 
@@ -3780,6 +3767,15 @@ msgstr ""
 #: internal/data/user.go:150
 #: internal/data/user.go:160
 msgid "username or password error"
+msgstr ""
+
+#: internal/apps/frp/app.go:365
+msgid "visitor %s already exists"
+msgstr ""
+
+#: internal/apps/frp/app.go:382
+#: internal/apps/frp/app.go:398
+msgid "visitor %s does not exist"
 msgstr ""
 
 #: internal/service/backup_storage.go:156

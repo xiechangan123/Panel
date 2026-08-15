@@ -22,7 +22,7 @@ msgid "QQ Group"
 msgstr "QQ Group"
 
 #: src/components/common/AppFooter.vue:38 src/locales/menu.ts:24
-#: src/views/apps/fail2ban/IndexView.vue:313 src/views/backup/IndexView.vue:53
+#: src/views/apps/fail2ban/IndexView.vue:361 src/views/backup/IndexView.vue:53
 #: src/views/backup/ListView.vue:276 src/views/backup/ListView.vue:324
 #: src/views/cert/CertView.vue:550 src/views/cert/CertView.vue:667
 #: src/views/cert/CreateCertModal.vue:118 src/views/home/IndexView.vue:542
@@ -278,8 +278,14 @@ msgstr "Cannot save in current state"
 #: src/views/apps/docker/IndexView.vue:176
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:58
 #: src/views/apps/elasticsearch/IndexView.vue:51
-#: src/views/apps/fail2ban/IndexView.vue:146
-#: src/views/apps/frp/IndexView.vue:38 src/views/apps/frp/IndexView.vue:49
+#: src/views/apps/fail2ban/IndexView.vue:174
+#: src/views/apps/fail2ban/IndexView.vue:225
+#: src/views/apps/fail2ban/IndexView.vue:235
+#: src/views/apps/frp/FrpcConfigTuneView.vue:64
+#: src/views/apps/frp/FrpProxyModal.vue:236
+#: src/views/apps/frp/FrpsConfigTuneView.vue:64
+#: src/views/apps/frp/FrpVisitorModal.vue:103
+#: src/views/apps/frp/IndexView.vue:48 src/views/apps/frp/IndexView.vue:59
 #: src/views/apps/gitea/IndexView.vue:24
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:139
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:174
@@ -318,10 +324,11 @@ msgstr "Cannot save in current state"
 #: src/views/apps/redis/RedisConfigTuneView.vue:109
 #: src/views/apps/rocketmq/IndexView.vue:51
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:73
-#: src/views/apps/rsync/IndexView.vue:127
-#: src/views/apps/rsync/IndexView.vue:180
-#: src/views/apps/supervisor/IndexView.vue:201
-#: src/views/apps/supervisor/IndexView.vue:291
+#: src/views/apps/rsync/IndexView.vue:137
+#: src/views/apps/rsync/IndexView.vue:192
+#: src/views/apps/supervisor/IndexView.vue:234
+#: src/views/apps/supervisor/IndexView.vue:328
+#: src/views/apps/supervisor/IndexView.vue:343
 #: src/views/apps/valkey/IndexView.vue:51
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:103
 #: src/views/database/ElasticsearchDocModal.vue:61
@@ -357,7 +364,12 @@ msgstr "Select File"
 #: src/components/common/PathSelector.vue:51
 #: src/components/common/PathSelector.vue:395
 #: src/views/app/EnvironmentView.vue:38 src/views/app/InstalledView.vue:158
-#: src/views/apps/fail2ban/IndexView.vue:41
+#: src/views/apps/fail2ban/IndexView.vue:51
+#: src/views/apps/fail2ban/IndexView.vue:444
+#: src/views/apps/frp/FrpProxyModal.vue:255
+#: src/views/apps/frp/FrpProxyView.vue:22
+#: src/views/apps/frp/FrpVisitorModal.vue:122
+#: src/views/apps/frp/FrpVisitorView.vue:22
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:72
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:206
 #: src/views/apps/nginx/NginxIndex.vue:153
@@ -365,9 +377,9 @@ msgstr "Select File"
 #: src/views/apps/nginx/NginxIndex.vue:619
 #: src/views/apps/nginx/NginxIndex.vue:705
 #: src/views/apps/prometheus/PrometheusExportersView.vue:26
-#: src/views/apps/rsync/IndexView.vue:43 src/views/apps/rsync/IndexView.vue:263
-#: src/views/apps/supervisor/IndexView.vue:56
-#: src/views/apps/supervisor/IndexView.vue:392
+#: src/views/apps/rsync/IndexView.vue:45 src/views/apps/rsync/IndexView.vue:275
+#: src/views/apps/supervisor/IndexView.vue:89
+#: src/views/apps/supervisor/IndexView.vue:444
 #: src/views/backup/StorageView.vue:66 src/views/backup/StorageView.vue:230
 #: src/views/backup/StorageView.vue:392 src/views/container/ComposeView.vue:59
 #: src/views/container/NetworkView.vue:48 src/views/container/VolumeView.vue:29
@@ -474,13 +486,15 @@ msgid "Root Directory"
 msgstr "Root Directory"
 
 #: src/components/common/PathSelector.vue:406
-#: src/views/apps/fail2ban/IndexView.vue:373
+#: src/views/apps/fail2ban/IndexView.vue:421
+#: src/views/apps/frp/FrpProxyModal.vue:582
+#: src/views/apps/frp/FrpVisitorModal.vue:241
 #: src/views/apps/nginx/NginxIndex.vue:690
 #: src/views/apps/nginx/NginxIndex.vue:816
 #: src/views/apps/pureftpd/IndexView.vue:266
 #: src/views/apps/pureftpd/IndexView.vue:296
-#: src/views/apps/rsync/IndexView.vue:319 src/views/apps/s3fs/IndexView.vue:185
-#: src/views/apps/supervisor/IndexView.vue:435
+#: src/views/apps/rsync/IndexView.vue:334 src/views/apps/s3fs/IndexView.vue:185
+#: src/views/apps/supervisor/IndexView.vue:487
 #: src/views/backup/ListView.vue:310 src/views/backup/ListView.vue:351
 #: src/views/backup/StorageView.vue:376 src/views/backup/StorageView.vue:529
 #: src/views/cert/AccountView.vue:258 src/views/cert/CertView.vue:652
@@ -546,8 +560,8 @@ msgstr "Files to compress"
 #: src/components/system/ConfirmDialog.vue:54
 #: src/layouts/header/components/UserAvatar.vue:30
 #: src/views/app/TemplateDeployModal.vue:342
-#: src/views/apps/supervisor/IndexView.vue:133
-#: src/views/apps/supervisor/IndexView.vue:151
+#: src/views/apps/supervisor/IndexView.vue:166
+#: src/views/apps/supervisor/IndexView.vue:184
 #: src/views/container/ComposeView.vue:171
 #: src/views/file/composables/usePaste.ts:72 src/views/file/UploadModal.vue:784
 #: src/views/home/IndexView.vue:1041 src/views/home/UpdateView.vue:119
@@ -616,24 +630,24 @@ msgstr "Cancel"
 msgid "Terminal"
 msgstr "Terminal"
 
-#: src/components/common/RealtimeLog.vue:57
+#: src/components/common/RealtimeLog.vue:59
 #, fuzzy
 msgid "Connected"
 msgstr "Compressing..."
 
-#: src/components/common/RealtimeLog.vue:59
+#: src/components/common/RealtimeLog.vue:61
 #: src/views/container/ImagePullModal.vue:56
 #: src/views/container/ImageView.vue:199
 #, fuzzy
 msgid "Connecting..."
 msgstr "Compressing..."
 
-#: src/components/common/RealtimeLog.vue:60
+#: src/components/common/RealtimeLog.vue:62
 #, fuzzy
 msgid "Connection failed, retrying..."
 msgstr "Connection error. Please refresh."
 
-#: src/components/common/RealtimeLog.vue:286
+#: src/components/common/RealtimeLog.vue:289
 #: src/views/apps/clickhouse/IndexView.vue:77
 #: src/views/apps/mongodb/IndexView.vue:77
 #: src/views/apps/mysql/MysqlIndex.vue:110
@@ -644,28 +658,28 @@ msgstr "Connection error. Please refresh."
 msgid "Copied successfully"
 msgstr "Copied successfully"
 
-#: src/components/common/RealtimeLog.vue:312
+#: src/components/common/RealtimeLog.vue:315
 #, fuzzy
 msgid "Not found"
 msgstr "Not used"
 
-#: src/components/common/RealtimeLog.vue:395
+#: src/components/common/RealtimeLog.vue:399
 msgid "Pause Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:395
+#: src/components/common/RealtimeLog.vue:399
 msgid "Resume Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:401
+#: src/components/common/RealtimeLog.vue:405
 msgid "Jump to Top"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:404
+#: src/components/common/RealtimeLog.vue:408
 msgid "Jump to Bottom"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:409
+#: src/components/common/RealtimeLog.vue:413
 #: src/components/file-editor/EditorToolbar.vue:190
 #: src/components/file-editor/FileTree.vue:702 src/views/app/AppView.vue:237
 #: src/views/app/EnvironmentView.vue:264 src/views/app/TemplateView.vue:102
@@ -674,80 +688,82 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:418
+#: src/components/common/RealtimeLog.vue:422
 #, fuzzy
 msgid "Enter keyword and press Enter"
 msgstr "Enter user password"
 
-#: src/components/common/RealtimeLog.vue:421
+#: src/components/common/RealtimeLog.vue:425
 #: src/views/app/TemplateDeployModal.vue:631
 #, fuzzy
 msgid "Previous"
 msgstr "Preview"
 
-#: src/components/common/RealtimeLog.vue:424
+#: src/components/common/RealtimeLog.vue:428
 #: src/views/app/TemplateDeployModal.vue:640
 #: src/views/app/TemplateDeployModal.vue:643
 msgid "Next"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:429
+#: src/components/common/RealtimeLog.vue:433
 msgid "Only loaded logs are searched"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:438
+#: src/components/common/RealtimeLog.vue:442
 #, fuzzy
 msgid "Disable Line Wrap"
 msgstr "Disable Buffer"
 
-#: src/components/common/RealtimeLog.vue:438
+#: src/components/common/RealtimeLog.vue:442
 #, fuzzy
 msgid "Enable Line Wrap"
 msgstr "Disable Buffer"
 
-#: src/components/common/RealtimeLog.vue:443
+#: src/components/common/RealtimeLog.vue:447
 #, fuzzy
 msgid "Copy All"
 msgstr "Expose All"
 
-#: src/components/common/RealtimeLog.vue:447
+#: src/components/common/RealtimeLog.vue:451
 #, fuzzy
 msgid "Decrease Font Size"
 msgstr "Size"
 
-#: src/components/common/RealtimeLog.vue:450
+#: src/components/common/RealtimeLog.vue:454
 #, fuzzy
 msgid "Increase Font Size"
 msgstr "Size"
 
-#: src/components/common/RealtimeLog.vue:456 src/views/ssh/IndexView.vue:549
+#: src/components/common/RealtimeLog.vue:460 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Exit Fullscreen"
 msgstr "Fullscreen Display"
 
-#: src/components/common/RealtimeLog.vue:456 src/views/ssh/IndexView.vue:549
+#: src/components/common/RealtimeLog.vue:460 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Fullscreen"
 msgstr "Fullscreen Display"
 
-#: src/components/common/RealtimeLog.vue:476
+#: src/components/common/RealtimeLog.vue:480
 msgid "No more logs"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:493
+#: src/components/common/RealtimeLog.vue:497
 #, fuzzy
 msgid "%{ count } new line"
 msgid_plural "%{ count } new lines"
 msgstr[0] "Mount Path"
 msgstr[1] "Mount Path"
 
-#: src/components/common/RealtimeLog.vue:500
+#: src/components/common/RealtimeLog.vue:504
 #, fuzzy
 msgid "No logs available"
 msgstr "Inodes Available"
 
 #: src/components/common/RealtimeLogModal.vue:42 src/locales/menu.ts:16
-#: src/views/apps/supervisor/IndexView.vue:98
+#: src/views/apps/frp/FrpcConfigTuneView.vue:268
+#: src/views/apps/frp/FrpsConfigTuneView.vue:296
+#: src/views/apps/supervisor/IndexView.vue:131
 #: src/views/container/ContainerView.vue:154 src/views/project/ListView.vue:168
 #: src/views/project/ListView.vue:334 src/views/task/CronView.vue:146
 #: src/views/task/TaskView.vue:88
@@ -771,7 +787,7 @@ msgstr "Are you sure you want to clear?"
 #: src/views/apps/nginx/NginxIndex.vue:599
 #: src/views/apps/postgresql/IndexView.vue:254
 #: src/views/apps/postgresql/IndexView.vue:270
-#: src/views/apps/supervisor/IndexView.vue:373
+#: src/views/apps/supervisor/IndexView.vue:425
 #: src/views/environment/PHPView.vue:276
 msgid "Clear Log"
 msgstr "Clear Log"
@@ -808,7 +824,7 @@ msgstr "Starting..."
 
 #: src/components/common/ServiceStatus.vue:52
 #: src/views/apps/prometheus/PrometheusExportersView.vue:160
-#: src/views/apps/supervisor/IndexView.vue:236
+#: src/views/apps/supervisor/IndexView.vue:269
 #: src/views/project/ListView.vue:222 src/views/website/ListView.vue:335
 msgid "Started successfully"
 msgstr "Started successfully"
@@ -820,7 +836,7 @@ msgstr "Stopping..."
 
 #: src/components/common/ServiceStatus.vue:67
 #: src/views/apps/prometheus/PrometheusExportersView.vue:167
-#: src/views/apps/supervisor/IndexView.vue:243
+#: src/views/apps/supervisor/IndexView.vue:276
 #: src/views/project/ListView.vue:217 src/views/website/ListView.vue:337
 msgid "Stopped successfully"
 msgstr "Stopped successfully"
@@ -831,7 +847,7 @@ msgstr "Restarting..."
 
 #: src/components/common/ServiceStatus.vue:82
 #: src/views/apps/prometheus/PrometheusExportersView.vue:174
-#: src/views/apps/supervisor/IndexView.vue:250
+#: src/views/apps/supervisor/IndexView.vue:283
 #: src/views/project/ListView.vue:230
 msgid "Restarted successfully"
 msgstr "Restarted successfully"
@@ -863,7 +879,8 @@ msgstr "Autostart disabled successfully"
 #: src/views/apps/codeserver/IndexView.vue:37
 #: src/views/apps/docker/IndexView.vue:191
 #: src/views/apps/elasticsearch/IndexView.vue:62
-#: src/views/apps/fail2ban/IndexView.vue:222
+#: src/views/apps/fail2ban/IndexView.vue:270
+#: src/views/apps/frp/IndexView.vue:77 src/views/apps/frp/IndexView.vue:129
 #: src/views/apps/gitea/IndexView.vue:35
 #: src/views/apps/grafana/IndexView.vue:63
 #: src/views/apps/kafka/IndexView.vue:62
@@ -879,8 +896,8 @@ msgstr "Autostart disabled successfully"
 #: src/views/apps/pureftpd/IndexView.vue:168
 #: src/views/apps/redis/IndexView.vue:62
 #: src/views/apps/rocketmq/IndexView.vue:62
-#: src/views/apps/rsync/IndexView.vue:194
-#: src/views/apps/supervisor/IndexView.vue:308
+#: src/views/apps/rsync/IndexView.vue:206
+#: src/views/apps/supervisor/IndexView.vue:360
 #: src/views/apps/valkey/IndexView.vue:62
 #: src/views/container/ContainerView.vue:106
 #: src/views/environment/PHPView.vue:189 src/views/tamper/TamperView.vue:230
@@ -897,7 +914,7 @@ msgstr "Autostart Off"
 
 #: src/components/common/ServiceStatus.vue:160
 #: src/views/apps/prometheus/PrometheusExportersView.vue:88
-#: src/views/apps/supervisor/IndexView.vue:120
+#: src/views/apps/supervisor/IndexView.vue:153
 #: src/views/container/ComposeView.vue:160
 #: src/views/container/ContainerView.vue:181
 #: src/views/container/ContainerView.vue:593 src/views/project/ListView.vue:130
@@ -910,7 +927,7 @@ msgstr "Are you sure you want to stop %{ service }?"
 
 #: src/components/common/ServiceStatus.vue:171
 #: src/views/apps/prometheus/PrometheusExportersView.vue:96
-#: src/views/apps/supervisor/IndexView.vue:141
+#: src/views/apps/supervisor/IndexView.vue:174
 #: src/views/container/ComposeView.vue:189
 #: src/views/container/ContainerView.vue:186
 #: src/views/container/ContainerView.vue:596 src/views/project/ListView.vue:130
@@ -919,7 +936,7 @@ msgstr "Stop"
 
 #: src/components/common/ServiceStatus.vue:181
 #: src/views/apps/prometheus/PrometheusExportersView.vue:103
-#: src/views/apps/supervisor/IndexView.vue:159
+#: src/views/apps/supervisor/IndexView.vue:192
 #: src/views/container/ContainerView.vue:191
 #: src/views/container/ContainerView.vue:599 src/views/home/IndexView.vue:567
 #: src/views/project/ListView.vue:145
@@ -970,8 +987,20 @@ msgstr ""
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:97
 #: src/views/apps/elasticsearch/ElasticSearchConfigTuneView.vue:132
 #: src/views/apps/elasticsearch/IndexView.vue:82
-#: src/views/apps/frp/IndexView.vue:76 src/views/apps/frp/IndexView.vue:91
-#: src/views/apps/frp/IndexView.vue:109 src/views/apps/frp/IndexView.vue:124
+#: src/views/apps/fail2ban/IndexView.vue:482
+#: src/views/apps/frp/FrpcConfigTuneView.vue:115
+#: src/views/apps/frp/FrpcConfigTuneView.vue:145
+#: src/views/apps/frp/FrpcConfigTuneView.vue:221
+#: src/views/apps/frp/FrpcConfigTuneView.vue:263
+#: src/views/apps/frp/FrpcConfigTuneView.vue:295
+#: src/views/apps/frp/FrpsConfigTuneView.vue:131
+#: src/views/apps/frp/FrpsConfigTuneView.vue:161
+#: src/views/apps/frp/FrpsConfigTuneView.vue:198
+#: src/views/apps/frp/FrpsConfigTuneView.vue:243
+#: src/views/apps/frp/FrpsConfigTuneView.vue:291
+#: src/views/apps/frp/FrpsConfigTuneView.vue:323
+#: src/views/apps/frp/IndexView.vue:95 src/views/apps/frp/IndexView.vue:117
+#: src/views/apps/frp/IndexView.vue:153 src/views/apps/frp/IndexView.vue:175
 #: src/views/apps/gitea/IndexView.vue:55
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:184
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:218
@@ -1035,10 +1064,11 @@ msgstr ""
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:112
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:143
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:176
-#: src/views/apps/rsync/IndexView.vue:242
-#: src/views/apps/rsync/IndexView.vue:374
-#: src/views/apps/supervisor/IndexView.vue:356
-#: src/views/apps/supervisor/IndexView.vue:463
+#: src/views/apps/rsync/IndexView.vue:254
+#: src/views/apps/rsync/IndexView.vue:392
+#: src/views/apps/supervisor/IndexView.vue:408
+#: src/views/apps/supervisor/IndexView.vue:583
+#: src/views/apps/supervisor/IndexView.vue:597
 #: src/views/apps/valkey/IndexView.vue:82
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:171
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:205
@@ -1443,15 +1473,17 @@ msgstr "Rename"
 #: src/components/file-editor/FileTree.vue:589
 #: src/components/system/composables/useConfirm.ts:32
 #: src/components/system/ConfirmDialog.vue:54
-#: src/views/apps/fail2ban/IndexView.vue:96
+#: src/views/apps/fail2ban/IndexView.vue:124
+#: src/views/apps/frp/FrpProxyView.vue:105
+#: src/views/apps/frp/FrpVisitorView.vue:94
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:127
 #: src/views/apps/nginx/NginxIndex.vue:216
 #: src/views/apps/nginx/NginxIndex.vue:280
 #: src/views/apps/nginx/NginxIndex.vue:764
 #: src/views/apps/prometheus/PrometheusExportersView.vue:134
 #: src/views/apps/pureftpd/IndexView.vue:87
-#: src/views/apps/rsync/IndexView.vue:101
-#: src/views/apps/supervisor/IndexView.vue:178
+#: src/views/apps/rsync/IndexView.vue:111
+#: src/views/apps/supervisor/IndexView.vue:211
 #: src/views/backup/ListView.vue:106 src/views/backup/StorageView.vue:126
 #: src/views/cert/AccountView.vue:113 src/views/cert/CertView.vue:390
 #: src/views/cert/DnsView.vue:109 src/views/container/ComposeView.vue:209
@@ -1512,13 +1544,15 @@ msgid "Are you sure you want to delete %{ name }?"
 msgstr "Are you sure you want to delete %{ name }?"
 
 #: src/components/file-editor/FileTree.vue:594
-#: src/views/apps/fail2ban/IndexView.vue:190
+#: src/views/apps/fail2ban/IndexView.vue:218
+#: src/views/apps/frp/FrpProxyView.vue:125
+#: src/views/apps/frp/FrpVisitorView.vue:114
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:185
 #: src/views/apps/nginx/NginxIndex.vue:405
 #: src/views/apps/nginx/NginxIndex.vue:489
 #: src/views/apps/pureftpd/IndexView.vue:155
-#: src/views/apps/rsync/IndexView.vue:160 src/views/apps/s3fs/IndexView.vue:87
-#: src/views/apps/supervisor/IndexView.vue:257
+#: src/views/apps/rsync/IndexView.vue:171 src/views/apps/s3fs/IndexView.vue:87
+#: src/views/apps/supervisor/IndexView.vue:290
 #: src/views/backup/ListView.vue:156 src/views/backup/StorageView.vue:183
 #: src/views/container/ImageView.vue:155
 #: src/views/container/NetworkView.vue:178
@@ -1831,16 +1865,18 @@ msgstr "Show in Home"
 
 #: src/views/app/AppView.vue:68 src/views/app/EnvironmentView.vue:62
 #: src/views/app/InstalledView.vue:74 src/views/app/InstalledView.vue:176
-#: src/views/apps/fail2ban/IndexView.vue:63
-#: src/views/apps/fail2ban/IndexView.vue:112
+#: src/views/apps/fail2ban/IndexView.vue:73
+#: src/views/apps/fail2ban/IndexView.vue:140
+#: src/views/apps/frp/FrpProxyView.vue:73
+#: src/views/apps/frp/FrpVisitorView.vue:62
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:99
 #: src/views/apps/nginx/NginxIndex.vue:190
 #: src/views/apps/nginx/NginxIndex.vue:254
 #: src/views/apps/nginx/NginxIndex.vue:751
 #: src/views/apps/prometheus/PrometheusExportersView.vue:55
 #: src/views/apps/pureftpd/IndexView.vue:53
-#: src/views/apps/rsync/IndexView.vue:72 src/views/apps/s3fs/IndexView.vue:35
-#: src/views/apps/supervisor/IndexView.vue:84 src/views/backup/ListView.vue:63
+#: src/views/apps/rsync/IndexView.vue:82 src/views/apps/s3fs/IndexView.vue:35
+#: src/views/apps/supervisor/IndexView.vue:117 src/views/backup/ListView.vue:63
 #: src/views/backup/StorageView.vue:95 src/views/cert/AccountView.vue:74
 #: src/views/cert/CertView.vue:277 src/views/cert/DnsView.vue:69
 #: src/views/container/ComposeView.vue:102
@@ -2014,10 +2050,12 @@ msgstr "Update Cache"
 msgid "Partial"
 msgstr "Description"
 
-#: src/views/app/InstalledView.vue:51 src/views/apps/fail2ban/IndexView.vue:47
+#: src/views/app/InstalledView.vue:51 src/views/apps/fail2ban/IndexView.vue:57
+#: src/views/apps/frp/FrpProxyView.vue:37
+#: src/views/apps/frp/FrpVisitorView.vue:37
 #: src/views/apps/phpmyadmin/IndexView.vue:67
 #: src/views/apps/prometheus/PrometheusExportersView.vue:38
-#: src/views/apps/supervisor/IndexView.vue:63
+#: src/views/apps/supervisor/IndexView.vue:96
 #: src/views/container/ComposeView.vue:86
 #: src/views/container/ContainerInfoModal.vue:112
 #: src/views/container/ContainerView.vue:58
@@ -2206,6 +2244,7 @@ msgstr "Update Host"
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:94
 #: src/views/apps/nginx/NginxIndex.vue:186
+#: src/views/apps/supervisor/IndexView.vue:75
 #: src/views/container/ContainerInfoModal.vue:130
 #: src/views/file/ListView.vue:269 src/views/file/ListView.vue:899
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
@@ -2217,6 +2256,7 @@ msgstr ""
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:95
 #: src/views/apps/nginx/NginxIndex.vue:186
+#: src/views/apps/supervisor/IndexView.vue:76
 #: src/views/container/ContainerInfoModal.vue:130
 #: src/views/file/ListView.vue:270 src/views/file/ListView.vue:900
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
@@ -2241,8 +2281,9 @@ msgstr "Compose Name"
 msgid "Starting Compose"
 msgstr "Create Compose"
 
-#: src/views/app/TemplateView.vue:142 src/views/backup/StorageView.vue:78
-#: src/views/ssh/IndexView.vue:82 src/views/ssh/IndexView.vue:88
+#: src/views/app/TemplateView.vue:142 src/views/apps/frp/FrpProxyView.vue:47
+#: src/views/backup/StorageView.vue:78 src/views/ssh/IndexView.vue:82
+#: src/views/ssh/IndexView.vue:88
 msgid "Local"
 msgstr ""
 
@@ -2315,8 +2356,8 @@ msgstr "Current Value"
 #: src/views/apps/nginx/NginxIndex.vue:336
 #: src/views/apps/postgresql/IndexView.vue:111
 #: src/views/apps/postgresql/IndexView.vue:124
-#: src/views/apps/supervisor/IndexView.vue:213
-#: src/views/apps/supervisor/IndexView.vue:269
+#: src/views/apps/supervisor/IndexView.vue:246
+#: src/views/apps/supervisor/IndexView.vue:302
 #: src/views/database/RedisDataView.vue:252
 #: src/views/environment/PHPView.vue:162 src/views/environment/PHPView.vue:169
 #: src/views/firewall/ScanView.vue:336 src/views/monitor/AlertView.vue:180
@@ -2328,7 +2369,6 @@ msgstr "Cleared successfully"
 
 #: src/views/apps/apache/IndexView.vue:74
 #: src/views/apps/codeserver/IndexView.vue:40
-#: src/views/apps/frp/IndexView.vue:88 src/views/apps/frp/IndexView.vue:121
 #: src/views/apps/gitea/IndexView.vue:38
 #: src/views/apps/mysql/MysqlIndex.vue:150
 #: src/views/apps/nginx/NginxIndex.vue:501
@@ -2370,7 +2410,8 @@ msgstr "Load Status"
 #: src/views/apps/codeserver/IndexView.vue:62
 #: src/views/apps/docker/IndexView.vue:477
 #: src/views/apps/elasticsearch/IndexView.vue:100
-#: src/views/apps/fail2ban/IndexView.vue:280
+#: src/views/apps/fail2ban/IndexView.vue:328
+#: src/views/apps/frp/IndexView.vue:122 src/views/apps/frp/IndexView.vue:180
 #: src/views/apps/gitea/IndexView.vue:60
 #: src/views/apps/grafana/IndexView.vue:130
 #: src/views/apps/kafka/IndexView.vue:100
@@ -2385,8 +2426,8 @@ msgstr "Load Status"
 #: src/views/apps/prometheus/IndexView.vue:157
 #: src/views/apps/redis/IndexView.vue:100
 #: src/views/apps/rocketmq/IndexView.vue:103
-#: src/views/apps/rsync/IndexView.vue:247
-#: src/views/apps/supervisor/IndexView.vue:361
+#: src/views/apps/rsync/IndexView.vue:259
+#: src/views/apps/supervisor/IndexView.vue:413
 #: src/views/apps/valkey/IndexView.vue:100
 #: src/views/environment/PHPView.vue:269
 msgid "Runtime Logs"
@@ -2517,6 +2558,7 @@ msgstr "Copy"
 
 #: src/views/apps/clickhouse/IndexView.vue:121
 #: src/views/apps/elasticsearch/IndexView.vue:65
+#: src/views/apps/frp/IndexView.vue:83 src/views/apps/frp/IndexView.vue:141
 #: src/views/apps/grafana/IndexView.vue:92
 #: src/views/apps/kafka/IndexView.vue:65
 #: src/views/apps/mongodb/IndexView.vue:117
@@ -2525,8 +2567,8 @@ msgstr "Copy"
 #: src/views/apps/prometheus/IndexView.vue:96
 #: src/views/apps/redis/IndexView.vue:65
 #: src/views/apps/rocketmq/IndexView.vue:68
-#: src/views/apps/rsync/IndexView.vue:225
-#: src/views/apps/supervisor/IndexView.vue:339
+#: src/views/apps/rsync/IndexView.vue:237
+#: src/views/apps/supervisor/IndexView.vue:391
 #: src/views/apps/valkey/IndexView.vue:65 src/views/environment/PHPView.vue:223
 msgid "Main Configuration"
 msgstr "Main Configuration"
@@ -2542,6 +2584,7 @@ msgstr ""
 
 #: src/views/apps/clickhouse/IndexView.vue:143
 #: src/views/apps/elasticsearch/IndexView.vue:87
+#: src/views/apps/frp/IndexView.vue:80 src/views/apps/frp/IndexView.vue:132
 #: src/views/apps/grafana/IndexView.vue:114
 #: src/views/apps/kafka/IndexView.vue:87
 #: src/views/apps/memcached/IndexView.vue:83
@@ -2888,82 +2931,94 @@ msgstr ""
 "This modifies the MySQL main configuration file. If you do not understand "
 "the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/apps/fail2ban/IndexView.vue:59
-#: src/views/apps/fail2ban/IndexView.vue:356
+#: src/views/apps/fail2ban/IndexView.vue:69
+#: src/views/apps/fail2ban/IndexView.vue:404
+#: src/views/apps/fail2ban/IndexView.vue:450
 msgid "Max Retries"
 msgstr "Max Retries"
 
-#: src/views/apps/fail2ban/IndexView.vue:60
-#: src/views/apps/fail2ban/IndexView.vue:362
+#: src/views/apps/fail2ban/IndexView.vue:70
+#: src/views/apps/fail2ban/IndexView.vue:410
+#: src/views/apps/fail2ban/IndexView.vue:466
 msgid "Ban Time"
 msgstr "Ban Time"
 
-#: src/views/apps/fail2ban/IndexView.vue:61
-#: src/views/apps/fail2ban/IndexView.vue:359
+#: src/views/apps/fail2ban/IndexView.vue:71
+#: src/views/apps/fail2ban/IndexView.vue:407
+#: src/views/apps/fail2ban/IndexView.vue:458
 msgid "Find Time"
 msgstr "Find Time"
 
-#: src/views/apps/fail2ban/IndexView.vue:80 src/views/cert/CertView.vue:343
+#: src/views/apps/fail2ban/IndexView.vue:90 src/views/cert/CertView.vue:343
 #: src/views/database/ElasticsearchDataView.vue:186
 #: src/views/database/RedisDataView.vue:141
 msgid "View"
 msgstr "View"
 
-#: src/views/apps/fail2ban/IndexView.vue:89
+#: src/views/apps/fail2ban/IndexView.vue:108
+#: src/views/apps/frp/FrpProxyView.vue:89
+#: src/views/apps/frp/FrpVisitorView.vue:78
+#: src/views/apps/rsync/IndexView.vue:95
+#: src/views/apps/supervisor/IndexView.vue:140
+#: src/views/toolbox/network/InterfaceView.vue:212
+msgid "Configure"
+msgstr "Configure"
+
+#: src/views/apps/fail2ban/IndexView.vue:117
 msgid "Are you sure you want to delete rule %{ name }?"
 msgstr "Are you sure you want to delete rule %{ name }?"
 
-#: src/views/apps/fail2ban/IndexView.vue:124
+#: src/views/apps/fail2ban/IndexView.vue:152
 msgid "Are you sure you want to unban %{ ip }?"
 msgstr "Are you sure you want to unban %{ ip }?"
 
-#: src/views/apps/fail2ban/IndexView.vue:125
-#: src/views/apps/fail2ban/IndexView.vue:130
+#: src/views/apps/fail2ban/IndexView.vue:153
+#: src/views/apps/fail2ban/IndexView.vue:158
 msgid "Unban"
 msgstr "Unban"
 
-#: src/views/apps/fail2ban/IndexView.vue:179
+#: src/views/apps/fail2ban/IndexView.vue:207
 #: src/views/apps/pureftpd/IndexView.vue:130
-#: src/views/apps/rsync/IndexView.vue:149 src/views/apps/s3fs/IndexView.vue:77
-#: src/views/apps/supervisor/IndexView.vue:226
+#: src/views/apps/rsync/IndexView.vue:160 src/views/apps/s3fs/IndexView.vue:77
+#: src/views/apps/supervisor/IndexView.vue:259
 #: src/views/database/CreateServerModal.vue:79
 msgid "Added successfully"
 msgstr "Added successfully"
 
-#: src/views/apps/fail2ban/IndexView.vue:203
+#: src/views/apps/fail2ban/IndexView.vue:251
 msgid "Unbanned successfully"
 msgstr "Unbanned successfully"
 
-#: src/views/apps/fail2ban/IndexView.vue:225
+#: src/views/apps/fail2ban/IndexView.vue:273
 #: src/views/firewall/SettingView.vue:129
 msgid "IP Whitelist"
 msgstr "IP Whitelist"
 
-#: src/views/apps/fail2ban/IndexView.vue:230
+#: src/views/apps/fail2ban/IndexView.vue:278
 msgid "IP whitelist, separated by commas"
 msgstr "IP whitelist, separated by commas"
 
-#: src/views/apps/fail2ban/IndexView.vue:240
+#: src/views/apps/fail2ban/IndexView.vue:288
 msgid "Save Whitelist"
 msgstr "Save Whitelist"
 
-#: src/views/apps/fail2ban/IndexView.vue:245
+#: src/views/apps/fail2ban/IndexView.vue:293
 msgid "Rule Management"
 msgstr "Rule Management"
 
-#: src/views/apps/fail2ban/IndexView.vue:247
+#: src/views/apps/fail2ban/IndexView.vue:295
 msgid "Rule List"
 msgstr "Rule List"
 
-#: src/views/apps/fail2ban/IndexView.vue:275
-#: src/views/apps/fail2ban/IndexView.vue:285
-#: src/views/apps/fail2ban/IndexView.vue:289
+#: src/views/apps/fail2ban/IndexView.vue:323
+#: src/views/apps/fail2ban/IndexView.vue:333
+#: src/views/apps/fail2ban/IndexView.vue:337
 #: src/views/monitor/AlertRuleModal.vue:129 src/views/monitor/AlertView.vue:202
 #: src/views/tamper/RuleModal.vue:89 src/views/tamper/TamperView.vue:342
 msgid "Add Rule"
 msgstr "Add Rule"
 
-#: src/views/apps/fail2ban/IndexView.vue:295
+#: src/views/apps/fail2ban/IndexView.vue:343
 msgid ""
 "If an IP exceeds the maximum retries within the find time (seconds), it will "
 "be banned for the ban time (seconds)"
@@ -2971,7 +3026,7 @@ msgstr ""
 "If an IP exceeds the maximum retries within the find time (seconds), it will "
 "be banned for the ban time (seconds)"
 
-#: src/views/apps/fail2ban/IndexView.vue:302
+#: src/views/apps/fail2ban/IndexView.vue:350
 msgid ""
 "Protected ports are automatically obtained. If you modify the port "
 "corresponding to a rule, please delete and re-add the rule, otherwise "
@@ -2981,7 +3036,11 @@ msgstr ""
 "corresponding to a rule, please delete and re-add the rule, otherwise "
 "protection may not be effective"
 
-#: src/views/apps/fail2ban/IndexView.vue:309
+#: src/views/apps/fail2ban/IndexView.vue:357
+#: src/views/apps/frp/FrpProxyModal.vue:263
+#: src/views/apps/frp/FrpProxyView.vue:29
+#: src/views/apps/frp/FrpVisitorModal.vue:130
+#: src/views/apps/frp/FrpVisitorView.vue:29
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:78
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:209
 #: src/views/backup/StorageView.vue:73 src/views/backup/StorageView.vue:233
@@ -2999,23 +3058,23 @@ msgstr ""
 msgid "Type"
 msgstr "Type"
 
-#: src/views/apps/fail2ban/IndexView.vue:314
-#: src/views/apps/fail2ban/IndexView.vue:345
+#: src/views/apps/fail2ban/IndexView.vue:362
+#: src/views/apps/fail2ban/IndexView.vue:393
 msgid "Service"
 msgstr "Service"
 
-#: src/views/apps/fail2ban/IndexView.vue:319
-#: src/views/apps/fail2ban/IndexView.vue:323 src/views/task/CreateModal.vue:479
+#: src/views/apps/fail2ban/IndexView.vue:367
+#: src/views/apps/fail2ban/IndexView.vue:371 src/views/task/CreateModal.vue:479
 #: src/views/task/CreateModal.vue:485
 msgid "Select Website"
 msgstr "Select Website"
 
-#: src/views/apps/fail2ban/IndexView.vue:326
+#: src/views/apps/fail2ban/IndexView.vue:374
 #: src/views/tamper/TamperView.vue:251
 msgid "Protection Mode"
 msgstr "Protection Mode"
 
-#: src/views/apps/fail2ban/IndexView.vue:331
+#: src/views/apps/fail2ban/IndexView.vue:379
 #: src/views/apps/pureftpd/IndexView.vue:46
 #: src/views/backup/StorageView.vue:277 src/views/backup/StorageView.vue:331
 #: src/views/backup/StorageView.vue:361 src/views/backup/StorageView.vue:433
@@ -3024,66 +3083,281 @@ msgstr "Protection Mode"
 msgid "Path"
 msgstr "Path"
 
-#: src/views/apps/fail2ban/IndexView.vue:338
-#: src/views/apps/fail2ban/IndexView.vue:342
+#: src/views/apps/fail2ban/IndexView.vue:386
+#: src/views/apps/fail2ban/IndexView.vue:390
 msgid "Protection Path"
 msgstr "Protection Path"
 
-#: src/views/apps/fail2ban/IndexView.vue:378
-#: src/views/apps/fail2ban/IndexView.vue:382
+#: src/views/apps/fail2ban/IndexView.vue:429
+#, fuzzy
+msgid "Rule Configuration"
+msgstr "Module Configuration"
+
+#: src/views/apps/fail2ban/IndexView.vue:438
+msgid ""
+"The protected port, filter and log path are derived when the rule is created "
+"and are kept as-is here. To change them, delete and re-add the rule."
+msgstr ""
+
+#: src/views/apps/fail2ban/IndexView.vue:447
+#: src/views/apps/frp/FrpProxyModal.vue:266
+#: src/views/apps/frp/FrpProxyView.vue:43
+#: src/views/apps/frp/FrpVisitorModal.vue:133
+#: src/views/apps/frp/FrpVisitorView.vue:43 src/views/apps/frp/options.ts:13
+#: src/views/monitor/AlertRuleModal.vue:180 src/views/monitor/AlertView.vue:98
+#: src/views/monitor/ChannelModal.vue:142 src/views/monitor/SettingView.vue:121
+#: src/views/tamper/RuleModal.vue:121 src/views/tamper/TamperView.vue:136
+#: src/views/task/CronView.vue:76 src/views/toolbox/WebHookView.vue:91
+#: src/views/toolbox/WebHookView.vue:386
+msgid "Enabled"
+msgstr "Enabled"
+
+#: src/views/apps/fail2ban/IndexView.vue:486
+#: src/views/apps/fail2ban/IndexView.vue:490
 msgid "View Rule"
 msgstr "View Rule"
 
-#: src/views/apps/fail2ban/IndexView.vue:386
+#: src/views/apps/fail2ban/IndexView.vue:494
 msgid "Rule Information"
 msgstr "Rule Information"
 
-#: src/views/apps/fail2ban/IndexView.vue:389
+#: src/views/apps/fail2ban/IndexView.vue:497
 msgid "Currently Banned"
 msgstr "Currently Banned"
 
-#: src/views/apps/fail2ban/IndexView.vue:393
+#: src/views/apps/fail2ban/IndexView.vue:501
 msgid "Total Bans"
 msgstr "Total Bans"
 
-#: src/views/apps/fail2ban/IndexView.vue:398
+#: src/views/apps/fail2ban/IndexView.vue:506
 msgid "Ban List"
 msgstr "Ban List"
 
-#: src/views/apps/frp/IndexView.vue:68 src/views/apps/frp/IndexView.vue:101
-#: src/views/project/CreateModal.vue:622 src/views/project/EditModal.vue:237
-#, fuzzy
-msgid "Run User"
-msgstr "Run As User"
-
-#: src/views/apps/frp/IndexView.vue:80 src/views/apps/frp/IndexView.vue:81
-#: src/views/apps/frp/IndexView.vue:113 src/views/apps/frp/IndexView.vue:114
-#: src/views/apps/grafana/GrafanaDataSourcesView.vue:225
-#: src/views/apps/rsync/IndexView.vue:57 src/views/apps/rsync/IndexView.vue:279
-#: src/views/apps/rsync/IndexView.vue:340 src/views/database/IndexView.vue:131
-#: src/views/home/IndexView.vue:673 src/views/home/IndexView.vue:774
-#: src/views/log/SSHLog.vue:73 src/views/monitor/SystemView.vue:323
-#: src/views/monitor/SystemView.vue:335 src/views/setting/IndexView.vue:149
-#: src/views/toolbox/ProcessView.vue:128 src/views/toolbox/ProcessView.vue:396
-#: src/views/toolbox/WebHookView.vue:333 src/views/toolbox/WebHookView.vue:374
-msgid "User"
-msgstr "User"
-
-#: src/views/apps/frp/IndexView.vue:83 src/views/apps/frp/IndexView.vue:84
-#: src/views/apps/frp/IndexView.vue:116 src/views/apps/frp/IndexView.vue:117
-#: src/views/file/PermissionModal.vue:128
-#: src/views/file/PermissionModal.vue:152 src/views/file/PropertyModal.vue:48
-msgid "Group"
-msgstr "Group"
-
-#: src/views/apps/gitea/IndexView.vue:42
-msgid ""
-"This modifies the Gitea configuration file. If you do not understand the "
-"meaning of each parameter, please do not modify it randomly!"
+#: src/views/apps/frp/FrpcConfigTuneView.vue:74
+#: src/views/apps/frp/FrpsConfigTuneView.vue:74
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:210
+#: src/views/apps/nginx/NginxConfigTuneView.vue:175
+#: src/views/apps/redis/RedisConfigTuneView.vue:119
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:113
+#: src/views/environment/PhpConfigTuneView.vue:248
+#: src/views/project/IndexView.vue:22 src/views/project/ListView.vue:25
+msgid "General"
 msgstr ""
-"This modifies the Gitea configuration file. If you do not understand the "
-"meaning of each parameter, please do not modify it randomly!"
 
+#: src/views/apps/frp/FrpcConfigTuneView.vue:77
+msgid "Leave a field empty to comment out the option and use the frpc default."
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:80
+msgid "Server Address (serverAddr)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:83
+#, fuzzy
+msgid "Server Port (serverPort)"
+msgstr "Listening Address"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:86
+#: src/views/apps/grafana/GrafanaConfigTuneView.vue:204
+#: src/views/apps/grafana/GrafanaConfigTuneView.vue:288
+msgid "User (user)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:89
+msgid "Proxy names will be prefixed with this user"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:92
+msgid "Exit On Login Failure (loginFailExit)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:95
+msgid "STUN Server (natHoleStunServer)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:101
+#, fuzzy
+msgid "DNS Server (dnsServer)"
+msgstr "Server"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:104
+#: src/views/apps/frp/FrpsConfigTuneView.vue:113
+msgid "UDP Packet Size (udpPacketSize)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:120
+#: src/views/apps/frp/FrpsConfigTuneView.vue:136
+#: src/views/container/ImageView.vue:402
+msgid "Authentication"
+msgstr "Authentication"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:123
+#: src/views/apps/frp/FrpsConfigTuneView.vue:139
+msgid ""
+"The token must be identical on frps and frpc, otherwise login will fail."
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:126
+#: src/views/apps/frp/FrpsConfigTuneView.vue:142
+msgid "Method (auth.method)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:129
+#: src/views/apps/frp/FrpsConfigTuneView.vue:145
+msgid "Token (auth.token)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:134
+#: src/views/apps/frp/FrpsConfigTuneView.vue:150
+#, fuzzy
+msgid "Leave empty for no authentication"
+msgstr "Please enter username and password"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:150
+#: src/views/apps/frp/FrpProxyModal.vue:388
+#: src/views/apps/frp/FrpsConfigTuneView.vue:248
+#: src/views/apps/frp/FrpVisitorModal.vue:223
+#, fuzzy
+msgid "Transport"
+msgstr "Transport Protocol"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:153
+#: src/views/apps/frp/FrpsConfigTuneView.vue:251
+msgid "Do not modify these options unless you know what they do."
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:156
+#, fuzzy
+msgid "Protocol (transport.protocol)"
+msgstr "Protocol"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:163
+msgid "Pool Count (transport.poolCount)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:166
+#: src/views/apps/frp/FrpsConfigTuneView.vue:257
+msgid "TCP Mux (transport.tcpMux)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:170
+#: src/views/apps/frp/FrpsConfigTuneView.vue:261
+msgid "TCP Mux Keepalive Interval (transport.tcpMuxKeepaliveInterval)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:174
+#, fuzzy
+msgid "Dial Timeout (transport.dialServerTimeout)"
+msgstr "Resource Overview"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:177
+msgid "Dial Keepalive (transport.dialServerKeepalive)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:180
+msgid "Heartbeat Interval (transport.heartbeatInterval)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:183
+#: src/views/apps/frp/FrpsConfigTuneView.vue:268
+#, fuzzy
+msgid "Heartbeat Timeout (transport.heartbeatTimeout)"
+msgstr "Resource Overview"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:186
+msgid "Local IP (transport.connectServerLocalIP)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:192
+msgid "Proxy URL (transport.proxyURL)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:198
+#, fuzzy
+msgid "Enable TLS (transport.tls.enable)"
+msgstr "Enable Cache"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:201
+#: src/views/apps/frp/FrpsConfigTuneView.vue:274
+msgid "TLS Certificate (transport.tls.certFile)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:204
+#: src/views/apps/frp/FrpsConfigTuneView.vue:277
+msgid "TLS Private Key (transport.tls.keyFile)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:207
+#: src/views/apps/frp/FrpsConfigTuneView.vue:280
+msgid "TLS CA (transport.tls.trustedCaFile)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:210
+msgid "TLS Server Name (transport.tls.serverName)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:226
+#, fuzzy
+msgid "Admin API"
+msgstr "Root Password"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:229
+msgid "The frpc admin API is available only when the port is set."
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:232
+#: src/views/apps/frp/FrpsConfigTuneView.vue:209
+#, fuzzy
+msgid "Listen Address (webServer.addr)"
+msgstr "Listening Address"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:235
+#: src/views/apps/frp/FrpsConfigTuneView.vue:212
+#, fuzzy
+msgid "Listen Port (webServer.port)"
+msgstr "Listening Address"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:238
+#: src/views/apps/frp/FrpsConfigTuneView.vue:215
+msgid "Username (webServer.user)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:241
+#: src/views/apps/frp/FrpsConfigTuneView.vue:218
+#, fuzzy
+msgid "Password (webServer.password)"
+msgstr "Please enter username and password"
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:248
+#: src/views/apps/frp/FrpsConfigTuneView.vue:225
+msgid "Enable pprof (webServer.pprofEnable)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:271
+#: src/views/apps/frp/FrpsConfigTuneView.vue:299
+msgid "Output (log.to)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:274
+#: src/views/apps/frp/FrpsConfigTuneView.vue:302
+msgid "Level (log.level)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:277
+#: src/views/apps/frp/FrpsConfigTuneView.vue:305
+msgid "Max Days (log.maxDays)"
+msgstr ""
+
+#: src/views/apps/frp/FrpcConfigTuneView.vue:280
+#: src/views/apps/frp/FrpsConfigTuneView.vue:308
+msgid "Disable Colors (log.disablePrintColor)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:90
+msgid "Client"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:91
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:149
 #: src/views/apps/nginx/NginxIndex.vue:529
 #: src/views/database/CreateDatabaseModal.vue:86
@@ -3092,6 +3366,612 @@ msgstr ""
 #: src/views/database/UserList.vue:73
 msgid "Server"
 msgstr "Server"
+
+#: src/views/apps/frp/FrpProxyModal.vue:248
+msgid "Edit Proxy"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:248
+#: src/views/apps/frp/FrpProxyView.vue:150
+#, fuzzy
+msgid "Add Proxy"
+msgstr "Add Rule"
+
+#: src/views/apps/frp/FrpProxyModal.vue:260
+#: src/views/apps/frp/FrpVisitorModal.vue:127
+msgid "Unique name, letters, digits, dot, underscore and hyphen only"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:271
+#, fuzzy
+msgid "Local Address (localIP)"
+msgstr "IP Address"
+
+#: src/views/apps/frp/FrpProxyModal.vue:274
+#, fuzzy
+msgid "Local Port (localPort)"
+msgstr "Local (localhost)"
+
+#: src/views/apps/frp/FrpProxyModal.vue:282
+#, fuzzy
+msgid "Remote Port (remotePort)"
+msgstr "Listening Address"
+
+#: src/views/apps/frp/FrpProxyModal.vue:289
+msgid "0 means frps assigns a random port"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:294
+#, fuzzy
+msgid "Custom Domains (customDomains)"
+msgstr "Bind Domain"
+
+#: src/views/apps/frp/FrpProxyModal.vue:301
+#, fuzzy
+msgid "Subdomain (subdomain)"
+msgstr "Bind Domain"
+
+#: src/views/apps/frp/FrpProxyModal.vue:305
+msgid "Requires subDomainHost on frps"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:311
+#, fuzzy
+msgid "HTTP Username (httpUser)"
+msgstr "Port"
+
+#: src/views/apps/frp/FrpProxyModal.vue:314
+#, fuzzy
+msgid "HTTP Password (httpPassword)"
+msgstr "Please enter username and password"
+
+#: src/views/apps/frp/FrpProxyModal.vue:317
+msgid "Route By User (routeByHTTPUser)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:323
+#, fuzzy
+msgid "Locations (locations)"
+msgstr "Local (localhost)"
+
+#: src/views/apps/frp/FrpProxyModal.vue:328
+#: src/views/apps/frp/FrpProxyModal.vue:522
+msgid "Host Header Rewrite (hostHeaderRewrite)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:336
+#, fuzzy
+msgid "Request Headers (requestHeaders)"
+msgstr "Add Server"
+
+#: src/views/apps/frp/FrpProxyModal.vue:339
+#: src/views/apps/frp/FrpProxyModal.vue:352
+#, fuzzy
+msgid "Header"
+msgstr "Filename"
+
+#: src/views/apps/frp/FrpProxyModal.vue:340
+#: src/views/apps/frp/FrpProxyModal.vue:353
+#: src/views/database/RedisKeyModal.vue:109
+#: src/views/toolbox/disk/SmartView.vue:205
+#: src/views/toolbox/disk/SmartView.vue:232
+#, fuzzy
+msgid "Value"
+msgstr "Label Value"
+
+#: src/views/apps/frp/FrpProxyModal.vue:341
+#: src/views/apps/frp/FrpProxyModal.vue:354
+#, fuzzy
+msgid "Add Header"
+msgstr "Add Server"
+
+#: src/views/apps/frp/FrpProxyModal.vue:348
+msgid "Response Headers (responseHeaders)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:364
+msgid "Multiplexer (multiplexer)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:370
+#: src/views/apps/frp/FrpVisitorModal.vue:150
+#, fuzzy
+msgid "Secret Key (secretKey)"
+msgstr "Enter Aliyun Secret Key"
+
+#: src/views/apps/frp/FrpProxyModal.vue:375
+msgid "Visitors must use the same secret key"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:378
+msgid "Allowed Users (allowUsers)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:381
+msgid "* means all users"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:389
+#: src/views/apps/frp/FrpVisitorModal.vue:224
+msgid "Encryption (transport.useEncryption)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:392
+#: src/views/apps/frp/FrpVisitorModal.vue:227
+#, fuzzy
+msgid "Compression (transport.useCompression)"
+msgstr "Compression/Decompression"
+
+#: src/views/apps/frp/FrpProxyModal.vue:395
+msgid "Bandwidth Limit (transport.bandwidthLimit)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:402
+msgid "Limit Side (transport.bandwidthLimitMode)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:411
+msgid "Proxy Protocol (transport.proxyProtocolVersion)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:422
+msgid "Load Balancer"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:425
+msgid "Group (loadBalancer.group)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:428
+msgid "Group Key (loadBalancer.groupKey)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:432
+#, fuzzy
+msgid "Health Check"
+msgstr "Status"
+
+#: src/views/apps/frp/FrpProxyModal.vue:433
+msgid "Type (healthCheck.type)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:441
+msgid "Timeout Seconds (healthCheck.timeoutSeconds)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:446
+#: src/views/apps/frp/FrpProxyModal.vue:454
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:209
+#: src/views/environment/PhpConfigTuneView.vue:463
+msgid "e.g. 3"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:449
+msgid "Max Failed (healthCheck.maxFailed)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:457
+msgid "Interval Seconds (healthCheck.intervalSeconds)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:462
+#: src/views/apps/nginx/NginxConfigTuneView.vue:224
+#: src/views/environment/PhpConfigTuneView.vue:474
+msgid "e.g. 10"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:467
+msgid "Path (healthCheck.path)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:477
+msgid "Plugin"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:479
+msgid "When a plugin is used, the local address and port are ignored."
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:481
+msgid "Type (plugin.type)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:486
+msgid "Socket Path (unixPath)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:496
+#, fuzzy
+msgid "Local Address (localAddr)"
+msgstr "IP Address"
+
+#: src/views/apps/frp/FrpProxyModal.vue:506
+#, fuzzy
+msgid "Local Path (localPath)"
+msgstr "Local (localhost)"
+
+#: src/views/apps/frp/FrpProxyModal.vue:516
+msgid "Strip Prefix (stripPrefix)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:526
+#, fuzzy
+msgid "Certificate (crtPath)"
+msgstr "Certificate List"
+
+#: src/views/apps/frp/FrpProxyModal.vue:529
+#, fuzzy
+msgid "Private Key (keyPath)"
+msgstr "Private Key"
+
+#: src/views/apps/frp/FrpProxyModal.vue:532
+msgid "Username (httpUser)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:537
+#, fuzzy
+msgid "Password (httpPassword)"
+msgstr "Please enter username and password"
+
+#: src/views/apps/frp/FrpProxyModal.vue:545
+#, fuzzy
+msgid "Username (username)"
+msgstr "Enter module username"
+
+#: src/views/apps/frp/FrpProxyModal.vue:548
+#: src/views/apps/grafana/GrafanaConfigTuneView.vue:207
+#: src/views/apps/grafana/GrafanaConfigTuneView.vue:291
+#, fuzzy
+msgid "Password (password)"
+msgstr "Please enter username and password"
+
+#: src/views/apps/frp/FrpProxyModal.vue:556
+msgid "Metadata"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:557
+msgid "Metadatas (metadatas)"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyModal.vue:560
+#, fuzzy
+msgid "Add Metadata"
+msgstr "Add Server"
+
+#: src/views/apps/frp/FrpProxyModal.vue:564
+#, fuzzy
+msgid "Annotations (annotations)"
+msgstr "Network Protocol"
+
+#: src/views/apps/frp/FrpProxyModal.vue:567
+#, fuzzy
+msgid "Add Annotation"
+msgstr "Protection Mode"
+
+#: src/views/apps/frp/FrpProxyView.vue:42
+#: src/views/apps/frp/FrpVisitorView.vue:42 src/views/apps/frp/options.ts:14
+#: src/views/monitor/AlertView.vue:98 src/views/monitor/SettingView.vue:121
+#: src/views/project/EditModal.vue:72 src/views/setting/SettingBase.vue:187
+#: src/views/setting/SettingSafe.vue:246 src/views/tamper/TamperView.vue:136
+#: src/views/toolbox/network/InterfaceView.vue:67
+#: src/views/website/EditModal.vue:850 src/views/website/EditModal.vue:854
+#: src/views/website/EditModal.vue:1069
+#, fuzzy
+msgid "Disabled"
+msgstr "Enabled"
+
+#: src/views/apps/frp/FrpProxyView.vue:53
+msgid "Plugin: %{ plugin }"
+msgstr ""
+
+#: src/views/apps/frp/FrpProxyView.vue:59
+#, fuzzy
+msgid "Remote"
+msgstr "Auto Remove"
+
+#: src/views/apps/frp/FrpProxyView.vue:65
+#, fuzzy
+msgid "Random"
+msgstr "End Port"
+
+#: src/views/apps/frp/FrpProxyView.vue:98
+#, fuzzy
+msgid "Are you sure you want to delete proxy %{ name }?"
+msgstr "Are you sure you want to delete process %{ name }?"
+
+#: src/views/apps/frp/FrpProxyView.vue:143
+msgid ""
+"Only proxies created by the panel under the conf.d directory are managed "
+"here. Proxies written directly in frpc.toml should be edited in the main "
+"configuration."
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:77
+msgid "Leave a field empty to comment out the option and use the frps default."
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:80
+#: src/views/apps/frp/FrpVisitorModal.vue:158
+#, fuzzy
+msgid "Bind Address (bindAddr)"
+msgstr "Bind Domain"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:83
+#: src/views/apps/frp/FrpVisitorModal.vue:161
+#, fuzzy
+msgid "Bind Port (bindPort)"
+msgstr "Listening Address"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:86
+#, fuzzy
+msgid "KCP Bind Port (kcpBindPort)"
+msgstr "Listening Address"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:89
+#, fuzzy
+msgid "Leave empty to disable KCP"
+msgstr "Leave empty to use default path"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:92
+#, fuzzy
+msgid "QUIC Bind Port (quicBindPort)"
+msgstr "Listening Address"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:95
+#, fuzzy
+msgid "Leave empty to disable QUIC"
+msgstr "Leave empty to use default path"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:98
+msgid "Proxy Bind Address (proxyBindAddr)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:101
+#, fuzzy
+msgid "Defaults to bindAddr"
+msgstr "Menu Settings"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:104
+msgid "Subdomain Host (subDomainHost)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:107
+msgid "Max Ports Per Client (maxPortsPerClient)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:110
+#: src/views/project/EditModal.vue:476
+msgid "0 means no limit"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:116
+msgid "Detailed Errors To Client (detailedErrorsToClient)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:166
+msgid "HTTP(S)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:169
+msgid "Required for http and https type proxies."
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:172
+#, fuzzy
+msgid "HTTP Port (vhostHTTPPort)"
+msgstr "Port"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:175
+#, fuzzy
+msgid "HTTPS Port (vhostHTTPSPort)"
+msgstr "Port"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:178
+msgid "HTTP Response Timeout (vhostHTTPTimeout)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:181
+msgid "TCPMux HTTP Connect Port (tcpmuxHTTPConnectPort)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:184
+msgid "Required for tcpmux type proxies"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:187
+msgid "Custom 404 Page (custom404Page)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:203
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:206
+msgid "The frps dashboard is available only when the port is set."
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:232
+msgid "Enable Prometheus (enablePrometheus)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:254
+msgid "Max Pool Count (transport.maxPoolCount)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:265
+msgid "TCP Keepalive (transport.tcpKeepalive)"
+msgstr ""
+
+#: src/views/apps/frp/FrpsConfigTuneView.vue:271
+msgid "Force TLS (transport.tls.force)"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:115
+#, fuzzy
+msgid "Edit Visitor"
+msgstr "Add User"
+
+#: src/views/apps/frp/FrpVisitorModal.vue:115
+#: src/views/apps/frp/FrpVisitorView.vue:139
+#, fuzzy
+msgid "Add Visitor"
+msgstr "Add Server"
+
+#: src/views/apps/frp/FrpVisitorModal.vue:136
+msgid "Target Proxy (serverName)"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:140
+msgid "Name of the proxy to visit"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:143
+msgid "Target User (serverUser)"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:147
+#, fuzzy
+msgid "Defaults to the current user"
+msgstr "Default Document"
+
+#: src/views/apps/frp/FrpVisitorModal.vue:155
+msgid "Must match the target proxy"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:167
+msgid "-1 means do not bind, only accept redirected connections"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:172
+#: src/views/apps/grafana/GrafanaConfigTuneView.vue:173
+#, fuzzy
+msgid "Protocol (protocol)"
+msgstr "Protocol"
+
+#: src/views/apps/frp/FrpVisitorModal.vue:175
+msgid "Keep Tunnel Open (keepTunnelOpen)"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:181
+msgid "Max Retries Per Hour (maxRetriesAnHour)"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:187
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:304
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:428
+#: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:80
+msgid "e.g. 8"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:192
+msgid "Min Retry Interval (minRetryInterval)"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:198
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:511
+msgid "e.g. 90"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:202
+msgid "Fallback To (fallbackTo)"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:206
+msgid "Name of the visitor to fall back to"
+msgstr ""
+
+#: src/views/apps/frp/FrpVisitorModal.vue:211
+#, fuzzy
+msgid "Fallback Timeout (fallbackTimeoutMs)"
+msgstr "Resource Overview"
+
+#: src/views/apps/frp/FrpVisitorModal.vue:217
+#, fuzzy
+msgid "e.g. 500"
+msgstr "127.0.0.1"
+
+#: src/views/apps/frp/FrpVisitorView.vue:47
+#, fuzzy
+msgid "Target Proxy"
+msgstr "Target Port"
+
+#: src/views/apps/frp/FrpVisitorView.vue:53
+#, fuzzy
+msgid "Local Listen"
+msgstr "Domain & Listening"
+
+#: src/views/apps/frp/FrpVisitorView.vue:87
+#, fuzzy
+msgid "Are you sure you want to delete visitor %{ name }?"
+msgstr "Are you sure you want to delete website %{ name }?"
+
+#: src/views/apps/frp/FrpVisitorView.vue:132
+msgid ""
+"Visitors are used to access stcp, sudp and xtcp proxies. They must be "
+"configured on the client that initiates the access."
+msgstr ""
+
+#: src/views/apps/frp/IndexView.vue:87
+#, fuzzy
+msgid ""
+"This modifies the Frps main configuration file. If you do not understand the "
+"meaning of each parameter, please do not modify it randomly!"
+msgstr ""
+"This modifies the Redis main configuration file. If you do not understand "
+"the meaning of each parameter, please do not modify it randomly!"
+
+#: src/views/apps/frp/IndexView.vue:100 src/views/apps/frp/IndexView.vue:158
+#: src/views/project/CreateModal.vue:622 src/views/project/EditModal.vue:237
+#, fuzzy
+msgid "Run User"
+msgstr "Run As User"
+
+#: src/views/apps/frp/IndexView.vue:103 src/views/apps/frp/IndexView.vue:104
+#: src/views/apps/frp/IndexView.vue:161 src/views/apps/frp/IndexView.vue:162
+#: src/views/apps/grafana/GrafanaDataSourcesView.vue:225
+#: src/views/apps/rsync/IndexView.vue:59 src/views/apps/rsync/IndexView.vue:291
+#: src/views/apps/rsync/IndexView.vue:355 src/views/database/IndexView.vue:131
+#: src/views/home/IndexView.vue:673 src/views/home/IndexView.vue:774
+#: src/views/log/SSHLog.vue:73 src/views/monitor/SystemView.vue:323
+#: src/views/monitor/SystemView.vue:335 src/views/setting/IndexView.vue:149
+#: src/views/toolbox/ProcessView.vue:128 src/views/toolbox/ProcessView.vue:396
+#: src/views/toolbox/WebHookView.vue:333 src/views/toolbox/WebHookView.vue:374
+msgid "User"
+msgstr "User"
+
+#: src/views/apps/frp/IndexView.vue:106 src/views/apps/frp/IndexView.vue:107
+#: src/views/apps/frp/IndexView.vue:164 src/views/apps/frp/IndexView.vue:165
+#: src/views/file/PermissionModal.vue:128
+#: src/views/file/PermissionModal.vue:152 src/views/file/PropertyModal.vue:48
+msgid "Group"
+msgstr "Group"
+
+#: src/views/apps/frp/IndexView.vue:135
+#, fuzzy
+msgid "Proxy Management"
+msgstr "Process Management"
+
+#: src/views/apps/frp/IndexView.vue:138
+#, fuzzy
+msgid "Visitor Management"
+msgstr "User Management"
+
+#: src/views/apps/frp/IndexView.vue:145
+#, fuzzy
+msgid ""
+"This modifies the Frpc main configuration file. If you do not understand the "
+"meaning of each parameter, please do not modify it randomly!"
+msgstr ""
+"This modifies the Rsync main configuration file. If you do not understand "
+"the meaning of each parameter, please do not modify it randomly!"
+
+#: src/views/apps/gitea/IndexView.vue:42
+msgid ""
+"This modifies the Gitea configuration file. If you do not understand the "
+"meaning of each parameter, please do not modify it randomly!"
+msgstr ""
+"This modifies the Gitea configuration file. If you do not understand the "
+"meaning of each parameter, please do not modify it randomly!"
 
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:152
 msgid "Grafana server settings."
@@ -3125,11 +4005,6 @@ msgstr ""
 msgid "e.g. %(protocol)s://%(domain)s:%(http_port)s/"
 msgstr ""
 
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:173
-#, fuzzy
-msgid "Protocol (protocol)"
-msgstr "Protocol"
-
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:192
 msgid "Grafana database settings."
 msgstr ""
@@ -3157,17 +4032,6 @@ msgstr "Label Name"
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:202
 msgid "e.g. grafana"
 msgstr ""
-
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:204
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:288
-msgid "User (user)"
-msgstr ""
-
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:207
-#: src/views/apps/grafana/GrafanaConfigTuneView.vue:291
-#, fuzzy
-msgid "Password (password)"
-msgstr "Please enter username and password"
 
 #: src/views/apps/grafana/GrafanaConfigTuneView.vue:226
 #, fuzzy
@@ -3295,8 +4159,8 @@ msgstr "Access Log"
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:228
 #: src/views/apps/pureftpd/IndexView.vue:239
 #: src/views/apps/pureftpd/IndexView.vue:278
-#: src/views/apps/rsync/IndexView.vue:287
-#: src/views/apps/rsync/IndexView.vue:348 src/views/backup/StorageView.vue:35
+#: src/views/apps/rsync/IndexView.vue:299
+#: src/views/apps/rsync/IndexView.vue:363 src/views/backup/StorageView.vue:35
 #: src/views/backup/StorageView.vue:309 src/views/backup/StorageView.vue:353
 #: src/views/backup/StorageView.vue:465 src/views/backup/StorageView.vue:506
 #: src/views/container/ImageView.vue:419
@@ -3540,15 +4404,6 @@ msgstr ""
 msgid "System Log Path (systemLog.path)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:210
-#: src/views/apps/nginx/NginxConfigTuneView.vue:175
-#: src/views/apps/redis/RedisConfigTuneView.vue:119
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:113
-#: src/views/environment/PhpConfigTuneView.vue:248
-#: src/views/project/IndexView.vue:22 src/views/project/ListView.vue:25
-msgid "General"
-msgstr ""
-
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:213
 msgid "Common MySQL general settings."
 msgstr ""
@@ -3630,12 +4485,6 @@ msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:299
 msgid "Key Buffer Size (key_buffer_size)"
-msgstr ""
-
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:304
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:428
-#: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:80
-msgid "e.g. 8"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:311
@@ -3723,10 +4572,6 @@ msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:507
 msgid "Max Dirty Pages Pct (innodb_max_dirty_pages_pct)"
-msgstr ""
-
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:511
-msgid "e.g. 90"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlConfigTuneView.vue:516
@@ -3820,11 +4665,6 @@ msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:219
 msgid "Client Body Buffer Size (client_body_buffer_size)"
-msgstr ""
-
-#: src/views/apps/nginx/NginxConfigTuneView.vue:224
-#: src/views/environment/PhpConfigTuneView.vue:474
-msgid "e.g. 10"
 msgstr ""
 
 #: src/views/apps/nginx/NginxConfigTuneView.vue:235
@@ -4317,11 +5157,6 @@ msgstr ""
 msgid "Superuser Reserved Connections (superuser_reserved_connections)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:209
-#: src/views/environment/PhpConfigTuneView.vue:463
-msgid "e.g. 3"
-msgstr ""
-
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:226
 #: src/views/apps/redis/RedisConfigTuneView.vue:182
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:176
@@ -4626,8 +5461,8 @@ msgid "It is recommended to use the generator to generate a random password"
 msgstr "It is recommended to use the generator to generate a random password"
 
 #: src/views/apps/pureftpd/IndexView.vue:250
-#: src/views/apps/rsync/IndexView.vue:50 src/views/apps/rsync/IndexView.vue:271
-#: src/views/apps/rsync/IndexView.vue:332
+#: src/views/apps/rsync/IndexView.vue:52 src/views/apps/rsync/IndexView.vue:283
+#: src/views/apps/rsync/IndexView.vue:347
 #: src/views/container/ComposeView.vue:66 src/views/file/PropertyModal.vue:34
 #: src/views/project/ListView.vue:97 src/views/task/CreateModal.vue:461
 #: src/views/website/CreateModal.vue:305 src/views/website/ListView.vue:148
@@ -4841,8 +5676,8 @@ msgstr ""
 msgid "JVM heap memory settings for NameServer and Broker."
 msgstr ""
 
-#: src/views/apps/rsync/IndexView.vue:64 src/views/apps/rsync/IndexView.vue:295
-#: src/views/apps/rsync/IndexView.vue:357 src/views/backup/StorageView.vue:287
+#: src/views/apps/rsync/IndexView.vue:66 src/views/apps/rsync/IndexView.vue:307
+#: src/views/apps/rsync/IndexView.vue:372 src/views/backup/StorageView.vue:287
 #: src/views/backup/StorageView.vue:443
 #: src/views/database/CreateDatabaseModal.vue:142
 #: src/views/database/CreateServerModal.vue:143
@@ -4854,8 +5689,14 @@ msgstr ""
 msgid "Host"
 msgstr "Host"
 
-#: src/views/apps/rsync/IndexView.vue:70 src/views/apps/rsync/IndexView.vue:303
-#: src/views/apps/rsync/IndexView.vue:365
+#: src/views/apps/rsync/IndexView.vue:73 src/views/apps/rsync/IndexView.vue:315
+#: src/views/apps/rsync/IndexView.vue:380
+#, fuzzy
+msgid "Read Only"
+msgstr "Read-Only"
+
+#: src/views/apps/rsync/IndexView.vue:80 src/views/apps/rsync/IndexView.vue:318
+#: src/views/apps/rsync/IndexView.vue:383
 #: src/views/database/CreateServerModal.vue:190
 #: src/views/database/CreateUserModal.vue:164
 #: src/views/database/DatabaseList.vue:49 src/views/database/ServerList.vue:123
@@ -4864,26 +5705,20 @@ msgstr "Host"
 msgid "Comment"
 msgstr "Comment"
 
-#: src/views/apps/rsync/IndexView.vue:85
-#: src/views/apps/supervisor/IndexView.vue:107
-#: src/views/toolbox/network/InterfaceView.vue:212
-msgid "Configure"
-msgstr "Configure"
-
-#: src/views/apps/rsync/IndexView.vue:94
+#: src/views/apps/rsync/IndexView.vue:104
 msgid "Are you sure you want to delete module %{ name }?"
 msgstr "Are you sure you want to delete module %{ name }?"
 
-#: src/views/apps/rsync/IndexView.vue:197 src/views/environment/PHPView.vue:207
+#: src/views/apps/rsync/IndexView.vue:209 src/views/environment/PHPView.vue:207
 msgid "Module Management"
 msgstr "Module Management"
 
-#: src/views/apps/rsync/IndexView.vue:201
-#: src/views/apps/rsync/IndexView.vue:255
+#: src/views/apps/rsync/IndexView.vue:213
+#: src/views/apps/rsync/IndexView.vue:267
 msgid "Add Module"
 msgstr "Add Module"
 
-#: src/views/apps/rsync/IndexView.vue:229
+#: src/views/apps/rsync/IndexView.vue:241
 msgid ""
 "This modifies the Rsync main configuration file. If you do not understand "
 "the meaning of each parameter, please do not modify it randomly!"
@@ -4891,37 +5726,37 @@ msgstr ""
 "This modifies the Rsync main configuration file. If you do not understand "
 "the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/apps/rsync/IndexView.vue:268
-#: src/views/apps/supervisor/IndexView.vue:397
+#: src/views/apps/rsync/IndexView.vue:280
+#: src/views/apps/supervisor/IndexView.vue:449
 msgid "Name cannot contain Chinese characters"
 msgstr "Name cannot contain Chinese characters"
 
-#: src/views/apps/rsync/IndexView.vue:276
-#: src/views/apps/rsync/IndexView.vue:337
+#: src/views/apps/rsync/IndexView.vue:288
+#: src/views/apps/rsync/IndexView.vue:352
 msgid "Please enter absolute path"
 msgstr "Please enter absolute path"
 
-#: src/views/apps/rsync/IndexView.vue:284
-#: src/views/apps/rsync/IndexView.vue:345
+#: src/views/apps/rsync/IndexView.vue:296
+#: src/views/apps/rsync/IndexView.vue:360
 msgid "Enter module username"
 msgstr "Enter module username"
 
-#: src/views/apps/rsync/IndexView.vue:292
-#: src/views/apps/rsync/IndexView.vue:354
+#: src/views/apps/rsync/IndexView.vue:304
+#: src/views/apps/rsync/IndexView.vue:369
 msgid "Enter module password"
 msgstr "Enter module password"
 
-#: src/views/apps/rsync/IndexView.vue:300
-#: src/views/apps/rsync/IndexView.vue:362
+#: src/views/apps/rsync/IndexView.vue:312
+#: src/views/apps/rsync/IndexView.vue:377
 msgid "Enter allowed hosts, separate multiple hosts with spaces"
 msgstr "Enter allowed hosts, separate multiple hosts with spaces"
 
-#: src/views/apps/rsync/IndexView.vue:308
-#: src/views/apps/rsync/IndexView.vue:370
+#: src/views/apps/rsync/IndexView.vue:323
+#: src/views/apps/rsync/IndexView.vue:388
 msgid "Enter comments"
 msgstr "Enter comments"
 
-#: src/views/apps/rsync/IndexView.vue:325
+#: src/views/apps/rsync/IndexView.vue:340
 msgid "Module Configuration"
 msgstr "Module Configuration"
 
@@ -4975,33 +5810,47 @@ msgstr "Mount Directory"
 msgid "Enter mount directory (e.g., /oss)"
 msgstr "Enter mount directory (e.g., /oss)"
 
-#: src/views/apps/supervisor/IndexView.vue:77
+#: src/views/apps/supervisor/IndexView.vue:80
+#: src/views/container/ContainerCreate.vue:58
+msgid "Always"
+msgstr "Always"
+
+#: src/views/apps/supervisor/IndexView.vue:81
+#: src/views/setting/PasskeyModal.vue:47
+msgid "Never"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:82
+msgid "On Unexpected Exit"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:110
 #: src/views/toolbox/PanelView.vue:104
 msgid "Uptime"
 msgstr "Uptime"
 
-#: src/views/apps/supervisor/IndexView.vue:134
+#: src/views/apps/supervisor/IndexView.vue:167
 msgid "Are you sure you want to stop process %{ name }?"
 msgstr "Are you sure you want to stop process %{ name }?"
 
-#: src/views/apps/supervisor/IndexView.vue:152
+#: src/views/apps/supervisor/IndexView.vue:185
 msgid "Are you sure you want to restart process %{ name }?"
 msgstr "Are you sure you want to restart process %{ name }?"
 
-#: src/views/apps/supervisor/IndexView.vue:171
+#: src/views/apps/supervisor/IndexView.vue:204
 msgid "Are you sure you want to delete process %{ name }?"
 msgstr "Are you sure you want to delete process %{ name }?"
 
-#: src/views/apps/supervisor/IndexView.vue:311
+#: src/views/apps/supervisor/IndexView.vue:363
 msgid "Process Management"
 msgstr "Process Management"
 
-#: src/views/apps/supervisor/IndexView.vue:315
-#: src/views/apps/supervisor/IndexView.vue:384
+#: src/views/apps/supervisor/IndexView.vue:367
+#: src/views/apps/supervisor/IndexView.vue:436
 msgid "Add Process"
 msgstr "Add Process"
 
-#: src/views/apps/supervisor/IndexView.vue:343
+#: src/views/apps/supervisor/IndexView.vue:395
 msgid ""
 "This modifies the Supervisor main configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
@@ -5009,44 +5858,136 @@ msgstr ""
 "This modifies the Supervisor main configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/apps/supervisor/IndexView.vue:364
+#: src/views/apps/supervisor/IndexView.vue:416
 msgid "Daemon Logs"
 msgstr "Daemon Logs"
 
-#: src/views/apps/supervisor/IndexView.vue:400
+#: src/views/apps/supervisor/IndexView.vue:452
 #: src/views/project/CreateModal.vue:641 src/views/project/EditModal.vue:257
 msgid "Start Command"
 msgstr "Start Command"
 
-#: src/views/apps/supervisor/IndexView.vue:405
+#: src/views/apps/supervisor/IndexView.vue:457
 msgid "Please enter absolute path for files in start command"
 msgstr "Please enter absolute path for files in start command"
 
-#: src/views/apps/supervisor/IndexView.vue:408
+#: src/views/apps/supervisor/IndexView.vue:460
 #: src/views/project/EditModal.vue:219 src/views/toolbox/ProcessView.vue:431
 msgid "Working Directory"
 msgstr "Working Directory"
 
-#: src/views/apps/supervisor/IndexView.vue:413
+#: src/views/apps/supervisor/IndexView.vue:465
 msgid "Please enter absolute path for working directory"
 msgstr "Please enter absolute path for working directory"
 
-#: src/views/apps/supervisor/IndexView.vue:416
+#: src/views/apps/supervisor/IndexView.vue:468
 #: src/views/toolbox/WebHookView.vue:63
 msgid "Run As User"
 msgstr "Run As User"
 
-#: src/views/apps/supervisor/IndexView.vue:421
+#: src/views/apps/supervisor/IndexView.vue:473
 msgid "Usually www is sufficient"
 msgstr "Usually www is sufficient"
 
-#: src/views/apps/supervisor/IndexView.vue:424
+#: src/views/apps/supervisor/IndexView.vue:476
 msgid "Number of Processes"
 msgstr "Number of Processes"
 
-#: src/views/apps/supervisor/IndexView.vue:448
+#: src/views/apps/supervisor/IndexView.vue:500
 msgid "Process Configuration"
 msgstr "Process Configuration"
+
+#: src/views/apps/supervisor/IndexView.vue:507
+#, fuzzy
+msgid "Parameter Settings"
+msgstr "Port Settings"
+
+#: src/views/apps/supervisor/IndexView.vue:510
+msgid "Leave a field empty to comment out the option and use the default."
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:513
+#, fuzzy
+msgid "Start Command (command)"
+msgstr "Start Command"
+
+#: src/views/apps/supervisor/IndexView.vue:516
+#, fuzzy
+msgid "Working Directory (directory)"
+msgstr "Working Directory"
+
+#: src/views/apps/supervisor/IndexView.vue:519
+#, fuzzy
+msgid "Run As User (user)"
+msgstr "Run As User"
+
+#: src/views/apps/supervisor/IndexView.vue:522
+#, fuzzy
+msgid "Number of Processes (numprocs)"
+msgstr "Number of Processes"
+
+#: src/views/apps/supervisor/IndexView.vue:525
+msgid "Priority (priority)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:528
+#, fuzzy
+msgid "Start On Boot (autostart)"
+msgstr "Setting autostart..."
+
+#: src/views/apps/supervisor/IndexView.vue:531
+msgid "Auto Restart (autorestart)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:538
+msgid "Seconds Before Considered Started (startsecs)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:541
+msgid "Start Retries (startretries)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:544
+msgid "Seconds To Wait On Stop (stopwaitsecs)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:547
+msgid "Stop Whole Process Group (stopasgroup)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:550
+msgid "Kill Whole Process Group (killasgroup)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:553
+msgid "Merge Stderr Into Stdout (redirect_stderr)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:560
+msgid "Log File (stdout_logfile)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:563
+msgid "Log Rotate Size (stdout_logfile_maxbytes)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:566
+msgid "Log Backups (stdout_logfile_backups)"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:569
+#, fuzzy
+msgid "Environment Variables (environment)"
+msgstr "Environment Variables"
+
+#: src/views/apps/supervisor/IndexView.vue:572
+msgid "e.g. KEY=&quot;value&quot;,FOO=&quot;bar&quot;"
+msgstr ""
+
+#: src/views/apps/supervisor/IndexView.vue:587
+#, fuzzy
+msgid "Raw Configuration"
+msgstr "Configuration"
 
 #: src/views/apps/valkey/IndexView.vue:69
 #, fuzzy
@@ -5783,10 +6724,6 @@ msgstr "Compose"
 msgid "Edit Compose"
 msgstr "Edit Compose"
 
-#: src/views/container/ContainerCreate.vue:58
-msgid "Always"
-msgstr "Always"
-
 #: src/views/container/ContainerCreate.vue:59
 msgid "On failure (default 5 retries)"
 msgstr "On failure (default 5 retries)"
@@ -6319,10 +7256,6 @@ msgstr "Are you sure you want to delete the server?"
 msgid "docker.io/php:8.3-fpm"
 msgstr "docker.io/php:8.3-fpm"
 
-#: src/views/container/ImageView.vue:402
-msgid "Authentication"
-msgstr "Authentication"
-
 #: src/views/container/IndexView.vue:22
 msgid "Containers"
 msgstr "Containers"
@@ -6746,13 +7679,6 @@ msgstr ""
 #, fuzzy
 msgid "Enter key name"
 msgstr "Enter new name"
-
-#: src/views/database/RedisKeyModal.vue:109
-#: src/views/toolbox/disk/SmartView.vue:205
-#: src/views/toolbox/disk/SmartView.vue:232
-#, fuzzy
-msgid "Value"
-msgstr "Label Value"
 
 #: src/views/database/RedisKeyModal.vue:115
 #, fuzzy
@@ -8693,14 +9619,6 @@ msgstr "Channel"
 msgid "Record only when empty"
 msgstr ""
 
-#: src/views/monitor/AlertRuleModal.vue:180 src/views/monitor/AlertView.vue:98
-#: src/views/monitor/ChannelModal.vue:142 src/views/monitor/SettingView.vue:121
-#: src/views/tamper/RuleModal.vue:121 src/views/tamper/TamperView.vue:136
-#: src/views/task/CronView.vue:76 src/views/toolbox/WebHookView.vue:91
-#: src/views/toolbox/WebHookView.vue:386
-msgid "Enabled"
-msgstr "Enabled"
-
 #: src/views/monitor/AlertRuleModal.vue:186
 msgid ""
 "Metrics are checked every minute. The alert fires only after the condition "
@@ -8717,16 +9635,6 @@ msgstr "Uptime"
 #, fuzzy
 msgid "Record only"
 msgstr "Record Value"
-
-#: src/views/monitor/AlertView.vue:98 src/views/monitor/SettingView.vue:121
-#: src/views/project/EditModal.vue:72 src/views/setting/SettingBase.vue:187
-#: src/views/setting/SettingSafe.vue:246 src/views/tamper/TamperView.vue:136
-#: src/views/toolbox/network/InterfaceView.vue:67
-#: src/views/website/EditModal.vue:850 src/views/website/EditModal.vue:854
-#: src/views/website/EditModal.vue:1069
-#, fuzzy
-msgid "Disabled"
-msgstr "Enabled"
 
 #: src/views/monitor/AlertView.vue:120 src/views/tamper/TamperView.vue:158
 #, fuzzy
@@ -9611,10 +10519,6 @@ msgstr ""
 msgid "Memory Limit (MB)"
 msgstr "Memory"
 
-#: src/views/project/EditModal.vue:476
-msgid "0 means no limit"
-msgstr ""
-
 #: src/views/project/EditModal.vue:480
 msgid "Set to 0 to disable memory limit"
 msgstr ""
@@ -9792,10 +10696,6 @@ msgstr "Create Certificate"
 #, fuzzy
 msgid "Last Used"
 msgstr "Not Used"
-
-#: src/views/setting/PasskeyModal.vue:47
-msgid "Never"
-msgstr ""
 
 #: src/views/setting/PasskeyModal.vue:63
 #, fuzzy
@@ -14036,10 +14936,6 @@ msgstr "Add Server"
 #~ msgstr "Environment Variables"
 
 #, fuzzy
-#~ msgid "Remote"
-#~ msgstr "Auto Remove"
-
-#, fuzzy
 #~ msgid "Web Server"
 #~ msgstr "Server"
 
@@ -14423,9 +15319,6 @@ msgstr "Add Server"
 
 #~ msgid "Set Theme Color"
 #~ msgstr "Set Theme Color"
-
-#~ msgid "Dashboard"
-#~ msgstr "Dashboard"
 
 #~ msgid "Clear Error Log"
 #~ msgstr "Clear Error Log"
