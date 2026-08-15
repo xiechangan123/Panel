@@ -7,6 +7,8 @@ import { useGettext } from 'vue3-gettext'
 
 import frp from '@/api/apps/frp'
 
+import { authMethodOptions, logLevelOptions, toOptions, useBoolOptions } from './options'
+
 const { $gettext } = useGettext()
 const currentTab = ref('general')
 const saveLoading = ref(false)
@@ -47,25 +49,9 @@ const model = ref<Record<string, string>>({
   log_disable_print_color: '',
 })
 
-const boolOptions = [
-  { label: $gettext('Enabled'), value: 'true' },
-  { label: $gettext('Disabled'), value: 'false' },
-]
+const boolOptions = useBoolOptions()
 
-const authMethodOptions = [
-  { label: 'token', value: 'token' },
-  { label: 'oidc', value: 'oidc' },
-]
-
-const protocolOptions = ['tcp', 'kcp', 'quic', 'websocket', 'wss'].map((item) => ({
-  label: item,
-  value: item,
-}))
-
-const logLevelOptions = ['trace', 'debug', 'info', 'warn', 'error'].map((item) => ({
-  label: item,
-  value: item,
-}))
+const protocolOptions = toOptions(['tcp', 'kcp', 'quic', 'websocket', 'wss'])
 
 useRequest(frp.client()).onSuccess(({ data }: any) => {
   model.value = { ...model.value, ...data }
@@ -168,7 +154,11 @@ const handleSave = () => {
         </n-alert>
         <n-form>
           <n-form-item :label="$gettext('Protocol (transport.protocol)')">
-            <n-select v-model:value="model.transport_protocol" :options="protocolOptions" clearable />
+            <n-select
+              v-model:value="model.transport_protocol"
+              :options="protocolOptions"
+              clearable
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Pool Count (transport.poolCount)')">
             <n-input v-model:value="model.transport_pool_count" placeholder="5" />
@@ -194,7 +184,10 @@ const handleSave = () => {
             <n-input v-model:value="model.transport_heartbeat_timeout" placeholder="90" />
           </n-form-item>
           <n-form-item :label="$gettext('Local IP (transport.connectServerLocalIP)')">
-            <n-input v-model:value="model.transport_connect_server_local_ip" placeholder="0.0.0.0" />
+            <n-input
+              v-model:value="model.transport_connect_server_local_ip"
+              placeholder="0.0.0.0"
+            />
           </n-form-item>
           <n-form-item :label="$gettext('Proxy URL (transport.proxyURL)')">
             <n-input

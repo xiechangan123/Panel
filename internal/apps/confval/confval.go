@@ -1,7 +1,10 @@
 // Package confval 读写行式配置文件中的键值项
 package confval
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 // Codec 描述一种行式配置文件的书写约定
 type Codec struct {
@@ -55,6 +58,8 @@ var (
 	SectionINI = Codec{Delim: "=", Assign: " = ", Comments: []string{"#", ";"}, Sections: true}
 	// PHPINI PHP 的 ini，注释优先使用 ";"
 	PHPINI = Codec{Delim: "=", Assign: " = ", Comments: []string{";", "#"}}
+	// Supervisor 「键=值」，注释同时支持 ";" 与 "#"
+	Supervisor = Codec{Delim: "=", Assign: "=", Comments: []string{";", "#"}}
 )
 
 // Get 读取配置项，未命中返回空串
@@ -153,7 +158,7 @@ func (c Codec) SetIn(content, section, key, value string) string {
 	case !c.Sections:
 		result = append(result, newLine)
 	case sectionEnd >= 0:
-		result = insertAt(result, sectionEnd+1, newLine)
+		result = slices.Insert(result, sectionEnd+1, newLine)
 	default:
 		// 分组不存在，在文件末尾补建
 		result = append(result, "", "["+section+"]", newLine)
@@ -289,12 +294,4 @@ func sectionName(raw string) (string, bool) {
 // indentOf 取出行首缩进
 func indentOf(raw string) string {
 	return raw[:len(raw)-len(strings.TrimLeft(raw, " \t"))]
-}
-
-func insertAt(lines []string, idx int, value string) []string {
-	lines = append(lines, "")
-	copy(lines[idx+1:], lines[idx:])
-	lines[idx] = value
-
-	return lines
 }

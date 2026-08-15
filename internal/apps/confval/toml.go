@@ -1,9 +1,11 @@
 package confval
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 )
 
@@ -25,8 +27,9 @@ func GetTOML(content, key string) string {
 		if !parsed.ok || parsed.commented != "" {
 			continue
 		}
-		// 根表下写点号全键，分组内写末段键
-		if (current == "" && parsed.key == key) || (nested && current == section && parsed.key == leaf) {
+		// 根表下写点号全键，分组内写末段键，两种写法都算命中
+		matched := (current == "" && parsed.key == key) || (nested && current == section && parsed.key == leaf)
+		if matched {
 			return unquoteTOML(parsed.value)
 		}
 	}
@@ -82,15 +85,14 @@ func SetTOML(content, key string, value any) string {
 		return strings.Join(result, "\n")
 	}
 
-	newLine := key + tomlCodec.Assign + literal
 	if firstTable < 0 {
-		return strings.Join(append(result, newLine), "\n")
+		firstTable = len(result)
 	}
 
-	return strings.Join(insertAt(result, firstTable, newLine), "\n")
+	return strings.Join(slices.Insert(result, firstTable, key+tomlCodec.Assign+literal), "\n")
 }
 
-// formatTOML 按 Go 类型输出 TOML 字面量，零值返回空串表示删除该项
+// formatTOML 零值返回空串，表示删除该项
 func formatTOML(value any) string {
 	switch v := value.(type) {
 	case string:
@@ -104,10 +106,7 @@ func formatTOML(value any) string {
 		if len(v) == 0 {
 			return ""
 		}
-		quoted := make([]string, 0, len(v))
-		for _, item := range v {
-			quoted = append(quoted, strconv.Quote(item))
-		}
+		quoted := lo.Map(v, func(item string, _ int) string { return strconv.Quote(item) })
 		return "[" + strings.Join(quoted, ", ") + "]"
 	default:
 		return cast.ToString(v)
@@ -123,14 +122,10 @@ func unquoteTOML(value string) string {
 	return value
 }
 
-// tableName 解析 [table] 与 [[table]] 行
+// tableName 解析 [table] 与 [[table]] 行，后者比 sectionName 多剥一层括号
 func tableName(raw string) (string, bool) {
-	trimmed := strings.TrimSpace(raw)
-	if !strings.HasPrefix(trimmed, "[") || !strings.HasSuffix(trimmed, "]") {
-		return "", false
-	}
-
-	return strings.Trim(strings.TrimSpace(strings.Trim(trimmed, "[]")), " \t"), true
+	name, ok := sectionName(raw)
+	return strings.Trim(name, "[]"), ok
 }
 
 // cutLast 切出点号键的分组前缀与末段，如 auth.token -> auth, token

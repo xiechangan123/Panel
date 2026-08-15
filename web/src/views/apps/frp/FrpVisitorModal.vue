@@ -94,9 +94,7 @@ const buildPayload = () => {
 const handleSubmit = () => {
   submitLoading.value = true
   const payload = buildPayload()
-  const request = isEdit.value
-    ? frp.updateVisitor(payload.name, payload)
-    : frp.addVisitor(payload)
+  const request = isEdit.value ? frp.updateVisitor(payload.name, payload) : frp.addVisitor(payload)
 
   useRequest(request)
     .onSuccess(() => {
@@ -234,8 +232,8 @@ const handleSubmit = () => {
     </n-form>
     <n-button
       type="info"
-      
-       mt-16 block 
+      mt-16
+      block
       :loading="submitLoading"
       :disabled="submitLoading"
       @click="handleSubmit"

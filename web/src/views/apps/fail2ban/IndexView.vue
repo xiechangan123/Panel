@@ -36,6 +36,16 @@ const jailCurrentlyBan = ref(0)
 const jailTotalBan = ref(0)
 const jailBanedList = ref<any[]>([])
 
+const editJailModal = ref(false)
+const editJailLoading = ref(false)
+const editJailModel = ref({
+  name: '',
+  enabled: true,
+  max_retry: 30,
+  find_time: 300,
+  ban_time: 600,
+})
+
 const jailsColumns: any = [
   {
     title: $gettext('Name'),
@@ -52,7 +62,7 @@ const jailsColumns: any = [
         size: 'small',
         rubberBand: false,
         value: row.enabled,
-        disabled: true,
+        onUpdateValue: (value: boolean) => handleToggleJail(row, value),
       })
     },
   },
@@ -78,6 +88,24 @@ const jailsColumns: any = [
             },
           },
           { default: () => $gettext('View') },
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'info',
+            onClick: () => {
+              editJailModel.value = {
+                name: row.name,
+                enabled: row.enabled,
+                max_retry: row.max_retry,
+                find_time: row.find_time,
+                ban_time: row.ban_time,
+              }
+              editJailModal.value = true
+            },
+          },
+          { default: () => $gettext('Configure') },
         ),
         h(
           NButton,
@@ -189,6 +217,26 @@ const handleDeleteJail = (name: string) => {
     refresh()
     window.$message.success($gettext('Deleted successfully'))
   })
+}
+
+const handleToggleJail = (row: any, enabled: boolean) => {
+  useRequest(fail2ban.update(row.name, { ...row, enabled })).onSuccess(() => {
+    refresh()
+    window.$message.success($gettext('Saved successfully'))
+  })
+}
+
+const handleEditJail = () => {
+  editJailLoading.value = true
+  useRequest(fail2ban.update(editJailModel.value.name, editJailModel.value))
+    .onSuccess(() => {
+      refresh()
+      editJailModal.value = false
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      editJailLoading.value = false
+    })
 }
 
 const getJailInfo = async (name: string) => {
@@ -374,6 +422,66 @@ onMounted(() => {
         </n-button>
       </n-space>
     </n-card>
+  </n-modal>
+  <n-modal
+    v-model:show="editJailModal"
+    preset="card"
+    :title="$gettext('Rule Configuration')"
+    style="width: 60vw"
+    size="huge"
+    :bordered="false"
+    :segmented="false"
+  >
+    <n-flex vertical>
+      <n-alert type="info">
+        {{
+          $gettext(
+            'The protected port, filter and log path are derived when the rule is created and are kept as-is here. To change them, delete and re-add the rule.',
+          )
+        }}
+      </n-alert>
+      <n-form :model="editJailModel">
+        <n-form-item :label="$gettext('Name')">
+          <n-input v-model:value="editJailModel.name" disabled />
+        </n-form-item>
+        <n-form-item path="enabled" :label="$gettext('Enabled')">
+          <n-switch v-model:value="editJailModel.enabled" />
+        </n-form-item>
+        <n-form-item path="max_retry" :label="$gettext('Max Retries')">
+          <n-input-number
+            class="w-full"
+            v-model:value="editJailModel.max_retry"
+            @keydown.enter.prevent
+            :min="1"
+          />
+        </n-form-item>
+        <n-form-item path="find_time" :label="$gettext('Find Time')">
+          <n-input-number
+            class="w-full"
+            v-model:value="editJailModel.find_time"
+            @keydown.enter.prevent
+            :min="1"
+          />
+        </n-form-item>
+        <n-form-item path="ban_time" :label="$gettext('Ban Time')">
+          <n-input-number
+            class="w-full"
+            v-model:value="editJailModel.ban_time"
+            @keydown.enter.prevent
+            :min="1"
+          />
+        </n-form-item>
+      </n-form>
+      <n-button
+        type="info"
+        block
+        :loading="editJailLoading"
+        :disabled="editJailLoading"
+        @click="handleEditJail"
+      >
+        {{ $gettext('Save') }}
+      </n-button>
+    </n-flex>
   </n-modal>
   <n-modal v-model:show="jailModal" :title="$gettext('View Rule')">
     <n-card

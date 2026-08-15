@@ -1,9 +1,5 @@
 package supervisor
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 type UpdateProcessConfig struct {
 	Process string `form:"process" json:"process" validate:"required"`
 	Config  string `form:"config" json:"config" validate:"required"`
@@ -11,6 +7,11 @@ type UpdateProcessConfig struct {
 
 type ProcessName struct {
 	Process string `form:"process" json:"process" validate:"required"`
+}
+
+type UpdateProcessSetting struct {
+	Process string `form:"process" json:"process" validate:"required"`
+	ProcessSetting
 }
 
 type CreateProcess struct {

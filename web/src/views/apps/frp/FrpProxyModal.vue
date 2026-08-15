@@ -74,9 +74,13 @@ const defaultModel = () => ({
 const model = ref(defaultModel())
 
 const isEdit = computed(() => !!props.proxy)
-const type = computed(() => model.value.type)
 // 使用插件时 localIP 与 localPort 会被忽略
 const usePlugin = computed(() => !!model.value.plugin.type)
+const isPortForward = computed(() => ['tcp', 'udp'].includes(model.value.type))
+const isVhost = computed(() => ['http', 'https', 'tcpmux'].includes(model.value.type))
+const isHTTPAuth = computed(() => ['http', 'tcpmux'].includes(model.value.type))
+const isSecret = computed(() => ['stcp', 'sudp', 'xtcp'].includes(model.value.type))
+const canLoadBalance = computed(() => ['tcp', 'http'].includes(model.value.type))
 
 const typeOptions = ['tcp', 'udp', 'http', 'https', 'tcpmux', 'stcp', 'sudp', 'xtcp'].map(
   (item) => ({ label: item, value: item }),
@@ -181,14 +185,14 @@ const buildPayload = () => {
     payload.plugin = m.plugin
   }
 
-  if (['tcp', 'udp'].includes(m.type)) {
+  if (isPortForward.value) {
     payload.remote_port = m.remote_port ?? 0
   }
-  if (['http', 'https', 'tcpmux'].includes(m.type)) {
+  if (isVhost.value) {
     payload.custom_domains = m.custom_domains
     payload.subdomain = m.subdomain
   }
-  if (['http', 'tcpmux'].includes(m.type)) {
+  if (isHTTPAuth.value) {
     payload.http_user = m.http_user
     payload.http_password = m.http_password
     payload.route_by_http_user = m.route_by_http_user
@@ -206,11 +210,11 @@ const buildPayload = () => {
   if (m.type === 'tcpmux') {
     payload.multiplexer = m.multiplexer
   }
-  if (['stcp', 'sudp', 'xtcp'].includes(m.type)) {
+  if (isSecret.value) {
     payload.secret_key = m.secret_key
     payload.allow_users = m.allow_users
   }
-  if (['tcp', 'http'].includes(m.type) && m.load_balancer.group) {
+  if (canLoadBalance.value && m.load_balancer.group) {
     payload.load_balancer = m.load_balancer
   }
   if (m.health_check.type) {
@@ -223,9 +227,7 @@ const buildPayload = () => {
 const handleSubmit = () => {
   submitLoading.value = true
   const payload = buildPayload()
-  const request = isEdit.value
-    ? frp.updateProxy(payload.name, payload)
-    : frp.addProxy(payload)
+  const request = isEdit.value ? frp.updateProxy(payload.name, payload) : frp.addProxy(payload)
 
   useRequest(request)
     .onSuccess(() => {
@@ -275,7 +277,7 @@ const handleSubmit = () => {
       </template>
 
       <n-form-item
-        v-if="['tcp', 'udp'].includes(type)"
+        v-if="isPortForward"
         path="remote_port"
         :label="$gettext('Remote Port (remotePort)')"
       >
@@ -288,7 +290,7 @@ const handleSubmit = () => {
         />
       </n-form-item>
 
-      <template v-if="['http', 'https', 'tcpmux'].includes(type)">
+      <template v-if="isVhost">
         <n-form-item path="custom_domains" :label="$gettext('Custom Domains (customDomains)')">
           <n-dynamic-input
             v-model:value="model.custom_domains"
@@ -305,7 +307,7 @@ const handleSubmit = () => {
         </n-form-item>
       </template>
 
-      <template v-if="['http', 'tcpmux'].includes(type)">
+      <template v-if="isHTTPAuth">
         <n-form-item path="http_user" :label="$gettext('HTTP Username (httpUser)')">
           <n-input v-model:value="model.http_user" @keydown.enter.prevent />
         </n-form-item>
@@ -317,7 +319,7 @@ const handleSubmit = () => {
         </n-form-item>
       </template>
 
-      <template v-if="type === 'http'">
+      <template v-if="model.type === 'http'">
         <n-form-item path="locations" :label="$gettext('Locations (locations)')">
           <n-dynamic-input v-model:value="model.locations" placeholder="/" show-sort-button />
         </n-form-item>
@@ -341,7 +343,10 @@ const handleSubmit = () => {
             separator=":"
           />
         </n-form-item>
-        <n-form-item path="response_headers" :label="$gettext('Response Headers (responseHeaders)')">
+        <n-form-item
+          path="response_headers"
+          :label="$gettext('Response Headers (responseHeaders)')"
+        >
           <key-value-editor
             v-model="model.response_headers"
             :key-placeholder="$gettext('Header')"
@@ -354,14 +359,14 @@ const handleSubmit = () => {
       </template>
 
       <n-form-item
-        v-if="type === 'tcpmux'"
+        v-if="model.type === 'tcpmux'"
         path="multiplexer"
         :label="$gettext('Multiplexer (multiplexer)')"
       >
         <n-input v-model:value="model.multiplexer" placeholder="httpconnect" />
       </n-form-item>
 
-      <template v-if="['stcp', 'sudp', 'xtcp'].includes(type)">
+      <template v-if="isSecret">
         <n-form-item path="secret_key" :label="$gettext('Secret Key (secretKey)')">
           <n-input
             v-model:value="model.secret_key"
@@ -402,7 +407,7 @@ const handleSubmit = () => {
             />
           </n-form-item>
           <n-form-item
-            v-if="['tcp', 'https'].includes(type)"
+            v-if="['tcp', 'https'].includes(model.type)"
             :label="$gettext('Proxy Protocol (transport.proxyProtocolVersion)')"
           >
             <n-select
@@ -413,7 +418,7 @@ const handleSubmit = () => {
           </n-form-item>
         </n-collapse-item>
         <n-collapse-item
-          v-if="['tcp', 'http'].includes(type)"
+          v-if="canLoadBalance"
           :title="$gettext('Load Balancer')"
           name="load-balancer"
         >
@@ -476,21 +481,30 @@ const handleSubmit = () => {
           <n-form-item :label="$gettext('Type (plugin.type)')">
             <n-select v-model:value="model.plugin.type" :options="pluginOptions" clearable />
           </n-form-item>
-          <n-form-item v-if="hasPluginField('unix_path')" :label="$gettext('Socket Path (unixPath)')">
+          <n-form-item
+            v-if="hasPluginField('unix_path')"
+            :label="$gettext('Socket Path (unixPath)')"
+          >
             <n-input
               v-model:value="model.plugin.unix_path"
               placeholder="/var/run/docker.sock"
               @keydown.enter.prevent
             />
           </n-form-item>
-          <n-form-item v-if="hasPluginField('local_addr')" :label="$gettext('Local Address (localAddr)')">
+          <n-form-item
+            v-if="hasPluginField('local_addr')"
+            :label="$gettext('Local Address (localAddr)')"
+          >
             <n-input
               v-model:value="model.plugin.local_addr"
               placeholder="127.0.0.1:80"
               @keydown.enter.prevent
             />
           </n-form-item>
-          <n-form-item v-if="hasPluginField('local_path')" :label="$gettext('Local Path (localPath)')">
+          <n-form-item
+            v-if="hasPluginField('local_path')"
+            :label="$gettext('Local Path (localPath)')"
+          >
             <n-input
               v-model:value="model.plugin.local_path"
               placeholder="/var/www/blog"
@@ -559,8 +573,8 @@ const handleSubmit = () => {
     </n-form>
     <n-button
       type="info"
-      
-       mt-16 block 
+      mt-16
+      block
       :loading="submitLoading"
       :disabled="submitLoading"
       @click="handleSubmit"

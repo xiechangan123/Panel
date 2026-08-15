@@ -6,10 +6,12 @@ export default {
     http.Get('/apps/fail2ban/jails', { params: { page, limit } }),
   // 添加保护
   add: (data: any): any => http.Post('/apps/fail2ban/jails', data),
+  // 修改保护
+  update: (name: string, data: any): any => http.Post(`/apps/fail2ban/jails/${name}`, data),
   // 删除保护
-  delete: (name: string): any => http.Delete('/apps/fail2ban/jails', { name }),
+  delete: (name: string): any => http.Delete(`/apps/fail2ban/jails/${name}`),
   // 封禁列表
-  jail: (name: string): any => http.Get('/apps/fail2ban/jails/' + name),
+  jail: (name: string): any => http.Get(`/apps/fail2ban/jails/${name}/ban`),
   // 解封 IP
   unban: (name: string, ip: string): any => http.Post('/apps/fail2ban/unban', { name, ip }),
   // 获取白名单

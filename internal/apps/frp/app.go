@@ -3,12 +3,10 @@ package frp
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/chix/v2"
-	"github.com/samber/lo"
 
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -269,29 +267,6 @@ func (s *App) Proxies(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetProxy 获取单个代理
-func (s *App) GetProxy(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ItemName](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	confD, err := listConfD()
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	proxy, ok := lo.Find(confD.Proxies, func(item Proxy) bool { return item.Name == req.Name })
-	if !ok {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s does not exist", req.Name))
-		return
-	}
-
-	service.Success(w, proxy)
-}
-
 // CreateProxy 新增代理
 func (s *App) CreateProxy(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[Proxy](r)
@@ -300,12 +275,29 @@ func (s *App) CreateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if io.Exists(itemPath("proxy", req.Name)) {
+	if io.Exists(itemPath(proxyPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s already exists", req.Name))
 		return
 	}
 
-	saveProxy(w, req)
+	s.save(w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
+}
+
+// GetProxy 获取单个代理
+func (s *App) GetProxy(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ItemName](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	confD, err := readConfD(itemPath(proxyPrefix, req.Name))
+	if err != nil || len(confD.Proxies) == 0 {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s does not exist", req.Name))
+		return
+	}
+
+	service.Success(w, confD.Proxies[0])
 }
 
 // UpdateProxy 更新代理
@@ -316,12 +308,12 @@ func (s *App) UpdateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !io.Exists(itemPath("proxy", req.Name)) {
+	if !io.Exists(itemPath(proxyPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("proxy %s does not exist", req.Name))
 		return
 	}
 
-	saveProxy(w, req)
+	s.save(w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
 }
 
 // DeleteProxy 删除代理
@@ -332,7 +324,7 @@ func (s *App) DeleteProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = os.Remove(itemPath("proxy", req.Name)); err != nil {
+	if err = io.Remove(itemPath(proxyPrefix, req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -361,29 +353,6 @@ func (s *App) Visitors(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetVisitor 获取单个访问者
-func (s *App) GetVisitor(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ItemName](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	confD, err := listConfD()
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	visitor, ok := lo.Find(confD.Visitors, func(item Visitor) bool { return item.Name == req.Name })
-	if !ok {
-		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s does not exist", req.Name))
-		return
-	}
-
-	service.Success(w, visitor)
-}
-
 // CreateVisitor 新增访问者
 func (s *App) CreateVisitor(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[Visitor](r)
@@ -392,12 +361,29 @@ func (s *App) CreateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if io.Exists(itemPath("visitor", req.Name)) {
+	if io.Exists(itemPath(visitorPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s already exists", req.Name))
 		return
 	}
 
-	saveVisitor(w, req)
+	s.save(w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
+}
+
+// GetVisitor 获取单个访问者
+func (s *App) GetVisitor(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ItemName](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	confD, err := readConfD(itemPath(visitorPrefix, req.Name))
+	if err != nil || len(confD.Visitors) == 0 {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s does not exist", req.Name))
+		return
+	}
+
+	service.Success(w, confD.Visitors[0])
 }
 
 // UpdateVisitor 更新访问者
@@ -408,12 +394,12 @@ func (s *App) UpdateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !io.Exists(itemPath("visitor", req.Name)) {
+	if !io.Exists(itemPath(visitorPrefix, req.Name)) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("visitor %s does not exist", req.Name))
 		return
 	}
 
-	saveVisitor(w, req)
+	s.save(w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
 }
 
 // DeleteVisitor 删除访问者
@@ -424,7 +410,7 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = os.Remove(itemPath("visitor", req.Name)); err != nil {
+	if err = io.Remove(itemPath(visitorPrefix, req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -437,22 +423,8 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-func saveProxy(w http.ResponseWriter, req *Proxy) {
-	if err := writeConfD("proxy", req.Name, ConfD{Proxies: []Proxy{*req}}); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err := systemctl.Restart("frpc"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
-}
-
-func saveVisitor(w http.ResponseWriter, req *Visitor) {
-	if err := writeConfD("visitor", req.Name, ConfD{Visitors: []Visitor{*req}}); err != nil {
+func (s *App) save(w http.ResponseWriter, prefix, name string, confD ConfD) {
+	if err := writeConfD(prefix, name, confD); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -44,10 +44,43 @@ const createProcessModel = ref({
 })
 
 const editProcessModal = ref(false)
+const editProcessTab = ref('setting')
+const saveProcessSettingLoading = ref(false)
 const editProcessModel = ref({
   process: '',
   config: '',
 })
+
+const settingModel = ref<Record<string, string>>({
+  command: '',
+  directory: '',
+  user: '',
+  numprocs: '',
+  priority: '',
+  autostart: '',
+  autorestart: '',
+  startsecs: '',
+  startretries: '',
+  stopwaitsecs: '',
+  stopasgroup: '',
+  killasgroup: '',
+  redirect_stderr: '',
+  stdout_logfile: '',
+  stdout_logfile_maxbytes: '',
+  stdout_logfile_backups: '',
+  environment: '',
+})
+
+const boolOptions = [
+  { label: $gettext('Yes'), value: 'true' },
+  { label: $gettext('No'), value: 'false' },
+]
+
+const autoRestartOptions = [
+  { label: $gettext('Always'), value: 'true' },
+  { label: $gettext('Never'), value: 'false' },
+  { label: $gettext('On Unexpected Exit'), value: 'unexpected' },
+]
 
 const processLogModal = ref(false)
 
@@ -271,13 +304,32 @@ const handleClearProcessLog = () => {
 }
 
 const handleEditProcess = async (name: string) => {
+  editProcessTab.value = 'setting'
   await getProcessConfig(name)
   editProcessModal.value = true
 }
 
 const getProcessConfig = async (name: string) => {
+  const [config, setting] = await Promise.all([
+    supervisor.processConfig(name),
+    supervisor.processSetting(name),
+  ])
   editProcessModel.value.process = name
-  editProcessModel.value.config = await supervisor.processConfig(name)
+  editProcessModel.value.config = config
+  settingModel.value = { ...settingModel.value, ...setting }
+}
+
+const handleSaveProcessSetting = () => {
+  saveProcessSettingLoading.value = true
+  useRequest(supervisor.saveProcessSetting(editProcessModel.value.process, settingModel.value))
+    .onSuccess(() => {
+      editProcessModal.value = false
+      refresh()
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      saveProcessSettingLoading.value = false
+    })
 }
 
 const handleSaveProcessConfig = () => {
@@ -451,16 +503,101 @@ onUnmounted(() => {
     :bordered="false"
     :segmented="false"
   >
-    <common-editor v-model:value="editProcessModel.config" height="60vh" />
-    <n-button
-      class="mt-1"
-      type="info"
-      block
-      :loading="saveProcessConfigLoading"
-      :disabled="saveProcessConfigLoading"
-      @click="handleSaveProcessConfig"
-    >
-      {{ $gettext('Save') }}
-    </n-button>
+    <n-tabs v-model:value="editProcessTab" type="line" animated>
+      <n-tab-pane name="setting" :tab="$gettext('Parameter Settings')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{ $gettext('Leave a field empty to comment out the option and use the default.') }}
+          </n-alert>
+          <n-form :model="settingModel">
+            <n-form-item :label="$gettext('Start Command (command)')">
+              <n-input v-model:value="settingModel.command" @keydown.enter.prevent />
+            </n-form-item>
+            <n-form-item :label="$gettext('Working Directory (directory)')">
+              <n-input v-model:value="settingModel.directory" @keydown.enter.prevent />
+            </n-form-item>
+            <n-form-item :label="$gettext('Run As User (user)')">
+              <n-input v-model:value="settingModel.user" @keydown.enter.prevent />
+            </n-form-item>
+            <n-form-item :label="$gettext('Number of Processes (numprocs)')">
+              <n-input v-model:value="settingModel.numprocs" placeholder="1" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Priority (priority)')">
+              <n-input v-model:value="settingModel.priority" placeholder="999" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Start On Boot (autostart)')">
+              <n-select v-model:value="settingModel.autostart" :options="boolOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Auto Restart (autorestart)')">
+              <n-select
+                v-model:value="settingModel.autorestart"
+                :options="autoRestartOptions"
+                clearable
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Seconds Before Considered Started (startsecs)')">
+              <n-input v-model:value="settingModel.startsecs" placeholder="1" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Start Retries (startretries)')">
+              <n-input v-model:value="settingModel.startretries" placeholder="3" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Seconds To Wait On Stop (stopwaitsecs)')">
+              <n-input v-model:value="settingModel.stopwaitsecs" placeholder="10" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Stop Whole Process Group (stopasgroup)')">
+              <n-select v-model:value="settingModel.stopasgroup" :options="boolOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Kill Whole Process Group (killasgroup)')">
+              <n-select v-model:value="settingModel.killasgroup" :options="boolOptions" clearable />
+            </n-form-item>
+            <n-form-item :label="$gettext('Merge Stderr Into Stdout (redirect_stderr)')">
+              <n-select
+                v-model:value="settingModel.redirect_stderr"
+                :options="boolOptions"
+                clearable
+              />
+            </n-form-item>
+            <n-form-item :label="$gettext('Log File (stdout_logfile)')">
+              <n-input v-model:value="settingModel.stdout_logfile" @keydown.enter.prevent />
+            </n-form-item>
+            <n-form-item :label="$gettext('Log Rotate Size (stdout_logfile_maxbytes)')">
+              <n-input v-model:value="settingModel.stdout_logfile_maxbytes" placeholder="2MB" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Log Backups (stdout_logfile_backups)')">
+              <n-input v-model:value="settingModel.stdout_logfile_backups" placeholder="10" />
+            </n-form-item>
+            <n-form-item :label="$gettext('Environment Variables (environment)')">
+              <n-input
+                v-model:value="settingModel.environment"
+                :placeholder="$gettext('e.g. KEY=&quot;value&quot;,FOO=&quot;bar&quot;')"
+              />
+            </n-form-item>
+          </n-form>
+          <n-button
+            type="info"
+            block
+            :loading="saveProcessSettingLoading"
+            :disabled="saveProcessSettingLoading"
+            @click="handleSaveProcessSetting"
+          >
+            {{ $gettext('Save') }}
+          </n-button>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="config" :tab="$gettext('Raw Configuration')">
+        <n-flex vertical>
+          <common-editor v-model:value="editProcessModel.config" height="60vh" />
+          <n-button
+            type="info"
+            block
+            :loading="saveProcessConfigLoading"
+            :disabled="saveProcessConfigLoading"
+            @click="handleSaveProcessConfig"
+          >
+            {{ $gettext('Save') }}
+          </n-button>
+        </n-flex>
+      </n-tab-pane>
+    </n-tabs>
   </n-modal>
 </template>

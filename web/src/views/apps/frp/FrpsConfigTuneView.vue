@@ -7,6 +7,8 @@ import { useGettext } from 'vue3-gettext'
 
 import frp from '@/api/apps/frp'
 
+import { authMethodOptions, logLevelOptions, useBoolOptions } from './options'
+
 const { $gettext } = useGettext()
 const currentTab = ref('general')
 const saveLoading = ref(false)
@@ -49,20 +51,7 @@ const model = ref<Record<string, string>>({
   log_disable_print_color: '',
 })
 
-const boolOptions = [
-  { label: $gettext('Enabled'), value: 'true' },
-  { label: $gettext('Disabled'), value: 'false' },
-]
-
-const authMethodOptions = [
-  { label: 'token', value: 'token' },
-  { label: 'oidc', value: 'oidc' },
-]
-
-const logLevelOptions = ['trace', 'debug', 'info', 'warn', 'error'].map((item) => ({
-  label: item,
-  value: item,
-}))
+const boolOptions = useBoolOptions()
 
 useRequest(frp.server()).onSuccess(({ data }: any) => {
   model.value = { ...model.value, ...data }

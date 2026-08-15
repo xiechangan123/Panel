@@ -29,13 +29,17 @@ const userInfo = ref({
 })
 
 const getConfig = async () => {
-  config.value.frps = await frp.config('frps')
-  config.value.frpc = await frp.config('frpc')
+  ;[config.value.frps, config.value.frpc] = await Promise.all([
+    frp.config('frps'),
+    frp.config('frpc'),
+  ])
 }
 
 const getUser = async () => {
-  userInfo.value.frps = await frp.user('frps')
-  userInfo.value.frpc = await frp.user('frpc')
+  ;[userInfo.value.frps, userInfo.value.frpc] = await Promise.all([
+    frp.user('frps'),
+    frp.user('frpc'),
+  ])
 }
 
 const handleSaveConfig = (service: string) => {

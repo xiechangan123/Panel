@@ -3,7 +3,7 @@ defineOptions({
   name: 'apps-rsync-index',
 })
 
-import { NButton, NDataTable, NFlex } from 'naive-ui'
+import { NButton, NDataTable, NFlex, NSwitch } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import rsync from '@/api/apps/rsync'
@@ -26,6 +26,7 @@ const addModuleModel = ref({
   auth_user: '',
   secret: generateRandomString(16),
   hosts_allow: '0.0.0.0/0',
+  read_only: false,
 })
 
 const editModuleModal = ref(false)
@@ -36,6 +37,7 @@ const editModuleModel = ref({
   auth_user: '',
   secret: '',
   hosts_allow: '',
+  read_only: false,
 })
 
 const processColumns: any = [
@@ -66,6 +68,14 @@ const processColumns: any = [
     minWidth: 250,
     resizable: true,
     ellipsis: { tooltip: true },
+  },
+  {
+    title: $gettext('Read Only'),
+    key: 'read_only',
+    width: 100,
+    render(row: any) {
+      return h(NSwitch, { size: 'small', rubberBand: false, value: row.read_only, disabled: true })
+    },
   },
   { title: $gettext('Comment'), key: 'comment', resizable: true, ellipsis: { tooltip: true } },
   {
@@ -145,6 +155,7 @@ const handleModelAdd = async () => {
         auth_user: '',
         secret: generateRandomString(16),
         hosts_allow: '0.0.0.0/0',
+        read_only: false,
       }
       window.$message.success($gettext('Added successfully'))
     })
@@ -169,6 +180,7 @@ const handleModelEdit = async (row: any) => {
   editModuleModel.value.auth_user = row.auth_user
   editModuleModel.value.secret = row.secret
   editModuleModel.value.hosts_allow = row.hosts_allow
+  editModuleModel.value.read_only = row.read_only
 }
 
 const handleSaveModuleConfig = async () => {
@@ -300,6 +312,9 @@ onMounted(() => {
           :placeholder="$gettext('Enter allowed hosts, separate multiple hosts with spaces')"
         />
       </n-form-item>
+      <n-form-item path="read_only" :label="$gettext('Read Only')">
+        <n-switch v-model:value="addModuleModel.read_only" />
+      </n-form-item>
       <n-form-item path="comment" :label="$gettext('Comment')">
         <n-input
           v-model:value="addModuleModel.comment"
@@ -361,6 +376,9 @@ onMounted(() => {
           @keydown.enter.prevent
           :placeholder="$gettext('Enter allowed hosts, separate multiple hosts with spaces')"
         />
+      </n-form-item>
+      <n-form-item path="read_only" :label="$gettext('Read Only')">
+        <n-switch v-model:value="editModuleModel.read_only" />
       </n-form-item>
       <n-form-item path="comment" :label="$gettext('Comment')">
         <n-input
