@@ -1,9 +1,5 @@
 package memcached
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // ConfigTune Memcached 配置调整
 type ConfigTune struct {
 	Port           string `form:"port" json:"port" validate:"number && min:1 && max:65535"`

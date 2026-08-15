@@ -13,8 +13,8 @@ type DatabaseElasticsearchService struct {
 	repo *biz.DatabaseElasticsearchUsecase
 }
 
-func NewDatabaseElasticsearchService(databaseElasticsearchUsecase *biz.DatabaseElasticsearchUsecase) (*DatabaseElasticsearchService, error) {
-	return &DatabaseElasticsearchService{repo: databaseElasticsearchUsecase}, nil
+func NewDatabaseElasticsearchService(databaseElasticsearchUsecase *biz.DatabaseElasticsearchUsecase) *DatabaseElasticsearchService {
+	return &DatabaseElasticsearchService{repo: databaseElasticsearchUsecase}
 }
 
 func (s *DatabaseElasticsearchService) Indices(w http.ResponseWriter, r *http.Request) {

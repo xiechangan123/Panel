@@ -36,7 +36,7 @@ type UserService struct {
 	guard      *loginGuard
 }
 
-func NewUserService(notifyUsecase *biz.NotifyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) (*UserService, error) {
+func NewUserService(notifyUsecase *biz.NotifyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) *UserService {
 	// 必须注册 rsa.PrivateKey 类型否则无法反序列化 session 中的 key
 	gob.Register(rsa.PrivateKey{})
 	return &UserService{
@@ -46,7 +46,7 @@ func NewUserService(notifyUsecase *biz.NotifyUsecase, userUsecase *biz.UserUseca
 		userRepo:   userUsecase,
 		notifyRepo: notifyUsecase,
 		guard:      newLoginGuard(),
-	}, nil
+	}
 }
 
 func (s *UserService) GetKey(w http.ResponseWriter, r *http.Request) {

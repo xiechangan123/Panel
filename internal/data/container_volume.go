@@ -16,8 +16,8 @@ import (
 
 type containerVolumeRepo struct{}
 
-func NewContainerVolumeRepo() (biz.ContainerVolumeRepo, error) {
-	return &containerVolumeRepo{}, nil
+func NewContainerVolumeRepo() biz.ContainerVolumeRepo {
+	return &containerVolumeRepo{}
 }
 
 // List 列出存储卷

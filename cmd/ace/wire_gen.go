@@ -60,778 +60,217 @@ func initAce() (*app.Ace, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	locale, err := bootstrap.NewT(config)
-	if err != nil {
-		return nil, nil, err
-	}
-	apacheApp, err := apache.NewApp(locale)
-	if err != nil {
-		return nil, nil, err
-	}
+	locale := bootstrap.NewT(config)
+	apacheApp := apache.NewApp(locale)
 	db, err := bootstrap.NewDB(config)
 	if err != nil {
 		return nil, nil, err
 	}
-	databaseServerRepo, err := data.NewDatabaseServerRepo(db)
-	if err != nil {
-		return nil, nil, err
-	}
-	settingRepo, err := data.NewSettingRepo(config, db)
-	if err != nil {
-		return nil, nil, err
-	}
-	clickhouseApp, err := clickhouse.NewApp(locale, databaseServerRepo, settingRepo)
-	if err != nil {
-		return nil, nil, err
-	}
-	codeserverApp, err := codeserver.NewApp()
-	if err != nil {
-		return nil, nil, err
-	}
-	dockerApp, err := docker.NewApp()
-	if err != nil {
-		return nil, nil, err
-	}
-	elasticsearchApp, err := elasticsearch.NewApp(locale)
-	if err != nil {
-		return nil, nil, err
-	}
-	websiteRepo, err := data.NewWebsiteRepo(db, locale, settingRepo)
-	if err != nil {
-		return nil, nil, err
-	}
-	fail2banApp, err := fail2ban.NewApp(locale, websiteRepo)
-	if err != nil {
-		return nil, nil, err
-	}
-	frpApp, err := frp.NewApp()
-	if err != nil {
-		return nil, nil, err
-	}
-	giteaApp, err := gitea.NewApp()
-	if err != nil {
-		return nil, nil, err
-	}
-	grafanaApp, err := grafana.NewApp(locale)
-	if err != nil {
-		return nil, nil, err
-	}
-	kafkaApp, err := kafka.NewApp(locale)
-	if err != nil {
-		return nil, nil, err
-	}
-	mysqlApp, err := mysql.NewApp(locale, databaseServerRepo, settingRepo)
-	if err != nil {
-		return nil, nil, err
-	}
-	mariadbApp, err := mariadb.NewApp(mysqlApp)
-	if err != nil {
-		return nil, nil, err
-	}
-	memcachedApp, err := memcached.NewApp(locale)
-	if err != nil {
-		return nil, nil, err
-	}
-	minioApp, err := minio.NewApp()
-	if err != nil {
-		return nil, nil, err
-	}
-	mongodbApp, err := mongodb.NewApp(locale, databaseServerRepo, settingRepo)
-	if err != nil {
-		return nil, nil, err
-	}
-	nginxApp, err := nginx.NewApp(locale)
-	if err != nil {
-		return nil, nil, err
-	}
-	openrestyApp, err := openresty.NewApp(nginxApp)
-	if err != nil {
-		return nil, nil, err
-	}
-	opensearchApp, err := opensearch.NewApp(locale)
-	if err != nil {
-		return nil, nil, err
-	}
-	perconaApp, err := percona.NewApp(mysqlApp)
-	if err != nil {
-		return nil, nil, err
-	}
-	pgadminApp, err := pgadmin.NewApp(config, locale, databaseServerRepo)
-	if err != nil {
-		return nil, nil, err
-	}
-	phpmyadminApp, err := phpmyadmin.NewApp(config, locale, databaseServerRepo)
-	if err != nil {
-		return nil, nil, err
-	}
-	podmanApp, err := podman.NewApp()
-	if err != nil {
-		return nil, nil, err
-	}
-	postgresqlApp, err := postgresql.NewApp(locale, databaseServerRepo, settingRepo)
-	if err != nil {
-		return nil, nil, err
-	}
+	databaseServerRepo := data.NewDatabaseServerRepo(db)
+	settingRepo := data.NewSettingRepo(config, db)
+	clickhouseApp := clickhouse.NewApp(locale, databaseServerRepo, settingRepo)
+	codeserverApp := codeserver.NewApp()
+	dockerApp := docker.NewApp()
+	elasticsearchApp := elasticsearch.NewApp(locale)
+	websiteRepo := data.NewWebsiteRepo(db, locale, settingRepo)
+	fail2banApp := fail2ban.NewApp(locale, websiteRepo)
+	frpApp := frp.NewApp()
+	giteaApp := gitea.NewApp()
+	grafanaApp := grafana.NewApp(locale)
+	kafkaApp := kafka.NewApp(locale)
+	mysqlApp := mysql.NewApp(locale, databaseServerRepo, settingRepo)
+	mariadbApp := mariadb.NewApp(mysqlApp)
+	memcachedApp := memcached.NewApp(locale)
+	minioApp := minio.NewApp()
+	mongodbApp := mongodb.NewApp(locale, databaseServerRepo, settingRepo)
+	nginxApp := nginx.NewApp(locale)
+	openrestyApp := openresty.NewApp(nginxApp)
+	opensearchApp := opensearch.NewApp(locale)
+	perconaApp := percona.NewApp(mysqlApp)
+	pgadminApp := pgadmin.NewApp(config, locale, databaseServerRepo)
+	phpmyadminApp := phpmyadmin.NewApp(config, locale, databaseServerRepo)
+	podmanApp := podman.NewApp()
+	postgresqlApp := postgresql.NewApp(locale, databaseServerRepo, settingRepo)
 	logger, cleanup, err := bootstrap.NewLogger(config)
 	if err != nil {
 		return nil, nil, err
 	}
 	slogLogger := bootstrap.NewSlog(logger)
-	notifyChannelRepo, err := data.NewNotifyChannelRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	notifyUsecase, err := biz.NewNotifyUsecase(locale, slogLogger, notifyChannelRepo, settingRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	taskRunner, err := bootstrap.NewRunner(notifyUsecase, db, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	taskRepo, err := data.NewTaskRepo(db, locale, slogLogger, taskRunner)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	prometheusApp, err := prometheus.NewApp(config, locale, taskRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	pureftpdApp, err := pureftpd.NewApp(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	redisApp, err := redis.NewApp(locale, databaseServerRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	rocketmqApp, err := rocketmq.NewApp(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	rsyncApp, err := rsync.NewApp(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	s3fsApp, err := s3fs.NewApp(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	supervisorApp, err := supervisor.NewApp(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	valkeyApp, err := valkey.NewApp(locale, databaseServerRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	loader, err := bootstrap.NewLoader(apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	notifyChannelRepo := data.NewNotifyChannelRepo(db)
+	notifyUsecase := biz.NewNotifyUsecase(locale, slogLogger, notifyChannelRepo, settingRepo)
+	taskRunner := bootstrap.NewRunner(notifyUsecase, db, locale, slogLogger)
+	taskRepo := data.NewTaskRepo(db, locale, slogLogger, taskRunner)
+	prometheusApp := prometheus.NewApp(config, locale, taskRepo)
+	pureftpdApp := pureftpd.NewApp(locale)
+	redisApp := redis.NewApp(locale, databaseServerRepo)
+	rocketmqApp := rocketmq.NewApp(locale)
+	rsyncApp := rsync.NewApp(locale)
+	s3fsApp := s3fs.NewApp(locale)
+	supervisorApp := supervisor.NewApp(locale)
+	valkeyApp := valkey.NewApp(locale, databaseServerRepo)
+	loader := bootstrap.NewLoader(apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
 	manager, err := bootstrap.NewSession(config, db, slogLogger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	appRepo, err := data.NewAppRepo(config, db, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	userTokenRepo, err := data.NewUserTokenRepo(config, db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	appRepo := data.NewAppRepo(config, db, locale, slogLogger)
+	userTokenRepo := data.NewUserTokenRepo(config, db, locale)
 	middlewares, err := middleware.NewMiddlewares(config, locale, manager, appRepo, userTokenRepo)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	validator, err := bootstrap.NewValidator(config, db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	validator := bootstrap.NewValidator(config, db)
 	alertRepo, err := data.NewAlertRepo(db)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	containerRepo, err := data.NewContainerRepo()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	alertUsecase, err := biz.NewAlertUsecase(notifyUsecase, loader, locale, slogLogger, alertRepo, appRepo, containerRepo, databaseServerRepo, settingRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	alertService, err := service.NewAlertService(alertUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	cacheRepo, err := data.NewCacheRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	appUsecase, err := biz.NewAppUsecase(locale, appRepo, cacheRepo, taskRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	containerRepo := data.NewContainerRepo()
+	alertUsecase := biz.NewAlertUsecase(notifyUsecase, loader, locale, slogLogger, alertRepo, appRepo, containerRepo, databaseServerRepo, settingRepo)
+	alertService := service.NewAlertService(alertUsecase)
+	cacheRepo := data.NewCacheRepo(db)
+	appUsecase := biz.NewAppUsecase(locale, appRepo, cacheRepo, taskRepo)
 	cacheUsecase := biz.NewCacheUsecase(cacheRepo)
-	settingUsecase, err := biz.NewSettingUsecase(locale, slogLogger, settingRepo, taskRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	appService, err := service.NewAppService(loader, appUsecase, cacheUsecase, settingUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	backupRepo, err := data.NewBackupRepo(config, db, locale, slogLogger, settingRepo, websiteRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	backupUsecase, err := biz.NewBackupUsecase(notifyUsecase, locale, slogLogger, backupRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	settingUsecase := biz.NewSettingUsecase(locale, slogLogger, settingRepo, taskRepo)
+	appService := service.NewAppService(loader, appUsecase, cacheUsecase, settingUsecase, locale)
+	backupRepo := data.NewBackupRepo(config, db, locale, slogLogger, settingRepo, websiteRepo)
+	backupUsecase := biz.NewBackupUsecase(notifyUsecase, locale, slogLogger, backupRepo)
 	taskUsecase := biz.NewTaskUsecase(taskRepo)
-	backupService, err := service.NewBackupService(backupUsecase, taskUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	backupAccountRepo, err := data.NewBackupAccountRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	backupAccountUsecase, err := biz.NewBackupAccountUsecase(locale, slogLogger, backupAccountRepo, settingRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	backupStorageService, err := service.NewBackupStorageService(backupAccountUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	certRepo, err := data.NewCertRepo(db, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	certUsecase, err := biz.NewCertUsecase(locale, slogLogger, certRepo, settingRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	certService, err := service.NewCertService(certUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	certAccountRepo, err := data.NewCertAccountRepo(db, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	userRepo, err := data.NewUserRepo(db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	certAccountUsecase, err := biz.NewCertAccountUsecase(locale, slogLogger, certAccountRepo, userRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	certAccountService, err := service.NewCertAccountService(certAccountUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	certDNSRepo, err := data.NewCertDNSRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	backupService := service.NewBackupService(backupUsecase, taskUsecase, locale)
+	backupAccountRepo := data.NewBackupAccountRepo(db)
+	backupAccountUsecase := biz.NewBackupAccountUsecase(locale, slogLogger, backupAccountRepo, settingRepo)
+	backupStorageService := service.NewBackupStorageService(backupAccountUsecase, locale)
+	certRepo := data.NewCertRepo(db, locale, slogLogger)
+	certUsecase := biz.NewCertUsecase(locale, slogLogger, certRepo, settingRepo)
+	certService := service.NewCertService(certUsecase, locale)
+	certAccountRepo := data.NewCertAccountRepo(db, locale, slogLogger)
+	userRepo := data.NewUserRepo(db, locale)
+	certAccountUsecase := biz.NewCertAccountUsecase(locale, slogLogger, certAccountRepo, userRepo)
+	certAccountService := service.NewCertAccountService(certAccountUsecase)
+	certDNSRepo := data.NewCertDNSRepo(db)
 	certDNSUsecase := biz.NewCertDNSUsecase(certDNSRepo, slogLogger)
-	certDNSService, err := service.NewCertDNSService(certDNSUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	certDNSService := service.NewCertDNSService(certDNSUsecase)
 	containerUsecase := biz.NewContainerUsecase(locale, containerRepo, settingRepo, taskRepo)
-	containerService, err := service.NewContainerService(containerUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	containerComposeRepo, err := data.NewContainerComposeRepo()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	containerService := service.NewContainerService(containerUsecase)
+	containerComposeRepo := data.NewContainerComposeRepo()
 	containerComposeUsecase := biz.NewContainerComposeUsecase(containerComposeRepo)
-	containerComposeService, err := service.NewContainerComposeService(containerComposeUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	containerImageRepo, err := data.NewContainerImageRepo()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	containerComposeService := service.NewContainerComposeService(containerComposeUsecase)
+	containerImageRepo := data.NewContainerImageRepo()
 	containerImageUsecase := biz.NewContainerImageUsecase(locale, containerImageRepo, settingRepo, taskRepo)
-	containerImageService, err := service.NewContainerImageService(containerImageUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	containerNetworkRepo, err := data.NewContainerNetworkRepo()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	containerImageService := service.NewContainerImageService(containerImageUsecase)
+	containerNetworkRepo := data.NewContainerNetworkRepo()
 	containerNetworkUsecase := biz.NewContainerNetworkUsecase(containerNetworkRepo, settingRepo)
-	containerNetworkService, err := service.NewContainerNetworkService(containerNetworkUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	containerVolumeRepo, err := data.NewContainerVolumeRepo()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	containerNetworkService := service.NewContainerNetworkService(containerNetworkUsecase)
+	containerVolumeRepo := data.NewContainerVolumeRepo()
 	containerVolumeUsecase := biz.NewContainerVolumeUsecase(containerVolumeRepo, settingRepo)
-	containerVolumeService, err := service.NewContainerVolumeService(containerVolumeUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	cronRepo, err := data.NewCronRepo(db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	containerVolumeService := service.NewContainerVolumeService(containerVolumeUsecase)
+	cronRepo := data.NewCronRepo(db, locale)
 	cronUsecase := biz.NewCronUsecase(cronRepo, slogLogger)
-	cronService, err := service.NewCronService(cronUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseUserRepo, err := data.NewDatabaseUserRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseUserUsecase, err := biz.NewDatabaseUserUsecase(slogLogger, databaseServerRepo, databaseUserRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseRepo, err := data.NewDatabaseRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseUsecase, err := biz.NewDatabaseUsecase(databaseUserUsecase, locale, slogLogger, databaseRepo, databaseServerRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseService, err := service.NewDatabaseService(databaseUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseElasticsearchRepo, err := data.NewDatabaseElasticsearchRepo(db, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	cronService := service.NewCronService(cronUsecase)
+	databaseUserRepo := data.NewDatabaseUserRepo(db)
+	databaseUserUsecase := biz.NewDatabaseUserUsecase(slogLogger, databaseServerRepo, databaseUserRepo)
+	databaseRepo := data.NewDatabaseRepo(db)
+	databaseUsecase := biz.NewDatabaseUsecase(databaseUserUsecase, locale, slogLogger, databaseRepo, databaseServerRepo)
+	databaseService := service.NewDatabaseService(databaseUsecase)
+	databaseElasticsearchRepo := data.NewDatabaseElasticsearchRepo(db, locale, slogLogger)
 	databaseElasticsearchUsecase := biz.NewDatabaseElasticsearchUsecase(databaseElasticsearchRepo)
-	databaseElasticsearchService, err := service.NewDatabaseElasticsearchService(databaseElasticsearchUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseRedisRepo, err := data.NewDatabaseRedisRepo(db, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	databaseElasticsearchService := service.NewDatabaseElasticsearchService(databaseElasticsearchUsecase)
+	databaseRedisRepo := data.NewDatabaseRedisRepo(db, locale, slogLogger)
 	databaseRedisUsecase := biz.NewDatabaseRedisUsecase(databaseRedisRepo)
-	databaseRedisService, err := service.NewDatabaseRedisService(databaseRedisUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseServerUsecase, err := biz.NewDatabaseServerUsecase(locale, slogLogger, databaseServerRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseServerService, err := service.NewDatabaseServerService(databaseServerUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	databaseUserService, err := service.NewDatabaseUserService(databaseUserUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentRepo, err := data.NewEnvironmentRepo(config, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentUsecase, err := biz.NewEnvironmentUsecase(locale, cacheRepo, environmentRepo, taskRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentService, err := service.NewEnvironmentService(environmentUsecase, taskUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentDotnetService, err := service.NewEnvironmentDotnetService(environmentUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentGoService, err := service.NewEnvironmentGoService(environmentUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentJavaService, err := service.NewEnvironmentJavaService(environmentUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentNodejsService, err := service.NewEnvironmentNodejsService(environmentUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentPHPService, err := service.NewEnvironmentPHPService(environmentUsecase, taskUsecase, config, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	environmentPythonService, err := service.NewEnvironmentPythonService(environmentUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	databaseRedisService := service.NewDatabaseRedisService(databaseRedisUsecase)
+	databaseServerUsecase := biz.NewDatabaseServerUsecase(locale, slogLogger, databaseServerRepo)
+	databaseServerService := service.NewDatabaseServerService(databaseServerUsecase)
+	databaseUserService := service.NewDatabaseUserService(databaseUserUsecase)
+	environmentRepo := data.NewEnvironmentRepo(config, locale)
+	environmentUsecase := biz.NewEnvironmentUsecase(locale, cacheRepo, environmentRepo, taskRepo)
+	environmentService := service.NewEnvironmentService(environmentUsecase, taskUsecase, locale)
+	environmentDotnetService := service.NewEnvironmentDotnetService(environmentUsecase, locale)
+	environmentGoService := service.NewEnvironmentGoService(environmentUsecase, locale)
+	environmentJavaService := service.NewEnvironmentJavaService(environmentUsecase, locale)
+	environmentNodejsService := service.NewEnvironmentNodejsService(environmentUsecase, locale)
+	environmentPHPService := service.NewEnvironmentPHPService(environmentUsecase, taskUsecase, config, locale)
+	environmentPythonService := service.NewEnvironmentPythonService(environmentUsecase, locale)
 	tamperRepo, err := data.NewTamperRepo(db)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	tamperUsecase, err := biz.NewTamperUsecase(notifyUsecase, settingUsecase, locale, slogLogger, tamperRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	fileService, err := service.NewFileService(containerUsecase, tamperUsecase, taskUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	fileShareRepo, err := data.NewFileShareRepo(db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	fileShareUsecase, err := biz.NewFileShareUsecase(slogLogger, fileShareRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	fileShareService, err := service.NewFileShareService(fileShareUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	firewallService, err := service.NewFirewallService(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	tamperUsecase := biz.NewTamperUsecase(notifyUsecase, settingUsecase, locale, slogLogger, tamperRepo)
+	fileService := service.NewFileService(containerUsecase, tamperUsecase, taskUsecase, locale)
+	fileShareRepo := data.NewFileShareRepo(db, locale)
+	fileShareUsecase := biz.NewFileShareUsecase(slogLogger, fileShareRepo)
+	fileShareService := service.NewFileShareService(fileShareUsecase, locale)
+	firewallService := service.NewFirewallService(locale)
 	scanEventRepo, err := data.NewScanEventRepo()
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	scanEventUsecase := biz.NewScanEventUsecase(scanEventRepo, settingRepo)
-	firewallScanService, err := service.NewFirewallScanService(scanEventUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	projectRepo, err := data.NewProjectRepo(db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	projectUsecase, err := biz.NewProjectUsecase(locale, slogLogger, projectRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	firewallScanService := service.NewFirewallScanService(scanEventUsecase)
+	projectRepo := data.NewProjectRepo(db, locale)
+	projectUsecase := biz.NewProjectUsecase(locale, slogLogger, projectRepo)
 	websiteStatRepo, err := data.NewWebsiteStatRepo()
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	websiteStatUsecase := biz.NewWebsiteStatUsecase(websiteStatRepo)
-	websiteUsecase, err := biz.NewWebsiteUsecase(certAccountUsecase, certUsecase, databaseUsecase, databaseUserUsecase, tamperUsecase, websiteStatUsecase, locale, slogLogger, databaseServerRepo, websiteRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	homeService, err := service.NewHomeService(appUsecase, backupUsecase, containerUsecase, cronUsecase, databaseServerUsecase, environmentUsecase, projectUsecase, settingUsecase, taskUsecase, websiteUsecase, config, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	logRepo, err := data.NewLogRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	websiteUsecase := biz.NewWebsiteUsecase(certAccountUsecase, certUsecase, databaseUsecase, databaseUserUsecase, tamperUsecase, websiteStatUsecase, locale, slogLogger, databaseServerRepo, websiteRepo)
+	homeService := service.NewHomeService(appUsecase, backupUsecase, containerUsecase, cronUsecase, databaseServerUsecase, environmentUsecase, projectUsecase, settingUsecase, taskUsecase, websiteUsecase, config, locale)
+	logRepo := data.NewLogRepo(db)
 	logUsecase := biz.NewLogUsecase(logRepo)
-	logService, err := service.NewLogService(logUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	logService := service.NewLogService(logUsecase, locale)
 	monitorRepo, err := data.NewMonitorRepo()
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	monitorUsecase := biz.NewMonitorUsecase(monitorRepo, settingRepo)
-	monitorService, err := service.NewMonitorService(monitorUsecase, settingUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	notifyService, err := service.NewNotifyService(notifyUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	processService, err := service.NewProcessService()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	projectService, err := service.NewProjectService(projectUsecase, settingUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	safeRepo, err := data.NewSafeRepo()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	monitorService := service.NewMonitorService(monitorUsecase, settingUsecase)
+	notifyService := service.NewNotifyService(notifyUsecase)
+	processService := service.NewProcessService()
+	projectService := service.NewProjectService(projectUsecase, settingUsecase)
+	safeRepo := data.NewSafeRepo()
 	safeUsecase := biz.NewSafeUsecase(safeRepo, slogLogger)
-	safeService, err := service.NewSafeService(safeUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	settingService, err := service.NewSettingService(certAccountUsecase, certUsecase, settingUsecase, db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	sshRepo, err := data.NewSSHRepo(db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	safeService := service.NewSafeService(safeUsecase)
+	settingService := service.NewSettingService(certAccountUsecase, certUsecase, settingUsecase, db, locale)
+	sshRepo := data.NewSSHRepo(db, locale)
 	sshUsecase := biz.NewSSHUsecase(sshRepo, slogLogger)
-	sshService, err := service.NewSSHService(sshUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	systemctlService, err := service.NewSystemctlService(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	tamperService, err := service.NewTamperService(tamperUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	taskService, err := service.NewTaskService(taskUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	templateRepo, err := data.NewTemplateRepo(slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	templateUsecase, err := biz.NewTemplateUsecase(locale, cacheRepo, templateRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	templateService, err := service.NewTemplateService(settingUsecase, templateUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxBenchmarkService, err := service.NewToolboxBenchmarkService(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxDiskService, err := service.NewToolboxDiskService(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxLogService, err := service.NewToolboxLogService(containerImageUsecase, settingUsecase, db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	migrationSourceRepo, err := data.NewMigrationSourceRepo(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	migrationRemoteRepo, err := data.NewMigrationRemoteRepo(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	migrationArchiveRepo, err := data.NewMigrationArchiveRepo()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxMigrationUsecase, err := biz.NewToolboxMigrationUsecase(locale, slogLogger, migrationSourceRepo, migrationRemoteRepo, migrationArchiveRepo, settingUsecase, websiteUsecase, databaseUsecase, databaseServerUsecase, databaseUserUsecase, backupUsecase, projectUsecase, appUsecase, environmentUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxMigrationService, err := service.NewToolboxMigrationService(toolboxMigrationUsecase, config, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxNetworkService, err := service.NewToolboxNetworkService(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxSSHService, err := service.NewToolboxSSHService(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	toolboxSystemService, err := service.NewToolboxSystemService(locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	userUsecase, err := biz.NewUserUsecase(locale, slogLogger, userRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	userService, err := service.NewUserService(notifyUsecase, userUsecase, config, locale, manager)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	userPasskeyRepo, err := data.NewUserPasskeyRepo(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	sshService := service.NewSSHService(sshUsecase)
+	systemctlService := service.NewSystemctlService(locale)
+	tamperService := service.NewTamperService(tamperUsecase, locale)
+	taskService := service.NewTaskService(taskUsecase)
+	templateRepo := data.NewTemplateRepo(slogLogger)
+	templateUsecase := biz.NewTemplateUsecase(locale, cacheRepo, templateRepo)
+	templateService := service.NewTemplateService(settingUsecase, templateUsecase, locale)
+	toolboxBenchmarkService := service.NewToolboxBenchmarkService(locale)
+	toolboxDiskService := service.NewToolboxDiskService(locale)
+	toolboxLogService := service.NewToolboxLogService(containerImageUsecase, settingUsecase, db, locale)
+	migrationSourceRepo := data.NewMigrationSourceRepo(locale)
+	migrationRemoteRepo := data.NewMigrationRemoteRepo(locale)
+	migrationArchiveRepo := data.NewMigrationArchiveRepo()
+	toolboxMigrationUsecase := biz.NewToolboxMigrationUsecase(locale, slogLogger, migrationSourceRepo, migrationRemoteRepo, migrationArchiveRepo, settingUsecase, websiteUsecase, databaseUsecase, databaseServerUsecase, databaseUserUsecase, backupUsecase, projectUsecase, appUsecase, environmentUsecase)
+	toolboxMigrationService := service.NewToolboxMigrationService(toolboxMigrationUsecase, config, locale, slogLogger)
+	toolboxNetworkService := service.NewToolboxNetworkService(locale)
+	toolboxSSHService := service.NewToolboxSSHService(locale)
+	toolboxSystemService := service.NewToolboxSystemService(locale)
+	userUsecase := biz.NewUserUsecase(locale, slogLogger, userRepo)
+	userService := service.NewUserService(notifyUsecase, userUsecase, config, locale, manager)
+	userPasskeyRepo := data.NewUserPasskeyRepo(db)
 	userPasskeyUsecase := biz.NewUserPasskeyUsecase(userPasskeyRepo)
-	userPasskeyService, err := service.NewUserPasskeyService(notifyUsecase, userPasskeyUsecase, userUsecase, config, locale, manager)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	userPasskeyService := service.NewUserPasskeyService(notifyUsecase, userPasskeyUsecase, userUsecase, config, locale, manager)
 	userTokenUsecase := biz.NewUserTokenUsecase(userTokenRepo)
-	userTokenService, err := service.NewUserTokenService(userTokenUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	webHookRepo, err := data.NewWebHookRepo(db, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	webHookUsecase, err := biz.NewWebHookUsecase(locale, slogLogger, webHookRepo)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	webHookService, err := service.NewWebHookService(webHookUsecase)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	websiteService, err := service.NewWebsiteService(settingUsecase, websiteUsecase, locale)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	userTokenService := service.NewUserTokenService(userTokenUsecase, locale)
+	webHookRepo := data.NewWebHookRepo(db, locale)
+	webHookUsecase := biz.NewWebHookUsecase(locale, slogLogger, webHookRepo)
+	webHookService := service.NewWebHookService(webHookUsecase)
+	websiteService := service.NewWebsiteService(settingUsecase, websiteUsecase, locale)
 	aggregator := websitestat.NewAggregator()
-	websiteStatService, err := service.NewWebsiteStatService(settingUsecase, websiteStatUsecase, websiteUsecase, aggregator)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	wsService, err := service.NewWsService(backupUsecase, certUsecase, sshUsecase, settingUsecase, taskUsecase, config, locale, slogLogger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	websiteStatService := service.NewWebsiteStatService(settingUsecase, websiteStatUsecase, websiteUsecase, aggregator)
+	wsService := service.NewWsService(backupUsecase, certUsecase, sshUsecase, settingUsecase, taskUsecase, config, locale, slogLogger)
 	services := &route.Services{
 		Alert:                 alertService,
 		App:                   appService,
@@ -923,26 +362,14 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	gormigrate, err := bootstrap.NewMigrate(db)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	gormigrate := bootstrap.NewMigrate(db)
 	reloader, err := bootstrap.NewTLSReloader(config)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	server, err := bootstrap.NewHttp(mux, config, reloader)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	ace, err := app.NewAce(mux, config, cron, gormigrate, server, reloader, taskRunner)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
+	server := bootstrap.NewHttp(mux, config, reloader)
+	ace := app.NewAce(mux, config, cron, gormigrate, server, reloader, taskRunner)
 	return ace, func() {
 		cleanup()
 	}, nil

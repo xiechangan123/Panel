@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/db"
@@ -26,7 +26,7 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) (*App, error) {
+func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
 
 	setting := settingRepo
 	databaseServer := databaseServerRepo
@@ -34,7 +34,7 @@ func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, setting
 		t:                  t,
 		settingRepo:        setting,
 		databaseServerRepo: databaseServer,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -247,32 +247,32 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	tune := ConfigTune{
 		// 连接设置
-		ListenAddresses:              s.getPGValue(config, "listen_addresses"),
-		Port:                         s.getPGValue(config, "port"),
-		MaxConnections:               s.getPGValue(config, "max_connections"),
-		SuperuserReservedConnections: s.getPGValue(config, "superuser_reserved_connections"),
+		ListenAddresses:              confval.Postgres.Get(config, "listen_addresses"),
+		Port:                         confval.Postgres.Get(config, "port"),
+		MaxConnections:               confval.Postgres.Get(config, "max_connections"),
+		SuperuserReservedConnections: confval.Postgres.Get(config, "superuser_reserved_connections"),
 		// 内存设置
-		SharedBuffers:      s.getPGValue(config, "shared_buffers"),
-		WorkMem:            s.getPGValue(config, "work_mem"),
-		MaintenanceWorkMem: s.getPGValue(config, "maintenance_work_mem"),
-		EffectiveCacheSize: s.getPGValue(config, "effective_cache_size"),
-		HugePages:          s.getPGValue(config, "huge_pages"),
+		SharedBuffers:      confval.Postgres.Get(config, "shared_buffers"),
+		WorkMem:            confval.Postgres.Get(config, "work_mem"),
+		MaintenanceWorkMem: confval.Postgres.Get(config, "maintenance_work_mem"),
+		EffectiveCacheSize: confval.Postgres.Get(config, "effective_cache_size"),
+		HugePages:          confval.Postgres.Get(config, "huge_pages"),
 		// WAL 设置
-		WalLevel:                   s.getPGValue(config, "wal_level"),
-		WalBuffers:                 s.getPGValue(config, "wal_buffers"),
-		MaxWalSize:                 s.getPGValue(config, "max_wal_size"),
-		MinWalSize:                 s.getPGValue(config, "min_wal_size"),
-		CheckpointCompletionTarget: s.getPGValue(config, "checkpoint_completion_target"),
+		WalLevel:                   confval.Postgres.Get(config, "wal_level"),
+		WalBuffers:                 confval.Postgres.Get(config, "wal_buffers"),
+		MaxWalSize:                 confval.Postgres.Get(config, "max_wal_size"),
+		MinWalSize:                 confval.Postgres.Get(config, "min_wal_size"),
+		CheckpointCompletionTarget: confval.Postgres.Get(config, "checkpoint_completion_target"),
 		// 查询优化
-		DefaultStatisticsTarget: s.getPGValue(config, "default_statistics_target"),
-		RandomPageCost:          s.getPGValue(config, "random_page_cost"),
-		EffectiveIoConcurrency:  s.getPGValue(config, "effective_io_concurrency"),
+		DefaultStatisticsTarget: confval.Postgres.Get(config, "default_statistics_target"),
+		RandomPageCost:          confval.Postgres.Get(config, "random_page_cost"),
+		EffectiveIoConcurrency:  confval.Postgres.Get(config, "effective_io_concurrency"),
 		// 日志设置
-		LogDestination:          s.getPGValue(config, "log_destination"),
-		LogMinDurationStatement: s.getPGValue(config, "log_min_duration_statement"),
-		LogTimezone:             s.getPGValue(config, "log_timezone"),
+		LogDestination:          confval.Postgres.Get(config, "log_destination"),
+		LogMinDurationStatement: confval.Postgres.Get(config, "log_min_duration_statement"),
+		LogTimezone:             confval.Postgres.Get(config, "log_timezone"),
 		// IO 设置
-		IoMethod: s.getPGValue(config, "io_method"),
+		IoMethod: confval.Postgres.Get(config, "io_method"),
 	}
 
 	service.Success(w, tune)
@@ -295,32 +295,32 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 更新连接设置
-	config = s.setPGValue(config, "listen_addresses", req.ListenAddresses)
-	config = s.setPGValue(config, "port", req.Port)
-	config = s.setPGValue(config, "max_connections", req.MaxConnections)
-	config = s.setPGValue(config, "superuser_reserved_connections", req.SuperuserReservedConnections)
+	config = confval.Postgres.Set(config, "listen_addresses", req.ListenAddresses)
+	config = confval.Postgres.Set(config, "port", req.Port)
+	config = confval.Postgres.Set(config, "max_connections", req.MaxConnections)
+	config = confval.Postgres.Set(config, "superuser_reserved_connections", req.SuperuserReservedConnections)
 	// 更新内存设置
-	config = s.setPGValue(config, "shared_buffers", req.SharedBuffers)
-	config = s.setPGValue(config, "work_mem", req.WorkMem)
-	config = s.setPGValue(config, "maintenance_work_mem", req.MaintenanceWorkMem)
-	config = s.setPGValue(config, "effective_cache_size", req.EffectiveCacheSize)
-	config = s.setPGValue(config, "huge_pages", req.HugePages)
+	config = confval.Postgres.Set(config, "shared_buffers", req.SharedBuffers)
+	config = confval.Postgres.Set(config, "work_mem", req.WorkMem)
+	config = confval.Postgres.Set(config, "maintenance_work_mem", req.MaintenanceWorkMem)
+	config = confval.Postgres.Set(config, "effective_cache_size", req.EffectiveCacheSize)
+	config = confval.Postgres.Set(config, "huge_pages", req.HugePages)
 	// 更新 WAL 设置
-	config = s.setPGValue(config, "wal_level", req.WalLevel)
-	config = s.setPGValue(config, "wal_buffers", req.WalBuffers)
-	config = s.setPGValue(config, "max_wal_size", req.MaxWalSize)
-	config = s.setPGValue(config, "min_wal_size", req.MinWalSize)
-	config = s.setPGValue(config, "checkpoint_completion_target", req.CheckpointCompletionTarget)
+	config = confval.Postgres.Set(config, "wal_level", req.WalLevel)
+	config = confval.Postgres.Set(config, "wal_buffers", req.WalBuffers)
+	config = confval.Postgres.Set(config, "max_wal_size", req.MaxWalSize)
+	config = confval.Postgres.Set(config, "min_wal_size", req.MinWalSize)
+	config = confval.Postgres.Set(config, "checkpoint_completion_target", req.CheckpointCompletionTarget)
 	// 更新查询优化
-	config = s.setPGValue(config, "default_statistics_target", req.DefaultStatisticsTarget)
-	config = s.setPGValue(config, "random_page_cost", req.RandomPageCost)
-	config = s.setPGValue(config, "effective_io_concurrency", req.EffectiveIoConcurrency)
+	config = confval.Postgres.Set(config, "default_statistics_target", req.DefaultStatisticsTarget)
+	config = confval.Postgres.Set(config, "random_page_cost", req.RandomPageCost)
+	config = confval.Postgres.Set(config, "effective_io_concurrency", req.EffectiveIoConcurrency)
 	// 更新日志设置
-	config = s.setPGValue(config, "log_destination", req.LogDestination)
-	config = s.setPGValue(config, "log_min_duration_statement", req.LogMinDurationStatement)
-	config = s.setPGValue(config, "log_timezone", req.LogTimezone)
+	config = confval.Postgres.Set(config, "log_destination", req.LogDestination)
+	config = confval.Postgres.Set(config, "log_min_duration_statement", req.LogMinDurationStatement)
+	config = confval.Postgres.Set(config, "log_timezone", req.LogTimezone)
 	// 更新 IO 设置
-	config = s.setPGValue(config, "io_method", req.IoMethod)
+	config = confval.Postgres.Set(config, "io_method", req.IoMethod)
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -350,7 +350,7 @@ func (s *App) getPort() uint {
 
 // parsePort 从 config 内容解析端口，未配置时返回默认值
 func (s *App) parsePort(config string) uint {
-	port := cast.ToUint(s.getPGValue(config, "port"))
+	port := cast.ToUint(confval.Postgres.Get(config, "port"))
 	if port == 0 {
 		return 5432
 	}
@@ -367,80 +367,4 @@ func (s *App) applyConfig(newConfig string, oldPort uint) error {
 		return err
 	}
 	return s.databaseServerRepo.UpdatePort("local_postgresql", newPort)
-}
-
-// getPGValue 从 PostgreSQL 配置内容中获取指定键的值
-func (s *App) getPGValue(content string, key string) string {
-	lines := strings.SplitSeq(content, "\n")
-	for line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-		parts := strings.SplitN(trimmed, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		k := strings.TrimSpace(parts[0])
-		if k == key {
-			v := strings.TrimSpace(parts[1])
-			// 去除行尾注释
-			if idx := strings.Index(v, "#"); idx >= 0 {
-				v = strings.TrimSpace(v[:idx])
-			}
-			// 去除引号
-			v = strings.Trim(v, "'\"")
-			return v
-		}
-	}
-	return ""
-}
-
-// setPGValue 在 PostgreSQL 配置内容中设置指定键的值
-func (s *App) setPGValue(content string, key string, value string) string {
-	value = strings.ReplaceAll(value, "\n", "")
-	value = strings.ReplaceAll(value, "\r", "")
-
-	lines := strings.Split(content, "\n")
-	found := false
-	result := make([]string, 0, len(lines))
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" {
-			result = append(result, line)
-			continue
-		}
-		checkLine := trimmed
-		if strings.HasPrefix(checkLine, "#") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		}
-		parts := strings.SplitN(checkLine, "=", 2)
-		if len(parts) != 2 {
-			result = append(result, line)
-			continue
-		}
-		k := strings.TrimSpace(parts[0])
-		if k == key {
-			if found {
-				continue
-			}
-			found = true
-			// 值为空时注释掉该配置项
-			if value == "" {
-				if !strings.HasPrefix(trimmed, "#") {
-					result = append(result, "#"+line)
-				} else {
-					result = append(result, line)
-				}
-				continue
-			}
-			result = append(result, key+" = '"+value+"'")
-		} else {
-			result = append(result, line)
-		}
-	}
-	if !found && value != "" {
-		result = append(result, key+" = '"+value+"'")
-	}
-	return strings.Join(result, "\n")
 }

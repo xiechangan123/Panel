@@ -13,10 +13,10 @@ type DatabaseServerService struct {
 	databaseServerRepo *biz.DatabaseServerUsecase
 }
 
-func NewDatabaseServerService(databaseServerUsecase *biz.DatabaseServerUsecase) (*DatabaseServerService, error) {
+func NewDatabaseServerService(databaseServerUsecase *biz.DatabaseServerUsecase) *DatabaseServerService {
 	return &DatabaseServerService{
 		databaseServerRepo: databaseServerUsecase,
-	}, nil
+	}
 }
 
 func (s *DatabaseServerService) List(w http.ResponseWriter, r *http.Request) {

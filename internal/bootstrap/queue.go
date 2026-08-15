@@ -12,6 +12,6 @@ import (
 )
 
 // NewRunner 创建任务运行器
-func NewRunner(notifyUsecase *biz.NotifyUsecase, db *gorm.DB, t *gotext.Locale, log *slog.Logger) (types.TaskRunner, error) {
-	return taskqueue.NewRunner(db, log, notifyUsecase, t), nil
+func NewRunner(notifyUsecase *biz.NotifyUsecase, db *gorm.DB, t *gotext.Locale, log *slog.Logger) types.TaskRunner {
+	return taskqueue.NewRunner(db, log, notifyUsecase, t)
 }

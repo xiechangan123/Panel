@@ -22,10 +22,10 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) (*App, error) {
+func NewApp(t *gotext.Locale) *App {
 	return &App{
 		t: t,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {

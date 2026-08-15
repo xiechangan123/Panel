@@ -35,12 +35,12 @@ type certRepo struct {
 	log *slog.Logger
 }
 
-func NewCertRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) (biz.CertRepo, error) {
+func NewCertRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.CertRepo {
 	return &certRepo{
 		t:   t,
 		db:  db,
 		log: log,
-	}, nil
+	}
 }
 
 func (r *certRepo) List(page, limit uint) ([]*types.CertList, int64, error) {

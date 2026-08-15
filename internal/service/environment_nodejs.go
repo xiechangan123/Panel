@@ -19,11 +19,11 @@ type EnvironmentNodejsService struct {
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentNodejsService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) (*EnvironmentNodejsService, error) {
+func NewEnvironmentNodejsService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) *EnvironmentNodejsService {
 	return &EnvironmentNodejsService{
 		t:               t,
 		environmentRepo: environmentUsecase,
-	}, nil
+	}
 }
 
 func (s *EnvironmentNodejsService) SetCli(w http.ResponseWriter, r *http.Request) {

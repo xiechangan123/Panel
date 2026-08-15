@@ -56,6 +56,6 @@ func NewDB(conf *config.Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewMigrate(db *gorm.DB) (*gormigrate.Gormigrate, error) {
-	return gormigrate.New(db, nil, migration.Migrations), nil
+func NewMigrate(db *gorm.DB) *gormigrate.Gormigrate {
+	return gormigrate.New(db, nil, migration.Migrations)
 }

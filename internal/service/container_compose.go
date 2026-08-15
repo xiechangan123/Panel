@@ -13,10 +13,10 @@ type ContainerComposeService struct {
 	containerComposeRepo *biz.ContainerComposeUsecase
 }
 
-func NewContainerComposeService(containerComposeUsecase *biz.ContainerComposeUsecase) (*ContainerComposeService, error) {
+func NewContainerComposeService(containerComposeUsecase *biz.ContainerComposeUsecase) *ContainerComposeService {
 	return &ContainerComposeService{
 		containerComposeRepo: containerComposeUsecase,
-	}, nil
+	}
 }
 
 func (s *ContainerComposeService) List(w http.ResponseWriter, r *http.Request) {

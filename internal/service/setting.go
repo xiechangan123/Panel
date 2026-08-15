@@ -22,14 +22,14 @@ type SettingService struct {
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewSettingService(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) (*SettingService, error) {
+func NewSettingService(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) *SettingService {
 	return &SettingService{
 		t:               t,
 		db:              db,
 		settingRepo:     settingUsecase,
 		certRepo:        certUsecase,
 		certAccountRepo: certAccountUsecase,
-	}, nil
+	}
 }
 
 func (s *SettingService) Get(w http.ResponseWriter, r *http.Request) {

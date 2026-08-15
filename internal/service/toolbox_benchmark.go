@@ -32,10 +32,10 @@ type ToolboxBenchmarkService struct {
 	t *gotext.Locale
 }
 
-func NewToolboxBenchmarkService(t *gotext.Locale) (*ToolboxBenchmarkService, error) {
+func NewToolboxBenchmarkService(t *gotext.Locale) *ToolboxBenchmarkService {
 	return &ToolboxBenchmarkService{
 		t: t,
-	}, nil
+	}
 }
 
 // Test 运行测试

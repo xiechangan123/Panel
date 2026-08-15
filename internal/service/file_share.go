@@ -18,11 +18,11 @@ type FileShareService struct {
 	fileShareRepo *biz.FileShareUsecase
 }
 
-func NewFileShareService(fileShareUsecase *biz.FileShareUsecase, t *gotext.Locale) (*FileShareService, error) {
+func NewFileShareService(fileShareUsecase *biz.FileShareUsecase, t *gotext.Locale) *FileShareService {
 	return &FileShareService{
 		t:             t,
 		fileShareRepo: fileShareUsecase,
-	}, nil
+	}
 }
 
 func (s *FileShareService) List(w http.ResponseWriter, r *http.Request) {

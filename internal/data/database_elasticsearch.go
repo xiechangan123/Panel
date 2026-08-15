@@ -20,12 +20,12 @@ type databaseElasticsearchRepo struct {
 	log *slog.Logger
 }
 
-func NewDatabaseElasticsearchRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) (biz.DatabaseElasticsearchRepo, error) {
+func NewDatabaseElasticsearchRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.DatabaseElasticsearchRepo {
 	return &databaseElasticsearchRepo{
 		t:   t,
 		orm: db,
 		log: log,
-	}, nil
+	}
 }
 
 func (r *databaseElasticsearchRepo) Indices(ctx context.Context, req *request.DatabaseESIndices) ([]db.ESIndex, error) {

@@ -18,11 +18,11 @@ type TamperService struct {
 	tamperRepo *biz.TamperUsecase
 }
 
-func NewTamperService(tamperUsecase *biz.TamperUsecase, t *gotext.Locale) (*TamperService, error) {
+func NewTamperService(tamperUsecase *biz.TamperUsecase, t *gotext.Locale) *TamperService {
 	return &TamperService{
 		t:          t,
 		tamperRepo: tamperUsecase,
-	}, nil
+	}
 }
 
 // Status 防篡改运行状态与环境检测

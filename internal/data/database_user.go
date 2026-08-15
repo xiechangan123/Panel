@@ -16,10 +16,10 @@ type databaseUserRepo struct {
 	db *gorm.DB
 }
 
-func NewDatabaseUserRepo(db *gorm.DB) (biz.DatabaseUserRepo, error) {
+func NewDatabaseUserRepo(db *gorm.DB) biz.DatabaseUserRepo {
 	return &databaseUserRepo{
 		db: db,
-	}, nil
+	}
 }
 
 func (r *databaseUserRepo) Count() (int64, error) {

@@ -1,10 +1,5 @@
 package clickhouse
 
-// UpdateConfig 更新配置
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // SetDefaultPassword 设置 default 用户密码
 type SetDefaultPassword struct {
 	Password string `form:"password" json:"password" validate:"required && password"`

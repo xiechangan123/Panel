@@ -38,12 +38,12 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) (*App, error) {
+func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) *App {
 	return &App{
 		t:                  t,
 		conf:               conf,
 		databaseServerRepo: databaseServerRepo,
-	}, nil
+	}
 }
 
 // pgadminLanguage 面板语言映射为 pgAdmin 语言代码

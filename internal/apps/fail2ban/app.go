@@ -27,11 +27,11 @@ type App struct {
 	websiteRepo biz.WebsiteRepo
 }
 
-func NewApp(t *gotext.Locale, websiteRepo biz.WebsiteRepo) (*App, error) {
+func NewApp(t *gotext.Locale, websiteRepo biz.WebsiteRepo) *App {
 	return &App{
 		t:           t,
 		websiteRepo: websiteRepo,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {

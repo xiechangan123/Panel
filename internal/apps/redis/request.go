@@ -1,10 +1,6 @@
 package redis
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
-// ConfigTune Redis 配置调整
+// ConfigTune Redis 协议兼容服务的配置调整
 type ConfigTune struct {
 	// 常规设置
 	Bind         string `form:"bind" json:"bind"`

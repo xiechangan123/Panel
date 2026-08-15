@@ -15,10 +15,10 @@ type FirewallScanService struct {
 	scanRepo *biz.ScanEventUsecase
 }
 
-func NewFirewallScanService(scanEventUsecase *biz.ScanEventUsecase) (*FirewallScanService, error) {
+func NewFirewallScanService(scanEventUsecase *biz.ScanEventUsecase) *FirewallScanService {
 	return &FirewallScanService{
 		scanRepo: scanEventUsecase,
-	}, nil
+	}
 }
 
 // GetSetting 获取扫描感知设置

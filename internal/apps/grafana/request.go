@@ -1,9 +1,5 @@
 package grafana
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // ConfigTune Grafana 配置调整
 type ConfigTune struct {
 	// [server]

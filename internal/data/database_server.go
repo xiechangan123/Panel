@@ -18,10 +18,10 @@ type databaseServerRepo struct {
 	db *gorm.DB
 }
 
-func NewDatabaseServerRepo(db *gorm.DB) (biz.DatabaseServerRepo, error) {
+func NewDatabaseServerRepo(db *gorm.DB) biz.DatabaseServerRepo {
 	return &databaseServerRepo{
 		db: db,
-	}, nil
+	}
 }
 
 func (r *databaseServerRepo) Count() (int64, error) {

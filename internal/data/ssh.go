@@ -37,12 +37,12 @@ type sshRepo struct {
 	conns map[uint]*sftpConn
 }
 
-func NewSSHRepo(db *gorm.DB, t *gotext.Locale) (biz.SSHRepo, error) {
+func NewSSHRepo(db *gorm.DB, t *gotext.Locale) biz.SSHRepo {
 	return &sshRepo{
 		t:     t,
 		db:    db,
 		conns: make(map[uint]*sftpConn),
-	}, nil
+	}
 }
 
 func (r *sshRepo) List(page, limit uint) ([]*biz.SSH, int64, error) {

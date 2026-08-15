@@ -21,7 +21,3 @@ type Update struct {
 	Secret     string `form:"secret" json:"secret" validate:"required"`
 	HostsAllow string `form:"hosts_allow" json:"hosts_allow"`
 }
-
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}

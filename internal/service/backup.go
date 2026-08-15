@@ -24,12 +24,12 @@ type BackupService struct {
 	taskRepo   *biz.TaskUsecase
 }
 
-func NewBackupService(backupUsecase *biz.BackupUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*BackupService, error) {
+func NewBackupService(backupUsecase *biz.BackupUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) *BackupService {
 	return &BackupService{
 		t:          t,
 		backupRepo: backupUsecase,
 		taskRepo:   taskUsecase,
-	}, nil
+	}
 }
 
 func (s *BackupService) List(w http.ResponseWriter, r *http.Request) {

@@ -42,7 +42,7 @@ type WsService struct {
 	taskRepo    *biz.TaskUsecase
 }
 
-func NewWsService(backupUsecase *biz.BackupUsecase, certUsecase *biz.CertUsecase, sshUsecase *biz.SSHUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) (*WsService, error) {
+func NewWsService(backupUsecase *biz.BackupUsecase, certUsecase *biz.CertUsecase, sshUsecase *biz.SSHUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale, log *slog.Logger) *WsService {
 	return &WsService{
 		t:           t,
 		conf:        conf,
@@ -53,7 +53,7 @@ func NewWsService(backupUsecase *biz.BackupUsecase, certUsecase *biz.CertUsecase
 		certRepo:    certUsecase,
 		backupRepo:  backupUsecase,
 		taskRepo:    taskUsecase,
-	}, nil
+	}
 }
 
 func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {

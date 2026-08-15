@@ -13,10 +13,10 @@ type CertAccountService struct {
 	certAccountRepo *biz.CertAccountUsecase
 }
 
-func NewCertAccountService(certAccountUsecase *biz.CertAccountUsecase) (*CertAccountService, error) {
+func NewCertAccountService(certAccountUsecase *biz.CertAccountUsecase) *CertAccountService {
 	return &CertAccountService{
 		certAccountRepo: certAccountUsecase,
-	}, nil
+	}
 }
 
 func (s *CertAccountService) List(w http.ResponseWriter, r *http.Request) {

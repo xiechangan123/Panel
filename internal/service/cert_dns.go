@@ -13,10 +13,10 @@ type CertDNSService struct {
 	certDNSRepo *biz.CertDNSUsecase
 }
 
-func NewCertDNSService(certDNSUsecase *biz.CertDNSUsecase) (*CertDNSService, error) {
+func NewCertDNSService(certDNSUsecase *biz.CertDNSUsecase) *CertDNSService {
 	return &CertDNSService{
 		certDNSRepo: certDNSUsecase,
-	}, nil
+	}
 }
 
 func (s *CertDNSService) List(w http.ResponseWriter, r *http.Request) {

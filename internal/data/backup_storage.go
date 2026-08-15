@@ -10,10 +10,10 @@ type backupAccountRepo struct {
 	db *gorm.DB
 }
 
-func NewBackupAccountRepo(db *gorm.DB) (biz.BackupAccountRepo, error) {
+func NewBackupAccountRepo(db *gorm.DB) biz.BackupAccountRepo {
 	return &backupAccountRepo{
 		db: db,
-	}, nil
+	}
 }
 
 func (r backupAccountRepo) ListPaged(page, limit uint) ([]*biz.BackupStorage, int64, error) {

@@ -13,10 +13,10 @@ type TaskService struct {
 	taskRepo *biz.TaskUsecase
 }
 
-func NewTaskService(taskUsecase *biz.TaskUsecase) (*TaskService, error) {
+func NewTaskService(taskUsecase *biz.TaskUsecase) *TaskService {
 	return &TaskService{
 		taskRepo: taskUsecase,
-	}, nil
+	}
 }
 
 func (s *TaskService) Status(w http.ResponseWriter, r *http.Request) {

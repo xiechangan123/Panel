@@ -17,11 +17,11 @@ type EnvironmentJavaService struct {
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentJavaService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) (*EnvironmentJavaService, error) {
+func NewEnvironmentJavaService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) *EnvironmentJavaService {
 	return &EnvironmentJavaService{
 		t:               t,
 		environmentRepo: environmentUsecase,
-	}, nil
+	}
 }
 
 func (s *EnvironmentJavaService) SetCli(w http.ResponseWriter, r *http.Request) {

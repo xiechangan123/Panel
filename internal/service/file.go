@@ -44,13 +44,13 @@ type FileService struct {
 	tamperRepo    *biz.TamperUsecase
 }
 
-func NewFileService(containerUsecase *biz.ContainerUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*FileService, error) {
+func NewFileService(containerUsecase *biz.ContainerUsecase, tamperUsecase *biz.TamperUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) *FileService {
 	return &FileService{
 		t:             t,
 		taskRepo:      taskUsecase,
 		containerRepo: containerUsecase,
 		tamperRepo:    tamperUsecase,
-	}, nil
+	}
 }
 
 func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {

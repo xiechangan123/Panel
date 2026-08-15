@@ -19,11 +19,11 @@ type EnvironmentPythonService struct {
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentPythonService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) (*EnvironmentPythonService, error) {
+func NewEnvironmentPythonService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) *EnvironmentPythonService {
 	return &EnvironmentPythonService{
 		t:               t,
 		environmentRepo: environmentUsecase,
-	}, nil
+	}
 }
 
 func (s *EnvironmentPythonService) SetCli(w http.ResponseWriter, r *http.Request) {

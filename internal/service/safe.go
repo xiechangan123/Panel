@@ -11,10 +11,10 @@ type SafeService struct {
 	safeRepo *biz.SafeUsecase
 }
 
-func NewSafeService(safeUsecase *biz.SafeUsecase) (*SafeService, error) {
+func NewSafeService(safeUsecase *biz.SafeUsecase) *SafeService {
 	return &SafeService{
 		safeRepo: safeUsecase,
-	}, nil
+	}
 }
 
 func (s *SafeService) GetPingStatus(w http.ResponseWriter, r *http.Request) {

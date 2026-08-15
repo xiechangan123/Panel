@@ -22,8 +22,8 @@ import (
 
 type containerImageRepo struct{}
 
-func NewContainerImageRepo() (biz.ContainerImageRepo, error) {
-	return &containerImageRepo{}, nil
+func NewContainerImageRepo() biz.ContainerImageRepo {
+	return &containerImageRepo{}
 }
 
 // List 列出镜像

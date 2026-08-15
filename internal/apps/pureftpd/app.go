@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -25,11 +26,11 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) (*App, error) {
+func NewApp(t *gotext.Locale) *App {
 
 	return &App{
 		t: t,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -154,7 +155,7 @@ func (s *App) GetPort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bind := strings.Trim(s.getFTPValue(config, "Bind"), `"'`)
+	bind := strings.Trim(confval.FTP.Get(config, "Bind"), `"'`)
 	port := 21 // 默认端口
 	if parts := strings.SplitN(bind, ",", 2); len(parts) == 2 {
 		port = cast.ToInt(strings.TrimSpace(parts[1]))
@@ -177,7 +178,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	config = s.setFTPValue(config, "Bind", fmt.Sprintf(`"0.0.0.0,%d"`, req.Port))
+	config = confval.FTP.Set(config, "Bind", fmt.Sprintf(`"0.0.0.0,%d"`, req.Port))
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -213,14 +214,14 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tune := ConfigTune{
-		MaxClientsNumber: s.getFTPValue(config, "MaxClientsNumber"),
-		MaxClientsPerIP:  s.getFTPValue(config, "MaxClientsPerIP"),
-		MaxIdleTime:      s.getFTPValue(config, "MaxIdleTime"),
-		MaxLoad:          s.getFTPValue(config, "MaxLoad"),
-		PassivePortRange: s.getFTPValue(config, "PassivePortRange"),
-		AnonymousOnly:    s.getFTPValue(config, "AnonymousOnly"),
-		NoAnonymous:      s.getFTPValue(config, "NoAnonymous"),
-		MaxDiskUsage:     s.getFTPValue(config, "MaxDiskUsage"),
+		MaxClientsNumber: confval.FTP.Get(config, "MaxClientsNumber"),
+		MaxClientsPerIP:  confval.FTP.Get(config, "MaxClientsPerIP"),
+		MaxIdleTime:      confval.FTP.Get(config, "MaxIdleTime"),
+		MaxLoad:          confval.FTP.Get(config, "MaxLoad"),
+		PassivePortRange: confval.FTP.Get(config, "PassivePortRange"),
+		AnonymousOnly:    confval.FTP.Get(config, "AnonymousOnly"),
+		NoAnonymous:      confval.FTP.Get(config, "NoAnonymous"),
+		MaxDiskUsage:     confval.FTP.Get(config, "MaxDiskUsage"),
 	}
 
 	service.Success(w, tune)
@@ -241,14 +242,14 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config = s.setFTPValue(config, "MaxClientsNumber", req.MaxClientsNumber)
-	config = s.setFTPValue(config, "MaxClientsPerIP", req.MaxClientsPerIP)
-	config = s.setFTPValue(config, "MaxIdleTime", req.MaxIdleTime)
-	config = s.setFTPValue(config, "MaxLoad", req.MaxLoad)
-	config = s.setFTPValue(config, "PassivePortRange", req.PassivePortRange)
-	config = s.setFTPValue(config, "AnonymousOnly", req.AnonymousOnly)
-	config = s.setFTPValue(config, "NoAnonymous", req.NoAnonymous)
-	config = s.setFTPValue(config, "MaxDiskUsage", req.MaxDiskUsage)
+	config = confval.FTP.Set(config, "MaxClientsNumber", req.MaxClientsNumber)
+	config = confval.FTP.Set(config, "MaxClientsPerIP", req.MaxClientsPerIP)
+	config = confval.FTP.Set(config, "MaxIdleTime", req.MaxIdleTime)
+	config = confval.FTP.Set(config, "MaxLoad", req.MaxLoad)
+	config = confval.FTP.Set(config, "PassivePortRange", req.PassivePortRange)
+	config = confval.FTP.Set(config, "AnonymousOnly", req.AnonymousOnly)
+	config = confval.FTP.Set(config, "NoAnonymous", req.NoAnonymous)
+	config = confval.FTP.Set(config, "MaxDiskUsage", req.MaxDiskUsage)
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -261,66 +262,4 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
-}
-
-// getFTPValue 从 Pure-FTPd 配置内容中获取指定键的值
-func (s *App) getFTPValue(content string, key string) string {
-	lines := strings.SplitSeq(content, "\n")
-	for line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-		parts := strings.Fields(trimmed)
-		if len(parts) >= 2 && parts[0] == key {
-			return strings.Join(parts[1:], " ")
-		}
-	}
-	return ""
-}
-
-// setFTPValue 在 Pure-FTPd 配置内容中设置指定键的值
-func (s *App) setFTPValue(content string, key string, value string) string {
-	value = strings.ReplaceAll(value, "\n", "")
-	value = strings.ReplaceAll(value, "\r", "")
-
-	lines := strings.Split(content, "\n")
-	found := false
-	result := make([]string, 0, len(lines))
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" {
-			result = append(result, line)
-			continue
-		}
-		checkLine := trimmed
-		if strings.HasPrefix(checkLine, "#") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		}
-		parts := strings.Fields(checkLine)
-		if len(parts) >= 2 && parts[0] == key {
-			if found {
-				continue
-			}
-			found = true
-			// 值为空时注释掉该配置项
-			if value == "" {
-				if !strings.HasPrefix(trimmed, "#") {
-					result = append(result, "#"+line)
-				} else {
-					result = append(result, line)
-				}
-				continue
-			}
-			// 保留原行格式
-			indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
-			result = append(result, indent+key+" "+value)
-		} else {
-			result = append(result, line)
-		}
-	}
-	if !found && value != "" {
-		result = append(result, key+" "+value)
-	}
-	return strings.Join(result, "\n")
 }

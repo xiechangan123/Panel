@@ -42,12 +42,12 @@ type WebHookUsecase struct {
 	t    *gotext.Locale
 }
 
-func NewWebHookUsecase(t *gotext.Locale, log *slog.Logger, webHookRepo WebHookRepo) (*WebHookUsecase, error) {
+func NewWebHookUsecase(t *gotext.Locale, log *slog.Logger, webHookRepo WebHookRepo) *WebHookUsecase {
 	return &WebHookUsecase{
 		repo: webHookRepo,
 		log:  log,
 		t:    t,
-	}, nil
+	}
 }
 
 func (uc *WebHookUsecase) List(page, limit uint) ([]*WebHook, int64, error) {

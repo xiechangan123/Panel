@@ -25,11 +25,11 @@ type cronRepo struct {
 	db *gorm.DB
 }
 
-func NewCronRepo(db *gorm.DB, t *gotext.Locale) (biz.CronRepo, error) {
+func NewCronRepo(db *gorm.DB, t *gotext.Locale) biz.CronRepo {
 	return &cronRepo{
 		t:  t,
 		db: db,
-	}, nil
+	}
 }
 
 func (r *cronRepo) Count() (int64, error) {

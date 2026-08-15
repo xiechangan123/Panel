@@ -15,6 +15,7 @@ import (
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/config"
@@ -29,9 +30,9 @@ type App struct {
 	taskRepo biz.TaskRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, taskRepo biz.TaskRepo) (*App, error) {
+func NewApp(conf *config.Config, t *gotext.Locale, taskRepo biz.TaskRepo) *App {
 
-	return &App{t: t, conf: conf, taskRepo: taskRepo}, nil
+	return &App{t: t, conf: conf, taskRepo: taskRepo}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -105,28 +106,11 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(app.Root + "/server/prometheus/prometheus.yml")
-	service.Success(w, conf)
+	common.ServeConfig(w, app.Root+"/server/prometheus/prometheus.yml")
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(app.Root+"/server/prometheus/prometheus.yml", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart("prometheus"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, app.Root+"/server/prometheus/prometheus.yml", "prometheus")
 }
 
 // GetConfigTune 获取 Prometheus 全局配置调整参数

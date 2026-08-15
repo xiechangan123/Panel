@@ -18,8 +18,8 @@ import (
 
 type containerNetworkRepo struct{}
 
-func NewContainerNetworkRepo() (biz.ContainerNetworkRepo, error) {
-	return &containerNetworkRepo{}, nil
+func NewContainerNetworkRepo() biz.ContainerNetworkRepo {
+	return &containerNetworkRepo{}
 }
 
 // List 列出网络

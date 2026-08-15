@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -13,6 +12,7 @@ import (
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -25,11 +25,11 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) (*App, error) {
+func NewApp(t *gotext.Locale) *App {
 
 	return &App{
 		t: t,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -186,33 +186,33 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	tune := ConfigTune{
 		// 常规设置
-		WorkerProcesses:           s.getNginxValue(config, "worker_processes"),
-		WorkerConnections:         s.getNginxValue(config, "worker_connections"),
-		KeepaliveTimeout:          s.getNginxValue(config, "keepalive_timeout"),
-		ClientMaxBodySize:         s.getNginxValue(config, "client_max_body_size"),
-		ClientBodyBufferSize:      s.getNginxValue(config, "client_body_buffer_size"),
-		ClientHeaderBufferSize:    s.getNginxValue(config, "client_header_buffer_size"),
-		ServerNamesHashBucketSize: s.getNginxValue(config, "server_names_hash_bucket_size"),
-		ServerTokens:              s.getNginxValue(config, "server_tokens"),
+		WorkerProcesses:           confval.Nginx.Get(config, "worker_processes"),
+		WorkerConnections:         confval.Nginx.Get(config, "worker_connections"),
+		KeepaliveTimeout:          confval.Nginx.Get(config, "keepalive_timeout"),
+		ClientMaxBodySize:         confval.Nginx.Get(config, "client_max_body_size"),
+		ClientBodyBufferSize:      confval.Nginx.Get(config, "client_body_buffer_size"),
+		ClientHeaderBufferSize:    confval.Nginx.Get(config, "client_header_buffer_size"),
+		ServerNamesHashBucketSize: confval.Nginx.Get(config, "server_names_hash_bucket_size"),
+		ServerTokens:              confval.Nginx.Get(config, "server_tokens"),
 		// Gzip 压缩
-		Gzip:          s.getNginxValue(config, "gzip"),
-		GzipMinLength: s.getNginxValue(config, "gzip_min_length"),
-		GzipCompLevel: s.getNginxValue(config, "gzip_comp_level"),
-		GzipTypes:     s.getNginxValue(config, "gzip_types"),
-		GzipVary:      s.getNginxValue(config, "gzip_vary"),
-		GzipProxied:   s.getNginxValue(config, "gzip_proxied"),
+		Gzip:          confval.Nginx.Get(config, "gzip"),
+		GzipMinLength: confval.Nginx.Get(config, "gzip_min_length"),
+		GzipCompLevel: confval.Nginx.Get(config, "gzip_comp_level"),
+		GzipTypes:     confval.Nginx.Get(config, "gzip_types"),
+		GzipVary:      confval.Nginx.Get(config, "gzip_vary"),
+		GzipProxied:   confval.Nginx.Get(config, "gzip_proxied"),
 		// Brotli 压缩
-		Brotli:          s.getNginxValue(config, "brotli"),
-		BrotliMinLength: s.getNginxValue(config, "brotli_min_length"),
-		BrotliCompLevel: s.getNginxValue(config, "brotli_comp_level"),
-		BrotliTypes:     s.getNginxValue(config, "brotli_types"),
-		BrotliStatic:    s.getNginxValue(config, "brotli_static"),
+		Brotli:          confval.Nginx.Get(config, "brotli"),
+		BrotliMinLength: confval.Nginx.Get(config, "brotli_min_length"),
+		BrotliCompLevel: confval.Nginx.Get(config, "brotli_comp_level"),
+		BrotliTypes:     confval.Nginx.Get(config, "brotli_types"),
+		BrotliStatic:    confval.Nginx.Get(config, "brotli_static"),
 		// Zstd 压缩
-		Zstd:          s.getNginxValue(config, "zstd"),
-		ZstdMinLength: s.getNginxValue(config, "zstd_min_length"),
-		ZstdCompLevel: s.getNginxValue(config, "zstd_comp_level"),
-		ZstdTypes:     s.getNginxValue(config, "zstd_types"),
-		ZstdStatic:    s.getNginxValue(config, "zstd_static"),
+		Zstd:          confval.Nginx.Get(config, "zstd"),
+		ZstdMinLength: confval.Nginx.Get(config, "zstd_min_length"),
+		ZstdCompLevel: confval.Nginx.Get(config, "zstd_comp_level"),
+		ZstdTypes:     confval.Nginx.Get(config, "zstd_types"),
+		ZstdStatic:    confval.Nginx.Get(config, "zstd_static"),
 	}
 
 	service.Success(w, tune)
@@ -234,33 +234,33 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 更新常规设置
-	config = s.setNginxValue(config, "worker_processes", req.WorkerProcesses)
-	config = s.setNginxValue(config, "worker_connections", req.WorkerConnections)
-	config = s.setNginxValue(config, "keepalive_timeout", req.KeepaliveTimeout)
-	config = s.setNginxValue(config, "client_max_body_size", req.ClientMaxBodySize)
-	config = s.setNginxValue(config, "client_body_buffer_size", req.ClientBodyBufferSize)
-	config = s.setNginxValue(config, "client_header_buffer_size", req.ClientHeaderBufferSize)
-	config = s.setNginxValue(config, "server_names_hash_bucket_size", req.ServerNamesHashBucketSize)
-	config = s.setNginxValue(config, "server_tokens", req.ServerTokens)
+	config = confval.Nginx.Set(config, "worker_processes", req.WorkerProcesses)
+	config = confval.Nginx.Set(config, "worker_connections", req.WorkerConnections)
+	config = confval.Nginx.Set(config, "keepalive_timeout", req.KeepaliveTimeout)
+	config = confval.Nginx.Set(config, "client_max_body_size", req.ClientMaxBodySize)
+	config = confval.Nginx.Set(config, "client_body_buffer_size", req.ClientBodyBufferSize)
+	config = confval.Nginx.Set(config, "client_header_buffer_size", req.ClientHeaderBufferSize)
+	config = confval.Nginx.Set(config, "server_names_hash_bucket_size", req.ServerNamesHashBucketSize)
+	config = confval.Nginx.Set(config, "server_tokens", req.ServerTokens)
 	// 更新 Gzip 压缩
-	config = s.setNginxValue(config, "gzip", req.Gzip)
-	config = s.setNginxValue(config, "gzip_min_length", req.GzipMinLength)
-	config = s.setNginxValue(config, "gzip_comp_level", req.GzipCompLevel)
-	config = s.setNginxValue(config, "gzip_types", req.GzipTypes)
-	config = s.setNginxValue(config, "gzip_vary", req.GzipVary)
-	config = s.setNginxValue(config, "gzip_proxied", req.GzipProxied)
+	config = confval.Nginx.Set(config, "gzip", req.Gzip)
+	config = confval.Nginx.Set(config, "gzip_min_length", req.GzipMinLength)
+	config = confval.Nginx.Set(config, "gzip_comp_level", req.GzipCompLevel)
+	config = confval.Nginx.Set(config, "gzip_types", req.GzipTypes)
+	config = confval.Nginx.Set(config, "gzip_vary", req.GzipVary)
+	config = confval.Nginx.Set(config, "gzip_proxied", req.GzipProxied)
 	// 更新 Brotli 压缩
-	config = s.setNginxValue(config, "brotli", req.Brotli)
-	config = s.setNginxValue(config, "brotli_min_length", req.BrotliMinLength)
-	config = s.setNginxValue(config, "brotli_comp_level", req.BrotliCompLevel)
-	config = s.setNginxValue(config, "brotli_types", req.BrotliTypes)
-	config = s.setNginxValue(config, "brotli_static", req.BrotliStatic)
+	config = confval.Nginx.Set(config, "brotli", req.Brotli)
+	config = confval.Nginx.Set(config, "brotli_min_length", req.BrotliMinLength)
+	config = confval.Nginx.Set(config, "brotli_comp_level", req.BrotliCompLevel)
+	config = confval.Nginx.Set(config, "brotli_types", req.BrotliTypes)
+	config = confval.Nginx.Set(config, "brotli_static", req.BrotliStatic)
 	// 更新 Zstd 压缩
-	config = s.setNginxValue(config, "zstd", req.Zstd)
-	config = s.setNginxValue(config, "zstd_min_length", req.ZstdMinLength)
-	config = s.setNginxValue(config, "zstd_comp_level", req.ZstdCompLevel)
-	config = s.setNginxValue(config, "zstd_types", req.ZstdTypes)
-	config = s.setNginxValue(config, "zstd_static", req.ZstdStatic)
+	config = confval.Nginx.Set(config, "zstd", req.Zstd)
+	config = confval.Nginx.Set(config, "zstd_min_length", req.ZstdMinLength)
+	config = confval.Nginx.Set(config, "zstd_comp_level", req.ZstdCompLevel)
+	config = confval.Nginx.Set(config, "zstd_types", req.ZstdTypes)
+	config = confval.Nginx.Set(config, "zstd_static", req.ZstdStatic)
 
 	if err = io.Write(confPath, config, 0600); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -274,81 +274,4 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
-}
-
-// getNginxValue 从 Nginx 配置内容中获取指定指令的值
-func (s *App) getNginxValue(content string, key string) string {
-	lines := strings.SplitSeq(content, "\n")
-	for line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-		if !strings.HasSuffix(trimmed, ";") {
-			continue
-		}
-		trimmed = strings.TrimSuffix(trimmed, ";")
-		trimmed = strings.TrimSpace(trimmed)
-		parts := strings.Fields(trimmed)
-		if len(parts) >= 2 && parts[0] == key {
-			return strings.Join(parts[1:], " ")
-		}
-	}
-	return ""
-}
-
-// setNginxValue 在 Nginx 配置内容中设置指定指令的值
-func (s *App) setNginxValue(content string, key string, value string) string {
-	value = strings.ReplaceAll(value, "\n", "")
-	value = strings.ReplaceAll(value, "\r", "")
-
-	lines := strings.Split(content, "\n")
-	found := false
-	result := make([]string, 0, len(lines))
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || trimmed == "{" || trimmed == "}" {
-			result = append(result, line)
-			continue
-		}
-
-		// 检查指令（可能被注释）
-		checkLine := trimmed
-		if strings.HasPrefix(checkLine, "#") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		}
-
-		if !strings.HasSuffix(checkLine, ";") {
-			result = append(result, line)
-			continue
-		}
-		checkLine = strings.TrimSuffix(checkLine, ";")
-		checkLine = strings.TrimSpace(checkLine)
-		parts := strings.Fields(checkLine)
-		if len(parts) >= 2 && parts[0] == key {
-			if found {
-				continue
-			}
-			found = true
-			// 值为空时注释掉该配置项
-			if value == "" {
-				if !strings.HasPrefix(trimmed, "#") {
-					indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
-					result = append(result, indent+"#"+strings.TrimLeft(line, " \t"))
-				} else {
-					result = append(result, line)
-				}
-				continue
-			}
-			// 保留原行缩进
-			indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
-			result = append(result, indent+key+" "+value+";")
-		} else {
-			result = append(result, line)
-		}
-	}
-	if !found && value != "" {
-		result = append(result, "    "+key+" "+value+";")
-	}
-	return strings.Join(result, "\n")
 }

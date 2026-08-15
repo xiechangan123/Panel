@@ -1,9 +1,5 @@
 package elasticsearch
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // ConfigTune ElasticSearch 配置调整
 type ConfigTune struct {
 	// 集群

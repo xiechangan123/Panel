@@ -22,11 +22,11 @@ type webhookRepo struct {
 	db *gorm.DB
 }
 
-func NewWebHookRepo(db *gorm.DB, t *gotext.Locale) (biz.WebHookRepo, error) {
+func NewWebHookRepo(db *gorm.DB, t *gotext.Locale) biz.WebHookRepo {
 	return &webhookRepo{
 		t:  t,
 		db: db,
-	}, nil
+	}
 }
 
 func (r *webhookRepo) List(page, limit uint) ([]*biz.WebHook, int64, error) {

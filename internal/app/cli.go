@@ -13,12 +13,12 @@ type Cli struct {
 	migrator *gormigrate.Gormigrate
 }
 
-func NewCli(cmd *cli.Command, migrator *gormigrate.Gormigrate) (*Cli, error) {
+func NewCli(cmd *cli.Command, migrator *gormigrate.Gormigrate) *Cli {
 	IsCli = true
 	return &Cli{
 		cmd:      cmd,
 		migrator: migrator,
-	}, nil
+	}
 }
 
 func (r *Cli) Run() error {

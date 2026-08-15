@@ -174,7 +174,7 @@ type AlertUsecase struct {
 	cleanedAt  time.Time             // 上次清理历史告警的时间
 }
 
-func NewAlertUsecase(notifyUsecase *NotifyUsecase, loader *apploader.Loader, t *gotext.Locale, log *slog.Logger, alertRepo AlertRepo, appRepo AppRepo, containerRepo ContainerRepo, databaseServerRepo DatabaseServerRepo, settingRepo SettingRepo) (*AlertUsecase, error) {
+func NewAlertUsecase(notifyUsecase *NotifyUsecase, loader *apploader.Loader, t *gotext.Locale, log *slog.Logger, alertRepo AlertRepo, appRepo AppRepo, containerRepo ContainerRepo, databaseServerRepo DatabaseServerRepo, settingRepo SettingRepo) *AlertUsecase {
 	return &AlertUsecase{
 		repo:       alertRepo,
 		notify:     notifyUsecase,
@@ -191,7 +191,7 @@ func NewAlertUsecase(notifyUsecase *NotifyUsecase, loader *apploader.Loader, t *
 		diskSnaps:  make(map[string]ioSnapshot),
 		healthKeys: make(map[string]struct{}),
 		sshFired:   make(map[string]time.Time),
-	}, nil
+	}
 }
 
 func (uc *AlertUsecase) ListRules(page, limit uint) ([]*AlertRule, int64, error) {

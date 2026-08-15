@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/db"
@@ -28,12 +28,12 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) (*App, error) {
+func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
 	return &App{
 		t:                  t,
 		settingRepo:        settingRepo,
 		databaseServerRepo: databaseServerRepo,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -257,35 +257,35 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	tune := ConfigTune{
 		// 常规设置
-		Port:                 s.getINIValue(config, "port"),
-		MaxConnections:       s.getINIValue(config, "max_connections"),
-		MaxConnectErrors:     s.getINIValue(config, "max_connect_errors"),
-		DefaultStorageEngine: s.getINIValue(config, "default_storage_engine"),
-		TableOpenCache:       s.getINIValue(config, "table_open_cache"),
-		MaxAllowedPacket:     s.getINIValue(config, "max_allowed_packet"),
-		OpenFilesLimit:       s.getINIValue(config, "open_files_limit"),
+		Port:                 confval.INI.Get(config, "port"),
+		MaxConnections:       confval.INI.Get(config, "max_connections"),
+		MaxConnectErrors:     confval.INI.Get(config, "max_connect_errors"),
+		DefaultStorageEngine: confval.INI.Get(config, "default_storage_engine"),
+		TableOpenCache:       confval.INI.Get(config, "table_open_cache"),
+		MaxAllowedPacket:     confval.INI.Get(config, "max_allowed_packet"),
+		OpenFilesLimit:       confval.INI.Get(config, "open_files_limit"),
 		// 性能调整
-		KeyBufferSize:        s.getINIValue(config, "key_buffer_size"),
-		SortBufferSize:       s.getINIValue(config, "sort_buffer_size"),
-		ReadBufferSize:       s.getINIValue(config, "read_buffer_size"),
-		ReadRndBufferSize:    s.getINIValue(config, "read_rnd_buffer_size"),
-		JoinBufferSize:       s.getINIValue(config, "join_buffer_size"),
-		ThreadCacheSize:      s.getINIValue(config, "thread_cache_size"),
-		ThreadStack:          s.getINIValue(config, "thread_stack"),
-		TmpTableSize:         s.getINIValue(config, "tmp_table_size"),
-		MaxHeapTableSize:     s.getINIValue(config, "max_heap_table_size"),
-		MyisamSortBufferSize: s.getINIValue(config, "myisam_sort_buffer_size"),
+		KeyBufferSize:        confval.INI.Get(config, "key_buffer_size"),
+		SortBufferSize:       confval.INI.Get(config, "sort_buffer_size"),
+		ReadBufferSize:       confval.INI.Get(config, "read_buffer_size"),
+		ReadRndBufferSize:    confval.INI.Get(config, "read_rnd_buffer_size"),
+		JoinBufferSize:       confval.INI.Get(config, "join_buffer_size"),
+		ThreadCacheSize:      confval.INI.Get(config, "thread_cache_size"),
+		ThreadStack:          confval.INI.Get(config, "thread_stack"),
+		TmpTableSize:         confval.INI.Get(config, "tmp_table_size"),
+		MaxHeapTableSize:     confval.INI.Get(config, "max_heap_table_size"),
+		MyisamSortBufferSize: confval.INI.Get(config, "myisam_sort_buffer_size"),
 		// InnoDB
-		InnodbBufferPoolSize:      s.getINIValue(config, "innodb_buffer_pool_size"),
-		InnodbLogBufferSize:       s.getINIValue(config, "innodb_log_buffer_size"),
-		InnodbFlushLogAtTrxCommit: s.getINIValue(config, "innodb_flush_log_at_trx_commit"),
-		InnodbLockWaitTimeout:     s.getINIValue(config, "innodb_lock_wait_timeout"),
-		InnodbMaxDirtyPagesPct:    s.getINIValue(config, "innodb_max_dirty_pages_pct"),
-		InnodbReadIoThreads:       s.getINIValue(config, "innodb_read_io_threads"),
-		InnodbWriteIoThreads:      s.getINIValue(config, "innodb_write_io_threads"),
+		InnodbBufferPoolSize:      confval.INI.Get(config, "innodb_buffer_pool_size"),
+		InnodbLogBufferSize:       confval.INI.Get(config, "innodb_log_buffer_size"),
+		InnodbFlushLogAtTrxCommit: confval.INI.Get(config, "innodb_flush_log_at_trx_commit"),
+		InnodbLockWaitTimeout:     confval.INI.Get(config, "innodb_lock_wait_timeout"),
+		InnodbMaxDirtyPagesPct:    confval.INI.Get(config, "innodb_max_dirty_pages_pct"),
+		InnodbReadIoThreads:       confval.INI.Get(config, "innodb_read_io_threads"),
+		InnodbWriteIoThreads:      confval.INI.Get(config, "innodb_write_io_threads"),
 		// 日志
-		SlowQueryLog:  s.getINIValue(config, "slow_query_log"),
-		LongQueryTime: s.getINIValue(config, "long_query_time"),
+		SlowQueryLog:  confval.INI.Get(config, "slow_query_log"),
+		LongQueryTime: confval.INI.Get(config, "long_query_time"),
 	}
 
 	service.Success(w, tune)
@@ -307,35 +307,35 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 更新常规设置
-	config = s.setINIValue(config, "port", req.Port)
-	config = s.setINIValue(config, "max_connections", req.MaxConnections)
-	config = s.setINIValue(config, "max_connect_errors", req.MaxConnectErrors)
-	config = s.setINIValue(config, "default_storage_engine", req.DefaultStorageEngine)
-	config = s.setINIValue(config, "table_open_cache", req.TableOpenCache)
-	config = s.setINIValue(config, "max_allowed_packet", req.MaxAllowedPacket)
-	config = s.setINIValue(config, "open_files_limit", req.OpenFilesLimit)
+	config = confval.INI.Set(config, "port", req.Port)
+	config = confval.INI.Set(config, "max_connections", req.MaxConnections)
+	config = confval.INI.Set(config, "max_connect_errors", req.MaxConnectErrors)
+	config = confval.INI.Set(config, "default_storage_engine", req.DefaultStorageEngine)
+	config = confval.INI.Set(config, "table_open_cache", req.TableOpenCache)
+	config = confval.INI.Set(config, "max_allowed_packet", req.MaxAllowedPacket)
+	config = confval.INI.Set(config, "open_files_limit", req.OpenFilesLimit)
 	// 更新性能调整
-	config = s.setINIValue(config, "key_buffer_size", req.KeyBufferSize)
-	config = s.setINIValue(config, "sort_buffer_size", req.SortBufferSize)
-	config = s.setINIValue(config, "read_buffer_size", req.ReadBufferSize)
-	config = s.setINIValue(config, "read_rnd_buffer_size", req.ReadRndBufferSize)
-	config = s.setINIValue(config, "join_buffer_size", req.JoinBufferSize)
-	config = s.setINIValue(config, "thread_cache_size", req.ThreadCacheSize)
-	config = s.setINIValue(config, "thread_stack", req.ThreadStack)
-	config = s.setINIValue(config, "tmp_table_size", req.TmpTableSize)
-	config = s.setINIValue(config, "max_heap_table_size", req.MaxHeapTableSize)
-	config = s.setINIValue(config, "myisam_sort_buffer_size", req.MyisamSortBufferSize)
+	config = confval.INI.Set(config, "key_buffer_size", req.KeyBufferSize)
+	config = confval.INI.Set(config, "sort_buffer_size", req.SortBufferSize)
+	config = confval.INI.Set(config, "read_buffer_size", req.ReadBufferSize)
+	config = confval.INI.Set(config, "read_rnd_buffer_size", req.ReadRndBufferSize)
+	config = confval.INI.Set(config, "join_buffer_size", req.JoinBufferSize)
+	config = confval.INI.Set(config, "thread_cache_size", req.ThreadCacheSize)
+	config = confval.INI.Set(config, "thread_stack", req.ThreadStack)
+	config = confval.INI.Set(config, "tmp_table_size", req.TmpTableSize)
+	config = confval.INI.Set(config, "max_heap_table_size", req.MaxHeapTableSize)
+	config = confval.INI.Set(config, "myisam_sort_buffer_size", req.MyisamSortBufferSize)
 	// 更新 InnoDB
-	config = s.setINIValue(config, "innodb_buffer_pool_size", req.InnodbBufferPoolSize)
-	config = s.setINIValue(config, "innodb_log_buffer_size", req.InnodbLogBufferSize)
-	config = s.setINIValue(config, "innodb_flush_log_at_trx_commit", req.InnodbFlushLogAtTrxCommit)
-	config = s.setINIValue(config, "innodb_lock_wait_timeout", req.InnodbLockWaitTimeout)
-	config = s.setINIValue(config, "innodb_max_dirty_pages_pct", req.InnodbMaxDirtyPagesPct)
-	config = s.setINIValue(config, "innodb_read_io_threads", req.InnodbReadIoThreads)
-	config = s.setINIValue(config, "innodb_write_io_threads", req.InnodbWriteIoThreads)
+	config = confval.INI.Set(config, "innodb_buffer_pool_size", req.InnodbBufferPoolSize)
+	config = confval.INI.Set(config, "innodb_log_buffer_size", req.InnodbLogBufferSize)
+	config = confval.INI.Set(config, "innodb_flush_log_at_trx_commit", req.InnodbFlushLogAtTrxCommit)
+	config = confval.INI.Set(config, "innodb_lock_wait_timeout", req.InnodbLockWaitTimeout)
+	config = confval.INI.Set(config, "innodb_max_dirty_pages_pct", req.InnodbMaxDirtyPagesPct)
+	config = confval.INI.Set(config, "innodb_read_io_threads", req.InnodbReadIoThreads)
+	config = confval.INI.Set(config, "innodb_write_io_threads", req.InnodbWriteIoThreads)
 	// 更新日志
-	config = s.setINIValue(config, "slow_query_log", req.SlowQueryLog)
-	config = s.setINIValue(config, "long_query_time", req.LongQueryTime)
+	config = confval.INI.Set(config, "slow_query_log", req.SlowQueryLog)
+	config = confval.INI.Set(config, "long_query_time", req.LongQueryTime)
 
 	if err = io.Write(confPath, config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -350,78 +350,4 @@ func (s *App) getSock() string {
 		return sock
 	}
 	return "/tmp/mysql.sock"
-}
-
-// getINIValue 从 INI 格式内容中获取指定键的值
-func (s *App) getINIValue(content string, key string) string {
-	lines := strings.SplitSeq(content, "\n")
-	for line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, ";") || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-		if strings.HasPrefix(trimmed, "[") {
-			continue
-		}
-		parts := strings.SplitN(trimmed, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		k := strings.TrimSpace(parts[0])
-		if k == key {
-			return strings.TrimSpace(parts[1])
-		}
-	}
-	return ""
-}
-
-// setINIValue 在 INI 格式内容中设置指定键的值
-func (s *App) setINIValue(content string, key string, value string) string {
-	value = strings.ReplaceAll(value, "\n", "")
-	value = strings.ReplaceAll(value, "\r", "")
-
-	lines := strings.Split(content, "\n")
-	found := false
-	result := make([]string, 0, len(lines))
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "[") {
-			result = append(result, line)
-			continue
-		}
-		checkLine := trimmed
-		if strings.HasPrefix(checkLine, ";") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		} else if strings.HasPrefix(checkLine, "#") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		}
-		parts := strings.SplitN(checkLine, "=", 2)
-		if len(parts) != 2 {
-			result = append(result, line)
-			continue
-		}
-		k := strings.TrimSpace(parts[0])
-		if k == key {
-			if found {
-				continue
-			}
-			found = true
-			// 值为空时注释掉该配置项
-			if value == "" {
-				if !strings.HasPrefix(trimmed, ";") && !strings.HasPrefix(trimmed, "#") {
-					result = append(result, "#"+line)
-				} else {
-					result = append(result, line)
-				}
-				continue
-			}
-			result = append(result, key+" = "+value)
-		} else {
-			result = append(result, line)
-		}
-	}
-	if !found && value != "" {
-		result = append(result, key+" = "+value)
-	}
-	return strings.Join(result, "\n")
 }

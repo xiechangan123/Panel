@@ -13,10 +13,10 @@ type SSHService struct {
 	sshRepo *biz.SSHUsecase
 }
 
-func NewSSHService(sshUsecase *biz.SSHUsecase) (*SSHService, error) {
+func NewSSHService(sshUsecase *biz.SSHUsecase) *SSHService {
 	return &SSHService{
 		sshRepo: sshUsecase,
-	}, nil
+	}
 }
 
 func (s *SSHService) List(w http.ResponseWriter, r *http.Request) {

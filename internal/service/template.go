@@ -16,12 +16,12 @@ type TemplateService struct {
 	settingRepo  *biz.SettingUsecase
 }
 
-func NewTemplateService(settingUsecase *biz.SettingUsecase, templateUsecase *biz.TemplateUsecase, t *gotext.Locale) (*TemplateService, error) {
+func NewTemplateService(settingUsecase *biz.SettingUsecase, templateUsecase *biz.TemplateUsecase, t *gotext.Locale) *TemplateService {
 	return &TemplateService{
 		t:            t,
 		templateRepo: templateUsecase,
 		settingRepo:  settingUsecase,
-	}, nil
+	}
 }
 
 // List 获取所有模版

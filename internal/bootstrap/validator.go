@@ -10,7 +10,7 @@ import (
 )
 
 // NewValidator 构建校验器
-func NewValidator(conf *config.Config, db *gorm.DB) (*validator.Validator, error) {
+func NewValidator(conf *config.Config, db *gorm.DB) *validator.Validator {
 
 	opts := []validator.Option{validator.WithStrictRequired()}
 	switch conf.App.Locale {
@@ -23,5 +23,5 @@ func NewValidator(conf *config.Config, db *gorm.DB) (*validator.Validator, error
 	v := validator.NewValidator(opts...)
 	rule.RegisterRules(v, db)
 
-	return v, nil
+	return v
 }

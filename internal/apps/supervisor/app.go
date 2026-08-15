@@ -22,7 +22,7 @@ type App struct {
 	name string
 }
 
-func NewApp(t *gotext.Locale) (*App, error) {
+func NewApp(t *gotext.Locale) *App {
 
 	var name string
 	if os.IsRHEL() {
@@ -34,7 +34,7 @@ func NewApp(t *gotext.Locale) (*App, error) {
 	return &App{
 		t:    t,
 		name: name,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {

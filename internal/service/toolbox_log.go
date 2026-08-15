@@ -28,13 +28,13 @@ type ToolboxLogService struct {
 	settingRepo        *biz.SettingUsecase
 }
 
-func NewToolboxLogService(containerImageUsecase *biz.ContainerImageUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) (*ToolboxLogService, error) {
+func NewToolboxLogService(containerImageUsecase *biz.ContainerImageUsecase, settingUsecase *biz.SettingUsecase, db *gorm.DB, t *gotext.Locale) *ToolboxLogService {
 	return &ToolboxLogService{
 		t:                  t,
 		db:                 db,
 		containerImageRepo: containerImageUsecase,
 		settingRepo:        settingUsecase,
-	}, nil
+	}
 }
 
 // LogItem 日志项信息

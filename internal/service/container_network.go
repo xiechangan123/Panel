@@ -13,10 +13,10 @@ type ContainerNetworkService struct {
 	containerNetworkRepo *biz.ContainerNetworkUsecase
 }
 
-func NewContainerNetworkService(containerNetworkUsecase *biz.ContainerNetworkUsecase) (*ContainerNetworkService, error) {
+func NewContainerNetworkService(containerNetworkUsecase *biz.ContainerNetworkUsecase) *ContainerNetworkService {
 	return &ContainerNetworkService{
 		containerNetworkRepo: containerNetworkUsecase,
-	}, nil
+	}
 }
 
 func (s *ContainerNetworkService) List(w http.ResponseWriter, r *http.Request) {

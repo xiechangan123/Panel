@@ -12,10 +12,10 @@ type App struct {
 	nginx *nginx.App
 }
 
-func NewApp(nginxApp *nginx.App) (*App, error) {
+func NewApp(nginxApp *nginx.App) *App {
 	return &App{
 		nginx: nginxApp,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {

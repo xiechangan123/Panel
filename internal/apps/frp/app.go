@@ -15,8 +15,8 @@ import (
 
 type App struct{}
 
-func NewApp() (*App, error) {
-	return &App{}, nil
+func NewApp() *App {
+	return &App{}
 }
 
 func (s *App) Route(r chi.Router) {

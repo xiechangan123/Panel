@@ -27,13 +27,13 @@ type EnvironmentUsecase struct {
 	t     *gotext.Locale
 }
 
-func NewEnvironmentUsecase(t *gotext.Locale, cacheRepo CacheRepo, environmentRepo EnvironmentRepo, taskRepo TaskRepo) (*EnvironmentUsecase, error) {
+func NewEnvironmentUsecase(t *gotext.Locale, cacheRepo CacheRepo, environmentRepo EnvironmentRepo, taskRepo TaskRepo) *EnvironmentUsecase {
 	return &EnvironmentUsecase{
 		repo:  environmentRepo,
 		cache: cacheRepo,
 		task:  taskRepo,
 		t:     t,
-	}, nil
+	}
 }
 
 func (uc *EnvironmentUsecase) Types() []types.LV {

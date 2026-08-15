@@ -48,14 +48,14 @@ type DatabaseUsecase struct {
 	log    *slog.Logger
 }
 
-func NewDatabaseUsecase(databaseUserUsecase *DatabaseUserUsecase, t *gotext.Locale, log *slog.Logger, databaseRepo DatabaseRepo, databaseServerRepo DatabaseServerRepo) (*DatabaseUsecase, error) {
+func NewDatabaseUsecase(databaseUserUsecase *DatabaseUserUsecase, t *gotext.Locale, log *slog.Logger, databaseRepo DatabaseRepo, databaseServerRepo DatabaseServerRepo) *DatabaseUsecase {
 	return &DatabaseUsecase{
 		repo:   databaseRepo,
 		server: databaseServerRepo,
 		user:   databaseUserUsecase,
 		t:      t,
 		log:    log,
-	}, nil
+	}
 }
 
 func (uc *DatabaseUsecase) List(ctx context.Context, page, limit uint, typ string) ([]*Database, int64, error) {

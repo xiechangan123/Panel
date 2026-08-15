@@ -35,10 +35,10 @@ func NewToolboxMigrationService(
 	conf *config.Config,
 	t *gotext.Locale,
 	log *slog.Logger,
-) (*ToolboxMigrationService, error) {
+) *ToolboxMigrationService {
 	return &ToolboxMigrationService{
 		t: t, conf: conf, log: log, migrationRepo: migrationUsecase,
-	}, nil
+	}
 }
 
 // PreCheck 连接来源面板并返回来源信息

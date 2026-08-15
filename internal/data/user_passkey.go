@@ -12,8 +12,8 @@ type userPasskeyRepo struct {
 	db *gorm.DB
 }
 
-func NewUserPasskeyRepo(db *gorm.DB) (biz.UserPasskeyRepo, error) {
-	return &userPasskeyRepo{db: db}, nil
+func NewUserPasskeyRepo(db *gorm.DB) biz.UserPasskeyRepo {
+	return &userPasskeyRepo{db: db}
 }
 
 func (r userPasskeyRepo) List(userID uint) ([]*biz.UserPasskey, error) {

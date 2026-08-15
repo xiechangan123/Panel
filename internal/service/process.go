@@ -19,8 +19,8 @@ import (
 type ProcessService struct {
 }
 
-func NewProcessService() (*ProcessService, error) {
-	return &ProcessService{}, nil
+func NewProcessService() *ProcessService {
+	return &ProcessService{}
 }
 
 func (s *ProcessService) List(w http.ResponseWriter, r *http.Request) {

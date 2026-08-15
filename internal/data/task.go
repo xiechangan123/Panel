@@ -19,13 +19,13 @@ type taskRepo struct {
 	runner types.TaskRunner
 }
 
-func NewTaskRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger, runner types.TaskRunner) (biz.TaskRepo, error) {
+func NewTaskRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger, runner types.TaskRunner) biz.TaskRepo {
 	return &taskRepo{
 		t:      t,
 		db:     db,
 		log:    log,
 		runner: runner,
-	}, nil
+	}
 }
 
 func (r *taskRepo) HasRunningTask() bool {

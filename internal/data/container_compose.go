@@ -15,8 +15,8 @@ import (
 
 type containerComposeRepo struct{}
 
-func NewContainerComposeRepo() (biz.ContainerComposeRepo, error) {
-	return &containerComposeRepo{}, nil
+func NewContainerComposeRepo() biz.ContainerComposeRepo {
+	return &containerComposeRepo{}
 }
 
 // List 列出所有编排

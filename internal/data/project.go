@@ -28,11 +28,11 @@ type projectRepo struct {
 	db *gorm.DB
 }
 
-func NewProjectRepo(db *gorm.DB, t *gotext.Locale) (biz.ProjectRepo, error) {
+func NewProjectRepo(db *gorm.DB, t *gotext.Locale) biz.ProjectRepo {
 	return &projectRepo{
 		t:  t,
 		db: db,
-	}, nil
+	}
 }
 
 func (r *projectRepo) Count() (int64, error) {

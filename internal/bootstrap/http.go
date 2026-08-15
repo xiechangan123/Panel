@@ -93,7 +93,7 @@ func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
 	return reloader, nil
 }
 
-func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader) (*hlfhr.Server, error) {
+func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader) *hlfhr.Server {
 
 	mux := router
 
@@ -111,7 +111,7 @@ func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader) (
 		}
 	}
 
-	return srv, nil
+	return srv
 }
 
 func newPrecompressedSPAHandler(fsys http.FileSystem) http.HandlerFunc {

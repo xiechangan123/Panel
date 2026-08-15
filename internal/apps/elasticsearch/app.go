@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -15,6 +14,8 @@ import (
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -25,8 +26,8 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) (*App, error) {
-	return &App{t: t}, nil
+func NewApp(t *gotext.Locale) *App {
+	return &App{t: t}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -92,28 +93,11 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(s.configPath())
-	service.Success(w, conf)
+	common.ServeConfig(w, s.configPath())
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(s.configPath(), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart("elasticsearch"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.configPath(), "elasticsearch")
 }
 
 // GetConfigTune 获取 ElasticSearch 配置调整参数
@@ -135,13 +119,13 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tune := ConfigTune{
-		ClusterName:   s.getYAMLValue(cfg, "cluster.name"),
-		NodeName:      s.getYAMLValue(cfg, "node.name"),
-		NetworkHost:   s.getYAMLValue(cfg, "network.host"),
-		HTTPPort:      s.getYAMLValue(cfg, "http.port"),
-		DiscoveryType: s.getYAMLValue(cfg, "discovery.type"),
-		PathData:      s.getYAMLValue(cfg, "path.data"),
-		PathLogs:      s.getYAMLValue(cfg, "path.logs"),
+		ClusterName:   confval.GetYAML(cfg, "cluster.name"),
+		NodeName:      confval.GetYAML(cfg, "node.name"),
+		NetworkHost:   confval.GetYAML(cfg, "network.host"),
+		HTTPPort:      confval.GetYAML(cfg, "http.port"),
+		DiscoveryType: confval.GetYAML(cfg, "discovery.type"),
+		PathData:      confval.GetYAML(cfg, "path.data"),
+		PathLogs:      confval.GetYAML(cfg, "path.logs"),
 		HeapInitSize:  heapInit,
 		HeapMaxSize:   heapMax,
 	}
@@ -164,13 +148,13 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		cfg = make(map[string]any)
 	}
 
-	s.setYAMLValue(cfg, "cluster.name", req.ClusterName)
-	s.setYAMLValue(cfg, "node.name", req.NodeName)
-	s.setYAMLValue(cfg, "network.host", req.NetworkHost)
-	s.setYAMLValue(cfg, "http.port", req.HTTPPort)
-	s.setYAMLValue(cfg, "discovery.type", req.DiscoveryType)
-	s.setYAMLValue(cfg, "path.data", req.PathData)
-	s.setYAMLValue(cfg, "path.logs", req.PathLogs)
+	confval.SetYAML(cfg, "cluster.name", req.ClusterName)
+	confval.SetYAML(cfg, "node.name", req.NodeName)
+	confval.SetYAML(cfg, "network.host", req.NetworkHost)
+	confval.SetYAML(cfg, "http.port", req.HTTPPort)
+	confval.SetYAML(cfg, "discovery.type", req.DiscoveryType)
+	confval.SetYAML(cfg, "path.data", req.PathData)
+	confval.SetYAML(cfg, "path.logs", req.PathLogs)
 
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
@@ -221,51 +205,11 @@ func (s *App) getPort() string {
 	var cfg map[string]any
 	_ = yaml.Unmarshal([]byte(raw), &cfg)
 	if cfg != nil {
-		if v := s.getYAMLValue(cfg, "http.port"); v != "" {
+		if v := confval.GetYAML(cfg, "http.port"); v != "" {
 			return v
 		}
 	}
 	return "9200"
-}
-
-// getYAMLValue 获取 YAML 值，优先匹配平铺键（如 "path.data"），回退到嵌套键（如 path -> data）
-func (s *App) getYAMLValue(cfg map[string]any, key string) string {
-	// 优先匹配平铺键（安装脚本用 sed 生成的格式）
-	if val, ok := cfg[key]; ok {
-		return cast.ToString(val)
-	}
-	// 回退到嵌套键
-	parts := strings.SplitN(key, ".", 2)
-	val, ok := cfg[parts[0]]
-	if !ok {
-		return ""
-	}
-	if len(parts) == 1 {
-		return cast.ToString(val)
-	}
-	nested, ok := val.(map[string]any)
-	if !ok {
-		return ""
-	}
-	return s.getYAMLValue(nested, parts[1])
-}
-
-// setYAMLValue 设置 YAML 值
-func (s *App) setYAMLValue(cfg map[string]any, key string, value string) {
-	if value == "" {
-		return
-	}
-	// 使用平铺键，同时清理可能存在的嵌套键
-	cfg[key] = value
-	parts := strings.SplitN(key, ".", 2)
-	if len(parts) == 2 {
-		if nested, ok := cfg[parts[0]].(map[string]any); ok {
-			delete(nested, parts[1])
-			if len(nested) == 0 {
-				delete(cfg, parts[0])
-			}
-		}
-	}
 }
 
 // parseJVMHeap 从 jvm.options 中提取堆内存配置

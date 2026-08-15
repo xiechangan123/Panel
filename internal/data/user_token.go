@@ -29,12 +29,12 @@ type userTokenRepo struct {
 	db   *gorm.DB
 }
 
-func NewUserTokenRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale) (biz.UserTokenRepo, error) {
+func NewUserTokenRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale) biz.UserTokenRepo {
 	return &userTokenRepo{
 		t:    t,
 		conf: conf,
 		db:   db,
-	}, nil
+	}
 }
 
 func (r userTokenRepo) List(userID, page, limit uint) ([]*biz.UserToken, int64, error) {

@@ -36,8 +36,8 @@ type migrationRemoteRepo struct {
 	t *gotext.Locale
 }
 
-func NewMigrationRemoteRepo(t *gotext.Locale) (biz.MigrationRemoteRepo, error) {
-	return &migrationRemoteRepo{t: t}, nil
+func NewMigrationRemoteRepo(t *gotext.Locale) biz.MigrationRemoteRepo {
+	return &migrationRemoteRepo{t: t}
 }
 
 // client 构造带 HMAC 签名的目标面板客户端

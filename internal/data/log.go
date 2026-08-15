@@ -27,10 +27,10 @@ type logRepo struct {
 	db *gorm.DB
 }
 
-func NewLogRepo(db *gorm.DB) (biz.LogRepo, error) {
+func NewLogRepo(db *gorm.DB) biz.LogRepo {
 	return &logRepo{
 		db: db,
-	}, nil
+	}
 }
 
 // List 获取日志列表

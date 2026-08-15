@@ -15,6 +15,7 @@ import (
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/config"
@@ -30,13 +31,13 @@ type EnvironmentPHPService struct {
 	taskRepo        *biz.TaskUsecase
 }
 
-func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale) (*EnvironmentPHPService, error) {
+func NewEnvironmentPHPService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, conf *config.Config, t *gotext.Locale) *EnvironmentPHPService {
 	return &EnvironmentPHPService{
 		t:               t,
 		conf:            conf,
 		environmentRepo: environmentUsecase,
 		taskRepo:        taskUsecase,
-	}, nil
+	}
 }
 
 func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {
@@ -629,32 +630,32 @@ func (s *EnvironmentPHPService) GetConfigTune(w http.ResponseWriter, r *http.Req
 
 	tune := request.EnvironmentPHPConfigTune{
 		// php.ini 常规设置
-		ShortOpenTag:   s.getINIValue(ini, "short_open_tag"),
-		DateTimezone:   s.getINIValue(ini, "date.timezone"),
-		DisplayErrors:  s.getINIValue(ini, "display_errors"),
-		ErrorReporting: s.getINIValue(ini, "error_reporting"),
+		ShortOpenTag:   confval.PHPINI.Get(ini, "short_open_tag"),
+		DateTimezone:   confval.PHPINI.Get(ini, "date.timezone"),
+		DisplayErrors:  confval.PHPINI.Get(ini, "display_errors"),
+		ErrorReporting: confval.PHPINI.Get(ini, "error_reporting"),
 		// php.ini 禁用函数
-		DisableFunctions: s.getINIValue(ini, "disable_functions"),
+		DisableFunctions: confval.PHPINI.Get(ini, "disable_functions"),
 		// php.ini 上传限制
-		UploadMaxFilesize: s.getINIValue(ini, "upload_max_filesize"),
-		PostMaxSize:       s.getINIValue(ini, "post_max_size"),
-		MaxFileUploads:    s.getINIValue(ini, "max_file_uploads"),
-		MemoryLimit:       s.getINIValue(ini, "memory_limit"),
+		UploadMaxFilesize: confval.PHPINI.Get(ini, "upload_max_filesize"),
+		PostMaxSize:       confval.PHPINI.Get(ini, "post_max_size"),
+		MaxFileUploads:    confval.PHPINI.Get(ini, "max_file_uploads"),
+		MemoryLimit:       confval.PHPINI.Get(ini, "memory_limit"),
 		// php.ini 超时限制
-		MaxExecutionTime: s.getINIValue(ini, "max_execution_time"),
-		MaxInputTime:     s.getINIValue(ini, "max_input_time"),
-		MaxInputVars:     s.getINIValue(ini, "max_input_vars"),
+		MaxExecutionTime: confval.PHPINI.Get(ini, "max_execution_time"),
+		MaxInputTime:     confval.PHPINI.Get(ini, "max_input_time"),
+		MaxInputVars:     confval.PHPINI.Get(ini, "max_input_vars"),
 		// Session 相关
-		SessionSaveHandler:    s.getINIValue(ini, "session.save_handler"),
-		SessionSavePath:       s.getINIValue(ini, "session.save_path"),
-		SessionGcMaxlifetime:  s.getINIValue(ini, "session.gc_maxlifetime"),
-		SessionCookieLifetime: s.getINIValue(ini, "session.cookie_lifetime"),
+		SessionSaveHandler:    confval.PHPINI.Get(ini, "session.save_handler"),
+		SessionSavePath:       confval.PHPINI.Get(ini, "session.save_path"),
+		SessionGcMaxlifetime:  confval.PHPINI.Get(ini, "session.gc_maxlifetime"),
+		SessionCookieLifetime: confval.PHPINI.Get(ini, "session.cookie_lifetime"),
 		// php-fpm.conf 配置
-		Pm:                s.getINIValue(fpm, "pm"),
-		PmMaxChildren:     s.getINIValue(fpm, "pm.max_children"),
-		PmStartServers:    s.getINIValue(fpm, "pm.start_servers"),
-		PmMinSpareServers: s.getINIValue(fpm, "pm.min_spare_servers"),
-		PmMaxSpareServers: s.getINIValue(fpm, "pm.max_spare_servers"),
+		Pm:                confval.PHPINI.Get(fpm, "pm"),
+		PmMaxChildren:     confval.PHPINI.Get(fpm, "pm.max_children"),
+		PmStartServers:    confval.PHPINI.Get(fpm, "pm.start_servers"),
+		PmMinSpareServers: confval.PHPINI.Get(fpm, "pm.min_spare_servers"),
+		PmMaxSpareServers: confval.PHPINI.Get(fpm, "pm.max_spare_servers"),
 	}
 
 	Success(w, tune)
@@ -687,29 +688,29 @@ func (s *EnvironmentPHPService) UpdateConfigTune(w http.ResponseWriter, r *http.
 	}
 
 	// 更新 php.ini 配置
-	ini = s.setINIValue(ini, "short_open_tag", req.ShortOpenTag)
-	ini = s.setINIValue(ini, "date.timezone", req.DateTimezone)
-	ini = s.setINIValue(ini, "display_errors", req.DisplayErrors)
-	ini = s.setINIValue(ini, "error_reporting", req.ErrorReporting)
-	ini = s.setINIValue(ini, "disable_functions", req.DisableFunctions)
-	ini = s.setINIValue(ini, "upload_max_filesize", req.UploadMaxFilesize)
-	ini = s.setINIValue(ini, "post_max_size", req.PostMaxSize)
-	ini = s.setINIValue(ini, "max_execution_time", req.MaxExecutionTime)
-	ini = s.setINIValue(ini, "max_input_time", req.MaxInputTime)
-	ini = s.setINIValue(ini, "memory_limit", req.MemoryLimit)
-	ini = s.setINIValue(ini, "max_input_vars", req.MaxInputVars)
-	ini = s.setINIValue(ini, "max_file_uploads", req.MaxFileUploads)
-	ini = s.setINIValue(ini, "session.save_handler", req.SessionSaveHandler)
-	ini = s.setINIValue(ini, "session.save_path", req.SessionSavePath)
-	ini = s.setINIValue(ini, "session.gc_maxlifetime", req.SessionGcMaxlifetime)
-	ini = s.setINIValue(ini, "session.cookie_lifetime", req.SessionCookieLifetime)
+	ini = confval.PHPINI.Set(ini, "short_open_tag", req.ShortOpenTag)
+	ini = confval.PHPINI.Set(ini, "date.timezone", req.DateTimezone)
+	ini = confval.PHPINI.Set(ini, "display_errors", req.DisplayErrors)
+	ini = confval.PHPINI.Set(ini, "error_reporting", req.ErrorReporting)
+	ini = confval.PHPINI.Set(ini, "disable_functions", req.DisableFunctions)
+	ini = confval.PHPINI.Set(ini, "upload_max_filesize", req.UploadMaxFilesize)
+	ini = confval.PHPINI.Set(ini, "post_max_size", req.PostMaxSize)
+	ini = confval.PHPINI.Set(ini, "max_execution_time", req.MaxExecutionTime)
+	ini = confval.PHPINI.Set(ini, "max_input_time", req.MaxInputTime)
+	ini = confval.PHPINI.Set(ini, "memory_limit", req.MemoryLimit)
+	ini = confval.PHPINI.Set(ini, "max_input_vars", req.MaxInputVars)
+	ini = confval.PHPINI.Set(ini, "max_file_uploads", req.MaxFileUploads)
+	ini = confval.PHPINI.Set(ini, "session.save_handler", req.SessionSaveHandler)
+	ini = confval.PHPINI.Set(ini, "session.save_path", req.SessionSavePath)
+	ini = confval.PHPINI.Set(ini, "session.gc_maxlifetime", req.SessionGcMaxlifetime)
+	ini = confval.PHPINI.Set(ini, "session.cookie_lifetime", req.SessionCookieLifetime)
 
 	// 更新 php-fpm.conf 配置
-	fpm = s.setINIValue(fpm, "pm", req.Pm)
-	fpm = s.setINIValue(fpm, "pm.max_children", req.PmMaxChildren)
-	fpm = s.setINIValue(fpm, "pm.start_servers", req.PmStartServers)
-	fpm = s.setINIValue(fpm, "pm.min_spare_servers", req.PmMinSpareServers)
-	fpm = s.setINIValue(fpm, "pm.max_spare_servers", req.PmMaxSpareServers)
+	fpm = confval.PHPINI.Set(fpm, "pm", req.Pm)
+	fpm = confval.PHPINI.Set(fpm, "pm.max_children", req.PmMaxChildren)
+	fpm = confval.PHPINI.Set(fpm, "pm.start_servers", req.PmStartServers)
+	fpm = confval.PHPINI.Set(fpm, "pm.min_spare_servers", req.PmMinSpareServers)
+	fpm = confval.PHPINI.Set(fpm, "pm.max_spare_servers", req.PmMaxSpareServers)
 
 	if err = io.Write(iniPath, ini, 0644); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -742,13 +743,13 @@ func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	handler := s.getINIValue(ini, "session.save_handler")
+	handler := confval.PHPINI.Get(ini, "session.save_handler")
 	if handler != "files" {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("Session save handler is not files, cannot clean"))
 		return
 	}
 
-	savePath := s.getINIValue(ini, "session.save_path")
+	savePath := confval.PHPINI.Get(ini, "session.save_path")
 	if savePath == "" {
 		savePath = "/tmp"
 	}
@@ -759,84 +760,4 @@ func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Requ
 	}
 
 	Success(w, nil)
-}
-
-// getINIValue 从 INI 格式内容中获取指定键的值
-func (s *EnvironmentPHPService) getINIValue(content string, key string) string {
-	lines := strings.SplitSeq(content, "\n")
-	for line := range lines {
-		trimmed := strings.TrimSpace(line)
-		// 跳过注释行和空行
-		if trimmed == "" || strings.HasPrefix(trimmed, ";") || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-		// 跳过 section 行
-		if strings.HasPrefix(trimmed, "[") {
-			continue
-		}
-		parts := strings.SplitN(trimmed, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		k := strings.TrimSpace(parts[0])
-		if k == key {
-			return strings.TrimSpace(parts[1])
-		}
-	}
-	return ""
-}
-
-// setINIValue 在 INI 格式内容中设置指定键的值
-func (s *EnvironmentPHPService) setINIValue(content string, key string, value string) string {
-	// 过滤值中的换行符，防止破坏 INI 文件结构
-	value = strings.ReplaceAll(value, "\n", "")
-	value = strings.ReplaceAll(value, "\r", "")
-
-	lines := strings.Split(content, "\n")
-	found := false
-	result := make([]string, 0, len(lines))
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		// 跳过空行和 section 行
-		if trimmed == "" || strings.HasPrefix(trimmed, "[") {
-			result = append(result, line)
-			continue
-		}
-		// 处理注释行（可能是被注释掉的配置）
-		checkLine := trimmed
-		if strings.HasPrefix(checkLine, ";") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		} else if strings.HasPrefix(checkLine, "#") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		}
-		parts := strings.SplitN(checkLine, "=", 2)
-		if len(parts) != 2 {
-			result = append(result, line)
-			continue
-		}
-		k := strings.TrimSpace(parts[0])
-		if k == key {
-			if found {
-				// 如果已经找到并替换过，跳过重复行
-				continue
-			}
-			found = true
-			// 值为空时注释掉该配置项
-			if value == "" {
-				if !strings.HasPrefix(trimmed, ";") && !strings.HasPrefix(trimmed, "#") {
-					result = append(result, ";"+line)
-				} else {
-					result = append(result, line)
-				}
-				continue
-			}
-			result = append(result, key+" = "+value)
-		} else {
-			result = append(result, line)
-		}
-	}
-	if !found && value != "" {
-		result = append(result, key+" = "+value)
-	}
-	return strings.Join(result, "\n")
 }

@@ -13,10 +13,10 @@ type ContainerImageService struct {
 	containerImageRepo *biz.ContainerImageUsecase
 }
 
-func NewContainerImageService(containerImageUsecase *biz.ContainerImageUsecase) (*ContainerImageService, error) {
+func NewContainerImageService(containerImageUsecase *biz.ContainerImageUsecase) *ContainerImageService {
 	return &ContainerImageService{
 		containerImageRepo: containerImageUsecase,
-	}, nil
+	}
 }
 
 func (s *ContainerImageService) List(w http.ResponseWriter, r *http.Request) {

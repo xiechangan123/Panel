@@ -13,10 +13,10 @@ type AlertService struct {
 	alertRepo *biz.AlertUsecase
 }
 
-func NewAlertService(alertUsecase *biz.AlertUsecase) (*AlertService, error) {
+func NewAlertService(alertUsecase *biz.AlertUsecase) *AlertService {
 	return &AlertService{
 		alertRepo: alertUsecase,
-	}, nil
+	}
 }
 
 func (s *AlertService) ListRules(w http.ResponseWriter, r *http.Request) {

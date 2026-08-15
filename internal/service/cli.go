@@ -56,7 +56,7 @@ type CliService struct {
 	hash               hash.Hasher
 }
 
-func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale) (*CliService, error) {
+func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUsecase, certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.CertUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, notifyUsecase *biz.NotifyUsecase, settingUsecase *biz.SettingUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, db *gorm.DB, t *gotext.Locale) *CliService {
 	return &CliService{
 		hr:                 `+----------------------------------------------------`,
 		api:                api.NewAPI(app.Version, app.Locale),
@@ -76,7 +76,7 @@ func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase,
 		cronRepo:           cronUsecase,
 		notifyRepo:         notifyUsecase,
 		hash:               hash.NewArgon2id(),
-	}, nil
+	}
 }
 
 func (s *CliService) Status(ctx context.Context, cmd *cli.Command) error {

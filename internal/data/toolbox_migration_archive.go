@@ -14,8 +14,8 @@ import (
 
 type migrationArchiveRepo struct{}
 
-func NewMigrationArchiveRepo() (biz.MigrationArchiveRepo, error) {
-	return &migrationArchiveRepo{}, nil
+func NewMigrationArchiveRepo() biz.MigrationArchiveRepo {
+	return &migrationArchiveRepo{}
 }
 
 // TempDir 在面板目录下创建临时目录，避免大文件撑爆 /tmp（常为内存盘）

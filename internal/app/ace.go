@@ -30,7 +30,7 @@ type Ace struct {
 	runner   types.TaskRunner
 }
 
-func NewAce(router *chi.Mux, conf *config.Config, cron *cron.Cron, migrator *gormigrate.Gormigrate, server *hlfhr.Server, reloader *tlscert.Reloader, runner types.TaskRunner) (*Ace, error) {
+func NewAce(router *chi.Mux, conf *config.Config, cron *cron.Cron, migrator *gormigrate.Gormigrate, server *hlfhr.Server, reloader *tlscert.Reloader, runner types.TaskRunner) *Ace {
 	return &Ace{
 		conf:     conf,
 		router:   router,
@@ -39,7 +39,7 @@ func NewAce(router *chi.Mux, conf *config.Config, cron *cron.Cron, migrator *gor
 		migrator: migrator,
 		cron:     cron,
 		runner:   runner,
-	}, nil
+	}
 }
 
 func (r *Ace) Run() error {

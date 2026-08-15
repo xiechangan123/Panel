@@ -17,11 +17,11 @@ type CertService struct {
 	certRepo *biz.CertUsecase
 }
 
-func NewCertService(certUsecase *biz.CertUsecase, t *gotext.Locale) (*CertService, error) {
+func NewCertService(certUsecase *biz.CertUsecase, t *gotext.Locale) *CertService {
 	return &CertService{
 		t:        t,
 		certRepo: certUsecase,
-	}, nil
+	}
 }
 
 func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {

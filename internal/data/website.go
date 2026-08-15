@@ -37,12 +37,12 @@ type websiteRepo struct {
 	setting biz.SettingRepo
 }
 
-func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) (biz.WebsiteRepo, error) {
+func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) biz.WebsiteRepo {
 	return &websiteRepo{
 		t:       t,
 		db:      db,
 		setting: settingRepo,
-	}, nil
+	}
 }
 
 const nginxPHPCacheConfig = `# browser cache

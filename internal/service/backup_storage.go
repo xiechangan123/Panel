@@ -18,11 +18,11 @@ type BackupStorageService struct {
 	backupAccountRepo *biz.BackupAccountUsecase
 }
 
-func NewBackupStorageService(backupAccountUsecase *biz.BackupAccountUsecase, t *gotext.Locale) (*BackupStorageService, error) {
+func NewBackupStorageService(backupAccountUsecase *biz.BackupAccountUsecase, t *gotext.Locale) *BackupStorageService {
 	return &BackupStorageService{
 		t:                 t,
 		backupAccountRepo: backupAccountUsecase,
-	}, nil
+	}
 }
 
 func (s *BackupStorageService) List(w http.ResponseWriter, r *http.Request) {
@@ -123,7 +123,7 @@ func (s *BackupStorageService) validateStorage(accountType string, info types.Ba
 
 	switch biz.BackupStorageType(accountType) {
 	case biz.BackupStorageTypeS3:
-		client, err = storage.NewS3(storage.S3Config{
+		client = storage.NewS3(storage.S3Config{
 			Region:          info.Region,
 			Bucket:          info.Bucket,
 			AccessKey:       info.AccessKey,
@@ -133,9 +133,6 @@ func (s *BackupStorageService) validateStorage(accountType string, info types.Ba
 			BasePath:        info.Path,
 			AddressingStyle: storage.S3AddressingStyle(info.Style),
 		})
-		if err != nil {
-			return errors.New(s.t.Get("s3 configuration error: %v", err))
-		}
 	case biz.BackupStorageTypeSFTP:
 		client, err = storage.NewSFTP(storage.SFTPConfig{
 			Host:       info.Host,

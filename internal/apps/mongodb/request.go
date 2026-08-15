@@ -1,10 +1,5 @@
 package mongodb
 
-// UpdateConfig 更新配置
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // SetAdminPassword 设置 admin 密码
 type SetAdminPassword struct {
 	Password string `form:"password" json:"password" validate:"required && password"`

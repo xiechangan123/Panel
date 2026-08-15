@@ -14,10 +14,10 @@ type ContainerService struct {
 	containerRepo *biz.ContainerUsecase
 }
 
-func NewContainerService(containerUsecase *biz.ContainerUsecase) (*ContainerService, error) {
+func NewContainerService(containerUsecase *biz.ContainerUsecase) *ContainerService {
 	return &ContainerService{
 		containerRepo: containerUsecase,
-	}, nil
+	}
 }
 
 func (s *ContainerService) List(w http.ResponseWriter, r *http.Request) {

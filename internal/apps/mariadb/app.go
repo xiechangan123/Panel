@@ -10,10 +10,10 @@ type App struct {
 	mysql *mysql.App
 }
 
-func NewApp(mysqlApp *mysql.App) (*App, error) {
+func NewApp(mysqlApp *mysql.App) *App {
 	return &App{
 		mysql: mysqlApp,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {

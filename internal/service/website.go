@@ -25,12 +25,12 @@ type WebsiteService struct {
 	settingRepo *biz.SettingUsecase
 }
 
-func NewWebsiteService(settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, t *gotext.Locale) (*WebsiteService, error) {
+func NewWebsiteService(settingUsecase *biz.SettingUsecase, websiteUsecase *biz.WebsiteUsecase, t *gotext.Locale) *WebsiteService {
 	return &WebsiteService{
 		t:           t,
 		websiteRepo: websiteUsecase,
 		settingRepo: settingUsecase,
-	}, nil
+	}
 }
 
 func (s *WebsiteService) GetRewrites(w http.ResponseWriter, r *http.Request) {

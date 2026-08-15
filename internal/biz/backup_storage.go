@@ -145,13 +145,13 @@ type BackupAccountUsecase struct {
 	log     *slog.Logger
 }
 
-func NewBackupAccountUsecase(t *gotext.Locale, log *slog.Logger, backupAccountRepo BackupAccountRepo, settingRepo SettingRepo) (*BackupAccountUsecase, error) {
+func NewBackupAccountUsecase(t *gotext.Locale, log *slog.Logger, backupAccountRepo BackupAccountRepo, settingRepo SettingRepo) *BackupAccountUsecase {
 	return &BackupAccountUsecase{
 		repo:    backupAccountRepo,
 		setting: settingRepo,
 		t:       t,
 		log:     log,
-	}, nil
+	}
 }
 
 func (uc *BackupAccountUsecase) List(page, limit uint) ([]*BackupStorage, int64, error) {

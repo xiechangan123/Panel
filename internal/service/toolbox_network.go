@@ -23,11 +23,11 @@ type ToolboxNetworkService struct {
 	network *panelnetwork.Service
 }
 
-func NewToolboxNetworkService(t *gotext.Locale) (*ToolboxNetworkService, error) {
+func NewToolboxNetworkService(t *gotext.Locale) *ToolboxNetworkService {
 	return &ToolboxNetworkService{
 		t:       t,
 		network: panelnetwork.New(),
-	}, nil
+	}
 }
 
 type networkConnection struct {

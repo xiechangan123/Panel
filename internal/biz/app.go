@@ -71,13 +71,13 @@ type AppUsecase struct {
 	t     *gotext.Locale
 }
 
-func NewAppUsecase(t *gotext.Locale, appRepo AppRepo, cacheRepo CacheRepo, taskRepo TaskRepo) (*AppUsecase, error) {
+func NewAppUsecase(t *gotext.Locale, appRepo AppRepo, cacheRepo CacheRepo, taskRepo TaskRepo) *AppUsecase {
 	return &AppUsecase{
 		repo:  appRepo,
 		cache: cacheRepo,
 		task:  taskRepo,
 		t:     t,
-	}, nil
+	}
 }
 
 func (uc *AppUsecase) Categories() []types.LV {

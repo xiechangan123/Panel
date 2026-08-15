@@ -13,8 +13,8 @@ type DatabaseRedisService struct {
 	repo *biz.DatabaseRedisUsecase
 }
 
-func NewDatabaseRedisService(databaseRedisUsecase *biz.DatabaseRedisUsecase) (*DatabaseRedisService, error) {
-	return &DatabaseRedisService{repo: databaseRedisUsecase}, nil
+func NewDatabaseRedisService(databaseRedisUsecase *biz.DatabaseRedisUsecase) *DatabaseRedisService {
+	return &DatabaseRedisService{repo: databaseRedisUsecase}
 }
 
 func (s *DatabaseRedisService) Databases(w http.ResponseWriter, r *http.Request) {

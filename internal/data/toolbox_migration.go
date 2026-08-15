@@ -37,8 +37,8 @@ type migrationSourceRepo struct {
 	t *gotext.Locale
 }
 
-func NewMigrationSourceRepo(t *gotext.Locale) (biz.MigrationSourceRepo, error) {
-	return &migrationSourceRepo{t: t}, nil
+func NewMigrationSourceRepo(t *gotext.Locale) biz.MigrationSourceRepo {
+	return &migrationSourceRepo{t: t}
 }
 
 func (r *migrationSourceRepo) adapter(conn *request.ToolboxMigrationConnection) (migrationAdapter, error) {

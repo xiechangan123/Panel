@@ -92,12 +92,12 @@ type DatabaseServerUsecase struct {
 	log  *slog.Logger
 }
 
-func NewDatabaseServerUsecase(t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo) (*DatabaseServerUsecase, error) {
+func NewDatabaseServerUsecase(t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo) *DatabaseServerUsecase {
 	return &DatabaseServerUsecase{
 		repo: databaseServerRepo,
 		t:    t,
 		log:  log,
-	}, nil
+	}
 }
 
 func (uc *DatabaseServerUsecase) Count() (int64, error) {

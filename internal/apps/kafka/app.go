@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
@@ -20,8 +21,8 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) (*App, error) {
-	return &App{t: t}, nil
+func NewApp(t *gotext.Locale) *App {
+	return &App{t: t}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -51,40 +52,23 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	config, _ := io.Read(s.configPath())
 
 	data := []types.NV{
-		{Name: s.t.Get("Node ID"), Value: s.getPropertiesValue(config, "node.id")},
-		{Name: s.t.Get("Listeners"), Value: s.getPropertiesValue(config, "listeners")},
-		{Name: s.t.Get("Log Dirs"), Value: s.getPropertiesValue(config, "log.dirs")},
-		{Name: s.t.Get("Num Partitions"), Value: s.getPropertiesValue(config, "num.partitions")},
-		{Name: s.t.Get("Log Retention Hours"), Value: s.getPropertiesValue(config, "log.retention.hours")},
-		{Name: s.t.Get("Log Segment Bytes"), Value: s.getPropertiesValue(config, "log.segment.bytes")},
+		{Name: s.t.Get("Node ID"), Value: confval.Properties.Get(config, "node.id")},
+		{Name: s.t.Get("Listeners"), Value: confval.Properties.Get(config, "listeners")},
+		{Name: s.t.Get("Log Dirs"), Value: confval.Properties.Get(config, "log.dirs")},
+		{Name: s.t.Get("Num Partitions"), Value: confval.Properties.Get(config, "num.partitions")},
+		{Name: s.t.Get("Log Retention Hours"), Value: confval.Properties.Get(config, "log.retention.hours")},
+		{Name: s.t.Get("Log Segment Bytes"), Value: confval.Properties.Get(config, "log.segment.bytes")},
 	}
 
 	service.Success(w, data)
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(s.configPath())
-	service.Success(w, conf)
+	common.ServeConfig(w, s.configPath())
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(s.configPath(), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart("kafka"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.configPath(), "kafka")
 }
 
 // GetConfigTune 获取 Kafka 配置调整参数
@@ -95,12 +79,12 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	heapInit, heapMax := s.parseHeapEnv(heapRaw)
 
 	tune := ConfigTune{
-		NodeID:          s.getPropertiesValue(config, "node.id"),
-		Listeners:       s.getPropertiesValue(config, "listeners"),
-		LogDirs:         s.getPropertiesValue(config, "log.dirs"),
-		NumPartitions:   s.getPropertiesValue(config, "num.partitions"),
-		RetentionHours:  s.getPropertiesValue(config, "log.retention.hours"),
-		LogSegmentBytes: s.getPropertiesValue(config, "log.segment.bytes"),
+		NodeID:          confval.Properties.Get(config, "node.id"),
+		Listeners:       confval.Properties.Get(config, "listeners"),
+		LogDirs:         confval.Properties.Get(config, "log.dirs"),
+		NumPartitions:   confval.Properties.Get(config, "num.partitions"),
+		RetentionHours:  confval.Properties.Get(config, "log.retention.hours"),
+		LogSegmentBytes: confval.Properties.Get(config, "log.segment.bytes"),
 		HeapInitSize:    heapInit,
 		HeapMaxSize:     heapMax,
 	}
@@ -118,12 +102,12 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 
 	config, _ := io.Read(s.configPath())
 
-	config = s.setPropertiesValue(config, "node.id", req.NodeID)
-	config = s.setPropertiesValue(config, "listeners", req.Listeners)
-	config = s.setPropertiesValue(config, "log.dirs", req.LogDirs)
-	config = s.setPropertiesValue(config, "num.partitions", req.NumPartitions)
-	config = s.setPropertiesValue(config, "log.retention.hours", req.RetentionHours)
-	config = s.setPropertiesValue(config, "log.segment.bytes", req.LogSegmentBytes)
+	config = confval.Properties.Set(config, "node.id", req.NodeID)
+	config = confval.Properties.Set(config, "listeners", req.Listeners)
+	config = confval.Properties.Set(config, "log.dirs", req.LogDirs)
+	config = confval.Properties.Set(config, "num.partitions", req.NumPartitions)
+	config = confval.Properties.Set(config, "log.retention.hours", req.RetentionHours)
+	config = confval.Properties.Set(config, "log.segment.bytes", req.LogSegmentBytes)
 
 	if err = io.Write(s.configPath(), config, 0644); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -156,64 +140,6 @@ func (s *App) configPath() string {
 // heapEnvPath 返回 JVM 堆内存配置文件路径
 func (s *App) heapEnvPath() string {
 	return app.Root + "/server/kafka/config/heap.env"
-}
-
-// getPropertiesValue 从 properties 内容中获取指定键的值
-func (s *App) getPropertiesValue(content string, key string) string {
-	for line := range strings.SplitSeq(content, "\n") {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-		k, v, ok := strings.Cut(trimmed, "=")
-		if ok && strings.TrimSpace(k) == key {
-			return strings.TrimSpace(v)
-		}
-	}
-	return ""
-}
-
-// setPropertiesValue 在 properties 内容中设置指定键的值
-func (s *App) setPropertiesValue(content string, key string, value string) string {
-	value = strings.ReplaceAll(value, "\n", "")
-	value = strings.ReplaceAll(value, "\r", "")
-
-	lines := strings.Split(content, "\n")
-	result := make([]string, 0, len(lines))
-	found := false
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" {
-			result = append(result, line)
-			continue
-		}
-		checkLine := trimmed
-		if strings.HasPrefix(checkLine, "#") {
-			checkLine = strings.TrimSpace(checkLine[1:])
-		}
-		k, _, ok := strings.Cut(checkLine, "=")
-		if ok && strings.TrimSpace(k) == key {
-			if found {
-				continue
-			}
-			found = true
-			if value == "" {
-				if !strings.HasPrefix(trimmed, "#") {
-					result = append(result, "#"+trimmed)
-				} else {
-					result = append(result, line)
-				}
-				continue
-			}
-			result = append(result, key+"="+value)
-		} else {
-			result = append(result, line)
-		}
-	}
-	if !found && value != "" {
-		result = append(result, key+"="+value)
-	}
-	return strings.Join(result, "\n")
 }
 
 // parseHeapEnv 从 heap.env 中提取堆内存配置

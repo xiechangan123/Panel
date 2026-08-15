@@ -79,7 +79,7 @@ type WebsiteUsecase struct {
 	stat           *WebsiteStatUsecase
 }
 
-func NewWebsiteUsecase(certAccountUsecase *CertAccountUsecase, certUsecase *CertUsecase, databaseUsecase *DatabaseUsecase, databaseUserUsecase *DatabaseUserUsecase, tamperUsecase *TamperUsecase, websiteStatUsecase *WebsiteStatUsecase, t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo, websiteRepo WebsiteRepo) (*WebsiteUsecase, error) {
+func NewWebsiteUsecase(certAccountUsecase *CertAccountUsecase, certUsecase *CertUsecase, databaseUsecase *DatabaseUsecase, databaseUserUsecase *DatabaseUserUsecase, tamperUsecase *TamperUsecase, websiteStatUsecase *WebsiteStatUsecase, t *gotext.Locale, log *slog.Logger, databaseServerRepo DatabaseServerRepo, websiteRepo WebsiteRepo) *WebsiteUsecase {
 	return &WebsiteUsecase{
 		repo:           websiteRepo,
 		log:            log,
@@ -91,7 +91,7 @@ func NewWebsiteUsecase(certAccountUsecase *CertAccountUsecase, certUsecase *Cert
 		databaseServer: databaseServerRepo,
 		tamper:         tamperUsecase,
 		stat:           websiteStatUsecase,
-	}, nil
+	}
 }
 
 func (uc *WebsiteUsecase) GetRewrites() (map[string]string, error) {

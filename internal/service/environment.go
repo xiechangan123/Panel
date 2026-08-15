@@ -17,12 +17,12 @@ type EnvironmentService struct {
 	taskRepo        *biz.TaskUsecase
 }
 
-func NewEnvironmentService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*EnvironmentService, error) {
+func NewEnvironmentService(environmentUsecase *biz.EnvironmentUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) *EnvironmentService {
 	return &EnvironmentService{
 		t:               t,
 		environmentRepo: environmentUsecase,
 		taskRepo:        taskUsecase,
-	}, nil
+	}
 }
 
 func (s *EnvironmentService) Types(w http.ResponseWriter, r *http.Request) {

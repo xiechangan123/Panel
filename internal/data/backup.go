@@ -42,7 +42,7 @@ type backupRepo struct {
 	updating atomic.Bool // 面板升级进行中标志，防止并发触发
 }
 
-func NewBackupRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger, settingRepo biz.SettingRepo, websiteRepo biz.WebsiteRepo) (biz.BackupRepo, error) {
+func NewBackupRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger, settingRepo biz.SettingRepo, websiteRepo biz.WebsiteRepo) biz.BackupRepo {
 	return &backupRepo{
 		hr:      "+----------------------------------------------------",
 		t:       t,
@@ -51,7 +51,7 @@ func NewBackupRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog
 		log:     log,
 		setting: settingRepo,
 		website: websiteRepo,
-	}, nil
+	}
 }
 
 // GetStorage 获取备份存储
@@ -503,7 +503,7 @@ func (r *backupRepo) getStorage(backupStorage biz.BackupStorage) (storage.Storag
 			Scheme:          backupStorage.Info.Scheme,
 			BasePath:        backupStorage.Info.Path,
 			AddressingStyle: storage.S3AddressingStyle(backupStorage.Info.Style),
-		})
+		}), nil
 	case biz.BackupStorageTypeSFTP:
 		return storage.NewSFTP(storage.SFTPConfig{
 			Host:       backupStorage.Info.Host,
@@ -594,9 +594,14 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 	}
 
 	// 导出数据库
+	var gtidMode string
+	dumpArgs := "--single-transaction --quick"
+	if mysql.QueryRow(`SELECT @@gtid_mode`).Scan(&gtidMode) == nil {
+		dumpArgs += " --set-gtid-purged=OFF"
+	}
 	name += ".sql"
 	_ = os.Setenv("MYSQL_PWD", rootPassword)
-	if _, err = shell.Execf(`mysqldump -u root --single-transaction --quick '%s' > '%s'`, target, filepath.Join(tmpDir, name)); err != nil {
+	if _, err = shell.Execf(`mysqldump -u root %s '%s' > '%s'`, dumpArgs, target, filepath.Join(tmpDir, name)); err != nil {
 		return err
 	}
 	_ = os.Unsetenv("MYSQL_PWD")

@@ -22,13 +22,13 @@ type WebsiteStatService struct {
 	aggregator  *websitestat.Aggregator
 }
 
-func NewWebsiteStatService(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, websiteUsecase *biz.WebsiteUsecase, aggregator *websitestat.Aggregator) (*WebsiteStatService, error) {
+func NewWebsiteStatService(settingUsecase *biz.SettingUsecase, websiteStatUsecase *biz.WebsiteStatUsecase, websiteUsecase *biz.WebsiteUsecase, aggregator *websitestat.Aggregator) *WebsiteStatService {
 	return &WebsiteStatService{
 		setting:     settingUsecase,
 		statRepo:    websiteStatUsecase,
 		websiteRepo: websiteUsecase,
 		aggregator:  aggregator,
-	}, nil
+	}
 }
 
 // Overview 概览数据（汇总 + 时间序列 + 对比 + 站点列表）

@@ -37,7 +37,7 @@ type S3 struct {
 	config S3Config
 }
 
-func NewS3(cfg S3Config) (Storage, error) {
+func NewS3(cfg S3Config) Storage {
 	cfg.BasePath = strings.Trim(cfg.BasePath, "/")
 
 	client := s3sdk.New(s3sdk.Config{
@@ -51,7 +51,7 @@ func NewS3(cfg S3Config) (Storage, error) {
 		Concurrency: 5,
 	})
 
-	return &S3{client: client, config: cfg}, nil
+	return &S3{client: client, config: cfg}
 }
 
 // Delete 删除文件

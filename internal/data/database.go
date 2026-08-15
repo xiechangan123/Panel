@@ -15,10 +15,10 @@ type databaseRepo struct {
 	db *gorm.DB
 }
 
-func NewDatabaseRepo(db *gorm.DB) (biz.DatabaseRepo, error) {
+func NewDatabaseRepo(db *gorm.DB) biz.DatabaseRepo {
 	return &databaseRepo{
 		db: db,
-	}, nil
+	}
 }
 
 // ListServers 列出数据库服务器

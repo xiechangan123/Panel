@@ -7,10 +7,10 @@ import (
 	"github.com/acepanel/panel/v3/pkg/embed"
 )
 
-func NewT(conf *config.Config) (*gotext.Locale, error) {
+func NewT(conf *config.Config) *gotext.Locale {
 
 	l := gotext.NewLocaleFSWithPath(conf.App.Locale, embed.LocalesFS, "locales")
 	l.AddDomain("backend")
 
-	return l, nil
+	return l
 }

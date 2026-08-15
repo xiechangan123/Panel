@@ -1,9 +1,5 @@
 package docker
 
-type UpdateConfig struct {
-	Config string `form:"config" json:"config" validate:"required"`
-}
-
 // LogOpts 日志配置选项
 type LogOpts struct {
 	MaxSize string `json:"max-size,omitempty"` // 日志文件最大大小，如 "10m"

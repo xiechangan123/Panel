@@ -26,10 +26,10 @@ type ToolboxSystemService struct {
 	t *gotext.Locale
 }
 
-func NewToolboxSystemService(t *gotext.Locale) (*ToolboxSystemService, error) {
+func NewToolboxSystemService(t *gotext.Locale) *ToolboxSystemService {
 	return &ToolboxSystemService{
 		t: t,
-	}, nil
+	}
 }
 
 // GetSWAP 获取 SWAP 信息

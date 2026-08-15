@@ -16,11 +16,11 @@ type UserTokenService struct {
 	userTokenRepo *biz.UserTokenUsecase
 }
 
-func NewUserTokenService(userTokenUsecase *biz.UserTokenUsecase, t *gotext.Locale) (*UserTokenService, error) {
+func NewUserTokenService(userTokenUsecase *biz.UserTokenUsecase, t *gotext.Locale) *UserTokenService {
 	return &UserTokenService{
 		t:             t,
 		userTokenRepo: userTokenUsecase,
-	}, nil
+	}
 }
 
 func (s *UserTokenService) List(w http.ResponseWriter, r *http.Request) {

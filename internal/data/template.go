@@ -26,12 +26,12 @@ type templateRepo struct {
 	firewall firewall.Firewall
 }
 
-func NewTemplateRepo(log *slog.Logger) (biz.TemplateRepo, error) {
+func NewTemplateRepo(log *slog.Logger) biz.TemplateRepo {
 	return &templateRepo{
 		log:      log,
 		api:      api.NewAPI(app.Version, app.Locale),
 		firewall: firewall.NewFirewall(),
-	}, nil
+	}
 }
 
 // Callback 模版下载回调

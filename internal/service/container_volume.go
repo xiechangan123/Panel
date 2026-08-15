@@ -13,10 +13,10 @@ type ContainerVolumeService struct {
 	containerVolumeRepo *biz.ContainerVolumeUsecase
 }
 
-func NewContainerVolumeService(containerVolumeUsecase *biz.ContainerVolumeUsecase) (*ContainerVolumeService, error) {
+func NewContainerVolumeService(containerVolumeUsecase *biz.ContainerVolumeUsecase) *ContainerVolumeService {
 	return &ContainerVolumeService{
 		containerVolumeRepo: containerVolumeUsecase,
-	}, nil
+	}
 }
 
 func (s *ContainerVolumeService) List(w http.ResponseWriter, r *http.Request) {

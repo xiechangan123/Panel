@@ -18,12 +18,12 @@ type FileService struct {
 	containerRepo *biz.ContainerUsecase
 }
 
-func NewFileService(containerUsecase *biz.ContainerUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) (*FileService, error) {
+func NewFileService(containerUsecase *biz.ContainerUsecase, taskUsecase *biz.TaskUsecase, t *gotext.Locale) *FileService {
 	return &FileService{
 		t:             t,
 		taskRepo:      taskUsecase,
 		containerRepo: containerUsecase,
-	}, nil
+	}
 }
 
 func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {}

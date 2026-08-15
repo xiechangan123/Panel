@@ -44,12 +44,12 @@ type ProjectUsecase struct {
 	t    *gotext.Locale
 }
 
-func NewProjectUsecase(t *gotext.Locale, log *slog.Logger, projectRepo ProjectRepo) (*ProjectUsecase, error) {
+func NewProjectUsecase(t *gotext.Locale, log *slog.Logger, projectRepo ProjectRepo) *ProjectUsecase {
 	return &ProjectUsecase{
 		repo: projectRepo,
 		log:  log,
 		t:    t,
-	}, nil
+	}
 }
 
 func (uc *ProjectUsecase) Count() (int64, error) {

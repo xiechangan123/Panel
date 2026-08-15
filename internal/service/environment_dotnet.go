@@ -17,11 +17,11 @@ type EnvironmentDotnetService struct {
 	environmentRepo *biz.EnvironmentUsecase
 }
 
-func NewEnvironmentDotnetService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) (*EnvironmentDotnetService, error) {
+func NewEnvironmentDotnetService(environmentUsecase *biz.EnvironmentUsecase, t *gotext.Locale) *EnvironmentDotnetService {
 	return &EnvironmentDotnetService{
 		t:               t,
 		environmentRepo: environmentUsecase,
-	}, nil
+	}
 }
 
 func (s *EnvironmentDotnetService) SetCli(w http.ResponseWriter, r *http.Request) {

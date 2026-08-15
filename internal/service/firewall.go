@@ -29,11 +29,11 @@ type firewallRuleOperator interface {
 	Port(rule firewall.FireInfo, operation firewall.Operation) error
 }
 
-func NewFirewallService(t *gotext.Locale) (*FirewallService, error) {
+func NewFirewallService(t *gotext.Locale) *FirewallService {
 	return &FirewallService{
 		t:        t,
 		firewall: firewall.NewFirewall(),
-	}, nil
+	}
 }
 
 func (s *FirewallService) GetStatus(w http.ResponseWriter, r *http.Request) {

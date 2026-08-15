@@ -10,7 +10,7 @@ type safeRepo struct {
 	ssh string
 }
 
-func NewSafeRepo() (biz.SafeRepo, error) {
+func NewSafeRepo() biz.SafeRepo {
 	var ssh string
 	if os.IsRHEL() {
 		ssh = "sshd"
@@ -19,7 +19,7 @@ func NewSafeRepo() (biz.SafeRepo, error) {
 	}
 	return &safeRepo{
 		ssh: ssh,
-	}, nil
+	}
 }
 
 func (r *safeRepo) GetPingStatus() (bool, error) {

@@ -100,13 +100,13 @@ type SettingUsecase struct {
 	log  *slog.Logger
 }
 
-func NewSettingUsecase(t *gotext.Locale, log *slog.Logger, settingRepo SettingRepo, taskRepo TaskRepo) (*SettingUsecase, error) {
+func NewSettingUsecase(t *gotext.Locale, log *slog.Logger, settingRepo SettingRepo, taskRepo TaskRepo) *SettingUsecase {
 	return &SettingUsecase{
 		repo: settingRepo,
 		task: taskRepo,
 		t:    t,
 		log:  log,
-	}, nil
+	}
 }
 
 func (uc *SettingUsecase) Get(key SettingKey, defaultValue ...string) (string, error) {

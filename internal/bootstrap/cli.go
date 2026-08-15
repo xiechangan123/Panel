@@ -9,7 +9,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/app"
 )
 
-func NewCli(t *gotext.Locale, commands []*cli.Command) (*cli.Command, error) {
+func NewCli(t *gotext.Locale, commands []*cli.Command) *cli.Command {
 
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "NAME", t.Get("NAME"))
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "USAGE", t.Get("USAGE"))
@@ -39,5 +39,5 @@ func NewCli(t *gotext.Locale, commands []*cli.Command) (*cli.Command, error) {
 		Usage:    t.Get("AcePanel CLI Tool"),
 		Version:  app.Version,
 		Commands: commands,
-	}, nil
+	}
 }

@@ -47,7 +47,7 @@ type HomeService struct {
 	containerRepo      *biz.ContainerUsecase
 }
 
-func NewHomeService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, containerUsecase *biz.ContainerUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale) (*HomeService, error) {
+func NewHomeService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase, containerUsecase *biz.ContainerUsecase, cronUsecase *biz.CronUsecase, databaseServerUsecase *biz.DatabaseServerUsecase, environmentUsecase *biz.EnvironmentUsecase, projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase, taskUsecase *biz.TaskUsecase, websiteUsecase *biz.WebsiteUsecase, conf *config.Config, t *gotext.Locale) *HomeService {
 	return &HomeService{
 		t:                  t,
 		api:                api.NewAPI(app.Version, app.Locale),
@@ -62,7 +62,7 @@ func NewHomeService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase
 		cronRepo:           cronUsecase,
 		backupRepo:         backupUsecase,
 		containerRepo:      containerUsecase,
-	}, nil
+	}
 }
 
 func (s *HomeService) Panel(w http.ResponseWriter, r *http.Request) {

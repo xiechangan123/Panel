@@ -35,12 +35,12 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) (*App, error) {
+func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) *App {
 	return &App{
 		t:                  t,
 		conf:               conf,
 		databaseServerRepo: databaseServerRepo,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {

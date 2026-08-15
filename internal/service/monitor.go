@@ -17,11 +17,11 @@ type MonitorService struct {
 	monitorRepo *biz.MonitorUsecase
 }
 
-func NewMonitorService(monitorUsecase *biz.MonitorUsecase, settingUsecase *biz.SettingUsecase) (*MonitorService, error) {
+func NewMonitorService(monitorUsecase *biz.MonitorUsecase, settingUsecase *biz.SettingUsecase) *MonitorService {
 	return &MonitorService{
 		settingRepo: settingUsecase,
 		monitorRepo: monitorUsecase,
-	}, nil
+	}
 }
 
 func (s *MonitorService) GetSetting(w http.ResponseWriter, r *http.Request) {

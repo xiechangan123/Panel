@@ -78,14 +78,14 @@ type TamperUsecase struct {
 	drainC    chan struct{}
 }
 
-func NewTamperUsecase(notifyUsecase *NotifyUsecase, settingUsecase *SettingUsecase, t *gotext.Locale, log *slog.Logger, tamperRepo TamperRepo) (*TamperUsecase, error) {
+func NewTamperUsecase(notifyUsecase *NotifyUsecase, settingUsecase *SettingUsecase, t *gotext.Locale, log *slog.Logger, tamperRepo TamperRepo) *TamperUsecase {
 	return &TamperUsecase{
 		repo:    tamperRepo,
 		setting: settingUsecase,
 		notify:  notifyUsecase,
 		log:     log,
 		t:       t,
-	}, nil
+	}
 }
 
 // Supported 当前平台是否支持防篡改

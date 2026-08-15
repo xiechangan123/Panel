@@ -10,11 +10,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
-	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
 	"resty.dev/v3"
 
 	"github.com/acepanel/panel/v3/internal/app"
+	"github.com/acepanel/panel/v3/internal/apps/common"
+	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
@@ -28,12 +29,12 @@ type App struct {
 	databaseServerRepo biz.DatabaseServerRepo
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) (*App, error) {
+func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
 	return &App{
 		t:                  t,
 		settingRepo:        settingRepo,
 		databaseServerRepo: databaseServerRepo,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -107,29 +108,12 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 // GetConfig 获取配置
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	conf, _ := io.Read(s.configPath())
-	service.Success(w, conf)
+	common.ServeConfig(w, s.configPath())
 }
 
 // UpdateConfig 更新配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(s.configPath(), req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart("clickhouse-server"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, s.configPath(), "clickhouse-server")
 }
 
 // GetConfigTune 获取配置调整参数
@@ -142,14 +126,14 @@ func (s *App) GetConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tune := ConfigTune{
-		ListenHost:     s.getYAMLValue(cfg, "listen_host"),
-		HTTPPort:       s.getYAMLValue(cfg, "http_port"),
-		TCPPort:        s.getYAMLValue(cfg, "tcp_port"),
-		MaxMemoryUsage: s.getYAMLValue(cfg, "max_memory_usage"),
-		MaxThreads:     s.getYAMLValue(cfg, "max_threads"),
-		Path:           s.getYAMLValue(cfg, "path"),
-		TmpPath:        s.getYAMLValue(cfg, "tmp_path"),
-		LogLevel:       s.getYAMLValue(cfg, "logger.level"),
+		ListenHost:     confval.GetYAML(cfg, "listen_host"),
+		HTTPPort:       confval.GetYAML(cfg, "http_port"),
+		TCPPort:        confval.GetYAML(cfg, "tcp_port"),
+		MaxMemoryUsage: confval.GetYAML(cfg, "max_memory_usage"),
+		MaxThreads:     confval.GetYAML(cfg, "max_threads"),
+		Path:           confval.GetYAML(cfg, "path"),
+		TmpPath:        confval.GetYAML(cfg, "tmp_path"),
+		LogLevel:       confval.GetYAML(cfg, "logger.level"),
 	}
 
 	service.Success(w, tune)
@@ -277,33 +261,11 @@ func (s *App) getPort() string {
 	var cfg map[string]any
 	_ = yaml.Unmarshal([]byte(raw), &cfg)
 	if cfg != nil {
-		if v := s.getYAMLValue(cfg, "http_port"); v != "" {
+		if v := confval.GetYAML(cfg, "http_port"); v != "" {
 			return v
 		}
 	}
 	return "8123"
-}
-
-// getYAMLValue 获取 YAML 值，支持嵌套键
-func (s *App) getYAMLValue(cfg map[string]any, key string) string {
-	// 先尝试平铺键
-	if val, ok := cfg[key]; ok {
-		return cast.ToString(val)
-	}
-	// 回退到嵌套键
-	parts := strings.SplitN(key, ".", 2)
-	val, ok := cfg[parts[0]]
-	if !ok {
-		return ""
-	}
-	if len(parts) == 1 {
-		return cast.ToString(val)
-	}
-	nested, ok := val.(map[string]any)
-	if !ok {
-		return ""
-	}
-	return s.getYAMLValue(nested, parts[1])
 }
 
 // setYAMLValue 设置平铺 YAML 值

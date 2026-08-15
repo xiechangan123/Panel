@@ -98,14 +98,14 @@ type NotifyUsecase struct {
 	pending chan struct{}
 }
 
-func NewNotifyUsecase(t *gotext.Locale, log *slog.Logger, notifyChannelRepo NotifyChannelRepo, settingRepo SettingRepo) (*NotifyUsecase, error) {
+func NewNotifyUsecase(t *gotext.Locale, log *slog.Logger, notifyChannelRepo NotifyChannelRepo, settingRepo SettingRepo) *NotifyUsecase {
 	return &NotifyUsecase{
 		repo:    notifyChannelRepo,
 		setting: settingRepo,
 		log:     log,
 		t:       t,
 		pending: make(chan struct{}, notifyMaxPending),
-	}, nil
+	}
 }
 
 func (uc *NotifyUsecase) List(page, limit uint) ([]*NotifyChannel, int64, error) {

@@ -13,10 +13,10 @@ type notifyChannelRepo struct {
 	db *gorm.DB
 }
 
-func NewNotifyChannelRepo(db *gorm.DB) (biz.NotifyChannelRepo, error) {
+func NewNotifyChannelRepo(db *gorm.DB) biz.NotifyChannelRepo {
 	return &notifyChannelRepo{
 		db: db,
-	}, nil
+	}
 }
 
 func (r *notifyChannelRepo) List(page, limit uint) ([]*biz.NotifyChannel, int64, error) {

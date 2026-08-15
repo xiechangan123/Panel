@@ -20,12 +20,12 @@ type userRepo struct {
 	hasher hash.Hasher
 }
 
-func NewUserRepo(db *gorm.DB, t *gotext.Locale) (biz.UserRepo, error) {
+func NewUserRepo(db *gorm.DB, t *gotext.Locale) biz.UserRepo {
 	return &userRepo{
 		t:      t,
 		db:     db,
 		hasher: hash.NewArgon2id(),
-	}, nil
+	}
 }
 
 func (r *userRepo) List(page, limit uint) ([]*biz.User, int64, error) {

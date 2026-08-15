@@ -114,7 +114,7 @@ func NewToolboxMigrationUsecase(
 	project *ProjectUsecase,
 	app *AppUsecase,
 	environment *EnvironmentUsecase,
-) (*ToolboxMigrationUsecase, error) {
+) *ToolboxMigrationUsecase {
 	return &ToolboxMigrationUsecase{
 		log: log, t: t, source: source, remote: remote, archive: archive,
 		setting: setting, website: website, database: database, databaseServer: databaseServer,
@@ -124,7 +124,7 @@ func NewToolboxMigrationUsecase(
 		postgresName: regexp.MustCompile(`^[A-Za-z0-9_.-]{1,63}$`),
 		version:      regexp.MustCompile(`\d+`),
 		state:        migrationState{step: types.MigrationStepIdle},
-	}, nil
+	}
 }
 
 // Connect 校验来源连接并保存，返回来源面板信息

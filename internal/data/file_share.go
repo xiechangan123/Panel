@@ -16,11 +16,11 @@ type fileShareRepo struct {
 	db *gorm.DB
 }
 
-func NewFileShareRepo(db *gorm.DB, t *gotext.Locale) (biz.FileShareRepo, error) {
+func NewFileShareRepo(db *gorm.DB, t *gotext.Locale) biz.FileShareRepo {
 	return &fileShareRepo{
 		t:  t,
 		db: db,
-	}, nil
+	}
 }
 
 func (r *fileShareRepo) List() ([]*biz.FileShare, error) {

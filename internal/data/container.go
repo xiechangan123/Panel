@@ -24,8 +24,8 @@ import (
 
 type containerRepo struct{}
 
-func NewContainerRepo() (biz.ContainerRepo, error) {
-	return &containerRepo{}, nil
+func NewContainerRepo() biz.ContainerRepo {
+	return &containerRepo{}
 }
 
 // ListAll 列出所有容器

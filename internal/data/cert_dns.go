@@ -11,10 +11,10 @@ type certDNSRepo struct {
 	db *gorm.DB
 }
 
-func NewCertDNSRepo(db *gorm.DB) (biz.CertDNSRepo, error) {
+func NewCertDNSRepo(db *gorm.DB) biz.CertDNSRepo {
 	return &certDNSRepo{
 		db: db,
-	}, nil
+	}
 }
 
 func (r certDNSRepo) List(page, limit uint) ([]*biz.CertDNS, int64, error) {

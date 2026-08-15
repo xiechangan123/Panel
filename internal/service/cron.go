@@ -13,10 +13,10 @@ type CronService struct {
 	cronRepo *biz.CronUsecase
 }
 
-func NewCronService(cronUsecase *biz.CronUsecase) (*CronService, error) {
+func NewCronService(cronUsecase *biz.CronUsecase) *CronService {
 	return &CronService{
 		cronRepo: cronUsecase,
-	}, nil
+	}
 }
 
 func (s *CronService) List(w http.ResponseWriter, r *http.Request) {

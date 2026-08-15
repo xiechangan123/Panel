@@ -21,7 +21,7 @@ type ToolboxSSHService struct {
 	service string
 }
 
-func NewToolboxSSHService(t *gotext.Locale) (*ToolboxSSHService, error) {
+func NewToolboxSSHService(t *gotext.Locale) *ToolboxSSHService {
 	// 沟槽的大便和乌班图喜欢搞特殊
 	service := "sshd"
 	if os.IsDebian() || os.IsUbuntu() {
@@ -30,7 +30,7 @@ func NewToolboxSSHService(t *gotext.Locale) (*ToolboxSSHService, error) {
 	return &ToolboxSSHService{
 		t:       t,
 		service: service,
-	}, nil
+	}
 }
 
 // GetInfo 获取 SSH 信息

@@ -26,12 +26,12 @@ type TemplateUsecase struct {
 	t     *gotext.Locale
 }
 
-func NewTemplateUsecase(t *gotext.Locale, cacheRepo CacheRepo, templateRepo TemplateRepo) (*TemplateUsecase, error) {
+func NewTemplateUsecase(t *gotext.Locale, cacheRepo CacheRepo, templateRepo TemplateRepo) *TemplateUsecase {
 	return &TemplateUsecase{
 		repo:  templateRepo,
 		cache: cacheRepo,
 		t:     t,
-	}, nil
+	}
 }
 
 // List 获取所有模版，包括本地模板

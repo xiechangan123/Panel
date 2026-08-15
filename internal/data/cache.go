@@ -16,11 +16,11 @@ type cacheRepo struct {
 	db  *gorm.DB
 }
 
-func NewCacheRepo(db *gorm.DB) (biz.CacheRepo, error) {
+func NewCacheRepo(db *gorm.DB) biz.CacheRepo {
 	return &cacheRepo{
 		api: api.NewAPI(app.Version, app.Locale),
 		db:  db,
-	}, nil
+	}
 }
 
 func (r *cacheRepo) Get(key biz.CacheKey, defaultValue ...string) (string, error) {

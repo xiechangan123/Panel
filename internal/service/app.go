@@ -23,14 +23,14 @@ type AppService struct {
 	loader      *apploader.Loader
 }
 
-func NewAppService(loader *apploader.Loader, appUsecase *biz.AppUsecase, cacheUsecase *biz.CacheUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale) (*AppService, error) {
+func NewAppService(loader *apploader.Loader, appUsecase *biz.AppUsecase, cacheUsecase *biz.CacheUsecase, settingUsecase *biz.SettingUsecase, t *gotext.Locale) *AppService {
 	return &AppService{
 		t:           t,
 		appRepo:     appUsecase,
 		cacheRepo:   cacheUsecase,
 		settingRepo: settingUsecase,
 		loader:      loader,
-	}, nil
+	}
 }
 
 func (s *AppService) Categories(w http.ResponseWriter, r *http.Request) {

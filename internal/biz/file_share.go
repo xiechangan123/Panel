@@ -33,11 +33,11 @@ type FileShareUsecase struct {
 	log  *slog.Logger
 }
 
-func NewFileShareUsecase(log *slog.Logger, fileShareRepo FileShareRepo) (*FileShareUsecase, error) {
+func NewFileShareUsecase(log *slog.Logger, fileShareRepo FileShareRepo) *FileShareUsecase {
 	return &FileShareUsecase{
 		repo: fileShareRepo,
 		log:  log,
-	}, nil
+	}
 }
 
 func (uc *FileShareUsecase) List() ([]*FileShare, error) {

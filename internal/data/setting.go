@@ -21,11 +21,11 @@ type settingRepo struct {
 	conf *config.Config
 }
 
-func NewSettingRepo(conf *config.Config, db *gorm.DB) (biz.SettingRepo, error) {
+func NewSettingRepo(conf *config.Config, db *gorm.DB) biz.SettingRepo {
 	return &settingRepo{
 		db:   db,
 		conf: conf,
-	}, nil
+	}
 }
 
 func (r *settingRepo) Get(key biz.SettingKey, defaultValue ...string) (string, error) {

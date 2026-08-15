@@ -16,11 +16,11 @@ type ProjectService struct {
 	settingRepo *biz.SettingUsecase
 }
 
-func NewProjectService(projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase) (*ProjectService, error) {
+func NewProjectService(projectUsecase *biz.ProjectUsecase, settingUsecase *biz.SettingUsecase) *ProjectService {
 	return &ProjectService{
 		projectRepo: projectUsecase,
 		settingRepo: settingUsecase,
-	}, nil
+	}
 }
 
 func (s *ProjectService) List(w http.ResponseWriter, r *http.Request) {

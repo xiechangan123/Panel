@@ -18,11 +18,11 @@ type environmentRepo struct {
 	conf *config.Config
 }
 
-func NewEnvironmentRepo(conf *config.Config, t *gotext.Locale) (biz.EnvironmentRepo, error) {
+func NewEnvironmentRepo(conf *config.Config, t *gotext.Locale) biz.EnvironmentRepo {
 	return &environmentRepo{
 		t:    t,
 		conf: conf,
-	}, nil
+	}
 }
 
 func (r *environmentRepo) IsInstalled(typ, slug string) bool {

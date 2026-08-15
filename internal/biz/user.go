@@ -45,12 +45,12 @@ type UserUsecase struct {
 	t    *gotext.Locale
 }
 
-func NewUserUsecase(t *gotext.Locale, log *slog.Logger, userRepo UserRepo) (*UserUsecase, error) {
+func NewUserUsecase(t *gotext.Locale, log *slog.Logger, userRepo UserRepo) *UserUsecase {
 	return &UserUsecase{
 		repo: userRepo,
 		log:  log,
 		t:    t,
-	}, nil
+	}
 }
 
 func (uc *UserUsecase) List(page, limit uint) ([]*User, int64, error) {

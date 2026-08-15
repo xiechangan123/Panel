@@ -13,10 +13,10 @@ type SystemctlService struct {
 	t *gotext.Locale
 }
 
-func NewSystemctlService(t *gotext.Locale) (*SystemctlService, error) {
+func NewSystemctlService(t *gotext.Locale) *SystemctlService {
 	return &SystemctlService{
 		t: t,
-	}, nil
+	}
 }
 
 func (s *SystemctlService) Status(w http.ResponseWriter, r *http.Request) {

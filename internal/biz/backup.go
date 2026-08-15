@@ -46,13 +46,13 @@ type BackupUsecase struct {
 	t      *gotext.Locale
 }
 
-func NewBackupUsecase(notifyUsecase *NotifyUsecase, t *gotext.Locale, log *slog.Logger, backupRepo BackupRepo) (*BackupUsecase, error) {
+func NewBackupUsecase(notifyUsecase *NotifyUsecase, t *gotext.Locale, log *slog.Logger, backupRepo BackupRepo) *BackupUsecase {
 	return &BackupUsecase{
 		repo:   backupRepo,
 		log:    log,
 		notify: notifyUsecase,
 		t:      t,
-	}, nil
+	}
 }
 
 func (uc *BackupUsecase) List(typ BackupType) ([]*types.BackupFile, error) {

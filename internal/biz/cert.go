@@ -68,13 +68,13 @@ type CertUsecase struct {
 	log     *slog.Logger
 }
 
-func NewCertUsecase(t *gotext.Locale, log *slog.Logger, certRepo CertRepo, settingRepo SettingRepo) (*CertUsecase, error) {
+func NewCertUsecase(t *gotext.Locale, log *slog.Logger, certRepo CertRepo, settingRepo SettingRepo) *CertUsecase {
 	return &CertUsecase{
 		repo:    certRepo,
 		setting: settingRepo,
 		t:       t,
 		log:     log,
-	}, nil
+	}
 }
 
 func (uc *CertUsecase) List(page, limit uint) ([]*types.CertList, int64, error) {

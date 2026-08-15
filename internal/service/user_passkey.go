@@ -33,7 +33,7 @@ type UserPasskeyService struct {
 	notifyRepo      *biz.NotifyUsecase
 }
 
-func NewUserPasskeyService(notifyUsecase *biz.NotifyUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) (*UserPasskeyService, error) {
+func NewUserPasskeyService(notifyUsecase *biz.NotifyUsecase, userPasskeyUsecase *biz.UserPasskeyUsecase, userUsecase *biz.UserUsecase, conf *config.Config, t *gotext.Locale, session *sessions.Manager) *UserPasskeyService {
 	// 注册 webauthn.SessionData 类型，否则 gob 无法序列化
 	gob.Register(webauthn.SessionData{})
 	return &UserPasskeyService{
@@ -43,7 +43,7 @@ func NewUserPasskeyService(notifyUsecase *biz.NotifyUsecase, userPasskeyUsecase 
 		userPasskeyRepo: userPasskeyUsecase,
 		userRepo:        userUsecase,
 		notifyRepo:      notifyUsecase,
-	}, nil
+	}
 }
 
 // Enabled 检查是否有任何已注册的通行密钥

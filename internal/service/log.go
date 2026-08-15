@@ -32,11 +32,11 @@ type LogService struct {
 	logRepo *biz.LogUsecase
 }
 
-func NewLogService(logUsecase *biz.LogUsecase, t *gotext.Locale) (*LogService, error) {
+func NewLogService(logUsecase *biz.LogUsecase, t *gotext.Locale) *LogService {
 	return &LogService{
 		t:       t,
 		logRepo: logUsecase,
-	}, nil
+	}
 }
 
 // List 获取日志列表

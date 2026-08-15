@@ -13,10 +13,10 @@ type NotifyService struct {
 	notifyRepo *biz.NotifyUsecase
 }
 
-func NewNotifyService(notifyUsecase *biz.NotifyUsecase) (*NotifyService, error) {
+func NewNotifyService(notifyUsecase *biz.NotifyUsecase) *NotifyService {
 	return &NotifyService{
 		notifyRepo: notifyUsecase,
-	}, nil
+	}
 }
 
 func (s *NotifyService) List(w http.ResponseWriter, r *http.Request) {

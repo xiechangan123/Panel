@@ -20,12 +20,12 @@ type databaseRedisRepo struct {
 	log *slog.Logger
 }
 
-func NewDatabaseRedisRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) (biz.DatabaseRedisRepo, error) {
+func NewDatabaseRedisRepo(db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.DatabaseRedisRepo {
 	return &databaseRedisRepo{
 		t:   t,
 		orm: db,
 		log: log,
-	}, nil
+	}
 }
 
 func (r *databaseRedisRepo) Databases(ctx context.Context, req *request.DatabaseRedisDatabases) (int, error) {

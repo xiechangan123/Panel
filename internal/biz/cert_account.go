@@ -46,13 +46,13 @@ type CertAccountUsecase struct {
 	log      *slog.Logger
 }
 
-func NewCertAccountUsecase(t *gotext.Locale, log *slog.Logger, certAccountRepo CertAccountRepo, userRepo UserRepo) (*CertAccountUsecase, error) {
+func NewCertAccountUsecase(t *gotext.Locale, log *slog.Logger, certAccountRepo CertAccountRepo, userRepo UserRepo) *CertAccountUsecase {
 	return &CertAccountUsecase{
 		repo:     certAccountRepo,
 		userRepo: userRepo,
 		t:        t,
 		log:      log,
-	}, nil
+	}
 }
 
 func (uc *CertAccountUsecase) List(page, limit uint) ([]*CertAccount, int64, error) {

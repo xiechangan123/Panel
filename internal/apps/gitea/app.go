@@ -6,16 +6,15 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/acepanel/panel/v3/internal/app"
-	"github.com/acepanel/panel/v3/internal/service"
-	"github.com/acepanel/panel/v3/pkg/io"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type App struct{}
 
-func NewApp() (*App, error) {
-	return &App{}, nil
+func NewApp() *App {
+	return &App{}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -29,26 +28,9 @@ func (s *App) Status() string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, _ := io.Read(app.Root + "/server/gitea/app.ini")
-	service.Success(w, config)
+	common.ServeConfig(w, app.Root+"/server/gitea/app.ini")
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(app.Root+"/server/gitea/app.ini", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart("gitea"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, app.Root+"/server/gitea/app.ini", "gitea")
 }

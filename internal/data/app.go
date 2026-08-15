@@ -31,14 +31,14 @@ type appRepo struct {
 	api  *api.API
 }
 
-func NewAppRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) (biz.AppRepo, error) {
+func NewAppRepo(conf *config.Config, db *gorm.DB, t *gotext.Locale, log *slog.Logger) biz.AppRepo {
 	return &appRepo{
 		t:    t,
 		conf: conf,
 		db:   db,
 		log:  log,
 		api:  api.NewAPI(app.Version, app.Locale),
-	}, nil
+	}
 }
 
 func (r *appRepo) Installed() ([]*biz.App, error) {

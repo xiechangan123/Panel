@@ -19,10 +19,10 @@ type ToolboxDiskService struct {
 	t *gotext.Locale
 }
 
-func NewToolboxDiskService(t *gotext.Locale) (*ToolboxDiskService, error) {
+func NewToolboxDiskService(t *gotext.Locale) *ToolboxDiskService {
 	return &ToolboxDiskService{
 		t: t,
-	}, nil
+	}
 }
 
 // List 获取磁盘列表

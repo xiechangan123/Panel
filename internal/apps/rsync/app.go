@@ -11,6 +11,7 @@ import (
 	"github.com/libtnb/chix/v2"
 	"github.com/libtnb/utils/str"
 
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -22,11 +23,11 @@ type App struct {
 	t *gotext.Locale
 }
 
-func NewApp(t *gotext.Locale) (*App, error) {
+func NewApp(t *gotext.Locale) *App {
 
 	return &App{
 		t: t,
-	}, nil
+	}
 }
 
 func (s *App) Route(r chi.Router) {
@@ -252,31 +253,9 @@ secrets file = /etc/rsyncd.secrets
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read("/etc/rsyncd.conf")
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, config)
+	common.ServeConfig(w, "/etc/rsyncd.conf")
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write("/etc/rsyncd.conf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart("rsyncd"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, "/etc/rsyncd.conf", "rsyncd")
 }

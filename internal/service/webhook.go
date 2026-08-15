@@ -13,10 +13,10 @@ type WebHookService struct {
 	webhookRepo *biz.WebHookUsecase
 }
 
-func NewWebHookService(webHookUsecase *biz.WebHookUsecase) (*WebHookService, error) {
+func NewWebHookService(webHookUsecase *biz.WebHookUsecase) *WebHookService {
 	return &WebHookService{
 		webhookRepo: webHookUsecase,
-	}, nil
+	}
 }
 
 func (s *WebHookService) List(w http.ResponseWriter, r *http.Request) {

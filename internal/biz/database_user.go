@@ -85,12 +85,12 @@ type DatabaseUserUsecase struct {
 	log    *slog.Logger
 }
 
-func NewDatabaseUserUsecase(log *slog.Logger, databaseServerRepo DatabaseServerRepo, databaseUserRepo DatabaseUserRepo) (*DatabaseUserUsecase, error) {
+func NewDatabaseUserUsecase(log *slog.Logger, databaseServerRepo DatabaseServerRepo, databaseUserRepo DatabaseUserRepo) *DatabaseUserUsecase {
 	return &DatabaseUserUsecase{
 		repo:   databaseUserRepo,
 		server: databaseServerRepo,
 		log:    log,
-	}, nil
+	}
 }
 
 func (uc *DatabaseUserUsecase) Count() (int64, error) {
