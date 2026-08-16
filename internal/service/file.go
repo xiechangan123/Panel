@@ -4,6 +4,7 @@ package service
 
 import (
 	"bufio"
+	"bytes"
 	"cmp"
 	"crypto/sha256"
 	"encoding/base64"
@@ -130,9 +131,8 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 	if req.Limit > 5000 {
 		req.Limit = 5000
 	}
-	if req.Offset < 0 {
-		req.Offset = 0
-	}
+	// 限制回溯深度，三种日志源共用；再深的历史交给下载原始日志
+	req.Offset = min(max(req.Offset, 0), 10000)
 
 	if req.Path == "" && req.Service == "" && req.Container == "" {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("path, service or container is required"))
@@ -166,27 +166,36 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 		Success(w, chix.M{"lines": []string{}, "has_more": false, "size": size})
 		return
 	}
+	// 以首屏返回的大小为锚点反向分页，否则跟踪期间写入的新行会顶掉偏移量导致翻页重复
+	anchor := size
+	if req.Size > 0 {
+		anchor = min(req.Size, size)
+	}
 
-	// 从尾部反向读取，直到攒够 offset+limit+1 个换行符（多 1 是为了避免读到不完整的首行）
-	const chunkSize = int64(8192)
-	pos := size
-	var data []byte
+	// 从锚点反向读取，直到攒够 offset+limit+1 个换行符（多 1 是为了避免读到不完整的首行）
+	// 首块按预估行长一次读足，绝大多数请求一两次系统调用即可完成；maxScan 兜住超长行
+	const maxScan = int64(64 << 20)
 	needLines := req.Offset + req.Limit + 1
+	readSize := min(int64(needLines)*256, maxScan)
+	pos := anchor
+	chunks := make([][]byte, 0, 4)
 	newlineCount := 0
-	for pos > 0 && newlineCount < needLines {
-		readSize := min(chunkSize, pos)
+	for pos > 0 && newlineCount < needLines && anchor-pos < maxScan {
+		readSize = min(readSize, pos)
 		pos -= readSize
 		buf := make([]byte, readSize)
 		if _, rerr := f.ReadAt(buf, pos); rerr != nil && rerr != stdio.EOF {
 			Error(w, http.StatusInternalServerError, "%v", rerr)
 			return
 		}
-		data = append(buf, data...)
-		newlineCount = strings.Count(string(data), "\n")
+		newlineCount += bytes.Count(buf, []byte{'\n'})
+		chunks = append(chunks, buf)
 	}
+	slices.Reverse(chunks)
+	data := bytes.Join(chunks, nil)
 
-	// 切分行
-	all := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
+	// 按字节切分，只把真正返回的那一页转成 string，避免整个扫描窗口再复制一份
+	all := bytes.Split(bytes.TrimRight(data, "\n"), []byte{'\n'})
 	totalLoaded := len(all)
 
 	// 当 pos > 0 时第一行可能不完整，丢弃以避免半行被显示
@@ -206,9 +215,9 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 
 	hasMore := pos > 0 || startIdx > startBoundary
 
-	result := []string{}
-	if startIdx < endIdx {
-		result = all[startIdx:endIdx]
+	result := make([]string, 0, max(endIdx-startIdx, 0))
+	for _, line := range all[startIdx:endIdx] {
+		result = append(result, string(line))
 	}
 
 	Success(w, chix.M{
@@ -997,7 +1006,7 @@ func (s *FileService) tailService(w http.ResponseWriter, req *request.FileTail) 
 		lines = append(lines, formatJournalLine(e.Timestamp, e.Hostname, e.Ident, e.Comm, e.PID, e.Message))
 	}
 
-	// next_cursor 是本次结果中最早那条的 cursor，供下一页 --after-cursor + --reverse 使用
+	// next_cursor 是本次结果中最早那条的 cursor，供下一页 --before-cursor 继续往前翻
 	nextCursor := ""
 	if len(entries) > 0 {
 		nextCursor = entries[0].Cursor
@@ -1041,6 +1050,7 @@ func formatJournalLine(ts, hostname, ident, comm, pid, message string) string {
 
 // tailContainer 反向读取容器末尾日志
 func (s *FileService) tailContainer(w http.ResponseWriter, req *request.FileTail) {
+	// 容器日志只能整段拉取再切片，回溯深度由 Tail 顶部统一钳制
 	total := req.Offset + req.Limit
 	out, err := s.containerRepo.Logs(req.Container, total)
 	if err != nil {

@@ -29,12 +29,16 @@ type FileTail struct {
 	Offset    int    `json:"offset" form:"offset"`
 	Limit     int    `json:"limit" form:"limit"`
 	Cursor    string `json:"cursor" form:"cursor"`
+	// Size 为首屏返回的文件大小，翻页时回传作为反向分页锚点，避免日志持续写入导致错位
+	Size int64 `json:"size" form:"size"`
 }
 
 type FileFollow struct {
 	Path      string `json:"path" form:"path"`
 	Service   string `json:"service" form:"service"`
 	Container string `json:"container" form:"container"`
+	// Offset 为首屏锚点字节位置，从该处开始跟踪以衔接首屏与实时流，避免中间写入的日志丢失
+	Offset int64 `json:"offset" form:"offset"`
 }
 
 type FileCreate struct {

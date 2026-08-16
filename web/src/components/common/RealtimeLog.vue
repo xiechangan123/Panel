@@ -28,7 +28,6 @@ interface LogLine {
   id: number
   html: string
   text: string
-  lower: string
 }
 
 type ConnStatus = 'connecting' | 'connected' | 'error'
@@ -50,6 +49,7 @@ const searchKeyword = ref('')
 const matchedLineId = ref<number | null>(null)
 const pendingNew = ref(0)
 const scrollEl = ref<HTMLElement | null>(null)
+const bodyEl = ref<HTMLElement | null>(null)
 const shellEl = ref<HTMLElement | null>(null)
 
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(shellEl)
@@ -65,9 +65,16 @@ const statusText = computed(() =>
 // 全屏时弹出层需挂载到全屏元素内部否则不可见
 const popoverTo = computed(() => (isFullscreen.value ? (shellEl.value ?? 'body') : 'body'))
 
+const decoder = new TextDecoder()
+
 let nextId = 0
 let pendingTail = ''
+// 帧内攒下的原始行,由 flushIncoming 统一落盘
+let incoming: string[] = []
+let flushScheduled = false
 let loadedFromEnd = 0
+// 首屏时的文件大小,作为反向翻页与实时跟踪的共同锚点
+let anchorSize = 0
 let nextCursor = ''
 let followWs: WebSocket | null = null
 let suppressScrollHandler = false
@@ -89,15 +96,13 @@ const titleLabel = computed(() => props.path || props.service || props.container
 const supported = computed(() => !!sourceParams.value)
 
 // text 为剥离 ANSI 后的纯文本供搜索/复制/关键词标注使用
-const parseLine = (raw: string): LogLine => {
-  const text = Anser.ansiToText(raw)
-  return {
+// 行创建后不再变更,markRaw 免掉每行一层 Proxy 与逐字段依赖(5000 行量级下省数 MB)
+const parseLine = (raw: string): LogLine =>
+  markRaw({
     id: nextId++,
-    text,
-    lower: text.toLowerCase(),
+    text: Anser.ansiToText(raw),
     html: Anser.ansiToHtml(Anser.escapeForHtml(raw), { use_classes: true }),
-  }
-}
+  })
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -109,20 +114,33 @@ const renderLine = (line: LogLine) => {
   return Anser.escapeForHtml(line.text).replace(re, (m) => `<mark class="log-mark">${m}</mark>`)
 }
 
-const scrollToBottom = () => {
+// 程序化滚动的统一入口:期间抑制滚动回调,否则会被误判为用户手动滚动而退出跟随或触发翻页
+const setScrollTop = (calc: (el: HTMLElement) => number) => {
   const el = scrollEl.value
   if (!el) return
   suppressScrollHandler = true
-  el.scrollTop = el.scrollHeight
+  el.scrollTop = calc(el)
   requestAnimationFrame(() => {
     suppressScrollHandler = false
   })
 }
 
+const scrollToBottom = () => setScrollTop((el) => el.scrollHeight)
+
+// 跳到已加载内容的开头;抑制滚动回调也顺带避免了落到顶部立刻触发翻页又被位置补偿拽回来
 const scrollToTop = () => {
-  const el = scrollEl.value
-  if (el) el.scrollTop = 0
+  followMode.value = false
+  setScrollTop(() => 0)
 }
+
+// 贴底后布局仍会继续变化:弹窗入场动画、横向滚动条出现、字体度量生效、tab 由隐藏转可见,
+// 单次 scrollToBottom 必然落空,故跟随模式下把"保持贴底"作为不变式由观察器统一维持
+const stickToBottom = () => {
+  if (followMode.value) scrollToBottom()
+}
+// 容器自身高度(全屏切换、窗口缩放)与内容高度(翻页、换行重排)都要观察
+useResizeObserver(scrollEl, stickToBottom)
+useResizeObserver(bodyEl, stickToBottom)
 
 const scheduleReconnect = () => {
   if (isManuallyClosed) return
@@ -133,11 +151,39 @@ const scheduleReconnect = () => {
   }, 3000)
 }
 
-const startFollow = () => {
+// 繁忙日志下 ws 帧率可达上千每秒,逐帧改 lines 就是逐帧整表 patch 加一次强制重排;
+// 攒到下一帧统一落盘,渲染次数压到 60/秒量级。锚点续读补发积压时这个差距最明显
+const flushIncoming = () => {
+  flushScheduled = false
+  const total = incoming.length
+  if (total === 0) return
+  // 超出上限的部分永远不会被显示,先裁再解析,省掉白做的 ANSI 转换
+  const batch = total > MAX_LINES ? incoming.slice(-MAX_LINES) : incoming
+  incoming = []
+  lines.value.push(...batch.map(parseLine))
+  // 跟随与暂停都要裁剪;裁掉的历史行要同步退还翻页游标,否则下次上翻会跳过这一段
+  if (lines.value.length > MAX_LINES) {
+    const removed = lines.value.length - MAX_LINES
+    lines.value.splice(0, removed)
+    loadedFromEnd = Math.max(0, loadedFromEnd - removed)
+  }
+  // 稳态下追加与裁剪行数相抵、内容高度不变,观察器不会触发,这里必须自己贴底
+  if (followMode.value) {
+    nextTick(scrollToBottom)
+  } else {
+    pendingNew.value += total
+  }
+}
+
+// fromAnchor 仅首次连接时为真:从首屏锚点续读补齐空档,
+// 重连改用默认的"只跟新增",否则会把锚点之后已显示的内容整段重放
+const startFollow = (fromAnchor = false) => {
   if (!sourceParams.value) return
   isManuallyClosed = false
   status.value = 'connecting'
-  ws.follow(sourceParams.value)
+  // 上次连接残留的半行与新流拼接会拼出错行
+  pendingTail = ''
+  ws.follow({ ...sourceParams.value, offset: fromAnchor ? anchorSize : 0 })
     .then((socket) => {
       followWs = socket
       socket.binaryType = 'arraybuffer'
@@ -145,21 +191,14 @@ const startFollow = () => {
 
       socket.onmessage = (ev) => {
         const data: string =
-          typeof ev.data === 'string' ? ev.data : new TextDecoder().decode(new Uint8Array(ev.data))
-        const combined = pendingTail + data
-        const parts = combined.split('\n')
+          typeof ev.data === 'string' ? ev.data : decoder.decode(new Uint8Array(ev.data))
+        const parts = (pendingTail + data).split('\n')
         pendingTail = parts.pop() ?? ''
-        if (parts.length > 0) {
-          lines.value.push(...parts.map(parseLine))
-          // 跟随与暂停都要裁剪
-          if (lines.value.length > MAX_LINES) {
-            lines.value.splice(0, lines.value.length - MAX_LINES)
-          }
-          if (followMode.value) {
-            nextTick(() => scrollToBottom())
-          } else {
-            pendingNew.value += parts.length
-          }
+        if (parts.length === 0) return
+        incoming.push(...parts)
+        if (!flushScheduled) {
+          flushScheduled = true
+          requestAnimationFrame(flushIncoming)
         }
       }
 
@@ -181,6 +220,10 @@ const startFollow = () => {
     })
 }
 
+// hasMore 只表达服务端还有没有更早的日志;要不要继续拿是客户端策略,
+// 分开后实时裁剪把行数降回上限以下时,向上翻页能自动恢复
+const canLoadOlder = computed(() => hasMore.value && lines.value.length < MAX_LINES)
+
 const PAGE_SIZE = 100
 
 const buildTailParams = (initial: boolean) => {
@@ -189,6 +232,8 @@ const buildTailParams = (initial: boolean) => {
     if (!initial) base.cursor = nextCursor
   } else {
     base.offset = initial ? 0 : loadedFromEnd
+    // 带上锚点,翻页始终相对首屏那一刻的文件末尾,不受期间写入的新日志影响
+    if (!initial && anchorSize > 0) base.size = anchorSize
   }
   return base as any
 }
@@ -201,12 +246,15 @@ const loadInitial = () => {
       const newLines: string[] = data?.lines ?? []
       lines.value = newLines.map(parseLine)
       loadedFromEnd = newLines.length
+      anchorSize = data?.size ?? 0
       nextCursor = data?.next_cursor ?? ''
       hasMore.value = data?.has_more ?? false
+      // 与日志行同一次渲染中撤下加载占位,否则 nextTick 时 DOM 里还没有行,贴底会落空
+      initialLoading.value = false
       nextTick(() => {
         scrollToBottom()
         followMode.value = true
-        startFollow()
+        startFollow(true)
       })
     })
     .onComplete(() => {
@@ -215,7 +263,7 @@ const loadInitial = () => {
 }
 
 const loadOlder = () => {
-  if (!sourceParams.value || isLoadingMore.value || !hasMore.value) return
+  if (!sourceParams.value || isLoadingMore.value || !canLoadOlder.value) return
   if (props.service && !nextCursor) {
     hasMore.value = false
     return
@@ -238,16 +286,7 @@ const loadOlder = () => {
       nextCursor = data?.next_cursor ?? ''
       hasMore.value = data?.has_more ?? false
       // 保持视觉位置:scrollTop = 新 scrollHeight - 旧 scrollHeight + 旧 scrollTop
-      nextTick(() => {
-        const target = scrollEl.value
-        if (target) {
-          suppressScrollHandler = true
-          target.scrollTop = target.scrollHeight - oldScrollHeight + oldScrollTop
-          requestAnimationFrame(() => {
-            suppressScrollHandler = false
-          })
-        }
-      })
+      nextTick(() => setScrollTop((el) => el.scrollHeight - oldScrollHeight + oldScrollTop))
     })
     .onComplete(() => {
       isLoadingMore.value = false
@@ -260,7 +299,7 @@ const onScroll = () => {
   if (!el) return
   const { scrollTop, scrollHeight, clientHeight } = el
   followMode.value = scrollHeight - scrollTop - clientHeight < 30
-  if (scrollTop < 60 && hasMore.value && !isLoadingMore.value) {
+  if (scrollTop < 60 && canLoadOlder.value && !isLoadingMore.value) {
     loadOlder()
   }
 }
@@ -278,9 +317,9 @@ const toggleFollow = () => {
   }
 }
 
+// 换行重排后的贴底由观察器负责
 const toggleWrap = () => {
   wrapLines.value = !wrapLines.value
-  if (followMode.value) nextTick(() => scrollToBottom())
 }
 
 const copyAll = () => {
@@ -298,10 +337,12 @@ const decreaseFont = () => {
   if (fontSize.value > 10) fontSize.value--
 }
 
+// 用不区分大小写的正则匹配,免去为每行常驻一份小写副本
 const matches = computed(() => {
-  const kw = searchKeyword.value.toLowerCase()
+  const kw = searchKeyword.value
   if (!kw) return []
-  return lines.value.filter((l) => l.lower.includes(kw))
+  const re = new RegExp(escapeRegExp(kw), 'i')
+  return lines.value.filter((l) => re.test(l.text))
 })
 
 const matchPos = computed(() => matches.value.findIndex((m) => m.id === matchedLineId.value))
@@ -320,11 +361,18 @@ const goToMatch = (step: 1 | -1) => {
   const target = ms[next]
   if (!target) return
   matchedLineId.value = target.id
-  const el = scrollEl.value.querySelector(`.log-line[data-id="${target.id}"]`)
-  if (el) {
-    el.scrollIntoView({ block: 'center' })
-    followMode.value = false
-  }
+  const el = scrollEl.value.querySelector<HTMLElement>(`.log-line[data-id="${target.id}"]`)
+  if (!el) return
+  // 不用 scrollIntoView,它会连带滚动外层页面(组件多数内嵌在 tab 里而非弹窗);
+  // 按两者的相对位置算,不依赖 offsetParent 落在哪一层
+  followMode.value = false
+  setScrollTop(
+    (c) =>
+      c.scrollTop +
+      el.getBoundingClientRect().top -
+      c.getBoundingClientRect().top -
+      (c.clientHeight - el.offsetHeight) / 2,
+  )
 }
 
 // 关键字变化时重置搜索游标与高亮
@@ -337,11 +385,6 @@ watch(followMode, (on) => {
   if (on) pendingNew.value = 0
 })
 
-// 全屏切换后容器高度变化重新贴底
-watch(isFullscreen, () => {
-  if (followMode.value) nextTick(() => scrollToBottom())
-})
-
 const cleanup = () => {
   isManuallyClosed = true
   if (reconnectTimer) {
@@ -352,8 +395,10 @@ const cleanup = () => {
   followWs = null
   lines.value = []
   loadedFromEnd = 0
+  anchorSize = 0
   nextCursor = ''
   pendingTail = ''
+  incoming = []
   hasMore.value = false
   loadedOlder.value = false
   status.value = 'connecting'
@@ -474,7 +519,7 @@ defineExpose({ clear })
       @scroll="onScroll"
     >
       <div v-if="initialLoading" class="log-loading"><n-spin :size="18" /></div>
-      <template v-else>
+      <div v-else ref="bodyEl">
         <div v-if="isLoadingMore || (loadedOlder && !hasMore)" class="log-boundary">
           <n-spin v-if="isLoadingMore" :size="12" />
           <span v-else>{{ $gettext('No more logs') }}</span>
@@ -487,7 +532,10 @@ defineExpose({ clear })
           :data-id="line.id"
           v-html="renderLine(line)"
         ></div>
-      </template>
+        <div v-if="lines.length === 0" class="log-boundary">
+          {{ $gettext('No logs available') }}
+        </div>
+      </div>
     </div>
 
     <transition name="pill">

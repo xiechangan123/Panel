@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  service: {
+    type: String,
+    required: false,
+  },
   container: {
     type: String,
     required: false,
@@ -64,6 +68,12 @@ defineExpose({ clear })
         </ConfirmDialog>
       </n-flex>
     </template>
-    <realtime-log v-if="show" ref="logRef" :path="props.path" :container="props.container" />
+    <realtime-log
+      v-if="show"
+      ref="logRef"
+      :path="props.path"
+      :service="props.service"
+      :container="props.container"
+    />
   </n-modal>
 </template>
