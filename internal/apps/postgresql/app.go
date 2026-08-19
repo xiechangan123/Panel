@@ -408,9 +408,20 @@ func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
 func (s *App) getExtensions() []Extension {
 	return []Extension{
 		{Name: "pgvector", Slug: "pgvector", ExtName: "vector", Description: s.t.Get("Vector similarity search")},
+		{Name: "PostGIS", Slug: "postgis", ExtName: "postgis", Description: s.t.Get("Spatial and geographic objects support")},
+		{Name: "TimescaleDB", Slug: "timescaledb", ExtName: "timescaledb", Description: s.t.Get("Time-series database engine, requires restarting PostgreSQL after installation")},
+		{Name: "zhparser", Slug: "zhparser", ExtName: "zhparser", Description: s.t.Get("Chinese full-text search parser based on SCWS")},
 		{Name: "pg_repack", Slug: "pg_repack", ExtName: "pg_repack", Description: s.t.Get("Reorganize tables online to remove bloat")},
 		{Name: "pg_cron", Slug: "pg_cron", ExtName: "pg_cron", Description: s.t.Get("Run periodic jobs inside the database, requires restarting PostgreSQL after installation")},
 		{Name: "pg_partman", Slug: "pg_partman", ExtName: "pg_partman", Description: s.t.Get("Automated partition management")},
+		{Name: "pgaudit", Slug: "pgaudit", ExtName: "pgaudit", Description: s.t.Get("Session and object audit logging, requires restarting PostgreSQL after installation")},
+		{Name: "pg_hint_plan", Slug: "pg_hint_plan", ExtName: "pg_hint_plan", Description: s.t.Get("Control execution plans with hints in SQL comments, requires restarting PostgreSQL after installation")},
+		{Name: "pg_stat_monitor", Slug: "pg_stat_monitor", ExtName: "pg_stat_monitor", Description: s.t.Get("Advanced query performance monitoring, requires restarting PostgreSQL after installation")},
+		{Name: "pg_ivm", Slug: "pg_ivm", ExtName: "pg_ivm", Description: s.t.Get("Incremental view maintenance for materialized views")},
+		{Name: "hypopg", Slug: "hypopg", ExtName: "hypopg", Description: s.t.Get("Hypothetical indexes for query plan testing")},
+		{Name: "pgmq", Slug: "pgmq", ExtName: "pgmq", Description: s.t.Get("Lightweight message queue")},
+		{Name: "orafce", Slug: "orafce", ExtName: "orafce", Description: s.t.Get("Oracle compatibility functions")},
+		{Name: "http", Slug: "http", ExtName: "http", Description: s.t.Get("HTTP client for SQL, send requests from the database")},
 	}
 }
 
