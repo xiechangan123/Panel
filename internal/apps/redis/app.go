@@ -345,6 +345,10 @@ func (s *App) MemoryStatus(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
+	// 空库与无问题时返回的是电影梗彩蛋文案，无展示价值
+	if strings.HasPrefix(memory.Doctor, "Hi Sam,") || strings.Contains(memory.Doctor, "can't find any memory issue") {
+		memory.Doctor = ""
+	}
 
 	reply, err := conn.Exec("MEMORY", "STATS")
 	if err != nil {
