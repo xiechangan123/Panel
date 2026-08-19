@@ -206,6 +206,11 @@ func (s *ToolboxMigrationService) Exec(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprintf(w, "data: %s\n\n", scanner.Text())
 		flusher.Flush()
 	}
+	if scanErr := scanner.Err(); scanErr != nil {
+		_, _ = fmt.Fprintf(w, "event: error\ndata: %s\n\n", scanErr.Error())
+		flusher.Flush()
+		return
+	}
 
 	if waitErr := <-waitCh; waitErr != nil {
 		_, _ = fmt.Fprintf(w, "event: error\ndata: %s\n\n", waitErr.Error())

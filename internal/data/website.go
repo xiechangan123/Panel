@@ -465,10 +465,8 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		if webServer == "apache" {
 			spaConfig = apacheSPAConfig
 		}
-		if spaConfig != "" {
-			if err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, spaConfig); err != nil {
-				return nil, err
-			}
+		if err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig); err != nil {
+			return nil, err
 		}
 	}
 
@@ -747,7 +745,7 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 		if webServer == "apache" {
 			spaConfig = apacheSPAConfig
 		}
-		err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, spaConfig)
+		err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig)
 	}
 	if err != nil {
 		return restore(err)
@@ -1193,7 +1191,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		if webServer == "apache" {
 			spaConfig = apacheSPAConfig
 		}
-		err = vhost.SetRawConfig("799-spa.conf", webservertypes.ScopeSite, spaConfig)
+		err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig)
 	}
 	if err != nil {
 		return err
@@ -1481,6 +1479,9 @@ func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 		if len(parts) == 2 {
 			users[parts[0]] = strings.TrimPrefix(parts[1], "{PLAIN}")
 		}
+	}
+	if scanner.Err() != nil {
+		return make(map[string]string)
 	}
 
 	return users

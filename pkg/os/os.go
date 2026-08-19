@@ -30,6 +30,9 @@ func readOSRelease() map[string]string {
 			osRelease[key] = value
 		}
 	}
+	if scanner.Err() != nil {
+		return nil
+	}
 	return osRelease
 }
 
@@ -91,7 +94,7 @@ func IsEOL() bool {
 		if !ok {
 			return false
 		}
-		majorVersion := strings.Split(version, ".")[0]
+		majorVersion, _, _ := strings.Cut(version, ".")
 		if eol, ok := eolTimeTable["rhel"][majorVersion]; ok {
 			return time.Now().After(eol)
 		}
@@ -111,7 +114,7 @@ func IsEOL() bool {
 		if !ok {
 			return false
 		}
-		majorVersion := strings.Split(version, ".")[0]
+		majorVersion, _, _ := strings.Cut(version, ".")
 		if eol, ok := eolTimeTable["debian"][majorVersion]; ok {
 			return time.Now().After(eol)
 		}
