@@ -15,7 +15,7 @@ import ServiceStatus from '@/components/common/ServiceStatus.vue'
 import PostgresqlConfigTuneView from './PostgresqlConfigTuneView.vue'
 import PostgresqlExtensionsView from './PostgresqlExtensionsView.vue'
 
-const { $gettext } = useGettext()
+const { $gettext, $pgettext } = useGettext()
 const currentTab = ref('status')
 const setPostgresPasswordLoading = ref(false)
 const saveConfigLoading = ref(false)
@@ -211,7 +211,7 @@ const handleCopyPostgresPassword = () => {
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <postgresql-config-tune-view />
       </n-tab-pane>
-      <n-tab-pane name="extensions" :tab="$gettext('Extensions')">
+      <n-tab-pane name="extensions" :tab="$pgettext('postgresql', 'Extensions')">
         <postgresql-extensions-view />
       </n-tab-pane>
       <n-tab-pane name="user-config" :tab="$gettext('User Configuration')">
