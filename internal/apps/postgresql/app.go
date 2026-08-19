@@ -1,17 +1,21 @@
 package postgresql
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
+	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/apps/confval"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/internal/service"
+	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/db"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
@@ -21,18 +25,19 @@ import (
 
 type App struct {
 	t                  *gotext.Locale
+	conf               *config.Config
 	settingRepo        biz.SettingRepo
 	databaseServerRepo biz.DatabaseServerRepo
+	taskRepo           biz.TaskRepo
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
-
-	setting := settingRepo
-	databaseServer := databaseServerRepo
+func NewApp(t *gotext.Locale, conf *config.Config, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
 	return &App{
 		t:                  t,
-		settingRepo:        setting,
-		databaseServerRepo: databaseServer,
+		conf:               conf,
+		settingRepo:        settingRepo,
+		databaseServerRepo: databaseServerRepo,
+		taskRepo:           taskRepo,
 	}
 }
 
@@ -47,6 +52,10 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/postgres_password", s.SetPostgresPassword)
 	r.Get("/config_tune", s.GetConfigTune)
 	r.Post("/config_tune", s.UpdateConfigTune)
+	// 扩展管理
+	r.Get("/extensions", s.ExtensionList)
+	r.Post("/extensions", s.InstallExtension)
+	r.Delete("/extensions", s.UninstallExtension)
 }
 
 func (s *App) Status() string {
@@ -327,6 +336,89 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
+}
+
+// ExtensionList 获取扩展列表及安装状态
+func (s *App) ExtensionList(w http.ResponseWriter, r *http.Request) {
+	extensions := s.getExtensions()
+	for i := range extensions {
+		extensions[i].Installed = io.Exists(fmt.Sprintf("%s/server/postgresql/share/extension/%s.control", app.Root, extensions[i].ExtName))
+	}
+
+	service.Success(w, extensions)
+}
+
+// InstallExtension 安装扩展（异步任务）
+func (s *App) InstallExtension(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ExtensionSlug](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if !s.checkExtension(req.Slug) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
+		return
+	}
+
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/postgresql/extensions/%s.sh' | bash -s -- 'install'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
+
+	task := new(biz.Task)
+	task.Key = "postgresql:extension:" + req.Slug
+	task.Name = s.t.Get("Install PostgreSQL extension %s", req.Slug)
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = cmd
+	if err = s.taskRepo.Push(task); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// UninstallExtension 卸载扩展（异步任务）
+func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ExtensionSlug](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if !s.checkExtension(req.Slug) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
+		return
+	}
+
+	cmd := fmt.Sprintf(`curl -sSLm 10 --retry 3 'https://%s/postgresql/extensions/%s.sh' | bash -s -- 'uninstall'`, s.conf.App.DownloadEndpoint, url.PathEscape(req.Slug))
+
+	task := new(biz.Task)
+	task.Key = "postgresql:extension:" + req.Slug
+	task.Name = s.t.Get("Uninstall PostgreSQL extension %s", req.Slug)
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = cmd
+	if err = s.taskRepo.Push(task); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// getExtensions 返回所有扩展定义
+func (s *App) getExtensions() []Extension {
+	return []Extension{
+		{Name: "pgvector", Slug: "pgvector", ExtName: "vector", Description: s.t.Get("Vector similarity search")},
+		{Name: "pg_repack", Slug: "pg_repack", ExtName: "pg_repack", Description: s.t.Get("Reorganize tables online to remove bloat")},
+		{Name: "pg_cron", Slug: "pg_cron", ExtName: "pg_cron", Description: s.t.Get("Run periodic jobs inside the database, requires restarting PostgreSQL after installation")},
+		{Name: "pg_partman", Slug: "pg_partman", ExtName: "pg_partman", Description: s.t.Get("Automated partition management")},
+	}
+}
+
+// checkExtension 检查 slug 是否有效
+func (s *App) checkExtension(slug string) bool {
+	return lo.ContainsBy(s.getExtensions(), func(e Extension) bool {
+		return e.Slug == slug
+	})
 }
 
 func (s *App) configPath() string {

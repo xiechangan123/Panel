@@ -90,7 +90,6 @@ func initAce() (*app.Ace, func(), error) {
 	pgadminApp := pgadmin.NewApp(config, locale, databaseServerRepo)
 	phpmyadminApp := phpmyadmin.NewApp(config, locale, databaseServerRepo)
 	podmanApp := podman.NewApp()
-	postgresqlApp := postgresql.NewApp(locale, databaseServerRepo, settingRepo)
 	logger, cleanup, err := bootstrap.NewLogger(config)
 	if err != nil {
 		return nil, nil, err
@@ -100,6 +99,7 @@ func initAce() (*app.Ace, func(), error) {
 	notifyUsecase := biz.NewNotifyUsecase(locale, slogLogger, notifyChannelRepo, settingRepo)
 	taskRunner := bootstrap.NewRunner(notifyUsecase, db, locale, slogLogger)
 	taskRepo := data.NewTaskRepo(db, locale, slogLogger, taskRunner)
+	postgresqlApp := postgresql.NewApp(locale, config, databaseServerRepo, settingRepo, taskRepo)
 	prometheusApp := prometheus.NewApp(config, locale, taskRepo)
 	pureftpdApp := pureftpd.NewApp(locale)
 	redisApp := redis.NewApp(locale, databaseServerRepo)

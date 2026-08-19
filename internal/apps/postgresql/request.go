@@ -8,6 +8,20 @@ type SetPostgresPassword struct {
 	Password string `form:"password" json:"password" validate:"required && password"`
 }
 
+// Extension PostgreSQL 扩展信息
+type Extension struct {
+	Name        string `json:"name"`
+	Slug        string `json:"slug"`     // 下载脚本名，如 pgvector
+	ExtName     string `json:"ext_name"` // CREATE EXTENSION 使用的扩展名，如 vector
+	Description string `json:"description"`
+	Installed   bool   `json:"installed"`
+}
+
+// ExtensionSlug 扩展操作请求
+type ExtensionSlug struct {
+	Slug string `form:"slug" json:"slug" validate:"required"`
+}
+
 // ConfigTune PostgreSQL 配置调整
 type ConfigTune struct {
 	// 连接设置

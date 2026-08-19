@@ -13,6 +13,7 @@ import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 import PostgresqlConfigTuneView from './PostgresqlConfigTuneView.vue'
+import PostgresqlExtensionsView from './PostgresqlExtensionsView.vue'
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -209,6 +210,9 @@ const handleCopyPostgresPassword = () => {
       </n-tab-pane>
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <postgresql-config-tune-view />
+      </n-tab-pane>
+      <n-tab-pane name="extensions" :tab="$gettext('Extensions')">
+        <postgresql-extensions-view />
       </n-tab-pane>
       <n-tab-pane name="user-config" :tab="$gettext('User Configuration')">
         <n-flex vertical>
