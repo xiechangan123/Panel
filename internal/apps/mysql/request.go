@@ -41,3 +41,104 @@ type ConfigTune struct {
 	SlowQueryLog  string `form:"slow_query_log" json:"slow_query_log"`
 	LongQueryTime string `form:"long_query_time" json:"long_query_time"`
 }
+
+// MaintenanceRun 表维护操作请求
+type MaintenanceRun struct {
+	Database  string `form:"database" json:"database" validate:"required"`
+	Table     string `form:"table" json:"table" validate:"required"`
+	Operation string `form:"operation" json:"operation" validate:"required"`
+}
+
+// BinlogPurge binlog 清理请求
+type BinlogPurge struct {
+	File string `form:"file" json:"file" validate:"required"`
+}
+
+// Process 数据库进程信息
+type Process struct {
+	ID      int64  `json:"id"`
+	User    string `json:"user"`
+	Host    string `json:"host"`
+	DB      string `json:"db"`
+	Command string `json:"command"`
+	Time    int64  `json:"time"`
+	State   string `json:"state"`
+	Info    string `json:"info"`
+}
+
+// Transaction InnoDB 事务信息
+type Transaction struct {
+	ID           string `json:"id"`
+	ThreadID     int64  `json:"thread_id"`
+	State        string `json:"state"`
+	Query        string `json:"query"`
+	Seconds      int64  `json:"seconds"`
+	RowsLocked   int64  `json:"rows_locked"`
+	RowsModified int64  `json:"rows_modified"`
+}
+
+// LockWait 锁等待对
+type LockWait struct {
+	WaitingThreadID  int64  `json:"waiting_thread_id"`
+	WaitingQuery     string `json:"waiting_query"`
+	BlockingThreadID int64  `json:"blocking_thread_id"`
+	BlockingQuery    string `json:"blocking_query"`
+}
+
+// Transactions 事务与锁等待响应
+type Transactions struct {
+	Transactions []Transaction `json:"transactions"`
+	LockWaits    []LockWait    `json:"lock_waits"`
+}
+
+// TopSQLItem Top SQL 统计项
+type TopSQLItem struct {
+	Database     string  `json:"database"`
+	Calls        int64   `json:"calls"`
+	TotalMs      int64   `json:"total_ms"`
+	MeanMs       float64 `json:"mean_ms"`
+	RowsSent     int64   `json:"rows_sent"`
+	RowsExamined int64   `json:"rows_examined"`
+	Query        string  `json:"query"`
+}
+
+// TopSQL Top SQL 响应
+type TopSQL struct {
+	Supported      bool         `json:"supported"`
+	Enabled        bool         `json:"enabled"`
+	PendingRestart bool         `json:"pending_restart"`
+	Items          []TopSQLItem `json:"items"`
+}
+
+// TableInfo 表维护信息
+type TableInfo struct {
+	Database     string  `json:"database"`
+	Table        string  `json:"table"`
+	Engine       string  `json:"engine"`
+	Rows         int64   `json:"rows"`
+	Size         string  `json:"size"`
+	FragmentRate float64 `json:"fragment_rate"`
+}
+
+// BinlogFile binlog 文件信息
+type BinlogFile struct {
+	Name string `json:"name"`
+	Size string `json:"size"`
+}
+
+// Binlog binlog 状态响应
+type Binlog struct {
+	Enabled   bool         `json:"enabled"`
+	TotalSize string       `json:"total_size"`
+	Items     []BinlogFile `json:"items"`
+}
+
+// Replication 复制状态响应
+type Replication struct {
+	Enabled       bool   `json:"enabled"`
+	IORunning     string `json:"io_running"`
+	SQLRunning    string `json:"sql_running"`
+	SecondsBehind string `json:"seconds_behind"`
+	SourceHost    string `json:"source_host"`
+	LastError     string `json:"last_error"`
+}

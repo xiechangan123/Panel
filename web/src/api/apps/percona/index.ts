@@ -18,4 +18,17 @@ export default {
   configTune: (): any => http.Get('/apps/percona/config_tune'),
   // 保存配置调整参数
   saveConfigTune: (data: any): any => http.Post('/apps/percona/config_tune', data),
+  // 性能
+  processes: (): any => http.Get('/apps/percona/processes'),
+  killProcess: (id: number): any => http.Post(`/apps/percona/processes/${id}/kill`),
+  transactions: (): any => http.Get('/apps/percona/transactions'),
+  topSQL: (): any => http.Get('/apps/percona/top_sql'),
+  enableTopSQL: (): any => http.Post('/apps/percona/top_sql/enable'),
+  resetTopSQL: (): any => http.Post('/apps/percona/top_sql/reset'),
+  // 维护
+  tables: (): any => http.Get('/apps/percona/tables'),
+  runMaintenance: (data: any): any => http.Post('/apps/percona/maintenance', data),
+  binlogs: (): any => http.Get('/apps/percona/binlogs'),
+  purgeBinlog: (file: string): any => http.Post('/apps/percona/binlogs/purge', { file }),
+  replication: (): any => http.Get('/apps/percona/replication'),
 }

@@ -17,4 +17,17 @@ export default {
   configTune: (): any => http.Get('/apps/mysql/config_tune'),
   // 保存配置调整参数
   saveConfigTune: (data: any): any => http.Post('/apps/mysql/config_tune', data),
+  // 性能
+  processes: (): any => http.Get('/apps/mysql/processes'),
+  killProcess: (id: number): any => http.Post(`/apps/mysql/processes/${id}/kill`),
+  transactions: (): any => http.Get('/apps/mysql/transactions'),
+  topSQL: (): any => http.Get('/apps/mysql/top_sql'),
+  enableTopSQL: (): any => http.Post('/apps/mysql/top_sql/enable'),
+  resetTopSQL: (): any => http.Post('/apps/mysql/top_sql/reset'),
+  // 维护
+  tables: (): any => http.Get('/apps/mysql/tables'),
+  runMaintenance: (data: any): any => http.Post('/apps/mysql/maintenance', data),
+  binlogs: (): any => http.Get('/apps/mysql/binlogs'),
+  purgeBinlog: (file: string): any => http.Post('/apps/mysql/binlogs/purge', { file }),
+  replication: (): any => http.Get('/apps/mysql/replication'),
 }

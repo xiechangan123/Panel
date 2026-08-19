@@ -18,4 +18,17 @@ export default {
   configTune: (): any => http.Get('/apps/mariadb/config_tune'),
   // 保存配置调整参数
   saveConfigTune: (data: any): any => http.Post('/apps/mariadb/config_tune', data),
+  // 性能
+  processes: (): any => http.Get('/apps/mariadb/processes'),
+  killProcess: (id: number): any => http.Post(`/apps/mariadb/processes/${id}/kill`),
+  transactions: (): any => http.Get('/apps/mariadb/transactions'),
+  topSQL: (): any => http.Get('/apps/mariadb/top_sql'),
+  enableTopSQL: (): any => http.Post('/apps/mariadb/top_sql/enable'),
+  resetTopSQL: (): any => http.Post('/apps/mariadb/top_sql/reset'),
+  // 维护
+  tables: (): any => http.Get('/apps/mariadb/tables'),
+  runMaintenance: (data: any): any => http.Post('/apps/mariadb/maintenance', data),
+  binlogs: (): any => http.Get('/apps/mariadb/binlogs'),
+  purgeBinlog: (file: string): any => http.Post('/apps/mariadb/binlogs/purge', { file }),
+  replication: (): any => http.Get('/apps/mariadb/replication'),
 }

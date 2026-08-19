@@ -66,7 +66,7 @@ const columns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 240,
+    width: 300,
     render(row: any) {
       if (!row.installed) {
         return h(
@@ -88,7 +88,7 @@ const columns: any = [
           { default: () => $gettext('Install') },
         )
       }
-      return h(NSpace, { size: 'small' }, {
+      return h(NSpace, { size: 'small', wrap: false }, {
         default: () => [
           h(
             NButton,
@@ -188,7 +188,7 @@ const handleUninstall = (slug: string) => {
         )
       }}
     </n-alert>
-    <n-data-table striped :columns="columns" :data="extensions" :scroll-x="940" />
+    <n-data-table striped :columns="columns" :data="extensions" :scroll-x="1000" />
     <n-modal
       v-model:show="showEnableModal"
       preset="card"

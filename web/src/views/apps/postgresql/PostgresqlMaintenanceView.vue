@@ -74,12 +74,12 @@ const bloatColumns: any = [
   { title: $gettext('Schema'), key: 'schema', width: 110, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Size'), key: 'size', width: 100 },
-  { title: $gettext('Live Tuples'), key: 'live_tuples', width: 110 },
-  { title: $gettext('Dead Tuples'), key: 'dead_tuples', width: 110 },
+  { title: $gettext('Live Tuples'), key: 'live_tuples', width: 120 },
+  { title: $gettext('Dead Tuples'), key: 'dead_tuples', width: 130 },
   {
     title: $gettext('Dead Rate'),
     key: 'dead_rate',
-    width: 100,
+    width: 120,
     render(row: any) {
       const type = row.dead_rate >= 20 ? 'error' : row.dead_rate >= 10 ? 'warning' : 'default'
       return h(NTag, { type, size: 'small' }, { default: () => `${row.dead_rate}%` })
@@ -88,19 +88,19 @@ const bloatColumns: any = [
   {
     title: $gettext('Last Vacuum'),
     key: 'last_vacuum',
-    width: 140,
+    width: 150,
     render: (row: any) => row.last_vacuum || row.last_autovacuum || '-',
   },
   {
     title: $gettext('Last Analyze'),
     key: 'last_analyze',
-    width: 140,
+    width: 150,
     render: (row: any) => row.last_analyze || row.last_autoanalyze || '-',
   },
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 240,
+    width: 310,
     render(row: any) {
       const buttons = [
         h(
@@ -136,7 +136,7 @@ const bloatColumns: any = [
           ),
         )
       }
-      return h(NSpace, { size: 'small' }, { default: () => buttons })
+      return h(NSpace, { size: 'small', wrap: false }, { default: () => buttons })
     },
   },
 ]
@@ -154,7 +154,7 @@ const slotColumns: any = [
         : h(NTag, { type: 'warning', size: 'small' }, { default: () => $gettext('No') })
     },
   },
-  { title: $gettext('Retained WAL'), key: 'retained_wal', width: 130 },
+  { title: $gettext('Retained WAL'), key: 'retained_wal', width: 150 },
   {
     title: $gettext('Actions'),
     key: 'actions',
@@ -219,7 +219,7 @@ const handleDropSlot = (name: string) => {
           striped
           :columns="bloatColumns"
           :data="bloat.items"
-          :scroll-x="1200"
+          :scroll-x="1370"
           max-height="60vh"
         />
       </n-flex>
@@ -247,7 +247,7 @@ const handleDropSlot = (name: string) => {
           </n-flex>
         </n-card>
         <n-card :title="$gettext('Replication Slots')">
-          <n-data-table striped :columns="slotColumns" :data="wal.slots" :scroll-x="620" />
+          <n-data-table striped :columns="slotColumns" :data="wal.slots" :scroll-x="680" />
         </n-card>
         <n-card v-if="wal.replications.length" :title="$gettext('Replication Status')">
           <n-data-table

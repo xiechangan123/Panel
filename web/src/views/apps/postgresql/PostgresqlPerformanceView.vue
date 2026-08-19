@@ -56,20 +56,20 @@ const sessionColumns: any = [
   {
     title: $gettext('Transaction Duration'),
     key: 'xact_seconds',
-    width: 110,
+    width: 170,
     render: (row: any) => formatDuration(row.xact_seconds),
   },
   {
     title: $gettext('Query Duration'),
     key: 'query_seconds',
-    width: 110,
+    width: 150,
     render: (row: any) => formatDuration(row.query_seconds),
   },
   { title: 'SQL', key: 'query', minWidth: 250, ellipsis: { tooltip: true } },
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 100,
+    width: 120,
     render(row: any) {
       return h(
         NButton,
@@ -96,13 +96,13 @@ const sessionColumns: any = [
 const topSQLColumns: any = [
   { title: $gettext('Database'), key: 'database', width: 120, ellipsis: { tooltip: true } },
   { title: $gettext('Calls'), key: 'calls', width: 100 },
-  { title: $gettext('Total Time (ms)'), key: 'total_ms', width: 130 },
-  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 130 },
+  { title: $gettext('Total Time (ms)'), key: 'total_ms', width: 150 },
+  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 150 },
   { title: $gettext('Rows'), key: 'rows', width: 100 },
   {
     title: $gettext('Cache Hit Rate'),
     key: 'hit_rate',
-    width: 120,
+    width: 140,
     render: (row: any) => `${row.hit_rate}%`,
   },
   { title: 'SQL', key: 'query', minWidth: 300, ellipsis: { tooltip: true } },
@@ -162,7 +162,7 @@ const handleResetTopSQL = async () => {
           striped
           :columns="sessionColumns"
           :data="sessions"
-          :scroll-x="1500"
+          :scroll-x="1700"
           max-height="60vh"
         />
       </n-flex>
@@ -204,7 +204,7 @@ const handleResetTopSQL = async () => {
             striped
             :columns="topSQLColumns"
             :data="topSQL.items"
-            :scroll-x="1200"
+            :scroll-x="1300"
             max-height="60vh"
           />
         </template>

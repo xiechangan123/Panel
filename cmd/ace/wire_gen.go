@@ -78,7 +78,16 @@ func initAce() (*app.Ace, func(), error) {
 	giteaApp := gitea.NewApp()
 	grafanaApp := grafana.NewApp(locale)
 	kafkaApp := kafka.NewApp(locale)
-	mysqlApp := mysql.NewApp(locale, databaseServerRepo, settingRepo)
+	logger, cleanup, err := bootstrap.NewLogger(config)
+	if err != nil {
+		return nil, nil, err
+	}
+	slogLogger := bootstrap.NewSlog(logger)
+	notifyChannelRepo := data.NewNotifyChannelRepo(db)
+	notifyUsecase := biz.NewNotifyUsecase(locale, slogLogger, notifyChannelRepo, settingRepo)
+	taskRunner := bootstrap.NewRunner(notifyUsecase, db, locale, slogLogger)
+	taskRepo := data.NewTaskRepo(db, locale, slogLogger, taskRunner)
+	mysqlApp := mysql.NewApp(locale, databaseServerRepo, settingRepo, taskRepo)
 	mariadbApp := mariadb.NewApp(mysqlApp)
 	memcachedApp := memcached.NewApp(locale)
 	minioApp := minio.NewApp()
@@ -90,15 +99,6 @@ func initAce() (*app.Ace, func(), error) {
 	pgadminApp := pgadmin.NewApp(config, locale, databaseServerRepo)
 	phpmyadminApp := phpmyadmin.NewApp(config, locale, databaseServerRepo)
 	podmanApp := podman.NewApp()
-	logger, cleanup, err := bootstrap.NewLogger(config)
-	if err != nil {
-		return nil, nil, err
-	}
-	slogLogger := bootstrap.NewSlog(logger)
-	notifyChannelRepo := data.NewNotifyChannelRepo(db)
-	notifyUsecase := biz.NewNotifyUsecase(locale, slogLogger, notifyChannelRepo, settingRepo)
-	taskRunner := bootstrap.NewRunner(notifyUsecase, db, locale, slogLogger)
-	taskRepo := data.NewTaskRepo(db, locale, slogLogger, taskRunner)
 	postgresqlApp := postgresql.NewApp(locale, config, databaseServerRepo, settingRepo, taskRepo)
 	prometheusApp := prometheus.NewApp(config, locale, taskRepo)
 	pureftpdApp := pureftpd.NewApp(locale)

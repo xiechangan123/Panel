@@ -1,9 +1,13 @@
 package mysql
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"regexp"
+	"slices"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
@@ -25,13 +29,15 @@ type App struct {
 	t                  *gotext.Locale
 	settingRepo        biz.SettingRepo
 	databaseServerRepo biz.DatabaseServerRepo
+	taskRepo           biz.TaskRepo
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
+func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo, taskRepo biz.TaskRepo) *App {
 	return &App{
 		t:                  t,
 		settingRepo:        settingRepo,
 		databaseServerRepo: databaseServerRepo,
+		taskRepo:           taskRepo,
 	}
 }
 
@@ -44,43 +50,24 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/root_password", s.SetRootPassword)
 	r.Get("/config_tune", s.GetConfigTune)
 	r.Post("/config_tune", s.UpdateConfigTune)
+	// 性能
+	r.Get("/processes", s.ProcessList)
+	r.Post("/processes/{id}/kill", s.KillProcess)
+	r.Get("/transactions", s.TransactionList)
+	r.Get("/top_sql", s.TopSQL)
+	r.Post("/top_sql/enable", s.EnableTopSQL)
+	r.Post("/top_sql/reset", s.ResetTopSQL)
+	// 维护
+	r.Get("/tables", s.TableList)
+	r.Post("/maintenance", s.RunMaintenance)
+	r.Get("/binlogs", s.BinlogList)
+	r.Post("/binlogs/purge", s.PurgeBinlog)
+	r.Get("/replication", s.ReplicationStatus)
 }
 
 func (s *App) Status() string {
 	ok, _ := systemctl.Status("mysqld")
 	return types.AggregateAppStatus(ok)
-}
-
-// GetConfig 获取配置
-func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
-	if err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, config)
-}
-
-// UpdateConfig 保存配置
-func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write(app.Root+"/server/mysql/conf/my.cnf", req.Config, 0644); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart("mysqld"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
 }
 
 // Load 获取负载
@@ -186,6 +173,38 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, load)
+}
+
+// GetConfig 获取配置
+func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
+	config, err := io.Read(app.Root + "/server/mysql/conf/my.cnf")
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, config)
+}
+
+// UpdateConfig 保存配置
+func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[UpdateConfig](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = io.Write(app.Root+"/server/mysql/conf/my.cnf", req.Config, 0644); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	if err = systemctl.Restart("mysqld"); err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
+		return
+	}
+
+	service.Success(w, nil)
 }
 
 // SlowLog 获取慢查询日志
@@ -334,4 +353,483 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service.Success(w, nil)
+}
+
+// ProcessList 获取进程列表
+func (s *App) ProcessList(w http.ResponseWriter, r *http.Request) {
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	rows, err := mysql.Query(`
+		SELECT ID, coalesce(USER,''), coalesce(HOST,''), coalesce(DB,''), coalesce(COMMAND,''),
+		       TIME, coalesce(STATE,''), coalesce(INFO,'')
+		FROM information_schema.PROCESSLIST WHERE ID != CONNECTION_ID() ORDER BY TIME DESC`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	processes := make([]Process, 0)
+	for rows.Next() {
+		var item Process
+		if err = rows.Scan(&item.ID, &item.User, &item.Host, &item.DB, &item.Command, &item.Time, &item.State, &item.Info); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		processes = append(processes, item)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, processes)
+}
+
+// KillProcess 终止进程
+func (s *App) KillProcess(w http.ResponseWriter, r *http.Request) {
+	id := cast.ToInt64(chi.URLParam(r, "id"))
+	if id <= 0 {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid process id"))
+		return
+	}
+
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	// KILL 不支持预编译参数，id 已校验为正整数
+	if _, err = mysql.Exec(fmt.Sprintf(`KILL %d`, id)); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// TransactionList 获取事务及锁等待列表
+func (s *App) TransactionList(w http.ResponseWriter, r *http.Request) {
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	rows, err := mysql.Query(`
+		SELECT trx_id, trx_mysql_thread_id, coalesce(trx_state,''), coalesce(trx_query,''),
+		       timestampdiff(SECOND, trx_started, now()), trx_rows_locked, trx_rows_modified
+		FROM information_schema.INNODB_TRX ORDER BY trx_started`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	result := Transactions{Transactions: make([]Transaction, 0), LockWaits: make([]LockWait, 0)}
+	for rows.Next() {
+		var item Transaction
+		if err = rows.Scan(&item.ID, &item.ThreadID, &item.State, &item.Query, &item.Seconds, &item.RowsLocked, &item.RowsModified); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		result.Transactions = append(result.Transactions, item)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// 锁等待对，MariaDB 与 MySQL 8 的表不同，查询失败时忽略
+	lockSQL := `
+		SELECT r.trx_mysql_thread_id, coalesce(r.trx_query,''), b.trx_mysql_thread_id, coalesce(b.trx_query,'')
+		FROM performance_schema.data_lock_waits w
+		JOIN information_schema.innodb_trx r ON r.trx_id = w.REQUESTING_ENGINE_TRANSACTION_ID
+		JOIN information_schema.innodb_trx b ON b.trx_id = w.BLOCKING_ENGINE_TRANSACTION_ID`
+	if s.isMariaDB(mysql) {
+		lockSQL = `
+		SELECT r.trx_mysql_thread_id, coalesce(r.trx_query,''), b.trx_mysql_thread_id, coalesce(b.trx_query,'')
+		FROM information_schema.INNODB_LOCK_WAITS w
+		JOIN information_schema.INNODB_TRX r ON r.trx_id = w.requesting_trx_id
+		JOIN information_schema.INNODB_TRX b ON b.trx_id = w.blocking_trx_id`
+	}
+	if lockRows, lockErr := mysql.Query(lockSQL); lockErr == nil {
+		defer func() { _ = lockRows.Close() }()
+		for lockRows.Next() {
+			var item LockWait
+			if err = lockRows.Scan(&item.WaitingThreadID, &item.WaitingQuery, &item.BlockingThreadID, &item.BlockingQuery); err != nil {
+				break
+			}
+			result.LockWaits = append(result.LockWaits, item)
+		}
+	}
+
+	service.Success(w, result)
+}
+
+// TopSQL 获取 SQL 性能统计
+func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	var enabled int
+	if err = mysql.QueryRow(`SELECT @@performance_schema`).Scan(&enabled); err != nil {
+		if strings.Contains(err.Error(), "Unknown system variable") {
+			service.Success(w, TopSQL{Supported: false, Items: []TopSQLItem{}})
+			return
+		}
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if enabled == 0 {
+		// 检查是否已配置等待重启
+		config, _ := io.Read(app.Root + "/server/mysql/conf/my.cnf")
+		pending := strings.EqualFold(confval.SectionINI.GetIn(config, "mysqld", "performance_schema"), "on")
+		service.Success(w, TopSQL{Supported: true, Enabled: false, PendingRestart: pending, Items: []TopSQLItem{}})
+		return
+	}
+
+	rows, err := mysql.Query(`
+		SELECT coalesce(SCHEMA_NAME,''), COUNT_STAR, round(SUM_TIMER_WAIT/1e9),
+		       round(AVG_TIMER_WAIT/1e9,2), SUM_ROWS_SENT, SUM_ROWS_EXAMINED, coalesce(DIGEST_TEXT,'')
+		FROM performance_schema.events_statements_summary_by_digest
+		WHERE DIGEST_TEXT IS NOT NULL ORDER BY SUM_TIMER_WAIT DESC LIMIT 50`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	items := make([]TopSQLItem, 0)
+	for rows.Next() {
+		var item TopSQLItem
+		if err = rows.Scan(&item.Database, &item.Calls, &item.TotalMs, &item.MeanMs, &item.RowsSent, &item.RowsExamined, &item.Query); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		items = append(items, item)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, TopSQL{Supported: true, Enabled: true, Items: items})
+}
+
+// EnableTopSQL 启用 performance_schema
+func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
+	// 实例不支持时禁止写入配置
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+	var enabled int
+	if err = mysql.QueryRow(`SELECT @@performance_schema`).Scan(&enabled); err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("performance_schema is not supported by this instance"))
+		return
+	}
+
+	confPath := app.Root + "/server/mysql/conf/my.cnf"
+	config, err := io.Read(confPath)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// my.cnf 分段，必须用 SectionINI 保证写入 [mysqld] 段内，重启后生效
+	config = confval.SectionINI.SetIn(config, "mysqld", "performance_schema", "on")
+	if err = io.Write(confPath, config, 0644); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// ResetTopSQL 重置 SQL 性能统计
+func (s *App) ResetTopSQL(w http.ResponseWriter, r *http.Request) {
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	if _, err = mysql.Exec(`TRUNCATE TABLE performance_schema.events_statements_summary_by_digest`); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// TableList 获取表维护信息
+func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	rows, err := mysql.Query(`
+		SELECT table_schema, table_name, coalesce(engine,''), coalesce(table_rows,0),
+		       coalesce(data_length + index_length,0), coalesce(data_free,0)
+		FROM information_schema.TABLES
+		WHERE table_schema NOT IN ('mysql','information_schema','performance_schema','sys')
+		  AND table_type = 'BASE TABLE'
+		ORDER BY data_length + index_length DESC LIMIT 50`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	items := make([]TableInfo, 0)
+	for rows.Next() {
+		var item TableInfo
+		var size, free int64
+		if err = rows.Scan(&item.Database, &item.Table, &item.Engine, &item.Rows, &size, &free); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		item.Size = tools.FormatBytes(float64(size))
+		if size+free > 0 {
+			item.FragmentRate = float64(free) * 100 / float64(size+free)
+		}
+		items = append(items, item)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, items)
+}
+
+// RunMaintenance 对表执行维护操作（异步任务）
+func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[MaintenanceRun](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if !slices.Contains([]string{"optimize", "analyze"}, req.Operation) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid operation"))
+		return
+	}
+
+	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	escaped := strings.ReplaceAll(rootPassword, `'`, `'\''`)
+	cmd := fmt.Sprintf("MYSQL_PWD='%s' mysql -u root -e '%s TABLE `%s`.`%s`'", escaped, strings.ToUpper(req.Operation), req.Database, req.Table)
+
+	task := new(biz.Task)
+	task.Key = fmt.Sprintf("mysql:maintenance:%s.%s", req.Database, req.Table)
+	task.Name = s.t.Get("Run %s on table %s.%s", req.Operation, req.Database, req.Table)
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = cmd
+	if err = s.taskRepo.Push(task); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// BinlogList 获取 binlog 状态
+func (s *App) BinlogList(w http.ResponseWriter, r *http.Request) {
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	var enabled int
+	if err = mysql.QueryRow(`SELECT @@log_bin`).Scan(&enabled); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if enabled == 0 {
+		service.Success(w, Binlog{Enabled: false, Items: []BinlogFile{}})
+		return
+	}
+
+	rows, err := mysql.Query(`SHOW BINARY LOGS`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	// SHOW BINARY LOGS 列数两派不同（MySQL 8 多 Encrypted 列），动态取列
+	maps, err := s.rowsToMaps(rows)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	binlog := Binlog{Enabled: true, Items: make([]BinlogFile, 0, len(maps))}
+	var total int64
+	for _, m := range maps {
+		size := cast.ToInt64(m["File_size"])
+		total += size
+		binlog.Items = append(binlog.Items, BinlogFile{Name: m["Log_name"], Size: tools.FormatBytes(float64(size))})
+	}
+	binlog.TotalSize = tools.FormatBytes(float64(total))
+
+	service.Success(w, binlog)
+}
+
+// PurgeBinlog 清理指定文件之前的 binlog
+func (s *App) PurgeBinlog(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[BinlogPurge](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	// 校验文件名存在于 binlog 列表，PURGE 不支持预编译参数
+	rows, err := mysql.Query(`SHOW BINARY LOGS`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	maps, err := s.rowsToMaps(rows)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if !slices.ContainsFunc(maps, func(m map[string]string) bool { return m["Log_name"] == req.File }) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("binlog file %s does not exist", req.File))
+		return
+	}
+
+	if _, err = mysql.Exec(fmt.Sprintf(`PURGE BINARY LOGS TO '%s'`, req.File)); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// ReplicationStatus 获取复制状态
+func (s *App) ReplicationStatus(w http.ResponseWriter, r *http.Request) {
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	rows, err := mysql.Query(`SHOW REPLICA STATUS`)
+	if err != nil {
+		// 老版本 fallback
+		if rows, err = mysql.Query(`SHOW SLAVE STATUS`); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+	}
+	maps, err := s.rowsToMaps(rows)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if len(maps) == 0 {
+		service.Success(w, Replication{Enabled: false})
+		return
+	}
+
+	// MySQL 8 与 MariaDB 的列名两派不同，按候选名取值
+	pick := func(m map[string]string, keys ...string) string {
+		for _, key := range keys {
+			if v, ok := m[key]; ok && v != "" {
+				return v
+			}
+		}
+		return ""
+	}
+	m := maps[0]
+	service.Success(w, Replication{
+		Enabled:       true,
+		IORunning:     pick(m, "Replica_IO_Running", "Slave_IO_Running"),
+		SQLRunning:    pick(m, "Replica_SQL_Running", "Slave_SQL_Running"),
+		SecondsBehind: pick(m, "Seconds_Behind_Source", "Seconds_Behind_Master"),
+		SourceHost:    pick(m, "Source_Host", "Master_Host"),
+		LastError:     pick(m, "Last_Error"),
+	})
+}
+
+// connect 以 root 用户通过 unix socket 连接
+func (s *App) connect(ctx context.Context) (db.Operator, error) {
+	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return db.NewMySQL(ctx, "root", rootPassword, db.MySQLSocket(app.Root), "unix")
+}
+
+// isMariaDB 判断当前实例是否为 MariaDB
+func (s *App) isMariaDB(op db.Operator) bool {
+	var version string
+	if err := op.QueryRow(`SELECT VERSION()`).Scan(&version); err != nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(version), "mariadb")
+}
+
+// rowsToMaps 将查询结果按列名转为 map，用于列名/列数不固定的查询
+func (s *App) rowsToMaps(rows *sql.Rows) ([]map[string]string, error) {
+	defer func() { _ = rows.Close() }()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]map[string]string, 0)
+	for rows.Next() {
+		values := make([]sql.NullString, len(columns))
+		scans := make([]any, len(columns))
+		for i := range values {
+			scans[i] = &values[i]
+		}
+		if err = rows.Scan(scans...); err != nil {
+			return nil, err
+		}
+		m := make(map[string]string, len(columns))
+		for i, column := range columns {
+			m[column] = values[i].String
+		}
+		result = append(result, m)
+	}
+
+	return result, rows.Err()
 }

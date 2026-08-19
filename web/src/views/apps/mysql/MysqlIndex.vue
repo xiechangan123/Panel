@@ -9,6 +9,8 @@ import systemctl from '@/api/panel/systemctl'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 import MysqlConfigTuneView from './MysqlConfigTuneView.vue'
+import MysqlMaintenanceView from './MysqlMaintenanceView.vue'
+import MysqlPerformanceView from './MysqlPerformanceView.vue'
 
 const props = defineProps<{
   api: typeof mysql
@@ -172,6 +174,12 @@ const handleCopyRootPassword = () => {
       </n-tab-pane>
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <mysql-config-tune-view :api="props.api" />
+      </n-tab-pane>
+      <n-tab-pane name="performance" :tab="$gettext('Performance')">
+        <mysql-performance-view :api="props.api" />
+      </n-tab-pane>
+      <n-tab-pane name="maintenance" :tab="$gettext('Maintenance')">
+        <mysql-maintenance-view :api="props.api" />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table
