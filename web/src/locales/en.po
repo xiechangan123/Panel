@@ -311,8 +311,8 @@ msgstr "Cannot save in current state"
 #: src/views/apps/phpmyadmin/IndexView.vue:52
 #: src/views/apps/podman/IndexView.vue:29
 #: src/views/apps/podman/IndexView.vue:40
-#: src/views/apps/postgresql/IndexView.vue:88
-#: src/views/apps/postgresql/IndexView.vue:99
+#: src/views/apps/postgresql/IndexView.vue:89
+#: src/views/apps/postgresql/IndexView.vue:100
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:164
 #: src/views/apps/prometheus/IndexView.vue:62
 #: src/views/apps/prometheus/IndexView.vue:73
@@ -376,6 +376,7 @@ msgstr "Select File"
 #: src/views/apps/nginx/NginxIndex.vue:226
 #: src/views/apps/nginx/NginxIndex.vue:619
 #: src/views/apps/nginx/NginxIndex.vue:705
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:21
 #: src/views/apps/prometheus/PrometheusExportersView.vue:26
 #: src/views/apps/rsync/IndexView.vue:45 src/views/apps/rsync/IndexView.vue:275
 #: src/views/apps/supervisor/IndexView.vue:89
@@ -647,39 +648,39 @@ msgstr "Compressing..."
 msgid "Connection failed, retrying..."
 msgstr "Connection error. Please refresh."
 
-#: src/components/common/RealtimeLog.vue:289
+#: src/components/common/RealtimeLog.vue:328
 #: src/views/apps/clickhouse/IndexView.vue:77
 #: src/views/apps/mongodb/IndexView.vue:77
 #: src/views/apps/mysql/MysqlIndex.vue:110
-#: src/views/apps/postgresql/IndexView.vue:144
+#: src/views/apps/postgresql/IndexView.vue:145
 #: src/views/database/ServerList.vue:102 src/views/database/UserList.vue:52
 #: src/views/file/composables/usePaste.ts:29
 #: src/views/setting/TokenModal.vue:155
 msgid "Copied successfully"
 msgstr "Copied successfully"
 
-#: src/components/common/RealtimeLog.vue:315
+#: src/components/common/RealtimeLog.vue:356
 #, fuzzy
 msgid "Not found"
 msgstr "Not used"
 
-#: src/components/common/RealtimeLog.vue:399
+#: src/components/common/RealtimeLog.vue:444
 msgid "Pause Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:399
+#: src/components/common/RealtimeLog.vue:444
 msgid "Resume Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:405
+#: src/components/common/RealtimeLog.vue:450
 msgid "Jump to Top"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:408
+#: src/components/common/RealtimeLog.vue:453
 msgid "Jump to Bottom"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:413
+#: src/components/common/RealtimeLog.vue:458
 #: src/components/file-editor/EditorToolbar.vue:190
 #: src/components/file-editor/FileTree.vue:702 src/views/app/AppView.vue:237
 #: src/views/app/EnvironmentView.vue:264 src/views/app/TemplateView.vue:102
@@ -688,79 +689,80 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:422
+#: src/components/common/RealtimeLog.vue:467
 #, fuzzy
 msgid "Enter keyword and press Enter"
 msgstr "Enter user password"
 
-#: src/components/common/RealtimeLog.vue:425
+#: src/components/common/RealtimeLog.vue:470
 #: src/views/app/TemplateDeployModal.vue:631
 #, fuzzy
 msgid "Previous"
 msgstr "Preview"
 
-#: src/components/common/RealtimeLog.vue:428
+#: src/components/common/RealtimeLog.vue:473
 #: src/views/app/TemplateDeployModal.vue:640
 #: src/views/app/TemplateDeployModal.vue:643
 msgid "Next"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:433
+#: src/components/common/RealtimeLog.vue:478
 msgid "Only loaded logs are searched"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:442
+#: src/components/common/RealtimeLog.vue:487
 #, fuzzy
 msgid "Disable Line Wrap"
 msgstr "Disable Buffer"
 
-#: src/components/common/RealtimeLog.vue:442
+#: src/components/common/RealtimeLog.vue:487
 #, fuzzy
 msgid "Enable Line Wrap"
 msgstr "Disable Buffer"
 
-#: src/components/common/RealtimeLog.vue:447
+#: src/components/common/RealtimeLog.vue:492
 #, fuzzy
 msgid "Copy All"
 msgstr "Expose All"
 
-#: src/components/common/RealtimeLog.vue:451
+#: src/components/common/RealtimeLog.vue:496
 #, fuzzy
 msgid "Decrease Font Size"
 msgstr "Size"
 
-#: src/components/common/RealtimeLog.vue:454
+#: src/components/common/RealtimeLog.vue:499
 #, fuzzy
 msgid "Increase Font Size"
 msgstr "Size"
 
-#: src/components/common/RealtimeLog.vue:460 src/views/ssh/IndexView.vue:549
+#: src/components/common/RealtimeLog.vue:505 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Exit Fullscreen"
 msgstr "Fullscreen Display"
 
-#: src/components/common/RealtimeLog.vue:460 src/views/ssh/IndexView.vue:549
+#: src/components/common/RealtimeLog.vue:505 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Fullscreen"
 msgstr "Fullscreen Display"
 
-#: src/components/common/RealtimeLog.vue:480
+#: src/components/common/RealtimeLog.vue:525
 msgid "No more logs"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:497
+#: src/components/common/RealtimeLog.vue:536
+#: src/components/common/RealtimeLog.vue:552
+#, fuzzy
+msgid "No logs available"
+msgstr "Inodes Available"
+
+#: src/components/common/RealtimeLog.vue:545
 #, fuzzy
 msgid "%{ count } new line"
 msgid_plural "%{ count } new lines"
 msgstr[0] "Mount Path"
 msgstr[1] "Mount Path"
 
-#: src/components/common/RealtimeLog.vue:504
-#, fuzzy
-msgid "No logs available"
-msgstr "Inodes Available"
-
-#: src/components/common/RealtimeLogModal.vue:42 src/locales/menu.ts:16
+#: src/components/common/RealtimeLogModal.vue:46 src/locales/menu.ts:16
 #: src/views/apps/frp/FrpcConfigTuneView.vue:268
 #: src/views/apps/frp/FrpsConfigTuneView.vue:296
 #: src/views/apps/supervisor/IndexView.vue:131
@@ -770,23 +772,23 @@ msgstr "Inodes Available"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/components/common/RealtimeLogModal.vue:51
+#: src/components/common/RealtimeLogModal.vue:55
 #, fuzzy
 msgid "Download Log"
 msgstr "Download URL"
 
-#: src/components/common/RealtimeLogModal.vue:56
+#: src/components/common/RealtimeLogModal.vue:60
 #, fuzzy
 msgid "Are you sure you want to clear the log?"
 msgstr "Are you sure you want to clear?"
 
-#: src/components/common/RealtimeLogModal.vue:61
+#: src/components/common/RealtimeLogModal.vue:65
 #: src/views/apps/apache/IndexView.vue:119
 #: src/views/apps/mysql/MysqlIndex.vue:195
 #: src/views/apps/nginx/NginxIndex.vue:584
 #: src/views/apps/nginx/NginxIndex.vue:599
-#: src/views/apps/postgresql/IndexView.vue:254
-#: src/views/apps/postgresql/IndexView.vue:270
+#: src/views/apps/postgresql/IndexView.vue:258
+#: src/views/apps/postgresql/IndexView.vue:274
 #: src/views/apps/supervisor/IndexView.vue:425
 #: src/views/environment/PHPView.vue:276
 msgid "Clear Log"
@@ -891,7 +893,7 @@ msgstr "Autostart disabled successfully"
 #: src/views/apps/nginx/NginxIndex.vue:498
 #: src/views/apps/opensearch/IndexView.vue:62
 #: src/views/apps/podman/IndexView.vue:51
-#: src/views/apps/postgresql/IndexView.vue:152
+#: src/views/apps/postgresql/IndexView.vue:153
 #: src/views/apps/prometheus/IndexView.vue:84
 #: src/views/apps/pureftpd/IndexView.vue:168
 #: src/views/apps/redis/IndexView.vue:62
@@ -1041,9 +1043,9 @@ msgstr ""
 #: src/views/apps/phpmyadmin/IndexView.vue:107
 #: src/views/apps/podman/IndexView.vue:80
 #: src/views/apps/podman/IndexView.vue:102
-#: src/views/apps/postgresql/IndexView.vue:181
-#: src/views/apps/postgresql/IndexView.vue:205
-#: src/views/apps/postgresql/IndexView.vue:230
+#: src/views/apps/postgresql/IndexView.vue:182
+#: src/views/apps/postgresql/IndexView.vue:206
+#: src/views/apps/postgresql/IndexView.vue:234
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:221
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:299
 #: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:365
@@ -1837,6 +1839,7 @@ msgstr "Login"
 #: src/views/app/AppView.vue:19 src/views/app/AppView.vue:143
 #: src/views/app/AppView.vue:147 src/views/app/EnvironmentView.vue:147
 #: src/views/app/EnvironmentView.vue:292 src/views/app/EnvironmentView.vue:312
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:70
 #: src/views/apps/prometheus/PrometheusExportersView.vue:79
 #: src/views/environment/PHPView.vue:107
 msgid "Install"
@@ -1848,6 +1851,7 @@ msgstr "App Name"
 
 #: src/views/app/AppView.vue:43 src/views/app/EnvironmentView.vue:44
 #: src/views/app/InstalledView.vue:39 src/views/app/InstalledView.vue:164
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:33
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
 #: src/views/environment/PHPView.vue:64 src/views/project/EditModal.vue:193
 #: src/views/project/ListView.vue:44
@@ -1873,6 +1877,7 @@ msgstr "Show in Home"
 #: src/views/apps/nginx/NginxIndex.vue:190
 #: src/views/apps/nginx/NginxIndex.vue:254
 #: src/views/apps/nginx/NginxIndex.vue:751
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:49
 #: src/views/apps/prometheus/PrometheusExportersView.vue:55
 #: src/views/apps/pureftpd/IndexView.vue:53
 #: src/views/apps/rsync/IndexView.vue:82 src/views/apps/s3fs/IndexView.vue:35
@@ -1923,6 +1928,7 @@ msgstr "Manage"
 
 #: src/views/app/AppView.vue:119 src/views/app/EnvironmentView.vue:110
 #: src/views/app/InstalledView.vue:124 src/views/app/InstalledView.vue:223
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:80
 #: src/views/apps/prometheus/PrometheusExportersView.vue:124
 #: src/views/environment/PHPView.vue:85
 #, fuzzy
@@ -1946,6 +1952,8 @@ msgstr "Are you sure to uninstall app %{ app }?"
 #: src/views/app/EnvironmentView.vue:114 src/views/app/EnvironmentView.vue:120
 #: src/views/app/InstalledView.vue:130 src/views/app/InstalledView.vue:136
 #: src/views/app/InstalledView.vue:227 src/views/app/InstalledView.vue:233
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:85
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:91
 #: src/views/apps/prometheus/PrometheusExportersView.vue:128
 msgid "Uninstall"
 msgstr "Uninstall"
@@ -2007,6 +2015,7 @@ msgid "Are you sure to uninstall environment %{ environment }?"
 msgstr "Are you sure to uninstall app %{ app }?"
 
 #: src/views/app/EnvironmentView.vue:139
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:62
 #: src/views/apps/prometheus/PrometheusExportersView.vue:71
 #: src/views/environment/PHPView.vue:99
 #, fuzzy
@@ -2023,6 +2032,7 @@ msgid "Cache updated successfully"
 msgstr "Cache updated successfully"
 
 #: src/views/app/IndexView.vue:40
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:44
 #, fuzzy
 msgid "Installed"
 msgstr "Install"
@@ -2054,6 +2064,7 @@ msgstr "Description"
 #: src/views/apps/frp/FrpProxyView.vue:37
 #: src/views/apps/frp/FrpVisitorView.vue:37
 #: src/views/apps/phpmyadmin/IndexView.vue:67
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:39
 #: src/views/apps/prometheus/PrometheusExportersView.vue:38
 #: src/views/apps/supervisor/IndexView.vue:96
 #: src/views/container/ComposeView.vue:86
@@ -2323,7 +2334,7 @@ msgstr "Custom Logo"
 #: src/views/apps/mysql/MysqlIndex.vue:48
 #: src/views/apps/nginx/NginxIndex.vue:136
 #: src/views/apps/opensearch/IndexView.vue:33
-#: src/views/apps/postgresql/IndexView.vue:70
+#: src/views/apps/postgresql/IndexView.vue:71
 #: src/views/apps/prometheus/IndexView.vue:44
 #: src/views/apps/redis/IndexView.vue:33
 #: src/views/apps/rocketmq/IndexView.vue:33
@@ -2341,7 +2352,7 @@ msgstr "Property"
 #: src/views/apps/mysql/MysqlIndex.vue:55
 #: src/views/apps/nginx/NginxIndex.vue:143
 #: src/views/apps/opensearch/IndexView.vue:40
-#: src/views/apps/postgresql/IndexView.vue:77
+#: src/views/apps/postgresql/IndexView.vue:78
 #: src/views/apps/prometheus/IndexView.vue:51
 #: src/views/apps/redis/IndexView.vue:40
 #: src/views/apps/rocketmq/IndexView.vue:40
@@ -2354,8 +2365,8 @@ msgstr "Current Value"
 #: src/views/apps/mysql/MysqlIndex.vue:90
 #: src/views/apps/nginx/NginxIndex.vue:324
 #: src/views/apps/nginx/NginxIndex.vue:336
-#: src/views/apps/postgresql/IndexView.vue:111
-#: src/views/apps/postgresql/IndexView.vue:124
+#: src/views/apps/postgresql/IndexView.vue:112
+#: src/views/apps/postgresql/IndexView.vue:125
 #: src/views/apps/supervisor/IndexView.vue:246
 #: src/views/apps/supervisor/IndexView.vue:302
 #: src/views/database/RedisDataView.vue:252
@@ -2396,7 +2407,7 @@ msgstr ""
 #: src/views/apps/mysql/MysqlIndex.vue:176
 #: src/views/apps/nginx/NginxIndex.vue:565
 #: src/views/apps/opensearch/IndexView.vue:90
-#: src/views/apps/postgresql/IndexView.vue:235
+#: src/views/apps/postgresql/IndexView.vue:239
 #: src/views/apps/prometheus/IndexView.vue:147
 #: src/views/apps/redis/IndexView.vue:90
 #: src/views/apps/rocketmq/IndexView.vue:93
@@ -2422,7 +2433,7 @@ msgstr "Load Status"
 #: src/views/apps/nginx/NginxIndex.vue:575
 #: src/views/apps/opensearch/IndexView.vue:100
 #: src/views/apps/podman/IndexView.vue:107
-#: src/views/apps/postgresql/IndexView.vue:245
+#: src/views/apps/postgresql/IndexView.vue:249
 #: src/views/apps/prometheus/IndexView.vue:157
 #: src/views/apps/redis/IndexView.vue:100
 #: src/views/apps/rocketmq/IndexView.vue:103
@@ -2517,7 +2528,7 @@ msgstr ""
 #: src/views/apps/clickhouse/IndexView.vue:68
 #: src/views/apps/mongodb/IndexView.vue:68
 #: src/views/apps/mysql/MysqlIndex.vue:101
-#: src/views/apps/postgresql/IndexView.vue:135
+#: src/views/apps/postgresql/IndexView.vue:136
 #: src/views/apps/pureftpd/IndexView.vue:145
 #: src/views/database/DatabaseList.vue:113
 #: src/views/database/RedisDataView.vue:222
@@ -2549,7 +2560,7 @@ msgstr ""
 #: src/views/apps/clickhouse/IndexView.vue:105
 #: src/views/apps/mongodb/IndexView.vue:101
 #: src/views/apps/mysql/MysqlIndex.vue:134
-#: src/views/apps/postgresql/IndexView.vue:172
+#: src/views/apps/postgresql/IndexView.vue:173
 #: src/views/database/ServerList.vue:106 src/views/database/UserList.vue:56
 #: src/views/file/ListView.vue:374 src/views/file/ListView.vue:408
 #: src/views/file/ListView.vue:1004 src/views/file/ToolBar.vue:187
@@ -2563,7 +2574,7 @@ msgstr "Copy"
 #: src/views/apps/kafka/IndexView.vue:65
 #: src/views/apps/mongodb/IndexView.vue:117
 #: src/views/apps/opensearch/IndexView.vue:65
-#: src/views/apps/postgresql/IndexView.vue:188
+#: src/views/apps/postgresql/IndexView.vue:189
 #: src/views/apps/prometheus/IndexView.vue:96
 #: src/views/apps/redis/IndexView.vue:65
 #: src/views/apps/rocketmq/IndexView.vue:68
@@ -2592,7 +2603,7 @@ msgstr ""
 #: src/views/apps/mysql/MysqlIndex.vue:173
 #: src/views/apps/nginx/NginxIndex.vue:524
 #: src/views/apps/opensearch/IndexView.vue:87
-#: src/views/apps/postgresql/IndexView.vue:210
+#: src/views/apps/postgresql/IndexView.vue:211
 #: src/views/apps/prometheus/IndexView.vue:118
 #: src/views/apps/pureftpd/IndexView.vue:215
 #: src/views/apps/redis/IndexView.vue:87
@@ -5095,18 +5106,18 @@ msgstr ""
 "This modifies the Podman storage configuration file (/etc/containers/storage."
 "conf)"
 
-#: src/views/apps/postgresql/IndexView.vue:155
+#: src/views/apps/postgresql/IndexView.vue:156
 #, fuzzy
 msgid "Super Password"
 msgstr "Password"
 
-#: src/views/apps/postgresql/IndexView.vue:159
+#: src/views/apps/postgresql/IndexView.vue:160
 msgid ""
 "The \"postgres\" superuser password is used to manage the database system. "
 "Keep it safe!"
 msgstr ""
 
-#: src/views/apps/postgresql/IndexView.vue:192
+#: src/views/apps/postgresql/IndexView.vue:193
 msgid ""
 "This modifies the PostgreSQL main configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
@@ -5114,11 +5125,17 @@ msgstr ""
 "This modifies the PostgreSQL main configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/apps/postgresql/IndexView.vue:213
+#: src/views/apps/postgresql/IndexView.vue:214
+#: src/views/tamper/TamperView.vue:121
+#, fuzzy
+msgid "Extensions"
+msgstr "Extension Name"
+
+#: src/views/apps/postgresql/IndexView.vue:217
 msgid "User Configuration"
 msgstr "User Configuration"
 
-#: src/views/apps/postgresql/IndexView.vue:217
+#: src/views/apps/postgresql/IndexView.vue:221
 msgid ""
 "This modifies the PostgreSQL user configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
@@ -5126,7 +5143,7 @@ msgstr ""
 "This modifies the PostgreSQL user configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/apps/postgresql/IndexView.vue:260
+#: src/views/apps/postgresql/IndexView.vue:264
 #, fuzzy
 msgid "Application Logs"
 msgstr "Operation successful"
@@ -5293,6 +5310,48 @@ msgstr ""
 msgid "IO Method (io_method)"
 msgstr ""
 
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:27
+#, fuzzy
+msgid "Extension Name"
+msgstr "Extension Management"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:45
+#: src/views/apps/prometheus/PrometheusExportersView.vue:46
+#, fuzzy
+msgid "Not Installed"
+msgstr "Install"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:63
+#: src/views/apps/prometheus/PrometheusExportersView.vue:72
+#: src/views/environment/PHPView.vue:100
+msgid "Are you sure you want to install %{ name }?"
+msgstr "Are you sure you want to install %{ name }?"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:81
+msgid ""
+"Please make sure the extension %{ ext_name } has been dropped (DROP "
+"EXTENSION) in all databases that use it, otherwise those databases will fail "
+"to load it. Are you sure you want to uninstall %{ name }?"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:99
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:106
+#: src/views/apps/prometheus/PrometheusExportersView.vue:146
+#: src/views/apps/prometheus/PrometheusExportersView.vue:153
+#: src/views/container/ContainerCreate.vue:120
+#: src/views/container/ImageView.vue:186 src/views/environment/PHPView.vue:175
+#: src/views/environment/PHPView.vue:181
+msgid "Task submitted, please check progress in background tasks"
+msgstr "Task submitted, please check progress in background tasks"
+
+#: src/views/apps/postgresql/PostgresqlExtensionsView.vue:116
+msgid ""
+"Extensions are only installed at the file level. After installation, run "
+"CREATE EXTENSION in each database where you want to use them. Some "
+"extensions modify the main configuration during installation and require a "
+"restart of PostgreSQL to take effect."
+msgstr ""
+
 #: src/views/apps/prometheus/IndexView.vue:89
 msgid ""
 "By default, the firewall does not allow access to the Prometheus port "
@@ -5352,16 +5411,6 @@ msgstr "Resource Overview"
 msgid "e.g. 10s"
 msgstr "127.0.0.1"
 
-#: src/views/apps/prometheus/PrometheusExportersView.vue:46
-#, fuzzy
-msgid "Not Installed"
-msgstr "Install"
-
-#: src/views/apps/prometheus/PrometheusExportersView.vue:72
-#: src/views/environment/PHPView.vue:100
-msgid "Are you sure you want to install %{ name }?"
-msgstr "Are you sure you want to install %{ name }?"
-
 #: src/views/apps/prometheus/PrometheusExportersView.vue:112
 #: src/views/website/EditModal.vue:2135
 #, fuzzy
@@ -5372,14 +5421,6 @@ msgstr "Configure"
 #: src/views/environment/PHPView.vue:86
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr "Are you sure you want to uninstall %{ name }?"
-
-#: src/views/apps/prometheus/PrometheusExportersView.vue:146
-#: src/views/apps/prometheus/PrometheusExportersView.vue:153
-#: src/views/container/ContainerCreate.vue:120
-#: src/views/container/ImageView.vue:186 src/views/environment/PHPView.vue:175
-#: src/views/environment/PHPView.vue:181
-msgid "Task submitted, please check progress in background tasks"
-msgstr "Task submitted, please check progress in background tasks"
 
 #: src/views/apps/prometheus/PrometheusExportersView.vue:204
 msgid ""
@@ -11276,11 +11317,6 @@ msgstr ""
 msgid "The server is rebooting, please reconnect later"
 msgstr ""
 
-#: src/views/tamper/TamperView.vue:121
-#, fuzzy
-msgid "Extensions"
-msgstr "Extension Name"
-
 #: src/views/tamper/TamperView.vue:126
 #, fuzzy
 msgid "All files"
@@ -12709,8 +12745,8 @@ msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:543
 msgid ""
-"The target API must allow this server address. Missing database servers and "
-"runtimes are reported in the next step."
+"The target address must include the access entrance and allow this server "
+"address."
 msgstr ""
 
 #: src/views/toolbox/MigrationView.vue:546
@@ -15293,9 +15329,6 @@ msgstr "Add Server"
 #, fuzzy
 #~ msgid "SSH Service"
 #~ msgstr "Service"
-
-#~ msgid "Extension Management"
-#~ msgstr "Extension Management"
 
 #~ msgid ""
 #~ "Modifying panel port/entrance requires corresponding changes in the "
