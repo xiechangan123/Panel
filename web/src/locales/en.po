@@ -5346,10 +5346,8 @@ msgstr "Task submitted, please check progress in background tasks"
 
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:116
 msgid ""
-"Extensions are only installed at the file level. After installation, run "
-"CREATE EXTENSION in each database where you want to use them. Some "
-"extensions modify the main configuration during installation and require a "
-"restart of PostgreSQL to take effect."
+"Extensions need to be enabled in the database with CREATE EXTENSION, and "
+"some may require restarting PostgreSQL."
 msgstr ""
 
 #: src/views/apps/prometheus/IndexView.vue:89
