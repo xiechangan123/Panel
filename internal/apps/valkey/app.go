@@ -12,9 +12,9 @@ type App struct {
 	redis *redis.App
 }
 
-func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) *App {
+func NewApp(t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, taskRepo biz.TaskRepo) *App {
 	return &App{
-		redis: redis.New("valkey", "Valkey", t, databaseServerRepo),
+		redis: redis.New("valkey", "Valkey", t, databaseServerRepo, taskRepo),
 	}
 }
 

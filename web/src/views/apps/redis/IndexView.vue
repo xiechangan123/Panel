@@ -10,6 +10,8 @@ import redis from '@/api/apps/redis'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 import RedisConfigTuneView from './RedisConfigTuneView.vue'
+import RedisPerformanceView from '@/views/apps/redis/RedisPerformanceView.vue'
+
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -86,6 +88,9 @@ const handleSaveConfig = () => {
       </n-tab-pane>
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <redis-config-tune-view />
+      </n-tab-pane>
+      <n-tab-pane name="performance" :tab="$gettext('Performance')">
+        <redis-performance-view :api="redis" />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table

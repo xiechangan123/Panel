@@ -10,6 +10,8 @@ import valkey from '@/api/apps/valkey'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
 import ValkeyConfigTuneView from './ValkeyConfigTuneView.vue'
+import RedisPerformanceView from '@/views/apps/redis/RedisPerformanceView.vue'
+
 
 const { $gettext } = useGettext()
 const currentTab = ref('status')
@@ -86,6 +88,9 @@ const handleSaveConfig = () => {
       </n-tab-pane>
       <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
         <valkey-config-tune-view />
+      </n-tab-pane>
+      <n-tab-pane name="performance" :tab="$gettext('Performance')">
+        <redis-performance-view :api="valkey" />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table
