@@ -5,6 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import { mbToPair, redisPreset, type TuneProfile } from '@/utils/tunepreset'
+
 import valkey from '@/api/apps/valkey'
 
 const { $gettext } = useGettext()
@@ -25,6 +27,23 @@ const appendonly = ref('')
 const appendfsync = ref('')
 
 const saveLoading = ref(false)
+const showPresetModal = ref(false)
+const presetScenarios = computed(() => [
+  { label: $gettext('Cache only'), value: 'cache' },
+  { label: $gettext('Cache and storage mixed'), value: 'mixed' },
+  { label: $gettext('Persistent storage'), value: 'persistent' },
+])
+
+const handlePreset = (profile: TuneProfile) => {
+  const r = redisPreset(profile)
+  const maxmemory = mbToPair(r.maxmemoryMB, ['mb', 'gb'])
+  maxmemoryNum.value = maxmemory.num
+  maxmemoryUnit.value = maxmemory.unit
+  maxmemoryPolicy.value = r.maxmemoryPolicy
+  appendonly.value = r.appendonly
+  appendfsync.value = r.appendfsync
+  window.$message.success($gettext('Generated, review the values and save'))
+}
 
 const sizeUnitOptions = [
   { label: 'kb', value: 'kb' },
@@ -109,7 +128,13 @@ const handleSave = () => {
 </script>
 
 <template>
-  <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+  <n-flex vertical>
+    <n-flex>
+      <n-button type="info" @click="showPresetModal = true">
+        {{ $gettext('Generate Recommended Configuration') }}
+      </n-button>
+    </n-flex>
+    <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="general" :tab="$gettext('General')">
       <n-flex vertical>
         <n-alert type="info">
@@ -232,5 +257,13 @@ const handleSave = () => {
         </n-flex>
       </n-flex>
     </n-tab-pane>
-  </n-tabs>
+    </n-tabs>
+    <tune-preset-modal
+      v-model:show="showPresetModal"
+      :fields="['memory']"
+      :scenario-options="presetScenarios"
+      :memory-ratio="0.5"
+      @generate="handlePreset"
+    />
+  </n-flex>
 </template>

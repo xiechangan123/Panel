@@ -19,7 +19,7 @@ const { data: clients, send: refreshClients } = useRequest(props.api.clients, {
   initialData: [],
 })
 const { data: memory, send: refreshMemory } = useRequest(props.api.memory, {
-  initialData: { doctor: '', items: [] },
+  initialData: { doctor: '', no_limit: false, items: [] },
 })
 
 const slowLogColumns: any = [
@@ -157,6 +157,13 @@ const handleScanBigKeys = async () => {
             {{ $gettext('Scan Big Keys') }}
           </n-button>
         </n-flex>
+        <n-alert v-if="memory.no_limit" type="warning">
+          {{
+            $gettext(
+              'maxmemory is not configured, memory usage can grow without limit. Set a memory limit and eviction policy in Parameter Tuning.',
+            )
+          }}
+        </n-alert>
         <n-alert v-if="memory.doctor" type="info">
           {{ memory.doctor }}
         </n-alert>

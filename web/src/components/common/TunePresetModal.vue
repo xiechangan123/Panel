@@ -1,0 +1,124 @@
+<script setup lang="ts">
+defineOptions({
+  name: 'tune-preset-modal',
+})
+
+import { useGettext } from 'vue3-gettext'
+
+import home from '@/api/panel/home'
+import type { TuneProfile } from '@/utils/tunepreset'
+
+const props = withDefaults(
+  defineProps<{
+    // 需要展示的画像输入项
+    fields?: ('memory' | 'cpu' | 'disk' | 'connections')[]
+    // 场景选项，空则不展示场景
+    scenarioOptions?: { label: string; value: string }[]
+    scenarioLabel?: string
+    // 默认分配内存占主机内存的比例
+    memoryRatio?: number
+  }>(),
+  {
+    fields: () => ['memory', 'cpu', 'disk'],
+    scenarioOptions: () => [],
+    scenarioLabel: '',
+    memoryRatio: 0.75,
+  },
+)
+
+const emit = defineEmits<{
+  generate: [profile: TuneProfile]
+}>()
+
+const show = defineModel<boolean>('show', { default: false })
+
+const { $gettext } = useGettext()
+
+const memoryMB = ref<number | null>(null)
+const cpuCores = ref<number | null>(null)
+const disk = ref<'hdd' | 'ssd' | 'nvme'>('ssd')
+const scenario = ref('')
+const connections = ref<number | null>(200)
+const detected = ref(false)
+
+const diskOptions = [
+  { label: 'HDD', value: 'hdd' },
+  { label: 'SSD', value: 'ssd' },
+  { label: 'NVMe', value: 'nvme' },
+]
+
+// 打开时按主机实际配置填充默认值
+watch(show, (val) => {
+  if (!val) return
+  if (!scenario.value && props.scenarioOptions.length) {
+    scenario.value = props.scenarioOptions[0]!.value
+  }
+  if (detected.value) return
+  useRequest(home.current([], [])).onSuccess(({ data }: any) => {
+    if (data?.mem?.total) {
+      memoryMB.value = Math.round((data.mem.total / 1024 / 1024) * props.memoryRatio)
+    }
+    if (data?.cpus?.length) {
+      cpuCores.value = data.cpus.length
+    }
+    detected.value = true
+  })
+})
+
+const handleGenerate = () => {
+  emit('generate', {
+    memoryMB: memoryMB.value ?? 1024,
+    cpuCores: cpuCores.value ?? 1,
+    disk: disk.value,
+    scenario: scenario.value,
+    connections: connections.value ?? 200,
+  })
+  show.value = false
+}
+</script>
+
+<template>
+  <n-modal
+    v-model:show="show"
+    preset="card"
+    :title="$gettext('Generate Recommended Configuration')"
+    class="w-120"
+  >
+    <n-flex vertical>
+      <n-alert type="info">
+        {{
+          $gettext(
+            'Generates recommended values based on the server profile and fills them into the form. Review the values and save manually.',
+          )
+        }}
+      </n-alert>
+      <n-form label-placement="left" label-width="auto">
+        <n-form-item v-if="fields.includes('memory')" :label="$gettext('Allocated Memory (MB)')">
+          <n-input-number
+            class="w-full"
+            v-model:value="memoryMB"
+            :min="128"
+            :placeholder="$gettext('Memory allocated to this service')"
+          />
+        </n-form-item>
+        <n-form-item v-if="fields.includes('cpu')" :label="$gettext('CPU Cores')">
+          <n-input-number class="w-full" v-model:value="cpuCores" :min="1" />
+        </n-form-item>
+        <n-form-item v-if="fields.includes('disk')" :label="$gettext('Disk Type')">
+          <n-select v-model:value="disk" :options="diskOptions" />
+        </n-form-item>
+        <n-form-item v-if="scenarioOptions.length" :label="scenarioLabel || $gettext('Scenario')">
+          <n-select v-model:value="scenario" :options="scenarioOptions" />
+        </n-form-item>
+        <n-form-item v-if="fields.includes('connections')" :label="$gettext('Max Connections')">
+          <n-input-number class="w-full" v-model:value="connections" :min="10" />
+        </n-form-item>
+      </n-form>
+      <n-flex>
+        <n-button type="primary" @click="handleGenerate">
+          {{ $gettext('Generate') }}
+        </n-button>
+      </n-flex>
+    </n-flex>
+  </n-modal>
+</template>

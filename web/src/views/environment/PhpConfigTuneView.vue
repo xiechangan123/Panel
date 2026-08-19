@@ -5,6 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import { phpPreset, type TuneProfile } from '@/utils/tunepreset'
+
 import php from '@/api/panel/environment/php'
 
 const props = defineProps<{
@@ -59,6 +61,24 @@ const pmMaxSpareServers = ref<number | null>(null)
 
 // loading 状态
 const saveLoading = ref(false)
+const showPresetModal = ref(false)
+const presetScenarios = computed(() => [
+  { label: $gettext('WordPress / general (~50MB per process)'), value: '50' },
+  { label: $gettext('Framework application (~80MB per process)'), value: '80' },
+  { label: $gettext('Heavy application (~128MB per process)'), value: '128' },
+])
+
+const handlePreset = (profile: TuneProfile) => {
+  const r = phpPreset(profile)
+  pm.value = r.pm
+  pmMaxChildren.value = r.pmMaxChildren
+  pmStartServers.value = r.pmStartServers
+  pmMinSpareServers.value = r.pmMinSpareServers
+  pmMaxSpareServers.value = r.pmMaxSpareServers
+  memoryLimitNum.value = r.memoryLimitM
+  memoryLimitUnit.value = 'M'
+  window.$message.success($gettext('Generated, review the values and save'))
+}
 const cleanSessionLoading = ref(false)
 
 // 解析 Redis save_path 为可视化字段
@@ -244,7 +264,13 @@ const composeSizeValue = (num: number | null, unit: string): string => {
 </script>
 
 <template>
-  <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+  <n-flex vertical>
+    <n-flex>
+      <n-button type="info" @click="showPresetModal = true">
+        {{ $gettext('Generate Recommended Configuration') }}
+      </n-button>
+    </n-flex>
+    <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="general" :tab="$gettext('General')">
       <n-flex vertical>
         <n-alert type="info">
@@ -578,5 +604,14 @@ const composeSizeValue = (num: number | null, unit: string): string => {
         </n-flex>
       </n-flex>
     </n-tab-pane>
-  </n-tabs>
+    </n-tabs>
+    <tune-preset-modal
+      v-model:show="showPresetModal"
+      :fields="['memory']"
+      :scenario-options="presetScenarios"
+      :scenario-label="$gettext('Application Profile')"
+      :memory-ratio="0.5"
+      @generate="handlePreset"
+    />
+  </n-flex>
 </template>

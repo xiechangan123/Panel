@@ -46,6 +46,7 @@ type Client struct {
 
 // Memory 内存诊断信息
 type Memory struct {
-	Doctor string     `json:"doctor"`
-	Items  []types.NV `json:"items"`
+	Doctor  string     `json:"doctor"`
+	NoLimit bool       `json:"no_limit"`
+	Items   []types.NV `json:"items"`
 }

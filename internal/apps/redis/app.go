@@ -350,6 +350,11 @@ func (s *App) MemoryStatus(w http.ResponseWriter, r *http.Request) {
 		memory.Doctor = ""
 	}
 
+	// 未限制内存上限时给出预警
+	if maxmemory, mmErr := redigo.Strings(conn.Exec("CONFIG", "GET", "maxmemory")); mmErr == nil && len(maxmemory) == 2 && maxmemory[1] == "0" {
+		memory.NoLimit = true
+	}
+
 	reply, err := conn.Exec("MEMORY", "STATS")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)

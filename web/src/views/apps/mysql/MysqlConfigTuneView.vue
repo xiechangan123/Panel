@@ -5,6 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import { kbToPair, mysqlPreset, type TuneProfile } from '@/utils/tunepreset'
+
 const props = defineProps<{
   api: any
 }>()
@@ -59,6 +61,43 @@ const slowQueryLog = ref('')
 const longQueryTime = ref<number | null>(null)
 
 const saveLoading = ref(false)
+const showPresetModal = ref(false)
+
+const handlePreset = (profile: TuneProfile) => {
+  const r = mysqlPreset(profile)
+  maxConnections.value = r.maxConnections
+  tableOpenCache.value = r.tableOpenCache
+  keyBufferSizeNum.value = r.keyBufferSize.num
+  keyBufferSizeUnit.value = r.keyBufferSize.unit
+  const sortBuffer = kbToPair(r.sortBufferSizeK, ['K', 'M'])
+  sortBufferSizeNum.value = sortBuffer.num
+  sortBufferSizeUnit.value = sortBuffer.unit
+  const readBuffer = kbToPair(r.readBufferSizeK, ['K', 'M'])
+  readBufferSizeNum.value = readBuffer.num
+  readBufferSizeUnit.value = readBuffer.unit
+  const readRndBuffer = kbToPair(r.readRndBufferSizeK, ['K', 'M'])
+  readRndBufferSizeNum.value = readRndBuffer.num
+  readRndBufferSizeUnit.value = readRndBuffer.unit
+  const joinBuffer = kbToPair(r.joinBufferSizeK, ['K', 'M'])
+  joinBufferSizeNum.value = joinBuffer.num
+  joinBufferSizeUnit.value = joinBuffer.unit
+  threadStackNum.value = r.threadStackK
+  threadStackUnit.value = 'K'
+  myisamSortBufferSizeNum.value = r.myisamSortBufferSize.num
+  myisamSortBufferSizeUnit.value = r.myisamSortBufferSize.unit
+  threadCacheSize.value = r.threadCacheSize
+  tmpTableSizeNum.value = r.tmpTableSize.num
+  tmpTableSizeUnit.value = r.tmpTableSize.unit
+  maxHeapTableSizeNum.value = r.maxHeapTableSize.num
+  maxHeapTableSizeUnit.value = r.maxHeapTableSize.unit
+  innodbBufferPoolSizeNum.value = r.innodbBufferPoolSize.num
+  innodbBufferPoolSizeUnit.value = r.innodbBufferPoolSize.unit
+  innodbLogBufferSizeNum.value = r.innodbLogBufferSize.num
+  innodbLogBufferSizeUnit.value = r.innodbLogBufferSize.unit
+  innodbReadIoThreads.value = r.innodbReadIoThreads
+  innodbWriteIoThreads.value = r.innodbWriteIoThreads
+  window.$message.success($gettext('Generated, review the values and save'))
+}
 
 // 容量单位选项
 const sizeUnitOptions = [
@@ -206,7 +245,13 @@ const handleSave = () => {
 </script>
 
 <template>
-  <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+  <n-flex vertical>
+    <n-flex>
+      <n-button type="info" @click="showPresetModal = true">
+        {{ $gettext('Generate Recommended Configuration') }}
+      </n-button>
+    </n-flex>
+    <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="general" :tab="$gettext('General')">
       <n-flex vertical>
         <n-alert type="info">
@@ -572,5 +617,12 @@ const handleSave = () => {
         </n-flex>
       </n-flex>
     </n-tab-pane>
-  </n-tabs>
+    </n-tabs>
+    <tune-preset-modal
+      v-model:show="showPresetModal"
+      :fields="['memory', 'cpu']"
+      :memory-ratio="0.75"
+      @generate="handlePreset"
+    />
+  </n-flex>
 </template>

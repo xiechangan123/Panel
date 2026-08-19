@@ -5,6 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import { apachePreset, type TuneProfile } from '@/utils/tunepreset'
+
 import apache from '@/api/apps/apache'
 
 const { $gettext } = useGettext()
@@ -25,6 +27,22 @@ const maxKeepAliveRequests = ref<number | null>(null)
 const keepAliveTimeout = ref<number | null>(null)
 
 const saveLoading = ref(false)
+const showPresetModal = ref(false)
+
+const handlePreset = (profile: TuneProfile) => {
+  const r = apachePreset(profile)
+  startServers.value = r.startServers
+  threadsPerChild.value = r.threadsPerChild
+  maxRequestWorkers.value = r.maxRequestWorkers
+  minSpareThreads.value = r.minSpareThreads
+  maxSpareThreads.value = r.maxSpareThreads
+  maxConnectionsPerChild.value = r.maxConnectionsPerChild
+  timeout.value = r.timeout
+  keepAlive.value = r.keepAlive
+  maxKeepAliveRequests.value = r.maxKeepAliveRequests
+  keepAliveTimeout.value = r.keepAliveTimeout
+  window.$message.success($gettext('Generated, review the values and save'))
+}
 
 const onOffOptions = [
   { label: 'On', value: 'On' },
@@ -74,7 +92,13 @@ const handleSave = () => {
 </script>
 
 <template>
-  <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+  <n-flex vertical>
+    <n-flex>
+      <n-button type="info" @click="showPresetModal = true">
+        {{ $gettext('Generate Recommended Configuration') }}
+      </n-button>
+    </n-flex>
+    <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="mpm" :tab="$gettext('MPM Event')">
       <n-flex vertical>
         <n-alert type="info">
@@ -188,5 +212,12 @@ const handleSave = () => {
         </n-flex>
       </n-flex>
     </n-tab-pane>
-  </n-tabs>
+    </n-tabs>
+    <tune-preset-modal
+      v-model:show="showPresetModal"
+      :fields="['memory', 'cpu']"
+      :memory-ratio="0.5"
+      @generate="handlePreset"
+    />
+  </n-flex>
 </template>

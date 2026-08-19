@@ -5,6 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
+import { nginxPreset, type TuneProfile } from '@/utils/tunepreset'
+
 const props = defineProps<{
   api: any
 }>()
@@ -51,6 +53,23 @@ const zstdTypes = ref('')
 const zstdStatic = ref('')
 
 const saveLoading = ref(false)
+const showPresetModal = ref(false)
+
+const handlePreset = (profile: TuneProfile) => {
+  const r = nginxPreset(profile)
+  workerProcesses.value = r.workerProcesses
+  workerConnections.value = r.workerConnections
+  keepaliveTimeout.value = r.keepaliveTimeout
+  gzip.value = r.gzip
+  gzipCompLevel.value = r.gzipCompLevel
+  brotli.value = r.brotli
+  brotliCompLevel.value = r.brotliCompLevel
+  brotliStatic.value = r.brotliStatic
+  zstd.value = r.zstd
+  zstdCompLevel.value = r.zstdCompLevel
+  zstdStatic.value = r.zstdStatic
+  window.$message.success($gettext('Generated, review the values and save'))
+}
 
 const onOffOptions = [
   { label: 'on', value: 'on' },
@@ -171,7 +190,13 @@ const handleSave = () => {
 </script>
 
 <template>
-  <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
+  <n-flex vertical>
+    <n-flex>
+      <n-button type="info" @click="showPresetModal = true">
+        {{ $gettext('Generate Recommended Configuration') }}
+      </n-button>
+    </n-flex>
+    <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="general" :tab="$gettext('General')">
       <n-flex vertical>
         <n-alert type="info">
@@ -420,5 +445,12 @@ const handleSave = () => {
         </n-flex>
       </n-flex>
     </n-tab-pane>
-  </n-tabs>
+    </n-tabs>
+    <tune-preset-modal
+      v-model:show="showPresetModal"
+      :fields="['memory', 'cpu']"
+      :memory-ratio="1"
+      @generate="handlePreset"
+    />
+  </n-flex>
 </template>
