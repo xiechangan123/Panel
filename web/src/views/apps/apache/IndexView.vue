@@ -8,6 +8,8 @@ import { useGettext } from 'vue3-gettext'
 import apache from '@/api/apps/apache'
 import ServiceStatus from '@/components/common/ServiceStatus.vue'
 
+import ApacheConfigTuneView from './ApacheConfigTuneView.vue'
+
 const { $gettext } = useGettext()
 const currentTab = ref('status')
 const saveConfigLoading = ref(false)
@@ -93,6 +95,9 @@ const handleClearErrorLog = () => {
             </n-button>
           </n-flex>
         </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="config-tune" :tab="$gettext('Parameter Tuning')">
+        <apache-config-tune-view />
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
         <n-data-table

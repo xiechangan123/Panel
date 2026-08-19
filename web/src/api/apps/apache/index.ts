@@ -11,4 +11,8 @@ export default {
   errorLog: (): any => http.Get('/apps/apache/error_log'),
   // 清空错误日志
   clearErrorLog: (): any => http.Post('/apps/apache/clear_error_log'),
+  // 获取配置调整参数
+  configTune: (): any => http.Get('/apps/apache/config_tune'),
+  // 保存配置调整参数
+  saveConfigTune: (data: any): any => http.Post('/apps/apache/config_tune', data),
 }
