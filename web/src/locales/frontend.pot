@@ -5080,7 +5080,7 @@ msgid "This modifies the PostgreSQL main configuration file. If you do not under
 msgstr ""
 
 #: src/views/apps/postgresql/IndexView.vue:214
-#: src/views/tamper/TamperView.vue:121
+msgctxt "postgresql"
 msgid "Extensions"
 msgstr ""
 
@@ -10961,6 +10961,10 @@ msgstr ""
 
 #: src/views/tamper/TamperView.vue:77
 msgid "The server is rebooting, please reconnect later"
+msgstr ""
+
+#: src/views/tamper/TamperView.vue:121
+msgid "Extensions"
 msgstr ""
 
 #: src/views/tamper/TamperView.vue:126

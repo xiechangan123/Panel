@@ -5126,8 +5126,8 @@ msgstr ""
 "understand the meaning of each parameter, please do not modify it randomly!"
 
 #: src/views/apps/postgresql/IndexView.vue:214
-#: src/views/tamper/TamperView.vue:121
 #, fuzzy
+msgctxt "postgresql"
 msgid "Extensions"
 msgstr "Extension Name"
 
@@ -11314,6 +11314,11 @@ msgstr ""
 #: src/views/tamper/TamperView.vue:77
 msgid "The server is rebooting, please reconnect later"
 msgstr ""
+
+#: src/views/tamper/TamperView.vue:121
+#, fuzzy
+msgid "Extensions"
+msgstr "Extension Name"
 
 #: src/views/tamper/TamperView.vue:126
 #, fuzzy
