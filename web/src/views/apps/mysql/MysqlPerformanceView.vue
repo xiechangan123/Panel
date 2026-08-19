@@ -57,7 +57,7 @@ const processColumns: any = [
   { title: $gettext('Host'), key: 'host', width: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Database'), key: 'db', width: 120, ellipsis: { tooltip: true } },
   { title: $gettext('Command'), key: 'command', width: 120, ellipsis: { tooltip: true } },
-  { title: $gettext('Duration (s)'), key: 'time', width: 130 },
+  { title: $gettext('Duration (s)'), key: 'time', width: 145 },
   { title: $gettext('State'), key: 'state', width: 150, ellipsis: { tooltip: true } },
   { title: 'SQL', key: 'info', minWidth: 250, ellipsis: { tooltip: true } },
   {
@@ -80,7 +80,7 @@ const transactionColumns: any = [
       return h(NTag, { type, size: 'small' }, { default: () => row.state })
     },
   },
-  { title: $gettext('Duration (s)'), key: 'seconds', width: 130 },
+  { title: $gettext('Duration (s)'), key: 'seconds', width: 145 },
   { title: $gettext('Rows Locked'), key: 'rows_locked', width: 130 },
   { title: $gettext('Rows Modified'), key: 'rows_modified', width: 140 },
   { title: 'SQL', key: 'query', minWidth: 250, ellipsis: { tooltip: true } },
@@ -93,9 +93,9 @@ const transactionColumns: any = [
 ]
 
 const lockWaitColumns: any = [
-  { title: $gettext('Waiting Thread'), key: 'waiting_thread_id', width: 140 },
+  { title: $gettext('Waiting Thread'), key: 'waiting_thread_id', width: 150 },
   { title: $gettext('Waiting SQL'), key: 'waiting_query', minWidth: 200, ellipsis: { tooltip: true } },
-  { title: $gettext('Blocking Thread'), key: 'blocking_thread_id', width: 140 },
+  { title: $gettext('Blocking Thread'), key: 'blocking_thread_id', width: 150 },
   {
     title: $gettext('Blocking SQL'),
     key: 'blocking_query',
@@ -186,7 +186,7 @@ const handleResetTopSQL = async () => {
           striped
           :columns="processColumns"
           :data="processes"
-          :scroll-x="1350"
+          :scroll-x="1365"
           max-height="60vh"
         />
       </n-flex>
@@ -206,13 +206,13 @@ const handleResetTopSQL = async () => {
           striped
           :columns="lockWaitColumns"
           :data="transactions.lock_waits"
-          :scroll-x="1000"
+          :scroll-x="1020"
         />
         <n-data-table
           striped
           :columns="transactionColumns"
           :data="transactions.transactions"
-          :scroll-x="1300"
+          :scroll-x="1315"
           max-height="50vh"
         />
       </n-flex>
@@ -261,7 +261,7 @@ const handleResetTopSQL = async () => {
             striped
             :columns="topSQLColumns"
             :data="topSQL.items"
-            :scroll-x="1350"
+            :scroll-x="1365"
             max-height="60vh"
           />
         </template>

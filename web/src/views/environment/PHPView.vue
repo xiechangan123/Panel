@@ -95,7 +95,7 @@ const processColumns: any = [
   {
     title: $gettext('Duration (ms)'),
     key: 'request_duration',
-    width: 130,
+    width: 150,
     render: (row: any) => Math.round(row.request_duration / 1000),
   },
   {
@@ -359,7 +359,7 @@ const handleSaveComposerMirror = async () => {
               striped
               :columns="processColumns"
               :data="processes"
-              :scroll-x="1150"
+              :scroll-x="1170"
               max-height="50vh"
             />
           </n-card>

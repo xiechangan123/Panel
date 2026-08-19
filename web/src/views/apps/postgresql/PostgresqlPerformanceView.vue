@@ -56,7 +56,7 @@ const sessionColumns: any = [
   {
     title: $gettext('Transaction Duration'),
     key: 'xact_seconds',
-    width: 170,
+    width: 190,
     render: (row: any) => formatDuration(row.xact_seconds),
   },
   {
@@ -162,7 +162,7 @@ const handleResetTopSQL = async () => {
           striped
           :columns="sessionColumns"
           :data="sessions"
-          :scroll-x="1700"
+          :scroll-x="1720"
           max-height="60vh"
         />
       </n-flex>

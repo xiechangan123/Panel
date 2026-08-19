@@ -28,7 +28,7 @@ const slowLogColumns: any = [
   {
     title: $gettext('Duration (ms)'),
     key: 'duration_us',
-    width: 130,
+    width: 150,
     render: (row: any) => Math.round(row.duration_us / 10) / 100,
   },
   { title: $gettext('Command'), key: 'command', minWidth: 300, ellipsis: { tooltip: true } },
@@ -39,9 +39,9 @@ const clientColumns: any = [
   { title: 'ID', key: 'id', width: 90 },
   { title: $gettext('Address'), key: 'addr', width: 170, ellipsis: { tooltip: true } },
   { title: $gettext('Name'), key: 'name', width: 120, ellipsis: { tooltip: true } },
-  { title: $gettext('Database'), key: 'db', width: 90 },
-  { title: $gettext('Age (s)'), key: 'age', width: 90 },
-  { title: $gettext('Idle (s)'), key: 'idle', width: 90 },
+  { title: $gettext('Database'), key: 'db', width: 100 },
+  { title: $gettext('Age (s)'), key: 'age', width: 130 },
+  { title: $gettext('Idle (s)'), key: 'idle', width: 130 },
   { title: $gettext('Command'), key: 'cmd', minWidth: 150, ellipsis: { tooltip: true } },
   {
     title: $gettext('Actions'),
@@ -126,7 +126,7 @@ const handleScanBigKeys = async () => {
           striped
           :columns="slowLogColumns"
           :data="slowLog"
-          :scroll-x="860"
+          :scroll-x="880"
           max-height="60vh"
         />
       </n-flex>
@@ -142,7 +142,7 @@ const handleScanBigKeys = async () => {
           striped
           :columns="clientColumns"
           :data="clients"
-          :scroll-x="920"
+          :scroll-x="1010"
           max-height="60vh"
         />
       </n-flex>
