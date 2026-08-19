@@ -42,11 +42,16 @@ type ConfigTune struct {
 	LongQueryTime string `form:"long_query_time" json:"long_query_time"`
 }
 
+// MaintenanceTable 维护操作的目标表
+type MaintenanceTable struct {
+	Database string `form:"database" json:"database" validate:"required"`
+	Table    string `form:"table" json:"table" validate:"required"`
+}
+
 // MaintenanceRun 表维护操作请求
 type MaintenanceRun struct {
-	Database  string `form:"database" json:"database" validate:"required"`
-	Table     string `form:"table" json:"table" validate:"required"`
-	Operation string `form:"operation" json:"operation" validate:"required"`
+	Tables    []MaintenanceTable `form:"tables" json:"tables"`
+	Operation string             `form:"operation" json:"operation" validate:"required"`
 }
 
 // BinlogPurge binlog 清理请求

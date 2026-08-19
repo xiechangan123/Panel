@@ -12,9 +12,15 @@ const props = defineProps<{
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
 
-const { data: tables, send: refreshTables } = useRequest(props.api.tables, {
+const { data: tables, send: sendTables } = useRequest(props.api.tables, {
   initialData: [],
 })
+const checkedTables = ref<string[]>([])
+const refreshTables = () => {
+  checkedTables.value = []
+  sendTables()
+}
+const tableRowKey = (row: any) => `${row.database}|${row.table}`
 const { data: binlog, send: refreshBinlogs } = useRequest(props.api.binlogs, {
   initialData: { enabled: true, total_size: '-', items: [] },
 })
@@ -22,16 +28,23 @@ const { data: replication, send: refreshReplication } = useRequest(props.api.rep
   initialData: { enabled: false },
 })
 
-const handleMaintenance = async (row: any, operation: string) => {
+const handleMaintenance = async (
+  batch: { database: string; table: string }[],
+  operation: string,
+) => {
+  const target =
+    batch.length === 1
+      ? `${batch[0]!.database}.${batch[0]!.table}`
+      : $gettext('%{ count } selected tables', { count: String(batch.length) })
   const content =
     operation === 'optimize'
       ? $gettext(
           'OPTIMIZE will rebuild the InnoDB table, which may take a long time for large tables. Are you sure you want to run it on %{ table }?',
-          { table: `${row.database}.${row.table}` },
+          { table: target },
         )
       : $gettext('Are you sure you want to run %{ op } on %{ table }?', {
           op: operation.toUpperCase(),
-          table: `${row.database}.${row.table}`,
+          table: target,
         })
   const ok = await confirmAction({
     type: 'warning',
@@ -41,8 +54,7 @@ const handleMaintenance = async (row: any, operation: string) => {
   if (!ok) return
   useRequest(
     props.api.runMaintenance({
-      database: row.database,
-      table: row.table,
+      tables: batch,
       operation,
     }),
   ).onSuccess(() => {
@@ -50,7 +62,16 @@ const handleMaintenance = async (row: any, operation: string) => {
   })
 }
 
+const handleBatchMaintenance = (operation: string) => {
+  const batch = checkedTables.value.map((key) => {
+    const [database, table] = key.split('|')
+    return { database: database!, table: table! }
+  })
+  handleMaintenance(batch, operation)
+}
+
 const tableColumns: any = [
+  { type: 'selection' },
   { title: $gettext('Database'), key: 'database', width: 130, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Engine'), key: 'engine', width: 100 },
@@ -71,16 +92,17 @@ const tableColumns: any = [
     key: 'actions',
     width: 230,
     render(row: any) {
+      const rowTables = [{ database: row.database, table: row.table }]
       return h(NSpace, { size: 'small', wrap: false }, {
         default: () => [
           h(
             NButton,
-            { size: 'small', type: 'warning', onClick: () => handleMaintenance(row, 'optimize') },
+            { size: 'small', type: 'warning', onClick: () => handleMaintenance(rowTables, 'optimize') },
             { default: () => 'OPTIMIZE' },
           ),
           h(
             NButton,
-            { size: 'small', onClick: () => handleMaintenance(row, 'analyze') },
+            { size: 'small', onClick: () => handleMaintenance(rowTables, 'analyze') },
             { default: () => 'ANALYZE' },
           ),
         ],
@@ -143,12 +165,24 @@ const replicationRunning = (value: string) => {
           <n-button type="primary" @click="() => refreshTables()">
             {{ $gettext('Refresh') }}
           </n-button>
+          <n-button
+            type="warning"
+            :disabled="!checkedTables.length"
+            @click="handleBatchMaintenance('optimize')"
+          >
+            OPTIMIZE
+          </n-button>
+          <n-button :disabled="!checkedTables.length" @click="handleBatchMaintenance('analyze')">
+            ANALYZE
+          </n-button>
         </n-flex>
         <n-data-table
+          v-model:checked-row-keys="checkedTables"
           striped
           :columns="tableColumns"
           :data="tables"
-          :scroll-x="990"
+          :row-key="tableRowKey"
+          :scroll-x="1030"
           max-height="60vh"
         />
       </n-flex>

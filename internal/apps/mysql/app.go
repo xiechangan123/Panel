@@ -630,6 +630,10 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(req.Tables) == 0 {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("no tables selected"))
+		return
+	}
 	if !slices.Contains([]string{"optimize", "analyze"}, req.Operation) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid operation"))
 		return
@@ -641,12 +645,16 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	tables := make([]string, 0, len(req.Tables))
+	for _, table := range req.Tables {
+		tables = append(tables, fmt.Sprintf("`%s`.`%s`", table.Database, table.Table))
+	}
 	escaped := strings.ReplaceAll(rootPassword, `'`, `'\''`)
-	cmd := fmt.Sprintf("MYSQL_PWD='%s' mysql -u root -e '%s TABLE `%s`.`%s`'", escaped, strings.ToUpper(req.Operation), req.Database, req.Table)
+	cmd := fmt.Sprintf("MYSQL_PWD='%s' mysql -u root -e '%s TABLE %s'", escaped, strings.ToUpper(req.Operation), strings.Join(tables, ", "))
 
 	task := new(biz.Task)
-	task.Key = fmt.Sprintf("mysql:maintenance:%s.%s", req.Database, req.Table)
-	task.Name = s.t.Get("Run %s on table %s.%s", req.Operation, req.Database, req.Table)
+	task.Key = "mysql:maintenance"
+	task.Name = s.t.Get("Run %s on %d tables", req.Operation, len(req.Tables))
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
 	if err = s.taskRepo.Push(task); err != nil {

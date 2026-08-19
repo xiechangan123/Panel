@@ -87,12 +87,17 @@ type Bloat struct {
 	Items           []BloatItem `json:"items"`
 }
 
+// MaintenanceTable 维护操作的目标表
+type MaintenanceTable struct {
+	Schema string `form:"schema" json:"schema" validate:"required"`
+	Table  string `form:"table" json:"table" validate:"required"`
+}
+
 // MaintenanceRun 表维护操作请求
 type MaintenanceRun struct {
-	Database  string `form:"database" json:"database" validate:"required"`
-	Schema    string `form:"schema" json:"schema" validate:"required"`
-	Table     string `form:"table" json:"table" validate:"required"`
-	Operation string `form:"operation" json:"operation" validate:"required"`
+	Database  string             `form:"database" json:"database" validate:"required"`
+	Tables    []MaintenanceTable `form:"tables" json:"tables"`
+	Operation string             `form:"operation" json:"operation" validate:"required"`
 }
 
 // ReplicationSlot 复制槽信息

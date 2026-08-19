@@ -721,28 +721,38 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !slices.Contains([]string{"vacuum", "analyze", "repack"}, req.Operation) {
+	if len(req.Tables) == 0 {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("no tables selected"))
+		return
+	}
+	if !slices.Contains([]string{"vacuum", "vacuum_full", "analyze", "repack"}, req.Operation) {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid operation"))
 		return
 	}
 
 	var cmd string
-	switch req.Operation {
-	case "vacuum":
-		cmd = fmt.Sprintf(`su - postgres -c 'psql -d "%s" -c "VACUUM \"%s\".\"%s\""'`, req.Database, req.Schema, req.Table)
-	case "analyze":
-		cmd = fmt.Sprintf(`su - postgres -c 'psql -d "%s" -c "ANALYZE \"%s\".\"%s\""'`, req.Database, req.Schema, req.Table)
-	case "repack":
+	if req.Operation == "repack" {
 		if !io.Exists(app.Root + "/server/postgresql/share/extension/pg_repack.control") {
 			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("pg_repack is not installed, please install it in the extensions tab first"))
 			return
 		}
-		cmd = fmt.Sprintf(`su - postgres -c 'pg_repack -d "%s" -t "%s.%s"'`, req.Database, req.Schema, req.Table)
+		var args strings.Builder
+		for _, table := range req.Tables {
+			fmt.Fprintf(&args, ` -t "%s.%s"`, table.Schema, table.Table)
+		}
+		cmd = fmt.Sprintf(`su - postgres -c 'pg_repack -d "%s"%s'`, req.Database, args.String())
+	} else {
+		statement := map[string]string{"vacuum": "VACUUM", "vacuum_full": "VACUUM FULL", "analyze": "ANALYZE"}[req.Operation]
+		var args strings.Builder
+		for _, table := range req.Tables {
+			fmt.Fprintf(&args, ` -c "%s \"%s\".\"%s\""`, statement, table.Schema, table.Table)
+		}
+		cmd = fmt.Sprintf(`su - postgres -c 'psql -d "%s"%s'`, req.Database, args.String())
 	}
 
 	task := new(biz.Task)
-	task.Key = fmt.Sprintf("postgresql:maintenance:%s:%s.%s", req.Database, req.Schema, req.Table)
-	task.Name = s.t.Get("Run %s on table %s.%s of database %s", req.Operation, req.Schema, req.Table, req.Database)
+	task.Key = "postgresql:maintenance:" + req.Database
+	task.Name = s.t.Get("Run %s on %d tables in database %s", req.Operation, len(req.Tables), req.Database)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
 	if err = s.taskRepo.Push(task); err != nil {

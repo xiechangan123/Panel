@@ -35,9 +35,12 @@ const { data: bloat, send: sendBloat } = useRequest(
     initialData: { repack_installed: false, items: [] },
   },
 )
+const checkedTables = ref<string[]>([])
 const refreshBloat = () => {
+  checkedTables.value = []
   if (selectedDatabase.value) sendBloat()
 }
+const bloatRowKey = (row: any) => `${row.schema}|${row.table}`
 
 const { data: wal, send: refreshWal } = useRequest(postgresql.wal, {
   initialData: {
@@ -48,21 +51,31 @@ const { data: wal, send: refreshWal } = useRequest(postgresql.wal, {
   },
 })
 
-const handleMaintenance = async (row: any, operation: string) => {
+const handleMaintenance = async (tables: { schema: string; table: string }[], operation: string) => {
+  const target =
+    tables.length === 1
+      ? `${tables[0]!.schema}.${tables[0]!.table}`
+      : $gettext('%{ count } selected tables', { count: String(tables.length) })
+  const content =
+    operation === 'vacuum_full'
+      ? $gettext(
+          'VACUUM FULL rewrites the entire table and holds an exclusive lock, blocking all reads and writes until it finishes. It may take a long time for large tables. Are you sure you want to run it on %{ table }?',
+          { table: target },
+        )
+      : $gettext('Are you sure you want to run %{ op } on %{ table }?', {
+          op: operation.replace('_', ' ').toUpperCase(),
+          table: target,
+        })
   const ok = await confirmAction({
     type: 'warning',
     title: $gettext('Confirm Operation'),
-    content: $gettext('Are you sure you want to run %{ op } on %{ table }?', {
-      op: operation.toUpperCase(),
-      table: `${row.schema}.${row.table}`,
-    }),
+    content,
   })
   if (!ok) return
   useRequest(
     postgresql.runMaintenance({
       database: selectedDatabase.value,
-      schema: row.schema,
-      table: row.table,
+      tables,
       operation,
     }),
   ).onSuccess(() => {
@@ -70,7 +83,16 @@ const handleMaintenance = async (row: any, operation: string) => {
   })
 }
 
+const handleBatchMaintenance = (operation: string) => {
+  const tables = checkedTables.value.map((key) => {
+    const [schema, table] = key.split('|')
+    return { schema: schema!, table: table! }
+  })
+  handleMaintenance(tables, operation)
+}
+
 const bloatColumns: any = [
+  { type: 'selection' },
   { title: $gettext('Schema'), key: 'schema', width: 110, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Size'), key: 'size', width: 100 },
@@ -100,17 +122,23 @@ const bloatColumns: any = [
   {
     title: $gettext('Actions'),
     key: 'actions',
-    width: 310,
+    width: 430,
     render(row: any) {
+      const rowTables = [{ schema: row.schema, table: row.table }]
       const buttons = [
         h(
           NButton,
-          { size: 'small', type: 'info', onClick: () => handleMaintenance(row, 'vacuum') },
+          { size: 'small', type: 'info', onClick: () => handleMaintenance(rowTables, 'vacuum') },
           { default: () => 'VACUUM' },
         ),
         h(
           NButton,
-          { size: 'small', onClick: () => handleMaintenance(row, 'analyze') },
+          { size: 'small', type: 'error', onClick: () => handleMaintenance(rowTables, 'vacuum_full') },
+          { default: () => 'VACUUM FULL' },
+        ),
+        h(
+          NButton,
+          { size: 'small', onClick: () => handleMaintenance(rowTables, 'analyze') },
           { default: () => 'ANALYZE' },
         ),
       ]
@@ -118,7 +146,7 @@ const bloatColumns: any = [
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'warning', onClick: () => handleMaintenance(row, 'repack') },
+            { size: 'small', type: 'warning', onClick: () => handleMaintenance(rowTables, 'repack') },
             { default: () => 'REPACK' },
           ),
         )
@@ -214,12 +242,39 @@ const handleDropSlot = (name: string) => {
           <n-button type="primary" @click="refreshBloat">
             {{ $gettext('Refresh') }}
           </n-button>
+          <n-button
+            type="info"
+            :disabled="!checkedTables.length"
+            @click="handleBatchMaintenance('vacuum')"
+          >
+            VACUUM
+          </n-button>
+          <n-button
+            type="error"
+            :disabled="!checkedTables.length"
+            @click="handleBatchMaintenance('vacuum_full')"
+          >
+            VACUUM FULL
+          </n-button>
+          <n-button :disabled="!checkedTables.length" @click="handleBatchMaintenance('analyze')">
+            ANALYZE
+          </n-button>
+          <n-button
+            v-if="bloat.repack_installed"
+            type="warning"
+            :disabled="!checkedTables.length"
+            @click="handleBatchMaintenance('repack')"
+          >
+            REPACK
+          </n-button>
         </n-flex>
         <n-data-table
+          v-model:checked-row-keys="checkedTables"
           striped
           :columns="bloatColumns"
           :data="bloat.items"
-          :scroll-x="1370"
+          :row-key="bloatRowKey"
+          :scroll-x="1530"
           max-height="60vh"
         />
       </n-flex>
