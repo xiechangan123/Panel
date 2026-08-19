@@ -51,6 +51,61 @@ const { data: load } = useRequest(php.load(slug), {
 const { data: modules } = useRequest(php.modules(slug), {
   initialData: [],
 })
+const { data: processes, send: refreshProcesses } = useRequest(php.processes(slug), {
+  initialData: [],
+})
+const { data: opcache, send: refreshOpcache } = useRequest(php.opcache(slug), {
+  initialData: { enabled: true },
+})
+const { data: composer, send: refreshComposer } = useRequest(php.composer(slug), {
+  initialData: { installed: true, version: '', mirror: '' },
+})
+
+const composerMirror = ref('')
+watch(
+  () => composer.value?.mirror,
+  (val) => {
+    composerMirror.value = val ?? ''
+  },
+)
+
+const composerMirrorOptions = computed(() => [
+  { label: $gettext('Official'), value: '' },
+  { label: $gettext('Aliyun Mirror'), value: 'https://mirrors.aliyun.com/composer/' },
+  { label: $gettext('Tencent Mirror'), value: 'https://mirrors.tencent.com/composer/' },
+])
+
+const formatBytes = (bytes: number) => {
+  if (!bytes || bytes <= 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  let i = 0
+  while (bytes >= 1024 && i < units.length - 1) {
+    bytes /= 1024
+    i++
+  }
+  return `${Math.round(bytes * 10) / 10} ${units[i]}`
+}
+
+const processColumns: any = [
+  { title: 'PID', key: 'pid', width: 90 },
+  { title: $gettext('State'), key: 'state', width: 130, ellipsis: { tooltip: true } },
+  { title: $gettext('Requests'), key: 'requests', width: 100 },
+  { title: $gettext('Method'), key: 'method', width: 90 },
+  { title: 'URI', key: 'uri', minWidth: 250, ellipsis: { tooltip: true } },
+  {
+    title: $gettext('Duration (ms)'),
+    key: 'request_duration',
+    width: 130,
+    render: (row: any) => Math.round(row.request_duration / 1000),
+  },
+  {
+    title: $gettext('Memory'),
+    key: 'last_request_memory',
+    width: 110,
+    render: (row: any) => formatBytes(row.last_request_memory),
+  },
+  { title: $gettext('Script'), key: 'script', minWidth: 250, ellipsis: { tooltip: true } },
+]
 
 const moduleColumns: any = [
   {
@@ -181,6 +236,34 @@ const handleUninstallModule = async (module: string) => {
     window.$message.success($gettext('Task submitted, please check progress in background tasks'))
   })
 }
+
+const handleResetOpcache = async () => {
+  const ok = await confirmAction({
+    type: 'warning',
+    title: $gettext('Confirm Reset'),
+    content: $gettext(
+      'Resetting will clear all cached scripts, performance may fluctuate briefly. Are you sure?',
+    ),
+  })
+  if (!ok) return
+  useRequest(php.resetOpcache(slug)).onSuccess(() => {
+    window.$message.success($gettext('Reset successfully'))
+    refreshOpcache()
+  })
+}
+
+const handleInstallComposer = async () => {
+  useRequest(php.installComposer(slug)).onSuccess(() => {
+    window.$message.success($gettext('Task submitted, please check progress in background tasks'))
+  })
+}
+
+const handleSaveComposerMirror = async () => {
+  useRequest(php.setComposerMirror(slug, composerMirror.value)).onSuccess(() => {
+    window.$message.success($gettext('Saved successfully'))
+    refreshComposer()
+  })
+}
 </script>
 
 <template>
@@ -257,14 +340,144 @@ const handleUninstallModule = async (module: string) => {
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">
-        <n-data-table
-          striped
-          remote
-          :scroll-x="400"
-          :loading="false"
-          :columns="loadColumns"
-          :data="load"
-        />
+        <n-flex vertical>
+          <n-data-table
+            striped
+            remote
+            :scroll-x="400"
+            :loading="false"
+            :columns="loadColumns"
+            :data="load"
+          />
+          <n-card :title="$gettext('FPM Processes')">
+            <template #header-extra>
+              <n-button size="small" type="primary" @click="() => refreshProcesses()">
+                {{ $gettext('Refresh') }}
+              </n-button>
+            </template>
+            <n-data-table
+              striped
+              :columns="processColumns"
+              :data="processes"
+              :scroll-x="1150"
+              max-height="50vh"
+            />
+          </n-card>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="opcache" tab="OPcache">
+        <n-flex vertical>
+          <n-alert v-if="!opcache.enabled" type="info">
+            {{
+              $gettext(
+                'OPcache is not enabled. Install the Zend OPcache module in Module Management to significantly improve PHP performance.',
+              )
+            }}
+          </n-alert>
+          <template v-else>
+            <n-flex>
+              <n-button type="primary" @click="() => refreshOpcache()">
+                {{ $gettext('Refresh') }}
+              </n-button>
+              <n-button type="warning" @click="handleResetOpcache">
+                {{ $gettext('Reset OPcache') }}
+              </n-button>
+            </n-flex>
+            <n-card :title="$gettext('Cache Statistics')">
+              <n-flex>
+                <n-statistic :label="$gettext('Hit Rate')" :value="`${opcache.hit_rate}%`" />
+                <n-statistic class="ml-40" :label="$gettext('Hits')" :value="opcache.hits" />
+                <n-statistic class="ml-40" :label="$gettext('Misses')" :value="opcache.misses" />
+                <n-statistic
+                  class="ml-40"
+                  :label="$gettext('Cached Scripts')"
+                  :value="opcache.cached_scripts"
+                />
+                <n-statistic
+                  class="ml-40"
+                  :label="$gettext('Cached Keys')"
+                  :value="`${opcache.cached_keys} / ${opcache.max_cached_keys}`"
+                />
+                <n-statistic
+                  class="ml-40"
+                  :label="$gettext('OOM Restarts')"
+                  :value="opcache.oom_restarts"
+                />
+              </n-flex>
+            </n-card>
+            <n-card :title="$gettext('Memory')">
+              <n-flex>
+                <n-statistic :label="$gettext('Used')" :value="opcache.memory_used" />
+                <n-statistic class="ml-40" :label="$gettext('Free')" :value="opcache.memory_free" />
+                <n-statistic
+                  class="ml-40"
+                  :label="$gettext('Wasted')"
+                  :value="`${opcache.memory_wasted} (${opcache.wasted_percent}%)`"
+                />
+              </n-flex>
+            </n-card>
+            <n-card title="JIT">
+              <n-flex v-if="opcache.jit_enabled">
+                <n-statistic :label="$gettext('Buffer Size')" :value="opcache.jit_buffer_size" />
+                <n-statistic
+                  class="ml-40"
+                  :label="$gettext('Buffer Free')"
+                  :value="opcache.jit_buffer_free"
+                />
+              </n-flex>
+              <n-text v-else depth="3">{{ $gettext('JIT is not enabled') }}</n-text>
+            </n-card>
+          </template>
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="composer" tab="Composer">
+        <n-flex vertical>
+          <template v-if="!composer.installed">
+            <n-alert type="info">
+              {{ $gettext('Composer is not installed.') }}
+            </n-alert>
+            <n-flex>
+              <n-button type="primary" @click="handleInstallComposer">
+                {{ $gettext('Install') }}
+              </n-button>
+            </n-flex>
+          </template>
+          <template v-else>
+            <n-card :title="$gettext('Composer')">
+              <template #header-extra>
+                <n-button size="small" type="primary" @click="handleInstallComposer">
+                  {{ $gettext('Update') }}
+                </n-button>
+              </template>
+              <n-descriptions label-placement="left" :column="1">
+                <n-descriptions-item :label="$gettext('Version')">
+                  {{ composer.version || '-' }}
+                </n-descriptions-item>
+              </n-descriptions>
+            </n-card>
+            <n-card :title="$gettext('Mirror')">
+              <n-flex vertical>
+                <n-alert type="info">
+                  {{
+                    $gettext(
+                      'The mirror is a global setting shared by all PHP versions. Use a mirror to speed up package downloads in mainland China.',
+                    )
+                  }}
+                </n-alert>
+                <n-flex>
+                  <n-select
+                    v-model:value="composerMirror"
+                    :options="composerMirrorOptions"
+                    class="w-80"
+                  />
+                  <n-button type="primary" @click="handleSaveComposerMirror">
+                    {{ $gettext('Save') }}
+                  </n-button>
+                </n-flex>
+              </n-flex>
+            </n-card>
+          </template>
+        </n-flex>
       </n-tab-pane>
       <n-tab-pane name="run-log" :tab="$gettext('Runtime Logs')">
         <realtime-log :service="'php-fpm-' + slug" />

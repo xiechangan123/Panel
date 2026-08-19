@@ -174,23 +174,25 @@ const handleResetTopSQL = async () => {
             $gettext('pg_stat_statements is configured, restart PostgreSQL to take effect.')
           }}
         </n-alert>
-        <n-alert v-else-if="!topSQL.enabled" type="info">
-          {{
-            $gettext(
-              'pg_stat_statements is not enabled. After enabling, SQL performance statistics will be collected, a restart of PostgreSQL is required.',
-            )
-          }}
-          <n-button
-            class="ml-16"
-            size="small"
-            type="primary"
-            :loading="enableTopSQLLoading"
-            :disabled="enableTopSQLLoading"
-            @click="handleEnableTopSQL"
-          >
-            {{ $gettext('Enable') }}
-          </n-button>
-        </n-alert>
+        <template v-else-if="!topSQL.enabled">
+          <n-alert type="info">
+            {{
+              $gettext(
+                'pg_stat_statements is not enabled. After enabling, SQL performance statistics will be collected, a restart of PostgreSQL is required.',
+              )
+            }}
+          </n-alert>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="enableTopSQLLoading"
+              :disabled="enableTopSQLLoading"
+              @click="handleEnableTopSQL"
+            >
+              {{ $gettext('Enable') }}
+            </n-button>
+          </n-flex>
+        </template>
         <template v-if="topSQL.enabled">
           <n-flex>
             <n-button type="primary" @click="() => refreshTopSQL()">

@@ -229,23 +229,25 @@ const handleResetTopSQL = async () => {
         <n-alert v-else-if="!topSQL.enabled && topSQL.pending_restart" type="warning">
           {{ $gettext('performance_schema is configured, restart the service to take effect.') }}
         </n-alert>
-        <n-alert v-else-if="!topSQL.enabled" type="info">
-          {{
-            $gettext(
-              'performance_schema is not enabled. After enabling, SQL performance statistics will be collected, which increases memory usage and requires a restart.',
-            )
-          }}
-          <n-button
-            class="ml-16"
-            size="small"
-            type="primary"
-            :loading="enableTopSQLLoading"
-            :disabled="enableTopSQLLoading"
-            @click="handleEnableTopSQL"
-          >
-            {{ $gettext('Enable') }}
-          </n-button>
-        </n-alert>
+        <template v-else-if="!topSQL.enabled">
+          <n-alert type="info">
+            {{
+              $gettext(
+                'performance_schema is not enabled. After enabling, SQL performance statistics will be collected, which increases memory usage and requires a restart.',
+              )
+            }}
+          </n-alert>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="enableTopSQLLoading"
+              :disabled="enableTopSQLLoading"
+              @click="handleEnableTopSQL"
+            >
+              {{ $gettext('Enable') }}
+            </n-button>
+          </n-flex>
+        </template>
         <template v-if="topSQL.enabled">
           <n-flex>
             <n-button type="primary" @click="() => refreshTopSQL()">

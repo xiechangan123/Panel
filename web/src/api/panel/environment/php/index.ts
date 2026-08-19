@@ -36,4 +36,17 @@ export default {
     http.Post(`/environment/php/${slug}/config_tune`, data),
   // 清理 Session 文件
   cleanSession: (slug: number): any => http.Post(`/environment/php/${slug}/clean_session`),
+  // FPM 进程列表
+  processes: (slug: number): any => http.Get(`/environment/php/${slug}/processes`),
+  // OPcache 状态
+  opcache: (slug: number): any => http.Get(`/environment/php/${slug}/opcache`),
+  // 重置 OPcache
+  resetOpcache: (slug: number): any => http.Post(`/environment/php/${slug}/opcache/reset`),
+  // Composer 状态
+  composer: (slug: number): any => http.Get(`/environment/php/${slug}/composer`),
+  // 安装/更新 Composer
+  installComposer: (slug: number): any => http.Post(`/environment/php/${slug}/composer/install`),
+  // 设置 Composer 镜像源
+  setComposerMirror: (slug: number, mirror: string): any =>
+    http.Post(`/environment/php/${slug}/composer/mirror`, { mirror }),
 }

@@ -85,6 +85,18 @@ func EnvironmentRoutes(environmentDotnetService *service.EnvironmentDotnetServic
 			Summary: "更新 PHP 配置调优", Tags: tags, Request: request.EnvironmentPHPConfigTune{}},
 		{Method: http.MethodPost, Path: "/api/environment/php/{version}/clean_session", Handler: environmentPHP.CleanSession,
 			Summary: "清理 PHP Session", Tags: tags, Request: request.EnvironmentPHPVersion{}},
+		{Method: http.MethodGet, Path: "/api/environment/php/{version}/processes", Handler: environmentPHP.Processes,
+			Summary: "获取 PHP-FPM 进程列表", Tags: tags, Request: request.EnvironmentPHPVersion{}},
+		{Method: http.MethodGet, Path: "/api/environment/php/{version}/opcache", Handler: environmentPHP.Opcache,
+			Summary: "获取 OPcache 状态", Tags: tags, Request: request.EnvironmentPHPVersion{}},
+		{Method: http.MethodPost, Path: "/api/environment/php/{version}/opcache/reset", Handler: environmentPHP.ResetOpcache,
+			Summary: "重置 OPcache", Tags: tags, Request: request.EnvironmentPHPVersion{}},
+		{Method: http.MethodGet, Path: "/api/environment/php/{version}/composer", Handler: environmentPHP.Composer,
+			Summary: "获取 Composer 状态", Tags: tags, Request: request.EnvironmentPHPVersion{}},
+		{Method: http.MethodPost, Path: "/api/environment/php/{version}/composer/install", Handler: environmentPHP.InstallComposer,
+			Summary: "安装 Composer", Tags: tags, Request: request.EnvironmentPHPVersion{}},
+		{Method: http.MethodPost, Path: "/api/environment/php/{version}/composer/mirror", Handler: environmentPHP.SetComposerMirror,
+			Summary: "设置 Composer 镜像源", Tags: tags, Request: request.EnvironmentPHPComposerMirror{}},
 
 		// Python
 		{Method: http.MethodPost, Path: "/api/environment/python/{slug}/set_cli", Handler: environmentPython.SetCli,

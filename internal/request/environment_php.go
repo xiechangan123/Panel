@@ -14,6 +14,12 @@ type EnvironmentPHPUpdateConfig struct {
 	Config  string `form:"config" json:"config" validate:"required"`
 }
 
+// EnvironmentPHPComposerMirror Composer 镜像源设置
+type EnvironmentPHPComposerMirror struct {
+	Version uint   `json:"version"`
+	Mirror  string `form:"mirror" json:"mirror"`
+}
+
 // EnvironmentPHPConfigTune PHP 配置调整
 type EnvironmentPHPConfigTune struct {
 	Version uint `json:"version"`
