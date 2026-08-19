@@ -114,7 +114,7 @@ const handleUninstall = (slug: string) => {
     <n-alert type="info">
       {{
         $gettext(
-          'Extensions are only installed at the file level. After installation, run CREATE EXTENSION in each database where you want to use them. Some extensions modify the main configuration during installation and require a restart of PostgreSQL to take effect.',
+          'Extensions need to be enabled in the database with CREATE EXTENSION, and some may require restarting PostgreSQL.',
         )
       }}
     </n-alert>
