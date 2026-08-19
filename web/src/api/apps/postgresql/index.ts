@@ -26,4 +26,19 @@ export default {
   extensions: (): any => http.Get('/apps/postgresql/extensions'),
   installExtension: (slug: string): any => http.Post('/apps/postgresql/extensions', { slug }),
   uninstallExtension: (slug: string): any => http.Delete('/apps/postgresql/extensions', { slug }),
+  enableExtension: (slug: string, database: string): any =>
+    http.Post('/apps/postgresql/extensions/enable', { slug, database }),
+  // 性能
+  sessions: (): any => http.Get('/apps/postgresql/sessions'),
+  terminateSession: (pid: number): any => http.Post(`/apps/postgresql/sessions/${pid}/terminate`),
+  topSQL: (): any => http.Get('/apps/postgresql/top_sql'),
+  enableTopSQL: (): any => http.Post('/apps/postgresql/top_sql/enable'),
+  resetTopSQL: (): any => http.Post('/apps/postgresql/top_sql/reset'),
+  // 维护
+  databases: (): any => http.Get('/apps/postgresql/databases'),
+  bloat: (database: string): any => http.Get('/apps/postgresql/bloat', { params: { database } }),
+  runMaintenance: (data: any): any => http.Post('/apps/postgresql/maintenance', data),
+  wal: (): any => http.Get('/apps/postgresql/wal'),
+  dropReplicationSlot: (slot: string): any =>
+    http.Delete(`/apps/postgresql/replication_slots/${slot}`),
 }

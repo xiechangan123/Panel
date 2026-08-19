@@ -18,16 +18,20 @@ type Postgres struct {
 	port     uint
 }
 
-func NewPostgres(ctx context.Context, username, password, address string, port uint) (Operator, error) {
+func NewPostgres(ctx context.Context, username, password, address string, port uint, database ...string) (Operator, error) {
 	username = strings.ReplaceAll(username, `'`, `\'`)
 	password = strings.ReplaceAll(password, `'`, `\'`)
+	dbname := "postgres"
+	if len(database) > 0 && database[0] != "" {
+		dbname = strings.ReplaceAll(database[0], `'`, `\'`)
+	}
 	// connect_timeout 限制建连耗时，避免不可达地址阻塞调用方
-	dsn := fmt.Sprintf(`host=%s port=%d user='%s' password='%s' dbname=postgres sslmode=disable connect_timeout=5`, address, port, username, password)
+	dsn := fmt.Sprintf(`host=%s port=%d user='%s' password='%s' dbname='%s' sslmode=disable connect_timeout=5`, address, port, username, password, dbname)
 	if password == "" {
 		if username == "" {
 			username = "postgres"
 		}
-		dsn = fmt.Sprintf(`host=%s port=%d user='%s' dbname=postgres sslmode=disable connect_timeout=5`, address, port, username)
+		dsn = fmt.Sprintf(`host=%s port=%d user='%s' dbname='%s' sslmode=disable connect_timeout=5`, address, port, username, dbname)
 	}
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {

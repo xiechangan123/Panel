@@ -1,10 +1,14 @@
 package postgresql
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"regexp"
+	"slices"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
@@ -22,6 +26,8 @@ import (
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
+
+var defaultVersionRegexp = regexp.MustCompile(`default_version\s*=\s*'([^']+)'`)
 
 type App struct {
 	t                  *gotext.Locale
@@ -56,6 +62,19 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/extensions", s.ExtensionList)
 	r.Post("/extensions", s.InstallExtension)
 	r.Delete("/extensions", s.UninstallExtension)
+	r.Post("/extensions/enable", s.EnableExtension)
+	// 性能
+	r.Get("/sessions", s.SessionList)
+	r.Post("/sessions/{pid}/terminate", s.TerminateSession)
+	r.Get("/top_sql", s.TopSQL)
+	r.Post("/top_sql/enable", s.EnableTopSQL)
+	r.Post("/top_sql/reset", s.ResetTopSQL)
+	// 维护
+	r.Get("/databases", s.DatabaseList)
+	r.Get("/bloat", s.BloatList)
+	r.Post("/maintenance", s.RunMaintenance)
+	r.Get("/wal", s.WalStatus)
+	r.Delete("/replication_slots/{slot}", s.DropReplicationSlot)
 }
 
 func (s *App) Status() string {
@@ -342,7 +361,14 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 func (s *App) ExtensionList(w http.ResponseWriter, r *http.Request) {
 	extensions := s.getExtensions()
 	for i := range extensions {
-		extensions[i].Installed = io.Exists(fmt.Sprintf("%s/server/postgresql/share/extension/%s.control", app.Root, extensions[i].ExtName))
+		controlPath := fmt.Sprintf("%s/server/postgresql/share/extension/%s.control", app.Root, extensions[i].ExtName)
+		extensions[i].Installed = io.Exists(controlPath)
+		if extensions[i].Installed {
+			control, _ := io.Read(controlPath)
+			if m := defaultVersionRegexp.FindStringSubmatch(control); len(m) > 1 {
+				extensions[i].InstalledVersion = m[1]
+			}
+		}
 	}
 
 	service.Success(w, extensions)
@@ -404,6 +430,415 @@ func (s *App) UninstallExtension(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
+// EnableExtension 在指定数据库启用扩展
+func (s *App) EnableExtension(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[ExtensionEnable](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	ext, ok := lo.Find(s.getExtensions(), func(e Extension) bool {
+		return e.Slug == req.Slug
+	})
+	if !ok {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("extension %s does not exist", req.Slug))
+		return
+	}
+
+	postgres, err := s.connect(r.Context(), req.Database)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	if _, err = postgres.Exec(fmt.Sprintf(`CREATE EXTENSION IF NOT EXISTS "%s"`, ext.ExtName)); err != nil {
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to enable extension: %v", err))
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// SessionList 获取会话列表
+func (s *App) SessionList(w http.ResponseWriter, r *http.Request) {
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	rows, err := postgres.Query(`
+		SELECT a.pid, coalesce(a.datname,''), coalesce(a.usename,''), coalesce(a.client_addr::text,''),
+		       coalesce(a.state,''), coalesce(a.wait_event_type,''), coalesce(a.wait_event,''),
+		       coalesce(array_to_string(pg_blocking_pids(a.pid),','),''),
+		       coalesce(extract(epoch from (now()-a.xact_start))::bigint,0),
+		       coalesce(extract(epoch from (now()-a.query_start))::bigint,0),
+		       coalesce(a.query,'')
+		FROM pg_stat_activity a
+		WHERE a.pid != pg_backend_pid() AND a.backend_type = 'client backend'
+		ORDER BY a.backend_start`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	sessions := make([]Session, 0)
+	for rows.Next() {
+		var item Session
+		if err = rows.Scan(&item.PID, &item.Database, &item.User, &item.ClientAddr, &item.State,
+			&item.WaitEventType, &item.WaitEvent, &item.BlockedBy, &item.XactSeconds, &item.QuerySeconds, &item.Query); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		sessions = append(sessions, item)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, sessions)
+}
+
+// TerminateSession 终止会话
+func (s *App) TerminateSession(w http.ResponseWriter, r *http.Request) {
+	pid := cast.ToInt64(chi.URLParam(r, "pid"))
+	if pid <= 0 {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid pid"))
+		return
+	}
+
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	if _, err = postgres.Exec(`SELECT pg_terminate_backend($1)`, pid); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// TopSQL 获取 SQL 性能统计
+func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	rows, err := postgres.Query(`
+		SELECT coalesce(d.datname,''), s.calls, round(s.total_exec_time)::bigint,
+		       round(s.mean_exec_time::numeric,2)::float8, s.rows,
+		       coalesce(round(100.0*s.shared_blks_hit/nullif(s.shared_blks_hit+s.shared_blks_read,0),1),0)::float8,
+		       s.query
+		FROM pg_stat_statements s LEFT JOIN pg_database d ON d.oid = s.dbid
+		ORDER BY s.total_exec_time DESC LIMIT 50`)
+	if err != nil {
+		// pg_stat_statements 未启用时返回状态而非报错
+		if strings.Contains(err.Error(), "shared_preload_libraries") {
+			service.Success(w, TopSQL{Enabled: false, PendingRestart: true, Items: []TopSQLItem{}})
+			return
+		}
+		if strings.Contains(err.Error(), "does not exist") {
+			service.Success(w, TopSQL{Enabled: false, Items: []TopSQLItem{}})
+			return
+		}
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	items := make([]TopSQLItem, 0)
+	for rows.Next() {
+		var item TopSQLItem
+		if err = rows.Scan(&item.Database, &item.Calls, &item.TotalMs, &item.MeanMs, &item.Rows, &item.HitRate, &item.Query); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		items = append(items, item)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, TopSQL{Enabled: true, Items: items})
+}
+
+// EnableTopSQL 启用 pg_stat_statements
+func (s *App) EnableTopSQL(w http.ResponseWriter, r *http.Request) {
+	config, err := io.Read(s.configPath())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	// 将 pg_stat_statements 加入 shared_preload_libraries，重启后生效
+	var libs []string
+	for lib := range strings.SplitSeq(confval.Postgres.Get(config, "shared_preload_libraries"), ",") {
+		if lib = strings.TrimSpace(lib); lib != "" {
+			libs = append(libs, lib)
+		}
+	}
+	if !slices.Contains(libs, "pg_stat_statements") {
+		libs = append(libs, "pg_stat_statements")
+		config = confval.Postgres.Set(config, "shared_preload_libraries", strings.Join(libs, ","))
+		if err = io.Write(s.configPath(), config, 0644); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+	}
+
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	if _, err = postgres.Exec(`CREATE EXTENSION IF NOT EXISTS pg_stat_statements`); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// ResetTopSQL 重置 SQL 性能统计
+func (s *App) ResetTopSQL(w http.ResponseWriter, r *http.Request) {
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	if _, err = postgres.Exec(`SELECT pg_stat_statements_reset()`); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// DatabaseList 获取可连接的数据库列表
+func (s *App) DatabaseList(w http.ResponseWriter, r *http.Request) {
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	rows, err := postgres.Query(`SELECT datname FROM pg_database WHERE datallowconn ORDER BY datname`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	databases := make([]string, 0)
+	for rows.Next() {
+		var name string
+		if err = rows.Scan(&name); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		databases = append(databases, name)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, databases)
+}
+
+// BloatList 获取指定数据库的表膨胀情况
+func (s *App) BloatList(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[BloatQuery](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	postgres, err := s.connect(r.Context(), req.Database)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	rows, err := postgres.Query(`
+		SELECT schemaname, relname, pg_size_pretty(pg_total_relation_size(relid)),
+		       n_live_tup, n_dead_tup,
+		       coalesce(round(100.0*n_dead_tup/nullif(n_live_tup+n_dead_tup,0),1),0)::float8,
+		       coalesce(to_char(last_vacuum,'YYYY-MM-DD HH24:MI'),''), coalesce(to_char(last_autovacuum,'YYYY-MM-DD HH24:MI'),''),
+		       coalesce(to_char(last_analyze,'YYYY-MM-DD HH24:MI'),''), coalesce(to_char(last_autoanalyze,'YYYY-MM-DD HH24:MI'),'')
+		FROM pg_stat_user_tables ORDER BY n_dead_tup DESC LIMIT 50`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	items := make([]BloatItem, 0)
+	for rows.Next() {
+		var item BloatItem
+		if err = rows.Scan(&item.Schema, &item.Table, &item.Size, &item.LiveTuples, &item.DeadTuples,
+			&item.DeadRate, &item.LastVacuum, &item.LastAutovacuum, &item.LastAnalyze, &item.LastAutoanalyz); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		items = append(items, item)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, Bloat{
+		RepackInstalled: io.Exists(app.Root + "/server/postgresql/share/extension/pg_repack.control"),
+		Items:           items,
+	})
+}
+
+// RunMaintenance 对表执行维护操作（异步任务）
+func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[MaintenanceRun](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if !slices.Contains([]string{"vacuum", "analyze", "repack"}, req.Operation) {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid operation"))
+		return
+	}
+
+	var cmd string
+	switch req.Operation {
+	case "vacuum":
+		cmd = fmt.Sprintf(`su - postgres -c 'psql -d "%s" -c "VACUUM \"%s\".\"%s\""'`, req.Database, req.Schema, req.Table)
+	case "analyze":
+		cmd = fmt.Sprintf(`su - postgres -c 'psql -d "%s" -c "ANALYZE \"%s\".\"%s\""'`, req.Database, req.Schema, req.Table)
+	case "repack":
+		if !io.Exists(app.Root + "/server/postgresql/share/extension/pg_repack.control") {
+			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("pg_repack is not installed, please install it in the extensions tab first"))
+			return
+		}
+		cmd = fmt.Sprintf(`su - postgres -c 'pg_repack -d "%s" -t "%s.%s"'`, req.Database, req.Schema, req.Table)
+	}
+
+	task := new(biz.Task)
+	task.Key = fmt.Sprintf("postgresql:maintenance:%s:%s.%s", req.Database, req.Schema, req.Table)
+	task.Name = s.t.Get("Run %s on table %s.%s of database %s", req.Operation, req.Schema, req.Table, req.Database)
+	task.Status = biz.TaskStatusWaiting
+	task.Shell = cmd
+	if err = s.taskRepo.Push(task); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// WalStatus 获取 WAL 及复制状态
+func (s *App) WalStatus(w http.ResponseWriter, r *http.Request) {
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	var wal Wal
+	if err = postgres.QueryRow(`SELECT pg_size_pretty(coalesce(sum(size),0)) FROM pg_ls_waldir()`).Scan(&wal.WalSize); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = postgres.QueryRow(`SELECT archived_count, failed_count, coalesce(last_archived_wal,''), coalesce(last_failed_wal,'') FROM pg_stat_archiver`).Scan(
+		&wal.Archiver.ArchivedCount, &wal.Archiver.FailedCount, &wal.Archiver.LastArchivedWal, &wal.Archiver.LastFailedWal); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	slotRows, err := postgres.Query(`SELECT slot_name, slot_type, active, coalesce(pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)),'') FROM pg_replication_slots`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = slotRows.Close() }()
+	wal.Slots = make([]ReplicationSlot, 0)
+	for slotRows.Next() {
+		var slot ReplicationSlot
+		if err = slotRows.Scan(&slot.Name, &slot.Type, &slot.Active, &slot.RetainedWal); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		wal.Slots = append(wal.Slots, slot)
+	}
+	if err = slotRows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	replRows, err := postgres.Query(`SELECT coalesce(client_addr::text,''), coalesce(state,''), coalesce(sync_state,''), coalesce(pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn)),'') FROM pg_stat_replication`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = replRows.Close() }()
+	wal.Replications = make([]Replication, 0)
+	for replRows.Next() {
+		var repl Replication
+		if err = replRows.Scan(&repl.ClientAddr, &repl.State, &repl.SyncState, &repl.Lag); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		wal.Replications = append(wal.Replications, repl)
+	}
+	if err = replRows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, wal)
+}
+
+// DropReplicationSlot 删除复制槽
+func (s *App) DropReplicationSlot(w http.ResponseWriter, r *http.Request) {
+	slot := chi.URLParam(r, "slot")
+	if slot == "" {
+		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid slot name"))
+		return
+	}
+
+	postgres, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer postgres.Close()
+
+	if _, err = postgres.Exec(`SELECT pg_drop_replication_slot($1)`, slot); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
 // getExtensions 返回所有扩展定义
 func (s *App) getExtensions() []Extension {
 	return []Extension{
@@ -430,6 +865,16 @@ func (s *App) checkExtension(slug string) bool {
 	return lo.ContainsBy(s.getExtensions(), func(e Extension) bool {
 		return e.Slug == slug
 	})
+}
+
+// connect 以 postgres 超级用户连接指定数据库，默认 postgres 库
+func (s *App) connect(ctx context.Context, database ...string) (db.Operator, error) {
+	password, err := s.settingRepo.Get(biz.SettingKeyPostgresPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return db.NewPostgres(ctx, "postgres", password, "127.0.0.1", db.PostgresPort(app.Root), database...)
 }
 
 func (s *App) configPath() string {
