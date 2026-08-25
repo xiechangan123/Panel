@@ -2,7 +2,7 @@
 import { useGettext } from 'vue3-gettext'
 
 import ssh from '@/api/panel/ssh'
-import { formatBytes } from '@/utils'
+import { formatBytes, joinPath } from '@/utils'
 
 const { $gettext } = useGettext()
 
@@ -48,13 +48,9 @@ const refresh = () => {
     })
 }
 
-const joinPath = (name: string) => {
-  return path.value === '/' ? `/${name}` : `${path.value}/${name}`
-}
-
 const handleRowClick = (file: FileItem) => {
   if (file.is_dir || file.is_link) {
-    path.value = joinPath(file.name)
+    path.value = joinPath(path.value, file.name)
     return
   }
   toggleSelect(file.name)
@@ -84,7 +80,7 @@ const handlePathInput = (value: string) => {
 const handleMkdir = () => {
   const name = mkdirName.value.trim()
   if (!name) return
-  useRequest(ssh.mkdir(apiId.value, joinPath(name))).onSuccess(() => {
+  useRequest(ssh.mkdir(apiId.value, joinPath(path.value, name))).onSuccess(() => {
     showMkdir.value = false
     mkdirName.value = ''
     refresh()

@@ -3,6 +3,7 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import { useEditorStore, useFileStore } from '@/stores'
+import { joinPath } from '@/utils/file'
 
 export function usePaste() {
   const { $gettext } = useGettext()
@@ -19,7 +20,7 @@ export function usePaste() {
     const paths = marked.map((item) => ({
       name: item.name,
       source: item.source,
-      target: targetPath + '/' + item.name,
+      target: joinPath(targetPath, item.name),
       force: false,
     }))
 
@@ -96,7 +97,7 @@ export function usePaste() {
             window.$message.info($gettext('Canceled'))
             return
           }
-          item.target = targetPath + '/' + newName
+          item.target = joinPath(targetPath, newName)
           item.name = newName
           item.force = false
         }

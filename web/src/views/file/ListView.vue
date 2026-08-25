@@ -26,6 +26,7 @@ import {
   getIconByExt,
   isCompress,
   isImage,
+  joinPath,
 } from '@/utils/file'
 import { useFileOps } from '@/views/file/composables/useFileOps'
 import { usePaste } from '@/views/file/composables/usePaste'
@@ -148,7 +149,7 @@ const submitInlineCreate = () => {
     return
   }
 
-  const fullPath = path.value + '/' + name
+  const fullPath = joinPath(path.value, name)
 
   useRequest(file.create(fullPath, inlineCreateIsDir.value))
     .onSuccess(() => {
@@ -826,8 +827,8 @@ const submitInlineRename = () => {
     return
   }
 
-  const source = path.value + '/' + sourceName
-  const target = path.value + '/' + targetName
+  const source = joinPath(path.value, sourceName)
+  const target = joinPath(path.value, targetName)
 
   // 执行重命名，成功后编辑器标签页同步与列表刷新由 movePath 收敛处理
   const doRename = async (force: boolean) => {

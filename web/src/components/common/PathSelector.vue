@@ -6,7 +6,7 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import TheIcon from '@/components/custom/TheIcon.vue'
-import { checkName, checkPath, getExt, getIconByExt } from '@/utils'
+import { checkName, checkPath, getExt, getIconByExt, joinPath } from '@/utils'
 
 const { $gettext } = useGettext()
 const themeVars = useThemeVars()
@@ -250,7 +250,7 @@ const handleCreate = () => {
   }
 
   createLoading.value = true
-  const fullPath = currentPath.value + '/' + createModel.value.path
+  const fullPath = joinPath(currentPath.value, createModel.value.path)
   useRequest(file.create(fullPath, createModel.value.dir))
     .onSuccess(() => {
       create.value = false

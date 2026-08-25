@@ -5,7 +5,7 @@ import { useGettext } from 'vue3-gettext'
 import ws from '@/api/ws'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { darkThemeOverrides } from '@/design/naive-overrides'
-import { formatBytes } from '@/utils'
+import { formatBytes, joinPath } from '@/utils'
 import SftpBrowser from '@/views/ssh/SftpBrowser.vue'
 
 const { $gettext } = useGettext()
@@ -46,8 +46,6 @@ const transfers = ref<TransferItem[]>([])
 const toApi = (id: number) => (id === -1 ? 0 : id)
 
 const hostLabel = (id: number) => props.hosts.find((h) => h.value === id)?.label || `#${id}`
-
-const joinPath = (dir: string, name: string) => (dir === '/' ? `/${name}` : `${dir}/${name}`)
 
 const handleTransfer = async (direction: 'ltr' | 'rtl') => {
   const from =

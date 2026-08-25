@@ -353,6 +353,9 @@ const lastDirectory = (path: string) => {
   return parts.pop() || ''
 }
 
+// 拼接目录与名称
+const joinPath = (dir: string, name: string) => dir.replace(/\/+$/, '') + '/' + name
+
 export {
   checkName,
   checkPath,
@@ -364,6 +367,7 @@ export {
   getIconByExt,
   isCompress,
   isImage,
+  joinPath,
   languageByPath,
   lastDirectory,
 }

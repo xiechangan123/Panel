@@ -4,7 +4,7 @@ import { useGettext } from 'vue3-gettext'
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
 import { useFileStore } from '@/stores'
-import { checkName } from '@/utils/file'
+import { checkName, joinPath } from '@/utils/file'
 import { useFileOps } from '@/views/file/composables/useFileOps'
 import { usePaste } from '@/views/file/composables/usePaste'
 
@@ -49,7 +49,7 @@ const handleDownload = () => {
 
   downloadLoading.value = true
   useRequest(
-    file.remoteDownload(path.value + '/' + downloadModel.value.path, downloadModel.value.url),
+    file.remoteDownload(joinPath(path.value, downloadModel.value.path), downloadModel.value.url),
   )
     .onSuccess(() => {
       download.value = false
