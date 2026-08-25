@@ -502,7 +502,7 @@ func (s *App) TopSQL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := mysql.Query(`
-		SELECT coalesce(SCHEMA_NAME,''), COUNT_STAR, round(SUM_TIMER_WAIT/1e9),
+		SELECT coalesce(SCHEMA_NAME,''), COUNT_STAR, SUM_TIMER_WAIT DIV 1000000000,
 		       round(AVG_TIMER_WAIT/1e9,2), SUM_ROWS_SENT, SUM_ROWS_EXAMINED, coalesce(DIGEST_TEXT,'')
 		FROM performance_schema.events_statements_summary_by_digest
 		WHERE DIGEST_TEXT IS NOT NULL ORDER BY SUM_TIMER_WAIT DESC LIMIT 50`)
