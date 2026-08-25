@@ -18,7 +18,7 @@ const path = computed(() => tab.value.path)
 
 const isInput = ref(false)
 const pathInput = ref<InputInst | null>(null)
-const input = ref('www')
+const input = ref('')
 
 const handleInput = () => {
   isInput.value = true
@@ -37,15 +37,17 @@ const handlePathDoubleClick = async () => {
   }
 }
 
+// 输入框呈现完整绝对路径，方便直接全选复制；失焦时容错补前导 / 并去掉尾部 /
 const handleBlur = () => {
-  input.value = input.value.replace(/(^\/)|(\/$)/g, '')
-  if (!checkPath(input.value)) {
+  const trimmed = input.value.trim().replace(/\/+$/, '')
+  const full = trimmed.startsWith('/') ? trimmed : '/' + trimmed
+  if (!checkPath(full.slice(1))) {
     window.$message.error($gettext('Invalid path'))
     return
   }
 
   isInput.value = false
-  fileStore.updateTabPath(props.tabId, '/' + input.value)
+  fileStore.updateTabPath(props.tabId, full)
 }
 
 const handleRefresh = () => {
@@ -91,7 +93,7 @@ const handleSearch = () => {
 watch(
   path,
   (value) => {
-    input.value = value.slice(1)
+    input.value = value
   },
   { immediate: true },
 )
@@ -163,7 +165,6 @@ watch(
           </n-breadcrumb-item>
         </n-breadcrumb>
       </n-tag>
-      <n-input-group-label v-if="isInput">/</n-input-group-label>
       <n-input
         ref="pathInput"
         v-model:value="input"
