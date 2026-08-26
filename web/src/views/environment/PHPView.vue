@@ -89,19 +89,21 @@ const formatBytes = (bytes: number) => {
 const processColumns: any = [
   { title: 'PID', key: 'pid', width: 90 },
   { title: $gettext('State'), key: 'state', width: 130, ellipsis: { tooltip: true } },
-  { title: $gettext('Requests'), key: 'requests', width: 100 },
+  { title: $gettext('Requests'), key: 'requests', width: 100, sorter: (a: any, b: any) => a.requests - b.requests },
   { title: $gettext('Method'), key: 'method', width: 90 },
   { title: 'URI', key: 'uri', minWidth: 250, ellipsis: { tooltip: true } },
   {
     title: $gettext('Duration (ms)'),
     key: 'request_duration',
     width: 150,
+    sorter: (a: any, b: any) => a.request_duration - b.request_duration,
     render: (row: any) => Math.round(row.request_duration / 1000),
   },
   {
     title: $gettext('Memory'),
     key: 'last_request_memory',
     width: 110,
+    sorter: (a: any, b: any) => a.last_request_memory - b.last_request_memory,
     render: (row: any) => formatBytes(row.last_request_memory),
   },
   { title: $gettext('Script'), key: 'script', minWidth: 250, ellipsis: { tooltip: true } },

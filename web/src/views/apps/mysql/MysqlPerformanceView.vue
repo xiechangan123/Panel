@@ -52,12 +52,12 @@ const killButton = (id: number, refresh: () => void) =>
   )
 
 const processColumns: any = [
-  { title: 'ID', key: 'id', width: 90 },
+  { title: 'ID', key: 'id', width: 90, sorter: (a: any, b: any) => a.id - b.id },
   { title: $gettext('User'), key: 'user', width: 110, ellipsis: { tooltip: true } },
   { title: $gettext('Host'), key: 'host', width: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Database'), key: 'db', width: 120, ellipsis: { tooltip: true } },
   { title: $gettext('Command'), key: 'command', width: 120, ellipsis: { tooltip: true } },
-  { title: $gettext('Duration (s)'), key: 'time', width: 145 },
+  { title: $gettext('Duration (s)'), key: 'time', width: 145, sorter: (a: any, b: any) => a.time - b.time },
   { title: $gettext('State'), key: 'state', width: 150, ellipsis: { tooltip: true } },
   { title: 'SQL', key: 'info', minWidth: 250, ellipsis: { tooltip: true } },
   {
@@ -80,9 +80,9 @@ const transactionColumns: any = [
       return h(NTag, { type, size: 'small' }, { default: () => row.state })
     },
   },
-  { title: $gettext('Duration (s)'), key: 'seconds', width: 145 },
-  { title: $gettext('Rows Locked'), key: 'rows_locked', width: 130 },
-  { title: $gettext('Rows Modified'), key: 'rows_modified', width: 140 },
+  { title: $gettext('Duration (s)'), key: 'seconds', width: 145, sorter: (a: any, b: any) => a.seconds - b.seconds },
+  { title: $gettext('Rows Locked'), key: 'rows_locked', width: 130, sorter: (a: any, b: any) => a.rows_locked - b.rows_locked },
+  { title: $gettext('Rows Modified'), key: 'rows_modified', width: 140, sorter: (a: any, b: any) => a.rows_modified - b.rows_modified },
   { title: 'SQL', key: 'query', minWidth: 250, ellipsis: { tooltip: true } },
   {
     title: $gettext('Actions'),
@@ -131,11 +131,11 @@ const lockWaitColumns: any = [
 
 const topSQLColumns: any = [
   { title: $gettext('Database'), key: 'database', width: 120, ellipsis: { tooltip: true } },
-  { title: $gettext('Calls'), key: 'calls', width: 100 },
-  { title: $gettext('Total Time (ms)'), key: 'total_ms', width: 150 },
-  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 150 },
-  { title: $gettext('Rows Sent'), key: 'rows_sent', width: 120 },
-  { title: $gettext('Rows Examined'), key: 'rows_examined', width: 150 },
+  { title: $gettext('Calls'), key: 'calls', width: 100, sorter: (a: any, b: any) => a.calls - b.calls },
+  { title: $gettext('Total Time (ms)'), key: 'total_ms', width: 150, sorter: (a: any, b: any) => a.total_ms - b.total_ms },
+  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 150, sorter: (a: any, b: any) => a.mean_ms - b.mean_ms },
+  { title: $gettext('Rows Sent'), key: 'rows_sent', width: 120, sorter: (a: any, b: any) => a.rows_sent - b.rows_sent },
+  { title: $gettext('Rows Examined'), key: 'rows_examined', width: 150, sorter: (a: any, b: any) => a.rows_examined - b.rows_examined },
   { title: 'SQL', key: 'query', minWidth: 300, ellipsis: { tooltip: true } },
 ]
 

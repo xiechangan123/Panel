@@ -29,7 +29,7 @@ const formatDuration = (seconds: number) => {
 }
 
 const sessionColumns: any = [
-  { title: 'PID', key: 'pid', width: 90 },
+  { title: 'PID', key: 'pid', width: 90, sorter: (a: any, b: any) => a.pid - b.pid },
   { title: $gettext('Database'), key: 'database', width: 120, ellipsis: { tooltip: true } },
   { title: $gettext('User'), key: 'user', width: 120, ellipsis: { tooltip: true } },
   { title: $gettext('Client'), key: 'client_addr', width: 140, ellipsis: { tooltip: true } },
@@ -57,12 +57,14 @@ const sessionColumns: any = [
     title: $gettext('Transaction Duration'),
     key: 'xact_seconds',
     width: 190,
+    sorter: (a: any, b: any) => a.xact_seconds - b.xact_seconds,
     render: (row: any) => formatDuration(row.xact_seconds),
   },
   {
     title: $gettext('Query Duration'),
     key: 'query_seconds',
     width: 150,
+    sorter: (a: any, b: any) => a.query_seconds - b.query_seconds,
     render: (row: any) => formatDuration(row.query_seconds),
   },
   { title: 'SQL', key: 'query', minWidth: 250, ellipsis: { tooltip: true } },
@@ -95,14 +97,15 @@ const sessionColumns: any = [
 
 const topSQLColumns: any = [
   { title: $gettext('Database'), key: 'database', width: 120, ellipsis: { tooltip: true } },
-  { title: $gettext('Calls'), key: 'calls', width: 100 },
-  { title: $gettext('Total Time (ms)'), key: 'total_ms', width: 150 },
-  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 150 },
-  { title: $gettext('Rows'), key: 'rows', width: 100 },
+  { title: $gettext('Calls'), key: 'calls', width: 100, sorter: (a: any, b: any) => a.calls - b.calls },
+  { title: $gettext('Total Time (ms)'), key: 'total_ms', width: 150, sorter: (a: any, b: any) => a.total_ms - b.total_ms },
+  { title: $gettext('Mean Time (ms)'), key: 'mean_ms', width: 150, sorter: (a: any, b: any) => a.mean_ms - b.mean_ms },
+  { title: $gettext('Rows'), key: 'rows', width: 100, sorter: (a: any, b: any) => a.rows - b.rows },
   {
     title: $gettext('Cache Hit Rate'),
     key: 'hit_rate',
     width: 140,
+    sorter: (a: any, b: any) => a.hit_rate - b.hit_rate,
     render: (row: any) => `${row.hit_rate}%`,
   },
   { title: 'SQL', key: 'query', minWidth: 300, ellipsis: { tooltip: true } },

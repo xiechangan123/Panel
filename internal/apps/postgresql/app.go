@@ -681,7 +681,7 @@ func (s *App) BloatList(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := postgres.Query(`
 		SELECT schemaname, relname, pg_size_pretty(pg_total_relation_size(relid)),
-		       n_live_tup, n_dead_tup,
+		       pg_total_relation_size(relid), n_live_tup, n_dead_tup,
 		       coalesce(round(100.0*n_dead_tup/nullif(n_live_tup+n_dead_tup,0),1),0)::float8,
 		       coalesce(to_char(last_vacuum,'YYYY-MM-DD HH24:MI'),''), coalesce(to_char(last_autovacuum,'YYYY-MM-DD HH24:MI'),''),
 		       coalesce(to_char(last_analyze,'YYYY-MM-DD HH24:MI'),''), coalesce(to_char(last_autoanalyze,'YYYY-MM-DD HH24:MI'),'')
@@ -695,7 +695,7 @@ func (s *App) BloatList(w http.ResponseWriter, r *http.Request) {
 	items := make([]BloatItem, 0)
 	for rows.Next() {
 		var item BloatItem
-		if err = rows.Scan(&item.Schema, &item.Table, &item.Size, &item.LiveTuples, &item.DeadTuples,
+		if err = rows.Scan(&item.Schema, &item.Table, &item.Size, &item.SizeBytes, &item.LiveTuples, &item.DeadTuples,
 			&item.DeadRate, &item.LastVacuum, &item.LastAutovacuum, &item.LastAnalyze, &item.LastAutoanalyz); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return

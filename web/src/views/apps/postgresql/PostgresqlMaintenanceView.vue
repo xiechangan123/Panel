@@ -95,13 +95,14 @@ const bloatColumns: any = [
   { type: 'selection' },
   { title: $gettext('Schema'), key: 'schema', width: 110, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
-  { title: $gettext('Size'), key: 'size', width: 100 },
-  { title: $gettext('Live Tuples'), key: 'live_tuples', width: 120 },
-  { title: $gettext('Dead Tuples'), key: 'dead_tuples', width: 130 },
+  { title: $gettext('Size'), key: 'size', width: 100, sorter: (a: any, b: any) => a.size_bytes - b.size_bytes },
+  { title: $gettext('Live Tuples'), key: 'live_tuples', width: 120, sorter: (a: any, b: any) => a.live_tuples - b.live_tuples },
+  { title: $gettext('Dead Tuples'), key: 'dead_tuples', width: 130, sorter: (a: any, b: any) => a.dead_tuples - b.dead_tuples },
   {
     title: $gettext('Dead Rate'),
     key: 'dead_rate',
     width: 120,
+    sorter: (a: any, b: any) => a.dead_rate - b.dead_rate,
     render(row: any) {
       const type = row.dead_rate >= 20 ? 'error' : row.dead_rate >= 10 ? 'warning' : 'default'
       return h(NTag, { type, size: 'small' }, { default: () => `${row.dead_rate}%` })
@@ -111,12 +112,16 @@ const bloatColumns: any = [
     title: $gettext('Last Vacuum'),
     key: 'last_vacuum',
     width: 150,
+    sorter: (a: any, b: any) =>
+      (a.last_vacuum || a.last_autovacuum || '').localeCompare(b.last_vacuum || b.last_autovacuum || ''),
     render: (row: any) => row.last_vacuum || row.last_autovacuum || '-',
   },
   {
     title: $gettext('Last Analyze'),
     key: 'last_analyze',
     width: 150,
+    sorter: (a: any, b: any) =>
+      (a.last_analyze || a.last_autoanalyze || '').localeCompare(b.last_analyze || b.last_autoanalyze || ''),
     render: (row: any) => row.last_analyze || row.last_autoanalyze || '-',
   },
   {

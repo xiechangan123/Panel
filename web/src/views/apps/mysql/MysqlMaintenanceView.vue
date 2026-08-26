@@ -75,12 +75,13 @@ const tableColumns: any = [
   { title: $gettext('Database'), key: 'database', width: 130, ellipsis: { tooltip: true } },
   { title: $gettext('Table'), key: 'table', minWidth: 150, ellipsis: { tooltip: true } },
   { title: $gettext('Engine'), key: 'engine', width: 100 },
-  { title: $gettext('Rows'), key: 'rows', width: 110 },
-  { title: $gettext('Size'), key: 'size', width: 100 },
+  { title: $gettext('Rows'), key: 'rows', width: 110, sorter: (a: any, b: any) => a.rows - b.rows },
+  { title: $gettext('Size'), key: 'size', width: 100, sorter: (a: any, b: any) => a.size_bytes - b.size_bytes },
   {
     title: $gettext('Fragment Rate'),
     key: 'fragment_rate',
     width: 130,
+    sorter: (a: any, b: any) => a.fragment_rate - b.fragment_rate,
     render(row: any) {
       const rate = Math.round(row.fragment_rate * 10) / 10
       const type = rate >= 30 ? 'error' : rate >= 10 ? 'warning' : 'default'
@@ -113,7 +114,7 @@ const tableColumns: any = [
 
 const binlogColumns: any = [
   { title: $gettext('File'), key: 'name', minWidth: 200 },
-  { title: $gettext('Size'), key: 'size', width: 120 },
+  { title: $gettext('Size'), key: 'size', width: 120, sorter: (a: any, b: any) => a.size_bytes - b.size_bytes },
   {
     title: $gettext('Actions'),
     key: 'actions',

@@ -72,6 +72,7 @@ type BloatItem struct {
 	Schema         string  `json:"schema"`
 	Table          string  `json:"table"`
 	Size           string  `json:"size"`
+	SizeBytes      int64   `json:"size_bytes"`
 	LiveTuples     int64   `json:"live_tuples"`
 	DeadTuples     int64   `json:"dead_tuples"`
 	DeadRate       float64 `json:"dead_rate"`

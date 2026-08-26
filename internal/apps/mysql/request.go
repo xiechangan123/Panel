@@ -122,13 +122,15 @@ type TableInfo struct {
 	Engine       string  `json:"engine"`
 	Rows         int64   `json:"rows"`
 	Size         string  `json:"size"`
+	SizeBytes    int64   `json:"size_bytes"`
 	FragmentRate float64 `json:"fragment_rate"`
 }
 
 // BinlogFile binlog 文件信息
 type BinlogFile struct {
-	Name string `json:"name"`
-	Size string `json:"size"`
+	Name      string `json:"name"`
+	Size      string `json:"size"`
+	SizeBytes int64  `json:"size_bytes"`
 }
 
 // Binlog binlog 状态响应

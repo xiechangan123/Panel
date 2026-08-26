@@ -609,6 +609,7 @@ func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		item.Size = tools.FormatBytes(float64(size))
+		item.SizeBytes = size
 		if size+free > 0 {
 			item.FragmentRate = float64(free) * 100 / float64(size+free)
 		}
@@ -701,7 +702,7 @@ func (s *App) BinlogList(w http.ResponseWriter, r *http.Request) {
 	for _, m := range maps {
 		size := cast.ToInt64(m["File_size"])
 		total += size
-		binlog.Items = append(binlog.Items, BinlogFile{Name: m["Log_name"], Size: tools.FormatBytes(float64(size))})
+		binlog.Items = append(binlog.Items, BinlogFile{Name: m["Log_name"], Size: tools.FormatBytes(float64(size)), SizeBytes: size})
 	}
 	binlog.TotalSize = tools.FormatBytes(float64(total))
 

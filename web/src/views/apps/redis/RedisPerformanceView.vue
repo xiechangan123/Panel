@@ -23,12 +23,13 @@ const { data: memory, send: refreshMemory } = useRequest(props.api.memory, {
 })
 
 const slowLogColumns: any = [
-  { title: 'ID', key: 'id', width: 90 },
-  { title: $gettext('Time'), key: 'time', width: 180 },
+  { title: 'ID', key: 'id', width: 90, sorter: (a: any, b: any) => a.id - b.id },
+  { title: $gettext('Time'), key: 'time', width: 180, sorter: 'default' },
   {
     title: $gettext('Duration (ms)'),
     key: 'duration_us',
     width: 150,
+    sorter: (a: any, b: any) => a.duration_us - b.duration_us,
     render: (row: any) => Math.round(row.duration_us / 10) / 100,
   },
   { title: $gettext('Command'), key: 'command', minWidth: 300, ellipsis: { tooltip: true } },
@@ -40,8 +41,8 @@ const clientColumns: any = [
   { title: $gettext('Address'), key: 'addr', width: 170, ellipsis: { tooltip: true } },
   { title: $gettext('Name'), key: 'name', width: 120, ellipsis: { tooltip: true } },
   { title: $gettext('Database'), key: 'db', width: 100 },
-  { title: $gettext('Age (s)'), key: 'age', width: 130 },
-  { title: $gettext('Idle (s)'), key: 'idle', width: 130 },
+  { title: $gettext('Age (s)'), key: 'age', width: 130, sorter: (a: any, b: any) => Number(a.age) - Number(b.age) },
+  { title: $gettext('Idle (s)'), key: 'idle', width: 130, sorter: (a: any, b: any) => Number(a.idle) - Number(b.idle) },
   { title: $gettext('Command'), key: 'cmd', minWidth: 150, ellipsis: { tooltip: true } },
   {
     title: $gettext('Actions'),
