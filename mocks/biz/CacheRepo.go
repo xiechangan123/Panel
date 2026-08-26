@@ -259,15 +259,13 @@ func (_c *CacheRepo_FetchTemplates_Call) RunAndReturn(run func() (*api.Templates
 
 // Get provides a mock function for the type CacheRepo
 func (_mock *CacheRepo) Get(key biz.CacheKey, defaultValue ...string) (string, error) {
-	// string
-	_va := make([]any, len(defaultValue))
-	for _i := range defaultValue {
-		_va[_i] = defaultValue[_i]
+	var tmpRet mock.Arguments
+	if len(defaultValue) > 0 {
+		tmpRet = _mock.Called(key, defaultValue)
+	} else {
+		tmpRet = _mock.Called(key)
 	}
-	var _ca []any
-	_ca = append(_ca, key)
-	_ca = append(_ca, _va...)
-	ret := _mock.Called(_ca...)
+	ret := tmpRet
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -311,11 +309,9 @@ func (_c *CacheRepo_Get_Call) Run(run func(key biz.CacheKey, defaultValue ...str
 			arg0 = args[0].(biz.CacheKey)
 		}
 		var arg1 []string
-		variadicArgs := make([]string, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.(string)
-			}
+		var variadicArgs []string
+		if len(args) > 1 {
+			variadicArgs = args[1].([]string)
 		}
 		arg1 = variadicArgs
 		run(

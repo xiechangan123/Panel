@@ -298,15 +298,13 @@ func (_c *AppRepo_GetInstalled_Call) RunAndReturn(run func(slug string) (*biz.Ap
 
 // GetInstalledAll provides a mock function for the type AppRepo
 func (_mock *AppRepo) GetInstalledAll(query string, cond ...string) ([]*biz.App, error) {
-	// string
-	_va := make([]any, len(cond))
-	for _i := range cond {
-		_va[_i] = cond[_i]
+	var tmpRet mock.Arguments
+	if len(cond) > 0 {
+		tmpRet = _mock.Called(query, cond)
+	} else {
+		tmpRet = _mock.Called(query)
 	}
-	var _ca []any
-	_ca = append(_ca, query)
-	_ca = append(_ca, _va...)
-	ret := _mock.Called(_ca...)
+	ret := tmpRet
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetInstalledAll")
@@ -352,11 +350,9 @@ func (_c *AppRepo_GetInstalledAll_Call) Run(run func(query string, cond ...strin
 			arg0 = args[0].(string)
 		}
 		var arg1 []string
-		variadicArgs := make([]string, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.(string)
-			}
+		var variadicArgs []string
+		if len(args) > 1 {
+			variadicArgs = args[1].([]string)
 		}
 		arg1 = variadicArgs
 		run(
@@ -434,10 +430,13 @@ func (_c *AppRepo_Installed_Call) RunAndReturn(run func() ([]*biz.App, error)) *
 
 // IsInstalled provides a mock function for the type AppRepo
 func (_mock *AppRepo) IsInstalled(query string, cond ...any) (bool, error) {
-	var _ca []any
-	_ca = append(_ca, query)
-	_ca = append(_ca, cond...)
-	ret := _mock.Called(_ca...)
+	var tmpRet mock.Arguments
+	if len(cond) > 0 {
+		tmpRet = _mock.Called(query, cond)
+	} else {
+		tmpRet = _mock.Called(query)
+	}
+	ret := tmpRet
 
 	if len(ret) == 0 {
 		panic("no return value specified for IsInstalled")
@@ -481,11 +480,9 @@ func (_c *AppRepo_IsInstalled_Call) Run(run func(query string, cond ...any)) *Ap
 			arg0 = args[0].(string)
 		}
 		var arg1 []any
-		variadicArgs := make([]any, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.(any)
-			}
+		var variadicArgs []any
+		if len(args) > 1 {
+			variadicArgs = args[1].([]any)
 		}
 		arg1 = variadicArgs
 		run(

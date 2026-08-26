@@ -90,15 +90,13 @@ func (_c *SettingRepo_Delete_Call) RunAndReturn(run func(key biz.SettingKey) err
 
 // Get provides a mock function for the type SettingRepo
 func (_mock *SettingRepo) Get(key biz.SettingKey, defaultValue ...string) (string, error) {
-	// string
-	_va := make([]any, len(defaultValue))
-	for _i := range defaultValue {
-		_va[_i] = defaultValue[_i]
+	var tmpRet mock.Arguments
+	if len(defaultValue) > 0 {
+		tmpRet = _mock.Called(key, defaultValue)
+	} else {
+		tmpRet = _mock.Called(key)
 	}
-	var _ca []any
-	_ca = append(_ca, key)
-	_ca = append(_ca, _va...)
-	ret := _mock.Called(_ca...)
+	ret := tmpRet
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -142,11 +140,9 @@ func (_c *SettingRepo_Get_Call) Run(run func(key biz.SettingKey, defaultValue ..
 			arg0 = args[0].(biz.SettingKey)
 		}
 		var arg1 []string
-		variadicArgs := make([]string, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.(string)
-			}
+		var variadicArgs []string
+		if len(args) > 1 {
+			variadicArgs = args[1].([]string)
 		}
 		arg1 = variadicArgs
 		run(
@@ -169,15 +165,13 @@ func (_c *SettingRepo_Get_Call) RunAndReturn(run func(key biz.SettingKey, defaul
 
 // GetBool provides a mock function for the type SettingRepo
 func (_mock *SettingRepo) GetBool(key biz.SettingKey, defaultValue ...bool) (bool, error) {
-	// bool
-	_va := make([]any, len(defaultValue))
-	for _i := range defaultValue {
-		_va[_i] = defaultValue[_i]
+	var tmpRet mock.Arguments
+	if len(defaultValue) > 0 {
+		tmpRet = _mock.Called(key, defaultValue)
+	} else {
+		tmpRet = _mock.Called(key)
 	}
-	var _ca []any
-	_ca = append(_ca, key)
-	_ca = append(_ca, _va...)
-	ret := _mock.Called(_ca...)
+	ret := tmpRet
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBool")
@@ -221,11 +215,9 @@ func (_c *SettingRepo_GetBool_Call) Run(run func(key biz.SettingKey, defaultValu
 			arg0 = args[0].(biz.SettingKey)
 		}
 		var arg1 []bool
-		variadicArgs := make([]bool, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.(bool)
-			}
+		var variadicArgs []bool
+		if len(args) > 1 {
+			variadicArgs = args[1].([]bool)
 		}
 		arg1 = variadicArgs
 		run(
@@ -248,15 +240,13 @@ func (_c *SettingRepo_GetBool_Call) RunAndReturn(run func(key biz.SettingKey, de
 
 // GetInt provides a mock function for the type SettingRepo
 func (_mock *SettingRepo) GetInt(key biz.SettingKey, defaultValue ...int) (int, error) {
-	// int
-	_va := make([]any, len(defaultValue))
-	for _i := range defaultValue {
-		_va[_i] = defaultValue[_i]
+	var tmpRet mock.Arguments
+	if len(defaultValue) > 0 {
+		tmpRet = _mock.Called(key, defaultValue)
+	} else {
+		tmpRet = _mock.Called(key)
 	}
-	var _ca []any
-	_ca = append(_ca, key)
-	_ca = append(_ca, _va...)
-	ret := _mock.Called(_ca...)
+	ret := tmpRet
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetInt")
@@ -300,11 +290,9 @@ func (_c *SettingRepo_GetInt_Call) Run(run func(key biz.SettingKey, defaultValue
 			arg0 = args[0].(biz.SettingKey)
 		}
 		var arg1 []int
-		variadicArgs := make([]int, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.(int)
-			}
+		var variadicArgs []int
+		if len(args) > 1 {
+			variadicArgs = args[1].([]int)
 		}
 		arg1 = variadicArgs
 		run(
@@ -382,15 +370,13 @@ func (_c *SettingRepo_GetPanel_Call) RunAndReturn(run func() (*request.SettingPa
 
 // GetSlice provides a mock function for the type SettingRepo
 func (_mock *SettingRepo) GetSlice(key biz.SettingKey, defaultValue ...[]string) ([]string, error) {
-	// []string
-	_va := make([]any, len(defaultValue))
-	for _i := range defaultValue {
-		_va[_i] = defaultValue[_i]
+	var tmpRet mock.Arguments
+	if len(defaultValue) > 0 {
+		tmpRet = _mock.Called(key, defaultValue)
+	} else {
+		tmpRet = _mock.Called(key)
 	}
-	var _ca []any
-	_ca = append(_ca, key)
-	_ca = append(_ca, _va...)
-	ret := _mock.Called(_ca...)
+	ret := tmpRet
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetSlice")
@@ -436,11 +422,9 @@ func (_c *SettingRepo_GetSlice_Call) Run(run func(key biz.SettingKey, defaultVal
 			arg0 = args[0].(biz.SettingKey)
 		}
 		var arg1 [][]string
-		variadicArgs := make([][]string, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.([]string)
-			}
+		var variadicArgs [][]string
+		if len(args) > 1 {
+			variadicArgs = args[1].([][]string)
 		}
 		arg1 = variadicArgs
 		run(
