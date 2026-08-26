@@ -1,11 +1,10 @@
-with-expecter: True
-disable-version-string: True
-dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "" }}
-mockname: "{{.InterfaceName}}"
-outpkg: "{{.PackageName}}"
+template: testify
+template-data:
+  unroll-variadic: true
+dir: mocks/biz
+structname: "{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}"
 filename: "{{.InterfaceName}}.go"
-all: True
+all: true
 packages:
-  github.com/acepanel/panel/v3/internal/biz:
-    config:
-      recursive: True
+  github.com/acepanel/panel/v3/internal/biz: {}
