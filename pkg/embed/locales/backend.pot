@@ -2581,7 +2581,7 @@ msgstr ""
 msgid "failed to get home apps: %v"
 msgstr ""
 
-#: internal/data/website.go:487
+#: internal/data/website.go:493
 msgid "failed to get index template file: %v"
 msgstr ""
 
@@ -2713,8 +2713,8 @@ msgstr ""
 #: internal/biz/cert.go:103
 #: internal/biz/setting.go:241
 #: internal/biz/setting.go:315
-#: internal/data/website.go:1248
-#: internal/data/website.go:860
+#: internal/data/website.go:1251
+#: internal/data/website.go:866
 msgid "failed to parse certificate: %v"
 msgstr ""
 
@@ -2733,8 +2733,8 @@ msgstr ""
 #: internal/biz/cert.go:106
 #: internal/biz/setting.go:244
 #: internal/biz/setting.go:318
-#: internal/data/website.go:1251
-#: internal/data/website.go:863
+#: internal/data/website.go:1254
+#: internal/data/website.go:869
 msgid "failed to parse private key: %v"
 msgstr ""
 
@@ -3201,7 +3201,7 @@ msgstr ""
 msgid "log file %s not exists"
 msgstr ""
 
-#: internal/data/website.go:1352
+#: internal/data/website.go:1355
 msgid "maximum number of custom configurations reached (limit: %d)"
 msgstr ""
 
@@ -3552,7 +3552,7 @@ msgstr ""
 msgid "running"
 msgstr ""
 
-#: internal/data/website.go:838
+#: internal/data/website.go:844
 msgid "runtime directory does not exist"
 msgstr ""
 
@@ -3934,13 +3934,13 @@ msgstr ""
 msgid "unsupported system"
 msgstr ""
 
-#: internal/data/website.go:1441
-#: internal/data/website.go:1508
+#: internal/data/website.go:1444
+#: internal/data/website.go:1513
 msgid "unsupported web server: %s"
 msgstr ""
 
 #: internal/data/cert.go:331
-#: internal/data/website.go:1416
+#: internal/data/website.go:1419
 msgid "unsupported website type: %s"
 msgstr ""
 
@@ -4005,7 +4005,7 @@ msgstr ""
 msgid "website configuration import failed: %v"
 msgstr ""
 
-#: internal/data/website.go:845
+#: internal/data/website.go:851
 msgid "website directory does not exist"
 msgstr ""
 
@@ -4029,7 +4029,7 @@ msgstr ""
 msgid "website not found"
 msgstr ""
 
-#: internal/data/website.go:603
+#: internal/data/website.go:609
 msgid "website type is unchanged"
 msgstr ""
 
