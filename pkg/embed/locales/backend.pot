@@ -109,7 +109,7 @@ msgstr ""
 msgid "Active connections"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:854
+#: internal/apps/postgresql/app.go:864
 msgid "Advanced query performance monitoring, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -121,7 +121,7 @@ msgstr ""
 msgid "All passkeys cleared for user %s"
 msgstr ""
 
-#: internal/apps/redis/app.go:392
+#: internal/apps/redis/app.go:397
 msgid "Allocator Fragmentation Ratio"
 msgstr ""
 
@@ -169,7 +169,7 @@ msgstr ""
 msgid "Applying update..."
 msgstr ""
 
-#: internal/apps/postgresql/app.go:851
+#: internal/apps/postgresql/app.go:861
 msgid "Automated partition management"
 msgstr ""
 
@@ -225,7 +225,7 @@ msgstr ""
 msgid "Busy Workers"
 msgstr ""
 
-#: internal/apps/redis/app.go:391
+#: internal/apps/redis/app.go:396
 msgid "Bytes Per Key"
 msgstr ""
 
@@ -280,7 +280,7 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:848
+#: internal/apps/postgresql/app.go:858
 msgid "Chinese full-text search parser based on SCWS"
 msgstr ""
 
@@ -340,7 +340,7 @@ msgstr ""
 msgid "Container %s has no log file"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:853
+#: internal/apps/postgresql/app.go:863
 msgid "Control execution plans with hints in SQL comments, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -409,11 +409,11 @@ msgstr ""
 msgid "Databases"
 msgstr ""
 
-#: internal/apps/redis/app.go:389
+#: internal/apps/redis/app.go:394
 msgid "Dataset Percentage"
 msgstr ""
 
-#: internal/apps/redis/app.go:388
+#: internal/apps/redis/app.go:393
 msgid "Dataset Size"
 msgstr ""
 
@@ -624,7 +624,7 @@ msgstr ""
 msgid "Failed to read certificate file: %v"
 msgstr ""
 
-#: internal/service/cli.go:1724
+#: internal/service/cli.go:1729
 #: internal/service/cli.go:429
 msgid "Failed to read input: %v"
 msgstr ""
@@ -712,7 +712,7 @@ msgstr ""
 msgid "Forum：https://tom.moe"
 msgstr ""
 
-#: internal/apps/redis/app.go:393
+#: internal/apps/redis/app.go:398
 msgid "Fragmentation Ratio"
 msgstr ""
 
@@ -750,7 +750,7 @@ msgstr ""
 msgid "Goroutine Count"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:859
+#: internal/apps/postgresql/app.go:869
 msgid "HTTP client for SQL, send requests from the database"
 msgstr ""
 
@@ -774,7 +774,7 @@ msgstr ""
 msgid "Huawei Cloud"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:856
+#: internal/apps/postgresql/app.go:866
 msgid "Hypothetical indexes for query plan testing"
 msgstr ""
 
@@ -834,7 +834,7 @@ msgstr ""
 msgid "ImageMagick is free software for creating, editing, and composing images"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:855
+#: internal/apps/postgresql/app.go:865
 msgid "Incremental view maintenance for materialized views"
 msgstr ""
 
@@ -901,7 +901,7 @@ msgstr ""
 msgid "Kafka metrics"
 msgstr ""
 
-#: internal/apps/redis/app.go:390
+#: internal/apps/redis/app.go:395
 msgid "Keys Count"
 msgstr ""
 
@@ -925,7 +925,7 @@ msgstr ""
 msgid "Level"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:857
+#: internal/apps/postgresql/app.go:867
 msgid "Lightweight message queue"
 msgstr ""
 
@@ -1132,7 +1132,7 @@ msgstr ""
 msgid "Operation"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:858
+#: internal/apps/postgresql/app.go:868
 msgid "Oracle compatibility functions"
 msgstr ""
 
@@ -1189,7 +1189,7 @@ msgstr ""
 msgid "Password length cannot be less than 6"
 msgstr ""
 
-#: internal/service/cli.go:1717
+#: internal/service/cli.go:1722
 msgid "Password not provided, pass it as an argument or set the %s environment variable"
 msgstr ""
 
@@ -1209,7 +1209,7 @@ msgstr ""
 msgid "Path: %s"
 msgstr ""
 
-#: internal/apps/redis/app.go:385
+#: internal/apps/redis/app.go:390
 msgid "Peak Allocated"
 msgstr ""
 
@@ -1397,7 +1397,7 @@ msgstr ""
 msgid "Remove panel file failed: %v"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:849
+#: internal/apps/postgresql/app.go:859
 msgid "Reorganize tables online to remove bloat"
 msgstr ""
 
@@ -1421,15 +1421,15 @@ msgstr ""
 msgid "Rule"
 msgstr ""
 
-#: internal/apps/mysql/app.go:649
-msgid "Run %s on table %s.%s"
+#: internal/apps/mysql/app.go:658
+msgid "Run %s on %d tables"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:745
-msgid "Run %s on table %s.%s of database %s"
+#: internal/apps/postgresql/app.go:755
+msgid "Run %s on %d tables in database %s"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:850
+#: internal/apps/postgresql/app.go:860
 msgid "Run periodic jobs inside the database, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -1449,7 +1449,7 @@ msgstr ""
 msgid "SSH2 is a library for connecting to SSH servers"
 msgstr ""
 
-#: internal/apps/redis/app.go:423
+#: internal/apps/redis/app.go:428
 msgid "Scan %s big keys"
 msgstr ""
 
@@ -1457,7 +1457,7 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:852
+#: internal/apps/postgresql/app.go:862
 msgid "Session and object audit logging, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -1481,7 +1481,7 @@ msgstr ""
 msgid "Sort Merge Passes"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:846
+#: internal/apps/postgresql/app.go:856
 msgid "Spatial and geographic objects support"
 msgstr ""
 
@@ -1491,7 +1491,7 @@ msgstr ""
 msgid "Start Time"
 msgstr ""
 
-#: internal/apps/redis/app.go:387
+#: internal/apps/redis/app.go:392
 msgid "Startup Allocated"
 msgstr ""
 
@@ -1596,7 +1596,7 @@ msgstr ""
 msgid "Time synchronized successfully"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:847
+#: internal/apps/postgresql/app.go:857
 msgid "Time-series database engine, requires restarting PostgreSQL after installation"
 msgstr ""
 
@@ -1608,7 +1608,7 @@ msgstr ""
 msgid "Total Accesses"
 msgstr ""
 
-#: internal/apps/redis/app.go:386
+#: internal/apps/redis/app.go:391
 msgid "Total Allocated"
 msgstr ""
 
@@ -1820,7 +1820,7 @@ msgstr ""
 msgid "VERSION"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:845
+#: internal/apps/postgresql/app.go:855
 msgid "Vector similarity search"
 msgstr ""
 
@@ -2061,7 +2061,7 @@ msgstr ""
 msgid "backup transfer failed: %v"
 msgstr ""
 
-#: internal/apps/mysql/app.go:730
+#: internal/apps/mysql/app.go:739
 msgid "binlog file %s does not exist"
 msgstr ""
 
@@ -3127,8 +3127,8 @@ msgstr ""
 msgid "invalid mirror url"
 msgstr ""
 
-#: internal/apps/mysql/app.go:634
-#: internal/apps/postgresql/app.go:725
+#: internal/apps/mysql/app.go:639
+#: internal/apps/postgresql/app.go:729
 msgid "invalid operation"
 msgstr ""
 
@@ -3165,7 +3165,7 @@ msgstr ""
 msgid "invalid size"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:823
+#: internal/apps/postgresql/app.go:833
 msgid "invalid slot name"
 msgstr ""
 
@@ -3292,6 +3292,11 @@ msgstr ""
 msgid "no rules found in file"
 msgstr ""
 
+#: internal/apps/mysql/app.go:635
+#: internal/apps/postgresql/app.go:725
+msgid "no tables selected"
+msgstr ""
+
 #: internal/biz/alert.go:952
 msgid "not running"
 msgstr ""
@@ -3413,7 +3418,7 @@ msgstr ""
 msgid "pgAdmin port not found"
 msgstr ""
 
-#: internal/apps/postgresql/app.go:737
+#: internal/apps/postgresql/app.go:736
 msgid "pg_repack is not installed, please install it in the extensions tab first"
 msgstr ""
 

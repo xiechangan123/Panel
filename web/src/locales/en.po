@@ -270,7 +270,7 @@ msgstr "Cannot save in current state"
 #: src/components/common/FileEditor.vue:94
 #: src/components/file-editor/EditorPane.vue:190
 #: src/components/file-editor/EditorToolbar.vue:38
-#: src/views/apps/apache/ApacheConfigTuneView.vue:68
+#: src/views/apps/apache/ApacheConfigTuneView.vue:86
 #: src/views/apps/apache/IndexView.vue:48
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:58
 #: src/views/apps/clickhouse/IndexView.vue:57
@@ -298,9 +298,9 @@ msgstr "Cannot save in current state"
 #: src/views/apps/minio/IndexView.vue:24
 #: src/views/apps/mongodb/IndexView.vue:57
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:49
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:200
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:239
 #: src/views/apps/mysql/MysqlIndex.vue:68
-#: src/views/apps/nginx/NginxConfigTuneView.vue:165
+#: src/views/apps/nginx/NginxConfigTuneView.vue:184
 #: src/views/apps/nginx/NginxIndex.vue:309
 #: src/views/apps/nginx/NginxIndex.vue:394
 #: src/views/apps/nginx/NginxIndex.vue:478
@@ -314,7 +314,7 @@ msgstr "Cannot save in current state"
 #: src/views/apps/podman/IndexView.vue:40
 #: src/views/apps/postgresql/IndexView.vue:91
 #: src/views/apps/postgresql/IndexView.vue:102
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:164
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:200
 #: src/views/apps/prometheus/IndexView.vue:62
 #: src/views/apps/prometheus/IndexView.vue:73
 #: src/views/apps/prometheus/PrometheusConfigTuneView.vue:34
@@ -322,7 +322,7 @@ msgstr "Cannot save in current state"
 #: src/views/apps/pureftpd/IndexView.vue:112
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:54
 #: src/views/apps/redis/IndexView.vue:53
-#: src/views/apps/redis/RedisConfigTuneView.vue:109
+#: src/views/apps/redis/RedisConfigTuneView.vue:128
 #: src/views/apps/rocketmq/IndexView.vue:51
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:73
 #: src/views/apps/rsync/IndexView.vue:137
@@ -331,13 +331,13 @@ msgstr "Cannot save in current state"
 #: src/views/apps/supervisor/IndexView.vue:328
 #: src/views/apps/supervisor/IndexView.vue:343
 #: src/views/apps/valkey/IndexView.vue:53
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:103
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:122
 #: src/views/database/ElasticsearchDocModal.vue:61
 #: src/views/database/RedisKeyModal.vue:77 src/views/environment/GoView.vue:52
 #: src/views/environment/NodejsView.vue:55
-#: src/views/environment/PhpConfigTuneView.vue:183
-#: src/views/environment/PHPView.vue:204 src/views/environment/PHPView.vue:210
-#: src/views/environment/PHPView.vue:263
+#: src/views/environment/PhpConfigTuneView.vue:203
+#: src/views/environment/PHPView.vue:206 src/views/environment/PHPView.vue:212
+#: src/views/environment/PHPView.vue:265
 #: src/views/environment/PythonView.vue:59
 #: src/views/monitor/AlertRuleModal.vue:116
 #: src/views/monitor/ChannelModal.vue:70 src/views/monitor/SettingView.vue:35
@@ -380,7 +380,7 @@ msgstr "Select File"
 #: src/views/apps/nginx/NginxIndex.vue:705
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:35
 #: src/views/apps/prometheus/PrometheusExportersView.vue:26
-#: src/views/apps/redis/RedisPerformanceView.vue:41
+#: src/views/apps/redis/RedisPerformanceView.vue:42
 #: src/views/apps/rsync/IndexView.vue:45 src/views/apps/rsync/IndexView.vue:275
 #: src/views/apps/supervisor/IndexView.vue:89
 #: src/views/apps/supervisor/IndexView.vue:444
@@ -389,7 +389,7 @@ msgstr "Select File"
 #: src/views/container/NetworkView.vue:48 src/views/container/VolumeView.vue:29
 #: src/views/database/CreateServerModal.vue:108
 #: src/views/database/ServerList.vue:66
-#: src/views/database/UpdateServerModal.vue:66 src/views/file/ListView.vue:1444
+#: src/views/database/UpdateServerModal.vue:66 src/views/file/ListView.vue:1445
 #: src/views/file/PropertyModal.vue:27 src/views/file/ToolBar.vue:123
 #: src/views/home/IndexView.vue:671 src/views/home/IndexView.vue:772
 #: src/views/monitor/AlertRuleModal.vue:136 src/views/monitor/AlertView.vue:53
@@ -410,17 +410,17 @@ msgstr "Name"
 msgid "Permissions"
 msgstr "Permissions"
 
-#: src/components/common/PathSelector.vue:102 src/views/file/ListView.vue:1455
+#: src/components/common/PathSelector.vue:102 src/views/file/ListView.vue:1456
 msgid "Owner / Group"
 msgstr "Owner / Group"
 
 #: src/components/common/PathSelector.vue:114
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:58
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:94
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:76
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:79
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:117
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:98
 #: src/views/backup/ListView.vue:48 src/views/container/ImageView.vue:81
 #: src/views/database/ElasticsearchDataView.vue:112
-#: src/views/database/RedisDataView.vue:116 src/views/file/ListView.vue:1451
+#: src/views/database/RedisDataView.vue:116 src/views/file/ListView.vue:1452
 #: src/views/file/PropertyModal.vue:39 src/views/file/ToolBar.vue:124
 #: src/views/toolbox/disk/RaidView.vue:95
 #: src/views/toolbox/disk/RaidView.vue:177 src/views/toolbox/DiskView.vue:233
@@ -428,22 +428,22 @@ msgstr "Owner / Group"
 msgid "Size"
 msgstr "Size"
 
-#: src/components/common/PathSelector.vue:149 src/views/file/ListView.vue:1618
+#: src/components/common/PathSelector.vue:149 src/views/file/ListView.vue:1619
 msgid "Calculate"
 msgstr "Calculate"
 
-#: src/components/common/PathSelector.vue:154 src/views/file/ListView.vue:1460
+#: src/components/common/PathSelector.vue:154 src/views/file/ListView.vue:1461
 #: src/views/file/PropertyModal.vue:51 src/views/file/ToolBar.vue:125
 msgid "Modification Time"
 msgstr "Modification Time"
 
-#: src/components/common/PathSelector.vue:188 src/views/file/ListView.vue:1284
-#: src/views/file/PathInput.vue:43
+#: src/components/common/PathSelector.vue:188 src/views/file/ListView.vue:1285
+#: src/views/file/PathInput.vue:45
 msgid "Invalid path"
 msgstr "Invalid path"
 
-#: src/components/common/PathSelector.vue:248 src/views/file/ListView.vue:147
-#: src/views/file/ListView.vue:825 src/views/file/ToolBar.vue:46
+#: src/components/common/PathSelector.vue:248 src/views/file/ListView.vue:148
+#: src/views/file/ListView.vue:826 src/views/file/ToolBar.vue:46
 msgid "Invalid name"
 msgstr "Invalid name"
 
@@ -461,7 +461,7 @@ msgstr "Invalid name"
 #: src/views/database/CreateDatabaseModal.vue:48
 #: src/views/database/CreateUserModal.vue:56
 #: src/views/database/ElasticsearchDataView.vue:263
-#: src/views/file/ListView.vue:156 src/views/firewall/CreateForwardModal.vue:44
+#: src/views/file/ListView.vue:157 src/views/firewall/CreateForwardModal.vue:44
 #: src/views/setting/CreateModal.vue:22 src/views/setting/TokenModal.vue:117
 #: src/views/ssh/CreateModal.vue:41 src/views/task/CreateModal.vue:120
 #: src/views/toolbox/WebHookView.vue:249
@@ -469,7 +469,7 @@ msgid "Created successfully"
 msgstr "Created successfully"
 
 #: src/components/common/PathSelector.vue:319
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:93
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:116
 #: src/views/file/PropertyModal.vue:34 src/views/file/ToolBar.vue:147
 msgid "File"
 msgstr "File"
@@ -483,13 +483,13 @@ msgstr "Folder"
 #: src/views/app/TemplateDeployModal.vue:652
 #: src/views/container/ContainerCreate.vue:653
 #: src/views/project/CreateModal.vue:693 src/views/setting/TokenModal.vue:270
-#: src/views/ssh/SftpBrowser.vue:160 src/views/toolbox/WebHookView.vue:356
+#: src/views/ssh/SftpBrowser.vue:156 src/views/toolbox/WebHookView.vue:356
 #: src/views/website/BulkCreateModal.vue:240
 #: src/views/website/CreateModal.vue:342
 msgid "Create"
 msgstr "Create"
 
-#: src/components/common/PathSelector.vue:333 src/views/file/PathInput.vue:155
+#: src/components/common/PathSelector.vue:333 src/views/file/PathInput.vue:157
 msgid "Root Directory"
 msgstr "Root Directory"
 
@@ -557,7 +557,7 @@ msgstr "Connection error. Please refresh."
 
 #: src/components/common/PtyTerminalModal.vue:143
 #: src/views/container/ImagePullModal.vue:104
-#: src/views/container/ImageView.vue:252 src/views/ssh/SftpPanel.vue:158
+#: src/views/container/ImageView.vue:252 src/views/ssh/SftpPanel.vue:156
 #, fuzzy
 msgid "Failed to connect"
 msgstr "Files to compress"
@@ -571,7 +571,7 @@ msgstr "Files to compress"
 #: src/views/apps/supervisor/IndexView.vue:166
 #: src/views/apps/supervisor/IndexView.vue:184
 #: src/views/container/ComposeView.vue:171
-#: src/views/file/composables/usePaste.ts:72 src/views/file/UploadModal.vue:784
+#: src/views/file/composables/usePaste.ts:73 src/views/file/UploadModal.vue:784
 #: src/views/home/IndexView.vue:1041 src/views/home/UpdateView.vue:119
 #: src/views/toolbox/DiskView.vue:353 src/views/toolbox/DiskView.vue:355
 #: src/views/toolbox/DiskView.vue:375 src/views/toolbox/DiskView.vue:377
@@ -607,14 +607,14 @@ msgstr ""
 #: src/views/container/ImagePullModal.vue:211
 #: src/views/container/ImagePullModal.vue:228
 #: src/views/container/ImageView.vue:370 src/views/container/ImageView.vue:385
-#: src/views/file/composables/usePaste.ts:73
-#: src/views/file/composables/usePaste.ts:153 src/views/file/ListView.vue:312
-#: src/views/file/ListView.vue:851 src/views/file/ToolBar.vue:181
+#: src/views/file/composables/usePaste.ts:74
+#: src/views/file/composables/usePaste.ts:154 src/views/file/ListView.vue:313
+#: src/views/file/ListView.vue:852 src/views/file/ToolBar.vue:181
 #: src/views/file/UploadModal.vue:505 src/views/file/UploadModal.vue:640
 #: src/views/file/UploadModal.vue:783 src/views/home/IndexView.vue:1042
 #: src/views/home/UpdateView.vue:120 src/views/monitor/AlertRuleModal.vue:193
 #: src/views/monitor/ChannelModal.vue:148 src/views/project/EditModal.vue:579
-#: src/views/ssh/SftpPanel.vue:299 src/views/tamper/RuleModal.vue:134
+#: src/views/ssh/SftpPanel.vue:297 src/views/tamper/RuleModal.vue:134
 #: src/views/task/TaskView.vue:110 src/views/toolbox/DiskView.vue:356
 #: src/views/toolbox/DiskView.vue:378 src/views/toolbox/DiskView.vue:399
 #: src/views/toolbox/DiskView.vue:423 src/views/toolbox/DiskView.vue:446
@@ -633,61 +633,61 @@ msgstr "Cancel"
 #: src/components/common/PtyTerminalModal.vue:259 src/locales/menu.ts:20
 #: src/views/container/ContainerView.vue:142
 #: src/views/container/ContainerView.vue:669
-#: src/views/database/ServerList.vue:174 src/views/file/ListView.vue:422
-#: src/views/file/ListView.vue:1024 src/views/file/ToolBar.vue:156
+#: src/views/database/ServerList.vue:174 src/views/file/ListView.vue:423
+#: src/views/file/ListView.vue:1025 src/views/file/ToolBar.vue:156
 msgid "Terminal"
 msgstr "Terminal"
 
-#: src/components/common/RealtimeLog.vue:59
+#: src/components/common/RealtimeLog.vue:63
 #, fuzzy
 msgid "Connected"
 msgstr "Compressing..."
 
-#: src/components/common/RealtimeLog.vue:61
+#: src/components/common/RealtimeLog.vue:65
 #: src/views/container/ImagePullModal.vue:56
 #: src/views/container/ImageView.vue:199
 #, fuzzy
 msgid "Connecting..."
 msgstr "Compressing..."
 
-#: src/components/common/RealtimeLog.vue:62
+#: src/components/common/RealtimeLog.vue:66
 #, fuzzy
 msgid "Connection failed, retrying..."
 msgstr "Connection error. Please refresh."
 
-#: src/components/common/RealtimeLog.vue:328
+#: src/components/common/RealtimeLog.vue:448
 #: src/views/apps/clickhouse/IndexView.vue:77
 #: src/views/apps/mongodb/IndexView.vue:77
 #: src/views/apps/mysql/MysqlIndex.vue:112
 #: src/views/apps/postgresql/IndexView.vue:147
 #: src/views/database/ServerList.vue:102 src/views/database/UserList.vue:52
-#: src/views/file/composables/usePaste.ts:29
+#: src/views/file/composables/usePaste.ts:30
 #: src/views/setting/TokenModal.vue:155
 msgid "Copied successfully"
 msgstr "Copied successfully"
 
-#: src/components/common/RealtimeLog.vue:356
+#: src/components/common/RealtimeLog.vue:487
 #, fuzzy
 msgid "Not found"
 msgstr "Not used"
 
-#: src/components/common/RealtimeLog.vue:444
+#: src/components/common/RealtimeLog.vue:570
 msgid "Pause Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:444
+#: src/components/common/RealtimeLog.vue:570
 msgid "Resume Auto-scroll"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:450
+#: src/components/common/RealtimeLog.vue:576
 msgid "Jump to Top"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:453
+#: src/components/common/RealtimeLog.vue:579
 msgid "Jump to Bottom"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:458
+#: src/components/common/RealtimeLog.vue:584
 #: src/components/file-editor/EditorToolbar.vue:190
 #: src/components/file-editor/FileTree.vue:702 src/views/app/AppView.vue:237
 #: src/views/app/EnvironmentView.vue:264 src/views/app/TemplateView.vue:102
@@ -696,73 +696,73 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:467
+#: src/components/common/RealtimeLog.vue:593
 #, fuzzy
 msgid "Enter keyword and press Enter"
 msgstr "Enter user password"
 
-#: src/components/common/RealtimeLog.vue:470
+#: src/components/common/RealtimeLog.vue:596
 #: src/views/app/TemplateDeployModal.vue:631
 #, fuzzy
 msgid "Previous"
 msgstr "Preview"
 
-#: src/components/common/RealtimeLog.vue:473
+#: src/components/common/RealtimeLog.vue:599
 #: src/views/app/TemplateDeployModal.vue:640
 #: src/views/app/TemplateDeployModal.vue:643
 msgid "Next"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:478
+#: src/components/common/RealtimeLog.vue:604
 msgid "Only loaded logs are searched"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:487
+#: src/components/common/RealtimeLog.vue:613
 #, fuzzy
 msgid "Disable Line Wrap"
 msgstr "Disable Buffer"
 
-#: src/components/common/RealtimeLog.vue:487
+#: src/components/common/RealtimeLog.vue:613
 #, fuzzy
 msgid "Enable Line Wrap"
 msgstr "Disable Buffer"
 
-#: src/components/common/RealtimeLog.vue:492
+#: src/components/common/RealtimeLog.vue:618
 #, fuzzy
 msgid "Copy All"
 msgstr "Expose All"
 
-#: src/components/common/RealtimeLog.vue:496
+#: src/components/common/RealtimeLog.vue:622
 #, fuzzy
 msgid "Decrease Font Size"
 msgstr "Size"
 
-#: src/components/common/RealtimeLog.vue:499
+#: src/components/common/RealtimeLog.vue:625
 #, fuzzy
 msgid "Increase Font Size"
 msgstr "Size"
 
-#: src/components/common/RealtimeLog.vue:505 src/views/ssh/IndexView.vue:549
+#: src/components/common/RealtimeLog.vue:631 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Exit Fullscreen"
 msgstr "Fullscreen Display"
 
-#: src/components/common/RealtimeLog.vue:505 src/views/ssh/IndexView.vue:549
+#: src/components/common/RealtimeLog.vue:631 src/views/ssh/IndexView.vue:549
 #, fuzzy
 msgid "Fullscreen"
 msgstr "Fullscreen Display"
 
-#: src/components/common/RealtimeLog.vue:525
+#: src/components/common/RealtimeLog.vue:641
 msgid "No more logs"
 msgstr ""
 
-#: src/components/common/RealtimeLog.vue:536
-#: src/components/common/RealtimeLog.vue:552
+#: src/components/common/RealtimeLog.vue:655
+#: src/components/common/RealtimeLog.vue:682
 #, fuzzy
 msgid "No logs available"
 msgstr "Inodes Available"
 
-#: src/components/common/RealtimeLog.vue:545
+#: src/components/common/RealtimeLog.vue:675
 #, fuzzy
 msgid "%{ count } new line"
 msgid_plural "%{ count } new lines"
@@ -797,7 +797,7 @@ msgstr "Are you sure you want to clear?"
 #: src/views/apps/postgresql/IndexView.vue:266
 #: src/views/apps/postgresql/IndexView.vue:282
 #: src/views/apps/supervisor/IndexView.vue:425
-#: src/views/environment/PHPView.vue:489
+#: src/views/environment/PHPView.vue:491
 msgid "Clear Log"
 msgstr "Clear Log"
 
@@ -810,7 +810,7 @@ msgstr "Loading..."
 
 #: src/components/common/ServiceStatus.vue:30
 #: src/views/app/InstalledView.vue:16
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:133
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:156
 #: src/views/apps/prometheus/PrometheusExportersView.vue:50
 #: src/views/project/ListView.vue:70 src/views/task/TaskView.vue:47
 #: src/views/toolbox/MigrationView.vue:83
@@ -821,7 +821,7 @@ msgstr "Running"
 
 #: src/components/common/ServiceStatus.vue:30
 #: src/views/app/InstalledView.vue:17
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:134
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:157
 #: src/views/apps/prometheus/PrometheusExportersView.vue:51
 #: src/views/project/ListView.vue:72 src/views/tamper/TamperView.vue:234
 #: src/views/toolbox/MigrationView.vue:149 src/views/toolbox/ProcessView.vue:50
@@ -911,7 +911,7 @@ msgstr "Autostart disabled successfully"
 #: src/views/apps/supervisor/IndexView.vue:360
 #: src/views/apps/valkey/IndexView.vue:64
 #: src/views/container/ContainerView.vue:106
-#: src/views/environment/PHPView.vue:272 src/views/tamper/TamperView.vue:230
+#: src/views/environment/PHPView.vue:274 src/views/tamper/TamperView.vue:230
 msgid "Running Status"
 msgstr "Running Status"
 
@@ -960,6 +960,61 @@ msgstr "Restart"
 msgid "Reload"
 msgstr "Reload"
 
+#: src/components/common/TunePresetModal.vue:84
+#: src/views/apps/apache/ApacheConfigTuneView.vue:98
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:251
+#: src/views/apps/nginx/NginxConfigTuneView.vue:196
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:212
+#: src/views/apps/redis/RedisConfigTuneView.vue:140
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:134
+#: src/views/environment/PhpConfigTuneView.vue:270
+#, fuzzy
+msgid "Generate Recommended Configuration"
+msgstr "Generate Reverse Proxy Configuration"
+
+#: src/components/common/TunePresetModal.vue:90
+msgid ""
+"Generates recommended values based on the server profile and fills them into "
+"the form. Review the values and save manually."
+msgstr ""
+
+#: src/components/common/TunePresetModal.vue:96
+#, fuzzy
+msgid "Allocated Memory (MB)"
+msgstr "Memory"
+
+#: src/components/common/TunePresetModal.vue:101
+msgid "Memory allocated to this service"
+msgstr ""
+
+#: src/components/common/TunePresetModal.vue:104
+#: src/views/container/ContainerCreate.vue:516
+#: src/views/container/ContainerCreate.vue:545
+#: src/views/toolbox/PanelView.vue:113
+#, fuzzy
+msgid "CPU Cores"
+msgstr "CPU Shares"
+
+#: src/components/common/TunePresetModal.vue:107
+#, fuzzy
+msgid "Disk Type"
+msgstr "Task Type"
+
+#: src/components/common/TunePresetModal.vue:110
+msgid "Scenario"
+msgstr ""
+
+#: src/components/common/TunePresetModal.vue:113
+#, fuzzy
+msgid "Max Connections"
+msgstr "Network Protocol"
+
+#: src/components/common/TunePresetModal.vue:119
+#: src/views/database/CreateDatabaseModal.vue:135
+#: src/views/database/CreateUserModal.vue:130
+msgid "Generate"
+msgstr ""
+
 #: src/components/file-editor/EditorPane.vue:158
 #: src/components/file-editor/EditorToolbar.vue:74
 #: src/views/file/EditModal.vue:41
@@ -985,8 +1040,8 @@ msgstr ""
 
 #: src/components/file-editor/EditorPane.vue:198
 #: src/components/file-editor/EditorToolbar.vue:153
-#: src/views/apps/apache/ApacheConfigTuneView.vue:140
-#: src/views/apps/apache/ApacheConfigTuneView.vue:186
+#: src/views/apps/apache/ApacheConfigTuneView.vue:164
+#: src/views/apps/apache/ApacheConfigTuneView.vue:210
 #: src/views/apps/apache/IndexView.vue:94
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:91
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:116
@@ -1034,16 +1089,16 @@ msgstr ""
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:83
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:111
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:130
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:288
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:447
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:540
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:570
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:333
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:492
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:585
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:615
 #: src/views/apps/mysql/MysqlIndex.vue:145
 #: src/views/apps/mysql/MysqlIndex.vue:170
-#: src/views/apps/nginx/NginxConfigTuneView.vue:272
-#: src/views/apps/nginx/NginxConfigTuneView.vue:322
-#: src/views/apps/nginx/NginxConfigTuneView.vue:373
-#: src/views/apps/nginx/NginxConfigTuneView.vue:418
+#: src/views/apps/nginx/NginxConfigTuneView.vue:297
+#: src/views/apps/nginx/NginxConfigTuneView.vue:347
+#: src/views/apps/nginx/NginxConfigTuneView.vue:398
+#: src/views/apps/nginx/NginxConfigTuneView.vue:443
 #: src/views/apps/nginx/NginxIndex.vue:519
 #: src/views/apps/opensearch/IndexView.vue:82
 #: src/views/apps/opensearch/OpenSearchConfigTuneView.vue:97
@@ -1057,12 +1112,12 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:184
 #: src/views/apps/postgresql/IndexView.vue:208
 #: src/views/apps/postgresql/IndexView.vue:242
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:221
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:299
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:365
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:403
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:436
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:458
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:263
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:341
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:407
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:445
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:478
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:500
 #: src/views/apps/prometheus/IndexView.vue:113
 #: src/views/apps/prometheus/IndexView.vue:139
 #: src/views/apps/prometheus/PrometheusConfigTuneView.vue:60
@@ -1070,9 +1125,9 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:180
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:121
 #: src/views/apps/redis/IndexView.vue:84
-#: src/views/apps/redis/RedisConfigTuneView.vue:177
-#: src/views/apps/redis/RedisConfigTuneView.vue:211
+#: src/views/apps/redis/RedisConfigTuneView.vue:202
 #: src/views/apps/redis/RedisConfigTuneView.vue:236
+#: src/views/apps/redis/RedisConfigTuneView.vue:261
 #: src/views/apps/rocketmq/IndexView.vue:85
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:112
 #: src/views/apps/rocketmq/RocketMQConfigTuneView.vue:143
@@ -1083,19 +1138,19 @@ msgstr ""
 #: src/views/apps/supervisor/IndexView.vue:583
 #: src/views/apps/supervisor/IndexView.vue:597
 #: src/views/apps/valkey/IndexView.vue:84
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:171
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:205
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:196
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:230
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:255
 #: src/views/container/ContainerCreate.vue:653
 #: src/views/environment/GoView.vue:90 src/views/environment/NodejsView.vue:93
-#: src/views/environment/PhpConfigTuneView.vue:274
-#: src/views/environment/PhpConfigTuneView.vue:305
-#: src/views/environment/PhpConfigTuneView.vue:376
-#: src/views/environment/PhpConfigTuneView.vue:421
-#: src/views/environment/PhpConfigTuneView.vue:486
-#: src/views/environment/PhpConfigTuneView.vue:561
-#: src/views/environment/PHPView.vue:319 src/views/environment/PHPView.vue:337
-#: src/views/environment/PHPView.vue:474
+#: src/views/environment/PhpConfigTuneView.vue:300
+#: src/views/environment/PhpConfigTuneView.vue:331
+#: src/views/environment/PhpConfigTuneView.vue:402
+#: src/views/environment/PhpConfigTuneView.vue:447
+#: src/views/environment/PhpConfigTuneView.vue:512
+#: src/views/environment/PhpConfigTuneView.vue:587
+#: src/views/environment/PHPView.vue:321 src/views/environment/PHPView.vue:339
+#: src/views/environment/PHPView.vue:476
 #: src/views/environment/PythonView.vue:97 src/views/file/EditModal.vue:89
 #: src/views/firewall/SettingView.vue:136
 #: src/views/monitor/AlertRuleModal.vue:195
@@ -1188,24 +1243,24 @@ msgstr ""
 #: src/components/file-editor/EditorToolbar.vue:169
 #: src/components/file-editor/EditorToolbar.vue:174
 #: src/components/file-editor/FileTree.vue:680
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:144
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:164
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:187
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:167
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:199
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:222
 #: src/views/apps/mysql/MysqlPerformanceView.vue:182
 #: src/views/apps/mysql/MysqlPerformanceView.vue:198
 #: src/views/apps/mysql/MysqlPerformanceView.vue:254
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:215
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:231
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:158
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:199
-#: src/views/apps/redis/RedisPerformanceView.vue:119
-#: src/views/apps/redis/RedisPerformanceView.vue:138
-#: src/views/apps/redis/RedisPerformanceView.vue:154
-#: src/views/environment/PHPView.vue:355 src/views/environment/PHPView.vue:380
-#: src/views/file/PathInput.vue:133 src/views/home/UpdateView.vue:178
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:248
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:291
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:161
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:202
+#: src/views/apps/redis/RedisPerformanceView.vue:120
+#: src/views/apps/redis/RedisPerformanceView.vue:139
+#: src/views/apps/redis/RedisPerformanceView.vue:155
+#: src/views/environment/PHPView.vue:357 src/views/environment/PHPView.vue:382
+#: src/views/file/PathInput.vue:135 src/views/home/UpdateView.vue:178
 #: src/views/log/DatabaseLog.vue:132 src/views/log/HttpLog.vue:161
 #: src/views/log/OperationLog.vue:184 src/views/log/SSHLog.vue:115
-#: src/views/monitor/AlertView.vue:240 src/views/ssh/SftpBrowser.vue:138
+#: src/views/monitor/AlertView.vue:240 src/views/ssh/SftpBrowser.vue:134
 #: src/views/tamper/TamperView.vue:379 src/views/toolbox/MigrationView.vue:566
 #: src/views/toolbox/network/InterfaceView.vue:350
 #: src/views/toolbox/NetworkView.vue:193 src/views/toolbox/PanelView.vue:100
@@ -1298,13 +1353,13 @@ msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:185
 #: src/components/file-editor/FileEditorView.vue:211
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:102
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:141
 msgid "Off"
 msgstr ""
 
 #: src/components/file-editor/FileEditorView.vue:186
 #: src/components/file-editor/FileEditorView.vue:210
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:101
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:140
 #, fuzzy
 msgid "On"
 msgstr "Open"
@@ -1473,14 +1528,14 @@ msgstr "Format"
 msgid "Failed to create"
 msgstr "Files to compress"
 
-#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1481
-#: src/views/file/ListView.vue:1502
+#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1482
+#: src/views/file/ListView.vue:1503
 #, fuzzy
 msgid "Folder name"
 msgstr "Filename"
 
-#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1481
-#: src/views/file/ListView.vue:1502
+#: src/components/file-editor/FileTree.vue:360 src/views/file/ListView.vue:1482
+#: src/views/file/ListView.vue:1503
 #, fuzzy
 msgid "File name"
 msgstr "Filename"
@@ -1489,9 +1544,9 @@ msgstr "Filename"
 #: src/views/container/ContainerView.vue:169
 #: src/views/container/ContainerView.vue:640
 #: src/views/database/RedisDataView.vue:168
-#: src/views/file/composables/usePaste.ts:48
-#: src/views/file/composables/usePaste.ts:164 src/views/file/ListView.vue:420
-#: src/views/file/ListView.vue:1674 src/views/file/UploadModal.vue:747
+#: src/views/file/composables/usePaste.ts:49
+#: src/views/file/composables/usePaste.ts:165 src/views/file/ListView.vue:421
+#: src/views/file/ListView.vue:1675 src/views/file/UploadModal.vue:747
 #: src/views/file/UploadModal.vue:776
 msgid "Rename"
 msgstr "Rename"
@@ -1508,8 +1563,8 @@ msgstr "Rename"
 #: src/views/apps/nginx/NginxIndex.vue:216
 #: src/views/apps/nginx/NginxIndex.vue:280
 #: src/views/apps/nginx/NginxIndex.vue:764
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:176
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:182
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:209
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:215
 #: src/views/apps/prometheus/PrometheusExportersView.vue:134
 #: src/views/apps/pureftpd/IndexView.vue:87
 #: src/views/apps/rsync/IndexView.vue:111
@@ -1529,8 +1584,8 @@ msgstr "Rename"
 #: src/views/database/ElasticsearchDataView.vue:200
 #: src/views/database/RedisDataView.vue:182
 #: src/views/database/ServerList.vue:247 src/views/database/UserList.vue:165
-#: src/views/environment/PHPView.vue:162 src/views/file/ListView.vue:378
-#: src/views/file/ListView.vue:434 src/views/file/ListView.vue:1685
+#: src/views/environment/PHPView.vue:164 src/views/file/ListView.vue:379
+#: src/views/file/ListView.vue:435 src/views/file/ListView.vue:1686
 #: src/views/file/ToolBar.vue:198 src/views/firewall/ForwardView.vue:98
 #: src/views/firewall/ForwardView.vue:162 src/views/firewall/IpRuleView.vue:140
 #: src/views/firewall/IpRuleView.vue:204 src/views/firewall/RuleView.vue:280
@@ -1546,7 +1601,7 @@ msgid "Delete"
 msgstr "Delete"
 
 #: src/components/file-editor/FileTree.vue:463 src/views/backup/ListView.vue:79
-#: src/views/file/ListView.vue:412 src/views/file/ListView.vue:1669
+#: src/views/file/ListView.vue:413 src/views/file/ListView.vue:1670
 #: src/views/monitor/SystemView.vue:590 src/views/toolbox/SshView.vue:345
 msgid "Download"
 msgstr "Download"
@@ -1568,8 +1623,8 @@ msgstr "Files to compress"
 
 #: src/components/file-editor/FileTree.vue:588
 #: src/views/apps/nginx/NginxIndex.vue:211
-#: src/views/apps/nginx/NginxIndex.vue:275 src/views/file/ListView.vue:894
-#: src/views/file/ListView.vue:1679
+#: src/views/apps/nginx/NginxIndex.vue:275 src/views/file/ListView.vue:895
+#: src/views/file/ListView.vue:1680
 msgid "Are you sure you want to delete %{ name }?"
 msgstr "Are you sure you want to delete %{ name }?"
 
@@ -1580,7 +1635,7 @@ msgstr "Are you sure you want to delete %{ name }?"
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:185
 #: src/views/apps/nginx/NginxIndex.vue:405
 #: src/views/apps/nginx/NginxIndex.vue:489
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:197
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:230
 #: src/views/apps/pureftpd/IndexView.vue:155
 #: src/views/apps/rsync/IndexView.vue:171 src/views/apps/s3fs/IndexView.vue:87
 #: src/views/apps/supervisor/IndexView.vue:290
@@ -1617,12 +1672,12 @@ msgstr "Files to compress"
 msgid "Go Up"
 msgstr ""
 
-#: src/components/file-editor/FileTree.vue:687 src/views/file/ListView.vue:359
+#: src/components/file-editor/FileTree.vue:687 src/views/file/ListView.vue:360
 #, fuzzy
 msgid "New File"
 msgstr "Files"
 
-#: src/components/file-editor/FileTree.vue:688 src/views/file/ListView.vue:360
+#: src/components/file-editor/FileTree.vue:688 src/views/file/ListView.vue:361
 #, fuzzy
 msgid "New Folder"
 msgstr "Folder"
@@ -1783,12 +1838,12 @@ msgstr "Container"
 
 #: src/locales/menu.ts:11 src/views/apps/grafana/GrafanaConfigTuneView.vue:189
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:222
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:54
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:75
 #: src/views/apps/mysql/MysqlPerformanceView.vue:58
 #: src/views/apps/mysql/MysqlPerformanceView.vue:133
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:33
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:97
-#: src/views/apps/redis/RedisPerformanceView.vue:42
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:99
+#: src/views/apps/redis/RedisPerformanceView.vue:43
 #: src/views/backup/ListView.vue:334 src/views/home/IndexView.vue:546
 #: src/views/toolbox/MigrationView.vue:76 src/views/website/CreateModal.vue:248
 msgid "Database"
@@ -1839,7 +1894,7 @@ msgstr "Toolbox"
 #: src/views/app/EnvironmentView.vue:88 src/views/app/InstalledView.vue:103
 #: src/views/app/InstalledView.vue:202
 #: src/views/app/TemplateDeployModal.vue:652
-#: src/views/environment/PHPView.vue:449 src/views/home/IndexView.vue:575
+#: src/views/environment/PHPView.vue:451 src/views/home/IndexView.vue:575
 #: src/views/setting/TokenModal.vue:308
 msgid "Update"
 msgstr "Update"
@@ -1877,7 +1932,7 @@ msgstr "Login"
 #: src/views/app/EnvironmentView.vue:292 src/views/app/EnvironmentView.vue:312
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:88
 #: src/views/apps/prometheus/PrometheusExportersView.vue:79
-#: src/views/environment/PHPView.vue:162 src/views/environment/PHPView.vue:441
+#: src/views/environment/PHPView.vue:164 src/views/environment/PHPView.vue:443
 msgid "Install"
 msgstr "Install"
 
@@ -1889,7 +1944,7 @@ msgstr "App Name"
 #: src/views/app/InstalledView.vue:39 src/views/app/InstalledView.vue:164
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:47
 #: src/views/apps/prometheus/PrometheusExportersView.vue:32
-#: src/views/environment/PHPView.vue:119 src/views/project/EditModal.vue:193
+#: src/views/environment/PHPView.vue:121 src/views/project/EditModal.vue:193
 #: src/views/project/ListView.vue:44
 msgid "Description"
 msgstr "Description"
@@ -1910,8 +1965,8 @@ msgstr "Show in Home"
 #: src/views/apps/frp/FrpProxyView.vue:73
 #: src/views/apps/frp/FrpVisitorView.vue:62
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:99
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:70
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:96
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:92
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:119
 #: src/views/apps/mysql/MysqlPerformanceView.vue:64
 #: src/views/apps/mysql/MysqlPerformanceView.vue:88
 #: src/views/apps/mysql/MysqlPerformanceView.vue:106
@@ -1919,12 +1974,12 @@ msgstr "Show in Home"
 #: src/views/apps/nginx/NginxIndex.vue:254
 #: src/views/apps/nginx/NginxIndex.vue:751
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:67
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:101
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:159
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:70
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:128
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:192
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:72
 #: src/views/apps/prometheus/PrometheusExportersView.vue:55
 #: src/views/apps/pureftpd/IndexView.vue:53
-#: src/views/apps/redis/RedisPerformanceView.vue:47
+#: src/views/apps/redis/RedisPerformanceView.vue:48
 #: src/views/apps/rsync/IndexView.vue:82 src/views/apps/s3fs/IndexView.vue:35
 #: src/views/apps/supervisor/IndexView.vue:117 src/views/backup/ListView.vue:63
 #: src/views/backup/StorageView.vue:95 src/views/cert/AccountView.vue:74
@@ -1937,7 +1992,7 @@ msgstr "Show in Home"
 #: src/views/database/ElasticsearchDataView.vue:169
 #: src/views/database/RedisDataView.vue:124
 #: src/views/database/ServerList.vue:161 src/views/database/UserList.vue:134
-#: src/views/environment/PHPView.vue:126 src/views/file/ListView.vue:1463
+#: src/views/environment/PHPView.vue:128 src/views/file/ListView.vue:1464
 #: src/views/file/ShareModal.vue:102 src/views/firewall/ForwardView.vue:81
 #: src/views/firewall/IpRuleView.vue:123 src/views/firewall/RuleView.vue:263
 #: src/views/firewall/ScanView.vue:256 src/views/monitor/AlertView.vue:103
@@ -1975,7 +2030,7 @@ msgstr "Manage"
 #: src/views/app/InstalledView.vue:124 src/views/app/InstalledView.vue:223
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:127
 #: src/views/apps/prometheus/PrometheusExportersView.vue:124
-#: src/views/environment/PHPView.vue:140
+#: src/views/environment/PHPView.vue:142
 #, fuzzy
 msgid "Confirm Uninstall"
 msgstr "Uninstall"
@@ -2062,7 +2117,7 @@ msgstr "Are you sure to uninstall app %{ app }?"
 #: src/views/app/EnvironmentView.vue:139
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:80
 #: src/views/apps/prometheus/PrometheusExportersView.vue:71
-#: src/views/environment/PHPView.vue:154
+#: src/views/environment/PHPView.vue:156
 #, fuzzy
 msgid "Confirm Install"
 msgstr "Uninstall"
@@ -2301,10 +2356,10 @@ msgstr "Update Host"
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:94
 #: src/views/apps/nginx/NginxIndex.vue:186
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:153
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:186
 #: src/views/apps/supervisor/IndexView.vue:75
 #: src/views/container/ContainerInfoModal.vue:130
-#: src/views/file/ListView.vue:269 src/views/file/ListView.vue:899
+#: src/views/file/ListView.vue:270 src/views/file/ListView.vue:900
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:85
 msgid "Yes"
@@ -2314,10 +2369,10 @@ msgstr ""
 #: src/views/app/TemplateDeployModal.vue:611
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:95
 #: src/views/apps/nginx/NginxIndex.vue:186
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:154
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:187
 #: src/views/apps/supervisor/IndexView.vue:76
 #: src/views/container/ContainerInfoModal.vue:130
-#: src/views/file/ListView.vue:270 src/views/file/ListView.vue:900
+#: src/views/file/ListView.vue:271 src/views/file/ListView.vue:901
 #: src/views/file/PropertyModal.vue:55 src/views/file/PropertyModal.vue:59
 #: src/views/toolbox/WebHookView.vue:85
 #, fuzzy
@@ -2354,7 +2409,7 @@ msgstr "Deploy"
 msgid "Channel"
 msgstr "Channel"
 
-#: src/views/app/VersionModal.vue:99 src/views/environment/PHPView.vue:453
+#: src/views/app/VersionModal.vue:99 src/views/environment/PHPView.vue:455
 msgid "Version"
 msgstr "Version"
 
@@ -2372,111 +2427,121 @@ msgstr "Clear Log"
 msgid "Custom Compile Params"
 msgstr "Custom Logo"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:78
+#: src/views/apps/apache/ApacheConfigTuneView.vue:44
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:99
+#: src/views/apps/nginx/NginxConfigTuneView.vue:71
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:88
+#: src/views/apps/redis/RedisConfigTuneView.vue:48
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:45
+#: src/views/environment/PhpConfigTuneView.vue:80
+msgid "Generated, review the values and save"
+msgstr ""
+
+#: src/views/apps/apache/ApacheConfigTuneView.vue:102
 msgid "MPM Event"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:81
+#: src/views/apps/apache/ApacheConfigTuneView.vue:105
 msgid "Worker thread pool settings for the event MPM."
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:84
+#: src/views/apps/apache/ApacheConfigTuneView.vue:108
 #, fuzzy
 msgid "Start Servers (StartServers)"
 msgstr "Server"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:88
+#: src/views/apps/apache/ApacheConfigTuneView.vue:112
 #: src/views/apps/frp/FrpProxyModal.vue:446
 #: src/views/apps/frp/FrpProxyModal.vue:454
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:209
-#: src/views/environment/PhpConfigTuneView.vue:463
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:251
+#: src/views/environment/PhpConfigTuneView.vue:489
 msgid "e.g. 3"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:92
+#: src/views/apps/apache/ApacheConfigTuneView.vue:116
 msgid "Min Spare Threads (MinSpareThreads)"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:96
+#: src/views/apps/apache/ApacheConfigTuneView.vue:120
 #, fuzzy
 msgid "e.g. 75"
 msgstr "127.0.0.1"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:100
+#: src/views/apps/apache/ApacheConfigTuneView.vue:124
 msgid "Max Spare Threads (MaxSpareThreads)"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:104
+#: src/views/apps/apache/ApacheConfigTuneView.vue:128
 #, fuzzy
 msgid "e.g. 250"
 msgstr "127.0.0.1"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:108
+#: src/views/apps/apache/ApacheConfigTuneView.vue:132
 msgid "Threads Per Child (ThreadsPerChild)"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:112
+#: src/views/apps/apache/ApacheConfigTuneView.vue:136
 #, fuzzy
 msgid "e.g. 25"
 msgstr "127.0.0.1"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:116
+#: src/views/apps/apache/ApacheConfigTuneView.vue:140
 #, fuzzy
 msgid "Max Request Workers (MaxRequestWorkers)"
 msgstr "Add Server"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:120
+#: src/views/apps/apache/ApacheConfigTuneView.vue:144
 #, fuzzy
 msgid "e.g. 400"
 msgstr "127.0.0.1"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:124
+#: src/views/apps/apache/ApacheConfigTuneView.vue:148
 #, fuzzy
 msgid "Max Connections Per Child (MaxConnectionsPerChild)"
 msgstr "Network Protocol"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:128
-#: src/views/apps/apache/ApacheConfigTuneView.vue:166
+#: src/views/apps/apache/ApacheConfigTuneView.vue:152
+#: src/views/apps/apache/ApacheConfigTuneView.vue:190
 msgid "0 means unlimited"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:145
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:174
+#: src/views/apps/apache/ApacheConfigTuneView.vue:169
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:216
 #, fuzzy
 msgid "Connection"
 msgstr "Compressing..."
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:148
+#: src/views/apps/apache/ApacheConfigTuneView.vue:172
 #, fuzzy
 msgid "Connection and keep-alive settings."
 msgstr "Connection error. Please refresh."
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:151
+#: src/views/apps/apache/ApacheConfigTuneView.vue:175
 #, fuzzy
 msgid "Timeout (Timeout)"
 msgstr "Resource Overview"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:155
-#: src/views/apps/nginx/NginxConfigTuneView.vue:199
-#: src/views/environment/PhpConfigTuneView.vue:401
+#: src/views/apps/apache/ApacheConfigTuneView.vue:179
+#: src/views/apps/nginx/NginxConfigTuneView.vue:224
+#: src/views/environment/PhpConfigTuneView.vue:427
 msgid "e.g. 60"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:159
+#: src/views/apps/apache/ApacheConfigTuneView.vue:183
 msgid "Keep Alive (KeepAlive)"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:162
+#: src/views/apps/apache/ApacheConfigTuneView.vue:186
 msgid "Max Keep Alive Requests (MaxKeepAliveRequests)"
 msgstr ""
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:170
+#: src/views/apps/apache/ApacheConfigTuneView.vue:194
 #, fuzzy
 msgid "Keep Alive Timeout (KeepAliveTimeout)"
 msgstr "Resource Overview"
 
-#: src/views/apps/apache/ApacheConfigTuneView.vue:174
-#: src/views/environment/PhpConfigTuneView.vue:452
+#: src/views/apps/apache/ApacheConfigTuneView.vue:198
+#: src/views/environment/PhpConfigTuneView.vue:478
 msgid "e.g. 5"
 msgstr ""
 
@@ -2493,9 +2558,9 @@ msgstr ""
 #: src/views/apps/postgresql/IndexView.vue:73
 #: src/views/apps/prometheus/IndexView.vue:44
 #: src/views/apps/redis/IndexView.vue:35
-#: src/views/apps/redis/RedisPerformanceView.vue:74
+#: src/views/apps/redis/RedisPerformanceView.vue:75
 #: src/views/apps/rocketmq/IndexView.vue:33
-#: src/views/apps/valkey/IndexView.vue:35 src/views/environment/PHPView.vue:170
+#: src/views/apps/valkey/IndexView.vue:35 src/views/environment/PHPView.vue:172
 msgid "Property"
 msgstr "Property"
 
@@ -2512,9 +2577,9 @@ msgstr "Property"
 #: src/views/apps/postgresql/IndexView.vue:80
 #: src/views/apps/prometheus/IndexView.vue:51
 #: src/views/apps/redis/IndexView.vue:42
-#: src/views/apps/redis/RedisPerformanceView.vue:75
+#: src/views/apps/redis/RedisPerformanceView.vue:76
 #: src/views/apps/rocketmq/IndexView.vue:40
-#: src/views/apps/valkey/IndexView.vue:42 src/views/environment/PHPView.vue:177
+#: src/views/apps/valkey/IndexView.vue:42 src/views/environment/PHPView.vue:179
 msgid "Current Value"
 msgstr "Current Value"
 
@@ -2528,7 +2593,7 @@ msgstr "Current Value"
 #: src/views/apps/supervisor/IndexView.vue:246
 #: src/views/apps/supervisor/IndexView.vue:302
 #: src/views/database/RedisDataView.vue:252
-#: src/views/environment/PHPView.vue:217 src/views/environment/PHPView.vue:224
+#: src/views/environment/PHPView.vue:219 src/views/environment/PHPView.vue:226
 #: src/views/firewall/ScanView.vue:336 src/views/monitor/AlertView.vue:180
 #: src/views/monitor/SettingView.vue:49 src/views/tamper/TamperView.vue:216
 #: src/views/task/CronView.vue:23 src/views/task/TaskView.vue:21
@@ -2571,7 +2636,7 @@ msgstr ""
 #: src/views/apps/pureftpd/IndexView.vue:215
 #: src/views/apps/redis/IndexView.vue:89
 #: src/views/apps/rocketmq/IndexView.vue:90
-#: src/views/apps/valkey/IndexView.vue:89 src/views/environment/PHPView.vue:303
+#: src/views/apps/valkey/IndexView.vue:89 src/views/environment/PHPView.vue:305
 #, fuzzy
 msgid "Parameter Tuning"
 msgstr "Parameters"
@@ -2590,7 +2655,7 @@ msgstr "Parameters"
 #: src/views/apps/prometheus/IndexView.vue:147
 #: src/views/apps/redis/IndexView.vue:95
 #: src/views/apps/rocketmq/IndexView.vue:93
-#: src/views/apps/valkey/IndexView.vue:95 src/views/environment/PHPView.vue:342
+#: src/views/apps/valkey/IndexView.vue:95 src/views/environment/PHPView.vue:344
 #: src/views/home/IndexView.vue:587
 msgid "Load Status"
 msgstr "Load Status"
@@ -2619,13 +2684,13 @@ msgstr "Load Status"
 #: src/views/apps/rsync/IndexView.vue:259
 #: src/views/apps/supervisor/IndexView.vue:413
 #: src/views/apps/valkey/IndexView.vue:105
-#: src/views/environment/PHPView.vue:482
+#: src/views/environment/PHPView.vue:484
 msgid "Runtime Logs"
 msgstr "Runtime Logs"
 
 #: src/views/apps/apache/IndexView.vue:115
 #: src/views/apps/nginx/NginxIndex.vue:590
-#: src/views/environment/PHPView.vue:485
+#: src/views/environment/PHPView.vue:487
 msgid "Error Logs"
 msgstr "Error Logs"
 
@@ -2698,8 +2763,8 @@ msgstr "Copy Path"
 
 #: src/views/apps/clickhouse/ClickHouseConfigTuneView.vue:143
 #: src/views/apps/mongodb/MongoDBConfigTuneView.vue:116
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:545
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:408
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:590
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:450
 msgid "Logging"
 msgstr ""
 
@@ -2744,8 +2809,8 @@ msgstr ""
 #: src/views/apps/mysql/MysqlIndex.vue:136
 #: src/views/apps/postgresql/IndexView.vue:175
 #: src/views/database/ServerList.vue:106 src/views/database/UserList.vue:56
-#: src/views/file/ListView.vue:374 src/views/file/ListView.vue:408
-#: src/views/file/ListView.vue:1004 src/views/file/ToolBar.vue:187
+#: src/views/file/ListView.vue:375 src/views/file/ListView.vue:409
+#: src/views/file/ListView.vue:1005 src/views/file/ToolBar.vue:187
 msgid "Copy"
 msgstr "Copy"
 
@@ -2762,7 +2827,7 @@ msgstr "Copy"
 #: src/views/apps/rocketmq/IndexView.vue:68
 #: src/views/apps/rsync/IndexView.vue:237
 #: src/views/apps/supervisor/IndexView.vue:391
-#: src/views/apps/valkey/IndexView.vue:67 src/views/environment/PHPView.vue:306
+#: src/views/apps/valkey/IndexView.vue:67 src/views/environment/PHPView.vue:308
 msgid "Main Configuration"
 msgstr "Main Configuration"
 
@@ -3216,7 +3281,7 @@ msgstr ""
 #: src/views/apps/frp/FrpVisitorView.vue:29
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:78
 #: src/views/apps/grafana/GrafanaDataSourcesView.vue:209
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:146
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:179
 #: src/views/backup/StorageView.vue:73 src/views/backup/StorageView.vue:233
 #: src/views/backup/StorageView.vue:395 src/views/cert/CertView.vue:169
 #: src/views/cert/DnsView.vue:43 src/views/container/ContainerInfoModal.vue:156
@@ -3309,11 +3374,11 @@ msgstr "Ban List"
 
 #: src/views/apps/frp/FrpcConfigTuneView.vue:74
 #: src/views/apps/frp/FrpsConfigTuneView.vue:74
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:210
-#: src/views/apps/nginx/NginxConfigTuneView.vue:175
-#: src/views/apps/redis/RedisConfigTuneView.vue:119
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:113
-#: src/views/environment/PhpConfigTuneView.vue:248
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:255
+#: src/views/apps/nginx/NginxConfigTuneView.vue:200
+#: src/views/apps/redis/RedisConfigTuneView.vue:144
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:138
+#: src/views/environment/PhpConfigTuneView.vue:274
 #: src/views/project/IndexView.vue:22 src/views/project/ListView.vue:25
 msgid "General"
 msgstr ""
@@ -3528,9 +3593,9 @@ msgid "Disable Colors (log.disablePrintColor)"
 msgstr ""
 
 #: src/views/apps/frp/FrpProxyModal.vue:90
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:189
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:222
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:35
-#: src/views/apps/redis/RedisPerformanceView.vue:35
+#: src/views/apps/redis/RedisPerformanceView.vue:36
 msgid "Client"
 msgstr ""
 
@@ -3725,8 +3790,8 @@ msgid "Interval Seconds (healthCheck.intervalSeconds)"
 msgstr ""
 
 #: src/views/apps/frp/FrpProxyModal.vue:462
-#: src/views/apps/nginx/NginxConfigTuneView.vue:224
-#: src/views/environment/PhpConfigTuneView.vue:474
+#: src/views/apps/nginx/NginxConfigTuneView.vue:249
+#: src/views/environment/PhpConfigTuneView.vue:500
 msgid "e.g. 10"
 msgstr ""
 
@@ -4027,8 +4092,8 @@ msgid "Max Retries Per Hour (maxRetriesAnHour)"
 msgstr ""
 
 #: src/views/apps/frp/FrpVisitorModal.vue:187
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:304
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:428
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:349
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:473
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:80
 msgid "e.g. 8"
 msgstr ""
@@ -4038,7 +4103,7 @@ msgid "Min Retry Interval (minRetryInterval)"
 msgstr ""
 
 #: src/views/apps/frp/FrpVisitorModal.vue:198
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:511
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:556
 msgid "e.g. 90"
 msgstr ""
 
@@ -4294,8 +4359,8 @@ msgstr "Select Directory"
 #: src/views/apps/nginx/NginxIndex.vue:202
 #: src/views/apps/nginx/NginxIndex.vue:266 src/views/backup/StorageView.vue:111
 #: src/views/container/ComposeView.vue:123
-#: src/views/container/ContainerView.vue:177 src/views/file/ListView.vue:399
-#: src/views/file/ListView.vue:1666 src/views/monitor/AlertView.vue:110
+#: src/views/container/ContainerView.vue:177 src/views/file/ListView.vue:400
+#: src/views/file/ListView.vue:1667 src/views/monitor/AlertView.vue:110
 #: src/views/monitor/SettingView.vue:143 src/views/project/ListView.vue:177
 #: src/views/ssh/IndexView.vue:613 src/views/tamper/TamperView.vue:148
 #: src/views/task/CronView.vue:155 src/views/toolbox/WebHookView.vue:158
@@ -4467,8 +4532,8 @@ msgid "Listen Address (-l)"
 msgstr "Listening Address"
 
 #: src/views/apps/memcached/MemcachedConfigTuneView.vue:76
-#: src/views/apps/redis/RedisConfigTuneView.vue:126
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:120
+#: src/views/apps/redis/RedisConfigTuneView.vue:151
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:145
 #, fuzzy
 msgid "e.g. 127.0.0.1"
 msgstr "127.0.0.1"
@@ -4479,9 +4544,9 @@ msgid "Memory (-m, MB)"
 msgstr "Memory"
 
 #: src/views/apps/memcached/MemcachedConfigTuneView.vue:82
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:252
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:463
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:261
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:297
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:508
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:303
 msgid "e.g. 64"
 msgstr ""
 
@@ -4500,7 +4565,7 @@ msgid "Threads (-t)"
 msgstr "Threads"
 
 #: src/views/apps/memcached/MemcachedConfigTuneView.vue:98
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:330
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:372
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:96
 msgid "e.g. 4"
 msgstr ""
@@ -4576,199 +4641,199 @@ msgstr ""
 msgid "System Log Path (systemLog.path)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:213
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:258
 msgid "Common MySQL general settings."
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:216
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:186
-#: src/views/apps/redis/RedisConfigTuneView.vue:128
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:122
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:261
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:228
+#: src/views/apps/redis/RedisConfigTuneView.vue:153
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:147
 #, fuzzy
 msgid "Port (port)"
 msgstr "Port"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:220
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:265
 msgid "e.g. 3306"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:225
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:195
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:270
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:237
 #, fuzzy
 msgid "Max Connections (max_connections)"
 msgstr "Network Protocol"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:229
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:503
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:274
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:548
 #: src/views/apps/pureftpd/PureftpdConfigTuneView.vue:72
-#: src/views/environment/PhpConfigTuneView.vue:325
-#: src/views/environment/PhpConfigTuneView.vue:341
+#: src/views/environment/PhpConfigTuneView.vue:351
+#: src/views/environment/PhpConfigTuneView.vue:367
 msgid "e.g. 50"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:233
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:278
 msgid "Max Connect Errors (max_connect_errors)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:237
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:380
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:282
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:422
 msgid "e.g. 100"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:241
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:286
 msgid "Default Storage Engine (default_storage_engine)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:248
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:293
 msgid "Table Open Cache (table_open_cache)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:256
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:301
 msgid "Max Allowed Packet (max_allowed_packet)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:261
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:520
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:528
-#: src/views/apps/nginx/NginxConfigTuneView.vue:295
-#: src/views/apps/nginx/NginxConfigTuneView.vue:345
-#: src/views/apps/nginx/NginxConfigTuneView.vue:394
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:342
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:306
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:565
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:573
+#: src/views/apps/nginx/NginxConfigTuneView.vue:320
+#: src/views/apps/nginx/NginxConfigTuneView.vue:370
+#: src/views/apps/nginx/NginxConfigTuneView.vue:419
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:384
 msgid "e.g. 1"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:272
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:317
 msgid "Open Files Limit (open_files_limit)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:276
-#: src/views/apps/nginx/NginxConfigTuneView.vue:191
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:321
+#: src/views/apps/nginx/NginxConfigTuneView.vue:216
 msgid "e.g. 65535"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:293
-#: src/views/environment/PhpConfigTuneView.vue:426
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:338
+#: src/views/environment/PhpConfigTuneView.vue:452
 msgid "Performance Tuning"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:296
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:341
 msgid "MySQL performance buffer and cache settings."
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:299
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:344
 msgid "Key Buffer Size (key_buffer_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:311
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:356
 msgid "Sort Buffer Size (sort_buffer_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:316
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:332
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:348
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:237
-#: src/views/apps/redis/RedisConfigTuneView.vue:193
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:187
-#: src/views/environment/PhpConfigTuneView.vue:361
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:361
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:377
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:393
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:279
+#: src/views/apps/redis/RedisConfigTuneView.vue:218
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:212
+#: src/views/environment/PhpConfigTuneView.vue:387
 msgid "e.g. 256"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:327
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:372
 msgid "Read Buffer Size (read_buffer_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:343
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:388
 msgid "Read Rnd Buffer Size (read_rnd_buffer_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:359
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:404
 msgid "Join Buffer Size (join_buffer_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:364
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:409
 msgid "e.g. 128"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:375
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:420
 msgid "Thread Cache Size (thread_cache_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:379
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:400
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:412
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:479
-#: src/views/apps/redis/RedisConfigTuneView.vue:141
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:135
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:424
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:445
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:457
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:524
+#: src/views/apps/redis/RedisConfigTuneView.vue:166
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:160
 msgid "e.g. 16"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:383
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:428
 msgid "Thread Stack (thread_stack)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:388
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:433
 msgid "e.g. 192"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:395
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:440
 msgid "Tmp Table Size (tmp_table_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:407
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:452
 msgid "Max Heap Table Size (max_heap_table_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:423
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:468
 msgid "MyISAM Sort Buffer Size (myisam_sort_buffer_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:455
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:500
 msgid "InnoDB storage engine settings."
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:458
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:503
 msgid "Buffer Pool Size (innodb_buffer_pool_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:474
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:519
 msgid "Log Buffer Size (innodb_log_buffer_size)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:491
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:536
 msgid "Flush Log At Trx Commit (innodb_flush_log_at_trx_commit)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:499
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:544
 msgid "Lock Wait Timeout (innodb_lock_wait_timeout)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:507
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:552
 msgid "Max Dirty Pages Pct (innodb_max_dirty_pages_pct)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:516
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:561
 msgid "Read IO Threads (innodb_read_io_threads)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:524
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:569
 msgid "Write IO Threads (innodb_write_io_threads)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:548
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:593
 #, fuzzy
 msgid "MySQL logging settings."
 msgstr "Port Settings"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:551
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:596
 #, fuzzy
 msgid "Slow Query Log (slow_query_log)"
 msgstr "Slow Query Log"
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:554
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:599
 msgid "Long Query Time (long_query_time)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlConfigTuneView.vue:558
+#: src/views/apps/mysql/MysqlConfigTuneView.vue:603
 msgid "e.g. 3 (seconds)"
 msgstr ""
 
@@ -4801,151 +4866,157 @@ msgid "Slow Query Log"
 msgstr "Slow Query Log"
 
 #: src/views/apps/mysql/MysqlIndex.vue:218
-#: src/views/environment/PHPView.vue:499
+#: src/views/environment/PHPView.vue:501
 msgid "Clear Slow Log"
 msgstr "Clear Slow Log"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:28
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:38
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:58
+#, fuzzy
+msgid "%{ count } selected tables"
+msgstr "Mount Path"
+
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:41
 msgid ""
 "OPTIMIZE will rebuild the InnoDB table, which may take a long time for large "
 "tables. Are you sure you want to run it on %{ table }?"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:32
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:55
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:45
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:65
 #, fuzzy
 msgid "Are you sure you want to run %{ op } on %{ table }?"
 msgstr "Are you sure you want to delete mount %{ path }?"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:38
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:54
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:51
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:71
 #, fuzzy
 msgid "Confirm Operation"
 msgstr "Configuration"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:49
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:61
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:169
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:176
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:69
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:82
 #: src/views/apps/prometheus/PrometheusExportersView.vue:146
 #: src/views/apps/prometheus/PrometheusExportersView.vue:153
-#: src/views/apps/redis/RedisPerformanceView.vue:108
+#: src/views/apps/redis/RedisPerformanceView.vue:109
 #: src/views/container/ContainerCreate.vue:120
-#: src/views/container/ImageView.vue:186 src/views/environment/PHPView.vue:230
-#: src/views/environment/PHPView.vue:236 src/views/environment/PHPView.vue:257
+#: src/views/container/ImageView.vue:186 src/views/environment/PHPView.vue:232
+#: src/views/environment/PHPView.vue:238 src/views/environment/PHPView.vue:259
 msgid "Task submitted, please check progress in background tasks"
 msgstr "Task submitted, please check progress in background tasks"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:55
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:75
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:76
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:97
 #, fuzzy
 msgid "Table"
 msgstr "Stable"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:56
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:77
 msgid "Engine"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:57
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:101
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:78
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:103
 #: src/views/log/DatabaseLog.vue:94
 msgid "Rows"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:60
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:81
 msgid "Fragment Rate"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:107
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:130
 #, fuzzy
 msgid "Confirm Purge"
 msgstr "Configure"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:108
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:131
 msgid ""
 "This will delete all binlogs before %{ file }. If a replica has not applied "
 "them yet, replication will break. Are you sure?"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:112
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:135
 msgid "Purge"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:118
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:141
 msgid "Purge to Here"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:126
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:149
 #, fuzzy
 msgid "Purged successfully"
 msgstr "Issued successfully"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:140
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:163
 msgid "Table Maintenance"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:159
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:194
 msgid "Binary log is not enabled."
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:169
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:204
 #, fuzzy
 msgid "File Count"
 msgstr "Container Count"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:170
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:205
 #, fuzzy
 msgid "Total Size"
 msgstr "Total Sent"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:183
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:218
 #, fuzzy
 msgid "Replication"
 msgstr "Time Selection"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:191
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:226
 msgid "This instance is not a replica."
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:193
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:252
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:228
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:312
 #, fuzzy
 msgid "Replication Status"
 msgstr "Operation successful"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:195
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:230
 #, fuzzy
 msgid "Source Host"
 msgstr "Source Port"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:198
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:233
 msgid "Delay (s)"
 msgstr ""
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:201
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:236
 #, fuzzy
 msgid "IO Thread"
 msgstr "Threads"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:204
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:239
 #, fuzzy
 msgid "SQL Thread"
 msgstr "Threads"
 
-#: src/views/apps/mysql/MysqlMaintenanceView.vue:207
+#: src/views/apps/mysql/MysqlMaintenanceView.vue:242
 #, fuzzy
 msgid "Last Error"
 msgstr "Error Logs"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:29
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:113
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:116
 #, fuzzy
 msgid "Terminated successfully"
 msgstr "Created successfully"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:42
 #: src/views/apps/mysql/MysqlPerformanceView.vue:117
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:81
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:83
 #, fuzzy
 msgid "Confirm Terminate"
 msgstr "Confirm logout?"
@@ -4958,8 +5029,8 @@ msgstr "Are you sure you want to unban %{ ip }?"
 #: src/views/apps/mysql/MysqlPerformanceView.vue:46
 #: src/views/apps/mysql/MysqlPerformanceView.vue:51
 #: src/views/apps/mysql/MysqlPerformanceView.vue:122
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:85
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:90
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:87
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:92
 #, fuzzy
 msgid "Terminate"
 msgstr "Terminal"
@@ -4979,8 +5050,8 @@ msgid "Host"
 msgstr "Host"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:59
-#: src/views/apps/redis/RedisPerformanceView.vue:34
-#: src/views/apps/redis/RedisPerformanceView.vue:45
+#: src/views/apps/redis/RedisPerformanceView.vue:35
+#: src/views/apps/redis/RedisPerformanceView.vue:46
 #: src/views/container/ContainerCreate.vue:594
 #: src/views/container/ContainerInfoModal.vue:146
 #: src/views/home/IndexView.vue:674 src/views/home/IndexView.vue:775
@@ -4996,7 +5067,7 @@ msgstr "Direction"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:61
 #: src/views/apps/mysql/MysqlPerformanceView.vue:75
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:190
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:223
 #: src/views/apps/postgresql/PostgresqlPerformanceView.vue:36
 #: src/views/environment/PHPView.vue:91
 #, fuzzy
@@ -5051,18 +5122,18 @@ msgid "Terminate Blocker"
 msgstr "Terminal"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:134
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:98
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:100
 msgid "Calls"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:135
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:99
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:101
 #, fuzzy
 msgid "Total Time (ms)"
 msgstr "Start Time"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:136
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:100
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:102
 #, fuzzy
 msgid "Mean Time (ms)"
 msgstr "Start Time"
@@ -5077,7 +5148,7 @@ msgid "Rows Examined"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:145
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:121
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:124
 #, fuzzy
 msgid "Confirm Enable"
 msgstr "Uninstall"
@@ -5093,23 +5164,23 @@ msgid "Enabled, please restart the service to take effect"
 msgstr ""
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:165
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:141
-#: src/views/apps/redis/RedisPerformanceView.vue:81
-#: src/views/environment/PHPView.vue:243
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:144
+#: src/views/apps/redis/RedisPerformanceView.vue:82
+#: src/views/environment/PHPView.vue:245
 #, fuzzy
 msgid "Confirm Reset"
 msgstr "Configuration"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:166
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:142
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:145
 #, fuzzy
 msgid "Are you sure you want to reset all SQL statistics?"
 msgstr "Are you sure you want to clear?"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:170
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:146
-#: src/views/apps/redis/RedisPerformanceView.vue:86
-#: src/views/environment/PHPView.vue:250 src/views/website/EditModal.vue:243
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:149
+#: src/views/apps/redis/RedisPerformanceView.vue:87
+#: src/views/environment/PHPView.vue:252 src/views/website/EditModal.vue:243
 msgid "Reset successfully"
 msgstr "Reset successfully"
 
@@ -5146,160 +5217,160 @@ msgstr ""
 #: src/views/apps/mysql/MysqlPerformanceView.vue:247
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:100
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:219
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:192
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:195
 #: src/views/website/EditModal.vue:2055
 #, fuzzy
 msgid "Enable"
 msgstr "Enabled"
 
 #: src/views/apps/mysql/MysqlPerformanceView.vue:257
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:202
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:205
 #, fuzzy
 msgid "Reset Statistics"
 msgstr "Access Entrance"
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:178
+#: src/views/apps/nginx/NginxConfigTuneView.vue:203
 msgid "Common Nginx general settings."
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:181
+#: src/views/apps/nginx/NginxConfigTuneView.vue:206
 msgid "Worker Processes (worker_processes)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:184
+#: src/views/apps/nginx/NginxConfigTuneView.vue:209
 msgid "e.g. auto or number"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:187
+#: src/views/apps/nginx/NginxConfigTuneView.vue:212
 msgid "Worker Connections (worker_connections)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:195
+#: src/views/apps/nginx/NginxConfigTuneView.vue:220
 msgid "Keepalive Timeout (keepalive_timeout)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:203
+#: src/views/apps/nginx/NginxConfigTuneView.vue:228
 msgid "Client Max Body Size (client_max_body_size)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:208
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:199
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:391
+#: src/views/apps/nginx/NginxConfigTuneView.vue:233
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:241
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:433
 msgid "e.g. 200"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:219
+#: src/views/apps/nginx/NginxConfigTuneView.vue:244
 msgid "Client Body Buffer Size (client_body_buffer_size)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:235
+#: src/views/apps/nginx/NginxConfigTuneView.vue:260
 msgid "Client Header Buffer Size (client_header_buffer_size)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:240
+#: src/views/apps/nginx/NginxConfigTuneView.vue:265
 msgid "e.g. 32"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:252
+#: src/views/apps/nginx/NginxConfigTuneView.vue:277
 msgid "Server Names Hash Bucket Size (server_names_hash_bucket_size)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:257
+#: src/views/apps/nginx/NginxConfigTuneView.vue:282
 msgid "e.g. 512"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:261
+#: src/views/apps/nginx/NginxConfigTuneView.vue:286
 msgid "Server Tokens (server_tokens)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:281
+#: src/views/apps/nginx/NginxConfigTuneView.vue:306
 msgid ""
 "Gzip compression settings. Gzip is the most widely supported compression "
 "method."
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:287
+#: src/views/apps/nginx/NginxConfigTuneView.vue:312
 msgid "Gzip (gzip)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:290
+#: src/views/apps/nginx/NginxConfigTuneView.vue:315
 msgid "Min Length (gzip_min_length)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:302
+#: src/views/apps/nginx/NginxConfigTuneView.vue:327
 msgid "Compression Level (gzip_comp_level)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:305
+#: src/views/apps/nginx/NginxConfigTuneView.vue:330
 msgid "Types (gzip_types)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:306
-#: src/views/apps/nginx/NginxConfigTuneView.vue:360
-#: src/views/apps/nginx/NginxConfigTuneView.vue:405
+#: src/views/apps/nginx/NginxConfigTuneView.vue:331
+#: src/views/apps/nginx/NginxConfigTuneView.vue:385
+#: src/views/apps/nginx/NginxConfigTuneView.vue:430
 msgid "e.g. *"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:308
+#: src/views/apps/nginx/NginxConfigTuneView.vue:333
 msgid "Vary (gzip_vary)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:311
+#: src/views/apps/nginx/NginxConfigTuneView.vue:336
 msgid "Proxied (gzip_proxied)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:312
+#: src/views/apps/nginx/NginxConfigTuneView.vue:337
 msgid "e.g. any"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:331
+#: src/views/apps/nginx/NginxConfigTuneView.vue:356
 msgid ""
 "Brotli compression settings. Brotli provides better compression ratio than "
 "Gzip."
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:337
+#: src/views/apps/nginx/NginxConfigTuneView.vue:362
 msgid "Brotli (brotli)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:340
+#: src/views/apps/nginx/NginxConfigTuneView.vue:365
 msgid "Min Length (brotli_min_length)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:356
+#: src/views/apps/nginx/NginxConfigTuneView.vue:381
 msgid "Compression Level (brotli_comp_level)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:359
+#: src/views/apps/nginx/NginxConfigTuneView.vue:384
 msgid "Types (brotli_types)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:362
+#: src/views/apps/nginx/NginxConfigTuneView.vue:387
 msgid "Static (brotli_static)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:382
+#: src/views/apps/nginx/NginxConfigTuneView.vue:407
 msgid ""
 "Zstd compression settings. Zstd provides fast compression with high ratio."
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:386
+#: src/views/apps/nginx/NginxConfigTuneView.vue:411
 msgid "Zstd (zstd)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:389
+#: src/views/apps/nginx/NginxConfigTuneView.vue:414
 msgid "Min Length (zstd_min_length)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:401
+#: src/views/apps/nginx/NginxConfigTuneView.vue:426
 msgid "Compression Level (zstd_comp_level)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:404
+#: src/views/apps/nginx/NginxConfigTuneView.vue:429
 msgid "Types (zstd_types)"
 msgstr ""
 
-#: src/views/apps/nginx/NginxConfigTuneView.vue:407
+#: src/views/apps/nginx/NginxConfigTuneView.vue:432
 msgid "Static (zstd_static)"
 msgstr ""
 
@@ -5460,7 +5531,7 @@ msgid "Options (optional), e.g. weight=5 backup"
 msgstr ""
 
 #: src/views/apps/nginx/NginxIndex.vue:749
-#: src/views/apps/redis/RedisPerformanceView.vue:40
+#: src/views/apps/redis/RedisPerformanceView.vue:41
 #, fuzzy
 msgid "Address"
 msgstr "IP Address"
@@ -5663,33 +5734,47 @@ msgstr ""
 msgid "Application Logs"
 msgstr "Operation successful"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:177
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:58
+#, fuzzy
+msgid "Web Application"
+msgstr "Time Selection"
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:60
+#, fuzzy
+msgid "Data Warehouse"
+msgstr "Database"
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:61
+msgid "Mixed"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:219
 msgid "PostgreSQL connection and authentication settings."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:180
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:222
 #, fuzzy
 msgid "Listen Addresses (listen_addresses)"
 msgstr "Listening Address"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:183
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:225
 msgid "e.g. localhost or *"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:190
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:232
 msgid "e.g. 5432"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:204
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:246
 msgid "Superuser Reserved Connections (superuser_reserved_connections)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:226
-#: src/views/apps/redis/RedisConfigTuneView.vue:182
-#: src/views/apps/redis/RedisPerformanceView.vue:150
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:176
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:268
+#: src/views/apps/redis/RedisConfigTuneView.vue:207
+#: src/views/apps/redis/RedisPerformanceView.vue:151
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:201
 #: src/views/container/ContainerCreate.vue:542
-#: src/views/environment/PHPView.vue:102 src/views/environment/PHPView.vue:408
+#: src/views/environment/PHPView.vue:103 src/views/environment/PHPView.vue:410
 #: src/views/home/IndexView.vue:700 src/views/home/IndexView.vue:773
 #: src/views/monitor/SystemView.vue:520 src/views/monitor/SystemView.vue:527
 #: src/views/monitor/SystemView.vue:543 src/views/monitor/SystemView.vue:791
@@ -5698,128 +5783,128 @@ msgstr ""
 msgid "Memory"
 msgstr "Memory"
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:229
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:271
 msgid "PostgreSQL memory allocation settings."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:232
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:274
 msgid "Shared Buffers (shared_buffers)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:244
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:286
 msgid "Work Mem (work_mem)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:249
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:291
 msgid "e.g. 1260"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:256
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:298
 msgid "Maintenance Work Mem (maintenance_work_mem)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:272
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:314
 msgid "Effective Cache Size (effective_cache_size)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:277
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:319
 msgid "e.g. 768"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:288
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:330
 msgid "Huge Pages (huge_pages)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:307
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:349
 msgid "Write-Ahead Logging (WAL) settings."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:310
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:352
 msgid "WAL Level (wal_level)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:313
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:355
 msgid "WAL Buffers (wal_buffers)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:318
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:360
 msgid "e.g. 7864"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:325
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:367
 msgid "Max WAL Size (max_wal_size)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:337
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:379
 msgid "Min WAL Size (min_wal_size)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:350
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:392
 msgid "Checkpoint Completion Target (checkpoint_completion_target)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:354
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:396
 msgid "e.g. 0.9"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:370
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:412
 msgid "Query Optimization"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:373
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:415
 msgid "Query planner and optimization settings."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:376
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:418
 msgid "Default Statistics Target (default_statistics_target)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:384
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:426
 msgid "Random Page Cost (random_page_cost)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:385
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:427
 msgid "e.g. 1.1"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:387
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:429
 msgid "Effective IO Concurrency (effective_io_concurrency)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:411
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:453
 msgid "PostgreSQL logging settings."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:414
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:456
 msgid "Log Destination (log_destination)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:415
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:457
 msgid "e.g. stderr"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:417
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:459
 msgid "Log Min Duration Statement (log_min_duration_statement)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:421
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:463
 msgid "e.g. -1 (disabled) or milliseconds"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:425
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:467
 msgid "Log Timezone (log_timezone)"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:426
-#: src/views/environment/PhpConfigTuneView.vue:258
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:468
+#: src/views/environment/PhpConfigTuneView.vue:284
 msgid "e.g. Asia/Shanghai"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:444
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:486
 msgid "IO method settings. Requires PostgreSQL restart to take effect."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:447
+#: src/views/apps/postgresql/PostgresqlConfigTuneView.vue:489
 msgid "IO Method (io_method)"
 msgstr ""
 
@@ -5836,7 +5921,7 @@ msgstr "Install"
 
 #: src/views/apps/postgresql/PostgresqlExtensionsView.vue:81
 #: src/views/apps/prometheus/PrometheusExportersView.vue:72
-#: src/views/environment/PHPView.vue:155
+#: src/views/environment/PHPView.vue:157
 msgid "Are you sure you want to install %{ name }?"
 msgstr "Are you sure you want to install %{ name }?"
 
@@ -5891,96 +5976,103 @@ msgstr ""
 msgid "Select database"
 msgstr "Select Database"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:74
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:61
+msgid ""
+"VACUUM FULL rewrites the entire table and holds an exclusive lock, blocking "
+"all reads and writes until it finishes. It may take a long time for large "
+"tables. Are you sure you want to run it on %{ table }?"
+msgstr ""
+
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:96
 #, fuzzy
 msgid "Schema"
 msgstr "Switch Theme"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:77
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:99
 #, fuzzy
 msgid "Live Tuples"
 msgstr "Restore"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:78
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:100
 msgid "Dead Tuples"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:80
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:102
 msgid "Dead Rate"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:89
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:112
 msgid "Last Vacuum"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:95
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:120
 #, fuzzy
 msgid "Last Analyze"
 msgstr "Save Days"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:134
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:167
 msgid "pg_repack is not installed, please install it in the extensions tab"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:145
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:178
 #, fuzzy
 msgid "Slot Name"
 msgstr "Note Name"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:148
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:181
 #: src/views/home/IndexView.vue:724
 msgid "Active"
 msgstr "Active"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:157
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:190
 msgid "Retained WAL"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:171
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:204
 #, fuzzy
 msgid "Confirm Delete"
 msgstr "Configuration"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:172
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:205
 msgid ""
 "After deleting slot %{ name }, the corresponding subscription or standby "
 "will not be able to continue syncing. Are you sure?"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:191
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:224
 #, fuzzy
 msgid "Sync State"
 msgstr "Synchronize Time"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:192
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:225
 #, fuzzy
 msgid "Lag"
 msgstr "Logs"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:205
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:238
 msgid "Table Bloat"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:234
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:294
 #, fuzzy
 msgid "WAL Status"
 msgstr "Status"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:236
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:296
 #, fuzzy
 msgid "WAL Size"
 msgstr "SWAP Size"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:239
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:299
 #, fuzzy
 msgid "Archived Count"
 msgstr "Associated Account"
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:244
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:304
 msgid "Archive Failed Count"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:249
+#: src/views/apps/postgresql/PostgresqlMaintenanceView.vue:309
 #, fuzzy
 msgid "Replication Slots"
 msgstr "Operation successful"
@@ -5998,41 +6090,41 @@ msgstr "Locked"
 msgid "Transaction Duration"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:63
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:64
 #, fuzzy
 msgid "Query Duration"
 msgstr "Direction"
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:82
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:84
 #, fuzzy
 msgid "Are you sure you want to terminate session %{ pid }?"
 msgstr "Are you sure you want to unban %{ ip }?"
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:103
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:105
 #, fuzzy
 msgid "Cache Hit Rate"
 msgstr "Cache Time"
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:122
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:125
 msgid ""
 "This will add pg_stat_statements to shared_preload_libraries, a restart of "
 "PostgreSQL is required to take effect."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:130
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:133
 msgid "Enabled, please restart PostgreSQL to take effect"
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:154
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:157
 #, fuzzy
 msgid "Sessions"
 msgstr "System Version"
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:174
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:177
 msgid "pg_stat_statements is configured, restart PostgreSQL to take effect."
 msgstr ""
 
-#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:180
+#: src/views/apps/postgresql/PostgresqlPerformanceView.vue:183
 msgid ""
 "pg_stat_statements is not enabled. After enabling, SQL performance "
 "statistics will be collected, a restart of PostgreSQL is required."
@@ -6104,7 +6196,7 @@ msgid "Config"
 msgstr "Configure"
 
 #: src/views/apps/prometheus/PrometheusExportersView.vue:125
-#: src/views/environment/PHPView.vue:141
+#: src/views/environment/PHPView.vue:143
 msgid "Are you sure you want to uninstall %{ name }?"
 msgstr "Are you sure you want to uninstall %{ name }?"
 
@@ -6259,89 +6351,106 @@ msgstr ""
 "This modifies the Redis main configuration file. If you do not understand "
 "the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:122
+#: src/views/apps/redis/RedisConfigTuneView.vue:35
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:32
+#, fuzzy
+msgid "Cache only"
+msgstr "Cache Time"
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:36
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:33
+msgid "Cache and storage mixed"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:37
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:34
+#, fuzzy
+msgid "Persistent storage"
+msgstr "Select server"
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:147
 msgid "Common Redis general settings."
-msgstr ""
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:125
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:119
-#, fuzzy
-msgid "Bind (bind)"
-msgstr "Bind Domain"
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:132
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:126
-msgid "e.g. 6379"
-msgstr ""
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:137
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:131
-#, fuzzy
-msgid "Databases (databases)"
-msgstr "Database Name"
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:145
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:139
-msgid "Password (requirepass)"
 msgstr ""
 
 #: src/views/apps/redis/RedisConfigTuneView.vue:150
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:144
 #, fuzzy
+msgid "Bind (bind)"
+msgstr "Bind Domain"
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:157
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:151
+msgid "e.g. 6379"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:162
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:156
+#, fuzzy
+msgid "Databases (databases)"
+msgstr "Database Name"
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:170
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:164
+msgid "Password (requirepass)"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:175
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:169
+#, fuzzy
 msgid "Leave empty for no password"
 msgstr "Please enter username and password"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:153
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:147
+#: src/views/apps/redis/RedisConfigTuneView.vue:178
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:172
 #, fuzzy
 msgid "Timeout (timeout)"
 msgstr "Resource Overview"
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:157
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:151
+#: src/views/apps/redis/RedisConfigTuneView.vue:182
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:176
 msgid "e.g. 0 (disabled) or seconds"
 msgstr ""
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:161
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:155
+#: src/views/apps/redis/RedisConfigTuneView.vue:186
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:180
 msgid "TCP Keepalive (tcp-keepalive)"
 msgstr ""
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:165
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:159
+#: src/views/apps/redis/RedisConfigTuneView.vue:190
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:184
 msgid "e.g. 300"
 msgstr ""
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:185
+#: src/views/apps/redis/RedisConfigTuneView.vue:210
 msgid "Redis memory management settings."
 msgstr ""
 
-#: src/views/apps/redis/RedisConfigTuneView.vue:188
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:182
+#: src/views/apps/redis/RedisConfigTuneView.vue:213
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:207
 msgid "Max Memory (maxmemory)"
-msgstr ""
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:200
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:194
-msgid "Maxmemory Policy (maxmemory-policy)"
-msgstr ""
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:216
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:210
-msgid "Persistence"
-msgstr ""
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:219
-msgid "Redis AOF persistence settings."
-msgstr ""
-
-#: src/views/apps/redis/RedisConfigTuneView.vue:222
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:216
-msgid "Append Only (appendonly)"
 msgstr ""
 
 #: src/views/apps/redis/RedisConfigTuneView.vue:225
 #: src/views/apps/valkey/ValkeyConfigTuneView.vue:219
+msgid "Maxmemory Policy (maxmemory-policy)"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:241
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:235
+msgid "Persistence"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:244
+msgid "Redis AOF persistence settings."
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:247
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:241
+msgid "Append Only (appendonly)"
+msgstr ""
+
+#: src/views/apps/redis/RedisConfigTuneView.vue:250
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:244
 msgid "Append Fsync (appendfsync)"
 msgstr ""
 
@@ -6360,68 +6469,74 @@ msgstr "Time"
 msgid "Duration (ms)"
 msgstr "Direction"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:43
+#: src/views/apps/redis/RedisPerformanceView.vue:44
 msgid "Age (s)"
 msgstr ""
 
-#: src/views/apps/redis/RedisPerformanceView.vue:44
+#: src/views/apps/redis/RedisPerformanceView.vue:45
 #, fuzzy
 msgid "Idle (s)"
 msgstr "Idle"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:58
+#: src/views/apps/redis/RedisPerformanceView.vue:59
 #, fuzzy
 msgid "Confirm Kill"
 msgstr "Uninstall"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:59
+#: src/views/apps/redis/RedisPerformanceView.vue:60
 #, fuzzy
 msgid "Are you sure you want to kill connection %{ addr }?"
 msgstr "Are you sure you want to delete %{ name }?"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:62
-#: src/views/apps/redis/RedisPerformanceView.vue:67
+#: src/views/apps/redis/RedisPerformanceView.vue:63
+#: src/views/apps/redis/RedisPerformanceView.vue:68
 msgid "Kill"
 msgstr ""
 
-#: src/views/apps/redis/RedisPerformanceView.vue:82
+#: src/views/apps/redis/RedisPerformanceView.vue:83
 #, fuzzy
 msgid "Are you sure you want to reset the slow log?"
 msgstr "Are you sure you want to clear?"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:93
+#: src/views/apps/redis/RedisPerformanceView.vue:94
 #, fuzzy
 msgid "Killed successfully"
 msgstr "Disabled successfully"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:101
+#: src/views/apps/redis/RedisPerformanceView.vue:102
 #, fuzzy
 msgid "Confirm Scan"
 msgstr "Confirm"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:102
+#: src/views/apps/redis/RedisPerformanceView.vue:103
 msgid ""
 "Scanning traverses all keys and may take a while on large datasets. The "
 "result will be in the task log."
 msgstr ""
 
-#: src/views/apps/redis/RedisPerformanceView.vue:115
+#: src/views/apps/redis/RedisPerformanceView.vue:116
 #, fuzzy
 msgid "Slow Log"
 msgstr "Slow Logs"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:122
+#: src/views/apps/redis/RedisPerformanceView.vue:123
 #, fuzzy
 msgid "Reset Slow Log"
 msgstr "Clear Slow Log"
 
-#: src/views/apps/redis/RedisPerformanceView.vue:134
+#: src/views/apps/redis/RedisPerformanceView.vue:135
 #: src/views/website/StatsView.vue:203
 msgid "Clients"
 msgstr ""
 
-#: src/views/apps/redis/RedisPerformanceView.vue:157
+#: src/views/apps/redis/RedisPerformanceView.vue:158
 msgid "Scan Big Keys"
+msgstr ""
+
+#: src/views/apps/redis/RedisPerformanceView.vue:163
+msgid ""
+"maxmemory is not configured, memory usage can grow without limit. Set a "
+"memory limit and eviction policy in Parameter Tuning."
 msgstr ""
 
 #: src/views/apps/rocketmq/IndexView.vue:72
@@ -6502,7 +6617,7 @@ msgstr "Comment"
 msgid "Are you sure you want to delete module %{ name }?"
 msgstr "Are you sure you want to delete module %{ name }?"
 
-#: src/views/apps/rsync/IndexView.vue:209 src/views/environment/PHPView.vue:290
+#: src/views/apps/rsync/IndexView.vue:209 src/views/environment/PHPView.vue:292
 msgid "Module Management"
 msgstr "Module Management"
 
@@ -6791,16 +6906,16 @@ msgstr ""
 "This modifies the Redis main configuration file. If you do not understand "
 "the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:116
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:141
 #, fuzzy
 msgid "Common Valkey general settings."
 msgstr "Basic Settings"
 
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:179
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:204
 msgid "Valkey memory management settings."
 msgstr ""
 
-#: src/views/apps/valkey/ValkeyConfigTuneView.vue:213
+#: src/views/apps/valkey/ValkeyConfigTuneView.vue:238
 msgid "Valkey AOF persistence settings."
 msgstr ""
 
@@ -7542,7 +7657,7 @@ msgid ""
 "configuration. Data not stored in mounted volumes will be lost. Continue?"
 msgstr ""
 
-#: src/views/container/ContainerCreate.vue:161 src/views/file/ListView.vue:311
+#: src/views/container/ContainerCreate.vue:161 src/views/file/ListView.vue:312
 #: src/views/file/UploadModal.vue:504 src/views/file/UploadModal.vue:639
 #: src/views/tamper/TamperView.vue:70
 #, fuzzy
@@ -7714,13 +7829,6 @@ msgstr "Memory"
 #: src/views/container/ContainerCreate.vue:523
 msgid "0 = no limit"
 msgstr ""
-
-#: src/views/container/ContainerCreate.vue:516
-#: src/views/container/ContainerCreate.vue:545
-#: src/views/toolbox/PanelView.vue:113
-#, fuzzy
-msgid "CPU Cores"
-msgstr "CPU Shares"
 
 #: src/views/container/ContainerCreate.vue:528
 #: src/views/container/ContainerCreate.vue:552
@@ -7896,7 +8004,7 @@ msgstr "Pause"
 msgid "Resume"
 msgstr "Resume"
 
-#: src/views/container/ContainerView.vue:254 src/views/file/ListView.vue:1695
+#: src/views/container/ContainerView.vue:254 src/views/file/ListView.vue:1696
 msgid "More"
 msgstr "More"
 
@@ -8197,11 +8305,6 @@ msgstr "Authorized User"
 #: src/views/database/CreateDatabaseModal.vue:114
 msgid "Enter authorized username (leave empty for no authorization)"
 msgstr "Enter authorized username (leave empty for no authorization)"
-
-#: src/views/database/CreateDatabaseModal.vue:135
-#: src/views/database/CreateUserModal.vue:130
-msgid "Generate"
-msgstr ""
 
 #: src/views/database/CreateDatabaseModal.vue:147
 #: src/views/database/CreateUserModal.vue:142
@@ -8536,7 +8639,7 @@ msgstr "Are you sure you want to delete the user?"
 #: src/views/environment/DotnetView.vue:13 src/views/environment/GoView.vue:46
 #: src/views/environment/JavaView.vue:13
 #: src/views/environment/NodejsView.vue:49
-#: src/views/environment/PHPView.vue:186
+#: src/views/environment/PHPView.vue:188
 #: src/views/environment/PythonView.vue:53
 msgid "Set successfully"
 msgstr "Set successfully"
@@ -8544,7 +8647,7 @@ msgstr "Set successfully"
 #: src/views/environment/DotnetView.vue:25 src/views/environment/GoView.vue:64
 #: src/views/environment/JavaView.vue:25
 #: src/views/environment/NodejsView.vue:67
-#: src/views/environment/PHPView.vue:279
+#: src/views/environment/PHPView.vue:281
 #: src/views/environment/PythonView.vue:71
 msgid "Set as CLI Default Version"
 msgstr "Set as CLI Default Version"
@@ -8631,213 +8734,230 @@ msgstr "Listening Address"
 msgid "Select or enter registry address"
 msgstr "Please enter username and password"
 
-#: src/views/environment/PhpConfigTuneView.vue:195
+#: src/views/environment/PhpConfigTuneView.vue:66
+msgid "WordPress / general (~50MB per process)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:67
+msgid "Framework application (~80MB per process)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:68
+msgid "Heavy application (~128MB per process)"
+msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:215
 #, fuzzy
 msgid "Cleaned successfully"
 msgstr "Cleared successfully"
 
-#: src/views/environment/PhpConfigTuneView.vue:251
+#: src/views/environment/PhpConfigTuneView.vue:277
 msgid "Common PHP general settings."
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:254
+#: src/views/environment/PhpConfigTuneView.vue:280
 msgid "Short Tag (short_open_tag)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:257
+#: src/views/environment/PhpConfigTuneView.vue:283
 msgid "Timezone (date.timezone)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:260
+#: src/views/environment/PhpConfigTuneView.vue:286
 msgid "Display Errors (display_errors)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:263
+#: src/views/environment/PhpConfigTuneView.vue:289
 msgid "Error Reporting (error_reporting)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:264
+#: src/views/environment/PhpConfigTuneView.vue:290
 msgid "e.g. E_ALL"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:279
-#: src/views/environment/PhpConfigTuneView.vue:289
+#: src/views/environment/PhpConfigTuneView.vue:305
+#: src/views/environment/PhpConfigTuneView.vue:315
 #, fuzzy
 msgid "Disabled Functions"
 msgstr "Disabled successfully"
 
-#: src/views/environment/PhpConfigTuneView.vue:283
+#: src/views/environment/PhpConfigTuneView.vue:309
 msgid ""
 "Enter the PHP functions to disable, separated by commas. Common dangerous "
 "functions include: exec, shell_exec, system, passthru, proc_open, popen, etc."
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:294
+#: src/views/environment/PhpConfigTuneView.vue:320
 msgid "e.g. exec,shell_exec,system,passthru"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:310
+#: src/views/environment/PhpConfigTuneView.vue:336
 #, fuzzy
 msgid "Upload Limits"
 msgstr "Upload Certificate"
 
-#: src/views/environment/PhpConfigTuneView.vue:314
+#: src/views/environment/PhpConfigTuneView.vue:340
 msgid ""
 "Adjust PHP file upload limits. post_max_size should be greater than "
 "upload_max_filesize."
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:320
+#: src/views/environment/PhpConfigTuneView.vue:346
 msgid "Max Upload Size (upload_max_filesize)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:336
+#: src/views/environment/PhpConfigTuneView.vue:362
 msgid "Max POST Size (post_max_size)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:348
+#: src/views/environment/PhpConfigTuneView.vue:374
 msgid "Max File Uploads (max_file_uploads)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:352
+#: src/views/environment/PhpConfigTuneView.vue:378
 msgid "e.g. 20"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:356
+#: src/views/environment/PhpConfigTuneView.vue:382
 #, fuzzy
 msgid "Memory Limit (memory_limit)"
 msgstr "Memory"
 
-#: src/views/environment/PhpConfigTuneView.vue:381
+#: src/views/environment/PhpConfigTuneView.vue:407
 #, fuzzy
 msgid "Timeout Limits"
 msgstr "Resource Overview"
 
-#: src/views/environment/PhpConfigTuneView.vue:385
+#: src/views/environment/PhpConfigTuneView.vue:411
 msgid ""
 "Adjust PHP script timeout limits. Values are in seconds, -1 means no limit."
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:389
+#: src/views/environment/PhpConfigTuneView.vue:415
 msgid "Max Execution Time (max_execution_time)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:393
-#: src/views/environment/PhpConfigTuneView.vue:441
+#: src/views/environment/PhpConfigTuneView.vue:419
+#: src/views/environment/PhpConfigTuneView.vue:467
 msgid "e.g. 30"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:397
+#: src/views/environment/PhpConfigTuneView.vue:423
 #, fuzzy
 msgid "Max Input Time (max_input_time)"
 msgstr "Cache time (minutes)"
 
-#: src/views/environment/PhpConfigTuneView.vue:405
+#: src/views/environment/PhpConfigTuneView.vue:431
 msgid "Max Input Vars (max_input_vars)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:409
+#: src/views/environment/PhpConfigTuneView.vue:435
 msgid "e.g. 1000"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:430
+#: src/views/environment/PhpConfigTuneView.vue:456
 msgid ""
 "Adjust PHP-FPM process manager settings. These settings are in php-fpm.conf."
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:434
+#: src/views/environment/PhpConfigTuneView.vue:460
 #, fuzzy
 msgid "Process Manager (pm)"
 msgstr "Process Management"
 
-#: src/views/environment/PhpConfigTuneView.vue:437
+#: src/views/environment/PhpConfigTuneView.vue:463
 msgid "Max Children (pm.max_children)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:447
+#: src/views/environment/PhpConfigTuneView.vue:473
 msgid "Start Servers (pm.start_servers)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:458
+#: src/views/environment/PhpConfigTuneView.vue:484
 msgid "Min Spare Servers (pm.min_spare_servers)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:469
+#: src/views/environment/PhpConfigTuneView.vue:495
 msgid "Max Spare Servers (pm.max_spare_servers)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:495
+#: src/views/environment/PhpConfigTuneView.vue:521
 msgid ""
 "Adjust PHP session settings. When using redis or memcached, make sure the "
 "corresponding extension is installed and the service is running."
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:501
+#: src/views/environment/PhpConfigTuneView.vue:527
 msgid "Save Handler (session.save_handler)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:507
+#: src/views/environment/PhpConfigTuneView.vue:533
 msgid "Save Path (session.save_path)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:509
+#: src/views/environment/PhpConfigTuneView.vue:535
 msgid "e.g. /tmp"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:513
+#: src/views/environment/PhpConfigTuneView.vue:539
 #, fuzzy
 msgid "Redis Host"
 msgstr "Specific Host"
 
-#: src/views/environment/PhpConfigTuneView.vue:516
+#: src/views/environment/PhpConfigTuneView.vue:542
 #, fuzzy
 msgid "Redis Port"
 msgstr "Modify Port"
 
-#: src/views/environment/PhpConfigTuneView.vue:519
+#: src/views/environment/PhpConfigTuneView.vue:545
 #, fuzzy
 msgid "Redis Password"
 msgstr "Root Password"
 
-#: src/views/environment/PhpConfigTuneView.vue:524
+#: src/views/environment/PhpConfigTuneView.vue:550
 #, fuzzy
 msgid "Leave empty if no password"
 msgstr "Please enter username and password"
 
-#: src/views/environment/PhpConfigTuneView.vue:530
+#: src/views/environment/PhpConfigTuneView.vue:556
 #, fuzzy
 msgid "Memcached Host"
 msgstr "Create Host"
 
-#: src/views/environment/PhpConfigTuneView.vue:533
+#: src/views/environment/PhpConfigTuneView.vue:559
 #, fuzzy
 msgid "Memcached Port"
 msgstr "Map Ports"
 
-#: src/views/environment/PhpConfigTuneView.vue:537
+#: src/views/environment/PhpConfigTuneView.vue:563
 msgid "GC Max Lifetime (session.gc_maxlifetime)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:541
+#: src/views/environment/PhpConfigTuneView.vue:567
 msgid "e.g. 1440 (seconds)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:545
+#: src/views/environment/PhpConfigTuneView.vue:571
 msgid "Cookie Lifetime (session.cookie_lifetime)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:549
+#: src/views/environment/PhpConfigTuneView.vue:575
 msgid "e.g. 0 (until browser closes)"
 msgstr ""
 
-#: src/views/environment/PhpConfigTuneView.vue:565
+#: src/views/environment/PhpConfigTuneView.vue:591
 #, fuzzy
 msgid "Are you sure you want to clean all session files?"
 msgstr "Are you sure you want to clear?"
 
-#: src/views/environment/PhpConfigTuneView.vue:574
+#: src/views/environment/PhpConfigTuneView.vue:600
 msgid "Clean Session Files"
 msgstr ""
+
+#: src/views/environment/PhpConfigTuneView.vue:612
+#, fuzzy
+msgid "Application Profile"
+msgstr "Operation successful"
 
 #: src/views/environment/PHPView.vue:73
 msgid "Official"
@@ -8874,28 +8994,28 @@ msgstr "Add Server"
 msgid "Method"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:107 src/views/toolbox/WebHookView.vue:345
+#: src/views/environment/PHPView.vue:109 src/views/toolbox/WebHookView.vue:345
 #: src/views/toolbox/WebHookView.vue:389
 #, fuzzy
 msgid "Script"
 msgstr "Run Script"
 
-#: src/views/environment/PHPView.vue:112
+#: src/views/environment/PHPView.vue:114
 #, fuzzy
 msgid "Module Name"
 msgstr "Volume Name"
 
-#: src/views/environment/PHPView.vue:244
+#: src/views/environment/PHPView.vue:246
 msgid ""
 "Resetting will clear all cached scripts, performance may fluctuate briefly. "
 "Are you sure?"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:282
+#: src/views/environment/PHPView.vue:284
 msgid "View PHPInfo"
 msgstr "View PHPInfo"
 
-#: src/views/environment/PHPView.vue:310
+#: src/views/environment/PHPView.vue:312
 msgid ""
 "This modifies the PHP %{ version } main configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
@@ -8903,11 +9023,11 @@ msgstr ""
 "This modifies the PHP %{ version } main configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/environment/PHPView.vue:324
+#: src/views/environment/PHPView.vue:326
 msgid "FPM Configuration"
 msgstr "FPM Configuration"
 
-#: src/views/environment/PHPView.vue:328
+#: src/views/environment/PHPView.vue:330
 msgid ""
 "This modifies the PHP %{ version } FPM configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
@@ -8915,106 +9035,106 @@ msgstr ""
 "This modifies the PHP %{ version } FPM configuration file. If you do not "
 "understand the meaning of each parameter, please do not modify it randomly!"
 
-#: src/views/environment/PHPView.vue:352
+#: src/views/environment/PHPView.vue:354
 #, fuzzy
 msgid "FPM Processes"
 msgstr "Number of Processes"
 
-#: src/views/environment/PHPView.vue:372
+#: src/views/environment/PHPView.vue:374
 msgid ""
 "OPcache is not enabled. Install the Zend OPcache module in Module Management "
 "to significantly improve PHP performance."
 msgstr ""
 
-#: src/views/environment/PHPView.vue:383
+#: src/views/environment/PHPView.vue:385
 msgid "Reset OPcache"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:386
+#: src/views/environment/PHPView.vue:388
 #, fuzzy
 msgid "Cache Statistics"
 msgstr "Enable Monitoring"
 
-#: src/views/environment/PHPView.vue:388
+#: src/views/environment/PHPView.vue:390
 msgid "Hit Rate"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:389
+#: src/views/environment/PHPView.vue:391
 msgid "Hits"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:390
+#: src/views/environment/PHPView.vue:392
 msgid "Misses"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:393
+#: src/views/environment/PHPView.vue:395
 #, fuzzy
 msgid "Cached Scripts"
 msgstr "Cache Time"
 
-#: src/views/environment/PHPView.vue:398
+#: src/views/environment/PHPView.vue:400
 #, fuzzy
 msgid "Cached Keys"
 msgstr "Cache Time"
 
-#: src/views/environment/PHPView.vue:403
+#: src/views/environment/PHPView.vue:405
 #, fuzzy
 msgid "OOM Restarts"
 msgstr "Max Retries"
 
-#: src/views/environment/PHPView.vue:410 src/views/toolbox/DiskView.vue:241
+#: src/views/environment/PHPView.vue:412 src/views/toolbox/DiskView.vue:241
 #, fuzzy
 msgid "Used"
 msgstr "Not Used"
 
-#: src/views/environment/PHPView.vue:411 src/views/home/IndexView.vue:721
+#: src/views/environment/PHPView.vue:413 src/views/home/IndexView.vue:721
 #: src/views/toolbox/DiskView.vue:218
 msgid "Free"
 msgstr "Free"
 
-#: src/views/environment/PHPView.vue:414
+#: src/views/environment/PHPView.vue:416
 #, fuzzy
 msgid "Wasted"
 msgstr "Paste"
 
-#: src/views/environment/PHPView.vue:421
+#: src/views/environment/PHPView.vue:423
 msgid "Buffer Size"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:424
+#: src/views/environment/PHPView.vue:426
 msgid "Buffer Free"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:428
+#: src/views/environment/PHPView.vue:430
 msgid "JIT is not enabled"
 msgstr ""
 
-#: src/views/environment/PHPView.vue:437
+#: src/views/environment/PHPView.vue:439
 #, fuzzy
 msgid "Composer is not installed."
 msgstr "Install"
 
-#: src/views/environment/PHPView.vue:446
+#: src/views/environment/PHPView.vue:448
 #, fuzzy
 msgid "Composer"
 msgstr "Compose"
 
-#: src/views/environment/PHPView.vue:458
+#: src/views/environment/PHPView.vue:460
 #, fuzzy
 msgid "Mirror"
 msgstr "Error Logs"
 
-#: src/views/environment/PHPView.vue:462
+#: src/views/environment/PHPView.vue:464
 msgid ""
 "The mirror is a global setting shared by all PHP versions. Use a mirror to "
 "speed up package downloads in mainland China."
 msgstr ""
 
-#: src/views/environment/PHPView.vue:495
+#: src/views/environment/PHPView.vue:497
 msgid "Slow Logs"
 msgstr "Slow Logs"
 
-#: src/views/environment/PHPView.vue:511
+#: src/views/environment/PHPView.vue:513
 msgid "PHPInfo"
 msgstr "PHPInfo"
 
@@ -9063,42 +9183,42 @@ msgstr "Back to Home"
 msgid "Marked successfully, please navigate to the destination path to paste"
 msgstr "Marked successfully, please navigate to the destination path to paste"
 
-#: src/views/file/composables/usePaste.ts:15
+#: src/views/file/composables/usePaste.ts:16
 msgid "Please mark the files/folders to copy or move first"
 msgstr "Please mark the files/folders to copy or move first"
 
-#: src/views/file/composables/usePaste.ts:29
+#: src/views/file/composables/usePaste.ts:30
 msgid "Moved successfully"
 msgstr "Moved successfully"
 
-#: src/views/file/composables/usePaste.ts:58
+#: src/views/file/composables/usePaste.ts:59
 #, fuzzy
 msgid "Please enter a new name"
 msgstr "Please enter absolute path"
 
-#: src/views/file/composables/usePaste.ts:63
-#: src/views/file/composables/usePaste.ts:77
+#: src/views/file/composables/usePaste.ts:64
+#: src/views/file/composables/usePaste.ts:78
 #, fuzzy
 msgid "Name cannot be empty"
 msgstr "Proxy address cannot be empty"
 
-#: src/views/file/composables/usePaste.ts:96
-#: src/views/file/composables/usePaste.ts:150 src/views/task/TaskView.vue:46
+#: src/views/file/composables/usePaste.ts:97
+#: src/views/file/composables/usePaste.ts:151 src/views/task/TaskView.vue:46
 msgid "Canceled"
 msgstr "Canceled"
 
-#: src/views/file/composables/usePaste.ts:138 src/views/file/ListView.vue:306
-#: src/views/file/ListView.vue:848 src/views/file/ListView.vue:897
+#: src/views/file/composables/usePaste.ts:139 src/views/file/ListView.vue:307
+#: src/views/file/ListView.vue:849 src/views/file/ListView.vue:898
 msgid "Warning"
 msgstr "Warning"
 
-#: src/views/file/composables/usePaste.ts:139
+#: src/views/file/composables/usePaste.ts:140
 #, fuzzy
 msgid "There are items with the same name %{ items } Do you want to overwrite?"
 msgstr ""
 "There are items with the same name. %{ items } Do you want to overwrite?"
 
-#: src/views/file/composables/usePaste.ts:175 src/views/file/ListView.vue:850
+#: src/views/file/composables/usePaste.ts:176 src/views/file/ListView.vue:851
 #: src/views/file/UploadModal.vue:750 src/views/file/UploadModal.vue:777
 msgid "Overwrite"
 msgstr "Overwrite"
@@ -9110,8 +9230,8 @@ msgid ""
 msgstr "Download task created successfully"
 
 #: src/views/file/CompressModal.vue:97 src/views/file/CompressModal.vue:120
-#: src/views/file/ListView.vue:376 src/views/file/ListView.vue:412
-#: src/views/file/ListView.vue:1007 src/views/file/ListView.vue:1660
+#: src/views/file/ListView.vue:377 src/views/file/ListView.vue:413
+#: src/views/file/ListView.vue:1008 src/views/file/ListView.vue:1661
 #: src/views/file/ToolBar.vue:189
 msgid "Compress"
 msgstr "Compress"
@@ -9148,139 +9268,139 @@ msgstr "Website Edit"
 msgid "Drop files to upload"
 msgstr "Files"
 
-#: src/views/file/ListView.vue:262 src/views/file/ListView.vue:429
-#: src/views/file/ListView.vue:1030
+#: src/views/file/ListView.vue:263 src/views/file/ListView.vue:430
+#: src/views/file/ListView.vue:1031
 #, fuzzy
 msgid "Add Protection"
 msgstr "Protection Mode"
 
-#: src/views/file/ListView.vue:262 src/views/file/ListView.vue:428
-#: src/views/file/ListView.vue:1030
+#: src/views/file/ListView.vue:263 src/views/file/ListView.vue:429
+#: src/views/file/ListView.vue:1031
 #, fuzzy
 msgid "Remove Protection"
 msgstr "Network Protocol"
 
-#: src/views/file/ListView.vue:264
+#: src/views/file/ListView.vue:265
 #, fuzzy
 msgid "Add tamper protection for %{ name }?"
 msgstr "Edit Website - %{ name }"
 
-#: src/views/file/ListView.vue:265
+#: src/views/file/ListView.vue:266
 msgid ""
 "Remove tamper protection for %{ name }? The matching rule or exclusions will "
 "be adjusted accordingly."
 msgstr ""
 
-#: src/views/file/ListView.vue:273
+#: src/views/file/ListView.vue:274
 msgid "Operation successful"
 msgstr "Operation successful"
 
-#: src/views/file/ListView.vue:307
+#: src/views/file/ListView.vue:308
 msgid ""
 "%{ name } has immutable attribute. The panel will temporarily remove the "
 "immutable attribute, perform the operation, and then restore the immutable "
 "attribute. Do you want to continue?"
 msgstr ""
 
-#: src/views/file/ListView.vue:364 src/views/file/ListView.vue:382
-#: src/views/file/ListView.vue:438 src/views/file/ToolBar.vue:184
+#: src/views/file/ListView.vue:365 src/views/file/ListView.vue:383
+#: src/views/file/ListView.vue:439 src/views/file/ToolBar.vue:184
 msgid "Paste"
 msgstr "Paste"
 
-#: src/views/file/ListView.vue:375 src/views/file/ListView.vue:409
-#: src/views/file/ListView.vue:1005 src/views/file/ToolBar.vue:188
+#: src/views/file/ListView.vue:376 src/views/file/ListView.vue:410
+#: src/views/file/ListView.vue:1006 src/views/file/ToolBar.vue:188
 msgid "Move"
 msgstr "Move"
 
-#: src/views/file/ListView.vue:377 src/views/file/ListView.vue:410
-#: src/views/file/ListView.vue:1006 src/views/file/ListView.vue:1454
+#: src/views/file/ListView.vue:378 src/views/file/ListView.vue:411
+#: src/views/file/ListView.vue:1007 src/views/file/ListView.vue:1455
 #: src/views/file/PermissionModal.vue:146 src/views/file/PropertyModal.vue:42
 #: src/views/file/ToolBar.vue:190
 msgid "Permission"
 msgstr "Permission"
 
-#: src/views/file/ListView.vue:394 src/views/file/ListView.vue:1647
+#: src/views/file/ListView.vue:395 src/views/file/ListView.vue:1648
 msgid "Open"
 msgstr "Open"
 
-#: src/views/file/ListView.vue:396 src/views/file/ListView.vue:1666
+#: src/views/file/ListView.vue:397 src/views/file/ListView.vue:1667
 msgid "Preview"
 msgstr "Preview"
 
-#: src/views/file/ListView.vue:398 src/views/file/ListView.vue:1012
-#: src/views/file/ListView.vue:1769
+#: src/views/file/ListView.vue:399 src/views/file/ListView.vue:1013
+#: src/views/file/ListView.vue:1770
 msgid "Uncompress"
 msgstr "Uncompress"
 
-#: src/views/file/ListView.vue:416 src/views/file/ListView.vue:1017
+#: src/views/file/ListView.vue:417 src/views/file/ListView.vue:1018
 #, fuzzy
 msgid "Share"
 msgstr "Shared"
 
-#: src/views/file/ListView.vue:433 src/views/file/ListView.vue:1035
+#: src/views/file/ListView.vue:434 src/views/file/ListView.vue:1036
 #: src/views/file/PropertyModal.vue:11
 #, fuzzy
 msgid "Properties"
 msgstr "Property"
 
-#: src/views/file/ListView.vue:836
+#: src/views/file/ListView.vue:837
 msgid "Renamed %{ source } to %{ target } successfully"
 msgstr "Renamed %{ source } to %{ target } successfully"
 
-#: src/views/file/ListView.vue:849
+#: src/views/file/ListView.vue:850
 msgid "There are items with the same name. Do you want to overwrite?"
 msgstr "There are items with the same name. Do you want to overwrite?"
 
-#: src/views/file/ListView.vue:888
+#: src/views/file/ListView.vue:889
 msgid "Some files are immutable and cannot be deleted"
 msgstr ""
 
-#: src/views/file/ListView.vue:895
+#: src/views/file/ListView.vue:896
 #, fuzzy
 msgid "Are you sure you want to delete %{count} items?"
 msgstr "Are you sure you want to delete the account?"
 
-#: src/views/file/ListView.vue:908 src/views/file/PathInput.vue:34
+#: src/views/file/ListView.vue:909 src/views/file/PathInput.vue:34
 msgid "Path copied to clipboard"
 msgstr ""
 
-#: src/views/file/ListView.vue:1020
+#: src/views/file/ListView.vue:1021
 msgid "Copy Path"
 msgstr "Copy Path"
 
-#: src/views/file/ListView.vue:1291
+#: src/views/file/ListView.vue:1292
 #, fuzzy
 msgid ""
 "Uncompress task created successfully, please check the task list for progress"
 msgstr "Download task created successfully"
 
-#: src/views/file/ListView.vue:1706
+#: src/views/file/ListView.vue:1707
 #, fuzzy
 msgid "No files"
 msgstr "Files"
 
-#: src/views/file/ListView.vue:1716
+#: src/views/file/ListView.vue:1717
 msgid "%{count} item(s) selected"
 msgstr ""
 
-#: src/views/file/ListView.vue:1719
+#: src/views/file/ListView.vue:1720
 #, fuzzy
 msgid "Clear"
 msgstr "Clear Log"
 
-#: src/views/file/ListView.vue:1724
+#: src/views/file/ListView.vue:1725
 msgid "%{count} item(s)"
 msgstr ""
 
-#: src/views/file/ListView.vue:1757
+#: src/views/file/ListView.vue:1758
 msgid "Uncompress - %{ file }"
 msgstr "Uncompress - %{ file }"
 
-#: src/views/file/ListView.vue:1765
+#: src/views/file/ListView.vue:1766
 msgid "Uncompress to"
 msgstr "Uncompress to"
 
-#: src/views/file/ListView.vue:1779 src/views/file/ToolBar.vue:237
+#: src/views/file/ListView.vue:1780 src/views/file/ToolBar.vue:237
 #, fuzzy
 msgid "Terminal - %{ path }"
 msgstr "Modify permissions - %{ path }"
@@ -9290,36 +9410,36 @@ msgstr "Modify permissions - %{ path }"
 msgid "Failed to copy path"
 msgstr "Files to compress"
 
-#: src/views/file/PathInput.vue:109 src/views/home/UpdateView.vue:176
+#: src/views/file/PathInput.vue:111 src/views/home/UpdateView.vue:176
 #: src/views/toolbox/MigrationView.vue:589
 #, fuzzy
 msgid "Back"
 msgstr "Backup"
 
-#: src/views/file/PathInput.vue:117
+#: src/views/file/PathInput.vue:119
 #, fuzzy
 msgid "Forward"
 msgstr "Port Forwarding"
 
-#: src/views/file/PathInput.vue:125
+#: src/views/file/PathInput.vue:127
 #: src/views/toolbox/network/InterfaceView.vue:167
 msgid "Up"
 msgstr ""
 
-#: src/views/file/PathInput.vue:142
+#: src/views/file/PathInput.vue:144
 msgid "Hide hidden files"
 msgstr ""
 
-#: src/views/file/PathInput.vue:142
+#: src/views/file/PathInput.vue:144
 #, fuzzy
 msgid "Show hidden files"
 msgstr "Show in Home"
 
-#: src/views/file/PathInput.vue:176
+#: src/views/file/PathInput.vue:177
 msgid "Enter search content"
 msgstr "Enter search content"
 
-#: src/views/file/PathInput.vue:179
+#: src/views/file/PathInput.vue:180
 msgid "Include subdirectories"
 msgstr "Include subdirectories"
 
@@ -12042,75 +12162,75 @@ msgstr "Host"
 msgid "Bash session on this server"
 msgstr ""
 
-#: src/views/ssh/SftpBrowser.vue:133
+#: src/views/ssh/SftpBrowser.vue:129
 #, fuzzy
 msgid "Parent Directory"
 msgstr "Select Directory"
 
-#: src/views/ssh/SftpBrowser.vue:145
+#: src/views/ssh/SftpBrowser.vue:141
 #, fuzzy
 msgid "Create Directory"
 msgstr "Save Directory"
 
-#: src/views/ssh/SftpBrowser.vue:155
+#: src/views/ssh/SftpBrowser.vue:151
 #, fuzzy
 msgid "Directory name"
 msgstr "Directory"
 
-#: src/views/ssh/SftpBrowser.vue:193
+#: src/views/ssh/SftpBrowser.vue:189
 #, fuzzy
 msgid "Empty directory"
 msgstr "Root Directory"
 
-#: src/views/ssh/SftpPanel.vue:64
+#: src/views/ssh/SftpPanel.vue:62
 #, fuzzy
 msgid "Please select files to transfer"
 msgstr "Please select rules to delete"
 
-#: src/views/ssh/SftpPanel.vue:68
+#: src/views/ssh/SftpPanel.vue:66
 msgid "Source and destination are the same directory"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:76
+#: src/views/ssh/SftpPanel.vue:74
 #, fuzzy
 msgid "Transfer Directories"
 msgstr "Select Directory"
 
-#: src/views/ssh/SftpPanel.vue:77
+#: src/views/ssh/SftpPanel.vue:75
 msgid ""
 "The selection contains %{ count } directory(ies), which will be transferred "
 "recursively and may take a long time. For large directories, compressing "
 "before transferring is recommended. Continue?"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:152
+#: src/views/ssh/SftpPanel.vue:150
 #, fuzzy
 msgid "Connection closed"
 msgstr "Connection closed. Please refresh."
 
-#: src/views/ssh/SftpPanel.vue:183
+#: src/views/ssh/SftpPanel.vue:181
 #, fuzzy
 msgid "Cancelled"
 msgstr "Canceled"
 
-#: src/views/ssh/SftpPanel.vue:224
+#: src/views/ssh/SftpPanel.vue:222
 msgid "Transfer to right"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:234
+#: src/views/ssh/SftpPanel.vue:232
 msgid "Transfer to left"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:252
+#: src/views/ssh/SftpPanel.vue:250
 msgid "Transfer Queue"
 msgstr ""
 
-#: src/views/ssh/SftpPanel.vue:254
+#: src/views/ssh/SftpPanel.vue:252
 #, fuzzy
 msgid "Clear Finished"
 msgstr "Copy failed"
 
-#: src/views/ssh/SftpPanel.vue:294 src/views/task/TaskView.vue:42
+#: src/views/ssh/SftpPanel.vue:292 src/views/task/TaskView.vue:42
 #: src/views/toolbox/ProcessView.vue:53 src/views/toolbox/ProcessView.vue:89
 msgid "Waiting"
 msgstr "Waiting"
@@ -15901,10 +16021,6 @@ msgstr "Add Server"
 #~ msgstr "Permissions"
 
 #, fuzzy
-#~ msgid "Disk Type: "
-#~ msgstr "Task Type"
-
-#, fuzzy
 #~ msgid "SSH Settings"
 #~ msgstr "Settings"
 
@@ -16072,9 +16188,6 @@ msgstr "Add Server"
 
 #~ msgid "Configuration generated successfully"
 #~ msgstr "Configuration generated successfully"
-
-#~ msgid "Generate Reverse Proxy Configuration"
-#~ msgstr "Generate Reverse Proxy Configuration"
 
 #~ msgid ""
 #~ "After generating the reverse proxy configuration, the original rewrite "
