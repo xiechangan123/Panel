@@ -82,7 +82,7 @@ const handleGenerate = () => {
     v-model:show="show"
     preset="card"
     :title="$gettext('Generate Recommended Configuration')"
-    class="w-120"
+    class="w-160"
   >
     <n-flex vertical>
       <n-alert type="info">
