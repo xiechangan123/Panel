@@ -236,6 +236,20 @@ func (s *VhostTestSuite) TestBasicAuth() {
 	s.Nil(s.vhost.BasicAuth())
 }
 
+func (s *VhostTestSuite) TestBasicAuthOrder() {
+	// Location 后声明者覆盖先声明者，整站规则应排在目录规则之前声明
+	auths := []types.BasicAuth{
+		{Path: "/admin", UserFile: "/etc/htpasswd_0"},
+		{Path: "/", UserFile: "/etc/htpasswd_1"},
+	}
+	s.NoError(s.vhost.SetBasicAuth(auths))
+
+	got := s.vhost.BasicAuth()
+	s.Len(got, 2)
+	s.Equal("/", got[0].Path)
+	s.Equal("/admin", got[1].Path)
+}
+
 func (s *VhostTestSuite) TestBasicAuthLegacy() {
 	// 旧版 vhost 级整站配置应能读出并被清除
 	s.vhost.vhost.Set("AuthType", "Basic")

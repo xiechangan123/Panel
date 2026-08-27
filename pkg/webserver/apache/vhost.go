@@ -485,7 +485,11 @@ func (v *baseVhost) BasicAuth() []types.BasicAuth {
 
 func (v *baseVhost) SetBasicAuth(auths []types.BasicAuth) error {
 	_ = v.ClearBasicAuth()
-	// Location 块在合并顺序上晚于 Directory 块，认证不会被 Require all granted 覆盖
+	// Location 块后声明者覆盖先声明者，按路径长度升序写出使更精确的目录规则生效；
+	// 且 Location 在合并顺序上晚于 Directory 块，认证不会被 Require all granted 覆盖
+	auths = slices.SortedStableFunc(slices.Values(auths), func(a, b types.BasicAuth) int {
+		return len(a.Path) - len(b.Path)
+	})
 	for _, auth := range auths {
 		v.vhost.AddBlock("Location", auth.Path).Append(
 			Dir("AuthType", "Basic"),

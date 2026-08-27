@@ -3,6 +3,7 @@ package nginx
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
@@ -59,6 +60,10 @@ func generateAuthMaps(siteName string, auths []types.BasicAuth) string {
 		}
 		dirs = append(dirs, auth)
 	}
+	// map 按声明顺序取首个命中的正则，更长（更精确）的路径需排在前面
+	slices.SortStableFunc(dirs, func(a, b types.BasicAuth) int {
+		return len(b.Path) - len(a.Path)
+	})
 
 	var sb strings.Builder
 	_, _ = fmt.Fprintf(&sb, "map $uri %s {\n    default %s;\n", realmVar, realmDefault)

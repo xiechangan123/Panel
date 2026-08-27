@@ -271,6 +271,20 @@ func (s *VhostTestSuite) TestBasicAuthDirOnly() {
 	s.Equal("/private", got[0].Path)
 }
 
+func (s *VhostTestSuite) TestBasicAuthNestedDir() {
+	// 嵌套目录时更精确的路径优先命中（map 按声明顺序取首个匹配）
+	auths := []types.BasicAuth{
+		{Path: "/admin", UserFile: "/etc/nginx/htpasswd_0"},
+		{Path: "/admin/sub", UserFile: "/etc/nginx/htpasswd_1"},
+	}
+	s.NoError(s.vhost.SetBasicAuth(auths))
+
+	got := s.vhost.BasicAuth()
+	s.Len(got, 2)
+	s.Equal("/admin/sub", got[0].Path)
+	s.Equal("/admin", got[1].Path)
+}
+
 func (s *VhostTestSuite) TestRateLimit() {
 	s.Nil(s.vhost.RateLimit())
 

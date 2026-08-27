@@ -153,6 +153,11 @@ const certOptions = computed(() => {
 const selectedCert = ref(null)
 
 const handleSave = () => {
+  // 目录级基本认证规则必须填写目录
+  if (setting.value.basic_auth.some((a: any) => a._scope === 'dir' && !a.path?.trim())) {
+    window.$message.error($gettext('Please enter the directory for basic authentication rules'))
+    return
+  }
   // 如果开启了ssl但没有任何监听地址设置了ssl，则自动添加443
   if (setting.value.ssl && !setting.value.listens.some((item: any) => item.args?.includes('ssl'))) {
     const args = ['ssl']
