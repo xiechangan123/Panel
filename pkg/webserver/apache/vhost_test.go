@@ -219,15 +219,34 @@ func (s *VhostTestSuite) TestIncludes() {
 func (s *VhostTestSuite) TestBasicAuth() {
 	s.Nil(s.vhost.BasicAuth())
 
-	auth := map[string]string{
-		"realm":     "Test Realm",
-		"user_file": "/etc/htpasswd",
+	auths := []types.BasicAuth{
+		{Path: "/", UserFile: "/etc/htpasswd_0"},
+		{Path: "/admin", UserFile: "/etc/htpasswd_1"},
 	}
-	s.NoError(s.vhost.SetBasicAuth(auth))
+	s.NoError(s.vhost.SetBasicAuth(auths))
 
 	got := s.vhost.BasicAuth()
-	s.NotNil(got)
-	s.Equal(auth["user_file"], got["user_file"])
+	s.Len(got, 2)
+	s.Equal("/", got[0].Path)
+	s.Equal("/etc/htpasswd_0", got[0].UserFile)
+	s.Equal("/admin", got[1].Path)
+	s.Equal("/etc/htpasswd_1", got[1].UserFile)
+
+	s.NoError(s.vhost.ClearBasicAuth())
+	s.Nil(s.vhost.BasicAuth())
+}
+
+func (s *VhostTestSuite) TestBasicAuthLegacy() {
+	// 旧版 vhost 级整站配置应能读出并被清除
+	s.vhost.vhost.Set("AuthType", "Basic")
+	s.vhost.vhost.Set("AuthName", "Restricted")
+	s.vhost.vhost.Set("AuthUserFile", "/etc/htpasswd")
+	s.vhost.vhost.Set("Require", "valid-user")
+
+	got := s.vhost.BasicAuth()
+	s.Len(got, 1)
+	s.Equal("/", got[0].Path)
+	s.Equal("/etc/htpasswd", got[0].UserFile)
 
 	s.NoError(s.vhost.ClearBasicAuth())
 	s.Nil(s.vhost.BasicAuth())

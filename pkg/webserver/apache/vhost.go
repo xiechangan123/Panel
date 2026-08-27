@@ -465,32 +465,49 @@ func (v *baseVhost) ClearRateLimit() error {
 	return nil
 }
 
-func (v *baseVhost) BasicAuth() map[string]string {
-	if !strings.EqualFold(v.vhost.Value("AuthType"), "Basic") {
-		return nil
+func (v *baseVhost) BasicAuth() []types.BasicAuth {
+	var auths []types.BasicAuth
+	for _, block := range v.vhost.FindBlocks("Location") {
+		if len(block.Args) > 0 && strings.EqualFold(block.Value("AuthType"), "Basic") {
+			auths = append(auths, types.BasicAuth{Path: block.Args[0].Value, UserFile: block.Value("AuthUserFile")})
+		}
 	}
-	return map[string]string{
-		"realm":     v.vhost.Value("AuthName"),
-		"user_file": v.vhost.Value("AuthUserFile"),
+	if len(auths) > 0 {
+		return auths
 	}
+
+	// 兼容旧版 vhost 级整站配置
+	if strings.EqualFold(v.vhost.Value("AuthType"), "Basic") {
+		return []types.BasicAuth{{Path: "/", UserFile: v.vhost.Value("AuthUserFile")}}
+	}
+	return nil
 }
 
-func (v *baseVhost) SetBasicAuth(auth map[string]string) error {
-	realm := auth["realm"]
-	if realm == "" {
-		realm = "Restricted"
+func (v *baseVhost) SetBasicAuth(auths []types.BasicAuth) error {
+	_ = v.ClearBasicAuth()
+	// Location 块在合并顺序上晚于 Directory 块，认证不会被 Require all granted 覆盖
+	for _, auth := range auths {
+		v.vhost.AddBlock("Location", auth.Path).Append(
+			Dir("AuthType", "Basic"),
+			Dir("AuthName", "Restricted"),
+			Dir("AuthUserFile", auth.UserFile),
+			Dir("Require", "valid-user"),
+		)
 	}
-	v.vhost.Set("AuthType", "Basic")
-	v.vhost.Set("AuthName", realm)
-	v.vhost.Set("AuthUserFile", auth["user_file"])
-	v.vhost.Set("Require", "valid-user")
 	return nil
 }
 
 func (v *baseVhost) ClearBasicAuth() error {
-	for _, name := range []string{"AuthType", "AuthName", "AuthUserFile", "Require"} {
+	// 清除旧版 vhost 级指令
+	for _, name := range []string{"AuthType", "AuthName", "AuthUserFile"} {
 		v.vhost.Remove(name)
 	}
+	v.vhost.RemoveFunc("Require", func(d *Directive) bool {
+		return len(d.Args) == 1 && d.Args[0].Value == "valid-user"
+	})
+	v.vhost.RemoveBlockFunc("Location", func(b *Block) bool {
+		return b.Has("AuthType")
+	})
 	return nil
 }
 

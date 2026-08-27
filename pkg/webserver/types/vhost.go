@@ -77,10 +77,10 @@ type Vhost interface {
 	// ClearRateLimit 清除限流限速配置
 	ClearRateLimit() error
 
-	// BasicAuth 取基本认证配置
-	BasicAuth() map[string]string
-	// SetBasicAuth 设置基本认证
-	SetBasicAuth(auth map[string]string) error
+	// BasicAuth 取基本认证规则
+	BasicAuth() []BasicAuth
+	// SetBasicAuth 设置基本认证规则
+	SetBasicAuth(auths []BasicAuth) error
 	// ClearBasicAuth 清除基本认证
 	ClearBasicAuth() error
 
@@ -178,6 +178,12 @@ type RateLimit struct {
 	PerServer int `json:"per_server"` // 站点最大并发数 (limit_conn perserver X)
 	PerIP     int `json:"per_ip"`     // 单 IP 最大并发数 (limit_conn perip X)
 	Rate      int `json:"rate"`       // 流量限制，单位 KB (limit_rate Xk)
+}
+
+// BasicAuth 基本认证规则
+type BasicAuth struct {
+	Path     string `json:"path"`      // 生效路径前缀，"/" 表示整站
+	UserFile string `json:"user_file"` // htpasswd 文件路径
 }
 
 // RealIP 真实 IP 配置

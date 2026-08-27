@@ -27,8 +27,10 @@ func (s *VhostTestSuite) SetupTest() {
 	s.Require().NoError(err)
 	s.configDir = configDir
 
-	// 创建 site 目录
+	// 创建 site 和 shared 目录
 	err = os.MkdirAll(filepath.Join(configDir, "site"), 0755)
+	s.Require().NoError(err)
+	err = os.MkdirAll(filepath.Join(configDir, "shared"), 0755)
 	s.Require().NoError(err)
 
 	vhost, err := NewPHPVhost(configDir)
@@ -231,18 +233,42 @@ func (s *VhostTestSuite) TestIncludes() {
 func (s *VhostTestSuite) TestBasicAuth() {
 	s.Nil(s.vhost.BasicAuth())
 
-	auth := map[string]string{
-		"realm":     "Test Realm",
-		"user_file": "/etc/nginx/htpasswd",
+	auths := []types.BasicAuth{
+		{Path: "/", UserFile: "/etc/nginx/htpasswd_0"},
+		{Path: "/admin", UserFile: "/etc/nginx/htpasswd_1"},
 	}
-	s.NoError(s.vhost.SetBasicAuth(auth))
+	s.NoError(s.vhost.SetBasicAuth(auths))
 
 	got := s.vhost.BasicAuth()
-	s.NotNil(got)
-	s.Equal(auth["user_file"], got["user_file"])
+	s.Len(got, 2)
+	s.Equal("/", got[0].Path)
+	s.Equal("/etc/nginx/htpasswd_0", got[0].UserFile)
+	s.Equal("/admin", got[1].Path)
+	s.Equal("/etc/nginx/htpasswd_1", got[1].UserFile)
+
+	// map 片段应包含目录正则与整站 default
+	content := s.vhost.Config(AuthConfName, types.ScopeShared)
+	s.Contains(content, `"~^/admin(/.*)?$"`)
+	s.Contains(content, `default "/etc/nginx/htpasswd_0";`)
 
 	s.NoError(s.vhost.ClearBasicAuth())
 	s.Nil(s.vhost.BasicAuth())
+}
+
+func (s *VhostTestSuite) TestBasicAuthDirOnly() {
+	// 仅目录规则时整站不认证
+	auths := []types.BasicAuth{
+		{Path: "/private", UserFile: "/etc/nginx/htpasswd_0"},
+	}
+	s.NoError(s.vhost.SetBasicAuth(auths))
+
+	content := s.vhost.Config(AuthConfName, types.ScopeShared)
+	s.Contains(content, "default off;")
+	s.Contains(content, `default "";`)
+
+	got := s.vhost.BasicAuth()
+	s.Len(got, 1)
+	s.Equal("/private", got[0].Path)
 }
 
 func (s *VhostTestSuite) TestRateLimit() {

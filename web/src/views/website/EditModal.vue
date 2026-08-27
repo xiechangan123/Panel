@@ -57,7 +57,7 @@ const initialSetting = {
   redirects: [],
   rate_limit: null,
   real_ip: null,
-  basic_auth: {},
+  basic_auth: [],
   custom_configs: [],
 }
 const setting = ref<any>({ ...initialSetting })
@@ -385,6 +385,11 @@ const ensureItemIds = () => {
   })
   setting.value.custom_configs?.forEach((item: any) => {
     if (!item._id) item._id = generateId()
+  })
+  if (!Array.isArray(setting.value.basic_auth)) setting.value.basic_auth = []
+  setting.value.basic_auth.forEach((item: any) => {
+    if (!item._id) item._id = generateId()
+    if (!item._scope) item._scope = !item.path || item.path === '/' ? 'site' : 'dir'
   })
 }
 
@@ -896,6 +901,29 @@ const realIPFrom = computed({
     }
   },
 })
+
+// ========== 基本认证相关 ==========
+// 是否已存在其他整站规则（整站规则最多一条）
+const hasSiteBasicAuth = (self?: any) =>
+  setting.value.basic_auth.some((a: any) => a !== self && a._scope === 'site')
+
+// 添加基本认证规则
+const addBasicAuth = () => {
+  const rule: any = { _id: generateId(), users: {} }
+  setBasicAuthScope(rule, hasSiteBasicAuth() ? 'dir' : 'site')
+  setting.value.basic_auth.push(rule)
+}
+
+// 删除基本认证规则
+const removeBasicAuth = (index: number) => {
+  setting.value.basic_auth.splice(index, 1)
+}
+
+// 切换基本认证规则的生效范围
+const setBasicAuthScope = (auth: any, scope: string) => {
+  auth._scope = scope
+  auth.path = scope === 'site' ? '/' : ''
+}
 
 // ========== 自定义配置相关 ==========
 // 添加自定义配置
@@ -2091,26 +2119,52 @@ const removeCustomConfig = (index: number) => {
 
             <!-- 基本认证设置 -->
             <n-collapse-item :title="$gettext('Basic Authentication')" name="basic_auth">
-              <n-form label-placement="left" label-width="140px">
-                <n-form-item :label="$gettext('User Credentials')">
-                  <key-value-editor
-                    v-model="setting.basic_auth"
-                    :key-placeholder="$gettext('Username')"
-                    :value-placeholder="$gettext('Password')"
-                    :add-button-text="$gettext('Add User')"
-                    default-key-prefix="user"
-                    value-type="password"
-                    :show-password-toggle="true"
-                  />
-                </n-form-item>
-              </n-form>
-              <n-alert v-if="Object.keys(setting.basic_auth || {}).length > 0" type="info">
-                {{
-                  $gettext(
-                    'Visitors will need to enter a username and password to access this website.',
-                  )
-                }}
-              </n-alert>
+              <n-flex vertical>
+                <n-card
+                  v-for="(auth, index) in setting.basic_auth as any[]"
+                  :key="auth._id"
+                  closable
+                  @close="removeBasicAuth(index)"
+                >
+                  <n-form label-placement="left" label-width="140px">
+                    <n-form-item :label="$gettext('Scope')">
+                      <n-radio-group
+                        :value="auth._scope"
+                        @update:value="(v: string) => setBasicAuthScope(auth, v)"
+                      >
+                        <n-radio value="site" :disabled="hasSiteBasicAuth(auth)">
+                          {{ $gettext('Entire Website') }}
+                        </n-radio>
+                        <n-radio value="dir">{{ $gettext('Specific Directory') }}</n-radio>
+                      </n-radio-group>
+                    </n-form-item>
+                    <n-form-item v-if="auth._scope === 'dir'" :label="$gettext('Directory')">
+                      <n-input v-model:value="auth.path" placeholder="/admin" />
+                    </n-form-item>
+                    <n-form-item :label="$gettext('User Credentials')">
+                      <key-value-editor
+                        v-model="auth.users"
+                        :key-placeholder="$gettext('Username')"
+                        :value-placeholder="$gettext('Password')"
+                        :add-button-text="$gettext('Add User')"
+                        default-key-prefix="user"
+                        value-type="password"
+                        :show-password-toggle="true"
+                      />
+                    </n-form-item>
+                  </n-form>
+                </n-card>
+                <n-button type="primary" dashed @click="addBasicAuth">
+                  {{ $gettext('Add Rule') }}
+                </n-button>
+                <n-alert v-if="setting.basic_auth.length > 0" type="info">
+                  {{
+                    $gettext(
+                      'Visitors will need to enter a username and password to access the protected directories.',
+                    )
+                  }}
+                </n-alert>
+              </n-flex>
             </n-collapse-item>
           </n-collapse>
         </n-tab-pane>

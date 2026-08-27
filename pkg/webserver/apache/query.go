@@ -93,6 +93,21 @@ func (l *nodeList) RemoveFunc(name string, pred func(*Directive) bool) int {
 	return count
 }
 
+// RemoveBlockFunc 删除满足谓词的匹配名称块，返回删除数量
+func (l *nodeList) RemoveBlockFunc(name string, pred func(*Block) bool) int {
+	kept := l.Nodes[:0]
+	count := 0
+	for _, n := range l.Nodes {
+		if b, ok := n.(*Block); ok && strings.EqualFold(b.Name, name) && pred(b) {
+			count++
+			continue
+		}
+		kept = append(kept, n)
+	}
+	l.Nodes = kept
+	return count
+}
+
 // GetBlock 返回首个匹配类型（及可选参数）的块
 func (l *nodeList) GetBlock(name string, args ...string) *Block {
 	for _, n := range l.Nodes {

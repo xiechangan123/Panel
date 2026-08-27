@@ -28,6 +28,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
+	"github.com/acepanel/panel/v3/pkg/webserver/nginx"
 	webservertypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -262,8 +263,13 @@ func (r *websiteRepo) Get(id uint) (*types.WebsiteSetting, error) {
 	// 高级设置（限流限速、真实 IP、基本认证）
 	setting.RateLimit = vhost.RateLimit()
 	setting.RealIP = vhost.RealIP()
-	// 读取基本认证用户列表
-	setting.BasicAuth = r.readBasicAuthUsers(website.Name)
+	// 读取基本认证规则及用户列表
+	for _, auth := range vhost.BasicAuth() {
+		setting.BasicAuth = append(setting.BasicAuth, types.WebsiteBasicAuth{
+			Path:  auth.Path,
+			Users: r.readBasicAuthUsers(auth.UserFile),
+		})
+	}
 
 	// 自定义配置
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
@@ -991,26 +997,23 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 			return err
 		}
 	}
-	// 基本认证创建 htpasswd 文件
-	if len(req.BasicAuth) > 0 {
-		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, "htpasswd")
-		if err = r.writeBasicAuthUsers(htpasswdPath, req.BasicAuth); err != nil {
+	// 基本认证：每条规则一个独立的 htpasswd 文件
+	webServer, _ := r.setting.Get(biz.SettingKeyWebserver)
+	r.removeBasicAuthFiles(website.Name)
+	auths := make([]webservertypes.BasicAuth, 0, len(req.BasicAuth))
+	for i, rule := range req.BasicAuth {
+		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, fmt.Sprintf("htpasswd_%d", i))
+		if err = r.writeBasicAuthUsers(htpasswdPath, rule.Users, webServer); err != nil {
 			return err
 		}
-		if err = vhost.SetBasicAuth(map[string]string{"user_file": htpasswdPath}); err != nil {
-			return err
-		}
-	} else {
-		// 清除基本认证配置和 htpasswd 文件
-		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, "htpasswd")
-		_ = io.Remove(htpasswdPath)
-		if err = vhost.ClearBasicAuth(); err != nil {
-			return err
-		}
+		// 路径归一化：空 -> "/"，去尾部斜杠
+		auths = append(auths, webservertypes.BasicAuth{Path: "/" + strings.Trim(rule.Path, "/ "), UserFile: htpasswdPath})
+	}
+	if err = vhost.SetBasicAuth(auths); err != nil {
+		return err
 	}
 
 	// 访问统计
-	webServer, _ := r.setting.Get(biz.SettingKeyWebserver)
 	if webServer == "nginx" {
 		if req.StatEnabled {
 			if err = r.enableStat(vhost, website.Name); err != nil {
@@ -1054,7 +1057,7 @@ func (r *websiteRepo) RemoveFiles(name string, removePath bool) error {
 		// 仅删除配置和日志
 		_ = io.Remove(filepath.Join(app.Root, "sites", name, "config"))
 		_ = io.Remove(filepath.Join(app.Root, "sites", name, "log"))
-		_ = io.Remove(filepath.Join(app.Root, "sites", name, "htpasswd"))
+		r.removeBasicAuthFiles(name)
 	}
 	return nil
 }
@@ -1455,8 +1458,7 @@ func (r *websiteRepo) ReloadWebServer() error {
 }
 
 // readBasicAuthUsers 读取 htpasswd 文件中的用户列表
-func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
-	htpasswdPath := filepath.Join(app.Root, "sites", siteName, "htpasswd")
+func (r *websiteRepo) readBasicAuthUsers(htpasswdPath string) map[string]string {
 	if !io.Exists(htpasswdPath) {
 		return make(map[string]string)
 	}
@@ -1487,13 +1489,16 @@ func (r *websiteRepo) readBasicAuthUsers(siteName string) map[string]string {
 	return users
 }
 
-// writeBasicAuthUsers 将用户凭证写入 htpasswd 文件
-func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]string) error {
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver, "unknown")
-	if err != nil {
-		return err
+// removeBasicAuthFiles 删除站点的所有 htpasswd 文件
+func (r *websiteRepo) removeBasicAuthFiles(siteName string) {
+	matches, _ := filepath.Glob(filepath.Join(app.Root, "sites", siteName, "htpasswd*"))
+	for _, match := range matches {
+		_ = io.Remove(match)
 	}
+}
 
+// writeBasicAuthUsers 将用户凭证写入 htpasswd 文件
+func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]string, webServer string) error {
 	var lines []string
 	for username, password := range users {
 		if username == "" || password == "" {
@@ -1519,12 +1524,7 @@ func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]
 // enableStat 写入 nginx 访问统计配置（log_format + syslog access_log）
 func (r *websiteRepo) enableStat(vhost webservertypes.Vhost, name string) error {
 	// nginx 的 syslog tag 与 log_format 名只允许字母数字和下划线
-	safeName := strings.Map(func(char rune) rune {
-		if char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' || char >= '0' && char <= '9' {
-			return char
-		}
-		return '_'
-	}, name)
+	safeName := nginx.SafeName(name)
 	formatConf := fmt.Sprintf(`log_format ace_stat_%s escape=json
   '{"site":"%s",'
   '"uri":"$request_uri",'
