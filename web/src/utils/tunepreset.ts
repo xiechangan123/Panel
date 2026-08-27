@@ -112,12 +112,12 @@ export const nginxPreset = (p: TuneProfile) => {
     workerConnections: p.memoryMB < 2048 ? 10240 : 65535,
     keepaliveTimeout: 60,
     gzip: 'on',
-    gzipCompLevel: 5,
+    gzipCompLevel: 6,
     brotli: 'on',
-    brotliCompLevel: 5,
+    brotliCompLevel: 6,
     brotliStatic: 'on',
     zstd: 'on',
-    zstdCompLevel: 5,
+    zstdCompLevel: 10,
     zstdStatic: 'on',
   }
 }
