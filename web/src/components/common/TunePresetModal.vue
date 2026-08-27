@@ -93,7 +93,7 @@ const handleGenerate = () => {
         }}
       </n-alert>
       <n-form label-placement="left" label-width="auto">
-        <n-form-item v-if="fields.includes('memory')" :label="$gettext('Allocated Memory (MB)')">
+        <n-form-item v-if="fields.includes('memory')" :label="$gettext('Memory (MB)')">
           <n-input-number
             class="w-full"
             v-model:value="memoryMB"
