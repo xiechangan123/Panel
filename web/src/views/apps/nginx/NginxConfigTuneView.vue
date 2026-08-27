@@ -191,11 +191,6 @@ const handleSave = () => {
 
 <template>
   <n-flex vertical>
-    <n-flex>
-      <n-button type="info" @click="showPresetModal = true">
-        {{ $gettext('Generate Recommended Configuration') }}
-      </n-button>
-    </n-flex>
     <n-tabs v-model:value="currentTab" type="line" placement="left" animated>
     <n-tab-pane name="general" :tab="$gettext('General')">
       <n-flex vertical>
@@ -296,6 +291,9 @@ const handleSave = () => {
           >
             {{ $gettext('Save') }}
           </n-button>
+          <n-button type="info" @click="showPresetModal = true">
+            {{ $gettext('Generate Recommended Configuration') }}
+          </n-button>
         </n-flex>
       </n-flex>
     </n-tab-pane>
@@ -345,6 +343,9 @@ const handleSave = () => {
             @click="handleSave"
           >
             {{ $gettext('Save') }}
+          </n-button>
+          <n-button type="info" @click="showPresetModal = true">
+            {{ $gettext('Generate Recommended Configuration') }}
           </n-button>
         </n-flex>
       </n-flex>
@@ -397,6 +398,9 @@ const handleSave = () => {
           >
             {{ $gettext('Save') }}
           </n-button>
+          <n-button type="info" @click="showPresetModal = true">
+            {{ $gettext('Generate Recommended Configuration') }}
+          </n-button>
         </n-flex>
       </n-flex>
     </n-tab-pane>
@@ -441,6 +445,9 @@ const handleSave = () => {
             @click="handleSave"
           >
             {{ $gettext('Save') }}
+          </n-button>
+          <n-button type="info" @click="showPresetModal = true">
+            {{ $gettext('Generate Recommended Configuration') }}
           </n-button>
         </n-flex>
       </n-flex>
