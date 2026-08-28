@@ -58,6 +58,7 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/top_sql/enable", s.EnableTopSQL)
 	r.Post("/top_sql/reset", s.ResetTopSQL)
 	// 维护
+	r.Get("/databases", s.DatabaseList)
 	r.Get("/tables", s.TableList)
 	r.Post("/maintenance", s.RunMaintenance)
 	r.Get("/binlogs", s.BinlogList)
@@ -578,8 +579,8 @@ func (s *App) ResetTopSQL(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// TableList 获取表维护信息
-func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
+// DatabaseList 获取业务数据库列表
+func (s *App) DatabaseList(w http.ResponseWriter, r *http.Request) {
 	mysql, err := s.connect(r.Context())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -588,12 +589,60 @@ func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
 	defer mysql.Close()
 
 	rows, err := mysql.Query(`
+		SELECT SCHEMA_NAME FROM information_schema.SCHEMATA
+		WHERE SCHEMA_NAME NOT IN ('mysql','information_schema','performance_schema','sys')
+		ORDER BY SCHEMA_NAME`)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer func() { _ = rows.Close() }()
+
+	databases := make([]string, 0)
+	for rows.Next() {
+		var name string
+		if err = rows.Scan(&name); err != nil {
+			service.Error(w, http.StatusInternalServerError, "%v", err)
+			return
+		}
+		databases = append(databases, name)
+	}
+	if err = rows.Err(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, databases)
+}
+
+// TableList 获取表维护信息
+func (s *App) TableList(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[TableQuery](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	mysql, err := s.connect(r.Context())
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	defer mysql.Close()
+
+	query := `
 		SELECT table_schema, table_name, coalesce(engine,''), coalesce(table_rows,0),
 		       coalesce(data_length + index_length,0), coalesce(data_free,0)
 		FROM information_schema.TABLES
 		WHERE table_schema NOT IN ('mysql','information_schema','performance_schema','sys')
-		  AND table_type = 'BASE TABLE'
-		ORDER BY data_length + index_length DESC LIMIT 50`)
+		  AND table_type = 'BASE TABLE'`
+	var args []any
+	if req.Database != "" {
+		query += ` AND table_schema = ?`
+		args = append(args, req.Database)
+	}
+	query += ` ORDER BY data_length + index_length DESC LIMIT 50`
+	rows, err := mysql.Query(query, args...)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return

@@ -26,7 +26,8 @@ export default {
   enableTopSQL: (): any => http.Post('/apps/percona/top_sql/enable'),
   resetTopSQL: (): any => http.Post('/apps/percona/top_sql/reset'),
   // 维护
-  tables: (): any => http.Get('/apps/percona/tables'),
+  databases: (): any => http.Get('/apps/percona/databases'),
+  tables: (database: string): any => http.Get('/apps/percona/tables', { params: { database } }),
   runMaintenance: (data: any): any => http.Post('/apps/percona/maintenance', data),
   binlogs: (): any => http.Get('/apps/percona/binlogs'),
   purgeBinlog: (file: string): any => http.Post('/apps/percona/binlogs/purge', { file }),

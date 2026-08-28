@@ -12,9 +12,20 @@ const props = defineProps<{
 const { $gettext } = useGettext()
 const { confirmDelete, confirmAction } = useConfirm()
 
-const { data: tables, send: sendTables } = useRequest(props.api.tables, {
+const selectedDatabase = ref('')
+const { data: databases } = useRequest(props.api.databases, {
   initialData: [],
 })
+const databaseOptions = computed(() => [
+  { label: $gettext('All databases'), value: '' },
+  ...(databases.value as string[]).map((name) => ({ label: name, value: name })),
+])
+const { data: tables, send: sendTables } = useRequest(
+  () => props.api.tables(selectedDatabase.value),
+  {
+    initialData: [],
+  },
+)
 const checkedTables = ref<string[]>([])
 const refreshTables = () => {
   checkedTables.value = []
@@ -163,6 +174,12 @@ const replicationRunning = (value: string) => {
     <n-tab-pane name="tables" :tab="$gettext('Table Maintenance')">
       <n-flex vertical>
         <n-flex>
+          <n-select
+            v-model:value="selectedDatabase"
+            :options="databaseOptions"
+            class="w-60"
+            @update:value="refreshTables"
+          />
           <n-button type="primary" @click="() => refreshTables()">
             {{ $gettext('Refresh') }}
           </n-button>

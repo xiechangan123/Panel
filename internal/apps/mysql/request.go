@@ -42,6 +42,11 @@ type ConfigTune struct {
 	LongQueryTime string `form:"long_query_time" json:"long_query_time"`
 }
 
+// TableQuery 表维护列表查询请求
+type TableQuery struct {
+	Database string `form:"database" json:"database"`
+}
+
 // MaintenanceTable 维护操作的目标表
 type MaintenanceTable struct {
 	Database string `form:"database" json:"database" validate:"required"`

@@ -26,7 +26,8 @@ export default {
   enableTopSQL: (): any => http.Post('/apps/mariadb/top_sql/enable'),
   resetTopSQL: (): any => http.Post('/apps/mariadb/top_sql/reset'),
   // 维护
-  tables: (): any => http.Get('/apps/mariadb/tables'),
+  databases: (): any => http.Get('/apps/mariadb/databases'),
+  tables: (database: string): any => http.Get('/apps/mariadb/tables', { params: { database } }),
   runMaintenance: (data: any): any => http.Post('/apps/mariadb/maintenance', data),
   binlogs: (): any => http.Get('/apps/mariadb/binlogs'),
   purgeBinlog: (file: string): any => http.Post('/apps/mariadb/binlogs/purge', { file }),

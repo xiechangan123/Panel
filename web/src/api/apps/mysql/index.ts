@@ -25,7 +25,8 @@ export default {
   enableTopSQL: (): any => http.Post('/apps/mysql/top_sql/enable'),
   resetTopSQL: (): any => http.Post('/apps/mysql/top_sql/reset'),
   // 维护
-  tables: (): any => http.Get('/apps/mysql/tables'),
+  databases: (): any => http.Get('/apps/mysql/databases'),
+  tables: (database: string): any => http.Get('/apps/mysql/tables', { params: { database } }),
   runMaintenance: (data: any): any => http.Post('/apps/mysql/maintenance', data),
   binlogs: (): any => http.Get('/apps/mysql/binlogs'),
   purgeBinlog: (file: string): any => http.Post('/apps/mysql/binlogs/purge', { file }),
