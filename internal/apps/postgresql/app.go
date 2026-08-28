@@ -752,7 +752,7 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 
 	task := new(biz.Task)
 	task.Key = "postgresql:maintenance:" + req.Database
-	task.Name = s.t.Get("Run %s on %d tables in database %s", req.Operation, len(req.Tables), req.Database)
+	task.Name = s.t.Get("Run %[1]s on %[2]d tables in database %[3]s", req.Operation, len(req.Tables), req.Database)
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
 	if err = s.taskRepo.Push(task); err != nil {

@@ -704,7 +704,7 @@ func (s *App) RunMaintenance(w http.ResponseWriter, r *http.Request) {
 
 	task := new(biz.Task)
 	task.Key = "mysql:maintenance"
-	task.Name = s.t.Get("Run %s on %d tables", req.Operation, len(req.Tables))
+	task.Name = s.t.Get("Run %[1]s on %[2]d tables", req.Operation, len(req.Tables))
 	task.Status = biz.TaskStatusWaiting
 	task.Shell = cmd
 	if err = s.taskRepo.Push(task); err != nil {
