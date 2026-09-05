@@ -17,8 +17,9 @@ func EntranceCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 		Usage: t.Get("Operate AcePanel access entrance"),
 		Commands: []*cli.Command{
 			{
-				Name:  "on",
-				Usage: t.Get("Enable access entrance"),
+				Name:      "on",
+				Usage:     t.Get("Enable access entrance"),
+				ArgsUsage: t.Get("[entrance, e.g. /mypanel, random if omitted]"),
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return cliService.EntranceOn(ctx, cmd)
 				},

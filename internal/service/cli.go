@@ -551,7 +551,12 @@ func (s *CliService) EntranceOn(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	conf.HTTP.Entrance = "/" + str.Random(6)
+	// 支持自定义入口，未指定时随机生成
+	entrance := strings.Trim(cmd.Args().First(), "/")
+	if entrance == "" {
+		entrance = str.Random(6)
+	}
+	conf.HTTP.Entrance = "/" + entrance
 
 	if err = config.Save(conf); err != nil {
 		return err
