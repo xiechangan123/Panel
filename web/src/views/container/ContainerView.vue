@@ -92,10 +92,19 @@ const columns: any = [
           row.ports.map((port: any) =>
             h(NTag, null, {
               default: () => {
-                if (port.container_start == port.container_end) {
-                  return `${port.host ? port.host + ':' : ''}${port.host_start}->${port.container_start}/${port.protocol}`
+                const container =
+                  port.container_start == port.container_end
+                    ? `${port.container_start}/${port.protocol}`
+                    : `${port.container_start}-${port.container_end}/${port.protocol}`
+                // 未映射到宿主机的端口只显示容器端口
+                if (!port.host_start) {
+                  return container
                 }
-                return `${port.host ? port.host + ':' : ''}${port.host_start}-${port.host_end}->${port.container_start}-${port.container_end}/${port.protocol}`
+                const host =
+                  port.host_start == port.host_end
+                    ? `${port.host_start}`
+                    : `${port.host_start}-${port.host_end}`
+                return `${port.host ? port.host + ':' : ''}${host}->${container}`
               },
             }),
           ),

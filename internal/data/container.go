@@ -78,8 +78,9 @@ func (r *containerRepo) ListAll(sock string) ([]types.Container, error) {
 		for _, port := range ports {
 			if len(merged) > 0 {
 				last := &merged[len(merged)-1]
+				unmapped := last.HostStart == 0 && port.HostStart == 0
 				if last.Host == port.Host && last.Protocol == port.Protocol &&
-					last.ContainerEnd+1 == port.ContainerStart && last.HostEnd+1 == port.HostStart {
+					last.ContainerEnd+1 == port.ContainerStart && (unmapped || last.HostEnd+1 == port.HostStart) {
 					last.ContainerEnd = port.ContainerEnd
 					last.HostEnd = port.HostEnd
 					continue
