@@ -68,9 +68,6 @@ func (b *networkManagerBackend) modify(ctx context.Context, uuid, kind string, c
 	if _, err := run(ctx, "nmcli", args...); err != nil {
 		return err
 	}
-	if _, err := run(ctx, "nmcli", "connection", "verify", "uuid", uuid); err != nil {
-		return err
-	}
 
 	// reapply 可在不断链的情况下生效，不支持时回退到重新激活连接
 	if _, err := run(ctx, "nmcli", "device", "reapply", config.Name); err == nil {
