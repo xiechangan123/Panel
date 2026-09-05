@@ -60,12 +60,20 @@ const directions = [
   },
 ]
 
-const createModel = ref({
+const newCreateModel = () => ({
   family: 'ipv4',
   protocol: 'tcp',
   address: [] as string[],
   strategy: 'accept',
   direction: 'in',
+})
+
+const createModel = ref(newCreateModel())
+
+// 弹窗复用同一实例，每次打开时重置表单，避免残留上次创建的地址
+watch(show, (value) => {
+  if (!value) return
+  createModel.value = newCreateModel()
 })
 
 const handleCreate = async () => {

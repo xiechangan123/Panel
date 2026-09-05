@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
-const createModel = ref({
+const defaultModel = () => ({
   server_id: null,
   username: '',
   password: '',
@@ -19,6 +19,7 @@ const createModel = ref({
   privileges: [],
   remark: '',
 })
+const createModel = ref(defaultModel())
 
 const servers = ref<{ label: string; value: string; type: string }[]>([])
 
@@ -65,6 +66,9 @@ watch(
   () => show.value,
   (value) => {
     if (value) {
+      // 弹窗复用同一实例，重新打开时重置表单，避免残留上次创建的用户信息
+      createModel.value = defaultModel()
+      hostType.value = 'localhost'
       useRequest(database.serverList(1, 10000, props.type)).onSuccess(({ data }: { data: any }) => {
         servers.value = []
         for (const server of data.items) {

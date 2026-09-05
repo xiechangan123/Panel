@@ -21,15 +21,20 @@ const defaultPort = (type: string) => {
   return 3306
 }
 
-const createModel = ref({
-  name: '',
-  type: props.type || 'mysql',
-  host: '127.0.0.1',
-  port: defaultPort(props.type || 'mysql'),
-  username: '',
-  password: '',
-  remark: '',
-})
+const defaultModel = () => {
+  const type = props.type || 'mysql'
+  return {
+    name: '',
+    type,
+    host: type === 'sqlite' ? '' : '127.0.0.1',
+    port: defaultPort(type),
+    username: '',
+    password: '',
+    remark: '',
+  }
+}
+
+const createModel = ref(defaultModel())
 
 const typeOptions = [
   { label: 'MySQL', value: 'mysql' },
@@ -50,13 +55,12 @@ watch(
   },
 )
 
-// 每次弹窗打开时重置 type 和端口
+// 弹窗复用同一实例，每次打开时重置整个表单，避免残留上次填写的内容
 watch(
   () => show.value,
   (value) => {
     if (value) {
-      createModel.value.type = props.type || 'mysql'
-      createModel.value.port = defaultPort(props.type || 'mysql')
+      createModel.value = defaultModel()
     }
   },
 )

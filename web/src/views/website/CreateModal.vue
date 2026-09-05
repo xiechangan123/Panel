@@ -29,7 +29,7 @@ const typeOptions = computed(() => [
   { label: $gettext('PHP'), value: 'php' },
   { label: $gettext('Pure Static'), value: 'static' },
 ])
-const createModel = ref({
+const defaultModel = () => ({
   type: '',
   name: '',
   listens: ['80'],
@@ -44,6 +44,15 @@ const createModel = ref({
 
   php: null,
   proxy: '',
+})
+
+const createModel = ref(defaultModel())
+
+// 弹窗复用同一实例，每次打开时重置表单，避免残留在其他类型标签下填写的 PHP、数据库等字段
+watch(show, (value) => {
+  if (value) {
+    createModel.value = defaultModel()
+  }
 })
 
 const showPathSelector = ref(false)
@@ -120,21 +129,6 @@ const handleCreate = async () => {
         $gettext('Website %{ name } created successfully', { name: createModel.value.name }),
       )
       show.value = false
-      createModel.value = {
-        type: '',
-        name: '',
-        domains: [''],
-        listens: ['80'],
-        db: false,
-        db_type: '0',
-        db_name: '',
-        db_user: '',
-        db_password: '',
-        path: '',
-        remark: '',
-        php: null,
-        proxy: '',
-      }
     })
     .onComplete(() => {
       loading.value = false

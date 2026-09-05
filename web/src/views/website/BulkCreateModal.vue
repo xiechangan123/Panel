@@ -13,6 +13,13 @@ const { $gettext } = useGettext()
 const bulkCreate = ref('')
 const loading = ref(false)
 
+// 弹窗复用同一实例，每次打开时清空上次的批量内容，避免重复创建
+watch(show, (value) => {
+  if (value) {
+    bulkCreate.value = ''
+  }
+})
+
 // 内部选择的类型
 const selectedType = ref('proxy')
 

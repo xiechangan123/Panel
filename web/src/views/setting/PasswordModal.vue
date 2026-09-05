@@ -13,6 +13,13 @@ const model = ref({
 
 const loading = ref(false)
 
+// 弹窗按用户复用，每次打开时清空上次输入的密码
+watch(show, (value) => {
+  if (value) {
+    model.value.password = ''
+  }
+})
+
 const handleUpdate = () => {
   loading.value = true
   useRequest(() => user.updatePassword(id.value, model.value.password))

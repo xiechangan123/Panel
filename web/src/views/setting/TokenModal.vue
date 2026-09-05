@@ -18,13 +18,18 @@ const createLoading = ref(false)
 const updateLoading = ref(false)
 
 const currentID = ref(0)
-const createModel = ref({
+const defaultTokenModel = () => ({
   ips: [] as Array<string>,
   expired_at: new Date().getTime() + 31536000 * 1000, // 1 year
 })
-const updateModel = ref({
-  ips: [] as Array<string>,
-  expired_at: new Date().getTime() + 31536000 * 1000, // 1 year
+const createModel = ref(defaultTokenModel())
+const updateModel = ref(defaultTokenModel())
+
+// 创建弹窗复用同一实例，每次打开时重置表单，避免残留上次的 IP 白名单
+watch(createModal, (value) => {
+  if (value) {
+    createModel.value = defaultTokenModel()
+  }
 })
 
 const columns: any = [
@@ -67,6 +72,11 @@ const columns: any = [
             type: 'primary',
             onClick: () => {
               currentID.value = row.id
+              // 用当前令牌的数据回填，避免显示上次编辑的残留值
+              updateModel.value = {
+                ips: [...(row.ips || [])],
+                expired_at: new Date(row.expired_at).getTime(),
+              }
               updateModal.value = true
             },
           },

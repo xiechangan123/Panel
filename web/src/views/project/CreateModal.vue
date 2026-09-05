@@ -75,7 +75,7 @@ const dotnetFrameworks = [
   { label: 'Worker Service', value: 'worker', command: 'run' },
 ]
 
-const createModel = ref({
+const defaultCreateModel = () => ({
   name: '',
   type: '',
   root_dir: '',
@@ -85,47 +85,56 @@ const createModel = ref({
 })
 
 // 反向代理相关
-const proxyOptions = ref({
+const defaultProxyOptions = () => ({
   enabled: false,
   domains: [] as string[],
   port: null as number | null,
 })
 
 // Go 特有字段
-const goOptions = ref({
+const defaultGoOptions = () => ({
   mode: 'source' as string,
   version: '' as string,
   entryFile: 'main.go' as string,
 })
 
-// Java 特有字段
-const javaOptions = ref({
-  version: '' as string,
-  framework: 'custom',
-})
-
-// Node.js 特有字段
-const nodejsOptions = ref({
+// Java / Node.js / Python / .NET 共用的版本与框架字段
+const defaultVersionOptions = () => ({
   version: '' as string,
   framework: 'custom',
 })
 
 // PHP 特有字段
-const phpOptions = ref({
+const defaultPhpOptions = () => ({
   version: null as number | null,
   framework: 'custom',
 })
 
-// Python 特有字段
-const pythonOptions = ref({
-  version: '' as string,
-  framework: 'custom',
-})
+const createModel = ref(defaultCreateModel())
+const proxyOptions = ref(defaultProxyOptions())
+const goOptions = ref(defaultGoOptions())
+const javaOptions = ref(defaultVersionOptions())
+const nodejsOptions = ref(defaultVersionOptions())
+const phpOptions = ref(defaultPhpOptions())
+const pythonOptions = ref(defaultVersionOptions())
+const dotnetOptions = ref(defaultVersionOptions())
 
-// .NET 特有字段
-const dotnetOptions = ref({
-  version: '' as string,
-  framework: 'custom',
+const resetForm = () => {
+  createModel.value = defaultCreateModel()
+  proxyOptions.value = defaultProxyOptions()
+  goOptions.value = defaultGoOptions()
+  javaOptions.value = defaultVersionOptions()
+  nodejsOptions.value = defaultVersionOptions()
+  phpOptions.value = defaultPhpOptions()
+  pythonOptions.value = defaultVersionOptions()
+  dotnetOptions.value = defaultVersionOptions()
+}
+
+// 弹窗复用同一实例，每次打开时重置表单，避免残留在其他语言标签下生成的启动命令等字段
+watch(show, (value) => {
+  if (value) {
+    resetForm()
+  }
 })
 
 const showPathSelector = ref(false)
@@ -348,45 +357,6 @@ const handleCreate = async () => {
       }
       window.$message.success($gettext('Project created successfully'))
       show.value = false
-      // 重置表单
-      createModel.value = {
-        name: '',
-        type: '',
-        root_dir: '',
-        working_dir: '',
-        exec_start: '',
-        user: 'www',
-      }
-      proxyOptions.value = {
-        enabled: false,
-        domains: [],
-        port: null,
-      }
-      goOptions.value = {
-        mode: 'source',
-        version: '',
-        entryFile: 'main.go',
-      }
-      javaOptions.value = {
-        version: '',
-        framework: 'custom',
-      }
-      nodejsOptions.value = {
-        version: '',
-        framework: 'custom',
-      }
-      phpOptions.value = {
-        version: null,
-        framework: 'custom',
-      }
-      pythonOptions.value = {
-        version: '',
-        framework: 'custom',
-      }
-      dotnetOptions.value = {
-        version: '',
-        framework: 'custom',
-      }
     })
     .onComplete(() => {
       loading.value = false
