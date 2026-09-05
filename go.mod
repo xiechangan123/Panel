@@ -3,7 +3,6 @@ module github.com/acepanel/panel/v3
 go 1.27.0
 
 require (
-	github.com/andybalholm/brotli v1.2.3
 	github.com/bddjr/hlfhr v1.6.1
 	github.com/beevik/ntp v1.5.0
 	github.com/cilium/ebpf v0.22.0
@@ -50,6 +49,7 @@ require (
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.56.0
 	github.com/moby/moby/client v0.6.0
+	github.com/molecule-man/go-brrr v1.0.1
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/sftp v1.13.11

@@ -11,12 +11,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/andybalholm/brotli"
 	"github.com/bddjr/hlfhr"
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/validator"
 	"github.com/libtnb/validator/contrib/openapi"
+	"github.com/molecule-man/go-brrr"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/middleware"
@@ -152,7 +152,7 @@ func serveFileWithBr(w http.ResponseWriter, r *http.Request, fsys http.FileSyste
 			http.ServeContent(w, r, name, fi.ModTime(), f)
 		} else {
 			// 客户端不支持 br，解压后返回（由中间件处理 gzip）
-			decoded, err := io.ReadAll(brotli.NewReader(f))
+			decoded, err := io.ReadAll(brrr.NewReader(f))
 			if err != nil {
 				return false
 			}
