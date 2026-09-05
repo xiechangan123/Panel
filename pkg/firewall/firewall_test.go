@@ -296,6 +296,25 @@ func (s *UFWSuite) TestParseRule_IPDeny() {
 	s.Equal(Protocol("tcp"), info.Protocol)
 }
 
+func (s *UFWSuite) TestParseRule_IPWithComment() {
+	// Anywhere REJECT IN 195.178.110.231 # by Fail2Ban after 5 attempts against sshd
+	info := s.fw.parseRule("Anywhere", "REJECT", "IN", "195.178.110.231            # by Fail2Ban after 5 attempts against sshd")
+	s.Equal("195.178.110.231", info.Address)
+	s.Equal(StrategyReject, info.Strategy)
+	s.Equal(ProtocolTCPUDP, info.Protocol)
+	s.Equal(uint(1), info.PortStart)
+	s.Equal(uint(65535), info.PortEnd)
+	s.Equal(TypeRich, info.Type)
+}
+
+func (s *UFWSuite) TestParseRule_PortWithComment() {
+	// 22/tcp ALLOW IN Anywhere # SSH
+	info := s.fw.parseRule("22/tcp", "ALLOW", "IN", "Anywhere                   # SSH")
+	s.Empty(info.Address)
+	s.Equal(uint(22), info.PortStart)
+	s.Equal(ProtocolTCP, info.Protocol)
+}
+
 // --- parseRule IPv6 ---
 
 func (s *UFWSuite) TestParseRule_IPv6Port() {

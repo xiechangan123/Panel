@@ -96,6 +96,9 @@ func (r *ufw) parseRule(target, action, direction, source string) *FireInfo {
 		Family: "ipv4",
 	}
 
+	// 行尾注释（如 Fail2Ban 的 "1.2.3.4  # by Fail2Ban ..."）会被正则并入 source，需先去掉
+	source, _, _ = strings.Cut(source, "#")
+
 	// 解析方向
 	switch strings.ToLower(direction) {
 	case "out":
