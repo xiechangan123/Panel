@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 
 	"github.com/samber/lo"
 
@@ -39,6 +40,10 @@ type Firewall interface {
 
 // NewFirewall 自动检测系统防火墙类型并返回对应实现
 func NewFirewall() Firewall {
+	return &lockedFirewall{Firewall: detectFirewall()}
+}
+
+func detectFirewall() Firewall {
 	if _, err := shell.Execf("firewall-cmd --version"); err == nil {
 		return newFirewalld()
 	}
@@ -47,6 +52,51 @@ func NewFirewall() Firewall {
 	}
 	// 默认 firewalld
 	return newFirewalld()
+}
+
+// mu 串行化所有防火墙变更操作
+// ufw 在加锁前就已将 user.rules 读入内存，并发执行时后写入的进程会覆盖先写入的规则且都返回成功
+var mu sync.Mutex
+
+// lockedFirewall 对变更操作加锁，读操作直接透传
+type lockedFirewall struct {
+	Firewall
+}
+
+func (l *lockedFirewall) Enable() error {
+	mu.Lock()
+	defer mu.Unlock()
+	return l.Firewall.Enable()
+}
+
+func (l *lockedFirewall) Disable() error {
+	mu.Lock()
+	defer mu.Unlock()
+	return l.Firewall.Disable()
+}
+
+func (l *lockedFirewall) Port(rule FireInfo, operation Operation) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return l.Firewall.Port(rule, operation)
+}
+
+func (l *lockedFirewall) RichRules(rule FireInfo, operation Operation) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return l.Firewall.RichRules(rule, operation)
+}
+
+func (l *lockedFirewall) Forward(rule Forward, operation Operation) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return l.Firewall.Forward(rule, operation)
+}
+
+func (l *lockedFirewall) UpdatePingStatus(status bool) error {
+	mu.Lock()
+	defer mu.Unlock()
+	return l.Firewall.UpdatePingStatus(status)
 }
 
 // isLocalAddress 判断是否为本地地址

@@ -78,22 +78,25 @@ watch(show, (value) => {
 
 const handleCreate = async () => {
   loading.value = true
-  if (!createModel.value.address.length) {
-    createModel.value.address.push('')
-  }
-  const promises = createModel.value.address.map((address) =>
-    useRequest(
-      firewall.createIpRule({
-        ...createModel.value,
-        address,
+  try {
+    if (!createModel.value.address.length) {
+      createModel.value.address.push('')
+    }
+    const promises = createModel.value.address.map((address) =>
+      useRequest(
+        firewall.createIpRule({
+          ...createModel.value,
+          address,
+        }),
+      ).onSuccess(() => {
+        window.$message.success($gettext('%{ address } created successfully', { address: address }))
       }),
-    ).onSuccess(() => {
-      window.$message.success($gettext('%{ address } created successfully', { address: address }))
-    }),
-  )
-  await Promise.all(promises)
-  loading.value = false
-  show.value = false
+    )
+    await Promise.all(promises)
+    show.value = false
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
