@@ -258,10 +258,11 @@ onBeforeUnmount(() => {
       <div v-if="show && !minimized" class="draggable-window-overlay" @click="handleOverlayClick" />
     </Transition>
 
-    <!-- 主窗口 -->
+    <!-- 主窗口：最小化时仅隐藏不销毁，保留编辑器的撤销历史、滚动位置和文件树状态 -->
     <Transition name="window">
       <div
-        v-if="show && !minimized"
+        v-if="show"
+        v-show="!minimized"
         ref="windowRef"
         class="draggable-window"
         :class="{ maximized: isMaximized, dragging: isDragging, resizing: isResizing }"
