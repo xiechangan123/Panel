@@ -91,16 +91,29 @@ async function loadDirectory(path: string): Promise<TreeOption[]> {
 }
 
 // 初始化加载根目录
+// 保留 expandedKeys，n-tree 会对已展开但未加载的节点自动触发 on-load，刷新后目录不会折叠
 async function initTree() {
   loading.value = true
   try {
     treeData.value = await loadDirectory(props.rootPath)
-    expandedKeys.value = []
   } catch {
     treeData.value = []
   } finally {
     loading.value = false
   }
+}
+
+// 刷新父目录，并通知文件列表同步
+async function reloadParent(parentPath: string) {
+  if (parentPath === props.rootPath) {
+    await initTree()
+  } else {
+    const parentNode = findNode(treeData.value, parentPath)
+    if (parentNode) {
+      parentNode.children = await loadDirectory(parentPath)
+    }
+  }
+  window.$bus.emit('file:refresh')
 }
 
 // 懒加载子目录
@@ -272,15 +285,7 @@ async function confirmInlineCreate() {
       // 取消内联状态
       cancelInlineCreate()
 
-      // 刷新父目录
-      if (parentPath === props.rootPath) {
-        await initTree()
-      } else {
-        const parentNode = findNode(treeData.value, parentPath)
-        if (parentNode) {
-          parentNode.children = await loadDirectory(parentPath)
-        }
-      }
+      await reloadParent(parentPath)
 
       // 如果是文件，自动打开
       if (!isDir) {
@@ -557,17 +562,18 @@ function confirmInlineRename() {
           // 同步编辑器中已打开的标签页路径(含重命名目录下的子文件)
           editorStore.movePath(oldPath, newPath)
 
+          // 同步树的展开与选中状态，重命名后的目录保持展开
+          const migrate = (key: string) => {
+            if (key === oldPath) return newPath
+            if (key.startsWith(oldPath + '/')) return newPath + key.slice(oldPath.length)
+            return key
+          }
+          expandedKeys.value = expandedKeys.value.map(migrate)
+          selectedKeys.value = selectedKeys.value.map(migrate)
+
           cancelInlineRename()
 
-          // 刷新父目录
-          if (parentPath === props.rootPath) {
-            await initTree()
-          } else {
-            const parentNode = findNode(treeData.value, parentPath)
-            if (parentNode) {
-              parentNode.children = await loadDirectory(parentPath)
-            }
-          }
+          await reloadParent(parentPath)
         })
         .onError(() => {
           window.$message.error($gettext('Failed to rename'))
@@ -596,16 +602,7 @@ function handleDelete(path: string, name: string) {
           // 关闭编辑器中已打开的该文件及该目录下所有文件的标签页
           editorStore.closePath(path)
 
-          // 刷新父目录
-          const parentPath = path.substring(0, path.lastIndexOf('/')) || '/'
-          if (parentPath === props.rootPath) {
-            await initTree()
-          } else {
-            const parentNode = findNode(treeData.value, parentPath)
-            if (parentNode) {
-              parentNode.children = await loadDirectory(parentPath)
-            }
-          }
+          await reloadParent(path.substring(0, path.lastIndexOf('/')) || '/')
         })
         .onError(() => {
           window.$message.error($gettext('Failed to delete'))
@@ -656,6 +653,17 @@ watch(
   () => {
     initTree()
   },
+)
+
+// 树的选中项跟随编辑器当前标签页，新建文件、切换标签等方式打开的文件都会高亮
+watch(
+  () => editorStore.activeTabPath,
+  (path) => {
+    if (path) {
+      selectedKeys.value = [path]
+    }
+  },
+  { immediate: true },
 )
 
 onMounted(() => {
