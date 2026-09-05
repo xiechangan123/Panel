@@ -43,7 +43,6 @@ const upCommand = ref('')
 const deployModel = reactive({
   name: '',
   autoStart: true,
-  autoFirewall: false,
   envs: {} as Record<string, any>,
 })
 
@@ -230,7 +229,6 @@ const handleSubmit = async () => {
         name: deployModel.name,
         compose: finalCompose.value,
         envs: finalEnvs.value,
-        auto_firewall: deployModel.autoFirewall,
       }),
     )
       .onSuccess(({ data }) => {
@@ -287,7 +285,6 @@ const handlePrev = () => {
 const resetForm = () => {
   deployModel.name = props.template?.slug || ''
   deployModel.autoStart = true
-  deployModel.autoFirewall = false
   deployModel.envs = {}
   currentStep.value = 1
   deployMode.value = 'create'
@@ -405,14 +402,6 @@ const composeOptions = computed(() => {
             <n-col :span="8">
               <n-form-item path="autoStart" :label="$gettext('Auto Start')">
                 <n-switch v-model:value="deployModel.autoStart" />
-              </n-form-item>
-            </n-col>
-            <n-col :span="8">
-              <n-form-item path="autoFirewall" :label="$gettext('Auto Firewall')">
-                <n-switch v-model:value="deployModel.autoFirewall" />
-                <template #feedback>
-                  <span>{{ $gettext('Automatically allow ports defined in compose') }}</span>
-                </template>
               </n-form-item>
             </n-col>
           </n-row>
@@ -604,11 +593,6 @@ const composeOptions = computed(() => {
         <n-descriptions-item :label="$gettext('Auto Start')">
           <n-tag :type="deployModel.autoStart ? 'success' : 'default'">
             {{ deployModel.autoStart ? $gettext('Yes') : $gettext('No') }}
-          </n-tag>
-        </n-descriptions-item>
-        <n-descriptions-item v-if="deployMode === 'create'" :label="$gettext('Auto Firewall')">
-          <n-tag :type="deployModel.autoFirewall ? 'success' : 'default'">
-            {{ deployModel.autoFirewall ? $gettext('Yes') : $gettext('No') }}
           </n-tag>
         </n-descriptions-item>
         <n-descriptions-item :label="$gettext('Environment Variables')">

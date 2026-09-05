@@ -134,57 +134,6 @@ func (_c *TemplateRepo_LoadLocalTemplates_Call) RunAndReturn(run func() api.Temp
 	return _c
 }
 
-// OpenComposePorts provides a mock function for the type TemplateRepo
-func (_mock *TemplateRepo) OpenComposePorts(compose string) error {
-	ret := _mock.Called(compose)
-
-	if len(ret) == 0 {
-		panic("no return value specified for OpenComposePorts")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string) error); ok {
-		r0 = returnFunc(compose)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// TemplateRepo_OpenComposePorts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OpenComposePorts'
-type TemplateRepo_OpenComposePorts_Call struct {
-	*mock.Call
-}
-
-// OpenComposePorts is a helper method to define mock.On call
-//   - compose string
-func (_e *TemplateRepo_Expecter) OpenComposePorts(compose any) *TemplateRepo_OpenComposePorts_Call {
-	return &TemplateRepo_OpenComposePorts_Call{Call: _e.mock.On("OpenComposePorts", compose)}
-}
-
-func (_c *TemplateRepo_OpenComposePorts_Call) Run(run func(compose string)) *TemplateRepo_OpenComposePorts_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
-		if args[0] != nil {
-			arg0 = args[0].(string)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *TemplateRepo_OpenComposePorts_Call) Return(err error) *TemplateRepo_OpenComposePorts_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *TemplateRepo_OpenComposePorts_Call) RunAndReturn(run func(compose string) error) *TemplateRepo_OpenComposePorts_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // WriteCompose provides a mock function for the type TemplateRepo
 func (_mock *TemplateRepo) WriteCompose(name string, compose string, envs []types.KV) (string, error) {
 	ret := _mock.Called(name, compose, envs)

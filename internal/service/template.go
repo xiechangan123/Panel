@@ -85,7 +85,7 @@ func (s *TemplateService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 创建编排
-	dir, err := s.templateRepo.CreateCompose(req.Name, compose, req.Envs, req.AutoFirewall)
+	dir, err := s.templateRepo.CreateCompose(req.Name, compose, req.Envs)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

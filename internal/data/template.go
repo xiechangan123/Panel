@@ -6,31 +6,26 @@ import (
 	"maps"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 
-	"github.com/spf13/cast"
 	"go.yaml.in/yaml/v4"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/api"
-	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
 
 type templateRepo struct {
-	log      *slog.Logger
-	api      *api.API
-	firewall firewall.Firewall
+	log *slog.Logger
+	api *api.API
 }
 
 func NewTemplateRepo(log *slog.Logger) biz.TemplateRepo {
 	return &templateRepo{
-		log:      log,
-		api:      api.NewAPI(app.Version, app.Locale),
-		firewall: firewall.NewFirewall(),
+		log: log,
+		api: api.NewAPI(app.Version, app.Locale),
 	}
 }
 
@@ -62,82 +57,6 @@ func (r *templateRepo) WriteCompose(name, compose string, envs []types.KV) (stri
 	}
 
 	return dir, nil
-}
-
-// OpenComposePorts 自动放行编排端口
-func (r *templateRepo) OpenComposePorts(compose string) error {
-	ports := r.parsePortsFromCompose(compose)
-	for _, port := range ports {
-		_ = r.firewall.Port(firewall.FireInfo{
-			Family:    "ipv4",
-			PortStart: port.Port,
-			PortEnd:   port.Port,
-			Protocol:  port.Protocol,
-			Strategy:  firewall.StrategyAccept,
-			Direction: "in",
-		}, firewall.OperationAdd)
-	}
-	return nil
-}
-
-type composePort struct {
-	Port     uint
-	Protocol firewall.Protocol
-}
-
-// parsePortsFromCompose 从 compose 文件中解析端口
-func (r *templateRepo) parsePortsFromCompose(compose string) []composePort {
-	var ports []composePort
-	seen := make(map[string]bool)
-
-	// 匹配 ports 部分的端口映射
-	// 支持格式: "8080:80", "8080:80/tcp", "8080:80/udp", "80", "80/tcp"
-	portRegex := regexp.MustCompile(`(?m)^\s*-\s*["']?(\d+)(?::\d+)?(?:/(\w+))?["']?\s*$`)
-	matches := portRegex.FindAllStringSubmatch(compose, -1)
-
-	for _, match := range matches {
-		if len(match) < 2 {
-			continue
-		}
-
-		portStr := match[1]
-		protocol := firewall.ProtocolTCP
-		if len(match) > 2 && match[2] != "" {
-			switch strings.ToLower(match[2]) {
-			case "udp":
-				protocol = firewall.ProtocolUDP
-			case "tcp":
-				protocol = firewall.ProtocolTCP
-			}
-		}
-
-		// 去重
-		key := portStr + "/" + string(protocol)
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-
-		var port uint
-		if _, _, found := strings.Cut(portStr, ":"); found {
-			// 格式: host:container
-			parts := strings.Split(portStr, ":")
-			if len(parts) > 0 {
-				port = cast.ToUint(parts[0])
-			}
-		} else {
-			port = cast.ToUint(portStr)
-		}
-
-		if port > 0 && port <= 65535 {
-			ports = append(ports, composePort{
-				Port:     port,
-				Protocol: protocol,
-			})
-		}
-	}
-
-	return ports
 }
 
 // LoadLocalTemplates 从本地目录加载模板

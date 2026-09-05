@@ -17,7 +17,6 @@ type TemplateRepo interface {
 	LoadLocalTemplates() api.Templates
 	Callback(slug string) error
 	WriteCompose(name, compose string, envs []types.KV) (string, error)
-	OpenComposePorts(compose string) error
 }
 
 type TemplateUsecase struct {
@@ -80,7 +79,7 @@ func (uc *TemplateUsecase) Callback(slug string) error {
 }
 
 // CreateCompose 创建编排
-func (uc *TemplateUsecase) CreateCompose(name, compose string, envs []types.KV, autoFirewall bool) (string, error) {
+func (uc *TemplateUsecase) CreateCompose(name, compose string, envs []types.KV) (string, error) {
 	dir := filepath.Join(app.Root, "compose", name)
 
 	// 检查编排是否已存在
@@ -88,15 +87,5 @@ func (uc *TemplateUsecase) CreateCompose(name, compose string, envs []types.KV, 
 		return "", errors.New(uc.t.Get("compose %s already exists", name))
 	}
 
-	dir, err := uc.repo.WriteCompose(name, compose, envs)
-	if err != nil {
-		return "", err
-	}
-
-	// 自动放行端口
-	if autoFirewall {
-		_ = uc.repo.OpenComposePorts(compose)
-	}
-
-	return dir, nil
+	return uc.repo.WriteCompose(name, compose, envs)
 }
