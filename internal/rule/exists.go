@@ -1,6 +1,7 @@
 package rule
 
 import (
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/validator"
 	"gorm.io/gorm"
 )
@@ -10,15 +11,16 @@ import (
 // 例子：exists:users,phone,email
 type Exists struct {
 	db *gorm.DB
+	t  *gotext.Locale
 }
 
-func NewExists(db *gorm.DB) *Exists {
-	return &Exists{db: db}
+func NewExists(db *gorm.DB, t *gotext.Locale) *Exists {
+	return &Exists{db: db, t: t}
 }
 
 func (r *Exists) Signature() string { return "exists" }
 
-func (r *Exists) Message() string { return "{field} is not exists" }
+func (r *Exists) Message() string { return r.t.Get("{field} does not exist") }
 
 func (r *Exists) Validate(f *validator.Field) (bool, error) {
 	rv := f.Reflect()

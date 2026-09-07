@@ -15,7 +15,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/request"
 )
 
-// defaultValidator Bind 使用的校验器，启动时经 SetValidator 换成带自定义规则的实例
+// defaultValidator Bind 使用的校验器
 var defaultValidator = validator.Default()
 
 // SetValidator 设置 Bind 使用的校验器
@@ -23,8 +23,7 @@ func SetValidator(v *validator.Validator) {
 	defaultValidator = v
 }
 
-// clientIP 提取客户端 IP，优先取配置的真实 IP 头
-// 代理头通常给的是裸 IP，只有 RemoteAddr 带端口，两种形态都要能解析
+// clientIP 提取客户端 IP
 func clientIP(r *http.Request, ipHeader string) string {
 	ip := r.RemoteAddr
 	if ipHeader != "" && r.Header.Get(ipHeader) != "" {
@@ -146,10 +145,10 @@ func Bind[T any](r *http.Request) (*T, error) {
 
 	// 开始验证
 	if err = vd.Validate(r.Context()); err != nil {
+		if errs, ok := validator.AsErrors(err); ok {
+			return nil, errors.New(errs.One())
+		}
 		return nil, err
-	}
-	if vd.Fails() {
-		return nil, errors.New(vd.Errors().One())
 	}
 
 	return req, nil

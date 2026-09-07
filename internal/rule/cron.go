@@ -3,24 +3,27 @@ package rule
 import (
 	"regexp"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/validator"
 	"github.com/spf13/cast"
 )
 
 // Cron 校验规则
 type Cron struct {
+	t  *gotext.Locale
 	re *regexp.Regexp
 }
 
-func NewCron() *Cron {
+func NewCron(t *gotext.Locale) *Cron {
 	return &Cron{
+		t:  t,
 		re: regexp.MustCompile(`(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)|((((\d+,)+\d+|((\*|\d+)(\/|-)\d+)|\d+|\*) ?){5,7})`),
 	}
 }
 
 func (s *Cron) Signature() string { return "cron" }
 
-func (s *Cron) Message() string { return "{field} must be a valid cron expression" }
+func (s *Cron) Message() string { return s.t.Get("{field} must be a valid cron expression") }
 
 func (s *Cron) Passes(f *validator.Field) bool {
 	if validator.IsEmptyValue(f.Reflect()) {

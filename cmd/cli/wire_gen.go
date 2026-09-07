@@ -78,7 +78,7 @@ func initCli() (*app.Cli, func(), error) {
 	}
 	websiteStatUsecase := biz.NewWebsiteStatUsecase(websiteStatRepo)
 	websiteUsecase := biz.NewWebsiteUsecase(certAccountUsecase, certUsecase, databaseUsecase, databaseUserUsecase, tamperUsecase, websiteStatUsecase, locale, slogLogger, databaseServerRepo, websiteRepo)
-	validator := bootstrap.NewValidator(config, db)
+	validator := bootstrap.NewValidator(config, db, locale)
 	cliService := service.NewCliService(appUsecase, backupUsecase, cacheUsecase, certAccountUsecase, certUsecase, cronUsecase, databaseServerUsecase, notifyUsecase, settingUsecase, userPasskeyUsecase, userUsecase, websiteUsecase, config, db, locale, validator)
 	v := command.Commands(locale, cliService)
 	cliCommand := bootstrap.NewCli(locale, v)

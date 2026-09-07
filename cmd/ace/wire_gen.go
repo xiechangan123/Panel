@@ -121,7 +121,7 @@ func initAce() (*app.Ace, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	validator := bootstrap.NewValidator(config, db)
+	validator := bootstrap.NewValidator(config, db, locale)
 	alertRepo, err := data.NewAlertRepo(db)
 	if err != nil {
 		cleanup()

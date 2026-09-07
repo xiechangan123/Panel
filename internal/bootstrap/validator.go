@@ -1,21 +1,24 @@
 package bootstrap
 
 import (
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/validator"
 	"github.com/libtnb/validator/translations"
 	"gorm.io/gorm"
 
+	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/rule"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
 
 // NewValidator 构建校验器
-func NewValidator(conf *config.Config, db *gorm.DB) *validator.Validator {
-
+func NewValidator(conf *config.Config, db *gorm.DB, t *gotext.Locale) *validator.Validator {
 	opts := []validator.Option{
 		validator.WithStrictRequired(),
-		validator.WithRules(rule.Rules()...),
-		validator.WithFallibleRules(rule.FallibleRules(db)...),
+		validator.WithRules(rule.Rules(t)...),
+		validator.WithFallibleRules(rule.FallibleRules(db, t)...),
+		validator.WithMessages(rule.Messages(t)),
+		validator.WithAttributes(request.Attributes(t)),
 	}
 	switch conf.App.Locale {
 	case "zh_CN":

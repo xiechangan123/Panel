@@ -3,21 +3,24 @@ package rule
 import (
 	"unicode"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/validator"
 	"github.com/spf13/cast"
 )
 
 // Password 密码复杂度校验
-type Password struct{}
+type Password struct {
+	t *gotext.Locale
+}
 
-func NewPassword() *Password {
-	return &Password{}
+func NewPassword(t *gotext.Locale) *Password {
+	return &Password{t: t}
 }
 
 func (r *Password) Signature() string { return "password" }
 
 func (r *Password) Message() string {
-	return "{field} must be 8-20 characters long and contain at least two types of characters: uppercase letters, lowercase letters, numbers, and special characters"
+	return r.t.Get("{field} must be 8-20 characters long and contain at least two types of characters: uppercase letters, lowercase letters, numbers, and special characters")
 }
 
 func (r *Password) Passes(f *validator.Field) bool {
