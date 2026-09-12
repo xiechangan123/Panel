@@ -224,13 +224,6 @@ const handleBeforeClose = (): Promise<boolean> => {
   })
 }
 
-// 处理遮罩点击
-const handleMaskClick = async () => {
-  if (await handleBeforeClose()) {
-    show.value = false
-  }
-}
-
 // 监听 show 变化，自动初始化终端
 watch(
   () => show.value,
@@ -269,9 +262,9 @@ defineExpose({
     :bordered="false"
     :segmented="false"
     :mask-closable="false"
+    :close-on-esc="false"
     :closable="true"
     :on-close="handleBeforeClose"
-    @mask-click="handleMaskClick"
     @after-leave="handleModalClose"
   >
     <div class="terminal-shell flex-1 min-h-0">
