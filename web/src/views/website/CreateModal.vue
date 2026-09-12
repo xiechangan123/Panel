@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
+import ListInput from '@/components/common/ListInput.vue'
 import PathSelector from '@/components/common/PathSelector.vue'
 import { generateRandomString } from '@/utils'
 
@@ -90,29 +91,6 @@ const modalTitle = computed(() => {
   }
 })
 
-// 域名分隔符正则表达式（支持逗号、空格、换行分隔）
-const DOMAIN_SEPARATORS_REGEX = /[\s,\n\r]+/
-
-// 处理域名粘贴，支持批量添加
-const handleDomainCreate = (index: number, value: string) => {
-  if (DOMAIN_SEPARATORS_REGEX.test(value)) {
-    // 解析多个域名并去除空白
-    const domains = value
-      .split(DOMAIN_SEPARATORS_REGEX)
-      .map((d) => d.trim())
-      .filter((d) => d !== '')
-    if (domains.length > 1) {
-      // 移除当前空输入框
-      createModel.value.domains.splice(index, 1)
-      // 过滤掉已存在的域名，避免重复
-      const existingDomains = new Set(createModel.value.domains.map((d) => d.trim()))
-      const newDomains = domains.filter((d) => !existingDomains.has(d))
-      // 将新域名添加到列表
-      createModel.value.domains.push(...newDomains)
-    }
-  }
-}
-
 const handleCreate = async () => {
   createModel.value.type = effectiveType.value
   // 端口为空自动添加 80 端口
@@ -193,30 +171,18 @@ watch(showPathSelector, (val) => {
       <n-row :gutter="[0, 24]">
         <n-col :span="11">
           <n-form-item :label="$gettext('Domain')">
-            <n-dynamic-input
+            <ListInput
               v-model:value="createModel.domains"
               placeholder="example.com"
               :min="1"
               show-sort-button
-              @update:value="
-                (value: any) => {
-                  // 检查最后一个元素是否包含多个域名
-                  if (value.length > 0) {
-                    const lastIndex = value.length - 1
-                    const lastValue = value[lastIndex]
-                    if (lastValue && DOMAIN_SEPARATORS_REGEX.test(lastValue)) {
-                      handleDomainCreate(lastIndex, lastValue)
-                    }
-                  }
-                }
-              "
             />
           </n-form-item>
         </n-col>
         <n-col :span="2"></n-col>
         <n-col :span="11">
           <n-form-item :label="$gettext('Port')">
-            <n-dynamic-input
+            <ListInput
               v-model:value="createModel.listens"
               placeholder="80"
               :min="1"

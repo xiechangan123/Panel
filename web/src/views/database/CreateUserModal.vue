@@ -3,6 +3,7 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import database from '@/api/panel/database'
+import ListInput from '@/components/common/ListInput.vue'
 import { generateRandomString } from '@/utils'
 
 const props = defineProps<{
@@ -160,7 +161,7 @@ watch(
           />
         </n-form-item>
         <n-form-item path="privileges" :label="$gettext('Privileges')">
-          <n-dynamic-input
+          <ListInput
             v-model:value="createModel.privileges"
             :placeholder="$gettext('Enter database name')"
           />

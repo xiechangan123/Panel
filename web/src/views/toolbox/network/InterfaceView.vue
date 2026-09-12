@@ -3,6 +3,7 @@ import type { DataTableColumns } from 'naive-ui'
 import { NButton, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
+import ListInput from '@/components/common/ListInput.vue'
 import toolboxNetwork, {
   type NetworkFamilyConfig,
   type NetworkInterface,
@@ -400,7 +401,7 @@ loadInterfaces()
           </n-gi>
         </n-grid>
         <n-form-item :label="family.addressLabel">
-          <n-dynamic-input
+          <ListInput
             v-model:value="editing[family.key].addresses"
             :disabled="editing[family.key].mode === 'disabled'"
             :placeholder="family.addressPlaceholder"
@@ -416,7 +417,7 @@ loadInterfaces()
           />
         </n-form-item>
         <n-form-item :label="family.dnsLabel">
-          <n-dynamic-input
+          <ListInput
             v-model:value="editing[family.key].dns"
             :disabled="editing[family.key].mode === 'disabled'"
             :placeholder="family.dnsPlaceholder"

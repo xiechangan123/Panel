@@ -123,46 +123,22 @@ const fetchSettings = () => {
     })
 }
 
-// 添加镜像
-const addMirror = () => {
-  if (mirrorInput.value && !settings.value['registry-mirrors']?.includes(mirrorInput.value)) {
-    settings.value['registry-mirrors'] = [
-      ...(settings.value['registry-mirrors'] || []),
-      mirrorInput.value,
-    ]
-    mirrorInput.value = ''
-  }
+// 追加到列表，输入框内容按空白、逗号、分号拆分以支持一次粘贴多条，重复项自动跳过
+const addItems = (input: Ref<string>, key: string) => {
+  const items = input.value
+    .split(/[\s,;]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+  if (!items.length) return
+
+  settings.value[key] = [...new Set([...(settings.value[key] || []), ...items])]
+  input.value = ''
 }
 
-// 添加非安全镜像仓库
-const addInsecureRegistry = () => {
-  if (
-    insecureRegistryInput.value &&
-    !settings.value['insecure-registries']?.includes(insecureRegistryInput.value)
-  ) {
-    settings.value['insecure-registries'] = [
-      ...(settings.value['insecure-registries'] || []),
-      insecureRegistryInput.value,
-    ]
-    insecureRegistryInput.value = ''
-  }
-}
-
-// 添加 DNS
-const addDns = () => {
-  if (dnsInput.value && !settings.value.dns?.includes(dnsInput.value)) {
-    settings.value.dns = [...(settings.value.dns || []), dnsInput.value]
-    dnsInput.value = ''
-  }
-}
-
-// 添加 Host
-const addHost = () => {
-  if (hostInput.value && !settings.value.hosts?.includes(hostInput.value)) {
-    settings.value.hosts = [...(settings.value.hosts || []), hostInput.value]
-    hostInput.value = ''
-  }
-}
+const addMirror = () => addItems(mirrorInput, 'registry-mirrors')
+const addInsecureRegistry = () => addItems(insecureRegistryInput, 'insecure-registries')
+const addDns = () => addItems(dnsInput, 'dns')
+const addHost = () => addItems(hostInput, 'hosts')
 
 // 保存设置
 const handleSaveSettings = () => {

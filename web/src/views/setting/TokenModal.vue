@@ -4,6 +4,7 @@ import { NAlert, NButton, NDataTable, NFlex, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import user from '@/api/panel/user'
+import ListInput from '@/components/common/ListInput.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 
@@ -256,7 +257,7 @@ watch(
     <n-flex vertical>
       <n-form>
         <n-form-item :label="$gettext('IP White List')">
-          <n-dynamic-input
+          <ListInput
             v-model:value="createModel.ips"
             :placeholder="$gettext('127.0.0.1')"
             show-sort-button
@@ -294,7 +295,7 @@ watch(
     <n-flex vertical>
       <n-form>
         <n-form-item :label="$gettext('IP White List')">
-          <n-dynamic-input
+          <ListInput
             v-model:value="updateModel.ips"
             :placeholder="$gettext('127.0.0.1')"
             show-sort-button

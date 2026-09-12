@@ -3,6 +3,7 @@ import { NButton, NDataTable, NFlex, NSpace, NSwitch, NTag } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import ListInput from '@/components/common/ListInput.vue'
 import { useConfirm } from '@/components/system/composables/useConfirm'
 import { formatDateTime } from '@/utils'
 import ObtainModal from '@/views/cert/ObtainModal.vue'
@@ -532,7 +533,7 @@ onUnmounted(() => {
       </n-alert>
       <n-form :model="updateModel">
         <n-form-item v-if="updateModel.type != 'upload'" path="domains" :label="$gettext('Domain')">
-          <n-dynamic-input
+          <ListInput
             v-model:value="updateModel.domains"
             placeholder="example.com"
             :min="1"

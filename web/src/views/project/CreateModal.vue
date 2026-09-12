@@ -4,6 +4,7 @@ import { useGettext } from 'vue3-gettext'
 import home from '@/api/panel/home'
 import project from '@/api/panel/project'
 import website from '@/api/panel/website'
+import ListInput from '@/components/common/ListInput.vue'
 import PathSelector from '@/components/common/PathSelector.vue'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -629,7 +630,7 @@ const modalTitle = computed(() => {
         <n-row :gutter="[24, 0]">
           <n-col :span="16">
             <n-form-item :label="$gettext('Domain')">
-              <n-dynamic-input
+              <ListInput
                 v-model:value="proxyOptions.domains"
                 placeholder="example.com"
                 :min="1"

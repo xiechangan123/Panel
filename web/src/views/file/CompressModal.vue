@@ -3,6 +3,7 @@ import { NButton, NInput } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import api from '@/api/panel/file'
+import ListInput from '@/components/common/ListInput.vue'
 import { useFileStore } from '@/stores'
 import { generateRandomString, getBase } from '@/utils'
 
@@ -103,7 +104,8 @@ watch(show, (val) => {
     <n-flex vertical>
       <n-form>
         <n-form-item :label="$gettext('Files to compress')">
-          <n-dynamic-input v-model:value="paths" :min="1" />
+          <!-- 路径可能含空格，只按换行拆分 -->
+          <ListInput v-model:value="paths" :min="1" :separator="/[\r\n]+/" />
         </n-form-item>
         <n-form-item :label="$gettext('Compress to')">
           <n-input v-model:value="file" />

@@ -3,6 +3,7 @@ import { NButton, NInput, NSpace } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import cert from '@/api/panel/cert'
+import ListInput from '@/components/common/ListInput.vue'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -100,7 +101,7 @@ const handleCreateCert = () => {
       </n-alert>
       <n-form :model="model">
         <n-form-item :label="$gettext('Domain')">
-          <n-dynamic-input
+          <ListInput
             v-model:value="model.domains"
             placeholder="example.com"
             :min="1"

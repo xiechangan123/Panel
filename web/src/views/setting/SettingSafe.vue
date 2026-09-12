@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
+import ListInput from '@/components/common/ListInput.vue'
+
 const { $gettext } = useGettext()
 
 const model = defineModel<any>('model', { type: Object, required: true })
@@ -142,11 +144,7 @@ const httpsMode = computed({
             }}
           </n-tooltip>
         </template>
-        <n-dynamic-input
-          v-model:value="model.bind_domain"
-          placeholder="example.com"
-          show-sort-button
-        />
+        <ListInput v-model:value="model.bind_domain" placeholder="example.com" show-sort-button />
       </n-form-item>
       <n-form-item>
         <template #label>
@@ -164,7 +162,7 @@ const httpsMode = computed({
             }}
           </n-tooltip>
         </template>
-        <n-dynamic-input v-model:value="model.bind_ip" placeholder="127.0.0.1" show-sort-button />
+        <ListInput v-model:value="model.bind_ip" placeholder="127.0.0.1" show-sort-button />
       </n-form-item>
       <n-form-item>
         <template #label>
@@ -182,10 +180,12 @@ const httpsMode = computed({
             }}
           </n-tooltip>
         </template>
-        <n-dynamic-input
+        <!-- UA 自身含空格和分号，只按换行拆分 -->
+        <ListInput
           v-model:value="model.bind_ua"
           placeholder="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36"
           show-sort-button
+          :separator="/[\r\n]+/"
         />
       </n-form-item>
       <n-form-item>
@@ -270,7 +270,7 @@ const httpsMode = computed({
             }}
           </n-tooltip>
         </template>
-        <n-dynamic-input v-model:value="model.public_ip" placeholder="127.0.0.1" show-sort-button />
+        <ListInput v-model:value="model.public_ip" placeholder="127.0.0.1" show-sort-button />
       </n-form-item>
       <n-form-item v-if="httpsMode === 'custom'" :label="$gettext('Certificate')">
         <n-input

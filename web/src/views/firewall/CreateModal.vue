@@ -3,6 +3,7 @@ import { NButton } from 'naive-ui'
 import { useGettext } from 'vue3-gettext'
 
 import firewall from '@/api/panel/firewall'
+import ListInput from '@/components/common/ListInput.vue'
 
 const { $gettext } = useGettext()
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
@@ -188,7 +189,7 @@ const handleCreate = async () => {
         </n-col>
       </n-row>
       <n-form-item path="address" :label="$gettext('Target')">
-        <n-dynamic-input
+        <ListInput
           v-model:value="createModel.address"
           show-sort-button
           :placeholder="$gettext('IP or IP range: 172.16.0.1 or 172.16.0.0/16')"

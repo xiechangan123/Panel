@@ -9,6 +9,7 @@ import file from '@/api/panel/file'
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import KeyValueEditor from '@/components/common/KeyValueEditor.vue'
+import ListInput from '@/components/common/ListInput.vue'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const editId = defineModel<number>('editId', { type: Number, required: true })
@@ -969,7 +970,7 @@ const removeCustomConfig = (index: number) => {
         <n-tab-pane name="listen" :tab="$gettext('Domain & Listening')">
           <n-form v-if="setting">
             <n-form-item :label="$gettext('Domain')">
-              <n-dynamic-input
+              <ListInput
                 v-model:value="setting.domains"
                 placeholder="example.com"
                 :min="1"
