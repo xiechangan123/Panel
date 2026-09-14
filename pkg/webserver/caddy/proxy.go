@@ -15,9 +15,8 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// 上游写成顶层片段，只含 to 与 lb_policy，供 reverse_proxy 块内 import；
-// 代理按 nginx 的 location 优先级排入一个 route 块，route 内按书写顺序匹配，匹配器序号即用户定义顺序；
-// 无法从指令推导的字段以 ace: 注释回写
+// 上游写成顶层片段供 reverse_proxy 块内 import；代理按 nginx 的 location 优先级排入一个 route 块，
+// 匹配器序号即用户定义顺序；无法从指令推导的字段以 ace: 注释回写
 
 func (v *baseVhost) upstreamSnippet(name string) string {
 	return fmt.Sprintf("ace_upstream_%s_%s", v.safeName, safeName(name))
@@ -237,7 +236,7 @@ func (v *baseVhost) buildTransport(rp *conf.Directive, p types.Proxy, https bool
 	}
 }
 
-// proxyTarget 解析代理目标：命中上游时返回片段名，否则返回 Caddy 形式的后端地址
+// proxyTarget 命中上游返回片段名，否则返回 Caddy 形式的后端地址
 func (v *baseVhost) proxyTarget(pass string) (string, string) {
 	u, err := url.Parse(pass)
 	if err != nil || u.Host == "" {
@@ -259,7 +258,6 @@ func (v *baseVhost) proxyTarget(pass string) (string, string) {
 	return "", net.JoinHostPort(u.Hostname(), port)
 }
 
-// passPrefixRewrite 取前缀 location 与 proxy_pass 的路径部分，用于 uri 替换
 func passPrefixRewrite(p types.Proxy) (string, string) {
 	location := strings.TrimSpace(p.Location)
 	if strings.HasPrefix(location, "~") {
@@ -295,7 +293,6 @@ func (v *baseVhost) loadProxies(body *conf.Block) {
 	}
 }
 
-// loadProxy 由 handle 块还原一条代理
 func (v *baseVhost) loadProxy(h *conf.Directive) types.Proxy {
 	p := types.Proxy{
 		Location:  h.Meta("location"),
@@ -391,7 +388,7 @@ const (
 // denyAll nginx `deny all` 的等价写法
 var denyAll = []string{"0.0.0.0/0", "::/0"}
 
-// accessLists 处理 nginx 习惯的 all：允许列表里的 all 等于不限制；有允许列表时 deny all 已隐含，否则展开为全部网段
+// accessLists nginx 习惯的 all：允许列表里等于不限制，有允许列表时 deny all 已隐含，否则展开为全部网段
 func accessLists(ac *types.AccessControlConfig) ([]string, []string) {
 	var allow, deny []string
 	for _, ip := range ac.Allow {
@@ -410,7 +407,6 @@ func accessLists(ac *types.AccessControlConfig) ([]string, []string) {
 	return allow, deny
 }
 
-// locationMatcher 将 nginx 风格的 location 转换为 Caddy 路径匹配器参数
 func locationMatcher(location string) []string {
 	location = strings.TrimSpace(location)
 	switch {
@@ -424,7 +420,6 @@ func locationMatcher(location string) []string {
 	return []string{"path", strings.TrimSpace(strings.TrimPrefix(location, "^~")) + "*"}
 }
 
-// caddyAddress 将 nginx 风格的上游地址转换为 Caddy 形式
 func caddyAddress(addr string) string {
 	if path, ok := strings.CutPrefix(addr, "unix:"); ok {
 		return "unix/" + path
@@ -432,7 +427,6 @@ func caddyAddress(addr string) string {
 	return addr
 }
 
-// nginxAddress 将 Caddy 上游地址还原为 nginx 风格
 func nginxAddress(addr string) string {
 	if path, ok := strings.CutPrefix(addr, "unix/"); ok {
 		return "unix:" + path
@@ -450,7 +444,7 @@ var nginxVariables = strings.NewReplacer(
 	"$server_port", "{port}",
 )
 
-// caddyValue 把头部值里常见的 nginx 变量换成 Caddy 占位符，便于切换服务器后继续生效
+// caddyValue 常见的 nginx 变量换成 Caddy 占位符，切换服务器后头部仍生效
 func caddyValue(value string) string {
 	return nginxVariables.Replace(value)
 }

@@ -47,7 +47,7 @@ func TestValidateWithCaddy(t *testing.T) {
 	}
 	d := Dialect{}
 
-	// PHP 站点：SSL、认证、重定向、全部类型片段与所有伪静态预置
+	// PHP 站点：SSL、认证、重定向与全部类型片段
 	phpDir := newSite("php")
 	php, err := NewPHPVhost(phpDir)
 	require.NoError(t, err)

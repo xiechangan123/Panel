@@ -178,18 +178,16 @@ func lex(content string) ([]token, error) {
 	return tokens, nil
 }
 
-// escapedNewline 位置 i 是否为反斜杠续行
 func escapedNewline(s string, i int) bool {
 	return s[i] == '\\' && i+1 < len(s) && s[i+1] == '\n'
 }
 
-// isHeredoc 判断 `<<` 之后是否为合法的 heredoc 标记且标记后紧跟换行
 func isHeredoc(rest string) bool {
 	nl := strings.IndexByte(rest, '\n')
 	return nl > 0 && heredocMarker.MatchString(rest[:nl])
 }
 
-// readHeredoc 读取 heredoc 正文直到独立的结束标记行，按结束标记的缩进去除每行前导空白，返回正文与消费的字节数
+// readHeredoc 按结束标记的缩进去掉每行前导空白，返回正文与消费的字节数
 func readHeredoc(s, marker string) (string, int, error) {
 	consumed := 0
 	var lines []string
@@ -218,7 +216,6 @@ func readHeredoc(s, marker string) (string, int, error) {
 	return "", 0, fmt.Errorf("unterminated heredoc %s", marker)
 }
 
-// splitAddresses 去掉站点地址间的逗号
 func splitAddresses(tokens []token) []string {
 	var out []string
 	for _, t := range tokens {
@@ -283,7 +280,7 @@ func render(b *strings.Builder, n conf.Node, depth int) {
 	}
 }
 
-// quote 按需为 token 加引号：含换行用 heredoc，含双引号用反引号，含空白或结构字符用双引号
+// quote 含换行用 heredoc，含双引号用反引号，含空白或结构字符用双引号
 func quote(t, indent string) string {
 	switch {
 	case t == "":
@@ -304,12 +301,11 @@ func quote(t, indent string) string {
 
 // ========== 站点块 ==========
 
-// isSite 带块且不是片段定义或全局选项的顶层指令是站点块，Name 与 Args 为地址列表
+// isSite 带块且不是片段或全局选项的顶层指令，Name 与 Args 为地址列表
 func isSite(d *conf.Directive) bool {
 	return d.Block != nil && d.Name != "" && !strings.HasPrefix(d.Name, "(")
 }
 
-// sites 全部顶层站点块
 func sites(cfg *conf.Config) []*conf.Directive {
 	var out []*conf.Directive
 	for _, d := range cfg.All() {
@@ -320,12 +316,10 @@ func sites(cfg *conf.Config) []*conf.Directive {
 	return out
 }
 
-// addresses 站点块的地址列表
 func addresses(d *conf.Directive) []string {
 	return append([]string{d.Name}, d.Values()...)
 }
 
-// addSite 追加一个站点块
 func addSite(cfg *conf.Config, addrs ...string) *conf.Directive {
 	return cfg.AddBlock(addrs[0], addrs[1:]...)
 }

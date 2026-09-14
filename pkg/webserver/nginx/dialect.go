@@ -81,7 +81,7 @@ func (Dialect) LSCacheConf(string) string {
 	return ""
 }
 
-// StatConf 共享级 log_format 与站点级 syslog access_log，站点名经 SafeName 后才能做 log_format 名与 syslog tag
+// StatConf 站点名经 SafeName 才能做 log_format 名与 syslog tag
 func (Dialect) StatConf(name string) (string, string) {
 	safe := SafeName(name)
 	shared := fmt.Sprintf(`log_format ace_stat_%s escape=json
@@ -112,7 +112,7 @@ func (Dialect) DefaultSiteConf() string {
 	return DefaultSiteConf
 }
 
-// WriteDefaultSite 内置默认站点，asDefault 为 false 时不带 default_server，由某个站点持有
+// WriteDefaultSite asDefault 为 false 时 default_server 由某个站点持有
 func (Dialect) WriteDefaultSite(asDefault bool) error {
 	flag := ""
 	if asDefault {

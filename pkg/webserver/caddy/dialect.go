@@ -28,7 +28,6 @@ func (Dialect) ConfigFile() string {
 	return ConfName
 }
 
-// PanelACMEConf 面板验证的 token 文件名记录，用于清理
 func (Dialect) PanelACMEConf() string {
 	return panelACMEConf
 }
@@ -58,13 +57,12 @@ func (Dialect) LSCacheConf(string) string {
 	return ""
 }
 
-// StatConf 站点级多加一条日志，JSON 直发面板的统计套接字，append 编码器带上站点名；
-// soft_start 让套接字暂不可用时配置仍能加载
+// StatConf JSON 直发面板的统计套接字，soft_start 保证套接字暂不可用时配置仍能加载
 func (Dialect) StatConf(name string) (string, string) {
 	return "", fmt.Sprintf(statConf, name)
 }
 
-// DefaultSiteConf 兜底块固定在主配置里，默认站点靠站点块自己的无主机名地址排在它前面，不需要独立文件
+// DefaultSiteConf 兜底块固定在主配置里，默认站点靠无主机名地址排在它前面
 func (Dialect) DefaultSiteConf() string {
 	return ""
 }
@@ -110,7 +108,7 @@ func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
 	return vhost, nil
 }
 
-// WriteSiteChallenge 验证目录是静态文件目录，落盘 token 即可，无需重载
+// WriteSiteChallenge 落盘 token 即可，无需重载
 func (Dialect) WriteSiteChallenge(_, path, token string) (bool, error) {
 	return false, writeToken(path, token)
 }
@@ -119,7 +117,7 @@ func (Dialect) RemoveSiteChallenge(_, path, _ string) (bool, error) {
 	return false, removeToken(path)
 }
 
-// WritePanelChallenge 面板域名可能落在任意站点或兜底站点，token 目录共用，另记录文件名供清理
+// WritePanelChallenge token 目录各站点共用，另记录文件名供清理
 func (Dialect) WritePanelChallenge(conf string, _ []string, tokens map[string]string) (bool, error) {
 	var names []string
 	for path, token := range tokens {
@@ -150,7 +148,6 @@ func (Dialect) RemovePanelChallenge(conf string) (bool, error) {
 	return false, os.WriteFile(conf, []byte(""), 0600)
 }
 
-// tokenFile 验证路径对应的 token 文件，站点以 ACMEDir 为根直接提供
 func tokenFile(path string) string {
 	return filepath.Join(ACMEDir, acmeURI, filepath.Base(path))
 }

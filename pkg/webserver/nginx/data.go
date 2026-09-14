@@ -9,7 +9,7 @@ const DisablePage = HTMLDir + "/stop.html"
 // SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"
 
-// DefaultSiteConf 内置默认站点配置，默认站点切换时在它与站点之间迁移 default_server
+// DefaultSiteConf 内置默认站点配置
 const DefaultSiteConf = "/opt/ace/server/nginx/conf/default.conf"
 
 // 配置文件序号范围

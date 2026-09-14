@@ -1533,7 +1533,7 @@ func writeBasicAuthUsers(d webserver.Dialect, htpasswdPath string, users map[str
 	return io.Write(htpasswdPath, content, 0644) // 必须 0644，Nginx 在运行中以 www 用户读取
 }
 
-// enableStat 写入访问统计片段，共享级片段只有需要的服务器才有
+// enableStat 共享级片段只有部分服务器需要
 func (r *websiteRepo) enableStat(d webserver.Dialect, vhost webservertypes.Vhost, name string) error {
 	shared, site := d.StatConf(name)
 	if shared != "" {

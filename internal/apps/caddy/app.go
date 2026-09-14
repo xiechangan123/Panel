@@ -81,7 +81,6 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// reload 经方言重载
 func (s *App) reload() error {
 	d, err := webserver.Get(webserver.TypeCaddy)
 	if err != nil {
