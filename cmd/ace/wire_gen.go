@@ -99,7 +99,7 @@ func initAce() (*app.Ace, func(), error) {
 	opensearchApp := opensearch.NewApp(locale)
 	perconaApp := percona.NewApp(mysqlApp)
 	pgadminApp := pgadmin.NewApp(config, locale, databaseServerRepo)
-	phpmyadminApp := phpmyadmin.NewApp(config, locale, databaseServerRepo)
+	phpmyadminApp := phpmyadmin.NewApp(config, locale, databaseServerRepo, settingRepo)
 	podmanApp := podman.NewApp()
 	postgresqlApp := postgresql.NewApp(locale, config, databaseServerRepo, settingRepo, taskRepo)
 	prometheusApp := prometheus.NewApp(config, locale, taskRepo)

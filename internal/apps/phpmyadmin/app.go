@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -24,23 +25,39 @@ import (
 	"github.com/acepanel/panel/v3/pkg/config"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/io"
-	"github.com/acepanel/panel/v3/pkg/shell"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
+	webservertypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
+
+// configDir phpMyAdmin 站点配置目录，由安装脚本按当前 Web 服务器写入
+var configDir = app.Root + "/sites/phpmyadmin/config"
 
 type App struct {
 	t                  *gotext.Locale
 	conf               *config.Config
 	databaseServerRepo biz.DatabaseServerRepo
+	settingRepo        biz.SettingRepo
 }
 
-func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo) *App {
+func NewApp(conf *config.Config, t *gotext.Locale, databaseServerRepo biz.DatabaseServerRepo, settingRepo biz.SettingRepo) *App {
 	return &App{
 		t:                  t,
 		conf:               conf,
 		databaseServerRepo: databaseServerRepo,
+		settingRepo:        settingRepo,
 	}
+}
+
+// dialect 取当前 Web 服务器方言
+func (s *App) dialect() (webserver.Dialect, error) {
+	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return webserver.Dialect{}, err
+	}
+
+	return webserver.Get(webserver.Type(webServer))
 }
 
 func (s *App) Route(r chi.Router) {
@@ -51,9 +68,13 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 }
 
-// Status phpMyAdmin 由 nginx 站点承载，运行状态与 nginx 一致
+// Status phpMyAdmin 由 Web 服务器站点承载，运行状态与 Web 服务器一致
 func (s *App) Status() string {
-	ok, _ := systemctl.Status("nginx")
+	d, err := s.dialect()
+	if err != nil {
+		return types.AggregateAppStatus(false)
+	}
+	ok, _ := systemctl.Status(d.Service())
 	return types.AggregateAppStatus(ok)
 }
 
@@ -74,16 +95,20 @@ func (s *App) info() (string, int, error) {
 		return "", 0, errors.New(s.t.Get("phpMyAdmin directory not found"))
 	}
 
-	conf, err := io.Read(app.Root + "/sites/phpmyadmin/config/nginx.conf")
+	d, err := s.dialect()
 	if err != nil {
 		return "", 0, err
 	}
-	match := regexp.MustCompile(`listen\s+(\d+);`).FindStringSubmatch(conf)
-	if len(match) == 0 {
+	vhost, err := d.NewPHPVhost(configDir)
+	if err != nil {
+		return "", 0, err
+	}
+	listens := vhost.Listen()
+	if len(listens) == 0 {
 		return "", 0, errors.New(s.t.Get("phpMyAdmin port not found"))
 	}
 
-	return phpmyadmin, cast.ToInt(match[1]), nil
+	return phpmyadmin, cast.ToInt(listens[0].Address[strings.LastIndex(listens[0].Address, ":")+1:]), nil
 }
 
 func (s *App) Info(w http.ResponseWriter, r *http.Request) {
@@ -248,13 +273,21 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conf, err := io.Read(app.Root + "/sites/phpmyadmin/config/nginx.conf")
+	d, err := s.dialect()
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	conf = regexp.MustCompile(`listen\s+(\d+);`).ReplaceAllString(conf, "listen "+cast.ToString(req.Port)+";")
-	if err = io.Write(app.Root+"/sites/phpmyadmin/config/nginx.conf", conf, 0600); err != nil {
+	vhost, err := d.NewPHPVhost(configDir)
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = vhost.SetListen([]webservertypes.Listen{{Address: cast.ToString(req.Port), Args: []string{}}}); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = vhost.Save(); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -272,9 +305,8 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
+	if err = d.Reload(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
@@ -282,7 +314,12 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, err := io.Read(app.Root + "/sites/phpmyadmin/config/nginx.conf")
+	d, err := s.dialect()
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	config, err := io.Read(filepath.Join(configDir, d.ConfigFile()))
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -298,14 +335,17 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write(app.Root+"/sites/phpmyadmin/config/nginx.conf", req.Config, 0600); err != nil {
+	d, err := s.dialect()
+	if err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
+	if err = io.Write(filepath.Join(configDir, d.ConfigFile()), req.Config, 0600); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = d.Reload(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
