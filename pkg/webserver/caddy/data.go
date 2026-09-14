@@ -33,7 +33,7 @@ header @ace_assets Cache-Control max-age=21600
 log_skip @ace_assets
 # deny sensitive files
 @ace_sensitive path_regexp ^/(\.user\.ini|\.htaccess|\.git|\.svn|\.env)
-respond @ace_sensitive 404
+error @ace_sensitive 404
 `
 
 const spaConf = `# single-page application route fallback, remove if not needed

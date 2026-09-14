@@ -134,15 +134,16 @@ func (v *baseVhost) buildProxies(body *nodeList) {
 			h.AddBlock("request_body").Add("max_size", strconv.FormatInt(p.ClientMaxBodySize, 10))
 		}
 		if p.AccessControl != nil {
-			if len(p.AccessControl.Deny) > 0 {
-				deny := fmt.Sprintf("@ace_deny_%d", i)
-				h.Add(append([]string{deny, "remote_ip"}, p.AccessControl.Deny...)...)
-				h.Add("respond", deny, "403")
+			allow, deny := accessLists(p.AccessControl)
+			if len(deny) > 0 {
+				name := fmt.Sprintf("@ace_deny_%d", i)
+				h.Add(append([]string{name, "remote_ip"}, deny...)...)
+				h.Add("respond", name, "403")
 			}
-			if len(p.AccessControl.Allow) > 0 {
-				allow := fmt.Sprintf("@ace_allow_%d", i)
-				h.Add(append([]string{allow, "not", "remote_ip"}, p.AccessControl.Allow...)...)
-				h.Add("respond", allow, "403")
+			if len(allow) > 0 {
+				name := fmt.Sprintf("@ace_allow_%d", i)
+				h.Add(append([]string{name, "not", "remote_ip"}, allow...)...)
+				h.Add("respond", name, "403")
 			}
 		}
 		// proxy_pass 带路径时把匹配到的前缀替换为该路径，正则 location 不支持
@@ -167,7 +168,15 @@ func (v *baseVhost) buildProxies(body *nodeList) {
 		default:
 			rp.Add("header_up", "Host", caddyValue(host))
 		}
+		// X-Forwarded-* 由 Caddy 自动附加，X-Real-IP 与 nginx 方言一样默认补上
+		if _, ok := p.Headers[realIPHeader]; !ok {
+			rp.Add("header_up", realIPHeader, realIPValue)
+		}
 		for _, name := range sortedKeys(p.Headers) {
+			// nginx 习惯手写的 X-Forwarded-For 链由 Caddy 自动维护，写死反而会丢掉上游链路
+			if strings.EqualFold(name, "X-Forwarded-For") && p.Headers[name] == "$proxy_add_x_forwarded_for" {
+				continue
+			}
 			rp.Add("header_up", name, caddyValue(p.Headers[name]))
 		}
 		if p.ResponseHeaders != nil {
@@ -308,8 +317,10 @@ func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
 		}
 		if m.Arg(0) == "not" {
 			p.AccessControl.Allow = append(p.AccessControl.Allow, m.Args()[2:]...)
+		} else if deny := m.Args()[1:]; slices.Equal(deny, denyAll) {
+			p.AccessControl.Deny = append(p.AccessControl.Deny, "all")
 		} else {
-			p.AccessControl.Deny = append(p.AccessControl.Deny, m.Args()[1:]...)
+			p.AccessControl.Deny = append(p.AccessControl.Deny, deny...)
 		}
 	}
 	for _, d := range h.Directives("replace") {
@@ -321,9 +332,11 @@ func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
 		return p
 	}
 	for _, d := range rp.Directives("header_up") {
-		if d.Arg(0) == "Host" {
+		switch {
+		case d.Arg(0) == "Host":
 			p.Host = d.Arg(1)
-		} else {
+		case d.Arg(0) == realIPHeader && d.Arg(1) == realIPValue:
+		default:
 			p.Headers[d.Arg(0)] = d.Arg(1)
 		}
 	}
@@ -367,6 +380,33 @@ func (v *baseVhost) loadProxy(h *Directive) types.Proxy {
 		p.Timeout = &types.TimeoutConfig{Connect: connect, Read: read}
 	}
 	return p
+}
+
+const (
+	realIPHeader = "X-Real-IP"
+	realIPValue  = "{remote_host}"
+)
+
+// denyAll nginx `deny all` 的等价写法
+var denyAll = []string{"0.0.0.0/0", "::/0"}
+
+// accessLists 处理 nginx 习惯的 all：允许列表里的 all 等于不限制；有允许列表时 deny all 已隐含，否则展开为全部网段
+func accessLists(ac *types.AccessControlConfig) ([]string, []string) {
+	var allow, deny []string
+	for _, ip := range ac.Allow {
+		if !strings.EqualFold(ip, "all") {
+			allow = append(allow, ip)
+		}
+	}
+	for _, ip := range ac.Deny {
+		switch {
+		case !strings.EqualFold(ip, "all"):
+			deny = append(deny, ip)
+		case len(allow) == 0:
+			deny = append(deny, denyAll...)
+		}
+	}
+	return allow, deny
 }
 
 // locationMatcher 将 nginx 风格的 location 转换为 Caddy 路径匹配器参数

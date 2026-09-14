@@ -149,7 +149,7 @@ func lex(content string) ([]token, error) {
 			i++
 		case ch == ' ' || ch == '\t' || ch == '\r':
 			i++
-		case ch == '\\' && i+1 < len(s) && s[i+1] == '\n':
+		case escapedNewline(s, i):
 			i += 2
 		case ch == '#':
 			end := strings.IndexByte(s[i:], '\n')
@@ -190,7 +190,7 @@ func lex(content string) ([]token, error) {
 			i += nl + 1 + next
 		default:
 			j := i
-			for j < len(s) && !strings.ContainsRune(" \t\r\n", rune(s[j])) {
+			for j < len(s) && !strings.ContainsRune(" \t\r\n", rune(s[j])) && !escapedNewline(s, j) {
 				j++
 			}
 			tokens = append(tokens, token{text: s[i:j], line: line})
@@ -198,6 +198,11 @@ func lex(content string) ([]token, error) {
 		}
 	}
 	return tokens, nil
+}
+
+// escapedNewline 位置 i 是否为反斜杠续行
+func escapedNewline(s string, i int) bool {
+	return s[i] == '\\' && i+1 < len(s) && s[i+1] == '\n'
 }
 
 // isHeredoc 判断 `<<` 之后是否为合法的 heredoc 标记且标记后紧跟换行

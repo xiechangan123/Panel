@@ -71,6 +71,11 @@ func (s *ParserTestSuite) TestLexer() {
 	s.Equal([]string{"X-A", `with "quote"`, "X-B", "1"}, all[1].Args())
 	s.Equal([]string{"line1\n  line2", "200"}, all[2].Args())
 
+	// token 中间的反斜杠换行同样续行
+	cfg, err = Parse("header X-A val\\\n  X-B 1\n")
+	s.Require().NoError(err)
+	s.Equal([]string{"X-A", "val", "X-B", "1"}, cfg.All()[0].Args())
+
 	_, err = Parse("a {\n")
 	s.Error(err)
 	_, err = Parse("}\n")

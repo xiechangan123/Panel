@@ -701,8 +701,8 @@ func (r *websiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
 		// 目标支持访问统计时沿用原开关，来源不支持则默认开启
 		StatEnabled: d.Features().Stat && (setting.StatEnabled || !source.Features().Stat),
 		LSCache:     d.Features().LSCache && setting.LSCache,
-		AccessLog:   setting.AccessLog,
-		ErrorLog:    setting.ErrorLog,
+		AccessLog:   siteLogPath(website.Name, setting.AccessLog),
+		ErrorLog:    siteLogPath(website.Name, setting.ErrorLog),
 		RateLimit:   setting.RateLimit,
 		RealIP:      setting.RealIP,
 		BasicAuth:   setting.BasicAuth,
@@ -760,6 +760,14 @@ func (r *websiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
 
 	_ = io.Remove(backupDir)
 	return true, notes, nil
+}
+
+// siteLogPath 日志路径只沿用站点目录内的，来源服务器的专有路径（如 Caddy 的全局错误日志）在卸载后不复存在
+func siteLogPath(name, path string) string {
+	if strings.HasPrefix(path, filepath.Join(app.Root, "sites", name)+"/") {
+		return path
+	}
+	return ""
 }
 
 // sourceDialect 按站点目录里最新修改的主配置文件识别上一个 Web 服务器

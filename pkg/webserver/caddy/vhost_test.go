@@ -72,7 +72,7 @@ func (s *VhostTestSuite) TestBasicRoundTrip() {
 	s.NoError(vhost.Save())
 
 	conf := s.conf()
-	s.Contains(conf, "import "+filepath.Join(s.configDir, "shared", "*.conf")+"\n")
+	s.NotContains(conf, "shared/*.conf", "共享目录为空时不引用")
 	site := "ace_site_" + safeName(filepath.Base(filepath.Dir(s.configDir)))
 	s.Contains(conf, "\n("+site+") {\n")
 	s.Contains(conf, "\nhttp://example.com:80,\nhttp://www.example.com:80 {\n\timport "+site+"\n}\n")
@@ -338,11 +338,12 @@ func (s *VhostTestSuite) TestProxies() {
 	// 精确、^~ 前缀、正则、普通前缀的顺序
 	s.Regexp(`(?s)@ace_proxy_3 path /health.*@ace_proxy_1 path /api/\*.*@ace_proxy_2 path_regexp \(\?i\)\\\.\(jpg\|png\)\$.*@ace_proxy_0 path /\*`, conf)
 	s.Contains(conf, "\t\thandle @ace_proxy_0 {\n\t\t\t# ace:location /\n\t\t\t# ace:pass http://backend\n\t\t\treplace http://old https://new\n\t\t\treverse_proxy {\n\t\t\t\timport "+s.snippet("backend")+"\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n")
+	s.Equal(1, strings.Count(conf, "header_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n\t\t@ace_proxy_1"), "用户自定义的 X-Real-IP 不重复补默认值")
 	s.Contains(conf, "\t\t\trequest_body {\n\t\t\t\tmax_size 10485760\n\t\t\t}\n")
 	s.Contains(conf, "\t\t\t@ace_deny_1 remote_ip 10.0.0.99\n\t\t\trespond @ace_deny_1 403\n\t\t\t@ace_allow_1 not remote_ip 10.0.0.0/8\n\t\t\trespond @ace_allow_1 403\n")
 	s.Contains(conf, "\t\t\turi path_regexp ^/api/ /v2/\n")
-	s.Contains(conf, "\t\t\treverse_proxy 10.0.0.5:443 {\n\t\t\t\theader_down X-Proxy caddy\n\t\t\t\theader_down -Server\n\t\t\t\tflush_interval -1\n\t\t\t\tlb_retries 3\n\t\t\t\tlb_try_duration 10s\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_server_name api.internal\n\t\t\t\t\ttls_trust_pool file /ca.pem\n\t\t\t\t\tversions h2c 2\n\t\t\t\t\tdial_timeout 5s\n\t\t\t\t\tresponse_header_timeout 1m30s\n\t\t\t\t}\n\t\t\t}\n")
-	s.Contains(conf, "\t\t\treverse_proxy unix//tmp/app.sock\n")
+	s.Contains(conf, "\t\t\treverse_proxy 10.0.0.5:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\theader_down X-Proxy caddy\n\t\t\t\theader_down -Server\n\t\t\t\tflush_interval -1\n\t\t\t\tlb_retries 3\n\t\t\t\tlb_try_duration 10s\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_server_name api.internal\n\t\t\t\t\ttls_trust_pool file /ca.pem\n\t\t\t\t\tversions h2c 2\n\t\t\t\t\tdial_timeout 5s\n\t\t\t\t\tresponse_header_timeout 1m30s\n\t\t\t\t}\n\t\t\t}\n")
+	s.Contains(conf, "\t\t\treverse_proxy unix//tmp/app.sock {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n")
 
 	reloaded, err := NewProxyVhost(s.configDir)
 	s.Require().NoError(err)
@@ -362,7 +363,8 @@ func (s *VhostTestSuite) TestProxies() {
 	s.Equal("/", got[0].Location)
 	s.Equal("http://backend", got[0].Pass)
 	s.Equal("{upstream_hostport}", got[0].Host)
-	s.Equal(map[string]string{"X-Real-IP": "{remote_host}"}, got[0].Headers)
+	// 与默认值相同的 X-Real-IP 不当作用户头回读
+	s.Equal(map[string]string{}, got[0].Headers)
 	s.Equal(map[string]string{"http://old": "https://new"}, got[0].Replaces)
 	s.True(got[0].Buffering)
 
@@ -401,11 +403,43 @@ func (s *VhostTestSuite) TestHTTPSBackendDefaults() {
 	s.Require().NoError(err)
 	s.NoError(vhost.SetProxies([]types.Proxy{{Location: "/", Pass: "https://backend.example.com", Buffering: true}}))
 	s.NoError(vhost.Save())
-	s.Contains(s.conf(), "\t\t\treverse_proxy backend.example.com:443 {\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_insecure_skip_verify\n\t\t\t\t}\n\t\t\t}\n")
+	s.Contains(s.conf(), "\t\t\treverse_proxy backend.example.com:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_insecure_skip_verify\n\t\t\t\t}\n\t\t\t}\n")
 	reloaded, err := NewProxyVhost(s.configDir)
 	s.Require().NoError(err)
 	s.Nil(reloaded.Proxies()[0].SSLBackend)
 	s.Equal("", reloaded.Proxies()[0].SNI)
+}
+
+func (s *VhostTestSuite) TestAccessControlAll() {
+	vhost, err := NewProxyVhost(s.configDir)
+	s.Require().NoError(err)
+	s.NoError(vhost.SetProxies([]types.Proxy{
+		{Location: "/a", Pass: "http://127.0.0.1:1", Buffering: true, AccessControl: &types.AccessControlConfig{Deny: []string{"all"}}},
+		{Location: "/b", Pass: "http://127.0.0.1:1", Buffering: true, AccessControl: &types.AccessControlConfig{Allow: []string{"10.0.0.1", "all"}, Deny: []string{"all"}}},
+	}))
+	s.NoError(vhost.Save())
+	conf := s.conf()
+	s.Contains(conf, "\t\t\t@ace_deny_0 remote_ip 0.0.0.0/0 ::/0\n")
+	s.NotContains(conf, "@ace_deny_1")
+	s.Contains(conf, "\t\t\t@ace_allow_1 not remote_ip 10.0.0.1\n")
+
+	reloaded, err := NewProxyVhost(s.configDir)
+	s.Require().NoError(err)
+	s.Equal(&types.AccessControlConfig{Deny: []string{"all"}}, reloaded.Proxies()[0].AccessControl)
+	s.Equal(&types.AccessControlConfig{Allow: []string{"10.0.0.1"}}, reloaded.Proxies()[1].AccessControl)
+}
+
+func (s *VhostTestSuite) TestSharedImport() {
+	vhost, err := NewStaticVhost(s.configDir)
+	s.Require().NoError(err)
+	s.NoError(vhost.SetConfig("custom.conf", types.ScopeShared, "(shared_snippet) {\n\tencode gzip\n}\n"))
+	s.NoError(vhost.Save())
+	s.Contains(s.conf(), "import "+filepath.Join(s.configDir, "shared", "*.conf")+"\n")
+}
+
+func (s *VhostTestSuite) TestSafeName() {
+	s.Equal("a_2db_2ec__d9", safeName("a-b.c_d9"))
+	s.NotEqual(safeName("a-b"), safeName("a_b"))
 }
 
 func (s *VhostTestSuite) TestReset() {
