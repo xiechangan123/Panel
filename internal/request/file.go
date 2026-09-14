@@ -1,6 +1,7 @@
 package request
 
 import (
+	"mime/multipart"
 	"net/http"
 
 	"github.com/spf13/cast"
@@ -90,28 +91,39 @@ type FileShareToken struct {
 	Token string `json:"token" form:"token" uri:"token" validate:"required"`
 }
 
+// FileUpload 上传文件请求
+type FileUpload struct {
+	Path  string                `form:"path" validate:"required && unix_path"` // 目标路径
+	Force bool                  `form:"force"`                                 // 是否覆盖已存在文件
+	File  *multipart.FileHeader `form:"file" validate:"required"`              // 文件
+}
+
+// ChunkUploadFile 分块上传的文件标识，各接口共用
+type ChunkUploadFile struct {
+	Path     string `json:"path" form:"path" validate:"required && unix_path"`        // 目标目录
+	FileName string `json:"file_name" form:"file_name" validate:"required"`           // 文件名
+	FileHash string `json:"file_hash" form:"file_hash" validate:"required && len:64"` // 文件SHA256
+}
+
 // ChunkUploadStart 分块上传开始请求
 type ChunkUploadStart struct {
-	Path       string `json:"path" validate:"required && unix_path"`    // 目标目录
-	FileName   string `json:"file_name" validate:"required"`            // 文件名
-	FileHash   string `json:"file_hash" validate:"required && len:64"`  // 文件SHA256
-	ChunkCount int    `json:"chunk_count" validate:"required && min:1"` // 分块总数
-	ChunkSize  int    `json:"chunk_size" validate:"required && min:1"`  // 分块大小（字节）
-	Force      bool   `json:"force"`                                    // 是否覆盖已存在文件
+	ChunkUploadFile
+	ChunkCount int  `json:"chunk_count" validate:"required && min:1"` // 分块总数
+	ChunkSize  int  `json:"chunk_size" validate:"required && min:1"`  // 分块大小（字节）
+	Force      bool `json:"force"`                                    // 是否覆盖已存在文件
+}
+
+// ChunkUpload 上传分块请求
+type ChunkUpload struct {
+	ChunkUploadFile
+	ChunkIndex int                   `form:"chunk_index" validate:"min:0"` // 分块下标
+	ChunkHash  string                `form:"chunk_hash"`                   // 分块SHA256，为空则不校验
+	File       *multipart.FileHeader `form:"file" validate:"required"`     // 分块数据
 }
 
 // ChunkUploadFinish 分块上传完成请求
 type ChunkUploadFinish struct {
-	Path       string `json:"path" validate:"required && unix_path"`    // 目标目录
-	FileName   string `json:"file_name" validate:"required"`            // 文件名
-	FileHash   string `json:"file_hash" validate:"required && len:64"`  // 文件SHA256
-	ChunkCount int    `json:"chunk_count" validate:"required && min:1"` // 分块总数
-	Force      bool   `json:"force"`                                    // 是否覆盖已存在文件
-}
-
-// ChunkUploadCancel 取消分块上传请求
-type ChunkUploadCancel struct {
-	Path     string `json:"path" validate:"required && unix_path"`   // 目标目录
-	FileName string `json:"file_name" validate:"required"`           // 文件名
-	FileHash string `json:"file_hash" validate:"required && len:64"` // 文件SHA256
+	ChunkUploadFile
+	ChunkCount int  `json:"chunk_count" validate:"required && min:1"` // 分块总数
+	Force      bool `json:"force"`                                    // 是否覆盖已存在文件
 }

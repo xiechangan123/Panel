@@ -294,50 +294,46 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	req, err := Bind[request.FileUpload](r)
+	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
-
-	path := r.FormValue("path")
-	force := r.FormValue("force") == "true"
-	if !filepath.IsAbs(path) {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid path %s", path))
-		return
-	}
-	_, handler, err := r.FormFile("file")
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("upload file error: %v", err))
-		return
-	}
-	if io.Exists(path) && !force {
-		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", path))
+	if io.Exists(req.Path) && !req.Force {
+		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", req.Path))
 		return
 	}
 
-	dir := filepath.Dir(path)
+	dir := filepath.Dir(req.Path)
 	if err = stdos.MkdirAll(dir, 0755); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
 		return
 	}
 
-	// 先写同目录临时文件再 rename 替换，中途失败不留半截文件
-	tmp, err := stdos.CreateTemp(dir, "."+filepath.Base(path)+".*.part")
+	// 先写同目录临时文件再 rename 替换，中途失败不留半截文件；替换成功后临时文件已不存在，Remove 无害
+	tmp, err := stdos.CreateTemp(dir, "."+filepath.Base(req.Path)+".*.part")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("open file error: %v", err))
 		return
 	}
-	src, err := handler.Open()
-	if err == nil {
-		_, err = stdio.Copy(tmp, src)
-		_ = src.Close()
-	}
-	_ = tmp.Close()
-	if err == nil {
-		err = s.replaceFile(tmp.Name(), path)
-	}
-	if err != nil {
+	defer func() {
+		_ = tmp.Close()
 		_ = stdos.Remove(tmp.Name())
+	}()
+
+	src, err := req.File.Open()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("upload file error: %v", err))
+		return
+	}
+	_, err = stdio.Copy(tmp, src)
+	_ = src.Close()
+	_ = tmp.Close()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
+		return
+	}
+	if err = s.replaceFile(tmp.Name(), req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
@@ -787,23 +783,14 @@ func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
 
 // ChunkUploadChunk 上传单个分块，流式写入数据文件的对应偏移
 func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	req, err := Bind[request.ChunkUpload](r)
+	if err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	path := r.FormValue("path")
-	fileName := r.FormValue("file_name")
-	fileHash := r.FormValue("file_hash")
-	chunkHash := r.FormValue("chunk_hash")
-	chunkIndex, err := strconv.Atoi(r.FormValue("chunk_index"))
-	if !filepath.IsAbs(path) || fileName == "" || strings.Contains(fileName, "/") || len(fileHash) != 64 || err != nil || chunkIndex < 0 {
-		Error(w, http.StatusBadRequest, s.t.Get("invalid chunk upload parameters"))
-		return
-	}
-
 	// 位图由 start 创建，同时提供分块总数和分块大小
-	part, mapPath := s.chunkTempPaths(path, fileName, fileHash)
+	part, mapPath := s.chunkTempPaths(req.Path, req.FileName, req.FileHash)
 	bitmap, err := stdos.ReadFile(mapPath)
 	if err != nil || len(bitmap) <= chunkMapHeader || binary.LittleEndian.Uint64(bitmap) == 0 {
 		Error(w, http.StatusBadRequest, s.t.Get("chunk upload not started"))
@@ -811,17 +798,12 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 	}
 	chunkCount := len(bitmap) - chunkMapHeader
 	chunkSize := int64(binary.LittleEndian.Uint64(bitmap))
-	if chunkIndex >= chunkCount {
+	if req.ChunkIndex >= chunkCount {
 		Error(w, http.StatusBadRequest, s.t.Get("chunk index out of range"))
 		return
 	}
 
-	_, handler, err := r.FormFile("file")
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("get upload file error: %v", err))
-		return
-	}
-	src, err := handler.Open()
+	src, err := req.File.Open()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("open upload file error: %v", err))
 		return
@@ -837,7 +819,7 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 
 	// 边写边算 hash；LimitReader 保证不会写到本块范围之外
 	hasher := sha256.New()
-	writer := stdio.MultiWriter(stdio.NewOffsetWriter(file, int64(chunkIndex)*chunkSize), hasher)
+	writer := stdio.MultiWriter(stdio.NewOffsetWriter(file, int64(req.ChunkIndex)*chunkSize), hasher)
 	n, err := stdio.Copy(writer, stdio.LimitReader(src, chunkSize))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
@@ -846,11 +828,11 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 
 	// 非末块必须是整块，末块不能超过分块大小，有多余数据说明分块大小对不上
 	extra := make([]byte, 1)
-	if m, _ := src.Read(extra); m > 0 || n == 0 || (chunkIndex < chunkCount-1 && n != chunkSize) {
+	if m, _ := src.Read(extra); m > 0 || n == 0 || (req.ChunkIndex < chunkCount-1 && n != chunkSize) {
 		Error(w, http.StatusBadRequest, s.t.Get("chunk size mismatch"))
 		return
 	}
-	if chunkHash != "" && !strings.EqualFold(hex.EncodeToString(hasher.Sum(nil)), chunkHash) {
+	if req.ChunkHash != "" && !strings.EqualFold(hex.EncodeToString(hasher.Sum(nil)), req.ChunkHash) {
 		Error(w, http.StatusBadRequest, s.t.Get("chunk hash mismatch"))
 		return
 	}
@@ -862,13 +844,13 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer func() { _ = mapFile.Close() }()
-	if _, err = mapFile.WriteAt([]byte{1}, int64(chunkMapHeader+chunkIndex)); err != nil {
+	if _, err = mapFile.WriteAt([]byte{1}, int64(chunkMapHeader+req.ChunkIndex)); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
 		return
 	}
 
 	Success(w, chix.M{
-		"chunk_index": chunkIndex,
+		"chunk_index": req.ChunkIndex,
 	})
 }
 
@@ -911,7 +893,7 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 
 // ChunkUploadCancel 取消分块上传，删除临时文件
 func (s *FileService) ChunkUploadCancel(w http.ResponseWriter, r *http.Request) {
-	req, err := Bind[request.ChunkUploadCancel](r)
+	req, err := Bind[request.ChunkUploadFile](r)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

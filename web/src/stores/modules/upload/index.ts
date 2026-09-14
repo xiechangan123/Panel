@@ -1,8 +1,9 @@
+import { promiseTimeout } from '@vueuse/core'
 import { sha256 } from 'js-sha256'
 import pLimit from 'p-limit'
 
 import api from '@/api/panel/file'
-import { dirname, getFilename, joinPath, type PickedFile } from '@/utils/file'
+import { dirname, getBase, getExt, getFilename, joinPath, type PickedFile } from '@/utils/file'
 import { $gettext } from '@/utils/gettext'
 
 export type UploadStatus =
@@ -16,6 +17,10 @@ export type UploadStatus =
 export type UploadPriority = 'high' | 'normal' | 'low'
 export type ConflictPolicy = 'ask' | 'skip' | 'rename' | 'overwrite'
 export type ConflictAction = 'skip' | 'rename' | 'overwrite'
+
+// 可以（重新）开始的状态 / 已结束的状态
+export const STARTABLE = new Set<UploadStatus>(['pending', 'paused', 'error', 'skipped'])
+export const FINISHED = new Set<UploadStatus>(['done', 'skipped'])
 
 export interface UploadItem {
   id: string
@@ -47,6 +52,8 @@ const CHUNK_RETRY = 5
 // 同时上传的文件数 / 单文件同时上传的分块数
 const FILE_CONCURRENCY = 3
 const CHUNK_CONCURRENCY = 3
+// 进度和速度的刷新间隔
+const TICK_MS = 500
 
 const PRIORITY_RANK: Record<UploadPriority, number> = { high: 0, normal: 1, low: 2 }
 
@@ -62,12 +69,10 @@ const abortTask = (task?: Task) => {
   task.requests.forEach((r) => r.abort())
 }
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-// 拆分文件名和扩展名
-const splitExt = (filename: string) => {
-  const dot = filename.lastIndexOf('.')
-  return dot > 0 ? [filename.slice(0, dot), filename.slice(dot)] : [filename, '']
+// 带序号的候选文件名：a.txt -> a-1.txt
+const numberedName = (filename: string, n: number) => {
+  const ext = getExt(filename)
+  return `${getBase(filename)}-${n}${ext ? `.${ext}` : ''}`
 }
 
 // SHA-256 十六进制：安全上下文（HTTPS/localhost）下用原生 WebCrypto，否则退回纯 JS 实现
@@ -82,20 +87,14 @@ const sha256Hex = async (data: Uint8Array): Promise<string> => {
 // 文件标识：大小 + 修改时间 + 首/中/尾各 1MB 采样，不用读整个文件；同一文件重新加入可续传
 const fileIdentifier = async (file: File): Promise<string> => {
   const sample = 1024 * 1024
-  const offsets = [0, Math.floor(file.size / 2 - sample / 2), file.size - sample]
-  const parts = [new TextEncoder().encode(`${file.size}|${file.lastModified}|`)]
-  for (const offset of offsets) {
-    const start = Math.max(0, offset)
-    parts.push(new Uint8Array(await file.slice(start, start + sample).arrayBuffer()))
-  }
-
-  const combined = new Uint8Array(parts.reduce((sum, p) => sum + p.byteLength, 0))
-  let cursor = 0
-  for (const part of parts) {
-    combined.set(part, cursor)
-    cursor += part.byteLength
-  }
-  return sha256Hex(combined)
+  const offsets = [0, Math.floor(file.size / 2 - sample / 2), file.size - sample].map((o) =>
+    Math.max(0, o),
+  )
+  const blob = new Blob([
+    `${file.size}|${file.lastModified}|`,
+    ...offsets.map((o) => file.slice(o, o + sample)),
+  ])
+  return sha256Hex(new Uint8Array(await blob.arrayBuffer()))
 }
 
 // 上传队列：全局单例，关闭弹窗不影响后台上传
@@ -143,37 +142,26 @@ export const useUploadStore = defineStore('upload', () => {
     return items.value.filter((i) => set.has(i.id))
   }
 
-  // ==================== 列表刷新 & 速度统计 ====================
+  // ==================== 列表刷新 & 进度统计 ====================
 
-  let refreshTimer: ReturnType<typeof setTimeout> | null = null
-  const scheduleRefresh = () => {
-    if (refreshTimer) return
-    refreshTimer = setTimeout(() => {
-      refreshTimer = null
-      window.$bus.emit('file:refresh')
-    }, 1000)
-  }
+  const scheduleRefresh = useThrottleFn(() => window.$bus.emit('file:refresh'), 1000, true, false)
 
-  const lastLoaded = new Map<string, number>()
-  let ticker: ReturnType<typeof setInterval> | null = null
-  const tick = () => {
-    for (const item of items.value) {
-      if (item.status !== 'uploading') continue
-      const prev = lastLoaded.get(item.id)
-      if (prev !== undefined) {
-        const instant = Math.max(0, item.loaded - prev)
-        item.speed = item.speed ? Math.round(item.speed * 0.6 + instant * 0.4) : instant
+  // 进度先记在普通 Map 里，由定时器批量刷进响应式字段并算速度，
+  // 避免每个 XHR progress 事件都触发整个队列表格重渲染
+  const loadedMap = new Map<string, number>()
+  const ticker = useIntervalFn(
+    () => {
+      for (const item of items.value) {
+        if (item.status !== 'uploading') continue
+        const loaded = loadedMap.get(item.id) ?? item.loaded
+        const instant = Math.max(0, loaded - item.loaded) * (1000 / TICK_MS)
+        item.speed = Math.round(item.speed ? item.speed * 0.6 + instant * 0.4 : instant)
+        item.loaded = loaded
       }
-      lastLoaded.set(item.id, item.loaded)
-    }
-  }
-  const startTicker = () => {
-    if (!ticker) ticker = setInterval(tick, 1000)
-  }
-  const stopTicker = () => {
-    if (ticker) clearInterval(ticker)
-    ticker = null
-  }
+    },
+    TICK_MS,
+    { immediate: false },
+  )
 
   // ==================== 传输 ====================
 
@@ -195,7 +183,7 @@ export const useUploadStore = defineStore('upload', () => {
     form.append('file', item.file)
     form.append('force', String(item.force))
     const method = api.upload(form)
-    method.onUpload(({ loaded }: { loaded: number }) => (item.loaded = loaded))
+    method.onUpload(({ loaded }: { loaded: number }) => loadedMap.set(item.id, loaded))
     await send(method, task)
   }
 
@@ -223,27 +211,26 @@ export const useUploadStore = defineStore('upload', () => {
     // 进度 = 已完成分块 + 在途分块已发送字节
     let doneBytes = 0
     uploaded.forEach((index) => (doneBytes += chunkLength(index)))
+    item.loaded = doneBytes
     const inflight = new Map<number, number>()
     const report = () => {
       let sum = doneBytes
       inflight.forEach((v) => (sum += v))
-      item.loaded = sum
+      loadedMap.set(item.id, sum)
     }
-    report()
 
     const uploadChunk = async (index: number) => {
       const start = index * CHUNK_SIZE
       const blob = item.file.slice(start, start + chunkLength(index))
-      const chunkHash = await sha256Hex(new Uint8Array(await blob.arrayBuffer()))
+      const form = new FormData()
+      form.append('path', dir)
+      form.append('file_name', fileName)
+      form.append('file_hash', item.hash)
+      form.append('chunk_index', String(index))
+      form.append('chunk_hash', await sha256Hex(new Uint8Array(await blob.arrayBuffer())))
+      form.append('file', blob)
       for (let attempt = 1; ; attempt++) {
         if (task.aborted) throw new Error('aborted')
-        const form = new FormData()
-        form.append('path', dir)
-        form.append('file_name', fileName)
-        form.append('file_hash', item.hash)
-        form.append('chunk_index', String(index))
-        form.append('chunk_hash', chunkHash)
-        form.append('file', blob)
         const method = api.chunkUpload(form)
         method.onUpload(({ loaded }: { loaded: number }) => {
           inflight.set(index, loaded)
@@ -258,16 +245,13 @@ export const useUploadStore = defineStore('upload', () => {
         } catch (error) {
           inflight.delete(index)
           if (task.aborted || attempt >= CHUNK_RETRY) throw error
-          await sleep(Math.min(1000 * 2 ** (attempt - 1), 8000))
+          await promiseTimeout(Math.min(1000 * 2 ** (attempt - 1), 8000))
         }
       }
     }
 
     const limit = pLimit(CHUNK_CONCURRENCY)
-    const pending: number[] = []
-    for (let i = 0; i < chunkCount; i++) {
-      if (!uploaded.has(i)) pending.push(i)
-    }
+    const pending = Array.from({ length: chunkCount }, (_, i) => i).filter((i) => !uploaded.has(i))
     await Promise.all(pending.map((index) => limit(() => uploadChunk(index))))
 
     if (task.aborted) throw new Error('aborted')
@@ -281,7 +265,7 @@ export const useUploadStore = defineStore('upload', () => {
     tasks.set(item.id, task)
     item.status = 'uploading'
     item.error = ''
-    startTicker()
+    ticker.resume()
 
     try {
       if (item.size > CHUNK_THRESHOLD) {
@@ -303,9 +287,9 @@ export const useUploadStore = defineStore('upload', () => {
       }
     } finally {
       tasks.delete(item.id)
-      lastLoaded.delete(item.id)
+      loadedMap.delete(item.id)
       item.speed = 0
-      if (tasks.size === 0) stopTicker()
+      if (tasks.size === 0) ticker.pause()
       schedule()
       finishRound()
     }
@@ -313,17 +297,16 @@ export const useUploadStore = defineStore('upload', () => {
 
   // 按优先级取排队项填满并发槽位，同优先级先进先出
   function schedule() {
-    while (tasks.size < FILE_CONCURRENCY) {
-      const next = items.value
-        .filter((i) => i.status === 'waiting' && i.planned && !tasks.has(i.id))
-        .sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority])[0]
-      if (!next) break
-      run(next)
+    const queue = items.value
+      .filter((i) => i.status === 'waiting' && i.planned && !tasks.has(i.id))
+      .sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority])
+    while (tasks.size < FILE_CONCURRENCY && queue.length > 0) {
+      run(queue.shift()!)
     }
   }
 
   function finishRound() {
-    if (tasks.size > 0 || items.value.some((i) => i.status === 'waiting')) return
+    if (tasks.size > 0 || stats.value.waiting > 0) return
     if (roundError > 0) {
       window.$message.warning($gettext('%{count} file(s) failed to upload', { count: roundError }))
     } else if (roundDone > 0) {
@@ -344,9 +327,8 @@ export const useUploadStore = defineStore('upload', () => {
       const candidates: { idx: number; name: string; path: string }[] = []
       conflicts.forEach((item, idx) => {
         if (result[idx]) return
-        const [base, ext] = splitExt(getFilename(item.target))
         for (let k = 0; k < batch; k++) {
-          const name = `${base}-${offset + k}${ext}`
+          const name = numberedName(getFilename(item.target), offset + k)
           candidates.push({ idx, name, path: joinPath(dirname(item.target), name) })
         }
       })
@@ -363,25 +345,26 @@ export const useUploadStore = defineStore('upload', () => {
         }
       })
     }
-    return result.map((name, idx) => {
-      if (name) return name
-      const [base, ext] = splitExt(getFilename(conflicts[idx]!.target))
-      return `${base}-${Date.now()}${ext}`
-    })
+    return result.map(
+      (name, idx) => name || numberedName(getFilename(conflicts[idx]!.target), Date.now()),
+    )
+  }
+
+  // 对冲突项执行选定的处理方式
+  const applyAction = (item: UploadItem, action: ConflictAction, newName: string) => {
+    if (action === 'skip') {
+      item.status = 'skipped'
+    } else if (action === 'rename') {
+      item.target = joinPath(dirname(item.target), newName)
+    } else {
+      item.force = true
+    }
   }
 
   // 检查目标是否已存在，按策略处理冲突；询问策略下等待用户在弹窗中选择
   async function plan(targets: UploadItem[]) {
     const unplanned = targets.filter((i) => !i.planned)
     if (unplanned.length === 0) return
-
-    if (conflictPolicy.value === 'overwrite') {
-      unplanned.forEach((i) => {
-        i.force = true
-        i.planned = true
-      })
-      return
-    }
 
     let exists: boolean[] = []
     try {
@@ -394,14 +377,10 @@ export const useUploadStore = defineStore('upload', () => {
     unplanned.forEach((i) => (i.planned = true))
     if (conflicts.length === 0) return
 
-    if (conflictPolicy.value === 'skip') {
-      conflicts.forEach((i) => (i.status = 'skipped'))
-      return
-    }
-
-    const names = await uniqueNames(conflicts)
-    if (conflictPolicy.value === 'rename') {
-      conflicts.forEach((i, idx) => (i.target = joinPath(dirname(i.target), names[idx]!)))
+    const policy = conflictPolicy.value
+    const names = policy === 'rename' || policy === 'ask' ? await uniqueNames(conflicts) : []
+    if (policy !== 'ask') {
+      conflicts.forEach((i, idx) => applyAction(i, policy, names[idx] ?? ''))
       return
     }
 
@@ -426,14 +405,7 @@ export const useUploadStore = defineStore('upload', () => {
     const byId = new Map(conflicts.map((i) => [i.id, i]))
     for (const c of resolved) {
       const item = byId.get(c.id)
-      if (!item) continue
-      if (c.action === 'skip') {
-        item.status = 'skipped'
-      } else if (c.action === 'rename') {
-        item.target = joinPath(dirname(item.target), c.newName)
-      } else {
-        item.force = true
-      }
+      if (item) applyAction(item, c.action, c.newName)
     }
   }
 
@@ -448,7 +420,7 @@ export const useUploadStore = defineStore('upload', () => {
   // 加入队列，不自动开始；同一目标路径的未完成项不重复加入
   function add(files: PickedFile[], dir: string) {
     const occupied = new Set(
-      items.value.filter((i) => i.status !== 'done' && i.status !== 'skipped').map((i) => i.target),
+      items.value.filter((i) => !FINISHED.has(i.status)).map((i) => i.target),
     )
     let duplicated = 0
     for (const { file, name } of files) {
@@ -481,9 +453,7 @@ export const useUploadStore = defineStore('upload', () => {
 
   // 开始/继续/重试，不传 ids 则作用于全部
   function start(ids?: string[]) {
-    const targets = pick(ids).filter((i) =>
-      ['pending', 'paused', 'error', 'skipped'].includes(i.status),
-    )
+    const targets = pick(ids).filter((i) => STARTABLE.has(i.status))
     if (targets.length === 0) return
     targets.forEach((i) => {
       // 失败/跳过的项重试时重新检查目标，失败可能已留下半截文件
@@ -510,9 +480,8 @@ export const useUploadStore = defineStore('upload', () => {
 
   // 取消/移除：中止传输并清理服务器上残留的临时分块
   function remove(ids?: string[]) {
-    const removing = new Set(pick(ids).map((i) => i.id))
-    for (const item of items.value) {
-      if (!removing.has(item.id)) continue
+    const removing = pick(ids)
+    for (const item of removing) {
       abortTask(tasks.get(item.id))
       if (item.hash && item.status !== 'done') {
         api
@@ -524,7 +493,8 @@ export const useUploadStore = defineStore('upload', () => {
           .catch(() => {})
       }
     }
-    items.value = items.value.filter((i) => !removing.has(i.id))
+    const removed = new Set(removing.map((i) => i.id))
+    items.value = items.value.filter((i) => !removed.has(i.id))
   }
 
   function setPriority(ids: string[] | undefined, priority: UploadPriority) {
@@ -532,13 +502,11 @@ export const useUploadStore = defineStore('upload', () => {
   }
 
   function clearFinished() {
-    remove(
-      items.value.filter((i) => i.status === 'done' || i.status === 'skipped').map((i) => i.id),
-    )
+    remove(items.value.filter((i) => FINISHED.has(i.status)).map((i) => i.id))
   }
 
   // 有上传进行中时离开页面需确认
-  window.addEventListener('beforeunload', (e) => {
+  useEventListener(window, 'beforeunload', (e) => {
     if (activeCount.value === 0) return
     e.preventDefault()
     e.returnValue = ''

@@ -72,6 +72,6 @@ func FileRoutes(fileService *service.FileService) Endpoints {
 			Document: DescribeReq[request.ChunkUploadFinish]()},
 		{Method: http.MethodPost, Path: "/api/file/chunk/cancel", Handler: file.ChunkUploadCancel,
 			Summary: "取消分块上传", Tags: []string{"文件"},
-			Document: DescribeReq[request.ChunkUploadCancel]()},
+			Document: DescribeReq[request.ChunkUploadFile]()},
 	}
 }

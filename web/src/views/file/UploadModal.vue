@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core'
 import {
   type DataTableColumns,
   NButton,
@@ -9,6 +8,7 @@ import {
   NTag,
   NText,
   NTooltip,
+  type TagProps,
   useThemeVars,
 } from 'naive-ui'
 import type { VNode } from 'vue'
@@ -17,6 +17,8 @@ import { useGettext } from 'vue3-gettext'
 import TheIcon from '@/components/custom/TheIcon.vue'
 import {
   type ConflictAction,
+  FINISHED,
+  STARTABLE,
   type UploadItem,
   type UploadPriority,
   type UploadStatus,
@@ -38,19 +40,16 @@ const show = defineModel<boolean>('show', { type: Boolean, required: true })
 // 新添加文件的目标目录
 const props = defineProps<{ path: string }>()
 
-const fileInput = ref<HTMLInputElement | null>(null)
-const dirInput = ref<HTMLInputElement | null>(null)
+const bodyRef = ref<HTMLElement | null>(null)
 const checked = ref<string[]>([])
+const rowKey = (row: UploadItem) => row.id
 
-const stats = computed(() => uploadStore.stats)
-const canStart = computed(
-  () => stats.value.pending + stats.value.paused + stats.value.error + stats.value.skipped > 0,
-)
-const canPause = computed(() => stats.value.waiting + stats.value.uploading > 0)
-const hasFinished = computed(() => stats.value.done + stats.value.skipped > 0)
+const canStart = computed(() => uploadStore.items.some((i) => STARTABLE.has(i.status)))
+const canPause = computed(() => uploadStore.activeCount > 0)
+const hasFinished = computed(() => uploadStore.items.some((i) => FINISHED.has(i.status)))
 
 const summary = computed(() => {
-  const s = stats.value
+  const s = uploadStore.stats
   const parts = [$gettext('%{n} in total', { n: s.total })]
   if (s.uploading) parts.push($gettext('%{n} uploading', { n: s.uploading }))
   if (s.waiting) parts.push($gettext('%{n} queued', { n: s.waiting }))
@@ -68,18 +67,16 @@ const policyOptions = computed(() => [
   { label: $gettext('Overwrite'), value: 'overwrite' },
 ])
 
-const priorityOptions = computed(() => [
-  { label: $gettext('High'), value: 'high' },
-  { label: $gettext('Normal'), value: 'normal' },
-  { label: $gettext('Low'), value: 'low' },
-])
-const priorityType: Record<UploadPriority, 'warning' | 'default' | 'info'> = {
-  high: 'warning',
-  normal: 'default',
-  low: 'info',
-}
+type TagType = TagProps['type']
+const priorityMeta = computed<Record<UploadPriority, { label: string; type: TagType }>>(() => ({
+  high: { label: $gettext('High'), type: 'warning' },
+  normal: { label: $gettext('Normal'), type: 'default' },
+  low: { label: $gettext('Low'), type: 'info' },
+}))
+const priorityOptions = computed(() =>
+  Object.entries(priorityMeta.value).map(([value, meta]) => ({ label: meta.label, value })),
+)
 
-type TagType = 'default' | 'info' | 'primary' | 'warning' | 'success' | 'error'
 const statusMeta = computed<Record<UploadStatus, { label: string; type: TagType }>>(() => ({
   pending: { label: $gettext('Pending'), type: 'default' },
   waiting: { label: $gettext('Queued'), type: 'info' },
@@ -96,39 +93,24 @@ const addFiles = (files: PickedFile[]) => {
   if (files.length > 0) uploadStore.add(files, props.path)
 }
 
-const onPick = (e: Event) => {
-  const input = e.target as HTMLInputElement
-  addFiles(filesFromInput(input.files))
-  input.value = ''
-}
+// 选文件和选文件夹共用一个对话框，文件夹通过 open({ directory: true })
+const fileDialog = useFileDialog({ multiple: true, reset: true })
+fileDialog.onChange((files) => addFiles(filesFromInput(files)))
 
-// 整个弹窗内容区都可拖入，用计数器抵消子元素间的 enter/leave
-const dragDepth = ref(0)
-const onDragEnter = (e: DragEvent) => {
-  if (e.dataTransfer?.types.includes('Files')) dragDepth.value++
-}
-const onDragLeave = () => {
-  dragDepth.value = Math.max(0, dragDepth.value - 1)
-}
-const onDrop = async (e: DragEvent) => {
-  dragDepth.value = 0
-  addFiles(await readDroppedFiles(e.dataTransfer))
-}
-// 拖到弹窗外松手时 leave 事件可能不成对，兜底复位
-useEventListener(document, 'drop', () => (dragDepth.value = 0))
+// 整个弹窗内容区都可拖入
+const { isOverDropZone } = useDropZone(bodyRef, {
+  checkValidity: (items) => Array.from(items).some((item) => item.kind === 'file'),
+  onDrop: async (_, event) => addFiles(await readDroppedFiles(event.dataTransfer)),
+})
 
 // ==================== 队列表格 ====================
 
 const iconButton = (icon: string, label: string, onClick: () => void) =>
-  h(NTooltip, null, {
-    trigger: () =>
-      h(
-        NButton,
-        { quaternary: true, circle: true, size: 'small', onClick },
-        { icon: () => h(TheIcon, { icon, size: 18 }) },
-      ),
-    default: () => label,
-  })
+  h(
+    NButton,
+    { quaternary: true, circle: true, size: 'small', title: label, onClick },
+    { icon: () => h(TheIcon, { icon, size: 18 }) },
+  )
 
 const columns = computed<DataTableColumns<UploadItem>>(() => [
   { type: 'selection' },
@@ -139,18 +121,10 @@ const columns = computed<DataTableColumns<UploadItem>>(() => [
     render: (row) => {
       const uploadName = getFilename(row.target)
       const renamed = uploadName !== getFilename(row.name)
-      return h(
-        NTooltip,
-        { placement: 'top-start', delay: 500 },
-        {
-          trigger: () =>
-            h('div', { class: 'truncate' }, [
-              row.name,
-              renamed ? h(NText, { depth: 3, class: 'ml-2' }, () => `→ ${uploadName}`) : null,
-            ]),
-          default: () => row.target,
-        },
-      )
+      return h('div', { class: 'truncate', title: row.target }, [
+        row.name,
+        renamed ? h(NText, { depth: 3, class: 'ml-2' }, () => `→ ${uploadName}`) : null,
+      ])
     },
   },
   {
@@ -164,11 +138,12 @@ const columns = computed<DataTableColumns<UploadItem>>(() => [
     key: 'loaded',
     width: 200,
     render: (row) => {
-      const percent = row.size
-        ? Math.min(100, Math.floor((row.loaded / row.size) * 100))
-        : row.status === 'done'
+      const percent =
+        row.status === 'done'
           ? 100
-          : 0
+          : row.size
+            ? Math.min(100, Math.floor((row.loaded / row.size) * 100))
+            : 0
       return h(NFlex, { align: 'center', size: 8, wrap: false }, () => [
         h(NProgress, {
           type: 'line',
@@ -222,10 +197,10 @@ const columns = computed<DataTableColumns<UploadItem>>(() => [
             {
               size: 'small',
               bordered: false,
-              type: priorityType[row.priority],
+              type: priorityMeta.value[row.priority].type,
               class: 'cursor-pointer',
             },
-            () => priorityOptions.value.find((o) => o.value === row.priority)?.label,
+            () => priorityMeta.value[row.priority].label,
           ),
       ),
   },
@@ -235,7 +210,7 @@ const columns = computed<DataTableColumns<UploadItem>>(() => [
     width: 90,
     render: (row) => {
       const buttons: VNode[] = []
-      if (['pending', 'paused', 'error', 'skipped'].includes(row.status)) {
+      if (STARTABLE.has(row.status)) {
         buttons.push(
           iconButton(
             'mdi:play',
@@ -247,10 +222,11 @@ const columns = computed<DataTableColumns<UploadItem>>(() => [
       if (row.status === 'waiting' || row.status === 'uploading') {
         buttons.push(iconButton('mdi:pause', $gettext('Pause'), () => uploadStore.pause([row.id])))
       }
-      const finished = row.status === 'done' || row.status === 'skipped'
       buttons.push(
-        iconButton('mdi:close', finished ? $gettext('Remove') : $gettext('Cancel'), () =>
-          uploadStore.remove([row.id]),
+        iconButton(
+          'mdi:close',
+          FINISHED.has(row.status) ? $gettext('Remove') : $gettext('Cancel'),
+          () => uploadStore.remove([row.id]),
         ),
       )
       return h(NFlex, { size: 0, wrap: false }, () => buttons)
@@ -328,10 +304,8 @@ const onConflictCancel = () => {
     :bordered="false"
     :segmented="false"
   >
-    <input ref="fileInput" type="file" multiple class="hidden" @change="onPick" />
-    <input ref="dirInput" type="file" webkitdirectory class="hidden" @change="onPick" />
-
     <div
+      ref="bodyRef"
       class="upload-body"
       :style="{
         '--border-color': themeVars.borderColor,
@@ -339,22 +313,18 @@ const onConflictCancel = () => {
         '--hover-color': themeVars.hoverColor,
         '--card-color': themeVars.modalColor,
       }"
-      @dragenter.prevent="onDragEnter"
-      @dragover.prevent
-      @dragleave="onDragLeave"
-      @drop.prevent="onDrop"
     >
       <n-flex vertical :size="12">
         <!-- 添加文件 + 同名策略 -->
         <n-flex align="center" justify="space-between">
           <n-flex align="center" :size="8">
-            <n-button @click="fileInput?.click()">
+            <n-button @click="fileDialog.open()">
               <template #icon>
                 <the-icon icon="mdi:file-plus-outline" :size="18" />
               </template>
               {{ $gettext('Add Files') }}
             </n-button>
-            <n-button @click="dirInput?.click()">
+            <n-button @click="fileDialog.open({ directory: true })">
               <template #icon>
                 <the-icon icon="mdi:folder-plus-outline" :size="18" />
               </template>
@@ -379,8 +349,8 @@ const onConflictCancel = () => {
         <div
           v-if="uploadStore.items.length === 0"
           class="drop-zone"
-          :class="{ active: dragDepth > 0 }"
-          @click="fileInput?.click()"
+          :class="{ active: isOverDropZone }"
+          @click="fileDialog.open()"
         >
           <the-icon :size="48" icon="mdi:cloud-upload-outline" />
           <NText>{{ $gettext('Drag files or folders here, or click to select files') }}</NText>
@@ -401,7 +371,7 @@ const onConflictCancel = () => {
             max-height="55vh"
             :columns="columns"
             :data="uploadStore.items"
-            :row-key="(row: UploadItem) => row.id"
+            :row-key="rowKey"
             :checked-row-keys="checked"
             @update:checked-row-keys="(keys: (string | number)[]) => (checked = keys as string[])"
           />
@@ -453,7 +423,7 @@ const onConflictCancel = () => {
       </n-flex>
 
       <!-- 拖入时的遮罩提示 -->
-      <div v-if="dragDepth > 0 && uploadStore.items.length > 0" class="drop-overlay">
+      <div v-if="isOverDropZone && uploadStore.items.length > 0" class="drop-overlay">
         <the-icon :size="40" icon="mdi:cloud-upload-outline" />
         <NText>{{ $gettext('Drop to add to the queue') }}</NText>
       </div>
