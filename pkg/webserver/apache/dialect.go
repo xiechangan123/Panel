@@ -95,6 +95,18 @@ func (Dialect) LSCacheConf(string) string {
 	return ""
 }
 
+func (Dialect) StatConf(string) (string, string) {
+	return "", ""
+}
+
+func (Dialect) DefaultSiteConf() string {
+	return ""
+}
+
+func (Dialect) WriteDefaultSite(bool) error {
+	return nil
+}
+
 func (Dialect) HTPasswdLine(username, password string) string {
 	return username + ":" + password
 }

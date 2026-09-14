@@ -236,6 +236,6 @@ func argsEqual(args []Arg, want []string) bool {
 func (b *Block) Walk(fn func(*Directive)) {
 	for _, d := range b.All() {
 		fn(d)
-		d.Block.Walk(fn)
+		d.Walk(fn)
 	}
 }

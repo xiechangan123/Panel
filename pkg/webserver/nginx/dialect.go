@@ -81,6 +81,60 @@ func (Dialect) LSCacheConf(string) string {
 	return ""
 }
 
+// StatConf 共享级 log_format 与站点级 syslog access_log，站点名经 SafeName 后才能做 log_format 名与 syslog tag
+func (Dialect) StatConf(name string) (string, string) {
+	safe := SafeName(name)
+	shared := fmt.Sprintf(`log_format ace_stat_%s escape=json
+  '{"site":"%s",'
+  '"uri":"$request_uri",'
+  '"status":$status,'
+  '"bytes":$body_bytes_sent,'
+  '"ua":"$http_user_agent",'
+  '"ip":"$remote_addr",'
+  '"host":"$host",'
+  '"method":"$request_method",'
+  '"referer":"$http_referer",'
+  '"xff":"$http_x_forwarded_for",'
+  '"rt":$request_time,'
+  '"proto":"$server_protocol",'
+  '"port":"$remote_port",'
+  '"body":"$request_body",'
+  '"content_type":"$sent_http_content_type",'
+  '"req_length":$request_length,'
+  '"https":"$https",'
+  '"upstream_time":"$upstream_response_time",'
+  '"upstream_status":"$upstream_status"}';`, safe, name)
+	site := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", safe, safe)
+	return shared, site
+}
+
+func (Dialect) DefaultSiteConf() string {
+	return DefaultSiteConf
+}
+
+// WriteDefaultSite 内置默认站点，asDefault 为 false 时不带 default_server，由某个站点持有
+func (Dialect) WriteDefaultSite(asDefault bool) error {
+	flag := ""
+	if asDefault {
+		flag = " default_server"
+	}
+	content := fmt.Sprintf(`server
+{
+    listen 80%[1]s reuseport;
+    listen [::]:80%[1]s reuseport;
+    listen 443 ssl%[1]s reuseport;
+    listen [::]:443 ssl%[1]s reuseport;
+    listen 443 quic%[1]s reuseport;
+    listen [::]:443 quic%[1]s reuseport;
+    server_name _;
+    index index.html;
+    root %[2]s;
+    ssl_reject_handshake on;
+}
+`, flag, HTMLDir)
+	return os.WriteFile(DefaultSiteConf, []byte(content), 0600)
+}
+
 func (Dialect) HTPasswdLine(username, password string) string {
 	return username + ":{PLAIN}" + password
 }

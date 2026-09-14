@@ -437,6 +437,33 @@ func (s *VhostTestSuite) TestSharedImport() {
 	s.Contains(s.conf(), "import "+filepath.Join(s.configDir, "shared", "*.conf")+"\n")
 }
 
+func (s *VhostTestSuite) TestDefaultSite() {
+	vhost, err := NewStaticVhost(s.configDir)
+	s.Require().NoError(err)
+	s.NoError(vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
+	s.NoError(vhost.SetServerName([]string{"example.com"}))
+	s.NoError(vhost.SetSSLConfig(&types.SSLConfig{Cert: "/c", Key: "/k"}))
+	s.False(vhost.Default())
+	s.NoError(vhost.SetDefault(true))
+	s.NoError(vhost.Save())
+	conf := s.conf()
+	s.Contains(conf, "\nhttp://example.com:80,\nhttp://:80 {\n")
+	s.Contains(conf, "\nhttps://example.com:443,\nhttps://:443 {\n")
+
+	reloaded, err := NewStaticVhost(s.configDir)
+	s.Require().NoError(err)
+	s.True(reloaded.Default())
+	s.Equal([]string{"example.com"}, reloaded.ServerName())
+	s.Equal([]types.Listen{{Address: "80", Args: []string{}}, {Address: "443", Args: []string{"ssl"}}}, reloaded.Listen())
+
+	s.NoError(reloaded.SetDefault(false))
+	s.NoError(reloaded.Save())
+	s.NotContains(s.conf(), "://:")
+	again, err := NewStaticVhost(s.configDir)
+	s.Require().NoError(err)
+	s.False(again.Default())
+}
+
 func (s *VhostTestSuite) TestSafeName() {
 	s.Equal("a_2db_2ec__d9", safeName("a-b.c_d9"))
 	s.NotEqual(safeName("a-b"), safeName("a_b"))
@@ -468,8 +495,14 @@ func (s *VhostTestSuite) TestDialect() {
 	s.Equal("caddy", d.Service())
 	s.Equal(ConfName, d.ConfigFile())
 	s.Equal([]string{"ssl"}, d.HTTPSListenArgs())
-	s.Equal(types.Features{}, d.Features())
+	s.Equal(types.Features{Stat: true, DefaultSite: true}, d.Features())
 	s.Equal("caddy", d.RewritesDir())
+	shared, site := d.StatConf("demo")
+	s.Equal("", shared)
+	s.Contains(site, "output net unixgram//tmp/ace_stats.sock")
+	s.Contains(site, "\t\t\tsite demo\n")
+	s.Equal("", d.DefaultSiteConf())
+	s.NoError(d.WriteDefaultSite(true))
 	s.Equal("admin:{PLAIN}secret", d.HTPasswdLine("admin", "secret"))
 	s.NoError(d.BeforeReload())
 }

@@ -133,6 +133,25 @@ location = /stop.html {
 	return nil
 }
 
+// Default 任一 listen 带 default_server 即为默认站点
+func (v *baseVhost) Default() bool {
+	return slices.ContainsFunc(v.Listen(), func(l types.Listen) bool {
+		return slices.Contains(l.Args, "default_server")
+	})
+}
+
+// SetDefault 为全部 listen 增删 default_server
+func (v *baseVhost) SetDefault(enable bool) error {
+	listens := v.Listen()
+	for i := range listens {
+		listens[i].Args = slices.DeleteFunc(listens[i].Args, func(arg string) bool { return arg == "default_server" })
+		if enable {
+			listens[i].Args = append(listens[i].Args, "default_server")
+		}
+	}
+	return v.SetListen(listens)
+}
+
 // Listen 同一地址的多条 listen 合并为一条，参数去重
 func (v *baseVhost) Listen() []types.Listen {
 	var result []types.Listen

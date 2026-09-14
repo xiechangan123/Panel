@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"slices"
@@ -80,28 +79,6 @@ func (s *WebsiteService) UpdateDefaultConfig(w http.ResponseWriter, r *http.Requ
 	Success(w, nil)
 }
 
-// nginxDefaultConf 生成内置默认站点配置,asDefault 控制是否持有 default_server
-func nginxDefaultConf(asDefault bool) string {
-	flag := ""
-	if asDefault {
-		flag = " default_server"
-	}
-	return fmt.Sprintf(`server
-{
-    listen 80%[1]s reuseport;
-    listen [::]:80%[1]s reuseport;
-    listen 443 ssl%[1]s reuseport;
-    listen [::]:443 ssl%[1]s reuseport;
-    listen 443 quic%[1]s reuseport;
-    listen [::]:443 quic%[1]s reuseport;
-    server_name _;
-    index index.html;
-    root %[2]s/html;
-    ssl_reject_handshake on;
-}
-`, flag, filepath.Join(app.Root, "server/nginx"))
-}
-
 // dialect 取当前 Web 服务器方言
 func (s *WebsiteService) dialect() (webserver.Dialect, error) {
 	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
@@ -112,48 +89,26 @@ func (s *WebsiteService) dialect() (webserver.Dialect, error) {
 	return webserver.Get(webserver.Type(webServer))
 }
 
-// filterDefaultHolders 过滤出配置中持有 default_server 的网站
+// filterDefaultHolders 过滤出持有默认站点标志的网站
 func filterDefaultHolders(d webserver.Dialect, websites []*biz.Website) []*biz.Website {
 	var holders []*biz.Website
 	for _, website := range websites {
-		vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", website.Name, "config"))
-		if err != nil {
-			continue
-		}
-		for _, listen := range vhost.Listen() {
-			if slices.Contains(listen.Args, "default_server") {
-				holders = append(holders, website)
-				break
-			}
+		if vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", website.Name, "config")); err == nil && vhost.Default() {
+			holders = append(holders, website)
 		}
 	}
-
 	return holders
 }
 
-// setWebsiteDefaultServer 增删网站配置中的 default_server 标志
-func setWebsiteDefaultServer(d webserver.Dialect, name string, isDefault bool) error {
+// setWebsiteDefault 增删网站的默认站点标志
+func setWebsiteDefault(d webserver.Dialect, name string, isDefault bool) error {
 	vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", name, "config"))
 	if err != nil {
 		return err
 	}
-
-	listens := vhost.Listen()
-	for i := range listens {
-		if isDefault {
-			if !slices.Contains(listens[i].Args, "default_server") {
-				listens[i].Args = append(listens[i].Args, "default_server")
-			}
-		} else {
-			listens[i].Args = slices.DeleteFunc(listens[i].Args, func(arg string) bool {
-				return arg == "default_server"
-			})
-		}
-	}
-	if err = vhost.SetListen(listens); err != nil {
+	if err = vhost.SetDefault(isDefault); err != nil {
 		return err
 	}
-
 	return vhost.Save()
 }
 
@@ -180,7 +135,7 @@ func (s *WebsiteService) GetDefaultSite(w http.ResponseWriter, r *http.Request) 
 }
 
 // UpdateDefaultSite 切换默认站点
-// 在内置默认配置与网站配置之间迁移 default_server 标志,ID 为 0 表示恢复内置默认页
+// 在内置默认配置与网站配置之间迁移默认站点标志,ID 为 0 表示恢复内置默认页
 func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.WebsiteDefaultSite](r)
 	if err != nil {
@@ -190,7 +145,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 
 	d, err := s.dialect()
 	if err != nil || !d.Features().DefaultSite {
-		Error(w, http.StatusUnprocessableEntity, s.t.Get("default site is only supported with nginx"))
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("default site is not supported by the current web server"))
 		return
 	}
 
@@ -213,19 +168,20 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 	holders := filterDefaultHolders(d, websites)
 
 	// 备份待改文件,校验失败时整体回滚
-	defaultConf := filepath.Join(app.Root, "server/nginx/conf/default.conf")
 	backups := make(map[string]string)
 	backup := func(path string) {
 		if content, err := io.Read(path); err == nil {
 			backups[path] = content
 		}
 	}
-	backup(defaultConf)
+	if conf := d.DefaultSiteConf(); conf != "" {
+		backup(conf)
+	}
 	for _, website := range holders {
-		backup(filepath.Join(app.Root, "sites", website.Name, "config/nginx.conf"))
+		backup(filepath.Join(app.Root, "sites", website.Name, "config", d.ConfigFile()))
 	}
 	if target != nil {
-		backup(filepath.Join(app.Root, "sites", target.Name, "config/nginx.conf"))
+		backup(filepath.Join(app.Root, "sites", target.Name, "config", d.ConfigFile()))
 	}
 	restore := func() {
 		for path, content := range backups {
@@ -233,27 +189,26 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	// 移除原有网站上的 default_server
+	// 原有默认站点让位
 	for _, website := range holders {
 		if target != nil && website.ID == target.ID {
 			continue
 		}
-		if err = setWebsiteDefaultServer(d, website.Name, false); err != nil {
+		if err = setWebsiteDefault(d, website.Name, false); err != nil {
 			restore()
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	}
-	// 目标网站添加 default_server
 	if target != nil {
-		if err = setWebsiteDefaultServer(d, target.Name, true); err != nil {
+		if err = setWebsiteDefault(d, target.Name, true); err != nil {
 			restore()
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	}
-	// 重写内置默认配置,目标为空时由其持有 default_server
-	if err = io.Write(defaultConf, nginxDefaultConf(target == nil), 0600); err != nil {
+	// 目标为空时内置默认页重新持有默认位
+	if err = d.WriteDefaultSite(target == nil); err != nil {
 		restore()
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -261,7 +216,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 
 	if _, err = shell.Execf(d.ConfigTest()); err != nil {
 		restore()
-		Error(w, http.StatusInternalServerError, s.t.Get("nginx config test failed: %v", err))
+		Error(w, http.StatusInternalServerError, s.t.Get("config test failed: %v", err))
 		return
 	}
 	if err = d.Reload(); err != nil {

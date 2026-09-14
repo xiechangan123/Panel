@@ -9,11 +9,14 @@ import (
 var parserPool fastjson.ParserPool
 
 // ParseSyslog 从 syslog 消息中提取 tag 和 JSON 体
-// 格式: <PRI>MMM DD HH:MM:SS tag: JSON（nohostname 模式下无主机名）
+// 格式: <PRI>MMM DD HH:MM:SS tag: JSON（nohostname 模式下无主机名）；Caddy 直接发 JSON，没有 tag
 func ParseSyslog(msg []byte) (string, []byte) {
 	n := len(msg)
 	if n == 0 {
 		return "", nil
+	}
+	if msg[0] == '{' {
+		return "", msg
 	}
 
 	i := 0
@@ -69,6 +72,22 @@ func ParseLogEntry(tag string, data []byte) (*LogEntry, error) {
 	site := getString(v, "site")
 	if site == "" {
 		site = tag
+	}
+
+	// Caddy 的访问日志：请求信息在 request 对象里，站点名由 append 编码器追加，没有请求体
+	if req := v.Get("request"); req != nil {
+		return &LogEntry{
+			Site:        site,
+			URI:         getString(req, "uri"),
+			Status:      int(status),
+			Bytes:       uint64(getInt(v, "size")),
+			UA:          firstHeader(req.Get("headers"), "User-Agent"),
+			IP:          getString(req, "remote_ip"),
+			Method:      getString(req, "method"),
+			ContentType: firstHeader(v.Get("resp_headers"), "Content-Type"),
+			ReqLength:   uint64(getInt(v, "bytes_read")),
+			RequestTime: getFloat(v, "duration"),
+		}, nil
 	}
 
 	entry := &LogEntry{
@@ -129,4 +148,15 @@ func getFloat(v *fastjson.Value, key string) float64 {
 	default:
 		return 0
 	}
+}
+
+// firstHeader 取头部数组的首个值，Caddy 把每个头记为字符串数组
+func firstHeader(headers *fastjson.Value, key string) string {
+	if headers == nil {
+		return ""
+	}
+	if values := headers.GetArray(key); len(values) > 0 {
+		return string(values[0].GetStringBytes())
+	}
+	return ""
 }

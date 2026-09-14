@@ -244,6 +244,15 @@ func (v *baseVhost) SetEnable(enable bool) error {
 	return nil
 }
 
+// Default 默认站点切换只在 nginx 与 Caddy 支持
+func (v *baseVhost) Default() bool {
+	return false
+}
+
+func (v *baseVhost) SetDefault(bool) error {
+	return nil
+}
+
 func (v *baseVhost) Listen() []types.Listen {
 	return v.listens
 }

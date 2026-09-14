@@ -17,6 +17,11 @@ type Vhost interface {
 	// SetEnable 设置启用状态
 	SetEnable(enable bool) error
 
+	// Default 是否为默认站点，承接未匹配任何域名的请求
+	Default() bool
+	// SetDefault 设置默认站点标志
+	SetDefault(enable bool) error
+
 	// Listen 取监听配置
 	Listen() []Listen
 	// SetListen 设置监听配置

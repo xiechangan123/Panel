@@ -27,7 +27,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
-	"github.com/acepanel/panel/v3/pkg/webserver/nginx"
 	webservertypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
@@ -325,6 +324,9 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 	domains = lo.Map(domains, func(d string, _ int) string { return tools.WrapIPv6(d) })
+	if err = r.checkDomains(d, req.Name, domains); err != nil {
+		return nil, err
+	}
 	if err = vhost.SetServerName(domains); err != nil {
 		return nil, err
 	}
@@ -416,7 +418,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 
 	// 访问统计默认启用
 	if d.Features().Stat {
-		if err = r.enableStat(vhost, req.Name); err != nil {
+		if err = r.enableStat(d, vhost, req.Name); err != nil {
 			return nil, err
 		}
 	}
@@ -754,6 +756,9 @@ func (r *websiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
 	if err = vhost.SetEnable(website.Status); err != nil {
 		return restore(err)
 	}
+	if err = vhost.SetDefault(oldVhost.Default()); err != nil {
+		return restore(err)
+	}
 	if err = vhost.Save(); err != nil {
 		return restore(err)
 	}
@@ -861,6 +866,9 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 		return err
 	}
 	domains = lo.Map(domains, func(d string, _ int) string { return tools.WrapIPv6(d) })
+	if err = r.checkDomains(d, website.Name, domains); err != nil {
+		return err
+	}
 	if err = vhost.SetServerName(domains); err != nil {
 		return err
 	}
@@ -1044,7 +1052,7 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 	// 访问统计
 	if d.Features().Stat {
 		if req.StatEnabled {
-			if err = r.enableStat(vhost, website.Name); err != nil {
+			if err = r.enableStat(d, vhost, website.Name); err != nil {
 				return err
 			}
 		} else {
@@ -1525,33 +1533,37 @@ func writeBasicAuthUsers(d webserver.Dialect, htpasswdPath string, users map[str
 	return io.Write(htpasswdPath, content, 0644) // 必须 0644，Nginx 在运行中以 www 用户读取
 }
 
-// enableStat 写入 nginx 访问统计配置（log_format + syslog access_log）
-func (r *websiteRepo) enableStat(vhost webservertypes.Vhost, name string) error {
-	// nginx 的 syslog tag 与 log_format 名只允许字母数字和下划线
-	safeName := nginx.SafeName(name)
-	formatConf := fmt.Sprintf(`log_format ace_stat_%s escape=json
-  '{"site":"%s",'
-  '"uri":"$request_uri",'
-  '"status":$status,'
-  '"bytes":$body_bytes_sent,'
-  '"ua":"$http_user_agent",'
-  '"ip":"$remote_addr",'
-  '"host":"$host",'
-  '"method":"$request_method",'
-  '"referer":"$http_referer",'
-  '"xff":"$http_x_forwarded_for",'
-  '"rt":$request_time,'
-  '"proto":"$server_protocol",'
-  '"port":"$remote_port",'
-  '"body":"$request_body",'
-  '"content_type":"$sent_http_content_type",'
-  '"req_length":$request_length,'
-  '"https":"$https",'
-  '"upstream_time":"$upstream_response_time",'
-  '"upstream_status":"$upstream_status"}';`, safeName, name)
-	if err := vhost.SetConfig("010-stat-format.conf", webservertypes.ScopeShared, formatConf); err != nil {
+// enableStat 写入访问统计片段，共享级片段只有需要的服务器才有
+func (r *websiteRepo) enableStat(d webserver.Dialect, vhost webservertypes.Vhost, name string) error {
+	shared, site := d.StatConf(name)
+	if shared != "" {
+		if err := vhost.SetConfig("010-stat-format.conf", webservertypes.ScopeShared, shared); err != nil {
+			return err
+		}
+	}
+	return vhost.SetConfig("021-stats-log.conf", webservertypes.ScopeSite, site)
+}
+
+// checkDomains 域名不能被其它站点占用：nginx 只是警告，Caddy 会整份配置拒载
+func (r *websiteRepo) checkDomains(d webserver.Dialect, exclude string, domains []string) error {
+	var websites []*biz.Website
+	if err := r.db.Find(&websites).Error; err != nil {
 		return err
 	}
-	logConf := fmt.Sprintf("client_body_in_single_buffer on;\naccess_log syslog:server=unix:/tmp/ace_stats.sock,nohostname,tag=%s ace_stat_%s;", safeName, safeName)
-	return vhost.SetConfig("021-stats-log.conf", webservertypes.ScopeSite, logConf)
+	for _, website := range websites {
+		// 切换服务器重建途中，尚未重建的站点没有当前方言的配置，跳过以免拿默认域名误判
+		if website.Name == exclude || !io.Exists(filepath.Join(app.Root, "sites", website.Name, "config", d.ConfigFile())) {
+			continue
+		}
+		vhost, err := newVhost(d, website)
+		if err != nil {
+			continue
+		}
+		for _, domain := range vhost.ServerName() {
+			if slices.Contains(domains, domain) {
+				return errors.New(r.t.Get("domain %s is already used by website %s", domain, website.Name))
+			}
+		}
+	}
+	return nil
 }

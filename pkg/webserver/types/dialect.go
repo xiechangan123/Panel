@@ -32,6 +32,12 @@ type Dialect interface {
 	SPAConf() string
 	// LSCacheConf 站点级 LiteSpeed 页面缓存片段，name 为站点名
 	LSCacheConf(name string) string
+	// StatConf 访问统计片段，shared 为共享级、site 为站点级，不支持统计时都为空
+	StatConf(name string) (shared, site string)
+	// DefaultSiteConf 内置默认站点的独立配置文件，没有时为空
+	DefaultSiteConf() string
+	// WriteDefaultSite 写入内置默认站点配置，asDefault 为 false 时把默认位让给某个站点
+	WriteDefaultSite(asDefault bool) error
 	// HTPasswdLine 基本认证 htpasswd 单行
 	HTPasswdLine(username, password string) string
 	// RewritesDir 伪静态预置目录名，语法相同的服务器可共用

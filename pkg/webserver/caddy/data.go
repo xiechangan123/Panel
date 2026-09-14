@@ -45,3 +45,16 @@ const errorPageConf = `handle_errors 404 {
 	file_server
 }
 `
+
+// statConf 访问统计日志片段，%s 为站点名
+const statConf = `log ace_stat {
+	output net unixgram//tmp/ace_stats.sock {
+		soft_start
+	}
+	format append {
+		fields {
+			site %s
+		}
+	}
+}
+`

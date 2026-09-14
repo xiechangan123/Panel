@@ -34,7 +34,7 @@ func (Dialect) PanelACMEConf() string {
 }
 
 func (Dialect) Features() types.Features {
-	return types.Features{}
+	return types.Features{Stat: true, DefaultSite: true}
 }
 
 // HTTPSListenArgs HTTP/3 由 Caddy 全局启用，监听参数只需标记 ssl
@@ -56,6 +56,21 @@ func (Dialect) SPAConf() string {
 
 func (Dialect) LSCacheConf(string) string {
 	return ""
+}
+
+// StatConf 站点级多加一条日志，JSON 直发面板的统计套接字，append 编码器带上站点名；
+// soft_start 让套接字暂不可用时配置仍能加载
+func (Dialect) StatConf(name string) (string, string) {
+	return "", fmt.Sprintf(statConf, name)
+}
+
+// DefaultSiteConf 兜底块固定在主配置里，默认站点靠站点块自己的无主机名地址排在它前面，不需要独立文件
+func (Dialect) DefaultSiteConf() string {
+	return ""
+}
+
+func (Dialect) WriteDefaultSite(bool) error {
+	return nil
 }
 
 // HTPasswdLine 保持明文以便面板回读，保存站点时再转成 Caddy 需要的 bcrypt 用户文件
