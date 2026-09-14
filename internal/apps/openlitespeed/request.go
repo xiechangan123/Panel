@@ -10,6 +10,12 @@ type SetPHP struct {
 	LSAPI   bool `form:"lsapi" json:"lsapi"`
 }
 
+// SetRealIP 服务器级真实 IP 配置
+type SetRealIP struct {
+	Enabled bool     `form:"enabled" json:"enabled"`
+	Trusted []string `form:"trusted" json:"trusted" validate:"unique && dive && ipcidr"`
+}
+
 // PHPProtocol PHP 版本运行协议信息
 type PHPProtocol struct {
 	Version uint `json:"version"`

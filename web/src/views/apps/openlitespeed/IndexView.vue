@@ -26,6 +26,32 @@ const { data: load } = useRequest(openlitespeed.load, {
 const { data: phpList, send: fetchPHP } = useRequest(openlitespeed.php, {
   initialData: [],
 })
+const { data: realIP } = useRequest(openlitespeed.realIP, {
+  initialData: { enabled: false, trusted: [] },
+})
+const realIPLoading = ref(false)
+
+// 可信代理列表，多行文本与数组双向转换
+const realIPTrusted = computed({
+  get: () => (realIP.value.trusted ?? []).join('\n'),
+  set: (value: string) => {
+    realIP.value.trusted = value
+      .split('\n')
+      .map((line: string) => line.trim())
+      .filter((line: string) => line !== '')
+  },
+})
+
+const handleSaveRealIP = () => {
+  realIPLoading.value = true
+  useRequest(openlitespeed.setRealIP(realIP.value))
+    .onSuccess(() => {
+      window.$message.success($gettext('Saved successfully'))
+    })
+    .onComplete(() => {
+      realIPLoading.value = false
+    })
+}
 
 const columns: any = [
   {
@@ -159,6 +185,40 @@ const handleClearErrorLog = () => {
             }}
           </n-alert>
           <n-data-table striped remote :scroll-x="400" :columns="phpColumns" :data="phpList" />
+        </n-flex>
+      </n-tab-pane>
+      <n-tab-pane name="realip" :tab="$gettext('Real IP')">
+        <n-flex vertical>
+          <n-alert type="info">
+            {{
+              $gettext(
+                'OpenLiteSpeed reads the client IP from the X-Forwarded-For header at the server level only, so this setting applies to all websites. Fill in the trusted proxy IPs (e.g., CDN or Frp); leave it empty to trust every source [insecure].',
+              )
+            }}
+          </n-alert>
+          <n-form label-placement="left" label-width="140px">
+            <n-form-item :label="$gettext('Enable')">
+              <n-switch v-model:value="realIP.enabled" />
+            </n-form-item>
+            <n-form-item v-if="realIP.enabled" :label="$gettext('IP Sources')">
+              <n-input
+                v-model:value="realIPTrusted"
+                type="textarea"
+                :placeholder="$gettext('One per line, e.g., 127.0.0.1 or 10.0.0.0/8')"
+                :autosize="{ minRows: 3, maxRows: 10 }"
+              />
+            </n-form-item>
+          </n-form>
+          <n-flex>
+            <n-button
+              type="primary"
+              :loading="realIPLoading"
+              :disabled="realIPLoading"
+              @click="handleSaveRealIP"
+            >
+              {{ $gettext('Save') }}
+            </n-button>
+          </n-flex>
         </n-flex>
       </n-tab-pane>
       <n-tab-pane name="load" :tab="$gettext('Load Status')">

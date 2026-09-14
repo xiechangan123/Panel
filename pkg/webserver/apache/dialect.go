@@ -91,6 +91,10 @@ func (Dialect) SPAConf() string {
 	return spaConf
 }
 
+func (Dialect) LSCacheConf(string) string {
+	return ""
+}
+
 func (Dialect) HTPasswdLine(username, password string) string {
 	return username + ":" + password
 }
@@ -128,45 +132,45 @@ func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
 }
 
 // WriteSiteChallenge token 落盘到站点配置目录旁的 acme-challenge，再用 Alias 映射
-func (Dialect) WriteSiteChallenge(conf, path, token string) error {
+func (Dialect) WriteSiteChallenge(conf, path, token string) (bool, error) {
 	tokenDir := filepath.Join(filepath.Dir(conf), "acme-challenge")
 	if err := writeToken(tokenDir, path, token); err != nil {
-		return err
+		return false, err
 	}
 
 	file, err := os.OpenFile(conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
-		return fmt.Errorf("failed to open apache config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to open apache config %q: %w", conf, err)
 	}
 	_, err = file.WriteString(challengeConf(tokenDir))
 	_ = file.Close()
 	if err != nil {
-		return fmt.Errorf("failed to write to apache config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write to apache config %q: %w", conf, err)
 	}
 
-	return nil
+	return true, nil
 }
 
-func (Dialect) RemoveSiteChallenge(conf, path, _ string) error {
+func (Dialect) RemoveSiteChallenge(conf, path, _ string) (bool, error) {
 	tokenDir := filepath.Join(filepath.Dir(conf), "acme-challenge")
 	_ = os.Remove(filepath.Join(tokenDir, filepath.Base(path)))
 
 	raw, err := os.ReadFile(conf)
 	if err != nil {
-		return fmt.Errorf("failed to read apache config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to read apache config %q: %w", conf, err)
 	}
 	content := strings.ReplaceAll(string(raw), challengeConf(tokenDir), "")
 	if err = os.WriteFile(conf, []byte(content), 0600); err != nil {
-		return fmt.Errorf("failed to write to apache config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write to apache config %q: %w", conf, err)
 	}
 
-	return nil
+	return true, nil
 }
 
-func (Dialect) WritePanelChallenge(conf string, names []string, tokens map[string]string) error {
+func (Dialect) WritePanelChallenge(conf string, names []string, tokens map[string]string) (bool, error) {
 	for path, token := range tokens {
 		if err := writeToken(panelTokenDir, path, token); err != nil {
-			return err
+			return false, err
 		}
 	}
 
@@ -187,19 +191,19 @@ func (Dialect) WritePanelChallenge(conf string, names []string, tokens map[strin
 	b.WriteString("</VirtualHost>\n")
 
 	if err := os.WriteFile(conf, []byte(b.String()), 0600); err != nil {
-		return fmt.Errorf("failed to write apache config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write apache config %q: %w", conf, err)
 	}
 
-	return nil
+	return true, nil
 }
 
-func (Dialect) RemovePanelChallenge(conf string) error {
+func (Dialect) RemovePanelChallenge(conf string) (bool, error) {
 	if err := os.WriteFile(conf, []byte(""), 0600); err != nil {
-		return fmt.Errorf("failed to write to config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write to config %q: %w", conf, err)
 	}
 	_ = os.RemoveAll(panelTokenDir)
 
-	return nil
+	return true, nil
 }
 
 // writeToken 将验证 token 写入目录，文件名取 URL 路径的最后一段

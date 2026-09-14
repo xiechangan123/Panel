@@ -77,6 +77,10 @@ func (Dialect) SPAConf() string {
 	return spaConf
 }
 
+func (Dialect) LSCacheConf(string) string {
+	return ""
+}
+
 func (Dialect) HTPasswdLine(username, password string) string {
 	return username + ":{PLAIN}" + password
 }
@@ -113,34 +117,34 @@ func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
 	return vhost, nil
 }
 
-func (Dialect) WriteSiteChallenge(conf, path, token string) error {
+func (Dialect) WriteSiteChallenge(conf, path, token string) (bool, error) {
 	file, err := os.OpenFile(conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
-		return fmt.Errorf("failed to open nginx config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to open nginx config %q: %w", conf, err)
 	}
 	_, err = file.WriteString(challengeConf(path, token))
 	_ = file.Close()
 	if err != nil {
-		return fmt.Errorf("failed to write to nginx config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write to nginx config %q: %w", conf, err)
 	}
 
-	return nil
+	return true, nil
 }
 
-func (Dialect) RemoveSiteChallenge(conf, path, token string) error {
+func (Dialect) RemoveSiteChallenge(conf, path, token string) (bool, error) {
 	raw, err := os.ReadFile(conf)
 	if err != nil {
-		return fmt.Errorf("failed to read nginx config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to read nginx config %q: %w", conf, err)
 	}
 	content := strings.ReplaceAll(string(raw), challengeConf(path, token), "")
 	if err = os.WriteFile(conf, []byte(content), 0600); err != nil {
-		return fmt.Errorf("failed to write to nginx config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write to nginx config %q: %w", conf, err)
 	}
 
-	return nil
+	return true, nil
 }
 
-func (Dialect) WritePanelChallenge(conf string, names []string, tokens map[string]string) error {
+func (Dialect) WritePanelChallenge(conf string, names []string, tokens map[string]string) (bool, error) {
 	var b strings.Builder
 	b.WriteString("server {\n    listen 80;\n")
 	// 只有在包含 IPv6 地址时才监听 [::]:80，避免纯 IPv4 系统上 nginx 启动失败
@@ -157,18 +161,18 @@ func (Dialect) WritePanelChallenge(conf string, names []string, tokens map[strin
 	b.WriteString("}\n")
 
 	if err := os.WriteFile(conf, []byte(b.String()), 0600); err != nil {
-		return fmt.Errorf("failed to write nginx config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write nginx config %q: %w", conf, err)
 	}
 
-	return nil
+	return true, nil
 }
 
-func (Dialect) RemovePanelChallenge(conf string) error {
+func (Dialect) RemovePanelChallenge(conf string) (bool, error) {
 	if err := os.WriteFile(conf, []byte(""), 0600); err != nil {
-		return fmt.Errorf("failed to write to config %q: %w", conf, err)
+		return false, fmt.Errorf("failed to write to config %q: %w", conf, err)
 	}
 
-	return nil
+	return true, nil
 }
 
 // challengeConf 单个 HTTP-01 验证的 location 片段

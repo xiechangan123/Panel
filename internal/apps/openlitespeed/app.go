@@ -42,6 +42,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/clear_error_log", s.ClearErrorLog)
 	r.Get("/php", s.PHPList)
 	r.Post("/php", s.SetPHP)
+	r.Get("/realip", s.GetRealIP)
+	r.Post("/realip", s.SetRealIP)
 }
 
 func (s *App) Status() string {
@@ -158,6 +160,37 @@ func (s *App) SetPHP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if err = openlitespeed.SetLSAPI(req.Version, req.LSAPI); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+	if err = s.reload(); err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// GetRealIP 读取服务器级真实 IP 配置
+func (s *App) GetRealIP(w http.ResponseWriter, r *http.Request) {
+	realIP, err := openlitespeed.GetRealIP()
+	if err != nil {
+		service.Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	service.Success(w, realIP)
+}
+
+// SetRealIP 保存服务器级真实 IP 配置并重载
+func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
+	req, err := service.Bind[SetRealIP](r)
+	if err != nil {
+		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
+		return
+	}
+
+	if err = openlitespeed.SetRealIP(openlitespeed.RealIP{Enabled: req.Enabled, Trusted: req.Trusted}); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

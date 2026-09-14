@@ -5,6 +5,7 @@ type Features struct {
 	IPv6Listen  bool // 站点额外监听 IPv6 地址
 	Stat        bool // 访问统计
 	DefaultSite bool // 默认站点切换
+	LSCache     bool // LiteSpeed 页面缓存
 }
 
 // Dialect 收敛某种 Web 服务器在面板层面的全部差异，新增服务器只需实现此接口并在 webserver 包中注册
@@ -29,6 +30,8 @@ type Dialect interface {
 	PHPCacheConf() string
 	// SPAConf 静态站点单页应用路由回退片段
 	SPAConf() string
+	// LSCacheConf 站点级 LiteSpeed 页面缓存片段，name 为站点名
+	LSCacheConf(name string) string
 	// HTPasswdLine 基本认证 htpasswd 单行
 	HTPasswdLine(username, password string) string
 	// RewritesDir 伪静态预置目录名，语法相同的服务器可共用
@@ -40,12 +43,13 @@ type Dialect interface {
 	NewPHPVhost(configDir string) (PHPVhost, error)
 	NewProxyVhost(configDir string) (ProxyVhost, error)
 
+	// 以下四个方法的 bool 返回值表示配置是否变化、是否需要重载 Web 服务器
 	// WriteSiteChallenge 向网站 acme 配置文件投放一个 HTTP-01 验证
-	WriteSiteChallenge(conf, path, token string) error
+	WriteSiteChallenge(conf, path, token string) (bool, error)
 	// RemoveSiteChallenge 移除网站 acme 配置文件中的一个 HTTP-01 验证
-	RemoveSiteChallenge(conf, path, token string) error
+	RemoveSiteChallenge(conf, path, token string) (bool, error)
 	// WritePanelChallenge 写入面板独立验证站点，用于 80 端口已被 Web 服务器占用时签发面板证书
-	WritePanelChallenge(conf string, names []string, tokens map[string]string) error
+	WritePanelChallenge(conf string, names []string, tokens map[string]string) (bool, error)
 	// RemovePanelChallenge 清理面板独立验证站点
-	RemovePanelChallenge(conf string) error
+	RemovePanelChallenge(conf string) (bool, error)
 }

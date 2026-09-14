@@ -72,6 +72,7 @@ type WebsiteUpdate struct {
 
 	// 高级设置
 	StatEnabled bool                          `json:"stat_enabled"` // 是否启用访问统计
+	LSCache     bool                          `json:"lscache"`      // LiteSpeed 页面缓存
 	AccessLog   string                        `json:"access_log"`   // 访问日志路径
 	ErrorLog    string                        `json:"error_log"`    // 错误日志路径
 	RateLimit   *types.RateLimit              `json:"rate_limit"`   // 限流限速配置

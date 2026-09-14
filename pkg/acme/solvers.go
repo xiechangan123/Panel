@@ -26,12 +26,13 @@ import (
 	pkgos "github.com/acepanel/panel/v3/pkg/os"
 )
 
-// HTTPChallengeWriter 由 Web 服务器方言实现，负责投放、清理 HTTP-01 验证并重载服务
+// HTTPChallengeWriter 由 Web 服务器方言实现，负责投放、清理 HTTP-01 验证并重载服务，
+// 投放与清理的 bool 返回值表示配置是否变化，未变化则跳过重载
 type HTTPChallengeWriter interface {
-	WriteSiteChallenge(conf, path, token string) error
-	RemoveSiteChallenge(conf, path, token string) error
-	WritePanelChallenge(conf string, names []string, tokens map[string]string) error
-	RemovePanelChallenge(conf string) error
+	WriteSiteChallenge(conf, path, token string) (bool, error)
+	RemoveSiteChallenge(conf, path, token string) (bool, error)
+	WritePanelChallenge(conf string, names []string, tokens map[string]string) (bool, error)
+	RemovePanelChallenge(conf string) (bool, error)
 	Reload() error
 }
 
@@ -83,7 +84,8 @@ func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error
 
 	// 否则使用 web 服务器配置
 	s.useBuiltin = false
-	if err := s.writer.WritePanelChallenge(s.conf, s.names, s.tokens); err != nil {
+	changed, err := s.writer.WritePanelChallenge(s.conf, s.names, s.tokens)
+	if err != nil || !changed {
 		return err
 	}
 
@@ -143,7 +145,8 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 		return nil
 	}
 
-	if err := s.writer.RemovePanelChallenge(s.conf); err != nil {
+	changed, err := s.writer.RemovePanelChallenge(s.conf)
+	if err != nil || !changed {
 		return err
 	}
 
@@ -177,10 +180,16 @@ func (s httpSolver) confsFor(domain string) []string {
 func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 	path := challenge.HTTP01ResourcePath()
 	token := challenge.KeyAuthorization
+	reload := false
 	for _, conf := range s.confsFor(challenge.Identifier.Value) {
-		if err := s.writer.WriteSiteChallenge(conf, path, token); err != nil {
+		changed, err := s.writer.WriteSiteChallenge(conf, path, token)
+		if err != nil {
 			return err
 		}
+		reload = reload || changed
+	}
+	if !reload {
+		return nil
 	}
 
 	return s.writer.Reload()
@@ -190,10 +199,16 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
 	path := challenge.HTTP01ResourcePath()
 	token := challenge.KeyAuthorization
+	reload := false
 	for _, conf := range s.confsFor(challenge.Identifier.Value) {
-		if err := s.writer.RemoveSiteChallenge(conf, path, token); err != nil {
+		changed, err := s.writer.RemoveSiteChallenge(conf, path, token)
+		if err != nil {
 			return err
 		}
+		reload = reload || changed
+	}
+	if !reload {
+		return nil
 	}
 
 	return s.writer.Reload()

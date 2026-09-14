@@ -2000,6 +2000,22 @@ const removeCustomConfig = (index: number) => {
               </n-form>
             </n-collapse-item>
 
+            <!-- LiteSpeed 页面缓存 -->
+            <n-collapse-item v-if="features.lsCache" title="LSCache" name="lscache_settings">
+              <n-alert type="info" mb-4>
+                {{
+                  $gettext(
+                    'Enables the LiteSpeed cache module for this site. Pages are cached only when the application asks for it, e.g. WordPress with the LiteSpeed Cache plugin.',
+                  )
+                }}
+              </n-alert>
+              <n-form label-placement="left" label-width="140px">
+                <n-form-item :label="$gettext('Enable LSCache')">
+                  <n-switch v-model:value="setting.lscache" />
+                </n-form-item>
+              </n-form>
+            </n-collapse-item>
+
             <!-- 日志设置 -->
             <n-collapse-item :title="$gettext('Log Settings')" name="log_settings">
               <n-form label-placement="left" label-width="140px">

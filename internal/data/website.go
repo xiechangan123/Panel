@@ -217,6 +217,7 @@ func (r *websiteRepo) loadSetting(website *biz.Website, vhost webservertypes.Vho
 
 	// 访问统计
 	setting.StatEnabled = vhost.Config("021-stats-log.conf", webservertypes.ScopeSite) != ""
+	setting.LSCache = vhost.Config("020-lscache.conf", webservertypes.ScopeSite) != ""
 
 	return setting, err
 }
@@ -699,6 +700,7 @@ func (r *websiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
 		Redirects:    setting.Redirects,
 		// 目标支持访问统计时沿用原开关，来源不支持则默认开启
 		StatEnabled: d.Features().Stat && (setting.StatEnabled || !source.Features().Stat),
+		LSCache:     d.Features().LSCache && setting.LSCache,
 		AccessLog:   setting.AccessLog,
 		ErrorLog:    setting.ErrorLog,
 		RateLimit:   setting.RateLimit,
@@ -1040,6 +1042,17 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 		} else {
 			_ = vhost.RemoveConfig("010-stat-format.conf", webservertypes.ScopeShared)
 			_ = vhost.RemoveConfig("021-stats-log.conf", webservertypes.ScopeSite)
+		}
+	}
+
+	// LiteSpeed 页面缓存
+	if d.Features().LSCache {
+		if req.LSCache {
+			if err = vhost.SetConfig("020-lscache.conf", webservertypes.ScopeSite, d.LSCacheConf(website.Name)); err != nil {
+				return err
+			}
+		} else {
+			_ = vhost.RemoveConfig("020-lscache.conf", webservertypes.ScopeSite)
 		}
 	}
 
