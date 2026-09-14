@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -88,13 +89,15 @@ func (r *notifyChannelRepo) Delete(id uint) error {
 func (r *notifyChannelRepo) removeEventChannel(tx *gorm.DB, id uint) error {
 	setting := new(biz.Setting)
 	if err := tx.Where("key = ?", biz.SettingKeyNotifyEventChannels).First(setting).Error; err != nil {
-		// 未配置过事件通知
-		return nil
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
 	}
 
 	channels := make([]uint, 0)
 	if json.Unmarshal([]byte(setting.Value), &channels) != nil {
-		return nil
+		return nil //nolint:nilerr
 	}
 
 	remain := lo.Without(channels, id)

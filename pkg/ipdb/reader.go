@@ -120,7 +120,7 @@ func (r *Reader) search(ip []byte, bitCount int) (int, error) {
 		node = r.v4offset
 	}
 
-	for i := 0; i < bitCount; i++ {
+	for i := range bitCount {
 		if node > r.nodeCount {
 			break
 		}

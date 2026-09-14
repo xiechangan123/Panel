@@ -3,7 +3,6 @@
 package tamper
 
 import (
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -54,7 +53,7 @@ func chattrSupported(dir string) bool {
 }
 
 func newLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return slog.New(slog.DiscardHandler)
 }
 
 func TestChattrMode(t *testing.T) {

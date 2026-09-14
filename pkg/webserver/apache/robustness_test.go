@@ -6,12 +6,11 @@ import (
 
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
-// realWorldConfig 涵盖真实 apache 配置的全部难点：转义引号、引号路径含空格、
-// 多层嵌套块、正则、<If> 表达式含尖括号、SSLCipherSuite、续行符、SetHandler 管道
+// realWorldConfig 汇集真实 apache 配置里最难解析的语法
 const realWorldConfig = `# main config
 ServerRoot "/etc/httpd"
 Listen 80
@@ -46,26 +45,21 @@ LoadModule ssl_module modules/mod_ssl.so
     </FilesMatch>
 </VirtualHost>`
 
-// TestRoundTripSemantics 验证综合真实配置 round-trip 语义无损 + 幂等 + 深层嵌套保留
 func TestRoundTripSemantics(t *testing.T) {
 	cfg, err := ParseString(realWorldConfig)
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	out := Export(cfg)
-	// 语义无损：原文与导出的指令/块序列（合并续行、分词去引号后）完全一致
-	assert.Equal(t, semanticLines(realWorldConfig), semanticLines(out), "语义无损")
-	// 幂等
+	check.DeepEqual(t, semanticLines(out), semanticLines(realWorldConfig))
 	cfg2, err := ParseString(out)
-	require.NoError(t, err)
-	assert.Equal(t, out, Export(cfg2), "幂等")
+	must.NoError(t, err)
+	check.Equal(t, Export(cfg2), out, check.Msgf("幂等"))
 
-	// 抽查深层嵌套指令（VirtualHost > Directory > IfModule > RewriteRule）完整保留
 	rr := cfg.FindOne("VirtualHost.Directory.IfModule.RewriteRule")
-	require.NotNil(t, rr)
-	assert.Equal(t, []string{"^(.*)$", "https://new.example.com$1", "[R=301,L]"}, rr.Values())
+	must.NotNil(t, rr)
+	check.DeepEqual(t, rr.Values(), []string{"^(.*)$", "https://new.example.com$1", "[R=301,L]"})
 }
 
-// TestRobustnessTrickySyntax 针对真实 apache 配置里最刁钻的语法做精确断言
 func TestRobustnessTrickySyntax(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -112,20 +106,20 @@ func TestRobustnessTrickySyntax(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		cfg, err := ParseString(c.input)
-		require.NoError(t, err, c.name)
-		d := cfg.Get(c.dir)
-		require.NotNil(t, d, c.name)
-		assert.Equal(t, c.wantArgs, d.Values(), c.name)
+		t.Run(c.name, func(t *testing.T) {
+			cfg, err := ParseString(c.input)
+			must.NoError(t, err)
+			d := cfg.Get(c.dir)
+			must.NotNil(t, d)
+			check.DeepEqual(t, d.Values(), c.wantArgs)
 
-		// round-trip 后值仍一致
-		cfg2, err := ParseString(Export(cfg))
-		require.NoError(t, err, c.name+" 重解析")
-		assert.Equal(t, c.wantArgs, conf.Values(cfg2.Get(c.dir).Args), c.name+" round-trip")
+			cfg2, err := ParseString(Export(cfg))
+			must.NoError(t, err)
+			check.DeepEqual(t, cfg2.Get(c.dir).Values(), c.wantArgs)
+		})
 	}
 }
 
-// TestRobustnessEdgeCases 构造的边界地狱：专攻解析器最易崩的语法
 func TestRobustnessEdgeCases(t *testing.T) {
 	t.Run("六层深嵌套", func(t *testing.T) {
 		input := `<VirtualHost *:80>
@@ -142,86 +136,94 @@ func TestRobustnessEdgeCases(t *testing.T) {
   </Directory>
 </VirtualHost>`
 		cfg, err := ParseString(input)
-		require.NoError(t, err)
-		ra := cfg.Blocks("VirtualHost")[0].GetBlock("Directory").GetBlock("Files").
+		must.NoError(t, err)
+		vhost := cfg.GetBlock("VirtualHost")
+		must.NotNil(t, vhost)
+		ra := vhost.GetBlock("Directory").GetBlock("Files").
 			GetBlock("IfModule").GetBlock("Limit").GetBlock("RequireAll")
-		require.NotNil(t, ra)
-		assert.Equal(t, []string{"all", "granted"}, ra.Get("Require").Values())
-		assert.Equal(t, Export(cfg), Export(mustReparse(t, Export(cfg))), "幂等")
+		must.NotNil(t, ra)
+		check.DeepEqual(t, ra.Get("Require").Values(), []string{"all", "granted"})
+		out := Export(cfg)
+		check.Equal(t, Export(mustReparse(t, out)), out, check.Msgf("幂等"))
 	})
 
 	t.Run("If表达式含尖括号", func(t *testing.T) {
 		input := "<If \"%{QUERY_STRING} =~ /(>|<)/\">\n    Require all denied\n</If>"
 		cfg, err := ParseString(input)
-		require.NoError(t, err)
+		must.NoError(t, err)
 		blocks := cfg.FindBlocks("If")
-		require.Len(t, blocks, 1)
-		assert.Equal(t, `%{QUERY_STRING} =~ /(>|<)/`, blocks[0].Args[0].Value)
-		assert.Equal(t, Export(cfg), Export(mustReparse(t, Export(cfg))), "幂等")
+		must.Len(t, blocks, 1)
+		check.DeepEqual(t, blocks[0].Values(), []string{`%{QUERY_STRING} =~ /(>|<)/`})
+		out := Export(cfg)
+		check.Equal(t, Export(mustReparse(t, out)), out, check.Msgf("幂等"))
 	})
 
 	t.Run("CRLF行尾", func(t *testing.T) {
 		cfg, err := ParseString("<Directory /a>\r\n    Require all granted\r\n</Directory>\r\n")
-		require.NoError(t, err)
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Get("Require").Values())
+		must.NoError(t, err)
+		check.DeepEqual(t, cfg.GetBlock("Directory").Get("Require").Values(), []string{"all", "granted"})
 	})
 
 	t.Run("未闭合块容错", func(t *testing.T) {
 		cfg, err := ParseString("<Directory /a>\n    Require all granted")
-		require.NoError(t, err)
-		require.NotNil(t, cfg.GetBlock("Directory"))
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Get("Require").Values())
+		must.NoError(t, err)
+		must.NotNil(t, cfg.GetBlock("Directory"))
+		check.DeepEqual(t, cfg.GetBlock("Directory").Get("Require").Values(), []string{"all", "granted"})
 	})
 
 	t.Run("闭合标签大小写不匹配", func(t *testing.T) {
 		cfg, err := ParseString("<directory /a>\n    Require all granted\n</Directory>")
-		require.NoError(t, err)
-		require.NotNil(t, cfg.GetBlock("directory"))
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("directory").Get("Require").Values())
+		must.NoError(t, err)
+		must.NotNil(t, cfg.GetBlock("directory"))
+		check.DeepEqual(t, cfg.GetBlock("directory").Get("Require").Values(), []string{"all", "granted"})
 	})
 
 	t.Run("空块", func(t *testing.T) {
 		cfg, err := ParseString("<Directory /a>\n</Directory>")
-		require.NoError(t, err)
-		require.NotNil(t, cfg.GetBlock("Directory"))
-		assert.Empty(t, cfg.GetBlock("Directory").Nodes)
+		must.NoError(t, err)
+		must.NotNil(t, cfg.GetBlock("Directory"))
+		check.Empty(t, cfg.GetBlock("Directory").Nodes)
 	})
 
 	t.Run("制表符缩进", func(t *testing.T) {
 		cfg, err := ParseString("<Directory /a>\n\t\tRequire all granted\n</Directory>")
-		require.NoError(t, err)
-		assert.Equal(t, []string{"all", "granted"}, cfg.GetBlock("Directory").Get("Require").Values())
+		must.NoError(t, err)
+		check.DeepEqual(t, cfg.GetBlock("Directory").Get("Require").Values(), []string{"all", "granted"})
 	})
 
 	t.Run("只有注释", func(t *testing.T) {
 		cfg, err := ParseString("# c1\n# c2\n")
-		require.NoError(t, err)
-		assert.Len(t, cfg.Nodes, 2)
+		must.NoError(t, err)
+		check.Len(t, cfg.Nodes, 2)
+		cmts := collectComments(cfg.Nodes)
+		must.Len(t, cmts, 2)
+		check.DeepEqual(t, []string{cmts[0].Text, cmts[1].Text}, []string{" c1", " c2"})
 	})
 
 	t.Run("纯空白配置", func(t *testing.T) {
 		cfg, err := ParseString("\n\n   \n\t\n")
-		require.NoError(t, err)
-		assert.Empty(t, cfg.Nodes)
+		must.NoError(t, err)
+		check.Empty(t, cfg.Nodes)
 	})
 
 	t.Run("块标签引号路径含空格", func(t *testing.T) {
 		cfg, err := ParseString("<Directory \"/var/www/my site\">\n    Require all granted\n</Directory>")
-		require.NoError(t, err)
+		must.NoError(t, err)
 		d := cfg.GetBlock("Directory")
-		require.NotNil(t, d)
-		assert.Equal(t, "/var/www/my site", d.Args[0].Value)
-		assert.Contains(t, Export(cfg), `<Directory "/var/www/my site">`)
+		must.NotNil(t, d)
+		check.DeepEqual(t, d.Values(), []string{"/var/www/my site"})
+		check.Contains(t, Export(cfg), `<Directory "/var/www/my site">`)
 	})
 }
 
 func mustReparse(t *testing.T, s string) *conf.Config {
+	t.Helper()
 	cfg, err := ParseString(s)
-	require.NoError(t, err)
+	must.NoError(t, err)
 	return cfg
 }
 
-// semanticLines 把配置规范化为指令/块序列（合并续行、分词去引号、去注释空行），用于语义无损对比
+// semanticLines 把配置归一成指令/块序列，用于比对语义是否无损
 func semanticLines(src string) []string {
 	var out []string
 	for _, ln := range scanLogicalLines(src) {

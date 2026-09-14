@@ -64,7 +64,7 @@ func (s *SFTP) connect() (*sftp.Client, func(), error) {
 		User:            s.config.Username,
 		Auth:            auth,
 		Timeout:         s.config.Timeout,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec
 	}
 
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)

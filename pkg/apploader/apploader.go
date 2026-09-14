@@ -60,8 +60,11 @@ func (r *Loader) Add(app ...types.App) {
 
 func (r *Loader) Register(mux chi.Router) {
 	apps.Range(func(key, value any) bool {
-		app := value.(types.App)
-		mux.Route("/"+key.(string), app.Route)
+		slug, ok1 := key.(string)
+		app, ok2 := value.(types.App)
+		if ok1 && ok2 {
+			mux.Route("/"+slug, app.Route)
+		}
 		return true
 	})
 }
@@ -71,13 +74,16 @@ func (r *Loader) Get(slug string) (types.App, bool) {
 	if !ok {
 		return nil, false
 	}
-	return v.(types.App), true
+	app, ok := v.(types.App)
+	return app, ok
 }
 
 func Slugs() []string {
 	var slugs []string
 	apps.Range(func(key, value any) bool {
-		slugs = append(slugs, key.(string))
+		if slug, ok := key.(string); ok {
+			slugs = append(slugs, slug)
+		}
 		return true
 	})
 	return slugs

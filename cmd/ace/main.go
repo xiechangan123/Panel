@@ -1,3 +1,5 @@
+//go:generate go tool wire generate .
+
 package main
 
 import (
@@ -26,9 +28,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	if cleanup != nil {
-		defer cleanup()
-	}
+	defer func() { _ = cleanup() }()
 
 	return ace.Run()
 }

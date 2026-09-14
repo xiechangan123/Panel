@@ -355,6 +355,8 @@ func (uc *ToolboxMigrationUsecase) importProject(ctx context.Context, detail *ty
 		)), nil
 	case types.ProjectTypeGeneral:
 		return append(warnings, uc.t.Get("the project was not started; start it manually")), nil
+	default:
+		// 其余类型依赖随文件一起迁移，可直接启动
 	}
 	if project.Enabled {
 		_, _ = shell.Exec("systemctl enable " + strconv.Quote(detail.Item.TargetName))
@@ -413,6 +415,8 @@ func (uc *ToolboxMigrationUsecase) rewriteExecStart(project *types.MigrationProj
 		case "npm", "npx", "corepack":
 			executable = filepath.Join(app.Root, "server", "nodejs", slug, "bin", base)
 		}
+	default:
+		// 通用类型没有面板托管的运行时，不改写启动命令
 	}
 	if executable == "" {
 		return execStart
@@ -490,9 +494,9 @@ func (uc *ToolboxMigrationUsecase) removeDependencies(root string, typ types.Pro
 	}
 	_ = filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil || !entry.IsDir() || path == root || !slices.Contains(names, entry.Name()) {
-			return nil
+			return nil //nolint:nilerr
 		}
-		_ = os.RemoveAll(path)
+		_ = os.RemoveAll(path) //nolint:gosec
 		return filepath.SkipDir
 	})
 }

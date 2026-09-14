@@ -76,7 +76,7 @@ func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error
 	}
 
 	// 如果 80 端口没有被占用，则使用内置的 HTTP 服务器
-	if !pkgos.TCPPortInUse(80) {
+	if !pkgos.TCPPortInUse(80) { //nolint:contextcheck
 		s.useBuiltin = true
 		return s.startServer()
 	}
@@ -93,7 +93,10 @@ func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error
 
 func (s *panelSolver) startServer() error {
 	s.server = &http.Server{
-		Addr: ":80",
+		Addr:              ":80",
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token, ok := s.tokens[r.URL.Path]
 			if !ok {

@@ -3,6 +3,8 @@
 package tamper
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -26,7 +28,7 @@ func kernelVersion() string {
 	if err := unix.Uname(&uts); err != nil {
 		return ""
 	}
-	return string(uts.Release[:strings.IndexByte(string(uts.Release[:]), 0)])
+	return string(uts.Release[:bytes.IndexByte(uts.Release[:], 0)])
 }
 
 // kernelAtLeast 判断内核是否 >= major.minor
@@ -36,7 +38,7 @@ func kernelAtLeast(major, minor int) bool {
 	if len(parts) < 2 {
 		return false
 	}
-	maj, err1 := strconv.Atoi(parts[0])
+	majNum, err1 := strconv.Atoi(parts[0])
 	// 次版本号可能带后缀,截断非数字部分
 	minStr := parts[1]
 	for i, c := range minStr {
@@ -45,14 +47,14 @@ func kernelAtLeast(major, minor int) bool {
 			break
 		}
 	}
-	min, err2 := strconv.Atoi(minStr)
+	minNum, err2 := strconv.Atoi(minStr)
 	if err1 != nil || err2 != nil {
 		return false
 	}
-	if maj != major {
-		return maj > major
+	if majNum != major {
+		return majNum > major
 	}
-	return min >= minor
+	return minNum >= minor
 }
 
 // activeLSM 读取当前激活的 LSM 列表
@@ -131,27 +133,27 @@ func injectLSMBpf(content, active string) (string, bool) {
 }
 
 // regenerateGrub 重新生成 grub 配置(兼容各发行版路径)
-func regenerateGrub() error {
+func regenerateGrub(ctx context.Context) error {
 	if _, err := exec.LookPath("update-grub"); err == nil {
-		update := exec.Command("update-grub")
+		update := exec.CommandContext(ctx, "update-grub")
 		shell.ApplyEnv(update)
 		return update.Run()
 	}
 	candidates := []string{"/boot/grub2/grub.cfg", "/boot/grub/grub.cfg", "/boot/efi/EFI/centos/grub.cfg", "/boot/efi/EFI/redhat/grub.cfg"}
 	for _, out := range candidates {
 		if _, err := os.Stat(out); err == nil {
-			mkconfig := exec.Command("grub2-mkconfig", "-o", out)
+			mkconfig := exec.CommandContext(ctx, "grub2-mkconfig", "-o", out)
 			shell.ApplyEnv(mkconfig)
 			return mkconfig.Run()
 		}
 	}
-	mkconfig := exec.Command("grub2-mkconfig", "-o", "/boot/grub2/grub.cfg")
+	mkconfig := exec.CommandContext(ctx, "grub2-mkconfig", "-o", "/boot/grub2/grub.cfg")
 	shell.ApplyEnv(mkconfig)
 	return mkconfig.Run()
 }
 
 // EnableBPFLSMGrub 修改 grub 激活 bpf LSM,需重启系统生效
-func EnableBPFLSMGrub() error {
+func EnableBPFLSMGrub(ctx context.Context) error {
 	const grubFile = "/etc/default/grub"
 	data, err := os.ReadFile(grubFile)
 	if err != nil {
@@ -165,7 +167,7 @@ func EnableBPFLSMGrub() error {
 		}
 	}
 
-	if err = regenerateGrub(); err != nil {
+	if err = regenerateGrub(ctx); err != nil {
 		return fmt.Errorf("failed to regenerate grub config: %w", err)
 	}
 	return nil

@@ -51,7 +51,6 @@ func (s *CertService) CAProviders(w http.ResponseWriter, r *http.Request) {
 			Value: "google",
 		},
 	})
-
 }
 
 func (s *CertService) DNSProviders(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +113,6 @@ func (s *CertService) Algorithms(w http.ResponseWriter, r *http.Request) {
 			Value: string(acme.KeyRSA4096),
 		},
 	})
-
 }
 
 func (s *CertService) List(w http.ResponseWriter, r *http.Request) {
@@ -222,7 +220,7 @@ func (s *CertService) ObtainAuto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = s.certRepo.ObtainAuto(req.ID); err != nil {
+	if _, err = s.certRepo.ObtainAutoWithProgressCallback(r.Context(), req.ID, nil); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -252,7 +250,7 @@ func (s *CertService) Renew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.certRepo.Renew(req.ID)
+	_, err = s.certRepo.RenewWithProgressCallback(r.Context(), req.ID, nil)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

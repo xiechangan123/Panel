@@ -244,8 +244,9 @@ func compressorByFormat(format FormatArchive) string {
 		return "xz"
 	case Zst:
 		return "zstd"
+	default:
+		return ""
 	}
-	return ""
 }
 
 // formatArchiveByPath 根据文件后缀获取压缩格式

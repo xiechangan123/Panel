@@ -10,7 +10,6 @@ import (
 )
 
 func NewCli(t *gotext.Locale, commands []*cli.Command) *cli.Command {
-
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "NAME", t.Get("NAME"))
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "USAGE", t.Get("USAGE"))
 	cli.RootCommandHelpTemplate = strings.ReplaceAll(cli.RootCommandHelpTemplate, "VERSION", t.Get("VERSION"))

@@ -218,7 +218,7 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 			}
 		}
 		if needGen {
-			crt, key, err := cert.GenerateSelfSigned(tools.CollectLocalNames())
+			crt, key, err := cert.GenerateSelfSigned(tools.CollectLocalNames()) //nolint:contextcheck
 			if err != nil {
 				return false, errors.New(uc.t.Get("failed to generate self-signed certificate: %v", err))
 			}
@@ -258,7 +258,7 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 	}
 
 	if req.Port != conf.HTTP.Port {
-		if os.TCPPortInUse(req.Port) {
+		if os.TCPPortInUse(req.Port) { //nolint:contextcheck
 			return false, errors.New(uc.t.Get("port is already in use"))
 		}
 		// 放行端口

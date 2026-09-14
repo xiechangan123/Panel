@@ -6,220 +6,227 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 	"github.com/libtnb/utils/env"
-	"github.com/stretchr/testify/suite"
 )
 
-type IOTestSuite struct {
-	suite.Suite
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }
 
-func TestIOTestSuite(t *testing.T) {
-	suite.Run(t, &IOTestSuite{})
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
 }
 
-func (s *IOTestSuite) SetupTest() {
-	if _, err := os.Stat("testdata"); os.IsNotExist(err) {
-		s.NoError(os.MkdirAll("testdata", 0755))
-	}
-}
-
-func (s *IOTestSuite) TearDownTest() {
-	s.NoError(os.RemoveAll("testdata"))
-}
-
-func (s *IOTestSuite) TestWriteCreatesFileWithCorrectContent() {
-	path := "testdata/write_test.txt"
+func TestWriteCreatesFileWithCorrectContent(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "write_test.txt")
 	data := "Hello, World!"
 	permission := os.FileMode(0644)
 
-	s.NoError(Write(path, data, permission))
+	must.NoError(t, Write(path, data, permission))
 
 	content, err := Read(path)
-	s.NoError(err)
-	s.Equal(data, content)
+	check.NoError(t, err)
+	check.Equal(t, content, data)
 }
 
-func (s *IOTestSuite) TestWriteAppendAppendsToFile() {
-	path := "testdata/append_test.txt"
+func TestWriteAppendAppendsToFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "append_test.txt")
 	initialData := "Hello"
 	appendData := ", World!"
 
-	s.NoError(Write(path, initialData, 0644))
-	s.NoError(WriteAppend(path, appendData, 0644))
+	must.NoError(t, Write(path, initialData, 0644))
+	must.NoError(t, WriteAppend(path, appendData, 0644))
 
 	content, err := Read(path)
-	s.NoError(err)
-	s.Equal("Hello, World!", content)
+	check.NoError(t, err)
+	check.Equal(t, content, "Hello, World!")
 }
 
-// archiveExts 归档格式，支持多文件压缩
+// archiveExts 归档格式，支持多文件
 var archiveExts = []string{".zip", ".tar", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz", ".tar.zst", ".7z"}
 
-// singleExts 单文件压缩格式，仅支持压缩单个文件
+// singleExts 只能压缩单个文件的格式
 var singleExts = []string{".gz", ".bz2", ".xz", ".zst"}
 
-func (s *IOTestSuite) TestCompress() {
-	abs, err := filepath.Abs("testdata")
-	s.NoError(err)
+func TestCompress(t *testing.T) {
+	abs := t.TempDir()
 	src := []string{"compress_test1.txt", "compress_test2.txt"}
-	s.NoError(Write(filepath.Join(abs, src[0]), "File 1", 0644))
-	s.NoError(Write(filepath.Join(abs, src[1]), "File 2", 0644))
+	must.NoError(t, Write(filepath.Join(abs, src[0]), "File 1", 0644))
+	must.NoError(t, Write(filepath.Join(abs, src[1]), "File 2", 0644))
 
 	for _, ext := range archiveExts {
-		s.NoError(Compress(abs, src, filepath.Join(abs, "compress_test"+ext)), ext)
+		t.Run(ext, func(t *testing.T) {
+			check.NoError(t, Compress(abs, src, filepath.Join(abs, "compress_test"+ext)))
+		})
 	}
 	for _, ext := range singleExts {
-		s.NoError(Compress(abs, src[:1], filepath.Join(abs, "compress_single"+ext)), ext)
-		s.Error(Compress(abs, src, filepath.Join(abs, "compress_multi"+ext)), ext)
+		t.Run(ext, func(t *testing.T) {
+			check.NoError(t, Compress(abs, src[:1], filepath.Join(abs, "compress_single"+ext)))
+			// 单文件格式装不下多个文件
+			check.Error(t, Compress(abs, src, filepath.Join(abs, "compress_multi"+ext)))
+		})
 	}
 }
 
-func (s *IOTestSuite) TestUnCompress() {
-	abs, err := filepath.Abs("testdata")
-	s.NoError(err)
+func TestUnCompress(t *testing.T) {
+	abs := t.TempDir()
 	src := []string{"uncompress_test1.txt", "uncompress_test2.txt"}
-	s.NoError(Write(filepath.Join(abs, src[0]), "File 1", 0644))
-	s.NoError(Write(filepath.Join(abs, src[1]), "File 2", 0644))
+	must.NoError(t, Write(filepath.Join(abs, src[0]), "File 1", 0644))
+	must.NoError(t, Write(filepath.Join(abs, src[1]), "File 2", 0644))
 
 	for _, ext := range archiveExts {
-		dst := filepath.Join(abs, "uncompressed"+strings.ReplaceAll(ext, ".", "_"))
-		s.NoError(Compress(abs, src, filepath.Join(abs, "uncompress_test"+ext)), ext)
-		s.NoError(UnCompress(filepath.Join(abs, "uncompress_test"+ext), dst), ext)
-		data, err := Read(filepath.Join(dst, src[0]))
-		s.NoError(err, ext)
-		s.Equal("File 1", data, ext)
-		data, err = Read(filepath.Join(dst, src[1]))
-		s.NoError(err, ext)
-		s.Equal("File 2", data, ext)
+		t.Run(ext, func(t *testing.T) {
+			dst := filepath.Join(abs, "uncompressed"+strings.ReplaceAll(ext, ".", "_"))
+			must.NoError(t, Compress(abs, src, filepath.Join(abs, "uncompress_test"+ext)))
+			must.NoError(t, UnCompress(filepath.Join(abs, "uncompress_test"+ext), dst))
+
+			data, err := Read(filepath.Join(dst, src[0]))
+			check.NoError(t, err)
+			check.Equal(t, data, "File 1")
+			data, err = Read(filepath.Join(dst, src[1]))
+			check.NoError(t, err)
+			check.Equal(t, data, "File 2")
+		})
 	}
 	// 单文件压缩格式解压后去掉压缩后缀恢复原文件名
 	for _, ext := range singleExts {
-		dst := filepath.Join(abs, "uncompressed_single"+strings.ReplaceAll(ext, ".", "_"))
-		s.NoError(Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)), ext)
-		s.NoError(UnCompress(filepath.Join(abs, src[0]+ext), dst), ext)
-		data, err := Read(filepath.Join(dst, src[0]))
-		s.NoError(err, ext)
-		s.Equal("File 1", data, ext)
+		t.Run(ext, func(t *testing.T) {
+			dst := filepath.Join(abs, "uncompressed_single"+strings.ReplaceAll(ext, ".", "_"))
+			must.NoError(t, Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)))
+			must.NoError(t, UnCompress(filepath.Join(abs, src[0]+ext), dst))
+
+			data, err := Read(filepath.Join(dst, src[0]))
+			check.NoError(t, err)
+			check.Equal(t, data, "File 1")
+		})
 	}
 }
 
-func (s *IOTestSuite) TestListCompress() {
-	abs, err := filepath.Abs("testdata")
-	s.NoError(err)
+func TestListCompress(t *testing.T) {
+	abs := t.TempDir()
 	src := []string{"list_archive_test1.txt", "list_archive_test2.txt"}
-	s.NoError(Write(filepath.Join(abs, src[0]), "File 1", 0644))
-	s.NoError(Write(filepath.Join(abs, src[1]), "File 2", 0644))
+	must.NoError(t, Write(filepath.Join(abs, src[0]), "File 1", 0644))
+	must.NoError(t, Write(filepath.Join(abs, src[1]), "File 2", 0644))
 
 	for _, ext := range archiveExts {
-		s.NoError(Compress(abs, src, filepath.Join(abs, "list_archive_test"+ext)), ext)
-		list, err := ListCompress(filepath.Join(abs, "list_archive_test"+ext))
-		s.NoError(err, ext)
-		s.Len(list, 2, ext)
+		t.Run(ext, func(t *testing.T) {
+			must.NoError(t, Compress(abs, src, filepath.Join(abs, "list_archive_test"+ext)))
+			list, err := ListCompress(filepath.Join(abs, "list_archive_test"+ext))
+			check.NoError(t, err)
+			check.Len(t, list, 2)
+		})
 	}
-	// 单文件压缩格式返回去掉压缩后缀的文件名
 	for _, ext := range singleExts {
-		s.NoError(Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)), ext)
-		list, err := ListCompress(filepath.Join(abs, src[0]+ext))
-		s.NoError(err, ext)
-		s.Equal([]string{src[0]}, list, ext)
+		t.Run(ext, func(t *testing.T) {
+			must.NoError(t, Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)))
+			list, err := ListCompress(filepath.Join(abs, src[0]+ext))
+			check.NoError(t, err)
+			check.DeepEqual(t, list, []string{src[0]})
+		})
 	}
 }
 
-func (s *IOTestSuite) TestRemoveDeletesFileOrDirectory() {
-	path := "testdata/remove_test"
-	s.NoError(os.MkdirAll(path, 0755))
-	s.DirExists(path)
+func TestRemoveDeletesFileOrDirectory(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "remove_test")
+	must.NoError(t, os.MkdirAll(path, 0755))
+	must.True(t, dirExists(path), must.Msgf("前置目录未建成: %s", path))
 
-	s.NoError(Remove(path))
-	s.NoDirExists(path)
+	check.NoError(t, Remove(path))
+	check.False(t, dirExists(path), check.Msgf("目录应已删除: %s", path))
 }
 
-func (s *IOTestSuite) TestChmodChangesPermissions() {
+func TestChmodChangesPermissions(t *testing.T) {
 	if env.IsWindows() {
-		s.T().Skip("Skipping on Windows")
+		t.Skip("Skipping on Windows")
 	}
-	path := "testdata/chmod_test.txt"
-	s.NoError(Write(path, "test", 0644))
+	path := filepath.Join(t.TempDir(), "chmod_test.txt")
+	must.NoError(t, Write(path, "test", 0644))
 
-	s.NoError(Chmod(path, 0755))
+	check.NoError(t, Chmod(path, 0755))
 	info, err := os.Stat(path)
-	s.NoError(err)
-	s.Equal(os.FileMode(0755), info.Mode().Perm())
+	must.NoError(t, err)
+	check.Equal(t, info.Mode().Perm(), os.FileMode(0755))
 }
 
-func (s *IOTestSuite) TestChownChangesOwner() {
+func TestChownChangesOwner(t *testing.T) {
 	if env.IsWindows() {
-		s.T().Skip("Skipping on Windows")
+		t.Skip("Skipping on Windows")
 	}
-	path := "testdata/chown_test.txt"
-	s.NoError(Write(path, "test", 0644))
+	path := filepath.Join(t.TempDir(), "chown_test.txt")
+	must.NoError(t, Write(path, "test", 0644))
 
-	s.NoError(Chown(path, "root", "root"))
+	// 校验属主是否真的变了需要 root，这里只能确认命令执行成功
+	check.NoError(t, Chown(path, "root", "root"))
 }
 
-func (s *IOTestSuite) TestExistsReturnsTrueForExistingPath() {
-	path := "testdata/exists_test.txt"
-	s.NoError(Write(path, "test", 0644))
-	s.True(Exists(path))
+func TestExistsReturnsTrueForExistingPath(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "exists_test.txt")
+	must.NoError(t, Write(path, "test", 0644))
+	check.True(t, Exists(path), check.Msgf("路径应存在: %s", path))
 }
 
-func (s *IOTestSuite) TestExistsReturnsFalseForNonExistingPath() {
-	path := "testdata/nonexistent.txt"
-	s.False(Exists(path))
+func TestExistsReturnsFalseForNonExistingPath(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "nonexistent.txt")
+	check.False(t, Exists(path), check.Msgf("路径不应存在: %s", path))
 }
 
-func (s *IOTestSuite) TestEmptyReturnsTrueForEmptyDirectory() {
-	path := "testdata/empty_test"
-	s.NoError(os.MkdirAll(path, 0755))
-	s.True(Empty(path))
+func TestEmptyReturnsTrueForEmptyDirectory(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "empty_test")
+	must.NoError(t, os.MkdirAll(path, 0755))
+	check.True(t, Empty(path), check.Msgf("目录应为空: %s", path))
 }
 
-func (s *IOTestSuite) TestEmptyReturnsFalseForNonEmptyDirectory() {
-	path := "testdata/nonempty_test"
-	s.NoError(os.MkdirAll(path, 0755))
-	s.NoError(Write(filepath.Join(path, "file.txt"), "test", 0644))
-	s.False(Empty(path))
+func TestEmptyReturnsFalseForNonEmptyDirectory(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "nonempty_test")
+	must.NoError(t, os.MkdirAll(path, 0755))
+	must.NoError(t, Write(filepath.Join(path, "file.txt"), "test", 0644))
+	check.False(t, Empty(path), check.Msgf("目录不应为空: %s", path))
 }
 
-func (s *IOTestSuite) TestMvMovesFile() {
-	src := "testdata/mv_src.txt"
-	dst := "testdata/mv_dst.txt"
-	s.NoError(Write(src, "test", 0644))
+func TestMvMovesFile(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "mv_src.txt")
+	dst := filepath.Join(dir, "mv_dst.txt")
+	must.NoError(t, Write(src, "test", 0644))
 
-	s.NoError(Mv(src, dst))
-	s.FileExists(dst)
-	s.NoFileExists(src)
+	check.NoError(t, Mv(src, dst))
+	check.True(t, fileExists(dst), check.Msgf("目标文件应存在: %s", dst))
+	check.False(t, fileExists(src), check.Msgf("源文件应已移走: %s", src))
 }
 
-func (s *IOTestSuite) TestCpCopiesFile() {
-	src := "testdata/cp_src.txt"
-	dst := "testdata/cp_dst.txt"
-	s.NoError(Write(src, "test", 0644))
+func TestCpCopiesFile(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "cp_src.txt")
+	dst := filepath.Join(dir, "cp_dst.txt")
+	must.NoError(t, Write(src, "test", 0644))
 
-	s.NoError(Cp(src, dst))
-	s.FileExists(dst)
-	s.FileExists(src)
+	check.NoError(t, Cp(src, dst))
+	check.True(t, fileExists(dst), check.Msgf("目标文件应存在: %s", dst))
+	check.True(t, fileExists(src), check.Msgf("源文件应保留: %s", src))
 }
 
-func (s *IOTestSuite) TestSizeReturnsCorrectSize() {
-	path := "testdata/size_test.txt"
+func TestSizeReturnsCorrectSize(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "size_test.txt")
 	data := "12345"
-	s.NoError(Write(path, data, 0644))
+	must.NoError(t, Write(path, data, 0644))
 
 	size, err := Size(path)
-	s.NoError(err)
-	s.Equal(int64(len(data)), size)
+	check.NoError(t, err)
+	check.Equal(t, size, int64(len(data)))
 }
 
-func (s *IOTestSuite) TestIsDirReturnsTrueForDirectory() {
-	path := "testdata/isdir_test"
-	s.NoError(os.MkdirAll(path, 0755))
-	s.True(IsDir(path))
+func TestIsDirReturnsTrueForDirectory(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "isdir_test")
+	must.NoError(t, os.MkdirAll(path, 0755))
+	check.True(t, IsDir(path), check.Msgf("应识别为目录: %s", path))
 }
 
-func (s *IOTestSuite) TestIsDirReturnsFalseForFile() {
-	path := "testdata/isfile_test.txt"
-	s.NoError(Write(path, "test", 0644))
-	s.False(IsDir(path))
+func TestIsDirReturnsFalseForFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "isfile_test.txt")
+	must.NoError(t, Write(path, "test", 0644))
+	check.False(t, IsDir(path), check.Msgf("不应识别为目录: %s", path))
 }

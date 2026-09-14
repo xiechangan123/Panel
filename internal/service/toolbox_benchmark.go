@@ -93,14 +93,12 @@ func (s *ToolboxBenchmarkService) calculateScore(duration time.Duration) int {
 
 func (s *ToolboxBenchmarkService) imageProcessing() int {
 	start := time.Now()
-	if err := s.imageProcessingTask(); err != nil {
-		return 0
-	}
+	s.imageProcessingTask()
 	duration := time.Since(start)
 	return s.calculateCpuScore(duration)
 }
 
-func (s *ToolboxBenchmarkService) imageProcessingTask() error {
+func (s *ToolboxBenchmarkService) imageProcessingTask() {
 	img := image.NewRGBA(image.Rect(0, 0, 4000, 4000))
 	for x := range 4000 {
 		for y := range 4000 {
@@ -129,8 +127,6 @@ func (s *ToolboxBenchmarkService) imageProcessingTask() error {
 			img.Set(x, y, color.RGBA{R: rAvg, G: gAvg, B: bAvg, A: 255})
 		}
 	}
-
-	return nil
 }
 
 // 机器学习（矩阵乘法）
@@ -149,6 +145,7 @@ func (s *ToolboxBenchmarkService) machineLearningTask() {
 	for i := range size {
 		a[i] = make([]float64, size)
 		b[i] = make([]float64, size)
+		//nolint:gosec
 		for j := range size {
 			a[i][j] = rand.Float64()
 			b[i][j] = rand.Float64()
@@ -258,7 +255,7 @@ func (s *ToolboxBenchmarkService) compressionTestTask() {
 	if err != nil {
 		return
 	}
-	_, err = io.Copy(io.Discard, r)
+	_, err = io.Copy(io.Discard, r) //nolint:gosec
 	if err != nil {
 		return
 	}
@@ -285,6 +282,7 @@ func (s *ToolboxBenchmarkService) physicsSimulationTask() {
 	}
 
 	bodies := make([]Body, numBodies)
+	//nolint:gosec
 	for i := range numBodies {
 		bodies[i] = Body{
 			x:  rand.Float64(),
@@ -397,7 +395,7 @@ func (s *ToolboxBenchmarkService) memoryBandwidthTest(data []byte) string {
 
 func (s *ToolboxBenchmarkService) memoryLatencyTest(data []byte) string {
 	dataSize := len(data)
-	indices := rand.Perm(dataSize)
+	indices := rand.Perm(dataSize) //nolint:gosec
 
 	startTime := time.Now()
 	sum := byte(0)

@@ -39,21 +39,17 @@ func (p *parser) errorf(format string, args ...any) error {
 	return fmt.Errorf("line %d: %s", p.line, fmt.Sprintf(format, args...))
 }
 
-// skipSpace 跳过空白，返回是否跨过了换行
-func (p *parser) skipSpace() bool {
-	newline := false
+func (p *parser) skipSpace() {
 	for p.i < len(p.s) {
 		switch p.s[p.i] {
 		case '\n':
 			p.line++
-			newline = true
 		case ' ', '\t', '\r':
 		default:
-			return newline
+			return
 		}
 		p.i++
 	}
-	return newline
 }
 
 // readLine 读到行尾，不消费换行符

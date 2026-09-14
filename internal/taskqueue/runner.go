@@ -159,7 +159,7 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 		status := biz.TaskStatusFailed
 		if taskCtx.Err() != nil && ctx.Err() == nil {
 			status = biz.TaskStatusCanceled
-			r.runCancelShell(task, logFile)
+			r.runCancelShell(ctx, task, logFile)
 		}
 		r.log.Warn("background task did not finish", slog.Any("task_id", task.ID), slog.Any("status", status), slog.Any("err", err))
 		_ = r.db.Model(task).Update("status", status).Error
@@ -182,12 +182,12 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 }
 
 // runCancelShell 任务被取消后执行清理命令，输出追加到任务日志
-func (r *Runner) runCancelShell(task *biz.Task, logFile string) {
+func (r *Runner) runCancelShell(ctx context.Context, task *biz.Task, logFile string) {
 	if task.CancelShell == "" {
 		return
 	}
 
-	cleanupCtx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Minute)
 	defer cancel()
 
 	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)

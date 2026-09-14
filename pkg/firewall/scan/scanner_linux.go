@@ -188,9 +188,9 @@ func buildDetector(events, ports *ebpf.Map) (*ebpf.Program, error) {
 
 	// IPv6 扩展头解析步骤（R4=当前头指针，R8=NextHeader）
 	ipv6ExtStep := func(sym, next, dispatch string) asm.Instructions {
-		generic := fmt.Sprintf("%s_generic", sym)
-		fragment := fmt.Sprintf("%s_fragment", sym)
-		ah := fmt.Sprintf("%s_ah", sym)
+		generic := sym + "_generic"
+		fragment := sym + "_fragment"
+		ah := sym + "_ah"
 
 		return asm.Instructions{
 			asm.Mov.Reg(asm.R2, asm.R8).WithSymbol(sym),

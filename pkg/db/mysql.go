@@ -45,23 +45,23 @@ func (r *MySQL) Close() {
 }
 
 func (r *MySQL) Ping() error {
-	return r.db.Ping()
+	return r.db.PingContext(context.Background())
 }
 
 func (r *MySQL) Query(query string, args ...any) (*sql.Rows, error) {
-	return r.db.Query(query, args...)
+	return r.db.QueryContext(context.Background(), query, args...)
 }
 
 func (r *MySQL) QueryRow(query string, args ...any) *sql.Row {
-	return r.db.QueryRow(query, args...)
+	return r.db.QueryRowContext(context.Background(), query, args...)
 }
 
 func (r *MySQL) Exec(query string, args ...any) (sql.Result, error) {
-	return r.db.Exec(query, args...)
+	return r.db.ExecContext(context.Background(), query, args...)
 }
 
 func (r *MySQL) Prepare(query string) (*sql.Stmt, error) {
-	return r.db.Prepare(query)
+	return r.db.PrepareContext(context.Background(), query)
 }
 
 func (r *MySQL) DatabaseCreate(name string) error {
@@ -94,7 +94,7 @@ func (r *MySQL) DatabaseExists(name string) (bool, error) {
 			return true, nil
 		}
 	}
-	return false, nil
+	return false, rows.Err()
 }
 
 func (r *MySQL) DatabaseSize(name string) (int64, error) {
@@ -212,7 +212,7 @@ func (r *MySQL) Users() ([]User, error) {
 		})
 	}
 
-	return users, nil
+	return users, rows.Err()
 }
 
 func (r *MySQL) Databases() ([]Database, error) {
@@ -262,7 +262,7 @@ func (r *MySQL) userGrants(user, host string) ([]string, error) {
 		}
 		grants = append(grants, grant)
 	}
-	return grants, nil
+	return grants, rows.Err()
 }
 
 func (r *MySQL) flushPrivileges() {

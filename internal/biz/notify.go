@@ -221,6 +221,8 @@ func (uc *NotifyUsecase) Send(ctx context.Context, channelIDs []uint, subject, b
 
 // SendEvent 发送系统事件通知，不阻塞业务流程
 // 待发送数超过上限时丢弃并告知，避免慢渠道拖垮调用方
+//
+//nolint:contextcheck,nolintlint
 func (uc *NotifyUsecase) SendEvent(event NotifyEvent, subject, body string) {
 	select {
 	case uc.pending <- struct{}{}:

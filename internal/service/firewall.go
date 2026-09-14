@@ -75,6 +75,7 @@ func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var filledRules []map[string]any
+	//nolint:contextcheck
 	for rule := range slices.Values(rules) {
 		// 去除IP规则
 		if rule.PortStart == 1 && rule.PortEnd == 65535 {
@@ -230,6 +231,7 @@ func (s *FirewallService) ExportRules(w http.ResponseWriter, r *http.Request) {
 
 // ImportRules 从 xlsx 导入端口规则
 func (s *FirewallService) ImportRules(w http.ResponseWriter, r *http.Request) {
+	//nolint:gosec
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return

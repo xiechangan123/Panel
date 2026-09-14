@@ -47,12 +47,12 @@ func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) 
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 	d, err := r.dialect()
 	if err != nil {
-		return make(map[string]string), nil
+		return make(map[string]string), nil //nolint:nilerr
 	}
 
 	entries, err := embed.RewritesFS.ReadDir(filepath.Join("rewrites", d.RewritesDir()))
 	if err != nil {
-		return make(map[string]string), nil
+		return make(map[string]string), nil //nolint:nilerr
 	}
 
 	rw := make(map[string]string)
@@ -548,6 +548,8 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 			Location: "^~ /",
 			Pass:     req.Proxy,
 		}}
+	default:
+		// 静态站点沿用默认配置
 	}
 
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
@@ -1189,6 +1191,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 				Pass:     setting.Proxies[0].Pass,
 			}}
 		}
+	default:
 	}
 
 	if website.Type == biz.WebsiteTypePHP {
@@ -1462,6 +1465,8 @@ func writeTypeConfigs(d webserver.Dialect, vhost webservertypes.Vhost, typ biz.W
 		return vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, d.PHPCacheConf())
 	case biz.WebsiteTypeStatic:
 		return vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, d.SPAConf())
+	default:
+		// 反代站点无需额外片段
 	}
 
 	return nil

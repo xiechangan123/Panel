@@ -4,46 +4,44 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/libtnb/assert/check"
 	"github.com/libtnb/utils/env"
-	"github.com/stretchr/testify/suite"
 )
 
-type NTPTestSuite struct {
-	suite.Suite
+func TestNowWithDefaultAddresses(t *testing.T) {
+	now, err := Now()
+	if err != nil {
+		t.Logf("内置 NTP 服务器不可达，回落本地时间: %v", err)
+	}
+	check.DeepEqual(t, now, time.Now(), cmpopts.EquateApproxTime(time.Minute))
 }
 
-func TestNTPTestSuite(t *testing.T) {
-	suite.Run(t, &NTPTestSuite{})
-}
-
-func (suite *NTPTestSuite) TestNowWithDefaultAddresses() {
-	now, _ := Now()
-	suite.WithinDuration(time.Now(), now, time.Minute)
-}
-
-func (suite *NTPTestSuite) TestNowWithCustomAddress() {
+func TestNowWithCustomAddress(t *testing.T) {
 	now, err := Now("time.windows.com")
-	suite.NoError(err)
-	suite.WithinDuration(time.Now(), now, time.Minute)
+	check.NoError(t, err)
+	check.DeepEqual(t, now, time.Now(), cmpopts.EquateApproxTime(time.Minute))
 }
 
-func (suite *NTPTestSuite) TestNowWithInvalidAddress() {
-	_, err := Now("invalid.address")
-	suite.Error(err)
+func TestNowWithInvalidAddress(t *testing.T) {
+	now, err := Now("invalid.address")
+	check.ErrorIs(t, err, ErrNotReachable)
+	// 失败时回落到本地时间，不是零值
+	check.DeepEqual(t, now, time.Now(), cmpopts.EquateApproxTime(time.Minute))
 }
 
-func (suite *NTPTestSuite) TestUpdateSystemTime() {
+func TestUpdateSystemTime(t *testing.T) {
 	if env.IsWindows() {
-		suite.T().Skip("Skipping on Windows")
+		t.Skip("Skipping on Windows")
 	}
 	err := UpdateSystemTime(time.Now())
-	suite.NoError(err)
+	check.NoError(t, err)
 }
 
-func (suite *NTPTestSuite) TestUpdateSystemTimeZone() {
+func TestUpdateSystemTimeZone(t *testing.T) {
 	if env.IsWindows() {
-		suite.T().Skip("Skipping on Windows")
+		t.Skip("Skipping on Windows")
 	}
 	err := UpdateSystemTimeZone("UTC")
-	suite.NoError(err)
+	check.NoError(t, err)
 }

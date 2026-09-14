@@ -2,7 +2,7 @@ package data
 
 import (
 	"context"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -47,8 +47,8 @@ func newBaotaClient(conn *request.ToolboxMigrationConnection) *migrationClient {
 		// 认证一律走 query，resty 在签名时还未确定请求方法，无法按方法分流
 		sign: func(req *resty.Request) {
 			timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-			secret := md5.Sum([]byte(conn.APIKey))
-			token := md5.Sum([]byte(timestamp + hex.EncodeToString(secret[:])))
+			secret := md5.Sum([]byte(conn.APIKey))                              //nolint:gosec
+			token := md5.Sum([]byte(timestamp + hex.EncodeToString(secret[:]))) //nolint:gosec
 			req.SetQueryParams(map[string]string{"request_time": timestamp, "request_token": hex.EncodeToString(token[:])})
 		},
 		// 宝塔失败响应为 {status: false, msg: "..."}，部分接口的业务数据也含 status 字段，需同时判断 msg
@@ -287,7 +287,7 @@ func (a *baotaAdapter) Detail(ctx context.Context, item types.MigrationItem) (*t
 	var err error
 	switch item.Type {
 	case "website":
-		detail.Website, err = a.websiteDetail(ctx, item)
+		detail.Website = a.websiteDetail(ctx, item)
 	case "database":
 		detail.Database, err = a.databaseDetail(ctx, item)
 	case "database_user":
@@ -300,7 +300,7 @@ func (a *baotaAdapter) Detail(ctx context.Context, item types.MigrationItem) (*t
 	return detail, err
 }
 
-func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationItem) (*types.MigrationWebsite, error) {
+func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationItem) *types.MigrationWebsite {
 	website := &types.MigrationWebsite{
 		Type: item.Subtype, Path: item.SourcePath, Root: item.SourcePath,
 		Domains: []string{item.Name}, Listens: []string{"80"},
@@ -367,7 +367,7 @@ func (a *baotaAdapter) websiteDetail(ctx context.Context, item types.MigrationIt
 	}
 	website.Redirects = a.redirects(ctx, item.Name)
 	a.applySSL(ctx, item.Name, website)
-	return website, nil
+	return website
 }
 
 // domains 读取站点绑定的域名与端口

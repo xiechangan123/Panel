@@ -175,10 +175,6 @@ func (uc *CertUsecase) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (uc *CertUsecase) ObtainAuto(id uint) (*acme.Certificate, error) {
-	return uc.ObtainAutoWithProgressCallback(context.Background(), id, nil)
-}
-
 func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
 	report := func(msg string) {
 		if progressCallback != nil {
@@ -298,10 +294,6 @@ func (uc *CertUsecase) ObtainSelfSigned(id uint) error {
 	return nil
 }
 
-func (uc *CertUsecase) Renew(id uint) (*acme.Certificate, error) {
-	return uc.RenewWithProgressCallback(context.Background(), id, nil)
-}
-
 func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, progressCallback func(string)) (*acme.Certificate, error) {
 	report := func(msg string) {
 		if progressCallback != nil {
@@ -380,7 +372,7 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 	return &ssl, nil
 }
 
-func (uc *CertUsecase) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error) {
+func (uc *CertUsecase) RefreshRenewalInfo(ctx context.Context, id uint) (mholtacme.RenewalInfo, error) {
 	cert, err := uc.repo.Get(id)
 	if err != nil {
 		return mholtacme.RenewalInfo{}, err
@@ -395,9 +387,9 @@ func (uc *CertUsecase) RefreshRenewalInfo(id uint) (mholtacme.RenewalInfo, error
 		return mholtacme.RenewalInfo{}, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	infoCtx, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
-	renewInfo, err := client.GetRenewalInfo(ctx, crt)
+	renewInfo, err := client.GetRenewalInfo(infoCtx, crt)
 	if err != nil {
 		return mholtacme.RenewalInfo{}, err
 	}

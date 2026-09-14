@@ -72,7 +72,7 @@ func (r *FirewallScan) Run(_ context.Context) error {
 	if err != nil || !enabled {
 		// 未启用时，确保 scanner 已停止
 		r.stopScanner()
-		return nil
+		return nil //nolint:nilerr
 	}
 
 	// 确保 scanner 已启动
@@ -245,8 +245,8 @@ func (r *FirewallScan) autoBlock() {
 	// 解析白名单
 	whitelist := parseWhitelist(setting.Whitelist)
 	now := time.Now()
-	window := time.Duration(setting.BlockWindow) * time.Minute
-	duration := time.Duration(setting.BlockDuration) * time.Hour
+	window := time.Duration(setting.BlockWindow) * time.Minute   //nolint:gosec
+	duration := time.Duration(setting.BlockDuration) * time.Hour //nolint:gosec
 
 	var toBlock []struct {
 		ip    string

@@ -123,7 +123,7 @@ func (r *PanelTask) Run(_ context.Context) error {
 
 // 更新分类缓存
 func (r *PanelTask) updateCategories() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateCategories(); err != nil {
 			r.log.Warn("failed to update categories cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
@@ -132,7 +132,7 @@ func (r *PanelTask) updateCategories() {
 
 // 更新商店缓存
 func (r *PanelTask) updateApps() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateApps(); err != nil {
 			r.log.Warn("failed to update apps cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
@@ -141,7 +141,7 @@ func (r *PanelTask) updateApps() {
 
 // 更新运行环境缓存
 func (r *PanelTask) updateEnvironments() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateEnvironments(); err != nil {
 			r.log.Warn("failed to update environment cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
@@ -150,7 +150,7 @@ func (r *PanelTask) updateEnvironments() {
 
 // 更新模版缓存
 func (r *PanelTask) updateTemplates() {
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second, func() { //nolint:gosec
 		if err := r.cacheRepo.UpdateTemplates(); err != nil {
 			r.log.Warn("failed to update template cache", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
@@ -166,7 +166,7 @@ func (r *PanelTask) updatePanel() {
 	channel, _ := r.settingRepo.Get(biz.SettingKeyChannel)
 
 	// 加 360 秒确保在缓存更新后才更新面板
-	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+360*time.Second, func() {
+	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+360*time.Second, func() { //nolint:gosec
 		panel, err := r.api.LatestVersion(channel)
 		if err != nil {
 			return

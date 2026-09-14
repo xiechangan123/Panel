@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/google/wire"
+	"github.com/libtnb/wire"
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -13,13 +13,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 )
 
-func initCli() (*app.Cli, func(), error) {
-	panic(wire.Build(
-		bootstrap.ProviderSet,
-		biz.ProviderSet,
-		data.ProviderSet,
-		service.ProviderSet,
-		command.ProviderSet,
-		app.NewCli,
-	))
-}
+var initCli = wire.New().
+	Include(bootstrap.Module, biz.Module, data.Module, service.Module, command.Module).
+	Provide(app.NewCli).
+	Injector[func() (*app.Cli, func() error, error)]()

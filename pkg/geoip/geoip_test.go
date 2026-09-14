@@ -1,73 +1,60 @@
 package geoip
 
 import (
+	"io/fs"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
 const testDBPath = "ipipfree.ipdb"
 
-type GeoIPSuite struct {
-	suite.Suite
-	g *GeoIP
-}
-
-func (s *GeoIPSuite) SetupSuite() {
+func newTestGeoIP(t *testing.T) *GeoIP {
+	t.Helper()
 	g, err := NewGeoIP(testDBPath)
-	s.Require().NoError(err)
-	s.Require().NotNil(g)
-	s.g = g
+	must.NoError(t, err)
+	t.Cleanup(func() {
+		check.NoError(t, g.Close())
+	})
+	return g
 }
 
-func (s *GeoIPSuite) TearDownSuite() {
-	s.Require().NoError(s.g.Close())
-}
-
-func TestGeoIPSuite(t *testing.T) {
-	suite.Run(t, new(GeoIPSuite))
-}
-
-// ========== NewGeoIP ==========
-
-func (s *GeoIPSuite) TestNewGeoIP_InvalidPath() {
+func TestNewGeoIP_InvalidPath(t *testing.T) {
 	_, err := NewGeoIP("/nonexistent/path.ipdb")
-	s.Error(err)
+	check.ErrorIs(t, err, fs.ErrNotExist)
 }
 
-// ========== Lookup ==========
-
-func (s *GeoIPSuite) TestLookup_ChinaIP() {
-	r := s.g.Lookup("114.114.114.114")
-	s.NotEmpty(r.Country)
-	s.T().Logf("114.114.114.114 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
+func TestLookup_KnownIP(t *testing.T) {
+	g := newTestGeoIP(t)
+	// 具体归属地随库更新变化，只断言解析出了国家
+	for _, ip := range []string{"114.114.114.114", "8.8.8.8"} {
+		t.Run(ip, func(t *testing.T) {
+			r := g.Lookup(ip)
+			check.NotEmpty(t, r.Country, check.Msgf("%s -> %+v", ip, r))
+		})
+	}
 }
 
-func (s *GeoIPSuite) TestLookup_ForeignIP() {
-	r := s.g.Lookup("8.8.8.8")
-	s.NotEmpty(r.Country)
-	s.T().Logf("8.8.8.8 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
+func TestLookup_PrivateIP(t *testing.T) {
+	// 是否有记录取决于库内容，只要求不 panic
+	r := newTestGeoIP(t).Lookup("192.168.1.1")
+	t.Logf("192.168.1.1 -> %+v", r)
 }
 
-func (s *GeoIPSuite) TestLookup_PrivateIP() {
-	// 内网 IP，不应 panic
-	r := s.g.Lookup("192.168.1.1")
-	s.T().Logf("192.168.1.1 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
+func TestLookup_InvalidIP(t *testing.T) {
+	// 查不到时返回整个零值结果，而不是只有国家为空
+	r := newTestGeoIP(t).Lookup("not-an-ip")
+	check.Equal(t, r, GeoResult{})
 }
 
-func (s *GeoIPSuite) TestLookup_InvalidIP() {
-	r := s.g.Lookup("not-an-ip")
-	s.Empty(r.Country)
-}
-
-func (s *GeoIPSuite) TestLookup_NilReceiver() {
+func TestLookup_NilReceiver(t *testing.T) {
 	var g *GeoIP
 	r := g.Lookup("8.8.8.8")
-	s.Equal(GeoResult{}, r)
+	check.Equal(t, r, GeoResult{})
 }
 
-func (s *GeoIPSuite) TestLookup_IPv6() {
-	// IPv6 地址，数据库可能不支持，不应 panic
-	r := s.g.Lookup("2001:4860:4860::8888")
-	s.T().Logf("2001:4860:4860::8888 -> %s(%s) %s %s ISP=%s", r.Country, r.CountryCode, r.Region, r.City, r.ISP)
+func TestLookup_IPv6(t *testing.T) {
+	r := newTestGeoIP(t).Lookup("2001:4860:4860::8888")
+	t.Logf("2001:4860:4860::8888 -> %+v", r)
 }

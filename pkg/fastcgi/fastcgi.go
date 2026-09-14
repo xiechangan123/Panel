@@ -32,22 +32,21 @@ func Request(ctx context.Context, network, address string, params map[string]str
 		_ = conn.SetDeadline(deadline)
 	}
 
-	const requestID = 1
 	// BEGIN_REQUEST：responder 角色，连接不复用
-	if err = writeRecord(conn, typeBeginRequest, requestID, []byte{0, roleResponder, 0, 0, 0, 0, 0, 0}); err != nil {
+	if err = writeRecord(conn, typeBeginRequest, []byte{0, roleResponder, 0, 0, 0, 0, 0, 0}); err != nil {
 		return nil, err
 	}
 	var buf bytes.Buffer
 	for name, value := range params {
 		encodeNameValue(&buf, name, value)
 	}
-	if err = writeRecord(conn, typeParams, requestID, buf.Bytes()); err != nil {
+	if err = writeRecord(conn, typeParams, buf.Bytes()); err != nil {
 		return nil, err
 	}
-	if err = writeRecord(conn, typeParams, requestID, nil); err != nil {
+	if err = writeRecord(conn, typeParams, nil); err != nil {
 		return nil, err
 	}
-	if err = writeRecord(conn, typeStdin, requestID, nil); err != nil {
+	if err = writeRecord(conn, typeStdin, nil); err != nil {
 		return nil, err
 	}
 
@@ -81,10 +80,10 @@ func Request(ctx context.Context, network, address string, params map[string]str
 }
 
 // writeRecord 写入一条 FastCGI 记录
-func writeRecord(w io.Writer, typ byte, requestID uint16, content []byte) error {
+func writeRecord(w io.Writer, typ byte, content []byte) error {
 	header := [8]byte{1, typ}
-	binary.BigEndian.PutUint16(header[2:4], requestID)
-	binary.BigEndian.PutUint16(header[4:6], uint16(len(content))) //nolint:gosec // params 由面板构造，长度远小于 64KB
+	binary.BigEndian.PutUint16(header[2:4], 1)
+	binary.BigEndian.PutUint16(header[4:6], uint16(len(content))) //nolint:gosec
 	if _, err := w.Write(header[:]); err != nil {
 		return err
 	}
@@ -100,11 +99,11 @@ func writeRecord(w io.Writer, typ byte, requestID uint16, content []byte) error 
 func encodeNameValue(buf *bytes.Buffer, name, value string) {
 	writeLength := func(n int) {
 		if n < 128 {
-			buf.WriteByte(byte(n))
+			buf.WriteByte(byte(n)) //nolint:gosec
 			return
 		}
 		var b [4]byte
-		binary.BigEndian.PutUint32(b[:], uint32(n)|1<<31) //nolint:gosec // 长度非负
+		binary.BigEndian.PutUint32(b[:], uint32(n)|1<<31) //nolint:gosec
 		buf.Write(b[:])
 	}
 	writeLength(len(name))

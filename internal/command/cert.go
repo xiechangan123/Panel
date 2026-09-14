@@ -11,7 +11,6 @@ import (
 
 // CertCommand 证书管理命令组
 func CertCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "cert",
 		Usage: t.Get("Certificate management"),

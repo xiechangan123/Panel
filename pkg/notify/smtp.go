@@ -78,7 +78,7 @@ func (s *smtpNotifier) Send(ctx context.Context, msg *Message) error {
 		mail.WithTimeout(30 * time.Second),
 		mail.WithTLSConfig(&tls.Config{
 			ServerName:         s.conf.Host,
-			InsecureSkipVerify: s.conf.SkipVerify, // nolint:gosec
+			InsecureSkipVerify: s.conf.SkipVerify, //nolint:gosec
 			MinVersion:         tls.VersionTLS11,
 		}),
 	}

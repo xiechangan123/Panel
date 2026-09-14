@@ -3,8 +3,8 @@ package network
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
 func TestValidate(t *testing.T) {
@@ -26,12 +26,12 @@ func TestValidate(t *testing.T) {
 		{name: "both disabled", change: func(config *Config) { config.IPv4 = FamilyConfig{Mode: ModeDisabled} }},
 		{name: "invalid MTU", change: func(config *Config) { config.MTU = 67 }},
 	}
-	require.NoError(t, Validate(valid))
+	must.NoError(t, Validate(valid))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			config := valid
 			test.change(&config)
-			assert.Error(t, Validate(config))
+			check.ErrorIs(t, Validate(config), ErrValidation)
 		})
 	}
 }
@@ -46,7 +46,17 @@ iface eth0 inet dhcp
 iface eth0 inet6 static
     address 2001:db8::10/64
 `)
-	require.Len(t, file.stanzas, 2)
-	assert.Equal(t, ModeAuto, backend.family(file.stanzas, "inet").Mode)
-	assert.Equal(t, []string{"2001:db8::10/64"}, backend.family(file.stanzas, "inet6").Addresses)
+	must.Len(t, file.stanzas, 2)
+	check.DeepEqual(t, backend.family(file.stanzas, "inet"), FamilyConfig{
+		Mode:      ModeAuto,
+		Addresses: []string{},
+		AutoDNS:   true,
+		DNS:       []string{"1.1.1.1"},
+	})
+	check.DeepEqual(t, backend.family(file.stanzas, "inet6"), FamilyConfig{
+		Mode:      ModeManual,
+		Addresses: []string{"2001:db8::10/64"},
+		AutoDNS:   true,
+		DNS:       []string{},
+	})
 }

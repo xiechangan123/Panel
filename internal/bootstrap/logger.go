@@ -16,7 +16,7 @@ type Logger struct {
 }
 
 // NewLogger 构建写入轮转文件的应用日志。
-func NewLogger(conf *config.Config) (*Logger, func(), error) {
+func NewLogger(conf *config.Config) (*Logger, func() error, error) {
 	w, err := logrotate.New(filepath.Join(app.Root, "panel/storage/logs/app.log"),
 		logrotate.WithMaxSize(10*logrotate.MB),
 		logrotate.WithMaxAge(30*logrotate.Day),
@@ -38,8 +38,7 @@ func NewLogger(conf *config.Config) (*Logger, func(), error) {
 	}))
 	slog.SetDefault(log)
 
-	cleanup := func() { _ = w.Close() }
-	return &Logger{Logger: log}, cleanup, nil
+	return &Logger{Logger: log}, w.Close, nil
 }
 
 // NewSlog 解包出纯 *slog.Logger 供应用其余部分使用。

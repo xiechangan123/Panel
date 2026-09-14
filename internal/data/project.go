@@ -105,9 +105,9 @@ func (r *projectRepo) Save(project *biz.Project) error {
 }
 
 // RenameUnitFile 重命名 systemd unit 文件
-func (r *projectRepo) RenameUnitFile(old, new string) error {
-	oldPath := r.unitFilePath(old)
-	newPath := r.unitFilePath(new)
+func (r *projectRepo) RenameUnitFile(oldName, newName string) error {
+	oldPath := r.unitFilePath(oldName)
+	newPath := r.unitFilePath(newName)
 	if err := os.Rename(oldPath, newPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("%s: %w", r.t.Get("failed to rename systemd config"), err)
 	}

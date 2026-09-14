@@ -11,7 +11,6 @@ import (
 
 // StatusCommand 查询服务状态
 func StatusCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "status",
 		Usage: t.Get("Get AcePanel service status"),
@@ -23,7 +22,6 @@ func StatusCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 
 // RestartCommand 重启服务
 func RestartCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "restart",
 		Usage: t.Get("Restart AcePanel service"),
@@ -35,7 +33,6 @@ func RestartCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comma
 
 // StopCommand 停止服务
 func StopCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "stop",
 		Usage: t.Get("Stop AcePanel service"),
@@ -47,7 +44,6 @@ func StopCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 
 // StartCommand 启动服务
 func StartCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "start",
 		Usage: t.Get("Start AcePanel service"),

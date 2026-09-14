@@ -3,7 +3,7 @@ package s3sdk
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"encoding/base64"
 	"encoding/xml"
 	"errors"
@@ -35,7 +35,7 @@ func (c *S3) Put(key string, body io.Reader, contentType string) error {
 	// 用动态 buffer 读取首块，避免小对象也分配整个 partSize
 	var first bytes.Buffer
 	n, err := io.CopyN(&first, body, c.partSize)
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return err
 	}
 	if n < c.partSize {
@@ -47,7 +47,8 @@ func (c *S3) Put(key string, body io.Reader, contentType string) error {
 }
 
 func (c *S3) putObject(key string, data []byte, contentType string) error {
-	req, err := http.NewRequest(http.MethodPut, c.objectURL(key), bytes.NewReader(data))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.objectURL(key), bytes.NewReader(data))
 	if err != nil {
 		return err
 	}
@@ -57,7 +58,7 @@ func (c *S3) putObject(key string, data []byte, contentType string) error {
 	}
 	req.Header.Set("x-amz-content-sha256", sha256Hex(data))
 
-	_, _, err = c.do(context.Background(), req, http.StatusOK)
+	_, _, err = c.do(ctx, req, http.StatusOK) //nolint:bodyclose
 	return err
 }
 
@@ -138,14 +139,14 @@ func (c *S3) putPart(ctx context.Context, key, uploadID string, partNum int, chu
 		"partNumber": {strconv.Itoa(partNum)},
 		"uploadId":   {uploadID},
 	}
-	req, err := http.NewRequest(http.MethodPut, c.objectURL(key)+"?"+query.Encode(), bytes.NewReader(chunk))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.objectURL(key)+"?"+query.Encode(), bytes.NewReader(chunk))
 	if err != nil {
 		return "", err
 	}
 	req.ContentLength = int64(len(chunk))
 	req.Header.Set("x-amz-content-sha256", sha256Hex(chunk))
 
-	_, res, err := c.do(ctx, req, http.StatusOK)
+	_, res, err := c.do(ctx, req, http.StatusOK) //nolint:bodyclose
 	if err != nil {
 		return "", err
 	}
@@ -166,7 +167,8 @@ func isRetryable(err error) bool {
 }
 
 func (c *S3) initiate(key, contentType string) (string, error) {
-	req, err := http.NewRequest(http.MethodPost, c.objectURL(key)+"?uploads", nil)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.objectURL(key)+"?uploads", nil)
 	if err != nil {
 		return "", err
 	}
@@ -174,7 +176,7 @@ func (c *S3) initiate(key, contentType string) (string, error) {
 		req.Header.Set("Content-Type", contentType)
 	}
 
-	body, _, err := c.do(context.Background(), req, http.StatusOK)
+	body, _, err := c.do(ctx, req, http.StatusOK) //nolint:bodyclose
 	if err != nil {
 		return "", err
 	}
@@ -203,25 +205,27 @@ func (c *S3) complete(key, uploadID string, parts []completedPart) error {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.objectURL(key)+"?uploadId="+url.QueryEscape(uploadID), bytes.NewReader(body))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.objectURL(key)+"?uploadId="+url.QueryEscape(uploadID), bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
 	req.ContentLength = int64(len(body))
 	req.Header.Set("Content-Type", "application/xml")
 	req.Header.Set("x-amz-content-sha256", sha256Hex(body))
-	sum := md5.Sum(body)
+	sum := md5.Sum(body) //nolint:gosec
 	req.Header.Set("Content-MD5", base64.StdEncoding.EncodeToString(sum[:]))
 
-	_, _, err = c.do(context.Background(), req, http.StatusOK)
+	_, _, err = c.do(ctx, req, http.StatusOK) //nolint:bodyclose
 	return err
 }
 
 func (c *S3) abort(key, uploadID string) error {
-	req, err := http.NewRequest(http.MethodDelete, c.objectURL(key)+"?uploadId="+url.QueryEscape(uploadID), nil)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.objectURL(key)+"?uploadId="+url.QueryEscape(uploadID), nil)
 	if err != nil {
 		return err
 	}
-	_, _, err = c.do(context.Background(), req, http.StatusNoContent)
+	_, _, err = c.do(ctx, req, http.StatusNoContent) //nolint:bodyclose
 	return err
 }

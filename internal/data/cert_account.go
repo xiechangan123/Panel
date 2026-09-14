@@ -82,7 +82,10 @@ func (r certAccountRepo) GetGoogleEAB() (*acme.EAB, error) {
 	if err != nil || !resp.IsStatusSuccess() {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %v", err))
 	}
-	eab := resp.Result().(*data)
+	eab, ok := resp.Result().(*data)
+	if !ok {
+		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %s", r.t.Get("invalid response")))
+	}
 	if eab.Msg != "success" {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get Google EAB: %s", eab.Msg))
 	}
@@ -108,7 +111,10 @@ func (r certAccountRepo) GetZeroSSLEAB(email string) (*acme.EAB, error) {
 	if err != nil || !resp.IsStatusSuccess() {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get ZeroSSL EAB: %v", err))
 	}
-	eab := resp.Result().(*data)
+	eab, ok := resp.Result().(*data)
+	if !ok {
+		return &acme.EAB{}, errors.New(r.t.Get("failed to get ZeroSSL EAB"))
+	}
 	if !eab.Success {
 		return &acme.EAB{}, errors.New(r.t.Get("failed to get ZeroSSL EAB"))
 	}

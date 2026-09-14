@@ -88,12 +88,15 @@ pnpm build
     - 封装数据库、缓存等操作
     - 处理数据持久化逻辑
 
-- **`internal/http/`**: HTTP 相关
-    - `middleware/`: 自定义中间件
-    - `request/`: 请求结构体定义
-    - `rule/`: 自定义验证规则
+- **`internal/middleware/`**: 自定义中间件
+
+- **`internal/request/`**: 请求结构体定义
+
+- **`internal/rule/`**: 自定义验证规则
 
 - **`internal/apps/`**: 面板子应用实现
+
+- **`internal/mocks/`**: mockery 生成的 biz 接口 mock，改接口后跑 `go run github.com/vektra/mockery/v3@v3.8.0` 重新生成
 
 - **`internal/bootstrap/`**: 各模块启动引导
 

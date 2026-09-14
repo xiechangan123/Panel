@@ -400,7 +400,7 @@ const natMarker = "# acepanel-forward"
 func (r *ufw) ListForward() ([]FireForwardInfo, error) {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
-		return nil, nil // before.rules 不存在时返回空
+		return nil, nil //nolint:nilerr
 	}
 
 	var data []FireForwardInfo
@@ -462,7 +462,7 @@ func (r *ufw) addForward(rule Forward) error {
 
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
-		return fmt.Errorf("failed to read %s: %v", beforeRulesPath, err)
+		return fmt.Errorf("failed to read %s: %w", beforeRulesPath, err)
 	}
 
 	text := string(content)
@@ -505,7 +505,7 @@ func (r *ufw) addForward(rule Forward) error {
 func (r *ufw) removeForward(rule Forward) error {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
-		return nil
+		return nil //nolint:nilerr
 	}
 
 	lines := strings.Split(string(content), "\n")
@@ -568,7 +568,7 @@ func (r *ufw) findNatCommit(text string) int {
 func (r *ufw) PingStatus() (bool, error) {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
-		return true, nil
+		return true, nil //nolint:nilerr
 	}
 
 	// 检查 icmp echo-request 规则
@@ -584,7 +584,7 @@ func (r *ufw) PingStatus() (bool, error) {
 func (r *ufw) UpdatePingStatus(status bool) error {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
-		return fmt.Errorf("failed to read %s: %v", beforeRulesPath, err)
+		return fmt.Errorf("failed to read %s: %w", beforeRulesPath, err)
 	}
 
 	text := string(content)

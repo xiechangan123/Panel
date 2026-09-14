@@ -5,21 +5,14 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
-type ClientTestSuite struct {
-	suite.Suite
-}
-
-func TestClientTestSuite(t *testing.T) {
-	suite.Run(t, &ClientTestSuite{})
-}
-
-func (s *ClientTestSuite) TestObtainSSL() {
+func TestObtainSSL(t *testing.T) {
 	ctx := context.Background()
 	client, err := NewRegisterAccount(ctx, "ci@haozi.net", CALetsEncryptStaging, nil, KeyEC256, slog.Default())
-	s.Nil(err)
+	must.NoError(t, err)
 
 	client.UseDns(AliYun, DNSParam{
 		AK: "123456",
@@ -30,13 +23,13 @@ func (s *ClientTestSuite) TestObtainSSL() {
 
 	resolves, err := client.GetDNSRecords(ctx, []string{"*.haozi.net", "haozi.net"}, KeyEC256)
 	debug.Dump(resolves)
-	s.Nil(err)
-	s.NotNil(resolves)
+	check.Nil(t, err)
+	check.NotNil(t, resolves)
 
 	time.Sleep(2 * time.Minute)
 
 	ssl, err := client.ObtainCertificateManual()*/
 	ssl, err := client.ObtainCertificate(ctx, []string{"*.haozi.net", "haozi.net"}, KeyEC256)
-	s.Error(err)
-	s.NotNil(ssl)
+	check.Error(t, err)
+	check.Zero(t, ssl)
 }

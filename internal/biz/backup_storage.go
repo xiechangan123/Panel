@@ -76,6 +76,7 @@ func (r *BackupStorage) BeforeSave(tx *gorm.DB) error {
 			return err
 		}
 		return nil
+	default:
 	}
 
 	return nil
@@ -125,6 +126,7 @@ func (r *BackupStorage) AfterFind(tx *gorm.DB) error {
 			r.Info.Password = string(password)
 		}
 		return nil
+	default:
 	}
 
 	return nil

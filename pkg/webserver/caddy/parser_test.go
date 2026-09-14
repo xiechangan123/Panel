@@ -4,20 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
-type ParserTestSuite struct {
-	suite.Suite
-}
-
-func TestParserTestSuite(t *testing.T) {
-	suite.Run(t, &ParserTestSuite{})
-}
-
-func (s *ParserTestSuite) TestStructure() {
+func TestParserStructure(t *testing.T) {
 	cfg, err := Parse(`# header
 {
 	admin off
@@ -41,53 +34,69 @@ https://www.a.com:443 {
 	}
 }
 `)
-	s.Require().NoError(err)
-	s.Equal([]string{"header"}, cfg.Comments())
+	must.NoError(t, err)
+	check.DeepEqual(t, cfg.Comments(), []string{"header"})
 
-	global := cfg.All()[0]
-	s.NotNil(global.Block)
-	s.Equal("", global.Name)
-	s.Empty(global.Args)
-	s.Equal("off", global.Get("admin").Arg(0))
-
-	s.Equal("/etc/caddy/sites/*.conf", cfg.Get("import").Arg(0))
-	s.Equal("(snippet)", cfg.All()[2].Name)
-	s.False(isSite(cfg.All()[2]))
-
-	site := sites(cfg)[0]
-	s.Require().NotNil(site)
-	s.Equal([]string{"http://a.com:80", "https://a.com:443", "https://www.a.com:443"}, addresses(site))
-	root := site.Get("root")
-	s.Equal([]string{"*", "/var/www"}, root.Values())
-	s.Equal(" trailing", root.Trailing)
-	s.Equal("/x*", site.Get("@m").Get("path").Arg(0))
-	s.Equal([]string{"@m", "hello world", "200"}, site.Get("respond").Values())
-	s.Equal([]string{"tls1.2", "tls1.3"}, site.Get("tls").Get("protocols").Values())
-}
-
-func (s *ParserTestSuite) TestLexer() {
-	cfg, err := Parse("respond `{\"a\": \"b\"}` 200\nheader X-A \"with \\\"quote\\\"\" \\\n  X-B 1\nrespond <<EOT\n\tline1\n\t  line2\n\tEOT 200\n")
-	s.Require().NoError(err)
 	all := cfg.All()
-	s.Require().Len(all, 3)
-	s.Equal([]string{`{"a": "b"}`, "200"}, all[0].Values())
-	s.Equal([]string{"X-A", `with "quote"`, "X-B", "1"}, all[1].Values())
-	s.Equal([]string{"line1\n  line2", "200"}, all[2].Values())
+	must.Len(t, all, 4)
 
-	// token 中间的反斜杠换行同样续行
-	cfg, err = Parse("header X-A val\\\n  X-B 1\n")
-	s.Require().NoError(err)
-	s.Equal([]string{"X-A", "val", "X-B", "1"}, cfg.All()[0].Values())
+	global := all[0]
+	must.NotNil(t, global.Block)
+	check.Equal(t, global.Name, "")
+	check.Empty(t, global.Args)
+	check.Equal(t, global.Get("admin").Arg(0), "off")
 
-	_, err = Parse("a {\n")
-	s.Error(err)
-	_, err = Parse("}\n")
-	s.Error(err)
-	_, err = Parse("a \"unterminated\n")
-	s.Error(err)
+	check.Equal(t, cfg.Get("import").Arg(0), "/etc/caddy/sites/*.conf")
+	check.Equal(t, all[2].Name, "(snippet)")
+	check.False(t, isSite(all[2]), check.Msgf("%s 不应识别为站点", all[2].Name))
+
+	siteList := sites(cfg)
+	must.Len(t, siteList, 1)
+	site := siteList[0]
+	check.DeepEqual(t, addresses(site), []string{"http://a.com:80", "https://a.com:443", "https://www.a.com:443"})
+	root := site.Get("root")
+	check.DeepEqual(t, root.Values(), []string{"*", "/var/www"})
+	check.Equal(t, root.Trailing, " trailing")
+	check.Equal(t, site.Get("@m").Get("path").Arg(0), "/x*")
+	check.DeepEqual(t, site.Get("respond").Values(), []string{"@m", "hello world", "200"})
+	check.DeepEqual(t, site.Get("tls").Get("protocols").Values(), []string{"tls1.2", "tls1.3"})
 }
 
-func (s *ParserTestSuite) TestRender() {
+func TestParserLexer(t *testing.T) {
+	cfg, err := Parse("respond `{\"a\": \"b\"}` 200\nheader X-A \"with \\\"quote\\\"\" \\\n  X-B 1\nrespond <<EOT\n\tline1\n\t  line2\n\tEOT 200\n")
+	must.NoError(t, err)
+	all := cfg.All()
+	must.Len(t, all, 3)
+	check.DeepEqual(t, all[0].Values(), []string{`{"a": "b"}`, "200"})
+	check.DeepEqual(t, all[1].Values(), []string{"X-A", `with "quote"`, "X-B", "1"})
+	check.DeepEqual(t, all[2].Values(), []string{"line1\n  line2", "200"})
+
+	// token 中间的反斜杠换行同样续行，续行后仍是一条指令
+	cfg, err = Parse("header X-A val\\\n  X-B 1\n")
+	must.NoError(t, err)
+	all = cfg.All()
+	must.Len(t, all, 1)
+	check.DeepEqual(t, all[0].Values(), []string{"X-A", "val", "X-B", "1"})
+}
+
+func TestParserLexerError(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{"块未闭合", "a {\n"},
+		{"多余的右花括号", "}\n"},
+		{"引号未闭合", "a \"unterminated\n"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := Parse(tt.input)
+			check.Error(t, err)
+		})
+	}
+}
+
+func TestParserRender(t *testing.T) {
 	cfg := &conf.Config{}
 	cfg.Append(&conf.Comment{Text: " generated"})
 	cfg.Add("import", "/a/*.conf")
@@ -101,22 +110,24 @@ func (s *ParserTestSuite) TestRender() {
 	cfg.AddBlock("(snip)").Add("encode", "gzip")
 
 	expected := "# generated\nimport /a/*.conf\n\nhttp://a.com:80,\nhttps://a.com:443 {\n\troot * /var/www\n\theader X-Note \"two words\"\n\t@acme expression `{path}.startsWith(\"/x\")`\n\thandle @acme {\n\t\tfile_server\n\t}\n\n\trespond \"{\"\n}\n\n(snip) {\n\tencode gzip\n}\n"
-	s.Equal(expected, Export(cfg))
+	check.Equal(t, Export(cfg), expected)
 
 	// 解析不保留块内空行
 	reparsed, err := Parse(Export(cfg))
-	s.Require().NoError(err)
-	s.Equal(strings.Replace(expected, "\t}\n\n\trespond", "\t}\n\trespond", 1), Export(reparsed))
-	s.Equal([]string{"two words"}, sites(reparsed)[0].Get("header").Values()[1:])
-	s.Equal(`{path}.startsWith("/x")`, sites(reparsed)[0].Get("@acme").Arg(1))
+	must.NoError(t, err)
+	check.Equal(t, Export(reparsed), strings.Replace(expected, "\t}\n\n\trespond", "\t}\n\trespond", 1))
+	reparsedSites := sites(reparsed)
+	must.Len(t, reparsedSites, 1)
+	check.DeepEqual(t, reparsedSites[0].Get("header").Values(), []string{"X-Note", "two words"})
+	check.Equal(t, reparsedSites[0].Get("@acme").Arg(1), `{path}.startsWith("/x")`)
 }
 
-func (s *ParserTestSuite) TestMeta() {
+func TestParserMeta(t *testing.T) {
 	cfg, err := Parse("handle @p {\n\t# ace:location ^~ /api\n\t# ace:pass http://backend\n\treverse_proxy 127.0.0.1:3000\n}\n")
-	s.Require().NoError(err)
+	must.NoError(t, err)
 	h := cfg.Get("handle")
-	s.Equal("^~ /api", h.Meta("location"))
-	s.Equal("http://backend", h.Meta("pass"))
-	s.Equal("", h.Meta("missing"))
-	s.Equal("", h.Get("missing").Arg(0))
+	check.Equal(t, h.Meta("location"), "^~ /api")
+	check.Equal(t, h.Meta("pass"), "http://backend")
+	check.Equal(t, h.Meta("missing"), "")
+	check.Equal(t, h.Get("missing").Arg(0), "")
 }

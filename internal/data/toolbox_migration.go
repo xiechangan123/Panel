@@ -196,7 +196,7 @@ func (c *migrationClient) download(ctx context.Context, remote, local string, pr
 func (c *migrationClient) client(timeout time.Duration) *resty.Client {
 	return resty.New().
 		SetBaseURL(c.origin()).
-		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}). //nolint:gosec
 		SetTimeout(timeout)
 }
 

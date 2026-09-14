@@ -17,7 +17,6 @@ import (
 )
 
 func NewDB(conf *config.Config) (*gorm.DB, error) {
-
 	// db 日志写入轮转文件
 	w, err := logrotate.New(filepath.Join(app.Root, "panel/storage/logs/db.log"),
 		logrotate.WithMaxSize(10*logrotate.MB),

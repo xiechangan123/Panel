@@ -243,10 +243,12 @@ func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("Port: %d", port))
 	fmt.Println(s.t.Get("Entrance: %s", entrance))
 
+	//nolint:contextcheck
 	lv4, err := tools.GetLocalIPv4()
 	if err == nil {
 		fmt.Println(s.t.Get("Local IPv4: %s://%s:%d%s", protocol, lv4, port, entrance))
 	}
+	//nolint:contextcheck
 	lv6, err := tools.GetLocalIPv6()
 	if err == nil {
 		fmt.Println(s.t.Get("Local IPv6: %s://[%s]:%d%s", protocol, lv6, port, entrance))
@@ -491,6 +493,7 @@ func (s *CliService) HTTPSOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error {
+	//nolint:contextcheck
 	names := tools.CollectLocalNames()
 
 	var crt, key []byte
@@ -515,7 +518,7 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		if err = s.db.First(&user).Error; err != nil {
 			return errors.New(s.t.Get("Failed to get a panel user: %v", err))
 		}
-		account, err := s.certAccountRepo.GetDefault(user.ID)
+		account, err := s.certAccountRepo.GetDefault(ctx, user.ID)
 		if err != nil {
 			return errors.New(s.t.Get("Failed to get ACME account: %v", err))
 		}
@@ -711,6 +714,7 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	if port != conf.HTTP.Port {
+		//nolint:contextcheck
 		if os.TCPPortInUse(port) {
 			return errors.New(s.t.Get("Port already in use"))
 		}
@@ -1614,7 +1618,9 @@ func (s *CliService) Init(ctx context.Context, cmd *cli.Command) error {
 
 	// 随机默认端口
 checkPort:
-	port := uint(rand.IntN(50000) + 10000) // 10000-60000
+	// 10000-60000
+	port := uint(rand.IntN(50000) + 10000) //nolint:gosec
+	//nolint:contextcheck
 	if os.TCPPortInUse(port) {
 		goto checkPort
 	}

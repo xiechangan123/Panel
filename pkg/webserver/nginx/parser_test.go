@@ -4,7 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
 func TestParseRoundTrip(t *testing.T) {
@@ -39,20 +40,28 @@ map $uri $ace_auth_file_x {
 }
 `
 	cfg, err := Parse(src)
-	require.NoError(t, err)
+	must.NoError(t, err)
 	server := cfg.GetBlock("server")
-	require.NotNil(t, server)
-	require.Equal(t, " http", server.Get("listen").Trailing)
-	require.Equal(t, `h3=":443"; ma=86400`, server.Get("add_header").Arg(1))
-	require.Equal(t, "", server.Get("proxy_set_header").Arg(1))
-	require.Equal(t, `a"b`, server.Get("sub_filter").Arg(0))
-	require.Equal(t, `c'd`, server.Get("sub_filter").Arg(1))
-	require.Equal(t, []string{"($host", "=", "old.example.com", ")"}, server.Get("if").Values())
-	require.Equal(t, []string{"~", `\.php$`}, server.Get("location").Values())
-	require.Contains(t, server.Get("content_by_lua_block").Arg(0), "ngx.say([[ } ]])")
-	require.Equal(t, 1, len(server.GetAll("include")))
+	must.NotNil(t, server)
+
+	check.Equal(t, server.Get("listen").Trailing, " http")
+	check.Equal(t, server.Get("add_header").Arg(1), `h3=":443"; ma=86400`)
+	check.Equal(t, server.Get("proxy_set_header").Arg(1), "")
+	check.Equal(t, server.Get("sub_filter").Arg(0), `a"b`)
+	check.Equal(t, server.Get("sub_filter").Arg(1), `c'd`)
+	check.DeepEqual(t, server.Get("if").Values(), []string{"($host", "=", "old.example.com", ")"})
+	check.DeepEqual(t, server.Get("location").Values(), []string{"~", `\.php$`})
+	check.Contains(t, server.Get("content_by_lua_block").Arg(0), "ngx.say([[ } ]])")
+	check.Len(t, server.GetAll("include"), 1)
+
 	m := cfg.GetBlock("map")
-	require.Equal(t, `~^/admin(/.*)?$`, m.All()[1].Name)
-	require.Equal(t, "/etc/htpasswd", m.All()[2].Arg(0))
-	require.Equal(t, strings.ReplaceAll(src, `"~^/admin(/.*)?$"`, `~^/admin(/.*)?$`), Export(cfg))
+	must.NotNil(t, m)
+	entries := m.All()
+	must.Len(t, entries, 3)
+	// 带引号的正则 key 解析后去引号
+	check.Equal(t, entries[1].Name, `~^/admin(/.*)?$`)
+	check.Equal(t, entries[2].Arg(0), "/etc/htpasswd")
+
+	// 除多余引号被规范化外导出应与原文一致
+	check.Equal(t, Export(cfg), strings.ReplaceAll(src, `"~^/admin(/.*)?$"`, `~^/admin(/.*)?$`))
 }

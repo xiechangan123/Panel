@@ -48,7 +48,6 @@ func (r *DatabaseUser) BeforeSave(tx *gorm.DB) error {
 	}
 
 	return nil
-
 }
 
 func (r *DatabaseUser) AfterFind(tx *gorm.DB) error {
@@ -263,6 +262,7 @@ func (uc *DatabaseUserUsecase) DeleteByNames(ctx context.Context, serverID uint,
 		for name := range slices.Values(names) {
 			_ = operator.UserDrop(name)
 		}
+	default:
 	}
 
 	return uc.repo.DeleteByServerNames(serverID, names)

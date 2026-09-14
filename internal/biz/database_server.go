@@ -50,7 +50,6 @@ func (r *DatabaseServer) BeforeSave(tx *gorm.DB) error {
 	}
 
 	return nil
-
 }
 
 func (r *DatabaseServer) AfterFind(tx *gorm.DB) error {
@@ -182,7 +181,8 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 
 	// 非 Operator 类型不支持用户同步
 	switch server.Type {
-	case DatabaseTypeRedis, DatabaseTypeMongoDB, DatabaseTypeSQLite, DatabaseTypeElasticsearch:
+	case DatabaseTypeMysql, DatabaseTypePostgresql, DatabaseTypeClickHouse:
+	default:
 		return fmt.Errorf("sync is not supported for %s", server.Type)
 	}
 
@@ -256,6 +256,7 @@ func (uc *DatabaseServerUsecase) Sync(ctx context.Context, id uint) error {
 				}
 			}
 		}
+	default:
 	}
 
 	return nil

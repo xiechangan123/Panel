@@ -80,12 +80,12 @@ func ParseLogEntry(tag string, data []byte) (*LogEntry, error) {
 			Site:        site,
 			URI:         getString(req, "uri"),
 			Status:      int(status),
-			Bytes:       uint64(getInt(v, "size")),
+			Bytes:       getUint(v, "size"),
 			UA:          firstHeader(req.Get("headers"), "User-Agent"),
 			IP:          getString(req, "remote_ip"),
 			Method:      getString(req, "method"),
 			ContentType: firstHeader(v.Get("resp_headers"), "Content-Type"),
-			ReqLength:   uint64(getInt(v, "bytes_read")),
+			ReqLength:   getUint(v, "bytes_read"),
 			RequestTime: getFloat(v, "duration"),
 		}, nil
 	}
@@ -94,12 +94,12 @@ func ParseLogEntry(tag string, data []byte) (*LogEntry, error) {
 		Site:        site,
 		URI:         getString(v, "uri"),
 		Status:      int(status),
-		Bytes:       uint64(getInt(v, "bytes")),
+		Bytes:       getUint(v, "bytes"),
 		UA:          getString(v, "ua"),
 		IP:          getString(v, "ip"),
 		Method:      getString(v, "method"),
 		ContentType: getString(v, "content_type"),
-		ReqLength:   uint64(getInt(v, "req_length")),
+		ReqLength:   getUint(v, "req_length"),
 		RequestTime: getFloat(v, "rt"),
 	}
 
@@ -131,6 +131,15 @@ func getInt(v *fastjson.Value, key string) int64 {
 	default:
 		return 0
 	}
+}
+
+// getUint 从 JSON value 中提取字节数字段
+func getUint(v *fastjson.Value, key string) uint64 {
+	n := getInt(v, key)
+	if n < 0 {
+		return 0
+	}
+	return uint64(n)
 }
 
 // getFloat 从 JSON value 中提取浮点数字段

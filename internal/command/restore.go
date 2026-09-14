@@ -11,7 +11,6 @@ import (
 
 // RestoreCommand 数据恢复命令组
 func RestoreCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "restore",
 		Usage: t.Get("Data restore"),

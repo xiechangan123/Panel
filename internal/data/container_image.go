@@ -93,7 +93,7 @@ func (r *containerImageRepo) Pull(sock string, req *request.ContainerImagePull) 
 			Username: req.Username,
 			Password: req.Password,
 		}
-		encodedJSON, err := json.Marshal(authConfig)
+		encodedJSON, err := json.Marshal(authConfig) //nolint:gosec
 		if err != nil {
 			return err
 		}

@@ -16,7 +16,7 @@ var upstreamFilePattern = regexp.MustCompile(`^(\d{3})-(.+)\.conf$`)
 
 var upstreamAlgos = []string{"least_conn", "ip_hash", "hash", "random"}
 
-func parseUpstreamFiles(sharedDir string) ([]types.Upstream, error) {
+func parseUpstreamFiles(sharedDir string) []types.Upstream {
 	var upstreams []types.Upstream
 	for _, file := range listFiles(sharedDir, upstreamFilePattern, UpstreamStartNum, math.MaxInt) {
 		cfg, err := ParseFile(file)
@@ -50,7 +50,7 @@ func parseUpstreamFiles(sharedDir string) ([]types.Upstream, error) {
 		upstream.ResolverTimeout = parseDuration(up.Value("resolver_timeout"))
 		upstreams = append(upstreams, upstream)
 	}
-	return upstreams, nil
+	return upstreams
 }
 
 func writeUpstreamFiles(sharedDir string, upstreams []types.Upstream) error {

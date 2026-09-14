@@ -2,7 +2,7 @@ package data
 
 import (
 	"context"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -37,7 +37,7 @@ func newOnePanelClient(conn *request.ToolboxMigrationConnection) *migrationClien
 		url: conn.URL,
 		sign: func(req *resty.Request) {
 			timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-			token := md5.Sum([]byte("1panel" + conn.APIKey + timestamp))
+			token := md5.Sum([]byte("1panel" + conn.APIKey + timestamp)) //nolint:gosec
 			req.SetHeader("1Panel-Timestamp", timestamp).SetHeader("1Panel-Token", hex.EncodeToString(token[:]))
 		},
 		unwrap: func(body []byte) (any, error) {

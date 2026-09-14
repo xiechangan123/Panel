@@ -298,7 +298,7 @@ func (r *firewalld) Forward(rule Forward, operation Operation) error {
 func (r *firewalld) PingStatus() (bool, error) {
 	out, err := shell.Execf("firewall-cmd --zone=public --list-rich-rules")
 	if err != nil { // 可能防火墙已关闭等
-		return true, nil
+		return true, nil //nolint:nilerr
 	}
 
 	if !strings.Contains(out, `rule protocol value="icmp" drop`) {
@@ -373,12 +373,12 @@ func (r *firewalld) enableForward() error {
 		if out == "no" {
 			out, err = shell.Execf("firewall-cmd --zone=public --add-masquerade --permanent")
 			if err != nil {
-				return fmt.Errorf("%v: %s", err, out)
+				return fmt.Errorf("%w: %s", err, out)
 			}
 			_, err = shell.Execf("firewall-cmd --reload")
 			return err
 		}
-		return fmt.Errorf("%v: %s", err, out)
+		return fmt.Errorf("%w: %s", err, out)
 	}
 
 	return nil

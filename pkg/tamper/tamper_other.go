@@ -3,6 +3,7 @@
 package tamper
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 )
@@ -18,7 +19,7 @@ func DetectEBPF() EBPFStatus {
 }
 
 // EnableBPFLSMGrub 非 Linux 平台不支持
-func EnableBPFLSMGrub() error {
+func EnableBPFLSMGrub(_ context.Context) error {
 	return errors.New("only supported on Linux")
 }
 

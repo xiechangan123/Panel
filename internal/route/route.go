@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/wire"
 	"github.com/libtnb/validator"
 	"github.com/libtnb/validator/contrib/openapi"
 
@@ -14,8 +13,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/service"
 	"github.com/acepanel/panel/v3/pkg/config"
 )
-
-var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"), NewEndpoints)
 
 // Services 汇总所有路由所需的服务，Wire 会在生成期校验依赖完整性。
 type Services struct {

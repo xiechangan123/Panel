@@ -3,20 +3,13 @@ package openlitespeed
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 )
 
-type ParserTestSuite struct {
-	suite.Suite
-}
-
-func TestParserTestSuite(t *testing.T) {
-	suite.Run(t, &ParserTestSuite{})
-}
-
-func (s *ParserTestSuite) TestParse() {
+func TestParse(t *testing.T) {
 	src := `# comment
 docRoot                  /var/www/
 index {
@@ -35,20 +28,22 @@ END_extraHeaders
 }
 `
 	cfg, err := Parse(src)
-	s.Require().NoError(err)
-	s.Equal([]string{"comment"}, cfg.Comments())
-	s.Equal("/var/www/", cfg.Value("docRoot"))
-	s.Equal("index.php, index.html", cfg.GetBlock("index").Value("indexFiles"))
+	must.NoError(t, err)
+	check.DeepEqual(t, cfg.Comments(), []string{"comment"})
+	check.Equal(t, cfg.Value("docRoot"), "/var/www/")
+	check.Equal(t, cfg.GetBlock("index").Value("indexFiles"), "index.php, index.html")
 	ctx := cfg.GetBlock("context", "/")
-	s.Require().NotNil(ctx)
-	s.Equal("1", ctx.Value("allowBrowse"))
-	s.Equal("1", ctx.GetBlock("rewrite").Value("enable"))
-	headers := ctx.Get("extraHeaders")
-	s.Equal(conf.QuoteHeredoc, headers.Args[0].Quote)
-	s.Equal("RequestHeader set Host example.com\nHeader unset X-Powered-By", headers.Arg(0))
+	must.NotNil(t, ctx)
+	check.Equal(t, ctx.Value("allowBrowse"), "1")
+	check.Equal(t, ctx.GetBlock("rewrite").Value("enable"), "1")
+	// heredoc 合并为单个参数，引号风格记在 Arg 上
+	check.DeepEqual(t, ctx.Get("extraHeaders").Args, []conf.Arg{{
+		Value: "RequestHeader set Host example.com\nHeader unset X-Powered-By",
+		Quote: conf.QuoteHeredoc,
+	}})
 }
 
-func (s *ParserTestSuite) TestRoundTrip() {
+func TestRoundTrip(t *testing.T) {
 	cfg := &conf.Config{}
 	cfg.Append(conf.Cmt("generated"))
 	cfg.Add("docRoot", "/var/www/")
@@ -59,17 +54,17 @@ func (s *ParserTestSuite) TestRoundTrip() {
 	b.AddMeta("pass", "http://127.0.0.1:8080")
 
 	out := Export(cfg)
-	s.Contains(out, "docRoot                  /var/www/\n")
-	s.Contains(out, "enableGzip\n")
-	s.Contains(out, "rules <<<END_rules\nRewriteRule ^ /index.php [L]\nEND_rules\n")
+	check.Contains(t, out, "docRoot                  /var/www/\n")
+	check.Contains(t, out, "enableGzip\n")
+	check.Contains(t, out, "rules <<<END_rules\nRewriteRule ^ /index.php [L]\nEND_rules\n")
 
 	parsed, err := Parse(out)
-	s.Require().NoError(err)
-	s.Equal([]string{"generated"}, parsed.Comments())
+	must.NoError(t, err)
+	check.DeepEqual(t, parsed.Comments(), []string{"generated"})
 	got := parsed.GetBlock("context", "/api/")
-	s.Require().NotNil(got)
-	s.Equal("proxy", got.Value("type"))
-	s.Equal(conf.QuoteHeredoc, got.Get("rules").Args[0].Quote)
-	s.Equal("http://127.0.0.1:8080", got.Meta("pass"))
-	s.Equal(out, Export(parsed))
+	must.NotNil(t, got)
+	check.Equal(t, got.Value("type"), "proxy")
+	check.DeepEqual(t, got.Get("rules").Args, []conf.Arg{{Value: "RewriteRule ^ /index.php [L]", Quote: conf.QuoteHeredoc}})
+	check.Equal(t, got.Meta("pass"), "http://127.0.0.1:8080")
+	check.Equal(t, Export(parsed), out)
 }

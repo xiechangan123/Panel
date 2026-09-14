@@ -55,23 +55,23 @@ func (r *Postgres) Close() {
 }
 
 func (r *Postgres) Ping() error {
-	return r.db.Ping()
+	return r.db.PingContext(context.Background())
 }
 
 func (r *Postgres) Query(query string, args ...any) (*sql.Rows, error) {
-	return r.db.Query(query, args...)
+	return r.db.QueryContext(context.Background(), query, args...)
 }
 
 func (r *Postgres) QueryRow(query string, args ...any) *sql.Row {
-	return r.db.QueryRow(query, args...)
+	return r.db.QueryRowContext(context.Background(), query, args...)
 }
 
 func (r *Postgres) Exec(query string, args ...any) (sql.Result, error) {
-	return r.db.Exec(query, args...)
+	return r.db.ExecContext(context.Background(), query, args...)
 }
 
 func (r *Postgres) Prepare(query string) (*sql.Stmt, error) {
-	return r.db.Prepare(query)
+	return r.db.PrepareContext(context.Background(), query)
 }
 
 func (r *Postgres) DatabaseCreate(name string) error {
@@ -285,5 +285,5 @@ func (r *Postgres) Databases() ([]Database, error) {
 		databases = append(databases, db)
 	}
 
-	return databases, nil
+	return databases, rows.Err()
 }

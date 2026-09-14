@@ -1,55 +1,70 @@
 package tools
 
 import (
+	"net/netip"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
-type ToolsTestSuite struct {
-	suite.Suite
+func checkIPv4(t *testing.T, ip string) {
+	t.Helper()
+	addr, err := netip.ParseAddr(ip)
+	must.NoError(t, err, must.Msgf("非法地址 %q", ip))
+	check.True(t, addr.Is4(), check.Msgf("应为 IPv4，实际 %q", ip))
 }
 
-func TestToolsTestSuite(t *testing.T) {
-	suite.Run(t, &ToolsTestSuite{})
+func TestGetMonitoringInfo(t *testing.T) {
+	info := CurrentInfo(nil, nil)
+	must.NotNil(t, info.Host)
+	check.NotZero(t, info.Host.Hostname)
+	check.NotNil(t, info.Mem)
 }
 
-func (s *ToolsTestSuite) TestGetMonitoringInfo() {
-	s.NotNil(CurrentInfo(nil, nil))
-}
-
-func (s *ToolsTestSuite) TestGetPublicIPv4() {
+func TestGetPublicIPv4(t *testing.T) {
 	ip, err := GetPublicIPv4()
-	s.NoError(err)
-	s.NotEmpty(ip)
+	must.NoError(t, err)
+	checkIPv4(t, ip)
 }
 
-func (s *ToolsTestSuite) TestGetPublicIPv6() {
+func TestGetPublicIPv6(t *testing.T) {
 	ip, err := GetPublicIPv6()
-	s.Error(err)
-	s.Empty(ip)
+	check.Error(t, err)
+	check.Empty(t, ip)
 }
 
-func (s *ToolsTestSuite) TestGetLocalIPv4() {
+func TestGetLocalIPv4(t *testing.T) {
 	ip, err := GetLocalIPv4()
-	s.NoError(err)
-	s.NotEmpty(ip)
+	must.NoError(t, err)
+	checkIPv4(t, ip)
 }
 
-func (s *ToolsTestSuite) TestGetLocalIPv6() {
+func TestGetLocalIPv6(t *testing.T) {
 	ip, err := GetLocalIPv6()
-	s.Error(err)
-	s.Empty(ip)
+	check.Error(t, err)
+	check.Empty(t, ip)
 }
 
-func (s *ToolsTestSuite) TestFormatBytes() {
-	s.Equal("1.00 B", FormatBytes(1))
-	s.Equal("1.00 KB", FormatBytes(1024))
-	s.Equal("1.00 MB", FormatBytes(1024*1024))
-	s.Equal("1.00 GB", FormatBytes(1024*1024*1024))
-	s.Equal("1.00 TB", FormatBytes(1024*1024*1024*1024))
-	s.Equal("1.00 PB", FormatBytes(1024*1024*1024*1024*1024))
-	s.Equal("1.00 EB", FormatBytes(1024*1024*1024*1024*1024*1024))
-	s.Equal("1.00 ZB", FormatBytes(1024*1024*1024*1024*1024*1024*1024))
-	s.Equal("1.00 YB", FormatBytes(1024*1024*1024*1024*1024*1024*1024*1024))
+func TestFormatBytes(t *testing.T) {
+	tests := []struct {
+		name string
+		size float64
+		want string
+	}{
+		{name: "B", size: 1, want: "1.00 B"},
+		{name: "KB", size: 1 << 10, want: "1.00 KB"},
+		{name: "MB", size: 1 << 20, want: "1.00 MB"},
+		{name: "GB", size: 1 << 30, want: "1.00 GB"},
+		{name: "TB", size: 1 << 40, want: "1.00 TB"},
+		{name: "PB", size: 1 << 50, want: "1.00 PB"},
+		{name: "EB", size: 1 << 60, want: "1.00 EB"},
+		{name: "ZB", size: 1 << 70, want: "1.00 ZB"},
+		{name: "YB", size: 1 << 80, want: "1.00 YB"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			check.Equal(t, FormatBytes(test.size), test.want)
+		})
+	}
 }

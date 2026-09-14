@@ -11,7 +11,6 @@ import (
 
 // CronCommand 计划任务命令组
 func CronCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "cron",
 		Usage: t.Get("Cron task"),

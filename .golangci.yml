@@ -1,0 +1,87 @@
+version: "2"
+
+# 大量代码带 linux 构建约束，golangci-lint 只分析当前 GOOS，本地需 GOOS=linux 才能复现 CI 结果
+
+linters:
+  # 标准集之外只开能抓真实缺陷的低噪声 linter，纯风格偏好类不开
+  default: standard
+  enable:
+    # bugs and correctness
+    - asasalint
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - copyloopvar
+    - durationcheck
+    - errchkjson
+    - errorlint
+    - exhaustive
+    - fatcontext
+    - forcetypeassert
+    - gocheckcompilerdirectives
+    - gosec
+    - loggercheck
+    - makezero
+    - nilerr
+    - nilnesserr
+    - noctx
+    - reassign
+    - recvcheck
+    - rowserrcheck
+    - sqlclosecheck
+    - unparam
+    # simplification and consistency
+    - dupword
+    - exptostd
+    - goconst
+    - gocritic
+    - intrange
+    - mirror
+    - misspell
+    - nakedret
+    - nolintlint
+    - nosprintfhostport
+    - perfsprint
+    - predeclared
+    - sloglint
+    - unconvert
+    - usestdlibvars
+    - usetesting
+    - whitespace
+    # tests
+    - thelper
+    - tparallel
+  settings:
+    exhaustive:
+      default-signifies-exhaustive: true
+    goconst:
+      # 只报重复的数字；字符串在测试和提示语里天然重复
+      ignore-string-values:
+        - '.+'
+    gosec:
+      # 面板以 root 代管整机，执行外部命令与任意路径读写是本职工作，这几类整类不适用（见 AGENTS.md）
+      excludes:
+        - G204 # 执行外部命令
+        - G301 # 创建目录的权限
+        - G302 # 打开文件的权限
+        - G304 # 用变量拼路径读文件
+        - G306 # 写文件的权限
+        - G702 # 命令注入的污点分析
+        - G703 # 路径遍历
+        # proxy_pass、token 目录这类领域词撞上凭据名正则，误报远多于命中
+        - G101 # 硬编码凭据
+  exclusions:
+    generated: lax
+    paths:
+      # mockery 输出目录
+      - internal/mocks
+    rules:
+      # 处理器测试里 httptest.NewRequest 不带 context 是惯例
+      - path: _test\.go
+        linters:
+          - noctx
+
+issues:
+  # 默认同类截断 3 条、单 linter 截断 50 条，会让人以为修完可见的就干净了
+  max-same-issues: 0
+  max-issues-per-linter: 0

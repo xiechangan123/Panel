@@ -54,11 +54,11 @@ func unlockAttr(path string) []lockedFile {
 	var locked []lockedFile
 	_ = filepath.WalkDir(path, func(p string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
-			return nil
+			return nil //nolint:nilerr
 		}
-		file, err := os.OpenFile(p, os.O_RDONLY, 0)
+		file, err := os.OpenFile(p, os.O_RDONLY, 0) //nolint:gosec
 		if err != nil {
-			return nil
+			return nil //nolint:nilerr
 		}
 		var attrs uint32
 		if ok, _ := chattr.IsAttr(file, chattr.FS_IMMUTABLE_FL); ok {

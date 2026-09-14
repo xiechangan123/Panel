@@ -29,7 +29,7 @@ func EncryptData(publicKey *rsa.PublicKey, data []byte) (string, error) {
 		nil,
 	)
 	if err != nil {
-		return "", fmt.Errorf("encryption failed: %v", err)
+		return "", fmt.Errorf("encryption failed: %w", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
@@ -39,7 +39,7 @@ func EncryptData(publicKey *rsa.PublicKey, data []byte) (string, error) {
 func DecryptData(privateKey *rsa.PrivateKey, ciphertext string) ([]byte, error) {
 	data, err := base64.StdEncoding.DecodeString(ciphertext)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64: %v", err)
+		return nil, fmt.Errorf("failed to decode base64: %w", err)
 	}
 
 	plaintext, err := rsa.DecryptOAEP(
@@ -50,7 +50,7 @@ func DecryptData(privateKey *rsa.PrivateKey, ciphertext string) ([]byte, error) 
 		nil,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("decryption failed: %v", err)
+		return nil, fmt.Errorf("decryption failed: %w", err)
 	}
 
 	return plaintext, nil
@@ -72,7 +72,7 @@ func PrivateKeyToString(privateKey *rsa.PrivateKey) (string, error) {
 func PublicKeyToString(publicKey *rsa.PublicKey) (string, error) {
 	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal public key: %v", err)
+		return "", fmt.Errorf("failed to marshal public key: %w", err)
 	}
 
 	publicKeyPEM := pem.EncodeToMemory(

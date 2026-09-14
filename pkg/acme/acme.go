@@ -40,10 +40,7 @@ const (
 type EAB = acme.EAB
 
 func NewRegisterAccount(ctx context.Context, email, ca string, eab *EAB, keyType KeyType, log *slog.Logger) (*Client, error) {
-	client, err := getClient(ca, log)
-	if err != nil {
-		return nil, err
-	}
+	client := getClient(ca, log)
 
 	accountPrivateKey, err := generatePrivateKey(keyType)
 	if err != nil {
@@ -70,10 +67,7 @@ func NewRegisterAccount(ctx context.Context, email, ca string, eab *EAB, keyType
 }
 
 func NewPrivateKeyAccount(email string, privateKey string, ca string, eab *EAB, log *slog.Logger) (*Client, error) {
-	client, err := getClient(ca, log)
-	if err != nil {
-		return nil, err
-	}
+	client := getClient(ca, log)
 
 	key, err := cert.ParseKey([]byte(privateKey))
 	if err != nil {
@@ -117,14 +111,12 @@ func generatePrivateKey(keyType KeyType) (crypto.Signer, error) {
 	return nil, errors.New("unsupported key type")
 }
 
-func getClient(ca string, log *slog.Logger) (acmez.Client, error) {
-	client := acmez.Client{
+func getClient(ca string, log *slog.Logger) acmez.Client {
+	return acmez.Client{
 		Client: &acme.Client{
 			Directory:  ca,
 			HTTPClient: http.DefaultClient,
 			Logger:     log,
 		},
 	}
-
-	return client, nil
 }

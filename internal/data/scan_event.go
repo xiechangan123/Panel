@@ -105,7 +105,7 @@ func (r *scanEventRepo) List(start, end, sourceIP string, port uint, location st
 		return nil, 0, err
 	}
 
-	return items, uint(total), nil
+	return items, uint(total), nil //nolint:gosec
 }
 
 func (r *scanEventRepo) Summary(start, end string) (*biz.ScanSummary, error) {

@@ -11,7 +11,6 @@ import (
 
 // EntranceCommand 访问入口管理命令组
 func EntranceCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "entrance",
 		Usage: t.Get("Operate AcePanel access entrance"),
@@ -37,7 +36,6 @@ func EntranceCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 
 // BindDomainCommand 域名绑定管理命令组
 func BindDomainCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "bind-domain",
 		Usage: t.Get("Operate AcePanel domain binding"),
@@ -63,7 +61,6 @@ func BindDomainCommand(t *gotext.Locale, cliService *service.CliService) *cli.Co
 
 // BindIPCommand IP 绑定管理命令组
 func BindIPCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "bind-ip",
 		Usage: t.Get("Operate AcePanel IP binding"),
@@ -89,7 +86,6 @@ func BindIPCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 
 // BindUACommand UA 绑定管理命令组
 func BindUACommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "bind-ua",
 		Usage: t.Get("Operate AcePanel UA binding"),

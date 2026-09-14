@@ -33,7 +33,7 @@ type ProjectRepo interface {
 	Create(project *Project, req *request.ProjectCreate) error
 	Save(project *Project) error
 	Delete(project *Project) error
-	RenameUnitFile(old, new string) error
+	RenameUnitFile(oldName, newName string) error
 	RemoveUnitFile(name string) error
 	UpdateUnitFile(name string, req *request.ProjectUpdate) error
 }

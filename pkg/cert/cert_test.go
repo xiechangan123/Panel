@@ -1,29 +1,40 @@
 package cert
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
-type CertTestSuite struct {
-	suite.Suite
-}
+func TestGenerateSelfSigned(t *testing.T) {
+	tests := []struct {
+		name     string
+		gen      func([]string) ([]byte, []byte, error)
+		keyBlock string
+	}{
+		{name: "ecdsa", gen: GenerateSelfSigned, keyBlock: "PRIVATE KEY"},
+		{name: "rsa", gen: GenerateSelfSignedRSA, keyBlock: "RSA PRIVATE KEY"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			certPEM, keyPEM, err := test.gen([]string{"haozi.dev"})
+			must.NoError(t, err)
 
-func TestCertTestSuite(t *testing.T) {
-	suite.Run(t, &CertTestSuite{})
-}
+			block, _ := pem.Decode(certPEM)
+			must.NotNil(t, block)
+			check.Equal(t, block.Type, "CERTIFICATE")
 
-func (s *CertTestSuite) TestGenerateSelfSigned() {
-	pem, key, err := GenerateSelfSigned([]string{"haozi.dev"})
-	s.Nil(err)
-	s.NotNil(pem)
-	s.NotNil(key)
-}
+			parsed, err := x509.ParseCertificate(block.Bytes)
+			must.NoError(t, err)
+			check.DeepEqual(t, parsed.DNSNames, []string{"haozi.dev"})
+			check.Equal(t, parsed.Subject.CommonName, "AcePanel")
 
-func (s *CertTestSuite) TestGenerateSelfSignedRSA() {
-	pem, key, err := GenerateSelfSignedRSA([]string{"haozi.dev"})
-	s.Nil(err)
-	s.NotNil(pem)
-	s.NotNil(key)
+			keyDecoded, _ := pem.Decode(keyPEM)
+			must.NotNil(t, keyDecoded)
+			check.Equal(t, keyDecoded.Type, test.keyBlock)
+		})
+	}
 }

@@ -6,161 +6,170 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-type VhostTestSuite struct {
-	suite.Suite
-	vhost     *PHPVhost
-	configDir string
+// newConfigDir 创建带 site/shared 子目录的临时配置目录
+func newConfigDir(t *testing.T) string {
+	t.Helper()
+	configDir := t.TempDir()
+	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "site"), 0755))
+	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "shared"), 0755))
+	return configDir
 }
 
-func TestVhostTestSuite(t *testing.T) {
-	suite.Run(t, &VhostTestSuite{})
-}
+func confFiles(t *testing.T, configDir, scope, prefix, suffix string) []string {
+	t.Helper()
+	entries, err := os.ReadDir(filepath.Join(configDir, scope))
+	must.NoError(t, err)
 
-func (s *VhostTestSuite) SetupTest() {
-	// 创建临时配置目录
-	configDir, err := os.MkdirTemp("", "nginx-test-*")
-	s.Require().NoError(err)
-	s.configDir = configDir
-
-	// 创建 site 和 shared 目录
-	err = os.MkdirAll(filepath.Join(configDir, "site"), 0755)
-	s.Require().NoError(err)
-	err = os.MkdirAll(filepath.Join(configDir, "shared"), 0755)
-	s.Require().NoError(err)
-
-	vhost, err := NewPHPVhost(configDir)
-	s.Require().NoError(err)
-	s.Require().NotNil(vhost)
-	s.vhost = vhost
-}
-
-func (s *VhostTestSuite) TearDownTest() {
-	// 清理临时目录
-	if s.configDir != "" {
-		s.NoError(os.RemoveAll(s.configDir))
+	var out []string
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), prefix) && strings.HasSuffix(entry.Name(), suffix) {
+			out = append(out, entry.Name())
+		}
 	}
+	return out
 }
 
-func (s *VhostTestSuite) TestNewVhost() {
-	s.Equal(s.configDir, s.vhost.configDir)
-	s.NotNil(s.vhost.cfg)
+func newPHPVhost(t *testing.T) (*PHPVhost, string) {
+	t.Helper()
+	configDir := newConfigDir(t)
+	vhost, err := NewPHPVhost(configDir)
+	must.NoError(t, err)
+	must.NotNil(t, vhost)
+	return vhost, configDir
 }
 
-func (s *VhostTestSuite) TestEnable() {
+func newProxyVhost(t *testing.T) (*ProxyVhost, string) {
+	t.Helper()
+	configDir := newConfigDir(t)
+	vhost, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	return vhost, configDir
+}
+
+func TestNewVhost(t *testing.T) {
+	vhost, configDir := newPHPVhost(t)
+	check.Equal(t, vhost.configDir, configDir)
+	check.NotNil(t, vhost.cfg)
+}
+
+func TestEnable(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	// 默认应该是启用状态
-	s.True(s.vhost.Enable())
+	check.True(t, vhost.Enable())
 
 	// 禁用网站
-	s.NoError(s.vhost.SetEnable(false))
-	s.False(s.vhost.Enable())
+	check.NoError(t, vhost.SetEnable(false))
+	check.False(t, vhost.Enable())
 
 	// 重新启用
-	s.NoError(s.vhost.SetEnable(true))
-	s.True(s.vhost.Enable())
+	check.NoError(t, vhost.SetEnable(true))
+	check.True(t, vhost.Enable())
 }
 
-func (s *VhostTestSuite) TestServerName() {
+func TestServerName(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	names := []string{"example.com", "www.example.com", "api.example.com"}
-	s.NoError(s.vhost.SetServerName(names))
-
-	got := s.vhost.ServerName()
-	s.Len(got, 3)
-	s.Equal("example.com", got[0])
-	s.Equal("www.example.com", got[1])
-	s.Equal("api.example.com", got[2])
+	check.NoError(t, vhost.SetServerName(names))
+	check.DeepEqual(t, vhost.ServerName(), names)
 }
 
-func (s *VhostTestSuite) TestServerNameEmpty() {
-	s.NoError(s.vhost.SetServerName([]string{}))
+func TestServerNameEmpty(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+	check.NoError(t, vhost.SetServerName([]string{}))
+	check.Empty(t, vhost.ServerName())
 }
 
-func (s *VhostTestSuite) TestRoot() {
+func TestRoot(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	root := "/var/www/html"
-	s.NoError(s.vhost.SetRoot(root))
-	s.Equal(root, s.vhost.Root())
+	check.NoError(t, vhost.SetRoot(root))
+	check.Equal(t, vhost.Root(), root)
 }
 
-func (s *VhostTestSuite) TestIndex() {
+func TestIndex(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	index := []string{"index.html", "index.php", "default.html"}
-	s.NoError(s.vhost.SetIndex(index))
-
-	got := s.vhost.Index()
-	s.Len(got, 3)
-	s.Equal(index, got)
+	check.NoError(t, vhost.SetIndex(index))
+	check.DeepEqual(t, vhost.Index(), index)
 }
 
-func (s *VhostTestSuite) TestIndexEmpty() {
-	s.NoError(s.vhost.SetIndex([]string{}))
+func TestIndexEmpty(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+	check.NoError(t, vhost.SetIndex([]string{}))
+	check.Empty(t, vhost.Index())
 }
 
-func (s *VhostTestSuite) TestListen() {
+func TestListen(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	listens := []types.Listen{
 		{Address: "80"},
 		{Address: "443", Args: []string{"ssl"}},
 	}
-	s.NoError(s.vhost.SetListen(listens))
-
-	got := s.vhost.Listen()
-	s.Len(got, 2)
+	check.NoError(t, vhost.SetListen(listens))
+	check.DeepEqual(t, vhost.Listen(), listens, cmpopts.EquateEmpty())
 }
 
-func (s *VhostTestSuite) TestListenWithHTTP3() {
+func TestListenWithHTTP3(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	listens := []types.Listen{
 		{Address: "443", Args: []string{"quic"}},
 	}
-	s.NoError(s.vhost.SetListen(listens))
-
-	got := s.vhost.Listen()
-	s.Len(got, 1)
-	s.Equal("quic", got[0].Args[0])
+	check.NoError(t, vhost.SetListen(listens))
+	check.DeepEqual(t, vhost.Listen(), listens, cmpopts.EquateEmpty())
 }
 
-func (s *VhostTestSuite) TestListenWithSSLAndQUIC() {
+func TestListenWithSSLAndQUIC(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	// 测试 ssl 和 quic 同时存在时，应该分成两行 listen 指令
 	// 但读取时应该合并为一个 Listen 对象
 	listens := []types.Listen{
 		{Address: "80"},
 		{Address: "443", Args: []string{"ssl", "quic"}},
 	}
-	s.NoError(s.vhost.SetListen(listens))
+	check.NoError(t, vhost.SetListen(listens))
 
 	// 保存后验证顺序
-	s.NoError(s.vhost.Save())
+	check.NoError(t, vhost.Save())
 
 	// 验证生成的配置中 ssl 和 quic 是分开的
-	dump := Render(s.vhost.cfg)
-	s.Contains(dump, "listen 443 ssl;")
-	s.Contains(dump, "listen 443 quic;")
+	dump := Render(vhost.cfg)
+	must.Contains(t, dump, "listen 80;")
+	must.Contains(t, dump, "listen 443 ssl;")
+	check.Contains(t, dump, "listen 443 quic;")
 	// 确保没有 "listen 443 ssl quic;" 这样的行
-	s.NotContains(dump, "listen 443 ssl quic;")
+	check.NotContains(t, dump, "listen 443 ssl quic;")
 
 	// 验证顺序：80 应该在 443 前面
-	idx80 := strings.Index(dump, "listen 80;")
-	idx443 := strings.Index(dump, "listen 443")
-	s.Greater(idx443, idx80, "listen 80 should come before listen 443")
+	check.Less(t, strings.Index(dump, "listen 80;"), strings.Index(dump, "listen 443"),
+		check.Msgf("listen 80 应排在 listen 443 之前，实际导出：\n%s", dump))
 
-	// 读取时应该合并为一个 Listen 对象
-	got := s.vhost.Listen()
-	s.Len(got, 2) // 80 和 443
-	// 验证顺序
-	s.Equal("80", got[0].Address)
-	s.Equal("443", got[1].Address)
-	// 验证 443 的 args
-	s.Contains(got[1].Args, "ssl")
-	s.Contains(got[1].Args, "quic")
+	// 读取时两行 443 应合并回一个 Listen
+	check.DeepEqual(t, vhost.Listen(), listens, cmpopts.EquateEmpty())
 }
 
-func (s *VhostTestSuite) TestSSL() {
-	s.False(s.vhost.SSL())
-	s.Nil(s.vhost.SSLConfig())
+func TestSSL(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+	check.False(t, vhost.SSL())
+	check.Nil(t, vhost.SSLConfig())
 }
 
-func (s *VhostTestSuite) TestSetSSLConfig() {
+func TestSetSSLConfig(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	sslConfig := &types.SSLConfig{
 		Cert:      "/etc/ssl/cert.pem",
 		Key:       "/etc/ssl/key.pem",
@@ -168,224 +177,239 @@ func (s *VhostTestSuite) TestSetSSLConfig() {
 		HSTS:      true,
 		OCSP:      true,
 	}
-	s.NoError(s.vhost.SetSSLConfig(sslConfig))
+	check.NoError(t, vhost.SetSSLConfig(sslConfig))
 
-	s.True(s.vhost.SSL())
-
-	got := s.vhost.SSLConfig()
-	s.NotNil(got)
-	s.True(got.HSTS)
-	s.True(got.OCSP)
+	check.True(t, vhost.SSL())
+	// 证书路径不回读，只回读协议与各开关，证书由 TestDumpWithSSL 覆盖
+	check.DeepEqual(t, vhost.SSLConfig(), &types.SSLConfig{
+		Protocols: []string{"TLSv1.2", "TLSv1.3"},
+		HSTS:      true,
+		OCSP:      true,
+	})
 }
 
-func (s *VhostTestSuite) TestSetSSLConfigNil() {
-	s.Error(s.vhost.SetSSLConfig(nil))
+func TestSetSSLConfigNil(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+	check.Error(t, vhost.SetSSLConfig(nil))
 }
 
-func (s *VhostTestSuite) TestClearSSL() {
+func TestClearSSL(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	sslConfig := &types.SSLConfig{
 		Cert: "/etc/ssl/cert.pem",
 		Key:  "/etc/ssl/key.pem",
 		HSTS: true,
 	}
-	s.NoError(s.vhost.SetSSLConfig(sslConfig))
-	s.True(s.vhost.SSL())
+	check.NoError(t, vhost.SetSSLConfig(sslConfig))
+	check.True(t, vhost.SSL())
 
-	s.NoError(s.vhost.ClearSSL())
-	s.False(s.vhost.SSL())
+	check.NoError(t, vhost.ClearSSL())
+	check.False(t, vhost.SSL())
 }
 
-func (s *VhostTestSuite) TestPHP() {
-	s.Equal(uint(0), s.vhost.PHP())
+func TestPHP(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
 
-	s.NoError(s.vhost.SetPHP(84))
-	s.Equal(uint(84), s.vhost.PHP())
+	check.Equal(t, vhost.PHP(), uint(0))
 
-	s.NoError(s.vhost.SetPHP(0))
-	s.Equal(uint(0), s.vhost.PHP())
+	check.NoError(t, vhost.SetPHP(84))
+	check.Equal(t, vhost.PHP(), uint(84))
+
+	check.NoError(t, vhost.SetPHP(0))
+	check.Equal(t, vhost.PHP(), uint(0))
 }
 
-func (s *VhostTestSuite) TestAccessLog() {
+func TestAccessLog(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	accessLog := "/var/log/nginx/access.log"
-	s.NoError(s.vhost.SetAccessLog(accessLog))
-	s.Equal(accessLog, s.vhost.AccessLog())
+	check.NoError(t, vhost.SetAccessLog(accessLog))
+	check.Equal(t, vhost.AccessLog(), accessLog)
 }
 
-func (s *VhostTestSuite) TestErrorLog() {
+func TestErrorLog(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	errorLog := "/var/log/nginx/error.log"
-	s.NoError(s.vhost.SetErrorLog(errorLog))
-	s.Equal(errorLog, s.vhost.ErrorLog())
+	check.NoError(t, vhost.SetErrorLog(errorLog))
+	check.Equal(t, vhost.ErrorLog(), errorLog)
 }
 
-func (s *VhostTestSuite) TestIncludes() {
+func TestIncludes(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	includes := []types.IncludeFile{
 		{Path: "/etc/nginx/conf.d/ssl.conf"},
 		{Path: "/etc/nginx/conf.d/php.conf"},
 	}
-	s.NoError(s.vhost.SetIncludes(includes))
-
-	got := s.vhost.Includes()
-	s.Len(got, 2)
-	s.Equal(includes[0].Path, got[0].Path)
-	s.Equal(includes[1].Path, got[1].Path)
+	check.NoError(t, vhost.SetIncludes(includes))
+	check.DeepEqual(t, vhost.Includes(), includes)
 }
 
-func (s *VhostTestSuite) TestBasicAuth() {
-	s.Nil(s.vhost.BasicAuth())
+func TestBasicAuth(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
+	check.Nil(t, vhost.BasicAuth())
 
 	auths := []types.BasicAuth{
 		{Path: "/", UserFile: "/etc/nginx/htpasswd_0"},
 		{Path: "/admin", UserFile: "/etc/nginx/htpasswd_1"},
 	}
-	s.NoError(s.vhost.SetBasicAuth(auths))
-
-	got := s.vhost.BasicAuth()
-	s.Len(got, 2)
-	s.Equal("/", got[0].Path)
-	s.Equal("/etc/nginx/htpasswd_0", got[0].UserFile)
-	s.Equal("/admin", got[1].Path)
-	s.Equal("/etc/nginx/htpasswd_1", got[1].UserFile)
+	check.NoError(t, vhost.SetBasicAuth(auths))
+	check.DeepEqual(t, vhost.BasicAuth(), auths)
 
 	// map 片段应包含目录正则与整站 default
-	content := s.vhost.Config(AuthConfName, types.ScopeShared)
-	s.Contains(content, `~^/admin(/.*)?$ "Restricted";`)
-	s.Contains(content, `default "/etc/nginx/htpasswd_0";`)
+	content := vhost.Config(AuthConfName, types.ScopeShared)
+	check.Contains(t, content, `~^/admin(/.*)?$ "Restricted";`)
+	check.Contains(t, content, `default "/etc/nginx/htpasswd_0";`)
 
-	s.NoError(s.vhost.ClearBasicAuth())
-	s.Nil(s.vhost.BasicAuth())
+	check.NoError(t, vhost.ClearBasicAuth())
+	check.Nil(t, vhost.BasicAuth())
 }
 
-func (s *VhostTestSuite) TestBasicAuthDirOnly() {
+func TestBasicAuthDirOnly(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	// 仅目录规则时整站不认证
 	auths := []types.BasicAuth{
 		{Path: "/private", UserFile: "/etc/nginx/htpasswd_0"},
 	}
-	s.NoError(s.vhost.SetBasicAuth(auths))
+	check.NoError(t, vhost.SetBasicAuth(auths))
 
-	content := s.vhost.Config(AuthConfName, types.ScopeShared)
-	s.Contains(content, "default off;")
-	s.Contains(content, `default "";`)
+	content := vhost.Config(AuthConfName, types.ScopeShared)
+	check.Contains(t, content, "default off;")
+	check.Contains(t, content, `default "";`)
 
-	got := s.vhost.BasicAuth()
-	s.Len(got, 1)
-	s.Equal("/private", got[0].Path)
+	check.DeepEqual(t, vhost.BasicAuth(), auths)
 }
 
-func (s *VhostTestSuite) TestBasicAuthNestedDir() {
+func TestBasicAuthNestedDir(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	// 嵌套目录时更精确的路径优先命中（map 按声明顺序取首个匹配）
-	auths := []types.BasicAuth{
+	check.NoError(t, vhost.SetBasicAuth([]types.BasicAuth{
 		{Path: "/admin", UserFile: "/etc/nginx/htpasswd_0"},
 		{Path: "/admin/sub", UserFile: "/etc/nginx/htpasswd_1"},
-	}
-	s.NoError(s.vhost.SetBasicAuth(auths))
-
-	got := s.vhost.BasicAuth()
-	s.Len(got, 2)
-	s.Equal("/admin/sub", got[0].Path)
-	s.Equal("/admin", got[1].Path)
+	}))
+	check.DeepEqual(t, vhost.BasicAuth(), []types.BasicAuth{
+		{Path: "/admin/sub", UserFile: "/etc/nginx/htpasswd_1"},
+		{Path: "/admin", UserFile: "/etc/nginx/htpasswd_0"},
+	})
 }
 
-func (s *VhostTestSuite) TestRateLimit() {
-	s.Nil(s.vhost.RateLimit())
+func TestRateLimit(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
+	check.Nil(t, vhost.RateLimit())
 
 	limit := &types.RateLimit{
 		PerServer: 300,
 		PerIP:     25,
 		Rate:      512,
 	}
-	s.NoError(s.vhost.SetRateLimit(limit))
+	check.NoError(t, vhost.SetRateLimit(limit))
+	check.DeepEqual(t, vhost.RateLimit(), limit)
 
-	got := s.vhost.RateLimit()
-	s.NotNil(got)
-	s.Equal(300, got.PerServer)
-	s.Equal(25, got.PerIP)
-	s.Equal(512, got.Rate)
-
-	s.NoError(s.vhost.ClearRateLimit())
-	s.Nil(s.vhost.RateLimit())
+	check.NoError(t, vhost.ClearRateLimit())
+	check.Nil(t, vhost.RateLimit())
 }
 
-func (s *VhostTestSuite) TestReset() {
-	s.NoError(s.vhost.SetServerName([]string{"modified.com"}))
-	s.NoError(s.vhost.SetRoot("/modified/path"))
+func TestReset(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
 
-	s.NoError(s.vhost.Reset())
+	// 重置后应完全回到初始模板，而不只是丢掉改动值
+	names, root := vhost.ServerName(), vhost.Root()
+	check.NoError(t, vhost.SetServerName([]string{"modified.com"}))
+	check.NoError(t, vhost.SetRoot("/modified/path"))
 
-	names := s.vhost.ServerName()
-	s.NotContains(names, "modified.com")
+	check.NoError(t, vhost.Reset())
+	check.DeepEqual(t, vhost.ServerName(), names)
+	check.Equal(t, vhost.Root(), root)
 }
 
-func (s *VhostTestSuite) TestSave() {
-	configFile := filepath.Join(s.configDir, "nginx.conf")
+func TestSave(t *testing.T) {
+	vhost, configDir := newPHPVhost(t)
+	configFile := filepath.Join(configDir, "nginx.conf")
 
-	s.NoError(s.vhost.SetServerName([]string{"save-test.com"}))
-	s.NoError(s.vhost.Save())
+	check.NoError(t, vhost.SetServerName([]string{"save-test.com"}))
+	check.NoError(t, vhost.Save())
 
 	// 验证配置文件已保存
 	content, err := os.ReadFile(configFile)
-	s.NoError(err)
-	s.Contains(string(content), "save-test.com")
+	must.NoError(t, err)
+	check.Contains(t, string(content), "save-test.com")
 }
 
-func (s *VhostTestSuite) TestDump() {
-	s.NoError(s.vhost.SetServerName([]string{"dump-test.com"}))
-	s.NoError(s.vhost.SetRoot("/var/www/dump-test"))
+func TestDump(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
 
-	content := Render(s.vhost.cfg)
-	s.NotEmpty(content)
-	s.Contains(content, "dump-test.com")
-	s.Contains(content, "/var/www/dump-test")
-	s.Contains(content, "server")
+	check.NoError(t, vhost.SetServerName([]string{"dump-test.com"}))
+	check.NoError(t, vhost.SetRoot("/var/www/dump-test"))
+
+	content := Render(vhost.cfg)
+	check.Contains(t, content, "dump-test.com")
+	check.Contains(t, content, "/var/www/dump-test")
+	check.Contains(t, content, "server {")
 }
 
-func (s *VhostTestSuite) TestDumpWithSSL() {
+func TestDumpWithSSL(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	sslConfig := &types.SSLConfig{
 		Cert:      "/etc/ssl/cert.pem",
 		Key:       "/etc/ssl/key.pem",
 		Protocols: []string{"TLSv1.2", "TLSv1.3"},
 	}
-	s.NoError(s.vhost.SetSSLConfig(sslConfig))
+	check.NoError(t, vhost.SetSSLConfig(sslConfig))
 
-	content := Render(s.vhost.cfg)
-	s.Contains(content, "ssl_certificate")
-	s.Contains(content, "ssl_certificate_key")
+	content := Render(vhost.cfg)
+	check.Contains(t, content, "ssl_certificate")
+	check.Contains(t, content, "ssl_certificate_key")
 }
 
-func (s *VhostTestSuite) TestHTTPSRedirect() {
+func TestHTTPSRedirect(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	sslConfig := &types.SSLConfig{
 		Cert:         "/etc/ssl/cert.pem",
 		Key:          "/etc/ssl/key.pem",
 		HTTPRedirect: true,
 	}
-	s.NoError(s.vhost.SetSSLConfig(sslConfig))
+	check.NoError(t, vhost.SetSSLConfig(sslConfig))
 
-	got := s.vhost.SSLConfig()
-	s.NotNil(got)
-	s.True(got.HTTPRedirect)
+	got := vhost.SSLConfig()
+	must.NotNil(t, got)
+	check.True(t, got.HTTPRedirect)
 }
 
-func (s *VhostTestSuite) TestAltSvc() {
+func TestAltSvc(t *testing.T) {
+	vhost, _ := newPHPVhost(t)
+
 	sslConfig := &types.SSLConfig{
 		Cert:   "/etc/ssl/cert.pem",
 		Key:    "/etc/ssl/key.pem",
 		AltSvc: `h3=":$server_port"; ma=2592000`,
 	}
-	s.NoError(s.vhost.SetSSLConfig(sslConfig))
+	check.NoError(t, vhost.SetSSLConfig(sslConfig))
 
-	got := s.vhost.SSLConfig()
-	s.NotNil(got)
-	s.Contains(got.AltSvc, "h3=")
+	got := vhost.SSLConfig()
+	must.NotNil(t, got)
+	// 含引号与分号的头值应原样回读
+	check.Equal(t, got.AltSvc, sslConfig.AltSvc)
 }
 
-func (s *VhostTestSuite) TestDefaultConfIncludesServerD() {
+func TestDefaultConfIncludesServerD(t *testing.T) {
 	// 验证默认配置包含 site 的 include
-	s.Contains(DefaultConf, "site")
-	s.Contains(DefaultConf, "include")
+	check.Contains(t, DefaultConf, "site")
+	check.Contains(t, DefaultConf, "include")
 }
 
-func (s *VhostTestSuite) TestRedirects() {
+func TestRedirects(t *testing.T) {
+	vhost, configDir := newPHPVhost(t)
+
 	// 初始应该没有重定向
-	s.Empty(s.vhost.Redirects())
+	check.Empty(t, vhost.Redirects())
 
 	// 设置重定向
 	redirects := []types.Redirect{
@@ -403,27 +427,17 @@ func (s *VhostTestSuite) TestRedirects() {
 			StatusCode: 308,
 		},
 	}
-	s.NoError(s.vhost.SetRedirects(redirects))
+	check.NoError(t, vhost.SetRedirects(redirects))
 
 	// 验证重定向文件已创建
-	siteDir := filepath.Join(s.configDir, "site")
-	entries, err := os.ReadDir(siteDir)
-	s.NoError(err)
+	check.Len(t, confFiles(t, configDir, "site", "1", "-redirect.conf"), 2)
 
-	redirectCount := 0
-	for _, entry := range entries {
-		if strings.HasPrefix(entry.Name(), "1") && strings.HasSuffix(entry.Name(), "-redirect.conf") {
-			redirectCount++
-		}
-	}
-	s.Equal(2, redirectCount)
-
-	// 验证可以读取回来
-	got := s.vhost.Redirects()
-	s.Len(got, 2)
+	check.DeepEqual(t, vhost.Redirects(), redirects)
 }
 
-func (s *VhostTestSuite) TestRedirectURL() {
+func TestRedirectURL(t *testing.T) {
+	vhost, configDir := newPHPVhost(t)
+
 	redirects := []types.Redirect{
 		{
 			Type:       types.RedirectTypeURL,
@@ -432,19 +446,21 @@ func (s *VhostTestSuite) TestRedirectURL() {
 			StatusCode: 301,
 		},
 	}
-	s.NoError(s.vhost.SetRedirects(redirects))
+	check.NoError(t, vhost.SetRedirects(redirects))
 
 	// 读取配置文件内容
-	siteDir := filepath.Join(s.configDir, "site")
+	siteDir := filepath.Join(configDir, "site")
 	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
-	s.NoError(err)
+	must.NoError(t, err)
 
-	s.Contains(string(content), "location = /old-page")
-	s.Contains(string(content), "return 301")
-	s.Contains(string(content), "/new-page")
+	check.Contains(t, string(content), "location = /old-page")
+	check.Contains(t, string(content), "return 301")
+	check.Contains(t, string(content), "/new-page")
 }
 
-func (s *VhostTestSuite) TestRedirectHost() {
+func TestRedirectHost(t *testing.T) {
+	vhost, configDir := newPHPVhost(t)
+
 	redirects := []types.Redirect{
 		{
 			Type:       types.RedirectTypeHost,
@@ -454,20 +470,22 @@ func (s *VhostTestSuite) TestRedirectHost() {
 			StatusCode: 308,
 		},
 	}
-	s.NoError(s.vhost.SetRedirects(redirects))
+	check.NoError(t, vhost.SetRedirects(redirects))
 
 	// 读取配置文件内容
-	siteDir := filepath.Join(s.configDir, "site")
+	siteDir := filepath.Join(configDir, "site")
 	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
-	s.NoError(err)
+	must.NoError(t, err)
 
-	s.Contains(string(content), "$host")
-	s.Contains(string(content), "old.example.com")
-	s.Contains(string(content), "return 308")
-	s.Contains(string(content), "$request_uri")
+	check.Contains(t, string(content), "$host")
+	check.Contains(t, string(content), "old.example.com")
+	check.Contains(t, string(content), "return 308")
+	check.Contains(t, string(content), "$request_uri")
 }
 
-func (s *VhostTestSuite) TestRedirect404() {
+func TestRedirect404(t *testing.T) {
+	vhost, configDir := newPHPVhost(t)
+
 	redirects := []types.Redirect{
 		{
 			Type:       types.RedirectType404,
@@ -475,51 +493,22 @@ func (s *VhostTestSuite) TestRedirect404() {
 			StatusCode: 308,
 		},
 	}
-	s.NoError(s.vhost.SetRedirects(redirects))
+	check.NoError(t, vhost.SetRedirects(redirects))
 
 	// 读取配置文件内容
-	siteDir := filepath.Join(s.configDir, "site")
+	siteDir := filepath.Join(configDir, "site")
 	content, err := os.ReadFile(filepath.Join(siteDir, "100-redirect.conf"))
-	s.NoError(err)
+	must.NoError(t, err)
 
-	s.Contains(string(content), "error_page 404")
-	s.Contains(string(content), "@redirect_404")
+	check.Contains(t, string(content), "error_page 404")
+	check.Contains(t, string(content), "@redirect_404")
 }
 
-// ProxyVhost 测试套件
-type ProxyVhostTestSuite struct {
-	suite.Suite
-	vhost     *ProxyVhost
-	configDir string
-}
+func TestProxies(t *testing.T) {
+	vhost, configDir := newProxyVhost(t)
 
-func TestProxyVhostTestSuite(t *testing.T) {
-	suite.Run(t, &ProxyVhostTestSuite{})
-}
-
-func (s *ProxyVhostTestSuite) SetupTest() {
-	configDir, err := os.MkdirTemp("", "nginx-proxy-test-*")
-	s.Require().NoError(err)
-	s.configDir = configDir
-
-	// 创建 site 和 shared 目录
-	s.NoError(os.MkdirAll(filepath.Join(configDir, "site"), 0755))
-	s.NoError(os.MkdirAll(filepath.Join(configDir, "shared"), 0755))
-
-	vhost, err := NewProxyVhost(configDir)
-	s.Require().NoError(err)
-	s.vhost = vhost
-}
-
-func (s *ProxyVhostTestSuite) TearDownTest() {
-	if s.configDir != "" {
-		s.NoError(os.RemoveAll(s.configDir))
-	}
-}
-
-func (s *ProxyVhostTestSuite) TestProxies() {
 	// 初始应该没有代理配置
-	s.Empty(s.vhost.Proxies())
+	check.Empty(t, vhost.Proxies())
 
 	// 设置代理配置
 	proxies := []types.Proxy{
@@ -534,27 +523,21 @@ func (s *ProxyVhostTestSuite) TestProxies() {
 			Buffering: true,
 		},
 	}
-	s.NoError(s.vhost.SetProxies(proxies))
+	check.NoError(t, vhost.SetProxies(proxies))
 
 	// 验证代理文件已创建
-	siteDir := filepath.Join(s.configDir, "site")
-	entries, err := os.ReadDir(siteDir)
-	s.NoError(err)
+	check.Len(t, confFiles(t, configDir, "site", "2", "-proxy.conf"), 2)
 
-	proxyCount := 0
-	for _, entry := range entries {
-		if strings.HasPrefix(entry.Name(), "2") && strings.HasSuffix(entry.Name(), "-proxy.conf") {
-			proxyCount++
-		}
-	}
-	s.Equal(2, proxyCount)
-
-	// 验证可以读取回来
-	got := s.vhost.Proxies()
-	s.Len(got, 2)
+	// 未指定的 Host 与 HTTP 版本由 nginx 侧补默认值
+	check.DeepEqual(t, vhost.Proxies(), []types.Proxy{
+		{Location: "/", Pass: "http://backend", Host: "example.com", HTTPVersion: "1.1"},
+		{Location: "/api", Pass: "http://api-backend:8080", Host: "$proxy_host", Buffering: true, HTTPVersion: "1.1"},
+	}, cmpopts.EquateEmpty())
 }
 
-func (s *ProxyVhostTestSuite) TestProxyConfig() {
+func TestProxyConfig(t *testing.T) {
+	vhost, configDir := newProxyVhost(t)
+
 	proxies := []types.Proxy{
 		{
 			Location:  "/",
@@ -564,35 +547,39 @@ func (s *ProxyVhostTestSuite) TestProxyConfig() {
 			Buffering: true,
 		},
 	}
-	s.NoError(s.vhost.SetProxies(proxies))
+	check.NoError(t, vhost.SetProxies(proxies))
 
 	// 读取配置文件内容
-	siteDir := filepath.Join(s.configDir, "site")
+	siteDir := filepath.Join(configDir, "site")
 	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
-	s.NoError(err)
+	must.NoError(t, err)
 
-	s.Contains(string(content), "location /")
-	s.Contains(string(content), "proxy_pass https://backend")
-	s.Contains(string(content), "proxy_set_header Host")
-	s.Contains(string(content), "example.com")
-	s.Contains(string(content), "proxy_ssl_name")
-	s.Contains(string(content), "proxy_buffering on")
+	check.Contains(t, string(content), "location /")
+	check.Contains(t, string(content), "proxy_pass https://backend")
+	check.Contains(t, string(content), "proxy_set_header Host")
+	check.Contains(t, string(content), "example.com")
+	check.Contains(t, string(content), "proxy_ssl_name")
+	check.Contains(t, string(content), "proxy_buffering on")
 }
 
-func (s *ProxyVhostTestSuite) TestClearProxies() {
+func TestClearProxies(t *testing.T) {
+	vhost, _ := newProxyVhost(t)
+
 	proxies := []types.Proxy{
 		{Location: "/", Pass: "http://backend"},
 	}
-	s.NoError(s.vhost.SetProxies(proxies))
-	s.Len(s.vhost.Proxies(), 1)
+	check.NoError(t, vhost.SetProxies(proxies))
+	check.Len(t, vhost.Proxies(), 1)
 
-	s.NoError(s.vhost.ClearProxies())
-	s.Empty(s.vhost.Proxies())
+	check.NoError(t, vhost.ClearProxies())
+	check.Empty(t, vhost.Proxies())
 }
 
-func (s *ProxyVhostTestSuite) TestUpstreams() {
+func TestUpstreams(t *testing.T) {
+	vhost, configDir := newProxyVhost(t)
+
 	// 初始应该没有上游服务器配置
-	s.Empty(s.vhost.Upstreams())
+	check.Empty(t, vhost.Upstreams())
 
 	// 设置上游服务器
 	upstreams := []types.Upstream{
@@ -606,23 +593,17 @@ func (s *ProxyVhostTestSuite) TestUpstreams() {
 			Keepalive: 32,
 		},
 	}
-	s.NoError(s.vhost.SetUpstreams(upstreams))
+	check.NoError(t, vhost.SetUpstreams(upstreams))
 
 	// 验证 upstream 文件已创建
-	sharedDir := filepath.Join(s.configDir, "shared")
-	entries, err := os.ReadDir(sharedDir)
-	s.NoError(err)
-	s.NotEmpty(entries)
+	check.NotEmpty(t, confFiles(t, configDir, "shared", "", ""))
 
-	// 验证可以读取回来
-	got := s.vhost.Upstreams()
-	s.Len(got, 1)
-	s.Equal("backend", got[0].Name)
-	s.Equal("least_conn", got[0].Algo)
-	s.Equal(32, got[0].Keepalive)
+	check.DeepEqual(t, vhost.Upstreams(), upstreams, cmpopts.EquateEmpty())
 }
 
-func (s *ProxyVhostTestSuite) TestUpstreamConfig() {
+func TestUpstreamConfig(t *testing.T) {
+	vhost, configDir := newProxyVhost(t)
+
 	upstreams := []types.Upstream{
 		{
 			Name: "mybackend",
@@ -633,39 +614,40 @@ func (s *ProxyVhostTestSuite) TestUpstreamConfig() {
 			Keepalive: 16,
 		},
 	}
-	s.NoError(s.vhost.SetUpstreams(upstreams))
+	check.NoError(t, vhost.SetUpstreams(upstreams))
 
 	// 读取配置文件内容
-	sharedDir := filepath.Join(s.configDir, "shared")
-	entries, err := os.ReadDir(sharedDir)
-	s.NoError(err)
-	s.Require().NotEmpty(entries)
+	files := confFiles(t, configDir, "shared", "", "")
+	must.NotEmpty(t, files)
+	content, err := os.ReadFile(filepath.Join(configDir, "shared", files[0]))
+	must.NoError(t, err)
 
-	content, err := os.ReadFile(filepath.Join(sharedDir, entries[0].Name()))
-	s.NoError(err)
-
-	s.Contains(string(content), "upstream mybackend")
-	s.Contains(string(content), "ip_hash")
-	s.Contains(string(content), "server 127.0.0.1:8080")
-	s.Contains(string(content), "weight=5")
-	s.Contains(string(content), "keepalive 16")
+	check.Contains(t, string(content), "upstream mybackend")
+	check.Contains(t, string(content), "ip_hash")
+	check.Contains(t, string(content), "server 127.0.0.1:8080")
+	check.Contains(t, string(content), "weight=5")
+	check.Contains(t, string(content), "keepalive 16")
 }
 
-func (s *ProxyVhostTestSuite) TestClearUpstreams() {
+func TestClearUpstreams(t *testing.T) {
+	vhost, _ := newProxyVhost(t)
+
 	upstreams := []types.Upstream{
 		{
 			Name:    "backend",
 			Servers: map[string]string{"127.0.0.1:8080": ""},
 		},
 	}
-	s.NoError(s.vhost.SetUpstreams(upstreams))
-	s.Len(s.vhost.Upstreams(), 1)
+	check.NoError(t, vhost.SetUpstreams(upstreams))
+	check.Len(t, vhost.Upstreams(), 1)
 
-	s.NoError(s.vhost.ClearUpstreams())
-	s.Empty(s.vhost.Upstreams())
+	check.NoError(t, vhost.ClearUpstreams())
+	check.Empty(t, vhost.Upstreams())
 }
 
-func (s *ProxyVhostTestSuite) TestProxyWithUpstream() {
+func TestProxyWithUpstream(t *testing.T) {
+	vhost, configDir := newProxyVhost(t)
+
 	// 先创建 upstream
 	upstreams := []types.Upstream{
 		{
@@ -677,7 +659,7 @@ func (s *ProxyVhostTestSuite) TestProxyWithUpstream() {
 			Algo: "least_conn",
 		},
 	}
-	s.NoError(s.vhost.SetUpstreams(upstreams))
+	check.NoError(t, vhost.SetUpstreams(upstreams))
 
 	// 然后创建引用 upstream 的 proxy
 	proxies := []types.Proxy{
@@ -686,15 +668,15 @@ func (s *ProxyVhostTestSuite) TestProxyWithUpstream() {
 			Pass:     "http://api-servers",
 		},
 	}
-	s.NoError(s.vhost.SetProxies(proxies))
+	check.NoError(t, vhost.SetProxies(proxies))
 
 	// 验证两者都存在
-	s.Len(s.vhost.Upstreams(), 1)
-	s.Len(s.vhost.Proxies(), 1)
+	check.Len(t, vhost.Upstreams(), 1)
+	check.Len(t, vhost.Proxies(), 1)
 
 	// 验证 proxy 配置中引用了 upstream
-	siteDir := filepath.Join(s.configDir, "site")
+	siteDir := filepath.Join(configDir, "site")
 	content, err := os.ReadFile(filepath.Join(siteDir, "200-proxy.conf"))
-	s.NoError(err)
-	s.Contains(string(content), "http://api-servers")
+	must.NoError(t, err)
+	check.Contains(t, string(content), "http://api-servers")
 }

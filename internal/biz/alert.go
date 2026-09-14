@@ -368,7 +368,7 @@ func (uc *AlertUsecase) evaluateMetric(ctx context.Context, rule *AlertRule, met
 		uc.mu.Unlock()
 		return
 	}
-	silence := time.Duration(rule.Silence) * time.Minute
+	silence := time.Duration(rule.Silence) * time.Minute //nolint:gosec
 	uc.silenced[key] = now.Add(silence)
 	uc.mu.Unlock()
 

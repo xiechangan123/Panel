@@ -194,15 +194,14 @@ func escapePgpass(s string) string {
 }
 
 // existingServers 只读 pgAdmin 配置库查询 Servers 组内已注册的服务器
-// CLI 每次调用都要冷启动整个 pgAdmin 应用,直读库快数个量级
-func (s *App) existingServers(email string) (map[string]struct{}, error) {
+func (s *App) existingServers(ctx context.Context, email string) (map[string]struct{}, error) {
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s/data/pgadmin.db?mode=ro", s.path()))
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = db.Close() }()
 
-	rows, err := db.Query(`SELECT s.host, s.port, s.username FROM server s
+	rows, err := db.QueryContext(ctx, `SELECT s.host, s.port, s.username FROM server s
 		JOIN servergroup g ON s.servergroup_id = g.id
 		JOIN "user" u ON s.user_id = u.id
 		WHERE u.email = ? AND g.name = 'Servers'`, email)
@@ -295,7 +294,7 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 	}
 
 	// 查询 pgAdmin 已有服务器用于查缺,直读配置库,异常时回退 CLI 导出
-	existing, err := s.existingServers(email)
+	existing, err := s.existingServers(ctx, email)
 	if err != nil {
 		existing = s.dumpExistingServers(email)
 	}

@@ -157,7 +157,7 @@ func canonicalAndSignedHeaders(req *http.Request) (canonical, signed string) {
 func uriEncode(s string, encodeSlash bool) string {
 	var b strings.Builder
 	b.Grow(len(s))
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		ch := s[i]
 		switch {
 		case ch >= 'A' && ch <= 'Z', ch >= 'a' && ch <= 'z', ch >= '0' && ch <= '9',

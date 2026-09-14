@@ -118,9 +118,9 @@ func (r *webhookRepo) Call(key string) (string, error) {
 	// 执行脚本
 	var cmd *exec.Cmd
 	if webhook.User == "" || webhook.User == "root" {
-		cmd = exec.Command("bash", scriptFile)
+		cmd = exec.Command("bash", scriptFile) //nolint:noctx
 	} else {
-		cmd = exec.Command("su", "-s", "/bin/bash", "-c", "bash "+scriptFile, webhook.User)
+		cmd = exec.Command("su", "-s", "/bin/bash", "-c", "bash "+scriptFile, webhook.User) //nolint:noctx
 	}
 	shell.ApplyEnv(cmd)
 

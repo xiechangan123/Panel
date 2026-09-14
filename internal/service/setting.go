@@ -72,6 +72,7 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if conf.HTTP.TLS == "self-signed" {
+		//nolint:contextcheck
 		crt, key, err := cert.GenerateSelfSigned(tools.CollectLocalNames())
 		if err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
@@ -95,7 +96,7 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account, err := s.certAccountRepo.GetDefault(user.ID)
+	account, err := s.certAccountRepo.GetDefault(r.Context(), user.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

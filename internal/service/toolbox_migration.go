@@ -78,6 +78,7 @@ func (s *ToolboxMigrationService) Start(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	//nolint:contextcheck
 	if err = s.migrationRepo.Start(req); err != nil {
 		Error(w, http.StatusConflict, "%v", err)
 		return
@@ -147,10 +148,14 @@ func (s *ToolboxMigrationService) Progress(w http.ResponseWriter, r *http.Reques
 		case <-ticker.C:
 			step, results, logs, startedAt, endedAt := s.migrationRepo.Status(sent)
 			sent += len(logs)
-			data, _ := json.Marshal(chix.M{
+			data, err := json.Marshal(chix.M{
 				"step": step, "results": results, "new_logs": logs,
 				"started_at": startedAt, "ended_at": endedAt,
 			})
+			if err != nil {
+				s.log.Warn("marshal migration progress error", slog.Any("err", err))
+				return
+			}
 			if err = ws.Write(ctx, websocket.MessageText, data); err != nil {
 				return
 			}

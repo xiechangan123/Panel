@@ -262,7 +262,7 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 		return errors.New(uc.t.Get("wildcard domains require DNS verification, please select a DNS provider"))
 	}
 
-	account, err := uc.certAccount.GetDefault(cast.ToUint(ctx.Value("user_id")))
+	account, err := uc.certAccount.GetDefault(ctx, cast.ToUint(ctx.Value("user_id")))
 	if err != nil {
 		return err
 	}
@@ -291,7 +291,7 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 		return err
 	}
 
-	_, err = uc.cert.ObtainAuto(newCert.ID)
+	_, err = uc.cert.ObtainAutoWithProgressCallback(ctx, newCert.ID, nil)
 	if err != nil {
 		return err
 	}

@@ -3,33 +3,17 @@ package io
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
-type SearchTestSuite struct {
-	suite.Suite
-}
-
-func TestSearchTestSuite(t *testing.T) {
-	suite.Run(t, &SearchTestSuite{})
-}
-
-func (s *SearchTestSuite) SetupTest() {
-	if _, err := os.Stat("testdata"); os.IsNotExist(err) {
-		s.NoError(os.MkdirAll("testdata", 0755))
-	}
-}
-
-func (s *SearchTestSuite) TearDownTest() {
-	s.NoError(os.RemoveAll("testdata"))
-}
-
-func (s *SearchTestSuite) TestSearchX() {
-	testDir := "testdata/search_test"
-	s.NoError(os.MkdirAll(testDir, 0755))
-	s.NoError(os.MkdirAll(filepath.Join(testDir, "subdir"), 0755))
+func TestSearchX(t *testing.T) {
+	testDir := filepath.Join(t.TempDir(), "search_test")
+	must.NoError(t, os.MkdirAll(testDir, 0755))
+	must.NoError(t, os.MkdirAll(filepath.Join(testDir, "subdir"), 0755))
 
 	testFiles := map[string]string{
 		"test_file1.txt":         "内容1",
@@ -40,39 +24,35 @@ func (s *SearchTestSuite) TestSearchX() {
 	}
 
 	for path, content := range testFiles {
-		s.NoError(Write(filepath.Join(testDir, path), content, 0644))
+		must.NoError(t, Write(filepath.Join(testDir, path), content, 0644))
 	}
 
-	s.Run("正常搜索", func() {
+	t.Run("正常搜索", func(t *testing.T) {
 		entries, err := SearchX(testDir, "test", false)
-		s.NoError(err)
+		must.NoError(t, err)
 
-		names := make(map[string]bool)
+		names := make([]string, 0, len(entries))
 		for _, entry := range entries {
-			names[entry.Name()] = true
-			s.NotEmpty(entry.Name())
+			names = append(names, entry.Name())
 			info, err := entry.Info()
-			s.NoError(err)
-			s.NotNil(info)
-			s.Equal(entry.Type(), info.Mode().Type())
-			s.Equal(entry.IsDir(), info.IsDir())
+			must.NoError(t, err)
+			check.Equal(t, info.Mode().Type(), entry.Type())
+			check.Equal(t, info.IsDir(), entry.IsDir())
 		}
+		slices.Sort(names)
 
-		s.True(names["test_file1.txt"])
-		s.True(names["test_file2.log"])
-		s.True(names["another_test.txt"])
-		s.False(names["nested_test.txt"]) // 不应该找到子目录中的文件
-		s.False(names["unrelated.dat"])   // 不应该找到不匹配的文件
+		// 子目录里的 nested_test.txt 与不匹配的 unrelated.dat 都不该出现
+		check.DeepEqual(t, names, []string{"another_test.txt", "test_file1.txt", "test_file2.log"})
 	})
 
-	s.Run("无匹配结果", func() {
+	t.Run("无匹配结果", func(t *testing.T) {
 		entries, err := SearchX(testDir, "nonexistent", false)
-		s.NoError(err)
-		s.Empty(entries)
+		check.NoError(t, err)
+		check.Empty(t, entries)
 	})
 
-	s.Run("路径不存在", func() {
+	t.Run("路径不存在", func(t *testing.T) {
 		_, err := SearchX("/path/does/not/exist", "test", false)
-		s.Error(err)
+		check.Error(t, err)
 	})
 }

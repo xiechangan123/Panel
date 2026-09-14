@@ -39,6 +39,7 @@ func (v *baseVhost) buildRedirects(cfg *conf.Config) {
 			setHeaders(ctx, v.contextHeaders())
 		case types.RedirectType404:
 			cfg.AddBlock("errorpage", "404").Add("url", r.To)
+		case types.RedirectTypeHost: // 主机名重定向写在 rewrite 块里，见 buildRewrite
 		}
 	}
 }

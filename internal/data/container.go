@@ -57,11 +57,11 @@ func (r *containerRepo) ListAll(sock string) ([]types.Container, error) {
 			}
 		}
 		slices.SortFunc(ports, func(a, b types.ContainerPort) int {
-			aOffset := int64(a.HostStart) - int64(a.ContainerStart)
+			aOffset := int64(a.HostStart) - int64(a.ContainerStart) //nolint:gosec
 			if a.HostStart == 0 {
 				aOffset = 0
 			}
-			bOffset := int64(b.HostStart) - int64(b.ContainerStart)
+			bOffset := int64(b.HostStart) - int64(b.ContainerStart) //nolint:gosec
 			if b.HostStart == 0 {
 				bOffset = 0
 			}
@@ -142,7 +142,7 @@ func (r *containerRepo) Create(sock string, req *request.ContainerCreate) (strin
 	// 获取镜像信息
 	image, err := apiClient.ImageInspect(ctx, req.Image)
 	if err != nil {
-		return "", fmt.Errorf("failed to inspect image: %v", err)
+		return "", fmt.Errorf("failed to inspect image: %w", err)
 	}
 	// 兼容一些没有指定命令和入口点的镜像
 	if image.Config != nil {

@@ -1,6 +1,7 @@
 package openlitespeed
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -86,7 +87,7 @@ func Parse(content string) (*conf.Config, error) {
 	}
 
 	if len(stack) != 1 {
-		return nil, fmt.Errorf("unclosed block")
+		return nil, errors.New("unclosed block")
 	}
 
 	return cfg, nil

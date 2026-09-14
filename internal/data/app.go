@@ -48,7 +48,6 @@ func (r *appRepo) Installed() ([]*biz.App, error) {
 	}
 
 	return apps, nil
-
 }
 
 func (r *appRepo) GetInstalled(slug string) (*biz.App, error) {

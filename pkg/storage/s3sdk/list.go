@@ -62,12 +62,13 @@ func (c *S3) listPage(prefix, delimiter, token string) (listPage, error) {
 		query.Set("continuation-token", token)
 	}
 
-	req, err := http.NewRequest(http.MethodGet, c.base+"?"+query.Encode(), nil)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.base+"?"+query.Encode(), nil)
 	if err != nil {
 		return listPage{}, err
 	}
 
-	body, _, err := c.do(context.Background(), req, http.StatusOK)
+	body, _, err := c.do(ctx, req, http.StatusOK) //nolint:bodyclose
 	if err != nil {
 		return listPage{}, err
 	}

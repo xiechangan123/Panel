@@ -90,11 +90,11 @@ func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 	case "website":
 		cleaned, cleanErr = s.cleanWebsiteLogs()
 	case "mysql":
-		cleaned, cleanErr = s.cleanMySQLLogs()
+		cleaned = s.cleanMySQLLogs()
 	case "docker":
-		cleaned, cleanErr = s.cleanDockerLogs()
+		cleaned = s.cleanDockerLogs()
 	case "system":
-		cleaned, cleanErr = s.cleanSystemLogs()
+		cleaned = s.cleanSystemLogs()
 	default:
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown log type"))
 		return
@@ -479,12 +479,12 @@ func (s *ToolboxLogService) cleanWebsiteLogs() (int64, error) {
 }
 
 // cleanMySQLLogs 清理 MySQL 日志
-func (s *ToolboxLogService) cleanMySQLLogs() (int64, error) {
+func (s *ToolboxLogService) cleanMySQLLogs() int64 {
 	var cleaned int64
 	mysqlPath := filepath.Join(app.Root, "server/mysql")
 
 	if !io.Exists(mysqlPath) {
-		return 0, nil
+		return 0
 	}
 
 	// 清空慢查询日志
@@ -499,7 +499,7 @@ func (s *ToolboxLogService) cleanMySQLLogs() (int64, error) {
 	// 清理二进制日志
 	entries, err := os.ReadDir(mysqlPath)
 	if err != nil {
-		return cleaned, nil
+		return cleaned
 	}
 
 	binLogRegex := regexp.MustCompile(`^mysql-bin\.\d+$`)
@@ -523,11 +523,11 @@ func (s *ToolboxLogService) cleanMySQLLogs() (int64, error) {
 		_, _ = shell.ExecfWithEnv([]string{"MYSQL_PWD=" + rootPassword}, "mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
 	}
 
-	return cleaned, nil
+	return cleaned
 }
 
 // cleanDockerLogs 清理 Docker/Podman 相关内容
-func (s *ToolboxLogService) cleanDockerLogs() (int64, error) {
+func (s *ToolboxLogService) cleanDockerLogs() int64 {
 	var cleaned int64
 
 	// 清理未使用的镜像 (Docker)
@@ -552,7 +552,7 @@ func (s *ToolboxLogService) cleanDockerLogs() (int64, error) {
 	// 清理 Podman 系统
 	_, _ = shell.Execf("podman system prune -f 2>/dev/null")
 
-	return cleaned, nil
+	return cleaned
 }
 
 // cleanContainerLogDir 清理容器日志目录
@@ -600,7 +600,7 @@ func (s *ToolboxLogService) cleanContainerLogDir(logPath string) int64 {
 }
 
 // cleanSystemLogs 清理系统日志
-func (s *ToolboxLogService) cleanSystemLogs() (int64, error) {
+func (s *ToolboxLogService) cleanSystemLogs() int64 {
 	var cleaned int64
 
 	// 清理 journal 日志 (保留最近 1 天)
@@ -644,5 +644,5 @@ func (s *ToolboxLogService) cleanSystemLogs() (int64, error) {
 		_, _ = shell.Execf("cat /dev/null > '%s'", match)
 	}
 
-	return cleaned, nil
+	return cleaned
 }

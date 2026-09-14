@@ -68,7 +68,7 @@ func (r *Redis) Database() (int, error) {
 	}
 	var count int
 	if _, err = fmt.Sscanf(values[1], "%d", &count); err != nil {
-		return 16, nil
+		return 16, nil //nolint:nilerr
 	}
 	return count, nil
 }
@@ -123,7 +123,7 @@ func (r *Redis) Search(pattern string, page, pageSize int) ([]RedisKV, int, erro
 func (r *Redis) Get(key string) (*RedisKV, error) {
 	keyType, err := redis.String(r.conn.Do("TYPE", key))
 	if err != nil {
-		return nil, fmt.Errorf("key not found: %v", err)
+		return nil, fmt.Errorf("key not found: %w", err)
 	}
 	if keyType == "none" {
 		return nil, errors.New("key not found")
@@ -170,7 +170,7 @@ func (r *Redis) SetKey(key, value, keyType string, ttl int64) error {
 	case "list":
 		var items []string
 		if err := json.Unmarshal([]byte(value), &items); err != nil {
-			return fmt.Errorf("list value must be JSON array: %v", err)
+			return fmt.Errorf("list value must be JSON array: %w", err)
 		}
 		_, _ = r.conn.Do("DEL", key)
 		for _, item := range items {
@@ -181,7 +181,7 @@ func (r *Redis) SetKey(key, value, keyType string, ttl int64) error {
 	case "set":
 		var items []string
 		if err := json.Unmarshal([]byte(value), &items); err != nil {
-			return fmt.Errorf("set value must be JSON array: %v", err)
+			return fmt.Errorf("set value must be JSON array: %w", err)
 		}
 		_, _ = r.conn.Do("DEL", key)
 		for _, item := range items {
@@ -192,7 +192,7 @@ func (r *Redis) SetKey(key, value, keyType string, ttl int64) error {
 	case "zset":
 		var members map[string]string
 		if err := json.Unmarshal([]byte(value), &members); err != nil {
-			return fmt.Errorf("zset value must be JSON object {member: score}: %v", err)
+			return fmt.Errorf("zset value must be JSON object {member: score}: %w", err)
 		}
 		_, _ = r.conn.Do("DEL", key)
 		for member, score := range members {
@@ -203,7 +203,7 @@ func (r *Redis) SetKey(key, value, keyType string, ttl int64) error {
 	case "hash":
 		var fields map[string]string
 		if err := json.Unmarshal([]byte(value), &fields); err != nil {
-			return fmt.Errorf("hash value must be JSON object: %v", err)
+			return fmt.Errorf("hash value must be JSON object: %w", err)
 		}
 		_, _ = r.conn.Do("DEL", key)
 		for field, val := range fields {
@@ -241,11 +241,11 @@ func (r *Redis) scanKeys(pattern string) ([]string, error) {
 		args[0] = cursor
 		values, err := redis.Values(r.conn.Do("SCAN", args...))
 		if err != nil {
-			return nil, fmt.Errorf("failed to SCAN: %v", err)
+			return nil, fmt.Errorf("failed to SCAN: %w", err)
 		}
 		var batch []string
 		if _, err = redis.Scan(values, &cursor, &batch); err != nil {
-			return nil, fmt.Errorf("failed to parse SCAN result: %v", err)
+			return nil, fmt.Errorf("failed to parse SCAN result: %w", err)
 		}
 		keys = append(keys, batch...)
 		if cursor == 0 {
@@ -261,8 +261,10 @@ func (r *Redis) fillKeyValue(kv *RedisKV) error {
 	var err error
 	switch kv.Type {
 	case "string":
-		if value, err = redis.String(r.conn.Do("GET", kv.Key)); err == nil {
-			kv.Length = int64(len(value.(string)))
+		var str string
+		if str, err = redis.String(r.conn.Do("GET", kv.Key)); err == nil {
+			value = str
+			kv.Length = int64(len(str))
 		}
 	case "list":
 		if value, err = redis.Strings(r.conn.Do("LRANGE", kv.Key, 0, -1)); err == nil {

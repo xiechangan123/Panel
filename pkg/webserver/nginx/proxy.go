@@ -77,7 +77,7 @@ func formatSize(bytes int64) string {
 	return strconv.FormatInt(bytes, 10)
 }
 
-func parseProxyFiles(siteDir string) ([]types.Proxy, error) {
+func parseProxyFiles(siteDir string) []types.Proxy {
 	var proxies []types.Proxy
 	for _, file := range listFiles(siteDir, proxyFilePattern, ProxyStartNum, ProxyEndNum) {
 		cfg, err := ParseFile(file)
@@ -88,7 +88,7 @@ func parseProxyFiles(siteDir string) ([]types.Proxy, error) {
 			proxies = append(proxies, parseProxy(loc))
 		}
 	}
-	return proxies, nil
+	return proxies
 }
 
 // standardHeaders 生成时固定写入的请求头，回读时不算作自定义头

@@ -3,7 +3,6 @@ package job
 import (
 	"log/slog"
 
-	"github.com/google/wire"
 	"github.com/leonelquinteros/gotext"
 	"github.com/libtnb/cron"
 	"gorm.io/gorm"
@@ -19,8 +18,6 @@ type Job struct {
 	Task      cron.Job // 任务体
 	Immediate bool     // 调度器启动后立即执行一次,不等首个调度点
 }
-
-var ProviderSet = wire.NewSet(wire.Struct(new(Dependencies), "*"), NewJobs)
 
 // Dependencies 汇总定时任务依赖，Wire 会在生成期校验完整性。
 type Dependencies struct {

@@ -1,127 +1,106 @@
 package ipdb
 
 import (
+	"io/fs"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
 const testDBPath = "../geoip/ipipfree.ipdb"
 
-type ReaderSuite struct {
-	suite.Suite
-	r *Reader
-}
-
-func (s *ReaderSuite) SetupSuite() {
+func newReader(t *testing.T) *Reader {
+	t.Helper()
 	r, err := Open(testDBPath)
-	s.Require().NoError(err)
-	s.Require().NotNil(r)
-	s.r = r
+	must.NoError(t, err)
+	t.Cleanup(func() { check.NoError(t, r.Close()) })
+	return r
 }
 
-func (s *ReaderSuite) TearDownSuite() {
-	s.Require().NoError(s.r.Close())
+// mustFind 查询并校验返回值个数与字段数一致——库内容会变，只有这个数量关系恒定
+func mustFind(t *testing.T, r *Reader, ip string) []string {
+	t.Helper()
+	result, err := r.Find(ip, "CN")
+	must.NoError(t, err)
+	must.Len(t, result, len(r.Fields()))
+	return result
 }
 
-func TestReaderSuite(t *testing.T) {
-	suite.Run(t, new(ReaderSuite))
-}
-
-// ========== Open ==========
-
-func (s *ReaderSuite) TestOpen_InvalidPath() {
+func TestOpen_InvalidPath(t *testing.T) {
 	_, err := Open("/nonexistent/path.ipdb")
-	s.Error(err)
+	check.ErrorIs(t, err, fs.ErrNotExist)
 }
 
-// ========== Fields ==========
-
-func (s *ReaderSuite) TestFields() {
-	fields := s.r.Fields()
-	s.NotEmpty(fields)
-	s.T().Logf("fields: %v", fields)
+func TestFields(t *testing.T) {
+	fields := newReader(t).Fields()
+	check.NotEmpty(t, fields)
+	t.Logf("fields: %v", fields)
 }
 
-// ========== Find ==========
-
-func (s *ReaderSuite) TestFind_IPv4() {
-	result, err := s.r.Find("114.114.114.114", "CN")
-	s.NoError(err)
-	s.NotEmpty(result)
-	s.T().Logf("114.114.114.114 -> %v", result)
+func TestFind_IPv4(t *testing.T) {
+	r := newReader(t)
+	for _, ip := range []string{"114.114.114.114", "8.8.8.8"} {
+		t.Run(ip, func(t *testing.T) {
+			result := mustFind(t, r, ip)
+			check.NotEmpty(t, result[0], check.Msgf("%s -> %v", ip, result))
+		})
+	}
 }
 
-func (s *ReaderSuite) TestFind_IPv4_Foreign() {
-	result, err := s.r.Find("8.8.8.8", "CN")
-	s.NoError(err)
-	s.NotEmpty(result)
-	s.T().Logf("8.8.8.8 -> %v", result)
+func TestFind_IPv6(t *testing.T) {
+	r := newReader(t)
+	// 库可能不含 IPv6 数据，允许返回错误，但不能 panic
+	check.NotPanics(t, func() { _, _ = r.Find("2001:4860:4860::8888", "CN") })
 }
 
-func (s *ReaderSuite) TestFind_IPv6() {
-	// IPv6 查找，可能不支持但不应 panic
-	_, _ = s.r.Find("2001:4860:4860::8888", "CN")
+func TestFind_InvalidIP(t *testing.T) {
+	_, err := newReader(t).Find("not-an-ip", "CN")
+	check.ErrorIs(t, err, ErrInvalidIP)
 }
 
-func (s *ReaderSuite) TestFind_InvalidIP() {
-	_, err := s.r.Find("not-an-ip", "CN")
-	s.ErrorIs(err, ErrInvalidIP)
+func TestFind_InvalidLanguage(t *testing.T) {
+	_, err := newReader(t).Find("8.8.8.8", "INVALID")
+	check.ErrorIs(t, err, ErrNoLanguage)
 }
 
-func (s *ReaderSuite) TestFind_InvalidLanguage() {
-	_, err := s.r.Find("8.8.8.8", "INVALID")
-	s.ErrorIs(err, ErrNoLanguage)
+func TestReload(t *testing.T) {
+	r := newReader(t)
+	must.NoError(t, r.Reload(testDBPath))
+
+	check.NotEmpty(t, mustFind(t, r, "114.114.114.114")[0])
 }
 
-// ========== Reload ==========
-
-func (s *ReaderSuite) TestReload() {
-	err := s.r.Reload(testDBPath)
-	s.NoError(err)
-
-	// reload 后查询仍正常
-	result, err := s.r.Find("114.114.114.114", "CN")
-	s.NoError(err)
-	s.NotEmpty(result)
-}
-
-func (s *ReaderSuite) TestReload_InvalidPath() {
-	err := s.r.Reload("/nonexistent/path.ipdb")
-	s.Error(err)
+func TestReload_InvalidPath(t *testing.T) {
+	r := newReader(t)
+	check.ErrorIs(t, r.Reload("/nonexistent/path.ipdb"), fs.ErrNotExist)
 
 	// 失败后原数据仍可用
-	result, err := s.r.Find("114.114.114.114", "CN")
-	s.NoError(err)
-	s.NotEmpty(result)
+	check.NotEmpty(t, mustFind(t, r, "114.114.114.114")[0])
 }
 
-// ========== Close ==========
-
-func (s *ReaderSuite) TestClose_UseAfterClose() {
+func TestClose_UseAfterClose(t *testing.T) {
 	r, err := Open(testDBPath)
-	s.Require().NoError(err)
+	must.NoError(t, err)
 
-	s.NoError(r.Close())
+	check.NoError(t, r.Close())
 
 	_, err = r.Find("8.8.8.8", "CN")
-	s.ErrorIs(err, ErrClosed)
+	check.ErrorIs(t, err, ErrClosed)
 }
 
-func (s *ReaderSuite) TestClose_DoubleClose() {
+func TestClose_DoubleClose(t *testing.T) {
 	r, err := Open(testDBPath)
-	s.Require().NoError(err)
+	must.NoError(t, err)
 
-	s.NoError(r.Close())
-	s.NoError(r.Close())
+	check.NoError(t, r.Close())
+	check.NoError(t, r.Close())
 }
 
-func (s *ReaderSuite) TestClose_NilReceiver() {
+func TestClose_NilReceiver(t *testing.T) {
 	var r *Reader
-	s.NoError(r.Close())
+	check.NoError(t, r.Close())
 }
-
-// ========== Benchmark ==========
 
 func BenchmarkFind(b *testing.B) {
 	r, err := Open(testDBPath)

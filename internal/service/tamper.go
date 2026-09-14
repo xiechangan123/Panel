@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
@@ -203,7 +205,9 @@ func (s *TamperService) ClearLogs(w http.ResponseWriter, r *http.Request) {
 
 // ActivateEBPF 修改 grub 激活 bpf LSM 并重启系统
 func (s *TamperService) ActivateEBPF(w http.ResponseWriter, r *http.Request) {
-	if err := s.tamperRepo.EnableBPFLSMGrub(); err != nil {
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), 5*time.Minute)
+	defer cancel()
+	if err := s.tamperRepo.EnableBPFLSMGrub(ctx); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -13,7 +13,7 @@ import (
 
 var redirectFilePattern = regexp.MustCompile(`^(\d{3})-redirect\.conf$`)
 
-func parseRedirectFiles(siteDir string) ([]types.Redirect, error) {
+func parseRedirectFiles(siteDir string) []types.Redirect {
 	var redirects []types.Redirect
 	for _, file := range listFiles(siteDir, redirectFilePattern, RedirectStartNum, RedirectEndNum) {
 		cfg, err := ParseFile(file)
@@ -24,7 +24,7 @@ func parseRedirectFiles(siteDir string) ([]types.Redirect, error) {
 			redirects = append(redirects, *r)
 		}
 	}
-	return redirects, nil
+	return redirects
 }
 
 // parseRedirect 三种重定向各只含一条 return：主机名在 if 块里，404 由 error_page 引到命名 location，URL 在精确匹配 location 里

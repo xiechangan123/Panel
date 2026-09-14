@@ -51,7 +51,8 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conn, err := net.Dial("tcp", "127.0.0.1:11211")
+	var dialer net.Dialer
+	conn, err := dialer.DialContext(r.Context(), "tcp", "127.0.0.1:11211")
 	if err != nil {
 		service.Success(w, []types.NV{})
 		return

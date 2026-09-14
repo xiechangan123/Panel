@@ -6,39 +6,38 @@ import (
 
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
 func TestParseDirective(t *testing.T) {
 	cfg, err := ParseString("ServerName www.example.com")
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	d := cfg.Get("ServerName")
-	require.NotNil(t, d)
-	assert.Equal(t, "ServerName", d.Name)
-	assert.Equal(t, []string{"www.example.com"}, d.Values())
+	must.NotNil(t, d)
+	check.Equal(t, d.Name, "ServerName")
+	check.DeepEqual(t, d.Values(), []string{"www.example.com"})
 }
 
 func TestParseMultipleArgs(t *testing.T) {
 	cfg, err := ParseString("Listen 192.168.1.100:80")
-	require.NoError(t, err)
-	assert.Equal(t, []string{"192.168.1.100:80"}, conf.Values(cfg.Get("Listen").Args))
+	must.NoError(t, err)
+	check.DeepEqual(t, conf.Values(cfg.Get("Listen").Args), []string{"192.168.1.100:80"})
 }
 
 func TestParseQuotedArgs(t *testing.T) {
 	cfg, err := ParseString(`CustomLog "/var/log/apache2/access.log" combined`)
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	d := cfg.Get("CustomLog")
-	require.NotNil(t, d)
-	// 引号被解析，值不含引号
-	assert.Equal(t, "/var/log/apache2/access.log", d.Args[0].Value)
-	assert.Equal(t, conf.QuoteDouble, d.Args[0].Quote)
-	assert.Equal(t, "combined", d.Args[1].Value)
-	assert.Equal(t, conf.QuoteNone, d.Args[1].Quote)
-	// 导出时引号按原风格还原
-	assert.Contains(t, Export(cfg), `CustomLog "/var/log/apache2/access.log" combined`)
+	must.NotNil(t, d)
+	// 引号被解析，值不含引号，但引号风格记在 Arg 上
+	check.DeepEqual(t, d.Args, []conf.Arg{
+		{Value: "/var/log/apache2/access.log", Quote: conf.QuoteDouble},
+		{Value: "combined", Quote: conf.QuoteNone},
+	})
+	check.Contains(t, Export(cfg), `CustomLog "/var/log/apache2/access.log" combined`)
 }
 
 func TestParseVirtualHost(t *testing.T) {
@@ -48,16 +47,15 @@ func TestParseVirtualHost(t *testing.T) {
 </VirtualHost>`
 
 	cfg, err := ParseString(input)
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	vhosts := cfg.Blocks("VirtualHost")
-	require.Len(t, vhosts, 1)
-	assert.Equal(t, []string{"*:80"}, vhosts[0].Values())
-	assert.Equal(t, "www.example.com", vhosts[0].Value("ServerName"))
-	assert.Equal(t, "/var/www/html", vhosts[0].Value("DocumentRoot"))
+	must.Len(t, vhosts, 1)
+	check.DeepEqual(t, vhosts[0].Values(), []string{"*:80"})
+	check.Equal(t, vhosts[0].Value("ServerName"), "www.example.com")
+	check.Equal(t, vhosts[0].Value("DocumentRoot"), "/var/www/html")
 }
 
-// TestNestedBlocksTriple 验证三层嵌套块正确解析
 func TestNestedBlocksTriple(t *testing.T) {
 	input := `<VirtualHost *:80>
     <Directory /var/www>
@@ -68,16 +66,18 @@ func TestNestedBlocksTriple(t *testing.T) {
 </VirtualHost>`
 
 	cfg, err := ParseString(input)
-	require.NoError(t, err)
+	must.NoError(t, err)
 
-	dir := cfg.Blocks("VirtualHost")[0].GetBlock("Directory")
-	require.NotNil(t, dir)
+	vhost := cfg.GetBlock("VirtualHost")
+	must.NotNil(t, vhost)
+	dir := vhost.GetBlock("Directory")
+	must.NotNil(t, dir)
 	files := dir.GetBlock("Files")
-	require.NotNil(t, files)
-	assert.Equal(t, []string{"all", "granted"}, files.Get("Require").Values())
+	must.NotNil(t, files)
+	check.DeepEqual(t, files.Get("Require").Values(), []string{"all", "granted"})
 }
 
-// TestNestedIfModuleNotDropped 验证双层嵌套块不被丢弃（旧实现的头号 bug）
+// 双层嵌套块曾被旧实现丢弃
 func TestNestedIfModuleNotDropped(t *testing.T) {
 	input := `<IfModule mod_proxy_balancer.c>
     <Proxy balancer://backend>
@@ -88,15 +88,15 @@ func TestNestedIfModuleNotDropped(t *testing.T) {
 </IfModule>`
 
 	cfg, err := ParseString(input)
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	members := cfg.Find("IfModule.Proxy.BalancerMember")
-	require.Len(t, members, 2)
-	assert.Equal(t, "http://127.0.0.1:8080", members[0].Args[0].Value)
-	assert.Equal(t, "loadfactor=5", members[0].Args[1].Value)
+	must.Len(t, members, 2)
+	check.DeepEqual(t, members[0].Values(), []string{"http://127.0.0.1:8080", "loadfactor=5"})
+	check.DeepEqual(t, members[1].Values(), []string{"http://127.0.0.1:8081"})
 }
 
-// TestTokenizeSpecialChars 验证特殊字符不被分词器粘连或截断（旧 lexer 的字符白名单 bug）
+// 旧 lexer 的字符白名单会把特殊字符粘连或截断
 func TestTokenizeSpecialChars(t *testing.T) {
 	cases := []struct {
 		input string
@@ -108,72 +108,67 @@ func TestTokenizeSpecialChars(t *testing.T) {
 		{`SetHandler "proxy:unix:/tmp/php-cgi-84.sock|fcgi://localhost/"`, []string{"proxy:unix:/tmp/php-cgi-84.sock|fcgi://localhost/"}},
 	}
 	for _, c := range cases {
-		cfg, err := ParseString(c.input)
-		require.NoError(t, err, c.input)
-		d, ok := cfg.Nodes[0].(*conf.Directive)
-		require.True(t, ok, c.input)
-		assert.Equal(t, c.want, d.Values(), c.input)
+		t.Run(c.input, func(t *testing.T) {
+			cfg, err := ParseString(c.input)
+			must.NoError(t, err)
+			must.Len(t, cfg.Nodes, 1)
+			d, ok := cfg.Nodes[0].(*conf.Directive)
+			must.True(t, ok, must.Msgf("首个节点应为指令，实际是 %T", cfg.Nodes[0]))
+			check.DeepEqual(t, d.Values(), c.want)
+		})
 	}
 }
 
-// TestLineContinuation 验证续行符合并
 func TestLineContinuation(t *testing.T) {
 	cfg, err := ParseString("RewriteCond %{HTTP_HOST} foo \\\n    [NC]")
-	require.NoError(t, err)
+	must.NoError(t, err)
 	d := cfg.Get("RewriteCond")
-	require.NotNil(t, d)
-	assert.Equal(t, []string{"%{HTTP_HOST}", "foo", "[NC]"}, d.Values())
+	must.NotNil(t, d)
+	check.DeepEqual(t, d.Values(), []string{"%{HTTP_HOST}", "foo", "[NC]"})
 }
 
-// TestLineContinuationEscapedBackslash 验证偶数反斜杠不触发续行
 func TestLineContinuationEscapedBackslash(t *testing.T) {
 	cfg, err := ParseString("ServerName a\\\\\nServerAdmin b")
-	require.NoError(t, err)
-	assert.NotNil(t, cfg.Get("ServerName"))
-	assert.NotNil(t, cfg.Get("ServerAdmin"))
+	must.NoError(t, err)
+	check.NotNil(t, cfg.Get("ServerName"))
+	check.NotNil(t, cfg.Get("ServerAdmin"))
 }
 
-// TestCommentSemantics 验证注释语义：整行注释 vs 行内 #
 func TestCommentSemantics(t *testing.T) {
 	cfg, err := ParseString("# a comment\nServerName x")
-	require.NoError(t, err)
+	must.NoError(t, err)
 	cmts := collectComments(cfg.Nodes)
-	require.Len(t, cmts, 1)
-	assert.Equal(t, " a comment", cmts[0].Text)
+	must.Len(t, cmts, 1)
+	check.Equal(t, cmts[0].Text, " a comment")
 
 	// 行内 # 是参数的一部分，不当注释
 	cfg2, err := ParseString("Redirect 301 /a /b#frag")
-	require.NoError(t, err)
-	d := cfg2.Get("Redirect")
-	require.NotNil(t, d)
-	assert.Equal(t, "/b#frag", d.Args[2].Value)
+	must.NoError(t, err)
+	check.DeepEqual(t, cfg2.Get("Redirect").Values(), []string{"301", "/a", "/b#frag"})
+	check.Empty(t, collectComments(cfg2.Nodes))
 }
 
-// TestCommentPreserveLeadingSpace 验证注释首空格不丢失
 func TestCommentPreserveLeadingSpace(t *testing.T) {
 	cfg, err := ParseString("#  double space")
-	require.NoError(t, err)
-	assert.Contains(t, Export(cfg), "#  double space")
+	must.NoError(t, err)
+	check.Contains(t, Export(cfg), "#  double space")
 }
 
-// TestRoundTripDefaultVhostConf 验证默认模板规范化幂等且 IncludeOptional 在 VirtualHost 前
 func TestRoundTripDefaultVhostConf(t *testing.T) {
 	cfg, err := ParseString(DefaultVhostConf)
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	rendered := Render(cfg)
 	cfg2, err := ParseString(rendered)
-	require.NoError(t, err)
-	assert.Equal(t, rendered, Render(cfg2), "规范化导出应幂等")
+	must.NoError(t, err)
+	check.Equal(t, Render(cfg2), rendered, check.Msgf("规范化导出应幂等"))
 
-	idxInclude := strings.Index(rendered, "IncludeOptional")
-	idxVhost := strings.Index(rendered, "<VirtualHost")
-	require.GreaterOrEqual(t, idxInclude, 0)
-	require.GreaterOrEqual(t, idxVhost, 0)
-	assert.Less(t, idxInclude, idxVhost, "顶层 IncludeOptional 应排在 VirtualHost 之前")
+	must.Contains(t, rendered, "IncludeOptional")
+	must.Contains(t, rendered, "<VirtualHost")
+	check.Less(t, strings.Index(rendered, "IncludeOptional"), strings.Index(rendered, "<VirtualHost"),
+		check.Msgf("顶层 IncludeOptional 应排在 VirtualHost 之前，实际导出：\n%s", rendered))
 }
 
-// TestExportNestedRoundTrip 验证嵌套块导出后可再次解析为等价结构
 func TestExportNestedRoundTrip(t *testing.T) {
 	input := `<VirtualHost *:80>
     ServerName x
@@ -183,21 +178,23 @@ func TestExportNestedRoundTrip(t *testing.T) {
 </VirtualHost>`
 
 	cfg, err := ParseString(input)
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	out := Export(cfg)
 	cfg2, err := ParseString(out)
-	require.NoError(t, err)
-	assert.Equal(t, out, Export(cfg2), "保序导出应幂等")
-	assert.NotNil(t, cfg2.Blocks("VirtualHost")[0].GetBlock("Directory"))
+	must.NoError(t, err)
+	check.Equal(t, Export(cfg2), out, check.Msgf("保序导出应幂等"))
+	vhost := cfg2.GetBlock("VirtualHost")
+	must.NotNil(t, vhost)
+	check.NotNil(t, vhost.GetBlock("Directory"))
 }
 
 func TestQueryCaseInsensitive(t *testing.T) {
 	cfg, err := ParseString("ServerName x")
-	require.NoError(t, err)
-	assert.NotNil(t, cfg.Get("servername"))
-	assert.Equal(t, "x", cfg.Value("SERVERNAME"))
-	assert.True(t, cfg.Has("ServerName"))
+	must.NoError(t, err)
+	check.NotNil(t, cfg.Get("servername"))
+	check.Equal(t, cfg.Value("SERVERNAME"), "x")
+	check.True(t, cfg.Has("ServerName"))
 }
 
 func TestFindDotPath(t *testing.T) {
@@ -209,55 +206,53 @@ func TestFindDotPath(t *testing.T) {
 </IfModule>`
 
 	cfg, err := ParseString(input)
-	require.NoError(t, err)
-	assert.Len(t, cfg.Find("IfModule.Proxy.Member"), 2)
-	assert.Len(t, cfg.FindBlocks("IfModule.Proxy"), 1)
-	assert.Nil(t, cfg.FindOne("IfModule.Proxy.Missing"))
+	must.NoError(t, err)
+	check.Len(t, cfg.Find("IfModule.Proxy.Member"), 2)
+	check.Len(t, cfg.FindBlocks("IfModule.Proxy"), 1)
+	check.Nil(t, cfg.FindOne("IfModule.Proxy.Missing"))
 }
 
-// TestTolerantUnclosedBlock 验证未闭合块在容错模式下不致命
 func TestTolerantUnclosedBlock(t *testing.T) {
 	cfg, err := ParseString("<VirtualHost *:80>\n    ServerName x")
-	require.NoError(t, err)
-	require.Len(t, cfg.Blocks("VirtualHost"), 1)
-	assert.Equal(t, "x", cfg.Blocks("VirtualHost")[0].Value("ServerName"))
+	must.NoError(t, err)
+	must.Len(t, cfg.Blocks("VirtualHost"), 1)
+	check.Equal(t, cfg.Blocks("VirtualHost")[0].Value("ServerName"), "x")
 }
 
-// TestTolerantOrphanCloseTag 验证孤立闭合标签在容错模式下被跳过
 func TestTolerantOrphanCloseTag(t *testing.T) {
 	cfg, err := ParseString("</Foo>\nServerName x")
-	require.NoError(t, err)
-	assert.Equal(t, "x", cfg.Value("ServerName"))
+	must.NoError(t, err)
+	check.Equal(t, cfg.Value("ServerName"), "x")
 }
 
 func TestParseEmpty(t *testing.T) {
 	cfg, err := ParseString("")
-	require.NoError(t, err)
-	assert.Empty(t, cfg.Nodes)
+	must.NoError(t, err)
+	check.Empty(t, cfg.Nodes)
 }
 
 func TestSetAndRemove(t *testing.T) {
 	cfg, err := ParseString("ServerName old")
-	require.NoError(t, err)
+	must.NoError(t, err)
 
 	cfg.Set("ServerName", "new")
-	assert.Equal(t, "new", cfg.Value("ServerName"))
+	check.Equal(t, cfg.Value("ServerName"), "new")
 
 	cfg.Add("ServerAlias", "a", "b")
-	assert.Equal(t, []string{"a", "b"}, cfg.Get("ServerAlias").Values())
+	check.DeepEqual(t, cfg.Get("ServerAlias").Values(), []string{"a", "b"})
 
-	assert.Equal(t, 1, cfg.Remove("ServerName"))
-	assert.False(t, cfg.Has("ServerName"))
+	check.Equal(t, cfg.Remove("ServerName"), 1)
+	check.False(t, cfg.Has("ServerName"))
 }
 
-// TestAddDirectiveAutoQuote 验证 Add 对含空格的参数自动加引号
 func TestAddDirectiveAutoQuote(t *testing.T) {
 	cfg := &conf.Config{}
 	cfg.Add("AuthName", "My Realm")
-	assert.Contains(t, Export(cfg), `AuthName "My Realm"`)
+	check.Contains(t, Export(cfg), `AuthName "My Realm"`)
 
 	cfg2 := &conf.Config{}
 	cfg2.Add("DocumentRoot", "/var/www")
-	assert.Contains(t, Export(cfg2), "DocumentRoot /var/www")
-	assert.NotContains(t, Export(cfg2), `"`)
+	out := Export(cfg2)
+	check.Contains(t, out, "DocumentRoot /var/www")
+	check.NotContains(t, out, `"`)
 }

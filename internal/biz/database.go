@@ -93,7 +93,7 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 			return mongoErr
 		}
 		defer mongo.Close()
-		if mongoErr = mongo.DatabaseCreate(req.Name); mongoErr != nil {
+		if mongoErr = mongo.DatabaseCreate(req.Name); mongoErr != nil { //nolint:contextcheck
 			return mongoErr
 		}
 		uc.log.Info("database created", slog.String("type", OperationTypeDatabase), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.Uint64("server_id", uint64(req.ServerID)))
@@ -154,7 +154,11 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 				return err
 			}
 		}
-		if err = operator.(*db.Postgres).DatabaseComment(req.Name, req.Comment); err != nil {
+		pg, ok := operator.(*db.Postgres)
+		if !ok {
+			return errors.New(uc.t.Get("%s does not support database comment", server.Type))
+		}
+		if err = pg.DatabaseComment(req.Name, req.Comment); err != nil { //nolint:contextcheck
 			return err
 		}
 	case DatabaseTypeClickHouse:
@@ -175,6 +179,7 @@ func (uc *DatabaseUsecase) Create(ctx context.Context, req *request.DatabaseCrea
 				return err
 			}
 		}
+	default:
 	}
 
 	// 记录日志
@@ -214,7 +219,7 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 			return mongoErr
 		}
 		defer mongo.Close()
-		if mongoErr = mongo.DatabaseDrop(name); mongoErr != nil {
+		if mongoErr = mongo.DatabaseDrop(name); mongoErr != nil { //nolint:contextcheck
 			return mongoErr
 		}
 	case DatabaseTypeSQLite:
@@ -249,7 +254,11 @@ func (uc *DatabaseUsecase) Comment(ctx context.Context, req *request.DatabaseCom
 			return opErr
 		}
 		defer operator.Close()
-		return operator.(*db.Postgres).DatabaseComment(req.Name, req.Comment)
+		pg, ok := operator.(*db.Postgres)
+		if !ok {
+			return errors.New(uc.t.Get("%s does not support database comment", server.Type))
+		}
+		return pg.DatabaseComment(req.Name, req.Comment) //nolint:contextcheck
 	default:
 		return errors.New(uc.t.Get("%s does not support database comment", server.Type))
 	}

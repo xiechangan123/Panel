@@ -11,7 +11,6 @@ import (
 
 // AppCommand 应用管理命令组
 func AppCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "app",
 		Usage: t.Get("Application management"),

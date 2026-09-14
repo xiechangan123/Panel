@@ -178,6 +178,7 @@ func (r *databaseUserRepo) fillUser(ctx context.Context, user *biz.DatabaseUser)
 		} else {
 			user.Status = biz.DatabaseUserStatusInvalid
 		}
+	default:
 	}
 }
 

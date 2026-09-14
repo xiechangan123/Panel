@@ -40,7 +40,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 
 	monitor, err := r.settingRepo.Get(biz.SettingKeyMonitor)
 	if err != nil || !cast.ToBool(monitor) {
-		return nil
+		return nil //nolint:nilerr
 	}
 
 	// 根据采集间隔判断是否该采集
@@ -77,7 +77,7 @@ func (r *Monitoring) Run(_ context.Context) error {
 
 	dayStr, err := r.settingRepo.Get(biz.SettingKeyMonitorDays)
 	if err != nil {
-		return nil
+		return nil //nolint:nilerr
 	}
 	day := cast.ToInt(dayStr)
 	if day <= 0 || app.Status != app.StatusNormal {

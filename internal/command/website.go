@@ -11,7 +11,6 @@ import (
 
 // WebsiteCommand 网站管理命令组
 func WebsiteCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "website",
 		Usage: t.Get("Website management"),

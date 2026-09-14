@@ -8,7 +8,6 @@ import (
 )
 
 func NewT(conf *config.Config) *gotext.Locale {
-
 	l := gotext.NewLocaleFSWithPath(conf.App.Locale, embed.LocalesFS, "locales")
 	l.AddDomain("backend")
 

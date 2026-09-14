@@ -682,6 +682,7 @@ func (v *baseVhost) buildIncludes(cfg *conf.Config) []string {
 				rewrites = append(rewrites, path)
 			case fragmentConfig:
 				cfg.Add("include", path)
+			case fragmentEmpty: // 没有有效指令，不引用
 			}
 		}
 	}
@@ -769,7 +770,7 @@ func safeName(name string) string {
 // parseIfExists 解析存在的配置文件，不存在返回 nil
 func parseIfExists(path string) (*conf.Config, error) {
 	if _, err := os.Stat(path); err != nil {
-		return nil, nil
+		return nil, nil //nolint:nilerr
 	}
 	return ParseFile(path)
 }

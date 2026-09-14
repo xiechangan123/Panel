@@ -5,13 +5,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 
 	"github.com/acepanel/panel/v3/pkg/chattr"
 )
 
-// setImmutable 尝试为文件设置 immutable 属性，返回是否设置成功
-// 需要 root 权限且文件系统支持，否则返回 false 用于跳过测试
+// setImmutable 设置 immutable，需 root 且文件系统支持，失败返回 false 用于跳过用例
 func setImmutable(path string) bool {
 	file, err := os.OpenFile(path, os.O_RDONLY, 0)
 	if err != nil {
@@ -25,7 +25,6 @@ func setImmutable(path string) bool {
 	return ok
 }
 
-// isImmutable 判断文件是否设置了 immutable 属性
 func isImmutable(path string) bool {
 	file, err := os.OpenFile(path, os.O_RDONLY, 0)
 	if err != nil {
@@ -36,73 +35,60 @@ func isImmutable(path string) bool {
 	return ok
 }
 
-// TestChmodNormalDir 无锁定文件时 Chmod 应递归生效，验证 withUnlock 正常路径不影响行为
 func TestChmodNormalDir(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "test_chmod_normal")
-	assert.NoError(t, err)
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	tmpDir := t.TempDir()
 
 	sub := filepath.Join(tmpDir, "sub")
-	assert.NoError(t, os.Mkdir(sub, 0755))
+	must.NoError(t, os.Mkdir(sub, 0755))
 	file := filepath.Join(sub, "f.txt")
-	assert.NoError(t, Write(file, "x", 0644))
+	must.NoError(t, Write(file, "x", 0644))
 
-	assert.NoError(t, Chmod(tmpDir, 0700))
+	check.NoError(t, Chmod(tmpDir, 0700))
 
-	// 递归应作用到子目录下的文件
 	info, err := os.Stat(file)
-	assert.NoError(t, err)
-	assert.Equal(t, os.FileMode(0700), info.Mode().Perm())
+	must.NoError(t, err)
+	check.Equal(t, info.Mode().Perm(), os.FileMode(0700))
 }
 
-// TestUnlockRelockAttr 解锁应仅记录被锁定的文件，且能原样恢复
 func TestUnlockRelockAttr(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "test_unlock_attr")
-	assert.NoError(t, err)
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	tmpDir := t.TempDir()
 
 	locked := filepath.Join(tmpDir, "locked.txt")
 	normal := filepath.Join(tmpDir, "normal.txt")
-	assert.NoError(t, Write(locked, "a", 0644))
-	assert.NoError(t, Write(normal, "b", 0644))
+	must.NoError(t, Write(locked, "a", 0644))
+	must.NoError(t, Write(normal, "b", 0644))
 
 	if !setImmutable(locked) {
 		t.Skip("当前环境不支持设置 immutable 属性（需 root 与支持的文件系统）")
 	}
 	defer unlockAttr(tmpDir) // 确保用例结束后目录可被清理
 
-	// 解锁后只应记录被锁定文件，且属性已解除
 	files := unlockAttr(tmpDir)
-	assert.Len(t, files, 1)
-	assert.Equal(t, locked, files[0].path)
-	assert.False(t, isImmutable(locked))
+	must.Len(t, files, 1)
+	check.Equal(t, files[0].path, locked)
+	check.False(t, isImmutable(locked), check.Msgf("应已解除 immutable: %s", locked))
 
-	// 恢复后被锁定文件应重新带上 immutable
 	relockAttr(files)
-	assert.True(t, isImmutable(locked))
+	check.True(t, isImmutable(locked), check.Msgf("应已恢复 immutable: %s", locked))
 }
 
-// TestChmodWithImmutable 目录下存在 immutable 文件时 Chmod 仍应成功，并在完成后恢复锁定
 func TestChmodWithImmutable(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "test_chmod_immutable")
-	assert.NoError(t, err)
-	defer func() { _ = os.RemoveAll(tmpDir) }()
+	tmpDir := t.TempDir()
 
 	userIni := filepath.Join(tmpDir, ".user.ini")
-	assert.NoError(t, Write(userIni, "open_basedir=/tmp/", 0644))
+	must.NoError(t, Write(userIni, "open_basedir=/tmp/", 0644))
 
 	if !setImmutable(userIni) {
 		t.Skip("当前环境不支持设置 immutable 属性（需 root 与支持的文件系统）")
 	}
 	defer unlockAttr(tmpDir)
 
-	// 递归 chmod 会被 immutable 文件阻挡，withUnlock 应解锁重试并成功
-	assert.NoError(t, Chmod(tmpDir, 0700))
+	// 递归 chmod 会被 immutable 阻挡，withUnlock 应解锁重试
+	check.NoError(t, Chmod(tmpDir, 0700))
 
 	info, err := os.Stat(tmpDir)
-	assert.NoError(t, err)
-	assert.Equal(t, os.FileMode(0700), info.Mode().Perm())
+	must.NoError(t, err)
+	check.Equal(t, info.Mode().Perm(), os.FileMode(0700))
 
-	// immutable 保护应已恢复
-	assert.True(t, isImmutable(userIni))
+	check.True(t, isImmutable(userIni), check.Msgf("应已恢复 immutable: %s", userIni))
 }

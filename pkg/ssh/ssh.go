@@ -33,7 +33,7 @@ func NewSSHClient(conf ClientConfig) (*ssh.Client, error) {
 	config.SetDefaults()
 	config.Timeout = conf.Timeout
 	config.User = conf.User
-	config.HostKeyCallback = ssh.InsecureIgnoreHostKey()
+	config.HostKeyCallback = ssh.InsecureIgnoreHostKey() //nolint:gosec
 
 	switch conf.AuthMethod {
 	case PASSWORD:

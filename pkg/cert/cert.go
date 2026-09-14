@@ -46,11 +46,15 @@ func ParseKey(key []byte) (crypto.Signer, error) {
 	}
 
 	if parse, err := x509.ParsePKCS8PrivateKey(keyBlockDER.Bytes); err == nil {
-		switch parse.(type) {
-		case *rsa.PrivateKey, *ecdsa.PrivateKey, ed25519.PrivateKey:
-			return parse.(crypto.Signer), nil
+		switch parsed := parse.(type) {
+		case *rsa.PrivateKey:
+			return parsed, nil
+		case *ecdsa.PrivateKey:
+			return parsed, nil
+		case ed25519.PrivateKey:
+			return parsed, nil
 		default:
-			return nil, fmt.Errorf("found unknown private key type in PKCS#8 wrapping: %T", key)
+			return nil, fmt.Errorf("found unknown private key type in PKCS#8 wrapping: %T", parse)
 		}
 	}
 

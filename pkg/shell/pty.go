@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"os/exec"
 	"syscall"
@@ -107,7 +108,7 @@ func (t *Turn) Handle(ctx context.Context) error {
 
 			// 判断是否是 resize 消息
 			if err = json.Unmarshal(data, &resize); err == nil {
-				if resize.Resize && resize.Columns > 0 && resize.Rows > 0 {
+				if resize.Resize && resize.Columns > 0 && resize.Rows > 0 && resize.Columns <= math.MaxUint16 && resize.Rows <= math.MaxUint16 {
 					if err = t.Resize(uint16(resize.Rows), uint16(resize.Columns)); err != nil {
 						return fmt.Errorf("failed to resize terminal: %w", err)
 					}

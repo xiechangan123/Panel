@@ -259,7 +259,8 @@ func (v *baseVhost) SetIncludes(includes []types.IncludeFile) error {
 		kept = append(append(kept, pending...), n)
 		pending = nil
 	}
-	v.server.Nodes = append(kept, pending...)
+	kept = append(kept, pending...)
+	v.server.Nodes = kept
 
 	for _, inc := range includes {
 		for _, comment := range inc.Comment {
@@ -592,8 +593,7 @@ func (v *baseVhost) ClearRealIP() error {
 }
 
 func (v *baseVhost) Redirects() []types.Redirect {
-	redirects, _ := parseRedirectFiles(filepath.Join(v.configDir, "site"))
-	return redirects
+	return parseRedirectFiles(filepath.Join(v.configDir, "site"))
 }
 
 func (v *baseVhost) SetRedirects(redirects []types.Redirect) error {
@@ -637,8 +637,7 @@ func (v *PHPVhost) SetPHP(version uint) error {
 // ========== ProxyVhost ==========
 
 func (v *ProxyVhost) Proxies() []types.Proxy {
-	proxies, _ := parseProxyFiles(filepath.Join(v.configDir, "site"))
-	return proxies
+	return parseProxyFiles(filepath.Join(v.configDir, "site"))
 }
 
 func (v *ProxyVhost) SetProxies(proxies []types.Proxy) error {
@@ -650,8 +649,7 @@ func (v *ProxyVhost) ClearProxies() error {
 }
 
 func (v *ProxyVhost) Upstreams() []types.Upstream {
-	upstreams, _ := parseUpstreamFiles(filepath.Join(v.configDir, "shared"))
-	return upstreams
+	return parseUpstreamFiles(filepath.Join(v.configDir, "shared"))
 }
 
 func (v *ProxyVhost) SetUpstreams(upstreams []types.Upstream) error {

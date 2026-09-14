@@ -48,7 +48,6 @@ func (s *ContainerVolumeService) Create(w http.ResponseWriter, r *http.Request) 
 	}
 
 	Success(w, name)
-
 }
 
 func (s *ContainerVolumeService) Remove(w http.ResponseWriter, r *http.Request) {

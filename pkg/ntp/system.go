@@ -85,6 +85,7 @@ func GetSystemNTPConfig() (*SystemNTPConfig, error) {
 			return config, err
 		}
 		config.Servers = servers
+	case NTPServiceUnknown:
 	}
 
 	return config, nil

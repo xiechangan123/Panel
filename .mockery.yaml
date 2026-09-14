@@ -1,5 +1,5 @@
-template: testify
-dir: mocks/biz
+template: matryer
+dir: internal/mocks/{{.InterfaceDirRelative | trimPrefix "internal/"}}
 structname: "{{.InterfaceName}}"
 pkgname: "{{.SrcPackageName}}"
 filename: "{{.InterfaceName}}.go"

@@ -1,14 +1,11 @@
 package command
 
 import (
-	"github.com/google/wire"
 	"github.com/leonelquinteros/gotext"
 	"github.com/urfave/cli/v3"
 
 	"github.com/acepanel/panel/v3/internal/service"
 )
-
-var ProviderSet = wire.NewSet(Commands)
 
 // Commands 组装全部 CLI 命令。
 func Commands(t *gotext.Locale, cliService *service.CliService) []*cli.Command {

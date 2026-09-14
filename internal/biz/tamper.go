@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -99,8 +100,8 @@ func (uc *TamperUsecase) DetectEBPF() tamper.EBPFStatus {
 }
 
 // EnableBPFLSMGrub 修改 grub 激活 bpf LSM(需重启系统生效)
-func (uc *TamperUsecase) EnableBPFLSMGrub() error {
-	return tamper.EnableBPFLSMGrub()
+func (uc *TamperUsecase) EnableBPFLSMGrub(ctx context.Context) error {
+	return tamper.EnableBPFLSMGrub(ctx)
 }
 
 // GetSetting 读取全局设置

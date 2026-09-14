@@ -34,7 +34,7 @@ func GetBuiltinServers() []string {
 func Now(address ...string) (time.Time, error) {
 	if len(address) > 0 && address[0] != "" {
 		if now, err := ntp.Time(address[0]); err != nil {
-			return time.Now(), fmt.Errorf("%w: %s", ErrNotReachable, err)
+			return time.Now(), fmt.Errorf("%w: %w", ErrNotReachable, err)
 		} else {
 			return now, nil
 		}
@@ -47,7 +47,7 @@ func Now(address ...string) (time.Time, error) {
 
 	now, err := ntp.Time(best)
 	if err != nil {
-		return time.Now(), fmt.Errorf("%w: %s", ErrNotReachable, err)
+		return time.Now(), fmt.Errorf("%w: %w", ErrNotReachable, err)
 	}
 
 	return now, nil

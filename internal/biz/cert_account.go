@@ -59,7 +59,7 @@ func (uc *CertAccountUsecase) List(page, limit uint) ([]*CertAccount, int64, err
 	return uc.repo.List(page, limit)
 }
 
-func (uc *CertAccountUsecase) GetDefault(userID uint) (*CertAccount, error) {
+func (uc *CertAccountUsecase) GetDefault(ctx context.Context, userID uint) (*CertAccount, error) {
 	user, err := uc.userRepo.Get(userID)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (uc *CertAccountUsecase) GetDefault(userID uint) (*CertAccount, error) {
 		KeyType: string(acme.KeyEC256),
 	}
 
-	return uc.Create(context.Background(), req)
+	return uc.Create(ctx, req)
 }
 
 func (uc *CertAccountUsecase) Get(id uint) (*CertAccount, error) {

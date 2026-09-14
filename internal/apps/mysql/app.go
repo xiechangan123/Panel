@@ -471,6 +471,10 @@ func (s *App) TransactionList(w http.ResponseWriter, r *http.Request) {
 			}
 			result.LockWaits = append(result.LockWaits, item)
 		}
+		if lockRows.Err() != nil {
+			// 锁等待表结构不兼容，丢弃不完整结果
+			result.LockWaits = nil
+		}
 	}
 
 	service.Success(w, result)

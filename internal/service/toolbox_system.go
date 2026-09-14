@@ -124,6 +124,7 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
+		//nolint:dupword
 		if _, err = shell.Execf("echo '%s    swap    swap    defaults    0 0' >> /etc/fstab", filepath.Join(app.Root, "swap")); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
@@ -191,7 +192,6 @@ func (s *ToolboxSystemService) UpdateTime(w http.ResponseWriter, r *http.Request
 	}
 
 	Success(w, nil)
-
 }
 
 // SyncTime 同步时间

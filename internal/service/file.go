@@ -573,7 +573,7 @@ func (s *FileService) Permission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 解析成8进制
-	mode, err := strconv.ParseUint(req.Mode, 8, 64)
+	mode, err := strconv.ParseUint(req.Mode, 8, 32)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -758,10 +758,11 @@ func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
 	// 分块数或分块大小对不上（换了分块参数或不是同一次上传），从头开始
 	part, mapPath := s.chunkTempPaths(req.Path, req.FileName, req.FileHash)
 	bitmap, _ := stdos.ReadFile(mapPath)
+	//nolint:gosec
 	if len(bitmap) != chunkMapHeader+req.ChunkCount ||
 		binary.LittleEndian.Uint64(bitmap) != uint64(req.ChunkSize) {
 		bitmap = make([]byte, chunkMapHeader+req.ChunkCount)
-		binary.LittleEndian.PutUint64(bitmap, uint64(req.ChunkSize))
+		binary.LittleEndian.PutUint64(bitmap, uint64(req.ChunkSize)) //nolint:gosec
 		if err = stdos.WriteFile(mapPath, bitmap, 0644); err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
 			return
@@ -797,7 +798,7 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	chunkCount := len(bitmap) - chunkMapHeader
-	chunkSize := int64(binary.LittleEndian.Uint64(bitmap))
+	chunkSize := int64(binary.LittleEndian.Uint64(bitmap)) //nolint:gosec
 	if req.ChunkIndex >= chunkCount {
 		Error(w, http.StatusBadRequest, s.t.Get("chunk index out of range"))
 		return
@@ -918,7 +919,11 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 			base = filepath.Dir(de.Path())
 		}
 
-		stat := info.Sys().(*syscall.Stat_t)
+		// Linux 下 Sys() 必定是 *syscall.Stat_t
+		stat, ok := info.Sys().(*syscall.Stat_t)
+		if !ok {
+			stat = &syscall.Stat_t{}
+		}
 		// 对于目录，size 返回空字符串，需要用户手动计算
 		size := ""
 		if !info.IsDir() {

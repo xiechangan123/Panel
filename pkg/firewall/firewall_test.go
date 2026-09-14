@@ -3,478 +3,369 @@ package firewall
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 )
 
-type FirewalldSuite struct {
-	suite.Suite
-	fw *firewalld
-}
-
-func (s *FirewalldSuite) SetupTest() {
-	s.fw = newFirewalld()
-}
-
-// --- parseRichRule ---
-
-func (s *FirewalldSuite) TestParseRichRule_AcceptSourcePort() {
-	info, err := s.fw.parseRichRule(`rule family="ipv4" source address="192.168.1.100" port port="8080" protocol="tcp" accept`)
-	s.NoError(err)
-	s.Equal("ipv4", info.Family)
-	s.Equal("192.168.1.100", info.Address)
-	s.Equal(uint(8080), info.PortStart)
-	s.Equal(uint(8080), info.PortEnd)
-	s.Equal(ProtocolTCP, info.Protocol)
-	s.Equal(StrategyAccept, info.Strategy)
-	s.Equal(Direction("in"), info.Direction)
-	s.Equal(TypeRich, info.Type)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_DropSourcePortRange() {
-	info, err := s.fw.parseRichRule(`rule family="ipv4" source address="10.0.0.0/8" port port="3000-4000" protocol="tcp" drop`)
-	s.NoError(err)
-	s.Equal("10.0.0.0/8", info.Address)
-	s.Equal(uint(3000), info.PortStart)
-	s.Equal(uint(4000), info.PortEnd)
-	s.Equal(ProtocolTCP, info.Protocol)
-	s.Equal(StrategyDrop, info.Strategy)
-	s.Equal(Direction("in"), info.Direction)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_RejectDestination() {
-	info, err := s.fw.parseRichRule(`rule family="ipv4" destination address="203.0.113.0/24" port port="443" protocol="tcp" reject`)
-	s.NoError(err)
-	s.Equal("203.0.113.0/24", info.Address)
-	s.Equal(Direction("out"), info.Direction)
-	s.Equal(StrategyReject, info.Strategy)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_IPv6() {
-	info, err := s.fw.parseRichRule(`rule family="ipv6" source address="::1" port port="22" protocol="tcp" accept`)
-	s.NoError(err)
-	s.Equal("ipv6", info.Family)
-	s.Equal("::1", info.Address)
-	s.Equal(uint(22), info.PortStart)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_NoPort_IPOnly() {
-	// IP 规则无端口，解析为 1-65535
-	info, err := s.fw.parseRichRule(`rule family="ipv4" source address="8.8.8.8" protocol value="tcp" accept`)
-	s.NoError(err)
-	s.Equal("8.8.8.8", info.Address)
-	s.Equal(uint(1), info.PortStart)
-	s.Equal(uint(65535), info.PortEnd)
-	s.Equal(ProtocolTCP, info.Protocol)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_NoPort_NoProtocol() {
-	// 无端口无协议规则
-	info, err := s.fw.parseRichRule(`rule family="ipv4" source address="1.2.3.4" drop`)
-	s.NoError(err)
-	s.Equal("1.2.3.4", info.Address)
-	s.Equal(ProtocolTCPUDP, info.Protocol) // 默认 tcp/udp
-	s.Equal(uint(1), info.PortStart)
-	s.Equal(uint(65535), info.PortEnd)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_UDPProtocol() {
-	info, err := s.fw.parseRichRule(`rule family="ipv4" port port="53" protocol="udp" accept`)
-	s.NoError(err)
-	s.Equal(ProtocolUDP, info.Protocol)
-	s.Equal(uint(53), info.PortStart)
-	s.Equal(uint(53), info.PortEnd)
-	s.Empty(info.Address)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_MarkStrategy() {
-	info, err := s.fw.parseRichRule(`rule family="ipv4" source address="10.0.0.1" port port="80" protocol="tcp" mark set="1"`)
-	s.NoError(err)
-	s.Equal(Strategy("mark"), info.Strategy)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_InvalidFormat() {
-	_, err := s.fw.parseRichRule(`this is not a valid rule`)
-	s.Error(err)
-}
-
-func (s *FirewalldSuite) TestParseRichRule_EmptyString() {
-	_, err := s.fw.parseRichRule(``)
-	s.Error(err)
-}
-
-// --- forward 正则 ---
-
-func (s *FirewalldSuite) TestForwardRegex_Standard() {
-	line := "port=8080:proto=tcp:toport=80:toaddr=192.168.1.100"
-	s.True(s.fw.forwardListRegex.MatchString(line))
-	match := s.fw.forwardListRegex.FindStringSubmatch(line)
-	s.Equal("8080", match[1])
-	s.Equal("tcp", match[2])
-	s.Equal("80", match[3])
-	s.Equal("192.168.1.100", match[4])
-}
-
-func (s *FirewalldSuite) TestForwardRegex_NoAddr() {
-	line := "port=3000:proto=udp:toport=4000:toaddr="
-	s.True(s.fw.forwardListRegex.MatchString(line))
-	match := s.fw.forwardListRegex.FindStringSubmatch(line)
-	s.Equal("3000", match[1])
-	s.Equal("udp", match[2])
-	s.Equal("4000", match[3])
-	s.Equal("", match[4])
-}
-
-func (s *FirewalldSuite) TestForwardRegex_IPv6Addr() {
-	line := "port=443:proto=tcp:toport=8443:toaddr=::1"
-	s.True(s.fw.forwardListRegex.MatchString(line))
-	match := s.fw.forwardListRegex.FindStringSubmatch(line)
-	s.Equal("::1", match[4])
-}
-
-func TestFirewalldSuite(t *testing.T) {
-	suite.Run(t, new(FirewalldSuite))
-}
-
-// ===================== UFW 解析器测试 =====================
-
-type UFWSuite struct {
-	suite.Suite
-	fw *ufw
-}
-
-func (s *UFWSuite) SetupTest() {
-	s.fw = newUFW()
-}
-
-// --- stripProtocolSuffix ---
-
-func (s *UFWSuite) TestStrip_IPWithTCP() {
-	addr, proto := stripProtocolSuffix("8.8.8.8/tcp")
-	s.Equal("8.8.8.8", addr)
-	s.Equal("tcp", proto)
-}
-
-func (s *UFWSuite) TestStrip_IPWithUDP() {
-	addr, proto := stripProtocolSuffix("1.1.1.1/udp")
-	s.Equal("1.1.1.1", addr)
-	s.Equal("udp", proto)
-}
-
-func (s *UFWSuite) TestStrip_CIDR_NotStripped() {
-	addr, proto := stripProtocolSuffix("192.168.1.0/24")
-	s.Equal("192.168.1.0/24", addr)
-	s.Equal("", proto)
-}
-
-func (s *UFWSuite) TestStrip_CIDR8_NotStripped() {
-	addr, proto := stripProtocolSuffix("10.0.0.0/8")
-	s.Equal("10.0.0.0/8", addr)
-	s.Equal("", proto)
-}
-
-func (s *UFWSuite) TestStrip_NoSlash() {
-	addr, proto := stripProtocolSuffix("Anywhere")
-	s.Equal("Anywhere", addr)
-	s.Equal("", proto)
-}
-
-func (s *UFWSuite) TestStrip_PlainIP() {
-	addr, proto := stripProtocolSuffix("1.2.3.4")
-	s.Equal("1.2.3.4", addr)
-	s.Equal("", proto)
-}
-
-// --- parseRule 端口规则 ---
-
-func (s *UFWSuite) TestParseRule_SimpleTCP() {
-	info := s.fw.parseRule("22/tcp", "ALLOW", "IN", "Anywhere")
-	s.Equal(uint(22), info.PortStart)
-	s.Equal(uint(22), info.PortEnd)
-	s.Equal(ProtocolTCP, info.Protocol)
-	s.Equal(StrategyAccept, info.Strategy)
-	s.Equal(Direction("in"), info.Direction)
-	s.Equal("ipv4", info.Family)
-	s.Equal(TypeNormal, info.Type)
-	s.Empty(info.Address)
-}
-
-func (s *UFWSuite) TestParseRule_SimpleUDP() {
-	info := s.fw.parseRule("53/udp", "ALLOW", "IN", "Anywhere")
-	s.Equal(ProtocolUDP, info.Protocol)
-	s.Equal(uint(53), info.PortStart)
-}
-
-func (s *UFWSuite) TestParseRule_NoProtocol() {
-	// ufw allow 8888 → "8888" 无协议
-	info := s.fw.parseRule("8888", "ALLOW", "IN", "Anywhere")
-	s.Equal(uint(8888), info.PortStart)
-	s.Equal(uint(8888), info.PortEnd)
-	s.Equal(ProtocolTCPUDP, info.Protocol)
-	s.Equal(TypeNormal, info.Type)
-}
-
-func (s *UFWSuite) TestParseRule_PortRange() {
-	info := s.fw.parseRule("80:443/tcp", "ALLOW", "IN", "Anywhere")
-	s.Equal(uint(80), info.PortStart)
-	s.Equal(uint(443), info.PortEnd)
-	s.Equal(ProtocolTCP, info.Protocol)
-}
-
-func (s *UFWSuite) TestParseRule_DenyStrategy() {
-	info := s.fw.parseRule("3306/tcp", "DENY", "IN", "Anywhere")
-	s.Equal(StrategyDrop, info.Strategy)
-}
-
-func (s *UFWSuite) TestParseRule_RejectStrategy() {
-	info := s.fw.parseRule("25/tcp", "REJECT", "IN", "Anywhere")
-	s.Equal(StrategyReject, info.Strategy)
-}
-
-func (s *UFWSuite) TestParseRule_LimitStrategy() {
-	info := s.fw.parseRule("22/tcp", "LIMIT", "IN", "Anywhere")
-	s.Equal(StrategyAccept, info.Strategy)
-}
-
-func (s *UFWSuite) TestParseRule_OutDirection() {
-	info := s.fw.parseRule("443/tcp", "ALLOW", "OUT", "Anywhere")
-	s.Equal(Direction("out"), info.Direction)
-}
-
-// --- parseRule 带地址的端口规则 ---
-
-func (s *UFWSuite) TestParseRule_PortWithAddress() {
-	// [ 6] 80/tcp ALLOW IN 1.1.1.1
-	info := s.fw.parseRule("80/tcp", "ALLOW", "IN", "1.1.1.1")
-	s.Equal(uint(80), info.PortStart)
-	s.Equal(uint(80), info.PortEnd)
-	s.Equal(ProtocolTCP, info.Protocol) // 必须是 tcp，不是 tcp/udp
-	s.Equal("1.1.1.1", info.Address)
-	s.Equal(TypeRich, info.Type) // 有地址 → rich
-}
-
-func (s *UFWSuite) TestParseRule_PortWithCIDR() {
-	// 80/tcp ALLOW IN 192.168.1.0/24
-	info := s.fw.parseRule("80/tcp", "ALLOW", "IN", "192.168.1.0/24")
-	s.Equal(ProtocolTCP, info.Protocol)
-	s.Equal("192.168.1.0/24", info.Address) // CIDR 保持不变
-	s.Equal(uint(80), info.PortStart)
-}
-
-func (s *UFWSuite) TestParseRule_PortUDPWithAddress() {
-	// 80/udp ALLOW IN 2.2.2.2
-	info := s.fw.parseRule("80/udp", "ALLOW", "IN", "2.2.2.2")
-	s.Equal(ProtocolUDP, info.Protocol)
-	s.Equal("2.2.2.2", info.Address)
-}
-
-// --- parseRule 纯 IP 规则 ---
-
-func (s *UFWSuite) TestParseRule_IPWithProtoSuffix() {
-	// [ 9] Anywhere ALLOW IN 8.8.8.8/tcp
-	info := s.fw.parseRule("Anywhere", "ALLOW", "IN", "8.8.8.8/tcp")
-	s.Equal("8.8.8.8", info.Address)
-	s.Equal(Protocol("tcp"), info.Protocol)
-	s.Equal(uint(1), info.PortStart)
-	s.Equal(uint(65535), info.PortEnd)
-	s.Equal(TypeRich, info.Type)
-}
-
-func (s *UFWSuite) TestParseRule_IPWithoutProto() {
-	// Anywhere ALLOW IN 5.5.5.5
-	info := s.fw.parseRule("Anywhere", "ALLOW", "IN", "5.5.5.5")
-	s.Equal("5.5.5.5", info.Address)
-	s.Equal(ProtocolTCPUDP, info.Protocol)
-	s.Equal(uint(1), info.PortStart)
-	s.Equal(uint(65535), info.PortEnd)
-}
-
-func (s *UFWSuite) TestParseRule_IPDeny() {
-	info := s.fw.parseRule("Anywhere", "DENY", "IN", "10.0.0.1/tcp")
-	s.Equal("10.0.0.1", info.Address)
-	s.Equal(StrategyDrop, info.Strategy)
-	s.Equal(Protocol("tcp"), info.Protocol)
-}
-
-func (s *UFWSuite) TestParseRule_IPWithComment() {
-	// Anywhere REJECT IN 195.178.110.231 # by Fail2Ban after 5 attempts against sshd
-	info := s.fw.parseRule("Anywhere", "REJECT", "IN", "195.178.110.231            # by Fail2Ban after 5 attempts against sshd")
-	s.Equal("195.178.110.231", info.Address)
-	s.Equal(StrategyReject, info.Strategy)
-	s.Equal(ProtocolTCPUDP, info.Protocol)
-	s.Equal(uint(1), info.PortStart)
-	s.Equal(uint(65535), info.PortEnd)
-	s.Equal(TypeRich, info.Type)
-}
-
-func (s *UFWSuite) TestParseRule_PortWithComment() {
-	// 22/tcp ALLOW IN Anywhere # SSH
-	info := s.fw.parseRule("22/tcp", "ALLOW", "IN", "Anywhere                   # SSH")
-	s.Empty(info.Address)
-	s.Equal(uint(22), info.PortStart)
-	s.Equal(ProtocolTCP, info.Protocol)
-}
-
-// --- parseRule IPv6 ---
-
-func (s *UFWSuite) TestParseRule_IPv6Port() {
-	// 22/tcp (v6) ALLOW IN Anywhere (v6)
-	info := s.fw.parseRule("22/tcp (v6)", "ALLOW", "IN", "Anywhere (v6)")
-	s.Equal("ipv6", info.Family)
-	s.Equal(uint(22), info.PortStart)
-	s.Equal(ProtocolTCP, info.Protocol)
-	s.Empty(info.Address)
-}
-
-func (s *UFWSuite) TestParseRule_IPv6NoProto() {
-	// 8888 (v6) ALLOW IN Anywhere (v6)
-	info := s.fw.parseRule("8888 (v6)", "ALLOW", "IN", "Anywhere (v6)")
-	s.Equal("ipv6", info.Family)
-	s.Equal(uint(8888), info.PortStart)
-	s.Equal(ProtocolTCPUDP, info.Protocol)
-}
-
-func (s *UFWSuite) TestParseRule_IPv6PortRange() {
-	info := s.fw.parseRule("80:443/tcp (v6)", "ALLOW", "IN", "Anywhere (v6)")
-	s.Equal("ipv6", info.Family)
-	s.Equal(uint(80), info.PortStart)
-	s.Equal(uint(443), info.PortEnd)
-	s.Equal(ProtocolTCP, info.Protocol)
-}
-
-// --- mergeRules ---
-
-func (s *UFWSuite) TestMergeRules_TCPAndUDP() {
-	rules := []FireInfo{
-		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
-		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: "in"},
+func TestFirewalldParseRichRule(t *testing.T) {
+	fw := newFirewalld()
+	tests := []struct {
+		name string
+		rule string
+		want FireInfo
+	}{
+		{
+			name: "源地址单端口 accept",
+			rule: `rule family="ipv4" source address="192.168.1.100" port port="8080" protocol="tcp" accept`,
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "192.168.1.100", PortStart: 8080, PortEnd: 8080, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "源地址端口范围 drop",
+			rule: `rule family="ipv4" source address="10.0.0.0/8" port port="3000-4000" protocol="tcp" drop`,
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "10.0.0.0/8", PortStart: 3000, PortEnd: 4000, Protocol: ProtocolTCP, Strategy: StrategyDrop, Direction: DirectionIn},
+		},
+		{
+			name: "目标地址算出站",
+			rule: `rule family="ipv4" destination address="203.0.113.0/24" port port="443" protocol="tcp" reject`,
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "203.0.113.0/24", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyReject, Direction: DirectionOut},
+		},
+		{
+			name: "ipv6",
+			rule: `rule family="ipv6" source address="::1" port port="22" protocol="tcp" accept`,
+			want: FireInfo{Type: TypeRich, Family: "ipv6", Address: "::1", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "IP 规则无端口，放开全部端口",
+			rule: `rule family="ipv4" source address="8.8.8.8" protocol value="tcp" accept`,
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "8.8.8.8", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "无端口无协议默认 tcp/udp",
+			rule: `rule family="ipv4" source address="1.2.3.4" drop`,
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "1.2.3.4", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCPUDP, Strategy: StrategyDrop, Direction: DirectionIn},
+		},
+		{
+			name: "udp 且无地址",
+			rule: `rule family="ipv4" port port="53" protocol="udp" accept`,
+			want: FireInfo{Type: TypeRich, Family: "ipv4", PortStart: 53, PortEnd: 53, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "mark 策略",
+			rule: `rule family="ipv4" source address="10.0.0.1" port port="80" protocol="tcp" mark set="1"`,
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "10.0.0.1", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyMark, Direction: DirectionIn},
+		},
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 1)
-	s.Equal(ProtocolTCPUDP, merged[0].Protocol)
-}
-
-func (s *UFWSuite) TestMergeRules_DifferentPorts_NoMerge() {
-	rules := []FireInfo{
-		{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
-		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			info, err := fw.parseRichRule(tt.rule)
+			must.NoError(t, err)
+			check.DeepEqual(t, info, tt.want)
+		})
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 2)
 }
 
-func (s *UFWSuite) TestMergeRules_DifferentAddresses_NoMerge() {
-	rules := []FireInfo{
-		{Type: TypeRich, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in", Address: "1.1.1.1"},
-		{Type: TypeRich, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: "in", Address: "2.2.2.2"},
+func TestFirewalldParseRichRuleInvalid(t *testing.T) {
+	fw := newFirewalld()
+	tests := []struct {
+		name string
+		rule string
+	}{
+		{"非规则文本", `this is not a valid rule`},
+		{"空字符串", ``},
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 2)
-}
-
-func (s *UFWSuite) TestMergeRules_SameAddress_Merge() {
-	rules := []FireInfo{
-		{Type: TypeRich, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in", Address: "2.2.2.2"},
-		{Type: TypeRich, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: "in", Address: "2.2.2.2"},
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := fw.parseRichRule(tt.rule)
+			check.Error(t, err)
+		})
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 1)
-	s.Equal(ProtocolTCPUDP, merged[0].Protocol)
-	s.Equal("2.2.2.2", merged[0].Address)
 }
 
-func (s *UFWSuite) TestMergeRules_IPv4AndIPv6_NoMerge() {
-	rules := []FireInfo{
-		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
-		{Type: TypeNormal, Family: "ipv6", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
+func TestFirewalldForwardRegex(t *testing.T) {
+	fw := newFirewalld()
+	tests := []struct {
+		name string
+		line string
+		want []string // port、proto、toport、toaddr
+	}{
+		{"标准", "port=8080:proto=tcp:toport=80:toaddr=192.168.1.100", []string{"8080", "tcp", "80", "192.168.1.100"}},
+		{"无目标地址", "port=3000:proto=udp:toport=4000:toaddr=", []string{"3000", "udp", "4000", ""}},
+		{"ipv6 目标地址", "port=443:proto=tcp:toport=8443:toaddr=::1", []string{"443", "tcp", "8443", "::1"}},
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 2)
-}
-
-func (s *UFWSuite) TestMergeRules_DifferentStrategy_NoMerge() {
-	rules := []FireInfo{
-		{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
-		{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyDrop, Direction: "in"},
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			match := fw.forwardListRegex.FindStringSubmatch(tt.line)
+			must.Len(t, match, 5, must.Msgf("未匹配: %s", tt.line))
+			check.DeepEqual(t, match[1:], tt.want)
+		})
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 2)
 }
 
-func (s *UFWSuite) TestMergeRules_SingleRule_NoChange() {
-	rules := []FireInfo{
-		{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
+func TestUFWStripProtocolSuffix(t *testing.T) {
+	tests := []struct {
+		name      string
+		in        string
+		wantAddr  string
+		wantProto string
+	}{
+		{"IP 带 tcp 后缀", "8.8.8.8/tcp", "8.8.8.8", "tcp"},
+		{"IP 带 udp 后缀", "1.1.1.1/udp", "1.1.1.1", "udp"},
+		{"CIDR /24 不剥离", "192.168.1.0/24", "192.168.1.0/24", ""},
+		{"CIDR /8 不剥离", "10.0.0.0/8", "10.0.0.0/8", ""},
+		{"无斜杠", "Anywhere", "Anywhere", ""},
+		{"纯 IP", "1.2.3.4", "1.2.3.4", ""},
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 1)
-	s.Equal(ProtocolTCP, merged[0].Protocol)
-}
-
-func (s *UFWSuite) TestMergeRules_AlreadyTCPUDP_NoChange() {
-	rules := []FireInfo{
-		{Type: TypeNormal, Family: "ipv4", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: "in"},
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			addr, proto := stripProtocolSuffix(tt.in)
+			check.Equal(t, addr, tt.wantAddr)
+			check.Equal(t, proto, tt.wantProto)
+		})
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 1)
-	s.Equal(ProtocolTCPUDP, merged[0].Protocol)
 }
 
-func (s *UFWSuite) TestMergeRules_IPRules_TCPAndUDP() {
-	rules := []FireInfo{
-		{Type: TypeRich, Family: "ipv4", PortStart: 1, PortEnd: 65535, Protocol: Protocol("tcp"), Strategy: StrategyAccept, Direction: "in", Address: "6.6.6.6"},
-		{Type: TypeRich, Family: "ipv4", PortStart: 1, PortEnd: 65535, Protocol: Protocol("udp"), Strategy: StrategyAccept, Direction: "in", Address: "6.6.6.6"},
+// 入参对应 ufw status numbered 输出的一行四列
+func TestUFWParseRule(t *testing.T) {
+	fw := newUFW()
+	tests := []struct {
+		name      string
+		target    string
+		action    string
+		direction string
+		source    string
+		want      FireInfo
+	}{
+		{
+			name: "tcp 端口", target: "22/tcp", action: "ALLOW", direction: "IN", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "udp 端口", target: "53/udp", action: "ALLOW", direction: "IN", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 53, PortEnd: 53, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			// ufw allow 8888 → "8888" 无协议
+			name: "无协议端口默认 tcp/udp", target: "8888", action: "ALLOW", direction: "IN", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "端口范围", target: "80:443/tcp", action: "ALLOW", direction: "IN", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "DENY 转 drop", target: "3306/tcp", action: "DENY", direction: "IN", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 3306, PortEnd: 3306, Protocol: ProtocolTCP, Strategy: StrategyDrop, Direction: DirectionIn},
+		},
+		{
+			name: "REJECT 转 reject", target: "25/tcp", action: "REJECT", direction: "IN", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 25, PortEnd: 25, Protocol: ProtocolTCP, Strategy: StrategyReject, Direction: DirectionIn},
+		},
+		{
+			name: "LIMIT 转 accept", target: "22/tcp", action: "LIMIT", direction: "IN", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "出站方向", target: "443/tcp", action: "ALLOW", direction: "OUT", source: "Anywhere",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionOut},
+		},
+		{
+			// 带地址时协议取具体值而非 tcp/udp，且归为 rich
+			name: "端口带地址", target: "80/tcp", action: "ALLOW", direction: "IN", source: "1.1.1.1",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "1.1.1.1", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "端口带 CIDR", target: "80/tcp", action: "ALLOW", direction: "IN", source: "192.168.1.0/24",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "192.168.1.0/24", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "udp 端口带地址", target: "80/udp", action: "ALLOW", direction: "IN", source: "2.2.2.2",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "2.2.2.2", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			// [ 9] Anywhere ALLOW IN 8.8.8.8/tcp
+			name: "IP 带协议后缀", target: "Anywhere", action: "ALLOW", direction: "IN", source: "8.8.8.8/tcp",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "8.8.8.8", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "IP 不带协议后缀", target: "Anywhere", action: "ALLOW", direction: "IN", source: "5.5.5.5",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "5.5.5.5", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "IP 规则 DENY", target: "Anywhere", action: "DENY", direction: "IN", source: "10.0.0.1/tcp",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "10.0.0.1", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCP, Strategy: StrategyDrop, Direction: DirectionIn},
+		},
+		{
+			name: "IP 规则带行尾注释", target: "Anywhere", action: "REJECT", direction: "IN", source: "195.178.110.231            # by Fail2Ban after 5 attempts against sshd",
+			want: FireInfo{Type: TypeRich, Family: "ipv4", Address: "195.178.110.231", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCPUDP, Strategy: StrategyReject, Direction: DirectionIn},
+		},
+		{
+			name: "端口规则带行尾注释", target: "22/tcp", action: "ALLOW", direction: "IN", source: "Anywhere                   # SSH",
+			want: FireInfo{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "ipv6 端口", target: "22/tcp (v6)", action: "ALLOW", direction: "IN", source: "Anywhere (v6)",
+			want: FireInfo{Type: TypeNormal, Family: "ipv6", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "ipv6 无协议端口", target: "8888 (v6)", action: "ALLOW", direction: "IN", source: "Anywhere (v6)",
+			want: FireInfo{Type: TypeNormal, Family: "ipv6", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
+		{
+			name: "ipv6 端口范围", target: "80:443/tcp (v6)", action: "ALLOW", direction: "IN", source: "Anywhere (v6)",
+			want: FireInfo{Type: TypeNormal, Family: "ipv6", PortStart: 80, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		},
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 1)
-	s.Equal(ProtocolTCPUDP, merged[0].Protocol)
-	s.Equal("6.6.6.6", merged[0].Address)
-}
-
-func (s *UFWSuite) TestMergeRules_PreservesOrder() {
-	rules := []FireInfo{
-		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
-		{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: "in"},
-		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: "in"},
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			check.DeepEqual(t, fw.parseRule(tt.target, tt.action, tt.direction, tt.source), &tt.want)
+		})
 	}
-	merged := mergeRules(rules)
-	s.Len(merged, 2)
-	s.Equal(uint(443), merged[0].PortStart)
-	s.Equal(ProtocolTCPUDP, merged[0].Protocol)
-	s.Equal(uint(22), merged[1].PortStart)
-	s.Equal(ProtocolTCP, merged[1].Protocol)
 }
 
-// --- NAT 正则 ---
-
-func (s *UFWSuite) TestNATRegex_Standard() {
-	line := "-A PREROUTING -p tcp --dport 8080 -j DNAT --to-destination 192.168.1.100:80"
-	s.True(s.fw.natRegex.MatchString(line))
-	match := s.fw.natRegex.FindStringSubmatch(line)
-	s.Equal("tcp", match[1])
-	s.Equal("8080", match[2])
-	s.Equal("192.168.1.100", match[3])
-	s.Equal("80", match[4])
+func TestUFWMergeRules(t *testing.T) {
+	tests := []struct {
+		name  string
+		rules []FireInfo
+		want  []FireInfo
+	}{
+		{
+			name: "同端口 tcp+udp 合并",
+			rules: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "端口不同不合并",
+			rules: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "地址不同不合并",
+			rules: []FireInfo{
+				{Type: TypeRich, Family: "ipv4", Address: "1.1.1.1", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeRich, Family: "ipv4", Address: "2.2.2.2", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeRich, Family: "ipv4", Address: "1.1.1.1", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeRich, Family: "ipv4", Address: "2.2.2.2", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "地址相同合并",
+			rules: []FireInfo{
+				{Type: TypeRich, Family: "ipv4", Address: "2.2.2.2", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeRich, Family: "ipv4", Address: "2.2.2.2", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeRich, Family: "ipv4", Address: "2.2.2.2", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "ipv4 与 ipv6 不合并",
+			rules: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv6", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv6", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "策略不同不合并",
+			rules: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyDrop, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolUDP, Strategy: StrategyDrop, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "单条规则原样返回",
+			rules: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "已是 tcp/udp 不变",
+			rules: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "IP 规则 tcp+udp 合并",
+			rules: []FireInfo{
+				{Type: TypeRich, Family: "ipv4", Address: "6.6.6.6", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeRich, Family: "ipv4", Address: "6.6.6.6", PortStart: 1, PortEnd: 65535, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeRich, Family: "ipv4", Address: "6.6.6.6", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+		{
+			name: "保持首次出现顺序",
+			rules: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+			want: []FireInfo{
+				{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+				{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			check.DeepEqual(t, mergeRules(tt.rules), tt.want)
+		})
+	}
 }
 
-func (s *UFWSuite) TestNATRegex_UDP() {
-	line := "-A PREROUTING -p udp --dport 53 -j DNAT --to-destination 10.0.0.1:5353"
-	s.True(s.fw.natRegex.MatchString(line))
-	match := s.fw.natRegex.FindStringSubmatch(line)
-	s.Equal("udp", match[1])
-	s.Equal("53", match[2])
-	s.Equal("10.0.0.1", match[3])
-	s.Equal("5353", match[4])
+func TestUFWNATRegex(t *testing.T) {
+	fw := newUFW()
+	tests := []struct {
+		name string
+		line string
+		want []string // proto、dport、目标地址、目标端口；nil 表示不应匹配
+	}{
+		{"tcp", "-A PREROUTING -p tcp --dport 8080 -j DNAT --to-destination 192.168.1.100:80", []string{"tcp", "8080", "192.168.1.100", "80"}},
+		{"udp", "-A PREROUTING -p udp --dport 53 -j DNAT --to-destination 10.0.0.1:5353", []string{"udp", "53", "10.0.0.1", "5353"}},
+		{"POSTROUTING 不匹配", "-A POSTROUTING -d 192.168.1.100 -p tcp --dport 80 -j MASQUERADE", nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			match := fw.natRegex.FindStringSubmatch(tt.line)
+			if tt.want == nil {
+				check.Empty(t, match, check.Msgf("不应匹配: %s", tt.line))
+				return
+			}
+			must.Len(t, match, 5, must.Msgf("未匹配: %s", tt.line))
+			check.DeepEqual(t, match[1:], tt.want)
+		})
+	}
 }
 
-func (s *UFWSuite) TestNATRegex_NoMatch() {
-	line := "-A POSTROUTING -d 192.168.1.100 -p tcp --dport 80 -j MASQUERADE"
-	s.False(s.fw.natRegex.MatchString(line))
-}
-
-// --- 完整 UFW 输出集成测试 ---
-
-func (s *UFWSuite) TestParseRule_FullOutput() {
-	// 模拟用户提供的完整输出
+func TestUFWParseRuleFullOutput(t *testing.T) {
+	fw := newUFW()
 	lines := []struct {
 		target    string
 		action    string
@@ -501,96 +392,44 @@ func (s *UFWSuite) TestParseRule_FullOutput() {
 
 	var rules []FireInfo
 	for _, l := range lines {
-		info := s.fw.parseRule(l.target, l.action, l.direction, l.source)
-		s.NotNil(info)
+		info := fw.parseRule(l.target, l.action, l.direction, l.source)
+		must.NotNil(t, info)
 		rules = append(rules, *info)
 	}
 
-	merged := mergeRules(rules)
-
-	// 构建查找辅助
-	find := func(port uint, family string, addr string) *FireInfo {
-		for i := range merged {
-			r := &merged[i]
-			if r.PortStart == port && r.Family == family && r.Address == addr {
-				return r
-			}
-		}
-		return nil
-	}
-	findIP := func(addr string, family string) *FireInfo {
-		for i := range merged {
-			r := &merged[i]
-			if r.Address == addr && r.Family == family && r.PortStart == 1 && r.PortEnd == 65535 {
-				return r
-			}
-		}
-		return nil
-	}
-
-	// 22/tcp ipv4
-	r := find(22, "ipv4", "")
-	s.NotNil(r)
-	s.Equal(ProtocolTCP, r.Protocol)
-
-	// 443 ipv4 → tcp + udp 合并
-	r = find(443, "ipv4", "")
-	s.NotNil(r)
-	s.Equal(ProtocolTCPUDP, r.Protocol)
-
-	// 8888 ipv4 → 原生 tcp/udp
-	r = find(8888, "ipv4", "")
-	s.NotNil(r)
-	s.Equal(ProtocolTCPUDP, r.Protocol)
-
-	// 80/tcp from 1.1.1.1 → 仅 tcp
-	r = find(80, "ipv4", "1.1.1.1")
-	s.NotNil(r)
-	s.Equal(ProtocolTCP, r.Protocol)
-
-	// 80/tcp+udp from 2.2.2.2 → 合并
-	r = find(80, "ipv4", "2.2.2.2")
-	s.NotNil(r)
-	s.Equal(ProtocolTCPUDP, r.Protocol)
-
-	// IP rule 8.8.8.8/tcp → tcp
-	r = findIP("8.8.8.8", "ipv4")
-	s.NotNil(r)
-	s.Equal(Protocol("tcp"), r.Protocol)
-
-	// IP rule 6.6.6.6 tcp+udp → 合并
-	r = findIP("6.6.6.6", "ipv4")
-	s.NotNil(r)
-	s.Equal(ProtocolTCPUDP, r.Protocol)
-
-	// 443 ipv6 → tcp + udp 合并
-	r = find(443, "ipv6", "")
-	s.NotNil(r)
-	s.Equal(ProtocolTCPUDP, r.Protocol)
-
-	// 8888 ipv6 → 原生 tcp/udp
-	r = find(8888, "ipv6", "")
-	s.NotNil(r)
-	s.Equal(ProtocolTCPUDP, r.Protocol)
-
-	// 22/tcp ipv6
-	r = find(22, "ipv6", "")
-	s.NotNil(r)
-	s.Equal(ProtocolTCP, r.Protocol)
+	// 同端口的 tcp 与 udp 合并为 tcp/udp，其余按首次出现顺序保留
+	check.DeepEqual(t, mergeRules(rules), []FireInfo{
+		{Type: TypeNormal, Family: "ipv4", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeNormal, Family: "ipv4", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeNormal, Family: "ipv4", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeNormal, Family: "ipv4", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeRich, Family: "ipv4", Address: "1.1.1.1", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeRich, Family: "ipv4", Address: "2.2.2.2", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeRich, Family: "ipv4", Address: "8.8.8.8", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeRich, Family: "ipv4", Address: "6.6.6.6", PortStart: 1, PortEnd: 65535, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeNormal, Family: "ipv6", PortStart: 22, PortEnd: 22, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeNormal, Family: "ipv6", PortStart: 80, PortEnd: 80, Protocol: ProtocolTCP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeNormal, Family: "ipv6", PortStart: 443, PortEnd: 443, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+		{Type: TypeNormal, Family: "ipv6", PortStart: 8888, PortEnd: 8888, Protocol: ProtocolTCPUDP, Strategy: StrategyAccept, Direction: DirectionIn},
+	})
 }
-
-func TestUFWSuite(t *testing.T) {
-	suite.Run(t, new(UFWSuite))
-}
-
-// ===================== isLocalAddress 测试 =====================
 
 func TestIsLocalAddress(t *testing.T) {
-	assert.True(t, isLocalAddress("127.0.0.1"))
-	assert.True(t, isLocalAddress("::1"))
-	assert.True(t, isLocalAddress("0.0.0.0"))
-	assert.False(t, isLocalAddress("192.168.1.1"))
-	assert.False(t, isLocalAddress("8.8.8.8"))
-	assert.False(t, isLocalAddress("localhost")) // net.ParseIP returns nil
-	assert.False(t, isLocalAddress("not-an-ip"))
+	tests := []struct {
+		ip   string
+		want bool
+	}{
+		{"127.0.0.1", true},
+		{"::1", true},
+		{"0.0.0.0", true},
+		{"192.168.1.1", false},
+		{"8.8.8.8", false},
+		{"localhost", false}, // net.ParseIP 返回 nil
+		{"not-an-ip", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.ip, func(t *testing.T) {
+			check.Equal(t, isLocalAddress(tt.ip), tt.want)
+		})
+	}
 }

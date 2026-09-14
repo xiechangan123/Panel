@@ -3,13 +3,11 @@
 package scan
 
 import (
-	"io"
 	"log/slog"
 	"os"
 	"testing"
 )
 
-// TestSupportedAndAttach 验证检测程序可通过 verifier 且 TCX 可挂载
 func TestSupportedAndAttach(t *testing.T) {
 	if os.Geteuid() != 0 {
 		t.Skip("需要 root")
@@ -18,7 +16,7 @@ func TestSupportedAndAttach(t *testing.T) {
 		t.Skip("内核不支持 eBPF 扫描检测(TCX 需 6.6+)")
 	}
 
-	s, err := New([]string{"lo"}, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	s, err := New([]string{"lo"}, slog.New(slog.DiscardHandler))
 	if err != nil {
 		t.Fatal(err)
 	}

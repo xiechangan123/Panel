@@ -11,7 +11,6 @@ import (
 
 // UserCommand 用户管理命令组
 func UserCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "user",
 		Usage: t.Get("Operate AcePanel users"),

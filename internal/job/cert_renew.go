@@ -48,7 +48,7 @@ func NewCertRenew(certAccountUsecase *biz.CertAccountUsecase, certUsecase *biz.C
 	}
 }
 
-func (r *CertRenew) Run(_ context.Context) error {
+func (r *CertRenew) Run(ctx context.Context) error {
 	if app.Status != app.StatusNormal {
 		return nil
 	}
@@ -67,7 +67,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 
 		// 刷新续签信息
 		if cert.RenewalInfo.NeedsRefresh() {
-			renewInfo, err := r.certRepo.RefreshRenewalInfo(cert.ID)
+			renewInfo, err := r.certRepo.RefreshRenewalInfo(ctx, cert.ID)
 			if err != nil {
 				r.log.Warn("failed to refresh renewal info", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 				continue
@@ -77,7 +77,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 
 		// 到达建议时间，续签证书
 		if time.Now().After(cert.RenewalInfo.SelectedTime) {
-			if _, err := r.certRepo.Renew(cert.ID); err != nil {
+			if _, err := r.certRepo.RenewWithProgressCallback(ctx, cert.ID, nil); err != nil {
 				r.log.Warn("failed to renew certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 				r.notifyFailed(strings.Join(cert.Domains, ", "), err)
 			}
@@ -98,7 +98,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 			r.log.Warn("failed to parse panel certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 		}
 
-		newCrt, newKey, err := pkgcert.GenerateSelfSigned(tools.CollectLocalNames())
+		newCrt, newKey, err := pkgcert.GenerateSelfSigned(tools.CollectLocalNames()) //nolint:contextcheck
 		if err != nil {
 			r.log.Warn("failed to generate self-signed certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)
@@ -139,7 +139,7 @@ func (r *CertRenew) Run(_ context.Context) error {
 			r.log.Warn("failed to get a panel user", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			return nil
 		}
-		account, err := r.certAccountRepo.GetDefault(user.ID)
+		account, err := r.certAccountRepo.GetDefault(ctx, user.ID)
 		if err != nil {
 			r.log.Warn("failed to get panel ACME account", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)

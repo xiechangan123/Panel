@@ -11,7 +11,6 @@ import (
 
 // SettingCommand 面板设置管理命令组
 func SettingCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:   "setting",
 		Usage:  t.Get("Setting management"),

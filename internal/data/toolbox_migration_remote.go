@@ -44,7 +44,7 @@ func NewMigrationRemoteRepo(t *gotext.Locale) biz.MigrationRemoteRepo {
 func (r *migrationRemoteRepo) client(conn *request.ToolboxMigrationConnection, timeout time.Duration) *resty.Client {
 	client := resty.New().
 		SetBaseURL(strings.TrimRight(conn.URL, "/")).
-		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}). //nolint:gosec
 		SetHeader("Content-Type", "application/json")
 	if timeout > 0 {
 		client.SetTimeout(timeout)

@@ -142,9 +142,9 @@ func (r *backupRepo) Create(ctx context.Context, typ biz.BackupType, target stri
 	case biz.BackupTypeWebsite:
 		err = r.createWebsite(name, client, target)
 	case biz.BackupTypeMySQL:
-		err = r.createMySQL(name, client, target)
+		err = r.createMySQL(ctx, name, client, target)
 	case biz.BackupTypePostgres:
-		err = r.createPostgres(name, client, target)
+		err = r.createPostgres(ctx, name, client, target)
 	case biz.BackupTypeClickHouse:
 		err = r.createClickHouse(name, client, target)
 	case biz.BackupTypeRedis:
@@ -251,7 +251,7 @@ func (r *backupRepo) Delete(typ biz.BackupType, name string) error {
 // typ 备份类型
 // backup 备份压缩包，可以是绝对路径或者相对路径
 // target 目标名称
-func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
+func (r *backupRepo) Restore(ctx context.Context, typ biz.BackupType, backup, target string) error {
 	if !io.Exists(backup) {
 		backup = filepath.Join(r.GetDefaultPath(typ), backup)
 	}
@@ -274,11 +274,11 @@ func (r *backupRepo) Restore(typ biz.BackupType, backup, target string) error {
 	case biz.BackupTypeWebsite:
 		err = r.restoreWebsite(backup, target)
 	case biz.BackupTypeMySQL:
-		err = r.restoreMySQL(backup, target)
+		err = r.restoreMySQL(ctx, backup, target)
 	case biz.BackupTypePostgres:
-		err = r.restorePostgres(backup, target)
+		err = r.restorePostgres(ctx, backup, target)
 	case biz.BackupTypeClickHouse:
-		err = r.restoreClickHouse(backup, target)
+		err = r.restoreClickHouse(ctx, backup, target)
 	case biz.BackupTypeRedis:
 		err = r.restoreRedisLike(backup, "redis")
 	case biz.BackupTypeValkey:
@@ -574,12 +574,12 @@ func (r *backupRepo) createWebsite(name string, storage storage.Storage, target 
 }
 
 // createMySQL 创建 MySQL 备份
-func (r *backupRepo) createMySQL(name string, storage storage.Storage, target string) error {
+func (r *backupRepo) createMySQL(ctx context.Context, name string, storage storage.Storage, target string) error {
 	rootPassword, err := r.setting.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, db.MySQLSocket(app.Root), "unix")
+	mysql, err := db.NewMySQL(ctx, "root", rootPassword, db.MySQLSocket(app.Root), "unix")
 	if err != nil {
 		return err
 	}
@@ -641,13 +641,13 @@ func (r *backupRepo) createMySQL(name string, storage storage.Storage, target st
 }
 
 // createPostgres 创建 PostgreSQL 备份
-func (r *backupRepo) createPostgres(name string, storage storage.Storage, target string) error {
+func (r *backupRepo) createPostgres(ctx context.Context, name string, storage storage.Storage, target string) error {
 	postgresPassword, err := r.setting.Get(biz.SettingKeyPostgresPassword)
 	if err != nil {
 		return err
 	}
 	port := db.PostgresPort(app.Root)
-	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", port)
+	postgres, err := db.NewPostgres(ctx, "postgres", postgresPassword, "127.0.0.1", port)
 	if err != nil {
 		return err
 	}
@@ -927,7 +927,7 @@ func (r *backupRepo) restoreWebsite(backup, target string) error {
 
 // importFile 把备份文件喂给数据库客户端 stdin，并按秒级周期打印大致进度
 // pipe 有背压，已写入字节数 ≈ 客户端已消费字节数，足以作为进度参考
-func (r *backupRepo) importFile(path, name string, env, args []string) error {
+func (r *backupRepo) importFile(ctx context.Context, path, name string, env, args []string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -954,17 +954,17 @@ func (r *backupRepo) importFile(path, name string, env, args []string) error {
 		}
 	}
 
-	_, err = shell.ExecWithStdinProgress(context.Background(), name, args, env, f, total, 5*time.Second, progress)
+	_, err = shell.ExecWithStdinProgress(ctx, name, args, env, f, total, 5*time.Second, progress)
 	return err
 }
 
 // restoreMySQL 恢复 MySQL 备份
-func (r *backupRepo) restoreMySQL(backup, target string) error {
+func (r *backupRepo) restoreMySQL(ctx context.Context, backup, target string) error {
 	rootPassword, err := r.setting.Get(biz.SettingKeyMySQLRootPassword)
 	if err != nil {
 		return err
 	}
-	mysql, err := db.NewMySQL(context.Background(), "root", rootPassword, db.MySQLSocket(app.Root), "unix")
+	mysql, err := db.NewMySQL(ctx, "root", rootPassword, db.MySQLSocket(app.Root), "unix")
 	if err != nil {
 		return err
 	}
@@ -987,17 +987,17 @@ func (r *backupRepo) restoreMySQL(backup, target string) error {
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Importing SQL into database..."))
 	}
-	return r.importFile(backup, "mysql", []string{"MYSQL_PWD=" + rootPassword}, []string{"-u", "root", "--max-allowed-packet=1G", "--database=" + target})
+	return r.importFile(ctx, backup, "mysql", []string{"MYSQL_PWD=" + rootPassword}, []string{"-u", "root", "--max-allowed-packet=1G", "--database=" + target})
 }
 
 // restorePostgres 恢复 PostgreSQL 备份
-func (r *backupRepo) restorePostgres(backup, target string) error {
+func (r *backupRepo) restorePostgres(ctx context.Context, backup, target string) error {
 	postgresPassword, err := r.setting.Get(biz.SettingKeyPostgresPassword)
 	if err != nil {
 		return err
 	}
 	port := db.PostgresPort(app.Root)
-	postgres, err := db.NewPostgres(context.Background(), "postgres", postgresPassword, "127.0.0.1", port)
+	postgres, err := db.NewPostgres(ctx, "postgres", postgresPassword, "127.0.0.1", port)
 	if err != nil {
 		return err
 	}
@@ -1026,19 +1026,19 @@ func (r *backupRepo) restorePostgres(backup, target string) error {
 		fmt.Println(r.t.Get("|-Importing PostgreSQL backup..."))
 	}
 	if archive {
-		command := exec.Command("pg_restore", "--exit-on-error", "-h", "127.0.0.1", "-p", cast.ToString(port), "-U", "postgres", "--dbname="+target, backup)
+		command := exec.CommandContext(ctx, "pg_restore", "--exit-on-error", "-h", "127.0.0.1", "-p", cast.ToString(port), "-U", "postgres", "--dbname="+target, backup)
 		shell.ApplyEnv(command, "PGPASSWORD="+postgresPassword)
 		if output, restoreErr := command.CombinedOutput(); restoreErr != nil {
 			return fmt.Errorf("%w: %s", restoreErr, strings.TrimSpace(string(output)))
 		}
 		return nil
 	}
-	return r.importFile(backup, "psql", []string{"PGPASSWORD=" + postgresPassword},
+	return r.importFile(ctx, backup, "psql", []string{"PGPASSWORD=" + postgresPassword},
 		[]string{"-h", "127.0.0.1", "-p", cast.ToString(port), "-U", "postgres", "-v", "ON_ERROR_STOP=1", "--single-transaction", "--dbname=" + target})
 }
 
 // restoreClickHouse 恢复 ClickHouse 备份
-func (r *backupRepo) restoreClickHouse(backup, target string) error {
+func (r *backupRepo) restoreClickHouse(ctx context.Context, backup, target string) error {
 	password, err := r.setting.Get(biz.SettingKeyClickHouseDefaultPassword)
 	if err != nil {
 		return err
@@ -1060,7 +1060,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Importing SQL into database..."))
 		}
-		return r.importFile(backup, "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--multiquery"))
+		return r.importFile(ctx, backup, "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--multiquery"))
 	}
 
 	// 解压到临时目录
@@ -1084,7 +1084,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 		if app.IsCli {
 			fmt.Println(r.t.Get("|-Restoring schema..."))
 		}
-		if err = r.importFile(schemaPath, "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--multiquery")); err != nil {
+		if err = r.importFile(ctx, schemaPath, "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--multiquery")); err != nil {
 			return err
 		}
 	}
@@ -1103,7 +1103,7 @@ func (r *backupRepo) restoreClickHouse(backup, target string) error {
 			fmt.Println(r.t.Get("|-Importing table: %s", tbl))
 		}
 		query := fmt.Sprintf("INSERT INTO `%s` FORMAT Native", tbl)
-		if err = r.importFile(filepath.Join(tmpDir, entry.Name()), "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--query", query)); err != nil {
+		if err = r.importFile(ctx, filepath.Join(tmpDir, entry.Name()), "clickhouse-client", nil, append(slices.Clone(connArgs), "--database", target, "--query", query)); err != nil {
 			return err
 		}
 	}

@@ -1,0 +1,60 @@
+//go:build wireinject
+
+package bootstrap
+
+import (
+	"log/slog"
+
+	"github.com/bddjr/hlfhr"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/leonelquinteros/gotext"
+	"github.com/libtnb/cron"
+	"github.com/libtnb/sessions"
+	"github.com/libtnb/validator"
+	"github.com/libtnb/wire"
+	"github.com/urfave/cli/v3"
+	"gorm.io/gorm"
+
+	"github.com/acepanel/panel/v3/internal/middleware"
+	"github.com/acepanel/panel/v3/pkg/apploader"
+	"github.com/acepanel/panel/v3/pkg/config"
+	"github.com/acepanel/panel/v3/pkg/tlscert"
+	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/websitestat"
+)
+
+// Module 装配基础设施层，*Logger 与 *middleware.Middlewares 仅本层内部使用，不导出
+var Module = wire.New().
+	Provide(NewConf).
+	Provide(NewT).
+	Provide(NewLogger).
+	Provide(NewSlog).
+	Provide(NewDB).
+	Provide(NewMigrate).
+	Provide(NewSession).
+	Provide(NewRunner).
+	Provide(NewValidator).
+	Provide(middleware.NewMiddlewares).
+	Provide(NewLoader).
+	Provide(NewRouter).
+	Provide(NewTLSReloader).
+	Provide(NewHttp).
+	Provide(NewCron).
+	Provide(NewCli).
+	Provide(websitestat.NewAggregator).
+	Export[*config.Config]().
+	Export[*gotext.Locale]().
+	Export[*slog.Logger]().
+	Export[*gorm.DB]().
+	Export[*gormigrate.Gormigrate]().
+	Export[*sessions.Manager]().
+	Export[types.TaskRunner]().
+	Export[*validator.Validator]().
+	Export[*apploader.Loader]().
+	Export[*chi.Mux]().
+	Export[*tlscert.Reloader]().
+	Export[*hlfhr.Server]().
+	Export[*cron.Cron]().
+	Export[*cli.Command]().
+	Export[*websitestat.Aggregator]()

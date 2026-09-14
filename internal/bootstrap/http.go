@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/bddjr/hlfhr"
 	"github.com/go-chi/chi/v5"
@@ -80,7 +81,6 @@ func NewRouter(loader *apploader.Loader, conf *config.Config, t *gotext.Locale, 
 }
 
 func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
-
 	if !conf.HTTP.IsHTTPS() {
 		return nil, nil
 	}
@@ -95,13 +95,13 @@ func NewTLSReloader(conf *config.Config) (*tlscert.Reloader, error) {
 }
 
 func NewHttp(router *chi.Mux, conf *config.Config, reloader *tlscert.Reloader) *hlfhr.Server {
-
 	mux := router
 
 	srv := hlfhr.New(&http.Server{
-		Addr:           fmt.Sprintf(":%d", conf.HTTP.Port),
-		Handler:        mux,
-		MaxHeaderBytes: 4 << 20,
+		Addr:              fmt.Sprintf(":%d", conf.HTTP.Port),
+		Handler:           mux,
+		MaxHeaderBytes:    4 << 20,
+		ReadHeaderTimeout: 30 * time.Second,
 	})
 	srv.Listen80RedirectTo443 = true
 

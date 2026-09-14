@@ -3,170 +3,166 @@ package caddy
 import (
 	"os"
 	"path/filepath"
+	"regexp"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
+	"github.com/libtnb/assert/must"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-type VhostTestSuite struct {
-	suite.Suite
-	configDir string
+func newConfigDir(t *testing.T) string {
+	t.Helper()
+	configDir := filepath.Join(t.TempDir(), "config")
+	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "site"), 0755))
+	must.NoError(t, os.MkdirAll(filepath.Join(configDir, "shared"), 0755))
+	return configDir
 }
 
-func TestVhostTestSuite(t *testing.T) {
-	suite.Run(t, &VhostTestSuite{})
+// upstreamSnippet 上游片段名，站点名取自临时目录
+func upstreamSnippet(configDir, name string) string {
+	return "ace_upstream_" + safeName(filepath.Base(filepath.Dir(configDir))) + "_" + safeName(name)
 }
 
-func (s *VhostTestSuite) SetupTest() {
-	siteDir, err := os.MkdirTemp("", "caddy-test-*")
-	s.Require().NoError(err)
-	s.configDir = filepath.Join(siteDir, "config")
-	s.Require().NoError(os.MkdirAll(filepath.Join(s.configDir, "site"), 0755))
-	s.Require().NoError(os.MkdirAll(filepath.Join(s.configDir, "shared"), 0755))
+func siteConf(t *testing.T, configDir string) string {
+	t.Helper()
+	return readFile(t, filepath.Join(configDir, ConfName))
 }
 
-func (s *VhostTestSuite) TearDownTest() {
-	s.NoError(os.RemoveAll(filepath.Dir(s.configDir)))
+func TestVhostDefaults(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewPHPVhost(configDir)
+	must.NoError(t, err)
+	check.True(t, vhost.Enable())
+	check.Equal(t, vhost.Root(), filepath.Join(filepath.Dir(configDir), "public"))
+	check.DeepEqual(t, vhost.Index(), []string{"index.html"})
+	check.DeepEqual(t, vhost.Listen(), []types.Listen{{Address: "80", Args: []string{}}})
+	check.DeepEqual(t, vhost.ServerName(), []string{"localhost"})
+	check.Equal(t, vhost.ErrorLog(), ErrorLogPath)
+	check.False(t, vhost.SSL())
+	check.Nil(t, vhost.SSLConfig())
+	check.Equal(t, vhost.PHP(), uint(0))
 }
 
-// snippet 上游片段名，站点名取自临时目录
-func (s *VhostTestSuite) snippet(name string) string {
-	return "ace_upstream_" + safeName(filepath.Base(filepath.Dir(s.configDir))) + "_" + safeName(name)
-}
+func TestVhostBasicRoundTrip(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewPHPVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
+	check.NoError(t, vhost.SetServerName([]string{"example.com", "www.example.com"}))
+	check.NoError(t, vhost.SetRoot("/var/www/html"))
+	check.NoError(t, vhost.SetIndex([]string{"index.php", "index.html"}))
+	check.NoError(t, vhost.SetAccessLog("/var/log/access.log"))
+	check.NoError(t, vhost.SetPHP(84))
+	check.NoError(t, vhost.SetIncludes([]types.IncludeFile{{Path: "/etc/custom.conf"}}))
+	check.NoError(t, vhost.Save())
 
-func (s *VhostTestSuite) conf() string {
-	content, err := os.ReadFile(filepath.Join(s.configDir, ConfName))
-	s.Require().NoError(err)
-	return string(content)
-}
+	conf := siteConf(t, configDir)
+	check.NotContains(t, conf, "shared/*.conf", "共享目录为空时不引用")
+	site := "ace_site_" + safeName(filepath.Base(filepath.Dir(configDir)))
+	check.Contains(t, conf, "\n("+site+") {\n")
+	check.Contains(t, conf, "\nhttp://example.com:80,\nhttp://www.example.com:80 {\n\timport "+site+"\n}\n")
+	check.Contains(t, conf, "\nhttps://example.com:443,\nhttps://www.example.com:443 {\n\timport "+site+"\n}\n")
+	check.Contains(t, conf, "\troot * /var/www/html\n")
+	check.Contains(t, conf, "\tencode br zstd gzip\n")
+	check.Contains(t, conf, "\t\toutput file /var/log/access.log\n")
+	check.Contains(t, conf, "\timport "+filepath.Join(configDir, "site", "*.conf")+"\n")
+	check.Contains(t, conf, "\timport /etc/custom.conf\n")
+	check.Contains(t, conf, "\tphp_fastcgi unix//tmp/php-cgi-84.sock\n")
+	check.Contains(t, conf, "\t\tindex index.php index.html\n")
+	check.Contains(t, conf, "handle "+acmeMatcher+" {")
+	check.NotContains(t, conf, "bind")
+	check.NotContains(t, conf, "tls ")
 
-func (s *VhostTestSuite) TestDefaults() {
-	vhost, err := NewPHPVhost(s.configDir)
-	s.Require().NoError(err)
-	s.True(vhost.Enable())
-	s.Equal(filepath.Join(filepath.Dir(s.configDir), "public"), vhost.Root())
-	s.Equal([]string{"index.html"}, vhost.Index())
-	s.Equal([]types.Listen{{Address: "80", Args: []string{}}}, vhost.Listen())
-	s.Equal([]string{"localhost"}, vhost.ServerName())
-	s.Equal(ErrorLogPath, vhost.ErrorLog())
-	s.False(vhost.SSL())
-	s.Nil(vhost.SSLConfig())
-	s.Equal(uint(0), vhost.PHP())
-}
-
-func (s *VhostTestSuite) TestBasicRoundTrip() {
-	vhost, err := NewPHPVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
-	s.NoError(vhost.SetServerName([]string{"example.com", "www.example.com"}))
-	s.NoError(vhost.SetRoot("/var/www/html"))
-	s.NoError(vhost.SetIndex([]string{"index.php", "index.html"}))
-	s.NoError(vhost.SetAccessLog("/var/log/access.log"))
-	s.NoError(vhost.SetPHP(84))
-	s.NoError(vhost.SetIncludes([]types.IncludeFile{{Path: "/etc/custom.conf"}}))
-	s.NoError(vhost.Save())
-
-	conf := s.conf()
-	s.NotContains(conf, "shared/*.conf", "共享目录为空时不引用")
-	site := "ace_site_" + safeName(filepath.Base(filepath.Dir(s.configDir)))
-	s.Contains(conf, "\n("+site+") {\n")
-	s.Contains(conf, "\nhttp://example.com:80,\nhttp://www.example.com:80 {\n\timport "+site+"\n}\n")
-	s.Contains(conf, "\nhttps://example.com:443,\nhttps://www.example.com:443 {\n\timport "+site+"\n}\n")
-	s.Contains(conf, "\troot * /var/www/html\n")
-	s.Contains(conf, "\tencode br zstd gzip\n")
-	s.Contains(conf, "\t\toutput file /var/log/access.log\n")
-	s.Contains(conf, "\timport "+filepath.Join(s.configDir, "site", "*.conf")+"\n")
-	s.Contains(conf, "\timport /etc/custom.conf\n")
-	s.Contains(conf, "\tphp_fastcgi unix//tmp/php-cgi-84.sock\n")
-	s.Contains(conf, "\t\tindex index.php index.html\n")
-	s.Contains(conf, "handle "+acmeMatcher+" {")
-	s.NotContains(conf, "bind")
-	s.NotContains(conf, "tls ")
-
-	reloaded, err := NewPHPVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal([]types.Listen{{Address: "80", Args: []string{}}, {Address: "443", Args: []string{"ssl"}}}, reloaded.Listen())
-	s.Equal([]string{"example.com", "www.example.com"}, reloaded.ServerName())
-	s.Equal("/var/www/html", reloaded.Root())
-	s.Equal([]string{"index.php", "index.html"}, reloaded.Index())
-	s.Equal("/var/log/access.log", reloaded.AccessLog())
-	s.Equal(uint(84), reloaded.PHP())
-	s.Equal([]types.IncludeFile{{Path: "/etc/custom.conf"}}, reloaded.Includes())
-	s.Nil(reloaded.SSLConfig())
+	reloaded, err := NewPHPVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, reloaded.Listen(), []types.Listen{{Address: "80", Args: []string{}}, {Address: "443", Args: []string{"ssl"}}})
+	check.DeepEqual(t, reloaded.ServerName(), []string{"example.com", "www.example.com"})
+	check.Equal(t, reloaded.Root(), "/var/www/html")
+	check.DeepEqual(t, reloaded.Index(), []string{"index.php", "index.html"})
+	check.Equal(t, reloaded.AccessLog(), "/var/log/access.log")
+	check.Equal(t, reloaded.PHP(), uint(84))
+	check.DeepEqual(t, reloaded.Includes(), []types.IncludeFile{{Path: "/etc/custom.conf"}})
+	check.Nil(t, reloaded.SSLConfig())
 
 	// 重新保存不改变内容
-	s.NoError(reloaded.Save())
-	s.Equal(conf, s.conf())
+	check.NoError(t, reloaded.Save())
+	check.Equal(t, siteConf(t, configDir), conf)
 }
 
-func (s *VhostTestSuite) TestBind() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Error(vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "1.2.3.4:8080"}}))
-	s.NoError(vhost.SetListen([]types.Listen{{Address: "1.2.3.4:80"}, {Address: "[::1]:80"}, {Address: "1.2.3.4:8443", Args: []string{"ssl"}}}))
-	s.NoError(vhost.SetServerName([]string{"example.com"}))
-	s.NoError(vhost.SetSSLConfig(&types.SSLConfig{Cert: "/c.pem", Key: "/k.pem"}))
-	s.NoError(vhost.Save())
+func TestVhostBind(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.Error(t, vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "1.2.3.4:8080"}}))
+	check.NoError(t, vhost.SetListen([]types.Listen{{Address: "1.2.3.4:80"}, {Address: "[::1]:80"}, {Address: "1.2.3.4:8443", Args: []string{"ssl"}}}))
+	check.NoError(t, vhost.SetServerName([]string{"example.com"}))
+	check.NoError(t, vhost.SetSSLConfig(&types.SSLConfig{Cert: "/c.pem", Key: "/k.pem"}))
+	check.NoError(t, vhost.Save())
 
-	conf := s.conf()
-	s.Contains(conf, "\nhttp://example.com:80 {\n\tbind 1.2.3.4 ::1\n")
-	s.Contains(conf, "\nhttps://example.com:8443 {\n\tbind 1.2.3.4 ::1\n\ttls /c.pem /k.pem\n")
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\nhttp://example.com:80 {\n\tbind 1.2.3.4 ::1\n")
+	check.Contains(t, conf, "\nhttps://example.com:8443 {\n\tbind 1.2.3.4 ::1\n\ttls /c.pem /k.pem\n")
 
-	reloaded, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal([]types.Listen{
+	reloaded, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, reloaded.Listen(), []types.Listen{
 		{Address: "1.2.3.4:80", Args: []string{}},
 		{Address: "[::1]:80", Args: []string{}},
 		{Address: "1.2.3.4:8443", Args: []string{"ssl"}},
 		{Address: "[::1]:8443", Args: []string{"ssl"}},
-	}, reloaded.Listen())
+	})
 }
 
-func (s *VhostTestSuite) TestHostless() {
+func TestVhostHostless(t *testing.T) {
+	configDir := newConfigDir(t)
 	// phpMyAdmin 这类无域名站点，安装脚本写的最简配置也能解析并重新生成
-	s.Require().NoError(os.WriteFile(filepath.Join(s.configDir, ConfName), []byte(":888 {\n\troot * /opt/pma\n\tphp_fastcgi unix//tmp/php-cgi-83.sock\n\tfile_server\n}\n"), 0600))
-	vhost, err := NewPHPVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal([]types.Listen{{Address: "888", Args: []string{}}}, vhost.Listen())
-	s.Equal([]string{}, vhost.ServerName())
-	s.Equal("/opt/pma", vhost.Root())
-	s.Equal(uint(83), vhost.PHP())
-	s.Equal("", vhost.AccessLog())
+	must.NoError(t, os.WriteFile(filepath.Join(configDir, ConfName), []byte(":888 {\n\troot * /opt/pma\n\tphp_fastcgi unix//tmp/php-cgi-83.sock\n\tfile_server\n}\n"), 0600))
+	vhost, err := NewPHPVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, vhost.Listen(), []types.Listen{{Address: "888", Args: []string{}}})
+	check.DeepEqual(t, vhost.ServerName(), []string{})
+	check.Equal(t, vhost.Root(), "/opt/pma")
+	check.Equal(t, vhost.PHP(), uint(83))
+	check.Equal(t, vhost.AccessLog(), "")
 
-	s.NoError(vhost.SetListen([]types.Listen{{Address: "8888"}}))
-	s.NoError(vhost.Save())
-	s.Contains(s.conf(), "\nhttp://:8888 {\n")
-	s.NotContains(s.conf(), "\tlog {")
-	reloaded, err := NewPHPVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal([]types.Listen{{Address: "8888", Args: []string{}}}, reloaded.Listen())
-	s.Equal([]string{}, reloaded.ServerName())
+	check.NoError(t, vhost.SetListen([]types.Listen{{Address: "8888"}}))
+	check.NoError(t, vhost.Save())
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\nhttp://:8888 {\n")
+	check.NotContains(t, conf, "\tlog {")
+	reloaded, err := NewPHPVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, reloaded.Listen(), []types.Listen{{Address: "8888", Args: []string{}}})
+	check.DeepEqual(t, reloaded.ServerName(), []string{})
 }
 
-func (s *VhostTestSuite) TestEnable() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetEnable(false))
-	s.False(vhost.Enable())
-	s.NoError(vhost.Save())
-	conf := s.conf()
-	s.Contains(conf, "\t# ace:stop\n\t"+stopMatcher+" expression true\n\thandle "+stopMatcher+" {\n\t\trewrite * /stop.html\n\t\tfile_server {\n\t\t\troot "+HTMLDir+"\n\t\t}\n\t}\n")
+func TestVhostEnable(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetEnable(false))
+	check.False(t, vhost.Enable())
+	check.NoError(t, vhost.Save())
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\t# ace:stop\n\t"+stopMatcher+" expression true\n\thandle "+stopMatcher+" {\n\t\trewrite * /stop.html\n\t\tfile_server {\n\t\t\troot "+HTMLDir+"\n\t\t}\n\t}\n")
 
-	s.NoError(vhost.SetEnable(true))
-	s.NoError(vhost.Save())
-	s.NotContains(s.conf(), stopMatcher)
+	check.NoError(t, vhost.SetEnable(true))
+	check.NoError(t, vhost.Save())
+	check.NotContains(t, siteConf(t, configDir), stopMatcher)
 }
 
-func (s *VhostTestSuite) TestSSL() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
-	s.NoError(vhost.SetSSLConfig(&types.SSLConfig{
+func TestVhostSSL(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
+	check.NoError(t, vhost.SetSSLConfig(&types.SSLConfig{
 		Cert:         "/path/fullchain.pem",
 		Key:          "/path/private.key",
 		Protocols:    []string{"TLSv1.3"},
@@ -174,107 +170,114 @@ func (s *VhostTestSuite) TestSSL() {
 		OCSP:         false,
 		HTTPRedirect: true,
 	}))
-	s.NoError(vhost.Save())
+	check.NoError(t, vhost.Save())
 
-	conf := s.conf()
-	s.Contains(conf, "\ttls /path/fullchain.pem /path/private.key {\n\t\tprotocols tls1.3\n\t}\n")
-	s.Contains(conf, "\nhttp://localhost:80 {\n\t"+httpMatcher+" not path /.well-known/acme-challenge/*\n\tredir "+httpMatcher+" https://{host}{uri} 301\n\timport ")
-	s.Contains(conf, "\theader Strict-Transport-Security max-age=31536000\n\timport ")
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\ttls /path/fullchain.pem /path/private.key {\n\t\tprotocols tls1.3\n\t}\n")
+	check.Contains(t, conf, "\nhttp://localhost:80 {\n\t"+httpMatcher+" not path /.well-known/acme-challenge/*\n\tredir "+httpMatcher+" https://{host}{uri} 301\n\timport ")
+	check.Contains(t, conf, "\theader Strict-Transport-Security max-age=31536000\n\timport ")
 
-	reloaded, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.True(reloaded.SSL())
+	reloaded, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.True(t, reloaded.SSL())
 	// OCSP 装订由 Caddy 对所有证书自动完成
-	s.Equal(&types.SSLConfig{
+	check.DeepEqual(t, reloaded.SSLConfig(), &types.SSLConfig{
 		Cert:         "/path/fullchain.pem",
 		Key:          "/path/private.key",
 		Protocols:    []string{"TLSv1.3"},
 		HSTS:         true,
 		OCSP:         true,
 		HTTPRedirect: true,
-	}, reloaded.SSLConfig())
+	})
 
 	// Caddy 不支持 TLS 1.0/1.1，过滤后与默认相同则省略 protocols
-	s.NoError(reloaded.SetSSLConfig(&types.SSLConfig{Cert: "/c", Key: "/k", Protocols: []string{"TLSv1.1", "TLSv1.2", "TLSv1.3"}}))
-	s.NoError(reloaded.Save())
-	s.Contains(s.conf(), "\ttls /c /k\n")
-	s.NotContains(s.conf(), "protocols")
-	again, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal([]string{"TLSv1.2", "TLSv1.3"}, again.SSLConfig().Protocols)
-	s.False(again.SSLConfig().HTTPRedirect)
-	s.False(again.SSLConfig().HSTS)
+	check.NoError(t, reloaded.SetSSLConfig(&types.SSLConfig{Cert: "/c", Key: "/k", Protocols: []string{"TLSv1.1", "TLSv1.2", "TLSv1.3"}}))
+	check.NoError(t, reloaded.Save())
+	conf = siteConf(t, configDir)
+	check.Contains(t, conf, "\ttls /c /k\n")
+	check.NotContains(t, conf, "protocols")
+	again, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, again.SSLConfig(), &types.SSLConfig{
+		Cert:      "/c",
+		Key:       "/k",
+		Protocols: []string{"TLSv1.2", "TLSv1.3"},
+		OCSP:      true,
+	})
 
-	s.NoError(again.ClearSSL())
-	s.NoError(again.Save())
-	s.NotContains(s.conf(), "tls")
+	check.NoError(t, again.ClearSSL())
+	check.NoError(t, again.Save())
+	check.NotContains(t, siteConf(t, configDir), "tls")
 }
 
-func (s *VhostTestSuite) TestBasicAuth() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	siteDir := filepath.Dir(s.configDir)
+func TestVhostBasicAuth(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	siteDir := filepath.Dir(configDir)
 	file0, file1, file2 := filepath.Join(siteDir, "htpasswd_0"), filepath.Join(siteDir, "htpasswd_1"), filepath.Join(siteDir, "htpasswd_2")
-	s.Require().NoError(os.WriteFile(file0, []byte("admin:{PLAIN}secret\n# comment\nbob:plain\n"), 0644))
-	s.Require().NoError(os.WriteFile(file1, []byte("ops:{PLAIN}pw\n"), 0644))
-	s.Require().NoError(os.WriteFile(file2, []byte(""), 0644))
-	s.NoError(vhost.SetBasicAuth([]types.BasicAuth{
+	must.NoError(t, os.WriteFile(file0, []byte("admin:{PLAIN}secret\n# comment\nbob:plain\n"), 0644))
+	must.NoError(t, os.WriteFile(file1, []byte("ops:{PLAIN}pw\n"), 0644))
+	must.NoError(t, os.WriteFile(file2, []byte(""), 0644))
+	check.NoError(t, vhost.SetBasicAuth([]types.BasicAuth{
 		{Path: "/", UserFile: file0},
 		{Path: "/admin", UserFile: file1},
 		{Path: "/empty", UserFile: file2},
 	}))
-	s.NoError(vhost.Save())
+	check.NoError(t, vhost.Save())
 
-	conf := s.conf()
-	s.Contains(conf, "\t@ace_auth_0 {\n\t\tpath /*\n\t\tnot path /.well-known/acme-challenge/*\n\t}\n\tbasic_auth @ace_auth_0 {\n\t\timport "+file0+".caddy\n\t}\n")
-	s.Contains(conf, "\t@ace_auth_1 path /admin*\n\tbasic_auth @ace_auth_1 {\n\t\timport "+file1+".caddy\n\t}\n")
-	s.NotContains(conf, "@ace_auth_2")
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\t@ace_auth_0 {\n\t\tpath /*\n\t\tnot path /.well-known/acme-challenge/*\n\t}\n\tbasic_auth @ace_auth_0 {\n\t\timport "+file0+".caddy\n\t}\n")
+	check.Contains(t, conf, "\t@ace_auth_1 path /admin*\n\tbasic_auth @ace_auth_1 {\n\t\timport "+file1+".caddy\n\t}\n")
+	check.NotContains(t, conf, "@ace_auth_2")
 
 	// 明文文件转为 bcrypt 行
 	hashed, err := os.ReadFile(file0 + ".caddy")
-	s.Require().NoError(err)
+	must.NoError(t, err)
 	lines := strings.Split(strings.TrimSpace(string(hashed)), "\n")
-	s.Require().Len(lines, 2)
-	s.True(strings.HasPrefix(lines[0], "admin $2a$"))
-	s.True(strings.HasPrefix(lines[1], "bob $2a$"))
-	s.NoError(bcrypt.CompareHashAndPassword([]byte(strings.TrimPrefix(lines[0], "admin ")), []byte("secret")))
+	must.Len(t, lines, 2)
+	check.True(t, strings.HasPrefix(lines[0], "admin $2a$"), check.Msgf("bcrypt 行格式不符: %s", lines[0]))
+	check.True(t, strings.HasPrefix(lines[1], "bob $2a$"), check.Msgf("bcrypt 行格式不符: %s", lines[1]))
+	check.NoError(t, bcrypt.CompareHashAndPassword([]byte(strings.TrimPrefix(lines[0], "admin ")), []byte("secret")))
 
-	reloaded, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal([]types.BasicAuth{
+	reloaded, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, reloaded.BasicAuth(), []types.BasicAuth{
 		{Path: "/", UserFile: file0},
 		{Path: "/admin", UserFile: file1},
-	}, reloaded.BasicAuth())
+	})
 
-	s.NoError(reloaded.ClearBasicAuth())
-	s.NoError(reloaded.Save())
-	s.NotContains(s.conf(), "basic_auth")
+	check.NoError(t, reloaded.ClearBasicAuth())
+	check.NoError(t, reloaded.Save())
+	check.NotContains(t, siteConf(t, configDir), "basic_auth")
 }
 
-func (s *VhostTestSuite) TestRedirects() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
+func TestVhostRedirects(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
 	redirects := []types.Redirect{
 		{Type: types.RedirectTypeHost, From: "old.example.com", To: "https://example.com", KeepURI: true, StatusCode: 301},
 		{Type: types.RedirectTypeURL, From: "/old", To: "/new", StatusCode: 302},
 		{Type: types.RedirectType404, To: "/404-page", StatusCode: 308},
 	}
-	s.NoError(vhost.SetRedirects(redirects))
-	s.NoError(vhost.Save())
+	check.NoError(t, vhost.SetRedirects(redirects))
+	check.NoError(t, vhost.Save())
 
-	conf := s.conf()
-	s.Contains(conf, "\t@ace_redirect_0 host old.example.com\n\tredir @ace_redirect_0 https://example.com{uri} 301\n")
-	s.Contains(conf, "\t@ace_redirect_1 path /old\n\tredir @ace_redirect_1 /new 302\n")
-	s.Contains(conf, "\thandle_errors 404 {\n\t\tredir /404-page 308\n\t}\n")
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\t@ace_redirect_0 host old.example.com\n\tredir @ace_redirect_0 https://example.com{uri} 301\n")
+	check.Contains(t, conf, "\t@ace_redirect_1 path /old\n\tredir @ace_redirect_1 /new 302\n")
+	check.Contains(t, conf, "\thandle_errors 404 {\n\t\tredir /404-page 308\n\t}\n")
 
-	reloaded, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal(redirects, reloaded.Redirects())
+	reloaded, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, reloaded.Redirects(), redirects)
 }
 
-func (s *VhostTestSuite) TestProxies() {
-	vhost, err := NewProxyVhost(s.configDir)
-	s.Require().NoError(err)
+func TestVhostProxies(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
 	upstreams := []types.Upstream{{
 		Name:     "backend",
 		Servers:  map[string]string{"127.0.0.1:3001": "weight=5", "127.0.0.1:3002": ""},
@@ -285,7 +288,7 @@ func (s *VhostTestSuite) TestProxies() {
 		Algo:     "least_conn",
 		Resolver: []string{},
 	}}
-	s.NoError(vhost.SetUpstreams(upstreams))
+	check.NoError(t, vhost.SetUpstreams(upstreams))
 	proxies := []types.Proxy{
 		{
 			Location:  "/",
@@ -329,25 +332,26 @@ func (s *VhostTestSuite) TestProxies() {
 			Replaces:  map[string]string{},
 		},
 	}
-	s.NoError(vhost.SetProxies(proxies))
-	s.NoError(vhost.Save())
+	check.NoError(t, vhost.SetProxies(proxies))
+	check.NoError(t, vhost.Save())
 
-	conf := s.conf()
-	s.Contains(conf, "("+s.snippet("backend")+") {\n\t# ace:upstream backend\n\tto 127.0.0.1:3001 127.0.0.1:3002\n\tlb_policy weighted_round_robin 5 1\n}\n")
-	s.Contains(conf, "("+s.snippet("api-pool")+") {\n\t# ace:upstream api-pool\n\tto 10.0.0.2:80 unix//tmp/api.sock\n\tlb_policy least_conn\n}\n")
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "("+upstreamSnippet(configDir, "backend")+") {\n\t# ace:upstream backend\n\tto 127.0.0.1:3001 127.0.0.1:3002\n\tlb_policy weighted_round_robin 5 1\n}\n")
+	check.Contains(t, conf, "("+upstreamSnippet(configDir, "api-pool")+") {\n\t# ace:upstream api-pool\n\tto 10.0.0.2:80 unix//tmp/api.sock\n\tlb_policy least_conn\n}\n")
 	// 精确、^~ 前缀、正则、普通前缀的顺序
-	s.Regexp(`(?s)@ace_proxy_3 path /health.*@ace_proxy_1 path /api/\*.*@ace_proxy_2 path_regexp \(\?i\)\\\.\(jpg\|png\)\$.*@ace_proxy_0 path /\*`, conf)
-	s.Contains(conf, "\t\thandle @ace_proxy_0 {\n\t\t\t# ace:location /\n\t\t\t# ace:pass http://backend\n\t\t\treplace http://old https://new\n\t\t\treverse_proxy {\n\t\t\t\timport "+s.snippet("backend")+"\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n")
-	s.Equal(1, strings.Count(conf, "header_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n\t\t@ace_proxy_1"), "用户自定义的 X-Real-IP 不重复补默认值")
-	s.Contains(conf, "\t\t\trequest_body {\n\t\t\t\tmax_size 10485760\n\t\t\t}\n")
-	s.Contains(conf, "\t\t\t@ace_deny_1 remote_ip 10.0.0.99\n\t\t\trespond @ace_deny_1 403\n\t\t\t@ace_allow_1 not remote_ip 10.0.0.0/8\n\t\t\trespond @ace_allow_1 403\n")
-	s.Contains(conf, "\t\t\turi path_regexp ^/api/ /v2/\n")
-	s.Contains(conf, "\t\t\treverse_proxy 10.0.0.5:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\theader_down X-Proxy caddy\n\t\t\t\theader_down -Server\n\t\t\t\tflush_interval -1\n\t\t\t\tlb_retries 3\n\t\t\t\tlb_try_duration 10s\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_server_name api.internal\n\t\t\t\t\ttls_trust_pool file /ca.pem\n\t\t\t\t\tversions h2c 2\n\t\t\t\t\tdial_timeout 5s\n\t\t\t\t\tresponse_header_timeout 1m30s\n\t\t\t\t}\n\t\t\t}\n")
-	s.Contains(conf, "\t\t\treverse_proxy unix//tmp/app.sock {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n")
+	order := `(?s)@ace_proxy_3 path /health.*@ace_proxy_1 path /api/\*.*@ace_proxy_2 path_regexp \(\?i\)\\\.\(jpg\|png\)\$.*@ace_proxy_0 path /\*`
+	check.True(t, regexp.MustCompile(order).MatchString(conf), check.Msgf("代理块顺序不符\n正则: %s\n配置:\n%s", order, conf))
+	check.Contains(t, conf, "\t\thandle @ace_proxy_0 {\n\t\t\t# ace:location /\n\t\t\t# ace:pass http://backend\n\t\t\treplace http://old https://new\n\t\t\treverse_proxy {\n\t\t\t\timport "+upstreamSnippet(configDir, "backend")+"\n\t\t\t\theader_up Host {upstream_hostport}\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n")
+	check.Equal(t, strings.Count(conf, "header_up X-Real-IP {remote_host}\n\t\t\t}\n\t\t}\n\t\t@ace_proxy_1"), 1, "用户自定义的 X-Real-IP 不重复补默认值")
+	check.Contains(t, conf, "\t\t\trequest_body {\n\t\t\t\tmax_size 10485760\n\t\t\t}\n")
+	check.Contains(t, conf, "\t\t\t@ace_deny_1 remote_ip 10.0.0.99\n\t\t\trespond @ace_deny_1 403\n\t\t\t@ace_allow_1 not remote_ip 10.0.0.0/8\n\t\t\trespond @ace_allow_1 403\n")
+	check.Contains(t, conf, "\t\t\turi path_regexp ^/api/ /v2/\n")
+	check.Contains(t, conf, "\t\t\treverse_proxy 10.0.0.5:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\theader_down X-Proxy caddy\n\t\t\t\theader_down -Server\n\t\t\t\tflush_interval -1\n\t\t\t\tlb_retries 3\n\t\t\t\tlb_try_duration 10s\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_server_name api.internal\n\t\t\t\t\ttls_trust_pool file /ca.pem\n\t\t\t\t\tversions h2c 2\n\t\t\t\t\tdial_timeout 5s\n\t\t\t\t\tresponse_header_timeout 1m30s\n\t\t\t\t}\n\t\t\t}\n")
+	check.Contains(t, conf, "\t\t\treverse_proxy unix//tmp/app.sock {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t}\n")
 
-	reloaded, err := NewProxyVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal([]types.Upstream{{
+	reloaded, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	check.DeepEqual(t, reloaded.Upstreams(), []types.Upstream{{
 		Name:     "backend",
 		Servers:  map[string]string{"127.0.0.1:3001": "weight=5", "127.0.0.1:3002": ""},
 		Resolver: []string{},
@@ -356,153 +360,145 @@ func (s *VhostTestSuite) TestProxies() {
 		Servers:  map[string]string{"unix:/tmp/api.sock": "", "10.0.0.2:80": ""},
 		Algo:     "least_conn",
 		Resolver: []string{},
-	}}, reloaded.Upstreams())
+	}})
 
-	got := reloaded.Proxies()
-	s.Require().Len(got, 4)
-	s.Equal("/", got[0].Location)
-	s.Equal("http://backend", got[0].Pass)
-	s.Equal("{upstream_hostport}", got[0].Host)
-	// 与默认值相同的 X-Real-IP 不当作用户头回读
-	s.Equal(map[string]string{}, got[0].Headers)
-	s.Equal(map[string]string{"http://old": "https://new"}, got[0].Replaces)
-	s.True(got[0].Buffering)
-
-	s.Equal("^~ /api/", got[1].Location)
-	s.Equal("https://10.0.0.5/v2/", got[1].Pass)
-	s.Equal("api.internal", got[1].SNI)
-	s.False(got[1].Buffering)
-	s.Equal("2", got[1].HTTPVersion)
-	s.Equal(&types.TimeoutConfig{Connect: 5 * time.Second, Read: 90 * time.Second}, got[1].Timeout)
-	s.Equal(&types.RetryConfig{Tries: 3, Timeout: 10 * time.Second}, got[1].Retry)
-	s.Equal(int64(10485760), got[1].ClientMaxBodySize)
-	s.Equal(&types.SSLBackendConfig{Verify: true, TrustedCertificate: "/ca.pem"}, got[1].SSLBackend)
-	s.Equal(&types.ResponseHeaderConfig{Hide: []string{"Server"}, Add: map[string]string{"X-Proxy": "caddy"}}, got[1].ResponseHeaders)
-	s.Equal(&types.AccessControlConfig{Allow: []string{"10.0.0.0/8"}, Deny: []string{"10.0.0.99"}}, got[1].AccessControl)
-
-	s.Equal("~* \\.(jpg|png)$", got[2].Location)
-	s.Equal("http://api-pool", got[2].Pass)
-	s.Equal("= /health", got[3].Location)
-	s.Equal("http://unix:/tmp/app.sock", got[3].Pass)
-	s.Nil(got[3].SSLBackend)
+	// 回读与写入一致，只有两处归一化：Host 换成 Caddy 占位符、与默认值相同的 X-Real-IP 不算用户头
+	wantProxies := slices.Clone(proxies)
+	wantProxies[0].Host = "{upstream_hostport}"
+	wantProxies[0].Headers = map[string]string{}
+	check.DeepEqual(t, reloaded.Proxies(), wantProxies)
 
 	// 再次保存内容稳定
-	s.NoError(reloaded.Save())
-	s.Equal(conf, s.conf())
+	check.NoError(t, reloaded.Save())
+	check.Equal(t, siteConf(t, configDir), conf)
 
-	s.NoError(reloaded.ClearProxies())
-	s.NoError(reloaded.ClearUpstreams())
-	s.NoError(reloaded.Save())
-	s.NotContains(s.conf(), "route")
-	s.NotContains(s.conf(), "(ace_upstream_")
+	check.NoError(t, reloaded.ClearProxies())
+	check.NoError(t, reloaded.ClearUpstreams())
+	check.NoError(t, reloaded.Save())
+	check.NotContains(t, siteConf(t, configDir), "route")
+	check.NotContains(t, siteConf(t, configDir), "(ace_upstream_")
 }
 
-func (s *VhostTestSuite) TestHTTPSBackendDefaults() {
+func TestVhostHTTPSBackendDefaults(t *testing.T) {
+	configDir := newConfigDir(t)
 	// 未配置后端校验时沿用 nginx 的默认行为：不校验证书
-	vhost, err := NewProxyVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetProxies([]types.Proxy{{Location: "/", Pass: "https://backend.example.com", Buffering: true}}))
-	s.NoError(vhost.Save())
-	s.Contains(s.conf(), "\t\t\treverse_proxy backend.example.com:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_insecure_skip_verify\n\t\t\t\t}\n\t\t\t}\n")
-	reloaded, err := NewProxyVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Nil(reloaded.Proxies()[0].SSLBackend)
-	s.Equal("", reloaded.Proxies()[0].SNI)
+	vhost, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetProxies([]types.Proxy{{Location: "/", Pass: "https://backend.example.com", Buffering: true}}))
+	check.NoError(t, vhost.Save())
+	check.Contains(t, siteConf(t, configDir), "\t\t\treverse_proxy backend.example.com:443 {\n\t\t\t\theader_up X-Real-IP {remote_host}\n\t\t\t\ttransport http {\n\t\t\t\t\ttls\n\t\t\t\t\ttls_insecure_skip_verify\n\t\t\t\t}\n\t\t\t}\n")
+	reloaded, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	got := reloaded.Proxies()
+	must.Len(t, got, 1)
+	check.Nil(t, got[0].SSLBackend)
+	check.Equal(t, got[0].SNI, "")
 }
 
-func (s *VhostTestSuite) TestAccessControlAll() {
-	vhost, err := NewProxyVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetProxies([]types.Proxy{
+func TestVhostAccessControlAll(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetProxies([]types.Proxy{
 		{Location: "/a", Pass: "http://127.0.0.1:1", Buffering: true, AccessControl: &types.AccessControlConfig{Deny: []string{"all"}}},
 		{Location: "/b", Pass: "http://127.0.0.1:1", Buffering: true, AccessControl: &types.AccessControlConfig{Allow: []string{"10.0.0.1", "all"}, Deny: []string{"all"}}},
 	}))
-	s.NoError(vhost.Save())
-	conf := s.conf()
-	s.Contains(conf, "\t\t\t@ace_deny_0 remote_ip 0.0.0.0/0 ::/0\n")
-	s.NotContains(conf, "@ace_deny_1")
-	s.Contains(conf, "\t\t\t@ace_allow_1 not remote_ip 10.0.0.1\n")
+	check.NoError(t, vhost.Save())
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\t\t\t@ace_deny_0 remote_ip 0.0.0.0/0 ::/0\n")
+	check.NotContains(t, conf, "@ace_deny_1")
+	check.Contains(t, conf, "\t\t\t@ace_allow_1 not remote_ip 10.0.0.1\n")
 
-	reloaded, err := NewProxyVhost(s.configDir)
-	s.Require().NoError(err)
-	s.Equal(&types.AccessControlConfig{Deny: []string{"all"}}, reloaded.Proxies()[0].AccessControl)
-	s.Equal(&types.AccessControlConfig{Allow: []string{"10.0.0.1"}}, reloaded.Proxies()[1].AccessControl)
+	reloaded, err := NewProxyVhost(configDir)
+	must.NoError(t, err)
+	got := reloaded.Proxies()
+	must.Len(t, got, 2)
+	check.DeepEqual(t, got[0].AccessControl, &types.AccessControlConfig{Deny: []string{"all"}})
+	// allow 列表里出现 all 等于不限制，只保留具体地址
+	check.DeepEqual(t, got[1].AccessControl, &types.AccessControlConfig{Allow: []string{"10.0.0.1"}})
 }
 
-func (s *VhostTestSuite) TestSharedImport() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetConfig("custom.conf", types.ScopeShared, "(shared_snippet) {\n\tencode gzip\n}\n"))
-	s.NoError(vhost.Save())
-	s.Contains(s.conf(), "import "+filepath.Join(s.configDir, "shared", "*.conf")+"\n")
+func TestVhostSharedImport(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetConfig("custom.conf", types.ScopeShared, "(shared_snippet) {\n\tencode gzip\n}\n"))
+	check.NoError(t, vhost.Save())
+	check.Contains(t, siteConf(t, configDir), "import "+filepath.Join(configDir, "shared", "*.conf")+"\n")
+	check.Contains(t, vhost.Config("custom.conf", types.ScopeShared), "(shared_snippet) {\n\tencode gzip\n}")
 }
 
-func (s *VhostTestSuite) TestDefaultSite() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
-	s.NoError(vhost.SetServerName([]string{"example.com"}))
-	s.NoError(vhost.SetSSLConfig(&types.SSLConfig{Cert: "/c", Key: "/k"}))
-	s.False(vhost.Default())
-	s.NoError(vhost.SetDefault(true))
-	s.NoError(vhost.Save())
-	conf := s.conf()
-	s.Contains(conf, "\nhttp://example.com:80,\nhttp://:80 {\n")
-	s.Contains(conf, "\nhttps://example.com:443,\nhttps://:443 {\n")
+func TestVhostDefaultSite(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetListen([]types.Listen{{Address: "80"}, {Address: "443", Args: []string{"ssl"}}}))
+	check.NoError(t, vhost.SetServerName([]string{"example.com"}))
+	check.NoError(t, vhost.SetSSLConfig(&types.SSLConfig{Cert: "/c", Key: "/k"}))
+	check.False(t, vhost.Default())
+	check.NoError(t, vhost.SetDefault(true))
+	check.NoError(t, vhost.Save())
+	conf := siteConf(t, configDir)
+	check.Contains(t, conf, "\nhttp://example.com:80,\nhttp://:80 {\n")
+	check.Contains(t, conf, "\nhttps://example.com:443,\nhttps://:443 {\n")
 
-	reloaded, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.True(reloaded.Default())
-	s.Equal([]string{"example.com"}, reloaded.ServerName())
-	s.Equal([]types.Listen{{Address: "80", Args: []string{}}, {Address: "443", Args: []string{"ssl"}}}, reloaded.Listen())
+	reloaded, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.True(t, reloaded.Default())
+	check.DeepEqual(t, reloaded.ServerName(), []string{"example.com"})
+	check.DeepEqual(t, reloaded.Listen(), []types.Listen{{Address: "80", Args: []string{}}, {Address: "443", Args: []string{"ssl"}}})
 
-	s.NoError(reloaded.SetDefault(false))
-	s.NoError(reloaded.Save())
-	s.NotContains(s.conf(), "://:")
-	again, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.False(again.Default())
+	check.NoError(t, reloaded.SetDefault(false))
+	check.NoError(t, reloaded.Save())
+	check.NotContains(t, siteConf(t, configDir), "://:")
+	again, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.False(t, again.Default())
 }
 
-func (s *VhostTestSuite) TestSafeName() {
-	s.Equal("a_2db_2ec__d9", safeName("a-b.c_d9"))
-	s.NotEqual(safeName("a-b"), safeName("a_b"))
+func TestSafeName(t *testing.T) {
+	check.Equal(t, safeName("a-b.c_d9"), "a_2db_2ec__d9")
+	check.NotEqual(t, safeName("a-b"), safeName("a_b"))
 }
 
-func (s *VhostTestSuite) TestReset() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetRoot("/custom"))
-	s.NoError(vhost.SetServerName([]string{"a.com"}))
-	s.NoError(vhost.Reset())
-	s.Equal(filepath.Join(filepath.Dir(s.configDir), "public"), vhost.Root())
-	s.Equal([]string{"localhost"}, vhost.ServerName())
+func TestVhostReset(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetRoot("/custom"))
+	check.NoError(t, vhost.SetServerName([]string{"a.com"}))
+	check.NoError(t, vhost.Reset())
+	check.Equal(t, vhost.Root(), filepath.Join(filepath.Dir(configDir), "public"))
+	check.DeepEqual(t, vhost.ServerName(), []string{"localhost"})
 }
 
-func (s *VhostTestSuite) TestConfigFragments() {
-	vhost, err := NewStaticVhost(s.configDir)
-	s.Require().NoError(err)
-	s.NoError(vhost.SetConfig("010-cache.conf", types.ScopeSite, "encode gzip\n"))
-	s.True(strings.HasPrefix(vhost.Config("010-cache.conf", types.ScopeSite), "# Auto-generated"))
-	s.NoError(vhost.SetRawConfig("010-rewrite.conf", types.ScopeSite, "try_files {path} /index.html\n"))
-	s.Equal("try_files {path} /index.html", vhost.Config("010-rewrite.conf", types.ScopeSite))
-	s.NoError(vhost.RemoveConfig("010-rewrite.conf", types.ScopeSite))
-	s.Equal("", vhost.Config("010-rewrite.conf", types.ScopeSite))
+func TestVhostConfigFragments(t *testing.T) {
+	configDir := newConfigDir(t)
+	vhost, err := NewStaticVhost(configDir)
+	must.NoError(t, err)
+	check.NoError(t, vhost.SetConfig("010-cache.conf", types.ScopeSite, "encode gzip\n"))
+	cache := vhost.Config("010-cache.conf", types.ScopeSite)
+	check.True(t, strings.HasPrefix(cache, "# Auto-generated"), check.Msgf("缺少自动生成头: %s", cache))
+	check.Contains(t, cache, "encode gzip")
+	check.NoError(t, vhost.SetRawConfig("010-rewrite.conf", types.ScopeSite, "try_files {path} /index.html\n"))
+	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "try_files {path} /index.html")
+	check.NoError(t, vhost.RemoveConfig("010-rewrite.conf", types.ScopeSite))
+	check.Equal(t, vhost.Config("010-rewrite.conf", types.ScopeSite), "")
 }
 
-func (s *VhostTestSuite) TestDialect() {
+func TestDialect(t *testing.T) {
 	d := Dialect{}
-	s.Equal("caddy", d.Service())
-	s.Equal(ConfName, d.ConfigFile())
-	s.Equal([]string{"ssl"}, d.HTTPSListenArgs())
-	s.Equal(types.Features{Stat: true, DefaultSite: true}, d.Features())
-	s.Equal("caddy", d.RewritesDir())
+	check.Equal(t, d.Service(), "caddy")
+	check.Equal(t, d.ConfigFile(), ConfName)
+	check.DeepEqual(t, d.HTTPSListenArgs(), []string{"ssl"})
+	check.DeepEqual(t, d.Features(), types.Features{Stat: true, DefaultSite: true})
+	check.Equal(t, d.RewritesDir(), "caddy")
 	shared, site := d.StatConf("demo")
-	s.Equal("", shared)
-	s.Contains(site, "output net unixgram//tmp/ace_stats.sock")
-	s.Contains(site, "\t\t\tsite demo\n")
-	s.Equal("", d.DefaultSiteConf())
-	s.NoError(d.WriteDefaultSite(true))
-	s.Equal("admin:{PLAIN}secret", d.HTPasswdLine("admin", "secret"))
-	s.NoError(d.BeforeReload())
+	check.Equal(t, shared, "")
+	check.Contains(t, site, "output net unixgram//tmp/ace_stats.sock")
+	check.Contains(t, site, "\t\t\tsite demo\n")
+	check.Equal(t, d.DefaultSiteConf(), "")
+	check.NoError(t, d.WriteDefaultSite(true))
+	check.Equal(t, d.HTPasswdLine("admin", "secret"), "admin:{PLAIN}secret")
+	check.NoError(t, d.BeforeReload())
 }

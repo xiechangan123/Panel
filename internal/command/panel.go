@@ -11,7 +11,6 @@ import (
 
 // UpdateCommand 更新面板
 func UpdateCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "update",
 		Usage: t.Get("Update AcePanel to the latest version"),
@@ -23,7 +22,6 @@ func UpdateCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comman
 
 // SyncCommand 同步云端缓存数据
 func SyncCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "sync",
 		Usage: t.Get("Sync AcePanel cached data with cloud"),
@@ -35,7 +33,6 @@ func SyncCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 
 // FixCommand 修复升级问题
 func FixCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "fix",
 		Usage: t.Get("Fix AcePanel upgrade issues"),
@@ -47,7 +44,6 @@ func FixCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
 
 // InfoCommand 输出面板基础信息
 func InfoCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "info",
 		Usage: t.Get("Output AcePanel basic information"),
@@ -71,7 +67,6 @@ func InfoCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 
 // PortCommand 修改监听端口
 func PortCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:      "port",
 		Usage:     t.Get("Change the AcePanel listening port"),
@@ -91,7 +86,6 @@ func PortCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command 
 
 // SyncTimeCommand 通过 NTP 同步系统时间
 func SyncTimeCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "sync-time",
 		Usage: t.Get("Sync server time with NTP"),
@@ -103,7 +97,6 @@ func SyncTimeCommand(t *gotext.Locale, cliService *service.CliService) *cli.Comm
 
 // ClearTaskCommand 清理卡住的任务队列
 func ClearTaskCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:   "clear-task",
 		Usage:  t.Get("Clear all tasks in the task queue if they are stuck (use only under guidance)"),
@@ -116,7 +109,6 @@ func ClearTaskCommand(t *gotext.Locale, cliService *service.CliService) *cli.Com
 
 // InitCommand 初始化面板
 func InitCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:   "init",
 		Usage:  t.Get("Initialize AcePanel (use only under guidance)"),

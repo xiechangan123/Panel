@@ -174,6 +174,8 @@ func paramLayout(spec *btf.Spec, hook, param string) (paramIdx, nargs int, err e
 
 // eventInsns 入口约定:R9=inode R8=dev,R6 复用为事件指针
 // namePtrOff=0 无新名;verdictInR7 时按 R7 标 denied,否则恒 denied
+//
+//nolint:gosec
 func eventInsns(op Op, eventsFD int, namePtrOff int16, verdictInR7 bool) asm.Instructions {
 	insns := asm.Instructions{
 		asm.LoadMapPtr(asm.R1, eventsFD).WithSymbol("hit"),
@@ -220,6 +222,8 @@ func eventInsns(op Op, eventsFD int, namePtrOff int16, verdictInR7 bool) asm.Ins
 }
 
 // R6=ctx/事件指针 R7=prev_ret R8=dev R9=ino(R6-R9 跨 helper 保留)
+//
+//nolint:gosec
 func buildProg(h hookSpec, offs btfOffsets, paramIdx, paramIdx2, nargs, protectedFD, eventsFD int) asm.Instructions {
 	retOff := int16(nargs * 8)
 
@@ -292,6 +296,8 @@ func buildProg(h hookSpec, offs btfOffsets, paramIdx, paramIdx2, nargs, protecte
 
 // R7=prev_ret,透传后复用为本程序返回值(软命中路径改 0 放行)
 // 栈:FP-16 复合键 / FP-24 dir value 指针 / FP-32 新名 char* / FP-36 新名长度 / FP-64 起 15B 尾部缓冲
+//
+//nolint:gosec
 func buildDirProg(h hookSpec, offs btfOffsets, paramIdx, nameIdx, oldIdx, nargs int, exts []string, dirsFD, eventsFD int, deny bool) asm.Instructions {
 	retOff := int16(nargs * 8)
 	ret := int32(-1)
@@ -574,8 +580,9 @@ func newEBPFEngine(log *slog.Logger, blockNew bool, ruleExts []string) (*ebpfEng
 		})
 		if err != nil {
 			_ = e.Close()
+			// %+w 保留校验器完整日志
 			if ve, ok := errors.AsType[*ebpf.VerifierError](err); ok {
-				return nil, fmt.Errorf("failed to load %s LSM program: %+v", h.hook, ve)
+				return nil, fmt.Errorf("failed to load %s LSM program: %+w", h.hook, ve)
 			}
 			return nil, fmt.Errorf("failed to load %s LSM program: %w", h.hook, err)
 		}

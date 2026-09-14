@@ -11,7 +11,6 @@ import (
 
 // DatabaseCommand 数据库管理命令组
 func DatabaseCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "database",
 		Usage: t.Get("Database management"),

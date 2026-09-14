@@ -31,7 +31,6 @@ type App struct {
 }
 
 func NewApp(conf *config.Config, t *gotext.Locale, taskRepo biz.TaskRepo) *App {
-
 	return &App{t: t, conf: conf, taskRepo: taskRepo}
 }
 

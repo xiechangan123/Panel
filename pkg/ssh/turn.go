@@ -83,7 +83,7 @@ func (t *Turn) Handle(ctx context.Context) error {
 			_, data, err := t.ws.Read(ctx)
 			if err != nil {
 				// 通常是客户端关闭连接
-				return fmt.Errorf("reading ws message err: %v", err)
+				return fmt.Errorf("reading ws message err: %w", err)
 			}
 
 			// 判断是否是 ping 消息
@@ -96,14 +96,14 @@ func (t *Turn) Handle(ctx context.Context) error {
 			if err = json.Unmarshal(data, &resize); err == nil {
 				if resize.Resize && resize.Columns > 0 && resize.Rows > 0 {
 					if err = t.session.WindowChange(resize.Rows, resize.Columns); err != nil {
-						return fmt.Errorf("change window size err: %v", err)
+						return fmt.Errorf("change window size err: %w", err)
 					}
 				}
 				continue
 			}
 
 			if _, err = t.stdin.Write(data); err != nil {
-				return fmt.Errorf("writing ws message to stdin err: %v", err)
+				return fmt.Errorf("writing ws message to stdin err: %w", err)
 			}
 		}
 	}

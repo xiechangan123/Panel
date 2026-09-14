@@ -3,21 +3,13 @@ package os
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/libtnb/assert/check"
 )
 
-type OSHelperTestSuite struct {
-	suite.Suite
+func TestIsDebian(t *testing.T) {
+	check.True(t, IsDebian(), check.Msgf("os-release: %v", readOSRelease()))
 }
 
-func TestOSHelperTestSuite(t *testing.T) {
-	suite.Run(t, &OSHelperTestSuite{})
-}
-
-func (s *OSHelperTestSuite) TestIsDebian() {
-	s.True(IsDebian())
-}
-
-func (s *OSHelperTestSuite) TestIsRHEL() {
-	s.False(IsRHEL())
+func TestIsRHEL(t *testing.T) {
+	check.False(t, IsRHEL(), check.Msgf("os-release: %v", readOSRelease()))
 }

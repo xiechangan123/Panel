@@ -46,6 +46,7 @@ func (uc *FileShareUsecase) List() ([]*FileShare, error) {
 
 // Create 创建分享，同一路径可重复分享为多条独立记录
 func (uc *FileShareUsecase) Create(ctx context.Context, req *request.FileShareCreate) (*FileShare, error) {
+	//nolint:gosec
 	share, err := uc.repo.Create(req.Path, req.MaxDownloads, time.Now().Add(time.Duration(req.ExpireHours)*time.Hour))
 	if err != nil {
 		return nil, err

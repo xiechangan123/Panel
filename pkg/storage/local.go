@@ -134,10 +134,10 @@ func (l *Local) preCheckPath(path string) error {
 		return err
 	}
 
-	if uint64(size) > usage.Free {
+	if size > 0 && uint64(size) > usage.Free {
 		return errors.New("insufficient backup directory space")
 	}
-	if uint64(files) > usage.InodesFree {
+	if files > 0 && uint64(files) > usage.InodesFree {
 		return errors.New("insufficient backup directory inode")
 	}
 

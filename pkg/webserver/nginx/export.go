@@ -103,14 +103,15 @@ func quote(a conf.Arg) string {
 		return `"` + escape(a.Value, '"') + `"`
 	case conf.QuoteSingle:
 		return `'` + escape(a.Value, '\'') + `'`
+	default:
+		return a.Value
 	}
-	return a.Value
 }
 
 // escape 与解析对称：反斜杠、引号与控制符转义
 func escape(s string, quote byte) string {
 	var b strings.Builder
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		switch ch := s[i]; ch {
 		case '\\', quote:
 			b.WriteByte('\\')

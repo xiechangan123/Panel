@@ -1,6 +1,7 @@
 package caddy
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -92,7 +93,7 @@ func Parse(content string) (*conf.Config, error) {
 	}
 
 	if len(stack) != 1 {
-		return nil, fmt.Errorf("unclosed block")
+		return nil, errors.New("unclosed block")
 	}
 
 	return cfg, nil

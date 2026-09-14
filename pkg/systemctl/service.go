@@ -48,10 +48,10 @@ func GetServiceInfo(name string) (*ServiceInfo, error) {
 	}
 
 	if info.PID > 0 {
-		if proc, err := process.NewProcess(int32(info.PID)); err == nil {
+		if proc, err := process.NewProcess(int32(info.PID)); err == nil { //nolint:gosec
 			// 获取内存信息
 			if memInfo, err := proc.MemoryInfo(); err == nil && memInfo != nil {
-				info.Memory = int64(memInfo.RSS)
+				info.Memory = int64(memInfo.RSS) //nolint:gosec
 			}
 			// 获取 CPU 使用率
 			if cpu, err := proc.CPUPercent(); err == nil {

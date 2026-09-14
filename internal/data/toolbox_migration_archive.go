@@ -40,7 +40,7 @@ func (r *migrationArchiveRepo) Extract(ctx context.Context, archive, target stri
 	}
 	entries, err := os.ReadDir(target)
 	if err != nil || len(entries) != 1 || !entries[0].IsDir() {
-		return target, nil
+		return target, nil //nolint:nilerr
 	}
 	return filepath.Join(target, entries[0].Name()), nil
 }

@@ -282,7 +282,11 @@ func (s *UserPasskeyService) FinishLogin(w http.ResponseWriter, r *http.Request)
 	_ = s.userPasskeyRepo.UpdateSignCount(credential.ID, credential.Authenticator.SignCount)
 	_ = s.userPasskeyRepo.UpdateLastUsed(credential.ID)
 
-	wUser := returnedUser.(*passkey.User)
+	wUser, ok := returnedUser.(*passkey.User)
+	if !ok {
+		ErrorSystem(w)
+		return
+	}
 
 	// 重新生成会话 ID
 	if err = sess.Regenerate(true); err != nil {

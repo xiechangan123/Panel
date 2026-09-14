@@ -1,6 +1,7 @@
 package openlitespeed
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -212,7 +213,11 @@ func acmeLive(thumb string) bool {
 			return http.ErrUseLastResponse
 		},
 	}
-	resp, err := client.Get("http://127.0.0.1/.well-known/acme-challenge/" + acmeProbe)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://127.0.0.1/.well-known/acme-challenge/"+acmeProbe, nil)
+	if err != nil {
+		return false
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return false
 	}

@@ -29,7 +29,7 @@ type BackupRepo interface {
 	Create(ctx context.Context, typ BackupType, target string, account uint) error
 	CreatePanel() error
 	Delete(typ BackupType, name string) error
-	Restore(typ BackupType, backup, target string) error
+	Restore(ctx context.Context, typ BackupType, backup, target string) error
 	ClearExpired(path, prefix string, save uint) error
 	ClearStorageExpired(account uint, dir, prefix string, save uint) error
 	CutoffLog(path, target string) (string, error)
@@ -94,7 +94,7 @@ func (uc *BackupUsecase) Delete(ctx context.Context, typ BackupType, name string
 }
 
 func (uc *BackupUsecase) Restore(ctx context.Context, typ BackupType, backup, target string) error {
-	if err := uc.repo.Restore(typ, backup, target); err != nil {
+	if err := uc.repo.Restore(ctx, typ, backup, target); err != nil {
 		return err
 	}
 

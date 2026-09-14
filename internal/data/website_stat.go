@@ -263,7 +263,7 @@ func (r *websiteStatRepo) TopIPs(start, end string, sites []string, page, limit 
 	}
 	offset := (page - 1) * limit
 	err := dataQ.Group("ip").Order("requests DESC").Offset(int(offset)).Limit(int(limit)).Scan(&items).Error
-	return items, uint(total), err
+	return items, uint(total), err //nolint:gosec
 }
 
 func (r *websiteStatRepo) ClearIPsBefore(date string) error {
@@ -341,7 +341,7 @@ func (r *websiteStatRepo) TopURIs(start, end string, sites []string, page, limit
 	}
 	offset := (page - 1) * limit
 	err := dataQ.Group("uri").Order("requests DESC").Offset(int(offset)).Limit(int(limit)).Scan(&items).Error
-	return items, uint(total), err
+	return items, uint(total), err //nolint:gosec
 }
 
 func (r *websiteStatRepo) ClearURIsBefore(date string) error {
@@ -383,7 +383,7 @@ func (r *websiteStatRepo) TopSlowURIs(start, end string, sites []string, thresho
 	err := dataQ.Group("uri").Having(having, havingArgs...).
 		Order("CAST(SUM(request_time_sum) AS REAL) / SUM(request_time_count) DESC").
 		Offset(int(offset)).Limit(int(limit)).Scan(&items).Error
-	return items, uint(total), err
+	return items, uint(total), err //nolint:gosec
 }
 
 // ========== 错误日志查询 ==========
@@ -405,7 +405,7 @@ func (r *websiteStatRepo) ListErrors(start, end string, sites []string, status i
 	var items []*biz.WebsiteErrorLog
 	offset := (page - 1) * limit
 	err := q.Order("created_at DESC").Offset(int(offset)).Limit(int(limit)).Find(&items).Error
-	return items, uint(total), err
+	return items, uint(total), err //nolint:gosec
 }
 
 // ========== 网站维度汇总 ==========

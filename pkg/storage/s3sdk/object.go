@@ -3,7 +3,7 @@ package s3sdk
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
@@ -25,12 +25,13 @@ type ObjectInfo struct {
 
 // Stat 通过 HEAD 获取对象元数据；对象不存在时返回的错误可用 IsNotFound 判断
 func (c *S3) Stat(key string) (ObjectInfo, error) {
-	req, err := http.NewRequest(http.MethodHead, c.objectURL(key), nil)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, c.objectURL(key), nil)
 	if err != nil {
 		return ObjectInfo{}, err
 	}
 
-	_, res, err := c.do(context.Background(), req, http.StatusOK)
+	_, res, err := c.do(ctx, req, http.StatusOK) //nolint:bodyclose
 	if err != nil {
 		return ObjectInfo{}, err
 	}
@@ -85,7 +86,8 @@ func (c *S3) deleteBatch(keys []string) error {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.base+"?delete", bytes.NewReader(body))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.base+"?delete", bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
@@ -93,10 +95,10 @@ func (c *S3) deleteBatch(keys []string) error {
 	req.Header.Set("Content-Type", "application/xml")
 	req.Header.Set("x-amz-content-sha256", sha256Hex(body))
 	// S3 对 DeleteObjects 强制要求 Content-MD5
-	sum := md5.Sum(body)
+	sum := md5.Sum(body) //nolint:gosec
 	req.Header.Set("Content-MD5", base64.StdEncoding.EncodeToString(sum[:]))
 
-	respBody, _, err := c.do(context.Background(), req, http.StatusOK)
+	respBody, _, err := c.do(ctx, req, http.StatusOK) //nolint:bodyclose
 	if err != nil {
 		return err
 	}

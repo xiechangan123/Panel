@@ -110,7 +110,7 @@ func (r *ClickHouse) DatabaseSize(name string) (int64, error) {
 	}
 	var size int64
 	if _, err = fmt.Sscanf(strings.TrimSpace(result), "%d", &size); err != nil {
-		return 0, nil
+		return 0, nil //nolint:nilerr
 	}
 	return size, nil
 }

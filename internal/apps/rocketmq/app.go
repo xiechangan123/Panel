@@ -21,7 +21,6 @@ type App struct {
 }
 
 func NewApp(t *gotext.Locale) *App {
-
 	return &App{t: t}
 }
 

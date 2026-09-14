@@ -20,7 +20,7 @@ require (
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/go-webauthn/webauthn v0.18.1
 	github.com/gomodule/redigo v1.9.3
-	github.com/google/wire v0.7.0
+	github.com/google/go-cmp v0.7.0
 	github.com/gookit/color v1.6.1
 	github.com/hashicorp/go-version v1.9.0
 	github.com/klauspost/compress v1.20.0
@@ -36,6 +36,7 @@ require (
 	github.com/libdns/porkbun v1.1.0
 	github.com/libdns/tencentcloud v1.4.3
 	github.com/libdns/westcn v1.0.2
+	github.com/libtnb/assert v0.4.2
 	github.com/libtnb/chix/v2 v2.1.1
 	github.com/libtnb/cron v0.6.0
 	github.com/libtnb/gormstore v1.3.0
@@ -45,6 +46,7 @@ require (
 	github.com/libtnb/utils v1.2.2
 	github.com/libtnb/validator v0.5.0
 	github.com/libtnb/validator/contrib/openapi v0.3.0
+	github.com/libtnb/wire v0.3.0
 	github.com/medama-io/go-useragent v1.2.4
 	github.com/mholt/acmez/v3 v3.1.6
 	github.com/moby/moby/api v1.56.0
@@ -58,7 +60,6 @@ require (
 	github.com/sethvargo/go-limiter v1.2.0
 	github.com/shirou/gopsutil/v4 v4.26.8
 	github.com/spf13/cast v1.10.0
-	github.com/stretchr/testify v1.12.1
 	github.com/studio-b12/gowebdav v0.13.0
 	github.com/urfave/cli/v3 v3.11.0
 	github.com/valyala/fastjson v1.6.10
@@ -99,7 +100,6 @@ require (
 	github.com/gofiber/utils/v2 v2.2.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
-	github.com/google/subcommands v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jaevor/go-nanoid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -113,12 +113,10 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/richardlehane/mscfb v1.0.7 // indirect
 	github.com/richardlehane/msoleps v1.0.6 // indirect
-	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
@@ -142,9 +140,6 @@ require (
 	modernc.org/memory v1.12.1 // indirect
 )
 
-replace (
-	github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20260406165834-a264acd02292
-	github.com/stretchr/testify => github.com/libtnb/testify v0.0.0-20260406170114-25da2dad39e7
-)
+replace github.com/mholt/acmez/v3 => github.com/libtnb/acmez/v3 v3.0.0-20260406165834-a264acd02292
 
-tool github.com/google/wire/cmd/wire
+tool github.com/libtnb/wire/cmd/wire

@@ -79,6 +79,7 @@ func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager,
 				if time.Now().Unix()-refreshAt > 600 {
 					sess.Put("refresh_at", time.Now().Unix())
 					// 重新设置 Cookie
+					//nolint:gosec
 					http.SetCookie(w, &http.Cookie{
 						Name:     sess.GetName(),
 						Value:    sess.GetID(),
@@ -96,7 +97,8 @@ func MustLogin(t *gotext.Locale, conf *config.Config, session *sessions.Manager,
 				return
 			}
 
-			r = r.WithContext(context.WithValue(r.Context(), "user_id", userID)) // nolint:staticcheck
+			//nolint:staticcheck
+			r = r.WithContext(context.WithValue(r.Context(), "user_id", userID))
 			next.ServeHTTP(w, r)
 		})
 	}

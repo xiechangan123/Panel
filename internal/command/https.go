@@ -11,7 +11,6 @@ import (
 
 // HttpsCommand 面板 HTTPS 管理命令组
 func HttpsCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "https",
 		Usage: t.Get("Operate AcePanel HTTPS"),

@@ -2,6 +2,7 @@ package os
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -54,7 +55,7 @@ func IsRHEL() bool {
 	}
 	// alinux Alibaba Cloud Linux
 	// hce Huawei Cloud EulerOS
-	// openEuler openEuler
+	// openEuler 欧拉
 	id, idLike := osRelease["ID"], osRelease["ID_LIKE"]
 	return id == "rhel" || id == "almalinux" || id == "rocky" || id == "alinux" || id == "tencentos" || id == "opencloudos" || strings.Contains(idLike, "rhel")
 }
@@ -124,8 +125,8 @@ func IsEOL() bool {
 }
 
 func TCPPortInUse(port uint) bool {
-	addr := fmt.Sprintf(":%d", port)
-	conn, err := net.Listen("tcp", addr)
+	var lc net.ListenConfig
+	conn, err := lc.Listen(context.Background(), "tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return true
 	}
@@ -134,8 +135,8 @@ func TCPPortInUse(port uint) bool {
 }
 
 func UDPPortInUse(port uint) bool {
-	addr := fmt.Sprintf(":%d", port)
-	conn, err := net.ListenPacket("udp", addr)
+	var lc net.ListenConfig
+	conn, err := lc.ListenPacket(context.Background(), "udp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return true
 	}

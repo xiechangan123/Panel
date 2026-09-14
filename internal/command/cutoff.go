@@ -11,7 +11,6 @@ import (
 
 // CutoffCommand 日志切割命令组
 func CutoffCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "cutoff",
 		Usage: t.Get("Log rotation"),

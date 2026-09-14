@@ -11,7 +11,6 @@ import (
 
 // FirewallCommand 防火墙管理命令组
 func FirewallCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "firewall",
 		Usage: t.Get("Firewall management"),

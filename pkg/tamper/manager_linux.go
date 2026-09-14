@@ -149,11 +149,11 @@ func loadMountDevs() []mountDev {
 			continue
 		}
 		maj, err1 := strconv.ParseUint(majS, 10, 32)
-		min, err2 := strconv.ParseUint(minS, 10, 32)
+		minNum, err2 := strconv.ParseUint(minS, 10, 32)
 		if err1 != nil || err2 != nil {
 			continue
 		}
-		mounts = append(mounts, mountDev{point: mountUnescape.Replace(f[4]), dev: maj<<20 | min&0xfffff})
+		mounts = append(mounts, mountDev{point: mountUnescape.Replace(f[4]), dev: maj<<20 | minNum&0xfffff})
 	}
 	return mounts
 }
@@ -169,7 +169,7 @@ func devOfPath(mounts []mountDev, path string, st *syscall.Stat_t) uint64 {
 	if best >= 0 {
 		return mounts[best].dev
 	}
-	return uint64(unix.Major(uint64(st.Dev)))<<20 | uint64(unix.Minor(uint64(st.Dev)))&0xfffff
+	return uint64(unix.Major(st.Dev))<<20 | uint64(unix.Minor(st.Dev))&0xfffff
 }
 
 func statOf(mounts []mountDev, path string) (dev, ino uint64) {
@@ -184,7 +184,7 @@ func statOf(mounts []mountDev, path string) (dev, ino uint64) {
 func walkRule(mounts []mountDev, root string, rule *Rule, emit func(fileEntry)) {
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return nil
+			return nil //nolint:nilerr
 		}
 		if isExcluded(path, rule.Excludes) {
 			if d.IsDir() {
@@ -300,7 +300,7 @@ func (m *Manager) startWatcher() error {
 		for _, root := range rule.Paths {
 			_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 				if err != nil || !d.IsDir() {
-					return nil
+					return nil //nolint:nilerr
 				}
 				if isExcluded(path, rule.Excludes) {
 					return filepath.SkipDir

@@ -11,7 +11,6 @@ import (
 
 // BackupCommand 数据备份命令组
 func BackupCommand(t *gotext.Locale, cliService *service.CliService) *cli.Command {
-
 	return &cli.Command{
 		Name:  "backup",
 		Usage: t.Get("Data backup"),
