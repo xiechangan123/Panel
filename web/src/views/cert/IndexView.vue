@@ -9,6 +9,7 @@ import { useGettext } from 'vue3-gettext'
 import app from '@/api/panel/app'
 import cert from '@/api/panel/cert'
 import website from '@/api/panel/website'
+import { WEBSERVER_SLUGS } from '@/utils'
 import AccountView from '@/views/cert/AccountView.vue'
 import CertView from '@/views/cert/CertView.vue'
 import CreateAccountModal from '@/views/cert/CreateAccountModal.vue'
@@ -38,7 +39,7 @@ const getAsyncData = () => {
   })
 
   websites.value = []
-  useRequest(app.isInstalled('nginx,openresty,apache,caddy')).onSuccess(({ data }) => {
+  useRequest(app.isInstalled(WEBSERVER_SLUGS)).onSuccess(({ data }) => {
     if (data) {
       useRequest(website.list('all', 1, 10000)).onSuccess(({ data }) => {
         for (const item of data.items) {

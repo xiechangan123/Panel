@@ -1,6 +1,7 @@
 import type { Router } from 'vue-router'
 
 import app from '@/api/panel/app'
+import { WEBSERVER_SLUGS } from '@/utils'
 
 // 防止重复显示错误消息
 let lastErrorMsg = ''
@@ -30,14 +31,12 @@ export function createAppInstallGuard(router: Router) {
 
     // 网站
     if (to.path.startsWith('/website')) {
-      await useRequest(app.isInstalled('nginx,openresty,apache,openlitespeed,caddy')).onSuccess(
-        ({ data }) => {
-          if (!data) {
-            showErrorMessage(`Web 服务器未安装`)
-            return router.push({ name: 'app-index' })
-          }
-        },
-      )
+      await useRequest(app.isInstalled(WEBSERVER_SLUGS)).onSuccess(({ data }) => {
+        if (!data) {
+          showErrorMessage(`Web 服务器未安装`)
+          return router.push({ name: 'app-index' })
+        }
+      })
     }
 
     // 容器

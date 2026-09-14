@@ -3,40 +3,63 @@ package webserver
 import (
 	"fmt"
 
+	"github.com/acepanel/panel/v3/pkg/shell"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/webserver/apache"
 	"github.com/acepanel/panel/v3/pkg/webserver/nginx"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-func NewStaticVhost(serverType Type, configDir string) (types.StaticVhost, error) {
-	switch serverType {
-	case TypeNginx:
-		return nginx.NewStaticVhost(configDir)
-	case TypeApache:
-		return apache.NewStaticVhost(configDir)
+// dialects 已注册的 Web 服务器方言
+var dialects = map[Type]types.Dialect{
+	TypeNginx:  nginx.Dialect{},
+	TypeApache: apache.Dialect{},
+}
+
+// Dialect 在具体方言之上补充与服务器无关的通用逻辑
+type Dialect struct {
+	types.Dialect
+}
+
+// Get 按类型取方言
+func Get(t Type) (Dialect, error) {
+	d, ok := dialects[t]
+	if !ok {
+		return Dialect{}, fmt.Errorf("unsupported web server: %s", t)
+	}
+
+	return Dialect{Dialect: d}, nil
+}
+
+// NewVhost 按网站类型构造站点 vhost，typ 取值 proxy、php、static
+func (d Dialect) NewVhost(typ, configDir string) (types.Vhost, error) {
+	switch typ {
+	case "proxy":
+		return d.NewProxyVhost(configDir)
+	case "php":
+		return d.NewPHPVhost(configDir)
+	case "static":
+		return d.NewStaticVhost(configDir)
 	default:
-		return nil, fmt.Errorf("unsupported server type: %s", serverType)
+		return nil, fmt.Errorf("unsupported website type: %s", typ)
 	}
 }
 
-func NewPHPVhost(serverType Type, configDir string) (types.PHPVhost, error) {
-	switch serverType {
-	case TypeNginx:
-		return nginx.NewPHPVhost(configDir)
-	case TypeApache:
-		return apache.NewPHPVhost(configDir)
-	default:
-		return nil, fmt.Errorf("unsupported server type: %s", serverType)
+// Reload 重载服务，失败时附带配置测试输出
+func (d Dialect) Reload() error {
+	if err := systemctl.Reload(d.Service()); err != nil {
+		out, _ := shell.Execf(d.ConfigTest())
+		return fmt.Errorf("failed to reload %s: %w; config test: %s", d.Service(), err, out)
 	}
+
+	return nil
 }
 
-func NewProxyVhost(serverType Type, configDir string) (types.ProxyVhost, error) {
-	switch serverType {
-	case TypeNginx:
-		return nginx.NewProxyVhost(configDir)
-	case TypeApache:
-		return apache.NewProxyVhost(configDir)
-	default:
-		return nil, fmt.Errorf("unsupported server type: %s", serverType)
+// ReloadIfRunning 仅在服务运行时重载，未运行时配置会在下次启动时生效
+func (d Dialect) ReloadIfRunning() error {
+	if running, _ := systemctl.Status(d.Service()); !running {
+		return nil
 	}
+
+	return d.Reload()
 }

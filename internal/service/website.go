@@ -15,7 +15,6 @@ import (
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
-	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/webserver"
 )
 
@@ -44,16 +43,12 @@ func (s *WebsiteService) GetRewrites(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *WebsiteService) GetDefaultConfig(w http.ResponseWriter, r *http.Request) {
-	webServer, _ := s.settingRepo.Get(biz.SettingKeyWebserver)
-	var htmlPath string
-	switch webServer {
-	case "nginx":
-		htmlPath = filepath.Join(app.Root, "server/nginx/html")
-	case "apache":
-		htmlPath = filepath.Join(app.Root, "server/apache/htdocs")
-	default:
-		htmlPath = filepath.Join(app.Root, "server/nginx/html")
+	d, err := s.dialect()
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
 	}
+	htmlPath := d.HTMLDir()
 
 	index, _ := io.Read(filepath.Join(htmlPath, "index.html"))
 	stop, _ := io.Read(filepath.Join(htmlPath, "stop.html"))
@@ -107,11 +102,21 @@ func nginxDefaultConf(asDefault bool) string {
 `, flag, filepath.Join(app.Root, "server/nginx"))
 }
 
+// dialect 取当前 Web 服务器方言
+func (s *WebsiteService) dialect() (webserver.Dialect, error) {
+	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return webserver.Dialect{}, err
+	}
+
+	return webserver.Get(webserver.Type(webServer))
+}
+
 // filterDefaultHolders 过滤出配置中持有 default_server 的网站
-func filterDefaultHolders(websites []*biz.Website) []*biz.Website {
+func filterDefaultHolders(d webserver.Dialect, websites []*biz.Website) []*biz.Website {
 	var holders []*biz.Website
 	for _, website := range websites {
-		vhost, err := webserver.NewStaticVhost(webserver.TypeNginx, filepath.Join(app.Root, "sites", website.Name, "config"))
+		vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", website.Name, "config"))
 		if err != nil {
 			continue
 		}
@@ -127,8 +132,8 @@ func filterDefaultHolders(websites []*biz.Website) []*biz.Website {
 }
 
 // setWebsiteDefaultServer 增删网站配置中的 default_server 标志
-func (s *WebsiteService) setWebsiteDefaultServer(name string, isDefault bool) error {
-	vhost, err := webserver.NewStaticVhost(webserver.TypeNginx, filepath.Join(app.Root, "sites", name, "config"))
+func setWebsiteDefaultServer(d webserver.Dialect, name string, isDefault bool) error {
+	vhost, err := d.NewStaticVhost(filepath.Join(app.Root, "sites", name, "config"))
 	if err != nil {
 		return err
 	}
@@ -154,14 +159,20 @@ func (s *WebsiteService) setWebsiteDefaultServer(name string, isDefault bool) er
 
 // GetDefaultSite 获取当前默认站点,0 表示面板内置默认页
 func (s *WebsiteService) GetDefaultSite(w http.ResponseWriter, r *http.Request) {
+	var id uint
+	d, err := s.dialect()
+	if err != nil || !d.Features().DefaultSite {
+		Success(w, chix.M{"id": id})
+		return
+	}
+
 	websites, _, err := s.websiteRepo.List("all", 1, 10000)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	var id uint
-	if holders := filterDefaultHolders(websites); len(holders) > 0 {
+	if holders := filterDefaultHolders(d, websites); len(holders) > 0 {
 		id = holders[0].ID
 	}
 
@@ -177,8 +188,8 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	webServer, _ := s.settingRepo.Get(biz.SettingKeyWebserver)
-	if webServer != "nginx" {
+	d, err := s.dialect()
+	if err != nil || !d.Features().DefaultSite {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("default site is only supported with nginx"))
 		return
 	}
@@ -199,7 +210,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		target = websites[idx]
 	}
 
-	holders := filterDefaultHolders(websites)
+	holders := filterDefaultHolders(d, websites)
 
 	// 备份待改文件,校验失败时整体回滚
 	defaultConf := filepath.Join(app.Root, "server/nginx/conf/default.conf")
@@ -227,7 +238,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		if target != nil && website.ID == target.ID {
 			continue
 		}
-		if err = s.setWebsiteDefaultServer(website.Name, false); err != nil {
+		if err = setWebsiteDefaultServer(d, website.Name, false); err != nil {
 			restore()
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
@@ -235,7 +246,7 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 	}
 	// 目标网站添加 default_server
 	if target != nil {
-		if err = s.setWebsiteDefaultServer(target.Name, true); err != nil {
+		if err = setWebsiteDefaultServer(d, target.Name, true); err != nil {
 			restore()
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
@@ -248,13 +259,13 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, err = shell.Execf("nginx -t"); err != nil {
+	if _, err = shell.Execf(d.ConfigTest()); err != nil {
 		restore()
 		Error(w, http.StatusInternalServerError, s.t.Get("nginx config test failed: %v", err))
 		return
 	}
-	if err = systemctl.Reload("nginx"); err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
+	if err = d.Reload(); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 

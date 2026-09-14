@@ -24,7 +24,6 @@ import (
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/punycode"
 	"github.com/acepanel/panel/v3/pkg/shell"
-	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
@@ -45,62 +44,6 @@ func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) 
 		setting: settingRepo,
 	}
 }
-
-const nginxPHPCacheConfig = `# browser cache
-location ~ .*\.(bmp|jpg|jpeg|png|gif|svg|ico|tiff|webp|avif|heif|heic|jxl)$ {
-    expires 30d;
-    access_log /dev/null;
-    error_log /dev/null;
-}
-location ~ .*\.(js|css|ttf|otf|woff|woff2|eot)$ {
-    expires 6h;
-    access_log /dev/null;
-    error_log /dev/null;
-}
-# deny sensitive files
-location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.env) {
-    return 404;
-}
-`
-
-const apachePHPCacheConfig = `# browser cache
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType image/bmp "access plus 30 days"
-    ExpiresByType image/jpeg "access plus 30 days"
-    ExpiresByType image/png "access plus 30 days"
-    ExpiresByType image/gif "access plus 30 days"
-    ExpiresByType image/svg+xml "access plus 30 days"
-    ExpiresByType image/x-icon "access plus 30 days"
-    ExpiresByType image/tiff "access plus 30 days"
-    ExpiresByType image/webp "access plus 30 days"
-    ExpiresByType image/avif "access plus 30 days"
-    ExpiresByType image/heif "access plus 30 days"
-    ExpiresByType image/heic "access plus 30 days"
-    ExpiresByType image/jxl "access plus 30 days"
-    ExpiresByType text/css "access plus 6 hours"
-    ExpiresByType application/javascript "access plus 6 hours"
-    ExpiresByType font/ttf "access plus 6 hours"
-    ExpiresByType font/otf "access plus 6 hours"
-    ExpiresByType font/woff "access plus 6 hours"
-    ExpiresByType font/woff2 "access plus 6 hours"
-    ExpiresByType application/vnd.ms-fontobject "access plus 6 hours"
-</IfModule>
-# deny sensitive files
-<FilesMatch "^(\.user\.ini|\.htaccess|\.git|\.svn|\.env)">
-    Require all denied
-</FilesMatch>
-`
-
-const nginxSPAConfig = `# single-page application route fallback, remove if not needed
-location / {
-    try_files $uri $uri/ /index.html;
-}
-`
-
-const apacheSPAConfig = `# single-page application route fallback, remove if not needed
-FallbackResource /index.html
-`
 
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
@@ -127,19 +70,11 @@ func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 }
 
 func (r *websiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) error {
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	d, err := r.dialect()
 	if err != nil {
 		return err
 	}
-	var htmlPath string
-	switch webServer {
-	case "nginx":
-		htmlPath = filepath.Join(app.Root, "server/nginx/html")
-	case "apache":
-		htmlPath = filepath.Join(app.Root, "server/apache/htdocs")
-	default:
-		htmlPath = filepath.Join(app.Root, "server/nginx/html")
-	}
+	htmlPath := d.HTMLDir()
 
 	if err = io.Write(filepath.Join(htmlPath, "index.html"), req.Index, 0644); err != nil {
 		return err
@@ -307,17 +242,17 @@ func (r *websiteRepo) List(typ string, page, limit uint) ([]*biz.Website, int64,
 	}
 
 	// 取证书剩余有效时间和PHP版本
-	webServer, wsErr := r.setting.Get(biz.SettingKeyWebserver)
+	d, dErr := r.dialect()
 	for _, website := range websites {
 		crt, _ := os.ReadFile(filepath.Join(app.Root, "sites", website.Name, "config", "fullchain.pem"))
 		if decode, err := cert.ParseCert(crt); err == nil {
 			hours := time.Until(decode.NotAfter).Hours()
 			website.CertExpire = fmt.Sprintf("%.2f", hours/24)
 		}
-		if wsErr != nil {
+		if dErr != nil {
 			continue
 		}
-		vhost, err := r.newVhost(webServer, website)
+		vhost, err := newVhost(d, website)
 		if err != nil {
 			continue
 		}
@@ -343,12 +278,11 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		Remark: req.Remark,
 	}
 
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	d, err := r.dialect()
 	if err != nil {
 		return nil, err
 	}
-
-	vhost, err := r.getVhost(w)
+	vhost, err := newVhost(d, w)
 	if err != nil {
 		return nil, err
 	}
@@ -369,34 +303,12 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	listens := lo.Map(req.Listens, func(listen string, _ int) webservertypes.Listen {
 		return webservertypes.Listen{Address: listen}
 	})
-	if webServer == "nginx" {
-		listenIPv6, getErr := r.setting.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
-		if getErr != nil {
-			return nil, getErr
-		}
-		if listenIPv6 {
-			ipv6Listens := lo.FilterMap(listens, func(listen webservertypes.Listen, _ int) (webservertypes.Listen, bool) {
-				port := listen.Address
-				if strings.Contains(listen.Address, ":") {
-					_, parsedPort, splitErr := net.SplitHostPort(listen.Address)
-					if splitErr != nil {
-						return webservertypes.Listen{}, false
-					}
-					port = parsedPort
-				}
-				value, parseErr := strconv.ParseUint(port, 10, 16)
-				if parseErr != nil || value == 0 {
-					return webservertypes.Listen{}, false
-				}
-				return webservertypes.Listen{
-					Address: "[::]:" + port,
-					Args:    slices.Clone(listen.Args),
-				}, true
-			})
-			listens = lo.UniqBy(slices.Concat(listens, ipv6Listens), func(listen webservertypes.Listen) string {
-				return listen.Address
-			})
-		}
+	listenIPv6, err := r.setting.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
+	if err != nil {
+		return nil, err
+	}
+	if d.Features().IPv6Listen && listenIPv6 {
+		listens = webserver.WithIPv6Listens(listens)
 	}
 	if err = vhost.SetListen(listens); err != nil {
 		return nil, err
@@ -421,15 +333,8 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	if err = vhost.SetErrorLog(filepath.Join(app.Root, "sites", req.Name, "log", "error.log")); err != nil {
 		return nil, err
 	}
-	// 404 页面
-	var errorPageConfig string
-	switch webServer {
-	case "nginx":
-		errorPageConfig = `error_page 404 /404.html;`
-	case "apache":
-		errorPageConfig = `ErrorDocument 404 /404.html`
-	}
-	if err = vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, errorPageConfig); err != nil {
+	// 404 页面、PHP 缓存或静态 SPA 回退
+	if err = writeTypeConfigs(d, vhost, w.Type); err != nil {
 		return nil, err
 	}
 
@@ -456,24 +361,6 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		if err = phpVhost.SetRawConfig("010-rewrite.conf", webservertypes.ScopeSite, ""); err != nil {
 			return nil, err
 		}
-		cacheConfig := nginxPHPCacheConfig
-		if webServer == "apache" {
-			cacheConfig = apachePHPCacheConfig
-		}
-		if err = phpVhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig); err != nil {
-			return nil, err
-		}
-	}
-
-	// 纯静态网站默认写入单页应用（SPA）前端路由回退配置
-	if w.Type == biz.WebsiteTypeStatic {
-		spaConfig := nginxSPAConfig
-		if webServer == "apache" {
-			spaConfig = apacheSPAConfig
-		}
-		if err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig); err != nil {
-			return nil, err
-		}
 	}
 
 	// 初始化网站目录
@@ -498,13 +385,7 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 	var notFound []byte
 
 	// 如果存在自定义 404 页面，则使用自定义的
-	var custom404Path string
-	switch webServer {
-	case "nginx":
-		custom404Path = filepath.Join(app.Root, "server/nginx/html/404.html")
-	case "apache":
-		custom404Path = filepath.Join(app.Root, "server/apache/htdocs/404.html")
-	}
+	custom404Path := filepath.Join(d.HTMLDir(), "404.html")
 	if io.Exists(custom404Path) {
 		notFound, _ = os.ReadFile(custom404Path)
 	} else {
@@ -527,8 +408,8 @@ func (r *websiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
 		return nil, err
 	}
 
-	// 访问统计（nginx 默认启用）
-	if webServer == "nginx" {
+	// 访问统计默认启用
+	if d.Features().Stat {
 		if err = r.enableStat(vhost, req.Name); err != nil {
 			return nil, err
 		}
@@ -613,7 +494,7 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 	if err != nil {
 		return nil, err
 	}
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	d, err := r.dialect()
 	if err != nil {
 		return nil, err
 	}
@@ -719,41 +600,17 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 	}
 	databaseUpdated = true
 
-	vhost, err := r.getVhost(website)
+	vhost, err := newVhost(d, website)
 	if err != nil {
 		return restore(err)
 	}
 	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
 		return restore(err)
 	}
-	var errorPageConfig string
-	switch webServer {
-	case "nginx":
-		errorPageConfig = `error_page 404 /404.html;`
-	case "apache":
-		errorPageConfig = `ErrorDocument 404 /404.html`
-	}
-	if err = vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, errorPageConfig); err != nil {
+	if err = writeTypeConfigs(d, vhost, targetType); err != nil {
 		return restore(err)
 	}
 	if err = vhost.SetEnable(website.Status); err != nil {
-		return restore(err)
-	}
-	switch targetType {
-	case biz.WebsiteTypePHP:
-		cacheConfig := nginxPHPCacheConfig
-		if webServer == "apache" {
-			cacheConfig = apachePHPCacheConfig
-		}
-		err = vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig)
-	case biz.WebsiteTypeStatic:
-		spaConfig := nginxSPAConfig
-		if webServer == "apache" {
-			spaConfig = apacheSPAConfig
-		}
-		err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig)
-	}
-	if err != nil {
 		return restore(err)
 	}
 	if err = vhost.Save(); err != nil {
@@ -779,43 +636,22 @@ func (r *websiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, 
 
 // applyUpdate 将更新请求应用到网站配置与实体，供 Update 复用
 func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Website) error {
-	vhost, err := r.getVhost(website)
+	d, err := r.dialect()
+	if err != nil {
+		return err
+	}
+	vhost, err := newVhost(d, website)
 	if err != nil {
 		return err
 	}
 
 	// 监听地址
 	if req.SSL && !website.SSL {
-		webServer, getErr := r.setting.Get(biz.SettingKeyWebserver)
+		listenIPv6, getErr := r.setting.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
 		if getErr != nil {
 			return getErr
 		}
-		listenIPv6 := false
-		if webServer == "nginx" {
-			listenIPv6, getErr = r.setting.GetBool(biz.SettingKeyWebsiteListenIPv6, false)
-			if getErr != nil {
-				return getErr
-			}
-		}
-		args := []string{"ssl"}
-		if webServer == "nginx" {
-			args = append(args, "quic")
-		}
-		addresses := []string{"443"}
-		if webServer == "nginx" && listenIPv6 {
-			addresses = append(addresses, "[::]:443")
-		}
-		httpsListens := lo.Map(addresses, func(address string, _ int) webservertypes.Listen {
-			return webservertypes.Listen{Address: address, Args: slices.Clone(args)}
-		})
-		req.Listens = lo.UniqBy(lo.Map(slices.Concat(req.Listens, httpsListens), func(listen webservertypes.Listen, _ int) webservertypes.Listen {
-			if slices.Contains(addresses, listen.Address) {
-				listen.Args = lo.Uniq(slices.Concat(listen.Args, args))
-			}
-			return listen
-		}), func(listen webservertypes.Listen) string {
-			return listen.Address
-		})
+		req.Listens = d.MergeHTTPSListens(req.Listens, listenIPv6)
 	}
 	// 关闭 HTTPS 时移除 SSL 专用监听（含 IPv6），避免残留 ssl/quic 参数导致 nginx 无法启动
 	if !req.SSL {
@@ -998,12 +834,11 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 		}
 	}
 	// 基本认证：每条规则一个独立的 htpasswd 文件
-	webServer, _ := r.setting.Get(biz.SettingKeyWebserver)
 	r.removeBasicAuthFiles(website.Name)
 	auths := make([]webservertypes.BasicAuth, 0, len(req.BasicAuth))
 	for i, rule := range req.BasicAuth {
 		htpasswdPath := filepath.Join(app.Root, "sites", website.Name, fmt.Sprintf("htpasswd_%d", i))
-		if err = r.writeBasicAuthUsers(htpasswdPath, rule.Users, webServer); err != nil {
+		if err = writeBasicAuthUsers(d, htpasswdPath, rule.Users); err != nil {
 			return err
 		}
 		// 路径归一化：空 -> "/"，去尾部斜杠
@@ -1014,7 +849,7 @@ func (r *websiteRepo) applyUpdate(req *request.WebsiteUpdate, website *biz.Websi
 	}
 
 	// 访问统计
-	if webServer == "nginx" {
+	if d.Features().Stat {
 		if req.StatEnabled {
 			if err = r.enableStat(vhost, website.Name); err != nil {
 				return err
@@ -1092,7 +927,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	d, err := r.dialect()
 	if err != nil {
 		return err
 	}
@@ -1125,7 +960,7 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		Root:        setting.Root,
 		Index:       []string{"index.html"},
 		SSL:         false,
-		StatEnabled: webServer == "nginx",
+		StatEnabled: d.Features().Stat,
 		AccessLog:   filepath.Join(app.Root, "sites", website.Name, "log", "access.log"),
 		ErrorLog:    filepath.Join(app.Root, "sites", website.Name, "log", "error.log"),
 	}
@@ -1165,38 +1000,14 @@ func (r *websiteRepo) ResetConfig(id uint) error {
 		return err
 	}
 
-	vhost, err := r.getVhost(website)
+	vhost, err := newVhost(d, website)
 	if err != nil {
 		return err
 	}
 	if err = vhost.SetConfig("001-acme.conf", webservertypes.ScopeSite, ""); err != nil {
 		return err
 	}
-	var errorPageConfig string
-	switch webServer {
-	case "nginx":
-		errorPageConfig = `error_page 404 /404.html;`
-	case "apache":
-		errorPageConfig = `ErrorDocument 404 /404.html`
-	}
-	if err = vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, errorPageConfig); err != nil {
-		return err
-	}
-	switch website.Type {
-	case biz.WebsiteTypePHP:
-		cacheConfig := nginxPHPCacheConfig
-		if webServer == "apache" {
-			cacheConfig = apachePHPCacheConfig
-		}
-		err = vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, cacheConfig)
-	case biz.WebsiteTypeStatic:
-		spaConfig := nginxSPAConfig
-		if webServer == "apache" {
-			spaConfig = apacheSPAConfig
-		}
-		err = vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, spaConfig)
-	}
-	if err != nil {
+	if err = writeTypeConfigs(d, vhost, website.Type); err != nil {
 		return err
 	}
 	if err = vhost.Save(); err != nil {
@@ -1405,56 +1216,52 @@ func (r *websiteRepo) clearCustomConfigs(configDir string) error {
 	return nil
 }
 
-// newVhost 按给定网页服务器类型构造站点 vhost
-func (r *websiteRepo) newVhost(webServer string, website *biz.Website) (webservertypes.Vhost, error) {
-	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	switch website.Type {
-	case biz.WebsiteTypeProxy:
-		return webserver.NewProxyVhost(webserver.Type(webServer), configDir)
-	case biz.WebsiteTypePHP:
-		return webserver.NewPHPVhost(webserver.Type(webServer), configDir)
-	case biz.WebsiteTypeStatic:
-		return webserver.NewStaticVhost(webserver.Type(webServer), configDir)
-	default:
-		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
+// dialect 取当前 Web 服务器方言
+func (r *websiteRepo) dialect() (webserver.Dialect, error) {
+	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return webserver.Dialect{}, err
 	}
+
+	return webserver.Get(webserver.Type(webServer))
+}
+
+// newVhost 按网站类型构造站点 vhost
+func newVhost(d webserver.Dialect, website *biz.Website) (webservertypes.Vhost, error) {
+	return d.NewVhost(string(website.Type), filepath.Join(app.Root, "sites", website.Name, "config"))
 }
 
 func (r *websiteRepo) getVhost(website *biz.Website) (webservertypes.Vhost, error) {
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	d, err := r.dialect()
 	if err != nil {
 		return nil, err
 	}
 
-	return r.newVhost(webServer, website)
+	return newVhost(d, website)
 }
 
-func (r *websiteRepo) ReloadWebServer() error {
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver, "unknown")
-	if err != nil {
+// writeTypeConfigs 写入站点类型对应的默认片段：404 页面、PHP 缓存或静态 SPA 回退
+func writeTypeConfigs(d webserver.Dialect, vhost webservertypes.Vhost, typ biz.WebsiteType) error {
+	if err := vhost.SetConfig("010-error-404.conf", webservertypes.ScopeSite, d.ErrorPageConf()); err != nil {
 		return err
 	}
-	var test string
-	switch webServer {
-	case "nginx":
-		test = "nginx -t 2>&1"
-	case "apache":
-		test = "apachectl configtest 2>&1"
-	default:
-		return errors.New(r.t.Get("unsupported web server: %s", webServer))
-	}
-
-	// 服务未运行时无需重载，配置会在下次启动时生效
-	if running, _ := systemctl.Status(webServer); !running {
-		return nil
-	}
-
-	if err = systemctl.Reload(webServer); err != nil {
-		out, _ := shell.Execf(test)
-		return fmt.Errorf("failed to reload %s: %w; config test: %s", webServer, err, out)
+	switch typ {
+	case biz.WebsiteTypePHP:
+		return vhost.SetConfig("010-cache.conf", webservertypes.ScopeSite, d.PHPCacheConf())
+	case biz.WebsiteTypeStatic:
+		return vhost.SetRawConfig("800-spa.conf", webservertypes.ScopeSite, d.SPAConf())
 	}
 
 	return nil
+}
+
+func (r *websiteRepo) ReloadWebServer() error {
+	d, err := r.dialect()
+	if err != nil {
+		return err
+	}
+
+	return d.ReloadIfRunning()
 }
 
 // readBasicAuthUsers 读取 htpasswd 文件中的用户列表
@@ -1498,20 +1305,13 @@ func (r *websiteRepo) removeBasicAuthFiles(siteName string) {
 }
 
 // writeBasicAuthUsers 将用户凭证写入 htpasswd 文件
-func (r *websiteRepo) writeBasicAuthUsers(htpasswdPath string, users map[string]string, webServer string) error {
+func writeBasicAuthUsers(d webserver.Dialect, htpasswdPath string, users map[string]string) error {
 	var lines []string
 	for username, password := range users {
 		if username == "" || password == "" {
 			continue
 		}
-		switch webServer {
-		case "nginx":
-			lines = append(lines, fmt.Sprintf("%s:%s", username, "{PLAIN}"+password))
-		case "apache":
-			lines = append(lines, fmt.Sprintf("%s:%s", username, password))
-		default:
-			return errors.New(r.t.Get("unsupported web server: %s", webServer))
-		}
+		lines = append(lines, d.HTPasswdLine(username, password))
 	}
 
 	content := strings.Join(lines, "\n")

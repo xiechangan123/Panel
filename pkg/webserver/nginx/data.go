@@ -1,7 +1,10 @@
 package nginx
 
+// HTMLDir 默认页目录
+const HTMLDir = "/opt/ace/server/nginx/html"
+
 // DisablePage 禁用页面路径
-const DisablePage = "/opt/ace/server/nginx/html/stop.html"
+const DisablePage = HTMLDir + "/stop.html"
 
 // SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"

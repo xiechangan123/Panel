@@ -3,6 +3,7 @@ import { useGettext } from 'vue3-gettext'
 
 import home from '@/api/panel/home'
 import website from '@/api/panel/website'
+import { webserverFeatures } from '@/utils'
 
 const { $gettext } = useGettext()
 
@@ -19,10 +20,10 @@ const { data: model } = useRequest(website.defaultConfig, {
   },
 })
 
-// 判断 webserver 类型
-const isNginx = ref(false)
+// 当前 Web 服务器能力
+const features = ref(webserverFeatures(''))
 useRequest(home.installedEnvironment()).onSuccess(({ data }: any) => {
-  isNginx.value = data.webserver === 'nginx'
+  features.value = webserverFeatures(data.webserver)
 })
 
 // 统计设置
@@ -141,7 +142,7 @@ const handleSaveDefaultSite = () => {
         </n-flex>
       </n-flex>
     </n-tab-pane>
-    <n-tab-pane v-if="isNginx" name="default-site" :tab="$gettext('Default Site')">
+    <n-tab-pane v-if="features.defaultSite" name="default-site" :tab="$gettext('Default Site')">
       <n-flex vertical>
         <n-alert type="info">
           {{
@@ -194,7 +195,7 @@ const handleSaveDefaultSite = () => {
               multiple
             />
           </n-form-item>
-          <n-form-item v-if="isNginx" :label="$gettext('Listen IPv6')">
+          <n-form-item v-if="features.ipv6Listen" :label="$gettext('Listen IPv6')">
             <n-flex align="center">
               <n-switch v-model:value="model.listen_ipv6" />
               <n-text depth="3">
@@ -217,7 +218,7 @@ const handleSaveDefaultSite = () => {
         </n-form>
       </n-flex>
     </n-tab-pane>
-    <n-tab-pane v-if="isNginx" name="stat-setting" :tab="$gettext('Statistics')">
+    <n-tab-pane v-if="features.stat" name="stat-setting" :tab="$gettext('Statistics')">
       <n-flex vertical>
         <n-alert type="info">
           {{

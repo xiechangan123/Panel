@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -23,22 +21,27 @@ import (
 	"github.com/libdns/tencentcloud"
 	"github.com/libdns/westcn"
 	"github.com/mholt/acmez/v3/acme"
-	"github.com/samber/lo"
 	"golang.org/x/net/publicsuffix"
 
 	pkgos "github.com/acepanel/panel/v3/pkg/os"
-	"github.com/acepanel/panel/v3/pkg/shell"
-	"github.com/acepanel/panel/v3/pkg/systemctl"
-	"github.com/acepanel/panel/v3/pkg/tools"
 )
+
+// HTTPChallengeWriter 由 Web 服务器方言实现，负责投放、清理 HTTP-01 验证并重载服务
+type HTTPChallengeWriter interface {
+	WriteSiteChallenge(conf, path, token string) error
+	RemoveSiteChallenge(conf, path, token string) error
+	WritePanelChallenge(conf string, names []string, tokens map[string]string) error
+	RemovePanelChallenge(conf string) error
+	Reload() error
+}
 
 var panelSolverGlobal sync.Mutex
 
 type panelSolver struct {
-	names     []string
-	conf      string
-	webServer string // "nginx" or "apache"
-	server    *http.Server
+	names  []string
+	conf   string
+	writer HTTPChallengeWriter
+	server *http.Server
 	// tokens 存储所有待验证的 challenge，key 为路径，value 为 token
 	tokens map[string]string
 	// presentCount Present 调用计数
@@ -80,10 +83,11 @@ func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error
 
 	// 否则使用 web 服务器配置
 	s.useBuiltin = false
-	if s.webServer == "apache" {
-		return s.writeApacheConfig()
+	if err := s.writer.WritePanelChallenge(s.conf, s.names, s.tokens); err != nil {
+		return err
 	}
-	return s.writeNginxConfig()
+
+	return s.writer.Reload()
 }
 
 func (s *panelSolver) startServer() error {
@@ -118,80 +122,6 @@ func (s *panelSolver) startServer() error {
 	}
 }
 
-func (s *panelSolver) writeNginxConfig() error {
-	hasIPv6 := lo.SomeBy(s.names, tools.IsIPv6)
-
-	var conf strings.Builder
-	conf.WriteString("server {\n    listen 80;\n")
-	// 只有在包含 IPv6 地址时才监听 [::]:80，避免纯 IPv4 系统上 nginx 启动失败
-	if hasIPv6 {
-		conf.WriteString("    listen [::]:80;\n")
-	}
-	names := lo.Map(s.names, func(name string, _ int) string {
-		return tools.WrapIPv6(name)
-	})
-	_, _ = fmt.Fprintf(&conf, "    server_name %s;\n", strings.Join(names, " "))
-	for path, token := range s.tokens {
-		_, _ = fmt.Fprintf(&conf, "    location = %s {\n        default_type text/plain;\n        return 200 %q;\n    }\n", path, token)
-	}
-	conf.WriteString("}\n")
-
-	if err := os.WriteFile(s.conf, []byte(conf.String()), 0600); err != nil {
-		return fmt.Errorf("failed to write nginx config %q: %w", s.conf, err)
-	}
-
-	if err := systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
-		return fmt.Errorf("failed to reload nginx: %w", err)
-	}
-
-	return nil
-}
-
-func (s *panelSolver) writeApacheConfig() error {
-	// Apache 使用 Alias 指向一个临时目录，将 token 写入文件
-	tokenDir := "/tmp/acme-challenge"
-	if err := os.MkdirAll(tokenDir, 0755); err != nil {
-		return fmt.Errorf("failed to create token directory: %w", err)
-	}
-
-	// 写入 token 文件
-	for path, token := range s.tokens {
-		// path 格式为 /.well-known/acme-challenge/xxx
-		tokenFile := filepath.Join(tokenDir, filepath.Base(path))
-		if err := os.WriteFile(tokenFile, []byte(token), 0644); err != nil {
-			return fmt.Errorf("failed to write token file: %w", err)
-		}
-	}
-
-	var conf strings.Builder
-	names := lo.Map(s.names, func(name string, _ int) string {
-		return tools.WrapIPv6(name)
-	})
-	conf.WriteString("<VirtualHost *:80>\n")
-	_, _ = fmt.Fprintf(&conf, "    ServerName %s\n", names[0])
-	if len(names) > 1 {
-		_, _ = fmt.Fprintf(&conf, "    ServerAlias %s\n", strings.Join(names[1:], " "))
-	}
-	_, _ = fmt.Fprintf(&conf, "    Alias /.well-known/acme-challenge %s\n", tokenDir)
-	_, _ = fmt.Fprintf(&conf, "    <Directory %s>\n", tokenDir)
-	conf.WriteString("        Require all granted\n")
-	conf.WriteString("        ForceType text/plain\n")
-	conf.WriteString("    </Directory>\n")
-	conf.WriteString("</VirtualHost>\n")
-
-	if err := os.WriteFile(s.conf, []byte(conf.String()), 0600); err != nil {
-		return fmt.Errorf("failed to write apache config %q: %w", s.conf, err)
-	}
-
-	if err := systemctl.Reload("apache"); err != nil {
-		_, err = shell.Execf("apachectl -t")
-		return fmt.Errorf("failed to reload apache: %w", err)
-	}
-
-	return nil
-}
-
 // CleanUp cleans up the HTTP server on last call.
 func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 	s.cleanupCount++
@@ -213,35 +143,19 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 		return nil
 	}
 
-	// 清理配置文件
-	if err := os.WriteFile(s.conf, []byte(""), 0600); err != nil {
-		return fmt.Errorf("failed to write to config %q: %w", s.conf, err)
+	if err := s.writer.RemovePanelChallenge(s.conf); err != nil {
+		return err
 	}
 
-	// 清理 Apache token 目录
-	if s.webServer == "apache" {
-		_ = os.RemoveAll("/tmp/acme-challenge")
-		if err := systemctl.Reload("apache"); err != nil {
-			_, _ = shell.Execf("apachectl -t")
-			return fmt.Errorf("failed to reload apache: %w", err)
-		}
-		return nil
-	}
-
-	if err := systemctl.Reload("nginx"); err != nil {
-		_, _ = shell.Execf("nginx -t")
-		return fmt.Errorf("failed to reload nginx: %w", err)
-	}
-
-	return nil
+	return s.writer.Reload()
 }
 
 type httpSolver struct {
 	// confs 域名到 acme 配置文件的映射，用于把 token 精确投放到域名所属网站
 	confs map[string]string
 	// fallback 域名未命中 confs 时写入的配置文件列表
-	fallback  []string
-	webServer string // "nginx" or "apache"
+	fallback []string
+	writer   HTTPChallengeWriter
 }
 
 // confsFor 取域名对应的配置文件列表
@@ -263,141 +177,26 @@ func (s httpSolver) confsFor(domain string) []string {
 func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 	path := challenge.HTTP01ResourcePath()
 	token := challenge.KeyAuthorization
-	confs := s.confsFor(challenge.Identifier.Value)
-
-	if s.webServer == "apache" {
-		return s.presentApache(confs, path, token)
-	}
-	return s.presentNginx(confs, path, token)
-}
-
-func (s httpSolver) presentNginx(confs []string, path, token string) error {
-	content := nginxChallengeConf(path, token)
-	for _, conf := range confs {
-		file, err := os.OpenFile(conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-		if err != nil {
-			return fmt.Errorf("failed to open nginx config %q: %w", conf, err)
-		}
-		_, err = file.WriteString(content)
-		_ = file.Close()
-		if err != nil {
-			return fmt.Errorf("failed to write to nginx config %q: %w", conf, err)
+	for _, conf := range s.confsFor(challenge.Identifier.Value) {
+		if err := s.writer.WriteSiteChallenge(conf, path, token); err != nil {
+			return err
 		}
 	}
 
-	return reloadWebServer("nginx")
-}
-
-func (s httpSolver) presentApache(confs []string, path, token string) error {
-	for _, conf := range confs {
-		// 创建 token 目录
-		tokenDir := filepath.Join(filepath.Dir(conf), "acme-challenge")
-		if err := os.MkdirAll(tokenDir, 0755); err != nil {
-			return fmt.Errorf("failed to create token directory: %w", err)
-		}
-
-		// 写入 token 文件
-		tokenFile := filepath.Join(tokenDir, filepath.Base(path))
-		if err := os.WriteFile(tokenFile, []byte(token), 0644); err != nil {
-			return fmt.Errorf("failed to write token file: %w", err)
-		}
-
-		// 写入 Apache 配置
-		file, err := os.OpenFile(conf, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-		if err != nil {
-			return fmt.Errorf("failed to open apache config %q: %w", conf, err)
-		}
-		_, err = file.WriteString(apacheChallengeConf(tokenDir))
-		_ = file.Close()
-		if err != nil {
-			return fmt.Errorf("failed to write to apache config %q: %w", conf, err)
-		}
-	}
-
-	return reloadWebServer("apache")
+	return s.writer.Reload()
 }
 
 // CleanUp cleans up the HTTP server if it is the last one to finish.
 func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
 	path := challenge.HTTP01ResourcePath()
 	token := challenge.KeyAuthorization
-	confs := s.confsFor(challenge.Identifier.Value)
-
-	if s.webServer == "apache" {
-		return s.cleanUpApache(confs, path)
-	}
-	return s.cleanUpNginx(confs, path, token)
-}
-
-func (s httpSolver) cleanUpNginx(confs []string, path, token string) error {
-	content := nginxChallengeConf(path, token)
-	for _, conf := range confs {
-		raw, err := os.ReadFile(conf)
-		if err != nil {
-			return fmt.Errorf("failed to read nginx config %q: %w", conf, err)
-		}
-		if err = os.WriteFile(conf, []byte(strings.ReplaceAll(string(raw), content, "")), 0600); err != nil {
-			return fmt.Errorf("failed to write to nginx config %q: %w", conf, err)
+	for _, conf := range s.confsFor(challenge.Identifier.Value) {
+		if err := s.writer.RemoveSiteChallenge(conf, path, token); err != nil {
+			return err
 		}
 	}
 
-	return reloadWebServer("nginx")
-}
-
-func (s httpSolver) cleanUpApache(confs []string, path string) error {
-	for _, conf := range confs {
-		tokenDir := filepath.Join(filepath.Dir(conf), "acme-challenge")
-
-		// 删除 token 文件
-		_ = os.Remove(filepath.Join(tokenDir, filepath.Base(path)))
-
-		// 清理配置文件
-		raw, err := os.ReadFile(conf)
-		if err != nil {
-			return fmt.Errorf("failed to read apache config %q: %w", conf, err)
-		}
-		content := strings.ReplaceAll(string(raw), apacheChallengeConf(tokenDir), "")
-		if err = os.WriteFile(conf, []byte(content), 0600); err != nil {
-			return fmt.Errorf("failed to write to apache config %q: %w", conf, err)
-		}
-	}
-
-	return reloadWebServer("apache")
-}
-
-// nginxChallengeConf 生成 Nginx 的 challenge 配置片段
-func nginxChallengeConf(path, token string) string {
-	return fmt.Sprintf(`location = %s {
-    default_type text/plain;
-    return 200 %q;
-}
-`, path, token)
-}
-
-// apacheChallengeConf 生成 Apache 的 challenge 配置片段
-func apacheChallengeConf(tokenDir string) string {
-	return fmt.Sprintf(`Alias /.well-known/acme-challenge %s
-<Directory %s>
-    Require all granted
-    ForceType text/plain
-</Directory>
-`, tokenDir, tokenDir)
-}
-
-// reloadWebServer 重载 web 服务器，失败时附带配置测试输出
-func reloadWebServer(webServer string) error {
-	err := systemctl.Reload(webServer)
-	if err == nil {
-		return nil
-	}
-
-	test := "nginx -t 2>&1"
-	if webServer == "apache" {
-		test = "apachectl -t 2>&1"
-	}
-	out, _ := shell.Execf(test)
-
-	return fmt.Errorf("failed to reload %s: %w; config test: %s", webServer, err, out)
+	return s.writer.Reload()
 }
 
 type DnsType string

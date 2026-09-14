@@ -18,6 +18,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/acme"
 	pkgcert "github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
 )
 
 type Cert struct {
@@ -215,8 +216,12 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 		if hasWildcard {
 			return nil, errors.New(uc.t.Get("wildcard domains cannot use HTTP verification"))
 		}
+		d, err := webserver.Get(webserver.Type(webServer))
+		if err != nil {
+			return nil, err
+		}
 		confs, fallback := uc.repo.HTTPConfs(cert, webServer)
-		client.UseHTTP(confs, fallback, webServer)
+		client.UseHTTP(confs, fallback, d)
 	}
 
 	report(uc.t.Get("issuing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
@@ -337,8 +342,12 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 				return nil, errors.New(uc.t.Get("wildcard domains cannot use HTTP verification"))
 			}
 		}
+		d, err := webserver.Get(webserver.Type(webServer))
+		if err != nil {
+			return nil, err
+		}
 		confs, fallback := uc.repo.HTTPConfs(cert, webServer)
-		client.UseHTTP(confs, fallback, webServer)
+		client.UseHTTP(confs, fallback, d)
 	}
 
 	report(uc.t.Get("renewing certificate, domains: %s", strings.Join(cert.Domains, ", ")))

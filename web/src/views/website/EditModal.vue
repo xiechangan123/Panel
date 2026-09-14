@@ -10,6 +10,7 @@ import home from '@/api/panel/home'
 import website from '@/api/panel/website'
 import KeyValueEditor from '@/components/common/KeyValueEditor.vue'
 import ListInput from '@/components/common/ListInput.vue'
+import { webserverFeatures } from '@/utils'
 
 const show = defineModel<boolean>('show', { type: Boolean, required: true })
 const editId = defineModel<number>('editId', { type: Number, required: true })
@@ -101,8 +102,20 @@ const { data: installedEnvironment } = useRequest(home.installedEnvironment, {
   },
 })
 
-// 是否为 Nginx
-const isNginx = computed(() => installedEnvironment.value.webserver === 'nginx')
+// 当前 Web 服务器能力
+const features = computed(() => webserverFeatures(installedEnvironment.value.webserver))
+// 上游负载均衡算法选项，纯算法名不翻译
+const upstreamAlgoLabels: Record<string, () => string> = {
+  '': () => $gettext('Round Robin (default)'),
+  bybusyness: () => $gettext('Least Busy'),
+  bytraffic: () => $gettext('By Traffic'),
+}
+const upstreamAlgoOptions = computed(() =>
+  features.value.upstreamAlgos.map((value) => ({
+    label: upstreamAlgoLabels[value]?.() ?? value,
+    value,
+  })),
+)
 const websiteTypeOptions = computed(() => [
   { label: $gettext('Reverse Proxy'), value: 'proxy', disabled: setting.value.type === 'proxy' },
   { label: $gettext('PHP'), value: 'php', disabled: setting.value.type === 'php' },
@@ -162,7 +175,7 @@ const handleSave = () => {
   // 如果开启了ssl但没有任何监听地址设置了ssl，则自动添加443
   if (setting.value.ssl && !setting.value.listens.some((item: any) => item.args?.includes('ssl'))) {
     const args = ['ssl']
-    if (isNginx.value) {
+    if (features.value.quic) {
       args.push('quic')
     }
     // 存在 IPv6 监听时同步添加 IPv6 SSL 监听
@@ -996,7 +1009,7 @@ const removeCustomConfig = (index: number) => {
                       HTTPS
                     </n-checkbox>
                     <n-checkbox
-                      v-if="isNginx"
+                      v-if="features.quic"
                       :checked="hasArg(value.args, 'quic')"
                       @update:checked="(checked: boolean) => toggleArg(value.args, 'quic', checked)"
                       w-50
@@ -1075,24 +1088,7 @@ const removeCustomConfig = (index: number) => {
                   <n-form label-placement="left" label-width="140px">
                     <n-grid :cols="24" :x-gap="16">
                       <n-form-item-gi :span="12" :label="$gettext('Load Balancing Algorithm')">
-                        <n-select
-                          v-model:value="upstream.algo"
-                          :options="
-                            isNginx
-                              ? [
-                                  { label: $gettext('Round Robin (default)'), value: '' },
-                                  { label: 'least_conn', value: 'least_conn' },
-                                  { label: 'ip_hash', value: 'ip_hash' },
-                                  { label: 'hash', value: 'hash' },
-                                  { label: 'random', value: 'random' },
-                                ]
-                              : [
-                                  { label: $gettext('Round Robin (default)'), value: '' },
-                                  { label: $gettext('Least Busy'), value: 'bybusyness' },
-                                  { label: $gettext('By Traffic'), value: 'bytraffic' },
-                                ]
-                          "
-                        />
+                        <n-select v-model:value="upstream.algo" :options="upstreamAlgoOptions" />
                       </n-form-item-gi>
                       <n-form-item-gi :span="12" :label="$gettext('Keepalive Connections')">
                         <n-input-number
@@ -1104,14 +1100,18 @@ const removeCustomConfig = (index: number) => {
                           @update:value="(v: number | null) => (upstream.keepalive = v ?? 0)"
                         />
                       </n-form-item-gi>
-                      <n-form-item-gi v-if="isNginx" :span="12" :label="$gettext('DNS Resolver')">
+                      <n-form-item-gi
+                        v-if="features.resolver"
+                        :span="12"
+                        :label="$gettext('DNS Resolver')"
+                      >
                         <n-dynamic-tags
                           v-model:value="upstream.resolver"
                           :placeholder="$gettext('e.g., 8.8.8.8')"
                         />
                       </n-form-item-gi>
                       <n-form-item-gi
-                        v-if="isNginx && upstream.resolver?.length"
+                        v-if="features.resolver && upstream.resolver?.length"
                         :span="12"
                         :label="$gettext('Resolver Timeout')"
                       >
@@ -1190,7 +1190,11 @@ const removeCustomConfig = (index: number) => {
                   </template>
                   <n-form label-placement="left" label-width="140px">
                     <n-grid :cols="24" :x-gap="16">
-                      <n-form-item-gi v-if="isNginx" :span="12" :label="$gettext('Match Type')">
+                      <n-form-item-gi
+                        v-if="features.matchType"
+                        :span="12"
+                        :label="$gettext('Match Type')"
+                      >
                         <n-select
                           :value="parseLocation(proxy.location).type"
                           :options="locationMatchTypes"
@@ -1198,7 +1202,7 @@ const removeCustomConfig = (index: number) => {
                         />
                       </n-form-item-gi>
                       <n-form-item-gi
-                        :span="isNginx ? 12 : 24"
+                        :span="features.matchType ? 12 : 24"
                         :label="$gettext('Match Expression')"
                       >
                         <n-input
@@ -1241,14 +1245,18 @@ const removeCustomConfig = (index: number) => {
                       <n-form-item-gi :span="6" :label="$gettext('Enable Buffering')">
                         <n-switch v-model:value="proxy.buffering" />
                       </n-form-item-gi>
-                      <n-form-item-gi v-if="isNginx" :span="12" :label="$gettext('DNS Resolver')">
+                      <n-form-item-gi
+                        v-if="features.resolver"
+                        :span="12"
+                        :label="$gettext('DNS Resolver')"
+                      >
                         <n-dynamic-tags
                           v-model:value="proxy.resolver"
                           :placeholder="$gettext('e.g., 8.8.8.8')"
                         />
                       </n-form-item-gi>
                       <n-form-item-gi
-                        v-if="isNginx && proxy.resolver.length"
+                        v-if="features.resolver && proxy.resolver.length"
                         :span="12"
                         :label="$gettext('Resolver Timeout')"
                       >
@@ -1278,7 +1286,7 @@ const removeCustomConfig = (index: number) => {
                     <n-collapse :default-expanded-names="[]" mt-4>
                       <!-- 缓存配置详情 -->
                       <n-collapse-item
-                        v-if="isNginx && isCacheEnabled(proxy)"
+                        v-if="features.proxyCache && isCacheEnabled(proxy)"
                         :title="$gettext('Cache Settings')"
                         name="cache"
                       >
@@ -1401,9 +1409,9 @@ const removeCustomConfig = (index: number) => {
                         />
                       </n-collapse-item>
 
-                      <!-- 高级配置（仅 Nginx） -->
+                      <!-- 高级配置 -->
                       <n-collapse-item
-                        v-if="isNginx"
+                        v-if="features.proxyAdvanced"
                         :title="$gettext('Advanced Settings')"
                         name="advanced"
                       >
@@ -1831,7 +1839,7 @@ const removeCustomConfig = (index: number) => {
         </n-tab-pane>
         <n-tab-pane v-if="setting.type == 'php'" name="rewrite" :tab="$gettext('Rewrite')">
           <n-flex vertical>
-            <n-form v-if="isNginx" label-placement="left" label-width="auto">
+            <n-form v-if="features.rewritePresets" label-placement="left" label-width="auto">
               <n-form-item :label="$gettext('Presets')">
                 <n-select
                   v-model:value="rewriteValue"
@@ -1955,10 +1963,7 @@ const removeCustomConfig = (index: number) => {
                     :placeholder="$gettext('Select PHP Version')"
                   />
                 </n-form-item>
-                <n-form-item
-                  v-if="targetType === 'proxy'"
-                  :label="$gettext('Proxy Target')"
-                >
+                <n-form-item v-if="targetType === 'proxy'" :label="$gettext('Proxy Target')">
                   <n-input
                     v-model:value="targetProxy"
                     :placeholder="$gettext('For example: http://127.0.0.1:3000')"
@@ -1982,9 +1987,9 @@ const removeCustomConfig = (index: number) => {
               </n-form>
             </n-collapse-item>
 
-            <!-- 访问统计（仅 nginx） -->
+            <!-- 访问统计 -->
             <n-collapse-item
-              v-if="isNginx"
+              v-if="features.stat"
               :title="$gettext('Access Statistics')"
               name="stat_settings"
             >
@@ -2219,7 +2224,7 @@ const removeCustomConfig = (index: number) => {
                       <common-editor
                         v-model:value="config.content"
                         height="30vh"
-                        :lang="isNginx ? 'nginx' : 'apacheconf'"
+                        :lang="features.lang"
                       />
                     </n-form-item>
                   </n-form>

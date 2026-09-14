@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net"
 	"os"
@@ -23,7 +22,6 @@ import (
 	pkgcert "github.com/acepanel/panel/v3/pkg/cert"
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
-	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
 	"github.com/acepanel/panel/v3/pkg/webserver"
@@ -164,11 +162,11 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, names []string, webServ
 		return nil, nil, err
 	}
 
-	confPath := filepath.Join(app.Root, "server/nginx/conf/acme.conf")
-	if webServer == "apache" {
-		confPath = filepath.Join(app.Root, "server/apache/conf/extra/acme.conf")
+	d, err := webserver.Get(webserver.Type(webServer))
+	if err != nil {
+		return nil, nil, err
 	}
-	client.UsePanel(confPath, webServer)
+	client.UsePanel(d.PanelACMEConf(), d)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
@@ -213,11 +211,15 @@ func (r *certRepo) HTTPConfs(cert *biz.Cert, webServer string) (map[string]strin
 	confs := make(map[string]string)
 	fallback := make([]string, 0, len(cert.Websites))
 
+	d, dErr := webserver.Get(webserver.Type(webServer))
 	for _, website := range cert.Websites {
 		conf := filepath.Join(app.Root, "sites", website.Name, "config", "site", "001-acme.conf")
 		fallback = append(fallback, conf)
 
-		vhost, err := r.getVhost(website, webServer)
+		if dErr != nil {
+			continue
+		}
+		vhost, err := newVhost(d, website)
 		if err != nil {
 			continue
 		}
@@ -242,33 +244,17 @@ func (r *certRepo) WriteCertFiles(cert *biz.Cert, certPath, keyPath string) erro
 
 // EnableWebsiteSSL 为网站开启 HTTPS
 func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, webServer string, tlsVersions []string, listenIPv6 bool) error {
-	vhost, err := r.getVhost(website, webServer)
+	d, err := webserver.Get(webserver.Type(webServer))
+	if err != nil {
+		return err
+	}
+	vhost, err := newVhost(d, website)
 	if err != nil {
 		return err
 	}
 
 	// 添加 443 监听
-	listens := vhost.Listen()
-	args := []string{"ssl"}
-	if webServer == "nginx" {
-		args = append(args, "quic")
-	}
-	addresses := []string{"443"}
-	if webServer == "nginx" && listenIPv6 {
-		addresses = append(addresses, "[::]:443")
-	}
-	httpsListens := lo.Map(addresses, func(address string, _ int) webservertypes.Listen {
-		return webservertypes.Listen{Address: address, Args: slices.Clone(args)}
-	})
-	listens = lo.UniqBy(lo.Map(slices.Concat(listens, httpsListens), func(listen webservertypes.Listen, _ int) webservertypes.Listen {
-		if slices.Contains(addresses, listen.Address) {
-			listen.Args = lo.Uniq(slices.Concat(listen.Args, args))
-		}
-		return listen
-	}), func(listen webservertypes.Listen) string {
-		return listen.Address
-	})
-	if err = vhost.SetListen(listens); err != nil {
+	if err = vhost.SetListen(d.MergeHTTPSListens(vhost.Listen(), listenIPv6)); err != nil {
 		return err
 	}
 
@@ -295,46 +281,12 @@ func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, web
 
 // ReloadWebserver 重载 Web 服务器
 func (r *certRepo) ReloadWebserver(webServer string) error {
-	test := "nginx -t 2>&1"
-	if webServer == "apache" {
-		test = "apachectl configtest 2>&1"
-	} else {
-		webServer = "nginx"
-	}
-
-	// 服务未运行时无需重载，配置会在下次启动时生效
-	if running, _ := systemctl.Status(webServer); !running {
-		return nil
-	}
-
-	if err := systemctl.Reload(webServer); err != nil {
-		out, _ := shell.Execf(test)
-		return fmt.Errorf("failed to reload %s: %w; config test: %s", webServer, err, out)
-	}
-
-	return nil
-}
-
-// getVhost 根据网站类型获取虚拟主机配置
-func (r *certRepo) getVhost(website *biz.Website, webServer string) (webservertypes.Vhost, error) {
-	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	var vhost webservertypes.Vhost
-	var err error
-	switch website.Type {
-	case biz.WebsiteTypeProxy:
-		vhost, err = webserver.NewProxyVhost(webserver.Type(webServer), configDir)
-	case biz.WebsiteTypePHP:
-		vhost, err = webserver.NewPHPVhost(webserver.Type(webServer), configDir)
-	case biz.WebsiteTypeStatic:
-		vhost, err = webserver.NewStaticVhost(webserver.Type(webServer), configDir)
-	default:
-		return nil, errors.New(r.t.Get("unsupported website type: %s", website.Type))
-	}
+	d, err := webserver.Get(webserver.Type(webServer))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return vhost, nil
+	return d.ReloadIfRunning()
 }
 
 func (r *certRepo) RunScript(cert *biz.Cert) error {

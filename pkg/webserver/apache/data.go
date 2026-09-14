@@ -1,7 +1,10 @@
 package apache
 
+// HTMLDir 默认页目录
+const HTMLDir = "/opt/ace/server/apache/htdocs"
+
 // DisablePage 禁用页面路径
-const DisablePage = "/opt/ace/server/apache/htdocs/stop.html"
+const DisablePage = HTMLDir + "/stop.html"
 
 // SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"
