@@ -79,18 +79,25 @@ func (s *WsService) Exec(w http.ResponseWriter, r *http.Request) {
 		_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to run command: %v", err))
 		return
 	}
+	// 关闭读端让上游拷贝协程拿到错误退出，否则命令派生的孙子进程持有写端时会一直阻塞
+	defer func() { _ = out.Close() }()
 
 	go func() {
 		scanner := bufio.NewScanner(out)
 		for scanner.Scan() {
-			line := scanner.Text()
-			_ = ws.Write(ctx, websocket.MessageText, []byte(line))
+			if werr := ws.Write(ctx, websocket.MessageText, []byte(scanner.Text())); werr != nil {
+				return
+			}
 		}
-		if err = scanner.Err(); err != nil {
-			_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read command output: %v", err))
+		// 输出结束后主动关闭连接，否则 readLoop 一直挂着等前端先关
+		if serr := scanner.Err(); serr != nil {
+			_ = ws.Close(websocket.StatusNormalClosure, s.t.Get("failed to read command output: %v", serr))
+			return
 		}
+		_ = ws.Close(websocket.StatusNormalClosure, "")
 	}()
 
+	s.keepalive(ctx, ws, cancel)
 	s.readLoop(ctx, ws)
 }
 
@@ -168,6 +175,7 @@ func (s *WsService) Follow(w http.ResponseWriter, r *http.Request) {
 		_ = cmd.Wait()
 	}()
 
+	s.keepalive(ctx, ws, cancel)
 	for {
 		_, _, rerr := ws.Read(ctx)
 		if rerr != nil {
@@ -214,6 +222,7 @@ func (s *WsService) PTY(w http.ResponseWriter, r *http.Request) {
 		_ = turn.Handle(ctx)
 	}()
 
+	s.keepalive(ctx, ws, cancel)
 	turn.Wait()
 }
 
@@ -257,6 +266,7 @@ func (s *WsService) Session(w http.ResponseWriter, r *http.Request) {
 		_ = turn.Handle(ctx)
 	}()
 
+	s.keepalive(ctx, ws, cancel)
 	turn.Wait()
 }
 
@@ -365,6 +375,7 @@ func (s *WsService) ContainerTerminal(w http.ResponseWriter, r *http.Request) {
 		_ = turn.Handle(ctx)
 	}()
 
+	s.keepalive(ctx, ws, cancel)
 	turn.Wait()
 }
 
@@ -523,7 +534,7 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 	_ = ws.Close(websocket.StatusNormalClosure, "")
 
 	// 升级成功，由本入口负责重启面板（唯一一次重启）
-	tools.RestartPanel(context.WithoutCancel(r.Context()))
+	tools.RestartPanel(r.Context())
 }
 
 // handleCertWs 证书操作的公共 WebSocket 处理逻辑
@@ -535,8 +546,9 @@ func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action 
 	}
 	defer func() { _ = ws.CloseNow() }()
 
-	ctx, cancel := context.WithCancel(r.Context())
-	defer cancel()
+	// 签发中途中止会白白烧掉 CA 的速率限制额度，因此本路径刻意不随页面关闭中断，
+	// 断开取消链让这一点显式成立，而不是依赖「本函数没有 ws.Read 循环」这一巧合
+	ctx := context.WithoutCancel(r.Context())
 
 	// 读取参数，10 秒超时防止连接后不发消息
 	readCtx, readCancel := context.WithTimeout(ctx, 10*time.Second)
@@ -554,14 +566,17 @@ func (s *WsService) handleCertWs(w http.ResponseWriter, r *http.Request, action 
 		return
 	}
 
+	// 页面关掉后连接已死，首次写失败即停止后续推送，否则每条进度都会刷一行 warn
+	writeFailed := false
 	progressCallback := func(msg string) {
-		if ctx.Err() != nil {
+		if writeFailed {
 			return
 		}
-		if err = s.writeJSON(ctx, ws, map[string]any{
+		if err := s.writeJSON(ctx, ws, map[string]any{
 			"status": "progress",
 			"msg":    msg,
 		}); err != nil {
+			writeFailed = true
 			s.log.Warn("write cert progress error", slog.Any("err", err), slog.String("action", action))
 		}
 	}
@@ -654,6 +669,7 @@ func (s *WsService) followContainer(ctx context.Context, ws *websocket.Conn, id 
 		<-done
 	}()
 
+	s.keepalive(ctx, ws, cancel)
 	for {
 		if _, _, rerr := ws.Read(ctx); rerr != nil {
 			return
@@ -682,6 +698,31 @@ func (s *WsService) writeJSON(ctx context.Context, c *websocket.Conn, v any) err
 	}
 
 	return c.Write(ctx, websocket.MessageText, data)
+}
+
+// keepalive 定时 ping 对端，ping 失败即取消 ctx
+// 连接被 hijack 后请求 ctx 不随客户端断开取消，长连接的退出只依赖 ws.Read 出错，
+// 而合盖、NAT 老化这类半开连接不会让 Read 返回，没有心跳就会永久残留进程和协程
+func (s *WsService) keepalive(ctx context.Context, c *websocket.Conn, cancel context.CancelFunc) {
+	go func() {
+		ticker := time.NewTicker(30 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				pingCtx, pingCancel := context.WithTimeout(ctx, 10*time.Second)
+				err := c.Ping(pingCtx)
+				pingCancel()
+				if err != nil {
+					cancel()
+					return
+				}
+			}
+		}
+	}()
 }
 
 // readLoop 阻塞直到客户端关闭连接

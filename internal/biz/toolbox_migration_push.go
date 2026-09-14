@@ -17,7 +17,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/shell"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 	webtypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
@@ -293,16 +293,14 @@ func (uc *ToolboxMigrationUsecase) pushProject(
 	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// 打包期间停服避免文件不一致，打包完成后立即恢复
-	// 停服与恢复必须成对完成，中途取消会把源站服务留在停止状态
-	serviceCtx := context.WithoutCancel(ctx)
 	stopped := stopSource && project.Status == "active"
 	if stopped {
-		_, _ = shell.Exec(serviceCtx, "systemctl stop "+strconv.Quote(item.Name))
+		_ = systemctl.Stop(ctx, item.Name)
 	}
 	archive := filepath.Join(tmpDir, item.TargetName+".tar.gz")
 	err = uc.archive.Compress(ctx, project.RootDir, archive)
 	if stopped {
-		_, _ = shell.Exec(serviceCtx, "systemctl start "+strconv.Quote(item.Name))
+		_ = systemctl.Start(ctx, item.Name)
 	}
 	if err != nil {
 		return nil, errors.New(uc.t.Get("project backup failed: %v", err))

@@ -60,6 +60,11 @@ func (r *CertRenew) Run(ctx context.Context) error {
 	}
 
 	for _, cert := range certs {
+		// 面板重启会取消 ctx，剩余证书只会瞬间失败，继续跑只是刷出一串假告警
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+
 		// 跳过上传类型或未开启自动续签的证书
 		if cert.Type == "upload" || !cert.AutoRenewal {
 			continue
@@ -79,12 +84,18 @@ func (r *CertRenew) Run(ctx context.Context) error {
 		if time.Now().After(cert.RenewalInfo.SelectedTime) {
 			if _, err := r.certRepo.RenewWithProgressCallback(ctx, cert.ID, nil); err != nil {
 				r.log.Warn("failed to renew certificate", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
-				r.notifyFailed(strings.Join(cert.Domains, ", "), err)
+				// ctx 取消不是证书本身的问题，告警了也只是噪音
+				if ctx.Err() == nil {
+					r.notifyFailed(strings.Join(cert.Domains, ", "), err)
+				}
 			}
 		}
 	}
 
 	// 面板证书续签
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	switch r.conf.HTTP.TLS {
 	case "self-signed":
 		// 自签证书续签

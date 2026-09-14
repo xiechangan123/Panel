@@ -200,7 +200,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "mysqld"); err != nil {
+	if err = systemctl.Restart(r.Context(), "mysqld"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
 		return
 	}

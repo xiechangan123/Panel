@@ -93,10 +93,18 @@ func (l *Local) Put(ctx context.Context, file string, content io.Reader) error {
 		return err
 	}
 
-	defer func(f *os.File) { _ = f.Close() }(f)
+	if _, err = io.Copy(f, &ctxReader{ctx: ctx, r: content}); err != nil {
+		_ = f.Close()
+		return err
+	}
 
-	_, err = io.Copy(f, content)
-	return err
+	// 写入错误可能要到 Close 才暴露（如磁盘写满），这里不能吞
+	return f.Close()
+}
+
+// Rename 改名
+func (l *Local) Rename(_ context.Context, src, dst string) error {
+	return os.Rename(l.fullPath(src), l.fullPath(dst))
 }
 
 // Size 获取文件大小

@@ -41,7 +41,6 @@ type FirewallScan struct {
 	buffer       map[string]*biz.ScanEvent // key: "ip:port:proto:date"
 	ipCounters   map[string]*ipCounter     // per-IP 扫描计数
 	blockedIPs   map[string]time.Time      // 已屏蔽 IP → 屏蔽时间
-	fw           firewall.Firewall         // 懒加载
 	cleanedAt    time.Time
 	mu           sync.Mutex
 
@@ -209,14 +208,6 @@ func (r *FirewallScan) flush() {
 	app.Health.Clear(healthKeyScanDB)
 }
 
-// ensureFirewall 懒加载防火墙实例
-func (r *FirewallScan) ensureFirewall(ctx context.Context) firewall.Firewall {
-	if r.fw == nil {
-		r.fw = firewall.NewFirewall(ctx)
-	}
-	return r.fw
-}
-
 // autoBlock 自动屏蔽超阈值 IP 并解封过期 IP
 func (r *FirewallScan) autoBlock(ctx context.Context) {
 	setting, err := r.scanRepo.GetSetting()
@@ -230,9 +221,14 @@ func (r *FirewallScan) autoBlock(ctx context.Context) {
 		return
 	}
 
-	fw := r.ensureFirewall(ctx)
+	fw := firewall.NewFirewall()
 	running, err := fw.Status(ctx)
-	if err != nil || !running {
+	if err != nil {
+		// 查询失败不等于防火墙没运行，清空计数器会丢掉本轮窗口内累计的扫描次数
+		r.log.Warn("failed to get firewall status", slog.Any("err", err))
+		return
+	}
+	if !running {
 		// 防火墙未运行时也要清理计数器，防止无界增长
 		r.mu.Lock()
 		if len(r.ipCounters) > 0 {

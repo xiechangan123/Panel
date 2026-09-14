@@ -261,18 +261,22 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 		if os.TCPPortInUse(req.Port) { //nolint:contextcheck
 			return false, errors.New(uc.t.Get("port is already in use"))
 		}
-		// 放行端口
-		fw := firewall.NewFirewall(ctx)
-		if ok, _ := fw.Status(ctx); ok {
-			err = fw.Port(ctx, firewall.FireInfo{
+		// 放行端口与后面的保存配置、重启是一个整体，中途取消会让面板监听在被防火墙拦截的端口上，管理员直接失联
+		ctx = context.WithoutCancel(ctx)
+		fw := firewall.NewFirewall()
+		running, statusErr := fw.Status(ctx)
+		if statusErr != nil {
+			return false, statusErr
+		}
+		if running {
+			if err = fw.Port(ctx, firewall.FireInfo{
 				Type:      firewall.TypeNormal,
 				PortStart: req.Port,
 				PortEnd:   req.Port,
 				Protocol:  firewall.ProtocolTCPUDP,
 				Strategy:  firewall.StrategyAccept,
 				Direction: firewall.DirectionIn,
-			}, firewall.OperationAdd)
-			if err != nil {
+			}, firewall.OperationAdd); err != nil {
 				return false, err
 			}
 		}

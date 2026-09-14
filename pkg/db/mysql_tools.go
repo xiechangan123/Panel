@@ -15,13 +15,12 @@ import (
 // MySQLResetRootPassword 重置 MySQL root密码
 func MySQLResetRootPassword(ctx context.Context, password, root string) (err error) {
 	_ = systemctl.Stop(ctx, "mysqld")
-	if run, _ := systemctl.Status(ctx, "mysqld"); run {
+	// 状态查不出来时不能当作「已停止」继续，否则会带着一个还活着的实例进安全模式
+	if run, serr := systemctl.Status(ctx, "mysqld"); serr != nil || run {
 		return errors.New("failed to stop MySQL")
 	}
 
-	if _, err = shell.Execf(ctx, `systemctl set-environment MYSQLD_OPTS="--skip-grant-tables --skip-networking"`); err != nil {
-		return fmt.Errorf("failed to enter MySQL safe mode: %w", err)
-	}
+	// 实例此刻是停的，收尾装在改环境变量之前，任意一步失败都能把实例拉回来
 	// 收尾不能跟随 ctx 取消，否则调用方取消时实例会停在安全模式
 	cleanupCtx := context.WithoutCancel(ctx)
 	defer func() {
@@ -30,6 +29,10 @@ func MySQLResetRootPassword(ctx context.Context, password, root string) (err err
 			err = fmt.Errorf("failed to restart MySQL: %w", rerr)
 		}
 	}()
+
+	if _, err = shell.Execf(ctx, `systemctl set-environment MYSQLD_OPTS="--skip-grant-tables --skip-networking"`); err != nil {
+		return fmt.Errorf("failed to enter MySQL safe mode: %w", err)
+	}
 
 	if err = systemctl.Start(ctx, "mysqld"); err != nil {
 		return fmt.Errorf("failed to start MySQL in safe mode: %w", err)

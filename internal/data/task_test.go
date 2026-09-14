@@ -15,6 +15,8 @@ type stubRunner struct{}
 
 func (stubRunner) Run(context.Context) {}
 
+func (stubRunner) Wait(context.Context) {}
+
 func (stubRunner) Notify() {}
 
 func (stubRunner) Cancel(uint) bool { return false }

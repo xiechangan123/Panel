@@ -224,8 +224,10 @@ func (uc *DatabaseUserUsecase) Delete(ctx context.Context, id uint) error {
 	}
 	defer operator.Close()
 
-	// 取消会让面板记录已删而引擎里的用户残留
-	_ = operator.UserDrop(context.WithoutCancel(ctx), user.Username, user.Host)
+	// 删引擎用户 → 删面板记录是一个整体，中途取消会让面板记录已删而引擎里的用户残留
+	ctx = context.WithoutCancel(ctx)
+
+	_ = operator.UserDrop(ctx, user.Username, user.Host)
 
 	if err = uc.repo.DeleteByID(id); err != nil {
 		return err
@@ -249,7 +251,6 @@ func (uc *DatabaseUserUsecase) DeleteByNames(ctx context.Context, serverID uint,
 	}
 	defer operator.Close()
 
-	// 取消会让面板记录已删而引擎里的用户残留
 	ctx = context.WithoutCancel(ctx)
 
 	switch server.Type {

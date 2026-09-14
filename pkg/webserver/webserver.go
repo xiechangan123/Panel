@@ -76,7 +76,12 @@ func (d Dialect) ReloadIfRunning(ctx context.Context) error {
 	if err := d.BeforeReload(); err != nil {
 		return err
 	}
-	if running, _ := systemctl.Status(ctx, d.Service()); !running {
+	// 查不到状态和确认未运行是两回事，前者不能当成「不用 reload」放过
+	running, err := systemctl.Status(ctx, d.Service())
+	if err != nil {
+		return err
+	}
+	if !running {
 		return nil
 	}
 

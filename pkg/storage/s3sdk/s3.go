@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -115,9 +116,24 @@ func (c *S3) objectURL(key string) string {
 	return c.base + "/" + uriEncode(key, false)
 }
 
+// defaultClient 未配置 HTTP 客户端时的兜底
+// 不设 Client.Timeout：分片上传耗时随文件大小变化，只能靠分阶段超时兜住对端黑洞
+var defaultClient = &http.Client{
+	Transport: &http.Transport{
+		Proxy:                 http.ProxyFromEnvironment,
+		DialContext:           (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: time.Second,
+		ResponseHeaderTimeout: time.Minute,
+	},
+}
+
 func (c *S3) httpClient() *http.Client {
 	if c.client == nil {
-		return http.DefaultClient
+		return defaultClient
 	}
 	return c.client
 }

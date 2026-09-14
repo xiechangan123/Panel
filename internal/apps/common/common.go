@@ -2,8 +2,8 @@
 package common
 
 import (
-	"context"
 	"net/http"
+	"os"
 
 	"github.com/acepanel/panel/v3/internal/request"
 	"github.com/acepanel/panel/v3/internal/service"
@@ -18,20 +18,25 @@ func ServeConfig(w http.ResponseWriter, path string) {
 	service.Success(w, config)
 }
 
-// SaveConfig 写入配置文件并重启对应服务
-func SaveConfig(w http.ResponseWriter, r *http.Request, path, unit string) {
+// SaveConfig 绑定请求后写入配置文件并重启对应服务
+func SaveConfig(w http.ResponseWriter, r *http.Request, path string, perm os.FileMode, unit string) {
 	req, err := service.Bind[request.AppUpdateConfig](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	if err = io.Write(path, req.Config, 0644); err != nil {
+	WriteConfig(w, r, path, req.Config, perm, unit)
+}
+
+// WriteConfig 写入配置文件并重启对应服务
+func WriteConfig(w http.ResponseWriter, r *http.Request, path, content string, perm os.FileMode, unit string) {
+	if err := io.Write(path, content, perm); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), unit); err != nil {
+	if err := systemctl.Restart(r.Context(), unit); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

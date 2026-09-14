@@ -80,7 +80,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), req.Name); err != nil {
+	if err = systemctl.Restart(r.Context(), req.Name); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -156,13 +156,11 @@ func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 单元文件已改写，daemon-reload 与重启不跟随请求取消，否则 systemd 用的仍是旧单元
-	ctx := context.WithoutCancel(r.Context())
-	if err = systemctl.DaemonReload(ctx); err != nil {
+	if err = systemctl.DaemonReload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = systemctl.Restart(ctx, req.Name); err != nil {
+	if err = systemctl.Restart(r.Context(), req.Name); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -204,7 +202,7 @@ func (s *App) UpdateServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "frps"); err != nil {
+	if err = systemctl.Restart(r.Context(), "frps"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -246,7 +244,7 @@ func (s *App) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "frpc"); err != nil {
+	if err = systemctl.Restart(r.Context(), "frpc"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -415,7 +413,6 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 同 DeleteProxy
 	ctx := context.WithoutCancel(r.Context())
 	if err = io.Remove(ctx, itemPath(visitorPrefix, req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -436,7 +433,7 @@ func (s *App) save(ctx context.Context, w http.ResponseWriter, prefix, name stri
 		return
 	}
 
-	if err := systemctl.Restart(context.WithoutCancel(ctx), "frpc"); err != nil {
+	if err := systemctl.Restart(ctx, "frpc"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -141,7 +141,7 @@ func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "postgresql"); err != nil {
+	if err = systemctl.Reload(r.Context(), "postgresql"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload PostgreSQL: %v", err))
 		return
 	}

@@ -98,7 +98,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.configPath(), "grafana")
+	common.SaveConfig(w, r, s.configPath(), 0644, "grafana")
 }
 
 // GetConfigTune 获取 Grafana 配置调整参数
@@ -183,7 +183,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "grafana"); err != nil {
+	if err = systemctl.Restart(r.Context(), "grafana"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -348,8 +348,7 @@ func (s *App) writeDatasources(ctx context.Context, cfg map[string]any) error {
 	if err = io.Write(s.datasourcePath(), string(data), 0644); err != nil {
 		return err
 	}
-	// 数据源已落盘，重启不跟随请求取消，否则磁盘配置与运行中进程不一致
-	return systemctl.Restart(context.WithoutCancel(ctx), "grafana")
+	return systemctl.Restart(ctx, "grafana")
 }
 
 // getDatasourceList 从 cfg 中提取 datasources 切片

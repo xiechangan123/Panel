@@ -9,6 +9,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -34,6 +35,7 @@ type Turn struct {
 	ws   *websocket.Conn
 	ptmx *os.File
 	cmd  *exec.Cmd
+	kill atomic.Pointer[time.Timer] // Close 设的强杀定时器，进程退出后由 Wait 停掉
 }
 
 // NewPTYTurn 使用 PTY 执行命令，返回 Turn 用于流式读取输出
@@ -70,15 +72,21 @@ func (t *Turn) Write(data []byte) (int, error) {
 // Wait 等待命令完成
 func (t *Turn) Wait() {
 	_ = t.cmd.Wait()
+	// 进程已回收，不必再等定时器到点去杀一个已经不存在的进程
+	if timer := t.kill.Swap(nil); timer != nil {
+		timer.Stop()
+	}
 }
 
 // Close 关闭 PTY 并终止子进程
 func (t *Turn) Close() {
 	// 先发 SIGTERM 优雅终止，3 秒后仍未退出再强制杀死
-	_ = t.cmd.Process.Signal(syscall.SIGTERM)
-	time.AfterFunc(3*time.Second, func() {
-		_ = t.cmd.Process.Kill()
-	})
+	// pty.Start 建了新会话，信号发给整个进程组，命令自己派生的子进程才不会残留
+	pgid := -t.cmd.Process.Pid
+	_ = syscall.Kill(pgid, syscall.SIGTERM)
+	t.kill.Store(time.AfterFunc(3*time.Second, func() {
+		_ = syscall.Kill(pgid, syscall.SIGKILL)
+	}))
 	_ = t.ptmx.Close()
 }
 

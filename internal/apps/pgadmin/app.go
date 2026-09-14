@@ -153,7 +153,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 	// 端口已改写入盘，放行与重启不跟随请求取消，否则新端口不通
 	ctx := context.WithoutCancel(r.Context())
-	fw := firewall.NewFirewall(ctx)
+	fw := firewall.NewFirewall()
 	err = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: req.Port,
@@ -227,8 +227,7 @@ func (s *App) existingServers(ctx context.Context, email string) (map[string]str
 // dumpExistingServers 通过 CLI 导出查询已注册服务器,直读配置库失败时的回退路径
 func (s *App) dumpExistingServers(ctx context.Context, email string) map[string]struct{} {
 	dump := filepath.Join(os.TempDir(), "pgadmin-servers.json")
-	// 清理临时文件不随请求取消
-	defer func() { _ = io.Remove(context.WithoutCancel(ctx), dump) }()
+	defer func() { _ = io.Remove(ctx, dump) }()
 	_, _ = shell.Execf(ctx, "%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
 
 	existing := make(map[string]struct{})
@@ -321,8 +320,7 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 	}
 	if len(missing) > 0 {
 		load := filepath.Join(os.TempDir(), "pgadmin-servers-add.json")
-		// 清理临时文件不随请求取消
-		defer func() { _ = io.Remove(context.WithoutCancel(ctx), load) }()
+		defer func() { _ = io.Remove(ctx, load) }()
 		payload, err := json.Marshal(serversFile{Servers: missing})
 		if err != nil {
 			return err

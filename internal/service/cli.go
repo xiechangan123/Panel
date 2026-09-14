@@ -155,8 +155,7 @@ func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 	}); err != nil {
 		return err
 	}
-	// 重启靠 sleep 熬过 CLI 进程退出，绑命令 ctx 会在本函数返回时被杀掉
-	tools.RestartPanel(context.WithoutCancel(ctx))
+	tools.RestartPanel(ctx)
 	return nil
 }
 
@@ -723,18 +722,21 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 
 	conf.HTTP.Port = port
 
-	// 放行端口
-	fw := firewall.NewFirewall(ctx)
-	if ok, _ := fw.Status(ctx); ok {
-		err = fw.Port(ctx, firewall.FireInfo{
+	// 放行端口，查询失败不能当作防火墙没运行，否则会静默跳过放行把面板关在防火墙外面
+	fw := firewall.NewFirewall()
+	running, err := fw.Status(ctx)
+	if err != nil {
+		return err
+	}
+	if running {
+		if err = fw.Port(ctx, firewall.FireInfo{
 			Type:      firewall.TypeNormal,
 			PortStart: port,
 			PortEnd:   port,
 			Protocol:  firewall.ProtocolTCPUDP,
 			Strategy:  firewall.StrategyAccept,
 			Direction: firewall.DirectionIn,
-		}, firewall.OperationAdd)
-		if err != nil {
+		}, firewall.OperationAdd); err != nil {
 			return err
 		}
 	}
@@ -748,7 +750,7 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) FirewallStatus(ctx context.Context, cmd *cli.Command) error {
-	fw := firewall.NewFirewall(ctx)
+	fw := firewall.NewFirewall()
 	running, err := fw.Status(ctx)
 	if err != nil {
 		return err
@@ -768,7 +770,7 @@ func (s *CliService) FirewallStatus(ctx context.Context, cmd *cli.Command) error
 }
 
 func (s *CliService) FirewallOn(ctx context.Context, cmd *cli.Command) error {
-	if err := firewall.NewFirewall(ctx).Enable(ctx); err != nil {
+	if err := firewall.NewFirewall().Enable(ctx); err != nil {
 		return err
 	}
 
@@ -777,7 +779,7 @@ func (s *CliService) FirewallOn(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) FirewallOff(ctx context.Context, cmd *cli.Command) error {
-	if err := firewall.NewFirewall(ctx).Disable(ctx); err != nil {
+	if err := firewall.NewFirewall().Disable(ctx); err != nil {
 		return err
 	}
 
@@ -786,7 +788,7 @@ func (s *CliService) FirewallOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) FirewallList(ctx context.Context, cmd *cli.Command) error {
-	rules, err := firewall.NewFirewall(ctx).ListRule(ctx)
+	rules, err := firewall.NewFirewall().ListRule(ctx)
 	if err != nil {
 		return err
 	}
@@ -818,7 +820,7 @@ func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Unsupported protocol: %s", cmd.String("protocol")))
 	}
 
-	fw := firewall.NewFirewall(ctx)
+	fw := firewall.NewFirewall()
 	if running, _ := fw.Status(ctx); !running {
 		return errors.New(s.t.Get("Firewall is not running"))
 	}
@@ -1628,7 +1630,7 @@ checkPort:
 	conf.HTTP.Port = port
 
 	// 放行端口
-	fw := firewall.NewFirewall(ctx)
+	fw := firewall.NewFirewall()
 	_ = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: port,

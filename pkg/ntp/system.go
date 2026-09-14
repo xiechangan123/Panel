@@ -13,6 +13,7 @@ import (
 
 	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/shell"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 )
 
 // NTPServiceType 表示系统使用的 NTP 服务类型
@@ -179,7 +180,7 @@ func setTimesyncdServers(ctx context.Context, servers []string) error {
 	}
 
 	// 重启 systemd-timesyncd 服务
-	_, _ = shell.Execf(ctx, "systemctl restart systemd-timesyncd 2>/dev/null")
+	_ = systemctl.Restart(ctx, "systemd-timesyncd")
 
 	return nil
 }
@@ -276,9 +277,9 @@ func setChronyServers(ctx context.Context, servers []string) error {
 		return err
 	}
 
-	// 重启 chrony 服务
-	_, _ = shell.Execf(ctx, "systemctl restart chronyd 2>/dev/null")
-	_, _ = shell.Execf(ctx, "systemctl restart chrony 2>/dev/null")
+	// 重启 chrony 服务，两种服务名只会命中一种
+	_ = systemctl.Restart(ctx, "chronyd")
+	_ = systemctl.Restart(ctx, "chrony")
 
 	return nil
 }
@@ -289,12 +290,10 @@ func RestartNTPService(ctx context.Context) error {
 
 	switch serviceType {
 	case NTPServiceTimesyncd:
-		_, err := shell.Execf(ctx, "systemctl restart systemd-timesyncd")
-		return err
+		return systemctl.Restart(ctx, "systemd-timesyncd")
 	case NTPServiceChrony:
-		if _, err := shell.Execf(ctx, "systemctl restart chronyd 2>/dev/null"); err != nil {
-			_, err = shell.Execf(ctx, "systemctl restart chrony")
-			return err
+		if err := systemctl.Restart(ctx, "chronyd"); err != nil {
+			return systemctl.Restart(ctx, "chrony")
 		}
 		return nil
 	default:

@@ -110,7 +110,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, app.Root+"/server/prometheus/prometheus.yml", "prometheus")
+	common.SaveConfig(w, r, app.Root+"/server/prometheus/prometheus.yml", 0644, "prometheus")
 }
 
 // GetConfigTune 获取 Prometheus 全局配置调整参数
@@ -179,7 +179,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "prometheus"); err != nil {
+	if err = systemctl.Restart(r.Context(), "prometheus"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -206,7 +206,7 @@ func (s *App) UpdateAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "alertmanager"); err != nil {
+	if err = systemctl.Restart(r.Context(), "alertmanager"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -376,7 +376,7 @@ func (s *App) UpdateExporterConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "prometheus-"+slug); err != nil {
+	if err = systemctl.Restart(r.Context(), "prometheus-"+slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

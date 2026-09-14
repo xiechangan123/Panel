@@ -266,6 +266,5 @@ func (r *MySQL) userGrants(ctx context.Context, user, host string) ([]string, er
 }
 
 func (r *MySQL) flushPrivileges(ctx context.Context) {
-	// 权限变更后必须刷新，取消时跳过会让新用户或授权不生效
-	_, _ = r.Exec(context.WithoutCancel(ctx), "FLUSH PRIVILEGES")
+	_, _ = r.Exec(ctx, "FLUSH PRIVILEGES")
 }

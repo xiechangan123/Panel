@@ -13,8 +13,9 @@ import (
 )
 
 // Remove 删除文件/目录
+// 不响应取消：RemoveAll 无法中途停下，解锁被取消只会让删除撞上 immutable 文件半途失败
 func Remove(ctx context.Context, path string) error {
-	_, _ = shell.Execf(ctx, "chattr -R -ia '%s'", path)
+	_, _ = shell.Execf(context.WithoutCancel(ctx), "chattr -R -ia '%s'", path)
 	return os.RemoveAll(path)
 }
 

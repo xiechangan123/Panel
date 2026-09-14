@@ -186,8 +186,8 @@ func CollectTopProcesses() types.TopProcesses {
 	return result
 }
 
-// 以下三个自杀式操作靠 sleep 1 熬过 HTTP 响应，传入的 ctx 必须活过这段时间，
-// 不能直接传请求 ctx，否则请求一结束进程就被杀，操作永远不生效
+// 以下三个自杀式操作靠 sleep 1 熬过 HTTP 响应，ExecfAsync 入口已断开取消链，
+// 调用方直接传请求 ctx 即可，无需再包 WithoutCancel
 
 // StopPanel 停止面板
 func StopPanel(ctx context.Context) {

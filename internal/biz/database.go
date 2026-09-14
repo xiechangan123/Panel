@@ -215,6 +215,9 @@ func (uc *DatabaseUsecase) Delete(ctx context.Context, serverID uint, name strin
 		return err
 	}
 
+	// 删库是逐表进行的，中途取消会留下半删的 schema，而面板已经把它当作已删除
+	ctx = context.WithoutCancel(ctx)
+
 	switch server.Type {
 	case DatabaseTypeMongoDB:
 		mongo, mongoErr := uc.repo.Mongo(ctx, server)

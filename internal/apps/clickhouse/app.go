@@ -114,7 +114,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 
 // UpdateConfig 更新配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.configPath(), "clickhouse-server")
+	common.SaveConfig(w, r, s.configPath(), 0644, "clickhouse-server")
 }
 
 // GetConfigTune 获取配置调整参数
@@ -175,7 +175,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "clickhouse-server"); err != nil {
+	if err = systemctl.Restart(r.Context(), "clickhouse-server"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -229,8 +229,7 @@ func (s *App) SetDefaultPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重启服务使密码生效；哈希已落盘但明文还没存进面板库，重启被取消会让两边密码对不上
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "clickhouse-server"); err != nil {
+	if err = systemctl.Restart(r.Context(), "clickhouse-server"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

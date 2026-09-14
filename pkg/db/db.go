@@ -5,6 +5,9 @@ import (
 	"database/sql"
 )
 
+// Operator 数据库操作句柄
+// 所有方法都跟随 ctx 取消，这样 CLI 和停机路径能中断卡在锁等待上的 SQL；
+// 需要整体完成的多步操作由调用方（biz 用例层）在事务边界断开取消链
 type Operator interface {
 	Close()
 	Ping(ctx context.Context) error

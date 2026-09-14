@@ -69,9 +69,9 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "apache"); err != nil {
-		_, err = shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest", app.Root)
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v", err))
+	if err = systemctl.Reload(r.Context(), "apache"); err != nil {
+		out, _ := shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest", app.Root)
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v %s", err, out))
 		return
 	}
 
@@ -238,7 +238,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "apache"); err != nil {
+	if err = systemctl.Reload(r.Context(), "apache"); err != nil {
 		out, _ := shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest", app.Root)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v %s", err, out))
 		return

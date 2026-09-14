@@ -6,11 +6,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/internal/service"
-	"github.com/acepanel/panel/v3/pkg/io"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
+
+const envPath = "/etc/default/minio"
 
 type App struct{}
 
@@ -29,8 +31,7 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetEnv(w http.ResponseWriter, r *http.Request) {
-	env, _ := io.Read("/etc/default/minio")
-	service.Success(w, env)
+	common.ServeConfig(w, envPath)
 }
 
 func (s *App) UpdateEnv(w http.ResponseWriter, r *http.Request) {
@@ -40,15 +41,5 @@ func (s *App) UpdateEnv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Write("/etc/default/minio", req.Env, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "minio"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.WriteConfig(w, r, envPath, req.Env, 0600, "minio")
 }

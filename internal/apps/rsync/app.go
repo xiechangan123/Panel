@@ -115,7 +115,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, rsyncdConf, "rsyncd")
+	common.SaveConfig(w, r, rsyncdConf, 0644, "rsyncd")
 }
 
 func (s *App) save(ctx context.Context, w http.ResponseWriter, req *Module) {
@@ -124,8 +124,7 @@ func (s *App) save(ctx context.Context, w http.ResponseWriter, req *Module) {
 		return
 	}
 
-	// 模块已落盘，重启不跟随请求取消，否则磁盘配置与运行中进程不一致
-	if err := systemctl.Restart(context.WithoutCancel(ctx), "rsyncd"); err != nil {
+	if err := systemctl.Restart(ctx, "rsyncd"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

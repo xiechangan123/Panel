@@ -1,7 +1,6 @@
 package nginx
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -16,7 +15,6 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/service"
-	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/webserver/conf"
 	webserverNginx "github.com/acepanel/panel/v3/pkg/webserver/nginx"
 )
@@ -50,13 +48,7 @@ func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		_ = os.Remove(configPath)
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reload(w, r, configPath)
 }
 
 // UpdateStreamServer 更新 Stream Server
@@ -97,12 +89,7 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 		_ = os.Remove(configPath)
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reload(w, r)
 }
 
 // DeleteStreamServer 删除 Stream Server
@@ -124,12 +111,7 @@ func (s *App) DeleteStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reload(w, r)
 }
 
 // ListStreamUpstreams 获取 Stream Upstream 列表
@@ -161,13 +143,7 @@ func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		_ = os.Remove(configPath)
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reload(w, r, configPath)
 }
 
 // UpdateStreamUpstream 更新 Stream Upstream
@@ -208,12 +184,7 @@ func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		_ = os.Remove(configPath)
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reload(w, r)
 }
 
 // DeleteStreamUpstream 删除 Stream Upstream
@@ -235,12 +206,7 @@ func (s *App) DeleteStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reload(w, r)
 }
 
 // parseStreamServers 解析所有 Stream Server 配置

@@ -132,7 +132,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.confPath(), s.slug)
+	common.SaveConfig(w, r, s.confPath(), 0644, s.slug)
 }
 
 // GetConfigTune 获取配置调整参数
@@ -190,8 +190,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重启后才把密码同步进面板库，中途取消会让两边密码对不上
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.slug); err != nil {
+	if err = systemctl.Restart(r.Context(), s.slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

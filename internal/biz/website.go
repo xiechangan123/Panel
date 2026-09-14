@@ -186,6 +186,9 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 		return err
 	}
 
+	// 删站是删文件、删库、删记录、reload 的连续破坏性动作，中途取消只会留下半删的站点
+	ctx = context.WithoutCancel(ctx)
+
 	// 清理防篡改规则
 	if req.Path && website.Path != "" {
 		if rules, listErr := uc.tamper.ListRules(); listErr == nil {

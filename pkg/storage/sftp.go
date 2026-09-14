@@ -87,7 +87,18 @@ func (s *SFTP) connect(ctx context.Context) (*sftp.Client, func(), error) {
 		return nil, nil, fmt.Errorf("failed to create SFTP client: %w", err)
 	}
 
+	// ClientConfig.Timeout 只管拨号，连接半死时读写会一直挂着；取消时直接关连接把它踹醒
+	stop := make(chan struct{})
+	go func() {
+		select {
+		case <-ctx.Done():
+			_ = conn.Close()
+		case <-stop:
+		}
+	}()
+
 	cleanup := func() {
+		close(stop)
 		_ = sftpClient.Close()
 		_ = sshClient.Close()
 	}
@@ -195,10 +206,25 @@ func (s *SFTP) Put(ctx context.Context, file string, content io.Reader) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = remoteFile.Close() }()
 
-	_, err = io.Copy(remoteFile, content)
-	return err
+	if _, err = io.Copy(remoteFile, &ctxReader{ctx: ctx, r: content}); err != nil {
+		_ = remoteFile.Close()
+		return err
+	}
+
+	// 写入错误可能要到 Close 才暴露，这里不能吞
+	return remoteFile.Close()
+}
+
+// Rename 改名
+func (s *SFTP) Rename(ctx context.Context, src, dst string) error {
+	client, cleanup, err := s.connect(ctx)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
+	return client.Rename(s.getRemotePath(src), s.getRemotePath(dst))
 }
 
 // Size 获取文件大小

@@ -66,62 +66,69 @@ func GetServiceInfo(ctx context.Context, name string) (*ServiceInfo, error) {
 
 // Status 获取服务状态
 func Status(ctx context.Context, name string) (bool, error) {
-	output, _ := shell.Execf(ctx, "systemctl is-active '%s'", name) // 不判断错误，因为 is-active 在服务未启用时会返回 3
+	// is-active 在服务未运行时返回退出码 3，只有 ctx 出错才是真失败，否则取消会被误判成「服务未运行」
+	output, err := shell.Execf(ctx, "systemctl is-active '%s'", name)
+	if err != nil && ctx.Err() != nil {
+		return false, ctx.Err()
+	}
 	return output == "active", nil
 }
 
 // IsEnabled 服务是否启用
 func IsEnabled(ctx context.Context, name string) (bool, error) {
-	out, _ := shell.Execf(ctx, "systemctl is-enabled '%s'", name) // 不判断错误，因为 is-enabled 在服务禁用时会返回 1
+	// is-enabled 在服务禁用时返回退出码 1，同 Status 只认 ctx 错误
+	out, err := shell.Execf(ctx, "systemctl is-enabled '%s'", name)
+	if err != nil && ctx.Err() != nil {
+		return false, ctx.Err()
+	}
 	return out == "enabled" || out == "static" || out == "indirect", nil
+}
+
+// change 执行 systemd 变更命令
+// 变更一旦下发就没有回头路，断开请求 ctx 的取消链，避免连接断开留下「配置改了服务没生效」的半截状态
+func change(ctx context.Context, shellCmd string, args ...any) error {
+	_, err := shell.ExecfWithTimeout(context.WithoutCancel(ctx), 2*time.Minute, shellCmd, args...)
+	return err
 }
 
 // Start 启动服务
 func Start(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl start '%s'", name)
-	return err
+	return change(ctx, "systemctl start '%s'", name)
 }
 
 // Stop 停止服务
 func Stop(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl stop '%s'", name)
-	return err
+	return change(ctx, "systemctl stop '%s'", name)
 }
 
 // Restart 重启服务
 func Restart(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl restart '%s'", name)
-	return err
+	return change(ctx, "systemctl restart '%s'", name)
 }
 
 // Reload 重载服务
 func Reload(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl reload '%s'", name)
-	return err
+	return change(ctx, "systemctl reload '%s'", name)
 }
 
 // Enable 启用服务
 func Enable(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl enable '%s'", name)
-	return err
+	return change(ctx, "systemctl enable '%s'", name)
 }
 
 // Disable 禁用服务
 func Disable(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl disable '%s'", name)
-	return err
+	return change(ctx, "systemctl disable '%s'", name)
 }
 
 // Mask 屏蔽服务
 func Mask(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl mask '%s'", name)
-	return err
+	return change(ctx, "systemctl mask '%s'", name)
 }
 
 // Unmask 解除屏蔽服务
 func Unmask(ctx context.Context, name string) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl unmask '%s'", name)
-	return err
+	return change(ctx, "systemctl unmask '%s'", name)
 }
 
 // Log 获取服务日志
@@ -145,8 +152,7 @@ func LogClear(ctx context.Context, name string) error {
 
 // DaemonReload 重载 systemd 服务配置
 func DaemonReload(ctx context.Context) error {
-	_, err := shell.ExecfWithTimeout(ctx, 2*time.Minute, "systemctl daemon-reload")
-	return err
+	return change(ctx, "systemctl daemon-reload")
 }
 
 // calcUptime 计算运行时间

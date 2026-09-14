@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sync"
 	"time"
@@ -29,6 +28,8 @@ type Runner struct {
 	notifier Notifier
 	t        *gotext.Locale
 	notify   chan struct{}
+
+	wg sync.WaitGroup // 供 Wait 等待运行协程收尾
 
 	mu            sync.Mutex
 	currentID     uint               // 当前运行的任务 ID
@@ -67,7 +68,9 @@ func (r *Runner) Cancel(id uint) bool {
 
 // Run 启动运行器
 func (r *Runner) Run(ctx context.Context) {
+	r.wg.Add(1)
 	go func() {
+		defer r.wg.Done()
 		r.clearZombie()
 
 		// 启动时先尝试处理积压的 waiting 任务
@@ -87,6 +90,21 @@ func (r *Runner) Run(ctx context.Context) {
 			}
 		}
 	}()
+}
+
+// Wait 等待运行协程收尾，ctx 到期则放弃等待
+// 停机时正在跑的任务要写状态和跑清理命令，不等就会和进程退出赛跑
+func (r *Runner) Wait(ctx context.Context) {
+	done := make(chan struct{})
+	go func() {
+		r.wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-ctx.Done():
+	}
 }
 
 // drain 持续处理 waiting 任务直到队列为空或 ctx 取消
@@ -155,9 +173,10 @@ func (r *Runner) execute(ctx context.Context, task *biz.Task) {
 	}()
 
 	if err := shell.ExecWithLog(taskCtx, task.Shell, logFile); err != nil {
-		// 用户取消标记为 canceled，面板停机保持 failed 由下次启动清理语义兜底
+		// 用户取消和面板停机都不是任务本身失败，都记为 canceled 并跑清理命令，
+		// 否则停机会留下半装的包和假的失败通知
 		status := biz.TaskStatusFailed
-		if taskCtx.Err() != nil && ctx.Err() == nil {
+		if taskCtx.Err() != nil {
 			status = biz.TaskStatusCanceled
 			r.runCancelShell(ctx, task, logFile)
 		}
@@ -190,18 +209,7 @@ func (r *Runner) runCancelShell(ctx context.Context, task *biz.Task, logFile str
 	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Minute)
 	defer cancel()
 
-	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		r.log.Warn("failed to open task log for cancel shell", slog.Any("task_id", task.ID), slog.Any("err", err))
-		return
-	}
-	defer func(f *os.File) { _ = f.Close() }(f)
-
-	cmd := exec.CommandContext(cleanupCtx, "bash", "-c", task.CancelShell)
-	shell.ApplyEnv(cmd)
-	cmd.Stdout = f
-	cmd.Stderr = f
-	if err = cmd.Run(); err != nil {
+	if err := shell.ExecWithLogAppend(cleanupCtx, task.CancelShell, logFile); err != nil {
 		r.log.Warn("failed to run task cancel shell", slog.Any("task_id", task.ID), slog.Any("err", err))
 	}
 }

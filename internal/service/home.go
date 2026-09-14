@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -399,7 +398,7 @@ func (s *HomeService) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Success(w, nil)
-	tools.RestartPanel(context.WithoutCancel(r.Context()))
+	tools.RestartPanel(r.Context())
 }
 
 func (s *HomeService) Restart(w http.ResponseWriter, r *http.Request) {
@@ -408,7 +407,7 @@ func (s *HomeService) Restart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.RestartPanel(context.WithoutCancel(r.Context()))
+	tools.RestartPanel(r.Context())
 	Success(w, nil)
 }
 
@@ -418,7 +417,7 @@ func (s *HomeService) RestartServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.RestartServer(context.WithoutCancel(r.Context()))
+	tools.RestartServer(r.Context())
 	Success(w, nil)
 }
 

@@ -67,7 +67,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 
 // UpdateConfig 保存配置
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, mainConfPath(), s.name)
+	common.SaveConfig(w, r, mainConfPath(), 0644, s.name)
 }
 
 // Processes 进程列表
@@ -115,46 +115,29 @@ func (s *App) Processes(w http.ResponseWriter, r *http.Request) {
 
 // StartProcess 启动进程
 func (s *App) StartProcess(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if out, err := shell.Execf(r.Context(), `supervisorctl start '%s'`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
-		return
-	}
-
-	service.Success(w, nil)
+	s.control(w, r, "start")
 }
 
 // StopProcess 停止进程
 func (s *App) StopProcess(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[ProcessName](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if out, err := shell.Execf(r.Context(), `supervisorctl stop '%s'`, req.Process); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
-		return
-	}
-
-	service.Success(w, nil)
+	s.control(w, r, "stop")
 }
 
 // RestartProcess 重启进程
 func (s *App) RestartProcess(w http.ResponseWriter, r *http.Request) {
+	s.control(w, r, "restart")
+}
+
+// control 对单个进程执行 supervisorctl 变更命令
+func (s *App) control(w http.ResponseWriter, r *http.Request, action string) {
 	req, err := service.Bind[ProcessName](r)
 	if err != nil {
 		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
-	// restart 是 stop+start 两步，中途取消会把进程停在已停止态
-	if out, err := shell.Execf(context.WithoutCancel(r.Context()), `supervisorctl restart '%s'`, req.Process); err != nil {
+	// 变更不跟随请求取消，restart 更是 stop+start 两步，中途取消会把进程停在已停止态
+	if out, err := shell.Execf(context.WithoutCancel(r.Context()), `supervisorctl %s '%s'`, action, req.Process); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
@@ -290,7 +273,7 @@ stdout_logfile_maxbytes=2MB
 		return
 	}
 
-	// 同 reload，三步序列中途取消会让新进程注册了却没起来
+	// 三步序列中途取消会让新进程注册了却没起来
 	ctx := context.WithoutCancel(r.Context())
 	_, _ = shell.Execf(ctx, `supervisorctl reread`)
 	_, _ = shell.Execf(ctx, `supervisorctl update`)

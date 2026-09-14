@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
 
@@ -78,13 +79,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		_, err = shell.Execf(r.Context(), "nginx -t")
-		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
-		return
-	}
-
-	service.Success(w, nil)
+	s.reloadConfig(w, r)
 }
 
 func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
@@ -267,9 +262,27 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
-		_, err = shell.Execf(r.Context(), "nginx -t")
+	s.reloadConfig(w, r)
+}
+
+// reload 重载 nginx 并回写响应，失败时删除 rollback 指定的配置文件
+func (s *App) reload(w http.ResponseWriter, r *http.Request, rollback ...string) {
+	if err := systemctl.Reload(r.Context(), "nginx"); err != nil {
+		for _, path := range rollback {
+			_ = os.Remove(path)
+		}
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
+		return
+	}
+
+	service.Success(w, nil)
+}
+
+// reloadConfig 重载 nginx 并回写响应，失败时改用 nginx -t 的输出定位主配置里的语法错误
+func (s *App) reloadConfig(w http.ResponseWriter, r *http.Request) {
+	if err := systemctl.Reload(r.Context(), "nginx"); err != nil {
+		out, _ := shell.Execf(r.Context(), "nginx -t")
+		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v %s", err, out))
 		return
 	}
 

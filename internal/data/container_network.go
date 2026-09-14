@@ -178,7 +178,6 @@ func (r *containerNetworkRepo) Prune(ctx context.Context, sock string) error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	// 中途取消会留下清理到一半的状态
 	_, err = apiClient.NetworkPrune(context.WithoutCancel(ctx), client.NetworkPruneOptions{
 		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
 	})

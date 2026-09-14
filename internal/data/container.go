@@ -330,7 +330,8 @@ func (r *containerRepo) Stop(ctx context.Context, sock string, id string) error 
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	_, err = apiClient.ContainerStop(ctx, id, client.ContainerStopOptions{})
+	// 内部是 SIGTERM 到超时后 SIGKILL 的序列，中途取消会把容器留在中间态
+	_, err = apiClient.ContainerStop(context.WithoutCancel(ctx), id, client.ContainerStopOptions{})
 	return err
 }
 
@@ -440,7 +441,6 @@ func (r *containerRepo) Prune(ctx context.Context, sock string) error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	// 中途取消会留下清理到一半的状态
 	_, err = apiClient.ContainerPrune(context.WithoutCancel(ctx), client.ContainerPruneOptions{
 		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
 	})

@@ -95,6 +95,17 @@ func (r *Ace) Run() error {
 	// graceful shutdown
 	fmt.Println("[APP] shutting down gracefully...")
 
+	// shutdown http server
+	// HTTP 必须先停：晚于调度器停机的这段时间里接口照收请求，任务入库却没人来捞
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	shutdownErr := r.server.Shutdown(shutdownCtx)
+	shutdownCancel()
+	if shutdownErr != nil {
+		fmt.Println("[HTTP] server shutdown error:", shutdownErr)
+	} else {
+		fmt.Println("[HTTP] server stopped")
+	}
+
 	// stop cron scheduler
 	cronCtx, cronCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	_ = r.cron.Stop(cronCtx)
@@ -103,6 +114,9 @@ func (r *Ace) Run() error {
 
 	// stop task runner
 	runnerCancel()
+	waitCtx, waitCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	r.runner.Wait(waitCtx)
+	waitCancel()
 	fmt.Println("[QUEUE] task runner stopped")
 
 	// close certificate reloader
@@ -112,16 +126,6 @@ func (r *Ace) Run() error {
 		}
 	}
 
-	// shutdown http server
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer shutdownCancel()
-
-	if err := r.server.Shutdown(shutdownCtx); err != nil {
-		fmt.Println("[HTTP] server shutdown error:", err)
-		return err
-	}
-	fmt.Println("[HTTP] server stopped")
-
 	fmt.Println("[APP] shutdown complete")
-	return nil
+	return shutdownErr
 }

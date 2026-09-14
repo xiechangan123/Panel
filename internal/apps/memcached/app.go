@@ -97,7 +97,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, "/etc/systemd/system/memcached.service", "memcached")
+	common.SaveConfig(w, r, "/etc/systemd/system/memcached.service", 0644, "memcached")
 }
 
 // GetConfigTune 获取 Memcached 配置调整参数
@@ -146,8 +146,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 单元文件已改写，重启不跟随请求取消，否则磁盘配置与运行中进程不一致
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "memcached"); err != nil {
+	if err = systemctl.Restart(r.Context(), "memcached"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

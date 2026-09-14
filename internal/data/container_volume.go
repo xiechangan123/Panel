@@ -106,7 +106,6 @@ func (r *containerVolumeRepo) Prune(ctx context.Context, sock string) error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	// 中途取消会留下清理到一半的状态
 	_, err = apiClient.VolumePrune(context.WithoutCancel(ctx), client.VolumePruneOptions{
 		Filters: make(client.Filters).Add("label", "created_by!=acepanel"),
 	})

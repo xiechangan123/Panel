@@ -286,7 +286,7 @@ func (r *firewalld) Forward(ctx context.Context, rule Forward, operation Operati
 		} else {
 			cmd = fmt.Sprintf("firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d --permanent", operation, rule.Port, protocol, rule.TargetPort)
 		}
-		_, err := shell.Exec(ctx, cmd)
+		_, err := shell.Execf(ctx, cmd)
 		if err != nil && operation != OperationRemove {
 			return err
 		}

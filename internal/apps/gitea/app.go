@@ -33,5 +33,5 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, app.Root+"/server/gitea/app.ini", "gitea")
+	common.SaveConfig(w, r, app.Root+"/server/gitea/app.ini", 0644, "gitea")
 }

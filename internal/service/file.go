@@ -399,18 +399,29 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// 源受保护则先解锁,移动后按目标路径恢复
-		relock := s.tamperRepo.Unlock(item.Source)
-		if err := io.Mv(ctx, item.Source, item.Target); err != nil {
+		if err := s.moveItem(ctx, item.Source, item.Target); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
-		}
-		if relock {
-			s.tamperRepo.Relock(item.Target)
 		}
 	}
 
 	Success(w, nil)
+}
+
+// moveItem 移动单个文件；源受防篡改保护时先解锁，结束后按最终落点重新登记
+// mv 失败（如请求取消导致 SIGKILL）时源仍在原地，不按源路径补登记会让该文件永久失去保护
+func (s *FileService) moveItem(ctx context.Context, source, target string) (err error) {
+	if s.tamperRepo.Unlock(source) {
+		defer func() {
+			if err != nil {
+				s.tamperRepo.Relock(source)
+			} else {
+				s.tamperRepo.Relock(target)
+			}
+		}()
+	}
+
+	return io.Mv(ctx, source, target)
 }
 
 func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {

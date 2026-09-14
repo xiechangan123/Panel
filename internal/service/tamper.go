@@ -212,6 +212,6 @@ func (s *TamperService) ActivateEBPF(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	Success(w, nil)
-	// 响应后重启系统使 bpf LSM 生效，重启靠 sleep 熬过响应返回，绑请求 ctx 会在 handler 返回时被杀掉
-	tools.RestartServer(context.WithoutCancel(r.Context()))
+	// 响应后重启系统使 bpf LSM 生效
+	tools.RestartServer(r.Context())
 }

@@ -137,6 +137,9 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 
 	defer panelSolverGlobal.Unlock()
 
+	// 善后必须做完：取消时跳过会留下占着 80 端口的服务器或运行中的 challenge 配置
+	ctx = context.WithoutCancel(ctx)
+
 	if s.useBuiltin && s.server != nil {
 		shutdownCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
@@ -213,7 +216,8 @@ func (s httpSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error
 		return nil
 	}
 
-	return s.writer.Reload(ctx)
+	// 善后必须做完：取消时跳过会把 challenge 片段留在运行中的配置里
+	return s.writer.Reload(context.WithoutCancel(ctx))
 }
 
 type DnsType string

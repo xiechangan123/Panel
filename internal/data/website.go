@@ -293,6 +293,18 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		return nil, err
 	}
 
+	// 配置一落盘就会被 Web 服务器加载，记录必须先入库，且失败时连同目录一起回滚，
+	// 否则会留下面板看不见、却已对外服务的站点
+	if err = r.db.Create(w).Error; err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err != nil {
+			_ = r.db.Delete(w).Error
+			_ = io.Remove(context.WithoutCancel(ctx), filepath.Join(app.Root, "sites", req.Name))
+		}
+	}()
+
 	// 创建配置文件目录
 	if err = os.MkdirAll(filepath.Join(app.Root, "sites", req.Name, "config", "site"), 0600); err != nil {
 		return nil, err
@@ -467,11 +479,6 @@ func (r *websiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*
 		_, _ = shell.Execf(ctx, `chattr +i '%s'`, userIni)
 	}
 
-	// 创建面板网站
-	if err = r.db.Create(w).Error; err != nil {
-		return nil, err
-	}
-
 	return w, nil
 }
 
@@ -637,13 +644,13 @@ func (r *websiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitch
 	}
 	if err = r.ReloadWebServer(ctx); err != nil {
 		_, switchErr := restore(err)
-		if reloadErr := r.ReloadWebServer(ctx); reloadErr != nil {
+		if reloadErr := r.ReloadWebServer(restoreCtx); reloadErr != nil {
 			switchErr = errors.Join(switchErr, reloadErr)
 		}
 		return nil, switchErr
 	}
 
-	_ = io.Remove(ctx, backupDir)
+	_ = io.Remove(restoreCtx, backupDir)
 	return website, nil
 }
 
@@ -769,7 +776,7 @@ func (r *websiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, 
 		return restore(err)
 	}
 
-	_ = io.Remove(ctx, backupDir)
+	_ = io.Remove(restoreCtx, backupDir)
 	return true, notes, nil
 }
 
@@ -1198,13 +1205,15 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 	default:
 	}
 
+	// 配置目录是删掉重建的，中途取消会让站点配置凭空消失且无处可恢复，这段不可取消
+	resetCtx := context.WithoutCancel(ctx)
 	if website.Type == biz.WebsiteTypePHP {
-		if err = io.Remove(ctx, filepath.Join(setting.Root, ".user.ini")); err != nil {
+		if err = io.Remove(resetCtx, filepath.Join(setting.Root, ".user.ini")); err != nil {
 			return err
 		}
 	}
 	configDir := filepath.Join(app.Root, "sites", website.Name, "config")
-	if err = io.Remove(ctx, configDir); err != nil {
+	if err = io.Remove(resetCtx, configDir); err != nil {
 		return err
 	}
 	if err = os.MkdirAll(filepath.Join(configDir, "site"), 0600); err != nil {
@@ -1215,7 +1224,7 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 	}
 
 	website.Status = true
-	if err = r.applyUpdate(ctx, update, website); err != nil {
+	if err = r.applyUpdate(resetCtx, update, website); err != nil {
 		return err
 	}
 
@@ -1232,10 +1241,10 @@ func (r *websiteRepo) ResetConfig(ctx context.Context, id uint) error {
 	if err = vhost.Save(); err != nil {
 		return err
 	}
-	if err = io.Chmod(ctx, filepath.Join(app.Root, "sites", website.Name, "config"), 0600); err != nil {
+	if err = io.Chmod(resetCtx, filepath.Join(app.Root, "sites", website.Name, "config"), 0600); err != nil {
 		return err
 	}
-	if err = r.ReloadWebServer(ctx); err != nil {
+	if err = r.ReloadWebServer(resetCtx); err != nil {
 		return err
 	}
 
@@ -1482,7 +1491,8 @@ func (r *websiteRepo) ReloadWebServer(ctx context.Context) error {
 		return err
 	}
 
-	return d.ReloadIfRunning(ctx)
+	// 调用方都是配置已落盘、只差 reload 的临界区，断开取消链，否则磁盘配置与运行中的配置会不一致
+	return d.ReloadIfRunning(context.WithoutCancel(ctx))
 }
 
 // readBasicAuthUsers 读取 htpasswd 文件中的用户列表

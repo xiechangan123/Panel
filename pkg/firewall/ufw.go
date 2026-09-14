@@ -247,7 +247,7 @@ func (r *ufw) Port(ctx context.Context, rule FireInfo, operation Operation) erro
 	// 添加规则：使用简单语法
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		cmd := r.buildSimplePortCmd(rule, protocol)
-		if _, err := shell.Exec(ctx, cmd); err != nil {
+		if _, err := shell.Execf(ctx, cmd); err != nil {
 			return err
 		}
 	}
@@ -260,16 +260,16 @@ func (r *ufw) deletePort(ctx context.Context, rule FireInfo) error {
 	// tcp/udp 时先尝试无协议删除（匹配 ufw allow 8888 这种原生规则）
 	if rule.Protocol == ProtocolTCPUDP {
 		cmd := fmt.Sprintf("ufw delete %s %s", r.strategyToUFW(rule.Strategy), r.formatPort(rule))
-		_, _ = shell.Exec(ctx, cmd)
+		_, _ = shell.Execf(ctx, cmd)
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		// 简单语法: ufw delete allow 443/tcp
 		simple := fmt.Sprintf("ufw delete %s %s/%s", r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
-		_, _ = shell.Exec(ctx, simple)
+		_, _ = shell.Execf(ctx, simple)
 		// 扩展语法: ufw delete allow in proto tcp to any port 443
 		extended := r.buildPortCmd(rule, protocol, OperationRemove)
-		_, _ = shell.Exec(ctx, extended)
+		_, _ = shell.Execf(ctx, extended)
 	}
 
 	return nil
@@ -327,12 +327,12 @@ func (r *ufw) RichRules(ctx context.Context, rule FireInfo, operation Operation)
 	// 删除时额外尝试无协议命令（匹配 ufw allow 8888 这种原生合并规则）
 	if operation == OperationRemove && rule.Protocol == ProtocolTCPUDP {
 		cmd := r.buildRichCmd(rule, "", operation)
-		_, _ = shell.Exec(ctx, cmd)
+		_, _ = shell.Execf(ctx, cmd)
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		cmd := r.buildRichCmd(rule, protocol, operation)
-		_, err := shell.Exec(ctx, cmd)
+		_, err := shell.Execf(ctx, cmd)
 		if err != nil && operation != OperationRemove {
 			return err
 		}

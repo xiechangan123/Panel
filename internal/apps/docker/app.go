@@ -39,7 +39,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, "/etc/docker/daemon.json", "docker")
+	common.SaveConfig(w, r, "/etc/docker/daemon.json", 0644, "docker")
 }
 
 // GetSettings 获取 Docker 设置
@@ -239,7 +239,7 @@ func (s *App) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "docker"); err != nil {
+	if err = systemctl.Restart(r.Context(), "docker"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

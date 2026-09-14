@@ -16,7 +16,7 @@ import (
 
 	"github.com/acepanel/panel/v3/internal/app"
 	"github.com/acepanel/panel/v3/internal/request"
-	"github.com/acepanel/panel/v3/pkg/shell"
+	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 	webtypes "github.com/acepanel/panel/v3/pkg/webserver/types"
 )
@@ -359,10 +359,10 @@ func (uc *ToolboxMigrationUsecase) importProject(ctx context.Context, detail *ty
 		// 其余类型依赖随文件一起迁移，可直接启动
 	}
 	if project.Enabled {
-		_, _ = shell.Exec(ctx, "systemctl enable "+strconv.Quote(detail.Item.TargetName))
+		_ = systemctl.Enable(ctx, detail.Item.TargetName)
 	}
 	if project.Running {
-		_, _ = shell.Exec(ctx, "systemctl start "+strconv.Quote(detail.Item.TargetName))
+		_ = systemctl.Start(ctx, detail.Item.TargetName)
 	}
 	return warnings, nil
 }

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"net/http"
 	"regexp"
 	"strings"
@@ -93,13 +92,7 @@ func (s *ToolboxSSHService) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 配置已写入，重启被取消会导致 sshd 仍跑旧配置
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
+	s.restart(w, r)
 }
 
 // UpdatePasswordAuth 设置密码认证
@@ -120,12 +113,7 @@ func (s *ToolboxSSHService) UpdatePasswordAuth(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
+	s.restart(w, r)
 }
 
 // UpdatePubKeyAuth 设置密钥认证
@@ -146,12 +134,7 @@ func (s *ToolboxSSHService) UpdatePubKeyAuth(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
+	s.restart(w, r)
 }
 
 // UpdateRootLogin 设置 Root 登录
@@ -167,12 +150,7 @@ func (s *ToolboxSSHService) UpdateRootLogin(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
-		Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	Success(w, nil)
+	s.restart(w, r)
 }
 
 // UpdateRootPassword 修改 Root 密码
@@ -263,10 +241,19 @@ func (s *ToolboxSSHService) GenerateRootKey(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	// authorized_keys 已写入，重启被取消会导致 sshd 仍跑旧配置
-	_ = systemctl.Restart(context.WithoutCancel(r.Context()), s.service)
+	_ = systemctl.Restart(r.Context(), s.service)
 
 	Success(w, privateKey)
+}
+
+// restart 重启 SSH 服务并回写响应
+func (s *ToolboxSSHService) restart(w http.ResponseWriter, r *http.Request) {
+	if err := systemctl.Restart(r.Context(), s.service); err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	Success(w, nil)
 }
 
 // updateSSHConfig 更新 SSH 配置项

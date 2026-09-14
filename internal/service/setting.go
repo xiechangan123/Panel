@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -57,7 +56,7 @@ func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if restart {
-		tools.RestartPanel(context.WithoutCancel(r.Context()))
+		tools.RestartPanel(r.Context())
 	}
 
 	Success(w, chix.M{

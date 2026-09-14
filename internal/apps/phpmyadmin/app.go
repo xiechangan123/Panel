@@ -295,7 +295,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 	// 站点配置已落盘，放行与重载不跟随请求取消，否则新端口不通
 	ctx := context.WithoutCancel(r.Context())
-	fw := firewall.NewFirewall(ctx)
+	fw := firewall.NewFirewall()
 	err = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: req.Port,

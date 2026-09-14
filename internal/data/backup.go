@@ -216,14 +216,22 @@ func (r *backupRepo) CreatePanel(ctx context.Context) error {
 		}
 	}
 
+	// 先打到临时名再改名，中途被打断（如 cron 停止）留下的截断包不会有合法备份文件名，
+	// 否则 FixPanel 会按 mtime 选中它去覆盖运行中的面板；改名成功后临时文件已不存在，Remove 无害
+	tmp := backup + ".partial"
+	defer func() { _ = os.Remove(tmp) }()
+
 	// 两个 -C 把 panel 内的核心文件与 panel 外的 cli 二进制收进同一个包
 	if _, err := shell.Execf(
 		ctx, "tar -cJf '%s' -C '%s' %s -C /usr/local/sbin acepanel",
-		backup, app.Root, strings.Join(files, " "),
+		tmp, app.Root, strings.Join(files, " "),
 	); err != nil {
 		return err
 	}
-	if err := io.Chmod(ctx, backup, 0600); err != nil {
+	if err := io.Chmod(ctx, tmp, 0600); err != nil {
+		return err
+	}
+	if err := os.Rename(tmp, backup); err != nil {
 		return err
 	}
 
@@ -497,9 +505,25 @@ func (r *backupRepo) ClearStorageExpired(ctx context.Context, storage uint, dir,
 }
 
 // upload 上传备份文件到存储器
-// 上传中途取消会在远端留下截断的文件，而过期清理只按前缀和后缀识别备份，会把它当成有效备份计入保留份数
+// 中断留下的截断文件会被只认前缀和后缀的过期清理当成有效备份，因此先传临时名、成功后再改名
+// S3 不支持改名也不需要：分片上传在失败时 abort 清理，对象在 complete 之前不存在
 func (r *backupRepo) upload(ctx context.Context, client storage.Storage, path string, content stdio.Reader) error {
-	return client.Put(context.WithoutCancel(ctx), path, content)
+	renamer, ok := client.(storage.Renamer)
+	if !ok {
+		return client.Put(ctx, path, content)
+	}
+
+	tmp := path + ".partial"
+	err := client.Put(ctx, tmp, content)
+	if err == nil {
+		err = renamer.Rename(ctx, tmp, path)
+	}
+	if err != nil {
+		// 清理不跟随取消，否则远端会留下无人认领的半截文件
+		_ = client.Delete(context.WithoutCancel(ctx), tmp)
+	}
+
+	return err
 }
 
 // getStorage 获取存储器
@@ -913,7 +937,9 @@ func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Replacing website files..."))
 	}
-	if err = io.Remove(ctx, website.Path); err != nil {
+	// 站点目录已删、暂存产物还没就位时被取消，会连 defer 一起把还原内容也清掉，这段不可取消
+	replaceCtx := context.WithoutCancel(ctx)
+	if err = io.Remove(replaceCtx, website.Path); err != nil {
 		return err
 	}
 	if err = os.Rename(content, website.Path); err != nil {
@@ -923,10 +949,10 @@ func (r *backupRepo) restoreWebsite(ctx context.Context, backup, target string) 
 	if app.IsCli {
 		fmt.Println(r.t.Get("|-Fixing file permissions..."))
 	}
-	if err = io.Chmod(ctx, website.Path, 0755); err != nil {
+	if err = io.Chmod(replaceCtx, website.Path, 0755); err != nil {
 		return err
 	}
-	if err = io.Chown(ctx, website.Path, "www", "www"); err != nil {
+	if err = io.Chown(replaceCtx, website.Path, "www", "www"); err != nil {
 		return err
 	}
 
@@ -1798,9 +1824,6 @@ func (r *backupRepo) UpdatePanel(ctx context.Context, version, url, checksum str
 	}
 	defer r.updating.Store(false)
 
-	// 替换的是运行中的面板二进制与 systemd 单元，中途取消会留下起不来的面板
-	ctx = context.WithoutCancel(ctx)
-
 	panelDir := filepath.Join(app.Root, "panel")
 	workDir := filepath.Join(panelDir, ".update-work") // staging 目录固定在 panel 内，绝不用 /tmp（可能跨分区）
 	newDir := filepath.Join(workDir, "new")
@@ -1860,18 +1883,21 @@ func (r *backupRepo) UpdatePanel(ctx context.Context, version, url, checksum str
 	}
 
 	// 应用
+	// 下载和备份都可以随时放弃，但从这里开始替换的是运行中的面板二进制与 systemd 单元，
+	// 中途取消会留下起不来的面板
+	applyCtx := context.WithoutCancel(ctx)
 	progress(r.t.Get("Applying update..."))
-	if err := r.applyUpdate(ctx, newDir); err != nil {
+	if err := r.applyUpdate(applyCtx, newDir); err != nil {
 		return rollback(errors.New(r.t.Get("Applying update failed: %v", err)))
 	}
 
 	// 收尾
 	progress(r.t.Get("Finishing up..."))
-	if err := r.finishUpdate(ctx, version); err != nil {
+	if err := r.finishUpdate(applyCtx, version); err != nil {
 		return rollback(errors.New(r.t.Get("Finishing update failed: %v", err)))
 	}
 
-	_ = io.Remove(ctx, workDir)
+	_ = io.Remove(applyCtx, workDir)
 	r.log.Info("panel updated", slog.String("version", version))
 	progress(r.t.Get("Update completed"))
 

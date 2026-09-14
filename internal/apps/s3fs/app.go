@@ -177,7 +177,7 @@ func (s *App) mounts(ctx context.Context) ([]Mount, error) {
 
 	var mounts []Mount
 
-	ids, err := shell.Exec(ctx, "find /etc -maxdepth 1 -name 'passwd-s3fs-*'")
+	ids, err := shell.Execf(ctx, "find /etc -maxdepth 1 -name 'passwd-s3fs-*'")
 	if err != nil {
 		return nil, err
 	}

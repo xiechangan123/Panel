@@ -34,6 +34,8 @@ func NewWebDav(config WebDavConfig) (Storage, error) {
 
 	client := gowebdav.NewClient(config.URL, config.Username, config.Password)
 	client.SetTimeout(config.Timeout)
+	// 上传要关掉整体超时（大文件耗时不可预估），改由传输层兜底，避免对端黑洞时永久阻塞
+	client.SetTransport(newTransport())
 
 	if err := client.Connect(); err != nil {
 		return nil, fmt.Errorf("failed to connect to WebDAV server: %w", err)
@@ -83,6 +85,8 @@ func (w *WebDav) LastModified(_ context.Context, file string) (time.Time, error)
 }
 
 // Put 写入文件内容
+// gowebdav 没有接收 context 的 API，上传无法被取消；且 content 必须保持 io.Seeker，
+// 否则 WriteStream 会把整个文件读进内存来算 Content-Length
 func (w *WebDav) Put(_ context.Context, file string, content io.Reader) error {
 	remotePath := w.fullPath(file)
 
@@ -99,6 +103,11 @@ func (w *WebDav) Put(_ context.Context, file string, content io.Reader) error {
 	defer w.client.SetTimeout(w.config.Timeout)
 
 	return w.client.WriteStream(remotePath, content, 0644)
+}
+
+// Rename 改名
+func (w *WebDav) Rename(_ context.Context, src, dst string) error {
+	return w.client.Rename(w.fullPath(src), w.fullPath(dst), true)
 }
 
 // Size 获取文件大小

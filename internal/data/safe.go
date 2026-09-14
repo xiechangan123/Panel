@@ -25,16 +25,13 @@ func NewSafeRepo() biz.SafeRepo {
 }
 
 func (r *safeRepo) GetPingStatus(ctx context.Context) (bool, error) {
-	fw := firewall.NewFirewall(ctx)
-	return fw.PingStatus(ctx)
+	return firewall.NewFirewall().PingStatus(ctx)
 }
 
 func (r *safeRepo) FirewallRunning(ctx context.Context) (bool, error) {
-	fw := firewall.NewFirewall(ctx)
-	return fw.Status(ctx)
+	return firewall.NewFirewall().Status(ctx)
 }
 
 func (r *safeRepo) SetPingStatus(ctx context.Context, status bool) error {
-	fw := firewall.NewFirewall(ctx)
-	return fw.UpdatePingStatus(ctx, status)
+	return firewall.NewFirewall().UpdatePingStatus(ctx, status)
 }

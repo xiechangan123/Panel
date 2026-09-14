@@ -221,9 +221,10 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 	}
 
 	report(uc.t.Get("issuing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
-	defer cancel()
-	ssl, err := client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
+	// 超时只覆盖 ACME 交互，后续的部署与用户脚本不该被签发耗时挤占额度
+	obtainCtx, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	ssl, err := client.ObtainCertificate(obtainCtx, cert.Domains, acme.KeyType(cert.Type))
+	cancel()
 	if err != nil {
 		return nil, err
 	}
@@ -343,13 +344,16 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 	}
 
 	report(uc.t.Get("renewing certificate, domains: %s", strings.Join(cert.Domains, ", ")))
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
-	defer cancel()
-	ssl, err := client.RenewCertificate(ctx, cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
+	// 超时只覆盖 ACME 交互，后续的部署不该被续签耗时挤占额度
+	renewCtx, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	ssl, err := client.RenewCertificate(renewCtx, cert.CertURL, cert.Domains, acme.KeyType(cert.Type))
+	cancel()
 	if err != nil {
-		// 续签失败，尝试重签
+		// 续签失败，尝试重签，重签独立计时，避免续签耗时过长导致重签必定超时
 		report(uc.t.Get("renewal failed, attempting re-issuance"))
-		ssl, err = client.ObtainCertificate(ctx, cert.Domains, acme.KeyType(cert.Type))
+		obtainCtx, obtainCancel := context.WithTimeout(ctx, 10*time.Minute)
+		ssl, err = client.ObtainCertificate(obtainCtx, cert.Domains, acme.KeyType(cert.Type))
+		obtainCancel()
 		if err != nil {
 			return nil, err
 		}
@@ -367,6 +371,11 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
 		return &ssl, uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false)
+	}
+
+	// 续签同样要跑部署脚本，否则脚本同步出去的证书会一直停留在首次签发的那一份
+	if err = uc.repo.RunScript(ctx, cert); err != nil {
+		return nil, err
 	}
 
 	return &ssl, nil
@@ -448,7 +457,8 @@ func (uc *CertUsecase) Deploy(ctx context.Context, id uint, websiteIDs []uint, e
 		}
 	}
 
-	return uc.repo.ReloadWebserver(ctx, webServer)
+	// 证书与 vhost 已落盘且不再回滚，reload 断开取消链，否则磁盘配置与运行中的配置会不一致
+	return uc.repo.ReloadWebserver(context.WithoutCancel(ctx), webServer)
 }
 
 func (uc *CertUsecase) Save(cert *Cert) error {

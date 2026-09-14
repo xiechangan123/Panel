@@ -473,7 +473,10 @@ func (uc *AlertUsecase) collect(ctx context.Context, rule *AlertRule, info types
 		if rule.Target == "" {
 			return nil, nil
 		}
-		running, _ := systemctl.Status(ctx, rule.Target)
+		running, err := systemctl.Status(ctx, rule.Target)
+		if err != nil {
+			return nil, err
+		}
 		return []*AlertMetric{{Target: rule.Target, Value: uc.statusValue(running)}}, nil
 
 	case AlertTypeProject:
@@ -482,10 +485,14 @@ func (uc *AlertUsecase) collect(ctx context.Context, rule *AlertRule, info types
 			return nil, err
 		}
 		// 项目即 systemd 单元，单元名与项目名一致，状态并发查询
-		return lop.Map(names, func(name string, _ int) *AlertMetric {
-			running, _ := systemctl.Status(ctx, name)
+		// 状态查不出来（典型是面板重启取消在途采集）就不产出指标，避免整批误判为 DOWN
+		return lo.Compact(lop.Map(names, func(name string, _ int) *AlertMetric {
+			running, err := systemctl.Status(ctx, name)
+			if err != nil {
+				return nil
+			}
 			return &AlertMetric{Target: name, Value: uc.statusValue(running)}
-		}), nil
+		})), nil
 
 	case AlertTypeContainer:
 		containers, err := uc.container.ListAll(ctx, containerSock(uc.setting))

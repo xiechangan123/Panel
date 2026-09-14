@@ -33,7 +33,7 @@ type firewallRuleOperator interface {
 func NewFirewallService(t *gotext.Locale) *FirewallService {
 	return &FirewallService{
 		t:        t,
-		firewall: firewall.NewFirewall(context.Background()),
+		firewall: firewall.NewFirewall(),
 	}
 }
 
@@ -184,14 +184,20 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 }
 
 func replaceFirewallRule(ctx context.Context, operator firewallRuleOperator, oldRule, newRule firewall.FireInfo) error {
+	// 加新 + 删旧是一个整体，中途取消会让该端口既没有新规则也没有旧规则
+	ctx = context.WithoutCancel(ctx)
+
 	if err := operator.Port(ctx, newRule, firewall.OperationAdd); err != nil {
 		return fmt.Errorf("adding replacement firewall rule: %w", err)
 	}
 
 	if err := operator.Port(ctx, oldRule, firewall.OperationRemove); err != nil {
 		removeErr := fmt.Errorf("removing original firewall rule: %w", err)
-		// 回滚断开取消链，否则请求取消时新旧规则会同时留在防火墙里
-		if rollbackErr := operator.Port(context.WithoutCancel(ctx), newRule, firewall.OperationRemove); rollbackErr != nil {
+		// 删旧可能已部分生效，回滚要撤掉新规则并补回旧规则，只撤新规则会让该端口一条规则都不剩
+		if rollbackErr := errors.Join(
+			operator.Port(ctx, newRule, firewall.OperationRemove),
+			operator.Port(ctx, oldRule, firewall.OperationAdd),
+		); rollbackErr != nil {
 			return errors.Join(
 				removeErr,
 				fmt.Errorf("rolling back replacement firewall rule: %w", rollbackErr),

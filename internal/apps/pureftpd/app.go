@@ -117,7 +117,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 同 Create，mkdb 必须跟上 userdel
+	// mkdb 被取消会让二进制库里仍留着已删的用户，FTP 照旧认证通过
 	ctx := context.WithoutCancel(r.Context())
 	if _, err = shell.Execf(ctx, "pure-pw userdel '%s' -m", req.Username); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -139,7 +139,7 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 同 Create，mkdb 必须跟上 passwd
+	// mkdb 被取消会让二进制库仍是旧密码，FTP 认的还是改前的密码
 	ctx := context.WithoutCancel(r.Context())
 	if _, err = shell.Execf(ctx, `yes '%s' | pure-pw passwd '%s' -m`, req.Password, req.Username); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
@@ -192,7 +192,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 
 	// 端口已改写入盘，放行与重启不跟随请求取消，否则新端口不通
 	ctx := context.WithoutCancel(r.Context())
-	fw := firewall.NewFirewall(ctx)
+	fw := firewall.NewFirewall()
 	err = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: req.Port,
@@ -264,7 +264,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "pure-ftpd"); err != nil {
+	if err = systemctl.Restart(r.Context(), "pure-ftpd"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

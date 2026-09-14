@@ -98,7 +98,7 @@ func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	common.SaveConfig(w, r, s.configPath(), "opensearch")
+	common.SaveConfig(w, r, s.configPath(), 0644, "opensearch")
 }
 
 // GetConfigTune 获取 OpenSearch 配置调整参数
@@ -169,7 +169,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "opensearch"); err != nil {
+	if err = systemctl.Restart(r.Context(), "opensearch"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -248,8 +248,7 @@ func (s *ToolboxSystemService) UpdateNTPServers(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// 内部写完配置紧跟重启 NTP 服务，中断会让配置不生效
-	if err = ntp.SetSystemNTPServers(context.WithoutCancel(r.Context()), req.Servers); err != nil {
+	if err = ntp.SetSystemNTPServers(r.Context(), req.Servers); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to set NTP servers: %v", err))
 		return
 	}

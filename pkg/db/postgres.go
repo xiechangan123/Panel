@@ -129,8 +129,6 @@ func (r *Postgres) UserCreate(ctx context.Context, user, password string, host .
 func (r *Postgres) UserDrop(ctx context.Context, user string, host ...string) error {
 	// PostgreSQL 中，如果用户拥有数据库对象或权限，直接 DROP USER 会失败
 	// 必须先转移所有权并撤销权限
-	// 三步是一个整体，中途取消会留下丢了所有权却没被删掉的用户
-	ctx = context.WithoutCancel(ctx)
 	user = strings.ReplaceAll(user, `"`, `""`)
 	username := strings.ReplaceAll(r.username, `"`, `""`)
 	if _, err := r.Exec(ctx, fmt.Sprintf(`REASSIGN OWNED BY "%s" TO "%s"`, user, username)); err != nil {
@@ -188,8 +186,6 @@ func (r *Postgres) UserPrivileges(ctx context.Context, user string, host ...stri
 }
 
 func (r *Postgres) PrivilegesGrant(ctx context.Context, user, database string, host ...string) error {
-	// 改属主和授权是一个整体，中途取消会留下换了属主却没有权限的库
-	ctx = context.WithoutCancel(ctx)
 	user = strings.ReplaceAll(user, `"`, `""`)
 	database = strings.ReplaceAll(database, `"`, `""`)
 	if _, err := r.Exec(ctx, fmt.Sprintf(`ALTER DATABASE "%s" OWNER TO "%s"`, database, user)); err != nil {

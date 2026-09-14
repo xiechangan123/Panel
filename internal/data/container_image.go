@@ -134,7 +134,6 @@ func (r *containerImageRepo) Prune(ctx context.Context, sock string) error {
 	}
 	defer func(apiClient *client.Client) { _ = apiClient.Close() }(apiClient)
 
-	// 中途取消会留下清理到一半的状态
 	_, err = apiClient.ImagePrune(context.WithoutCancel(ctx), client.ImagePruneOptions{
 		Filters: make(client.Filters).
 			Add("dangling", "false").

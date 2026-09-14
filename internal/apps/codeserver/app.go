@@ -6,11 +6,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/acepanel/panel/v3/internal/service"
-	"github.com/acepanel/panel/v3/pkg/io"
+	"github.com/acepanel/panel/v3/internal/apps/common"
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/types"
 )
+
+const configPath = "/root/.config/code-server/config.yaml"
 
 type App struct{}
 
@@ -29,26 +30,9 @@ func (s *App) Status(ctx context.Context) string {
 }
 
 func (s *App) GetConfig(w http.ResponseWriter, r *http.Request) {
-	config, _ := io.Read("/root/.config/code-server/config.yaml")
-	service.Success(w, config)
+	common.ServeConfig(w, configPath)
 }
 
 func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
-	req, err := service.Bind[UpdateConfig](r)
-	if err != nil {
-		service.Error(w, http.StatusUnprocessableEntity, "%v", err)
-		return
-	}
-
-	if err = io.Write("/root/.config/code-server/config.yaml", req.Config, 0600); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "code-server"); err != nil {
-		service.Error(w, http.StatusInternalServerError, "%v", err)
-		return
-	}
-
-	service.Success(w, nil)
+	common.SaveConfig(w, r, configPath, 0600, "code-server")
 }

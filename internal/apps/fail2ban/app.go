@@ -265,7 +265,8 @@ func (s *App) Unban(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(r.Context(), "fail2ban-client set %s unbanip %s", req.Name, req.IP); err != nil {
+	// 解封一旦下发就无法回滚，中途取消只会让面板报错而 IP 实际已解封
+	if _, err = shell.Execf(context.WithoutCancel(r.Context()), "fail2ban-client set %s unbanip %s", req.Name, req.IP); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
