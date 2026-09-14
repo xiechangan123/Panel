@@ -43,7 +43,7 @@ type Dialect interface {
 	NewPHPVhost(configDir string) (PHPVhost, error)
 	NewProxyVhost(configDir string) (ProxyVhost, error)
 
-	// 以下四个方法的 bool 返回值表示配置是否变化、是否需要重载 Web 服务器
+	// 以下方法的 bool 返回值表示配置是否变化，未变化则跳过重载
 	// WriteSiteChallenge 向网站 acme 配置文件投放一个 HTTP-01 验证
 	WriteSiteChallenge(conf, path, token string) (bool, error)
 	// RemoveSiteChallenge 移除网站 acme 配置文件中的一个 HTTP-01 验证

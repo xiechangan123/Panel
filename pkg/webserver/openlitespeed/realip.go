@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// realIPConf 服务器级真实 IP 配置，OLS 只能在服务器级信任代理头，对所有站点生效
+// realIPConf OLS 只能在服务器级信任代理头，对所有站点生效
 const realIPConf = PanelConfDir + "/realip.conf"
 
 // RealIP 从 X-Forwarded-For 取客户端 IP 的配置
@@ -14,7 +14,7 @@ type RealIP struct {
 	Trusted []string `json:"trusted"` // 可信代理，留空则信任所有来源
 }
 
-// GetRealIP 读取当前配置，文件不存在视为关闭
+// GetRealIP 文件不存在视为关闭
 func GetRealIP() (RealIP, error) {
 	var r RealIP
 	cfg, err := ParseFile(realIPConf)
@@ -39,7 +39,7 @@ func GetRealIP() (RealIP, error) {
 	return r, nil
 }
 
-// SetRealIP 写入配置：有可信列表时只信任列表来源（列表项带 T 后缀），否则信任所有来源
+// SetRealIP 有可信列表时只信任带 T 后缀的来源，否则信任所有来源
 func SetRealIP(r RealIP) error {
 	cfg := &Config{}
 	switch {

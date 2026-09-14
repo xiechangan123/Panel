@@ -19,8 +19,7 @@ const (
 	defaultKey  = PanelConfDir + "/default.key"
 )
 
-// Sync 重建面板托管的主配置片段：站点注册、监听器与 PHP 外部应用
-// 这些内容位于主配置层面，无法拆分到站点文件，因此每次保存站点或重载前整体重建
+// Sync 重建面板托管的主配置片段，这些内容无法拆到站点文件，每次保存站点或重载前整体重建
 func Sync() error {
 	syncMu.Lock()
 	defer syncMu.Unlock()
@@ -39,7 +38,7 @@ func Sync() error {
 	return syncPHP()
 }
 
-// syncVhosts 为每个存在 vhconf 的站点生成 virtualhost 注册块与 configFile 桩，站点目录无需自带注册文件
+// syncVhosts 按站点 vhconf 生成注册块与 configFile 桩
 func syncVhosts() error {
 	if err := os.MkdirAll(vhostStubDir, 0700); err != nil {
 		return fmt.Errorf("failed to create vhost stub directory: %w", err)
@@ -152,7 +151,7 @@ func syncListeners() error {
 			b.Add("map", m)
 			catchAll = catchAll || strings.HasSuffix(m, " *")
 		}
-		// 未匹配任何站点域名的请求交给面板默认站点，每个监听器只允许一个通配映射
+		// 未命中站点的请求交给默认站点，每个监听器只允许一个通配映射
 		if !catchAll {
 			b.Add("map", "default *")
 		}

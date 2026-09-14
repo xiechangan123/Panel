@@ -13,17 +13,16 @@ import (
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// acmeConf mod_acme 模块配置，服务器级生效。mod_acme 实现无状态 HTTP-01：
-// 对任意 /.well-known/acme-challenge/<token> 直接应答 token.thumbprint，站点配置无需参与验证
+// acmeConf mod_acme 配置，无状态 HTTP-01：按账户指纹直接应答 token.thumbprint
 const acmeConf = PanelConfDir + "/acme.conf"
 
-// acmeProbe 探测运行中 OLS 是否已按当前指纹应答所用的 token
+// acmeProbe 探测用 token
 const acmeProbe = "ace-probe"
 
-// acmeLeaseTTL 指纹租约时长，验证出错时 CleanUp 不会被调用，靠过期避免永久阻塞
+// acmeLeaseTTL 租约过期兜底，验证出错时 CleanUp 不会被调用
 const acmeLeaseTTL = 2 * time.Minute
 
-// acmeLease mod_acme 一次只认一个账户指纹，验证进行中不允许切换
+// acmeLease mod_acme 一次只认一个指纹，验证进行中不允许切换
 var acmeLease struct {
 	sync.Mutex
 	thumb   string
@@ -50,7 +49,6 @@ func (Dialect) ConfigFile() string {
 	return VhostConfName
 }
 
-// PanelACMEConf 站点与面板共用 mod_acme 配置
 func (Dialect) PanelACMEConf() string {
 	return acmeConf
 }
@@ -75,7 +73,7 @@ func (Dialect) SPAConf() string {
 	return spaConf
 }
 
-// LSCacheConf 站点级启用 LiteSpeed 页面缓存，缓存目录按站点隔离，由 OLS 自行创建
+// LSCacheConf 缓存目录按站点隔离，由 OLS 自行创建
 func (Dialect) LSCacheConf(name string) string {
 	cfg := &Config{}
 	m := cfg.AddBlock("module", "cache")
@@ -93,7 +91,7 @@ func (Dialect) RewritesDir() string {
 	return "apache"
 }
 
-// BeforeReload 重载前重建面板托管的主配置片段，覆盖站点删除等未经 Save 的变更
+// BeforeReload 覆盖站点删除等未经 Save 的变更
 func (Dialect) BeforeReload() error {
 	return Sync()
 }
@@ -122,7 +120,7 @@ func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
 	return vhost, nil
 }
 
-// WriteSiteChallenge 验证由 mod_acme 直接应答，写入当前账户指纹；运行中的 OLS 已按该指纹应答时无需重载
+// WriteSiteChallenge 只需写入账户指纹，运行中的 OLS 已按该指纹应答时不重载
 func (Dialect) WriteSiteChallenge(_, path, keyAuth string) (bool, error) {
 	thumb, err := acquireThumbprint(path, keyAuth)
 	if err != nil {
@@ -136,7 +134,7 @@ func (Dialect) RemoveSiteChallenge(_, _, _ string) (bool, error) {
 	return false, nil
 }
 
-// WritePanelChallenge 同一订单的 token 属于同一账户，取任意一个占用一次指纹即可
+// WritePanelChallenge 同一订单只占用一次指纹
 func (Dialect) WritePanelChallenge(_ string, _ []string, tokens map[string]string) (bool, error) {
 	for path, keyAuth := range tokens {
 		thumb, err := acquireThumbprint(path, keyAuth)
@@ -153,7 +151,7 @@ func (Dialect) RemovePanelChallenge(_ string) (bool, error) {
 	return false, nil
 }
 
-// acquireThumbprint 从 keyAuth（token.thumbprint）取出账户指纹，等到允许切换后写入模块配置
+// acquireThumbprint 等到允许切换后写入指纹，keyAuth 形如 token.thumbprint
 func acquireThumbprint(path, keyAuth string) (string, error) {
 	thumb, ok := strings.CutPrefix(keyAuth, filepath.Base(path)+".")
 	if !ok || thumb == "" {
@@ -193,7 +191,7 @@ func releaseThumbprint() {
 	acmeLease.Unlock()
 }
 
-// acmeLive 探测运行中的 OLS 是否已按该指纹应答挑战，探测不通一律按需要重载处理
+// acmeLive 探测不通一律视为需要重载
 func acmeLive(thumb string) bool {
 	client := http.Client{
 		Timeout: 2 * time.Second,

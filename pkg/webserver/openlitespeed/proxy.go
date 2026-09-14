@@ -76,7 +76,7 @@ func (v *baseVhost) loadUpstreams(cfg *Config) {
 	}
 }
 
-// buildProxies 生成代理外部应用与上下文，认证路径与代理路径相同时合并进代理上下文，返回已合并的认证序号
+// buildProxies 认证路径与代理路径相同时合并进代理上下文，返回已合并的认证序号
 func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
 	consumed := make(map[int]bool)
 	for i, p := range v.proxies {
@@ -146,7 +146,7 @@ func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
 	return consumed
 }
 
-// addProxyApp 写入反向代理外部应用，与后端保持长连接
+// addProxyApp 与后端保持长连接
 func addProxyApp(ext *Block, address string, timeout int, buffering bool) {
 	ext.Add("type", "proxy")
 	ext.Add("address", address)
@@ -249,8 +249,7 @@ func (v *baseVhost) loadProxies(cfg *Config) {
 	}
 }
 
-// locationToURI 将 nginx 风格的 location 转换为 OpenLiteSpeed 上下文 uri
-// 前缀匹配转为以 / 结尾的普通 uri 以覆盖子路径，精确匹配转为不带 / 的普通 uri，正则转为 exp:
+// locationToURI 前缀匹配转为以 / 结尾的 uri 以覆盖子路径，精确匹配不带 /，正则转为 exp:
 func locationToURI(location string) string {
 	location = strings.TrimSpace(location)
 	switch {

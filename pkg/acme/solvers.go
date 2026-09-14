@@ -26,8 +26,7 @@ import (
 	pkgos "github.com/acepanel/panel/v3/pkg/os"
 )
 
-// HTTPChallengeWriter 由 Web 服务器方言实现，负责投放、清理 HTTP-01 验证并重载服务，
-// 投放与清理的 bool 返回值表示配置是否变化，未变化则跳过重载
+// HTTPChallengeWriter 由 Web 服务器方言实现，bool 返回值表示配置是否变化，未变化则跳过重载
 type HTTPChallengeWriter interface {
 	WriteSiteChallenge(conf, path, token string) (bool, error)
 	RemoveSiteChallenge(conf, path, token string) (bool, error)

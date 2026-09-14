@@ -10,8 +10,7 @@ import (
 	"strconv"
 )
 
-// PHP 外部应用统一定义在服务器级，每个版本一个，站点只通过 include 引用对应的脚本处理器行；
-// 切换 FastCGI/LSAPI 协议时只需重新生成这两处，站点配置无需改动
+// PHP 外部应用定义在服务器级，每版本一个，站点只 include 脚本处理器行，切换协议无需改站点配置
 
 const (
 	phpConf       = PanelConfDir + "/php.conf" // 各版本外部应用
@@ -57,8 +56,7 @@ func SetLSAPI(version uint, enabled bool) error {
 	return Sync()
 }
 
-// syncPHP 为已安装及站点引用的每个 PHP 版本生成外部应用与脚本处理器行
-// 未安装但被引用的版本也生成 FastCGI 定义，套接字不存在时返回 503，避免 PHP 源码被当作静态文件输出
+// syncPHP 为已安装及站点引用的 PHP 版本生成外部应用与处理器行，未安装的也生成以免 PHP 源码被当静态文件输出
 func syncPHP() error {
 	if err := os.MkdirAll(phpHandlerDir, 0755); err != nil {
 		return err
@@ -131,7 +129,7 @@ func installedPHPVersions() []uint {
 
 var maxChildrenPattern = regexp.MustCompile(`(?m)^\s*pm\.max_children\s*=\s*(\d+)`)
 
-// fpmMaxChildren 取 php-fpm 的进程上限，LSAPI 进程池与 FastCGI 并发按同一数值对齐
+// fpmMaxChildren 取 php-fpm 的进程上限，LSAPI 与 FastCGI 并发都用它
 func fpmMaxChildren(version uint) int {
 	raw, err := os.ReadFile(fmt.Sprintf("/opt/ace/server/php/%d/etc/php-fpm.conf", version))
 	if err == nil {

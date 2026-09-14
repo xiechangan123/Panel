@@ -171,7 +171,6 @@ func (s *App) SetPHP(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// GetRealIP 读取服务器级真实 IP 配置
 func (s *App) GetRealIP(w http.ResponseWriter, r *http.Request) {
 	realIP, err := openlitespeed.GetRealIP()
 	if err != nil {
@@ -182,7 +181,6 @@ func (s *App) GetRealIP(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, realIP)
 }
 
-// SetRealIP 保存服务器级真实 IP 配置并重载
 func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
 	req, err := service.Bind[SetRealIP](r)
 	if err != nil {
@@ -202,7 +200,7 @@ func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-// reload 经方言重载，重载前会重建监听器配置
+// reload 经方言重载，重载前会 Sync
 func (s *App) reload() error {
 	d, err := webserver.Get(webserver.TypeOpenLiteSpeed)
 	if err != nil {

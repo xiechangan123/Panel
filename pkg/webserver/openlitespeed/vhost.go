@@ -29,7 +29,7 @@ type ProxyVhost struct {
 }
 
 // baseVhost OpenLiteSpeed 虚拟主机基础实现
-// vhconf 由面板从内存状态整体生成，加载时再从文件解析回状态；监听地址与域名属于主配置的 listener，单独记录在 listen 文件中
+// vhconf 由内存状态整体生成，加载时解析回来；监听与域名属于主配置的 listener，单独记在 listen 文件
 type baseVhost struct {
 	configDir string
 	siteDir   string
@@ -409,7 +409,7 @@ func (v *baseVhost) ClearSSL() error {
 
 // ========== 高级功能 ==========
 
-// RateLimit OpenLiteSpeed 的限速只能在服务器级配置，站点级不支持
+// RateLimit OLS 限速只有服务器级，站点级不支持
 func (v *baseVhost) RateLimit() *types.RateLimit {
 	return nil
 }
@@ -436,7 +436,7 @@ func (v *baseVhost) ClearBasicAuth() error {
 	return nil
 }
 
-// RealIP 真实 IP 只能在服务器级通过 useIpInProxyHeader 配置，站点级不支持
+// RealIP OLS 只能在服务器级信任代理头，见 realip.go
 func (v *baseVhost) RealIP() *types.RealIP {
 	return nil
 }
@@ -548,7 +548,7 @@ func (v *baseVhost) build() *Config {
 	return cfg
 }
 
-// buildPHP 只引用服务器级的脚本处理器行，外部应用与协议由 syncPHP 统一维护
+// buildPHP 只 include 服务器级处理器行，外部应用由 syncPHP 维护
 func (v *baseVhost) buildPHP(cfg *Config) {
 	if v.php == 0 {
 		return
@@ -575,10 +575,9 @@ func (v *baseVhost) buildSSL(cfg *Config) {
 	}
 }
 
-// hstsHeader HSTS 响应头名
 const hstsHeader = "Strict-Transport-Security"
 
-// contextHeaders 需要写入每个上下文的响应头操作，OpenLiteSpeed 只在上下文级处理 extraHeaders
+// contextHeaders OLS 只在上下文级处理 extraHeaders，每个上下文都要写一遍
 func (v *baseVhost) contextHeaders() []string {
 	if v.ssl != nil && v.ssl.HSTS {
 		return []string{"Header set " + hstsHeader + " max-age=31536000"}
@@ -586,14 +585,13 @@ func (v *baseVhost) contextHeaders() []string {
 	return nil
 }
 
-// setHeaders 写入上下文的响应头操作
 func setHeaders(ctx *Block, lines []string) {
 	if len(lines) > 0 {
 		ctx.Append(&Directive{Name: "extraHeaders", Value: strings.Join(lines, "\n"), Multiline: true})
 	}
 }
 
-// buildRootContext 根上下文承载响应头、整站认证与 .htaccess 自动加载；反向代理已占用根路径时不再生成
+// buildRootContext 根路径已被反向代理占用时不生成
 func (v *baseVhost) buildRootContext(cfg *Config, consumed map[int]bool) {
 	if cfg.Block("context", "/") != nil {
 		return
@@ -647,7 +645,7 @@ func (v *baseVhost) buildAuthContexts(cfg *Config, consumed map[int]bool) {
 	}
 }
 
-// buildIncludes 写入用户自定义 include 与片段 include，返回需放入 rewrite 块的重写规则片段
+// buildIncludes 返回需放进 rewrite 块的重写片段
 func (v *baseVhost) buildIncludes(cfg *Config) []string {
 	for _, inc := range v.includes {
 		cfg.Add("include", inc.Path)
