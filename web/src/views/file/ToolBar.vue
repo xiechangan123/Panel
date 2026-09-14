@@ -3,13 +3,14 @@ import { useGettext } from 'vue3-gettext'
 
 import file from '@/api/panel/file'
 import PtyTerminalModal from '@/components/common/PtyTerminalModal.vue'
-import { useFileStore } from '@/stores'
+import { useFileStore, useUploadStore } from '@/stores'
 import { checkName, joinPath } from '@/utils/file'
 import { useFileOps } from '@/views/file/composables/useFileOps'
 import { usePaste } from '@/views/file/composables/usePaste'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
+const uploadStore = useUploadStore()
 const { handlePaste: doPaste } = usePaste()
 const { deletePaths, markClipboard } = useFileOps()
 
@@ -151,7 +152,10 @@ const handleSortSelect = (key: string) => {
     >
       <n-button type="primary">{{ $gettext('New') }}</n-button>
     </n-popselect>
-    <n-button @click="upload = true">{{ $gettext('Upload') }}</n-button>
+    <!-- 后台有上传任务时显示数量角标 -->
+    <n-badge :value="uploadStore.activeCount" :max="99">
+      <n-button @click="upload = true">{{ $gettext('Upload') }}</n-button>
+    </n-badge>
     <n-button @click="download = true">{{ $gettext('Remote Download') }}</n-button>
     <n-button @click="openTerminal">{{ $gettext('Terminal') }}</n-button>
     <n-popselect :options="sortOptions" :value="fileStore.sortKey" @update:value="handleSortSelect">

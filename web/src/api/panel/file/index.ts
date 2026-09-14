@@ -24,8 +24,9 @@ export default {
   truncate: (path: string): any => http.Post('/file/truncate', { path }),
   // 删除文件
   delete: (path: string): any => http.Post('/file/delete', { path }),
-  // 上传文件
-  upload: (formData: FormData): any => http.Post('/file/upload', formData),
+  // 上传文件（失败由上传队列在行内展示，不弹全局错误框）
+  upload: (formData: FormData): any =>
+    http.Post('/file/upload', formData, { meta: { noAlert: true } }),
   // 检查文件是否存在
   exist: (paths: string[]): any => http.Post('/file/exist', paths),
   // 移动文件
@@ -62,10 +63,12 @@ export default {
     file_name: string
     file_hash: string
     chunk_count: number
+    chunk_size: number
     force?: boolean
-  }): any => http.Post('/file/chunk/start', data),
+  }): any => http.Post('/file/chunk/start', data, { meta: { noAlert: true } }),
   // 上传分块
-  chunkUpload: (formData: FormData): any => http.Post('/file/chunk/upload', formData),
+  chunkUpload: (formData: FormData): any =>
+    http.Post('/file/chunk/upload', formData, { meta: { noAlert: true } }),
   // 完成分块上传
   chunkFinish: (data: {
     path: string
@@ -73,7 +76,10 @@ export default {
     file_hash: string
     chunk_count: number
     force?: boolean
-  }): any => http.Post('/file/chunk/finish', data),
+  }): any => http.Post('/file/chunk/finish', data, { meta: { noAlert: true } }),
+  // 取消分块上传，清理服务器上的临时分块
+  chunkCancel: (data: { path: string; file_name: string; file_hash: string }): any =>
+    http.Post('/file/chunk/cancel', data, { meta: { noAlert: true } }),
   // 分享列表
   shareList: (): any => http.Get('/file_share'),
   // 创建分享

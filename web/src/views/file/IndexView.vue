@@ -5,7 +5,8 @@ defineOptions({
 
 import { useGettext } from 'vue3-gettext'
 
-import { useFileStore } from '@/stores'
+import { useFileStore, useUploadStore } from '@/stores'
+import { readDroppedFiles } from '@/utils/file'
 import CompressModal from '@/views/file/CompressModal.vue'
 import EditModal from '@/views/file/EditModal.vue'
 import ListView from '@/views/file/ListView.vue'
@@ -16,6 +17,7 @@ import UploadModal from '@/views/file/UploadModal.vue'
 
 const { $gettext } = useGettext()
 const fileStore = useFileStore()
+const uploadStore = useUploadStore()
 
 const compress = ref(false)
 const permission = ref(false)
@@ -33,7 +35,6 @@ const handleEditFile = (path: string) => {
 
 // 上传相关
 const upload = ref(false)
-const droppedFiles = ref<File[]>([])
 const isDragging = ref(false)
 
 // n-tabs 事件
@@ -82,91 +83,20 @@ const handleDragOver = (e: DragEvent) => {
   e.stopPropagation()
 }
 
-// 递归读取目录中的所有文件
-const readDirectoryRecursively = async (
-  entry: FileSystemDirectoryEntry,
-  basePath: string = '',
-): Promise<File[]> => {
-  const files: File[] = []
-  const reader = entry.createReader()
-
-  const readEntries = (): Promise<FileSystemEntry[]> => {
-    return new Promise((resolve, reject) => {
-      reader.readEntries(resolve, reject)
-    })
-  }
-
-  let entries: FileSystemEntry[] = []
-  let batch: FileSystemEntry[]
-  do {
-    batch = await readEntries()
-    entries = entries.concat(batch)
-  } while (batch.length > 0)
-
-  for (const childEntry of entries) {
-    const childPath = basePath ? `${basePath}/${childEntry.name}` : childEntry.name
-    if (childEntry.isFile) {
-      const fileEntry = childEntry as FileSystemFileEntry
-      const file = await new Promise<File>((resolve, reject) => {
-        fileEntry.file((f) => {
-          const newFile = new File([f], childPath, { type: f.type, lastModified: f.lastModified })
-          resolve(newFile)
-        }, reject)
-      })
-      files.push(file)
-    } else if (childEntry.isDirectory) {
-      const subFiles = await readDirectoryRecursively(
-        childEntry as FileSystemDirectoryEntry,
-        childPath,
-      )
-      files.push(...subFiles)
-    }
-  }
-
-  return files
-}
-
+// 拖入的文件加入上传队列并打开队列弹窗
 const handleDrop = async (e: DragEvent) => {
   e.preventDefault()
   e.stopPropagation()
   isDragging.value = false
 
-  const items = e.dataTransfer?.items
-  if (!items || items.length === 0) return
-
-  const files: File[] = []
-
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i]
-    if (item?.kind === 'file') {
-      const entry = item.webkitGetAsEntry()
-      if (entry) {
-        if (entry.isFile) {
-          const file = item.getAsFile()
-          if (file) files.push(file)
-        } else if (entry.isDirectory) {
-          const dirFiles = await readDirectoryRecursively(
-            entry as FileSystemDirectoryEntry,
-            entry.name,
-          )
-          files.push(...dirFiles)
-        }
-      }
-    }
-  }
-
+  const path = fileStore.activeTab?.path
+  if (!path) return
+  const files = await readDroppedFiles(e.dataTransfer)
   if (files.length > 0) {
-    droppedFiles.value = files
+    uploadStore.add(files, path)
     upload.value = true
   }
 }
-
-// 监听上传弹窗关闭，清空预拖入的文件
-watch(upload, (val) => {
-  if (!val) {
-    droppedFiles.value = []
-  }
-})
 
 onMounted(() => {
   window.$bus.on('file:edit', handleEditFile)
@@ -247,8 +177,7 @@ onUnmounted(() => {
     <upload-modal
       v-if="fileStore.activeTab"
       v-model:show="upload"
-      v-model:path="fileStore.activeTab.path"
-      :initial-files="droppedFiles"
+      :path="fileStore.activeTab.path"
     />
   </PageContainer>
 </template>

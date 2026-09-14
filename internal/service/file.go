@@ -6,11 +6,11 @@ import (
 	"cmp"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	stdio "io"
-	"mime/multipart"
 	"net/http"
 	stdos "os"
 	"path/filepath"
@@ -294,13 +294,17 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(2 << 30); err != nil {
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
 
 	path := r.FormValue("path")
 	force := r.FormValue("force") == "true"
+	if !filepath.IsAbs(path) {
+		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid path %s", path))
+		return
+	}
 	_, handler, err := r.FormFile("file")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("upload file error: %v", err))
@@ -311,36 +315,47 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
-	if force && io.Exists(path) {
-		if s.tamperRepo.Unlock(path) {
-			defer s.tamperRepo.Relock(path)
-		}
-		_ = stdos.Remove(path)
+	dir := filepath.Dir(path)
+	if err = stdos.MkdirAll(dir, 0755); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
+		return
 	}
 
-	if !io.Exists(filepath.Dir(path)) {
-		if err = stdos.MkdirAll(filepath.Dir(path), 0755); err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
-			return
-		}
-	}
-
-	src, _ := handler.Open()
-	out, err := stdos.OpenFile(path, stdos.O_CREATE|stdos.O_RDWR|stdos.O_TRUNC, 0644)
+	// 先写同目录临时文件再 rename 替换，中途失败不留半截文件
+	tmp, err := stdos.CreateTemp(dir, "."+filepath.Base(path)+".*.part")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("open file error: %v", err))
 		return
 	}
-
-	if _, err = stdio.Copy(out, src); err != nil {
+	src, err := handler.Open()
+	if err == nil {
+		_, err = stdio.Copy(tmp, src)
+		_ = src.Close()
+	}
+	_ = tmp.Close()
+	if err == nil {
+		err = s.replaceFile(tmp.Name(), path)
+	}
+	if err != nil {
+		_ = stdos.Remove(tmp.Name())
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
 
-	_ = src.Close()
-	s.setPermission(path, 0755, "www", "www")
 	Success(w, nil)
+}
+
+// replaceFile 用临时文件原子替换目标文件；目标受防篡改保护时先解锁，替换后重新登记
+// rename 不会打开目标文件，覆盖运行中的二进制也不会遇到 ETXTBSY
+func (s *FileService) replaceFile(tmp, target string) error {
+	if io.Exists(target) && s.tamperRepo.Unlock(target) {
+		defer s.tamperRepo.Relock(target)
+	}
+	if err := stdos.Rename(tmp, target); err != nil {
+		return err
+	}
+	s.setPermission(target, 0755, "www", "www")
+	return nil
 }
 
 func (s *FileService) Exist(w http.ResponseWriter, r *http.Request) {
@@ -723,7 +738,10 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ChunkUploadStart 开始分块上传
+// 分块上传的位图文件：前 8 字节是分块大小(uint64 小端)，之后每个分块 1 字节完成标记
+const chunkMapHeader = 8
+
+// ChunkUploadStart 开始分块上传，返回已完成的分块供续传
 func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ChunkUploadStart](r)
 	if err != nil {
@@ -736,35 +754,29 @@ func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
 		return
 	}
-
-	// 确保目标目录存在
-	if !io.Exists(req.Path) {
-		if err = stdos.MkdirAll(req.Path, 0755); err != nil {
-			Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
-			return
-		}
-	}
-
-	// 扫描目录中已存在的分块文件
-	prefix := s.getChunkTempFilePrefix(req.FileName, req.FileHash)
-	entries, err := stdos.ReadDir(req.Path)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("read directory error: %v", err))
+	if err = stdos.MkdirAll(req.Path, 0755); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("create directory error: %v", err))
 		return
 	}
 
-	uploadedChunks := make([]int, 0)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
+	// 分块数或分块大小对不上（换了分块参数或不是同一次上传），从头开始
+	part, mapPath := s.chunkTempPaths(req.Path, req.FileName, req.FileHash)
+	bitmap, _ := stdos.ReadFile(mapPath)
+	if len(bitmap) != chunkMapHeader+req.ChunkCount ||
+		binary.LittleEndian.Uint64(bitmap) != uint64(req.ChunkSize) {
+		bitmap = make([]byte, chunkMapHeader+req.ChunkCount)
+		binary.LittleEndian.PutUint64(bitmap, uint64(req.ChunkSize))
+		if err = stdos.WriteFile(mapPath, bitmap, 0644); err != nil {
+			Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
+			return
 		}
-		name := entry.Name()
-		if after, ok := strings.CutPrefix(name, prefix); ok {
-			// 提取分块索引
-			indexStr := after
-			if index, err := strconv.Atoi(indexStr); err == nil && index >= 0 && index < req.ChunkCount {
-				uploadedChunks = append(uploadedChunks, index)
-			}
+		_ = stdos.Remove(part)
+	}
+
+	uploadedChunks := make([]int, 0)
+	for i, done := range bitmap[chunkMapHeader:] {
+		if done == 1 {
+			uploadedChunks = append(uploadedChunks, i)
 		}
 	}
 
@@ -773,9 +785,9 @@ func (s *FileService) ChunkUploadStart(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ChunkUploadChunk 上传单个分块
+// ChunkUploadChunk 上传单个分块，流式写入数据文件的对应偏移
 func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseMultipartForm(100 << 20); err != nil { // 100MB
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		Error(w, http.StatusUnprocessableEntity, "%v", err)
 		return
 	}
@@ -783,50 +795,74 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 	path := r.FormValue("path")
 	fileName := r.FormValue("file_name")
 	fileHash := r.FormValue("file_hash")
-	chunkIndex, _ := strconv.Atoi(r.FormValue("chunk_index"))
 	chunkHash := r.FormValue("chunk_hash")
-
-	if path == "" || fileName == "" || fileHash == "" {
-		Error(w, http.StatusBadRequest, s.t.Get("path, file_name and file_hash are required"))
+	chunkIndex, err := strconv.Atoi(r.FormValue("chunk_index"))
+	if !filepath.IsAbs(path) || fileName == "" || strings.Contains(fileName, "/") || len(fileHash) != 64 || err != nil || chunkIndex < 0 {
+		Error(w, http.StatusBadRequest, s.t.Get("invalid chunk upload parameters"))
 		return
 	}
 
-	// 获取上传的文件
+	// 位图由 start 创建，同时提供分块总数和分块大小
+	part, mapPath := s.chunkTempPaths(path, fileName, fileHash)
+	bitmap, err := stdos.ReadFile(mapPath)
+	if err != nil || len(bitmap) <= chunkMapHeader || binary.LittleEndian.Uint64(bitmap) == 0 {
+		Error(w, http.StatusBadRequest, s.t.Get("chunk upload not started"))
+		return
+	}
+	chunkCount := len(bitmap) - chunkMapHeader
+	chunkSize := int64(binary.LittleEndian.Uint64(bitmap))
+	if chunkIndex >= chunkCount {
+		Error(w, http.StatusBadRequest, s.t.Get("chunk index out of range"))
+		return
+	}
+
 	_, handler, err := r.FormFile("file")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("get upload file error: %v", err))
 		return
 	}
-
 	src, err := handler.Open()
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("open upload file error: %v", err))
 		return
 	}
-	defer func(src multipart.File) { _ = src.Close() }(src)
+	defer func() { _ = src.Close() }()
 
-	// 读取分块内容
-	chunkData, err := stdio.ReadAll(src)
+	file, err := stdos.OpenFile(part, stdos.O_WRONLY|stdos.O_CREATE, 0644)
 	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("read chunk data error: %v", err))
+		Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
+		return
+	}
+	defer func() { _ = file.Close() }()
+
+	// 边写边算 hash；LimitReader 保证不会写到本块范围之外
+	hasher := sha256.New()
+	writer := stdio.MultiWriter(stdio.NewOffsetWriter(file, int64(chunkIndex)*chunkSize), hasher)
+	n, err := stdio.Copy(writer, stdio.LimitReader(src, chunkSize))
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
 		return
 	}
 
-	// 校验分块 hash
-	if chunkHash != "" {
-		hash := sha256.Sum256(chunkData)
-		actualHash := hex.EncodeToString(hash[:])
-		if actualHash != chunkHash {
-			Error(w, http.StatusBadRequest, s.t.Get("chunk hash mismatch"))
-			return
-		}
+	// 非末块必须是整块，末块不能超过分块大小，有多余数据说明分块大小对不上
+	extra := make([]byte, 1)
+	if m, _ := src.Read(extra); m > 0 || n == 0 || (chunkIndex < chunkCount-1 && n != chunkSize) {
+		Error(w, http.StatusBadRequest, s.t.Get("chunk size mismatch"))
+		return
+	}
+	if chunkHash != "" && !strings.EqualFold(hex.EncodeToString(hasher.Sum(nil)), chunkHash) {
+		Error(w, http.StatusBadRequest, s.t.Get("chunk hash mismatch"))
+		return
 	}
 
-	// 保存分块到目标目录
-	// 格式: .{filename}.{hash前16位}.chunk.{index}
-	prefix := s.getChunkTempFilePrefix(fileName, fileHash)
-	chunkPath := filepath.Join(path, fmt.Sprintf("%s%d", prefix, chunkIndex))
-	if err = stdos.WriteFile(chunkPath, chunkData, 0644); err != nil {
+	// 标记完成：不同分块写不同字节，无需加锁
+	mapFile, err := stdos.OpenFile(mapPath, stdos.O_WRONLY, 0644)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
+		return
+	}
+	defer func() { _ = mapFile.Close() }()
+	if _, err = mapFile.WriteAt([]byte{1}, int64(chunkMapHeader+chunkIndex)); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("save chunk error: %v", err))
 		return
 	}
@@ -836,7 +872,7 @@ func (s *FileService) ChunkUploadChunk(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ChunkUploadFinish 完成分块上传
+// ChunkUploadFinish 完成分块上传：校验位图后把数据文件 rename 成目标文件
 func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) {
 	req, err := Bind[request.ChunkUploadFinish](r)
 	if err != nil {
@@ -844,61 +880,48 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	targetPath := filepath.Join(req.Path, req.FileName)
+	part, mapPath := s.chunkTempPaths(req.Path, req.FileName, req.FileHash)
+	bitmap, err := stdos.ReadFile(mapPath)
+	if err != nil || len(bitmap) != chunkMapHeader+req.ChunkCount {
+		Error(w, http.StatusBadRequest, s.t.Get("chunk upload not started or chunk count mismatch"))
+		return
+	}
+	for i, done := range bitmap[chunkMapHeader:] {
+		if done != 1 {
+			Error(w, http.StatusBadRequest, s.t.Get("chunk %d is missing", i))
+			return
+		}
+	}
 
-	// 检查目标文件是否已存在
+	targetPath := filepath.Join(req.Path, req.FileName)
 	if io.Exists(targetPath) && !req.Force {
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
 		return
 	}
-
-	// 强制覆盖时先删除已有文件，避免覆盖正在运行的二进制文件时出现 ETXTBSY 错误
-	if req.Force && io.Exists(targetPath) {
-		_ = stdos.Remove(targetPath)
-	}
-
-	// 创建目标文件
-	outFile, err := stdos.OpenFile(targetPath, stdos.O_CREATE|stdos.O_WRONLY|stdos.O_TRUNC, 0644)
-	if err != nil {
-		Error(w, http.StatusInternalServerError, s.t.Get("create target file error: %v", err))
+	if err = s.replaceFile(part, targetPath); err != nil {
+		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
-	defer func(outFile *stdos.File) { _ = outFile.Close() }(outFile)
-
-	// 按顺序合并分块
-	prefix := s.getChunkTempFilePrefix(req.FileName, req.FileHash)
-	var chunkPaths []string
-	for i := 0; i < req.ChunkCount; i++ {
-		chunkPath := filepath.Join(req.Path, fmt.Sprintf("%s%d", prefix, i))
-		chunkPaths = append(chunkPaths, chunkPath)
-
-		chunkData, err := stdos.ReadFile(chunkPath)
-		if err != nil {
-			// 删除已创建的目标文件
-			_ = outFile.Close()
-			_ = stdos.Remove(targetPath)
-			Error(w, http.StatusInternalServerError, s.t.Get("read chunk %d error: %v", i, err))
-			return
-		}
-		if _, err = outFile.Write(chunkData); err != nil {
-			_ = outFile.Close()
-			_ = stdos.Remove(targetPath)
-			Error(w, http.StatusInternalServerError, s.t.Get("write chunk %d error: %v", i, err))
-			return
-		}
-	}
-
-	// 设置权限
-	s.setPermission(targetPath, 0755, "www", "www")
-
-	// 清理临时分块文件
-	for _, chunkPath := range chunkPaths {
-		_ = stdos.Remove(chunkPath)
-	}
+	_ = stdos.Remove(mapPath)
 
 	Success(w, chix.M{
 		"path": targetPath,
 	})
+}
+
+// ChunkUploadCancel 取消分块上传，删除临时文件
+func (s *FileService) ChunkUploadCancel(w http.ResponseWriter, r *http.Request) {
+	req, err := Bind[request.ChunkUploadCancel](r)
+	if err != nil {
+		Error(w, http.StatusInternalServerError, "%v", err)
+		return
+	}
+
+	part, mapPath := s.chunkTempPaths(req.Path, req.FileName, req.FileHash)
+	_ = stdos.Remove(part)
+	_ = stdos.Remove(mapPath)
+
+	Success(w, nil)
 }
 
 // formatDir 格式化目录信息
@@ -956,14 +979,10 @@ func (s *FileService) setPermission(path string, mode stdos.FileMode, owner, gro
 	_ = io.Chown(path, owner, group)
 }
 
-// getChunkTempFilePrefix 获取分块临时文件前缀
-// 格式: .{filename}.{hash前16位}.chunk.
-func (s *FileService) getChunkTempFilePrefix(fileName, fileHash string) string {
-	hashPrefix := fileHash
-	if len(hashPrefix) > 16 {
-		hashPrefix = hashPrefix[:16]
-	}
-	return fmt.Sprintf(".%s.%s.chunk.", fileName, hashPrefix)
+// chunkTempPaths 分块上传的临时文件：同目录下的稀疏数据文件和位图文件
+func (s *FileService) chunkTempPaths(dir, fileName, fileHash string) (string, string) {
+	part := filepath.Join(dir, fmt.Sprintf(".%s.%s.part", fileName, fileHash[:16]))
+	return part, part + ".map"
 }
 
 // tailService 用 journalctl cursor 反向分页读取 systemd 服务日志

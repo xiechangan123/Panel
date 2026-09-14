@@ -356,9 +356,60 @@ const lastDirectory = (path: string) => {
 // 拼接目录与名称
 const joinPath = (dir: string, name: string) => dir.replace(/\/+$/, '') + '/' + name
 
+// 取父目录
+const dirname = (path: string) => path.slice(0, path.lastIndexOf('/')) || '/'
+
+// 用户选择/拖入的本地文件，name 为相对路径（文件夹上传时含子目录）
+export interface PickedFile {
+  file: File
+  name: string
+}
+
+// 读取 input[type=file] 选择的文件，目录选择时保留相对路径
+const filesFromInput = (list: FileList | null): PickedFile[] =>
+  Array.from(list ?? []).map((file) => ({ file, name: file.webkitRelativePath || file.name }))
+
+// 递归读取拖入的文件/文件夹，保留相对路径
+// DataTransfer 在事件结束后即失效，所以先同步取出所有 entry 再异步遍历
+const readDroppedFiles = async (dt: DataTransfer | null): Promise<PickedFile[]> => {
+  const roots = Array.from(dt?.items ?? [])
+    .filter((item) => item.kind === 'file')
+    .map((item) => ({ entry: item.webkitGetAsEntry(), file: item.getAsFile() }))
+
+  const result: PickedFile[] = []
+  const walk = async (entry: FileSystemEntry, prefix: string) => {
+    const name = prefix ? `${prefix}/${entry.name}` : entry.name
+    if (entry.isFile) {
+      const file = await new Promise<File>((resolve, reject) =>
+        (entry as FileSystemFileEntry).file(resolve, reject),
+      )
+      result.push({ file, name })
+      return
+    }
+    if (entry.isDirectory) {
+      const reader = (entry as FileSystemDirectoryEntry).createReader()
+      let batch: FileSystemEntry[]
+      do {
+        batch = await new Promise<FileSystemEntry[]>((resolve, reject) =>
+          reader.readEntries(resolve, reject),
+        )
+        for (const child of batch) await walk(child, name)
+      } while (batch.length > 0)
+    }
+  }
+
+  for (const { entry, file } of roots) {
+    if (entry) await walk(entry, '')
+    else if (file) result.push({ file, name: file.name })
+  }
+  return result
+}
+
 export {
   checkName,
   checkPath,
+  dirname,
+  filesFromInput,
   formatBytes,
   formatPercent,
   getBase,
@@ -370,4 +421,5 @@ export {
   joinPath,
   languageByPath,
   lastDirectory,
+  readDroppedFiles,
 }

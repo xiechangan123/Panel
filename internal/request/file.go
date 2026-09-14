@@ -96,6 +96,7 @@ type ChunkUploadStart struct {
 	FileName   string `json:"file_name" validate:"required"`            // 文件名
 	FileHash   string `json:"file_hash" validate:"required && len:64"`  // 文件SHA256
 	ChunkCount int    `json:"chunk_count" validate:"required && min:1"` // 分块总数
+	ChunkSize  int    `json:"chunk_size" validate:"required && min:1"`  // 分块大小（字节）
 	Force      bool   `json:"force"`                                    // 是否覆盖已存在文件
 }
 
@@ -106,4 +107,11 @@ type ChunkUploadFinish struct {
 	FileHash   string `json:"file_hash" validate:"required && len:64"`  // 文件SHA256
 	ChunkCount int    `json:"chunk_count" validate:"required && min:1"` // 分块总数
 	Force      bool   `json:"force"`                                    // 是否覆盖已存在文件
+}
+
+// ChunkUploadCancel 取消分块上传请求
+type ChunkUploadCancel struct {
+	Path     string `json:"path" validate:"required && unix_path"`   // 目标目录
+	FileName string `json:"file_name" validate:"required"`           // 文件名
+	FileHash string `json:"file_hash" validate:"required && len:64"` // 文件SHA256
 }

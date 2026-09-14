@@ -132,7 +132,7 @@ func (r *migrationRemoteRepo) Upload(
 
 	meta := map[string]any{
 		"path": filepath.Dir(remote), "file_name": filepath.Base(remote),
-		"file_hash": hash, "chunk_count": chunks, "force": true,
+		"file_hash": hash, "chunk_count": chunks, "chunk_size": migrationChunkSize, "force": true,
 	}
 	body, err := r.Request(ctx, conn, http.MethodPost, "/api/file/chunk/start", meta)
 	if err != nil {
