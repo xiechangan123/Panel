@@ -5,12 +5,26 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
-// ACMEDir HTTP-01 验证 token 目录，所有站点与面板默认站点的验证上下文均指向此处
-const ACMEDir = ServerRoot + "/acme"
+// acmeConf mod_acme 模块配置，服务器级生效。mod_acme 实现无状态 HTTP-01：
+// 对任意 /.well-known/acme-challenge/<token> 直接应答 token.thumbprint，站点配置无需参与验证
+const acmeConf = PanelConfDir + "/acme.conf"
+
+// acmeLeaseTTL 指纹租约时长，验证出错时 CleanUp 不会被调用，靠过期避免永久阻塞
+const acmeLeaseTTL = 2 * time.Minute
+
+// acmeLease mod_acme 一次只认一个账户指纹，验证进行中不允许切换
+var acmeLease struct {
+	sync.Mutex
+	thumb   string
+	active  int
+	expires time.Time
+}
 
 // Dialect OpenLiteSpeed 方言
 type Dialect struct{}
@@ -27,13 +41,13 @@ func (Dialect) HTMLDir() string {
 	return HTMLDir
 }
 
-// PanelACMEConf 面板验证的 token 文件名记录，用于清理
 func (Dialect) ConfigFile() string {
 	return VhostConfName
 }
 
+// PanelACMEConf 站点与面板共用 mod_acme 配置
 func (Dialect) PanelACMEConf() string {
-	return PanelConfDir + "/acme-tokens"
+	return acmeConf
 }
 
 func (Dialect) Features() types.Features {
@@ -94,72 +108,65 @@ func (Dialect) NewProxyVhost(configDir string) (types.ProxyVhost, error) {
 	return vhost, nil
 }
 
-// WriteSiteChallenge 站点验证上下文为静态目录，只需落盘 token 文件
-func (Dialect) WriteSiteChallenge(_, path, token string) error {
-	return writeToken(path, token)
+// WriteSiteChallenge 验证由 mod_acme 直接应答，只需保证当前账户指纹已写入，重载由求解器负责
+func (Dialect) WriteSiteChallenge(_, path, keyAuth string) error {
+	return acquireThumbprint(path, keyAuth)
 }
 
-func (Dialect) RemoveSiteChallenge(_, path, _ string) error {
-	return removeToken(path)
+func (Dialect) RemoveSiteChallenge(_, _, _ string) error {
+	releaseThumbprint()
+	return nil
 }
 
-// WritePanelChallenge 面板域名可能落在任意站点或默认站点，token 目录共用，另记录文件名供清理
-func (Dialect) WritePanelChallenge(conf string, _ []string, tokens map[string]string) error {
-	var names []string
-	for path, token := range tokens {
-		if err := writeToken(path, token); err != nil {
-			return err
-		}
-		names = append(names, filepath.Base(path))
-	}
-	return os.WriteFile(conf, []byte(joinLines(names)), 0600)
-}
-
-func (Dialect) RemovePanelChallenge(conf string) error {
-	raw, err := os.ReadFile(conf)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-	for _, name := range splitLines(string(raw)) {
-		_ = removeToken(name)
-	}
-	return os.WriteFile(conf, []byte(""), 0600)
-}
-
-func writeToken(path, token string) error {
-	if err := os.MkdirAll(ACMEDir, 0755); err != nil {
-		return fmt.Errorf("failed to create token directory: %w", err)
-	}
-	if err := os.WriteFile(filepath.Join(ACMEDir, filepath.Base(path)), []byte(token), 0644); err != nil {
-		return fmt.Errorf("failed to write token file: %w", err)
+// WritePanelChallenge 同一订单的 token 属于同一账户，取任意一个占用一次指纹即可
+func (Dialect) WritePanelChallenge(_ string, _ []string, tokens map[string]string) error {
+	for path, keyAuth := range tokens {
+		return acquireThumbprint(path, keyAuth)
 	}
 	return nil
 }
 
-func removeToken(path string) error {
-	if err := os.Remove(filepath.Join(ACMEDir, filepath.Base(path))); err != nil && !os.IsNotExist(err) {
-		return err
-	}
+func (Dialect) RemovePanelChallenge(_ string) error {
+	releaseThumbprint()
 	return nil
 }
 
-func joinLines(lines []string) string {
-	out := ""
-	for _, line := range lines {
-		out += line + "\n"
+// acquireThumbprint 从 keyAuth（token.thumbprint）取出账户指纹，等到允许切换后写入模块配置
+func acquireThumbprint(path, keyAuth string) error {
+	thumb, ok := strings.CutPrefix(keyAuth, filepath.Base(path)+".")
+	if !ok || thumb == "" {
+		return fmt.Errorf("invalid key authorization for %s", path)
 	}
-	return out
+
+	l := &acmeLease
+	l.Lock()
+	defer l.Unlock()
+	for l.active > 0 && l.thumb != thumb && time.Now().Before(l.expires) {
+		l.Unlock()
+		time.Sleep(time.Second)
+		l.Lock()
+	}
+
+	cfg := &Config{}
+	m := cfg.AddBlock("module", "mod_acme")
+	m.Add("ls_enabled", "1")
+	m.Add("acmeEnable", "1")
+	m.Add("acmeThumbPrint", thumb)
+	if err := os.WriteFile(acmeConf, []byte(cfg.String()), 0600); err != nil {
+		return fmt.Errorf("failed to write acme config: %w", err)
+	}
+	if l.thumb != thumb {
+		l.thumb, l.active = thumb, 0
+	}
+	l.active++
+	l.expires = time.Now().Add(acmeLeaseTTL)
+	return nil
 }
 
-func splitLines(content string) []string {
-	var out []string
-	for line := range strings.SplitSeq(content, "\n") {
-		if line != "" {
-			out = append(out, line)
-		}
+func releaseThumbprint() {
+	acmeLease.Lock()
+	if acmeLease.active > 0 {
+		acmeLease.active--
 	}
-	return out
+	acmeLease.Unlock()
 }

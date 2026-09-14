@@ -28,9 +28,6 @@ const (
 // stopURI 站点停用时所有请求重写到的路径，由静态上下文映射到默认页目录
 const stopURI = "/ace-stop/"
 
-// acmeURI HTTP-01 验证路径
-const acmeURI = "/.well-known/acme-challenge/"
-
 // accessLogFormat Apache 兼容的访问日志格式
 const accessLogFormat = `"%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\""`
 

@@ -539,11 +539,6 @@ func (v *baseVhost) build() *Config {
 	v.buildAuthContexts(cfg, consumed)
 	v.buildRedirects(cfg)
 
-	// HTTP-01 验证 token 目录，站点与面板共用
-	acme := cfg.AddBlock("context", acmeURI)
-	acme.Add("location", ACMEDir+"/")
-	acme.Add("allowBrowse", "1")
-
 	if !v.Enable() {
 		stop := cfg.AddBlock("context", stopURI)
 		stop.Add("location", HTMLDir+"/")
@@ -693,15 +688,13 @@ func (v *baseVhost) buildRewrite(cfg *Config, fragments []string) {
 	rw := cfg.AddBlock("rewrite", "")
 	rw.Add("enable", "1")
 
-	acmeCond := "%{REQUEST_URI} !^" + strings.ReplaceAll(acmeURI, ".", `\.`)
+	// OLS 核心对 /.well-known/acme-challenge/ 强制跳过 rewrite，无需排除验证路径
 	if !v.Enable() {
 		rw.Add("RewriteCond", "%{REQUEST_URI} !^"+stopURI)
-		rw.Add("RewriteCond", acmeCond)
 		rw.Add("RewriteRule", "^ "+stopURI+"stop.html [L]")
 	}
 	if v.ssl != nil && v.ssl.HTTPRedirect {
 		rw.Add("RewriteCond", "%{HTTPS} !on")
-		rw.Add("RewriteCond", acmeCond)
 		rw.Add("RewriteRule", "^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]")
 	}
 	for _, r := range v.redirects {
