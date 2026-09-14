@@ -1,6 +1,7 @@
 package firewall
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"strings"
@@ -14,40 +15,40 @@ import (
 // Firewall 防火墙统一接口
 type Firewall interface {
 	// Status 获取防火墙运行状态
-	Status() (bool, error)
+	Status(ctx context.Context) (bool, error)
 	// Enable 启用防火墙
-	Enable() error
+	Enable(ctx context.Context) error
 	// Disable 禁用防火墙
-	Disable() error
+	Disable(ctx context.Context) error
 
 	// ListRule 列出所有规则
-	ListRule() ([]FireInfo, error)
+	ListRule(ctx context.Context) ([]FireInfo, error)
 	// Port 添加/删除端口规则
-	Port(rule FireInfo, operation Operation) error
+	Port(ctx context.Context, rule FireInfo, operation Operation) error
 	// RichRules 添加/删除富规则（IP/高级规则）
-	RichRules(rule FireInfo, operation Operation) error
+	RichRules(ctx context.Context, rule FireInfo, operation Operation) error
 
 	// ListForward 列出所有转发规则
-	ListForward() ([]FireForwardInfo, error)
+	ListForward(ctx context.Context) ([]FireForwardInfo, error)
 	// Forward 添加/删除转发规则
-	Forward(rule Forward, operation Operation) error
+	Forward(ctx context.Context, rule Forward, operation Operation) error
 
 	// PingStatus 获取 Ping 状态（true 为允许）
-	PingStatus() (bool, error)
+	PingStatus(ctx context.Context) (bool, error)
 	// UpdatePingStatus 更新 Ping 状态
-	UpdatePingStatus(status bool) error
+	UpdatePingStatus(ctx context.Context, status bool) error
 }
 
 // NewFirewall 自动检测系统防火墙类型并返回对应实现
-func NewFirewall() Firewall {
-	return &lockedFirewall{Firewall: detectFirewall()}
+func NewFirewall(ctx context.Context) Firewall {
+	return &lockedFirewall{Firewall: detectFirewall(ctx)}
 }
 
-func detectFirewall() Firewall {
-	if _, err := shell.Execf("firewall-cmd --version"); err == nil {
+func detectFirewall(ctx context.Context) Firewall {
+	if _, err := shell.Execf(ctx, "firewall-cmd --version"); err == nil {
 		return newFirewalld()
 	}
-	if _, err := shell.Execf("ufw version"); err == nil {
+	if _, err := shell.Execf(ctx, "ufw version"); err == nil {
 		return newUFW()
 	}
 	// 默认 firewalld
@@ -63,40 +64,40 @@ type lockedFirewall struct {
 	Firewall
 }
 
-func (l *lockedFirewall) Enable() error {
+func (l *lockedFirewall) Enable(ctx context.Context) error {
 	mu.Lock()
 	defer mu.Unlock()
-	return l.Firewall.Enable()
+	return l.Firewall.Enable(ctx)
 }
 
-func (l *lockedFirewall) Disable() error {
+func (l *lockedFirewall) Disable(ctx context.Context) error {
 	mu.Lock()
 	defer mu.Unlock()
-	return l.Firewall.Disable()
+	return l.Firewall.Disable(ctx)
 }
 
-func (l *lockedFirewall) Port(rule FireInfo, operation Operation) error {
+func (l *lockedFirewall) Port(ctx context.Context, rule FireInfo, operation Operation) error {
 	mu.Lock()
 	defer mu.Unlock()
-	return l.Firewall.Port(rule, operation)
+	return l.Firewall.Port(ctx, rule, operation)
 }
 
-func (l *lockedFirewall) RichRules(rule FireInfo, operation Operation) error {
+func (l *lockedFirewall) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
 	mu.Lock()
 	defer mu.Unlock()
-	return l.Firewall.RichRules(rule, operation)
+	return l.Firewall.RichRules(ctx, rule, operation)
 }
 
-func (l *lockedFirewall) Forward(rule Forward, operation Operation) error {
+func (l *lockedFirewall) Forward(ctx context.Context, rule Forward, operation Operation) error {
 	mu.Lock()
 	defer mu.Unlock()
-	return l.Firewall.Forward(rule, operation)
+	return l.Firewall.Forward(ctx, rule, operation)
 }
 
-func (l *lockedFirewall) UpdatePingStatus(status bool) error {
+func (l *lockedFirewall) UpdatePingStatus(ctx context.Context, status bool) error {
 	mu.Lock()
 	defer mu.Unlock()
-	return l.Firewall.UpdatePingStatus(status)
+	return l.Firewall.UpdatePingStatus(ctx, status)
 }
 
 // isLocalAddress 判断是否为本地地址

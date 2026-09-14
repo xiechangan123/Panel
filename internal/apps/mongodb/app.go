@@ -1,6 +1,7 @@
 package mongodb
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -44,21 +45,21 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/admin_password", s.SetAdminPassword)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("mongod")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "mongod")
 	return types.AggregateAppStatus(ok)
 }
 
 // Load 获取 MongoDB 运行状态
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, _ := systemctl.Status("mongod")
+	status, _ := systemctl.Status(r.Context(), "mongod")
 	if !status {
 		service.Success(w, []types.NV{})
 		return
 	}
 
 	password, _ := s.settingRepo.Get(biz.SettingKeyMongoDBAdminPassword)
-	raw, err := shell.Execf(`mongosh --quiet --eval "JSON.stringify(db.serverStatus())" -u admin -p '%s' --authenticationDatabase admin 2>/dev/null`, password)
+	raw, err := shell.Execf(r.Context(), `mongosh --quiet --eval "JSON.stringify(db.serverStatus())" -u admin -p '%s' --authenticationDatabase admin 2>/dev/null`, password)
 	if err != nil {
 		service.Success(w, []types.NV{})
 		return
@@ -167,7 +168,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("mongod"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "mongod"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -196,15 +197,18 @@ func (s *App) SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 
 	oldPassword, _ := s.settingRepo.Get(biz.SettingKeyMongoDBAdminPassword)
 
+	// 回退路径会临时起一个无认证 mongod，中途取消轻则服务不起，重则留下裸奔实例
+	ctx := context.WithoutCancel(r.Context())
+
 	// 尝试用旧密码连接修改
-	_, err = shell.Execf(`mongosh --quiet -u admin -p '%s' --authenticationDatabase admin --eval "db.changeUserPassword('admin', '%s')"`, oldPassword, req.Password)
+	_, err = shell.Execf(ctx, `mongosh --quiet -u admin -p '%s' --authenticationDatabase admin --eval "db.changeUserPassword('admin', '%s')"`, oldPassword, req.Password)
 	if err != nil {
 		// 回退：停止服务，无认证模式修改
-		_ = systemctl.Stop("mongod")
-		_, _ = shell.Execf(`su -s /bin/bash mongod -c "mongod --config %s --noauth --fork --logpath /tmp/mongod_reset.log"`, s.configPath())
-		_, resetErr := shell.Execf(`mongosh --quiet --eval "db.getSiblingDB('admin').changeUserPassword('admin', '%s')"`, req.Password)
-		_, _ = shell.Execf(`su -s /bin/bash mongod -c "mongod --config %s --shutdown" 2>/dev/null; pkill -f 'mongod --config.*--noauth' 2>/dev/null`, s.configPath())
-		_ = systemctl.Start("mongod")
+		_ = systemctl.Stop(ctx, "mongod")
+		_, _ = shell.Execf(ctx, `su -s /bin/bash mongod -c "mongod --config %s --noauth --fork --logpath /tmp/mongod_reset.log"`, s.configPath())
+		_, resetErr := shell.Execf(ctx, `mongosh --quiet --eval "db.getSiblingDB('admin').changeUserPassword('admin', '%s')"`, req.Password)
+		_, _ = shell.Execf(ctx, `su -s /bin/bash mongod -c "mongod --config %s --shutdown" 2>/dev/null; pkill -f 'mongod --config.*--noauth' 2>/dev/null`, s.configPath())
+		_ = systemctl.Start(ctx, "mongod")
 		if resetErr != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set MongoDB admin password: %v", resetErr))
 			return

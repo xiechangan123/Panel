@@ -27,16 +27,16 @@ type BackupRepo interface {
 	List(typ BackupType) ([]*types.BackupFile, error)
 	GetStorage(id uint) (*BackupStorage, error)
 	Create(ctx context.Context, typ BackupType, target string, account uint) error
-	CreatePanel() error
-	Delete(typ BackupType, name string) error
+	CreatePanel(ctx context.Context) error
+	Delete(ctx context.Context, typ BackupType, name string) error
 	Restore(ctx context.Context, typ BackupType, backup, target string) error
 	ClearExpired(path, prefix string, save uint) error
 	ClearStorageExpired(account uint, dir, prefix string, save uint) error
-	CutoffLog(path, target string) (string, error)
+	CutoffLog(ctx context.Context, path, target string) (string, error)
 	CutoffUpload(account uint, typ BackupType, name string, files []string) error
 	GetDefaultPath(typ BackupType) string
-	FixPanel() error
-	UpdatePanel(version, url, checksum string, progress func(string)) error
+	FixPanel(ctx context.Context) error
+	UpdatePanel(ctx context.Context, version, url, checksum string, progress func(string)) error
 }
 
 type BackupUsecase struct {
@@ -78,12 +78,12 @@ func (uc *BackupUsecase) Create(ctx context.Context, typ BackupType, target stri
 	return err
 }
 
-func (uc *BackupUsecase) CreatePanel() error {
-	return uc.repo.CreatePanel()
+func (uc *BackupUsecase) CreatePanel(ctx context.Context) error {
+	return uc.repo.CreatePanel(ctx)
 }
 
 func (uc *BackupUsecase) Delete(ctx context.Context, typ BackupType, name string) error {
-	if err := uc.repo.Delete(typ, name); err != nil {
+	if err := uc.repo.Delete(ctx, typ, name); err != nil {
 		return err
 	}
 
@@ -117,8 +117,8 @@ func (uc *BackupUsecase) ClearStorageExpired(account uint, dir, prefix string, s
 	return uc.repo.ClearStorageExpired(account, dir, prefix, save)
 }
 
-func (uc *BackupUsecase) CutoffLog(path, target string) (string, error) {
-	return uc.repo.CutoffLog(path, target)
+func (uc *BackupUsecase) CutoffLog(ctx context.Context, path, target string) (string, error) {
+	return uc.repo.CutoffLog(ctx, path, target)
 }
 
 func (uc *BackupUsecase) CutoffUpload(account uint, typ BackupType, name string, files []string) error {
@@ -129,10 +129,10 @@ func (uc *BackupUsecase) GetDefaultPath(typ BackupType) string {
 	return uc.repo.GetDefaultPath(typ)
 }
 
-func (uc *BackupUsecase) FixPanel() error {
-	return uc.repo.FixPanel()
+func (uc *BackupUsecase) FixPanel(ctx context.Context) error {
+	return uc.repo.FixPanel(ctx)
 }
 
-func (uc *BackupUsecase) UpdatePanel(version, url, checksum string, progress func(string)) error {
-	return uc.repo.UpdatePanel(version, url, checksum, progress)
+func (uc *BackupUsecase) UpdatePanel(ctx context.Context, version, url, checksum string, progress func(string)) error {
+	return uc.repo.UpdatePanel(ctx, version, url, checksum, progress)
 }

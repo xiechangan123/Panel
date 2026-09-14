@@ -1,6 +1,7 @@
 package rocketmq
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -32,15 +33,15 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
-func (s *App) Status() string {
-	namesrv, _ := systemctl.Status("rocketmq-namesrv")
-	broker, _ := systemctl.Status("rocketmq-broker")
+func (s *App) Status(ctx context.Context) string {
+	namesrv, _ := systemctl.Status(ctx, "rocketmq-namesrv")
+	broker, _ := systemctl.Status(ctx, "rocketmq-broker")
 	return types.AggregateAppStatus(namesrv, broker)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	namesrvStatus, _ := systemctl.Status("rocketmq-namesrv")
-	brokerStatus, _ := systemctl.Status("rocketmq-broker")
+	namesrvStatus, _ := systemctl.Status(r.Context(), "rocketmq-namesrv")
+	brokerStatus, _ := systemctl.Status(r.Context(), "rocketmq-broker")
 
 	namesrvStr := "stopped"
 	if namesrvStatus {
@@ -88,7 +89,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.restartServices(); err != nil {
+	if err = s.restartServices(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -156,7 +157,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = s.restartServices(); err != nil {
+	if err = s.restartServices(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -165,11 +166,13 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 }
 
 // restartServices 重启 NameServer 和 Broker 服务
-func (s *App) restartServices() error {
-	if err := systemctl.Restart("rocketmq-namesrv"); err != nil {
+func (s *App) restartServices(ctx context.Context) error {
+	// 配置已落盘，且 namesrv 与 broker 要一起重启，整段不跟随请求取消
+	ctx = context.WithoutCancel(ctx)
+	if err := systemctl.Restart(ctx, "rocketmq-namesrv"); err != nil {
 		return err
 	}
-	return systemctl.Restart("rocketmq-broker")
+	return systemctl.Restart(ctx, "rocketmq-broker")
 }
 
 // configPath 返回 broker 配置文件路径

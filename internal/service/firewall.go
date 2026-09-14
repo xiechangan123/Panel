@@ -2,6 +2,7 @@ package service
 
 import (
 	"cmp"
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -26,18 +27,18 @@ type FirewallService struct {
 }
 
 type firewallRuleOperator interface {
-	Port(rule firewall.FireInfo, operation firewall.Operation) error
+	Port(ctx context.Context, rule firewall.FireInfo, operation firewall.Operation) error
 }
 
 func NewFirewallService(t *gotext.Locale) *FirewallService {
 	return &FirewallService{
 		t:        t,
-		firewall: firewall.NewFirewall(),
+		firewall: firewall.NewFirewall(context.Background()),
 	}
 }
 
 func (s *FirewallService) GetStatus(w http.ResponseWriter, r *http.Request) {
-	running, err := s.firewall.Status()
+	running, err := s.firewall.Status(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -54,9 +55,9 @@ func (s *FirewallService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Status {
-		err = s.firewall.Enable()
+		err = s.firewall.Enable(r.Context())
 	} else {
-		err = s.firewall.Disable()
+		err = s.firewall.Disable(r.Context())
 	}
 
 	if err != nil {
@@ -68,7 +69,7 @@ func (s *FirewallService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *FirewallService) GetRules(w http.ResponseWriter, r *http.Request) {
-	rules, err := s.firewall.ListRule()
+	rules, err := s.firewall.ListRule(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -123,7 +124,7 @@ func (s *FirewallService) CreateRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.firewall.Port(firewall.FireInfo{
+	if err = s.firewall.Port(r.Context(), firewall.FireInfo{
 		Type: firewall.Type(req.Type), Family: req.Family, PortStart: req.PortStart, PortEnd: req.PortEnd, Protocol: firewall.Protocol(req.Protocol), Address: req.Address, Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationAdd); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -157,7 +158,7 @@ func (s *FirewallService) UpdateRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = replaceFirewallRule(s.firewall, oldRule, newRule); err != nil {
+	if err = replaceFirewallRule(r.Context(), s.firewall, oldRule, newRule); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update firewall rule: %v", err))
 		return
 	}
@@ -172,7 +173,7 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.firewall.Port(firewall.FireInfo{
+	if err = s.firewall.Port(r.Context(), firewall.FireInfo{
 		Type: firewall.Type(req.Type), Family: req.Family, PortStart: req.PortStart, PortEnd: req.PortEnd, Protocol: firewall.Protocol(req.Protocol), Address: req.Address, Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationRemove); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -182,14 +183,15 @@ func (s *FirewallService) DeleteRule(w http.ResponseWriter, r *http.Request) {
 	Success(w, nil)
 }
 
-func replaceFirewallRule(operator firewallRuleOperator, oldRule, newRule firewall.FireInfo) error {
-	if err := operator.Port(newRule, firewall.OperationAdd); err != nil {
+func replaceFirewallRule(ctx context.Context, operator firewallRuleOperator, oldRule, newRule firewall.FireInfo) error {
+	if err := operator.Port(ctx, newRule, firewall.OperationAdd); err != nil {
 		return fmt.Errorf("adding replacement firewall rule: %w", err)
 	}
 
-	if err := operator.Port(oldRule, firewall.OperationRemove); err != nil {
+	if err := operator.Port(ctx, oldRule, firewall.OperationRemove); err != nil {
 		removeErr := fmt.Errorf("removing original firewall rule: %w", err)
-		if rollbackErr := operator.Port(newRule, firewall.OperationRemove); rollbackErr != nil {
+		// 回滚断开取消链，否则请求取消时新旧规则会同时留在防火墙里
+		if rollbackErr := operator.Port(context.WithoutCancel(ctx), newRule, firewall.OperationRemove); rollbackErr != nil {
 			return errors.Join(
 				removeErr,
 				fmt.Errorf("rolling back replacement firewall rule: %w", rollbackErr),
@@ -203,7 +205,7 @@ func replaceFirewallRule(operator firewallRuleOperator, oldRule, newRule firewal
 
 // ExportRules 导出端口规则为 xlsx
 func (s *FirewallService) ExportRules(w http.ResponseWriter, r *http.Request) {
-	rules, err := s.firewall.ListRule()
+	rules, err := s.firewall.ListRule(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -298,7 +300,7 @@ func (s *FirewallService) ImportRules(w http.ResponseWriter, r *http.Request) {
 			Strategy:  firewall.Strategy(cmp.Or(cell(row, "strategy"), string(firewall.StrategyAccept))),
 			Direction: firewall.Direction(cmp.Or(cell(row, "direction"), string(firewall.DirectionIn))),
 		}
-		if err = s.firewall.Port(info, firewall.OperationAdd); err != nil {
+		if err = s.firewall.Port(r.Context(), info, firewall.OperationAdd); err != nil {
 			failed++
 			continue
 		}
@@ -312,7 +314,7 @@ func (s *FirewallService) ImportRules(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *FirewallService) GetIPRules(w http.ResponseWriter, r *http.Request) {
-	rules, err := s.firewall.ListRule()
+	rules, err := s.firewall.ListRule(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -347,7 +349,7 @@ func (s *FirewallService) CreateIPRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.firewall.RichRules(firewall.FireInfo{
+	if err = s.firewall.RichRules(r.Context(), firewall.FireInfo{
 		Family: req.Family, Address: req.Address, Protocol: firewall.Protocol(req.Protocol), Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationAdd); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -364,7 +366,7 @@ func (s *FirewallService) DeleteIPRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.firewall.RichRules(firewall.FireInfo{
+	if err = s.firewall.RichRules(r.Context(), firewall.FireInfo{
 		Family: req.Family, Address: req.Address, Protocol: firewall.Protocol(req.Protocol), Strategy: firewall.Strategy(req.Strategy), Direction: firewall.Direction(req.Direction),
 	}, firewall.OperationRemove); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -375,7 +377,7 @@ func (s *FirewallService) DeleteIPRule(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *FirewallService) GetForwards(w http.ResponseWriter, r *http.Request) {
-	forwards, err := s.firewall.ListForward()
+	forwards, err := s.firewall.ListForward(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -396,7 +398,7 @@ func (s *FirewallService) CreateForward(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err = s.firewall.Forward(firewall.Forward{
+	if err = s.firewall.Forward(r.Context(), firewall.Forward{
 		Protocol: firewall.Protocol(req.Protocol), Port: req.Port, TargetIP: req.TargetIP, TargetPort: req.TargetPort,
 	}, firewall.OperationAdd); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -413,7 +415,7 @@ func (s *FirewallService) DeleteForward(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err = s.firewall.Forward(firewall.Forward{
+	if err = s.firewall.Forward(r.Context(), firewall.Forward{
 		Protocol: firewall.Protocol(req.Protocol), Port: req.Port, TargetIP: req.TargetIP, TargetPort: req.TargetPort,
 	}, firewall.OperationRemove); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
@@ -435,5 +437,5 @@ func (s *FirewallService) GetPortUsage(w http.ResponseWriter, r *http.Request) {
 		protocol = "tcp"
 	}
 
-	Success(w, os.GetPortProcess(uint(port), protocol))
+	Success(w, os.GetPortProcess(r.Context(), uint(port), protocol))
 }

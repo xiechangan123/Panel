@@ -1,6 +1,7 @@
 package io
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -145,9 +146,9 @@ func DownloadFile(url, destPath string) error {
 }
 
 // LinkCLIBinaries 将指定二进制文件软链接到 /usr/local/bin
-func LinkCLIBinaries(binPath string, binaries []string) error {
+func LinkCLIBinaries(ctx context.Context, binPath string, binaries []string) error {
 	for _, bin := range binaries {
-		if _, err := shell.Execf("ln -sf '%s/%s' '/usr/local/bin/%s'", binPath, bin, bin); err != nil {
+		if _, err := shell.Execf(ctx, "ln -sf '%s/%s' '/usr/local/bin/%s'", binPath, bin, bin); err != nil {
 			return err
 		}
 	}

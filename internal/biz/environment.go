@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,9 +16,9 @@ import (
 
 type EnvironmentRepo interface {
 	IsInstalled(typ, slug string) bool
-	InstalledVersion(typ, slug string) string
+	InstalledVersion(ctx context.Context, typ, slug string) string
 	ScriptCommand(typ, action, slug, version string) string
-	ExecScript(cmd string) error
+	ExecScript(ctx context.Context, cmd string) error
 }
 
 type EnvironmentUsecase struct {
@@ -93,11 +94,11 @@ func (uc *EnvironmentUsecase) InstalledSlugs(typ string) []string {
 	return slugs
 }
 
-func (uc *EnvironmentUsecase) InstalledVersion(typ, slug string) string {
-	return uc.repo.InstalledVersion(typ, slug)
+func (uc *EnvironmentUsecase) InstalledVersion(ctx context.Context, typ, slug string) string {
+	return uc.repo.InstalledVersion(ctx, typ, slug)
 }
 
-func (uc *EnvironmentUsecase) HasUpdate(typ, slug string) bool {
+func (uc *EnvironmentUsecase) HasUpdate(ctx context.Context, typ, slug string) bool {
 	if !uc.repo.IsInstalled(typ, slug) {
 		return false
 	}
@@ -107,33 +108,33 @@ func (uc *EnvironmentUsecase) HasUpdate(typ, slug string) bool {
 	}
 
 	mainlineVersion := env.Version
-	installedVersion := uc.repo.InstalledVersion(typ, slug)
+	installedVersion := uc.repo.InstalledVersion(ctx, typ, slug)
 
 	return mainlineVersion != installedVersion && mainlineVersion != "" && installedVersion != ""
 }
 
-func (uc *EnvironmentUsecase) Install(typ, slug string) error {
+func (uc *EnvironmentUsecase) Install(ctx context.Context, typ, slug string) error {
 	if installed := uc.repo.IsInstalled(typ, slug); installed {
 		return errors.New(uc.t.Get("environment %s-%s already installed", typ, slug))
 	}
-	return uc.do(typ, slug, "install")
+	return uc.do(ctx, typ, slug, "install")
 }
 
-func (uc *EnvironmentUsecase) Uninstall(typ, slug string) error {
+func (uc *EnvironmentUsecase) Uninstall(ctx context.Context, typ, slug string) error {
 	if installed := uc.repo.IsInstalled(typ, slug); !installed {
 		return errors.New(uc.t.Get("environment %s-%s not installed", typ, slug))
 	}
-	return uc.do(typ, slug, "uninstall")
+	return uc.do(ctx, typ, slug, "uninstall")
 }
 
-func (uc *EnvironmentUsecase) Update(typ, slug string) error {
+func (uc *EnvironmentUsecase) Update(ctx context.Context, typ, slug string) error {
 	if installed := uc.repo.IsInstalled(typ, slug); !installed {
 		return errors.New(uc.t.Get("environment %s-%s not installed", typ, slug))
 	}
-	return uc.do(typ, slug, "update")
+	return uc.do(ctx, typ, slug, "update")
 }
 
-func (uc *EnvironmentUsecase) do(typ, slug, action string) error {
+func (uc *EnvironmentUsecase) do(ctx context.Context, typ, slug, action string) error {
 	env := uc.getByTypeAndSlug(typ, slug)
 	if env == nil {
 		return fmt.Errorf("environment not found: %s-%s", typ, slug)
@@ -142,7 +143,7 @@ func (uc *EnvironmentUsecase) do(typ, slug, action string) error {
 	cmd := uc.repo.ScriptCommand(typ, action, env.Slug, env.Version)
 
 	if app.IsCli {
-		return uc.repo.ExecScript(cmd)
+		return uc.repo.ExecScript(ctx, cmd)
 	}
 
 	var name string

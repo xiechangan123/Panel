@@ -2,6 +2,7 @@ package firewall
 
 import (
 	"cmp"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -28,25 +29,25 @@ func newFirewalld() *firewalld {
 	}
 }
 
-func (r *firewalld) Status() (bool, error) {
-	return systemctl.Status("firewalld")
+func (r *firewalld) Status(ctx context.Context) (bool, error) {
+	return systemctl.Status(ctx, "firewalld")
 }
 
-func (r *firewalld) Enable() error {
-	if err := systemctl.Start("firewalld"); err != nil {
+func (r *firewalld) Enable(ctx context.Context) error {
+	if err := systemctl.Start(ctx, "firewalld"); err != nil {
 		return err
 	}
-	return systemctl.Enable("firewalld")
+	return systemctl.Enable(ctx, "firewalld")
 }
 
-func (r *firewalld) Disable() error {
-	if err := systemctl.Stop("firewalld"); err != nil {
+func (r *firewalld) Disable(ctx context.Context) error {
+	if err := systemctl.Stop(ctx, "firewalld"); err != nil {
 		return err
 	}
-	return systemctl.Disable("firewalld")
+	return systemctl.Disable(ctx, "firewalld")
 }
 
-func (r *firewalld) ListRule() ([]FireInfo, error) {
+func (r *firewalld) ListRule(ctx context.Context) ([]FireInfo, error) {
 	var wg sync.WaitGroup
 	var portRules []FireInfo
 	var richRules []FireInfo
@@ -54,7 +55,7 @@ func (r *firewalld) ListRule() ([]FireInfo, error) {
 
 	go func() {
 		defer wg.Done()
-		out, err := shell.Execf("firewall-cmd --zone=public --list-ports")
+		out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-ports")
 		if err != nil {
 			return
 		}
@@ -85,7 +86,7 @@ func (r *firewalld) ListRule() ([]FireInfo, error) {
 	}()
 	go func() {
 		defer wg.Done()
-		rich, err := r.listRichRule()
+		rich, err := r.listRichRule(ctx)
 		if err != nil {
 			return
 		}
@@ -126,8 +127,8 @@ func (r *firewalld) ListRule() ([]FireInfo, error) {
 	return mergeRules(data), nil
 }
 
-func (r *firewalld) ListForward() ([]FireForwardInfo, error) {
-	out, err := shell.Execf("firewall-cmd --zone=public --list-forward-ports")
+func (r *firewalld) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
+	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-forward-ports")
 	if err != nil {
 		return nil, err
 	}
@@ -173,8 +174,8 @@ func (r *firewalld) ListForward() ([]FireForwardInfo, error) {
 	return data, nil
 }
 
-func (r *firewalld) listRichRule() ([]FireInfo, error) {
-	out, err := shell.Execf("firewall-cmd --zone=public --list-rich-rules")
+func (r *firewalld) listRichRule(ctx context.Context) ([]FireInfo, error) {
+	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-rich-rules")
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +194,7 @@ func (r *firewalld) listRichRule() ([]FireInfo, error) {
 	return data, nil
 }
 
-func (r *firewalld) Port(rule FireInfo, operation Operation) error {
+func (r *firewalld) Port(ctx context.Context, rule FireInfo, operation Operation) error {
 	if rule.PortEnd == 0 {
 		rule.PortEnd = rule.PortStart
 	}
@@ -202,7 +203,7 @@ func (r *firewalld) Port(rule FireInfo, operation Operation) error {
 	}
 	// 不支持的切换使用rich rules
 	if (rule.Family != "" && rule.Family != "ipv4") || rule.Direction != "in" || rule.Address != "" || rule.Strategy != "accept" || rule.Type == TypeRich {
-		return r.RichRules(rule, operation)
+		return r.RichRules(ctx, rule, operation)
 	}
 
 	// 未设置协议默认为tcp/udp
@@ -212,17 +213,17 @@ func (r *firewalld) Port(rule FireInfo, operation Operation) error {
 
 	// 删除时忽略错误（规则可能已不存在）
 	for _, protocol := range buildProtocols(rule.Protocol) {
-		_, err := shell.Execf("firewall-cmd --zone=public --%s-port=%d-%d/%s --permanent", operation, rule.PortStart, rule.PortEnd, protocol)
+		_, err := shell.Execf(ctx, "firewall-cmd --zone=public --%s-port=%d-%d/%s --permanent", operation, rule.PortStart, rule.PortEnd, protocol)
 		if err != nil && operation != OperationRemove {
 			return err
 		}
 	}
 
-	_, err := shell.Execf("firewall-cmd --reload")
+	_, err := shell.Execf(ctx, "firewall-cmd --reload")
 	return err
 }
 
-func (r *firewalld) RichRules(rule FireInfo, operation Operation) error {
+func (r *firewalld) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
 	// 出站规则下，必须指定具体的地址，否则会添加成入站规则
 	if rule.Direction == "out" && rule.Address == "" {
 		return errors.New("outbound rules must specify an address")
@@ -230,13 +231,13 @@ func (r *firewalld) RichRules(rule FireInfo, operation Operation) error {
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		cmd := r.buildRichRuleStr(rule, protocol)
-		_, err := shell.Execf("firewall-cmd --zone=public --%s-rich-rule '%s' --permanent", operation, cmd)
+		_, err := shell.Execf(ctx, "firewall-cmd --zone=public --%s-rich-rule '%s' --permanent", operation, cmd)
 		if err != nil && operation != OperationRemove {
 			return err
 		}
 	}
 
-	_, err := shell.Execf("firewall-cmd --reload")
+	_, err := shell.Execf(ctx, "firewall-cmd --reload")
 	return err
 }
 
@@ -268,14 +269,14 @@ func (r *firewalld) buildRichRuleStr(rule FireInfo, protocol string) string {
 	return sb.String()
 }
 
-func (r *firewalld) Forward(rule Forward, operation Operation) error {
-	if err := r.enableForward(); err != nil {
+func (r *firewalld) Forward(ctx context.Context, rule Forward, operation Operation) error {
+	if err := r.enableForward(ctx); err != nil {
 		return err
 	}
 
 	// 启用 IP 转发
-	_, _ = shell.Execf("sysctl -w net.ipv4.ip_forward=1")
-	_, _ = shell.Execf("sysctl -w net.ipv6.conf.all.forwarding=1")
+	_, _ = shell.Execf(ctx, "sysctl -w net.ipv4.ip_forward=1")
+	_, _ = shell.Execf(ctx, "sysctl -w net.ipv6.conf.all.forwarding=1")
 	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
@@ -285,18 +286,18 @@ func (r *firewalld) Forward(rule Forward, operation Operation) error {
 		} else {
 			cmd = fmt.Sprintf("firewall-cmd --zone=public --%s-forward-port=port=%d:proto=%s:toport=%d --permanent", operation, rule.Port, protocol, rule.TargetPort)
 		}
-		_, err := shell.Exec(cmd)
+		_, err := shell.Exec(ctx, cmd)
 		if err != nil && operation != OperationRemove {
 			return err
 		}
 	}
 
-	_, err := shell.Execf("firewall-cmd --reload")
+	_, err := shell.Execf(ctx, "firewall-cmd --reload")
 	return err
 }
 
-func (r *firewalld) PingStatus() (bool, error) {
-	out, err := shell.Execf("firewall-cmd --zone=public --list-rich-rules")
+func (r *firewalld) PingStatus(ctx context.Context) (bool, error) {
+	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --list-rich-rules")
 	if err != nil { // 可能防火墙已关闭等
 		return true, nil //nolint:nilerr
 	}
@@ -308,18 +309,18 @@ func (r *firewalld) PingStatus() (bool, error) {
 	return false, nil
 }
 
-func (r *firewalld) UpdatePingStatus(status bool) error {
+func (r *firewalld) UpdatePingStatus(ctx context.Context, status bool) error {
 	var err error
 	if status {
-		_, err = shell.Execf(`firewall-cmd --zone=public --permanent --remove-rich-rule='rule protocol value=icmp drop'`)
+		_, err = shell.Execf(ctx, `firewall-cmd --zone=public --permanent --remove-rich-rule='rule protocol value=icmp drop'`)
 	} else {
-		_, err = shell.Execf(`firewall-cmd --zone=public --permanent --add-rich-rule='rule protocol value=icmp drop'`)
+		_, err = shell.Execf(ctx, `firewall-cmd --zone=public --permanent --add-rich-rule='rule protocol value=icmp drop'`)
 	}
 	if err != nil {
 		return err
 	}
 
-	_, err = shell.Execf("firewall-cmd --reload")
+	_, err = shell.Execf(ctx, "firewall-cmd --reload")
 	return err
 }
 
@@ -367,15 +368,15 @@ func (r *firewalld) parseRichRule(line string) (FireInfo, error) {
 	return fireInfo, nil
 }
 
-func (r *firewalld) enableForward() error {
-	out, err := shell.Execf("firewall-cmd --zone=public --query-masquerade")
+func (r *firewalld) enableForward(ctx context.Context) error {
+	out, err := shell.Execf(ctx, "firewall-cmd --zone=public --query-masquerade")
 	if err != nil {
 		if out == "no" {
-			out, err = shell.Execf("firewall-cmd --zone=public --add-masquerade --permanent")
+			out, err = shell.Execf(ctx, "firewall-cmd --zone=public --add-masquerade --permanent")
 			if err != nil {
 				return fmt.Errorf("%w: %s", err, out)
 			}
-			_, err = shell.Execf("firewall-cmd --reload")
+			_, err = shell.Execf(ctx, "firewall-cmd --reload")
 			return err
 		}
 		return fmt.Errorf("%w: %s", err, out)

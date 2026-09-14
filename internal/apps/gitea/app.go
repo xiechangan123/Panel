@@ -1,6 +1,7 @@
 package gitea
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -22,8 +23,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("gitea")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "gitea")
 	return types.AggregateAppStatus(ok)
 }
 

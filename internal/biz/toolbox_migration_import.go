@@ -25,7 +25,7 @@ import (
 func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []types.MigrationItem) {
 	websitePath, _ := uc.setting.Get(SettingKeyWebsitePath, filepath.Join(app.Root, "sites"))
 	projectPath, _ := uc.setting.Get(SettingKeyProjectPath, filepath.Join(app.Root, "projects"))
-	projects, _, _ := uc.project.List("", 1, 10000)
+	projects, _, _ := uc.project.List(ctx, "", 1, 10000)
 	databases, _, _ := uc.database.List(ctx, 1, 10000, "")
 	servers, _, _ := uc.databaseServer.List(ctx, 1, 10000, "")
 
@@ -83,7 +83,7 @@ func (uc *ToolboxMigrationUsecase) checkConflicts(ctx context.Context, items []t
 			if slices.ContainsFunc(projects, func(project *types.ProjectDetail) bool { return project.Name == item.TargetName }) {
 				item.Blockers = append(item.Blockers, uc.t.Get("a project with the same name already exists on the target server"))
 			}
-			if _, ok := uc.runtimeSlug(types.ProjectType(item.Subtype), item.Version); !ok {
+			if _, ok := uc.runtimeSlug(ctx, types.ProjectType(item.Subtype), item.Version); !ok {
 				item.Blockers = append(item.Blockers, uc.t.Get(
 					"the target server does not have a compatible %s runtime for version %s",
 					item.Subtype, lo.CoalesceOrEmpty(item.Version, uc.t.Get("unknown")),
@@ -254,7 +254,7 @@ func (uc *ToolboxMigrationUsecase) importWebsite(ctx context.Context, detail *ty
 		_ = uc.website.UpdateExpireAt(created.ID, website.ExpireAt)
 	}
 	if !website.Enabled {
-		_ = uc.website.UpdateStatus(created.ID, false)
+		_ = uc.website.UpdateStatus(ctx, created.ID, false)
 	}
 	return warnings, nil
 }
@@ -313,7 +313,7 @@ func (uc *ToolboxMigrationUsecase) importProject(ctx context.Context, detail *ty
 	if strings.TrimSpace(project.ExecStart) == "" {
 		return nil, errors.New(uc.t.Get("the source project start command is missing"))
 	}
-	slug, ok := uc.runtimeSlug(project.Type, project.Version)
+	slug, ok := uc.runtimeSlug(ctx, project.Type, project.Version)
 	if !ok {
 		return nil, errors.New(uc.t.Get(
 			"the target server does not have a compatible %s runtime for version %s",
@@ -359,10 +359,10 @@ func (uc *ToolboxMigrationUsecase) importProject(ctx context.Context, detail *ty
 		// 其余类型依赖随文件一起迁移，可直接启动
 	}
 	if project.Enabled {
-		_, _ = shell.Exec("systemctl enable " + strconv.Quote(detail.Item.TargetName))
+		_, _ = shell.Exec(ctx, "systemctl enable "+strconv.Quote(detail.Item.TargetName))
 	}
 	if project.Running {
-		_, _ = shell.Exec("systemctl start " + strconv.Quote(detail.Item.TargetName))
+		_, _ = shell.Exec(ctx, "systemctl start "+strconv.Quote(detail.Item.TargetName))
 	}
 	return warnings, nil
 }
@@ -386,7 +386,7 @@ func (uc *ToolboxMigrationUsecase) projectWebsite(ctx context.Context, detail *t
 		return []string{uc.t.Get("the project was migrated, but its reverse proxy website could not be created: %v", err)}
 	}
 	if !project.Running {
-		_ = uc.website.UpdateStatus(website.ID, false)
+		_ = uc.website.UpdateStatus(ctx, website.ID, false)
 	}
 	return nil
 }
@@ -425,7 +425,7 @@ func (uc *ToolboxMigrationUsecase) rewriteExecStart(project *types.MigrationProj
 }
 
 // runtimeSlug 匹配目标侧兼容的运行时，返回其 slug
-func (uc *ToolboxMigrationUsecase) runtimeSlug(typ types.ProjectType, version string) (string, bool) {
+func (uc *ToolboxMigrationUsecase) runtimeSlug(ctx context.Context, typ types.ProjectType, version string) (string, bool) {
 	if typ == types.ProjectTypeGeneral || typ == "" {
 		return "", true
 	}
@@ -447,7 +447,7 @@ func (uc *ToolboxMigrationUsecase) runtimeSlug(typ types.ProjectType, version st
 		return "", false
 	}
 	for _, slug := range installed {
-		target := uc.javaVersion(typ, uc.versionParts(uc.environment.InstalledVersion(string(typ), slug)))
+		target := uc.javaVersion(typ, uc.versionParts(uc.environment.InstalledVersion(ctx, string(typ), slug)))
 		if len(target) >= parts && slices.Equal(source[:parts], target[:parts]) {
 			return slug, true
 		}

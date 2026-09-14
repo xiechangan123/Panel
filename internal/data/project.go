@@ -2,6 +2,7 @@ package data
 
 import (
 	"cmp"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -79,7 +80,7 @@ func (r *projectRepo) NameExists(name string) (bool, error) {
 	return count > 0, nil
 }
 
-func (r *projectRepo) Create(project *biz.Project, req *request.ProjectCreate) error {
+func (r *projectRepo) Create(ctx context.Context, project *biz.Project, req *request.ProjectCreate) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		// 创建数据库记录
 		if err := tx.Create(project).Error; err != nil {
@@ -92,7 +93,7 @@ func (r *projectRepo) Create(project *biz.Project, req *request.ProjectCreate) e
 		}
 
 		// 生成 systemd unit 文件
-		if err := r.generateUnitFile(req); err != nil {
+		if err := r.generateUnitFile(ctx, req); err != nil {
 			return fmt.Errorf("%s: %w", r.t.Get("failed to generate systemd config"), err)
 		}
 
@@ -133,7 +134,7 @@ func (r *projectRepo) unitFilePath(name string) string {
 }
 
 // ParseDetail 从数据库记录和 systemd unit 文件解析项目详情
-func (r *projectRepo) ParseDetail(project *biz.Project) (*types.ProjectDetail, error) {
+func (r *projectRepo) ParseDetail(ctx context.Context, project *biz.Project) (*types.ProjectDetail, error) {
 	detail := &types.ProjectDetail{
 		ID:      project.ID,
 		Name:    project.Name,
@@ -168,7 +169,7 @@ func (r *projectRepo) ParseDetail(project *biz.Project) (*types.ProjectDetail, e
 	}
 
 	// 获取运行状态
-	if info, err := systemctl.GetServiceInfo(project.Name); err == nil {
+	if info, err := systemctl.GetServiceInfo(ctx, project.Name); err == nil {
 		detail.Status = info.Status
 		detail.PID = info.PID
 		detail.Memory = info.Memory
@@ -177,7 +178,7 @@ func (r *projectRepo) ParseDetail(project *biz.Project) (*types.ProjectDetail, e
 	}
 
 	// 获取是否自启动
-	if enabled, err := systemctl.IsEnabled(project.Name); err == nil {
+	if enabled, err := systemctl.IsEnabled(ctx, project.Name); err == nil {
 		detail.Enabled = enabled
 	}
 
@@ -388,7 +389,7 @@ func sectionOrder(section string) int {
 }
 
 // generateUnitFile 生成 systemd unit 文件
-func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
+func (r *projectRepo) generateUnitFile(ctx context.Context, req *request.ProjectCreate) error {
 	req.RootDir = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
 	req.WorkingDir = lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)
 	req.WorkingDir = lo.If(!strings.HasPrefix(req.WorkingDir, "/"), filepath.Join("/", req.WorkingDir)).Else(req.WorkingDir)
@@ -438,11 +439,11 @@ func (r *projectRepo) generateUnitFile(req *request.ProjectCreate) error {
 		return err
 	}
 
-	return systemctl.DaemonReload()
+	return systemctl.DaemonReload(ctx)
 }
 
 // UpdateUnitFile 更新 systemd unit 文件
-func (r *projectRepo) UpdateUnitFile(name string, req *request.ProjectUpdate) error {
+func (r *projectRepo) UpdateUnitFile(ctx context.Context, name string, req *request.ProjectUpdate) error {
 	req.RootDir = lo.If(!strings.HasPrefix(req.RootDir, "/"), filepath.Join("/", req.RootDir)).Else(req.RootDir)
 	req.WorkingDir = lo.If(req.WorkingDir != "", req.WorkingDir).Else(req.RootDir)
 	req.WorkingDir = lo.If(!strings.HasPrefix(req.WorkingDir, "/"), filepath.Join("/", req.WorkingDir)).Else(req.WorkingDir)
@@ -583,5 +584,5 @@ func (r *projectRepo) UpdateUnitFile(name string, req *request.ProjectUpdate) er
 		return err
 	}
 
-	return systemctl.DaemonReload()
+	return systemctl.DaemonReload(ctx)
 }

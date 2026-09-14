@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -70,7 +71,7 @@ func (r *cronRepo) Delete(cron *biz.Cron) error {
 }
 
 // WriteNewScript 生成随机脚本文件并返回脚本与日志路径
-func (r *cronRepo) WriteNewScript(script string) (string, string, error) {
+func (r *cronRepo) WriteNewScript(ctx context.Context, script string) (string, string, error) {
 	shellDir := app.Root + "/server/cron/"
 	shellLogDir := app.Root + "/server/cron/logs/"
 	shellFile := str.Random(16)
@@ -78,7 +79,7 @@ func (r *cronRepo) WriteNewScript(script string) (string, string, error) {
 		return "", "", errors.New(err.Error())
 	}
 	// 编码转换
-	_, _ = shell.Execf("dos2unix %s%s.sh", shellDir, shellFile)
+	_, _ = shell.Execf(ctx, "dos2unix %s%s.sh", shellDir, shellFile)
 
 	return shellDir + shellFile + ".sh", shellLogDir + shellFile + ".log", nil
 }
@@ -89,8 +90,8 @@ func (r *cronRepo) WriteScript(path, script string) error {
 }
 
 // Dos2Unix 转换脚本文件编码
-func (r *cronRepo) Dos2Unix(path string) error {
-	if out, err := shell.Execf("dos2unix %s", path); err != nil {
+func (r *cronRepo) Dos2Unix(ctx context.Context, path string) error {
+	if out, err := shell.Execf(ctx, "dos2unix %s", path); err != nil {
 		return errors.New(out)
 	}
 
@@ -98,22 +99,22 @@ func (r *cronRepo) Dos2Unix(path string) error {
 }
 
 // RemoveScriptFiles 清理脚本及关联的 .lock、_wrapper.sh 文件
-func (r *cronRepo) RemoveScriptFiles(shellPath string) error {
-	if err := io.Remove(shellPath); err != nil {
+func (r *cronRepo) RemoveScriptFiles(ctx context.Context, shellPath string) error {
+	if err := io.Remove(ctx, shellPath); err != nil {
 		return err
 	}
 	// 清理 .lock 文件和 _wrapper.sh 文件
 	lockFile := strings.TrimSuffix(shellPath, ".sh") + ".lock"
-	_ = io.Remove(lockFile)
+	_ = io.Remove(ctx, lockFile)
 	wrapperFile := strings.TrimSuffix(shellPath, ".sh") + "_wrapper.sh"
-	_ = io.Remove(wrapperFile)
+	_ = io.Remove(ctx, wrapperFile)
 
 	return nil
 }
 
 // AddToSystem 添加到系统
 // 统一经 wrapper 脚本执行，以便捕获退出码并上报失败
-func (r *cronRepo) AddToSystem(cron *biz.Cron) error {
+func (r *cronRepo) AddToSystem(ctx context.Context, cron *biz.Cron) error {
 	cmd := cron.Shell
 	if cron.Config.Flock {
 		lockFile := strings.TrimSuffix(cron.Shell, ".sh") + ".lock"
@@ -132,36 +133,36 @@ func (r *cronRepo) AddToSystem(cron *biz.Cron) error {
 	if err := io.Write(wrapperPath, r.generateWrapper(cron.ID, cmd, cron.Log, seconds), 0700); err != nil {
 		return err
 	}
-	if _, err := shell.Execf(`( crontab -l; echo "%s %s" ) | sort - | uniq - | crontab -`, spec, wrapperPath); err != nil {
+	if _, err := shell.Execf(ctx, `( crontab -l; echo "%s %s" ) | sort - | uniq - | crontab -`, spec, wrapperPath); err != nil {
 		return err
 	}
 
-	return r.restartCron()
+	return r.restartCron(ctx)
 }
 
 // DeleteFromSystem 从系统中删除
-func (r *cronRepo) DeleteFromSystem(cron *biz.Cron) error {
+func (r *cronRepo) DeleteFromSystem(ctx context.Context, cron *biz.Cron) error {
 	// 清理秒级任务的 wrapper 条目和脚本
 	wrapperPath := strings.TrimSuffix(cron.Shell, ".sh") + "_wrapper.sh"
-	_, _ = shell.Execf(`( crontab -l | grep -v -F "%s" ) | crontab -`, wrapperPath)
-	_ = io.Remove(wrapperPath)
+	_, _ = shell.Execf(ctx, `( crontab -l | grep -v -F "%s" ) | crontab -`, wrapperPath)
+	_ = io.Remove(ctx, wrapperPath)
 
 	// 清理普通任务的 crontab 条目
-	if _, err := shell.Execf(`( crontab -l | grep -v -F "%s >> %s 2>&1" ) | crontab -`, cron.Shell, cron.Log); err != nil {
+	if _, err := shell.Execf(ctx, `( crontab -l | grep -v -F "%s >> %s 2>&1" ) | crontab -`, cron.Shell, cron.Log); err != nil {
 		return err
 	}
 
-	return r.restartCron()
+	return r.restartCron(ctx)
 }
 
 // restartCron 重启 cron 服务
-func (r *cronRepo) restartCron() error {
+func (r *cronRepo) restartCron(ctx context.Context) error {
 	if os.IsRHEL() {
-		return systemctl.Restart("crond")
+		return systemctl.Restart(ctx, "crond")
 	}
 
 	if os.IsDebian() || os.IsUbuntu() {
-		return systemctl.Restart("cron")
+		return systemctl.Restart(ctx, "cron")
 	}
 
 	return errors.New(r.t.Get("unsupported system"))

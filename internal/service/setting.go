@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/leonelquinteros/gotext"
@@ -56,7 +57,7 @@ func (s *SettingService) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if restart {
-		tools.RestartPanel()
+		tools.RestartPanel(context.WithoutCancel(r.Context()))
 	}
 
 	Success(w, chix.M{
@@ -101,7 +102,7 @@ func (s *SettingService) ObtainCert(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	crt, key, err := s.certRepo.ObtainPanel(account, conf.HTTP.BindDomain)
+	crt, key, err := s.certRepo.ObtainPanel(r.Context(), account, conf.HTTP.BindDomain)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

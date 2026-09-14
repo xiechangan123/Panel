@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -21,7 +22,7 @@ var _ biz.CronRepo = &CronRepo{}
 //
 //		// make and configure a mocked biz.CronRepo
 //		mockedCronRepo := &CronRepo{
-//			AddToSystemFunc: func(cron *biz.Cron) error {
+//			AddToSystemFunc: func(ctx context.Context, cron *biz.Cron) error {
 //				panic("mock out the AddToSystem method")
 //			},
 //			CountFunc: func() (int64, error) {
@@ -33,10 +34,10 @@ var _ biz.CronRepo = &CronRepo{}
 //			DeleteFunc: func(cron *biz.Cron) error {
 //				panic("mock out the Delete method")
 //			},
-//			DeleteFromSystemFunc: func(cron *biz.Cron) error {
+//			DeleteFromSystemFunc: func(ctx context.Context, cron *biz.Cron) error {
 //				panic("mock out the DeleteFromSystem method")
 //			},
-//			Dos2UnixFunc: func(path string) error {
+//			Dos2UnixFunc: func(ctx context.Context, path string) error {
 //				panic("mock out the Dos2Unix method")
 //			},
 //			GenerateScriptFunc: func(typ string, config types.CronConfig, rawScript string) string {
@@ -48,13 +49,13 @@ var _ biz.CronRepo = &CronRepo{}
 //			ListFunc: func(page uint, limit uint) ([]*biz.Cron, int64, error) {
 //				panic("mock out the List method")
 //			},
-//			RemoveScriptFilesFunc: func(shellPath string) error {
+//			RemoveScriptFilesFunc: func(ctx context.Context, shellPath string) error {
 //				panic("mock out the RemoveScriptFiles method")
 //			},
 //			SaveFunc: func(cron *biz.Cron) error {
 //				panic("mock out the Save method")
 //			},
-//			WriteNewScriptFunc: func(script string) (string, string, error) {
+//			WriteNewScriptFunc: func(ctx context.Context, script string) (string, string, error) {
 //				panic("mock out the WriteNewScript method")
 //			},
 //			WriteScriptFunc: func(path string, script string) error {
@@ -68,7 +69,7 @@ var _ biz.CronRepo = &CronRepo{}
 //	}
 type CronRepo struct {
 	// AddToSystemFunc mocks the AddToSystem method.
-	AddToSystemFunc func(cron *biz.Cron) error
+	AddToSystemFunc func(ctx context.Context, cron *biz.Cron) error
 
 	// CountFunc mocks the Count method.
 	CountFunc func() (int64, error)
@@ -80,10 +81,10 @@ type CronRepo struct {
 	DeleteFunc func(cron *biz.Cron) error
 
 	// DeleteFromSystemFunc mocks the DeleteFromSystem method.
-	DeleteFromSystemFunc func(cron *biz.Cron) error
+	DeleteFromSystemFunc func(ctx context.Context, cron *biz.Cron) error
 
 	// Dos2UnixFunc mocks the Dos2Unix method.
-	Dos2UnixFunc func(path string) error
+	Dos2UnixFunc func(ctx context.Context, path string) error
 
 	// GenerateScriptFunc mocks the GenerateScript method.
 	GenerateScriptFunc func(typ string, config types.CronConfig, rawScript string) string
@@ -95,13 +96,13 @@ type CronRepo struct {
 	ListFunc func(page uint, limit uint) ([]*biz.Cron, int64, error)
 
 	// RemoveScriptFilesFunc mocks the RemoveScriptFiles method.
-	RemoveScriptFilesFunc func(shellPath string) error
+	RemoveScriptFilesFunc func(ctx context.Context, shellPath string) error
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(cron *biz.Cron) error
 
 	// WriteNewScriptFunc mocks the WriteNewScript method.
-	WriteNewScriptFunc func(script string) (string, string, error)
+	WriteNewScriptFunc func(ctx context.Context, script string) (string, string, error)
 
 	// WriteScriptFunc mocks the WriteScript method.
 	WriteScriptFunc func(path string, script string) error
@@ -110,6 +111,8 @@ type CronRepo struct {
 	calls struct {
 		// AddToSystem holds details about calls to the AddToSystem method.
 		AddToSystem []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Cron is the cron argument value.
 			Cron *biz.Cron
 		}
@@ -128,11 +131,15 @@ type CronRepo struct {
 		}
 		// DeleteFromSystem holds details about calls to the DeleteFromSystem method.
 		DeleteFromSystem []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Cron is the cron argument value.
 			Cron *biz.Cron
 		}
 		// Dos2Unix holds details about calls to the Dos2Unix method.
 		Dos2Unix []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Path is the path argument value.
 			Path string
 		}
@@ -159,6 +166,8 @@ type CronRepo struct {
 		}
 		// RemoveScriptFiles holds details about calls to the RemoveScriptFiles method.
 		RemoveScriptFiles []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ShellPath is the shellPath argument value.
 			ShellPath string
 		}
@@ -169,6 +178,8 @@ type CronRepo struct {
 		}
 		// WriteNewScript holds details about calls to the WriteNewScript method.
 		WriteNewScript []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Script is the script argument value.
 			Script string
 		}
@@ -196,19 +207,21 @@ type CronRepo struct {
 }
 
 // AddToSystem calls AddToSystemFunc.
-func (mock *CronRepo) AddToSystem(cron *biz.Cron) error {
+func (mock *CronRepo) AddToSystem(ctx context.Context, cron *biz.Cron) error {
 	if mock.AddToSystemFunc == nil {
 		panic("CronRepo.AddToSystemFunc: method is nil but CronRepo.AddToSystem was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Cron *biz.Cron
 	}{
+		Ctx:  ctx,
 		Cron: cron,
 	}
 	mock.lockAddToSystem.Lock()
 	mock.calls.AddToSystem = append(mock.calls.AddToSystem, callInfo)
 	mock.lockAddToSystem.Unlock()
-	return mock.AddToSystemFunc(cron)
+	return mock.AddToSystemFunc(ctx, cron)
 }
 
 // AddToSystemCalls gets all the calls that were made to AddToSystem.
@@ -216,9 +229,11 @@ func (mock *CronRepo) AddToSystem(cron *biz.Cron) error {
 //
 //	len(mockedCronRepo.AddToSystemCalls())
 func (mock *CronRepo) AddToSystemCalls() []struct {
+	Ctx  context.Context
 	Cron *biz.Cron
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Cron *biz.Cron
 	}
 	mock.lockAddToSystem.RLock()
@@ -319,19 +334,21 @@ func (mock *CronRepo) DeleteCalls() []struct {
 }
 
 // DeleteFromSystem calls DeleteFromSystemFunc.
-func (mock *CronRepo) DeleteFromSystem(cron *biz.Cron) error {
+func (mock *CronRepo) DeleteFromSystem(ctx context.Context, cron *biz.Cron) error {
 	if mock.DeleteFromSystemFunc == nil {
 		panic("CronRepo.DeleteFromSystemFunc: method is nil but CronRepo.DeleteFromSystem was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Cron *biz.Cron
 	}{
+		Ctx:  ctx,
 		Cron: cron,
 	}
 	mock.lockDeleteFromSystem.Lock()
 	mock.calls.DeleteFromSystem = append(mock.calls.DeleteFromSystem, callInfo)
 	mock.lockDeleteFromSystem.Unlock()
-	return mock.DeleteFromSystemFunc(cron)
+	return mock.DeleteFromSystemFunc(ctx, cron)
 }
 
 // DeleteFromSystemCalls gets all the calls that were made to DeleteFromSystem.
@@ -339,9 +356,11 @@ func (mock *CronRepo) DeleteFromSystem(cron *biz.Cron) error {
 //
 //	len(mockedCronRepo.DeleteFromSystemCalls())
 func (mock *CronRepo) DeleteFromSystemCalls() []struct {
+	Ctx  context.Context
 	Cron *biz.Cron
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Cron *biz.Cron
 	}
 	mock.lockDeleteFromSystem.RLock()
@@ -351,19 +370,21 @@ func (mock *CronRepo) DeleteFromSystemCalls() []struct {
 }
 
 // Dos2Unix calls Dos2UnixFunc.
-func (mock *CronRepo) Dos2Unix(path string) error {
+func (mock *CronRepo) Dos2Unix(ctx context.Context, path string) error {
 	if mock.Dos2UnixFunc == nil {
 		panic("CronRepo.Dos2UnixFunc: method is nil but CronRepo.Dos2Unix was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Path string
 	}{
+		Ctx:  ctx,
 		Path: path,
 	}
 	mock.lockDos2Unix.Lock()
 	mock.calls.Dos2Unix = append(mock.calls.Dos2Unix, callInfo)
 	mock.lockDos2Unix.Unlock()
-	return mock.Dos2UnixFunc(path)
+	return mock.Dos2UnixFunc(ctx, path)
 }
 
 // Dos2UnixCalls gets all the calls that were made to Dos2Unix.
@@ -371,9 +392,11 @@ func (mock *CronRepo) Dos2Unix(path string) error {
 //
 //	len(mockedCronRepo.Dos2UnixCalls())
 func (mock *CronRepo) Dos2UnixCalls() []struct {
+	Ctx  context.Context
 	Path string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Path string
 	}
 	mock.lockDos2Unix.RLock()
@@ -491,19 +514,21 @@ func (mock *CronRepo) ListCalls() []struct {
 }
 
 // RemoveScriptFiles calls RemoveScriptFilesFunc.
-func (mock *CronRepo) RemoveScriptFiles(shellPath string) error {
+func (mock *CronRepo) RemoveScriptFiles(ctx context.Context, shellPath string) error {
 	if mock.RemoveScriptFilesFunc == nil {
 		panic("CronRepo.RemoveScriptFilesFunc: method is nil but CronRepo.RemoveScriptFiles was just called")
 	}
 	callInfo := struct {
+		Ctx       context.Context
 		ShellPath string
 	}{
+		Ctx:       ctx,
 		ShellPath: shellPath,
 	}
 	mock.lockRemoveScriptFiles.Lock()
 	mock.calls.RemoveScriptFiles = append(mock.calls.RemoveScriptFiles, callInfo)
 	mock.lockRemoveScriptFiles.Unlock()
-	return mock.RemoveScriptFilesFunc(shellPath)
+	return mock.RemoveScriptFilesFunc(ctx, shellPath)
 }
 
 // RemoveScriptFilesCalls gets all the calls that were made to RemoveScriptFiles.
@@ -511,9 +536,11 @@ func (mock *CronRepo) RemoveScriptFiles(shellPath string) error {
 //
 //	len(mockedCronRepo.RemoveScriptFilesCalls())
 func (mock *CronRepo) RemoveScriptFilesCalls() []struct {
+	Ctx       context.Context
 	ShellPath string
 } {
 	var calls []struct {
+		Ctx       context.Context
 		ShellPath string
 	}
 	mock.lockRemoveScriptFiles.RLock()
@@ -555,19 +582,21 @@ func (mock *CronRepo) SaveCalls() []struct {
 }
 
 // WriteNewScript calls WriteNewScriptFunc.
-func (mock *CronRepo) WriteNewScript(script string) (string, string, error) {
+func (mock *CronRepo) WriteNewScript(ctx context.Context, script string) (string, string, error) {
 	if mock.WriteNewScriptFunc == nil {
 		panic("CronRepo.WriteNewScriptFunc: method is nil but CronRepo.WriteNewScript was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		Script string
 	}{
+		Ctx:    ctx,
 		Script: script,
 	}
 	mock.lockWriteNewScript.Lock()
 	mock.calls.WriteNewScript = append(mock.calls.WriteNewScript, callInfo)
 	mock.lockWriteNewScript.Unlock()
-	return mock.WriteNewScriptFunc(script)
+	return mock.WriteNewScriptFunc(ctx, script)
 }
 
 // WriteNewScriptCalls gets all the calls that were made to WriteNewScript.
@@ -575,9 +604,11 @@ func (mock *CronRepo) WriteNewScript(script string) (string, string, error) {
 //
 //	len(mockedCronRepo.WriteNewScriptCalls())
 func (mock *CronRepo) WriteNewScriptCalls() []struct {
+	Ctx    context.Context
 	Script string
 } {
 	var calls []struct {
+		Ctx    context.Context
 		Script string
 	}
 	mock.lockWriteNewScript.RLock()

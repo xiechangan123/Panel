@@ -59,7 +59,7 @@ func (uc *ToolboxMigrationUsecase) localItems(ctx context.Context) ([]types.Migr
 	if err != nil {
 		return nil, err
 	}
-	projects, _, err := uc.project.List("", 1, 10000)
+	projects, _, err := uc.project.List(ctx, "", 1, 10000)
 	if err != nil {
 		return nil, err
 	}
@@ -201,13 +201,15 @@ func (uc *ToolboxMigrationUsecase) pushWebsite(
 		return nil, errors.New(uc.t.Get("failed to read website detail: %v", err))
 	}
 	// 备份期间停站避免文件不一致，备份落盘后立即恢复
+	// 停站与恢复必须成对完成，中途取消会把源站留在停止状态
+	statusCtx := context.WithoutCancel(ctx)
 	stopped := stopSource && item.Status == "running"
 	if stopped {
-		_ = uc.website.UpdateStatus(id, false)
+		_ = uc.website.UpdateStatus(statusCtx, id, false)
 	}
 	backup, err := uc.createBackup(ctx, BackupTypeWebsite, item.Name)
 	if stopped {
-		_ = uc.website.UpdateStatus(id, true)
+		_ = uc.website.UpdateStatus(statusCtx, id, true)
 	}
 	if err != nil {
 		return nil, errors.New(uc.t.Get("website backup failed: %v", err))
@@ -274,7 +276,7 @@ func (uc *ToolboxMigrationUsecase) pushProject(
 	item types.MigrationItem,
 	stopSource bool,
 ) ([]string, error) {
-	project, err := uc.project.Get(cast.ToUint(item.SourceID))
+	project, err := uc.project.Get(ctx, cast.ToUint(item.SourceID))
 	if err != nil {
 		return nil, errors.New(uc.t.Get("failed to read project detail: %v", err))
 	}
@@ -291,14 +293,16 @@ func (uc *ToolboxMigrationUsecase) pushProject(
 	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// 打包期间停服避免文件不一致，打包完成后立即恢复
+	// 停服与恢复必须成对完成，中途取消会把源站服务留在停止状态
+	serviceCtx := context.WithoutCancel(ctx)
 	stopped := stopSource && project.Status == "active"
 	if stopped {
-		_, _ = shell.Exec("systemctl stop " + strconv.Quote(item.Name))
+		_, _ = shell.Exec(serviceCtx, "systemctl stop "+strconv.Quote(item.Name))
 	}
 	archive := filepath.Join(tmpDir, item.TargetName+".tar.gz")
 	err = uc.archive.Compress(ctx, project.RootDir, archive)
 	if stopped {
-		_, _ = shell.Exec("systemctl start " + strconv.Quote(item.Name))
+		_, _ = shell.Exec(serviceCtx, "systemctl start "+strconv.Quote(item.Name))
 	}
 	if err != nil {
 		return nil, errors.New(uc.t.Get("project backup failed: %v", err))

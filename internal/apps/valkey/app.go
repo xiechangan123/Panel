@@ -1,6 +1,7 @@
 package valkey
 
 import (
+	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/leonelquinteros/gotext"
 
@@ -22,6 +23,6 @@ func (s *App) Route(r chi.Router) {
 	s.redis.Route(r)
 }
 
-func (s *App) Status() string {
-	return s.redis.Status()
+func (s *App) Status(ctx context.Context) string {
+	return s.redis.Status(ctx)
 }

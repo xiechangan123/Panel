@@ -1,6 +1,8 @@
 package data
 
 import (
+	"context"
+
 	"github.com/acepanel/panel/v3/internal/biz"
 	"github.com/acepanel/panel/v3/pkg/firewall"
 	"github.com/acepanel/panel/v3/pkg/os"
@@ -22,17 +24,17 @@ func NewSafeRepo() biz.SafeRepo {
 	}
 }
 
-func (r *safeRepo) GetPingStatus() (bool, error) {
-	fw := firewall.NewFirewall()
-	return fw.PingStatus()
+func (r *safeRepo) GetPingStatus(ctx context.Context) (bool, error) {
+	fw := firewall.NewFirewall(ctx)
+	return fw.PingStatus(ctx)
 }
 
-func (r *safeRepo) FirewallRunning() (bool, error) {
-	fw := firewall.NewFirewall()
-	return fw.Status()
+func (r *safeRepo) FirewallRunning(ctx context.Context) (bool, error) {
+	fw := firewall.NewFirewall(ctx)
+	return fw.Status(ctx)
 }
 
-func (r *safeRepo) SetPingStatus(status bool) error {
-	fw := firewall.NewFirewall()
-	return fw.UpdatePingStatus(status)
+func (r *safeRepo) SetPingStatus(ctx context.Context, status bool) error {
+	fw := firewall.NewFirewall(ctx)
+	return fw.UpdatePingStatus(ctx, status)
 }

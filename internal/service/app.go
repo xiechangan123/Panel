@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -54,7 +55,7 @@ func (s *AppService) List(w http.ResponseWriter, r *http.Request) {
 		return p.Slug
 	})
 
-	statusMap := s.collectStatuses(installedApps)
+	statusMap := s.collectStatuses(r.Context(), installedApps)
 
 	var apps []types.AppDetail
 	for _, item := range all {
@@ -133,7 +134,7 @@ func (s *AppService) Install(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.appRepo.Install(req.Channel, req.Slug); err != nil {
+	if err = s.appRepo.Install(r.Context(), req.Channel, req.Slug); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -148,7 +149,7 @@ func (s *AppService) Uninstall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.appRepo.UnInstall(req.Slug); err != nil {
+	if err = s.appRepo.UnInstall(r.Context(), req.Slug); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -163,7 +164,7 @@ func (s *AppService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.appRepo.Update(req.Slug); err != nil {
+	if err = s.appRepo.Update(r.Context(), req.Slug); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -250,7 +251,7 @@ func (s *AppService) SaveCustom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.appRepo.SaveCustom(req.Slug, &biz.AppCustom{
+	if err = s.appRepo.SaveCustom(r.Context(), req.Slug, &biz.AppCustom{
 		PreScript: req.PreScript,
 		Args:      req.Args,
 	}); err != nil {
@@ -288,10 +289,10 @@ func (s *AppService) UpdateCache(w http.ResponseWriter, r *http.Request) {
 }
 
 // collectStatuses 并发获取已安装应用的运行状态
-func (s *AppService) collectStatuses(installed []*biz.App) map[string]string {
+func (s *AppService) collectStatuses(ctx context.Context, installed []*biz.App) map[string]string {
 	pairs := lop.Map(installed, func(item *biz.App, _ int) lo.Entry[string, string] {
 		if a, ok := s.loader.Get(item.Slug); ok {
-			return lo.Entry[string, string]{Key: item.Slug, Value: a.Status()}
+			return lo.Entry[string, string]{Key: item.Slug, Value: a.Status(ctx)}
 		}
 		return lo.Entry[string, string]{Key: item.Slug, Value: types.AppStatusNA}
 	})

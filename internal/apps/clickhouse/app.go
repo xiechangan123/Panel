@@ -1,6 +1,7 @@
 package clickhouse
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -47,14 +48,14 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/default_password", s.SetDefaultPassword)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("clickhouse-server")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "clickhouse-server")
 	return types.AggregateAppStatus(ok)
 }
 
 // Load 获取 ClickHouse 运行状态
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, _ := systemctl.Status("clickhouse-server")
+	status, _ := systemctl.Status(r.Context(), "clickhouse-server")
 	if !status {
 		service.Success(w, []types.NV{})
 		return
@@ -174,7 +175,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("clickhouse-server"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "clickhouse-server"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -228,8 +229,8 @@ func (s *App) SetDefaultPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重启服务使密码生效
-	if err = systemctl.Restart("clickhouse-server"); err != nil {
+	// 重启服务使密码生效；哈希已落盘但明文还没存进面板库，重启被取消会让两边密码对不上
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "clickhouse-server"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

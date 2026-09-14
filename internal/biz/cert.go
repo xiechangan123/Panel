@@ -58,16 +58,16 @@ type CertRepo interface {
 	Update(req *request.CertUpdate) error
 	Delete(id uint) error
 	Save(cert *Cert) error
-	GetClient(cert *Cert) (*acme.Client, error)
+	GetClient(ctx context.Context, cert *Cert) (*acme.Client, error)
 	GenerateSelfSigned(domains []string) ([]byte, []byte, error)
-	RunScript(cert *Cert) error
-	ObtainPanel(account *CertAccount, names []string, webServer string) ([]byte, []byte, error)
+	RunScript(ctx context.Context, cert *Cert) error
+	ObtainPanel(ctx context.Context, account *CertAccount, names []string, webServer string) ([]byte, []byte, error)
 	LoadWebsites(websiteIDs []uint) ([]*Website, error)
 	BindWebsites(certID uint, websiteIDs []uint) error
 	HTTPConfs(cert *Cert, webServer string) (map[string]string, []string)
 	WriteCertFiles(cert *Cert, certPath, keyPath string) error
 	EnableWebsiteSSL(website *Website, certPath, keyPath, webServer string, tlsVersions []string, listenIPv6 bool) error
-	ReloadWebserver(webServer string) error
+	ReloadWebserver(ctx context.Context, webServer string) error
 }
 
 type CertUsecase struct {
@@ -188,7 +188,7 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 		return nil, err
 	}
 
-	client, err := uc.repo.GetClient(cert)
+	client, err := uc.repo.GetClient(ctx, cert)
 	if err != nil {
 		return nil, err
 	}
@@ -239,17 +239,17 @@ func (uc *CertUsecase) ObtainAutoWithProgressCallback(ctx context.Context, id ui
 
 	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		return &ssl, uc.Deploy(cert.ID, cert.WebsiteIDs(), false)
+		return &ssl, uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false)
 	}
 
-	if err = uc.repo.RunScript(cert); err != nil {
+	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return nil, err
 	}
 
 	return &ssl, nil
 }
 
-func (uc *CertUsecase) ObtainPanel(account *CertAccount, domains []string) ([]byte, []byte, error) {
+func (uc *CertUsecase) ObtainPanel(ctx context.Context, account *CertAccount, domains []string) ([]byte, []byte, error) {
 	names := domains
 	if len(names) == 0 {
 		var err error
@@ -263,10 +263,10 @@ func (uc *CertUsecase) ObtainPanel(account *CertAccount, domains []string) ([]by
 	}
 
 	webServer, _ := uc.setting.Get(SettingKeyWebserver)
-	return uc.repo.ObtainPanel(account, names, webServer)
+	return uc.repo.ObtainPanel(ctx, account, names, webServer)
 }
 
-func (uc *CertUsecase) ObtainSelfSigned(id uint) error {
+func (uc *CertUsecase) ObtainSelfSigned(ctx context.Context, id uint) error {
 	cert, err := uc.repo.Get(id)
 	if err != nil {
 		return err
@@ -284,10 +284,10 @@ func (uc *CertUsecase) ObtainSelfSigned(id uint) error {
 	}
 
 	if len(cert.Websites) > 0 {
-		return uc.Deploy(cert.ID, cert.WebsiteIDs(), false)
+		return uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false)
 	}
 
-	if err = uc.repo.RunScript(cert); err != nil {
+	if err = uc.repo.RunScript(ctx, cert); err != nil {
 		return err
 	}
 
@@ -307,7 +307,7 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 		return nil, err
 	}
 
-	client, err := uc.repo.GetClient(cert)
+	client, err := uc.repo.GetClient(ctx, cert)
 	if err != nil {
 		return nil, err
 	}
@@ -366,7 +366,7 @@ func (uc *CertUsecase) RenewWithProgressCallback(ctx context.Context, id uint, p
 
 	if len(cert.Websites) > 0 {
 		report(uc.t.Get("deploying certificate to website"))
-		return &ssl, uc.Deploy(cert.ID, cert.WebsiteIDs(), false)
+		return &ssl, uc.Deploy(ctx, cert.ID, cert.WebsiteIDs(), false)
 	}
 
 	return &ssl, nil
@@ -377,7 +377,7 @@ func (uc *CertUsecase) RefreshRenewalInfo(ctx context.Context, id uint) (mholtac
 	if err != nil {
 		return mholtacme.RenewalInfo{}, err
 	}
-	client, err := uc.repo.GetClient(cert)
+	client, err := uc.repo.GetClient(ctx, cert)
 	if err != nil {
 		return mholtacme.RenewalInfo{}, err
 	}
@@ -402,7 +402,7 @@ func (uc *CertUsecase) RefreshRenewalInfo(ctx context.Context, id uint) (mholtac
 	return renewInfo, nil
 }
 
-func (uc *CertUsecase) Deploy(id uint, websiteIDs []uint, enableHTTPS bool) error {
+func (uc *CertUsecase) Deploy(ctx context.Context, id uint, websiteIDs []uint, enableHTTPS bool) error {
 	cert, err := uc.repo.Get(id)
 	if err != nil {
 		return err
@@ -448,7 +448,7 @@ func (uc *CertUsecase) Deploy(id uint, websiteIDs []uint, enableHTTPS bool) erro
 		}
 	}
 
-	return uc.repo.ReloadWebserver(webServer)
+	return uc.repo.ReloadWebserver(ctx, webServer)
 }
 
 func (uc *CertUsecase) Save(cert *Cert) error {

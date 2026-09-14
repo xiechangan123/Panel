@@ -262,9 +262,9 @@ func (uc *SettingUsecase) UpdatePanel(ctx context.Context, req *request.SettingP
 			return false, errors.New(uc.t.Get("port is already in use"))
 		}
 		// 放行端口
-		fw := firewall.NewFirewall()
-		if ok, _ := fw.Status(); ok {
-			err = fw.Port(firewall.FireInfo{
+		fw := firewall.NewFirewall(ctx)
+		if ok, _ := fw.Status(ctx); ok {
+			err = fw.Port(ctx, firewall.FireInfo{
 				Type:      firewall.TypeNormal,
 				PortStart: req.Port,
 				PortEnd:   req.Port,

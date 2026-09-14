@@ -1,6 +1,7 @@
 package io
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -27,7 +28,7 @@ const (
 )
 
 // Compress 压缩文件
-func Compress(dir string, src []string, dst string) error {
+func Compress(ctx context.Context, dir string, src []string, dst string) error {
 	if !filepath.IsAbs(dir) || !filepath.IsAbs(dst) {
 		return errors.New("dir and dst must be absolute path")
 	}
@@ -46,25 +47,25 @@ func Compress(dir string, src []string, dst string) error {
 
 	switch format {
 	case Zip:
-		_, err = shell.ExecfWithDir(dir, "zip -qr -o %s %s", dst, strings.Join(src, " "))
+		_, err = shell.ExecfWithDir(ctx, dir, "zip -qr -o %s %s", dst, strings.Join(src, " "))
 	case Gz, Bz2, Xz, Zst:
 		// 单文件压缩格式仅支持压缩单个文件
 		if len(src) != 1 {
 			return fmt.Errorf("%s format only supports compressing a single file", format)
 		}
-		_, err = shell.ExecfWithDir(dir, "%s -c %s > %s", compressorByFormat(format), src[0], dst)
+		_, err = shell.ExecfWithDir(ctx, dir, "%s -c %s > %s", compressorByFormat(format), src[0], dst)
 	case TGz:
-		_, err = shell.ExecfWithDir(dir, "tar -czf %s %s", dst, strings.Join(src, " "))
+		_, err = shell.ExecfWithDir(ctx, dir, "tar -czf %s %s", dst, strings.Join(src, " "))
 	case TBz2:
-		_, err = shell.ExecfWithDir(dir, "tar -cjf %s %s", dst, strings.Join(src, " "))
+		_, err = shell.ExecfWithDir(ctx, dir, "tar -cjf %s %s", dst, strings.Join(src, " "))
 	case Tar:
-		_, err = shell.ExecfWithDir(dir, "tar -cf %s %s", dst, strings.Join(src, " "))
+		_, err = shell.ExecfWithDir(ctx, dir, "tar -cf %s %s", dst, strings.Join(src, " "))
 	case TXz:
-		_, err = shell.ExecfWithDir(dir, "tar -cJf %s %s", dst, strings.Join(src, " "))
+		_, err = shell.ExecfWithDir(ctx, dir, "tar -cJf %s %s", dst, strings.Join(src, " "))
 	case SevenZip:
-		_, err = shell.ExecfWithDir(dir, "7z a -y %s %s", dst, strings.Join(src, " "))
+		_, err = shell.ExecfWithDir(ctx, dir, "7z a -y %s %s", dst, strings.Join(src, " "))
 	case TZst:
-		_, err = shell.ExecfWithDir(dir, "tar --zstd -cf %s %s", dst, strings.Join(src, " "))
+		_, err = shell.ExecfWithDir(ctx, dir, "tar --zstd -cf %s %s", dst, strings.Join(src, " "))
 	default:
 		return errors.New("unsupported format")
 	}
@@ -73,7 +74,7 @@ func Compress(dir string, src []string, dst string) error {
 }
 
 // UnCompress 解压文件
-func UnCompress(src string, dst string) error {
+func UnCompress(ctx context.Context, src string, dst string) error {
 	if !filepath.IsAbs(src) || !filepath.IsAbs(dst) {
 		return errors.New("src and dst must be absolute path")
 	}
@@ -89,23 +90,23 @@ func UnCompress(src string, dst string) error {
 	switch format {
 	case Zip:
 		// 用 7z 解压 zip,自动检测文件名编码,避免中文文件名变成 #Uxxxx
-		_, err = shell.Execf("7z x -y '%s' -o'%s'", src, dst)
+		_, err = shell.Execf(ctx, "7z x -y '%s' -o'%s'", src, dst)
 	case Gz, Bz2, Xz, Zst:
 		// 单独压缩的文件（如 .sql.gz），解压到目标目录
 		baseName := strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))
-		_, err = shell.Execf("%s -dc '%s' > '%s'", compressorByFormat(format), src, filepath.Join(dst, baseName))
+		_, err = shell.Execf(ctx, "%s -dc '%s' > '%s'", compressorByFormat(format), src, filepath.Join(dst, baseName))
 	case TGz:
-		_, err = shell.Execf("tar -xzf '%s' -C '%s'", src, dst)
+		_, err = shell.Execf(ctx, "tar -xzf '%s' -C '%s'", src, dst)
 	case TBz2:
-		_, err = shell.Execf("tar -xjf '%s' -C '%s'", src, dst)
+		_, err = shell.Execf(ctx, "tar -xjf '%s' -C '%s'", src, dst)
 	case Tar:
-		_, err = shell.Execf("tar -xf '%s' -C '%s'", src, dst)
+		_, err = shell.Execf(ctx, "tar -xf '%s' -C '%s'", src, dst)
 	case TXz:
-		_, err = shell.Execf("tar -xJf '%s' -C '%s'", src, dst)
+		_, err = shell.Execf(ctx, "tar -xJf '%s' -C '%s'", src, dst)
 	case SevenZip:
-		_, err = shell.Execf("7z x -y '%s' -o'%s'", src, dst)
+		_, err = shell.Execf(ctx, "7z x -y '%s' -o'%s'", src, dst)
 	case TZst:
-		_, err = shell.Execf("tar --zstd -xf '%s' -C '%s'", src, dst)
+		_, err = shell.Execf(ctx, "tar --zstd -xf '%s' -C '%s'", src, dst)
 	default:
 		return errors.New("unsupported format")
 	}
@@ -205,7 +206,7 @@ func UnCompressShell(src, dst string) (string, error) {
 }
 
 // ListCompress 获取压缩包内文件列表
-func ListCompress(src string) ([]string, error) {
+func ListCompress(ctx context.Context, src string) ([]string, error) {
 	format, err := formatArchiveByPath(src)
 	if err != nil {
 		return nil, err
@@ -214,15 +215,15 @@ func ListCompress(src string) ([]string, error) {
 	var out string
 	switch format {
 	case Zip, SevenZip:
-		out, err = shell.Execf(`7z l -ba -slt '%s' | grep "^Path = " | sed 's/^Path = //'`, src)
+		out, err = shell.Execf(ctx, `7z l -ba -slt '%s' | grep "^Path = " | sed 's/^Path = //'`, src)
 	case Gz, Xz, Bz2, Zst:
 		// 单独压缩的文件只包含一个文件，返回去除压缩后缀的文件名
 		baseName := strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))
 		return []string{baseName}, nil
 	case TGz, TBz2, Tar, TXz:
-		out, err = shell.Execf("tar -tf '%s'", src)
+		out, err = shell.Execf(ctx, "tar -tf '%s'", src)
 	case TZst:
-		out, err = shell.Execf("tar --zstd -tf '%s'", src)
+		out, err = shell.Execf(ctx, "tar --zstd -tf '%s'", src)
 	default:
 		return nil, errors.New("unsupported format")
 	}

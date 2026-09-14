@@ -145,7 +145,7 @@ func (r *CertRenew) Run(ctx context.Context) error {
 			r.notifyFailed(r.t.Get("panel certificate"), err)
 			return nil
 		}
-		crt, key, err := r.certRepo.ObtainPanel(account, r.conf.HTTP.BindDomain)
+		crt, key, err := r.certRepo.ObtainPanel(ctx, account, r.conf.HTTP.BindDomain)
 		if err != nil {
 			r.log.Warn("failed to obtain panel certificate via ACME", slog.String("type", biz.OperationTypeCert), slog.Uint64("operator_id", 0), slog.Any("err", err))
 			r.notifyFailed(r.t.Get("panel certificate"), err)

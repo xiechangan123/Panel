@@ -1,6 +1,7 @@
 package rsync
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -33,8 +34,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config", s.UpdateConfig)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("rsyncd")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "rsyncd")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -65,7 +66,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(w, req)
+	s.save(r.Context(), w, req)
 }
 
 func (s *App) Update(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +81,7 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(w, req)
+	s.save(r.Context(), w, req)
 }
 
 func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
@@ -90,16 +91,18 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Remove(modulePath(req.Name)); err != nil {
+	// 删模块与重启不跟随请求取消，否则配置已删而运行中的 rsyncd 仍在提供该模块
+	ctx := context.WithoutCancel(r.Context())
+	if err = io.Remove(ctx, modulePath(req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Remove(secretsPath(req.Name)); err != nil {
+	if err = io.Remove(ctx, secretsPath(req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = systemctl.Restart("rsyncd"); err != nil {
+	if err = systemctl.Restart(ctx, "rsyncd"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -115,13 +118,14 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	common.SaveConfig(w, r, rsyncdConf, "rsyncd")
 }
 
-func (s *App) save(w http.ResponseWriter, req *Module) {
+func (s *App) save(ctx context.Context, w http.ResponseWriter, req *Module) {
 	if err := writeModule(*req); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err := systemctl.Restart("rsyncd"); err != nil {
+	// 模块已落盘，重启不跟随请求取消，否则磁盘配置与运行中进程不一致
+	if err := systemctl.Restart(context.WithoutCancel(ctx), "rsyncd"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

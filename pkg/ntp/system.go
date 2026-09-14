@@ -2,6 +2,7 @@ package ntp
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
@@ -39,17 +40,17 @@ type SystemNTPConfig struct {
 }
 
 // DetectNTPService 检测系统使用的 NTP 服务类型
-func DetectNTPService() NTPServiceType {
+func DetectNTPService(ctx context.Context) NTPServiceType {
 	// 优先检查 chrony
-	if _, err := shell.Execf("systemctl is-active chronyd 2>/dev/null"); err == nil {
+	if _, err := shell.Execf(ctx, "systemctl is-active chronyd 2>/dev/null"); err == nil {
 		return NTPServiceChrony
 	}
-	if _, err := shell.Execf("systemctl is-active chrony 2>/dev/null"); err == nil {
+	if _, err := shell.Execf(ctx, "systemctl is-active chrony 2>/dev/null"); err == nil {
 		return NTPServiceChrony
 	}
 
 	// 检查 systemd-timesyncd
-	if _, err := shell.Execf("systemctl is-active systemd-timesyncd 2>/dev/null"); err == nil {
+	if _, err := shell.Execf(ctx, "systemctl is-active systemd-timesyncd 2>/dev/null"); err == nil {
 		return NTPServiceTimesyncd
 	}
 
@@ -65,8 +66,8 @@ func DetectNTPService() NTPServiceType {
 }
 
 // GetSystemNTPConfig 获取系统 NTP 配置
-func GetSystemNTPConfig() (*SystemNTPConfig, error) {
-	serviceType := DetectNTPService()
+func GetSystemNTPConfig(ctx context.Context) (*SystemNTPConfig, error) {
+	serviceType := DetectNTPService(ctx)
 	config := &SystemNTPConfig{
 		ServiceType: serviceType,
 		Servers:     []string{},
@@ -92,14 +93,14 @@ func GetSystemNTPConfig() (*SystemNTPConfig, error) {
 }
 
 // SetSystemNTPServers 设置系统 NTP 服务器
-func SetSystemNTPServers(servers []string) error {
-	serviceType := DetectNTPService()
+func SetSystemNTPServers(ctx context.Context, servers []string) error {
+	serviceType := DetectNTPService(ctx)
 
 	switch serviceType {
 	case NTPServiceTimesyncd:
-		return setTimesyncdServers(servers)
+		return setTimesyncdServers(ctx, servers)
 	case NTPServiceChrony:
-		return setChronyServers(servers)
+		return setChronyServers(ctx, servers)
 	default:
 		return errors.New("unsupported NTP service type")
 	}
@@ -140,7 +141,7 @@ func getTimesyncdServers() ([]string, error) {
 }
 
 // setTimesyncdServers 设置 systemd-timesyncd 的 NTP 服务器配置
-func setTimesyncdServers(servers []string) error {
+func setTimesyncdServers(ctx context.Context, servers []string) error {
 	var content string
 	if io.Exists(timesyncdConfigPath) {
 		var err error
@@ -178,7 +179,7 @@ func setTimesyncdServers(servers []string) error {
 	}
 
 	// 重启 systemd-timesyncd 服务
-	_, _ = shell.Execf("systemctl restart systemd-timesyncd 2>/dev/null")
+	_, _ = shell.Execf(ctx, "systemctl restart systemd-timesyncd 2>/dev/null")
 
 	return nil
 }
@@ -221,7 +222,7 @@ func getChronyServers() ([]string, error) {
 }
 
 // setChronyServers 设置 chrony 的 NTP 服务器配置
-func setChronyServers(servers []string) error {
+func setChronyServers(ctx context.Context, servers []string) error {
 	var configPath string
 	for _, path := range chronyConfigPaths {
 		if io.Exists(path) {
@@ -276,23 +277,23 @@ func setChronyServers(servers []string) error {
 	}
 
 	// 重启 chrony 服务
-	_, _ = shell.Execf("systemctl restart chronyd 2>/dev/null")
-	_, _ = shell.Execf("systemctl restart chrony 2>/dev/null")
+	_, _ = shell.Execf(ctx, "systemctl restart chronyd 2>/dev/null")
+	_, _ = shell.Execf(ctx, "systemctl restart chrony 2>/dev/null")
 
 	return nil
 }
 
 // RestartNTPService 重启 NTP 服务
-func RestartNTPService() error {
-	serviceType := DetectNTPService()
+func RestartNTPService(ctx context.Context) error {
+	serviceType := DetectNTPService(ctx)
 
 	switch serviceType {
 	case NTPServiceTimesyncd:
-		_, err := shell.Execf("systemctl restart systemd-timesyncd")
+		_, err := shell.Execf(ctx, "systemctl restart systemd-timesyncd")
 		return err
 	case NTPServiceChrony:
-		if _, err := shell.Execf("systemctl restart chronyd 2>/dev/null"); err != nil {
-			_, err = shell.Execf("systemctl restart chrony")
+		if _, err := shell.Execf(ctx, "systemctl restart chronyd 2>/dev/null"); err != nil {
+			_, err = shell.Execf(ctx, "systemctl restart chrony")
 			return err
 		}
 		return nil

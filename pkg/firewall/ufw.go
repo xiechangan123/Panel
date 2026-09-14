@@ -2,6 +2,7 @@ package firewall
 
 import (
 	"cmp"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -31,26 +32,26 @@ func newUFW() *ufw {
 	}
 }
 
-func (r *ufw) Status() (bool, error) {
-	out, err := shell.Execf("ufw status")
+func (r *ufw) Status(ctx context.Context) (bool, error) {
+	out, err := shell.Execf(ctx, "ufw status")
 	if err != nil {
 		return false, err
 	}
 	return strings.Contains(out, "Status: active"), nil
 }
 
-func (r *ufw) Enable() error {
-	_, err := shell.Execf("ufw --force enable")
+func (r *ufw) Enable(ctx context.Context) error {
+	_, err := shell.Execf(ctx, "ufw --force enable")
 	return err
 }
 
-func (r *ufw) Disable() error {
-	_, err := shell.Execf("ufw disable")
+func (r *ufw) Disable(ctx context.Context) error {
+	_, err := shell.Execf(ctx, "ufw disable")
 	return err
 }
 
-func (r *ufw) ListRule() ([]FireInfo, error) {
-	out, err := shell.Execf("ufw status numbered")
+func (r *ufw) ListRule(ctx context.Context) ([]FireInfo, error) {
+	out, err := shell.Execf(ctx, "ufw status numbered")
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +223,7 @@ func (r *ufw) parsePort(portStr string, info *FireInfo) {
 	}
 }
 
-func (r *ufw) Port(rule FireInfo, operation Operation) error {
+func (r *ufw) Port(ctx context.Context, rule FireInfo, operation Operation) error {
 	if rule.PortEnd == 0 {
 		rule.PortEnd = rule.PortStart
 	}
@@ -232,7 +233,7 @@ func (r *ufw) Port(rule FireInfo, operation Operation) error {
 
 	// 有地址或非默认策略，使用 RichRules
 	if rule.Address != "" || rule.Type == TypeRich {
-		return r.RichRules(rule, operation)
+		return r.RichRules(ctx, rule, operation)
 	}
 
 	if rule.Protocol == "" {
@@ -240,13 +241,13 @@ func (r *ufw) Port(rule FireInfo, operation Operation) error {
 	}
 
 	if operation == OperationRemove {
-		return r.deletePort(rule)
+		return r.deletePort(ctx, rule)
 	}
 
 	// 添加规则：使用简单语法
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		cmd := r.buildSimplePortCmd(rule, protocol)
-		if _, err := shell.Exec(cmd); err != nil {
+		if _, err := shell.Exec(ctx, cmd); err != nil {
 			return err
 		}
 	}
@@ -255,20 +256,20 @@ func (r *ufw) Port(rule FireInfo, operation Operation) error {
 }
 
 // deletePort 删除端口规则
-func (r *ufw) deletePort(rule FireInfo) error {
+func (r *ufw) deletePort(ctx context.Context, rule FireInfo) error {
 	// tcp/udp 时先尝试无协议删除（匹配 ufw allow 8888 这种原生规则）
 	if rule.Protocol == ProtocolTCPUDP {
 		cmd := fmt.Sprintf("ufw delete %s %s", r.strategyToUFW(rule.Strategy), r.formatPort(rule))
-		_, _ = shell.Exec(cmd)
+		_, _ = shell.Exec(ctx, cmd)
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		// 简单语法: ufw delete allow 443/tcp
 		simple := fmt.Sprintf("ufw delete %s %s/%s", r.strategyToUFW(rule.Strategy), r.formatPort(rule), protocol)
-		_, _ = shell.Exec(simple)
+		_, _ = shell.Exec(ctx, simple)
 		// 扩展语法: ufw delete allow in proto tcp to any port 443
 		extended := r.buildPortCmd(rule, protocol, OperationRemove)
-		_, _ = shell.Exec(extended)
+		_, _ = shell.Exec(ctx, extended)
 	}
 
 	return nil
@@ -313,7 +314,7 @@ func (r *ufw) buildPortCmd(rule FireInfo, protocol string, operation Operation) 
 	return sb.String()
 }
 
-func (r *ufw) RichRules(rule FireInfo, operation Operation) error {
+func (r *ufw) RichRules(ctx context.Context, rule FireInfo, operation Operation) error {
 	// 出站规则下，必须指定具体的地址
 	if rule.Direction == "out" && rule.Address == "" {
 		return errors.New("outbound rules must specify an address")
@@ -326,12 +327,12 @@ func (r *ufw) RichRules(rule FireInfo, operation Operation) error {
 	// 删除时额外尝试无协议命令（匹配 ufw allow 8888 这种原生合并规则）
 	if operation == OperationRemove && rule.Protocol == ProtocolTCPUDP {
 		cmd := r.buildRichCmd(rule, "", operation)
-		_, _ = shell.Exec(cmd)
+		_, _ = shell.Exec(ctx, cmd)
 	}
 
 	for _, protocol := range buildProtocols(rule.Protocol) {
 		cmd := r.buildRichCmd(rule, protocol, operation)
-		_, err := shell.Exec(cmd)
+		_, err := shell.Exec(ctx, cmd)
 		if err != nil && operation != OperationRemove {
 			return err
 		}
@@ -397,7 +398,7 @@ const beforeRulesPath = "/etc/ufw/before.rules"
 
 const natMarker = "# acepanel-forward"
 
-func (r *ufw) ListForward() ([]FireForwardInfo, error) {
+func (r *ufw) ListForward(ctx context.Context) ([]FireForwardInfo, error) {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
 		return nil, nil //nolint:nilerr
@@ -447,17 +448,17 @@ func (r *ufw) ListForward() ([]FireForwardInfo, error) {
 	return data, nil
 }
 
-func (r *ufw) Forward(rule Forward, operation Operation) error {
+func (r *ufw) Forward(ctx context.Context, rule Forward, operation Operation) error {
 	if operation == OperationAdd {
-		return r.addForward(rule)
+		return r.addForward(ctx, rule)
 	}
-	return r.removeForward(rule)
+	return r.removeForward(ctx, rule)
 }
 
-func (r *ufw) addForward(rule Forward) error {
+func (r *ufw) addForward(ctx context.Context, rule Forward) error {
 	// 启用 IP 转发
-	_, _ = shell.Execf("sysctl -w net.ipv4.ip_forward=1")
-	_, _ = shell.Execf("sysctl -w net.ipv6.conf.all.forwarding=1")
+	_, _ = shell.Execf(ctx, "sysctl -w net.ipv4.ip_forward=1")
+	_, _ = shell.Execf(ctx, "sysctl -w net.ipv6.conf.all.forwarding=1")
 	_ = os.WriteFile("/etc/sysctl.d/99-acepanel-forward.conf", []byte("net.ipv4.ip_forward=1\nnet.ipv6.conf.all.forwarding=1\n"), 0644)
 
 	content, err := os.ReadFile(beforeRulesPath)
@@ -497,12 +498,12 @@ func (r *ufw) addForward(rule Forward) error {
 	}
 
 	// 允许所有转发流量
-	_, _ = shell.Execf("ufw default allow routed")
-	_, err = shell.Execf("ufw reload")
+	_, _ = shell.Execf(ctx, "ufw default allow routed")
+	_, err = shell.Execf(ctx, "ufw reload")
 	return err
 }
 
-func (r *ufw) removeForward(rule Forward) error {
+func (r *ufw) removeForward(ctx context.Context, rule Forward) error {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
 		return nil //nolint:nilerr
@@ -546,7 +547,7 @@ func (r *ufw) removeForward(rule Forward) error {
 		return err
 	}
 
-	_, err = shell.Execf("ufw reload")
+	_, err = shell.Execf(ctx, "ufw reload")
 	return err
 }
 
@@ -565,7 +566,7 @@ func (r *ufw) findNatCommit(text string) int {
 	return natIdx + commitIdx
 }
 
-func (r *ufw) PingStatus() (bool, error) {
+func (r *ufw) PingStatus(ctx context.Context) (bool, error) {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
 		return true, nil //nolint:nilerr
@@ -581,7 +582,7 @@ func (r *ufw) PingStatus() (bool, error) {
 	return true, nil
 }
 
-func (r *ufw) UpdatePingStatus(status bool) error {
+func (r *ufw) UpdatePingStatus(ctx context.Context, status bool) error {
 	content, err := os.ReadFile(beforeRulesPath)
 	if err != nil {
 		return fmt.Errorf("failed to read %s: %w", beforeRulesPath, err)
@@ -605,6 +606,6 @@ func (r *ufw) UpdatePingStatus(status bool) error {
 		return err
 	}
 
-	_, err = shell.Execf("ufw reload")
+	_, err = shell.Execf(ctx, "ufw reload")
 	return err
 }

@@ -48,24 +48,24 @@ type Website struct {
 
 type WebsiteRepo interface {
 	GetRewrites() (map[string]string, error)
-	UpdateDefaultConfig(req *request.WebsiteDefaultConfig) error
+	UpdateDefaultConfig(ctx context.Context, req *request.WebsiteDefaultConfig) error
 	Count() (int64, error)
 	Get(id uint) (*types.WebsiteSetting, error)
 	GetByName(name string) (*types.WebsiteSetting, error)
 	List(typ string, page, limit uint) ([]*Website, int64, error)
-	Create(req *request.WebsiteCreate) (*Website, error)
-	Update(req *request.WebsiteUpdate) (*Website, error)
-	SwitchType(req *request.WebsiteSwitchType) (*Website, error)
+	Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error)
+	Update(ctx context.Context, req *request.WebsiteUpdate) (*Website, error)
+	SwitchType(ctx context.Context, req *request.WebsiteSwitchType) (*Website, error)
 	GetForDelete(id uint) (*Website, error)
-	RemoveFiles(name string, removePath bool) error
+	RemoveFiles(ctx context.Context, name string, removePath bool) error
 	Delete(website *Website) error
-	ReloadWebServer() error
+	ReloadWebServer(ctx context.Context) error
 	UpdateRemark(id uint, remark string) error
-	ResetConfig(id uint) error
-	Rebuild(website *Website) (bool, []string, error)
-	UpdateStatus(id uint, status bool) error
+	ResetConfig(ctx context.Context, id uint) error
+	Rebuild(ctx context.Context, website *Website) (bool, []string, error)
+	UpdateStatus(ctx context.Context, id uint, status bool) error
 	UpdateExpireAt(id uint, expireAt *time.Time) error
-	UpdateCert(req *request.WebsiteUpdateCert) error
+	UpdateCert(ctx context.Context, req *request.WebsiteUpdateCert) error
 }
 
 type WebsiteUsecase struct {
@@ -100,8 +100,8 @@ func (uc *WebsiteUsecase) GetRewrites() (map[string]string, error) {
 	return uc.repo.GetRewrites()
 }
 
-func (uc *WebsiteUsecase) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) error {
-	return uc.repo.UpdateDefaultConfig(req)
+func (uc *WebsiteUsecase) UpdateDefaultConfig(ctx context.Context, req *request.WebsiteDefaultConfig) error {
+	return uc.repo.UpdateDefaultConfig(ctx, req)
 }
 
 func (uc *WebsiteUsecase) Count() (int64, error) {
@@ -121,7 +121,7 @@ func (uc *WebsiteUsecase) List(typ string, page, limit uint) ([]*Website, int64,
 }
 
 func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate) (*Website, error) {
-	w, err := uc.repo.Create(req)
+	w, err := uc.repo.Create(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate
 	uc.log.Info("website created", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.String("name", req.Name), slog.String("website_type", req.Type), slog.String("path", req.Path))
 
 	// 重载 Web 服务器
-	if err = uc.repo.ReloadWebServer(); err != nil {
+	if err = uc.repo.ReloadWebServer(ctx); err != nil {
 		return nil, err
 	}
 
@@ -158,7 +158,7 @@ func (uc *WebsiteUsecase) Create(ctx context.Context, req *request.WebsiteCreate
 }
 
 func (uc *WebsiteUsecase) Update(ctx context.Context, req *request.WebsiteUpdate) error {
-	website, err := uc.repo.Update(req)
+	website, err := uc.repo.Update(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -166,11 +166,11 @@ func (uc *WebsiteUsecase) Update(ctx context.Context, req *request.WebsiteUpdate
 	// 记录日志
 	uc.log.Info("website updated", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
 
-	return uc.repo.ReloadWebServer()
+	return uc.repo.ReloadWebServer(ctx)
 }
 
 func (uc *WebsiteUsecase) SwitchType(ctx context.Context, req *request.WebsiteSwitchType) error {
-	website, err := uc.repo.SwitchType(req)
+	website, err := uc.repo.SwitchType(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 		}
 	}
 
-	_ = uc.repo.RemoveFiles(website.Name, req.Path)
+	_ = uc.repo.RemoveFiles(ctx, website.Name, req.Path)
 	if req.DB {
 		if mysql, err := uc.databaseServer.GetByName(ctx, "local_mysql"); err == nil {
 			_ = uc.databaseUser.DeleteByNames(ctx, mysql.ID, []string{website.Name})
@@ -220,7 +220,7 @@ func (uc *WebsiteUsecase) Delete(ctx context.Context, req *request.WebsiteDelete
 	// 记录日志
 	uc.log.Info("website deleted", slog.String("type", OperationTypeWebsite), slog.Uint64("operator_id", operatorID(ctx)), slog.Uint64("id", uint64(req.ID)), slog.String("name", website.Name))
 
-	return uc.repo.ReloadWebServer()
+	return uc.repo.ReloadWebServer(ctx)
 }
 
 func (uc *WebsiteUsecase) UpdateRemark(id uint, remark string) error {
@@ -228,24 +228,24 @@ func (uc *WebsiteUsecase) UpdateRemark(id uint, remark string) error {
 }
 
 // Rebuild 按当前 Web 服务器重建站点配置
-func (uc *WebsiteUsecase) Rebuild(website *Website) (bool, []string, error) {
-	return uc.repo.Rebuild(website)
+func (uc *WebsiteUsecase) Rebuild(ctx context.Context, website *Website) (bool, []string, error) {
+	return uc.repo.Rebuild(ctx, website)
 }
 
-func (uc *WebsiteUsecase) ResetConfig(id uint) error {
-	return uc.repo.ResetConfig(id)
+func (uc *WebsiteUsecase) ResetConfig(ctx context.Context, id uint) error {
+	return uc.repo.ResetConfig(ctx, id)
 }
 
-func (uc *WebsiteUsecase) UpdateStatus(id uint, status bool) error {
-	return uc.repo.UpdateStatus(id, status)
+func (uc *WebsiteUsecase) UpdateStatus(ctx context.Context, id uint, status bool) error {
+	return uc.repo.UpdateStatus(ctx, id, status)
 }
 
 func (uc *WebsiteUsecase) UpdateExpireAt(id uint, expireAt *time.Time) error {
 	return uc.repo.UpdateExpireAt(id, expireAt)
 }
 
-func (uc *WebsiteUsecase) UpdateCert(req *request.WebsiteUpdateCert) error {
-	return uc.repo.UpdateCert(req)
+func (uc *WebsiteUsecase) UpdateCert(ctx context.Context, req *request.WebsiteUpdateCert) error {
+	return uc.repo.UpdateCert(ctx, req)
 }
 
 func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) error {
@@ -296,5 +296,5 @@ func (uc *WebsiteUsecase) ObtainCert(ctx context.Context, id uint, dnsID uint) e
 		return err
 	}
 
-	return uc.cert.Deploy(newCert.ID, []uint{website.ID}, false)
+	return uc.cert.Deploy(ctx, newCert.ID, []uint{website.ID}, false)
 }

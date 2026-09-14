@@ -165,7 +165,7 @@ func (r *MongoDB) mongoshContext(ctx context.Context, eval string) (string, erro
 		strings.ReplaceAll(eval, `"`, `\"`),
 		r.username, r.password, r.address,
 	)
-	raw, err := shell.ExecfWithContext(ctx, cmd)
+	raw, err := shell.Execf(ctx, cmd)
 	if err != nil {
 		return "", fmt.Errorf("mongosh error: %w", err)
 	}

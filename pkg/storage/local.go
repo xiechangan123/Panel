@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -120,11 +121,11 @@ func (l *Local) fullPath(path string) string {
 }
 
 func (l *Local) preCheckPath(path string) error {
-	size, err := pkgio.SizeX(path)
+	size, err := pkgio.SizeX(context.Background(), path)
 	if err != nil {
 		return err
 	}
-	files, err := pkgio.CountX(path)
+	files, err := pkgio.CountX(context.Background(), path)
 	if err != nil {
 		return err
 	}

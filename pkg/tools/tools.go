@@ -186,19 +186,22 @@ func CollectTopProcesses() types.TopProcesses {
 	return result
 }
 
+// 以下三个自杀式操作靠 sleep 1 熬过 HTTP 响应，传入的 ctx 必须活过这段时间，
+// 不能直接传请求 ctx，否则请求一结束进程就被杀，操作永远不生效
+
 // StopPanel 停止面板
-func StopPanel() {
-	_ = shell.ExecfAsync("sleep 1 && systemctl stop acepanel")
+func StopPanel(ctx context.Context) {
+	_ = shell.ExecfAsync(ctx, "sleep 1 && systemctl stop acepanel")
 }
 
 // RestartPanel 重启面板
-func RestartPanel() {
-	_ = shell.ExecfAsync("sleep 1 && systemctl restart acepanel")
+func RestartPanel(ctx context.Context) {
+	_ = shell.ExecfAsync(ctx, "sleep 1 && systemctl restart acepanel")
 }
 
 // RestartServer 重启服务器
-func RestartServer() {
-	_ = shell.ExecfAsync("sleep 1 && reboot")
+func RestartServer(ctx context.Context) {
+	_ = shell.ExecfAsync(ctx, "sleep 1 && reboot")
 }
 
 // IsChina 是否中国大陆

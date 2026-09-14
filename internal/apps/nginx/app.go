@@ -1,6 +1,7 @@
 package nginx
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -50,8 +51,8 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/stream/upstreams/{name}", s.DeleteStreamUpstream)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("nginx")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "nginx")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -77,8 +78,8 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
+		_, err = shell.Execf(r.Context(), "nginx -t")
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}
@@ -91,7 +92,7 @@ func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("cat /dev/null > %s/%s", app.Root, "server/nginx/nginx-error.log"); err != nil {
+	if _, err := shell.Execf(r.Context(), "cat /dev/null > %s/%s", app.Root, "server/nginx/nginx-error.log"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -111,7 +112,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 	raw := resp.String()
 	var data []types.NV
 
-	workers, err := shell.Execf("ps aux | grep nginx | grep 'worker process' | wc -l")
+	workers, err := shell.Execf(r.Context(), "ps aux | grep nginx | grep 'worker process' | wc -l")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get nginx workers: %v", err))
 		return
@@ -121,7 +122,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		Value: workers,
 	})
 
-	out, err := shell.Execf("ps aux | grep nginx | grep 'worker process' | awk '{memsum+=$6};END {print memsum}'")
+	out, err := shell.Execf(r.Context(), "ps aux | grep nginx | grep 'worker process' | awk '{memsum+=$6};END {print memsum}'")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get nginx workers: %v", err))
 		return
@@ -266,8 +267,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
-		_, err = shell.Execf("nginx -t")
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
+		_, err = shell.Execf(r.Context(), "nginx -t")
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}

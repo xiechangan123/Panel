@@ -36,7 +36,7 @@ func (s *EnvironmentDotnetService) SetCli(w http.ResponseWriter, r *http.Request
 	}
 
 	binPath := fmt.Sprintf("%s/server/dotnet/%s", app.Root, req.Slug)
-	if err = io.LinkCLIBinaries(binPath, []string{"dotnet"}); err != nil {
+	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"dotnet"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -27,7 +28,7 @@ var _ biz.AppRepo = &AppRepo{}
 //			DownloadCallbackFunc: func(slug string)  {
 //				panic("mock out the DownloadCallback method")
 //			},
-//			ExecScriptFunc: func(script string) error {
+//			ExecScriptFunc: func(ctx context.Context, script string) error {
 //				panic("mock out the ExecScript method")
 //			},
 //			GetCustomFunc: func(slug string) (*biz.AppCustom, error) {
@@ -54,7 +55,7 @@ var _ biz.AppRepo = &AppRepo{}
 //			ResolveScriptFunc: func(item *api.App, matchChannel string, action string, execVersion string) (string, error) {
 //				panic("mock out the ResolveScript method")
 //			},
-//			SaveCustomFunc: func(slug string, custom *biz.AppCustom) error {
+//			SaveCustomFunc: func(ctx context.Context, slug string, custom *biz.AppCustom) error {
 //				panic("mock out the SaveCustom method")
 //			},
 //			UpdateOrderFunc: func(slugs []string) error {
@@ -77,7 +78,7 @@ type AppRepo struct {
 	DownloadCallbackFunc func(slug string)
 
 	// ExecScriptFunc mocks the ExecScript method.
-	ExecScriptFunc func(script string) error
+	ExecScriptFunc func(ctx context.Context, script string) error
 
 	// GetCustomFunc mocks the GetCustom method.
 	GetCustomFunc func(slug string) (*biz.AppCustom, error)
@@ -104,7 +105,7 @@ type AppRepo struct {
 	ResolveScriptFunc func(item *api.App, matchChannel string, action string, execVersion string) (string, error)
 
 	// SaveCustomFunc mocks the SaveCustom method.
-	SaveCustomFunc func(slug string, custom *biz.AppCustom) error
+	SaveCustomFunc func(ctx context.Context, slug string, custom *biz.AppCustom) error
 
 	// UpdateOrderFunc mocks the UpdateOrder method.
 	UpdateOrderFunc func(slugs []string) error
@@ -124,6 +125,8 @@ type AppRepo struct {
 		}
 		// ExecScript holds details about calls to the ExecScript method.
 		ExecScript []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Script is the script argument value.
 			Script string
 		}
@@ -177,6 +180,8 @@ type AppRepo struct {
 		}
 		// SaveCustom holds details about calls to the SaveCustom method.
 		SaveCustom []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Slug is the slug argument value.
 			Slug string
 			// Custom is the custom argument value.
@@ -271,19 +276,21 @@ func (mock *AppRepo) DownloadCallbackCalls() []struct {
 }
 
 // ExecScript calls ExecScriptFunc.
-func (mock *AppRepo) ExecScript(script string) error {
+func (mock *AppRepo) ExecScript(ctx context.Context, script string) error {
 	if mock.ExecScriptFunc == nil {
 		panic("AppRepo.ExecScriptFunc: method is nil but AppRepo.ExecScript was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		Script string
 	}{
+		Ctx:    ctx,
 		Script: script,
 	}
 	mock.lockExecScript.Lock()
 	mock.calls.ExecScript = append(mock.calls.ExecScript, callInfo)
 	mock.lockExecScript.Unlock()
-	return mock.ExecScriptFunc(script)
+	return mock.ExecScriptFunc(ctx, script)
 }
 
 // ExecScriptCalls gets all the calls that were made to ExecScript.
@@ -291,9 +298,11 @@ func (mock *AppRepo) ExecScript(script string) error {
 //
 //	len(mockedAppRepo.ExecScriptCalls())
 func (mock *AppRepo) ExecScriptCalls() []struct {
+	Ctx    context.Context
 	Script string
 } {
 	var calls []struct {
+		Ctx    context.Context
 		Script string
 	}
 	mock.lockExecScript.RLock()
@@ -573,21 +582,23 @@ func (mock *AppRepo) ResolveScriptCalls() []struct {
 }
 
 // SaveCustom calls SaveCustomFunc.
-func (mock *AppRepo) SaveCustom(slug string, custom *biz.AppCustom) error {
+func (mock *AppRepo) SaveCustom(ctx context.Context, slug string, custom *biz.AppCustom) error {
 	if mock.SaveCustomFunc == nil {
 		panic("AppRepo.SaveCustomFunc: method is nil but AppRepo.SaveCustom was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		Slug   string
 		Custom *biz.AppCustom
 	}{
+		Ctx:    ctx,
 		Slug:   slug,
 		Custom: custom,
 	}
 	mock.lockSaveCustom.Lock()
 	mock.calls.SaveCustom = append(mock.calls.SaveCustom, callInfo)
 	mock.lockSaveCustom.Unlock()
-	return mock.SaveCustomFunc(slug, custom)
+	return mock.SaveCustomFunc(ctx, slug, custom)
 }
 
 // SaveCustomCalls gets all the calls that were made to SaveCustom.
@@ -595,10 +606,12 @@ func (mock *AppRepo) SaveCustom(slug string, custom *biz.AppCustom) error {
 //
 //	len(mockedAppRepo.SaveCustomCalls())
 func (mock *AppRepo) SaveCustomCalls() []struct {
+	Ctx    context.Context
 	Slug   string
 	Custom *biz.AppCustom
 } {
 	var calls []struct {
+		Ctx    context.Context
 		Slug   string
 		Custom *biz.AppCustom
 	}

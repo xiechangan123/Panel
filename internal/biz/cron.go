@@ -30,12 +30,12 @@ type CronRepo interface {
 	Save(cron *Cron) error
 	Delete(cron *Cron) error
 	GenerateScript(typ string, config types.CronConfig, rawScript string) string
-	WriteNewScript(script string) (string, string, error)
+	WriteNewScript(ctx context.Context, script string) (string, string, error)
 	WriteScript(path, script string) error
-	Dos2Unix(path string) error
-	AddToSystem(cron *Cron) error
-	DeleteFromSystem(cron *Cron) error
-	RemoveScriptFiles(shellPath string) error
+	Dos2Unix(ctx context.Context, path string) error
+	AddToSystem(ctx context.Context, cron *Cron) error
+	DeleteFromSystem(ctx context.Context, cron *Cron) error
+	RemoveScriptFiles(ctx context.Context, shellPath string) error
 }
 
 // CronUsecase 计划任务业务逻辑
@@ -77,7 +77,7 @@ func (uc *CronUsecase) Create(ctx context.Context, req *request.CronCreate) erro
 	}
 	script := uc.repo.GenerateScript(req.Type, config, req.Script)
 
-	shellPath, logPath, err := uc.repo.WriteNewScript(script)
+	shellPath, logPath, err := uc.repo.WriteNewScript(ctx, script)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (uc *CronUsecase) Create(ctx context.Context, req *request.CronCreate) erro
 	if err := uc.repo.Create(cron); err != nil {
 		return err
 	}
-	if err := uc.repo.AddToSystem(cron); err != nil {
+	if err := uc.repo.AddToSystem(ctx, cron); err != nil {
 		return err
 	}
 
@@ -145,15 +145,15 @@ func (uc *CronUsecase) Update(ctx context.Context, req *request.CronUpdate) erro
 		return err
 	}
 
-	if err = uc.repo.Dos2Unix(cron.Shell); err != nil {
+	if err = uc.repo.Dos2Unix(ctx, cron.Shell); err != nil {
 		return err
 	}
 
-	if err = uc.repo.DeleteFromSystem(cron); err != nil {
+	if err = uc.repo.DeleteFromSystem(ctx, cron); err != nil {
 		return err
 	}
 	if cron.Status {
-		if err = uc.repo.AddToSystem(cron); err != nil {
+		if err = uc.repo.AddToSystem(ctx, cron); err != nil {
 			return err
 		}
 	}
@@ -170,10 +170,10 @@ func (uc *CronUsecase) Delete(ctx context.Context, id uint) error {
 		return err
 	}
 
-	if err = uc.repo.DeleteFromSystem(cron); err != nil {
+	if err = uc.repo.DeleteFromSystem(ctx, cron); err != nil {
 		return err
 	}
-	if err = uc.repo.RemoveScriptFiles(cron.Shell); err != nil {
+	if err = uc.repo.RemoveScriptFiles(ctx, cron.Shell); err != nil {
 		return err
 	}
 
@@ -187,17 +187,17 @@ func (uc *CronUsecase) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (uc *CronUsecase) Status(id uint, status bool) error {
+func (uc *CronUsecase) Status(ctx context.Context, id uint, status bool) error {
 	cron, err := uc.repo.Get(id)
 	if err != nil {
 		return err
 	}
 
-	if err = uc.repo.DeleteFromSystem(cron); err != nil {
+	if err = uc.repo.DeleteFromSystem(ctx, cron); err != nil {
 		return err
 	}
 	if status {
-		if err = uc.repo.AddToSystem(cron); err != nil {
+		if err = uc.repo.AddToSystem(ctx, cron); err != nil {
 			return err
 		}
 	}

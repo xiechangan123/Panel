@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -12,23 +13,25 @@ import (
 )
 
 // MySQLResetRootPassword 重置 MySQL root密码
-func MySQLResetRootPassword(password, root string) (err error) {
-	_ = systemctl.Stop("mysqld")
-	if run, _ := systemctl.Status("mysqld"); run {
+func MySQLResetRootPassword(ctx context.Context, password, root string) (err error) {
+	_ = systemctl.Stop(ctx, "mysqld")
+	if run, _ := systemctl.Status(ctx, "mysqld"); run {
 		return errors.New("failed to stop MySQL")
 	}
 
-	if _, err = shell.Execf(`systemctl set-environment MYSQLD_OPTS="--skip-grant-tables --skip-networking"`); err != nil {
+	if _, err = shell.Execf(ctx, `systemctl set-environment MYSQLD_OPTS="--skip-grant-tables --skip-networking"`); err != nil {
 		return fmt.Errorf("failed to enter MySQL safe mode: %w", err)
 	}
+	// 收尾不能跟随 ctx 取消，否则调用方取消时实例会停在安全模式
+	cleanupCtx := context.WithoutCancel(ctx)
 	defer func() {
-		_, _ = shell.Execf(`systemctl unset-environment MYSQLD_OPTS`)
-		if rerr := systemctl.Restart("mysqld"); rerr != nil && err == nil {
+		_, _ = shell.Execf(cleanupCtx, `systemctl unset-environment MYSQLD_OPTS`)
+		if rerr := systemctl.Restart(cleanupCtx, "mysqld"); rerr != nil && err == nil {
 			err = fmt.Errorf("failed to restart MySQL: %w", rerr)
 		}
 	}()
 
-	if err = systemctl.Start("mysqld"); err != nil {
+	if err = systemctl.Start(ctx, "mysqld"); err != nil {
 		return fmt.Errorf("failed to start MySQL in safe mode: %w", err)
 	}
 
@@ -39,7 +42,7 @@ func MySQLResetRootPassword(password, root string) (err error) {
 	}
 	// FLUSH PRIVILEGES 让跳过校验启动的实例重新加载权限表，之后 ALTER USER 才可用
 	if _, err = shell.Execf(
-		`mysql -uroot %s -e "FLUSH PRIVILEGES;ALTER USER 'root'@'localhost' IDENTIFIED BY '%s';FLUSH PRIVILEGES;"`,
+		ctx, `mysql -uroot %s -e "FLUSH PRIVILEGES;ALTER USER 'root'@'localhost' IDENTIFIED BY '%s';FLUSH PRIVILEGES;"`,
 		socket,
 		password,
 	); err != nil {

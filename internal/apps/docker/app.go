@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -28,8 +29,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/settings", s.UpdateSettings)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("docker")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "docker")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -238,8 +239,7 @@ func (s *App) UpdateSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 重启 Docker 服务
-	if err = systemctl.Restart("docker"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "docker"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

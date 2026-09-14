@@ -38,7 +38,7 @@ func (s *EnvironmentGoService) SetCli(w http.ResponseWriter, r *http.Request) {
 	}
 
 	binPath := fmt.Sprintf("%s/server/go/%s/bin", app.Root, req.Slug)
-	if err = io.LinkCLIBinaries(binPath, []string{"go", "gofmt"}); err != nil {
+	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"go", "gofmt"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -58,7 +58,7 @@ func (s *EnvironmentGoService) GetProxy(w http.ResponseWriter, r *http.Request) 
 	}
 
 	goBin := fmt.Sprintf("%s/server/go/%s/bin/go", app.Root, req.Slug)
-	proxy, err := shell.Execf("%s env GOPROXY", goBin)
+	proxy, err := shell.Execf(r.Context(), "%s env GOPROXY", goBin)
 	if err != nil {
 		proxy = "https://proxy.golang.org,direct"
 	}
@@ -78,7 +78,7 @@ func (s *EnvironmentGoService) SetProxy(w http.ResponseWriter, r *http.Request) 
 	}
 
 	goBin := fmt.Sprintf("%s/server/go/%s/bin/go", app.Root, req.Slug)
-	if _, err = shell.Execf("%s env -w GOPROXY=%s", goBin, req.Proxy); err != nil {
+	if _, err = shell.Execf(r.Context(), "%s env -w GOPROXY=%s", goBin, req.Proxy); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

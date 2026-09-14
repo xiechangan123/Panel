@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -25,7 +26,7 @@ var _ biz.ProjectRepo = &ProjectRepo{}
 //			CountFunc: func() (int64, error) {
 //				panic("mock out the Count method")
 //			},
-//			CreateFunc: func(project *biz.Project, req *request.ProjectCreate) error {
+//			CreateFunc: func(ctx context.Context, project *biz.Project, req *request.ProjectCreate) error {
 //				panic("mock out the Create method")
 //			},
 //			DeleteFunc: func(project *biz.Project) error {
@@ -40,7 +41,7 @@ var _ biz.ProjectRepo = &ProjectRepo{}
 //			NameExistsFunc: func(name string) (bool, error) {
 //				panic("mock out the NameExists method")
 //			},
-//			ParseDetailFunc: func(project *biz.Project) (*types.ProjectDetail, error) {
+//			ParseDetailFunc: func(ctx context.Context, project *biz.Project) (*types.ProjectDetail, error) {
 //				panic("mock out the ParseDetail method")
 //			},
 //			RemoveUnitFileFunc: func(name string) error {
@@ -52,7 +53,7 @@ var _ biz.ProjectRepo = &ProjectRepo{}
 //			SaveFunc: func(project *biz.Project) error {
 //				panic("mock out the Save method")
 //			},
-//			UpdateUnitFileFunc: func(name string, req *request.ProjectUpdate) error {
+//			UpdateUnitFileFunc: func(ctx context.Context, name string, req *request.ProjectUpdate) error {
 //				panic("mock out the UpdateUnitFile method")
 //			},
 //		}
@@ -66,7 +67,7 @@ type ProjectRepo struct {
 	CountFunc func() (int64, error)
 
 	// CreateFunc mocks the Create method.
-	CreateFunc func(project *biz.Project, req *request.ProjectCreate) error
+	CreateFunc func(ctx context.Context, project *biz.Project, req *request.ProjectCreate) error
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(project *biz.Project) error
@@ -81,7 +82,7 @@ type ProjectRepo struct {
 	NameExistsFunc func(name string) (bool, error)
 
 	// ParseDetailFunc mocks the ParseDetail method.
-	ParseDetailFunc func(project *biz.Project) (*types.ProjectDetail, error)
+	ParseDetailFunc func(ctx context.Context, project *biz.Project) (*types.ProjectDetail, error)
 
 	// RemoveUnitFileFunc mocks the RemoveUnitFile method.
 	RemoveUnitFileFunc func(name string) error
@@ -93,7 +94,7 @@ type ProjectRepo struct {
 	SaveFunc func(project *biz.Project) error
 
 	// UpdateUnitFileFunc mocks the UpdateUnitFile method.
-	UpdateUnitFileFunc func(name string, req *request.ProjectUpdate) error
+	UpdateUnitFileFunc func(ctx context.Context, name string, req *request.ProjectUpdate) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -102,6 +103,8 @@ type ProjectRepo struct {
 		}
 		// Create holds details about calls to the Create method.
 		Create []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Project is the project argument value.
 			Project *biz.Project
 			// Req is the req argument value.
@@ -133,6 +136,8 @@ type ProjectRepo struct {
 		}
 		// ParseDetail holds details about calls to the ParseDetail method.
 		ParseDetail []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Project is the project argument value.
 			Project *biz.Project
 		}
@@ -155,6 +160,8 @@ type ProjectRepo struct {
 		}
 		// UpdateUnitFile holds details about calls to the UpdateUnitFile method.
 		UpdateUnitFile []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Name is the name argument value.
 			Name string
 			// Req is the req argument value.
@@ -202,21 +209,23 @@ func (mock *ProjectRepo) CountCalls() []struct {
 }
 
 // Create calls CreateFunc.
-func (mock *ProjectRepo) Create(project *biz.Project, req *request.ProjectCreate) error {
+func (mock *ProjectRepo) Create(ctx context.Context, project *biz.Project, req *request.ProjectCreate) error {
 	if mock.CreateFunc == nil {
 		panic("ProjectRepo.CreateFunc: method is nil but ProjectRepo.Create was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Project *biz.Project
 		Req     *request.ProjectCreate
 	}{
+		Ctx:     ctx,
 		Project: project,
 		Req:     req,
 	}
 	mock.lockCreate.Lock()
 	mock.calls.Create = append(mock.calls.Create, callInfo)
 	mock.lockCreate.Unlock()
-	return mock.CreateFunc(project, req)
+	return mock.CreateFunc(ctx, project, req)
 }
 
 // CreateCalls gets all the calls that were made to Create.
@@ -224,10 +233,12 @@ func (mock *ProjectRepo) Create(project *biz.Project, req *request.ProjectCreate
 //
 //	len(mockedProjectRepo.CreateCalls())
 func (mock *ProjectRepo) CreateCalls() []struct {
+	Ctx     context.Context
 	Project *biz.Project
 	Req     *request.ProjectCreate
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Project *biz.Project
 		Req     *request.ProjectCreate
 	}
@@ -374,19 +385,21 @@ func (mock *ProjectRepo) NameExistsCalls() []struct {
 }
 
 // ParseDetail calls ParseDetailFunc.
-func (mock *ProjectRepo) ParseDetail(project *biz.Project) (*types.ProjectDetail, error) {
+func (mock *ProjectRepo) ParseDetail(ctx context.Context, project *biz.Project) (*types.ProjectDetail, error) {
 	if mock.ParseDetailFunc == nil {
 		panic("ProjectRepo.ParseDetailFunc: method is nil but ProjectRepo.ParseDetail was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Project *biz.Project
 	}{
+		Ctx:     ctx,
 		Project: project,
 	}
 	mock.lockParseDetail.Lock()
 	mock.calls.ParseDetail = append(mock.calls.ParseDetail, callInfo)
 	mock.lockParseDetail.Unlock()
-	return mock.ParseDetailFunc(project)
+	return mock.ParseDetailFunc(ctx, project)
 }
 
 // ParseDetailCalls gets all the calls that were made to ParseDetail.
@@ -394,9 +407,11 @@ func (mock *ProjectRepo) ParseDetail(project *biz.Project) (*types.ProjectDetail
 //
 //	len(mockedProjectRepo.ParseDetailCalls())
 func (mock *ProjectRepo) ParseDetailCalls() []struct {
+	Ctx     context.Context
 	Project *biz.Project
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Project *biz.Project
 	}
 	mock.lockParseDetail.RLock()
@@ -506,21 +521,23 @@ func (mock *ProjectRepo) SaveCalls() []struct {
 }
 
 // UpdateUnitFile calls UpdateUnitFileFunc.
-func (mock *ProjectRepo) UpdateUnitFile(name string, req *request.ProjectUpdate) error {
+func (mock *ProjectRepo) UpdateUnitFile(ctx context.Context, name string, req *request.ProjectUpdate) error {
 	if mock.UpdateUnitFileFunc == nil {
 		panic("ProjectRepo.UpdateUnitFileFunc: method is nil but ProjectRepo.UpdateUnitFile was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Name string
 		Req  *request.ProjectUpdate
 	}{
+		Ctx:  ctx,
 		Name: name,
 		Req:  req,
 	}
 	mock.lockUpdateUnitFile.Lock()
 	mock.calls.UpdateUnitFile = append(mock.calls.UpdateUnitFile, callInfo)
 	mock.lockUpdateUnitFile.Unlock()
-	return mock.UpdateUnitFileFunc(name, req)
+	return mock.UpdateUnitFileFunc(ctx, name, req)
 }
 
 // UpdateUnitFileCalls gets all the calls that were made to UpdateUnitFile.
@@ -528,10 +545,12 @@ func (mock *ProjectRepo) UpdateUnitFile(name string, req *request.ProjectUpdate)
 //
 //	len(mockedProjectRepo.UpdateUnitFileCalls())
 func (mock *ProjectRepo) UpdateUnitFileCalls() []struct {
+	Ctx  context.Context
 	Name string
 	Req  *request.ProjectUpdate
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Name string
 		Req  *request.ProjectUpdate
 	}

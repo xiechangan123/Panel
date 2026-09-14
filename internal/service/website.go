@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"path/filepath"
 	"slices"
@@ -71,7 +72,7 @@ func (s *WebsiteService) UpdateDefaultConfig(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err = s.websiteRepo.UpdateDefaultConfig(req); err != nil {
+	if err = s.websiteRepo.UpdateDefaultConfig(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -214,12 +215,13 @@ func (s *WebsiteService) UpdateDefaultSite(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, err = shell.Execf(d.ConfigTest()); err != nil {
+	if _, err = shell.Execf(r.Context(), d.ConfigTest()); err != nil {
 		restore()
 		Error(w, http.StatusInternalServerError, s.t.Get("config test failed: %v", err))
 		return
 	}
-	if err = d.Reload(); err != nil {
+	// 配置已落盘且不再回滚，reload 断开取消链，否则磁盘配置与运行中的配置会不一致
+	if err = d.Reload(context.WithoutCancel(r.Context())); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -235,7 +237,7 @@ func (s *WebsiteService) UpdateCert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.websiteRepo.UpdateCert(req); err != nil {
+	if err = s.websiteRepo.UpdateCert(r.Context(), req); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -366,7 +368,7 @@ func (s *WebsiteService) ResetConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.websiteRepo.ResetConfig(req.ID); err != nil {
+	if err = s.websiteRepo.ResetConfig(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -381,7 +383,7 @@ func (s *WebsiteService) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.websiteRepo.UpdateStatus(req.ID, req.Status); err != nil {
+	if err = s.websiteRepo.UpdateStatus(r.Context(), req.ID, req.Status); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

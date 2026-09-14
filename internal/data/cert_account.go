@@ -60,8 +60,8 @@ func (r certAccountRepo) Delete(id uint) error {
 }
 
 // RegisterAccount 注册 ACME 账户
-func (r certAccountRepo) RegisterAccount(email, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error) {
-	return acme.NewRegisterAccount(context.Background(), email, ca, eab, keyType, r.log)
+func (r certAccountRepo) RegisterAccount(ctx context.Context, email, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error) {
+	return acme.NewRegisterAccount(ctx, email, ca, eab, keyType, r.log)
 }
 
 // GetGoogleEAB 获取 Google EAB

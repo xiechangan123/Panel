@@ -1,6 +1,7 @@
 package grafana
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -42,13 +43,13 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/datasources/{name}", s.DeleteDataSource)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("grafana")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "grafana")
 	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status("grafana")
+	status, err := systemctl.Status(r.Context(), "grafana")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get grafana status: %v", err))
 		return
@@ -182,7 +183,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("grafana"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "grafana"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -221,7 +222,7 @@ func (s *App) CreateDataSource(w http.ResponseWriter, r *http.Request) {
 	list = append(list, s.buildDatasourceMap(req))
 	cfg["datasources"] = list
 
-	if err = s.writeDatasources(cfg); err != nil {
+	if err = s.writeDatasources(r.Context(), cfg); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -274,7 +275,7 @@ func (s *App) UpdateDataSource(w http.ResponseWriter, r *http.Request) {
 
 	cfg["datasources"] = list
 
-	if err = s.writeDatasources(cfg); err != nil {
+	if err = s.writeDatasources(r.Context(), cfg); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -301,7 +302,7 @@ func (s *App) DeleteDataSource(w http.ResponseWriter, r *http.Request) {
 	cfg["datasources"] = newList
 	s.addDeleteEntry(cfg, name)
 
-	if err := s.writeDatasources(cfg); err != nil {
+	if err := s.writeDatasources(r.Context(), cfg); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -339,7 +340,7 @@ func (s *App) readDatasources() map[string]any {
 }
 
 // writeDatasources 写入 provisioning 文件并重启 Grafana
-func (s *App) writeDatasources(cfg map[string]any) error {
+func (s *App) writeDatasources(ctx context.Context, cfg map[string]any) error {
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
@@ -347,7 +348,8 @@ func (s *App) writeDatasources(cfg map[string]any) error {
 	if err = io.Write(s.datasourcePath(), string(data), 0644); err != nil {
 		return err
 	}
-	return systemctl.Restart("grafana")
+	// 数据源已落盘，重启不跟随请求取消，否则磁盘配置与运行中进程不一致
+	return systemctl.Restart(context.WithoutCancel(ctx), "grafana")
 }
 
 // getDatasourceList 从 cfg 中提取 datasources 切片

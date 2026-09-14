@@ -36,7 +36,7 @@ type CertAccountRepo interface {
 	Delete(id uint) error
 	GetGoogleEAB() (*acme.EAB, error)
 	GetZeroSSLEAB(email string) (*acme.EAB, error)
-	RegisterAccount(email, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error)
+	RegisterAccount(ctx context.Context, email, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error)
 }
 
 type CertAccountUsecase struct {
@@ -101,13 +101,13 @@ func (uc *CertAccountUsecase) Create(ctx context.Context, req *request.CertAccou
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
 	case "google":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
 	case "letsencrypt":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
 	case "litessl":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CALiteSSL, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALiteSSL, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
 	case "zerossl":
 		eab, eabErr := uc.repo.GetZeroSSLEAB(account.Email)
 		if eabErr != nil {
@@ -115,9 +115,9 @@ func (uc *CertAccountUsecase) Create(ctx context.Context, req *request.CertAccou
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
 	case "sslcom":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
 	default:
 		return nil, errors.New(uc.t.Get("unsupported CA"))
 	}
@@ -163,13 +163,13 @@ func (uc *CertAccountUsecase) Update(ctx context.Context, req *request.CertAccou
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogleCN, eab, acme.KeyType(account.KeyType))
 	case "google":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAGoogle, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
 	case "letsencrypt":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALetsEncrypt, nil, acme.KeyType(account.KeyType))
 	case "litessl":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CALiteSSL, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CALiteSSL, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
 	case "zerossl":
 		eab, eabErr := uc.repo.GetZeroSSLEAB(account.Email)
 		if eabErr != nil {
@@ -177,9 +177,9 @@ func (uc *CertAccountUsecase) Update(ctx context.Context, req *request.CertAccou
 		}
 		account.Kid = eab.KeyID
 		account.HmacEncoded = eab.MACKey
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CAZeroSSL, eab, acme.KeyType(account.KeyType))
 	case "sslcom":
-		client, err = uc.repo.RegisterAccount(account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
+		client, err = uc.repo.RegisterAccount(ctx, account.Email, acme.CASSLcom, &acme.EAB{KeyID: account.Kid, MACKey: account.HmacEncoded}, acme.KeyType(account.KeyType))
 	default:
 		return errors.New(uc.t.Get("unsupported CA"))
 	}

@@ -57,7 +57,7 @@ func (s *EnvironmentPHPService) SetCli(w http.ResponseWriter, r *http.Request) {
 	}
 
 	binPath := fmt.Sprintf("%s/server/php/%d/bin", app.Root, req.Version)
-	if err = io.LinkCLIBinaries(binPath, []string{"php"}); err != nil {
+	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"php"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -77,7 +77,7 @@ func (s *EnvironmentPHPService) PHPInfo(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 使用 php-cgi 执行 phpinfo() 获取 HTML 格式输出
-	output, err := shell.Execf("echo '<?php phpinfo();' | %s/server/php/%d/bin/php-cgi -q", app.Root, req.Version)
+	output, err := shell.Execf(r.Context(), "echo '<?php phpinfo();' | %s/server/php/%d/bin/php-cgi -q", app.Root, req.Version)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -268,8 +268,8 @@ func (s *EnvironmentPHPService) ModuleList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	modules := s.getModules(req.Version)
-	raw, err := shell.Execf("%s/server/php/%d/bin/php -m", app.Root, req.Version)
+	modules := s.getModules(r.Context(), req.Version)
+	raw, err := shell.Execf(r.Context(), "%s/server/php/%d/bin/php -m", app.Root, req.Version)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -301,7 +301,7 @@ func (s *EnvironmentPHPService) InstallModule(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if !s.checkModule(req.Version, req.Slug) {
+	if !s.checkModule(r.Context(), req.Version, req.Slug) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Slug))
 		return
 	}
@@ -336,7 +336,7 @@ func (s *EnvironmentPHPService) UninstallModule(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	if !s.checkModule(req.Version, req.Slug) {
+	if !s.checkModule(r.Context(), req.Version, req.Slug) {
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("module %s does not exist", req.Slug))
 		return
 	}
@@ -512,7 +512,7 @@ func (s *EnvironmentPHPService) CleanSession(w http.ResponseWriter, r *http.Requ
 		savePath = "/tmp"
 	}
 
-	if _, err = shell.Execf("find '%s' -name 'sess_*' -type f -delete", savePath); err != nil {
+	if _, err = shell.Execf(r.Context(), "find '%s' -name 'sess_*' -type f -delete", savePath); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -657,7 +657,7 @@ func (s *EnvironmentPHPService) Composer(w http.ResponseWriter, r *http.Request)
 
 	composer := types.EnvironmentPHPComposer{Installed: io.Exists("/usr/local/bin/composer")}
 	if composer.Installed {
-		out, outErr := shell.ExecfWithEnv([]string{"COMPOSER_ALLOW_SUPERUSER=1"}, "%s/server/php/%d/bin/php /usr/local/bin/composer --version --no-ansi 2>/dev/null", app.Root, req.Version)
+		out, outErr := shell.ExecfWithEnv(r.Context(), []string{"COMPOSER_ALLOW_SUPERUSER=1"}, "%s/server/php/%d/bin/php /usr/local/bin/composer --version --no-ansi 2>/dev/null", app.Root, req.Version)
 		// 输出形如 Composer version 2.8.4 2025-01-01 00:00:00
 		if fields := strings.Fields(out); outErr == nil && len(fields) >= 3 {
 			composer.Version = fields[2]
@@ -701,7 +701,7 @@ func (s *EnvironmentPHPService) SetComposerMirror(w http.ResponseWriter, r *http
 	env := []string{"COMPOSER_ALLOW_SUPERUSER=1"}
 	if req.Mirror == "" {
 		// 恢复官方源，未设置过镜像时报错可忽略
-		_, _ = shell.ExecfWithEnv(env, "%s /usr/local/bin/composer config -g --unset repos.packagist", php)
+		_, _ = shell.ExecfWithEnv(r.Context(), env, "%s /usr/local/bin/composer config -g --unset repos.packagist", php)
 		Success(w, nil)
 		return
 	}
@@ -710,7 +710,7 @@ func (s *EnvironmentPHPService) SetComposerMirror(w http.ResponseWriter, r *http
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("invalid mirror url"))
 		return
 	}
-	if _, err = shell.ExecfWithEnv(env, "%s /usr/local/bin/composer config -g repos.packagist composer '%s'", php, req.Mirror); err != nil {
+	if _, err = shell.ExecfWithEnv(r.Context(), env, "%s /usr/local/bin/composer config -g repos.packagist composer '%s'", php, req.Mirror); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -718,7 +718,7 @@ func (s *EnvironmentPHPService) SetComposerMirror(w http.ResponseWriter, r *http
 	Success(w, nil)
 }
 
-func (s *EnvironmentPHPService) getModules(version uint) []types.EnvironmentPHPModule {
+func (s *EnvironmentPHPService) getModules(ctx context.Context, version uint) []types.EnvironmentPHPModule {
 	modules := []types.EnvironmentPHPModule{
 		{
 			Name:        "fileinfo",
@@ -943,7 +943,7 @@ func (s *EnvironmentPHPService) getModules(version uint) []types.EnvironmentPHPM
 		})
 	}
 
-	raw, _ := shell.Execf("%s/server/php/%d/bin/php -m", app.Root, version)
+	raw, _ := shell.Execf(ctx, "%s/server/php/%d/bin/php -m", app.Root, version)
 	moduleMap := make(map[string]*types.EnvironmentPHPModule)
 	for i := range modules {
 		moduleMap[modules[i].Slug] = &modules[i]
@@ -959,8 +959,8 @@ func (s *EnvironmentPHPService) getModules(version uint) []types.EnvironmentPHPM
 	return modules
 }
 
-func (s *EnvironmentPHPService) checkModule(version uint, slug string) bool {
-	return lo.ContainsBy(s.getModules(version), func(item types.EnvironmentPHPModule) bool {
+func (s *EnvironmentPHPService) checkModule(ctx context.Context, version uint, slug string) bool {
+	return lo.ContainsBy(s.getModules(ctx, version), func(item types.EnvironmentPHPModule) bool {
 		return item.Slug == slug
 	})
 }

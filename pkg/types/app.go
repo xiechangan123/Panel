@@ -1,6 +1,10 @@
 package types
 
-import "github.com/go-chi/chi/v5"
+import (
+	"context"
+
+	"github.com/go-chi/chi/v5"
+)
 
 // 应用运行状态
 const (
@@ -34,7 +38,7 @@ func AggregateAppStatus(running ...bool) string {
 // App 应用接口
 type App interface {
 	Route(r chi.Router)
-	Status() string
+	Status(ctx context.Context) string
 }
 
 // AppDetail 应用详情

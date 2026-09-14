@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -33,13 +34,13 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("kafka")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "kafka")
 	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status("kafka")
+	status, err := systemctl.Status(r.Context(), "kafka")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get kafka status: %v", err))
 		return
@@ -124,7 +125,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = systemctl.Restart("kafka"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "kafka"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -54,14 +55,14 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/exporters/{slug}/config", s.UpdateExporterConfig)
 }
 
-func (s *App) Status() string {
-	prom, _ := systemctl.Status("prometheus")
-	alert, _ := systemctl.Status("alertmanager")
+func (s *App) Status(ctx context.Context) string {
+	prom, _ := systemctl.Status(ctx, "prometheus")
+	alert, _ := systemctl.Status(ctx, "alertmanager")
 	return types.AggregateAppStatus(prom, alert)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status("prometheus")
+	status, err := systemctl.Status(r.Context(), "prometheus")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get prometheus status: %v", err))
 		return
@@ -178,7 +179,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("prometheus"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "prometheus"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -205,7 +206,7 @@ func (s *App) UpdateAlertmanagerConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("alertmanager"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "alertmanager"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -219,7 +220,7 @@ func (s *App) ExporterList(w http.ResponseWriter, r *http.Request) {
 	for i := range exporters {
 		exporters[i].Installed = io.Exists(fmt.Sprintf("%s/server/prometheus/exporters/%s", app.Root, exporters[i].Slug))
 		if exporters[i].Installed {
-			running, _ := systemctl.Status("prometheus-" + exporters[i].Slug)
+			running, _ := systemctl.Status(r.Context(), "prometheus-"+exporters[i].Slug)
 			exporters[i].Running = running
 		}
 	}
@@ -291,7 +292,7 @@ func (s *App) StartExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Start("prometheus-" + slug); err != nil {
+	if err := systemctl.Start(r.Context(), "prometheus-"+slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -307,7 +308,7 @@ func (s *App) StopExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Stop("prometheus-" + slug); err != nil {
+	if err := systemctl.Stop(r.Context(), "prometheus-"+slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -323,7 +324,7 @@ func (s *App) RestartExporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Restart("prometheus-" + slug); err != nil {
+	if err := systemctl.Restart(r.Context(), "prometheus-"+slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -375,7 +376,7 @@ func (s *App) UpdateExporterConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("prometheus-" + slug); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "prometheus-"+slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

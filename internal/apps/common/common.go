@@ -2,6 +2,7 @@
 package common
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/acepanel/panel/v3/internal/request"
@@ -30,7 +31,7 @@ func SaveConfig(w http.ResponseWriter, r *http.Request, path, unit string) {
 		return
 	}
 
-	if err = systemctl.Restart(unit); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), unit); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

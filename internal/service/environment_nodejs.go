@@ -38,7 +38,7 @@ func (s *EnvironmentNodejsService) SetCli(w http.ResponseWriter, r *http.Request
 	}
 
 	binPath := fmt.Sprintf("%s/server/nodejs/%s/bin", app.Root, req.Slug)
-	if err = io.LinkCLIBinaries(binPath, []string{"node", "npm", "npx", "corepack"}); err != nil {
+	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"node", "npm", "npx", "corepack"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -58,7 +58,7 @@ func (s *EnvironmentNodejsService) GetRegistry(w http.ResponseWriter, r *http.Re
 	}
 
 	npmBin := fmt.Sprintf("%s/server/nodejs/%s/bin/npm", app.Root, req.Slug)
-	registry, err := shell.Execf("%s config get --global registry", npmBin)
+	registry, err := shell.Execf(r.Context(), "%s config get --global registry", npmBin)
 	if err != nil {
 		registry = "https://registry.npmjs.org/"
 	}
@@ -78,7 +78,7 @@ func (s *EnvironmentNodejsService) SetRegistry(w http.ResponseWriter, r *http.Re
 	}
 
 	npmBin := fmt.Sprintf("%s/server/nodejs/%s/bin/npm", app.Root, req.Slug)
-	if _, err = shell.Execf("%s config set --global registry %s", npmBin, req.Registry); err != nil {
+	if _, err = shell.Execf(r.Context(), "%s config set --global registry %s", npmBin, req.Registry); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

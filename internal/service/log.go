@@ -3,6 +3,7 @@ package service
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -87,7 +88,7 @@ func (s *LogService) SSH(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	logs, err := s.sshFromJournalctl(limit)
+	logs, err := s.sshFromJournalctl(r.Context(), limit)
 	if err != nil {
 		logs, err = s.sshFromLogFile(limit)
 	}
@@ -100,8 +101,8 @@ func (s *LogService) SSH(w http.ResponseWriter, r *http.Request) {
 }
 
 // sshFromJournalctl 通过 journalctl 获取 SSH 日志
-func (s *LogService) sshFromJournalctl(limit int) ([]types.SSHLoginLog, error) {
-	raw, err := shell.Execf("journalctl -u sshd -u ssh --no-pager -o json -n %d 2>/dev/null", limit*5)
+func (s *LogService) sshFromJournalctl(ctx context.Context, limit int) ([]types.SSHLoginLog, error) {
+	raw, err := shell.Execf(ctx, "journalctl -u sshd -u ssh --no-pager -o json -n %d 2>/dev/null", limit*5)
 	if err != nil || raw == "" {
 		return nil, errors.New(s.t.Get("journalctl is not available"))
 	}

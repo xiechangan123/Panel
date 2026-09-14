@@ -51,7 +51,7 @@ func (s *EnvironmentService) List(w http.ResponseWriter, r *http.Request) {
 		// 性能优化，避免重复探测版本
 		var installedVersion string
 		if installed {
-			installedVersion = s.environmentRepo.InstalledVersion(item.Type, item.Slug)
+			installedVersion = s.environmentRepo.InstalledVersion(r.Context(), item.Type, item.Slug)
 		}
 		environments = append(environments, types.EnvironmentDetail{
 			Type:             item.Type,
@@ -76,7 +76,7 @@ func (s *EnvironmentService) Install(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.environmentRepo.Install(req.Type, req.Slug); err != nil {
+	if err = s.environmentRepo.Install(r.Context(), req.Type, req.Slug); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -91,7 +91,7 @@ func (s *EnvironmentService) Uninstall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.environmentRepo.Uninstall(req.Type, req.Slug); err != nil {
+	if err = s.environmentRepo.Uninstall(r.Context(), req.Type, req.Slug); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -106,7 +106,7 @@ func (s *EnvironmentService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.environmentRepo.Update(req.Type, req.Slug); err != nil {
+	if err = s.environmentRepo.Update(r.Context(), req.Type, req.Slug); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

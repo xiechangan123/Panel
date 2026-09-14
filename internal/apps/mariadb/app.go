@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"context"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
@@ -20,6 +21,6 @@ func (s *App) Route(r chi.Router) {
 	s.mysql.Route(r)
 }
 
-func (s *App) Status() string {
-	return s.mysql.Status()
+func (s *App) Status(ctx context.Context) string {
+	return s.mysql.Status(ctx)
 }

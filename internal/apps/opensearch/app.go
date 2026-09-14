@@ -1,6 +1,7 @@
 package opensearch
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -38,13 +39,13 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("opensearch")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "opensearch")
 	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status("opensearch")
+	status, err := systemctl.Status(r.Context(), "opensearch")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get opensearch status: %v", err))
 		return
@@ -168,7 +169,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = systemctl.Restart("opensearch"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "opensearch"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

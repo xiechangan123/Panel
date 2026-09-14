@@ -80,8 +80,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/reset_password", s.ResetPassword)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("pgadmin")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "pgadmin")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -151,8 +151,10 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fw := firewall.NewFirewall()
-	err = fw.Port(firewall.FireInfo{
+	// 端口已改写入盘，放行与重启不跟随请求取消，否则新端口不通
+	ctx := context.WithoutCancel(r.Context())
+	fw := firewall.NewFirewall(ctx)
+	err = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: req.Port,
 		PortEnd:   req.Port,
@@ -164,7 +166,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("pgadmin"); err != nil {
+	if err = systemctl.Restart(ctx, "pgadmin"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart pgAdmin: %v", err))
 		return
 	}
@@ -223,10 +225,11 @@ func (s *App) existingServers(ctx context.Context, email string) (map[string]str
 }
 
 // dumpExistingServers 通过 CLI 导出查询已注册服务器,直读配置库失败时的回退路径
-func (s *App) dumpExistingServers(email string) map[string]struct{} {
+func (s *App) dumpExistingServers(ctx context.Context, email string) map[string]struct{} {
 	dump := filepath.Join(os.TempDir(), "pgadmin-servers.json")
-	defer func() { _ = io.Remove(dump) }()
-	_, _ = shell.Execf("%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
+	// 清理临时文件不随请求取消
+	defer func() { _ = io.Remove(context.WithoutCancel(ctx), dump) }()
+	_, _ = shell.Execf(ctx, "%s/cli dump-servers '%s' --user '%s'", s.path(), dump, email)
 
 	existing := make(map[string]struct{})
 	if raw, err := io.Read(dump); err == nil {
@@ -296,7 +299,7 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 	// 查询 pgAdmin 已有服务器用于查缺,直读配置库,异常时回退 CLI 导出
 	existing, err := s.existingServers(ctx, email)
 	if err != nil {
-		existing = s.dumpExistingServers(email)
+		existing = s.dumpExistingServers(ctx, email)
 	}
 
 	// 一次性合并导入缺失的服务器
@@ -318,7 +321,8 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 	}
 	if len(missing) > 0 {
 		load := filepath.Join(os.TempDir(), "pgadmin-servers-add.json")
-		defer func() { _ = io.Remove(load) }()
+		// 清理临时文件不随请求取消
+		defer func() { _ = io.Remove(context.WithoutCancel(ctx), load) }()
 		payload, err := json.Marshal(serversFile{Servers: missing})
 		if err != nil {
 			return err
@@ -326,21 +330,23 @@ func (s *App) syncServers(ctx context.Context, email string) error {
 		if err = io.Write(load, string(payload), 0600); err != nil {
 			return err
 		}
-		if out, err := shell.Execf("%s/cli load-servers '%s' --user '%s'", s.path(), load, email); err != nil {
+		// 导入与随后的 chown 必须成对完成，否则数据目录属主错误导致服务写不进去
+		loadCtx := context.WithoutCancel(ctx)
+		if out, err := shell.Execf(loadCtx, "%s/cli load-servers '%s' --user '%s'", s.path(), load, email); err != nil {
 			return errors.Join(err, errors.New(out))
 		}
 		// CLI 以 root 运行,修正数据目录属主避免服务写入失败
-		if _, err = shell.Execf("chown -R www:www %s/data", s.path()); err != nil {
+		if _, err = shell.Execf(loadCtx, "chown -R www:www %s/data", s.path()); err != nil {
 			return err
 		}
 		return nil
 	}
 
 	// 常态路径仅写入了 pgpass,精确修正属主即可
-	if err = io.Chown(storageDir, "www", "www"); err != nil {
+	if err = io.Chown(ctx, storageDir, "www", "www"); err != nil {
 		return err
 	}
-	return io.Chown(pgpass, "www", "www")
+	return io.Chown(ctx, pgpass, "www", "www")
 }
 
 // Login 同步面板全部 PostgreSQL 服务器后代理登录 pgAdmin 并将会话 Cookie 转发给浏览器
@@ -472,22 +478,25 @@ func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 账号迁移中途取消会留下两个账号或凭据文件指向已删账号，整段不跟随请求取消
+	ctx := context.WithoutCancel(r.Context())
+
 	// 以当前密码创建新管理员账号
-	if out, err := shell.Execf("%s/cli add-user '%s' '%s' --admin", s.path(), req.Username, password); err != nil {
+	if out, err := shell.Execf(ctx, "%s/cli add-user '%s' '%s' --admin", s.path(), req.Username, password); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to create new account: %v", errors.Join(err, errors.New(out))))
 		return
 	}
 
 	// 迁移服务器连接配置到新账号
 	dump := filepath.Join(os.TempDir(), "pgadmin-servers-migrate.json")
-	defer func() { _ = io.Remove(dump) }()
-	_, _ = shell.Execf("%s/cli dump-servers '%s' --user '%s'", s.path(), dump, oldEmail)
+	defer func() { _ = io.Remove(ctx, dump) }()
+	_, _ = shell.Execf(ctx, "%s/cli dump-servers '%s' --user '%s'", s.path(), dump, oldEmail)
 	if io.Exists(dump) {
-		_, _ = shell.Execf("%s/cli load-servers '%s' --user '%s'", s.path(), dump, req.Username)
+		_, _ = shell.Execf(ctx, "%s/cli load-servers '%s' --user '%s'", s.path(), dump, req.Username)
 	}
 
 	// 删除旧账号
-	if out, err := shell.Execf("%s/cli delete-user '%s' --yes", s.path(), oldEmail); err != nil {
+	if out, err := shell.Execf(ctx, "%s/cli delete-user '%s' --yes", s.path(), oldEmail); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to delete old account: %v", errors.Join(err, errors.New(out))))
 		return
 	}
@@ -500,7 +509,7 @@ func (s *App) UpdateUsername(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// CLI 以 root 运行,修正数据目录属主避免服务写入失败
-	if _, err = shell.Execf("chown -R www:www %s/data", s.path()); err != nil {
+	if _, err = shell.Execf(ctx, "chown -R www:www %s/data", s.path()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -527,13 +536,16 @@ func (s *App) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 改密后还要 chown 与回写凭据文件，中途取消会让面板存的密码与实际不符
+	ctx := context.WithoutCancel(r.Context())
+
 	// cli 为安装脚本生成的稳定入口,屏蔽上游命令名随大版本变化
-	if out, err := shell.Execf("%s/cli update-user '%s' --password '%s'", s.path(), email, req.Password); err != nil {
+	if out, err := shell.Execf(ctx, "%s/cli update-user '%s' --password '%s'", s.path(), email, req.Password); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reset password: %v", errors.Join(err, errors.New(out))))
 		return
 	}
 	// CLI 以 root 运行,修正数据目录属主避免服务写入失败
-	if _, err = shell.Execf("chown -R www:www %s/data", s.path()); err != nil {
+	if _, err = shell.Execf(ctx, "chown -R www:www %s/data", s.path()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

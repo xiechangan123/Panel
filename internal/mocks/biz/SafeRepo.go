@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -20,13 +21,13 @@ var _ biz.SafeRepo = &SafeRepo{}
 //
 //		// make and configure a mocked biz.SafeRepo
 //		mockedSafeRepo := &SafeRepo{
-//			FirewallRunningFunc: func() (bool, error) {
+//			FirewallRunningFunc: func(ctx context.Context) (bool, error) {
 //				panic("mock out the FirewallRunning method")
 //			},
-//			GetPingStatusFunc: func() (bool, error) {
+//			GetPingStatusFunc: func(ctx context.Context) (bool, error) {
 //				panic("mock out the GetPingStatus method")
 //			},
-//			SetPingStatusFunc: func(status bool) error {
+//			SetPingStatusFunc: func(ctx context.Context, status bool) error {
 //				panic("mock out the SetPingStatus method")
 //			},
 //		}
@@ -37,24 +38,30 @@ var _ biz.SafeRepo = &SafeRepo{}
 //	}
 type SafeRepo struct {
 	// FirewallRunningFunc mocks the FirewallRunning method.
-	FirewallRunningFunc func() (bool, error)
+	FirewallRunningFunc func(ctx context.Context) (bool, error)
 
 	// GetPingStatusFunc mocks the GetPingStatus method.
-	GetPingStatusFunc func() (bool, error)
+	GetPingStatusFunc func(ctx context.Context) (bool, error)
 
 	// SetPingStatusFunc mocks the SetPingStatus method.
-	SetPingStatusFunc func(status bool) error
+	SetPingStatusFunc func(ctx context.Context, status bool) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// FirewallRunning holds details about calls to the FirewallRunning method.
 		FirewallRunning []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// GetPingStatus holds details about calls to the GetPingStatus method.
 		GetPingStatus []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// SetPingStatus holds details about calls to the SetPingStatus method.
 		SetPingStatus []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Status is the status argument value.
 			Status bool
 		}
@@ -65,16 +72,19 @@ type SafeRepo struct {
 }
 
 // FirewallRunning calls FirewallRunningFunc.
-func (mock *SafeRepo) FirewallRunning() (bool, error) {
+func (mock *SafeRepo) FirewallRunning(ctx context.Context) (bool, error) {
 	if mock.FirewallRunningFunc == nil {
 		panic("SafeRepo.FirewallRunningFunc: method is nil but SafeRepo.FirewallRunning was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockFirewallRunning.Lock()
 	mock.calls.FirewallRunning = append(mock.calls.FirewallRunning, callInfo)
 	mock.lockFirewallRunning.Unlock()
-	return mock.FirewallRunningFunc()
+	return mock.FirewallRunningFunc(ctx)
 }
 
 // FirewallRunningCalls gets all the calls that were made to FirewallRunning.
@@ -82,8 +92,10 @@ func (mock *SafeRepo) FirewallRunning() (bool, error) {
 //
 //	len(mockedSafeRepo.FirewallRunningCalls())
 func (mock *SafeRepo) FirewallRunningCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockFirewallRunning.RLock()
 	calls = mock.calls.FirewallRunning
@@ -92,16 +104,19 @@ func (mock *SafeRepo) FirewallRunningCalls() []struct {
 }
 
 // GetPingStatus calls GetPingStatusFunc.
-func (mock *SafeRepo) GetPingStatus() (bool, error) {
+func (mock *SafeRepo) GetPingStatus(ctx context.Context) (bool, error) {
 	if mock.GetPingStatusFunc == nil {
 		panic("SafeRepo.GetPingStatusFunc: method is nil but SafeRepo.GetPingStatus was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockGetPingStatus.Lock()
 	mock.calls.GetPingStatus = append(mock.calls.GetPingStatus, callInfo)
 	mock.lockGetPingStatus.Unlock()
-	return mock.GetPingStatusFunc()
+	return mock.GetPingStatusFunc(ctx)
 }
 
 // GetPingStatusCalls gets all the calls that were made to GetPingStatus.
@@ -109,8 +124,10 @@ func (mock *SafeRepo) GetPingStatus() (bool, error) {
 //
 //	len(mockedSafeRepo.GetPingStatusCalls())
 func (mock *SafeRepo) GetPingStatusCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockGetPingStatus.RLock()
 	calls = mock.calls.GetPingStatus
@@ -119,19 +136,21 @@ func (mock *SafeRepo) GetPingStatusCalls() []struct {
 }
 
 // SetPingStatus calls SetPingStatusFunc.
-func (mock *SafeRepo) SetPingStatus(status bool) error {
+func (mock *SafeRepo) SetPingStatus(ctx context.Context, status bool) error {
 	if mock.SetPingStatusFunc == nil {
 		panic("SafeRepo.SetPingStatusFunc: method is nil but SafeRepo.SetPingStatus was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		Status bool
 	}{
+		Ctx:    ctx,
 		Status: status,
 	}
 	mock.lockSetPingStatus.Lock()
 	mock.calls.SetPingStatus = append(mock.calls.SetPingStatus, callInfo)
 	mock.lockSetPingStatus.Unlock()
-	return mock.SetPingStatusFunc(status)
+	return mock.SetPingStatusFunc(ctx, status)
 }
 
 // SetPingStatusCalls gets all the calls that were made to SetPingStatus.
@@ -139,9 +158,11 @@ func (mock *SafeRepo) SetPingStatus(status bool) error {
 //
 //	len(mockedSafeRepo.SetPingStatusCalls())
 func (mock *SafeRepo) SetPingStatusCalls() []struct {
+	Ctx    context.Context
 	Status bool
 } {
 	var calls []struct {
+		Ctx    context.Context
 		Status bool
 	}
 	mock.lockSetPingStatus.RLock()

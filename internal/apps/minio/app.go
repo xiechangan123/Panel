@@ -1,6 +1,7 @@
 package minio
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -22,8 +23,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/env", s.UpdateEnv)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("minio")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "minio")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -44,7 +45,7 @@ func (s *App) UpdateEnv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("minio"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "minio"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

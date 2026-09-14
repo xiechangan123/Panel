@@ -1,6 +1,7 @@
 package apache
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -41,8 +42,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("apache")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "apache")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -68,8 +69,8 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("apache"); err != nil {
-		_, err = shell.Execf("%s/server/apache/bin/apachectl configtest", app.Root)
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "apache"); err != nil {
+		_, err = shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest", app.Root)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v", err))
 		return
 	}
@@ -82,7 +83,7 @@ func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("cat /dev/null > %s/%s", app.Root, "server/apache/logs/error_log"); err != nil {
+	if _, err := shell.Execf(r.Context(), "cat /dev/null > %s/%s", app.Root, "server/apache/logs/error_log"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -91,7 +92,7 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := shell.Execf("curl -s http://127.0.0.1/server_status?auto 2>/dev/null || true")
+	status, err := shell.Execf(r.Context(), "curl -s http://127.0.0.1/server_status?auto 2>/dev/null || true")
 	if err != nil {
 		service.Success(w, []types.NV{})
 		return
@@ -99,7 +100,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	var data []types.NV
 
-	workers, err := shell.Execf("ps aux | grep httpd | grep -v grep | wc -l")
+	workers, err := shell.Execf(r.Context(), "ps aux | grep httpd | grep -v grep | wc -l")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get apache workers: %v", err))
 		return
@@ -109,7 +110,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		Value: workers,
 	})
 
-	out, err := shell.Execf("ps aux | grep httpd | grep -v grep | awk '{memsum+=$6};END {print memsum}'")
+	out, err := shell.Execf(r.Context(), "ps aux | grep httpd | grep -v grep | awk '{memsum+=$6};END {print memsum}'")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get apache workers: %v", err))
 		return
@@ -237,8 +238,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("apache"); err != nil {
-		out, _ := shell.Execf("%s/server/apache/bin/apachectl configtest", app.Root)
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "apache"); err != nil {
+		out, _ := shell.Execf(r.Context(), "%s/server/apache/bin/apachectl configtest", app.Root)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload apache: %v %s", err, out))
 		return
 	}

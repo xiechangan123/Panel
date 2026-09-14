@@ -1,6 +1,7 @@
 package s3fs
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"regexp"
@@ -35,13 +36,13 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/mounts", s.Delete)
 }
 
-func (s *App) Status() string {
+func (s *App) Status(ctx context.Context) string {
 	return types.AppStatusNA
 }
 
 // List 所有 S3fs 挂载
 func (s *App) List(w http.ResponseWriter, r *http.Request) {
-	list, err := s.mounts()
+	list, err := s.mounts(r.Context())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
@@ -81,7 +82,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, err := s.mounts()
+	list, err := s.mounts(r.Context())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
@@ -98,18 +99,20 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to create passwd file: %v", err))
 		return
 	}
-	if _, err = shell.Execf(`echo 's3fs#%s %s fuse3 _netdev,allow_other,url=%s,passwd_file=/etc/passwd-s3fs-%s 0 0' >> /etc/fstab`, req.Bucket, req.Path, req.URL, cast.ToString(id)); err != nil {
+	// 挂载失败要回滚 fstab 与密码文件，回滚被取消会残留脏行导致下次开机挂载失败
+	ctx := context.WithoutCancel(r.Context())
+	if _, err = shell.Execf(ctx, `echo 's3fs#%s %s fuse3 _netdev,allow_other,url=%s,passwd_file=/etc/passwd-s3fs-%s 0 0' >> /etc/fstab`, req.Bucket, req.Path, req.URL, cast.ToString(id)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if _, err = shell.Execf("mount -a"); err != nil {
-		_, _ = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
+	if _, err = shell.Execf(ctx, "mount -a"); err != nil {
+		_, _ = shell.Execf(ctx, `sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
 		_ = os.Remove("/etc/passwd-s3fs-" + cast.ToString(id))
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if _, err = shell.Execf(`df -h | grep '%s'`, req.Path); err != nil {
-		_, _ = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
+	if _, err = shell.Execf(ctx, `df -h | grep '%s'`, req.Path); err != nil {
+		_, _ = shell.Execf(ctx, `sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, req.Bucket, req.Path)
 		_ = os.Remove("/etc/passwd-s3fs-" + cast.ToString(id))
 		service.Error(w, http.StatusInternalServerError, s.t.Get("mount failed: %v", err))
 		return
@@ -126,7 +129,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	list, err := s.mounts()
+	list, err := s.mounts(r.Context())
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get s3fs list: %v", err))
 		return
@@ -138,23 +141,25 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, _ = shell.Execf(`fusermount3 -uz '%s'`, mount.Path)
-	_, err2 := shell.Execf(`umount -lf '%s'`, mount.Path)
+	// 卸载后还要清 fstab 与密码文件，中途取消会留下脏行和残留凭据
+	ctx := context.WithoutCancel(r.Context())
+	_, _ = shell.Execf(ctx, `fusermount3 -uz '%s'`, mount.Path)
+	_, err2 := shell.Execf(ctx, `umount -lf '%s'`, mount.Path)
 	// 卸载之后再检查下是否还有挂载
-	if _, err = shell.Execf(`df -h | grep '%s'`, mount.Path); err == nil {
+	if _, err = shell.Execf(ctx, `df -h | grep '%s'`, mount.Path); err == nil {
 		service.Error(w, http.StatusUnprocessableEntity, s.t.Get("failed to unmount: %v", err2))
 		return
 	}
 
-	if _, err = shell.Execf(`sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, mount.Bucket, mount.Path); err != nil {
+	if _, err = shell.Execf(ctx, `sed -i 's@^s3fs#%s\s%s.*$@@g' /etc/fstab`, mount.Bucket, mount.Path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if _, err = shell.Execf("mount -a"); err != nil {
+	if _, err = shell.Execf(ctx, "mount -a"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Remove("/etc/passwd-s3fs-" + cast.ToString(mount.ID)); err != nil {
+	if err = io.Remove(ctx, "/etc/passwd-s3fs-"+cast.ToString(mount.ID)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -162,7 +167,7 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-func (s *App) mounts() ([]Mount, error) {
+func (s *App) mounts(ctx context.Context) ([]Mount, error) {
 	re := regexp.MustCompile(`^s3fs#(.*?)\s+(.*?)\s+fuse.*?url=(.*?),passwd_file=/etc/passwd-s3fs-(.*?)\s+`)
 	fstab, err := os.ReadFile("/etc/fstab")
 	if err != nil {
@@ -172,7 +177,7 @@ func (s *App) mounts() ([]Mount, error) {
 
 	var mounts []Mount
 
-	ids, err := shell.Exec("find /etc -maxdepth 1 -name 'passwd-s3fs-*'")
+	ids, err := shell.Exec(ctx, "find /etc -maxdepth 1 -name 'passwd-s3fs-*'")
 	if err != nil {
 		return nil, err
 	}

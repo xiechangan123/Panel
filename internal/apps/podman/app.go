@@ -1,6 +1,7 @@
 package podman
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -24,8 +25,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/storage_config", s.UpdateStorageConfig)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("podman")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "podman")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -51,7 +52,7 @@ func (s *App) UpdateRegistryConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("podman"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "podman"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -81,7 +82,7 @@ func (s *App) UpdateStorageConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("podman"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "podman"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

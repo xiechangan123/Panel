@@ -152,7 +152,7 @@ type PortProcess struct {
 }
 
 // GetPortProcess 获取占用指定端口的进程信息
-func GetPortProcess(port uint, protocol string) []PortProcess {
+func GetPortProcess(ctx context.Context, port uint, protocol string) []PortProcess {
 	var flag string
 	switch protocol {
 	case "udp":
@@ -161,7 +161,7 @@ func GetPortProcess(port uint, protocol string) []PortProcess {
 		flag = "-tlnp"
 	}
 
-	output, err := shell.Execf("ss %s sport = :%d", flag, port)
+	output, err := shell.Execf(ctx, "ss %s sport = :%d", flag, port)
 	if err != nil {
 		return nil
 	}

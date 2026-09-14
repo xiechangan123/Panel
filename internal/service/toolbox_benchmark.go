@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	cryptorand "crypto/rand"
@@ -69,7 +70,7 @@ func (s *ToolboxBenchmarkService) Test(w http.ResponseWriter, r *http.Request) {
 		result := s.jsonProcessing()
 		Success(w, result)
 	case "disk":
-		result := s.diskTestTask()
+		result := s.diskTestTask(r.Context())
 		Success(w, result)
 	case "memory":
 		result := s.memoryTestTask()
@@ -412,7 +413,7 @@ func (s *ToolboxBenchmarkService) memoryLatencyTest(data []byte) string {
 
 // 硬盘IO
 
-func (s *ToolboxBenchmarkService) diskTestTask() map[string]any {
+func (s *ToolboxBenchmarkService) diskTestTask(ctx context.Context) map[string]any {
 	results := make(map[string]any)
 	blockSizes := []int64{4 * 1024, 64 * 1024, 1 * 1024 * 1024} // 4K, 64K, 1M
 
@@ -428,7 +429,7 @@ func (s *ToolboxBenchmarkService) diskTestTask() map[string]any {
 	start := time.Now()
 	for _, blockSize := range blockSizes {
 		blockSizeKB := blockSize / 1024
-		result := s.diskIOTest(testFile, blockSize)
+		result := s.diskIOTest(ctx, testFile, blockSize)
 		results[strconv.FormatInt(blockSizeKB, 10)] = result
 	}
 	duration := time.Since(start)
@@ -437,7 +438,7 @@ func (s *ToolboxBenchmarkService) diskTestTask() map[string]any {
 	return results
 }
 
-func (s *ToolboxBenchmarkService) diskIOTest(testFile string, blockSize int64) map[string]any {
+func (s *ToolboxBenchmarkService) diskIOTest(ctx context.Context, testFile string, blockSize int64) map[string]any {
 	result := make(map[string]any)
 
 	// 确定测试参数
@@ -450,19 +451,19 @@ func (s *ToolboxBenchmarkService) diskIOTest(testFile string, blockSize int64) m
 	}
 
 	// 写测试
-	result["write_speed"] = s.diskWriteTest(testFile, blockSize, count)
+	result["write_speed"] = s.diskWriteTest(ctx, testFile, blockSize, count)
 	// 读测试
-	result["read_speed"] = s.diskReadTest(testFile, blockSize, count)
+	result["read_speed"] = s.diskReadTest(ctx, testFile, blockSize, count)
 
 	return result
 }
 
-func (s *ToolboxBenchmarkService) diskWriteTest(fileName string, blockSize int64, count int64) string {
+func (s *ToolboxBenchmarkService) diskWriteTest(ctx context.Context, fileName string, blockSize int64, count int64) string {
 	var output string
 	var err error
 
 	blockSizeKB := blockSize / 1024
-	output, err = shell.Execf("dd if=/dev/zero of=%s bs=%dk count=%d oflag=direct 2>&1",
+	output, err = shell.Execf(ctx, "dd if=/dev/zero of=%s bs=%dk count=%d oflag=direct 2>&1",
 		fileName, blockSizeKB, count)
 
 	if err != nil {
@@ -472,12 +473,12 @@ func (s *ToolboxBenchmarkService) diskWriteTest(fileName string, blockSize int64
 	return s.parseCommandOutput(output)
 }
 
-func (s *ToolboxBenchmarkService) diskReadTest(fileName string, blockSize int64, count int64) string {
+func (s *ToolboxBenchmarkService) diskReadTest(ctx context.Context, fileName string, blockSize int64, count int64) string {
 	var output string
 	var err error
 
 	blockSizeKB := blockSize / 1024
-	output, err = shell.Execf("dd if=%s of=/dev/null bs=%dk count=%d iflag=direct 2>&1",
+	output, err = shell.Execf(ctx, "dd if=%s of=/dev/null bs=%dk count=%d iflag=direct 2>&1",
 		fileName, blockSizeKB, count)
 	if err != nil {
 		return ""

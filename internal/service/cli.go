@@ -93,7 +93,7 @@ func NewCliService(appUsecase *biz.AppUsecase, backupUsecase *biz.BackupUsecase,
 }
 
 func (s *CliService) Status(ctx context.Context, cmd *cli.Command) error {
-	status, err := systemctl.Status("acepanel")
+	status, err := systemctl.Status(ctx, "acepanel")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (s *CliService) Status(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Restart(ctx context.Context, cmd *cli.Command) error {
-	if err := systemctl.Restart("acepanel"); err != nil {
+	if err := systemctl.Restart(ctx, "acepanel"); err != nil {
 		return err
 	}
 	fmt.Println(s.t.Get("AcePanel service restarted"))
@@ -120,7 +120,7 @@ func (s *CliService) Restart(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Stop(ctx context.Context, cmd *cli.Command) error {
-	if err := systemctl.Stop("acepanel"); err != nil {
+	if err := systemctl.Stop(ctx, "acepanel"); err != nil {
 		return err
 	}
 	fmt.Println(s.t.Get("AcePanel service stopped"))
@@ -128,7 +128,7 @@ func (s *CliService) Stop(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Start(ctx context.Context, cmd *cli.Command) error {
-	if err := systemctl.Start("acepanel"); err != nil {
+	if err := systemctl.Start(ctx, "acepanel"); err != nil {
 		return err
 	}
 	fmt.Println(s.t.Get("AcePanel service started"))
@@ -150,12 +150,13 @@ func (s *CliService) Update(ctx context.Context, cmd *cli.Command) error {
 	url := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.URL)
 	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
 
-	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum, func(msg string) {
+	if err = s.backupRepo.UpdatePanel(ctx, panel.Version, url, checksum, func(msg string) {
 		fmt.Println("|-" + msg)
 	}); err != nil {
 		return err
 	}
-	tools.RestartPanel()
+	// 重启靠 sleep 熬过 CLI 进程退出，绑命令 ctx 会在本函数返回时被杀掉
+	tools.RestartPanel(context.WithoutCancel(ctx))
 	return nil
 }
 
@@ -178,7 +179,7 @@ func (s *CliService) Sync(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) Fix(ctx context.Context, cmd *cli.Command) error {
-	return s.backupRepo.FixPanel()
+	return s.backupRepo.FixPanel(ctx)
 }
 
 func (s *CliService) Info(ctx context.Context, cmd *cli.Command) error {
@@ -522,7 +523,7 @@ func (s *CliService) HTTPSGenerate(ctx context.Context, cmd *cli.Command) error 
 		if err != nil {
 			return errors.New(s.t.Get("Failed to get ACME account: %v", err))
 		}
-		crt, key, err = s.certRepo.ObtainPanel(account, s.conf.HTTP.BindDomain)
+		crt, key, err = s.certRepo.ObtainPanel(ctx, account, s.conf.HTTP.BindDomain)
 		if err == nil {
 			fmt.Println(s.t.Get("Successfully obtained panel certificate via ACME"))
 		} else {
@@ -723,9 +724,9 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 	conf.HTTP.Port = port
 
 	// 放行端口
-	fw := firewall.NewFirewall()
-	if ok, _ := fw.Status(); ok {
-		err = fw.Port(firewall.FireInfo{
+	fw := firewall.NewFirewall(ctx)
+	if ok, _ := fw.Status(ctx); ok {
+		err = fw.Port(ctx, firewall.FireInfo{
 			Type:      firewall.TypeNormal,
 			PortStart: port,
 			PortEnd:   port,
@@ -747,8 +748,8 @@ func (s *CliService) Port(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) FirewallStatus(ctx context.Context, cmd *cli.Command) error {
-	fw := firewall.NewFirewall()
-	running, err := fw.Status()
+	fw := firewall.NewFirewall(ctx)
+	running, err := fw.Status(ctx)
 	if err != nil {
 		return err
 	}
@@ -759,7 +760,7 @@ func (s *CliService) FirewallStatus(ctx context.Context, cmd *cli.Command) error
 	}
 	fmt.Println(s.t.Get("Firewall status: %s", statusStr))
 
-	if ping, pingErr := fw.PingStatus(); pingErr == nil {
+	if ping, pingErr := fw.PingStatus(ctx); pingErr == nil {
 		fmt.Println(s.t.Get("Ping allowed: %t", ping))
 	}
 
@@ -767,7 +768,7 @@ func (s *CliService) FirewallStatus(ctx context.Context, cmd *cli.Command) error
 }
 
 func (s *CliService) FirewallOn(ctx context.Context, cmd *cli.Command) error {
-	if err := firewall.NewFirewall().Enable(); err != nil {
+	if err := firewall.NewFirewall(ctx).Enable(ctx); err != nil {
 		return err
 	}
 
@@ -776,7 +777,7 @@ func (s *CliService) FirewallOn(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) FirewallOff(ctx context.Context, cmd *cli.Command) error {
-	if err := firewall.NewFirewall().Disable(); err != nil {
+	if err := firewall.NewFirewall(ctx).Disable(ctx); err != nil {
 		return err
 	}
 
@@ -785,7 +786,7 @@ func (s *CliService) FirewallOff(ctx context.Context, cmd *cli.Command) error {
 }
 
 func (s *CliService) FirewallList(ctx context.Context, cmd *cli.Command) error {
-	rules, err := firewall.NewFirewall().ListRule()
+	rules, err := firewall.NewFirewall(ctx).ListRule(ctx)
 	if err != nil {
 		return err
 	}
@@ -817,8 +818,8 @@ func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Unsupported protocol: %s", cmd.String("protocol")))
 	}
 
-	fw := firewall.NewFirewall()
-	if running, _ := fw.Status(); !running {
+	fw := firewall.NewFirewall(ctx)
+	if running, _ := fw.Status(ctx); !running {
 		return errors.New(s.t.Get("Firewall is not running"))
 	}
 
@@ -827,7 +828,7 @@ func (s *CliService) FirewallPort(ctx context.Context, cmd *cli.Command) error {
 		operation = firewall.OperationRemove
 	}
 
-	if err := fw.Port(firewall.FireInfo{
+	if err := fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: portStart,
 		PortEnd:   portEnd,
@@ -933,7 +934,7 @@ func (s *CliService) WebsiteCert(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err = s.websiteRepo.UpdateCert(req); err != nil {
+	if err = s.websiteRepo.UpdateCert(ctx, req); err != nil {
 		return err
 	}
 
@@ -949,7 +950,7 @@ func (s *CliService) WebsiteRebuild(ctx context.Context, cmd *cli.Command) error
 	}
 
 	for _, website := range websites {
-		rebuilt, notes, err := s.websiteRepo.Rebuild(website)
+		rebuilt, notes, err := s.websiteRepo.Rebuild(ctx, website)
 		switch {
 		case err != nil:
 			fmt.Printf("[ERROR] %s: %v\n", website.Name, err)
@@ -1175,7 +1176,7 @@ func (s *CliService) BackupPanel(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println(s.t.Get("★ Start backup [%s]", time.Now().Format(time.DateTime)))
 	fmt.Println(s.hr)
 	fmt.Println(s.t.Get("|-Backup type: panel"))
-	if err := s.backupRepo.CreatePanel(); err != nil {
+	if err := s.backupRepo.CreatePanel(ctx); err != nil {
 		return errors.New(s.t.Get("Backup failed: %v", err))
 	}
 	fmt.Println(s.hr)
@@ -1236,12 +1237,12 @@ func (s *CliService) CutoffWebsite(ctx context.Context, cmd *cli.Command) error 
 	fmt.Println(s.t.Get("|-Rotation target: %s", website.Name))
 
 	var files []string
-	zipPath, err := s.backupRepo.CutoffLog(path, filepath.Join(path, "access.log"))
+	zipPath, err := s.backupRepo.CutoffLog(ctx, path, filepath.Join(path, "access.log"))
 	if err != nil {
 		return err
 	}
 	files = append(files, zipPath)
-	zipPath, err = s.backupRepo.CutoffLog(path, filepath.Join(path, "error.log"))
+	zipPath, err = s.backupRepo.CutoffLog(ctx, path, filepath.Join(path, "error.log"))
 	if err != nil {
 		return err
 	}
@@ -1264,7 +1265,7 @@ func (s *CliService) CutoffContainer(ctx context.Context, cmd *cli.Command) erro
 	name := cmd.String("name")
 
 	// 获取容器日志路径
-	logPath, err := shell.Execf("docker inspect --format='{{.LogPath}}' '%s'", name)
+	logPath, err := shell.Execf(ctx, "docker inspect --format='{{.LogPath}}' '%s'", name)
 	if err != nil {
 		return errors.New(s.t.Get("Failed to get container log path: %v", err))
 	}
@@ -1281,7 +1282,7 @@ func (s *CliService) CutoffContainer(ctx context.Context, cmd *cli.Command) erro
 	fmt.Println(s.t.Get("|-Rotation type: container"))
 	fmt.Println(s.t.Get("|-Rotation target: %s", name))
 
-	zipPath, err := s.backupRepo.CutoffLog(savePath, logPath)
+	zipPath, err := s.backupRepo.CutoffLog(ctx, savePath, logPath)
 	if err != nil {
 		return err
 	}
@@ -1373,7 +1374,7 @@ func (s *CliService) AppInstall(ctx context.Context, cmd *cli.Command) error {
 		channel = cmp.Or(channel, "stable")
 	}
 
-	if err := s.appRepo.Install(channel, slug); err != nil {
+	if err := s.appRepo.Install(ctx, channel, slug); err != nil {
 		return errors.New(s.t.Get("App install failed: %v", err))
 	}
 
@@ -1387,7 +1388,7 @@ func (s *CliService) AppUnInstall(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
 
-	if err := s.appRepo.UnInstall(slug); err != nil {
+	if err := s.appRepo.UnInstall(ctx, slug); err != nil {
 		return errors.New(s.t.Get("App uninstall failed: %v", err))
 	}
 
@@ -1401,7 +1402,7 @@ func (s *CliService) AppUpdate(ctx context.Context, cmd *cli.Command) error {
 		return errors.New(s.t.Get("Parameters cannot be empty"))
 	}
 
-	if err := s.appRepo.Update(slug); err != nil {
+	if err := s.appRepo.Update(ctx, slug); err != nil {
 		return errors.New(s.t.Get("App update failed: %v", err))
 	}
 
@@ -1452,7 +1453,7 @@ func (s *CliService) SyncTime(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err = ntp.UpdateSystemTime(now); err != nil {
+	if err = ntp.UpdateSystemTime(ctx, now); err != nil {
 		return err
 	}
 
@@ -1523,7 +1524,7 @@ func (s *CliService) ReloadWebserver(ctx context.Context, cmd *cli.Command) erro
 		return err
 	}
 
-	return d.ReloadIfRunning()
+	return d.ReloadIfRunning(ctx)
 }
 
 func (s *CliService) RemoveSetting(ctx context.Context, cmd *cli.Command) error {
@@ -1627,8 +1628,8 @@ checkPort:
 	conf.HTTP.Port = port
 
 	// 放行端口
-	fw := firewall.NewFirewall()
-	_ = fw.Port(firewall.FireInfo{
+	fw := firewall.NewFirewall(ctx)
+	_ = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: port,
 		PortEnd:   port,
@@ -1678,7 +1679,7 @@ func (s *CliService) CronRun(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	fmt.Println(s.t.Get("|-Running cron task: %s", cron.Name))
-	out, err := shell.Execf("bash %s", cron.Shell)
+	out, err := shell.Execf(ctx, "bash %s", cron.Shell)
 	if out != "" {
 		fmt.Println(out)
 	}
@@ -1692,7 +1693,7 @@ func (s *CliService) CronRun(ctx context.Context, cmd *cli.Command) error {
 
 func (s *CliService) CronStatus(ctx context.Context, cmd *cli.Command) error {
 	status := !cmd.Bool("off")
-	if err := s.cronRepo.Status(cmd.Uint("id"), status); err != nil {
+	if err := s.cronRepo.Status(ctx, cmd.Uint("id"), status); err != nil {
 		return err
 	}
 
@@ -1713,7 +1714,7 @@ func (s *CliService) CronFailed(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	// 附带日志尾部，便于直接定位问题
-	tail, _ := shell.Execf("tail -n 20 %s", cron.Log)
+	tail, _ := shell.Execf(ctx, "tail -n 20 %s", cron.Log)
 
 	return s.notifyRepo.SendEventSync(ctx, biz.NotifyEventCronFailed, s.t.Get("[AcePanel] Cron Task Failed"),
 		biz.NotifyBody(s.t.Get("cron task exited abnormally"), [][2]string{

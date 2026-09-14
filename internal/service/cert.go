@@ -235,7 +235,7 @@ func (s *CertService) ObtainSelfSigned(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.certRepo.ObtainSelfSigned(req.ID); err != nil {
+	if err = s.certRepo.ObtainSelfSigned(r.Context(), req.ID); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -266,7 +266,7 @@ func (s *CertService) Deploy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.certRepo.Deploy(req.ID, req.WebsiteIDs, req.EnableHTTPS)
+	err = s.certRepo.Deploy(r.Context(), req.ID, req.WebsiteIDs, req.EnableHTTPS)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

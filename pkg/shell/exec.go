@@ -1,4 +1,3 @@
-//nolint:noctx
 package shell
 
 import (
@@ -22,8 +21,8 @@ func ApplyEnv(cmd *exec.Cmd, env ...string) {
 }
 
 // Exec 执行 shell 命令
-func Exec(shell string) (string, error) {
-	cmd := exec.Command("bash", "-c", shell)
+func Exec(ctx context.Context, shell string) (string, error) {
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 	ApplyEnv(cmd)
 
 	var stdout, stderr bytes.Buffer
@@ -67,53 +66,7 @@ func ExecWithLog(ctx context.Context, shell string, logFile string) error {
 }
 
 // Execf 安全执行 shell 命令
-func Execf(shell string, args ...any) (string, error) {
-	if !preCheckArg(args) {
-		return "", errors.New("command contains illegal characters")
-	}
-	if len(args) > 0 {
-		shell = fmt.Sprintf(shell, args...)
-	}
-
-	cmd := exec.Command("bash", "-c", shell)
-	ApplyEnv(cmd)
-
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
-	}
-
-	return strings.TrimSpace(stdout.String()), nil
-}
-
-// ExecfWithEnv 安全执行 shell 命令，环境变量仅注入子进程
-func ExecfWithEnv(env []string, shell string, args ...any) (string, error) {
-	if !preCheckArg(args) {
-		return "", errors.New("command contains illegal characters")
-	}
-	if len(args) > 0 {
-		shell = fmt.Sprintf(shell, args...)
-	}
-
-	cmd := exec.Command("bash", "-c", shell)
-	ApplyEnv(cmd, env...)
-
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
-	}
-
-	return strings.TrimSpace(stdout.String()), nil
-}
-
-// ExecfWithContext 安全执行 shell 命令，ctx 取消时终止进程
-func ExecfWithContext(ctx context.Context, shell string, args ...any) (string, error) {
+func Execf(ctx context.Context, shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
@@ -135,8 +88,31 @@ func ExecfWithContext(ctx context.Context, shell string, args ...any) (string, e
 	return strings.TrimSpace(stdout.String()), nil
 }
 
+// ExecfWithEnv 安全执行 shell 命令，环境变量仅注入子进程
+func ExecfWithEnv(ctx context.Context, env []string, shell string, args ...any) (string, error) {
+	if !preCheckArg(args) {
+		return "", errors.New("command contains illegal characters")
+	}
+	if len(args) > 0 {
+		shell = fmt.Sprintf(shell, args...)
+	}
+
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
+	ApplyEnv(cmd, env...)
+
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
+	}
+
+	return strings.TrimSpace(stdout.String()), nil
+}
+
 // ExecfAsync 异步执行 shell 命令
-func ExecfAsync(shell string, args ...any) error {
+func ExecfAsync(ctx context.Context, shell string, args ...any) error {
 	if !preCheckArg(args) {
 		return errors.New("command contains illegal characters")
 	}
@@ -144,7 +120,7 @@ func ExecfAsync(shell string, args ...any) error {
 		shell = fmt.Sprintf(shell, args...)
 	}
 
-	cmd := exec.Command("bash", "-c", shell)
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 	ApplyEnv(cmd)
 
 	err := cmd.Start()
@@ -161,8 +137,8 @@ func ExecfAsync(shell string, args ...any) error {
 	return nil
 }
 
-// ExecfWithTimeout 执行 shell 命令并设置超时时间
-func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string, error) {
+// ExecfWithTimeout 执行 shell 命令并设置超时时间，ctx 取消或超时到期均终止进程
+func ExecfWithTimeout(ctx context.Context, timeout time.Duration, shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
@@ -170,38 +146,28 @@ func ExecfWithTimeout(timeout time.Duration, shell string, args ...any) (string,
 		shell = fmt.Sprintf(shell, args...)
 	}
 
-	cmd := exec.Command("bash", "-c", shell)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 	ApplyEnv(cmd)
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	err := cmd.Start()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, "timeout")
+		}
 		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
 	}
 
-	done := make(chan error, 1)
-	go func() {
-		done <- cmd.Wait()
-	}()
-
-	select {
-	case <-time.After(timeout):
-		_ = cmd.Process.Kill()
-		return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %s", shell, "timeout")
-	case err = <-done:
-		if err != nil {
-			return strings.TrimSpace(stdout.String()), fmt.Errorf("run %s failed, err: %w, stderr: %s", shell, err, strings.TrimSpace(stderr.String()))
-		}
-	}
-
-	return strings.TrimSpace(stdout.String()), err
+	return strings.TrimSpace(stdout.String()), nil
 }
 
 // ExecfWithOutput 执行 shell 命令并输出到终端
-func ExecfWithOutput(shell string, args ...any) error {
+func ExecfWithOutput(ctx context.Context, shell string, args ...any) error {
 	if !preCheckArg(args) {
 		return errors.New("command contains illegal characters")
 	}
@@ -209,7 +175,7 @@ func ExecfWithOutput(shell string, args ...any) error {
 		shell = fmt.Sprintf(shell, args...)
 	}
 
-	cmd := exec.Command("bash", "-c", shell)
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 	ApplyEnv(cmd)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -250,7 +216,7 @@ func ExecfWithPipe(ctx context.Context, shell string, args ...any) (io.ReadClose
 }
 
 // ExecfWithDir 在指定目录下执行 shell 命令
-func ExecfWithDir(dir, shell string, args ...any) (string, error) {
+func ExecfWithDir(ctx context.Context, dir, shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
@@ -258,7 +224,7 @@ func ExecfWithDir(dir, shell string, args ...any) (string, error) {
 		shell = fmt.Sprintf(shell, args...)
 	}
 
-	cmd := exec.Command("bash", "-c", shell)
+	cmd := exec.CommandContext(ctx, "bash", "-c", shell)
 	ApplyEnv(cmd)
 	cmd.Dir = dir
 
@@ -274,7 +240,7 @@ func ExecfWithDir(dir, shell string, args ...any) (string, error) {
 }
 
 // ExecfWithTTY 在伪终端下执行 shell 命令
-func ExecfWithTTY(shell string, args ...any) (string, error) {
+func ExecfWithTTY(ctx context.Context, shell string, args ...any) (string, error) {
 	if !preCheckArg(args) {
 		return "", errors.New("command contains illegal characters")
 	}
@@ -282,7 +248,7 @@ func ExecfWithTTY(shell string, args ...any) (string, error) {
 		shell = fmt.Sprintf(shell, args...)
 	}
 
-	cmd := exec.Command("bash", "-i", "-c", shell)
+	cmd := exec.CommandContext(ctx, "bash", "-i", "-c", shell)
 	ApplyEnv(cmd)
 
 	var out bytes.Buffer

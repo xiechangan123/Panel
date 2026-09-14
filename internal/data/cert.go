@@ -156,8 +156,8 @@ func (r *certRepo) GenerateSelfSigned(domains []string) ([]byte, []byte, error) 
 	return pkgcert.GenerateSelfSigned(domains)
 }
 
-func (r *certRepo) ObtainPanel(account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
-	client, err := acme.NewPrivateKeyAccount(account.Email, account.PrivateKey, acme.CALetsEncrypt, nil, r.log)
+func (r *certRepo) ObtainPanel(ctx context.Context, account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
+	client, err := acme.NewPrivateKeyAccount(ctx, account.Email, account.PrivateKey, acme.CALetsEncrypt, nil, r.log)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -168,7 +168,7 @@ func (r *certRepo) ObtainPanel(account *biz.CertAccount, names []string, webServ
 	}
 	client.UsePanel(d.PanelACMEConf(), d)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 	defer cancel()
 	ssl, err := client.ObtainCertificate(ctx, names, acme.KeyEC256)
 	if err != nil {
@@ -280,16 +280,16 @@ func (r *certRepo) EnableWebsiteSSL(website *biz.Website, certPath, keyPath, web
 }
 
 // ReloadWebserver 重载 Web 服务器
-func (r *certRepo) ReloadWebserver(webServer string) error {
+func (r *certRepo) ReloadWebserver(ctx context.Context, webServer string) error {
 	d, err := webserver.Get(webserver.Type(webServer))
 	if err != nil {
 		return err
 	}
 
-	return d.ReloadIfRunning()
+	return d.ReloadIfRunning(ctx)
 }
 
-func (r *certRepo) RunScript(cert *biz.Cert) error {
+func (r *certRepo) RunScript(ctx context.Context, cert *biz.Cert) error {
 	if cert.Script == "" {
 		return nil
 	}
@@ -311,11 +311,11 @@ func (r *certRepo) RunScript(cert *biz.Cert) error {
 	_ = f.Close()
 	defer func(name string) { _ = os.Remove(name) }(f.Name())
 
-	_, err = shell.Execf("bash " + f.Name())
+	_, err = shell.Execf(ctx, "bash "+f.Name())
 	return err
 }
 
-func (r *certRepo) GetClient(cert *biz.Cert) (*acme.Client, error) {
+func (r *certRepo) GetClient(ctx context.Context, cert *biz.Cert) (*acme.Client, error) {
 	if cert.Account == nil {
 		return nil, errors.New(r.t.Get("this certificate is not associated with an ACME account and cannot be obtained"))
 	}
@@ -341,5 +341,5 @@ func (r *certRepo) GetClient(cert *biz.Cert) (*acme.Client, error) {
 		eab = &acme.EAB{KeyID: cert.Account.Kid, MACKey: cert.Account.HmacEncoded}
 	}
 
-	return acme.NewPrivateKeyAccount(cert.Account.Email, cert.Account.PrivateKey, ca, eab, r.log)
+	return acme.NewPrivateKeyAccount(ctx, cert.Account.Email, cert.Account.PrivateKey, ca, eab, r.log)
 }

@@ -28,7 +28,7 @@ func TestSearchX(t *testing.T) {
 	}
 
 	t.Run("正常搜索", func(t *testing.T) {
-		entries, err := SearchX(testDir, "test", false)
+		entries, err := SearchX(t.Context(), testDir, "test", false)
 		must.NoError(t, err)
 
 		names := make([]string, 0, len(entries))
@@ -46,13 +46,13 @@ func TestSearchX(t *testing.T) {
 	})
 
 	t.Run("无匹配结果", func(t *testing.T) {
-		entries, err := SearchX(testDir, "nonexistent", false)
+		entries, err := SearchX(t.Context(), testDir, "nonexistent", false)
 		check.NoError(t, err)
 		check.Empty(t, entries)
 	})
 
 	t.Run("路径不存在", func(t *testing.T) {
-		_, err := SearchX("/path/does/not/exist", "test", false)
+		_, err := SearchX(t.Context(), "/path/does/not/exist", "test", false)
 		check.Error(t, err)
 	})
 }

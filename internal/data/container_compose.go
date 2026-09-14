@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -23,9 +24,9 @@ func NewContainerComposeRepo() biz.ContainerComposeRepo {
 }
 
 // List 列出所有编排
-func (r *containerComposeRepo) List() ([]types.ContainerCompose, error) {
+func (r *containerComposeRepo) List(ctx context.Context) ([]types.ContainerCompose, error) {
 	// PODMAN_COMPOSE_WARNING_LOGS 禁用 Podman Compose 的警告日志
-	raw, err := shell.ExecfWithEnv(composeEnv, "docker compose ls -a --format json")
+	raw, err := shell.ExecfWithEnv(ctx, composeEnv, "docker compose ls -a --format json")
 	if err != nil {
 		return nil, err
 	}
@@ -136,20 +137,20 @@ func (r *containerComposeRepo) Update(name, compose string, envs []types.KV) err
 }
 
 // Up 启动编排
-func (r *containerComposeRepo) Up(name string, force bool) error {
+func (r *containerComposeRepo) Up(ctx context.Context, name string, force bool) error {
 	file := filepath.Join(app.Root, "compose", name, "docker-compose.yml")
 	cmd := "docker compose -f %s up -d"
 	if force {
 		cmd += " --pull always" // 强制拉取镜像
 	}
-	_, err := shell.ExecfWithEnv(composeEnv, cmd, file)
+	_, err := shell.ExecfWithEnv(ctx, composeEnv, cmd, file)
 	return err
 }
 
 // Down 停止编排
-func (r *containerComposeRepo) Down(name string) error {
+func (r *containerComposeRepo) Down(ctx context.Context, name string) error {
 	file := filepath.Join(app.Root, "compose", name, "docker-compose.yml")
-	_, err := shell.ExecfWithEnv(composeEnv, "docker compose -f %s down", file)
+	_, err := shell.ExecfWithEnv(ctx, composeEnv, "docker compose -f %s down", file)
 	return err
 }
 

@@ -473,7 +473,7 @@ func (uc *AlertUsecase) collect(ctx context.Context, rule *AlertRule, info types
 		if rule.Target == "" {
 			return nil, nil
 		}
-		running, _ := systemctl.Status(rule.Target)
+		running, _ := systemctl.Status(ctx, rule.Target)
 		return []*AlertMetric{{Target: rule.Target, Value: uc.statusValue(running)}}, nil
 
 	case AlertTypeProject:
@@ -483,7 +483,7 @@ func (uc *AlertUsecase) collect(ctx context.Context, rule *AlertRule, info types
 		}
 		// 项目即 systemd 单元，单元名与项目名一致，状态并发查询
 		return lop.Map(names, func(name string, _ int) *AlertMetric {
-			running, _ := systemctl.Status(name)
+			running, _ := systemctl.Status(ctx, name)
 			return &AlertMetric{Target: name, Value: uc.statusValue(running)}
 		}), nil
 
@@ -510,7 +510,7 @@ func (uc *AlertUsecase) collect(ctx context.Context, rule *AlertRule, info types
 		// 状态查询逐个访问 systemd，并发采集
 		return lo.Compact(lop.Map(targets, func(item *App, _ int) *AlertMetric {
 			a, _ := uc.loader.Get(item.Slug)
-			status := a.Status()
+			status := a.Status(ctx)
 			// 无 systemd 服务的应用没有运行状态
 			if status == types.AppStatusNA {
 				return nil
@@ -782,7 +782,7 @@ func (uc *AlertUsecase) readSSHJournal(ctx context.Context) (string, error) {
 	// 只用到 MESSAGE，-o cat 免去 journald 侧序列化几十个无关字段和这边的逐行反序列化
 	scanCtx, cancel := context.WithTimeout(ctx, sshScanTimeout)
 	defer cancel()
-	raw, err := shell.ExecfWithContext(scanCtx, `journalctl -u sshd -u ssh --no-pager -q -o cat --show-cursor -n %d %s 2>/dev/null`, limit, position)
+	raw, err := shell.Execf(scanCtx, `journalctl -u sshd -u ssh --no-pager -q -o cat --show-cursor -n %d %s 2>/dev/null`, limit, position)
 	if err != nil {
 		// 读取失败（含游标因日志轮转失效）则回退检查点并丢弃游标，下一轮按时间窗口重扫
 		uc.mu.Lock()

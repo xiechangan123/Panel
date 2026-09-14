@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -47,7 +48,7 @@ var _ biz.CertRepo = &CertRepo{}
 //			GetByWebsiteFunc: func(WebsiteID uint) (*biz.Cert, error) {
 //				panic("mock out the GetByWebsite method")
 //			},
-//			GetClientFunc: func(cert *biz.Cert) (*acme.Client, error) {
+//			GetClientFunc: func(ctx context.Context, cert *biz.Cert) (*acme.Client, error) {
 //				panic("mock out the GetClient method")
 //			},
 //			HTTPConfsFunc: func(cert *biz.Cert, webServer string) (map[string]string, []string) {
@@ -59,13 +60,13 @@ var _ biz.CertRepo = &CertRepo{}
 //			LoadWebsitesFunc: func(websiteIDs []uint) ([]*biz.Website, error) {
 //				panic("mock out the LoadWebsites method")
 //			},
-//			ObtainPanelFunc: func(account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
+//			ObtainPanelFunc: func(ctx context.Context, account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
 //				panic("mock out the ObtainPanel method")
 //			},
-//			ReloadWebserverFunc: func(webServer string) error {
+//			ReloadWebserverFunc: func(ctx context.Context, webServer string) error {
 //				panic("mock out the ReloadWebserver method")
 //			},
-//			RunScriptFunc: func(cert *biz.Cert) error {
+//			RunScriptFunc: func(ctx context.Context, cert *biz.Cert) error {
 //				panic("mock out the RunScript method")
 //			},
 //			SaveFunc: func(cert *biz.Cert) error {
@@ -109,7 +110,7 @@ type CertRepo struct {
 	GetByWebsiteFunc func(WebsiteID uint) (*biz.Cert, error)
 
 	// GetClientFunc mocks the GetClient method.
-	GetClientFunc func(cert *biz.Cert) (*acme.Client, error)
+	GetClientFunc func(ctx context.Context, cert *biz.Cert) (*acme.Client, error)
 
 	// HTTPConfsFunc mocks the HTTPConfs method.
 	HTTPConfsFunc func(cert *biz.Cert, webServer string) (map[string]string, []string)
@@ -121,13 +122,13 @@ type CertRepo struct {
 	LoadWebsitesFunc func(websiteIDs []uint) ([]*biz.Website, error)
 
 	// ObtainPanelFunc mocks the ObtainPanel method.
-	ObtainPanelFunc func(account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error)
+	ObtainPanelFunc func(ctx context.Context, account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error)
 
 	// ReloadWebserverFunc mocks the ReloadWebserver method.
-	ReloadWebserverFunc func(webServer string) error
+	ReloadWebserverFunc func(ctx context.Context, webServer string) error
 
 	// RunScriptFunc mocks the RunScript method.
-	RunScriptFunc func(cert *biz.Cert) error
+	RunScriptFunc func(ctx context.Context, cert *biz.Cert) error
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(cert *biz.Cert) error
@@ -194,6 +195,8 @@ type CertRepo struct {
 		}
 		// GetClient holds details about calls to the GetClient method.
 		GetClient []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Cert is the cert argument value.
 			Cert *biz.Cert
 		}
@@ -218,6 +221,8 @@ type CertRepo struct {
 		}
 		// ObtainPanel holds details about calls to the ObtainPanel method.
 		ObtainPanel []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Account is the account argument value.
 			Account *biz.CertAccount
 			// Names is the names argument value.
@@ -227,11 +232,15 @@ type CertRepo struct {
 		}
 		// ReloadWebserver holds details about calls to the ReloadWebserver method.
 		ReloadWebserver []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// WebServer is the webServer argument value.
 			WebServer string
 		}
 		// RunScript holds details about calls to the RunScript method.
 		RunScript []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Cert is the cert argument value.
 			Cert *biz.Cert
 		}
@@ -556,19 +565,21 @@ func (mock *CertRepo) GetByWebsiteCalls() []struct {
 }
 
 // GetClient calls GetClientFunc.
-func (mock *CertRepo) GetClient(cert *biz.Cert) (*acme.Client, error) {
+func (mock *CertRepo) GetClient(ctx context.Context, cert *biz.Cert) (*acme.Client, error) {
 	if mock.GetClientFunc == nil {
 		panic("CertRepo.GetClientFunc: method is nil but CertRepo.GetClient was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Cert *biz.Cert
 	}{
+		Ctx:  ctx,
 		Cert: cert,
 	}
 	mock.lockGetClient.Lock()
 	mock.calls.GetClient = append(mock.calls.GetClient, callInfo)
 	mock.lockGetClient.Unlock()
-	return mock.GetClientFunc(cert)
+	return mock.GetClientFunc(ctx, cert)
 }
 
 // GetClientCalls gets all the calls that were made to GetClient.
@@ -576,9 +587,11 @@ func (mock *CertRepo) GetClient(cert *biz.Cert) (*acme.Client, error) {
 //
 //	len(mockedCertRepo.GetClientCalls())
 func (mock *CertRepo) GetClientCalls() []struct {
+	Ctx  context.Context
 	Cert *biz.Cert
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Cert *biz.Cert
 	}
 	mock.lockGetClient.RLock()
@@ -692,15 +705,17 @@ func (mock *CertRepo) LoadWebsitesCalls() []struct {
 }
 
 // ObtainPanel calls ObtainPanelFunc.
-func (mock *CertRepo) ObtainPanel(account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
+func (mock *CertRepo) ObtainPanel(ctx context.Context, account *biz.CertAccount, names []string, webServer string) ([]byte, []byte, error) {
 	if mock.ObtainPanelFunc == nil {
 		panic("CertRepo.ObtainPanelFunc: method is nil but CertRepo.ObtainPanel was just called")
 	}
 	callInfo := struct {
+		Ctx       context.Context
 		Account   *biz.CertAccount
 		Names     []string
 		WebServer string
 	}{
+		Ctx:       ctx,
 		Account:   account,
 		Names:     names,
 		WebServer: webServer,
@@ -708,7 +723,7 @@ func (mock *CertRepo) ObtainPanel(account *biz.CertAccount, names []string, webS
 	mock.lockObtainPanel.Lock()
 	mock.calls.ObtainPanel = append(mock.calls.ObtainPanel, callInfo)
 	mock.lockObtainPanel.Unlock()
-	return mock.ObtainPanelFunc(account, names, webServer)
+	return mock.ObtainPanelFunc(ctx, account, names, webServer)
 }
 
 // ObtainPanelCalls gets all the calls that were made to ObtainPanel.
@@ -716,11 +731,13 @@ func (mock *CertRepo) ObtainPanel(account *biz.CertAccount, names []string, webS
 //
 //	len(mockedCertRepo.ObtainPanelCalls())
 func (mock *CertRepo) ObtainPanelCalls() []struct {
+	Ctx       context.Context
 	Account   *biz.CertAccount
 	Names     []string
 	WebServer string
 } {
 	var calls []struct {
+		Ctx       context.Context
 		Account   *biz.CertAccount
 		Names     []string
 		WebServer string
@@ -732,19 +749,21 @@ func (mock *CertRepo) ObtainPanelCalls() []struct {
 }
 
 // ReloadWebserver calls ReloadWebserverFunc.
-func (mock *CertRepo) ReloadWebserver(webServer string) error {
+func (mock *CertRepo) ReloadWebserver(ctx context.Context, webServer string) error {
 	if mock.ReloadWebserverFunc == nil {
 		panic("CertRepo.ReloadWebserverFunc: method is nil but CertRepo.ReloadWebserver was just called")
 	}
 	callInfo := struct {
+		Ctx       context.Context
 		WebServer string
 	}{
+		Ctx:       ctx,
 		WebServer: webServer,
 	}
 	mock.lockReloadWebserver.Lock()
 	mock.calls.ReloadWebserver = append(mock.calls.ReloadWebserver, callInfo)
 	mock.lockReloadWebserver.Unlock()
-	return mock.ReloadWebserverFunc(webServer)
+	return mock.ReloadWebserverFunc(ctx, webServer)
 }
 
 // ReloadWebserverCalls gets all the calls that were made to ReloadWebserver.
@@ -752,9 +771,11 @@ func (mock *CertRepo) ReloadWebserver(webServer string) error {
 //
 //	len(mockedCertRepo.ReloadWebserverCalls())
 func (mock *CertRepo) ReloadWebserverCalls() []struct {
+	Ctx       context.Context
 	WebServer string
 } {
 	var calls []struct {
+		Ctx       context.Context
 		WebServer string
 	}
 	mock.lockReloadWebserver.RLock()
@@ -764,19 +785,21 @@ func (mock *CertRepo) ReloadWebserverCalls() []struct {
 }
 
 // RunScript calls RunScriptFunc.
-func (mock *CertRepo) RunScript(cert *biz.Cert) error {
+func (mock *CertRepo) RunScript(ctx context.Context, cert *biz.Cert) error {
 	if mock.RunScriptFunc == nil {
 		panic("CertRepo.RunScriptFunc: method is nil but CertRepo.RunScript was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Cert *biz.Cert
 	}{
+		Ctx:  ctx,
 		Cert: cert,
 	}
 	mock.lockRunScript.Lock()
 	mock.calls.RunScript = append(mock.calls.RunScript, callInfo)
 	mock.lockRunScript.Unlock()
-	return mock.RunScriptFunc(cert)
+	return mock.RunScriptFunc(ctx, cert)
 }
 
 // RunScriptCalls gets all the calls that were made to RunScript.
@@ -784,9 +807,11 @@ func (mock *CertRepo) RunScript(cert *biz.Cert) error {
 //
 //	len(mockedCertRepo.RunScriptCalls())
 func (mock *CertRepo) RunScriptCalls() []struct {
+	Ctx  context.Context
 	Cert *biz.Cert
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Cert *biz.Cert
 	}
 	mock.lockRunScript.RLock()

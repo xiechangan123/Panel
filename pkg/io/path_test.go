@@ -43,7 +43,7 @@ func TestChmodNormalDir(t *testing.T) {
 	file := filepath.Join(sub, "f.txt")
 	must.NoError(t, Write(file, "x", 0644))
 
-	check.NoError(t, Chmod(tmpDir, 0700))
+	check.NoError(t, Chmod(t.Context(), tmpDir, 0700))
 
 	info, err := os.Stat(file)
 	must.NoError(t, err)
@@ -84,7 +84,7 @@ func TestChmodWithImmutable(t *testing.T) {
 	defer unlockAttr(tmpDir)
 
 	// 递归 chmod 会被 immutable 阻挡，withUnlock 应解锁重试
-	check.NoError(t, Chmod(tmpDir, 0700))
+	check.NoError(t, Chmod(t.Context(), tmpDir, 0700))
 
 	info, err := os.Stat(tmpDir)
 	must.NoError(t, err)

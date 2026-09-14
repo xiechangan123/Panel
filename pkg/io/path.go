@@ -1,6 +1,7 @@
 package io
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,22 +13,22 @@ import (
 )
 
 // Remove 删除文件/目录
-func Remove(path string) error {
-	_, _ = shell.Execf("chattr -R -ia '%s'", path)
+func Remove(ctx context.Context, path string) error {
+	_, _ = shell.Execf(ctx, "chattr -R -ia '%s'", path)
 	return os.RemoveAll(path)
 }
 
 // Chmod 修改文件/目录权限
-func Chmod(path string, permission os.FileMode) error {
+func Chmod(ctx context.Context, path string, permission os.FileMode) error {
 	return withUnlock(path, func() (string, error) {
-		return shell.Execf("chmod -R '%o' '%s'", permission, path)
+		return shell.Execf(ctx, "chmod -R '%o' '%s'", permission, path)
 	})
 }
 
 // Chown 修改文件或目录所有者
-func Chown(path, user, group string) error {
+func Chown(ctx context.Context, path, user, group string) error {
 	return withUnlock(path, func() (string, error) {
-		return shell.Execf("chown -R '%s:%s' '%s'", user, group, path)
+		return shell.Execf(ctx, "chown -R '%s:%s' '%s'", user, group, path)
 	})
 }
 
@@ -105,14 +106,14 @@ func Empty(path string) bool {
 	return len(files) == 0
 }
 
-func Mv(src, dst string) error {
-	_, err := shell.Execf(`mv -f '%s' '%s'`, src, dst)
+func Mv(ctx context.Context, src, dst string) error {
+	_, err := shell.Execf(ctx, `mv -f '%s' '%s'`, src, dst)
 	return err
 }
 
 // Cp 复制文件或目录（保留所有权和权限）
-func Cp(src, dst string) error {
-	_, err := shell.Execf(`cp -arf '%s' '%s'`, src, dst)
+func Cp(ctx context.Context, src, dst string) error {
+	_, err := shell.Execf(ctx, `cp -arf '%s' '%s'`, src, dst)
 	return err
 }
 
@@ -141,8 +142,8 @@ func IsDir(path string) bool {
 }
 
 // SizeX 获取路径大小（du命令）
-func SizeX(path string) (int64, error) {
-	out, err := shell.Execf("du -sb '%s'", path)
+func SizeX(ctx context.Context, path string) (int64, error) {
+	out, err := shell.Execf(ctx, "du -sb '%s'", path)
 	if err != nil {
 		return 0, err
 	}
@@ -156,8 +157,8 @@ func SizeX(path string) (int64, error) {
 }
 
 // CountX 统计目录下文件数
-func CountX(path string) (int64, error) {
-	out, err := shell.Execf("find '%s' -printf '.'", path)
+func CountX(ctx context.Context, path string) (int64, error) {
+	out, err := shell.Execf(ctx, "find '%s' -printf '.'", path)
 	if err != nil {
 		return 0, err
 	}

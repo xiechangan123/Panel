@@ -20,7 +20,7 @@ func NewContainerComposeService(containerComposeUsecase *biz.ContainerComposeUse
 }
 
 func (s *ContainerComposeService) List(w http.ResponseWriter, r *http.Request) {
-	composes, err := s.containerComposeRepo.List()
+	composes, err := s.containerComposeRepo.List(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -90,7 +90,7 @@ func (s *ContainerComposeService) Up(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerComposeRepo.Up(req.Name, req.Force); err != nil {
+	if err = s.containerComposeRepo.Up(r.Context(), req.Name, req.Force); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -105,7 +105,7 @@ func (s *ContainerComposeService) Down(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.containerComposeRepo.Down(req.Name); err != nil {
+	if err = s.containerComposeRepo.Down(r.Context(), req.Name); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -120,7 +120,7 @@ func (s *ContainerComposeService) Remove(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err = s.containerComposeRepo.Remove(req.Name); err != nil {
+	if err = s.containerComposeRepo.Remove(r.Context(), req.Name); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

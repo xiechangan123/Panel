@@ -34,7 +34,7 @@ func TestUpdateSystemTime(t *testing.T) {
 	if env.IsWindows() {
 		t.Skip("Skipping on Windows")
 	}
-	err := UpdateSystemTime(time.Now())
+	err := UpdateSystemTime(t.Context(), time.Now())
 	check.NoError(t, err)
 }
 
@@ -42,6 +42,6 @@ func TestUpdateSystemTimeZone(t *testing.T) {
 	if env.IsWindows() {
 		t.Skip("Skipping on Windows")
 	}
-	err := UpdateSystemTimeZone("UTC")
+	err := UpdateSystemTimeZone(t.Context(), "UTC")
 	check.NoError(t, err)
 }

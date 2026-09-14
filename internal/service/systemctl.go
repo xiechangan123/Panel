@@ -26,7 +26,7 @@ func (s *SystemctlService) Status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status, err := systemctl.Status(req.Service)
+	status, err := systemctl.Status(r.Context(), req.Service)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s service running status: %v", req.Service, err))
 		return
@@ -42,7 +42,7 @@ func (s *SystemctlService) IsEnabled(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	enabled, err := systemctl.IsEnabled(req.Service)
+	enabled, err := systemctl.IsEnabled(r.Context(), req.Service)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s service enable status: %v", req.Service, err))
 		return
@@ -58,7 +58,7 @@ func (s *SystemctlService) Enable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Enable(req.Service); err != nil {
+	if err = systemctl.Enable(r.Context(), req.Service); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to enable %s service: %v", req.Service, err))
 		return
 	}
@@ -73,7 +73,7 @@ func (s *SystemctlService) Disable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Disable(req.Service); err != nil {
+	if err = systemctl.Disable(r.Context(), req.Service); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to disable %s service: %v", req.Service, err))
 		return
 	}
@@ -88,7 +88,7 @@ func (s *SystemctlService) Restart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(req.Service); err != nil {
+	if err = systemctl.Restart(r.Context(), req.Service); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to restart %s service: %v", req.Service, err))
 		return
 	}
@@ -103,7 +103,7 @@ func (s *SystemctlService) Reload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload(req.Service); err != nil {
+	if err = systemctl.Reload(r.Context(), req.Service); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to reload %s service: %v", req.Service, err))
 		return
 	}
@@ -118,7 +118,7 @@ func (s *SystemctlService) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Start(req.Service); err != nil {
+	if err = systemctl.Start(r.Context(), req.Service); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to start %s service: %v", req.Service, err))
 		return
 	}
@@ -133,7 +133,7 @@ func (s *SystemctlService) Stop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Stop(req.Service); err != nil {
+	if err = systemctl.Stop(r.Context(), req.Service); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to stop %s service: %v", req.Service, err))
 		return
 	}
@@ -149,7 +149,7 @@ func (s *SystemctlService) ClearLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.LogClear(req.Service); err != nil {
+	if err = systemctl.LogClear(r.Context(), req.Service); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to clear log for %s service: %v", req.Service, err))
 		return
 	}

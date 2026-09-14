@@ -1,6 +1,7 @@
 package phpmyadmin
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html"
@@ -69,12 +70,12 @@ func (s *App) Route(r chi.Router) {
 }
 
 // Status phpMyAdmin 由 Web 服务器站点承载，运行状态与 Web 服务器一致
-func (s *App) Status() string {
+func (s *App) Status(ctx context.Context) string {
 	d, err := s.dialect()
 	if err != nil {
 		return types.AggregateAppStatus(false)
 	}
-	ok, _ := systemctl.Status(d.Service())
+	ok, _ := systemctl.Status(ctx, d.Service())
 	return types.AggregateAppStatus(ok)
 }
 
@@ -292,8 +293,10 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fw := firewall.NewFirewall()
-	err = fw.Port(firewall.FireInfo{
+	// 站点配置已落盘，放行与重载不跟随请求取消，否则新端口不通
+	ctx := context.WithoutCancel(r.Context())
+	fw := firewall.NewFirewall(ctx)
+	err = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: req.Port,
 		PortEnd:   req.Port,
@@ -305,7 +308,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = d.Reload(); err != nil {
+	if err = d.Reload(ctx); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -344,7 +347,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = d.Reload(); err != nil {
+	if err = d.Reload(context.WithoutCancel(r.Context())); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

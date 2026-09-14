@@ -1,6 +1,7 @@
 package fail2ban
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"strings"
@@ -45,8 +46,8 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/white_list", s.GetWhiteList)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("fail2ban")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "fail2ban")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -105,13 +106,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		switch req.Name {
 		case "ssh":
 			filter = "sshd"
-			port, err = shell.Execf("cat /etc/ssh/sshd_config | grep 'Port ' | awk '{print $2}' | paste -sd ','")
+			port, err = shell.Execf(r.Context(), "cat /etc/ssh/sshd_config | grep 'Port ' | awk '{print $2}' | paste -sd ','")
 		case "mysql":
 			filter = "mysqld-auth"
-			port, err = shell.Execf("cat %s/server/mysql/conf/my.cnf | grep 'port' | head -n 1 | awk '{print $3}'", app.Root)
+			port, err = shell.Execf(r.Context(), "cat %s/server/mysql/conf/my.cnf | grep 'port' | head -n 1 | awk '{print $3}'", app.Root)
 		case "pure-ftpd":
 			filter = "pure-ftpd"
-			port, err = shell.Execf(`cat %s/server/pure-ftpd/etc/pure-ftpd.conf | grep "Bind" | awk '{print $2}' | awk -F "," '{print $2}'`, app.Root)
+			port, err = shell.Execf(r.Context(), `cat %s/server/pure-ftpd/etc/pure-ftpd.conf | grep "Bind" | awk '{print $2}' | awk -F "," '{print $2}'`, app.Root)
 		default:
 			service.Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown service"))
 			return
@@ -149,7 +150,7 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w)
+	s.reload(r.Context(), w)
 }
 
 // Update 修改规则
@@ -176,7 +177,7 @@ func (s *App) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w)
+	s.reload(r.Context(), w)
 }
 
 // Delete 删除规则
@@ -193,19 +194,21 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Remove(jailPath(jail.Name)); err != nil {
+	// 规则与配套过滤器要一起删掉，中途取消会留下孤立的过滤器文件
+	ctx := context.WithoutCancel(r.Context())
+	if err = io.Remove(ctx, jailPath(jail.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 	// 面板生成的过滤器随规则一起删除，fail2ban 自带的保留
 	if strings.HasPrefix(jail.Filter, panelFilterPrefix) {
-		if err = io.Remove(filterPath(jail.Filter)); err != nil {
+		if err = io.Remove(ctx, filterPath(jail.Filter)); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 	}
 
-	s.reload(w)
+	s.reload(ctx, w)
 }
 
 // BanList 获取封禁列表
@@ -216,7 +219,7 @@ func (s *App) BanList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := shell.Execf("fail2ban-client status %s", req.Name)
+	out, err := shell.Execf(r.Context(), "fail2ban-client status %s", req.Name)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get the status of rule %s: %v", req.Name, err))
 		return
@@ -262,7 +265,7 @@ func (s *App) Unban(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("fail2ban-client set %s unbanip %s", req.Name, req.IP); err != nil {
+	if _, err = shell.Execf(r.Context(), "fail2ban-client set %s unbanip %s", req.Name, req.IP); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -284,7 +287,7 @@ func (s *App) SetWhiteList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w)
+	s.reload(r.Context(), w)
 }
 
 // GetWhiteList 获取白名单
@@ -294,8 +297,9 @@ func (s *App) GetWhiteList(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, confval.SectionINI.GetIn(raw, "DEFAULT", "ignoreip"))
 }
 
-func (s *App) reload(w http.ResponseWriter) {
-	if _, err := shell.Execf("fail2ban-client reload"); err != nil {
+func (s *App) reload(ctx context.Context, w http.ResponseWriter) {
+	// 规则已落盘，重载不跟随请求取消，否则磁盘规则与运行中的 fail2ban 不一致
+	if _, err := shell.Execf(context.WithoutCancel(ctx), "fail2ban-client reload"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

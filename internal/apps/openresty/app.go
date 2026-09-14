@@ -1,6 +1,8 @@
 package openresty
 
 import (
+	"context"
+
 	"github.com/go-chi/chi/v5"
 
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
@@ -22,7 +24,7 @@ func (s *App) Route(r chi.Router) {
 	s.nginx.Route(r)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("nginx")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "nginx")
 	return types.AggregateAppStatus(ok)
 }

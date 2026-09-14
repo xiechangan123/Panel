@@ -1,6 +1,7 @@
 package webserver
 
 import (
+	"context"
 	"fmt"
 	"slices"
 
@@ -62,29 +63,29 @@ func (d Dialect) NewVhost(typ, configDir string) (types.Vhost, error) {
 }
 
 // Reload 重载服务，失败时附带配置测试输出
-func (d Dialect) Reload() error {
+func (d Dialect) Reload(ctx context.Context) error {
 	if err := d.BeforeReload(); err != nil {
 		return err
 	}
 
-	return d.reload()
+	return d.reload(ctx)
 }
 
 // ReloadIfRunning 仅在服务运行时重载，未运行时配置会在下次启动时生效
-func (d Dialect) ReloadIfRunning() error {
+func (d Dialect) ReloadIfRunning(ctx context.Context) error {
 	if err := d.BeforeReload(); err != nil {
 		return err
 	}
-	if running, _ := systemctl.Status(d.Service()); !running {
+	if running, _ := systemctl.Status(ctx, d.Service()); !running {
 		return nil
 	}
 
-	return d.reload()
+	return d.reload(ctx)
 }
 
-func (d Dialect) reload() error {
-	if err := systemctl.Reload(d.Service()); err != nil {
-		out, _ := shell.Execf(d.ConfigTest())
+func (d Dialect) reload(ctx context.Context) error {
+	if err := systemctl.Reload(ctx, d.Service()); err != nil {
+		out, _ := shell.Execf(ctx, d.ConfigTest())
 		return fmt.Errorf("failed to reload %s: %w; config test: %s", d.Service(), err, out)
 	}
 

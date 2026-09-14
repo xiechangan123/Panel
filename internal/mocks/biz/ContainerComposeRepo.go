@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -24,19 +25,19 @@ var _ biz.ContainerComposeRepo = &ContainerComposeRepo{}
 //			CreateFunc: func(name string, compose string, envs []types.KV) error {
 //				panic("mock out the Create method")
 //			},
-//			DownFunc: func(name string) error {
+//			DownFunc: func(ctx context.Context, name string) error {
 //				panic("mock out the Down method")
 //			},
 //			GetFunc: func(name string) (string, []types.KV, error) {
 //				panic("mock out the Get method")
 //			},
-//			ListFunc: func() ([]types.ContainerCompose, error) {
+//			ListFunc: func(ctx context.Context) ([]types.ContainerCompose, error) {
 //				panic("mock out the List method")
 //			},
 //			RemoveDirFunc: func(name string) error {
 //				panic("mock out the RemoveDir method")
 //			},
-//			UpFunc: func(name string, force bool) error {
+//			UpFunc: func(ctx context.Context, name string, force bool) error {
 //				panic("mock out the Up method")
 //			},
 //			UpdateFunc: func(name string, compose string, envs []types.KV) error {
@@ -53,19 +54,19 @@ type ContainerComposeRepo struct {
 	CreateFunc func(name string, compose string, envs []types.KV) error
 
 	// DownFunc mocks the Down method.
-	DownFunc func(name string) error
+	DownFunc func(ctx context.Context, name string) error
 
 	// GetFunc mocks the Get method.
 	GetFunc func(name string) (string, []types.KV, error)
 
 	// ListFunc mocks the List method.
-	ListFunc func() ([]types.ContainerCompose, error)
+	ListFunc func(ctx context.Context) ([]types.ContainerCompose, error)
 
 	// RemoveDirFunc mocks the RemoveDir method.
 	RemoveDirFunc func(name string) error
 
 	// UpFunc mocks the Up method.
-	UpFunc func(name string, force bool) error
+	UpFunc func(ctx context.Context, name string, force bool) error
 
 	// UpdateFunc mocks the Update method.
 	UpdateFunc func(name string, compose string, envs []types.KV) error
@@ -83,6 +84,8 @@ type ContainerComposeRepo struct {
 		}
 		// Down holds details about calls to the Down method.
 		Down []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Name is the name argument value.
 			Name string
 		}
@@ -93,6 +96,8 @@ type ContainerComposeRepo struct {
 		}
 		// List holds details about calls to the List method.
 		List []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// RemoveDir holds details about calls to the RemoveDir method.
 		RemoveDir []struct {
@@ -101,6 +106,8 @@ type ContainerComposeRepo struct {
 		}
 		// Up holds details about calls to the Up method.
 		Up []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Name is the name argument value.
 			Name string
 			// Force is the force argument value.
@@ -166,19 +173,21 @@ func (mock *ContainerComposeRepo) CreateCalls() []struct {
 }
 
 // Down calls DownFunc.
-func (mock *ContainerComposeRepo) Down(name string) error {
+func (mock *ContainerComposeRepo) Down(ctx context.Context, name string) error {
 	if mock.DownFunc == nil {
 		panic("ContainerComposeRepo.DownFunc: method is nil but ContainerComposeRepo.Down was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Name string
 	}{
+		Ctx:  ctx,
 		Name: name,
 	}
 	mock.lockDown.Lock()
 	mock.calls.Down = append(mock.calls.Down, callInfo)
 	mock.lockDown.Unlock()
-	return mock.DownFunc(name)
+	return mock.DownFunc(ctx, name)
 }
 
 // DownCalls gets all the calls that were made to Down.
@@ -186,9 +195,11 @@ func (mock *ContainerComposeRepo) Down(name string) error {
 //
 //	len(mockedContainerComposeRepo.DownCalls())
 func (mock *ContainerComposeRepo) DownCalls() []struct {
+	Ctx  context.Context
 	Name string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Name string
 	}
 	mock.lockDown.RLock()
@@ -230,16 +241,19 @@ func (mock *ContainerComposeRepo) GetCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *ContainerComposeRepo) List() ([]types.ContainerCompose, error) {
+func (mock *ContainerComposeRepo) List(ctx context.Context) ([]types.ContainerCompose, error) {
 	if mock.ListFunc == nil {
 		panic("ContainerComposeRepo.ListFunc: method is nil but ContainerComposeRepo.List was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockList.Lock()
 	mock.calls.List = append(mock.calls.List, callInfo)
 	mock.lockList.Unlock()
-	return mock.ListFunc()
+	return mock.ListFunc(ctx)
 }
 
 // ListCalls gets all the calls that were made to List.
@@ -247,8 +261,10 @@ func (mock *ContainerComposeRepo) List() ([]types.ContainerCompose, error) {
 //
 //	len(mockedContainerComposeRepo.ListCalls())
 func (mock *ContainerComposeRepo) ListCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List
@@ -289,21 +305,23 @@ func (mock *ContainerComposeRepo) RemoveDirCalls() []struct {
 }
 
 // Up calls UpFunc.
-func (mock *ContainerComposeRepo) Up(name string, force bool) error {
+func (mock *ContainerComposeRepo) Up(ctx context.Context, name string, force bool) error {
 	if mock.UpFunc == nil {
 		panic("ContainerComposeRepo.UpFunc: method is nil but ContainerComposeRepo.Up was just called")
 	}
 	callInfo := struct {
+		Ctx   context.Context
 		Name  string
 		Force bool
 	}{
+		Ctx:   ctx,
 		Name:  name,
 		Force: force,
 	}
 	mock.lockUp.Lock()
 	mock.calls.Up = append(mock.calls.Up, callInfo)
 	mock.lockUp.Unlock()
-	return mock.UpFunc(name, force)
+	return mock.UpFunc(ctx, name, force)
 }
 
 // UpCalls gets all the calls that were made to Up.
@@ -311,10 +329,12 @@ func (mock *ContainerComposeRepo) Up(name string, force bool) error {
 //
 //	len(mockedContainerComposeRepo.UpCalls())
 func (mock *ContainerComposeRepo) UpCalls() []struct {
+	Ctx   context.Context
 	Name  string
 	Force bool
 } {
 	var calls []struct {
+		Ctx   context.Context
 		Name  string
 		Force bool
 	}

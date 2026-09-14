@@ -1,6 +1,7 @@
 package nginx
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -49,7 +50,7 @@ func (s *App) CreateStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
 		_ = os.Remove(configPath)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -96,7 +97,7 @@ func (s *App) UpdateStreamServer(w http.ResponseWriter, r *http.Request) {
 		_ = os.Remove(configPath)
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}
@@ -123,7 +124,7 @@ func (s *App) DeleteStreamServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Reload("nginx"); err != nil {
+	if err := systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}
@@ -160,7 +161,7 @@ func (s *App) CreateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
 		_ = os.Remove(configPath)
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
@@ -207,7 +208,7 @@ func (s *App) UpdateStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		_ = os.Remove(configPath)
 	}
 
-	if err = systemctl.Reload("nginx"); err != nil {
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}
@@ -234,7 +235,7 @@ func (s *App) DeleteStreamUpstream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := systemctl.Reload("nginx"); err != nil {
+	if err := systemctl.Reload(context.WithoutCancel(r.Context()), "nginx"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload nginx: %v", err))
 		return
 	}

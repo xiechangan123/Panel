@@ -18,7 +18,7 @@ func NewSafeService(safeUsecase *biz.SafeUsecase) *SafeService {
 }
 
 func (s *SafeService) GetPingStatus(w http.ResponseWriter, r *http.Request) {
-	status, err := s.safeRepo.GetPingStatus()
+	status, err := s.safeRepo.GetPingStatus(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

@@ -60,14 +60,14 @@ func TestCompress(t *testing.T) {
 
 	for _, ext := range archiveExts {
 		t.Run(ext, func(t *testing.T) {
-			check.NoError(t, Compress(abs, src, filepath.Join(abs, "compress_test"+ext)))
+			check.NoError(t, Compress(t.Context(), abs, src, filepath.Join(abs, "compress_test"+ext)))
 		})
 	}
 	for _, ext := range singleExts {
 		t.Run(ext, func(t *testing.T) {
-			check.NoError(t, Compress(abs, src[:1], filepath.Join(abs, "compress_single"+ext)))
+			check.NoError(t, Compress(t.Context(), abs, src[:1], filepath.Join(abs, "compress_single"+ext)))
 			// 单文件格式装不下多个文件
-			check.Error(t, Compress(abs, src, filepath.Join(abs, "compress_multi"+ext)))
+			check.Error(t, Compress(t.Context(), abs, src, filepath.Join(abs, "compress_multi"+ext)))
 		})
 	}
 }
@@ -81,8 +81,8 @@ func TestUnCompress(t *testing.T) {
 	for _, ext := range archiveExts {
 		t.Run(ext, func(t *testing.T) {
 			dst := filepath.Join(abs, "uncompressed"+strings.ReplaceAll(ext, ".", "_"))
-			must.NoError(t, Compress(abs, src, filepath.Join(abs, "uncompress_test"+ext)))
-			must.NoError(t, UnCompress(filepath.Join(abs, "uncompress_test"+ext), dst))
+			must.NoError(t, Compress(t.Context(), abs, src, filepath.Join(abs, "uncompress_test"+ext)))
+			must.NoError(t, UnCompress(t.Context(), filepath.Join(abs, "uncompress_test"+ext), dst))
 
 			data, err := Read(filepath.Join(dst, src[0]))
 			check.NoError(t, err)
@@ -96,8 +96,8 @@ func TestUnCompress(t *testing.T) {
 	for _, ext := range singleExts {
 		t.Run(ext, func(t *testing.T) {
 			dst := filepath.Join(abs, "uncompressed_single"+strings.ReplaceAll(ext, ".", "_"))
-			must.NoError(t, Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)))
-			must.NoError(t, UnCompress(filepath.Join(abs, src[0]+ext), dst))
+			must.NoError(t, Compress(t.Context(), abs, src[:1], filepath.Join(abs, src[0]+ext)))
+			must.NoError(t, UnCompress(t.Context(), filepath.Join(abs, src[0]+ext), dst))
 
 			data, err := Read(filepath.Join(dst, src[0]))
 			check.NoError(t, err)
@@ -114,16 +114,16 @@ func TestListCompress(t *testing.T) {
 
 	for _, ext := range archiveExts {
 		t.Run(ext, func(t *testing.T) {
-			must.NoError(t, Compress(abs, src, filepath.Join(abs, "list_archive_test"+ext)))
-			list, err := ListCompress(filepath.Join(abs, "list_archive_test"+ext))
+			must.NoError(t, Compress(t.Context(), abs, src, filepath.Join(abs, "list_archive_test"+ext)))
+			list, err := ListCompress(t.Context(), filepath.Join(abs, "list_archive_test"+ext))
 			check.NoError(t, err)
 			check.Len(t, list, 2)
 		})
 	}
 	for _, ext := range singleExts {
 		t.Run(ext, func(t *testing.T) {
-			must.NoError(t, Compress(abs, src[:1], filepath.Join(abs, src[0]+ext)))
-			list, err := ListCompress(filepath.Join(abs, src[0]+ext))
+			must.NoError(t, Compress(t.Context(), abs, src[:1], filepath.Join(abs, src[0]+ext)))
+			list, err := ListCompress(t.Context(), filepath.Join(abs, src[0]+ext))
 			check.NoError(t, err)
 			check.DeepEqual(t, list, []string{src[0]})
 		})
@@ -135,7 +135,7 @@ func TestRemoveDeletesFileOrDirectory(t *testing.T) {
 	must.NoError(t, os.MkdirAll(path, 0755))
 	must.True(t, dirExists(path), must.Msgf("前置目录未建成: %s", path))
 
-	check.NoError(t, Remove(path))
+	check.NoError(t, Remove(t.Context(), path))
 	check.False(t, dirExists(path), check.Msgf("目录应已删除: %s", path))
 }
 
@@ -146,7 +146,7 @@ func TestChmodChangesPermissions(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "chmod_test.txt")
 	must.NoError(t, Write(path, "test", 0644))
 
-	check.NoError(t, Chmod(path, 0755))
+	check.NoError(t, Chmod(t.Context(), path, 0755))
 	info, err := os.Stat(path)
 	must.NoError(t, err)
 	check.Equal(t, info.Mode().Perm(), os.FileMode(0755))
@@ -160,7 +160,7 @@ func TestChownChangesOwner(t *testing.T) {
 	must.NoError(t, Write(path, "test", 0644))
 
 	// 校验属主是否真的变了需要 root，这里只能确认命令执行成功
-	check.NoError(t, Chown(path, "root", "root"))
+	check.NoError(t, Chown(t.Context(), path, "root", "root"))
 }
 
 func TestExistsReturnsTrueForExistingPath(t *testing.T) {
@@ -193,7 +193,7 @@ func TestMvMovesFile(t *testing.T) {
 	dst := filepath.Join(dir, "mv_dst.txt")
 	must.NoError(t, Write(src, "test", 0644))
 
-	check.NoError(t, Mv(src, dst))
+	check.NoError(t, Mv(t.Context(), src, dst))
 	check.True(t, fileExists(dst), check.Msgf("目标文件应存在: %s", dst))
 	check.False(t, fileExists(src), check.Msgf("源文件应已移走: %s", src))
 }
@@ -204,7 +204,7 @@ func TestCpCopiesFile(t *testing.T) {
 	dst := filepath.Join(dir, "cp_dst.txt")
 	must.NoError(t, Write(src, "test", 0644))
 
-	check.NoError(t, Cp(src, dst))
+	check.NoError(t, Cp(t.Context(), src, dst))
 	check.True(t, fileExists(dst), check.Msgf("目标文件应存在: %s", dst))
 	check.True(t, fileExists(src), check.Msgf("源文件应保留: %s", src))
 }

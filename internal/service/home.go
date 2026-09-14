@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -231,35 +232,36 @@ func (s *HomeService) InstalledEnvironment(w http.ResponseWriter, r *http.Reques
 	clickhouseInstalled, _ := s.appRepo.IsInstalled("slug = ?", "clickhouse")
 	rsyncInstalled, _ := s.appRepo.IsInstalled("slug = ?", "rsync")
 	allEnvs := s.environmentRepo.All()
+	ctx := r.Context()
 
 	// Go 版本
 	goData := lop.Map(s.installedSlugs(allEnvs, "go"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: "Go " + s.environmentRepo.InstalledVersion("go", slug)}
+		return types.LV{Value: slug, Label: "Go " + s.environmentRepo.InstalledVersion(ctx, "go", slug)}
 	})
 
 	// Java 版本
 	javaData := lop.Map(s.installedSlugs(allEnvs, "java"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: "Java " + s.environmentRepo.InstalledVersion("java", slug)}
+		return types.LV{Value: slug, Label: "Java " + s.environmentRepo.InstalledVersion(ctx, "java", slug)}
 	})
 
 	// Node.js 版本
 	nodejsData := lop.Map(s.installedSlugs(allEnvs, "nodejs"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: "Node.js " + s.environmentRepo.InstalledVersion("nodejs", slug)}
+		return types.LV{Value: slug, Label: "Node.js " + s.environmentRepo.InstalledVersion(ctx, "nodejs", slug)}
 	})
 
 	// PHP 版本
 	phpData := lop.Map(s.installedSlugs(allEnvs, "php"), func(slug string, _ int) types.LVInt {
-		return types.LVInt{Value: cast.ToInt(slug), Label: "PHP " + s.environmentRepo.InstalledVersion("php", slug)}
+		return types.LVInt{Value: cast.ToInt(slug), Label: "PHP " + s.environmentRepo.InstalledVersion(ctx, "php", slug)}
 	})
 
 	// Python 版本
 	pythonData := lop.Map(s.installedSlugs(allEnvs, "python"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: "Python " + s.environmentRepo.InstalledVersion("python", slug)}
+		return types.LV{Value: slug, Label: "Python " + s.environmentRepo.InstalledVersion(ctx, "python", slug)}
 	})
 
 	// .NET 版本
 	dotnetData := lop.Map(s.installedSlugs(allEnvs, "dotnet"), func(slug string, _ int) types.LV {
-		return types.LV{Value: slug, Label: ".NET " + s.environmentRepo.InstalledVersion("dotnet", slug)}
+		return types.LV{Value: slug, Label: ".NET " + s.environmentRepo.InstalledVersion(ctx, "dotnet", slug)}
 	})
 
 	// 数据库
@@ -391,13 +393,13 @@ func (s *HomeService) Update(w http.ResponseWriter, r *http.Request) {
 	checksum := fmt.Sprintf("https://%s%s", s.conf.App.DownloadEndpoint, download.Checksum)
 
 	// UpdatePanel 内部管理升级锁与 app.Status（失败自动恢复 Normal，不锁死 UI）
-	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum, nil); err != nil {
+	if err = s.backupRepo.UpdatePanel(r.Context(), panel.Version, url, checksum, nil); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
 	Success(w, nil)
-	tools.RestartPanel()
+	tools.RestartPanel(context.WithoutCancel(r.Context()))
 }
 
 func (s *HomeService) Restart(w http.ResponseWriter, r *http.Request) {
@@ -406,7 +408,7 @@ func (s *HomeService) Restart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.RestartPanel()
+	tools.RestartPanel(context.WithoutCancel(r.Context()))
 	Success(w, nil)
 }
 
@@ -416,7 +418,7 @@ func (s *HomeService) RestartServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.RestartServer()
+	tools.RestartServer(context.WithoutCancel(r.Context()))
 	Success(w, nil)
 }
 

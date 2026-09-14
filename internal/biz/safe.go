@@ -7,9 +7,9 @@ import (
 )
 
 type SafeRepo interface {
-	GetPingStatus() (bool, error)
-	FirewallRunning() (bool, error)
-	SetPingStatus(status bool) error
+	GetPingStatus(ctx context.Context) (bool, error)
+	FirewallRunning(ctx context.Context) (bool, error)
+	SetPingStatus(ctx context.Context, status bool) error
 }
 
 type SafeUsecase struct {
@@ -21,12 +21,12 @@ func NewSafeUsecase(repo SafeRepo, log *slog.Logger) *SafeUsecase {
 	return &SafeUsecase{repo: repo, log: log}
 }
 
-func (uc *SafeUsecase) GetPingStatus() (bool, error) {
-	return uc.repo.GetPingStatus()
+func (uc *SafeUsecase) GetPingStatus(ctx context.Context) (bool, error) {
+	return uc.repo.GetPingStatus(ctx)
 }
 
 func (uc *SafeUsecase) UpdatePingStatus(ctx context.Context, status bool) error {
-	running, err := uc.repo.FirewallRunning()
+	running, err := uc.repo.FirewallRunning(ctx)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (uc *SafeUsecase) UpdatePingStatus(ctx context.Context, status bool) error 
 		return errors.New("failed to update ping status: firewall is not running")
 	}
 
-	if err = uc.repo.SetPingStatus(status); err != nil {
+	if err = uc.repo.SetPingStatus(ctx, status); err != nil {
 		return err
 	}
 

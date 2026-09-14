@@ -1,6 +1,7 @@
 package caddy
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -33,8 +34,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/clear_error_log", s.ClearErrorLog)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("caddy")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "caddy")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -60,7 +61,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.reload(); err != nil {
+	if err = s.reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -73,7 +74,7 @@ func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("cat /dev/null > %s", caddy.ErrorLogPath); err != nil {
+	if _, err := shell.Execf(r.Context(), "cat /dev/null > %s", caddy.ErrorLogPath); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -81,12 +82,13 @@ func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-func (s *App) reload() error {
+func (s *App) reload(ctx context.Context) error {
+	ctx = context.WithoutCancel(ctx)
 	d, err := webserver.Get(webserver.TypeCaddy)
 	if err != nil {
 		return err
 	}
-	if err = d.Reload(); err != nil {
+	if err = d.Reload(ctx); err != nil {
 		return fmt.Errorf("%s", s.t.Get("failed to reload caddy: %v", err))
 	}
 

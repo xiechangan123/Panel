@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -49,7 +50,7 @@ func (r *environmentRepo) IsInstalled(typ, slug string) bool {
 	return err == nil
 }
 
-func (r *environmentRepo) InstalledVersion(typ, slug string) string {
+func (r *environmentRepo) InstalledVersion(ctx context.Context, typ, slug string) string {
 	if !r.IsInstalled(typ, slug) {
 		return ""
 	}
@@ -61,22 +62,22 @@ func (r *environmentRepo) InstalledVersion(typ, slug string) string {
 	switch typ {
 	case "go":
 		// go version go1.21.0 linux/amd64 -> 1.21.0
-		version, err = shell.Exec(filepath.Join(basePath, "bin", "go") + " version | awk '{print $3}' | sed 's/go//'")
+		version, err = shell.Exec(ctx, filepath.Join(basePath, "bin", "go")+" version | awk '{print $3}' | sed 's/go//'")
 	case "java":
 		// OpenJDK Runtime Environment Corretto-21.0.9.11.1 (build 21.0.9+11-LTS) -> 21.0.9.11.1
-		version, err = shell.Exec(filepath.Join(basePath, "bin", "java") + ` -version 2>&1 | sed -n 's/.*Corretto-\([0-9.]*\).*/\1/p' | head -n 1`)
+		version, err = shell.Exec(ctx, filepath.Join(basePath, "bin", "java")+` -version 2>&1 | sed -n 's/.*Corretto-\([0-9.]*\).*/\1/p' | head -n 1`)
 	case "nodejs":
 		// v20.10.0 -> 20.10.0
-		version, err = shell.Exec(filepath.Join(basePath, "bin", "node") + " -v | sed 's/v//'")
+		version, err = shell.Exec(ctx, filepath.Join(basePath, "bin", "node")+" -v | sed 's/v//'")
 	case "php":
 		// PHP 8.3.0 (cli) -> 8.3.0
-		version, err = shell.Exec(filepath.Join(basePath, "bin", "php") + " -d error_reporting=0 -r 'echo PHP_VERSION;'")
+		version, err = shell.Exec(ctx, filepath.Join(basePath, "bin", "php")+" -d error_reporting=0 -r 'echo PHP_VERSION;'")
 	case "python":
 		// Python 3.11.5 -> 3.11.5
-		version, err = shell.Exec(filepath.Join(basePath, "bin", "python3") + " --version | awk '{print $2}'")
+		version, err = shell.Exec(ctx, filepath.Join(basePath, "bin", "python3")+" --version | awk '{print $2}'")
 	case "dotnet":
 		// 8.0.100
-		version, err = shell.Exec(filepath.Join(basePath, "dotnet") + " --version")
+		version, err = shell.Exec(ctx, filepath.Join(basePath, "dotnet")+" --version")
 	default:
 		return ""
 	}
@@ -92,6 +93,6 @@ func (r *environmentRepo) ScriptCommand(typ, action, slug, version string) strin
 	return fmt.Sprintf(`curl -sSLm 10 --retry 3 "%s" | bash -s -- "%s" "%s"`, shellUrl, slug, version)
 }
 
-func (r *environmentRepo) ExecScript(cmd string) error {
-	return shell.ExecfWithOutput(cmd)
+func (r *environmentRepo) ExecScript(ctx context.Context, cmd string) error {
+	return shell.ExecfWithOutput(ctx, cmd)
 }

@@ -1,6 +1,7 @@
 package openlitespeed
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -46,8 +47,8 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/realip", s.SetRealIP)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("openlitespeed")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "openlitespeed")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -73,7 +74,7 @@ func (s *App) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.reload(); err != nil {
+	if err = s.reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -86,7 +87,7 @@ func (s *App) ErrorLog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *App) ClearErrorLog(w http.ResponseWriter, r *http.Request) {
-	if _, err := shell.Execf("cat /dev/null > %s/logs/error.log", openlitespeed.ServerRoot); err != nil {
+	if _, err := shell.Execf(r.Context(), "cat /dev/null > %s/logs/error.log", openlitespeed.ServerRoot); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -163,7 +164,7 @@ func (s *App) SetPHP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = s.reload(); err != nil {
+	if err = s.reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -192,7 +193,7 @@ func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = s.reload(); err != nil {
+	if err = s.reload(r.Context()); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -201,12 +202,13 @@ func (s *App) SetRealIP(w http.ResponseWriter, r *http.Request) {
 }
 
 // reload 经方言重载，重载前会 Sync
-func (s *App) reload() error {
+func (s *App) reload(ctx context.Context) error {
+	ctx = context.WithoutCancel(ctx)
 	d, err := webserver.Get(webserver.TypeOpenLiteSpeed)
 	if err != nil {
 		return err
 	}
-	if err = d.Reload(); err != nil {
+	if err = d.Reload(ctx); err != nil {
 		return fmt.Errorf("%s", s.t.Get("failed to reload openlitespeed: %v", err))
 	}
 

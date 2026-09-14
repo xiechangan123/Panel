@@ -31,7 +31,7 @@ func (s *ProjectService) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	typ := types.ProjectType(r.URL.Query().Get("type"))
-	projects, total, err := s.projectRepo.List(typ, req.Page, req.Limit)
+	projects, total, err := s.projectRepo.List(r.Context(), typ, req.Page, req.Limit)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -50,7 +50,7 @@ func (s *ProjectService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	project, err := s.projectRepo.Get(req.ID)
+	project, err := s.projectRepo.Get(r.Context(), req.ID)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

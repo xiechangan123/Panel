@@ -60,7 +60,7 @@ func NewPanelTask(backupUsecase *biz.BackupUsecase, cacheUsecase *biz.CacheUseca
 	}
 }
 
-func (r *PanelTask) Run(_ context.Context) error {
+func (r *PanelTask) Run(ctx context.Context) error {
 	app.Status = app.StatusMaintain
 
 	// 优化主数据库
@@ -89,7 +89,7 @@ func (r *PanelTask) Run(_ context.Context) error {
 	}
 
 	// 备份面板
-	if err := r.backupRepo.CreatePanel(); err != nil {
+	if err := r.backupRepo.CreatePanel(ctx); err != nil {
 		r.log.Warn("failed to backup panel", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 	}
 
@@ -109,7 +109,7 @@ func (r *PanelTask) Run(_ context.Context) error {
 		r.updateTemplates()
 		// 自动更新面板
 		if autoUpdate, err := r.settingRepo.GetBool(biz.SettingKeyAutoUpdate); err == nil && autoUpdate {
-			r.updatePanel()
+			r.updatePanel(ctx)
 		}
 	}
 
@@ -158,12 +158,15 @@ func (r *PanelTask) updateTemplates() {
 }
 
 // 更新面板
-func (r *PanelTask) updatePanel() {
+func (r *PanelTask) updatePanel(ctx context.Context) {
 	if r.taskRepo.HasRunningTask() {
 		return
 	}
 
 	channel, _ := r.settingRepo.Get(biz.SettingKeyChannel)
+
+	// 延后触发且要熬过面板自杀重启，绑可取消 ctx 会让更新与重启中途被杀
+	ctx = context.WithoutCancel(ctx)
 
 	// 加 360 秒确保在缓存更新后才更新面板
 	time.AfterFunc(time.Duration(rand.IntN(300))*time.Second+360*time.Second, func() { //nolint:gosec
@@ -185,14 +188,14 @@ func (r *PanelTask) updatePanel() {
 		if download := collect.First(panel.Downloads); download != nil {
 			url := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.URL)
 			checksum := fmt.Sprintf("https://%s%s", r.conf.App.DownloadEndpoint, download.Checksum)
-			if err = r.backupRepo.UpdatePanel(panel.Version, url, checksum, func(msg string) {
+			if err = r.backupRepo.UpdatePanel(ctx, panel.Version, url, checksum, func(msg string) {
 				r.log.Info("panel updating", slog.String("type", biz.OperationTypePanel), slog.String("msg", msg))
 			}); err != nil {
 				r.log.Warn("failed to update panel", slog.String("type", biz.OperationTypePanel), slog.Uint64("operator_id", 0), slog.Any("err", err))
 				return
 			}
 			// 新流程非破坏性、storage 原地不动，失败无需 FixPanel；成功后由本入口负责重启
-			tools.RestartPanel()
+			tools.RestartPanel(ctx)
 		}
 	})
 }

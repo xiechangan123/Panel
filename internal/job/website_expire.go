@@ -35,7 +35,7 @@ func NewWebsiteExpire(notifyUsecase *biz.NotifyUsecase, websiteUsecase *biz.Webs
 	}
 }
 
-func (r *WebsiteExpire) Run(_ context.Context) error {
+func (r *WebsiteExpire) Run(ctx context.Context) error {
 	if app.Status != app.StatusNormal {
 		return nil
 	}
@@ -49,7 +49,7 @@ func (r *WebsiteExpire) Run(_ context.Context) error {
 	}
 
 	for _, website := range websites {
-		if err := r.websiteRepo.UpdateStatus(website.ID, false); err != nil {
+		if err := r.websiteRepo.UpdateStatus(ctx, website.ID, false); err != nil {
 			r.log.Warn("failed to disable expired website", slog.String("name", website.Name), slog.Any("err", err))
 			continue
 		}

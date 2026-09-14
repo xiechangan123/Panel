@@ -63,7 +63,7 @@ func NewFirewallScan(scanEventUsecase *biz.ScanEventUsecase, settingUsecase *biz
 	}
 }
 
-func (r *FirewallScan) Run(_ context.Context) error {
+func (r *FirewallScan) Run(ctx context.Context) error {
 	if app.Status != app.StatusNormal {
 		return nil
 	}
@@ -85,7 +85,7 @@ func (r *FirewallScan) Run(_ context.Context) error {
 	r.flush()
 
 	// 自动屏蔽/解封
-	r.autoBlock()
+	r.autoBlock(ctx)
 
 	// 清理过期数据
 	r.cleanup()
@@ -210,15 +210,15 @@ func (r *FirewallScan) flush() {
 }
 
 // ensureFirewall 懒加载防火墙实例
-func (r *FirewallScan) ensureFirewall() firewall.Firewall {
+func (r *FirewallScan) ensureFirewall(ctx context.Context) firewall.Firewall {
 	if r.fw == nil {
-		r.fw = firewall.NewFirewall()
+		r.fw = firewall.NewFirewall(ctx)
 	}
 	return r.fw
 }
 
 // autoBlock 自动屏蔽超阈值 IP 并解封过期 IP
-func (r *FirewallScan) autoBlock() {
+func (r *FirewallScan) autoBlock(ctx context.Context) {
 	setting, err := r.scanRepo.GetSetting()
 	if err != nil || !setting.AutoBlock {
 		// 未启用时清空计数器，防止无界增长
@@ -230,8 +230,8 @@ func (r *FirewallScan) autoBlock() {
 		return
 	}
 
-	fw := r.ensureFirewall()
-	running, err := fw.Status()
+	fw := r.ensureFirewall(ctx)
+	running, err := fw.Status(ctx)
 	if err != nil || !running {
 		// 防火墙未运行时也要清理计数器，防止无界增长
 		r.mu.Lock()
@@ -287,7 +287,7 @@ func (r *FirewallScan) autoBlock() {
 	// 执行解封（锁外操作，防火墙命令耗时）
 	for _, ip := range toUnblock {
 		family := ipFamily(ip)
-		if err = fw.RichRules(firewall.FireInfo{
+		if err = fw.RichRules(ctx, firewall.FireInfo{
 			Family:    family,
 			Address:   ip,
 			Strategy:  firewall.StrategyDrop,
@@ -309,7 +309,7 @@ func (r *FirewallScan) autoBlock() {
 			continue
 		}
 		family := ipFamily(item.ip)
-		if err = fw.RichRules(firewall.FireInfo{
+		if err = fw.RichRules(ctx, firewall.FireInfo{
 			Family:    family,
 			Address:   item.ip,
 			Strategy:  firewall.StrategyDrop,

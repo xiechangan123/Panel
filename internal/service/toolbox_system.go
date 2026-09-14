@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -44,7 +45,7 @@ func (s *ToolboxSystemService) GetSWAP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	raw, err := shell.Execf("free | grep Swap")
+	raw, err := shell.Execf(r.Context(), "free | grep Swap")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get SWAP: %v", err))
 		return
@@ -73,16 +74,19 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// swapoff 到 swapon 之间中断会留下半成品 swap 文件，下次 swapoff 失败后再也改不回来
+	ctx := context.WithoutCancel(r.Context())
+
 	if io.Exists(filepath.Join(app.Root, "swap")) {
-		if _, err = shell.Execf("swapoff '%s'", filepath.Join(app.Root, "swap")); err != nil {
+		if _, err = shell.Execf(ctx, "swapoff '%s'", filepath.Join(app.Root, "swap")); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
-		if _, err = shell.Execf("rm -f '%s'", filepath.Join(app.Root, "swap")); err != nil {
+		if _, err = shell.Execf(ctx, "rm -f '%s'", filepath.Join(app.Root, "swap")); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
-		if _, err = shell.Execf(`sed -i "\|^%s|d" /etc/fstab`, filepath.Join(app.Root, "swap")); err != nil {
+		if _, err = shell.Execf(ctx, `sed -i "\|^%s|d" /etc/fstab`, filepath.Join(app.Root, "swap")); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -90,7 +94,7 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 
 	if req.Size > 1 {
 		var free string
-		free, err = shell.Execf("df -k %s | awk '{print $4}' | tail -n 1", app.Root)
+		free, err = shell.Execf(ctx, "df -k %s | awk '{print $4}' | tail -n 1", app.Root)
 		if err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("failed to get disk space: %v", err))
 			return
@@ -100,32 +104,32 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		btrfsCheck, _ := shell.Execf("df -T %s | awk '{print $2}' | tail -n 1", app.Root)
+		btrfsCheck, _ := shell.Execf(ctx, "df -T %s | awk '{print $2}' | tail -n 1", app.Root)
 		if strings.Contains(btrfsCheck, "btrfs") {
-			if _, err = shell.Execf("btrfs filesystem mkswapfile --size %dM --uuid clear %s", req.Size, filepath.Join(app.Root, "swap")); err != nil {
+			if _, err = shell.Execf(ctx, "btrfs filesystem mkswapfile --size %dM --uuid clear %s", req.Size, filepath.Join(app.Root, "swap")); err != nil {
 				Error(w, http.StatusInternalServerError, "%v", err)
 				return
 			}
 		} else {
-			if _, err = shell.Execf("dd if=/dev/zero of=%s bs=1M count=%d", filepath.Join(app.Root, "swap"), req.Size); err != nil {
+			if _, err = shell.Execf(ctx, "dd if=/dev/zero of=%s bs=1M count=%d", filepath.Join(app.Root, "swap"), req.Size); err != nil {
 				Error(w, http.StatusInternalServerError, "%v", err)
 				return
 			}
-			if _, err = shell.Execf("mkswap -f '%s'", filepath.Join(app.Root, "swap")); err != nil {
+			if _, err = shell.Execf(ctx, "mkswap -f '%s'", filepath.Join(app.Root, "swap")); err != nil {
 				Error(w, http.StatusInternalServerError, "%v", err)
 				return
 			}
-			if err = io.Chmod(filepath.Join(app.Root, "swap"), 0600); err != nil {
+			if err = io.Chmod(ctx, filepath.Join(app.Root, "swap"), 0600); err != nil {
 				Error(w, http.StatusInternalServerError, s.t.Get("failed to set SWAP permission: %v", err))
 				return
 			}
 		}
-		if _, err = shell.Execf("swapon '%s'", filepath.Join(app.Root, "swap")); err != nil {
+		if _, err = shell.Execf(ctx, "swapon '%s'", filepath.Join(app.Root, "swap")); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
 		//nolint:dupword
-		if _, err = shell.Execf("echo '%s    swap    swap    defaults    0 0' >> /etc/fstab", filepath.Join(app.Root, "swap")); err != nil {
+		if _, err = shell.Execf(ctx, "echo '%s    swap    swap    defaults    0 0' >> /etc/fstab", filepath.Join(app.Root, "swap")); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -136,7 +140,7 @@ func (s *ToolboxSystemService) UpdateSWAP(w http.ResponseWriter, r *http.Request
 
 // GetTimezone 获取时区
 func (s *ToolboxSystemService) GetTimezone(w http.ResponseWriter, r *http.Request) {
-	raw, err := shell.Execf("timedatectl | grep zone")
+	raw, err := shell.Execf(r.Context(), "timedatectl | grep zone")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get timezone: %v", err))
 		return
@@ -147,7 +151,7 @@ func (s *ToolboxSystemService) GetTimezone(w http.ResponseWriter, r *http.Reques
 		match = append(match, "")
 	}
 
-	zonesRaw, err := shell.Execf("timedatectl list-timezones")
+	zonesRaw, err := shell.Execf(r.Context(), "timedatectl list-timezones")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get available timezones: %v", err))
 		return
@@ -170,7 +174,7 @@ func (s *ToolboxSystemService) UpdateTimezone(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if _, err = shell.Execf("timedatectl set-timezone '%s'", req.Timezone); err != nil {
+	if _, err = shell.Execf(r.Context(), "timedatectl set-timezone '%s'", req.Timezone); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -186,7 +190,7 @@ func (s *ToolboxSystemService) UpdateTime(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err = ntp.UpdateSystemTime(req.Time); err != nil {
+	if err = ntp.UpdateSystemTime(r.Context(), req.Time); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -213,7 +217,7 @@ func (s *ToolboxSystemService) SyncTime(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err = ntp.UpdateSystemTime(now); err != nil {
+	if err = ntp.UpdateSystemTime(r.Context(), now); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -223,7 +227,7 @@ func (s *ToolboxSystemService) SyncTime(w http.ResponseWriter, r *http.Request) 
 
 // GetNTPServers 获取系统 NTP 服务器配置
 func (s *ToolboxSystemService) GetNTPServers(w http.ResponseWriter, r *http.Request) {
-	config, err := ntp.GetSystemNTPConfig()
+	config, err := ntp.GetSystemNTPConfig(r.Context())
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get NTP configuration: %v", err))
 		return
@@ -244,8 +248,8 @@ func (s *ToolboxSystemService) UpdateNTPServers(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// 更新系统 NTP 配置
-	if err = ntp.SetSystemNTPServers(req.Servers); err != nil {
+	// 内部写完配置紧跟重启 NTP 服务，中断会让配置不生效
+	if err = ntp.SetSystemNTPServers(context.WithoutCancel(r.Context()), req.Servers); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to set NTP servers: %v", err))
 		return
 	}
@@ -255,7 +259,7 @@ func (s *ToolboxSystemService) UpdateNTPServers(w http.ResponseWriter, r *http.R
 
 // GetHostname 获取主机名
 func (s *ToolboxSystemService) GetHostname(w http.ResponseWriter, r *http.Request) {
-	hostname, err := shell.Execf("hostnamectl hostname")
+	hostname, err := shell.Execf(r.Context(), "hostnamectl hostname")
 	if err != nil {
 		hostname, _ = io.Read("/etc/hostname")
 	}
@@ -270,7 +274,7 @@ func (s *ToolboxSystemService) UpdateHostname(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if _, err = shell.Execf("hostnamectl hostname '%s'", req.Hostname); err != nil {
+	if _, err = shell.Execf(r.Context(), "hostnamectl hostname '%s'", req.Hostname); err != nil {
 		// 直接写 /etc/hostname
 		if err = io.Write("/etc/hostname", req.Hostname, 0644); err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("failed to set hostname: %v", err))

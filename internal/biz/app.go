@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"slices"
@@ -58,10 +59,10 @@ type AppRepo interface {
 	DownloadCallback(slug string)
 	CheckPanelVersion() error
 	ResolveScript(item *api.App, matchChannel, action, execVersion string) (string, error)
-	ExecScript(script string) error
+	ExecScript(ctx context.Context, script string) error
 	PreCheck(item *api.App, catalog api.Apps) error
 	GetCustom(slug string) (*AppCustom, error)
-	SaveCustom(slug string, custom *AppCustom) error
+	SaveCustom(ctx context.Context, slug string, custom *AppCustom) error
 }
 
 type AppUsecase struct {
@@ -184,7 +185,7 @@ func (uc *AppUsecase) IsInstalled(query string, cond ...any) (bool, error) {
 	return uc.repo.IsInstalled(query, cond...)
 }
 
-func (uc *AppUsecase) Install(channel, slug string) error {
+func (uc *AppUsecase) Install(ctx context.Context, channel, slug string) error {
 	item, err := uc.Get(slug)
 	if err != nil {
 		return err
@@ -211,7 +212,7 @@ func (uc *AppUsecase) Install(channel, slug string) error {
 	uc.repo.DownloadCallback(slug)
 
 	if app.IsCli {
-		return uc.repo.ExecScript(script)
+		return uc.repo.ExecScript(ctx, script)
 	}
 
 	task := new(Task)
@@ -223,7 +224,7 @@ func (uc *AppUsecase) Install(channel, slug string) error {
 	return uc.task.Push(task)
 }
 
-func (uc *AppUsecase) UnInstall(slug string) error {
+func (uc *AppUsecase) UnInstall(ctx context.Context, slug string) error {
 	item, err := uc.Get(slug)
 	if err != nil {
 		return err
@@ -252,7 +253,7 @@ func (uc *AppUsecase) UnInstall(slug string) error {
 	}
 
 	if app.IsCli {
-		return uc.repo.ExecScript(script)
+		return uc.repo.ExecScript(ctx, script)
 	}
 
 	task := new(Task)
@@ -264,7 +265,7 @@ func (uc *AppUsecase) UnInstall(slug string) error {
 	return uc.task.Push(task)
 }
 
-func (uc *AppUsecase) Update(slug string) error {
+func (uc *AppUsecase) Update(ctx context.Context, slug string) error {
 	item, err := uc.Get(slug)
 	if err != nil {
 		return err
@@ -295,7 +296,7 @@ func (uc *AppUsecase) Update(slug string) error {
 	uc.repo.DownloadCallback(slug)
 
 	if app.IsCli {
-		return uc.repo.ExecScript(script)
+		return uc.repo.ExecScript(ctx, script)
 	}
 
 	task := new(Task)
@@ -315,8 +316,8 @@ func (uc *AppUsecase) GetCustom(slug string) (*AppCustom, error) {
 	return uc.repo.GetCustom(slug)
 }
 
-func (uc *AppUsecase) SaveCustom(slug string, custom *AppCustom) error {
-	return uc.repo.SaveCustom(slug, custom)
+func (uc *AppUsecase) SaveCustom(ctx context.Context, slug string, custom *AppCustom) error {
+	return uc.repo.SaveCustom(ctx, slug, custom)
 }
 
 func (uc *AppUsecase) UpdateOrder(slugs []string) error {

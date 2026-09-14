@@ -1,14 +1,18 @@
 package biz
 
-import "github.com/acepanel/panel/v3/pkg/types"
+import (
+	"context"
+
+	"github.com/acepanel/panel/v3/pkg/types"
+)
 
 type ContainerComposeRepo interface {
-	List() ([]types.ContainerCompose, error)
+	List(ctx context.Context) ([]types.ContainerCompose, error)
 	Get(name string) (string, []types.KV, error)
 	Create(name, compose string, envs []types.KV) error
 	Update(name, compose string, envs []types.KV) error
-	Up(name string, force bool) error
-	Down(name string) error
+	Up(ctx context.Context, name string, force bool) error
+	Down(ctx context.Context, name string) error
 	RemoveDir(name string) error
 }
 
@@ -20,8 +24,8 @@ func NewContainerComposeUsecase(repo ContainerComposeRepo) *ContainerComposeUsec
 	return &ContainerComposeUsecase{repo: repo}
 }
 
-func (uc *ContainerComposeUsecase) List() ([]types.ContainerCompose, error) {
-	return uc.repo.List()
+func (uc *ContainerComposeUsecase) List(ctx context.Context) ([]types.ContainerCompose, error) {
+	return uc.repo.List(ctx)
 }
 
 func (uc *ContainerComposeUsecase) Get(name string) (string, []types.KV, error) {
@@ -36,16 +40,16 @@ func (uc *ContainerComposeUsecase) Update(name, compose string, envs []types.KV)
 	return uc.repo.Update(name, compose, envs)
 }
 
-func (uc *ContainerComposeUsecase) Up(name string, force bool) error {
-	return uc.repo.Up(name, force)
+func (uc *ContainerComposeUsecase) Up(ctx context.Context, name string, force bool) error {
+	return uc.repo.Up(ctx, name, force)
 }
 
-func (uc *ContainerComposeUsecase) Down(name string) error {
-	return uc.repo.Down(name)
+func (uc *ContainerComposeUsecase) Down(ctx context.Context, name string) error {
+	return uc.repo.Down(ctx, name)
 }
 
-func (uc *ContainerComposeUsecase) Remove(name string) error {
-	if err := uc.repo.Down(name); err != nil {
+func (uc *ContainerComposeUsecase) Remove(ctx context.Context, name string) error {
+	if err := uc.repo.Down(ctx, name); err != nil {
 		return err
 	}
 	return uc.repo.RemoveDir(name)

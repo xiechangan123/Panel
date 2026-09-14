@@ -38,7 +38,7 @@ func (s *EnvironmentPythonService) SetCli(w http.ResponseWriter, r *http.Request
 	}
 
 	binPath := fmt.Sprintf("%s/server/python/%s/bin", app.Root, req.Slug)
-	if err = io.LinkCLIBinaries(binPath, []string{"python3", "pip3"}); err != nil {
+	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"python3", "pip3"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -58,7 +58,7 @@ func (s *EnvironmentPythonService) GetMirror(w http.ResponseWriter, r *http.Requ
 	}
 
 	pipBin := fmt.Sprintf("%s/server/python/%s/bin/pip3", app.Root, req.Slug)
-	mirror, err := shell.Execf("%s config --global get global.index-url", pipBin)
+	mirror, err := shell.Execf(r.Context(), "%s config --global get global.index-url", pipBin)
 	if err != nil {
 		mirror = "https://pypi.org/simple"
 	}
@@ -78,7 +78,7 @@ func (s *EnvironmentPythonService) SetMirror(w http.ResponseWriter, r *http.Requ
 	}
 
 	pipBin := fmt.Sprintf("%s/server/python/%s/bin/pip3", app.Root, req.Slug)
-	if _, err = shell.Execf("%s config --global set global.index-url %s", pipBin, req.Mirror); err != nil {
+	if _, err = shell.Execf(r.Context(), "%s config --global set global.index-url %s", pipBin, req.Mirror); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

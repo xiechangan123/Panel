@@ -65,13 +65,13 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/bigkeys", s.ScanBigKeys)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status(s.slug)
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, s.slug)
 	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status(s.slug)
+	status, err := systemctl.Status(r.Context(), s.slug)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s status: %v", s.name, err))
 		return
@@ -94,7 +94,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		withPassword = " -a " + matches[1]
 	}
 
-	raw, err := shell.Execf("%s%s info", s.slug+"-cli", withPassword)
+	raw, err := shell.Execf(r.Context(), "%s%s info", s.slug+"-cli", withPassword)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get %s info: %v", s.name, err))
 		return
@@ -190,7 +190,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(s.slug); err != nil {
+	// 重启后才把密码同步进面板库，中途取消会让两边密码对不上
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.slug); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -77,8 +77,8 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/replication_slots/{slot}", s.DropReplicationSlot)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("postgresql")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "postgresql")
 	return types.AggregateAppStatus(ok)
 }
 
@@ -108,7 +108,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.applyConfig(req.Config, oldPort); err != nil {
+	if err = s.applyConfig(r.Context(), req.Config, oldPort); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to apply PostgreSQL config: %v", err))
 		return
 	}
@@ -141,7 +141,7 @@ func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Reload("postgresql"); err != nil {
+	if err = systemctl.Reload(context.WithoutCancel(r.Context()), "postgresql"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to reload PostgreSQL: %v", err))
 		return
 	}
@@ -151,7 +151,7 @@ func (s *App) UpdateUserConfig(w http.ResponseWriter, r *http.Request) {
 
 // Load 获取负载
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, _ := systemctl.Status("postgresql")
+	status, _ := systemctl.Status(r.Context(), "postgresql")
 	if !status {
 		service.Success(w, []types.NV{})
 		return
@@ -165,27 +165,27 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 
 	env := []string{"PGPASSWORD=" + postgresPassword}
 	port := db.PostgresPort(app.Root)
-	start, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
+	start, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_postmaster_start_time();" | head -1 | cut -d'.' -f1`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL start time: %v", err))
 		return
 	}
-	pid, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_backend_pid();"`, port)
+	pid, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_backend_pid();"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL backend pid: %v", err))
 		return
 	}
-	process, err := shell.Execf(`ps aux | grep postgres | grep -v grep | wc -l`)
+	process, err := shell.Execf(r.Context(), `ps aux | grep postgres | grep -v grep | wc -l`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL process: %v", err))
 		return
 	}
-	connections, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();"`, port)
+	connections, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL connections: %v", err))
 		return
 	}
-	storage, err := shell.ExecfWithEnv(env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_size_pretty(pg_database_size('postgres'));"`, port)
+	storage, err := shell.ExecfWithEnv(r.Context(), env, `psql -h 127.0.0.1 -p %d -U postgres -t -c "select pg_size_pretty(pg_database_size('postgres'));"`, port)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get PostgreSQL database size: %v", err))
 		return
@@ -236,8 +236,8 @@ func (s *App) SetPostgresPassword(w http.ResponseWriter, r *http.Request) {
 	port := db.PostgresPort(app.Root)
 	postgres, err := db.NewPostgres(r.Context(), "postgres", oldPassword, "127.0.0.1", port)
 	if err != nil {
-		// 直接修改密码
-		if _, err = shell.Execf(`su - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
+		// 直接修改密码，改完还要存进面板库，中途取消会让两边密码对不上
+		if _, err = shell.Execf(context.WithoutCancel(r.Context()), `su - postgres -c "psql -p %d -c \"ALTER USER postgres WITH PASSWORD '%s';\""`, port, req.Password); err != nil {
 			service.Error(w, http.StatusInternalServerError, s.t.Get("failed to set postgres password: %v", err))
 			return
 		}
@@ -349,7 +349,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.applyConfig(config, oldPort); err != nil {
+	if err = s.applyConfig(r.Context(), config, oldPort); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to apply PostgreSQL config: %v", err))
 		return
 	}
@@ -901,12 +901,14 @@ func (s *App) parsePort(config string) uint {
 }
 
 // applyConfig 让 PostgreSQL 配置生效
-func (s *App) applyConfig(newConfig string, oldPort uint) error {
+func (s *App) applyConfig(ctx context.Context, newConfig string, oldPort uint) error {
+	// 配置已落盘，且改端口后还要回写面板记录，整段不跟随请求取消
+	ctx = context.WithoutCancel(ctx)
 	newPort := s.parsePort(newConfig)
 	if oldPort == newPort {
-		return systemctl.Reload("postgresql")
+		return systemctl.Reload(ctx, "postgresql")
 	}
-	if err := systemctl.Restart("postgresql"); err != nil {
+	if err := systemctl.Restart(ctx, "postgresql"); err != nil {
 		return err
 	}
 	return s.databaseServerRepo.UpdatePort("local_postgresql", newPort)

@@ -1,6 +1,7 @@
 package io
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,13 +33,13 @@ func Search(path, keyword string, sub bool) (map[string]os.FileInfo, error) {
 }
 
 // SearchX 查找文件/文件夹（find命令）
-func SearchX(path, keyword string, sub bool) ([]os.DirEntry, error) {
+func SearchX(ctx context.Context, path, keyword string, sub bool) ([]os.DirEntry, error) {
 	var out string
 	var err error
 	if sub {
-		out, err = shell.Execf("find '%s' -name '*%s*'", path, keyword)
+		out, err = shell.Execf(ctx, "find '%s' -name '*%s*'", path, keyword)
 	} else {
-		out, err = shell.Execf("find '%s' -maxdepth 1 -name '*%s*'", path, keyword)
+		out, err = shell.Execf(ctx, "find '%s' -maxdepth 1 -name '*%s*'", path, keyword)
 	}
 	if err != nil {
 		return nil, err

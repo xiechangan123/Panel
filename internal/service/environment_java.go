@@ -36,7 +36,7 @@ func (s *EnvironmentJavaService) SetCli(w http.ResponseWriter, r *http.Request) 
 	}
 
 	binPath := fmt.Sprintf("%s/server/java/%s/bin", app.Root, req.Slug)
-	if err = io.LinkCLIBinaries(binPath, []string{"java", "javac", "jar", "jshell"}); err != nil {
+	if err = io.LinkCLIBinaries(r.Context(), binPath, []string{"java", "javac", "jar", "jshell"}); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

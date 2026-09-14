@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -28,7 +29,7 @@ func NewToolboxDiskService(t *gotext.Locale) *ToolboxDiskService {
 // List 获取磁盘列表
 func (s *ToolboxDiskService) List(w http.ResponseWriter, r *http.Request) {
 	// 获取磁盘基本信息
-	lsblkOutput, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL,MODEL")
+	lsblkOutput, err := shell.Execf(r.Context(), "lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL,MODEL")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get disk list: %v", err))
 		return
@@ -44,7 +45,7 @@ func (s *ToolboxDiskService) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 获取磁盘使用情况
-	dfOutput, _ := shell.Execf("df -B1 --output=source,size,used,avail,pcent,target 2>/dev/null | tail -n +2")
+	dfOutput, _ := shell.Execf(r.Context(), "df -B1 --output=source,size,used,avail,pcent,target 2>/dev/null | tail -n +2")
 
 	// 解析 df 输出为 map
 	dfMap := make(map[string]map[string]string)
@@ -80,7 +81,7 @@ func (s *ToolboxDiskService) GetPartitions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	output, err := shell.Execf("lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL '/dev/%s'", req.Device)
+	output, err := shell.Execf(r.Context(), "lsblk -J -b -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,UUID,LABEL '/dev/%s'", req.Device)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get partitions: %v", err))
 		return
@@ -97,12 +98,15 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("test -d '%s' || mkdir -p '%s'", req.Path, req.Path); err != nil {
+	// 挂载成功后必须把 fstab 写完，否则重复挂载会直接失败
+	ctx := context.WithoutCancel(r.Context())
+
+	if _, err = shell.Execf(ctx, "test -d '%s' || mkdir -p '%s'", req.Path, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create mount point: %v", err))
 		return
 	}
 
-	if _, err = shell.Execf("mount '/dev/%s' '%s'", req.Device, req.Path); err != nil {
+	if _, err = shell.Execf(ctx, "mount '/dev/%s' '%s'", req.Device, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to mount partition: %v", err))
 		return
 	}
@@ -110,7 +114,7 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 	// 如果需要写入 fstab
 	if req.WriteFstab {
 		// 获取分区的 UUID
-		uuid, err := shell.Execf("blkid -s UUID -o value '/dev/%s'", req.Device)
+		uuid, err := shell.Execf(ctx, "blkid -s UUID -o value '/dev/%s'", req.Device)
 		if err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("failed to get partition UUID: %v", err))
 			return
@@ -122,7 +126,7 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// 获取文件系统类型
-		fsType, err := shell.Execf("blkid -s TYPE -o value '/dev/%s'", req.Device)
+		fsType, err := shell.Execf(ctx, "blkid -s TYPE -o value '/dev/%s'", req.Device)
 		if err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("failed to get filesystem type: %v", err))
 			return
@@ -139,7 +143,7 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// 检查 fstab 中是否已存在该挂载点
-		existCheck, _ := shell.Execf("grep -E '^[^#].*\\s+%s\\s+' /etc/fstab", req.Path)
+		existCheck, _ := shell.Execf(ctx, "grep -E '^[^#].*\\s+%s\\s+' /etc/fstab", req.Path)
 		if strings.TrimSpace(existCheck) != "" {
 			Error(w, http.StatusBadRequest, s.t.Get("mount point %s already exists in fstab", req.Path))
 			return
@@ -147,7 +151,7 @@ func (s *ToolboxDiskService) Mount(w http.ResponseWriter, r *http.Request) {
 
 		// 写入 fstab
 		fstabEntry := fmt.Sprintf("UUID=%s %s %s %s 0 2", uuid, req.Path, fsType, mountOption)
-		if _, err = shell.Execf("echo '%s' >> /etc/fstab", fstabEntry); err != nil {
+		if _, err = shell.Execf(ctx, "echo '%s' >> /etc/fstab", fstabEntry); err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("failed to write fstab: %v", err))
 			return
 		}
@@ -164,7 +168,7 @@ func (s *ToolboxDiskService) Umount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("umount '%s'", req.Path); err != nil {
+	if _, err = shell.Execf(r.Context(), "umount '%s'", req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to umount partition: %v", err))
 		return
 	}
@@ -195,7 +199,7 @@ func (s *ToolboxDiskService) Format(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(formatCmd); err != nil {
+	if _, err = shell.Execf(r.Context(), formatCmd); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to format partition: %v", err))
 		return
 	}
@@ -213,37 +217,40 @@ func (s *ToolboxDiskService) Init(w http.ResponseWriter, r *http.Request) {
 
 	device := "/dev/" + req.Device
 
+	// 擦除、分区、格式化是一条链，中途取消会留下无法使用的裸盘
+	ctx := context.WithoutCancel(r.Context())
+
 	// 检查设备是否存在
-	if _, err = shell.Execf("test -b '%s'", device); err != nil {
+	if _, err = shell.Execf(ctx, "test -b '%s'", device); err != nil {
 		Error(w, http.StatusBadRequest, s.t.Get("device not found: %s", device))
 		return
 	}
 
 	// 检查是否为系统盘（检查是否有分区挂载在 /）
-	mountInfo, _ := shell.Execf("lsblk -no MOUNTPOINT '%s' 2>/dev/null", device)
+	mountInfo, _ := shell.Execf(ctx, "lsblk -no MOUNTPOINT '%s' 2>/dev/null", device)
 	if strings.Contains(mountInfo, "/\n") || strings.TrimSpace(mountInfo) == "/" {
 		Error(w, http.StatusBadRequest, s.t.Get("cannot initialize system disk"))
 		return
 	}
 
 	// 卸载该磁盘的所有分区
-	_, _ = shell.Execf("umount '%s'* 2>/dev/null || true", device)
+	_, _ = shell.Execf(ctx, "umount '%s'* 2>/dev/null || true", device)
 
 	// 先清除分区表
-	if _, err = shell.Execf("wipefs -a '%s'", device); err != nil {
+	if _, err = shell.Execf(ctx, "wipefs -a '%s'", device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to wipe disk: %v", err))
 		return
 	}
 
 	// sfdisk 创建 GPT 分区表和单个分区
-	if _, err = shell.Execf("echo 'type=linux' | sfdisk '%s'", device); err != nil {
+	if _, err = shell.Execf(ctx, "echo 'type=linux' | sfdisk '%s'", device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create partition: %v", err))
 		return
 	}
 
 	// 等待内核更新分区表
-	_, _ = shell.Execf("partprobe '%s' 2>/dev/null || true", device)
-	_, _ = shell.Execf("sleep 1")
+	_, _ = shell.Execf(ctx, "partprobe '%s' 2>/dev/null || true", device)
+	_, _ = shell.Execf(ctx, "sleep 1")
 
 	// 确定新分区的设备名（device + "1"，如 sdb1 或 nvme0n1p1）
 	var partDevice string
@@ -269,7 +276,7 @@ func (s *ToolboxDiskService) Init(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(formatCmd); err != nil {
+	if _, err = shell.Execf(ctx, formatCmd); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to format partition: %v", err))
 		return
 	}
@@ -280,11 +287,11 @@ func (s *ToolboxDiskService) Init(w http.ResponseWriter, r *http.Request) {
 // GetLVMInfo 获取LVM信息
 func (s *ToolboxDiskService) GetLVMInfo(w http.ResponseWriter, r *http.Request) {
 	// 获取物理卷信息
-	pvOutput, _ := shell.Execf("pvdisplay -C --noheadings --separator '|' -o pv_name,vg_name,pv_size,pv_free 2>/dev/null || echo ''")
+	pvOutput, _ := shell.Execf(r.Context(), "pvdisplay -C --noheadings --separator '|' -o pv_name,vg_name,pv_size,pv_free 2>/dev/null || echo ''")
 	// 获取卷组信息
-	vgOutput, _ := shell.Execf("vgdisplay -C --noheadings --separator '|' -o vg_name,pv_count,lv_count,vg_size,vg_free 2>/dev/null || echo ''")
+	vgOutput, _ := shell.Execf(r.Context(), "vgdisplay -C --noheadings --separator '|' -o vg_name,pv_count,lv_count,vg_size,vg_free 2>/dev/null || echo ''")
 	// 获取逻辑卷信息
-	lvOutput, _ := shell.Execf("lvdisplay -C --noheadings --separator '|' -o lv_name,vg_name,lv_size,lv_path 2>/dev/null || echo ''")
+	lvOutput, _ := shell.Execf(r.Context(), "lvdisplay -C --noheadings --separator '|' -o lv_name,vg_name,lv_size,lv_path 2>/dev/null || echo ''")
 
 	pvs := s.parseLVMOutput(pvOutput)
 	vgs := s.parseLVMOutput(vgOutput)
@@ -305,7 +312,7 @@ func (s *ToolboxDiskService) CreatePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("pvcreate '/dev/%s'", req.Device); err != nil {
+	if _, err = shell.Execf(r.Context(), "pvcreate '/dev/%s'", req.Device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create physical volume: %v", err))
 		return
 	}
@@ -327,7 +334,7 @@ func (s *ToolboxDiskService) CreateVG(w http.ResponseWriter, r *http.Request) {
 		deviceArgs = append(deviceArgs, fmt.Sprintf("'%s'", dev))
 	}
 
-	if _, err = shell.Execf("vgcreate '%s' %s", req.Name, strings.Join(deviceArgs, " ")); err != nil {
+	if _, err = shell.Execf(r.Context(), "vgcreate '%s' %s", req.Name, strings.Join(deviceArgs, " ")); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create volume group: %v", err))
 		return
 	}
@@ -350,7 +357,7 @@ func (s *ToolboxDiskService) CreateLV(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 创建逻辑卷
-	if _, err = shell.Execf("lvcreate -L '%dG' -n '%s' '%s'", req.Size, req.Name, req.VGName); err != nil {
+	if _, err = shell.Execf(r.Context(), "lvcreate -L '%dG' -n '%s' '%s'", req.Size, req.Name, req.VGName); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create logical volume: %v", err))
 		return
 	}
@@ -366,7 +373,7 @@ func (s *ToolboxDiskService) RemovePV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("pvremove '%s'", req.Device); err != nil {
+	if _, err = shell.Execf(r.Context(), "pvremove '%s'", req.Device); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove physical volume: %v", err))
 		return
 	}
@@ -382,7 +389,7 @@ func (s *ToolboxDiskService) RemoveVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("vgremove -f '%s'", req.Name); err != nil {
+	if _, err = shell.Execf(r.Context(), "vgremove -f '%s'", req.Name); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove volume group: %v", err))
 		return
 	}
@@ -398,7 +405,7 @@ func (s *ToolboxDiskService) RemoveLV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("lvremove -f '%s'", req.Path); err != nil {
+	if _, err = shell.Execf(r.Context(), "lvremove -f '%s'", req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remove logical volume: %v", err))
 		return
 	}
@@ -420,8 +427,11 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 逻辑卷扩容后必须接着扩展文件系统，中断会让新增空间不可用
+	ctx := context.WithoutCancel(r.Context())
+
 	// 扩容逻辑卷
-	if _, err = shell.Execf("lvextend -L +%dG '%s'", req.Size, req.Path); err != nil {
+	if _, err = shell.Execf(ctx, "lvextend -L +%dG '%s'", req.Size, req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to extend logical volume: %v", err))
 		return
 	}
@@ -429,21 +439,21 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 	// 扩展文件系统
 	if req.Resize {
 		// 检测文件系统类型并扩展
-		fsType, _ := shell.Execf("blkid -o value -s TYPE '%s'", req.Path)
+		fsType, _ := shell.Execf(ctx, "blkid -o value -s TYPE '%s'", req.Path)
 		fsType = strings.TrimSpace(fsType)
 
 		switch fsType {
 		case "ext4", "ext3":
-			if _, err = shell.Execf("resize2fs '%s'", req.Path); err != nil {
+			if _, err = shell.Execf(ctx, "resize2fs '%s'", req.Path); err != nil {
 				Error(w, http.StatusInternalServerError, s.t.Get("failed to resize filesystem: %v", err))
 				return
 			}
 		case "xfs":
 			// XFS需要挂载后才能扩展
-			mountPoint, _ := shell.Execf("findmnt -n -o TARGET '%s'", req.Path)
+			mountPoint, _ := shell.Execf(ctx, "findmnt -n -o TARGET '%s'", req.Path)
 			mountPoint = strings.TrimSpace(mountPoint)
 			if mountPoint != "" {
-				if _, err = shell.Execf("xfs_growfs '%s'", mountPoint); err != nil {
+				if _, err = shell.Execf(ctx, "xfs_growfs '%s'", mountPoint); err != nil {
 					Error(w, http.StatusInternalServerError, s.t.Get("failed to resize filesystem: %v", err))
 					return
 				}
@@ -454,11 +464,11 @@ func (s *ToolboxDiskService) ExtendLV(w http.ResponseWriter, r *http.Request) {
 			}
 		case "btrfs":
 			// btrfs需要挂载后才能扩展
-			mountPoint, _ := shell.Execf("findmnt -n -o TARGET '%s'", req.Path)
+			mountPoint, _ := shell.Execf(ctx, "findmnt -n -o TARGET '%s'", req.Path)
 			mountPoint = strings.TrimSpace(mountPoint)
 			if mountPoint != "" {
 				// 扩展到当前可用的最大空间
-				if _, err = shell.Execf("btrfs filesystem resize max '%s'", mountPoint); err != nil {
+				if _, err = shell.Execf(ctx, "btrfs filesystem resize max '%s'", mountPoint); err != nil {
 					Error(w, http.StatusInternalServerError, s.t.Get("failed to resize filesystem: %v", err))
 					return
 				}
@@ -504,7 +514,7 @@ func (s *ToolboxDiskService) parseLVMOutput(output string) []map[string]string {
 
 // GetFstab 获取 fstab 列表
 func (s *ToolboxDiskService) GetFstab(w http.ResponseWriter, r *http.Request) {
-	content, err := shell.Execf("cat /etc/fstab")
+	content, err := shell.Execf(r.Context(), "cat /etc/fstab")
 	if err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to read fstab: %v", err))
 		return
@@ -554,12 +564,15 @@ func (s *ToolboxDiskService) DeleteFstab(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if _, err = shell.Execf(`sed -i 's@^[^#].*\s%s\s.*$@@g' /etc/fstab`, req.MountPoint); err != nil {
+	// 改完 fstab 必须接着 mount -a 生效，中断会让挂载状态和 fstab 对不上
+	ctx := context.WithoutCancel(r.Context())
+
+	if _, err = shell.Execf(ctx, `sed -i 's@^[^#].*\s%s\s.*$@@g' /etc/fstab`, req.MountPoint); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to delete fstab entry: %v", err))
 		return
 	}
 
-	if _, err = shell.Execf("mount -a"); err != nil {
+	if _, err = shell.Execf(ctx, "mount -a"); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to remount filesystems: %v", err))
 		return
 	}
@@ -570,7 +583,7 @@ func (s *ToolboxDiskService) DeleteFstab(w http.ResponseWriter, r *http.Request)
 // GetSmartDisks 获取支持 SMART 的磁盘列表
 func (s *ToolboxDiskService) GetSmartDisks(w http.ResponseWriter, r *http.Request) {
 	// 检查 smartctl 是否安装
-	if _, err := shell.ExecfWithTimeout(5*time.Second, "which smartctl"); err != nil {
+	if _, err := shell.ExecfWithTimeout(r.Context(), 5*time.Second, "which smartctl"); err != nil {
 		Success(w, chix.M{
 			"available": false,
 			"message":   s.t.Get("smartmontools is not installed, please install it first (e.g., apt install smartmontools or dnf install smartmontools)"),
@@ -580,7 +593,7 @@ func (s *ToolboxDiskService) GetSmartDisks(w http.ResponseWriter, r *http.Reques
 	}
 
 	// 获取磁盘列表
-	scanOutput, err := shell.ExecfWithTimeout(10*time.Second, "smartctl --scan -j")
+	scanOutput, err := shell.ExecfWithTimeout(r.Context(), 10*time.Second, "smartctl --scan -j")
 	if err != nil {
 		Success(w, chix.M{
 			"available": true,
@@ -614,7 +627,7 @@ func (s *ToolboxDiskService) GetSmartDisks(w http.ResponseWriter, r *http.Reques
 		// 获取设备名（去掉 /dev/ 前缀）
 		name := strings.TrimPrefix(dev.Name, "/dev/")
 		// 获取 model 信息
-		model, _ := shell.ExecfWithTimeout(5*time.Second, "lsblk -ndo MODEL '/dev/%s' 2>/dev/null", name)
+		model, _ := shell.ExecfWithTimeout(r.Context(), 5*time.Second, "lsblk -ndo MODEL '/dev/%s' 2>/dev/null", name)
 		disks = append(disks, smartDisk{
 			Name:  name,
 			Model: strings.TrimSpace(model),
@@ -638,7 +651,7 @@ func (s *ToolboxDiskService) GetSmartInfo(w http.ResponseWriter, r *http.Request
 	}
 
 	// smartctl 在磁盘有预警时返回非零退出码，但仍有有效 JSON 输出
-	output, _ := shell.ExecfWithTimeout(30*time.Second, "smartctl -j -a '/dev/%s'", req.Device)
+	output, _ := shell.ExecfWithTimeout(r.Context(), 30*time.Second, "smartctl -j -a '/dev/%s'", req.Device)
 	if output == "" {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to get SMART info for device %s", req.Device))
 		return
@@ -658,22 +671,22 @@ func (s *ToolboxDiskService) GetSmartInfo(w http.ResponseWriter, r *http.Request
 func (s *ToolboxDiskService) GetRaidInfo(w http.ResponseWriter, r *http.Request) {
 	// 按优先级检测 RAID 类型
 	// 1. 软件 RAID (mdadm)
-	if info := s.detectMdadm(); info != nil {
+	if info := s.detectMdadm(r.Context()); info != nil {
 		Success(w, info)
 		return
 	}
 	// 2. MegaRAID (LSI/Broadcom)
-	if info := s.detectMegaRAID(); info != nil {
+	if info := s.detectMegaRAID(r.Context()); info != nil {
 		Success(w, info)
 		return
 	}
 	// 3. HP Smart Array
-	if info := s.detectHPSA(); info != nil {
+	if info := s.detectHPSA(r.Context()); info != nil {
 		Success(w, info)
 		return
 	}
 	// 4. Adaptec
-	if info := s.detectAdaptec(); info != nil {
+	if info := s.detectAdaptec(r.Context()); info != nil {
 		Success(w, info)
 		return
 	}
@@ -720,8 +733,8 @@ type raidController struct {
 }
 
 // detectMdadm 检测软件 RAID (mdadm)
-func (s *ToolboxDiskService) detectMdadm() chix.M {
-	mdstat, err := shell.ExecfWithTimeout(5*time.Second, "cat /proc/mdstat 2>/dev/null")
+func (s *ToolboxDiskService) detectMdadm(ctx context.Context) chix.M {
+	mdstat, err := shell.ExecfWithTimeout(ctx, 5*time.Second, "cat /proc/mdstat 2>/dev/null")
 	if err != nil || !strings.Contains(mdstat, " : ") {
 		return nil
 	}
@@ -744,7 +757,7 @@ func (s *ToolboxDiskService) detectMdadm() chix.M {
 
 	var arrays []raidArray
 	for _, md := range mdDevices {
-		detail, _ := shell.ExecfWithTimeout(10*time.Second, "mdadm --detail '/dev/%s' 2>/dev/null", md)
+		detail, _ := shell.ExecfWithTimeout(ctx, 10*time.Second, "mdadm --detail '/dev/%s' 2>/dev/null", md)
 		if detail == "" {
 			continue
 		}
@@ -820,19 +833,19 @@ func (s *ToolboxDiskService) parseMdadm(name, detail string) raidArray {
 }
 
 // detectMegaRAID 检测 MegaRAID (LSI/Broadcom)
-func (s *ToolboxDiskService) detectMegaRAID() chix.M {
+func (s *ToolboxDiskService) detectMegaRAID(ctx context.Context) chix.M {
 	// 检测 storcli64 或 storcli
 	storcli := ""
-	if _, err := shell.ExecfWithTimeout(5*time.Second, "which storcli64"); err == nil {
+	if _, err := shell.ExecfWithTimeout(ctx, 5*time.Second, "which storcli64"); err == nil {
 		storcli = "storcli64"
-	} else if _, err := shell.ExecfWithTimeout(5*time.Second, "which storcli"); err == nil {
+	} else if _, err := shell.ExecfWithTimeout(ctx, 5*time.Second, "which storcli"); err == nil {
 		storcli = "storcli"
 	}
 	if storcli == "" {
 		return nil
 	}
 
-	output, err := shell.ExecfWithTimeout(30*time.Second, "%s /cALL show all J", storcli)
+	output, err := shell.ExecfWithTimeout(ctx, 30*time.Second, "%s /cALL show all J", storcli)
 	if err != nil || output == "" {
 		return nil
 	}
@@ -922,19 +935,19 @@ func (s *ToolboxDiskService) parseMegaRAID(output string) ([]raidController, []r
 }
 
 // detectHPSA 检测 HP Smart Array
-func (s *ToolboxDiskService) detectHPSA() chix.M {
+func (s *ToolboxDiskService) detectHPSA(ctx context.Context) chix.M {
 	// 检测 ssacli 或 hpssacli
 	ssacli := ""
-	if _, err := shell.ExecfWithTimeout(5*time.Second, "which ssacli"); err == nil {
+	if _, err := shell.ExecfWithTimeout(ctx, 5*time.Second, "which ssacli"); err == nil {
 		ssacli = "ssacli"
-	} else if _, err := shell.ExecfWithTimeout(5*time.Second, "which hpssacli"); err == nil {
+	} else if _, err := shell.ExecfWithTimeout(ctx, 5*time.Second, "which hpssacli"); err == nil {
 		ssacli = "hpssacli"
 	}
 	if ssacli == "" {
 		return nil
 	}
 
-	output, err := shell.ExecfWithTimeout(30*time.Second, "%s ctrl all show config detail", ssacli)
+	output, err := shell.ExecfWithTimeout(ctx, 30*time.Second, "%s ctrl all show config detail", ssacli)
 	if err != nil || output == "" {
 		return nil
 	}
@@ -1044,12 +1057,12 @@ func (s *ToolboxDiskService) parseHPSA(output string) ([]raidController, []raidA
 }
 
 // detectAdaptec 检测 Adaptec RAID
-func (s *ToolboxDiskService) detectAdaptec() chix.M {
-	if _, err := shell.ExecfWithTimeout(5*time.Second, "which arcconf"); err != nil {
+func (s *ToolboxDiskService) detectAdaptec(ctx context.Context) chix.M {
+	if _, err := shell.ExecfWithTimeout(ctx, 5*time.Second, "which arcconf"); err != nil {
 		return nil
 	}
 
-	output, err := shell.ExecfWithTimeout(30*time.Second, "arcconf GETCONFIG 1")
+	output, err := shell.ExecfWithTimeout(ctx, 30*time.Second, "arcconf GETCONFIG 1")
 	if err != nil || output == "" {
 		return nil
 	}

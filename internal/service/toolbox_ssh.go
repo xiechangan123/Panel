@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"regexp"
 	"strings"
@@ -92,7 +93,8 @@ func (s *ToolboxSSHService) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(s.service); err != nil {
+	// 配置已写入，重启被取消会导致 sshd 仍跑旧配置
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -118,7 +120,7 @@ func (s *ToolboxSSHService) UpdatePasswordAuth(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if err = systemctl.Restart(s.service); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -144,7 +146,7 @@ func (s *ToolboxSSHService) UpdatePubKeyAuth(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err = systemctl.Restart(s.service); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -165,7 +167,7 @@ func (s *ToolboxSSHService) UpdateRootLogin(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if err = systemctl.Restart(s.service); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), s.service); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -182,7 +184,7 @@ func (s *ToolboxSSHService) UpdateRootPassword(w http.ResponseWriter, r *http.Re
 	}
 
 	password := strings.ReplaceAll(req.Password, `'`, `\'`)
-	if _, err = shell.Execf(`yes '%s' | passwd root`, password); err != nil {
+	if _, err = shell.Execf(r.Context(), `yes '%s' | passwd root`, password); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to update root password: %v", err))
 		return
 	}
@@ -207,17 +209,17 @@ func (s *ToolboxSSHService) GetRootKey(w http.ResponseWriter, r *http.Request) {
 // GenerateRootKey 生成 Root 密钥对
 func (s *ToolboxSSHService) GenerateRootKey(w http.ResponseWriter, r *http.Request) {
 	// 确保 .ssh 目录存在
-	if _, err := shell.Execf("mkdir -p /root/.ssh && chmod 700 /root/.ssh"); err != nil {
+	if _, err := shell.Execf(r.Context(), "mkdir -p /root/.ssh && chmod 700 /root/.ssh"); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("failed to create .ssh directory: %v", err))
 		return
 	}
 
 	// 优先生成 ED25519 密钥对
 	keyType := "ed25519"
-	if _, err := shell.Execf(`yes 'y' | ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N ""`); err != nil {
+	if _, err := shell.Execf(r.Context(), `yes 'y' | ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N ""`); err != nil {
 		// 不行再生成 RSA 密钥
 		keyType = "rsa"
-		if _, err = shell.Execf(`yes 'y' | ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""`); err != nil {
+		if _, err = shell.Execf(r.Context(), `yes 'y' | ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""`); err != nil {
 			Error(w, http.StatusInternalServerError, s.t.Get("failed to generate SSH key: %v", err))
 			return
 		}
@@ -261,7 +263,8 @@ func (s *ToolboxSSHService) GenerateRootKey(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	_ = systemctl.Restart(s.service)
+	// authorized_keys 已写入，重启被取消会导致 sshd 仍跑旧配置
+	_ = systemctl.Restart(context.WithoutCancel(r.Context()), s.service)
 
 	Success(w, privateKey)
 }

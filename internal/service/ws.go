@@ -505,8 +505,7 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func(ws *websocket.Conn) { _ = ws.CloseNow() }(ws)
 
-	// 写入用带超时的独立 context：与请求/WS 生命周期解耦，
-	// 用户关闭页面导致连接断开也不会中断升级（升级内部 shell 执行不带 ctx）
+	// 写入用独立 context，请求取消后仍能把最后的状态发出去
 	//nolint:contextcheck
 	write := func(status, msg string) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -514,7 +513,7 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 		_ = s.writeJSON(ctx, ws, map[string]any{"status": status, "msg": msg})
 	}
 
-	if err = s.backupRepo.UpdatePanel(panel.Version, url, checksum, func(msg string) { write("progress", msg) }); err != nil {
+	if err = s.backupRepo.UpdatePanel(r.Context(), panel.Version, url, checksum, func(msg string) { write("progress", msg) }); err != nil {
 		write("error", err.Error())
 		_ = ws.Close(websocket.StatusNormalClosure, "")
 		return
@@ -524,7 +523,7 @@ func (s *WsService) PanelUpdate(w http.ResponseWriter, r *http.Request) {
 	_ = ws.Close(websocket.StatusNormalClosure, "")
 
 	// 升级成功，由本入口负责重启面板（唯一一次重启）
-	tools.RestartPanel()
+	tools.RestartPanel(context.WithoutCancel(r.Context()))
 }
 
 // handleCertWs 证书操作的公共 WebSocket 处理逻辑

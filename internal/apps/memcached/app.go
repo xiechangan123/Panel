@@ -2,6 +2,7 @@ package memcached
 
 import (
 	"bufio"
+	"context"
 	"net"
 	"net/http"
 	"regexp"
@@ -35,13 +36,13 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("memcached")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "memcached")
 	return types.AggregateAppStatus(ok)
 }
 
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, err := systemctl.Status("memcached")
+	status, err := systemctl.Status(r.Context(), "memcached")
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get Memcached status: %v", err))
 		return
@@ -145,7 +146,8 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("memcached"); err != nil {
+	// 单元文件已改写，重启不跟随请求取消，否则磁盘配置与运行中进程不一致
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "memcached"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

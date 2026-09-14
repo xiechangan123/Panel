@@ -106,7 +106,7 @@ func (s *CronService) Status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.cronRepo.Status(req.ID, req.Status); err != nil {
+	if err = s.cronRepo.Status(r.Context(), req.ID, req.Status); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

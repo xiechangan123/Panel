@@ -66,7 +66,7 @@ func NewRegisterAccount(ctx context.Context, email, ca string, eab *EAB, keyType
 	return &Client{Account: account, zClient: client}, nil
 }
 
-func NewPrivateKeyAccount(email string, privateKey string, ca string, eab *EAB, log *slog.Logger) (*Client, error) {
+func NewPrivateKeyAccount(ctx context.Context, email string, privateKey string, ca string, eab *EAB, log *slog.Logger) (*Client, error) {
 	client := getClient(ca, log)
 
 	key, err := cert.ParseKey([]byte(privateKey))
@@ -80,13 +80,13 @@ func NewPrivateKeyAccount(email string, privateKey string, ca string, eab *EAB, 
 		PrivateKey:           key,
 	}
 	if eab != nil {
-		err = account.SetExternalAccountBinding(context.Background(), client.Client, *eab)
+		err = account.SetExternalAccountBinding(ctx, client.Client, *eab)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	account, err = client.GetAccount(context.Background(), account)
+	account, err = client.GetAccount(ctx, account)
 	if err != nil {
 		return nil, err
 	}

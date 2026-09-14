@@ -32,7 +32,7 @@ type HTTPChallengeWriter interface {
 	RemoveSiteChallenge(conf, path, token string) (bool, error)
 	WritePanelChallenge(conf string, names []string, tokens map[string]string) (bool, error)
 	RemovePanelChallenge(conf string) (bool, error)
-	Reload() error
+	Reload(ctx context.Context) error
 }
 
 var panelSolverGlobal sync.Mutex
@@ -52,7 +52,7 @@ type panelSolver struct {
 	useBuiltin bool
 }
 
-func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error {
+func (s *panelSolver) Present(ctx context.Context, challenge acme.Challenge) error {
 	if s.presentCount == 0 {
 		panelSolverGlobal.Lock()
 	}
@@ -88,7 +88,7 @@ func (s *panelSolver) Present(_ context.Context, challenge acme.Challenge) error
 		return err
 	}
 
-	return s.writer.Reload()
+	return s.writer.Reload(ctx)
 }
 
 func (s *panelSolver) startServer() error {
@@ -152,7 +152,7 @@ func (s *panelSolver) CleanUp(ctx context.Context, _ acme.Challenge) error {
 		return err
 	}
 
-	return s.writer.Reload()
+	return s.writer.Reload(ctx)
 }
 
 type httpSolver struct {
@@ -179,7 +179,7 @@ func (s httpSolver) confsFor(domain string) []string {
 	return s.fallback
 }
 
-func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
+func (s httpSolver) Present(ctx context.Context, challenge acme.Challenge) error {
 	path := challenge.HTTP01ResourcePath()
 	token := challenge.KeyAuthorization
 	reload := false
@@ -194,11 +194,11 @@ func (s httpSolver) Present(_ context.Context, challenge acme.Challenge) error {
 		return nil
 	}
 
-	return s.writer.Reload()
+	return s.writer.Reload(ctx)
 }
 
 // CleanUp cleans up the HTTP server if it is the last one to finish.
-func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
+func (s httpSolver) CleanUp(ctx context.Context, challenge acme.Challenge) error {
 	path := challenge.HTTP01ResourcePath()
 	token := challenge.KeyAuthorization
 	reload := false
@@ -213,7 +213,7 @@ func (s httpSolver) CleanUp(_ context.Context, challenge acme.Challenge) error {
 		return nil
 	}
 
-	return s.writer.Reload()
+	return s.writer.Reload(ctx)
 }
 
 type DnsType string

@@ -1,6 +1,7 @@
 package pureftpd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -43,14 +44,14 @@ func (s *App) Route(r chi.Router) {
 	r.Post("/config_tune", s.UpdateConfigTune)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("pure-ftpd")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "pure-ftpd")
 	return types.AggregateAppStatus(ok)
 }
 
 // List 获取用户列表
 func (s *App) List(w http.ResponseWriter, r *http.Request) {
-	listRaw, err := shell.Execf("pure-pw list")
+	listRaw, err := shell.Execf(r.Context(), "pure-pw list")
 	if err != nil {
 		service.Success(w, chix.M{
 			"total": 0,
@@ -94,11 +95,13 @@ func (s *App) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`yes '%s' | pure-pw useradd '%s' -u www -g www -d '%s'`, req.Password, req.Username, req.Path); err != nil {
+	// mkdb 被取消会让文本库已改、二进制库未重建，FTP 认证与面板显示不一致
+	ctx := context.WithoutCancel(r.Context())
+	if _, err = shell.Execf(ctx, `yes '%s' | pure-pw useradd '%s' -u www -g www -d '%s'`, req.Password, req.Username, req.Path); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if _, err = shell.Execf("pure-pw mkdb"); err != nil {
+	if _, err = shell.Execf(ctx, "pure-pw mkdb"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -114,11 +117,13 @@ func (s *App) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf("pure-pw userdel '%s' -m", req.Username); err != nil {
+	// 同 Create，mkdb 必须跟上 userdel
+	ctx := context.WithoutCancel(r.Context())
+	if _, err = shell.Execf(ctx, "pure-pw userdel '%s' -m", req.Username); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if _, err = shell.Execf("pure-pw mkdb"); err != nil {
+	if _, err = shell.Execf(ctx, "pure-pw mkdb"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -134,11 +139,13 @@ func (s *App) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = shell.Execf(`yes '%s' | pure-pw passwd '%s' -m`, req.Password, req.Username); err != nil {
+	// 同 Create，mkdb 必须跟上 passwd
+	ctx := context.WithoutCancel(r.Context())
+	if _, err = shell.Execf(ctx, `yes '%s' | pure-pw passwd '%s' -m`, req.Password, req.Username); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if _, err = shell.Execf("pure-pw mkdb"); err != nil {
+	if _, err = shell.Execf(ctx, "pure-pw mkdb"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -183,8 +190,10 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fw := firewall.NewFirewall()
-	err = fw.Port(firewall.FireInfo{
+	// 端口已改写入盘，放行与重启不跟随请求取消，否则新端口不通
+	ctx := context.WithoutCancel(r.Context())
+	fw := firewall.NewFirewall(ctx)
+	err = fw.Port(ctx, firewall.FireInfo{
 		Type:      firewall.TypeNormal,
 		PortStart: req.Port,
 		PortEnd:   req.Port,
@@ -196,7 +205,7 @@ func (s *App) UpdatePort(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("pure-ftpd"); err != nil {
+	if err = systemctl.Restart(ctx, "pure-ftpd"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -255,7 +264,7 @@ func (s *App) UpdateConfigTune(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("pure-ftpd"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "pure-ftpd"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

@@ -1,6 +1,7 @@
 package supervisor
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -54,8 +55,8 @@ func (s *App) Service(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, s.name)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status(s.name)
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, s.name)
 	return types.AggregateAppStatus(ok)
 }
 
@@ -71,7 +72,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 
 // Processes 进程列表
 func (s *App) Processes(w http.ResponseWriter, r *http.Request) {
-	out, err := shell.Execf(`supervisorctl status`)
+	out, err := shell.Execf(r.Context(), `supervisorctl status`)
 	if err != nil && out == "" {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -120,7 +121,7 @@ func (s *App) StartProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if out, err := shell.Execf(`supervisorctl start '%s'`, req.Process); err != nil {
+	if out, err := shell.Execf(r.Context(), `supervisorctl start '%s'`, req.Process); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
@@ -136,7 +137,7 @@ func (s *App) StopProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if out, err := shell.Execf(`supervisorctl stop '%s'`, req.Process); err != nil {
+	if out, err := shell.Execf(r.Context(), `supervisorctl stop '%s'`, req.Process); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
@@ -152,7 +153,8 @@ func (s *App) RestartProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if out, err := shell.Execf(`supervisorctl restart '%s'`, req.Process); err != nil {
+	// restart 是 stop+start 两步，中途取消会把进程停在已停止态
+	if out, err := shell.Execf(context.WithoutCancel(r.Context()), `supervisorctl restart '%s'`, req.Process); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
@@ -208,7 +210,7 @@ func (s *App) UpdateProcessConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w, name)
+	s.reload(r.Context(), w, name)
 }
 
 // GetProcessSetting 获取进程可视化参数
@@ -252,7 +254,7 @@ func (s *App) UpdateProcessSetting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.reload(w, name)
+	s.reload(r.Context(), w, name)
 }
 
 // CreateProcess 添加进程
@@ -288,9 +290,11 @@ stdout_logfile_maxbytes=2MB
 		return
 	}
 
-	_, _ = shell.Execf(`supervisorctl reread`)
-	_, _ = shell.Execf(`supervisorctl update`)
-	_, _ = shell.Execf(`supervisorctl start '%s:'`, req.Name)
+	// 同 reload，三步序列中途取消会让新进程注册了却没起来
+	ctx := context.WithoutCancel(r.Context())
+	_, _ = shell.Execf(ctx, `supervisorctl reread`)
+	_, _ = shell.Execf(ctx, `supervisorctl update`)
+	_, _ = shell.Execf(ctx, `supervisorctl start '%s:'`, req.Name)
 
 	service.Success(w, nil)
 }
@@ -303,8 +307,10 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 停进程→删配置→reread/update 中途取消会让配置已删而 supervisord 仍挂着该进程
+	ctx := context.WithoutCancel(r.Context())
 	name := programName(req.Process)
-	if out, err := shell.Execf(`supervisorctl stop '%s:'`, name); err != nil {
+	if out, err := shell.Execf(ctx, `supervisorctl stop '%s:'`, name); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v %s", err, out)
 		return
 	}
@@ -315,17 +321,17 @@ func (s *App) DeleteProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Remove(confPath(name)); err != nil {
+	if err = io.Remove(ctx, confPath(name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Remove(logPath); err != nil {
+	if err = io.Remove(ctx, logPath); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	_, _ = shell.Execf(`supervisorctl reread`)
-	_, _ = shell.Execf(`supervisorctl update`)
+	_, _ = shell.Execf(ctx, `supervisorctl reread`)
+	_, _ = shell.Execf(ctx, `supervisorctl update`)
 
 	service.Success(w, nil)
 }
@@ -339,10 +345,12 @@ func (s *App) processLog(process string) (string, error) {
 	return confval.Supervisor.Get(config, "stdout_logfile"), nil
 }
 
-func (s *App) reload(w http.ResponseWriter, name string) {
-	_, _ = shell.Execf(`supervisorctl reread`)
-	_, _ = shell.Execf(`supervisorctl update`)
-	_, _ = shell.Execf(`supervisorctl restart '%s:'`, name)
+func (s *App) reload(ctx context.Context, w http.ResponseWriter, name string) {
+	// reread→update→restart 中途取消会让进程停在半启动态
+	ctx = context.WithoutCancel(ctx)
+	_, _ = shell.Execf(ctx, `supervisorctl reread`)
+	_, _ = shell.Execf(ctx, `supervisorctl update`)
+	_, _ = shell.Execf(ctx, `supervisorctl restart '%s:'`, name)
 
 	service.Success(w, nil)
 }

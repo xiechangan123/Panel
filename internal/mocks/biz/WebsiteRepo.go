@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -26,7 +27,7 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			CountFunc: func() (int64, error) {
 //				panic("mock out the Count method")
 //			},
-//			CreateFunc: func(req *request.WebsiteCreate) (*biz.Website, error) {
+//			CreateFunc: func(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
 //				panic("mock out the Create method")
 //			},
 //			DeleteFunc: func(website *biz.Website) error {
@@ -47,28 +48,28 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			ListFunc: func(typ string, page uint, limit uint) ([]*biz.Website, int64, error) {
 //				panic("mock out the List method")
 //			},
-//			RebuildFunc: func(website *biz.Website) (bool, []string, error) {
+//			RebuildFunc: func(ctx context.Context, website *biz.Website) (bool, []string, error) {
 //				panic("mock out the Rebuild method")
 //			},
-//			ReloadWebServerFunc: func() error {
+//			ReloadWebServerFunc: func(ctx context.Context) error {
 //				panic("mock out the ReloadWebServer method")
 //			},
-//			RemoveFilesFunc: func(name string, removePath bool) error {
+//			RemoveFilesFunc: func(ctx context.Context, name string, removePath bool) error {
 //				panic("mock out the RemoveFiles method")
 //			},
-//			ResetConfigFunc: func(id uint) error {
+//			ResetConfigFunc: func(ctx context.Context, id uint) error {
 //				panic("mock out the ResetConfig method")
 //			},
-//			SwitchTypeFunc: func(req *request.WebsiteSwitchType) (*biz.Website, error) {
+//			SwitchTypeFunc: func(ctx context.Context, req *request.WebsiteSwitchType) (*biz.Website, error) {
 //				panic("mock out the SwitchType method")
 //			},
-//			UpdateFunc: func(req *request.WebsiteUpdate) (*biz.Website, error) {
+//			UpdateFunc: func(ctx context.Context, req *request.WebsiteUpdate) (*biz.Website, error) {
 //				panic("mock out the Update method")
 //			},
-//			UpdateCertFunc: func(req *request.WebsiteUpdateCert) error {
+//			UpdateCertFunc: func(ctx context.Context, req *request.WebsiteUpdateCert) error {
 //				panic("mock out the UpdateCert method")
 //			},
-//			UpdateDefaultConfigFunc: func(req *request.WebsiteDefaultConfig) error {
+//			UpdateDefaultConfigFunc: func(ctx context.Context, req *request.WebsiteDefaultConfig) error {
 //				panic("mock out the UpdateDefaultConfig method")
 //			},
 //			UpdateExpireAtFunc: func(id uint, expireAt *time.Time) error {
@@ -77,7 +78,7 @@ var _ biz.WebsiteRepo = &WebsiteRepo{}
 //			UpdateRemarkFunc: func(id uint, remark string) error {
 //				panic("mock out the UpdateRemark method")
 //			},
-//			UpdateStatusFunc: func(id uint, status bool) error {
+//			UpdateStatusFunc: func(ctx context.Context, id uint, status bool) error {
 //				panic("mock out the UpdateStatus method")
 //			},
 //		}
@@ -91,7 +92,7 @@ type WebsiteRepo struct {
 	CountFunc func() (int64, error)
 
 	// CreateFunc mocks the Create method.
-	CreateFunc func(req *request.WebsiteCreate) (*biz.Website, error)
+	CreateFunc func(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error)
 
 	// DeleteFunc mocks the Delete method.
 	DeleteFunc func(website *biz.Website) error
@@ -112,28 +113,28 @@ type WebsiteRepo struct {
 	ListFunc func(typ string, page uint, limit uint) ([]*biz.Website, int64, error)
 
 	// RebuildFunc mocks the Rebuild method.
-	RebuildFunc func(website *biz.Website) (bool, []string, error)
+	RebuildFunc func(ctx context.Context, website *biz.Website) (bool, []string, error)
 
 	// ReloadWebServerFunc mocks the ReloadWebServer method.
-	ReloadWebServerFunc func() error
+	ReloadWebServerFunc func(ctx context.Context) error
 
 	// RemoveFilesFunc mocks the RemoveFiles method.
-	RemoveFilesFunc func(name string, removePath bool) error
+	RemoveFilesFunc func(ctx context.Context, name string, removePath bool) error
 
 	// ResetConfigFunc mocks the ResetConfig method.
-	ResetConfigFunc func(id uint) error
+	ResetConfigFunc func(ctx context.Context, id uint) error
 
 	// SwitchTypeFunc mocks the SwitchType method.
-	SwitchTypeFunc func(req *request.WebsiteSwitchType) (*biz.Website, error)
+	SwitchTypeFunc func(ctx context.Context, req *request.WebsiteSwitchType) (*biz.Website, error)
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(req *request.WebsiteUpdate) (*biz.Website, error)
+	UpdateFunc func(ctx context.Context, req *request.WebsiteUpdate) (*biz.Website, error)
 
 	// UpdateCertFunc mocks the UpdateCert method.
-	UpdateCertFunc func(req *request.WebsiteUpdateCert) error
+	UpdateCertFunc func(ctx context.Context, req *request.WebsiteUpdateCert) error
 
 	// UpdateDefaultConfigFunc mocks the UpdateDefaultConfig method.
-	UpdateDefaultConfigFunc func(req *request.WebsiteDefaultConfig) error
+	UpdateDefaultConfigFunc func(ctx context.Context, req *request.WebsiteDefaultConfig) error
 
 	// UpdateExpireAtFunc mocks the UpdateExpireAt method.
 	UpdateExpireAtFunc func(id uint, expireAt *time.Time) error
@@ -142,7 +143,7 @@ type WebsiteRepo struct {
 	UpdateRemarkFunc func(id uint, remark string) error
 
 	// UpdateStatusFunc mocks the UpdateStatus method.
-	UpdateStatusFunc func(id uint, status bool) error
+	UpdateStatusFunc func(ctx context.Context, id uint, status bool) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -151,6 +152,8 @@ type WebsiteRepo struct {
 		}
 		// Create holds details about calls to the Create method.
 		Create []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Req is the req argument value.
 			Req *request.WebsiteCreate
 		}
@@ -188,14 +191,20 @@ type WebsiteRepo struct {
 		}
 		// Rebuild holds details about calls to the Rebuild method.
 		Rebuild []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Website is the website argument value.
 			Website *biz.Website
 		}
 		// ReloadWebServer holds details about calls to the ReloadWebServer method.
 		ReloadWebServer []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// RemoveFiles holds details about calls to the RemoveFiles method.
 		RemoveFiles []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Name is the name argument value.
 			Name string
 			// RemovePath is the removePath argument value.
@@ -203,26 +212,36 @@ type WebsiteRepo struct {
 		}
 		// ResetConfig holds details about calls to the ResetConfig method.
 		ResetConfig []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint
 		}
 		// SwitchType holds details about calls to the SwitchType method.
 		SwitchType []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Req is the req argument value.
 			Req *request.WebsiteSwitchType
 		}
 		// Update holds details about calls to the Update method.
 		Update []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Req is the req argument value.
 			Req *request.WebsiteUpdate
 		}
 		// UpdateCert holds details about calls to the UpdateCert method.
 		UpdateCert []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Req is the req argument value.
 			Req *request.WebsiteUpdateCert
 		}
 		// UpdateDefaultConfig holds details about calls to the UpdateDefaultConfig method.
 		UpdateDefaultConfig []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Req is the req argument value.
 			Req *request.WebsiteDefaultConfig
 		}
@@ -242,6 +261,8 @@ type WebsiteRepo struct {
 		}
 		// UpdateStatus holds details about calls to the UpdateStatus method.
 		UpdateStatus []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID uint
 			// Status is the status argument value.
@@ -297,19 +318,21 @@ func (mock *WebsiteRepo) CountCalls() []struct {
 }
 
 // Create calls CreateFunc.
-func (mock *WebsiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error) {
+func (mock *WebsiteRepo) Create(ctx context.Context, req *request.WebsiteCreate) (*biz.Website, error) {
 	if mock.CreateFunc == nil {
 		panic("WebsiteRepo.CreateFunc: method is nil but WebsiteRepo.Create was just called")
 	}
 	callInfo := struct {
+		Ctx context.Context
 		Req *request.WebsiteCreate
 	}{
+		Ctx: ctx,
 		Req: req,
 	}
 	mock.lockCreate.Lock()
 	mock.calls.Create = append(mock.calls.Create, callInfo)
 	mock.lockCreate.Unlock()
-	return mock.CreateFunc(req)
+	return mock.CreateFunc(ctx, req)
 }
 
 // CreateCalls gets all the calls that were made to Create.
@@ -317,9 +340,11 @@ func (mock *WebsiteRepo) Create(req *request.WebsiteCreate) (*biz.Website, error
 //
 //	len(mockedWebsiteRepo.CreateCalls())
 func (mock *WebsiteRepo) CreateCalls() []struct {
+	Ctx context.Context
 	Req *request.WebsiteCreate
 } {
 	var calls []struct {
+		Ctx context.Context
 		Req *request.WebsiteCreate
 	}
 	mock.lockCreate.RLock()
@@ -524,19 +549,21 @@ func (mock *WebsiteRepo) ListCalls() []struct {
 }
 
 // Rebuild calls RebuildFunc.
-func (mock *WebsiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
+func (mock *WebsiteRepo) Rebuild(ctx context.Context, website *biz.Website) (bool, []string, error) {
 	if mock.RebuildFunc == nil {
 		panic("WebsiteRepo.RebuildFunc: method is nil but WebsiteRepo.Rebuild was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Website *biz.Website
 	}{
+		Ctx:     ctx,
 		Website: website,
 	}
 	mock.lockRebuild.Lock()
 	mock.calls.Rebuild = append(mock.calls.Rebuild, callInfo)
 	mock.lockRebuild.Unlock()
-	return mock.RebuildFunc(website)
+	return mock.RebuildFunc(ctx, website)
 }
 
 // RebuildCalls gets all the calls that were made to Rebuild.
@@ -544,9 +571,11 @@ func (mock *WebsiteRepo) Rebuild(website *biz.Website) (bool, []string, error) {
 //
 //	len(mockedWebsiteRepo.RebuildCalls())
 func (mock *WebsiteRepo) RebuildCalls() []struct {
+	Ctx     context.Context
 	Website *biz.Website
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Website *biz.Website
 	}
 	mock.lockRebuild.RLock()
@@ -556,16 +585,19 @@ func (mock *WebsiteRepo) RebuildCalls() []struct {
 }
 
 // ReloadWebServer calls ReloadWebServerFunc.
-func (mock *WebsiteRepo) ReloadWebServer() error {
+func (mock *WebsiteRepo) ReloadWebServer(ctx context.Context) error {
 	if mock.ReloadWebServerFunc == nil {
 		panic("WebsiteRepo.ReloadWebServerFunc: method is nil but WebsiteRepo.ReloadWebServer was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockReloadWebServer.Lock()
 	mock.calls.ReloadWebServer = append(mock.calls.ReloadWebServer, callInfo)
 	mock.lockReloadWebServer.Unlock()
-	return mock.ReloadWebServerFunc()
+	return mock.ReloadWebServerFunc(ctx)
 }
 
 // ReloadWebServerCalls gets all the calls that were made to ReloadWebServer.
@@ -573,8 +605,10 @@ func (mock *WebsiteRepo) ReloadWebServer() error {
 //
 //	len(mockedWebsiteRepo.ReloadWebServerCalls())
 func (mock *WebsiteRepo) ReloadWebServerCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockReloadWebServer.RLock()
 	calls = mock.calls.ReloadWebServer
@@ -583,21 +617,23 @@ func (mock *WebsiteRepo) ReloadWebServerCalls() []struct {
 }
 
 // RemoveFiles calls RemoveFilesFunc.
-func (mock *WebsiteRepo) RemoveFiles(name string, removePath bool) error {
+func (mock *WebsiteRepo) RemoveFiles(ctx context.Context, name string, removePath bool) error {
 	if mock.RemoveFilesFunc == nil {
 		panic("WebsiteRepo.RemoveFilesFunc: method is nil but WebsiteRepo.RemoveFiles was just called")
 	}
 	callInfo := struct {
+		Ctx        context.Context
 		Name       string
 		RemovePath bool
 	}{
+		Ctx:        ctx,
 		Name:       name,
 		RemovePath: removePath,
 	}
 	mock.lockRemoveFiles.Lock()
 	mock.calls.RemoveFiles = append(mock.calls.RemoveFiles, callInfo)
 	mock.lockRemoveFiles.Unlock()
-	return mock.RemoveFilesFunc(name, removePath)
+	return mock.RemoveFilesFunc(ctx, name, removePath)
 }
 
 // RemoveFilesCalls gets all the calls that were made to RemoveFiles.
@@ -605,10 +641,12 @@ func (mock *WebsiteRepo) RemoveFiles(name string, removePath bool) error {
 //
 //	len(mockedWebsiteRepo.RemoveFilesCalls())
 func (mock *WebsiteRepo) RemoveFilesCalls() []struct {
+	Ctx        context.Context
 	Name       string
 	RemovePath bool
 } {
 	var calls []struct {
+		Ctx        context.Context
 		Name       string
 		RemovePath bool
 	}
@@ -619,19 +657,21 @@ func (mock *WebsiteRepo) RemoveFilesCalls() []struct {
 }
 
 // ResetConfig calls ResetConfigFunc.
-func (mock *WebsiteRepo) ResetConfig(id uint) error {
+func (mock *WebsiteRepo) ResetConfig(ctx context.Context, id uint) error {
 	if mock.ResetConfigFunc == nil {
 		panic("WebsiteRepo.ResetConfigFunc: method is nil but WebsiteRepo.ResetConfig was just called")
 	}
 	callInfo := struct {
-		ID uint
+		Ctx context.Context
+		ID  uint
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	mock.lockResetConfig.Lock()
 	mock.calls.ResetConfig = append(mock.calls.ResetConfig, callInfo)
 	mock.lockResetConfig.Unlock()
-	return mock.ResetConfigFunc(id)
+	return mock.ResetConfigFunc(ctx, id)
 }
 
 // ResetConfigCalls gets all the calls that were made to ResetConfig.
@@ -639,10 +679,12 @@ func (mock *WebsiteRepo) ResetConfig(id uint) error {
 //
 //	len(mockedWebsiteRepo.ResetConfigCalls())
 func (mock *WebsiteRepo) ResetConfigCalls() []struct {
-	ID uint
+	Ctx context.Context
+	ID  uint
 } {
 	var calls []struct {
-		ID uint
+		Ctx context.Context
+		ID  uint
 	}
 	mock.lockResetConfig.RLock()
 	calls = mock.calls.ResetConfig
@@ -651,19 +693,21 @@ func (mock *WebsiteRepo) ResetConfigCalls() []struct {
 }
 
 // SwitchType calls SwitchTypeFunc.
-func (mock *WebsiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Website, error) {
+func (mock *WebsiteRepo) SwitchType(ctx context.Context, req *request.WebsiteSwitchType) (*biz.Website, error) {
 	if mock.SwitchTypeFunc == nil {
 		panic("WebsiteRepo.SwitchTypeFunc: method is nil but WebsiteRepo.SwitchType was just called")
 	}
 	callInfo := struct {
+		Ctx context.Context
 		Req *request.WebsiteSwitchType
 	}{
+		Ctx: ctx,
 		Req: req,
 	}
 	mock.lockSwitchType.Lock()
 	mock.calls.SwitchType = append(mock.calls.SwitchType, callInfo)
 	mock.lockSwitchType.Unlock()
-	return mock.SwitchTypeFunc(req)
+	return mock.SwitchTypeFunc(ctx, req)
 }
 
 // SwitchTypeCalls gets all the calls that were made to SwitchType.
@@ -671,9 +715,11 @@ func (mock *WebsiteRepo) SwitchType(req *request.WebsiteSwitchType) (*biz.Websit
 //
 //	len(mockedWebsiteRepo.SwitchTypeCalls())
 func (mock *WebsiteRepo) SwitchTypeCalls() []struct {
+	Ctx context.Context
 	Req *request.WebsiteSwitchType
 } {
 	var calls []struct {
+		Ctx context.Context
 		Req *request.WebsiteSwitchType
 	}
 	mock.lockSwitchType.RLock()
@@ -683,19 +729,21 @@ func (mock *WebsiteRepo) SwitchTypeCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *WebsiteRepo) Update(req *request.WebsiteUpdate) (*biz.Website, error) {
+func (mock *WebsiteRepo) Update(ctx context.Context, req *request.WebsiteUpdate) (*biz.Website, error) {
 	if mock.UpdateFunc == nil {
 		panic("WebsiteRepo.UpdateFunc: method is nil but WebsiteRepo.Update was just called")
 	}
 	callInfo := struct {
+		Ctx context.Context
 		Req *request.WebsiteUpdate
 	}{
+		Ctx: ctx,
 		Req: req,
 	}
 	mock.lockUpdate.Lock()
 	mock.calls.Update = append(mock.calls.Update, callInfo)
 	mock.lockUpdate.Unlock()
-	return mock.UpdateFunc(req)
+	return mock.UpdateFunc(ctx, req)
 }
 
 // UpdateCalls gets all the calls that were made to Update.
@@ -703,9 +751,11 @@ func (mock *WebsiteRepo) Update(req *request.WebsiteUpdate) (*biz.Website, error
 //
 //	len(mockedWebsiteRepo.UpdateCalls())
 func (mock *WebsiteRepo) UpdateCalls() []struct {
+	Ctx context.Context
 	Req *request.WebsiteUpdate
 } {
 	var calls []struct {
+		Ctx context.Context
 		Req *request.WebsiteUpdate
 	}
 	mock.lockUpdate.RLock()
@@ -715,19 +765,21 @@ func (mock *WebsiteRepo) UpdateCalls() []struct {
 }
 
 // UpdateCert calls UpdateCertFunc.
-func (mock *WebsiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
+func (mock *WebsiteRepo) UpdateCert(ctx context.Context, req *request.WebsiteUpdateCert) error {
 	if mock.UpdateCertFunc == nil {
 		panic("WebsiteRepo.UpdateCertFunc: method is nil but WebsiteRepo.UpdateCert was just called")
 	}
 	callInfo := struct {
+		Ctx context.Context
 		Req *request.WebsiteUpdateCert
 	}{
+		Ctx: ctx,
 		Req: req,
 	}
 	mock.lockUpdateCert.Lock()
 	mock.calls.UpdateCert = append(mock.calls.UpdateCert, callInfo)
 	mock.lockUpdateCert.Unlock()
-	return mock.UpdateCertFunc(req)
+	return mock.UpdateCertFunc(ctx, req)
 }
 
 // UpdateCertCalls gets all the calls that were made to UpdateCert.
@@ -735,9 +787,11 @@ func (mock *WebsiteRepo) UpdateCert(req *request.WebsiteUpdateCert) error {
 //
 //	len(mockedWebsiteRepo.UpdateCertCalls())
 func (mock *WebsiteRepo) UpdateCertCalls() []struct {
+	Ctx context.Context
 	Req *request.WebsiteUpdateCert
 } {
 	var calls []struct {
+		Ctx context.Context
 		Req *request.WebsiteUpdateCert
 	}
 	mock.lockUpdateCert.RLock()
@@ -747,19 +801,21 @@ func (mock *WebsiteRepo) UpdateCertCalls() []struct {
 }
 
 // UpdateDefaultConfig calls UpdateDefaultConfigFunc.
-func (mock *WebsiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) error {
+func (mock *WebsiteRepo) UpdateDefaultConfig(ctx context.Context, req *request.WebsiteDefaultConfig) error {
 	if mock.UpdateDefaultConfigFunc == nil {
 		panic("WebsiteRepo.UpdateDefaultConfigFunc: method is nil but WebsiteRepo.UpdateDefaultConfig was just called")
 	}
 	callInfo := struct {
+		Ctx context.Context
 		Req *request.WebsiteDefaultConfig
 	}{
+		Ctx: ctx,
 		Req: req,
 	}
 	mock.lockUpdateDefaultConfig.Lock()
 	mock.calls.UpdateDefaultConfig = append(mock.calls.UpdateDefaultConfig, callInfo)
 	mock.lockUpdateDefaultConfig.Unlock()
-	return mock.UpdateDefaultConfigFunc(req)
+	return mock.UpdateDefaultConfigFunc(ctx, req)
 }
 
 // UpdateDefaultConfigCalls gets all the calls that were made to UpdateDefaultConfig.
@@ -767,9 +823,11 @@ func (mock *WebsiteRepo) UpdateDefaultConfig(req *request.WebsiteDefaultConfig) 
 //
 //	len(mockedWebsiteRepo.UpdateDefaultConfigCalls())
 func (mock *WebsiteRepo) UpdateDefaultConfigCalls() []struct {
+	Ctx context.Context
 	Req *request.WebsiteDefaultConfig
 } {
 	var calls []struct {
+		Ctx context.Context
 		Req *request.WebsiteDefaultConfig
 	}
 	mock.lockUpdateDefaultConfig.RLock()
@@ -851,21 +909,23 @@ func (mock *WebsiteRepo) UpdateRemarkCalls() []struct {
 }
 
 // UpdateStatus calls UpdateStatusFunc.
-func (mock *WebsiteRepo) UpdateStatus(id uint, status bool) error {
+func (mock *WebsiteRepo) UpdateStatus(ctx context.Context, id uint, status bool) error {
 	if mock.UpdateStatusFunc == nil {
 		panic("WebsiteRepo.UpdateStatusFunc: method is nil but WebsiteRepo.UpdateStatus was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		ID     uint
 		Status bool
 	}{
+		Ctx:    ctx,
 		ID:     id,
 		Status: status,
 	}
 	mock.lockUpdateStatus.Lock()
 	mock.calls.UpdateStatus = append(mock.calls.UpdateStatus, callInfo)
 	mock.lockUpdateStatus.Unlock()
-	return mock.UpdateStatusFunc(id, status)
+	return mock.UpdateStatusFunc(ctx, id, status)
 }
 
 // UpdateStatusCalls gets all the calls that were made to UpdateStatus.
@@ -873,10 +933,12 @@ func (mock *WebsiteRepo) UpdateStatus(id uint, status bool) error {
 //
 //	len(mockedWebsiteRepo.UpdateStatusCalls())
 func (mock *WebsiteRepo) UpdateStatusCalls() []struct {
+	Ctx    context.Context
 	ID     uint
 	Status bool
 } {
 	var calls []struct {
+		Ctx    context.Context
 		ID     uint
 		Status bool
 	}

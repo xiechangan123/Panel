@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -64,7 +65,7 @@ func (s *ToolboxLogService) Scan(w http.ResponseWriter, r *http.Request) {
 	case "docker":
 		items = s.scanDockerLogs()
 	case "system":
-		items = s.scanSystemLogs()
+		items = s.scanSystemLogs(r.Context())
 	default:
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown log type"))
 		return
@@ -86,15 +87,15 @@ func (s *ToolboxLogService) Clean(w http.ResponseWriter, r *http.Request) {
 
 	switch req.Type {
 	case "panel":
-		cleaned, cleanErr = s.cleanPanelLogs()
+		cleaned, cleanErr = s.cleanPanelLogs(r.Context())
 	case "website":
-		cleaned, cleanErr = s.cleanWebsiteLogs()
+		cleaned, cleanErr = s.cleanWebsiteLogs(r.Context())
 	case "mysql":
-		cleaned = s.cleanMySQLLogs()
+		cleaned = s.cleanMySQLLogs(r.Context())
 	case "docker":
-		cleaned = s.cleanDockerLogs()
+		cleaned = s.cleanDockerLogs(r.Context())
 	case "system":
-		cleaned = s.cleanSystemLogs()
+		cleaned = s.cleanSystemLogs(r.Context())
 	default:
 		Error(w, http.StatusUnprocessableEntity, s.t.Get("unknown log type"))
 		return
@@ -334,7 +335,7 @@ func (s *ToolboxLogService) scanContainerLogDir(logPath string) (int64, int) {
 }
 
 // scanSystemLogs 扫描系统日志
-func (s *ToolboxLogService) scanSystemLogs() []LogItem {
+func (s *ToolboxLogService) scanSystemLogs(ctx context.Context) []LogItem {
 	items := make([]LogItem, 0)
 
 	logFiles := []string{
@@ -384,7 +385,7 @@ func (s *ToolboxLogService) scanSystemLogs() []LogItem {
 	}
 
 	// journal 日志大小
-	journalOutput, _ := shell.Execf("journalctl --disk-usage 2>/dev/null | grep -oP '\\d+\\.?\\d*[KMGT]?' || echo '0'")
+	journalOutput, _ := shell.Execf(ctx, "journalctl --disk-usage 2>/dev/null | grep -oP '\\d+\\.?\\d*[KMGT]?' || echo '0'")
 	journalSize := strings.TrimSpace(journalOutput)
 	if journalSize != "" && journalSize != "0" {
 		items = append(items, LogItem{
@@ -398,7 +399,7 @@ func (s *ToolboxLogService) scanSystemLogs() []LogItem {
 }
 
 // cleanPanelLogs 清理面板日志
-func (s *ToolboxLogService) cleanPanelLogs() (int64, error) {
+func (s *ToolboxLogService) cleanPanelLogs(ctx context.Context) (int64, error) {
 	var cleaned int64
 	logPath := filepath.Join(app.Root, "panel/storage/logs")
 
@@ -427,7 +428,7 @@ func (s *ToolboxLogService) cleanPanelLogs() (int64, error) {
 		if re.MatchString(entry.Name()) {
 			_ = os.Remove(filePath)
 		} else {
-			_, _ = shell.Execf("cat /dev/null > '%s'", filePath)
+			_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", filePath)
 		}
 	}
 
@@ -435,7 +436,7 @@ func (s *ToolboxLogService) cleanPanelLogs() (int64, error) {
 }
 
 // cleanWebsiteLogs 清理网站日志
-func (s *ToolboxLogService) cleanWebsiteLogs() (int64, error) {
+func (s *ToolboxLogService) cleanWebsiteLogs(ctx context.Context) (int64, error) {
 	var cleaned int64
 	sitesPath := filepath.Join(app.Root, "sites")
 
@@ -469,7 +470,7 @@ func (s *ToolboxLogService) cleanWebsiteLogs() (int64, error) {
 				continue
 			}
 			cleaned += info.Size()
-			if _, err = shell.Execf("cat /dev/null > '%s'", filePath); err != nil {
+			if _, err = shell.Execf(ctx, "cat /dev/null > '%s'", filePath); err != nil {
 				continue
 			}
 		}
@@ -479,7 +480,7 @@ func (s *ToolboxLogService) cleanWebsiteLogs() (int64, error) {
 }
 
 // cleanMySQLLogs 清理 MySQL 日志
-func (s *ToolboxLogService) cleanMySQLLogs() int64 {
+func (s *ToolboxLogService) cleanMySQLLogs(ctx context.Context) int64 {
 	var cleaned int64
 	mysqlPath := filepath.Join(app.Root, "server/mysql")
 
@@ -492,7 +493,7 @@ func (s *ToolboxLogService) cleanMySQLLogs() int64 {
 	if io.Exists(slowLogPath) {
 		if info, err := os.Stat(slowLogPath); err == nil {
 			cleaned += info.Size()
-			_, _ = shell.Execf("cat /dev/null > '%s'", slowLogPath)
+			_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", slowLogPath)
 		}
 	}
 
@@ -520,14 +521,14 @@ func (s *ToolboxLogService) cleanMySQLLogs() int64 {
 	// 从面板设置获取 root 密码
 	rootPassword, err := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 	if err == nil && rootPassword != "" {
-		_, _ = shell.ExecfWithEnv([]string{"MYSQL_PWD=" + rootPassword}, "mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
+		_, _ = shell.ExecfWithEnv(ctx, []string{"MYSQL_PWD=" + rootPassword}, "mysql -u root -e 'PURGE BINARY LOGS BEFORE NOW()' 2>/dev/null")
 	}
 
 	return cleaned
 }
 
 // cleanDockerLogs 清理 Docker/Podman 相关内容
-func (s *ToolboxLogService) cleanDockerLogs() int64 {
+func (s *ToolboxLogService) cleanDockerLogs(ctx context.Context) int64 {
 	var cleaned int64
 
 	// 清理未使用的镜像 (Docker)
@@ -535,7 +536,7 @@ func (s *ToolboxLogService) cleanDockerLogs() int64 {
 
 	// 清理 Docker 容器日志
 	dockerLogPath := "/var/lib/docker/containers"
-	cleaned += s.cleanContainerLogDir(dockerLogPath)
+	cleaned += s.cleanContainerLogDir(ctx, dockerLogPath)
 
 	// 清理 Podman 容器日志
 	podmanLogPaths := []string{
@@ -543,20 +544,20 @@ func (s *ToolboxLogService) cleanDockerLogs() int64 {
 		"/run/containers/storage/overlay-containers",
 	}
 	for _, podmanLogPath := range podmanLogPaths {
-		cleaned += s.cleanContainerLogDir(podmanLogPath)
+		cleaned += s.cleanContainerLogDir(ctx, podmanLogPath)
 	}
 
 	// 清理 Docker 系统
-	_, _ = shell.Execf("docker system prune -f 2>/dev/null")
+	_, _ = shell.Execf(ctx, "docker system prune -f 2>/dev/null")
 
 	// 清理 Podman 系统
-	_, _ = shell.Execf("podman system prune -f 2>/dev/null")
+	_, _ = shell.Execf(ctx, "podman system prune -f 2>/dev/null")
 
 	return cleaned
 }
 
 // cleanContainerLogDir 清理容器日志目录
-func (s *ToolboxLogService) cleanContainerLogDir(logPath string) int64 {
+func (s *ToolboxLogService) cleanContainerLogDir(ctx context.Context, logPath string) int64 {
 	var cleaned int64
 
 	if !io.Exists(logPath) {
@@ -579,7 +580,7 @@ func (s *ToolboxLogService) cleanContainerLogDir(logPath string) int64 {
 		for _, logFile := range logFiles {
 			if info, err := os.Stat(logFile); err == nil {
 				cleaned += info.Size()
-				_, _ = shell.Execf("cat /dev/null > '%s'", logFile)
+				_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", logFile)
 			}
 		}
 
@@ -590,7 +591,7 @@ func (s *ToolboxLogService) cleanContainerLogDir(logPath string) int64 {
 			for _, logFile := range userdataLogs {
 				if info, err := os.Stat(logFile); err == nil {
 					cleaned += info.Size()
-					_, _ = shell.Execf("cat /dev/null > '%s'", logFile)
+					_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", logFile)
 				}
 			}
 		}
@@ -600,11 +601,11 @@ func (s *ToolboxLogService) cleanContainerLogDir(logPath string) int64 {
 }
 
 // cleanSystemLogs 清理系统日志
-func (s *ToolboxLogService) cleanSystemLogs() int64 {
+func (s *ToolboxLogService) cleanSystemLogs(ctx context.Context) int64 {
 	var cleaned int64
 
 	// 清理 journal 日志 (保留最近 1 天)
-	_, _ = shell.Execf("journalctl --vacuum-time=1d 2>/dev/null")
+	_, _ = shell.Execf(ctx, "journalctl --vacuum-time=1d 2>/dev/null")
 
 	logFiles := []string{
 		"/var/log/syslog",
@@ -627,7 +628,7 @@ func (s *ToolboxLogService) cleanSystemLogs() int64 {
 		}
 		cleaned += info.Size()
 		// 清空日志文件
-		_, _ = shell.Execf("cat /dev/null > '%s'", logFile)
+		_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", logFile)
 	}
 
 	// 清理 /var/log/*.log 文件
@@ -641,7 +642,7 @@ func (s *ToolboxLogService) cleanSystemLogs() int64 {
 			continue
 		}
 		cleaned += info.Size()
-		_, _ = shell.Execf("cat /dev/null > '%s'", match)
+		_, _ = shell.Execf(ctx, "cat /dev/null > '%s'", match)
 	}
 
 	return cleaned

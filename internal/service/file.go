@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"cmp"
+	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/binary"
@@ -60,7 +61,7 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !req.Dir {
-		if _, err = shell.Execf("touch %s", req.Path); err != nil {
+		if _, err = shell.Execf(r.Context(), "touch %s", req.Path); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -71,7 +72,7 @@ func (s *FileService) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	s.setPermission(req.Path, 0755, "www", "www")
+	s.setPermission(r.Context(), req.Path, 0755, "www", "www")
 	Success(w, nil)
 }
 
@@ -138,7 +139,7 @@ func (s *FileService) Tail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Service != "" {
-		s.tailService(w, req)
+		s.tailService(r.Context(), w, req)
 		return
 	}
 
@@ -282,7 +283,7 @@ func (s *FileService) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// 解除防篡改保护后再删除
 	unlocked := s.tamperRepo.Unlock(req.Path)
-	if err = io.Remove(req.Path); err != nil {
+	if err = io.Remove(r.Context(), req.Path); err != nil {
 		if unlocked {
 			s.tamperRepo.Relock(req.Path)
 		}
@@ -333,7 +334,7 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
-	if err = s.replaceFile(tmp.Name(), req.Path); err != nil {
+	if err = s.replaceFile(r.Context(), tmp.Name(), req.Path); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
@@ -343,14 +344,14 @@ func (s *FileService) Upload(w http.ResponseWriter, r *http.Request) {
 
 // replaceFile 用临时文件原子替换目标文件；目标受防篡改保护时先解锁，替换后重新登记
 // rename 不会打开目标文件，覆盖运行中的二进制也不会遇到 ETXTBSY
-func (s *FileService) replaceFile(tmp, target string) error {
+func (s *FileService) replaceFile(ctx context.Context, tmp, target string) error {
 	if io.Exists(target) && s.tamperRepo.Unlock(target) {
 		defer s.tamperRepo.Relock(target)
 	}
 	if err := stdos.Rename(tmp, target); err != nil {
 		return err
 	}
-	s.setPermission(target, 0755, "www", "www")
+	s.setPermission(ctx, target, 0755, "www", "www")
 	return nil
 }
 
@@ -382,6 +383,7 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
 	for item := range slices.Values(req) {
 		// 源和目标相同，跳过（同目录粘贴覆盖的情况）
 		if item.Source == item.Target {
@@ -399,7 +401,7 @@ func (s *FileService) Move(w http.ResponseWriter, r *http.Request) {
 
 		// 源受保护则先解锁,移动后按目标路径恢复
 		relock := s.tamperRepo.Unlock(item.Source)
-		if err := io.Mv(item.Source, item.Target); err != nil {
+		if err := io.Mv(ctx, item.Source, item.Target); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -421,6 +423,7 @@ func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
 	for item := range slices.Values(req) {
 		// 源和目标相同，跳过（同目录粘贴覆盖的情况）
 		if item.Source == item.Target {
@@ -436,7 +439,7 @@ func (s *FileService) Copy(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := io.Cp(item.Source, item.Target); err != nil {
+		if err := io.Cp(ctx, item.Source, item.Target); err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}
@@ -556,7 +559,7 @@ func (s *FileService) Size(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 计算目录大小
-	output, err := shell.Execf("du -sb '%s' | awk '{print $1}'", req.Path)
+	output, err := shell.Execf(r.Context(), "du -sb '%s' | awk '{print $1}'", req.Path)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
@@ -579,11 +582,11 @@ func (s *FileService) Permission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Chmod(req.Path, stdos.FileMode(mode)); err != nil {
+	if err = io.Chmod(r.Context(), req.Path, stdos.FileMode(mode)); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = io.Chown(req.Path, req.Owner, req.Group); err != nil {
+	if err = io.Chown(r.Context(), req.Path, req.Owner, req.Group); err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -655,7 +658,7 @@ func (s *FileService) List(w http.ResponseWriter, r *http.Request) {
 
 	var list []stdos.DirEntry
 	if req.Keyword != "" {
-		list, err = io.SearchX(req.Path, req.Keyword, req.Sub)
+		list, err = io.SearchX(r.Context(), req.Path, req.Keyword, req.Sub)
 		if err != nil {
 			Error(w, http.StatusInternalServerError, "%v", err)
 			return
@@ -881,7 +884,7 @@ func (s *FileService) ChunkUploadFinish(w http.ResponseWriter, r *http.Request) 
 		Error(w, http.StatusForbidden, s.t.Get("target path %s already exists", targetPath))
 		return
 	}
-	if err = s.replaceFile(part, targetPath); err != nil {
+	if err = s.replaceFile(r.Context(), part, targetPath); err != nil {
 		Error(w, http.StatusInternalServerError, s.t.Get("write file error: %v", err))
 		return
 	}
@@ -961,9 +964,11 @@ func (s *FileService) formatDir(base string, entries []stdos.DirEntry) []any {
 }
 
 // setPermission 设置权限
-func (s *FileService) setPermission(path string, mode stdos.FileMode, owner, group string) {
-	_ = io.Chmod(path, mode)
-	_ = io.Chown(path, owner, group)
+func (s *FileService) setPermission(ctx context.Context, path string, mode stdos.FileMode, owner, group string) {
+	// 文件已经落盘，属主权限必须补上，否则请求取消会留下 root 属主的文件
+	ctx = context.WithoutCancel(ctx)
+	_ = io.Chmod(ctx, path, mode)
+	_ = io.Chown(ctx, path, owner, group)
 }
 
 // chunkTempPaths 分块上传的临时文件：同目录下的稀疏数据文件和位图文件
@@ -973,12 +978,12 @@ func (s *FileService) chunkTempPaths(dir, fileName, fileHash string) (string, st
 }
 
 // tailService 用 journalctl cursor 反向分页读取 systemd 服务日志
-func (s *FileService) tailService(w http.ResponseWriter, req *request.FileTail) {
+func (s *FileService) tailService(ctx context.Context, w http.ResponseWriter, req *request.FileTail) {
 	cmd := fmt.Sprintf("journalctl --no-pager -o json -u %s -n %d", req.Service, req.Limit)
 	if req.Cursor != "" {
 		cmd += fmt.Sprintf(" --before-cursor %q", req.Cursor)
 	}
-	out, err := shell.Execf(cmd)
+	out, err := shell.Execf(ctx, cmd)
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "%v", err)
 		return

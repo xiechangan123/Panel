@@ -1,6 +1,7 @@
 package frp
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -45,9 +46,9 @@ func (s *App) Route(r chi.Router) {
 	r.Delete("/visitors/{name}", s.DeleteVisitor)
 }
 
-func (s *App) Status() string {
-	frps, _ := systemctl.Status("frps")
-	frpc, _ := systemctl.Status("frpc")
+func (s *App) Status(ctx context.Context) string {
+	frps, _ := systemctl.Status(ctx, "frps")
+	frpc, _ := systemctl.Status(ctx, "frpc")
 	return types.AggregateAppStatus(frps, frpc)
 }
 
@@ -79,7 +80,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart(req.Name); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), req.Name); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -155,11 +156,13 @@ func (s *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.DaemonReload(); err != nil {
+	// 单元文件已改写，daemon-reload 与重启不跟随请求取消，否则 systemd 用的仍是旧单元
+	ctx := context.WithoutCancel(r.Context())
+	if err = systemctl.DaemonReload(ctx); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
-	if err = systemctl.Restart(req.Name); err != nil {
+	if err = systemctl.Restart(ctx, req.Name); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -201,7 +204,7 @@ func (s *App) UpdateServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("frps"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "frps"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -243,7 +246,7 @@ func (s *App) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("frpc"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "frpc"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -280,7 +283,7 @@ func (s *App) CreateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
+	s.save(r.Context(), w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
 }
 
 // GetProxy 获取单个代理
@@ -313,7 +316,7 @@ func (s *App) UpdateProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
+	s.save(r.Context(), w, proxyPrefix, req.Name, ConfD{Proxies: []Proxy{*req}})
 }
 
 // DeleteProxy 删除代理
@@ -324,12 +327,14 @@ func (s *App) DeleteProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Remove(itemPath(proxyPrefix, req.Name)); err != nil {
+	// 配置已删除，重启不跟随请求取消，否则代理仍在运行的 frpc 里生效
+	ctx := context.WithoutCancel(r.Context())
+	if err = io.Remove(ctx, itemPath(proxyPrefix, req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = systemctl.Restart("frpc"); err != nil {
+	if err = systemctl.Restart(ctx, "frpc"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -366,7 +371,7 @@ func (s *App) CreateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
+	s.save(r.Context(), w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
 }
 
 // GetVisitor 获取单个访问者
@@ -399,7 +404,7 @@ func (s *App) UpdateVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.save(w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
+	s.save(r.Context(), w, visitorPrefix, req.Name, ConfD{Visitors: []Visitor{*req}})
 }
 
 // DeleteVisitor 删除访问者
@@ -410,12 +415,14 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = io.Remove(itemPath(visitorPrefix, req.Name)); err != nil {
+	// 同 DeleteProxy
+	ctx := context.WithoutCancel(r.Context())
+	if err = io.Remove(ctx, itemPath(visitorPrefix, req.Name)); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err = systemctl.Restart("frpc"); err != nil {
+	if err = systemctl.Restart(ctx, "frpc"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
@@ -423,13 +430,13 @@ func (s *App) DeleteVisitor(w http.ResponseWriter, r *http.Request) {
 	service.Success(w, nil)
 }
 
-func (s *App) save(w http.ResponseWriter, prefix, name string, confD ConfD) {
+func (s *App) save(ctx context.Context, w http.ResponseWriter, prefix, name string, confD ConfD) {
 	if err := writeConfD(prefix, name, confD); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}
 
-	if err := systemctl.Restart("frpc"); err != nil {
+	if err := systemctl.Restart(context.WithoutCancel(ctx), "frpc"); err != nil {
 		service.Error(w, http.StatusInternalServerError, "%v", err)
 		return
 	}

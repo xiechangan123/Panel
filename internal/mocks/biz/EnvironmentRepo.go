@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -20,10 +21,10 @@ var _ biz.EnvironmentRepo = &EnvironmentRepo{}
 //
 //		// make and configure a mocked biz.EnvironmentRepo
 //		mockedEnvironmentRepo := &EnvironmentRepo{
-//			ExecScriptFunc: func(cmd string) error {
+//			ExecScriptFunc: func(ctx context.Context, cmd string) error {
 //				panic("mock out the ExecScript method")
 //			},
-//			InstalledVersionFunc: func(typ string, slug string) string {
+//			InstalledVersionFunc: func(ctx context.Context, typ string, slug string) string {
 //				panic("mock out the InstalledVersion method")
 //			},
 //			IsInstalledFunc: func(typ string, slug string) bool {
@@ -40,10 +41,10 @@ var _ biz.EnvironmentRepo = &EnvironmentRepo{}
 //	}
 type EnvironmentRepo struct {
 	// ExecScriptFunc mocks the ExecScript method.
-	ExecScriptFunc func(cmd string) error
+	ExecScriptFunc func(ctx context.Context, cmd string) error
 
 	// InstalledVersionFunc mocks the InstalledVersion method.
-	InstalledVersionFunc func(typ string, slug string) string
+	InstalledVersionFunc func(ctx context.Context, typ string, slug string) string
 
 	// IsInstalledFunc mocks the IsInstalled method.
 	IsInstalledFunc func(typ string, slug string) bool
@@ -55,11 +56,15 @@ type EnvironmentRepo struct {
 	calls struct {
 		// ExecScript holds details about calls to the ExecScript method.
 		ExecScript []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Cmd is the cmd argument value.
 			Cmd string
 		}
 		// InstalledVersion holds details about calls to the InstalledVersion method.
 		InstalledVersion []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Typ is the typ argument value.
 			Typ string
 			// Slug is the slug argument value.
@@ -91,19 +96,21 @@ type EnvironmentRepo struct {
 }
 
 // ExecScript calls ExecScriptFunc.
-func (mock *EnvironmentRepo) ExecScript(cmd string) error {
+func (mock *EnvironmentRepo) ExecScript(ctx context.Context, cmd string) error {
 	if mock.ExecScriptFunc == nil {
 		panic("EnvironmentRepo.ExecScriptFunc: method is nil but EnvironmentRepo.ExecScript was just called")
 	}
 	callInfo := struct {
+		Ctx context.Context
 		Cmd string
 	}{
+		Ctx: ctx,
 		Cmd: cmd,
 	}
 	mock.lockExecScript.Lock()
 	mock.calls.ExecScript = append(mock.calls.ExecScript, callInfo)
 	mock.lockExecScript.Unlock()
-	return mock.ExecScriptFunc(cmd)
+	return mock.ExecScriptFunc(ctx, cmd)
 }
 
 // ExecScriptCalls gets all the calls that were made to ExecScript.
@@ -111,9 +118,11 @@ func (mock *EnvironmentRepo) ExecScript(cmd string) error {
 //
 //	len(mockedEnvironmentRepo.ExecScriptCalls())
 func (mock *EnvironmentRepo) ExecScriptCalls() []struct {
+	Ctx context.Context
 	Cmd string
 } {
 	var calls []struct {
+		Ctx context.Context
 		Cmd string
 	}
 	mock.lockExecScript.RLock()
@@ -123,21 +132,23 @@ func (mock *EnvironmentRepo) ExecScriptCalls() []struct {
 }
 
 // InstalledVersion calls InstalledVersionFunc.
-func (mock *EnvironmentRepo) InstalledVersion(typ string, slug string) string {
+func (mock *EnvironmentRepo) InstalledVersion(ctx context.Context, typ string, slug string) string {
 	if mock.InstalledVersionFunc == nil {
 		panic("EnvironmentRepo.InstalledVersionFunc: method is nil but EnvironmentRepo.InstalledVersion was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Typ  string
 		Slug string
 	}{
+		Ctx:  ctx,
 		Typ:  typ,
 		Slug: slug,
 	}
 	mock.lockInstalledVersion.Lock()
 	mock.calls.InstalledVersion = append(mock.calls.InstalledVersion, callInfo)
 	mock.lockInstalledVersion.Unlock()
-	return mock.InstalledVersionFunc(typ, slug)
+	return mock.InstalledVersionFunc(ctx, typ, slug)
 }
 
 // InstalledVersionCalls gets all the calls that were made to InstalledVersion.
@@ -145,10 +156,12 @@ func (mock *EnvironmentRepo) InstalledVersion(typ string, slug string) string {
 //
 //	len(mockedEnvironmentRepo.InstalledVersionCalls())
 func (mock *EnvironmentRepo) InstalledVersionCalls() []struct {
+	Ctx  context.Context
 	Typ  string
 	Slug string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Typ  string
 		Slug string
 	}

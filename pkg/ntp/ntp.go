@@ -1,6 +1,7 @@
 package ntp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -53,13 +54,13 @@ func Now(address ...string) (time.Time, error) {
 	return now, nil
 }
 
-func UpdateSystemTime(t time.Time) error {
-	_, err := shell.Execf(`date -s '%s'`, t.Format(time.DateTime))
+func UpdateSystemTime(ctx context.Context, t time.Time) error {
+	_, err := shell.Execf(ctx, `date -s '%s'`, t.Format(time.DateTime))
 	return err
 }
 
-func UpdateSystemTimeZone(tz string) error {
-	_, err := shell.Execf(`timedatectl set-timezone '%s'`, tz)
+func UpdateSystemTimeZone(ctx context.Context, tz string) error {
+	_, err := shell.Execf(ctx, `timedatectl set-timezone '%s'`, tz)
 	return err
 }
 

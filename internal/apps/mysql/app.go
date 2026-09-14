@@ -66,14 +66,14 @@ func (s *App) Route(r chi.Router) {
 	r.Get("/replication", s.ReplicationStatus)
 }
 
-func (s *App) Status() string {
-	ok, _ := systemctl.Status("mysqld")
+func (s *App) Status(ctx context.Context) string {
+	ok, _ := systemctl.Status(ctx, "mysqld")
 	return types.AggregateAppStatus(ok)
 }
 
 // Load 获取负载
 func (s *App) Load(w http.ResponseWriter, r *http.Request) {
-	status, _ := systemctl.Status("mysqld")
+	status, _ := systemctl.Status(r.Context(), "mysqld")
 	if !status {
 		service.Success(w, []types.NV{})
 		return
@@ -85,7 +85,7 @@ func (s *App) Load(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	raw, err := shell.ExecfWithEnv([]string{"MYSQL_PWD=" + rootPassword}, `mysqladmin -u root extended-status`)
+	raw, err := shell.ExecfWithEnv(r.Context(), []string{"MYSQL_PWD=" + rootPassword}, `mysqladmin -u root extended-status`)
 	if err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to get MySQL status: %v", err))
 		return
@@ -200,7 +200,7 @@ func (s *App) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = systemctl.Restart("mysqld"); err != nil {
+	if err = systemctl.Restart(context.WithoutCancel(r.Context()), "mysqld"); err != nil {
 		service.Error(w, http.StatusInternalServerError, s.t.Get("failed to restart MySQL: %v", err))
 		return
 	}
@@ -235,8 +235,8 @@ func (s *App) SetRootPassword(w http.ResponseWriter, r *http.Request) {
 	oldRootPassword, _ := s.settingRepo.Get(biz.SettingKeyMySQLRootPassword)
 	mysql, err := db.NewMySQL(r.Context(), "root", oldRootPassword, db.MySQLSocket(app.Root), "unix")
 	if err != nil {
-		// 尝试安全模式直接改密
-		if err = db.MySQLResetRootPassword(req.Password, app.Root); err != nil {
+		// 尝试安全模式直接改密，中途取消会让面板存的密码与实际不符
+		if err = db.MySQLResetRootPassword(context.WithoutCancel(r.Context()), req.Password, app.Root); err != nil {
 			service.Error(w, http.StatusInternalServerError, "%v", err)
 			return
 		}

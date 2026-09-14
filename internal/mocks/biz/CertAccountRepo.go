@@ -5,6 +5,7 @@
 package biz
 
 import (
+	"context"
 	"sync"
 
 	"github.com/acepanel/panel/v3/internal/biz"
@@ -42,7 +43,7 @@ var _ biz.CertAccountRepo = &CertAccountRepo{}
 //			ListFunc: func(page uint, limit uint) ([]*biz.CertAccount, int64, error) {
 //				panic("mock out the List method")
 //			},
-//			RegisterAccountFunc: func(email string, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error) {
+//			RegisterAccountFunc: func(ctx context.Context, email string, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error) {
 //				panic("mock out the RegisterAccount method")
 //			},
 //			SaveFunc: func(account *biz.CertAccount) error {
@@ -77,7 +78,7 @@ type CertAccountRepo struct {
 	ListFunc func(page uint, limit uint) ([]*biz.CertAccount, int64, error)
 
 	// RegisterAccountFunc mocks the RegisterAccount method.
-	RegisterAccountFunc func(email string, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error)
+	RegisterAccountFunc func(ctx context.Context, email string, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error)
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(account *biz.CertAccount) error
@@ -123,6 +124,8 @@ type CertAccountRepo struct {
 		}
 		// RegisterAccount holds details about calls to the RegisterAccount method.
 		RegisterAccount []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Email is the email argument value.
 			Email string
 			// Ca is the ca argument value.
@@ -377,16 +380,18 @@ func (mock *CertAccountRepo) ListCalls() []struct {
 }
 
 // RegisterAccount calls RegisterAccountFunc.
-func (mock *CertAccountRepo) RegisterAccount(email string, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error) {
+func (mock *CertAccountRepo) RegisterAccount(ctx context.Context, email string, ca string, eab *acme.EAB, keyType acme.KeyType) (*acme.Client, error) {
 	if mock.RegisterAccountFunc == nil {
 		panic("CertAccountRepo.RegisterAccountFunc: method is nil but CertAccountRepo.RegisterAccount was just called")
 	}
 	callInfo := struct {
+		Ctx     context.Context
 		Email   string
 		Ca      string
 		Eab     *acme.EAB
 		KeyType acme.KeyType
 	}{
+		Ctx:     ctx,
 		Email:   email,
 		Ca:      ca,
 		Eab:     eab,
@@ -395,7 +400,7 @@ func (mock *CertAccountRepo) RegisterAccount(email string, ca string, eab *acme.
 	mock.lockRegisterAccount.Lock()
 	mock.calls.RegisterAccount = append(mock.calls.RegisterAccount, callInfo)
 	mock.lockRegisterAccount.Unlock()
-	return mock.RegisterAccountFunc(email, ca, eab, keyType)
+	return mock.RegisterAccountFunc(ctx, email, ca, eab, keyType)
 }
 
 // RegisterAccountCalls gets all the calls that were made to RegisterAccount.
@@ -403,12 +408,14 @@ func (mock *CertAccountRepo) RegisterAccount(email string, ca string, eab *acme.
 //
 //	len(mockedCertAccountRepo.RegisterAccountCalls())
 func (mock *CertAccountRepo) RegisterAccountCalls() []struct {
+	Ctx     context.Context
 	Email   string
 	Ca      string
 	Eab     *acme.EAB
 	KeyType acme.KeyType
 } {
 	var calls []struct {
+		Ctx     context.Context
 		Email   string
 		Ca      string
 		Eab     *acme.EAB

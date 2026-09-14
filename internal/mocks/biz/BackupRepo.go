@@ -31,19 +31,19 @@ var _ biz.BackupRepo = &BackupRepo{}
 //			CreateFunc: func(ctx context.Context, typ biz.BackupType, target string, account uint) error {
 //				panic("mock out the Create method")
 //			},
-//			CreatePanelFunc: func() error {
+//			CreatePanelFunc: func(ctx context.Context) error {
 //				panic("mock out the CreatePanel method")
 //			},
-//			CutoffLogFunc: func(path string, target string) (string, error) {
+//			CutoffLogFunc: func(ctx context.Context, path string, target string) (string, error) {
 //				panic("mock out the CutoffLog method")
 //			},
 //			CutoffUploadFunc: func(account uint, typ biz.BackupType, name string, files []string) error {
 //				panic("mock out the CutoffUpload method")
 //			},
-//			DeleteFunc: func(typ biz.BackupType, name string) error {
+//			DeleteFunc: func(ctx context.Context, typ biz.BackupType, name string) error {
 //				panic("mock out the Delete method")
 //			},
-//			FixPanelFunc: func() error {
+//			FixPanelFunc: func(ctx context.Context) error {
 //				panic("mock out the FixPanel method")
 //			},
 //			GetDefaultPathFunc: func(typ biz.BackupType) string {
@@ -58,7 +58,7 @@ var _ biz.BackupRepo = &BackupRepo{}
 //			RestoreFunc: func(ctx context.Context, typ biz.BackupType, backup string, target string) error {
 //				panic("mock out the Restore method")
 //			},
-//			UpdatePanelFunc: func(version string, url string, checksum string, progress func(string)) error {
+//			UpdatePanelFunc: func(ctx context.Context, version string, url string, checksum string, progress func(string)) error {
 //				panic("mock out the UpdatePanel method")
 //			},
 //		}
@@ -78,19 +78,19 @@ type BackupRepo struct {
 	CreateFunc func(ctx context.Context, typ biz.BackupType, target string, account uint) error
 
 	// CreatePanelFunc mocks the CreatePanel method.
-	CreatePanelFunc func() error
+	CreatePanelFunc func(ctx context.Context) error
 
 	// CutoffLogFunc mocks the CutoffLog method.
-	CutoffLogFunc func(path string, target string) (string, error)
+	CutoffLogFunc func(ctx context.Context, path string, target string) (string, error)
 
 	// CutoffUploadFunc mocks the CutoffUpload method.
 	CutoffUploadFunc func(account uint, typ biz.BackupType, name string, files []string) error
 
 	// DeleteFunc mocks the Delete method.
-	DeleteFunc func(typ biz.BackupType, name string) error
+	DeleteFunc func(ctx context.Context, typ biz.BackupType, name string) error
 
 	// FixPanelFunc mocks the FixPanel method.
-	FixPanelFunc func() error
+	FixPanelFunc func(ctx context.Context) error
 
 	// GetDefaultPathFunc mocks the GetDefaultPath method.
 	GetDefaultPathFunc func(typ biz.BackupType) string
@@ -105,7 +105,7 @@ type BackupRepo struct {
 	RestoreFunc func(ctx context.Context, typ biz.BackupType, backup string, target string) error
 
 	// UpdatePanelFunc mocks the UpdatePanel method.
-	UpdatePanelFunc func(version string, url string, checksum string, progress func(string)) error
+	UpdatePanelFunc func(ctx context.Context, version string, url string, checksum string, progress func(string)) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -142,9 +142,13 @@ type BackupRepo struct {
 		}
 		// CreatePanel holds details about calls to the CreatePanel method.
 		CreatePanel []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// CutoffLog holds details about calls to the CutoffLog method.
 		CutoffLog []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Path is the path argument value.
 			Path string
 			// Target is the target argument value.
@@ -163,6 +167,8 @@ type BackupRepo struct {
 		}
 		// Delete holds details about calls to the Delete method.
 		Delete []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Typ is the typ argument value.
 			Typ biz.BackupType
 			// Name is the name argument value.
@@ -170,6 +176,8 @@ type BackupRepo struct {
 		}
 		// FixPanel holds details about calls to the FixPanel method.
 		FixPanel []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// GetDefaultPath holds details about calls to the GetDefaultPath method.
 		GetDefaultPath []struct {
@@ -199,6 +207,8 @@ type BackupRepo struct {
 		}
 		// UpdatePanel holds details about calls to the UpdatePanel method.
 		UpdatePanel []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Version is the version argument value.
 			Version string
 			// URL is the url argument value.
@@ -353,16 +363,19 @@ func (mock *BackupRepo) CreateCalls() []struct {
 }
 
 // CreatePanel calls CreatePanelFunc.
-func (mock *BackupRepo) CreatePanel() error {
+func (mock *BackupRepo) CreatePanel(ctx context.Context) error {
 	if mock.CreatePanelFunc == nil {
 		panic("BackupRepo.CreatePanelFunc: method is nil but BackupRepo.CreatePanel was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockCreatePanel.Lock()
 	mock.calls.CreatePanel = append(mock.calls.CreatePanel, callInfo)
 	mock.lockCreatePanel.Unlock()
-	return mock.CreatePanelFunc()
+	return mock.CreatePanelFunc(ctx)
 }
 
 // CreatePanelCalls gets all the calls that were made to CreatePanel.
@@ -370,8 +383,10 @@ func (mock *BackupRepo) CreatePanel() error {
 //
 //	len(mockedBackupRepo.CreatePanelCalls())
 func (mock *BackupRepo) CreatePanelCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockCreatePanel.RLock()
 	calls = mock.calls.CreatePanel
@@ -380,21 +395,23 @@ func (mock *BackupRepo) CreatePanelCalls() []struct {
 }
 
 // CutoffLog calls CutoffLogFunc.
-func (mock *BackupRepo) CutoffLog(path string, target string) (string, error) {
+func (mock *BackupRepo) CutoffLog(ctx context.Context, path string, target string) (string, error) {
 	if mock.CutoffLogFunc == nil {
 		panic("BackupRepo.CutoffLogFunc: method is nil but BackupRepo.CutoffLog was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		Path   string
 		Target string
 	}{
+		Ctx:    ctx,
 		Path:   path,
 		Target: target,
 	}
 	mock.lockCutoffLog.Lock()
 	mock.calls.CutoffLog = append(mock.calls.CutoffLog, callInfo)
 	mock.lockCutoffLog.Unlock()
-	return mock.CutoffLogFunc(path, target)
+	return mock.CutoffLogFunc(ctx, path, target)
 }
 
 // CutoffLogCalls gets all the calls that were made to CutoffLog.
@@ -402,10 +419,12 @@ func (mock *BackupRepo) CutoffLog(path string, target string) (string, error) {
 //
 //	len(mockedBackupRepo.CutoffLogCalls())
 func (mock *BackupRepo) CutoffLogCalls() []struct {
+	Ctx    context.Context
 	Path   string
 	Target string
 } {
 	var calls []struct {
+		Ctx    context.Context
 		Path   string
 		Target string
 	}
@@ -460,21 +479,23 @@ func (mock *BackupRepo) CutoffUploadCalls() []struct {
 }
 
 // Delete calls DeleteFunc.
-func (mock *BackupRepo) Delete(typ biz.BackupType, name string) error {
+func (mock *BackupRepo) Delete(ctx context.Context, typ biz.BackupType, name string) error {
 	if mock.DeleteFunc == nil {
 		panic("BackupRepo.DeleteFunc: method is nil but BackupRepo.Delete was just called")
 	}
 	callInfo := struct {
+		Ctx  context.Context
 		Typ  biz.BackupType
 		Name string
 	}{
+		Ctx:  ctx,
 		Typ:  typ,
 		Name: name,
 	}
 	mock.lockDelete.Lock()
 	mock.calls.Delete = append(mock.calls.Delete, callInfo)
 	mock.lockDelete.Unlock()
-	return mock.DeleteFunc(typ, name)
+	return mock.DeleteFunc(ctx, typ, name)
 }
 
 // DeleteCalls gets all the calls that were made to Delete.
@@ -482,10 +503,12 @@ func (mock *BackupRepo) Delete(typ biz.BackupType, name string) error {
 //
 //	len(mockedBackupRepo.DeleteCalls())
 func (mock *BackupRepo) DeleteCalls() []struct {
+	Ctx  context.Context
 	Typ  biz.BackupType
 	Name string
 } {
 	var calls []struct {
+		Ctx  context.Context
 		Typ  biz.BackupType
 		Name string
 	}
@@ -496,16 +519,19 @@ func (mock *BackupRepo) DeleteCalls() []struct {
 }
 
 // FixPanel calls FixPanelFunc.
-func (mock *BackupRepo) FixPanel() error {
+func (mock *BackupRepo) FixPanel(ctx context.Context) error {
 	if mock.FixPanelFunc == nil {
 		panic("BackupRepo.FixPanelFunc: method is nil but BackupRepo.FixPanel was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockFixPanel.Lock()
 	mock.calls.FixPanel = append(mock.calls.FixPanel, callInfo)
 	mock.lockFixPanel.Unlock()
-	return mock.FixPanelFunc()
+	return mock.FixPanelFunc(ctx)
 }
 
 // FixPanelCalls gets all the calls that were made to FixPanel.
@@ -513,8 +539,10 @@ func (mock *BackupRepo) FixPanel() error {
 //
 //	len(mockedBackupRepo.FixPanelCalls())
 func (mock *BackupRepo) FixPanelCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockFixPanel.RLock()
 	calls = mock.calls.FixPanel
@@ -663,16 +691,18 @@ func (mock *BackupRepo) RestoreCalls() []struct {
 }
 
 // UpdatePanel calls UpdatePanelFunc.
-func (mock *BackupRepo) UpdatePanel(version string, url string, checksum string, progress func(string)) error {
+func (mock *BackupRepo) UpdatePanel(ctx context.Context, version string, url string, checksum string, progress func(string)) error {
 	if mock.UpdatePanelFunc == nil {
 		panic("BackupRepo.UpdatePanelFunc: method is nil but BackupRepo.UpdatePanel was just called")
 	}
 	callInfo := struct {
+		Ctx      context.Context
 		Version  string
 		URL      string
 		Checksum string
 		Progress func(string)
 	}{
+		Ctx:      ctx,
 		Version:  version,
 		URL:      url,
 		Checksum: checksum,
@@ -681,7 +711,7 @@ func (mock *BackupRepo) UpdatePanel(version string, url string, checksum string,
 	mock.lockUpdatePanel.Lock()
 	mock.calls.UpdatePanel = append(mock.calls.UpdatePanel, callInfo)
 	mock.lockUpdatePanel.Unlock()
-	return mock.UpdatePanelFunc(version, url, checksum, progress)
+	return mock.UpdatePanelFunc(ctx, version, url, checksum, progress)
 }
 
 // UpdatePanelCalls gets all the calls that were made to UpdatePanel.
@@ -689,12 +719,14 @@ func (mock *BackupRepo) UpdatePanel(version string, url string, checksum string,
 //
 //	len(mockedBackupRepo.UpdatePanelCalls())
 func (mock *BackupRepo) UpdatePanelCalls() []struct {
+	Ctx      context.Context
 	Version  string
 	URL      string
 	Checksum string
 	Progress func(string)
 } {
 	var calls []struct {
+		Ctx      context.Context
 		Version  string
 		URL      string
 		Checksum string
