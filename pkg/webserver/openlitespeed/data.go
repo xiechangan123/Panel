@@ -15,14 +15,20 @@ const PanelConfDir = ServerRoot + "/conf/panel"
 // ListenersConf 面板生成的监听器配置
 const ListenersConf = PanelConfDir + "/listeners.conf"
 
+// VhostsConf 面板生成的站点注册配置，每个站点一个 virtualhost 块
+const VhostsConf = PanelConfDir + "/vhosts.conf"
+
+// vhostStubDir 站点 configFile 桩目录。OLS 会在 configFile 旁转储解析结果，
+// 桩文件只 include 站点目录里的真实配置，让转储文件留在面板目录内
+const vhostStubDir = PanelConfDir + "/vhosts"
+
 // SitesPath 网站目录
 const SitesPath = "/opt/ace/sites"
 
 // 站点配置目录下的文件名
 const (
-	VhostConfName    = "openlitespeed.conf"        // 站点 vhconf，由面板生成
-	RegisterConfName = "openlitespeed.vhost.conf"  // 主配置中的站点注册片段
-	ListenConfName   = "openlitespeed.listen.conf" // 面板记录的监听地址与域名
+	VhostConfName  = "openlitespeed.conf"        // 站点 vhconf，由面板生成
+	ListenConfName = "openlitespeed.listen.conf" // 面板记录的监听地址与域名
 )
 
 // stopURI 站点停用时所有请求重写到的路径，由静态上下文映射到默认页目录

@@ -83,11 +83,7 @@ func (s *VhostTestSuite) TestBasicRoundTrip() {
 	s.Equal(uint(84), reloaded.PHP())
 	s.Equal([]types.IncludeFile{{Path: "/etc/custom.conf"}}, reloaded.Includes())
 
-	// 注册片段与监听记录
-	register, err := os.ReadFile(filepath.Join(s.configDir, RegisterConfName))
-	s.Require().NoError(err)
-	s.Contains(string(register), "virtualhost "+filepath.Base(filepath.Dir(s.configDir))+" {")
-	s.Contains(string(register), "configFile               "+filepath.Join(s.configDir, VhostConfName))
+	// 监听记录
 	listen, err := os.ReadFile(filepath.Join(s.configDir, ListenConfName))
 	s.Require().NoError(err)
 	s.Contains(string(listen), "listen                   443 ssl quic")
