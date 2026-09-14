@@ -41,5 +41,6 @@ func Commands(t *gotext.Locale, cliService *service.CliService) []*cli.Command {
 		CronCommand(t, cliService),
 		AppCommand(t, cliService),
 		SettingCommand(t, cliService),
+		WebserverCommand(t, cliService),
 	}
 }

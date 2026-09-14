@@ -30,6 +30,7 @@ var supportedSlugs = []string{
 	"mongodb",
 	"mysql",
 	"nginx",
+	"openlitespeed",
 	"openresty",
 	"opensearch",
 	"percona",

@@ -24,6 +24,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/mongodb"
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
+	"github.com/acepanel/panel/v3/internal/apps/openlitespeed"
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
 	"github.com/acepanel/panel/v3/internal/apps/opensearch"
 	"github.com/acepanel/panel/v3/internal/apps/percona"
@@ -93,6 +94,7 @@ func initAce() (*app.Ace, func(), error) {
 	minioApp := minio.NewApp()
 	mongodbApp := mongodb.NewApp(locale, databaseServerRepo, settingRepo)
 	nginxApp := nginx.NewApp(locale)
+	openlitespeedApp := openlitespeed.NewApp(locale)
 	openrestyApp := openresty.NewApp(nginxApp)
 	opensearchApp := opensearch.NewApp(locale)
 	perconaApp := percona.NewApp(mysqlApp)
@@ -108,7 +110,7 @@ func initAce() (*app.Ace, func(), error) {
 	s3fsApp := s3fs.NewApp(locale)
 	supervisorApp := supervisor.NewApp(locale)
 	valkeyApp := valkey.NewApp(locale, databaseServerRepo, taskRepo)
-	loader := bootstrap.NewLoader(apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
+	loader := bootstrap.NewLoader(apacheApp, clickhouseApp, codeserverApp, dockerApp, elasticsearchApp, fail2banApp, frpApp, giteaApp, grafanaApp, kafkaApp, mariadbApp, memcachedApp, minioApp, mongodbApp, mysqlApp, nginxApp, openlitespeedApp, openrestyApp, opensearchApp, perconaApp, pgadminApp, phpmyadminApp, podmanApp, postgresqlApp, prometheusApp, pureftpdApp, redisApp, rocketmqApp, rsyncApp, s3fsApp, supervisorApp, valkeyApp)
 	manager, err := bootstrap.NewSession(config, db, slogLogger)
 	if err != nil {
 		cleanup()

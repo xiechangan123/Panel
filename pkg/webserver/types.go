@@ -4,6 +4,7 @@ package webserver
 type Type string
 
 const (
-	TypeNginx  Type = "nginx"
-	TypeApache Type = "apache"
+	TypeNginx         Type = "nginx"
+	TypeApache        Type = "apache"
+	TypeOpenLiteSpeed Type = "openlitespeed"
 )

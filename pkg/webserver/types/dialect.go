@@ -29,6 +29,10 @@ type Dialect interface {
 	SPAConf() string
 	// HTPasswdLine 基本认证 htpasswd 单行
 	HTPasswdLine(username, password string) string
+	// RewritesDir 伪静态预置目录名，语法相同的服务器可共用
+	RewritesDir() string
+	// BeforeReload 重载前的准备工作，如重建全局配置
+	BeforeReload() error
 
 	NewStaticVhost(configDir string) (StaticVhost, error)
 	NewPHPVhost(configDir string) (PHPVhost, error)

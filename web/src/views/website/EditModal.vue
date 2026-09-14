@@ -2025,7 +2025,11 @@ const removeCustomConfig = (index: number) => {
             </n-collapse-item>
 
             <!-- 限流限速设置 -->
-            <n-collapse-item :title="$gettext('Rate Limiting')" name="rate_limit">
+            <n-collapse-item
+              v-if="features.rateLimit"
+              :title="$gettext('Rate Limiting')"
+              name="rate_limit"
+            >
               <n-form label-placement="left" label-width="140px">
                 <n-form-item :label="$gettext('Enable Rate Limiting')">
                   <n-switch v-model:value="rateLimitEnabled" />
@@ -2075,7 +2079,7 @@ const removeCustomConfig = (index: number) => {
             </n-collapse-item>
 
             <!-- 真实 IP 设置 -->
-            <n-collapse-item :title="$gettext('Real IP')" name="real_ip">
+            <n-collapse-item v-if="features.realIP" :title="$gettext('Real IP')" name="real_ip">
               <n-alert type="info" mb-4>
                 {{
                   $gettext(

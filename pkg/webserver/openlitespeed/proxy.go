@@ -1,0 +1,317 @@
+package openlitespeed
+
+import (
+	"fmt"
+	"net"
+	"net/url"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/acepanel/panel/v3/pkg/webserver/types"
+)
+
+// 上游与代理均以 vhost 级外部应用加上下文的形式写入 vhconf，无法从配置推导的字段以 ace: 注释回写
+
+const defaultInitTimeout = 60
+
+func (v *baseVhost) upstreamName(name string) string {
+	return fmt.Sprintf("%s_up_%s", v.safeName, safeName(name))
+}
+
+func (v *baseVhost) buildUpstreams(cfg *Config) {
+	for _, up := range v.upstreams {
+		lbName := v.upstreamName(up.Name)
+		servers := make([]string, 0, len(up.Servers))
+		for addr := range up.Servers {
+			servers = append(servers, addr)
+		}
+		sort.Strings(servers)
+
+		var workers []string
+		for i, addr := range servers {
+			name := fmt.Sprintf("%s_%d", lbName, i)
+			ext := cfg.AddBlock("extprocessor", name)
+			ext.Add("type", "proxy")
+			ext.Add("address", olsAddress(addr))
+			ext.Add("maxConns", "100")
+			ext.Add("pcKeepAliveTimeout", "60")
+			ext.Add("initTimeout", strconv.Itoa(defaultInitTimeout))
+			ext.Add("retryTimeout", "0")
+			ext.Add("respBuffer", "0")
+			if options := strings.TrimSpace(up.Servers[addr]); options != "" {
+				ext.AddMeta("options", options)
+			}
+			workers = append(workers, "proxy::"+name)
+		}
+
+		lb := cfg.AddBlock("extprocessor", lbName)
+		lb.Add("type", "loadbalancer")
+		lb.Add("workers", strings.Join(workers, ", "))
+		if up.Algo != "" {
+			lb.AddMeta("algo", up.Algo)
+		}
+		if up.Keepalive > 0 {
+			lb.AddMeta("keepalive", strconv.Itoa(up.Keepalive))
+		}
+	}
+}
+
+func (v *baseVhost) loadUpstreams(cfg *Config) {
+	prefix := v.safeName + "_up_"
+	for _, lb := range cfg.Blocks("extprocessor") {
+		if !strings.EqualFold(lb.Value("type"), "loadbalancer") {
+			continue
+		}
+		up := types.Upstream{
+			Name:     strings.TrimPrefix(lb.Arg, prefix),
+			Servers:  make(map[string]string),
+			Algo:     lb.Meta("algo"),
+			Resolver: []string{},
+		}
+		up.Keepalive, _ = strconv.Atoi(lb.Meta("keepalive"))
+		for worker := range strings.SplitSeq(lb.Value("workers"), ",") {
+			_, name, _ := strings.Cut(strings.TrimSpace(worker), "::")
+			if member := cfg.Block("extprocessor", name); member != nil {
+				up.Servers[addrFromOLS(member.Value("address"))] = member.Meta("options")
+			}
+		}
+		v.upstreams = append(v.upstreams, up)
+	}
+}
+
+// buildProxies 生成代理外部应用与上下文，认证路径与代理路径相同时合并进代理上下文，返回已合并的认证序号
+func (v *baseVhost) buildProxies(cfg *Config) map[int]bool {
+	consumed := make(map[int]bool)
+	for i, p := range v.proxies {
+		handler, address := v.proxyHandler(p, i)
+		if address != "" {
+			ext := cfg.AddBlock("extprocessor", handler)
+			ext.Add("type", "proxy")
+			ext.Add("address", address)
+			ext.Add("maxConns", "100")
+			ext.Add("pcKeepAliveTimeout", "60")
+			timeout := defaultInitTimeout
+			if p.Timeout != nil && p.Timeout.Read > 0 {
+				timeout = int(p.Timeout.Read / time.Second)
+			}
+			ext.Add("initTimeout", strconv.Itoa(timeout))
+			ext.Add("retryTimeout", "0")
+			ext.Add("respBuffer", map[bool]string{true: "1", false: "0"}[p.Buffering])
+		}
+
+		uri := locationToURI(p.Location)
+		ctx := cfg.AddBlock("context", uri)
+		ctx.Add("type", "proxy")
+		ctx.Add("handler", handler)
+		ctx.Add("addDefaultCharset", "off")
+		ctx.AddMeta("location", p.Location)
+		ctx.AddMeta("pass", p.Pass)
+		if p.SNI != "" {
+			ctx.AddMeta("sni", p.SNI)
+		}
+
+		var headers []string
+		if p.Host != "" {
+			headers = append(headers, "RequestHeader set Host "+p.Host)
+		}
+		for _, name := range sortedKeys(p.Headers) {
+			headers = append(headers, fmt.Sprintf("RequestHeader set %s %s", name, p.Headers[name]))
+		}
+		if p.ResponseHeaders != nil {
+			for _, name := range sortedKeys(p.ResponseHeaders.Add) {
+				headers = append(headers, fmt.Sprintf("Header set %s %s", name, p.ResponseHeaders.Add[name]))
+			}
+			for _, name := range p.ResponseHeaders.Hide {
+				headers = append(headers, "Header unset "+name)
+			}
+		}
+		if len(headers) > 0 {
+			ctx.Append(&Directive{Name: "extraHeaders", Value: strings.Join(headers, "\n"), Multiline: true})
+		}
+
+		if p.AccessControl != nil && (len(p.AccessControl.Allow) > 0 || len(p.AccessControl.Deny) > 0) {
+			ac := ctx.AddBlock("accessControl", "")
+			if len(p.AccessControl.Allow) > 0 {
+				ac.Add("allow", strings.Join(p.AccessControl.Allow, ", "))
+			}
+			if len(p.AccessControl.Deny) > 0 {
+				ac.Add("deny", strings.Join(p.AccessControl.Deny, ", "))
+			}
+		}
+
+		if path := authPathOf(p.Location); path != "" {
+			for j, auth := range v.auths {
+				if auth.Path == path && !consumed[j] {
+					ctx.Add("realm", v.realmName(j))
+					ctx.AddMeta("auth", auth.Path)
+					consumed[j] = true
+					break
+				}
+			}
+		}
+
+		// 直连 HTTP 后端时同时代理 WebSocket
+		if address != "" && !strings.HasPrefix(address, "https://") && !strings.HasPrefix(uri, "exp:") {
+			cfg.AddBlock("websocket", uri).Add("address", address)
+		}
+	}
+
+	return consumed
+}
+
+// proxyHandler 解析代理目标：命中上游时返回上游名，否则返回新建外部应用名与后端地址
+func (v *baseVhost) proxyHandler(p types.Proxy, i int) (string, string) {
+	u, err := url.Parse(p.Pass)
+	if err != nil || u.Host == "" {
+		return fmt.Sprintf("%s_proxy_%d", v.safeName, i), p.Pass
+	}
+	for _, up := range v.upstreams {
+		if up.Name == u.Hostname() {
+			return v.upstreamName(up.Name), ""
+		}
+	}
+
+	host, port := u.Hostname(), u.Port()
+	address := net.JoinHostPort(host, port)
+	if u.Scheme == "https" {
+		if port == "" {
+			address = net.JoinHostPort(host, "443")
+		}
+		address = "https://" + address
+	} else if port == "" {
+		address = net.JoinHostPort(host, "80")
+	}
+
+	return fmt.Sprintf("%s_proxy_%d", v.safeName, i), address
+}
+
+var headerOpPattern = regexp.MustCompile(`^(RequestHeader|Header)\s+(set|unset)\s+(\S+)\s*(.*)$`)
+
+func (v *baseVhost) loadProxies(cfg *Config) {
+	for _, ctx := range cfg.Blocks("context") {
+		if !strings.EqualFold(ctx.Value("type"), "proxy") {
+			continue
+		}
+		p := types.Proxy{
+			Location: ctx.Meta("location"),
+			Pass:     ctx.Meta("pass"),
+			SNI:      ctx.Meta("sni"),
+			Resolver: []string{},
+			Headers:  make(map[string]string),
+			Replaces: make(map[string]string),
+		}
+		if p.Location == "" {
+			p.Location = uriToLocation(ctx.Arg)
+		}
+		if ext := cfg.Block("extprocessor", ctx.Value("handler")); ext != nil {
+			p.Buffering = ext.Value("respBuffer") == "1"
+			if p.Pass == "" {
+				p.Pass = addrFromOLS(ext.Value("address"))
+			}
+			if timeout, _ := strconv.Atoi(ext.Value("initTimeout")); timeout > 0 && timeout != defaultInitTimeout {
+				d := time.Duration(timeout) * time.Second
+				p.Timeout = &types.TimeoutConfig{Connect: d, Read: d, Send: d}
+			}
+		}
+
+		if d := ctx.Directive("extraHeaders"); d != nil {
+			for line := range strings.SplitSeq(d.Value, "\n") {
+				m := headerOpPattern.FindStringSubmatch(strings.TrimSpace(line))
+				if m == nil {
+					continue
+				}
+				switch {
+				case m[1] == "RequestHeader" && m[3] == "Host":
+					p.Host = m[4]
+				case m[1] == "RequestHeader":
+					p.Headers[m[3]] = m[4]
+				case m[2] == "set":
+					if p.ResponseHeaders == nil {
+						p.ResponseHeaders = &types.ResponseHeaderConfig{Add: make(map[string]string)}
+					}
+					p.ResponseHeaders.Add[m[3]] = m[4]
+				default:
+					if p.ResponseHeaders == nil {
+						p.ResponseHeaders = &types.ResponseHeaderConfig{Add: make(map[string]string)}
+					}
+					p.ResponseHeaders.Hide = append(p.ResponseHeaders.Hide, m[3])
+				}
+			}
+		}
+
+		if ac := ctx.Block("accessControl"); ac != nil {
+			p.AccessControl = &types.AccessControlConfig{
+				Allow: splitList(ac.Value("allow")),
+				Deny:  splitList(ac.Value("deny")),
+			}
+		}
+
+		v.proxies = append(v.proxies, p)
+	}
+}
+
+// locationToURI 将 nginx 风格的 location 转换为 OpenLiteSpeed 上下文 uri
+// 前缀匹配转为以 / 结尾的普通 uri 以覆盖子路径，精确匹配转为不带 / 的普通 uri，正则转为 exp:
+func locationToURI(location string) string {
+	location = strings.TrimSpace(location)
+	switch {
+	case strings.HasPrefix(location, "~*"):
+		return "exp:(?i)" + strings.TrimSpace(location[2:])
+	case strings.HasPrefix(location, "~"):
+		return "exp:" + strings.TrimSpace(location[1:])
+	case strings.HasPrefix(location, "="):
+		return "/" + strings.Trim(strings.TrimSpace(location[1:]), "/")
+	}
+	location = strings.Trim(strings.TrimSpace(strings.TrimPrefix(location, "^~")), "/")
+	if location == "" {
+		return "/"
+	}
+	return "/" + location + "/"
+}
+
+// uriToLocation 无元数据时由上下文 uri 还原 location
+func uriToLocation(uri string) string {
+	if exp, ok := strings.CutPrefix(uri, "exp:"); ok {
+		return "~ " + exp
+	}
+	return uri
+}
+
+// authPathOf 取前缀匹配 location 对应的认证路径，正则匹配返回空
+func authPathOf(location string) string {
+	location = strings.TrimSpace(location)
+	if strings.HasPrefix(location, "~") {
+		return ""
+	}
+	location = strings.TrimSpace(strings.TrimPrefix(strings.TrimPrefix(location, "^~"), "="))
+	return "/" + strings.Trim(location, "/ ")
+}
+
+// olsAddress 将 nginx 风格的上游地址转换为 OpenLiteSpeed 地址
+func olsAddress(addr string) string {
+	if path, ok := strings.CutPrefix(addr, "unix:"); ok {
+		return "uds:/" + path
+	}
+	return addr
+}
+
+// addrFromOLS 将 OpenLiteSpeed 地址还原为 nginx 风格
+func addrFromOLS(addr string) string {
+	if path, ok := strings.CutPrefix(strings.ToLower(addr[:min(len(addr), 5)]), "uds:/"); ok {
+		return "unix:" + path + addr[5:]
+	}
+	return addr
+}
+
+// sortedKeys 返回排序后的键，保证生成结果稳定
+func sortedKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}

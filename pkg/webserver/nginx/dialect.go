@@ -77,6 +77,14 @@ func (Dialect) HTPasswdLine(username, password string) string {
 	return username + ":{PLAIN}" + password
 }
 
+func (Dialect) RewritesDir() string {
+	return "nginx"
+}
+
+func (Dialect) BeforeReload() error {
+	return nil
+}
+
 func (Dialect) NewStaticVhost(configDir string) (types.StaticVhost, error) {
 	vhost, err := NewStaticVhost(configDir)
 	if err != nil {

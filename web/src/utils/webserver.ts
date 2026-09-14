@@ -12,6 +12,8 @@ export interface WebServerFeatures {
   rewritePresets: boolean // 伪静态预设
   stat: boolean // 访问统计
   defaultSite: boolean // 默认站点
+  rateLimit: boolean // 限流限速
+  realIP: boolean // 真实 IP
   upstreamAlgos: string[] // 上游负载均衡算法，空字符串为默认轮询
   lang: string // 配置文件语法高亮
 }
@@ -27,6 +29,8 @@ const features: Record<string, WebServerFeatures> = {
     rewritePresets: true,
     stat: true,
     defaultSite: true,
+    rateLimit: true,
+    realIP: true,
     upstreamAlgos: ['', 'least_conn', 'ip_hash', 'hash', 'random'],
     lang: 'nginx',
   },
@@ -40,8 +44,25 @@ const features: Record<string, WebServerFeatures> = {
     rewritePresets: false,
     stat: false,
     defaultSite: false,
+    rateLimit: true,
+    realIP: true,
     upstreamAlgos: ['', 'bybusyness', 'bytraffic'],
     lang: 'apacheconf',
+  },
+  openlitespeed: {
+    quic: true,
+    ipv6Listen: false,
+    resolver: false,
+    matchType: true,
+    proxyCache: false,
+    proxyAdvanced: false,
+    rewritePresets: true,
+    stat: false,
+    defaultSite: false,
+    rateLimit: false,
+    realIP: false,
+    upstreamAlgos: [''],
+    lang: 'plaintext',
   },
 }
 
@@ -55,6 +76,8 @@ const unknown: WebServerFeatures = {
   rewritePresets: false,
   stat: false,
   defaultSite: false,
+  rateLimit: false,
+  realIP: false,
   upstreamAlgos: [''],
   lang: 'plaintext',
 }

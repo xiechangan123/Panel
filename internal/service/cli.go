@@ -40,6 +40,7 @@ import (
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/tools"
 	"github.com/acepanel/panel/v3/pkg/types"
+	"github.com/acepanel/panel/v3/pkg/webserver"
 )
 
 // passwordEnv 交互输入前回退读取的密码环境变量
@@ -1480,6 +1481,20 @@ func (s *CliService) WriteSetting(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	return nil
+}
+
+// ReloadWebserver 重载当前 Web 服务器，未运行时忽略，供安装脚本调用
+func (s *CliService) ReloadWebserver(ctx context.Context, cmd *cli.Command) error {
+	webServer, err := s.settingRepo.Get(biz.SettingKeyWebserver)
+	if err != nil {
+		return err
+	}
+	d, err := webserver.Get(webserver.Type(webServer))
+	if err != nil {
+		return err
+	}
+
+	return d.ReloadIfRunning()
 }
 
 func (s *CliService) RemoveSetting(ctx context.Context, cmd *cli.Command) error {

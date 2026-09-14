@@ -19,6 +19,7 @@ import (
 	"github.com/acepanel/panel/v3/internal/apps/mongodb"
 	"github.com/acepanel/panel/v3/internal/apps/mysql"
 	"github.com/acepanel/panel/v3/internal/apps/nginx"
+	"github.com/acepanel/panel/v3/internal/apps/openlitespeed"
 	"github.com/acepanel/panel/v3/internal/apps/openresty"
 	"github.com/acepanel/panel/v3/internal/apps/opensearch"
 	"github.com/acepanel/panel/v3/internal/apps/percona"
@@ -42,7 +43,7 @@ var ProviderSet = wire.NewSet(
 	frp.NewApp, gitea.NewApp, grafana.NewApp,
 	kafka.NewApp, mariadb.NewApp, memcached.NewApp,
 	minio.NewApp, mongodb.NewApp, mysql.NewApp,
-	nginx.NewApp, openresty.NewApp, opensearch.NewApp,
+	nginx.NewApp, openlitespeed.NewApp, openresty.NewApp, opensearch.NewApp,
 	percona.NewApp, pgadmin.NewApp, phpmyadmin.NewApp, podman.NewApp,
 	postgresql.NewApp, prometheus.NewApp, pureftpd.NewApp,
 	redis.NewApp, rocketmq.NewApp, rsync.NewApp,

@@ -46,12 +46,12 @@ func NewWebsiteRepo(db *gorm.DB, t *gotext.Locale, settingRepo biz.SettingRepo) 
 }
 
 func (r *websiteRepo) GetRewrites() (map[string]string, error) {
-	webServer, err := r.setting.Get(biz.SettingKeyWebserver)
+	d, err := r.dialect()
 	if err != nil {
 		return make(map[string]string), nil
 	}
 
-	entries, err := embed.RewritesFS.ReadDir(filepath.Join("rewrites", webServer))
+	entries, err := embed.RewritesFS.ReadDir(filepath.Join("rewrites", d.RewritesDir()))
 	if err != nil {
 		return make(map[string]string), nil
 	}
@@ -61,7 +61,7 @@ func (r *websiteRepo) GetRewrites() (map[string]string, error) {
 		if entry.IsDir() {
 			continue
 		}
-		if content, err := embed.RewritesFS.ReadFile(filepath.Join("rewrites", webServer, entry.Name())); err == nil {
+		if content, err := embed.RewritesFS.ReadFile(filepath.Join("rewrites", d.RewritesDir(), entry.Name())); err == nil {
 			rw[strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))] = string(content)
 		}
 	}

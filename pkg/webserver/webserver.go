@@ -7,13 +7,15 @@ import (
 	"github.com/acepanel/panel/v3/pkg/systemctl"
 	"github.com/acepanel/panel/v3/pkg/webserver/apache"
 	"github.com/acepanel/panel/v3/pkg/webserver/nginx"
+	"github.com/acepanel/panel/v3/pkg/webserver/openlitespeed"
 	"github.com/acepanel/panel/v3/pkg/webserver/types"
 )
 
 // dialects 已注册的 Web 服务器方言
 var dialects = map[Type]types.Dialect{
-	TypeNginx:  nginx.Dialect{},
-	TypeApache: apache.Dialect{},
+	TypeNginx:         nginx.Dialect{},
+	TypeApache:        apache.Dialect{},
+	TypeOpenLiteSpeed: openlitespeed.Dialect{},
 }
 
 // Dialect 在具体方言之上补充与服务器无关的通用逻辑
@@ -47,6 +49,9 @@ func (d Dialect) NewVhost(typ, configDir string) (types.Vhost, error) {
 
 // Reload 重载服务，失败时附带配置测试输出
 func (d Dialect) Reload() error {
+	if err := d.BeforeReload(); err != nil {
+		return err
+	}
 	if err := systemctl.Reload(d.Service()); err != nil {
 		out, _ := shell.Execf(d.ConfigTest())
 		return fmt.Errorf("failed to reload %s: %w; config test: %s", d.Service(), err, out)
